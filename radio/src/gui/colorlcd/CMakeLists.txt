@@ -2,7 +2,6 @@ include_directories(
   ${RADIO_SRC_DIR}/gui/colorlcd
   ${RADIO_SRC_DIR}/gui/colorlcd/layouts
   ${CMAKE_CURRENT_BINARY_DIR}/fonts
-  # ${RADIO_SRC_DIR}/fonts/lvgl
   ${RADIO_SRC_DIR}/thirdparty/libopenui/src
   ${RADIO_SRC_DIR}/thirdparty/libopenui/thirdparty
 )
@@ -46,9 +45,7 @@ set(GUI_SRC
   ${THEMES_SRC}
   ${LAYOUTS_SRC}
   ${WIDGETS_SRC}
-  #  popups.cpp
   draw_functions.cpp
-  #  menus.cpp
   menu_model.cpp
   model_select.cpp
   bind_menu_d16.cpp

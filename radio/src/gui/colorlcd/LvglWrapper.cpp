@@ -22,6 +22,7 @@
 #include "opentx.h"
 
 #include "LvglWrapper.h"
+#include "themes/etx_lv_theme.h"
 #include "view_main.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
@@ -195,10 +196,6 @@ static void init_lvgl_drivers()
 }
 
 // The theme code needs to go somewhere else (gui/colorlcd/themes/default.cpp?)
-static lv_style_t generic_style;
-static lv_style_t btn_style;
-static lv_style_t btn_checked_style;
-static lv_style_t btn_focused_style;
 static lv_style_t menu_line_style;
 static lv_style_t menu_checked_style;
 static lv_style_t textedit_style_main;
@@ -210,20 +207,15 @@ static lv_style_t numberedit_style_focused;
 static lv_style_t numberedit_style_cursor;
 static lv_style_t numberedit_style_cursor_edit;
 
-static lv_style_t focus_key_style;
 
 static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
 {
   LV_UNUSED(th);
 
-  if (lv_obj_check_type(obj, &lv_switch_class)) {
+  if (lv_obj_check_type(obj, &lv_obj_class)) {
+    // lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
     return;
   }
-  
-  lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
-
-  lv_obj_add_style(obj, &focus_key_style, LV_STATE_FOCUS_KEY);
-  lv_obj_add_style(obj, &focus_key_style, LV_STATE_EDITED);
 
   lv_obj_t* parent = lv_obj_get_parent(obj);
   if (parent == NULL) {
@@ -236,6 +228,7 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
     lv_obj_add_style(obj, &numberedit_style_focused, LV_PART_MAIN | LV_STATE_FOCUSED);
     lv_obj_add_style(obj, &numberedit_style_cursor, LV_PART_CURSOR);
     lv_obj_add_style(obj, &numberedit_style_cursor_edit, LV_PART_CURSOR | LV_STATE_EDITED);
+    return;
   }
 
   if (lv_obj_check_type(obj, &lv_textarea_class)) {
@@ -245,38 +238,11 @@ static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
     lv_obj_add_style(obj, &textedit_style_cursor_edit, LV_PART_CURSOR | LV_STATE_EDITED);
     return;
   }
-
-  if (lv_obj_check_type(obj, &lv_btn_class)) {
-    lv_obj_add_style(obj, &btn_style, 0);
-    lv_obj_add_style(obj, &btn_checked_style, LV_STATE_CHECKED);
-    lv_obj_add_style(obj, &btn_focused_style, LV_STATE_FOCUSED);
-    return;
-  }
-
-  if (lv_obj_check_type(obj, &lv_list_btn_class)) {
-    // menu items do not use the generic style
-    lv_obj_remove_style(obj, &generic_style, LV_PART_MAIN);
-    lv_obj_add_style(obj, &menu_line_style, 0);
-    lv_obj_add_style(obj, &menu_checked_style, LV_STATE_CHECKED);
-    return;
-  }  
 }
 
 static void init_theme()
 {
   /*Initialize the styles*/
-
-  // generic focus outline style to overide default theme
-  lv_style_init(&focus_key_style);
-  lv_style_set_outline_width(&focus_key_style, 0);
-  lv_style_set_outline_opa(&focus_key_style, LV_OPA_0);
-
-  // Generic (applied to all)
-  lv_style_init(&generic_style);
-  lv_style_set_pad_all(&generic_style, 0);
-  lv_style_set_bg_opa(&generic_style, LV_OPA_TRANSP);
-  lv_style_set_border_width(&generic_style, 0);
-  lv_style_set_radius(&generic_style, 0);
 
   // numberedit
   // LV_PART_MAIN
@@ -330,24 +296,6 @@ static void init_theme()
   lv_style_set_opa(&textedit_style_cursor_edit, LV_OPA_COVER);
   lv_style_set_bg_opa(&textedit_style_cursor_edit, LV_OPA_50);
 
-  // Buttons
-  lv_style_init(&btn_style);
-  lv_style_set_bg_opa(&btn_style, LV_OPA_100);
-  lv_style_set_bg_color(&btn_style, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_border_opa(&btn_style, LV_OPA_0);
-  lv_style_set_border_width(&btn_style, 2);
-
-  // LV_STATE_CHECKED
-  lv_style_init(&btn_checked_style);
-  lv_style_set_bg_color(&btn_checked_style, makeLvColor(COLOR_THEME_ACTIVE));
-
-  // LV_STATE_FOCUSED
-  lv_style_init(&btn_focused_style);
-  lv_style_set_border_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_text_color(&btn_focused_style, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_color(&btn_focused_style, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_border_opa(&btn_focused_style, LV_OPA_100);
-
   // Menus
   lv_style_init(&menu_line_style);
   lv_style_set_bg_opa(&menu_line_style, LV_OPA_100);
@@ -360,7 +308,9 @@ static void init_theme()
   lv_style_set_bg_color(&menu_checked_style, makeLvColor(COLOR_THEME_FOCUS));
 
   /*Initialize the new theme from the current theme*/
-  lv_theme_t * th_act = lv_disp_get_theme(NULL);
+  lv_theme_t *th_act = etx_lv_theme_init(
+      NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
+      false, LV_FONT_DEFAULT);
   static lv_theme_t th_new;
   th_new = *th_act;
 
