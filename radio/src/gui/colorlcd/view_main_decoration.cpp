@@ -36,7 +36,7 @@ static Window* create_layout_box(Window* parent, lv_align_t align,
 {
   lv_obj_t* lv_parent = parent->getLvObj();
 
-  auto box = lv_obj_create(lv_parent);
+  auto box = window_create(lv_parent);
   lv_obj_set_size(box, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
   lv_obj_set_align(box, align);
   lv_obj_set_flex_flow(box, flow);

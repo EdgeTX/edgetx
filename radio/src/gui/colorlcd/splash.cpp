@@ -87,7 +87,7 @@ void drawSplash()
       }
     }
 
-    splashScreen = lv_obj_create(nullptr);
+    splashScreen = window_create(nullptr);
     if (splashScreen) {
       lv_obj_add_event_cb(splashScreen, draw_splash_cb, LV_EVENT_DRAW_MAIN, splashImg);
     }
