@@ -61,6 +61,9 @@ enum SetFocusFlag
 };
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
+extern const lv_obj_class_t window_base_class;
+
+lv_obj_t* window_create(lv_obj_t* parent);
 
 class Window
 {
