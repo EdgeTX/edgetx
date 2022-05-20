@@ -286,12 +286,6 @@ static void style_init(void)
     lv_style_set_border_opa(&styles.btn, LV_OPA_0);
     lv_style_set_border_width(&styles.btn, lv_disp_dpx(theme.disp, 2));
 
-    if(!(theme.flags & MODE_DARK)) {
-        lv_style_set_shadow_color(&styles.btn, lv_palette_main(LV_PALETTE_GREY));
-        lv_style_set_shadow_width(&styles.btn, LV_DPX(3));
-        lv_style_set_shadow_opa(&styles.btn, LV_OPA_50);
-        lv_style_set_shadow_ofs_y(&styles.btn, lv_disp_dpx(theme.disp, LV_DPX(4)));
-    }
     lv_style_set_text_color(&styles.btn, color_text);
     lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
     lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
