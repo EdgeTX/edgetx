@@ -729,6 +729,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster T8"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', '8', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_LR3PRO)
+  #define USB_NAME                     "BETAFPV LR3PRO"
+  #define USB_MANUFACTURER             'B', 'E', 'T', 'A', 'F', 'P', 'V', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'L', 'R', '3', 'P', 'R', 'O', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_TLITE)
   #define USB_NAME                     "Jumper TLite"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
@@ -981,6 +985,8 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
   #define BATTERY_DIVIDER 50000
 #elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2)
   #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
+#elif defined (RADIO_LR3PRO)
+  #define BATTERY_DIVIDER 39500
 #else
   #define BATTERY_DIVIDER 26214
 #endif 
