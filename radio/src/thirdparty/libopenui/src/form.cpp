@@ -21,43 +21,6 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-// FormField styles
-static lv_style_t bg_style;
-static lv_style_t focus_style;
-static lv_style_t edit_style;
-
-// FormGroup styles
-static lv_style_t border_style;
-static lv_style_t focus_border_style;
-
-static void init_styles()
-{
-  static bool inited = false;
-  if (inited) return;
-
-  inited = true;
-
-  // FormField styles
-  lv_style_init(&bg_style);
-  lv_style_set_bg_color(&bg_style, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&bg_style, LV_OPA_COVER);
-  
-  lv_style_init(&focus_style);
-  lv_style_set_bg_color(&focus_style, makeLvColor(COLOR_THEME_FOCUS));
-
-  lv_style_init(&edit_style);
-  lv_style_set_bg_color(&edit_style, makeLvColor(COLOR_THEME_EDIT));
-
-  // FormGroup styles
-  lv_style_init(&border_style);
-  lv_style_set_border_width(&border_style, 2);
-  lv_style_set_border_color(&border_style, makeLvColor(COLOR_THEME_FOCUS));
-
-  lv_style_init(&focus_border_style);
-  lv_style_set_border_width(&focus_border_style, 1);
-  lv_style_set_border_color(&focus_border_style, makeLvColor(COLOR_THEME_SECONDARY2));
-}
-
 FormField::FormField(Window* parent, const rect_t& rect,
                      WindowFlags windowFlags, LcdFlags textFlags,
                      LvglCreate objConstruct) :
@@ -69,16 +32,6 @@ FormField::FormField(Window* parent, const rect_t& rect,
       cont->addField(this);
     }
   }
-
-  lv_obj_enable_style_refresh(false);
-  init_styles();
-  
-  lv_obj_add_style(lvobj, &bg_style, LV_PART_MAIN);
-  lv_obj_add_style(lvobj, &focus_style, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(lvobj, &edit_style, LV_PART_MAIN | LV_STATE_EDITED);
-
-  lv_obj_enable_style_refresh(true);
-  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 #if defined(HARDWARE_KEYS)
@@ -190,15 +143,8 @@ FormGroup::FormGroup(Window* parent, const rect_t& rect,
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
 
-  if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
 
-    init_styles();
-    lv_obj_add_style(lvobj, &border_style, LV_PART_MAIN | LV_STATE_FOCUSED);
 
-    if (!(windowFlags & FORM_BORDER_FOCUS_ONLY)) {
-      lv_obj_add_style(lvobj, &focus_border_style, LV_PART_MAIN);
-    }
-  }
 }
 
 void FormGroup::clear()
