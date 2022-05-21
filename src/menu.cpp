@@ -23,54 +23,19 @@
 
 #include <lvgl/lvgl.h>
 
-static void menu_clicked(lv_event_t *e)
+void MenuBody::onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  lv_obj_t* target = lv_event_get_target(e);
-  if (!target) return;
-
-  uint16_t row;
-  uint16_t col;
-  lv_table_get_selected_cell(target, &row, &col);
-    
-  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(target);
-  if (!mb) return;
-
-  mb->onPress(row);
-}
-
-void menu_draw_begin(lv_event_t* e)
-{
-  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-  if (dsc->part != LV_PART_ITEMS) return;
-
-  lv_obj_t* table = lv_event_get_target(e);
-  if (!table) return;
-
-  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(table);
-  if (!mb) return;
-
-  uint16_t row = dsc->id;
-  lv_canvas_t* icon = (lv_canvas_t*)mb->lines[row].getIcon();
+  lv_canvas_t* icon = (lv_canvas_t*)lines[row].getIcon();
   if (!icon) return;
 
   lv_img_t* img = &icon->img;
-  lv_coord_t cell_left = lv_obj_get_style_pad_left(table, LV_PART_ITEMS);
+  lv_coord_t cell_left = lv_obj_get_style_pad_left(lvobj, LV_PART_ITEMS);
   dsc->label_dsc->ofs_x = img->w + cell_left;
 }
 
-void menu_draw_end(lv_event_t* e)
+void MenuBody::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-  if (dsc->part != LV_PART_ITEMS) return;
-
-  lv_obj_t* table = lv_event_get_target(e);
-  if (!table) return;
-
-  MenuBody* mb = (MenuBody*)lv_obj_get_user_data(table);
-  if (!mb) return;
-
-  uint16_t row = dsc->id;
-  lv_obj_t* icon = mb->lines[row].getIcon();
+  lv_obj_t* icon = lines[row].getIcon();
   if (!icon) return;
 
   lv_draw_img_dsc_t img_dsc;
@@ -81,7 +46,7 @@ void menu_draw_end(lv_event_t* e)
 
   lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
 
-  lv_coord_t cell_left = lv_obj_get_style_pad_left(table, LV_PART_ITEMS);
+  lv_coord_t cell_left = lv_obj_get_style_pad_left(lvobj, LV_PART_ITEMS);
   coords.x1 = dsc->draw_area->x1 + cell_left;
   coords.x2 = coords.x1 + img->header.w - 1;
   coords.y1 = dsc->draw_area->y1 + (area_h - img->header.h) / 2;
@@ -91,13 +56,10 @@ void menu_draw_end(lv_event_t* e)
 }
 
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
-  Window(parent, rect, OPAQUE, 0, lv_table_create)
+  TableField(parent, rect)
 {
-  lv_table_set_col_cnt(lvobj, 1);
-  lv_table_set_col_width(lvobj, 0, rect.w);
-  lv_obj_add_event_cb(lvobj, menu_clicked, LV_EVENT_VALUE_CHANGED, nullptr);
-  lv_obj_add_event_cb(lvobj, menu_draw_begin, LV_EVENT_DRAW_PART_BEGIN, nullptr);
-  lv_obj_add_event_cb(lvobj, menu_draw_end, LV_EVENT_DRAW_PART_END, nullptr);
+  setColumnCount(1);
+  setColumnWidth(0, rect.w);
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
@@ -128,7 +90,7 @@ void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
 void MenuBody::removeLines()
 {
   lines.clear();
-  lv_obj_clean(lvobj);
+  setRowCount(0);
 }
 
 coord_t MenuBody::getContentHeight()
@@ -200,6 +162,11 @@ void MenuBody::setIndex(int index)
   }
 }
 
+void MenuBody::onPress(uint16_t row, uint16_t col)
+{
+  onPress(row);
+}
+
 void MenuBody::selectNext(MENU_DIRECTION direction)
 {
   // look for the next non separator line
@@ -211,40 +178,41 @@ void MenuBody::selectNext(MENU_DIRECTION direction)
 #if defined(HARDWARE_KEYS)
 void MenuBody::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  // TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
-  if (event == EVT_ROTARY_RIGHT) {
-    if (!lines.empty()) {
-      selectNext(DIRECTION_UP);
-      onKeyPress();
-    }
-  }
-  else if (event == EVT_ROTARY_LEFT) {
-    if (!lines.empty()) {
-      selectNext(DIRECTION_DOWN);
-      onKeyPress();
-    }
-  }
-  else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (!lines.empty()) {
-      onKeyPress();
-      if (selectedIndex < 0) {
-        setIndex(0);
-      }
-      else {
-        Menu * menu = getParentMenu();
-        if (menu->multiple) {
-          lines[selectedIndex].onPress();
-          menu->invalidate();
-        }
-        else {
-          lines[selectedIndex].onPress();
-          menu->deleteLater();
-        }
-      }
-    }
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+  // if (event == EVT_ROTARY_RIGHT) {
+  //   if (!lines.empty()) {
+  //     selectNext(DIRECTION_UP);
+  //     onKeyPress();
+  //   }
+  // }
+  // else if (event == EVT_ROTARY_LEFT) {
+  //   if (!lines.empty()) {
+  //     selectNext(DIRECTION_DOWN);
+  //     onKeyPress();
+  //   }
+  // }
+  // else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+  //   if (!lines.empty()) {
+  //     onKeyPress();
+  //     if (selectedIndex < 0) {
+  //       setIndex(0);
+  //     }
+  //     else {
+  //       Menu * menu = getParentMenu();
+  //       if (menu->multiple) {
+  //         lines[selectedIndex].onPress();
+  //         menu->invalidate();
+  //       }
+  //       else {
+  //         lines[selectedIndex].onPress();
+  //         menu->deleteLater();
+  //       }
+  //     }
+  //   }
+  // }
+  // else
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     onKeyPress();
     if (onCancel) {
       onCancel();
@@ -252,7 +220,7 @@ void MenuBody::onEvent(event_t event)
     Window::onEvent(event);
   }
   else {
-    Window::onEvent(event);
+    TableField::onEvent(event);
   }
 }
 #endif

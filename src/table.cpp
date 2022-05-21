@@ -18,146 +18,203 @@
  */
 
 #include "table.h"
-#include "font.h"
 
-void Table::Header::paint(BitmapBuffer * dc)
+void TableField::clicked(lv_event_t *e)
 {
-  coord_t x = 10;
-  if (!cells.empty()) {
-    dc->clear(COLOR_THEME_FOCUS);
-    for (unsigned i = 0; i < cells.size(); i++) {
-      auto cell = cells[i];
-      if (cell) {
-        cell->paint(dc, x, 0, TABLE_HEADER_FONT);
-      }
-      x += static_cast<Table *>(parent)->columnsWidth[i];
-    }
-  }
+  lv_obj_t* target = lv_event_get_target(e);
+  if (!target) return;
+
+  uint16_t row;
+  uint16_t col;
+  lv_table_get_selected_cell(target, &row, &col);
+    
+  TableField* tf = (TableField*)lv_obj_get_user_data(target);
+  if (!tf) return;
+
+  tf->onPress(row, col);
 }
 
-void Table::Body::checkEvents()
+void TableField::draw_begin(lv_event_t* e)
 {
-  Window::checkEvents();
+  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->part != LV_PART_ITEMS) return;
 
-  if (_deleted)
+  lv_obj_t* table = lv_event_get_target(e);
+  if (!table) return;
+
+  uint16_t cols = lv_table_get_col_cnt(table);
+  if (cols == 0) return;
+  
+  TableField* tf = (TableField*)lv_obj_get_user_data(table);
+  if (!tf) return;
+
+  uint16_t row = dsc->id / cols;
+  uint16_t col = dsc->id % cols;
+  tf->onDrawBegin(row, col, dsc);
+}
+
+void TableField::draw_end(lv_event_t* e)
+{
+  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->part != LV_PART_ITEMS) return;
+
+  lv_obj_t* table = lv_event_get_target(e);
+  if (!table) return;
+
+  uint16_t cols = lv_table_get_col_cnt(table);
+  if (cols == 0) return;
+  
+  TableField* tf = (TableField*)lv_obj_get_user_data(table);
+  if (!tf) return;
+
+  uint16_t row = dsc->id / cols;
+  uint16_t col = dsc->id % cols;
+  tf->onDrawEnd(row, col, dsc);
+}
+
+TableField::TableField(Window* parent, const rect_t& rect, WindowFlags windowFlags) :
+  FormField(parent, rect, windowFlags, 0, lv_table_create)
+{
+  lv_obj_add_event_cb(lvobj, TableField::clicked, LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_obj_add_event_cb(lvobj, TableField::draw_begin, LV_EVENT_DRAW_PART_BEGIN, nullptr);
+  lv_obj_add_event_cb(lvobj, TableField::draw_end, LV_EVENT_DRAW_PART_END, nullptr);
+}
+
+void TableField::setColumnCount(uint16_t cols)
+{
+  lv_table_set_col_cnt(lvobj, cols);
+}
+
+uint16_t TableField::getColumnCount() const
+{
+  return lv_table_get_col_cnt(lvobj);
+}
+  
+void TableField::setRowCount(uint16_t rows)
+{
+  lv_table_set_row_cnt(lvobj, rows);
+}
+
+uint16_t TableField::getRowCount() const
+{
+  return lv_table_get_row_cnt(lvobj);
+}
+  
+void TableField::setColumnWidth(uint16_t col, coord_t w)
+{
+  lv_table_set_col_width(lvobj, col, w);
+}
+
+coord_t TableField::getColumnWidth(uint16_t col) const
+{
+  return lv_table_get_col_width(lvobj, col);
+}
+
+void TableField::select(uint16_t row, uint16_t col)
+{
+  lv_table_t* table = (lv_table_t*)lvobj;
+  if (table->row_act == row && table->col_act == row) return;
+
+  if (row >= table->row_cnt || col >= table->col_cnt) {    
+    table->col_act = LV_TABLE_CELL_NONE;
+    table->row_act = LV_TABLE_CELL_NONE;
     return;
-
-  coord_t y = 0;
-  for (auto line: lines) {
-    coord_t x = 10;
-    for (unsigned i = 0; i < line->cells.size(); i++) {
-      auto cell = line->cells[i];
-      auto width = static_cast<Table *>(parent)->columnsWidth[i];
-      if (cell && cell->needsInvalidate()) {
-        invalidate({x, y, width, TABLE_LINE_HEIGHT - 2});
-      }
-      x += width;
-    }
-    y += TABLE_LINE_HEIGHT;
   }
+
+  table->row_act = row;
+  table->col_act = col;
+
+  lv_obj_invalidate(lvobj);
+  adjustScroll();
 }
 
-void Table::Body::paint(BitmapBuffer * dc)
+void TableField::adjustScroll()
 {
-  coord_t y = 0;
-  int index = 0;
-  dc->clear(COLOR_THEME_SECONDARY3);
-  for (auto line: lines) {
-    bool highlight = (index == selection);
-    dc->drawSolidFilledRect(0, y, width(), TABLE_LINE_HEIGHT - 2, highlight ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY3);
-    coord_t x = 10;
-    for (unsigned i = 0; i < line->cells.size(); i++) {
-      auto cell = line->cells[i];
-      if (cell) {
-        cell->paint(dc, x, y, line->flags + (highlight ? COLOR_THEME_PRIMARY2 - COLOR_MASK(line->flags) : COLOR_THEME_SECONDARY1));
-      }
-      x += static_cast<Table *>(parent)->columnsWidth[i];
-    }
-    y += TABLE_LINE_HEIGHT;
-    index += 1;
+  lv_table_t* table = (lv_table_t*)lvobj;
+
+  // only vertical scroll for now
+  lv_coord_t h_before = 0;
+  for (uint16_t i = 0; i < table->row_act; i++) h_before += table->row_h[i];
+
+  lv_coord_t row_h = table->row_h[table->row_act];
+  lv_coord_t scroll_y = lv_obj_get_scroll_y(lvobj);
+
+  lv_obj_update_layout(lvobj);
+  lv_coord_t h = lv_obj_get_height(lvobj);
+
+  lv_coord_t diff_y = 0;
+  if (h_before < scroll_y) {
+    diff_y = scroll_y - h_before;
+  } else if (scroll_y + h < h_before + row_h) {
+    diff_y = scroll_y + h - h_before - row_h;
+  } else {
+    return;
   }
+
+  lv_obj_scroll_by_bounded(lvobj, 0, diff_y, LV_ANIM_OFF);
 }
 
-#if defined(HARDWARE_TOUCH)
-bool Table::Body::onTouchEnd(coord_t x, coord_t y)
+void TableField::selectNext(int16_t dir)
 {
-  unsigned index = y / TABLE_LINE_HEIGHT;
-  if (index < lines.size()) {
-    onKeyPress();
-    setFocus(SET_FOCUS_DEFAULT);
-    auto onPress = lines[index]->onPress;
-    if (onPress)
-      onPress();
-  }
-  return true;
-}
-#endif
+  lv_table_t* table = (lv_table_t*)lvobj;
 
-#if defined(HARDWARE_KEYS)
-void Table::Body::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  if (table->col_act == LV_TABLE_CELL_NONE ||
+      table->row_act == LV_TABLE_CELL_NONE) {
 
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (selection >= 0) {
-      onKeyPress();
-      auto onPress = lines[selection]->onPress;
-      if (onPress)
-        onPress();
+    if (table->col_cnt > 0 && table->row_cnt > 0) {
+      table->col_act = 0;
+      table->row_act = 0;
     }
-  }
-  if (event == EVT_ROTARY_RIGHT) {
-    onKeyPress();
-    auto table = static_cast<Table *>(parent);
-    if (table->getWindowFlags() & FORWARD_SCROLL) {
-      auto index = selection + 1;
-      if (index < int(lines.size())) {
-        select(index, true);
-      }
-      else {
-        auto next = table->getNextField();
-        if (next) {
-          next->setFocus(SET_FOCUS_FORWARD, this);
-          if (!hasFocus()) {
-            select(-1, false);
+  } else {
+    table->col_act += dir;
+    if (table->col_act >= table->col_cnt) {
+
+      table->col_act = 0;
+      table->row_act += dir;
+
+      if (table->row_act >= table->row_cnt) {
+        table->col_act = LV_TABLE_CELL_NONE;
+        table->row_act = LV_TABLE_CELL_NONE;
+
+        // wrap around
+        if (table->col_cnt > 0 && table->row_cnt > 0) {
+
+          if (dir < 0) {
+            table->col_act = table->col_cnt - 1;
+            table->row_act = table->row_cnt - 1;
+          } else {
+            table->col_act = 0;
+            table->row_act = 0;
           }
         }
       }
     }
-    else {
-      if (!lines.empty()) {
-        select((selection + 1) % lines.size(), true);
-      }
-    }
+  }
+
+  lv_obj_invalidate(lvobj);
+  adjustScroll();
+}
+
+void TableField::onEvent(event_t event)
+{
+  if (event == EVT_ROTARY_RIGHT) {
+    onKeyPress();
+    selectNext(1);
   }
   else if (event == EVT_ROTARY_LEFT) {
     onKeyPress();
-    auto table = static_cast<Table *>(parent);
-    if (table->getWindowFlags() & FORWARD_SCROLL) {
-      auto index = selection - 1;
-      if (index >= 0) {
-        select(index, true);
-      }
-      else {
-        auto previous = table->getPreviousField();
-        if (previous) {
-          select(-1, false);
-          previous->setFocus(SET_FOCUS_BACKWARD);
-        }
-      }
-    }
-    else {
-      if (!lines.empty()) {
-        select(selection <= 0 ? lines.size() - 1 : selection - 1, true);
-      }
-    }
+    selectNext(-1);
   }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && selection >= 0) {
-    select(-1, true);
-    Window::onEvent(event);
+  else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    onKeyPress();
+
+    uint16_t row;
+    uint16_t col;
+    lv_table_get_selected_cell(lvobj, &row, &col);
+    
+    onPress(row, col);
   }
   else {
     Window::onEvent(event);
-  }
+  }  
 }
-#endif
