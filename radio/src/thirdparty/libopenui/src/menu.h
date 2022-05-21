@@ -23,7 +23,9 @@
 #include <functional>
 #include <utility>
 #include <memory>
+
 #include "modal_window.h"
+#include "table.h"
 
 class Menu;
 class MenuWindowContent;
@@ -35,7 +37,7 @@ struct lvobj_delete {
   }
 };
 
-class MenuBody: public Window
+class MenuBody: public TableField
 {
   friend class MenuWindowContent;
   friend class Menu;
@@ -113,8 +115,9 @@ class MenuBody: public Window
     void onPress(size_t index);
   
   protected:
-    friend void menu_draw_begin(lv_event_t *);
-    friend void menu_draw_end(lv_event_t *);
+    void onPress(uint16_t row, uint16_t col) override;
+    void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
+    void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
 
     void selectNext(MENU_DIRECTION direction);
     int rangeCheck(int);
