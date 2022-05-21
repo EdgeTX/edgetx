@@ -812,7 +812,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
         lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.table_cell, LV_PART_ITEMS);
-        lv_obj_add_style(obj, &styles.pad_normal, LV_PART_ITEMS);
+        lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
         lv_obj_add_style(obj, &styles.bg_color_primary, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
         lv_obj_add_style(obj, &styles.bg_color_secondary, LV_PART_ITEMS | LV_STATE_EDITED);
