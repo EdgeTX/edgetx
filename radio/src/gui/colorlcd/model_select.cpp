@@ -175,7 +175,7 @@ class SelectTemplate : public TemplatePage
               // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
               update();
               update = nullptr;
-              StandaloneLuaWindow::instance()->attach(focusWindow);
+              StandaloneLuaWindow::instance()->attach();
             }
 #endif
             return 0;

@@ -96,7 +96,7 @@ static void run_lua_tool(Window* parent, const std::string& path)
 
   luaExec(path.c_str());
   auto lua_win = StandaloneLuaWindow::instance();
-  lua_win->attach(parent);
+  lua_win->attach();
 }
 
 // LUA scripts in TOOLS
