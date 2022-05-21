@@ -106,7 +106,7 @@ void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
   lines.emplace_back(std::move(onPress), std::move(isChecked), nullptr);
 
   auto idx = lines.size() - 1;
-  lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
+  lv_table_set_cell_value(lvobj, idx, 0, text.c_str());
 }
 
 void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
@@ -200,29 +200,11 @@ void MenuBody::setIndex(int index)
   }
 }
 
-void MenuBody::select(int index)
-{
-  // adjust the selection based on separators
-  for (int i = 0; i <= index; i++) {
-    if (lines[i].isSeparator)
-      index++;
-    index = rangeCheck(index);
-  }
-
-  setIndex(index);
-}
-
 void MenuBody::selectNext(MENU_DIRECTION direction)
 {
   // look for the next non separator line
   int index = selectedIndex + direction;
-  index = rangeCheck(index);
-  while (lines[index].isSeparator) {
-    index += direction;
-    index = rangeCheck(index);
-  }
-
-  setIndex(index);
+  setIndex(rangeCheck(index));
 }
 
 
@@ -247,7 +229,7 @@ void MenuBody::onEvent(event_t event)
     if (!lines.empty()) {
       onKeyPress();
       if (selectedIndex < 0) {
-        select(0);
+        setIndex(0);
       }
       else {
         Menu * menu = getParentMenu();
@@ -345,12 +327,6 @@ void Menu::addLine(const uint8_t *icon_mask, const std::string &text,
                    std::function<bool()> isChecked)
 {
   content->body.addLine(icon_mask, text, std::move(onPress), std::move(isChecked));
-  updatePosition();
-}
-
-void Menu::addSeparator()
-{
-  content->body.addSeparator();
   updatePosition();
 }
 
