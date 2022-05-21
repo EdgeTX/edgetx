@@ -41,7 +41,7 @@ class StandaloneLuaWindow : public Window
 public:
   static StandaloneLuaWindow* instance();
 
-  void attach(Window* newParent);
+  void attach();
   void deleteLater(bool detach = true, bool trash = true) override;
   void paint(BitmapBuffer* dc) override;
   void checkEvents() override;

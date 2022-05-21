@@ -71,14 +71,12 @@ StandaloneLuaWindow* StandaloneLuaWindow::instance()
   return _instance;
 }
 
-void StandaloneLuaWindow::attach(Window* newParent)
+void StandaloneLuaWindow::attach()
 {
   if (!prevScreen) {
 
     // backup previous screen
     prevScreen = lv_scr_act();
-
-    Window::attach(newParent->getFullScreenWindow());
 
     // and load new one
     lv_scr_load(lvobj);
