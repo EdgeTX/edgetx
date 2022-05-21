@@ -57,14 +57,12 @@ class MenuBody: public Window
     {
     }
 
-    MenuLine(bool isSeparator) : isSeparator(true) {}
     MenuLine(MenuLine &) = delete;
     MenuLine(MenuLine &&) = default;
 
     lv_obj_t* getIcon() { return icon.get(); }
     
    protected:
-    bool isSeparator = false;
     std::function<void()> onPress;
     std::function<bool()> isChecked;
     std::unique_ptr<lv_obj_t, lvobj_delete> icon;
@@ -80,16 +78,11 @@ class MenuBody: public Window
     }
 #endif
 
-    void select(int index);
+    void setIndex(int index);
 
     int selection() const
     {
-      int index = selectedIndex;
-      for (int i = 0; i < selectedIndex; i++)
-        if (lines[i].isSeparator)
-          index--;
-
-      return index;
+      return selectedIndex;
     }
 
     int count() const
@@ -108,11 +101,6 @@ class MenuBody: public Window
                  std::function<void()> onPress,
                  std::function<bool()> isChecked);
 
-    void addSeparator()
-    {
-      lines.emplace_back(true);
-    }
-
     void removeLines();
 
     void setCancelHandler(std::function<void()> handler)
@@ -130,7 +118,6 @@ class MenuBody: public Window
 
     void selectNext(MENU_DIRECTION direction);
     int rangeCheck(int);
-    void setIndex(int index);
 
     std::vector<MenuLine> lines;
     int selectedIndex = 0;
@@ -217,7 +204,7 @@ class Menu: public ModalWindow
 
     void select(int index)
     {
-      content->body.select(index);
+      content->body.setIndex(index);
     }
 
 #if defined(HARDWARE_KEYS)
