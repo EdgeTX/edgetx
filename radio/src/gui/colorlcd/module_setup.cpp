@@ -881,7 +881,7 @@ void ModuleSubTypeChoice::update()
     protos->triggerScan();
 
     if (protos->isScanning()) {
-      new RfScanDialog(parent, protos, nullptr/* std::move(updateForm) */);
+      new RfScanDialog(parent, protos, [=](){ update(); });
     } else {
       TRACE("!protos->isScanning()");
     }
