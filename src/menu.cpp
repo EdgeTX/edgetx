@@ -109,9 +109,10 @@ void MenuBody::onPress(size_t index)
       else
         setIndex(index);
     } else {
-      setIndex(index);
-      lines[index].onPress();
+      // delete menu first to avoid
+      // focus issues with onPress()
       menu->deleteLater();
+      lines[index].onPress();
     }
   }
 }
