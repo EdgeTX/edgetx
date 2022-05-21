@@ -19,25 +19,28 @@
  * GNU General Public License for more details.
  */
 
-#include "dataconstants.h"
-#include "tabsgroup.h"
-enum MultiModuleType : short;
+#pragma once
 
-class FileBrowser;
+#include "table.h"
 
-class RadioSdManagerPage : public PageTab
+class FileBrowser : public TableField
 {
-  FileBrowser* browser = nullptr;
-  
  public:
-  RadioSdManagerPage();
-  void build(FormWindow* window) override;
+  // path, name, fullpath
+  typedef std::function<void(const char*, const char*, const char*)> FileAction;
+
+  FileBrowser(Window* parent, const rect_t& rect, const char* dir);
+  void setFileAction(FileAction fct);
+  void refresh();
 
  protected:
-  void fileAction(const char* path, const char* name, const char* fullpath);
-  
-  void BootloaderUpdate(const char* fn);
-  void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
-  void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
-                           MultiModuleType type);
+  void onPress(const char* name, bool is_dir);
+
+  // TableField methods
+  void onPress(uint16_t row, uint16_t col) override;
+  void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
+  void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
+
+ private:
+  FileAction fileAction;
 };

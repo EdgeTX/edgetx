@@ -30,6 +30,7 @@ set(GUI_SRC
   color_editor.cpp
   color_list.cpp
   preview_window.cpp
+  file_browser.cpp
   file_preview.cpp
   file_carosell.cpp
   listbox.cpp
