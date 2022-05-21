@@ -44,19 +44,3 @@ class RfScanDialog : public Dialog
   void checkEvents() override;
 };
 
-class MultiProtoChoice : public Choice
-{
-  unsigned int moduleIdx;
-
-  MultiRfProtocols* protos = nullptr;
-  Menu* menu = nullptr;
-
- public:
-  MultiProtoChoice(FormGroup *parent, const rect_t &rect, unsigned int moduleIdx,
-                   std::function<void(int)> setValue, std::function<void()> updateForm);
-
-  void openMenu() override;
-  void addProto(unsigned int proto, const char* protocolName);
-
-};
-
