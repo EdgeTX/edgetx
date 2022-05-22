@@ -91,6 +91,9 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   }
   USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
   USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
+  if (g_eeGeneral.uartSampleMode == UART_SAMPLE_MODE_ONEBIT) {
+    USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
+  }
   USART_Init(TELEMETRY_USART, &USART_InitStructure);
 
 #if defined(PCBX12S)

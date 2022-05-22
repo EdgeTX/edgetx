@@ -467,6 +467,19 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.addWindow(new InternalModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  new StaticText(window, grid.getLabelSlot(), STR_SAMPLE_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(window, grid.getFieldSlot(1,0), STR_SAMPLE_MODES, 0, UART_SAMPLE_MODE_MAX,
+             [=] { return g_eeGeneral.uartSampleMode; },
+                            [=](int8_t newValue) {
+                               g_eeGeneral.uartSampleMode = newValue;
+                               SET_DIRTY();
+                               restartModule(EXTERNAL_MODULE);
+                            }
+             );
+  grid.nextLine();
+#endif
+
 #if defined(BLUETOOTH)
   // Bluetooth mode
   {
