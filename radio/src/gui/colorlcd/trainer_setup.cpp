@@ -43,10 +43,9 @@ class TrainerModuleWindow : public FormGroup
   void update();
 
  protected:
-  // TrChoice *trainerChoice = nullptr;
   NumberEdit *channelStart = nullptr;
   NumberEdit *channelEnd = nullptr;
-  // bool trChoiceOpen = false;
+
 #if defined(BLUETOOTH)
   StaticText *btChannelEnd = nullptr;
   StaticText *btDistAddress = nullptr;
@@ -90,7 +89,8 @@ void TrainerModuleWindow::checkEvents()
     }
   }
   if (bluetooth.state != lastbluetoothstate) {
-    if (!popupopen && !trChoiceOpen) update();
+    // TODO:
+    // if (!popupopen && !trChoiceOpen) update();
     lastbluetoothstate = bluetooth.state;
   }
 #endif
@@ -105,6 +105,7 @@ void TrainerModuleWindow::update()
   if (g_model.isTrainerTraineeEnable()) {
 #if defined(BLUETOOTH)
     if (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
+
       btDistAddress = new StaticText(this, grid.getFieldSlot(true), "---", 0,
                                      COLOR_THEME_PRIMARY1);
       if (bluetooth.state == BLUETOOTH_STATE_CONNECTED)
@@ -126,10 +127,11 @@ void TrainerModuleWindow::update()
               reusableBuffer.moduleSetup.bt.devicesCount = 0;
               devicecount = 0;
               bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
-              btPopUpMenu = new Menu(parent);
-              btPopUpMenu->setTitle(STR_BT_SELECT_DEVICE);
-              popupopen = true;
-              btPopUpMenu->setCloseHandler([=]() { popupopen = false; });
+              // TODO:
+              // btPopUpMenu = new Menu(parent);
+              // btPopUpMenu->setTitle(STR_BT_SELECT_DEVICE);
+              // popupopen = true;
+              // btPopUpMenu->setCloseHandler([=]() { popupopen = false; });
             }
             return 0;
           });
