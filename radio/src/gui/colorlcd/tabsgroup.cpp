@@ -94,7 +94,7 @@ void TabsCarousel::update()
   while(buttons.size() < menu->tabs.size())
   {
     int index = buttons.size();
-    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 2)), 0, (int)(MENU_HEADER_BUTTON_WIDTH + 3), int(MENU_TITLE_TOP + 5)};
+    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 1)), 0, (int)(MENU_HEADER_BUTTON_WIDTH + 3), int(MENU_TITLE_TOP + 5)};
     buttons.emplace_back(new TabCarouselButton(this, btnCoords, menu->tabs, index,
       [&, index](){
         menu->setCurrentTab(index);
