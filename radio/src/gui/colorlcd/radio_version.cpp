@@ -41,10 +41,10 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-class versionDialog: public Dialog
+class VersionDialog: public Dialog
 {
   public:
-    versionDialog(Window * parent, rect_t rect) :
+    VersionDialog(Window * parent, rect_t rect) :
       Dialog(parent, STR_MODULES_RX_VERSION, rect)
     {
       memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
@@ -175,16 +175,6 @@ class versionDialog: public Dialog
       Dialog::checkEvents();
     }
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      if (event == EVT_KEY_BREAK(KEY_EXIT) ||
-          event == EVT_KEY_BREAK(KEY_ENTER)) {
-        deleteLater();
-      }
-    }
-#endif
-
   protected:
     rect_t rect;
     TextButton * exitButton;
@@ -287,7 +277,7 @@ void RadioVersionPage::build(FormWindow * window)
   auto moduleVersions =
       new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
   moduleVersions->setPressHandler([=]() -> uint8_t {
-    new versionDialog(window, {50, 30, LCD_W - 100, 0});
+    new VersionDialog(window, {50, 30, LCD_W - 100, 0});
     return 0;
   });
 #endif
