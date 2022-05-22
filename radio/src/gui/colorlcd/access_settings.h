@@ -46,11 +46,7 @@ class BindWaitDialog : public Dialog
 {
  public:
   BindWaitDialog(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
-
   void checkEvents() override;
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 
  protected:
   uint8_t moduleIdx;
@@ -79,9 +75,6 @@ class RegisterDialog : public Dialog
 
   void start();
   void checkEvents() override;
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 
  protected:
   uint8_t moduleIdx;
@@ -95,11 +88,7 @@ class ModuleOptions : public Dialog
 {
  public:
   ModuleOptions(Window* parent, uint8_t moduleIdx);
-
   void checkEvents() override;
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 
  protected:
 
@@ -127,11 +116,7 @@ class RxOptions : public Dialog
 {
  public:
   RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx);
-
   void checkEvents() override;
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 
  protected:
 

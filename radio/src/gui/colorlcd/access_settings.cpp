@@ -190,18 +190,6 @@ void BindWaitDialog::checkEvents()
   Dialog::checkEvents();
 }
 
-#if defined(HARDWARE_KEYS)
-void BindWaitDialog::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-}
-#endif
-
 ReceiverButton::ReceiverButton(FormGroup* parent, rect_t rect,
                                uint8_t moduleIdx, uint8_t receiverIdx) :
     TextButton(parent, rect, STR_BIND,
@@ -388,18 +376,6 @@ void RegisterDialog::checkEvents()
   Dialog::checkEvents();
 }
 
-#if defined(HARDWARE_KEYS)
-void RegisterDialog::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-}
-#endif
-
 ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
   Dialog(parent, STR_MODULE_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
   moduleIdx(moduleIdx)
@@ -472,18 +448,6 @@ void ModuleOptions::checkEvents()
 
   Dialog::checkEvents();
 }
-
-#if defined(HARDWARE_KEYS)
-void ModuleOptions::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-}
-#endif
 
 uint8_t ModuleOptions::getModuleSettingsState()
 {
@@ -716,18 +680,6 @@ void RxOptions::checkEvents()
 
   Dialog::checkEvents();
 }
-
-#if defined(HARDWARE_KEYS)
-void RxOptions::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-}
-#endif
 
 #define CH_ENABLE_SPORT 4
 #define CH_ENABLE_SBUS  5

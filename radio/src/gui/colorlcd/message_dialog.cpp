@@ -37,17 +37,16 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
   setFocus();
 }
 
-#if defined(HARDWARE_KEYS)
 void MessageDialog::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     deleteLater();
+    return;
   }
-}
 #endif
+  Dialog::onEvent(event);
+}
 
 DynamicMessageDialog::DynamicMessageDialog(
     Window* parent, const char* title, std::function<std::string()> textHandler,
@@ -70,14 +69,13 @@ DynamicMessageDialog::DynamicMessageDialog(
   setFocus();
 }
 
-#if defined(HARDWARE_KEYS)
 void DynamicMessageDialog::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     deleteLater();
+    return;
   }
-}
 #endif
+  Dialog::onEvent(event);
+}
