@@ -48,5 +48,6 @@ class Dialog : public ModalWindow
   Dialog(Window* parent, std::string title, const rect_t& rect);
 
  protected:
+  void onEvent(event_t event) override;
   DialogWindowContent* content;
 };
