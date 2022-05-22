@@ -57,3 +57,13 @@ Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
   bringToTop();
   if (!title.empty()) content->setTitle(std::move(title));
 }
+
+void Dialog::onEvent(event_t event)
+{
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
+    killEvents(event);
+    deleteLater();
+  }
+#endif
+}
