@@ -76,6 +76,29 @@ class PageTab {
     std::function<void()> onSetVisible;
 };
 
+class TabCarouselButton: public Button
+{
+public:
+  TabCarouselButton(Window* parent, const rect_t& rect, std::vector<PageTab *>& tabs, uint8_t index,
+             std::function<uint8_t(void)> pressHandler,
+             WindowFlags flags = 0);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override
+  {
+    return "TabCarouselButton(" + std::to_string(icon) + ")";
+  }
+#endif
+
+  void paint(BitmapBuffer * dc);
+
+  void check(bool checked = true);
+
+protected:
+  std::vector<PageTab *> tabs;
+  uint8_t index;
+};
+
 class TabsCarousel: public Window {
   public:
     TabsCarousel(Window * parent, TabsGroup * menu);
@@ -87,27 +110,19 @@ class TabsCarousel: public Window {
     }
 #endif
 
-    inline void setCurrentIndex(uint8_t index)
-    {
-      currentIndex = index;
-    }
+    void setCurrentIndex(uint8_t index);
 
     inline uint8_t getCurrentIndex()
     {
       return currentIndex;
     }
 
-    void updateInnerWidth();
+    void update();
 
     void paint(BitmapBuffer * dc) override;
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t x, coord_t y) override;
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-#endif
-
   protected:
+    std::vector<TabCarouselButton*> buttons;
     constexpr static uint8_t padding_left = 3;
     TabsGroup * menu;
     uint8_t currentIndex = 0;
