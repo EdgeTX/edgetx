@@ -121,13 +121,6 @@ class ThemeDetailsDialog: public Dialog
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
     }
 
-    void onEvent(event_t event) override
-    {
-      if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-        deleteLater();
-      }
-    }
-
   protected:
     ThemeFile theme;
     std::function<void(ThemeFile theme)> saveHandler = nullptr;
