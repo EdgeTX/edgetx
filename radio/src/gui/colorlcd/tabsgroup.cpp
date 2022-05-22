@@ -33,6 +33,29 @@
 
 #include <algorithm>
 
+TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect, std::vector<PageTab *>& tabs, uint8_t index,
+           std::function<uint8_t(void)> pressHandler,
+           WindowFlags flags) :
+    Button(parent, rect, std::move(pressHandler), flags), tabs(tabs), index(index)
+{
+}
+
+void TabCarouselButton::paint(BitmapBuffer * dc)
+{
+  if(checked()) {
+    OpenTxTheme::instance()->drawCurrentMenuBackground(dc);
+  }
+
+  dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
+}
+
+void TabCarouselButton::check(bool checked)
+{
+  Button::check(checked);
+  if(checked) {
+    lv_obj_move_foreground(lvobj);
+  }
+}
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
     FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
@@ -59,56 +82,53 @@ void TabsGroupHeader::paint(BitmapBuffer* dc)
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
     Window(parent,
-           {MENU_HEADER_BUTTONS_LEFT, 0, LCD_W - MENU_HEADER_BUTTONS_LEFT,
+           {MENU_HEADER_BUTTONS_LEFT, 0, DATETIME_SEPARATOR_X - MENU_HEADER_BUTTONS_LEFT,
             MENU_HEADER_HEIGHT + 10},
-           NO_FOCUS | TRANSPARENT),
+            NO_FOCUS | TRANSPARENT ),
     menu(menu)
 {
 }
 
-void TabsCarousel::updateInnerWidth()
+void TabsCarousel::update()
 {
+  while(buttons.size() < menu->tabs.size())
+  {
+    int index = buttons.size();
+    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 2)), 0, (int)(MENU_HEADER_BUTTON_WIDTH + 3), int(MENU_TITLE_TOP + 5)};
+    buttons.emplace_back(new TabCarouselButton(this, btnCoords, menu->tabs, index,
+      [&, index](){
+        menu->setCurrentTab(index);
+        setCurrentIndex(index);
+
+        for(auto &b: buttons)
+          b->check(false);
+
+        buttons[index]->check(true);
+        return true;
+      }
+      , TRANSPARENT | NO_FOCUS));
+    if(index == 0)
+      buttons[index]->check(true);
+  }
+  while(buttons.size() > menu->tabs.size())
+  {
+    delete *buttons.end();
+    buttons.pop_back();
+  }
+}
+
+void TabsCarousel::setCurrentIndex(uint8_t index)
+{
+  if(buttons.size() <= index)
+    return;
+  buttons[currentIndex]->check(false);
+  currentIndex = index;
+  buttons[currentIndex]->check(true);
 }
 
 void TabsCarousel::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawPageHeader(dc, menu->tabs, currentIndex);
 }
-
-#if defined(HARDWARE_TOUCH)
-bool TabsCarousel::onTouchStart(coord_t x, coord_t y)
-{
-  if(sliding)
-    sliding = false;
-
-   return Window::onTouchStart(x,y);
-}
-
-bool TabsCarousel::onTouchEnd(coord_t x, coord_t y)
-{
-  if(sliding)
-    return true;
-
-  unsigned index = (x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
-
-  if (index >= menu->tabs.size()) {
-    return false;
-  }
-
-  menu->setCurrentTab(index);
-  setCurrentIndex(index);
-  return true;
-}
-
-bool TabsCarousel::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  sliding = true;
-
-  Window::onTouchSlide(x,y,startX,startY,slideX,slideY);
-
-  return true;
-}
-#endif
 
 TabsGroup::TabsGroup(uint8_t icon):
   Window(MainWindow::instance(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
@@ -147,7 +167,7 @@ void TabsGroup::addTab(PageTab * page)
   if (!currentTab) {
     setCurrentTab(0);
   }
-  header.carousel.updateInnerWidth();
+  header.carousel.update();
   invalidate();
 }
 
@@ -169,7 +189,7 @@ void TabsGroup::removeTab(unsigned index)
     setCurrentTab(max<unsigned>(0, index - 1));
   }
   tabs.erase(tabs.begin() + index);
-  header.carousel.updateInnerWidth();
+  header.carousel.update();
   invalidate();
 }
 
@@ -180,7 +200,7 @@ void TabsGroup::removeAllTabs()
   }
   tabs.clear();
   currentTab = nullptr;
-  header.carousel.updateInnerWidth();
+  header.carousel.update();
 }
 
 void TabsGroup::setVisibleTab(PageTab* tab)

@@ -366,25 +366,18 @@ class FlyskyTheme: public OpenTxTheme
       return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
     }
 
-    void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
-                        uint8_t currentIndex) const override
+    void drawCurrentMenuBackground(BitmapBuffer *dc) const override
     {
-      uint8_t padding_left = 4;
-
-      dc->drawSolidFilledRect(0, 0, 4, MENU_HEADER_BUTTON_WIDTH,
-                              COLOR_THEME_FOCUS);
-      for (unsigned i = 0; i < tabs.size(); i++) {
-        dc->drawBitmap(
-            padding_left + i * MENU_HEADER_BUTTON_WIDTH, 0,
-            theme->getIcon(tabs[i]->getIcon(),
-                           currentIndex == i ? STATE_PRESSED : STATE_DEFAULT));
-      }
-      //      coord_t x = padding_left + MENU_HEADER_BUTTON_WIDTH * tabs.size();
-      //      coord_t w = width() - x;
-      //      if (w > 0) {
-      //        dc->drawSolidFilledRect(x, 0, w, MENU_HEADER_BUTTON_WIDTH,
-      //        COLOR_THEME_FOCUS);
-      //      }
+//      uint8_t padding_left = 4;
+//
+//      dc->drawSolidFilledRect(0, 0, 4, MENU_HEADER_BUTTON_WIDTH,
+//                              COLOR_THEME_FOCUS);
+//      for (unsigned i = 0; i < tabs.size(); i++) {
+//        dc->drawBitmap(
+//            padding_left + i * MENU_HEADER_BUTTON_WIDTH, 0,
+//            theme->getIcon(tabs[i]->getIcon(),
+//                           currentIndex == i ? STATE_PRESSED : STATE_DEFAULT));
+//      }
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const

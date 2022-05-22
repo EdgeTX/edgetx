@@ -365,19 +365,10 @@ class Theme480: public OpenTxTheme
       return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
     }
 
-    void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
-                        uint8_t currentIndex) const override
+    void drawCurrentMenuBackground(BitmapBuffer *dc) const override
     {
-      for (unsigned index = 0; index < tabs.size(); index++) {
-        if (index != currentIndex) {
-          dc->drawBitmap(index * MENU_HEADER_BUTTON_WIDTH + 2, 7,
-                         menuIconNormal[tabs[index]->getIcon()]);
-        }
-      }
-      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH, 0,
+      dc->drawBitmap(0, 0,
                      currentMenuBackground);
-      dc->drawBitmap(currentIndex * MENU_HEADER_BUTTON_WIDTH + 2, 7,
-                     menuIconSelected[tabs[currentIndex]->getIcon()]);
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const
