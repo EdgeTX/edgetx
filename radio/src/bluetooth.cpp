@@ -477,36 +477,48 @@ void Bluetooth::wakeup()
       }
       writeString(command);
       state = BLUETOOTH_STATE_NAME_SENT;
-    }
-    else if (state == BLUETOOTH_STATE_NAME_SENT && (!strncmp(line, "OK+", 3) || !strncmp(line, "Central:", 8) || !strncmp(line, "Peripheral:", 11))) {
+    } else if (state == BLUETOOTH_STATE_NAME_SENT && (line != nullptr) &&
+               (!strncmp(line, "OK+", 3) || !strncmp(line, "Central:", 8) ||
+                !strncmp(line, "Peripheral:", 11))) {
       writeString("AT+TXPW0");
       state = BLUETOOTH_STATE_POWER_SENT;
-    }
-    else if (state == BLUETOOTH_STATE_POWER_SENT && (!strncmp(line, "Central:", 8) || !strncmp(line, "Peripheral:", 11))) {
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER && g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH)
+    } else if (state == BLUETOOTH_STATE_POWER_SENT &&
+               (line != nullptr) &&
+               (!strncmp(line, "Central:", 8) ||
+                !strncmp(line, "Peripheral:", 11))) {
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
+          g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH)
         writeString("AT+ROLE1");
       else
         writeString("AT+ROLE0");
       state = BLUETOOTH_STATE_ROLE_SENT;
-    }
-    else if (state == BLUETOOTH_STATE_ROLE_SENT && (!strncmp(line, "Central:", 8) || !strncmp(line, "Peripheral:", 11))) {
+    } else if (state == BLUETOOTH_STATE_ROLE_SENT &&
+               (line != nullptr) &&
+               (!strncmp(line, "Central:", 8) ||
+                !strncmp(line, "Peripheral:", 11))) {
       state = BLUETOOTH_STATE_IDLE;
-    }
-    else if (state == BLUETOOTH_STATE_DISCOVER_REQUESTED) {
+    } else if (state == BLUETOOTH_STATE_DISCOVER_REQUESTED) {
       writeString("AT+DISC?");
       state = BLUETOOTH_STATE_DISCOVER_SENT;
-    }
-    else if (state == BLUETOOTH_STATE_DISCOVER_SENT && !strcmp(line, "OK+DISCS")) {
+    } else if (state == BLUETOOTH_STATE_DISCOVER_SENT &&
+               (line != nullptr) &&
+               !strcmp(line, "OK+DISCS")) {
       state = BLUETOOTH_STATE_DISCOVER_START;
-    }
-    else if (state == BLUETOOTH_STATE_DISCOVER_START && !strncmp(line, "OK+DISC:", 8)) {
-      if (strlen(line) < 8 + LEN_BLUETOOTH_ADDR && reusableBuffer.moduleSetup.bt.devicesCount < MAX_BLUETOOTH_DISTANT_ADDR) {
-        strncpy(reusableBuffer.moduleSetup.bt.devices[reusableBuffer.moduleSetup.bt.devicesCount], &line[8], LEN_BLUETOOTH_ADDR);
+    } else if (state == BLUETOOTH_STATE_DISCOVER_START &&
+               (line != nullptr) &&
+               !strncmp(line, "OK+DISC:", 8)) {
+      if (strlen(line) < 8 + LEN_BLUETOOTH_ADDR &&
+          reusableBuffer.moduleSetup.bt.devicesCount <
+              MAX_BLUETOOTH_DISTANT_ADDR) {
+        strncpy(reusableBuffer.moduleSetup.bt
+                    .devices[reusableBuffer.moduleSetup.bt.devicesCount],
+                &line[8], LEN_BLUETOOTH_ADDR);
         ++reusableBuffer.moduleSetup.bt.devicesCount;
       }
     }
 #if defined(PCBHORUS)
-    else if (state == BLUETOOTH_STATE_DISCOVER_START && !strcmp(line, "OK+DISCE")) {
+    else if (state == BLUETOOTH_STATE_DISCOVER_START &&
+             (line != nullptr) && !strcmp(line, "OK+DISCE")) {
       state = BLUETOOTH_STATE_DISCOVER_END;
     }
 #endif
@@ -514,21 +526,21 @@ void Bluetooth::wakeup()
       char command[] = "AT+CLEAR";
       writeString(command);
       state = BLUETOOTH_STATE_IDLE;
-    }
-    else if (state == BLUETOOTH_STATE_BIND_REQUESTED) {
+    } else if (state == BLUETOOTH_STATE_BIND_REQUESTED) {
       char command[32];
       strAppend(strAppend(command, "AT+CON"), distantAddr);
       writeString(command);
       state = BLUETOOTH_STATE_CONNECT_SENT;
-    }
-    else if ((state == BLUETOOTH_STATE_IDLE || state == BLUETOOTH_STATE_DISCONNECTED || state == BLUETOOTH_STATE_CONNECT_SENT) && !strncmp(line, "Connected:", 10)) {
+    } else if ((state == BLUETOOTH_STATE_IDLE ||
+                state == BLUETOOTH_STATE_DISCONNECTED ||
+                state == BLUETOOTH_STATE_CONNECT_SENT) &&
+               (line != nullptr) && !strncmp(line, "Connected:", 10)) {
       strcpy(distantAddr, &line[10]); // TODO quick & dirty
       state = BLUETOOTH_STATE_CONNECTED;
       if (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
         wakeupTime += 500; // it seems a 5s delay is needed before sending the 1st frame
       }
-    }
-    else if (state == BLUETOOTH_STATE_DISCONNECTED && !line) {
+    } else if (state == BLUETOOTH_STATE_DISCONNECTED && !line) {
       char command[32];
       strAppend(strAppend(command, "AT+CON"), distantAddr);
       writeString(command);
