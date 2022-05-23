@@ -24,6 +24,7 @@ set(GUI_SRC
   fonts.cpp
   curves.cpp
   bitmaps.cpp
+  lz4_bitmaps.cpp
   theme.cpp
   theme_manager.cpp
   color_editor_popup.cpp

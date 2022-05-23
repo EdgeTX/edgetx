@@ -75,3 +75,8 @@ class Curve: public Window
     coord_t getPointY(int y) const;
 };
 
+#include "lz4_bitmaps.h"
+
+DEFINE_LZ4_BITMAP(LBM_CURVE_POINT);
+DEFINE_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
+DEFINE_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);

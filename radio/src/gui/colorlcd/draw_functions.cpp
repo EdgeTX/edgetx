@@ -52,6 +52,11 @@ void drawVerticalScrollbar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t h, u
   }
 }
 
+const uint8_t _LBM_TRIM_SHADOW[] = {
+#include "mask_trim_shadow.lbm"
+};
+STATIC_LZ4_BITMAP(LBM_TRIM_SHADOW);
+
 void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color)
 {
   dc->drawSolidFilledRect(x, y, 15, 15, color);
@@ -104,7 +109,13 @@ void drawSleepBitmap()
   lcdRefresh();
 }
 
-#define SHUTDOWN_CIRCLE_DIAMETER       150
+#define SHUTDOWN_CIRCLE_DIAMETER 150
+
+const uint8_t _LBM_SHUTDOWN_CIRCLE[] = {
+#include "mask_shutdown_circle.lbm"
+};
+STATIC_LZ4_BITMAP(LBM_SHUTDOWN_CIRCLE);
+
 class ShutdownAnimation: public FormGroup
 {
   public:
