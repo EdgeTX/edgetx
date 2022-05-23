@@ -109,6 +109,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_ZORRO:
       radioUiWidget = new SimulatedUIWidgetZorro(simulator, this);
       break;
+    case Board::BOARD_BETAFPV_LR3PRO:
+      radioUiWidget = new SimulatedUIWidgetLR3PRO(simulator, this);
+      break;
     case Board::BOARD_RADIOMASTER_T8:
       radioUiWidget = new SimulatedUIWidgetT8(simulator, this);
       break;
