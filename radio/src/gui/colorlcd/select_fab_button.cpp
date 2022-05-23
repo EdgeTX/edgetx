@@ -21,13 +21,12 @@
 
 #include "select_fab_button.h"
 
-SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
+SelectFabButton::SelectFabButton(FormGroup* parent,
                                  uint8_t icon, const char* title,
                                  std::function<uint8_t(void)> pressHandler,
                                  WindowFlags windowFlags) :
     // FabButton uses center coordinates, we want top left corner:
-    FabButton(parent, x, y, icon,
-              pressHandler, windowFlags),
+    FabButton(parent, icon, pressHandler, windowFlags),
     title(title)
 {
   // Add some space on either side on the button

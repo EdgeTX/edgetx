@@ -44,6 +44,13 @@ FabButton::FabButton(FormGroup* parent, coord_t x, coord_t y, uint8_t icon,
 {
 }
 
+FabButton::FabButton(FormGroup* parent, uint8_t icon,
+                     std::function<uint8_t(void)> pressHandler,
+                     WindowFlags windowFlags) :
+    Button(parent, {}, pressHandler, windowFlags), icon(icon)
+{
+}
+
 void FabButton::paint(BitmapBuffer * dc)
 {
   auto bitmap = checked() ? &ALPHA_BUTTON_ON : &ALPHA_BUTTON_OFF;
