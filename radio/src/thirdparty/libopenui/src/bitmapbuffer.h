@@ -48,6 +48,7 @@ constexpr uint8_t STASHED = 0x33;
 
 enum BitmapFormats
 {
+  BMP_8BIT,
   BMP_RGB565,
   BMP_ARGB4444
 };
@@ -313,6 +314,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     static BitmapBuffer * loadMask(const char * filename);
     static BitmapBuffer * load8bitMask(const uint8_t * lbm);
+    static BitmapBuffer * load8bitMaskLZ4(const uint8_t * compressed_data);
 
     static BitmapBuffer * loadMaskOnBackground(const char * filename, LcdFlags foreground, LcdFlags background);
     static BitmapBuffer * load8bitMaskOnBackground(const uint8_t * lbm, LcdFlags foreground, LcdFlags background);
@@ -445,6 +447,20 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     void drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags flags, uint8_t opacity);
 
     bool liangBarskyClipper(coord_t& x1, coord_t& y1, coord_t& x2, coord_t& y2);
+};
+
+class LZ4Bitmap : public BitmapBuffer
+{
+ public:
+  LZ4Bitmap(uint8_t format, const uint8_t* compressed_data);
+  ~LZ4Bitmap();
+};
+
+class LZ4Mask : public BitmapBufferBase<uint8_t>
+{
+ public:
+  LZ4Mask(const uint8_t* compressed_data);
+  ~LZ4Mask();
 };
 
 // Back buffer to draw

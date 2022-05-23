@@ -125,16 +125,13 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const T *bmp, coord_t srcx,
 }
 
 template void BitmapBuffer::drawBitmap(
-    coord_t, coord_t, BitmapBufferBase<unsigned short const> const *, coord_t,
+    coord_t, coord_t, const BitmapBufferBase<uint16_t> *, coord_t,
     coord_t, coord_t, coord_t, float);
 
 template void BitmapBuffer::drawBitmap(coord_t, coord_t, const BitmapBuffer *,
                                        coord_t, coord_t, coord_t, coord_t,
                                        float);
 
-template void BitmapBuffer::drawBitmap(coord_t, coord_t, const RLEBitmap *,
-                                       coord_t, coord_t, coord_t, coord_t,
-                                       float);
 
 template <class T>
 void BitmapBuffer::drawScaledBitmap(const T *bitmap, coord_t x, coord_t y,
@@ -1269,7 +1266,7 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
   return bitmap;
 }
 
-BitmapBuffer * BitmapBuffer::load8bitMask(const uint8_t * lbm)
+BitmapBuffer* BitmapBuffer::load8bitMask(const uint8_t * lbm)
 {
   BitmapBuffer * bitmap = new BitmapBuffer(BMP_RGB565,lbm[0],lbm[1]);
   if (bitmap) {
@@ -1279,6 +1276,21 @@ BitmapBuffer * BitmapBuffer::load8bitMask(const uint8_t * lbm)
       *((uint8_t *)p) = (*(src++) >> 4);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
     }
+  }
+  return bitmap;
+}
+
+BitmapBuffer* BitmapBuffer::load8bitMaskLZ4(const uint8_t* compressed_data)
+{
+  LZ4Mask lz4_m(compressed_data);
+
+  BitmapBuffer *bitmap =
+      new BitmapBuffer(BMP_RGB565, lz4_m.width(), lz4_m.height());
+  if (bitmap) {
+    pixel_t *p = bitmap->getData();
+    const uint8_t *src = lz4_m.getData();
+    for (int i = bitmap->width() * bitmap->height(); i > 0; i--)
+      *((uint8_t *)p++) = (*(src++) >> 4);
   }
   return bitmap;
 }
@@ -1729,4 +1741,56 @@ uint8_t * BitmapBuffer::loadFont(const uint8_t * lbm, int len, int& w, int& h)
   }
 
   return font;
+}
+
+#include "../thirdparty/lz4/lz4.h"
+
+LZ4Bitmap::LZ4Bitmap(uint8_t format, const uint8_t* compressed_data) :
+  BitmapBuffer(format, 0, 0, nullptr)
+{
+  const uint16_t* hdr = (const uint16_t*)compressed_data;
+  _width = hdr[0];
+  _height = hdr[1];
+
+  size_t len = *(uint32_t*)&hdr[2];
+
+  // skip 8 bytes header
+  compressed_data += 8;
+
+  uint32_t pixels = _width * _height;
+  data = (uint16_t*)malloc(align32(pixels * sizeof(uint16_t)));
+
+  LZ4_decompress_safe((const char *)compressed_data, (char *)data, len,
+                      pixels * sizeof(uint16_t));
+  data_end = data + pixels;
+}
+
+LZ4Bitmap::~LZ4Bitmap()
+{
+  free(data);
+}
+
+LZ4Mask::LZ4Mask(const uint8_t* compressed_data) :
+  BitmapBufferBase<uint8_t>(BMP_8BIT, 0, 0, nullptr)
+{
+  const uint16_t* hdr = (const uint16_t*)compressed_data;
+  _width = hdr[0];
+  _height = hdr[1];
+
+  size_t len = *(uint32_t*)&hdr[2];
+
+  // skip 8 bytes header
+  compressed_data += 8;
+
+  uint32_t pixels = _width * _height;
+  data = (uint8_t*)malloc(align32(pixels));
+
+  LZ4_decompress_safe((const char *)compressed_data, (char *)data, len,
+                      pixels);
+  data_end = data + pixels;  
+}
+
+LZ4Mask::~LZ4Mask()
+{
+  free(data);
 }
