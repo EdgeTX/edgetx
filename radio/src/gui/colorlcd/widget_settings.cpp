@@ -171,6 +171,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
 
   content->updateSize();
   setCloseHandler([=]() { widget->update(); });
+  form->setFocus();
 }
 
 #if defined(HARDWARE_KEYS)
