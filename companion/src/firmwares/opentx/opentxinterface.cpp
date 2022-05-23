@@ -110,6 +110,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for FrSky X10 Express";
     case BOARD_FLYSKY_NV14:
       return "EdgeTX for FlySky NV14";
+    case BOARD_BETAFPV_LR3PRO:
+      return "EdgeTx for BETAFPV LR3PRO";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -342,6 +344,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_TARANIS_XLITE(board)) {
     variant |= TARANIS_XLITE_VARIANT;
+  }
+  else if (IS_BETAFPV_LR3PRO(board)) {
+    variant |= BETAFPV_LR3PRO_VARIANT;
   }
   else if (IS_JUMPER_T12(board)) {
     variant |= JUMPER_T12_VARIANT;
@@ -709,6 +714,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return TARANIS_XLITES_VARIANT;
       else if (IS_TARANIS_XLITE(board))
         return TARANIS_XLITE_VARIANT;
+      else if (IS_BETAFPV_LR3PRO(board))
+        return BETAFPV_LR3PRO_VARIANT;
       else if (IS_JUMPER_T12(board))
         return JUMPER_T12_VARIANT;
       else if (IS_JUMPER_TLITE(board))
@@ -819,7 +826,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
-            return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
+            return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board);
           case PULSES_AFHDS3:
             return IS_FLYSKY_NV14(board);
           default:
@@ -853,7 +860,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_XJT_LITE_X16:
           case PULSES_XJT_LITE_D8:
           case PULSES_XJT_LITE_LR12:
-            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board));
+            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board));
           default:
             return false;
         }
@@ -1041,6 +1048,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_TARANIS_X9LITE(board)) {
     if (variant != TARANIS_X9LITE_VARIANT) {
+      variantError = true;
+    }
+  }
+  else if (IS_BETAFPV_LR3PRO(board)) {
+    if (variant != BETAFPV_LR3PRO_VARIANT) {
       variantError = true;
     }
   }
@@ -1484,6 +1496,16 @@ void registerOpenTxFirmwares()
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
+
+  /* BETAFPV LR3PRO board */
+  firmware = new OpenTxFirmware(FIRMWAREID("lr3pro"), QCoreApplication::translate("Firmware", "BETAFPV LiteRadio3 Pro"), BOARD_BETAFPV_LR3PRO);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
 
   /* 9XR-Pro */
   firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
