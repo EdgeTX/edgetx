@@ -27,7 +27,6 @@
 #include "opentx.h"
 #include "sliders.h"
 #include "theme_manager.h"
-#include "themes/480_bitmaps.h"
 
 extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -307,18 +306,25 @@ class PreviewWindow : public FormGroup
     int width;
     int x = 5;
     // topbar icons
-    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
+    auto mask_menu_radio = getBuiltinIcon(ICON_RADIO);
+    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1,
+                        COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2, TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
-    bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2, &width);
+    dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2,
+                            TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
+    auto mask_radio_tools = getBuiltinIcon(ICON_RADIO_TOOLS);
+    bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2,
+                   &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
+    auto mask_radio_setup = getBuiltinIcon(ICON_RADIO_SETUP);
+    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1,
+                   COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     delete bm;
 
