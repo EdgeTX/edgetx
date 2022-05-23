@@ -294,8 +294,8 @@ ModelFlightModesPage::ModelFlightModesPage():
 {
 }
 
+#if LCD_W > LCD_H
 // FM table: 3 x 3
-
 static const lv_coord_t fmt_col_dsc[] = {LV_GRID_FR(1),
                                          LV_GRID_FR(1),
                                          LV_GRID_FR(1),
@@ -305,6 +305,19 @@ static const lv_coord_t fmt_row_dsc[] = {LV_GRID_CONTENT,
                                          LV_GRID_CONTENT,
                                          LV_GRID_CONTENT,
                                          LV_GRID_TEMPLATE_LAST};
+#else
+// FM table: 2 x 5
+static const lv_coord_t fmt_col_dsc[] = {LV_GRID_FR(1),
+                                         LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t fmt_row_dsc[] = {LV_GRID_CONTENT,
+                                         LV_GRID_CONTENT,
+                                         LV_GRID_CONTENT,
+                                         LV_GRID_CONTENT,
+                                         LV_GRID_CONTENT,
+                                         LV_GRID_TEMPLATE_LAST};
+#endif
 
 void ModelFlightModesPage::build(FormWindow * window)
 {
