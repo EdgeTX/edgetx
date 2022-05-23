@@ -25,7 +25,7 @@
 #include <string.h>
 #include <utility>
 
-bool simuLcdRefresh = true;
+bool simuLcdRefresh = false;
 
 void toplcdOff() {}
 
@@ -49,15 +49,14 @@ void lcdRefresh()
 
 #else
 
+#include <lvgl/lvgl.h>
+
 #if defined(LCD_VERTICAL_INVERT)
 static pixel_t _LCD_BUF1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
-#endif
 
 pixel_t* simuLcdBuf = _LCD_BUF1;
 pixel_t* simuLcdBackBuf = _LCD_BUF1;
-
-#include <lvgl/lvgl.h>
 
 // Copy 2 pixels at once to speed up a little
 static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
@@ -135,6 +134,9 @@ static void _copy_area(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
     px_src += copy_area.w;
   }
 }
+#else
+pixel_t* simuLcdBuf = nullptr;
+#endif
 
 static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rect_t& copy_area)
 {
@@ -200,8 +202,10 @@ static void simuLcdExitHandler(lv_disp_drv_t* disp_drv)
 
 void lcdInit()
 {
+#if defined(LCD_VERTICAL_INVERT)
   memset(_LCD_BUF1, 0, sizeof(_LCD_BUF1));
   memset(_LCD_BUF2, 0, sizeof(_LCD_BUF2));
+#endif
 
   lcdSetWaitCb(simuLcdExitHandler);
   lcdSetFlushCb(simuRefreshLcd);
