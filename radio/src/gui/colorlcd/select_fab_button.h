@@ -28,8 +28,8 @@ constexpr coord_t SELECT_BUTTON_BORDER = 12;
 class SelectFabButton : public FabButton
 {
   public:
-    SelectFabButton(FormGroup* parent, coord_t x, coord_t y, uint8_t icon,
-                    const char* title, std::function<uint8_t(void)> pressHandler,
+    SelectFabButton(FormGroup* parent, uint8_t icon, const char* title,
+                    std::function<uint8_t(void)> pressHandler,
                     WindowFlags windowFlags = 0);
 
     void paint(BitmapBuffer* dc) override;
