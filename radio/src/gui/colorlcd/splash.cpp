@@ -27,10 +27,6 @@ const uint8_t __bmp_splash[] {
 #include "splash.lbm"
 };
 
-const uint8_t __bmp_splash_chr[] {
-#include "splash_chr.lbm"
-};
-
 void draw_splash_cb(lv_event_t * e)
 {
   auto draw_ctx = lv_event_get_draw_ctx(e);
@@ -70,21 +66,9 @@ void drawSplash()
     splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE);
     loadSplashImg = false;
 
-    // otherwise load from FLASH
-    struct gtm t;
-    gettime(&t);
-    // Please do not spoil the suprise by discussing following lines in public
-    // mon == 11 == December, starts from 0!
-    if (t.tm_mon == 11 && t.tm_mday >= 24 && t.tm_mday <= 26) {
-      if (splashImg == nullptr) {
-        splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash_chr,
-                                                sizeof(__bmp_splash_chr));
-      }
-    } else {
-      if (splashImg == nullptr) {
-        splashImg =
-            BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
-      }
+    if (splashImg == nullptr) {
+      splashImg =
+          BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
     }
 
     splashScreen = window_create(nullptr);
