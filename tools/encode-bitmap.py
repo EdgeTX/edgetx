@@ -3,6 +3,8 @@
 import argparse
 from PIL import Image
 
+# LZ4 compression
+import lz4.block
 
 class RawMixin:
     def encode_byte(self, byte):
@@ -10,7 +12,6 @@ class RawMixin:
 
     def encode_end(self):
         pass
-
 
 class RleMixin:
     RLE_BYTE = 0
@@ -51,6 +52,21 @@ class RleMixin:
         if self.state == self.RLE_SEQ:
             self.write(self.count)
 
+class Lz4Mixin:
+
+    def __init__(self):
+        self.buffer = []
+
+    def encode_byte(self,byte):
+        self.buffer.append(byte)
+
+    def encode_end(self):
+        compressed_data = lz4.block.compress(bytes(self.buffer), compression=12, mode='high_compression', store_size=False)
+        data_len = len(compressed_data).to_bytes(4, byteorder='little')
+        for b in data_len:
+            self.write(b)
+        for b in compressed_data:
+            self.write(b)
 
 class ImageEncoder:
     def __init__(self, filename, size_format, reverse=False):
@@ -59,6 +75,8 @@ class ImageEncoder:
         self.reverse = reverse
 
     def write(self, value):
+        if isinstance(value, bytes):
+            value = int.from_bytes(value, 'little')
         self.f.write("0x%02x," % value)
 
     def write_size(self, width, height):
@@ -163,6 +181,7 @@ def main():
     parser.add_argument('--format', action="store", help="Output format")
     parser.add_argument("--reverse", help="Invert pixels order", action="store_true")
     parser.add_argument("--rle", help="Enable RLE compression", action="store_true")
+    parser.add_argument("--lz4", help="Enable RLE compression", action="store_true")
     parser.add_argument("--rows", help="Image rows count (for 1bit format)", type=int, default=1)
     parser.add_argument("--size-format", help="Header image size format (1 or 2 bytes)", type=int, default=1)
 
@@ -170,7 +189,14 @@ def main():
 
     image = Image.open(args.input)
     output = args.output
-    encoder = ImageEncoder.create(output, args.size_format, args.reverse, RleMixin if args.rle else RawMixin)
+
+    byte_encoder = RawMixin
+    if args.rle:
+        byte_encoder = RleMixin
+    if args.lz4:
+        byte_encoder = Lz4Mixin
+
+    encoder = ImageEncoder.create(output, args.size_format, args.reverse, byte_encoder)
 
     if args.format == "1bit":
         encoder.encode_1bit(image, args.rows)

@@ -51,7 +51,9 @@ foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
   set(LIBOPENUI_SRC_FILES ${LIBOPENUI_SRC_FILES} ${LIBOPENUI_SRC_DIR}/src/${LIBOPENUI_FILE})
 endforeach()
 
-set(SRC ${SRC} ${LIBOPENUI_SRC_FILES})
+set(SRC ${SRC} ${LIBOPENUI_SRC_FILES}
+  ${LIBOPENUI_SRC_DIR}/thirdparty/lz4/lz4.c
+  )
 
 # add_library(libopenui_native OBJECT ${LIBOPENUI_SRC_FILES})
 # add_library(libopenui_stm32 OBJECT ${LIBOPENUI_SRC_FILES})
