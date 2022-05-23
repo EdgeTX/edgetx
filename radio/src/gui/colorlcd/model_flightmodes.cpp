@@ -144,6 +144,7 @@ struct FMTrimSettings : public Dialog {
 
     content->setWidth(LCD_W * 0.8);
     content->updateSize();
+    form->setFocus();
   }
 };
 
@@ -197,6 +198,8 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
     new FMTrimSettings(this, p_fm);
     return 0;
   });
+
+  form->setFocus();
 }
 
 class FlightModeBtn: public Button
