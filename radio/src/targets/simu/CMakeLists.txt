@@ -44,6 +44,7 @@ if(SIMU_BOOTLOADER)
     ../../targets/common/arm/stm32/bootloader/bin_files.cpp
     ../../targets/common/arm/stm32/bootloader/boot.cpp
     ../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
+    ../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     )
 endif()
 

@@ -28,30 +28,20 @@
 
 #include <lvgl/lvgl.h>
 
-const uint8_t __bmp_plug_usb_rle[] {
+const uint8_t __bmp_plug_usb[] {
 #include "bmp_plug_usb.lbm"
 };
-RLEBitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb_rle);
+LZ4Bitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb);
 
-const uint8_t __bmp_usb_plugged_rle[] {
+const uint8_t __bmp_usb_plugged[] {
 #include "bmp_usb_plugged.lbm"
 };
-RLEBitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged_rle);
+LZ4Bitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged);
 
-const uint8_t __bmp_background_rle[] {
+const uint8_t __bmp_background[] {
 #include "bmp_background.lbm"
 };
-RLEBitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background_rle);
-
-//TODO: replace with LV_SYMBOL_FILE
-const uint8_t LBM_FILE[] = {
-#include "icon_file.lbm"
-};
-
-//TODO: replace with LV_SYMBOL_OK
-const uint8_t LBM_OK[] = {
-#include "icon_ok.lbm"
-};
+LZ4Bitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background);
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
@@ -88,7 +78,8 @@ static void bootloaderDrawBackground()
     
     for (int i=0; i<LCD_W; i += BMP_BACKGROUND.width()) {
       for (int j=0; j<LCD_H; j += BMP_BACKGROUND.height()) {
-        _background->drawBitmap(i, j, &BMP_BACKGROUND);
+        BitmapBuffer* bg_bmp = &BMP_BACKGROUND;
+        _background->drawBitmap(i, j, bg_bmp);
       }
     }
   }
@@ -121,7 +112,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       pos -= 92;
       lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
 
-      lcd->drawBitmap(60, 166, &BMP_PLUG_USB);
+      lcd->drawBitmap(60, 166, (const BitmapBuffer*)&BMP_PLUG_USB);
       lcd->drawText(195, 175, "Or plug in a USB cable", BL_FOREGROUND);
       lcd->drawText(195, 200, "for mass storage", BL_FOREGROUND);
 
@@ -130,7 +121,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     }
     else if (st == ST_USB) {
 
-        lcd->drawBitmap(136, 98, &BMP_USB_PLUGGED);
+        lcd->drawBitmap(136, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
         lcd->drawText(195, 128, "USB Connected", BL_FOREGROUND);
     }
     else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
@@ -176,7 +167,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawText(168, 178, "Radio:", RIGHT | BL_FOREGROUND);
             lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
 
-            lcd->drawBitmapPattern(356, 158, LBM_OK, BL_GREEN);
+            lcd->drawText(356, 156, LV_SYMBOL_OK, BL_GREEN);
           }
         }
 
@@ -201,7 +192,6 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         }
 
         if (st != ST_FLASHING) {
-            //lcd->drawBitmapPattern(305, 242, LBM_EXIT, BL_FOREGROUND);
             lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
             lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
         }        
@@ -210,7 +200,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 {
-    lcd->drawBitmapPattern(94, 76 + (line * 25), LBM_FILE, BL_FOREGROUND);
+    lcd->drawText(94, 75 + (line * 25), LV_SYMBOL_FILE, BL_FOREGROUND);
     lcd->drawText(124, 75 + (line * 25), str, BL_FOREGROUND);
 
     if (selected) {

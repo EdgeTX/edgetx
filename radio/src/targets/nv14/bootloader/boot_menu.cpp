@@ -33,28 +33,20 @@
 #define DOUBLE_PADDING  56
 #define MESSAGE_TOP     (LCD_H - (2*DOUBLE_PADDING))
 
-const uint8_t __bmp_plug_usb_rle[] {
+const uint8_t __bmp_plug_usb[] {
 #include "bmp_plug_usb.lbm"
 };
-RLEBitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb_rle);
+LZ4Bitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb);
 
-const uint8_t __bmp_usb_plugged_rle[] {
+const uint8_t __bmp_usb_plugged[] {
 #include "bmp_usb_plugged.lbm"
 };
-RLEBitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged_rle);
+LZ4Bitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged);
 
-const uint8_t __bmp_background_rle[] {
+const uint8_t __bmp_background[] {
 #include "bmp_background.lbm"
 };
-RLEBitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background_rle);
-
-const uint8_t LBM_FILE[] = {
-#include "icon_file.lbm"
-};
-
-const uint8_t LBM_OK[] = {
-#include "icon_ok.lbm"
-};
+LZ4Bitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background);
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
@@ -91,7 +83,8 @@ static void bootloaderDrawBackground()
     
     for (int i=0; i<LCD_W; i += BMP_BACKGROUND.width()) {
       for (int j=0; j<LCD_H; j += BMP_BACKGROUND.height()) {
-        _background->drawBitmap(i, j, &BMP_BACKGROUND);
+        BitmapBuffer* bg_bmp = &BMP_BACKGROUND;
+        _background->drawBitmap(i, j, bg_bmp);
       }
     }
   }
@@ -126,7 +119,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         pos -= 79;
         lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
         
-        lcd->drawBitmap(center - 55, 165, &BMP_PLUG_USB);
+        lcd->drawBitmap(center - 55, 165, (const BitmapBuffer*)&BMP_PLUG_USB);
         lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
         lcd->drawText(center, 275, "for mass storage", CENTERED | BL_FOREGROUND);
 
@@ -136,7 +129,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(center, LCD_H - DEFAULT_PADDING,
                       getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
     } else if (st == ST_USB) {
-      lcd->drawBitmap(center - 26, 98, &BMP_USB_PLUGGED);
+      lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
       lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
     } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||
                st == ST_FLASH_CHECK || st == ST_FLASHING ||
@@ -196,8 +189,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                         MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
                         BL_FOREGROUND);
 
-          lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
-                                 LBM_OK, BL_GREEN);
+          lcd->drawText(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
+                        LV_SYMBOL_OK, BL_GREEN);
         }
       }
 
@@ -232,10 +225,12 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 {
-    lcd->drawBitmapPattern(DEFAULT_PADDING, 76 + (line * 25), LBM_FILE, BL_FOREGROUND);
+    lcd->drawText(DEFAULT_PADDING, 75 + (line * 25), LV_SYMBOL_FILE, BL_FOREGROUND);
     lcd->drawText(DEFAULT_PADDING + 30, 75 + (line * 25), str, BL_FOREGROUND);
 
     if (selected) {
-        lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25), LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2, BL_SELECTED);
+      lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25),
+                         LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2,
+                         BL_SELECTED);
     }
 }
