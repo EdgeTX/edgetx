@@ -37,7 +37,6 @@ enum FontIndex
   FONT_XS_INDEX,
   FONT_L_INDEX,
   FONT_XL_INDEX,
-  FONT_XXL_INDEX,
 #endif
 
   // this one MUST be last
