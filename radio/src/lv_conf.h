@@ -391,11 +391,43 @@
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
 
 #if !defined(BOOT)
+
+#if defined(TRANSLATIONS_CN)
+  #define LV_FONT_CUSTOM_DECLARE                \
+    LV_FONT_DECLARE(lv_font_noto_cn_9)           \
+    LV_FONT_DECLARE(lv_font_noto_cn_13)          \
+    LV_FONT_DECLARE(lv_font_noto_cn_16)          \
+    LV_FONT_DECLARE(lv_font_noto_cn_17)          \
+    LV_FONT_DECLARE(lv_font_noto_cn_24)          \
+    LV_FONT_DECLARE(lv_font_noto_cn_64)          \
+    LV_FONT_DECLARE(lv_font_noto_cn_bold_16)     \
+    LV_FONT_DECLARE(lv_font_noto_cn_bold_17)     \
+    LV_FONT_DECLARE(lv_font_noto_cn_bold_32)     \
+    LV_FONT_DECLARE(lv_font_noto_cn_bold_64)
+
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_noto_cn_16
+
+#elif defined(TRANSLATIONS_TW)
+  #define LV_FONT_CUSTOM_DECLARE                \
+    LV_FONT_DECLARE(lv_font_noto_tw_9)           \
+    LV_FONT_DECLARE(lv_font_noto_tw_13)          \
+    LV_FONT_DECLARE(lv_font_noto_tw_16)          \
+    LV_FONT_DECLARE(lv_font_noto_tw_17)          \
+    LV_FONT_DECLARE(lv_font_noto_tw_24)          \
+    LV_FONT_DECLARE(lv_font_noto_tw_64)          \
+    LV_FONT_DECLARE(lv_font_noto_tw_bold_16)     \
+    LV_FONT_DECLARE(lv_font_noto_tw_bold_17)     \
+    LV_FONT_DECLARE(lv_font_noto_tw_bold_32)     \
+    LV_FONT_DECLARE(lv_font_noto_tw_bold_64)
+
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_noto_tw_16
+
+#else
   #define LV_FONT_CUSTOM_DECLARE                \
     LV_FONT_DECLARE(lv_font_roboto_9)           \
-    LV_FONT_DECLARE(lv_font_roboto_14)          \
     LV_FONT_DECLARE(lv_font_roboto_13)          \
-    LV_FONT_DECLARE(lv_font_roboto_15)          \
     LV_FONT_DECLARE(lv_font_roboto_16)          \
     LV_FONT_DECLARE(lv_font_roboto_17)          \
     LV_FONT_DECLARE(lv_font_roboto_24)          \
@@ -407,6 +439,8 @@
 
   /*Always set a default font*/
   #define LV_FONT_DEFAULT &lv_font_roboto_16
+#endif
+
 #else
   /* Bootloader font */
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_16)
