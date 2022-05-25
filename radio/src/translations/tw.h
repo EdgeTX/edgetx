@@ -20,18 +20,6 @@
  *
  */
 
-
-
-/*
- * !!!!! DO NOT EDIT en.h - EDIT en.h.txt INSTEAD !!!!!!!
- *
- * In order to make translations easier en.h.txt is parsed and national
- * characters are replaced by bitmap codes. The result is en.h.
- * See translate.py in the util folder for the list of character codes
- *
- * !!!!! DO NOT EDIT en.h - EDIT en.h.txt INSTEAD !!!!!!!
- */
-
 /*
  * Formatting octal codes available in TR_ strings:
  * \037\x -sets LCD x-coord (x value in octal)
@@ -41,306 +29,205 @@
  * \0 -ends current string
  */
 
+#define TR_OFFON                        "禁用","開啟"
+#define TR_MMMINV                       "---","反"
+#define TR_VBEEPMODE                    "靜音","警告","忽略按鍵","全部"
+#define TR_VBLMODE                      "關閉","按鍵","操控","全部","開啟"
+#define TR_TRNMODE                      "關","相加","替換"
+#define TR_TRNCHN                       "CH1","CH2","CH3","CH4"
+#define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試"
+#define TR_SWTYPES                      "無","回彈","2段","3段"
+#define TR_POTTYPES                     "無","有中點旋鈕","多段旋鈕","無中點旋鈕"
+#define TR_SLIDERTYPES                  "無","側滑塊"
+#define TR_VPERSISTENT                  "禁用","隨飛行記錄重啟","隨手動重啟"
+#define TR_COUNTRY_CODES                "美國","日本","歐洲"
+#define TR_USBMODES                     "詢問","遊戲柄","U盤","串行"
+#define TR_JACK_MODES                   "詢問","音頻","教練"
+#define TR_TELEMETRY_PROTOCOLS          "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
-
-// NON ZERO TERMINATED STRINGS
-#define LEN_OFFON                       "\004"
-#define TR_OFFON                        "禁用" "開啟"
-
-#define LEN_MMMINV                      "\003"
-#define TR_MMMINV                       "---" "反\0"
-
-#define LEN_VBEEPMODE                   "\010"
-#define TR_VBEEPMODE                    "靜音\0   " "警告\0   " "忽略按鍵" "全部\0   "
-
-#define LEN_VBLMODE                     "\004"
-#define TR_VBLMODE                      "關閉" "按鍵" "操控" "全部" "開啟"
-
-#define LEN_TRNMODE                     "\004"
-#define TR_TRNMODE                      "關\0 " "相加" "替換"
-
-#define LEN_TRNCHN                      "\003"
-#define TR_TRNCHN                       "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES            "\010"
-#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0""CLI\0     "
-
-#define LEN_SWTYPES                     "\004"
-#define TR_SWTYPES                      "無\0 " "回彈" "2段\0""3段\0"
-
-#define LEN_POTTYPES                    "\012"
-#define TR_POTTYPES                     "無\0       " "有中點旋鈕" "多段旋鈕\0 " "無中點旋鈕"
-
-#define LEN_SLIDERTYPES                 "\006"
-#define TR_SLIDERTYPES                  "無\0   " "側滑塊"
-
-#define LEN_VLCD                        "\006"
-#define TR_VLCD                         "Normal" "Optrex"
-
-#define LEN_VPERSISTENT                 "\016"
-#define TR_VPERSISTENT                  "禁用\0         " "隨飛行記錄重啟" "隨手動重啟\0   "
-
-#define LEN_COUNTRY_CODES               "\004"
-#define TR_COUNTRY_CODES                "美國" "日本" "歐洲"
-
-#define LEN_USBMODES                    "\006"
-#define TR_USBMODES                     "詢問\0 " "遊戲柄" "U盤\0  " "串行\0 "
-
-#define LEN_JACK_MODES                  "\004"
-#define TR_JACK_MODES                   "詢問" "音頻" "教練"
-
-#define LEN_TELEMETRY_PROTOCOLS         "\017"
-#define TR_TELEMETRY_PROTOCOLS          "FrSky S.PORT\0  " "FrSky D\0       " "FrSky D (cable)" "TBS Crossfire\0 " "Spektrum\0      " "AFHDS2A IBUS\0  " "Multi Telemetry"
-
-#define LEN_VTRIMINC                   "\004"
-#define TR_VTRIMINC                    "指數" "很小" "較小" "中等" "較大"
-
-#define LEN_VDISPLAYTRIMS               "\010"
-#define TR_VDISPLAYTRIMS                "不顯示\0 " "改變時\0 " "始終顯示"
-
-#define LEN_VBEEPCOUNTDOWN              "\004"
-#define TR_VBEEPCOUNTDOWN               "靜音" "蜂鳴" "語音" "震動"
-
-#define LEN_COUNTDOWNVALUES             "\004"
-#define TR_COUNTDOWNVALUES              "5秒\0" "10秒" "20秒" "30秒"
-
-#define LEN_VVARIOCENTER                "\004"
-#define TR_VVARIOCENTER                 "音調" "靜音"
-
-#define LEN_CURVE_TYPES                 "\006"
-#define TR_CURVE_TYPES                  "標準\0 " "自定義"
-
-#define LEN_ADCFILTERVALUES             "\004"
-#define TR_ADCFILTERVALUES              "全局""禁用" "开启"
-
-#define LEN_RETA123                     "\001"
+#define TR_VTRIMINC                     "指數","很小","較小","中等","較大"
+#define TR_VDISPLAYTRIMS                "不顯示","改變時","始終顯示"
+#define TR_VBEEPCOUNTDOWN               "靜音","蜂鳴","語音","震動"
+#define TR_COUNTDOWNVALUES              "5秒","10秒","20秒","30秒"
+#define TR_VVARIOCENTER                 "音調","靜音"
+#define TR_CURVE_TYPES                  "標準","自定義"
+#define TR_ADCFILTERVALUES              "全局","禁用","开启"
 
 #if defined(PCBX10)
-  #define TR_RETA123                   "RETA1324567LR"
+  #define TR_RETA123                    "R","E","T","A","1","3","2","4","5","6","7","L","R"
 #elif defined(PCBHORUS)
-  #define TR_RETA123                   "RETA13245LR"
+  #define TR_RETA123                    "R","E","T","A","1","3","2","4","5","L","R"
 #elif defined(PCBX9E)
-  #define TR_RETA123                   "RETA1234LRLR"
+  #define TR_RETA123                    "R","E","T","A","1","2","3","4","L","R","L","R"
 #elif defined(PCBTARANIS)
-  #define TR_RETA123                   "RETA123LR"
+  #define TR_RETA123                    "R","E","T","A","1","2","3","L","R"
 #else
-  #define TR_RETA123                   "RETA123"
+  #define TR_RETA123                    "R","E","T","A","1","2","3"
 #endif
 
-#define LEN_VCURVEFUNC                  "\003"
-#define TR_VCURVEFUNC                   "---" "x>0" "x<0" "|x|" "f>0" "f<0" "|f|"
-
-#define LEN_VMLTPX                      "\004"
-#define TR_VMLTPX                       "相加" "相乘" "替換"
-
-#define LEN_VMLTPX2                     "\002"
-#define TR_VMLTPX2                      "+=" "*=" ":="
-
-#define LEN_VMIXTRIMS                   "\004"
+#define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
+#define TR_VMLTPX                       "相加","相乘","替換"
+#define TR_VMLTPX2                      "+=","*=",":="
 
 #if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                  "禁用" "啟用" "Rud\0" "Ele\0" "Thr\0" "Ail\0" "T5\0 " "T6\0 "
+  #define TR_VMIXTRIMS                  "禁用","啟用","Rud","Ele","Thr","Ail","T5","T6"
 #else
-  #define TR_VMIXTRIMS                  "禁用" "啟用" "Rud\0" "Ele\0" "Thr\0" "Ail\0"
+  #define TR_VMIXTRIMS                  "禁用","啟用","Rud","Ele","Thr","Ail","T5","T6"
 #endif
 
-  #define TR_CSWTIMER                   "定時\0 "
-  #define TR_CSWSTICKY                  "粘滯\0 "
-  #define TR_CSWRANGE                   "範圍\0 "
-  #define TR_CSWSTAY                    "邊沿\0 "
+#define TR_CSWTIMER                     "定時"
+#define TR_CSWSTICKY                    "粘滯"
+#define TR_CSWRANGE                     "範圍"
+#define TR_CSWSTAY                      "邊沿"
 
-  #define TR_CSWEQUAL                   "a=x\0  "
-
-#define LEN_VCSWFUNC                    "\006"
-#define TR_VCSWFUNC                     "---\0  " TR_CSWEQUAL "a~x\0  " "a>x\0  " "a<x\0  " TR_CSWRANGE "|a|>x\0" "|a|<x\0" "AND\0  " "OR\0   " "XOR\0  " TR_CSWSTAY "a=b\0  " "a>b\0  " "a<b\0  " STR_CHAR_DELTA "}x\0  " "|" STR_CHAR_DELTA "|}x\0" TR_CSWTIMER TR_CSWSTICKY
-
-#define LEN_VFSWFUNC                    "\020"
+#define TR_CSWEQUAL                     "a=x"
+#define TR_VCSWFUNC                     "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA,"}x","|",STR_CHAR_DELTA,"|}x",TR_CSWTIMER,TR_CSWSTICKY
 
 #if defined(VARIO)
-  #define TR_VVARIO                     "Vario傳感器\0    "
+  #define TR_VVARIO                     "Vario傳感器"
 #else
-  #define TR_VVARIO                     "[Vario]\0        "
+  #define TR_VVARIO                     "[Vario]"
 #endif
 #if defined(AUDIO)
-  #define TR_SOUND                      "播放聲音\0       "
+  #define TR_SOUND                      "播放聲音"
 #endif
 #if defined(HAPTIC)
-  #define TR_HAPTIC                     "振動\0           "
+  #define TR_HAPTIC                     "振動"
 #else
-  #define TR_HAPTIC                     "[振動]\0         "
+  #define TR_HAPTIC                     "[振動]"
 #endif
 
 #if defined(VOICE)
-    #define TR_PLAY_TRACK               "播放音頻文件\0   "
-  #define TR_PLAY_BOTH                  "同時播放\0       "
-  #define TR_PLAY_VALUE                 "播放數值\0       "
+    #define TR_PLAY_TRACK               "播放音頻文件"
+  #define TR_PLAY_BOTH                  "同時播放"
+  #define TR_PLAY_VALUE                 "播放數值"
 #else
-  #define TR_PLAY_TRACK                 "[Play Trk]\0     "
-  #define TR_PLAY_BOTH                  "[Play Bth]\0     "
-  #define TR_PLAY_VALUE                 "[Play Val]\0     "
+  #define TR_PLAY_TRACK                 "[Play Trk]"
+  #define TR_PLAY_BOTH                  "[Play Bth]"
+  #define TR_PLAY_VALUE                 "[Play Val]"
 #endif
 
-#define TR_SF_BG_MUSIC                  "播放背景音樂\0   " "暫停背景音樂\0   "
+#define TR_SF_BG_MUSIC                  "播放背景音樂","暫停背景音樂"
 
 #if defined(SDCARD)
-  #define TR_SDCLOGS                    "記錄到SD卡\0     "
+  #define TR_SDCLOGS                    "記錄到SD卡"
 #else
-  #define TR_SDCLOGS                    "[記錄到SD卡]\0   "
+  #define TR_SDCLOGS                    "[記錄到SD卡]"
 #endif
 
 #if defined(GVARS)
   #define TR_ADJUST_GVAR                "修改全局變量GV值"
 #else
-  #define TR_ADJUST_GVAR                "[修改GV值]\0     "
+  #define TR_ADJUST_GVAR                "[修改GV值]"
 #endif
 
 #if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT             "Lua腳本\0        "
+  #define TR_SF_PLAY_SCRIPT             "Lua腳本"
 #else
-  #define TR_SF_PLAY_SCRIPT             "[Lua]\0          "
+  #define TR_SF_PLAY_SCRIPT             "[Lua]"
 #endif
 
 #if defined(DEBUG)
-  #define TR_SF_TEST                    "測試\0           "
+  #define TR_SF_TEST                    ,"測試"
 #else
   #define TR_SF_TEST
 #endif
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                  "鎖定通道值\0     "
+  #define TR_SF_SAFETY                  "鎖定通道值"
 #else
-  #define TR_SF_SAFETY "---\0 "
+  #define TR_SF_SAFETY                  "---"
 #endif
 
-#define TR_SF_SCREENSHOT                "截屏\0           "
-#define TR_SF_RACING_MODE               "競速模式\0       "
-#define TR_SF_DISABLE_TOUCH             "禁用觸摸\0       "
-#define TR_SF_RESERVE                   "[保留]\0         "
+#define TR_SF_SCREENSHOT                "截屏"
+#define TR_SF_RACING_MODE               "競速模式"
+#define TR_SF_DISABLE_TOUCH             "禁用觸摸"
+#define TR_SF_RESERVE                   "[保留]"
 
-#define TR_VFSWFUNC                     TR_SF_SAFETY "教練\0           " "搖桿值存儲到微調" "重啟\0           " "設置\0           " TR_ADJUST_GVAR "音量\0           " "設置失控保護\0   " "測距模式\0       " "模塊對頻\0       "  TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "背光\0           " TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_DISABLE_TOUCH TR_SF_TEST
+#define TR_VFSWFUNC                     TR_SF_SAFETY,"教練","搖桿值存儲到微調","重啟","設置",TR_ADJUST_GVAR,"音量","設置失控保護","測距模式","模塊對頻",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH TR_SF_TEST
 
-#define LEN_VFSWRESET                   TR("\004", "\010")
+#define TR_FSW_RESET_TELEM              "回傳參數"
+#define TR_FSW_RESET_TIMERS             "計時器1","計時器2","計時器3"
+#define TR_VFSWRESET                    TR_FSW_RESET_TIMERS,"Flight",TR_FSW_RESET_TELEM
+#define TR_FUNCSOUNDS                   "Beep1","Beep2","Beep3","Warn1","Warn2","Cheep","Ratata","Tick","Siren","Ring","SciFi","Robot","Chirp","Tada","Crickt","AlmClk"
 
-#define TR_FSW_RESET_TELEM              TR("Telm", "回傳參數")
+#define LENGTH_UNIT_IMP                 "ft"
+#define SPEED_UNIT_IMP                  "mph"
+#define LENGTH_UNIT_METR                "m"
+#define SPEED_UNIT_METR                 "kmh"
 
-#define TR_FSW_RESET_TIMERS             "計時器1\0" "計時器2\0" "計時器3\0"
+#define TR_VUNITSSYSTEM                 "公制","英制"
+#define TR_VTELEMUNIT                   "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km"
 
-#define TR_VFSWRESET                    TR_FSW_RESET_TIMERS "Flight\0 " TR_FSW_RESET_TELEM
+#define STR_V                           (STR_VTELEMUNIT[1])
+#define STR_A                           (STR_VTELEMUNIT[2])
 
-#define LEN_FUNCSOUNDS                  "\006"
-#define TR_FUNCSOUNDS                   "Beep1\0" "Beep2\0" "Beep3\0" "Warn1\0" "Warn2\0" "Cheep\0" "Ratata" "Tick\0 " "Siren\0" "Ring\0 " "SciFi\0" "Robot\0" "Chirp\0" "Tada\0 " "Crickt" "AlmClk"
+#define TR_VTELEMSCREENTYPE             "禁用","數值","條形圖","腳本"
+#define TR_GPSFORMAT                    "DMS", "NMEA"
 
-#define LEN_VTELEMCHNS                  "\004"
+#define TR_TEMPLATE_CLEAR_MIXES 	"Clear Mixes"
+#define TR_TEMPLATE_SIMPLE_4CH 		"Simple 4-CH"
+#define TR_TEMPLATE_STICKY_TCUT 	"Sticky-T-Cut"
+#define TR_TEMPLATE_VTAIL 		"V-Tail"
+#define TR_TEMPLATE_DELTA 		"Elevon\\Delta"
+#define TR_TEMPLATE_ECCPM 		"eCCPM"
+#define TR_TEMPLATE_HELI 		"Heli Setup"
+#define TR_TEMPLATE_SERVO_TEST 		"Servo Test"
 
-#define LENGTH_UNIT_IMP                 "ft\0 "
-#define SPEED_UNIT_IMP                  "mph\0"
-#define LENGTH_UNIT_METR                "m\0  "
-#define SPEED_UNIT_METR                 "kmh\0"
+#define TR_VSWASHTYPE                   "---","120","120X","140","90"
 
-#define LEN_VUNITSSYSTEM               "\004"
-#define TR_VUNITSSYSTEM                "公制" "英制"
-
-#define LEN_VTELEMUNIT                  "\003"
-#define TR_VTELEMUNIT                   "-\0 " "V\0 " "A\0 " "mA\0" "kts" "m/s" "f/s" "kmh" "mph" "m\0 " "ft\0" "@C\0" "@F\0" "%\0 " "mAh" "W\0 " "mW\0" "dB\0" "rpm" "g\0 " "@\0 " "rad" "ml\0" "fOz" "mlm" "Hz\0" "mS\0" "uS\0"
-
-#define STR_V                           (STR_VTELEMUNIT+1)
-#define STR_A                           (STR_VTELEMUNIT+4)
-
-#define LEN_VTELEMSCREENTYPE            "\006"
-#define TR_VTELEMSCREENTYPE             "禁用\0 " "數值\0 " "條形圖" "腳本\0 "
-
-#define LEN_GPSFORMAT                   "\004"
-#define TR_GPSFORMAT                    "DMS\0" "NMEA"
-
-#define LEN2_VTEMPLATES                 12
-#define LEN_VTEMPLATES                  "\014"
-#define TR_TEMPLATE_CLEAR_MIXES         "Clear Mixes\0"
-#define TR_TEMPLATE_SIMPLE_4CH          "Simple 4-CH\0"
-#define TR_TEMPLATE_STICKY_TCUT         "Sticky-T-Cut"
-#define TR_TEMPLATE_VTAIL               "V-Tail\0     "
-#define TR_TEMPLATE_DELTA               "Elevon\\Delta"
-#define TR_TEMPLATE_ECCPM               "eCCPM\0      "
-#define TR_TEMPLATE_HELI                "Heli Setup\0 "
-#define TR_TEMPLATE_SERVO_TEST          "Servo Test\0 "
-
-#define LEN_VSWASHTYPE                  "\004"
-#define TR_VSWASHTYPE                   "---\0" "120\0" "120X" "140\0" "90\0"
-
-#define LEN_VSWITCHES                   "\003"
-#define LEN_VSRCRAW                     "\004"
-
-#define TR_STICKS_VSRCRAW                STR_CHAR_STICK "Rud"  STR_CHAR_STICK "Ele"  STR_CHAR_STICK "Thr"  STR_CHAR_STICK "Ail"
+#define TR_STICKS_VSRCRAW               STR_CHAR_STICK "Rud", STR_CHAR_STICK "Ele", STR_CHAR_STICK "Thr", STR_CHAR_STICK "Ail"
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW               STR_CHAR_TRIM "Rud"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Thr"  STR_CHAR_TRIM "Ail"  STR_CHAR_TRIM "T5\0"  STR_CHAR_TRIM "T6\0"
+  #define TR_TRIMS_VSRCRAW              STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail", STR_CHAR_TRIM "T5", STR_CHAR_TRIM "T6"
 #else
-  #define TR_TRIMS_VSRCRAW               STR_CHAR_TRIM "Rud"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Thr"  STR_CHAR_TRIM "Ail"
+  #define TR_TRIMS_VSRCRAW              STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail"
 #endif
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES              STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar"  STR_CHAR_TRIM "5d"  STR_CHAR_TRIM "5u"  STR_CHAR_TRIM "6d"  STR_CHAR_TRIM "6u"
+  #define TR_TRIMS_SWITCHES             STR_CHAR_TRIM "Rl", STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
 #else
-  #define TR_TRIMS_SWITCHES             TR("tRl" "tRr" "tEd" "tEu" "tTd" "tTu" "tAl" "tAr",  STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar")
+  #define TRIM_SWITCH_CHAR              TR("t",STR_CHAR_TRIM)
+  #define TR_TRIMS_SWITCHES             TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
 #endif
 
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
-#define TR_ON_ONE_SWITCHES              "ON\0" "One"
+#define TR_ON_ONE_SWITCHES              "ON","One"
 
 #if defined(GYRO)
-  #define TR_GYR_VSRCRAW                "GyrX" "GyrY"
+  #define TR_GYR_VSRCRAW                "GyrX","GyrY",
 #else
   #define TR_GYR_VSRCRAW
 #endif
 
 #if defined(HELI)
-  #define TR_CYC_VSRCRAW                "CYC1" "CYC2" "CYC3"
+  #define TR_CYC_VSRCRAW                "CYC1","CYC2","CYC3"
 #else
-  #define TR_CYC_VSRCRAW                "[C1]" "[C2]" "[C3]"
+  #define TR_CYC_VSRCRAW                "[C1]","[C2]","[C3]"
 #endif
 
 #define TR_RESERVE_VSRCRAW              "[--]"
-#define TR_EXTRA_VSRCRAW                "Batt" "Time" "GPS\0" TR_RESERVE_VSRCRAW TR_RESERVE_VSRCRAW TR_RESERVE_VSRCRAW TR_RESERVE_VSRCRAW "Tmr1" "Tmr2" "Tmr3"
+#define TR_EXTRA_VSRCRAW                "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
-#define LEN_VTMRMODES                   "\004"
-#define TR_VTMRMODES                    "OFF\0" "ON\0 " "Strt" "THs\0" "TH%\0" "THt"
-
-#define LEN_VTRAINERMODES               "\022"
-#define TR_VTRAINER_MASTER_OFF          "禁用\0             "
-#define TR_VTRAINER_MASTER_JACK         "教練主機/教練口\0  "
-#define TR_VTRAINER_SLAVE_JACK          "學生從機/教練口\0  "
-#define TR_VTRAINER_MASTER_SBUS_MODULE  "教練主機/SBUS模塊\0"
-#define TR_VTRAINER_MASTER_CPPM_MODULE  "教練從機/CPPM模塊\0"
-#define TR_VTRAINER_MASTER_BATTERY      "教練主機/端口\0    "
-#define TR_VTRAINER_BLUETOOTH           TR("Master/BT\0        " "Slave/BT\0         ", "教練主機/藍牙\0    " "教練從機/藍牙\0    ")
-#define TR_VTRAINER_MULTI               "教練主機/多協議\0"
-
-#define LEN_VFAILSAFE                   "\010"
-#define TR_VFAILSAFE                    "未設置\0 " "失控保持" "自定義\0 " "無脈衝\0 " "接收機\0 "
-
-#define LEN_VSENSORTYPES                "\006"
-#define TR_VSENSORTYPES                 "自定義" "運算\0 "
-
-#define LEN_VFORMULAS                   "\010"
-#define TR_VFORMULAS                    "加\0     " "平均值\0 " "最小值\0 " "最大值\0 " "乘\0     " "總計值\0 " "單節電池" "消耗量\0 " "距離\0   "
-
-#define LEN_VPREC                       "\004"
-#define TR_VPREC                        "0.--" "0.0-" "0.00"
-
-#define LEN_VCELLINDEX                  "\006"
-#define TR_VCELLINDEX                   "最低值" "1\0    " "2\0    " "3\0    " "4\0    " "5\0    " "6\0    " "最高值" "差值\0 "
-
-#define LEN_GYROS                       "\004"
-#define TR_GYROS                        "GyrX" "GyrY"
-
-#define LEN_TEXT_SIZE                   "\004"
-#define TR_TEXT_SIZE                    "標準" "小\0 " "較小" "中等" "雙倍"
-
-#define LEN_SUBTRIMMODES                "\010"
-#define TR_SUBTRIMMODES                 STR_CHAR_DELTA "(中点)\0 " "=(整體)\0"
-
-// ZERO TERMINATED STRINGS
+#define TR_VTMRMODES                    "OFF","ON","Strt","THs","TH%","THt"
+#define TR_VTRAINER_MASTER_OFF          "禁用"
+#define TR_VTRAINER_MASTER_JACK         "教練主機/教練口"
+#define TR_VTRAINER_SLAVE_JACK          "學生從機/教練口"
+#define TR_VTRAINER_MASTER_SBUS_MODULE  "教練主機/SBUS模塊"
+#define TR_VTRAINER_MASTER_CPPM_MODULE  "教練從機/CPPM模塊"
+#define TR_VTRAINER_MASTER_BATTERY      "教練主機/端口"
+#define TR_VTRAINER_BLUETOOTH           "教練主機/藍牙","教練從機/藍牙"
+#define TR_VTRAINER_MULTI               "教練主機/多協議"
+#define TR_VFAILSAFE                    "未設置","失控保持","自定義","無脈衝", "接收機"
+#define TR_VSENSORTYPES                 "自定義","運算"
+#define TR_VFORMULAS                    "加","平均值","最小值","最大值","乘","總計值","單節電池","消耗量","距離"
+#define TR_VPREC                        "0.--","0.0-","0.00"
+#define TR_VCELLINDEX                   "最低值","1","2","3","4","5","6","最高值","差值"
+#define TR_GYROS                        "GyrX","GyrY"
+#define TR_TEXT_SIZE                    "標準","小","較小","中等","雙倍"
+#define TR_SUBTRIMMODES                 STR_CHAR_DELTA "(中点)","=(整體)"
 
 #define INDENT
 #define LEN_INDENT                      3
@@ -771,8 +658,7 @@
 #define TR_MAXBAUDRATE                  "最大帶寬"
 #define TR_BAUDRATE                     "波特率"
 #define TR_SAMPLE_MODE                  "採樣模式"
-#define LEN_SAMPLE_MODES                "\006"
-#define TR_SAMPLE_MODES                 "Normal""OneBit"
+#define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_BLUETOOTH                    "藍牙"
 #define TR_BLUETOOTH_DISC               "發現"
 #define TR_BLUETOOTH_INIT               "初始化"
@@ -780,8 +666,7 @@
 #define TR_BLUETOOTH_LOCAL_ADDR         "本機地址"
 #define TR_BLUETOOTH_PIN_CODE           "PIN碼"
 #define TR_BLUETOOTH_BAUDRATE           "藍牙帶寬"
-#define LEN_BLUETOOTH_MODES             "\004"
-#define TR_BLUETOOTH_MODES              "---\0" "回傳" "教練"
+#define TR_BLUETOOTH_MODES              "---","回傳","教練"
 #define TR_SELECT_TEMPLATE_FOLDER       "選擇一個樣板檔案夾:"
 #define TR_SELECT_TEMPLATE              "選擇一個樣板:"
 #define TR_NO_TEMPLATES                 "在此檔案夾中未找到模型樣板"
@@ -946,11 +831,9 @@
 #define TR_RXFREQUENCY                 TR("Rx Freqency", "接收機端口輸出頻率")
 #define TR_ANTENNACONFIRM1             "外置天線"
 #if defined(PCBX12S)
-#define LEN_ANTENNA_MODES              "\010"
-#define TR_ANTENNA_MODES               "內置天線""詢問\0 ""基於模型""外置天線"
+  #define TR_ANTENNA_MODES             "內置天線","詢問","基於模型","外置天線"
 #else
-#define LEN_ANTENNA_MODES              "\010"
-#define TR_ANTENNA_MODES               "內置天線""詢問\0 ""基於模型""外置天線"
+  #define TR_ANTENNA_MODES             "內置天線","詢問","基於模型","外置天線"
 #endif
 #define TR_USE_INTERNAL_ANTENNA        TR("Use int. antenna", "請使用內置天線")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Use ext. antenna", "請使用外置天線")
@@ -1001,8 +884,7 @@
 #define TR_CONFIRMRESET                TR("Erase ALL", "是否清除所有模型和設置數據?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Lua腳本數量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 電源"
-#define LEN_SPORT_UPDATE_POWER_MODES   "\004"
-#define TR_SPORT_UPDATE_POWER_MODES    "自動""開啟"
+#define TR_SPORT_UPDATE_POWER_MODES    "自動","開啟"
 #define TR_NO_TELEMETRY_SCREENS        "無回傳頁面"
 #define TR_TOUCH_PANEL                 "觸摸屏:"
 #define TR_FILE_SIZE                   "文件大小"

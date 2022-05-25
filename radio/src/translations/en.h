@@ -249,7 +249,7 @@
 #define TR_VCELLINDEX                  "Lowest","1","2","3","4","5","6","Highest","Delta"
 #define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
-#define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical) "
+#define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 
 #if defined(COLORLCD)
   #define INDENT
