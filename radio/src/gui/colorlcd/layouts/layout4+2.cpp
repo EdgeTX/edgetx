@@ -21,10 +21,12 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
+#include "lz4_bitmaps.h"
 
-const uint8_t LBM_LAYOUT_4P2[] = {
+const uint8_t _LBM_LAYOUT_4P2[] = {
 #include "mask_layout4+2.lbm"
 };
+STATIC_LZ4_BITMAP(LBM_LAYOUT_4P2);
 
 const ZoneOption OPTIONS_LAYOUT_4P2[] = {LAYOUT_COMMON_OPTIONS,
                                          LAYOUT_OPTIONS_END};
