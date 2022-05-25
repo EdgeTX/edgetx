@@ -23,16 +23,26 @@
 #include "font.h"
 
 #if !defined(BOOT)
-static const lv_font_t* lvglFontTable[FONTS_COUNT] = {
-  LV_FONT_DEFAULT,         // FONT_STD_INDEX
-  &lv_font_roboto_bold_16, // FONT_BOLD_INDEX
-  &lv_font_roboto_9,       // FONT_XXS_INDEX
-  &lv_font_roboto_13,      // FONT_XS_INDEX
-  &lv_font_roboto_24,      // FONT_L_INDEX
-  &lv_font_roboto_bold_32, // FONT_XL_INDEX
-  &lv_font_roboto_bold_64, // FONT_XXL_INDEX
-};
+
+#define FONT_TABLE(name)                                 \
+  static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
+      LV_FONT_DEFAULT,         /* FONT_STD_INDEX */      \
+      &lv_font_ ## name ## _bold_16, /* FONT_BOLD_INDEX */     \
+      &lv_font_ ## name ## _9,       /* FONT_XXS_INDEX */      \
+      &lv_font_ ## name ## _13,      /* FONT_XS_INDEX */       \
+      &lv_font_ ## name ## _24,      /* FONT_L_INDEX */        \
+      &lv_font_ ## name ## _bold_32, /* FONT_XL_INDEX */       \
+  }
+
+#if defined(TRANSLATIONS_CN)
+  FONT_TABLE(noto_cn);
+#elif defined(TRANSLATIONS_TW)
+  FONT_TABLE(noto_tw);
+#else
+  FONT_TABLE(roboto);
 #endif
+
+#endif // BOOT
 
 const lv_font_t* getFont(LcdFlags flags)
 {
