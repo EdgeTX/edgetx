@@ -635,7 +635,9 @@ int main(int argc, char ** argv)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
 
+#if !defined(SIMU_BOOTLOADER)
   startAudioThread();
+#endif
   simuStart(true/*false*/, argc >= 3 ? argv[2] : 0, argc >= 4 ? argv[3] : 0);
 
   return application.run();
