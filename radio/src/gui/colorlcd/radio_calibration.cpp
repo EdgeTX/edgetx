@@ -63,7 +63,7 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial):
 {
   buildHeader(&header);
   buildBody(&body);
-  setFocus(SET_FOCUS_DEFAULT);
+  Window::setFocus(SET_FOCUS_DEFAULT);
 }
 
 void RadioCalibrationPage::buildHeader(Window * window)
@@ -230,6 +230,9 @@ void RadioCalibrationPage::onEvent(event_t event)
 
 void RadioCalibrationPage::nextStep()
 {
+  if (menuCalibrationState == CALIB_FINISHED)
+    deleteLater();
+
   menuCalibrationState++;
 
   switch (menuCalibrationState) {
