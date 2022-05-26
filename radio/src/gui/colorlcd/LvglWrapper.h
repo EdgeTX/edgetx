@@ -61,22 +61,19 @@ class LvglWidgetFactory
     bool styleInitialized;
 };
 
-class LvglWrapper {
-public:
+class LvglWrapper
+{
+ public:
+  static LvglWrapper* instance();
+
+  void run();
+  void pollInputs();
+
+ private:
   LvglWrapper();
   ~LvglWrapper() {}
 
-  static LvglWrapper* instance()
-  {
-    if (!_instance)
-      _instance = new LvglWrapper();
-
-    return _instance;
-  }
-  void run();
-
-private:
-  static LvglWrapper* _instance;
+  static LvglWrapper *_instance;
   tmr10ms_t lastTick = 0;
 };
 

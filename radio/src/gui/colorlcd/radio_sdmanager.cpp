@@ -138,8 +138,7 @@ class FlashDialog: public FullScreenDialog
               int total) -> void {
             setMessage(message);
             progress.setValue(total > 0 ? count * 100 / total : 0);
-            MainWindow::instance()->run(false);
-            LvglWrapper::instance()->run();
+            lv_refr_now(nullptr);
           });
       deleteLater();
     }

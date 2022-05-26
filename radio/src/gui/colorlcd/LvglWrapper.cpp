@@ -332,6 +332,12 @@ LvglWrapper::LvglWrapper()
   window->setActiveScreen();
 }
 
+LvglWrapper* LvglWrapper::instance()
+{
+  if (!_instance) _instance = new LvglWrapper();
+  return _instance;
+}
+
 void LvglWrapper::run()
 {
 #if defined(SIMU)
@@ -340,4 +346,12 @@ void LvglWrapper::run()
   lastTick = tick;
 #endif
   lv_timer_handler();
+}
+
+void LvglWrapper::pollInputs()
+{
+  lv_indev_t* indev = nullptr;
+  while((indev = lv_indev_get_next(indev)) != nullptr) {
+    lv_indev_read_timer_cb(indev->driver->read_timer);
+  }
 }
