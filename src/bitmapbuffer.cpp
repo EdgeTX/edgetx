@@ -1268,10 +1268,11 @@ BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
 
 BitmapBuffer* BitmapBuffer::load8bitMask(const uint8_t * lbm)
 {
-  BitmapBuffer * bitmap = new BitmapBuffer(BMP_RGB565,lbm[0],lbm[1]);
+  const uint16_t* hdr = (const uint16_t*)lbm;
+  BitmapBuffer * bitmap = new BitmapBuffer(BMP_RGB565,hdr[0],hdr[1]);
   if (bitmap) {
     pixel_t * p = bitmap->getPixelPtrAbs(0, 0);
-    const uint8_t * src = lbm + 2;
+    const uint8_t * src = lbm + 4;
     for (int i = bitmap->width() * bitmap->height(); i > 0; i--) {
       *((uint8_t *)p) = (*(src++) >> 4);
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
