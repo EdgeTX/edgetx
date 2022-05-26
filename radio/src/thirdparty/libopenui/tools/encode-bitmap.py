@@ -134,7 +134,6 @@ class ImageEncoder:
                 value = self.get_pixel(image, x, y)
                 value = 0xFF - value
                 self.encode_byte(value)
-            self.f.write("\n")
         self.encode_end()
 
     def encode_5_6_5(self, image):
