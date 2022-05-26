@@ -1467,8 +1467,10 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   // Pot warnings
   prevFocus = ui->potWarningMode;
-  if (IS_HORUS_OR_TARANIS(board)) {
-    for (int i = 0; i < getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders); i++) {
+  int count = getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders);
+
+  if (IS_HORUS_OR_TARANIS(board) && count > 0) {
+    for (int i = 0; i < count; i++) {
       RawSource src(SOURCE_TYPE_STICK, CPN_MAX_STICKS + i);
       QCheckBox * cb = new QCheckBox(this);
       cb->setProperty("index", i);
