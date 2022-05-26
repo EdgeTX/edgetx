@@ -23,9 +23,10 @@
 #include "opentx.h"
 #include "stamp.h"
 
-const uint8_t mask_qrcode[] = {
+const uint8_t _mask_qrcode[] = {
 #include "mask_qrcode.lbm"
 };
+STATIC_LZ4_BITMAP(mask_qrcode);
 
 constexpr coord_t ABOUT_WIDTH = 220;
 #if defined(VERSION_TAG)
