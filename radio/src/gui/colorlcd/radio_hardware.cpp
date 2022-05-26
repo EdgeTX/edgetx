@@ -119,6 +119,19 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  new StaticText(window, grid.getLabelSlot(), STR_SAMPLE_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(window, grid.getFieldSlot(1,0), STR_SAMPLE_MODES, 0, UART_SAMPLE_MODE_MAX,
+             [=] { return g_eeGeneral.uartSampleMode; },
+                            [=](int8_t newValue) {
+                               g_eeGeneral.uartSampleMode = newValue;
+                               SET_DIRTY();
+                               restartModule(EXTERNAL_MODULE);
+                            }
+             );
+  grid.nextLine();
+#endif
+
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   auto mod = new InternalModuleWindow(window);
