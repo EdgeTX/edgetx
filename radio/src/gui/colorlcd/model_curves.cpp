@@ -193,8 +193,10 @@ class CurveEditWindow : public Page
                      }
                      SET_DIRTY();
                      curveEdit->updatePreview();
-                     curveDataEdit->clear();
-                     curveDataEdit->update();
+                     if(curveDataEdit) {
+                       curveDataEdit->clear();
+                       curveDataEdit->update();
+                     }
                    }
                  });
 
@@ -217,8 +219,10 @@ class CurveEditWindow : public Page
                                      curve.points = newValue;
                                      SET_DIRTY();
                                      curveEdit->updatePreview();
-                                     curveDataEdit->clear();
-                                     curveDataEdit->update();
+                                     if(curveDataEdit) {
+                                       curveDataEdit->clear();
+                                       curveDataEdit->update();
+                                     }
                                    }
                                  });
       edit->setSuffix(STR_PTS);
