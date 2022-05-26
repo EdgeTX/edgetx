@@ -606,6 +606,38 @@ AbstractStaticItemModel * GeneralSettings::stickDeadZoneItemModel()
   return mdl;
 }
 
+QString GeneralSettings::uartSampleModeToString() const
+{
+  return uartSampleModeToString(uartSampleMode);
+}
+
+//  static
+QString GeneralSettings::uartSampleModeToString(int value)
+{
+  switch(value) {
+    case UART_SAMPLE_MODE_NORMAL:
+      return tr("Normal");
+    case UART_SAMPLE_MODE_ONEBIT:
+      return tr("OneBit");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::uartSampleModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_UARTSAMPLEMODE);
+
+  for (int i = 0; i < UART_SAMPLE_MODE_COUNT; i++) {
+    mdl->appendToItemList(uartSampleModeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
 /*
     TrainerMix
 */

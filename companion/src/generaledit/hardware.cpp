@@ -98,6 +98,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
   int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
   int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::internalModuleBaudrateItemModel());
+  int uartmodelid = editorItemModels->registerItemModel(GeneralSettings::uartSampleModeItemModel());
 
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
@@ -214,6 +215,14 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams(row, internalModule, internalModuleBaudRate);
     row++;
+  }
+
+  if (Boards::getCapability(board, Board::HasExternalModuleSupport)) {
+    addLabel(tr("Sample Mode"), row, 0);
+    AutoComboBox *uartSampleMode = new AutoComboBox(this);
+    uartSampleMode->setModel(editorItemModels->getItemModel(uartmodelid));
+    uartSampleMode->setField(generalSettings.uartSampleMode);
+    addParams(row, uartSampleMode);
   }
 
   // All values except 0 are mutually exclusive
