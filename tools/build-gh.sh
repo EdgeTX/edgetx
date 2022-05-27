@@ -125,6 +125,9 @@ do
         tpro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
             ;;
+        lr3pro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+            ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
             ;;

@@ -99,7 +99,7 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     { ADC_CHANNEL_SLIDER2, ADC_SAMPTIME },
     { ADC_CHANNEL_BATT,    ADC_SAMPTIME }
 #else
-#if defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8)
+#if defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO)
     // fake channels to fill unused POT1/POT2
     {0, 0},
     {0, 0},
