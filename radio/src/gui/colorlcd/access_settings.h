@@ -48,6 +48,8 @@ class BindWaitDialog : public Dialog
   BindWaitDialog(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
   void checkEvents() override;
 
+  void deleteLater(bool detach = true, bool trash = true) override;
+  
  protected:
   uint8_t moduleIdx;
   uint8_t receiverIdx;

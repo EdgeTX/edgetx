@@ -244,7 +244,8 @@ class LogicalSwitchEditPage: public Page
       functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
       grid.nextLine();
 
-      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }, FORM_FORWARD_FOCUS);
+      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }// , FORM_FORWARD_FOCUS
+                                             );
       updateLogicalSwitchOneWindow();
       grid.addWindow(logicalSwitchOneWindow);
     }
@@ -433,12 +434,12 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
         txt->invalidate();
       });
 
-      if (focusIndex == i) {
-        button->setFocus(SET_FOCUS_DEFAULT);
-        txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        txt->invalidate();
-      }
+      // if (focusIndex == i) {
+      //   button->setFocus(SET_FOCUS_DEFAULT);
+      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+      //   txt->invalidate();
+      // }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);

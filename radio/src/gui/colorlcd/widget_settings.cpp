@@ -171,18 +171,18 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
 
   content->updateSize();
   setCloseHandler([=]() { widget->update(); });
-  form->setFocus();
+  // form->setFocus();
 }
 
-#if defined(HARDWARE_KEYS)
+// #if defined(HARDWARE_KEYS)
 
-void WidgetSettings::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+// void WidgetSettings::onEvent(event_t event)
+// {
+//   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-}
+//   if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
+//     deleteLater();
+//   }
+// }
 
-#endif
+// #endif

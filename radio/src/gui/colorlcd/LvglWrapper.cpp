@@ -30,38 +30,102 @@ LvglWrapper* LvglWrapper::_instance = nullptr;
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
 static lv_indev_drv_t rotaryDriver;
+
 static lv_indev_t* rotaryDevice = nullptr;
+static lv_indev_t* keyboardDevice = nullptr;
 
-lv_group_t* inputGroup;
-
-#if defined(HARDWARE_TOUCH)
-static bool touchOccured = false;
-bool getTouchOccured()
+static lv_obj_t* get_focus_obj(lv_indev_t* indev)
 {
-  return touchOccured;
+  lv_group_t * g = indev->group;
+  if(g == nullptr) return nullptr;
+  return lv_group_get_focused(g);
 }
 
-static TouchState lastState;
-TouchState getLastTochState()
-{
-  touchOccured = false;
-  return lastState;
-}
-#endif
+static lv_indev_data_t kb_data_backup;
 
-extern "C" void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
+static void backup_kb_data(lv_indev_data_t* data)
 {
-  // if there is a keyboard event then call checkevents
+  memcpy(&kb_data_backup, data, sizeof(lv_indev_data_t));
+}
+
+static void copy_kb_data_backup(lv_indev_data_t* data)
+{
+  memcpy(data, &kb_data_backup, sizeof(lv_indev_data_t));
+}
+
+constexpr event_t _KEY_PRESSED = _MSK_KEY_FLAGS & ~_MSK_KEY_BREAK;
+
+static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
+{
+  event_t key = EVT_KEY_MASK(evt);
+  switch(key) {
+
+  case KEY_ENTER:
+    data->key = LV_KEY_ENTER;
+    break;
+
+  case KEY_EXIT:
+    data->key = LV_KEY_ESC;
+    break;    
+
+  default:
+    // abort LVGL event
+    return false;
+  }
+
+  if (evt & _KEY_PRESSED) {
+    data->state = LV_INDEV_STATE_PRESSED;
+  } else {
+    data->state = LV_INDEV_STATE_RELEASED;
+  }
+
+  return true;
+}
+
+static void dispatch_kb_event(Window* w, event_t evt)
+{
+  if (!w) return;
+
+  event_t key = EVT_KEY_MASK(evt);
+  if (evt == EVT_KEY_BREAK(KEY_ENTER)) {
+    w->onClicked();
+  } else if (evt == EVT_KEY_FIRST(KEY_EXIT)) {
+    w->onCancel();
+  } else if (key != KEY_ENTER /*&& key != KEY_EXIT*/) {
+    w->onEvent(evt);
+  }
+}
+
+static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+  data->key = 0;
+
   if (isEvent()) {
     event_t evt = getWindowEvent();
-    auto focusWindow = Window::getFocus();
-    if (focusWindow) {
-      focusWindow->onEvent(evt);
-    } else {
+
+    // no focused item ?
+    auto obj = get_focus_obj(keyboardDevice);
+    if (!obj) {
       auto w = Layer::back();
-      if (w) w->onEvent(evt);
+      dispatch_kb_event(w, evt);
+      backup_kb_data(data);
+      return;
     }
+
+    // not an LVGL key ?
+    bool is_lvgl_evt = evt_to_indev_data(evt, data);
+    if (!is_lvgl_evt) {
+      auto w = (Window*)lv_obj_get_user_data(obj);
+      dispatch_kb_event(w, evt);
+      return;
+    }
+
+    backup_kb_data(data);
+    return;
   }
+
+  // no event: send a copy of the last one
+  copy_kb_data_backup(data);
 }
 
 static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
@@ -70,30 +134,27 @@ static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
   data->point.y = st.y;
 }
 
-static lv_indev_data_t indev_data_backup;
+static lv_indev_data_t touch_data_backup;
 
-static void backup_indev_data(lv_indev_data_t* data)
+static void backup_touch_data(lv_indev_data_t* data)
 {
-  memcpy(&indev_data_backup, data, sizeof(lv_indev_data_t));
+  memcpy(&touch_data_backup, data, sizeof(lv_indev_data_t));
 }
 
-static void copy_indev_data_backup(lv_indev_data_t* data)
+static void copy_touch_data_backup(lv_indev_data_t* data)
 {
-  memcpy(data, &indev_data_backup, sizeof(lv_indev_data_t));
+  memcpy(data, &touch_data_backup, sizeof(lv_indev_data_t));
 }
 
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
   if(!touchPanelEventOccured()) {
-    copy_indev_data_backup(data);
+    copy_touch_data_backup(data);
     return;
   }
-  touchOccured = true;
 
   TouchState st = touchPanelRead();
-  lastState = st; // hack for now
-
   if(st.event == TE_NONE) {
     TRACE("TE_NONE");
   } else if(st.event == TE_DOWN || st.event == TE_SLIDE) {
@@ -106,54 +167,20 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
-  backup_indev_data(data);
+  backup_touch_data(data);
 #endif
 }
 
-event_t encoderEvent = 0;
-bool newEncoderEvent = false;
-lv_indev_state_t encoderState = LV_INDEV_STATE_RELEASED;
-
-void lvglPushEncoderEvent(event_t& evt)
+static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
-  if (evt != EVT_KEY_FIRST(KEY_ENTER) && evt != EVT_KEY_BREAK(KEY_ENTER) &&
-      evt != EVT_ROTARY_LEFT && evt != EVT_ROTARY_RIGHT)
-    return;
+  static rotenc_t prevPos = 0;
 
-  encoderEvent = evt;
-  evt = 0;
-  newEncoderEvent = true;
-}
+  rotenc_t newPos = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
+  auto diff = newPos - prevPos;
+  prevPos = newPos;
 
-extern "C" void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
-{
-  data->enc_diff = 0;
-  if(newEncoderEvent)
-  {
-    switch(encoderEvent)
-    {
-    case EVT_KEY_FIRST(KEY_ENTER):
-      encoderState = LV_INDEV_STATE_PRESSED;
-      break;
-    case EVT_KEY_BREAK(KEY_ENTER):
-      encoderState = LV_INDEV_STATE_RELEASED;
-      break;
-    case EVT_KEY_FIRST(KEY_EXIT):
-      encoderState = LV_INDEV_STATE_PRESSED;
-      break;
-    case EVT_KEY_BREAK(KEY_EXIT):
-      encoderState = LV_INDEV_STATE_RELEASED;
-      break;
-    case EVT_ROTARY_LEFT:
-      data->enc_diff = -1;
-      break;
-    case EVT_ROTARY_RIGHT:
-      data->enc_diff = 1;
-      break;
-    }
-  }
-  newEncoderEvent = false;
-  data->state = encoderState;
+  data->enc_diff = (int16_t)diff;
+  data->state = LV_INDEV_STATE_RELEASED;
 }
 
 /**
@@ -172,27 +199,21 @@ static void init_lvgl_drivers()
   // Register the driver and save the created display object
   lcdInitDisplayDriver();
  
-  // add all lvgl object automatically to a input handling group
-  inputGroup = lv_group_create();
-  lv_group_set_default(inputGroup);
-
   // Register the driver in LVGL and save the created input device object
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
   touchDriver.read_cb = touchDriverRead;      /*See below.*/
   lv_indev_drv_register(&touchDriver);
 
-  lv_indev_drv_init(&keyboard_drv);
-  keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
-  keyboard_drv.read_cb = keyboardDriverRead;
-  lv_indev_drv_register(&keyboard_drv);
-
   lv_indev_drv_init(&rotaryDriver);
   rotaryDriver.type = LV_INDEV_TYPE_ENCODER;
   rotaryDriver.read_cb = rotaryDriverRead;
   rotaryDevice = lv_indev_drv_register(&rotaryDriver);
 
-  lv_indev_set_group(rotaryDevice, inputGroup);
+  lv_indev_drv_init(&keyboard_drv);
+  keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
+  keyboard_drv.read_cb = keyboardDriverRead;
+  keyboardDevice = lv_indev_drv_register(&keyboard_drv);
 }
 
 // The theme code needs to go somewhere else (gui/colorlcd/themes/default.cpp?)

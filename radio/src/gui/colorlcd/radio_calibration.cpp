@@ -63,7 +63,6 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial):
 {
   buildHeader(&header);
   buildBody(&body);
-  Window::setFocus(SET_FOCUS_DEFAULT);
 }
 
 void RadioCalibrationPage::buildHeader(Window * window)
@@ -209,24 +208,21 @@ void RadioCalibrationPage::checkEvents()
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void RadioCalibrationPage::onEvent(event_t event)
+void RadioCalibrationPage::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  nextStep();
+}
 
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    nextStep();
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && menuCalibrationState != CALIB_START) {
+void RadioCalibrationPage::onCancel()
+{
+  if (menuCalibrationState != CALIB_START &&
+      menuCalibrationState != CALIB_FINISHED) {
     menuCalibrationState = CALIB_START;
     text->setText(STR_MENUTOSTART);
-
-  }
-  else {
-    Page::onEvent(event);
+  } else {
+    Page::onCancel();
   }
 }
-#endif
 
 void RadioCalibrationPage::nextStep()
 {

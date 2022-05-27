@@ -25,10 +25,7 @@
 #include <lvgl/lvgl.h>
 #include "opentx_types.h"
 
-extern lv_color_t makeLvColor(uint32_t colorFlags);
-#if defined(HARDWARE_TOUCH)
-extern TouchState getLastTochState();
-#endif
+lv_color_t makeLvColor(uint32_t colorFlags);
 
 class LvglWidgetFactory;
 typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;

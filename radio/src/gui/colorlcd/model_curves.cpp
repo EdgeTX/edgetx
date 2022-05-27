@@ -386,12 +386,12 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
         txt->invalidate();
       });
 
-      if (focusIndex == index) {
-        button->setFocus(SET_FOCUS_DEFAULT);
-        txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        txt->invalidate();
-      }
+      // if (focusIndex == index) {
+      //   button->setFocus(SET_FOCUS_DEFAULT);
+      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+      //   txt->invalidate();
+      // }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);

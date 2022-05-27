@@ -249,9 +249,9 @@ bool ListBase::onTouchEnd(coord_t x, coord_t y)
 
   duration10ms = 0;
 
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
+  // if (!hasFocus()) {
+  //   setFocus(SET_FOCUS_DEFAULT);
+  // }
 
   if (pressHandler != nullptr) {
     pressHandler(0);

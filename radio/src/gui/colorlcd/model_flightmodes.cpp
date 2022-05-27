@@ -144,7 +144,7 @@ struct FMTrimSettings : public Dialog {
 
     content->setWidth(LCD_W * 0.8);
     content->updateSize();
-    form->setFocus();
+    // form->setFocus();
   }
 };
 
@@ -159,7 +159,7 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
                  title, 0, COLOR_THEME_PRIMARY2);
 
   auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
-                             NO_FOCUS | FORM_FORWARD_FOCUS);
+                             NO_FOCUS /*| FORM_FORWARD_FOCUS*/);
 
   form->setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
@@ -199,7 +199,7 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
     return 0;
   });
 
-  form->setFocus();
+  // form->setFocus();
 }
 
 class FlightModeBtn: public Button

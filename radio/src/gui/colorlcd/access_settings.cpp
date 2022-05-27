@@ -133,6 +133,11 @@ BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
+void BindWaitDialog::deleteLater(bool detach, bool trash)
+{
+  Dialog::deleteLater(detach, trash);
+}
+
 void BindWaitDialog::checkEvents()
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
@@ -178,12 +183,12 @@ void BindWaitDialog::checkEvents()
 
   if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
 
-    // create RX choice dialog...
-    new BindRxChoiceMenu(parent, moduleIdx, receiverIdx);
-
-    // ... prevent module mode being reset to NORMAL before exiting
+    // prevent module mode being reset to NORMAL before exiting
     setCloseHandler(nullptr);
     deleteLater();
+
+    // ... and create RX choice dialog
+    new BindRxChoiceMenu(Layer::back(), moduleIdx, receiverIdx);
     return;
   }
 
@@ -328,11 +333,10 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
         this->deleteLater();
         return 0;
       });
-  exitButton->setFocus(SET_FOCUS_DEFAULT);
+  // exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
-  FormField::link(exitButton, edit);
   form->setHeight(grid.getWindowHeight());
   content->adjustHeight();
 
@@ -364,10 +368,6 @@ void RegisterDialog::checkEvents()
       return 0;
     });
     exitButton->setLeft(left() + rect.w + 10);
-    FormField::link(uid, rxName);
-    FormField::link(rxName, okButton);
-    FormField::link(okButton, exitButton);
-    okButton->setFocus(SET_FOCUS_DEFAULT);
   } else if (modSetup.registerStep == REGISTER_OK) {
     deleteLater();
     POPUP_INFORMATION(STR_REG_OK);
@@ -393,7 +393,7 @@ ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
   state = MO_ReadModuleSettings;
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  setFocus();
+  // setFocus();
 }
 
 void ModuleOptions::checkEvents()
@@ -562,7 +562,7 @@ void ModuleOptions::update()
     return 0;
   });
 
-  exitButton->setFocus(SET_FOCUS_DEFAULT);
+  // exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
@@ -607,7 +607,7 @@ RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
   }
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  setFocus();
+  // setFocus();
 }
 
 void RxOptions::checkEvents()
@@ -864,7 +864,7 @@ void RxOptions::update()
     return 0;
   });
 
-  exitButton->setFocus(SET_FOCUS_DEFAULT);
+  // exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 

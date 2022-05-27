@@ -25,7 +25,7 @@
 class GaugeWidget: public Widget
 {
   public:
-    GaugeWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
+    GaugeWidget(const WidgetFactory* factory, Window* parent, const rect_t & rect, Widget::PersistentData* persistentData):
       Widget(factory, parent, rect, persistentData)
     {
     }

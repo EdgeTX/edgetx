@@ -39,17 +39,9 @@ class SetupWidgetsPage : public FormWindow
   }
 #endif
 
+  void onClicked() override;
+  void onCancel() override;
   void deleteLater(bool detach = true, bool trash = true) override;
-
-#if defined(HARDWARE_TOUCH)
-  bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
-                    coord_t slideX, coord_t slideY) override;
-  bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 
  protected:
   ScreenMenu* menu;

@@ -228,7 +228,7 @@ class LuaWidget: public Widget
   friend class LuaWidgetFactory;
   
   public:
-    LuaWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData, int luaWidgetDataRef):
+    LuaWidget(const WidgetFactory * factory, Window* parent, const rect_t & rect, WidgetPersistentData * persistentData, int luaWidgetDataRef):
       Widget(factory, parent, rect, persistentData),
       luaWidgetDataRef(luaWidgetDataRef),
       errorMessage(nullptr)
@@ -325,7 +325,7 @@ class LuaWidgetFactory: public WidgetFactory
       unregisterWidget(this);
     }
 
-    Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
+    Widget * create(Window* parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init=true) const override
     {
       if (lsWidgets == 0) return 0;
       initPersistentData(persistentData, init);

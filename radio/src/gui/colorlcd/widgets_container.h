@@ -76,10 +76,10 @@ struct TopBarPersistentData {
 };
 #endif
 
-class WidgetsContainer: public FormGroup
+class WidgetsContainer: public Window
 {
   public:
-    using FormGroup::FormGroup;
+    using Window::Window;
   
     virtual unsigned int getZonesCount() const = 0;
     virtual rect_t getZone(unsigned int index) const = 0;

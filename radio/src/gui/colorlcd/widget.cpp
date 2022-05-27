@@ -30,7 +30,7 @@
 #include "touch.h"
 #endif
 
-constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
+// constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
 
 static void openWidgetMenu(Widget * parent)
 {
@@ -41,16 +41,12 @@ static void openWidgetMenu(Widget * parent)
                   [=]() { new WidgetSettings(parent, parent); });
 }
 
-Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
-               const rect_t &rect, WidgetPersistentData *persistentData) :
-    Button(parent, rect), factory(factory), persistentData(persistentData)
+Widget::Widget(const WidgetFactory* factory, Window* parent,
+               const rect_t &rect, WidgetPersistentData* persistentData) :
+    Button(parent, rect, nullptr, 0, 0, window_create),
+    factory(factory),
+    persistentData(persistentData)
 {
-  setFocusHandler([&](bool focus) {
-    if (focus) {  // gained focus
-      focusGainedTS = RTOS_GET_MS();
-    }
-  });
-
   setPressHandler([&]() -> uint8_t {
     if (!fullscreen) openWidgetMenu(this);
     return 0;
@@ -62,9 +58,9 @@ void Widget::checkEvents()
   Button::checkEvents();
 
   // Give the focus back to ViewMain after WIDGET_FOCUS_TIMEOUT milliseconds
-  if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
-    ViewMain::instance()->setFocus();
-  }
+  // if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
+  //   ViewMain::instance()->setFocus();
+  // }
 }
 
 
@@ -80,11 +76,11 @@ void Widget::paint(BitmapBuffer * dc)
   
   if (hasFocus() && !fullscreen) {
 
-    // Blink from haft-time before expiring (5s)
-    if ((RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT / 2)
-        && !FAST_BLINK_ON_PHASE) {
-      return;
-    }
+    // // Blink from haft-time before expiring (5s)
+    // if ((RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT / 2)
+    //     && !FAST_BLINK_ON_PHASE) {
+    //   return;
+    // }
     dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
 }
@@ -96,8 +92,8 @@ void Widget::onEvent(event_t event)
   if (!fullscreen) {
     if (event == EVT_KEY_BREAK(KEY_EXIT)) {
       // [EXIT] -> exit focus mode (if not fullscreen)
-      killEvents(event);
-      ViewMain::instance()->setFocus();
+      // killEvents(event);
+      // ViewMain::instance()->setFocus();
       return;
     }
     // Forward the rest to the parent class
@@ -106,7 +102,7 @@ void Widget::onEvent(event_t event)
   // In fullscreen mode, we react only to that one key:
   // [RTN / EXIT LONG] -> exit fullscreen mode
   else if (EVT_KEY_LONG(KEY_EXIT) == event) {
-    killEvents(event);
+    // killEvents(event);
     setFullscreen(false);
   }
 }
@@ -134,8 +130,10 @@ void Widget::setFullscreen(bool enable)
 
     // and give up focus
     ViewMain::instance()->enableTopbar();
-    ViewMain::instance()->setFocus();
+    // ViewMain::instance()->setFocus();
     fullscreen = false;
+
+    lv_group_remove_obj(lvobj);
   }
   // Enter Fullscreen Mode
   else {
@@ -147,6 +145,10 @@ void Widget::setFullscreen(bool enable)
     fullscreen = true;
     ViewMain::instance()->disableTopbar();
     bringToTop();
+
+    if (!lv_obj_get_group(lvobj)) {
+      lv_group_add_obj(lv_group_get_default(), lvobj);
+    }
   }
 }
 
@@ -179,9 +181,10 @@ const WidgetFactory * getWidgetFactory(const char * name)
   return nullptr;
 }
 
-Widget * loadWidget(const char * name, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData)
+Widget* loadWidget(const char* name, Window* parent, const rect_t& rect,
+                   WidgetPersistentData* persistentData)
 {
-  const WidgetFactory * factory = getWidgetFactory(name);
+  const WidgetFactory* factory = getWidgetFactory(name);
   if (factory) {
     return factory->create(parent, rect, persistentData, false);
   }

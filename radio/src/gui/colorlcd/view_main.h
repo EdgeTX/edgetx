@@ -74,9 +74,8 @@ class ViewMain: public Window
 
     Topbar* getTopbar();
   
-#if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
-#endif
+    void onClicked() override;
   
   protected:
     static ViewMain * _instance;
@@ -85,6 +84,8 @@ class ViewMain: public Window
     lv_obj_t*   tile_view = nullptr;
     TopbarImpl* topbar = nullptr;
 
+    void deleteLater(bool detach = true, bool trash = true) override;
+
     // Widget setup requires special permissions ;-)
     friend class SetupWidgetsPage;
     friend class SetupTopBarWidgetsPage;
@@ -92,12 +93,12 @@ class ViewMain: public Window
     // Set topbar visibility [0.0 -> 1.0]
     void setTopbarVisible(float visible);
 
-#if defined(HARDWARE_TOUCH)
-    unsigned char prevSlideState = 0;
-    unsigned int  startSlidePage = 0;
+// #if defined(HARDWARE_TOUCH)
+//     unsigned char prevSlideState = 0;
+//     unsigned int  startSlidePage = 0;
 
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
+//     bool onTouchEnd(coord_t x, coord_t y) override;
+// #endif
 
     void paint(BitmapBuffer * dc) override;
 
