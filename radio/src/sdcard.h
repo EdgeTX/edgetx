@@ -156,6 +156,8 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x4278746F // etx for Jumper TLite
 #elif defined(RADIO_TPRO)
   #define ETX_FOURCC 0x4678746F // etx for Jumper TPro
+#elif defined(RADIO_LR3PRO)
+  #define ETX_FOURCC 0x4478746F // etx for BETAFPV LR3PRO
 #elif defined(RADIO_TX12)
   #define ETX_FOURCC 0x4178746F // etx for Radiomaster TX12
 #elif defined(RADIO_TX12MK2)
