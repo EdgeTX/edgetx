@@ -38,7 +38,7 @@ class GVarNumberEdit : public FormGroup
                  std::function<void(int32_t)> setValue,
                  WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
                  int32_t voffset = 0) :
-      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
+      FormGroup(parent, rect, FORWARD_SCROLL /*| FORM_FORWARD_FOCUS*/),
       vmin(vmin),
       vmax(vmax),
       voffset(voffset),
@@ -73,9 +73,10 @@ class GVarNumberEdit : public FormGroup
   void onEvent(event_t event) override
   {
     if (event == EVT_KEY_LONG(KEY_ENTER)) {
-      killEvents(event);
+      // TODO: check this...
+      // killEvents(event);
       switchGVarMode();
-      field->setFocus(SET_FOCUS_DEFAULT);
+      // field->setFocus(SET_FOCUS_DEFAULT);
     } else {
       FormGroup::onEvent(event);
     }

@@ -173,13 +173,14 @@ void per10ms()
   }
 #endif
 
+  // TODO: to board...
   readKeysAndTrims();
 
 #if defined(FUNCTION_SWITCHES)
   evalFunctionSwitches();
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && 0
   if (IS_ROTARY_ENCODER_NAVIGATION_ENABLE()) {
     static rotenc_t rePreviousValue;
     static bool cw = false;
@@ -1644,7 +1645,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  uint8_t rotencSpeed;
+uint8_t rotencSpeed = ROTENC_LOWSPEED;
 #endif
 
 void opentxInit()

@@ -53,6 +53,7 @@ typedef struct {
     lv_style_t bg_color_grey;
     lv_style_t bg_color_white;
     lv_style_t bg_color_active;
+    lv_style_t bg_color_focus;
     lv_style_t pressed;
     lv_style_t disabled;
     lv_style_t focus_border;
@@ -66,6 +67,7 @@ typedef struct {
     lv_style_t outline_primary;
     lv_style_t outline_secondary;
     lv_style_t circle;
+    lv_style_t rounded;
     lv_style_t no_radius;
     lv_style_t clip_corner;
 #if LV_THEME_DEFAULT_GROW
@@ -379,8 +381,20 @@ static void style_init(void)
     lv_style_set_bg_opa(&styles.bg_color_active, LV_OPA_COVER);
     lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY2));
 
+    style_init_reset(&styles.bg_color_focus);
+    lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
+    lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
+    lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
+
     style_init_reset(&styles.circle);
     lv_style_set_radius(&styles.circle, LV_RADIUS_CIRCLE);
+
+    style_init_reset(&styles.rounded);
+    lv_style_set_radius(
+        &styles.rounded,
+        (disp_size == DISP_LARGE    ? lv_disp_dpx(theme.disp, 16)
+         : disp_size == DISP_MEDIUM ? lv_disp_dpx(theme.disp, 12)
+                                    : lv_disp_dpx(theme.disp, 8)));
 
     style_init_reset(&styles.no_radius);
     lv_style_set_radius(&styles.no_radius, 0);
@@ -775,11 +789,15 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
 #if LV_USE_BTNMATRIX
     else if(lv_obj_check_type(obj, &lv_btnmatrix_class)) {
+        // main
+        lv_obj_add_style(obj, &styles.rounded, 0);
+        // lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUS_KEY);
+        // items
         lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
         lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
         lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
-        lv_obj_add_style(obj, &styles.focus_border, LV_PART_ITEMS | LV_STATE_FOCUSED);
+        lv_obj_add_style(obj, &styles.focus_border, LV_PART_ITEMS | LV_STATE_EDITED);
     }
 #endif
 
@@ -814,8 +832,8 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.table_cell, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-        lv_obj_add_style(obj, &styles.bg_color_primary, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(obj, &styles.bg_color_secondary, LV_PART_ITEMS | LV_STATE_EDITED);
+        lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
+        lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
     }
 #endif
 

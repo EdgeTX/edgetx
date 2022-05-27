@@ -54,9 +54,9 @@ class FullScreenDialog : public FormGroup
 
     void paint(BitmapBuffer * dc) override;
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
+    // void onEvent(event_t event) override;
+    void onClicked() override;
+    void onCancel() override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchStart(coord_t x, coord_t y) override;

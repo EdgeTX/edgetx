@@ -411,7 +411,8 @@ class SensorEditWindow : public Page {
       grid.nextLine();
 
       sensorParametersWindow = new FormGroup(window, {0, grid.getWindowHeight(), LCD_W, 0},
-                                             FORM_FORWARD_FOCUS | FORM_NO_BORDER
+                                             // FORM_FORWARD_FOCUS |
+                                             FORM_NO_BORDER
                                              | FORWARD_SCROLL);
       updateSensorParametersWindow();
       grid.addWindow(sensorParametersWindow);
@@ -544,9 +545,9 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
       });
 
 
-      if (focusSensorIndex == idx) {
-        button->setFocus(SET_FOCUS_DEFAULT);
-      }
+      // if (focusSensorIndex == idx) {
+      //   button->setFocus(SET_FOCUS_DEFAULT);
+      // }
       grid.nextLine();
     }
   }

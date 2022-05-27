@@ -63,7 +63,7 @@ class ModuleWindow : public FormGroup
 
 ModuleWindow::ModuleWindow(FormWindow *parent, const rect_t &rect,
                            uint8_t moduleIdx) :
-    FormGroup(parent, rect, FORWARD_SCROLL | NO_FOCUS | FORM_FORWARD_FOCUS),
+    FormGroup(parent, rect, FORWARD_SCROLL | NO_FOCUS /*| FORM_FORWARD_FOCUS*/),
     moduleIdx(moduleIdx)
 {
   update();
@@ -306,7 +306,7 @@ void ModuleWindow::update()
             resetMultiProtocolsOptions(moduleIdx);
             SET_DIRTY();
             // update();
-            if (mmSubProto != nullptr) mmSubProto->setFocus(SET_FOCUS_DEFAULT);
+            // if (mmSubProto != nullptr) mmSubProto->setFocus(SET_FOCUS_DEFAULT);
           });
     }
     grid.nextLine();
@@ -639,7 +639,7 @@ void ModuleWindow::update()
           g_model.moduleData[moduleIdx].failsafeMode = newValue;
           SET_DIRTY();
           // update();
-          failSafeChoice->setFocus(SET_FOCUS_DEFAULT);
+          // failSafeChoice->setFocus(SET_FOCUS_DEFAULT);
         });
     if (g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_CUSTOM) {
       new TextButton(this, grid.getFieldSlot(2, 1), STR_SET, [=]() -> uint8_t {
@@ -846,8 +846,8 @@ void ModuleSubTypeChoice::update()
   }
 #if defined(PXX2)
   else if (isModulePXX2(moduleIdx)) {
-    setMin(MODULE_SUBTYPE_R9M_FCC);
-    setMax(MODULE_SUBTYPE_R9M_LAST);
+    setMin(MODULE_SUBTYPE_ISRM_PXX2_ACCESS);
+    setMax(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16);
     setValues(STR_ISRM_RF_PROTOCOLS);
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));

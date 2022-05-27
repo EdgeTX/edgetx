@@ -187,7 +187,7 @@ ColorEditor::ColorEditor(FormGroup *window, const rect_t rect, uint32_t color,
 void ColorEditor::setNextFocusBar()
 {
   _focusBar = (_focusBar + 1) % MAX_BARS;
-  setFocus();
+  // setFocus();
   invalidate();
 }
 
@@ -262,7 +262,7 @@ bool ColorEditor::onTouchStart(coord_t x, coord_t y)
       _colorType->barInfo[i].value = value;
       bFound = true;
       _focusBar = i;
-      setFocus();
+      // setFocus();
     } else {
       _colorType->barInfo[i].sliding = false;
     }

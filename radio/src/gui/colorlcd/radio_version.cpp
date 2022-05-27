@@ -59,6 +59,7 @@ class VersionDialog: public Dialog
         moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
 
+      setCloseWhenClickOutside(true);
       update();
     }
 
@@ -84,7 +85,7 @@ class VersionDialog: public Dialog
                                       this->deleteLater();
                                       return 0;
                                   });
-      exitButton->setFocus(SET_FOCUS_DEFAULT);
+      // exitButton->setFocus(SET_FOCUS_DEFAULT);
       grid.nextLine();
 
       grid.spacer(PAGE_PADDING);

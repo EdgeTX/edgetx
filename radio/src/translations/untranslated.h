@@ -143,16 +143,9 @@
 
 #define TR_FLYSKY_PROTOCOLS            "AFHDS3","AFHDS2A"
 #define TR_XJT_ACCST_RF_PROTOCOLS      "OFF","D16","D8","LR12"
-
-#if defined(INTERNAL_MODULE_PXX1) || defined(PCBHORUS)
 #define TR_ISRM_RF_PROTOCOLS           "ACCESS","D16","LR12"
-#else
-#define TR_ISRM_RF_PROTOCOLS           "OFF","ACCESS","ACCST D16","ACCST LR12","ACCST D8"
-#endif
-
 #define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS","FCC","EU","Flex"
 #define TR_SPORT_MODES                 "S.PORT","F.PORT","FBUS(FPORT2)"
-
 #define TR_R9M_REGION                  "FCC","EU","868MHz","915MHz"
 #define TR_R9M_LITE_FCC_POWER_VALUES   "(100mW)"
 #define TR_R9M_LITE_LBT_POWER_VALUES   "25mW 8CH","25mW 16CH","100mW NoTele"

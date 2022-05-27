@@ -354,7 +354,9 @@ class InputEditWindow : public Page
                      SET_DIRTY();
                      updateCurveParamField(line);
                  });
-      curveParamField = new FormGroup(&body, grid.getFieldSlot(2, 1), FORM_FORWARD_FOCUS);
+      curveParamField = new FormGroup(&body, grid.getFieldSlot(2, 1)
+                                      // , FORM_FORWARD_FOCUS
+                                      );
       updateCurveParamField(line);
       grid.nextLine();
 
@@ -497,7 +499,7 @@ void ModelInputsPage::rebuild(FormWindow * window, int8_t focusIndex)
 
 void ModelInputsPage::editInput(FormWindow * window, uint8_t input, uint8_t index)
 {
-  Window::clearFocus();
+  // Window::clearFocus();
   Window * editWindow = new InputEditWindow(input, index);
   editWindow->setCloseHandler([=]() {
     rebuild(window, index);
@@ -582,12 +584,12 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
           if (focus) button->bringToTop();
         });
 
-        if (focusIndex == inputIndex) {
-          button->setFocus(SET_FOCUS_DEFAULT);
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
-          txt->invalidate();
-        }
+        // if (focusIndex == inputIndex) {
+        //   button->setFocus(SET_FOCUS_DEFAULT);
+        //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
+        //   txt->invalidate();
+        // }
         grid.spacer(button->height() - 1);
         ++inputIndex;
         ++line;
@@ -635,10 +637,10 @@ void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
     }
   }
 
-  Window *focus = Window::getFocus();
-  if (focus) {
-    focus->bringToTop();
-  }
+  // Window *focus = Window::getFocus();
+  // if (focus) {
+  //   focus->bringToTop();
+  // }
 
   grid.nextLine();
 

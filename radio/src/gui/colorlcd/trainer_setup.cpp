@@ -257,7 +257,7 @@ void TrainerModuleWindow::update()
 #endif
   auto par = getParent();
   par->moveWindowsTop(top() + 1, adjustHeight());
-  par->adjustInnerHeight();
+  // par->adjustInnerHeight();
 }
 
 #if defined(BLUETOOTH)

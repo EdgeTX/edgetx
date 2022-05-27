@@ -40,7 +40,7 @@ class Widget : public Button
 
     typedef WidgetPersistentData PersistentData;
 
-    Widget(const WidgetFactory *factory, FormGroup *parent, const rect_t &rect,
+    Widget(const WidgetFactory *factory, Window* parent, const rect_t &rect,
            WidgetPersistentData *persistentData);
 
     ~Widget() override = default;
@@ -164,7 +164,7 @@ class WidgetFactory
       }
     }
 
-    virtual Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
+    virtual Widget * create(Window* parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
 
   protected:
     const char * name;
@@ -177,6 +177,6 @@ inline const ZoneOption * Widget::getOptions() const
   return getFactory()->getOptions();
 }
 
-Widget * loadWidget(const char * name, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData);
+Widget * loadWidget(const char * name, Window* parent, const rect_t & rect, Widget::PersistentData * persistentData);
 
 std::list<const WidgetFactory *> & getRegisteredWidgets();

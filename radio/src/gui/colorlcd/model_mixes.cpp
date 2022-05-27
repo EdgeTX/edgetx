@@ -174,7 +174,8 @@ class MixEditWindow : public Page
                  updateCurveParamField(mix);
                });
     curveParamField =
-        new FormGroup(&body, grid.getFieldSlot(2, 1), FORM_FORWARD_FOCUS);
+        new FormGroup(&body, grid.getFieldSlot(2, 1)// , FORM_FORWARD_FOCUS
+                      );
     updateCurveParamField(mix);
     grid.nextLine();
 
@@ -388,7 +389,7 @@ void ModelMixesPage::rebuild(FormWindow * window, int8_t focusMixIndex)
 
 void ModelMixesPage::editMix(FormWindow * window, uint8_t channel, uint8_t mixIndex)
 {
-  Window::clearFocus();
+  // Window::clearFocus();
   Window *editWindow = new MixEditWindow(channel, mixIndex);
   editWindow->setCloseHandler([=]() {
     int8_t newIndex = mixIndex;
@@ -514,13 +515,12 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
           if (focus) button->bringToTop();
         });
 
-        if (focusMixIndex == mixIndex) {
-          button->setFocus(SET_FOCUS_DEFAULT);
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-          txt->invalidate();
-        }
-
+        // if (focusMixIndex == mixIndex) {
+        //   button->setFocus(SET_FOCUS_DEFAULT);
+        //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        //   txt->invalidate();
+        // }
 
         grid.spacer(button->height() - 1);
         ++mixIndex;
@@ -537,7 +537,7 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
     else {
       auto button = new TextButton(window, grid.getLabelSlot(),
                                    getSourceString(MIXSRC_CH1 + ch));
-      if (focusMixIndex == mixIndex) button->setFocus(SET_FOCUS_DEFAULT);
+      // if (focusMixIndex == mixIndex) button->setFocus(SET_FOCUS_DEFAULT);
       button->setPressHandler([=]() -> uint8_t {
         button->bringToTop();
         Menu *menu = new Menu(window);
@@ -567,10 +567,10 @@ void ModelMixesPage::build(FormWindow * window, int8_t focusMixIndex)
     }
   }
 
-  Window * focus = Window::getFocus();
-  if (focus) {
-    focus->bringToTop();
-  }
+  // Window * focus = Window::getFocus();
+  // if (focus) {
+  //   focus->bringToTop();
+  // }
 
   grid.nextLine();
 

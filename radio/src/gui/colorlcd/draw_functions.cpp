@@ -126,7 +126,7 @@ class ShutdownAnimation: public FormGroup
     {
       Layer::push(this);
       bringToTop();
-      setFocus(SET_FOCUS_DEFAULT);
+      // setFocus(SET_FOCUS_DEFAULT);
     }
 
 #if defined(DEBUG_WINDOWS)
@@ -244,7 +244,7 @@ class FatalErrorScreen: public FormGroup
     {
       Layer::push(this);
       bringToTop();
-      setFocus(SET_FOCUS_DEFAULT);
+      // setFocus(SET_FOCUS_DEFAULT);
     }
 
 #if defined(DEBUG_WINDOWS)

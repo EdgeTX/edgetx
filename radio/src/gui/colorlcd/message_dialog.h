@@ -40,7 +40,7 @@ class MessageDialog : public Dialog
   std::string getName() const override { return "MessageDialog"; }
 #endif
 
-  void onEvent(event_t event) override;
+  void onClicked() override;
 };
 
 class DynamicMessageDialog : public Dialog
@@ -61,5 +61,5 @@ class DynamicMessageDialog : public Dialog
   std::string getName() const override { return "DynamicMessageDialog"; }
 #endif
 
-  void onEvent(event_t event) override;
+  void onClicked() override;
 };

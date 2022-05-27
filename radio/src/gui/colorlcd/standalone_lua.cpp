@@ -83,8 +83,7 @@ void StandaloneLuaWindow::attach()
 
     Layer::push(this);
   }
-
-  setFocus();
+  // setFocus();
 }
 
 void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
@@ -152,6 +151,12 @@ void StandaloneLuaWindow::checkEvents()
   
   // Kill global LUA LCD buffer
   luaLcdBuffer = nullptr;
+}
+
+void StandaloneLuaWindow::onCancel()
+{
+  // do nothing: wait for long press to kill
+  // the script
 }
 
 #if defined(HARDWARE_KEYS)

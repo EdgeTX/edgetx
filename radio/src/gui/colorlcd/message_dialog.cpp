@@ -34,18 +34,11 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
                                width(), PAGE_LINE_HEIGHT},
                               info, 0, CENTERED);
   setCloseWhenClickOutside(true);
-  setFocus();
 }
 
-void MessageDialog::onEvent(event_t event)
+void MessageDialog::onClicked()
 {
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    deleteLater();
-    return;
-  }
-#endif
-  Dialog::onEvent(event);
+  deleteLater();
 }
 
 DynamicMessageDialog::DynamicMessageDialog(
@@ -65,17 +58,11 @@ DynamicMessageDialog::DynamicMessageDialog(
       this,
       {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), lineHeight},
       textHandler, textFlags);
+
   setCloseWhenClickOutside(true);
-  setFocus();
 }
 
-void DynamicMessageDialog::onEvent(event_t event)
+void DynamicMessageDialog::onClicked()
 {
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    deleteLater();
-    return;
-  }
-#endif
-  Dialog::onEvent(event);
+  deleteLater();
 }

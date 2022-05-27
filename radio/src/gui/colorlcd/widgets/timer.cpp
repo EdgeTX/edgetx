@@ -41,7 +41,7 @@ STATIC_LZ4_BITMAP(LBM_TIMER_BACKGROUND);
 class TimerWidget : public Widget
 {
  public:
-  TimerWidget(const WidgetFactory* factory, FormGroup* parent,
+  TimerWidget(const WidgetFactory* factory, Window* parent,
               const rect_t& rect, Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
