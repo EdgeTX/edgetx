@@ -316,30 +316,6 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      if (event == EVT_KEY_BREAK(KEY_PGUP)) {
-        onKeyPress();
-        FormField *focus = dynamic_cast<FormField *>(getFocus());
-        if (focus != nullptr && focus->getPreviousField()) {
-          focus->getPreviousField()->setFocus(SET_FOCUS_BACKWARD, focus);
-        }
-      } else if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-        onKeyPress();
-        FormField *focus = dynamic_cast<FormField *>(getFocus());
-        if (focus != nullptr && focus->getNextField()) {
-          focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
-        }
-      } else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
-        killEvents(event);
-        deleteLater();
-      } else {
-        Window::onEvent(event);
-      }
-    }
-#endif
-
     void deleteLater(bool detach = true, bool trash = true) override
     {
       if (_dirty) {
@@ -398,10 +374,10 @@ class ThemeEditPage : public Page
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
 
       // setup the prev next controls so save and details are in the mix
-      _cList->setNextField(_detailButton);
-      _cList->setPreviousField(_detailButton);
-      _detailButton->setNextField(_cList);
-      _detailButton->setPreviousField(_cList);
+      // _cList->setNextField(_detailButton);
+      // _cList->setPreviousField(_detailButton);
+      // _detailButton->setNextField(_cList);
+      // _detailButton->setPreviousField(_cList);
     }
 
     void buildBody(FormGroup *window)
@@ -459,7 +435,7 @@ bool isTopWindow(Window *window)
   Window *parent = window->getParent();
   if (parent != nullptr) {
     parent = parent->getParent();
-    return parent == Layer::stack.back().main;
+    return parent == Layer::back();
   }
   return false;
 }

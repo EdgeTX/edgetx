@@ -33,7 +33,7 @@ constexpr uint32_t OUTPUTS_REFRESH = 1000 / 5;  // 5 Hz
 class OutputsWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, FormGroup* parent,
+  OutputsWidget(const WidgetFactory* factory, Window* parent,
                 const rect_t& rect, Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {

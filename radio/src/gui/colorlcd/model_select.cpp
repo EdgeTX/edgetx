@@ -451,7 +451,8 @@ class ModelCategoryPageBody : public FormWindow
  public:
   ModelCategoryPageBody(FormWindow *parent, const rect_t &rect,
                         ModelsCategory *category) :
-      FormWindow(parent, rect, FORM_FORWARD_FOCUS), category(category)
+    FormWindow(parent, rect//, FORM_FORWARD_FOCUS
+               ), category(category)
   {
     update();
   }
@@ -577,9 +578,10 @@ class ModelCategoryPageBody : public FormWindow
                   });
             });
           }
-        } else {
-          button->setFocus(SET_FOCUS_DEFAULT);
         }
+        // else {
+        //   button->setFocus(SET_FOCUS_DEFAULT);
+        // }
         return 1;
       });
 
@@ -601,10 +603,12 @@ class ModelCategoryPageBody : public FormWindow
       y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
     }
 
-    if (category->empty()) {
-      setFocus();
-    } else if (selectButton) {
-      selectButton->setFocus();
+    // if (category->empty()) {
+    //   setFocus();
+    // } else
+    if (selectButton) {
+      lv_group_focus_obj(selectButton->getLvObj());
+      // selectButton->setFocus();
     }
   }
 
@@ -636,17 +640,17 @@ class ModelCategoryPageBody : public FormWindow
 #endif
   
 
-  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
-                Window *from = nullptr) override
-  {
-    if (category->empty()) {
-      // use Window::setFocus() to avoid forwarding focus to nowhere
-      // this crashes currently in libopenui
-      Window::setFocus(flag, from);
-    } else {
-      FormWindow::setFocus(flag, from);
-    }
-  }
+  // void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
+  //               Window *from = nullptr) override
+  // {
+    // if (category->empty()) {
+    //   // use Window::setFocus() to avoid forwarding focus to nowhere
+    //   // this crashes currently in libopenui
+    //   Window::setFocus(flag, from);
+    // } else {
+    //   FormWindow::setFocus(flag, from);
+    // }
+  // }
 
  protected:
   ModelsCategory *category;

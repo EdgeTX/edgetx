@@ -405,7 +405,8 @@ class SpecialFunctionEditPage : public Page
     grid.nextLine();
 
     specialFunctionOneWindow = new FormGroup(
-        window, {0, grid.getWindowHeight(), LCD_W, 0}, FORM_FORWARD_FOCUS);
+        window, {0, grid.getWindowHeight(), LCD_W, 0}// , FORM_FORWARD_FOCUS
+                                             );
     updateSpecialFunctionOneWindow();
     grid.addWindow(specialFunctionOneWindow);
   }
@@ -634,7 +635,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
-  Window::clearFocus();
+  // Window::clearFocus();
 
   char s[] = "SFxx";
   if (functions == g_eeGeneral.customFn) s[0] = 'G';
@@ -732,20 +733,19 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         txt->invalidate();
       });
 
-      if (focusIndex == i) {
-        txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        txt->invalidate();
-      }
+      // if (focusIndex == i) {
+      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+      //   txt->invalidate();
+      // }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     }
 
-    if (focusIndex == i) {  // fix focus #303
-      button->setFocus(SET_FOCUS_DEFAULT);
-    }
-
+    // if (focusIndex == i) {  // fix focus #303
+    //   button->setFocus(SET_FOCUS_DEFAULT);
+    // }
   }
 
   grid.nextLine();

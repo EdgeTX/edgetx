@@ -33,10 +33,13 @@
 
 #include <algorithm>
 
-TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect, std::vector<PageTab *>& tabs, uint8_t index,
-           std::function<uint8_t(void)> pressHandler,
-           WindowFlags flags) :
-    Button(parent, rect, std::move(pressHandler), flags), tabs(tabs), index(index)
+TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
+                                     std::vector<PageTab*>& tabs, uint8_t index,
+                                     std::function<uint8_t(void)> pressHandler,
+                                     WindowFlags flags) :
+    Button(parent, rect, std::move(pressHandler), flags, 0, window_create),
+    tabs(tabs),
+    index(index)
 {
 }
 
@@ -67,7 +70,8 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS | FORM_NO_BORDER),
+        NO_FOCUS | FORM_NO_BORDER,
+        0, window_create),
 #endif
     icon(icon),
     carousel(this, parent)
@@ -77,7 +81,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title);
+  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
 }
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
@@ -130,10 +134,15 @@ void TabsCarousel::paint(BitmapBuffer * dc)
 {
 }
 
+static constexpr rect_t _get_body_rect()
+{
+  return { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT };
+}
+
 TabsGroup::TabsGroup(uint8_t icon):
   Window(MainWindow::instance(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT }, NO_FOCUS | FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
 {
   Layer::push(this);
 }
@@ -150,15 +159,12 @@ void TabsGroup::deleteLater(bool detach, bool trash)
   if (_deleted)
     return;
 
-#if defined(HARDWARE_TOUCH)
-  Keyboard::hide();
-#endif
+  Layer::pop(this);
 
   header.deleteLater(true, false);
   body.deleteLater(true, false);
 
   Window::deleteLater(detach, trash);
-  Layer::pop(this);
 }
 
 void TabsGroup::addTab(PageTab * page)
@@ -206,11 +212,7 @@ void TabsGroup::removeAllTabs()
 void TabsGroup::setVisibleTab(PageTab* tab)
 {
   if (tab != currentTab) {
-    clearFocus();
     body.clear();
-#if defined(HARDWARE_TOUCH)
-    Keyboard::hide();
-#endif
     currentTab = tab;
     if (tab->onSetVisible) tab->onSetVisible();
 
@@ -219,13 +221,13 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     (void)start_ms;
 #endif
 
-    auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
-                               NO_FOCUS | FORM_FORWARD_FOCUS);
+    rect_t r = rect_t{0, 0, body.width(), body.height()};
+    auto form = new FormWindow(&body, r, NO_FOCUS);
     tab->build(form);
-    form->setFocus();
 
     header.setTitle(tab->title.c_str());
     invalidate();
+
 #if defined(DEBUG)
     TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
 #endif
@@ -245,9 +247,9 @@ void TabsGroup::checkEvents()
   }
 }
 
-#if defined(HARDWARE_KEYS)
 void TabsGroup::onEvent(event_t event)
 {
+#if defined(HARDWARE_KEYS)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
 #if defined(KEYS_GPIO_REG_PGUP)
@@ -267,15 +269,21 @@ void TabsGroup::onEvent(event_t event)
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();
     setCurrentTab(current == 0 ? tabs.size() - 1 : current - 1);
-  }
-  else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
-    killEvents(event);
-    deleteLater();
   } else if (parent) {
     parent->onEvent(event);
   }
-}
 #endif
+}
+
+void TabsGroup::onClicked()
+{
+  Keyboard::hide();
+}
+
+void TabsGroup::onCancel()
+{
+  deleteLater();
+}
 
 void TabsGroup::paint(BitmapBuffer * dc)
 {
@@ -285,7 +293,7 @@ void TabsGroup::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_TOUCH)
 bool TabsGroup::onTouchEnd(coord_t x, coord_t y)
 {
-  Keyboard::hide();
+  // Keyboard::hide();
   Window::onTouchEnd(x, y);
   return true;
 }

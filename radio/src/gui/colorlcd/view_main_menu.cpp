@@ -114,8 +114,8 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   carouselRect.w = lv_obj_get_width(carousel_obj);
   carouselRect.h = lv_obj_get_height(carousel_obj);
 
-  carousel->setCloseHandler([=]() { deleteLater(); });
-  carousel->setFocus();
+  // carousel->setCloseHandler([=]() { deleteLater(); });
+  // carousel->setFocus();
 }
 
 uint16_t* lcdGetBackupBuffer();
@@ -133,4 +133,9 @@ void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
   Window::deleteLater(detach, trash);
+}
+
+void ViewMainMenu::onCancel()
+{
+  deleteLater();
 }

@@ -45,7 +45,7 @@ RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
 {
   // disable canceling dialog
   setCloseWhenClickOutside(false);
-  setFocus();
+  // setFocus();
 }
 
 void RfScanDialog::showProgress()

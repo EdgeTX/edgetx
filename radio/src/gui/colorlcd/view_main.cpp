@@ -51,12 +51,12 @@ ViewMain * ViewMain::_instance = nullptr;
 ViewMain::ViewMain():
   Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR)
 {
-  focusWindow = this;
+  Layer::push(this);
 
-  setFocusHandler([&](bool focus) {
-      TRACE("[ViewMain] Focus %s",
-            focus ? "gained" : "lost");
-    });
+  // setFocusHandler([&](bool focus) {
+  //     TRACE("[ViewMain] Focus %s",
+  //           focus ? "gained" : "lost");
+  //   });
 
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
@@ -78,13 +78,20 @@ ViewMain::~ViewMain()
   _instance = nullptr;
 }
 
+void ViewMain::deleteLater(bool detach, bool trash)
+{
+  Layer::pop(this);
+  Window::deleteLater(detach, trash);
+}
+
 void ViewMain::addMainView(Window* view, uint32_t viewId)
 {
   TRACE("addMainView(0x%p, %d)", view, viewId);
 
   auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
 
-  lv_obj_set_parent(view->getLvObj(), tile);
+  auto view_obj = view->getLvObj();
+  lv_obj_set_parent(view_obj, tile);
 
   auto user_data = (void*)(unsigned long)viewId;
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED, user_data);
@@ -211,62 +218,58 @@ void ViewMain::updateTopbarVisibility()
   }
 }
 
-#if defined(HARDWARE_TOUCH)
+// #if defined(HARDWARE_TOUCH)
 
 //#define DEBUG_SLIDE
 
 
-bool ViewMain::onTouchEnd(coord_t x, coord_t y)
-{
-  openMenu();
+// bool ViewMain::onTouchEnd(coord_t x, coord_t y)
+// {
+//   openMenu();
 
-  // TODO: remove this hack to preset
-  //       the scrolling on the main menu
-  int x1 = x;
-  int w1 = getParent()->width();
-  while (x1 > w1)   x1 -= w1;
-  if (x1 > w1 / 2)
-    pushEvent(EVT_ROTARY_LEFT);
+//   // TODO: remove this hack to preset
+//   //       the scrolling on the main menu
+//   int x1 = x;
+//   int w1 = getParent()->width();
+//   while (x1 > w1)   x1 -= w1;
+//   if (x1 > w1 / 2)
+//     pushEvent(EVT_ROTARY_LEFT);
 
-  return true;
-}
-#endif
+//   return true;
+// }
+// #endif
 
-#if defined(HARDWARE_KEYS)
 void ViewMain::onEvent(event_t event)
 {
+#if defined(HARDWARE_KEYS)
   switch (event) {
     case EVT_KEY_BREAK(KEY_MODEL):
-      killEvents(event);
       new ModelMenu();
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(event);
       new ModelSelectMenu();
       break;
 
     case EVT_KEY_FIRST(KEY_RADIO):
-      killEvents(event);
       new RadioMenu();
       break;
 
     case EVT_KEY_FIRST(KEY_TELEM):
-      killEvents(event);
       new ScreenMenu();
       break;
 
-    case EVT_KEY_FIRST(KEY_ENTER):
-      killEvents(event);
-      openMenu();
-      break;
+    // // do not use KEY_FIRST as it would
+    // // interfere with the menu CLICKED event
+    // case EVT_KEY_FIRST(KEY_ENTER):
+    //   openMenu();
+    //   break;
 
 #if defined(KEYS_GPIO_REG_PGUP)
     case EVT_KEY_FIRST(KEY_PGDN):
 #else
     case EVT_KEY_BREAK(KEY_PGDN):
 #endif
-      killEvents(event);
       nextMainView();
       break;
 
@@ -281,19 +284,22 @@ void ViewMain::onEvent(event_t event)
       previousMainView();
       break;
 
-    case EVT_ROTARY_LEFT:
-      // decrement
-    case EVT_ROTARY_RIGHT:
-      // increment
-      if (customScreens[g_model.view]) {
-        customScreens[g_model.view]->setFocus();
-      }
-      break;
-
-      break;
+    // case EVT_ROTARY_LEFT:
+    //   // decrement
+    // case EVT_ROTARY_RIGHT:
+    //   // increment
+    //   if (customScreens[g_model.view]) {
+    //     customScreens[g_model.view]->setFocus();
+    //   }
+    //   break;
   }
-}
 #endif
+}
+
+void ViewMain::onClicked()
+{
+  openMenu();
+}
 
 void ViewMain::openMenu()
 {

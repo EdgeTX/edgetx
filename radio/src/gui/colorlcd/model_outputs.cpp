@@ -370,12 +370,12 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
       txt->invalidate();
     });
 
-    if (focusChannel == ch) {
-      button->setFocus(SET_FOCUS_DEFAULT);
-      txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      txt->invalidate();
-    }
+    // if (focusChannel == ch) {
+    //   button->setFocus(SET_FOCUS_DEFAULT);
+    //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
+    //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+    //   txt->invalidate();
+    // }
 
     txt->setHeight(button->height());
     grid.spacer(button->height() + 5);
@@ -387,7 +387,7 @@ void ModelOutputsPage::build(FormWindow *window, int8_t focusChannel)
 
 void ModelOutputsPage::editOutput(FormWindow *window, uint8_t channel)
 {
-  Window::clearFocus();
+  // Window::clearFocus();
   Window *editWindow = new OutputEditWindow(channel);
   editWindow->setCloseHandler([=]() { rebuild(window, channel); });
 }

@@ -119,7 +119,8 @@ class BluetoothConfigWindow : public FormGroup
 {
   public:
     BluetoothConfigWindow(FormWindow * parent, const rect_t &rect) :
-      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+      FormGroup(parent, rect, FORWARD_SCROLL // | FORM_FORWARD_FOCUS
+                )
     {
       update();
     }
@@ -154,7 +155,7 @@ class BluetoothConfigWindow : public FormGroup
             g_eeGeneral.bluetoothMode = newValue;
             update();
             SET_DIRTY();
-            btMode->setFocus(SET_FOCUS_DEFAULT);
+            // btMode->setFocus(SET_FOCUS_DEFAULT);
             modechoiceopen = false;
           },
           &modechoiceopen);
@@ -201,7 +202,8 @@ class SerialConfigWindow : public FormGroup
 {
  public:
   SerialConfigWindow(FormWindow *parent, const rect_t &rect) :
-      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+      FormGroup(parent, rect, FORWARD_SCROLL // | FORM_FORWARD_FOCUS
+                )
   {
     update();
   }
@@ -266,7 +268,8 @@ class SerialConfigWindow : public FormGroup
 class InternalModuleWindow : public FormGroup {
  public:
   InternalModuleWindow(FormWindow *parent, const rect_t &rect) :
-      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+    FormGroup(parent, rect, FORWARD_SCROLL),
+    lastModule(g_eeGeneral.internalModule)
   {
     update();
   }
@@ -350,10 +353,11 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_INPUTS, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto calib = new TextButton(window, grid.getFieldSlot(), STR_CALIBRATION);
   calib->setPressHandler([=]() -> uint8_t {
-      auto calibrationPage = new RadioCalibrationPage();
-      calibrationPage->setCloseHandler([=]() {
-          calib->setFocus(SET_FOCUS_DEFAULT);
-      });
+      // auto calibrationPage = 
+      new RadioCalibrationPage();
+      // calibrationPage->setCloseHandler([=]() {
+      //     calib->setFocus(SET_FOCUS_DEFAULT);
+      // });
       return 0;
   });
   grid.nextLine();
@@ -495,19 +499,21 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(window, grid.getLabelSlot(), STR_DEBUG, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
   auto debugAnas = new TextButton(window, grid.getFieldSlot(2, 0), STR_ANALOGS_BTN);
   debugAnas->setPressHandler([=]() -> uint8_t {
-      auto debugAnalogsPage = new RadioAnalogsDiagsViewPageGroup();
-      debugAnalogsPage->setCloseHandler([=]() {
-          calib->setFocus(SET_FOCUS_DEFAULT);
-      });
+      // auto debugAnalogsPage = 
+      new RadioAnalogsDiagsViewPageGroup();
+      // debugAnalogsPage->setCloseHandler([=]() {
+      //     calib->setFocus(SET_FOCUS_DEFAULT);
+      // });
       return 0;
   });
 
   auto debugKeys = new TextButton(window, grid.getFieldSlot(2, 1), STR_KEYS_BTN);
   debugKeys->setPressHandler([=]() -> uint8_t {
-    auto debugKeysPage = new RadioKeyDiagsPage();
-    debugKeysPage->setCloseHandler([=]() {
-        calib->setFocus(SET_FOCUS_DEFAULT);
-    });
+    // auto debugKeysPage = 
+    new RadioKeyDiagsPage();
+    // debugKeysPage->setCloseHandler([=]() {
+    //     calib->setFocus(SET_FOCUS_DEFAULT);
+    // });
     return 0;
   });
   grid.nextLine();

@@ -28,10 +28,8 @@ class RadioCalibrationPage: public Page {
     explicit RadioCalibrationPage(bool initial = false);
 
     void checkEvents() override;
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
+    void onClicked() override;
+    void onCancel() override;
 
   protected:
     StaticText * text = nullptr;

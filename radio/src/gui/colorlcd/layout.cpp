@@ -130,7 +130,7 @@ void loadCustomScreens()
   
   viewMain->setCurrentMainView(0);
   viewMain->updateTopbarVisibility();
-  viewMain->setFocus();
+  // viewMain->setFocus();
 }
 
 //

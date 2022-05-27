@@ -191,7 +191,7 @@ void SubScreenButtonMatrix::onPress(uint8_t btn_id)
       break;
   }
 
-  if (w) w->setFocus();
+  // if (w) w->setFocus();
 }
 
 bool SubScreenButtonMatrix::isActive(uint8_t btn_id)

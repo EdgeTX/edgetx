@@ -65,7 +65,6 @@ class WidgetsContainerImpl : public WidgetsContainer
     if (index >= N) return;
 
     if (widgets[index]) {
-      removeField(widgets[index]);
       widgets[index]->deleteLater();
     }
 
@@ -91,7 +90,6 @@ class WidgetsContainerImpl : public WidgetsContainer
     for (unsigned int i = 0; i < count; i++) {
       // remove old widget
       if (widgets[i]) {
-        removeField(widgets[i]);
         widgets[i]->deleteLater();
         widgets[i] = nullptr;
       }
@@ -159,7 +157,7 @@ class BaseWidgetFactory : public WidgetFactory
   {
   }
 
-  Widget* create(FormGroup* parent, const rect_t& rect,
+  Widget* create(Window* parent, const rect_t& rect,
                  Widget::PersistentData* persistentData,
                  bool init = true) const override
   {

@@ -27,9 +27,10 @@ class GhostModuleConfigWindow: public Window
 {
   public:
     GhostModuleConfigWindow(Window * parent, const rect_t & rect) :
-    Window(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS | REFRESH_ALWAYS)
+    Window(parent, rect, FORWARD_SCROLL // | FORM_FORWARD_FOCUS
+           | REFRESH_ALWAYS)
     {
-      setFocus(SET_FOCUS_DEFAULT);
+      // setFocus(SET_FOCUS_DEFAULT);
     }
 
     void paint(BitmapBuffer * dc) override
@@ -88,7 +89,7 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
   init();
   buildHeader(&header);
   buildBody(&body);
-  setFocus(SET_FOCUS_DEFAULT);
+  // setFocus(SET_FOCUS_DEFAULT);
 #if defined(TRIMS_EMULATE_BUTTONS)
   setTrimsAsButtons(true);  // Use trim joysticks to operate menu (e.g. on NV14)
 #endif

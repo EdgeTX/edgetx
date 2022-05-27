@@ -45,6 +45,7 @@ public:
   void deleteLater(bool detach = true, bool trash = true) override;
   void paint(BitmapBuffer* dc) override;
   void checkEvents() override;
+  void onCancel() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StandaloneLuaWindow"; }

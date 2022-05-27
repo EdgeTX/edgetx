@@ -1027,7 +1027,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         events[EVENT_BUFFER_SIZE - 1] = 0;
       
         if (evt == EVT_KEY_LONG(KEY_EXIT)) {
-          killEvents(evt);
+          // killEvents(evt);
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
         }
       }
@@ -1220,7 +1220,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
        
         if (evt == EVT_KEY_LONG(KEY_EXIT)) {
           TRACE("Script force exit");
-          killEvents(evt);
+          // killEvents(evt);
           luaEmptyEventBuffer();
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
         }

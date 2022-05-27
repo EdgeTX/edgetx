@@ -93,9 +93,8 @@ SetupWidgetsPage::SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx) :
 
   for (unsigned i = 0; i < screen->getZonesCount(); i++) {
     auto rect = screen->getZone(i);
-    auto widget =
-        new SetupWidgetsPageSlot(this, rect, customScreens[customScreenIdx], i);
-    if (i == 0) widget->setFocus();
+    auto widget_container = customScreens[customScreenIdx];
+    auto widget = new SetupWidgetsPageSlot(this, rect, widget_container, i);
   }
 
 #if defined(HARDWARE_TOUCH)
@@ -106,15 +105,28 @@ SetupWidgetsPage::SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx) :
         this->deleteLater();
         return 1;
       },
-      NO_FOCUS | FORM_NO_BORDER);
+      NO_FOCUS | FORM_NO_BORDER,
+      0, window_create);
 #endif
+}
+
+void SetupWidgetsPage::onClicked()
+{
+  // block event forwarding (window is transparent)  
+}
+
+void SetupWidgetsPage::onCancel()
+{
+  deleteLater();  
 }
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
-#if defined(HARDWARE_TOUCH)
-  Keyboard::hide();
-#endif
+  // restore screen setting tab on top
+  menu->bringToTop();
+  Layer::pop(this);
+
+  // and continue async deletion...
   auto screen = customScreens[customScreenIdx];
   if (screen) {
     auto viewMain = ViewMain::instance();
@@ -122,36 +134,5 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
   }
   FormWindow::deleteLater(detach, trash);
 
-  // restore screen setting tab on top
-  menu->bringToTop();
-  Layer::pop(this);
+  storageDirty(EE_MODEL);
 }
-
-#if defined(HARDWARE_TOUCH)
-bool SetupWidgetsPage::onTouchSlide(coord_t x, coord_t y, coord_t startX,
-                                    coord_t startY, coord_t slideX,
-                                    coord_t slideY)
-{
-  FormWindow::onTouchSlide(x, y, startX, startY, slideX, slideY);
-  return true;
-}
-
-bool SetupWidgetsPage::onTouchEnd(coord_t x, coord_t y)
-{
-  FormWindow::onTouchEnd(x, y);
-  return true;
-}
-#endif
-
-#if defined(HARDWARE_KEYS)
-void SetupWidgetsPage::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                event);
-
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    killEvents(event);
-    deleteLater();
-  }
-}
-#endif

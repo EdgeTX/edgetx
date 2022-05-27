@@ -37,17 +37,21 @@ FullScreenDialog::FullScreenDialog(
 {
   Layer::push(this);
 
-#if defined(HARDWARE_TOUCH)
+  // TODO: if 'confirmHandler':
+  //       -> add a confirm / cancel button
+  //
+#if defined(HARDWARE_TOUCH) && 0
   new FabButton(this, LCD_W - (FAB_BUTTON_SIZE + PAGE_PADDING),
                 LCD_H - (FAB_BUTTON_SIZE + PAGE_PADDING), ICON_NEXT,
                 [=]() -> uint8_t {
+                  deleteLater();
                   if (confirmHandler) confirmHandler();
                   return 0;
                 });
 #endif
 
   bringToTop();
-  setFocus(SET_FOCUS_DEFAULT);
+  // setFocus(SET_FOCUS_DEFAULT);
 }
 
 void FullScreenDialog::paint(BitmapBuffer * dc)
@@ -107,21 +111,16 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void FullScreenDialog::onEvent(event_t event)
+void FullScreenDialog::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    deleteLater();
-    if (confirmHandler)
-      confirmHandler();
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
+  if (confirmHandler) confirmHandler();
+  deleteLater();
 }
-#endif
+
+void FullScreenDialog::onCancel()
+{
+  deleteLater();
+}
 
 #if defined(HARDWARE_TOUCH)
 bool FullScreenDialog::onTouchStart(coord_t x, coord_t y)

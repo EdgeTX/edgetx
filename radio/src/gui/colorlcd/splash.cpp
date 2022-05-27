@@ -67,8 +67,7 @@ void drawSplash()
     loadSplashImg = false;
 
     if (splashImg == nullptr) {
-      splashImg =
-          BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
+      splashImg = new LZ4Bitmap(BMP_RGB565, __bmp_splash);
     }
 
     splashScreen = window_create(nullptr);
