@@ -35,7 +35,9 @@ set(LIBOPENUI_SRC
   table.cpp
   modal_window.cpp
   dialog.cpp
-  expansion_panel.cpp
+  # LVGL widgets
+  widgets/window_base.c
+  widgets/simple_btn.c
   )
 
 if(SOFTWARE_KEYBOARD)

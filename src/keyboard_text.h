@@ -36,36 +36,22 @@
 #define KEYBOARD_ENTER_WIDTH 80
 #define KEYBOARD_BITMAP_WIDTH 45
 
-class TextKeyboard : public Keyboard {
-  public:
-    TextKeyboard();
-
-    ~TextKeyboard() override;
+class TextKeyboard : public Keyboard
+{
+ public:
+  TextKeyboard();
+  ~TextKeyboard() override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "TextKeyboard";
-    }
+  std::string getName() const override { return "TextKeyboard"; }
 #endif
 
-    static void show(FormField * field)
-    {
-      if (!_instance)
-        _instance = new TextKeyboard();
+  static void show(FormField* field);
 
-      lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
-      lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
-      lv_keyboard_set_mode(_instance->keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
-      _instance->setField(field);
-    }
-
-  protected:
+ protected:
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
 
-    static TextKeyboard * _instance;
-    // const char * const * layout;
+  static TextKeyboard* _instance;
 };
-

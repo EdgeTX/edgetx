@@ -92,9 +92,8 @@ class MenuBody: public TableField
       return lines.size();
     }
 
-#if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
-#endif
+    void onCancel() override;
 
     void addLine(const std::string &text, std::function<void()> onPress,
                  std::function<bool()> isChecked);
@@ -107,7 +106,7 @@ class MenuBody: public TableField
 
     void setCancelHandler(std::function<void()> handler)
     {
-      onCancel = std::move(handler);
+      _onCancel = std::move(handler);
     }
 
     coord_t getContentHeight();
@@ -124,7 +123,7 @@ class MenuBody: public TableField
 
     std::vector<MenuLine> lines;
     int selectedIndex = 0;
-    std::function<void()> onCancel;
+    std::function<void()> _onCancel;
 
     inline Menu * getParentMenu();
 };
@@ -175,10 +174,10 @@ class Menu: public ModalWindow
       waitHandler = std::move(handler);
     }
 
-    void setFocusBody(uint8_t flag = SET_FOCUS_DEFAULT)
-    {
-      content->body.setFocus(flag);
-    }
+    // void setFocusBody(uint8_t flag = SET_FOCUS_DEFAULT)
+    // {
+    //   content->body.setFocus(flag);
+    // }
 
     void setToolbar(Window * window);
 
@@ -210,9 +209,8 @@ class Menu: public ModalWindow
       content->body.setIndex(index);
     }
 
-#if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
-#endif
+    void onCancel() override;
 
     void checkEvents() override
     {

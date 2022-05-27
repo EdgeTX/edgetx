@@ -21,15 +21,17 @@
 #include "touch.h"
 #include "mainwindow.h"
 
-Window * Window::focusWindow = nullptr;
+#include "widgets/window_base.h"
+
+// Window * Window::focusWindow = nullptr;
 std::list<Window *> Window::trash;
 
 extern lv_obj_t *virtual_kb;
 
 static bool is_scrolling = false;
-static bool inhibit_focus = false;
+// static bool inhibit_focus = false;
 
-static void window_event_cb(lv_event_t * e)
+extern "C" void window_event_cb(lv_event_t * e)
 {
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
@@ -87,11 +89,11 @@ static void window_event_cb(lv_event_t * e)
       return;
     }
 
-    // Exclude keyboard ?
     // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||
     //    lv_indev_get_type(click_source) == LV_INDEV_TYPE_ENCODER) {
     //   return;
     // }
+
     lv_area_t obj_coords;
     lv_obj_get_coords(target, &obj_coords);
 
@@ -122,7 +124,6 @@ static void window_event_cb(lv_event_t * e)
   }
 #endif
   else if (code == LV_EVENT_SCROLL) {
-
 #if defined(DEBUG_WINDOWS)
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
@@ -130,53 +131,15 @@ static void window_event_cb(lv_event_t * e)
     TRACE_WINDOWS("SCROLL[x=%d;y=%d] %s", scroll_x, scroll_y,
                   window->getWindowDebugString().c_str());
 #endif
-
-
-  } else if (code == LV_EVENT_FOCUSED) {
-    if (inhibit_focus) return;
-
-    bool focused = ((Window *)target->user_data)->hasFocus();
-    TRACE_WINDOWS("FOCUSED[%d] %s", focused,
-                 window->getWindowDebugString().c_str());
-
-    if (!focused) {
-      SetFocusFlag flag = SET_FOCUS_DEFAULT;
-      lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
-      if(indev_type == LV_INDEV_TYPE_POINTER) {
-        flag = SET_FOCUS_NO_SCROLL;
-      }
-      window->setFocus(flag);
-    }
   }
-}
-
-static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e)
-{
-  /*Call the ancestor's event handler*/
-  lv_res_t res = lv_obj_event_base(&window_base_class, e);
-  if(res != LV_RES_OK) return;
-
-  window_event_cb(e);
-}
-
-const lv_obj_class_t window_base_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = nullptr,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = window_base_event,
-    .width_def = LV_DPI_DEF,
-    .height_def = LV_DPI_DEF,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
-    .instance_size = sizeof(lv_obj_t)
-};
-
-lv_obj_t* window_create(lv_obj_t* parent)
-{
-  lv_obj_t * obj = lv_obj_class_create_obj(&window_base_class, parent);
-  lv_obj_class_init_obj(obj);
-  return obj;
+  else if (code == LV_EVENT_CLICKED) {
+    TRACE("CLICKED[%p]", window);
+    window->onClicked();
+  }
+  else if (code == LV_EVENT_CANCEL) {
+    TRACE("CANCEL[%p]", window);
+    window->onCancel();
+  }
 }
 
 Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
@@ -189,7 +152,7 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
   lv_obj_t* lv_parent = nullptr;
   if (parent) lv_parent = parent->lvobj;
 
-  if (objConstruct != nullptr) {
+  if (objConstruct != nullptr && objConstruct != window_create) {
     lvobj = objConstruct(lv_parent);
     lv_obj_add_event_cb(lvobj, window_event_cb, LV_EVENT_ALL, nullptr);
   } else {
@@ -254,9 +217,6 @@ Window::Window(Window *parent, lv_obj_t* lvobj)
 Window::~Window()
 {
   TRACE_WINDOWS("Destroy %p %s", this, getWindowDebugString().c_str());
-  if (focusWindow == this) {
-    focusWindow = nullptr;
-  }
 
   if (children.size() > 0) deleteChildren();
 
@@ -352,10 +312,6 @@ void Window::deleteLater(bool detach, bool trash)
 
   _deleted = true;
 
-  if (static_cast<Window *>(focusWindow) == static_cast<Window *>(this)) {
-    focusWindow = nullptr;
-  }
-
   if (detach)
     this->detach();
   else
@@ -389,62 +345,17 @@ void Window::clear()
 void Window::deleteChildren()
 {
   // prevent LVGL refocus while mass-deleting
-  inhibit_focus = true;
+  // inhibit_focus = true;
   for (auto window: children) {
     window->deleteLater(false);
   }
-  inhibit_focus = false;
+  // inhibit_focus = false;
   children.clear();
 }
 
-void Window::clearFocus()
+bool Window::hasFocus() const
 {
-  if (focusWindow) {
-    focusWindow->onFocusLost();
-    focusWindow = nullptr;
-  }
-}
-
-void Window::setFocus(uint8_t flag, Window * from)
-{
-  if (deleted())
-    return;
-
-  TRACE_WINDOWS("%s setFocus()", getWindowDebugString().c_str());
-
-  if (focusWindow != this) {
-    // synchronize lvgl focused state with libopenui
-    if (lvobj != nullptr &&
-        !lv_obj_has_state(lvobj, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY)) {
-      lv_obj_add_state(lvobj, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY);
-      if (focusWindow != nullptr) {
-        lv_obj_clear_state(focusWindow->lvobj, LV_STATE_FOCUSED |
-                                                   LV_STATE_FOCUS_KEY |
-                                                   LV_STATE_EDITED);
-      }
-    }
-
-    // scroll before calling focusHandler so that the window can adjust the
-    // scroll position if needed
-    if (flag != SET_FOCUS_NO_SCROLL) {
-      lv_obj_scroll_to_view_recursive(lvobj, LV_ANIM_OFF);
-    }
-    invalidate();
-
-    clearFocus();
-    focusWindow = this;
-    if (focusHandler) {
-      focusHandler(true);
-    }
-  }
-}
-
-void Window::scrollTo(Window * child)
-{
-}
-
-void Window::scrollTo(const rect_t & rect)
-{
+  return lvobj && lv_obj_has_state(lvobj, LV_STATE_FOCUS_KEY);
 }
 
 bool Window::hasOpaqueRect(const rect_t & testRect) const
@@ -579,14 +490,6 @@ void Window::checkEvents()
     }
   }
 
-  if (this == Window::focusWindow) {
-    event_t event = getWindowEvent();
-//    lvglPushEncoderEvent(event);
-    if (event) {
-      this->onEvent(event);
-    }
-  }
-
   if (windowFlags & REFRESH_ALWAYS) {
     invalidate();
   }
@@ -595,45 +498,51 @@ void Window::checkEvents()
 void Window::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", Window::getWindowDebugString("Window").c_str(), event);
-  if (parent) {
-    parent->onEvent(event);
-  }
+  if (parent) { parent->onEvent(event); }
 }
+
+void Window::onClicked()
+{
+  if (parent && !(windowFlags & OPAQUE)) { parent->onClicked(); }
+}
+
+void Window::onCancel()
+{
+  if (parent) { parent->onCancel(); }
+}
+
 
 #if defined(HARDWARE_TOUCH)
 bool Window::onTouchStart(coord_t x, coord_t y)
 {
-  if (parent)
-    return parent->onTouchStart(x, y);
+  if (parent && !(windowFlags & OPAQUE)) return parent->onTouchStart(x, y);
   return true;
 }
 
 bool Window::onTouchEnd(coord_t x, coord_t y)
 {
-  if (parent && !(windowFlags & OPAQUE))
-    return parent->onTouchEnd(x, y);
+  if (parent && !(windowFlags & OPAQUE)) return parent->onTouchEnd(x, y);
   return true;
 }
 
 bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
 {
+  // TODO: this is not used anymore: REMOVE
+  
+  // for (auto it = children.rbegin(); it != children.rend(); ++it) {
+  //   auto child = *it;
+  //   if (child->rect.contains(startX, startY)) {
+  //     if (child->onTouchSlide(x - child->rect.x, y - child->rect.y, startX - child->rect.x, startY - child->rect.y, slideX, slideY)) {
+  //       return true;
+  //     }
+  //   }
+  // }
 
-  for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    auto child = *it;
-    if (child->rect.contains(startX, startY)) {
-      if (child->onTouchSlide(x - child->rect.x, y - child->rect.y, startX - child->rect.x, startY - child->rect.y, slideX, slideY)) {
-        return true;
-      }
-    }
-  }
+  // return false;
 
-  return false;
+  return true;
 }
 #endif
-
-void Window::adjustInnerHeight()
-{
-}
 
 coord_t Window::adjustHeight()
 {

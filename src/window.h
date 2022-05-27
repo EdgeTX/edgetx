@@ -26,10 +26,14 @@
 #include <string>
 #include <utility>
 #include <functional>
+
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
 #include "libopenui_helpers.h"
 #include "libopenui_config.h"
+
+#include "widgets/window_base.h"
+
 #include "LvglWrapper.h"
 
 typedef uint32_t WindowFlags;
@@ -51,19 +55,16 @@ constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6u;
 constexpr WindowFlags PUSH_FRONT =  1u << 7u;
 constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 
-enum SetFocusFlag
-{
-  SET_FOCUS_DEFAULT  = 0,
-  SET_FOCUS_FORWARD  = 1,
-  SET_FOCUS_BACKWARD = 2,
-  SET_FOCUS_FIRST    = 3,
-  SET_FOCUS_NO_SCROLL= 4
-};
+// enum SetFocusFlag
+// {
+//   SET_FOCUS_DEFAULT  = 0,
+//   SET_FOCUS_FORWARD  = 1,
+//   SET_FOCUS_BACKWARD = 2,
+//   SET_FOCUS_FIRST    = 3,
+//   SET_FOCUS_NO_SCROLL= 4
+// };
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
-extern const lv_obj_class_t window_base_class;
-
-lv_obj_t* window_create(lv_obj_t* parent);
 
 class Window
 {
@@ -110,23 +111,7 @@ class Window
     void clear();
     virtual void deleteLater(bool detach = true, bool trash = true);
 
-    bool hasFocus() const
-    {
-      return focusWindow == this;
-    }
-
-    static Window * getFocus()
-    {
-      return focusWindow;
-    }
-
-    void scrollTo(const rect_t & rect);
-
-    void scrollTo(Window * child);
-
-    static void clearFocus();
-
-    virtual void setFocus(uint8_t flag = SET_FOCUS_DEFAULT, Window * from = nullptr);
+    bool hasFocus() const;
 
     void setRect(rect_t value)
     {
@@ -216,8 +201,8 @@ class Window
     }
 
     virtual void onEvent(event_t event);
-
-    void adjustInnerHeight();
+    virtual void onClicked();
+    virtual void onCancel();
 
     coord_t adjustHeight();
 
@@ -243,10 +228,8 @@ class Window
       return _deleted;
     }
 
-    virtual void paint(BitmapBuffer *)
-    {
-    }
-  
+    virtual void paint(BitmapBuffer *) {}
+
 #if defined(HARDWARE_TOUCH)
     virtual bool onTouchStart(coord_t x, coord_t y);
     virtual bool onTouchEnd(coord_t x, coord_t y);
@@ -255,7 +238,6 @@ class Window
     inline lv_obj_t *getLvObj() { return lvobj; }
 
   protected:
-    static Window* focusWindow;
     static std::list<Window*> trash;
 
     rect_t rect;

@@ -41,6 +41,5 @@ class ButtonMatrix : public FormField
   void setText(uint8_t btn_id, const char* txt);
   void update();
 
-  void onEvent(event_t event) override;
-  void setFocus(uint8_t flag, Window* from) override;
+  void onClicked() override;
 };

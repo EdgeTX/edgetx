@@ -28,11 +28,7 @@ int getFirstAvailable(int min, int max, std::function<bool(int)>isValueAvailable
 class MenuToolbarButton: public Button {
   public:
     MenuToolbarButton(FormGroup * window, const rect_t & rect, const char* picto):
-#if defined(HARDWARE_TOUCH)
       Button(window, rect, nullptr),
-#else
-      Button(window, rect, nullptr),
-#endif
       picto(picto)
     {
     }
@@ -64,36 +60,36 @@ class MenuToolbar: public FormGroup {
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override
     {
-      if (event == EVT_KEY_BREAK(KEY_PGDN)  || event == EVT_KEY_LONG(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
-#if defined(HARDWARE_TOUCH)
-        if (current != children.end()) {
-          static_cast<MenuToolbarButton *>(*current)->onTouchEnd(0,0);
-        }
-#endif
-        current = IS_KEY_LONG(event) || event == EVT_KEY_BREAK(KEY_PGUP) ?
-          current == children.end() ?
-            --current:
-            current == children.begin() ? 
-              children.end() :
-              --current : 
-          current == children.end() ?
-            children.begin() :
-            ++current;
+//       if (event == EVT_KEY_BREAK(KEY_PGDN)  || event == EVT_KEY_LONG(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
+// #if defined(HARDWARE_TOUCH)
+//         if (current != children.end()) {
+//           static_cast<MenuToolbarButton *>(*current)->onTouchEnd(0,0);
+//         }
+// #endif
+//         current = IS_KEY_LONG(event) || event == EVT_KEY_BREAK(KEY_PGUP) ?
+//           current == children.end() ?
+//             --current:
+//             current == children.begin() ? 
+//               children.end() :
+//               --current : 
+//           current == children.end() ?
+//             children.begin() :
+//             ++current;
 
-        if (IS_KEY_LONG(event))
-          killEvents(event);
+//         if (IS_KEY_LONG(event))
+//           killEvents(event);
 
-        if (current != children.end()) {
-          auto button = static_cast<MenuToolbarButton *>(*current);
-#if defined(HARDWARE_TOUCH)
-          button->onTouchEnd(0,0);
-#endif
-          scrollTo(button);
-        }
-        else {
-          lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
-        }
-      }
+//         if (current != children.end()) {
+//           auto button = static_cast<MenuToolbarButton *>(*current);
+// #if defined(HARDWARE_TOUCH)
+//           button->onTouchEnd(0,0);
+// #endif
+//           scrollTo(button);
+//         }
+//         else {
+//           lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
+//         }
+//       }
     }
 #endif
 
@@ -139,7 +135,7 @@ class MenuToolbar: public FormGroup {
         } else {
           choice->fillMenu(menu, val);
         }
-        menu->setFocusBody();
+        // menu->setFocusBody();
 
         // set current for page key procesing
         current = std::find_if(children.begin(), children.end(), [button](Window *o) { return o == button; });

@@ -47,10 +47,11 @@ class TextEdit : public FormField {
     }
 
     void onEvent(event_t event) override;
+    void onClicked() override;
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
+// #if defined(HARDWARE_TOUCH)
+//     bool onTouchEnd(coord_t x, coord_t y) override;
+// #endif
 
     void onFocusLost() override;
 

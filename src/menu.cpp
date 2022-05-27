@@ -60,6 +60,9 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
 {
   setColumnCount(1);
   setColumnWidth(0, rect.w);
+
+  lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
+  if (g) { lv_group_set_editing(g, true); }
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
@@ -176,49 +179,11 @@ void MenuBody::selectNext(MENU_DIRECTION direction)
 }
 
 
-#if defined(HARDWARE_KEYS)
 void MenuBody::onEvent(event_t event)
 {
-  // TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  // if (event == EVT_ROTARY_RIGHT) {
-  //   if (!lines.empty()) {
-  //     selectNext(DIRECTION_UP);
-  //     onKeyPress();
-  //   }
-  // }
-  // else if (event == EVT_ROTARY_LEFT) {
-  //   if (!lines.empty()) {
-  //     selectNext(DIRECTION_DOWN);
-  //     onKeyPress();
-  //   }
-  // }
-  // else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-  //   if (!lines.empty()) {
-  //     onKeyPress();
-  //     if (selectedIndex < 0) {
-  //       setIndex(0);
-  //     }
-  //     else {
-  //       Menu * menu = getParentMenu();
-  //       if (menu->multiple) {
-  //         lines[selectedIndex].onPress();
-  //         menu->invalidate();
-  //       }
-  //       else {
-  //         lines[selectedIndex].onPress();
-  //         menu->deleteLater();
-  //       }
-  //     }
-  //   }
-  // }
-  // else
+#if defined(HARDWARE_KEYS)
   if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    onKeyPress();
-    if (onCancel) {
-      onCancel();
-    }
-    Window::onEvent(event);
+    onCancel();
   }
   else {
     TableField::onEvent(event);
@@ -226,12 +191,18 @@ void MenuBody::onEvent(event_t event)
 }
 #endif
 
+void MenuBody::onCancel()
+{
+  if(_onCancel) _onCancel();
+  TableField::onCancel();
+}
+
 MenuWindowContent::MenuWindowContent(Menu* parent) :
     ModalWindowContent(parent, {(LCD_W - MENUS_WIDTH) / 2,
                                 (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
     body(this, {0, 0, width(), height()})
 {
-  body.setFocus(SET_FOCUS_DEFAULT);
+  // body.setFocus(SET_FOCUS_DEFAULT);
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 }
 
@@ -305,19 +276,17 @@ void Menu::removeLines()
   updatePosition();
 }
 
-#if defined(HARDWARE_KEYS)
 void Menu::onEvent(event_t event)
 {
+#if defined(HARDWARE_KEYS)
   if (toolbar && (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN) || 
       event == EVT_KEY_BREAK(KEY_PGUP))) {
     toolbar->onEvent(event);
   }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  }
-  else if (event == EVT_KEY_BREAK(KEY_ENTER) && !multiple) {
-    deleteLater();
-  }
-}
 #endif
+}
 
+void Menu::onCancel()
+{
+  deleteLater();
+}

@@ -21,37 +21,20 @@
 
 #include "keyboard_base.h"
 
-class NumberKeyboard : public Keyboard {
-  public:
-    NumberKeyboard();
+class NumberEdit;
 
-    ~NumberKeyboard() override;
+class NumberKeyboard : public Keyboard
+{
+ public:
+  NumberKeyboard();
+  ~NumberKeyboard() override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "NumberKeyboard";
-    }
+  std::string getName() const override { return "NumberKeyboard"; }
 #endif
 
-    static void show(FormField * field)
-    {
-      if (!_instance)
-        _instance = new NumberKeyboard();
-      // else 
-      //   lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+  static void show(NumberEdit* field);
 
-      // lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_NUMBER);
-
-      lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
-      // lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
-      lv_keyboard_set_mode(_instance->keyboard, LV_KEYBOARD_MODE_NUMBER);
-      lv_obj_move_foreground(_instance->getLvObj());
-
-      _instance->setField(field);
-    }
-
-  protected:
-    static NumberKeyboard * _instance;
+ protected:
+  static NumberKeyboard* _instance;
 };
-

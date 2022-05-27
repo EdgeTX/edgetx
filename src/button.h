@@ -40,6 +40,10 @@ class Button: public FormField
     }
 #endif
 
+    virtual void onPress();
+    void onClicked() override;
+    void checkEvents() override;
+
     void check(bool checked = true);
     bool checked() const;
 
@@ -53,22 +57,18 @@ class Button: public FormField
       checkHandler = std::move(handler);
     }
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-    void onEvent(lv_event_t* e);// override;
+// #if defined(HARDWARE_KEYS)
+//     void onEvent(event_t event) override;
+// #endif
+    // void onEvent(lv_event_t* e);// override;
 
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-    void checkEvents() override;
-
   protected:
     std::function<uint8_t(void)> pressHandler;
     std::function<void(void)> checkHandler;
-
-    virtual void onPress();
 };
 
 

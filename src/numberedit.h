@@ -24,30 +24,29 @@
 
 class NumberEdit : public BaseNumberEdit
 {
-  public:
-    NumberEdit(Window * parent, const rect_t & rect, int vmin, int vmax, std::function<int()> getValue, std::function<void(int)> setValue = nullptr, WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+ public:
+  NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
+             std::function<int()> getValue,
+             std::function<void(int)> setValue = nullptr,
+             WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "NumberEdit(" + std::to_string(getValue()) + ")";
-    }
+  std::string getName() const override
+  {
+    return "NumberEdit(" + std::to_string(getValue()) + ")";
+  }
 #endif
 
-    void setAvailableHandler(std::function<bool(int)> handler)
-    {
-      isValueAvailable = std::move(handler);
-    }
+  void setAvailableHandler(std::function<bool(int)> handler)
+  {
+    isValueAvailable = std::move(handler);
+  }
 
-    void onEvent(event_t event) override;
-    void onFocusLost() override;
+  void onEvent(event_t event) override;
+  void onClicked() override;
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
-  protected:
-    std::function<bool(int)> isValueAvailable;
+ protected:
+  std::function<bool(int)> isValueAvailable;
 };
 
 extern const lv_obj_class_t lv_numberedit_class;

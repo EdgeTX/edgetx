@@ -21,49 +21,41 @@
 
 #include "window.h"
 
-class ModalWindow: public Window
+class ModalWindow : public Window
 {
-  public:
-    explicit ModalWindow(Window * parent, bool closeWhenClickOutside = false);
+ public:
+  explicit ModalWindow(Window* parent, bool closeWhenClickOutside = false);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ModalWindow";
-    }
+  std::string getName() const override { return "ModalWindow"; }
 #endif
 
-    void deleteLater(bool detach = true, bool trash = true) override; // NOLINT(google-default-arguments)
+  void setCloseWhenClickOutside(bool value = true)
+  {
+    closeWhenClickOutside = value;
+  }
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
+  void onClicked() override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 
-    void setCloseWhenClickOutside(bool value = true)
-    {
-      closeWhenClickOutside = value;
-    }
-
-  protected:
-    bool closeWhenClickOutside;
+ protected:
+  bool closeWhenClickOutside;
 };
 
-class ModalWindowContent: public Window
+class ModalWindowContent : public Window
 {
-  public:
-    explicit ModalWindowContent(ModalWindow * parent, const rect_t & rect);
+ public:
+  explicit ModalWindowContent(ModalWindow* parent, const rect_t& rect);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ModalWindowContent";
-    }
+  std::string getName() const override { return "ModalWindowContent"; }
 #endif
 
-    void setTitle(const std::string& text);
-    std::string getTitle() const;
+  void setTitle(const std::string& text);
+  std::string getTitle() const;
 
-  protected:
-    lv_obj_t* title = nullptr;
+  void onClicked() override;
+
+ protected:
+  lv_obj_t* title = nullptr;
 };
-
