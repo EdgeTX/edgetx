@@ -35,13 +35,7 @@ public:
   std::string getName() const override { return "FileChoice"; }
 #endif
 
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-  bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
+  void onClicked() override;
 
 protected:
   std::string getLabelText() override;

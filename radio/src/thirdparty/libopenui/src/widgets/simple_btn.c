@@ -17,38 +17,22 @@
  * Lesser General Public License for more details.
  */
 
-#pragma once
+#include "simple_btn.h"
 
-#include "modal_window.h"
-#include "form.h"
+#define MY_CLASS &simple_btn_class
 
-class Dialog;
-
-class DialogWindowContent : public ModalWindowContent
-{
-  friend class Dialog;
-
- public:
-  DialogWindowContent(Dialog* parent, const rect_t& rect);
-
-  void deleteLater(bool detach = true, bool trash = true) override;
-  void updateSize() override;
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override;
-#endif
-
- public:
-  FormGroup form;
+const lv_obj_class_t simple_btn_class = {
+    .width_def = LV_DPI_DEF,
+    .height_def = LV_DPI_DEF,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
+    .base_class = &lv_btn_class,
 };
 
-class Dialog : public ModalWindow
+lv_obj_t* simple_btn_create(lv_obj_t* parent)
 {
- public:
-  Dialog(Window* parent, std::string title, const rect_t& rect);
-
- protected:
-  DialogWindowContent* content;
-
-  void onCancel() override;
-};
+    LV_LOG_INFO("begin");
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
+}

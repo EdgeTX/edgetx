@@ -39,3 +39,14 @@ void TextKeyboard::onEvent(event_t event)
 {
 }
 #endif
+
+void TextKeyboard::show(FormField* field)
+{
+  if (!_instance) _instance = new TextKeyboard();
+
+  lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
+  lv_keyboard_set_mode(_instance->keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
+
+  _instance->setField(field);
+}

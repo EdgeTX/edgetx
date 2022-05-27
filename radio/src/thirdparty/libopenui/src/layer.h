@@ -20,69 +20,21 @@
 #pragma once
 
 #include "window.h"
-extern lv_obj_t * canvas;
 
 class Layer
 {
-  public:
-    explicit Layer(Window * main):
-      main(main)
-    {
-    }
+  static std::list<Layer> stack;
 
-    Window * main;
-    Window * focus = nullptr;
+  Window*     window;
+  lv_group_t* group;
 
-    static std::list<Layer> stack;
+ public:
+  explicit Layer(Window* w, lv_group_t* g);
+  ~Layer();
 
-    static void push(Window * window)
-    {
+  static void push(Window* window);
+  static void pop(Window* window);
 
-      if (!stack.empty()) {
-        Layer & parentLayer = stack.back();
-        parentLayer.focus = Window::getFocus();
-      }
-
-
-      stack.emplace_back(Layer(window));
-
-#if defined(DEBUG_WINDOWS)
-      TRACE_WINDOWS("New layer added for %s (%d layers)", window->getWindowDebugString().c_str(), stack.size());
-      for (auto & layer: stack) {
-        TRACE_WINDOWS(" - %s (focus=%s)", layer.main->getWindowDebugString().c_str(), layer.focus ? layer.focus->getWindowDebugString().c_str() : "---");
-      }
-#endif
-    }
-
-    static void pop(Window * window)
-    {
-      if (stack.back().main == window) {
-        stack.pop_back();
-        const auto & back = stack.back();
-        if (back.focus) {
-          back.focus->setFocus(SET_FOCUS_DEFAULT);
-        }
-      }
-      else {
-        // TODO it would be better to do it in reverse order
-        for (auto it = stack.begin(); it != stack.end(); it++) {
-          if (it->main == window) {
-            stack.erase(it);
-            break;
-          }
-        }
-      }
-
-#if defined(DEBUG_WINDOWS)
-      TRACE_WINDOWS("Layer removed for %s (%d layers)", window->getWindowDebugString().c_str(), stack.size());
-      for (auto & layer: stack) {
-        TRACE_WINDOWS(" - %s (focus=%s)", layer.main->getWindowDebugString().c_str(), layer.focus ? layer.focus->getWindowDebugString().c_str() : "---");
-      }
-#endif
-    }
-
-    static Window* back()
-    {
-      return stack.back().main;
-    }
+  static Window* back();
+  static Window* getFirstOpaque();
 };

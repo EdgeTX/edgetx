@@ -120,7 +120,7 @@ bool FileChoice::openMenu()
 
       menu->setCloseHandler([=]() {
         editMode = false;
-        setFocus(SET_FOCUS_DEFAULT);
+        // setFocus(SET_FOCUS_DEFAULT);
       });
 
       return true;
@@ -132,29 +132,8 @@ bool FileChoice::openMenu()
   return false;
 }
 
-#if defined(HARDWARE_KEYS)
-void FileChoice::onEvent(event_t event)
+void FileChoice::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    if (openMenu()) {
-      editMode = true;
-      invalidate();
-    }
-  }
-  else {
-    FormField::onEvent(event);
-  }
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool FileChoice::onTouchEnd(coord_t, coord_t)
-{
-  setFocus(SET_FOCUS_DEFAULT);
-  setEditMode(true);
+  onKeyPress();
   openMenu();
-  return true;
 }
-#endif

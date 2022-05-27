@@ -22,14 +22,7 @@
 #include "font.h"
 #include "theme.h"
 
-static void lvglEvent(lv_event_t* e)
-{
-  Button* btn = (Button*)lv_event_get_user_data(e);
-  if(btn->deleted())
-    return;
-
-  btn->onEvent(e);
-}
+#include "widgets/simple_btn.h"
 
 static void update_checked_flag(lv_obj_t* obj, WindowFlags flags)
 {
@@ -43,11 +36,10 @@ Button::Button(Window* parent, const rect_t& rect,
        std::function<uint8_t(void)> pressHandler,
        WindowFlags windowFlag, LcdFlags textFlags,
        LvglCreate objConstruct) :
-    FormField(parent, rect, windowFlag, textFlags, objConstruct),
+    FormField(parent, rect, windowFlag, textFlags,
+              objConstruct ? objConstruct : simple_btn_create),
     pressHandler(std::move(pressHandler))
 {
-  lv_obj_add_event_cb(lvobj, lvglEvent, LV_EVENT_CLICKED, this);
-
   if (windowFlag & BUTTON_CHECKED)
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 }
@@ -78,55 +70,20 @@ void Button::onPress()
   update_checked_flag(lvobj, windowFlags);
 }
 
-#if defined(HARDWARE_KEYS)
-void Button::onEvent(event_t event)
+void Button::onClicked()
 {
-  auto indev_act = lv_indev_get_act();
-  switch (event) {
-    case EVT_KEY_FIRST(KEY_ENTER):
-      lv_event_send(lvobj, LV_EVENT_PRESSED, indev_act);
-      break;
-
-    case EVT_KEY_BREAK(KEY_ENTER):
-      lv_event_send(lvobj, LV_EVENT_RELEASED, indev_act);
-      lv_event_send(lvobj, LV_EVENT_CLICKED, indev_act);
-      break;
-
-    default:
-      FormField::onEvent(event);
-      break;
-  }
-}
-#endif
-
-void Button::onEvent(lv_event_t* event)
-{
-  lv_event_code_t code = lv_event_get_code(event);
-
-  TRACE_WINDOWS("%s received lvgl event code 0x%X", getWindowDebugString("Button").c_str(), code);
-
-  if (enabled && code == LV_EVENT_CLICKED) {
-    if (!(windowFlags & NO_FOCUS)) {
-      setFocus(SET_FOCUS_DEFAULT);
-    }
-    onKeyPress();
-    onPress();
-  }
+  onPress();
 }
 
 #if defined(HARDWARE_TOUCH)
 // this needs to stay so that viewmain doesnt get the touch event
-bool Button::onTouchEnd(coord_t x, coord_t y)  
-{
-  return true;
-}
+bool Button::onTouchEnd(coord_t x, coord_t y) { return true; }
 #endif
 
 void Button::checkEvents()
 {
   Window::checkEvents();
-  if (checkHandler)
-    checkHandler();
+  if (checkHandler) checkHandler();
 }
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,

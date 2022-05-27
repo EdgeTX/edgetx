@@ -21,7 +21,7 @@
 
 #include "form.h"
 
-class TableField : public FormField
+class TableField : public Window
 {
  public:
   TableField(Window* parent, const rect_t& rect,

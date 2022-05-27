@@ -55,7 +55,11 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_textarea_set_password_mode(lvobj, false);
   lv_textarea_set_one_line(lvobj, true);
-  lv_textarea_set_text(lvobj, value);
+
+  // value may not be null-terminated
+  std::string txt(value, length);
+  lv_textarea_set_text(lvobj, txt.c_str());
+
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
 
@@ -145,16 +149,6 @@ void TextEdit::onEvent(event_t event)
         }
         break;
 
-      case EVT_KEY_BREAK(KEY_EXIT):
-        changeEnd();
-        FormField::onEvent(event);
-        
-#if defined(SOFTWARE_KEYBOARD)
-        Keyboard::hide();
-#endif
-        setFocus(SET_FOCUS_DEFAULT, this);
-        break;
-
       case EVT_KEY_LONG(KEY_ENTER):
       {
         killEvents(event);
@@ -219,33 +213,14 @@ void TextEdit::onEvent(event_t event)
 #endif
 }
 
-#if defined(HARDWARE_TOUCH)
-bool TextEdit::onTouchEnd(coord_t x, coord_t y)
+void TextEdit::onClicked()
 {
-  if (!isEnabled()) {
-    return true;
-  }
-
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
-
   cursorPos = lv_textarea_get_cursor_pos(lvobj);
-
-#if defined(SOFTWARE_KEYBOARD)
   TextKeyboard::show(this);
-#endif
-
-  return true;
 }
-#endif
 
 void TextEdit::onFocusLost()
 {
-#if defined(SOFTWARE_KEYBOARD)
-  TextKeyboard::hide();
-#endif
-
   changeEnd();
   FormField::onFocusLost();
 }

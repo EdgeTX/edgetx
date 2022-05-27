@@ -26,32 +26,18 @@
 
 static void numberedit_cb(lv_event_t* e)
 {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_DELETE) return;
-
   NumberEdit* numEdit = (NumberEdit*)lv_event_get_user_data(e);
   if (!numEdit || numEdit->deleted()) return;
 
   uint32_t key = lv_event_get_key(e);
-  lv_obj_t* obj = numEdit->getLvObj();
-
-  if (obj != nullptr && lv_obj_is_editable(obj)) {
-    lv_group_t* grp = (lv_group_t*)lv_obj_get_group(obj);
-    if (grp && lv_group_get_focused(grp) == obj)
-      numEdit->setEditMode(lv_group_get_editing(grp));
-
-    switch (key) {
-      case LV_KEY_LEFT:
-        //    numEdit->onEvent(EVT_ROTARY_LEFT);
-        break;
-      case LV_KEY_RIGHT:
-        //    numEdit->onEvent(EVT_ROTARY_RIGHT);
-        break;
-    }
+  switch (key) {
+  case LV_KEY_LEFT:
+    numEdit->onEvent(EVT_ROTARY_LEFT);
+    break;
+  case LV_KEY_RIGHT:
+    numEdit->onEvent(EVT_ROTARY_RIGHT);
+    break;
   }
-
-  // TODO: this looks highly forbidden!!!
-  e->code = LV_EVENT_REFRESH;
 }
 
 // create a new class for number edit so we can set the sytles differently if needed.
@@ -133,14 +119,6 @@ void NumberEdit::onEvent(event_t event)
       }
 #endif
 
-    case EVT_KEY_FIRST(KEY_EXIT):
-#if defined(SOFTWARE_KEYBOARD)
-      Keyboard::hide();
-      return;
-#endif
-      break;
-
-
 #if defined(HARDWARE_TOUCH)
       case EVT_VIRTUAL_KEY_PLUS:
         setValue(getValue() + getStep());
@@ -180,35 +158,12 @@ void NumberEdit::onEvent(event_t event)
   FormField::onEvent(event);
 }
 
-void NumberEdit::onFocusLost()
+void NumberEdit::onClicked()
 {
-#if defined(SOFTWARE_KEYBOARD)
-  Keyboard::hide();
-#endif
-
-  FormField::onFocusLost();
+  lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+  if(indev_type == LV_INDEV_TYPE_POINTER) {
+    NumberKeyboard::show(this);
+  } else {
+    FormField::onClicked();
+  }
 }
-
-
-#if defined(HARDWARE_TOUCH)
-bool NumberEdit::onTouchEnd(coord_t, coord_t)
-{
-  if (!enabled) {
-    return true;
-  }
-
-  if (hasFocus()) {
-    setEditMode(true);
-  }
-  else {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
-
-#if defined(SOFTWARE_KEYBOARD)
-  NumberKeyboard::show(this);
-#endif
-
-  return true;
-}
-#endif
-

@@ -28,38 +28,47 @@ static const char _map_end[] = "";
 
 static void btn_matrix_event(lv_event_t *e)
 {
-  static lv_area_t draw_area;
-
   lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_VALUE_CHANGED) {
+    lv_obj_t* obj = lv_event_get_target(e);
     auto btn_id = (uint32_t *)lv_event_get_param(e);
     auto btnm = (ButtonMatrix*)lv_event_get_user_data(e);
 
-    btnm->onPress((uint8_t)*btn_id);
+    bool edited = lv_obj_has_state(obj, LV_STATE_EDITED);
+    bool is_pointer = lv_indev_get_type(lv_indev_get_act()) == LV_INDEV_TYPE_POINTER;
+    if (edited || is_pointer)
+      btnm->onPress((uint8_t)*btn_id);
   }
   else if (code == LV_EVENT_DRAW_PART_BEGIN) {
 
     lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part != LV_PART_ITEMS) return;
-
-    auto btnm = (ButtonMatrix*)lv_event_get_user_data(e);
-    if (btnm->isActive((uint8_t)dsc->id)) {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
-      dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
-    } else {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-      dsc->label_dsc->color = makeLvColor(COLOR_THEME_SECONDARY1);
+    if (dsc->part == LV_PART_ITEMS) {
+      auto btnm = (ButtonMatrix*)lv_event_get_user_data(e);
+      if (btnm->isActive((uint8_t)dsc->id)) {
+        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
+        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
+      } else {
+        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
+        dsc->label_dsc->color = makeLvColor(COLOR_THEME_SECONDARY1);
+      }
+    } else if (dsc->part == LV_PART_MAIN) {
+      lv_obj_t* obj = lv_event_get_target(e);
+      if (lv_obj_has_state(obj, LV_STATE_FOCUS_KEY) &&
+          !lv_obj_has_state(obj, LV_STATE_EDITED)) {
+        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_FOCUS);
+        dsc->rect_dsc->bg_opa = LV_OPA_20;
+      }
     }
-
-    // backup draw area as it gets modified for the label
-    lv_area_copy(&draw_area, dsc->draw_area);
   }
 }
 
 ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
   FormField(parent, r, 0, 0, lv_btnmatrix_create)
 {
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  
   lv_obj_add_event_cb(lvobj, btn_matrix_event, LV_EVENT_ALL, this);
 }
 
@@ -132,49 +141,8 @@ void ButtonMatrix::update()
   lv_btnmatrix_set_btn_ctrl_all(lvobj, ctrl);
 }
 
-void ButtonMatrix::onEvent(event_t event)
+void ButtonMatrix::onClicked()
 {
-  char c = 0;
-  lv_event_code_t code = LV_EVENT_ALL;
-
-#if defined (HARDWARE_KEYS)
-  switch (event) {
-    case EVT_KEY_FIRST(KEY_ENTER):
-      code = LV_EVENT_PRESSED;
-      break;
-
-    case EVT_KEY_BREAK(KEY_ENTER):
-      code = LV_EVENT_RELEASED;
-      break;
-
-    case EVT_ROTARY_LEFT:
-      if (lv_btnmatrix_get_selected_btn(lvobj) != 0) {
-        code = LV_EVENT_KEY;
-        c = LV_KEY_LEFT;
-      }
-      break;
-    case EVT_ROTARY_RIGHT:
-      if (lv_btnmatrix_get_selected_btn(lvobj) < btn_cnt - 1) {
-        code = LV_EVENT_KEY;
-        c = LV_KEY_RIGHT;
-      }
-      break;
-  }
-#endif
-
-  if ((code == LV_EVENT_KEY) && c != 0) lv_event_send(lvobj, code, &c);
-  else if (code != LV_EVENT_ALL) lv_event_send(lvobj, code, lv_indev_get_act());
-  else FormField::onEvent(event);
-}
-
-void ButtonMatrix::setFocus(uint8_t flag, Window* from)
-{
-  if (lv_btnmatrix_get_selected_btn(lvobj) == LV_BTNMATRIX_BTN_NONE) {
-    if (flag == SET_FOCUS_BACKWARD)
-      lv_btnmatrix_set_selected_btn(lvobj, btn_cnt - 1);
-    else
-      lv_btnmatrix_set_selected_btn(lvobj, 0);
-  }
-
-  FormField::setFocus(flag, from);
+  lv_group_focus_obj(lvobj);
+  FormField::onClicked();
 }

@@ -181,20 +181,11 @@ void Choice::setValues(const char * const values[])
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void Choice::onEvent(event_t event)
+void Choice::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    onKeyPress();
-    openMenu();
-  }
-  else {
-    FormField::onEvent(event);
-  }
+  onKeyPress();
+  openMenu();
 }
-#endif
 
 void Choice::openMenu()
 {
@@ -247,17 +238,3 @@ void Choice::openMenu()
     setEditMode(false);
   });
 }
-
-#if defined(HARDWARE_TOUCH)
-bool Choice::onTouchEnd(coord_t, coord_t)
-{
-  if (enabled) {
-    if (!hasFocus()) {
-      setFocus(SET_FOCUS_DEFAULT);
-    }
-    onKeyPress();
-    openMenu();
-  }
-  return true;
-}
-#endif

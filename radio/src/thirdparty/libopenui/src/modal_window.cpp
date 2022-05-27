@@ -19,6 +19,7 @@
 
 
 #include "modal_window.h"
+#include "keyboard_base.h"
 #include "font.h"
 #include "layer.h"
 
@@ -26,35 +27,35 @@ ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
   Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
   closeWhenClickOutside(closeWhenClickOutside)
 {
+  Layer::push(this);
   lv_obj_set_style_bg_color(lvobj, lv_color_black(), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_50, LV_PART_MAIN);
-  Layer::push(this);
 }
 
 void ModalWindow::deleteLater(bool detach, bool trash)
 {
-  if (_deleted)
-    return;
-
-  Window::deleteLater(detach, trash);
+  if (_deleted) return;
   Layer::pop(this);
+  Window::deleteLater(detach, trash);
 }
 
-#if defined(HARDWARE_TOUCH)
-bool ModalWindow::onTouchEnd(coord_t x, coord_t y)
+void ModalWindow::onClicked()
 {
   if (closeWhenClickOutside) {
     onKeyPress();
     deleteLater();
   }
-  return true;
 }
-#endif
 
 ModalWindowContent::ModalWindowContent(ModalWindow* parent,
                                        const rect_t& rect) :
     Window(parent, rect, OPAQUE)
 {
+}
+
+void ModalWindowContent::onClicked()
+{
+  Keyboard::hide();
 }
 
 void ModalWindowContent::setTitle(const std::string& text)

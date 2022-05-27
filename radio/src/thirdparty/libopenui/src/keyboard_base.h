@@ -19,24 +19,29 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 
-class Keyboard: public FormWindow
+class FormField;
+
+class Keyboard : public Window
 {
-  public:
-    explicit Keyboard(coord_t height);
-    void clearField();
-    static void hide();
+ public:
+  explicit Keyboard(coord_t height);
+  ~Keyboard();
 
-  protected:
-    static Keyboard * activeKeyboard;
-    lv_obj_t * keyboard = nullptr;
+  void clearField();
+  static void hide();
 
-    FormField *field = nullptr;
-    Window *fieldContainer = nullptr;
-    lv_coord_t scroll_pos = 0;
+ protected:
+  static Keyboard *activeKeyboard;
 
-    void setField(FormField *newField);
-    bool attachKeyboard();
+  lv_group_t* group = nullptr;
+  lv_obj_t* keyboard = nullptr;
+
+  FormField* field = nullptr;
+  Window* fieldContainer = nullptr;
+  lv_coord_t scroll_pos = 0;
+
+  void setField(FormField* newField);
+  bool attachKeyboard();
 };
-

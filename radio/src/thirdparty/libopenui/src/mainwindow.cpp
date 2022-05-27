@@ -36,7 +36,7 @@ MainWindow::MainWindow() :
   Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE),
     invalidatedRect(rect)
 {
-  Layer::push(this);
+  // Layer::push(this);
 }
 
 void MainWindow::emptyTrash()
@@ -98,21 +98,10 @@ void MainWindow::run(bool trash)
 {
   auto start = ticksNow();
 
-  // KLK: removed for now.  This is now
-  // called from lvgl event processing when
-  // necessary
-  auto layer = Layer::stack.rbegin();
-  while (layer != Layer::stack.rend()) {
-    if (layer->main && (layer->main->getWindowFlags() & OPAQUE)) {
-      layer->main->checkEvents();
-      break;
-    }
-    ++layer;
-  }
+  auto opaque = Layer::getFirstOpaque();
+  if (opaque) opaque->checkEvents();
 
-  if (trash) {
-    emptyTrash();
-  }
+  if (trash) emptyTrash();
   
   auto delta = ticksNow() - start;
   if (delta > 10 * SYSTEM_TICKS_1MS) {

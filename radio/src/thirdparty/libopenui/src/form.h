@@ -36,9 +36,7 @@ class FormField : public Window
 
   virtual void changeEnd(bool forceChanged = false)
   {
-    if (changeHandler) {
-      changeHandler();
-    }
+    if (changeHandler) { changeHandler(); }
   }
 
   void setChangeHandler(std::function<void()> handler)
@@ -51,33 +49,10 @@ class FormField : public Window
     backgroundHandler = std::move(handler);
   }
 
-  inline void setNextField(FormField *field) { next = field; }
-
-  inline void setPreviousField(FormField *field) { previous = field; }
-
-  inline FormField *getPreviousField() { return previous; }
-
-  inline FormField *getNextField() { return next; }
-
   inline bool isEditMode() const { return editMode; }
+  virtual void setEditMode(bool newEditMode);
 
-  virtual void setEditMode(bool newEditMode)
-  {
-    editMode = newEditMode;
-
-    // if (lvobj != nullptr) {
-    //   lv_group_t *grp = (lv_group_t *)lv_obj_get_group(lvobj);
-    //   if (grp != nullptr) lv_group_set_editing(grp, editMode);
-    // }
-
-    if (editMode && lvobj != nullptr) {
-      lv_obj_add_state(lvobj, LV_STATE_EDITED);
-    } else if (lvobj != nullptr) {
-      lv_obj_clear_state(lvobj, LV_STATE_EDITED);
-    }
-    invalidate();
-  }
-
+  // TODO: replace with LVGL flags
   void enable(bool value = true)
   {
     enabled = value;
@@ -87,45 +62,26 @@ class FormField : public Window
   bool isEnabled() const { return enabled; }
   void disable() { enable(false); }
 
-  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
-                Window *from = nullptr) override;
-
   void onFocusLost() override
   {
     setEditMode(false);
     Window::onFocusLost();
   }
 
-  inline static void link(FormField *previous, FormField *next)
-  {
-    previous->setNextField(next);
-    next->setPreviousField(previous);
-  }
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
-
+  void onClicked() override;
+  void onCancel() override;
+  
  protected:
-  FormField *next = nullptr;
-  FormField *previous = nullptr;
   bool editMode = false;
   bool enabled = true;
   std::function<void()> changeHandler = nullptr;
   std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
 };
 
-class FieldContainer
+class FormGroup : public Window
 {
  public:
-  virtual void addField(FormField *field) = 0;
-  virtual void removeField(FormField *field) = 0;
-};
-
-class FormGroup : public FormField, public FieldContainer
-{
- public:
-  class Line : public Window, public FieldContainer
+  class Line : public Window
   {
     FlexGridLayout* layout;
     FormGroup*      group;
@@ -138,8 +94,6 @@ class FormGroup : public FormField, public FieldContainer
 
    protected:
     void addChild(Window* window) override;
-    void addField(FormField *field) override;
-    void removeField(FormField *field) override;
   };
 
   FormGroup(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,
@@ -149,30 +103,8 @@ class FormGroup : public FormField, public FieldContainer
   std::string getName() const override { return "FormGroup"; }
 #endif
 
-  void clear();
-
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN, lv_coord_t padding = 0);
   Line* newLine(FlexGridLayout* layout = nullptr);
-  
-  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
-                Window *from = nullptr) override;
-
-  void addField(FormField *field) override;
-  void removeField(FormField *field) override;
-
-  void setFirstField(FormField *field) { first = field; }
-  void setLastField(FormField *field) { last = field; }
-  FormField *getFirstField() const { return first; }
-  FormField *getLastField() const { return last; }
-
-
- protected:
-  FormField *first = nullptr;
-  FormField *last = nullptr;
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
 };
 
 class FormWindow : public FormGroup

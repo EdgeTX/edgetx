@@ -52,34 +52,7 @@ CheckBox::CheckBox(Window* parent, const rect_t& rect,
                       LV_EVENT_VALUE_CHANGED, this);
 }
 
-#if defined(HARDWARE_KEYS)
-void CheckBox::onEvent(event_t event)
+void CheckBox::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString("CheckBox").c_str(), event);
-
-  if (enabled && event == EVT_KEY_BREAK(KEY_ENTER)) {
-    onKeyPress();
-    if (lv_obj_get_state(lvobj) & LV_STATE_CHECKED)
-      lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
-    else 
-      lv_obj_add_state(lvobj, LV_STATE_CHECKED);
-
-    _setValue(lv_obj_get_state(lvobj) & LV_STATE_CHECKED);
-  }
-  else {
-    FormField::onEvent(event);
-  }
+  // prevent FormField::onClicked()
 }
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool CheckBox::onTouchEnd(coord_t x, coord_t y)
-{
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
-
-  return true;
-}
-#endif
-

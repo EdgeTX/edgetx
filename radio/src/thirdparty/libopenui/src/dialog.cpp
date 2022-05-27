@@ -21,14 +21,16 @@
 #include "mainwindow.h"
 #include "theme.h"
 
+static rect_t _get_form_rect(const rect_t& rect)
+{
+  return {0, POPUP_HEADER_HEIGHT, rect.w,
+          coord_t(rect.h - POPUP_HEADER_HEIGHT)};
+}
+
 DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
     ModalWindowContent(parent, rect),
-    form(this,
-        { 0, POPUP_HEADER_HEIGHT, rect.w,
-          coord_t(rect.h - POPUP_HEADER_HEIGHT) },
-        FORM_NO_BORDER | FORM_FORWARD_FOCUS)
+    form(this, _get_form_rect(rect), FORM_NO_BORDER)
 {
-  form.setFocus(SET_FOCUS_DEFAULT);
 }
 
 void DialogWindowContent::deleteLater(bool detach, bool trash)
@@ -58,12 +60,7 @@ Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
   if (!title.empty()) content->setTitle(std::move(title));
 }
 
-void Dialog::onEvent(event_t event)
+void Dialog::onCancel()
 {
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    killEvents(event);
-    deleteLater();
-  }
-#endif
+  deleteLater();
 }
