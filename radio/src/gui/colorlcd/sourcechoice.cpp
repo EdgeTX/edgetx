@@ -29,11 +29,11 @@
 #include "draw_functions.h"
 #include "opentx.h"
 
-class SourceChoiceMenuToolbar : public MenuToolbar<SourceChoice>
+class SourceChoiceMenuToolbar : public MenuToolbar
 {
   public:
     SourceChoiceMenuToolbar(SourceChoice * choice, Menu * menu):
-      MenuToolbar<SourceChoice>(choice, menu)
+      MenuToolbar(choice, menu)
     {
       addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT);
 #if defined(LUA_MODEL_SCRIPTS)
@@ -71,7 +71,9 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
     menu->setWaitHandler([=]() {
       int16_t val = getMovedSource(vmin);
       if (val) {
-        fillMenu(menu, val);
+        fillMenu(menu);
+        menu->select(getIndexFromValue(val));
+        // TODO: reset toolbar
       }
 #if defined(AUTOSWITCH)
       else {
@@ -79,7 +81,9 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
         if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
           val = switchToMix(swtch);
           if (val && (val >= vmin) && (val <= vmax)) {
-            fillMenu(menu, val);
+            fillMenu(menu);
+            menu->select(getIndexFromValue(val));
+            // TODO: reset toolbar
           }
         }
       }
@@ -96,25 +100,4 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
   });
 
   setAvailableHandler([](int v){ return isSourceAvailable(v); });
-}
-
-void SourceChoice::fillMenu(Menu *menu, int16_t value, const FilterFct& filter)
-{
-  int count = 0;
-  int current = 0;
-
-  menu->removeLines();
-  for (int i = vmin; i <= vmax; ++i) {
-    if (filter && !filter(i)) continue;
-    if (isValueAvailable && !isValueAvailable(i)) continue;
-    menu->addLine(getSourceString(i), [=]() { setValue(i); });
-    if (value == i) {
-      current = count;
-    }
-    ++count;
-  }
-
-  if (current >= 0) {
-    menu->select(current);
-  }
 }
