@@ -79,10 +79,10 @@ std::string Choice::getLabelText()
 {
   std::string text;
 
-  if (textHandler != nullptr)
-    text = textHandler(getValue());
-  else if (getValue) {
-    int val = getValue();
+  if (textHandler != nullptr) {
+    if (_getValue) { text = textHandler(_getValue()); }
+  } else if (_getValue) {
+    int val = _getValue();
     val -= vmin;
     if (val >= 0 && val < (int)values.size()) {
       text = values[val];
@@ -92,25 +92,26 @@ std::string Choice::getLabelText()
   return text;
 }
 
-Choice::Choice(Window* parent, const rect_t & rect, int vmin, int vmax,
-  std::function<int()> getValue, std::function<void(int)> setValue, WindowFlags windowFlags) :
-  ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-  vmin(vmin),
-  vmax(vmax),
-  getValue(std::move(getValue)),
-  setValue(std::move(setValue))
+Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
+               std::function<int()> _getValue,
+               std::function<void(int)> _setValue, WindowFlags windowFlags) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+    vmin(vmin),
+    vmax(vmax),
+    _getValue(std::move(_getValue)),
+    _setValue(std::move(_setValue))
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
-               int vmin, int vmax, std::function<int()> getValue,
-               std::function<void(int)> setValue, WindowFlags windowFlags) :
+               int vmin, int vmax, std::function<int()> _getValue,
+               std::function<void(int)> _setValue, WindowFlags windowFlags) :
     ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
     vmin(vmin),
     vmax(vmax),
-    getValue(std::move(getValue)),
-    setValue(std::move(setValue))
+    _getValue(std::move(_getValue)),
+    _setValue(std::move(_setValue))
 {
   setValues(values);
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
@@ -118,26 +119,26 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
 
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
-               std::function<int()> getValue, std::function<void(int)> setValue,
+               std::function<int()> _getValue, std::function<void(int)> _setValue,
                WindowFlags windowFlags) :
     ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
     values(std::move(values)),
     vmin(vmin),
     vmax(vmax),
-    getValue(std::move(getValue)),
-    setValue(std::move(setValue))
+    _getValue(std::move(_getValue)),
+    _setValue(std::move(_setValue))
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
-               int vmax, std::function<int()> getValue,
-               std::function<void(int)> setValue, WindowFlags windowFlags) :
+               int vmax, std::function<int()> _getValue,
+               std::function<void(int)> _setValue, WindowFlags windowFlags) :
     ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
     vmin(vmin),
     vmax(vmax),
-    getValue(std::move(getValue)),
-    setValue(std::move(setValue))
+    _getValue(std::move(_getValue)),
+    _setValue(std::move(_setValue))
 {
   if (values) {
     uint8_t len = values[0];
@@ -181,10 +182,37 @@ void Choice::setValues(const char * const values[])
   }
 }
 
+void Choice::setValue(int val)
+{
+  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  if (_setValue) _setValue(val);
+}
+
 void Choice::onClicked()
 {
   onKeyPress();
   openMenu();
+}
+
+void Choice::fillMenu(Menu *menu, const FilterFct& filter)
+{
+  menu->removeLines();
+  auto value = _getValue();
+  
+  int count = 0;
+  for (int i = vmin; i <= vmax; ++i) {
+    if (filter && !filter(i)) continue;
+    if (isValueAvailable && !isValueAvailable(i)) continue;
+    if (textHandler) {
+      menu->addLine(textHandler(i), [=]() { setValue(i); });
+    } else if (unsigned(i - vmin) < values.size()) {
+      menu->addLine(values[i - vmin], [=]() { setValue(i); });
+    } else {
+      menu->addLine(std::to_string(i), [=]() { setValue(i); });
+    }
+    if (value == i) { menu->select(count); }
+    ++count;
+  }
 }
 
 void Choice::openMenu()
@@ -192,49 +220,13 @@ void Choice::openMenu()
   setEditMode(true);  // this needs to be done first before menu is created.
 
   auto menu = new Menu(this);
-  if (!menuTitle.empty())
-    menu->setTitle(menuTitle);
+  if (!menuTitle.empty()) menu->setTitle(menuTitle);
 
-  auto value = getValue();
-  int count = 0;
-  int current = -1;
-
-  for (int i = vmin; i <= vmax; ++i) {
-    if (isValueAvailable && !isValueAvailable(i))
-      continue;
-    if (textHandler) {
-      menu->addLine(textHandler(i), [=]() {
-        setValue(i);
-        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-      });
-    }
-    else if (unsigned(i - vmin) < values.size()) {
-      menu->addLine(values[i - vmin], [=]() {
-        setValue(i);
-        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-      });
-    }
-    else {
-      menu->addLine(std::to_string(i), [=]() {
-        setValue(i);
-        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-      });
-    }
-    if (value == i) {
-      current = count;
-    }
-    ++count;
-  }
-
-  if (current >= 0) {
-    menu->select(current);
-  }
+  fillMenu(menu);
 
   if (beforeDisplayMenuHandler) {
     beforeDisplayMenuHandler(menu);
   }
 
-  menu->setCloseHandler([=]() {
-    setEditMode(false);
-  });
+  menu->setCloseHandler([=]() { setEditMode(false); });
 }
