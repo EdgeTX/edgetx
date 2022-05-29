@@ -108,7 +108,7 @@ struct FMTrimSettings : public Dialog {
 
     for (int t = 0; t < NUM_TRIMS; t++) {
       auto trim_obj = window_create(line->getLvObj());
-      auto trim = new FormGroup::Line(line, trim_obj, nullptr, form);
+      auto trim = new FormGroup::Line(line, trim_obj);
       lv_obj_set_layout(trim_obj, LV_LAYOUT_FLEX);
       lv_obj_set_style_pad_column(trim_obj, 4, 0);
       lv_obj_set_style_pad_bottom(trim_obj, 8, 0);
