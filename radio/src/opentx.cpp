@@ -180,7 +180,7 @@ void per10ms()
   evalFunctionSwitches();
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && 0
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(LIBOPENUI)
   if (IS_ROTARY_ENCODER_NAVIGATION_ENABLE()) {
     static rotenc_t rePreviousValue;
     static bool cw = false;
