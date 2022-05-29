@@ -160,6 +160,158 @@ class DateTimeWindow : public FormGroup {
     }
 };
 
+class WindowButtonGroup : public FormGroup {
+  public:
+  WindowButtonGroup(FormGroup * parent, const rect_t & rect, std::vector<std::pair<const char*, std::function<void()> >> windows) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
+      windows(windows)
+    {
+      build();
+    }
+
+  protected:
+    std::vector<std::pair<const char*, std::function<void()> >> windows;
+
+    void build()
+    {
+      FormGridLayout grid;
+
+      for(auto entry: windows)
+      {
+        new TextButton(this, grid.getLabelSlot(), entry.first, [&, entry](){entry.second(); return 1;});
+        grid.nextLine();
+      }
+    }
+};
+
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
+                                          LV_GRID_TEMPLATE_LAST};
+
+class SoundPage : public Page {
+  public:
+  SoundPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                      STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+
+      // Beeps mode
+      new StaticText(line, rect_t{}, STR_SPEAKER, 0, COLOR_THEME_PRIMARY1);
+      new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.beepMode));
+      line = body.newLine(&grid);
+
+      // Main volume
+      new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
+
+      line = body.newLine(&grid);
+
+      // Beeps volume
+      new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
+      line = body.newLine(&grid);
+
+      // Beeps length
+      new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
+      line = body.newLine(&grid);
+
+      // Beeps pitch
+      new StaticText(line, rect_t{}, STR_BEEP_PITCH, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(line, rect_t{}, 0, 300,
+                                 GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
+                                 [=](int32_t newValue) {
+                                     g_eeGeneral.speakerPitch = newValue / 15;
+                                     SET_DIRTY();
+                                 });
+      edit->setStep(15);
+      edit->setPrefix("+");
+      edit->setSuffix("Hz");
+      line = body.newLine(&grid);
+
+      // Wav volume
+      new StaticText(line, rect_t{}, STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
+      line = body.newLine(&grid);
+
+      // Background volume
+      new StaticText(line, rect_t{}, STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
+
+    }
+};
+
+class VarioPage : public Page {
+  public:
+  VarioPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+                      STR_VARIO, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+
+      // Vario volume
+      new StaticText(line, rect_t{}, TR_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
+      line = body.newLine(&grid);
+
+      new StaticText(line, rect_t{}, STR_PITCH_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(line, rect_t{}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
+                            GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
+                            SET_VALUE(g_eeGeneral.varioPitch, (newValue - VARIO_FREQUENCY_ZERO) / 10));
+      edit->setStep(10);
+      edit->setSuffix("Hz");
+      line = body.newLine(&grid);
+
+      new StaticText(line, rect_t{}, STR_PITCH_AT_MAX, 0, COLOR_THEME_PRIMARY1);
+      edit = new NumberEdit(line, rect_t{}, 900, 2500,
+                            GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) + VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
+                            SET_VALUE(g_eeGeneral.varioRange, (newValue - VARIO_FREQUENCY_ZERO - VARIO_FREQUENCY_RANGE) / 10 - g_eeGeneral.varioPitch ));
+      edit->setStep(10);
+      edit->setSuffix("Hz");
+      line = body.newLine(&grid);
+
+      new StaticText(line, rect_t{}, STR_REPEAT_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
+      edit = new NumberEdit(line, rect_t{}, 200, 1000,
+                            GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
+                            SET_VALUE(g_eeGeneral.varioRepeat, (newValue - VARIO_REPEAT_ZERO) / 10));
+      edit->setStep(10);
+      edit->setSuffix("ms");
+      line = body.newLine(&grid);
+
+
+    }
+};
+
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
 {
@@ -173,6 +325,7 @@ void RadioSetupPage::build(FormWindow * window)
   // Date and Time
   auto timeWindow = new DateTimeWindow(window, {0, grid.getWindowHeight(), LCD_W, 0});
   grid.addWindow(timeWindow);
+
 
   // Batt meter range - Range 3.0v to 16v
   new StaticText(window, grid.getLabelSlot(), STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
@@ -192,89 +345,16 @@ void RadioSetupPage::build(FormWindow * window)
     batMinEdit->setMax(g_eeGeneral.vBatMax + 29 + 90);
     batMinEdit->invalidate();
   });
+
   grid.nextLine();
+  std::vector<std::pair<const char*, std::function<void()> >> windows;
+  windows.push_back(std::make_pair(STR_SOUND_LABEL, [window](){new SoundPage();}));
+  windows.push_back(std::make_pair(STR_VARIO, [window](){new VarioPage();}));
+  auto buttons = new WindowButtonGroup(window, {0,grid.getWindowHeight(), LCD_W, 0}, windows);
+  buttons->adjustHeight();
 
-  new Subtitle(window, grid.getLabelSlot(), STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-
-  // Beeps mode
-  new StaticText(window, grid.getLabelSlot(true), STR_SPEAKER, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.beepMode));
   grid.nextLine();
-
-  // Main volume
-  new StaticText(window, grid.getLabelSlot(true), STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-  new Slider(window, grid.getFieldSlot(), -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-  grid.nextLine();
-
-  // Beeps volume
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
-  new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
-  grid.nextLine();
-
-  // Beeps length
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
-  new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
-  grid.nextLine();
-
-  // Beeps pitch
-  new StaticText(window, grid.getLabelSlot(true), STR_BEEP_PITCH, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(), 0, 300,
-                             GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
-                             [=](int32_t newValue) {
-                                 g_eeGeneral.speakerPitch = newValue / 15;
-                                 SET_DIRTY();
-                             });
-  edit->setStep(15);
-  edit->setPrefix("+");
-  edit->setSuffix("Hz");
-  grid.nextLine();
-
-  // Wav volume
-  new StaticText(window, grid.getLabelSlot(true), STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
-  new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
-  grid.nextLine();
-
-  // Background volume
-  new StaticText(window, grid.getLabelSlot(true), STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
-  new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
-  grid.nextLine();
-
-#if defined(VARIO)
-  {
-    new Subtitle(window, grid.getLabelSlot(), STR_VARIO, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Vario volume
-    new StaticText(window, grid.getLabelSlot(true), TR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-    new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
-    grid.nextLine();
-
-    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
-    edit = new NumberEdit(window, grid.getFieldSlot(), VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
-                          GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
-                          SET_VALUE(g_eeGeneral.varioPitch, (newValue - VARIO_FREQUENCY_ZERO) / 10));
-    edit->setStep(10);
-    edit->setSuffix("Hz");
-    grid.nextLine();
-
-    new StaticText(window, grid.getLabelSlot(true), STR_PITCH_AT_MAX, 0, COLOR_THEME_PRIMARY1);
-    edit = new NumberEdit(window, grid.getFieldSlot(), 900, 2500,
-                          GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) + VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
-                          SET_VALUE(g_eeGeneral.varioRange, (newValue - VARIO_FREQUENCY_ZERO - VARIO_FREQUENCY_RANGE) / 10 - g_eeGeneral.varioPitch ));
-    edit->setStep(10);
-    edit->setSuffix("Hz");
-    grid.nextLine();
-
-    new StaticText(window, grid.getLabelSlot(true), STR_REPEAT_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
-    edit = new NumberEdit(window, grid.getFieldSlot(), 200, 1000,
-                          GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
-                          SET_VALUE(g_eeGeneral.varioRepeat, (newValue - VARIO_REPEAT_ZERO) / 10));
-    edit->setStep(10);
-    edit->setSuffix("ms");
-    grid.nextLine();
-  }
-#endif
 
 #if defined(HAPTIC)
   {
@@ -305,7 +385,7 @@ void RadioSetupPage::build(FormWindow * window)
 
     // Battery warning
     new StaticText(window, grid.getLabelSlot(true), STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
-    edit = new NumberEdit(window, grid.getFieldSlot(), 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
+    auto edit = new NumberEdit(window, grid.getFieldSlot(), 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
     edit->setSuffix("V");
     grid.nextLine();
 
@@ -483,7 +563,7 @@ void RadioSetupPage::build(FormWindow * window)
 
   // Switches delay
   new StaticText(window, grid.getLabelSlot(), STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(window, grid.getFieldSlot(2, 0), -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
+  auto edit = new NumberEdit(window, grid.getFieldSlot(2, 0), -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
   grid.nextLine();
 
