@@ -139,6 +139,12 @@ extern "C" void window_event_cb(lv_event_t * e)
   else if (code == LV_EVENT_CANCEL) {
     TRACE("CANCEL[%p]", window);
     window->onCancel();
+  } else if (code == LV_EVENT_FOCUSED) {
+    if(window->focusHandler)
+      window->focusHandler(true);
+  } else if (code == LV_EVENT_DEFOCUSED) {
+    if(window->focusHandler)
+      window->focusHandler(false);
   }
 }
 

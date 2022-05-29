@@ -65,10 +65,13 @@ constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 // };
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
+extern "C" void window_event_cb(lv_event_t * e);
+
 
 class Window
 {
   friend class GridLayout;
+  friend void window_event_cb(lv_event_t * e);
 
   public:
    Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
