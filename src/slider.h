@@ -33,21 +33,14 @@ class Slider : public FormField
 
   void setValue(int value)
   {
-    if (_setValue != nullptr)
-      _setValue(limit(vmin, value, vmax));
+    if (_setValue != nullptr) _setValue(limit(vmin, value, vmax));
   }
 
-  void paint(BitmapBuffer* dc) override;
-
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
-
  protected:
-  int value(coord_t x) const;
   int vmin;
   int vmax;
-  bool sliding = false;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
+
+  int value(coord_t x) const;
 };

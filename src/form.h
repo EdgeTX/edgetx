@@ -83,17 +83,16 @@ class FormGroup : public Window
  public:
   class Line : public Window
   {
-    FlexGridLayout* layout;
-    FormGroup*      group;
+    FlexGridLayout *layout;
+    FormGroup *group;
 
     void construct();
-    
+
    public:
-    Line(FormGroup *parent, lv_obj_t *obj, FlexGridLayout* layout);
-    Line(Window *parent, lv_obj_t *obj, FlexGridLayout* layout, FormGroup* group);
+    Line(Window *parent, lv_obj_t *obj, FlexGridLayout *layout = nullptr);
 
    protected:
-    void addChild(Window* window) override;
+    void addChild(Window *window) override;
   };
 
   FormGroup(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,

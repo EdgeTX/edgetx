@@ -22,19 +22,14 @@
 
 #include "LvglWrapper.h"
 
-static void slider_changed_cb(lv_event_t * e)
+static void slider_changed_cb(lv_event_t* e)
 {
-  lv_obj_t * target = lv_event_get_target(e);
+  lv_obj_t* target = lv_event_get_target(e);
   auto code = lv_event_get_code(e);
 
   Slider* sl = (Slider*)lv_obj_get_user_data(target);
   if (code == LV_EVENT_VALUE_CHANGED) {
-    // if (!lv_slider_is_dragged(target)) {
-      if (sl != nullptr)
-        sl->setValue(lv_slider_get_value(target));
-    // }
-  } else if (code == LV_EVENT_PRESSED) {
-    sl->setEditMode(true);
+    if (sl != nullptr) sl->setValue(lv_slider_get_value(target));
   }
 }
 
@@ -100,36 +95,9 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
   lv_obj_add_style(lvobj, &style_edit, LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
 }
 
-void Slider::paint(BitmapBuffer * dc)
-{
-}
 
 int Slider::value(coord_t x) const
 {
   return vmin + ((vmax - vmin) * x + (rect.w / 2)) / rect.w;
 }
 
-#if defined(HARDWARE_KEYS)
-void Slider::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  if (editMode) {
-    if (event == EVT_ROTARY_RIGHT) {
-      setValue(_getValue() + ROTARY_ENCODER_SPEED());
-      lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
-      onKeyPress();
-      return;
-    }
-    else if (event == EVT_ROTARY_LEFT) {
-      setValue(_getValue() - ROTARY_ENCODER_SPEED());
-      lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
-      onKeyPress();
-      return;
-    } else if (event == EVT_KEY_FIRST(KEY_EXIT))
-      return;
-  }
-
-  FormField::onEvent(event);
-}
-#endif
