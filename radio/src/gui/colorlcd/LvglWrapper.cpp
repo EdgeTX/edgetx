@@ -171,6 +171,7 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
 }
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   static rotenc_t prevPos = 0;
@@ -182,6 +183,7 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
 }
+#endif
 
 /**
  * Helper function to translate a colorFlags value to a lv_color_t suitable
@@ -205,10 +207,12 @@ static void init_lvgl_drivers()
   touchDriver.read_cb = touchDriverRead;      /*See below.*/
   lv_indev_drv_register(&touchDriver);
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
   lv_indev_drv_init(&rotaryDriver);
   rotaryDriver.type = LV_INDEV_TYPE_ENCODER;
   rotaryDriver.read_cb = rotaryDriverRead;
   rotaryDevice = lv_indev_drv_register(&rotaryDriver);
+#endif
 
   lv_indev_drv_init(&keyboard_drv);
   keyboard_drv.type = LV_INDEV_TYPE_KEYPAD;
