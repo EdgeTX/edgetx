@@ -477,111 +477,106 @@ class ModelCategoryPageBody : public FormWindow
           this, {x, y, MODEL_SELECT_CELL_WIDTH, MODEL_SELECT_CELL_HEIGHT},
           model);
       button->setPressHandler([=]() -> uint8_t {
-        if (button->hasFocus()) {
-          Menu *menu = new Menu(parent);
-          if (model != modelslist.getCurrentModel()) {
-            menu->addLine(STR_SELECT_MODEL, [=]() {
-              bool modelConnected = TELEMETRY_STREAMING() &&
-                                    !g_eeGeneral.disableRssiPoweroffAlarm;
-              if (modelConnected) {
-                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-                if (!confirmationDialog(
-                        STR_MODEL_STILL_POWERED, nullptr, false, []() {
-                          tmr10ms_t startTime = getTicks();
-                          while (!TELEMETRY_STREAMING()) {
-                            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms)
-                              break;
-                          }
-                          return !TELEMETRY_STREAMING() ||
-                                 g_eeGeneral.disableRssiPoweroffAlarm;
-                        })) {
-                  return;  // stop if connected but not confirmed
-                }
+        Menu *menu = new Menu(parent);
+        if (model != modelslist.getCurrentModel()) {
+          menu->addLine(STR_SELECT_MODEL, [=]() {
+            bool modelConnected = TELEMETRY_STREAMING() &&
+                                  !g_eeGeneral.disableRssiPoweroffAlarm;
+            if (modelConnected) {
+              AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+              if (!confirmationDialog(
+                      STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                        tmr10ms_t startTime = getTicks();
+                        while (!TELEMETRY_STREAMING()) {
+                          if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms)
+                            break;
+                        }
+                        return !TELEMETRY_STREAMING() ||
+                               g_eeGeneral.disableRssiPoweroffAlarm;
+                      })) {
+                return;  // stop if connected but not confirmed
               }
-
-              // store changes (if any) and load selected model
-              storageFlushCurrentModel();
-              storageCheck(true);
-              memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
-                     LEN_MODEL_FILENAME);
-
-              loadModel(g_eeGeneral.currModelFilename, false);
-              storageDirty(EE_GENERAL);
-              storageCheck(true);
-
-              modelslist.setCurrentModel(model);
-              modelslist.setCurrentCategory(category);
-              menu->deleteLater();
-              onEvent(EVT_KEY_FIRST(KEY_EXIT));
-              checkAll();
-            });
-          }
-          menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
-          menu->addLine(STR_DUPLICATE_MODEL, [=]() {
-            char duplicatedFilename[LEN_MODEL_FILENAME + 1];
-            memcpy(duplicatedFilename, model->modelFilename,
-                   sizeof(duplicatedFilename));
-            if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
-                                  MODELS_PATH)) {
-              sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
-                         MODELS_PATH);
-              modelslist.addModel(category, duplicatedFilename);
-              update(index);
-            } else {
-              POPUP_WARNING("Invalid File");
             }
+
+            // store changes (if any) and load selected model
+            storageFlushCurrentModel();
+            storageCheck(true);
+            memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+                   LEN_MODEL_FILENAME);
+
+            loadModel(g_eeGeneral.currModelFilename, false);
+            storageDirty(EE_GENERAL);
+            storageCheck(true);
+
+            modelslist.setCurrentModel(model);
+            modelslist.setCurrentCategory(category);
+            menu->deleteLater();
+            onEvent(EVT_KEY_FIRST(KEY_EXIT));
+            checkAll();
           });
-          menu->addLine(STR_SAVE_TEMPLATE, [=]() {
-              storageDirty(EE_MODEL);
-              storageCheck(true);
-              constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
-              char modelName[size];
-              snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
-              char templatePath[FF_MAX_LFN];
-              snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
-              sdCheckAndCreateDirectory(TEMPLATES_PATH);
-              sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
-              if (isFileAvailable(templatePath)) {
-                new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE,
-                  [=] {
-                    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-                  });
-              } else {
-                sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-              }
-          });
-          if (model != modelslist.getCurrentModel()) {
-            // Move
-            if(modelslist.getCategories().size() > 1) {
-              menu->addLine(STR_MOVE_MODEL, [=]() {
-              auto moveToMenu = new Menu(parent);
-              moveToMenu->setTitle(STR_MOVE_MODEL);              
-                for (auto newcategory: modelslist.getCategories()) {
-                  if(category != newcategory) {
-                    moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
-                      modelslist.moveModel(model, category, newcategory);
-                      update(index < (int)category->size() - 1 ? index : index - 1);
-                      modelslist.save();
-                    });
-                  }
-                }
-              });
-            }
-            menu->addLine(STR_DELETE_MODEL, [=]() {
-              new ConfirmDialog(
-                  parent, STR_DELETE_MODEL,
-                  std::string(model->modelName, sizeof(model->modelName))
-                      .c_str(),
-                  [=] {
-                    modelslist.removeModel(category, model);
-                    update(index < (int)category->size() - 1 ? index : index - 1);
-                  });
-            });
-          }
         }
-        // else {
-        //   button->setFocus(SET_FOCUS_DEFAULT);
-        // }
+        menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
+        menu->addLine(STR_DUPLICATE_MODEL, [=]() {
+          char duplicatedFilename[LEN_MODEL_FILENAME + 1];
+          memcpy(duplicatedFilename, model->modelFilename,
+                 sizeof(duplicatedFilename));
+          if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+                                MODELS_PATH)) {
+            sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+                       MODELS_PATH);
+            modelslist.addModel(category, duplicatedFilename);
+            update(index);
+          } else {
+            POPUP_WARNING("Invalid File");
+          }
+        });
+        menu->addLine(STR_SAVE_TEMPLATE, [=]() {
+            storageDirty(EE_MODEL);
+            storageCheck(true);
+            constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+            char modelName[size];
+            snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+            char templatePath[FF_MAX_LFN];
+            snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+            sdCheckAndCreateDirectory(TEMPLATES_PATH);
+            sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+            if (isFileAvailable(templatePath)) {
+              new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE,
+                [=] {
+                  sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+                });
+            } else {
+              sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+            }
+        });
+        if (model != modelslist.getCurrentModel()) {
+          // Move
+          if(modelslist.getCategories().size() > 1) {
+            menu->addLine(STR_MOVE_MODEL, [=]() {
+            auto moveToMenu = new Menu(parent);
+            moveToMenu->setTitle(STR_MOVE_MODEL);
+              for (auto newcategory: modelslist.getCategories()) {
+                if(category != newcategory) {
+                  moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
+                    modelslist.moveModel(model, category, newcategory);
+                    update(index < (int)category->size() - 1 ? index : index - 1);
+                    modelslist.save();
+                  });
+                }
+              }
+            });
+          }
+          menu->addLine(STR_DELETE_MODEL, [=]() {
+            new ConfirmDialog(
+                parent, STR_DELETE_MODEL,
+                std::string(model->modelName, sizeof(model->modelName))
+                    .c_str(),
+                [=] {
+                  modelslist.removeModel(category, model);
+                  update(index < (int)category->size() - 1 ? index : index - 1);
+                });
+          });
+        }
         return 1;
       });
 
