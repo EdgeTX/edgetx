@@ -116,7 +116,7 @@ void TabsCarousel::update()
   }
   while(buttons.size() > menu->tabs.size())
   {
-    delete *buttons.end();
+    buttons.back()->deleteLater();
     buttons.pop_back();
   }
 }
