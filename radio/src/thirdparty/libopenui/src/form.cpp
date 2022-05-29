@@ -49,8 +49,11 @@ void FormField::setEditMode(bool newEditMode)
 
 void FormField::onClicked()
 {
-  setEditMode(!editMode);
-  invalidate();
+  lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+  if(indev_type != LV_INDEV_TYPE_POINTER) {
+    setEditMode(!editMode);
+    invalidate();
+  }
 }
 
 void FormField::onCancel()
@@ -63,16 +66,8 @@ void FormField::onCancel()
   }
 }
 
-FormGroup::Line::Line(FormGroup* parent, lv_obj_t* obj,
-                      FlexGridLayout* layout) :
-    Window(parent, obj), layout(layout), group(parent)
-{
-  construct();
-}
-
-FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout,
-                      FormGroup* group) :
-    Window(parent, obj), layout(layout), group(group)
+FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout) :
+    Window(parent, obj), layout(layout)
 {
   construct();
 }
