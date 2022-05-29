@@ -88,7 +88,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup::Line(line, window_create(line->getLvObj()), nullptr, &body);
+  auto box = new FormGroup::Line(line, window_create(line->getLvObj()));
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
   new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
              COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
