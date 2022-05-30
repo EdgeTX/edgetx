@@ -25,7 +25,7 @@
 ColorList::ColorList(
     Window *parent, const rect_t &rect, std::vector<ColorEntry> colors,
     WindowFlags windowFlag, LcdFlags lcdFlags) :
-    ListBase(parent, rect, getColorListNames(colors), nullptr, nullptr),
+    ListBase(parent, rect, getColorListNames(colors)),
     _colorList(colors),
     _tp(ThemePersistance::instance())
 {
@@ -43,11 +43,30 @@ std::vector<std::string> ColorList::getColorListNames(std::vector<ColorEntry> co
   return names;
 }
 
-void ColorList::drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, LcdFlags lcdFlags)
+void ColorList::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  ListBase::drawLine(dc, rect, index, lcdFlags);
-  auto fontHeight = getFontHeight(FONT(STD));
-  dc->drawSolidFilledRect(rect.w - 22, rect.y, 16, fontHeight,
-                          COLOR2FLAGS(_colorList[index].colorValue));
-  dc->drawSolidRect(rect.w - 22, rect.y, 16, fontHeight, 1, COLOR2FLAGS(BLACK));
+  lv_draw_rect_dsc_t rect_dsc;
+  lv_draw_rect_dsc_init(&rect_dsc);
+
+  lv_area_t coords;
+  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+
+  auto box_h = getFontHeight(FONT(STD));
+  auto box_w = 3 * box_h / 4;
+  lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
+
+  coords.x2 = dsc->draw_area->x2 - cell_right;
+  coords.x1 = coords.x2 - box_w;
+  coords.y1 = dsc->draw_area->y1 + (area_h - box_h) / 2;
+  coords.y2 = coords.y1 + box_h - 1;
+
+  rect_dsc.border_color = makeLvColor(COLOR_THEME_PRIMARY1);
+  rect_dsc.border_opa = LV_OPA_100;
+  rect_dsc.border_width = lv_dpx(1);
+
+  uint16_t color = _colorList[row].colorValue;
+  rect_dsc.bg_color = lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+  rect_dsc.bg_opa = LV_OPA_100;
+
+  lv_draw_rect(dsc->draw_ctx, &rect_dsc, &coords);
 }

@@ -28,7 +28,7 @@ extern inline tmr10ms_t getTicks()
 
 
 FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
-                           std::vector<std::string> fileNames, FormField *nextCtrl) :
+                           std::vector<std::string> fileNames) :
     FormGroup(parent, rect, NO_FOCUS | FORM_NO_BORDER),
     _fileNames(fileNames),
     fp(new FilePreview(this, {0, 0, rect.w, rect.h}, false))
