@@ -373,6 +373,13 @@ void LvglWrapper::run()
   lv_timer_handler();
 }
 
+void LvglWrapper::runNested()
+{
+  // Manual refresh
+  lv_refr_now(nullptr);
+  pollInputs();
+}
+
 void LvglWrapper::pollInputs()
 {
   lv_indev_t* indev = nullptr;

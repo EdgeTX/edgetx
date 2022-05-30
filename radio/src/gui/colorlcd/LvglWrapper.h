@@ -60,18 +60,24 @@ class LvglWidgetFactory
 
 class LvglWrapper
 {
- public:
-  static LvglWrapper* instance();
+  static LvglWrapper *_instance;
+  static void pollInputs();
 
-  void run();
-  void pollInputs();
+  tmr10ms_t lastTick = 0;
+  // TODO: add driver instances here
 
- private:
   LvglWrapper();
   ~LvglWrapper() {}
 
-  static LvglWrapper *_instance;
-  tmr10ms_t lastTick = 0;
+ public:
+  static LvglWrapper* instance();
+
+  // Called from UI task: executes the LVGL timer handler 
+  void run();
+
+  // Call it when running the loop manually from within
+  // the LVGL timer handler (blocking UI code)
+  static void runNested();
 };
 
 #endif // _LVGLWRAPPER_H_

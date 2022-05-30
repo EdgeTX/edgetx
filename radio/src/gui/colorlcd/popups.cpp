@@ -22,37 +22,29 @@
 #include "popups.h"
 #include "libopenui.h"
 
-static MessageDialog * createPopupInformation(const char * message)
+static void _run_popup_dialog(const char* title, const char* msg,
+                              const char* info = nullptr)
 {
-  return new MessageDialog(MainWindow::instance(), "Message", message);
-}
-
-static MessageDialog * createPopupWarning(const char * message)
-{
-  return new MessageDialog(MainWindow::instance(), "Warning", message);
+  bool running = true;
+  auto md = new MessageDialog(MainWindow::instance(), title, msg);
+  md->setCloseHandler([&]() { running = false; });
+  if (info) {
+    md->setInfoText(std::string(info));
+  }
+  while (running) {
+    WDG_RESET();
+    MainWindow::instance()->run();
+    LvglWrapper::runNested();
+    RTOS_WAIT_MS(20);
+  }
 }
 
 void POPUP_INFORMATION(const char * message)
 {
-  auto popup = createPopupInformation(message);
-  while (popup->getParent()) {
-    WDG_RESET();
-    lv_refr_now(nullptr);
-    LvglWrapper::instance()->pollInputs();
-    RTOS_WAIT_MS(20);
-  }
+  _run_popup_dialog("Message", message);
 }
 
 void POPUP_WARNING(const char * message, const char * info)
 {
-  auto popup = createPopupWarning(message);
-  if (info) {
-    popup->setInfoText(std::string(info));
-  }
-  while (popup->getParent()) {
-    WDG_RESET();
-    lv_refr_now(nullptr);
-    LvglWrapper::instance()->pollInputs();
-    RTOS_WAIT_MS(20);
-  }
+  _run_popup_dialog("Warning", message, info);
 }
