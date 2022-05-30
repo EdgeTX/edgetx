@@ -364,16 +364,7 @@ void guiMain(event_t evt)
   }
 
   DEBUG_TIMER_START(debugTimerLua);
-
-  // Run Lua scripts first that don't use LCD
-  luaTask(  0, false);
-
-  // This is run from StandaloneLuaWindow::checkEvents()
-  // luaTask(evt, RUN_STNDAL_SCRIPT, true);
-
-  // TODO: Telemetry scripts are run from Window::checkEvents()
-  // luaTask(  0, RUN_TELEM_BG_SCRIPT, false/* NO LCD */);
-  // luaTask(evt, RUN_TELEM_FG_SCRIPT, true/* LCD YES */);
+  luaTask(0, false);
   DEBUG_TIMER_STOP(debugTimerLua);
 
   t0 = get_tmr10ms() - t0;
@@ -381,10 +372,13 @@ void guiMain(event_t evt)
     maxLuaDuration = t0;
   }
 #endif
-#if defined(HARDWARE_TOUCH)
-  MainWindow* mainWin = MainWindow::instance();
-  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
-#endif
+
+  // TODO: use lv_indev_enable(touchDriver, true / false) instead
+  // #if defined(HARDWARE_TOUCH)
+  //   MainWindow* mainWin = MainWindow::instance();
+  //   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) &&
+  //   isBacklightEnabled());
+  // #endif
   LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
