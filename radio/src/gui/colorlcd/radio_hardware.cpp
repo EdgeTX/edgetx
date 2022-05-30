@@ -312,6 +312,11 @@ class InternalModuleWindow : public FormGroup {
             restartModule(INTERNAL_MODULE);
           });
       grid.nextLine();
+      #if defined(USB_SERIAL)
+        // If USB-VCP was off, set it to CLI to enable passthrough flashing
+        if (serialGetMode(SP_VCP) ==  UART_MODE_NONE)
+          serialSetMode(SP_VCP, UART_MODE_CLI);
+      #endif
     }
 #endif
     getParent()->moveWindowsTop(top() + 1, adjustHeight());

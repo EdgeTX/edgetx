@@ -532,6 +532,11 @@ void menuRadioHardware(event_t event)
           memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
           storageDirty(EE_MODEL);
           storageDirty(EE_GENERAL);
+        #if defined(CROSSFIRE) && defined(USB_SERIAL)
+          // If USB-VCP was off, set it to CLI to enable passthrough flashing
+          if (isInternalModuleCrossfire() && serialGetMode(SP_VCP) ==  UART_MODE_NONE)
+            serialSetMode(SP_VCP, UART_MODE_CLI);
+        #endif
         }
       } break;
 #endif
