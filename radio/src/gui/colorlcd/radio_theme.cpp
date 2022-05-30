@@ -372,20 +372,14 @@ class ThemeEditPage : public Page
         });
         return 0;
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
-
-      // setup the prev next controls so save and details are in the mix
-      // _cList->setNextField(_detailButton);
-      // _cList->setPreviousField(_detailButton);
-      // _detailButton->setNextField(_cList);
-      // _detailButton->setPreviousField(_cList);
     }
 
     void buildBody(FormGroup *window)
     {
       rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
       _cList = new ColorList(window, r, _theme.getColorList());
-      _cList->setLongPressHandler([=] (event_t event) { editColorPage(); });
-      _cList->setPressHandler([=] (event_t event) { editColorPage(); });
+      _cList->setLongPressHandler([=] () { editColorPage(); });
+      _cList->setPressHandler([=] () { editColorPage(); });
 
       if (LCD_W > LCD_H) {
         r = { 
@@ -458,7 +452,6 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       tp->setDefaultTheme(listBox->getSelected());
       nameText->setTextFlags(COLOR_THEME_PRIMARY1);
       authorText->setTextFlags(COLOR_THEME_PRIMARY1);
-      listBox->setActiveIndex(tp->getThemeIndex());
     });
   }
 
@@ -533,7 +526,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
         tp->deleteThemeByIndex(listBox->getSelected());
         listBox->setNames(tp->getNames());
-        listBox->setSelected(min<int>(currentTheme, tp->getNames().size() - 1));
+        currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
+        listBox->setSelected(currentTheme);
       }
     });
   }
@@ -541,28 +535,22 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
 void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp)
 {
-  listBox = new ListBox(
-    window, r, tp->getNames(),
-      [=]() { 
-        return currentTheme;
-      },
-      [=](uint8_t value) {
-        if (themeColorPreview && authorText && nameText && fileCarosell != nullptr) {
-          ThemeFile *theme = tp->getThemeByIndex(value);
-          themeColorPreview->setColorList(theme->getColorList());
-          setAuthor(theme);
-          nameText->setText(theme->getName());
-          fileCarosell->setFileNames(theme->getThemeImageFileNames());
-        }
-        currentTheme = value;
-      });
-  listBox->setActiveIndex(tp->getThemeIndex());
-  listBox->setTitle(STR_THEME + std::string("s"));
-  listBox->setLongPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
-  listBox->setPressHandler([=] (event_t event) { 
-    if (event != 0)
-      displayThemeMenu(window, tp); 
-  });
+  listBox = new ListBox(window, r, tp->getNames());
+  listBox->setAutoEdit(true);
+  listBox->setSelected(currentTheme);
+  listBox->setTitle(STR_THEME + std::string("s")); // TODO: fix this!
+  listBox->setLongPressHandler([=] () { displayThemeMenu(window, tp); });
+  listBox->setPressHandler([=] () {
+      auto value = listBox->getSelected();
+      if (themeColorPreview && authorText && nameText && fileCarosell) {
+        ThemeFile *theme = tp->getThemeByIndex(value);
+        themeColorPreview->setColorList(theme->getColorList());
+        setAuthor(theme);
+        nameText->setText(theme->getName());
+        fileCarosell->setFileNames(theme->getThemeImageFileNames());
+      }
+      currentTheme = value;
+    });
 }
 
 void ThemeSetupPage::build(FormWindow *window)
@@ -609,7 +597,7 @@ void ThemeSetupPage::build(FormWindow *window)
     r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
   }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
-  fileCarosell = new FileCarosell(window, r, fileNames, listBox);
+  fileCarosell = new FileCarosell(window, r, fileNames);
 
   // author and name of theme on right side of screen
   r.x += 7;

@@ -286,7 +286,7 @@ static void style_init(void)
     lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY2));
 
     lv_style_set_border_opa(&styles.btn, LV_OPA_0);
-    lv_style_set_border_width(&styles.btn, lv_disp_dpx(theme.disp, 2));
+    lv_style_set_border_width(&styles.btn, BORDER_WIDTH);
 
     lv_style_set_text_color(&styles.btn, color_text);
     lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
@@ -311,7 +311,7 @@ static void style_init(void)
     style_init_reset(&styles.focus_border);
     lv_style_set_border_color(&styles.focus_border, makeLvColor(COLOR_THEME_FOCUS));
     lv_style_set_border_opa(&styles.focus_border, LV_OPA_100);
-    lv_style_set_border_width(&styles.focus_border, lv_disp_dpx(theme.disp, 2));    
+    lv_style_set_border_width(&styles.focus_border, BORDER_WIDTH);
      
     style_init_reset(&styles.clip_corner);
     lv_style_set_clip_corner(&styles.clip_corner, true);
@@ -823,7 +823,6 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
 #if LV_USE_TABLE
     else if(lv_obj_check_type(obj, &lv_table_class)) {
-        // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_zero, 0);
         lv_obj_add_style(obj, &styles.no_radius, 0);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
@@ -832,7 +831,6 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.table_cell, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-        lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
         lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
     }
 #endif
