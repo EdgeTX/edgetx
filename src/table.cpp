@@ -19,6 +19,44 @@
 
 #include "table.h"
 
+void TableField::event_cb(lv_event_t *e)
+{
+  lv_event_code_t code = lv_event_get_code(e);
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    clicked(e);
+  } else if (code == LV_EVENT_DRAW_PART_BEGIN) {
+    draw_begin(e);
+  } else if (code == LV_EVENT_DRAW_PART_END) {
+    draw_end(e);
+  }
+  else if (code == LV_EVENT_DRAW_POST) {
+    
+    lv_obj_t * obj = lv_event_get_target(e);
+    bool has_focus = lv_obj_has_state(obj, LV_STATE_FOCUS_KEY);
+    bool is_edited = lv_group_get_editing((lv_group_t*)lv_obj_get_group(obj));
+
+    if (has_focus && !is_edited) {
+      lv_draw_ctx_t * draw_ctx = lv_event_get_draw_ctx(e);
+
+      lv_draw_rect_dsc_t rect_dsc;
+      lv_draw_rect_dsc_init(&rect_dsc);
+      rect_dsc.bg_opa = LV_OPA_TRANSP;
+      rect_dsc.bg_img_opa = LV_OPA_TRANSP;
+      rect_dsc.outline_opa = LV_OPA_TRANSP;
+      rect_dsc.shadow_opa = LV_OPA_TRANSP;
+
+      rect_dsc.border_color = makeLvColor(COLOR_THEME_FOCUS);
+      rect_dsc.border_opa = LV_OPA_100;
+      rect_dsc.border_width = lv_dpx(2);
+
+      lv_area_t coords;
+      lv_area_copy(&coords, &obj->coords);
+
+      lv_draw_rect(draw_ctx, &rect_dsc, &coords);
+    }
+  }
+}
+
 void TableField::clicked(lv_event_t *e)
 {
   lv_obj_t* target = lv_event_get_target(e);
@@ -33,11 +71,24 @@ void TableField::clicked(lv_event_t *e)
     tf->adjustScroll();
   } else {
     // Otherwise it's a click
-    uint16_t row;
-    uint16_t col;
-    lv_table_get_selected_cell(target, &row, &col);
+    if (lv_group_get_editing((lv_group_t*)lv_obj_get_group(target))
+        || indev_type == LV_INDEV_TYPE_POINTER) {
+      uint16_t row;
+      uint16_t col;
+      lv_table_get_selected_cell(target, &row, &col);
     
-    tf->onPress(row, col);
+      tf->onPress(row, col);
+    } else {
+      tf->onClicked();
+    }
+
+    // Note: VALUE_CHANGED is generated on RELEASED
+    //
+    //   It must be avoided that CLICKED be generated afterwards
+    //   in case the object has been deleted meanwhile and to
+    //   avoid onClicked() being called.
+    //
+    lv_indev_reset(lv_indev_get_act(), nullptr);
   }
 }
 
@@ -82,9 +133,7 @@ void TableField::draw_end(lv_event_t* e)
 TableField::TableField(Window* parent, const rect_t& rect, WindowFlags windowFlags) :
   Window(parent, rect, windowFlags, 0, lv_table_create)
 {
-  lv_obj_add_event_cb(lvobj, TableField::clicked, LV_EVENT_VALUE_CHANGED, nullptr);
-  lv_obj_add_event_cb(lvobj, TableField::draw_begin, LV_EVENT_DRAW_PART_BEGIN, nullptr);
-  lv_obj_add_event_cb(lvobj, TableField::draw_end, LV_EVENT_DRAW_PART_END, nullptr);
+  lv_obj_add_event_cb(lvobj, TableField::event_cb, LV_EVENT_ALL, nullptr);
 }
 
 void TableField::setColumnCount(uint16_t cols)

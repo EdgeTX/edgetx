@@ -51,6 +51,7 @@ class TableField : public Window
   virtual void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
   virtual void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
 
+  static void event_cb(lv_event_t *e);
   static void clicked(lv_event_t *e);
   static void draw_begin(lv_event_t *e);
   static void draw_end(lv_event_t *e);
