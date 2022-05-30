@@ -28,7 +28,7 @@
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
     const std::function<void(void)>& confirmHandler) :
-    FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE | FORM_NO_BORDER),
+    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
     type(type),
     title(std::move(title)),
     message(std::move(message)),
@@ -36,22 +36,21 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   Layer::push(this);
-
-  // TODO: if 'confirmHandler':
-  //       -> add a confirm / cancel button
-  //
-#if defined(HARDWARE_TOUCH) && 0
-  new FabButton(this, LCD_W - (FAB_BUTTON_SIZE + PAGE_PADDING),
-                LCD_H - (FAB_BUTTON_SIZE + PAGE_PADDING), ICON_NEXT,
-                [=]() -> uint8_t {
-                  deleteLater();
-                  if (confirmHandler) confirmHandler();
-                  return 0;
-                });
-#endif
+  
+//   // TODO: if 'confirmHandler':
+//   //       -> add a confirm / cancel button
+//   //
+// #if defined(HARDWARE_TOUCH) && 0
+//   new FabButton(this, LCD_W - (FAB_BUTTON_SIZE + PAGE_PADDING),
+//                 LCD_H - (FAB_BUTTON_SIZE + PAGE_PADDING), ICON_NEXT,
+//                 [=]() -> uint8_t {
+//                   deleteLater();
+//                   if (confirmHandler) confirmHandler();
+//                   return 0;
+//                 });
+// #endif
 
   bringToTop();
-  // setFocus(SET_FOCUS_DEFAULT);
 }
 
 void FullScreenDialog::paint(BitmapBuffer * dc)
@@ -122,21 +121,6 @@ void FullScreenDialog::onCancel()
   deleteLater();
 }
 
-#if defined(HARDWARE_TOUCH)
-bool FullScreenDialog::onTouchStart(coord_t x, coord_t y)
-{
-  Window::onTouchStart(x, y);
-  return true;
-}
-
-bool FullScreenDialog::onTouchEnd(coord_t x, coord_t y)
-{
-  Window::onTouchEnd(x, y);
-  deleteLater();
-  return true;
-}
-#endif
-
 void FullScreenDialog::checkEvents()
 {
   Window::checkEvents();
@@ -154,6 +138,16 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
     Layer::pop(this);
     Window::deleteLater(detach, trash);
   }
+}
+
+static void run_ui_manually()
+{
+  checkBacklight();
+  WDG_RESET();
+
+  RTOS_WAIT_MS(10);
+  LvglWrapper::runNested();
+  MainWindow::instance()->run();
 }
 
 void FullScreenDialog::runForever()
@@ -179,13 +173,7 @@ void FullScreenDialog::runForever()
       RTOS_WAIT_MS(1);
       continue;
     }
-
-    checkBacklight();
-    WDG_RESET();
-
-    RTOS_WAIT_MS(1);
-    mainWin->run(false);
-    LvglWrapper::instance()->run();
+    run_ui_manually();
   }
 
   deleteLater();
@@ -201,13 +189,7 @@ void FullScreenDialog::runForeverNoPwrCheck()
 #endif
   while (running) {
     resetBacklightTimeout();
-
-    checkBacklight();
-    WDG_RESET();
-
-    RTOS_WAIT_MS(1);
-    mainWin->run(false);
-    LvglWrapper::instance()->run();
+    run_ui_manually();
   }
 
   deleteLater();
@@ -225,22 +207,22 @@ void raiseAlert(const char * title, const char * msg, const char * action, uint8
 }
 
 // POPUP_CONFIRMATION
-bool confirmationDialog(const char* title, const char* msg, bool checkPwr, const std::function<bool(void)>& closeCondition)
+bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
+                        const std::function<bool(void)>& closeCondition)
 {
   bool confirmed = false;
   auto dialog = new FullScreenDialog(WARNING_TYPE_CONFIRM, title ? title : "",
                                      msg ? msg : "", "",
                                      [&confirmed]() { confirmed = true; });
-  if(closeCondition)
-  {
-    dialog->setCloseCondition([&confirmed,&closeCondition]() {
-      if(closeCondition())
-      {
-        confirmed=true;
+  if (closeCondition) {
+    dialog->setCloseCondition([&confirmed, &closeCondition]() {
+      if (closeCondition()) {
+        confirmed = true;
         return true;
       } else {
         return false;
-      }});
+      }
+    });
   }
 
   if (checkPwr) {

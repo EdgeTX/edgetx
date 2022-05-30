@@ -22,6 +22,25 @@
 #include "switch_warn_dialog.h"
 #include "switches.h"
 
+SwitchWarnDialog::SwitchWarnDialog() :
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN)
+{
+  last_bad_switches = 0xff;
+  bad_pots = 0;
+  last_bad_pots = 0x0;
+  setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
+
+  warn_label = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+
+  lv_obj_t* obj = warn_label->getLvObj();
+  lv_label_set_long_mode(obj, LV_LABEL_LONG_DOT);
+
+  warn_label->setLeft(ALERT_MESSAGE_LEFT);
+  warn_label->setWidth(LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING);
+  warn_label->setTop(ALERT_MESSAGE_TOP);
+  warn_label->setHeight(LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING);
+}
+
 bool SwitchWarnDialog::warningInactive()
 {
   if (!isSwitchWarningRequired(bad_pots))
@@ -42,55 +61,42 @@ bool SwitchWarnDialog::warningInactive()
 
 void SwitchWarnDialog::paint(BitmapBuffer * dc)
 {
-  if (!running)
-    return;
-
+  if (!running) return;
   FullScreenDialog::paint(dc);
+}
 
-  coord_t x = ALERT_MESSAGE_LEFT;
-  coord_t y = ALERT_MESSAGE_TOP;
+void SwitchWarnDialog::checkEvents()
+{
+  if (!running) return;
+
+  FullScreenDialog::checkEvents();
+  if (deleted()) return;
+
+  std::string warn_txt;
   swarnstate_t states = g_model.switchWarningState;
-
   for (int i = 0; i < NUM_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
       if (states & mask) {
         if ((switches_states & mask) != (states & mask)) {
           swarnstate_t state = (states >> (i*3)) & 0x07;
-          if (x < LCD_W) {
-            x = drawSwitch(dc, x, y, SWSRC_FIRST_SWITCH + i * 3 + state - 1,
-                           COLOR_THEME_PRIMARY1 | FONT(BOLD));
-            x += 5;
-          }
-          else {
-            dc->drawText(x, y, "...", COLOR_THEME_PRIMARY1 | FONT(BOLD));
-            break;
-          }
+          warn_txt += getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + state - 1);
         }
       }
     }
   }
 
   if (g_model.potsWarnMode) {
-    x = ALERT_MESSAGE_LEFT;
-    y += 20;
+    if (!warn_txt.empty()) { warn_txt += '\n'; }
     for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
-        continue;
-      }
+      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) { continue; }
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-          if (y < LCD_H) {
-            char s[8];
-            getStringAtIndex(s, STR_VSRCRAW, POT1 + i + 1);
-            dc->drawText(x, y, s, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-            x += 40;
-          }
-          else {
-            dc->drawText(x, y, "...", COLOR_THEME_PRIMARY1 | FONT(BOLD));
-          }
+          warn_txt += STR_VSRCRAW[POT1 + i + 1];
         }
       }
     }
   }
+
+  warn_label->setText(warn_txt);
 }
