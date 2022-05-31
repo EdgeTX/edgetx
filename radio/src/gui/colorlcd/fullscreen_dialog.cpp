@@ -100,7 +100,7 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
   } else if (type == WARNING_TYPE_CONFIRM) {
 
     LcdFlags flags = FONT(BOLD);
-    int w = getTextWidth(STR_OK, flags);
+    int w = getTextWidth(STR_OK, 0, flags);
     
     dc->drawText(ALERT_MESSAGE_LEFT, ALERT_ACTION_TOP,
                  STR_OK, flags);
@@ -158,6 +158,11 @@ void FullScreenDialog::runForever()
 #if defined(HARDWARE_TOUCH)
   mainWin->setTouchEnabled(true);
 #endif
+
+  // reset input devices to avoid
+  // RELEASED/CLICKED to be called in a loop
+  lv_indev_reset(nullptr, nullptr);
+  
   while (running) {
     resetBacklightTimeout();
 
