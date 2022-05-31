@@ -160,28 +160,33 @@ class DateTimeWindow : public FormGroup {
     }
 };
 
-class WindowButtonGroup : public FormGroup {
-  public:
-  WindowButtonGroup(FormGroup * parent, const rect_t & rect, std::vector<std::pair<const char*, std::function<void()> >> windows) :
+class WindowButtonGroup : public FormGroup
+{
+ public:
+  WindowButtonGroup(
+      FormGroup* parent, const rect_t& rect,
+      std::vector<std::pair<const char*, std::function<void()>>> windows) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
       windows(windows)
-    {
-      build();
+  {
+    build();
+  }
+
+ protected:
+  std::vector<std::pair<const char*, std::function<void()>>> windows;
+
+  void build()
+  {
+    FormGridLayout grid;
+
+    for (auto entry : windows) {
+      new TextButton(this, grid.getLabelSlot(), entry.first, [&, entry]() {
+        entry.second();
+        return 0;
+      });
+      grid.nextLine();
     }
-
-  protected:
-    std::vector<std::pair<const char*, std::function<void()> >> windows;
-
-    void build()
-    {
-      FormGridLayout grid;
-
-      for(auto entry: windows)
-      {
-        new TextButton(this, grid.getLabelSlot(), entry.first, [&, entry](){entry.second(); return 1;});
-        grid.nextLine();
-      }
-    }
+  }
 };
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),

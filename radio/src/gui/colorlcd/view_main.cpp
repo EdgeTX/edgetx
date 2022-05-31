@@ -259,12 +259,6 @@ void ViewMain::onEvent(event_t event)
       new ScreenMenu();
       break;
 
-    // // do not use KEY_FIRST as it would
-    // // interfere with the menu CLICKED event
-    // case EVT_KEY_FIRST(KEY_ENTER):
-    //   openMenu();
-    //   break;
-
 #if defined(KEYS_GPIO_REG_PGUP)
     case EVT_KEY_FIRST(KEY_PGDN):
 #else
@@ -283,6 +277,8 @@ void ViewMain::onEvent(event_t event)
       killEvents(event);
       previousMainView();
       break;
+
+    // TODO: find something to activate widget selection via keys
 
     // case EVT_ROTARY_LEFT:
     //   // decrement
