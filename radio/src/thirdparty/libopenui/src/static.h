@@ -130,27 +130,25 @@ class StaticBitmap: public Window
     bool scale = false;
 };
 
-class DynamicText: public StaticText
+class DynamicText : public StaticText
 {
-  public:
-    DynamicText(Window * parent, const rect_t & rect, std::function<std::string()> textHandler, LcdFlags textFlags = 0):
+ public:
+  DynamicText(Window *parent, const rect_t &rect,
+              std::function<std::string()> textHandler,
+              LcdFlags textFlags = 0) :
       StaticText(parent, rect, "", 0, textFlags),
       textHandler(std::move(textHandler))
-    {
-    }
+  {
+  }
 
-    void checkEvents() override
-    {
-      StaticText::checkEvents();
-      std::string newText = textHandler();
-      if (newText != text) {
-        setText(newText);
-        invalidate();
-      }
-    }
+  void checkEvents() override
+  {
+    StaticText::checkEvents();
+    setText(textHandler());
+  }
 
-  protected:
-    std::function<std::string()> textHandler;
+ protected:
+  std::function<std::string()> textHandler;
 };
 
 template <class T>
