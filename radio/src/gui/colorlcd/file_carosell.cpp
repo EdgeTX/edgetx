@@ -64,7 +64,9 @@ void FileCarosell::setSelected(int n)
 void FileCarosell::paint(BitmapBuffer *dc)
 {
   if (selected == -1 || _fileNames.size() == 0) {
-    const char *message = selected == -1 && _fileNames.size() > 0 ? "Loading..." : "No theme image";
+    const char *message = selected == -1 && _fileNames.size() > 0
+                              ? "Loading..."
+                              : "No theme image";
     dc->drawText(width() / 2, height() / 2, message, FONT(L) + CENTERED);
   }
 }

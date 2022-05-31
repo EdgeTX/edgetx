@@ -81,13 +81,18 @@ void ListBase::setAutoEdit(bool enable)
   }
 }
 
+void ListBase::setName(uint16_t idx, const std::string& name)
+{
+  lv_table_set_cell_value(lvobj, idx, 0, name.c_str());  
+}
+
 void ListBase::setNames(const std::vector<std::string>& names)
 {
   setRowCount(names.size());
 
   uint16_t row = 0;
   for (const auto& name: names) {
-    lv_table_set_cell_value(lvobj, row, 0, name.c_str());
+    setName(row, name);
     row++;
   }  
 }

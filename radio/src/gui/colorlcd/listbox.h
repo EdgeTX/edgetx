@@ -44,6 +44,7 @@ class ListBase : public TableField
   bool getAutoEdit() const { return autoEdit; }
   void setAutoEdit(bool enable);
 
+  void setName(uint16_t idx, const std::string& name);
   void setNames(const std::vector<std::string>& names);
   void setLineHeight(uint8_t height);
 

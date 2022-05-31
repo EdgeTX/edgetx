@@ -457,45 +457,32 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
   // you cant edit the default theme
   if (listBox->getSelected() != 0) {
-    menu->addLine(STR_EDIT,
-      [=] () {
-        auto theme = tp->getThemeByIndex(currentTheme);
-        if (theme == nullptr) return;
+    menu->addLine(STR_EDIT, [=]() {
+      auto themeIdx = listBox->getSelected();
+      if (themeIdx < 0) return;
+
+      auto theme = tp->getThemeByIndex(themeIdx);
+      if (theme == nullptr) return;
+
+      new ThemeEditPage(*theme, [=](ThemeFile &theme) {
+        theme.serialize();
         
-        new ThemeEditPage(*theme, 
-          [=](ThemeFile &theme) {
-            auto curTheme = tp->getThemeByIndex(currentTheme);
-            if (curTheme != nullptr) {
-              curTheme->setName(theme.getName());
-              curTheme->setAuthor(theme.getAuthor());
-              curTheme->setInfo(theme.getInfo());
+        // if the theme info currently displayed
+        // were changed, update the UI
+        if (themeIdx == currentTheme) {
+          setAuthor(&theme);
+          nameText->setText(theme.getName());
+          listBox->setName(currentTheme, theme.getName());
+        }
 
-              // update the colors that were edited
-              int n = 0;
-              for (auto color : theme.getColorList()) {
-                curTheme->setColorByIndex(n, color.colorValue);
-                n++;
-              }
+        // if the active theme changed, re-apply it
+        if (themeIdx == tp->getThemeIndex()) theme.applyTheme();
 
-              themeColorPreview->setColorList(theme.getColorList());
-
-              // save it to disk so it will come back the next time.
-              curTheme->serialize();
-
-              // if the active theme was edited then activate and update
-              // the UI
-              if (listBox->getSelected() == tp->getThemeIndex()) {
-                tp->applyTheme(listBox->getSelected());
-                setAuthor(&theme);
-                nameText->setText(theme.getName());
-                nameText->setTextFlags(COLOR_THEME_PRIMARY1);
-                authorText->setTextFlags(COLOR_THEME_PRIMARY1);
-              }
-
-              // the list of theme names might have changed
-              listBox->setNames(tp->getNames());
-            }
-          });
+        // update cached theme data
+        auto tp_theme = tp->getThemeByIndex(themeIdx);
+        if (!tp_theme) return;
+        *tp_theme = theme;
+      });
     });
   }
 
