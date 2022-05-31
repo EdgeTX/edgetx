@@ -56,7 +56,9 @@ class ThemeFile
     }
     
     ThemeFile(std::string themePath);
-    ThemeFile(const ThemeFile &theme)
+    ThemeFile(const ThemeFile &theme) :
+        colorList(theme.colorList),
+        _imageFileNames(theme._imageFileNames)
     {
         path = theme.path;
         strncpy(name, theme.name, NAME_LENGTH);
@@ -65,13 +67,10 @@ class ThemeFile
         author[AUTHOR_LENGTH] = '\0';
         strncpy(info, theme.info, INFO_LENGTH);
         info[INFO_LENGTH] = '\0';
-        colorList.assign(theme.colorList.begin(), theme.colorList.end());
     }
-    virtual ~ThemeFile()
-    {
-    }
+    virtual ~ThemeFile() {}
 
-	  ThemeFile& operator= (const ThemeFile& theme);
+    ThemeFile& operator= (const ThemeFile& theme);
 
     void serialize();
 
@@ -168,8 +167,8 @@ class ThemePersistance
 
     void applyTheme(int index)
     {
-      if (index >= 0 && index < (int) themes.size()) {
-         auto theme = themes[index];
+      if (index >= 0 && index < (int)themes.size()) {
+        auto theme = themes[index];
         theme->applyTheme();
       }
     }
