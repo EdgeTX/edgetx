@@ -117,7 +117,6 @@ class FlashDialog: public FullScreenDialog
       device(device),
       progress(this, {LCD_W / 2 - 50, LCD_H / 2, 100, 15})
     {
-      // setFocus();
     }
 
     void deleteLater(bool detach = true, bool trash = true) override
