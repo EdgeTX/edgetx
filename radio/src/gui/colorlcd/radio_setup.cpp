@@ -262,6 +262,7 @@ class SoundPage : public Page {
     }
 };
 
+#if defined(VARIO)
 class VarioPage : public Page {
   public:
   VarioPage() :
@@ -312,10 +313,260 @@ class VarioPage : public Page {
       edit->setStep(10);
       edit->setSuffix("ms");
       line = body.newLine(&grid);
+    }
+};
+#endif
 
+#if defined(HAPTIC)
+class HapticPage : public Page {
+  public:
+	HapticPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+					  STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+
+      // Haptic mode
+      new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+      new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.hapticMode));
+      line = body.newLine(&grid);
+
+      // Haptic duration
+      new StaticText(line, rect_t{}, STR_LENGTH, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
+      line = body.newLine(&grid);
+
+      // Haptic strength
+      new StaticText(line, rect_t{}, STR_STRENGTH, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
+      line = body.newLine(&grid);
+    }
+};
+#endif
+
+class AlarmsPage : public Page {
+  public:
+	AlarmsPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+					  STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+      // Battery warning
+      new StaticText(line, rect_t{}, STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(line, rect_t{}, 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
+      edit->setSuffix("V");
+      line = body.newLine(&grid);
+
+      // Inactivity alarm
+      new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
+      edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
+      edit->setSuffix("minutes");
+      line = body.newLine(&grid);
+
+      // Alarms warning
+      new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      line = body.newLine(&grid);
+
+      // RSSI shutdown alarm
+      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
+      line = body.newLine(&grid);
 
     }
 };
+
+class BacklightPage : public Page {
+  public:
+	BacklightPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+    FormField* backlightTimeout = nullptr;
+    FormField* backlightOnBright = nullptr;
+    FormField* backlightOffBright = nullptr;
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+					  STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+      new Subtitle(line, rect_t{}, STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY1);
+      line = body.newLine(&grid);
+
+      // Backlight mode
+      new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+
+      auto blMode = new Choice(line, rect_t{}, STR_VBLMODE,
+                               e_backlight_mode_off, e_backlight_mode_on,
+                               GET_DEFAULT(g_eeGeneral.backlightMode),
+                               [=](int32_t newValue) {
+                                 g_eeGeneral.backlightMode = newValue;
+                                 updateBacklightControls();
+                               });
+
+      blMode->setAvailableHandler(
+          [=](int newValue) { return newValue != e_backlight_mode_off; });
+
+      // Delay
+      auto edit = new NumberEdit(line, rect_t{}, 5, 600,
+                                 GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
+                                 SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
+      edit->setStep(5);
+      edit->setSuffix("s");
+      backlightTimeout = edit;
+
+      line = body.newLine(&grid);
+
+      // Backlight ON bright
+      new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+                 [=]() -> int32_t {
+                   return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+                 },
+                 [=](int32_t newValue) {
+                   if(newValue >= g_eeGeneral.blOffBright || g_eeGeneral.backlightMode == e_backlight_mode_on)
+                     g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
+                   else
+                     g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+                 });
+      line = body.newLine(&grid);
+
+      // Backlight OFF bright
+      new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+          [=](int32_t newValue) {
+            int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+            if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+              g_eeGeneral.blOffBright = newValue;
+            else
+              g_eeGeneral.blOffBright = onBright;
+          });
+      line = body.newLine(&grid);
+
+  #if defined(KEYS_BACKLIGHT_GPIO)
+      // Keys backlight
+      new StaticText(line, rect_t{}, STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+      line = body.newLine(&grid)();
+  #endif
+
+      // Flash beep
+      new StaticText(line, rect_t{}, STR_ALARM, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
+      line = body.newLine(&grid);
+
+      updateBacklightControls();
+    }
+
+    void updateBacklightControls()
+    {
+      switch(g_eeGeneral.backlightMode)
+      {
+      case e_backlight_mode_off:
+        backlightTimeout->enable(false);
+        backlightOnBright->enable(false);
+        backlightOffBright->enable(true);
+        break;
+      case e_backlight_mode_keys:
+      case e_backlight_mode_sticks:
+      case e_backlight_mode_all:
+      default:
+      {
+        backlightTimeout->enable(true);
+        backlightOnBright->enable(true);
+        backlightOffBright->enable(true);
+        int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+        if(onBright < g_eeGeneral.blOffBright)
+          g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+        break;
+      }
+      case e_backlight_mode_on:
+        backlightTimeout->enable(false);
+        backlightOnBright->enable(true);
+        backlightOffBright->enable(false);
+        break;
+      }
+      resetBacklightTimeout();
+    }
+};
+
+#if defined(INTERNAL_GPS)
+class GpsPage : public Page {
+  public:
+	GpsPage() :
+      Page(ICON_RADIO_SETUP)
+    {
+      build();
+    }
+
+  protected:
+
+    void build()
+    {
+      new StaticText(&header,
+                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                      PAGE_LINE_HEIGHT},
+					  STR_GPS, 0, COLOR_THEME_PRIMARY2);
+
+      body.setFlexLayout();
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = body.newLine(&grid);
+      // Timezone
+      new StaticText(line, rect_t{}, STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(line, rect_t{}, -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
+      line = body.newLine(&grid);
+
+      // Adjust RTC (from telemetry)
+      new StaticText(line, rect_t{}, STR_ADJUST_RTC, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
+      line = body.newLine(&grid);
+
+      // GPS format
+      new StaticText(line, rect_t{}, STR_GPS_COORDS_FORMAT, 0, COLOR_THEME_PRIMARY1);
+      new Choice(line, rect_t{}, STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
+      line = body.newLine(&grid);
+    }
+};
+#endif
 
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
@@ -354,132 +605,21 @@ void RadioSetupPage::build(FormWindow * window)
   grid.nextLine();
   std::vector<std::pair<const char*, std::function<void()> >> windows;
   windows.push_back(std::make_pair(STR_SOUND_LABEL, [window](){new SoundPage();}));
+#if defined(VARIO)
   windows.push_back(std::make_pair(STR_VARIO, [window](){new VarioPage();}));
+#endif
+#if defined(HAPTIC)
+  windows.push_back(std::make_pair(STR_HAPTIC_LABEL, [window](){new HapticPage();}));
+#endif
+  windows.push_back(std::make_pair(STR_ALARM, [window](){new AlarmsPage();}));
+  windows.push_back(std::make_pair(STR_BACKLIGHT_LABEL, [window](){new BacklightPage();}));
+#if defined(INTERNAL_GPS)
+  windows.push_back(std::make_pair(STR_GPS, [window](){new GpsPage();}));
+#endif
   auto buttons = new WindowButtonGroup(window, {0,grid.getWindowHeight(), LCD_W, 0}, windows);
   buttons->adjustHeight();
+  grid.addWindow(buttons);
 
-  grid.nextLine();
-  grid.nextLine();
-
-#if defined(HAPTIC)
-  {
-    new Subtitle(window, grid.getLabelSlot(), STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Haptic mode
-    new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(), STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.hapticMode));
-    grid.nextLine();
-
-    // Haptic duration
-    new StaticText(window, grid.getLabelSlot(true), STR_LENGTH, 0, COLOR_THEME_PRIMARY1);
-    new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
-    grid.nextLine();
-
-    // Haptic strength
-    new StaticText(window, grid.getLabelSlot(true), STR_STRENGTH, 0, COLOR_THEME_PRIMARY1);
-    new Slider(window, grid.getFieldSlot(), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
-    grid.nextLine();
-  }
-#endif
-
-  // Alarms
-  {
-    new Subtitle(window, grid.getLabelSlot(), STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Battery warning
-    new StaticText(window, grid.getLabelSlot(true), STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
-    auto edit = new NumberEdit(window, grid.getFieldSlot(), 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
-    edit->setSuffix("V");
-    grid.nextLine();
-
-    // Inactivity alarm
-    new StaticText(window, grid.getLabelSlot(true), STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
-    edit = new NumberEdit(window, grid.getFieldSlot(), 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
-    edit->setSuffix("minutes");
-    grid.nextLine();
-
-    // Alarms warning
-    new StaticText(window, grid.getLabelSlot(true), STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
-    grid.nextLine();
-
-    // RSSI shutdown alarm
-    new StaticText(window, grid.getLabelSlot(true), STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
-    grid.nextLine();
-  }
-
-  // Backlight
-  {
-    new Subtitle(window, grid.getLabelSlot(), STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Backlight mode
-    new StaticText(window, grid.getLabelSlot(true), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-
-    auto blMode = new Choice(window, grid.getFieldSlot(2, 0), STR_VBLMODE,
-                             e_backlight_mode_off, e_backlight_mode_on,
-                             GET_DEFAULT(g_eeGeneral.backlightMode),
-                             [=](int32_t newValue) {
-                               g_eeGeneral.backlightMode = newValue;
-                               updateBacklightControls();
-                             });
-
-    blMode->setAvailableHandler(
-        [=](int newValue) { return newValue != e_backlight_mode_off; });
-
-    // Delay
-    auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 5, 600,
-                               GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
-                               SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
-    edit->setStep(5);
-    edit->setSuffix("s");
-    backlightTimeout = edit;
-
-    grid.nextLine();
-
-    // Backlight ON bright
-    new StaticText(window, grid.getLabelSlot(true), STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-    backlightOnBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
-               [=]() -> int32_t {
-                 return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-               },
-               [=](int32_t newValue) {
-                 if(newValue >= g_eeGeneral.blOffBright || g_eeGeneral.backlightMode == e_backlight_mode_on)
-                   g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
-                 else
-                   g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-               });
-    grid.nextLine();
-
-    // Backlight OFF bright
-    new StaticText(window, grid.getLabelSlot(true), STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-    backlightOffBright = new Slider(window, grid.getFieldSlot(), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
-        [=](int32_t newValue) {
-          int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-          if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
-            g_eeGeneral.blOffBright = newValue;
-          else
-            g_eeGeneral.blOffBright = onBright;
-        });
-    grid.nextLine();
-
-#if defined(KEYS_BACKLIGHT_GPIO)
-    // Keys backlight
-    new StaticText(window, grid.getLabelSlot(true), STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
-    grid.nextLine();
-#endif
-
-    // Flash beep
-    new StaticText(window, grid.getLabelSlot(true), STR_ALARM, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
-    grid.nextLine();
-
-    updateBacklightControls();
-  }
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
@@ -497,29 +637,6 @@ void RadioSetupPage::build(FormWindow * window)
   }
 #endif
   
-#if defined(INTERNAL_GPS)
-  // GPS
-  if (hasSerialMode(UART_MODE_GPS) != -1) {
-    new Subtitle(window, grid.getLabelSlot(), STR_GPS, 0, COLOR_THEME_PRIMARY1);
-    grid.nextLine();
-
-    // Timezone
-    new StaticText(window, grid.getLabelSlot(true), STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
-    new NumberEdit(window, grid.getFieldSlot(), -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
-    grid.nextLine();
-
-    // Adjust RTC (from telemetry)
-    new StaticText(window, grid.getLabelSlot(true), STR_ADJUST_RTC, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
-    grid.nextLine();
-
-    // GPS format
-    new StaticText(window, grid.getLabelSlot(true), STR_GPS_COORDS_FORMAT, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(), STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
-    grid.nextLine();
-  }
-#endif
-
 #if defined(PXX2)
   // Owner ID
   new StaticText(window, grid.getLabelSlot(), STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
@@ -617,33 +734,4 @@ void RadioSetupPage::build(FormWindow * window)
 
 }
 
-void RadioSetupPage::updateBacklightControls()
-{
-  switch(g_eeGeneral.backlightMode)
-  {
-  case e_backlight_mode_off:
-    backlightTimeout->enable(false);
-    backlightOnBright->enable(false);
-    backlightOffBright->enable(true);
-    break;
-  case e_backlight_mode_keys:
-  case e_backlight_mode_sticks:
-  case e_backlight_mode_all:
-  default:
-  {
-    backlightTimeout->enable(true);
-    backlightOnBright->enable(true);
-    backlightOffBright->enable(true);
-    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-    if(onBright < g_eeGeneral.blOffBright)
-      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-    break;
-  }
-  case e_backlight_mode_on:
-    backlightTimeout->enable(false);
-    backlightOnBright->enable(true);
-    backlightOffBright->enable(false);
-    break;
-  }
-  resetBacklightTimeout();
-}
+
