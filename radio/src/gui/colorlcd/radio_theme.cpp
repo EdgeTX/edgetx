@@ -155,8 +155,9 @@ class ColorSquare : public FormField
 void setHexStr(StaticText* hexBox, uint32_t rgb)
 {
   auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
-  char hexstr[80];
-  sprintf(hexstr, "%02X%02X%02X\n", (uint16_t)r, (uint16_t)g, (uint16_t)b);
+  char hexstr[8];
+  snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
+           (uint16_t)r, (uint16_t)g, (uint16_t)b);
   hexBox->setText(hexstr);
 }
 
@@ -170,8 +171,8 @@ public:
     _indexOfColor(indexOfColor),
     _theme(theme)
   {
-    buildHead(&header);
     buildBody(&body); 
+    buildHead(&header);
   }
 
   void setActiveColorBar(int activeTab)
@@ -185,26 +186,6 @@ public:
     }
   }
 
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event ) override
-  {
-    if (event == EVT_KEY_BREAK(KEY_TELEM)) {
-      _colorEditor->setNextFocusBar();
-    } else if (event == EVT_KEY_BREAK(KEY_PGUP) || event == EVT_KEY_BREAK(KEY_PGDN)) {
-      int direction = event == EVT_KEY_BREAK(KEY_PGUP) ? -1 : 1;
-      int newActiveTab = _activeTab + direction;
-      if (newActiveTab < 0) 
-        newActiveTab = 1;
-      if (newActiveTab >= (int) _tabs.size()) 
-        newActiveTab = 0;
-
-      setActiveColorBar(newActiveTab);
-    } else {
-      Page::onEvent(event);
-    }
-  }
-#endif
-
 protected:
   std::function<void (uint32_t rgb)> _setValue;
   LcdColorIndex _indexOfColor;
@@ -212,7 +193,7 @@ protected:
   TextButton *_cancelButton;
   ColorEditor *_colorEditor;
   PreviewWindow *_previewWindow;
-  std::vector<PageButton *> _tabs;
+  std::vector<Button *> _tabs;
   int _activeTab = 0;
   ColorSquare *_colorSquare;
   StaticText *_hexBox;
@@ -285,18 +266,20 @@ protected:
       ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2 | flags);
 
     // page tabs
-    rect_t r = { LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
+    rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
     _tabs.emplace_back(
-      new PageButton(window, r, "RGB", 
+      new TextButton(window, r, "RGB",
         [=] () {
           setActiveColorBar(0);
+          return 1;
         }, 
         0, COLOR_THEME_PRIMARY1));
-    r.x -= (BUTTON_WIDTH + 5);
+    r.x += (BUTTON_WIDTH + 5);
     _tabs.emplace_back(
-      new PageButton(window, r, "HSV", 
+      new TextButton(window, r, "HSV", 
         [=] () {
           setActiveColorBar(1);
+          return 1;
         },
         0, COLOR_THEME_PRIMARY1));
     _tabs[1]->check(true);

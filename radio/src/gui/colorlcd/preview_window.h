@@ -258,6 +258,7 @@ class PreviewWindow : public FormGroup
   void setColorList(std::vector<ColorEntry> colorList)
   {
     _colorList = colorList;
+    invalidate();
   }
 
   void checkEvents() override
