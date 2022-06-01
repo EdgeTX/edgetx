@@ -89,7 +89,7 @@ extern uint32_t NV14internalModuleFwVersion;
 
 extern int32_t getALT(uint32_t value);
 
-signed short CalculateAltitude(unsigned int pressure)
+int32_t CalculateAltitude(unsigned int pressure)
 {
   int32_t alt = getALT(pressure);
   return alt;
