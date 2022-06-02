@@ -115,6 +115,19 @@ int ListBase::getSelected() const
   return -1;
 }
 
+void ListBase::setActiveItem(int item)
+{
+  if (item != activeItem) {
+    activeItem = item;
+    invalidate();
+  }
+}
+
+int ListBase::getActiveItem() const
+{
+  return activeItem;
+}
+
 void ListBase::onPress(uint16_t row, uint16_t col)
 {
   if (row == LV_TABLE_CELL_NONE) return;
@@ -147,4 +160,22 @@ void ListBase::onCancel()
   } else {
     TableField::onCancel();
   }
+}
+
+void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
+{
+  if (row != activeItem) return;
+
+  lv_area_t coords;
+  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+
+  lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
+  lv_coord_t font_h = getFontHeight(FONT(STD));
+
+  coords.x1 = dsc->draw_area->x2 - cell_right - font_h;
+  coords.x2 = coords.x1 + font_h;
+  coords.y1 = dsc->draw_area->y1 + (area_h - font_h) / 2;
+  coords.y2 = coords.y1 + font_h - 1;
+
+  lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, LV_SYMBOL_OK, nullptr);
 }

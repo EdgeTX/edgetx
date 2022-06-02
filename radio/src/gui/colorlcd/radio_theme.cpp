@@ -431,10 +431,12 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   // you cant activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
-      tp->applyTheme(listBox->getSelected());
-      tp->setDefaultTheme(listBox->getSelected());
+      auto idx = listBox->getSelected();
+      tp->applyTheme(idx);
+      tp->setDefaultTheme(idx);
       nameText->setTextFlags(COLOR_THEME_PRIMARY1);
       authorText->setTextFlags(COLOR_THEME_PRIMARY1);
+      listBox->setActiveItem(idx);
     });
   }
 
@@ -508,6 +510,7 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
   listBox = new ListBox(window, r, tp->getNames());
   listBox->setAutoEdit(true);
   listBox->setSelected(currentTheme);
+  listBox->setActiveItem(tp->getThemeIndex());
   listBox->setTitle(STR_THEME + std::string("s")); // TODO: fix this!
   listBox->setLongPressHandler([=] () { displayThemeMenu(window, tp); });
   listBox->setPressHandler([=] () {
