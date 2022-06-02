@@ -51,6 +51,9 @@ class ListBase : public TableField
   virtual void setSelected(int selected);
   int getSelected() const;
 
+  virtual void setActiveItem(int item);
+  int getActiveItem() const;
+  
   void setLongPressHandler(std::function<void()> handler)
   {
     longPressHandler = std::move(handler);
@@ -67,12 +70,15 @@ class ListBase : public TableField
 
  protected:
   static void event_cb(lv_event_t* e);
+  int activeItem = -1;
 
   void onPress(uint16_t row, uint16_t col) override;
   void onLongPressed();
 
   void onClicked() override;
   void onCancel() override;
+
+  void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
 };
 
 class ListBox : public ListBase
