@@ -362,7 +362,13 @@ class SpecialFunctionEditPage : public Page
     grid.spacer(PAGE_PADDING);
 
     CustomFunctionData *cfn = &functions[index];
-
+    
+    // custom label
+    new StaticText(window, grid.getLabelSlot(), "Custom Label", 0, COLOR_THEME_PRIMARY1);
+    new ModelTextEdit(window, grid.getFieldSlot(), cfn->custName, LEN_SPEC_FN_NAME);
+   // new StaticText(window, grid.getFieldSlot(), "placeHolderName", 0, COLOR_THEME_PRIMARY1);
+    grid.nextLine();
+    
     // Switch
     new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
@@ -472,6 +478,7 @@ class SpecialFunctionButton : public Button
     uint8_t func = CFN_FUNC(cfn);
 
     drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_SECONDARY1);
+    dc->drawText(col3, line1, "CustLabelPlaceHolder", COLOR_THEME_SECONDARY1);
     if (cfn->isEmpty()) return;
 
     dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_SECONDARY1);

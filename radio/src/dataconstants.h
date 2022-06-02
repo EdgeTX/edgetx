@@ -133,6 +133,8 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
+#define LEN_SPEC_FN_NAME               10
+
 #if defined(PCBFRSKY) || defined(PCBNV14)
   #define NUM_MODULES                  2
 #else
