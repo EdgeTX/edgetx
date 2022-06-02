@@ -361,7 +361,7 @@ void Window::deleteChildren()
 
 bool Window::hasFocus() const
 {
-  return lvobj && lv_obj_has_state(lvobj, LV_STATE_FOCUS_KEY);
+  return lvobj && lv_obj_has_state(lvobj, LV_STATE_FOCUSED);
 }
 
 bool Window::hasOpaqueRect(const rect_t & testRect) const
