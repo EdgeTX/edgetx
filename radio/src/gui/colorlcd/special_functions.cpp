@@ -386,9 +386,15 @@ class SpecialFunctionEditPage : public Page
     lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
     CustomFunctionData *cfn = &functions[index];
+    auto line = window->newLine(&grid);
+
+    // custom label
+    new StaticText(line, rect_t{}, "Custom Label", 0, COLOR_THEME_PRIMARY1);
+    new ModelTextEdit(line, rect_t{}, cfn->custName, LEN_SPEC_FN_NAME);
+    // new StaticText(window, grid.getFieldSlot(), "placeHolderName", 0, COLOR_THEME_PRIMARY1);
+    line = window->newLine(&grid);
 
     // Switch
-    auto line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
@@ -494,6 +500,7 @@ class SpecialFunctionButton : public Button
     uint8_t func = CFN_FUNC(cfn);
 
     drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_SECONDARY1);
+    dc->drawText(col3, line1, "CustLabelPlaceHolder", COLOR_THEME_SECONDARY1);
     if (cfn->isEmpty()) return;
 
     dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_SECONDARY1);
