@@ -46,6 +46,13 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
 
+  if (height() == 0)
+  {
+    lv_obj_set_style_pad_top(lvobj, 4, LV_PART_MAIN);
+    lv_obj_set_style_pad_bottom(lvobj, 4, LV_PART_MAIN);
+    lv_obj_set_style_radius(lvobj, 4, LV_PART_MAIN);
+  }
+
   lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
  
@@ -68,6 +75,8 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
 
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
+  lv_obj_set_style_pad_right(label, CHOICE_LABEL_MARGIN_RIGHT, LV_PART_MAIN);
+  // lv_obj_set
 
   // add the image
   lv_obj_t *img = lv_img_create(lvobj);
