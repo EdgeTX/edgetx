@@ -8,6 +8,7 @@
  *********************/
 #include "etx_lv_theme.h"
 #include "../colors.h"
+#include "lvgl_widgets/input_mix_line.h"
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
@@ -44,6 +45,7 @@ typedef struct {
     lv_style_t scrollbar_scrolled;
     lv_style_t card;
     lv_style_t btn;
+    lv_style_t line_btn;
 
     /*Utility*/
     lv_style_t bg_color_primary;
@@ -293,6 +295,20 @@ static void style_init(void)
     lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
     lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
     lv_style_set_pad_row(&styles.btn, lv_disp_dpx(theme.disp, 5));
+
+    style_init_reset(&styles.line_btn);
+    lv_style_set_radius(
+        &styles.line_btn,
+        (disp_size == DISP_LARGE    ? lv_disp_dpx(theme.disp, 16)
+         : disp_size == DISP_MEDIUM ? lv_disp_dpx(theme.disp, 12)
+                                    : lv_disp_dpx(theme.disp, 8)));
+
+    lv_style_set_bg_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&styles.line_btn, makeLvColor(COLOR_THEME_PRIMARY2));
+
+    lv_style_set_border_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_border_width(&styles.line_btn, BORDER_WIDTH);
+    lv_style_set_border_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY2));
 
     static lv_color_filter_dsc_t dark_filter;
     lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
@@ -778,6 +794,12 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
             lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
         }
 #endif
+    }
+    else if(lv_obj_check_type(obj, &input_mix_line_class)) {
+        lv_obj_add_style(obj, &styles.line_btn, 0);
+        lv_obj_add_style(obj, &styles.pad_tiny, 0);
+        lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
+        lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);        
     }
 #endif
 
