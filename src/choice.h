@@ -24,6 +24,8 @@
 
 class Menu;
 
+constexpr int CHOICE_LABEL_MARGIN_RIGHT = 10;
+
 enum ChoiceType {
   CHOICE_TYPE_DROPOWN,
   CHOICE_TYPE_FOLDER,
