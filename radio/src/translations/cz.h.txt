@@ -61,11 +61,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\015"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES            "Debug\0       ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         "
-#else
-#define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         "
-#endif
+#define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trenér\0 ""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES                    "\013"
 #define TR_SWTYPES                     "Žádný\0     ""Bez aretace""2-polohový\0""3-polohový\0"
@@ -164,7 +160,7 @@
   #define TR_CSWEQUAL                  "a=x\0 "
 
 #define LEN_VCSWFUNC                   "\005"
-#define TR_VCSWFUNC                    "---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 ""Δ}x\0 ""|Δ|}x" TR_CSWTIMER TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---\0 " TR_CSWEQUAL "a~x\0 ""a>x\0 ""a<x\0 " TR_CSWRANGE "|a|>x""|a|<x""AND\0 ""OR\0  ""XOR\0 " TR_CSWSTAY "a=b\0 ""a>b\0 ""a<b\0 " STR_CHAR_DELTA "}x\0 ""|" STR_CHAR_DELTA "|}x" TR_CSWTIMER TR_CSWSTICKY
 
 #define LEN_VFSWFUNC                   "\013"
 
@@ -326,7 +322,7 @@
 #define TR_VTMRMODES                   "VYP\0""ZAP\0""Pln>""Pln%""Pln*"
 
 #define LEN_VTRAINERMODES              "\022"
-#define TR_VTRAINER_MASTER_OFF         "Off\0              "
+#define TR_VTRAINER_MASTER_OFF         "OFF\0              "
 #define TR_VTRAINER_MASTER_JACK        "Učitel/Jack\0      "
 #define TR_VTRAINER_SLAVE_JACK         "Žák/Jack\0         "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Učitel/SBUS Modul\0"
@@ -514,6 +510,7 @@
 #define TR_PERSISTENT                  INDENT"Trvalé"
 #define TR_BACKLIGHT_LABEL             "Podsvětlení"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT"Zhasnout po"
 #define TR_BLONBRIGHTNESS              TR3(INDENT"Jas Zap.", INDENT"Jas Zap.", INDENT"Jas zapnutého LCD")
 #define TR_BLOFFBRIGHTNESS             TR3(INDENT"Jas Vyp.", INDENT"Jas Vyp.", INDENT"Jas vypnutého LCD")
@@ -811,10 +808,18 @@
 #define TR_TEMP_CALIB                  " +=\006Teplota"
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
-
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
+#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES                "No model templates were found in this folder"
+#define TR_SAVE_TEMPLATE               "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
+#define TR_FILE_EXISTS                 "FILE ALREADY EXISTS"
+#define TR_ASK_OVERWRITE               "Do you want to overwrite?"
 
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Hledat"
@@ -822,7 +827,7 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Vzdál. addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. addr"
 #define TR_BLUETOOTH_PIN_CODE          TR("PIN kód", "PIN kód")
-#define TR_BAUDRATE                    "Baudrate BT"
+#define TR_BLUETOOTH_BAUDRATE          "Baudrate BT"
 #define LEN_BLUETOOTH_MODES            "\012"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---\0      ""Povoleno\0 "
@@ -843,11 +848,13 @@
 #define TR_DATE                        "Datum"
 #define TR_MONTHS                      { "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro" }
 #define TR_ROTARY_ENCODER              "R.Enko"
+#define TR_INVERT_ROTARY               "Invert Rotary"
 #define TR_CHANNELS_MONITOR            "MONITOR KANÁLU"
 #define TR_MIXERS_MONITOR              "MONITOR MIXU"
 #define TR_PATH_TOO_LONG               "Cesta je moc dlouhá"
 #define TR_VIEW_TEXT                   "Zobrazit text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloaderu"
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Portem", "Flash S.Portem")
 #define TR_FLASH_RECEIVER_OTA          "Flash příjímače OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -856,6 +863,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash modulu BT", "Flash modulu Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Flash řízení spotř.", "Flash jednotky řízení spotřeby")
+#define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
+#define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
+#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "Device data refused")
+#define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "Device access problem")
+#define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "Device file refused")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "Device file sig.")
 #define TR_CURRENT_VERSION             TR("Současná ver. ", "Současná verze: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash vnitřního modulu")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
@@ -918,7 +931,7 @@
 #define TR_ABOUT_US                    "O nás"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Disk (SD)"
-#define TR_USB_SERIAL                  "USB Serial (Debug)"
+#define TR_USB_SERIAL                  "USB Serial (VCP)"
 #define TR_SETUP_SCREENS               "Obrazovky nastavení"
 #define TR_MONITOR_SCREENS             "Monitory"
 #define TR_AND_SWITCH                  "AND Spínač"
@@ -1025,6 +1038,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS Ofset")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "Skript"
 #define TR_INPUTS                      "Vstupy"
 #define TR_OUTPUTS                     "Výstupy"
@@ -1037,6 +1051,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO""ON\0 "
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_FILE_SIZE                   "File size"
+#define TR_FILE_OPEN                   "Open anyway?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Název"
@@ -1187,6 +1203,7 @@
 #define TR_MENU_OTHER                  "Ostatní"
 #define TR_MENU_INVERT                 "Invertovat"
 #define TR_JITTER_FILTER               "ADC Filtr"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
@@ -1351,6 +1368,11 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
+#endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
 #define TR_RED                          "Red"

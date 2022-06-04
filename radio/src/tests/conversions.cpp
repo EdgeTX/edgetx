@@ -217,7 +217,7 @@ TEST(Conversions, ConversionXLiteFrom23)
 }
 #endif
 
-#if defined(PCBX7)
+#if defined(PCBX7) && (STORAGE_CONVERSIONS <= 219)
 TEST(Conversions, ConversionX7From23)
 {
 #if defined(SDCARD_YAML)
@@ -310,8 +310,6 @@ TEST(Conversions, ConversionX10From23)
   convertBinModelData(modelname, 219);
   loadModel(modelname);
 
-  EXPECT_EQ(221, g_eeGeneral.version);
-
   EXPECT_EQ(100, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].spanNeg);
   EXPECT_EQ(500, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].mid);
   EXPECT_EQ(900, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].spanPos);
@@ -384,7 +382,6 @@ TEST(Conversions, ConversionX12SFrom23)
   convertBinModelData(modelname, 219);
   loadModel(modelname);
 
-  EXPECT_EQ(221, g_eeGeneral.version);
   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
   EXPECT_STRNEQ("en", g_eeGeneral.ttsLanguage);
@@ -449,7 +446,6 @@ TEST(Conversions, ConversionTX16SFrom25)
   convertBinModelData(modelname, 220);
   loadModel(modelname);
 
-  EXPECT_EQ(221, g_eeGeneral.version);
   EXPECT_EQ(-23, g_eeGeneral.vBatMin);
   EXPECT_EQ(0, g_eeGeneral.speakerVolume);
   EXPECT_STRNEQ("en", g_eeGeneral.ttsLanguage);
@@ -457,7 +453,7 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   EXPECT_STRNEQ("Model", g_model.header.name);
 
-  EXPECT_EQ(MODULE_SUBTYPE_MULTI_FRSKY, g_model.moduleData[0].getMultiProtocol());
+  EXPECT_EQ(MODULE_SUBTYPE_MULTI_FRSKY, g_model.moduleData[0].multi.rfProtocol);
   EXPECT_EQ(MM_RF_FRSKY_SUBTYPE_D8_CLONED, g_model.moduleData[0].subType);
   EXPECT_EQ(-12, g_model.moduleData[0].multi.optionValue);
 

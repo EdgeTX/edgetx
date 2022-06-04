@@ -219,6 +219,17 @@ int main()
   pwrInit();
   keysInit();
 
+#if defined(SWSERIALPOWER)
+  #if defined(AUX_SERIAL)
+    void set_aux_pwr(uint8_t on);
+    set_aux_pwr(0);
+  #endif
+  #if defined(AUX2_SERIAL)
+    void set_aux2_pwr(uint8_t on);
+    set_aux2_pwr(0);
+  #endif
+#endif
+
   // wait a bit for the inputs to stabilize...
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     for (uint32_t i = 0; i < 150000; i++) {
@@ -244,12 +255,9 @@ int main()
 #endif
 
   delaysInit(); // needed for lcdInit()
-
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  auxSerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
-#endif
-#if defined(DEBUG) && defined(AUX2_SERIAL)
-  aux2SerialInit(UART_MODE_DEBUG, 0); // default serial mode (None if DEBUG not defined)
+  
+#if defined(DEBUG)
+  initSerialPorts();
 #endif
 
   __enable_irq();

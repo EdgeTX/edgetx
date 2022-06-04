@@ -82,17 +82,10 @@
   #define TR_VSWITCHES                 "---" TR_TRIMS_SWITCHES TR_ON_ONE_SWITCHES
 #endif
 
-#if defined(PCBNV14)
-  #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_OFF TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
-#elif defined(PCBHORUS) && defined(AUX_SERIAL)
-  #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
-#elif defined(PCBHORUS)
-  #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
-#elif defined(PCBTARANIS)
-  #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_SBUS_MODULE TR_VTRAINER_MASTER_CPPM_MODULE TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
-#else
-  #define TR_VTRAINERMODES             TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK TR_VTRAINER_MASTER_CPPM_MODULE TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
-#endif
+#define TR_VTRAINERMODES                                                \
+  TR_VTRAINER_MASTER_OFF TR_VTRAINER_MASTER_JACK TR_VTRAINER_SLAVE_JACK \
+      TR_VTRAINER_MASTER_SBUS_MODULE TR_VTRAINER_MASTER_CPPM_MODULE     \
+          TR_VTRAINER_MASTER_BATTERY TR_VTRAINER_BLUETOOTH TR_VTRAINER_MULTI
 
 #if defined(PCBHORUS) || defined(PCBNV14)
   #define LEN_VKEYS                    "\005"
@@ -138,7 +131,24 @@
 #endif
 
 #define LEN_EXTERNAL_MODULE_PROTOCOLS  "\014"
-#define TR_EXTERNAL_MODULE_PROTOCOLS   "OFF\0        ""PPM\0        ""XJT\0        ""ISRM\0       ""DSM2\0       ""CRSF\0       ""MULTI\0      ""R9M\0        ""R9M ACCESS\0 " TR_MODULE_R9M_LITE "R9ML ACCESS\0""GHST\0       ""R9MLP ACCESS""SBUS\0       ""XJT Lite\0   ""FLYSKY\0  "
+#define TR_EXTERNAL_MODULE_PROTOCOLS \
+  "OFF\0        "                    \
+  "PPM\0        "                    \
+  "XJT\0        "                    \
+  "ISRM\0       "                    \
+  "DSM2\0       "                    \
+  "CRSF\0       "                    \
+  "MULTI\0      "                    \
+  "R9M\0        "                    \
+  "R9M ACCESS\0 "                    \
+  TR_MODULE_R9M_LITE                 \
+  "R9ML ACCESS\0"                    \
+  "GHST\0       "                    \
+  "R9MLP ACCESS"                     \
+  "SBUS\0       "                    \
+  "XJT Lite\0   "                    \
+  "FLYSKY\0     "                    \
+  TR("Lemon DSMP\0 ","LemonRx DSMP")
 
 #define LEN_FLYSKY_PROTOCOLS           "\007"
 #define TR_FLYSKY_PROTOCOLS            "AFHDS3\0""AFHDS2A"
@@ -182,7 +192,7 @@
 #define TR_DSM_PROTOCOLS               "LP45""DSM2""DSMX"
 
 #define LEN_MULTI_PROTOCOLS            "\007"
-#define TR_MULTI_PROTOCOLS             "FlySky\0""Hubsan\0""FrSky\0 ""Hisky\0 ""V2x2\0  ""DSM\0   ""Devo\0  ""YD717\0 ""KN\0    ""SymaX\0 ""SLT\0   ""CX10\0  ""CG023\0 ""Bayang\0""ESky\0  ""MT99XX\0""MJXq\0  ""Shenqi\0""FY326\0 ""Futaba\0""J6 Pro\0""FQ777\0 ""Assan\0 ""Hontai\0""OpenLrs""FlSky2A""Q2x2\0  ""Walkera""Q303\0  ""GW008\0 ""DM002\0 ""Cabell\0""Esky150""H8 3D\0 ""Corona\0""CFlie\0 ""Hitec\0 ""WFly\0  ""Bugs\0  ""BugMini""Traxxas""NCC1701""E01X\0  ""V911S\0 ""GD00X\0 ""V761\0  ""KF606\0 ""Redpine""Potensi""ZSX\0   ""Height\0""Scanner""FrSkyRX""FS2A_RX""HoTT\0  ""FX816\0 ""BayanRX""Pelikan""Tiger\0 ""XK\0    ""XN297DU""FrSkyX2""FrSkyR9""Propel\0""FrSkyL\0""Skyartc""ESky-v2""DSM RX\0""JJRC345""Q90C\0  ""Kyosho\0""RadLink""ExpLRS\0""Realacc""OMP\0   ""M-Link\0""Wfly 2\0""E016Hv2""E010r5 ""LOLI\0  ""E129\0  ""JOYSWAY""E016H\0 ""Config\0"
+#define TR_MULTI_PROTOCOLS             "FlySky\0""Hubsan\0""FrSky\0 ""Hisky\0 ""V2x2\0  ""DSM\0   ""Devo\0  ""YD717\0 ""KN\0    ""SymaX\0 ""SLT\0   ""CX10\0  ""CG023\0 ""Bayang\0""ESky\0  ""MT99XX\0""MJXq\0  ""Shenqi\0""FY326\0 ""Futaba\0""J6 Pro\0""FQ777\0 ""Assan\0 ""Hontai\0""OpenLrs""FlSky2A""Q2x2\0  ""Walkera""Q303\0  ""GW008\0 ""DM002\0 ""Cabell\0""Esky150""H8 3D\0 ""Corona\0""CFlie\0 ""Hitec\0 ""WFly\0  ""Bugs\0  ""BugMini""Traxxas""NCC1701""E01X\0  ""V911S\0 ""GD00X\0 ""V761\0  ""KF606\0 ""Redpine""Potensi""ZSX\0   ""Height\0""Scanner""FrSkyRX""FS2A_RX""HoTT\0  ""FX816\0 ""BayanRX""Pelikan""Tiger\0 ""XK\0    ""XN297DU""FrSkyX2""FrSkyR9""Propel\0""FrSkyL\0""Skyartc""ESky-v2""DSM RX\0""JJRC345""Q90C\0  ""Kyosho\0""RadLink""ExpLRS\0""Realacc""OMP\0   ""M-Link\0""Wfly 2\0""E016Hv2""E010r5 ""LOLI\0  ""E129\0  ""JOYSWAY""E016H\0 ""Config\0""IKEA\0  ""WILLIFM""Losi\0  ""MouldKg""Xerall\0""MT99XX2"
 
 #define LEN_MULTI_POWER                "\005"
 #define TR_MULTI_POWER                 "1.6mW""2.0mW""2.5mW""3.2mW""4.0mW""5.0mW""6.3mW""7.9mW""10mW\0""13mW\0""16mW\0""20mW\0""25mW\0""32mW\0""40mW\0""50mW\0"
@@ -364,3 +374,99 @@
 #define LEN_FSGROUPS                    "\001"
 #define TR_FSGROUPS                     "-""1""2""3"
 
+//
+// HoTT Telemetry sensor names by Hott device
+//
+// naming convention: Name of device in capital letters (1 or 2) followed by sensor name in lower case letters
+//
+// example: GPal = GPS altitude, GAal = GAM altitude, Valt = Vario altitude, GAt2 = GAM temperature sensor 2
+//
+// T  = transmitter
+// R  = receiver
+// V  = Vario
+// G  = GPS
+// ES = ESC
+// EA = EAM
+//
+// ssi = signal strength indicator
+// qly = quality
+// bt  = battery
+// evt = HoTT warnings
+// btm = battery lowest voltage
+// vpk = VPack
+// al or alt = altitude
+// vv  = vertical velocity (climb rate)
+// hd  = heading
+// sp  = speed
+// PS  = GPS coordinates
+// di  = direction
+// ns  = number of satellites
+// cp  = capacity
+// u   = voltage (may be followed by numner if device offers more voltage sensors
+// i   = current (may be followed by numner if device offers more current sensors
+// tmp or t = temperature (single t may be followed by numner if device offers more temperature sensors
+// rp or r  = temperature (single r may be followed by numner if device offers more temperature sensors
+// fl = fuel
+//  
+// TX
+#define STR_HOTT_ID_TX_RSSI_DL     "Tssi"
+#define STR_HOTT_ID_TX_LQI_DL      "Tqly"
+// RX
+#define STR_HOTT_ID_RX_RSSI_UL     "Rssi"
+#define STR_HOTT_ID_RX_LQI_UL      "Rqly"
+#define STR_HOTT_ID_RX_VLT         "Rbt"
+#define STR_HOTT_ID_RX_TMP         "Rtmp" 
+#define STR_HOTT_ID_RX_BAT_MIN     "Rbtm"
+#define STR_HOTT_ID_RX_VPCK        "Rvpk"
+#define STR_HOTT_ID_RX_EVENT       "Revt"
+// Vario
+#define STR_HOTT_ID_VARIO_ALT      "Valt"
+#define STR_HOTT_ID_VARIO_VV       "Vvv"
+#define STR_HOTT_ID_VARIO_HDG      "Vhdg"
+// GPS
+#define STR_HOTT_ID_GPS_HDG        "GPhd"
+#define STR_HOTT_ID_GPS_SPEED      "GPsp"
+#define STR_HOTT_ID_GPS_LL         "GPS"
+#define STR_HOTT_ID_GPS_DST        "GPdi"
+#define STR_HOTT_ID_GPS_ALT        "GPal" 
+#define STR_HOTT_ID_GPS_VV         "GPvv"
+#define STR_HOTT_ID_GPS_NSATS      "GPns"
+// ESC
+#define STR_HOTT_ID_ESC_VLT        "ESu1"
+#define STR_HOTT_ID_ESC_CAP        "EScp"
+#define STR_HOTT_ID_ESC_TMP        "ESt1" 
+#define STR_HOTT_ID_ESC_CUR        "ESi1"
+#define STR_HOTT_ID_ESC_RPM        "ESrp"
+#define STR_HOTT_ID_ESC_BEC_VLT    "ESu2"
+#define STR_HOTT_ID_ESC_BEC_CUR    "ESi2" 
+#define STR_HOTT_ID_ESC_BEC_TMP    "ESt2"
+#define STR_HOTT_ID_ESC_MOT_TMP    "ESt3"
+// GAM
+#define STR_HOTT_ID_GAM_CELS       "GAcl"
+#define STR_HOTT_ID_GAM_VLT1       "GAu1"
+#define STR_HOTT_ID_GAM_VLT2       "GAu2"
+#define STR_HOTT_ID_GAM_TMP1       "GAt1"
+#define STR_HOTT_ID_GAM_TMP2       "GAt2"
+#define STR_HOTT_ID_GAM_FUEL       "GAfl"
+#define STR_HOTT_ID_GAM_RPM1       "GAr1"
+#define STR_HOTT_ID_GAM_ALT        "GAal"
+#define STR_HOTT_ID_GAM_VV         "GAvv"
+#define STR_HOTT_ID_GAM_CUR        "GAi"
+#define STR_HOTT_ID_GAM_VLT3       "GAu3"
+#define STR_HOTT_ID_GAM_CAP        "GAcp"
+#define STR_HOTT_ID_GAM_SPEED      "GAsp"
+#define STR_HOTT_ID_GAM_RPM2       "GAr2"
+// EAM
+#define STR_HOTT_ID_EAM_CELS_L     "EAc1"
+#define STR_HOTT_ID_EAM_CELS_H     "EAc2"
+#define STR_HOTT_ID_EAM_VLT1       "EAu1"
+#define STR_HOTT_ID_EAM_VLT2       "EAu2"
+#define STR_HOTT_ID_EAM_TMP1       "EAt1"
+#define STR_HOTT_ID_EAM_TMP2       "EAt2"
+#define STR_HOTT_ID_EAM_ALT        "EAal"
+#define STR_HOTT_ID_EAM_CUR        "EAi"
+#define STR_HOTT_ID_EAM_VLT3       "EAu3"
+#define STR_HOTT_ID_EAM_CAP        "EAcp"
+#define STR_HOTT_ID_EAM_VV         "EAvv"
+#define STR_HOTT_ID_EAM_RPM        "EArp"
+#define STR_HOTT_ID_EAM_SPEED      "EAsp"

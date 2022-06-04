@@ -28,6 +28,7 @@
 #include "definitions.h"
 #include "opentx_types.h"
 #include "globals.h"
+#include "serial.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -444,15 +445,12 @@ PACK(struct TrainerModuleData {
 #define MM_RF_CUSTOM_SELECTED 0xff
 #define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
 PACK(struct ModuleData {
-  uint8_t type:4 ENUM(ModuleType);
-  // TODO some refactoring is needed, rfProtocol is only used by DSM2 and MULTI, it could be merged with subType
-  int8_t  rfProtocol:4 SKIP;
+  uint8_t type ENUM(ModuleType);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
   uint8_t failsafeMode:4 ENUM(FailsafeModes);  // only 3 bits used
-  uint8_t subType:3 SKIP;
-  uint8_t invertedSerial:1 SKIP; // telemetry serial inverted from standard
+  uint8_t subType:4 SKIP;
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
@@ -463,16 +461,15 @@ PACK(struct ModuleData {
       int8_t  frameLength;
     } ppm);
     NOBACKUP(struct {
-      uint8_t rfProtocolExtra:3 SKIP;
+      uint8_t rfProtocol SKIP;
       uint8_t disableTelemetry:1;
       uint8_t disableMapping:1;
-      uint8_t customProto:1 SKIP;
       uint8_t autoBindMode:1;
       uint8_t lowPowerMode:1;
-      int8_t optionValue;
       uint8_t receiverTelemetryOff:1;
       uint8_t receiverHigherChannels:1;
-      uint8_t spare:6 SKIP;
+      uint8_t spare:2 SKIP;
+      int8_t optionValue;
     } multi);
     NOBACKUP(struct {
       uint8_t power:2;                  // 0=10 mW, 1=100 mW, 2=500 mW, 3=1W
@@ -530,21 +527,16 @@ PACK(struct ModuleData {
     } afhds3));
     NOBACKUP(struct {
       uint8_t raw12bits:1;
-      uint8_t spare1:7 SKIP;
+      uint8_t telemetryBaudrate:3;
+      uint8_t spare1:4 SKIP;
     } ghost);
+    NOBACKUP(struct {
+      uint8_t telemetryBaudrate:3;
+    } crsf);
+    NOBACKUP(struct {
+      uint8_t flags;
+    } dsmp);
   } NAME(mod) FUNC(select_mod_type);
-
-  // Helper functions to set both of the rfProto protocol at the same time
-  NOBACKUP(inline uint8_t getMultiProtocol() const
-  {
-    return ((uint8_t) (rfProtocol & 0x0F)) + (multi.rfProtocolExtra << 4);
-  })
-
-  NOBACKUP(inline void setMultiProtocol(uint8_t proto)
-  {
-    rfProtocol = (uint8_t) (proto & 0x0F);
-    multi.rfProtocolExtra = (proto & 0x70) >> 4;
-  })
 
   NOBACKUP(inline uint8_t getChannelsCount() const
   {
@@ -637,6 +629,7 @@ PACK(struct PartialModel {
 });
 
 PACK(struct ModelData {
+  CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
@@ -680,12 +673,10 @@ PACK(struct ModelData {
 
   NOBACKUP(RssiAlarmData rssiAlarms);
 
-  uint8_t spare1:3 SKIP;
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
-
   NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
-  uint8_t spare2:6 SKIP;
+  uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
@@ -789,10 +780,8 @@ PACK(struct TrainerData {
   #define GYRO_FIELDS
 #endif
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
-    NOBACKUP(uint8_t auxSerialMode:4 ENUM(UartModes)); \
-    NOBACKUP(uint8_t aux2SerialMode:4 ENUM(UartModes)); \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
     swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);       \
     uint16_t potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */ \
@@ -803,17 +792,17 @@ PACK(struct TrainerData {
     NOBACKUP(uint8_t spare5:1 SKIP); \
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
-#elif defined(PCBTARANIS)
+#else
   #if defined(STORAGE_BLUETOOTH)
     #define BLUETOOTH_FIELDS \
-      uint8_t spare5 SKIP; \
+      uint8_t spare6 SKIP; \
       char bluetoothName[LEN_BLUETOOTH_NAME];
   #else
     #define BLUETOOTH_FIELDS
   #endif
   #define EXTRA_GENERAL_FIELDS \
-    uint8_t  auxSerialMode:4 ENUM(UartModes); \
     uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
+    uint8_t  spare5:4 SKIP; \
     uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
     CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
@@ -821,8 +810,6 @@ PACK(struct TrainerData {
     char switchNames[STORAGE_NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME] SKIP; \
     char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP; \
     BLUETOOTH_FIELDS
-#else
-  #define EXTRA_GENERAL_FIELDS
 #endif
 
 #if defined(COLORLCD) && !defined(BACKUP)
@@ -838,15 +825,14 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare4:2 SKIP
+  #define BUZZER_FIELD int8_t spare1:2 SKIP
 #endif
 
 PACK(struct RadioData {
 
   // Real attributes
-  NOBACKUP(uint8_t version);
+  CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
-  NOBACKUP(uint16_t variant SKIP);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
@@ -857,7 +843,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  int8_t spare1:1 SKIP;
+  int8_t rotEncDirection:1;
   NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -871,7 +857,8 @@ PACK(struct RadioData {
   int8_t timezone:5;
   uint8_t adjustRTC:1;
   NOBACKUP(uint8_t inactivityTimer);
-  uint8_t telemetryBaudrate:3;
+  CUST_ATTR(telemetryBaudrate, r_telemetryBaudrate, nullptr);
+  uint8_t internalModuleBaudrate:3;
   SPLASH_MODE; /* 3bits */
   int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;
@@ -892,15 +879,19 @@ PACK(struct RadioData {
   NOBACKUP(uint32_t globalTimer);
   NOBACKUP(uint8_t  bluetoothBaudrate:4);
   NOBACKUP(uint8_t  bluetoothMode:4 ENUM(BluetoothModes));
+
   NOBACKUP(uint8_t  countryCode:2);
   NOBACKUP(int8_t   pwrOnSpeed:3);
   NOBACKUP(int8_t   pwrOffSpeed:3);
-  NOBACKUP(uint8_t  imperial:1);
+
+  CUST_ATTR(jitterFilter, r_jitterFilter, nullptr);
   NOBACKUP(uint8_t  noJitterFilter:1); /* 0 - Jitter filter active */
+  NOBACKUP(uint8_t  imperial:1);
   NOBACKUP(uint8_t  disableRssiPoweroffAlarm:1);
   NOBACKUP(uint8_t  USBMode:2);
   NOBACKUP(uint8_t  jackMode:2);
   NOBACKUP(uint8_t  sportUpdatePower:1 SKIP);
+
   NOBACKUP(char     ttsLanguage[2]);
   NOBACKUP(int8_t   beepVolume:4 CUST(r_5pos,w_5pos));
   NOBACKUP(int8_t   wavVolume:4 CUST(r_5pos,w_5pos));
@@ -911,6 +902,10 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioRepeat);
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
+  CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
+  CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
+  NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
+
   EXTRA_GENERAL_FIELDS
 
   THEME_DATA
@@ -920,6 +915,12 @@ PACK(struct RadioData {
   GYRO_FIELDS
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+#if defined(STICK_DEAD_ZONE)
+  NOBACKUP(uint8_t  stickDeadZone:3);
+  NOBACKUP(uint8_t  spare2:3 SKIP);
+#else
+  NOBACKUP(uint8_t  spare2:6 SKIP);
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA

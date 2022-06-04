@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Community Support
+    url: https://discord.gg/wF9wUKnZ6H
+    about: Please ask and answer support "how do I?"questions here.
+  - name: Discussion Forum
+    url: https://github.com/EdgeTX/edgetx/discussions
+    about: Please raise ideas and feature suggestions here.

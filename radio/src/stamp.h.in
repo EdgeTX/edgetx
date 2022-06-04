@@ -1,6 +1,8 @@
 #define DATE    "@DATE@"
 #define TIME    "@TIME@"
 #define VERSION "@VERSION@"
+#define VERSION_SUFFIX "@VERSION_SUFFIX@"
+#cmakedefine VERSION_TAG "@VERSION_TAG@"
 #define CODENAME "@CODENAME@"
 
 #define VERSION_MAJOR     @VERSION_MAJOR@

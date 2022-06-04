@@ -141,8 +141,8 @@ static bool yaml_output_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
                              void* opaque)
 {
   if (node->type == YDT_NONE) return false;
-
   if (node->type == YDT_PADDING) return true;
+  if (node->type == YDT_CUSTOM && !node->u._cust_attr.write) return true;
 
   // output tag
   if (!wf(opaque, node->tag, node->tag_len)) return false;

@@ -113,6 +113,8 @@ namespace Helpers
   QString getChecklistFilename(const ModelData * model);
   QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
+  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits = 1, const unsigned int offset = 0);
+  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits = 1, unsigned int offset = 0);
 
 }  // namespace Helpers
 
@@ -186,14 +188,15 @@ public:
   TableLayout(QWidget * parent, int rowCount, const QStringList & headerLabels);
   // ~TableLayout() ;
 
-  void addWidget(int row, int column, QWidget * widget);
-  void addLayout(int row, int column, QLayout * layout);
+  void addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment = Qt::Alignment());
+  void addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment = Qt::Alignment());
 
   void resizeColumnsToContents();
   void setColumnWidth(int col, int width);
   void setColumnWidth(int col, QString str);
   void pushRowsUp(int row);
   void pushColumnsLeft(int col);
+  void setColumnStretch(int col, int stretch);
 
 private:
 #if defined(TABLE_LAYOUT)

@@ -300,7 +300,27 @@ void ThemeFile::applyBackground()
   if (pos != std::string::npos) {
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" + std::to_string(LCD_H) + ".png";
-    instance->setBackgroundImageFileName((char *)rootDir.c_str());
+
+    FIL file;
+    FRESULT result = f_open(&file, rootDir.c_str(), FA_OPEN_EXISTING);
+    if (result == FR_OK) {
+      instance->setBackgroundImageFileName((char *)rootDir.c_str());
+      f_close(&file);
+    } else {
+      // TODO: This needs to be made user configurable, not
+      // require the file be deleted to remove global background
+      char fileName[FF_MAX_LFN + 1];
+      fileName[FF_MAX_LFN] = '\0';
+      strncpy(fileName, THEMES_PATH, FF_MAX_LFN);
+      strcat(fileName, "/EdgeTX/background.png");
+      result = f_open(&file, fileName, FA_OPEN_EXISTING);
+      if (result == FR_OK) {
+        instance->setBackgroundImageFileName(fileName);
+        f_close(&file);
+      } else {
+        instance->setBackgroundImageFileName("");
+      }
+    }
   } else {
     instance->setBackgroundImageFileName("");
   }

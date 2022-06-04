@@ -305,6 +305,24 @@ void Helpers::exportAppSettings(QWidget * dlgParent)
     exportAppSettings(dlgParent);
 }
 
+unsigned int Helpers::getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits, const unsigned int offset)
+ {
+   int mask = -1;
+   mask = mask << numbits;
+   mask = ~mask;
+   return (field >> (numbits * index + offset)) & (unsigned int)mask;
+ }
+
+ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
+ {
+   int mask = -1;
+   mask = mask << numbits;
+   mask = ~mask;
+
+   unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
+   field = (field & ~fieldmask) | (value << (numbits * index + offset));
+ }
+
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
   QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
@@ -584,18 +602,18 @@ TableLayout::TableLayout(QWidget * parent, int rowCount, const QStringList & hea
 #endif
 }
 
-void TableLayout::addWidget(int row, int column, QWidget * widget)
+void TableLayout::addWidget(int row, int column, QWidget * widget, Qt::Alignment alignment)
 {
 #if defined(TABLE_LAYOUT)
   QHBoxLayout * layout = new QHBoxLayout(tableWidget);
   layout->addWidget(widget);
   addLayout(row, column, layout);
 #else
-  gridWidget->addWidget(widget, row + 1, column);
+  gridWidget->addWidget(widget, row + 1, column, alignment);
 #endif
 }
 
-void TableLayout::addLayout(int row, int column, QLayout * layout)
+void TableLayout::addLayout(int row, int column, QLayout * layout, Qt::Alignment alignment)
 {
 #if defined(TABLE_LAYOUT)
   layout->setContentsMargins(1, 3, 1, 3);
@@ -603,7 +621,7 @@ void TableLayout::addLayout(int row, int column, QLayout * layout)
   containerWidget->setLayout(layout);
   tableWidget->setCellWidget(row, column, containerWidget);
 #else
-  gridWidget->addLayout(layout, row + 1, column);
+  gridWidget->addLayout(layout, row + 1, column, alignment);
 #endif
 }
 
@@ -651,6 +669,14 @@ void TableLayout::pushColumnsLeft(int col)
   // Push the columns to the left
   QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
   gridWidget->addItem(spacer, 0, col);
+#endif
+}
+
+void TableLayout::setColumnStretch(int col, int stretch)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  gridWidget->setColumnStretch(col, stretch);
 #endif
 }
 

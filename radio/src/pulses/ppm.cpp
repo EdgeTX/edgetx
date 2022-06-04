@@ -21,47 +21,91 @@
 
 #include "opentx.h"
 
-template<class T>
-void setupPulsesPPM(PpmPulsesData<T> * ppmPulsesData, uint8_t channelsStart, int8_t channelsCount, int8_t frameLength)
+// Minimum space after the last PPM pulse in us
+#define PPM_SAFE_MARGIN 3000 // 3ms
+
+template <class T>
+uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
+                        int8_t channelsCount)
 {
-  int16_t PPM_range = g_model.extendedLimits ? (512*LIMIT_EXT_PERCENT/100) * 2 : 512 * 2; // range of 0.7 .. 1.7msec
+  uint16_t total = 0;
+  int16_t PPM_range = g_model.extendedLimits ?
+    // range of 0.7 .. 1.7msec
+    (512*LIMIT_EXT_PERCENT/100) * 2 : 512 * 2;
 
   // Total frame length = 22.5msec
   // each pulse is 0.7..1.7ms long with a 0.3ms stop tail
   // The pulse ISR is 2mhz that's why everything is multiplied by 2
 
   uint8_t firstCh = channelsStart;
-  uint8_t lastCh = min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
+  uint8_t lastCh =
+      min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
 
   ppmPulsesData->ptr = ppmPulsesData->pulses;
 
-  int32_t rest = 22500u * 2;
-  rest += int32_t(frameLength) * 1000;
-  for (uint32_t i=firstCh; i<lastCh; i++) {
-    int16_t v = limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) + 2*PPM_CH_CENTER(i);
-    rest -= v;
-    *ppmPulsesData->ptr++ = v; /* as Pat MacKenzie suggests */
+  for (uint32_t i = firstCh; i < lastCh; i++) {
+    int16_t v =
+        limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) +
+        2 * PPM_CH_CENTER(i);
+    *ppmPulsesData->ptr++ = v;
+    total += v;
   }
-  rest = limit<int32_t>(9000, rest, 65535); /* avoids that CCR2 is bigger than ARR which would cause reboot */
-  *ppmPulsesData->ptr++ = rest;
-  *ppmPulsesData->ptr = 0; // it's needed in case PPM is sent without DMA (we stop when we reach this 0)
+
+  return total;
 }
 
 void setupPulsesPPMTrainer()
 {
-  setupPulsesPPM<trainer_pulse_duration_t>(&trainerPulsesData.ppm, g_model.trainerData.channelsStart, g_model.trainerData.channelsCount, g_model.trainerData.frameLength);
+  uint16_t total = setupPulsesPPM<trainer_pulse_duration_t>(
+      &trainerPulsesData.ppm, g_model.trainerData.channelsStart,
+      g_model.trainerData.channelsCount);
+
+  uint32_t rest = PPM_TRAINER_PERIOD_HALF_US();
+  if ((uint32_t)total < rest + PPM_SAFE_MARGIN * 2)
+    rest -= total;
+  else
+    rest = PPM_SAFE_MARGIN * 2;
+
+  // restrict to 16 bit max
+  if (rest >= USHRT_MAX - 1)
+    rest = USHRT_MAX - 1;
+    
+  *trainerPulsesData.ppm.ptr++ = (uint16_t)rest;
+
+  // stop mark so that IRQ-based sending
+  // knows when to stop
+  *trainerPulsesData.ppm.ptr = 0;
+}
+
+static void setupPulsesPPMModule(uint8_t module)
+{
+  PpmPulsesData<pulse_duration_t>* data = nullptr;
+#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
+  if (module == INTERNAL_MODULE) {
+    data = &intmodulePulsesData.ppm;
+  } else
+#endif
+  {
+    data = &extmodulePulsesData.ppm;
+  }
+
+  setupPulsesPPM(&extmodulePulsesData.ppm,
+                 g_model.moduleData[module].channelsStart,
+                 g_model.moduleData[module].channelsCount);
+
+  // Set the final period to 1ms after which the
+  // PPM will be switched OFF
+  *data->ptr++ = PPM_SAFE_MARGIN * 2;
 }
 
 #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
 void setupPulsesPPMInternalModule()
 {
-  setupPulsesPPM(&intmodulePulsesData.ppm, g_model.moduleData[INTERNAL_MODULE].channelsStart, g_model.moduleData[INTERNAL_MODULE].channelsCount, g_model.moduleData[INTERNAL_MODULE].ppm.frameLength);
+  setupPulsesPPMModule(INTERNAL_MODULE);
 }
 #endif
 
 void setupPulsesPPMExternalModule()
 {
-  setupPulsesPPM(&extmodulePulsesData.ppm, g_model.moduleData[EXTERNAL_MODULE].channelsStart, g_model.moduleData[EXTERNAL_MODULE].channelsCount, g_model.moduleData[EXTERNAL_MODULE].ppm.frameLength);
+  setupPulsesPPMModule(EXTERNAL_MODULE);
 }
-
-

@@ -26,6 +26,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -37,6 +38,7 @@
 #include "touch_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
+#include "watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
@@ -66,10 +68,6 @@ extern HardwareOptions hardwareOptions;
 // Board driver
 void boardInit();
 void boardOff();
-
-// Timers driver
-void init2MhzTimer();
-void init1msTimer();
 
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
@@ -109,26 +107,33 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
-// Pulses driver
+#if !defined(SIMU)
+
 #define INTERNAL_MODULE_OFF()           GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 #define INTERNAL_MODULE_ON()            GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 void EXTERNAL_MODULE_ON();
 void EXTERNAL_MODULE_OFF();
-#define EXTERNAL_MODULE_PWR_OFF EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           GPIO_ResetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
 #define BLUETOOTH_MODULE_OFF()          GPIO_SetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
 #define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+
+#else
+
+#define INTERNAL_MODULE_OFF()
+#define INTERNAL_MODULE_ON()
+#define EXTERNAL_MODULE_ON()
+#define EXTERNAL_MODULE_OFF()
+#define BLUETOOTH_MODULE_ON()
+#define BLUETOOTH_MODULE_OFF()
+#define IS_INTERNAL_MODULE_ON()         (false)
+#define IS_EXTERNAL_MODULE_ON()         (false)
+
+#endif // defined(SIMU)
+
+#define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
-
-void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-
-//void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
-void extmoduleSerialStart();
-void extmoduleSendNextFrame();
-void extmoduleSendInvertedByte(uint8_t byte);
 
 // Trainer driver
 void init_trainer_ppm();
@@ -256,27 +261,6 @@ bool getTrimsAsButtons();
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
 
-#define WDG_DURATION                              500 /*ms*/
-void watchdogInit(unsigned int duration);
-#if defined(SIMU)
-  #define WAS_RESET_BY_WATCHDOG()               (false)
-  #define WAS_RESET_BY_SOFTWARE()               (false)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #if defined(WATCHDOG)
-    #define WDG_ENABLE(x)                       watchdogInit(x)
-    #define WDG_RESET()                         IWDG->KR = 0xAAAA
-  #else
-    #define WDG_ENABLE(x)
-    #define WDG_RESET()
-  #endif
-  #define WAS_RESET_BY_WATCHDOG()               (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-  #define WAS_RESET_BY_SOFTWARE()               (RCC->CSR & RCC_CSR_SFTRSTF)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-#endif
-
 // ADC driver
 #define NUM_POTS                        2
 #define NUM_XPOTS                       0 // NUM_POTS
@@ -314,6 +298,8 @@ enum Analogs {
 
 #define SLIDER_FIRST  0
 #define SLIDER_LAST  -1
+
+#define DEFAULT_STICK_DEADZONE          2
 
 #define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
 
@@ -407,9 +393,8 @@ bool pwrPressed();
 #endif
 uint32_t pwrPressedDuration();;
   
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
+  
 // LCD driver
 #define LCD_W                           320
 #define LCD_H                           480
@@ -495,12 +480,13 @@ int32_t getVolume();
 #define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
+#define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE             512
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionOutput();
 void telemetryPortSetDirectionInput();
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 void sportSendByte(uint8_t byte);
 extern uint32_t telemetryErrors;
@@ -524,34 +510,9 @@ void hapticOn(uint32_t pwmPercent);
 //#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-extern uint8_t auxSerialMode;
-#if defined __cplusplus
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialSbusInit();
-void auxSerialStop();
-#if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()            auxSerialPowerOn()
-#define AUX_SERIAL__POWER_OFF()          auxSerialPowerOff()
-#else
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL__POWER_OFF()
-#endif
-#define USART_FLAG_ERRORS               (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
 extern uint8_t currentTrainerMode;
 void checkTrainerSettings();
-
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-extern DMAFifo<512> telemetryFifo;
-typedef Fifo<uint8_t, 32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
-#endif
 
 // Touch panel driver
 bool touchPanelEventOccured();

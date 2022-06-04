@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "timers_driver.h"
 
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
@@ -65,47 +66,17 @@ bool isForcePowerOffRequested()
   return false;
 }
 
-bool isModuleSynchronous(uint8_t moduleIdx)
-{
-  switch(moduleState[moduleIdx].protocol) {
-    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-    case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
-    case PROTOCOL_CHANNELS_CROSSFIRE:
-    case PROTOCOL_CHANNELS_GHOST:
-    case PROTOCOL_CHANNELS_AFHDS3:
-    case PROTOCOL_CHANNELS_AFHDS2A:
-    case PROTOCOL_CHANNELS_NONE:
-
-#if defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-#endif
-#if defined(INTMODULE_USART) || defined(EXTMODULE_USART)
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
-#endif
-    // case PROTOCOL_CHANNELS_PPM:
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-#if defined(DSM2)
-    case PROTOCOL_CHANNELS_SBUS:
-    case PROTOCOL_CHANNELS_DSM2_LP45:
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
-    case PROTOCOL_CHANNELS_DSM2_DSMX:
-#endif
-      return true;
-  }
-  return false;
-}
-
 void sendSynchronousPulses(uint8_t runMask)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
-  if ((runMask & (1 << INTERNAL_MODULE)) && isModuleSynchronous(INTERNAL_MODULE)) {
+  if (runMask & (1 << INTERNAL_MODULE)) {
     if (setupPulsesInternalModule())
       intmoduleSendNextFrame();
   }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  if ((runMask & (1 << EXTERNAL_MODULE)) && isModuleSynchronous(EXTERNAL_MODULE)) {
+  if (runMask & (1 << EXTERNAL_MODULE)) {
     if (setupPulsesExternalModule())
       extmoduleSendNextFrame();
   }
@@ -129,12 +100,6 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
-
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
 }
 
 TASK_FUNCTION(mixerTask)

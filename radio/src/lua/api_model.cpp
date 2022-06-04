@@ -25,6 +25,7 @@
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
+#include "gvars.h"
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
@@ -156,7 +157,7 @@ static int luaModelGetModule(lua_State *L)
     lua_pushtableinteger(L, "Type", module.type);
 #if defined(MULTIMODULE)
     if (module.type == MODULE_TYPE_MULTIMODULE) {
-      int protocol = g_model.moduleData[idx].getMultiProtocol() + 1;
+      int protocol = g_model.moduleData[idx].multi.rfProtocol + 1;
       int subprotocol = g_model.moduleData[idx].subType;
       convertEtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
       lua_pushtableinteger(L, "protocol", protocol);
@@ -233,7 +234,7 @@ static int luaModelSetModule(lua_State *L)
 #if defined(MULTIMODULE)
     if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute etx protocol
       convertMultiProtocolToEtx(&protocol, &subprotocol);
-      g_model.moduleData[idx].setMultiProtocol(protocol - 1);
+      g_model.moduleData[idx].multi.rfProtocol = protocol - 1;
       g_model.moduleData[idx].subType = subprotocol;
     }
 #endif
@@ -1486,6 +1487,7 @@ static int luaModelSetOutput(lua_State *L)
   return 0;
 }
 
+#if defined(GVARS)
 /*luadoc
 @function model.getGlobalVariable(index, flight_mode)
 
@@ -1513,7 +1515,7 @@ static int luaModelGetGlobalVariable(lua_State *L)
   unsigned int idx = luaL_checkunsigned(L, 1);
   unsigned int phase = luaL_checkunsigned(L, 2);
   if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS)
-    lua_pushinteger(L, g_model.flightModeData[phase].gvars[idx]);
+    lua_pushinteger(L, getGVarValue(idx, phase));
   else
     lua_pushnil(L);
   return 1;
@@ -1541,11 +1543,12 @@ static int luaModelSetGlobalVariable(lua_State *L)
   unsigned int phase = luaL_checkunsigned(L, 2);
   int value = luaL_checkinteger(L, 3);
   if (phase < MAX_FLIGHT_MODES && idx < MAX_GVARS && value >= -GVAR_MAX && value <= GVAR_MAX) {
-    g_model.flightModeData[phase].gvars[idx] = value;
+    SET_GVAR(idx, value, phase);
     storageDirty(EE_MODEL);
   }
   return 0;
 }
+#endif
 
 /*luadoc
 @function model.getSensor(sensor)
@@ -1643,8 +1646,10 @@ const luaL_Reg modelLib[] = {
   { "setCurve", luaModelSetCurve },
   { "getOutput", luaModelGetOutput },
   { "setOutput", luaModelSetOutput },
+#if defined (GVARS)
   { "getGlobalVariable", luaModelGetGlobalVariable },
   { "setGlobalVariable", luaModelSetGlobalVariable },
+#endif
   { "getSensor", luaModelGetSensor },
   { "resetSensor", luaModelResetSensor },
   { NULL, NULL }  /* sentinel */

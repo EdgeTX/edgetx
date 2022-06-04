@@ -33,6 +33,7 @@
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
+#include "version.h"
 
 #include <string>
 
@@ -637,7 +638,11 @@ struct convert<FrSkyLineData> {
   static Node encode(const FrSkyLineData& rhs)
   {
     Node node, sources;
-    sources = encode_array(rhs.source);
+    for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensFieldsPerLine); i++) {
+      if (rhs.source[i].isSet()) {
+        sources[std::to_string(i)]["val"] = rhs.source[i];
+      }
+    }
     if (sources && sources.IsMap()) {
       node["sources"] = sources;
     }
@@ -664,18 +669,30 @@ struct convert<FrSkyScreenData> {
   {
     Node node;
     node["type"] = LookupValue(screenTypeLut, rhs.type);
-    switch(rhs.type) {
-    case TELEMETRY_SCREEN_NONE:
-      break;
-    case TELEMETRY_SCREEN_NUMBERS:
-      node["lines"] = encode_array(rhs.body.lines);
-      break;
-    case TELEMETRY_SCREEN_BARS:
-      node["bars"] = encode_array(rhs.body.bars);
-      break;
-    case TELEMETRY_SCREEN_SCRIPT:
-      node["script"]["file"] = rhs.body.script.filename;
-      break;
+    if (rhs.type != TELEMETRY_SCREEN_NONE) {
+      Node cfg;
+      switch(rhs.type) {
+      case TELEMETRY_SCREEN_NUMBERS: {
+        Node lines;
+        for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensLines); i++) {
+          lines[std::to_string(i)] = rhs.body.lines[i];
+        }
+        cfg["lines"] = lines;
+        } break;
+      case TELEMETRY_SCREEN_BARS: {
+        Node bars;
+        for (int i = 0; i < getCurrentFirmware()->getCapability(TelemetryCustomScreensBars); i++) {
+          bars[std::to_string(i)] = rhs.body.bars[i];
+        }
+        cfg["bars"] = bars;
+        } break;
+      case TELEMETRY_SCREEN_SCRIPT:
+        cfg["script"]["file"] = rhs.body.script.filename;
+        break;
+      }
+      if (cfg && cfg.IsMap()) {
+        node["u"] = cfg;
+      }
     }
     return node;
   }
@@ -683,23 +700,38 @@ struct convert<FrSkyScreenData> {
   static bool decode(const Node& node, FrSkyScreenData& rhs)
   {
     node["type"] >> screenTypeLut >> rhs.type;
-    switch(rhs.type) {
-    case TELEMETRY_SCREEN_NONE:
-      return true;
-    case TELEMETRY_SCREEN_NUMBERS:
-      node["lines"] >> rhs.body.lines;
-      break;
-    case TELEMETRY_SCREEN_BARS:
-      node["bars"] >> rhs.body.bars;
-      break;
-    case TELEMETRY_SCREEN_SCRIPT:
-      if (node["script"]) {
-        const auto& script = node["script"];
-        if (script && script.IsMap()) {
-          script["file"] >> rhs.body.script.filename;
+    if (rhs.type == TELEMETRY_SCREEN_NONE) return true;
+
+    if (node["u"]) {  // radio outputs generic u to indicate union field
+      const auto& cfg = node["u"];
+      if (cfg && cfg.IsMap()) {
+        switch(rhs.type) {
+        case TELEMETRY_SCREEN_NUMBERS:
+          if (cfg["lines"]) {
+            const auto& lines = cfg["lines"];
+            if (lines && lines.IsMap()) {
+              lines >> rhs.body.lines;
+            }
+          }
+          break;
+        case TELEMETRY_SCREEN_BARS:
+          if (cfg["bars"]) {
+            const auto& bars = cfg["bars"];
+            if (bars && bars.IsMap()) {
+              bars >> rhs.body.bars;
+            }
+          }
+          break;
+        case TELEMETRY_SCREEN_SCRIPT:
+          if (cfg["script"]) {
+            const auto& script = cfg["script"];
+            if (script && script.IsMap()) {
+              script["file"] >> rhs.body.script.filename;
+            }
+          }
+          break;
         }
       }
-      break;
     }
     return true;
   }
@@ -709,6 +741,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 {
   Node node;
   auto board = getCurrentBoard();
+
+  node["semver"] = VERSION;
 
   Node header;
   header["name"] = rhs.name;
@@ -874,7 +908,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   node["rssiAlarms"] = rhs.rssiAlarms;
-  node["trainerMode"] = trainerModeLut << rhs.trainerMode;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
@@ -887,6 +920,13 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["failsafeChannels"][std::to_string(i)]["val"] = rhs.limitData[i].failsafe;
     }
   }
+
+  node["trainerData"]["mode"] = trainerModeLut << rhs.trainerMode;
+  node["trainerData"]["channelsStart"] = rhs.moduleData[2].channelsStart;
+  node["trainerData"]["channelsCount"] = (rhs.moduleData[2].channelsCount - 8);
+  node["trainerData"]["frameLength"] = rhs.moduleData[2].ppm.frameLength;
+  node["trainerData"]["delay"] = ((rhs.moduleData[2].ppm.delay - 300) / 50);
+  node["trainerData"]["pulsePol"] = (int)rhs.moduleData[2].ppm.pulsePol;
 
   for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
     if (strlen(rhs.scriptData[i].filename) > 0) {
@@ -921,7 +961,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["modelRegistrationID"] = rhs.registrationId;
 
-  if (getCurrentFirmware()->getCapability(FunctionSwitches)) {
+  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
     node["functionSwitchConfig"] = rhs.functionSwitchConfig;
     node["functionSwitchGroup"] = rhs.functionSwitchGroup;
     node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
@@ -929,8 +969,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
     for (int i = 0; i < CPN_MAX_FUNCTION_SWITCHES; i++) {
       if (strlen(rhs.functionSwitchNames[i]) > 0) {
-        node["functionSwitchNames"][std::to_string(i)] =
-            rhs.functionSwitchNames[i];
+        node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
       }
     }
   }
@@ -944,6 +983,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
+
+  node["semver"] >> rhs.semver;
 
   if (node["header"]) {
     const auto& header = node["header"];
@@ -1059,7 +1100,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   node["rssiAlarms"] >> rhs.rssiAlarms;
-  node["trainerMode"] >> trainerModeLut >> rhs.trainerMode;
 
   node["moduleData"] >> rhs.moduleData;
   for (int i=0; i<CPN_MAX_MODULES; i++) {
@@ -1073,6 +1113,19 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     for (int i=0; i<CPN_MAX_CHNOUT; i++) {
       rhs.limitData[i].failsafe = failsafeChans[i];
     }
+  }
+
+  if (node["trainerData"]) {
+    const auto& trainer = node["trainerData"];
+    if (!trainer.IsMap()) return false;
+    trainer["mode"] >> trainerModeLut >> rhs.trainerMode;
+    trainer["channelsStart"] >> rhs.moduleData[2].channelsStart;
+    trainer["channelsCount"] >> rhs.moduleData[2].channelsCount;
+    rhs.moduleData[2].channelsCount += 8;
+    trainer["frameLength"] >> rhs.moduleData[2].ppm.frameLength;
+    trainer["delay"] >> rhs.moduleData[2].ppm.delay;
+    rhs.moduleData[2].ppm.delay = 300 + 50 * rhs.moduleData[2].ppm.delay;
+    trainer["pulsePol"] >> rhs.moduleData[2].ppm.pulsePol;
   }
 
   node["scriptData"] >> rhs.scriptData;
@@ -1090,8 +1143,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
-  node["functionSwitchNames"] >> rhs.functionSwitchNames;
-
+  node["switchNames"] >> rhs.functionSwitchNames;
   return true;
 }
 

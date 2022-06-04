@@ -39,6 +39,17 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
   lcdRefreshWait();
   lcdClear();
 
+#if defined(FUNCTION_SWITCHES)
+  uint8_t index2 = limit<uint8_t>(
+      0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES + 1)),
+      NUM_FUNCTIONS_SWITCHES);
+
+  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
+    if (index2 > j)
+      fsLedOn(j);
+  }
+#endif
+
   for (uint8_t i = 0; i < 4; i++) {
     if (index > i) {
       lcdDrawFilledRect(LCD_W / 2 - 18 + 10 * i, LCD_H / 2 - 3, 6, 6, SOLID, 0);
@@ -49,7 +60,8 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
   lcdRefreshWait();
 }
 
-void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char * message)
+void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
+                           const char* message)
 {
   if (totalDuration == 0)
     return;
@@ -58,6 +70,18 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration, const char
 
   lcdRefreshWait();
   lcdClear();
+
+#if defined(FUNCTION_SWITCHES)
+  uint8_t index2 = limit<uint8_t>(
+      0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES + 1)),
+      NUM_FUNCTIONS_SWITCHES);
+
+  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
+    fsLedOff(j);
+    if (NUM_FUNCTIONS_SWITCHES - index2 > j)
+      fsLedOn(j);
+  }
+#endif
 
   for (uint8_t i = 0; i < 4; i++) {
     if (4 - index > i) {
@@ -77,10 +101,9 @@ void drawSleepBitmap()
   lcdRefreshWait();
   lcdClear();
 
-  lcdDraw1bitBitmap((LCD_W - SLEEP_BITMAP_WIDTH) / 2, (LCD_H - SLEEP_BITMAP_HEIGHT) / 2, bmp_sleep, 0);
+  lcdDraw1bitBitmap((LCD_W - SLEEP_BITMAP_WIDTH) / 2,
+                    (LCD_H - SLEEP_BITMAP_HEIGHT) / 2, bmp_sleep, 0);
 
   lcdRefresh();
   lcdRefreshWait();
 }
-
-

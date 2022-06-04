@@ -38,10 +38,14 @@ class AbstractStaticItemModel;
 // identiying names of static abstract item models
 constexpr char AIM_GS_ANTENNAMODE[]        {"gs.antennamode"};
 constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
-constexpr char AIM_GS_AUXSERIALMODE[]      {"gs.auxserialmode"};
-constexpr char AIM_GS_TELEMETRYBAUDRATE[]  {"gs.telemetrybaudrate"};
+constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
+constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
+constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
+
+static const QStringList moduleBaudratesList({"115K", "400K", "921K", "1.87M",
+                                              "3.75M", "5.25M"});
 
 enum UartModes {
   UART_MODE_NONE,
@@ -133,13 +137,25 @@ class GeneralSettings {
       AUX_SERIAL_TELE_IN,
       AUX_SERIAL_SBUS_TRAINER,
       AUX_SERIAL_LUA,
+      AUX_SERIAL_CLI,
+      AUX_SERIAL_GPS,
+      AUX_SERIAL_DEBUG,
       AUX_SERIAL_COUNT
     };
 
     enum TelemetryBaudrate {
     };
 
-    GeneralSettings();
+    enum SerialPort {
+      SP_AUX1,
+      SP_AUX2,
+      SP_VCP,
+      SP_COUNT,
+    };
+
+    GeneralSettings() { clear(); }
+    void clear();
+    void init();
     void convert(RadioDataConversionState & cstate);
 
     void setDefaultControlTypes(Board::Type board);
@@ -147,6 +163,7 @@ class GeneralSettings {
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;
 
+    char semver[8 + 1];
     unsigned int version;
     unsigned int variant;
     int calibMid[CPN_MAX_ANALOGS];
@@ -171,6 +188,7 @@ class GeneralSettings {
     bool disableAlarmWarning;
     bool disableRssiPoweroffAlarm;
     unsigned int usbMode;
+    unsigned int stickDeadZone;
     unsigned int jackMode;
     bool sportPower;
     BeeperMode hapticMode;
@@ -179,7 +197,7 @@ class GeneralSettings {
     bool adjustRTC;
     bool optrexDisplay;
     unsigned int inactivityTimer;
-    unsigned int telemetryBaudrate;
+    unsigned int internalModuleBaudrate;
     bool minuteBeep;
     bool preBeep;
     bool flashBeep;
@@ -213,6 +231,7 @@ class GeneralSettings {
     bool noJitterFilter;
     bool rtcCheckDisable;
     bool keysBacklight;
+    bool rotEncDirection;
     unsigned int imperial;
     char ttsLanguage[TTS_LANGUAGE_LEN + 1];
     int beepVolume;
@@ -224,8 +243,8 @@ class GeneralSettings {
     int backgroundVolume;
     unsigned int mavbaud;
     unsigned int switchUnlockStates;
-    unsigned int auxSerialMode;
-    unsigned int aux2SerialMode;
+    unsigned int serialPort[SP_COUNT];
+    bool serialPower[SP_COUNT];
     int antennaMode;
     unsigned int backlightColor;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
@@ -253,17 +272,18 @@ class GeneralSettings {
     bool isSliderAvailable(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
-    QString auxSerialModeToString() const;
-    QString telemetryBaudrateToString() const;
+    QString serialPortModeToString(int port_nr) const;
+    QString internalModuleBaudrateToString() const;
 
     static QString antennaModeToString(int value);
     static QString bluetoothModeToString(int value);
-    static QString auxSerialModeToString(int value);
-    static QString telemetryBaudrateToString(int value);
+    static QString serialModeToString(int value);
+    static QString moduleBaudrateToString(int value);
     static FieldRange getPPM_MultiplierRange();
     static FieldRange getTxCurrentCalibration();
     static AbstractStaticItemModel * antennaModeItemModel();
     static AbstractStaticItemModel * bluetoothModeItemModel();
-    static AbstractStaticItemModel * auxSerialModeItemModel();
-    static AbstractStaticItemModel * telemetryBaudrateItemModel();
+    static AbstractStaticItemModel * serialModeItemModel(int port_nr);
+    static AbstractStaticItemModel * internalModuleBaudrateItemModel();
+    static AbstractStaticItemModel * stickDeadZoneItemModel();
 };

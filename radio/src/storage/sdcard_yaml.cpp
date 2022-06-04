@@ -123,23 +123,18 @@ const char * loadRadioSettings()
           || (*variant != EEPROM_VARIANT)) {
         return "ERROR";
       }
-      g_eeGeneral.version = versions[0];
-      g_eeGeneral.variant = *variant;
-      eeConvert();
+      eeConvert(versions[0]);
 #else
   #error "Unsupported conversion format"
 #endif
     }
 
-#if defined(DEFAULT_INTERNAL_MODULE)
-    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
-#endif
-    
     const char* error = loadRadioSettingsYaml();
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
-
+    postRadioSettingsLoad();
+    
     return error;
 }
 
@@ -196,7 +191,7 @@ const char * writeGeneralSettings()
 }
 
 
-const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size)
+const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName)
 {
     // YAML reader
     TRACE("YAML model reader");
@@ -216,7 +211,7 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     }
     
     char path[256];
-    getModelPath(path, filename);
+    getModelPath(path, filename, pathName);
 
     YamlTreeWalker tree;
     tree.reset(data_nodes, buffer);
@@ -247,14 +242,14 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
 
 static const char _wrongExtentionError[] = "wrong file extension";
 
-const char* readModel(const char* filename, uint8_t* buffer, uint32_t size)
+const char* readModel(const char* filename, uint8_t* buffer, uint32_t size, const char* pathName)
 {
   const char* ext = strrchr(filename, '.');
   if (!ext || strncmp(ext, YAML_EXT, 4) != 0) {
     return _wrongExtentionError;
   }
 
-  return readModelYaml(filename, buffer, size);
+  return readModelYaml(filename, buffer, size, pathName);
 }
 
 const char * writeModelYaml(const char* filename)

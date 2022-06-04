@@ -27,6 +27,9 @@
 #include <map>
 #include <list>
 
+#include "hal/serial_driver.h"
+#include "hal/module_driver.h"
+
 #define AFHDS2_PERIOD (2 * 1000) /* us */
 
 struct FlySkySerialPulsesData {
@@ -55,5 +58,8 @@ public:
   afhds2();
   virtual ~afhds2();
 };
+
+extern const etx_serial_init afhds2SerialInitParams;
+extern const etx_module_driver_t Afhds2InternalDriver;
 
 #endif /* PULSES_AFHDS2_H_ */

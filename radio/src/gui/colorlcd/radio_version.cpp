@@ -23,6 +23,9 @@
 #include "opentx.h"
 #include "options.h"
 #include "libopenui.h"
+#if defined(CROSSFIRE)
+  #include "mixer_scheduler.h"
+#endif
 
 char *getVersion(char *str, PXX2Version version)
 {
@@ -102,9 +105,17 @@ class versionDialog: public Dialog
       if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
         new StaticText(form, grid->getFieldSlot(1, 0), STR_OFF, 0, COLOR_THEME_PRIMARY1);
       }
-#if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
+#if defined(CROSSFIRE)
+      else if (isModuleCrossfire(module)) {
+          char statusText[64] = "";
+          new StaticText(form, grid->getFieldSlot(2, 0), "CRSF", 0, COLOR_THEME_PRIMARY1);
+          sprintf(statusText,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+          new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
+      }
+#endif
+#if defined(MULTIMODULE)
       else if (isModuleMultimodule(module)) {
-        char statusText[64];
+        char statusText[64] = "";
         new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule", 0, COLOR_THEME_PRIMARY1);
         getMultiModuleStatus(module).getStatusString(statusText);
         new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
@@ -161,6 +172,16 @@ class versionDialog: public Dialog
       update();
       Dialog::checkEvents();
     }
+
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override
+    {
+      if (event == EVT_KEY_BREAK(KEY_EXIT) ||
+          event == EVT_KEY_BREAK(KEY_ENTER)) {
+        deleteLater();
+      }
+    }
+#endif
 
   protected:
     rect_t rect;

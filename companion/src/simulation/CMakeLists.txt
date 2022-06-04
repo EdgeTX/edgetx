@@ -119,4 +119,4 @@ qt5_wrap_ui(simulation_SRCS ${simulation_UIS})
 qt5_wrap_cpp(simulation_SRCS ${simulation_HDRS})
 
 add_library(simulation ${simulation_SRCS} ${simulation_HDRS})
-target_link_libraries(simulation PRIVATE ${CPN_COMMON_LIB} Qt5::Core Qt5::Widgets Qt5::Svg)
+target_link_libraries(simulation PRIVATE ${CPN_COMMON_LIB} shared Qt5::Core Qt5::Widgets Qt5::Svg)

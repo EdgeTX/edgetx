@@ -45,6 +45,7 @@ jobs:
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
+          EDGETX_VERSION_SUFFIX: nightly
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}

@@ -22,6 +22,7 @@
 #include "telemetry.h"
 #include "multi.h"
 #include "io/multi_protolist.h"
+#include "aux_serial_driver.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11
@@ -157,9 +158,9 @@ static MultiBufferState guessProtocol(uint8_t module)
   }
 #endif
 
-  if (g_model.moduleData[moduleIdx].getMultiProtocol() == MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
     return SpektrumTelemetryFallback;
-  else if (g_model.moduleData[module].getMultiProtocol() == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+  else if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
     return FlyskyTelemetryFallback;
   else
     return FrskyTelemetryFallback;
@@ -243,6 +244,16 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   if (wasBinding && !status.isBinding() && getMultiBindStatus(module) == MULTI_BIND_INITIATED)
     setMultiBindStatus(module, MULTI_BIND_FINISHED);
 
+  // Dirty RX protocol detection
+  size_t proto_len = strnlen(status.protocolName, 8);
+  if (proto_len >= 2 &&
+      status.protocolName[proto_len - 2] == 'R' &&
+      status.protocolName[proto_len - 1] == 'X') {
+    status.isRXProto = true;
+  } else {
+    status.isRXProto = false;
+  }
+
   // update timestamp last to avoid race conditions
   status.lastUpdate = get_tmr10ms();
 }
@@ -256,7 +267,7 @@ static void processMultiSyncPacket(const uint8_t * data, uint8_t module)
 
   status.update(refreshRate, inputLag);
 #if defined(DEBUG)
-  serialPrint("MP ADJ: R %d, L %04d", refreshRate, inputLag);
+  dbgSerialPrint("MP ADJ: R %d, L %04d", refreshRate, inputLag);
 #endif
 }
 
@@ -349,19 +360,6 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
   uint8_t type = packet[0];
   uint8_t len = packet[1];
   const uint8_t * data = packet + 2;
-
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    for (uint8_t c = 0; c < len + 2; c++)
-      auxSerialPutc(packet[c]);
-  }
-#endif
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    for (uint8_t c = 0; c < len + 2; c++)
-      aux2SerialPutc(packet[c]);
-  }
-#endif
 
   // Switch type
   switch (type) {

@@ -68,11 +68,7 @@
 #define TR_TRNCHN              "KN1KN2KN3KN4"
 
 #define LEN_AUX_SERIAL_MODES   "\022"
-#if defined(CLI) || defined(DEBUG)
-#define TR_AUX_SERIAL_MODES    "Debug\0            ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              "
-#else
-#define TR_AUX_SERIAL_MODES    "Av\0               ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              "
-#endif
+#define TR_AUX_SERIAL_MODES    "Av\0               ""Spegling av S-Port""Telemetri\0        ""SBUS Trainer\0     ""LUA\0              ""CLI\0              ""GPS\0              ""Debug\0            "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Ingen\0""Flipp\0""2Pos\0 ""3Pos\0"
@@ -350,7 +346,7 @@
 #define TR_VTMRMODES           "Av\0""På\0""GAs""GA%""GAt"
 
 #define LEN_VTRAINERMODES              "\022"
-#define TR_VTRAINER_MASTER_OFF         "Off\0              "
+#define TR_VTRAINER_MASTER_OFF         "OFF\0              "
 #define TR_VTRAINER_MASTER_JACK        "Lärare/Uttag\0     "
 #define TR_VTRAINER_SLAVE_JACK         "Elev./Uttag\0      "
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Lärare/SBUS-Modul\0"
@@ -542,6 +538,7 @@
 #define TR_PERSISTENT          TR("Jämt på ", INDENT"Alltid På")
 #define TR_BACKLIGHT_LABEL     "Belysning"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY             INDENT "Av efter"
 #define TR_BLONBRIGHTNESS      INDENT "På Ljusstyrka"
 #define TR_BLOFFBRIGHTNESS     INDENT "Av Ljusstyrka"
@@ -840,10 +837,18 @@
 #define TR_TEMP_CALIB          "Temp. kalib."
 #define TR_TIME                "Tid "
 #define TR_MAXBAUDRATE         "Max bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
-
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
+#define TR_SELECT_TEMPLATE_FOLDER "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE     "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES        "No model templates were found in this folder"
+#define TR_SAVE_TEMPLATE       "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
+#define TR_FILE_EXISTS         "FILE ALREADY EXISTS"
+#define TR_ASK_OVERWRITE       "Do you want to overwrite?"
 
 #define TR_BLUETOOTH            "Bluetooth"
 #define TR_BLUETOOTH_DISC       "Discover"
@@ -851,7 +856,7 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR "Local addr"
 #define TR_BLUETOOTH_PIN_CODE   "PIN code"
-#define TR_BAUDRATE             "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE   "BT Baudrate"
 #define LEN_BLUETOOTH_MODES     "\011"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---\0     ""Enabled\0 "
@@ -872,11 +877,13 @@
 #define TR_DATE                "Datum"
 #define TR_MONTHS              { "Jan", "Fev", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER      "R.Enks"
+#define TR_INVERT_ROTARY       "Invert Rotary"
 #define TR_CHANNELS_MONITOR    "Kanalöversikt"
 #define TR_MIXERS_MONITOR      "MIXER-SKÄRM"
 #define TR_PATH_TOO_LONG       "För lång sökväg"
 #define TR_VIEW_TEXT           "Visa Text"
 #define TR_FLASH_BOOTLOADER    "Skriv BootLoader"
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE "Flash External Device"
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -885,6 +892,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT          "Flash pwr mngt unit"
+#define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
+#define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
+#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "Device data refused")
+#define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "Device access problem")
+#define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "Device file refused")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "Device file sig.")
 #define TR_CURRENT_VERSION             TR("Current vers. ", "Current version: ")
 #define TR_FLASH_INTERNAL_MODULE "Flash Internal Module"
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
@@ -947,7 +960,7 @@
 #define TR_ABOUT_US            "Om Oss"
 #define TR_USB_JOYSTICK        "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE    "USB Storage (SD)"
-#define TR_USB_SERIAL          "USB Serial (Debug)"
+#define TR_USB_SERIAL          "USB Serial (VCP)"
 #define TR_SETUP_SCREENS       "Setup screens"
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "OCH Brytare"
@@ -1054,6 +1067,7 @@
 #define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Serieporten"
 #define TR_AUX2_SERIAL_MODE    "Serieporten 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT              "Programkod"
 #define TR_INPUTS              "Input"
 #define TR_OUTPUTS             "Outputs"
@@ -1066,6 +1080,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO""ON\0 "
 #define TR_NO_TELEMETRY_SCREENS        "No Telemetry Screens"
 #define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_FILE_SIZE                   "File size"
+#define TR_FILE_OPEN                   "Open anyway?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Namn"
@@ -1216,6 +1232,7 @@
 #define TR_MENU_OTHER          "Annat"
 #define TR_MENU_INVERT         "Invertera"
 #define TR_JITTER_FILTER       "ADC Filter"
+#define TR_DEAD_ZONE           "Dead zone"
 #define TR_RTC_CHECK           TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
@@ -1380,6 +1397,11 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
+#endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
 #define TR_RED                          "Red"

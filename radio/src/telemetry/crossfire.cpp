@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "aux_serial_driver.h"
 
 const CrossfireSensor crossfireSensors[] = {
   {LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DB,                0},
@@ -52,6 +53,7 @@ const CrossfireSensor crossfireSensors[] = {
   {ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3},
   {FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0},
   {CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2},
+  {BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2},
   {0,              0, "UNKNOWN",          UNIT_RAW,               0},
 };
 
@@ -73,6 +75,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[ATTITUDE_PITCH_INDEX+subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
+  else if (id == BARO_ALT_ID)
+    return crossfireSensors[BARO_ALTITUDE_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -117,11 +121,6 @@ void processCrossfireTelemetryFrame(uint8_t module)
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
 
-  if (!checkCrossfireTelemetryFrameCRC(module)) {
-    TRACE("[XF] CRC error");
-    return;
-  }
-
   if (telemetryState == TELEMETRY_INIT &&
       moduleState[module].counter != CRSF_FRAME_MODELID_SENT) {
     moduleState[module].counter = CRSF_FRAME_MODELID;
@@ -148,6 +147,21 @@ void processCrossfireTelemetryFrame(uint8_t module)
         processCrossfireTelemetryValue(GPS_ALTITUDE_INDEX,  value - 1000);
       if (getCrossfireTelemetryValue<1>(17, value, module))
         processCrossfireTelemetryValue(GPS_SATELLITES_INDEX, value);
+      break;
+
+    case BARO_ALT_ID:
+      if (getCrossfireTelemetryValue<2>(3, value, module)) {
+        if (value & 0x8000) {
+          // Altitude in meters
+          value &= ~(0x8000);
+          value *= 100; // cm
+        } else {
+          // Altitude in decimeters + 10000dm
+          value -= 10000;
+          value *= 10;
+        }
+        processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
+      }
       break;
 
     case LINK_ID:
@@ -256,28 +270,53 @@ void processCrossfireTelemetryFrame(uint8_t module)
   }
 }
 
+bool crossfireLenIsSane(uint8_t len)
+{
+  // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
+  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
+}
+
+void crossfireTelemetrySeekStart(uint8_t *rxBuffer, uint8_t &rxBufferCount)
+{
+  // Bad telemetry packets frequently are just truncated packets, with the start
+  // of a new packet contained in the data. This causes multiple packet drops as
+  // the parser tries to resync.
+  // Search through the rxBuffer for a sync byte, shift the contents if found
+  // and reduce rxBufferCount
+  for (uint8_t idx=1; idx<rxBufferCount; ++idx) {
+    uint8_t data = rxBuffer[idx];
+    if (data == RADIO_ADDRESS || data == UART_SYNC) {
+      uint8_t remain = rxBufferCount - idx;
+      // If there's at least 2 bytes, check the length for validity too
+      if (remain > 1 && !crossfireLenIsSane(rxBuffer[idx+1]))
+        continue;
+
+      //TRACE("Found 0x%02x with %u remain", data, remain);
+      // copy the data to the front of the buffer
+      for (uint8_t src=idx; src<rxBufferCount; ++src) {
+        rxBuffer[src-idx] = rxBuffer[src];
+      }
+
+      rxBufferCount = remain;
+      return;
+    } // if found sync
+  }
+
+  // Not found, clear the buffer
+  rxBufferCount = 0;
+}
+
 void processCrossfireTelemetryData(uint8_t data, uint8_t module)
 {
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
-#if defined(AUX_SERIAL)
-  if (g_eeGeneral.auxSerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    auxSerialPutc(data);
-  }
-#endif
-
-#if defined(AUX2_SERIAL)
-  if (g_eeGeneral.aux2SerialMode == UART_MODE_TELEMETRY_MIRROR) {
-    aux2SerialPutc(data);
-  }
-#endif
 
   if (rxBufferCount == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
     TRACE("[XF] address 0x%02X error", data);
     return;
   }
 
-  if (rxBufferCount == 1 && (data < 2 || data > TELEMETRY_RX_PACKET_SIZE-2)) {
+  if (rxBufferCount == 1 && !crossfireLenIsSane(data)) {
     TRACE("[XF] length 0x%02X error", data);
     rxBufferCount = 0;
     return;
@@ -291,9 +330,9 @@ void processCrossfireTelemetryData(uint8_t data, uint8_t module)
     rxBufferCount = 0;
   }
 
-  if (rxBufferCount > 4) {
-    uint8_t length = rxBuffer[1];
-    if (length + 2 == rxBufferCount) {
+  // rxBuffer[1] holds the packet length-2, check if the whole packet was received
+  while (rxBufferCount > 4 && (rxBuffer[1]+2) == rxBufferCount) {
+    if (checkCrossfireTelemetryFrameCRC(module)) {
 #if defined(BLUETOOTH)
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
           bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
@@ -302,6 +341,10 @@ void processCrossfireTelemetryData(uint8_t data, uint8_t module)
 #endif
       processCrossfireTelemetryFrame(module);
       rxBufferCount = 0;
+    }
+    else {
+      TRACE("[XF] CRC error ");
+      crossfireTelemetrySeekStart(rxBuffer, rxBufferCount); // adjusts rxBufferCount
     }
   }
 }

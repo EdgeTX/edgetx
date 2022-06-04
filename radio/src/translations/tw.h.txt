@@ -63,7 +63,7 @@
 #define TR_TRNCHN                       "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES            "\010"
-#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0"
+#define TR_AUX_SERIAL_MODES             "調試\0   " "回傳鏡像" "回傳輸入" "SBUS教練" "LUA腳本\0""CLI\0     "
 
 #define LEN_SWTYPES                     "\004"
 #define TR_SWTYPES                      "無\0 " "回彈" "2段\0""3段\0"
@@ -110,7 +110,7 @@
 #define LEN_CURVE_TYPES                 "\006"
 #define TR_CURVE_TYPES                  "標準\0 " "自定義"
 
-#define LEN_ADCFILTERVALUES             "\002"
+#define LEN_ADCFILTERVALUES             "\004"
 #define TR_ADCFILTERVALUES              "全局""禁用" "开启"
 
 #define LEN_RETA123                     "\001"
@@ -472,8 +472,9 @@
 #define TR_BEEPCOUNTDOWN                INDENT "倒數"
 #define TR_PERSISTENT                   TR(INDENT "Persist.", INDENT "關機保持")
 #define TR_BACKLIGHT_LABEL              "背光"
-#define TR_GHOST_MENU_LABEL             "GHOST MENU"
 #define TR_BLDELAY                      INDENT "Duration"
+#define TR_GHOST_MENU_LABEL             "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS               "背光開"
 #define TR_BLOFFBRIGHTNESS              "背光關"
 #define TR_KEYS_BACKLIGHT               "按鍵背光"
@@ -768,18 +769,27 @@
 #define TR_TEMP_CALIB                   "溫度校準"
 #define TR_TIME                         "時間"
 #define TR_MAXBAUDRATE                  "最大帶寬"
-#define TR_SAMPLE_MODE                 "Sample Mode"
+#define TR_BAUDRATE                     "波特率"
+#define TR_SAMPLE_MODE                  "採樣模式"
 #define LEN_SAMPLE_MODES                "\006"
-#define TR_SAMPLE_MODES                "Normal""OneBit"
+#define TR_SAMPLE_MODES                 "Normal""OneBit"
 #define TR_BLUETOOTH                    "藍牙"
 #define TR_BLUETOOTH_DISC               "發現"
 #define TR_BLUETOOTH_INIT               "初始化"
 #define TR_BLUETOOTH_DIST_ADDR          "目標地址"
 #define TR_BLUETOOTH_LOCAL_ADDR         "本機地址"
 #define TR_BLUETOOTH_PIN_CODE           "PIN碼"
-#define TR_BAUDRATE                     "藍牙帶寬"
+#define TR_BLUETOOTH_BAUDRATE           "藍牙帶寬"
 #define LEN_BLUETOOTH_MODES             "\004"
 #define TR_BLUETOOTH_MODES              "---\0" "回傳" "教練"
+#define TR_SELECT_TEMPLATE_FOLDER       "選擇一個樣板檔案夾:"
+#define TR_SELECT_TEMPLATE              "選擇一個樣板:"
+#define TR_NO_TEMPLATES                 "在此檔案夾中未找到模型樣板"
+#define TR_SAVE_TEMPLATE                "存儲為樣板"
+#define TR_BLANK_MODEL                 "空白模型"
+#define TR_BLANK_MODEL_INFO            "創建一個空白模型"
+#define TR_FILE_EXISTS                  "文件已存在"
+#define TR_ASK_OVERWRITE                "是否覆蓋?"
 
 #define TR_SD_INFO_TITLE                "存儲卡詳情"
 #define TR_SD_TYPE                      "類型:"
@@ -798,11 +808,13 @@
 #define TR_MONTH                        "月"
 #define TR_DAY                          "日"
 #define TR_ROTARY_ENCODER               "滾輪"
+#define TR_INVERT_ROTARY                "滾輪反向"
 #define TR_CHANNELS_MONITOR             "通道查看器"
 #define TR_MIXERS_MONITOR               "混控查看器"
 #define TR_PATH_TOO_LONG                "路徑太長"
 #define TR_VIEW_TEXT                    "查看文本"
 #define TR_FLASH_BOOTLOADER             "更新引導程序"
+#define TR_FLASH_DEVICE                TR("Flash device","刷新設備")
 #define TR_FLASH_EXTERNAL_DEVICE        TR("Flash S.Port", "從 S.Port端口更新外設備韌體")
 #define TR_FLASH_RECEIVER_OTA           "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -811,6 +823,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE       TR("Flash BT module", "刷新藍牙模塊")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
+#define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "設備無響應")
+#define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "設備文件錯誤")
+#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "設備數據被拒絕")
+#define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "無法訪問設備")
+#define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "設備文件被拒絕")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "錯誤的文件簽名")
 #define TR_CURRENT_VERSION              "當前版本: "
 #define TR_FLASH_INTERNAL_MODULE        "更新內置模塊韌體"
 #define TR_FLASH_INTERNAL_MULTI         "更新內置多協議模塊韌體"
@@ -873,7 +891,7 @@
 #define TR_ABOUT_US                     "關於"
 #define TR_USB_JOYSTICK                 "USB 遊戲柄 (HID)"
 #define TR_USB_MASS_STORAGE             "USB 存儲器 (SD)"
-#define TR_USB_SERIAL                   "USB 端口 (調試)"
+#define TR_USB_SERIAL                   "USB 端口 (VCP)"
 #define TR_SETUP_SCREENS                "設置顯示頁面"
 #define TR_MONITOR_SCREENS              "查看器"
 #define TR_AND_SWITCH                   "與開關"
@@ -975,6 +993,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS 偏移量")
 #define TR_AUX_SERIAL_MODE             "端口"
 #define TR_AUX2_SERIAL_MODE            "端口 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "腳本"
 #define TR_INPUTS                      "輸入"
 #define TR_OUTPUTS                     "輸出"
@@ -987,6 +1006,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "自動""開啟"
 #define TR_NO_TELEMETRY_SCREENS        "無回傳頁面"
 #define TR_TOUCH_PANEL                 "觸摸屏:"
+#define TR_FILE_SIZE                   "文件大小"
+#define TR_FILE_OPEN                   "還要打開文件嗎?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名稱"
@@ -1094,9 +1115,9 @@
 #define TR_ONLYPOSITIVE                "正向"
 #define TR_FILTER                      "濾波"
 #define TR_TELEMETRYFULL               TR("All slots full!", "回傳項目已滿!")
-#define TR_SERVOS_OK                                 "Servos OK"
+#define TR_SERVOS_OK                   "Servos OK"
 #define TR_SERVOS_KO                   "Servos KO"
-#define TR_INVERTED_SERIAL             INDENT   "反向"
+#define TR_INVERTED_SERIAL             INDENT "反向"
 #define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "忽略ID鑑別")
 #define TR_DISCOVER_SENSORS            "掃描新的回傳項目"
 #define TR_STOP_DISCOVER_SENSORS       "停止掃描"
@@ -1135,6 +1156,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_JITTER_FILTER               "類比輸入濾波"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "檢查時間驅動電池電壓")
 #define TR_AUTH_FAILURE                "驗證失敗"
 #define TR_RACING_MODE                 "Racing mode"
@@ -1296,7 +1318,12 @@
 
 #define TR_USE_THEME_COLOR            "使用主題顏色"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将將所有微調導入中點偏移值"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "將所有微調導入中點偏移值"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "打開通道監視器" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "通道監視" 
+#endif
 #define TR_DUPLICATE                  "複製"
 #define TR_ACTIVATE                   "啟用"
 #define TR_RED                        "紅"

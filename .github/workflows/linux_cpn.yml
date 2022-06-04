@@ -3,25 +3,25 @@ name: Linux Companion
 on:
   push:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     tags:
       - v*
     paths:
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   pull_request:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     paths:
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   workflow_dispatch:
 
@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           mkdir output && \
-          tools/build-companion-nightly.sh "$(pwd)" "$(pwd)/output/"
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions

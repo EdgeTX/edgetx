@@ -19,12 +19,16 @@
  * GNU General Public License for more details.
  */
 
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/stream_buffer.h>
+
 #include "opentx.h"
 #include "diskio.h"
+
 #include <ctype.h>
 #include <malloc.h>
 #include <new>
-
+#include <stdarg.h>
 #include "cli.h"
 
 #if defined(INTMODULE_USART)
@@ -36,6 +40,8 @@
 
 // CLI receive buffer size
 #define CLI_RX_BUFFER_SIZE 256
+
+#define CLI_PRINT_BUFFER_SIZE 128
 
 RTOS_TASK_HANDLE cliTaskId;
 RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
@@ -49,7 +55,130 @@ static StreamBufferHandle_t cliRxBuffer;
 // CLI receive call back
 void (*cliReceiveCallBack)(uint8_t* buf, uint32_t len) = nullptr;
 
-uint8_t cliTracesEnabled = true;
+// CLI send call back
+static void (*cliSendCb)(void*, uint8_t) = nullptr;
+static void* cliSendCtx = nullptr;
+
+static const etx_serial_driver_t* cliSerialDriver = nullptr;
+static void* cliSerialDriverCtx = nullptr;
+
+static uint8_t cliTracesEnabled = false;
+static void (*cliTracesOldCb)(void*, uint8_t);
+static void* cliTracesOldCbCtx;
+
+void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
+{
+  cliSendCb = nullptr;
+  cliSendCtx = ctx;
+  cliSendCb = cb;
+}
+
+// Called from receive ISR (either USB or UART)
+static void cliReceiveData(uint8_t* buf, uint32_t len)
+{
+  if (cliReceiveCallBack)
+    cliReceiveCallBack(buf, len);
+}
+
+// Assumes it is called from ISR...
+static void cliDefaultRx(uint8_t *buf, uint32_t len)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+static void cliEnableDbg()
+{
+  if (dbgSerialGetSendCb() != cliSendCb) {
+    cliTracesOldCb = dbgSerialGetSendCb();
+    cliTracesOldCbCtx = dbgSerialGetSendCbCtx();
+    dbgSerialSetSendCb(nullptr, nullptr);
+    dbgSerialSetSendCb(cliSendCtx, cliSendCb);
+  }
+}
+
+static void cliDisableDbg()
+{
+  if (dbgSerialGetSendCb() == cliSendCb) {
+    dbgSerialSetSendCb(nullptr, nullptr);
+    dbgSerialSetSendCb(cliTracesOldCbCtx, cliTracesOldCb);
+  }
+}
+
+void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
+{
+  cliSerialDriver = nullptr;
+  cliSerialDriverCtx = ctx;
+  cliSerialDriver = drv;
+
+  if (drv) {
+    if (drv->setReceiveCb) drv->setReceiveCb(ctx, cliReceiveData);
+    cliSetSendCb(ctx, drv->sendByte);
+    if (cliTracesEnabled) {
+      cliEnableDbg();
+    }
+  } else {
+    cliSetSendCb(nullptr, nullptr);
+    cliDisableDbg();
+  }
+}
+
+static void cliSerialPrintf(const char * format, ...)
+{
+  va_list arglist;
+  char tmp[CLI_PRINT_BUFFER_SIZE];
+
+  // no need to do anything if we don't have an output
+  if (!cliSendCb) return;
+  
+  va_start(arglist, format);
+  vsnprintf(tmp, CLI_PRINT_BUFFER_SIZE-1, format, arglist);
+  tmp[CLI_PRINT_BUFFER_SIZE-1] = '\0';
+  va_end(arglist);
+
+  const char *t = tmp;
+  while (*t && cliSendCb) {
+    cliSendCb(cliSendCtx, *t++);
+  }
+}
+
+#define cliSerialPrint(...) \
+  do { cliSerialPrintf(__VA_ARGS__); cliSerialCrlf(); } while(0)
+
+static void cliSerialPutc(uint8_t c)
+{
+  if (cliSendCb) cliSendCb(cliSendCtx, c);
+}
+
+static void cliSerialCrlf()
+{
+  cliSerialPutc('\r');
+  cliSerialPutc('\n');
+}
+
+static uint32_t cliGetBaudRate()
+{
+  auto drv = cliSerialDriver;
+  auto ctx = cliSerialDriverCtx;
+
+  if (drv && drv->getBaudrate) {
+    return drv->getBaudrate(ctx);
+  }
+
+  return 0;
+}
+
+static void cliSetBaudRateCb(void (*cb)(uint32_t))
+{
+  auto drv = cliSerialDriver;
+  auto ctx = cliSerialDriverCtx;
+
+  if (drv && drv->setBaudrateCb) {
+    return drv->setBaudrateCb(ctx, cb);
+  }
+}
+
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
 typedef int (* CliFunction) (const char ** args);
@@ -73,8 +202,8 @@ struct MemArea
 
 void cliPrompt()
 {
-  serialPutc('>');
-  serialPutc(' ');
+  cliSerialPutc('>');
+  cliSerialPutc(' ');
 }
 
 int toLongLongInt(const char ** argv, int index, long long int * val)
@@ -94,7 +223,7 @@ int toLongLongInt(const char ** argv, int index, long long int * val)
     if (*endptr == '\0')
       return 1;
     else {
-      serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[index]);
+      cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[index]);
       return -1;
     }
   }
@@ -134,12 +263,12 @@ int cliLs(const char ** argv)
     for (;;) {
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      serialPrint(fno.fname);
+      cliSerialPrint(fno.fname);
     }
     f_closedir(&dir);
   }
   else {
-    serialPrint("%s: Invalid directory \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid directory \"%s\"", argv[0], argv[1]);
   }
   return 0;
 }
@@ -150,20 +279,20 @@ int cliRead(const char ** argv)
   uint32_t bytesRead = 0;
   int bufferSize;
   if (toInt(argv, 2, &bufferSize) == 0 || bufferSize < 0 ) {
-    serialPrint("%s: Invalid buffer size \"%s\"", argv[0], argv[2]);
+    cliSerialPrint("%s: Invalid buffer size \"%s\"", argv[0], argv[2]);
     return 0;
   }
 
   uint8_t * buffer = (uint8_t*) malloc(bufferSize);
   if (!buffer) {
-    serialPrint("Not enough memory");
+    cliSerialPrint("Not enough memory");
     return 0;
   }
 
   FRESULT result = f_open(&file, argv[1], FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     free(buffer);
-    serialPrint("%s: File not found \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: File not found \"%s\"", argv[0], argv[1]);
     return 0;
   }
 
@@ -184,7 +313,7 @@ int cliRead(const char ** argv)
   uint32_t elapsedTime = (get_tmr10ms() - start) * 10;
   if (elapsedTime == 0) elapsedTime = 1;
   uint32_t speed = bytesRead / elapsedTime;
-  serialPrint("Read %d bytes in %d ms, speed %d kB/s", bytesRead, elapsedTime, speed);
+  cliSerialPrint("Read %d bytes in %d ms, speed %d kB/s", bytesRead, elapsedTime, speed);
   free(buffer);
   return 0;
 }
@@ -195,22 +324,22 @@ int cliReadSD(const char ** argv)
   int numberOfSectors;
   int bufferSectors;
   if (toInt(argv, 1, &startSector) == 0 || startSector < 0 ) {
-    serialPrint("%s: Invalid start sector \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid start sector \"%s\"", argv[0], argv[1]);
     return 0;
   }
   if (toInt(argv, 2, &numberOfSectors) == 0 || numberOfSectors < 0 ) {
-    serialPrint("%s: Invalid number of sectors \"%s\"", argv[0], argv[2]);
+    cliSerialPrint("%s: Invalid number of sectors \"%s\"", argv[0], argv[2]);
     return 0;
   }
 
   if (toInt(argv, 3, &bufferSectors) == 0 || bufferSectors < 0 ) {
-    serialPrint("%s: Invalid number of buffer sectors \"%s\"", argv[0], argv[3]);
+    cliSerialPrint("%s: Invalid number of buffer sectors \"%s\"", argv[0], argv[3]);
     return 0;
   }
 
   uint8_t * buffer = (uint8_t*) malloc(512*bufferSectors);
   if (!buffer) {
-    serialPrint("Not enough memory");
+    cliSerialPrint("Not enough memory");
     return 0;
   }
 
@@ -220,7 +349,7 @@ int cliReadSD(const char ** argv)
   while (numberOfSectors > 0) {
     DRESULT res = __disk_read(0, buffer, startSector, bufferSectors);
     if (res != RES_OK) {
-      serialPrint("disk_read error: %d, sector: %d(%d)", res, startSector, numberOfSectors);
+      cliSerialPrint("disk_read error: %d, sector: %d(%d)", res, startSector, numberOfSectors);
     }
 #if 0
     for(uint32_t n=0; n<bufferSectors; ++n) {
@@ -233,7 +362,7 @@ int cliReadSD(const char ** argv)
     for(int n=0; n<(bufferSectors*512); ++n) {
       summ += buffer[n];
     }
-    serialPrint("sector %d(%d) checksumm: %u", startSector, numberOfSectors, summ);
+    cliSerialPrint("sector %d(%d) checksumm: %u", startSector, numberOfSectors, summ);
 #endif
     if (numberOfSectors >= bufferSectors) {
       numberOfSectors -= bufferSectors;
@@ -247,7 +376,7 @@ int cliReadSD(const char ** argv)
   uint32_t elapsedTime = (get_tmr10ms() - start) * 10;
   if (elapsedTime == 0) elapsedTime = 1;
   uint32_t speed = bytesRead / elapsedTime;
-  serialPrint("Read %d bytes in %d ms, speed %d kB/s", bytesRead, elapsedTime, speed);
+  cliSerialPrint("Read %d bytes in %d ms, speed %d kB/s", bytesRead, elapsedTime, speed);
   free(buffer);
   return 0;
 }
@@ -259,67 +388,67 @@ int cliTestSD(const char ** argv)
   // get sector count
   uint32_t sectorCount;
   if (disk_ioctl(0, GET_SECTOR_COUNT, &sectorCount) != RES_OK) {
-    serialPrint("Error: can't read sector count");
+    cliSerialPrint("Error: can't read sector count");
     return 0;
   }
-  serialPrint("SD card has %u sectors", sectorCount);
+  cliSerialPrint("SD card has %u sectors", sectorCount);
 
   // read last 16 sectors one sector at the time
-  serialPrint("Starting single sector read test, reading 16 sectors one by one");
+  cliSerialPrint("Starting single sector read test, reading 16 sectors one by one");
   uint8_t * buffer = (uint8_t*) malloc(512);
   if (!buffer) {
-    serialPrint("Not enough memory");
+    cliSerialPrint("Not enough memory");
     return 0;
   }
   for (uint32_t s = sectorCount - 16; s<sectorCount; ++s) {
     DRESULT res = __disk_read(0, buffer, s, 1);
     if (res != RES_OK) {
-      serialPrint("sector %d read FAILED, err: %d", s, res);
+      cliSerialPrint("sector %d read FAILED, err: %d", s, res);
     }
     else {
-      serialPrint("sector %d read OK", s);
+      cliSerialPrint("sector %d read OK", s);
     }
   }
   free(buffer);
-  serialCrlf();
+  cliSerialCrlf();
 
   // read last 16 sectors, two sectors at the time with a multi-block read
   buffer = (uint8_t *) malloc(512*2);
   if (!buffer) {
-    serialPrint("Not enough memory");
+    cliSerialPrint("Not enough memory");
     return 0;
   }
 
-  serialPrint("Starting multiple sector read test, reading two sectors at the time");
+  cliSerialPrint("Starting multiple sector read test, reading two sectors at the time");
   for (uint32_t s = sectorCount - 16; s<sectorCount; s+=2) {
     DRESULT res = __disk_read(0, buffer, s, 2);
     if (res != RES_OK) {
-      serialPrint("sector %d-%d read FAILED, err: %d", s, s+1, res);
+      cliSerialPrint("sector %d-%d read FAILED, err: %d", s, s+1, res);
     }
     else {
-      serialPrint("sector %d-%d read OK", s, s+1);
+      cliSerialPrint("sector %d-%d read OK", s, s+1);
     }
   }
   free(buffer);
-  serialCrlf();
+  cliSerialCrlf();
 
   // read last 16 sectors, all sectors with single multi-block read
   buffer = (uint8_t*) malloc(512*16);
   if (!buffer) {
-    serialPrint("Not enough memory");
+    cliSerialPrint("Not enough memory");
     return 0;
   }
 
-  serialPrint("Starting multiple sector read test, reading 16 sectors at the time");
+  cliSerialPrint("Starting multiple sector read test, reading 16 sectors at the time");
   DRESULT res = __disk_read(0, buffer, sectorCount-16, 16);
   if (res != RES_OK) {
-    serialPrint("sector %d-%d read FAILED, err: %d", sectorCount-16, sectorCount-1, res);
+    cliSerialPrint("sector %d-%d read FAILED, err: %d", sectorCount-16, sectorCount-1, res);
   }
   else {
-    serialPrint("sector %d-%d read OK", sectorCount-16, sectorCount-1);
+    cliSerialPrint("sector %d-%d read OK", sectorCount-16, sectorCount-1);
   }
   free(buffer);
-  serialCrlf();
+  cliSerialCrlf();
 
   return 0;
 }
@@ -327,42 +456,42 @@ int cliTestSD(const char ** argv)
 int cliTestNew()
 {
   char * tmp = 0;
-  serialPrint("Allocating 1kB with new()");
+  cliSerialPrint("Allocating 1kB with new()");
   RTOS_WAIT_MS(200);
   tmp = new char[1024];
   if (tmp) {
-    serialPrint("\tsuccess");
+    cliSerialPrint("\tsuccess");
     delete[] tmp;
     tmp = 0;
   }
   else {
-    serialPrint("\tFAILURE");
+    cliSerialPrint("\tFAILURE");
   }
 
-  serialPrint("Allocating 10MB with (std::nothrow) new()");
+  cliSerialPrint("Allocating 10MB with (std::nothrow) new()");
   RTOS_WAIT_MS(200);
   tmp = new (std::nothrow) char[1024*1024*10];
   if (tmp) {
-    serialPrint("\tFAILURE, tmp = %p", tmp);
+    cliSerialPrint("\tFAILURE, tmp = %p", tmp);
     delete[] tmp;
     tmp = 0;
   }
   else {
-    serialPrint("\tsuccess, allocaton failed, tmp = 0");
+    cliSerialPrint("\tsuccess, allocaton failed, tmp = 0");
   }
 
-  serialPrint("Allocating 10MB with new()");
+  cliSerialPrint("Allocating 10MB with new()");
   RTOS_WAIT_MS(200);
   tmp = new char[1024*1024*10];
   if (tmp) {
-    serialPrint("\tFAILURE, tmp = %p", tmp);
+    cliSerialPrint("\tFAILURE, tmp = %p", tmp);
     delete[] tmp;
     tmp = 0;
   }
   else {
-    serialPrint("\tsuccess, allocaton failed, tmp = 0");
+    cliSerialPrint("\tsuccess, allocaton failed, tmp = 0");
   }
-  serialPrint("Test finished");
+  cliSerialPrint("Test finished");
   return 0;
 }
 
@@ -444,7 +573,7 @@ float runTimedFunctionTest(timedTestFunc_t func, const char *name,
     noRuns += step;
   }
   const float result = (noRuns * 500.0f) / (float)actualRuntime;  // runs/second
-  serialPrint("Test %s speed: %lu.%02u, (%lu runs in %lu ms)", name,
+  cliSerialPrint("Test %s speed: %lu.%02u, (%lu runs in %lu ms)", name,
               uint32_t(result), uint16_t((result - uint32_t(result)) * 100.0f),
               noRuns, actualRuntime);
   RTOS_WAIT_MS(200);
@@ -453,7 +582,7 @@ float runTimedFunctionTest(timedTestFunc_t func, const char *name,
 
 int cliTestGraphics()
 {
-  serialPrint("Starting graphics performance test...");
+  cliSerialPrint("Starting graphics performance test...");
   RTOS_WAIT_MS(200);
 
   watchdogSuspend(6000 /*60s*/);
@@ -479,7 +608,7 @@ int cliTestGraphics()
   result += RUN_GRAPHICS_TEST(testDrawTextVertical, 1000);
   result += RUN_GRAPHICS_TEST(testClear, 1000);
 
-  serialPrint("Total speed: %lu.%02u", uint32_t(result),
+  cliSerialPrint("Total speed: %lu.%02u", uint32_t(result),
               uint16_t((result - uint32_t(result)) * 100.0f));
 
   perMainEnabled = true;
@@ -586,7 +715,7 @@ void testMemoryCopyFrom_SDRAM_to_SDRAM_8bit()
 
 int cliTestMemorySpeed()
 {
-  serialPrint("Starting memory speed test...");
+  cliSerialPrint("Starting memory speed test...");
   RTOS_WAIT_MS(200);
 
   watchdogSuspend(6000 /*60s*/);
@@ -607,7 +736,7 @@ int cliTestMemorySpeed()
   result += RUN_MEMORY_TEST(testMemoryCopyFrom_SDRAM_to_SDRAM_32bit, 200);
 
   LTDC_Cmd(DISABLE);
-  serialPrint("Disabling LCD...");
+  cliSerialPrint("Disabling LCD...");
   RTOS_WAIT_MS(200);
 
   result += RUN_MEMORY_TEST(testMemoryReadFrom_RAM_8bit, 200);
@@ -619,7 +748,7 @@ int cliTestMemorySpeed()
   result += RUN_MEMORY_TEST(testMemoryCopyFrom_SDRAM_to_SDRAM_8bit, 200);
   result += RUN_MEMORY_TEST(testMemoryCopyFrom_SDRAM_to_SDRAM_32bit, 200);
 
-  serialPrint("Total speed: %lu.%02u", uint32_t(result),
+  cliSerialPrint("Total speed: %lu.%02u", uint32_t(result),
               uint16_t((result - uint32_t(result)) * 100.0f));
 
   LTDC_Cmd(ENABLE);
@@ -646,7 +775,7 @@ int cliTestModelsList()
 
   int count = 0;
 
-  serialPrint("Starting fetching RF data 100x...");
+  cliSerialPrint("Starting fetching RF data 100x...");
   const uint32_t start = RTOS_GET_MS();
 
   const list<ModelsCategory *> &cats = modList.getCategories();
@@ -656,7 +785,7 @@ int cliTestModelsList()
       for (ModelsCategory::iterator mod_it = (*cat_it)->begin();
            mod_it != (*cat_it)->end(); mod_it++) {
         if (!(*mod_it)->fetchRfData()) {
-          serialPrint("Error while fetching RF data...");
+          cliSerialPrint("Error while fetching RF data...");
           return 0;
         }
 
@@ -666,7 +795,7 @@ int cliTestModelsList()
   }
 
 done:
-  serialPrint("Done fetching %ix RF data: %lu ms", count,
+  cliSerialPrint("Done fetching %ix RF data: %lu ms", count,
               (RTOS_GET_MS() - start));
 
   return 0;
@@ -699,7 +828,7 @@ int cliTest(const char ** argv)
 #endif
 #endif
   else {
-    serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
   }
   return 0;
 }
@@ -707,24 +836,26 @@ int cliTest(const char ** argv)
 int cliTrace(const char ** argv)
 {
   if (!strcmp(argv[1], "on")) {
+    cliEnableDbg();
     cliTracesEnabled = true;
   }
   else if (!strcmp(argv[1], "off")) {
     cliTracesEnabled = false;
+    cliDisableDbg();
   }
   else {
-    serialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
   }
   return 0;
 }
 
 int cliStackInfo(const char ** argv)
 {
-  serialPrint("[MAIN] %d available / %d bytes", stackAvailable()*4, stackSize()*4);
-  serialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
-  serialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
-  serialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
-  serialPrint("[CLI] %d available / %d bytes", cliStack.available()*4, cliStack.size());
+  cliSerialPrint("[MAIN] %d available / %d bytes", stackAvailable()*4, stackSize()*4);
+  cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
+  cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
+  cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
+  cliSerialPrint("[CLI] %d available / %d bytes", cliStack.available()*4, cliStack.size());
   return 0;
 }
 
@@ -747,31 +878,31 @@ int cliMemoryInfo(const char ** argv)
   //   int keepcost; /* top-most, releasable (via malloc_trim) space */
   // };
   struct mallinfo info = mallinfo();
-  serialPrint("mallinfo:");
-  serialPrint("\tarena    %d bytes", info.arena);
-  serialPrint("\tordblks  %d bytes", info.ordblks);
-  serialPrint("\tuordblks %d bytes", info.uordblks);
-  serialPrint("\tfordblks %d bytes", info.fordblks);
-  serialPrint("\tkeepcost %d bytes", info.keepcost);
+  cliSerialPrint("mallinfo:");
+  cliSerialPrint("\tarena    %d bytes", info.arena);
+  cliSerialPrint("\tordblks  %d bytes", info.ordblks);
+  cliSerialPrint("\tuordblks %d bytes", info.uordblks);
+  cliSerialPrint("\tfordblks %d bytes", info.fordblks);
+  cliSerialPrint("\tkeepcost %d bytes", info.keepcost);
 
-  serialPrint("\nHeap:");
-  serialPrint("\tstart %p", (unsigned char *)&_end);
-  serialPrint("\tend   %p", (unsigned char *)&_heap_end);
-  serialPrint("\tcurr  %p", heap);
-  serialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_end));
-  serialPrint("\tfree  %d bytes", (int)((unsigned char *)&_heap_end - heap));
+  cliSerialPrint("\nHeap:");
+  cliSerialPrint("\tstart %p", (unsigned char *)&_end);
+  cliSerialPrint("\tend   %p", (unsigned char *)&_heap_end);
+  cliSerialPrint("\tcurr  %p", heap);
+  cliSerialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_end));
+  cliSerialPrint("\tfree  %d bytes", (int)((unsigned char *)&_heap_end - heap));
 
 #if defined(LUA)
-  serialPrint("\nLua:");
+  cliSerialPrint("\nLua:");
   uint32_t s = luaGetMemUsed(lsScripts);
-  serialPrint("\tScripts %u", s);
+  cliSerialPrint("\tScripts %u", s);
 #if defined(COLORLCD)
   uint32_t w = luaGetMemUsed(lsWidgets);
   uint32_t e = luaExtraMemoryUsage;
-  serialPrint("\tWidgets %u", w);
-  serialPrint("\tExtra   %u", e);
-  serialPrint("------------");
-  serialPrint("\tTotal   %u", s + w + e);
+  cliSerialPrint("\tWidgets %u", w);
+  cliSerialPrint("\tExtra   %u", e);
+  cliSerialPrint("------------");
+  cliSerialPrint("\tTotal   %u", s + w + e);
 #endif
 #endif
   return 0;
@@ -825,7 +956,7 @@ int cliSet(const char **argv)
       g_rtcTime = gmktime(&t);
       rtcSetTime(&t);
     } else {
-      serialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], argv[1],
+      cliSerialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);
       return -1;
     }
@@ -836,7 +967,7 @@ int cliSet(const char **argv)
     if (toInt(argv, 2, &level) > 0) {
       setVolume(level);
     } else {
-      serialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], argv[1],
+      cliSerialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);
       return -1;
     }
@@ -845,7 +976,7 @@ int cliSet(const char **argv)
   else if (!strcmp(argv[1], "rfmod")) {
     int module = 0;
     if (toInt(argv, 2, &module) < 0) {
-      serialPrint("%s: invalid module argument '%s'", argv[0], argv[2]);
+      cliSerialPrint("%s: invalid module argument '%s'", argv[0], argv[2]);
       return -1;
     }
     if (!strcmp(argv[3], "power")) {
@@ -862,42 +993,50 @@ int cliSet(const char **argv)
           EXTERNAL_MODULE_OFF();
         }
       } else {
-        serialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
+        cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
       }
-      serialPrint("%s: rfmod %d power %d", argv[0], module, argv[4]);
+      cliSerialPrint("%s: rfmod %d power %s", argv[0], module, argv[4]);
     }
 #if defined(INTMODULE_BOOTCMD_GPIO)
     else if (!strcmp(argv[3], "bootpin")) {
       int level = 0;
       if (toInt(argv, 4, &level) < 0) {
-        serialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
+        cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
         return -1;
       }
       if (module == 0) {
         if (level) {
           GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          serialPrint("%s: bootpin set", argv[0]);
+          cliSerialPrint("%s: bootpin set", argv[0]);
         } else {
           GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          serialPrint("%s: bootpin reset", argv[0]);
+          cliSerialPrint("%s: bootpin reset", argv[0]);
         }
       }
     }
 #endif
+    else {
+      if (strlen(argv[2]) == 0) {
+        cliSerialPrint("%s: missing rfmod arguments", argv[0]);
+      } else {
+        cliSerialPrint("%s: invalid rfmod argument '%s'", argv[0], argv[3]);
+        return -1;
+      }
+    }
   }
   else if (!strcmp(argv[1], "pulses")) {
     int level = 0;
     if (toInt(argv, 2, &level) < 0) {
-      serialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
+      cliSerialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
       return -1;
     }
 
     if (level) {
-      serialPrint("%s: pulses start", argv[0]);
+      cliSerialPrint("%s: pulses start", argv[0]);
       startPulses();
     } else {
-      serialPrint("%s: pulses stop", argv[0]);
+      cliSerialPrint("%s: pulses stop", argv[0]);
       stopPulses();
     }
   }
@@ -909,19 +1048,26 @@ int cliSet(const char **argv)
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   while (len > 0) {
-    intmoduleSendByte(*(buf++));
+    IntmoduleSerialDriver.sendByte(nullptr, *(buf++));
     len--;
   }
 }
 
+static const etx_serial_init spIntmoduleSerialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+};
+
 static void spInternalModuleSetBaudRate(uint32_t baud)
 {
-  etx_serial_init params;
+  etx_serial_init params(spIntmoduleSerialInitParams);
   params.baudrate = baud;
-  params.rx_enable = true;
 
   // re-configure serial port
-  intmoduleSerialStart(&params);
+  IntmoduleSerialDriver.init(&params);
 }
 
 // TODO: use proper method instead
@@ -934,7 +1080,7 @@ int cliSerialPassthrough(const char **argv)
 
   // 3rd argument (baudrate is optional)
   if (!port_type || !port_num) {
-    serialPrint("%s: missing argument", argv[0]);
+    cliSerialPrint("%s: missing argument", argv[0]);
     return -1;
   }
 
@@ -942,19 +1088,19 @@ int cliSerialPassthrough(const char **argv)
   int err = toInt(argv, 2, &port_n);
   if (err == -1) return err;
   if (err == 0) {
-    serialPrint("%s: missing port #", argv[0]);
+    cliSerialPrint("%s: missing port #", argv[0]);
     return -1;
   }
 
   int baudrate = 0;
   err = toInt(argv, 3, &baudrate);
   if (err <= 0) {
-    // use current USB CDC baudrate
-    baudrate = usbSerialBaudRate();
+    // use current baudrate
+    baudrate = cliGetBaudRate();
     if (!baudrate) {
       // default to 115200
       baudrate = 115200;
-      serialPrint("%s: USB baudrate is 0, default to 115200", argv[0]);
+      cliSerialPrint("%s: baudrate is 0, default to 115200", argv[0]);
     }
   }
 
@@ -963,7 +1109,7 @@ int cliSerialPassthrough(const char **argv)
     if (port_n >= NUM_MODULES
         // only internal module supported for now
         && port_n != INTERNAL_MODULE) {
-      serialPrint("%s: invalid port # '%s'", port_num);
+      cliSerialPrint("%s: invalid port # '%s'", port_num);
       return -1;
     }
     
@@ -980,17 +1126,17 @@ int cliSerialPassthrough(const char **argv)
       // setup serial com
 
       // TODO: '8n1' param
-      etx_serial_init params;
+      etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
-      params.rx_enable = true;
-      intmoduleSerialStart(&params);
+
+      void* uart_ctx = IntmoduleSerialDriver.init(&params);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
       // setup CDC baudrate callback
-      usbSerialSetBaudRateCb(spInternalModuleSetBaudRate);
+      cliSetBaudRateCb(spInternalModuleSetBaudRate);
 
       // loop until cable disconnected
       while (cdcConnected) {
@@ -1004,7 +1150,7 @@ int cliSerialPassthrough(const char **argv)
             timeout--;
           }
 
-          usbSerialPutc(data);
+          cliSerialPutc(data);
         }
 
         // keep us up & running
@@ -1012,11 +1158,11 @@ int cliSerialPassthrough(const char **argv)
       }
 
       // restore callsbacks
-      usbSerialSetBaudRateCb(nullptr);
+      cliSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
 
       // and stop module
-      intmoduleStop();
+      IntmoduleSerialDriver.deinit(uart_ctx);
 
       // power off the module and wait for a bit
       INTERNAL_MODULE_OFF();
@@ -1034,7 +1180,7 @@ int cliSerialPassthrough(const char **argv)
     xTaskResumeAll();
     
   } else {
-    serialPrint("%s: invalid port type '%s'", port_type);
+    cliSerialPrint("%s: invalid port type '%s'", port_type);
     return -1;
   }
   
@@ -1050,9 +1196,9 @@ void printInterrupts()
   memset(&interruptCounters, 0, sizeof(interruptCounters));
   interruptCounters.resetTime = get_tmr10ms();
   __enable_irq();
-  serialPrint("Interrupts count in the last %u ms:", (get_tmr10ms() - ic.resetTime) * 10);
+  cliSerialPrint("Interrupts count in the last %u ms:", (get_tmr10ms() - ic.resetTime) * 10);
   for(int n = 0; n < INT_LAST; n++) {
-    serialPrint("%s: %u", interruptNames[n], ic.cnt[n]);
+    cliSerialPrint("%s: %u", interruptNames[n], ic.cnt[n]);
   }
 }
 #endif //#if defined(DEBUG_INTERRUPTS)
@@ -1061,20 +1207,20 @@ void printInterrupts()
 void printDebugTime(uint32_t time)
 {
   if (time >= 30000) {
-    serialPrintf("%dms", time/1000);
+    cliSerialPrintf("%dms", time/1000);
   }
   else {
-    serialPrintf("%d.%03dms", time/1000, time%1000);
+    cliSerialPrintf("%d.%03dms", time/1000, time%1000);
   }
 }
 
 void printDebugTimer(const char * name, DebugTimer & timer)
 {
-  serialPrintf("%s: ", name);
+  cliSerialPrintf("%s: ", name);
   printDebugTime( timer.getMin());
-  serialPrintf(" - ");
+  cliSerialPrintf(" - ");
   printDebugTime(timer.getMax());
-  serialCrlf();
+  cliSerialCrlf();
   timer.reset();
 }
 void printDebugTimers()
@@ -1089,28 +1235,28 @@ void printDebugTimers()
 void printAudioVars()
 {
   for (int n = 0; n < AUDIO_BUFFER_COUNT; n++) {
-    serialPrint("Audio Buffer %d: size: %u, ", n,
+    cliSerialPrint("Audio Buffer %d: size: %u, ", n,
                 (uint32_t)audioBuffers[n].size);
     dump((uint8_t *)audioBuffers[n].data, 32);
   }
-  serialPrint("fragments:");
+  cliSerialPrint("fragments:");
   for (int n = 0; n < AUDIO_QUEUE_LENGTH; n++) {
-    serialPrint("%d: type %u: id: %u, repeat: %u, ", n,
+    cliSerialPrint("%d: type %u: id: %u, repeat: %u, ", n,
                 (uint32_t)audioQueue.fragmentsFifo.fragments[n].type,
                 (uint32_t)audioQueue.fragmentsFifo.fragments[n].id,
                 (uint32_t)audioQueue.fragmentsFifo.fragments[n].repeat);
     if (audioQueue.fragmentsFifo.fragments[n].type == FRAGMENT_FILE) {
-      serialPrint(" file: %s", audioQueue.fragmentsFifo.fragments[n].file);
+      cliSerialPrint(" file: %s", audioQueue.fragmentsFifo.fragments[n].file);
     }
   }
 
-  serialPrint("FragmentFifo:  ridx: %d, widx: %d",
+  cliSerialPrint("FragmentFifo:  ridx: %d, widx: %d",
               audioQueue.fragmentsFifo.ridx, audioQueue.fragmentsFifo.widx);
-  serialPrint("audioQueue:  readIdx: %d, writeIdx: %d, full: %d",
+  cliSerialPrint("audioQueue:  readIdx: %d, writeIdx: %d, full: %d",
               audioQueue.buffersFifo.readIdx, audioQueue.buffersFifo.writeIdx,
               audioQueue.buffersFifo.bufferFull);
 
-  serialPrint("normalContext: %u",
+  cliSerialPrint("normalContext: %u",
               (uint32_t)audioQueue.normalContext.fragment.type);
 }
 #endif
@@ -1133,13 +1279,13 @@ int cliDisplay(const char ** argv)
       uint8_t len = STR_VKEYS[0];
       strncpy(name, STR_VKEYS+1+len*i, len);
       name[len] = '\0';
-      serialPrint("[%s] = %s", name, keys[i].state() ? "on" : "off");
+      cliSerialPrint("[%s] = %s", name, keys[i].state() ? "on" : "off");
     }
 #if defined(ROTARY_ENCODER_NAVIGATION)
-    serialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
+    cliSerialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
 #endif
     for (int i=TRM_BASE; i<=TRM_LAST; i++) {
-      serialPrint("[Trim%d] = %s", i-TRM_BASE, keys[i].state() ? "on" : "off");
+      cliSerialPrint("[Trim%d] = %s", i-TRM_BASE, keys[i].state() ? "on" : "off");
     }
     for (int i=MIXSRC_FIRST_SWITCH; i<=MIXSRC_LAST_SWITCH; i++) {
       mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
@@ -1147,34 +1293,34 @@ int cliDisplay(const char ** argv)
         char swName[LEN_SWITCH_NAME + 1];
         strAppend(swName, STR_VSWITCHES+1+sw*STR_VSWITCHES[0], STR_VSWITCHES[0]);
         static const char * const SWITCH_POSITIONS[] = { "down", "mid", "up" };
-        serialPrint("[%s] = %s", swName, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
+        cliSerialPrint("[%s] = %s", swName, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
       }
     }
   }
   else if (!strcmp(argv[1], "adc")) {
     for (int i=0; i<NUM_ANALOGS; i++) {
-      serialPrint("adc[%d] = %04X", i, (int)adcValues[i]);
+      cliSerialPrint("adc[%d] = %04X", i, (int)adcValues[i]);
     }
   }
   else if (!strcmp(argv[1], "outputs")) {
     for (int i=0; i<MAX_OUTPUT_CHANNELS; i++) {
-      serialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
+      cliSerialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
     }
   }
   else if (!strcmp(argv[1], "rtc")) {
     struct gtm utm;
     gettime(&utm);
-    serialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+    cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
   }
 #if !defined(SOFTWARE_VOLUME)
   else if (!strcmp(argv[1], "volume")) {
-    serialPrint("volume = %d", getVolume());
+    cliSerialPrint("volume = %d", getVolume());
   }
 #endif
   else if (!strcmp(argv[1], "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);
-    serialPrint("uid = %s", str);
+    cliSerialPrint("uid = %s", str);
   }
   else if (!strcmp(argv[1], "tim")) {
     int timerNumber;
@@ -1196,29 +1342,29 @@ int cliDisplay(const char ** argv)
         default:
           return 0;
       }
-      serialPrint("TIM%d", timerNumber);
-      serialPrint(" CR1    0x%x", tim->CR1);
-      serialPrint(" CR2    0x%x", tim->CR2);
-      serialPrint(" DIER   0x%x", tim->DIER);
-      serialPrint(" SR     0x%x", tim->SR);
-      serialPrint(" EGR    0x%x", tim->EGR);
-      serialPrint(" CCMR1  0x%x", tim->CCMR1);
-      serialPrint(" CCMR2  0x%x", tim->CCMR2);
+      cliSerialPrint("TIM%d", timerNumber);
+      cliSerialPrint(" CR1    0x%x", tim->CR1);
+      cliSerialPrint(" CR2    0x%x", tim->CR2);
+      cliSerialPrint(" DIER   0x%x", tim->DIER);
+      cliSerialPrint(" SR     0x%x", tim->SR);
+      cliSerialPrint(" EGR    0x%x", tim->EGR);
+      cliSerialPrint(" CCMR1  0x%x", tim->CCMR1);
+      cliSerialPrint(" CCMR2  0x%x", tim->CCMR2);
 
-      serialPrint(" CNT    0x%x", tim->CNT);
-      serialPrint(" ARR    0x%x", tim->ARR);
-      serialPrint(" PSC    0x%x", tim->PSC);
+      cliSerialPrint(" CNT    0x%x", tim->CNT);
+      cliSerialPrint(" ARR    0x%x", tim->ARR);
+      cliSerialPrint(" PSC    0x%x", tim->PSC);
 
-      serialPrint(" CCER   0x%x", tim->CCER);
-      serialPrint(" CCR1   0x%x", tim->CCR1);
-      serialPrint(" CCR2   0x%x", tim->CCR2);
-      serialPrint(" CCR3   0x%x", tim->CCR3);
-      serialPrint(" CCR4   0x%x", tim->CCR4);
+      cliSerialPrint(" CCER   0x%x", tim->CCER);
+      cliSerialPrint(" CCR1   0x%x", tim->CCR1);
+      cliSerialPrint(" CCR2   0x%x", tim->CCR2);
+      cliSerialPrint(" CCR3   0x%x", tim->CCR3);
+      cliSerialPrint(" CCR4   0x%x", tim->CCR4);
     }
   }
   else if (!strcmp(argv[1], "dma")) {
-    serialPrint("DMA1_Stream7");
-    serialPrint(" CR    0x%x", DMA1_Stream7->CR);
+    cliSerialPrint("DMA1_Stream7");
+    cliSerialPrint(" CR    0x%x", DMA1_Stream7->CR);
   }
 #if defined(DEBUG_INTERRUPTS)
   else if (!strcmp(argv[1], "int")) {
@@ -1239,7 +1385,7 @@ int cliDisplay(const char ** argv)
   else if (!strcmp(argv[1], "dc")) {
     DiskCacheStats stats = diskCache.getStats();
     uint32_t hitRate = diskCache.getHitRate();
-    serialPrint("Disk Cache stats: w:%u r: %u, h: %u(%0.1f%%), m: %u", stats.noWrites, (stats.noHits + stats.noMisses), stats.noHits, hitRate*0.1f, stats.noMisses);
+    cliSerialPrint("Disk Cache stats: w:%u r: %u, h: %u(%0.1f%%), m: %u", stats.noWrites, (stats.noHits + stats.noMisses), stats.noHits, hitRate*0.1f, stats.noMisses);
   }
 #endif
   else if (toLongLongInt(argv, 1, &address) > 0) {
@@ -1256,15 +1402,15 @@ int cliDebugVars(const char ** argv)
 #if defined(PCBHORUS)
   extern uint32_t ioMutexReq, ioMutexRel;
   extern uint32_t sdReadRetries;
-  serialPrint("ioMutexReq=%d", ioMutexReq);
-  serialPrint("ioMutexRel=%d", ioMutexRel);
-  serialPrint("sdReadRetries=%d", sdReadRetries);
+  cliSerialPrint("ioMutexReq=%d", ioMutexReq);
+  cliSerialPrint("ioMutexRel=%d", ioMutexRel);
+  cliSerialPrint("sdReadRetries=%d", sdReadRetries);
 #if defined(ACCESS_DENIED)
   extern volatile int32_t authenticateFrames;
-  serialPrint("authenticateFrames=%d", authenticateFrames);
+  cliSerialPrint("authenticateFrames=%d", authenticateFrames);
 #endif
 #elif defined(PCBTARANIS)
-  serialPrint("telemetryErrors=%d", telemetryErrors);
+  cliSerialPrint("telemetryErrors=%d", telemetryErrors);
 #endif
 
   return 0;
@@ -1292,7 +1438,7 @@ int cliRepeat(const char ** argv)
     }
   }
   else {
-    serialPrint("%s: Invalid arguments", argv[0]);
+    cliSerialPrint("%s: Invalid arguments", argv[0]);
   }
   return 0;
 }
@@ -1301,13 +1447,13 @@ int cliRepeat(const char ** argv)
 #if defined(JITTER_MEASURE)
 int cliShowJitter(const char ** argv)
 {
-  serialPrint(  "#   anaIn   rawJ   avgJ");
+  cliSerialPrint(  "#   anaIn   rawJ   avgJ");
   for (int i=0; i<NUM_ANALOGS; i++) {
-    serialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i), rawJitter[i].get(), avgJitter[i].get());
+    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i), rawJitter[i].get(), avgJitter[i].get());
     if (IS_POT_MULTIPOS(i)) {
       StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[i];
       for (int j=0; j<calib->count; j++) {
-        serialPrint("    s%d %04X", j, calib->steps[j]);
+        cliSerialPrint("    s%d %04X", j, calib->steps[j]);
       }
     }
   }
@@ -1318,7 +1464,6 @@ int cliShowJitter(const char ** argv)
 #if defined(INTERNAL_GPS)
 int cliGps(const char ** argv)
 {
-  int baudrate = 0;
 
   if (argv[1][0] == '$') {
     // send command to GPS
@@ -1329,12 +1474,8 @@ int cliGps(const char ** argv)
     gpsTraceEnabled = !gpsTraceEnabled;
   }
 #endif
-  else if (toInt(argv, 1, &baudrate) > 0 && baudrate > 0) {
-    gpsInit(baudrate);
-    serialPrint("GPS baudrate set to %d", baudrate);
-  }
   else {
-    serialPrint("%s: Invalid arguments", argv[0]);
+    cliSerialPrint("%s: Invalid arguments", argv[0]);
   }
   return 0;
 }
@@ -1347,21 +1488,21 @@ int cliBlueTooth(const char ** argv)
   if (!strncmp(argv[1], "AT", 2) || !strncmp(argv[1], "TTM", 3)) {
     bluetooth.writeString(argv[1]);
     char * line = bluetooth.readline();
-    serialPrint("<BT %s", line);
+    cliSerialPrint("<BT %s", line);
   }
   else if (toInt(argv, 1, &baudrate) > 0) {
     if (baudrate > 0) {
       bluetoothInit(baudrate, true);
       char * line = bluetooth.readline();
-      serialPrint("<BT %s", line);
+      cliSerialPrint("<BT %s", line);
     }
     else {
       bluetoothDisable();
-      serialPrint("BT turned off");
+      cliSerialPrint("BT turned off");
     }
   }
   else {
-    serialPrint("%s: Invalid arguments", argv[0]);
+    cliSerialPrint("%s: Invalid arguments", argv[0]);
   }
   return 0;
 }
@@ -1388,7 +1529,7 @@ int cliCrypt(const char ** argv)
     return -1;
 
   strncpy((char*)cryptInput, argv[1], sizeof(cryptInput));
-  serialPrint("Input:");
+  cliSerialPrint("Input:");
   dumpBody(cryptInput, sizeof(cryptInput));
   dumpEnd();
 
@@ -1401,9 +1542,9 @@ int cliCrypt(const char ** argv)
 
   uint32_t startMs = RTOS_GET_MS();
   testAccessDenied(100000);
-  serialPrintf("access_denied: %f us/run\r\n", (RTOS_GET_MS() - startMs)*1000.0f / 100000.0f);
+  cliSerialPrintf("access_denied: %f us/run\r\n", (RTOS_GET_MS() - startMs)*1000.0f / 100000.0f);
 
-  serialPrint("Decrypted (SW):");
+  cliSerialPrint("Decrypted (SW):");
   dumpBody(cryptOutput, sizeof(cryptOutput));
   dumpEnd();
 
@@ -1460,14 +1601,14 @@ int cliHelp(const char ** argv)
 {
   for (const CliCommand * command = cliCommands; command->name != nullptr; command++) {
     if (argv[1][0] == '\0' || !strcmp(command->name, argv[0])) {
-      serialPrint("%s %s", command->name, command->args);
+      cliSerialPrint("%s %s", command->name, command->args);
       if (argv[1][0] != '\0') {
         return 0;
       }
     }
   }
   if (argv[1][0] != '\0') {
-    serialPrint("Invalid command \"%s\"", argv[0]);
+    cliSerialPrint("Invalid command \"%s\"", argv[0]);
   }
   return -1;
 }
@@ -1482,7 +1623,7 @@ int cliExecCommand(const char ** argv)
       return command->func(argv);
     }
   }
-  serialPrint("Invalid command \"%s\"", argv[0]);
+  cliSerialPrint("Invalid command \"%s\"", argv[0]);
   return -1;
 }
 
@@ -1507,7 +1648,7 @@ int cliExecLine(char * line)
 #define CHAR_LF         0x0A
 #define CHAR_NEWPAGE    0x0C
 #define CHAR_CR         0x0D
-#define CHAR_BACKSPACE  0xFF
+#define CHAR_DEL        0x7F
 
 void cliTask(void * pdata)
 {
@@ -1537,14 +1678,16 @@ void cliTask(void * pdata)
     switch(c) {
     case CHAR_NEWPAGE:
       // clear screen
-      serialPrint("\033[2J\033[1;1H");
+      cliSerialPrint("\033[2J\033[1;1H");
       cliPrompt();
       break;
 
-    case CHAR_BACKSPACE:
+    case CHAR_DEL:
       if (pos) {
         line[--pos] = '\0';
-        serialPutc(c);
+        cliSerialPutc('\010');
+        cliSerialPutc(' ');
+        cliSerialPutc('\010');
       }
       break;
 
@@ -1554,7 +1697,7 @@ void cliTask(void * pdata)
 
     case CHAR_LF:
       // enter
-      serialCrlf();
+      cliSerialCrlf();
       line[pos] = '\0';
       if (pos == 0 && cliLastLine[0]) {
         // execute (repeat) last command
@@ -1573,25 +1716,11 @@ void cliTask(void * pdata)
     default:
       if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
         line[pos++] = c;
-        serialPutc(c);
+        cliSerialPutc(c);
       }
       break;
     }
   }
-}
-
-// Called from receive ISR (either USB or UART)
-void cliReceiveData(uint8_t* buf, uint32_t len)
-{
-  if (cliReceiveCallBack)
-    cliReceiveCallBack(buf, len);
-}
-
-static void cliDefaultRx(uint8_t *buf, uint32_t len)
-{
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xStreamBufferSendFromISR(cliRxBuffer, buf, len, &xHigherPriorityTaskWoken);
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void cliStart()
@@ -1604,11 +1733,6 @@ void cliStart()
 
   // Setup consumer callback
   cliReceiveCallBack = cliDefaultRx;
-
-  // Setup USB callbacks
-  usbSerialSetReceiveDataCb(cliReceiveData);
-  // usbSerialSetBaudRateCb(...);
-  // usbSerialSetCtrlLineStateCb(...);
 
   RTOS_CREATE_TASK(cliTaskId, cliTask, "CLI", cliStack, CLI_STACK_SIZE,
                    CLI_TASK_PRIO);

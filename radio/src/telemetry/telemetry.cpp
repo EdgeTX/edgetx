@@ -25,9 +25,15 @@
 #include "pulses/flysky.h"
 #include "mixer_scheduler.h"
 #include "io/multi_protolist.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
+#endif
+
+#if !defined(SIMU)
+  #include <FreeRTOS/include/FreeRTOS.h>
+  #include <FreeRTOS/include/timers.h>
 #endif
 
 uint8_t telemetryStreaming = 0;
@@ -41,8 +47,8 @@ TelemetryData telemetryData;
 uint8_t telemetryProtocol = 255;
 
 #if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
-uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
-uint8_t intTelemetryRxBufferCount;
+static uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
+static uint8_t intTelemetryRxBufferCount;
 #endif
 
 uint8_t * getTelemetryRxBuffer(uint8_t moduleIdx)
@@ -63,6 +69,87 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
   return telemetryRxBufferCount;
 }
 
+static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
+static void* _telemetryGetByteCtx = nullptr;
+
+void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+{
+  _telemetryGetByte = nullptr;
+  _telemetryGetByteCtx = ctx;
+  _telemetryGetByte = fct;
+}
+
+static bool telemetryGetByte(uint8_t* data)
+{
+  auto _getByte = _telemetryGetByte;
+  auto _ctx = _telemetryGetByteCtx;
+
+  if (_getByte) {
+    return _getByte(_ctx, data);
+  }
+
+  return sportGetByte(data);
+}
+
+static void (*telemetryMirrorSendByte)(void*, uint8_t) = nullptr;
+static void* telemetryMirrorSendByteCtx = nullptr;
+
+void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t))
+{
+  telemetryMirrorSendByte = nullptr;
+  telemetryMirrorSendByteCtx = ctx;
+  telemetryMirrorSendByte = fct;
+}
+
+void telemetryMirrorSend(uint8_t data)
+{
+  auto _sendByte = telemetryMirrorSendByte;
+  auto _ctx = telemetryMirrorSendByteCtx;
+
+  if (_sendByte) {
+    _sendByte(_ctx, data);
+  }
+}
+
+#if !defined(SIMU)
+static TimerHandle_t telemetryTimer = nullptr;
+static StaticTimer_t telemetryTimerBuffer;
+
+static void telemetryTimerCb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  if (!s_pulses_paused) {
+    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+    telemetryWakeup();
+    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
+  }
+}
+
+void telemetryStart()
+{
+  if (!telemetryTimer) {
+    telemetryTimer =
+        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           telemetryTimerCb, &telemetryTimerBuffer);
+  }
+
+  if (telemetryTimer) {
+    if( xTimerStart( telemetryTimer, 0 ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+
+void telemetryStop()
+{
+  if (telemetryTimer) {
+    if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+#endif
+
 void processTelemetryData(uint8_t data)
 {
 #if defined(CROSSFIRE)
@@ -79,11 +166,14 @@ void processTelemetryData(uint8_t data)
   }
 #endif
 
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
-    processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount);
+  if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
+      telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
+    processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
+                                 telemetryRxBufferCount);
     return;
   }
+
+#if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
     processFlySkyTelemetryData(data, telemetryRxBuffer, telemetryRxBufferCount);
     return;
@@ -163,6 +253,7 @@ static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
   if (intmoduleFifo.pop(data)) {
     LOG_TELEMETRY_WRITE_START();
     do {
+      telemetryMirrorSend(data);
       processData(data, INTERNAL_MODULE);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (intmoduleFifo.pop(data));
@@ -205,6 +296,7 @@ static void pollExtTelemetry()
   if (telemetryGetByte(&data)) {
     LOG_TELEMETRY_WRITE_START();
     do {
+      telemetryMirrorSend(data);
       processTelemetryData(data);
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (telemetryGetByte(&data));
@@ -227,6 +319,9 @@ void telemetryWakeup()
 {
   uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
 
+  // TODO: needs to be moved to protocol/module init
+  //       as-is, it implies only ONE telemetry protocol
+  //       enabled at the same time
   if (telemetryProtocol != requiredTelemetryProtocol) {
     telemetryInit(requiredTelemetryProtocol);
   }
@@ -322,6 +417,9 @@ void telemetryWakeup()
           if (isModuleCrossfire(EXTERNAL_MODULE)) {
             moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
           }
+          if (isModuleCrossfire(INTERNAL_MODULE)) {
+            moduleState[INTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
+          }
 #endif
         }
         telemetryState = TELEMETRY_OK;
@@ -402,7 +500,7 @@ void telemetryInit(uint8_t protocol)
 
 #if defined(CROSSFIRE)
   else if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    telemetryPortInit(CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
+    telemetryPortInit(EXT_CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
 #if defined(LUA)
     outputTelemetryBuffer.reset();
 #endif
@@ -423,7 +521,8 @@ void telemetryInit(uint8_t protocol)
 #if defined(AUX_SERIAL)
   else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
     telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
-    auxSerialTelemetryInit(PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY);
+    // Note: this is done in initSerialPorts()
+    //auxSerialTelemetryInit(PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY);
   }
 #endif
 
@@ -440,7 +539,10 @@ void telemetryInit(uint8_t protocol)
     telemetryPortSetDirectionInput();
   }
 #endif
-
+  else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
+    // soft serial
+    telemetryPortInvertedInit(115200);
+  }
   else {
     telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
 #if defined(LUA)

@@ -22,19 +22,46 @@
 #ifndef _SERIAL_H_
 #define _SERIAL_H_
 
+#include <stdint.h>
+#include "hal/serial_port.h"
+
+#define SERIAL_CONF_BITS_PER_PORT    8    /* configuration uses 1 byte per serial port */
+#define SERIAL_CONF_MODE_MASK        0x0F /* lower 4 bits for mode */
+#define SERIAL_CONF_POWER_BIT        7    /* MSBit of the configuration byte */
+
+const etx_serial_port_t* serialGetPort(uint8_t port_nr);
+int  serialGetMode(uint8_t port_nr);
+void serialSetMode(uint8_t port_nr, int mode);
+bool serialGetPower(uint8_t port_nr);
+void serialSetPower(uint8_t port_nr, bool enabled);
+
+void initSerialPorts();
+void serialInit(uint8_t port_nr, int mode);
+void serialStop(uint8_t port_nr);
+
+//
+// Functions used by debug.h
+//
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void serialPutc(char c);
-void serialPrintf(const char *format, ...);
-void serialCrlf();
+void dbgSerialPutc(char c);
+void dbgSerialPrintf(const char *format, ...);
+void dbgSerialCrlf();
 
 #ifdef __cplusplus
 }
 #endif
 
-#define serialPrint(...) do { serialPrintf(__VA_ARGS__); serialCrlf(); } while(0)
+#define dbgSerialPrint(...) do { dbgSerialPrintf(__VA_ARGS__); dbgSerialCrlf(); } while(0)
+
+// Debug serial callback
+void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
+
+// Query debug callback
+void (*dbgSerialGetSendCb())(void*, uint8_t);
+void* dbgSerialGetSendCbCtx();
 
 #endif // _SERIAL_H_
 

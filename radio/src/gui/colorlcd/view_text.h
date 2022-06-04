@@ -26,8 +26,6 @@
 #include "page.h"
 #include "static.h"
 
-constexpr uint16_t TEXT_FILE_MAXSIZE = 20480;
-
 class ViewTextWindow : public Page
 {
  public:
@@ -53,7 +51,7 @@ class ViewTextWindow : public Page
   };
 
   void sdReadTextFileBlock(const char* filename, int& lines_count);
-  void loadFirstScreen(void);
+  void loadOneScreen(int offset);
 #if defined(HARDWARE_TOUCH)
   bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
                     coord_t slideX, coord_t slideY) override;
@@ -88,7 +86,6 @@ class ViewTextWindow : public Page
   std::string extension;
   unsigned int icon;
 
-  bool lastLine;
   uint16_t readCount;
   int longestLine;
   int checklistPosition;
@@ -104,6 +101,7 @@ class ViewTextWindow : public Page
   int maxLines;
   bool textBottom;
   bool isInSetup;
+  bool openFromEnd;
 
   void extractNameSansExt(void);
   void buildBody(Window* window);

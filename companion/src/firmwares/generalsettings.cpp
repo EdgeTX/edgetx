@@ -70,12 +70,14 @@ bool GeneralSettings::isSliderAvailable(int index) const
   return sliderConfig[index] != Board::SLIDER_NONE;
 }
 
-GeneralSettings::GeneralSettings()
+void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
+  init();
+}
 
-  contrast  = 25;
-
+void GeneralSettings::init()
+{
   for (int i = 0; i < CPN_MAX_ANALOGS; ++i) {
     calibMid[i]     = 0x200;
     calibSpanNeg[i] = 0x180;
@@ -247,8 +249,9 @@ GeneralSettings::GeneralSettings()
 
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
-  RadioTheme::init(themeName, themeData);
+  if (IS_FLYSKY_NV14(board))
+    stickDeadZone = 2;
+
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
@@ -418,14 +421,17 @@ QString GeneralSettings::bluetoothModeToString() const
   return bluetoothModeToString(bluetoothMode);
 }
 
-QString GeneralSettings::auxSerialModeToString() const
+QString GeneralSettings::serialPortModeToString(int port_nr) const
 {
-  return auxSerialModeToString(auxSerialMode);
+  if (port_nr < 0 || port_nr >= SP_COUNT)
+    return QString();
+
+  return serialModeToString(serialPort[port_nr]);
 }
 
-QString GeneralSettings::telemetryBaudrateToString() const
+QString GeneralSettings::internalModuleBaudrateToString() const
 {
-  return telemetryBaudrateToString(telemetryBaudrate);
+  return moduleBaudrateToString(internalModuleBaudrate);
 }
 
 //  static
@@ -467,7 +473,7 @@ QString GeneralSettings::bluetoothModeToString(int value)
 }
 
 //  static
-QString GeneralSettings::auxSerialModeToString(int value)
+QString GeneralSettings::serialModeToString(int value)
 {
   switch(value) {
     case AUX_SERIAL_OFF:
@@ -480,22 +486,21 @@ QString GeneralSettings::auxSerialModeToString(int value)
       return tr("SBUS Trainer");
     case AUX_SERIAL_LUA:
       return tr("LUA");
+    case AUX_SERIAL_CLI:
+      return tr("CLI");
+    case AUX_SERIAL_GPS:
+      return tr("GPS");
+    case AUX_SERIAL_DEBUG:
+      return tr("Debug");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
 }
 
 //  static
-QString GeneralSettings::telemetryBaudrateToString(int value)
+QString GeneralSettings::moduleBaudrateToString(int value)
 {
-  switch(value) {
-    case 0:
-      return "400000";
-    case 1:
-      return "115200";
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
+  return moduleBaudratesList.value(value, CPN_STR_UNKNOWN_ITEM);
 }
 
 //  static
@@ -553,13 +558,20 @@ AbstractStaticItemModel * GeneralSettings::bluetoothModeItemModel()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::auxSerialModeItemModel()
+AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_GS_AUXSERIALMODE);
+  mdl->setName(QString(AIM_GS_SERIALMODE).arg(port_nr));
 
   for (int i = 0; i < AUX_SERIAL_COUNT; i++) {
-    mdl->appendToItemList(auxSerialModeToString(i), i);
+    if (port_nr == SP_VCP &&
+        (i == AUX_SERIAL_TELE_IN ||
+         i == AUX_SERIAL_SBUS_TRAINER ||
+         i == AUX_SERIAL_GPS)) {
+      // These 3 are disabled on VCP
+      continue;
+    }
+    mdl->appendToItemList(serialModeToString(i), i);
   }
 
   mdl->loadItemList();
@@ -567,13 +579,27 @@ AbstractStaticItemModel * GeneralSettings::auxSerialModeItemModel()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::telemetryBaudrateItemModel()
+AbstractStaticItemModel * GeneralSettings::internalModuleBaudrateItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_GS_TELEMETRYBAUDRATE);
+  mdl->setName(AIM_GS_INTMODULEBAUDRATE);
 
-  for (int i = 0; i <= 1; i++) {
-    mdl->appendToItemList(telemetryBaudrateToString(i), i);
+  for (int i = 0; i < moduleBaudratesList.size(); i++) {
+    mdl->appendToItemList(moduleBaudrateToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::stickDeadZoneItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_STICKDEADZONE);
+
+  for (int i = 0; i <= 7; i++) {
+    mdl->appendToItemList(i ? QString::number((int)(2 << (i - 1))) : QString::number(0), i);
   }
 
   mdl->loadItemList();

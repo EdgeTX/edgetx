@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "opentx.h"
 #include "frsky_firmware_update.h"
+#include "debug.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -51,23 +52,23 @@ const char * readFrSkyFirmwareInformation(const char * filename, FrSkyFirmwareIn
   UINT count;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
+    return STR_NEEDS_FILE;
   }
 
   if (f_read(&file, &data, sizeof(data), &count) != FR_OK || count != sizeof(data)) {
     f_close(&file);
-    return "Error reading file";
+    return STR_DEVICE_FILE_ERROR;
   }
 
   uint32_t size = f_size(&file);
   f_close(&file);
 
   if (data.headerVersion != 1 && data.fourcc != 0x4B535246) {
-    return "Wrong format";
+    return STR_DEVICE_FILE_ERROR;
   }
 
   if (size != sizeof(data) + data.size) {
-    return "Wrong size";
+    return STR_DEVICE_FILE_ERROR;
   }
 
   return nullptr;
@@ -174,7 +175,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readHalfDuplexFrame(uint32_t timeout)
 {
   for (int i = timeout; i >= 0; i--) {
     uint8_t byte ;
-    while (telemetryGetByte(&byte)) {
+    while (sportGetByte(&byte)) {
       if (pushFrskyTelemetryData(byte)) {
         return telemetryRxBuffer;
       }
@@ -250,11 +251,14 @@ void FrskyDeviceFirmwareUpdate::sendFrame()
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE:
-      return intmoduleSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      IntmoduleSerialDriver.sendBuffer(uart_ctx, outputTelemetryBuffer.data,
+                                       ptr - outputTelemetryBuffer.data);
+      return;
 #endif
 
     default:
-      return sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+      return;
   }
 }
 
@@ -274,14 +278,14 @@ const char * FrskyDeviceFirmwareUpdate::sendPowerOn()
   }
 
   if (telemetryProtocol != PROTOCOL_TELEMETRY_FRSKY_SPORT) {
-    return TR("Not responding", "Not S.Port 1");
+    return STR_DEVICE_NO_RESPONSE;
   }
 
   if (!IS_FRSKY_SPORT_PROTOCOL()) {
-    return TR("Not responding", "Not S.Port 2");
+    return STR_DEVICE_NO_RESPONSE;
   }
 
-  return TR("Not responding", "Device not responding");
+  return STR_DEVICE_NO_RESPONSE;
 }
 
 const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
@@ -305,6 +309,16 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 // X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
 // XLite PRO / X9Lite / X9D+ 2019 ISRM = use TX + RX @ 57600 bauds
 
+#if defined(INTMODULE_USART)
+static const etx_serial_init serialInitParams = {
+  .baudrate = 0,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+};
+#endif
+
 const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
 {
   FIL file;
@@ -313,14 +327,14 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   UINT count;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
+    return STR_NEEDS_FILE;
   }
 
   const char * ext = getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     if (f_read(&file, &information, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
       f_close(&file);
-      return "Format error";
+      return STR_DEVICE_FILE_ERROR;
     }
   }
   else {
@@ -334,10 +348,9 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
     INTERNAL_MODULE_ON();
     RTOS_WAIT_MS(1);
 
-    etx_serial_init params;
+    etx_serial_init params(serialInitParams);
     params.baudrate = 38400;
-    params.rx_enable = true;
-    intmoduleSerialStart(&params);
+    uart_ctx = IntmoduleSerialDriver.init(&params);
 
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
@@ -351,10 +364,9 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE: {
-      etx_serial_init params;
+      etx_serial_init params(serialInitParams);
       params.baudrate = 57600;
-      params.rx_enable = true;
-      intmoduleSerialStart(&params);
+      uart_ctx = IntmoduleSerialDriver.init(&params);
     } break;
 #endif
 
@@ -383,17 +395,17 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
   uint8_t frame[8];
 
   if (!readBuffer(frame, 8, 100) || frame[0] != 0x01) {
-    return TR("Not responding", "Device not responding");
+    return STR_DEVICE_NO_RESPONSE;
   }
 
-  intmoduleSendByte(0x81);
+  IntmoduleSerialDriver.sendByte(uart_ctx, 0x81);
   readBuffer(frame, 1, 100);
 
   if (!readBuffer(frame, 8, 100) || frame[0] != 0x02) {
-    return TR("Not responding", "Device not responding");
+      return STR_DEVICE_NO_RESPONSE;
   }
 
-  intmoduleSendByte(0x82);
+  IntmoduleSerialDriver.sendByte(uart_ctx, 0x82);
   readBuffer(frame, 1, 100);
 
   uint8_t index = 0;
@@ -401,17 +413,17 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
     progressHandler(getBasename(filename), STR_WRITING, file->fptr, file->obj.objsize);
 
     if (f_read(file, buffer, 1024, &count) != FR_OK) {
-      return "Error reading file";
+      return STR_DEVICE_FILE_ERROR;
     }
 
     if (!readBuffer(frame, 2, 100))
-      return "Data refused";
+        return STR_DEVICE_DATA_REFUSED;
 
     if (frame[0] != 0x11 || frame[1] != index)
-      return "Wrong request";
+        return STR_DEVICE_WRONG_REQUEST;
 
     if (count == 0) {
-      intmoduleSendByte(0xA1);
+      IntmoduleSerialDriver.sendByte(uart_ctx, 0xA1);
       RTOS_WAIT_MS(50);
       return nullptr;
     }
@@ -419,15 +431,15 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(const char * filena
     if (count < 1024)
       memset(((uint8_t *)buffer) + count, 0, 1024 - count);
 
-    intmoduleSendByte(frame[0] + 0x80);
-    intmoduleSendByte(frame[1]);
+    IntmoduleSerialDriver.sendByte(uart_ctx, frame[0] + 0x80);
+    IntmoduleSerialDriver.sendByte(uart_ctx, frame[1]);
 
     uint16_t crc_16 = crc16(CRC_1189, (uint8_t *)buffer, 1024, crc16(CRC_1189, &frame[1], 1));
     for (size_t i = 0; i < sizeof(buffer); i++) {
-      intmoduleSendByte(((uint8_t *)buffer)[i]);
+      IntmoduleSerialDriver.sendByte(uart_ctx, ((uint8_t *)buffer)[i]);
     }
-    intmoduleSendByte(crc_16 >> 8);
-    intmoduleSendByte(crc_16);
+    IntmoduleSerialDriver.sendByte(uart_ctx, crc_16 >> 8);
+    IntmoduleSerialDriver.sendByte(uart_ctx, crc_16);
 
     index++;
   }
@@ -456,14 +468,14 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileNormal(const char * filename, 
 
   while (true) {
     if (f_read(file, buffer, 1024, &count) != FR_OK) {
-      return "Error reading file";
+        return STR_DEVICE_FILE_ERROR;
     }
 
     count >>= 2;
 
     for (uint32_t i=0; i<count; i++) {
       if (!waitState(SPORT_DATA_REQ, 2000)) {
-        return "Data refused";
+        return STR_DEVICE_DATA_REFUSED;
       }
       startFrame(PRIM_DATA_WORD);
       uint32_t offset = (address & 1023) >> 2; // 32 bit word offset into buffer
@@ -487,11 +499,11 @@ const char * FrskyDeviceFirmwareUpdate::uploadFileNormal(const char * filename, 
 const char * FrskyDeviceFirmwareUpdate::endTransfer()
 {
   if (!waitState(SPORT_DATA_REQ, 2000))
-    return "Data refused";
+      return STR_DEVICE_DATA_REFUSED;
   startFrame(PRIM_DATA_EOF);
   sendFrame();
   if (!waitState(SPORT_COMPLETE, 2000)) {
-    return "Firmware rejected";
+    return STR_DEVICE_FILE_REJECTED;
   }
   return nullptr;
 }
@@ -581,7 +593,7 @@ const char * FrskyChipFirmwareUpdate::waitAnswer(uint8_t & status)
   for (uint8_t i = 0; i < sizeof(buffer); i++) {
     uint32_t retry = 0;
     while (true) {
-      if (telemetryGetByte(&buffer[i])) {
+      if (sportGetByte(&buffer[i])) {
         if ((i == 0 && buffer[0] != 0x7F) ||
             (i == 1 && buffer[1] != 0xFE) ||
             (i == 10 && buffer[10] != 0x0D) ||
@@ -592,7 +604,7 @@ const char * FrskyChipFirmwareUpdate::waitAnswer(uint8_t & status)
         break;
       }
       if (++retry == CHIP_FIRMWARE_UPDATE_TIMEOUT) {
-        return "No answer";
+        return STR_DEVICE_NO_RESPONSE;
       }
       RTOS_WAIT_MS(1);
     }
@@ -679,7 +691,7 @@ const char * FrskyChipFirmwareUpdate::sendUpgradeCommand(char command, uint32_t 
   if (result)
     return result;
 
-  return status == 0x00 ? nullptr : "Upgrade failed";
+  return status == 0x00 ? nullptr : STR_FIRMWARE_UPDATE_ERROR;
 }
 
 const char * FrskyChipFirmwareUpdate::sendUpgradeData(uint32_t index, uint8_t * data)
@@ -720,7 +732,7 @@ const char * FrskyChipFirmwareUpdate::sendUpgradeData(uint32_t index, uint8_t * 
   if (result)
     return result;
 
-  return status == 0x00 ? nullptr : "Upgrade failed";
+  return status == 0x00 ? nullptr : STR_FIRMWARE_UPDATE_ERROR;
 }
 
 const char * FrskyChipFirmwareUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
@@ -735,13 +747,13 @@ const char * FrskyChipFirmwareUpdate::doFlashFirmware(const char * filename, Pro
     return result;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
+    return STR_NEEDS_FILE;
   }
 
   FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *)buffer;
   if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
     f_close(&file);
-    return "Format error";
+    return STR_DEVICE_FILE_ERROR;
   }
 
   uint32_t packetsCount = (information->size + sizeof(buffer) - 1) / sizeof(buffer);
@@ -756,7 +768,7 @@ const char * FrskyChipFirmwareUpdate::doFlashFirmware(const char * filename, Pro
     progressHandler(getBasename(filename), STR_FLASH_WRITE, index, packetsCount);
     if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
       f_close(&file);
-      return "Error reading file";
+      return STR_DEVICE_FILE_ERROR;
     }
     result = sendUpgradeData(index + 1, buffer);
     if (result)

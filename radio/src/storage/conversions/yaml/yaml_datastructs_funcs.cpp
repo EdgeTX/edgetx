@@ -36,11 +36,11 @@ bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
 bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
-  int32_t sval = yaml_to_signed(val, node->size);
+  int32_t sval = yaml_to_signed(val, node->size <= 11 ? node->size : 11);
   int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
 
   if (sval >= gvar - 10 && sval <= gvar) {
-    char n = gvar - sval + '1';
+    char n = gvar - sval + '0';
     return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
   } else if (sval <= -gvar + 10 && sval >= -gvar) {
     char n = val - gvar + '1';
@@ -323,8 +323,11 @@ bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 
   data -= offsetof(RadioData, switchConfig);
   RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return wf(opaque, rd->anaNames[idx],
-            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, rd->anaNames[idx],
+          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
@@ -353,7 +356,10 @@ bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
 
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   const char* str = rd->switchNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 extern const struct YamlIdStr enum_SwitchConfig[];
@@ -394,7 +400,10 @@ bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -444,7 +453,10 @@ bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS + STORAGE_NUM_POTS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
@@ -711,7 +723,6 @@ bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opa
     return wf(opaque, s, strlen(s));
 }
 
-extern const struct YamlIdStr enum_TrainerMode[];
 const struct YamlIdStr enum_TrainerMode[] = {
 #if defined(PCBNV14)
   {  TRAINER_MODE_OFF, "OFF"  },
@@ -733,8 +744,8 @@ const struct YamlIdStr enum_TrainerMode[] = {
 
 #define r_trainerMode nullptr
 
-bool w_trainerMode(const YamlNode* node, uint32_t val,
-                   yaml_writer_func wf, void* opaque)
+static bool w_trainerMode(const YamlNode* node, uint32_t val,
+                          yaml_writer_func wf, void* opaque)
 {
   const char* str = nullptr;
   str = yaml_output_enum(val, enum_TrainerMode);
@@ -1108,7 +1119,7 @@ const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
 const struct YamlIdStr enum_DSM2_Subtypes[] = {
   { 0, "LP45" },
   { 1, "DSM2" },
-  { 3, "DSMX" },
+  { 2, "DSMX" },
   { 0, NULL  }
 };
 
@@ -1168,3 +1179,6 @@ bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   const char* str = yaml_signed2str(sval);
   return wf(opaque,str,strlen(str));
 }
+
+// force storage class
+extern const struct YamlIdStr enum_UartModes[];

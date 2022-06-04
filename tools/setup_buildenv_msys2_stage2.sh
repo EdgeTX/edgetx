@@ -20,36 +20,56 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step $((STEP++)): Installing Python wheel ==="
-pip install wheel
+echo "=== Step $((STEP++)): Installing Python Pillow and clang ==="
+pip install Pillow clang
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step $((STEP++)): Fetching Python package requirements ==="
-wget https://raw.githubusercontent.com/EdgeTX/edgetx/main/tools/setup_buildenv_msys2_py_requirements.txt
+echo "=== Step $((STEP++)): Installing Python setuptools and wheel ==="
+python -m pip install setuptools wheel
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step $((STEP++)): Installing Python packages ==="
-pip install -r setup_buildenv_msys2_py_requirements.txt
+echo "=== Step $((STEP++)): Fetching and installing Python package bcj-cffi ==="
+git clone --recursive https://github.com/miurahr/bcj-cffi.git
+cd bcj-cffi
+python setup.py install
+cd ..
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step $((STEP++)): Deleting Python package requirements file ==="
-rm setup_buildenv_msys2_py_requirements.txt
+echo "=== Step $((STEP++)): Fetching and installing Python package pyppmd ==="
+git clone --recursive https://github.com/miurahr/pyppmd.git
+cd pyppmd
+python setup.py install
+cd ..
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Installing Python package py7zr in version 0.16.1 ==="
+python -m pip install py7zr==0.16.1
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Installing Python package aqtinstall in version 1.2.5 ==="
+python -m pip install aqtinstall==1.2.5
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Installing Qt build environment ==="
-aqt install 5.12.9 windows desktop win64_mingw73
+python -m aqt install 5.12.9 windows desktop win64_mingw73
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi

@@ -21,6 +21,7 @@
 #include "channels.h"
 #include "helpers.h"
 #include "filtereditemmodels.h"
+#include "curveimagewidget.h"
 
 LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model,
                          int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
@@ -107,7 +108,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   }
   headerLabels << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direction");
   if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
-    headerLabels << tr("Curve");
+    headerLabels << tr("Curve") << tr("Plot");
   if (firmware->getCapability(PPMCenter))
     headerLabels << tr("PPM Center");
   if (firmware->getCapability(SYMLimits))
@@ -159,9 +160,20 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
       curveCB[i] = new QComboBox(this);
       curveCB[i]->setProperty("index", i);
+      curveCB[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
       curveCB[i]->setModel(dialogFilteredItemModels->getItemModel(crvid));
       connect(curveCB[i], SIGNAL(currentIndexChanged(int)), this, SLOT(curveEdited()));
       tableLayout->addWidget(i, col++, curveCB[i]);
+
+      curveImage[i] = new CurveImageWidget(this);
+      int crvidx = model.limitData[i].curve.value - 1;
+      QColor pencolor = colors[crvidx >= 0 ? crvidx : Qt::black];
+      curveImage[i]->set(&model, firmware, sharedItemModels, crvidx, pencolor, 3);
+      curveImage[i]->setGrid(Qt::gray, 2);
+      curveImage[i]->setProperty("index", i);
+      curveImage[i]->setFixedSize(QSize(100, 100));
+      connect(curveImage[i], &CurveImageWidget::doubleClicked, this, &ChannelsPanel::on_curveImageDoubleClicked);
+      tableLayout->addWidget(i, col++, curveImage[i]);
     }
 
     // PPM center
@@ -191,7 +203,9 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(chnCapability+1);
+  tableLayout->pushRowsUp(chnCapability + 1);
+
+  adjustSize();
 }
 
 ChannelsPanel::~ChannelsPanel()
@@ -260,8 +274,13 @@ void ChannelsPanel::curveEdited()
     QComboBox *cb = qobject_cast<QComboBox*>(sender());
     int index = cb->property("index").toInt();
     //  ignore unnecessary updates that could be triggered by updates to the data model
-    if (model->limitData[index].curve != CurveReference(CurveReference::CURVE_REF_CUSTOM, cb->itemData(cb->currentIndex()).toInt())) {
-      model->limitData[index].curve = CurveReference(CurveReference::CURVE_REF_CUSTOM, cb->itemData(cb->currentIndex()).toInt());
+    LimitData &ld = model->limitData[index];
+    if (ld.curve != CurveReference(CurveReference::CURVE_REF_CUSTOM, cb->itemData(cb->currentIndex()).toInt())) {
+      ld.curve = CurveReference(CurveReference::CURVE_REF_CUSTOM, cb->itemData(cb->currentIndex()).toInt());
+      curveImage[index]->setIndex(abs(ld.curve.value) - 1);
+      if (abs(ld.curve.value) > 0)
+        curveImage[index]->setPen(colors[abs(ld.curve.value) - 1], 3);
+      updateLine(index);
       emit modified();
     }
   }
@@ -298,6 +317,13 @@ void ChannelsPanel::updateLine(int i)
   invCB[i]->setCurrentIndex((chn.revert) ? 1 : 0);
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
     curveCB[i]->setCurrentIndex(curveCB[i]->findData(chn.curve.value));
+    if (chn.curve.value == 0) {
+      curveImage[i]->setVisible(false);
+    }
+    else {
+      curveImage[i]->setVisible(true);
+      curveImage[i]->draw();
+    }
   }
   if (firmware->getCapability(PPMCenter)) {
     centerSB[i]->setValue(chn.ppmCenter + 1500);
@@ -467,4 +493,15 @@ void ChannelsPanel::updateItemModels()
 {
   sharedItemModels->update(AbstractItemModel::IMUE_Channels);
   emit modified();
+}
+
+void ChannelsPanel::on_curveImageDoubleClicked()
+{
+  bool ok = false;
+  int index = sender()->property("index").toInt(&ok);
+
+  if (ok && curveImage[abs(index)]->edit()) {
+    updateLine(index);
+    emit modified();
+  }
 }

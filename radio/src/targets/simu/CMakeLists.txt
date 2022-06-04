@@ -16,6 +16,11 @@ set(SIMU_SRC
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  module_drivers.cpp
+  led_driver.cpp
+  backlight_driver.cpp
+  gyro_driver.cpp
+  bt_driver.cpp
   )
 
 if(SIMU_DISKIO)
@@ -53,6 +58,12 @@ if(Qt5Widgets_FOUND)
     endif()
   endif()
 
+  add_custom_command(
+    TARGET ${SIMULATOR_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/plugins/
+    COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:${SIMULATOR_TARGET}> ${CMAKE_BINARY_DIR}/plugins/
+    )
 
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow

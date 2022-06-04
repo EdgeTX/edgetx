@@ -25,6 +25,7 @@
 #include "helpers_html.h"
 #include "appdata.h"
 #include "adjustmentreference.h"
+#include "curveimage.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -229,6 +230,9 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
           str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
         }
+        if (module.protocol == PULSES_GHOST) {
+          str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
+        }
       }
     }
     result = str.join(" ");
@@ -365,7 +369,7 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + flightModesStr.toHtmlEscaped();
 
   if (input.swtch.type != SWITCH_TYPE_NONE)
-    str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard(), &generalSettings)).toHtmlEscaped();
+    str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
 
 
   if (firmware->getCapability(VirtualInputs)) {
@@ -414,7 +418,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
     str += " " + flightModesStr.toHtmlEscaped();
 
   if (mix.swtch.type != SWITCH_TYPE_NONE)
-    str += " " + tr("Switch(%1)").arg(mix.swtch.toString(getCurrentBoard(), &generalSettings)).toHtmlEscaped();
+    str += " " + tr("Switch(%1)").arg(mix.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
 
   if (mix.carryTrim > 0)
     str += " " + tr("NoTrim");
@@ -646,55 +650,8 @@ QString ModelPrinter::printCurveName(int idx)
 
 QString ModelPrinter::printCurve(int idx)
 {
-  QString result;
-  const CurveData & curve = model.curves[idx];
-  result += (curve.type == CurveData::CURVE_TYPE_CUSTOM) ? tr("Custom") : tr("Standard");
-  result += ", [";
-  if (curve.type == CurveData::CURVE_TYPE_CUSTOM) {
-    for (int j=0; j<curve.count; j++) {
-      if (j != 0)
-        result += ", ";
-      result += QString("(%1, %2)").arg(curve.points[j].x).arg(curve.points[j].y);
-    }
-  }
-  else {
-    for (int j=0; j<curve.count; j++) {
-      if (j != 0)
-        result += ", ";
-      result += QString("%1").arg(curve.points[j].y);
-    }
-  }
-  result += "]";
-  return result;
-}
-
-CurveImage::CurveImage():
-  size(200),
-  image(size+1, size+1, QImage::Format_RGB32),
-  painter(&image)
-{
-  painter.setBrush(QBrush("#FFFFFF"));
-  painter.setPen(QColor(0, 0, 0));
-  painter.drawRect(0, 0, size, size);
-
-  painter.setPen(QColor(0, 0, 0));
-  painter.drawLine(0, size/2, size, size/2);
-  painter.drawLine(size/2, 0, size/2, size);
-  for (int i=0; i<21; i++) {
-    painter.drawLine(size/2-5, (size*i)/(20), size/2+5, (size*i)/(20));
-    painter.drawLine((size*i)/(20), size/2-5, (size*i)/(20), size/2+5);
-  }
-}
-
-void CurveImage::drawCurve(const CurveData & curve, QColor color)
-{
-  painter.setPen(QPen(color, 2, Qt::SolidLine));
-  for (int j=1; j<curve.count; j++) {
-    if (curve.type == CurveData::CURVE_TYPE_CUSTOM)
-      painter.drawLine(size/2+(size*curve.points[j-1].x)/200, size/2-(size*curve.points[j-1].y)/200, size/2+(size*curve.points[j].x)/200, size/2-(size*curve.points[j].y)/200);
-    else
-      painter.drawLine(size*(j-1)/(curve.count-1), size/2-(size*curve.points[j-1].y)/200, size*(j)/(curve.count-1), size/2-(size*curve.points[j].y)/200);
-  }
+ const CurveData & curve = model.curves[idx];
+  return QString("%1   %2").arg(curve.typeToString()).arg(curve.pointsToString());
 }
 
 QString ModelPrinter::createCurveImage(int idx, QTextDocument * document)
@@ -802,7 +759,7 @@ QString ModelPrinter::printSwitchWarnings()
   uint64_t switchStates = model.switchWarningStates;
   uint64_t value;
 
-  for (int idx=0; idx<board.getCapability(Board::Switches); idx++) {
+  for (int idx=0; idx<board.getCapability(Board::Switches) + board.getCapability(Board::FunctionSwitches); idx++) {
     Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board.getBoardType(), idx);
     switchInfo.config = Board::SwitchType(generalSettings.switchConfig[idx]);
     if (switchInfo.config == Board::SWITCH_NOT_AVAILABLE || switchInfo.config == Board::SWITCH_TOGGLE) {

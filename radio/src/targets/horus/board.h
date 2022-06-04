@@ -26,6 +26,9 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
+
+#include "watchdog_driver.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "tp_gt911.h"
@@ -77,10 +80,6 @@ extern uint16_t sessionTimer;
 // Board driver
 void boardInit();
 void boardOff();
-
-// Timers driver
-void init2MhzTimer();
-void init1msTimer();
 
 // PCBREV driver
 enum {
@@ -145,6 +144,10 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
+#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
+  #define HARDWARE_INTERNAL_RAS
+#endif
+
 // Pulses driver
 #if defined(RADIO_T18) || defined(RADIO_T16)
 
@@ -168,20 +171,14 @@ void SDRAM_Init();
 
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-  #define HARDWARE_INTERNAL_RAS
-#endif
+#define INTERNAL_MODULE_OFF()   GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_ON()    GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_OFF()   GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 
-#if defined(INTMODULE_USART)
-  #define INTERNAL_MODULE_OFF()        intmoduleStop()
-#else
-  #define INTERNAL_MODULE_OFF()        GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#endif
-
-#define EXTERNAL_MODULE_ON()           GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_OFF()          GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define IS_INTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#define IS_EXTERNAL_MODULE_ON()        (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_INTERNAL_MODULE_ON()                                         \
+  (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_EXTERNAL_MODULE_ON() \
+  (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
 
 #if !defined(PXX2)
   #define IS_PXX2_INTERNAL_ENABLED()            (false)
@@ -196,23 +193,11 @@ void SDRAM_Init();
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
 
-void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-
-void extmoduleSerialStart();
-void extmoduleInvertedSerialStart(uint32_t baudrate);
-void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
-void extmoduleSendNextFrame();
-void extmoduleSendInvertedByte(uint8_t byte);
-
 // Trainer driver
 void init_trainer_ppm();
 void stop_trainer_ppm();
 void init_trainer_capture();
 void stop_trainer_capture();
-
-// SBUS
-int sbusGetByte(uint8_t * byte);
 
 // Keys driver
 enum EnumKeys
@@ -328,29 +313,6 @@ uint32_t readTrims();
 #define ROTARY_ENCODER_NAVIGATION
 void rotaryEncoderInit();
 void rotaryEncoderCheck();
-
-// WDT driver
-#define WDG_DURATION                              500 /*ms*/
-
-void watchdogInit(unsigned int duration);
-#if defined(SIMU)
-  #define WAS_RESET_BY_WATCHDOG()               (false)
-  #define WAS_RESET_BY_SOFTWARE()               (false)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #if defined(WATCHDOG)
-    #define WDG_ENABLE(x)                       watchdogInit(x)
-    #define WDG_RESET()                         IWDG->KR = 0xAAAA
-  #else
-    #define WDG_ENABLE(x)
-    #define WDG_RESET()
-  #endif
-  #define WAS_RESET_BY_WATCHDOG()               (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-  #define WAS_RESET_BY_SOFTWARE()               (RCC->CSR & RCC_CSR_SFTRSTF)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-#endif
 
 // ADC driver
 
@@ -653,13 +615,14 @@ int32_t getVolume();
 #define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
+#define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE            512
 void telemetryPortInit(uint32_t baudrate, uint8_t mode);
 void telemetryPortSetDirectionInput();
 void telemetryPortSetDirectionOutput();
 void sportSendByte(uint8_t byte);
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 extern uint32_t telemetryErrors;
 
@@ -690,65 +653,14 @@ void sportUpdatePowerInit();
   #define DEBUG_BAUDRATE                  115200
   #define LUA_DEFAULT_BAUDRATE            115200
 #endif
-#if defined(AUX_SERIAL)
-extern uint8_t auxSerialMode;
-#if defined __cplusplus
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialSbusInit();
-void auxSerialStop();
-void auxSerialPowerOn();
-void auxSerialPowerOff();
-#if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()             auxSerialPowerOn()
-#define AUX_SERIAL_POWER_OFF()            auxSerialPowerOff()
-#else
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-#endif
-#endif
 
-// Aux2 serial port driver
-#if defined(AUX2_SERIAL)
-extern uint8_t aux2SerialMode;
-#if defined __cplusplus
-void aux2SerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void aux2SerialInit(unsigned int mode, unsigned int protocol);
-void aux2SerialPutc(char c);
-#define aux2SerialTelemetryInit(protocol) aux2SerialInit(UART_MODE_TELEMETRY, protocol)
-void aux2SerialSbusInit();
-void aux2SerialStop();
-void aux2SerialPowerOn();
-void aux2SerialPowerOff();
-#if defined(AUX2_SERIAL_PWR_GPIO)
-#define AUX2_SERIAL_POWER_ON()            aux2SerialPowerOn()
-#define AUX2_SERIAL_POWER_OFF()           aux2SerialPowerOff()
-#else
-#define AUX2_SERIAL_POWER_ON()
-#define AUX2_SERIAL_POWER_OFF()
-#endif
-#endif
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
 
 // Haptic driver
 void hapticInit();
 void hapticDone();
 void hapticOff();
 void hapticOn(uint32_t pwmPercent);
-
-// GPS driver
-void gpsInit(uint32_t baudrate);
-uint8_t gpsGetByte(uint8_t * byte);
-#if defined(DEBUG)
-extern uint8_t gpsTraceEnabled;
-#endif
-void gpsSendByte(uint8_t byte);
-#if defined(INTERNAL_GPS)
-#define PILOTPOS_MIN_HDOP             500
-#endif
 
 #define USART_FLAG_ERRORS              (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
@@ -762,15 +674,5 @@ void bluetoothInit(uint32_t baudrate, bool enable);
 void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
-
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-extern DMAFifo<512> telemetryFifo;
-typedef DMAFifo<32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
-extern AuxSerialRxFifo aux2SerialRxFifo;
-extern volatile uint32_t externalModulePort;
-#endif
 
 #endif // _BOARD_H_

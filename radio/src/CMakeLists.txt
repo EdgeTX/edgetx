@@ -76,7 +76,7 @@ set(FIRMWARE_RANLIB "${GCC_ARM_PATH}arm-none-eabi-ranlib" CACHE STRING "Specific
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
-set(RTOS_DIR ${THIRDPARTY_DIR}/FreeRTOS-Kernel-10.4.4)
+set(RTOS_DIR ${THIRDPARTY_DIR}/FreeRTOS)
 set(FATFS_DIR ${THIRDPARTY_DIR}/FatFs)
 set(RADIO_BIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -474,6 +474,8 @@ set(SRC
   timers.cpp
   trainer.cpp
   model_init.cpp
+  serial.cpp
+  sbus.cpp
   )
 
 if(GUI)
@@ -516,8 +518,8 @@ else()
   endif(WARNINGS_AS_ERRORS)
 endif()
 
-add_subdirectory(targets/simu)
-if(NOT MSVC)
+if(NATIVE_BUILD)
+  add_subdirectory(targets/simu)
   add_subdirectory(tests)
 endif()
 
@@ -525,164 +527,130 @@ set(SRC ${SRC} ${FIRMWARE_SRC})
 
 ##### firmware target #####
 
-option(FIRMWARE_TARGET "Configure Firmware target (can be turned of for compiling Companion only)" ON)
-if(NOT FIRMWARE_TARGET)
+if(NATIVE_BUILD)
   message(STATUS "firmware target disabled")
   return()
 endif()
 
-set(CMAKE_EXECUTABLE_SUFFIX ".elf")
-# trick to remove the -rdynamic and --out-implib issues
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-# similar for -mmacosx-version-min="
-set(CMAKE_C_OSX_DEPLOYMENT_TARGET_FLAG "")
-set(CMAKE_CXX_OSX_DEPLOYMENT_TARGET_FLAG "")
-# reset some CMake default flags which assume optimization levels/etc
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${FIRMWARE_C_FLAGS_DEBUG}")
-set(CMAKE_C_FLAGS_RELEASE "")
-set(CMAKE_C_FLAGS_MINSIZEREL "")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "")
+set(CMAKE_C_FLAGS_RELEASE "${FIRMWARE_C_FLAGS}")
+
 set(CMAKE_CXX_FLAGS "${FIRMWARE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${FIRMWARE_CXX_FLAGS_DEBUG}")
-set(CMAKE_CXX_FLAGS_RELEASE "")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
-# customize linker command
-set(CMAKE_EXE_LINKER_FLAGS "")
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
-set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> <FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
+set(CMAKE_CXX_FLAGS_RELEASE "${FIRMWARE_CXX_FLAGS}")
 
-set(CMAKE_C_STANDARD_LIBRARIES "")
-set(CMAKE_CXX_STANDARD_LIBRARIES "")
+find_program(BASH bash
+  HINTS "c:/cygwin/bin/" "c:/msys/bin/"
+  DOC "bash shell for firmware size report (eg. c:/cygwin/bin/bash.exe on Windows)."
+  )
 
-use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
+set(OPT "s" CACHE STRING "Optimization mode (0/1/2/s")
 
-find_program(BASH bash HINTS "c:/cygwin/bin/" "c:/msys/bin/" DOC "bash shell for firmware size report (eg. c:/cygwin/bin/bash.exe on Windows).")
+set(COMMON_FLAGS "-mcpu=${MCU} -mthumb -fomit-frame-pointer -fverbose-asm -Wa,-ahlms=firmware.lst")
+set(COMMON_FLAGS "${COMMON_FLAGS} -gdwarf-2 -fno-exceptions -fdata-sections -ffunction-sections")
+set(COMMON_FLAGS "${COMMON_FLAGS} -DHSE_VALUE=${HSE_VALUE}")
+set(COMMON_FLAGS "${COMMON_FLAGS} -O${OPT} ${FPU_FLAGS}")
+set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
 
-if(NOT MSVC)
-  set(OPT "s" CACHE STRING "Optimization mode (0/1/2/s")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS}")
 
-  if(ARCH STREQUAL ARM)
-    enable_language(ASM)
-    set(CMAKE_C_COMPILER ${FIRMWARE_C_COMPILER})
-    set(CMAKE_CXX_COMPILER ${FIRMWARE_CXX_COMPILER})
-    set(CMAKE_ASM_COMPILER ${FIRMWARE_ASM_COMPILER})
-    set(CMAKE_RANLIB ${FIRMWARE_RANLIB})
+# these are in addition to CMAKE_CXX_FLAGS
+set(CMAKE_EXE_LINKER_FLAGS "-lm -T${RADIO_SRC_DIR}/${LINKER_SCRIPT}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections")
 
-    set(CMAKE_SYSTEM_NAME Generic)
-    set(CMAKE_SYSTEM_VERSION 1)
-    set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> -o <OBJECT> <SOURCE>")
+if(SEMIHOSTING)
+  add_definitions(-DSEMIHOSTING)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=rdimon.specs")
+endif()
 
-    set(COMMON_FLAGS "-mcpu=${MCU} -mthumb -fomit-frame-pointer -fverbose-asm -Wa,-ahlms=firmware.lst -O${OPT} -gdwarf-2 -DHSE_VALUE=${HSE_VALUE} -fno-exceptions -fdata-sections -ffunction-sections ${WARNING_FLAGS}")
-    set(COMMON_FLAGS "${COMMON_FLAGS} ${FPU_FLAGS}")
-
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS}")
-
-    # these are in addition to CMAKE_CXX_FLAGS
-    set(CMAKE_EXE_LINKER_FLAGS "-lm -T${RADIO_SRC_DIR}/${LINKER_SCRIPT} -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections")
-
-    if(SEMIHOSTING)
-      add_definitions(-DSEMIHOSTING)
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=rdimon.specs")
-    endif()
-
-    # Use newlib nano, which saves a few kilobytes.
-    if(NOT NANO STREQUAL NO)
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
-      if(LUA)
-        # Lua needs %g and %f
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
-      endif()
-      if(SDRAM)
-        # Target with SDRAM do not need a custom allocator for now
-        # as the custom allocator has alignement issues
-        message("Target has SDRAM, do not use BIN_ALLOCATOR")
-      else()
-        # Nano's malloc does work well with lua, use our own
-        add_definitions(-DUSE_BIN_ALLOCATOR)
-        set(SRC ${SRC} bin_allocator.cpp)
-      endif()
-    endif()
-
-    if(OPENRC_BOOTLOADER)
-      # We fetch Mike's bootloader as it is not included inside OpenTX
-      message(STATUS "Downloading Mike's bootloader: https://github.com/MikeBland/OpenRcBootloader/releases/download/V1.9/${OPENRC_BOOTLOADER}")
-      file(DOWNLOAD https://github.com/MikeBland/OpenRcBootloader/releases/download/V1.9/${OPENRC_BOOTLOADER} ${CMAKE_CURRENT_BINARY_DIR}/bootloader.lbm STATUS status)
-      list(GET status 0 error_code)
-      if(error_code)
-        list(GET status 1 error_message)
-        message(FATAL_ERROR "Download failed: ${error_message}")
-      endif()
-    elseif(BOOTLOADER)
-      add_subdirectory(targets/common/arm/stm32/bootloader)
-      include_directories(${CMAKE_CURRENT_BINARY_DIR}/targets/common/arm/stm32/bootloader)
-      set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
-    endif()
-
-    add_definitions(-DFREE_RTOS)
-
-    add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
-    link_libraries(firmware -lstdc++)
-    add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
-    set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
-
-    if(ACCESS_DENIED)
-      add_subdirectory(thirdparty/AccessDenied)
-      include_directories(thirdparty/AccessDenied)
-      target_link_libraries(firmware AccessDenied)
-    endif()
-
-    add_custom_command(
-      TARGET firmware POST_BUILD
-      COMMAND ${FIRMWARE_OBJCOPY} -O binary firmware.elf firmware.bin
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-
-    find_program(GAWK gawk HINTS "c:/cygwin/bin/" "c:/msys/bin/" DOC "gawk for firmware size report.")  # OS X might only have "awk"
-    if (BASH AND GAWK)
-      add_custom_target(firmware-size
-        COMMAND ${BASH} -kc '${RADIO_DIRECTORY}/util/elf-size-report.sh --mcu=${CPU_TYPE_FULL} ${SIZE_TARGET_MEM_DEFINE} firmware.elf'
-        DEPENDS firmware
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-    else()
-      add_custom_target(firmware-size
-        COMMAND ${FIRMWARE_SIZE} -A firmware.elf
-        DEPENDS firmware
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-    endif()
-  endif()  # ARM
-
-  if(CPU_FAMILY STREQUAL STM32)
-    add_custom_target(flash
-      COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D firmware.bin
-      DEPENDS firmware
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-
-    add_custom_target(flash-bl
-      COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D bootloader.bin
-      DEPENDS bootloader
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-
-    add_custom_target(flash-jtag
-      COMMAND st-flash --reset write firmware.bin 0x8000000
-      DEPENDS firmware
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      )
-
-    add_custom_target(flash-stlink
-      COMMAND ST-LINK_CLI -c SWD -P firmware.bin 0x8000000 -Rst -Q
-      DEPENDS firmware-size
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      )
+# Use newlib nano, which saves a few kilobytes.
+if(NOT NANO STREQUAL NO)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
+  if(LUA)
+    # Lua needs %g and %f
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
   endif()
+  if(SDRAM)
+    # Target with SDRAM do not need a custom allocator for now
+    # as the custom allocator has alignement issues
+    message("Target has SDRAM, do not use BIN_ALLOCATOR")
+  else()
+    # Nano's malloc does work well with lua, use our own
+    add_definitions(-DUSE_BIN_ALLOCATOR)
+    set(SRC ${SRC} bin_allocator.cpp)
+  endif()
+endif()
 
-  PrintTargetReport("firmware")
+# Bootloader
+if(BOOTLOADER)
+  add_subdirectory(targets/common/arm/stm32/bootloader)
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/targets/common/arm/stm32/bootloader)
+  set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
+endif()
 
-endif(NOT MSVC)
+add_definitions(-DFREE_RTOS)
+
+add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
+link_libraries(firmware -lstdc++)
+add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
+set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+if(ACCESS_DENIED)
+  add_subdirectory(thirdparty/AccessDenied)
+  include_directories(thirdparty/AccessDenied)
+  target_link_libraries(firmware AccessDenied)
+endif()
+
+add_custom_command(
+  TARGET firmware POST_BUILD
+  COMMAND ${CMAKE_OBJCOPY} -O binary firmware.elf firmware.bin
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  )
+
+find_program(GAWK gawk
+  HINTS "c:/cygwin/bin/" "c:/msys/bin/"
+  DOC "gawk for firmware size report.")  # OS X might only have "awk"
+
+if (BASH AND GAWK)
+  add_custom_target(firmware-size
+    COMMAND ${BASH} -kc '${RADIO_DIRECTORY}/util/elf-size-report.sh --mcu=${CPU_TYPE_FULL} ${SIZE_TARGET_MEM_DEFINE} firmware.elf'
+    DEPENDS firmware
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+else()
+  add_custom_target(firmware-size
+    COMMAND ${CMAKE_SIZE_UTIL} -A firmware.elf
+    DEPENDS firmware
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
+
+if(CPU_FAMILY STREQUAL STM32)
+  add_custom_target(flash
+    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D firmware.bin
+    DEPENDS firmware
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+  add_custom_target(flash-bl
+    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D bootloader.bin
+    DEPENDS bootloader
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+  add_custom_target(flash-jtag
+    COMMAND st-flash --reset write firmware.bin 0x8000000
+    DEPENDS firmware
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+  add_custom_target(flash-stlink
+    COMMAND ST-LINK_CLI -c SWD -P firmware.bin 0x8000000 -Rst -Q
+    DEPENDS firmware-size
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
+
+PrintTargetReport("firmware")

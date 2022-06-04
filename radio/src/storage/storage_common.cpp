@@ -82,6 +82,27 @@ void postRadioSettingsLoad()
     setDefaultOwnerId();
   }
 #endif
+#if defined(PCBX12S)
+  // AUX2 is hardwired to AUX2 on X12S
+  serialSetMode(SP_AUX2, UART_MODE_GPS);
+#endif
+#if defined(USB_SERIAL)
+  // default VCP to CLI if not configured
+  // to something else as NONE.
+  if (isInternalModuleCrossfire() && serialGetMode(SP_VCP) == UART_MODE_NONE) {
+    serialSetMode(SP_VCP, UART_MODE_CLI);
+  }
+#endif
+#if defined(DEFAULT_INTERNAL_MODULE)
+  if (!g_eeGeneral.internalModule) {
+    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
+  }
+#endif
+#if defined(STICK_DEAD_ZONE)
+  if (!g_eeGeneral.stickDeadZone) {
+    g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
+  }
+#endif
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
@@ -154,21 +175,13 @@ void postModelLoad(bool alarms)
   if (!isInternalModuleAvailable(g_model.moduleData[INTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
-  else if (isModuleMultimodule(INTERNAL_MODULE))
-    multiPatchCustom(INTERNAL_MODULE);
-#endif
 #endif
 
   if (!isExternalModuleAvailable(g_model.moduleData[EXTERNAL_MODULE].type)) {
     memclear(&g_model.moduleData[EXTERNAL_MODULE], sizeof(ModuleData));
   }
-#if defined(MULTIMODULE)
-  else if (isModuleMultimodule(EXTERNAL_MODULE))
-    multiPatchCustom(EXTERNAL_MODULE);
-#if defined(MULTI_PROTOLIST)
+#if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
   MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
-#endif
 #endif
 
   AUDIO_FLUSH();

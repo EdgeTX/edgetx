@@ -48,12 +48,10 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
   int col = 0;
   int row = 0;
 
-  //  set default theme as back up
-  const std::string defaultTheme = "EdgeTX Default";
-  std::string themeName = defaultTheme;
-  std::string themeAuthor = "EdgeTX Team";
-  std::string themeInfo = "Default EdgeTX Color Scheme";
-  std::string themeFolder = "/THEMES/EdgeTX";
+  std::string themeName = tr("Information unavailable").toStdString();
+  std::string themeAuthor = "";
+  std::string themeInfo = "";
+  std::string themeFolder = "";
 
   QString selTheme = QString();
 
@@ -73,22 +71,34 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
   }
 
   if (!selTheme.isEmpty()) {
-    QFile fst(sdPath % selTheme);
+    QStringList strl = selTheme.split("/");
+    if (strl.size() >= 3) {
+      themeFolder = "/THEMES/" + strl.at(2).toStdString();
+      themeName = strl.at(2).toStdString();
+    }
 
-    if (fst.exists()) {
-      QStringList strl = selTheme.split("/");
-      if (strl.size() >= 3)
-        themeFolder = "/THEMES/" + strl.at(2).toStdString();
+    QString selThemeDetails(sdPath % selTheme);
 
-      YAML::Node node = YAML::LoadFile(QString(sdPath % selTheme).toStdString());
-      if (node["summary"]) {
-        const auto &summary = node["summary"];
-        if (summary.IsMap()) {
-          themeName = summary["name"].as<std::string>();
-          themeAuthor = summary["author"].as<std::string>();
-          themeInfo = summary["info"].as<std::string>();
+    if (QFile(selThemeDetails).exists()) {
+
+      try {
+        YAML::Node node = YAML::LoadFile(selThemeDetails.toStdString());
+
+        if (node["summary"]) {
+          const auto &summary = node["summary"];
+          if (summary.IsMap()) {
+            if (summary["name"].IsScalar())
+              themeName = summary["name"].as<std::string>();
+            if (summary["author"].IsScalar())
+              themeAuthor = summary["author"].as<std::string>();
+            if (summary["info"].IsScalar())
+              themeInfo = summary["info"].as<std::string>();
+          }
         }
+      } catch(const std::runtime_error& e) {
+          QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Cannot load %1").arg(selThemeDetails) + ":\n" + QString(e.what()));
       }
+
     }
   }
 
@@ -106,21 +116,19 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
   addGridLabel(grid, tr("Information"), row, col++);
   addGridLabel(grid, themeInfo.c_str(), row++, col++);
 
-  if (themeName != defaultTheme) {
-    col = 0;
-    addGridBlankRow(grid, row);
-    addGridLabel(grid, "", row, col++);
+  col = 0;
+  addGridBlankRow(grid, row);
+  addGridLabel(grid, "", row, col++);
 
-    QLabel * img = new QLabel(this);
-    QString path = sdPath + themeFolder.c_str() + "/logo.png";
-    QFile fimg(path);
-    if (fimg.exists()) {
-      QImage image(path);
-      if (!image.isNull()) {
-        img->setText("");
-        img->setFixedSize(QSize(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2));
-        img->setPixmap(QPixmap::fromImage(image.scaled(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2)));
-      }
+  QLabel * img = new QLabel(this);
+  QString path = sdPath + themeFolder.c_str() + "/logo.png";
+  QFile fimg(path);
+  if (fimg.exists()) {
+    QImage image(path);
+    if (!image.isNull()) {
+      img->setText("");
+      img->setFixedSize(QSize(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2));
+      img->setPixmap(QPixmap::fromImage(image.scaled(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2)));
     }
 
     grid->addWidget(img, row++, col++);

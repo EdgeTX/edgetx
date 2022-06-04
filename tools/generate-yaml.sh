@@ -12,7 +12,7 @@ fi
 : ${FLAVOR:="t12;t8;tlite;tpro;tx12;zorro;tx16s;x12s;nv14;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -DDISABLE_COMPANION=YES -Wno-dev -DYAML_STORAGE=YES "}
+: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DYAML_STORAGE=YES "}
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
@@ -98,7 +98,8 @@ do
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make yaml_data
+    make arm-none-eabi-configure
+    make -C arm-none-eabi yaml_data
 
-    rm -f CMakeCache.txt
+    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done

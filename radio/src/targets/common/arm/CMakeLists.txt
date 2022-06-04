@@ -164,7 +164,7 @@ endif()
 if(HAPTIC)
   add_definitions(-DHAPTIC)
   set(SRC ${SRC} haptic.cpp)
-  set(TARGET_SRC ${TARGET_SRC} haptic_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} haptic_driver.cpp)
 endif()
 
 # Protocols supported
@@ -268,8 +268,7 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
-
-include_directories(${RTOS_DIR}/include)
+add_definitions(-DSBUS_TRAINER)
 
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)
@@ -297,22 +296,6 @@ set(FIRMWARE_TARGET_SRC
   diskio.cpp
   telemetry_driver.cpp
 )
-
-set(FIRMWARE_SRC
-  ${FIRMWARE_SRC}
-  ${RTOS_DIR}/list.c
-  ${RTOS_DIR}/queue.c
-  ${RTOS_DIR}/tasks.c
-  ${RTOS_DIR}/event_groups.c
-  ${RTOS_DIR}/timers.c
-  rtos.c)
-
-if(CLI)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    ${RTOS_DIR}/stream_buffer.c)
-endif()
-
 
 set(PULSES_SRC
   ${PULSES_SRC}

@@ -1,5 +1,6 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
+option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(AFHDS2 "Support for AFHDS2" ON)
 option(GHOST "Ghost TX Module" ON)
@@ -54,21 +55,6 @@ add_definitions(-DINTERNAL_MODULE_AFHDS2A)
 set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  audio_spi_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
-  )
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  battery_driver.cpp
-  ../horus/flyskyHallStick_driver.cpp
-  ../common/arm/stm32/stm32_hal_adc.cpp
-  ../../hal/adc_driver.cpp
-  )
-
 set(BITMAPS_TARGET nv14_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
@@ -82,9 +68,12 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
 
+add_definitions(
+  -DSTM32F429_439xx -DSTM32F429xx
+  -DSDRAM -DCOLORLCD -DLIBOPENUI
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
+  -DSOFTWARE_KEYBOARD)
 
-add_definitions(-DSTM32F429_439xx -DSDRAM -DCOLORLCD -DLIBOPENUI
-      -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD)
 add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -102,10 +91,18 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
+if(STICKS_DEAD_ZONE)
+  add_definitions(-DSTICK_DEAD_ZONE)
+endif()
+
 set(AFHDS2 ON)
 
 # disable for now as it crashes on radio
 #set(AFHDS3 ON)
+
+# VCP CLI
+set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+set(CLI ON CACHE BOOL "Enable CLI")
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
@@ -127,26 +124,6 @@ set(SRC
 
 set(GVAR_SCREEN model_gvars.cpp)
 
-set(TARGET_SRC
-  ${TARGET_SRC}
-  extmodule_helper.cpp
-  ../horus/extmodule_driver.cpp
-  trainer_driver.cpp
-  ../common/arm/stm32/intmodule_serial_driver.cpp
-  )
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  ${LCD_DRIVER}
-  ${TOUCH_DRIVER}
-  board.cpp
-  backlight_driver.cpp
-  sdram_driver.c
-  startup_stm32f42_43xxx.s
-  ../common/arm/stm32/pwr_driver.cpp
-  ../common/arm/stm32/sdio_sd.c
-  )
-
 if(BOOTLOADER)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
@@ -167,6 +144,36 @@ if (MULTIMODULE)
     )
 endif()
 
+set(FIRMWARE_TARGET_SRC
+  ${FIRMWARE_TARGET_SRC}
+  board.cpp
+  startup_stm32f42_43xxx.s
+  ${LCD_DRIVER}
+  ${TOUCH_DRIVER}
+  sdram_driver.c
+  trainer_driver.cpp
+  battery_driver.cpp
+  audio_spi_driver.cpp
+  backlight_driver.cpp
+  extmodule_helper.cpp
+  ../horus/flyskyHallStick_driver.cpp
+  )
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  targets/common/arm/stm32/stm32_hal_adc.cpp
+  targets/common/arm/stm32/timers_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/extmodule_driver.cpp
+  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/extmodule_serial_driver.cpp
+  targets/common/arm/stm32/intmodule_serial_driver.cpp
+  targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/sdio_sd.c
+  )
+
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
 
@@ -180,51 +187,21 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
   )
 
-MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
-  if (WIN32)
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  else()
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  endif()
-
-  # Build an array of string from the GCC output
-  string(REPLACE "\n" ";" _gcc_output "${_gcc_output}")
-
-  set(_capture_include FALSE)
-  set(_include_path "")
-
-  # Go through the lines and capture between '"#include <...> search starts here:"' and 'End of search list.'
-  foreach(_line ${_gcc_output})
-    if(${_line} STREQUAL "End of search list.")
-      set(_capture_include FALSE)
-    endif()
-
-    if(_capture_include)
-      # Remove the leading and trailing empty characters
-      string(REPLACE "\r" "" _line ${_line})
-      string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I\"${_line}\"")
-    endif()
-
-    if(${_line} STREQUAL "#include <...> search starts here:")
-      set(_capture_include TRUE)
-    endif()
-  endforeach()
-  set(${gcc_include_path} ${_include_path})
-ENDMACRO()
-
 if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(gcc_include_path)
-
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBFLYSKY -DPCBNV14 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/nv14 -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h
+      -DPCBFLYSKY -DPCBNV14 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU
+      -I. -Igui/colorlcd -Itargets/nv14 -Itargets/common/arm/stm32
+      -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include
+      -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG}
+    > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
-
-  add_custom_target(datacopy
-    DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    )
+  add_custom_target(datacopy DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp)
 endif()
 

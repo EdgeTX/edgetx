@@ -26,6 +26,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -196,20 +197,144 @@ class BluetoothConfigWindow : public FormGroup
 };
 #endif
 
-void restartExternalModule()
+class SerialConfigWindow : public FormGroup
 {
-  if (!IS_EXTERNAL_MODULE_ON()) {
-    return;
+ public:
+  SerialConfigWindow(FormWindow *parent, const rect_t &rect) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+  {
+    update();
   }
-  pauseMixerCalculations();
-  pausePulses();
-  EXTERNAL_MODULE_OFF();
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-  EXTERNAL_MODULE_ON();
-  resumePulses();
-  resumeMixerCalculations();
-}
+
+  void update()
+  {
+    FormGridLayout grid;
+#if LCD_W > LCD_H
+    grid.setLabelWidth(180);
+#else
+    grid.setLabelWidth(130);
+#endif
+    clear();
+
+    bool display_ttl_warning = false;
+    for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
+      auto port = serialGetPort(port_nr);
+      if (!port || !port->name) continue;
+
+      display_ttl_warning = true;
+      new StaticText(this, grid.getLabelSlot(true), port->name, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto aux = new Choice(
+          this, grid.getFieldSlot(), STR_AUX_SERIAL_MODES, 0,
+          UART_MODE_MAX, [=]() { return serialGetMode(port_nr); },
+          [=](int value) {
+            serialSetMode(port_nr, value);
+            serialInit(port_nr, value);
+            SET_DIRTY();
+          });
+      aux->setAvailableHandler(
+          [=](int value) { return isSerialModeAvailable(port_nr, value); });
+      grid.nextLine();
+
+#if defined(SWSERIALPOWER)
+      if (port_nr < SP_VCP)
+      {
+          new StaticText(this, grid.getLabelSlot(true), STR_AUX_SERIAL_PORT_POWER, 0, COLOR_THEME_PRIMARY1);
+          new CheckBox(
+              this, grid.getFieldSlot(1, 0),
+                [=] { return serialGetPower(port_nr); },
+                [=](int8_t newValue) {
+                   serialSetPower(port_nr, (bool)newValue);
+                   SET_DIRTY();
+                }
+          );
+          grid.nextLine();
+      }
+#endif
+    }
+
+    if (display_ttl_warning) {
+      new StaticText(this, grid.getFieldSlot(), STR_TTL_WARNING, 0,
+                     COLOR_THEME_WARNING);
+      grid.nextLine();
+    }
+
+    getParent()->moveWindowsTop(top() + 1, adjustHeight());
+  }
+};
+
+class InternalModuleWindow : public FormGroup {
+ public:
+  InternalModuleWindow(FormWindow *parent, const rect_t &rect) :
+      FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
+  {
+    update();
+  }
+
+  void update()
+  {
+    FormGridLayout grid;
+#if LCD_W > LCD_H
+    grid.setLabelWidth(180);
+#else
+    grid.setLabelWidth(130);
+#endif
+    clear();
+
+    new StaticText(this, grid.getLabelSlot(true), TR_INTERNAL_MODULE, 0,
+                   COLOR_THEME_PRIMARY1);
+    auto internalModule = new Choice(this, grid.getFieldSlot(),STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
+                                     GET_DEFAULT(g_eeGeneral.internalModule),
+                                     [=](int moduleType) {
+                                       if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
+                                         memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
+                                         storageDirty(EE_MODEL);
+                                       }
+                                       g_eeGeneral.internalModule = moduleType;
+                                       SET_DIRTY();
+                                     });
+
+    internalModule->setAvailableHandler([](int module){
+      return isInternalModuleSupported(module);
+    });
+    grid.nextLine();
+
+#if defined(CROSSFIRE)
+    if (isInternalModuleCrossfire()) {
+      new StaticText(this, grid.getLabelSlot(true), STR_BAUDRATE, 0,COLOR_THEME_PRIMARY1);
+      new Choice(this, grid.getFieldSlot(), STR_CRSF_BAUDRATE, 0,CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+          [=]() -> int {
+            return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
+          },
+          [=](int newValue) {
+            g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
+            SET_DIRTY();
+            restartModule(INTERNAL_MODULE);
+          });
+      grid.nextLine();
+      #if defined(USB_SERIAL)
+        // If USB-VCP was off, set it to CLI to enable passthrough flashing
+        if (serialGetMode(SP_VCP) ==  UART_MODE_NONE)
+          serialSetMode(SP_VCP, UART_MODE_CLI);
+      #endif
+    }
+#endif
+    getParent()->moveWindowsTop(top() + 1, adjustHeight());
+  }
+
+  void checkEvents() override
+  {
+    if (g_eeGeneral.internalModule != lastModule) {
+      lastModule = g_eeGeneral.internalModule;
+      update();
+    }
+
+    FormGroup::checkEvents();
+  }
+
+ protected:
+  uint8_t lastModule = 0;
+};
 
 void RadioHardwarePage::build(FormWindow * window)
 {
@@ -241,6 +366,20 @@ void RadioHardwarePage::build(FormWindow * window)
     new RadioTextEdit(window, grid.getFieldSlot(2,0), g_eeGeneral.anaNames[i], LEN_ANA_NAME);
     grid.nextLine();
   }
+
+#if defined(STICK_DEAD_ZONE)
+  new StaticText(window, grid.getLabelSlot(true), STR_DEAD_ZONE);
+  auto choice =
+      new Choice(window, grid.getFieldSlot(2,0), 0, 7,
+                 GET_DEFAULT(g_eeGeneral.stickDeadZone), [=](uint8_t newValue) {
+                   g_eeGeneral.stickDeadZone = newValue;
+                   SET_DIRTY();
+                 });
+  choice->setTextHandler([](uint8_t value) {
+    return std::to_string(value ? 2 << (value - 1) : 0);
+  });
+  grid.nextLine();
+#endif
 
   // Pots
   new Subtitle(window, grid.getLineSlot(), STR_POTS, 0, COLOR_THEME_PRIMARY1);
@@ -328,39 +467,9 @@ void RadioHardwarePage::build(FormWindow * window)
   grid.nextLine();
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new StaticText(window, grid.getLabelSlot(), TR_INTERNAL_MODULE, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto internalModule = new Choice(window, grid.getFieldSlot(1, 0),
-      STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-      GET_DEFAULT(g_eeGeneral.internalModule),
-      [=](int moduleType) {
-        if (g_model.moduleData[INTERNAL_MODULE].type != moduleType) {
-          memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
-          storageDirty(EE_MODEL);
-        }
-        g_eeGeneral.internalModule = moduleType;
-        SET_DIRTY();
-      });
-
-  internalModule->setAvailableHandler([](int module){
-      return isInternalModuleSupported(module);
-  });
+  new Subtitle(window, grid.getLineSlot(), TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   grid.nextLine();
-#endif
-
-#if defined(CROSSFIRE)
-  // Max baud for external modules
-  new StaticText(window, grid.getLabelSlot(), STR_MAXBAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(1,0), STR_CRSF_BAUDRATE, 0, DIM(CROSSFIRE_BAUDRATES) - 1,
-               [=]() -> int {
-                   return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate);
-               },
-               [=](int newValue) {
-                   g_eeGeneral.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(newValue);
-                   SET_DIRTY();
-                   restartExternalModule();
-               });
-  grid.nextLine();
+  grid.addWindow(new InternalModuleWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 #endif
 
 #if defined(BLUETOOTH)
@@ -372,38 +481,10 @@ void RadioHardwarePage::build(FormWindow * window)
   }
 #endif
 
-#if defined(AUX_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  auto aux =
-      new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
-                 UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.auxSerialMode),
-                 [](int value) {
-                   g_eeGeneral.auxSerialMode = value;
-                   auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
-                   SET_DIRTY();
-                 });
-  aux->setAvailableHandler(isAuxModeAvailable);
+  new Subtitle(window, grid.getLineSlot(), STR_AUX_SERIAL_MODE, 0,
+               COLOR_THEME_PRIMARY1);
   grid.nextLine();
-#endif
-
-#if defined(AUX2_SERIAL)
-  new StaticText(window, grid.getLabelSlot(), STR_AUX2_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  auto aux2 =
-      new Choice(window, grid.getFieldSlot(1, 0), STR_AUX_SERIAL_MODES, 0,
-                 UART_MODE_MAX, GET_DEFAULT(g_eeGeneral.aux2SerialMode),
-                 [](int value) {
-                   g_eeGeneral.aux2SerialMode = value;
-                   aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
-                   SET_DIRTY();
-                 });
-  aux2->setAvailableHandler(isAux2ModeAvailable);
-  grid.nextLine();
-#endif
-
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  new StaticText(window, grid.getFieldSlot(1,0), STR_TTL_WARNING, 0, COLOR_THEME_WARNING);
-  grid.nextLine();
-#endif
+  grid.addWindow(new SerialConfigWindow(window, {0, grid.getWindowHeight(), LCD_W, 0}));
 
   // ADC filter
   new StaticText(window, grid.getLabelSlot(), STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
@@ -433,7 +514,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
 // extra bottom padding if touchscreen
 #if defined HARDWARE_TOUCH
-  grid.nextLine();
+  new StaticText(window, grid.getLabelSlot());
 #endif
 
   window->setInnerHeight(grid.getWindowHeight());

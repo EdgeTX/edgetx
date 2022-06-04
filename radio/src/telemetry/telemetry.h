@@ -75,10 +75,28 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 extern uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
 extern uint8_t telemetryRxBufferCount;
 
-//TODO: use module scoped buffers instead
 uint8_t* getTelemetryRxBuffer(uint8_t moduleIdx);
 uint8_t& getTelemetryRxBufferCount(uint8_t moduleIdx);
 
+// Set alternative telemetry input
+void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+
+// Set telemetry mirror callback
+void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t));
+
+// Mirror telemetry byte
+void telemetryMirrorSend(uint8_t data);
+
+void telemetryWakeup();
+void telemetryReset();
+
+extern uint8_t telemetryProtocol;
+void telemetryInit(uint8_t protocol);
+
+void telemetryInterrupt10ms();
+
+void telemetryStart();
+void telemetryStop();
 
 #define TELEMETRY_AVERAGE_COUNT        3
 
@@ -128,9 +146,9 @@ inline const char* getRssiLabel()
 {
 #if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
-      (g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
+      (g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
            MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-       g_model.moduleData[EXTERNAL_MODULE].getMultiProtocol() ==
+       g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
            MODULE_SUBTYPE_MULTI_HOTT)) {
     return "RQly";
   }
@@ -191,6 +209,10 @@ inline uint8_t modelTelemetryProtocol()
   }
 #endif
 
+  if (isModuleDSMP(EXTERNAL_MODULE)) {
+    return PROTOCOL_TELEMETRY_DSMP;
+  }
+  
   // default choice
   return PROTOCOL_TELEMETRY_FRSKY_SPORT;
 }
@@ -291,6 +313,7 @@ class OutputTelemetryBuffer {
 extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 
 #if defined(LUA)
+#include "fifo.h"
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
 #endif
@@ -307,7 +330,7 @@ struct ModuleSyncStatus
   tmr10ms_t lastUpdate;  // in 10ms
   int16_t   currentLag;  // in us
   
-  inline bool isValid() {
+  inline bool isValid() const {
     // 2 seconds
     return (get_tmr10ms() - lastUpdate < 200);
   }

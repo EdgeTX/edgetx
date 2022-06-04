@@ -42,7 +42,8 @@ class MultiRfProtocols
   uint8_t currentProto = 0;
   uint8_t totalProtos = 0;
 
-  MultiRfProtocols(unsigned int moduleIdx) : moduleIdx(moduleIdx) {}
+  MultiRfProtocols(unsigned int moduleIdx);
+  void fillBuiltinProtos();
 
  public:
 

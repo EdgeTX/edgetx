@@ -107,25 +107,22 @@ class SerialPxxBitTransport: public DataBuffer<uint8_t, 64> {
 
 class PwmPxxBitTransport: public PulsesBuffer<pulse_duration_t, 200> {
   protected:
-    uint16_t rest;
 
     void initFrame(uint32_t period)
     {
       initBuffer();
-      rest = period * 2000; // 0.5uS (2Mhz)
     }
 
     void addPart(uint8_t value)
     {
       pulse_duration_t duration = value ? 47 : 31;
       *ptr++ = duration;
-      rest -= duration + 1;
     }
 
     void addTail()
     {
       // rest min value is 18000 - 200 * 48 = 8400 (4.2ms)
-      *(ptr - 1) = 60000;
+      *(ptr - 1) = 255;
     }
 };
 

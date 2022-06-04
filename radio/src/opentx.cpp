@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -260,8 +261,11 @@ void memswap(void * a, void * b, uint8_t size)
 #if defined(PXX2)
 void setDefaultOwnerId()
 {
+  uint8_t ch;
   for (uint8_t i = 0; i < PXX2_LEN_REGISTRATION_ID; i++) {
-     g_eeGeneral.ownerRegistrationID[i] = (((uint8_t *)cpu_uid)[4 + i] & 0x3fu);
+    ch = ((uint8_t *)cpu_uid)[4+i]&0x7f;
+    if(ch<0x20 || ch==0x7f) ch='-';
+    g_eeGeneral.ownerRegistrationID[PXX2_LEN_REGISTRATION_ID-1-i] = ch;
   }
 }
 #endif
@@ -269,8 +273,6 @@ void setDefaultOwnerId()
 void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
-  g_eeGeneral.version  = EEPROM_VER;
-  g_eeGeneral.variant = EEPROM_VARIANT;
 
 #if defined(PCBHORUS)
   g_eeGeneral.blOffBright = 20;
@@ -296,7 +298,12 @@ void generalDefault()
   g_eeGeneral.slidersConfig = DEFAULT_SLIDERS_CONFIG;
 #endif
 
-  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
+#if defined(STICK_DEAD_ZONE)
+  g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
+#endif
+
+  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset,
+  // vBatMax has a -12V offset
   g_eeGeneral.vBatWarn = BATTERY_WARN;
   if (BATTERY_MIN != 90)
     g_eeGeneral.vBatMin = BATTERY_MIN - 90;
@@ -535,8 +542,11 @@ void checkBacklight()
     }
 
 #if defined(HARDWARE_TOUCH)
-    if (MainWindow::instance()->touchEventOccured() && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-      resetBacklightTimeout();
+    if (MainWindow::instance()->touchEventOccured()) {
+      inactivity.counter = 0;
+      if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {     
+        resetBacklightTimeout();
+      }
     }
 #endif
 
@@ -659,6 +669,10 @@ static void checkRTCBattery()
 static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
+#if defined(MULTIMODULE)
+    // use delayed check for MPM
+    if (isModuleMultimodule(i)) break;
+#endif
     if (isModuleFailsafeAvailable(i)) {
       ModuleData & moduleData = g_model.moduleData[i];
       if (moduleData.failsafeMode == FAILSAFE_NOT_SET) {
@@ -1135,12 +1149,12 @@ void getADC()
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
     uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_VALUE_GLOBAL) {
+    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
        // Use radio setting - which is inverted
       useJitterFilter = !g_eeGeneral.noJitterFilter;
     } else {
       // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_VALUE_ON)?1:0;
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
     }
 
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
@@ -1667,9 +1681,6 @@ void copyMinMaxToOutputs(uint8_t ch)
 
 inline uint32_t PWR_PRESS_DURATION_MIN()
 {
-  if (g_eeGeneral.version != EEPROM_VER)
-    return 200;
-
   return (2 - g_eeGeneral.pwrOnSpeed) * 100;
 }
 
@@ -1814,7 +1825,7 @@ void opentxInit()
       runFatalErrorScreen(STR_NO_SDCARD);
     }
 #endif
-    
+
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
     if (f_stat(AUTOUPDATE_FILENAME, nullptr) == FR_OK) {
@@ -1870,14 +1881,8 @@ void opentxInit()
 #endif
 #endif  // #if !defined(EEPROM)
 
-#if defined(AUX_SERIAL)
-  auxSerialInit(g_eeGeneral.auxSerialMode, modelTelemetryProtocol());
-#endif
-
-#if defined(AUX2_SERIAL)
-  aux2SerialInit(g_eeGeneral.aux2SerialMode, modelTelemetryProtocol());
-#endif
-
+  initSerialPorts();
+  
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)
@@ -2043,6 +2048,10 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
+    if (g_eeGeneral.backlightMode == e_backlight_mode_keys ||
+        g_eeGeneral.backlightMode == e_backlight_mode_all)
+      resetBacklightTimeout();
+
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }

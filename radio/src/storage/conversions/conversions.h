@@ -23,7 +23,7 @@
 void convertBinRadioData(const char * path, int version);
 const char* convertBinModelData(char * filename, int version);
 
-bool eeConvert();
+bool eeConvert(uint8_t start_version);
 void eeConvertModel(int id, int version);
 
 // // Conversions 216 to 217

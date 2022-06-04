@@ -20,6 +20,15 @@
  */
 
 #include "afhds2.h"
+#include "flysky.h"
+
+#include "intmodule_serial_driver.h"
+#include "mixer_scheduler.h"
+
+// solely for 'intmoduleFifo'
+// TODO: remove this non-sense
+#include "opentx.h"
+#include "pulses/pxx2.h"
 
 afhds2::afhds2() {
   // TODO Auto-generated constructor stub
@@ -30,3 +39,67 @@ afhds2::~afhds2() {
   // TODO Auto-generated destructor stub
 }
 
+const etx_serial_init afhds2SerialInitParams = {
+    .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
+    .parity = ETX_Parity_None,
+    .stop_bits = ETX_StopBits_One,
+    .word_length = ETX_WordLength_8,
+    .rx_enable = true,
+};
+
+static void* afhds2Init(uint8_t module)
+{
+  (void)module;
+
+  // serial port setup
+  resetPulsesAFHDS2();
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.init(&afhds2SerialInitParams);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
+  INTERNAL_MODULE_ON();
+
+  return nullptr;
+}
+
+static void afhds2DeInit(void* context)
+{
+  INTERNAL_MODULE_OFF();
+  intmoduleFifo.clear();
+  IntmoduleSerialDriver.deinit(context);
+
+  // mixer setup
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+}
+
+static void afhds2SetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, status.isValid()
+                                               ? status.getAdjustedRefreshRate()
+                                               : AFHDS2_PERIOD);
+  status.invalidate();
+  setupPulsesAFHDS2();
+}
+
+static void afhds2SendPulses(void* context)
+{
+  uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
+  uint16_t size = intmodulePulsesData.flysky.ptr - data;
+  IntmoduleSerialDriver.sendBuffer(context, data, size);
+}
+
+const etx_module_driver_t Afhds2InternalDriver = {
+  .protocol = PROTOCOL_CHANNELS_AFHDS2A,
+  .init = afhds2Init,
+  .deinit = afhds2DeInit,
+  .setupPulses = afhds2SetupPulses,
+  .sendPulses = afhds2SendPulses,    
+};

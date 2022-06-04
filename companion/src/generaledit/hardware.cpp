@@ -35,10 +35,55 @@ constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
 constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
 constexpr char FIM_INTERNALMODULES[] {"Internal Modules"};
 
+class ExclusiveComboGroup: public QObject
+{
+  static constexpr auto _role = Qt::UserRole + 500;
+
+  QList<QComboBox*> combos;
+  std::function<bool(const QVariant&)> filter;
+
+public:
+ ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
+   QObject(parent), filter(std::move(filter))
+ {
+ }
+
+ void addCombo(QComboBox *comboBox)
+ {
+   connect(comboBox, QOverload<int>::of(&QComboBox::activated),
+           [=](int index) { this->handleActivated(comboBox, index); });
+   combos.append(comboBox);
+  }
+
+  void handleActivated(QComboBox* target, int index) {
+    auto data = target->itemData(index);
+    auto targetidx = combos.indexOf(target);
+    for (auto combo : combos) {
+      if (target == combo) continue;
+      auto view = dynamic_cast<QListView*>(combo->view());
+      Q_ASSERT(view);
+
+      auto previous = combo->findData(targetidx, _role);
+      if (previous >= 0) {
+        view->setRowHidden(previous, false);
+        combo->setItemData(previous, QVariant(), _role);
+      }
+      if (!filter(data)) {
+        auto idx = combo->findData(data);
+        if (idx >= 0) {
+          view->setRowHidden(idx, true);
+          combo->setItemData(idx, targetidx, _role);
+        }
+      }
+    }
+  }
+};
+
 HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
   GeneralPanel(parent, generalSettings, firmware),
   board(firmware->getBoard()),
-  editorItemModels(sharedItemModels)
+  editorItemModels(sharedItemModels),
+  serialPortUSBVCP(nullptr)
 {
   editorItemModels->registerItemModel(Boards::potTypeItemModel());
   editorItemModels->registerItemModel(Boards::sliderTypeItemModel());
@@ -50,8 +95,9 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
-  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::auxSerialModeItemModel());
-  int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::telemetryBaudrateItemModel());
+  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
+  int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
+  int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::internalModuleBaudrateItemModel());
 
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
@@ -60,12 +106,24 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int count;
   int row = 0;
 
+  addSection(tr("Sticks"), row);
+
   count = Boards::getCapability(board, Board::Sticks);
   if (count) {
     for (int i = 0; i < count; i++) {
       addStick(i, row);
     }
   }
+
+  if (IS_FLYSKY_NV14(board)) {
+    addLabel(tr("Dead zone"), row, 0);
+    AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
+    spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
+    spnStickDeadZone->setField(generalSettings.stickDeadZone, this);
+    addParams(row, spnStickDeadZone);
+  }
+
+  addSection(tr("Pots"), row);
 
   count = Boards::getCapability(board, Board::Pots);
   count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
@@ -75,21 +133,25 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     }
   }
 
+  addSection(tr("Sliders"), row);
+
   count = Boards::getCapability(board, Board::Sliders);
   if (count) {
     for (int i = 0; i < count; i++) {
       addSlider(i, row);
     }
-    addLine(row);
   }
+
+  addSection(tr("Switches"), row);
 
   count = Boards::getCapability(board, Board::Switches);
   if (count) {
     for (int i = 0; i < count; i++) {
       addSwitch(i, row);
     }
-    addLine(row);
   }
+
+  addLine(row);
 
   if (Boards::getCapability(board, Board::HasRTC)) {
     addLabel(tr("RTC Battery Check"), row, 0);
@@ -137,38 +199,74 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     internalModule = new AutoComboBox(this);
     internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
     internalModule->setField(generalSettings.internalModule, this);
-    addParams(row, internalModule);
-    connect(internalModule, &AutoComboBox::currentDataChanged, this, &HardwarePanel::on_internalModuleChanged);
+
+    connect(internalModule, &AutoComboBox::currentDataChanged, this,
+            &HardwarePanel::on_internalModuleChanged);
+
+    internalModuleBaudRate = new AutoComboBox(this);
+    internalModuleBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
+    internalModuleBaudRate->setField(generalSettings.internalModuleBaudrate, this);
+
+    if (m_internalModule != MODULE_TYPE_GHOST && m_internalModule != MODULE_TYPE_CROSSFIRE) {
+      generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRate->setVisible(false);
+    }
+
+    addParams(row, internalModule, internalModuleBaudRate);
+    row++;
   }
 
-  if (firmware->getCapability(HasTelemetryBaudrate)) {
-    addLabel(tr("Maximum Baud"), row, 0);
-    AutoComboBox *maxBaudRate = new AutoComboBox(this);
-    maxBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
-    maxBaudRate->setField(generalSettings.telemetryBaudrate, this);
-    addParams(row, maxBaudRate);
-  }
+  // All values except 0 are mutually exclusive
+  ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
+      this, [=](const QVariant &value) { return value == 0; });
+
+  addSection(tr("Serial port"), row);
 
   if (firmware->getCapability(HasAuxSerialMode)) {
-    QString lbl = "Serial Port";
-    if (IS_RADIOMASTER_TX16S(board))
-      lbl.append(" (TTL)");
+    QString lbl = "AUX1";
     addLabel(tr("%1").arg(lbl), row, 0);
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
-    serialPortMode->setField(generalSettings.auxSerialMode);
-    addParams(row, serialPortMode);
+    serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX1], this);
+    exclGroup->addCombo(serialPortMode);
+
+    AutoCheckBox *serialPortPower = new AutoCheckBox(this);
+    serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX1], this);
+    serialPortPower->setText(tr("Power"));
+
+    addParams(row, serialPortMode, serialPortPower);
+
+    if (!firmware->getCapability(HasSoftwareSerialPower))
+      serialPortPower->setVisible(false);
   }
 
   if (firmware->getCapability(HasAux2SerialMode)) {
-    QString lbl = "Serial Port 2";
-    if (IS_RADIOMASTER_TX16S(board))
-      lbl.append(" (TTL)");
+    QString lbl = "AUX2";
     addLabel(tr("%1").arg(lbl), row, 0);
-    AutoComboBox *serialPort2Mode = new AutoComboBox(this);
-    serialPort2Mode->setModel(editorItemModels->getItemModel(auxmodelid));
-    serialPort2Mode->setField(generalSettings.aux2SerialMode);
-    addParams(row, serialPort2Mode);
+    AutoComboBox *serialPortMode = new AutoComboBox(this);
+    serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX2], this);
+    exclGroup->addCombo(serialPortMode);
+
+    AutoCheckBox *serialPortPower = new AutoCheckBox(this);
+    serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX2], this);
+    serialPortPower->setText(tr("Power"));
+
+    addParams(row, serialPortMode, serialPortPower);
+
+    if (!firmware->getCapability(HasSoftwareSerialPower))
+      serialPortPower->setVisible(false);
+  }
+
+  if (firmware->getCapability(HasVCPSerialMode)) {
+    addLabel(tr("USB-VCP"), row, 0);
+    serialPortUSBVCP = new AutoComboBox(this);
+    serialPortUSBVCP->setModel(editorItemModels->getItemModel(vcpmodelid));
+    serialPortUSBVCP->setField(generalSettings.serialPort[GeneralSettings::SP_VCP], this);
+    exclGroup->addCombo(serialPortUSBVCP);
+    addParams(row, serialPortUSBVCP);
+    connect(this, &HardwarePanel::internalModuleChanged, this, &HardwarePanel::updateSerialPortUSBVCP);
+    updateSerialPortUSBVCP();
   }
 
   if (firmware->getCapability(HasADCJitterFilter)) {
@@ -215,6 +313,23 @@ void HardwarePanel::on_internalModuleChanged()
   }
   else {
     m_internalModule = generalSettings.internalModule;
+    if (m_internalModule == MODULE_TYPE_GHOST || m_internalModule == MODULE_TYPE_CROSSFIRE) {
+
+      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                                Board::SportMaxBaudRate) < 400000) {
+        // default to 115k
+        internalModuleBaudRate->setCurrentIndex(0);
+      } else {
+        // default to 400k
+        internalModuleBaudRate->setCurrentIndex(1);
+      }
+
+      internalModuleBaudRate->setVisible(true);
+    } else {
+      generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRate->setVisible(false);
+    }
+
     emit internalModuleChanged();
   }
 }
@@ -304,4 +419,32 @@ void HardwarePanel::addParams(int & row, QWidget * widget1, QWidget * widget2)
   addHSpring(subgrid, 2, 0);
   grid->addLayout(subgrid, row, 1);
   row++;
+}
+
+void HardwarePanel::addSection(QString text, int & row)
+{
+  addLabel(QString("<b>%1</b>").arg(text), row, 0);
+  row++;
+}
+
+void HardwarePanel::updateSerialPortUSBVCP()
+{
+  if (!serialPortUSBVCP)
+    return;
+
+  if (m_internalModule == MODULE_TYPE_CROSSFIRE &&
+      generalSettings.serialPort[GeneralSettings::SP_VCP] == GeneralSettings::AUX_SERIAL_OFF) {
+    generalSettings.serialPort[GeneralSettings::SP_VCP] = GeneralSettings::AUX_SERIAL_CLI;
+    serialPortUSBVCP->updateValue();
+  }
+
+  auto view = dynamic_cast<QListView*>(serialPortUSBVCP->view());
+  Q_ASSERT(view);
+
+  for (int i = 0; i < serialPortUSBVCP->count(); i++) {
+    if (m_internalModule == MODULE_TYPE_CROSSFIRE && i == GeneralSettings::AUX_SERIAL_OFF)
+      view->setRowHidden(i, true);
+    else
+      view->setRowHidden(i, false);
+  }
 }

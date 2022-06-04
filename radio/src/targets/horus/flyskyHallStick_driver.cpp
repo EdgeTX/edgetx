@@ -22,6 +22,9 @@
 #include "opentx.h"
 #include "flyskyHallStick_driver.h"
 
+#include "fifo.h"
+#include "dmafifo.h"
+
 DMAFifo<HALLSTICK_BUFF_SIZE> hallDMAFifo __DMA (FLYSKY_HALL_DMA_Stream_RX);
 Fifo<uint8_t, HALLSTICK_BUFF_SIZE> hallStickTxFifo;
 unsigned char HallCmd[264] __DMA;
@@ -160,13 +163,6 @@ void reset_hall_stick( void )
 
 void flysky_hall_stick_check_init()
 {
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-
     USART_InitTypeDef USART_InitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -220,13 +216,6 @@ void flysky_hall_stick_check_init()
 void flysky_hall_stick_init()
 {
   USART_DeInit(FLYSKY_HALL_SERIAL_USART);
-
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
 
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;

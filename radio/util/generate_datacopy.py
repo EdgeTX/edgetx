@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+import find_clang
 import sys
 import clang.cindex
 import time
@@ -8,25 +9,6 @@ import os
 
 structs = []
 extrastructs = []
-
-
-def find_libclang():
-    if sys.platform == "darwin":
-        for path in ("/usr/local/Cellar/llvm/6.0.0/lib/libclang.dylib",
-                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib",
-                     "/Library/Developer/CommandLineTools/usr/lib/libclang.dylib"):
-            if os.path.exists(path):
-                return path
-    elif sys.platform.startswith("linux"):
-        for version in ("7", "6.0", "3.8"):
-            path = "/usr/lib/llvm-%s/lib/libclang.so" % version
-            if os.path.exists(path):
-                return path
-        for path in ("/usr/local/lib/libclang.so",
-                     "/usr/lib/libclang.so"):
-            if os.path.exists(path):
-                return path
-
 
 def build_struct(cursor, anonymousUnion=False):
     if not anonymousUnion:
@@ -108,13 +90,16 @@ def print_translation_unit_diags(diags, prefix=''):
 
 
 def main():
-    libclang = find_libclang()
-    if libclang:
-        # print(libclang, file=sys.stderr)
-        clang.cindex.Config.set_library_file(libclang)
 
-    index = clang.cindex.Index.create()
-    translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11'] + sys.argv[2:])
+    if not find_clang.initLibClang():
+        sys.exit(-1)
+
+    index = find_clang.index
+    args = ['-x', 'c++', '-std=c++11'] + sys.argv[2:]
+    if find_clang.builtin_hdr_path:
+        args.append("-I" + find_clang.builtin_hdr_path)
+
+    translation_unit = index.parse(sys.argv[1], args)
 
     if translation_unit.diagnostics:
         print_translation_unit_diags(translation_unit.diagnostics)

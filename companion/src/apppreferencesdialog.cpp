@@ -303,7 +303,7 @@ void AppPreferencesDialog::initSettings()
     }
   }
 
-  onBaseFirmwareChanged();
+  populateFirmwareOptions(getBaseFirmware());
 }
 
 void AppPreferencesDialog::on_libraryPathButton_clicked()

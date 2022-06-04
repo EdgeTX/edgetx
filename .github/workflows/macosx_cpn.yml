@@ -3,25 +3,25 @@ name: MacOSX Companion
 on:
   push:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     tags:
       - v*
     paths:
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   pull_request:
     branches:
-      - '2.5'
       - '2.6'
+      - '2.7'
       - 'main'
     paths:
       - '.github/workflows/macosx_cpn.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   workflow_dispatch:
 
@@ -53,9 +53,10 @@ jobs:
         uses: jurplel/install-qt-action@v2
         with:
           version: ${{ env.QT_VERSION }}
+          setup-python: 'false'
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip Pillow
+        run: python3 -m pip install --upgrade pip Pillow
 
       - name: Install dfu-util
         run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
@@ -92,7 +93,7 @@ jobs:
         shell: bash
         run: |
           mkdir output && \
-          tools/build-companion-nightly.sh "$(pwd)" "$(pwd)/output/"
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions

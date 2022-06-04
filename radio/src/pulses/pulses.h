@@ -32,6 +32,7 @@
 #include "afhds2.h"
 #include "modules_helpers.h"
 #include "ff.h"
+#include "hal/module_driver.h"
 
 
 #if defined(DSM2)
@@ -66,10 +67,10 @@ extern uint8_t s_pulses_paused;
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
-  uint8_t protocol:4;
+  uint8_t protocol;
   uint8_t mode:4;
   uint8_t paused:1;
-  uint8_t spare:7;
+  uint8_t spare:3;
   uint16_t counter;
 
   // PXX specific items
@@ -118,7 +119,9 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 
 #define PPM_DEF_PERIOD               225 /* 22.5ms */
 #define PPM_STEP_SIZE                5 /*0.5ms*/
-#define PPM_PERIOD_HALF_US(module)   ((g_model.moduleData[module].ppm.frameLength * PPM_STEP_SIZE + PPM_DEF_PERIOD) * 200) /*half us*/
+#define PPM_PERIOD_FL_TO_HALF_US(fl) (((fl)*PPM_STEP_SIZE+PPM_DEF_PERIOD)*200) /* half us*/
+#define PPM_PERIOD_HALF_US(module)   PPM_PERIOD_FL_TO_HALF_US(g_model.moduleData[module].ppm.frameLength) /*half us*/
+#define PPM_TRAINER_PERIOD_HALF_US() PPM_PERIOD_FL_TO_HALF_US(g_model.trainerData.frameLength) /*half us*/
 #define PPM_PERIOD(module)           (PPM_PERIOD_HALF_US(module) / 2) /*us*/
 #define DSM2_BAUDRATE                125000
 #define DSM2_PERIOD                  22000 /*us*/
@@ -230,19 +233,19 @@ void intmoduleSendNextFrame();
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
+void extmoduleSendNextFrame();
 #endif
+void restartModule(uint8_t idx);
 void setupPulsesDSM2();
+void setupPulsesLemonDSMP();
 void setupPulsesCrossfire(uint8_t idx);
 void setupPulsesGhost();
 void setupPulsesMultiExternalModule();
-void setupPulsesMultiInternalModule();
 void setupPulsesSbus();
 void setupPulsesPPMInternalModule();
 void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-void sendByteDsm2(uint8_t b);
 void putDsm2Flush();
-void putDsm2SerialBit(uint8_t bit);
 void sendByteSbus(uint8_t b);
 void intmodulePpmStart();
 void intmodulePxx1PulsesStart();
@@ -259,48 +262,8 @@ uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
 void extramodulePpmStart();
 
-inline void startPulses()
-{
-  s_pulses_paused = false;
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-  setupPulsesInternalModule();
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  setupPulsesExternalModule();
-#endif
-
-#if defined(HARDWARE_EXTRA_MODULE)
-  extramodulePpmStart();
-#endif
-}
-
-enum ChannelsProtocols {
-  PROTOCOL_CHANNELS_UNINITIALIZED,
-  PROTOCOL_CHANNELS_NONE,
-  PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PXX1_PULSES,
-  PROTOCOL_CHANNELS_PXX1_SERIAL,
-  PROTOCOL_CHANNELS_DSM2_LP45,
-  PROTOCOL_CHANNELS_DSM2_DSM2,
-  PROTOCOL_CHANNELS_DSM2_DSMX,
-  PROTOCOL_CHANNELS_CROSSFIRE,
-  PROTOCOL_CHANNELS_MULTIMODULE,
-  PROTOCOL_CHANNELS_SBUS,
-  PROTOCOL_CHANNELS_PXX2_LOWSPEED,
-  PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
-  PROTOCOL_CHANNELS_AFHDS2A,
-  PROTOCOL_CHANNELS_AFHDS3,
-  PROTOCOL_CHANNELS_GHOST
-};
-
-inline void stopPulses()
-{
-  s_pulses_paused = true;
-  for (uint8_t i = 0; i < NUM_MODULES; i++)
-    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
-}
+void startPulses();
+void stopPulses();
 
 inline bool pulsesStarted()
 {

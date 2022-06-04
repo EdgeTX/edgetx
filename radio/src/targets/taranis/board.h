@@ -27,6 +27,9 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
+
+#include "watchdog_driver.h"
 
 #if defined(RADIO_TX12) || defined(RADIO_ZORRO)
   #define  NAVIGATION_X7_TX12
@@ -36,10 +39,6 @@
 // Rotary Encoder driver
 void rotaryEncoderInit();
 void rotaryEncoderCheck();
-#endif
-
-#if defined(RADIO_ZORRO)
-#define ROTARY_ENCODER_INVERT
 #endif
 
 #define FLASHSIZE                       0x80000
@@ -64,10 +63,6 @@ extern uint16_t sessionTimer;
 // Board driver
 void boardInit();
 void boardOff();
-
-// Timers driver
-void init2MhzTimer();
-void init1msTimer();
 
 // PCBREV driver
 enum {
@@ -115,24 +110,15 @@ uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // Pulses driver
-#define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#if defined(INTMODULE_USART)
-  #define INTERNAL_MODULE_OFF()         intmoduleStop()
-#else
-  #define INTERNAL_MODULE_OFF()         GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#endif
+#define INTERNAL_MODULE_ON()   GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define INTERNAL_MODULE_OFF()  GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 
 #if (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)) && (!defined(PCBX9LITE) || defined(PCBX9LITES))
   #define HARDWARE_INTERNAL_RAS
 #endif
 
 #define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
-
-#if defined(EXTMODULE_USART)
-  #define EXTERNAL_MODULE_OFF()         extmoduleStop()
-#else
-  #define EXTERNAL_MODULE_OFF()         EXTERNAL_MODULE_PWR_OFF()
-#endif
+#define EXTERNAL_MODULE_OFF()           EXTERNAL_MODULE_PWR_OFF()
 
 #if defined(RADIO_T12)
 #define IS_INTERNAL_MODULE_ON()         false
@@ -140,18 +126,12 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
 #endif
 
-void extmoduleSerialStart();
-void extmoduleInvertedSerialStart(uint32_t baudrate);
-void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
-void extmoduleSendNextFrame();
-void extmoduleSendInvertedByte(uint8_t byte);
-
 // Trainer driver
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
 #if defined(TRAINER_DETECT_GPIO)
   // Trainer detect is a switch on the jack
-  #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_RESET)
+  #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == TRAINER_DETECT_GPIO_PIN_VALUE)
 #elif defined(PCBXLITES)
   // Trainer is on the same connector than Headphones
   enum JackState
@@ -181,35 +161,19 @@ void extmoduleSendInvertedByte(uint8_t byte);
   #define init_trainer_capture()
   #define stop_trainer_capture()
 #endif
+
 #if defined(TRAINER_MODULE_CPPM)
   void init_trainer_module_cppm();
   void stop_trainer_module_cppm();
-#else
-  #define init_trainer_module_cppm()
-  #define stop_trainer_module_cppm()
 #endif
+
 #if defined(TRAINER_MODULE_SBUS)
   void init_trainer_module_sbus();
   void stop_trainer_module_sbus();
-#else
-  #define init_trainer_module_sbus()
-  #define stop_trainer_module_sbus()
-#endif
-
-#if defined(INTMODULE_HEARTBEAT_GPIO)
-void init_intmodule_heartbeat();
-void stop_intmodule_heartbeat();
-void check_intmodule_heartbeat();
-#else
-#define init_intmodule_heartbeat()
-#define stop_intmodule_heartbeat()
-#define check_intmodule_heartbeat()
+  int trainerModuleSbusGetByte(uint8_t* byte);
 #endif
 
 void check_telemetry_exti();
-
-// SBUS
-int sbusGetByte(uint8_t * byte);
 
 // Keys driver
 enum EnumKeys
@@ -540,20 +504,6 @@ uint8_t getFSPhysicalState(uint8_t index);
 #define TRIMS_PRESSED()                 (readTrims())
 #define KEYS_PRESSED()                  (readKeys())
 
-// WDT driver
-#define WDG_DURATION                      500 /*ms*/
-#if !defined(WATCHDOG) || defined(SIMU)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #define WDG_ENABLE(x)                 watchdogInit(x)
-  #define WDG_RESET()                   IWDG->KR = 0xAAAA
-#endif
-void watchdogInit(unsigned int duration);
-#define WAS_RESET_BY_SOFTWARE()             (RCC->CSR & RCC_CSR_SFTRSTF)
-#define WAS_RESET_BY_WATCHDOG()             (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-
 // ADC driver
 enum Analogs {
   STICK1,
@@ -816,7 +766,7 @@ void sportSendByte(uint8_t byte);
 void sportSendByteLoop(uint8_t byte);
 void sportStopSendByteLoop();
 void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool telemetryGetByte(uint8_t * byte);
+bool sportGetByte(uint8_t * byte);
 void telemetryClearFifo();
 extern uint32_t telemetryErrors;
 
@@ -901,23 +851,10 @@ void hapticOff();
   void hapticOn();
 #endif
 
-// Aux serial port driver
-#if defined(AUX_SERIAL_GPIO)
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-#define AUX_SERIAL
-extern uint8_t auxSerialMode;
-#if defined __cplusplus
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialSbusInit();
-void auxSerialStop();
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL_POWER_OFF()
-#endif
+
+const etx_serial_port_t* auxSerialGetPort(int port_nr);
 
 // BT driver
 #define BLUETOOTH_BOOTLOADER_BAUDRATE   230400
@@ -976,7 +913,9 @@ void fsLedOn(uint8_t);
 #define IS_LCD_RESET_NEEDED()           true
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
-#if defined(RADIO_TX12)  || defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO)
+#if defined(RADIO_TX12)
+  #define LCD_CONTRAST_DEFAULT          20
+#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15
@@ -1035,9 +974,9 @@ void setTopBatteryValue(uint32_t volts);
 #endif
 
 extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
-typedef DMAFifo<32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
 #endif
+
+#define INTMODULE_FIFO_SIZE            128
 
 // Gyro driver
 #define GYRO_VALUES_COUNT               6

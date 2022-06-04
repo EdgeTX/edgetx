@@ -141,9 +141,9 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 #ifdef __cplusplus
   extern "C" {
 #endif
-    #include <FreeRTOS.h>
-    #include <task.h>
-    #include <semphr.h>
+    #include <FreeRTOS/include/FreeRTOS.h>
+    #include <FreeRTOS/include/task.h>
+    #include <FreeRTOS/include/semphr.h>
 #ifdef __cplusplus
   }
 #endif

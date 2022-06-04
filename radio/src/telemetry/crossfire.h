@@ -34,6 +34,7 @@
 #define GPS_ID                         0x02
 #define CF_VARIO_ID                    0x07
 #define BATTERY_ID                     0x08
+#define BARO_ALT_ID                    0x09
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -89,6 +90,7 @@ enum CrossfireSensorIndexes {
   ATTITUDE_YAW_INDEX,
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
+  BARO_ALTITUDE_INDEX,
   UNKNOWN_INDEX,
 };
 
@@ -110,12 +112,20 @@ const uint32_t CROSSFIRE_BAUDRATES[] = {
   3750000,
   5250000,
 };
+
+#if defined(RADIO_TPRO)
+#define CROSSFIRE_MAX_INTERNAL_BAUDRATE     DIM(CROSSFIRE_BAUDRATES) - 3
+#else
+#define CROSSFIRE_MAX_INTERNAL_BAUDRATE     DIM(CROSSFIRE_BAUDRATES) - 1
+#endif
+
 const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
   16,
   4,
-  4,
-  4,
-  4,
+  2,
+  2,
+  2,
+  2,
 };
 #if SPORT_MAX_BAUDRATE < 400000
   // index 0 (115200) is the default 0 value
@@ -131,8 +141,9 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
 
-#define CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)]
-#define CROSSFIRE_PERIOD      (CROSSFIRE_FRAME_PERIODS[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.telemetryBaudrate)] * 1000)
+#define INT_CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)]
+#define EXT_CROSSFIRE_BAUDRATE    CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)]
+#define CROSSFIRE_PERIOD          (CROSSFIRE_FRAME_PERIODS[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate)] * 1000)
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
 

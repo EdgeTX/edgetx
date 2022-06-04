@@ -23,6 +23,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <set>
 #include "bitmapbuffer.h"
 #include "libopenui.h"
 #include "touch.h"
@@ -37,13 +38,24 @@ class ListBase : public FormField
               uint8_t lineHeight = MENUS_LINE_HEIGHT,
               WindowFlags windowFlags = 0, LcdFlags lcdFlags = 0);
 
-    
+    typedef enum {
+      LISTBOX_SINGLE_SELECT,
+      LISTBOX_MULTI_SELECT
+    } selecttype_e;
+
     // draw one line of the list. Default implementation just draws the names.  Oher types of lists
     // can draw anything they want.
     virtual void drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, LcdFlags lcdFlags);
     void paint (BitmapBuffer *dc) override;
 
     virtual void setSelected(int selected);
+    virtual void setFocusLine(int selected);
+    void clearSelection() {selectedIndexes.clear(); invalidate();}
+
+    void setMultiSelectHandler(std::function<void(std::set<uint32_t>)> handler)
+    {
+      _multiSelectHandler = std::move(handler);
+    }
 
     void setLongPressHandler(std::function<void(event_t)> handler)
     {
@@ -53,6 +65,11 @@ class ListBase : public FormField
     void setPressHandler(std::function<void(event_t)> handler)
     {
       pressHandler = std::move(handler);
+    }
+
+    void setSelectionMode(selecttype_e st)
+    {
+      selectionType = st;
     }
 
     void setActiveIndex(int index)
@@ -108,9 +125,13 @@ class ListBase : public FormField
     std::vector<std::string> names;
     std::function<uint32_t()> _getValue;
     std::function<void(uint32_t)> _setValue;
+    std::function<void(std::set<uint32_t>)> _multiSelectHandler = nullptr;
     int lineHeight;
     int32_t selected = -1;
     int32_t activeIndex = -1;
+    std::set<uint32_t> selectedIndexes;
+    selecttype_e selectionType = LISTBOX_SINGLE_SELECT;
+    bool waslongpress = false;
 
 #if defined(HARDWARE_TOUCH)
     uint32_t duration10ms;

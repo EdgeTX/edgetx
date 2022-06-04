@@ -63,7 +63,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\010"
-#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "LUA脚本\0"
+#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "SBUS教练" "LUA脚本\0""CLI\0     ""GPS\0     ""Debug\0   "
 
 #define LEN_SWTYPES                    "\004"
 #define TR_SWTYPES                     "无\0 " "回弹" "2段\0""3段\0"
@@ -110,7 +110,7 @@
 #define LEN_CURVE_TYPES                "\006"
 #define TR_CURVE_TYPES                 "标准\0 " "自定义"
 
-#define LEN_ADCFILTERVALUES             "\002"                                        
+#define LEN_ADCFILTERVALUES             "\004"                                        
 #define TR_ADCFILTERVALUES              "全局""禁用" "开启"
 
 #define LEN_RETA123                    "\001"
@@ -474,6 +474,7 @@
 #define TR_BACKLIGHT_LABEL             "背光"
 #define TR_BLDELAY                     INDENT "Duration"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "背光开"
 #define TR_BLOFFBRIGHTNESS             "背光关"
 #define TR_KEYS_BACKLIGHT              "按键背光"
@@ -768,7 +769,8 @@
 #define TR_TEMP_CALIB                  "温度校准"
 #define TR_TIME                        "时间"
 #define TR_MAXBAUDRATE                 "最大带宽"
-#define TR_SAMPLE_MODE                 "Sample Mode"
+#define TR_BAUDRATE                    "波特率"
+#define TR_SAMPLE_MODE                 "采样模式"
 #define LEN_SAMPLE_MODES                "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
 #define TR_BLUETOOTH                   "蓝牙"
@@ -777,9 +779,17 @@
 #define TR_BLUETOOTH_DIST_ADDR         "目标地址"
 #define TR_BLUETOOTH_LOCAL_ADDR        "本机地址"
 #define TR_BLUETOOTH_PIN_CODE          "PIN码"
-#define TR_BAUDRATE                    "蓝牙带宽"
+#define TR_BLUETOOTH_BAUDRATE          "蓝牙带宽"
 #define LEN_BLUETOOTH_MODES            "\004"
 #define TR_BLUETOOTH_MODES             "---\0" "回传" "教练"
+#define TR_SELECT_TEMPLATE_FOLDER      "选择一个模板文件夹:"
+#define TR_SELECT_TEMPLATE             "选择一个模板:"
+#define TR_NO_TEMPLATES                "在此文件夹中未找到模型模板"
+#define TR_SAVE_TEMPLATE               "存储为模板"
+#define TR_BLANK_MODEL                 "空白模型"
+#define TR_BLANK_MODEL_INFO            "创建一个空白模型"
+#define TR_FILE_EXISTS                 "文件已存在"
+#define TR_ASK_OVERWRITE               "是否覆盖?"
 
 #define TR_SD_INFO_TITLE               "存储卡详情"
 #define TR_SD_TYPE                     "类型:"
@@ -798,11 +808,13 @@
 #define TR_MONTH                       "月"
 #define TR_DAY                         "日"
 #define TR_ROTARY_ENCODER              "滚轮"
+#define TR_INVERT_ROTARY               "滚轮反向"
 #define TR_CHANNELS_MONITOR            "通道查看器"
 #define TR_MIXERS_MONITOR              "混控查看器"
 #define TR_PATH_TOO_LONG               "路径太长"
 #define TR_VIEW_TEXT                   "查看文本"
 #define TR_FLASH_BOOTLOADER            "更新引导程序"
+#define TR_FLASH_DEVICE                TR("Flash device","刷新设备")      
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "从 S.Port 端口更新外设固件")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -811,6 +823,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "刷新蓝牙模块")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
+#define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "设备无响应")
+#define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "设备文件错误")
+#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "设备数据被拒绝")
+#define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "无法访问设备")
+#define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "设备文件被拒绝")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "错误的文件签名")
 #define TR_CURRENT_VERSION             "当前版本: "
 #define TR_FLASH_INTERNAL_MODULE       "更新内置模块固件"
 #define TR_FLASH_INTERNAL_MULTI        "更新内置多协议模块固件"
@@ -873,7 +891,7 @@
 #define TR_ABOUT_US                    "关于"
 #define TR_USB_JOYSTICK                "USB 游戏柄 (HID)"
 #define TR_USB_MASS_STORAGE            "USB 存储器 (SD)"
-#define TR_USB_SERIAL                  "USB 串口 (调试)"
+#define TR_USB_SERIAL                  "USB 串口 (VCP)"
 #define TR_SETUP_SCREENS               "设置显示页面"
 #define TR_MONITOR_SCREENS             "查看器"
 #define TR_AND_SWITCH                  "与开关"
@@ -975,6 +993,7 @@
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS 偏移量")
 #define TR_AUX_SERIAL_MODE             "串口"
 #define TR_AUX2_SERIAL_MODE            "串口 2"
+#define TR_AUX_SERIAL_PORT_POWER       "Port power"
 #define TR_SCRIPT                      "脚本"
 #define TR_INPUTS                      "输入"
 #define TR_OUTPUTS                     "输出"
@@ -987,6 +1006,8 @@
 #define TR_SPORT_UPDATE_POWER_MODES    "自动""开启"
 #define TR_NO_TELEMETRY_SCREENS        "无回传页面"
 #define TR_TOUCH_PANEL                 "触摸屏:"
+#define TR_FILE_SIZE                   "文件大小"
+#define TR_FILE_OPEN                   "还要打开文件吗?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名称"
@@ -1135,6 +1156,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_JITTER_FILTER               "类比输入滤波"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "检查时间驱动电池电压")
 #define TR_AUTH_FAILURE                "验证失败"
 #define TR_RACING_MODE                 "竞速模式"
@@ -1297,6 +1319,11 @@
 #define TR_USE_THEME_COLOR            "使用主题颜色"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "打开通道监视器" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "通道监视" 
+#endif
 #define TR_DUPLICATE                  "复制"
 #define TR_ACTIVATE                   "启用"
 #define TR_RED                        "红"

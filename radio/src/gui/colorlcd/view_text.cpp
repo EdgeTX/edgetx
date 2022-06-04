@@ -102,6 +102,7 @@ void ViewTextWindow::extractNameSansExt()
 
   nameLength -= extLength;
   name.substr(nameLength);
+  openFromEnd = !strcmp(ext, LOGS_EXT);
 }
 
 void ViewTextWindow::buildBody(Window *window)
@@ -110,6 +111,7 @@ void ViewTextWindow::buildBody(Window *window)
   grid.spacer();
   grid.setLabelWidth(PAGE_LINE_HEIGHT + 3UL * PAGE_LINE_SPACING);  // width of "first column" for checkboxes
   int i;
+  FIL file;
 
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
@@ -125,22 +127,26 @@ void ViewTextWindow::buildBody(Window *window)
     memclear(lines[i], maxLineLength + 1);
   }
 
-  longestLine = 0;
-  loadFirstScreen();
+  if (isInSetup) {
+    if (FR_OK ==
+        f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ)) {
+      const int fileLenght = file.obj.objsize;
+      maxLines = 20 * fileLenght / maxLineLength;
+      f_close(&file);
 
-  if (isInSetup == true) {
-    textBottom = false;
-    while (!textBottom) {
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-      textVerticalOffset += 10;
+      textBottom = false;
+      longestLine = 0;
+      loadOneScreen(maxLines);
+
+      maxPos =
+          (maxLines - maxScreenLines) * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+      if (maxPos < body.getRect().h) maxPos = body.getRect().h;
     }
-    maxPos =
-        (maxLines - maxScreenLines) * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-    if (maxPos < body.getRect().h) maxPos = body.getRect().h;
   }
 
   isInSetup = false;
-  loadFirstScreen();
+  textVerticalOffset = 0;
+  loadOneScreen(openFromEnd ? (maxLines - maxScreenLines) : 0);
 
   for (i = 0; i < maxScreenLines; i++) {
     if (g_model.checklistInteractive) {
@@ -163,7 +169,7 @@ void ViewTextWindow::buildBody(Window *window)
       });
     }
     grid.nextLine();
-  }
+    }
 }
 
 #if defined(HARDWARE_TOUCH)
@@ -179,8 +185,8 @@ bool ViewTextWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX,
     textVerticalOffset += lineStep;
     if (textVerticalOffset < 0) textVerticalOffset = 0;
 
-    //  if (textBottom && lineStep > 0) textVerticalOffset -= lineStep;
-    if (textVerticalOffset > maxLines) textVerticalOffset = maxLines;
+    if (textVerticalOffset > maxLines - maxScreenLines)
+      textVerticalOffset = maxLines - maxScreenLines;
     sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   }
   return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
@@ -266,9 +272,9 @@ void ViewTextWindow::checkEvents()
   Page::checkEvents();
 }
 
-void ViewTextWindow::loadFirstScreen()
+void ViewTextWindow::loadOneScreen(int offset)
 {
-  textVerticalOffset = 0;
+  textVerticalOffset = offset;
   readLinesCount = 0;
   sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
 }
@@ -291,11 +297,10 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
-    for (int i = 0; i < TEXT_FILE_MAXSIZE &&
-                    f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
-                    (lines_count == 0 ||
-                     current_line - textVerticalOffset < maxScreenLines);
-         i++) {
+    while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
+                         (lines_count == 0 ||
+                          current_line - textVerticalOffset < maxScreenLines))
+    {
       if (c == '\n' || line_length >= maxLineLength) {
         ++current_line;
         line_length = 0;
@@ -358,9 +363,8 @@ void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
 {
   int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
 
-  if (readPos < header.getRect().h << 1) readPos = header.getRect().h << 1;
-
-  coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos);
+  coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos)
+                     + header.getRect().h + (int)PAGE_LINE_SPACING;
   coord_t yhgt = divRoundClosest(body.getRect().h * body.getRect().h, maxPos);
   if (yhgt < 15) yhgt = 15;
   if (yhgt + yofs > maxPos) yhgt = maxPos - yofs;

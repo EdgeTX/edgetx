@@ -24,6 +24,7 @@
 #include "yaml_tree_walker.h"
 
 #include "pulses/multi.h"
+#include "stamp.h"
 
 // Use definitions from v220 conversions as long as nothing changes
 
@@ -56,10 +57,6 @@ namespace yaml_conv_220 {
   bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-
-  extern const struct YamlIdStr enum_TrainerMode[];
-  bool w_trainerMode(const YamlNode* node, uint32_t val,
-                     yaml_writer_func wf, void* opaque);
 
   extern const char* _tele_screen_type_lookup[];
   bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
@@ -98,6 +95,7 @@ namespace yaml_conv_220 {
   bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                        void* opaque);
 
+  extern const struct YamlIdStr enum_UartModes[];
 };
 
 //
@@ -136,6 +134,12 @@ static inline void check_yaml_funcs()
 #endif
 }
 
+static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
+                    yaml_writer_func wf, void* opaque)
+{
+  return wf(opaque, VERSION, sizeof(VERSION)-1);
+}
+
 static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque)
 {
@@ -154,7 +158,7 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
       && (val[3] <= '9')) {
 
     TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
-    return gvar - (val[3] - '1');  // -GVx => 128 - x
+    return gvar - (val[3] - '0');  // -GVx => 128 - x
   }
 
   if ((val_len == 3)
@@ -440,7 +444,6 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_NONE:
     case MODULE_TYPE_PPM:
     case MODULE_TYPE_DSM2:
-    case MODULE_TYPE_CROSSFIRE:
       return 1;
     case MODULE_TYPE_MULTIMODULE:
       return 2;
@@ -462,6 +465,10 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
       break;
     case MODULE_TYPE_GHOST:
       return 8;
+    case MODULE_TYPE_CROSSFIRE:
+      return 9;
+    case MODULE_TYPE_LEMON_DSMP:
+      return 10;
   }
   return 0;
 }
@@ -550,8 +557,11 @@ static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 
   data -= offsetof(RadioData, switchConfig);
   RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return wf(opaque, rd->anaNames[idx],
-            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, rd->anaNames[idx],
+          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
@@ -595,7 +605,10 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
 
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   const char* str = rd->switchNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlNode struct_switchConfig[] = {
@@ -651,7 +664,10 @@ static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -734,7 +750,10 @@ static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS + STORAGE_NUM_POTS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
@@ -1022,15 +1041,36 @@ static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, vo
   return yaml_conv_220::w_vPitch(node, val, wf, opaque);
 }
 
+static const struct YamlIdStr enum_TrainerMode[] = {
+  {  TRAINER_MODE_OFF, "OFF"  },
+  {  TRAINER_MODE_MASTER_TRAINER_JACK, "MASTER_TRAINER_JACK"  },
+  {  TRAINER_MODE_SLAVE, "SLAVE"  },
+  {  TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE, "MASTER_SBUS_EXT"  },
+  {  TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE, "MASTER_CPPM_EXT"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_SERIAL"  },
+  {  TRAINER_MODE_MASTER_SERIAL, "MASTER_BATT_COMP"  },
+  {  TRAINER_MODE_MASTER_BLUETOOTH, "MASTER_BT"  },
+  {  TRAINER_MODE_SLAVE_BLUETOOTH, "SLAVE_BT"  },
+  {  TRAINER_MODE_MULTI, "MASTER_MULTI"  },
+  {  0, NULL  }
+};
+
 static uint32_t r_trainerMode(const YamlNode* node, const char* val, uint8_t val_len)
 {
-  return yaml_parse_enum(yaml_conv_220::enum_TrainerMode, val, val_len);
+  return yaml_parse_enum(enum_TrainerMode, val, val_len);
 }
 
 static bool w_trainerMode(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_trainerMode(node, val, wf, opaque);
+  const char* str = nullptr;
+  str = yaml_output_enum(val, enum_TrainerMode);
+
+  if (str) {
+    return wf(opaque, str, strlen(str));
+  }
+
+  return true;
 }
 
 #if !defined(COLORLCD)
@@ -1693,12 +1733,12 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     // convert to ETX format and write to vars
     convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
-      md->setMultiProtocol(type - 1);
+      md->multi.rfProtocol = type - 1;
       md->subType = subtype;
     }
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
-    md->rfProtocol = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
   } else {
     md->subType = yaml_str2uint(val, val_len);
   }  
@@ -1707,7 +1747,46 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
                          yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_modSubtype(user, data, bitoffs, wf, opaque);
+  // rfProtocol + subType, depending on the module
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModuleData, channelsStart);
+
+  const char* str = nullptr;
+  auto md = reinterpret_cast<ModuleData*>(data);
+  int32_t val = md->subType;
+  if (md->type == MODULE_TYPE_XJT_PXX1 || md->type == MODULE_TYPE_XJT_LITE_PXX2) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_XJT_Subtypes);
+  } else if (md->type == MODULE_TYPE_ISRM_PXX2) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_ISRM_Subtypes);
+  } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_R9M_Subtypes);
+  } else if (md->type == MODULE_TYPE_FLYSKY) {
+    str = yaml_output_enum(val, yaml_conv_220::enum_FLYSKY_Subtypes);
+  } else if (md->type == MODULE_TYPE_MULTIMODULE) {
+#if defined(MULTIMODULE)
+    // Use type/subType by the book (see MPM documentation)
+    // TODO: remove that crappy translation and use the MPM
+    //       data as-is (no FrSky special casing)
+    int type = md->multi.rfProtocol + 1;
+    int subtype = val;
+    convertEtxProtocolToMulti(&type, &subtype);
+
+    // output "[type],[subtype]"
+    str = yaml_unsigned2str(type);
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque, ",", 1)) return false;
+    str = yaml_unsigned2str(subtype);
+#endif
+  } else if (md->type == MODULE_TYPE_DSM2) {
+    str = yaml_output_enum(md->subType, yaml_conv_220::enum_DSM2_Subtypes);
+  } else {
+    str = yaml_unsigned2str(val);
+  }
+
+  if (str && !wf(opaque, str, strlen(str)))
+    return false;
+
+  return true;
 }
 
 static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1718,4 +1797,88 @@ static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t v
 bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
   return yaml_conv_220::w_channelsCount(node, val, wf, opaque);
+}
+
+static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  uint32_t i = yaml_str2uint(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 1);
+}
+
+static void r_telemetryBaudrate(void* user, uint8_t* data, uint32_t bitoffs,
+                                const char* val, uint8_t val_len)
+{
+  uint32_t i = yaml_str2uint(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 3);
+}
+
+//struct_serialConfig
+static const struct YamlIdStr enum_SerialPort[] = {
+  {  SP_AUX1, "AUX1"  },
+  {  SP_AUX2, "AUX2"  },
+  {  SP_VCP, "VCP"  },
+  {  0, NULL  }
+};
+
+static const struct YamlIdStr enum_UartModes[] = {
+  {  UART_MODE_NONE, "NONE"  },
+  {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
+  {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
+  {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  UART_MODE_LUA, "LUA"  },
+  {  UART_MODE_CLI, "CLI"  },
+  {  UART_MODE_GPS, "GPS"  },
+  {  UART_MODE_DEBUG, "DEBUG"  },
+  {  0, NULL  }
+};
+
+static uint32_t port_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  uint32_t port = yaml_parse_enum(enum_SerialPort, val, val_len);
+  if (port < MAX_SERIAL_PORTS) return port;
+
+  return -1;
+}
+
+static bool port_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str = yaml_output_enum(idx, enum_SerialPort);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+static const struct YamlNode struct_serialConfig[] = {
+    YAML_IDX_CUST( "port", port_read, port_write),
+    YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_PADDING( 3 ),
+    YAML_UNSIGNED( "power", 1 ),
+    YAML_END
+};
+
+static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+
+  auto node = tw->getAttr();
+  if (!node || node->tag_len < 4) return;
+
+  uint8_t port_nr;
+  if (node->tag[3] == 'S')
+    port_nr = SP_AUX1;
+  else if (node->tag[3] == '2')
+    port_nr = SP_AUX2;
+  else
+    return;
+
+  auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
+  if (!m) return;
+  
+  auto serialPort = reinterpret_cast<uint32_t*>(data);
+  *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
+                (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }

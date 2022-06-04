@@ -539,8 +539,8 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
         case '(':
         case '{':
         case '[':
-          nxt++;        
         case ' ':
+          nxt++;
         case '\n':
         case '\0':
           done = true;

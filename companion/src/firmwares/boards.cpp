@@ -449,6 +449,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return 7;
 
+    case FunctionSwitches:
+       return (IS_JUMPER_TPRO(board) ? 6 : 0);
+
     case FactoryInstalledSwitches:
       if (IS_TARANIS_X9E(board))
         return 8;
@@ -469,6 +472,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return 9;
 
+    case NumFunctionSwitchesPositions:
+       return getCapability(board, Board::FunctionSwitches) * 3;
+
+
     case NumTrims:
       if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
         return 6;
@@ -484,14 +491,18 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasColorLcd:
       return IS_FAMILY_HORUS_OR_T16(board);
 
-    case NumFunctionSwitches:
-      return IS_JUMPER_TPRO(board) ? 6 : 0;
-
     case HasSDCard:
       return IS_STM32(board);
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
+
+    case SportMaxBaudRate:
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
+         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
+        return 400000;  //  400K and higher
+      else
+        return 250000;  //  less than 400K
 
     default:
       return 0;
@@ -564,8 +575,8 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                           });
   } else if (IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
-                              {"VRA", "POT1"},
-                              {"VRB", "POT2"},
+                              {"S1", "POT1"},
+                              {"S2", "POT2"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
@@ -860,9 +871,11 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_TX12:
   case BOARD_RADIOMASTER_T8:
   case BOARD_JUMPER_TLITE:
-  case BOARD_RADIOMASTER_ZORRO:
   case BOARD_JUMPER_TPRO:
     return (int)MODULE_TYPE_MULTIMODULE;
+
+  case BOARD_RADIOMASTER_ZORRO:
+    return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:
     return (int)MODULE_TYPE_FLYSKY;

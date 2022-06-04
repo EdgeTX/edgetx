@@ -54,26 +54,22 @@ set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
+set(AUX_SERIAL ON)
 
 if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
-  add_definitions(-DPCBX10)
   add_definitions(-DSOFTWARE_VOLUME)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    ../common/arm/stm32/audio_dac_driver.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/stm32_hal_adc.cpp
+    targets/common/arm/stm32/audio_dac_driver.cpp
     )
   if (NOT PCBREV STREQUAL TX16S)
-      set(TARGET_SRC
-        ${TARGET_SRC}
-        ../common/arm/stm32/sticks_pwm_driver.cpp
+      set(FIRMWARE_SRC
+        ${FIRMWARE_SRC}
+        targets/common/arm/stm32/sticks_pwm_driver.cpp
         )
   endif()
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/stm32_hal_adc.cpp
-    ../../hal/adc_driver.cpp
-    )
   set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
@@ -82,6 +78,7 @@ if (PCB STREQUAL X10)
     set(FLAVOUR x10express)
     set(DEFAULT_INTERNAL_MODULE ISRM_PXX2 CACHE STRING "Default internal module")
     set(BLUETOOTH ON)
+    set(AUX_SERIAL OFF)
     add_definitions(-DHARDWARE_POWER_MANAGEMENT_UNIT)
     add_definitions(-DRADIO_X10E)
     add_definitions(-DMANUFACTURER_FRSKY)
@@ -92,7 +89,16 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)    
     add_definitions(-DMANUFACTURER_JUMPER)
+    if (NOT BLUETOOTH)
+      set(AUX2_SERIAL ON)
+    endif()
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
     set(LUA_EXPORT lua_export_t16)
@@ -100,17 +106,20 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal ublox GPS" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)
     set(HARDWARE_TOUCH YES)
+    set(SWSERIALPOWER YES)
     set(USB_CHARGER YES)
     set(DEFAULT_THEME "DARKBLUE")
-    set(SBUS_TRAINER ON)
-    set(AUX_SERIAL ON)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
-    if (NOT BLUETOOTH AND NOT INTERNAL_GPS)
+    if (NOT BLUETOOTH)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     set(LUA_EXPORT lua_export_t16)
@@ -118,8 +127,17 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)    
     set(HARDWARE_TOUCH YES)
     add_definitions(-DMANUFACTURER_JUMPER)
+    if (NOT BLUETOOTH)
+      set(AUX2_SERIAL ON)
+    endif()
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -127,6 +145,7 @@ if (PCB STREQUAL X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   endif()
 elseif (PCB STREQUAL X12S)
+  set(HARDWARE_TOUCH YES)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
   set(FLAVOUR x12s)
   set(BLUETOOTH ON)
@@ -140,14 +159,10 @@ elseif (PCB STREQUAL X12S)
     endif()
   endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
-  add_definitions(-DPCBX12S)
-  set(TARGET_SRC
-    ${TARGET_SRC}
-    audio_spi_driver.cpp
-    )
+  set(AUX2_SERIAL ON) # wire to GPS
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../../hal/adc_driver.cpp
+    audio_spi_driver.cpp
     x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)
@@ -157,6 +172,7 @@ elseif (PCB STREQUAL X12S)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
+add_definitions(-DPCB${PCB})
 add_definitions(-DPCBREV=${PCBREV})
 add_definitions(-DPCBREV_${PCBREV})
 
@@ -166,13 +182,9 @@ set(RADIO_DEPENDENCIES
   truetype_fonts
   )
 
-if(HARDWARE_EXTERNAL_MODULE)
-  set(TARGET_SRC ${TARGET_SRC} extmodule_driver.cpp)
-endif()
-
 set(FIRMWARE_DEPENDENCIES datacopy)
 
-add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
+add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
 add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -228,22 +240,11 @@ endif()
 
 if(INTERNAL_GPS)
   set(SRC ${SRC} gps.cpp)
-  set(TARGET_SRC ${TARGET_SRC} gps_driver.cpp)
   add_definitions(-DINTERNAL_GPS)
-  message("Horus: Internal GPS enabled")
+  message("-- Internal GPS enabled")
 endif()
 
 set(GVAR_SCREEN model_gvars.cpp)
-
-set(TARGET_SRC
-  ${TARGET_SRC}
-  led_driver.cpp
-  trainer_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
-  ../common/arm/stm32/intmodule_serial_driver.cpp
-  ../common/arm/stm32/rotary_encoder_driver.cpp
-  )
 
 if(HARDWARE_TOUCH)
   set(TOUCH_DRIVER tp_gt911.cpp i2c_driver.cpp)
@@ -251,56 +252,60 @@ if(HARDWARE_TOUCH)
   set(SOFTWARE_KEYBOARD ON)
 endif()
 
+if(SWSERIALPOWER)
+  add_definitions(-DSWSERIALPOWER)
+endif()
+
 if(USB_CHARGER)
-  set(TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} usb_charger_driver.cpp)
   add_definitions(-DUSB_CHARGER)
 endif()
 
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
-  set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/bluetooth_driver.cpp)
-  set(SRC ${SRC} bluetooth.cpp)
-  add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
-endif()
-
-if (AUX_SERIAL)
-  add_definitions(-DAUX_SERIAL)
-  set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
-endif()
-
-if (AUX2_SERIAL)
-  add_definitions(-DAUX2_SERIAL)
-  set(AUX_SERIAL_DRIVER ../common/arm/stm32/aux_serial_driver.cpp)
-endif()
-
-if (SBUS_TRAINER)
-  add_definitions(-DSBUS_TRAINER)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/stm32/bluetooth_driver.cpp)
   set(SRC
     ${SRC}
-    sbus.cpp
-    )
+    bluetooth.cpp)
+  add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
 endif()
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
-  ${AUX_SERIAL_DRIVER}
   ${FLYSKY_HALL_STICKS_DRIVER}
   ${IMU_LSM6DS33_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
-  ../common/arm/stm32/pwr_driver.cpp
+  led_driver.cpp
+  trainer_driver.cpp
   sdram_driver.c
   startup_stm32f42_43xxx.s
-  ../common/arm/stm32/heartbeat_driver.cpp
-  ../common/arm/stm32/sdio_sd.c
+  )
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/timers_driver.cpp
+  targets/common/arm/stm32/intmodule_serial_driver.cpp
+  targets/common/arm/stm32/extmodule_driver.cpp
+  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/extmodule_serial_driver.cpp
+  targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/rotary_encoder_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/sdio_sd.c
   )
 
 if(BOOTLOADER)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    ../common/arm/loadboot.cpp
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/loadboot.cpp
     )
 endif()
 
@@ -327,50 +332,20 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
   )
 
-MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
-  if (WIN32)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  else()
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  endif()
-
-  # Build an array of string from the GCC output
-  string(REPLACE "\n" ";" _gcc_output "${_gcc_output}")
-
-  set(_capture_include FALSE)
-  set(_include_path "")
-
-  # Go through the lines and capture between '"#include <...> search starts here:"' and 'End of search list.'
-  foreach(_line ${_gcc_output})
-    if(${_line} STREQUAL "End of search list.")
-      set(_capture_include FALSE)
-    endif()
-
-    if(_capture_include)
-      # Remove the leading and trailing empty characters
-      string(REPLACE "\r" "" _line ${_line})
-      string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I\"${_line}\"")
-    endif()
-
-    if(${_line} STREQUAL "#include <...> search starts here:")
-      set(_capture_include TRUE)
-    endif()
-  endforeach()
-  set(${gcc_include_path} ${_include_path})
-ENDMACRO()
-
 if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(gcc_include_path)
-
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBHORUS -DPCBX10 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h
+      -DPCBHORUS -DPCB${PCB} -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU
+      -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32
+      -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include
+      -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG}
+      > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
-
-  add_custom_target(datacopy
-    DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    )
+  add_custom_target(datacopy DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp)
 endif()

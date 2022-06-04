@@ -8,7 +8,6 @@ set(modeledit_NAMES
   modeledit
   setup
   heli
-  curves
   telemetry
   expodialog
   mixerdialog
@@ -27,6 +26,7 @@ set(modeledit_SRCS
   # edge.cpp  ## commenting them here avoids a "duplicate target" warning eg. from ninja
   colorcustomscreens.cpp
   telemetry_customscreens.cpp
+  curves.cpp
 )
 
 set(modeledit_HDRS
@@ -40,6 +40,7 @@ set(modeledit_HDRS
   # node.h
   colorcustomscreens.h
   telemetry_customscreens.h
+  curves.h
 )
 
 set(modeledit_UIS

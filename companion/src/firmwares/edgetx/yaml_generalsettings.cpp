@@ -27,6 +27,7 @@
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
+#include "version.h"
 
 #include <QMessageBox>
 
@@ -59,12 +60,29 @@ const YamlLookupTable bluetoothModeLut = {
   {  GeneralSettings::BLUETOOTH_MODE_TRAINER, "TRAINER"  },
 };
 
-const YamlLookupTable uartModeLut = {
+const YamlLookupTable oldUartModeLut = {
   {  GeneralSettings::AUX_SERIAL_OFF, "MODE_NONE"  },
   {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "MODE_TELEMETRY_MIRROR"  },
   {  GeneralSettings::AUX_SERIAL_TELE_IN, "MODE_TELEMETRY"  },
   {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
   {  GeneralSettings::AUX_SERIAL_LUA, "MODE_LUA"  },
+};
+
+const YamlLookupTable serialPortLut = {
+  {  GeneralSettings::SP_AUX1, "AUX1" },
+  {  GeneralSettings::SP_AUX2, "AUX2" },
+  {  GeneralSettings::SP_VCP, "VCP" },
+};
+
+const YamlLookupTable uartModeLut = {
+  {  GeneralSettings::AUX_SERIAL_OFF, "NONE"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_MIRROR, "TELEMETRY_MIRROR"  },
+  {  GeneralSettings::AUX_SERIAL_TELE_IN, "TELEMETRY_IN"  },
+  {  GeneralSettings::AUX_SERIAL_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  GeneralSettings::AUX_SERIAL_LUA, "LUA"  },
+  {  GeneralSettings::AUX_SERIAL_CLI, "CLI"  },
+  {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },
+  {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
 };
 
 const YamlLookupTable antennaModeLut = {
@@ -94,6 +112,29 @@ const YamlLookupTable internalModuleLut = {
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
 };
 
+YamlTelemetryBaudrate::YamlTelemetryBaudrate(
+    const unsigned int* moduleBaudrate)
+{
+  if (Boards::getCapability(getCurrentFirmware()->getBoard(),
+                            Board::SportMaxBaudRate) < 400000) {
+    value = *moduleBaudrate;
+  } else {
+    value = (*moduleBaudrate + moduleBaudratesList.size() - 1) %
+             moduleBaudratesList.size();
+  }
+}
+
+void YamlTelemetryBaudrate::toCpn(unsigned int* moduleBaudrate,
+                                  unsigned int variant)
+{
+  if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) <
+      400000) {
+    *moduleBaudrate = value;
+  } else {
+    *moduleBaudrate = (value + 1) % moduleBaudratesList.size();
+  }
+}
+
 namespace YAML
 {
 
@@ -103,10 +144,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 {
   Node node;
 
+  node["semver"] = VERSION;
+
   std::string board = getCurrentFirmware()->getFlavour().toStdString();
   node["board"] = board;
-
-  node["version"] = CPN_CURRENT_SETTINGS_VERSION;
 
   YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
   node["calib"] = calib;
@@ -129,13 +170,17 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
+  node["stickDeadZone"] = rhs.stickDeadZone;
   node["jackMode"] = rhs.jackMode;
   node["hapticMode"] = rhs.hapticMode;
   node["stickMode"] = rhs.stickMode;
   node["timezone"] = rhs.timezone;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
-  node["telemetryBaudrate"] = rhs.telemetryBaudrate;  // TODO: conversion???
+
+  YamlTelemetryBaudrate internalModuleBaudrate(&rhs.internalModuleBaudrate);
+  node["internalModuleBaudrate"] = internalModuleBaudrate.value;
+
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
   node["splashMode"] = rhs.splashMode;                // TODO: B&W only
   node["lightAutoOff"] = rhs.backlightDelay;
@@ -157,6 +202,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] = (int)rhs.keysBacklight;
+  node["rotEncDirection"] = (int)rhs.rotEncDirection;
   node["imperial"] = rhs.imperial;
   node["ttsLanguage"] = rhs.ttsLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
@@ -166,8 +212,18 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
-  node["auxSerialMode"] = uartModeLut << rhs.auxSerialMode;
-  node["aux2SerialMode"] = uartModeLut << rhs.aux2SerialMode;
+
+  Node serialPort;
+  for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
+    if (rhs.serialPort[i] != GeneralSettings::AUX_SERIAL_OFF || rhs.serialPower[i]) {
+      Node mode = uartModeLut << rhs.serialPort[i];
+      serialPort[LookupValue(serialPortLut, i)]["mode"] = mode;
+      serialPort[LookupValue(serialPortLut, i)]["power"] = (int)rhs.serialPower[i];
+    }
+  }
+  if (serialPort && serialPort.IsMap())
+    node["serialPort"] = serialPort;
+
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["backlightColor"] = rhs.backlightColor;
   node["pwrOnSpeed"] = rhs.pwrOnSpeed;
@@ -227,7 +283,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //   qDebug() << QString::fromStdString(n.first.Scalar());
   // }
 
-  node["version"] >> rhs.version;
+  node["semver"] >> rhs.semver;
+  rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
 
   // Decoding uses profile firmare therefore all conversions are performed on the fly
   // So set board to firmware board
@@ -235,30 +292,43 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // If conversion should rename file with _converted suffix as done for bin
   // Need to pass back messages and flags like converted so they can be handled in a more suitable section
 
+  //  Note: This is part of an interim workaround to ensure critical settings are set to profile board defaults
+  //  TODO: remove and let board conversion occur as for eeprom and profile
+  //        this will require yaml import of general and model settings to be refactored to not use current firmware
+  bool needsConversion = false;
+  //
+
   rhs.variant = Board::BOARD_UNKNOWN;
 
   std::string flavour;
   node["board"] >> flavour;
 
   auto fw = getCurrentFirmware();
-  auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
+
+  qDebug() << "Settings version:" << rhs.semver << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
 
   if (flavour.empty()) {
-    qDebug() << "Warning: Settings file does not contain board flavour! Default firmware board will be used";
-    flavour = msfw->getFlavour().toStdString();
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file is missing the board entry!\n\nCurrent firmware profile board will be used.\n\nDo you wish to continue?");
+    if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
+    }
+    flavour = fw->getFlavour().toStdString();
+    needsConversion = true;
   }
+  else if (fw->getFlavour().toStdString() != flavour) {
+    auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
 
-  qDebug() << "Settings version:" << rhs.version << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
-
-  if (fw->getFlavour().toStdString() != flavour) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "File board (%1) does not match current profile board (%2), models and settings will be converted where possible.\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
 
     if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
       return false;
     }
+    needsConversion = true;
   }
 
+  //  TODO: do not override here
   rhs.variant = fw->getBoard();
 
   YamlCalibData calib;
@@ -283,13 +353,21 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
+  node["stickDeadZone"] >> rhs.stickDeadZone;
   node["jackMode"] >> rhs.jackMode;
   node["hapticMode"] >> rhs.hapticMode;
   node["stickMode"] >> rhs.stickMode;
   node["timezone"] >> rhs.timezone;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
-  node["telemetryBaudrate"] >> rhs.telemetryBaudrate;  // TODO: conversion???
+
+  YamlTelemetryBaudrate internalModuleBaudrate;
+  if (node["telemetryBaudrate"]) {
+    node["telemetryBaudrate"] >> internalModuleBaudrate.value;
+  } else {
+    node["internalModuleBaudrate"] >> internalModuleBaudrate.value;
+  }
+  internalModuleBaudrate.toCpn(&rhs.internalModuleBaudrate, rhs.variant);
 
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;
@@ -314,9 +392,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
   node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
   node["countryCode"] >> rhs.countryCode;
-  node["noJitterFilter"] >> rhs.noJitterFilter;
+  node["jitterFilter"] >> rhs.noJitterFilter;   // PR1363 : read old name and
+  node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
   node["keysBacklight"] >> rhs.keysBacklight;
+  node["rotEncDirection"] >> rhs.rotEncDirection;
   node["imperial"] >> rhs.imperial;
   node["ttsLanguage"] >> rhs.ttsLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
@@ -326,8 +406,43 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
-  node["auxSerialMode"] >> uartModeLut >> rhs.auxSerialMode;
-  node["aux2SerialMode"] >> uartModeLut >> rhs.aux2SerialMode;
+
+  //  depreciated v2.7 replaced by serialPort
+  if (node["auxSerialMode"]) {
+    node["auxSerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX1];
+  }
+
+  //  depreciated v2.7 replaced by serialPort
+  if (node["aux2SerialMode"]) {
+    node["aux2SerialMode"] >> oldUartModeLut >>
+        rhs.serialPort[GeneralSettings::SP_AUX2];
+  }
+
+  if (node["serialPort"]) {
+    Node serialPort = node["serialPort"];
+    if (serialPort.IsMap()) {
+      for (const auto& port : serialPort) {
+        YAML::Node port_nr = port.first >> serialPortLut;
+        if (port_nr) {
+          int p = port_nr.as<int>();
+          if (p >= 0 && p < GeneralSettings::SP_COUNT && port.second.IsMap()) {
+            port.second["mode"] >> uartModeLut >> rhs.serialPort[p];
+            //  introduced v2.8
+            Node port_pwr = port.second["power"];
+            if (port_pwr && port_pwr.IsScalar()) {
+              try {
+                int pwr = port_pwr.as<int>();
+                if (pwr == 0 || pwr == 1)
+                  rhs.serialPower[p] = pwr;
+              } catch(...) {}
+            }
+          }
+        }
+      }
+    }
+  }
+
   node["antennaMode"] >> antennaModeLut >> rhs.antennaMode;
   node["backlightColor"] >> rhs.backlightColor;
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
@@ -362,6 +477,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;
+
+  //  override critical settings after import
+  //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
+  if (needsConversion)
+    rhs.init();
 
   return true;
 }

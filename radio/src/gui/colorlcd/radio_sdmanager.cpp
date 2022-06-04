@@ -30,6 +30,8 @@
 #include "view_text.h"
 #include "file_preview.h"
 
+constexpr int WARN_FILE_LENGTH = 96000;
+
 class FileNameEditWindow : public Page
 {
   public:
@@ -135,7 +137,7 @@ class FlashDialog: public FullScreenDialog
 {
   public:
     explicit FlashDialog(const T & device):
-      FullScreenDialog(WARNING_TYPE_INFO, "Flash device"),
+      FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
       device(device),
       progress(this, {LCD_W / 2 - 50, LCD_H / 2, 100, 15})
     {
@@ -276,19 +278,38 @@ void RadioSdManagerPage::build(FormWindow * window)
                 MultiFirmwareUpdate(name, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
               });
             }
-            // else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-            //   // TODO
-            // }
-            else if (!strcasecmp(ext, TEXT_EXT)) {
+            else if (isExtensionMatching(ext, BITMAPS_EXT)) {
+               menu->addLine(STR_ASSIGN_BITMAP, [=]() {
+                 memcpy(g_model.header.bitmap, name.c_str(),
+                        sizeof(g_model.header.bitmap));
+                 storageDirty(EE_MODEL);
+               });
+            }
+            else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT)) {
               menu->addLine(STR_VIEW_TEXT, [=]() {
                 static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
                 f_getcwd((TCHAR *)lfn, FF_MAX_LFN);
+                FIL file;
+                std::string fileName =
+                    std::string(lfn) + "/" + std::string(name);
+                if (FR_OK == f_open(&file, (TCHAR *)fileName.c_str(),
+                                    FA_OPEN_EXISTING | FA_READ)) {
+                  const int fileLenght = file.obj.objsize;
+                  f_close(&file);
 
-                auto textView = new ViewTextWindow(lfn, name);
-                textView->setCloseHandler([=]() {
-                  //window->clear();
-                  rebuild(window);
-                });
+                  if (fileLenght > WARN_FILE_LENGTH) {
+                    char buf[64];
+                    sprintf(buf, " %s %dkB. %s", STR_FILE_SIZE,
+                            fileLenght / 1024, STR_FILE_OPEN);
+                    new ConfirmDialog(window, STR_WARNING, buf, [=] {
+                      auto textView = new ViewTextWindow(lfn, name);
+                      textView->setCloseHandler([=]() { rebuild(window); });
+                    });
+                  } else {
+                    auto textView = new ViewTextWindow(lfn, name);
+                    textView->setCloseHandler([=]() { rebuild(window); });
+                  }
+                }
               });
             }
             if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {

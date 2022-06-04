@@ -27,6 +27,7 @@
 #include "api_filesystem.h"
 #include "telemetry/frsky.h"
 #include "telemetry/multi.h"
+#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -90,9 +91,65 @@
   { "EVT_"#xxx"_LONG", EVT_KEY_LONG(yyy) }, \
   { "EVT_"#xxx"_REPT", EVT_KEY_REPT(yyy) }
 
-#if defined(LUA) && !defined(CLI)
-Fifo<uint8_t, LUA_FIFO_SIZE> * luaRxFifo = nullptr;
-#endif
+// see strhelpers.cpp for pre-instantiation of function-template
+// getSourceString() for this parametrization
+static constexpr uint8_t maxSourceNameLength{16};
+
+// Note:
+// - luaRxFifo & luaReceiveData are used only for USB serial
+// - otherwise, the AUX serial buffer is used directly
+//
+static Fifo<uint8_t, LUA_FIFO_SIZE>* luaRxFifo = nullptr;
+
+static int luaRxFifoGetByte(void*, uint8_t* data)
+{
+  if (!luaRxFifo) return -1;
+  return luaRxFifo->pop(*data);
+}
+
+void luaAllocRxFifo()
+{
+  if (!luaRxFifo) {
+    auto fifo = new Fifo<uint8_t, LUA_FIFO_SIZE>();
+    luaRxFifo = fifo;
+    luaSetGetSerialByte(nullptr, luaRxFifoGetByte);
+  }
+}
+
+void luaFreeRxFifo()
+{
+  auto fifo = luaRxFifo;
+  luaSetGetSerialByte(nullptr, nullptr);
+  luaRxFifo = nullptr;
+  delete(fifo);
+}
+
+void luaReceiveData(uint8_t* buf, uint32_t len)
+{
+  if (luaRxFifo) {
+    while(len--) luaRxFifo->push(*buf++);
+  }
+}
+
+static void (*luaSendDataCb)(void*, uint8_t) = nullptr;
+static void* luaSendDataCtx = nullptr;
+
+void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
+{
+  luaSendDataCb = nullptr;
+  luaSendDataCtx = ctx;
+  luaSendDataCb = cb;
+}
+
+static int (*luaGetSerialByte)(void*, uint8_t*) = nullptr;
+static void* luaGetSerialByteCtx = nullptr;
+
+void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*))
+{
+  luaGetSerialByte = nullptr;
+  luaGetSerialByteCtx = ctx;
+  luaGetSerialByte = fct;
+}
 
 /*luadoc
 @function getVersion()
@@ -1637,6 +1694,19 @@ static int luaDefaultChannel(lua_State * L)
 }
 
 /*luadoc
+@function flushAudio()
+
+flushes audio queue
+
+@status experimental
+*/
+static int luaFlushAudio(lua_State * L)
+{
+  audioQueue.flush();
+  return 0;
+}
+
+/*luadoc
 @function getRSSI()
 
 Get RSSI value as well as low and critical RSSI alarm levels (in dB)
@@ -1868,22 +1938,23 @@ Set baudrate for serial port(s) affected to LUA
 */
 static int luaSetSerialBaudrate(lua_State * L)
 {
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-  unsigned int baudrate = luaL_checkunsigned(L, 1);
-#endif
+// #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+//   unsigned int baudrate = luaL_checkunsigned(L, 1);
+// #endif
 
-#if defined(AUX_SERIAL)
-  if (auxSerialMode == UART_MODE_LUA) {
-    auxSerialStop();
-    auxSerialSetup(baudrate, false);
-  }
-#endif
-#if defined(AUX2_SERIAL)
-  if (aux2SerialMode == UART_MODE_LUA) {
-    aux2SerialStop();
-    aux2SerialSetup(baudrate, false);
-  }
-#endif
+// TODO: add some callbacks for serial settings
+// #if defined(AUX_SERIAL)
+//   if (auxSerialMode == UART_MODE_LUA) {
+//     auxSerialStop();
+//     auxSerialSetup(baudrate, false);
+//   }
+// #endif
+// #if defined(AUX2_SERIAL)
+//   if (aux2SerialMode == UART_MODE_LUA) {
+//     aux2SerialStop();
+//     aux2SerialSetup(baudrate, false);
+//   }
+// #endif
   return 1;
 }
 
@@ -1903,30 +1974,15 @@ static int luaSerialWrite(lua_State * L)
   if (!str || len < 1)
     return 0;
 
-#if defined(USB_SERIAL)
-  if (getSelectedUsbMode() == USB_SERIAL_MODE) {
+  auto _sendCb = luaSendDataCb;
+  auto _ctx = luaSendDataCtx;
+
+  if (_sendCb) {
     size_t wr_len = len;
     const char* p = str;
-    while(wr_len--) usbSerialPutc(*p++);
+    while(wr_len--) _sendCb(_ctx, *p++);
   }
-#endif
-
-#if defined(AUX_SERIAL)
-  if (auxSerialMode == UART_MODE_LUA) {
-    size_t wr_len = len;
-    const char* p = str;
-    while(wr_len--) auxSerialPutc(*p++);
-  }
-#endif
-
-#if defined(AUX2_SERIAL)
-  if (aux2SerialMode == UART_MODE_LUA) {
-    size_t wr_len = len;
-    const char* p = str;
-    while(wr_len--) aux2SerialPutc(*p++);
-  }
-#endif
-
+  
   return 0;
 }
 
@@ -1948,30 +2004,29 @@ static int luaSerialRead(lua_State * L)
 #if defined(LUA) && !defined(CLI)
   int num = luaL_optunsigned(L, 1, 0);
 
-  if (!luaRxFifo) {
-    luaRxFifo = new Fifo<uint8_t, LUA_FIFO_SIZE>();
-    if (!luaRxFifo) {
-      lua_pushlstring(L, "", 0);
-      return 1;
-    }
-  }
   uint8_t str[LUA_FIFO_SIZE];
   uint8_t *p = str;
-  while (luaRxFifo->pop(*p)) {
-    p++;  // increment only when pop was successful
-    if (p - str >= LUA_FIFO_SIZE) {
-      // buffer full
-      break;
-    }
-    if (num == 0) {
-      if (*(p - 1) == '\n' || *(p - 1) == '\r') {
-        // found newline
+
+  auto _getByte = luaGetSerialByte;
+  auto _ctx = luaGetSerialByteCtx;
+
+  if (_getByte) {
+    while (_getByte(_ctx, p) > 0) {
+      p++;  // increment only when pop was successful
+      if (p - str >= LUA_FIFO_SIZE) {
+        // buffer full
         break;
       }
-    }
-    else if (p - str >= num) {
-      // requested number of characters reached
-      break;
+      if (num == 0) {
+        if (*(p - 1) == '\n' || *(p - 1) == '\r') {
+          // found newline
+          break;
+        }
+      }
+      else if (p - str >= num) {
+        // requested number of characters reached
+        break;
+      }
     }
   }
   lua_pushlstring(L, (const char*)str, p - str);
@@ -2118,7 +2173,7 @@ static int luaGetSwitchIndex(lua_State * L)
   }
   
   for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (isSwitchAvailableInLogicalSwitches(idx)) {
+    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* s = getSwitchPositionName(idx);
       if (!strncasecmp(s, name, 31)) {
         found = true;
@@ -2152,7 +2207,7 @@ static int luaGetSwitchIndex(lua_State * L)
 static int luaGetSwitchName(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx)) {
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
     char* name = getSwitchPositionName(idx);
     lua_pushstring(L, name);
   }
@@ -2175,7 +2230,7 @@ static int luaGetSwitchName(lua_State * L)
 static int luaGetSwitchValue(lua_State * L)
 {
   swsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailableInLogicalSwitches(idx))
+  if (idx > -SWSRC_COUNT && idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext))
     lua_pushboolean(L, getSwitch(idx));
   else
     lua_pushnil(L);
@@ -2200,7 +2255,7 @@ static int luaNextSwitch(lua_State * L)
   swsrc_t idx = luaL_checkinteger(L, 2);
   
   while (++idx <= last) {
-    if (isSwitchAvailableInLogicalSwitches(idx)) {
+    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(idx);
       lua_pushinteger(L, idx);
       lua_pushstring(L, name);
@@ -2250,22 +2305,23 @@ This function is rather time consuming, and should not be used repeatedly in a s
 @status current Introduced in 2.6
 */
 
-static int luaGetSourceIndex(lua_State * L)
+static int luaGetSourceIndex(lua_State* const L)
 {
-  const char * name = luaL_checkstring(L, 1);
+  const char* const name = luaL_checkstring(L, 1);
   bool found = false;
   mixsrc_t idx;
-  
+
   for (idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
     if (isSourceAvailable(idx)) {
-      char* s = getSourceString(idx);
-      if (!strncasecmp(s, name, 31)) {
+      char srcName[maxSourceNameLength];
+      getSourceString(srcName, idx);
+      if (!strncasecmp(srcName, name)) {
         found = true;
         break;
       }
     }
   }
-  
+
   if (found)
     lua_pushinteger(L, idx);
   else
@@ -2290,11 +2346,12 @@ static int luaGetSourceName(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
   if (idx <= MIXSRC_LAST_TELEM && isSourceAvailable(idx)) {
-    char* name = getSourceString(idx);
-    lua_pushstring(L, name);
-  }
-  else
+    char srcName[maxSourceNameLength];
+    getSourceString(srcName, idx);
+    lua_pushstring(L, srcName);
+  } else {
     lua_pushnil(L);
+  }
   return 1;
 }
 
@@ -2317,9 +2374,10 @@ static int luaNextSource(lua_State * L)
   
   while (++idx <= last) {
     if (isSourceAvailable(idx)) {
-      char* name = getSourceString(idx);
+      char srcName[maxSourceNameLength];
+      getSourceString(srcName, idx);
       lua_pushinteger(L, idx);
-      lua_pushstring(L, name);
+      lua_pushstring(L, srcName);
       return 2;
     }
   }
@@ -2371,6 +2429,7 @@ const luaL_Reg opentxLib[] = {
   { "playDuration", luaPlayDuration },
   { "playTone", luaPlayTone },
   { "playHaptic", luaPlayHaptic },
+  { "flushAudio", luaFlushAudio },
 #if defined(ENABLE_LUA_POPUP_INPUT)
   { "popupInput", luaPopupInput },
 #endif
