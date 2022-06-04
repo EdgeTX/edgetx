@@ -18,6 +18,8 @@
  */
 
 #include <math.h>
+#include <string.h>
+
 #include "bitmapbuffer.h"
 #include "libopenui_depends.h"
 #include "libopenui_helpers.h"
@@ -1064,9 +1066,14 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 
 coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
                                     uint8_t len, LcdFlags flags)
-{
+{  
   if (!s) return x;
   MOVE_OFFSET();
+
+  // LVGL does not handle non-null terminated strings
+  static char buffer[256];
+  strncpy(buffer, s, len);
+  buffer[len] = '\0';
 
   int height = getFontHeight(flags);
 
@@ -1094,7 +1101,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
   
   lv_point_t p;
-  lv_txt_get_size(&p, s, font, label_draw_dsc.letter_space,
+  lv_txt_get_size(&p, buffer, font, label_draw_dsc.letter_space,
                   label_draw_dsc.line_space, LV_COORD_MAX, 0);
 
   lv_coord_t lv_x = (lv_coord_t)x;
@@ -1118,12 +1125,12 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
 
   if (draw_ctx) {
-    lv_draw_label(draw_ctx, &label_draw_dsc, &coords, s, nullptr);
+    lv_draw_label(draw_ctx, &label_draw_dsc, &coords, buffer, nullptr);
   }
 #if !defined(BOOT)
   else if (canvas) {
     lv_canvas_draw_text(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
-                        &label_draw_dsc, s);
+                        &label_draw_dsc, buffer);
   }
 #endif
   
