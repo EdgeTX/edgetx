@@ -84,7 +84,7 @@ class MixerChannelBar : public ChannelBar
             divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
             height(), COLOR_THEME_FOCUS);
 
-        dc->drawNumber(width() / 2 - 10, 0, displayVal,
+        dc->drawNumber(width() / 2 - 10, -2, displayVal,
                        FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
 
       } else if (chanVal < 0) {
@@ -96,7 +96,7 @@ class MixerChannelBar : public ChannelBar
         dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
                                 COLOR_THEME_FOCUS);
 
-        dc->drawNumber(10 + width() / 2, 0, displayVal,
+        dc->drawNumber(10 + width() / 2, -2, displayVal,
                        FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
       }
 
@@ -149,7 +149,7 @@ class OutputChannelBar : public ChannelBar
             divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
             height(), COLOR_THEME_ACTIVE);
 
-        dc->drawNumber(width() / 2 - 10, 0, displayVal,
+        dc->drawNumber(width() / 2 - 10, -2, displayVal,
                        FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
 
       } else if (chanVal < 0) {
@@ -160,7 +160,7 @@ class OutputChannelBar : public ChannelBar
         dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
                                 COLOR_THEME_ACTIVE);
 
-        dc->drawNumber(width() / 2 + 10, 0, displayVal,
+        dc->drawNumber(width() / 2 + 10, -2, displayVal,
                        FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
       }
 

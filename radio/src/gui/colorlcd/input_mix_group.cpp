@@ -22,6 +22,8 @@
 #include "input_mix_group.h"
 #include "opentx.h"
 
+#include <algorithm>
+
 static const lv_coord_t col_dsc[] = {
   LV_DPI_DEF / 2, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST,
 };

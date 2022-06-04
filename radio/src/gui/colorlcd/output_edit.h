@@ -19,21 +19,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "page.h"
+#include "form.h"
+#include "static.h"
 
-class OutputLineButton;
+class OutputEditStatusBar;
 
-class ModelOutputsPage : public PageTab
+class OutputEditWindow : public Page
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  explicit OutputEditWindow(uint8_t channel);
 
  protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
-};
+  uint8_t channel;
+  int value = 0;
+  int chanZero = 0;
+  StaticText *minText;
+  StaticText *maxText;
+  OutputEditStatusBar *statusBar = nullptr;
 
-#endif // _MODEL_OUTPUTS_H_
+  void checkEvents() override;
+  void buildHeader(Window *window);
+  void buildBody(FormWindow *window);
+};

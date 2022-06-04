@@ -310,27 +310,26 @@ void MixLineButton::paint(BitmapBuffer* dc)
   }
 
   // second line ...
-  y += line_h;
-
-  if (line.swtch) {
-    dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
-    drawSwitch(dc, x + 21, y, line.swtch, textColor);
+  if (line.swtch || line.curve.value) {
+    y += line_h;
+    if (line.swtch) {
+      dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
+      drawSwitch(dc, x + 21, y, line.swtch, textColor);
+    }
+    if (line.curve.value) {
+      dc->drawMask(x + 65, y, mixerSetupCurveIcon, textColor);
+      drawCurveRef(dc, x + 85, y, line.curve, textColor);
+    }
   }
-
-  if (line.curve.value) {
-    dc->drawMask(x + 65, y, mixerSetupCurveIcon, textColor);
-    drawCurveRef(dc, x + 85, y, line.curve, textColor);
-  }
-
-#if LCD_H > LCD_W
-  // third line ...
-  y += line_h;
-  x = left;
-#else
-  x = 146;
-#endif
 
   if (line.flightModes) {
+#if LCD_H > LCD_W
+    // third line ...
+    y += line_h;
+    x = left;
+#else
+    x = 146;
+#endif
     drawFlightModes(dc, line.flightModes, textColor, x, y);
   }
 }
