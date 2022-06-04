@@ -662,7 +662,12 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     strAppendStringWithIndex(dest, STR_PPM_TRAINER,
                              idx - MIXSRC_FIRST_TRAINER + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
-    strAppendStringWithIndex(dest, STR_CH, idx - MIXSRC_CH1 + 1);
+    auto ch = idx - MIXSRC_CH1;
+    if (g_model.limitData[ch].name[0] != '\0') {
+      copyToTerminated(dest, g_model.limitData[ch].name);
+    } else {
+      strAppendStringWithIndex(dest, STR_CH, ch + 1);
+    }
   } else if (idx <= MIXSRC_LAST_GVAR) {
     strAppendStringWithIndex(dest, STR_GV, idx - MIXSRC_GVAR1 + 1);
   } else if (idx < MIXSRC_FIRST_TIMER) {

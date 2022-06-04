@@ -21,30 +21,28 @@
 
 #pragma once
 
-#include "model_inputs.h"
+#include "page.h"
+#include "form.h"
+#include "curve.h"
 
+struct MixData;
+class FormGroup;
+class MixerEditStatusBar;
 
-class ModelMixesPage : public ModelInputsPage
+class MixEditWindow : public Page
 {
  public:
-  ModelMixesPage();
-
-  void build(FormWindow* window) override;
+  MixEditWindow(int8_t channel, uint8_t mixIndex);
 
  protected:
-  InputMixGroup* getGroupByIndex(uint8_t index) override;
+  uint8_t channel;
+  uint8_t mixIndex;
+  FormGroup *curveParamField = nullptr;
+  MixerEditStatusBar *statusBar = nullptr;
 
-  void addLineButton(uint8_t index) override;
-  void addLineButton(mixsrc_t src, uint8_t index) override;
-  InputMixButton* createLineButton(InputMixGroup* group,
-                                   uint8_t index) override;
+  void buildHeader(Window *window);
+  void buildBody(FormWindow *window);
 
-  void newMix();
-  void editMix(uint8_t input, uint8_t index);
-  void insertMix(uint8_t input, uint8_t index);
-  void deleteMix(uint8_t index);
-
-  void pasteMix(uint8_t dst_idx, uint8_t channel);
-  void pasteMixBefore(uint8_t dst_idx);
-  void pasteMixAfter(uint8_t dst_idx);
+  // TODO share this code with INPUT
+  void updateCurveParamField(MixData *line);
 };

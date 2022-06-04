@@ -127,23 +127,7 @@ static bool getFreeInput(uint8_t& input, uint8_t& index)
 class InputLineButton : public InputMixButton
 {
  public:
-  InputLineButton(Window* parent, uint8_t index) :
-      InputMixButton(parent, rect_t{}, index)
-  {
-    auto h = getFontHeight(FONT(STD));
-    h += 2 * lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-    h += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
-    h += lv_obj_get_style_pad_bottom(lvobj, LV_PART_MAIN);
-
-    const ExpoData &line = g_model.expoData[index];
-    if (line.swtch || line.curve.value != 0 || line.flightModes) {
-      h += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN);
-      h += getFontHeight(FONT(STD));
-    }
-    setHeight(h);
-  }
-
-  bool isActive() const override { return isExpoActive(index); }
+  using InputMixButton::InputMixButton;
 
   void paint(BitmapBuffer *dc) override
   {
@@ -183,6 +167,17 @@ class InputLineButton : public InputMixButton
 
     if (line.flightModes) {
       drawFlightModes(dc, line.flightModes, textColor, 146, y);
+    }
+  }
+
+protected:
+  bool isActive() const override { return isExpoActive(index); }
+  size_t getLines() const override {
+    const ExpoData* line = expoAddress(index);
+    if (line->swtch || line->curve.value != 0 || line->flightModes) {
+      return 2;
+    } else {
+      return 1;
     }
   }
 };
@@ -362,7 +357,14 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
 
 void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
-  new InputEditWindow(input, index);
+  auto line = getLineByIndex(index);
+  if (!line) return;
+
+  auto line_obj = line->getLvObj();
+  auto edit = new InputEditWindow(input, index);
+  edit->setCloseHandler([=]() {
+      lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+    });
 }
 
 void ModelInputsPage::insertInput(uint8_t input, uint8_t index)

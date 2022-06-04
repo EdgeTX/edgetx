@@ -116,15 +116,6 @@ static const uint8_t mask_monitor_lockch[] = {
 static const uint8_t mask_monitor_logsw[] = {
 #include "mask_monitor_logsw.lbm"
 };
-static const uint8_t mask_mplex_add[] = {
-#include "mask_mplex_add.lbm"
-};
-static const uint8_t mask_mplex_multi[] = {
-#include "mask_mplex_multi.lbm"
-};
-static const uint8_t mask_mplex_replace[] = {
-#include "mask_mplex_replace.lbm"
-};
 static const uint8_t mask_edgetx[] = {
 #include "mask_edgetx.lbm"
 };
@@ -256,9 +247,6 @@ BitmapBuffer * chanMonInvertedBitmap = nullptr;
 BitmapBuffer * mixerSetupMixerBitmap = nullptr;
 BitmapBuffer * mixerSetupToBitmap = nullptr;
 BitmapBuffer * mixerSetupOutputBitmap = nullptr;
-BitmapBuffer * mixerSetupAddBitmap = nullptr;
-BitmapBuffer * mixerSetupMultiBitmap = nullptr;
-BitmapBuffer * mixerSetupReplaceBitmap = nullptr;
 BitmapBuffer * mixerSetupCurveIcon = nullptr;
 BitmapBuffer * mixerSetupSwitchIcon = nullptr;
 BitmapBuffer * mixerSetupLabelIcon = nullptr;
@@ -295,9 +283,6 @@ static const _BuiltinBitmap _builtinBitmaps[] = {
     {BMP_8BIT, mask_sbar_to, &mixerSetupToBitmap},
     {BMP_8BIT, mask_sbar_output, &mixerSetupOutputBitmap},
 
-    {BMP_8BIT, mask_mplex_add, &mixerSetupAddBitmap},
-    {BMP_8BIT, mask_mplex_multi, &mixerSetupMultiBitmap},
-    {BMP_8BIT, mask_mplex_replace, &mixerSetupReplaceBitmap},
 
     {BMP_8BIT, mask_textline_label, &mixerSetupLabelIcon},
     {BMP_8BIT, mask_textline_curve, &mixerSetupCurveIcon},
