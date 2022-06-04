@@ -193,8 +193,10 @@ void Choice::setValues(const char * const values[])
 
 void Choice::setValue(int val)
 {
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-  if (_setValue) _setValue(val);
+  if (_setValue) {
+    _setValue(val);
+    lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  }
 }
 
 void Choice::onClicked()
