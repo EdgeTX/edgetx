@@ -33,6 +33,7 @@
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
+#include "version.h"
 
 #include <string>
 
@@ -741,6 +742,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   Node node;
   auto board = getCurrentBoard();
 
+  node["semver"] = VERSION;
+
   Node header;
   header["name"] = rhs.name;
   header["bitmap"] = rhs.bitmap;
@@ -979,6 +982,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
+
+  node["semver"] >> rhs.semver;
 
   if (node["header"]) {
     const auto& header = node["header"];
