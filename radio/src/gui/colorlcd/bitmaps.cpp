@@ -104,9 +104,6 @@ static const uint8_t mask_monitor_channels3[] = {
 static const uint8_t mask_monitor_channels4[] = {
 #include "mask_monitor_channels4.lbm"
 };
-// static const uint8_t mask_monitor_gvars[] = {
-// #include "mask_monitor_gvars.lbm"
-// };
 static const uint8_t mask_monitor_inver[] = {
 #include "mask_monitor_inver.lbm"
 };
@@ -151,9 +148,6 @@ static const uint8_t mask_sbar_mixer[] = {
 };
 static const uint8_t mask_sbar_output[] = {
 #include "mask_sbar_output.lbm"
-};
-static const uint8_t mask_sbar_to[] = {
-#include "mask_sbar_to.lbm"
 };
 static const uint8_t mask_stats_analogs[] = {
 #include "mask_stats_analogs.lbm"
@@ -280,9 +274,7 @@ static const _BuiltinBitmap _builtinBitmaps[] = {
     {BMP_8BIT, mask_monitor_inver, &chanMonInvertedBitmap},
 
     {BMP_8BIT, mask_sbar_mixer, &mixerSetupMixerBitmap},
-    {BMP_8BIT, mask_sbar_to, &mixerSetupToBitmap},
     {BMP_8BIT, mask_sbar_output, &mixerSetupOutputBitmap},
-
 
     {BMP_8BIT, mask_textline_label, &mixerSetupLabelIcon},
     {BMP_8BIT, mask_textline_curve, &mixerSetupCurveIcon},
