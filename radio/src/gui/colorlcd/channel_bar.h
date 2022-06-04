@@ -301,7 +301,7 @@ class ComboChannelBar : public ChannelBar
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        lcd->drawMask(0, 20, chanMonInvertedBitmap, textColor);
+        dc->drawMask(0, 20, chanMonInvertedBitmap, textColor);
       }
     }
 
