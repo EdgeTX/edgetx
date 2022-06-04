@@ -244,11 +244,20 @@ MixLineButton::MixLineButton(Window* parent, uint8_t index) :
 size_t MixLineButton::getLines() const
 {
   const MixData* mix = mixAddress(index);
+  size_t lines = 1;
+#if LCD_W > LCD_H
   if (mix->swtch || mix->curve.value != 0 || mix->flightModes) {
-    return 2;
-  } else {
-    return 1;
+    lines += 1;
   }
+#else
+  if (mix->swtch || mix->curve.value != 0) {
+    lines += 1;
+  }
+  if (mix->flightModes) {
+    lines += 1;
+  }
+#endif
+  return lines;
 }
 
 void MixLineButton::paint(BitmapBuffer* dc)
@@ -256,15 +265,20 @@ void MixLineButton::paint(BitmapBuffer* dc)
   const MixData& line = g_model.mixData[index];
   LcdFlags textColor = COLOR_THEME_SECONDARY1;
 
+  coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+  coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
+  coord_t pad_right = lv_obj_get_style_pad_right(lvobj, LV_PART_MAIN);
+
+  coord_t left = pad_left + border;
+  coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
+    + getFontHeight(FONT(STD));
+
   // first line ...
   coord_t y = 0;
-  y += lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+  y += border;
   y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
 
-  coord_t x = 0;
-  x += lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-  x += lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
-
+  coord_t x = left;
   drawValueOrGVar(dc, x, y, line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
                   textColor);
   drawSource(dc, x + 65, y, line.srcRaw, textColor);
@@ -274,9 +288,21 @@ void MixLineButton::paint(BitmapBuffer* dc)
     dc->drawSizedText(166, y, line.name, sizeof(line.name), textColor);
   }
 
+  // Put this icon on the first line, since we have more space there
+  uint8_t delayslow = 0;
+  if (line.speedDown || line.speedUp) delayslow = 1;
+  if (line.delayUp || line.delayDown) delayslow += 2;
+  if (delayslow) {
+    BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
+                                    mixerSetupDelaySlowIcon};
+    const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
+    coord_t w = lv_obj_get_width(lvobj);
+    w -= mask->width();
+    dc->drawMask(w - border - pad_right, y + border, mask, textColor);
+  }
+
   // second line ...
-  y += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN);
-  y += getFontHeight(FONT(STD));
+  y += line_h;
 
   if (line.swtch) {
     dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
@@ -288,18 +314,16 @@ void MixLineButton::paint(BitmapBuffer* dc)
     drawCurveRef(dc, x + 85, y, line.curve, textColor);
   }
 
-  if (line.flightModes) {
-    drawFlightModes(dc, line.flightModes, textColor, 146, y);
-  }
+#if LCD_H > LCD_W
+  // third line ...
+  y += line_h;
+  x = left;
+#else
+  x = 146;
+#endif
 
-  // Put this icon on the first line, since we have more space there
-  uint8_t delayslow = 0;
-  if (line.speedDown || line.speedUp) delayslow = 1;
-  if (line.delayUp || line.delayDown) delayslow += 2;
-  if (delayslow) {
-    BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
-                                    mixerSetupDelaySlowIcon};
-    dc->drawMask(width() - 16, y, delayslowbmp[delayslow - 1], textColor);
+  if (line.flightModes) {
+    drawFlightModes(dc, line.flightModes, textColor, x, y);
   }
 }
 
