@@ -175,6 +175,7 @@ class MixLineButton : public InputMixButton
  public:
   MixLineButton(Window* parent, uint8_t index);
   void paint(BitmapBuffer* dc) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
   size_t getLines() const override;
@@ -239,6 +240,13 @@ MixLineButton::MixLineButton(Window* parent, uint8_t index) :
 {
   lv_obj_t* p_obj = parent->getLvObj();
   lv_obj_add_event_cb(p_obj, mix_draw_mplex, LV_EVENT_DRAW_PART_END, lvobj);
+}
+
+void MixLineButton::deleteLater(bool detach, bool trash)
+{
+  lv_obj_t* p_obj = parent->getLvObj();
+  lv_obj_remove_event_cb_with_user_data(p_obj, mix_draw_mplex, lvobj);
+  InputMixButton::deleteLater(detach, trash);
 }
 
 size_t MixLineButton::getLines() const
