@@ -134,15 +134,19 @@ class InputLineButton : public InputMixButton
     const ExpoData &line = g_model.expoData[index];
     LcdFlags textColor = COLOR_THEME_SECONDARY1;
 
+    coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+    coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
+
+    coord_t left = pad_left + border;
+    coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
+      + getFontHeight(FONT(STD));
+
     // first line ...
     coord_t y = 0;
-    y += lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+    y += border;
     y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
 
-    coord_t x = 0;
-    x += lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-    x += lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
-
+    coord_t x = left;
     drawValueOrGVar(dc, x, y, line.weight, -100, 100, textColor);
     drawSource(dc, x + 65, y, line.srcRaw, textColor);
 
@@ -152,8 +156,7 @@ class InputLineButton : public InputMixButton
     }
 
     // second line ...
-    y += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN);
-    y += getFontHeight(FONT(STD));
+    y += line_h;
 
     if (line.swtch) {
       dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
@@ -165,8 +168,16 @@ class InputLineButton : public InputMixButton
       drawCurveRef(dc, x + 85, y, line.curve, textColor);
     }
 
+#if LCD_H > LCD_W
+    // third line ...
+    y += line_h;
+    x = left;
+#else
+    x = 146;
+#endif
+
     if (line.flightModes) {
-      drawFlightModes(dc, line.flightModes, textColor, 146, y);
+      drawFlightModes(dc, line.flightModes, textColor, x, y);
     }
   }
 
@@ -174,11 +185,20 @@ protected:
   bool isActive() const override { return isExpoActive(index); }
   size_t getLines() const override {
     const ExpoData* line = expoAddress(index);
+    size_t lines = 1;
+#if LCD_W > LCD_H
     if (line->swtch || line->curve.value != 0 || line->flightModes) {
-      return 2;
-    } else {
-      return 1;
+      lines += 1;
     }
+#else
+    if (line->swtch || line->curve.value != 0) {
+      lines += 1;
+    }
+    if (line->flightModes) {
+      lines += 1;
+    }    
+#endif
+    return lines;
   }
 };
 
