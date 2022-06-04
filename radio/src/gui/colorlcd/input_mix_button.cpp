@@ -24,11 +24,30 @@
 
 #include "lvgl_widgets/input_mix_line.h"
 
-InputMixButton::InputMixButton(Window* parent, const rect_t& rect, uint8_t index) :
-    Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1,
+void InputMixButton::self_size(lv_event_t* e)
+{
+  auto obj = lv_event_get_target(e);
+  auto p = (lv_point_t*)lv_event_get_param(e);
+
+  auto btn = (InputMixButton*)lv_obj_get_user_data(obj);
+  if (!btn) return;
+
+  p->y = btn->calcHeight();
+}
+
+void InputMixButton::value_changed(lv_event_t* e)
+{
+  auto obj = lv_event_get_target(e);
+  lv_obj_refresh_self_size(obj);
+}
+
+InputMixButton::InputMixButton(Window* parent, uint8_t index) :
+  Button(parent, rect_t{}, nullptr, 0, COLOR_THEME_PRIMARY1,
            input_mix_line_create),
     index(index)
 {
+  lv_obj_add_event_cb(lvobj, InputMixButton::self_size, LV_EVENT_GET_SELF_SIZE, nullptr);
+  lv_obj_add_event_cb(lvobj, InputMixButton::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 void InputMixButton::checkEvents()
@@ -56,4 +75,19 @@ void InputMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType value,
   }
 }
 
+lv_coord_t InputMixButton::calcHeight() const
+{
+  auto h = getFontHeight(FONT(STD));
+  // h += 2 * lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+  // h += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
+  // h += lv_obj_get_style_pad_bottom(lvobj, LV_PART_MAIN);
 
+  size_t lines = getLines();
+  if (lines > 1) {
+    lines -= 1;
+    h += lines * lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN);
+    h += lines * getFontHeight(FONT(STD));
+  }
+
+  return h;
+}
