@@ -478,7 +478,8 @@ class SpecialFunctionButton : public Button
     uint8_t func = CFN_FUNC(cfn);
 
     drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_SECONDARY1);
-    dc->drawText(col3, line1, "CustLabelPlaceHolder", COLOR_THEME_SECONDARY1);
+    //paint special function custom name
+    dc->drawText(col3, line1, cfn->custName, COLOR_THEME_SECONDARY1);
     if (cfn->isEmpty()) return;
 
     dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_SECONDARY1);
