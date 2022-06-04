@@ -366,7 +366,7 @@ class SpecialFunctionEditPage : public Page
     // custom label
     new StaticText(window, grid.getLabelSlot(), "Custom Label", 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(window, grid.getFieldSlot(), cfn->custName, LEN_SPEC_FN_NAME);
-   // new StaticText(window, grid.getFieldSlot(), "placeHolderName", 0, COLOR_THEME_PRIMARY1);
+   
     grid.nextLine();
     
     // Switch
