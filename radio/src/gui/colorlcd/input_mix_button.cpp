@@ -42,7 +42,7 @@ void InputMixButton::value_changed(lv_event_t* e)
 }
 
 InputMixButton::InputMixButton(Window* parent, uint8_t index) :
-  Button(parent, rect_t{}, nullptr, 0, COLOR_THEME_PRIMARY1,
+    Button(parent, rect_t{}, nullptr, 0, COLOR_THEME_PRIMARY1,
            input_mix_line_create),
     index(index)
 {
