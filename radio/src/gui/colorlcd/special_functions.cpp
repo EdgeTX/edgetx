@@ -391,7 +391,6 @@ class SpecialFunctionEditPage : public Page
     // custom label
     new StaticText(line, rect_t{}, "Custom Label", 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(line, rect_t{}, cfn->custName, LEN_SPEC_FN_NAME);
-    // new StaticText(window, grid.getFieldSlot(), "placeHolderName", 0, COLOR_THEME_PRIMARY1);
     line = window->newLine(&grid);
 
     // Switch
