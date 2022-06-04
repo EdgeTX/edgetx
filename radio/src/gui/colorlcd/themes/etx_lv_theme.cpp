@@ -797,7 +797,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     }
     else if(lv_obj_check_type(obj, &input_mix_line_class)) {
         lv_obj_add_style(obj, &styles.line_btn, 0);
-        lv_obj_add_style(obj, &styles.pad_tiny, 0);
+        lv_obj_add_style(obj, &styles.pad_small, 0);
         lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
         lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);        
     }
