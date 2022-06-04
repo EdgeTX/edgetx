@@ -251,20 +251,17 @@ void MixLineButton::deleteLater(bool detach, bool trash)
 
 size_t MixLineButton::getLines() const
 {
-  const MixData* mix = mixAddress(index);
   size_t lines = 1;
-#if LCD_W > LCD_H
-  if (mix->swtch || mix->curve.value != 0 || mix->flightModes) {
+  const MixData* mix = mixAddress(index);
+
+  uint8_t delayslow = 0;
+  if (mix->speedDown || mix->speedUp) delayslow = 1;
+  if (mix->delayUp || mix->delayDown) delayslow += 2;
+
+  if (mix->flightModes || mix->name[0] || delayslow) {
     lines += 1;
   }
-#else
-  if (mix->swtch || mix->curve.value != 0) {
-    lines += 1;
-  }
-  if (mix->flightModes) {
-    lines += 1;
-  }
-#endif
+
   return lines;
 }
 
@@ -281,56 +278,64 @@ void MixLineButton::paint(BitmapBuffer* dc)
   coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
     + getFontHeight(FONT(STD));
 
+#if LCD_W > LCD_H
+  const coord_t pad = 42;
+#else
+  const coord_t pad = 0;
+#endif
+  
   // first line ...
   coord_t y = 0;
   y += border;
   y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
 
   coord_t x = left;
-  drawValueOrGVar(dc, x, y, line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                  textColor);
-  drawSource(dc, x + 65, y, line.srcRaw, textColor);
+  drawValueOrGVar(dc, x, y, line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, textColor);
+  x += 46 + pad;
 
-  if (line.name[0]) {
-    dc->drawMask(146, y, mixerSetupLabelIcon, textColor);
-    dc->drawSizedText(166, y, line.name, sizeof(line.name), textColor);
-  }
-
-  // Put this icon on the first line, since we have more space there
-  uint8_t delayslow = 0;
-  if (line.speedDown || line.speedUp) delayslow = 1;
-  if (line.delayUp || line.delayDown) delayslow += 2;
-  if (delayslow) {
-    BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
-                                    mixerSetupDelaySlowIcon};
-    const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
-    coord_t w = lv_obj_get_width(lvobj);
-    w -= mask->width();
-    dc->drawMask(w - border - pad_right, y + border, mask, textColor);
-  }
+  drawSource(dc, x, y, line.srcRaw, textColor);
+  x += 60 + pad;
 
   // second line ...
   if (line.swtch || line.curve.value) {
-    y += line_h;
     if (line.swtch) {
-      dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
-      drawSwitch(dc, x + 21, y, line.swtch, textColor);
+      if (pad) dc->drawMask(x - 20, y, mixerSetupSwitchIcon, textColor);
+      drawSwitch(dc, x, y, line.swtch, textColor);
     }
+    x += 44 + pad;
     if (line.curve.value) {
-      dc->drawMask(x + 65, y, mixerSetupCurveIcon, textColor);
-      drawCurveRef(dc, x + 85, y, line.curve, textColor);
+      if (pad) dc->drawMask(x - 20, y, mixerSetupCurveIcon, textColor);
+      drawCurveRef(dc, x, y, line.curve, textColor);
     }
+    // x += 48 + pad;
   }
 
-  if (line.flightModes) {
-#if LCD_H > LCD_W
-    // third line ...
+  uint8_t delayslow = 0;
+  if (line.speedDown || line.speedUp) delayslow = 1;
+  if (line.delayUp || line.delayDown) delayslow += 2;
+
+  if (line.flightModes || line.name[0] || delayslow) {
     y += line_h;
     x = left;
-#else
-    x = 146;
-#endif
-    drawFlightModes(dc, line.flightModes, textColor, x, y);
+
+    if (line.flightModes) {
+      drawFlightModes(dc, line.flightModes, textColor, x, y);
+    }
+    x += 104 + 3*pad/2;
+
+    if (line.name[0]) {
+      dc->drawMask(x, y, mixerSetupLabelIcon, textColor);
+      dc->drawSizedText(x + 20, y, line.name, sizeof(line.name), textColor);
+    }
+
+    if (delayslow) {
+      BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
+                                      mixerSetupDelaySlowIcon};
+      const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
+      coord_t w = lv_obj_get_width(lvobj);
+      w -= mask->width();
+      dc->drawMask(w - border - pad_right, y, mask, textColor);
+    }
   }
 }
 
@@ -561,59 +566,5 @@ void ModelMixesPage::build(FormWindow * window)
       }
     }
   }
-
-  // int mixIndex = 0;
-  // MixData * mix = g_model.mixData;
-  // for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
-
-  //   bool skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
-    
-  //   if (mixIndex < MAX_MIXERS && mix->destCh == ch && !skip_mix) {
-
-  //     coord_t h = grid.getWindowHeight();
-  //     auto txt = new MixLineTitle(window, grid.getLabelSlot(),
-  //                                 getSourceString(MIXSRC_CH1 + ch),
-  //                                 BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
-
-  //     uint8_t count = 0;
-  //     while (mixIndex < MAX_MIXERS && mix->destCh == ch && !skip_mix) {
-
-  // TODO:
-  //       if (count++ > 0) {
-  //         new StaticBitmap(
-  //             txt,
-  //             {35 - txt->left(),
-  //              button->top() - txt->top() + (button->height() - 18) / 2, 25,
-  //              17},
-  //             mixerMultiplexBitmap[mix->mltpx], COLOR_THEME_SECONDARY1);
-  //       }
-
-  //       button->setFocusHandler([=](bool focus) {
-  //         if (focus) {
-  //           txt->setBackgroundColor(COLOR_THEME_FOCUS);
-  //           txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-  //         } else {
-  //           txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-  //           txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-  //         }
-  //         txt->invalidate();
-  //         if (focus) button->bringToTop();
-  //       });
-
-  //       grid.spacer(button->height() - 1);
-  //       ++mixIndex;
-  //       ++mix;
-
-  //       skip_mix = (ch == 0 && is_memclear(mix, sizeof(MixData)));
-  //     }
-
-  //     h = grid.getWindowHeight() - h + 1;
-  //     txt->setHeight(h);
-
-  //     grid.spacer(7);
-  //   }
-  // }
-
-  // grid.nextLine();
 }
 
