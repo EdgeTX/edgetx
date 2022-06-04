@@ -19,7 +19,7 @@
 
 const lv_obj_class_t input_mix_line_class = {
     .width_def = LV_PCT(100),
-    .height_def = LV_DPI_DEF / 4,
+    .height_def = LV_SIZE_CONTENT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_btn_t),
     .base_class = &lv_btn_class,
