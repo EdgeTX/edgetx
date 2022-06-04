@@ -364,7 +364,7 @@ class SpecialFunctionEditPage : public Page
     CustomFunctionData *cfn = &functions[index];
     
     // custom label
-    new StaticText(window, grid.getLabelSlot(), "Custom Label", 0, COLOR_THEME_PRIMARY1);
+    new StaticText(window, grid.getLabelSlot(), STR_CUST_FUNC_CUST_LABEL, 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(window, grid.getFieldSlot(), cfn->custName, LEN_SPEC_FN_NAME);
    
     grid.nextLine();
