@@ -23,29 +23,19 @@
 
 #include "widgets/window_base.h"
 
-// Window * Window::focusWindow = nullptr;
 std::list<Window *> Window::trash;
 
 extern lv_obj_t *virtual_kb;
-
-static bool is_scrolling = false;
-// static bool inhibit_focus = false;
 
 extern "C" void window_event_cb(lv_event_t * e)
 {
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
-  // we do this before looking for user data (libopenui ptr) for this, and in 
-  // fact during delete operations the window will be deleted and you need 
-  // to reset scrolling if you get a pressing as when you are deleting controls
-  // you get scroll begin events and no scroll end
   if (code == LV_EVENT_SCROLL_BEGIN) {
     TRACE("SCROLL_BEGIN");
-    is_scrolling = true;
-  } else if (code == LV_EVENT_SCROLL_END || code == LV_EVENT_PRESSING) {
+  } else if (code == LV_EVENT_SCROLL_END) {
     TRACE("SCROLL_END");
-    is_scrolling = false;
   } 
 
   Window* window = (Window *)lv_obj_get_user_data(target);
@@ -84,11 +74,6 @@ extern "C" void window_event_cb(lv_event_t * e)
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
     lv_indev_t *click_source = (lv_indev_t *)lv_event_get_param(e);
-    if (click_source == NULL || is_scrolling) {
-      TRACE_WINDOWS("CLICK WHILE SCROLLING");
-      return;
-    }
-
     // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||
     //    lv_indev_get_type(click_source) == LV_INDEV_TYPE_ENCODER) {
     //   return;
@@ -124,13 +109,23 @@ extern "C" void window_event_cb(lv_event_t * e)
   }
 #endif
   else if (code == LV_EVENT_SCROLL) {
-#if defined(DEBUG_WINDOWS)
     lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
     lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
 
-    TRACE_WINDOWS("SCROLL[x=%d;y=%d] %s", scroll_x, scroll_y,
-                  window->getWindowDebugString().c_str());
-#endif
+    // exclude pointer based scrolling (only focus scrolling)
+    if (!lv_obj_is_scrolling(target)) {
+      lv_point_t* p = (lv_point_t*)lv_event_get_param(e);
+      lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
+
+      // TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y,
+      //       scroll_y, scroll_bottom);
+
+      if (scroll_y <= lv_dpx(45) && p->y > 0) {
+        lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
+      } else if (scroll_bottom <= lv_dpx(16) && p->y < 0) {
+        lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
+      }
+    }
   }
   else if (code == LV_EVENT_CLICKED) {
     TRACE("CLICKED[%p]", window);
