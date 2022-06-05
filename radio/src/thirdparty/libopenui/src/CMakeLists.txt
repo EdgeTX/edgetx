@@ -38,6 +38,7 @@ set(LIBOPENUI_SRC
   # LVGL widgets
   widgets/window_base.c
   widgets/simple_btn.c
+  widgets/field_edit.c
   )
 
 if(SOFTWARE_KEYBOARD)

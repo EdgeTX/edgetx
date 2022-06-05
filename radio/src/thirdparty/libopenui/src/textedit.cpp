@@ -19,7 +19,10 @@
 
 #include "textedit.h"
 #include "font.h"
-#include "libopenui_config.h"
+
+#include "widgets/field_edit.h"
+
+// #include "libopenui_config.h"
 
 #if !defined(STR_EDIT)
 #define STR_EDIT "Edit"
@@ -45,7 +48,7 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
                    uint8_t length, LcdFlags windowFlags,
                    const char *_extra_chars) :
     FormField(parent, rect, windowFlags, 0,
-              lv_textarea_create),
+              field_edit_create),
     value(value),
     length(length)
 {
