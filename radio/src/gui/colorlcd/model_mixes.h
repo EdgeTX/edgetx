@@ -36,6 +36,7 @@ class ModelMixesPage : public ModelInputsPage
 
   void addLineButton(uint8_t index) override;
   void addLineButton(mixsrc_t src, uint8_t index) override;
+  InputMixGroup* createGroup(FormGroup* form, mixsrc_t src) override;
   InputMixButton* createLineButton(InputMixGroup* group,
                                    uint8_t index) override;
 

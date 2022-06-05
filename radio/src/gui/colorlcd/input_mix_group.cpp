@@ -20,6 +20,8 @@
  */
 
 #include "input_mix_group.h"
+#include "channel_bar.h"
+
 #include "opentx.h"
 
 #include <algorithm>
@@ -61,7 +63,20 @@ InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
   line_container = window_create(box);
   lv_obj_set_size(line_container, lv_pct(100), LV_SIZE_CONTENT);
   lv_obj_set_flex_flow(line_container, LV_FLEX_FLOW_COLUMN);
+  lv_obj_set_style_flex_cross_place(line_container, LV_FLEX_ALIGN_END, 0);
   lv_obj_set_style_pad_row(line_container, lv_dpx(8), LV_PART_MAIN);
+}
+
+void InputMixGroup::addMixerMonitor(uint8_t channel)
+{
+  rect_t r{ 0, 0, 100, 14 };
+  auto mon = new MixerChannelBar(this, r, channel);
+
+  lv_obj_t* mon_obj = mon->getLvObj();
+  lv_obj_set_parent(mon_obj, line_container);
+  lv_obj_set_style_border_width(mon_obj, lv_dpx(1), 0);
+  lv_obj_set_style_border_color(mon_obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+  lv_obj_set_style_radius(mon_obj, lv_dpx(8), 0);
 }
 
 void InputMixGroup::addLine(Window* line, const uint8_t* symbol)

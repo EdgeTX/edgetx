@@ -264,6 +264,11 @@ void ModelInputsPage::removeLine(InputMixButton* l)
   }
 }
 
+InputMixGroup* ModelInputsPage::createGroup(FormGroup* form, mixsrc_t src)
+{
+  return new InputMixGroup(form, src);
+}
+
 InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
                                                   uint8_t index)
 {
@@ -333,7 +338,7 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
 {
   InputMixGroup* group_w = getGroupBySrc(src);
   if (!group_w) {    
-    group_w = new InputMixGroup(form, src);
+    group_w = createGroup(form, src);
     // insertion sort
     groups.emplace_back(group_w);
     auto g = groups.rbegin();
@@ -478,7 +483,7 @@ void ModelInputsPage::build(FormWindow *window)
 
     if (line->chn == input && EXPO_VALID(line)) {
       // one group for the complete input channel
-      auto group = new InputMixGroup(form, MIXSRC_FIRST_INPUT + input);
+      auto group = createGroup(form, MIXSRC_FIRST_INPUT + input);
       groups.emplace_back(group);
       while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         // one button per input line
