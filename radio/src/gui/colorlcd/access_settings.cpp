@@ -837,9 +837,9 @@ void RxOptions::update()
           hwSettings.receiverSettings.outputsMapping[i] = val;
           if (val <= channelsMax) {
             chBar->setChannel(getShiftedChannel(moduleIdx, val));
-            chBar->setEnabled(true);
+            lv_obj_clear_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           } else {
-            chBar->setEnabled(false);
+            lv_obj_add_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
         });
     chDn->setTextHandler(
