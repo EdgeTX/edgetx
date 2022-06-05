@@ -18,6 +18,7 @@
  */
 
 #include "numberedit.h"
+#include "widgets/field_edit.h"
 
 #if defined(SOFTWARE_KEYBOARD)
 #include "keyboard_number.h"
@@ -40,34 +41,13 @@ static void numberedit_cb(lv_event_t* e)
   }
 }
 
-// create a new class for number edit so we can set the sytles differently if needed.
-const lv_obj_class_t lv_numberedit_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = lv_textarea_class.constructor_cb,
-    .destructor_cb = lv_textarea_class.destructor_cb,
-    .user_data = nullptr,
-    .event_cb = lv_textarea_class.event_cb,
-    .width_def = LV_DPI_DEF / 2,
-    .height_def = LV_SIZE_CONTENT,
-    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
-    .instance_size = sizeof(lv_textarea_t)
-};
-
-lv_obj_t *lv_numberedit_create(lv_obj_t *parent) 
-{
-    lv_obj_t * obj = lv_obj_class_create_obj(&lv_numberedit_class, parent);
-    lv_obj_class_init_obj(obj);
-    return obj;
-}
-
 NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
                        std::function<void(int)> setValue,
                        WindowFlags windowFlags, LcdFlags textFlags) :
     BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
                    std::move(setValue), windowFlags, textFlags,
-                   lv_numberedit_create)
+                   field_edit_create)
 {
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);

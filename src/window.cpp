@@ -117,12 +117,12 @@ extern "C" void window_event_cb(lv_event_t * e)
       lv_point_t* p = (lv_point_t*)lv_event_get_param(e);
       lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-      // TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y,
-      //       scroll_y, scroll_bottom);
+      TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y,
+             scroll_y, scroll_bottom);
 
-      if (scroll_y <= lv_dpx(45) && p->y > 0) {
+      if (scroll_y <= 45 && p->y > 0) {
         lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-      } else if (scroll_bottom <= lv_dpx(16) && p->y < 0) {
+      } else if (scroll_bottom <= 16 && p->y < 0) {
         lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
       }
     }
