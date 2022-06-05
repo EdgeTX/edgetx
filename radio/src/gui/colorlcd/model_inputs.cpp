@@ -383,13 +383,18 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
 
 void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
+  auto group = getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  if (!group) return;
+
   auto line = getLineByIndex(index);
   if (!line) return;
 
   auto line_obj = line->getLvObj();
+  auto group_obj = group->getLvObj();
   auto edit = new InputEditWindow(input, index);
   edit->setCloseHandler([=]() {
       lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+      lv_event_send(group_obj, LV_EVENT_VALUE_CHANGED, nullptr);
     });
 }
 
