@@ -185,7 +185,7 @@ class MixLineButton : public InputMixButton
 static void mix_draw_mplex(lv_event_t* e)
 {
   auto obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (!obj || (lv_obj_get_index(obj) == 0)) return;
+  if (!obj || (lv_obj_get_index(obj) <= 1)) return;
 
   auto btn = (MixLineButton*)lv_obj_get_user_data(obj);
   if (!btn) return;
