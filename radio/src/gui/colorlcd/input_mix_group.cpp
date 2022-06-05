@@ -36,12 +36,23 @@ static const lv_coord_t row_dsc[] = {
   LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST,
 };
 
+void InputMixGroup::value_changed(lv_event_t* e)
+{
+  auto obj = lv_event_get_target(e);
+  auto group = (InputMixGroup*)lv_obj_get_user_data(obj);
+  if (!group) return;
+  
+  lv_label_set_text(group->label, getSourceString(group->idx));
+}
+
 InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
     Window(parent, rect_t{}, 0, 0, input_mix_group_create), idx(idx)
 {
   lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
   lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
-  
+  lv_obj_add_event_cb(lvobj, InputMixGroup::value_changed,
+                      LV_EVENT_VALUE_CHANGED, nullptr);
+
   label = lv_label_create(lvobj);
   lv_label_set_text(label, getSourceString(idx));
   lv_obj_set_grid_cell(label,
