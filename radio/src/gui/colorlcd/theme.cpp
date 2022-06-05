@@ -212,9 +212,6 @@ void loadTheme()
     loadTheme(newTheme);
   else
     loadTheme(defaultTheme);
-//  else {
-//    loadTheme(theme);
-//  }
 }
 
 MenuWindowContent * createMenuWindow(Menu * menu)
