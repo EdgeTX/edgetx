@@ -43,6 +43,8 @@ class InputMixGroup : public Window
   lv_obj_t* label;
   lv_obj_t* line_container;
 
+  static void value_changed(lv_event_t* e);
+  
  public:
   InputMixGroup(Window* parent, mixsrc_t idx);
 
