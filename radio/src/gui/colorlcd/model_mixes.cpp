@@ -355,6 +355,13 @@ InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
   return getGroupBySrc(MIXSRC_CH1 + ch);
 }
 
+InputMixGroup* ModelMixesPage::createGroup(FormGroup* form, mixsrc_t src)
+{
+  auto group = new InputMixGroup(form, src);
+  group->addMixerMonitor(src - MIXSRC_CH1);
+  return group;
+}
+
 InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t index)
 {
   auto button = new MixLineButton(group, index);
@@ -555,7 +562,7 @@ void ModelMixesPage::build(FormWindow * window)
     if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
-      auto group = new InputMixGroup(form, MIXSRC_CH1 + ch);
+      auto group = createGroup(form, MIXSRC_CH1 + ch);
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line

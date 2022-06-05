@@ -46,6 +46,8 @@ class InputMixGroup : public Window
  public:
   InputMixGroup(Window* parent, mixsrc_t idx);
 
+  void addMixerMonitor(uint8_t channel);
+    
   mixsrc_t getMixSrc() { return idx; }
   size_t getLineCount() { return lines.size(); }
   
