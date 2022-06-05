@@ -30,11 +30,11 @@
 
 #if LCD_W > LCD_H
 static const coord_t btn_cols[] = {
-  92, 142, 192, 234, 272, 312
+  90, 158, 208, 262, 306, 326
 };
 #else
 static const coord_t btn_cols[] = {
-  102, 162, 222, 268, 222, 268
+  264, 66, 123, 180, 232, 264
 };
 #endif
 
@@ -45,22 +45,18 @@ class OutputLineButton : public InputMixButton
     InputMixButton(parent, channel)
   {
 #if LCD_H > LCD_W
-    auto w = (btn_cols[1] - btn_cols[0]) * 2;
     auto font_h = getFontHeight(FONT(STD));
-
-    auto x = btn_cols[1] - w;
-    auto y = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN) + font_h;
-
-    rect_t r{ x, y + (font_h - 14) / 2, w, 14 };
+    rect_t r{ 150, (font_h - 14) / 2, 100, 14 };
 #else
     lv_obj_update_layout(lvobj);
     auto font_h = getFontHeight(FONT(STD));
-    auto x = lv_obj_get_content_width(lvobj) - 100;
+    auto x = lv_obj_get_content_width(lvobj) - 92;
     auto y = (font_h - 14) / 2;
 
-    rect_t r{ x, y, 100, 14 };
+    rect_t r{ x, y, 92, 14 };
 #endif
-    new OutputChannelBar(this, r, channel);
+    auto bar = new OutputChannelBar(this, r, channel);
+    bar->setDrawLimits(false);
   }
 
   void paint(BitmapBuffer *dc) override
@@ -78,45 +74,45 @@ class OutputLineButton : public InputMixButton
     coord_t x = left;
     coord_t y = border + lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
 
+    x = left;
     dc->drawText(x, y, getSourceString(MIXSRC_CH1 + index), FONT(BOLD) | textColor);
+
+    if (output->revert) {
+      x = left + btn_cols[0];
+      dc->drawText(x, y, LV_SYMBOL_SHUFFLE, textColor);
+    }
+
+#if LCD_H > LCD_W      
+    y += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
+      + getFontHeight(FONT(STD));
+#endif
     
     // Min
     LcdFlags txtFlags = (value < chanZero - 5) ? FONT(BOLD) | textColor : textColor;
-    x = left + btn_cols[0];
+    x = left + btn_cols[1];
     drawValueOrGVar(dc, x, y, output->min, -GV_RANGELARGE, 0, RIGHT | PREC1 | txtFlags,
                     nullptr, -LIMITS_MIN_MAX_OFFSET);
 
     // Max
     txtFlags = (value > chanZero + 5) ? FONT(BOLD) | textColor : textColor;
-    x = left + btn_cols[1];
+    x = left + btn_cols[2];
     drawValueOrGVar(dc, x, y, output->max, 0, GV_RANGELARGE,
                     RIGHT | PREC1 | txtFlags, nullptr, +LIMITS_MIN_MAX_OFFSET);
 
     // Offset
-    x = left + btn_cols[2];
+    x = left + btn_cols[3];
     drawValueOrGVar(dc, x, y, output->offset, -LIMIT_STD_MAX,
                     +LIMIT_STD_MAX, RIGHT | PREC1 | textColor, nullptr);
 
     // PPM center
-    x = left + btn_cols[3];
+    x = left + btn_cols[4];
     dc->drawNumber(x, y, PPM_CENTER + output->ppmCenter, RIGHT | textColor);
     dc->drawText(x, y, output->symetrical ? "=" : STR_CHAR_DELTA, textColor);
 
-    // second line
-    if (output->revert || output->curve) {
-#if LCD_H > LCD_W      
-      y += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
-        + getFontHeight(FONT(STD));
-#endif
-      if (output->revert) {
-        x = left + btn_cols[4];
-        dc->drawText(x, y, LV_SYMBOL_SHUFFLE, RIGHT | textColor);
-      }
-      if (output->curve) {
-        x = left + btn_cols[5];
-        dc->drawText(x, y, getCurveString(output->curve), RIGHT | textColor);
-        dc->drawMask(x + 2, y, mixerSetupCurveIcon, textColor);
-      }
+    if (output->curve) {
+      x = left + btn_cols[5];
+      // dc->drawText(x, y, getCurveString(output->curve), RIGHT | textColor);
+      dc->drawMask(x, y, mixerSetupCurveIcon, textColor);
     }
   }
 
