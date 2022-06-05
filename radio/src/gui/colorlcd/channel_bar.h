@@ -49,10 +49,13 @@ class MixerChannelBar : public ChannelBar
  public:
   using ChannelBar::ChannelBar;
 
+  void setDrawMiddleBar(bool enable) { drawMiddleBar = enable; }
+
   void paint(BitmapBuffer* dc) override;
   void checkEvents() override;
 
  protected:
+  bool drawMiddleBar = true;
   int value = 0;
 };
 
