@@ -177,6 +177,7 @@ class Theme480: public OpenTxTheme
     {
       loadIcons(reload);
       if (reload) loadBuiltinBitmaps();
+      initLvglTheme();
     }
 
     void drawBackground(BitmapBuffer * dc) const override

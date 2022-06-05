@@ -23,6 +23,8 @@
 
 #include "LvglWrapper.h"
 #include "themes/etx_lv_theme.h"
+#include "widgets/field_edit.h"
+
 #include "view_main.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
@@ -220,137 +222,20 @@ static void init_lvgl_drivers()
   keyboardDevice = lv_indev_drv_register(&keyboard_drv);
 }
 
-// The theme code needs to go somewhere else (gui/colorlcd/themes/default.cpp?)
-static lv_style_t menu_line_style;
-static lv_style_t menu_checked_style;
-static lv_style_t textedit_style_main;
-static lv_style_t textedit_style_focused;
-static lv_style_t textedit_style_cursor;
-static lv_style_t textedit_style_cursor_edit;
-static lv_style_t numberedit_style_main;
-static lv_style_t numberedit_style_focused;
-static lv_style_t numberedit_style_cursor;
-static lv_style_t numberedit_style_cursor_edit;
-
-
-static void theme_apply_cb(lv_theme_t * th, lv_obj_t * obj)
+void initLvglTheme()
 {
-  LV_UNUSED(th);
-
-  if (lv_obj_check_type(obj, &lv_obj_class)) {
-    // lv_obj_add_style(obj, &generic_style, LV_PART_MAIN);
-    return;
-  }
-
-  lv_obj_t* parent = lv_obj_get_parent(obj);
-  if (parent == NULL) {
-    // main screen
-    return;
-  }
-
-  if (lv_obj_check_type(obj, &lv_numberedit_class)) {
-    lv_obj_add_style(obj, &numberedit_style_main, LV_PART_MAIN);
-    lv_obj_add_style(obj, &numberedit_style_focused, LV_PART_MAIN | LV_STATE_FOCUSED);
-    lv_obj_add_style(obj, &numberedit_style_cursor, LV_PART_CURSOR);
-    lv_obj_add_style(obj, &numberedit_style_cursor_edit, LV_PART_CURSOR | LV_STATE_EDITED);
-    return;
-  }
-
-  if (lv_obj_check_type(obj, &lv_textarea_class)) {
-    lv_obj_add_style(obj, &textedit_style_main, LV_PART_MAIN);
-    lv_obj_add_style(obj, &textedit_style_focused, LV_PART_MAIN | LV_STATE_FOCUSED);
-    lv_obj_add_style(obj, &textedit_style_cursor, LV_PART_CURSOR);
-    lv_obj_add_style(obj, &textedit_style_cursor_edit, LV_PART_CURSOR | LV_STATE_EDITED);
-    return;
-  }
-}
-
-static void init_theme()
-{
-  /*Initialize the styles*/
-
-  // numberedit
-  // LV_PART_MAIN
-  lv_style_init(&numberedit_style_main);
-  lv_style_init(&numberedit_style_focused);
-  lv_style_init(&numberedit_style_cursor);
-  lv_style_init(&numberedit_style_cursor_edit);
-
-  lv_style_set_border_width(&numberedit_style_main, 1);
-  lv_style_set_border_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_bg_color(&numberedit_style_main, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&numberedit_style_main, LV_OPA_COVER);
-  lv_style_set_text_color(&numberedit_style_main, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_left(&numberedit_style_main, FIELD_PADDING_LEFT);
-  lv_style_set_pad_top(&numberedit_style_main, FIELD_PADDING_TOP);
-
-  // LV_STATE_FOCUSED
-  lv_style_set_bg_color(&numberedit_style_focused, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_text_color(&numberedit_style_focused, makeLvColor(COLOR_THEME_PRIMARY2));
-
-  // Hide cursor when not editing
-  lv_style_set_opa(&numberedit_style_cursor, LV_OPA_0);
-
-  // Show Cursor in "Edit" mode
-  lv_style_set_opa(&numberedit_style_cursor_edit, LV_OPA_COVER);
-  lv_style_set_bg_opa(&numberedit_style_cursor_edit, LV_OPA_50);
-
-  // textedit
-  lv_style_init(&textedit_style_main);
-  lv_style_init(&textedit_style_focused);
-  lv_style_init(&textedit_style_cursor);
-  lv_style_init(&textedit_style_cursor_edit);
-  
-  // textedit style main
-  lv_style_set_border_width(&textedit_style_main, 1);
-  lv_style_set_border_color(&textedit_style_main, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_bg_color(&textedit_style_main, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&textedit_style_main, LV_OPA_COVER);
-  lv_style_set_text_color(&textedit_style_main, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_left(&textedit_style_main, FIELD_PADDING_LEFT);
-  lv_style_set_pad_top(&textedit_style_main, FIELD_PADDING_TOP);
-
-  //textedit style focused
-  lv_style_set_bg_color(&textedit_style_focused, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_text_color(&textedit_style_focused, makeLvColor(COLOR_THEME_PRIMARY2));
-
-  // hide cursor when not editing
-  lv_style_set_opa(&textedit_style_cursor, LV_OPA_0);
-
-  // Show Cursor in "Edit" mode
-  lv_style_set_opa(&textedit_style_cursor_edit, LV_OPA_COVER);
-  lv_style_set_bg_opa(&textedit_style_cursor_edit, LV_OPA_50);
-
-  // Menus
-  lv_style_init(&menu_line_style);
-  lv_style_set_bg_opa(&menu_line_style, LV_OPA_100);
-  lv_style_set_bg_color(&menu_line_style, makeLvColor(COLOR_THEME_PRIMARY2));
-
-  lv_style_init(&menu_checked_style);
-  lv_style_set_border_width(&menu_checked_style, 1);
-  lv_style_set_border_color(&menu_checked_style, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_text_color(&menu_checked_style, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_color(&menu_checked_style, makeLvColor(COLOR_THEME_FOCUS));
-
-  /*Initialize the new theme from the current theme*/
-  lv_theme_t *th_act = etx_lv_theme_init(
+  /* Initialize the ETX theme */
+  lv_theme_t* th = etx_lv_theme_init(
       NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
       false, LV_FONT_DEFAULT);
-  static lv_theme_t th_new;
-  th_new = *th_act;
 
-  /*Set the parent theme and the style apply callback for the new theme*/
-  lv_theme_set_parent(&th_new, th_act);
-  lv_theme_set_apply_cb(&th_new, theme_apply_cb);
-
-  /*Assign the new theme to the current display*/
-  lv_disp_set_theme(NULL, &th_new);
+  /* Assign the theme to the current display*/
+  lv_disp_set_theme(NULL, th);
 }
 
 LvglWrapper::LvglWrapper()
 {
   init_lvgl_drivers();
-  init_theme();
 
   // Create main window and load that screen
   auto window = MainWindow::instance();

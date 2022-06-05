@@ -80,4 +80,6 @@ class LvglWrapper
   static void runNested();
 };
 
+void initLvglTheme();
+
 #endif // _LVGLWRAPPER_H_
