@@ -8,7 +8,11 @@
  *********************/
 #include "etx_lv_theme.h"
 #include "../colors.h"
+#include "font.h"
+
+#include "libopenui_config.h"
 #include "lvgl_widgets/input_mix_line.h"
+#include "lvgl_widgets/input_mix_group.h"
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
@@ -802,6 +806,12 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);        
     }
 #endif
+    else if(lv_obj_check_type(obj, &input_mix_group_class)) {
+        lv_obj_add_style(obj, &styles.line_btn, 0);
+        lv_obj_add_style(obj, &styles.pad_small, 0);
+        lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+        lv_obj_set_style_text_font(obj, getFont(FONT(BOLD)), 0);
+    }
 
 #if LV_USE_LINE
     else if(lv_obj_check_type(obj, &lv_line_class)) {

@@ -22,6 +22,8 @@
 #include "input_mix_group.h"
 #include "channel_bar.h"
 
+#include "lvgl_widgets/input_mix_group.h"
+
 #include "opentx.h"
 
 #include <algorithm>
@@ -35,16 +37,8 @@ static const lv_coord_t row_dsc[] = {
 };
 
 InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
-  Window(parent, rect_t{}), idx(idx)
+    Window(parent, rect_t{}, 0, 0, input_mix_group_create), idx(idx)
 {
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, 0);
-  lv_obj_set_style_radius(lvobj, lv_dpx(16), 0);
-  lv_obj_set_style_pad_hor(lvobj, lv_dpx(8), 0);
-  lv_obj_set_style_pad_ver(lvobj, lv_dpx(8), 0);
-
-  lv_obj_set_width(lvobj, lv_pct(100));
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-
   lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
   lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
   
@@ -71,12 +65,11 @@ void InputMixGroup::addMixerMonitor(uint8_t channel)
 {
   rect_t r{ 0, 0, 100, 14 };
   auto mon = new MixerChannelBar(this, r, channel);
+  mon->setDrawMiddleBar(false);
 
   lv_obj_t* mon_obj = mon->getLvObj();
   lv_obj_set_parent(mon_obj, line_container);
-  lv_obj_set_style_border_width(mon_obj, lv_dpx(1), 0);
-  lv_obj_set_style_border_color(mon_obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
-  lv_obj_set_style_radius(mon_obj, lv_dpx(8), 0);
+  lv_obj_set_style_translate_x(mon_obj, -lv_dpx(8), 0);
 }
 
 void InputMixGroup::addLine(Window* line, const uint8_t* symbol)

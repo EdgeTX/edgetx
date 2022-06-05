@@ -64,8 +64,10 @@ void MixerChannelBar::paint(BitmapBuffer * dc)
                    FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
   }
 
-  // Draw middle bar
-  dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
+  if (drawMiddleBar) {
+    // Draw middle bar
+    dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
+  }
 }
 
 void MixerChannelBar::checkEvents()

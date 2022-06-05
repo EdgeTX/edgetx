@@ -31,7 +31,7 @@
 enum FontIndex
 {
   FONT_STD_INDEX,
-#if !defined(BOLD)
+#if !defined(BOOT)
   FONT_BOLD_INDEX,
   FONT_XXS_INDEX,
   FONT_XS_INDEX,
