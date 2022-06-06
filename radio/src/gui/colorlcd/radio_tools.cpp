@@ -76,13 +76,7 @@ struct LuaScript
 {
   std::string path;
   std::string label;
-  bool operator < (const LuaScript &a) { return label < a.label; }
 };
-
-inline bool LuaScript_compare_nocase(LuaScript first, LuaScript second)
-{
-  return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
-}
 
 class FormGridLayoutEx : public FormGridLayout
 {
@@ -122,7 +116,7 @@ class FormGridLayoutEx : public FormGridLayout
 #if defined(LUA)
 void buildLuaUi(std::vector<LuaScript> luaScripts, FormWindow *window, FormGridLayoutEx &grid)
 {
-  for (auto luaScript : luaScripts) {
+  for (const auto& luaScript : luaScripts) {
     auto txt =
         new StaticText(window, grid.getLabelSlot(), "lua", BUTTON_BACKGROUND,
                        COLOR_THEME_PRIMARY1 | CENTERED | VCENTERED);
@@ -207,8 +201,9 @@ void RadioToolsPage::rebuild(FormWindow * window)
         luaScripts.emplace_back(LuaScript{ path, label });
       }
     }
-
-    std::sort(luaScripts.begin(), luaScripts.end(), LuaScript_compare_nocase);
+    std::sort(luaScripts.begin(), luaScripts.end(), [](const LuaScript& first, const LuaScript& second){
+        return strcasecmp(first.label.c_str(), second.label.c_str());
+    });
     buildLuaUi(luaScripts, window, grid);
   }
 #endif
@@ -216,7 +211,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #if defined(INTERNAL_MODULE_PXX2)
   // PXX2 modules tools
   if (isPXX2ModuleOptionAvailable(
-          reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
+          reusableBuffer.radioTools.modules[INTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER)) {
     auto txt =
@@ -244,7 +239,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
   }
 
   if (isPXX2ModuleOptionAvailable(
-          reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE]
+          reusableBuffer.radioTools.modules[INTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt =
@@ -300,7 +295,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #endif
 #if defined(PXX2)|| defined(MULTIMODULE)
   if (isPXX2ModuleOptionAvailable(
-          reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
+          reusableBuffer.radioTools.modules[EXTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_SPECTRUM_ANALYSER) ||
       isModuleMultimodule(EXTERNAL_MODULE)) {
@@ -332,7 +327,7 @@ void RadioToolsPage::rebuild(FormWindow * window)
 #if defined(PXX2)
 #if 0 // disabled Power Meter: not yet implemented
   if (isPXX2ModuleOptionAvailable(
-          reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE]
+          reusableBuffer.radioTools.modules[EXTERNAL_MODULE]
               .information.modelID,
           MODULE_OPTION_POWER_METER)) {
     auto txt =
