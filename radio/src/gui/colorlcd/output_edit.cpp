@@ -62,8 +62,17 @@ class OutputEditStatusBar : public Window
 OutputEditWindow::OutputEditWindow(uint8_t channel) :
     Page(ICON_MODEL_OUTPUTS), channel(channel)
 {
+  std::string title(STR_MENULIMITS);
+  title += "\n";
+  title += getSourceString(MIXSRC_CH1 + channel);
+
   chanZero = calcRESXto100(channelOutputs[channel]);
-  buildBody(&body);
+
+  auto form = new FormWindow(&body, rect_t{});
+  auto form_obj = form->getLvObj();
+  lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
+  buildBody(form);
+
   buildHeader(&header);
 }
 
@@ -86,16 +95,6 @@ void OutputEditWindow::checkEvents()
 
 void OutputEditWindow::buildHeader(Window *window)
 {
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_MENULIMITS, 0, COLOR_THEME_PRIMARY2);
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                  LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                 getSourceString(MIXSRC_CH1 + channel), 0,
-                 COLOR_THEME_PRIMARY2);
-
   statusBar = new OutputEditStatusBar(
       window,
       {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
@@ -104,78 +103,83 @@ void OutputEditWindow::buildHeader(Window *window)
       channel);
 }
 
-void OutputEditWindow::buildBody(FormWindow *window)
+#if LCD_W > LCD_H
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
+
+void OutputEditWindow::buildBody(FormWindow* form)
 {
-  FormGridLayout grid;
-  grid.spacer(8);
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  form->setFlexLayout();
 
   int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
-
   LimitData *output = limitAddress(channel);
 
   // Name
-  new StaticText(window, grid.getLabelSlot(), STR_NAME, 0,
-                 COLOR_THEME_PRIMARY1);
-  new ModelTextEdit(window, grid.getFieldSlot(), output->name,
-                    sizeof(output->name));
-  grid.nextLine();
+  auto line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+  new ModelTextEdit(line, rect_t{}, output->name, sizeof(output->name));
 
   // Offset
-  new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0,
+  new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIM, 0,
                  COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
-                     +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), PREC1);
-  grid.nextLine();
-
-  // TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
+  new GVarNumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+                     GET_SET_DEFAULT(output->offset), PREC1);
 
   // Min
-  minText = new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
-                           COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                     GET_SET_DEFAULT(output->min), PREC1, -LIMIT_STD_MAX);
-  grid.nextLine();
+  line = form->newLine(&grid);
+  minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
+  new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
+                     PREC1, -LIMIT_STD_MAX);
 
   // Max
-  maxText = new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
-                           COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                     GET_SET_DEFAULT(output->max), PREC1, +LIMIT_STD_MAX);
-  grid.nextLine();
+  maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
+  new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
+                     PREC1, +LIMIT_STD_MAX);
 
   // Direction
-  new StaticText(window, grid.getLabelSlot(), STR_INVERTED, 0,
-                 COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_DEFAULT(output->revert),
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_DEFAULT(output->revert),
                [output, this](uint8_t newValue) {
                  if (newValue != output->revert) chanZero = -chanZero;
                  output->revert = newValue;
                  SET_DIRTY();
                });
-  grid.nextLine();
 
   // Curve
-  new StaticText(window, grid.getLabelSlot(), TR_CURVE, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(), -MAX_CURVES,
-                             +MAX_CURVES, GET_SET_DEFAULT(output->curve));
+  new StaticText(line, rect_t{}, TR_CURVE, 0, COLOR_THEME_PRIMARY1);
+  auto edit = new NumberEdit(line, rect_t{}, -MAX_CURVES, +MAX_CURVES,
+                             GET_SET_DEFAULT(output->curve));
   edit->setDisplayHandler(
       [](int32_t value) { return std::string(getCurveString(value)); });
-  grid.nextLine();
 
   // PPM center
-  new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_PPMCENTER, 0,
-                 COLOR_THEME_PRIMARY1);
-  new NumberEdit(window, grid.getFieldSlot(), PPM_CENTER - PPM_CENTER_MAX,
+  line = form->newLine(&grid);
+  auto label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_PPMCENTER, 0,
+                              COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
+  lv_obj_set_style_grid_cell_x_align(label->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+  new NumberEdit(line, rect_t{}, PPM_CENTER - PPM_CENTER_MAX,
                  PPM_CENTER + PPM_CENTER_MAX,
                  GET_VALUE(output->ppmCenter + PPM_CENTER),
                  SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
-  grid.nextLine();
 
   // Subtrims mode
-  new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIMMODE, 0,
-                 COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_SUBTRIMMODES, 0, 1,
+  label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIMMODE, 0,
+                         COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
+  lv_obj_set_style_grid_cell_x_align(label->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+  new Choice(line, rect_t{}, STR_SUBTRIMMODES, 0, 1,
              GET_SET_DEFAULT(output->symetrical));
-  grid.nextLine();
 }
