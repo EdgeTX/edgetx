@@ -68,6 +68,16 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
+echo "=== Step $((STEP++)): Fetching and installing Python package lz4 ==="
+git clone --recursive https://github.com/python-lz4/python-lz4.git
+cd python-lz4
+python setup.py install
+cd ..
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
 echo "=== Step $((STEP++)): Installing Qt build environment ==="
 python -m aqt install 5.12.9 windows desktop win64_mingw73
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
