@@ -84,9 +84,17 @@ void MixEditWindow::buildHeader(Window *window)
       channel);
 }
 
+#if LCD_W > LCD_H
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_FR(1), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
 
 void MixEditWindow::buildBody(FormWindow* form)
 {
@@ -97,7 +105,7 @@ void MixEditWindow::buildBody(FormWindow* form)
 
   // Mix name
   auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MIXNAME, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
   new ModelTextEdit(line, rect_t{}, mix->name, sizeof(mix->name));
 
   // Source
@@ -114,7 +122,6 @@ void MixEditWindow::buildBody(FormWindow* form)
   gvar->setSuffix("%");
 
   // Offset
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
   gvar = new GVarNumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
                             GET_SET_DEFAULT(mix->offset));
@@ -127,7 +134,6 @@ void MixEditWindow::buildBody(FormWindow* form)
                    GET_SET_DEFAULT(mix->swtch));
 
   // Curve
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CURVE, 0, COLOR_THEME_PRIMARY1);
   new CurveParam(line, rect_t{}, &mix->curve);
 
