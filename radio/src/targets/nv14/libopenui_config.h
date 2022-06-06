@@ -31,13 +31,11 @@
 enum FontIndex
 {
   FONT_STD_INDEX,
-#if !defined(BOOT)
   FONT_BOLD_INDEX,
   FONT_XXS_INDEX,
   FONT_XS_INDEX,
   FONT_L_INDEX,
   FONT_XL_INDEX,
-#endif
   
   // this one MUST be last
   FONTS_COUNT
