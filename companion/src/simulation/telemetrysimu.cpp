@@ -28,7 +28,7 @@
 #include <QRegularExpression>
 #include <stdint.h>
 
-#include <QMessageBox>
+#include <QMessageBox> //
 
 TelemetrySimulator::TelemetrySimulator(QWidget * parent, SimulatorInterface * simulator):
   QWidget(parent),
@@ -1167,6 +1167,7 @@ void TelemetrySimulator::on_saveTelemetryvalues_clicked()
     out<<"\r\n";
     out << ui -> accz -> text();
     out<<"\r\n";
+    file.flush();
 
     file.close();
 
