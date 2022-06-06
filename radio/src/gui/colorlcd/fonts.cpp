@@ -39,6 +39,8 @@
   FONT_TABLE(noto_cn);
 #elif defined(TRANSLATIONS_TW)
   FONT_TABLE(noto_tw);
+#elif defined(TRANSLATIONS_JP)
+  FONT_TABLE(noto_jp);
 #else
   FONT_TABLE(roboto);
 #endif

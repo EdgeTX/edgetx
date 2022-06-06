@@ -10,11 +10,12 @@ standard_chars = """ !"#$%&'()*+,-./0123456789:;<=>?°ABCDEFGHIJKLMNOPQRSTUVWXYZ
 extra_chars = "".join([chr(0x10000+i) for i in range(21)])
 
 def is_special_char(c):
+    # only 'our' special chars and CJK Unified Ideographs
     return 192 <= ord(c) <= 383 or 0x4E00 <= ord(c) <= 0x9FFF
 
 def get_special_chars():
   result = {}
-  for lang in["en", "fr", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw"]:
+  for lang in["en", "fr", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw", "jp"]:
     charset = set()
     tools_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(tools_path, "../radio/src/translations/%s.h" % lang), encoding='utf-8') as f:
