@@ -240,12 +240,6 @@ void ModelSetupPage::build(FormWindow * window)
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
 
-  // Extended limits
-  // TODO: move to "Outputs" screen ?
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
-
   // Global functions
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
