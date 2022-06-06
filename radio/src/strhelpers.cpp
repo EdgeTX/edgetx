@@ -378,6 +378,11 @@ char *getGVarString(char *dest, int idx)
     idx = -idx - 1;
   }
 
+  if (idx >= MAX_GVARS) {
+    s[0] = '\0';
+    return s;
+  }
+  
   if (g_model.gvars[idx].name[0])
     strAppend(s, g_model.gvars[idx].name, LEN_GVAR_NAME);
   else
