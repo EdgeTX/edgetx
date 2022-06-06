@@ -36,7 +36,6 @@ MainWindow::MainWindow() :
   Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE),
     invalidatedRect(rect)
 {
-  // Layer::push(this);
 }
 
 void MainWindow::emptyTrash()
