@@ -164,7 +164,7 @@ class WindowButtonGroup : public FormGroup
 {
  public:
   WindowButtonGroup(
-      FormGroup* parent, const rect_t& rect,
+      Window* parent, const rect_t& rect,
       std::vector<std::pair<const char*, std::function<void()>>> windows) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
       windows(windows)
@@ -575,19 +575,23 @@ RadioSetupPage::RadioSetupPage():
 
 void RadioSetupPage::build(FormWindow * window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
+  window->setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+//  FormGridLayout grid;
+//  grid.spacer(PAGE_PADDING);
 
+  auto line = window->newLine(&grid);
   // Date and Time
-  auto timeWindow = new DateTimeWindow(window, {0, grid.getWindowHeight(), LCD_W, 0});
-  grid.addWindow(timeWindow);
+//  auto timeWindow = new DateTimeWindow(line, {0, 0, LCD_W, 0});
+//  grid.addWindow(timeWindow);
 
 
   // Batt meter range - Range 3.0v to 16v
-  new StaticText(window, grid.getLabelSlot(), STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
-  auto batMinEdit = new NumberEdit(window, grid.getFieldSlot(2, 0), -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
+  auto batMinEdit = new NumberEdit(line, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
   batMinEdit->setSuffix("V");
-  auto batMaxEdit = new NumberEdit(window, grid.getFieldSlot(2, 1), g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
+  auto batMaxEdit = new NumberEdit(line, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
   batMaxEdit->setSuffix("V");
   batMinEdit->setSetValueHandler([=](int32_t newValue) {
     g_eeGeneral.vBatMin= newValue - 90;
@@ -602,7 +606,8 @@ void RadioSetupPage::build(FormWindow * window)
     batMinEdit->invalidate();
   });
 
-  grid.nextLine();
+//  grid.nextLine();
+  line = window->newLine(&grid);
   std::vector<std::pair<const char*, std::function<void()> >> windows;
   windows.push_back(std::make_pair(STR_SOUND_LABEL, [window](){new SoundPage();}));
 #if defined(VARIO)
@@ -616,16 +621,16 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(INTERNAL_GPS)
   windows.push_back(std::make_pair(STR_GPS, [window](){new GpsPage();}));
 #endif
-  auto buttons = new WindowButtonGroup(window, {0,grid.getWindowHeight(), LCD_W, 0}, windows);
+  auto buttons = new WindowButtonGroup(line, {0,0, LCD_W, 0}, windows);
   buttons->adjustHeight();
-  grid.addWindow(buttons);
+ // grid.addWindow(buttons);
 
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    new StaticText(window, grid.getLabelSlot(), STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(), STR_PWR_OFF_DELAYS, 0, 3,
+    new StaticText(line, rect_t{}, STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
                return 2 - g_eeGeneral.pwrOffSpeed;
                },
@@ -633,25 +638,26 @@ void RadioSetupPage::build(FormWindow * window)
                    g_eeGeneral.pwrOffSpeed = 2 - newValue;
                    SET_DIRTY();
                });
-    grid.nextLine();
+//    grid.nextLine();
+    line = window->newLine(&grid);
   }
 #endif
   
 #if defined(PXX2)
   // Owner ID
-  new StaticText(window, grid.getLabelSlot(), STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
-  new RadioTextEdit(window, grid.getFieldSlot(), g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
+  new RadioTextEdit(line, rect_t{}, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
+  line = window->newLine(&grid);
 #endif
 
   // Country code
-  new StaticText(window, grid.getLabelSlot(), STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
+  line = window->newLine(&grid);
 
   // Audio language
-  new StaticText(window, grid.getLabelSlot(), STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
-  auto choice = new Choice(window, grid.getFieldSlot(), 0, DIM(languagePacks) - 2, GET_VALUE(currentLanguagePackIdx),
+  new StaticText(line, rect_t{}, STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
+  auto choice = new Choice(line, rect_t{}, 0, DIM(languagePacks) - 2, GET_VALUE(currentLanguagePackIdx),
                            [](uint8_t newValue) {
                              currentLanguagePackIdx = newValue;
                              currentLanguagePack = languagePacks[currentLanguagePackIdx];
@@ -660,12 +666,12 @@ void RadioSetupPage::build(FormWindow * window)
   choice->setTextHandler([](uint8_t value) {
     return languagePacks[value]->name;
   });
-  grid.nextLine();
+  line = window->newLine(&grid);
 
   // Imperial units
-  new StaticText(window, grid.getLabelSlot(), STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
+  line = window->newLine(&grid);
 
 #if defined(FAI_CHOICE)
 /*  case ITEM_SETUP_FAI:
@@ -684,25 +690,25 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Switches delay
-  new StaticText(window, grid.getLabelSlot(), STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(2, 0), -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
+  new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
+  auto edit = new NumberEdit(line, rect_t{}, -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
-  grid.nextLine();
+  line = window->newLine(&grid);
 
   // USB mode
-  new StaticText(window, grid.getLabelSlot(), STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
+  line = window->newLine(&grid);
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  new StaticText(window, grid.getLabelSlot(), STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
+  line = window->newLine(&grid);
 #endif
 
   // RX channel order
-  new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
-  choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
+  new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
+  choice = new Choice(line, rect_t{}, 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
     std::string s;
     for (uint8_t i = 0; i < 4; i++) {
@@ -710,11 +716,12 @@ void RadioSetupPage::build(FormWindow * window)
     }
     return s;
   });
-  grid.nextLine();
+  line->adjustHeight();
+  line = window->newLine(&grid);
 
   // Stick mode
-  new StaticText(window, grid.getLabelSlot(), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-  choice = new Choice(window, grid.getFieldSlot(), 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
+  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
                         pausePulses();
                         g_eeGeneral.stickMode = newValue;
@@ -725,11 +732,11 @@ void RadioSetupPage::build(FormWindow * window)
   choice->setTextHandler([](uint8_t value) {
     return std::to_string(1 + value) + ": left=" + std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) + "+" + std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
-  grid.nextLine();
+  line = window->newLine(&grid);
 
 // extra bottom padding if touchscreen
 #if defined HARDWARE_TOUCH
-  grid.nextLine();
+  line = window->newLine(&grid);
 #endif
 
 }
