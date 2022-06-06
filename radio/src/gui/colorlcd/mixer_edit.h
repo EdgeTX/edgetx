@@ -25,24 +25,17 @@
 #include "form.h"
 #include "curve.h"
 
-struct MixData;
 class FormGroup;
-class MixerEditStatusBar;
 
 class MixEditWindow : public Page
 {
  public:
-  MixEditWindow(int8_t channel, uint8_t mixIndex);
+  MixEditWindow(int8_t channel, uint8_t index);
 
  protected:
   uint8_t channel;
-  uint8_t mixIndex;
-  FormGroup *curveParamField = nullptr;
-  MixerEditStatusBar *statusBar = nullptr;
+  uint8_t index;
 
   void buildHeader(Window *window);
   void buildBody(FormWindow *window);
-
-  // TODO share this code with INPUT
-  void updateCurveParamField(MixData *line);
 };
