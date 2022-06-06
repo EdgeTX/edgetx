@@ -158,8 +158,8 @@ class InputLineButton : public InputMixButton
     }
 
     // second line ...
+    y += line_h;
     if (line.swtch || line.curve.value) {
-      y += line_h;
       if (line.swtch) {
         dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
         drawSwitch(dc, x + 21, y, line.swtch, textColor);

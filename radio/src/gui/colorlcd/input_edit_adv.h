@@ -22,20 +22,12 @@
 #pragma once
 
 #include "page.h"
-#include "curve.h"
-#include "choice.h"
+#include "button_matrix.h"
 
 struct ExpoData;
 
-class InputEditWindow : public Page
+class InputEditAdvanced : public Page
 {
  public:
-  InputEditWindow(int8_t input, uint8_t index);
-
- protected:
-  uint8_t input;
-  uint8_t index;
-  Curve* preview;
-
-  void buildBody(FormWindow *window);
+  InputEditAdvanced(uint8_t input_n, uint8_t index);
 };

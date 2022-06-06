@@ -124,7 +124,7 @@ void OutputEditWindow::buildBody(FormWindow *window)
   new StaticText(window, grid.getLabelSlot(), TR_LIMITS_HEADERS_SUBTRIM, 0,
                  COLOR_THEME_PRIMARY1);
   new GVarNumberEdit(window, grid.getFieldSlot(), -LIMIT_STD_MAX,
-                     +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), 0, PREC1);
+                     +LIMIT_STD_MAX, GET_SET_DEFAULT(output->offset), PREC1);
   grid.nextLine();
 
   // TRACE("ch=%d  cV=%d  zero=%d", channel, chanVal, chanZero);
@@ -133,14 +133,14 @@ void OutputEditWindow::buildBody(FormWindow *window)
   minText = new StaticText(window, grid.getLabelSlot(), TR_MIN, 0,
                            COLOR_THEME_PRIMARY1);
   new GVarNumberEdit(window, grid.getFieldSlot(), -limit, 0,
-                     GET_SET_DEFAULT(output->min), 0, PREC1, -LIMIT_STD_MAX);
+                     GET_SET_DEFAULT(output->min), PREC1, -LIMIT_STD_MAX);
   grid.nextLine();
 
   // Max
   maxText = new StaticText(window, grid.getLabelSlot(), TR_MAX, 0,
                            COLOR_THEME_PRIMARY1);
   new GVarNumberEdit(window, grid.getFieldSlot(), 0, +limit,
-                     GET_SET_DEFAULT(output->max), 0, PREC1, +LIMIT_STD_MAX);
+                     GET_SET_DEFAULT(output->max), PREC1, +LIMIT_STD_MAX);
   grid.nextLine();
 
   // Direction

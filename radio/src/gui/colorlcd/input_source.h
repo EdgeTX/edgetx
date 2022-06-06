@@ -21,21 +21,19 @@
 
 #pragma once
 
-#include "page.h"
-#include "curve.h"
-#include "choice.h"
+#include "window.h"
 
 struct ExpoData;
+class FormGroup;
 
-class InputEditWindow : public Page
+class InputSource : public Window
 {
+  ExpoData* input;
+  FormGroup* sensor_form;
+
+  void update();
+  static void value_changed(lv_event_t* e);
+
  public:
-  InputEditWindow(int8_t input, uint8_t index);
-
- protected:
-  uint8_t input;
-  uint8_t index;
-  Curve* preview;
-
-  void buildBody(FormWindow *window);
+  InputSource(Window* parent, ExpoData* input);
 };

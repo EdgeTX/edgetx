@@ -21,21 +21,18 @@
 
 #pragma once
 
-#include "page.h"
-#include "curve.h"
-#include "choice.h"
+#include "button_matrix.h"
 
 struct ExpoData;
+struct MixData;
 
-class InputEditWindow : public Page
-{
- public:
-  InputEditWindow(int8_t input, uint8_t index);
-
- protected:
-  uint8_t input;
-  uint8_t index;
-  Curve* preview;
-
-  void buildBody(FormWindow *window);
+template<class T>
+struct FMMatrix : public ButtonMatrix {
+  T* input;
+  FMMatrix(Window* parent, const rect_t& rect, T* input);
+  void onPress(uint8_t btn_id);
+  bool isActive(uint8_t btn_id);
 };
+
+extern template struct FMMatrix<ExpoData>;
+extern template struct FMMatrix<MixData>;
