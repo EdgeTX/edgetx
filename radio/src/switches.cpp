@@ -929,7 +929,7 @@ void logicalSwitchesTimerTick()
                     lastValue.state = 1;
                   }
                 }
-            }
+          }
         }
       }
       else if (ls->func == LS_FUNC_EDGE) {
@@ -1018,4 +1018,13 @@ getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
 void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
 {
   lswFm[dst] = lswFm[src];
+}
+
+void rawSetUnconnectedStickySwitch(const uint8_t i, const bool state) {
+    if (i >= MAX_LOGICAL_SWITCHES) return;
+    LogicalSwitchData* const ls = lswAddress(i);
+    if ((ls) && (ls->func == LS_FUNC_STICKY) && (ls->v1 == SWSRC_NONE) && (ls->v2 == SWSRC_NONE)) {
+        ls_sticky_struct& lastValue = (ls_sticky_struct &)LS_LAST_VALUE(mixerCurrentFlightMode, i);
+        lastValue.state = state;
+    }
 }

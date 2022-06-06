@@ -284,9 +284,9 @@ void init_trainer_module_sbus()
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(TRAINER_MODULE_SBUS_GPIO, &GPIO_InitStructure);
 
-  USART_InitStructure.USART_BaudRate = 100000;
+  USART_InitStructure.USART_BaudRate = SBUS_BAUDRATE;
   USART_InitStructure.USART_WordLength = USART_WordLength_9b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1; // this should be 2 stop bits
   USART_InitStructure.USART_Parity = USART_Parity_Even;
   USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
   USART_InitStructure.USART_Mode = USART_Mode_Rx;
@@ -317,6 +317,55 @@ void init_trainer_module_sbus()
   DMA_Cmd(TRAINER_MODULE_SBUS_DMA_STREAM, ENABLE);
 }
 
+//void init_trainer_module_ibus()
+//{
+//  EXTERNAL_MODULE_ON();
+
+//  USART_InitTypeDef USART_InitStructure;
+//  GPIO_InitTypeDef GPIO_InitStructure;
+
+//  GPIO_PinAFConfig(TRAINER_MODULE_SBUS_GPIO, TRAINER_MODULE_SBUS_GPIO_PinSource, TRAINER_MODULE_SBUS_GPIO_AF);
+
+//  GPIO_InitStructure.GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN;
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+//  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+//  GPIO_Init(TRAINER_MODULE_SBUS_GPIO, &GPIO_InitStructure);
+
+//  USART_InitStructure.USART_BaudRate = IBUS_BAUDRATE; 
+//  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//  USART_InitStructure.USART_Parity = USART_Parity_No;
+//  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//  USART_InitStructure.USART_Mode = USART_Mode_Rx;
+//  USART_Init(TRAINER_MODULE_SBUS_USART, &USART_InitStructure);
+
+//  DMA_InitTypeDef DMA_InitStructure;
+//  trainerSbusFifo.clear();
+//  USART_ITConfig(TRAINER_MODULE_SBUS_USART, USART_IT_RXNE, DISABLE);
+//  USART_ITConfig(TRAINER_MODULE_SBUS_USART, USART_IT_TXE, DISABLE);
+//  DMA_InitStructure.DMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL;
+//  DMA_InitStructure.DMA_PeripheralBaseAddr = CONVERT_PTR_UINT(&TRAINER_MODULE_SBUS_USART->DR);
+//  DMA_InitStructure.DMA_Memory0BaseAddr = CONVERT_PTR_UINT(trainerSbusFifo.buffer());
+//  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+//  DMA_InitStructure.DMA_BufferSize = trainerSbusFifo.size();
+//  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+//  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+//  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+//  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+//  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+//  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+//  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+//  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+//  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+//  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+//  DMA_Init(TRAINER_MODULE_SBUS_DMA_STREAM, &DMA_InitStructure);
+//  USART_DMACmd(TRAINER_MODULE_SBUS_USART, USART_DMAReq_Rx, ENABLE);
+//  USART_Cmd(TRAINER_MODULE_SBUS_USART, ENABLE);
+//  DMA_Cmd(TRAINER_MODULE_SBUS_DMA_STREAM, ENABLE);
+//}
+
 void stop_trainer_module_sbus()
 {
   DMA_Cmd(TRAINER_MODULE_SBUS_DMA_STREAM, DISABLE);
@@ -329,7 +378,7 @@ void stop_trainer_module_sbus()
   }
 }
 
-int trainerModuleSbusGetByte(uint8_t* byte)
+bool trainerModuleSbusGetByte(uint8_t* byte)
 {
   return trainerSbusFifo.pop(*byte);
 }

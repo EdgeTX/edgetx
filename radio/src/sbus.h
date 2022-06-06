@@ -19,23 +19,159 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SBUS_H_
-#define _SBUS_H_
+#pragma once
 
-#define SBUS_BAUDRATE         100000
-#define SBUS_FRAME_SIZE       25
+#include "opentx.h"
+#include "trainer.h"
 
 // Setup SBUS AUX serial input
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+void sbusSetAuxGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 
 // SBUS AUX serial getter:
 //  if set, it will fetch data from the handler set
 //  with sbusSetAuxGetByte()
-int sbusAuxGetByte(uint8_t* byte);
+bool sbusAuxGetByte(uint8_t* byte);
 
 // Setup general SBUS input source
-void sbusSetGetByte(int (*fct)(uint8_t*));
+void sbusSetGetByte(bool (*fct)(uint8_t*));
 
 void processSbusInput();
+void sbusTrainerPauseCheck();
 
-#endif // _SBUS_H_
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic error "-Wswitch" // unfortunately the project uses -Wnoswitch
+#endif
+
+namespace  SBus {
+    static constexpr uint32_t baudrate{100000};
+
+    template<uint8_t Instance>
+    struct Servo {
+        using SBus = Trainer::Protocol::SBus;
+        using MesgType = SBus::MesgType;
+        
+        enum class State : uint8_t {Undefined, Data, GotEnd, WaitEnd};
+
+        static constexpr uint8_t mPauseCount{2}; // 2ms
+
+        static inline void tick1ms() {
+            if (mPauseCounter > 0) {
+                --mPauseCounter;
+            }
+            else {
+                mState = State::Undefined;
+            }
+        }
+
+        static inline int16_t convertSbusToPuls(uint16_t const sbusValue) {
+            const int16_t centered = sbusValue - SBus::CenterValue;
+            return Trainer::clamp((centered * 5) / 8);
+        }
+        
+        static inline void process(const uint8_t b, const std::function<void()> f) {
+            ++mBytesCounter;
+            mPauseCounter = mPauseCount;
+            switch(mState) { // enum-switch -> no default (intentional)
+            case State::Undefined:
+                if (b == SBus::EndByte) {
+                    mState = State::GotEnd;
+                }
+                else if (b == SBus::StartByte) {
+                    mState = State::Data;
+                    mIndex = 0;
+                }
+                break;
+            case State::GotEnd:
+                if (b == SBus::StartByte) {
+                    mState = State::Data;
+                    mIndex = 0;
+                }
+                else if (b == SBus::EndByte) {
+                    mState = State::GotEnd;
+                }
+                else {
+                    mState = State::Undefined;
+                }
+                break;
+            case State::Data:
+                mData[mIndex] = b;
+                if (mIndex >= (mData.size() - 1)) { // got last byte
+                    mState = State::WaitEnd;
+                }
+                else {
+                    ++mIndex;
+                }
+                break;
+            case State::WaitEnd:
+                if (b == SBus::EndByte) {
+                    mState = State::GotEnd;
+                    uint8_t& statusByte = mData[mData.size() - 1]; // last byte
+                    if (!((statusByte & SBus::FrameLostMask) || (statusByte & SBus::FailSafeMask))) {
+                        f();
+                        ++mPackagesCounter;
+                    }
+                }
+                else {
+                    mState = State::Undefined;
+                }
+                break;
+            }
+        } 
+
+        template<uint8_t N>
+        static inline void convert(int16_t (&pulses)[N]) {
+            static_assert(N >= 16, "array too small");
+            pulses[0]  = (uint16_t) (((mData[0]    | mData[1] << 8))                 & SBus::ValueMask);
+            pulses[1]  = (uint16_t) ((mData[1]>>3  | mData[2] <<5)                   & SBus::ValueMask);
+            pulses[2]  = (uint16_t) ((mData[2]>>6  | mData[3] <<2 | mData[4]<<10)  	 & SBus::ValueMask);
+            pulses[3]  = (uint16_t) ((mData[4]>>1  | mData[5] <<7)                   & SBus::ValueMask);
+            pulses[4]  = (uint16_t) ((mData[5]>>4  | mData[6] <<4)                   & SBus::ValueMask);
+            pulses[5]  = (uint16_t) ((mData[6]>>7  | mData[7] <<1 | mData[8]<<9)   	 & SBus::ValueMask);
+            pulses[6]  = (uint16_t) ((mData[8]>>2  | mData[9] <<6)                   & SBus::ValueMask);
+            pulses[7]  = (uint16_t) ((mData[9]>>5  | mData[10]<<3)                   & SBus::ValueMask);
+            pulses[8]  = (uint16_t) ((mData[11]    | mData[12]<<8)                   & SBus::ValueMask);
+            pulses[9]  = (uint16_t) ((mData[12]>>3 | mData[13]<<5)                   & SBus::ValueMask);
+            pulses[10] = (uint16_t) ((mData[13]>>6 | mData[14]<<2 | mData[15]<<10) 	 & SBus::ValueMask);
+            pulses[11] = (uint16_t) ((mData[15]>>1 | mData[16]<<7)                   & SBus::ValueMask);
+            pulses[12] = (uint16_t) ((mData[16]>>4 | mData[17]<<4)                   & SBus::ValueMask);
+            pulses[13] = (uint16_t) ((mData[17]>>7 | mData[18]<<1 | mData[19]<<9)  	 & SBus::ValueMask);
+            pulses[14] = (uint16_t) ((mData[19]>>2 | mData[20]<<6)                   & SBus::ValueMask);
+            pulses[15] = (uint16_t) ((mData[20]>>5 | mData[21]<<3)                   & SBus::ValueMask);
+            
+            for(size_t i = 0; i < N; ++i) {
+                pulses[i] = convertSbusToPuls(pulses[i]);
+            }
+        }
+        static inline uint16_t packages() {
+            return mPackagesCounter;
+        }
+        static inline uint16_t getBytes() {
+            return mBytesCounter;
+        }
+    private:
+        static State mState;
+        static MesgType mData; 
+        static uint8_t mIndex;
+        static uint16_t mPackagesCounter;
+        static uint16_t mBytesCounter;
+        static uint8_t mPauseCounter;
+    };
+    // inline static member definitions not until c++17
+    template<uint8_t Instance>
+    typename Servo<Instance>::State Servo<Instance>::mState{Servo::State::Undefined};
+    template<uint8_t Instance>
+    typename Servo<Instance>::MesgType Servo<Instance>::mData; 
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mIndex{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mPackagesCounter{0};
+    template<uint8_t Instance>
+    uint16_t Servo<Instance>::mBytesCounter{0};
+    template<uint8_t Instance>
+    uint8_t Servo<Instance>::mPauseCounter{Servo::mPauseCount}; // 2 ms
+}
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif

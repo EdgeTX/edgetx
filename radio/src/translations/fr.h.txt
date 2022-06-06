@@ -65,7 +65,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\016"
-#define TR_AUX_SERIAL_MODES            "OFF\0          ""Recopie Telem\0""Télémétrie In\0""Ecolage SBUS\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
+#define TR_AUX_SERIAL_MODES            "OFF\0          ""Recopie Telem\0""Télémétrie In\0""Ecolage SBUS\0 ""Ecolage IBUS\0 ""Ecolage CRSF\0 ""Ecolage SUMD\0 ""LUA\0          ""CLI\0          ""GPS\0          ""Debug\0        "
 
 #define LEN_SWTYPES                    "\006"
 #define TR_SWTYPES                     "Rien\0 ""Levier""2-POS\0""3-POS\0"

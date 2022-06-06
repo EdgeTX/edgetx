@@ -169,8 +169,9 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #if defined(TRAINER_MODULE_SBUS)
   void init_trainer_module_sbus();
+  void init_trainer_module_ibus();
   void stop_trainer_module_sbus();
-  int trainerModuleSbusGetByte(uint8_t* byte);
+  bool trainerModuleSbusGetByte(uint8_t* byte);
 #endif
 
 void check_telemetry_exti();

@@ -66,6 +66,11 @@ static void interrupt1ms()
   }
 #endif
 
+#if defined(SBUS_TRAINER)
+  sbusTrainerPauseCheck();
+  crsfTrainerPauseCheck();
+#endif
+
   // 5ms loop
   if (pre_scale == 5 || pre_scale == 10) {
 #if defined(HAPTIC)

@@ -85,10 +85,10 @@ static void aux_wait_tx_completed(void* ctx)
   (void)ctx;
 }
 
-static int aux_get_byte(void* ctx, uint8_t* data)
+static bool aux_get_byte(void* ctx, uint8_t* data)
 {
   auto st = (const SerialState*)ctx;
-  if (!st->rxFifo) return -1;
+  if (!st->rxFifo) return false;
   return st->rxFifo->pop(*data);
 }
 

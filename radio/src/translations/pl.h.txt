@@ -62,7 +62,7 @@
 #define TR_TRNCHN              "KN1KN2KN3KN4"
 
 #define LEN_AUX_SERIAL_MODES   "\015"  /*13 decimal*/
-#define TR_AUX_SERIAL_MODES    "Wyłącz\0      ""S-Port Kopia ""Telemetria\0  ""Trener SBUS\0 ""LUA\0          ""CLI\0         ""GPS\0         ""Debug\0       "
+#define TR_AUX_SERIAL_MODES    "Wyłącz\0      ""S-Port Kopia ""Telemetria\0  ""Trener SBUS\0 ""Trener IBUS\0 ""Trener CRSF\0 ""Trener SUMD\0 ""LUA\0          ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES            "\006"
 #define TR_SWTYPES             "Brak\0 ""Chwil.""2POZ\0 ""3POZ\0"

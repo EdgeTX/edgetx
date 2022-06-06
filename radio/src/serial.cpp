@@ -128,7 +128,7 @@ static SerialPortState* getSerialPortState(uint8_t port_nr)
 static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* port)
 {
   void (*sendByte)(void*, uint8_t) = nullptr;
-  int (*getByte)(void*, uint8_t*) = nullptr;
+  bool (*getByte)(void*, uint8_t*) = nullptr;
   void (*setRxCb)(void*, void (*)(uint8_t*, uint32_t)) = nullptr;
 
   const etx_serial_driver_t* drv = nullptr;
@@ -171,8 +171,10 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 
 #if defined(SBUS_TRAINER)
   case UART_MODE_SBUS_TRAINER:
+  case UART_MODE_IBUS_TRAINER:
+  case UART_MODE_CRSF_TRAINER:
+  case UART_MODE_SUMD_TRAINER:
     sbusSetAuxGetByte(ctx, getByte);
-    // TODO: setRxCb (see MODE_LUA)
     break;
 #endif
 
@@ -233,10 +235,34 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 
   case UART_MODE_SBUS_TRAINER:
-    params.baudrate = SBUS_BAUDRATE;
+    params.baudrate = SBus::baudrate;
     params.word_length = ETX_WordLength_9;
     params.parity = ETX_Parity_Even;
     params.stop_bits = ETX_StopBits_Two;
+    params.rx_enable = true;
+    break;
+
+  case UART_MODE_IBUS_TRAINER:
+    params.baudrate = IBus::baudrate;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
+    params.rx_enable = true;
+    break;
+
+  case UART_MODE_CRSF_TRAINER:
+    params.baudrate = CRSF::baudrate;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
+    params.rx_enable = true;
+    break;
+    
+  case UART_MODE_SUMD_TRAINER:
+    params.baudrate = SumDV3::baudrate;
+    params.word_length = ETX_WordLength_8;
+    params.parity = ETX_Parity_None;
+    params.stop_bits = ETX_StopBits_One;
     params.rx_enable = true;
     break;
 
@@ -335,6 +361,20 @@ void serialInit(uint8_t port_nr, int mode)
     if (port) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
+
+#if !defined(BLUETOOTH) && defined(PCBHORUS) && defined(BT_EN_GPIO_PIN) && !defined(SIMU) && !defined(GTESTS)
+      if (port_nr == SP_AUX2) {
+          TRACE_DEBUG("disbale bt EN (set EN pin high)\n\r");
+          GPIO_InitTypeDef GPIO_InitStructure;
+          GPIO_InitStructure.GPIO_Pin = BT_EN_GPIO_PIN;
+          GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+          GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+          GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+          GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+          GPIO_Init(BT_EN_GPIO, &GPIO_InitStructure);
+          GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+      }
+#endif
     }
 
     // Update callbacks once the port is setup

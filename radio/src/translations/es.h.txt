@@ -62,7 +62,7 @@
 #define TR_TRNCHN              "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES   "\015"
-#define TR_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetría\0  ""Entrenador SBUS""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
+#define TR_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetría\0  ""Entrenador SBUS""Entrenador IBUS""Entrenador CRSF""Entrenador SUMD""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 
 #define LEN_SWTYPES            "\007"
 #define TR_SWTYPES             "Nada\0  ""Palanca""2POS\0  ""3POS\0  "

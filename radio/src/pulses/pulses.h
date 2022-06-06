@@ -30,6 +30,7 @@
 #include "multi.h"
 #include "afhds3.h"
 #include "afhds2.h"
+#include "crossfire.h"
 #include "modules_helpers.h"
 #include "ff.h"
 #include "hal/module_driver.h"

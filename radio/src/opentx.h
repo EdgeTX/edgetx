@@ -609,6 +609,9 @@ static inline void GET_ADC_IF_MIXER_NOT_RUNNING()
 }
 
 #include "sbus.h"
+#include "ibus.h"
+#include "crsf.h"
+#include "sumd.h"
 
 void resetBacklightTimeout();
 void checkBacklight();

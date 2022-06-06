@@ -101,9 +101,9 @@ static constexpr uint8_t maxSourceNameLength{16};
 //
 static Fifo<uint8_t, LUA_FIFO_SIZE>* luaRxFifo = nullptr;
 
-static int luaRxFifoGetByte(void*, uint8_t* data)
+static bool luaRxFifoGetByte(void*, uint8_t* data)
 {
-  if (!luaRxFifo) return -1;
+  if (!luaRxFifo) return false;
   return luaRxFifo->pop(*data);
 }
 
@@ -141,10 +141,10 @@ void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
   luaSendDataCb = cb;
 }
 
-static int (*luaGetSerialByte)(void*, uint8_t*) = nullptr;
+static bool (*luaGetSerialByte)(void*, uint8_t*) = nullptr;
 static void* luaGetSerialByteCtx = nullptr;
 
-void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*))
+void luaSetGetSerialByte(void* ctx, bool (*fct)(void*, uint8_t*))
 {
   luaGetSerialByte = nullptr;
   luaGetSerialByteCtx = ctx;
@@ -2092,6 +2092,22 @@ static int luaGetShmVar(lua_State * L)
 }
 #endif
 
+#if defined(EXTENDED_TRAINER)
+static int luaGetSumDV3Command(lua_State * L)
+{
+  if (SumDV3::Servo<0>::hasCommand()) {
+      const Trainer::Protocol::SumDV3::Command_t command = SumDV3::Servo<0>::command();
+      lua_pushunsigned(L, command.first);
+      lua_pushunsigned(L, command.second);
+      return 2;
+  }
+  else {
+      lua_pushnil(L);
+  }
+  return 1;
+}
+#endif
+
 /*luadoc
 @function setStickySwitch(id, value) 
 
@@ -2482,6 +2498,9 @@ const luaL_Reg opentxLib[] = {
   { "getSourceIndex", luaGetSourceIndex },
   { "getSourceName", luaGetSourceName },
   { "sources", luaSources },
+#if defined(EXTENDED_TRAINER)
+  { "getSumDV3Command", luaGetSumDV3Command },
+#endif
   { nullptr, nullptr }  /* sentinel */
 };
 

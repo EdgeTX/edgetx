@@ -79,7 +79,7 @@ uint8_t* getTelemetryRxBuffer(uint8_t moduleIdx);
 uint8_t& getTelemetryRxBufferCount(uint8_t moduleIdx);
 
 // Set alternative telemetry input
-void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+void telemetrySetGetByte(void* ctx, bool (*fct)(void*, uint8_t*));
 
 // Set telemetry mirror callback
 void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t));

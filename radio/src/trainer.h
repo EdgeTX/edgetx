@@ -24,6 +24,74 @@
 
 #include "dataconstants.h"
 
+namespace Trainer {
+    static constexpr int16_t MaxValue = +512;
+    static constexpr int16_t MinValue = -512;
+
+    static inline int16_t clamp(int16_t const v) {
+        return (v < MinValue) ? MinValue : ((v > MaxValue) ? MaxValue : v);        
+    }
+
+    namespace Protocol {
+        struct SBus {
+            using MesgType = std::array<uint8_t, 23>;
+            
+            static constexpr uint8_t  ValueBits = 11;
+            static constexpr uint16_t ValueMask = ((1 << ValueBits) - 1);
+                
+            static constexpr uint8_t FrameLostBit = 2;
+            static constexpr uint8_t FailSafeBit = 3;
+            static constexpr uint8_t StartByte = 0x0f;
+            static constexpr uint8_t EndByte = 0x00;
+            static constexpr uint8_t FrameLostMask{1 << FrameLostBit};
+            static constexpr uint8_t FailSafeMask{1 << FailSafeBit};
+            
+            static constexpr uint16_t CenterValue = 0x3e0;            
+        };
+        struct IBus {
+            using MesgType = std::array<uint8_t, 28>;  // 0x20, 0x40 , 28 Bytes, checkH, checkL
+    
+            static constexpr uint8_t StartByte1 = 0x20;
+            static constexpr uint8_t StartByte2 = 0x40;
+            static constexpr uint16_t MaxValue = 988;            
+            static constexpr uint16_t MinValue = 2011;            
+            static constexpr uint16_t CenterValue = (MaxValue + MinValue) / 2;            
+        };     
+        struct Crsf {
+//            Every frame has the structure:
+//            <Device address><Frame length><Type><Payload><CRC>            
+            using MesgType = std::array<uint8_t, 64>;
+
+            static constexpr uint8_t  ValueBits = 11;
+            static constexpr uint16_t ValueMask = ((1 << ValueBits) - 1);
+                
+            static constexpr uint8_t FcAddress = FC_ADDRESS;
+            static constexpr uint8_t FrametypeChannels = CHANNELS_ID;
+            static constexpr uint8_t FrametypeLink = LINK_ID;
+
+            static constexpr uint16_t CenterValue = 0x3e0;            
+            
+        };
+        struct SumDV3 {
+            static constexpr uint8_t start_code = 0xa8;
+            static constexpr uint8_t version_code1 = 0x01;
+            static constexpr uint8_t version_code3 = 0x03;
+    
+            static constexpr uint16_t ExtendedLow = 0x1c20; // 7200
+            static constexpr uint16_t MinValue = 0x2260; // 8800
+            static constexpr uint16_t CenterValue = 0x2ee0; // 12000
+            static constexpr uint16_t MaxValue = 0x3b60; // 15200
+            static constexpr uint16_t ExtendedHigh = 0x41a0; // 16800
+
+            static constexpr uint8_t MaxChannels = 32;
+            
+            using MesgType = std::array<std::pair<uint8_t, uint8_t>, MaxChannels>;
+            using SwitchesType = uint64_t;
+            using Command_t = std::pair<uint8_t, uint8_t>;
+        };
+    }    
+}
+
 // Trainer input channels
 extern int16_t ppmInput[MAX_TRAINER_CHANNELS];
 
