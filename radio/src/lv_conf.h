@@ -424,6 +424,22 @@
   /*Always set a default font*/
   #define LV_FONT_DEFAULT &lv_font_noto_tw_16
 
+#elif defined(TRANSLATIONS_JP)
+  #define LV_FONT_CUSTOM_DECLARE                \
+    LV_FONT_DECLARE(lv_font_noto_jp_9)           \
+    LV_FONT_DECLARE(lv_font_noto_jp_13)          \
+    LV_FONT_DECLARE(lv_font_noto_jp_16)          \
+    LV_FONT_DECLARE(lv_font_noto_jp_17)          \
+    LV_FONT_DECLARE(lv_font_noto_jp_24)          \
+    LV_FONT_DECLARE(lv_font_noto_jp_64)          \
+    LV_FONT_DECLARE(lv_font_noto_jp_bold_16)     \
+    LV_FONT_DECLARE(lv_font_noto_jp_bold_17)     \
+    LV_FONT_DECLARE(lv_font_noto_jp_bold_32)     \
+    LV_FONT_DECLARE(lv_font_noto_jp_bold_64)
+
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_noto_jp_16
+
 #else
   #define LV_FONT_CUSTOM_DECLARE                \
     LV_FONT_DECLARE(lv_font_roboto_9)           \

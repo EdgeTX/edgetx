@@ -61,6 +61,9 @@
 #elif defined(TRANSLATIONS_TW)
 #include "translations/tw.h"
 #define LEN_SPECIAL_CHARS 0
+#elif defined(TRANSLATIONS_JP)
+#include "translations/jp.h"
+#define LEN_SPECIAL_CHARS 0
 #else
 #include "translations/en.h"
 #define LEN_SPECIAL_CHARS 0
