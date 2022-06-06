@@ -51,7 +51,11 @@ class Curve: public Window
     {
       // will always force a full window refresh
       if (position) {
-        invalidate();
+        // int pos = position();
+        // if (pos != lastPos) {
+        //   lastPos = pos;
+          invalidate();
+        // }
       }
 
       Window::checkEvents();
@@ -64,6 +68,7 @@ class Curve: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
+    // int lastPos = 0;
     std::function<int(int)> function;
     std::function<int()> position;
     std::list<CurvePoint> points;

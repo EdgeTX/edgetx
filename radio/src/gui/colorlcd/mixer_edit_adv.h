@@ -22,20 +22,20 @@
 #pragma once
 
 #include "page.h"
+#include "form.h"
 #include "curve.h"
-#include "choice.h"
 
-struct ExpoData;
+class FormGroup;
 
-class InputEditWindow : public Page
+class MixEditAdvanced : public Page
 {
  public:
-  InputEditWindow(int8_t input, uint8_t index);
+  MixEditAdvanced(int8_t channel, uint8_t index);
 
  protected:
-  uint8_t input;
+  uint8_t channel;
   uint8_t index;
-  Curve* preview;
 
+  void buildHeader(Window *window);
   void buildBody(FormWindow *window);
 };

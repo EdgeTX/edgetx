@@ -21,21 +21,29 @@
 
 #pragma once
 
-#include "page.h"
-#include "curve.h"
-#include "choice.h"
+#include "window.h"
 
-struct ExpoData;
+struct CurveRef;
 
-class InputEditWindow : public Page
+class GVarNumberEdit;
+class Choice;
+class ChoiceEx;
+
+class CurveParam : public Window
 {
- public:
-  InputEditWindow(int8_t input, uint8_t index);
+  // Curve
+  CurveRef* ref;
 
- protected:
-  uint8_t input;
-  uint8_t index;
-  Curve* preview;
+  // Controls
+  GVarNumberEdit* value_edit;
+  Choice* func_choice;
+  ChoiceEx* cust_choice;
 
-  void buildBody(FormWindow *window);
+  Window* act_field = nullptr;
+
+  void update();
+  static void value_changed(lv_event_t* e);
+  
+public:
+  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref);
 };
