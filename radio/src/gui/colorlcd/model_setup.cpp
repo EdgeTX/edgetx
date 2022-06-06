@@ -277,11 +277,11 @@ void ModelSetupPage::build(FormWindow * window)
   lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
 
   new SubScreenButton(form, STR_PREFLIGHT,
-                      []() { new ModulePage(EXTERNAL_MODULE); });
+                      []() { new PreflightChecks(); });
   new SubScreenButton(form, STR_TRIMS,
-                      []() { new ModulePage(EXTERNAL_MODULE); });
+                      []() { new TrimsSetup(); });
   new SubScreenButton(form, STR_THROTTLE_LABEL,
-                      []() { new ModulePage(EXTERNAL_MODULE); });
+                      []() { new ThrottleParams(); });
 }
 
 #define MAX_SUBSCREEN_BTNS 9
