@@ -46,8 +46,18 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   body.setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
+  // Reset trims
+  auto line = body.newLine();
+  lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);
+  auto btn = new TextButton(line, rect_t{}, STR_RESET_BTN, []() -> uint8_t {
+    resetTrims();
+    return 0;
+  });
+  auto btn_obj = btn->getLvObj();
+  lv_obj_set_width(btn_obj, lv_pct(100));
+
   // Trim step
-  auto line = body.newLine(&grid);
+  line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIMINC, 0,
                  COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_VTRIMINC, -2, 2,
@@ -57,13 +67,6 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
-
-  // Reset trims
-  line = body.newLine(&grid);
-  new TextButton(line, rect_t{}, STR_RESET_BTN, []() -> uint8_t {
-    resetTrims();
-    return 0;
-  });
 
   // Display trims
   // TODO: move to "Screen setup" ?
