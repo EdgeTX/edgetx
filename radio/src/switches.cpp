@@ -796,7 +796,7 @@ void checkSwitches()
           if (!IS_POT_SLIDER_AVAILABLE(POT1+i)) {
             continue;
           }
-          if (!(g_model.potsWarnEnabled & (1 << i))) {
+          if (g_model.potsWarnEnabled & (1 << i)) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
                 lcdDrawTextAtIndex(x, y, STR_VSRCRAW, NUM_STICKS + 1 + i, INVERS);
@@ -887,7 +887,7 @@ void logicalSwitchesTimerTick()
     }
     msg = luaSetStickySwitchBuffer.read();
   }
-  
+
   // Update logical switches
   for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
     for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
@@ -1004,7 +1004,7 @@ void logicalSwitchesReset()
       LS_LAST_VALUE(fm, i) = CS_LAST_VALUE_INIT;
     }
   }
-  
+
   luaSetStickySwitchBuffer.clear();
 }
 

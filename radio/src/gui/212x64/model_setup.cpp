@@ -405,7 +405,7 @@ void menuModelSetup(event_t event)
     0, // Global functions
 
     0, // ADC Jitter filter
-    
+
     REGISTRATION_ID_ROWS
 
     LABEL(InternalModule),
@@ -822,7 +822,7 @@ void menuModelSetup(event_t event)
               }
 #endif
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && !(g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 

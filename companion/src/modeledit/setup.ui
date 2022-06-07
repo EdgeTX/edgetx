@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1007</width>
+    <width>1024</width>
     <height>435</height>
    </rect>
   </property>
@@ -192,7 +192,7 @@
           </font>
          </property>
          <property name="text">
-          <string></string>
+          <string/>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -378,7 +378,7 @@
          <item alignment="Qt::AlignTop">
           <widget class="QLabel" name="label_potWarning">
            <property name="text">
-            <string>Pot Warnings</string>
+            <string>Pot/Slider Warnings</string>
            </property>
           </widget>
          </item>
@@ -548,19 +548,19 @@
        </item>
        <item row="1" column="3">
         <widget class="QSpinBox" name="customThrottleWarningPosition">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimum">
-         <number>-100</number>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-       </widget>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+        </widget>
        </item>
        <item row="2" column="3">
         <widget class="QCheckBox" name="displayText">
@@ -617,7 +617,6 @@
          </item>
         </widget>
        </item>
-
        <item row="2" column="4">
         <widget class="QPushButton" name="editText">
          <property name="sizePolicy">

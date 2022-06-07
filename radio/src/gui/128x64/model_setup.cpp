@@ -906,7 +906,7 @@ void menuModelSetup(event_t event)
             }
             else {
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && !(g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 

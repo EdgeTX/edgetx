@@ -243,7 +243,7 @@ void storageFlushCurrentModel()
 
   if (g_model.potsWarnMode == POTS_WARN_AUTO) {
     for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
-      if (!(g_model.potsWarnEnabled & (1 << i))) {
+      if (g_model.potsWarnEnabled & (1 << i)) {
         SAVE_POT_POSITION(i);
       }
     }

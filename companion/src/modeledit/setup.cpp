@@ -1467,8 +1467,10 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   // Pot warnings
   prevFocus = ui->potWarningMode;
-  if (IS_HORUS_OR_TARANIS(board)) {
-    for (int i = 0; i < getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders); i++) {
+  int count = getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders);
+
+  if (IS_HORUS_OR_TARANIS(board) && count > 0) {
+    for (int i = 0; i < count; i++) {
       RawSource src(SOURCE_TYPE_STICK, CPN_MAX_STICKS + i);
       QCheckBox * cb = new QCheckBox(this);
       cb->setProperty("index", i);
@@ -1775,7 +1777,7 @@ void SetupPanel::updatePotWarnings()
   for (int i = 0; i < potWarningCheckboxes.size(); i++) {
     QCheckBox *checkbox = potWarningCheckboxes[i];
     int index = checkbox->property("index").toInt();
-    checkbox->setChecked(!model->potsWarnEnabled[index]);
+    checkbox->setChecked(model->potsWarnEnabled[index]);
     checkbox->setDisabled(model->potsWarningMode == 0);
   }
   lock = false;
@@ -1785,7 +1787,7 @@ void SetupPanel::potWarningToggled(bool checked)
 {
   if (!lock) {
     int index = sender()->property("index").toInt();
-    model->potsWarnEnabled[index] = !checked;
+    model->potsWarnEnabled[index] = checked;
     updatePotWarnings();
     emit modified();
   }
