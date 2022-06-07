@@ -910,6 +910,8 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
       openModelTemplate(modelIndex);
     else if (g.newModelAction() == AppData::MODEL_ACT_PROMPT)
       openModelPrompt(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
+      openModelEditWindow(modelIndex);
   }
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
