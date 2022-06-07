@@ -35,10 +35,60 @@
   case EVT_KEY_BREAK(KEY_PGUP):    \
   case EVT_KEY_BREAK(KEY_UP)
 
-#define CASE_EVT_START           \
-  case EVT_ENTRY:                \
-  case EVT_KEY_BREAK(KEY_ENTER): \
-  case EVT_KEY_BREAK(KEY_TELEM)
+constexpr char NON_CHECKABLE_PREFIX = '=';
+
+class CheckBoxStatic : public Window {
+  public:
+    CheckBoxStatic(Window * parent, const rect_t & rect, std::function<bool()> getChecked, 
+                   std::function<bool()> getFocus, std::function<bool()> getVisible, WindowFlags flags = 0) :
+      Window(parent, rect, flags, 0),
+      _getChecked(getChecked),
+      _getFocus(getFocus),
+      _getVisible(getVisible)
+    {
+      coord_t size = min(rect.w, rect.h);
+      setWidth(size);
+      setHeight(size);
+      _checked = _getChecked();
+      _focus = _getFocus();
+      _visible = _getVisible();
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "CheckBoxStatic";
+    }
+#endif
+
+    void paint(BitmapBuffer * dc)
+    {
+      if(_visible)
+        theme->drawCheckBox(dc, _checked, 0, FIELD_PADDING_TOP, _focus);
+    }
+
+    void checkEvents() override
+    {
+      Window::checkEvents();
+      bool checked = _getChecked();
+      bool focus = _getFocus();
+      bool visible = _getVisible();
+      if (checked != _checked || focus != _focus || visible != _visible) {
+        _checked = checked;
+        _focus = focus;
+        _visible = visible;
+        invalidate();
+      }
+    }
+
+  protected:
+    std::function<bool()> _getChecked;
+    std::function<bool()> _getFocus;
+    std::function<bool()> _getVisible;
+    bool _checked;
+    bool _focus;
+    bool _visible;
+};
 
 void ViewTextWindow::extractNameSansExt()
 {
@@ -57,8 +107,9 @@ void ViewTextWindow::extractNameSansExt()
 
 void ViewTextWindow::buildBody(Window *window)
 {
-  GridLayout grid(window);
+  FormGridLayout grid(window->width());
   grid.spacer();
+  grid.setLabelWidth(PAGE_LINE_HEIGHT + 3UL * PAGE_LINE_SPACING);  // width of "first column" for checkboxes
   int i;
   FIL file;
 
@@ -98,11 +149,25 @@ void ViewTextWindow::buildBody(Window *window)
   loadOneScreen(openFromEnd ? (maxLines - maxScreenLines) : 0);
 
   for (i = 0; i < maxScreenLines; i++) {
-    new DynamicText(window, grid.getSlot(), [=]() {
-      std::string str =
-          (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
-      return std::string(str);
-    });
+    if (g_model.checklistInteractive) {
+      if (!fromMenu) {
+        new CheckBoxStatic(window, grid.getLabelSlot(), 
+                          [=]() { return i < checklistPosition-(int)textVerticalOffset;}, 
+                          [=]() { return i == checklistPosition-(int)textVerticalOffset;},
+                          [=]() { return lines[i][0] && lines[i][0]!=NON_CHECKABLE_PREFIX;});
+      }
+      new DynamicText(window, grid.getFieldSlot(), [=]() {
+        std::string str = 
+            (lines[i][0]) ? std::string(lines[i]).substr(lines[i][0]==NON_CHECKABLE_PREFIX ? 1 : 0, std::string::npos) : std::string(" ");
+        return std::string(str);
+      });
+    }
+    else {
+      new DynamicText(window, grid.getSlot(), [=]() {
+        std::string str = (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
+        return std::string(str);
+      });
+    }
     grid.nextLine();
     }
 }
@@ -149,14 +214,28 @@ void ViewTextWindow::checkEvents()
     if (lineStep > (maxScreenLines >> 1)) lineStep = maxScreenLines >> 1;
 
     switch (event) {
-    CASE_EVT_START:
-      textVerticalOffset = 0;
-      readLinesCount = 0;
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+    case EVT_KEY_BREAK(KEY_ENTER):
+      // check if interactive checklist enabled and process only items displayed on screen (cannot mark item that is out of the screen)
+      if (g_model.checklistInteractive && !fromMenu && checklistPosition-(int)textVerticalOffset >= 0) {
+        if (checklistPosition < readLinesCount) {
+          if (checklistPosition-(int)textVerticalOffset < maxScreenLines) {
+            do{
+              ++checklistPosition;
+              if (checklistPosition-(int)textVerticalOffset >= maxScreenLines-1 && textVerticalOffset + maxScreenLines < readLinesCount) {
+                ++textVerticalOffset;
+                sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+              }
+            }while(checklistPosition < readLinesCount && lines[checklistPosition-(int)textVerticalOffset][0] == NON_CHECKABLE_PREFIX);
+          }
+        }
+        else {
+          Page::onEvent(EVT_KEY_BREAK(KEY_EXIT));
+        }
+      }
       break;
 
     CASE_EVT_KEY_NEXT_LINE:
-      if (textBottom && textVerticalOffset)
+      if(textVerticalOffset + maxScreenLines >= readLinesCount)
         break;
       else {
         textVerticalOffset += lineStep;
@@ -175,10 +254,19 @@ void ViewTextWindow::checkEvents()
 
       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
       break;
-
-      default:
+    
+    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_LONG(KEY_EXIT):
+    case EVT_KEY_REPT(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
+      if (!(g_model.checklistInteractive && !fromMenu)) {
         Page::onEvent(event);
-        break;
+      }
+      break;
+
+    default:
+      Page::onEvent(event);
+      break;
     }
   }
   Page::checkEvents();
@@ -197,7 +285,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
   int result;
   char c;
   unsigned int sz = 0;
-  int line_length = 1;
+  int line_length = 0;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
   int current_line = 0;
@@ -205,7 +293,6 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 
   for (int i = 0; i < maxScreenLines; i++) {
     memclear(lines[i], maxLineLength + 1);
-    lines[i][0] = ' ';
   }
 
   result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
@@ -216,7 +303,7 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
     {
       if (c == '\n' || line_length >= maxLineLength) {
         ++current_line;
-        line_length = 1;
+        line_length = 0;
         escape = 0;
       }
       if (c != '\r' && c != '\n' && current_line >= textVerticalOffset &&
@@ -302,16 +389,17 @@ static void replaceSpaceWithUnderscore(std::string &name)
 #define MODEL_FILE_EXT MODELS_EXT
 #endif
 
-bool openNotes(const char buf[], std::string modelNotesName)
+bool openNotes(const char buf[], std::string modelNotesName, bool fromMenu = false)
 {
-  if (isFileAvailable(modelNotesName.c_str())) {
-    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+  if (isFileAvailable(modelNotesName.c_str())) { 
+    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL, fromMenu);  
     return true;
   } else {
     return false;
   }
 }
-void readModelNotes()
+
+void readModelNotes(bool fromMenu)
 {
   bool notesFound = false;
   LED_ERROR_BEGIN();
@@ -321,10 +409,10 @@ void readModelNotes()
   const char buf[] = {MODELS_PATH};
   f_chdir((TCHAR *)buf);
 
-  notesFound = openNotes(buf, modelNotesName);
+  notesFound = openNotes(buf, modelNotesName, fromMenu);
   if (!notesFound) {
     replaceSpaceWithUnderscore(modelNotesName);
-    notesFound = openNotes(buf, modelNotesName);
+    notesFound = openNotes(buf, modelNotesName, fromMenu);
   }
 
 #if !defined(EEPROM)
@@ -334,11 +422,11 @@ void readModelNotes()
     if (index != std::string::npos) {
       modelNotesName.erase(index);
       modelNotesName.append(TEXT_EXT);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
     if (!notesFound) {
       replaceSpaceWithUnderscore(modelNotesName);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
   }
 #endif

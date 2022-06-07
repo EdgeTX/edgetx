@@ -579,6 +579,16 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="3">
+        <widget class="QCheckBox" name="checklistInteractive">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Interactive Checklist</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="4">
         <widget class="QLabel" name="label_jitterFilter">
          <property name="font">

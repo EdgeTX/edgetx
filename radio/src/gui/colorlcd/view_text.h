@@ -30,8 +30,8 @@ class ViewTextWindow : public Page
 {
  public:
   ViewTextWindow(const std::string iPath, const std::string iName,
-                 unsigned int icon = ICON_RADIO_SD_MANAGER) :
-      Page(icon), path(std::move(iPath)), name(std::move(iName)), icon(icon)
+                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = false) :
+      Page(icon), path(std::move(iPath)), name(std::move(iName)), icon(icon), fromMenu(fromMenu)
   {
     fullPath = path + std::string("/") + name;
     extractNameSansExt();
@@ -40,10 +40,14 @@ class ViewTextWindow : public Page
     maxPos = 0;
     maxLines = 0;
     isInSetup = true;
+    checklistPosition = 0;
+    textVerticalOffset = 0;
+    readLinesCount = 0;
     header.setWindowFlags(NO_SCROLLBAR);
 
     buildHeader(&header);
     buildBody(&body);
+    sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
   };
 
   void sdReadTextFileBlock(const char* filename, int& lines_count);
@@ -84,6 +88,8 @@ class ViewTextWindow : public Page
 
   uint16_t readCount;
   int longestLine;
+  int checklistPosition;
+  bool fromMenu;
 
   char** lines = nullptr;
   int maxScreenLines;
@@ -108,4 +114,4 @@ class ViewTextWindow : public Page
   };
 };
 
-void readModelNotes();
+void readModelNotes(bool fromMenu = false);
