@@ -1046,10 +1046,32 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       }
     }
     else {  // pasting on top of a slot
-      if (!radioData.models[modelIdx].isEmpty() && !deletesList.contains(modelIdx))
-        ok = askQuestion(tr("You are replacing an existing model, are you sure?")) == QMessageBox::Yes;
-      if (ok)
-        radioData.models[modelIdx] = modelsList[i];
+      if (!radioData.models[modelIdx].isEmpty() && !deletesList.contains(modelIdx)) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(CPN_STR_APP_NAME);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
+        QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+        QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+        QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == overwriteButton) {
+          radioData.models[modelIdx] = modelsList[i];
+          ok = true;
+        }
+        else if (msgBox.clickedButton() == insertButton) {
+          ok = insertModelRows(modelIdx, 1);
+          if (ok) {
+            radioData.models[modelIdx] = modelsList[i];
+            ++inserts;
+          }
+        }
+        else {
+          ok = false;
+        }
+      }
     }
 
     if (ok) {
