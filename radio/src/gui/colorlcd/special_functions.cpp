@@ -389,7 +389,7 @@ class SpecialFunctionEditPage : public Page
     auto line = window->newLine(&grid);
 
     // custom label
-    new StaticText(line, rect_t{}, TR_CUST_FUNC_CUST_LABEL, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_CUST_FUNC_CUST_LABEL, 0, COLOR_THEME_PRIMARY1);
     new ModelTextEdit(line, rect_t{}, cfn->custName, LEN_SPEC_FN_NAME);
     line = window->newLine(&grid);
 
