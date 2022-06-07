@@ -1042,14 +1042,14 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         QMessageBox msgBox;
         msgBox.setWindowTitle(CPN_STR_APP_NAME);
         msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("You are about to overwrite an existing model!"));
-        QPushButton *continueButton = msgBox.addButton(tr("Continue"),QMessageBox::ActionRole);
+        msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
+        QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
         QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
         QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
 
         msgBox.exec();
 
-        if (msgBox.clickedButton() == continueButton) {
+        if (msgBox.clickedButton() == overwriteButton) {
           radioData.models[modelIdx] = modelsList[i];
           ok = true;
         }
