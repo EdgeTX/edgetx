@@ -1,0 +1,1 @@
+#define TR_CUST_FUNC_CUST_LABEL        "Name"
