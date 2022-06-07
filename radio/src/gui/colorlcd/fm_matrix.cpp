@@ -26,22 +26,32 @@ template<class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
     ButtonMatrix(parent, r), input(input)
 {
+#if LCD_W > LCD_H
+  initBtnMap(5, MAX_FLIGHT_MODES + 1);
+#else
   initBtnMap(3, MAX_FLIGHT_MODES);
+#endif
+
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     setText(i, std::to_string(i).c_str());
   }
   update();
 
+#if LCD_W > LCD_H
+  // hide last element
+  lv_btnmatrix_set_btn_ctrl(lvobj, MAX_FLIGHT_MODES, LV_BTNMATRIX_CTRL_HIDDEN);
   lv_obj_set_width(lvobj, LV_DPI_DEF * 2);
+  lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
+#else
   lv_obj_set_width(lvobj, LV_DPI_DEF);
+  lv_obj_set_height(lvobj, LV_DPI_DEF);
+#endif
 
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
-  lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  // lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
-
-  lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
+  lv_obj_set_style_pad_row(lvobj, lv_dpx(4), LV_PART_MAIN);
+  lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
 
   lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);  

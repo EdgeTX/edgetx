@@ -41,9 +41,17 @@ MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
   buildBody(form);
 }
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+#if LCD_W > LCD_H
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
 
 void MixEditAdvanced::buildBody(FormWindow* form)
 {
@@ -70,7 +78,6 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
 
   // Warning
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MIXWARNING, 0, COLOR_THEME_PRIMARY1);
   auto edit = new NumberEdit(line, rect_t{}, 0, 3, GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
@@ -83,7 +90,6 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   edit->setSuffix("s");
 
   // Delay down
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_DELAYDOWN, 0, COLOR_THEME_PRIMARY1);
   edit =
       new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->delayDown),
@@ -98,7 +104,6 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   edit->setSuffix("s");
 
   // Slow down
-  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SLOWDOWN, 0, COLOR_THEME_PRIMARY1);
   edit =
       new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
