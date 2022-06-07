@@ -150,14 +150,29 @@ void ModelOutputsPage::build(FormWindow *window)
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
   lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
 
-  auto btn = new TextButton(window, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
-      [=]() {
-        moveTrimsToOffsets();
-        // TODO: mass invalidate
-        return 0;
-      });
-  auto btn_obj = btn->getLvObj();
-  lv_obj_set_width(btn_obj, lv_pct(100));
+  auto form = new FormGroup(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+
+  auto form_obj = form->getLvObj();
+  lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
+  lv_obj_set_style_pad_row(form_obj, lv_dpx(8), 0);
+  lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+  // auto btn =
+  new TextButton(form, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
+    moveTrimsToOffsets();
+    window->invalidate();
+    return 0;
+  });
+
+  auto box = new FormGroup(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  auto box_obj = box->getLvObj();
+  lv_obj_set_width(box_obj, LV_SIZE_CONTENT);
+  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(box, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(box, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));  
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 
