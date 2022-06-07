@@ -121,6 +121,20 @@ bool Storage::write(const RadioData & radioData)
   return ret;
 }
 
+bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
+{
+  bool ret = false;
+  foreach(StorageFactory * factory, registeredStorageFactories) {
+    if (factory->probe(filename)) {
+      StorageFormat * format = factory->instance(filename);
+      ret = format->writeModel(radioData, modelIndex);
+      delete format;
+      break;
+    }
+  }
+  return ret;
+}
+
 bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmwareFilename)
 {
   FirmwareInterface firmware(firmwareFilename);
