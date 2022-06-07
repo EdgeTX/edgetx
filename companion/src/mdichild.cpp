@@ -903,8 +903,16 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
   setSelectedModel(modelIndex);
   //qDebug() << modelIndex << categoryIndex << isNewModel;
 
-  if (isNewModel && g.newModelAction() == AppData::MODEL_ACT_WIZARD)
-    openModelWizard(modelIndex);
+  if (isNewModel) {
+    if (g.newModelAction() == AppData::MODEL_ACT_WIZARD)
+      openModelWizard(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_TEMPLATE)
+      openModelTemplate(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_PROMPT)
+      openModelPrompt(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
+      openModelEditWindow(modelIndex);
+  }
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
 
@@ -1705,4 +1713,82 @@ void MdiChild::onInternalModuleChanged()
   }
 
   delete fim;
+}
+
+void MdiChild::openModelTemplate(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QString filename = QFileDialog::getOpenFileName(this, tr("Select a model template file"), QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES"), YML_FILES_FILTER);
+
+  if (filename.isEmpty())
+    return;
+
+  //  validate like read single model
+  //  if okay copy into current model slot
+
+  RadioData data;
+
+  Storage storage(filename);
+  if (!storage.load(data)) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+    return;
+  }
+
+  QString warning = storage.warning();
+  if (!warning.isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
+  }
+
+  radioData.models[row] = data.models[0];
+
+  //  reset module bindings
+  for (int i = 0; i < CPN_MAX_MODULES; i++) {
+    radioData.models[row].moduleData[i].modelId = row + 1;
+  }
+
+  setModified();
+  setSelectedModel(row);
+
+  openModelEditWindow(row);
+}
+
+void MdiChild::openModelPrompt(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QMessageBox msgBox;
+  msgBox.setWindowTitle(CPN_STR_APP_NAME);
+  msgBox.setIcon(QMessageBox::Question);
+  msgBox.setText(tr("Add a new model using"));
+  QPushButton *defaultsButton = msgBox.addButton(tr("Defaults"),QMessageBox::ActionRole);
+  QPushButton *editButton = msgBox.addButton(tr("Edit"),QMessageBox::ActionRole);
+  QPushButton *wizardButton = msgBox.addButton(tr("Wizard"),QMessageBox::ActionRole);
+  QPushButton *templateButton = msgBox.addButton(tr("Template"),QMessageBox::ActionRole);
+  QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+
+  msgBox.exec();
+
+  if (msgBox.clickedButton() == cancelButton) {
+      if (!deleteModel(row))
+        QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Failed to remove temporary model!"));
+      return;
+  }
+  else if (msgBox.clickedButton() == defaultsButton) {
+      //  nothing to do here
+      return;
+  }
+  else if (msgBox.clickedButton() == editButton) {
+      openModelEditWindow(row);
+  }
+  else if (msgBox.clickedButton() == wizardButton) {
+      openModelWizard(row);
+  }
+  else if (msgBox.clickedButton() == templateButton) {
+      openModelTemplate(row);
+  }
+
+  return;
 }

@@ -138,6 +138,8 @@ class MdiChild : public QWidget
 
     void openModelWizard(int row = -1);
     void openModelEditWindow(int row = -1);
+    void openModelTemplate(int row = -1);
+    void openModelPrompt(int row = -1);
 
     void setDefault();
     void modelSimulate();
