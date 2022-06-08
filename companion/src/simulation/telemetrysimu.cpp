@@ -1094,13 +1094,17 @@ void TelemetrySimulator::LogPlaybackController::setUiDataValues()
 
 void TelemetrySimulator::on_saveTelemetryvalues_clicked()
 {
-    QString idFileNameAndPath = QFileDialog::getSaveFileName(NULL, tr(".txt File"), g.eepromDir(), tr(".txt Files (*.txt)"));
+    QString fldr = g.backupDir().trimmed();
+    if (fldr.isEmpty())
+      fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+
+    QString idFileNameAndPath = QFileDialog::getSaveFileName(this, tr("Save Telemetry"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
     QFile file(idFileNameAndPath);
     if (!file.open(QIODevice::WriteOnly)){
-        QMessageBox::information(0,"info",file.errorString());
+        QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Unable to open file for writing.\n%1").arg(file.errorString()));
         return;
     }
     QTextStream out(&file);
@@ -1176,14 +1180,18 @@ void TelemetrySimulator::on_saveTelemetryvalues_clicked()
 
 void TelemetrySimulator::on_loadTelemetryvalues_clicked()
 {
-    QString idFileNameAndPath = QFileDialog::getOpenFileName(NULL, tr(".txt File"), g.eepromDir(), tr(".txt Files (*.txt)"));
+    QString fldr = g.backupDir().trimmed();
+    if (fldr.isEmpty())
+      fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+
+    QString idFileNameAndPath = QFileDialog::getOpenFileName(this, tr("Open Telemetry File"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
     QFile file(idFileNameAndPath);
 
     if (!file.open(QIODevice::ReadOnly)){
-        QMessageBox::information(0,"info",file.errorString());
+        QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Unable to open file for reading.\n%1").arg(file.errorString()));
         return;
     }
 
