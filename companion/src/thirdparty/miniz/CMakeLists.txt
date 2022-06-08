@@ -1,1 +1,1 @@
-add_definitions(-DFOO)
+add_library(miniz miniz.c)
