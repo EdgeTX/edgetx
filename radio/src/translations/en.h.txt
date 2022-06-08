@@ -62,7 +62,7 @@
 #define TR_TRNCHN                      "CH1CH2CH3CH4"
 
 #define LEN_AUX_SERIAL_MODES           "\015"
-#define TR_AUX_SERIAL_MODES            "OFF\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trainer\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
+#define TR_AUX_SERIAL_MODES            "OFF\0         ""Telem Mirror\0""Telemetry In\0""SBUS Trainer\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       ""SpaceMouse\0  "
 
 #define LEN_SWTYPES                    "\006"
 #define TR_SWTYPES                     "None\0 ""Toggle""2POS\0 ""3POS\0"
@@ -301,8 +301,8 @@
   #define TR_TRIMS_SWITCHES            TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",  STR_CHAR_TRIM "Rl" STR_CHAR_TRIM "Rr" STR_CHAR_TRIM "Ed" STR_CHAR_TRIM "Eu" STR_CHAR_TRIM "Td" STR_CHAR_TRIM "Tu" STR_CHAR_TRIM "Al" STR_CHAR_TRIM "Ar")
 #endif
 
-  #define TR_ROTARY_ENCODERS
-  #define TR_ROTENC_SWITCHES
+#define TR_ROTARY_ENCODERS
+#define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES             "ON\0""One"
 
@@ -310,6 +310,12 @@
   #define TR_GYR_VSRCRAW               "GyrX""GyrY"
 #else
   #define TR_GYR_VSRCRAW
+#endif
+
+#if defined(SPACEMOUSE)
+  #define TR_SM_VSRCRAW               "smA\0""smB\0""smC\0""smD\0""smE\0""smF\0"
+#else
+  #define TR_SM_VSRCRAW
 #endif
 
 #if defined(HELI)

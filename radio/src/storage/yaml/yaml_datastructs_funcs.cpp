@@ -1830,6 +1830,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },
   {  UART_MODE_DEBUG, "DEBUG"  },
+  {  UART_MODE_SPACEMOUSE, "SPACEMOUSE"  },
   {  0, NULL  }
 };
 
