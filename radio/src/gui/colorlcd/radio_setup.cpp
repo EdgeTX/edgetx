@@ -27,6 +27,22 @@
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
+#if LCD_W > LCD_H
+//static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+//                                     LV_GRID_FR(1), LV_GRID_FR(3),
+//                                     LV_GRID_TEMPLATE_LAST};
+//static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(4), LV_GRID_FR(2), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
+
 class DateTimeWindow : public FormGroup {
   public:
     DateTimeWindow(FormGroup * parent, const rect_t & rect) :
@@ -189,11 +205,6 @@ class WindowButtonGroup : public FormGroup
   }
 };
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
-
 class SoundPage : public Page {
   public:
   SoundPage() :
@@ -212,7 +223,7 @@ class SoundPage : public Page {
                       STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -223,8 +234,9 @@ class SoundPage : public Page {
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-
+      grid.setColSpan(2);
+      new Slider(line, rect_t{0,0,0,PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
+      grid.setColSpan(1);
       line = body.newLine(&grid);
 
       // Beeps volume
@@ -281,7 +293,7 @@ class VarioPage : public Page {
                       STR_VARIO, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -336,7 +348,7 @@ class HapticPage : public Page {
 					  STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -376,7 +388,7 @@ class AlarmsPage : public Page {
 					  STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
       // Battery warning
@@ -390,10 +402,10 @@ class AlarmsPage : public Page {
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
       edit->setSuffix("minutes");
       line = body.newLine(&grid);
-
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      auto box = new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      lv_obj_set_style_max_width(box->getLvObj(), box->height()*1.7f, LV_PART_MAIN);
       line = body.newLine(&grid);
 
       // RSSI shutdown alarm
@@ -425,7 +437,7 @@ class BacklightPage : public Page {
 					  STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
       new Subtitle(line, rect_t{}, STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY1);
@@ -547,7 +559,7 @@ class GpsPage : public Page {
 					  STR_GPS, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
       // Timezone
@@ -576,7 +588,7 @@ RadioSetupPage::RadioSetupPage():
 void RadioSetupPage::build(FormWindow * window)
 {
   window->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
 //  FormGridLayout grid;
 //  grid.spacer(PAGE_PADDING);
 
@@ -624,6 +636,7 @@ void RadioSetupPage::build(FormWindow * window)
   auto buttons = new WindowButtonGroup(line, {0,0, LCD_W, 0}, windows);
   buttons->adjustHeight();
  // grid.addWindow(buttons);
+  line = window->newLine(&grid);
 
 
 #if defined(PWR_BUTTON_PRESS)
@@ -669,7 +682,7 @@ void RadioSetupPage::build(FormWindow * window)
   line = window->newLine(&grid);
 
   // Imperial units
-  new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
+  auto label = new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
   line = window->newLine(&grid);
 
@@ -690,9 +703,12 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Switches delay
-  new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
+  label = new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
+  grid.setColSpan(2);
   auto edit = new NumberEdit(line, rect_t{}, -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
+  grid.setColSpan(1);
   line = window->newLine(&grid);
 
   // USB mode
@@ -708,6 +724,7 @@ void RadioSetupPage::build(FormWindow * window)
 
   // RX channel order
   new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
+  grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
     std::string s;
