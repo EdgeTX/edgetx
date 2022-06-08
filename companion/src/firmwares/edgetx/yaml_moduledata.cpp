@@ -89,7 +89,7 @@ static const YamlLookupTable r9mLut = {
 static const YamlLookupTable dsmLut = {
   { 0, "LP45" },
   { 1, "DSM2" },
-  { 3, "DSMX" },
+  { 2, "DSMX" },
 };
 
 static const YamlLookupTable failsafeLut = {
