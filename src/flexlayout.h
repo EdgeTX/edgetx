@@ -46,6 +46,7 @@ class FlexGridLayout
     // padding
     lv_obj_set_style_pad_all(obj, padding, LV_PART_MAIN);
     lv_obj_set_style_pad_left(obj, padding + PAGE_PADDING, LV_PART_MAIN);
+    lv_obj_set_style_pad_right(obj, padding + PAGE_PADDING, LV_PART_MAIN);
     lv_obj_set_style_pad_row(obj, padding, LV_PART_MAIN);
 
     // layout
