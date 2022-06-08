@@ -41,6 +41,8 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
     setBackgroundColor(COLOR_THEME_SECONDARY2);
   }
+
+  lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
 }
 
 #if defined(DEBUG_WINDOWS)
