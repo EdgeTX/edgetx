@@ -25,52 +25,53 @@ constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1u;
 constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2u;
 constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
 
-class Button: public FormField
+class Button : public FormField
 {
-  public:
-   Button(Window* parent, const rect_t& rect,
-          std::function<uint8_t(void)> pressHandler = nullptr,
-          WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
-          LvglCreate objConstruct = nullptr);
+ public:
+  Button(Window* parent, const rect_t& rect,
+         std::function<uint8_t(void)> pressHandler = nullptr,
+         WindowFlags windowFlags = 0, LcdFlags textFlags = 0,
+         LvglCreate objConstruct = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Button";
-    }
+  std::string getName() const override { return "Button"; }
 #endif
 
-    virtual void onPress();
-    void onClicked() override;
-    void checkEvents() override;
+  virtual void onPress();
+  virtual void onLongPress();
 
-    void check(bool checked = true);
-    bool checked() const;
+  void onClicked() override;
+  void checkEvents() override;
 
-    void setPressHandler(std::function<uint8_t(void)> handler)
-    {
-      pressHandler = std::move(handler);
-    }
+  void check(bool checked = true);
+  bool checked() const;
 
-    void setCheckHandler(std::function<void(void)> handler)
-    {
-      checkHandler = std::move(handler);
-    }
+  void setPressHandler(std::function<uint8_t(void)> handler)
+  {
+    pressHandler = std::move(handler);
+  }
 
-// #if defined(HARDWARE_KEYS)
-//     void onEvent(event_t event) override;
-// #endif
-    // void onEvent(lv_event_t* e);// override;
+  void setLongPressHandler(std::function<uint8_t(void)> handler)
+  {
+    longPressHandler = std::move(handler);
+  }
+
+  void setCheckHandler(std::function<void(void)> handler)
+  {
+    checkHandler = std::move(handler);
+  }
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-  protected:
-    std::function<uint8_t(void)> pressHandler;
-    std::function<void(void)> checkHandler;
-};
+ protected:
+  std::function<uint8_t(void)> pressHandler;
+  std::function<uint8_t(void)> longPressHandler;
+  std::function<void(void)> checkHandler;
 
+  static void long_pressed(lv_event_t* e);
+};
 
 class TextButton: public Button
 {

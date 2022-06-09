@@ -40,12 +40,14 @@ Button::Button(Window* parent, const rect_t& rect,
               objConstruct ? objConstruct : simple_btn_create),
     pressHandler(std::move(pressHandler))
 {
+  lv_obj_add_event_cb(lvobj, Button::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
   if (windowFlag & BUTTON_CHECKED)
     lv_obj_add_state(lvobj, LV_STATE_CHECKED);
 }
 
 void Button::check(bool checked)
 {
+  if (_deleted) return;
   if (checked != bool(windowFlags & BUTTON_CHECKED)) {
     windowFlags ^= BUTTON_CHECKED;
     update_checked_flag(lvobj, windowFlags);
@@ -63,11 +65,16 @@ bool Button::checked() const
 
 void Button::onPress()
 {
-  bool check = (pressHandler && pressHandler());
-  windowFlags =
-      check ? windowFlags | BUTTON_CHECKED : windowFlags & ~BUTTON_CHECKED;
-  if (lvobj == nullptr) return;
-  update_checked_flag(lvobj, windowFlags);
+  check(pressHandler && pressHandler());
+}
+
+void Button::onLongPress()
+{
+  if (longPressHandler) {
+    check(longPressHandler());
+    lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+    lv_indev_wait_release(lv_indev_get_act());
+  }
 }
 
 void Button::onClicked()
@@ -85,6 +92,14 @@ void Button::checkEvents()
   Window::checkEvents();
   if (checkHandler) checkHandler();
 }
+
+void Button::long_pressed(lv_event_t* e)
+{
+  auto obj = lv_event_get_target(e);
+  auto btn = (Button*)lv_obj_get_user_data(obj);
+  if (obj) btn->onLongPress();
+}
+
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
                        std::function<uint8_t(void)> pressHandler,
