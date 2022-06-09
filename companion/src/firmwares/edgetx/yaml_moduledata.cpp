@@ -276,7 +276,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         pxx2["receivers"] = rhs.access.receivers;
         pxx2["racingMode"] = rhs.access.racingMode;
         for (int i=0; i<(int)rhs.access.receivers; i++) {
-          pxx2["receiverName"][std::to_string(i)] = rhs.access.receiverName[i];
+          pxx2["receiverName"][std::to_string(i)]["val"] = rhs.access.receiverName[i];
         }
         mod["pxx2"] = pxx2;
     } break;
@@ -411,8 +411,12 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           Node pxx2 = mod["pxx2"];
           pxx2["receivers"] >> rhs.access.receivers;
           pxx2["racingMode"] >> rhs.access.racingMode;
-          for (const auto& rx : pxx2["receiverName"]) {
-            rx >> rhs.access.receiverName;
+          for (int i=0; i < (int)rhs.access.receivers; i++) {
+            if (pxx2["receiverName"][std::to_string(i)]) {
+              if (pxx2["receiverName"][std::to_string(i)]["val"]) {
+                pxx2["receiverName"][std::to_string(i)]["val"] >> rhs.access.receiverName[i];
+              }
+            }
           }
       } else if (mod["ghost"]) {
           Node ghost = mod["ghost"];
