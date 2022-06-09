@@ -19,21 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "button_matrix.h"
 
-class OutputLineButton;
+struct ExpoData;
+struct MixData;
 
-class ModelOutputsPage : public PageTab
-{
- public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+template<class T>
+struct FMMatrix : public ButtonMatrix {
+  T* input;
+  FMMatrix(Window* parent, const rect_t& rect, T* input);
+  void onPress(uint8_t btn_id);
+  bool isActive(uint8_t btn_id);
 };
 
-#endif // _MODEL_OUTPUTS_H_
+extern template struct FMMatrix<ExpoData>;
+extern template struct FMMatrix<MixData>;

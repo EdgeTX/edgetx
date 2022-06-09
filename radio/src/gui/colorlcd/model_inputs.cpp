@@ -25,11 +25,13 @@
 #include "libopenui.h"
 #include "choiceex.h"
 #include "model_curves.h"
+#include "input_edit.h"
+#include "input_mix_group.h"
+#include "input_mix_button.h"
+
+#include <algorithm>
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
-
-#define PASTE_BEFORE    -2
-#define PASTE_AFTER     -1
 
 uint8_t getExposCount()
 {
@@ -54,27 +56,19 @@ bool reachExposLimit()
   return false;
 }
 
-void copyExpo(uint8_t source, uint8_t dest, int8_t input)
+// TODO: these functions need to be added to the generic API
+//       used by all radios, and be removed from UI code
+//
+void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
 {
   pauseMixerCalculations();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
   ExpoData *expo = expoAddress(dest);
   size_t trailingExpos = MAX_EXPOS - (dest + 1);
-  if (input == PASTE_AFTER) {
-    trailingExpos--;
-    memmove(expo + 2, expo + 1, trailingExpos * sizeof(ExpoData));
-    memcpy(expo + 1, &sourceExpo, sizeof(ExpoData));
-    (expo + 1)->chn = (expo)->chn;
-  } else if (input == PASTE_BEFORE) {
-    memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
-    memcpy(expo, &sourceExpo, sizeof(ExpoData));
-    expo->chn = (expo + 1)->chn;
-  } else {
-    memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
-    memcpy(expo, &sourceExpo, sizeof(ExpoData));
-    expo->chn = input;
-  }
+  memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
+  memcpy(expo, &sourceExpo, sizeof(ExpoData));
+  expo->chn = input;
   resumeMixerCalculations();
   storageDirty(EE_MODEL);
 }
@@ -91,559 +85,6 @@ void deleteExpo(uint8_t idx)
   }
   resumeMixerCalculations();
   storageDirty(EE_MODEL);
-}
-
-class SensorValue : Window
-{
- public:
-  SensorValue(Window *parent, const rect_t &rect, ExpoData *expoData) :
-      Window(parent, rect), expoData(expoData)
-  {
-  }
-  void paint(BitmapBuffer *dc) override
-  {
-    if (isTelemetryValue()) {
-      uint8_t sensorIndex = (expoData->srcRaw - MIXSRC_FIRST_TELEM) / 3;
-#if defined(SIMU)
-      if(true)  {
-#else
-      TelemetryItem &telemetryItem = telemetryItems[sensorIndex];
-      if (telemetryItem.isAvailable())  {
-#endif
-        LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
-        drawSensorCustomValue(dc, 3, 2, sensorIndex, lastSensorVal, flags);
-      } else {
-        dc->drawText(3, 2, "---", COLOR_THEME_PRIMARY1);
-      }
-    } 
-  }
-  bool isTelemetryValue()
-  {
-    return expoData->srcRaw >= MIXSRC_FIRST_TELEM &&
-           expoData->srcRaw <= MIXSRC_LAST_TELEM;
-  }
-  void checkEvents() override
-  {
-    getvalue_t sensorVal = -1;
-    if (isTelemetryValue()) {
-      sensorVal = getValue(expoData->srcRaw);
-    }
-    if (lastSensorVal != sensorVal) {
-      lastSensorVal = sensorVal;
-      invalidate();
-    }
-  }
-
-  LcdFlags getSensorPrec()
-  {
-    LcdFlags prec = 0;
-    if (isTelemetryValue()) {
-      uint8_t sensorIndex = (expoData->srcRaw - MIXSRC_FIRST_TELEM) / 3;
-      TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
-      if (sensor.prec > 0) {
-        prec |= (sensor.prec == 1 ? PREC1 : PREC2);
-      }
-    }
-    return prec;
-  }
-
- protected:
-  getvalue_t lastSensorVal;
-  ExpoData *expoData;
-};
-
-class InputEditWindow : public Page
-{
- public:
-  InputEditWindow(int8_t input, uint8_t index) :
-      Page(ICON_MODEL_INPUTS),
-      input(input),
-      index(index),
-      preview(
-          this,
-          {INPUT_EDIT_CURVE_LEFT, INPUT_EDIT_CURVE_TOP, INPUT_EDIT_CURVE_WIDTH,
-           INPUT_EDIT_CURVE_HEIGHT},
-          [=](int x) -> int {
-            ExpoData *line = expoAddress(index);
-            int16_t anas[MAX_INPUTS] = {0};
-            applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw,
-                       x);
-            return anas[line->chn];
-          },
-          [=]() -> int { return getValue(expoAddress(index)->srcRaw); })
-  {
-#if LCD_W > LCD_H
-    auto BODY_WIDTH = LCD_W - preview.width() - PAGE_PADDING;
-    body.setWidth(BODY_WIDTH);
-    body.setLeft(preview.width() + PAGE_PADDING);
-#else
-    body.setRect({0, INPUT_EDIT_CURVE_TOP + INPUT_EDIT_CURVE_HEIGHT, LCD_W,
-                  LCD_H - INPUT_EDIT_CURVE_TOP - INPUT_EDIT_CURVE_HEIGHT});
-#endif
-    buildBody(&body);
-    buildHeader(&header);
-  }
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (_deleted) return;
-
-    preview.deleteLater(true, false);
-
-    Page::deleteLater(detach, trash);
-  }
-
- protected:
-  uint8_t input;
-  uint8_t index;
-  Curve preview;
-  Choice *trimChoice = nullptr;
-  FormGroup *curveParamField = nullptr;
-
-  void buildHeader(Window *window)
-  {
-    new StaticText(window,
-                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                    PAGE_LINE_HEIGHT},
-                   STR_MENUINPUTS, 0, COLOR_THEME_PRIMARY2);
-    new StaticText(window,
-                   {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                    LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                   getSourceString(MIXSRC_FIRST_INPUT + input), 0, COLOR_THEME_PRIMARY2);
-  }
-
-  // TODO share this code with MIXER
-  void updateCurveParamField(ExpoData *line)
-  {
-    curveParamField->clear();
-
-    const rect_t rect = {0, 0, curveParamField->width(),
-                         curveParamField->height()};
-
-    switch (line->curve.type) {
-      case CURVE_REF_DIFF:
-      case CURVE_REF_EXPO: {
-        GVarNumberEdit *edit =
-            new GVarNumberEdit(curveParamField, rect, -100, 100,
-                               GET_SET_DEFAULT(line->curve.value));
-        edit->setSuffix("%");
-        break;
-      }
-
-      case CURVE_REF_FUNC:
-        new Choice(curveParamField, rect, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
-                   GET_SET_DEFAULT(line->curve.value));
-        break;
-
-      case CURVE_REF_CUSTOM: {
-        auto choice = new ChoiceEx(curveParamField, rect, -MAX_CURVES, MAX_CURVES,
-                                 GET_SET_DEFAULT(line->curve.value));
-        choice->setTextHandler([](int value) { return getCurveString(value); });
-        choice->setLongPressHandler([this](event_t event) {
-          ExpoData *line = expoAddress(index);
-
-          // if no curve is specified then dont link to curve page
-          if (line->curve.value != 0)
-            ModelCurvesPage::pushEditCurve(abs(line->curve.value) - 1);
-        });
-        break;
-      }
-    }
-  }
-
-  void buildBody(FormWindow *window)
-  {
-    FormGridLayout grid;
-    grid.setLabelWidth(INPUT_EDIT_LABELS_WIDTH);
-    grid.spacer(PAGE_PADDING);
-
-    ExpoData *line = expoAddress(index);
-
-#if LCD_W > LCD_H
-      grid.setMarginRight(180);
-#endif
-
-      // Input Name
-      new StaticText(window, grid.getLabelSlot(), STR_INPUTNAME, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(window, grid.getFieldSlot(), g_model.inputNames[line->chn], sizeof(g_model.inputNames[line->chn]));
-      grid.nextLine();
-
-      // Switch
-      new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
-      new SwitchChoice(window, grid.getFieldSlot(), SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(line->swtch));
-      grid.nextLine();
-
-      // Side
-      new StaticText(window, grid.getLabelSlot(), STR_SIDE, 0, COLOR_THEME_PRIMARY1);
-      new Choice(window, grid.getFieldSlot(), STR_VCURVEFUNC, 1, 3,
-                 [=]() -> int16_t {
-                   return 4 - line->mode;
-                 },
-                 [=](int16_t newValue) {
-                   line->mode = 4 - newValue;
-                   SET_DIRTY();
-                 });
-      grid.nextLine();
-
-      // Name
-      new StaticText(window, grid.getLabelSlot(), STR_EXPONAME, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(window, grid.getFieldSlot(), line->name, sizeof(line->name));
-      grid.nextLine();
-
-      // Source
-      new StaticText(window, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
-      new SourceChoice(window, grid.getFieldSlot(2, 0), INPUTSRC_FIRST, INPUTSRC_LAST,
-                       GET_DEFAULT(line->srcRaw),
-                       [=] (int32_t newValue) {
-                         line->srcRaw = newValue;
-                         if (line->srcRaw > MIXSRC_Ail && line->carryTrim == TRIM_ON) {
-                           line->carryTrim = TRIM_OFF;
-                           trimChoice->invalidate();
-                         }
-                         window->clear();
-                         buildBody(window);
-                         SET_DIRTY();
-                       }
-      );
-
-      SensorValue *sensor = nullptr;
-      if (line->srcRaw >= MIXSRC_FIRST_TELEM) {
-        sensor = new SensorValue(window, grid.getFieldSlot(2, 1), line);
-
-        grid.nextLine();
-        // Scale        
-        new StaticText(window, grid.getLabelSlot(), STR_SCALE, 0,
-                       COLOR_THEME_PRIMARY1);
-        new NumberEdit(window, grid.getFieldSlot(), 0,
-                       maxTelemValue(line->srcRaw - MIXSRC_FIRST_TELEM + 1),
-                       GET_SET_DEFAULT(line->scale), 0,
-                       sensor->getSensorPrec());
-        adjustHeight();
-      }
-      grid.nextLine();
-
-      // Weight
-      new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
-      auto gvar = new GVarNumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->weight));
-      gvar->setSuffix("%");
-      grid.nextLine();
-
-      // Offset
-      new StaticText(window, grid.getLabelSlot(), STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
-      gvar = new GVarNumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(line->offset));
-      gvar->setSuffix("%");
-      grid.nextLine();
-
-      // Trim
-      new StaticText(window, grid.getLabelSlot(), STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-      trimChoice = new Choice(window, grid.getFieldSlot(), STR_VMIXTRIMS, -TRIM_OFF, -TRIM_LAST,
-                              GET_VALUE(-line->carryTrim),
-                              SET_VALUE(line->carryTrim, -newValue));
-      trimChoice->setAvailableHandler([=](int value) {
-        return value != TRIM_ON || line->srcRaw <= MIXSRC_Ail;
-      });
-      grid.nextLine();
-
-      // Curve
-      new StaticText(&body, grid.getLabelSlot(), STR_CURVE, 0, COLOR_THEME_PRIMARY1);
-      new Choice(&body, grid.getFieldSlot(2, 0), "\004DiffExpoFuncCstm", 0, CURVE_REF_CUSTOM,
-                 GET_DEFAULT(line->curve.type),
-                 [=](int32_t newValue) {
-                     line->curve.type = newValue;
-                     line->curve.value = 0;
-                     SET_DIRTY();
-                     updateCurveParamField(line);
-                 });
-      curveParamField = new FormGroup(&body, grid.getFieldSlot(2, 1)
-                                      // , FORM_FORWARD_FOCUS
-                                      );
-      updateCurveParamField(line);
-      grid.nextLine();
-
-#if defined(FLIGHT_MODES)
-      // Flight modes
-      new StaticText(window, grid.getLabelSlot(), STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
-      for (uint32_t i=0; i<MAX_FLIGHT_MODES; i++) {
-        char fm[2] = { char('0' + i), '\0'};
-        if (i > 0 && (i % 4) == 0)
-          grid.nextLine();
-        new TextButton(window, grid.getFieldSlot(4, i % 4), fm,
-                       [=]() -> uint32_t {
-                           BFBIT_FLIP(line->flightModes, bfBit<uint32_t>(i));
-                           SET_DIRTY();
-                           return !(bfSingleBitGet(line->flightModes, i));
-                       },
-                       OPAQUE | (bfSingleBitGet(line->flightModes, i) ? 0 : BUTTON_CHECKED));
-      }
-      grid.nextLine();
-#endif
-
-    }
-};
-
-void CommonInputOrMixButton::checkEvents()
-{
-  if (active != isActive()) {
-    invalidate();
-    active = !active;
-  }
-
-  Button::checkEvents();
-}
-
-void CommonInputOrMixButton::drawFlightModes(BitmapBuffer *dc,
-                                             FlightModesType value,
-                                             LcdFlags textColor)
-{
-  dc->drawMask(146, 2 + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-               mixerSetupFlightmodeIcon, textColor);
-  coord_t x = 166;
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    char s[] = " ";
-    s[0] = '0' + i;
-    if (value & (1 << i)) {
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s,
-                   FONT(XS) | COLOR_THEME_DISABLED);
-    } else {
-      dc->drawSolidFilledRect(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, 8, 3,
-                              COLOR_THEME_FOCUS);
-      dc->drawText(x, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP + 2, s, FONT(XS) | textColor);
-    }
-    x += 8;
-  }
-}
-
-void CommonInputOrMixButton::paint(BitmapBuffer * dc)
-{
-  dc->drawSolidFilledRect(0, 0, width(), height(),
-                          isActive() ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY2);
-  paintBody(dc);
-
-  if (!hasFocus())
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
-  else
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-}
-
-class InputLineButton : public CommonInputOrMixButton
-{
- public:
-  InputLineButton(FormGroup *parent, const rect_t &rect, uint8_t index) :
-      CommonInputOrMixButton(parent, rect, index)
-  {
-    const ExpoData &line = g_model.expoData[index];
-    if (line.swtch || line.curve.value != 0 || line.flightModes) {
-      setHeight(height() + PAGE_LINE_HEIGHT + FIELD_PADDING_TOP);
-    }
-  }
-
-  bool isActive() const override { return isExpoActive(index); }
-
-  void paintBody(BitmapBuffer *dc) override
-  {
-    const ExpoData &line = g_model.expoData[index];
-
-    LcdFlags textColor = COLOR_THEME_SECONDARY1;
-    // if (hasFocus())
-    //   textColor = COLOR_THEME_PRIMARY2;
-
-    // first line ...
-    drawValueOrGVar(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, line.weight,
-                    -100, 100, textColor);
-    drawSource(dc, 60, FIELD_PADDING_TOP, line.srcRaw, textColor);
-
-    if (line.name[0]) {
-      dc->drawMask(146, FIELD_PADDING_TOP, mixerSetupLabelIcon, textColor);
-      dc->drawSizedText(166, FIELD_PADDING_TOP, line.name, sizeof(line.name),
-                        textColor);
-    }
-
-    // second line ...
-    if (line.swtch) {
-      dc->drawMask(3, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                   mixerSetupSwitchIcon, textColor);
-      drawSwitch(dc, 21, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.swtch,
-                 textColor);
-    }
-
-    if (line.curve.value != 0) {
-      dc->drawMask(60, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP,
-                   mixerSetupCurveIcon, textColor);
-      drawCurveRef(dc, 80, PAGE_LINE_HEIGHT + FIELD_PADDING_TOP, line.curve,
-                   textColor);
-    }
-
-    if (line.flightModes) {
-      drawFlightModes(dc, line.flightModes, textColor);
-    }
-    
-  }
-};
-
-ModelInputsPage::ModelInputsPage():
-  PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
-{
-  setOnSetVisibleHandler([]() {
-    // reset clipboard
-    s_copyMode = 0;
-  });
-}
-
-void ModelInputsPage::rebuild(FormWindow * window, int8_t focusIndex)
-{
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
-  window->clear();
-  build(window, focusIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
-}
-
-void ModelInputsPage::editInput(FormWindow * window, uint8_t input, uint8_t index)
-{
-  // Window::clearFocus();
-  Window * editWindow = new InputEditWindow(input, index);
-  editWindow->setCloseHandler([=]() {
-    rebuild(window, index);
-  });
-}
-
-void ModelInputsPage::build(FormWindow *window, int8_t focusIndex)
-{
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(66);
-
-  int inputIndex = 0;
-  ExpoData *line = g_model.expoData;
-  for (uint8_t input = 0; input < MAX_INPUTS; input++) {
-    if (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
-      coord_t h = grid.getWindowHeight();
-      auto txt = new StaticText(window, grid.getLabelSlot(),
-                                getSourceString(MIXSRC_FIRST_INPUT + input),
-                                BUTTON_BACKGROUND, CENTERED | COLOR_THEME_PRIMARY1);
-      while (inputIndex < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
-        Button *button =
-            new InputLineButton(window, grid.getFieldSlot(), inputIndex);
-        button->setPressHandler([=]() -> uint8_t {
-          button->bringToTop();
-          Menu *menu = new Menu(window);
-          menu->addLine(STR_EDIT,
-                        [=]() { editInput(window, input, inputIndex); });
-          if (!reachExposLimit()) {
-            menu->addLine(STR_INSERT_BEFORE, [=]() {
-              insertExpo(inputIndex, input);
-              editInput(window, input, inputIndex);
-            });
-            menu->addLine(STR_INSERT_AFTER, [=]() {
-              insertExpo(inputIndex + 1, input);
-              editInput(window, input, inputIndex + 1);
-            });
-            menu->addLine(STR_COPY, [=]() {
-              s_copyMode = COPY_MODE;
-              s_copySrcIdx = inputIndex;
-            });
-            if (s_copyMode != 0) {
-              menu->addLine(STR_PASTE_BEFORE, [=]() {
-                copyExpo(s_copySrcIdx, inputIndex, PASTE_BEFORE);
-                if (s_copyMode == MOVE_MODE) {
-                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx + 1
-                                                         : s_copySrcIdx);
-                  s_copyMode = 0;
-                }
-                rebuild(window, inputIndex);
-              });
-              menu->addLine(STR_PASTE_AFTER, [=]() {
-                copyExpo(s_copySrcIdx, inputIndex, PASTE_AFTER);
-                if (s_copyMode == MOVE_MODE) {
-                  deleteExpo((s_copySrcIdx > inputIndex) ? s_copySrcIdx + 1
-                                                         : s_copySrcIdx);
-                  s_copyMode = 0;
-                }
-                rebuild(window, inputIndex + 1);
-              });
-            }
-          }
-          menu->addLine(STR_MOVE, [=]() {
-            s_copyMode = MOVE_MODE;
-            s_copySrcIdx = inputIndex;
-          });
-          menu->addLine(STR_DELETE, [=]() {
-            deleteExpo(inputIndex);
-            rebuild(window, inputIndex);
-          });
-          return 0;
-        });
-        button->setFocusHandler([=](bool focus) {
-          if (focus) {
-            txt->setBackgroundColor(COLOR_THEME_FOCUS);
-            txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
-          } else {
-            txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-            txt->setTextFlags(COLOR_THEME_PRIMARY1 | LEFT);
-          }
-          txt->invalidate();
-          if (focus) button->bringToTop();
-        });
-
-        // if (focusIndex == inputIndex) {
-        //   button->setFocus(SET_FOCUS_DEFAULT);
-        //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-        //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | LEFT);
-        //   txt->invalidate();
-        // }
-        grid.spacer(button->height() - 1);
-        ++inputIndex;
-        ++line;
-      }
-
-      h = grid.getWindowHeight() - h + 1;
-      txt->setHeight(h);
-
-      grid.spacer(7);
-    } else {
-      auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSourceString(MIXSRC_FIRST_INPUT + input),
-                                   nullptr, BUTTON_BACKGROUND,
-                                   COLOR_THEME_PRIMARY1 | RIGHT);
-      button->setPressHandler([=]() -> uint8_t {
-        button->bringToTop();
-        Menu *menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() {
-          insertExpo(inputIndex, input);
-          editInput(window, input, inputIndex);
-          return 0;
-        });
-        if (!reachExposLimit()) {
-          if (s_copyMode != 0) {
-            menu->addLine(STR_PASTE, [=]() {
-              copyExpo(s_copySrcIdx, inputIndex, input);
-              if (s_copyMode == MOVE_MODE) {
-                int sourceInd = s_copySrcIdx >= inputIndex ? s_copySrcIdx + 1
-                                                           : s_copySrcIdx;
-                memcpy(g_model.inputNames[expoAddress(inputIndex)->chn],
-                       g_model.inputNames[expoAddress(sourceInd)->chn],
-                       LEN_INPUT_NAME);
-                deleteExpo(sourceInd);
-                s_copyMode = 0;
-              }
-              rebuild(window, inputIndex);
-              return 0;
-            });
-          }
-        }
-        return 0;
-      });
-
-      grid.spacer(button->height() + 5);
-    }
-  }
-
-  // Window *focus = Window::getFocus();
-  // if (focus) {
-  //   focus->bringToTop();
-  // }
-
-  grid.nextLine();
-
 }
 
 // TODO port: avoid global s_currCh on ARM boards (as done here)...
@@ -665,3 +106,402 @@ void insertExpo(uint8_t idx, uint8_t input)
   resumeMixerCalculations();
   storageDirty(EE_MODEL);
 }
+
+static bool getFreeInput(uint8_t& input, uint8_t& index)
+{
+  uint8_t chn = 0;
+  ExpoData* line = g_model.expoData;
+  for (uint8_t i = 0; i < MAX_EXPOS; i++) {
+    if (!EXPO_VALID(line) || (line->chn > chn)) {
+      if (i >= MAX_EXPOS) break;
+      if (chn >= MAX_INPUTS) break;
+      index = i;
+      input = chn;
+      return true;
+    }
+    chn = line->chn + 1;
+    ++line;
+  }
+
+  return false;
+}
+
+class InputLineButton : public InputMixButton
+{
+ public:
+  using InputMixButton::InputMixButton;
+
+  void paint(BitmapBuffer *dc) override
+  {
+    const ExpoData &line = g_model.expoData[index];
+    LcdFlags textColor = COLOR_THEME_SECONDARY1;
+
+    coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
+    coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
+
+    coord_t left = pad_left + border;
+    coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
+      + getFontHeight(FONT(STD));
+
+    // first line ...
+    coord_t y = 0;
+    y += border;
+    y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
+
+    coord_t x = left;
+    drawValueOrGVar(dc, x, y, line.weight, -100, 100, textColor);
+    drawSource(dc, x + 65, y, line.srcRaw, textColor);
+
+    if (line.name[0]) {
+      dc->drawMask(146, y, mixerSetupLabelIcon, textColor);
+      dc->drawSizedText(166, y, line.name, sizeof(line.name), textColor);
+    }
+
+    // second line ...
+    y += line_h;
+    if (line.swtch || line.curve.value) {
+      if (line.swtch) {
+        dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
+        drawSwitch(dc, x + 21, y, line.swtch, textColor);
+      }
+      if (line.curve.value != 0) {
+        dc->drawMask(x + 65, y, mixerSetupCurveIcon, textColor);
+        drawCurveRef(dc, x + 85, y, line.curve, textColor);
+      }
+    }
+
+    if (line.flightModes) {
+#if LCD_H > LCD_W
+      // third line ...
+      y += line_h;
+      x = left;
+#else
+      x = 146;
+#endif
+      drawFlightModes(dc, line.flightModes, textColor, x, y);
+    }
+  }
+
+protected:
+  bool isActive() const override { return isExpoActive(index); }
+  size_t getLines() const override {
+    const ExpoData* line = expoAddress(index);
+    size_t lines = 1;
+#if LCD_W > LCD_H
+    if (line->swtch || line->curve.value != 0 || line->flightModes) {
+      lines += 1;
+    }
+#else
+    if (line->swtch || line->curve.value != 0) {
+      lines += 1;
+    }
+    if (line->flightModes) {
+      lines += 1;
+    }    
+#endif
+    return lines;
+  }
+};
+
+ModelInputsPage::ModelInputsPage():
+  PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+{
+  setOnSetVisibleHandler([=]() {
+    // reset clipboard
+    _copyMode = 0;
+  });
+}
+
+InputMixGroup* ModelInputsPage::getGroupBySrc(mixsrc_t src)
+{
+  auto g =
+      std::find_if(groups.begin(), groups.end(), [=](InputMixGroup* g) -> bool {
+        return g->getMixSrc() == src;
+      });
+
+  if (g != groups.end()) return *g;
+
+  return nullptr;
+}
+
+InputMixGroup* ModelInputsPage::getGroupByIndex(uint8_t index)
+{
+  ExpoData* expo = expoAddress(index);
+  if (!EXPO_VALID(expo)) return nullptr;
+
+  int input = expo->chn;
+  return getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+}
+
+InputMixButton* ModelInputsPage::getLineByIndex(uint8_t index)
+{
+  auto l = std::find_if(lines.begin(), lines.end(), [=](InputMixButton* l) {
+    return l->getIndex() == index;
+  });
+
+  if (l != lines.end()) return *l;
+
+  return nullptr;
+}
+
+void ModelInputsPage::removeGroup(InputMixGroup* g)
+{
+  auto group = std::find_if(groups.begin(), groups.end(),
+                            [=](InputMixGroup* lh) -> bool { return lh == g; });
+  if (group != groups.end()) groups.erase(group);
+}
+
+void ModelInputsPage::removeLine(InputMixButton* l)
+{
+  auto line = std::find_if(lines.begin(), lines.end(),
+                            [=](InputMixButton* lh) -> bool { return lh == l; });
+  if (line == lines.end()) return;
+  
+  line = lines.erase(line);
+  while (line != lines.end()) {
+    (*line)->setIndex((*line)->getIndex() - 1);
+    ++line;
+  }
+}
+
+InputMixGroup* ModelInputsPage::createGroup(FormGroup* form, mixsrc_t src)
+{
+  return new InputMixGroup(form, src);
+}
+
+InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
+                                                  uint8_t index)
+{
+  auto button = new InputLineButton(group, index);
+  lines.emplace_back(button);
+  group->addLine(button);
+
+  uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
+  button->setPressHandler([=]() -> uint8_t {
+    Menu *menu = new Menu(form);
+    menu->addLine(STR_EDIT, [=]() { editInput(input, index); });
+    if (!reachExposLimit()) {
+      menu->addLine(STR_INSERT_BEFORE,
+                    [=]() {
+                      uint8_t idx = button->getIndex();
+                      insertInput(input, idx);
+                      _copyMode = 0;
+                    });
+      menu->addLine(STR_INSERT_AFTER,
+                    [=]() {
+                      uint8_t idx = button->getIndex();
+                      insertInput(input, idx + 1);
+                      _copyMode = 0;
+                    });
+      menu->addLine(STR_COPY, [=]() {
+        _copyMode = COPY_MODE;
+        _copySrc = button;
+      });
+      if (_copyMode != 0) {
+        menu->addLine(STR_PASTE_BEFORE, [=]() {
+          uint8_t idx = button->getIndex();
+          pasteInputBefore(idx);
+          _copyMode = 0;
+        });
+        menu->addLine(STR_PASTE_AFTER, [=]() {
+          uint8_t idx = button->getIndex();
+          pasteInputAfter(idx);
+          _copyMode = 0;
+        });
+      }
+    }
+    menu->addLine(STR_MOVE, [=]() {
+      _copyMode = MOVE_MODE;
+      _copySrc = button;
+    });
+    menu->addLine(STR_DELETE, [=]() {
+      uint8_t idx = button->getIndex();
+      deleteInput(idx);
+      _copyMode = 0;
+    });
+    return 0;
+  });
+
+  return button;
+}
+
+void ModelInputsPage::addLineButton(uint8_t index)
+{
+  ExpoData* expo = expoAddress(index);
+  if (!EXPO_VALID(expo)) return;
+  int input = expo->chn;
+
+  addLineButton(MIXSRC_FIRST_INPUT + input, index);
+}
+
+void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
+{
+  InputMixGroup* group_w = getGroupBySrc(src);
+  if (!group_w) {    
+    group_w = createGroup(form, src);
+    // insertion sort
+    groups.emplace_back(group_w);
+    auto g = groups.rbegin();
+    if (g != groups.rend()) {
+      auto g_prev = g; ++g_prev;
+      while (g_prev != groups.rend()) {
+        if ((*g_prev)->getMixSrc() < (*g)->getMixSrc()) break;
+        lv_obj_swap((*g)->getLvObj(), (*g_prev)->getLvObj());
+        std::swap(*g, *g_prev);
+        ++g; ++g_prev;
+      }
+    }
+  }
+
+  // create new line button
+  auto btn = createLineButton(group_w, index);
+  lv_group_focus_obj(btn->getLvObj());
+
+  // insertion sort for the focus group
+  auto l = lines.rbegin();
+  if (l != lines.rend()) {
+    auto l_prev = l; ++l_prev;
+    while (l_prev != lines.rend()) {
+      if ((*l_prev)->getIndex() < (*l)->getIndex()) break;
+      // Swap elements (focus + line list)
+      lv_obj_t* obj1 = (*l)->getLvObj();
+      lv_obj_t* obj2 = (*l_prev)->getLvObj();
+      if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
+        // same input group: swap obj + focus group
+        lv_obj_swap(obj1, obj2);
+      } else {
+        // different input group: swap only focus group
+        lv_group_swap_obj(obj1, obj2);
+      }
+      std::swap(*l, *l_prev);
+      // Inc index of elements after 
+      (*l)->setIndex((*l)->getIndex() + 1);
+      ++l; ++l_prev;
+    }
+  }
+}
+
+void ModelInputsPage::editInput(uint8_t input, uint8_t index)
+{
+  auto group = getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  if (!group) return;
+
+  auto line = getLineByIndex(index);
+  if (!line) return;
+
+  auto line_obj = line->getLvObj();
+  auto group_obj = group->getLvObj();
+  auto edit = new InputEditWindow(input, index);
+  edit->setCloseHandler([=]() {
+      lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+      lv_event_send(group_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+    });
+}
+
+void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
+{
+  ::insertExpo(index, input);
+  addLineButton(MIXSRC_FIRST_INPUT + input, index);
+  editInput(input, index);
+}
+
+void ModelInputsPage::deleteInput(uint8_t index)
+{
+  auto group = getGroupByIndex(index);
+  if (!group) return;
+
+  auto line = getLineByIndex(index);
+  if (!line) return;
+
+  group->removeLine(line);
+  if (group->getLineCount() == 0) {
+    group->deleteLater();
+    removeGroup(group);
+    removeLine(line);
+  } else {
+    line->deleteLater();
+    removeLine(line);
+  }
+  
+  ::deleteExpo(index);
+}
+
+void ModelInputsPage::pasteInput(uint8_t dst_idx, uint8_t input)
+{
+  if (!_copyMode || !_copySrc) return;
+  uint8_t src_idx = _copySrc->getIndex();
+
+  ::copyExpo(src_idx, dst_idx, input);
+  addLineButton(dst_idx);
+
+  if (_copyMode == MOVE_MODE) {
+    deleteInput(src_idx);
+  }
+}
+
+static int _inputChnFromIndex(uint8_t index)
+{
+  ExpoData* expo = expoAddress(index);
+  if (!EXPO_VALID(expo)) return -1;
+  return expo->chn;
+}
+
+void ModelInputsPage::pasteInputBefore(uint8_t dst_idx)
+{
+  int input = _inputChnFromIndex(dst_idx);
+  pasteInput(dst_idx, input);
+}
+
+void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
+{
+  int input = _inputChnFromIndex(dst_idx);
+  pasteInput(dst_idx + 1, input);
+}
+
+void ModelInputsPage::build(FormWindow *window)
+{
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+  lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
+  
+  form = new FormGroup(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+
+  auto form_obj = form->getLvObj();
+  lv_obj_set_width(form_obj, lv_pct(100));
+
+  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+    uint8_t input, index;
+    if (getFreeInput(input, index)) insertInput(input, index);
+    return 0;
+  });
+  auto btn_obj = btn->getLvObj();
+  lv_obj_set_width(btn_obj, lv_pct(100));
+
+  groups.clear();
+  lines.clear();
+
+  uint8_t index = 0;
+  ExpoData* line = g_model.expoData;
+  for (uint8_t input = 0; input < MAX_INPUTS; input++) {
+
+    if (index >= MAX_EXPOS) break;
+
+    if (line->chn == input && EXPO_VALID(line)) {
+      // one group for the complete input channel
+      auto group = createGroup(form, MIXSRC_FIRST_INPUT + input);
+      groups.emplace_back(group);
+      while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
+        // one button per input line
+        createLineButton(group, index);
+        ++index;
+        ++line;
+      }
+    } else if (line->chn > input && EXPO_VALID(line)) {
+      TRACE("missing input for channel #%d", input);
+    } else if (!EXPO_VALID(line)) {
+      TRACE("invalid line #%d", index);
+      break;
+    }
+  }
+}
+

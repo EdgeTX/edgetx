@@ -8,6 +8,13 @@
  *********************/
 #include "etx_lv_theme.h"
 #include "../colors.h"
+#include "font.h"
+
+#include "libopenui_config.h"
+#include "widgets/field_edit.h"
+
+#include "lvgl_widgets/input_mix_line.h"
+#include "lvgl_widgets/input_mix_group.h"
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
@@ -18,10 +25,10 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 #define RADIUS_DEFAULT (disp_size == DISP_LARGE ? lv_disp_dpx(theme.disp, 12) : lv_disp_dpx(theme.disp, 8))
 
 /*SCREEN*/
-#define LIGHT_COLOR_SCR        lv_palette_lighten(LV_PALETTE_GREY, 4)
-#define LIGHT_COLOR_CARD       lv_color_white()
-#define LIGHT_COLOR_TEXT       lv_palette_darken(LV_PALETTE_GREY, 4)
-#define LIGHT_COLOR_GREY       lv_palette_lighten(LV_PALETTE_GREY, 2)
+#define LIGHT_COLOR_SCR        makeLvColor(COLOR_THEME_SECONDARY3)
+#define LIGHT_COLOR_CARD       makeLvColor(COLOR_THEME_PRIMARY2)
+#define LIGHT_COLOR_TEXT       makeLvColor(COLOR_THEME_PRIMARY1)
+#define LIGHT_COLOR_GREY       makeLvColor(COLOR_THEME_SECONDARY2)
 #define DARK_COLOR_SCR         lv_color_hex(0x15171A)
 #define DARK_COLOR_CARD        lv_color_hex(0x282b30)
 #define DARK_COLOR_TEXT        lv_palette_lighten(LV_PALETTE_GREY, 5)
@@ -44,6 +51,8 @@ typedef struct {
     lv_style_t scrollbar_scrolled;
     lv_style_t card;
     lv_style_t btn;
+    lv_style_t line_btn;
+    lv_style_t field;
 
     /*Utility*/
     lv_style_t bg_color_primary;
@@ -54,6 +63,7 @@ typedef struct {
     lv_style_t bg_color_white;
     lv_style_t bg_color_active;
     lv_style_t bg_color_focus;
+    lv_style_t bg_color_edit;
     lv_style_t pressed;
     lv_style_t disabled;
     lv_style_t focus_border;
@@ -117,6 +127,7 @@ typedef struct {
 
 #if LV_USE_TEXTAREA
     lv_style_t ta_cursor, ta_placeholder;
+    lv_style_t field_cursor, edit_cursor;
 #endif
 
 #if LV_USE_CALENDAR
@@ -294,6 +305,32 @@ static void style_init(void)
     lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
     lv_style_set_pad_row(&styles.btn, lv_disp_dpx(theme.disp, 5));
 
+    style_init_reset(&styles.line_btn);
+    lv_style_set_radius(
+        &styles.line_btn,
+        (disp_size == DISP_LARGE    ? lv_disp_dpx(theme.disp, 16)
+         : disp_size == DISP_MEDIUM ? lv_disp_dpx(theme.disp, 12)
+                                    : lv_disp_dpx(theme.disp, 8)));
+
+    lv_style_set_bg_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&styles.line_btn, makeLvColor(COLOR_THEME_PRIMARY2));
+
+    lv_style_set_border_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_border_width(&styles.line_btn, BORDER_WIDTH);
+    lv_style_set_border_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY2));
+
+    style_init_reset(&styles.field);
+
+    lv_style_set_border_width(&styles.field, lv_dpx(1));
+    lv_style_set_border_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY2));
+
+    lv_style_set_bg_color(&styles.field, makeLvColor(COLOR_THEME_PRIMARY2));
+    lv_style_set_bg_opa(&styles.field, LV_OPA_COVER);
+
+    lv_style_set_text_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY1));
+    lv_style_set_pad_left(&styles.field, lv_dpx(3));
+    lv_style_set_pad_top(&styles.field, lv_dpx(3));
+    
     static lv_color_filter_dsc_t dark_filter;
     lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
 
@@ -372,9 +409,9 @@ static void style_init(void)
     lv_style_set_text_color(&styles.bg_color_grey, color_text);
 
     style_init_reset(&styles.bg_color_white);
-    lv_style_set_bg_color(&styles.bg_color_white, color_card);
+    lv_style_set_bg_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY2));
     lv_style_set_bg_opa(&styles.bg_color_white, LV_OPA_COVER);
-    lv_style_set_text_color(&styles.bg_color_white, color_text);
+    lv_style_set_text_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY1));
 
     style_init_reset(&styles.bg_color_active);
     lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
@@ -385,6 +422,11 @@ static void style_init(void)
     lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
     lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
     lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
+
+    style_init_reset(&styles.bg_color_edit);
+    lv_style_set_bg_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_EDIT));
+    lv_style_set_bg_opa(&styles.bg_color_edit, LV_OPA_COVER);
+    lv_style_set_text_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_PRIMARY2));
 
     style_init_reset(&styles.circle);
     lv_style_set_radius(&styles.circle, LV_RADIUS_CIRCLE);
@@ -576,6 +618,15 @@ static void style_init(void)
     style_init_reset(&styles.ta_placeholder);
     lv_style_set_text_color(&styles.ta_placeholder, (theme.flags & MODE_DARK) ? lv_palette_darken(LV_PALETTE_GREY,
                                                                                                    2) : lv_palette_lighten(LV_PALETTE_GREY, 1));
+
+    // field_cursor, edit_cursor
+    style_init_reset(&styles.field_cursor);
+    lv_style_set_opa(&styles.field_cursor, LV_OPA_0);
+
+    style_init_reset(&styles.edit_cursor);
+    lv_style_set_opa(&styles.edit_cursor, LV_OPA_COVER);
+    lv_style_set_bg_opa(&styles.edit_cursor, LV_OPA_50);
+
 #endif
 
 #if LV_USE_CALENDAR
@@ -779,7 +830,19 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         }
 #endif
     }
+    else if(lv_obj_check_type(obj, &input_mix_line_class)) {
+        lv_obj_add_style(obj, &styles.line_btn, 0);
+        lv_obj_add_style(obj, &styles.pad_small, 0);
+        lv_obj_set_style_bg_color(obj, makeLvColor(COLOR_THEME_SECONDARY3), LV_STATE_CHECKED);
+        lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);        
+    }
 #endif
+    else if(lv_obj_check_type(obj, &input_mix_group_class)) {
+        lv_obj_add_style(obj, &styles.line_btn, 0);
+        lv_obj_add_style(obj, &styles.pad_small, 0);
+        lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+        lv_obj_set_style_text_font(obj, getFont(FONT(BOLD)), 0);
+    }
 
 #if LV_USE_LINE
     else if(lv_obj_check_type(obj, &lv_line_class)) {
@@ -948,14 +1011,22 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
 #if LV_USE_TEXTAREA
     else if(lv_obj_check_type(obj, &lv_textarea_class)) {
-        // lv_obj_add_style(obj, &styles.card, 0);
-        // lv_obj_add_style(obj, &styles.pad_small, 0);
-        // lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
-        // lv_obj_add_style(obj, &styles.outline_secondary, LV_STATE_EDITED);
+        lv_obj_add_style(obj, &styles.card, 0);
+        lv_obj_add_style(obj, &styles.pad_small, 0);
+        lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
+        lv_obj_add_style(obj, &styles.outline_secondary, LV_STATE_EDITED);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
         lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
         lv_obj_add_style(obj, &styles.ta_cursor, LV_PART_CURSOR | LV_STATE_FOCUSED);
         lv_obj_add_style(obj, &styles.ta_placeholder, LV_PART_TEXTAREA_PLACEHOLDER);
+    }
+    else if(lv_obj_check_type(obj, &field_edit_class)) {
+        lv_obj_add_style(obj, &styles.field, 0);
+        lv_obj_add_style(obj, &styles.bg_color_focus, LV_STATE_FOCUSED);
+        lv_obj_add_style(obj, &styles.bg_color_edit, LV_STATE_EDITED);
+
+        lv_obj_add_style(obj, &styles.field_cursor, LV_PART_CURSOR);
+        lv_obj_add_style(obj, &styles.edit_cursor, LV_PART_CURSOR | LV_STATE_EDITED);
     }
 #endif
 
@@ -989,9 +1060,9 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.keyboard_btn_bg, LV_PART_ITEMS);
         lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-        lv_obj_add_style(obj, &styles.bg_color_grey, LV_PART_ITEMS | LV_STATE_CHECKED);
-        lv_obj_add_style(obj, &styles.bg_color_primary_muted, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(obj, &styles.bg_color_secondary_muted, LV_PART_ITEMS | LV_STATE_EDITED);
+        lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
+        lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
+        lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
     }
 #endif
 #if LV_USE_LIST

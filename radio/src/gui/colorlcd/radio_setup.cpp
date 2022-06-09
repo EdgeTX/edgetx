@@ -27,9 +27,31 @@
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
+//#if LCD_W > LCD_H
+////static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+////                                     LV_GRID_FR(1), LV_GRID_FR(3),
+////                                     LV_GRID_TEMPLATE_LAST};
+////static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+//static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+//                                     LV_GRID_TEMPLATE_LAST};
+//static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
+//                                     LV_GRID_TEMPLATE_LAST};
+//static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+//                                     LV_GRID_TEMPLATE_LAST};
+//#else
+static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+//#endif
+
 class DateTimeWindow : public FormGroup {
   public:
-    DateTimeWindow(FormGroup * parent, const rect_t & rect) :
+    DateTimeWindow(Window* parent, const rect_t & rect) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS)
     {
       build();
@@ -50,11 +72,14 @@ class DateTimeWindow : public FormGroup {
 
     void build()
     {
-      FormGridLayout grid;
+      setFlexLayout();
+      FlexGridLayout grid(col_four_dsc, row_dsc, 2);
+      lv_obj_set_style_pad_column(lvobj, 0, 0);
 
+      auto line = newLine(&grid);
       // Date
-      new StaticText(this, grid.getLabelSlot(), STR_DATE, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(this, grid.getFieldSlot(3, 0), 2018, 2100,
+      new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(line, rect_t{}, 2018, 2100,
                      [=]() -> int32_t {
                        struct gtm t;
                        gettime(&t);
@@ -66,7 +91,7 @@ class DateTimeWindow : public FormGroup {
                        t.tm_year = newValue - TM_YEAR_BASE;
                        SET_LOAD_DATETIME(&t);
                      });
-      auto month = new NumberEdit(this, grid.getFieldSlot(3, 1), 1, 12,
+      auto month = new NumberEdit(line, rect_t{}, 1, 12,
                                   [=]() -> int32_t {
                                     struct gtm t;
                                     gettime(&t);
@@ -88,7 +113,7 @@ class DateTimeWindow : public FormGroup {
       static const pm_uint8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
       dlim += *(&dmon[t.tm_mon]);*/
       int8_t dlim = 31;
-      auto day = new NumberEdit(this, grid.getFieldSlot(3, 2), 1, dlim,
+      auto day = new NumberEdit(line, rect_t{}, 1, dlim,
                                 [=]() -> int32_t {
                                   struct gtm t;
                                   gettime(&t);
@@ -103,11 +128,11 @@ class DateTimeWindow : public FormGroup {
       day->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
-      grid.nextLine();
+      line = newLine(&grid);
 
       // Time
-      new StaticText(this, grid.getLabelSlot(), STR_TIME, 0, COLOR_THEME_PRIMARY1);
-      auto hour = new NumberEdit(this, grid.getFieldSlot(3, 0), 0, 24,
+      new StaticText(line, rect_t{}, STR_TIME, 0, COLOR_THEME_PRIMARY1);
+      auto hour = new NumberEdit(line, rect_t{}, 0, 24,
                                  [=]() -> int32_t {
                                    struct gtm t;
                                    gettime(&t);
@@ -126,7 +151,7 @@ class DateTimeWindow : public FormGroup {
         // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
 
-      auto minutes = new NumberEdit(this, grid.getFieldSlot(3, 1), 0, 59,
+      auto minutes = new NumberEdit(line, rect_t{}, 0, 59,
                                     [=]() -> int32_t {
                                       struct gtm t;
                                       gettime(&t);
@@ -142,7 +167,7 @@ class DateTimeWindow : public FormGroup {
         return formatNumberAsString(value, LEADING0, 2);
       });
 
-      auto seconds = new NumberEdit(this, grid.getFieldSlot(3, 2), 0, 59,
+      auto seconds = new NumberEdit(line, rect_t{}, 0, 59,
                                     [=]() -> int32_t {
                                       struct gtm t;
                                       gettime(&t);
@@ -164,7 +189,7 @@ class WindowButtonGroup : public FormGroup
 {
  public:
   WindowButtonGroup(
-      FormGroup* parent, const rect_t& rect,
+      Window* parent, const rect_t& rect,
       std::vector<std::pair<const char*, std::function<void()>>> windows) :
       FormGroup(parent, rect, FORWARD_SCROLL | FORM_FORWARD_FOCUS),
       windows(windows)
@@ -177,22 +202,18 @@ class WindowButtonGroup : public FormGroup
 
   void build()
   {
-    FormGridLayout grid;
+    auto form = new FormGroup(parent, rect_t{});
+    form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(12));
+    lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(12), 0);
 
     for (auto entry : windows) {
-      new TextButton(this, grid.getLabelSlot(), entry.first, [&, entry]() {
+      new TextButton(form, rect_t{}, entry.first, [&, entry]() {
         entry.second();
         return 0;
       });
-      grid.nextLine();
     }
   }
 };
-
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
 
 class SoundPage : public Page {
   public:
@@ -212,7 +233,8 @@ class SoundPage : public Page {
                       STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      lv_obj_set_style_pad_column(lvobj, 10, 0);
 
       auto line = body.newLine(&grid);
 
@@ -223,18 +245,17 @@ class SoundPage : public Page {
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-
+      new Slider(line, rect_t{0,0,0, PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
       line = body.newLine(&grid);
 
       // Beeps volume
       new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
+      new Slider(line, rect_t{0,0,0,PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
       line = body.newLine(&grid);
 
       // Beeps length
       new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
+      new Slider(line, rect_t{0,0,0,PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
       line = body.newLine(&grid);
 
       // Beeps pitch
@@ -281,7 +302,7 @@ class VarioPage : public Page {
                       STR_VARIO, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -336,7 +357,7 @@ class HapticPage : public Page {
 					  STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -376,21 +397,22 @@ class AlarmsPage : public Page {
 					  STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
       // Battery warning
       new StaticText(line, rect_t{}, STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(line, rect_t{}, 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
+      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       edit->setSuffix("V");
       line = body.newLine(&grid);
 
       // Inactivity alarm
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
+      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       edit->setSuffix("minutes");
       line = body.newLine(&grid);
-
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
@@ -425,11 +447,9 @@ class BacklightPage : public Page {
 					  STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_three_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
-      new Subtitle(line, rect_t{}, STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY1);
-      line = body.newLine(&grid);
 
       // Backlight mode
       new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
@@ -457,6 +477,7 @@ class BacklightPage : public Page {
 
       // Backlight ON bright
       new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      grid.setColSpan(2);
       backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
@@ -467,10 +488,12 @@ class BacklightPage : public Page {
                    else
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
                  });
+      grid.setColSpan(1);
       line = body.newLine(&grid);
 
       // Backlight OFF bright
       new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      grid.setColSpan(2);
       backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
           [=](int32_t newValue) {
             int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
@@ -479,6 +502,7 @@ class BacklightPage : public Page {
             else
               g_eeGeneral.blOffBright = onBright;
           });
+      grid.setColSpan(1);
       line = body.newLine(&grid);
 
   #if defined(KEYS_BACKLIGHT_GPIO)
@@ -547,7 +571,7 @@ class GpsPage : public Page {
 					  STR_GPS, 0, COLOR_THEME_PRIMARY2);
 
       body.setFlexLayout();
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
       // Timezone
@@ -575,19 +599,26 @@ RadioSetupPage::RadioSetupPage():
 
 void RadioSetupPage::build(FormWindow * window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
+  window->setFlexLayout();
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+//  FormGridLayout grid;
+//  grid.spacer(PAGE_PADDING);
 
+  auto line = window->newLine(&grid);
   // Date and Time
-  auto timeWindow = new DateTimeWindow(window, {0, grid.getWindowHeight(), LCD_W, 0});
-  grid.addWindow(timeWindow);
+  grid.setColSpan(3);
+  auto timeWindow = new DateTimeWindow(line, rect_t{});
+  grid.setColSpan(1);
+
+//  grid.addWindow(timeWindow);
 
 
   // Batt meter range - Range 3.0v to 16v
-  new StaticText(window, grid.getLabelSlot(), STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
-  auto batMinEdit = new NumberEdit(window, grid.getFieldSlot(2, 0), -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
+  auto batMinEdit = new NumberEdit(line, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
   batMinEdit->setSuffix("V");
-  auto batMaxEdit = new NumberEdit(window, grid.getFieldSlot(2, 1), g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
+  auto batMaxEdit = new NumberEdit(line, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
   batMaxEdit->setSuffix("V");
   batMinEdit->setSetValueHandler([=](int32_t newValue) {
     g_eeGeneral.vBatMin= newValue - 90;
@@ -602,7 +633,8 @@ void RadioSetupPage::build(FormWindow * window)
     batMinEdit->invalidate();
   });
 
-  grid.nextLine();
+//  grid.nextLine();
+  line = window->newLine(&grid);
   std::vector<std::pair<const char*, std::function<void()> >> windows;
   windows.push_back(std::make_pair(STR_SOUND_LABEL, [window](){new SoundPage();}));
 #if defined(VARIO)
@@ -616,16 +648,19 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(INTERNAL_GPS)
   windows.push_back(std::make_pair(STR_GPS, [window](){new GpsPage();}));
 #endif
-  auto buttons = new WindowButtonGroup(window, {0,grid.getWindowHeight(), LCD_W, 0}, windows);
+  grid.setColSpan(3);
+  auto buttons = new WindowButtonGroup(line, rect_t{}, windows);
+  grid.setColSpan(1);
   buttons->adjustHeight();
-  grid.addWindow(buttons);
+ // grid.addWindow(buttons);
+  line = window->newLine(&grid);
 
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    new StaticText(window, grid.getLabelSlot(), STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
-    new Choice(window, grid.getFieldSlot(), STR_PWR_OFF_DELAYS, 0, 3,
+    new StaticText(line, rect_t{}, STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
                return 2 - g_eeGeneral.pwrOffSpeed;
                },
@@ -633,25 +668,26 @@ void RadioSetupPage::build(FormWindow * window)
                    g_eeGeneral.pwrOffSpeed = 2 - newValue;
                    SET_DIRTY();
                });
-    grid.nextLine();
+//    grid.nextLine();
+    line = window->newLine(&grid);
   }
 #endif
   
 #if defined(PXX2)
   // Owner ID
-  new StaticText(window, grid.getLabelSlot(), STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
-  new RadioTextEdit(window, grid.getFieldSlot(), g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
+  new RadioTextEdit(line, rect_t{}, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
+  line = window->newLine(&grid);
 #endif
 
   // Country code
-  new StaticText(window, grid.getLabelSlot(), STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
+  line = window->newLine(&grid);
 
   // Audio language
-  new StaticText(window, grid.getLabelSlot(), STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
-  auto choice = new Choice(window, grid.getFieldSlot(), 0, DIM(languagePacks) - 2, GET_VALUE(currentLanguagePackIdx),
+  new StaticText(line, rect_t{}, STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
+  auto choice = new Choice(line, rect_t{}, 0, DIM(languagePacks) - 2, GET_VALUE(currentLanguagePackIdx),
                            [](uint8_t newValue) {
                              currentLanguagePackIdx = newValue;
                              currentLanguagePack = languagePacks[currentLanguagePackIdx];
@@ -660,12 +696,12 @@ void RadioSetupPage::build(FormWindow * window)
   choice->setTextHandler([](uint8_t value) {
     return languagePacks[value]->name;
   });
-  grid.nextLine();
+  line = window->newLine(&grid);
 
   // Imperial units
-  new StaticText(window, grid.getLabelSlot(), STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
+  line = window->newLine(&grid);
 
 #if defined(FAI_CHOICE)
 /*  case ITEM_SETUP_FAI:
@@ -684,25 +720,28 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Switches delay
-  new StaticText(window, grid.getLabelSlot(), STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(2, 0), -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
+  new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
+  grid.setColSpan(2);
+  auto edit = new NumberEdit(line, rect_t{}, -15, 100 - 15, GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
-  grid.nextLine();
+  grid.setColSpan(1);
+  line = window->newLine(&grid);
 
   // USB mode
-  new StaticText(window, grid.getLabelSlot(), STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE, GET_SET_DEFAULT(g_eeGeneral.USBMode));
+  line = window->newLine(&grid);
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  new StaticText(window, grid.getLabelSlot(), STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
-  grid.nextLine();
+  new StaticText(line, rect_t{}, STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
+  line = window->newLine(&grid);
 #endif
 
   // RX channel order
-  new StaticText(window, grid.getLabelSlot(), STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
-  choice = new Choice(window, grid.getFieldSlot(), 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
+  new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0, COLOR_THEME_PRIMARY1); // RAET->AETR
+  grid.setColSpan(2);
+  choice = new Choice(line, rect_t{}, 0, 4*3*2 - 1, GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
     std::string s;
     for (uint8_t i = 0; i < 4; i++) {
@@ -710,11 +749,13 @@ void RadioSetupPage::build(FormWindow * window)
     }
     return s;
   });
-  grid.nextLine();
+  grid.setColSpan(1);
+  line = window->newLine(&grid);
 
   // Stick mode
-  new StaticText(window, grid.getLabelSlot(), STR_MODE, 0, COLOR_THEME_PRIMARY1);
-  choice = new Choice(window, grid.getFieldSlot(), 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
+  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  grid.setColSpan(2);
+  choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
                         pausePulses();
                         g_eeGeneral.stickMode = newValue;
@@ -725,11 +766,12 @@ void RadioSetupPage::build(FormWindow * window)
   choice->setTextHandler([](uint8_t value) {
     return std::to_string(1 + value) + ": left=" + std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) + "+" + std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
-  grid.nextLine();
+  grid.setColSpan(1);
+  line = window->newLine(&grid);
 
 // extra bottom padding if touchscreen
 #if defined HARDWARE_TOUCH
-  grid.nextLine();
+  line = window->newLine(&grid);
 #endif
 
 }

@@ -31,13 +31,11 @@
 enum FontIndex
 {
   FONT_STD_INDEX,
-#if !defined(BOLD)
   FONT_BOLD_INDEX,
   FONT_XXS_INDEX,
   FONT_XS_INDEX,
   FONT_L_INDEX,
   FONT_XL_INDEX,
-#endif
 
   // this one MUST be last
   FONTS_COUNT
@@ -117,7 +115,7 @@ constexpr uint32_t PAGE_TITLE_LEFT =               50;
 
 
 constexpr uint32_t INPUT_EDIT_LABELS_WIDTH = 120;
-constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 158;
+constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t INPUT_EDIT_CURVE_LEFT = PAGE_PADDING;
 constexpr coord_t INPUT_EDIT_CURVE_TOP = MENU_HEADER_HEIGHT + PAGE_PADDING;

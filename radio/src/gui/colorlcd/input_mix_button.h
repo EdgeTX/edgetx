@@ -19,21 +19,30 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "button.h"
 
-class OutputLineButton;
-
-class ModelOutputsPage : public PageTab
+class InputMixButton : public Button
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  InputMixButton(Window* parent, uint8_t index);
+
+  uint8_t getIndex() const { return index; }
+  void setIndex(uint8_t i) { index = i; }
+
+  void checkEvents() override;
+
+  void drawFlightModes(BitmapBuffer *dc, FlightModesType value,
+                       LcdFlags textColor, coord_t x, coord_t y);
 
  protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
-};
+  uint8_t index;
 
-#endif // _MODEL_OUTPUTS_H_
+  static void self_size(lv_event_t* e);
+  static void value_changed(lv_event_t* e);
+
+  lv_coord_t calcHeight() const;
+  virtual size_t getLines() const = 0;
+  virtual bool isActive() const = 0;
+};

@@ -19,21 +19,21 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "window.h"
 
-class OutputLineButton;
+struct ExpoData;
+class FormGroup;
 
-class ModelOutputsPage : public PageTab
+class InputSource : public Window
 {
+  ExpoData* input;
+  FormGroup* sensor_form;
+
+  void update();
+  static void value_changed(lv_event_t* e);
+
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+  InputSource(Window* parent, ExpoData* input);
 };
-
-#endif // _MODEL_OUTPUTS_H_

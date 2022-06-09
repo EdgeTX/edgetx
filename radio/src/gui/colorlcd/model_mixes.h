@@ -19,25 +19,33 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_MIXES_H_
-#define _MODEL_MIXES_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "model_inputs.h"
 
-class ModelMixesPage: public PageTab {
-  public:
-    ModelMixesPage();
 
-    void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+class ModelMixesPage : public ModelInputsPage
+{
+ public:
+  ModelMixesPage();
 
-  protected:
-    void build(FormWindow * window, int8_t focusMixIndex);
-    void rebuild(FormWindow * window, int8_t focusMixIndex);
-    void editMix(FormWindow * window, uint8_t channel, uint8_t mixIndex);
-    uint8_t s_copySrcIdx;
+  void build(FormWindow* window) override;
+
+ protected:
+  InputMixGroup* getGroupByIndex(uint8_t index) override;
+
+  void addLineButton(uint8_t index) override;
+  void addLineButton(mixsrc_t src, uint8_t index) override;
+  InputMixGroup* createGroup(FormGroup* form, mixsrc_t src) override;
+  InputMixButton* createLineButton(InputMixGroup* group,
+                                   uint8_t index) override;
+
+  void newMix();
+  void editMix(uint8_t input, uint8_t index);
+  void insertMix(uint8_t input, uint8_t index);
+  void deleteMix(uint8_t index);
+
+  void pasteMix(uint8_t dst_idx, uint8_t channel);
+  void pasteMixBefore(uint8_t dst_idx);
+  void pasteMixAfter(uint8_t dst_idx);
 };
-
-#endif // _MODEL_MIXES_H_

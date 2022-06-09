@@ -1,12 +1,6 @@
 /*
  * Copyright (C) EdgeTX
  *
- * Based on code named
- *   opentx - https://github.com/opentx/opentx
- *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
- *   gruvin9x - http://code.google.com/p/gruvin9x
- *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,21 +13,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#include "input_mix_group.h"
 
-#include "tabsgroup.h"
+#define MY_CLASS &input_mix_group_class
 
-class OutputLineButton;
-
-class ModelOutputsPage : public PageTab
-{
- public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+const lv_obj_class_t input_mix_group_class = {
+    .width_def = LV_PCT(100),
+    .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t),
+    .base_class = &lv_obj_class,
 };
 
-#endif // _MODEL_OUTPUTS_H_
+lv_obj_t* input_mix_group_create(lv_obj_t* parent)
+{
+    LV_LOG_INFO("begin");
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
+}

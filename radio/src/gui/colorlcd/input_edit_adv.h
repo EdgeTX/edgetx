@@ -19,21 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "page.h"
+#include "button_matrix.h"
 
-class OutputLineButton;
+struct ExpoData;
 
-class ModelOutputsPage : public PageTab
+class InputEditAdvanced : public Page
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+  InputEditAdvanced(uint8_t input_n, uint8_t index);
 };
-
-#endif // _MODEL_OUTPUTS_H_

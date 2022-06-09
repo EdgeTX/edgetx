@@ -24,6 +24,7 @@
 
 #include "window.h"
 #include "button.h"
+#include "static.h"
 
 class Page;
 
@@ -32,32 +33,20 @@ class PageHeader : public FormGroup
  public:
   PageHeader(Page* parent, uint8_t icon);
 
-#if defined(HARDWARE_TOUCH)
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (_deleted) return;
-
-    back.deleteLater(true, false);
-    FormGroup::deleteLater(detach, trash);
-  }
-#endif
+  uint8_t getIcon() const { return icon; }
+  void setTitle(std::string txt) { title->setText(std::move(txt)); }
 
   void paint(BitmapBuffer* dc) override;
-  uint8_t getIcon() const { return icon; }
 
  protected:
   uint8_t icon;
-#if defined(HARDWARE_TOUCH)
-  Button back;
-#endif
+  StaticText* title;
 };
 
 class Page : public Window
 {
  public:
   explicit Page(unsigned icon);
-
-  void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Page"; }
@@ -67,6 +56,7 @@ class Page : public Window
   void onClicked() override;
 
   void paint(BitmapBuffer* dc) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
   PageHeader header;

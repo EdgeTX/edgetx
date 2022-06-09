@@ -19,21 +19,40 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "window.h"
+#include "opentx_types.h"
 
-class OutputLineButton;
+#include <list>
 
-class ModelOutputsPage : public PageTab
+class InputMixGroup : public Window
 {
+  struct Line {
+    Window*        win;
+    const uint8_t* symbol;
+
+    Line(Window* w, const uint8_t* s) :
+      win(w), symbol(s)
+    {}
+  };
+
+  mixsrc_t idx;
+  std::list<Line> lines;
+
+  lv_obj_t* label;
+  lv_obj_t* line_container;
+
+  static void value_changed(lv_event_t* e);
+  
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  InputMixGroup(Window* parent, mixsrc_t idx);
 
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+  void addMixerMonitor(uint8_t channel);
+    
+  mixsrc_t getMixSrc() { return idx; }
+  size_t getLineCount() { return lines.size(); }
+  
+  void addLine(Window* line, const uint8_t* symbol = nullptr);
+  bool removeLine(Window* line);
 };
-
-#endif // _MODEL_OUTPUTS_H_

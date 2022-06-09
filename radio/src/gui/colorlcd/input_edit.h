@@ -19,21 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "page.h"
+#include "curve.h"
+#include "choice.h"
 
-class OutputLineButton;
+struct ExpoData;
 
-class ModelOutputsPage : public PageTab
+class InputEditWindow : public Page
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  InputEditWindow(int8_t input, uint8_t index);
 
  protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
-};
+  uint8_t input;
+  uint8_t index;
+  Curve* preview;
 
-#endif // _MODEL_OUTPUTS_H_
+  void buildBody(FormWindow *window);
+};

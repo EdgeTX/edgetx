@@ -19,21 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "page.h"
+#include "form.h"
+#include "curve.h"
 
-class OutputLineButton;
+class FormGroup;
 
-class ModelOutputsPage : public PageTab
+class MixEditAdvanced : public Page
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  MixEditAdvanced(int8_t channel, uint8_t index);
 
  protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
-};
+  uint8_t channel;
+  uint8_t index;
 
-#endif // _MODEL_OUTPUTS_H_
+  void buildHeader(Window *window);
+  void buildBody(FormWindow *window);
+};

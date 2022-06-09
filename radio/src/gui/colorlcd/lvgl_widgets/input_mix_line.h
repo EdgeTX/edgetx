@@ -1,12 +1,6 @@
 /*
  * Copyright (C) EdgeTX
  *
- * Based on code named
- *   opentx - https://github.com/opentx/opentx
- *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
- *   gruvin9x - http://code.google.com/p/gruvin9x
- *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,21 +13,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#ifndef INPUT_MIX_LINE_H
+#define INPUT_MIX_LINE_H
 
-#include "tabsgroup.h"
+#include <lvgl/lvgl.h>
 
-class OutputLineButton;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class ModelOutputsPage : public PageTab
-{
- public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+extern const lv_obj_class_t input_mix_line_class;
+lv_obj_t* input_mix_line_create(lv_obj_t* parent);
 
- protected:
-  void editOutput(OutputLineButton* btn, uint8_t channel);
+#ifdef __cplusplus
 };
+#endif
 
-#endif // _MODEL_OUTPUTS_H_
+#endif

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "definitions.h"
 #include "lz4_bitmaps.h"
 
 DEFINE_LZ4_BITMAP(LBM_POINT);
@@ -59,3 +60,13 @@ extern BitmapBuffer * mixerSetupDelaySlowIcon;
 
 void loadBuiltinBitmaps();
 const uint8_t* getBuiltinIcon(MenuIcons id);
+
+PACK(struct _bitmap_mask {
+  uint16_t w;
+  uint16_t h;
+  uint8_t mask[0];
+});
+
+#define MASK_WIDTH(m) (((_bitmap_mask*)m)->w)
+#define MASK_HEIGHT(m) (((_bitmap_mask*)m)->h)
+#define MASK_DATA(m) (((_bitmap_mask*)m)->mask)
