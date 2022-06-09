@@ -97,6 +97,9 @@ static void dispatch_kb_event(Window* w, event_t evt)
     w->onCancel();
   } else if (key != KEY_ENTER /*&& key != KEY_EXIT*/) {
     w->onEvent(evt);
+  } else if (evt == EVT_KEY_LONG(KEY_ENTER)) {
+    killEvents(KEY_ENTER);
+    lv_event_send(w->getLvObj(), LV_EVENT_LONG_PRESSED, nullptr);
   }
 }
 

@@ -47,7 +47,18 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
     factory(factory),
     persistentData(persistentData)
 {
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
   setPressHandler([&]() -> uint8_t {
+    // When ViewMain is in "widget select mode",
+    // the widget is added to a focus group
+    if (!fullscreen && lv_obj_get_group(lvobj))
+      openWidgetMenu(this);
+    return 0;
+  });
+
+  setLongPressHandler([&]() -> uint8_t {
     if (!fullscreen) openWidgetMenu(this);
     return 0;
   });
@@ -130,10 +141,13 @@ void Widget::setFullscreen(bool enable)
 
     // and give up focus
     ViewMain::instance()->enableTopbar();
-    // ViewMain::instance()->setFocus();
     fullscreen = false;
 
     lv_group_remove_obj(lvobj);
+
+    // re-enable scroll chaining (sliding main view)
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
   }
   // Enter Fullscreen Mode
   else {
@@ -149,6 +163,10 @@ void Widget::setFullscreen(bool enable)
     if (!lv_obj_get_group(lvobj)) {
       lv_group_add_obj(lv_group_get_default(), lvobj);
     }
+
+    // disable scroll chaining (sliding main view)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
   }
 }
 

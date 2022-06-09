@@ -68,6 +68,7 @@ ViewMain::ViewMain():
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
+  lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
   
   // create last to be on top
   topbar = dynamic_cast<TopbarImpl*>(TopbarFactory::create(this));
@@ -119,7 +120,6 @@ rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
 unsigned ViewMain::getCurrentMainView() const
 {
   return lv_obj_get_scroll_x(tile_view) / width();
-  // return g_model.view;
 }
 
 void ViewMain::setCurrentMainView(unsigned viewId)
@@ -218,27 +218,6 @@ void ViewMain::updateTopbarVisibility()
   }
 }
 
-// #if defined(HARDWARE_TOUCH)
-
-//#define DEBUG_SLIDE
-
-
-// bool ViewMain::onTouchEnd(coord_t x, coord_t y)
-// {
-//   openMenu();
-
-//   // TODO: remove this hack to preset
-//   //       the scrolling on the main menu
-//   int x1 = x;
-//   int w1 = getParent()->width();
-//   while (x1 > w1)   x1 -= w1;
-//   if (x1 > w1 / 2)
-//     pushEvent(EVT_ROTARY_LEFT);
-
-//   return true;
-// }
-// #endif
-
 void ViewMain::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
@@ -251,6 +230,10 @@ void ViewMain::onEvent(event_t event)
       new ModelSelectMenu();
       break;
 
+    // TODO:
+    // - use BREAK instead
+    // - use LONG for "Tools" page
+    //
     case EVT_KEY_FIRST(KEY_RADIO):
       new RadioMenu();
       break;
@@ -264,7 +247,7 @@ void ViewMain::onEvent(event_t event)
 #else
     case EVT_KEY_BREAK(KEY_PGDN):
 #endif
-      nextMainView();
+      if (!widget_select) nextMainView();
       break;
 
 //TODO: these need to go away!
@@ -275,19 +258,8 @@ void ViewMain::onEvent(event_t event)
     case EVT_KEY_LONG(KEY_PGDN):
 #endif
       killEvents(event);
-      previousMainView();
+      if (!widget_select) previousMainView();
       break;
-
-    // TODO: find something to activate widget selection via keys
-
-    // case EVT_ROTARY_LEFT:
-    //   // decrement
-    // case EVT_ROTARY_RIGHT:
-    //   // increment
-    //   if (customScreens[g_model.view]) {
-    //     customScreens[g_model.view]->setFocus();
-    //   }
-    //   break;
   }
 #endif
 }
@@ -295,6 +267,63 @@ void ViewMain::onEvent(event_t event)
 void ViewMain::onClicked()
 {
   openMenu();
+}
+
+void ViewMain::onCancel()
+{
+  if (widget_select) {
+    enableWidgetSelect(false);
+  }
+}
+
+void ViewMain::refreshWidgetSelectTimer()
+{
+  if (!widget_select_timer) {
+    widget_select_timer = lv_timer_create(ViewMain::ws_timer, 10 * 1000, this);
+  } else {
+    lv_timer_reset(widget_select_timer);
+  }
+}
+
+bool ViewMain::enableWidgetSelect(bool enable)
+{
+  TRACE("enableWidgetSelect(%d)", enable);
+  // TODO: start timer
+  if (widget_select == enable) return false;
+  widget_select = enable;
+
+  lv_obj_t* tile = lv_tileview_get_tile_act(tile_view);
+  auto cont_obj = lv_obj_get_child(tile, 0);
+  auto cont = (WidgetsContainer*)lv_obj_get_user_data(cont_obj);
+
+  for (uint32_t i = 0; i < cont->getZonesCount(); i++) {
+    Widget* widget = cont->getWidget(i);
+    if (!widget) continue;
+    if (enable) {
+      widget->setFocusHandler([=](bool) { refreshWidgetSelectTimer(); });
+      lv_group_add_obj(lv_group_get_default(), widget->getLvObj());
+    } else {
+      widget->setFocusHandler(nullptr);
+      lv_group_remove_obj(widget->getLvObj());
+    }
+  }
+
+  if (enable) {
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  } else {
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    if (widget_select_timer) {
+      lv_timer_del(widget_select_timer);
+      widget_select_timer = nullptr;
+    }
+  }
+
+  return true;
 }
 
 void ViewMain::openMenu()
@@ -307,9 +336,31 @@ void ViewMain::paint(BitmapBuffer * dc)
   TRACE_WINDOWS("### ViewMain::paint(offset_x=%d;offset_y=%d) ###",
         dc->getOffsetX(), dc->getOffsetY());
 
+  // TODO: set it as "window background" w/ LVGL
   OpenTxTheme::instance()->drawBackground(dc);
 
+  // TODO: move to "screen setup"
   if (g_model.view >= getMainViewsCount()) {
     g_model.view = 0;
+  }
+}
+
+void ViewMain::ws_timer(lv_timer_t* t)
+{
+  ViewMain* view = (ViewMain*)t->user_data;
+  if (!view) return;
+  view->enableWidgetSelect(false);
+}
+
+void ViewMain::long_pressed(lv_event_t* e)
+{
+  auto obj = lv_event_get_target(e);
+  auto view = (ViewMain*)lv_obj_get_user_data(obj);
+  if (!view) return;
+
+  if (view->enableWidgetSelect(true)) {
+    // kill subsequent CLICKED event
+    lv_obj_clear_state(obj, LV_STATE_PRESSED);
+    lv_indev_wait_release(lv_indev_get_act());
   }
 }
