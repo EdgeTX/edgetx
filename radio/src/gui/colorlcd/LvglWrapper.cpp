@@ -69,7 +69,12 @@ static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
   case KEY_EXIT:
     if (evt != EVT_KEY_LONG(KEY_EXIT)) {
       data->key = LV_KEY_ESC;
-    } else { return false; }
+    } else {
+      // prevent subsequent RELEASE event
+      lv_indev_wait_release(lv_indev_get_act());
+      data->state = LV_INDEV_STATE_PRESSED;
+      return false;
+    }
     break;    
 
   default:

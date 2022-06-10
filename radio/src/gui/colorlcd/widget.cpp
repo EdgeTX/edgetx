@@ -30,8 +30,6 @@
 #include "touch.h"
 #endif
 
-// constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
-
 static void openWidgetMenu(Widget * parent)
 {
   Menu *menu = new Menu(parent);
@@ -64,17 +62,6 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
   });
 }
 
-void Widget::checkEvents()
-{
-  Button::checkEvents();
-
-  // Give the focus back to ViewMain after WIDGET_FOCUS_TIMEOUT milliseconds
-  // if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
-  //   ViewMain::instance()->setFocus();
-  // }
-}
-
-
 void Widget::paint(BitmapBuffer * dc)
 {
   if (fullscreen) {
@@ -86,12 +73,6 @@ void Widget::paint(BitmapBuffer * dc)
   refresh(dc);
   
   if (hasFocus() && !fullscreen) {
-
-    // // Blink from haft-time before expiring (5s)
-    // if ((RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT / 2)
-    //     && !FAST_BLINK_ON_PHASE) {
-    //   return;
-    // }
     dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
 }
@@ -99,21 +80,7 @@ void Widget::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_KEYS)
 void Widget::onEvent(event_t event)
 {
-  TRACE("### event = 0x%x ###", event);
-  if (!fullscreen) {
-    if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-      // [EXIT] -> exit focus mode (if not fullscreen)
-      // killEvents(event);
-      // ViewMain::instance()->setFocus();
-      return;
-    }
-    // Forward the rest to the parent class
-    Button::onEvent(event);
-  }
-  // In fullscreen mode, we react only to that one key:
-  // [RTN / EXIT LONG] -> exit fullscreen mode
-  else if (EVT_KEY_LONG(KEY_EXIT) == event) {
-    // killEvents(event);
+  if (fullscreen && (EVT_KEY_LONG(KEY_EXIT) == event)) {
     setFullscreen(false);
   }
 }
@@ -148,6 +115,11 @@ void Widget::setFullscreen(bool enable)
     // re-enable scroll chaining (sliding main view)
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    // exit editing mode
+    lv_group_set_editing(lv_group_get_default(), false);
+
+    onFullscreen(enable);
   }
   // Enter Fullscreen Mode
   else {
@@ -167,7 +139,17 @@ void Widget::setFullscreen(bool enable)
     // disable scroll chaining (sliding main view)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    // set group in editing mode (keys LEFT / RIGHT)
+    lv_group_set_editing(lv_group_get_default(), true);
+
+    onFullscreen(enable);
   }
+}
+
+void Widget::onLongPress()
+{
+  if (!fullscreen) Button::onLongPress();
 }
 
 std::list<const WidgetFactory *> & getRegisteredWidgets()

@@ -21,30 +21,33 @@
 
 #pragma once
 
-#if defined(SIMU)
-
-uint16_t getTmr2MHz();
-
-#define watchdogSuspend(timeout)
-#else
-
-#include "board.h"
-
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
-
-static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
-
-void watchdogSuspend(uint32_t timeout);
-
-#endif
-
 #include "opentx_types.h"
 
-extern "C" volatile tmr10ms_t g_tmr10ms;
+#define EVENT_BUFFER_SIZE 4
 
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}
+struct LuaEventData {
+  event_t event;
+#if defined(HARDWARE_TOUCH)
+  coord_t touchX;
+  coord_t touchY;
+  coord_t startX;
+  coord_t startY;
+  coord_t slideX;
+  coord_t slideY;
+  short tapCount;
+#endif
+  LuaEventData();
+};
+
+void luaPushEvent(event_t evt);
+void luaNextEvent(LuaEventData* evt);
+void luaEmptyEventBuffer();
+
+// Look for a slot in the event buffer that is either unused (zero) or matches event
+LuaEventData* luaGetEventSlot(event_t event = 0);
+
+struct lua_State;
+typedef struct lua_State lua_State;
+
+void luaPushTouchEventTable(lua_State* ls, LuaEventData* evt);
+

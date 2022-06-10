@@ -83,7 +83,6 @@ class Widget : public Button
 #endif
 
     // Window interface
-    void checkEvents() override;
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
 #endif
@@ -108,6 +107,9 @@ class Widget : public Button
     PersistentData * persistentData;
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
+
+    void onLongPress() override;
+    virtual void onFullscreen(bool enable) {}
 };
 
 void registerWidget(const WidgetFactory * factory);
