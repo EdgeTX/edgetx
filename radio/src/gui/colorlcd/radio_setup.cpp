@@ -27,18 +27,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
-//#if LCD_W > LCD_H
-////static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-////                                     LV_GRID_FR(1), LV_GRID_FR(3),
-////                                     LV_GRID_TEMPLATE_LAST};
-////static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-//static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-//                                     LV_GRID_TEMPLATE_LAST};
-//static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
-//                                     LV_GRID_TEMPLATE_LAST};
-//static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-//                                     LV_GRID_TEMPLATE_LAST};
-//#else
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
@@ -47,7 +35,6 @@ static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(1), LV_GRID_
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
-//#endif
 
 class DateTimeWindow : public FormGroup {
   public:
@@ -62,24 +49,24 @@ class DateTimeWindow : public FormGroup {
       FormGroup::checkEvents();
 
       if (get_tmr10ms() - lastRefresh > 100) {
-        invalidate();
+        seconds->setValue(seconds->getValue());
         lastRefresh = get_tmr10ms();
       }
     }
 
   protected:
     tmr10ms_t lastRefresh = 0;
+    NumberEdit* seconds = nullptr;
 
     void build()
     {
       setFlexLayout();
       FlexGridLayout grid(col_four_dsc, row_dsc, 2);
-      lv_obj_set_style_pad_column(lvobj, 0, 0);
 
       auto line = newLine(&grid);
       // Date
       new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(line, rect_t{}, 2018, 2100,
+      auto year = new NumberEdit(line, rect_t{}, 2018, 2100,
                      [=]() -> int32_t {
                        struct gtm t;
                        gettime(&t);
@@ -91,6 +78,7 @@ class DateTimeWindow : public FormGroup {
                        t.tm_year = newValue - TM_YEAR_BASE;
                        SET_LOAD_DATETIME(&t);
                      });
+      lv_obj_set_style_grid_cell_x_align(year->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       auto month = new NumberEdit(line, rect_t{}, 1, 12,
                                   [=]() -> int32_t {
                                     struct gtm t;
@@ -106,6 +94,7 @@ class DateTimeWindow : public FormGroup {
       month->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0);
       });
+      lv_obj_set_style_grid_cell_x_align(month->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
       /* TODO dynamic max instead of 31 ...
       int16_t year = TM_YEAR_BASE + t.tm_year;
@@ -128,6 +117,7 @@ class DateTimeWindow : public FormGroup {
       day->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
+      lv_obj_set_style_grid_cell_x_align(day->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       line = newLine(&grid);
 
       // Time
@@ -150,6 +140,7 @@ class DateTimeWindow : public FormGroup {
         return std::string(s);
         // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
       });
+      lv_obj_set_style_grid_cell_x_align(hour->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
       auto minutes = new NumberEdit(line, rect_t{}, 0, 59,
                                     [=]() -> int32_t {
@@ -166,8 +157,9 @@ class DateTimeWindow : public FormGroup {
       minutes->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
+      lv_obj_set_style_grid_cell_x_align(minutes->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      auto seconds = new NumberEdit(line, rect_t{}, 0, 59,
+      seconds = new NumberEdit(line, rect_t{}, 0, 59,
                                     [=]() -> int32_t {
                                       struct gtm t;
                                       gettime(&t);
@@ -180,8 +172,10 @@ class DateTimeWindow : public FormGroup {
                                       SET_LOAD_DATETIME(&t);
                                     });
       seconds->setDisplayHandler([](int value) {
-        return std::to_string(value);
+        return formatNumberAsString(value, LEADING0, 2);
       });
+      lv_obj_set_style_grid_cell_x_align(seconds->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+      line = newLine(&grid);
     }
 };
 
@@ -203,14 +197,16 @@ class WindowButtonGroup : public FormGroup
   void build()
   {
     auto form = new FormGroup(parent, rect_t{});
-    form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(12));
-    lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(12), 0);
+    form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+    lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
+    lv_obj_set_style_pad_row(form->getLvObj(), lv_dpx(8), 0);
 
     for (auto entry : windows) {
-      new TextButton(form, rect_t{}, entry.first, [&, entry]() {
+      auto btn = new TextButton(form, rect_t{}, entry.first, [&, entry]() {
         entry.second();
         return 0;
       });
+      lv_obj_clear_flag(btn->getLvObj(), LV_OBJ_FLAG_CHECKABLE);
     }
   }
 };
@@ -245,17 +241,17 @@ class SoundPage : public Page {
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,0, PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
+      new Slider(line, rect_t{0,0,lv_pct(50), PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
       line = body.newLine(&grid);
 
       // Beeps volume
       new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,0,PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
       line = body.newLine(&grid);
 
       // Beeps length
       new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,0,PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
+      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
       line = body.newLine(&grid);
 
       // Beeps pitch
@@ -601,17 +597,14 @@ void RadioSetupPage::build(FormWindow * window)
 {
   window->setFlexLayout();
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
-//  FormGridLayout grid;
-//  grid.spacer(PAGE_PADDING);
 
   auto line = window->newLine(&grid);
+  lv_obj_set_style_pad_left(line->getLvObj(), 0, LV_PART_MAIN);
+  lv_obj_set_style_pad_right(line->getLvObj(), 0, LV_PART_MAIN);
   // Date and Time
   grid.setColSpan(3);
-  auto timeWindow = new DateTimeWindow(line, rect_t{});
+  new DateTimeWindow(line, rect_t{});
   grid.setColSpan(1);
-
-//  grid.addWindow(timeWindow);
-
 
   // Batt meter range - Range 3.0v to 16v
   line = window->newLine(&grid);
@@ -632,9 +625,8 @@ void RadioSetupPage::build(FormWindow * window)
     batMinEdit->setMax(g_eeGeneral.vBatMax + 29 + 90);
     batMinEdit->invalidate();
   });
-
-//  grid.nextLine();
   line = window->newLine(&grid);
+
   std::vector<std::pair<const char*, std::function<void()> >> windows;
   windows.push_back(std::make_pair(STR_SOUND_LABEL, [window](){new SoundPage();}));
 #if defined(VARIO)
@@ -652,7 +644,6 @@ void RadioSetupPage::build(FormWindow * window)
   auto buttons = new WindowButtonGroup(line, rect_t{}, windows);
   grid.setColSpan(1);
   buttons->adjustHeight();
- // grid.addWindow(buttons);
   line = window->newLine(&grid);
 
 
