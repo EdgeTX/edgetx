@@ -21,30 +21,25 @@
 
 #pragma once
 
-#if defined(SIMU)
+#include "gui/colorlcd/widget.h"
 
-uint16_t getTmr2MHz();
-
-#define watchdogSuspend(timeout)
-#else
-
-#include "board.h"
-
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
-
-static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
-
-void watchdogSuspend(uint32_t timeout);
-
-#endif
-
-#include "opentx_types.h"
-
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
+class LuaWidgetFactory : public WidgetFactory
 {
-  return g_tmr10ms;
-}
+  friend void luaLoadWidgetCallback();
+  friend class LuaWidget;
+
+ public:
+  LuaWidgetFactory(const char* name, ZoneOption* widgetOptions,
+                   int createFunction);
+  ~LuaWidgetFactory();
+
+  Widget* create(Window* parent, const rect_t& rect,
+                 Widget::PersistentData* persistentData,
+                 bool init = true) const override;
+
+ protected:
+  int createFunction;
+  int updateFunction;
+  int refreshFunction;
+  int backgroundFunction;
+};

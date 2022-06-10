@@ -31,7 +31,7 @@
 
 #include "serial.h"
 
-extern volatile uint32_t g_tmr10ms;
+EXTERN_C(extern volatile uint32_t g_tmr10ms);
 
 #if defined(SIMU)
   typedef void (*traceCallbackFunc)(const char * text);

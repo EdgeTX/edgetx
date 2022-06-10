@@ -21,30 +21,17 @@
 
 #pragma once
 
-#if defined(SIMU)
-
-uint16_t getTmr2MHz();
-
-#define watchdogSuspend(timeout)
-#else
-
-#include "board.h"
-
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
-
-static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
-
-void watchdogSuspend(uint32_t timeout);
-
+struct LuaEventData {
+    event_t event;
+#if defined(HARDWARE_TOUCH)
+    coord_t touchX;
+    coord_t touchY;
+    coord_t startX;
+    coord_t startY;
+    coord_t slideX;
+    coord_t slideY;
+    short tapCount;
 #endif
+    EventData();
+};
 
-#include "opentx_types.h"
-
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}

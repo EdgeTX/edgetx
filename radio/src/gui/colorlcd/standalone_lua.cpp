@@ -21,7 +21,7 @@
 
 #include "standalone_lua.h"
 #include "view_main.h"
-#include "touch.h"
+// #include "touch.h"
 
 using std::string;
 extern BitmapBuffer* luaLcdBuffer;
@@ -51,15 +51,13 @@ void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text, const cha
 // singleton instance
 StandaloneLuaWindow* StandaloneLuaWindow::_instance;
 
-#if defined(HARDWARE_TOUCH)
-  bool StandaloneLuaWindow::fingerDown = false;
-#endif
-
 StandaloneLuaWindow::StandaloneLuaWindow() :
     Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE),
     lcdBuffer(BMP_RGB565, LCD_W, LCD_H),
     popup({50, 73, LCD_W - 100, LCD_H - 146})
 {
+  // setup LUA event handler
+  setupHandler(this);
 }
 
 StandaloneLuaWindow* StandaloneLuaWindow::instance()
@@ -82,8 +80,10 @@ void StandaloneLuaWindow::attach()
     lv_scr_load(lvobj);
 
     Layer::push(this);
+
+    lv_group_add_obj(lv_group_get_default(), lvobj);
+    lv_group_set_editing(lv_group_get_default(), true);
   }
-  // setFocus();
 }
 
 void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
@@ -119,30 +119,11 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdBuffer = &lcdBuffer;
 
   if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
-#if defined(HARDWARE_TOUCH)
-    // Stick touch in the same slot of touches as luaTask sticks evt in events
-    if (IS_TOUCH_EVENT(event)) {
-      for (int i = 0; i < EVENT_BUFFER_SIZE; i++) {
-        if (events[i] == 0) {
-          touches[i] = touch;
-          break;
-        }
-      }
-    }
-#endif
-    if (luaTask(event, true)) {
-#if defined(DEBUG_WINDOWS)
-      TRACE("# StandaloneLuaWindow::invalidate()");
-#endif
-      invalidate();
-    }
+    // if LUA finished a full cycle,
+    // invalidate to display the screen buffer
+    if (luaTask(0, true)) { invalidate(); }
   }
 
-  event = 0;
-#if defined(HARDWARE_TOUCH)
-  memclear(&touch, sizeof(touch));
-#endif
-  
   if (luaState == INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
     // Script does not run anymore...
     TRACE("LUA standalone script exited: deleting window!");
@@ -153,61 +134,20 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdBuffer = nullptr;
 }
 
+void StandaloneLuaWindow::onClicked()
+{
+  LuaEventHandler::onClicked();
+}
+
 void StandaloneLuaWindow::onCancel()
 {
-  // do nothing: wait for long press to kill
-  // the script
+  LuaEventHandler::onCancel();
 }
 
-#if defined(HARDWARE_KEYS)
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  event = evt;
+  LuaEventHandler::onEvent(evt);
 }
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool StandaloneLuaWindow::onTouchStart(coord_t x, coord_t y)
-{
-  TRACE_WINDOWS("StandaloneLuaWindow received touch start (%d) x=%d;y=%d", hasFocus(), x, y);
-  // Only one EVT_TOUCH_FIRST at a time
-  if (!fingerDown) {
-    event = EVT_TOUCH_FIRST;
-    touch.touchX = x;
-    touch.touchY = y;
-    fingerDown = true;
-  }
-  return true;
-}
-
-bool StandaloneLuaWindow::onTouchEnd(coord_t x, coord_t y)
-{
-  TRACE_WINDOWS("StandaloneLuaWindow received touch end (%d) x=%d;y=%d", hasFocus(), x, y);
-  if (touchState.tapCount > 0) {
-    event = EVT_TOUCH_TAP;
-    touch.tapCount = touchState.tapCount;
-  } else
-    event = EVT_TOUCH_BREAK;
-  touch.touchX = x;
-  touch.touchY = y;
-  fingerDown = false;
-  return true;
-}
-
-bool StandaloneLuaWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  TRACE_WINDOWS("StandaloneLuaWindow touch slide");
-  event = EVT_TOUCH_SLIDE;
-  touch.touchX = x;
-  touch.touchY = y;
-  touch.startX = startX;
-  touch.startY = startY;
-  touch.slideX = slideX;
-  touch.slideY = slideY;
-  fingerDown = false;
-  return true;
-}
-#endif
 
 bool StandaloneLuaWindow::displayPopup(event_t event, uint8_t type, const char* text,
                                        const char* info, bool& result)

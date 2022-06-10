@@ -185,7 +185,6 @@ struct ToolButton : public TextButton {
 void RadioToolsPage::rebuild(FormWindow * window)
 {
   window->clear();
-  // Window::clearFocus();
 
   std::list<ToolEntry> tools;
 

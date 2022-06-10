@@ -178,8 +178,8 @@ static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rec
       lv_area_t refr_area;
       lv_area_copy(&refr_area, &disp->inv_areas[i]);
 
-      TRACE("{%d,%d,%d,%d}", refr_area.x1,
-            refr_area.y1, refr_area.x2, refr_area.y2);
+      // TRACE("{%d,%d,%d,%d}", refr_area.x1,
+      //       refr_area.y1, refr_area.x2, refr_area.y2);
 
       // _rotate_area_180(refr_area);
       _copy_screen_area(dst, src, refr_area);
