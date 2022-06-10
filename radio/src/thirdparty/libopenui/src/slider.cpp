@@ -93,9 +93,6 @@ Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
   lv_style_init(&style_edit);
   lv_style_set_bg_color(&style_edit, makeLvColor(COLOR_THEME_EDIT));
   lv_obj_add_style(lvobj, &style_edit, LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
-
-  // always fill a grid cell in x-direction
-  lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
 }
 
 
