@@ -93,7 +93,7 @@
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","ET","OU","OUX",TR_CSWSTAY,"a=b","a>b","a<b","Δ}x","|Δ|}x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","ET","OU","OUX",TR_CSWSTAY,"a=b","a>b","a<b","Δ≥x","|Δ|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 
