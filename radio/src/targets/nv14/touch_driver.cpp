@@ -385,8 +385,6 @@ void TouchInit(void)
   regValue = (FT6206_G_MODE_INTERRUPT_TRIGGER & (FT6206_G_MODE_INTERRUPT_MASK >> FT6206_G_MODE_INTERRUPT_SHIFT)) << FT6206_G_MODE_INTERRUPT_SHIFT;
   /* Set interrupt TOUCH_FT6236_I2C_ADDRESS mode in FT6206_GMODE_REG */
   TS_IO_Write(TOUCH_FT6236_I2C_ADDRESS, FT6206_GMODE_REG, regValue);
-  /*trigger reset */
-  TouchReset();
 }
 
 void handleTouch()
