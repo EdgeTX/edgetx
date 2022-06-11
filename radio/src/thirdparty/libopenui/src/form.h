@@ -84,8 +84,6 @@ class FormGroup : public Window
   class Line : public Window
   {
     FlexGridLayout *layout;
-    FormGroup *group;
-
     void construct();
 
    public:

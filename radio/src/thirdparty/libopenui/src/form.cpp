@@ -28,6 +28,7 @@ FormField::FormField(Window* parent, const rect_t& rect,
                      LvglCreate objConstruct) :
     Window(parent, rect, windowFlags, textFlags, objConstruct)
 {
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 }
 
 void FormField::setEditMode(bool newEditMode)
