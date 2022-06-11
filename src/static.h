@@ -152,34 +152,48 @@ class DynamicText : public StaticText
 };
 
 template <class T>
-class DynamicNumber: public Window
+class DynamicNumber : public StaticText
 {
-  public:
-    DynamicNumber(Window * parent, const rect_t & rect, std::function<T()> numberHandler, LcdFlags textFlags = 0, const char * prefix = nullptr, const char * suffix = nullptr):
-      Window(parent, rect, 0, textFlags),
+ public:
+  DynamicNumber(Window *parent, const rect_t &rect,
+                std::function<T()> numberHandler, LcdFlags textFlags = 0,
+                const char *prefix = nullptr, const char *suffix = nullptr) :
+      StaticText(parent, rect, "", 0, textFlags),
       numberHandler(std::move(numberHandler)),
       prefix(prefix),
       suffix(suffix)
-    {
-    }
+  {
+    updateText();
+  }
 
-    void paint(BitmapBuffer * dc) override
-    {
-      dc->drawNumber(0, FIELD_PADDING_TOP, value, textFlags, 0, prefix, suffix);
+  void checkEvents() override
+  {
+    T newValue = numberHandler();
+    if (value != newValue) {
+      value = newValue;
+      updateText();
     }
+  }
 
-    void checkEvents() override
-    {
-      T newValue = numberHandler();
-      if (value != newValue) {
-        value = newValue;
-        invalidate();
+ protected:
+  T value = 0;
+  std::function<T()> numberHandler;
+  const char *prefix;
+  const char *suffix;
+
+  void updateText()
+  {
+    if (lvobj) {
+      const char *p = prefix ? prefix : "";
+      const char *s = suffix ? suffix : "";
+      if (textFlags & PREC1) {
+        lv_label_set_text_fmt(lvobj, "%s%d.%01d%s", p, value / 10, value % 10, s);
+      } else if (textFlags & PREC2) {
+        lv_label_set_text_fmt(lvobj, "%s%d.%02d%s", p, value / 100,
+                              value % 100, s);
+      } else {
+        lv_label_set_text_fmt(lvobj, "%s%d%s", p, value, s);
       }
     }
-
-  protected:
-    T value = 0;
-    std::function<T()> numberHandler;
-    const char * prefix;
-    const char * suffix;
+  }
 };
