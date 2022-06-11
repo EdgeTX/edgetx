@@ -41,8 +41,7 @@ Button::Button(Window* parent, const rect_t& rect,
     pressHandler(std::move(pressHandler))
 {
   lv_obj_add_event_cb(lvobj, Button::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
-  if (windowFlag & BUTTON_CHECKED)
-    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  update_checked_flag(lvobj, windowFlags);
 }
 
 void Button::check(bool checked)
@@ -109,10 +108,7 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
     text(std::move(text))
 {
   setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CHECKABLE);
-
-  if (windowFlags & BUTTON_CHECKED)
-    lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  update_checked_flag(lvobj, windowFlags);
 
   label = lv_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
