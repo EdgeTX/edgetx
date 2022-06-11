@@ -224,12 +224,10 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   return 1;
 }
 
-#if 0
 static uint8_t TS_IO_Read(uint8_t reg)
 {
   return TS_IO_Read(TOUCH_FT6236_I2C_ADDRESS, reg);
 }
-#endif
 
 static void touch_ft6236_debug_info(void)
 {
