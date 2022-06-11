@@ -61,14 +61,18 @@ coord_t FilePreview::getBitmapHeight() const
 
 void FilePreview::paint(BitmapBuffer *dc)
 {
+  if (!bitmap) return;
+
+  coord_t w = lv_obj_get_content_width(lvobj);
+  coord_t h = lv_obj_get_content_height(lvobj);
+
+  coord_t bm_w = min<coord_t>(w, bitmap->width());
+  coord_t bm_h = min<coord_t>(h, bitmap->height());
+
+  coord_t border_w = lv_obj_get_style_border_width(lvobj, 0);
+  coord_t x = border_w + lv_obj_get_style_pad_left(lvobj, 0);
+  coord_t y = border_w + lv_obj_get_style_pad_top(lvobj, 0);
+
   dc->setFormat(BMP_RGB565);
-  coord_t y = /*_drawCentered ? parent->getScrollPositionY() + 2 :*/ 2;
-  coord_t h = _drawCentered ? MENU_BODY_HEIGHT - 4 : rect.h;
-  if (bitmap != nullptr) {
-    coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
-    coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
-    dc->drawScaledBitmap(bitmap, (width() - bitmapWidth) / 2,
-                         _drawCentered ? y + (h - bitmapHeight) / 2 : 0,
-                         bitmapWidth, bitmapHeight);
-  }
+  dc->drawScaledBitmap(bitmap, x + (w - bm_w) / 2, y + (h - bm_h) / 2, bm_w, bm_h);
 }

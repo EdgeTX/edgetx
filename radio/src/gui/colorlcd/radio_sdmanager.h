@@ -24,10 +24,12 @@
 enum MultiModuleType : short;
 
 class FileBrowser;
+class FilePreview;
 
 class RadioSdManagerPage : public PageTab
 {
   FileBrowser* browser = nullptr;
+  FilePreview* preview = nullptr;
   
  public:
   RadioSdManagerPage();

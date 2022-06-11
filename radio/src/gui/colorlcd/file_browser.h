@@ -30,17 +30,24 @@ class FileBrowser : public TableField
   typedef std::function<void(const char*, const char*, const char*)> FileAction;
 
   FileBrowser(Window* parent, const rect_t& rect, const char* dir);
+
   void setFileAction(FileAction fct);
+  void setFileSelected(FileAction fct);
   void refresh();
 
+  void adjustWidth();
+  
  protected:
+  void onSelected(const char* name, bool is_dir);
   void onPress(const char* name, bool is_dir);
 
   // TableField methods
+  void onSelected(uint16_t row, uint16_t col) override;
   void onPress(uint16_t row, uint16_t col) override;
   void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
   void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
 
  private:
   FileAction fileAction;
+  FileAction fileSelected;
 };
