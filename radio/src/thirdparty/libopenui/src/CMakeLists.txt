@@ -6,10 +6,6 @@ if(HARWARE_TOUCH)
   add_definitions(-DHARDWARE_TOUCH)
 endif()
 
-if(SOFTWARE_KEYBOARD)
-  add_definitions(-DSOFTWARE_KEYBOARD)
-endif()
-
 set(LIBOPENUI_SRC
   libopenui_file.cpp
   bitmapbuffer.cpp
@@ -35,20 +31,14 @@ set(LIBOPENUI_SRC
   table.cpp
   modal_window.cpp
   dialog.cpp
+  keyboard_text.cpp
+  keyboard_number.cpp
+  keyboard_base.cpp
   # LVGL widgets
   widgets/window_base.c
   widgets/simple_btn.c
   widgets/field_edit.c
   )
-
-if(SOFTWARE_KEYBOARD)
-  set(LIBOPENUI_SRC
-    ${LIBOPENUI_SRC}
-    keyboard_text.cpp
-    keyboard_number.cpp
-    keyboard_base.cpp
-    )
-endif()
 
 foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
   set(LIBOPENUI_SRC_FILES ${LIBOPENUI_SRC_FILES} ${LIBOPENUI_SRC_DIR}/src/${LIBOPENUI_FILE})

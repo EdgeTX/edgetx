@@ -22,8 +22,6 @@
 
 #include "widgets/field_edit.h"
 
-// #include "libopenui_config.h"
-
 #if !defined(STR_EDIT)
 #define STR_EDIT "Edit"
 #endif
@@ -32,9 +30,7 @@
 #define STR_CLEAR "Clear"
 #endif
 
-#if defined(HARDWARE_TOUCH)
 #include "keyboard_text.h"
-#endif
 
 #if defined(HARDWARE_KEYS)
 #include "menu.h"
@@ -93,14 +89,12 @@ void TextEdit::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
-#if defined(HARDWARE_TOUCH)
   if (IS_VIRTUAL_KEY_EVENT(event)) {
     uint8_t c = event & 0xFF;
     if (c == (uint8_t)KEYBOARD_ENTER[0]) {
       changeEnd();
     }
   }
-#endif
 
 #if defined(HARDWARE_KEYS)
   if (editMode) {

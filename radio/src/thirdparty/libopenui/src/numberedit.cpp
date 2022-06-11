@@ -19,11 +19,7 @@
 
 #include "numberedit.h"
 #include "widgets/field_edit.h"
-
-#if defined(SOFTWARE_KEYBOARD)
 #include "keyboard_number.h"
-#endif
-
 
 static void numberedit_cb(lv_event_t* e)
 {
@@ -99,7 +95,6 @@ void NumberEdit::onEvent(event_t event)
       }
 #endif
 
-#if defined(HARDWARE_TOUCH)
       case EVT_VIRTUAL_KEY_PLUS:
         setValue(getValue() + getStep());
         break;
@@ -131,7 +126,6 @@ void NumberEdit::onEvent(event_t event)
       case EVT_VIRTUAL_KEY_SIGN:
         setValue(-getValue());
         break;
-#endif
     }
   }
 
@@ -143,7 +137,8 @@ void NumberEdit::onClicked()
   lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
   if(indev_type == LV_INDEV_TYPE_POINTER) {
     NumberKeyboard::show(this);
-  } else {
-    FormField::onClicked();
+    return;
   }
+
+  FormField::onClicked();
 }
