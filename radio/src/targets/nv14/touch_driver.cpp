@@ -41,9 +41,12 @@ volatile static bool touchEventOccured;
 #define TOUCH_SDA_GPIO_PIN                I2C_B1_SDA_GPIO_PIN  // PB.09
 
 #define TOUCH_FT6236_I2C_ADDRESS          (0x70>>1)
+#define TOUCH_CST836U_I2C_ADDRESS         (0x15)
 
-uint8_t ft6x06[FT6x06_MAX_INSTANCE] = {0};
-static ft6x06_handle_TypeDef ft6x06_handle = {FT6206_I2C_NOT_INITIALIZED, 0, 0};
+enum TouchControllers {TC_NONE, TC_FT6236, TC_CST836U};
+TouchControllers touchController = TC_NONE;
+
+static tc_handle_TypeDef tc_handle = {0, 0};
 
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
@@ -179,12 +182,22 @@ void I2C_Init()
 
 bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
-    return false;
+  if(touchController == TC_CST836U)
+  {
+    if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, &reg, 1, 3) < 0)
+      return false;
+    delay_us(50);
+    if(stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
+      return false;
+  } else {
+    if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
+      return false;
+  }
 
   return true;
 }
 
+#if 0
 static bool touch_i2c_write(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
   if (stm32_i2c_write(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
@@ -192,7 +205,6 @@ static bool touch_i2c_write(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t l
 
   return true;
 }
-
 
 static void TS_IO_Write(uint8_t addr, uint8_t reg, uint8_t data)
 {
@@ -202,6 +214,7 @@ static void TS_IO_Write(uint8_t addr, uint8_t reg, uint8_t data)
     I2C_Init();
   }
 }
+#endif
 
 static uint8_t TS_IO_Read(uint8_t addr, uint8_t reg)
 {
@@ -226,7 +239,7 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
 
 static uint8_t TS_IO_Read(uint8_t reg)
 {
-  return TS_IO_Read(TOUCH_FT6236_I2C_ADDRESS, reg);
+  return TS_IO_Read((touchController==TC_FT6236)?TOUCH_FT6236_I2C_ADDRESS:TOUCH_CST836U_I2C_ADDRESS, reg);
 }
 
 static void touch_ft6236_debug_info(void)
@@ -261,10 +274,10 @@ static uint8_t ft6x06_TS_DetectTouch(uint16_t DeviceAddr)
     nbTouch = 0;
   }
   /* Update ft6x06 driver internal global : current number of active touches */
-  ft6x06_handle.currActiveTouchNb = nbTouch;
+  tc_handle.currActiveTouchNb = nbTouch;
 
   /* Reset current active touch index on which to work on */
-  ft6x06_handle.currActiveTouchIdx = 0;
+  tc_handle.currActiveTouchIdx = 0;
   return (nbTouch);
 }
 
@@ -325,7 +338,7 @@ static void ft6x06_TS_GetTouchInfo(uint16_t DeviceAddr,
 /**
  * @brief  Get the touch screen X and Y positions values
  *         Manage multi touch thanks to touch Index global
- *         variable 'ft6x06_handle.currActiveTouchIdx'.
+ *         variable 'tc_handle.currActiveTouchIdx'.
  * @param  DeviceAddr: Device address on communication Bus.
  * @param  X: Pointer to X position value
  * @param  Y: Pointer to Y position value
@@ -336,8 +349,8 @@ static void ft6x06_TS_GetXY(uint16_t DeviceAddr, uint16_t * X, uint16_t * Y, uin
   uint8_t regAddress = 0;
   uint8_t dataxy[4];
 
-  if (ft6x06_handle.currActiveTouchIdx < ft6x06_handle.currActiveTouchNb) {
-    switch (ft6x06_handle.currActiveTouchIdx) {
+  if (tc_handle.currActiveTouchIdx < tc_handle.currActiveTouchNb) {
+    switch (tc_handle.currActiveTouchIdx) {
       case 0 :
         regAddress = FT6206_P1_XH_REG;
         break;
@@ -362,29 +375,116 @@ static void ft6x06_TS_GetXY(uint16_t DeviceAddr, uint16_t * X, uint16_t * Y, uin
     uint32_t area;
     ft6x06_TS_GetTouchInfo(DeviceAddr, ft6x06_handle.currActiveTouchIdx, &weight, &area, event);
     */
-    ft6x06_handle.currActiveTouchIdx++;
+    tc_handle.currActiveTouchIdx++;
   }
+}
+
+static void touch_cst836u_debug_info(void)
+{
+#if defined(DEBUG)
+  TRACE("cst836u: fw ver 0x%02X %02X", TS_IO_Read(CST836U_FW_VERSION_H_REG), TS_IO_Read(CST836U_FW_VERSION_L_REG));
+  TRACE("cst836u: module version 0x%02X", TS_IO_Read(CST836U_MODULE_VERSION_REG));
+  TRACE("cst836u: project name 0x%02X", TS_IO_Read(CST836U_PROJECT_NAME_REG));
+  TRACE("cst836u: chip type 0x%02X 0x%02X", TS_IO_Read(CST836U_CHIP_TYPE_H_REG), TS_IO_Read(CST836U_CHIP_TYPE_L_REG));
+#endif
+}
+
+/**
+ * @brief  Get the touch screen X and Y positions values
+ *         Manage multi touch thanks to touch Index global
+ *         variable 'tc_handle.currActiveTouchIdx'.
+ * @param  DeviceAddr: Device address on communication Bus.
+ * @param  X: Pointer to X position value
+ * @param  Y: Pointer to Y position value
+ * @retval None.
+ */
+static void cst836u_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
+{
+  uint8_t regAddress = 0;
+  uint8_t dataxy[4];
+
+  if (tc_handle.currActiveTouchIdx < tc_handle.currActiveTouchNb) {
+    switch (tc_handle.currActiveTouchIdx) {
+      case 0 :
+        regAddress = CST836U_TOUCH1_XH_REG;
+        break;
+      case 1 :
+        regAddress = CST836U_TOUCH2_XH_REG;
+        break;
+      default :
+        break;
+    }
+
+    /* Read X and Y positions */
+    TS_IO_ReadMultiple(TOUCH_CST836U_I2C_ADDRESS, regAddress, dataxy, sizeof(dataxy));
+    /* Send back ready X position to caller */
+    *X = ((dataxy[0] & CST836U_MSB_MASK) << 8) | dataxy[1];
+    /* Send back ready Y position to caller */
+    *Y = ((dataxy[2] & CST836U_MSB_MASK) << 8) | dataxy[3];
+
+    *event = (dataxy[0] & CST836U_TOUCH_EVT_FLAG_MASK) >> CST836U_TOUCH_EVT_FLAG_SHIFT;
+    /*
+    uint32_t weight;
+    uint32_t area;
+    */
+    tc_handle.currActiveTouchIdx++;
+  }
+}
+
+/**
+ * @brief  Return if there is touches detected or not.
+ *         Try to detect new touches and forget the old ones (reset internal global
+ *         variables).
+ * @param  DeviceAddr: Device address on communication Bus.
+ * @retval : Number of active touches detected (can be 0, 1 or 2).
+ */
+static uint8_t cst836u_TS_DetectTouch()
+{
+  volatile uint8_t nbTouch = 0;
+
+  /* Read register CST836U_TOUCH_NUM_REG to check number of touches detection */
+  nbTouch = TS_IO_Read(CST836U_TOUCH_NUM_REG);
+  if (nbTouch > CST836U_MAX_DETECTABLE_TOUCH) {
+    /* If invalid number of touch detected, set it to zero */
+    nbTouch = 0;
+  }
+  tc_handle.currActiveTouchNb = nbTouch;
+
+  tc_handle.currActiveTouchIdx = 0;
+  return (nbTouch);
 }
 
 void TouchReset()
 {
   LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
-  delay_ms(20);
+  delay_ms(10);
   LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
   delay_ms(300);
+}
+
+void detectTouchController()
+{
+  touchController = TC_FT6236;
+  if( stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST836U_I2C_ADDRESS, 3, 5) == 0)
+      touchController = TC_CST836U;
 }
 
 void TouchInit(void)
 {
   I2C_Init();
   TouchReset();
-  touch_ft6236_debug_info();
-  /* INT generation for new touch available */
-  /* Note TS_INT is active low */
-  uint8_t regValue = 0;
-  regValue = (FT6206_G_MODE_INTERRUPT_TRIGGER & (FT6206_G_MODE_INTERRUPT_MASK >> FT6206_G_MODE_INTERRUPT_SHIFT)) << FT6206_G_MODE_INTERRUPT_SHIFT;
-  /* Set interrupt TOUCH_FT6236_I2C_ADDRESS mode in FT6206_GMODE_REG */
-  TS_IO_Write(TOUCH_FT6236_I2C_ADDRESS, FT6206_GMODE_REG, regValue);
+  detectTouchController();
+  switch(touchController)
+  {
+  case TC_FT6236:
+    touch_ft6236_debug_info();
+    break;
+  case TC_CST836U:
+    touch_cst836u_debug_info();
+    break;
+  default:
+    break;
+  }
 }
 
 void handleTouch()
@@ -392,7 +492,17 @@ void handleTouch()
   unsigned short touchX;
   unsigned short touchY;
   uint32_t tEvent = 0;
-  ft6x06_TS_GetXY(TOUCH_FT6236_I2C_ADDRESS, &touchX, &touchY, &tEvent);
+  switch(touchController)
+  {
+  case TC_FT6236:
+    ft6x06_TS_GetXY(TOUCH_FT6236_I2C_ADDRESS, &touchX, &touchY, &tEvent);
+    break;
+  case TC_CST836U:
+    cst836u_TS_GetXY(&touchX, &touchY, &tEvent);
+    break;
+  default:
+    break;
+  }
   // uint32_t gesture;
   // ft6x06_TS_GetGestureID(TOUCH_FT6236_I2C_ADDRESS, &gesture);
 #if defined( LCD_DIRECTION ) && (LCD_DIRECTION == LCD_VERTICAL)
@@ -462,7 +572,20 @@ TouchState touchPanelRead()
   tmr10ms_t now = get_tmr10ms();
   internalTouchState.tapCount = 0;
 
-  if (ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS)) {
+  uint8_t tDetected = 0;
+  switch(touchController)
+  {
+  case TC_FT6236:
+    tDetected = ft6x06_TS_DetectTouch(TOUCH_FT6236_I2C_ADDRESS);
+    break;
+  case TC_CST836U:
+    tDetected = cst836u_TS_DetectTouch();
+    break;
+  default:
+    break;
+  }
+
+  if (tDetected) {
     handleTouch();
     if (internalTouchState.event == TE_DOWN && downTime == 0) {
       downTime = now;

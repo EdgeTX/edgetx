@@ -98,15 +98,13 @@ extern "C" {
  */
 typedef struct
 {
-  uint8_t i2cInitialized;
-
   /* field holding the current number of simultaneous active touches */
   uint8_t currActiveTouchNb;
 
   /* field holding the touch index currently managed */
   uint8_t currActiveTouchIdx;
 
-} ft6x06_handle_TypeDef;
+} tc_handle_TypeDef;
 
 
 
@@ -153,10 +151,6 @@ typedef struct
   /* Possible values of driver functions return status */
 #define FT6206_STATUS_OK                0
 #define FT6206_STATUS_NOT_OK            1
-
-  /* Possible values of global variable 'TS_I2C_Initialized' */
-#define FT6206_I2C_NOT_INITIALIZED      0
-#define FT6206_I2C_INITIALIZED          1
 
   /* Max detectable simultaneous touches */
 #define FT6206_MAX_DETECTABLE_TOUCH     2
@@ -321,6 +315,39 @@ typedef struct
   /* Current operating mode the FT6206 system is in (R) */
 #define FT6206_STATE_REG                0xBC
 
+
+#define CST836U_WORK_MODE_REG           0x00
+#define CST836U_PROXIMITY_ID_REG        0x01
+#define CST836U_TOUCH_NUM_REG           0x02
+#define CST836U_TOUCH1_XH_REG           0x03
+#define CST836U_TOUCH1_XL_REG           0x04
+#define CST836U_TOUCH1_YH_REG           0x05
+#define CST836U_TOUCH1_YL_REG           0x06
+
+#define CST836U_TOUCH2_XH_REG           0x09
+#define CST836U_TOUCH2_XL_REG           0x0A
+#define CST836U_TOUCH2_YH_REG           0x0B
+#define CST836U_TOUCH2_YL_REG           0x0C
+
+#define CST836U_FW_VERSION_L_REG        0xA6
+#define CST836U_FW_VERSION_H_REG        0xA7
+#define CST836U_MODULE_VERSION_REG      0xA8
+#define CST836U_PROJECT_NAME_REG        0xA9
+#define CST836U_CHIP_TYPE_L_REG         0xAA
+#define CST836U_CHIP_TYPE_H_REG         0xAB
+#define CST836U_CHECKSUM_L_REG          0xAC
+#define CST836U_CHECKSUM_H_REG          0xAD
+
+#define CST836U_PROX_STATE_REG          0xB0
+#define CST836U_GES_STATE_REG           0xD0
+#define CST836U_GES_ID_REG_REG          0xD3
+
+#define CST836U_MAX_DETECTABLE_TOUCH    2
+
+#define CST836U_MSB_MASK                0x0F
+
+#define CST836U_TOUCH_EVT_FLAG_SHIFT     6
+#define CST836U_TOUCH_EVT_FLAG_MASK      (3 << CST836U_TOUCH_EVT_FLAG_SHIFT)
 
 #define LCD_VERTICAL                ( 0x00 )
 #define LCD_HORIZONTAL              ( 0x01 )
