@@ -202,11 +202,10 @@ class WindowButtonGroup : public FormGroup
     lv_obj_set_style_pad_row(form->getLvObj(), lv_dpx(8), 0);
 
     for (auto entry : windows) {
-      auto btn = new TextButton(form, rect_t{}, entry.first, [&, entry]() {
+      new TextButton(form, rect_t{}, entry.first, [&, entry]() {
         entry.second();
         return 0;
       });
-      lv_obj_clear_flag(btn->getLvObj(), LV_OBJ_FLAG_CHECKABLE);
     }
   }
 };
