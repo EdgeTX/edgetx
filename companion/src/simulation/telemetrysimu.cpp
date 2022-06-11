@@ -23,7 +23,7 @@
 #include "appdata.h"
 #include "simulatorinterface.h"
 #include "telem_data.h"
-#include "radio/src/telemetry/frsky.h"
+#include "radio/src/telemetry/frsky_defs.h"
 
 #include <QRegularExpression>
 #include <stdint.h>
