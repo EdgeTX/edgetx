@@ -179,7 +179,7 @@ void I2C_Init()
 
 bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 2, data, len, I2C_TIMEOUT_MAX) < 0)
+  if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
     return false;
 
   return true;
@@ -187,7 +187,7 @@ bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 
 static bool touch_i2c_write(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if (stm32_i2c_write(TOUCH_I2C_BUS, addr, reg, 2, data, len, I2C_TIMEOUT_MAX) < 0)
+  if (stm32_i2c_write(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
     return false;
 
   return true;
