@@ -198,7 +198,7 @@ class ThemedTextEdit : public TextEdit
       colorMaintainer.restoreColorValues();
     }
 
-#if defined(SOFTWARE_KEYBOARD)
+#if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       return true;

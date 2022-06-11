@@ -43,7 +43,16 @@ void LuaEventHandler::event_cb(lv_event_t* e)
   if (!win) return;
 
   lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_PRESSED || code == LV_EVENT_PRESSING) {
+  if (code == LV_EVENT_KEY) {
+    uint32_t key = *(uint32_t*)lv_event_get_param(e);
+    if (key == LV_KEY_LEFT) {
+      win->onEvent(EVT_ROTARY_LEFT);
+    } else if (key == LV_KEY_RIGHT) {
+      win->onEvent(EVT_ROTARY_RIGHT);
+    }
+  }
+#if defined(HARDWARE_TOUCH)
+  else if (code == LV_EVENT_PRESSED || code == LV_EVENT_PRESSING) {
 
     lv_area_t obj_coords;
     lv_obj_get_coords(obj, &obj_coords);
@@ -95,18 +104,13 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       _startX = rel_pos.x;
       _startY = rel_pos.y;
     }
-  } else if (code == LV_EVENT_KEY) {
-    uint32_t key = *(uint32_t*)lv_event_get_param(e);
-    if (key == LV_KEY_LEFT) {
-      win->onEvent(EVT_ROTARY_LEFT);
-    } else if (key == LV_KEY_RIGHT) {
-      win->onEvent(EVT_ROTARY_RIGHT);
-    }
   }
+#endif  
 }
 
 void LuaEventHandler::onClicked()
 {
+#if defined(HARDWARE_TOUCH)
   auto click_source = lv_indev_get_act();
   bool is_pointer = lv_indev_get_type(click_source) == LV_INDEV_TYPE_POINTER;
   if (is_pointer) {
@@ -122,9 +126,11 @@ void LuaEventHandler::onClicked()
     es->touchY = point_act.y;
     es->tapCount = 1;
     _sliding = false;
-  } else {
-    luaPushEvent(EVT_KEY_BREAK(KEY_ENTER));
+    return;
   }
+#endif
+
+  luaPushEvent(EVT_KEY_BREAK(KEY_ENTER));
 }
 
 void LuaEventHandler::onCancel()
@@ -134,11 +140,6 @@ void LuaEventHandler::onCancel()
 
 void LuaEventHandler::onEvent(event_t event)
 {
-  // if (event == EVT_KEY_LONG(KEY_EXIT)) {
-  //   // Exits widget fullscreen / standalone LUA
-  //   lv_indev_wait_release(lv_indev_get_act());
-  // }
-
   luaPushEvent(event);
 }
 

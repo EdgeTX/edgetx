@@ -33,7 +33,7 @@ constexpr event_t EVT_ENTRY_UP =       0x1002;
 constexpr event_t EVT_ROTARY_LEFT =    0x1003;
 constexpr event_t EVT_ROTARY_RIGHT =   0x1004;
 
-#if defined(PCBHORUS) || defined (PCBNV14)
+#if defined(COLORLCD)
 constexpr event_t _MSK_KEY_BREAK =     0x0200;
 constexpr event_t _MSK_KEY_REPT =      0x0400;
 constexpr event_t _MSK_KEY_FIRST =     0x0600;
@@ -47,7 +47,7 @@ constexpr event_t _MSK_KEY_LONG =      0x0080;
 constexpr event_t _MSK_KEY_FLAGS =     0x00E0;
 #endif
 
-#if defined(HARDWARE_TOUCH)
+#if defined(COLORLCD)
 constexpr event_t _MSK_VIRTUAL_KEY =   0x2000;
 
 constexpr event_t EVT_VIRTUAL_KEY(uint8_t key)
