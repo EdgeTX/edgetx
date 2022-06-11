@@ -51,6 +51,8 @@ jobs:
         run: |
           pacman -S --noconfirm mingw-w64-i686-cmake \
                                 mingw-w64-i686-python-pip \
+                                mingw-w64-i686-python-pillow \
+                                mingw-w64-i686-python-lz4 \
                                 mingw-w64-i686-arm-none-eabi-gcc \
                                 mingw-w64-i686-libjpeg-turbo \
                                 mingw-w64-i686-zlib \
@@ -64,7 +66,7 @@ jobs:
                                 mingw-w64-i686-SDL \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis
-          pip install Pillow clang lz4
+          python -m pip install clang
 
       - name: Cache Qt
         id: cache-qt
