@@ -41,6 +41,8 @@ class FlexGridLayout
   {
   }
 
+  void apply(Window* w) { apply(w->getLvObj()); }
+
   void apply(lv_obj_t* obj) {
 
     // padding
@@ -55,6 +57,8 @@ class FlexGridLayout
       lv_obj_set_grid_dsc_array(obj, col_dsc, row_dsc);
     }
   }
+
+  void add(Window* w) { add(w->getLvObj()); }
 
   void add(lv_obj_t* obj) {
     if (col_dsc && row_dsc) {
