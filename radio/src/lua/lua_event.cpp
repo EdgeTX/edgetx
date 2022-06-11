@@ -28,12 +28,6 @@ extern "C" {
   #include "lua.h"
 };
 
-#define EVT_TOUCH_SWIPE_LOCK     4
-#define EVT_TOUCH_SWIPE_SPEED   60
-#define EVT_TOUCH_SWIPE_TIMEOUT 50
-
-static tmr10ms_t _swipeTimeOut = 0;
-
 static LuaEventData _lua_event_buffer[EVENT_BUFFER_SIZE];
 
 LuaEventData::LuaEventData()
@@ -79,6 +73,14 @@ LuaEventData* luaGetEventSlot(event_t event)
 
   return nullptr;
 }
+
+#if defined(HARDWARE_TOUCH)
+
+#define EVT_TOUCH_SWIPE_LOCK     4
+#define EVT_TOUCH_SWIPE_SPEED   60
+#define EVT_TOUCH_SWIPE_TIMEOUT 50
+
+static tmr10ms_t _swipeTimeOut = 0;
 
 static void l_pushtableint(lua_State* ls, const char * key, int value)
 {
@@ -129,3 +131,4 @@ void luaPushTouchEventTable(lua_State* ls, LuaEventData* evt)
     }
   }
 }
+#endif
