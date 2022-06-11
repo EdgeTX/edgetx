@@ -504,7 +504,7 @@ class BacklightPage : public Page {
       // Keys backlight
       new StaticText(line, rect_t{}, STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
-      line = body.newLine(&grid)();
+      line = body.newLine(&grid);
   #endif
 
       // Flash beep
