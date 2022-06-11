@@ -746,11 +746,6 @@ struct TouchState touchPanelRead()
         return internalTouchState;
       }
         
-#if defined (PCBX12S)
-      touchData.points[0].x = LCD_W - touchData.points[0].x;
-      touchData.points[0].y = LCD_H - touchData.points[0].y;
-#endif
-
       if (internalTouchState.event == TE_NONE ||
           internalTouchState.event == TE_UP ||
           internalTouchState.event == TE_SLIDE_END) {

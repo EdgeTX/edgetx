@@ -720,7 +720,11 @@
   #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
   #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
   #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
+
+#if defined(PCBX12S)
+  #define TOUCH_PANEL_INVERTED
 #endif
+#endif // HARDWARE_TOUCH
 
 // First I2C Bus
 #if defined(RADIO_T18)
