@@ -21,8 +21,10 @@
 
 #include "lua_event.h"
 #include "opentx_helpers.h"
+#include "board_common.h"
 #include "timers_driver.h"
 #include "keys.h"
+
 
 extern "C" {
   #include "lua.h"
