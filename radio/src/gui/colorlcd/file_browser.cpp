@@ -108,7 +108,6 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
   lv_obj_add_event_cb(lvobj, fb_event, LV_EVENT_ALL, nullptr);
 
   setColumnCount(1);
-  setColumnWidth(0, rect.w);
 
   f_chdir(dir);
 
@@ -119,6 +118,7 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
 }
 
 void FileBrowser::setFileAction(FileAction fct) { fileAction = std::move(fct); }
+void FileBrowser::setFileSelected(FileAction fct) { fileSelected = std::move(fct); }
 
 void FileBrowser::refresh()
 {
@@ -145,6 +145,18 @@ void FileBrowser::refresh()
   }
 
   select(0, 0);
+}
+
+void FileBrowser::adjustWidth()
+{
+  lv_obj_update_layout(lvobj);
+  setColumnWidth(0, lv_obj_get_width(lvobj));
+}
+
+void FileBrowser::onSelected(uint16_t row, uint16_t col)
+{
+  bool is_dir = lv_table_has_cell_ctrl(lvobj, row, col, CELL_CTRL_DIR);
+  onSelected(lv_table_get_cell_value(lvobj, row, col), is_dir);
 }
 
 void FileBrowser::onPress(uint16_t row, uint16_t col)
@@ -187,6 +199,14 @@ void FileBrowser::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* 
 
   dsc->label_dsc->ofs_x = 0;
   lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, sym, nullptr);
+}
+
+void FileBrowser::onSelected(const char* name, bool is_dir)
+{
+  if (is_dir) return;
+  const char* path = getCurrentPath();
+  const char* fullpath = getFullPath(name);  
+  if (fileSelected) fileSelected(path, name, fullpath);
 }
 
 void FileBrowser::onPress(const char* name, bool is_dir)

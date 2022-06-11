@@ -102,10 +102,6 @@ class FileNameEditWindow : public Page
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
-  // setOnSetVisibleHandler([]() {
-  //   TRACE("f_chdir(ROOT_PATH)");
-  //   f_chdir(ROOT_PATH);
-  // });
 }
 
 template <class T>
@@ -147,28 +143,49 @@ class FlashDialog: public FullScreenDialog
     Progress progress;
 };
 
+#if LCD_W > LCD_H // landscape
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+#else // portrait
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+#endif
+
 void RadioSdManagerPage::build(FormWindow * window)
 {
-  rect_t r = window->getRect();
-#if LCD_W > LCD_H
-  r.w = r.w * 0.6;
-#endif
-  browser = new FileBrowser(window, r, ROOT_PATH);
+  FlexGridLayout grid(col_dsc, row_dsc, 0);
+  FormGroup* form = new FormGroup(window, rect_t{});
+  form->setWidth(window->width());
+  form->setHeight(window->height());
+  grid.apply(form);
+  
+  browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
+  grid.add(browser);
+  grid.nextCell();
+
+  auto obj = browser->getLvObj();
+  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+
+  // Adjust file browser width
+  browser->adjustWidth();
+  
+  preview = new FilePreview(form, rect_t{});
+  grid.add(preview);
+  grid.nextCell();
+
+  obj = preview->getLvObj();
+  lv_obj_set_style_pad_all(obj, lv_dpx(8), 0);
+  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+
   browser->setFileAction([=](const char* path, const char* name, const char* fullpath) {
       fileAction(path, name, fullpath);
   });
+  browser->setFileSelected([=](const char* path, const char* name, const char* fullpath) {
+      preview->setFile(fullpath);
+  });
   browser->refresh();
-
-//       button->setFocusHandler([=](bool active) {
-//         if (active) {
-//           preview->setFile(getFullPath(name));
-//         }
-//       });
-//       grid.nextLine();
-//     }
-//   }
-
-//   preview->setHeight(max(window->height(), grid.getWindowHeight()));
 }
 
 void RadioSdManagerPage::fileAction(const char* path, const char* name,
