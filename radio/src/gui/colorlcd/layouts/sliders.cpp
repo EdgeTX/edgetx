@@ -31,7 +31,7 @@ enum slider_type {
 static void slider_self_size(lv_event_t* e)
 {
   lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
-  slider_type t = (slider_type)(long)lv_event_get_user_data(e);
+  slider_type t = (slider_type)(intptr_t)lv_event_get_user_data(e);
   switch(t) {
   case SLIDER_VERT:
     s->y = VERTICAL_SLIDERS_HEIGHT;

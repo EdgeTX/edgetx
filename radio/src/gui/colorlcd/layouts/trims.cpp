@@ -32,7 +32,7 @@ enum trim_type {
 static void trim_self_size(lv_event_t* e)
 {
   lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
-  trim_type t = (trim_type)(long)lv_event_get_user_data(e);
+  trim_type t = (trim_type)(intptr_t)lv_event_get_user_data(e);
   switch(t) {
   case TRIM_VERT:
     s->y = VERTICAL_SLIDERS_HEIGHT;
