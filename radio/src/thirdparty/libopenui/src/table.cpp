@@ -65,17 +65,21 @@ void TableField::clicked(lv_event_t *e)
   TableField* tf = (TableField*)lv_obj_get_user_data(target);
   if (!tf) return;
 
+  uint16_t row;
+  uint16_t col;
+  lv_table_get_selected_cell(target, &row, &col);
+  if (row == LV_TABLE_CELL_NONE || col == LV_TABLE_CELL_NONE)
+    return;
+
   lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
   if(indev_type == LV_INDEV_TYPE_ENCODER) {
     // Encoder send VALUE_CHANGED when selection changes
     tf->adjustScroll();
+    tf->onSelected(row, col);
   } else {
     // Otherwise it's a click
     if (lv_group_get_editing((lv_group_t*)lv_obj_get_group(target))
         || indev_type == LV_INDEV_TYPE_POINTER) {
-      uint16_t row;
-      uint16_t col;
-      lv_table_get_selected_cell(target, &row, &col);
     
       tf->onPress(row, col);
     } else {
@@ -261,15 +265,6 @@ void TableField::onEvent(event_t event)
     onKeyPress();
     selectNext(-1);
   }
-  // else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-  //   onKeyPress();
-
-  //   uint16_t row;
-  //   uint16_t col;
-  //   lv_table_get_selected_cell(lvobj, &row, &col);
-    
-  //   onPress(row, col);
-  // }
   else {
     Window::onEvent(event);
   }  
