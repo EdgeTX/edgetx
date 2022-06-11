@@ -48,6 +48,7 @@ class TableField : public Window
   void selectNext(int16_t dir);
   void onEvent(event_t event) override;
 
+  virtual void onSelected(uint16_t row, uint16_t col) {}
   virtual void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
   virtual void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
 
