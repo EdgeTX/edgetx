@@ -67,7 +67,10 @@ jobs:
                                 mingw-w64-x86_64-SDL \
                                 mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis
-          pip install Pillow clang lz4
+          python -m pip install -U pip
+          python -m pip install --upgrade Pillow --no-binary :all:
+          python -m pip install --upgrade lz4 --no-binary :all:
+          python -m pip install clang
 
       - name: Cache Qt
         id: cache-qt
