@@ -73,16 +73,29 @@ static unsigned char lookup_utf8_mapping(wchar_t w)
 
 unsigned char map_utf8_char(const char*& s, uint8_t& len)
 {
-  unsigned char c = *s;
-  if ((c & 0xC0) == 0xC0) {
-    wchar_t w = (c & 0x1F) << 6;
+  uint8_t c = *s;
+  if (((c & 0xE0) == 0xC0) || ((c & 0xF0) == 0xE0)) {
     if (!len) return 0;
-    len--; s++; c = *s;
-    w |= c & 0x3F;
+    wchar_t w = 0;
+    if((c & 0xE0) == 0xC0) // two byte sequence
+    {
+      w = (c & 0x1F) << 6;
+      len--; s++; c = *s;
+      w |= c & 0x3F;
+    } else if ((c & 0xF0) == 0xE0) { // three byte sequence
+      w = (c & 0x0F) << 12;
+      len--; s++; c = *s;
+      if (!len) return 0;
+      w |= (c & 0x3F) << 6;
+      len--; s++; c = *s;
+      w |= c & 0x3F;
+    }
     // TODO: use constants
     if (w >= 0x80 && w <= 0x94) { // extra chars
       return (unsigned char)w;
     }
+    if(w == L'≥')
+      return '}';
 #if !defined(NO_UTF8_LUT)
     return lookup_utf8_mapping(w);
 #else
