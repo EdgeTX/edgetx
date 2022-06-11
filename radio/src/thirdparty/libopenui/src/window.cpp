@@ -109,14 +109,13 @@ extern "C" void window_event_cb(lv_event_t * e)
   }
 #endif
   else if (code == LV_EVENT_SCROLL) {
-    lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
-    lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
 
     // exclude pointer based scrolling (only focus scrolling)
     if (!lv_obj_is_scrolling(target)) {
       lv_point_t* p = (lv_point_t*)lv_event_get_param(e);
       lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
       TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y,
              scroll_y, scroll_bottom);
 
