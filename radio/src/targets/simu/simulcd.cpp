@@ -124,7 +124,7 @@ static void _copy_area(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
   lv_coord_t x1 = copy_area.x;
   lv_coord_t y1 = copy_area.y;
 
-  auto dst = simuLcdBuf + y1 * LCD_W + x1;
+  auto offset = y1 * LCD_PHYS_W + x1;
   auto px_src = src;
   auto px_dst = dst + offset;
 
@@ -142,7 +142,7 @@ static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rec
 {
 #if !defined(LCD_VERTICAL_INVERT) // rename into "Use direct mode" ???
   // Direct mode: driver flush is called on final LVGL flush
-    dst += LCD_PHYS_W - copy_area.w;
+
   // simply set LVGL's buffer as our current frame buffer
   simuLcdBuf = buffer;
 
