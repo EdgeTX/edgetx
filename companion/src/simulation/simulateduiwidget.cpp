@@ -133,6 +133,8 @@ void SimulatedUIWidget::onLcdChange(bool backlightEnable)
     return;
 
   m_lcd->onLcdChanged(backlightEnable);
+  m_simulator->lcdFlushed();
+
   setLightOn(backlightEnable);
 }
 
