@@ -148,10 +148,7 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](int32_t value) {
-          char s[50];
-          BitmapBuffer::formatNumberAsString(s, 49, lswTimerValue(value), PREC1);
-          return std::string(s);
-          // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
+          return formatNumberAsString(lswTimerValue(value), PREC1);
         });
         grid.nextLine();
 
@@ -167,26 +164,28 @@ class LogicalSwitchEditPage: public Page
         new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
                          [=](int32_t newValue) {
                            cs->v1 = newValue;
-                           SET_DIRTY();
                            if (v2Edit != nullptr)
                            {
                              int16_t v2_min = 0, v2_max = 0;
                              getMixSrcRange(cs->v1, v2_min, v2_max);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
-                             v2Edit->invalidate();
+                             v2Edit->setValue(cs->v2);
                            }
+                           SET_DIRTY();
                          });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
-        v2Edit->setDisplayHandler(
-          [=](int value) {
-            // drawSourceCustomValue(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, cs->v1, (cs->v1 <= MIXSRC_LAST_CH ? calc100toRESX(value) : value), flags);
-            return "ddd";  // ToDo This is not good
+        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(),
+                                v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
+
+        v2Edit->setDisplayHandler([=](int value) -> std::string {
+          if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+          std::string txt = getSourceCustomValueString(cs->v1, value, 0);
+          return txt;
         });
         grid.nextLine();
       }
@@ -433,13 +432,6 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
         }
         txt->invalidate();
       });
-
-      // if (focusIndex == i) {
-      //   button->setFocus(SET_FOCUS_DEFAULT);
-      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      //   txt->invalidate();
-      // }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);

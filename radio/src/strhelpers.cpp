@@ -573,8 +573,9 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
-// this should be declared in header, but it used so much foreign symbols that we declare it in cpp-file and pre-instantiate it for the uses
-template<size_t L>
+// this should be declared in header, but it used so much foreign symbols that
+// we declare it in cpp-file and pre-instantiate it for the uses
+template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx)
 {
   size_t dest_len = L;
@@ -704,7 +705,152 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 
 // pre-instantiate for use from external
 // all other instantiations are done from this file
-template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx); 
+template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx);
+
+char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
+                       LcdFlags flags)
+{
+  if (unit == UNIT_CELLS) unit = UNIT_VOLTS;
+  if ((flags & NO_UNIT) || (unit == UNIT_RAW)) {
+    flags = flags & (~NO_UNIT);
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+  } else {
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags, 0, nullptr,
+                                       STR_VTELEMUNIT[unit]);
+  }
+
+  return dest;
+}
+
+template <size_t L>
+char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
+                                 LcdFlags flags)
+{
+  if (sensor >= MAX_TELEMETRY_SENSORS) { return dest; }
+
+  // TelemetryItem & telemetryItem = telemetryItems[sensor];
+  TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensor];
+
+  size_t len = L - 1;
+  if (telemetrySensor.unit == UNIT_DATETIME ||
+      telemetrySensor.unit == UNIT_GPS || telemetrySensor.unit == UNIT_TEXT) {
+    strAppend(dest, "N/A", len);
+    return dest;
+  }
+
+  if (telemetrySensor.unit == UNIT_BITFIELD) {
+    if (IS_FRSKY_SPORT_PROTOCOL()) {
+      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID &&
+          telemetrySensor.id <= RBOX_STATE_LAST_ID) {
+        if (telemetrySensor.subId == 0) {
+          if (val == 0) {
+            strAppend(dest, "OK", len);
+            return dest;
+          }
+          for (uint8_t i = 0; i < 16; i++) {
+            if (val & (1 << i)) {
+              if (len < 8) return dest;
+              auto pos = strAppend(dest, "CH", len);
+              len -= 2;
+              pos = strAppendUnsigned(pos, i + 1, 2);
+              len -= 2;
+              strAppend(pos, " KO", len);
+              return dest;
+            }
+          }
+        } else {
+          if (val == 0) {
+            strAppend(dest, "Rx OK", len);
+            return dest;
+          }
+          
+          static const char *const RXS_STATUS[] = {
+            "Rx1 Ovl", "Rx2 Ovl",  "SBUS Ovl", "Rx1 FS", "Rx1 LF", "Rx2 FS",
+            "Rx2 LF",  "Rx1 Lost", "Rx2 Lost", "Rx1 NS", "Rx2 NS",
+          };
+          for (uint8_t i = 0; i < DIM(RXS_STATUS); i++) {
+            if (val & (1 << i)) {
+              strAppend(dest, RXS_STATUS[i], len);
+              return dest;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    if (telemetrySensor.prec > 0) {
+      flags |= (telemetrySensor.prec == 1 ? PREC1 : PREC2);
+    }
+    getValueWithUnit(dest, len, val, telemetrySensor.unit, flags);
+  }
+
+  return dest;
+}
+
+template <size_t L>
+char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+                                 LcdFlags flags)
+{
+  size_t len = L - 1;
+  if (source >= MIXSRC_FIRST_TELEM) {
+    source = (source - MIXSRC_FIRST_TELEM) / 3;
+    return getSensorCustomValueString(dest, source, val, flags);
+  }
+  else if (source >= MIXSRC_FIRST_TIMER || source == MIXSRC_TX_TIME) {
+    if (L < LEN_TIMER_STRING) return dest;
+    if (source == MIXSRC_TX_TIME) flags |= TIMEHOUR;
+
+    TimerOptions timerOptions;
+    timerOptions.options = SHOW_TIMER;
+    if ((flags & TIMEHOUR) != 0) timerOptions.options = SHOW_TIME;
+
+    return getTimerString(dest, val, timerOptions);
+  }
+  else if (source == MIXSRC_TX_VOLTAGE) {
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags | PREC1);
+    return dest;
+  }
+#if defined(INTERNAL_GPS)
+  else if (source == MIXSRC_TX_GPS) {
+    strAppend(dest, "N/A", len);
+    return dest;
+  }
+#endif
+#if defined(GVARS)
+  else if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) {
+    uint8_t gvar_idx = source - MIXSRC_FIRST_GVAR;
+    auto gvar = &g_model.gvars[gvar_idx];
+    uint8_t prec = gvar->prec;
+    if (prec > 0) {
+      flags |= (prec == 1 ? PREC1 : PREC2);
+    }
+    uint8_t unit = gvar->unit ? UNIT_PERCENT : UNIT_RAW;
+    getValueWithUnit(dest, len, val, unit, flags);
+  }
+#endif
+#if defined(LUA_INPUTS)
+  else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+  }
+#endif
+  else if (source < MIXSRC_FIRST_CH) {
+    val = calcRESXto100(val);
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+  }
+  else if (source <= MIXSRC_LAST_CH) {
+    val = calcRESXto100(val);
+#if defined(PPM_UNIT_PERCENT_PREC1)
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags | PREC1);
+#else
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+#endif
+  }
+  else {
+    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+  }
+
+  return dest;
+}
 
 #endif
 
@@ -777,8 +923,8 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
 std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
                                  const char *prefix, const char *suffix)
 {
-  char s[100];
-  BitmapBuffer::formatNumberAsString(s, 99, val, flags, len, prefix, suffix);
+  char s[49];
+  BitmapBuffer::formatNumberAsString(s, 49, val, flags, len, prefix, suffix);
   return std::string(s);
 }
 #endif
@@ -830,14 +976,14 @@ char *strAppendDate(char *str, bool time)
 #if !defined(BOOT)
 static char tmpHelpersString[32];
 
-// char * getSwitchWarningString(swsrc_t idx)
-// {
-//   return getSwitchWarningString(tmpHelpersString, idx);
-// }
-
 char *getSourceString(mixsrc_t idx)
 {
   return getSourceString(tmpHelpersString, idx);
+}
+
+char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags)
+{
+  return getSourceCustomValueString(tmpHelpersString, source, val, flags);
 }
 
 char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
