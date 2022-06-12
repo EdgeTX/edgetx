@@ -43,14 +43,13 @@ class MainViewHorizontalTrim : public MainViewTrim
 {
   public:
     using MainViewTrim::MainViewTrim;
-
+    MainViewHorizontalTrim(Window* parent, uint8_t idx);
     void paint(BitmapBuffer * dc) override;
 };
 
 class MainViewVerticalTrim : public MainViewTrim
 {
   public:
-    using MainViewTrim::MainViewTrim;
-
+    MainViewVerticalTrim(Window* parent, uint8_t idx);
     void paint(BitmapBuffer * dc) override;
 };

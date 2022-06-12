@@ -21,7 +21,11 @@
 
 #include "opentx.h"
 
-#define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
+#if defined(COLORLCD)
+  #define CENTER
+#endif
+
+#define ISTR(x) const char* STR_##x[] = { TR_##x }
 
 #if defined(COLORLCD)
 ISTR(FONT_SIZES);
@@ -51,7 +55,6 @@ ISTR(VSWITCHES);
 ISTR(VSRCRAW);
 ISTR(VTMRMODES);
 ISTR(VPERSISTENT);
-ISTR(VLCD);
 ISTR(VUNITSSYSTEM);
 ISTR(VBEEPCOUNTDOWN);
 ISTR(COUNTDOWNVALUES);
@@ -970,7 +973,7 @@ const char STR_PROTOCOL[] = TR_PROTOCOL;
 const char STR_RACING_MODE[] = TR_RACING_MODE;
 
 #if defined(PCBNV14)
-const char STR_RFPOWER_AFHDS2[] = TR_RFPOWER_AFHDS2;
+ISTR(RFPOWER_AFHDS2);
 #endif
 
 const char STR_USE_THEME_COLOR[] = TR_USE_THEME_COLOR;

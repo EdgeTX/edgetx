@@ -20,8 +20,22 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include <memory.h>
+
+#include "lcd.h"
+#include "thirdparty/libopenui/src/bitfield.h"
 #include "gui/common/stdlcd/fonts.h"
+#include "gui/common/stdlcd/utf8.h"
+
+#if !defined(SIMU)
+  #define assert(x)
+#else
+  #include <assert.h>
+#endif
+
+#if !defined(BOOT)
+  #include "opentx.h"
+#endif
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
 
@@ -335,6 +349,10 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
       break;
     }
     else if (c >= 0x20) {
+      // UTF8 detection
+      c = map_utf8_char(s, len);
+      if (!c) break;
+
       lcdDrawChar(x, y, c, flags);
       x = lcdNextPos;
     }
@@ -407,11 +425,9 @@ void lcdDrawTextAlignedLeft(coord_t y, const char * s)
 }
 
 #if !defined(BOOT)
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char * s,uint8_t idx, LcdFlags flags)
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s,uint8_t idx, LcdFlags flags)
 {
-  uint8_t length;
-  length = *(s++);
-  lcdDrawSizedText(x, y, s+length*idx, length, flags);
+  lcdDrawSizedText(x, y, s[idx], UINT8_MAX, flags);
 }
 
 void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)
@@ -1085,3 +1101,5 @@ void lcdDrawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlag
     p++;
   }
 }
+
+void lcdFlushed() {}

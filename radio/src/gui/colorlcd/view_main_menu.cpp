@@ -34,7 +34,7 @@
 #include "view_text.h"
 
 ViewMainMenu::ViewMainMenu(Window* parent) :
-    Window(parent->getFullScreenWindow(), {})
+    Window(parent->getFullScreenWindow(), rect_t{})
 {
   // Save focus
   Layer::push(this);
@@ -42,18 +42,8 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   // Take over the screen
   setWidth(parent->width());
   setHeight(parent->height());
-  setLeft(parent->getScrollPositionX());
 
   auto carousel = new SelectFabCarousel(this);
-  carousel->setMaxButtons(4);
-
-  // Disabled Title
-  //
-  // auto title = new StaticText(this,
-  //                {0, pos, width(), getFontHeight(FONT(XL))},
-  //                "Tasks", 0, COLOR_THEME_PRIMARY2 | FONT(XL) | CENTERED);
-  // pos += title->height() + PAGE_LINE_SPACING;
-
   carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_SELECT_MODEL, [=]() -> uint8_t {
     deleteLater();
     new ModelSelectMenu();
@@ -100,7 +90,6 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
     resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
     resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
-    resetMenu->setLeft(parent->getScrollPositionX());
     return 0;
   });
 
@@ -116,11 +105,17 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  carousel->setWindowCentered();
-  carouselRect = carousel->getRect();
+  auto carousel_obj = carousel->getLvObj();
+  lv_obj_center(carousel_obj);
 
-  carousel->setCloseHandler([=]() { deleteLater(); });
-  carousel->setFocus();
+  lv_obj_update_layout(carousel_obj);
+  carouselRect.x = lv_obj_get_x(carousel_obj);
+  carouselRect.y = lv_obj_get_y(carousel_obj);
+  carouselRect.w = lv_obj_get_width(carousel_obj);
+  carouselRect.h = lv_obj_get_height(carousel_obj);
+
+  // carousel->setCloseHandler([=]() { deleteLater(); });
+  // carousel->setFocus();
 }
 
 uint16_t* lcdGetBackupBuffer();
@@ -130,6 +125,7 @@ void ViewMainMenu::paint(BitmapBuffer* dc)
   rect_t zone = carouselRect;
   zone.x -= 8; zone.y -= 8;
   zone.w += 16; zone.h += 16;
+
   dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, BLACK, OPACITY(4));
 }
 
@@ -137,4 +133,9 @@ void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
   Window::deleteLater(detach, trash);
+}
+
+void ViewMainMenu::onCancel()
+{
+  deleteLater();
 }

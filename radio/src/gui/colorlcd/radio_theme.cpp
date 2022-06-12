@@ -121,13 +121,6 @@ class ThemeDetailsDialog: public Dialog
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
     }
 
-    void onEvent(event_t event) override
-    {
-      if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-        deleteLater();
-      }
-    }
-
   protected:
     ThemeFile theme;
     std::function<void(ThemeFile theme)> saveHandler = nullptr;
@@ -162,8 +155,9 @@ class ColorSquare : public FormField
 void setHexStr(StaticText* hexBox, uint32_t rgb)
 {
   auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
-  char hexstr[80];
-  sprintf(hexstr, "%02X%02X%02X\n", (uint16_t)r, (uint16_t)g, (uint16_t)b);
+  char hexstr[8];
+  snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
+           (uint16_t)r, (uint16_t)g, (uint16_t)b);
   hexBox->setText(hexstr);
 }
 
@@ -177,8 +171,8 @@ public:
     _indexOfColor(indexOfColor),
     _theme(theme)
   {
-    buildHead(&header);
     buildBody(&body); 
+    buildHead(&header);
   }
 
   void setActiveColorBar(int activeTab)
@@ -192,26 +186,6 @@ public:
     }
   }
 
-#if defined(HARDWARE_KEYS)
-  void onEvent(event_t event ) override
-  {
-    if (event == EVT_KEY_BREAK(KEY_TELEM)) {
-      _colorEditor->setNextFocusBar();
-    } else if (event == EVT_KEY_BREAK(KEY_PGUP) || event == EVT_KEY_BREAK(KEY_PGDN)) {
-      int direction = event == EVT_KEY_BREAK(KEY_PGUP) ? -1 : 1;
-      int newActiveTab = _activeTab + direction;
-      if (newActiveTab < 0) 
-        newActiveTab = 1;
-      if (newActiveTab >= (int) _tabs.size()) 
-        newActiveTab = 0;
-
-      setActiveColorBar(newActiveTab);
-    } else {
-      Page::onEvent(event);
-    }
-  }
-#endif
-
 protected:
   std::function<void (uint32_t rgb)> _setValue;
   LcdColorIndex _indexOfColor;
@@ -219,7 +193,7 @@ protected:
   TextButton *_cancelButton;
   ColorEditor *_colorEditor;
   PreviewWindow *_previewWindow;
-  std::vector<PageButton *> _tabs;
+  std::vector<Button *> _tabs;
   int _activeTab = 0;
   ColorSquare *_colorSquare;
   StaticText *_hexBox;
@@ -292,18 +266,20 @@ protected:
       ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2 | flags);
 
     // page tabs
-    rect_t r = { LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
+    rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
     _tabs.emplace_back(
-      new PageButton(window, r, "RGB", 
+      new TextButton(window, r, "RGB",
         [=] () {
           setActiveColorBar(0);
+          return 1;
         }, 
         0, COLOR_THEME_PRIMARY1));
-    r.x -= (BUTTON_WIDTH + 5);
+    r.x += (BUTTON_WIDTH + 5);
     _tabs.emplace_back(
-      new PageButton(window, r, "HSV", 
+      new TextButton(window, r, "HSV", 
         [=] () {
           setActiveColorBar(1);
+          return 1;
         },
         0, COLOR_THEME_PRIMARY1));
     _tabs[1]->check(true);
@@ -322,30 +298,6 @@ class ThemeEditPage : public Page
       buildBody(&body);
       buildHeader(&header);
     }
-
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      if (event == EVT_KEY_BREAK(KEY_PGUP)) {
-        onKeyPress();
-        FormField *focus = dynamic_cast<FormField *>(getFocus());
-        if (focus != nullptr && focus->getPreviousField()) {
-          focus->getPreviousField()->setFocus(SET_FOCUS_BACKWARD, focus);
-        }
-      } else if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-        onKeyPress();
-        FormField *focus = dynamic_cast<FormField *>(getFocus());
-        if (focus != nullptr && focus->getNextField()) {
-          focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
-        }
-      } else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
-        killEvents(event);
-        deleteLater();
-      } else {
-        Window::onEvent(event);
-      }
-    }
-#endif
 
     void deleteLater(bool detach = true, bool trash = true) override
     {
@@ -403,20 +355,14 @@ class ThemeEditPage : public Page
         });
         return 0;
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
-
-      // setup the prev next controls so save and details are in the mix
-      _cList->setNextField(_detailButton);
-      _cList->setPreviousField(_detailButton);
-      _detailButton->setNextField(_cList);
-      _detailButton->setPreviousField(_cList);
     }
 
     void buildBody(FormGroup *window)
     {
       rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
       _cList = new ColorList(window, r, _theme.getColorList());
-      _cList->setLongPressHandler([=] (event_t event) { editColorPage(); });
-      _cList->setPressHandler([=] (event_t event) { editColorPage(); });
+      _cList->setLongPressHandler([=] () { editColorPage(); });
+      _cList->setPressHandler([=] () { editColorPage(); });
 
       if (LCD_W > LCD_H) {
         r = { 
@@ -466,7 +412,7 @@ bool isTopWindow(Window *window)
   Window *parent = window->getParent();
   if (parent != nullptr) {
     parent = parent->getParent();
-    return parent == Layer::stack.back().main;
+    return parent == Layer::back();
   }
   return false;
 }
@@ -485,55 +431,43 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   // you cant activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
-      tp->applyTheme(listBox->getSelected());
-      tp->setDefaultTheme(listBox->getSelected());
+      auto idx = listBox->getSelected();
+      tp->applyTheme(idx);
+      tp->setDefaultTheme(idx);
       nameText->setTextFlags(COLOR_THEME_PRIMARY1);
       authorText->setTextFlags(COLOR_THEME_PRIMARY1);
-      listBox->setActiveIndex(tp->getThemeIndex());
+      listBox->setActiveItem(idx);
     });
   }
 
   // you cant edit the default theme
   if (listBox->getSelected() != 0) {
-    menu->addLine(STR_EDIT,
-      [=] () {
-        auto theme = tp->getThemeByIndex(currentTheme);
-        if (theme == nullptr) return;
+    menu->addLine(STR_EDIT, [=]() {
+      auto themeIdx = listBox->getSelected();
+      if (themeIdx < 0) return;
+
+      auto theme = tp->getThemeByIndex(themeIdx);
+      if (theme == nullptr) return;
+
+      new ThemeEditPage(*theme, [=](ThemeFile &theme) {
+        theme.serialize();
         
-        new ThemeEditPage(*theme, 
-          [=](ThemeFile &theme) {
-            auto curTheme = tp->getThemeByIndex(currentTheme);
-            if (curTheme != nullptr) {
-              curTheme->setName(theme.getName());
-              curTheme->setAuthor(theme.getAuthor());
-              curTheme->setInfo(theme.getInfo());
+        // if the theme info currently displayed
+        // were changed, update the UI
+        if (themeIdx == currentTheme) {
+          setAuthor(&theme);
+          nameText->setText(theme.getName());
+          listBox->setName(currentTheme, theme.getName());
+        }
 
-              // update the colors that were edited
-              int n = 0;
-              for (auto color : theme.getColorList()) {
-                curTheme->setColorByIndex(n, color.colorValue);
-                n++;
-              }
+        // if the active theme changed, re-apply it
+        if (themeIdx == tp->getThemeIndex()) theme.applyTheme();
 
-              themeColorPreview->setColorList(theme.getColorList());
-
-              // save it to disk so it will come back the next time.
-              curTheme->serialize();
-
-              // if the active theme was edited then activate and update
-              // the UI
-              if (listBox->getSelected() == tp->getThemeIndex()) {
-                tp->applyTheme(listBox->getSelected());
-                setAuthor(&theme);
-                nameText->setText(theme.getName());
-                nameText->setTextFlags(COLOR_THEME_PRIMARY1);
-                authorText->setTextFlags(COLOR_THEME_PRIMARY1);
-              }
-
-              // the list of theme names might have changed
-              listBox->setNames(tp->getNames());
-            }
-          });
+        // update cached theme data
+        auto tp_theme = tp->getThemeByIndex(themeIdx);
+        if (!tp_theme) return;
+        *tp_theme = theme;
+      });
     });
   }
 
@@ -564,7 +498,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
         tp->deleteThemeByIndex(listBox->getSelected());
         listBox->setNames(tp->getNames());
-        listBox->setSelected(min<int>(currentTheme, tp->getNames().size() - 1));
+        currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
+        listBox->setSelected(currentTheme);
       }
     });
   }
@@ -572,28 +507,23 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
 void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp)
 {
-  listBox = new ListBox(
-    window, r, tp->getNames(),
-      [=]() { 
-        return currentTheme;
-      },
-      [=](uint8_t value) {
-        if (themeColorPreview && authorText && nameText && fileCarosell != nullptr) {
-          ThemeFile *theme = tp->getThemeByIndex(value);
-          themeColorPreview->setColorList(theme->getColorList());
-          setAuthor(theme);
-          nameText->setText(theme->getName());
-          fileCarosell->setFileNames(theme->getThemeImageFileNames());
-        }
-        currentTheme = value;
-      });
-  listBox->setActiveIndex(tp->getThemeIndex());
-  listBox->setTitle(STR_THEME + std::string("s"));
-  listBox->setLongPressHandler([=] (event_t event) { displayThemeMenu(window, tp); });
-  listBox->setPressHandler([=] (event_t event) { 
-    if (event != 0)
-      displayThemeMenu(window, tp); 
-  });
+  listBox = new ListBox(window, r, tp->getNames());
+  listBox->setAutoEdit(true);
+  listBox->setSelected(currentTheme);
+  listBox->setActiveItem(tp->getThemeIndex());
+  listBox->setTitle(STR_THEME + std::string("s")); // TODO: fix this!
+  listBox->setLongPressHandler([=] () { displayThemeMenu(window, tp); });
+  listBox->setPressHandler([=] () {
+      auto value = listBox->getSelected();
+      if (themeColorPreview && authorText && nameText && fileCarosell) {
+        ThemeFile *theme = tp->getThemeByIndex(value);
+        themeColorPreview->setColorList(theme->getColorList());
+        setAuthor(theme);
+        nameText->setText(theme->getName());
+        fileCarosell->setFileNames(theme->getThemeImageFileNames());
+      }
+      currentTheme = value;
+    });
 }
 
 void ThemeSetupPage::build(FormWindow *window)
@@ -640,7 +570,7 @@ void ThemeSetupPage::build(FormWindow *window)
     r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
   }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
-  fileCarosell = new FileCarosell(window, r, fileNames, listBox);
+  fileCarosell = new FileCarosell(window, r, fileNames);
 
   // author and name of theme on right side of screen
   r.x += 7;

@@ -151,7 +151,7 @@ void writeHeader()
         if (unit == UNIT_CELLS ) unit = UNIT_VOLTS;
         if (UNIT_RAW < unit && unit < UNIT_FIRST_VIRTUAL) {
           strcat(label, "(");
-          strncat(label, STR_VTELEMUNIT+1+3*unit, 3);
+          strncat(label, STR_VTELEMUNIT[unit], 3);
           strcat(label, ")");
         }
         strcat(label, ",");
@@ -162,8 +162,9 @@ void writeHeader()
 
 #if defined(PCBFRSKY) || defined(PCBNV14)
   for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW + i * STR_VSRCRAW[0] + 2;
-    for (uint8_t j=0; j<STR_VSRCRAW[0]-1; ++j) {
+    const char * p = STR_VSRCRAW[i] + 1;
+    size_t len = strlen(p);
+    for (uint8_t j=0; j<len; ++j) {
       if (!*p) break;
       f_putc(*p, &g_oLogFile);
       ++p;

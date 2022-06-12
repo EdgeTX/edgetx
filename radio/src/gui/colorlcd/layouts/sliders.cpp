@@ -22,6 +22,44 @@
 #include "sliders.h"
 #include "opentx.h"
 
+enum slider_type {
+  SLIDER_VERT,
+  SLIDER_HORIZ,
+  SLIDER_6POS,
+};
+
+static void slider_self_size(lv_event_t* e)
+{
+  lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
+  slider_type t = (slider_type)(intptr_t)lv_event_get_user_data(e);
+  switch(t) {
+  case SLIDER_VERT:
+    s->y = VERTICAL_SLIDERS_HEIGHT;
+    s->x = TRIM_SQUARE_SIZE;
+    break;
+  case SLIDER_HORIZ:
+    s->x = HORIZONTAL_SLIDERS_WIDTH;
+    s->y = TRIM_SQUARE_SIZE;
+    break;
+  case SLIDER_6POS:
+    s->x = MULTIPOS_W;
+    s->y = MULTIPOS_H;
+    break;
+  }
+}
+
+MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
+                                                   uint8_t idx) :
+    MainViewSlider(parent, rect_t{}, idx)
+{
+  void* user_data = (void*)SLIDER_HORIZ;
+  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
+                      user_data);
+
+  setWidth(HORIZONTAL_SLIDERS_WIDTH);
+  setHeight(TRIM_SQUARE_SIZE);
+}
+
 void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
 {
   // The ticks
@@ -40,6 +78,17 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
 }
 
+MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
+    MainViewSlider(parent, rect_t{}, idx)
+{
+  void* user_data = (void*)SLIDER_6POS;
+  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
+                      user_data);
+
+  setWidth(MULTIPOS_W);
+  setHeight(MULTIPOS_H);
+}
+
 void MainView6POS::paint(BitmapBuffer * dc)
 {
 #if NUM_XPOTS > 0 // prevent compiler warning
@@ -55,8 +104,19 @@ void MainView6POS::paint(BitmapBuffer * dc)
   auto value = 1 + (potsPos[idx] & 0x0f);
   x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
-  dc->drawNumber(x + 1, 0, value, COLOR_THEME_PRIMARY2);
+  dc->drawNumber(x + 1, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
 #endif
+}
+
+MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :
+    MainViewSlider(parent, rect_t{}, idx)
+{
+  void* user_data = (void*)SLIDER_VERT;
+  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
+                      user_data);
+
+  setHeight(VERTICAL_SLIDERS_HEIGHT);
+  setWidth(TRIM_SQUARE_SIZE);
 }
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)

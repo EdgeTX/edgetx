@@ -24,6 +24,7 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
+  #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
 #if defined(CLI)
@@ -157,7 +158,6 @@ void handleUsbConnection()
 
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
         opentxClose(false);
-        usbPluggedIn();
       }
 #if defined(USB_SERIAL)
       else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
@@ -364,16 +364,7 @@ void guiMain(event_t evt)
   }
 
   DEBUG_TIMER_START(debugTimerLua);
-
-  // Run Lua scripts first that don't use LCD
-  luaTask(  0, false);
-
-  // This is run from StandaloneLuaWindow::checkEvents()
-  // luaTask(evt, RUN_STNDAL_SCRIPT, true);
-
-  // TODO: Telemetry scripts are run from Window::checkEvents()
-  // luaTask(  0, RUN_TELEM_BG_SCRIPT, false/* NO LCD */);
-  // luaTask(evt, RUN_TELEM_FG_SCRIPT, true/* LCD YES */);
+  luaTask(0, false);
   DEBUG_TIMER_STOP(debugTimerLua);
 
   t0 = get_tmr10ms() - t0;
@@ -381,10 +372,14 @@ void guiMain(event_t evt)
     maxLuaDuration = t0;
   }
 #endif
-#if defined(HARDWARE_TOUCH)
-  MainWindow* mainWin = MainWindow::instance();
-  mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) && isBacklightEnabled());
-#endif
+
+  // TODO: use lv_indev_enable(touchDriver, true / false) instead
+  // #if defined(HARDWARE_TOUCH)
+  //   MainWindow* mainWin = MainWindow::instance();
+  //   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) &&
+  //   isBacklightEnabled());
+  // #endif
+  LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
@@ -487,7 +482,7 @@ void guiMain(event_t evt)
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
-
+  static bool fatalError = false;
 
   checkSpeakerVolume();
 
@@ -520,6 +515,7 @@ void perMain()
 
 #if defined(RTC_BACKUP_RAM)
   if (globalData.unexpectedShutdown) {
+    fatalError = true;
     drawFatalErrorScreen(STR_EMERGENCY_MODE);
     return;
   }
@@ -537,9 +533,19 @@ void perMain()
 
     // TODO: implement for b/w
 #if defined(COLORLCD)
+    fatalError = true;
     drawFatalErrorScreen(STR_NO_SDCARD);
     return;
 #endif
+  }
+#endif
+
+
+#if defined(LIBOPENUI)
+  if(fatalError)
+  {
+    clearFatalErrorScreen();
+    fatalError = false;
   }
 #endif
 

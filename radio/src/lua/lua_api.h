@@ -61,9 +61,6 @@ extern lua_State * lsScripts;
 
 extern bool luaLcdAllowed;
 
-#define EVENT_BUFFER_SIZE 4
-extern event_t events[EVENT_BUFFER_SIZE];
-
 #if defined(COLORLCD)
 extern lua_State * lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
@@ -251,19 +248,19 @@ inline bool isLuaStandaloneRunning() {
   return scriptInternalData[0].reference == SCRIPT_STANDALONE;
 }
 
-#if defined(HARDWARE_TOUCH)
-struct LuaTouchData {
-  coord_t touchX;
-  coord_t touchY;
-  coord_t startX;
-  coord_t startY;
-  coord_t slideX;
-  coord_t slideY;
-  short tapCount;
-};
+// #if defined(HARDWARE_TOUCH)
+// struct LuaTouchData {
+//   coord_t touchX;
+//   coord_t touchY;
+//   coord_t startX;
+//   coord_t startY;
+//   coord_t slideX;
+//   coord_t slideY;
+//   short tapCount;
+// };
 
-extern LuaTouchData touches[EVENT_BUFFER_SIZE];
-#endif
+// extern LuaTouchData touches[EVENT_BUFFER_SIZE];
+// #endif
 
 #else  // defined(LUA)
 

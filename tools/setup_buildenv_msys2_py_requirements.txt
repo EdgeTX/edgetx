@@ -1,5 +1,0 @@
-pillow==7.2.0
-clang==6.0.0
-py7zr==0.16.1
-pyppmd==0.16.1
-aqtinstall==1.2.5

@@ -19,7 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "libopenui_config.h"
+#include "lcd.h"
+#include <lvgl/lvgl.h>
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -41,20 +44,134 @@
   #define VFP  2
 #endif
 
-#define LCD_FIRST_LAYER                0
-#define LCD_SECOND_LAYER               1
+#if defined(LCD_VERTICAL_INVERT)
+static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
+static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
-uint8_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_BACKUP_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t LCD_SCRATCH_FRAME_BUFFER[DISPLAY_BUFFER_SIZE * sizeof(pixel_t)] __SDRAM;
-uint8_t currentLayer = LCD_FIRST_LAYER;
+static pixel_t _line_buffer[LCD_W];
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+static uint16_t* _front_buffer = _LCD_BUF_1;
+static uint16_t* _back_buffer = _LCD_BUF_2;
 
-BitmapBuffer * lcdFront = &lcdBuffer1;
-BitmapBuffer * lcd = &lcdBuffer2;
+// Copy 2 pixels at once to speed up a little
+static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
+{
+  coord_t x1 = LCD_W - copy_area.w - copy_area.x;
+  coord_t y1 = LCD_H - copy_area.h - copy_area.y;
+
+  auto total = copy_area.w * copy_area.h;
+  uint16_t* px_src = src + total - 2;
+
+  dst += y1 * LCD_W + x1;
+  
+  for (auto line = 0; line < copy_area.h; line++) {
+
+    // invert line into _line_buffer first (SRAM)
+    auto px_dst = _line_buffer;
+
+    auto line_end = px_dst + (copy_area.w & ~1);
+    while (px_dst != line_end) {
+      uint32_t* px2_src = (uint32_t*)px_src;
+      uint32_t* px2_dst = (uint32_t*)px_dst;
+
+      uint32_t px = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
+      *px2_dst = px;
+
+      px_src -= 2;
+      px_dst += 2;
+    }
+
+    if (copy_area.w & 1) {
+      *px_dst = *(px_src+1);
+      px_src--;
+    }
+
+    // ... and DMA back into SDRAM
+    DMACopyBitmap(dst, copy_area.w, 1, 0, 0,
+                  _line_buffer, copy_area.w, 1, 0, 0,
+                  copy_area.w, 1);
+    
+    dst += LCD_W;
+  }
+}
+
+static void _rotate_area_180(lv_area_t& area)
+{
+  lv_coord_t tmp_coord;
+  tmp_coord = area.y2;
+  area.y2 = LCD_H - area.y1 - 1;
+  area.y1 = LCD_H - tmp_coord - 1;
+  tmp_coord = area.x2;
+  area.x2 = LCD_W - area.x1 - 1;
+  area.x1 = LCD_W - tmp_coord - 1;
+}
+#endif
+
+static volatile uint8_t _frame_addr_reloaded = 0;
+
+static void _update_frame_buffer_addr(uint16_t* addr)
+{
+  LTDC_Layer1->CFBAR = (uint32_t)addr;
+
+  // reload shadow registers on vertical blank
+  _frame_addr_reloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while(_frame_addr_reloaded == 0);
+}
+
+static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
+                            const rect_t &copy_area)
+{
+#if defined(LCD_VERTICAL_INVERT)
+  _copy_rotate_180(_back_buffer, buffer, copy_area);
+
+  if (lv_disp_flush_is_last(disp_drv)) {
+
+    // swap back/front
+    if (_front_buffer == _LCD_BUF_1) {
+      _front_buffer = _LCD_BUF_2;
+      _back_buffer = _LCD_BUF_1;
+    } else {
+      _front_buffer = _LCD_BUF_1;
+      _back_buffer = _LCD_BUF_2;
+    }
+
+    // Trigger async refresh
+    _update_frame_buffer_addr(_front_buffer);
+
+    // Copy refreshed & rotated areas into new back buffer
+    uint16_t* src = _front_buffer;
+    uint16_t* dst = _back_buffer;
+
+    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
+    for(int i = 0; i < disp->inv_p; i++) {
+      if(disp->inv_area_joined[i]) continue;
+
+      lv_area_t refr_area;
+      lv_area_copy(&refr_area, &disp->inv_areas[i]);
+
+      TRACE("{%d,%d,%d,%d}", refr_area.x1,
+            refr_area.y1, refr_area.x2, refr_area.y2);
+
+      _rotate_area_180(refr_area);
+
+      auto area_w = refr_area.x2 - refr_area.x1 + 1;
+      auto area_h = refr_area.y2 - refr_area.y1 + 1;
+      
+      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
+                    area_w, area_h);
+    }
+  }
+  lv_disp_flush_ready(disp_drv);
+#else
+  // Direct mode
+  _update_frame_buffer_addr(buffer);
+#endif
+}
 
 inline void LCD_NRST_LOW()
 {
@@ -212,24 +329,27 @@ void LCD_Init_LTDC()
   /* Configure accumulated vertical back porch */
   LTDC_InitStruct.LTDC_AccumulatedVBP = VBP;
   /* Configure accumulated active width */
-  LTDC_InitStruct.LTDC_AccumulatedActiveW = LCD_W + HBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveW = LCD_PHYS_W + HBP;
   /* Configure accumulated active height */
-  LTDC_InitStruct.LTDC_AccumulatedActiveH = LCD_H + VBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveH = LCD_PHYS_H + VBP;
   /* Configure total width */
-  LTDC_InitStruct.LTDC_TotalWidth = LCD_W + HBP + HFP;
+  LTDC_InitStruct.LTDC_TotalWidth = LCD_PHYS_W + HBP + HFP;
   /* Configure total height */
-  LTDC_InitStruct.LTDC_TotalHeigh = LCD_H + VBP + VFP;
+  LTDC_InitStruct.LTDC_TotalHeigh = LCD_PHYS_H + VBP + VFP;
 
-  // init ltdc
   LTDC_Init(&LTDC_InitStruct);
 
-  LTDC_ITConfig(LTDC_IER_RRIE, ENABLE);
+  // Configure IRQ (line)
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = LTDC_IRQ_PRIO;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init( &NVIC_InitStructure );
+
+  // Trigger on last line
+  LTDC_LIPConfig(LCD_PHYS_H);
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 
 #if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
@@ -254,9 +374,9 @@ void LCD_LayerInit()
   Vertical start   = vertical synchronization + vertical back porch     = 4
   Vertical stop   = Vertical start + window height -1  = 4 + 320 -1      */
   LTDC_Layer_InitStruct.LTDC_HorizontalStart = HBP + 1;
-  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (LCD_W + HBP);
+  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (LCD_PHYS_W + HBP);
   LTDC_Layer_InitStruct.LTDC_VerticalStart = VBP + 1;;
-  LTDC_Layer_InitStruct.LTDC_VerticalStop = (LCD_H + VBP);
+  LTDC_Layer_InitStruct.LTDC_VerticalStop = (LCD_PHYS_H + VBP);
 
   /* Pixel Format configuration*/
   LTDC_Layer_InitStruct.LTDC_PixelFormat = LTDC_Pixelformat_RGB565;
@@ -279,17 +399,17 @@ void LCD_LayerInit()
   Active high width         = LCD_W
   number of bytes per pixel = 2    (pixel_format : RGB565)
   */
-  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_W * 2) + 3);
+  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_PHYS_W * 2) + 3);
   /* the pitch is the increment from the start of one line of pixels to the
   start of the next line in bytes, then :
   Pitch = Active high width x number of bytes per pixel */
-  LTDC_Layer_InitStruct.LTDC_CFBPitch = (LCD_W * 2);
+  LTDC_Layer_InitStruct.LTDC_CFBPitch = (LCD_PHYS_W * 2);
 
   /* Configure the number of lines */
-  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_H;
+  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)LCD_FIRST_FRAME_BUFFER;
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)lcdFront->getData();
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
@@ -318,24 +438,13 @@ void LCD_Init(void)
   LCD_Init_LTDC();
 }
 
-void LCD_SetLayer(uint32_t layer)
-{
-  if (layer == LCD_FIRST_LAYER) {
-    lcdFront = &lcdBuffer1;
-    lcd = &lcdBuffer2;
-  }
-  else {
-    lcdFront = &lcdBuffer2;
-    lcd = &lcdBuffer1;
-  }
-  currentLayer = layer;
-}
-
 void lcdInit()
 {
-  // Clear buffers first
-  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
-  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+#if defined(LCD_VERTICAL_INVERT)
+  // Clear buffer first
+  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
+  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
+#endif
 
   // Initialize the LCD
   LCD_Init();
@@ -343,50 +452,21 @@ void lcdInit()
 
   // Enable LCD display
   LTDC_Cmd(ENABLE);
+
+  lcdSetFlushCb(startLcdRefresh);
 }
 
-void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
+void DMAWait()
 {
-#if defined(LCD_VERTICAL_INVERT)
-  x = destw - (x + w);
-  y = desth - (y + h);
-#endif
-
-  DMA2D_DeInit();
-
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_R2M;
-  DMA2D_InitStruct.DMA2D_CMode = DMA2D_RGB565;
-  DMA2D_InitStruct.DMA2D_OutputGreen = (0x07E0 & color) >> 5;
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0x001F & color;
-  DMA2D_InitStruct.DMA2D_OutputRed = (0xF800 & color) >> 11;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0x0F;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest) + 2*(destw*y + x);
-  DMA2D_InitStruct.DMA2D_OutputOffset = (destw - w);
-  DMA2D_InitStruct.DMA2D_NumberOfLine = h;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = w;
-  DMA2D_Init(&DMA2D_InitStruct);
-
-  /* Start Transfer */
-  DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-  
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
+  while(DMA2D->CR & DMA2D_CR_START);
 }
 
-void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
+                   uint16_t y, const uint16_t *src, uint16_t srcw,
+                   uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                   uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -413,24 +493,14 @@ void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, 
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
-void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h)
+void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
+                        uint16_t x, uint16_t y, const uint16_t *src,
+                        uint16_t srcw, uint16_t srch, uint16_t srcx,
+                        uint16_t srcy, uint16_t w, uint16_t h)
 {
-#if defined(LCD_VERTICAL_INVERT)
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -466,25 +536,15 @@ void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
-void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color)
+void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
+                      uint16_t x, uint16_t y, const uint8_t *src, uint16_t srcw,
+                      uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
+                      uint16_t h, uint16_t bg_color)
 {
-#if defined(LCD_VERTICAL_INVERT)
-  x = destw - (x + w);
-  y = desth - (y + h);
-  srcx = srcw - (srcx + w);
-  srcy = srch - (srcy + h);
-#endif
-
+  DMAWait();
   DMA2D_DeInit();
 
   DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -524,13 +584,6 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
- 
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
 
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
@@ -561,103 +614,12 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 
   /* Start Transfer */
   DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
 }
-
-void lcdCopy(void * dest, void * src)
-{
-  DMA2D_DeInit();
-
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M;
-  DMA2D_InitStruct.DMA2D_CMode = DMA2D_RGB565;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest);
-  DMA2D_InitStruct.DMA2D_OutputGreen = 0;
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0;
-  DMA2D_InitStruct.DMA2D_OutputRed = 0;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0;
-  DMA2D_InitStruct.DMA2D_OutputOffset = 0;
-  DMA2D_InitStruct.DMA2D_NumberOfLine = LCD_H;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = LCD_W;
-  DMA2D_Init(&DMA2D_InitStruct);
-
-  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
-  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
-  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src);
-  DMA2D_FG_InitStruct.DMA2D_FGO = 0;
-  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_RGB565;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
-  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
-
-  /* Start Transfer */
-  DMA2D_StartTransfer();
-
-  /* Check configuration error */
-  if ((DMA2D_GetFlagStatus(DMA2D_FLAG_CE) == SET) || (DMA2D_GetFlagStatus(DMA2D_FLAG_TE) == SET))
-    return; // Exit if configuration or transfer error
-  
-  /* Wait for CTC Flag activation */
-  while (DMA2D_GetFlagStatus(DMA2D_FLAG_TC) == RESET);
-}
-
-void lcdStoreBackupBuffer()
-{
-  lcdCopy(LCD_BACKUP_FRAME_BUFFER, lcd->getData());
-}
-
-int lcdRestoreBackupBuffer()
-{
-  lcdCopy(lcd->getData(), LCD_BACKUP_FRAME_BUFFER);
-  return 1;
-}
-
-uint16_t* lcdGetBackupBuffer()
-{
-  return (uint16_t*)LCD_BACKUP_FRAME_BUFFER;
-}
-
-uint16_t* lcdGetScratchBuffer()
-{
-  return (uint16_t*)LCD_SCRATCH_FRAME_BUFFER;
-}
-
-static volatile uint8_t _frameBufferAddressReloaded = 0;
 
 extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
-  LTDC->ICR = LTDC_ICR_CRRIF;
-  _frameBufferAddressReloaded = 1;
+  LTDC->ICR = LTDC_ICR_CLIF;
+  _frame_addr_reloaded = 1;
 }
 
-static void lcdSwitchLayers()
-{
-  if (currentLayer == LCD_FIRST_LAYER) {
-    LTDC_Layer1->CFBAR = (uint32_t)LCD_SECOND_FRAME_BUFFER;
-    LCD_SetLayer(LCD_SECOND_LAYER);
-  }
-  else {
-    LTDC_Layer1->CFBAR = (uint32_t)LCD_FIRST_FRAME_BUFFER;
-    LCD_SetLayer(LCD_FIRST_LAYER);
-  }
-
-  // reload shadow registers on vertical blank
-  _frameBufferAddressReloaded = 0;
-  LTDC->SRCR = LTDC_SRCR_VBR;
-
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frameBufferAddressReloaded == 0);
-}
-
-void lcdRefresh()
-{
-  lcdSwitchLayers();
-}

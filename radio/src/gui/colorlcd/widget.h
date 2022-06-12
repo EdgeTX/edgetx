@@ -40,7 +40,7 @@ class Widget : public Button
 
     typedef WidgetPersistentData PersistentData;
 
-    Widget(const WidgetFactory *factory, FormGroup *parent, const rect_t &rect,
+    Widget(const WidgetFactory *factory, Window* parent, const rect_t &rect,
            WidgetPersistentData *persistentData);
 
     ~Widget() override = default;
@@ -83,20 +83,15 @@ class Widget : public Button
 #endif
 
     // Window interface
-    void checkEvents() override;
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override;
-#endif
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
 #endif
     void paint(BitmapBuffer * dc) override;
 
     // Widget interface
 
     // Set/unset fullscreen mode
-    void setFullscreen(bool fullscreen);
+    void setFullscreen(bool enable);
 
     // Called when the widget options have changed
     virtual void update();
@@ -112,6 +107,9 @@ class Widget : public Button
     PersistentData * persistentData;
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
+
+    void onLongPress() override;
+    virtual void onFullscreen(bool enable) {}
 };
 
 void registerWidget(const WidgetFactory * factory);
@@ -168,7 +166,7 @@ class WidgetFactory
       }
     }
 
-    virtual Widget * create(FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
+    virtual Widget * create(Window* parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
 
   protected:
     const char * name;
@@ -181,6 +179,6 @@ inline const ZoneOption * Widget::getOptions() const
   return getFactory()->getOptions();
 }
 
-Widget * loadWidget(const char * name, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData);
+Widget * loadWidget(const char * name, Window* parent, const rect_t & rect, Widget::PersistentData * persistentData);
 
 std::list<const WidgetFactory *> & getRegisteredWidgets();

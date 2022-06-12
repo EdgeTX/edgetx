@@ -25,10 +25,70 @@
 const char * const STR_MONTHS[] = TR_MONTHS;
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
+static const uint8_t _LBM_DOT[] = {
+#include "mask_dot.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_GPS[] = {
+#include "mask_topmenu_gps_18.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_USB[] = {
+#include "mask_topmenu_usb.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_0[] = {
+#include "mask_volume_0.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_1[] = {
+#include "mask_volume_1.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_2[] = {
+#include "mask_volume_2.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_3[] = {
+#include "mask_volume_3.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_4[] = {
+#include "mask_volume_4.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_VOLUME_SCALE[] = {
+#include "mask_volume_scale.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_TXBATT[] = {
+#include "mask_txbat.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_TXBATT_CHARGING[] = {
+#include "mask_txbat_charging.lbm"
+};
+
+static const uint8_t _LBM_TOPMENU_ANTENNA[] = {
+#include "mask_antenna.lbm"
+};
+
+STATIC_LZ4_BITMAP(LBM_DOT);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_GPS);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_USB);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_0);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_1);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_2);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_3);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_4);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_SCALE);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT_CHARGING);
+STATIC_LZ4_BITMAP(LBM_TOPMENU_ANTENNA);
+
 TopbarImpl::TopbarImpl(Window * parent) :
-  TopbarImplBase({0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
+  TopbarImplBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
-  attach(parent);
 }
 
 unsigned int TopbarImpl::getZonesCount() const
@@ -224,10 +284,3 @@ void TopbarImpl::checkEvents()
   }
 }
 
-#if defined(HARDWARE_TOUCH)
-bool TopbarImpl::onTouchEnd(coord_t x, coord_t y)
-{
-  // disable touch interaction with topbar widgets
-  return false;
-}
-#endif

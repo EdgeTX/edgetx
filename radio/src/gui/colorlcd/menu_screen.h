@@ -25,12 +25,9 @@
 #include "tabsgroup.h"
 
 class ScreenMenu: public TabsGroup {
-  friend class ScreenSetupPage;
 
   public:
     ScreenMenu();
-
-  protected:
     void updateTabs();
 };
 

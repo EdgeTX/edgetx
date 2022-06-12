@@ -41,7 +41,8 @@ class SpectrumFooterWindow: public FormGroup
 {
   public:
     SpectrumFooterWindow(FormGroup * parent, const rect_t & rect, int moduleIdx) :
-      FormGroup(parent, rect, FORM_FORWARD_FOCUS)
+      FormGroup(parent, rect// , FORM_FORWARD_FOCUS
+                )
     {
       FormGridLayout grid;
       grid.spacer(4);
@@ -54,7 +55,7 @@ class SpectrumFooterWindow: public FormGroup
                                     SET_VALUE(reusableBuffer.spectrumAnalyser.track, newValue * 1000000));
       tracker->setSuffix("MHz");
       tracker->setPrefix("T: ");
-      tracker->setFocus(SET_FOCUS_DEFAULT);
+      // tracker->setFocus(SET_FOCUS_DEFAULT);
 
       if (isModuleMultimodule(moduleIdx)) {
         char label[16];

@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include <climits>
+
 #include "opentx.h"
 
 // Minimum space after the last PPM pulse in us

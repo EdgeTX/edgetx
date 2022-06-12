@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "frsky_firmware_update.h"
 #include "debug.h"
+#include "timers_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

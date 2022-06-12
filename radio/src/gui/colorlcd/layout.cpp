@@ -51,11 +51,11 @@ const LayoutFactory * getLayoutFactory(const char * name)
 // Loads a layout, but does not attach it to any window
 //
 WidgetsContainer *
-loadLayout(const char * name, LayoutPersistentData * persistentData)
+loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentData)
 {
   const LayoutFactory * factory = getLayoutFactory(name);
   if (factory) {
-    return factory->load(persistentData);
+    return factory->load(parent, persistentData);
   }
   return nullptr;
 }
@@ -83,7 +83,9 @@ void loadDefaultLayout()
   if (screen == nullptr && defaultLayout != nullptr) {
 
     strcpy(screenData.LayoutId, defaultLayout->getId());
-    screen = defaultLayout->create(&screenData.layoutData);
+
+    auto viewMain = ViewMain::instance();
+    screen = defaultLayout->create(viewMain, &screenData.layoutData);
     //
     // TODO:
     // -> attach a few default widgets
@@ -91,9 +93,8 @@ void loadDefaultLayout()
     //    - Timer
     //    - ???
     //
-    if (screen) {
-      screen->attach(ViewMain::instance());
-    }
+    if (!screen) return;
+    viewMain->addMainView(screen, 0);
   }
 }
 
@@ -108,7 +109,7 @@ void loadCustomScreens()
   while (i < MAX_CUSTOM_SCREENS) {
 
     auto& screen = customScreens[i];
-    screen = loadLayout(g_model.screenData[i].LayoutId,
+    screen = loadLayout(viewMain, g_model.screenData[i].LayoutId,
                         &g_model.screenData[i].layoutData);
 
     if (!screen) {
@@ -117,9 +118,10 @@ void loadCustomScreens()
     }
 
     // layout is ok, let's add it
-    screen->attach(viewMain);
-    viewMain->setMainViewsCount(i + 1);
-    screen->setLeft(viewMain->getMainViewLeftPos(i));
+    viewMain->addMainView(screen, i);
+    // screen->attach(viewMain);
+    // viewMain->setMainViewsCount(i + 1);
+    // screen->setLeft(viewMain->getMainViewLeftPos(i));
     i++;
   }
 
@@ -128,7 +130,7 @@ void loadCustomScreens()
   
   viewMain->setCurrentMainView(0);
   viewMain->updateTopbarVisibility();
-  viewMain->setFocus();
+  // viewMain->setFocus();
 }
 
 //
@@ -148,7 +150,8 @@ createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
     delete customScreens[customScreenIndex];
   }
 
-  auto screen = factory->create(&g_model.screenData[customScreenIndex].layoutData);
+  auto screen = factory->create(
+      ViewMain::instance(), &g_model.screenData[customScreenIndex].layoutData);
   customScreens[customScreenIndex] = screen;
 
   if (screen) {

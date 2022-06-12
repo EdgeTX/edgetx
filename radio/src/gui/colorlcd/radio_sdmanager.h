@@ -23,17 +23,23 @@
 #include "tabsgroup.h"
 enum MultiModuleType : short;
 
+class FileBrowser;
+class FilePreview;
+
 class RadioSdManagerPage : public PageTab
 {
+  FileBrowser* browser = nullptr;
+  FilePreview* preview = nullptr;
+  
  public:
   RadioSdManagerPage();
-
   void build(FormWindow* window) override;
 
  protected:
-  void BootloaderUpdate(const std::string name);
-  void FrSkyFirmwareUpdate(const std::string name, ModuleIndex module);
-  void MultiFirmwareUpdate(const std::string name, ModuleIndex module,
+  void fileAction(const char* path, const char* name, const char* fullpath);
+  
+  void BootloaderUpdate(const char* fn);
+  void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
+  void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
                            MultiModuleType type);
-  void rebuild(FormWindow* window);
 };

@@ -36,7 +36,9 @@ class ColorList : public ListBase
 
   inline ColorEntry getSelectedColor()
   {
-    return _colorList[selected];
+    auto idx = getSelected();
+    if (idx < 0) return ColorEntry{};
+    return _colorList[idx];
   }
 
   std::vector<std::string> getColorListNames(std::vector<ColorEntry> colors);
@@ -48,10 +50,10 @@ class ColorList : public ListBase
     invalidate();
   }
 
-  void drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, LcdFlags lcdFlags) override;
-
  protected:
   std::vector<ColorEntry> _colorList;
   ThemePersistance *_tp;
+
+  void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc);
 };
 

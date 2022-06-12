@@ -44,7 +44,6 @@ class LcdWidget : public QWidget
 
   LcdWidget(QWidget *parent = 0) :
       QWidget(parent),
-      lcdBuf(NULL),
       localBuf(NULL),
       lightEnable(false),
       bgDefaultColor(QColor(198, 208, 199))
@@ -58,13 +57,13 @@ class LcdWidget : public QWidget
     }
   }
 
-  void setData(unsigned char *buf, int width, int height, int depth = 1);
+  void setData(int width, int height, int depth = 1);
   void setBgDefaultColor(const QColor &color);
   void setBackgroundColor(const QColor &color);
 
   void makeScreenshot(const QString &fileName);
 
-  void onLcdChanged(bool light);
+  void onLcdChanged(uint8_t* lcdBuf, bool light);
 
  signals:
   void touchEvent(int type, int x, int y);
@@ -75,7 +74,6 @@ class LcdWidget : public QWidget
   int lcdDepth;
   int lcdSize;
 
-  unsigned char *lcdBuf;
   unsigned char *localBuf;
 
   bool lightEnable;

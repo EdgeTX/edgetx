@@ -20,248 +20,162 @@
  */
 #include "listbox.h"
 
-constexpr int LONG_PRESS_10MS = 40;
-constexpr int ACTIVE_RADIUS = 5;
-
-extern inline tmr10ms_t getTicks()
+// TODO:
+// - split this into 2 handlers:
+//   - key_cb: PRESSED / LONG_PRESSED (always on)
+//   - focus_cb: for FOCUSED / DEFOCUSED (only w/ 'auto-edit' mode)
+// - add 'auto-edit' mode (add / remove 'focus_cb')
+//   - when turned on, ESC gets out of the edit-mode
+//     and ENTER gets into edit-mode
+//
+void ListBase::event_cb(lv_event_t* e)
 {
-  return g_tmr10ms;
+  static bool _nested = false;
+  if (_nested) return;
+  
+  lv_event_code_t code = lv_event_get_code(e);
+  lv_obj_t* obj = lv_event_get_target(e);
+  if (!obj) return;
+
+  ListBase* lb = (ListBase*)lv_event_get_user_data(e);
+  if (!lb) return;
+
+  if (code == LV_EVENT_FOCUSED && lb->getAutoEdit()) {
+    lv_group_set_editing((lv_group_t*)lv_obj_get_group(obj), true);
+  } else if (code == LV_EVENT_DEFOCUSED) {
+    // Hack to get rid of 'FOCUSED' event sent
+    // when calling 'lv_group_set_editing()'
+    _nested = true;
+    lv_group_set_editing((lv_group_t*)lv_obj_get_group(obj), false);
+    _nested = false;
+  }
+  else if (code == LV_EVENT_LONG_PRESSED) {
+    lb->onLongPressed();
+    lv_obj_clear_state(obj, LV_STATE_PRESSED);
+    lv_indev_wait_release(lv_indev_get_act());
+  }
 }
 
-ListBase::ListBase(Window *parent, const rect_t &rect, std::vector<std::string> names,
-          std::function<uint32_t()> getValue,
-          std::function<void(uint32_t)> setValue,
-          uint8_t lineHeight,
-          WindowFlags windowFlags, LcdFlags lcdFlags) :
-  FormField(parent, rect, windowFlags),
-  names(names),
-  _getValue(std::move(getValue)),
-  _setValue(std::move(setValue)),
-  lineHeight(lineHeight)
+ListBase::ListBase(Window* parent, const rect_t& rect,
+                   const std::vector<std::string>& names, uint8_t lineHeight,
+                   WindowFlags windowFlags) :
+    TableField(parent, rect, windowFlags)
 {
-#if defined(HARDWARE_TOUCH)
-  duration10ms = 0;
-#endif
-  setInnerHeight(names.size() * lineHeight);
-  if (_getValue != nullptr)
-    setSelected(_getValue());
-  else 
-    setSelected(0);
+  lv_obj_add_event_cb(lvobj, ListBase::event_cb, LV_EVENT_ALL, this);
+
+  setColumnCount(1);
+  setColumnWidth(0, rect.w);
+
+  setLineHeight(lineHeight);
+  setNames(names);
+}
+
+void ListBase::setAutoEdit(bool enable)
+{
+  if (autoEdit == enable) return;
+
+  autoEdit = enable;
+  if (autoEdit && hasFocus()) {
+    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
+    if (g) lv_group_set_editing(g, true);    
+  }
+}
+
+void ListBase::setName(uint16_t idx, const std::string& name)
+{
+  lv_table_set_cell_value(lvobj, idx, 0, name.c_str());  
+}
+
+void ListBase::setNames(const std::vector<std::string>& names)
+{
+  setRowCount(names.size());
+
+  uint16_t row = 0;
+  for (const auto& name: names) {
+    setName(row, name);
+    row++;
+  }  
+}
+
+void ListBase::setLineHeight(uint8_t height)
+{
+  lv_obj_set_style_max_height(lvobj, height, LV_PART_ITEMS);
 }
 
 void ListBase::setSelected(int selected)
 {
-  int count = (int)names.size();
-  if(selected < 0 || selected >= count)
-    return;
-
-  if(selectionType == LISTBOX_SINGLE_SELECT) {
-    if (selected != this->selected) {
-      this->selected = selected;
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
-      if (_setValue != nullptr) {
-        _setValue(this->selected);
-      }
-      invalidate();
-    }
-  } else if(selectionType == LISTBOX_MULTI_SELECT) {
-    this->selected = selected;
-    if(selectedIndexes.find(selected) != selectedIndexes.end()) {  // Already selected -> Deselect it
-      selectedIndexes.erase(selected);
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
-      if(_multiSelectHandler != nullptr)
-        _multiSelectHandler(selectedIndexes);
-      invalidate();
-    } else { // Not Selected -> Select it
-      selectedIndexes.insert(selected);
-      setScrollPositionY(lineHeight * this->selected - lineHeight);
-      if (_setValue != nullptr) {
-        _setValue(this->selected);
-      }
-      if(_multiSelectHandler != nullptr)
-        _multiSelectHandler(selectedIndexes);
-      invalidate();
-    }
-  }
+  select(selected, 0);
 }
 
-void ListBase::setFocusLine(int selected)
+int ListBase::getSelected() const
 {
-  if(selectionType == LISTBOX_MULTI_SELECT) {
-    int count = (int)names.size();
-    if(selected < 0 || selected >= count)
-      return;
+  uint16_t row, col;
+  lv_table_get_selected_cell(lvobj, &row, &col);
+  if (row != LV_TABLE_CELL_NONE) { return row; }
+  return -1;
+}
 
-    this->selected = selected;
+void ListBase::setActiveItem(int item)
+{
+  if (item != activeItem) {
+    activeItem = item;
     invalidate();
   }
 }
 
-void ListBase::drawLine(BitmapBuffer *dc, const rect_t &rect, uint32_t index, LcdFlags lcdFlags)
+int ListBase::getActiveItem() const
 {
-  std::string name = names[index];
-  int x = rect.x;
-
-  if ((uint32_t)activeIndex == index) {
-    LcdFlags circleColor = index == (uint32_t) selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1;
-    auto textWidth = getTextWidth(name.c_str(), name.length(), lcdFlags);
-    auto fontHeight = getFontHeight(FONT(STD));
-
-    dc->drawFilledCircle(rect.x + 4 + textWidth + ACTIVE_RADIUS, rect.y + fontHeight / 2, ACTIVE_RADIUS, circleColor);
-  }
-
-  dc->drawText(x, rect.y, name.c_str(), lcdFlags);
+  return activeItem;
 }
 
-void ListBase::paint(BitmapBuffer *dc)
+void ListBase::onPress(uint16_t row, uint16_t col)
 {
-  dc->clear(COLOR_THEME_SECONDARY3);
+  if (row == LV_TABLE_CELL_NONE) return;
 
-  int curY = 0;
-  for (int n = 0; n < (int)names.size(); n++) {
-    LcdFlags bgcolor = COLOR_THEME_PRIMARY2;
-    LcdFlags textColor = COLOR_THEME_SECONDARY1;
+  TRACE("SHORT_PRESS");
+  if (pressHandler) { pressHandler(); }
+}
 
-    // Color selected line(s)
-    if((selectionType == LISTBOX_SINGLE_SELECT && n == selected) ||
-       (selectionType == LISTBOX_MULTI_SELECT && (selectedIndexes.find(n) != selectedIndexes.end()))) {
-        bgcolor = COLOR_THEME_FOCUS;
-        textColor = COLOR_THEME_PRIMARY2;
-      }
+void ListBase::onLongPressed()
+{
+  TRACE("LONG_PRESS");
+  if (longPressHandler) { longPressHandler(); }
+}
 
-    dc->drawSolidFilledRect(1, curY, rect.w - 2, lineHeight, bgcolor);
-
-    // Draw a dotted line around the current item
-    if(n == selected && selectionType == LISTBOX_MULTI_SELECT &&
-      hasFocus()) {
-      dc->drawRect(2, curY,  rect.w - 4, lineHeight, 2, DOTTED);
-    }
-
-    auto fontHeight = getFontHeight(FONT(STD));
-    drawLine(dc, { 8, curY  + (lineHeight - fontHeight) / 2, rect.w, lineHeight}, n, textColor);
-
-    curY += lineHeight;
-  }
-  if (!(windowFlags & (FORM_NO_BORDER | FORM_FORWARD_FOCUS))) {
-    dc->drawSolidRect(0, getScrollPositionY(), rect.w, rect.h, 2,
-                      COLOR_THEME_FOCUS);
+// TODO: !auto-edit
+void ListBase::onClicked()
+{
+  if (!getAutoEdit()) {
+    lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), true);
+  } else {
+    TableField::onClicked();
   }
 }
 
-#if defined(HARDWARE_KEYS)
-  void ListBase::onEvent(event_t event)
-  {
-    int oldSelected = selected;
-    switch (event) {
-      case EVT_ROTARY_RIGHT:
-        oldSelected = (selected + 1) % names.size();
-        if(selectionType == LISTBOX_SINGLE_SELECT)
-          setSelected(oldSelected);
-        else
-          setFocusLine(oldSelected);
-        onKeyPress();
-        break;
-      case EVT_ROTARY_LEFT:
-        oldSelected--;
-        if (oldSelected < 0) oldSelected = names.size() - 1;
-        if(selectionType == LISTBOX_SINGLE_SELECT)
-          setSelected(oldSelected);
-        else
-          setFocusLine(oldSelected);
-        onKeyPress();
-        break;
-      case EVT_KEY_LONG(KEY_ENTER):
-        if (longPressHandler) {
-          killEvents(event);
-          longPressHandler(event);
-        }
-        break;
-      case EVT_KEY_BREAK(KEY_ENTER):
-        if(selectionType == LISTBOX_MULTI_SELECT)
-            setSelected(this->selected);
-        if (pressHandler) {
-          killEvents(event);
-          pressHandler(event);
-        }
-        break;
-
-      default:
-        FormField::onEvent(event);
-    }
-  }
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool ListBase::isLongPress()
+void ListBase::onCancel()
 {
-  unsigned int curTimer = getTicks();
-  return (slidingWindow == nullptr && duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS);
-}
-
-
-void ListBase::checkEvents(void)
-{
-  Window::checkEvents();
-
-  if (isLongPress()) {
-    if (longPressHandler) {
-      if(selectionType == LISTBOX_SINGLE_SELECT)
-        setSelected(yDown / lineHeight);
-      else
-        setFocusLine(yDown / lineHeight);
-      longPressHandler(0);
-      killAllEvents();
-      duration10ms = 0;
-      waslongpress = true;
-      return;
-    }
+  lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
+  if (!getAutoEdit() && lv_group_get_editing(g)) {
+    lv_group_set_editing(g, false);
+  } else {
+    TableField::onCancel();
   }
 }
 
-bool ListBase::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
+void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  if (touchState.event == TE_SLIDE_END) {
-    duration10ms = 0;
-  }
+  if (row != activeItem) return;
 
-  return FormField::onTouchSlide(x, y, startX, startY, slideX, slideY);
+  lv_area_t coords;
+  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+
+  lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
+  lv_coord_t font_h = getFontHeight(FONT(STD));
+
+  coords.x1 = dsc->draw_area->x2 - cell_right - font_h;
+  coords.x2 = coords.x1 + font_h;
+  coords.y1 = dsc->draw_area->y1 + (area_h - font_h) / 2;
+  coords.y2 = coords.y1 + font_h - 1;
+
+  lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, LV_SYMBOL_OK, nullptr);
 }
-
-bool ListBase::onTouchStart(coord_t x, coord_t y)
-{
-  waslongpress = false;
-  if (duration10ms == 0) {
-    duration10ms = getTicks();
-  }
-
-  captureWindow(this);
-  yDown = y;
-
-  return true;  // stop the processing and say that i handled it
-}
-
-bool ListBase::onTouchEnd(coord_t x, coord_t y)
-{
-  if (!isEnabled()) return false;
-  if (slidingWindow || waslongpress)
-    return false;  // if we slide then this is not a selection
-
-  auto selected = yDown / lineHeight;
-  setSelected(selected);
-
-  duration10ms = 0;
-
-  if (!hasFocus()) {
-    setFocus(SET_FOCUS_DEFAULT);
-  }
-
-  if (pressHandler != nullptr) {
-    pressHandler(0);
-  }
-  invalidate();
-
-  return true;
-}
-#endif
-
-

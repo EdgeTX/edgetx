@@ -27,9 +27,29 @@ const uint8_t __bmp_splash[] {
 #include "splash.lbm"
 };
 
-const uint8_t __bmp_splash_chr[] {
-#include "splash_chr.lbm"
-};
+void draw_splash_cb(lv_event_t * e)
+{
+  auto draw_ctx = lv_event_get_draw_ctx(e);
+  auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
+
+  // lcd->clear(splash_background_color);
+
+  if (splashImg) {
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+
+    // TODO: center image
+    lv_area_t coords;
+    coords.x1 = 0;
+    coords.y1 = 0;
+    coords.x2 = splashImg->width()-1;
+    coords.y2 = splashImg->height()-1;
+
+    lv_draw_img_decoded(draw_ctx, &img_dsc, &coords,
+                        (const uint8_t *)splashImg->getData(),
+                        LV_IMG_CF_TRUE_COLOR);
+  }
+}
 
 void drawSplash()
 {
@@ -37,7 +57,8 @@ void drawSplash()
     COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
 
   static bool loadSplashImg = true;
-  static BitmapBuffer * splashImg = nullptr;
+  static BitmapBuffer* splashImg = nullptr;
+  static lv_obj_t* splashScreen = nullptr;
 
   // try splash from SD card first
   if (loadSplashImg && splashImg == nullptr) {
@@ -45,32 +66,21 @@ void drawSplash()
     splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE);
     loadSplashImg = false;
 
-    // otherwise load from FLASH
-    struct gtm t;
-	gettime(&t);
-	// Please do not spoil the suprise by discussing following lines in public
-	// mon == 11 == December, starts from 0!
-	if (t.tm_mon == 11 && t.tm_mday >= 24 && t.tm_mday <= 26)
-	{
-		if (splashImg == nullptr) {
-			splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash_chr, sizeof(__bmp_splash_chr));
-		}
-	} else
-	{
-		if (splashImg == nullptr) {
-			splashImg = BitmapBuffer::loadRamBitmap(__bmp_splash, sizeof(__bmp_splash));
-		}
-	}
+    if (splashImg == nullptr) {
+      splashImg = new LZ4Bitmap(BMP_RGB565, __bmp_splash);
+    }
+
+    splashScreen = window_create(nullptr);
+    if (splashScreen) {
+      lv_obj_add_event_cb(splashScreen, draw_splash_cb, LV_EVENT_DRAW_MAIN, splashImg);
+    }
   }
 
-  lcd->clear(splash_background_color);
-
-  if (splashImg) {
-    lcd->drawBitmap((LCD_W - splashImg->width())/2,
-                    (LCD_H - splashImg->height())/2,
-                    splashImg);
+  if (splashScreen) {
+    lv_scr_load(splashScreen);
+    lv_refr_now(nullptr);
   }
 
-  lcdRefresh();
+  MainWindow::instance()->setActiveScreen();
 }
 #endif

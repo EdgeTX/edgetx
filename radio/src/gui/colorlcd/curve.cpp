@@ -26,6 +26,22 @@
 #include "strhelpers.h"
 #include "font.h"
 
+const uint8_t _LBM_CURVE_POINT[] = {
+#include "mask_cvpoint.lbm"
+};
+
+const uint8_t _LBM_CURVE_POINT_CENTER[] = {
+#include "mask_cvpoint_center.lbm"
+};
+
+const uint8_t _LBM_CURVE_COORD_SHADOW[] = {
+#include "mask_coord_shadow.lbm"
+};
+
+IMPL_LZ4_BITMAP(LBM_CURVE_POINT);
+IMPL_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
+IMPL_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);
+
 void Curve::drawBackground(BitmapBuffer * dc)
 {
   dc->clear(COLOR_THEME_PRIMARY2);

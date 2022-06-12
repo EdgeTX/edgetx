@@ -17,7 +17,7 @@ def get_special_chars():
   for lang in["en", "fr", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw"]:
     charset = set()
     tools_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(tools_path, "../radio/src/translations/%s.h.txt" % lang), encoding='utf-8') as f:
+    with open(os.path.join(tools_path, "../radio/src/translations/%s.h" % lang), encoding='utf-8') as f:
         data = f.read()
         for c in data:
             if is_special_char(c):

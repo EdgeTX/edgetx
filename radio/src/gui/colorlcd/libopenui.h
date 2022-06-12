@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LIBOPENUI_H_
-#define _LIBOPENUI_H_
+#pragma once
 
+#if !defined(BOOT)
 #include "libopenui_config.h"
 #include "libopenui_file.h"
 #include "font.h"
@@ -57,36 +57,5 @@
 #include "coloredit.h"
 #include "draw_functions.h"
 #include "textedits.h"
-
-inline MessageDialog * createPopupInformation(const char * message)
-{
-  return new MessageDialog(MainWindow::instance(), "Message", message);
-}
-
-inline MessageDialog * createPopupWarning(const char * message)
-{
-  return new MessageDialog(MainWindow::instance(), "Warning", message);
-}
-
-inline void POPUP_INFORMATION(const char * message)
-{
-  auto popup = createPopupInformation(message);
-  while (popup->getParent()) {
-    WDG_RESET();
-    MainWindow::instance()->run(false);
-  }
-}
-
-inline void POPUP_WARNING(const char * message, const char * info = nullptr)
-{
-  auto popup = createPopupWarning(message);
-  if (info) {
-    popup->setInfoText(std::string(info));
-  }
-  while (popup->getParent()) {
-    WDG_RESET();
-    MainWindow::instance()->run(false);
-  }
-}
-
-#endif // _LIBOPENUI_H_
+#include "LvglWrapper.h"
+#endif

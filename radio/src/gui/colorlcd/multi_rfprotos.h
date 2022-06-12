@@ -24,19 +24,23 @@
 
 class MultiRfProtocols;
 
-class MultiProtoChoice : public Choice
+class RfScanDialog : public Dialog
 {
-  unsigned int moduleIdx;
+  MultiRfProtocols* protos;
+  uint32_t lastUpdate = 0;
 
-  MultiRfProtocols* protos = nullptr;
-  Menu* menu = nullptr;
+  Progress* progress;
+  std::function<void()> onClose;
 
  public:
-  MultiProtoChoice(FormGroup *parent, const rect_t &rect, unsigned int moduleIdx,
-                   std::function<void(int)> setValue, std::function<void()> updateForm);
+  RfScanDialog(Window* parent, MultiRfProtocols* protos,
+               std::function<void()> onClose);
 
-  void openMenu() override;
-  void addProto(unsigned int proto, const char* protocolName);
+  void showProgress();
 
+  // disable keys
+  void onEvent(event_t) override;
+
+  void checkEvents() override;
 };
 

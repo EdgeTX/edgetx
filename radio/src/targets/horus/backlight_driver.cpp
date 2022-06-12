@@ -19,7 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "opentx_types.h"
+#include "board.h"
+
+#if !defined(BOOT)
+#include "myeeprom.h"
+#endif
 
 void backlightInit()
 {

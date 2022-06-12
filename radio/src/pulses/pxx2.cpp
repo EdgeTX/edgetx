@@ -26,6 +26,7 @@
 #include "libopenui/src/libopenui_file.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
+#include "timers_driver.h"
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"

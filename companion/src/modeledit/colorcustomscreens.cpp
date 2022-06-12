@@ -81,18 +81,24 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
 
     if (QFile(selThemeDetails).exists()) {
 
-      YAML::Node node = YAML::LoadFile(selThemeDetails.toStdString());
-      if (node["summary"]) {
-        const auto &summary = node["summary"];
-        if (summary.IsMap()) {
-          if (summary["name"].IsScalar())
-            themeName = summary["name"].as<std::string>();
-          if (summary["author"].IsScalar())
-            themeAuthor = summary["author"].as<std::string>();
-          if (summary["info"].IsScalar())
-            themeInfo = summary["info"].as<std::string>();
+      try {
+        YAML::Node node = YAML::LoadFile(selThemeDetails.toStdString());
+
+        if (node["summary"]) {
+          const auto &summary = node["summary"];
+          if (summary.IsMap()) {
+            if (summary["name"].IsScalar())
+              themeName = summary["name"].as<std::string>();
+            if (summary["author"].IsScalar())
+              themeAuthor = summary["author"].as<std::string>();
+            if (summary["info"].IsScalar())
+              themeInfo = summary["info"].as<std::string>();
+          }
         }
+      } catch(const std::runtime_error& e) {
+          QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Cannot load %1").arg(selThemeDetails) + ":\n" + QString(e.what()));
       }
+
     }
   }
 

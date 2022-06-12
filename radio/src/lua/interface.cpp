@@ -24,9 +24,13 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <algorithm>
+
 #include "opentx.h"
 #include "bin_allocator.h"
+
 #include "lua_api.h"
+#include "lua_event.h"
+
 #include "sdcard.h"
 #include "api_filesystem.h"
 
@@ -49,15 +53,9 @@ extern "C" {
 #define PERMANENT_SCRIPTS_MAX_INSTRUCTIONS 100
 #define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
-#if defined(HARDWARE_TOUCH)
-#include "touch.h"
-#define EVT_TOUCH_SWIPE_LOCK     4
-#define EVT_TOUCH_SWIPE_SPEED   60
-#define EVT_TOUCH_SWIPE_TIMEOUT 50
-
-tmr10ms_t swipeTimeOut = 0;
-LuaTouchData touches[EVENT_BUFFER_SIZE] = { 0 };
-#endif
+// #if defined(HARDWARE_TOUCH)
+// #include "touch.h"
+// #endif
 
 // Since we may not run FG every time, keep the events in a buffer
 event_t events[EVENT_BUFFER_SIZE] = { 0 };
@@ -146,30 +144,6 @@ static void luaHook(lua_State * L, lua_Debug *ar)
     tracer->free = 0;
   }
 #endif // #if defined(LUA_ALLOCATOR_TRACER)
-}
-
-#if defined(COLORLCD)
-static void l_pushtableint(const char * key, int value)
-{
-  lua_pushstring(lsScripts, key);
-  lua_pushinteger(lsScripts, value);
-  lua_settable(lsScripts, -3);
-}
-
-static void l_pushtablebool(const char * key, bool value)
-{
-  lua_pushstring(lsScripts, key);
-  lua_pushboolean(lsScripts, value);
-  lua_settable(lsScripts, -3);
-}
-#endif
-
-void luaEmptyEventBuffer()
-{
-  memclear(&events, sizeof(events));
-#if defined(HARDWARE_TOUCH)
-  memclear(&touches, sizeof(touches));
-#endif
 }
 
 #if defined(LUA_MODEL_SCRIPTS)
@@ -988,7 +962,7 @@ void luaExec(const char * filename)
 static bool resumeLua(bool init, bool allowLcdUsage)
 {
   static uint8_t idx;
-  static event_t evt = 0;
+  static LuaEventData evt;
   if (init) idx = 0;
 
   bool scriptWasRun = false;
@@ -1021,13 +995,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
       
       if (ref == SCRIPT_STANDALONE) {
         // Pull a new event from the buffer
-        evt = events[0];
-        for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
-          events[i - 1] = events[i];
-        events[EVENT_BUFFER_SIZE - 1] = 0;
-      
-        if (evt == EVT_KEY_LONG(KEY_EXIT)) {
-          killEvents(evt);
+        luaNextEvent(&evt);
+        if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
         }
       }
@@ -1044,65 +1013,24 @@ static bool resumeLua(bool init, bool allowLcdUsage)
      
       if (allowLcdUsage) {
 #if defined(PCBTARANIS)
-        if ((menuHandlers[menuLevel] == menuViewTelemetry && ref == SCRIPT_TELEMETRY_FIRST + s_frsky_view) || ref == SCRIPT_STANDALONE) {
+        if ((menuHandlers[menuLevel] == menuViewTelemetry &&
+             ref == SCRIPT_TELEMETRY_FIRST + s_frsky_view) ||
+            ref == SCRIPT_STANDALONE) {
 #else
         if (ref == SCRIPT_STANDALONE) {
 #endif
           // Pull a new event from the buffer
-          evt = events[0];
-          for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
-            events[i - 1] = events[i];
-          events[EVENT_BUFFER_SIZE - 1] = 0;
-#if defined(HARDWARE_TOUCH)
-          LuaTouchData* touch = &touches[0];
-#endif
+          luaNextEvent(&evt);
+
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
-          lua_pushunsigned(lsScripts, evt);
+          lua_pushunsigned(lsScripts, evt.event);
           inputsCount = 1;
 
 #if defined(HARDWARE_TOUCH)
-          if (IS_TOUCH_EVENT(evt)) {
-            lua_newtable(lsScripts);
-            l_pushtableint("x", touch->touchX);
-            l_pushtableint("y", touch->touchY);
-            l_pushtableint("tapCount", touch->tapCount);
-
-            if (evt == EVT_TOUCH_SLIDE) {
-              l_pushtableint("startX", touch->startX);
-              l_pushtableint("startY", touch->startY);
-              l_pushtableint("slideX", touch->slideX);
-              l_pushtableint("slideY", touch->slideY);
-
-              // Do we have a swipe? Only one at a time!
-              if (get_tmr10ms() > swipeTimeOut) {
-                coord_t absX = (touch->slideX < 0) ? -(touch->slideX) : touch->slideX;
-                coord_t absY = (touch->slideY < 0) ? -(touch->slideY) : touch->slideY;
-                bool swiped = false;
-
-                if (absX > EVT_TOUCH_SWIPE_LOCK * absY) {
-                  if ((swiped = (touch->slideX > EVT_TOUCH_SWIPE_SPEED)))
-                    l_pushtablebool("swipeRight", true);
-                  else if ((swiped = (touch->slideX < -EVT_TOUCH_SWIPE_SPEED)))
-                    l_pushtablebool("swipeLeft", true);
-                }
-                else if (absY > EVT_TOUCH_SWIPE_LOCK * absX) {
-                  if ((swiped = (touch->slideY > EVT_TOUCH_SWIPE_SPEED)))
-                    l_pushtablebool("swipeDown", true);
-                  else if ((swiped = (touch->slideY < -EVT_TOUCH_SWIPE_SPEED)))
-                    l_pushtablebool("swipeUp", true);
-                }
-
-                if (swiped)
-                  swipeTimeOut = get_tmr10ms() + EVT_TOUCH_SWIPE_TIMEOUT;
-              }
-            }
+          if (IS_TOUCH_EVENT(evt.event)) {
+            luaPushTouchEventTable(lsScripts, &evt);
             inputsCount = 2;
           }
-
-          // Move the touch buffer forward
-          for (int i = 1; i < EVENT_BUFFER_SIZE; i++)
-            touches[i - 1] = touches[i];
-          memclear(&touches[EVENT_BUFFER_SIZE - 1], sizeof(LuaTouchData));
 #endif
         }
         else continue;
@@ -1218,16 +1146,16 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           luaError(lsScripts, sid.state);
         }
        
-        if (evt == EVT_KEY_LONG(KEY_EXIT)) {
+        if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
           TRACE("Script force exit");
-          killEvents(evt);
+          // killEvents(evt);
           luaEmptyEventBuffer();
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
         }
 #if defined(KEYS_GPIO_REG_MENU)
       // TODO find another key and add a #define
-        else if (evt == EVT_KEY_LONG(KEY_MENU)) {
-          killEvents(evt);
+        else if (evt.event == EVT_KEY_LONG(KEY_MENU)) {
+          killEvents(evt.event);
           luaEmptyEventBuffer();
           luaDisplayStatistics = !luaDisplayStatistics;
         }
@@ -1262,14 +1190,7 @@ bool luaTask(event_t evt, bool allowLcdUsage)
   bool scriptWasRun = false;
  
   // Add event to buffer
-  if (evt != 0) {
-    for (int i = 0; i < EVENT_BUFFER_SIZE; i++) {
-      if (events[i] == 0) {
-        events[i] = evt;
-        break;
-      }
-    }
-  }
+  if (evt != 0) { luaPushEvent(evt); }
  
   // For preemption
   luaCycleStart = get_tmr10ms();

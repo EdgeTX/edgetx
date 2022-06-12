@@ -27,7 +27,7 @@
 class TextWidget: public Widget
 {
   public:
-    TextWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
+    TextWidget(const WidgetFactory* factory, Window* parent, const rect_t & rect, Widget::PersistentData* persistentData):
       Widget(factory, parent, rect, persistentData)
     {
     }

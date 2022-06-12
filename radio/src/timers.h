@@ -57,12 +57,6 @@ void restoreTimers();
 
 void evalTimers(int16_t throttle, uint8_t tick10ms);
 
-extern volatile tmr10ms_t g_tmr10ms;
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}
-
 int16_t throttleSource2Source(int16_t thrSrc);
 int16_t source2ThrottleSource(int16_t src);
 

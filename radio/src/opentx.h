@@ -275,12 +275,6 @@ void memswap(void * a, void * b, uint8_t size);
   #define IS_SWITCH_MULTIPOS(x)         (false)
 #endif
 
-#if defined(PWR_BUTTON_PRESS)
-  #define pwrOffPressed()              pwrPressed()
-#else
-  #define pwrOffPressed()              (!pwrPressed())
-#endif
-
 #define GET_LOWRES_POT_POSITION(i)     (getValue(MIXSRC_FIRST_POT+(i)) >> 4)
 #define SAVE_POT_POSITION(i)           g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
 
@@ -372,23 +366,6 @@ inline bool SPLASH_NEEDED()
   #define SPLASH_TIMEOUT               (4 * 100)  // 4 seconds
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  #define CASE_ROTARY_ENCODER(x) x,
-  #define IS_ROTARY_ENCODER_NAVIGATION_ENABLE()  true
-  extern volatile rotenc_t rotencValue;
-  #define ROTARY_ENCODER_NAVIGATION_VALUE        rotencValue
-  #define ROTENC_LOWSPEED              1
-  #define ROTENC_MIDSPEED              5
-  #define ROTENC_HIGHSPEED             50
-  #define ROTENC_DELAY_MIDSPEED        32
-  #define ROTENC_DELAY_HIGHSPEED       16
-#else
-  #define CASE_ROTARY_ENCODER(x)
-  #if defined(RADIO_T8)
-    constexpr uint8_t rotencSpeed = 1;
-  #endif
-#endif
-
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
 constexpr uint8_t HEART_TIMER_PULSES = 0x02; // when multiple modules this is the first one
 
@@ -403,22 +380,7 @@ constexpr uint8_t HEART_WDT_CHECK = HEART_TIMER_10MS
 
 extern uint8_t heartbeat;
 
-#if !defined(BOOT)
-void watchdogSuspend(uint32_t timeout);
-#define WATCHDOG_SUSPEND(x)            watchdogSuspend(x)
-#else
-#define WATCHDOG_SUSPEND(...)
-#endif
-
 #define MAX_ALERT_TIME   60
-
-struct InactivityData
-{
-  uint16_t counter;
-  uint8_t  sum;
-};
-
-extern InactivityData inactivity;
 
 #define LEN_STD_CHARS 40
 
@@ -437,7 +399,6 @@ extern uint8_t potsPos[NUM_XPOTS];
 #endif
 
 bool trimDown(uint8_t idx);
-void readKeysAndTrims();
 
 #if defined(KEYS_GPIO_REG_BIND)
 void bindButtonHandler(event_t event);
@@ -562,8 +523,6 @@ int getTrimValue(uint8_t phase, uint8_t idx);
 
 bool setTrimValue(uint8_t phase, uint8_t idx, int trim);
 
-  #define ROTARY_ENCODER_GRANULARITY (2)
-
 #include "gvars.h"
 
 void flightReset(uint8_t check=true);
@@ -667,23 +626,6 @@ inline int calcRESXto100(int x)
 {
   return divRoundClosest(x*100, RESX);
 }
-
-#if defined(COLORLCD)
-extern const char fw_stamp[];
-extern const char vers_stamp[];
-extern const char date_stamp[];
-extern const char time_stamp[];
-extern const char cfgv_stamp[];
-#else
-extern const char vers_stamp[];
-#endif
-
-/**
- * Tries to find opentx version in the first 1024 byte of either firmware/bootloader (the one not running) or the buffer
- * @param buffer If non-null find the firmware version in the buffer instead
- * @return The opentx version string starting with "opentx-" or "no version found" if the version string is not found
- */
-const char * getFirmwareVersion(const char * buffer = nullptr);
 
 #define g_blinkTmr10ms    (*(uint8_t*)&g_tmr10ms)
 
@@ -1078,11 +1020,13 @@ union ReusableBuffer
     int8_t preset;
   } curveEdit;
 
+#if !defined(COLORLCD)
   struct {
     char filename[TEXT_FILENAME_MAXLEN];
     char lines[NUM_BODY_LINES][LCD_COLS + 1];
     int linesCount;
   } viewText;
+#endif
 
   struct {
     bool longNames;
@@ -1179,8 +1123,6 @@ void varioWakeup();
   extern const unsigned char logo_taranis[];
 #endif
 
-void usbPluggedIn();
-
 #include "lua/lua_api.h"
 
 #if defined(SDCARD)
@@ -1210,31 +1152,6 @@ struct Clipboard {
 };
 
 extern Clipboard clipboard;
-#endif
-
-#if !defined(SIMU)
-extern uint32_t s_anaFilt[NUM_ANALOGS];
-#endif
-
-#define JITTER_FILTER_STRENGTH  4         // tune this value, bigger value - more filtering (range: 1-5) (see explanation below)
-#define ANALOG_SCALE            1         // tune this value, bigger value - more filtering (range: 0-1) (see explanation below)
-
-#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
-#define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
-#if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
-  #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
-#endif
-
-#if defined(JITTER_MEASURE)
-extern JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
-extern JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
-#if defined(PCBHORUS) || defined(PCBTARANIS)
-  #define JITTER_MEASURE_ACTIVE()   (menuHandlers[menuLevel] == menuRadioDiagAnalogs)
-#elif defined(CLI)
-  #define JITTER_MEASURE_ACTIVE()   (1)
-#else
-  #define JITTER_MEASURE_ACTIVE()   (0)
-#endif
 #endif
 
 #if defined(INTERNAL_GPS)

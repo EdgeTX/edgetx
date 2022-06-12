@@ -24,7 +24,7 @@
 #include <list>
 #include "str_functions.h"
 
-static char splitChars[] = { ' ', '-', '\t' };
+static const char splitChars[] = { " -\t" };
 
 void removeAllWhiteSpace(char *str)
 {
@@ -67,7 +67,7 @@ std::string trim_start(std::string str)
   return str.substr(i);
 }
 
-std::vector<std::string> Explode(std::string str, char *splitChars)
+std::vector<std::string> Explode(std::string str, const char *splitChars)
 {
     std::vector<std::string> parts;
     int startIndex = 0;

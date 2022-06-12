@@ -382,6 +382,12 @@ int hasSerialMode(int mode)
 
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
+#if defined(USB_SERIAL)
+  // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
+  if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
+    return false;
+#endif
+  
   if (mode == UART_MODE_NONE)
     return true;
 
@@ -990,66 +996,66 @@ int convertMultiToOtx(int type)
 // we don't need the special eeprom/flash string handling, just define them as
 // local strings
 
-const char STR_SUBTYPE_FLYSKY[] =     "\004""Std\0""V9x9""V6x6""V912""CX20";
-const char STR_SUBTYPE_HUBSAN[] =     "\004""H107""H301""H501";
-const char STR_SUBTYPE_FRSKY[] =      "\011""D16\0     ""D8\0      ""D16 8ch\0 ""V8\0      ""LBT(EU)\0 ""LBT 8ch\0 ""D8Cloned\0""D16Cloned";
-const char STR_SUBTYPE_HISKY[] =      "\005""Std\0 ""HK310";
-const char STR_SUBTYPE_V2X2[] =       "\006""Std\0  ""JXD506""MR101\0";
-const char STR_SUBTYPE_DSM[] =        "\004""2 1F""2 2F""X 1F""X 2F""Auto""R 1F";
-const char STR_SUBTYPE_DEVO[] =       "\004""8ch\0""10ch""12ch""6ch\0""7ch\0";
-const char STR_SUBTYPE_YD717[] =      "\007""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
-const char STR_SUBTYPE_KN[] =         "\006""WLtoys""FeiLun";
-const char STR_SUBTYPE_SYMAX[] =      "\003""Std""X5C";
-const char STR_SUBTYPE_SLT[] =        "\006""V1_6ch""V2_8ch""Q100\0 ""Q200\0 ""MR100\0";
-const char STR_SUBTYPE_CX10[] =       "\007""Green\0 ""Blue\0  ""DM007\0 ""-\0     ""JC3015a""JC3015b""MK33041";
-const char STR_SUBTYPE_CG023[] =      "\005""Std\0 ""YD829";
-const char STR_SUBTYPE_BAYANG[] =     "\007""Std\0   ""H8S3D\0 ""X16 AH\0""IRDrone""DHD D4\0""QX100\0 ";
-const char STR_SUBTYPE_ESky[] =       "\003""Std""ET4";
-const char STR_SUBTYPE_MT99[] =       "\006""MT99\0 ""H7\0   ""YZ\0   ""LS\0   ""FY805\0""A180\0 ""Dragon""F949G\0";
-const char STR_SUBTYPE_MJXQ[] =       "\007""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
-const char STR_SUBTYPE_FY326[] =      "\005""Std\0 ""FY319";
-const char STR_SUBTYPE_FUTABA[] =     "\005""SFHSS";
-const char STR_SUBTYPE_HONTAI[] =     "\007""Std\0   ""JJRC X1""X5C1\0  ""FQ_951";
-const char STR_SUBTYPE_AFHDS2A[] =    "\010""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS""PWM,IB16""PPM,IB16";
-const char STR_SUBTYPE_Q2X2[] =       "\004""Q222""Q242""Q282";
-const char STR_SUBTYPE_WK2x01[] =     "\006""WK2801""WK2401""W6_5_1""W6_6_1""W6_HeL""W6_HeI";
-const char STR_SUBTYPE_Q303[] =       "\006""Std\0  ""CX35\0 ""CX10D\0""CX10WD";
-const char STR_SUBTYPE_CABELL[] =     "\007""V3\0    ""V3 Telm""-\0     ""-\0     ""-\0     ""-\0     ""F-Safe\0""Unbind\0";
-const char STR_SUBTYPE_ESKY150[] =    "\003""4ch""7ch";
-const char STR_SUBTYPE_H83D[] =       "\007""Std\0   ""H20H\0  ""H20Mini""H30Mini";
-const char STR_SUBTYPE_CORONA[] =     "\005""V1\0  ""V2\0  ""FD V3";
-const char STR_SUBTYPE_HITEC[] =      "\007""Optima\0""Opt Hub""Minima\0";
-const char STR_SUBTYPE_WFLY[] =       "\005""WFR0x";
-const char STR_SUBTYPE_BUGS_MINI[] =  "\006""Std\0  ""Bugs3H";
-const char STR_SUBTYPE_TRAXXAS[] =    "\004""6519";
-const char STR_SUBTYPE_E01X[] =       "\004""E012""E015";
-const char STR_SUBTYPE_V911S[] =      "\004""Std\0""E119";
-const char STR_SUBTYPE_GD00X[] =      "\005""GD_V1""GD_V2";
-const char STR_SUBTYPE_V761[] =       "\003""3ch""4ch";
-const char STR_SUBTYPE_KF606[] =      "\006""KF606\0""MIG320";
-const char STR_SUBTYPE_REDPINE[] =    "\004""Fast""Slow";
-const char STR_SUBTYPE_POTENSIC[] =   "\003""A20";
-const char STR_SUBTYPE_ZSX[] =        "\007""280JJRC";
-const char STR_SUBTYPE_HEIGHT[] =     "\003""5ch""8ch";
-const char STR_SUBTYPE_FRSKYX_RX[] =  "\007""RX\0    ""CloneTX";
-const char STR_SUBTYPE_HOTT[] =       "\007""Sync\0  ""No_Sync";
-const char STR_SUBTYPE_FX816[] =      "\003""P38";
-const char STR_SUBTYPE_PELIKAN[] =    "\005""Pro\0 ""Lite\0""SCX24";
-const char STR_SUBTYPE_XK[] =         "\004""X450""X420";
-const char STR_SUBTYPE_XN297DUMP[] =  "\006""250K\0 ""1M\0   ""2M\0   ""AUTO\0 ""NRF\0  ""CC2500";
-const char STR_SUBTYPE_FRSKYX2[] =    "\010""D16\0    ""D16 8ch\0""LBT(EU)\0""LBT 8ch\0""Cloned\0 ""Clone8ch";
-const char STR_SUBTYPE_FRSKYR9[] =    "\007""915MHz\0""868MHz\0""915 8ch""868 8ch""FCC\0   ""---\0   ""FCC 8ch";
-const char STR_SUBTYPE_PROPEL[] =     "\004""74-Z";
-const char STR_SUBTYPE_FRSKYL[] =     "\010""LR12\0   ""LR12 6ch";
-const char STR_SUBTYPE_ESKY150V2[] =  "\006""150 V2";
-const char STR_SUBTYPE_JJRC345[] =    "\007""Std\0   ""SkyTmbr";
-const char STR_SUBTYPE_KYOSHO[] =     "\004""FHSS""Hype";
-const char STR_SUBTYPE_RLINK[] =      "\007""Surface""Air\0   ""DumboRC";
-const char STR_SUBTYPE_ELRS[] =       "\007""N/A WIP";
-const char STR_SUBTYPE_REALACC[] =    "\003""R11";
-const char STR_SUBTYPE_WFLY2[] =      "\005""RF20x";
-const char STR_SUBTYPE_MOULDKG[] =    "\007""Analog\0""Digital";
-const char STR_SUBTYPE_MT992[] =      "\004""PA18";
+const char* STR_SUBTYPE_FLYSKY[] =     {"Std","V9x9","V6x6","V912","CX20"};
+const char* STR_SUBTYPE_HUBSAN[] =     {"H107","H301","H501"};
+const char* STR_SUBTYPE_FRSKY[] =      {"D16","D8","D16 8ch","V8","LBT(EU)","LBT 8ch","D8Cloned","D16Cloned"};
+const char* STR_SUBTYPE_HISKY[] =      {"Std","HK310"};
+const char* STR_SUBTYPE_V2X2[] =       {"Std","JXD506","MR101"};
+const char* STR_SUBTYPE_DSM[] =        {"2 1F","2 2F","X 1F","X 2F","Auto","R 1F"};
+const char* STR_SUBTYPE_DEVO[] =       {"8ch","10ch","12ch","6ch","7ch"};
+const char* STR_SUBTYPE_YD717[] =      {"Std","SkyWlkr","Syma X4","XINXUN","NIHUI"};
+const char* STR_SUBTYPE_KN[] =         {"WLtoys","FeiLun"};
+const char* STR_SUBTYPE_SYMAX[] =      {"Std","X5C"};
+const char* STR_SUBTYPE_SLT[] =        {"V1_6ch","V2_8ch","Q100","Q200","MR100"};
+const char* STR_SUBTYPE_CX10[] =       {"Green","Blue","DM007","-","JC3015a","JC3015b","MK33041"};
+const char* STR_SUBTYPE_CG023[] =      {"Std","YD829"};
+const char* STR_SUBTYPE_BAYANG[] =     {"Std","H8S3D","X16 AH","IRDrone","DHD D4","QX100"};
+const char* STR_SUBTYPE_ESky[] =       {"Std","ET4"};
+const char* STR_SUBTYPE_MT99[] =       {"MT99","H7","YZ","LS","FY805","A180","Dragon","F949G"};
+const char* STR_SUBTYPE_MJXQ[] =       {"WLH08","X600","X800","H26D","E010","H26WH","Phoenix"};
+const char* STR_SUBTYPE_FY326[] =      {"Std","FY319"};
+const char* STR_SUBTYPE_FUTABA[] =     {"SFHSS"};
+const char* STR_SUBTYPE_HONTAI[] =     {"Std","JJRC X1","X5C1","FQ_951"};
+const char* STR_SUBTYPE_AFHDS2A[] =    {"PWM,IBUS","PPM,IBUS","PWM,SBUS","PPM,SBUS","PWM,IB16","PPM,IB16"};
+const char* STR_SUBTYPE_Q2X2[] =       {"Q222","Q242","Q282"};
+const char* STR_SUBTYPE_WK2x01[] =     {"WK2801","WK2401","W6_5_1","W6_6_1","W6_HeL","W6_HeI"};
+const char* STR_SUBTYPE_Q303[] =       {"Std","CX35","CX10D","CX10WD"};
+const char* STR_SUBTYPE_CABELL[] =     {"V3","V3 Telm","-","-","-","-","F-Safe","Unbind"};
+const char* STR_SUBTYPE_ESKY150[] =    {"4ch","7ch"};
+const char* STR_SUBTYPE_H83D[] =       {"Std","H20H","H20Mini","H30Mini"};
+const char* STR_SUBTYPE_CORONA[] =     {"V1","V2","FD V3"};
+const char* STR_SUBTYPE_HITEC[] =      {"Optima","Opt Hub","Minima"};
+const char* STR_SUBTYPE_WFLY[] =       {"WFR0x"};
+const char* STR_SUBTYPE_BUGS_MINI[] =  {"Std","Bugs3H"};
+const char* STR_SUBTYPE_TRAXXAS[] =    {"6519"};
+const char* STR_SUBTYPE_E01X[] =       {"E012","E015"};
+const char* STR_SUBTYPE_V911S[] =      {"Std","E119"};
+const char* STR_SUBTYPE_GD00X[] =      {"GD_V1","GD_V2"};
+const char* STR_SUBTYPE_V761[] =       {"3ch","4ch"};
+const char* STR_SUBTYPE_KF606[] =      {"KF606","MIG320"};
+const char* STR_SUBTYPE_REDPINE[] =    {"Fast","Slow"};
+const char* STR_SUBTYPE_POTENSIC[] =   {"A20"};
+const char* STR_SUBTYPE_ZSX[] =        {"280JJRC"};
+const char* STR_SUBTYPE_HEIGHT[] =     {"5ch","8ch"};
+const char* STR_SUBTYPE_FRSKYX_RX[] =  {"RX","CloneTX"};
+const char* STR_SUBTYPE_HOTT[] =       {"Sync","No_Sync"};
+const char* STR_SUBTYPE_FX816[] =      {"P38"};
+const char* STR_SUBTYPE_PELIKAN[] =    {"Pro","Lite","SCX24"};
+const char* STR_SUBTYPE_XK[] =         {"X450","X420"};
+const char* STR_SUBTYPE_XN297DUMP[] =  {"250K","1M","2M","AUTO","NRF","CC2500"};
+const char* STR_SUBTYPE_FRSKYX2[] =    {"D16","D16 8ch","LBT(EU)","LBT 8ch","Cloned","Clone8ch"};
+const char* STR_SUBTYPE_FRSKYR9[] =    {"915MHz","868MHz","915 8ch","868 8ch","FCC","---","FCC 8ch"};
+const char* STR_SUBTYPE_PROPEL[] =     {"74-Z"};
+const char* STR_SUBTYPE_FRSKYL[] =     {"LR12","LR12 6ch"};
+const char* STR_SUBTYPE_ESKY150V2[] =  {"150 V2"};
+const char* STR_SUBTYPE_JJRC345[] =    {"Std","SkyTmbr"};
+const char* STR_SUBTYPE_KYOSHO[] =     {"FHSS","Hype"};
+const char* STR_SUBTYPE_RLINK[] =      {"Surface","Air","DumboRC"};
+const char* STR_SUBTYPE_ELRS[] =       {"N/A WIP"};
+const char* STR_SUBTYPE_REALACC[] =    {"R11"};
+const char* STR_SUBTYPE_WFLY2[] =      {"RF20x"};
+const char* STR_SUBTYPE_MOULDKG[] =    {"Analog","Digital"};
+const char* STR_SUBTYPE_MT992[] =      {"PA18"};
 
 const char* mm_options_strings::options[] = {
   nullptr,

@@ -27,22 +27,27 @@
 TimeEdit::TimeEdit(Window * parent, const rect_t & rect, int32_t vmin, int32_t vmax, std::function<int32_t()> getValue, std::function<void(int32_t)> setValue):
   NumberEdit(parent, rect, vmin, vmax, std::move(getValue), std::move(setValue))
 {
+  setDisplayHandler([=] (int value) {
+    TimerOptions timerOptions;
+    timerOptions.options = (textFlags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
+    return std::string(getTimerString(this->getValue(), timerOptions));
+  });
 }
 
-void TimeEdit::paint(BitmapBuffer * dc)
-{
-  FormField::paint(dc);
+// void TimeEdit::paint(BitmapBuffer * dc)
+// {
+//   FormField::paint(dc);
 
-  LcdFlags textColor;
-  if (editMode)
-    textColor = COLOR_THEME_PRIMARY2;
-  else if (hasFocus())
-    textColor = COLOR_THEME_PRIMARY2;
-  else
-    textColor = COLOR_THEME_SECONDARY1;
+//   LcdFlags textColor;
+//   if (editMode)
+//     textColor = COLOR_THEME_PRIMARY2;
+//   else if (hasFocus())
+//     textColor = COLOR_THEME_PRIMARY2;
+//   else
+//     textColor = COLOR_THEME_SECONDARY1;
 
-  TimerOptions timerOptions;
-  timerOptions.options = (textFlags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-               getTimerString(getValue(), timerOptions), textColor);
-}
+//   TimerOptions timerOptions;
+//   timerOptions.options = (textFlags & TIMEHOUR) != 0 ? SHOW_TIME : SHOW_TIMER;
+//   dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
+//                getTimerString(getValue(), timerOptions), textColor);
+// }

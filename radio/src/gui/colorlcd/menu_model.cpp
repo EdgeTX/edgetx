@@ -61,19 +61,16 @@ ModelMenu::ModelMenu():
 #endif
   addTab(new ModelTelemetryPage());
 
-  addButton(&header);
 }
 
-void ModelMenu::addButton(TabsGroupHeader* header)
+void ModelMenu::onEvent(event_t event)
 {
-  OpenTxTheme::instance()->createTextButton(
-      header, {LCD_W / 2 + 5, MENU_TITLE_TOP, LCD_W / 2 - 5, MENU_TITLE_HEIGHT},
-      STR_OPEN_CHANNEL_MONITORS, [=]() {
-        calledFromModel = 1;
-        retTab = header->getCarousel()->getCurrentIndex();
-        // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
-        new ChannelsViewMenu();
-        deleteLater();
-        return 0;
-      });
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_FIRST(KEY_MODEL)) {
+    killEvents(event);
+    new ChannelsViewMenu();
+  } else {
+    TabsGroup::onEvent(event);
+  }
+#endif
 }

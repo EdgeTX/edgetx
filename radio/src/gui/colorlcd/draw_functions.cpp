@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "lcd.h"
 #include "theme_manager.h"
+#include "libopenui.h"
 
 coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char * str, int idx, LcdFlags flags, const char * prefix, const char * suffix)
 {
@@ -50,6 +51,11 @@ void drawVerticalScrollbar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t h, u
     dc->drawSolidFilledRect(x-1, y + yofs, 3, yhgt, COLOR_THEME_FOCUS);
   }
 }
+
+const uint8_t _LBM_TRIM_SHADOW[] = {
+#include "mask_trim_shadow.lbm"
+};
+STATIC_LZ4_BITMAP(LBM_TRIM_SHADOW);
 
 void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color)
 {
@@ -103,81 +109,198 @@ void drawSleepBitmap()
   lcdRefresh();
 }
 
-#define SHUTDOWN_CIRCLE_DIAMETER       150
+#define SHUTDOWN_CIRCLE_DIAMETER 150
+
+const uint8_t _LBM_SHUTDOWN_CIRCLE[] = {
+#include "mask_shutdown_circle.lbm"
+};
+STATIC_LZ4_BITMAP(LBM_SHUTDOWN_CIRCLE);
+
+class ShutdownAnimation: public FormGroup
+{
+  public:
+  ShutdownAnimation(uint32_t duration, uint32_t totalDuration):
+      FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE | FORM_NO_BORDER),
+      duration(duration),
+      totalDuration(totalDuration)
+    {
+      Layer::push(this);
+      bringToTop();
+      // setFocus(SET_FOCUS_DEFAULT);
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "ShutdownAnimation";
+    }
+#endif
+    void paint(BitmapBuffer * dc) override
+    {
+      LcdFlags fgColor;
+      LcdFlags bgColor;
+
+      if (ThemePersistance::instance()->isDefaultTheme()) {
+        fgColor = COLOR2FLAGS(WHITE);
+        bgColor = COLOR2FLAGS(BLACK);
+      } else {
+        fgColor = COLOR_THEME_PRIMARY2;
+        bgColor = COLOR_THEME_SECONDARY1;
+      }
+
+      static const BitmapBuffer* shutdown = OpenTxTheme::instance()->shutdown;
+
+      dc->reset();
+      dc->clear(bgColor);
+
+      if (shutdown) {
+        dc->drawMask((LCD_W - shutdown->width()) / 2,
+                      (LCD_H - shutdown->height()) / 2, shutdown, fgColor);
+
+        int quarter = duration / (totalDuration / 5);
+        if (quarter >= 1)
+          dc->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
+                                 LBM_SHUTDOWN_CIRCLE, fgColor, 0,
+                                 SHUTDOWN_CIRCLE_DIAMETER / 2);
+        if (quarter >= 2)
+          dc->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
+                                 SHUTDOWN_CIRCLE_DIAMETER / 2,
+                                 SHUTDOWN_CIRCLE_DIAMETER / 2);
+        if (quarter >= 3)
+          dc->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
+                                 LBM_SHUTDOWN_CIRCLE, fgColor,
+                                 SHUTDOWN_CIRCLE_DIAMETER,
+                                 SHUTDOWN_CIRCLE_DIAMETER / 2);
+        if (quarter >= 4)
+          dc->drawBitmapPattern(
+              (LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
+              (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
+              SHUTDOWN_CIRCLE_DIAMETER * 3 / 2, SHUTDOWN_CIRCLE_DIAMETER / 2);
+      } else {
+        int quarter = duration / (totalDuration / 5);
+        for (int i = 1; i <= 4; i++) {
+          if (quarter >= i) {
+            dc->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
+                                     20, fgColor);
+          }
+        }
+      }
+    }
+
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      Layer::pop(this);
+      Window::deleteLater(detach, trash);
+    }
+
+    void update(uint32_t newDuration, uint32_t newTotalDuration)
+    {
+      duration = newDuration;
+      totalDuration = newTotalDuration;
+    }
+
+  protected:
+    uint32_t duration;
+    uint32_t totalDuration;
+    std::string message;
+};
+
+static ShutdownAnimation *shutdownAnimation = nullptr;
 
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message)
 {
-  if (totalDuration == 0) return;
+  if (totalDuration == 0)
+    return;
 
-  LcdFlags fgColor;
-  LcdFlags bgColor;
-
-  if (ThemePersistance::instance()->isDefaultTheme()) {
-    fgColor = COLOR2FLAGS(WHITE);
-    bgColor = COLOR2FLAGS(BLACK);
-  } else {
-    fgColor = COLOR_THEME_PRIMARY2;
-    bgColor = COLOR_THEME_SECONDARY1;
-  }
-
-  static const BitmapBuffer* shutdown = OpenTxTheme::instance()->shutdown;
-
-  lcd->reset();
-  lcd->clear(bgColor);
-
-  if (shutdown) {
-    lcd->drawMask((LCD_W - shutdown->width()) / 2,
-                  (LCD_H - shutdown->height()) / 2, shutdown, fgColor);
-
-    int quarter = duration / (totalDuration / 5);
-    if (quarter >= 1)
-      lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, fgColor, 0,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 2)
-      lcd->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 3)
-      lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
-                             LBM_SHUTDOWN_CIRCLE, fgColor,
-                             SHUTDOWN_CIRCLE_DIAMETER,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 4)
-      lcd->drawBitmapPattern(
-          (LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-          (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
-          SHUTDOWN_CIRCLE_DIAMETER * 3 / 2, SHUTDOWN_CIRCLE_DIAMETER / 2);
-  } else {
-    int quarter = duration / (totalDuration / 5);
-    for (int i = 1; i <= 4; i++) {
-      if (quarter >= i) {
-        lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
-                                 20, fgColor);
-      }
-    }
-  }
+  if(!shutdownAnimation)
+    shutdownAnimation = new ShutdownAnimation(duration, totalDuration);
+  else
+    shutdownAnimation->update(duration, totalDuration);
+  shutdownAnimation->invalidate();
 
   WDG_RESET();
-  lcdRefresh();
+  RTOS_WAIT_MS(1);
+  MainWindow::instance()->run(false);
+  LvglWrapper::instance()->run();
 }
+
+void clearShutdownAnimation()
+{
+  if(!shutdownAnimation)
+    return;
+
+  shutdownAnimation->deleteLater();
+  shutdownAnimation = nullptr;
+}
+
+
+class FatalErrorScreen: public FormGroup
+{
+  public:
+    FatalErrorScreen(const std::string& message):
+      FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE | FORM_NO_BORDER),
+      message(std::move(message))
+    {
+      Layer::push(this);
+      bringToTop();
+      // setFocus(SET_FOCUS_DEFAULT);
+    }
+
+#if defined(DEBUG_WINDOWS)
+    std::string getName() const override
+    {
+      return "FatalErrorScreen";
+    }
+#endif
+    void paint(BitmapBuffer * dc) override
+    {
+      dc->clear(COLOR2FLAGS(BLACK));
+      dc->drawText(LCD_W/2, LCD_H/2-20, message.c_str(), FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+    }
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      Layer::pop(this);
+      Window::deleteLater(detach, trash);
+    }
+
+  protected:
+    std::string message;
+};
+
+static FatalErrorScreen *errorScreen = nullptr;
 
 void drawFatalErrorScreen(const char * message)
 {
-  lcd->reset();
-  lcd->clear(COLOR2FLAGS(BLACK));
-  lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+  if(!errorScreen)
+  {
+    errorScreen  = new FatalErrorScreen(message);
+  }
+  RTOS_WAIT_MS(1);
+  MainWindow::instance()->run(false);
+  LvglWrapper::instance()->run();
+}
+void clearFatalErrorScreen()
+{
+  if(!errorScreen)
+    return;
 
-  WDG_RESET();
-  lcdRefresh();
+  errorScreen->deleteLater();
+  errorScreen = nullptr;
 }
 
 void runFatalErrorScreen(const char * message)
 {
+  lcdInitDisplayDriver();
   while (true) {
     backlightEnable(100);
-    drawFatalErrorScreen(message);
+    lcd->reset();
+    lcdInitDirectDrawing();
+    lcd->clear(COLOR2FLAGS(BLACK));
+    lcd->drawText(LCD_W/2, LCD_H/2-20, message, FONT(XL)|CENTERED|COLOR2FLAGS(WHITE));
+
+    WDG_RESET();
+    lcdRefresh();
 
     uint8_t refresh = false;
     while (true) {
@@ -223,8 +346,7 @@ void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curv
 
 void drawStickName(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
-  uint8_t length = STR_VSRCRAW[0];
-  dc->drawSizedText(x, y, STR_VSRCRAW+2+length*(idx+1), length-1, att);
+  dc->drawText(x, y, STR_VSRCRAW[idx]+1, att);
 }
 
 void drawModelName(BitmapBuffer * dc, coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att)

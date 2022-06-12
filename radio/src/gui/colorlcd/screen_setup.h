@@ -20,46 +20,37 @@
  */
 
 #include "menu_screen.h"
+#include "screen_user_interface.h"
+
 #include "layout.h"
 #include "datastructs.h"
 
-class ScreenUserInterfacePage: public PageTab {
-  public:
-    ScreenUserInterfacePage(ScreenMenu* menu);
-
-    void build(FormWindow * window) override;
-
-  protected:
-    ScreenMenu * menu;
-};
-
-class ScreenAddPage: public PageTab {
-  public:
-    ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex);
-
-    void build(FormWindow * window) override;
-
-  protected:
-    ScreenMenu * menu;
-    uint8_t pageIndex;
-};
-
-class ScreenSetupPage: public PageTab {
-  public:
-    ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned customScreenIndex);
-
-    void build(FormWindow * window) override;
-
-  protected:
-    ScreenMenu * menu;
-    unsigned pageIndex;
-    unsigned customScreenIndex;
-};
-
-class SetupWidgetsPageSlot: public Button
+class ScreenAddPage : public PageTab
 {
-  public:
-    SetupWidgetsPageSlot(FormGroup * parent, const rect_t & rect, WidgetsContainer* container, uint8_t slotIndex);
+ public:
+  ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex);
 
-    void paint(BitmapBuffer * dc) override;
+  void build(FormWindow* window) override;
+
+ protected:
+  ScreenMenu* menu;
+  uint8_t pageIndex;
+};
+
+class ScreenSetupPage : public PageTab
+{
+ public:
+  ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
+                  unsigned customScreenIndex);
+
+  void build(FormWindow* form) override;
+
+ protected:
+  ScreenMenu* menu;
+  unsigned pageIndex;
+  unsigned customScreenIndex;
+  FormGroup* layoutOptions = nullptr;
+
+  void clearLayoutOptions();
+  void buildLayoutOptions();
 };

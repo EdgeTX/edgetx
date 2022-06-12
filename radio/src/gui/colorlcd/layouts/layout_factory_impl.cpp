@@ -22,13 +22,12 @@
 #include "layout_factory_impl.h"
 #include "layouts/trims.h"
 #include "layouts/sliders.h"
-#include "view_main_decoration.h"
 #include "view_main.h"
 
-Layout::Layout(const LayoutFactory * factory, PersistentData * persistentData):
-  LayoutBase({0, 0, LCD_W, LCD_H}, persistentData),
+Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData):
+  LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
   factory(factory),
-  decoration(new ViewMainDecoration(this, getRect()))
+  decoration(new ViewMainDecoration(this))
 {
   adjustLayout();
 }
@@ -57,15 +56,14 @@ void Layout::checkEvents()
   LayoutBase::checkEvents();
   adjustLayout();
 
-  uint32_t now = RTOS_GET_MS();
-  if (now - lastRefresh >= LAYOUT_REFRESH) {
-    lastRefresh = now;
-    invalidate();
-
-#if defined(DEBUG_WINDOWS)
-    TRACE_WINDOWS("# %s refresh: %s", factory->getId(), getWindowDebugString().c_str());
-#endif
-  }
+//   uint32_t now = RTOS_GET_MS();
+//   if (now - lastRefresh >= LAYOUT_REFRESH) {
+//     lastRefresh = now;
+//     invalidate();
+// #if defined(DEBUG_WINDOWS)
+//     TRACE_WINDOWS("# %s refresh: %s", factory->getId(), getWindowDebugString().c_str());
+// #endif
+//   }
 }
 
 void Layout::setTrimsVisible(bool visible)
@@ -106,19 +104,20 @@ void Layout::adjustLayout()
   setTrimsVisible(hasTrims());
   setFlightModeVisible(hasFlightMode());
 
-  // Re-compute positions
-  decoration->adjustDecoration();
-
   // and update relevant windows
   updateZones();
-
-  // probably not needed
-  //invalidate();
 }
 
 rect_t Layout::getMainZone() const
 {
   rect_t zone = decoration->getMainZone();
+  if (decorationSettings & 0x7) {
+    // some decoration activated
+    zone.x += MAIN_ZONE_BORDER;
+    zone.y += MAIN_ZONE_BORDER;
+    zone.w -= 2 * MAIN_ZONE_BORDER;
+    zone.h -= 2 * MAIN_ZONE_BORDER;
+  }
   return ViewMain::instance()->getMainZone(zone, hasTopbar());
 }    
 

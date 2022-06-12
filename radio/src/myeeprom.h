@@ -24,6 +24,7 @@
 
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
+#include "storage/yaml/yaml_defs.h"
 
 #if defined(SDCARD_YAML)
   #define EEPROM_VER           221
@@ -105,7 +106,7 @@
 
 #define ALTERNATE_VIEW                0x10
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && !defined(BOOT)
   #include "layout.h"
   #include "theme.h"
   #include "topbar.h"

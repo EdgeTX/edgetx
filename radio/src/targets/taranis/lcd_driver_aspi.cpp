@@ -19,7 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "lcd.h"
+
+#if !defined(BOOT)
+#include "myeeprom.h"
+#include "debug.h"
+#endif
 
 #define CONTRAST_OFS                   5
 #define RESET_WAIT_DELAY_MS            1300 // Wait time after LCD reset before first command

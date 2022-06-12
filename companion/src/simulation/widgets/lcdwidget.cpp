@@ -21,9 +21,8 @@
 
 #include "lcdwidget.h"
 
-void LcdWidget::setData(unsigned char *buf, int width, int height, int depth)
+void LcdWidget::setData(int width, int height, int depth)
 {
-  lcdBuf = buf;
   lcdWidth = width;
   lcdHeight = height;
   lcdDepth = depth;
@@ -65,11 +64,11 @@ void LcdWidget::makeScreenshot(const QString &fileName)
   }
 }
 
-void LcdWidget::onLcdChanged(bool light)
+void LcdWidget::onLcdChanged(uint8_t* lcdBuf, bool light)
 {
   QMutexLocker locker(&lcdMtx);
   lightEnable = light;
-  memcpy(localBuf, lcdBuf, lcdSize);
+  if (lcdBuf) memcpy(localBuf, lcdBuf, lcdSize);
   if (!redrawTimer.isValid() ||
       redrawTimer.hasExpired(LCD_WIDGET_REFRESH_PERIOD)) {
     update();

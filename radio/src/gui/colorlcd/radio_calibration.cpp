@@ -63,7 +63,6 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial):
 {
   buildHeader(&header);
   buildBody(&body);
-  setFocus(SET_FOCUS_DEFAULT);
 }
 
 void RadioCalibrationPage::buildHeader(Window * window)
@@ -94,12 +93,10 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
                              {(2 * window->width()) / 3, window->height() / 2, 0, 0},
                              STICK4, STICK3);
 
-  rect_t r = { 0, 0, window->width(), window->height() };
-  auto deco = new ViewMainDecoration(window, r);
+  std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window));
   deco->setTrimsVisible(false);
   deco->setSlidersVisible(true);
   deco->setFlightModeVisible(false);
-  deco->adjustDecoration();
 
 #if defined(PCBNV14)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
@@ -211,27 +208,27 @@ void RadioCalibrationPage::checkEvents()
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void RadioCalibrationPage::onEvent(event_t event)
+void RadioCalibrationPage::onClicked()
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  nextStep();
+}
 
-  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-    nextStep();
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT) && menuCalibrationState != CALIB_START) {
+void RadioCalibrationPage::onCancel()
+{
+  if (menuCalibrationState != CALIB_START &&
+      menuCalibrationState != CALIB_FINISHED) {
     menuCalibrationState = CALIB_START;
     text->setText(STR_MENUTOSTART);
-
-  }
-  else {
-    Page::onEvent(event);
+  } else {
+    Page::onCancel();
   }
 }
-#endif
 
 void RadioCalibrationPage::nextStep()
 {
+  if (menuCalibrationState == CALIB_FINISHED)
+    deleteLater();
+
   menuCalibrationState++;
 
   switch (menuCalibrationState) {

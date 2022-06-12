@@ -31,306 +31,172 @@
 
 #include "board.h"
 
+static Window* create_layout_box(Window* parent, lv_align_t align,
+                                 lv_flex_flow_t flow)
+{
+  lv_obj_t* lv_parent = parent->getLvObj();
+
+  auto box = window_create(lv_parent);
+  lv_obj_set_size(box, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+  lv_obj_set_align(box, align);
+  lv_obj_set_flex_flow(box, flow);
+
+  if (_LV_FLEX_COLUMN & flow) {
+    lv_obj_set_style_pad_row(box, 0, 0);
+  } else {
+    lv_obj_set_style_pad_column(box, 0, 0);
+  }
+
+  return new Window(parent, box);
+}
+
+ViewMainDecoration::ViewMainDecoration(Window* parent) :
+  parent(parent)
+{
+  memset(sliders, 0, sizeof(sliders));
+  memset(trims, 0, sizeof(trims));
+  flightMode = nullptr;
+
+  w_ml = create_layout_box(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
+  w_mr = create_layout_box(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
+  w_bl = create_layout_box(parent, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
+  w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
+  w_br = create_layout_box(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
+
+  createTrims(w_ml, w_mr, w_bl, w_br);
+  createFlightMode(w_bc);
+  createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
+}
+
 void ViewMainDecoration::setSlidersVisible(bool visible)
 {
-  //
-  // Horizontal Sliders
-  //
-  sliders[SLIDERS_POT1]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
-
-  if (IS_POT_MULTIPOS(POT2)) {
-    sliders[SLIDERS_POT2]->setHeight(visible ? MULTIPOS_H : 0);
-  }
-  else if (IS_POT(POT2)) {
-    sliders[SLIDERS_POT2]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
-  }
-
-#if defined(HARDWARE_POT3)
-  sliders[SLIDERS_POT3]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
-#endif
-
-#if NUM_SLIDERS > 0
-  //
-  // Vertical sliders
-  //
-  sliders[SLIDERS_REAR_LEFT]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-
-#if defined(HARDWARE_EXT1) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-    sliders[SLIDERS_EXT1]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-  }
-#endif
-
-  sliders[SLIDERS_REAR_RIGHT]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-    
-#if defined(HARDWARE_EXT2) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-    sliders[SLIDERS_EXT2]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-  }
-#endif
-
-#endif
-
-  if (visible) {
-    visibilityMask |= VM_SLIDERS;
-  }
-  else {
-    visibilityMask &= ~VM_SLIDERS;
+  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
+  for (int i=0; i < SLIDERS_MAX; i++) {
+    if (sliders[i]) {
+      fct(sliders[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
   }
 }
 
 void ViewMainDecoration::setTrimsVisible(bool visible)
 {
-  trims[TRIMS_LH]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
-  trims[TRIMS_RH]->setHeight(visible ? TRIM_SQUARE_SIZE : 0);
-
-  trims[TRIMS_LV]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-  trims[TRIMS_RV]->setWidth(visible ? TRIM_SQUARE_SIZE : 0);
-
-  if (visible) {
-    visibilityMask |= VM_TRIMS;
-  }
-  else {
-    visibilityMask &= ~VM_TRIMS;
+  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
+  for (int i=0; i < TRIMS_MAX; i++) {
+    if (trims[i]) {
+      fct(trims[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
   }
 }
 
 void ViewMainDecoration::setFlightModeVisible(bool visible)
 {
-  flightMode->setHeight(visible ? FM_LABEL_HEIGHT : 0);
-
-  if (visible) {
-    visibilityMask |= VM_FM;
+  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
+  if (flightMode) {
+    fct(flightMode->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   }
-  else {
-    visibilityMask &= ~VM_FM;
-  }
-}
-
-void ViewMainDecoration::adjustDecoration()
-{
-  // Sliders are closer to the edge and must be computed first
-
-  // These are located on the bottom
-  auto pos = bottom() - sliders[SLIDERS_POT1]->height();
-  sliders[SLIDERS_POT1]->setTop(pos);
-
-  if (sliders[SLIDERS_POT2]) {
-    auto sl = sliders[SLIDERS_POT2];
-    sl->setTop(pos);
-    if (IS_POT_MULTIPOS(POT2)) {
-      sl->setWidth(MULTIPOS_W);
-	    sl->setLeft((width() - sl->width()) / 2);  // This is the position of middle multipos pot
-    }
-    else { // if !IS_POT(POT2) -> sliders[SLIDERS_POT2] == nullptr
-      sl->setWidth(HORIZONTAL_SLIDERS_WIDTH);
-			sl->setLeft(width() - sl->width() - HMARGIN);  // Normal pot position, align to right
-    }
-  }
-
-#if defined(HARDWARE_POT3)
-  sliders[SLIDERS_POT3]->setTop(pos);
-#endif
-
-  // Horizontal trims are on top of horizontal sliders
-  pos -= trims[TRIMS_LH]->height();
-  trims[TRIMS_LH]->setTop(pos);
-  trims[TRIMS_RH]->setTop(pos);
-
-  // Vertical trims/slider are on top of horizontal sliders with a small margin
-  auto vertTop = pos - HMARGIN - VERTICAL_SLIDERS_HEIGHT;
-
-#if NUM_SLIDERS > 0
-  // Left side (vertical)
-  pos = left();
-  sliders[SLIDERS_REAR_LEFT]->setLeft(pos);
-  sliders[SLIDERS_REAR_LEFT]->setTop(vertTop);
-
-#if defined(HARDWARE_EXT1) || defined(PCBX12S) // TODO: define HARDWARE_EXT1 for X12S
-  sliders[SLIDERS_EXT1]->setLeft(pos);
-  if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-    auto rl = sliders[SLIDERS_REAR_LEFT];
-    auto e1 = sliders[SLIDERS_EXT1];
-
-    // If EXT1 is configured as a slider,
-    // place it bellow rear-left slider (and make them smaller)
-    rl->setHeight(VERTICAL_SLIDERS_HEIGHT / 2);
-    e1->setTop(vertTop + rl->height() + HMARGIN/2);
-    e1->setHeight(rl->height());
-  }
-  else {
-    auto rl = sliders[SLIDERS_REAR_LEFT];
-    auto e1 = sliders[SLIDERS_EXT1];
-
-    // Otherwise hide the extra slider and make rear-left fullsize
-    rl->setHeight(VERTICAL_SLIDERS_HEIGHT);
-    e1->setHeight(0);
-  }
-#endif
-
-  // Right side (vertical)
-  pos = right() - sliders[SLIDERS_REAR_RIGHT]->width();
-  sliders[SLIDERS_REAR_RIGHT]->setLeft(pos);
-  sliders[SLIDERS_REAR_RIGHT]->setTop(vertTop);
-
-#if defined(HARDWARE_EXT2) || defined(PCBX12S)
-  sliders[SLIDERS_EXT2]->setLeft(pos);
-  if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-    auto rr = sliders[SLIDERS_REAR_RIGHT];
-    auto e2 = sliders[SLIDERS_EXT2];
-
-    // If EXT2 is configured as a slider,
-    // place it bellow rear-left slider (and make them smaller)
-    rr->setHeight(VERTICAL_SLIDERS_HEIGHT / 2);
-    e2->setTop(vertTop + rr->height() + HMARGIN/2);
-    e2->setHeight(rr->height());
-  }
-  else {
-    auto rr = sliders[SLIDERS_REAR_RIGHT];
-    auto e2 = sliders[SLIDERS_EXT2];
-
-    // Otherwise hide the extra slider and make rear-left fullsize
-    rr->setHeight(VERTICAL_SLIDERS_HEIGHT);
-    e2->setHeight(0);
-  }
-#endif
-
-  // Finally place the vertical trims further from the edge
-  trims[TRIMS_LV]->setLeft(sliders[SLIDERS_REAR_LEFT]->right());
-  trims[TRIMS_LV]->setTop(vertTop);
-  trims[TRIMS_RV]->setLeft(sliders[SLIDERS_REAR_RIGHT]->left() - trims[TRIMS_RV]->width());
-  trims[TRIMS_RV]->setTop(vertTop);
-#else
-  // No sliders: place the vertical trims on the edge
-  trims[TRIMS_LV]->setLeft(left());
-  trims[TRIMS_LV]->setTop(vertTop);
-  trims[TRIMS_RV]->setLeft(right() - trims[TRIMS_RV]->width());
-  trims[TRIMS_RV]->setTop(vertTop);  
-#endif
-  
-  // Place the flight-mode text box
-  // -> between horiz trims (if existing)
-  // else on top of horiz sliders
-  //
-  pos = trims[TRIMS_LH]->right();
-  flightMode->setLeft(pos);
-
-  pos = trims[TRIMS_RH]->left() - pos;
-  flightMode->setWidth(pos);
-  flightMode->setInnerWidth(pos);
-
-  pos = sliders[SLIDERS_POT1]->top();
-  pos -= flightMode->height();
-  flightMode->setTop(pos);
 }
 
 rect_t ViewMainDecoration::getMainZone() const
 {
-  coord_t border = (getVisibilityMask() == VM_NONE ?
-                    0 : MAIN_ZONE_BORDER);
-  rect_t zone = {
-    trims[TRIMS_LV]->right() + border, border,
-    0, 0 // let's compute them!
-  };
+  // update layout first
+  lv_obj_update_layout(parent->getLvObj());
 
-  zone.w = trims[TRIMS_RV]->left() - border - zone.x;
+  auto x_left = lv_obj_get_x2(w_ml->getLvObj()) + 1;
+  auto x_right = lv_obj_get_x(w_mr->getLvObj());
 
-  // min(trims[TRIMS_LH]->top(), flightMode->top())
-  if (trims[TRIMS_LH]->top() < flightMode->top())
-    zone.h = trims[TRIMS_LH]->top();
-  else
-    zone.h = flightMode->top();
+  lv_coord_t bottom = LCD_H;
+  Window* boxes[] = { w_bl, w_bc, w_br };
 
-  zone.h -= border + zone.y;
+  for ( auto box : boxes ) {
+    auto obj = box->getLvObj();
+    auto y = lv_obj_get_y(obj);
+    if (y < bottom) bottom = y;
+  }
 
-  return zone;
+  return rect_t{ x_left, 0, x_right - x_left, bottom};
 }
 
-void ViewMainDecoration::createSliders()
+void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
-  // fixed size array, so that works
-  memset(sliders, 0, sizeof(sliders));
-    
-  rect_t r = {
-    // left
-    HMARGIN, 0,
-    HORIZONTAL_SLIDERS_WIDTH, 0
-  };
-    
-  sliders[SLIDERS_POT1] = new MainViewHorizontalSlider(this, r, CALIBRATED_POT1);
+  Window* sl = new MainViewHorizontalSlider(bl, CALIBRATED_POT1);
+  sl->updateSize();
+  sliders[SLIDERS_POT1] = sl;
 
-  r = rect_t { 0, 0, 0, 0 };
+#if !defined(HARDWARE_POT3)
+  bc = br;
+#endif
+  
   if (IS_POT_MULTIPOS(POT2)) {
-    sliders[SLIDERS_POT2] = new MainView6POS(this, r, 1);
+    sl = new MainView6POS(bc, 1);
+    sl->updateSize();
+    sliders[SLIDERS_POT2] = sl;
   }
   else if (IS_POT(POT2)) {
-    sliders[SLIDERS_POT2] = new MainViewHorizontalSlider(this, r, CALIBRATED_POT2);
+    sl = new MainViewHorizontalSlider(bc, CALIBRATED_POT2);
+    sl->updateSize();
+    sliders[SLIDERS_POT2] = sl;
   }
 
 #if defined(HARDWARE_POT3)
-  r = rect_t {
-    // right
-    width() - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, 0,
-    HORIZONTAL_SLIDERS_WIDTH, 0
-  };
-
-  sliders[SLIDERS_POT3] = new MainViewHorizontalSlider(this, r, CALIBRATED_POT3);
+  sl = new MainViewHorizontalSlider(br, CALIBRATED_POT3);
+  sl->updateSize();
+  sliders[SLIDERS_POT3] = sl;
 #endif
 
 #if NUM_SLIDERS > 0
-  r = rect_t { 0, 0, 0, 0 };
-  sliders[SLIDERS_REAR_LEFT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_LEFT);
-  sliders[SLIDERS_REAR_RIGHT] = new MainViewVerticalSlider(this, r, CALIBRATED_SLIDER_REAR_RIGHT);
+  sl = new MainViewVerticalSlider(ml, CALIBRATED_SLIDER_REAR_LEFT);
+  sl->updateSize(); // only pos...
+  sliders[SLIDERS_REAR_LEFT] = sl;
+
+  sl = new MainViewVerticalSlider(mr, CALIBRATED_SLIDER_REAR_RIGHT);
+  sl->updateSize(); // only pos...
+  sliders[SLIDERS_REAR_RIGHT] = sl;
 
 #if defined(HARDWARE_EXT1) || defined(PCBX12S)
-  sliders[SLIDERS_EXT1] = new MainViewVerticalSlider(this, r, CALIBRATED_POT_EXT1);
+  if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
+    sl = new MainViewVerticalSlider(ml, CALIBRATED_POT_EXT1);
+    sl->updateSize();
+    sliders[SLIDERS_EXT1] = sl;
+  }
 #endif
 
 #if defined(HARDWARE_EXT2) || defined(PCBX12S)
-  sliders[SLIDERS_EXT2] = new MainViewVerticalSlider(this, r, CALIBRATED_POT_EXT2);
+  if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
+    sl = new MainViewVerticalSlider(mr, CALIBRATED_POT_EXT2);
+    sl->updateSize();
+    sliders[SLIDERS_EXT2] = sl;
+  }
 #endif
 #endif // NUM_SLIDERS > 0
 }
 
-void ViewMainDecoration::createTrims()
+void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
 {
   // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
 
-  rect_t r = {
-    left() + HMARGIN, 0,
-    HORIZONTAL_SLIDERS_WIDTH, 0
-  };
+  Window* tr = new MainViewHorizontalTrim(bl, TRIMS_LH);
+  tr->updateSize();
+  trims[TRIMS_LH] = tr;
+
+  tr = new MainViewHorizontalTrim(br, TRIMS_RH);
+  tr->updateSize();
+  trims[TRIMS_RH] = tr;
+
+  tr = new MainViewVerticalTrim(ml, TRIMS_LV);
+  tr->updateSize();
+  trims[TRIMS_LV] = tr;
   
-  trims[TRIMS_LH] = new MainViewHorizontalTrim(this, r, TRIMS_LH);
-
-  r = rect_t {
-    right() - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, 0,
-    HORIZONTAL_SLIDERS_WIDTH, 0
-  };
-
-  trims[TRIMS_RH] = new MainViewHorizontalTrim(this, r, TRIMS_RH);
-
-  r = rect_t {
-    0, 0, 0,
-    VERTICAL_SLIDERS_HEIGHT
-  }; 
-
-  trims[TRIMS_LV] = new MainViewVerticalTrim(this, r, TRIMS_LV);
-  trims[TRIMS_RV] = new MainViewVerticalTrim(this, r, TRIMS_RV);
+  tr = new MainViewVerticalTrim(mr, TRIMS_RV);
+  tr->updateSize();
+  trims[TRIMS_RV] = tr;
 }
 
-void ViewMainDecoration::createFlightMode()
+void ViewMainDecoration::createFlightMode(Window* bc)
 {
-  rect_t r = {
-    // centered text box (50 pixels from either edge)
-    // -> re-size once the other components are set
-    50, 0, width() - 100, 0
-  };
-
   std::function<std::string()> getFM = []() -> std::string {
       return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
-};
+  };
 
-  flightMode = new DynamicText(this, r, getFM, CENTERED | COLOR_THEME_SECONDARY1);
+  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1);
 }
 

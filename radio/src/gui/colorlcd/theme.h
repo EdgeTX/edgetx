@@ -102,19 +102,9 @@ class OpenTxTheme: public Theme
     virtual void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
                                           const char *title) const = 0;
 
-    virtual void drawPageHeader(BitmapBuffer *dc, std::vector<PageTab *> &tabs,
-                                uint8_t currentIndex) const = 0;
-
-    // virtual void drawMessageBox(const char * title, const char * text, const
-    //                             char * action, uint32_t flags) const override;
-    // virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y,
-    //                              coord_t w, coord_t h, int value) const = 0;
+    virtual void drawCurrentMenuBackground(BitmapBuffer *dc) const = 0;
 
     void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const override;
-
-    void drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char * str) const override;
-
-    void drawSlider(BitmapBuffer * dc, int vmin, int vmax, int value, const rect_t & rect, bool edit, bool focus) const override;
 
     virtual void drawTopLeftBitmap(BitmapBuffer * dc) const = 0;
 
@@ -138,7 +128,5 @@ void loadTheme(OpenTxTheme * theme);
 void loadTheme();
 
 std::list<OpenTxTheme *> & getRegisteredThemes();
-
-extern const uint8_t LBM_DROPDOWN[];
 
 #endif // _COLORLCD_THEME_H_
