@@ -41,179 +41,213 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-class VersionDialog: public Dialog
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+class VersionDialog : public Dialog
 {
-  public:
-    VersionDialog(Window * parent, rect_t rect) :
-      Dialog(parent, STR_MODULES_RX_VERSION, rect)
-    {
-      memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
-      reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
+  StaticText* int_name;
+  StaticText* int_status;
+  Window*     int_rx_line;
+  StaticText* int_rx_name;
+  StaticText* int_rx_status;
 
-      // Query modules
-      if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
-        moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-      }
+  StaticText* ext_name;
+  StaticText* ext_status;
+  Window*     ext_rx_line;
+  StaticText* ext_rx_name;
+  StaticText* ext_rx_status;
+  
+ public:
+  VersionDialog(Window *parent) :
+    Dialog(parent, STR_MODULES_RX_VERSION, rect_t{ 0, 0, 200, 100 })
+  {
+    memclear(&reusableBuffer.hardwareAndSettings.modules,
+             sizeof(reusableBuffer.hardwareAndSettings.modules));
+    reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
 
-      if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
-        moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-      }
-
-      setCloseWhenClickOutside(true);
-      update();
+    // Query modules
+    if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+      moduleState[INTERNAL_MODULE].readModuleInformation(
+          &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
+          PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 
-    void update()
-    {
-      FormGroup * form = &content->form;
-      FormGridLayout grid(content->form.width());
-      form->clear();
-
-      grid.setLabelWidth(100);
-
-      // Internal module
-      drawModuleVersion(form, &grid, INTERNAL_MODULE);
-      grid.nextLine();
-
-      // external module
-      drawModuleVersion(form, &grid, EXTERNAL_MODULE);
-      grid.nextLine();
-
-      // Exit
-      exitButton = new TextButton(form, grid.getLabelSlot(), "EXIT",
-                                  [=]() -> int8_t {
-                                      this->deleteLater();
-                                      return 0;
-                                  });
-      // exitButton->setFocus(SET_FOCUS_DEFAULT);
-      grid.nextLine();
-
-      grid.spacer(PAGE_PADDING);
-      form->setHeight(grid.getWindowHeight());
-      content->adjustHeight();
+    if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+      moduleState[EXTERNAL_MODULE].readModuleInformation(
+          &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
+          PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 
-    void drawModuleVersion(FormGroup * form, FormGridLayout *grid, uint8_t module)
-    {
-      char tmp[20];
+    setCloseWhenClickOutside(true);
 
-      // Module
-      if (module == INTERNAL_MODULE)
-        new StaticText(form, grid->getLineSlot(), STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
-      else
-        new StaticText(form, grid->getLineSlot(), STR_EXTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
-      grid->nextLine();
+    auto form = &content->form;
+    form->setFlexLayout();
+    
+    FlexGridLayout grid(col_dsc, row_dsc);
 
-      new StaticText(form, grid->getLabelSlot(true), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-      if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
-        new StaticText(form, grid->getFieldSlot(1, 0), STR_OFF, 0, COLOR_THEME_PRIMARY1);
-      }
+    new StaticText(form, rect_t{}, STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
+
+    auto line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+    int_name = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    int_status = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+
+    int_rx_line = form->newLine(&grid);
+    new StaticText(int_rx_line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
+    int_rx_name = new StaticText(int_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    int_rx_status = new StaticText(int_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(int_rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+    new StaticText(form, rect_t{}, STR_EXTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
+
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+    ext_name = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    ext_status = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+
+    ext_rx_line = form->newLine(&grid);
+    new StaticText(ext_rx_line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
+    ext_rx_name = new StaticText(ext_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    ext_rx_status = new StaticText(ext_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(ext_rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+    content->setWidth(LCD_W * 0.8);
+    update();
+  }
+
+  void update()
+  {
+    updateModule(INTERNAL_MODULE, int_name, int_status, int_rx_line,
+                 int_rx_name, int_rx_status);
+    updateModule(EXTERNAL_MODULE, ext_name, ext_status, ext_rx_line,
+                 ext_rx_name, ext_rx_status);
+    content->updateSize();
+  }
+
+  void updateModule(uint8_t module, StaticText* name, StaticText* status,
+                    Window* rx_line, StaticText* rx_name, StaticText* rx_status)
+  {
+    char tmp[20];
+
+    if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
+      name->setText(STR_OFF);
+      status->setText("");
+    }
 #if defined(CROSSFIRE)
-      else if (isModuleCrossfire(module)) {
-          char statusText[64] = "";
-          new StaticText(form, grid->getFieldSlot(2, 0), "CRSF", 0, COLOR_THEME_PRIMARY1);
-          sprintf(statusText,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
-          new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
-      }
+    else if (isModuleCrossfire(module)) {
+      name->setText("CRSF");
+
+      char statusText[64];
+      auto hz = 1000000 / getMixerSchedulerPeriod();
+      snprintf(statusText, 64, "%d Hz %lu Err", hz, telemetryErrors);
+      status->setText(statusText);
+    }
 #endif
 #if defined(MULTIMODULE)
-      else if (isModuleMultimodule(module)) {
-        char statusText[64] = "";
-        new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule", 0, COLOR_THEME_PRIMARY1);
-        getMultiModuleStatus(module).getStatusString(statusText);
-        new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
-      }
+    else if (isModuleMultimodule(module)) {
+      name->setText("Multimodule");
+
+      char statusText[64] = "";
+      getMultiModuleStatus(module).getStatusString(statusText);
+      status->setText(statusText);
+    }
 #endif
-      else if (!isModulePXX2(module)) {
-        new StaticText(form, grid->getFieldSlot(1, 0), STR_NO_INFORMATION, 0, COLOR_THEME_PRIMARY1);
+#if defined(PXX2)
+    else if (isModulePXX2(module)) {
+
+      // PXX2 Module
+      name->setText(getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
+                                      .information.modelID));
+
+      std::string mod_ver;
+      if (reusableBuffer.hardwareAndSettings.modules[module]
+              .information.modelID) {
+
+        mod_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                          .information.hwVersion);
+        mod_ver += " / ";
+        mod_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                          .information.swVersion);
+
+        static const char *variants[] = {"FCC", "EU", "FLEX"};
+        uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module]
+                              .information.variant - 1;
+        if (variant < DIM(variants)) {
+          mod_ver += " ";
+          mod_ver += variants[variant];
+        }
       }
-      else {
-        // PXX2 Module
-        new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module].information.modelID), 0, COLOR_THEME_PRIMARY1);
-        if (reusableBuffer.hardwareAndSettings.modules[module].information.modelID) {
-          new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.hwVersion), 0, COLOR_THEME_PRIMARY1);
-          new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].information.swVersion), 0, COLOR_THEME_PRIMARY1);
-          static const char * variants[] = {"FCC", "EU", "FLEX"};
-          uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module].information.variant - 1;
-          if (variant < DIM(variants)) {
-            new StaticText(form, grid->getFieldSlot(4, 3), variants[variant], 0, COLOR_THEME_PRIMARY1);
+      status->setText(mod_ver);
+
+      // PXX2 Receivers
+      std::string rx_n;
+      std::string rx_ver;
+
+      for (uint8_t receiver = 0; receiver < PXX2_MAX_RECEIVERS_PER_MODULE; receiver++) {
+        if (reusableBuffer.hardwareAndSettings.modules[module]
+                .receivers[receiver]
+                .information.modelID) {
+
+          if (!rx_ver.empty()){
+            rx_n += "\n";
+            rx_ver += "\n";
           }
-        }
-        grid->nextLine();
+          
+          // Receiver model
+          uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
+                                .receivers[receiver]
+                                .information.modelID;
+          rx_n += getPXX2ReceiverName(modelId);
 
-        // PXX2 Receivers
-        for (uint8_t receiver=0; receiver<PXX2_MAX_RECEIVERS_PER_MODULE; receiver++) {
-          if (reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID) {
-            // Receiver model
-            new StaticText(form, grid->getLabelSlot(true), STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-            uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID;
-            new StaticText(form, grid->getFieldSlot(4, 0), getPXX2ReceiverName(modelId), 0, COLOR_THEME_PRIMARY1);
-
-            // Receiver version
-            new StaticText(form, grid->getFieldSlot(4, 1), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.hwVersion), 0, COLOR_THEME_PRIMARY1);
-            new StaticText(form, grid->getFieldSlot(4, 2), getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.swVersion), 0, COLOR_THEME_PRIMARY1);
-            grid->nextLine();
-          }
+          // Receiver version
+          rx_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                               .receivers[receiver]
+                               .information.hwVersion);
+          rx_ver += " / ";
+          rx_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                               .receivers[receiver]
+                               .information.swVersion);
         }
+      }
+
+      if (!rx_n.empty() && !rx_ver.empty()) {
+        // unhide RX labels
+        lv_obj_clear_flag(rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        rx_name->setText(rx_n);
+        rx_status->setText(rx_ver);
+      } else {
+        // hide RX labels
+        lv_obj_add_flag(rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
     }
-
-    void checkEvents() override
-    {
-      if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
-        // Query modules
-        if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
-          moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID,
-                                                             PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-        }
-        if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
-          moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID,
-                                                             PXX2_MAX_RECEIVERS_PER_MODULE - 1);
-        }
-        reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 500 /* 5s*/;
-      }
-      update();
-      Dialog::checkEvents();
+#endif
+    else {
+      name->setText(STR_NO_INFORMATION);
+      status->setText("");
     }
+  }
 
-  protected:
-    rect_t rect;
-    TextButton * exitButton;
-};
-
-class OptionsText: public StaticText {
-  public:
-    OptionsText(Window * parent, const rect_t &rect) :
-      StaticText(parent, rect, "", 0, COLOR_THEME_PRIMARY1)
-    {
-      coord_t optionWidth = 0;
-      for (uint8_t i = 0; options[i]; i++) {
-        const char * option = options[i];
-        optionWidth += getTextWidth(option);
-        if (optionWidth + 5 > width()) {
-          setHeight(height() + 20);
-          optionWidth = 0;
-        }
+  void checkEvents() override
+  {
+    if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
+      // Query modules
+      if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+        moduleState[INTERNAL_MODULE].readModuleInformation(
+            &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
+            PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
-    };
-
-    void paint(BitmapBuffer * dc) override
-    {
-      coord_t y = 2;
-      coord_t x = 0;
-      for (uint8_t i = 0; options[i]; i++) {
-        const char * option = options[i];
-        coord_t optionWidth = getTextWidth(option);
-        if (x + 5 + optionWidth > width()) {
-          dc->drawText(x, y, ",", COLOR_THEME_PRIMARY1);
-          x = 0;
-          y += FH;
-        }
-        if (i > 0 && x != 0)
-          x = dc->drawText(x, y, ", ", COLOR_THEME_PRIMARY1);
-        x = dc->drawText(x, y, option, COLOR_THEME_PRIMARY1);
+      if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+        moduleState[EXTERNAL_MODULE].readModuleInformation(
+            &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
+            PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
+      reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 500 /* 5s*/;
     }
+    update();
+    Dialog::checkEvents();
+  }
 };
 
 RadioVersionPage::RadioVersionPage():
@@ -221,65 +255,55 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
-extern uint32_t NV14internalModuleFwVersion;
 #if defined(PCBNV14)
+extern uint32_t NV14internalModuleFwVersion;
 extern const char* boardLcdType;
 #endif
 
 void RadioVersionPage::build(FormWindow * window)
 {
-  FormGridLayout grid;
-  grid.setLabelWidth(60);
-  grid.spacer(PAGE_PADDING);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
+  lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
-  // Radio type
-  new StaticText(window, grid.getLineSlot(), fw_stamp, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
+  std::string nl("\n");
+  std::string version;
 
-  // Firmware version
-  new StaticText(window, grid.getLineSlot(), vers_stamp, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
+  version += fw_stamp + nl;
+  version += vers_stamp + nl;
+  version += date_stamp + nl;
+  version += time_stamp + nl;
+  version += cfgv_stamp + nl;
+  version += "OPTS: ";
 
-  // Firmware date
-  new StaticText(window, grid.getLineSlot(), date_stamp, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
-
-  // Firmware time
-  new StaticText(window, grid.getLineSlot(), time_stamp, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
-
-  // Configuration version
-  new StaticText(window, grid.getLineSlot(), cfgv_stamp, 0, COLOR_THEME_PRIMARY1);
-  grid.nextLine();
-
-  // Firmware options
-  new StaticText(window, grid.getLabelSlot(), "OPTS:", 0, COLOR_THEME_PRIMARY1);
-  auto options = new OptionsText(window, grid.getFieldSlot(1,0));
-  grid.nextLine(options->height() + 4);
+  for (uint8_t i = 0; options[i]; i++) {
+    if (i > 0) version += ", ";
+    version += options[i];
+  }
 
 #if defined(PCBNV14) && !defined(SIMU)
-  new StaticText(window, grid.getLabelSlot(), "LCD:");
-  new StaticText(window, grid.getFieldSlot(), boardLcdType);
-  grid.nextLine();
-#endif
+  version += nl;
+  version += "LCD: ";
+  version += boardLcdType;
 
 #if defined(AFHDS2)
-  new StaticText(window, grid.getLabelSlot(), "RF FW:");
+  version += nl;
+  version += "RF FW: ";
   sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d",
           (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
           (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
           (int)(NV14internalModuleFwVersion & 0xFF));
-  new StaticText(window, grid.getFieldSlot(), reusableBuffer.moduleSetup.msg);
-  grid.nextLine();
+  version += reusableBuffer.moduleSetup.msg;
+#endif
 #endif
 
-#if defined(PXX2)
+  auto txt = new StaticText(window, rect_t{}, version, 0, COLOR_THEME_PRIMARY1);
+  lv_obj_set_width(txt->getLvObj(), lv_pct(100));
+
   // Module and receivers versions
-  auto moduleVersions =
-      new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
-  moduleVersions->setPressHandler([=]() -> uint8_t {
-    new VersionDialog(window, {50, 30, LCD_W - 100, 0});
+  auto btn = new TextButton(window, rect_t{}, STR_MODULES_RX_VERSION);
+  btn->setPressHandler([=]() -> uint8_t {
+    new VersionDialog(window);
     return 0;
   });
-#endif
+  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
 }
