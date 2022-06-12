@@ -707,6 +707,32 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 // all other instantiations are done from this file
 template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx);
 
+static char tmpHelpersString[32];
+
+char *getSourceString(mixsrc_t idx)
+{
+  return getSourceString(tmpHelpersString, idx);
+}
+
+char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
+
+char *getTimerString(int32_t tme, TimerOptions timerOptions)
+{
+  return getFormattedTimerString(tmpHelpersString, tme, timerOptions);
+}
+
+char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
+{
+  return getFormattedTimerString(dest, tme, timerOptions);
+}
+
+char *getSwitchPositionName(swsrc_t idx)
+{
+  return getSwitchPositionName(tmpHelpersString, idx);
+}
+
+char *getGVarString(int idx) { return getGVarString(tmpHelpersString, idx); }
+
 #if defined(LIBOPENUI)
 char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
                        LcdFlags flags)
@@ -852,6 +878,20 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
 
   return dest;
 }
+
+std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
+                                 const char *prefix, const char *suffix)
+{
+  char s[49];
+  BitmapBuffer::formatNumberAsString(s, 49, val, flags, len, prefix, suffix);
+  return std::string(s);
+}
+
+char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags)
+{
+  return getSourceCustomValueString(tmpHelpersString, source, val, flags);
+}
+
 #endif // defined(LIBOPENUI)
 #endif // !defined(BOOT)
 
@@ -918,18 +958,6 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
   return dest;
 }
 
-#if defined(LIBOPENUI)
-#include "bitmapbuffer.h"
-
-std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
-                                 const char *prefix, const char *suffix)
-{
-  char s[49];
-  BitmapBuffer::formatNumberAsString(s, 49, val, flags, len, prefix, suffix);
-  return std::string(s);
-}
-#endif
-
 #if defined(RTCLOCK)
 #include "rtc.h"
 
@@ -975,34 +1003,4 @@ char *strAppendDate(char *str, bool time)
 #endif
 
 #if !defined(BOOT)
-static char tmpHelpersString[32];
-
-char *getSourceString(mixsrc_t idx)
-{
-  return getSourceString(tmpHelpersString, idx);
-}
-
-char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags)
-{
-  return getSourceCustomValueString(tmpHelpersString, source, val, flags);
-}
-
-char *getCurveString(int idx) { return getCurveString(tmpHelpersString, idx); }
-
-char *getTimerString(int32_t tme, TimerOptions timerOptions)
-{
-  return getFormattedTimerString(tmpHelpersString, tme, timerOptions);
-}
-
-char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
-{
-  return getFormattedTimerString(dest, tme, timerOptions);
-}
-
-char *getSwitchPositionName(swsrc_t idx)
-{
-  return getSwitchPositionName(tmpHelpersString, idx);
-}
-
-char *getGVarString(int idx) { return getGVarString(tmpHelpersString, idx); }
 #endif
