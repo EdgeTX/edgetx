@@ -745,7 +745,6 @@ void checkSwitches()
   LED_ERROR_END();
 }
 #elif defined(GUI)
-
 void checkSwitches()
 {
   swarnstate_t last_bad_switches = 0xff;
@@ -781,9 +780,10 @@ void checkSwitches()
                 ((states & mask) == (switches_states & mask)) ? 0 : INVERS;
             if (attr) {
               if (++numWarnings < 6) {
-                const char* s = getSwitchWarnSymbol((states & mask) >> (i * 3));
+                char c = (" " STR_CHAR_UP
+                          "-" STR_CHAR_DOWN)[(states & mask) >> (i * 3)];
                 drawSource(x, y, MIXSRC_FIRST_SWITCH + i, attr);
-                lcdDrawText(lcdNextPos, y, s, attr);
+                lcdDrawChar(lcdNextPos, y, c, attr);
                 x = lcdNextPos + 3;
               }
             }
@@ -796,24 +796,14 @@ void checkSwitches()
           if (!IS_POT_SLIDER_AVAILABLE(POT1+i)) {
             continue;
           }
-          if (g_model.potsWarnEnabled & (1 << i)) {
+          if (!(g_model.potsWarnEnabled & (1 << i))) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
                 lcdDrawTextAtIndex(x, y, STR_VSRCRAW, NUM_STICKS + 1 + i, INVERS);
                 if (IS_POT(POT1 + i))
-                  lcdDrawChar(
-                      lcdNextPos, y,
-                      g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i)
-                          ? 126
-                          : 127,
-                      INVERS);  // TODO: use constants for chars
+                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? 126 : 127, INVERS); // TODO: use constants for chars
                 else
-                  lcdDrawText(
-                      lcdNextPos, y,
-                      g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i)
-                          ? STR_CHAR_UP
-                          : STR_CHAR_DOWN,
-                      INVERS);
+                  lcdDrawChar(lcdNextPos, y, g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i) ? CHAR_UP : CHAR_DOWN, INVERS);
                 x = lcdNextPos + 3;
               }
             }
@@ -897,7 +887,7 @@ void logicalSwitchesTimerTick()
     }
     msg = luaSetStickySwitchBuffer.read();
   }
-
+  
   // Update logical switches
   for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
     for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
@@ -1014,7 +1004,7 @@ void logicalSwitchesReset()
       LS_LAST_VALUE(fm, i) = CS_LAST_VALUE_INIT;
     }
   }
-
+  
   luaSetStickySwitchBuffer.clear();
 }
 

@@ -21,12 +21,13 @@
 
 #include "select_fab_button.h"
 
-SelectFabButton::SelectFabButton(FormGroup* parent,
+SelectFabButton::SelectFabButton(FormGroup* parent, coord_t x, coord_t y,
                                  uint8_t icon, const char* title,
                                  std::function<uint8_t(void)> pressHandler,
                                  WindowFlags windowFlags) :
     // FabButton uses center coordinates, we want top left corner:
-    FabButton(parent, icon, pressHandler, windowFlags),
+    FabButton(parent, x + FAB_BUTTON_SIZE / 2, y + FAB_BUTTON_SIZE / 2, icon,
+              pressHandler, windowFlags),
     title(title)
 {
   // Add some space on either side on the button
@@ -39,10 +40,19 @@ SelectFabButton::SelectFabButton(FormGroup* parent,
 void SelectFabButton::paint(BitmapBuffer* dc)
 {
   FabButton::paint(dc);
+  auto pos = title.find('\n');
 
-  dc->drawSizedText(width() / 2, FAB_BUTTON_SIZE,
-                    title.c_str(), title.size(),
-                    COLOR2FLAGS(WHITE) | CENTERED);
+  auto y_pos = FAB_BUTTON_SIZE;
+  
+  dc->drawSizedText(width() / 2, y_pos,
+                    title.c_str(), pos,
+                    COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
+
+  if (pos != std::string::npos) {
+    y_pos += PAGE_LINE_HEIGHT;
+    dc->drawSizedText(width() / 2, y_pos, title.substr(pos+1).c_str(),
+                      255, COLOR2FLAGS(WHITE) | CENTERED | VCENTERED);
+  }
 
   if (hasFocus()) {
     dc->drawSolidRect(0, 0, width(), height(), 2, COLOR2FLAGS(WHITE));

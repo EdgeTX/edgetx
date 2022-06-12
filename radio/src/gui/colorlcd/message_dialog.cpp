@@ -34,12 +34,20 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
                                width(), PAGE_LINE_HEIGHT},
                               info, 0, CENTERED);
   setCloseWhenClickOutside(true);
+  setFocus();
 }
 
-void MessageDialog::onClicked()
+#if defined(HARDWARE_KEYS)
+void MessageDialog::onEvent(event_t event)
 {
-  deleteLater();
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+    deleteLater();
+  }
 }
+#endif
 
 DynamicMessageDialog::DynamicMessageDialog(
     Window* parent, const char* title, std::function<std::string()> textHandler,
@@ -58,11 +66,18 @@ DynamicMessageDialog::DynamicMessageDialog(
       this,
       {0, 30 + coord_t(height() - PAGE_LINE_HEIGHT) / 2, width(), lineHeight},
       textHandler, textFlags);
-
   setCloseWhenClickOutside(true);
+  setFocus();
 }
 
-void DynamicMessageDialog::onClicked()
+#if defined(HARDWARE_KEYS)
+void DynamicMessageDialog::onEvent(event_t event)
 {
-  deleteLater();
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
+    deleteLater();
+  }
 }
+#endif

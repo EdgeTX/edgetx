@@ -150,15 +150,16 @@ class ScriptEditWindow : public Page {
         grid.addWindow(gOutputs);
       }
 
+      window->setInnerHeight(grid.getWindowHeight());
       if (focusScript) { fc->setFocus(); }
     }
     
     void rebuildBody(FormWindow * window)
     {
-      auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
-      window->clear();
-      buildBody(window);
-      lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+        coord_t scrollPosition = window->getScrollPositionY();
+        window->clear();
+        buildBody(window);
+        window->setScrollPositionY(scrollPosition);
     }
 };
 
@@ -227,10 +228,10 @@ ModelMixerScriptsPage::ModelMixerScriptsPage() :
 
 void ModelMixerScriptsPage::rebuild(FormWindow * window, int8_t focusIdx)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
   build(window, focusIdx);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  window->setScrollPositionY(scrollPosition);
 }
 
 void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
@@ -297,6 +298,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   }
 
   grid.nextLine();
+  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ModelMixerScriptsPage::editLine(FormWindow * window, uint8_t idx)

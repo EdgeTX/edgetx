@@ -34,6 +34,9 @@ class TimeEdit : public NumberEdit {
       return "TimeEdit";
     }
 #endif
+
+    void paint(BitmapBuffer * dc) override;
+
 };
 
 #endif // _TIMEEDIT_H_

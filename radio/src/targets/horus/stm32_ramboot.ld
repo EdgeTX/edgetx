@@ -103,7 +103,7 @@ SECTIONS
   _sidata = .;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data :
+  .data : AT ( _sidata )
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -111,12 +111,12 @@ SECTIONS
     *(.data*)          /* .data* sections */
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM AT> FLASH
+  } >CCM
 
   /* Uninitialized data section */
+  . = ALIGN(4);
   .bss :
   {
-    . = ALIGN(4);
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
     /* __bss_start__ = _sbss; */
@@ -125,14 +125,14 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-  } >RAM
+  } >CCM
 
   /* Non-zeroed data section */
   . = ALIGN(4);
   .noinit (NOLOAD) :
   {
     *(.noinit)
-  } >RAM
+  } >CCM
 
   /* collect all uninitialized .ccm sections */
   .ram (NOLOAD) :
@@ -142,15 +142,14 @@ SECTIONS
     *(.ram)
   } >RAM
 
-  .ccm (NOLOAD) :
+  /* User_heap_stack section, used to check that there is enough RAM left */
+  ._user_heap_stack :
   {
     . = ALIGN(4);
-    _sccm = .;
-    *(.ccm)
-    . = ALIGN(4);
+    . = . + _Min_Heap_Size;
     . = . + _Main_Stack_Size;
-    _eccm = .;
-  } >CCM
+    . = ALIGN(4);
+  } >RAM
 
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */

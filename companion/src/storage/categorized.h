@@ -18,10 +18,10 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _CATEGORIZED_H_
+#define _CATEGORIZED_H_
 
 #include "storage.h"
-#include "miniz.h"
 
 #include <QtCore>
 #include <list>
@@ -53,3 +53,5 @@ class CategorizedStorageFormat : public StorageFormat
 
     StorageType probeFormat();
 };
+
+#endif // _CATEGORIZED_H_

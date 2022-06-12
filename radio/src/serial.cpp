@@ -19,23 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include "opentx.h"
 #include "serial.h"
-#include "board.h"
-#include "debug.h"
-
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
-
 #include "aux_serial_driver.h"
 #include "hal/serial_port.h"
-
-#if !defined(BOOT)
-  #include "opentx.h"
-  #include "lua/lua_api.h"
-#else
-  #include "dataconstants.h"
-#endif
+//#include "cli.h"
 
 #define PRINTF_BUFFER_SIZE    128
 
@@ -291,7 +281,6 @@ static void serialSetPowerState(uint8_t port_nr)
     }
 }
 
-#if !defined(BOOT)
 void serialSetPower(uint8_t port_nr, bool enabled)
 {
   if (port_nr >= MAX_SERIAL_PORTS) return;
@@ -302,7 +291,6 @@ void serialSetPower(uint8_t port_nr, bool enabled)
 
   serialSetPowerState(port_nr);
 }
-#endif
 
 void serialInit(uint8_t port_nr, int mode)
 {
@@ -374,7 +362,6 @@ bool serialGetPower(uint8_t port_nr)
   return getSerialPower(port_nr);
 }
 
-#if !defined(BOOT)
 void serialSetMode(uint8_t port_nr, int mode)
 {
   if (port_nr >= MAX_SERIAL_PORTS) return;
@@ -384,7 +371,6 @@ void serialSetMode(uint8_t port_nr, int mode)
        ~(SERIAL_CONF_MODE_MASK << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
       (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }
-#endif
 
 // uint8_t serialTracesEnabled(int port_nr)
 // {

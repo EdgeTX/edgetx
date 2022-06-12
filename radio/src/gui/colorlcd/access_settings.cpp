@@ -114,9 +114,11 @@ bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
   // Note: onCancel() is not called when the menu is discarded
   //       by clicking outside the menu window and the onCancel
   //       handler is not accessible from here
-  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  onKeyPress();
-  deleteLater();
+  if (!Window::onTouchEnd(x, y)) {
+    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+    onKeyPress();
+    deleteLater();
+  }
   return true;
 }
 #endif
@@ -131,11 +133,6 @@ BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
                  STR_WAITING_FOR_RX, 0, CENTERED | COLOR_THEME_PRIMARY1);
 
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-}
-
-void BindWaitDialog::deleteLater(bool detach, bool trash)
-{
-  Dialog::deleteLater(detach, trash);
 }
 
 void BindWaitDialog::checkEvents()
@@ -183,17 +180,29 @@ void BindWaitDialog::checkEvents()
 
   if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
 
-    // prevent module mode being reset to NORMAL before exiting
+    // create RX choice dialog...
+    new BindRxChoiceMenu(parent, moduleIdx, receiverIdx);
+
+    // ... prevent module mode being reset to NORMAL before exiting
     setCloseHandler(nullptr);
     deleteLater();
-
-    // ... and create RX choice dialog
-    new BindRxChoiceMenu(Layer::back(), moduleIdx, receiverIdx);
     return;
   }
 
   Dialog::checkEvents();
 }
+
+#if defined(HARDWARE_KEYS)
+void BindWaitDialog::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
 
 ReceiverButton::ReceiverButton(FormGroup* parent, rect_t rect,
                                uint8_t moduleIdx, uint8_t receiverIdx) :
@@ -333,10 +342,11 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
         this->deleteLater();
         return 0;
       });
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
+  exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
+  FormField::link(exitButton, edit);
   form->setHeight(grid.getWindowHeight());
   content->adjustHeight();
 
@@ -368,6 +378,10 @@ void RegisterDialog::checkEvents()
       return 0;
     });
     exitButton->setLeft(left() + rect.w + 10);
+    FormField::link(uid, rxName);
+    FormField::link(rxName, okButton);
+    FormField::link(okButton, exitButton);
+    okButton->setFocus(SET_FOCUS_DEFAULT);
   } else if (modSetup.registerStep == REGISTER_OK) {
     deleteLater();
     POPUP_INFORMATION(STR_REG_OK);
@@ -375,6 +389,18 @@ void RegisterDialog::checkEvents()
 
   Dialog::checkEvents();
 }
+
+#if defined(HARDWARE_KEYS)
+void RegisterDialog::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
 
 ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
   Dialog(parent, STR_MODULE_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
@@ -393,7 +419,7 @@ ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
   state = MO_ReadModuleSettings;
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  // setFocus();
+  setFocus();
 }
 
 void ModuleOptions::checkEvents()
@@ -448,6 +474,18 @@ void ModuleOptions::checkEvents()
 
   Dialog::checkEvents();
 }
+
+#if defined(HARDWARE_KEYS)
+void ModuleOptions::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
 
 uint8_t ModuleOptions::getModuleSettingsState()
 {
@@ -562,10 +600,12 @@ void ModuleOptions::update()
     return 0;
   });
 
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
+  exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
+  form->setInnerHeight(grid.getWindowHeight());
+  form->setHeight(form->getInnerHeight());
 
   content->adjustHeight();
   content->setWindowCentered();
@@ -607,7 +647,7 @@ RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
   }
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  // setFocus();
+  setFocus();
 }
 
 void RxOptions::checkEvents()
@@ -680,6 +720,18 @@ void RxOptions::checkEvents()
 
   Dialog::checkEvents();
 }
+
+#if defined(HARDWARE_KEYS)
+void RxOptions::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
+
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    deleteLater();
+  }
+}
+#endif
 
 #define CH_ENABLE_SPORT 4
 #define CH_ENABLE_SBUS  5
@@ -837,9 +889,9 @@ void RxOptions::update()
           hwSettings.receiverSettings.outputsMapping[i] = val;
           if (val <= channelsMax) {
             chBar->setChannel(getShiftedChannel(moduleIdx, val));
-            lv_obj_clear_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            chBar->setEnabled(true);
           } else {
-            lv_obj_add_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            chBar->setEnabled(false);
           }
         });
     chDn->setTextHandler(
@@ -864,10 +916,16 @@ void RxOptions::update()
     return 0;
   });
 
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
+  exitButton->setFocus(SET_FOCUS_DEFAULT);
   grid.nextLine();
   grid.spacer(PAGE_PADDING);
 
+  form->setInnerHeight(grid.getWindowHeight());
+  if (form->getInnerHeight() < LCD_H - 2*POPUP_HEADER_HEIGHT) {
+    form->setHeight(form->getInnerHeight());
+  } else {
+    form->setHeight(LCD_H - 2*POPUP_HEADER_HEIGHT);
+  }
 
   content->adjustHeight();
   content->setWindowCentered();

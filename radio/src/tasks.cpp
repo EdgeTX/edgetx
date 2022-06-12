@@ -183,10 +183,6 @@ bool perMainEnabled = true;
 
 TASK_FUNCTION(menusTask)
 {
-#if defined(LIBOPENUI)
-  LvglWrapper::instance();
-#endif
-
 #if defined(SPLASH) && !defined(STARTUP_ANIMATION)
   if (!UNEXPECTED_SHUTDOWN()) {
     drawSplash();

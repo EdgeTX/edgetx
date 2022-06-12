@@ -23,8 +23,6 @@
 #include "opentx.h"
 #include "options.h"
 #include "libopenui.h"
-#include "fw_version.h"
-
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
 #endif
@@ -41,10 +39,10 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-class VersionDialog: public Dialog
+class versionDialog: public Dialog
 {
   public:
-    VersionDialog(Window * parent, rect_t rect) :
+    versionDialog(Window * parent, rect_t rect) :
       Dialog(parent, STR_MODULES_RX_VERSION, rect)
     {
       memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
@@ -59,7 +57,6 @@ class VersionDialog: public Dialog
         moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
 
-      setCloseWhenClickOutside(true);
       update();
     }
 
@@ -85,7 +82,7 @@ class VersionDialog: public Dialog
                                       this->deleteLater();
                                       return 0;
                                   });
-      // exitButton->setFocus(SET_FOCUS_DEFAULT);
+      exitButton->setFocus(SET_FOCUS_DEFAULT);
       grid.nextLine();
 
       grid.spacer(PAGE_PADDING);
@@ -175,6 +172,16 @@ class VersionDialog: public Dialog
       update();
       Dialog::checkEvents();
     }
+
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override
+    {
+      if (event == EVT_KEY_BREAK(KEY_EXIT) ||
+          event == EVT_KEY_BREAK(KEY_ENTER)) {
+        deleteLater();
+      }
+    }
+#endif
 
   protected:
     rect_t rect;
@@ -278,7 +285,7 @@ void RadioVersionPage::build(FormWindow * window)
   auto moduleVersions =
       new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
   moduleVersions->setPressHandler([=]() -> uint8_t {
-    new VersionDialog(window, {50, 30, LCD_W - 100, 0});
+    new versionDialog(window, {50, 30, LCD_W - 100, 0});
     return 0;
   });
 #endif

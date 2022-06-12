@@ -57,11 +57,6 @@ class MultiRfProtocols
     RfProto(int proto) : proto(proto) {}
 
     bool parse(const uint8_t* data, uint8_t len);
-
-    // array of strings
-    void fillSubProtoList(const char** str, int n);
-
-    // fixed length strings concatenated
     void fillSubProtoList(const char* str, int n, int len);
 
     uint8_t getOption() const;

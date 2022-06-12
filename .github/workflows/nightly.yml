@@ -33,7 +33,7 @@ jobs:
           - x9lite;x9lites
           - xlite;xlites
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-commit-tests
       volumes:
         - ${{ github.workspace }}:/src
     steps:

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "opentx.h"
 
 void usbChargerInit()
 {
@@ -34,8 +34,6 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
-  if (GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_USBDet_GPIO_PIN) == 0)
-    return 0;
-
-  return GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_CHARGER_GPIO_PIN) == Bit_RESET;
+  return GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_USBDet_GPIO_PIN) == 0 ? 0 : GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_CHARGER_GPIO_PIN) == Bit_RESET;
 }
+

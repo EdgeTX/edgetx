@@ -38,16 +38,6 @@ if(SIMU_LUA_COMPILER)
   add_definitions(-DLUA_COMPILER)
 endif()
 
-if(SIMU_BOOTLOADER)
-  add_definitions(-DSIMU_BOOTLOADER)
-  set(SIMU_SRC ${SIMU_SRC}
-    ../../targets/common/arm/stm32/bootloader/bin_files.cpp
-    ../../targets/common/arm/stm32/bootloader/boot.cpp
-    ../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
-    ../../thirdparty/libopenui/thirdparty/lz4/lz4.c
-    )
-endif()
-
 if(Qt5Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
@@ -126,10 +116,6 @@ else()
   endif()
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-  if(ASAN)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-  endif()
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")

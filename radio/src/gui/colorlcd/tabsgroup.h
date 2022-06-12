@@ -76,29 +76,6 @@ class PageTab {
     std::function<void()> onSetVisible;
 };
 
-class TabCarouselButton: public Button
-{
-public:
-  TabCarouselButton(Window* parent, const rect_t& rect, std::vector<PageTab *>& tabs, uint8_t index,
-             std::function<uint8_t(void)> pressHandler,
-             WindowFlags flags = 0);
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override
-  {
-    return "TabCarouselButton(" + std::to_string(icon) + ")";
-  }
-#endif
-
-  void paint(BitmapBuffer * dc);
-
-  void check(bool checked = true);
-
-protected:
-  std::vector<PageTab *> tabs;
-  uint8_t index;
-};
-
 class TabsCarousel: public Window {
   public:
     TabsCarousel(Window * parent, TabsGroup * menu);
@@ -110,19 +87,27 @@ class TabsCarousel: public Window {
     }
 #endif
 
-    void setCurrentIndex(uint8_t index);
+    inline void setCurrentIndex(uint8_t index)
+    {
+      currentIndex = index;
+    }
 
     inline uint8_t getCurrentIndex()
     {
       return currentIndex;
     }
 
-    void update();
+    void updateInnerWidth();
 
     void paint(BitmapBuffer * dc) override;
 
+#if defined(HARDWARE_TOUCH)
+    bool onTouchStart(coord_t x, coord_t y) override;
+    bool onTouchEnd(coord_t x, coord_t y) override;
+    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
+#endif
+
   protected:
-    std::vector<TabCarouselButton*> buttons;
     constexpr static uint8_t padding_left = 3;
     TabsGroup * menu;
     uint8_t currentIndex = 0;
@@ -137,7 +122,19 @@ class TabsGroupHeader: public FormGroup {
   public:
     TabsGroupHeader(TabsGroup * menu, uint8_t icon);
 
-    void setTitle(const char * value) { title = value; }
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      if (_deleted)
+        return;
+
+#if defined(HARDWARE_TOUCH)
+      back.deleteLater(true, false);
+#endif
+
+      carousel.deleteLater(true, false);
+
+      FormField::deleteLater(detach, trash);
+    }
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -146,25 +143,22 @@ class TabsGroupHeader: public FormGroup {
     }
 #endif
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    void paint(BitmapBuffer * dc) override;
+
+    void setTitle(const char * value)
     {
-      if (_deleted) return;
-#if defined(HARDWARE_TOUCH)
-      back.deleteLater(true, false);
-#endif
-      carousel.deleteLater(true, false);
-      FormGroup::deleteLater(detach, trash);
+      title = value;
     }
 
-    void paint(BitmapBuffer * dc) override;
+    TabsCarousel* getCarousel() {return &carousel;}
 
    protected:
 #if defined(HARDWARE_TOUCH)
-    Button back;
+        Button back;
 #endif
     uint8_t icon;
     TabsCarousel carousel;
-    std::string title;
+    const char * title = nullptr;
 };
 
 class TabsGroup: public Window
@@ -173,9 +167,23 @@ class TabsGroup: public Window
 
   public:
     explicit TabsGroup(uint8_t icon);
+
     ~TabsGroup() override;
 
-    void deleteLater(bool detach = true, bool trash = true) override;
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      if (_deleted)
+        return;
+
+#if defined(HARDWARE_TOUCH)
+      Keyboard::hide();
+#endif
+
+      header.deleteLater(true, false);
+      body.deleteLater(true, false);
+
+      Window::deleteLater(detach, trash);
+    }
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -208,10 +216,10 @@ class TabsGroup: public Window
     }
   
     void checkEvents() override;
-    void onEvent(event_t event) override;
 
-    void onClicked() override;
-    void onCancel() override;
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
 
     void paint(BitmapBuffer * dc) override;
 
@@ -219,6 +227,8 @@ class TabsGroup: public Window
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
+    static int calledFromModel;
+    static int retTab;
 
    protected:
     TabsGroupHeader header;

@@ -20,20 +20,9 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-
+#include "opentx.h"
 #include "FatFs/diskio.h"
-#include "fw_version.h"
-#include "board.h"
-#include "debug.h"
-
-#include <string.h>
-
-#if !defined(BOOT)
-  #include "timers_driver.h"
-  #define WATCHDOG_SUSPEND(x) watchdogSuspend(x)
-#else
-  #define WATCHDOG_SUSPEND(...)
-#endif
+#include "stamp.h"
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
@@ -179,7 +168,7 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
 
 uint8_t lunReady[STORAGE_LUN_NBR];
 
-void usbInitLUNs()
+void usbPluggedIn()
 {
   lunReady[STORAGE_SDCARD_LUN] = 1;
   lunReady[STORAGE_EEPROM_LUN] = 1;

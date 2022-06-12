@@ -25,8 +25,6 @@
   #include "mixer_scheduler.h"
 #endif
 
-#include "fw_version.h"
-
 // TODO duplicated code
 #if defined(ROTARY_ENCODER_NAVIGATION)
 #define EVT_KEY_NEXT_LINE              EVT_ROTARY_RIGHT

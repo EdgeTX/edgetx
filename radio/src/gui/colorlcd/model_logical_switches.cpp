@@ -121,17 +121,16 @@ class LogicalSwitchEditPage: public Page
           edit2->setMax(222 - cs->v2);
           edit2->invalidate();
         });
-        edit1->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
+        edit1->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
-        edit2->setDisplayHandler([cs](int32_t value) {
+        edit2->setDisplayHandler([cs](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
           if (value < 0)
-            return std::string("<<");
+            dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "<<", flags);
           else if (value == 0)
-            return std::string("--");
-          else {
-            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
-          }
+            dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, "--", flags);
+          else
+            dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(cs->v2 + value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -147,15 +146,15 @@ class LogicalSwitchEditPage: public Page
       else if (cstate == LS_FAMILY_TIMER) {
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
-        timer->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
+        timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
-        timer->setDisplayHandler([](int32_t value) {
-          return std::to_string(lswTimerValue(value));
+        timer->setDisplayHandler([](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+          dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, lswTimerValue(value), flags | PREC1);
         });
         grid.nextLine();
       }
@@ -164,28 +163,24 @@ class LogicalSwitchEditPage: public Page
         new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
                          [=](int32_t newValue) {
                            cs->v1 = newValue;
+                           SET_DIRTY();
                            if (v2Edit != nullptr)
                            {
                              int16_t v2_min = 0, v2_max = 0;
                              getMixSrcRange(cs->v1, v2_min, v2_max);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
-                             v2Edit->setValue(cs->v2);
+                             v2Edit->invalidate();
                            }
-                           SET_DIRTY();
                          });
         grid.nextLine();
 
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(),
-                                v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
-
-        v2Edit->setDisplayHandler([=](int value) -> std::string {
-          if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
-          std::string txt = getSourceCustomValueString(cs->v1, value, 0);
-          return txt;
+        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
+        v2Edit->setDisplayHandler([=](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
+          drawSourceCustomValue(dc, FIELD_PADDING_LEFT, FIELD_PADDING_TOP, cs->v1, (cs->v1 <= MIXSRC_LAST_CH ? calc100toRESX(value) : value), flags);
         });
         grid.nextLine();
       }
@@ -243,8 +238,7 @@ class LogicalSwitchEditPage: public Page
       functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
       grid.nextLine();
 
-      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }// , FORM_FORWARD_FOCUS
-                                             );
+      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }, FORM_FORWARD_FOCUS);
       updateLogicalSwitchOneWindow();
       grid.addWindow(logicalSwitchOneWindow);
     }
@@ -351,10 +345,10 @@ ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
 
 void ModelLogicalSwitchesPage::rebuild(FormWindow * window, int8_t focusIndex)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
+  coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
   build(window, focusIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  window->setScrollPositionY(scrollPosition);
 }
 
 void ModelLogicalSwitchesPage::editLogicalSwitch(FormWindow * window, uint8_t lsIndex)
@@ -433,6 +427,13 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
         txt->invalidate();
       });
 
+      if (focusIndex == i) {
+        button->setFocus(SET_FOCUS_DEFAULT);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->invalidate();
+      }
+
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     }
@@ -440,4 +441,5 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
 
   grid.nextLine();
 
+  window->setInnerHeight(grid.getWindowHeight());
 }

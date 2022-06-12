@@ -2,7 +2,7 @@ include(CMakeForceCompiler)
 include(Bitmaps)
 
 set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14)
-set(RADIO_LANGUAGES CZ DE EN ES FI FR IT PT SK SE PL HU NL CN TW)
+set(RADIO_LANGUAGES CZ DE EN ES FR IT PT SK SE PL HU NL CN TW)
 set(TTS_LANGUAGES CZ DE EN ES FR IT PT SK SE PL HU NL RU CN)
 
 set(PCB "X9D+" CACHE STRING "Radio type, one of: ${PCB_TYPES}")
@@ -87,6 +87,8 @@ set(GVARS_VARIANT   1)
 set(FRSKY_VARIANT   2)
 set(3POS_VARIANT    4)
 
+set(RADIO_DEPENDENCIES radio_translations)
+
 set(FATFS_SRC
   ${FATFS_DIR}/ff.c
   ${FATFS_DIR}/ffunicode.c
@@ -103,6 +105,7 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+add_subdirectory(translations)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 add_subdirectory(lua)
@@ -218,7 +221,6 @@ if(LUA)
     lua/api_general.cpp 
     lua/api_model.cpp
     lua/api_filesystem.cpp
-    lua/lua_event.cpp
   )
 
   if(GUI_DIR STREQUAL colorlcd)

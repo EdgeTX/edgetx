@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "opentx.h"
 
 #if defined(HAPTIC_PWM)
 // TODO test Haptic on X7 (I added PWM support)

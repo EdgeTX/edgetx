@@ -19,52 +19,185 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui_config.h"
-#include "font.h"
+#include "opentx.h"
 
-#if !defined(BOOT)
+const uint16_t font_xxs_specs[] = {
+#include "font_9.specs"
+};
 
-#define FONT_TABLE(name)                                 \
-  static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
-      LV_FONT_DEFAULT,         /* FONT_STD_INDEX */      \
-      &lv_font_ ## name ## _bold_16, /* FONT_BOLD_INDEX */     \
-      &lv_font_ ## name ## _9,       /* FONT_XXS_INDEX */      \
-      &lv_font_ ## name ## _13,      /* FONT_XS_INDEX */       \
-      &lv_font_ ## name ## _24,      /* FONT_L_INDEX */        \
-      &lv_font_ ## name ## _bold_32, /* FONT_XL_INDEX */       \
+const unsigned char font_xxs[] = {
+#include "font_9.lbm"
+};
+
+#if LCD_H > 272
+
+#if defined(BOOT)
+const uint16_t font_std_en_specs[] = {
+#include "font_17en.specs"
+};
+
+const unsigned char font_std_en[] = {
+#include "font_17en.lbm"
+};
+#endif
+
+const uint16_t font_xs_specs[] = {
+#include "font_15.specs"
+};
+
+const unsigned char font_xs[] = {
+#include "font_15.lbm"
+};
+
+const uint16_t font_std_specs[] = {
+#include "font_17.specs"
+};
+
+const unsigned char font_std[] = {
+#include "font_17.lbm"
+};
+
+const uint16_t font_bold_specs[] = {
+#include "font_bold17.specs"
+};
+
+const unsigned char font_bold[] = {
+#include "font_bold17.lbm"
+};
+
+#else // LCD_H <= 272
+
+#if defined(BOOT)
+const uint16_t font_std_en_specs[] = {
+#include "font_16en.specs"
+};
+
+const unsigned char font_std_en[] = {
+#include "font_16en.lbm"
+};
+#endif
+
+const uint16_t font_xs_specs[] = {
+#include "font_13.specs"
+};
+
+const unsigned char font_xs[] = {
+#include "font_13.lbm"
+};
+
+const uint16_t font_std_specs[] = {
+#include "font_16.specs"
+};
+
+const unsigned char font_std[] = {
+#include "font_16.lbm"
+};
+
+const uint16_t font_bold_specs[] = {
+#include "font_bold16.specs"
+};
+
+const unsigned char font_bold[] = {
+#include "font_bold16.lbm"
+};
+
+#endif // LCD_H > 272
+
+const uint16_t font_l_specs[] = {
+#include "font_24.specs"
+};
+
+const unsigned char font_l[] = {
+#include "font_24.lbm"
+};
+
+const uint16_t font_xl_specs[] = {
+#include "font_32.specs"
+};
+
+const unsigned char font_xl[] = {
+#include "font_32.lbm"
+};
+
+const uint16_t font_xxl_specs[] = {
+#include "font_64.specs"
+};
+
+const unsigned char font_xxl[] = {
+#include "font_64.lbm"
+};
+
+#if defined(BOOT)
+// -2 for: overall length and last boundary
+const uint16_t fontCharactersTable[FONTS_COUNT] = { sizeof(font_std_en_specs)/2-2 };
+const uint16_t * const fontspecsTable[FONTS_COUNT] = { font_std_en_specs };
+const uint8_t * fontsTable[FONTS_COUNT] = { font_std_en };
+const int fontsSizeTable[FONTS_COUNT] = { sizeof(font_std_en) };
+#else
+// -2 for: overall length and last boundary
+const uint16_t fontCharactersTable[FONTS_COUNT] = {
+    sizeof(font_std_specs)/2-2, sizeof(font_bold_specs)/2-2, sizeof(font_xxs_specs)/2-2,
+    sizeof(font_xs_specs)/2-2,  sizeof(font_l_specs)/2-2,    sizeof(font_xl_specs)/2-2,
+    sizeof(font_xxl_specs)/2-2
+};
+const uint16_t *const fontspecsTable[FONTS_COUNT] = {
+    font_std_specs, font_bold_specs, font_xxs_specs, font_xs_specs,
+    font_l_specs,   font_xl_specs,   font_xxl_specs
+};
+const uint8_t *fontsTable[FONTS_COUNT] = {
+    font_std, font_bold, font_xxs, font_xs, font_l, font_xl, font_xxl
+};
+const int fontsSizeTable[FONTS_COUNT] = {
+    sizeof(font_std), sizeof(font_bold), sizeof(font_xxs),
+    sizeof(font_xs),  sizeof(font_l),    sizeof(font_xl),
+    sizeof(font_xxl)
+};
+#endif
+
+uint8_t * decompressFont(const uint8_t * font, unsigned len)
+{
+  int width  = 0;
+  int height = 0;
+
+  uint8_t* raw_font = BitmapBuffer::loadFont(font, len, width, height);
+  if (!raw_font) {
+    return nullptr;
   }
 
-#if defined(TRANSLATIONS_CN)
-  FONT_TABLE(noto_cn);
-#elif defined(TRANSLATIONS_TW)
-  FONT_TABLE(noto_tw);
+  size_t font_size = width * height;
+  uint8_t * buf = (uint8_t *)malloc(font_size + 4);
+
+  ((uint16_t*)buf)[0] = (uint16_t)width;
+  ((uint16_t*)buf)[1] = (uint16_t)height;
+
+#if defined(LCD_VERTICAL_INVERT)
+  uint8_t* src = raw_font + font_size - 1;
+  for(uint8_t* dst = buf + 4; src >= raw_font; --src, ++dst) {
+    *dst = 0xFF - *src;
+  }    
 #else
-  FONT_TABLE(roboto);
+  uint8_t* src = raw_font;
+  for(uint8_t* dst = buf + 4; src != raw_font + font_size; ++src, ++dst) {
+    *dst = 0xFF - *src;
+  }    
 #endif
+  
+  return buf;
+}
 
-#endif // BOOT
-
-const lv_font_t* getFont(LcdFlags flags)
+void loadFonts()
 {
+  static bool fontsLoaded = false;
+  if (fontsLoaded)
+    return;
+
 #if defined(BOOT)
-  return LV_FONT_DEFAULT;
+  fontsTable[0] = decompressFont(fontsTable[0], fontsSizeTable[0]);
 #else
-  auto fontIndex = FONT_INDEX(flags);
-  if (fontIndex >= FONTS_COUNT) return LV_FONT_DEFAULT;
-  return lvglFontTable[fontIndex];
+  for (int i = 0; i < FONTS_COUNT; i++) {
+    fontsTable[i] = decompressFont(fontsTable[i], fontsSizeTable[i]);
+  }
 #endif
-}
 
-uint8_t getFontHeight(LcdFlags flags)
-{
-  auto font = getFont(flags);
-  return lv_font_get_line_height(font);
-}
-
-int getTextWidth(const char * s, int len, LcdFlags flags)
-{
-  auto font = getFont(flags);
-  lv_coord_t letter_space = 0;
-  if (!len) len = strlen(s);
-  return lv_txt_get_width(s, len, font, letter_space, LV_TEXT_FLAG_EXPAND);
+  fontsLoaded = true;
 }

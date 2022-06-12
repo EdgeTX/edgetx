@@ -28,20 +28,20 @@
 #include "opentx.h"
 #include "strhelpers.h"
 
-class SwitchChoiceMenuToolbar : public MenuToolbar
+class SwitchChoiceMenuToolbar : public MenuToolbar<SwitchChoice>
 {
  public:
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
-      MenuToolbar(choice, menu)
+      MenuToolbar<SwitchChoice>(choice, menu)
   {
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
-    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
+    addButton(CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
+    addButton(CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
+    addButton(CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
               SWSRC_LAST_LOGICAL_SWITCH);
   }
 };
 
-SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
+SwitchChoice::SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
     ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
@@ -62,9 +62,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
           val = swtch;
         }
         if (val && (!isValueAvailable || isValueAvailable(val))) {
-          fillMenu(menu);
-          menu->select(getIndexFromValue(val));
-          // TODO: reset toolbar
+          fillMenu(menu, val);
         }
       }
     });
@@ -87,4 +85,27 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
   });
 
   setAvailableHandler(isSwitchAvailableInMixes);
+}
+
+void SwitchChoice::fillMenu(Menu* menu, int16_t value, const FilterFct& filter)
+{
+  int count = 0;
+  int current = 0;
+
+  menu->removeLines();
+
+  for (int i = vmin; i <= vmax; ++i) {
+    if (filter && !filter(i)) continue;
+    if (isValueAvailable && !isValueAvailable(i)) continue;
+
+    menu->addLine(getSwitchPositionName(i), [=]() { setValue(i); });
+    if (value == i) {
+      current = count;
+    }
+    ++count;
+  }
+
+  if (current >= 0) {
+    menu->select(current);
+  }
 }

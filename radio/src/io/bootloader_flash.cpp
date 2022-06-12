@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include "opentx.h"
 #include "bootloader_flash.h"
-#include "timers_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

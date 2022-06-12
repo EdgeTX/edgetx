@@ -22,11 +22,10 @@
 #include "opentx.h"
 #include "layer.h"
 #include "view_main.h"
+#include "screen_setup.h"
 #include "storage/storage.h"
 #include "topbar.h"
 #include "topbar_impl.h"
-#include "menu_screen.h"
-#include "widgets_setup.h"
 
 
 Topbar * TopbarFactory::create(Window * parent)
@@ -35,7 +34,7 @@ Topbar * TopbarFactory::create(Window * parent)
 }
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
-  FormWindow(ViewMain::instance(), rect_t{}, FORM_FORWARD_FOCUS),
+  FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
   menu(menu)
 {
   // remember focus
@@ -44,8 +43,11 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
   auto viewMain = ViewMain::instance();
 
   // save current view & switch to 1st one
+  savedView = viewMain->getCurrentMainView();
   viewMain->setCurrentMainView(0);
   viewMain->bringToTop();
+
+  //TODO: force the topbar to be visible?
 
   // adopt the dimensions of the main view
   setRect(viewMain->getRect());
@@ -53,28 +55,18 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
   auto topbar = dynamic_cast<TopbarImpl*>(viewMain->getTopbar());
   for (unsigned i = 0; i < topbar->getZonesCount(); i++) {
     auto rect = topbar->getZone(i);
-    new SetupWidgetsPageSlot(this, rect, topbar, i);
+    auto widget = new SetupWidgetsPageSlot(this, rect, topbar, i);
+    if (i == 0) widget->setFocus();
   }
-
 #if defined(HARDWARE_TOUCH)
-  new Button(
-      this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
-      [this]() -> uint8_t {
-        this->deleteLater();
-        return 1;
-      },
-      NO_FOCUS | FORM_NO_BORDER, 0, window_create);
+      new Button(
+          this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
+          [this]() -> uint8_t {
+            this->deleteLater();
+            return 1;
+          },
+          NO_FOCUS | FORM_NO_BORDER);
 #endif
-}
-
-void SetupTopBarWidgetsPage::onClicked()
-{
-  // block event forwarding (window is transparent)
-}
-
-void SetupTopBarWidgetsPage::onCancel()
-{
-  deleteLater();  
 }
 
 void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
@@ -88,3 +80,37 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 
   storageDirty(EE_MODEL);
 }
+
+#if defined(HARDWARE_KEYS)
+void SetupTopBarWidgetsPage::onEvent(event_t event)
+{
+  switch (event) {
+    case EVT_KEY_BREAK(KEY_EXIT):
+      killEvents(event);
+      deleteLater();
+      break;
+  }
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+bool SetupTopBarWidgetsPage::onTouchSlide(coord_t x, coord_t y,
+                                          coord_t startX, coord_t startY,
+                                          coord_t slideX, coord_t slideY)
+{
+  Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
+  return true;
+}
+
+bool SetupTopBarWidgetsPage::onTouchEnd(coord_t x, coord_t y)
+{
+#if defined(SOFTWARE_KEYBOARD)
+  Keyboard::hide();
+#endif
+
+  if (FormWindow::onTouchEnd(x, y))
+    return true;
+
+  return true;
+}
+#endif

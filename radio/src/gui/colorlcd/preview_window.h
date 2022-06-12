@@ -27,6 +27,7 @@
 #include "opentx.h"
 #include "sliders.h"
 #include "theme_manager.h"
+#include "themes/480_bitmaps.h"
 
 extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -198,7 +199,7 @@ class ThemedTextEdit : public TextEdit
       colorMaintainer.restoreColorValues();
     }
 
-#if defined(HARDWARE_TOUCH)
+#if defined(SOFTWARE_KEYBOARD)
     bool onTouchEnd(coord_t x, coord_t y) override
     {
       return true;
@@ -228,10 +229,6 @@ class PreviewWindow : public FormGroup
                 std::vector<ColorEntry> colorList) :
       FormGroup(window, rect, NO_FOCUS), _colorList(colorList)
   {
-    // reset default group to avoid focus
-    lv_group_t* def_group = lv_group_get_default();
-    lv_group_set_default(nullptr);
-
     new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, "Checkbox", COLOR_THEME_PRIMARY1_INDEX);
     new ThemedCheckBox(this, {100 + 15, 40, 20, LINE_HEIGHT}, true);
     new ThemedCheckBox(this, {140 + 15, 40, 20, LINE_HEIGHT}, false);
@@ -251,14 +248,11 @@ class PreviewWindow : public FormGroup
     new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, FocusText, 
                        COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
     ticks = getTicks();
-
-    lv_group_set_default(def_group);
   }
 
   void setColorList(std::vector<ColorEntry> colorList)
   {
     _colorList = colorList;
-    invalidate();
   }
 
   void checkEvents() override
@@ -275,7 +269,7 @@ class PreviewWindow : public FormGroup
   BitmapBuffer *getBitmap(const uint8_t *maskData, uint32_t bgColor,
                           uint32_t fgColor, int *width)
   {
-    auto mask = BitmapBuffer::load8bitMaskLZ4(maskData);
+    auto mask = BitmapBuffer::load8bitMask(maskData);
     BitmapBuffer *newBm =
         new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
     newBm->clear(bgColor);
@@ -313,25 +307,18 @@ class PreviewWindow : public FormGroup
     int width;
     int x = 5;
     // topbar icons
-    auto mask_menu_radio = getBuiltinIcon(ICON_RADIO);
-    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1,
-                        COLOR_THEME_PRIMARY2, &width);
+    auto bm = getBitmap(mask_menu_radio, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2,
-                            TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
-    auto mask_radio_tools = getBuiltinIcon(ICON_RADIO_TOOLS);
-    bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2,
-                   &width);
+    dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2, TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
+    bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     x += MENU_HEADER_BUTTON_WIDTH + 2;
     delete bm;
 
-    auto mask_radio_setup = getBuiltinIcon(ICON_RADIO_SETUP);
-    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1,
-                   COLOR_THEME_PRIMARY2, &width);
+    bm = getBitmap(mask_radio_setup, COLOR_THEME_SECONDARY1, COLOR_THEME_PRIMARY2, &width);
     dc->drawBitmap(x, 5, bm);
     delete bm;
 

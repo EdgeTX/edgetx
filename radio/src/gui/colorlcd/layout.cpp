@@ -51,11 +51,11 @@ const LayoutFactory * getLayoutFactory(const char * name)
 // Loads a layout, but does not attach it to any window
 //
 WidgetsContainer *
-loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentData)
+loadLayout(const char * name, LayoutPersistentData * persistentData)
 {
   const LayoutFactory * factory = getLayoutFactory(name);
   if (factory) {
-    return factory->load(parent, persistentData);
+    return factory->load(persistentData);
   }
   return nullptr;
 }
@@ -83,9 +83,7 @@ void loadDefaultLayout()
   if (screen == nullptr && defaultLayout != nullptr) {
 
     strcpy(screenData.LayoutId, defaultLayout->getId());
-
-    auto viewMain = ViewMain::instance();
-    screen = defaultLayout->create(viewMain, &screenData.layoutData);
+    screen = defaultLayout->create(&screenData.layoutData);
     //
     // TODO:
     // -> attach a few default widgets
@@ -93,8 +91,9 @@ void loadDefaultLayout()
     //    - Timer
     //    - ???
     //
-    if (!screen) return;
-    viewMain->addMainView(screen, 0);
+    if (screen) {
+      screen->attach(ViewMain::instance());
+    }
   }
 }
 
@@ -109,7 +108,7 @@ void loadCustomScreens()
   while (i < MAX_CUSTOM_SCREENS) {
 
     auto& screen = customScreens[i];
-    screen = loadLayout(viewMain, g_model.screenData[i].LayoutId,
+    screen = loadLayout(g_model.screenData[i].LayoutId,
                         &g_model.screenData[i].layoutData);
 
     if (!screen) {
@@ -118,19 +117,18 @@ void loadCustomScreens()
     }
 
     // layout is ok, let's add it
-    viewMain->addMainView(screen, i);
-    // screen->attach(viewMain);
-    // viewMain->setMainViewsCount(i + 1);
-    // screen->setLeft(viewMain->getMainViewLeftPos(i));
+    screen->attach(viewMain);
+    viewMain->setMainViewsCount(i + 1);
+    screen->setLeft(viewMain->getMainViewLeftPos(i));
     i++;
   }
 
   auto topbar = viewMain->getTopbar();
   topbar->load();
-  
+
   viewMain->setCurrentMainView(0);
   viewMain->updateTopbarVisibility();
-  // viewMain->setFocus();
+  viewMain->setFocus();
 }
 
 //
@@ -158,11 +156,11 @@ createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
 
   if (!screen) return nullptr;
   viewMain->addMainView(screen, customScreenIndex);
-  
+
   auto dst = g_model.screenData[customScreenIndex].LayoutId;
   auto src = factory->getId();
   strncpy(dst, src, sizeof(CustomScreenData::LayoutId));
-  
+
   return screen;
 }
 

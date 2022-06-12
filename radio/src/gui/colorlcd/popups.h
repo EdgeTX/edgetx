@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _POPUPS_H_
+#define _POPUPS_H_
 
 #include <functional>
 
 typedef std::function<void(const char *, const char *, int, int)> ProgressHandler;
 
-void POPUP_INFORMATION(const char * message);
-void POPUP_WARNING(const char * message, const char * info = nullptr);
+#endif // _POPUPS_H_

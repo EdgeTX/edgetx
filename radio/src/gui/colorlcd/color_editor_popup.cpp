@@ -94,6 +94,7 @@ bool ColorEditorContent::onTouchSlide(coord_t x, coord_t y, coord_t startX, coor
   if (touchState.event == TE_SLIDE_END) {
     sliding = false;
     colorPicking = false;
+    slidingWindow = nullptr;
     invalidate();
   } else if (sliding) {
     x -= SCREEN_LEFT_MARGIN;
@@ -101,6 +102,7 @@ bool ColorEditorContent::onTouchSlide(coord_t x, coord_t y, coord_t startX, coor
     x = min(x, MAX_HUE);
     if (hue != x) {
       hue = x;
+      slidingWindow = this;  // KLK: (Hack IMHO) so we get the end slide message
       setRGB();
     }
   } else if (colorPicking) {
@@ -226,6 +228,7 @@ ColorEditorPopup::ColorEditorPopup(Window *window, std::function<uint32_t ()> ge
       _setValue(rgb);
   });
 
+  content->setFocus();
   bringToTop();
   content->setTitle(STR_COLOR_PICKER);
   killAllEvents();
@@ -234,15 +237,13 @@ ColorEditorPopup::ColorEditorPopup(Window *window, std::function<uint32_t ()> ge
 #if defined(HARDWARE_TOUCH)
 bool ColorEditorPopup::onTouchStart(coord_t x, coord_t y)
 {
-  TRACE("ColorEditorPopup::onTouchStart");
-  // content->onTouchStart(x - content->rect.x + content->scrollPositionX, y - content->rect.y + content->scrollPositionY);
+  content->onTouchStart(x - content->rect.x + content->scrollPositionX, y - content->rect.y + content->scrollPositionY);
   return true;
 }
 
 bool ColorEditorPopup::onTouchEnd(coord_t x, coord_t y)
 {
-  TRACE("ColorEditorPopup::onTouchEnd");
-  // content->onTouchEnd(x - content->rect.x + content->scrollPositionX, y - content->rect.y + content->scrollPositionY);
+  content->onTouchEnd(x - content->rect.x + content->scrollPositionX, y - content->rect.y + content->scrollPositionY);
   if (!Window::onTouchEnd(x, y) && closeWhenClickOutside) {
     onKeyPress();
     deleteLater();

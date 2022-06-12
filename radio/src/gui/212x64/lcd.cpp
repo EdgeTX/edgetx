@@ -20,21 +20,8 @@
  */
 
 #include <limits.h>
-#include <memory.h>
-
-#include "lcd.h"
+#include "opentx.h"
 #include "common/stdlcd/fonts.h"
-#include "common/stdlcd/utf8.h"
-
-#if !defined(SIMU)
-  #define assert(x)
-#else
-  #include <assert.h>
-#endif
-
-#if !defined(BOOT)
-  #include "opentx.h"
-#endif
 
 #if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)
   pixel_t displayBuf1[DISPLAY_BUFFER_SIZE] __DMA;
@@ -308,10 +295,6 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
       break;
     }
     else if (c >= 0x20) {
-      // UTF8 detection
-      c = map_utf8_char(s, len);
-      if (!c) break;
-      
       if (c == 46 && FONTSIZE(flags) == TINSIZE) { // '.' handling
         if (((flags & BLINK) && BLINK_ON_PHASE) || ((!(flags & BLINK) && (flags & INVERS)))) {
           lcdDrawSolidVerticalLine(x, y-1, 5);
@@ -396,9 +379,10 @@ void lcdDrawTextAlignedLeft(coord_t y, const char * s)
 }
 
 #if !defined(BOOT)
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s,uint8_t idx, LcdFlags flags)
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char * s,uint8_t idx, LcdFlags flags)
 {
-  lcdDrawSizedText(x, y, s[idx], UINT8_MAX, flags);
+  uint8_t length = *(s++);
+  lcdDrawSizedText(x, y, s+length*idx, length, flags);
 }
 
 void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)
@@ -617,10 +601,8 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
 
 void drawStickName(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
-  // Skip "---": idx + 1
-  // Skip source symbol: + 2
-  const char* stickName = STR_VSRCRAW[idx + 1] + 2;
-  lcdDrawSizedText(x, y, stickName, UINT8_MAX, att);
+  uint8_t length = STR_VSRCRAW[0];
+  lcdDrawSizedText(x, y, STR_VSRCRAW+2+length*(idx+1), length-1, att);
 }
 
 void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
@@ -1030,5 +1012,3 @@ void lcdDrawRleBitmap(coord_t x, coord_t y, const uint8_t * img, coord_t offset,
   }
 }
 #endif
-
-void lcdFlushed() {}

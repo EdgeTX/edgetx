@@ -23,10 +23,9 @@
 #include "opentx.h"
 #include "stamp.h"
 
-const uint8_t _mask_qrcode[] = {
+const uint8_t mask_qrcode[] = {
 #include "mask_qrcode.lbm"
 };
-STATIC_LZ4_BITMAP(mask_qrcode);
 
 constexpr coord_t ABOUT_WIDTH = 220;
 #if defined(VERSION_TAG)
@@ -40,6 +39,7 @@ AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
 {
   content->setRect({(LCD_W - ABOUT_WIDTH) / 2, 20, ABOUT_WIDTH, LCD_H - 40});
+  content->setInnerWidth(ABOUT_WIDTH);
 
   messageWidget->setTextFlags(CENTERED | FONT(BOLD) | COLOR_THEME_SECONDARY1);
   messageWidget->setTop(content->top() + 40);

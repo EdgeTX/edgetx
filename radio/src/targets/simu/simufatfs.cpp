@@ -469,15 +469,11 @@ FRESULT f_readdir (DIR * rep, FILINFO * fil)
     if (strcmp(ent->d_name, ".") && strcmp(ent->d_name, "..") ) break;
   }
 
-  if (fil != nullptr) {
-      memset(fil->fname, 0, FF_MAX_LFN);
-      strcpy(fil->fname, ent->d_name);
-      // TRACE_SIMPGMSPACE("f_readdir(): %s", fil->fname);
-      std::string fullName = sd->name + std::string("/") + std::string(ent->d_name);
-      return f_stat(fullName.c_str(), fil);
-  }
-
-  return FR_OK;
+  memset(fil->fname, 0, FF_MAX_LFN);
+  strcpy(fil->fname, ent->d_name);
+  // TRACE_SIMPGMSPACE("f_readdir(): %s", fil->fname);
+  std::string fullName = sd->name + std::string("/") + std::string(ent->d_name);
+  return f_stat(fullName.c_str(), fil);
 }
 
 FRESULT f_mkfs (const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)

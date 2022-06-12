@@ -84,12 +84,3 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer,
 #endif // configUSE_TIMERS
 
 #endif // configSUPPORT_STATIC_ALLOCATION
-
-#if configUSE_TICK_HOOK > 0
-#include <lvgl/lvgl.h>
-
-void vApplicationTickHook( void )
-{
-  lv_tick_inc(1);
-}
-#endif

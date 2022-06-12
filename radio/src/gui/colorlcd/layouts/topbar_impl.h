@@ -56,6 +56,9 @@ class TopbarImpl:
 
     void checkEvents() override;
 
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y) override;
+#endif
   
   protected:
     uint32_t lastRefresh = 0;

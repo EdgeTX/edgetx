@@ -27,7 +27,7 @@ const coord_t NUMBERS_PADDING = 4;
 class ValueWidget: public Widget
 {
   public:
-   ValueWidget(const WidgetFactory* factory, Window* parent,
+   ValueWidget(const WidgetFactory* factory, FormGroup* parent,
                const rect_t& rect, Widget::PersistentData* persistentData) :
        Widget(factory, parent, rect, persistentData)
    {

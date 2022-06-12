@@ -22,8 +22,12 @@
 #include "tabsgroup.h"
 
 #include "mainwindow.h"
+#include "view_channels.h"
 #include "view_main.h"
+#include "model_outputs.h"
+#include "model_mixes.h"
 #include "static.h"
+#include "menu_model.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -33,118 +37,97 @@
 
 #include <algorithm>
 
-TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
-                                     std::vector<PageTab*>& tabs, uint8_t index,
-                                     std::function<uint8_t(void)> pressHandler,
-                                     WindowFlags flags) :
-    Button(parent, rect, std::move(pressHandler), flags, 0, window_create),
-    tabs(tabs),
-    index(index)
-{
-}
-
-void TabCarouselButton::paint(BitmapBuffer * dc)
-{
-  if(checked()) {
-    OpenTxTheme::instance()->drawCurrentMenuBackground(dc);
-  }
-
-  dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
-}
-
-void TabCarouselButton::check(bool checked)
-{
-  Button::check(checked);
-  if(checked) {
-    lv_obj_move_foreground(lvobj);
-  }
-}
+int TabsGroup::calledFromModel = 0;
+int TabsGroup::retTab = 0;
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
-    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
+    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, OPAQUE),
 #if defined(HARDWARE_TOUCH)
     back(
         this,
         {0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT},
         [=]() -> uint8_t {
+          if (!parent->calledFromModel) {
+            ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
+          } else {
+            auto menu = new ModelMenu();
+            menu->setCurrentTab(parent->retTab);
+            parent->calledFromModel = 0;
+          }
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS | FORM_NO_BORDER,
-        0, window_create),
+        NO_FOCUS | FORM_NO_BORDER),
 #endif
     icon(icon),
     carousel(this, parent)
 {
-  lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
 }
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
+  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title);
 }
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
     Window(parent,
-           {MENU_HEADER_BUTTONS_LEFT, 0, DATETIME_SEPARATOR_X - MENU_HEADER_BUTTONS_LEFT,
+           {MENU_HEADER_BUTTONS_LEFT, 0, LCD_W - MENU_HEADER_BUTTONS_LEFT,
             MENU_HEADER_HEIGHT + 10},
-            NO_FOCUS | TRANSPARENT ),
+           TRANSPARENT),
     menu(menu)
 {
 }
 
-void TabsCarousel::update()
+void TabsCarousel::updateInnerWidth()
 {
-  while(buttons.size() < menu->tabs.size())
-  {
-    int index = buttons.size();
-    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 1)), 0, (int)(MENU_HEADER_BUTTON_WIDTH + 3), int(MENU_TITLE_TOP + 5)};
-    buttons.emplace_back(new TabCarouselButton(this, btnCoords, menu->tabs, index,
-      [&, index](){
-        menu->setCurrentTab(index);
-        setCurrentIndex(index);
-
-        for(auto &b: buttons)
-          b->check(false);
-
-        buttons[index]->check(true);
-        return true;
-      }
-      , TRANSPARENT | NO_FOCUS));
-    if(index == 0)
-      buttons[index]->check(true);
-  }
-  while(buttons.size() > menu->tabs.size())
-  {
-    buttons.back()->deleteLater();
-    buttons.pop_back();
-  }
-}
-
-void TabsCarousel::setCurrentIndex(uint8_t index)
-{
-  if(buttons.size() <= index)
-    return;
-  buttons[currentIndex]->check(false);
-  currentIndex = index;
-  buttons[currentIndex]->check(true);
+  setInnerWidth(padding_left + MENU_HEADER_BUTTON_WIDTH * menu->tabs.size());
 }
 
 void TabsCarousel::paint(BitmapBuffer * dc)
 {
+  OpenTxTheme::instance()->drawPageHeader(dc, menu->tabs, currentIndex);
 }
 
-static constexpr rect_t _get_body_rect()
+#if defined(HARDWARE_TOUCH)
+bool TabsCarousel::onTouchStart(coord_t x, coord_t y)
 {
-  return { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT };
+  if(sliding)
+    sliding = false;
+
+   return Window::onTouchStart(x,y);
 }
+
+bool TabsCarousel::onTouchEnd(coord_t x, coord_t y)
+{
+  if(sliding)
+    return true;
+
+  unsigned index = (x - padding_left) / MENU_HEADER_BUTTON_WIDTH;
+
+  if (index >= menu->tabs.size()) {
+    return false;
+  }
+
+  menu->setCurrentTab(index);
+  setCurrentIndex(index);
+  return true;
+}
+
+bool TabsCarousel::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
+{
+  sliding = true;
+
+  Window::onTouchSlide(x,y,startX,startY,slideX,slideY);
+
+  return true;
+}
+#endif
 
 TabsGroup::TabsGroup(uint8_t icon):
   Window(MainWindow::instance(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
+  body(this, { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT }, FORM_FORWARD_FOCUS)
 {
-  Layer::push(this);
 }
 
 TabsGroup::~TabsGroup()
@@ -154,26 +137,13 @@ TabsGroup::~TabsGroup()
   }
 }
 
-void TabsGroup::deleteLater(bool detach, bool trash)
-{
-  if (_deleted)
-    return;
-
-  Layer::pop(this);
-
-  header.deleteLater(true, false);
-  body.deleteLater(true, false);
-
-  Window::deleteLater(detach, trash);
-}
-
 void TabsGroup::addTab(PageTab * page)
 {
   tabs.push_back(page);
   if (!currentTab) {
     setCurrentTab(0);
   }
-  header.carousel.update();
+  header.carousel.updateInnerWidth();
   invalidate();
 }
 
@@ -195,7 +165,7 @@ void TabsGroup::removeTab(unsigned index)
     setCurrentTab(max<unsigned>(0, index - 1));
   }
   tabs.erase(tabs.begin() + index);
-  header.carousel.update();
+  header.carousel.updateInnerWidth();
   invalidate();
 }
 
@@ -206,31 +176,24 @@ void TabsGroup::removeAllTabs()
   }
   tabs.clear();
   currentTab = nullptr;
-  header.carousel.update();
+  header.carousel.updateInnerWidth();
 }
 
-void TabsGroup::setVisibleTab(PageTab* tab)
+void TabsGroup::setVisibleTab(PageTab * tab)
 {
   if (tab != currentTab) {
+    clearFocus();
     body.clear();
+#if defined(HARDWARE_TOUCH)
+    Keyboard::hide();
+#endif
     currentTab = tab;
     if (tab->onSetVisible) tab->onSetVisible();
-
-#if defined(DEBUG)
-    auto start_ms = RTOS_GET_MS();
-    (void)start_ms;
-#endif
-
-    rect_t r = rect_t{0, 0, body.width(), body.height()};
-    auto form = new FormWindow(&body, r, NO_FOCUS);
-    tab->build(form);
+    tab->build(&body);
+    if (!focusWindow) setFocus(SET_FOCUS_DEFAULT);
 
     header.setTitle(tab->title.c_str());
     invalidate();
-
-#if defined(DEBUG)
-    TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
-#endif
   }
 }
 
@@ -247,9 +210,9 @@ void TabsGroup::checkEvents()
   }
 }
 
+#if defined(HARDWARE_KEYS)
 void TabsGroup::onEvent(event_t event)
 {
-#if defined(HARDWARE_KEYS)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
 #if defined(KEYS_GPIO_REG_PGUP)
@@ -269,21 +232,34 @@ void TabsGroup::onEvent(event_t event)
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();
     setCurrentTab(current == 0 ? tabs.size() - 1 : current - 1);
+  }
+  else if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+    killEvents(event);
+    if (!calledFromModel) {
+      ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
+    }
+    else {
+      auto menu = new ModelMenu();
+      menu->setCurrentTab(retTab);
+      calledFromModel = 0;
+      // TRACE("currentTab=%d  %s", retTab, typeid(*currentTab).name());
+    }
+    deleteLater();
+  } else if (event == EVT_KEY_FIRST(KEY_MODEL)) {
+    TRACE("TabGroup %s", typeid(*this).name());
+    if (typeid(*this) == typeid(ModelMenu) ) {
+      killEvents(event);
+      calledFromModel = 1;
+      retTab = header.carousel.getCurrentIndex();
+      // TRACE("currentTab=%d  %s", calledFromModel, typeid(*currentTab).name());
+      new ChannelsViewMenu();
+      deleteLater();
+    }
   } else if (parent) {
     parent->onEvent(event);
   }
+}
 #endif
-}
-
-void TabsGroup::onClicked()
-{
-  Keyboard::hide();
-}
-
-void TabsGroup::onCancel()
-{
-  deleteLater();
-}
 
 void TabsGroup::paint(BitmapBuffer * dc)
 {
@@ -293,7 +269,7 @@ void TabsGroup::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_TOUCH)
 bool TabsGroup::onTouchEnd(coord_t x, coord_t y)
 {
-  // Keyboard::hide();
+  Keyboard::hide();
   Window::onTouchEnd(x, y);
   return true;
 }

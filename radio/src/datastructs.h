@@ -21,7 +21,6 @@
 
 #pragma once
 
-#if !defined(BOOT)
 #include "datastructs_private.h"
 
 #if !defined(BACKUP)
@@ -150,4 +149,3 @@ static inline void check_struct()
 #undef CHKSIZE
 }
 #endif /* BACKUP */
-#endif /* !BOOT */

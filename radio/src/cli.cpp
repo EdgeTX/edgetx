@@ -24,15 +24,12 @@
 
 #include "opentx.h"
 #include "diskio.h"
-#include "timers_driver.h"
-
-#include "cli.h"
 
 #include <ctype.h>
 #include <malloc.h>
 #include <new>
 #include <stdarg.h>
-
+#include "cli.h"
 
 #if defined(INTMODULE_USART)
 #include "intmodule_serial_driver.h"
@@ -519,6 +516,8 @@ void testDrawSolidFilledRoundedRectangle()
   lcdDrawFilledRect(0, 0, LCD_W / 2, LCD_H / 2, SOLID,
                     ROUND | COLOR_THEME_SECONDARY3);
 }
+
+void testDrawBlackOverlay() { lcdDrawBlackOverlay(); }
 
 void testDrawSolidHorizontalLine1() { lcdDrawSolidHorizontalLine(0, 0, 1, 0); }
 
@@ -1276,11 +1275,13 @@ int cliDisplay(const char ** argv)
 
   if (!strcmp(argv[1], "keys")) {
     for (int i=0; i<TRM_BASE; i++) {
-      cliSerialPrint("[%s] = %s", STR_VKEYS[i]+1, keys[i].state() ? "on" : "off");
+      char name[8];
+      uint8_t len = STR_VKEYS[0];
+      strncpy(name, STR_VKEYS+1+len*i, len);
+      name[len] = '\0';
+      cliSerialPrint("[%s] = %s", name, keys[i].state() ? "on" : "off");
     }
 #if defined(ROTARY_ENCODER_NAVIGATION)
-    typedef int32_t rotenc_t;
-    extern volatile rotenc_t rotencValue;
     cliSerialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
 #endif
     for (int i=TRM_BASE; i<=TRM_LAST; i++) {
@@ -1289,8 +1290,10 @@ int cliDisplay(const char ** argv)
     for (int i=MIXSRC_FIRST_SWITCH; i<=MIXSRC_LAST_SWITCH; i++) {
       mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
       if (SWITCH_EXISTS(sw)) {
+        char swName[LEN_SWITCH_NAME + 1];
+        strAppend(swName, STR_VSWITCHES+1+sw*STR_VSWITCHES[0], STR_VSWITCHES[0]);
         static const char * const SWITCH_POSITIONS[] = { "down", "mid", "up" };
-        cliSerialPrint("[%s] = %s", STR_VSWITCHES[sw]+1, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
+        cliSerialPrint("[%s] = %s", swName, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
       }
     }
   }

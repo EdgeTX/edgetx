@@ -27,7 +27,6 @@
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
-#include "version.h"
 
 #include <QMessageBox>
 
@@ -144,10 +143,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 {
   Node node;
 
-  node["semver"] = VERSION;
-
   std::string board = getCurrentFirmware()->getFlavour().toStdString();
   node["board"] = board;
+
+  node["version"] = CPN_CURRENT_SETTINGS_VERSION;
 
   YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
   node["calib"] = calib;
@@ -283,8 +282,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //   qDebug() << QString::fromStdString(n.first.Scalar());
   // }
 
-  node["semver"] >> rhs.semver;
-  rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
+  node["version"] >> rhs.version;
 
   // Decoding uses profile firmare therefore all conversions are performed on the fly
   // So set board to firmware board
@@ -305,7 +303,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   auto fw = getCurrentFirmware();
 
-  qDebug() << "Settings version:" << rhs.semver << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
+  qDebug() << "Settings version:" << rhs.version << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
 
   if (flavour.empty()) {
     QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file is missing the board entry!\n\nCurrent firmware profile board will be used.\n\nDo you wish to continue?");

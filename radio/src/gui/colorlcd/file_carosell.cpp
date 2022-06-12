@@ -28,7 +28,7 @@ extern inline tmr10ms_t getTicks()
 
 
 FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
-                           std::vector<std::string> fileNames) :
+                           std::vector<std::string> fileNames, FormField *nextCtrl) :
     FormGroup(parent, rect, NO_FOCUS | FORM_NO_BORDER),
     _fileNames(fileNames),
     fp(new FilePreview(this, {0, 0, rect.w, rect.h}, false))
@@ -64,9 +64,7 @@ void FileCarosell::setSelected(int n)
 void FileCarosell::paint(BitmapBuffer *dc)
 {
   if (selected == -1 || _fileNames.size() == 0) {
-    const char *message = selected == -1 && _fileNames.size() > 0
-                              ? "Loading..."
-                              : "No theme image";
+    const char *message = selected == -1 && _fileNames.size() > 0 ? "Loading..." : "No theme image";
     dc->drawText(width() / 2, height() / 2, message, FONT(L) + CENTERED);
   }
 }

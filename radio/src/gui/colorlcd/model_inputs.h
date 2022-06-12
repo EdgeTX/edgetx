@@ -19,44 +19,54 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _MODEL_INPUTS_H
+#define _MODEL_INPUTS_H
 
 #include "tabsgroup.h"
 
-class InputMixGroup;
-class InputMixButton;
+class ModelInputsPage: public PageTab {
+  public:
+    ModelInputsPage();
 
-class ModelInputsPage : public PageTab
-{
- public:
-  ModelInputsPage();
+    void build(FormWindow * window) override
+    {
+      build(window, 0);
+    }
 
-  void build(FormWindow *window) override;
-
- protected:
-  FormGroup* form = nullptr;
-  std::list<InputMixGroup*> groups;
-  std::list<InputMixButton*> lines;
-  InputMixButton* _copySrc = nullptr;
-  uint8_t _copyMode = 0;
-
-  InputMixGroup* getGroupBySrc(mixsrc_t src);
-  virtual InputMixGroup* getGroupByIndex(uint8_t index);
-  InputMixButton* getLineByIndex(uint8_t index);
-
-  void removeGroup(InputMixGroup* g);
-  void removeLine(InputMixButton* l);
-  
-  virtual void addLineButton(uint8_t index);
-  virtual void addLineButton(mixsrc_t src, uint8_t index);
-  virtual InputMixGroup* createGroup(FormGroup* form, mixsrc_t src);
-  virtual InputMixButton* createLineButton(InputMixGroup *group, uint8_t index);
-
-  void editInput(uint8_t input, uint8_t index);
-  void insertInput(uint8_t input, uint8_t index);
-  void deleteInput(uint8_t index);
-
-  void pasteInput(uint8_t dst_idx, uint8_t input);
-  void pasteInputBefore(uint8_t dst_idx);
-  void pasteInputAfter(uint8_t dst_idx);
+  protected:
+    void build(FormWindow * window, int8_t focusIndex);
+    void rebuild(FormWindow * window, int8_t focusIndex);
+    void editInput(FormWindow * window, uint8_t channel, uint8_t index);
+    uint8_t s_copySrcIdx;
 };
+
+class CommonInputOrMixButton : public Button {
+  public:
+    CommonInputOrMixButton(FormGroup * parent, const rect_t & rect, uint8_t index):
+      Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1),
+      index(index)
+    {
+      setFocusHandler([=](bool active) {
+        if (active) {
+          bringToTop();
+        }
+      });
+    }
+
+    virtual bool isActive() const = 0;
+
+    void checkEvents() override;
+
+    void drawFlightModes(BitmapBuffer *dc, FlightModesType value, LcdFlags textColor);
+
+    void paint(BitmapBuffer * dc) override;
+
+    virtual void paintBody(BitmapBuffer * dc) = 0;
+
+  protected:
+    uint8_t index;
+    bool active = false;
+};
+
+
+#endif //_MODEL_INPUTS_H

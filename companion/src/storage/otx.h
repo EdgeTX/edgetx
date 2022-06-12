@@ -18,11 +18,16 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _OTX_H_
+#define _OTX_H_
 
 #include "categorized.h"
 
 #include <QtCore>
+
+#define MINIZ_HEADER_FILE_ONLY
+#include "miniz.c"
+#undef MINIZ_HEADER_FILE_ONLY
 
 class OtxFormat : public CategorizedStorageFormat
 {
@@ -46,3 +51,5 @@ class OtxFormat : public CategorizedStorageFormat
 
     mz_zip_archive zip_archive;
 };
+
+#endif // _OTX_H_

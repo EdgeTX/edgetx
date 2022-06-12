@@ -3,17 +3,11 @@ include_directories(
   ${RADIO_SRC_DIR}/gui/colorlcd/layouts
   ${CMAKE_CURRENT_BINARY_DIR}/fonts
   ${RADIO_SRC_DIR}/thirdparty/libopenui/src
-  ${RADIO_SRC_DIR}/thirdparty/libopenui/thirdparty
 )
 
-file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
-  ${RADIO_SRC_DIR}/gui/colorlcd/themes/*.cpp)
-
-file(GLOB LAYOUTS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
-  ${RADIO_SRC_DIR}/gui/colorlcd/layouts/*.cpp)
-
-file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
-  ${RADIO_SRC_DIR}/gui/colorlcd/widgets/*.cpp)
+file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/themes/*.cpp)
+file(GLOB LAYOUTS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/layouts/*.cpp)
+file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/widgets/*.cpp)
 
 set(GUI_SRC
   ${GUI_SRC}
@@ -24,15 +18,12 @@ set(GUI_SRC
   fonts.cpp
   curves.cpp
   bitmaps.cpp
-  lz4_bitmaps.cpp
   theme.cpp
   theme_manager.cpp
   color_editor_popup.cpp
   color_editor.cpp
   color_list.cpp
   preview_window.cpp
-  file_browser.cpp
-  file_preview.cpp
   file_carosell.cpp
   listbox.cpp
   tabsgroup.cpp
@@ -47,17 +38,11 @@ set(GUI_SRC
   ${THEMES_SRC}
   ${LAYOUTS_SRC}
   ${WIDGETS_SRC}
+  #  popups.cpp
   draw_functions.cpp
+  #  menus.cpp
   menu_model.cpp
   model_select.cpp
-  bind_menu_d16.cpp
-  trainer_setup.cpp
-  custom_failsafe.cpp
-  module_setup.cpp
-  timer_setup.cpp
-  trims_setup.cpp
-  throttle_params.cpp
-  preflight_checks.cpp
   model_setup.cpp
   model_flightmodes.cpp
   model_inputs.cpp
@@ -88,11 +73,8 @@ set(GUI_SRC
   view_statistics.cpp
   view_text.cpp
   menu_screen.cpp
-  screen_user_interface.cpp
-  widgets_setup.cpp
   screen_setup.cpp
   switch_warn_dialog.cpp
-  LvglWrapper.cpp
   )
 
 macro(add_gui_src src)
@@ -104,11 +86,7 @@ endmacro(add_gui_src)
 
 if(LUA)
   add_gui_src(standalone_lua.cpp)
-  set(SRC ${SRC}
-    lua/lua_widget.cpp
-    lua/lua_widget_factory.cpp
-    lua/widgets.cpp
-    )
+  set(SRC ${SRC} lua/widgets.cpp)
 endif()
 
 if(LUA_MIXER)
@@ -146,46 +124,24 @@ if(WINDOWS_INSPECT_BORDERS)
   add_definitions(-DWINDOWS_INSPECT_BORDERS)
 endif()
 
-option(UI_PERF_MONITOR "Draw frame rate and CPU usage" OFF)
-if(UI_PERF_MONITOR)
-  add_definitions(-DUI_PERF_MONITOR)
-endif()
-
 # includes libopenui
-set(LIBOPENUI_SRC_DIR thirdparty/libopenui)
-set(LVGL_SRC_DIR ${LIBOPENUI_SRC_DIR}/thirdparty/lvgl/src)
-
-include(${LIBOPENUI_SRC_DIR}/src/CMakeLists.txt)
-include(${LIBOPENUI_SRC_DIR}/thirdparty/CMakeLists.txt)
-
-set(SRC ${SRC} ${LVGL_FONT_SOURCES})
+include(${RADIO_SRC_DIR}/thirdparty/libopenui/src/CMakeLists.txt)
+include_directories(gui/libopenui)
 
 add_definitions(-DLIBOPENUI)
+
+foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
+  set(SRC ${SRC} thirdparty/libopenui/src/${LIBOPENUI_FILE})
+endforeach()
 
 add_gui_src(fullscreen_dialog.cpp)
 add_gui_src(message_dialog.cpp)
 add_gui_src(confirm_dialog.cpp)
-add_gui_src(popups.cpp)
 add_gui_src(timeedit.cpp)
 add_gui_src(curve.cpp)
 add_gui_src(sourcechoice.cpp)
 add_gui_src(switchchoice.cpp)
 add_gui_src(curveedit.cpp)
-add_gui_src(gvar_numberedit.cpp)
-add_gui_src(curve_param.cpp)
-add_gui_src(fm_matrix.cpp)
-add_gui_src(input_source.cpp)
-add_gui_src(input_edit.cpp)
-add_gui_src(input_edit_adv.cpp)
-add_gui_src(mixer_edit.cpp)
-add_gui_src(mixer_edit_adv.cpp)
-add_gui_src(output_edit.cpp)
-add_gui_src(input_mix_group.cpp)
-add_gui_src(input_mix_button.cpp)
-add_gui_src(channel_bar.cpp)
-
-add_gui_src(lvgl_widgets/input_mix_line.c)
-add_gui_src(lvgl_widgets/input_mix_group.c)
 
 if(HARDWARE_TOUCH)
   add_gui_src(keyboard_curve.cpp)

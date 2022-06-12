@@ -20,7 +20,6 @@
  */
 
 #include "opentx.h"
-#include "timers_driver.h"
 
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"
@@ -90,7 +89,7 @@ void postRadioSettingsLoad()
 #if defined(USB_SERIAL)
   // default VCP to CLI if not configured
   // to something else as NONE.
-  if (isInternalModuleCrossfire() && serialGetMode(SP_VCP) == UART_MODE_NONE) {
+  if (serialGetMode(SP_VCP) == UART_MODE_NONE) {
     serialSetMode(SP_VCP, UART_MODE_CLI);
   }
 #endif
@@ -244,7 +243,7 @@ void storageFlushCurrentModel()
 
   if (g_model.potsWarnMode == POTS_WARN_AUTO) {
     for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
-      if (g_model.potsWarnEnabled & (1 << i)) {
+      if (!(g_model.potsWarnEnabled & (1 << i))) {
         SAVE_POT_POSITION(i);
       }
     }

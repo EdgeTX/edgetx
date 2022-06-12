@@ -254,7 +254,7 @@ bool ThemeFile::readNextLine(FIL &file, char *line, int maxlen)
   if (f_gets(line, maxlen, &file) != NULL) {
     int curlen = strlen(line) - 1;
     if (line[curlen] == '\n') {  // remove unwanted chars if file was edited using windows
-      if (curlen > 0 && line[curlen - 1] == '\r') {
+      if (line[curlen - 1] == '\r') {
         line[curlen - 1] = 0;
       } else {
         line[curlen] = 0;

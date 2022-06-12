@@ -24,16 +24,18 @@
 
 #include "tabsgroup.h"
 
-class ModelMenu : public TabsGroup
-{
- public:
-  ModelMenu();
-
-  void onEvent(event_t event);
-
+class ModelMenu: public TabsGroup {
+  public:
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "ModelMenu"; }
-#endif
+  std::string getName() const override
+  {
+    return "ModelMenu";
+  }
+#endif  
+    ModelMenu();
+
+  protected:
+   void addButton(TabsGroupHeader* headerPtr);
 };
 
 #endif // _MENU_MODEL_H_

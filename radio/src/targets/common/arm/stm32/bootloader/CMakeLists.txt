@@ -57,7 +57,6 @@ set(BOOTLOADER_SRC
   ../../../../../keys.cpp
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
-  ../../../../../syscalls.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_core.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd.c
   ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd_int.c
@@ -115,20 +114,15 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
     ../../../../../gui/colorlcd/colors.cpp
-    ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
-    ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
+    ../../../../../thirdparty/libopenui/src/libopenui_globals.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
+    ../../../../../syscalls.c
     )
 
-  # Add LVGL sources
-  foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
-    set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
-  endforeach()
-  
   if(USB_CHARGER)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
@@ -157,7 +151,6 @@ else()
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
-    ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../targets/${TARGET_DIR}/i2c_driver.cpp
     )
   remove_definitions(-DDEBUG)
@@ -176,8 +169,14 @@ set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm -T${RADIO_SRC
 # use smaller nano libc
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
-add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
-add_dependencies(bootloader ${BITMAPS_TARGET})
+add_executable(bootloader EXCLUDE_FROM_ALL
+  ${BOOTLOADER_SRC}
+  )
+add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
+
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
+  add_dependencies(bootloader truetype_fonts)
+endif()
 
 add_custom_command(
   TARGET bootloader POST_BUILD

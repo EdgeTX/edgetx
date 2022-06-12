@@ -179,6 +179,7 @@ add_definitions(-DPCBREV_${PCBREV})
 set(RADIO_DEPENDENCIES
   ${RADIO_DEPENDENCIES}
   ${BITMAPS_TARGET}
+  truetype_fonts
   )
 
 set(FIRMWARE_DEPENDENCIES datacopy)
@@ -248,6 +249,7 @@ set(GVAR_SCREEN model_gvars.cpp)
 if(HARDWARE_TOUCH)
   set(TOUCH_DRIVER tp_gt911.cpp i2c_driver.cpp)
   add_definitions(-DHARDWARE_TOUCH)
+  set(SOFTWARE_KEYBOARD ON)
 endif()
 
 if(SWSERIALPOWER)

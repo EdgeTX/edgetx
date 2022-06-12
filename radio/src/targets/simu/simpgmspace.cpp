@@ -47,9 +47,6 @@ bool simu_running = false;
 
 uint32_t telemetryErrors = 0;
 
-typedef int32_t rotenc_t;
-volatile rotenc_t rotencValue = 0;
-
 // TODO: remove all STM32 defs
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
 USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
@@ -140,15 +137,6 @@ void simuSetSwitch(uint8_t swtch, int8_t state)
   switchesStates[swtch] = state;
 }
 
-#if defined(SIMU_BOOTLOADER)
-int bootloaderMain();
-static void* bootloaderThread(void*)
-{
-  bootloaderMain();
-  return nullptr;
-}
-#endif
-
 void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 {
   if (simu_running)
@@ -207,21 +195,7 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
-  // Init LCD call backs
-  lcdInit();
-  
-#if !defined(SIMU_BOOTLOADER)
   simuMain();
-#else
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  struct sched_param sp;
-  sp.sched_priority = SCHED_RR;
-  pthread_attr_setschedparam(&attr, &sp);
-
-  pthread_t bl_pid;
-  pthread_create(&bl_pid, &attr, &bootloaderThread, nullptr);
-#endif
 
   simu_running = true;
 
@@ -489,6 +463,24 @@ bool pwrPressed() { return false; }
 void pwrInit() {}
 void pwrOn() {}
 void pwrOff() {}
+
+void readKeysAndTrims()
+{
+  uint8_t index = 0;
+  auto keysInput = readKeys();
+  for (auto mask = (1 << 0); mask < (1 << TRM_BASE); mask <<= 1) {
+    keys[index++].input(keysInput & mask);
+  }
+
+  auto trimsInput = readTrims();
+  for (auto mask = (1 << 0); mask < (1 << NUM_TRIMS_KEYS); mask <<= 1) {
+    keys[index++].input(trimsInput & mask);
+  }
+
+  if (keysInput || trimsInput) {
+    resetBacklightTimeout();
+  }
+}
 
 bool keyDown()
 {

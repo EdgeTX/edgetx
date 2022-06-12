@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "opentx.h"
 
 #if !defined(BACKLIGHT_GPIO)
   // no backlight

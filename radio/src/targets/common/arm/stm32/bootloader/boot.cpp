@@ -19,13 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "opentx.h"
 #include "boot.h"
 #include "bin_files.h"
-#include "dataconstants.h"
-#include "lcd.h"
-#include "keys.h"
-#include "debug.h"
 
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
@@ -51,14 +47,16 @@ typedef void (*voidFunction)(void);
         jumpFn();                                               \
     } while(0)
 
-#if !defined(SIMU)
 // Bootloader marker:
 // -> used to detect valid bootloader files
 const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+volatile rotenc_t rotencValue = 0;
 #endif
 
-#if defined(DEBUG) && !defined(SIMU)
+#if defined(DEBUG)
 volatile tmr10ms_t g_tmr10ms;
 #endif
 
@@ -115,17 +113,14 @@ void init10msTimer()
   NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
 }
 
-#if !defined(SIMU)
 extern "C" void INTERRUPT_xMS_IRQHandler()
 {
   INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
   interrupt10ms();
 }
-#endif
 
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {
-#if !defined(SIMU)
 #if defined(EEPROM)
   if (memoryType == MEM_FLASH)
     return isFirmwareStart(buffer);
@@ -133,9 +128,6 @@ uint32_t isValidBufferStart(const uint8_t * buffer)
     return isEepromStart(buffer);
 #else
   return isFirmwareStart(buffer);
-#endif
-#else
-  return 1;
 #endif
 }
 
@@ -183,9 +175,7 @@ void flashWriteBlock()
 {
   uint32_t blockOffset = 0;
   while (BlockCount) {
-#if !defined(SIMU)
     flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-#endif
     blockOffset += FLASH_PAGESIZE;
     firmwareAddress += FLASH_PAGESIZE;
     if (BlockCount > FLASH_PAGESIZE) {
@@ -205,9 +195,14 @@ void writeEepromBlock()
 }
 #endif
 
-#if !defined(SIMU)
-void bootloaderInitApp()
+int main()
 {
+  BootloaderState state = ST_START;
+  uint32_t vpos = 0;
+  uint8_t index = 0;
+  FRESULT fr;
+  uint32_t nameCount = 0;
+
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
                          LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
                          AUX_SERIAL_RCC_AHB1Periph | AUX2_SERIAL_RCC_AHB1Periph |
@@ -286,22 +281,6 @@ void bootloaderInitApp()
   // SD card detect pin
   sdInit();
   usbInit();
-}
-
-int main()
-#else // SIMU
-void bootloaderInitApp() {}
-int  bootloaderMain()
-#endif
-{
-  BootloaderState state = ST_START;
-  uint32_t vpos = 0;
-  uint8_t index = 0;
-  FRESULT fr;
-  uint32_t nameCount = 0;
-
-  // init hardware (may jump to app)
-  bootloaderInitApp();
 
   // init screen
   bootloaderInitScreen();
@@ -326,18 +305,15 @@ int  bootloaderMain()
             unlocked = 1;
             unlockFlash();
           }
-#if !defined(SIMU)
           usbStart();
-#endif
+          usbPluggedIn();
         }
       }
 
       if (state == ST_USB) {
         if (usbPlugged() == 0) {
           vpos = 0;
-#if !defined(SIMU)
           usbStop();
-#endif
           if (unlocked) {
             lockFlash();
             unlocked = 0;
@@ -552,16 +528,12 @@ int  bootloaderMain()
       lcdRefresh();
       lcdRefreshWait();
 
-#if !defined(SIMU)
 #if defined(RTC_BACKUP_RAM)
       rtcInit();
       RTC->BKP0R = SOFTRESET_REQUEST;
 #endif
 
       NVIC_SystemReset();
-#else
-      exit(1);
-#endif
     }
   }
 

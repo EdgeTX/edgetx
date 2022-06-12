@@ -37,8 +37,8 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
 constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
-// constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
-// constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
+constexpr coord_t MODEL_IMAGE_WIDTH  = MODEL_SELECT_CELL_WIDTH;
+constexpr coord_t MODEL_IMAGE_HEIGHT = 72;
 constexpr size_t LEN_INFO_TEXT = 300;
 constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
 constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
@@ -87,7 +87,7 @@ class TemplatePage : public Page
   unsigned int count = 0;
   static std::function<void(void)> update;
 
-  void paint(BitmapBuffer *dc) override
+  void paint(BitmapBuffer *dc)
   {
     Page::paint(dc);
     rect_t rect = body.getRect();
@@ -175,7 +175,7 @@ class SelectTemplate : public TemplatePage
               // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
               update();
               update = nullptr;
-              StandaloneLuaWindow::instance()->attach();
+              StandaloneLuaWindow::instance()->attach(focusWindow);
             }
 #endif
             return 0;
@@ -189,6 +189,7 @@ class SelectTemplate : public TemplatePage
         tb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tb->height() + 5);
       }
+      body.setInnerHeight(grid.getWindowHeight());
     }
     
     f_closedir(&dir);
@@ -294,6 +295,7 @@ class SelectTemplateFolder : public TemplatePage
         tfb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tfb->height() + 5);
       }
+      body.setInnerHeight(grid.getWindowHeight());
 #if not defined(LUA)
       }
 #endif
@@ -321,9 +323,6 @@ class ModelButton : public Button
   ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
       Button(parent, rect), modelCell(modelCell)
   {
-    setWidth(MODEL_SELECT_CELL_WIDTH);
-    setHeight(MODEL_SELECT_CELL_HEIGHT);
-
     load();
   }
 
@@ -442,181 +441,230 @@ class ModelButton : public Button
     }
   }
 
-  const char* modelFilename() { return modelCell->modelFilename; }
-  ModelCell* getModelCell() const { return modelCell; }
+  const char *modelFilename() { return modelCell->modelFilename; }
 
  protected:
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
 };
 
-static void _saveTemplate(ModelCell* model)
-{
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-  constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
-  char modelName[size];
-  snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
-  char templatePath[FF_MAX_LFN];
-  snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
-  sdCheckAndCreateDirectory(TEMPLATES_PATH);
-  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
-  if (isFileAvailable(templatePath)) {
-    new ConfirmDialog(Layer::back(), STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
-      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-    });
-  } else {
-    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-  }
-}
-
 class ModelCategoryPageBody : public FormWindow
 {
  public:
-  ModelCategoryPageBody(Window* parent, ModelsCategory* category) :
-    FormWindow(parent, rect_t{}), category(category)
+  ModelCategoryPageBody(FormWindow *parent, const rect_t &rect,
+                        ModelsCategory *category) :
+      FormWindow(parent, rect, FORM_FORWARD_FOCUS), category(category)
   {
-    setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
-    lv_obj_set_style_pad_row(lvobj, MODEL_CELL_PADDING, 0);
-    lv_obj_set_style_pad_all(lvobj, MODEL_CELL_PADDING, 0);
-
-    for (auto &model : *category)
-      addModelButton(model);
+    update();
   }
 
- protected:
-  ModelsCategory *category;
+  void update(int selected = -1)
+  {
+    clear();
 
-  void addModelButton(ModelCell *model)
-  {
-    auto btn = new ModelButton(this, rect_t{}, model);
-    btn->setPressHandler([=]() -> uint8_t {
-      modelMenu(btn);
-      return 0;
-    });
-  }
-
-  void modelMenu(ModelButton* btn)
-  {
-    Menu *menu = new Menu(parent);
-    ModelCell* model = btn->getModelCell();
-    if (model != modelslist.getCurrentModel()) {
-      menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(btn); });
-    }
-    menu->addLine(STR_CREATE_MODEL, [=]() { createModel(); });
-    menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
-    menu->addLine(STR_SAVE_TEMPLATE, std::bind(_saveTemplate, model));
-    if (model != modelslist.getCurrentModel()) {
-      // Move
-      if(modelslist.getCategories().size() > 1) {
-        menu->addLine(STR_MOVE_MODEL, [=]() { moveModel(btn); });
-      }
-      menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(btn); });
-    }
-  }
-  
-  void selectModel(ModelButton* btn)
-  {
-    bool modelConnected =
-        TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
-    if (modelConnected) {
-      AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-      if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
-            tmr10ms_t startTime = getTicks();
-            while (!TELEMETRY_STREAMING()) {
-              if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
-            }
-            return !TELEMETRY_STREAMING() ||
-                   g_eeGeneral.disableRssiPoweroffAlarm;
-          })) {
-        return;  // stop if connected but not confirmed
-      }
+    if (selected < 0) {
+      auto model = modelslist.getCurrentModel();
+      selected = category->getModelIndex(model);
+      if (selected < 0) selected = 0;
     }
 
-    // store changes (if any) and load selected model
-    storageFlushCurrentModel();
-    storageCheck(true);
-    memcpy(g_eeGeneral.currModelFilename, btn->modelFilename(),
-           LEN_MODEL_FILENAME);
+    int index = 0;
+    coord_t y = MODEL_CELL_PADDING;
+    coord_t x = MODEL_CELL_PADDING;
 
-    loadModel(g_eeGeneral.currModelFilename, false);
-    storageDirty(EE_GENERAL);
-    storageCheck(true);
+    ModelButton* selectButton = nullptr;
+    for (auto &model : *category) {
+      auto button = new ModelButton(
+          this, {x, y, MODEL_SELECT_CELL_WIDTH, MODEL_SELECT_CELL_HEIGHT},
+          model);
+      button->setPressHandler([=]() -> uint8_t {
+        if (button->hasFocus()) {
+          Menu *menu = new Menu(parent);
+          if (model != modelslist.getCurrentModel()) {
+            menu->addLine(STR_SELECT_MODEL, [=]() {
+              bool modelConnected = TELEMETRY_STREAMING() &&
+                                    !g_eeGeneral.disableRssiPoweroffAlarm;
+              if (modelConnected) {
+                AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+                if (!confirmationDialog(
+                        STR_MODEL_STILL_POWERED, nullptr, false, []() {
+                          tmr10ms_t startTime = getTicks();
+                          while (!TELEMETRY_STREAMING()) {
+                            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms)
+                              break;
+                          }
+                          return !TELEMETRY_STREAMING() ||
+                                 g_eeGeneral.disableRssiPoweroffAlarm;
+                        })) {
+                  return;  // stop if connected but not confirmed
+                }
+              }
 
-    modelslist.setCurrentModel(btn->getModelCell());
-    modelslist.setCurrentCategory(category);
-    checkAll();
+              // store changes (if any) and load selected model
+              storageFlushCurrentModel();
+              storageCheck(true);
+              memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+                     LEN_MODEL_FILENAME);
 
-    // Exit to main view
-    auto w = Layer::back();
-    if (w) w->onCancel();
-  }
+              loadModel(g_eeGeneral.currModelFilename, false);
+              storageDirty(EE_GENERAL);
+              storageCheck(true);
 
-  void createModel()
-  {
-    storageCheck(true);
-    auto model = modelslist.addModel(category, ::createModel(), false);
-    modelslist.setCurrentModel(model);
-    new SelectTemplateFolder([=]() {
-        model->setModelName(g_model.header.name);
-        modelslist.save();
-        addModelButton(model);
-      });
-  }
-
-  void duplicateModel(ModelCell* model)
-  {
-    char duplicatedFilename[LEN_MODEL_FILENAME + 1];
-    memcpy(duplicatedFilename, model->modelFilename,
-           sizeof(duplicatedFilename));
-    if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
-                          MODELS_PATH)) {
-      sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
-                 MODELS_PATH);
-      auto new_model = modelslist.addModel(category, duplicatedFilename);
-      addModelButton(new_model);
-    } else {
-      POPUP_WARNING("Invalid File"); // TODO: translation
-    }
-  }
-
-  void deleteModel(ModelButton* btn)
-  {
-    ModelCell* model = btn->getModelCell();
-    new ConfirmDialog(
-        parent, STR_DELETE_MODEL,
-        std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
-          modelslist.removeModel(category, model);
-          btn->deleteLater();
-        });
-  }
-
-  void moveModel(ModelButton* btn)
-  {
-    auto moveToMenu = new Menu(parent);
-    moveToMenu->setTitle(STR_MOVE_MODEL);
-
-    auto model = btn->getModelCell();
-    for (auto newcategory : modelslist.getCategories()) {
-      if (category != newcategory) {
-        moveToMenu->addLine(
-            std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
-              modelslist.moveModel(model, category, newcategory);
-              modelslist.save();
-              btn->deleteLater();
+              modelslist.setCurrentModel(model);
+              modelslist.setCurrentCategory(category);
+              this->onEvent(EVT_KEY_FIRST(KEY_EXIT));
+              checkAll();
             });
+          }
+          menu->addLine(STR_CREATE_MODEL, getCreateModelAction());
+          menu->addLine(STR_DUPLICATE_MODEL, [=]() {
+            char duplicatedFilename[LEN_MODEL_FILENAME + 1];
+            memcpy(duplicatedFilename, model->modelFilename,
+                   sizeof(duplicatedFilename));
+            if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+                                  MODELS_PATH)) {
+              sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+                         MODELS_PATH);
+              modelslist.addModel(category, duplicatedFilename);
+              update(index);
+            } else {
+              POPUP_WARNING("Invalid File");
+            }
+          });
+          menu->addLine(STR_SAVE_TEMPLATE, [=]() {
+              storageDirty(EE_MODEL);
+              storageCheck(true);
+              constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+              char modelName[size];
+              snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+              char templatePath[FF_MAX_LFN];
+              snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+              sdCheckAndCreateDirectory(TEMPLATES_PATH);
+              sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+              if (isFileAvailable(templatePath)) {
+                new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE,
+                  [=] {
+                    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+                  });
+              } else {
+                sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+              }
+          });
+          if (model != modelslist.getCurrentModel()) {
+            // Move
+            if(modelslist.getCategories().size() > 1) {
+              menu->addLine(STR_MOVE_MODEL, [=]() {
+              auto moveToMenu = new Menu(parent);
+              moveToMenu->setTitle(STR_MOVE_MODEL);              
+                for (auto newcategory: modelslist.getCategories()) {
+                  if(category != newcategory) {
+                    moveToMenu->addLine(std::string(newcategory->name, sizeof(newcategory->name)), [=]() {
+                      modelslist.moveModel(model, category, newcategory);
+                      update(index < (int)category->size() - 1 ? index : index - 1);
+                      modelslist.save();
+                    });
+                  }
+                }
+              });
+            }
+            menu->addLine(STR_DELETE_MODEL, [=]() {
+              new ConfirmDialog(
+                  parent, STR_DELETE_MODEL,
+                  std::string(model->modelName, sizeof(model->modelName))
+                      .c_str(),
+                  [=] {
+                    modelslist.removeModel(category, model);
+                    update(index < (int)category->size() - 1 ? index : index - 1);
+                  });
+            });
+          }
+        } else {
+          button->setFocus(SET_FOCUS_DEFAULT);
+        }
+        return 1;
+      });
+
+      if (selected == index) {
+        selectButton = button;
       }
+
+      index++;
+
+      if (index % MODEL_CELLS_PER_LINE == 0) {
+        x = MODEL_CELL_PADDING;
+        y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
+      } else {
+        x += MODEL_CELL_PADDING + MODEL_SELECT_CELL_WIDTH;
+      }
+    }
+
+    if (index % MODEL_CELLS_PER_LINE != 0) {
+      y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
+    }
+    setInnerHeight(y);
+
+    if (category->empty()) {
+      setFocus();
+    } else if (selectButton) {
+      selectButton->setFocus();
     }
   }
 
   void addFirstModel() {
     Menu *menu = new Menu(this);
-    menu->addLine(STR_CREATE_MODEL, [=]() { createModel(); });
+    menu->addLine(STR_CREATE_MODEL, getCreateModelAction());      
   }
 
-  void onClicked() override
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override
   {
-    if (category->size() == 0) addFirstModel();
+    if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+      addFirstModel();
+    } else {
+      FormWindow::onEvent(event);
+    }
+  }
+#endif
+
+#if defined(HARDWARE_TOUCH)
+    bool onTouchEnd(coord_t x, coord_t y) override
+    {
+      if(category->size() == 0)
+        addFirstModel();
+      else
+        FormWindow::onTouchEnd(x,y);
+      return true;
+    }
+#endif
+  
+
+  void setFocus(uint8_t flag = SET_FOCUS_DEFAULT,
+                Window *from = nullptr) override
+  {
+    if (category->empty()) {
+      // use Window::setFocus() to avoid forwarding focus to nowhere
+      // this crashes currently in libopenui
+      Window::setFocus(flag, from);
+    } else {
+      FormWindow::setFocus(flag, from);
+    }
+  }
+
+ protected:
+  ModelsCategory *category;
+
+  std::function<void(void)> getCreateModelAction()
+  {
+    return [=]() {
+      storageCheck(true);
+      auto model = modelslist.addModel(category, createModel(), false);
+      modelslist.setCurrentModel(model);
+      new SelectTemplateFolder([=]() {
+        model->setModelName(g_model.header.name);
+        modelslist.save();
+        update(category->size() - 1);
+      });
+    };
   }
 };
 
@@ -633,7 +681,9 @@ class ModelCategoryPage : public PageTab
 
   void build(FormWindow *window) override
   {
-    new ModelCategoryPageBody(window, category);
+    new ModelCategoryPageBody(
+        window, {0, 0, LCD_W, window->height()},
+        category);
   }
 };
 
@@ -733,10 +783,10 @@ class CategoryEditPage : public PageTab
 
       grid.nextLine();
 
+      window->setInnerHeight(grid.getWindowHeight()); 
 
-      if(scrolltobot) {
-        lv_obj_scroll_to_y(window->getLvObj(), y + 40, LV_ANIM_OFF);
-      }
+      if(scrolltobot)
+        window->setScrollPositionY(y+40);
     }  
   private:
     ModelSelectMenu *modelselectmenu;

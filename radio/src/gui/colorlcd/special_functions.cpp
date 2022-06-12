@@ -235,8 +235,9 @@ class SpecialFunctionEditPage : public Page
             new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
                            255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         edit->setDisplayHandler(
-            [=](int32_t value) {
-              return formatNumberAsString(CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
+            [=](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
+              dc->drawNumber(2, 2, CFN_PARAM(cfn), PREC1,
+                             sizeof(CFN_PARAM(cfn)), nullptr, "s");
             });
         break;
       }
@@ -317,8 +318,9 @@ class SpecialFunctionEditPage : public Page
                                           grid.getFieldSlot(), val_min, val_max,
                                           GET_SET_DEFAULT(CFN_PARAM(cfn)));
             numedit->setDisplayHandler(
-                [](int value) {
-                  return formatNumberAsString(abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
+                [](BitmapBuffer *dc, LcdFlags flags, int value) {
+                  dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, abs(value),
+                                 flags, 0, value >= 0 ? "+= " : "-= ", nullptr);
                 });
             break;
           }
@@ -340,14 +342,14 @@ class SpecialFunctionEditPage : public Page
           60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
           SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
-          [](int32_t value) {
+          [](BitmapBuffer *dc, LcdFlags flags, int32_t value) {
             if (value == 0)
-              return std::string("1x");
+              dc->drawText(3, 0, "1x", flags);
             else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
-              return std::string("!1x");
-            else {
-              return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
-            }
+              dc->drawText(3, 0, "!1x", flags);
+            else
+              dc->drawNumber(3, 0, value * CFN_PLAY_REPEAT_MUL, flags, 0,
+                             nullptr, "s");
           });
       grid.nextLine();
     }
@@ -405,8 +407,7 @@ class SpecialFunctionEditPage : public Page
     grid.nextLine();
 
     specialFunctionOneWindow = new FormGroup(
-        window, {0, grid.getWindowHeight(), LCD_W, 0}// , FORM_FORWARD_FOCUS
-                                             );
+        window, {0, grid.getWindowHeight(), LCD_W, 0}, FORM_FORWARD_FOCUS);
     updateSpecialFunctionOneWindow();
     grid.addWindow(specialFunctionOneWindow);
   }
@@ -417,10 +418,6 @@ static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
 static constexpr coord_t col1 = 20;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1 + 20;
-
-static const char* _failsafe_module[] = {
-  "Ext.", "Int.",
-};
 
 class SpecialFunctionButton : public Button
 {
@@ -534,7 +531,7 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_SET_FAILSAFE:
-        dc->drawTextAtIndex(col1, line2, _failsafe_module, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        dc->drawTextAtIndex(col1, line2, "\004Int.Ext.", CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
       case FUNC_PLAY_VALUE:
@@ -616,10 +613,10 @@ SpecialFunctionsPage::SpecialFunctionsPage(CustomFunctionData *functions) :
 void SpecialFunctionsPage::rebuild(FormWindow *window,
                                    int8_t focusSpecialFunctionIndex)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
   build(window, focusSpecialFunctionIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  window->setScrollPositionY(scrollPosition);
 }
 
 void SpecialFunctionsPage::editSpecialFunction(FormWindow *window,
@@ -635,7 +632,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
 
-  // Window::clearFocus();
+  Window::clearFocus();
 
   char s[] = "SFxx";
   if (functions == g_eeGeneral.customFn) s[0] = 'G';
@@ -733,22 +730,24 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         txt->invalidate();
       });
 
-      // if (focusIndex == i) {
-      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      //   txt->invalidate();
-      // }
+      if (focusIndex == i) {
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->invalidate();
+      }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
     }
 
-    // if (focusIndex == i) {  // fix focus #303
-    //   button->setFocus(SET_FOCUS_DEFAULT);
-    // }
+    if (focusIndex == i) {  // fix focus #303
+      button->setFocus(SET_FOCUS_DEFAULT);
+    }
+
   }
 
   grid.nextLine();
 
   //  window->setLastField();
+  window->setInnerHeight(grid.getWindowHeight());
 }

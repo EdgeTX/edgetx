@@ -31,11 +31,14 @@
 enum FontIndex
 {
   FONT_STD_INDEX,
+#if !defined(BOLD)
   FONT_BOLD_INDEX,
   FONT_XXS_INDEX,
   FONT_XS_INDEX,
   FONT_L_INDEX,
   FONT_XL_INDEX,
+  FONT_XXL_INDEX,
+#endif
 
   // this one MUST be last
   FONTS_COUNT
@@ -115,14 +118,16 @@ constexpr uint32_t PAGE_TITLE_LEFT =               50;
 
 
 constexpr uint32_t INPUT_EDIT_LABELS_WIDTH = 120;
-constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
+constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 158;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t INPUT_EDIT_CURVE_LEFT = PAGE_PADDING;
 constexpr coord_t INPUT_EDIT_CURVE_TOP = MENU_HEADER_HEIGHT + PAGE_PADDING;
 constexpr coord_t MENUS_LINE_HEIGHT = 30;
 constexpr coord_t MENUS_WIDTH = 200;
+constexpr coord_t MENUS_OFFSET_TOP = 20;
 constexpr coord_t POPUP_HEADER_HEIGHT = 30;
-constexpr coord_t MENUS_MAX_HEIGHT = LCD_H * 0.8;
+constexpr coord_t MENUS_MIN_HEIGHT = 2 * MENUS_LINE_HEIGHT - 1;
+constexpr coord_t MENUS_MAX_HEIGHT = 7 * MENUS_LINE_HEIGHT - 1;
 constexpr coord_t MODEL_SELECT_FOOTER_HEIGHT = 24;
 constexpr coord_t SCROLLBAR_WIDTH = 3;
 constexpr coord_t TABLE_LINE_HEIGHT = 50;

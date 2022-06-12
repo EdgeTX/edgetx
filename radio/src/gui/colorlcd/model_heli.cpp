@@ -25,77 +25,56 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-#if LCD_W > LCD_H // landscape
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
-                                     LV_GRID_FR(1), LV_GRID_FR(2),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-#else // portrait
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
-#endif
-
 ModelHeliPage::ModelHeliPage():
   PageTab(STR_MENUHELISETUP, ICON_MODEL_HELI)
 {
 }
 
-void ModelHeliPage::build(FormWindow* form)
+void ModelHeliPage::build(FormWindow * window)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
-  form->setFlexLayout();
+  FormGridLayout grid;
+  grid.spacer(PAGE_PADDING);
 
   // Swash type
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWASHTYPE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_VSWASHTYPE, 0, SWASH_TYPE_MAX,
-             GET_SET_DEFAULT(g_model.swashR.type));
+  new StaticText(window, grid.getLabelSlot(), STR_SWASHTYPE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(window, grid.getFieldSlot(), STR_VSWASHTYPE, 0, SWASH_TYPE_MAX, GET_SET_DEFAULT(g_model.swashR.type));
+  grid.nextLine();
 
   // Swash ring
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWASHRING, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.swashR.value));
+  new StaticText(window, grid.getLabelSlot(), STR_SWASHRING, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(window, grid.getFieldSlot(), 0, 100, GET_SET_DEFAULT(g_model.swashR.value));
+  grid.nextLine();
 
   // Elevator source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_ELEVATOR, 0, COLOR_THEME_PRIMARY1);
-  new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.elevatorSource));
+  new StaticText(window, grid.getLabelSlot(), STR_ELEVATOR, 0, COLOR_THEME_PRIMARY1);
+  new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.swashR.elevatorSource));
+  grid.nextLine();
 
   // Elevator weight
-  auto w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
-  new NumberEdit(line, rect_t{}, -100, 100,
-                 GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
+  new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
+  grid.nextLine();
 
   // Aileron source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_AILERON, 0, COLOR_THEME_PRIMARY1);
-  new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.aileronSource));
+  new StaticText(window, grid.getLabelSlot(), STR_AILERON, 0, COLOR_THEME_PRIMARY1);
+  new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.swashR.aileronSource));
+  grid.nextLine();
 
   // Aileron weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
-  new NumberEdit(line, rect_t{}, -100, 100,
-                 GET_SET_DEFAULT(g_model.swashR.aileronWeight));
+  new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(g_model.swashR.aileronWeight));
+  grid.nextLine();
 
   // Collective source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_COLLECTIVE, 0, COLOR_THEME_PRIMARY1);
-  new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                   GET_SET_DEFAULT(g_model.swashR.collectiveSource));
+  new StaticText(window, grid.getLabelSlot(), STR_COLLECTIVE, 0, COLOR_THEME_PRIMARY1);
+  new SourceChoice(window, grid.getFieldSlot(), 0, MIXSRC_LAST_CH, GET_SET_DEFAULT(g_model.swashR.collectiveSource));
+  grid.nextLine();
 
   // Collective weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
-  new NumberEdit(line, rect_t{}, -100, 100,
-                 GET_SET_DEFAULT(g_model.swashR.collectiveWeight));
+  new StaticText(window, grid.getLabelSlot(), STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(window, grid.getFieldSlot(), -100, 100, GET_SET_DEFAULT(g_model.swashR.collectiveWeight));
 
+  grid.nextLine();
 
+  window->setInnerHeight(grid.getWindowHeight());
 }

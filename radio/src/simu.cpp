@@ -96,6 +96,7 @@ FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
 OpenTxSim::OpenTxSim(FXApp* a):
   FXMainWindow(a, "OpenTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
 {
+  lcdInit();
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
 #if defined(SIMU_AUDIO)
@@ -488,13 +489,12 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 #endif
   }
 
-#if !defined(SIMU_BOOTLOADER)
   per10ms();
-#else
-  void interrupt10ms();
-  interrupt10ms();
-#endif
-  refreshDisplay();
+  static int timeToRefresh;
+  if (++timeToRefresh >= 5) {
+    timeToRefresh = 0;
+    refreshDisplay();
+  }
   getApp()->addTimeout(this, 2, 10);
   return 0;
 }
@@ -518,14 +518,13 @@ void OpenTxSim::setPixel(int x, int y, FXColor color)
 #endif
 }
 
-// from lcd driver
-void lcdFlushed();
-
 void OpenTxSim::refreshDisplay()
 {
   static bool lightEnabled = (bool)isBacklightEnabled();
 
   if ((bool(isBacklightEnabled()) != lightEnabled) || simuLcdRefresh) {
+
+    simuLcdRefresh = false;
 
     if (bool(isBacklightEnabled()) != lightEnabled) {
       lightEnabled = (bool)isBacklightEnabled();
@@ -576,9 +575,6 @@ void OpenTxSim::refreshDisplay()
 
     bmp->render();
     bmf->setImage(bmp);
-
-    simuLcdRefresh = false;
-    lcdFlushed();
   }
 }
 
@@ -633,10 +629,7 @@ int main(int argc, char ** argv)
 #if defined(EEPROM) || defined(EEPROM_RLC)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
-
-#if !defined(SIMU_BOOTLOADER)
   startAudioThread();
-#endif
   simuStart(true/*false*/, argc >= 3 ? argv[2] : 0, argc >= 4 ? argv[3] : 0);
 
   return application.run();

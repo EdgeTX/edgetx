@@ -24,12 +24,14 @@
 #include "dialog.h"
 #include "widget.h"
 
-class WidgetSettings : public Dialog
+class WidgetSettings: public Dialog
 {
- public:
-  WidgetSettings(Window* parent, Widget* widget);
+    std::function<void(void)> confirmHandler;
+    
+  public:
+    WidgetSettings(Window * parent, Widget * widget);
 
-// #if defined(HARDWARE_KEYS)
-//   void onEvent(event_t event) override;
-// #endif
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
 };

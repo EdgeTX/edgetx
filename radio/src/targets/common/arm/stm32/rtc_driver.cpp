@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
-#include "rtc.h"
+#include "opentx.h"
 
 void rtcSetTime(const struct gtm * t)
 {

@@ -21,37 +21,38 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
-#include "lz4_bitmaps.h"
 
-const uint8_t _LBM_LAYOUT_1x3[] = {
+const uint8_t LBM_LAYOUT_1x3[] = {
 #include "mask_layout1x3.lbm"
 };
-STATIC_LZ4_BITMAP(LBM_LAYOUT_1x3);
 
-const ZoneOption OPTIONS_LAYOUT_1x3[] = {LAYOUT_COMMON_OPTIONS,
-                                         LAYOUT_OPTIONS_END};
-
-class Layout1x3 : public Layout
-{
- public:
-  Layout1x3(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData) :
-      Layout(parent, factory, persistentData)
-  {
-  }
-
-  unsigned int getZonesCount() const override { return 3; }
-
-  rect_t getZone(unsigned int index) const override
-  {
-    rect_t zone = getMainZone();
-
-    zone.h /= 3;
-    zone.y += zone.h * index;
-
-    return zone;
-  }
+const ZoneOption OPTIONS_LAYOUT_1x3[] =  {
+  LAYOUT_COMMON_OPTIONS,
+  LAYOUT_OPTIONS_END
 };
 
-BaseLayoutFactory<Layout1x3> Layout1x3("Layout1x3", "1 x 3", LBM_LAYOUT_1x3,
-                                       OPTIONS_LAYOUT_1x3);
+class Layout1x3: public Layout
+{
+  public:
+    Layout1x3(const LayoutFactory * factory, Layout::PersistentData * persistentData):
+      Layout(factory, persistentData)
+    {
+    }
+
+    unsigned int getZonesCount() const override
+    {
+      return 3;
+    }
+
+    rect_t getZone(unsigned int index) const override
+    {
+      rect_t zone = getMainZone();
+
+      zone.h /= 3;
+      zone.y += zone.h * index;
+
+      return zone;
+    }
+};
+
+BaseLayoutFactory<Layout1x3> Layout1x3("Layout1x3", "1 x 3", LBM_LAYOUT_1x3, OPTIONS_LAYOUT_1x3);

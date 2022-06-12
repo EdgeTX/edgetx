@@ -1,6 +1,6 @@
 name: 🚀 Feature Request / Enhancement
 description: Suggest an improvemnt to make EdgeTX even better!
-labels: ["enhancement ✨"]
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:

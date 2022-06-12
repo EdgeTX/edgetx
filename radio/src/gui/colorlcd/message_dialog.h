@@ -19,39 +19,45 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _MESSAGE_DIALOG_H_
+#define _MESSAGE_DIALOG_H_
 
 #include "dialog.h"
 #include "static.h"
 
-class MessageDialog : public Dialog
-{
- public:
-  MessageDialog(Window* parent, const char* title, const char* message,
-                const char* info = "");
+class MessageDialog: public Dialog {
+  public:
+    MessageDialog(Window * parent, const char * title, const char * message, const char * info = "");
 
-  void setInfoText(std::string text) { infoWidget->setText(std::move(text)); }
+    void setInfoText(std::string text)
+    {
+      infoWidget->setText(std::move(text));
+    }
 
- protected:
-  StaticText* messageWidget;
-  StaticText* infoWidget;
+  protected:
+    StaticText * messageWidget;
+    StaticText * infoWidget;
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "MessageDialog"; }
+    std::string getName() const override
+    {
+      return "MessageDialog";
+    }
 #endif
 
-  void onClicked() override;
+#if defined(HARDWARE_KEYS)
+    void onEvent(event_t event) override;
+#endif
 };
 
 class DynamicMessageDialog : public Dialog
 {
  public:
-  DynamicMessageDialog(Window* parent, const char* title,
-                       std::function<std::string()> textHandler,
-                       const char* message = "",
-                       const int lineHeight = PAGE_LINE_HEIGHT,
-                       const LcdFlags textFlags = CENTERED);
+  DynamicMessageDialog(Window* parent, const char* title, 
+                std::function<std::string()> textHandler, const char* message = "", const int lineHeight = PAGE_LINE_HEIGHT,
+                const LcdFlags textFlags = CENTERED);
   // Attn.: FONT(XXL) is not supported by DynamicMessageDialog
+
 
  protected:
   StaticText* messageWidget;
@@ -61,5 +67,10 @@ class DynamicMessageDialog : public Dialog
   std::string getName() const override { return "DynamicMessageDialog"; }
 #endif
 
-  void onClicked() override;
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
 };
+
+
+#endif // _MESSAGE_DIALOG_H_

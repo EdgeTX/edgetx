@@ -108,10 +108,8 @@ class CurveEditWindow : public Page
                        }
                        SET_DIRTY();
                        curveEdit->updatePreview();
-                       if (curveDataEdit) {
-                         curveDataEdit->clear();
-                         curveDataEdit->update();
-                       }
+                       curveDataEdit->clear();
+                       curveDataEdit->update();
                      }
                  });
 
@@ -134,10 +132,8 @@ class CurveEditWindow : public Page
                                        curve.points = newValue;
                                        SET_DIRTY();
                                        curveEdit->updatePreview();
-                                       if (curveDataEdit) {
-                                         curveDataEdit->clear();
-                                         curveDataEdit->update();
-                                       }
+                                       curveDataEdit->clear();
+                                       curveDataEdit->update();
                                      }
                                  });
       edit->setSuffix(STR_PTS);
@@ -193,10 +189,8 @@ class CurveEditWindow : public Page
                      }
                      SET_DIRTY();
                      curveEdit->updatePreview();
-                     if(curveDataEdit) {
-                       curveDataEdit->clear();
-                       curveDataEdit->update();
-                     }
+                     curveDataEdit->clear();
+                     curveDataEdit->update();
                    }
                  });
 
@@ -219,10 +213,8 @@ class CurveEditWindow : public Page
                                      curve.points = newValue;
                                      SET_DIRTY();
                                      curveEdit->updatePreview();
-                                     if(curveDataEdit) {
-                                       curveDataEdit->clear();
-                                       curveDataEdit->update();
-                                     }
+                                     curveDataEdit->clear();
+                                     curveDataEdit->update();
                                    }
                                  });
       edit->setSuffix(STR_PTS);
@@ -304,10 +296,10 @@ void ModelCurvesPage::pushEditCurve(int index)
 
 void ModelCurvesPage::rebuild(FormWindow * window, int8_t focusIndex)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
   build(window, focusIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  window->setScrollPositionY(scrollPosition);
 }
 
 void ModelCurvesPage::editCurve(FormWindow * window, uint8_t curve)
@@ -386,12 +378,12 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
         txt->invalidate();
       });
 
-      // if (focusIndex == index) {
-      //   button->setFocus(SET_FOCUS_DEFAULT);
-      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      //   txt->invalidate();
-      // }
+      if (focusIndex == index) {
+        button->setFocus(SET_FOCUS_DEFAULT);
+        txt->setBackgroundColor(COLOR_THEME_FOCUS);
+        txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
+        txt->invalidate();
+      }
 
       txt->setHeight(button->height());
       grid.spacer(button->height() + 5);
@@ -416,4 +408,5 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
   grid.nextLine();
 #endif
 
+  window->setInnerHeight(grid.getWindowHeight());
 }

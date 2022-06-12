@@ -18,11 +18,16 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _ETX_H_
+#define _ETX_H_
 
 #include "categorized.h"
 
 #include <QtCore>
+
+#define MINIZ_HEADER_FILE_ONLY
+#include "miniz.c"
+#undef MINIZ_HEADER_FILE_ONLY
 
 class EtxFormat : public CategorizedStorageFormat
 {
@@ -46,3 +51,5 @@ class EtxFormat : public CategorizedStorageFormat
 
     mz_zip_archive zip_archive;
 };
+
+#endif // _ETX_H_

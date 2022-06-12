@@ -26,10 +26,9 @@
 /*-----------------------------------------------------------------------*/
 
 #include "diskio.h"
-#include "debug.h"
-#include "targets/common/arm/stm32/sdio_sd.h"
-
 #include <string.h>
+#include "opentx.h"
+#include "targets/common/arm/stm32/sdio_sd.h"
 
 // TODO share this with Horus (and perhaps other STM32)
 
@@ -326,11 +325,6 @@ void sdInit(void)
   }
 }
 #else
-
-#include "audio.h"
-#include "sdcard.h"
-#include "disk_cache.h"
-
 void sdInit()
 {
   TRACE("sdInit");

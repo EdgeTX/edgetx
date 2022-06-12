@@ -21,9 +21,12 @@
 
 #include "tabsgroup.h"
 
-class RadioTrainerPage : public PageTab
-{
- public:
-  RadioTrainerPage();
-  void build(FormWindow* window) override;
+class RadioTrainerPage: public PageTab {
+  public:
+    RadioTrainerPage();
+
+    void build(FormWindow * window) override;
+
+  protected:
+
 };

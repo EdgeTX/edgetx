@@ -51,11 +51,7 @@ class Curve: public Window
     {
       // will always force a full window refresh
       if (position) {
-        // int pos = position();
-        // if (pos != lastPos) {
-        //   lastPos = pos;
-          invalidate();
-        // }
+        invalidate();
       }
 
       Window::checkEvents();
@@ -68,7 +64,6 @@ class Curve: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
-    // int lastPos = 0;
     std::function<int(int)> function;
     std::function<int()> position;
     std::list<CurvePoint> points;
@@ -80,8 +75,3 @@ class Curve: public Window
     coord_t getPointY(int y) const;
 };
 
-#include "lz4_bitmaps.h"
-
-DEFINE_LZ4_BITMAP(LBM_CURVE_POINT);
-DEFINE_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
-DEFINE_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);

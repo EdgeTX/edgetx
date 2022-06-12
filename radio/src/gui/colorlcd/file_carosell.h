@@ -31,7 +31,7 @@ class FileCarosell : public FormGroup
 {
  public:
   FileCarosell(Window *parent, const rect_t &rect,
-               std::vector<std::string> fileNames);
+               std::vector<std::string> fileNames, FormField *nextCtrl = nullptr);
   ~FileCarosell();
 
   inline void setSelected(int n);

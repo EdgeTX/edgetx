@@ -19,12 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include <string.h>
-
-#include "board.h"
-#include "lcd.h"
-#include "fw_version.h"
-#include "translations.h"
+#include "opentx.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "../../common/arm/stm32/bootloader/bin_files.h"
 

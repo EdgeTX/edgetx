@@ -27,10 +27,7 @@
 #include "translations.h"
 
 #include "widgets/widgets_container_impl.h"
-#include "view_main_decoration.h"
 #include "layout.h"
-
-#include <memory>
 
 #define LAYOUT_COMMON_OPTIONS                                       \
   {STR_TOP_BAR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
@@ -42,6 +39,8 @@
 #define LAYOUT_OPTIONS_END \
   { nullptr, ZoneOption::Bool }
 
+class ViewMainDecoration;
+
 typedef WidgetsContainerImpl<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS> LayoutBase;
 
 class Layout: public LayoutBase
@@ -50,7 +49,7 @@ class Layout: public LayoutBase
 
   public:
 
-    Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData);
+    Layout(const LayoutFactory * factory, PersistentData * persistentData);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -100,7 +99,7 @@ class Layout: public LayoutBase
 
   protected:
     const LayoutFactory * factory  = nullptr;
-    std::unique_ptr<ViewMainDecoration> decoration;
+    ViewMainDecoration* decoration = nullptr;
 
     // Decoration settings bitmask to detect updates
     uint8_t  decorationSettings = 255;
@@ -123,8 +122,6 @@ class BaseLayoutFactory: public LayoutFactory
     {
     }
 
-    const uint8_t* getBitmap() const override { return bitmap; }
-
     void drawThumb(BitmapBuffer * dc, uint16_t x, uint16_t y, uint32_t flags) const override
     {
       dc->drawBitmapPattern(x, y, bitmap, flags);
@@ -135,20 +132,20 @@ class BaseLayoutFactory: public LayoutFactory
       return options;
     }
 
-    Layout * create(Window* parent, Layout::PersistentData * persistentData) const override
+    Layout * create(Layout::PersistentData * persistentData) const override
     {
       initPersistentData(persistentData, true);
-      Layout * layout = new T(parent, this, persistentData);
+      Layout * layout = new T(this, persistentData);
       if (layout) {
         layout->create();
       }
       return layout;
     }
 
-    Layout * load(Window* parent, Layout::PersistentData * persistentData) const override
+    Layout * load(Layout::PersistentData * persistentData) const override
     {
       initPersistentData(persistentData, false);
-      Layout * layout = new T(parent, this, persistentData);
+      Layout * layout = new T(this, persistentData);
       if (layout) {
         layout->load();
       }

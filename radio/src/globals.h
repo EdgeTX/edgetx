@@ -24,7 +24,6 @@
 
 #include "definitions.h"
 #include "dataconstants.h"
-#include "opentx_types.h"
 
 PACK(struct GlobalData {
   uint8_t unexpectedShutdown:1;

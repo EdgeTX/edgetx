@@ -225,9 +225,6 @@ void GVarEditWindow::setProperties(int onlyForFlightMode)
   }
   FlightModeData * fmData;
   for (int fm = 0; fm < MAX_FLIGHT_MODES; fm++) {
-    if (values[fm] == nullptr)  // KLK: the order of calls has changed and this might not be initialized yet.
-      continue;
-
     if (onlyForFlightMode >= 0 && fm != onlyForFlightMode)
       continue;
     fmData = &g_model.flightModeData[fm];
@@ -241,13 +238,13 @@ void GVarEditWindow::setProperties(int onlyForFlightMode)
     else {
       values[fm]->setMin(GVAR_MAX + 1);
       values[fm]->setMax(GVAR_MAX + MAX_FLIGHT_MODES - 1);
-      values[fm]->setDisplayHandler([=](int32_t value) {
+      values[fm]->setDisplayHandler([=](BitmapBuffer * dc, LcdFlags flags, int32_t value) {
           uint8_t targetFlightMode = value - GVAR_MAX - 1;
           if (targetFlightMode >= fm)
             targetFlightMode++;
           char label[16];
           getFlightModeString(label, targetFlightMode + 1);
-          return std::string(label);
+          dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, label, strlen(label), flags);
       });
     }
 
@@ -342,14 +339,15 @@ void GVarEditWindow::buildBody(FormWindow * window)
 
   setProperties();
 
+  window->setInnerHeight(grid.getWindowHeight());
 }
 
 void ModelGVarsPage::rebuild(FormWindow * window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  coord_t scrollPosition = window->getScrollPositionY();
   window->clear();
   build(window);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  window->setScrollPositionY(scrollPosition);
 }
 
 void ModelGVarsPage::build(FormWindow * window)
@@ -379,4 +377,5 @@ void ModelGVarsPage::build(FormWindow * window)
 
     grid.nextLine(button->height());
   }
+  window->setInnerHeight(grid.getWindowHeight());
 }

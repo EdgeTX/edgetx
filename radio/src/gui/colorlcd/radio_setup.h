@@ -26,4 +26,9 @@ class RadioSetupPage: public PageTab {
     RadioSetupPage();
 
     void build(FormWindow * window) override;
+  private:
+    void updateBacklightControls();
+    FormField* backlightTimeout = nullptr;
+    FormField* backlightOnBright = nullptr;
+    FormField* backlightOffBright = nullptr;
 };

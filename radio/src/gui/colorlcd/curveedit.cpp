@@ -112,6 +112,7 @@ void CurveDataEdit::update()
         0, RIGHT);
   }
 
+  setInnerWidth(curvePointsCount * boxWidth);
 }
 
 void CurveDataEdit::paint(BitmapBuffer * dc)
@@ -119,6 +120,7 @@ void CurveDataEdit::paint(BitmapBuffer * dc)
   dc->clear(COLOR_THEME_SECONDARY3);
   // dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
   // dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
+  drawHorizontalScrollbar(dc);
 }
 
 CurveEdit::CurveEdit(Window * parent, const rect_t & rect, uint8_t index) :

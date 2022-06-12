@@ -155,6 +155,7 @@ const char * nchar2string(const char * string, int size)
   return _stringResult;
 }
 
+
 int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
@@ -179,9 +180,5 @@ int main(int argc, char **argv)
     listeners.Append(new TersePrinter(defaultPrinter));
   }
 
-#if defined(LIBOPENUI)
-  lcdInitDisplayDriver();
-#endif
-  
   return RUN_ALL_TESTS();
 }

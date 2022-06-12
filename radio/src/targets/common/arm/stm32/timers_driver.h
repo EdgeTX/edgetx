@@ -25,8 +25,7 @@
 
 uint16_t getTmr2MHz();
 
-#define watchdogSuspend(timeout)
-#else
+#elif defined(STM32)
 
 #include "board.h"
 
@@ -36,15 +35,4 @@ void stop1msTimer();
 
 static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
 
-void watchdogSuspend(uint32_t timeout);
-
 #endif
-
-#include "opentx_types.h"
-
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}

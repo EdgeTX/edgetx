@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx_types.h"
-#include "board.h"
+#include "opentx.h"
 
 void backlightInit()
 {
