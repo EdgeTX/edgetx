@@ -321,15 +321,15 @@ void Window::deleteLater(bool detach, bool trash)
     Window::trash.push_back(this);
   }
 
+  if (closeHandler) {
+    closeHandler();
+  }
+
   deleteChildren();
 
   if (lvobj != nullptr) {
     lv_obj_del(lvobj);
     lvobj = nullptr;
-  }
-  
-  if (closeHandler) {
-    closeHandler();
   }
 }
 
