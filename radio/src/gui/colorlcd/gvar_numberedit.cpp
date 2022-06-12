@@ -136,7 +136,7 @@ void GVarNumberEdit::update()
     // number edit mode
     act_field = num_field;
     lv_obj_clear_flag(num_obj, LV_OBJ_FLAG_HIDDEN);
-    num_field->setValue(value);
+    num_field->setValue(value + voffset);
   }
 
   if (has_focus) {
