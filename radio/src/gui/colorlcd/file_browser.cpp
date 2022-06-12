@@ -20,8 +20,9 @@
  */
 
 #include "file_browser.h"
-#include "libopenui_file.h"
+#include "VirtualFS.h"
 #include "font.h"
+#include "strhelpers.h"
 
 #include <list>
 #include <string>
@@ -54,8 +55,9 @@ static void fb_event(lv_event_t* e)
 
 static const char* getFullPath(const char* filename)
 {
-  static char full_path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
+  static char full_path[VFS_MAX_LFN + 1];
+  std::string dir = VirtualFS::instance().getCurWorkDir();
+  strncpy(full_path, dir.c_str(), VFS_MAX_LFN);
   strcat(full_path, "/");
   strcat(full_path, filename);
   return full_path;
@@ -63,36 +65,36 @@ static const char* getFullPath(const char* filename)
 
 static const char* getCurrentPath()
 {
-  static char path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)path, FF_MAX_LFN);
+  static char path[VFS_MAX_LFN + 1];
+  std::string dir = VirtualFS::instance().getCurWorkDir();
+  strncpy(path, dir.c_str(), VFS_MAX_LFN);
   return path;
 }
 
 static int scan_files(std::list<std::string>& files,
                       std::list<std::string>& directories)
 {
-  FILINFO fno;
-  DIR dir;
+  VfsFileInfo fno;
+  VfsDir dir;
+  VirtualFS& vfs = VirtualFS::instance();
 
-  FRESULT res = f_opendir(&dir, "."); // Open the directory
-  if (res != FR_OK) return -1;
+  VfsError res = vfs.openDirectory(dir, "."); // Open the directory
+  if (res != VfsError::OK) return -1;
 
   // read all entries
-  bool firstTime = true;
   for (;;) {
-    res = sdReadDir(&dir, &fno, firstTime);
+    res = dir.read(fno);
 
-    if (res != FR_OK || fno.fname[0] == 0)
+    if (res != VfsError::OK || fno.getName().length() == 0)
       break; // Break on error or end of dir
-    // if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
-    //   continue;
-    if (fno.fname[0] == '.' && fno.fname[1] != '.')
+    std::string fname = fno.getName();
+    if (fname[0] == '.' && fname[1] != '.')
       continue; // Ignore hidden files under UNIX, but not ..
 
-    if (fno.fattrib & AM_DIR) {
-      directories.push_back((char*)fno.fname);
+    if (fno.getType() == VfsType::DIR) {
+      directories.push_back(fname);
     } else {
-      files.push_back((char*)fno.fname);
+      files.push_back(fname);
     }
   }
 
@@ -109,7 +111,7 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
 
   setColumnCount(1);
 
-  f_chdir(dir);
+  VirtualFS::instance().changeDirectory(dir);
 
   if (lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
     lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
@@ -219,7 +221,7 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
   if (is_dir) {
-    f_chdir(fullpath);
+    VirtualFS::instance().changeDirectory(fullpath);
     refresh();
     return;
   }

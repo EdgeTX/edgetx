@@ -24,6 +24,7 @@
 #include "radio_spectrum_analyser.h"
 #include "radio_ghost_module_config.h"
 #include "opentx.h"
+#include "VirtualFS.h"
 #include "libopenui.h"
 #include "lua/lua_api.h"
 #include "standalone_lua.h"
@@ -89,10 +90,10 @@ inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
 #if defined(LUA)
 static void run_lua_tool(Window* parent, const std::string& path)
 {
-  char toolPath[FF_MAX_LFN + 1];
+  char toolPath[VFS_MAX_LFN + 1];
   strncpy(toolPath, path.c_str(), sizeof(toolPath)-1);
   *((char *)VirtualFS::getBasename(toolPath)-1) = '\0';
-  f_chdir(toolPath);
+  VirtualFS::instance().changeDirectory(toolPath);
 
   luaExec(path.c_str());
   auto lua_win = StandaloneLuaWindow::instance();
