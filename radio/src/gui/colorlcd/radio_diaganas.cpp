@@ -155,8 +155,8 @@ class AnaCalibratedViewWindow: public Window {
       x1 = dc->drawText(x1, y1, ".");
       x1 = dc->drawNumber(x1, y1, touchICfwver & 0xFF, LEFT, 0) + 16;
 #endif
-        x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
-      dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);
+/*        x1 = dc->drawText(x1, y1, "TSI2CEvents:") + 4;
+      dc->drawNumber(x1, y1, touchI2Chiccups, LEFT, 5);*/
 #endif
 #endif
     };
@@ -268,7 +268,7 @@ class AnaFilteredDevViewWindow: public Window {
             ClearStats = false;
         }
 
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18))
           if (globalData.flyskygimbals)
           {
               for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -347,7 +347,7 @@ class AnaUnfilteredRawViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18))
         if (globalData.flyskygimbals)
         {
             for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -470,7 +470,7 @@ class AnaMinMaxViewWindow: public Window {
         }
         dc->drawText(10, 1, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
 
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(PCBPL18))
           if (globalData.flyskygimbals)
           {
               for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
