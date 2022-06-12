@@ -1117,6 +1117,8 @@ void VirtualFS::normalizePath(std::string& path)
         std::string elem = path.substr(oldpos);
         if(elem == "..")
           tokens.pop_back();
+        else if (elem == ".")
+          ;
         else
           tokens.push_back(path.substr(oldpos));
         break;
