@@ -42,8 +42,8 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2),
-                                           LV_GRID_TEMPLATE_LAST};
+// static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+//                                            LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t trims_row_dsc[] = {LV_GRID_CONTENT,
                                            LV_GRID_CONTENT,
@@ -93,26 +93,23 @@ static std::string getFMTrimStr(uint8_t mode)
 
 struct FMTrimSettings : public Dialog {
   FMTrimSettings(Window* parent, FlightModeData* p_fm) :
-      Dialog(parent->getFullScreenWindow(), STR_TRIMS, rect_t{})
+    Dialog(parent->getFullScreenWindow(), STR_TRIMS, rect_t{})
   {
-    auto lv_content = content->getLvObj();
-    lv_obj_set_flex_flow(lv_content, LV_FLEX_FLOW_COLUMN);
-
     setCloseWhenClickOutside(true);
-
     auto form = &content->form;
-    form->setFlexLayout();
 
-    FlexGridLayout trim_grid(trims_col_dsc, trims_row_dsc);
+    FlexGridLayout trim_grid(line_col_dsc, trims_row_dsc);
     auto line = form->newLine(&trim_grid);
 
     for (int t = 0; t < NUM_TRIMS; t++) {
-      auto trim_obj = window_create(line->getLvObj());
-      auto trim = new FormGroup::Line(line, trim_obj);
-      lv_obj_set_layout(trim_obj, LV_LAYOUT_FLEX);
-      lv_obj_set_style_pad_column(trim_obj, 4, 0);
-      lv_obj_set_style_pad_bottom(trim_obj, 8, 0);
+
+      auto trim = new FormGroup(line, rect_t{});
+      trim->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+
+      auto trim_obj = trim->getLvObj();
+      lv_obj_set_style_pad_column(trim_obj, lv_dpx(8), 0);
       lv_obj_set_style_flex_cross_place(trim_obj, LV_FLEX_ALIGN_CENTER, 0);
+      lv_obj_set_style_grid_cell_x_align(trim_obj, LV_GRID_ALIGN_STRETCH, 0);
 
       trim_t* tr = &p_fm->trim[t];
       auto btn = new TextButton(
@@ -144,25 +141,19 @@ struct FMTrimSettings : public Dialog {
 
     content->setWidth(LCD_W * 0.8);
     content->updateSize();
-    // form->setFocus();
   }
 };
 
 FlightModeEdit::FlightModeEdit(uint8_t index) :
     Page(ICON_MODEL_FLIGHT_MODES)
 {
-  std::string title =
-      std::string(TR_MENUFLIGHTMODE) + " " + std::to_string(index);
-  new StaticText(&header,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 title, 0, COLOR_THEME_PRIMARY2);
+  std::string title = std::string(TR_MENUFLIGHTMODE)
+    + " " + std::to_string(index);
+  header.setTitle(title);
 
-  auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
-                             NO_FOCUS /*| FORM_FORWARD_FOCUS*/);
-
-  form->setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  auto form = new FormWindow(&body, rect_t{});
+  form->setFlexLayout();
 
   FlightModeData* p_fm = &g_model.flightModeData[index];
   
@@ -198,8 +189,6 @@ FlightModeEdit::FlightModeEdit(uint8_t index) :
     new FMTrimSettings(this, p_fm);
     return 0;
   });
-
-  // form->setFocus();
 }
 
 class FlightModeBtn: public Button
