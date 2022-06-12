@@ -1037,6 +1037,7 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
+#if defined(HARDWARE_INTERNAL_MODULE)
 static void *spInternalModuleCTX = nullptr;
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
@@ -1054,6 +1055,7 @@ static const etx_serial_init spIntmoduleSerialInitParams = {
   .rx_enable = true,
 };
 
+#endif // HARDWARE_INTERNAL_MODULE
 // TODO: use proper method instead
 extern bool cdcConnected;
 extern uint32_t usbSerialBaudRate(void*);
