@@ -88,12 +88,14 @@ class BaseNumberEdit: public FormField
         }
       }
       if (lvobj != nullptr) {
+        std::string str;
         if (displayFunction != nullptr) {
-          lv_textarea_set_text(lvobj, displayFunction(currentValue).c_str());
+          str = displayFunction(currentValue);
         } else {
-          auto dispString = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(), suffix.c_str());
-          lv_textarea_set_text(lvobj, dispString.c_str());
+          str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
+                                     suffix.c_str());
         }
+        lv_textarea_set_text(lvobj, str.c_str());
       }
     }
 
