@@ -135,6 +135,8 @@ extern const char STR_VSRCRAW[];
 
 extern const char STR_INVERT_ROTARY_OPT[];
 
+extern const char STR_INVERT_ROTARY_OPT[];
+
 #if defined(TRANSLATIONS_CZ)
 extern const char STR_INPUTNAMES[];
 #endif
