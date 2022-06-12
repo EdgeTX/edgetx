@@ -207,6 +207,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
+  // Init LCD call backs
+  lcdInit();
+  
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
 #else

@@ -76,6 +76,7 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     virtual void setInputValue(int type, uint8_t index, int16_t value);
     virtual void rotaryEncoderEvent(int steps);
     virtual void touchEvent(int type, int x, int y);
+    virtual void lcdFlushed();
     virtual void setTrainerTimeout(uint16_t ms);
     virtual void sendTelemetry(const QByteArray data);
     virtual void setLuaStateReloadPermanentScripts();

@@ -145,6 +145,7 @@ class SimulatorInterface : public QObject
     virtual void setInputValue(int type, uint8_t index, int16_t value) = 0;
     virtual void rotaryEncoderEvent(int steps) = 0;
     virtual void touchEvent(int type, int x, int y) = 0;
+    virtual void lcdFlushed() = 0;
     virtual void setTrainerTimeout(uint16_t ms) = 0;
     virtual void sendTelemetry(const QByteArray data) = 0;
     virtual void setLuaStateReloadPermanentScripts() = 0;
