@@ -1046,6 +1046,8 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
+
+#if defined(HARDWARE_INTERNAL_MODULE)
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   while (len > 0) {
@@ -1070,6 +1072,7 @@ static void spInternalModuleSetBaudRate(uint32_t baud)
   // re-configure serial port
   IntmoduleSerialDriver.init(&params);
 }
+#endif // HARDWARE_INTERNAL_MODULE
 
 // TODO: use proper method instead
 extern bool cdcConnected;
