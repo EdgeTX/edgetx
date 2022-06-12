@@ -27,7 +27,7 @@
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
 #include "standalone_lua.h"
-#include "sdcard.h"
+#include "VirtualFS.h"
 #include "view_text.h"
 #include "file_preview.h"
 #include "file_browser.h"
@@ -67,26 +67,26 @@ class FileNameEditWindow : public Page
     char extension[LEN_FILE_EXTENSION_MAX + 1];
     memset(extension, 0, sizeof(extension));
     const char *ext =
-        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
+        VirtualFS::getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
 
     if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
     if (ext) strncpy(extension, ext, extLength);
 
-    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
+    const uint8_t maxNameLength = STORAGE_SCREEN_FILE_LENGTH - extLength;
     nameLength -= extLength;
     if (nameLength > maxNameLength) nameLength = maxNameLength;
-    memset(reusableBuffer.sdManager.originalName, 0, SD_SCREEN_FILE_LENGTH);
+    memset(reusableBuffer.sdManager.originalName, 0, STORAGE_SCREEN_FILE_LENGTH);
 
     strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
     reusableBuffer.sdManager.originalName[nameLength] = '\0';
 
     auto newFileName = new TextEdit(
         window, grid.getSlot(), reusableBuffer.sdManager.originalName,
-        SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
+        STORAGE_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
     newFileName->setChangeHandler([=]() {
       char *newValue = reusableBuffer.sdManager.originalName;
       size_t totalSize = strlen(newValue);
-      char changedName[SD_SCREEN_FILE_LENGTH + 1];
+      char changedName[STORAGE_SCREEN_FILE_LENGTH + 1];
       memset(changedName, 0, sizeof(changedName));
       strncpy(changedName, newValue, totalSize);
       changedName[totalSize] = '\0';
@@ -94,7 +94,7 @@ class FileNameEditWindow : public Page
         strncpy(changedName + totalSize, extension, extLength);
       }
       changedName[totalSize + extLength] = '\0';
-      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+      VirtualFS::instance().rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
     });
   };
 };
@@ -195,7 +195,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
 {
   auto window = Layer::back();
   auto menu = new Menu(window);
-  const char* ext = getFileExtension(name);
+  const char* ext = VirtualFS::getFileExtension(name);
   if (ext) {
     if (!strcasecmp(ext, SOUNDS_EXT)) {
       menu->addLine(STR_PLAY_FILE, [=]() {
@@ -225,17 +225,18 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
       });
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
-               isExtensionMatching(ext, BITMAPS_EXT)) {
+               VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
       menu->addLine(STR_ASSIGN_BITMAP, [=]() {
         memcpy(g_model.header.bitmap, name, sizeof(g_model.header.bitmap));
         storageDirty(EE_MODEL);
       });
     } else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT)) {
       menu->addLine(STR_VIEW_TEXT, [=]() {
-        FIL file;
-        if (FR_OK == f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ)) {
-          const int fileLength = file.obj.objsize;
-          f_close(&file);
+        VfsFile file;
+        VirtualFS& vfs = VirtualFS::instance();
+        if (VfsError::OK == vfs.openFile(&file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ)) {
+          const int fileLength = file.size();
+          file.close();
 
           if (fileLength > WARN_FILE_LENGTH) {
             char buf[64];
@@ -347,25 +348,28 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   }
   if (!READ_ONLY()) {
     menu->addLine(STR_COPY_FILE, [=]() {
-      clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-      f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-      strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
+      clipboard.type = CLIPBOARD_TYPE_STORAGE_FILE;
+      const std::string& dir = VirtualFS::instance().getCurWorkDir();
+      strncpy(clipboard.data.storage.directory, dir.c_str(), CLIPBOARD_PATH_LEN-1);
+      strncpy(clipboard.data.storage.filename, name, CLIPBOARD_PATH_LEN - 1);
     });
-    if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
+    if (clipboard.type == CLIPBOARD_TYPE_STORAGE_FILE) {
       menu->addLine(STR_PASTE, [=]() {
-        static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-        f_getcwd((TCHAR*)lfn, FF_MAX_LFN);
+        static char lfn[VFS_MAX_LFN + 1];  // TODO optimize that!
+        VirtualFS& vfs = VirtualFS::instance();
+        const std::string& dir = vfs.getCurWorkDir();
+        strncpy((char *)&lfn[0], dir.c_str(), VFS_MAX_LFN-1);
         // prevent copying to the same directory with the same name
-        char* destNamePtr = clipboard.data.sd.filename;
-        if (!strcmp(clipboard.data.sd.directory, lfn)) {
+        char* destNamePtr = clipboard.data.storage.filename;
+        if (!strcmp(clipboard.data.storage.directory, lfn)) {
           char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
           destNamePtr =
               strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
-          destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+          destNamePtr = strAppend(destNamePtr, clipboard.data.storage.filename,
                                   CLIPBOARD_PATH_LEN);
           destNamePtr = destFileName;
         }
-        sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory,
+        vfs.copyFile(clipboard.data.storage.filename, clipboard.data.storage.directory,
                    destNamePtr, lfn);
         clipboard.type = CLIPBOARD_TYPE_NONE;
 
@@ -377,7 +381,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       few->setCloseHandler([=]() { browser->refresh(); });
     });
     menu->addLine(STR_DELETE_FILE, [=]() {
-      f_unlink(fullpath);
+      VirtualFS::instance().unlink(fullpath);
       browser->refresh();
     });
   }

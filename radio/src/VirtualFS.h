@@ -79,6 +79,7 @@
   #define ETX_FOURCC 0x4878746F // otx for PL18
 #endif
 
+#define VFS_MAX_LFN      255
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.
 
 #define FILE_COPY_PREFIX "cp_"
