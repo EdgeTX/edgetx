@@ -115,9 +115,10 @@ void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
 }
 
-FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout)
+FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout, lv_coord_t left_padding)
 {
   if (layout) layout->resetPos();
   auto lv_line = window_create(lvobj);
+  if (left_padding) lv_obj_set_style_pad_left(lv_line, left_padding, 0);
   return new Line(this, lv_line, layout);
 }

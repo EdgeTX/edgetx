@@ -480,7 +480,6 @@ void Window::bringToTop()
   if (lvobj) lv_obj_move_foreground(lvobj);
 }
 
-void lvglPushEncoderEvent(event_t& evt);
 void Window::checkEvents()
 {
   auto copy = children;

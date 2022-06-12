@@ -101,7 +101,7 @@ class FormGroup : public Window
 #endif
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN, lv_coord_t padding = 0);
-  Line* newLine(FlexGridLayout* layout = nullptr);
+  Line* newLine(FlexGridLayout* layout = nullptr, lv_coord_t left_padding = 0);
 };
 
 class FormWindow : public FormGroup
