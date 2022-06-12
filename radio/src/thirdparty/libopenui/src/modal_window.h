@@ -51,7 +51,7 @@ class ModalWindowContent : public Window
   std::string getName() const override { return "ModalWindowContent"; }
 #endif
 
-  void setTitle(const std::string& text);
+  virtual void setTitle(const std::string& text);
   std::string getTitle() const;
 
   void onClicked() override;

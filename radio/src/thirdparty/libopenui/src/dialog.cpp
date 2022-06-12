@@ -21,16 +21,26 @@
 #include "mainwindow.h"
 #include "theme.h"
 
-static rect_t _get_form_rect(const rect_t& rect)
-{
-  return {0, POPUP_HEADER_HEIGHT, rect.w,
-          coord_t(rect.h - POPUP_HEADER_HEIGHT)};
-}
-
 DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
     ModalWindowContent(parent, rect),
-    form(this, _get_form_rect(rect), FORM_NO_BORDER)
+    form(this, rect_t{})
 {
+  form.setFlexLayout();
+
+  auto form_obj = form.getLvObj();
+  lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
+
+  lv_coord_t max_height = LCD_H * 0.8;
+  lv_obj_set_style_max_height(form_obj, max_height, 0);
+}
+
+void DialogWindowContent::setTitle(const std::string& text)
+{
+  ModalWindowContent::setTitle(text);
+  if (title) {
+    lv_coord_t title_h = lv_obj_get_height(title);
+    lv_obj_set_y(form.getLvObj(), title_h);
+  }
 }
 
 void DialogWindowContent::deleteLater(bool detach, bool trash)
