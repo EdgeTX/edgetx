@@ -707,6 +707,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 // all other instantiations are done from this file
 template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx);
 
+#if defined(LIBOPENUI)
 char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
                        LcdFlags flags)
 {
@@ -851,8 +852,8 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
 
   return dest;
 }
-
-#endif
+#endif // defined(LIBOPENUI)
+#endif // !defined(BOOT)
 
 char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits,
                         uint8_t radix)
