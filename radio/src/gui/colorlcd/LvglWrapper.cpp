@@ -36,6 +36,14 @@ static lv_indev_drv_t rotaryDriver;
 static lv_indev_t* rotaryDevice = nullptr;
 static lv_indev_t* keyboardDevice = nullptr;
 
+static void reset_inactivity()
+{
+  inactivity.counter = 0;
+  if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {     
+    resetBacklightTimeout();
+  }
+}
+
 static lv_obj_t* get_focus_obj(lv_indev_t* indev)
 {
   lv_group_t * g = indev->group;
@@ -179,6 +187,9 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
+  // Reset inactivity counters
+  if (st.event != TE_NONE) { reset_inactivity(); }
+  
   backup_touch_data(data);
 #endif
 }
@@ -194,6 +205,9 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
+
+  // Reset inactivity counters
+  if (diff != 0) { reset_inactivity(); }
 }
 #endif
 
