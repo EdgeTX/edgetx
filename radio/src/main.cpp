@@ -373,12 +373,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  // TODO: use lv_indev_enable(touchDriver, true / false) instead
-  // #if defined(HARDWARE_TOUCH)
-  //   MainWindow* mainWin = MainWindow::instance();
-  //   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) &&
-  //   isBacklightEnabled());
-  // #endif
   LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
