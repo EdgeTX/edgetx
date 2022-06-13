@@ -77,6 +77,13 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
                timerValueUpdater(timer));
 
+  // Timer direction
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_DIRECTION, 0,
+                 COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_TIMER_DIR, 0, 1,
+             GET_SET_DEFAULT(p_timer->showElapsed));
+
   // Timer minute beep
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);

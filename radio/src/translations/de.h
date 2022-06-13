@@ -252,9 +252,7 @@
 #define TR_VCELLINDEX                  "Niedrigst","1. Zelle","2. Zelle","3. Zelle","4. Zelle","5. Zelle","6. Zelle","Höchster","Differenz"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
-
-#define LEN_TIMER_DIR                  TR("\006", "\014")
-#define TR_TIMER_DIR                   TR("Remain""Elaps.", "Show Remain\0""Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain\0"), TR("Elaps.", "Show Elapsed")
 
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
