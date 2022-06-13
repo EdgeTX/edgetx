@@ -74,4 +74,10 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi
 
+echo "=== Step $((STEP++)): Set git pull by default to rebase instead of merge ==="
+git config --global --bool pull.rebase true
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+fi
+
 echo "Setting up build environment has finished. You can now start building EdgeTX firmware and binaries!"
