@@ -119,7 +119,9 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 
 #define PPM_DEF_PERIOD               225 /* 22.5ms */
 #define PPM_STEP_SIZE                5 /*0.5ms*/
-#define PPM_PERIOD_HALF_US(module)   ((g_model.moduleData[module].ppm.frameLength * PPM_STEP_SIZE + PPM_DEF_PERIOD) * 200) /*half us*/
+#define PPM_PERIOD_FL_TO_HALF_US(fl) (((fl)*PPM_STEP_SIZE+PPM_DEF_PERIOD)*200) /* half us*/
+#define PPM_PERIOD_HALF_US(module)   PPM_PERIOD_FL_TO_HALF_US(g_model.moduleData[module].ppm.frameLength) /*half us*/
+#define PPM_TRAINER_PERIOD_HALF_US() PPM_PERIOD_FL_TO_HALF_US(g_model.trainerData.frameLength) /*half us*/
 #define PPM_PERIOD(module)           (PPM_PERIOD_HALF_US(module) / 2) /*us*/
 #define DSM2_BAUDRATE                125000
 #define DSM2_PERIOD                  22000 /*us*/
@@ -260,29 +262,8 @@ uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
 void extramodulePpmStart();
 
-inline void startPulses()
-{
-  s_pulses_paused = false;
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-  setupPulsesInternalModule();
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  setupPulsesExternalModule();
-#endif
-
-#if defined(HARDWARE_EXTRA_MODULE)
-  extramodulePpmStart();
-#endif
-}
-
-inline void stopPulses()
-{
-  s_pulses_paused = true;
-  for (uint8_t i = 0; i < NUM_MODULES; i++)
-    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
-}
+void startPulses();
+void stopPulses();
 
 inline bool pulsesStarted()
 {

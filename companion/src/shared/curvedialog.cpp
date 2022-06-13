@@ -333,15 +333,19 @@ void CurveDialog::updateCurvePoints()
   for (int i = 0; i < count; i++) {
     spny[i]->show();
     spny[i]->setValue(curve.points[i].y);
+
     if (curve.type == CurveData::CURVE_TYPE_CUSTOM) {
       spnx[i]->show();
       if (i == 0 || i == count - 1) {
-        spnx[i]->setDisabled(true);
+        spnx[i]->setDisabled(false);
         spnx[i]->setMaximum(+100);
         spnx[i]->setMinimum(-100);
+        spnx[i]->setDisabled(true);
       }
       else {
         spnx[i]->setDisabled(false);
+        spnx[i]->setMaximum(+100);
+        spnx[i]->setMinimum(-100);
         spnx[i]->setMaximum(curve.points[i + 1].x);
         spnx[i]->setMinimum(curve.points[i - 1].x);
       }
@@ -432,7 +436,8 @@ void CurveDialog::on_curvePointsChanged(int index)
     if (allowCurveType(numpoints, curve.type)) {
       curve.count = numpoints;
       curve.init();
-      update();
+      updateCurve();
+      updateCurvePoints();
     }
     else {
       updateCurveType();
@@ -447,9 +452,9 @@ void CurveDialog::on_curveTypeChanged(int index)
     int numpoints = ui->curvePoints->itemData(ui->curvePoints->currentIndex()).toInt();
 
     if (allowCurveType(numpoints, type)) {
-      //curve.clear(numpoints);
       curve.type = type;
-      //curve.init();
+      curve.count = numpoints;
+      curve.init();
       update();
     }
     else {
@@ -463,6 +468,7 @@ void CurveDialog::resizeEvent(QResizeEvent *event)
   QRect qr = ui->curvePreview->contentsRect();
   ui->curvePreview->scene()->setSceneRect(GFX_MARGIN, GFX_MARGIN, qr.width() - GFX_MARGIN * 2, qr.height() - GFX_MARGIN * 2);
   updateCurve();
+  updateCurvePoints();
 }
 
 void CurveDialog::on_curveTemplateChanged(int index)
@@ -539,37 +545,41 @@ void CurveDialog::onNodeDelete()
     curve.points[numpoints].x = 0;
     curve.points[numpoints].y = 0;
     curve.count = numpoints;
-    update();
+    updateCurve();
+    updateCurvePoints();
   }
 }
 
 void CurveDialog::onSceneNewPoint(int x, int y)
 {
-  if ((curve.type == CurveData::CURVE_TYPE_CUSTOM) && (curve.count < CPN_MAX_POINTS)) {
-    int newidx = 0;
-    int numpoints = curve.count;
-    if (x < curve.points[0].x) {
-      newidx = 0;
-    }
-    else if (x > curve.points[numpoints - 1].x) {
-      newidx = numpoints;
-    }
-    else {
-      for (int i = 0; i < numpoints; i++) {
-        if (x < curve.points[i].x) {
-          newidx = i;
-          break;
+  if (!lock) {
+    if ((curve.type == CurveData::CURVE_TYPE_CUSTOM) && (curve.count < CPN_MAX_POINTS)) {
+      int newidx = 0;
+      int numpoints = curve.count;
+      if (x < curve.points[0].x) {
+        newidx = 0;
+      }
+      else if (x > curve.points[numpoints - 1].x) {
+        newidx = numpoints;
+      }
+      else {
+        for (int i = 0; i < numpoints; i++) {
+          if (x < curve.points[i].x) {
+            newidx = i;
+            break;
+          }
         }
       }
+      numpoints++;
+      curve.count = numpoints;
+      for (int idx = (numpoints - 1); idx > newidx; idx--) {
+        curve.points[idx] = curve.points[idx - 1];
+      }
+      curve.points[newidx].x = x;
+      curve.points[newidx].y = y;
+      updateCurve();
+      updateCurvePoints();
     }
-    numpoints++;
-    curve.count = numpoints;
-    for (int idx = (numpoints - 1); idx > newidx; idx--) {
-      curve.points[idx] = curve.points[idx - 1];
-    }
-    curve.points[newidx].x = x;
-    curve.points[newidx].y = y;
-    update();
   }
 }
 

@@ -772,6 +772,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_JUMPER_T18(board));
+    case HasSoftwareSerialPower:
+      return IS_RADIOMASTER_TX16S(board);
     default:
       return 0;
   }
@@ -1195,7 +1197,7 @@ QString OpenTxFirmware::getFirmwareUrl()
 
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
-  return QString("%1/downloads").arg(OPENTX_HOME_PAGE_URL);
+  return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
 }
 
 QString OpenTxFirmware::getStampUrl()

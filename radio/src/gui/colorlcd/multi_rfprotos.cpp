@@ -33,98 +33,39 @@ constexpr rect_t RFSCAN_DIALOG_RECT = {
 // TODO: translation
 const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
 
-class RfScanDialog : public Dialog
+RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
+                           std::function<void()> onClose) :
+  Dialog(parent, RFSCAN_TITLE, RFSCAN_DIALOG_RECT),
+  protos(protos),
+  progress(new Progress(&content->form,
+                        {PAGE_PADDING, PAGE_PADDING,
+                            content->form.width() - 2 * PAGE_PADDING,
+                            content->form.height() - 2 * PAGE_PADDING})),
+  onClose(std::move(onClose))
 {
-  MultiRfProtocols* protos;
-  uint32_t lastUpdate = 0;
+  // disable canceling dialog
+  setCloseWhenClickOutside(false);
+  // setFocus();
+}
 
-  Progress* progress;
-  std::function<void()> onClose;
-
- public:
-  RfScanDialog(Window* parent, MultiRfProtocols* protos,
-               std::function<void()> onClose) :
-      Dialog(parent, RFSCAN_TITLE, RFSCAN_DIALOG_RECT),
-      protos(protos),
-      progress(new Progress(&content->form,
-                            {PAGE_PADDING, PAGE_PADDING,
-                             content->form.width() - 2 * PAGE_PADDING,
-                             content->form.height() - 2 * PAGE_PADDING})),
-      onClose(std::move(onClose))
-  {
-    // disable canceling dialog
-    setCloseWhenClickOutside(false);
-    setFocus();
-  }
-
-  void showProgress()
-  {
-    progress->setValue((int)(protos->getProgress() * 100.0));
-  }
+void RfScanDialog::showProgress()
+{
+  progress->setValue((int)(protos->getProgress() * 100.0));
+}
 
   // disable keys
-  void onEvent(event_t) override { return; }
+void RfScanDialog::onEvent(event_t) { return; }
   
-  void checkEvents() override
-  {
-    if (!protos->isScanning()) {
-      deleteLater();
-      onClose();
-    } else if (RTOS_GET_MS() - lastUpdate >= 200) {
-      showProgress();
-      lastUpdate = RTOS_GET_MS();
-    }
-    
-    Dialog::checkEvents();
+void RfScanDialog::checkEvents()
+{
+  if (!protos->isScanning()) {
+    deleteLater();
+    onClose();
+  } else if (RTOS_GET_MS() - lastUpdate >= 200) {
+    showProgress();
+    lastUpdate = RTOS_GET_MS();
   }
-};
-
-MultiProtoChoice::MultiProtoChoice(FormGroup* parent, const rect_t& rect,
-                                   unsigned int moduleIdx,
-                                   std::function<void(int)> setValue,
-                                   std::function<void()> updateForm) :
-    Choice(
-        parent, rect, 0, 0,
-        [=] { return g_model.moduleData[moduleIdx].multi.rfProtocol; },
-        setValue),
-    moduleIdx(moduleIdx)
-{
-  TRACE("MultiProtoChoice::MultiProtoChoice(%p)", this);
-  protos = MultiRfProtocols::instance(moduleIdx);
-  protos->triggerScan();
-
-  if (protos->isScanning()) {
-    new RfScanDialog(parent, protos, std::move(updateForm));
-  } else {
-    TRACE("!protos->isScanning()");
-  }
-
-  setTextHandler([=](int value) {
-    return protos->getProtoLabel(value);
-  });
-}
-
-void MultiProtoChoice::openMenu()
-{
-  menu = new Menu(this);
-
-  if (!menuTitle.empty()) menu->setTitle(menuTitle);
-  menu->setCloseHandler([=]() { setEditMode(false); });
-
-  setEditMode(true);
-  invalidate();
-
-  protos->fillList([=](const MultiRfProtocols::RfProto& p){
-      addProto(p.proto, p.label.c_str());
-    });
-
-  int idx = protos->getIndex(g_model.moduleData[moduleIdx].multi.rfProtocol);
-  if (idx >= 0) menu->select(idx);
-}
-
-void MultiProtoChoice::addProto(unsigned int proto, const char* protocolName)
-{
-  addValue(protocolName);
-  menu->addLine(protocolName, [=]() { setValue(proto); });
+  
+  Dialog::checkEvents();
 }
 

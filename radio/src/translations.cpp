@@ -21,7 +21,11 @@
 
 #include "opentx.h"
 
-#define ISTR(x) const char STR_##x[] = LEN_##x TR_##x
+#if defined(COLORLCD)
+  #define CENTER
+#endif
+
+#define ISTR(x) const char* STR_##x[] = { TR_##x }
 
 #if defined(COLORLCD)
 ISTR(FONT_SIZES);
@@ -51,7 +55,6 @@ ISTR(VSWITCHES);
 ISTR(VSRCRAW);
 ISTR(VTMRMODES);
 ISTR(VPERSISTENT);
-ISTR(VLCD);
 ISTR(VUNITSSYSTEM);
 ISTR(VBEEPCOUNTDOWN);
 ISTR(COUNTDOWNVALUES);
@@ -723,6 +726,7 @@ const char STR_PRESET[] = TR_PRESET;
 const char STR_CLEAR[] = TR_CLEAR;
 const char STR_RESET[] = TR_RESET;
 const char STR_ADD_ALL_TRIMS_TO_SUBTRIMS[] = TR_ADD_ALL_TRIMS_TO_SUBTRIMS;
+const char STR_OPEN_CHANNEL_MONITORS[] = TR_OPEN_CHANNEL_MONITORS;
 const char STR_COUNT[] = TR_COUNT;
 const char STR_PT[] = TR_PT;
 const char STR_PTS[] = TR_PTS;
@@ -748,6 +752,7 @@ const char STR_SCALE[] = TR_SCALE;
 const char STR_VIEW_CHANNELS[] = TR_VIEW_CHANNELS;
 const char STR_AUX_SERIAL_MODE[] = TR_AUX_SERIAL_MODE;
 const char STR_AUX2_SERIAL_MODE[] = TR_AUX2_SERIAL_MODE;
+const char STR_AUX_SERIAL_PORT_POWER[] = TR_AUX_SERIAL_PORT_POWER;
 const char STR_THROTTLE_LABEL[] = TR_THROTTLE_LABEL;
 const char STR_SCRIPT[] = TR_SCRIPT;
 const char STR_INPUTS[] = TR_INPUTS;
@@ -769,6 +774,7 @@ const char STR_MENU_DISPLAY[] = TR_MENU_DISPLAY;
 const char STR_MENU_OTHER[] = TR_MENU_OTHER;
 const char STR_MENU_INVERT[] = TR_MENU_INVERT;
 const char STR_JITTER_FILTER[] = TR_JITTER_FILTER;
+const char STR_DEAD_ZONE[] = TR_DEAD_ZONE;
 const char STR_RTC_CHECK[]  = TR_RTC_CHECK;
 const char STR_EXIT[] = TR_EXIT;
 const char STR_MODULE_RANGE[] = TR_MODULE_RANGE;
@@ -971,7 +977,7 @@ const char STR_PROTOCOL[] = TR_PROTOCOL;
 const char STR_RACING_MODE[] = TR_RACING_MODE;
 
 #if defined(PCBNV14)
-const char STR_RFPOWER_AFHDS2[] = TR_RFPOWER_AFHDS2;
+ISTR(RFPOWER_AFHDS2);
 #endif
 
 const char STR_USE_THEME_COLOR[] = TR_USE_THEME_COLOR;

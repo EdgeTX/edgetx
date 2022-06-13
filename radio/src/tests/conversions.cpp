@@ -217,7 +217,7 @@ TEST(Conversions, ConversionXLiteFrom23)
 }
 #endif
 
-#if defined(PCBX7)
+#if defined(PCBX7) && (STORAGE_CONVERSIONS <= 219)
 TEST(Conversions, ConversionX7From23)
 {
 #if defined(SDCARD_YAML)
@@ -308,7 +308,7 @@ TEST(Conversions, ConversionX10From23)
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 219);
-  loadModel(modelname);
+  EXPECT_EQ(nullptr, readModel(modelname,(uint8_t*)&g_model, sizeof(g_model)));
 
   EXPECT_EQ(100, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].spanNeg);
   EXPECT_EQ(500, g_eeGeneral.calib[CALIBRATED_SLIDER_REAR_LEFT].mid);
@@ -380,7 +380,7 @@ TEST(Conversions, ConversionX12SFrom23)
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 219);
-  loadModel(modelname);
+  EXPECT_EQ(nullptr, readModel(modelname,(uint8_t*)&g_model, sizeof(g_model)));
 
   EXPECT_EQ(-30, g_eeGeneral.vBatMin);
   EXPECT_EQ(8, g_eeGeneral.speakerVolume);
@@ -444,7 +444,7 @@ TEST(Conversions, ConversionTX16SFrom25)
 
   char modelname[] = "model1.bin";
   convertBinModelData(modelname, 220);
-  loadModel(modelname);
+  EXPECT_EQ(nullptr, readModel(modelname,(uint8_t*)&g_model, sizeof(g_model)));
 
   EXPECT_EQ(-23, g_eeGeneral.vBatMin);
   EXPECT_EQ(0, g_eeGeneral.speakerVolume);
@@ -484,9 +484,9 @@ TEST(Conversions, ConversionTX16SFrom25)
   char modelname2[] = "model2.bin";
   convertBinModelData(modelname2, 220);
 
-  loadModel(modelname2);
+  EXPECT_EQ(nullptr, readModel(modelname2,(uint8_t*)&g_model, sizeof(g_model)));
   writeModelYaml(modelname2);
-  loadModel(modelname2);
+  EXPECT_EQ(nullptr, readModel(modelname2,(uint8_t*)&g_model, sizeof(g_model)));
 
   constexpr swarnstate_t swWarnState =
     (0x01) |// SA up

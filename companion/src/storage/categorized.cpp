@@ -64,7 +64,7 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
 {
   QByteArray radioSettingsBuffer;
   if (!loadFile(radioSettingsBuffer, "RADIO/radio.bin")) {
-    setError(tr("Can't extract RADIO/radio.bin"));
+    setError(tr("Cannot extract RADIO/radio.bin"));
     return false;
   }
 
@@ -77,7 +77,7 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
 
   QByteArray modelsListBuffer;
   if (!loadFile(modelsListBuffer, "RADIO/models.txt")) {
-    setError(tr("Can't extract RADIO/models.txt"));
+    setError(tr("Cannot extract RADIO/models.txt"));
     return false;
   }
 
@@ -121,7 +121,7 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
       qDebug() << "Loading model from file" << fileName << "into slot" << modelIndex;
       QByteArray modelBuffer;
       if (!loadFile(modelBuffer, QString("MODELS/%1").arg(fileName))) {
-        setError(tr("Can't extract %1").arg(fileName));
+        setError(tr("Cannot extract %1").arg(fileName));
         return false;
       }
       if ((int)radioData.models.size() <= modelIndex) {
@@ -213,35 +213,35 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 {
   if (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX) {
     if (!QFile(filename + "/" + "RADIO/radio.yml").exists())
-      qDebug() << tr("Can't find %1/RADIO/radio.yml").arg(filename);
+      qDebug() << tr("Cannot find %1/RADIO/radio.yml").arg(filename);
     else
       qDebug() << tr("Found %1/RADIO/radio.yml").arg(filename);
 
     if (!QFile(filename + "/" + "MODELS/models.yml").exists())
-      qDebug() << tr("Can't find %1/MODELS/models.yml").arg(filename);
+      qDebug() << tr("Cannot find %1/MODELS/models.yml").arg(filename);
     else
       qDebug() << tr("Found %1/MODELS/models.yml").arg(filename);
   }
   else {
     if (!QFile(filename).exists())
-      qDebug() << tr("Can't find %1").arg(filename);
+      qDebug() << tr("Cannot find %1").arg(filename);
     else
       qDebug() << tr("Found %1").arg(filename);
   }
 
   QByteArray radioSettingsBuffer;
   if (!loadFile(radioSettingsBuffer, "RADIO/radio.yml")) {
-    setError(tr("Can't extract RADIO/radio.yml"));
+    setError(tr("Cannot extract RADIO/radio.yml"));
     return false;
   }
 
   try {
     if (!loadRadioSettingsFromYaml(radioData.generalSettings, radioSettingsBuffer)) {
-      setError(tr("Can't load RADIO/radio.yml"));
+      setError(tr("Cannot load RADIO/radio.yml"));
       return false;
     }
   } catch(const std::runtime_error& e) {
-    setError(tr("Can't load RADIO/radio.yml") + ":\n" + QString(e.what()));
+    setError(tr("Cannot load RADIO/radio.yml") + ":\n" + QString(e.what()));
     return false;
   }
 
@@ -254,11 +254,11 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
   if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
     try {
       if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
-        setError(tr("Can't load MODELS/models.yml"));
+        setError(tr("Cannot load MODELS/models.yml"));
         return false;
       }
     } catch(const std::runtime_error& e) {
-      setError(tr("Can't load MODELS/models.yml") + ":\n" + QString(e.what()));
+      setError(tr("Cannot load MODELS/models.yml") + ":\n" + QString(e.what()));
       //return false;
 
       //TODO: fall back to directory scan
@@ -286,7 +286,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     // fetch "MODELS/modelXX.yml"
     std::list<std::string> filelist;
     if (!getFileList(filelist)) {
-      setError(tr("Can't list files"));
+      setError(tr("Cannot list files"));
       return false;
     }
 
@@ -313,7 +313,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
     if (!loadFile(modelBuffer, filename)) {
-      setError(tr("Can't extract ") + filename);
+      setError(tr("Cannot extract ") + filename);
       return false;
     }
 
@@ -324,11 +324,11 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
     try {
       if (!loadModelFromYaml(model,modelBuffer)) {
-        setError(tr("Can't load ") + filename);
+        setError(tr("Cannot load ") + filename);
         return false;
       }
     } catch(const std::runtime_error& e) {
-      setError(tr("Can't load ") + filename + ":\n" + QString(e.what()));
+      setError(tr("Cannot load ") + filename + ":\n" + QString(e.what()));
       return false;
     }
 
@@ -361,6 +361,30 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
   }
 
   bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+
+  //  B&W radios do not use the models.yml file and scan the MODELS folder for modelxx.yml files
+  //  models have been deleted or reordered in Companion so delete all old modelxx.yml and just in case models.yml files
+  //  from radio MODELS folder before writing new modelxx.yml files
+  if (!hasCategories) {
+    // fetch "MODELS/modelXX.yml"
+    std::list<std::string> filelist;
+    if (!getFileList(filelist)) {
+      setError(tr("Cannot list files"));
+      return false;
+    }
+
+    const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
+    for(const auto& f : filelist) {
+      std::smatch match;
+      if (std::regex_match(f, match, yml_regex)) {
+        if (match.size() == 3) {
+          if (!deleteFile(QString(f.c_str()))) {
+            return false;
+          }
+        }
+      }
+    }
+  }
 
   EtxModelfiles modelFiles;
   for (const auto& model : radioData.models) {

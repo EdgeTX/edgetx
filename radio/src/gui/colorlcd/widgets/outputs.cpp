@@ -33,7 +33,7 @@ constexpr uint32_t OUTPUTS_REFRESH = 1000 / 5;  // 5 Hz
 class OutputsWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, FormGroup* parent,
+  OutputsWidget(const WidgetFactory* factory, Window* parent,
                 const rect_t& rect, Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
@@ -81,7 +81,7 @@ class OutputsWidget : public Widget
       if (fillW)
         dc->drawSolidFilledRect((chanVal > 0 ? barMid : barMid - fillW), barTop,
                                 fillW, barH, barColor);
-      lcd->drawSolidVerticalLine(barMid, barTop, barH, COLOR_THEME_SECONDARY1);
+      dc->drawVerticalLine(barMid, barTop, barH, SOLID, COLOR_THEME_SECONDARY1);
       dc->drawRect(x, rowTop, w, rowH + 1);
       dc->drawNumber(x + barW - 10, barTop, chanVal,
                      FONT(XS) | txtColor | RIGHT, 0, nullptr, "%");

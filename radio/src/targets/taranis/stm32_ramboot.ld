@@ -28,6 +28,7 @@ _Main_Stack_Size = 1024; /* required amount of stack for interrupt stack (Main s
 
 /* Main stack end */
 _main_stack_start = _estack - _Main_Stack_Size;
+_heap_end = _main_stack_start;
 
 /* Specify the memory areas */
 MEMORY

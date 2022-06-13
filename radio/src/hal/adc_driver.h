@@ -56,5 +56,25 @@ bool adcInit(const etx_hal_adc_driver_t* driver);
 // void adcDeInit();
 
 bool     adcRead();
+uint16_t getBatteryVoltage();
 uint16_t getRTCBatteryVoltage();
 uint16_t getAnalogValue(uint8_t index);
+
+#define JITTER_FILTER_STRENGTH  4         // tune this value, bigger value - more filtering (range: 1-5) (see explanation below)
+#define ANALOG_SCALE            1         // tune this value, bigger value - more filtering (range: 0-1) (see explanation below)
+#define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
+
+#if defined(JITTER_MEASURE)
+extern JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
+extern JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
+#if defined(PCBHORUS) || defined(PCBTARANIS)
+  #define JITTER_MEASURE_ACTIVE()   (menuHandlers[menuLevel] == menuRadioDiagAnalogs)
+#elif defined(CLI)
+  #define JITTER_MEASURE_ACTIVE()   (1)
+#else
+  #define JITTER_MEASURE_ACTIVE()   (0)
+#endif
+#endif
+
+void getADC();
+uint16_t anaIn(uint8_t chan);

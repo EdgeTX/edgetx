@@ -18,16 +18,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _ETX_H_
-#define _ETX_H_
+#pragma once
 
 #include "categorized.h"
 
 #include <QtCore>
-
-#define MINIZ_HEADER_FILE_ONLY
-#include "miniz.c"
-#undef MINIZ_HEADER_FILE_ONLY
 
 class EtxFormat : public CategorizedStorageFormat
 {
@@ -47,8 +42,7 @@ class EtxFormat : public CategorizedStorageFormat
     virtual bool loadFile(QByteArray & fileData, const QString & fileName);
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName);
     virtual bool getFileList(std::list<std::string>& filelist);
+    virtual bool deleteFile(const QString & fileName) { return false; }
 
     mz_zip_archive zip_archive;
 };
-
-#endif // _ETX_H_

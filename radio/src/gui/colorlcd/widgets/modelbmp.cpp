@@ -27,7 +27,7 @@
 class ModelBitmapWidget: public Widget
 {
   public:
-    ModelBitmapWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
+    ModelBitmapWidget(const WidgetFactory* factory, Window* parent, const rect_t & rect, Widget::PersistentData* persistentData):
       Widget(factory, parent, rect, persistentData)
     {
       loadBitmap();

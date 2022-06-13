@@ -24,8 +24,12 @@
 
 #define ABOUT_INDENT 4
 
-const char ABOUT_VERSION_1[] = "EdgeTX " CODENAME "(" VERSION ")";
-const char ABOUT_VERSION_2[] = "Copyright (C) 2021 EdgeTX";
+#if defined(VERSION_TAG)
+const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION_TAG ")" "\036\"" CODENAME "\"";
+#else
+const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION "-" VERSION_SUFFIX ")";
+#endif
+const char ABOUT_VERSION_2[] = "Copyright (C) 2022 EdgeTX";
 const char ABOUT_VERSION_3[] = "https://edgetx.org";
 
 void menuAboutView(event_t event)
@@ -38,10 +42,9 @@ void menuAboutView(event_t event)
       break;
   }
 
-  lcdDrawText(2, 0, STR_ABOUTUS, DBLSIZE|INVERS);
-  lcdDrawSolidHorizontalLine(0, 16, LCD_W-17);
+  lcdDrawText(1, 0, STR_ABOUTUS, DBLSIZE|INVERS);
 
   lcdDrawText(ABOUT_INDENT, 22, ABOUT_VERSION_1, SMLSIZE);
-  lcdDrawText(ABOUT_INDENT, 30, ABOUT_VERSION_2, SMLSIZE);
-  lcdDrawText(ABOUT_INDENT, 38, ABOUT_VERSION_3, SMLSIZE);
+  lcdDrawText(ABOUT_INDENT, 38, ABOUT_VERSION_2, SMLSIZE);
+  lcdDrawText(ABOUT_INDENT, 46, ABOUT_VERSION_3, SMLSIZE);
 }

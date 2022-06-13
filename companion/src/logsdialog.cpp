@@ -46,16 +46,16 @@ LogsDialog::LogsDialog(QWidget *parent) :
 
   colors.append(Qt::green);
   colors.append(Qt::red);
-  colors.append(Qt::yellow);
   colors.append(Qt::magenta);
   colors.append(Qt::cyan);
-  colors.append(Qt::darkBlue);
+  colors.append(Qt::blue);
+  colors.append(Qt::yellow);
   colors.append(Qt::darkGreen);
   colors.append(Qt::darkRed);
-  colors.append(Qt::darkYellow);
   colors.append(Qt::darkMagenta);
   colors.append(Qt::darkCyan);
-  colors.append(Qt::blue);
+  colors.append(Qt::darkBlue);
+  colors.append(Qt::darkYellow);
   pen.setWidthF(1.0);
 
   // create and prepare a plot title layout element

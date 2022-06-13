@@ -32,7 +32,7 @@ enum DialogType {
   WARNING_TYPE_INFO
 };
 
-class FullScreenDialog : public FormGroup
+class FullScreenDialog : public Window
 {
   public:
     FullScreenDialog(uint8_t type, std::string title, std::string message = "",
@@ -54,14 +54,8 @@ class FullScreenDialog : public FormGroup
 
     void paint(BitmapBuffer * dc) override;
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
-#if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t x, coord_t y) override;
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
+    void onClicked() override;
+    void onCancel() override;
 
     void deleteLater(bool detach = true, bool trash = true) override;
 

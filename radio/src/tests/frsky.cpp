@@ -299,9 +299,6 @@ TEST(FrSkySPORT, frskySetCellVoltage)
   EXPECT_EQ(telemetryItems[0].value, 2068);
   EXPECT_EQ(telemetryItems[0].valueMin, 1756);
   EXPECT_EQ(telemetryItems[0].valueMax, 2071);
-
-  //display test
-  lcdClear();
 }
 
 TEST(FrSkySPORT, StrangeCellsBug)
@@ -379,9 +376,6 @@ TEST(FrSkySPORT, frskySetCellVoltageTwoSensors)
   EXPECT_EQ(telemetryItems[2].value, 283);
   EXPECT_EQ(telemetryItems[2].valueMin, 283);
   EXPECT_EQ(telemetryItems[2].valueMax, 287);
-
-  //display test
-  lcdClear();
 }
 
 void generateSportFasVoltagePacket(uint8_t * packet, uint32_t voltage)

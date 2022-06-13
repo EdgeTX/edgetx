@@ -557,8 +557,11 @@ static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 
   data -= offsetof(RadioData, switchConfig);
   RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return wf(opaque, rd->anaNames[idx],
-            strnlen(rd->anaNames[idx], LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, rd->anaNames[idx],
+          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
@@ -602,7 +605,10 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
 
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   const char* str = rd->switchNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_SWITCH_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlNode struct_switchConfig[] = {
@@ -658,7 +664,10 @@ static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -741,7 +750,10 @@ static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   RadioData* rd = reinterpret_cast<RadioData*>(data);
   idx += NUM_STICKS + STORAGE_NUM_POTS;
   const char* str = rd->anaNames[idx];
-  return wf(opaque, str, strnlen(str, LEN_ANA_NAME));
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
+    return false;
+  return wf(opaque, "\"", 1);
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
@@ -1842,6 +1854,8 @@ static bool port_write(void* user, yaml_writer_func wf, void* opaque)
 static const struct YamlNode struct_serialConfig[] = {
     YAML_IDX_CUST( "port", port_read, port_write),
     YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_PADDING( 3 ),
+    YAML_UNSIGNED( "power", 1 ),
     YAML_END
 };
 
@@ -1864,6 +1878,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
   if (!m) return;
   
-  auto serialPort = reinterpret_cast<uint16_t*>(data);
-  *serialPort = (*serialPort & ~(0xF << port_nr * 4)) | (m << port_nr * 4);
+  auto serialPort = reinterpret_cast<uint32_t*>(data);
+  *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
+                (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }

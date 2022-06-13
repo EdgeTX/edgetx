@@ -28,6 +28,7 @@
 #include "definitions.h"
 #include "opentx_types.h"
 #include "globals.h"
+#include "serial.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -826,7 +827,7 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare4:2 SKIP
+  #define BUZZER_FIELD int8_t spare1:2 SKIP
 #endif
 
 PACK(struct RadioData {
@@ -905,7 +906,7 @@ PACK(struct RadioData {
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
-  NOBACKUP(uint16_t serialPort ARRAY(STORAGE_SERIAL_PORTS,struct_serialConfig,nullptr));
+  NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
 
   EXTRA_GENERAL_FIELDS
 
@@ -916,6 +917,12 @@ PACK(struct RadioData {
   GYRO_FIELDS
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+#if defined(STICK_DEAD_ZONE)
+  NOBACKUP(uint8_t  stickDeadZone:3);
+  NOBACKUP(uint8_t  spare2:3 SKIP);
+#else
+  NOBACKUP(uint8_t  spare2:6 SKIP);
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA

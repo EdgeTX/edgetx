@@ -270,8 +270,6 @@ add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
 add_definitions(-DSBUS_TRAINER)
 
-include_directories(${RTOS_DIR}/include)
-
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)
   set(SRC ${SRC} translations/tts_${lang_lower}.cpp)
@@ -298,22 +296,6 @@ set(FIRMWARE_TARGET_SRC
   diskio.cpp
   telemetry_driver.cpp
 )
-
-set(FIRMWARE_SRC
-  ${FIRMWARE_SRC}
-  ${RTOS_DIR}/list.c
-  ${RTOS_DIR}/queue.c
-  ${RTOS_DIR}/tasks.c
-  ${RTOS_DIR}/event_groups.c
-  ${RTOS_DIR}/timers.c
-  rtos.c)
-
-if(CLI)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    ${RTOS_DIR}/stream_buffer.c)
-endif()
-
 
 set(PULSES_SRC
   ${PULSES_SRC}

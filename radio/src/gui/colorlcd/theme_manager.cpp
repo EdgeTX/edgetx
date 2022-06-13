@@ -254,7 +254,7 @@ bool ThemeFile::readNextLine(FIL &file, char *line, int maxlen)
   if (f_gets(line, maxlen, &file) != NULL) {
     int curlen = strlen(line) - 1;
     if (line[curlen] == '\n') {  // remove unwanted chars if file was edited using windows
-      if (line[curlen - 1] == '\r') {
+      if (curlen > 0 && line[curlen - 1] == '\r') {
         line[curlen - 1] = 0;
       } else {
         line[curlen] = 0;
@@ -305,6 +305,7 @@ void ThemeFile::applyBackground()
     FRESULT result = f_open(&file, rootDir.c_str(), FA_OPEN_EXISTING);
     if (result == FR_OK) {
       instance->setBackgroundImageFileName((char *)rootDir.c_str());
+      f_close(&file);
     } else {
       // TODO: This needs to be made user configurable, not
       // require the file be deleted to remove global background
@@ -315,6 +316,7 @@ void ThemeFile::applyBackground()
       result = f_open(&file, fileName, FA_OPEN_EXISTING);
       if (result == FR_OK) {
         instance->setBackgroundImageFileName(fileName);
+        f_close(&file);
       } else {
         instance->setBackgroundImageFileName("");
       }

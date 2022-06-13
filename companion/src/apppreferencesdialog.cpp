@@ -80,7 +80,7 @@ void AppPreferencesDialog::accept()
   g.promptProfile(ui->chkPromptProfile->isChecked());
   g.simuSW(ui->simuSW->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
-  g.newModelAction(ui->opt_newMdl_useWizard->isChecked() ? AppData::MODEL_ACT_WIZARD : ui->opt_newMdl_useEditor->isChecked() ? AppData::MODEL_ACT_EDITOR : AppData::MODEL_ACT_NONE);
+  g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
   g.backLight(ui->backLightColor->currentIndex());
   profile.volumeGain(round(ui->volumeGain->value() * 10.0));
@@ -207,9 +207,8 @@ void AppPreferencesDialog::initSettings()
 
   ui->simuSW->setChecked(g.simuSW());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
-  ui->opt_newMdl_useNone->setChecked(g.newModelAction() == AppData::MODEL_ACT_NONE);
-  ui->opt_newMdl_useWizard->setChecked(g.newModelAction() == AppData::MODEL_ACT_WIZARD);
-  ui->opt_newMdl_useEditor->setChecked(g.newModelAction() == AppData::MODEL_ACT_EDITOR);
+  ui->cboNewModelAction->addItems(AppData::newModelActionsList());
+  ui->cboNewModelAction->setCurrentIndex(g.newModelAction());
   ui->libraryPath->setText(g.libDir());
   ui->ge_lineedit->setText(g.gePath());
 
@@ -303,7 +302,7 @@ void AppPreferencesDialog::initSettings()
     }
   }
 
-  onBaseFirmwareChanged();
+  populateFirmwareOptions(getBaseFirmware());
 }
 
 void AppPreferencesDialog::on_libraryPathButton_clicked()

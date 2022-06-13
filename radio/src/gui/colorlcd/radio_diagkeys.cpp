@@ -138,5 +138,5 @@ RadioKeyDiagsPage::RadioKeyDiagsPage() :
 {
   buildHeader(&header);
   buildBody(&body);
-  setFocus(SET_FOCUS_DEFAULT);
+  // setFocus(SET_FOCUS_DEFAULT);
 }

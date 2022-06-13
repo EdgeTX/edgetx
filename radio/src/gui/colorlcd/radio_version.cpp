@@ -23,6 +23,11 @@
 #include "opentx.h"
 #include "options.h"
 #include "libopenui.h"
+#include "fw_version.h"
+
+#if defined(CROSSFIRE)
+  #include "mixer_scheduler.h"
+#endif
 
 char *getVersion(char *str, PXX2Version version)
 {
@@ -36,10 +41,10 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-class versionDialog: public Dialog
+class VersionDialog: public Dialog
 {
   public:
-    versionDialog(Window * parent, rect_t rect) :
+    VersionDialog(Window * parent, rect_t rect) :
       Dialog(parent, STR_MODULES_RX_VERSION, rect)
     {
       memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
@@ -54,6 +59,7 @@ class versionDialog: public Dialog
         moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
 
+      setCloseWhenClickOutside(true);
       update();
     }
 
@@ -79,7 +85,7 @@ class versionDialog: public Dialog
                                       this->deleteLater();
                                       return 0;
                                   });
-      exitButton->setFocus(SET_FOCUS_DEFAULT);
+      // exitButton->setFocus(SET_FOCUS_DEFAULT);
       grid.nextLine();
 
       grid.spacer(PAGE_PADDING);
@@ -102,9 +108,17 @@ class versionDialog: public Dialog
       if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
         new StaticText(form, grid->getFieldSlot(1, 0), STR_OFF, 0, COLOR_THEME_PRIMARY1);
       }
-#if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
+#if defined(CROSSFIRE)
+      else if (isModuleCrossfire(module)) {
+          char statusText[64] = "";
+          new StaticText(form, grid->getFieldSlot(2, 0), "CRSF", 0, COLOR_THEME_PRIMARY1);
+          sprintf(statusText,"%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+          new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
+      }
+#endif
+#if defined(MULTIMODULE)
       else if (isModuleMultimodule(module)) {
-        char statusText[64];
+        char statusText[64] = "";
         new StaticText(form, grid->getFieldSlot(2, 0), "Multimodule", 0, COLOR_THEME_PRIMARY1);
         getMultiModuleStatus(module).getStatusString(statusText);
         new StaticText(form, grid->getFieldSlot(2, 1), statusText, 0, COLOR_THEME_PRIMARY1);
@@ -264,7 +278,7 @@ void RadioVersionPage::build(FormWindow * window)
   auto moduleVersions =
       new TextButton(window, grid.getLineSlot(), STR_MODULES_RX_VERSION);
   moduleVersions->setPressHandler([=]() -> uint8_t {
-    new versionDialog(window, {50, 30, LCD_W - 100, 0});
+    new VersionDialog(window, {50, 30, LCD_W - 100, 0});
     return 0;
   });
 #endif

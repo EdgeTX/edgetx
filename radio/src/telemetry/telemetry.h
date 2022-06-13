@@ -22,6 +22,7 @@
 #ifndef _TELEMETRY_H_
 #define _TELEMETRY_H_
 
+#include "dataconstants.h"
 #include "frsky.h"
 #include "io/frsky_sport.h"
 #include "crossfire.h"
@@ -86,6 +87,17 @@ void telemetrySetMirrorCb(void* ctx, void (*fct)(void*, uint8_t));
 
 // Mirror telemetry byte
 void telemetryMirrorSend(uint8_t data);
+
+void telemetryWakeup();
+void telemetryReset();
+
+extern uint8_t telemetryProtocol;
+void telemetryInit(uint8_t protocol);
+
+void telemetryInterrupt10ms();
+
+void telemetryStart();
+void telemetryStop();
 
 #define TELEMETRY_AVERAGE_COUNT        3
 
@@ -302,6 +314,7 @@ class OutputTelemetryBuffer {
 extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 
 #if defined(LUA)
+#include "fifo.h"
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
 #endif

@@ -25,7 +25,11 @@
 
 #define configUSE_PREEMPTION            1
 #define configUSE_IDLE_HOOK             0
-#define configUSE_TICK_HOOK             0
+#if defined(COLORLCD)
+  #define configUSE_TICK_HOOK           1
+#else
+  #define configUSE_TICK_HOOK           0
+#endif
 #define configCPU_CLOCK_HZ              ( SystemCoreClock )
 #define configTICK_RATE_HZ              ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES            ( 5 )
@@ -42,7 +46,7 @@
 #define configUSE_APPLICATION_TASK_TAG  0
 #define configUSE_COUNTING_SEMAPHORES   0
 #define configGENERATE_RUN_TIME_STATS   0
-#define configUSE_TIMERS                0
+#define configUSE_TIMERS                1
 
 #if !defined(DEBUG)
   #define configMAX_TASK_NAME_LEN         4
@@ -65,7 +69,7 @@
 /* Software timer definitions. */
 #define configTIMER_TASK_PRIORITY       ( 2 )
 #define configTIMER_QUEUE_LENGTH        10
-#define configTIMER_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 2 )
+#define configTIMER_TASK_STACK_DEPTH    ( 512 )
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
@@ -73,6 +77,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend            1
 #define INCLUDE_vTaskDelayUntil         1
 #define INCLUDE_vTaskDelay              1
+#define INCLUDE_xTimerPendFunctionCall  1
 
 #if defined(THREADSAFE_MALLOC)
 #define INCLUDE_xTaskGetSchedulerState  1

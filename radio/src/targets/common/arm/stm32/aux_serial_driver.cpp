@@ -21,13 +21,13 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_usart_driver.h"
-
-#include "opentx.h"
-#include "targets/horus/board.h"
 #include "aux_serial_driver.h"
+
+#include "board.h"
 
 #include "fifo.h"
 #include "dmafifo.h"
+#include "debug.h"
 
 #define AUX_SERIAL_TX_BUFFER 512
 
@@ -52,7 +52,7 @@ static void* aux_serial_init(const SerialState* st, const etx_serial_init* param
 {
   stm32_usart_init(st->usart, params);
   
-  if (params->rx_enable && st->usart->rxDMA && !params->on_receive) {
+  if (params->rx_enable && st->usart->rxDMA) {
     st->rxFifo->clear();
     stm32_usart_init_rx_dma(st->usart, st->rxFifo->buffer(), st->rxFifo->size());
   }

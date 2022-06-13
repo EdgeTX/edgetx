@@ -231,8 +231,6 @@ static const etx_serial_init pxx1SerialInit = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = false,
-  .on_receive = intmoduleFifoReceive,
-  .on_error = intmoduleFifoError,
 };
 
 static void* pxx1InitInternal(uint8_t module)
@@ -293,8 +291,6 @@ static const etx_serial_init pxx1ExtSerialInit = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = false,
-  .on_receive = extmoduleFifoReceive,
-  .on_error = extmoduleFifoError,
 };
 
 static void* pxx1InitExternal(uint8_t module)

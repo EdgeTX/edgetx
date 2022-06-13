@@ -36,9 +36,7 @@ void setDefaultInputs()
     expo->chn = i;
     expo->weight = 100;
     expo->mode = 3; // TODO constant
-    for (int c = 0; c < 3; c++) {
-      g_model.inputNames[i][c] = STR_VSRCRAW[2 + 4 * stick_index + c];
-    }
+    strncpy(g_model.inputNames[i], STR_VSRCRAW[stick_index] + 1, 3);
 #if LEN_INPUT_NAME > 3
     g_model.inputNames[i][3] = '\0';
 #endif
@@ -122,8 +120,10 @@ void applyDefaultTemplate()
 #endif
 
 #if defined(COLORLCD)
-  //TODO: not sure yet we need it here
+
+#if !defined(GTESTS)
   loadDefaultLayout();
+#endif
 
   // enable switch warnings
   for (int i = 0; i < NUM_SWITCHES; i++) {

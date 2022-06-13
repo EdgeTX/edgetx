@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
 
 uint32_t readKeys()
 {
@@ -140,30 +140,6 @@ bool keyDown()
   return readKeys() || readTrims();
 }
 
-/* TODO common to ARM */
-void readKeysAndTrims()
-{
-  uint8_t index = 0;
-  uint32_t keys_input = readKeys();
-  for (unsigned i = 1; i != unsigned(1 << TRM_BASE); i <<= 1) {
-    keys[index++].input(keys_input & i);
-  }
-
-  uint32_t trims_input = readTrims();
-  for (uint8_t i = 1; i != uint8_t(1 << 8); i <<= 1) {
-    keys[index++].input(trims_input & i);
-  }
-
-#if defined(PWR_BUTTON_PRESS)
-  if ((keys_input || trims_input || pwrPressed()) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-#else
-  if ((keys_input || trims_input) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-#endif
-    // on keypress turn the light on
-    resetBacklightTimeout();
-  }
-}
-
 #if defined(PCBX9E)
   #define ADD_2POS_CASE(x) \
     case SW_S ## x ## 2: \
@@ -200,6 +176,8 @@ void readKeysAndTrims()
     break
 
 #if !defined(BOOT)
+#include "opentx.h"
+
 uint32_t switchState(uint8_t index)
 {
   uint32_t xxx = 0;

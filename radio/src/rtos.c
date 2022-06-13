@@ -23,8 +23,8 @@
 
 #if configSUPPORT_STATIC_ALLOCATION > 0
 
-#include <FreeRTOS.h>
-#include <task.h>
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/task.h>
 
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
    implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
@@ -84,3 +84,12 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer,
 #endif // configUSE_TIMERS
 
 #endif // configSUPPORT_STATIC_ALLOCATION
+
+#if configUSE_TICK_HOOK > 0
+#include <lvgl/lvgl.h>
+
+void vApplicationTickHook( void )
+{
+  lv_tick_inc(1);
+}
+#endif

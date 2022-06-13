@@ -36,18 +36,19 @@ void CurveData::clear(int count)
 
 void CurveData::init()
 {
-  float incr = 200.0 / ((float)count - 1.0);
+  memset(points, 0, sizeof(CurvePoint) * CPN_MAX_POINTS);
 
-  //  points[0].x must be -100
+  float incr = 200.0 / (float)(count - 1);
 
-  for (int i = 0; i < count; i++) {
-    if (i < count - 1)
-      points[i].x = -100 + (int)(incr * i);
-    else
-      points[i].x = 100;    // points[count - 1].x must be +100 do not risk a rounding issue using incr
-
+  for (int i = 1; i < (count - 1); i++) {
+    points[i].x = -100 + (int)(incr * (float)i);
     points[i].y = points[i].x;
   }
+
+  points[0].x = -100;
+  points[0].y = -100;
+  points[count - 1].x = 100;
+  points[count - 1].y = 100;
 }
 
 bool CurveData::isEmpty() const

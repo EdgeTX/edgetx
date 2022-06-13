@@ -49,5 +49,5 @@ ConfirmDialog::ConfirmDialog(Window * parent, const char * title, const char * m
       return 0;
   });
 
-  noButton->setFocus(SET_FOCUS_DEFAULT);
+  // noButton->setFocus(SET_FOCUS_DEFAULT);
 }

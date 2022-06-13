@@ -132,8 +132,7 @@ void OpenTxSimulator::init()
 
 void OpenTxSimulator::start(const char * filename, bool tests)
 {
-  if (isRunning())
-    return;
+  if (isRunning()) return;
   ETXS_DBG << "file:" << filename << "tests:" << tests;
 
   QMutexLocker lckr(&m_mtxSimuMain);
@@ -373,6 +372,11 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
 #if defined(HARDWARE_TOUCH)
   simTouchOccured=true;
 #endif
+}
+
+void OpenTxSimulator::lcdFlushed()
+{
+  ::lcdFlushed();
 }
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)

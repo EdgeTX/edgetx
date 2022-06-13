@@ -575,8 +575,8 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                           });
   } else if (IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
-                              {"VRA", "POT1"},
-                              {"VRB", "POT2"},
+                              {"S1", "POT1"},
+                              {"S2", "POT2"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
@@ -873,10 +873,10 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TLITE:
   case BOARD_JUMPER_TPRO:
     return (int)MODULE_TYPE_MULTIMODULE;
-  
+
   case BOARD_RADIOMASTER_ZORRO:
     return (int)MODULE_TYPE_CROSSFIRE;
- 
+
   case BOARD_FLYSKY_NV14:
     return (int)MODULE_TYPE_FLYSKY;
 

@@ -23,8 +23,6 @@
 
 #include "serial_driver.h"
 
-typedef void etx_pwr_driver;
-
 typedef struct {
     const char*                name;
     const etx_serial_driver_t* uart;

@@ -66,7 +66,7 @@ void ViewTextWindow::buildBody(Window *window)
   // Font is not fixed width, so this is for the worst case...
   maxLineLength = static_cast<int>(window->width() / 10 / 10) * 10 - 2;
   maxScreenLines = window->height() / (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-  window->setFocus();
+  // window->setFocus();
   readLinesCount = 0;
   lastLoadedLine = 0;
 
@@ -112,76 +112,77 @@ bool ViewTextWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX,
                                   coord_t startY, coord_t slideX,
                                   coord_t slideY)
 {
-  if (&body == Window::focusWindow) {
-    const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
-    int deltaY = -slideY;
-    int lineStep = deltaY / step;
+  // if (&body == Window::focusWindow) {
+  //   const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
+  //   int deltaY = -slideY;
+  //   int lineStep = deltaY / step;
 
-    textVerticalOffset += lineStep;
-    if (textVerticalOffset < 0) textVerticalOffset = 0;
+  //   textVerticalOffset += lineStep;
+  //   if (textVerticalOffset < 0) textVerticalOffset = 0;
 
-    if (textVerticalOffset > maxLines - maxScreenLines)
-      textVerticalOffset = maxLines - maxScreenLines;
-    sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-  }
-  return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
+  //   if (textVerticalOffset > maxLines - maxScreenLines)
+  //     textVerticalOffset = maxLines - maxScreenLines;
+  //   sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+  // }
+  // return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
+  return true;
 }
 #endif
 
 void ViewTextWindow::checkEvents()
 {
-  if (&body == Window::focusWindow) {
-    const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
-    coord_t deltaY;
-    event_t event = getWindowEvent();
+//   if (&body == Window::focusWindow) {
+//     const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
+//     coord_t deltaY;
+//     event_t event = getWindowEvent();
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
-      deltaY = ROTARY_ENCODER_SPEED() * step;
-    } else {
-      deltaY = step;
-    }
-#else
-    deltaY = step;
-#endif
+// #if defined(ROTARY_ENCODER_NAVIGATION)
+//     if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
+//       deltaY = ROTARY_ENCODER_SPEED() * step;
+//     } else {
+//       deltaY = step;
+//     }
+// #else
+//     deltaY = step;
+// #endif
 
-    int lineStep = deltaY / step;
-    if (lineStep > (maxScreenLines >> 1)) lineStep = maxScreenLines >> 1;
+//     int lineStep = deltaY / step;
+//     if (lineStep > (maxScreenLines >> 1)) lineStep = maxScreenLines >> 1;
 
-    switch (event) {
-    CASE_EVT_START:
-      textVerticalOffset = 0;
-      readLinesCount = 0;
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-      break;
+//     switch (event) {
+//     CASE_EVT_START:
+//       textVerticalOffset = 0;
+//       readLinesCount = 0;
+//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+//       break;
 
-    CASE_EVT_KEY_NEXT_LINE:
-      if (textBottom && textVerticalOffset)
-        break;
-      else {
-        textVerticalOffset += lineStep;
-        if (textVerticalOffset > maxLines) textVerticalOffset = maxLines;
-      }
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-      break;
+//     CASE_EVT_KEY_NEXT_LINE:
+//       if (textBottom && textVerticalOffset)
+//         break;
+//       else {
+//         textVerticalOffset += lineStep;
+//         if (textVerticalOffset > maxLines) textVerticalOffset = maxLines;
+//       }
+//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+//       break;
 
-    CASE_EVT_KEY_PREVIOUS_LINE:
-      if (textVerticalOffset == 0)
-        break;
-      else {
-        textVerticalOffset -= lineStep;
-        if (textVerticalOffset < 0) textVerticalOffset = 0;
-      }
+//     CASE_EVT_KEY_PREVIOUS_LINE:
+//       if (textVerticalOffset == 0)
+//         break;
+//       else {
+//         textVerticalOffset -= lineStep;
+//         if (textVerticalOffset < 0) textVerticalOffset = 0;
+//       }
 
-      sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-      break;
+//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
+//       break;
 
-      default:
-        Page::onEvent(event);
-        break;
-    }
-  }
-  Page::checkEvents();
+//       default:
+//         Page::onEvent(event);
+//         break;
+//     }
+//   }
+//   Page::checkEvents();
 }
 
 void ViewTextWindow::loadOneScreen(int offset)
@@ -228,12 +229,15 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
         } else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
           escape_chars[escape - 1] = c;
           if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-            c = CHAR_UP;
+            lines[current_line - textVerticalOffset][line_length++] = STR_CHAR_UP[0];
+            c = STR_CHAR_UP[1];
           } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-            c = CHAR_DOWN;
+            lines[current_line - textVerticalOffset][line_length++] = STR_CHAR_DOWN[0];
+            c = STR_CHAR_DOWN[1];
           } else if (escape == 3) {
             int val = atoi(escape_chars);
             if (val >= 200 && val < 225) {
+              lines[current_line - textVerticalOffset][line_length++] = '\302';
               c = '\200' + val - 200;
             }
           } else {

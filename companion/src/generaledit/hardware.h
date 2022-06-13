@@ -49,6 +49,7 @@ class HardwarePanel : public GeneralPanel
     AutoComboBox *internalModule;
     unsigned int m_internalModule = 0;
     AutoComboBox *internalModuleBaudRate;
+    AutoComboBox *serialPortUSBVCP;
 
     void addStick(int index, int & row);
     void addPot(int index, int & row);
@@ -57,4 +58,7 @@ class HardwarePanel : public GeneralPanel
     void addLabel(QString text, int row, int col);
     void addLine(int & row);
     void addParams(int & row, QWidget * widget1, QWidget * widget2 = nullptr);
+    void addSection(QString text, int & row);
+
+    void updateSerialPortUSBVCP();
 };

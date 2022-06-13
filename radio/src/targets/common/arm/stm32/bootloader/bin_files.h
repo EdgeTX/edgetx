@@ -22,7 +22,11 @@
 #ifndef _bin_files_h_
 #define _bin_files_h_
 
-#include "opentx.h"
+#include <FatFs/ff.h>
+#include "sdcard.h"
+#if defined(COLORLCD)
+#include "bitmapbuffer.h"
+#endif
 
 enum MemoryType {
   MEM_FLASH,

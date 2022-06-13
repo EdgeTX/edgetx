@@ -252,8 +252,9 @@ class TemplatePage : public Page
   char buffer[LEN_BUFFER + 1];
   char infoText[LEN_INFO_TEXT + 1] = { 0 };
   unsigned int count = 0;
+  static std::function<void(void)> update;
 
-  void paint(BitmapBuffer *dc)
+  void paint(BitmapBuffer *dc) override
   {
     Page::paint(dc);
     rect_t rect = body.getRect();
@@ -271,6 +272,7 @@ class TemplatePage : public Page
 };
 
 char TemplatePage::path[LEN_PATH + 1];
+std::function<void(void)> TemplatePage::update = nullptr;
 
 class TemplateButton : public TextButton
 {
@@ -332,12 +334,17 @@ class SelectTemplate : public TemplatePage
             // Dismiss template pages
             deleteLater();
             templateFolderPage->deleteLater();
+#if defined(LUA)
             // If there is a wizard Lua script, fire it up
             snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
             if (f_stat(buffer, 0) == FR_OK) {
               luaExec(buffer);
-              StandaloneLuaWindow::instance()->attach(focusWindow);
+              // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
+              update();
+              update = nullptr;
+              StandaloneLuaWindow::instance()->attach();
             }
+#endif
             return 0;
           });
         tb->setFocusHandler([=](bool active) {
@@ -349,7 +356,6 @@ class SelectTemplate : public TemplatePage
         tb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tb->height() + 5);
       }
-      body.setInnerHeight(grid.getWindowHeight());
     }
 
     f_closedir(&dir);
@@ -391,7 +397,7 @@ class SelectTemplateFolder : public TemplatePage
   public:
   SelectTemplateFolder(std::function<void(void)> update)
   {
-    this->update = update;
+    TemplatePage::update = update;
     rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
     new StaticText(&header, rect, STR_SELECT_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
 
@@ -436,6 +442,10 @@ class SelectTemplateFolder : public TemplatePage
       directories.sort(compare_nocase);
 
       for (auto name: directories) {
+#if not defined(LUA)
+        // Don't show wizards dir if no lua
+        if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
+#endif
         auto tfb = new TemplateButton(&body, grid.getLabelSlot(), name,
             [=]() -> uint8_t {
             snprintf(path, LEN_PATH, "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
@@ -451,7 +461,9 @@ class SelectTemplateFolder : public TemplatePage
         tfb->setHeight(PAGE_LINE_HEIGHT * 2);
         grid.spacer(tfb->height() + 5);
       }
-      body.setInnerHeight(grid.getWindowHeight());
+#if not defined(LUA)
+      }
+#endif
     }
 
     f_closedir(&dir);
@@ -465,11 +477,9 @@ class SelectTemplateFolder : public TemplatePage
 
   ~SelectTemplateFolder()
   {
-    update();
+    if (update)
+      update();
   }
-
-  protected:
-  std::function<void(void)> update;
 };
 
 class ModelButton : public Button
@@ -478,6 +488,9 @@ class ModelButton : public Button
   ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
       Button(parent, rect), modelCell(modelCell)
   {
+    setWidth(MODEL_SELECT_CELL_WIDTH);
+    setHeight(MODEL_SELECT_CELL_HEIGHT);
+
     load();
 #if defined(HARDWARE_TOUCH)
     duration10ms = 0;
@@ -639,7 +652,8 @@ class ModelButton : public Button
     }
   }
 
-  const char *modelFilename() { return modelCell->modelFilename; }
+  const char* modelFilename() { return modelCell->modelFilename; }
+  ModelCell* getModelCell() const { return modelCell; }
 
  protected:
   bool slid = false;

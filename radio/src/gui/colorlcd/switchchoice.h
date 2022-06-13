@@ -27,20 +27,14 @@
 
 class SwitchChoice : public ChoiceEx
 {
-  template <class T> friend class MenuToolbar;
-
  public:
-  SwitchChoice(FormGroup* parent, const rect_t& rect, int vmin, int vmax,
+  SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
                std::function<int16_t()> getValue,
                std::function<void(int16_t)> setValue);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SwitchChoice"; }
 #endif
-
-protected:
-  typedef std::function<bool(int16_t)> FilterFct;
-  void fillMenu(Menu* menu, int16_t value, const FilterFct& filter = nullptr);
 };
 
 #endif // _SWITCHCHOICE_H_

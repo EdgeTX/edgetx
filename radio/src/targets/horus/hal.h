@@ -699,8 +699,11 @@
 
   #define TOUCH_RST_RCC_AHB1Periph        RCC_AHB1Periph_GPIOF
   #define TOUCH_RST_GPIO                  GPIOF
+#if defined(PCBX12S)
+  #define TOUCH_RST_GPIO_PIN              GPIO_Pin_7   // PF.7
+#else
   #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
-
+#endif
   #define TOUCH_INT_EXTI_LINE1            EXTI_Line2
   #define TOUCH_INT_EXTI_IRQn1            EXTI2_IRQn
   #define TOUCH_INT_EXTI_IRQHandler1      EXTI2_IRQHandler

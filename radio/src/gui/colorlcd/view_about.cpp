@@ -23,19 +23,23 @@
 #include "opentx.h"
 #include "stamp.h"
 
-const uint8_t mask_qrcode[] = {
+const uint8_t _mask_qrcode[] = {
 #include "mask_qrcode.lbm"
 };
+STATIC_LZ4_BITMAP(mask_qrcode);
 
 constexpr coord_t ABOUT_WIDTH = 220;
-const std::string about_str = "EdgeTX" " " CODENAME " (" VERSION ")";
-const std::string copyright_str = "Copyright (C) 2021 EdgeTX";
+#if defined(VERSION_TAG)
+const std::string about_str = "EdgeTX" " " "\"" CODENAME "\" (" VERSION_TAG ")";
+#else
+const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
+#endif
+const std::string copyright_str = "Copyright (C) 2022 EdgeTX";
 
 AboutUs::AboutUs() :
   MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
 {
   content->setRect({(LCD_W - ABOUT_WIDTH) / 2, 20, ABOUT_WIDTH, LCD_H - 40});
-  content->setInnerWidth(ABOUT_WIDTH);
 
   messageWidget->setTextFlags(CENTERED | FONT(BOLD) | COLOR_THEME_SECONDARY1);
   messageWidget->setTop(content->top() + 40);

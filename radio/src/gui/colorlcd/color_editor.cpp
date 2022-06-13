@@ -19,14 +19,15 @@
  * GNU General Public License for more details.
  */
 #include "color_editor.h"
+#include "font.h"
 
 constexpr int BAR_MARGIN = 5;
 
 constexpr int BAR_TOP_MARGIN = 5;
 constexpr int BAR_HEIGHT_OFFSET = BAR_TOP_MARGIN + 25;
 
-const char *RGBChars[MAX_BARS] = { "R", "G", "B" };
-const char *HSVChars[MAX_BARS] = { "H", "S", "V" };
+static const char *RGBChars[MAX_BARS] = { "R", "G", "B" };
+static const char *HSVChars[MAX_BARS] = { "H", "S", "V" };
 
 // ColorTypes()
 // A ColorType implements a three bar color editor.  Currently we support HSV and RGB
@@ -37,9 +38,169 @@ enum HSV_BAR_TYPE
   BRIGHTNESS = 2
 };
 
+void ColorBar::pressing(lv_event_t* e)
+{
+  lv_obj_t* target = lv_event_get_target(e);
+  lv_indev_t* click_source = (lv_indev_t*)lv_event_get_param(e);
+  if (!click_source ||
+      (lv_indev_get_type(click_source) != LV_INDEV_TYPE_POINTER))
+    return;
 
-HSVColorType::HSVColorType(FormGroup *window, uint32_t color) :
-  ColorType(window->height() - BAR_HEIGHT_OFFSET)
+  lv_area_t obj_coords;
+  lv_obj_get_coords(target, &obj_coords);
+
+  lv_point_t point_act;
+  lv_indev_get_point(click_source, &point_act);
+
+  lv_point_t rel_pos;
+  rel_pos.x = point_act.x - obj_coords.x1;
+  rel_pos.y = point_act.y - obj_coords.y1;
+
+  TRACE("PRESSING [%d,%d]", rel_pos.x, rel_pos.y);
+
+  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(target);
+  if (!bar) return;
+
+  bar->value = bar->screenToValue(rel_pos.y);
+  lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+void ColorBar::on_key(lv_event_t* e)
+{
+  lv_obj_t* obj = lv_event_get_target(e);
+  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
+  if (!bar) return;
+
+  uint32_t key = *(uint32_t*)lv_event_get_param(e);
+  if (key == LV_KEY_LEFT) {
+    if (bar->value > 0) {
+      bar->value--;
+      lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+    }
+  } else if (key == LV_KEY_RIGHT) {
+    if (bar->value < bar->maxValue) {
+      bar->value++;
+      lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+    }
+  }
+}
+
+void ColorBar::draw_end(lv_event_t* e)
+{
+  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE) return;
+  
+  lv_obj_t* obj = lv_event_get_target(e);
+  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
+  if (!bar) return;
+  
+  lv_draw_line_dsc_t line_dsc;
+  lv_draw_line_dsc_init(&line_dsc);
+
+  line_dsc.width = 1;
+  line_dsc.opa = LV_OPA_100;
+  
+  auto area = dsc->draw_area;
+  lv_point_t p1, p2;
+  p1.x = area->x1;
+  p2.x = area->x2 + 1;
+
+  // draw background gradient
+  for (auto y = area->y1; y <= area->y2; y++) {
+    p1.y = y;
+    p2.y = y;
+    auto c = bar->getRGB(bar->screenToValue(y - area->y1));
+    line_dsc.color = lv_color_make(GET_RED(c), GET_GREEN(c), GET_BLUE(c));
+    lv_draw_line(dsc->draw_ctx, &line_dsc, &p1, &p2);
+  }
+
+  // draw cursor
+  lv_area_t cursor_area;
+  cursor_area.x1 = area->x1 + (lv_area_get_width(area) / 2) - 5;
+  cursor_area.x2 = cursor_area.x1 + 10 - 1;
+
+  auto pos = bar->valueToScreen(bar->value);
+  cursor_area.y1 = area->y1 + pos - 5;
+  cursor_area.y2 = cursor_area.y1 + 10 - 1;
+
+  lv_draw_rect_dsc_t cursor_dsc;
+  lv_draw_rect_dsc_init(&cursor_dsc);
+
+  cursor_dsc.radius = LV_RADIUS_CIRCLE;
+  cursor_dsc.bg_opa = LV_OPA_100;
+  cursor_dsc.bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
+  cursor_dsc.border_opa = LV_OPA_100;
+  cursor_dsc.border_color = makeLvColor(COLOR_THEME_PRIMARY1);
+  cursor_dsc.border_width = 1;
+
+  lv_draw_rect(dsc->draw_ctx, &cursor_dsc, &cursor_area);
+}
+  
+ColorBar::ColorBar(Window* parent, const rect_t& r, uint32_t value,
+                   uint32_t maxValue, bool invert) :
+  FormField(parent, r)
+{
+  lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
+  lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
+  lv_obj_add_event_cb(lvobj, ColorBar::on_key, LV_EVENT_KEY, nullptr);
+  lv_obj_add_event_cb(lvobj, ColorBar::draw_end, LV_EVENT_DRAW_PART_END, nullptr);
+
+  // normal
+  lv_obj_set_style_border_width(lvobj, 1, 0);
+  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
+  lv_obj_set_style_border_opa(lvobj, LV_OPA_100, 0);
+  lv_obj_set_style_border_post(lvobj, true, 0);
+
+  // focused
+  lv_obj_set_style_border_width(lvobj, 2, LV_STATE_FOCUSED);
+  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_STATE_FOCUSED);
+}
+
+int ColorBar::valueToScreen(int val)
+{
+  int scaledValue = (((float)val / maxValue) * height());
+  if (invert) scaledValue = height() - scaledValue;
+  return scaledValue;
+}
+
+uint32_t ColorBar::screenToValue(int pos)
+{
+  // range check
+  pos = min<int>(pos, height());
+  pos = max<int>(pos, 0);
+
+  uint32_t scaledValue = (((float)pos / height()) * maxValue);
+  if (invert) scaledValue = maxValue - scaledValue;
+  return scaledValue;
+}
+
+ColorType::ColorType(Window* parent, coord_t screenHeight) :
+  screenHeight(screenHeight)
+{
+  auto spacePerBar = (parent->width() / MAX_BARS);
+
+  int leftPos = 0;
+  for ( int i=0; i < MAX_BARS; i++){
+    rect_t r;
+    r.x = leftPos + BAR_MARGIN;
+    r.y = BAR_TOP_MARGIN;
+    r.w = spacePerBar - BAR_MARGIN - 5;
+    r.h = screenHeight;
+    
+    bars[i] = new ColorBar(parent, r);
+    leftPos += spacePerBar;
+  }
+}
+
+ColorType::~ColorType()
+{
+  for ( int i=0; i < MAX_BARS; i++) {
+    bars[i]->deleteLater();
+  }  
+};
+
+HSVColorType::HSVColorType(Window* parent, uint32_t color) :
+  ColorType(parent, parent->height() - BAR_HEIGHT_OFFSET)
 {
   auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
   float values[MAX_BARS];
@@ -47,126 +208,86 @@ HSVColorType::HSVColorType(FormGroup *window, uint32_t color) :
   values[1] *= MAX_SATURATION; // convert the proper base
   values[2] *= MAX_BRIGHTNESS;
 
-  auto spacePerBar = (window->width() / MAX_BARS);
-
-  int leftPos = 0;
-
   for (auto i = 0; i < MAX_BARS; i++) {
-    barInfo[i].leftPos = leftPos + BAR_MARGIN;
-    barInfo[i].barWidth = spacePerBar - BAR_MARGIN - 5;
-    barInfo[i].maxValue = i == 0 ? MAX_HUE : MAX_BRIGHTNESS;
-    barInfo[i].invert = i != 0;
-    barInfo[i].sliding = false;
-    barInfo[i].value = values[i];
-
-    leftPos += spacePerBar;
+    bars[i]->maxValue = i == 0 ? MAX_HUE : MAX_BRIGHTNESS;
+    bars[i]->invert = i != 0;
+    bars[i]->value = values[i];
   }
+
+  // hue
+  bars[0]->getRGB = [=] (int pos) {
+    auto rgb = HSVtoRGB(pos, bars[1]->value, bars[2]->value);
+    return rgb;
+  };
+
+  // saturation
+  bars[1]->getRGB = [=] (int pos) {
+    auto rgb = HSVtoRGB(bars[0]->value, pos, bars[2]->value);
+    return rgb;
+  };
+
+  // brightness
+  bars[2]->getRGB = [=] (int pos) {
+    auto rgb = HSVtoRGB(bars[0]->value, bars[1]->value, pos);
+    return rgb;
+  };
 }
 
 uint32_t HSVColorType::getRGB()
 {
-  return HSVtoRGB(barInfo[0].value, barInfo[1].value, barInfo[2].value);
+  return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-void HSVColorType::drawBarValue(BitmapBuffer *dc, int bar)
+const char** HSVColorType::getLabelChars()
 {
-  dc->drawText(barInfo[bar].leftPos, BAR_TOP_MARGIN + screenHeight + 9, HSVChars[bar], COLOR_THEME_PRIMARY1 | FONT(XXS));
-  dc->drawText(barInfo[bar].leftPos + 10, BAR_TOP_MARGIN + screenHeight + 3, std::to_string(barInfo[bar].value).c_str(), COLOR_THEME_PRIMARY1);
+  return HSVChars;
 }
 
-void HSVColorType::drawBar(BitmapBuffer* dc, int bar, getRGBFromPos getRGB)
+RGBColorType::RGBColorType(Window* parent, uint32_t color) :
+    ColorType(parent, parent->height() - BAR_HEIGHT_OFFSET)
 {
-  int maxRange = screenHeight;
-  for (auto i = 0; i < maxRange; i++) {
-    auto rgb = getRGB(bar, i);
-    auto r = GET_RED(rgb);
-    auto g = GET_GREEN(rgb);
-    auto b = GET_BLUE(rgb);
-
-    dc->drawSolidHorizontalLine(barInfo[bar].leftPos, i + BAR_TOP_MARGIN, barInfo[bar].barWidth, COLOR2FLAGS(RGB(r, g, b)));
-  }
-
-  dc->drawSolidRect(barInfo[bar].leftPos, BAR_TOP_MARGIN, barInfo[bar].barWidth, screenHeight, 1, COLOR2FLAGS(BLACK));
-  dc->drawFilledCircle(barInfo[bar].leftPos + (barInfo[bar].barWidth / 2), BAR_TOP_MARGIN + valueToScreen(bar, barInfo[bar].value), 5, COLOR2FLAGS(WHITE));\
-
-  drawBarValue(dc, bar);
-}
-
-void HSVColorType::paint(BitmapBuffer *dc)
-{
-  drawBar(dc, HUE, [=] (int bar, int pos) {
-    int hue = screenToValue(0, pos);
-    auto rgb = HSVtoRGB(hue, barInfo[1].value, barInfo[2].value);
-    return rgb;
-  });
-  drawBar(dc, SATURATION, [=] (int bar, int pos) {
-    int saturation = screenToValue(1, pos);
-    auto rgb = HSVtoRGB(barInfo[0].value, saturation, barInfo[2].value);
-    return rgb;
-  });
-  drawBar(dc, BRIGHTNESS, [=] (int bar, int pos) {
-    int brightness = screenToValue(2, pos);
-    auto rgb = HSVtoRGB(barInfo[0].value, barInfo[1].value, brightness);
-    return rgb;
-  });
-}
-
-RGBColorType::RGBColorType(FormGroup *window, uint32_t color) :
-  ColorType(window->height() - BAR_HEIGHT_OFFSET)
-{
-  screenHeight = screenHeight;
   auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
   float values[MAX_BARS];
-  values[0] = r; values[1] = g; values[2] = b;
+  values[0] = r;
+  values[1] = g;
+  values[2] = b;
 
-  auto spacePerBar = (window->width() / MAX_BARS);
-  int leftPos = 0;
   for (auto i = 0; i < MAX_BARS; i++) {
-    barInfo[i].leftPos = leftPos + BAR_MARGIN;
-    barInfo[i].barWidth = spacePerBar - BAR_MARGIN - 5;
-    barInfo[i].maxValue = 255;
-    barInfo[i].sliding = false;
-    barInfo[i].value = values[i];
-    barInfo[i].invert = true;
-    leftPos += spacePerBar;
+    bars[i]->maxValue = 255;
+    bars[i]->value = values[i];
+    bars[i]->invert = true;
   }
+
+  bars[0]->getRGB = [=](int pos) { return RGB(pos, 0, 0); };
+  bars[1]->getRGB = [=](int pos) { return RGB(0, pos, 0); };
+  bars[2]->getRGB = [=](int pos) { return RGB(0, 0, pos); };
 }
 
 uint32_t RGBColorType::getRGB()
 {
-  return RGB(barInfo[0].value, barInfo[1].value, barInfo[2].value);
+  return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-void RGBColorType::drawBarValue(BitmapBuffer *dc, int bar)
+const char** RGBColorType::getLabelChars()
 {
-  dc->drawText(barInfo[bar].leftPos, BAR_TOP_MARGIN + screenHeight + 9, RGBChars[bar], COLOR_THEME_PRIMARY1 | FONT(XXS));
-  dc->drawText(barInfo[bar].leftPos + 10, BAR_TOP_MARGIN + screenHeight + 3, std::to_string(barInfo[bar].value).c_str(), COLOR_THEME_PRIMARY1);
+  return RGBChars;
 }
 
-void RGBColorType::paint(BitmapBuffer *dc)
+static lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
 {
-  for (int bar = 0; bar < MAX_BARS; bar++) {
-    for (uint32_t pos = 0; pos < screenHeight; pos++) {
-      uint32_t value = screenToValue(bar, pos);
-      uint32_t color;
-      if (bar == 0)
-        color = RGB(value, 0, 0);
-      else if (bar == 1)
-        color = RGB(0, value, 0);
-      else
-        color = RGB(0, 0, value);
+  lv_obj_t* obj = lv_label_create(parent);
+  lv_obj_set_pos(obj, x, y);
+  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
+  lv_obj_set_style_text_font(obj, getFont(FONT(XXS)), 0);
+  return obj;
+}
 
-      dc->drawSolidHorizontalLine(barInfo[bar].leftPos, pos + BAR_TOP_MARGIN, barInfo[bar].barWidth, 
-                                  COLOR2FLAGS(color));
-      dc->drawSolidRect(barInfo[bar].leftPos, BAR_TOP_MARGIN, barInfo[bar].barWidth, screenHeight, 1, 
-                        COLOR2FLAGS(BLACK));
-    }
-
-    dc->drawFilledCircle(barInfo[bar].leftPos + (barInfo[bar].barWidth / 2), BAR_TOP_MARGIN + valueToScreen(bar, barInfo[bar].value), 5, 
-                        COLOR2FLAGS(WHITE));
-
-    drawBarValue(dc, bar);
-  }
+static lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
+{
+  lv_obj_t* obj = lv_label_create(parent);
+  lv_obj_set_pos(obj, x, y);
+  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
+  return obj;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -179,16 +300,21 @@ ColorEditor::ColorEditor(FormGroup *window, const rect_t rect, uint32_t color,
   _color(color)
 {
   _colorType = new HSVColorType(this, color);
-  setFocusHandler([=](bool focus) {
-    _focused = focus;
-  });
-}
 
-void ColorEditor::setNextFocusBar()
-{
-  _focusBar = (_focusBar + 1) % MAX_BARS;
-  setFocus();
-  invalidate();
+  // bar labels
+  for (int i = 0; i < MAX_BARS; i++) {
+    auto bar = _colorType->bars[i];
+    auto x = bar->left();
+    auto y = bar->bottom();
+
+    barLabels[i] = create_bar_label(lvobj, x, y + 9);
+    lv_label_set_text_static(barLabels[i], _colorType->getLabelChars()[i]);
+    
+    barValLabels[i] = create_bar_value_label(lvobj, x + 10, y + 3);
+    lv_label_set_text_fmt(barValLabels[i], "%d", bar->value);
+  }
+
+  lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
@@ -206,114 +332,21 @@ void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
 void ColorEditor::setRGB()
 {
   _color = _colorType->getRGB();
-  invalidate();
-  if (_setValue != nullptr)
-    _setValue(_color);
+
+  // update bars & labels
+  for (int i = 0; i < MAX_BARS; i++) {
+    auto bar = _colorType->bars[i];
+    lv_label_set_text_fmt(barValLabels[i], "%d", bar->value);
+    bar->invalidate();
+  }
+
+  if (_setValue != nullptr) _setValue(_color);
 }
 
-#if defined(HARDWARE_TOUCH)
-bool ColorEditor::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
+void ColorEditor::value_changed(lv_event_t* e)
 {
-  if (touchState.event == TE_SLIDE_END) {
-    onTouchEnd(0,0);
-    return true;
-  }
-
-  for (auto i = 0; i < MAX_BARS; i++) {
-    if (_colorType->barInfo[i].sliding) {
-      y -= BAR_TOP_MARGIN;
-      auto value = _colorType->screenToValue(i, y);
-      if (value != _colorType->barInfo[i].value) {
-        slidingWindow = this;
-        _colorType->barInfo[i].value = value;    
-        setRGB(); 
-      } 
-    }
-  }
-
-  return true;
-}
-
-bool ColorEditor::onTouchEnd(coord_t x, coord_t y)
-{
-  bool bSliding = false;
-  for (auto i = 0; i < MAX_BARS; i++) {
-    if (_colorType->barInfo[i].sliding) {
-      bSliding = true;
-    }
-    _colorType->barInfo[i].sliding = false;
-  }
-
-  if (bSliding) {
-    invalidate();
-  }
-
-  return FormGroup::onTouchEnd(x,y);
-}
-
-bool ColorEditor::onTouchStart(coord_t x, coord_t y)
-{
-  bool bFound = false;
-  for (auto i = 0; i < MAX_BARS; i++) {
-    if (y >= BAR_TOP_MARGIN && y < (coord_t)(BAR_TOP_MARGIN + _colorType->screenHeight) &&
-        x >= _colorType->barInfo[i].leftPos && x < _colorType->barInfo[i].leftPos + _colorType->barInfo[i].barWidth) {
-      _colorType->barInfo[i].sliding = true;
-      y -= BAR_TOP_MARGIN;
-      int value = _colorType->screenToValue(i, y);
-      _colorType->barInfo[i].value = value;
-      bFound = true;
-      _focusBar = i;
-      setFocus();
-    } else {
-      _colorType->barInfo[i].sliding = false;
-    }
-  }
-  if (bFound) {
-    setRGB();
-    return true;
-  } else {
-    return FormGroup::onTouchStart(x,y);
-  }
-}
-#endif
-
-#if defined(HARDWARE_KEYS)
-void ColorEditor::onEvent(event_t event)
-{
-  switch(event)
-  {
-    case EVT_ROTARY_RIGHT:
-    case EVT_ROTARY_LEFT:
-      {
-        int direction = event == EVT_ROTARY_RIGHT ? 1 : -1;
-        auto bar = &_colorType->barInfo[_focusBar];
-        int newValue = (int) bar->value;
-        newValue += direction;
-
-        newValue = min(newValue, (int)bar->maxValue);
-        newValue = max(newValue, 0);
-        bar->value = newValue;
-        setRGB();
-        onKeyPress();
-      }
-    break;
-    default:
-      FormGroup::onEvent(event);
-      break;
-  }
-}
-#endif
-
-void ColorEditor::drawFocusBox(BitmapBuffer *dc)
-{
-  auto bar = _colorType->barInfo[_focusBar];
-  dc->drawSolidRect(bar.leftPos, BAR_TOP_MARGIN, bar.barWidth, _colorType->screenHeight, 2, COLOR_THEME_FOCUS);
-}
-
-void ColorEditor::paint(BitmapBuffer *dc)
-{
-  dc->clear(COLOR_THEME_SECONDARY3);
-  _colorType->paint(dc);
-  drawFocusBox(dc);
+  lv_obj_t* target = lv_event_get_target(e);
+  ColorEditor* edit = (ColorEditor*)lv_obj_get_user_data(target);
+  if (edit) edit->setRGB();
 }
 

@@ -24,29 +24,11 @@
 
 #include "bitmapbuffer.h"
 #include "opentx_types.h"
-#include "libopenui_globals.h"
-
-#if LCD_W >= 480
-  #define LCD_COLS                     40
-#else
-  #define LCD_COLS                     30
-#endif
-
-#define CENTER
 
 #include "colors.h"
 
 #define DISPLAY_PIXELS_COUNT           (LCD_W * LCD_H)
 #define DISPLAY_BUFFER_SIZE            (DISPLAY_PIXELS_COUNT)
-
-extern coord_t lcdNextPos;
-
-inline void lcdClear()
-{
-  lcd->clear();
-}
-
-void lcdDrawBlackOverlay();
 
 #if defined(BOOT)
   #define BLINK_ON_PHASE               (0)
@@ -55,5 +37,23 @@ void lcdDrawBlackOverlay();
   #define BLINK_ON_PHASE               (g_blinkTmr10ms & (1<<6))
   #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
 #endif
+
+struct _lv_disp_drv_t;
+typedef _lv_disp_drv_t lv_disp_drv_t;
+
+// Call backs
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *));
+void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&));
+
+// Init LVGL and its display driver
+void lcdInitDisplayDriver();
+
+// Patch the draw context to allow for direct drawing
+void lcdInitDirectDrawing();
+
+inline void lcdClear() { lcd->clear(); }
+
+void lcdRefresh();
+void lcdFlushed();
 
 #endif // _LCD_H_

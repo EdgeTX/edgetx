@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.187.0/containers/cpp
 {
 	"name": "edgetx-dev",
-	"image": "ghcr.io/edgetx/edgetx-dev:2.5",
+	"image": "ghcr.io/edgetx/edgetx-dev:latest",
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [

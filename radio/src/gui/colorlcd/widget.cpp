@@ -30,82 +30,37 @@
 #include "touch.h"
 #endif
 
-constexpr uint32_t WIDGET_FOCUS_TIMEOUT = 10*1000; // 10 seconds
-
 static void openWidgetMenu(Widget * parent)
 {
   Menu *menu = new Menu(parent);
-  menu->addLine("Full screen", [=]() {
-      parent->setFullscreen(true);
-    });
-  if(parent->getOptions() && parent->getOptions()->name)  
-    menu->addLine(TR_WIDGET_SETTINGS, [=]() {
-      new WidgetSettings(parent, parent);
-    });
+  menu->addLine("Full screen", [=]() { parent->setFullscreen(true); });
+  if (parent->getOptions() && parent->getOptions()->name)
+    menu->addLine(TR_WIDGET_SETTINGS,
+                  [=]() { new WidgetSettings(parent, parent); });
 }
 
-Widget::Widget(const WidgetFactory *factory, FormGroup *parent,
-               const rect_t &rect, WidgetPersistentData *persistentData) :
-    Button(parent, rect), factory(factory), persistentData(persistentData)
+Widget::Widget(const WidgetFactory* factory, Window* parent,
+               const rect_t &rect, WidgetPersistentData* persistentData) :
+    Button(parent, rect, nullptr, 0, 0, window_create),
+    factory(factory),
+    persistentData(persistentData)
 {
-  setFocusHandler([&](bool focus) {
-      if (focus) { // gained focus
-        focusGainedTS = RTOS_GET_MS();
-      }
-    });
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
   setPressHandler([&]() -> uint8_t {
+    // When ViewMain is in "widget select mode",
+    // the widget is added to a focus group
+    if (!fullscreen && lv_obj_get_group(lvobj))
       openWidgetMenu(this);
-      return 0;
-    });
+    return 0;
+  });
+
+  setLongPressHandler([&]() -> uint8_t {
+    if (!fullscreen) openWidgetMenu(this);
+    return 0;
+  });
 }
-
-void Widget::checkEvents()
-{
-  Button::checkEvents();
-
-  // Give the focus back to ViewMain after WIDGET_FOCUS_TIMEOUT milliseconds
-  if (!fullscreen && hasFocus() && (RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT)) {
-    ViewMain::instance()->setFocus();
-  }
-}
-
-#if defined(HARDWARE_TOUCH)
-bool Widget::onTouchEnd(coord_t x, coord_t y)
-{
-  TRACE_WINDOWS("Widget received touch end (%d) x=%d;y=%d",
-                hasFocus(), x, y);
-
-  if (fullscreen) {
-    //TODO: forward to widget (lua for instance)
-    return true;
-  }
-
-  if (Window::onTouchEnd(x, y)) {
-    return true;
-  }
-  
-  if (hasFocus()) {
-    if (touchState.tapCount == 0)
-      onPress();
-    else if (touchState.tapCount > 1)
-      setFullscreen(true);
-  }
-  else {
-    setFocus();
-  }
-  return true;
-}
-
-bool Widget::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
-                          coord_t slideX, coord_t slideY)
-{
-  TRACE_WINDOWS("Widget touch slide");
-  if (fullscreen) { return true; }
-  return false;
-}
-
-#endif
 
 void Widget::paint(BitmapBuffer * dc)
 {
@@ -118,12 +73,6 @@ void Widget::paint(BitmapBuffer * dc)
   refresh(dc);
   
   if (hasFocus() && !fullscreen) {
-
-    // Blink from haft-time before expiring (5s)
-    if ((RTOS_GET_MS() - focusGainedTS >= WIDGET_FOCUS_TIMEOUT / 2)
-        && !FAST_BLINK_ON_PHASE) {
-      return;
-    }
     dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
 }
@@ -131,21 +80,7 @@ void Widget::paint(BitmapBuffer * dc)
 #if defined(HARDWARE_KEYS)
 void Widget::onEvent(event_t event)
 {
-  TRACE("### event = 0x%x ###", event);
-  if (!fullscreen) {
-    if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-      // [EXIT] -> exit focus mode (if not fullscreen)
-      killEvents(event);
-      ViewMain::instance()->setFocus();
-      return;
-    }
-    // Forward the rest to the parent class
-    Button::onEvent(event);
-  }
-  // In fullscreen mode, we react only to that one key:
-  // [RTN / EXIT LONG] -> exit fullscreen mode
-  else if (EVT_KEY_LONG(KEY_EXIT) == event) {
-    killEvents(event);
+  if (fullscreen && (EVT_KEY_LONG(KEY_EXIT) == event)) {
     setFullscreen(false);
   }
 }
@@ -159,31 +94,62 @@ void Widget::update()
   }
 }
 
-void Widget::setFullscreen(bool fullscreen)
+void Widget::setFullscreen(bool enable)
 {
-  if (fullscreen == this->fullscreen) return;
+  if (enable == fullscreen) return;
 
   // Leave Fullscreen Mode
-  if (!fullscreen) {
+  if (!enable) {
 
     // Reset all zones in container
     Widget::update();
     setWindowFlags(getWindowFlags() & ~OPAQUE);
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
     // and give up focus
-    ViewMain::instance()->setFocus();
-    this->fullscreen = false;
+    ViewMain::instance()->enableTopbar();
+    fullscreen = false;
+
+    lv_group_remove_obj(lvobj);
+
+    // re-enable scroll chaining (sliding main view)
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    // exit editing mode
+    lv_group_set_editing(lv_group_get_default(), false);
+
+    onFullscreen(enable);
   }
   // Enter Fullscreen Mode
   else {
 
     // Set window opaque (inhibits redraw from windows bellow)
     setWindowFlags(getWindowFlags() | OPAQUE);
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
     setRect(parent->getRect());
-    setLeft(parent->getScrollPositionX());
-    this->fullscreen = true;
+    fullscreen = true;
+    ViewMain::instance()->disableTopbar();
     bringToTop();
+
+    if (!lv_obj_get_group(lvobj)) {
+      lv_group_add_obj(lv_group_get_default(), lvobj);
+    }
+
+    // disable scroll chaining (sliding main view)
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    // set group in editing mode (keys LEFT / RIGHT)
+    lv_group_set_editing(lv_group_get_default(), true);
+
+    onFullscreen(enable);
   }
+}
+
+void Widget::onLongPress()
+{
+  if (!fullscreen) Button::onLongPress();
 }
 
 std::list<const WidgetFactory *> & getRegisteredWidgets()
@@ -215,9 +181,10 @@ const WidgetFactory * getWidgetFactory(const char * name)
   return nullptr;
 }
 
-Widget * loadWidget(const char * name, FormGroup * parent, const rect_t & rect, WidgetPersistentData * persistentData)
+Widget* loadWidget(const char* name, Window* parent, const rect_t& rect,
+                   WidgetPersistentData* persistentData)
 {
-  const WidgetFactory * factory = getWidgetFactory(name);
+  const WidgetFactory* factory = getWidgetFactory(name);
   if (factory) {
     return factory->create(parent, rect, persistentData, false);
   }

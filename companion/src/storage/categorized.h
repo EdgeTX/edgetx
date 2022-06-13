@@ -18,10 +18,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CATEGORIZED_H_
-#define _CATEGORIZED_H_
+#pragma once
 
 #include "storage.h"
+#include "miniz.h"
 
 #include <QtCore>
 #include <list>
@@ -44,6 +44,7 @@ class CategorizedStorageFormat : public StorageFormat
     virtual bool loadFile(QByteArray & fileData, const QString & fileName) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
     virtual bool getFileList(std::list<std::string>& filelist) = 0;
+    virtual bool deleteFile(const QString & fileName) = 0;
 
     virtual bool loadBin(RadioData & radioData);
     virtual bool writeBin(const RadioData & radioData);
@@ -52,5 +53,3 @@ class CategorizedStorageFormat : public StorageFormat
 
     StorageType probeFormat();
 };
-
-#endif // _CATEGORIZED_H_

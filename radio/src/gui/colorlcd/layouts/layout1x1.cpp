@@ -21,33 +21,29 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
+#include "lz4_bitmaps.h"
 
-const uint8_t LBM_LAYOUT_1x1[] = {
+const uint8_t _LBM_LAYOUT_1x1[] = {
 #include "mask_layout1x1.lbm"
 };
+STATIC_LZ4_BITMAP(LBM_LAYOUT_1x1);
 
-const ZoneOption OPTIONS_LAYOUT_1x1[] = {
-  LAYOUT_COMMON_OPTIONS,
-  LAYOUT_OPTIONS_END
-};
+const ZoneOption OPTIONS_LAYOUT_1x1[] = {LAYOUT_COMMON_OPTIONS,
+                                         LAYOUT_OPTIONS_END};
 
-class Layout1x1: public Layout
+class Layout1x1 : public Layout
 {
-  public:
-    Layout1x1(const LayoutFactory * factory, Layout::PersistentData * persistentData):
-      Layout(factory, persistentData)
-    {
-    }
+ public:
+  Layout1x1(Window* parent, const LayoutFactory* factory,
+            Layout::PersistentData* persistentData) :
+      Layout(parent, factory, persistentData)
+  {
+  }
 
-    unsigned int getZonesCount() const override
-    {
-      return 1;
-    }
+  unsigned int getZonesCount() const override { return 1; }
 
-    rect_t getZone(unsigned int index) const override
-    {
-      return getMainZone();
-    }
+  rect_t getZone(unsigned int index) const override { return getMainZone(); }
 };
 
-BaseLayoutFactory<Layout1x1> layout1x1("Layout1x1", "Fullscreen", LBM_LAYOUT_1x1, OPTIONS_LAYOUT_1x1);
+BaseLayoutFactory<Layout1x1> layout1x1("Layout1x1", "Fullscreen",
+                                       LBM_LAYOUT_1x1, OPTIONS_LAYOUT_1x1);

@@ -19,20 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "menu_model.h"
-#include "model_setup.h"
-#include "model_heli.h"
-#include "model_flightmodes.h"
-#include "model_mixes.h"
-#include "model_inputs.h"
-#include "model_outputs.h"
-#include "model_gvars.h"
+
+#include "translations.h"
+#include "view_channels.h"
 #include "model_curves.h"
+#include "model_flightmodes.h"
+#include "model_gvars.h"
+#include "model_heli.h"
+#include "model_inputs.h"
 #include "model_logical_switches.h"
 #include "model_mixer_scripts.h"
-#include "special_functions.h"
+#include "model_mixes.h"
+#include "model_outputs.h"
+#include "model_setup.h"
 #include "model_telemetry.h"
+#include "opentx.h"
+#include "special_functions.h"
 
 ModelMenu::ModelMenu():
   TabsGroup(ICON_MODEL)
@@ -57,4 +60,17 @@ ModelMenu::ModelMenu():
   addTab(new ModelMixerScriptsPage());
 #endif
   addTab(new ModelTelemetryPage());
+
+}
+
+void ModelMenu::onEvent(event_t event)
+{
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_FIRST(KEY_MODEL)) {
+    killEvents(event);
+    new ChannelsViewMenu();
+  } else {
+    TabsGroup::onEvent(event);
+  }
+#endif
 }

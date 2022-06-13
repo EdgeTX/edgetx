@@ -27,31 +27,25 @@
 #include "opentx.h"
 #include "gridlayout.h"
 
-class SwitchWarnDialog: public FullScreenDialog {
-  public:
-    SwitchWarnDialog():
-      FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN)
-    {
-      last_bad_switches = 0xff;
-      bad_pots = 0;
-      last_bad_pots = 0x0;
-      setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
-    }
+class SwitchWarnDialog : public FullScreenDialog
+{
+ public:
+  SwitchWarnDialog();
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "SwitchWarnDialog";
-    }
+  std::string getName() const override { return "SwitchWarnDialog"; }
 #endif
 
-    void paint(BitmapBuffer * dc) override;
+  void checkEvents() override;
+  void paint(BitmapBuffer* dc) override;
 
-  protected:
-    swarnstate_t last_bad_switches;
-    uint16_t      bad_pots;
-    uint16_t      last_bad_pots;
-    bool warningInactive();
+ protected:
+  swarnstate_t last_bad_switches;
+  uint16_t     bad_pots;
+  uint16_t     last_bad_pots;
+  StaticText*  warn_label;
+
+  bool warningInactive();
 };
 
 #endif

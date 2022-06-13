@@ -42,7 +42,8 @@ class MultiRfProtocols
   uint8_t currentProto = 0;
   uint8_t totalProtos = 0;
 
-  MultiRfProtocols(unsigned int moduleIdx) : moduleIdx(moduleIdx) {}
+  MultiRfProtocols(unsigned int moduleIdx);
+  void fillBuiltinProtos();
 
  public:
 
@@ -56,6 +57,11 @@ class MultiRfProtocols
     RfProto(int proto) : proto(proto) {}
 
     bool parse(const uint8_t* data, uint8_t len);
+
+    // array of strings
+    void fillSubProtoList(const char** str, int n);
+
+    // fixed length strings concatenated
     void fillSubProtoList(const char* str, int n, int len);
 
     uint8_t getOption() const;

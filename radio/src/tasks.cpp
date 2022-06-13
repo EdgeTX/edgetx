@@ -100,12 +100,6 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
-
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
 }
 
 TASK_FUNCTION(mixerTask)
@@ -189,6 +183,10 @@ bool perMainEnabled = true;
 
 TASK_FUNCTION(menusTask)
 {
+#if defined(LIBOPENUI)
+  LvglWrapper::instance();
+#endif
+
 #if defined(SPLASH) && !defined(STARTUP_ANIMATION)
   if (!UNEXPECTED_SHUTDOWN()) {
     drawSplash();

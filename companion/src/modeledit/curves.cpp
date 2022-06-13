@@ -32,11 +32,14 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
   maxCurves = firmware->getCapability(NumCurves);
 
   QStringList headerLabels;
-  headerLabels << "#";
-
-  headerLabels << tr("Plot") << tr("Details");
+  headerLabels << "#" << "" << tr("Note: to create a curve right click on the curve row label");
 
   TableLayout *tableLayout = new TableLayout(this, maxCurves, headerLabels);
+
+  QFontMetrics *f = new QFontMetrics(QFont());
+  QSize szpnts;
+  szpnts = f->size(Qt::TextSingleLine, QString(75, 'X'));
+  delete f;
 
   for (int i = 0; i < maxCurves; i++) {
     int col = 0;
@@ -56,9 +59,13 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     image[i]->setGrid(Qt::gray, 2);
     image[i]->setProperty("index", i);
     image[i]->setFixedSize(QSize(100, 100));
+    image[i]->setContextMenuPolicy(Qt::CustomContextMenu);
+    image[i]->setToolTip(tr("Popup menu available"));
+    connect(image[i], SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     connect(image[i], &CurveImageWidget::doubleClicked, this, &CurvesPanel::on_curveImageDoubleClicked);
 
     tableLayout->addWidget(i, col++, image[i]);
+    tableLayout->setColumnStretch(col, 1);
 
     grp[i] = new QWidget(); // layouts are not hideable so use widget as parent for grid
 
@@ -77,6 +84,13 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     numpoints[i] = new QLabel();
     grid[i]->addWidget(numpoints[i], row, 1);
     points[i] = new QLabel();
+    points[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    //  at at Qt 5.12
+    //  setWordWrap(true) does not work well in this instance due to the nested widgets and
+    //  the display results varying between OSes so as a compromise
+    //  stop widget expanding uncontrolled and consequentally expanding edit dialog potentially off screen
+    //  contents will be truncated if exceed maximum size
+    points[i]->setMaximumWidth(szpnts.width());
     grid[i]->addWidget(points[i], row++, 2, Qt::AlignLeft);
 
     grid[i]->addWidget(new QLabel(tr("Smooth:")), row, 0, Qt::AlignLeft);
@@ -157,9 +171,9 @@ void CurvesPanel::on_curveImageDoubleClicked()
 
 void CurvesPanel::onCustomContextMenuRequested(QPoint pos)
 {
-  QPushButton *button = (QPushButton *)sender();
-  selectedIndex = button->property("index").toInt();
-  QPoint globalPos = button->mapToGlobal(pos);
+  QWidget *wgt = (QWidget *)sender();
+  selectedIndex = wgt->property("index").toInt();
+  QPoint globalPos = wgt->mapToGlobal(pos);
 
   QMenu contextMenu;
   contextMenu.addAction(CompanionIcon("new.png"), tr("Add"), this, SLOT(cmEdit()))->setEnabled(!curveExists());

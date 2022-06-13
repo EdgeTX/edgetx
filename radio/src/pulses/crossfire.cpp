@@ -111,31 +111,12 @@ static void crossfireSetupMixerScheduler(uint8_t module)
 }
 
 #if defined(INTERNAL_MODULE_CRSF)
-static void intmoduleCRSF_rx(uint8_t data)
-{
-  intmoduleFifo.push(data);
-
-#if !defined(SIMU)
-  // wakeup mixer when rx buffer is quarter full (16 bytes)
-  if (intmoduleFifo.size() >= 16) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTaskNotifyFromISR(mixerTaskId.rtos_handle, 0, eNoAction,
-                       &xHigherPriorityTaskWoken);
-
-    // might effect a context switch on ISR exit
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
-#endif
-}
-
 static const etx_serial_init intmoduleCrossfireInitParams = {
   .baudrate = 0,
   .parity = ETX_Parity_None,
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .on_receive = intmoduleCRSF_rx,
-  .on_error = nullptr,
 };
 
 static void* crossfireInitInternal(uint8_t module)
@@ -145,9 +126,6 @@ static void* crossfireInitInternal(uint8_t module)
   // serial port setup
   etx_serial_init params(intmoduleCrossfireInitParams);
   params.baudrate = INT_CROSSFIRE_BAUDRATE;
-
-  // wakeup mixer when rx buffer is quarter full (16 bytes)
-  params.on_receive = intmoduleCRSF_rx;
 
   intmoduleFifo.clear();
   IntmoduleSerialDriver.init(&params);

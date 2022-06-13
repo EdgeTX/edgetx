@@ -25,50 +25,25 @@
 
 constexpr coord_t FM_LABEL_HEIGHT = 20;
 
-class ViewMainDecoration: public Window
+class ViewMainDecoration
 {
   public:
-    ViewMainDecoration(Window * parent, const rect_t & rect):
-        Window(parent, rect)
-    {
-      createSliders();
-      createTrims();
-      createFlightMode();
-    }
+    ViewMainDecoration(Window* parent);
 
     // Set decoration visibility
     void setTrimsVisible(bool visible);
     void setSlidersVisible(bool visible);
     void setFlightModeVisible(bool visible);
 
-    // Re-calculate positions
-    void adjustDecoration();
 
     // Get the available space in the middle of the screen
     // (without decoration)
     rect_t getMainZone() const;
 
-    enum VisibilityMask {
-      VM_NONE =          0,
-      VM_TRIMS =    1 << 0,
-      VM_SLIDERS =  1 << 1,
-      VM_FM =       1 << 2,
-      VM_ALL = VM_TRIMS | VM_SLIDERS | VM_FM,
-    };
 
-    unsigned getVisibilityMask() const
-    {
-      return visibilityMask;
-    }
   
   protected:
 
-#if defined(DEBUG_WINDOWS)
-    virtual std::string getName() const
-    {
-      return "ViewMainDecoration";
-    }
-#endif    
 
     enum {
       SLIDERS_POT1 = 0,
@@ -89,12 +64,18 @@ class ViewMainDecoration: public Window
       TRIMS_MAX
     };
 
+    Window* parent;
+    Window* w_ml;
+    Window* w_mr;
+    Window* w_bl;
+    Window* w_bc;
+    Window* w_br;
+  
     Window* sliders[SLIDERS_MAX];
     Window* trims[TRIMS_MAX];
     Window* flightMode;
-    unsigned visibilityMask = VM_NONE;
 
-    void createSliders();
-    void createTrims();
-    void createFlightMode();
+    void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
+    void createTrims(Window* ml, Window* mr, Window* bl, Window* br);
+    void createFlightMode(Window* bc);
 };

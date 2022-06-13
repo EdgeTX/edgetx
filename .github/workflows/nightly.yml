@@ -33,7 +33,7 @@ jobs:
           - x9lite;x9lites
           - xlite;xlites
     container:
-      image: ghcr.io/edgetx/edgetx-commit-tests
+      image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -45,6 +45,7 @@ jobs:
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
+          EDGETX_VERSION_SUFFIX: nightly
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}

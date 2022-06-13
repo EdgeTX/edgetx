@@ -104,6 +104,8 @@ void menuModelCurvesAll(event_t event)
   }
 }
 
+static const char* _curve_types[] = {"Diff","Expo","Func","Cstm"};
+
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags)
 {
   coord_t x1 = x;
@@ -125,7 +127,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
     flags1 = 0;
   }
 
-  lcdDrawTextAtIndex(x1, y, "\004DiffExpoFuncCstm", curve.type, flags1);
+  lcdDrawTextAtIndex(x1, y, _curve_types, curve.type, flags1);
 
   if (active && menuHorizontalPosition==0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, CURVE_REF_CUSTOM);

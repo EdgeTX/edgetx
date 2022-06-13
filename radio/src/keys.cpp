@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "keys.h"
+#include "timers_driver.h"
+#include "opentx_helpers.h"
 
 #define KEY_LONG_DELAY              32  // long key press minimum duration (x10ms), must be less than KEY_REPEAT_DELAY
 #define KEY_REPEAT_DELAY            40  // press longer than this enables repeat (but does not fire it yet)
@@ -42,6 +44,15 @@
 event_t s_evt;
 struct InactivityData inactivity = {0};
 Key keys[NUM_KEYS];
+
+/**
+ * @brief returns true if there is an event waiting.
+ * 
+ */
+bool isEvent()
+{
+  return s_evt != 0;
+}
 
 event_t getEvent(bool trim)
 {

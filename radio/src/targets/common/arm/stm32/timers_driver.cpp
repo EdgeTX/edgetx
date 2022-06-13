@@ -52,7 +52,14 @@ void stop1msTimer()
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
 }
 
-static void interrupt1ms()
+static uint32_t watchdogTimeout = 0;
+
+void watchdogSuspend(uint32_t timeout)
+{
+  watchdogTimeout = timeout;
+}
+
+void interrupt1ms()
 {
   static uint8_t pre_scale; // Used to get 10 Hz counter
 
@@ -67,8 +74,7 @@ static void interrupt1ms()
 #endif
 
   // 5ms loop
-  if (pre_scale == 5 || pre_scale == 10)
-  {
+  if (pre_scale == 5 || pre_scale == 10) {
 #if defined(HAPTIC)
     DEBUG_TIMER_START(debugTimerHaptic);
     HAPTIC_HEARTBEAT();
@@ -77,9 +83,14 @@ static void interrupt1ms()
   }
   
   // 10ms loop
-  if (pre_scale == 10)
-	{
+  if (pre_scale == 10) {
     pre_scale = 0;
+
+    if (watchdogTimeout) {
+      watchdogTimeout -= 1;
+      WDG_RESET();  // Retrigger hardware watchdog
+    }
+
     DEBUG_TIMER_START(debugTimerPer10ms);
     DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
     per10ms();

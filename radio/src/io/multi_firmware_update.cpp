@@ -82,8 +82,6 @@ static const etx_serial_init serialInitParams = {
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = true,
-  .on_receive = intmoduleFifoReceive,
-  .on_error = intmoduleFifoError,
 };
 
 class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
@@ -130,6 +128,7 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 };
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 {
   public:
@@ -143,15 +142,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) override
     {
-#if !defined(EXTMODULE_USART)
-      GPIO_InitTypeDef GPIO_InitStructure;
-      GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_GPIO_PIN;
-      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-      GPIO_Init(EXTMODULE_TX_GPIO, &GPIO_InitStructure);
-#endif
+      extmoduleInitTxPin();
 
       if (inverted)
         telemetryPortInvertedInit(57600);
@@ -166,9 +157,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void sendByte(uint8_t byte) const override
     {
-#if defined(HARDWARE_EXTERNAL_MODULE)
       extmoduleSendInvertedByte(byte);
-#endif
     }
 
     void clear() const override
@@ -186,6 +175,7 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
       clear();
     }
 };
+#endif
 
 class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
 {
@@ -618,14 +608,16 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   }
 
   std::unique_ptr<MultiFirmwareUpdateDriver> driver;
-  if (module == EXTERNAL_MODULE)
-    driver.reset(new MultiExternalUpdateDriver());
 #if defined(INTERNAL_MODULE_MULTI)
-  else if (module == INTERNAL_MODULE)
+  if (type == MULTI_TYPE_MULTIMODULE && module == INTERNAL_MODULE)
     driver.reset(new MultiInternalUpdateDriver());
 #endif
-  else if (type == MULTI_TYPE_ELRS)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (type == MULTI_TYPE_MULTIMODULE && module == EXTERNAL_MODULE)
+    driver.reset(new MultiExternalUpdateDriver());
+  if (type == MULTI_TYPE_ELRS && module == EXTERNAL_MODULE)
     driver.reset(new MultiExtSportUpdateDriver());
+#endif
 
   pausePulses();
 

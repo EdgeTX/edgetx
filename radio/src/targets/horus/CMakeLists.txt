@@ -89,7 +89,16 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)    
     add_definitions(-DMANUFACTURER_JUMPER)
+    if (NOT BLUETOOTH)
+      set(AUX2_SERIAL ON)
+    endif()
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
     set(LUA_EXPORT lua_export_t16)
@@ -97,8 +106,9 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
-    option(INTERNAL_GPS "Support for internal ublox GPS" ON)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)
     set(HARDWARE_TOUCH YES)
+    set(SWSERIALPOWER YES)
     set(USB_CHARGER YES)
     set(DEFAULT_THEME "DARKBLUE")
     add_definitions(-DMANUFACTURER_RADIOMASTER)
@@ -106,6 +116,10 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     set(LUA_EXPORT lua_export_t16)
@@ -113,8 +127,17 @@ if (PCB STREQUAL X10)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" ON)    
     set(HARDWARE_TOUCH YES)
     add_definitions(-DMANUFACTURER_JUMPER)
+    if (NOT BLUETOOTH)
+      set(AUX2_SERIAL ON)
+    endif()
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+      )
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -122,6 +145,7 @@ if (PCB STREQUAL X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   endif()
 elseif (PCB STREQUAL X12S)
+  set(HARDWARE_TOUCH YES)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
   set(FLAVOUR x12s)
   set(BLUETOOTH ON)
@@ -155,7 +179,6 @@ add_definitions(-DPCBREV_${PCBREV})
 set(RADIO_DEPENDENCIES
   ${RADIO_DEPENDENCIES}
   ${BITMAPS_TARGET}
-  truetype_fonts
   )
 
 set(FIRMWARE_DEPENDENCIES datacopy)
@@ -225,7 +248,10 @@ set(GVAR_SCREEN model_gvars.cpp)
 if(HARDWARE_TOUCH)
   set(TOUCH_DRIVER tp_gt911.cpp i2c_driver.cpp)
   add_definitions(-DHARDWARE_TOUCH)
-  set(SOFTWARE_KEYBOARD ON)
+endif()
+
+if(SWSERIALPOWER)
+  add_definitions(-DSWSERIALPOWER)
 endif()
 
 if(USB_CHARGER)
@@ -304,50 +330,20 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
   )
 
-MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
-  if (WIN32)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  else()
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  endif()
-
-  # Build an array of string from the GCC output
-  string(REPLACE "\n" ";" _gcc_output "${_gcc_output}")
-
-  set(_capture_include FALSE)
-  set(_include_path "")
-
-  # Go through the lines and capture between '"#include <...> search starts here:"' and 'End of search list.'
-  foreach(_line ${_gcc_output})
-    if(${_line} STREQUAL "End of search list.")
-      set(_capture_include FALSE)
-    endif()
-
-    if(_capture_include)
-      # Remove the leading and trailing empty characters
-      string(REPLACE "\r" "" _line ${_line})
-      string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I\"${_line}\"")
-    endif()
-
-    if(${_line} STREQUAL "#include <...> search starts here:")
-      set(_capture_include TRUE)
-    endif()
-  endforeach()
-  set(${gcc_include_path} ${_include_path})
-ENDMACRO()
-
 if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(gcc_include_path)
-
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBHORUS -DPCB${PCB} -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h
+      -DPCBHORUS -DPCB${PCB} -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU
+      -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32
+      -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include
+      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include
+      -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG}
+      > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
     )
-
-  add_custom_target(datacopy
-    DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    )
+  add_custom_target(datacopy DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp)
 endif()

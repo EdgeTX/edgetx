@@ -309,7 +309,7 @@ static const etx_serial_driver_t usbSerialDriver = {
 };
 
 const etx_serial_port_t UsbSerialPort = {
-  "VCP",
+  "USB-VCP",
   &usbSerialDriver,
   nullptr,
 };

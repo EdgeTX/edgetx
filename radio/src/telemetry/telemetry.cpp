@@ -31,6 +31,11 @@
   #include "libopenui.h"
 #endif
 
+#if !defined(SIMU)
+  #include <FreeRTOS/include/FreeRTOS.h>
+  #include <FreeRTOS/include/timers.h>
+#endif
+
 uint8_t telemetryStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 uint8_t telemetryRxBufferCount = 0;
@@ -105,6 +110,45 @@ void telemetryMirrorSend(uint8_t data)
     _sendByte(_ctx, data);
   }
 }
+
+#if !defined(SIMU)
+static TimerHandle_t telemetryTimer = nullptr;
+static StaticTimer_t telemetryTimerBuffer;
+
+static void telemetryTimerCb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  if (!s_pulses_paused) {
+    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+    telemetryWakeup();
+    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
+  }
+}
+
+void telemetryStart()
+{
+  if (!telemetryTimer) {
+    telemetryTimer =
+        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           telemetryTimerCb, &telemetryTimerBuffer);
+  }
+
+  if (telemetryTimer) {
+    if( xTimerStart( telemetryTimer, 0 ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+
+void telemetryStop()
+{
+  if (telemetryTimer) {
+    if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+#endif
 
 void processTelemetryData(uint8_t data)
 {
@@ -275,6 +319,9 @@ void telemetryWakeup()
 {
   uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
 
+  // TODO: needs to be moved to protocol/module init
+  //       as-is, it implies only ONE telemetry protocol
+  //       enabled at the same time
   if (telemetryProtocol != requiredTelemetryProtocol) {
     telemetryInit(requiredTelemetryProtocol);
   }

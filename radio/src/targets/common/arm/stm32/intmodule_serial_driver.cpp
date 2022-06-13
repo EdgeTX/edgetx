@@ -23,9 +23,9 @@
 #include "intmodule_serial_driver.h"
 #include "stm32_usart_driver.h"
 #include "board.h"
+#include "fifo.h"
 
-#include "io/frsky_pxx2.h"
-ModuleFifo intmoduleFifo;
+Fifo<uint8_t, INTMODULE_FIFO_SIZE> intmoduleFifo;
 
 #if !defined(INTMODULE_DMA_STREAM)
 static uint8_t * intmoduleTxBufferData;
@@ -54,14 +54,9 @@ static etx_serial_callbacks_t intmodule_driver = {
 };
 
 // TODO: move this somewhere else
-void intmoduleFifoReceive(uint8_t data)
+static void intmoduleFifoReceive(uint8_t data)
 {
   intmoduleFifo.push(data);
-}
-
-void intmoduleFifoError()
-{
-  intmoduleFifo.errors++;
 }
 
 static const LL_GPIO_InitTypeDef intmoduleUSART_PinDef = {
@@ -110,8 +105,8 @@ void* intmoduleSerialStart(const etx_serial_init* params)
   //  - the UART seems to block when initialised with baudrate = 0
 
   // init callbacks
-  intmodule_driver.on_receive = params->on_receive;
-  intmodule_driver.on_error = params->on_error;
+  intmodule_driver.on_receive = intmoduleFifoReceive;
+  intmodule_driver.on_error = nullptr;
 
   stm32_usart_init(&intmoduleUSART, params);
   return nullptr;

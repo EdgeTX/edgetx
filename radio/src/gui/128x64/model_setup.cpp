@@ -424,6 +424,9 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     NUM_SWITCHES - 1, /* Switch warning */
 #endif
 
+static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
+static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
+
 void menuModelSetup(event_t event)
 {
   int8_t old_editMode = s_editMode;
@@ -457,7 +460,7 @@ void menuModelSetup(event_t event)
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
     0, // Global functions
-    
+
     0, // ADC Jitter filter
 
     REGISTRATION_ID_ROWS
@@ -668,13 +671,13 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_FS_STARTUP:
       {
-        char c;
+        const char* s;
         lcdDrawText(0, y, INDENT "Start", menuHorizontalPosition < 0 ? attr : 0);
         for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
           uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
-          c = STR_CHAR_UP STR_CHAR_DOWN "="[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
+          s = _fct_sw_start[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
           lcdDrawNumber(MODEL_SETUP_2ND_COLUMN - (2 + FW) + i * 2 * FW, y, i + 1, 0);
-          lcdDrawChar(lcdNextPos, y, c, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+          lcdDrawText(lcdNextPos, y, s, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
           if (attr && menuHorizontalPosition == i) {
             CHECK_INCDEC_MODELVAR(event, startPos, 0, 2);
           }
@@ -755,7 +758,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_WARNING:
         g_model.disableThrottleWarning = !editCheckBox(!g_model.disableThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLE_WARNING, attr, event);
         break;
-      
+
       case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING:
         g_model.enableCustomThrottleWarning = editCheckBox(g_model.enableCustomThrottleWarning, MODEL_SETUP_2ND_COLUMN, y, STR_CUSTOM_THROTTLE_WARNING, attr, event);
         break;
@@ -781,9 +784,9 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
-          #define FIRSTSW_STR   STR_VSRCRAW+(MIXSRC_FIRST_SWITCH-MIXSRC_Rud+1)*length
+          #define FIRSTSW_STR   (&STR_VSRCRAW[MIXSRC_FIRST_SWITCH-MIXSRC_FIRST_STICK+1])
           uint8_t switchWarningsCount = getSwitchWarningsCount();
-          uint8_t length = STR_VSRCRAW[0];
+          //uint8_t length = STR_VSRCRAW[0];
           horzpos_t l_posHorz = menuHorizontalPosition;
 
           if (i>=NUM_BODY_LINES-2 && getSwitchWarningsCount() > MAX_SWITCH_PER_LINE*(NUM_BODY_LINES-i)) {
@@ -853,12 +856,12 @@ void menuModelSetup(event_t event)
                 s_editMode = 0;
 #endif
               }
-              c = (" " STR_CHAR_UP "-" STR_CHAR_DOWN)[states & 0x03];
               lcdDrawSizedText(
                   MODEL_SETUP_2ND_COLUMN + qr.rem * ((2 * FW) + 1),
-                  y + FH * qr.quot, FIRSTSW_STR + (i * length) + 3, 1,
+                  y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH) - 1, 1,
                   attr && (menuHorizontalPosition == current) ? INVERS : 0);
-              lcdDrawChar(lcdNextPos, y + FH * qr.quot, c);
+              lcdDrawText(lcdNextPos, y + FH * qr.quot,
+                          getSwitchWarnSymbol(states & 0x03));
               ++current;
             }
             states >>= 3;
@@ -873,7 +876,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_POTS_WARNING:
         lcdDrawTextAlignedLeft(y, STR_POTWARNING);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, "\004""OFF\0""Man\0""Auto", g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, _pots_warn_modes, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
         if (attr && (menuHorizontalPosition == 0)) {
           CHECK_INCDEC_MODELVAR(event, g_model.potsWarnMode, POTS_WARN_OFF, POTS_WARN_AUTO);
           storageDirty(EE_MODEL);
@@ -906,12 +909,13 @@ void menuModelSetup(event_t event)
             }
             else {
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && !(g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 
-              // TODO add a new function
-              lcdDrawSizedText(x, y, STR_VSRCRAW+2+STR_VSRCRAW[0]*(NUM_STICKS+1+i), STR_VSRCRAW[0]-1, flags);
+              // skip "---" (+1) and source symbol (+2)
+              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
+              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
               x = lcdNextPos+3;
             }
           }
@@ -935,12 +939,12 @@ void menuModelSetup(event_t event)
         }
         break;
 
-      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:      
+      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:
         lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);
         drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noGlobalFunctions, attr);
         if (attr) g_model.noGlobalFunctions = !checkIncDecModel(event, !g_model.noGlobalFunctions, 0, 1);
         break;
-      
+
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
         g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
         break;
@@ -1014,7 +1018,10 @@ void menuModelSetup(event_t event)
                 if (isModuleXJT(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
                   if (checkIncDec_Ret) {
-                    g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
+                    if (isModuleXJTLite(moduleIdx))
+                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_LITE_PXX2;
+                    else
+                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
                     g_model.moduleData[moduleIdx].channelsStart = 0;
                     g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
                   }

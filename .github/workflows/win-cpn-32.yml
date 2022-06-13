@@ -9,7 +9,7 @@ on:
     paths:
       - '.github/workflows/win_cpn-32.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   pull_request:
     branches:
@@ -17,7 +17,7 @@ on:
     paths:
       - '.github/workflows/win_cpn-32.yml'
       - 'companion/**'
-      - 'tools/build-companion-nightly.sh'
+      - 'tools/build-companion.sh'
 
   workflow_dispatch:
 
@@ -51,6 +51,8 @@ jobs:
         run: |
           pacman -S --noconfirm mingw-w64-i686-cmake \
                                 mingw-w64-i686-python-pip \
+                                mingw-w64-i686-python-pillow \
+                                mingw-w64-i686-python-lz4 \
                                 mingw-w64-i686-arm-none-eabi-gcc \
                                 mingw-w64-i686-libjpeg-turbo \
                                 mingw-w64-i686-zlib \
@@ -64,7 +66,7 @@ jobs:
                                 mingw-w64-i686-SDL \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis
-          pip install Pillow clang
+          python -m pip install clang
 
       - name: Cache Qt
         id: cache-qt
@@ -91,10 +93,10 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          tools/build-companion-nightly-win32.sh "$(pwd)" "$(pwd)/output/"
+          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-        run: echo "artifact_name=edgetx-cpn-win-32-${GITHUB_REF##*/}" >> $GITHUB_ENV
+        run: echo "artifact_name=edgetx-cpn-win32-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2

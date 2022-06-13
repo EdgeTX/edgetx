@@ -442,6 +442,23 @@ void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
 
+#if defined(STICK_DEAD_ZONE)
+  static int16_t P_OFFSET = 0;
+  static int16_t N_OFFSET = 0;
+  static float aParam = 0.0f;
+  static float bParam = 0.0f;
+  static int16_t lastDeadZone = -1;
+
+  if (lastDeadZone != g_eeGeneral.stickDeadZone) {
+    P_OFFSET =
+        (g_eeGeneral.stickDeadZone ? 2 << (g_eeGeneral.stickDeadZone - 1) : 0);
+    N_OFFSET = (-1) * P_OFFSET;
+    aParam = 1024.0 / (1024.0 - (float)P_OFFSET);
+    bParam = 1024.0 * (aParam - 1.0f);
+    lastDeadZone = g_eeGeneral.stickDeadZone;
+  }
+#endif
+
   for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
     // normalization [0..2048] -> [-1024..1024]
     uint8_t ch = (i < NUM_STICKS ? CONVERT_MODE(i) : i);
@@ -460,6 +477,22 @@ void evalInputs(uint8_t mode)
 
     if (v < -RESX) v = -RESX;
     if (v >  RESX) v =  RESX;
+
+#if defined(STICK_DEAD_ZONE)
+    // dead zone invented by FlySky in my opinion it should goes into ADC
+    // float calculations are not efficient
+    if (g_eeGeneral.stickDeadZone && ch != THR_STICK) {
+      if (v > P_OFFSET) {
+        // y=ax+b
+        v = (int)((aParam * (float)v) - bParam);
+      } else if ((v <= P_OFFSET) && (v >= N_OFFSET)) {
+        v = 0;
+      } else if (v < N_OFFSET) {
+        // y=ax+b
+        v = (int)((aParam * (float)v) + bParam);
+      }
+    }
+#endif
 
     if (g_model.throttleReversed && ch==THR_STICK) {
       v = -v;

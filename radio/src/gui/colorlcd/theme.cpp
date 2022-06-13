@@ -30,21 +30,13 @@ const BitmapBuffer * OpenTxTheme::error = nullptr;
 const BitmapBuffer * OpenTxTheme::busy = nullptr;
 const BitmapBuffer * OpenTxTheme::shutdown = nullptr;
 
-const uint8_t LBM_FOLDER[] = {
-#include "mask_folder.lbm"
-};
-
-const uint8_t LBM_DROPDOWN[] = {
-#include "mask_dropdown.lbm"
-};
-
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
 constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
-const uint8_t LBM_USB_PLUGGED[] = {
+const uint8_t _LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
 };
-
+STATIC_LZ4_BITMAP(LBM_USB_PLUGGED);
 
 const uint8_t error_bitmap[] = {
 #include "mask_error.lbm"
@@ -86,11 +78,11 @@ void OpenTxTheme::init() const
 void OpenTxTheme::load() const
 {
   if (!error)
-    error = BitmapBuffer::load8bitMask(error_bitmap);
+    error = BitmapBuffer::load8bitMaskLZ4(error_bitmap);
   if (!busy)
-    busy = BitmapBuffer::load8bitMask(busy_bitmap);
+    busy = BitmapBuffer::load8bitMaskLZ4(busy_bitmap);
   if (!shutdown)
-    shutdown = BitmapBuffer::load8bitMask(shutdown_bitmap);
+    shutdown = BitmapBuffer::load8bitMaskLZ4(shutdown_bitmap);
 }
 
 ZoneOptionValue * OpenTxTheme::getOptionValue(unsigned int index) const
@@ -182,52 +174,6 @@ void OpenTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
   }
 }
 
-void OpenTxTheme::drawChoice(BitmapBuffer * dc, ChoiceBase * choice, const char * str) const
-{
-  LcdFlags textColor;
-  if (choice->isEditMode())
-    textColor = COLOR_THEME_PRIMARY2;
-  else if (choice->hasFocus())
-    textColor = COLOR_THEME_PRIMARY2;
-  // else if (!str || str[0] == '\0')
-  //   textColor = COLOR_THEME_PRIMARY2;
-  else
-    textColor = COLOR_THEME_SECONDARY1;
-
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP,
-               str[0] == '\0' ? "---" : str, textColor);
-
-  dc->drawBitmapPattern(
-      choice->getRect().w - 20, (choice->getRect().h - 11) / 2,
-      choice->getType() == CHOICE_TYPE_FOLDER ? LBM_FOLDER : LBM_DROPDOWN,
-      textColor);
-}
-
-void OpenTxTheme::drawSlider(BitmapBuffer *dc, int vmin, int vmax, int value,
-                             const rect_t &rect, bool edit, bool focus) const
-{
-  int val = limit(vmin, value, vmax);
-  int w = divRoundClosest((rect.w - 16) * (val - vmin), vmax - vmin);
-
-  LcdFlags color = COLOR_THEME_SECONDARY1;
-  if (focus) {
-    color = COLOR_THEME_FOCUS;
-  }
-
-  dc->drawBitmapPattern(0, 11, LBM_SLIDER_BAR_LEFT, color);
-  dc->drawSolidFilledRect(4, 11, rect.w - 8, 4, color);
-  dc->drawBitmapPattern(rect.w - 4, 11, LBM_SLIDER_BAR_RIGHT, color);
-
-  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_OUT, color);
-  dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_MID, COLOR_THEME_PRIMARY2);
-
-  if (edit) {
-    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, COLOR_THEME_EDIT);
-  } else {
-    dc->drawBitmapPattern(w, 5, LBM_SLIDER_POINT_IN, COLOR_THEME_PRIMARY2);
-  }
-}
-
 void OpenTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
 {
   // draw USB icon
@@ -266,9 +212,6 @@ void loadTheme()
     loadTheme(newTheme);
   else
     loadTheme(defaultTheme);
-//  else {
-//    loadTheme(theme);
-//  }
 }
 
 MenuWindowContent * createMenuWindow(Menu * menu)

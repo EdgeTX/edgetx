@@ -21,46 +21,42 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
+#include "lz4_bitmaps.h"
 
-const uint8_t LBM_LAYOUT_1P2[] = {
+const uint8_t _LBM_LAYOUT_1P2[] = {
 #include "mask_layout1+2.lbm"
 };
+STATIC_LZ4_BITMAP(LBM_LAYOUT_1P2);
 
-const ZoneOption OPTIONS_LAYOUT_1P2[] =  {
-  LAYOUT_COMMON_OPTIONS,
-  LAYOUT_OPTIONS_END
-};
+const ZoneOption OPTIONS_LAYOUT_1P2[] = {LAYOUT_COMMON_OPTIONS,
+                                         LAYOUT_OPTIONS_END};
 
-class Layout1P2: public Layout
+class Layout1P2 : public Layout
 {
-  public:
-    Layout1P2(const LayoutFactory * factory, Layout::PersistentData * persistentData):
-      Layout(factory, persistentData)
-    {
+ public:
+  Layout1P2(Window* parent, const LayoutFactory* factory,
+            Layout::PersistentData* persistentData) :
+      Layout(parent, factory, persistentData)
+  {
+  }
+
+  unsigned int getZonesCount() const override { return 3; }
+
+  rect_t getZone(unsigned int index) const override
+  {
+    rect_t zone = getMainZone();
+
+    if (index == 0) {
+      return {zone.x, zone.y, zone.w, zone.h / 2};
+    } else if (index == 1) {
+      return {zone.x, zone.y + zone.h / 2, zone.w, zone.h / 4};
+    } else {
+      return {zone.x, zone.y + zone.h * 3 / 4, zone.w, zone.h / 4};
     }
 
-    unsigned int getZonesCount() const override
-    {
-      return 3;
-    }
-
-    rect_t getZone(unsigned int index) const override
-    {
-      rect_t zone = getMainZone();
-
-      if (index == 0) {
-        return {zone.x, zone.y, zone.w, zone.h / 2};
-      }
-      else if (index == 1) {
-        return {zone.x, zone.y + zone.h / 2, zone.w, zone.h / 4};
-      }
-			else
-			{
-        return {zone.x, zone.y + zone.h * 3 / 4, zone.w, zone.h / 4};				
-			}
-
-      return zone;
-    }
+    return zone;
+  }
 };
 
-BaseLayoutFactory<Layout1P2> Layout1P2("Layout1P2", "1 + 2", LBM_LAYOUT_1P2, OPTIONS_LAYOUT_1P2);
+BaseLayoutFactory<Layout1P2> Layout1P2("Layout1P2", "1 + 2", LBM_LAYOUT_1P2,
+                                       OPTIONS_LAYOUT_1P2);

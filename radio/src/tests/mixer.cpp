@@ -337,7 +337,11 @@ TEST_F(TrimsTest, CopySticksToOffset)
   anaInValues[ELE_STICK] = -100;
   evalMixes(1);
   copySticksToOffset(1);
+#if defined(STICK_DEAD_ZONE)
+  EXPECT_EQ(g_model.limitData[1].offset, -93);
+#else
   EXPECT_EQ(g_model.limitData[1].offset, -97);
+#endif
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsets)
@@ -444,7 +448,11 @@ TEST_F(TrimsTest, InstantTrim)
 {
   anaInValues[AIL_STICK] = 50;
   instantTrim();
+#if defined(STICK_DEAD_ZONE)
+  EXPECT_EQ(23, getTrimValue(0, AIL_STICK));
+#else
   EXPECT_EQ(25, getTrimValue(0, AIL_STICK));
+#endif
 }
 
 TEST_F(TrimsTest, InstantTrimNegativeCurve)
@@ -459,7 +467,11 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
   g_model.points[4] = 0;
   anaInValues[AIL_STICK] = 512;
   instantTrim();
+#if defined(STICK_DEAD_ZONE)
+  EXPECT_EQ(127, getTrimValue(0, AIL_STICK));
+#else
   EXPECT_EQ(128, getTrimValue(0, AIL_STICK));
+#endif
 }
 
 TEST(Curves, LinearIntpol)

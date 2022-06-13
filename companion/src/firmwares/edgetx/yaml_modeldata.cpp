@@ -33,6 +33,7 @@
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
+#include "version.h"
 
 #include <string>
 
@@ -139,6 +140,15 @@ struct YamlThrTrace {
 
 struct YamlPotsWarnEnabled {
   unsigned int value;
+  const int cnt = CPN_MAX_POTS + CPN_MAX_SLIDERS; //  must not exceed 16 as radio stores in uint16_t
+
+  #define MAXPOTWARNINGS  (CPN_MAX_POTS + CPN_MAX_SLIDERS)
+
+  #if MAXPOTWARNINGS > 16
+  #error Not enough space for pot and slider warnings
+  #endif
+
+  #undef MAXPOTWARNINGS
 
   YamlPotsWarnEnabled() = default;
 
@@ -146,17 +156,17 @@ struct YamlPotsWarnEnabled {
   {
     value = 0;
 
-    for (int i = 0; i < 8; i++) {
-      value |= (*(potsWarnEnabled + i) << (7 - i));
+    for (int i = 0; i < cnt; i++) {
+      value |= (*(potsWarnEnabled + i)) << i;
     }
   }
 
   void toCpn(bool * potsWarnEnabled)
   {
-    memset(potsWarnEnabled, 0, sizeof(bool) * (CPN_MAX_POTS + CPN_MAX_SLIDERS));
+    memset(potsWarnEnabled, 0, sizeof(bool) * cnt);
 
-    for (int i = 1; i <= 8; i++) {
-      *(potsWarnEnabled + (i - 1)) = (bool)((value >> (8 - i)) & 1);
+    for (int i = 0; i < cnt; i++) {
+      *(potsWarnEnabled + i) = (bool)((value >> i) & 1);
     }
   }
 };
@@ -741,6 +751,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   Node node;
   auto board = getCurrentBoard();
 
+  node["semver"] = VERSION;
+
   Node header;
   header["name"] = rhs.name;
   header["bitmap"] = rhs.bitmap;
@@ -853,7 +865,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
   node["jitterFilter"] = jitterFilterLut << rhs.jitterFilter;
 
-  YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
+  YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[0]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
 
   for (int i = 0; i < CPN_MAX_POTS + CPN_MAX_SLIDERS; i++) {
@@ -980,6 +992,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
+  node["semver"] >> rhs.semver;
+
   if (node["header"]) {
     const auto& header = node["header"];
     if (header.IsMap()) {
@@ -1043,7 +1057,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   YamlPotsWarnEnabled potsWarnEnabled;
   node["potsWarnEnabled"] >> potsWarnEnabled.value;
-  potsWarnEnabled.toCpn(&rhs.potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS]);
+  potsWarnEnabled.toCpn(&rhs.potsWarnEnabled[0]);
 
   node["potsWarnPosition"] >> rhs.potsWarnPosition;
 

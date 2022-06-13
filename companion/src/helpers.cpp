@@ -672,6 +672,14 @@ void TableLayout::pushColumnsLeft(int col)
 #endif
 }
 
+void TableLayout::setColumnStretch(int col, int stretch)
+{
+#if defined(TABLE_LAYOUT)
+#else
+  gridWidget->setColumnStretch(col, stretch);
+#endif
+}
+
 QString Helpers::getChecklistsPath()
 {
   return QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/MODELS/");   // TODO : add sub folder to constants

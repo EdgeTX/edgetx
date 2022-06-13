@@ -19,9 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "board.h"
+#include "debug.h"
 #include "FatFs/diskio.h"
 #include "FatFs/ff.h"
+
+#include "sdcard.h"
+#include "audio.h"
 
 #define RAM_START 0x20000000
 

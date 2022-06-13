@@ -35,4 +35,4 @@ endforeach()
 qt5_wrap_cpp(storage_SRCS ${storage_MOC_HDRS})
 
 add_library(storage ${storage_SRCS} ${storage_HDRS})
-target_link_libraries(storage PRIVATE ${CPN_COMMON_LIB})
+target_link_libraries(storage PRIVATE miniz ${CPN_COMMON_LIB})

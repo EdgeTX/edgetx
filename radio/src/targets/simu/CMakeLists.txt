@@ -38,6 +38,16 @@ if(SIMU_LUA_COMPILER)
   add_definitions(-DLUA_COMPILER)
 endif()
 
+if(SIMU_BOOTLOADER)
+  add_definitions(-DSIMU_BOOTLOADER)
+  set(SIMU_SRC ${SIMU_SRC}
+    ../../targets/common/arm/stm32/bootloader/bin_files.cpp
+    ../../targets/common/arm/stm32/bootloader/boot.cpp
+    ../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
+    ../../thirdparty/libopenui/thirdparty/lz4/lz4.c
+    )
+endif()
+
 if(Qt5Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
@@ -58,6 +68,12 @@ if(Qt5Widgets_FOUND)
     endif()
   endif()
 
+  add_custom_command(
+    TARGET ${SIMULATOR_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/plugins/
+    COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:${SIMULATOR_TARGET}> ${CMAKE_BINARY_DIR}/plugins/
+    )
 
   # Introduced at 2.5 - TODO replace with a code change
   # When compiled shared simulators using libopenui and Companion have classes named MainWindow
@@ -110,6 +126,10 @@ else()
   endif()
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+  if(ASAN)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+  endif()
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")

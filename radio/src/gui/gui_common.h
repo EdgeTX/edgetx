@@ -33,9 +33,11 @@
 #define HIDDEN_ROW                     ((uint8_t)-2)
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
+  #define CASE_ROTARY_ENCODER(x) x,
   #define CASE_EVT_ROTARY_LEFT         case EVT_ROTARY_LEFT:
   #define CASE_EVT_ROTARY_RIGHT        case EVT_ROTARY_RIGHT:
 #else
+  #define CASE_ROTARY_ENCODER(x)
   #define CASE_EVT_ROTARY_LEFT
   #define CASE_EVT_ROTARY_RIGHT
 #endif

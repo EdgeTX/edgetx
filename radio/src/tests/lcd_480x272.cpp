@@ -28,11 +28,10 @@
 
 #if defined(COLORLCD)
 
-#include "gui/colorlcd/fonts.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-/*
+
 void convert_RGB565_to_RGB888(uint8_t * dst, const BitmapBuffer * src, coord_t w, coord_t h)
 {
   for(int y = 0; y < src->height(); y++) {
@@ -91,9 +90,11 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   return true;
 }
 
+
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
 
@@ -111,9 +112,8 @@ TEST(Lcd_colorlcd, lines)
 
 TEST(Lcd_colorlcd, vline)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   for (int x=0; x<100; x+=2) {
@@ -124,9 +124,8 @@ TEST(Lcd_colorlcd, vline)
 
 TEST(Lcd_colorlcd, primitives)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_DISABLED);
@@ -155,14 +154,11 @@ TEST(Lcd_colorlcd, primitives)
 
 TEST(Lcd_colorlcd, transparency)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  // , OPACITY(4)
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
-  // , OPACITY(12)
   dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
@@ -204,16 +200,12 @@ TEST(Lcd_colorlcd, transparency)
 #if 0
 TEST(Lcd_colorlcd, fonts)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
-
-  dc.drawText(10, 200, "The quick", COLOR_THEME_SECONDARY1|VERTICAL);
-  dc.drawText(30, 200, "The quick brown fox", COLOR_THEME_SECONDARY1|VERTICAL);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   dc.drawText(50, 25, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXS));
   dc.drawText(50, 40, "The quick", COLOR_THEME_SECONDARY1 | FONT(XS));
@@ -221,8 +213,8 @@ TEST(Lcd_colorlcd, fonts)
   dc.drawText(50, 80, "The quick", COLOR_THEME_SECONDARY1 | FONT(XL));
   dc.drawText(50, 120, "The quick", COLOR_THEME_SECONDARY1 | FONT(XXL));
 
-  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(4));
-  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1|OPACITY(12));
+  dc.drawText(8, 208, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "fonts_" TRANSLATIONS));
 }
@@ -230,9 +222,8 @@ TEST(Lcd_colorlcd, fonts)
 
 TEST(Lcd_colorlcd, clipping)
 {
-  loadFonts();
-
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawSolidVerticalLine(100, 0, LCD_H, COLOR_THEME_SECONDARY1);
@@ -259,6 +250,7 @@ TEST(Lcd_colorlcd, clipping)
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
@@ -274,6 +266,7 @@ TEST(Lcd_colorlcd, bitmap)
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
@@ -286,6 +279,50 @@ TEST(Lcd_colorlcd, masks)
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
 }
 
+#if 0
+#define TEST_CHAR_RIGHT     "\302\200"
+#define TEST_CHAR_LEFT      "\302\201"
+#define TEST_CHAR_UP        "\302\202"
+#define TEST_CHAR_DOWN      "\302\203"
+
+#define TEST_CHAR_DELTA     "\302\210"
+#define TEST_CHAR_STICK     "\302\211"
+#define TEST_CHAR_POT       "\302\212"
+#define TEST_CHAR_SLIDER    "\302\213"
+#define TEST_CHAR_SWITCH    "\302\214"
+#define TEST_CHAR_TRIM      "\302\215"
+#define TEST_CHAR_INPUT     "\302\216"
+#define TEST_CHAR_FUNCTION  "\302\217"
+#define TEST_CHAR_CYC       "\302\220"
+#define TEST_CHAR_TRAINER   "\302\221"
+#define TEST_CHAR_CHANNEL   "\302\222"
+#define TEST_CHAR_TELEMETRY "\302\223"
+#define TEST_CHAR_LUA       "\302\224"
+
+//#define EXTRA_TEST TEST_CHAR_RIGHT TEST_CHAR_LEFT TEST_CHAR_UP TEST_CHAR_DOWN
+#define EXTRA_TEST TEST_CHAR_DELTA TEST_CHAR_STICK TEST_CHAR_POT TEST_CHAR_SLIDER \
+  TEST_CHAR_SWITCH TEST_CHAR_TRIM TEST_CHAR_INPUT
+
+#define EXTRA_TEST2 TEST_CHAR_FUNCTION TEST_CHAR_CYC TEST_CHAR_TRAINER \
+  TEST_CHAR_CHANNEL TEST_CHAR_TELEMETRY TEST_CHAR_LUA
+
+#define EXTRA_FULL EXTRA_TEST EXTRA_TEST2
+
+TEST(Lcd_colorlcd, extra_font)
+{
+  BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.clear(COLOR_THEME_SECONDARY3);
+
+  dc.drawText(10, 25, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XXS));
+  dc.drawText(10, 40, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XS));
+  dc.drawText(10, 55, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(L));
+  dc.drawText(10, 80, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XL));
+  dc.drawText(10, 120, EXTRA_TEST, COLOR_THEME_SECONDARY1 | FONT(XXL));
+  dc.drawText(10, 184, EXTRA_TEST2, COLOR_THEME_SECONDARY1 | FONT(XXL));
+
+  EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "extra"));
+}
+
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
 constexpr coord_t LBM_USB_PLUGGED_H = 110;
 
@@ -296,16 +333,17 @@ const uint8_t LBM_USB_PLUGGED[] = {
 TEST(Lcd_colorlcd, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+
   dc.clear(COLOR2FLAGS(BLACK));
 
   dc.drawText(20, 28, "The quick brown fox jumps over the lazy dog", COLOR2FLAGS(WHITE));
-  dc.drawSolidFilledRect(28, 56, 422, 2, COLOR2FLAGS(RED));
+  dc.drawSolidFilledRect(28, 56, 422, 2, COLOR2FLAGS(RGB(0xFF, 0, 0)));
   dc.drawBitmapPattern(LCD_W/2 - LBM_USB_PLUGGED_W/2,
                        LCD_H/2 - LBM_USB_PLUGGED_H/2,
                        LBM_USB_PLUGGED,
-                       COLOR2FLAGS(BLUE));
+                       COLOR2FLAGS(RGB(0, 0, 0xFF)));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
 }
-*/
+#endif
 #endif

@@ -20,13 +20,19 @@
  */
 
 #include "stm32_hal_ll.h"
-#include "opentx.h"
-
 #include "hal/adc_driver.h"
 #include "hal/serial_driver.h"
 #include "hal/serial_port.h"
 
+#include "board.h"
 #include "timers_driver.h"
+#include "dataconstants.h"
+#include "opentx_types.h"
+#include "globals.h"
+#include "sdcard.h"
+#include "debug.h"
+
+#include <string.h>
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
 #include "aux_serial_driver.h"
@@ -57,7 +63,11 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if HAS_SPORT_UPDATE_CONNECTOR()
+#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
+
+// g_eeGeneral
+#include "opentx.h"
+
 void sportUpdateInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -159,6 +169,16 @@ void boardInit()
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
+#if defined(RADIO_FAMILY_T16)
+  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
+  {
+    FLASH_OB_Unlock();
+    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
+    FLASH_OB_Launch();
+    FLASH_OB_Lock();
+  }
+#endif
+
   pwrInit();
   pwrOn();
   delaysInit();
@@ -241,7 +261,7 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if HAS_SPORT_UPDATE_CONNECTOR()
+#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
   sportUpdateInit();
 #endif
 
@@ -305,18 +325,6 @@ void boardOff()
   while (1) {
 
   }
-}
-
-#if defined (RADIO_TX16S)
-  #define BATTERY_DIVIDER 1495
-#else
-  #define BATTERY_DIVIDER 1629
-#endif 
-
-uint16_t getBatteryVoltage()
-{
-  int32_t instant_vbat = anaIn(TX_VOLTAGE);  // using filtered ADC value on purpose
-  return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) / BATTERY_DIVIDER);
 }
 
 bool isBacklightEnabled()

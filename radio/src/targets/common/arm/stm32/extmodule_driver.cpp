@@ -144,6 +144,17 @@ void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool 
   stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
 }
 
+void extmoduleInitTxPin()
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = extmoduleTimer.GPIO_Pin;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(extmoduleTimer.GPIOx, &pinInit);
+}
+
 // Delay based byte sending @ 57600 bps
 void extmoduleSendInvertedByte(uint8_t byte)
 {

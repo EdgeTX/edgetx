@@ -231,6 +231,7 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
   addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
   addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
+  addAct(ACT_MDL_SAV, "save.png",  SLOT(modelSave()),     tr("Ctrl+Alt+S"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
@@ -338,6 +339,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_PST]->setText(tr("Paste") % (numOnClipbrd ? sp % modelsAddTxt : ns));
   action[ACT_MDL_INS]->setEnabled(numOnClipbrd && (hasModelSlotSelcted || catsSelected));
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
+  action[ACT_MDL_SAV]->setEnabled(modelsSelected);
+  action[ACT_MDL_SAV]->setText(tr("Save") % (modelsSelected ? sp % modelsRemvTxt : ns));
 
   if (hasCats && action[ACT_MDL_MOV]->menu()) {
     action[ACT_MDL_MOV]->setVisible(true);
@@ -386,6 +389,8 @@ void MdiChild::retranslateUi()
 
   action[ACT_MDL_ADD]->setText(tr("Add Model"));
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
+  action[ACT_MDL_SAV]->setText(tr("Save Model"));
+  action[ACT_MDL_SAV]->setIconText(tr("Save"));
   action[ACT_MDL_RTR]->setText(tr("Restore from Backup"));
   action[ACT_MDL_WIZ]->setText(tr("Model Wizard"));
   action[ACT_MDL_DFT]->setText(tr("Set as Default"));
@@ -429,6 +434,7 @@ QList<QAction *> MdiChild::getEditActions(bool incCatNew)
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
   actGrp.append(getAction(ACT_MDL_MOV));
+  actGrp.append(getAction(ACT_MDL_SAV));
   return actGrp;
 }
 
@@ -903,8 +909,16 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
   setSelectedModel(modelIndex);
   //qDebug() << modelIndex << categoryIndex << isNewModel;
 
-  if (isNewModel && g.newModelAction() == AppData::MODEL_ACT_WIZARD)
-    openModelWizard(modelIndex);
+  if (isNewModel) {
+    if (g.newModelAction() == AppData::MODEL_ACT_WIZARD)
+      openModelWizard(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_TEMPLATE)
+      openModelTemplate(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_PROMPT)
+      openModelPrompt(modelIndex);
+    else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
+      openModelEditWindow(modelIndex);
+  }
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
 
@@ -1038,10 +1052,32 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       }
     }
     else {  // pasting on top of a slot
-      if (!radioData.models[modelIdx].isEmpty() && !deletesList.contains(modelIdx))
-        ok = askQuestion(tr("You are replacing an existing model, are you sure?")) == QMessageBox::Yes;
-      if (ok)
-        radioData.models[modelIdx] = modelsList[i];
+      if (!radioData.models[modelIdx].isEmpty() && !deletesList.contains(modelIdx)) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(CPN_STR_APP_NAME);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
+        QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+        QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+        QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == overwriteButton) {
+          radioData.models[modelIdx] = modelsList[i];
+          ok = true;
+        }
+        else if (msgBox.clickedButton() == insertButton) {
+          ok = insertModelRows(modelIdx, 1);
+          if (ok) {
+            radioData.models[modelIdx] = modelsList[i];
+            ++inserts;
+          }
+        }
+        else {
+          ok = false;
+        }
+      }
     }
 
     if (ok) {
@@ -1340,6 +1376,11 @@ void MdiChild::newFile(bool createDefaults)
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 {
+  if (getStorageType(filename) == STORAGE_TYPE_YML) {
+    newFile(false);
+    resetCurrentFile = false;
+  }
+
   Storage storage(filename);
   if (!storage.load(radioData)) {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
@@ -1354,6 +1395,10 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
   if (resetCurrentFile) {
     setCurrentFile(filename);
   }
+
+  //  set after successful import
+  if (getStorageType(filename) == STORAGE_TYPE_YML)
+    setModified();
 
   //  For etx files this will never be true as any conversion occurs when parsing file
   if (!Boards::isBoardCompatible(storage.getBoard(), getCurrentBoard())) {
@@ -1696,4 +1741,134 @@ void MdiChild::onInternalModuleChanged()
   }
 
   delete fim;
+}
+
+void MdiChild::openModelTemplate(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QString filename = QFileDialog::getOpenFileName(this, tr("Select a model template file"), QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES"), YML_FILES_FILTER);
+
+  if (filename.isEmpty())
+    return;
+
+  //  validate like read single model
+  //  if okay copy into current model slot
+
+  RadioData data;
+
+  Storage storage(filename);
+  if (!storage.load(data)) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+    return;
+  }
+
+  QString warning = storage.warning();
+  if (!warning.isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
+  }
+
+  radioData.models[row] = data.models[0];
+
+  //  reset module bindings
+  for (int i = 0; i < CPN_MAX_MODULES; i++) {
+    radioData.models[row].moduleData[i].modelId = row + 1;
+  }
+
+  setModified();
+  setSelectedModel(row);
+
+  openModelEditWindow(row);
+}
+
+void MdiChild::openModelPrompt(int row)
+{
+  if (row < 0 && (row = getCurrentModel()) < 0)
+    return;
+
+  QMessageBox msgBox;
+  msgBox.setWindowTitle(CPN_STR_APP_NAME);
+  msgBox.setIcon(QMessageBox::Question);
+  msgBox.setText(tr("Add a new model using"));
+  QPushButton *defaultsButton = msgBox.addButton(tr("Defaults"),QMessageBox::ActionRole);
+  QPushButton *editButton = msgBox.addButton(tr("Edit"),QMessageBox::ActionRole);
+  QPushButton *wizardButton = msgBox.addButton(tr("Wizard"),QMessageBox::ActionRole);
+  QPushButton *templateButton = msgBox.addButton(tr("Template"),QMessageBox::ActionRole);
+  QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+
+  msgBox.exec();
+
+  if (msgBox.clickedButton() == cancelButton) {
+      if (!deleteModel(row))
+        QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Failed to remove temporary model!"));
+      return;
+  }
+  else if (msgBox.clickedButton() == defaultsButton) {
+      //  nothing to do here
+      return;
+  }
+  else if (msgBox.clickedButton() == editButton) {
+      openModelEditWindow(row);
+  }
+  else if (msgBox.clickedButton() == wizardButton) {
+      openModelWizard(row);
+  }
+  else if (msgBox.clickedButton() == templateButton) {
+      openModelTemplate(row);
+  }
+
+  return;
+}
+
+void MdiChild::modelSave()
+{
+  saveSelectedModels();
+}
+
+unsigned MdiChild::saveModels(const QVector<int> modelIndices)
+{
+  unsigned saves = 0;
+
+  foreach(const int idx, modelIndices) {
+    if (idx < 0 || idx >= (int)radioData.models.size())
+      continue;
+
+    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
+    qDebug() << path;
+
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save model"), path, YML_FILES_FILTER);
+
+    if (filename.isEmpty())
+      return false;
+
+    if (QFileInfo(filename).suffix() != "yml")
+      return false;
+
+    Storage storage(filename);
+
+    if (!storage.writeModel(radioData, idx)) {
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+      return false;
+    }
+
+    ++saves;
+  }
+
+  return saves;
+}
+
+bool MdiChild::saveModel(const int modelIndex)
+{
+  QVector<int> list = QVector<int>() << modelIndex;
+
+  if (saveModels(list) == 1)
+    return true;
+  else
+    return false;
+}
+
+void MdiChild::saveSelectedModels()
+{
+  saveModels(getSelectedModels());
 }

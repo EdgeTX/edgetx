@@ -197,6 +197,7 @@ add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(thirdparty/maxlibqt/src/widgets)
+add_subdirectory(thirdparty/miniz)
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "Enable parse tools" FORCE)
@@ -303,7 +304,7 @@ qt5_wrap_ui(companion_SRCS ${companion_UIS})
 qt5_wrap_cpp(companion_SRCS ${companion_MOC_HDRS})
 
 add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${icon_RC})
-target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot shared ${CPN_COMMON_LIB})
+target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot miniz shared ${CPN_COMMON_LIB})
 
 PrintTargetReport("${COMPANION_NAME}")
 
@@ -317,9 +318,6 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE ${CPN_COMMON_LIB})
 add_subdirectory(tests)
 
 ############# Install ####################
-
-# Generate list of simulator plugins, used by all platforms
-file(GLOB simulator_plugins "${CMAKE_BINARY_DIR}/*edgetx-*simulator${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # the current flavour is not automatically added if build in the current cmake iteration, so always
 # add its library name to be sure
@@ -354,16 +352,11 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-if(SIMU_TARGET)
-  get_property(current_plugin TARGET edgetx-${FLAVOUR}-simulator PROPERTY LOCATION)
-  list(APPEND simulator_plugins "${current_plugin}")
-endif()
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(FILES ${simulator_plugins} DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION share/applications RENAME companion${C9X_NAME_SUFFIX}.desktop)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION share/applications RENAME simulator${C9X_NAME_SUFFIX}.desktop)
   if(${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
@@ -383,13 +376,16 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
   # Linux specific code
   set(OperatingSystem "Linux")
+  # Shortcut target
+  add_custom_target(companion DEPENDS ${COMPANION_NAME})
+  add_custom_target(simulator DEPENDS ${SIMULATOR_NAME})
 elseif(WIN32)
   set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
   message(STATUS "Install to " ${INSTALL_DESTINATION})
   # companion & simulator binaries
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
-  install(FILES ${simulator_plugins} DESTINATION ${INSTALL_DESTINATION})
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
   # supporting utilities
   set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
   foreach(tmpfile ${INSTALL_TEMP_FILES})
@@ -491,7 +487,7 @@ IF(APPLE)
       RUNTIME DESTINATION bin COMPONENT Runtime
       )
 
-  install(FILES ${simulator_plugins} DESTINATION "${companion_res_dir}" COMPONENT Runtime)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # Write qt.conf to tell qt where to find it plugins
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"

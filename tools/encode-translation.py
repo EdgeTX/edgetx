@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -35,26 +35,26 @@ def main():
     out_file = codecs.open(args.output, 'w', 'utf-8')
 
     for line in in_file.readlines():
-        # Do the special chars replacements
-        if args.bwlcd == "F":        
-            for before, after in get_chars_encoding(args.language).items():
-                line = line.replace(before, after)
-        else:
-            for before, after in get_chars_encoding_BW(args.language).items():
-                line = line.replace(before, after)
+        # # Do the special chars replacements
+        # if args.bwlcd == "F":        
+        #     for before, after in get_chars_encoding(args.language).items():
+        #         line = line.replace(before, after)
+        # else:
+        #     for before, after in get_chars_encoding_BW(args.language).items():
+        #         line = line.replace(before, after)
 
-        if line.startswith("#define ZSTR_"):
-            before = line[32:-2]
-            after = ""
-            for c in before:
-                if ord('A') <= ord(c) <= ord('Z'):
-                    c = "\\%03o" % (ord(c) - ord('A') + 1)
-                elif ord('a') <= ord(c) <= ord('z'):
-                    c = "\\%03o" % (-ord(c) + ord('a') + 255)
-                elif ord('0') <= ord(c) <= ord('9'):
-                    c = "\\%03o" % (ord(c) - ord('0') + 27)
-                after = after + c
-            line = line[:32] + after + line[-2:]
+        # if line.startswith("#define ZSTR_"):
+        #     before = line[32:-2]
+        #     after = ""
+        #     for c in before:
+        #         if ord('A') <= ord(c) <= ord('Z'):
+        #             c = "\\%03o" % (ord(c) - ord('A') + 1)
+        #         elif ord('a') <= ord(c) <= ord('z'):
+        #             c = "\\%03o" % (-ord(c) + ord('a') + 255)
+        #         elif ord('0') <= ord(c) <= ord('9'):
+        #             c = "\\%03o" % (ord(c) - ord('0') + 27)
+        #         after = after + c
+        #     line = line[:32] + after + line[-2:]
         out_file.write(line)
 
     out_file.close()

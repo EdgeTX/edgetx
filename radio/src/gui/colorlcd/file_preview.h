@@ -24,56 +24,21 @@
 
 class FilePreview : public Window
 {
-  public:
-    FilePreview(Window *parent, const rect_t &rect, bool drawCentered = true) :
-            Window(parent, rect, NO_SCROLLBAR),
-            _drawCentered(drawCentered)
-    {
-    }
-    
-    ~FilePreview()
-    {
-      if (bitmap != nullptr)
-        delete bitmap;
-    }
+ public:
+  FilePreview(Window *parent, const rect_t &rect, bool drawCentered = true);
+  ~FilePreview();
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "FilePreview";
-    }
+  std::string getName() const override { return "FilePreview"; }
 #endif
 
-    void setFile(const char *filename)
-    {
-      if (bitmap != nullptr)
-        delete bitmap;
-      bitmap = nullptr;
+  void setFile(const char *filename);
+  coord_t getBitmapWidth() const;
+  coord_t getBitmapHeight() const;
 
-      const char *ext = getFileExtension(filename);
-      if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
-        bitmap = BitmapBuffer::loadBitmap(filename);
-      } else {
-        bitmap = nullptr;
-      }
-      invalidate();
-    }
+  void paint(BitmapBuffer *dc) override;
 
-    void paint(BitmapBuffer *dc) override
-    {
-      dc->setFormat(BMP_RGB565);
-      coord_t y = _drawCentered ? parent->getScrollPositionY() + 2 : 2;
-      coord_t h = _drawCentered ? MENU_BODY_HEIGHT - 4 : rect.h;
-      if (bitmap != nullptr) {
-        coord_t bitmapHeight = min<coord_t>(h, bitmap->height());
-        coord_t bitmapWidth = min<coord_t>(width(), bitmap->width());
-        dc->drawScaledBitmap(bitmap, (width() - bitmapWidth) / 2, 
-                             _drawCentered ? y + (h - bitmapHeight) / 2 : 0, 
-                             bitmapWidth, bitmapHeight);
-      }
-    }
-
-  protected:
-    BitmapBuffer *bitmap = nullptr;
-    bool _drawCentered = true;
+ protected:
+  BitmapBuffer *bitmap = nullptr;
+  bool _drawCentered = true;
 };

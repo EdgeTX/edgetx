@@ -47,8 +47,6 @@ typedef struct {
   uint8_t word_length;  // = ETX_WordLength_8;
   uint8_t rx_enable;    // = false;
 
-  void (*on_receive)(uint8_t data);  // = nullptr;
-  void (*on_error)();                // = nullptr;
 } etx_serial_init;
 
 struct etx_serial_callbacks_t {

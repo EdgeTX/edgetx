@@ -21,6 +21,11 @@
 
 #include "opentx.h"
 #include "options.h"
+#if defined(CROSSFIRE)
+  #include "mixer_scheduler.h"
+#endif
+
+#include "fw_version.h"
 
 // TODO duplicated code
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -128,31 +133,38 @@ void menuRadioModulesVersion(event_t event)
     // Module model
     if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
       lcdDrawText(INDENT_WIDTH, y, STR_MODULE);
-      if (module == INTERNAL_MODULE) {
-        if (!IS_INTERNAL_MODULE_ON()) {
-          lcdDrawText(COLUMN2_X, y, STR_OFF);
-          y += FH;
-          continue;
-        }
-        if (!isModulePXX2(INTERNAL_MODULE)) {
-          lcdDrawText(COLUMN2_X, y, STR_NO_INFORMATION);
-          y += FH;
-          continue;
-        }
+      if ((module == INTERNAL_MODULE && !IS_INTERNAL_MODULE_ON()) ||
+          (module == EXTERNAL_MODULE && !IS_EXTERNAL_MODULE_ON())) {
+        lcdDrawText(COLUMN2_X, y, STR_OFF);
+        y += FH;
+        continue;
       }
-      else if (module == EXTERNAL_MODULE) {
-        if (!IS_EXTERNAL_MODULE_ON()) {
-          lcdDrawText(COLUMN2_X, y, STR_OFF);
-          y += FH;
-          continue;
-        }
-        if (!isModulePXX2(EXTERNAL_MODULE)) {
-          lcdDrawText(COLUMN2_X, y, STR_NO_INFORMATION);
-          y += FH;
-          continue;
-        }
+#if defined(MULTIMODULE)
+      if (isModuleMultimodule(module)) {
+        char statusText[64] = "";
+        getMultiModuleStatus(module).getStatusString(statusText);
+        lcdDrawText(COLUMN2_X, y, statusText);
+        y += FH;
+        continue;
       }
-      uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].information.modelID;
+#endif
+#if defined(CROSSFIRE)
+      if (isModuleCrossfire(module)) {
+        char statusText[64] = "";
+        sprintf(statusText, "%d Hz %lu Err",
+                1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+        lcdDrawText(COLUMN2_X, y, statusText);
+        y += FH;
+        continue;
+      }
+#endif
+      if (!isModulePXX2(module)) {
+        lcdDrawText(COLUMN2_X, y, STR_NO_INFORMATION);
+        y += FH;
+        continue;
+      }
+      uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
+                            .information.modelID;
       lcdDrawText(COLUMN2_X, y, getPXX2ModuleName(modelId));
     }
     y += FH;

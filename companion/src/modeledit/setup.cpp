@@ -264,7 +264,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   }
 
   for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
-    if (i == MODULE_SUBTYPE_MULTI_SCANNER)
+    if (i == MODULE_SUBTYPE_MULTI_SCANNER || i == MODULE_SUBTYPE_MULTI_CONFIG)
       continue;
     ui->multiProtocol->addItem(Multiprotocols::protocolToString(i), i);
   }
@@ -399,6 +399,8 @@ void ModulePanel::setupFailsafes()
 
 void ModulePanel::update()
 {
+  lock = true;
+
   const auto protocol = (PulsesProtocol)module.protocol;
   const auto board = firmware->getBoard();
   const auto & pdef = multiProtocols.getProtocol(module.multi.rfProtocol);
@@ -432,7 +434,7 @@ void ModulePanel::update()
         else if (protocol==PULSES_ACCESS_ISRM || protocol==PULSES_ACCESS_R9M ||
                  protocol==PULSES_ACCESS_R9M_LITE || protocol==PULSES_ACCESS_R9M_LITE_PRO)
           mask |= MASK_RX_NUMBER | MASK_ACCESS;
-        if (moduleIdx == 0 && HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == 0 /* per model */)
+        if (moduleIdx == 0 && HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
           mask |= MASK_RF_RACING_MODE;
@@ -543,6 +545,8 @@ void ModulePanel::update()
 
   // Antenna mode on Horus and XLite
   if (mask & MASK_ANTENNA) {
+    ui->antennaLabel->show();
+    ui->antennaMode->show();
     ui->antennaMode->clear();
     ui->antennaMode->addItem(tr("Ask"), -1);
     ui->antennaMode->addItem(tr("Internal"), 0);
@@ -696,6 +700,8 @@ void ModulePanel::update()
 
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
+
+  lock = false;
 }
 
 void ModulePanel::onProtocolChanged(int index)
@@ -703,6 +709,7 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
+
     if (module.protocol == PULSES_GHOST ||
         module.protocol == PULSES_CROSSFIRE) {
       if (Boards::getCapability(getCurrentFirmware()->getBoard(),
@@ -714,6 +721,7 @@ void ModulePanel::onProtocolChanged(int index)
         ui->telemetryBaudrate->setCurrentIndex(1);
       }
     }
+
     emit updateItemModels();
     emit modified();
   }
@@ -1209,7 +1217,7 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
     bool ok = false;
     int i = sender()->property("index").toInt(&ok);
     if (ok && model->getFuncSwitchGroup(i) != (unsigned int)value) {
-      model->setFuncSwitchGroup(i, (unsigned int)value);      
+      model->setFuncSwitchGroup(i, (unsigned int)value);
       update(i);
       emit modified();
     }
@@ -1230,7 +1238,7 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
     int i = sender()->property("index").toInt(&ok);
 
     if (ok) {
-      model->setFuncSwitchAlwaysOnGroup(i, (unsigned int)value);      
+      model->setFuncSwitchAlwaysOnGroup(i, (unsigned int)value);
       update();
       emit modified();
     }
@@ -1459,8 +1467,10 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   // Pot warnings
   prevFocus = ui->potWarningMode;
-  if (IS_HORUS_OR_TARANIS(board)) {
-    for (int i = 0; i < getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders); i++) {
+  int count = getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders);
+
+  if (IS_HORUS_OR_TARANIS(board) && count > 0) {
+    for (int i = 0; i < count; i++) {
       RawSource src(SOURCE_TYPE_STICK, CPN_MAX_STICKS + i);
       QCheckBox * cb = new QCheckBox(this);
       cb->setProperty("index", i);
@@ -1767,7 +1777,7 @@ void SetupPanel::updatePotWarnings()
   for (int i = 0; i < potWarningCheckboxes.size(); i++) {
     QCheckBox *checkbox = potWarningCheckboxes[i];
     int index = checkbox->property("index").toInt();
-    checkbox->setChecked(!model->potsWarnEnabled[index]);
+    checkbox->setChecked(model->potsWarnEnabled[index]);
     checkbox->setDisabled(model->potsWarningMode == 0);
   }
   lock = false;
@@ -1777,7 +1787,7 @@ void SetupPanel::potWarningToggled(bool checked)
 {
   if (!lock) {
     int index = sender()->property("index").toInt();
-    model->potsWarnEnabled[index] = !checked;
+    model->potsWarnEnabled[index] = checked;
     updatePotWarnings();
     emit modified();
   }

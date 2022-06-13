@@ -132,7 +132,10 @@ void SimulatedUIWidget::onLcdChange(bool backlightEnable)
   if (!m_lcd || !m_lcd->isVisible())
     return;
 
-  m_lcd->onLcdChanged(backlightEnable);
+  uint8_t* lcdBuf = m_simulator->getLcd();
+  m_lcd->onLcdChanged(lcdBuf, backlightEnable);
+  m_simulator->lcdFlushed();
+
   setLightOn(backlightEnable);
 }
 
@@ -187,7 +190,11 @@ void SimulatedUIWidget::setLcd(LcdWidget * lcd)
 {
   m_lcd = lcd;
   Firmware * firmware = getCurrentFirmware();
-  m_lcd->setData(m_simulator->getLcd(), firmware->getCapability(LcdWidth), firmware->getCapability(LcdHeight), firmware->getCapability(LcdDepth));
+
+  auto width = firmware->getCapability(LcdWidth);
+  auto height = firmware->getCapability(LcdHeight);
+  auto depth = firmware->getCapability(LcdDepth);
+  m_lcd->setData(width, height, depth);
 
   if (!m_backlightColors.size())
     return;

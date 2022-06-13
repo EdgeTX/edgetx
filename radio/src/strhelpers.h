@@ -24,6 +24,7 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
+#include <string>
 
 #include <string>
 #include <cstring>
@@ -64,9 +65,10 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits = 0,
 char *strSetCursor(char *dest, int position);
 char *strAppendDate(char *str, bool time = false);
 char *strAppendFilename(char *dest, const char *filename, const int size);
+std::string formatNumberAsString(int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
 #if !defined(BOOT)
-char *getStringAtIndex(char *dest, const char *s, int idx);
+char *getStringAtIndex(char *dest, const char **s, int idx);
 char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions = {.options = 0});
@@ -74,11 +76,17 @@ char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions
 char *getCurveString(char *dest, int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
+const char* getSwitchWarnSymbol(uint8_t pos);
+const char* getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, swsrc_t idx);
 
 template<size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx);
+char* getSourceString(char (&dest)[L], mixsrc_t idx);
+
+template <size_t L>
+char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+                                 LcdFlags flags);
 
 int  getRawSwitchIdx(char sw);
 char getRawSwitchFromIdx(int sw);
@@ -86,12 +94,9 @@ char getRawSwitchFromIdx(int sw);
 
 char *getFlightModeString(char *dest, int8_t idx);
 
-#define SWITCH_WARNING_STR_SIZE 3
-// char *getSwitchWarningString(char *dest, swsrc_t idx);
-
 char *getSourceString(mixsrc_t idx);
+char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags);
 char *getSwitchPositionName(swsrc_t idx);
-// char *getSwitchWarningString(swsrc_t idx);
 char *getCurveString(int idx);
 char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
 void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
@@ -113,4 +118,35 @@ template<typename S>
 void clearStruct(S& s) {
     memset((void*) &s, 0, sizeof(S));
 }
+
+template <size_t N>
+using offset_t = std::integral_constant<size_t, N>;
+
+template <size_t DL, size_t SL, size_t O = 0>
+void copyToTerminated(char (&dest)[DL], const char (&src)[SL],
+                      const offset_t<O> = offset_t<0>{})
+{
+  // unfortinately std::min() isn't constexpr in C++11
+  // static constexpr size_t len = std::min(DL - O - 1, SL);
+  static constexpr size_t dl{DL - O - 1};
+  static_assert(dl > 0, "wrong sizes or offset");
+  static constexpr size_t len = (dl < SL) ? dl : SL;
+  strncpy(&dest[O], &src[0], len);
+  static_assert((len + O) < DL, "wrong sizes of offset");
+  dest[len + O] = '\0';
+}
+
+template <size_t L1, size_t L2>
+int strncasecmp(char (&s1)[L1], const char (&s2)[L2])
+{
+  static constexpr size_t len = (L1 < L2) ? L1 : L2;
+  return strncasecmp(s1, s2, len);
+}
+
+template <size_t L1>
+int strncasecmp(char (&s1)[L1], const char *const s2)
+{
+  return strncasecmp(s1, s2, L1);
+}
+
 #endif  // _STRHELPERS_H_
