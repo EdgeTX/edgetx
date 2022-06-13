@@ -35,6 +35,7 @@ static lv_indev_drv_t rotaryDriver;
 
 static lv_indev_t* rotaryDevice = nullptr;
 static lv_indev_t* keyboardDevice = nullptr;
+static lv_indev_t* touchDevice = nullptr;
 
 static void reset_inactivity()
 {
@@ -175,6 +176,22 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 
   TouchState st = touchPanelRead();
+
+  // no touch input if backlight is disabled
+  if (!isBacklightEnabled()) {
+    reset_inactivity();
+    // assume press and wait for release
+    data->state = LV_INDEV_STATE_PRESSED;
+    lv_indev_wait_release(touchDevice);
+    return;
+  }
+
+  // no touch input if special function is used
+  if (isFunctionActive(FUNCTION_DISABLE_TOUCH)) {
+    lv_indev_reset(touchDevice, nullptr);
+    return;
+  }
+  
   if(st.event == TE_NONE) {
     TRACE("TE_NONE");
   } else if(st.event == TE_DOWN || st.event == TE_SLIDE) {
@@ -231,7 +248,7 @@ static void init_lvgl_drivers()
   lv_indev_drv_init(&touchDriver);          /*Basic initialization*/
   touchDriver.type = LV_INDEV_TYPE_POINTER; /*See below.*/
   touchDriver.read_cb = touchDriverRead;      /*See below.*/
-  lv_indev_drv_register(&touchDriver);
+  touchDevice = lv_indev_drv_register(&touchDriver);
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   lv_indev_drv_init(&rotaryDriver);
