@@ -109,7 +109,7 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
   VfsError res = VirtualFS::instance().openDirectory(dir, SCRIPTS_TOOLS_PATH);
   if (res == VfsError::OK) {
     for (;;) {
-      TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
+      TCHAR path[FF_MAX_LFN+1] = ":" SCRIPTS_TOOLS_PATH "/";
       res = dir.read(fno);                   /* Read a directory item */
       if (res != VfsError::OK || fno.getName().length() == 0) break;  /* Break on error or end of dir */
       if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
@@ -119,8 +119,8 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
       if (isRadioScriptTool(fno.getName().c_str())) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char * label;
-        char * ext = (char *)VirtualFS::getFileExtension(path);
-        if (readToolName(toolName, path)) {
+        char * ext = (char *)VirtualFS::getFileExtension(path+1);
+        if (readToolName(toolName, path+1)) {
           label = toolName;
         }
         else {
