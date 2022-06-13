@@ -22,6 +22,8 @@
 #include "opentx_types.h"
 #include "board.h"
 
+#include "globals.h"
+
 void backlightInit()
 {
   // PIN init
@@ -59,6 +61,11 @@ void backlightEnable(uint8_t dutyCycle)
     else lcdInit();
   }
   lastDutyCycle = dutyCycle;
+}
+
+void backlightFullOn()
+{
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
 void lcdOff() {

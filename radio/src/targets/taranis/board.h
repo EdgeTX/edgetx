@@ -699,19 +699,21 @@ void pwrResetHandler();
 #endif
 
 // Backlight driver
-void backlightInit();
-void backlightDisable();
 #define BACKLIGHT_DISABLE()             backlightDisable()
 #define BACKLIGHT_FORCED_ON             101
+
+void backlightInit();
+void backlightDisable();
+void backlightFullOn();
 uint8_t isBacklightEnabled();
-#if !defined(__cplusplus)
-  #define backlightEnable(...)
-#elif defined(PCBX9E) || defined(PCBX9DP)
-  void backlightEnable(uint8_t level = 0, uint8_t color = 0);
-  #define BACKLIGHT_ENABLE()            backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
+
+#if defined(PCBX9E) || defined(PCBX9DP)
+  void backlightEnable(uint8_t level, uint8_t color);
+  #define BACKLIGHT_ENABLE() \
+    backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
 #else
-  void backlightEnable(uint8_t level = 0);
-  #define BACKLIGHT_ENABLE()            backlightEnable(currentBacklightBright)
+  void backlightEnable(uint8_t level);
+  #define BACKLIGHT_ENABLE() backlightEnable(currentBacklightBright)
 #endif
 
 #if !defined(SIMU)

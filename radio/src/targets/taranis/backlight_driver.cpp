@@ -25,6 +25,7 @@
   // no backlight
   void backlightInit() {}
   void backlightEnable(uint8_t level) {}
+  void backlightFullOn() {}
   void backlightDisable() {}
   uint8_t isBacklightEnabled() {return false;}
 #elif defined(PCBX9E)
@@ -53,6 +54,11 @@ void backlightEnable(uint8_t level, uint8_t color)
 {
   BACKLIGHT_TIMER->CCR1 = ((100-level)*(20-color))/20;
   BACKLIGHT_TIMER->CCR2 = ((100-level)*color)/20;
+}
+
+void backlightFullOn()
+{
+  backlightEnable(0, 0);
 }
 
 void backlightDisable()
@@ -92,6 +98,11 @@ void backlightEnable(uint8_t level, uint8_t color)
 {
   BACKLIGHT_TIMER->CCR4 = ((100-level)*(20-color))/20;
   BACKLIGHT_TIMER->CCR2 = ((100-level)*color)/20;
+}
+
+void backlightFullOn()
+{
+  backlightEnable(0, 0);
 }
 
 void backlightDisable()
@@ -136,6 +147,11 @@ void backlightEnable(uint8_t level)
   BACKLIGHT_COUNTER_REGISTER = 100 - level;
 }
 
+void backlightFullOn()
+{
+  backlightEnable(0);
+}
+
 void backlightDisable()
 {
   BACKLIGHT_COUNTER_REGISTER = 0;
@@ -168,6 +184,11 @@ void backlightInit()
 void backlightEnable(uint8_t level)
 {
   BACKLIGHT_TIMER->CCR1 = 100 - level;
+}
+
+void backlightFullOn()
+{
+  backlightEnable(0);
 }
 
 void backlightDisable()
