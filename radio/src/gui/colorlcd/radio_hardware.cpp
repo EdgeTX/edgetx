@@ -165,43 +165,11 @@ void RadioHardwarePage::build(FormWindow * window)
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
-  // Calibration
-  new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-
-  auto line = window->newLine(&grid);
-  grid.nextCell();
-
-  auto calib = new TextButton(line, rect_t{}, STR_CALIBRATION);
-  calib->setPressHandler([=]() -> uint8_t {
-      new RadioCalibrationPage();
-      return 0;
-  });
-
-  // Sticks
-  // new Subtitle(window, rect_t{}, STR_STICKS, 0, COLOR_THEME_PRIMARY1);
-  // new HWSticks(window);
-  makeHWInputButton<HWSticks>(window, STR_STICKS);
-
-  // Pots
-  // new Subtitle(window, rect_t{}, STR_POTS, 0, COLOR_THEME_PRIMARY1);
-  // new HWPots(window);
-  makeHWInputButton<HWPots>(window, STR_POTS);
-
-  // Sliders
-#if (NUM_SLIDERS > 0)
-  // new Subtitle(window, rect_t{}, STR_SLIDERS, 0, COLOR_THEME_PRIMARY1);
-  // new HWSliders(window);
-  makeHWInputButton<HWSliders>(window, STR_SLIDERS);
-#endif
-
-  // Switches
-  // new Subtitle(window, rect_t{}, STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
-  // new HWSwitches(window);
-  makeHWInputButton<HWSwitches>(window, STR_SWITCHES);
-  
   // Bat calibration
   // TODO: sub-title?
-  line = window->newLine(&grid);
+  // TODO: add battery range before
+  //
+  auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal =
       new NumberEdit(line, rect_t{}, -127, 127,
@@ -241,15 +209,46 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
+  // Calibration
+  new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
+
+  auto box = new FormGroup(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_pad_all(box->getLvObj(), lv_dpx(8), 0);
+
+  auto calib = new TextButton(box, rect_t{}, STR_CALIBRATION);
+  calib->setPressHandler([=]() -> uint8_t {
+      new RadioCalibrationPage();
+      return 0;
+  });
+
+  // Sticks
+  makeHWInputButton<HWSticks>(box, STR_STICKS);
+
+  // Pots
+  makeHWInputButton<HWPots>(box, STR_POTS);
+
+  // Sliders
+#if (NUM_SLIDERS > 0)
+  makeHWInputButton<HWSliders>(box, STR_SLIDERS);
+#endif
+
+  // Switches
+  makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
+  
   // Debugs
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-  new TextButton(line, rect_t{}, STR_ANALOGS_BTN, [=]() -> uint8_t {
+  new Subtitle(window, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
+
+  box = new FormGroup(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_pad_all(box->getLvObj(), lv_dpx(8), 0);
+
+  new TextButton(box, rect_t{}, STR_ANALOGS_BTN, [=]() -> uint8_t {
     new RadioAnalogsDiagsViewPageGroup();
     return 0;
   });
 
-  new TextButton(line, rect_t{}, STR_KEYS_BTN, [=]() -> uint8_t {
+  new TextButton(box, rect_t{}, STR_KEYS_BTN, [=]() -> uint8_t {
     new RadioKeyDiagsPage();
     return 0;
   });
