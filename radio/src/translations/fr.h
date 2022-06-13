@@ -269,10 +269,8 @@
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","Maxi.","Diff."
 #define TR_GYROS                       "GyrX","GyrY"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
-#define TR_TIMER_DIR TR("Remain", "Show Remain\0"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
-#define LEN_TIMER_DIR                  TR("\006", "\014")
-#define TR_TIMER_DIR                   TR("Remain""Elaps.", "Show Remain\0""Show Elapsed")
 
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
