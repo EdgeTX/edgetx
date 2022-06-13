@@ -165,11 +165,41 @@ void RadioHardwarePage::build(FormWindow * window)
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
-  // Bat calibration
   // TODO: sub-title?
-  // TODO: add battery range before
-  //
+
+  // Batt meter range - Range 3.0v to 16v
   auto line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
+
+  auto box = new FormGroup(line, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
+
+  auto batMin =
+      new NumberEdit(box, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+                     GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
+  batMin->setSuffix("V");
+  new StaticText(box, rect_t{}, "-");
+  auto batMax =
+      new NumberEdit(box, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+                     GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
+  batMax->setSuffix("V");
+
+  batMin->setSetValueHandler([=](int32_t newValue) {
+    g_eeGeneral.vBatMin = newValue - 90;
+    SET_DIRTY();
+    batMax->setMin(g_eeGeneral.vBatMin - 29 + 120);
+    batMax->invalidate();
+  });
+
+  batMax->setSetValueHandler([=](int32_t newValue) {
+    g_eeGeneral.vBatMax = newValue - 120;
+    SET_DIRTY();
+    batMin->setMax(g_eeGeneral.vBatMax + 29 + 90);
+    batMin->invalidate();
+  });
+
+  // Bat calibration
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal =
       new NumberEdit(line, rect_t{}, -127, 127,
@@ -212,7 +242,7 @@ void RadioHardwarePage::build(FormWindow * window)
   // Calibration
   new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(window, rect_t{});
+  box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_pad_all(box->getLvObj(), lv_dpx(8), 0);
 

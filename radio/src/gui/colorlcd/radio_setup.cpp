@@ -605,25 +605,6 @@ void RadioSetupPage::build(FormWindow * window)
   new DateTimeWindow(line, rect_t{});
   grid.setColSpan(1);
 
-  // Batt meter range - Range 3.0v to 16v
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
-  auto batMinEdit = new NumberEdit(line, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
-  batMinEdit->setSuffix("V");
-  auto batMaxEdit = new NumberEdit(line, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120, GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
-  batMaxEdit->setSuffix("V");
-  batMinEdit->setSetValueHandler([=](int32_t newValue) {
-    g_eeGeneral.vBatMin= newValue - 90;
-    SET_DIRTY();
-    batMaxEdit->setMin(g_eeGeneral.vBatMin - 29 + 120);
-    batMaxEdit->invalidate();
-  });
-  batMaxEdit->setSetValueHandler([=](int32_t newValue) {
-    g_eeGeneral.vBatMax= newValue - 120;
-    SET_DIRTY();
-    batMinEdit->setMax(g_eeGeneral.vBatMax + 29 + 90);
-    batMinEdit->invalidate();
-  });
   line = window->newLine(&grid);
 
   std::vector<std::pair<const char*, std::function<void()> >> windows;
