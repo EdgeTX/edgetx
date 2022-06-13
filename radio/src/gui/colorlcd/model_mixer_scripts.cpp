@@ -149,8 +149,6 @@ class ScriptEditWindow : public Page {
         gOutputs->setHeight(outputsGrid.getWindowHeight());
         grid.addWindow(gOutputs);
       }
-
-      if (focusScript) { fc->setFocus(); }
     }
     
     void rebuildBody(FormWindow * window)
@@ -285,13 +283,6 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
       txt->invalidate();
     });
 
-    if (focusIdx == idx) {
-      button->setFocus(SET_FOCUS_DEFAULT);
-      txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      txt->invalidate();
-    }
-
     txt->setHeight(button->height());
     grid.spacer(button->height() + 5);
   }
@@ -301,7 +292,6 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
 
 void ModelMixerScriptsPage::editLine(FormWindow * window, uint8_t idx)
 {
-  Window::clearFocus();
   Window * editWindow = new ScriptEditWindow(idx);
   editWindow->setCloseHandler([=]() {
     rebuild(window, idx);
