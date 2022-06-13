@@ -417,21 +417,32 @@ void lcdOn();
 
 // Backlight driver
 void backlightInit();
-#if defined(SIMU) || !defined(__cplusplus)
-#define backlightEnable(...)
-#define isBacklightEnabled() (true)
-#else
-void backlightEnable(uint8_t dutyCycle = 0);
+void backlightEnable(uint8_t dutyCycle);
 bool isBacklightEnabled();
-#endif
 
 #define BACKLIGHT_LEVEL_MAX             100
 #define BACKLIGHT_FORCED_ON             BACKLIGHT_LEVEL_MAX + 1
 #define BACKLIGHT_LEVEL_MIN             1
 
-#define BACKLIGHT_ENABLE()              backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : BACKLIGHT_LEVEL_MAX - currentBacklightBright)
-#define BACKLIGHT_DISABLE()             backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) && (g_eeGeneral.backlightMode != e_backlight_mode_off)) ? 0 : g_eeGeneral.blOffBright)
+extern bool boardBacklightOn;
 
+#define BACKLIGHT_ENABLE()                                              \
+  {                                                                     \
+    boardBacklightOn = true;                                            \
+    backlightEnable(globalData.unexpectedShutdown                       \
+                        ? BACKLIGHT_LEVEL_MAX                           \
+                        : BACKLIGHT_LEVEL_MAX - currentBacklightBright) \
+  }
+
+#define BACKLIGHT_DISABLE()                                                 \
+  {                                                                         \
+    boardBacklightOn = false;                                               \
+    backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX     \
+                    : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) &&  \
+                       (g_eeGeneral.backlightMode != e_backlight_mode_off)) \
+                        ? 0                                                 \
+                        : g_eeGeneral.blOffBright)                          \
+  }
 
 #if !defined(SIMU)
 void usbJoystickUpdate();

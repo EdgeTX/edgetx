@@ -71,6 +71,10 @@ void lcdOn(){
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
-bool isBacklightEnabled() {
-  return lastDutyCycle != 0;
+bool boardBacklightOn;
+
+bool isBacklightEnabled()
+{
+  if (globalData.unexpectedShutdown) return true;
+  return boardBacklightOn;
 }
