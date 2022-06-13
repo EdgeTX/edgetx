@@ -702,6 +702,7 @@
 #define TR_FORMATTING                  "Formatierung..."
 #define TR_TEMP_CALIB                  "Temp.  abgl."
 #define TR_TIME                        "Uhrzeit:"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_MAXBAUDRATE                 "Max Baud"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 
