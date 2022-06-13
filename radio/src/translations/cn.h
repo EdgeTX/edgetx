@@ -250,7 +250,7 @@
 #define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","最高值","差值"
 #define TR_TEXT_SIZE                   "标准","小","较小","中等","双倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)", "=(整体)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain\0"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
   #define INDENT

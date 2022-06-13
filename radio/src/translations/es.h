@@ -249,7 +249,7 @@
 #define TR_VCELLINDEX                  "Menor","1","2","3","4","5","6","Mayor","Delta"
 #define TR_TEXT_SIZE                   "Normal","Muy pequeño","Pequeño","Medio","Doble"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain\0"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
   #define INDENT
@@ -1258,7 +1258,6 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
-#define TR_SHOW                       INDENT "Show"
 
 // The following content is Untranslated)
 

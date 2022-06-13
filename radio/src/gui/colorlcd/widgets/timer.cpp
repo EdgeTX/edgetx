@@ -72,9 +72,6 @@ class TimerWidget : public Widget
       // background
       dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
 
-//////////////////  TO BE REMOVED /////
-      timerData.showElapsed = 1;
-      ///////////////////////////////////////      
       if (timerData.start && timerState.val >= 0)
       {
         dc->drawBitmapPatternPie(

@@ -249,7 +249,7 @@
 #define TR_VCELLINDEX                  "Niskie","1","2","3","4","5","6","Wysokie","Delta"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain\0"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
   #define INDENT               "\007"
