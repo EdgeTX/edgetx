@@ -95,7 +95,7 @@ class LogicalSwitchEditPage: public Page
       LogicalSwitchData * cs = lswAddress(index);
       uint8_t cstate = lswFamily(cs->func);
 
-      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cs->func == LS_FUNC_SAFE) {
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
@@ -291,7 +291,7 @@ class LogicalSwitchButton : public Button
     dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
 
     // CSW params
-    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
+    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY || ls->func ==LS_FUNC_SAFE) {
       drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
       drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
     } else if (lsFamily == LS_FAMILY_EDGE) {

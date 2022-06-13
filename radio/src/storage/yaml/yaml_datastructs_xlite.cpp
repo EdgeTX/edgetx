@@ -168,6 +168,7 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_ADIFFEGREATER, "FUNC_ADIFFEGREATER"  },
   {  LS_FUNC_TIMER, "FUNC_TIMER"  },
   {  LS_FUNC_STICKY, "FUNC_STICKY"  },
+  {  LS_FUNC_SAFE, "FUNC_SAFE"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwashType[] = {
