@@ -254,9 +254,6 @@
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain""Elaps.", "Show Remain\0""Show Elapsed")
 
-#define LEN_TIMER_DIR                  TR("\006", "\014")
-#define TR_TIMER_DIR                   TR("Remain""Elaps.", "Show Remain\0""Show Elapsed")
-
 // ZERO TERMINATED STRINGS
 #if defined(COLORLCD)
   #define INDENT                       "   "
