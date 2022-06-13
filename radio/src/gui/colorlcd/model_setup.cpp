@@ -235,9 +235,10 @@ void ModelSetupPage::build(FormWindow * window)
   new ModelNameEdit(line, rect_t{});
 
   // Model labels
-  new StaticText(window, grid.getLabelSlot(), "Labels", 0, COLOR_THEME_PRIMARY1);
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, "Labels", 0, COLOR_THEME_PRIMARY1);
   labelTextButton =
-    new TextButton(window, grid.getFieldSlot(), modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL), [=] () {
+    new TextButton(line, rect_t{}, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL), [=] () {
       Menu *menu = new Menu(window, true);
       for (auto &label: modelsLabels.getLabels()) {
         menu->addLine(label,
@@ -255,8 +256,6 @@ void ModelSetupPage::build(FormWindow * window)
       }
       return 0;
     });
-
-  grid.nextLine();
 
   // Bitmap
   line = window->newLine(&grid);
