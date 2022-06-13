@@ -589,7 +589,7 @@ void drawFatalErrorScreen(const char * message)
 void runFatalErrorScreen(const char * message)
 {
   while (true) {
-    backlightEnable();
+    backlightFullOn();
     drawFatalErrorScreen(message);
 
     uint8_t refresh = false;

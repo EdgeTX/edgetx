@@ -542,12 +542,6 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 #define lcdRefreshWait(...)
 
 // Backlight driver
-void backlightInit();
-#if defined(SIMU) || !defined(__cplusplus)
-#define backlightEnable(...)
-#else
-void backlightEnable(uint8_t dutyCycle = 0);
-#endif
 #define BACKLIGHT_LEVEL_MAX     100
 #define BACKLIGHT_FORCED_ON     BACKLIGHT_LEVEL_MAX + 1
 #if defined(PCBX12S)
@@ -557,7 +551,13 @@ void backlightEnable(uint8_t dutyCycle = 0);
 #else
 #define BACKLIGHT_LEVEL_MIN   46
 #endif
+
 extern bool boardBacklightOn;
+void backlightInit();
+void backlightEnable(uint8_t dutyCycle);
+void backlightFullOn();
+bool isBacklightEnabled();
+
 #define BACKLIGHT_ENABLE()                                               \
   {                                                                      \
     boardBacklightOn = true;                                             \
@@ -574,7 +574,6 @@ extern bool boardBacklightOn;
                         ? 0                                                 \
                         : g_eeGeneral.blOffBright);                         \
   }
-bool isBacklightEnabled();
 
 #if !defined(SIMU)
 void usbJoystickUpdate();
