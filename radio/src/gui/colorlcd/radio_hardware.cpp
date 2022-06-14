@@ -113,16 +113,16 @@ class BluetoothConfigWindow : public FormGroup
       // Pin code (displayed for information only, not editable)
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY) {
         line = newLine(&grid);
-        label = new StaticText(line, rect_t{}, STR_BLUETOOTH_PIN_CODE, 0,
-                               COLOR_THEME_PRIMARY1);
+        auto label = new StaticText(line, rect_t{}, STR_BLUETOOTH_PIN_CODE, 0,
+                                    COLOR_THEME_PRIMARY1);
         lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
         new StaticText(line, rect_t{}, "000000", 0, COLOR_THEME_PRIMARY1);
       }
 
       // Local MAC
       line = newLine(&grid);
-      label = new StaticText(line, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0,
-                             COLOR_THEME_PRIMARY1);
+      auto label = new StaticText(line, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0,
+                                  COLOR_THEME_PRIMARY1);
       lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
       new StaticText(
           line, rect_t{},
