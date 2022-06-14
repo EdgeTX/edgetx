@@ -192,6 +192,7 @@ class WindowButtonGroup : public FormGroup
       pages(pages)
   {
     setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+    lv_obj_set_style_flex_main_place(lvobj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
     padRow(lv_dpx(8));
 
     for (auto& entry : pages) {

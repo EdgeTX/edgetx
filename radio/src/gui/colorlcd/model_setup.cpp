@@ -263,8 +263,9 @@ void ModelSetupPage::build(FormWindow * window)
   // Timer buttons
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
-  
+  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  form->padAll(lv_dpx(8));
+
   new SubScreenButton(form, TR_TIMER "1",
                       []() { new TimerWindow(0); });
   new SubScreenButton(form, TR_TIMER "2",
@@ -274,7 +275,8 @@ void ModelSetupPage::build(FormWindow * window)
 
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
+  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  form->padAll(lv_dpx(8));
 
   new SubScreenButton(form, STR_PREFLIGHT,
                       []() { new PreflightChecks(); });

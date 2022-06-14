@@ -248,9 +248,10 @@ void RadioHardwarePage::build(FormWindow * window)
 
   box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));
   box->padAll(lv_dpx(8));
-
+  
   auto calib = new TextButton(box, rect_t{}, STR_CALIBRATION);
   calib->setPressHandler([=]() -> uint8_t {
       new RadioCalibrationPage();
@@ -281,6 +282,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
   box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));
   box->padAll(lv_dpx(8));
 
