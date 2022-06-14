@@ -94,7 +94,10 @@ class LogicalSwitchEditPage: public Page
 
       LogicalSwitchData * cs = lswAddress(index);
       uint8_t cstate = lswFamily(cs->func);
-
+      // custom label
+      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_CUST_LOGICALSWITCH_LABEL, 0, COLOR_THEME_PRIMARY1);
+      new ModelTextEdit(logicalSwitchOneWindow, grid.getFieldSlot(), cs->custName, LEN_LOGICSW_NAME);
+      grid.nextLine();
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cs->func == LS_FUNC_SAFE) {
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
@@ -254,6 +257,7 @@ class LogicalSwitchEditPage: public Page
 
 static constexpr coord_t line1 = FIELD_PADDING_TOP;
 static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
+static constexpr coord_t line3 = line2 + PAGE_LINE_HEIGHT;
 static constexpr coord_t col1 = 20;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1;
@@ -290,8 +294,8 @@ class LogicalSwitchButton : public Button
     uint8_t lsFamily = lswFamily(ls->func);
 
     // CSW func
-    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
-
+    //dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
+      dc->drawText(col1, line1, ls->custName, COLOR_THEME_SECONDARY1);
     // CSW params
     if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY || ls->func ==LS_FUNC_SAFE) {
       drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
@@ -323,15 +327,20 @@ class LogicalSwitchButton : public Button
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
       dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
     }
+    // switch custom name
+    //dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
   }
 
   void paint(BitmapBuffer* dc) override
   {
-    if (active)
+    if (active){
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-    else
+      dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
+    }
+    else{
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-
+      dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
+    }
     paintLogicalSwitchLine(dc);
 
     // The bounding rect
