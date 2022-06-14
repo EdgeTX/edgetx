@@ -1074,7 +1074,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
             ++inserts;
           }
         }
-        else if msgBox.clickedButton() == cancelButton) {
+        else if (msgBox.clickedButton() == cancelButton) {
           ok = false;
         }
       }
