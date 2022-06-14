@@ -138,6 +138,7 @@ PACK(struct LogicalSwitchData {
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
+  NOBACKUP(char custName[LEN_LOGICSW_NAME]);
 });
 
 /*

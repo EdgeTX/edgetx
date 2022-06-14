@@ -51,7 +51,7 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 11);
-  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 28 + 2*NUM_TRIMS);
   CHKSIZE(TimerData, 12);
@@ -65,7 +65,7 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 40);
   CHKSIZE(TimerData, 17);
@@ -109,7 +109,7 @@ static inline void check_struct()
 
 #endif /* board specific ifdefs*/
 
-  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
