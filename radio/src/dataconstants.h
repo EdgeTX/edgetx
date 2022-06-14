@@ -134,6 +134,7 @@ enum CurveType {
 #endif
 
 #define LEN_SPEC_FN_NAME               10
+#define LEN_LOGICSW_NAME               10
 
 #if defined(PCBFRSKY) || defined(PCBNV14)
   #define NUM_MODULES                  2

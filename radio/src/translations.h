@@ -420,6 +420,7 @@ extern const char STR_MENUCURVES[];
 extern const char STR_MENUCURVE[];
 extern const char STR_MENULOGICALSWITCH[];
 extern const char STR_MENULOGICALSWITCHES[];
+extern const char STR_CUST_LOGICALSWITCH_LABEL[];
 extern const char STR_MENUCUSTOMFUNC[];
 extern const char STR_CUST_FUNC_CUST_LABEL[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
