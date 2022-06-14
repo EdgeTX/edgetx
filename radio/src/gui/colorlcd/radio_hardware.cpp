@@ -244,42 +244,51 @@ void RadioHardwarePage::build(FormWindow * window)
 
   box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_pad_all(box->getLvObj(), lv_dpx(8), 0);
+  box->padRow(lv_dpx(8));
+  box->padAll(lv_dpx(8));
 
   auto calib = new TextButton(box, rect_t{}, STR_CALIBRATION);
   calib->setPressHandler([=]() -> uint8_t {
       new RadioCalibrationPage();
       return 0;
   });
+  lv_obj_set_style_min_width(calib->getLvObj(), LV_DPI_DEF, 0);
 
   // Sticks
-  makeHWInputButton<HWSticks>(box, STR_STICKS);
+  auto btn = makeHWInputButton<HWSticks>(box, STR_STICKS);
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
   // Pots
-  makeHWInputButton<HWPots>(box, STR_POTS);
+  btn = makeHWInputButton<HWPots>(box, STR_POTS);
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
   // Sliders
 #if (NUM_SLIDERS > 0)
-  makeHWInputButton<HWSliders>(box, STR_SLIDERS);
+  btn = makeHWInputButton<HWSliders>(box, STR_SLIDERS);
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 #endif
 
   // Switches
-  makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
+  btn = makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
   
   // Debugs
   new Subtitle(window, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
 
   box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_pad_all(box->getLvObj(), lv_dpx(8), 0);
+  box->padRow(lv_dpx(8));
+  box->padAll(lv_dpx(8));
 
-  new TextButton(box, rect_t{}, STR_ANALOGS_BTN, [=]() -> uint8_t {
+  btn = new TextButton(box, rect_t{}, STR_ANALOGS_BTN, [=]() -> uint8_t {
     new RadioAnalogsDiagsViewPageGroup();
     return 0;
   });
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
-  new TextButton(box, rect_t{}, STR_KEYS_BTN, [=]() -> uint8_t {
+  btn = new TextButton(box, rect_t{}, STR_KEYS_BTN, [=]() -> uint8_t {
     new RadioKeyDiagsPage();
     return 0;
   });
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 }

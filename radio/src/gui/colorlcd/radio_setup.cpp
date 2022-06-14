@@ -195,10 +195,11 @@ class WindowButtonGroup : public FormGroup
     padRow(lv_dpx(8));
 
     for (auto& entry : pages) {
-      new TextButton(this, rect_t{}, entry.first, [&, entry]() {
+      auto btn = new TextButton(this, rect_t{}, entry.first, [&, entry]() {
         entry.second();
         return 0;
       });
+      lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
     }
   }
 
