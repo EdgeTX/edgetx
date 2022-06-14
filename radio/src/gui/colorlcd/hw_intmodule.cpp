@@ -24,8 +24,8 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
-                                         LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -34,13 +34,17 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, const rect_t &rect) :
     lastModule(g_eeGeneral.internalModule)
 {
   setFlexLayout();
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
-  lv_obj_set_style_pad_left(lvobj, lv_dpx(8), 0);
 
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
   auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, TR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
+
+  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+
+  auto box = new FormGroup(line, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+
   auto internalModule = new Choice(
-      line, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
+      box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
       MODULE_TYPE_COUNT - 1, GET_DEFAULT(g_eeGeneral.internalModule),
       [=](int type) { return setModuleType(type); });
 
@@ -48,11 +52,14 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, const rect_t &rect) :
       [](int module) { return isInternalModuleSupported(module); });
 
 #if defined(CROSSFIRE)
-  line = newLine(&grid);
-  br_line = line->getLvObj();
+  box = new FormGroup(box, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
-  new StaticText(line, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_CRSF_BAUDRATE, 0,
+  br_box = box->getLvObj();
+  lv_obj_set_style_flex_cross_place(br_box, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(box, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(box, rect_t{}, STR_CRSF_BAUDRATE, 0,
              CROSSFIRE_MAX_INTERNAL_BAUDRATE, getBaudrate, setBaudrate);
 
   updateBaudrateLine();
@@ -86,9 +93,9 @@ void InternalModuleWindow::updateBaudrateLine()
 {
 #if defined(CROSSFIRE)
   if (isInternalModuleCrossfire()) {
-    lv_obj_clear_flag(br_line, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(br_box, LV_OBJ_FLAG_HIDDEN);
   } else {
-    lv_obj_add_flag(br_line, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(br_box, LV_OBJ_FLAG_HIDDEN);
   }
 #endif
 }
