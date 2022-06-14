@@ -512,6 +512,7 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
+  YAML_STRING("custName", 10),
   YAML_END
 };
 static const struct YamlNode struct_SwashRingData[] = {
@@ -829,7 +830,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("expoData", 136, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
-  YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
+  YAML_ARRAY("logicalSw", 152, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 168, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 288, 9, struct_FlightModeData, fmd_is_active),
