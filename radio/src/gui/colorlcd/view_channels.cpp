@@ -66,6 +66,7 @@ class ChannelsViewFooter: public Window {
 void ChannelsViewPage::build(FormWindow * window)
 {
   constexpr coord_t hmargin = 5;
+  window->padAll(0);
 
   // Channels bars
   for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {

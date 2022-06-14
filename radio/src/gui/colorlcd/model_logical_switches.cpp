@@ -370,6 +370,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
+  window->padAll(0);
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData* ls = lswAddress(i);

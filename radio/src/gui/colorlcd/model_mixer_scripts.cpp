@@ -236,6 +236,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
+  window->padAll(0);
 
   int8_t scriptIdx = 0;
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {

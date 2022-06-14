@@ -311,16 +311,15 @@ static const lv_coord_t fmt_row_dsc[] = {LV_GRID_CONTENT,
 void ModelFlightModesPage::build(FormWindow * window)
 {
   window->setFlexLayout();
+  window->padRow(lv_dpx(8));
+  
   lv_obj_t* obj = window->getLvObj();
   lv_obj_set_style_flex_cross_place(obj, LV_FLEX_ALIGN_CENTER, 0);
 
   FlexGridLayout grid(fmt_col_dsc, fmt_row_dsc, 0);
   auto fm_box = window->newLine(&grid);
-
-  obj = fm_box->getLvObj();
-  lv_obj_set_style_pad_all(obj, 8, 0);
-  lv_obj_set_style_pad_row(obj, 2, 0);
-  lv_obj_set_style_pad_column(obj, 2, 0);
+  fm_box->padRow(lv_dpx(2));
+  fm_box->padColumn(lv_dpx(2));
   
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     new FlightModeBtn(fm_box, i);

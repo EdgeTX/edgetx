@@ -460,11 +460,12 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
 
 void ModelInputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
-  lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
+  window->setFlexLayout();
+  window->padRow(lv_dpx(8));
   
   form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+  form->setFlexLayout();
+  form->padRow(lv_dpx(8));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));
