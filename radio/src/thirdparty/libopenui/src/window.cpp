@@ -358,6 +358,41 @@ bool Window::hasFocus() const
   return lvobj && lv_obj_has_state(lvobj, LV_STATE_FOCUSED);
 }
 
+void Window::padLeft(coord_t pad)
+{
+  lv_obj_set_style_pad_left(lvobj, pad, 0);
+}
+
+void Window::padRight(coord_t pad)
+{
+  lv_obj_set_style_pad_right(lvobj, pad, 0);
+}
+
+void Window::padTop(coord_t pad)
+{
+  lv_obj_set_style_pad_top(lvobj, pad, 0);
+}
+
+void Window::padBottom(coord_t pad)
+{
+  lv_obj_set_style_pad_bottom(lvobj, pad, 0);
+}
+
+void Window::padAll(coord_t pad)
+{
+  lv_obj_set_style_pad_all(lvobj, pad, 0);
+}
+
+void Window::padRow(coord_t pad)
+{
+  lv_obj_set_style_pad_row(lvobj, pad, 0);
+}
+
+void Window::padColumn(coord_t pad)
+{
+  lv_obj_set_style_pad_column(lvobj, pad, 0);
+}
+
 bool Window::hasOpaqueRect(const rect_t & testRect) const
 {
   if (!rect.contains(testRect))
