@@ -30,7 +30,7 @@ class InternalModuleWindow : public FormGroup
 
  protected:
   uint8_t lastModule = 0;
-  lv_obj_t* br_line = nullptr;
+  lv_obj_t* br_box = nullptr;
 
   static int getBaudrate();
   static void setBaudrate(int val);

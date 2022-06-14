@@ -33,7 +33,7 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
@@ -91,7 +91,7 @@ class BluetoothConfigWindow : public FormGroup
     clear();
 
     setFlexLayout();
-    FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
     lv_obj_set_style_pad_left(lvobj, lv_dpx(8), 0);
 
     auto line = newLine(&grid);
@@ -109,18 +109,18 @@ class BluetoothConfigWindow : public FormGroup
         },
         &modechoiceopen);
 
-    line = newLine(&grid);
     if (g_eeGeneral.bluetoothMode != BLUETOOTH_OFF) {
       // Pin code (displayed for information only, not editable)
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY) {
+        line = newLine(&grid);
         label = new StaticText(line, rect_t{}, STR_BLUETOOTH_PIN_CODE, 0,
                                COLOR_THEME_PRIMARY1);
         lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
         new StaticText(line, rect_t{}, "000000", 0, COLOR_THEME_PRIMARY1);
-        line = newLine(&grid);
       }
 
       // Local MAC
+      line = newLine(&grid);
       label = new StaticText(line, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0,
                              COLOR_THEME_PRIMARY1);
       lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
@@ -128,9 +128,9 @@ class BluetoothConfigWindow : public FormGroup
           line, rect_t{},
           bluetooth.localAddr[0] == '\0' ? "---" : bluetooth.localAddr, 0,
           COLOR_THEME_PRIMARY1);
-      line = newLine(&grid);
 
       // Remote MAC
+      line = newLine(&grid);
       label = new StaticText(line, rect_t{}, STR_BLUETOOTH_DIST_ADDR, 0,
                              COLOR_THEME_PRIMARY1);
       lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
@@ -138,14 +138,13 @@ class BluetoothConfigWindow : public FormGroup
           line, rect_t{},
           bluetooth.distantAddr[0] == '\0' ? "---" : bluetooth.distantAddr, 0,
           COLOR_THEME_PRIMARY1);
-      line = newLine(&grid);
 
       // BT radio name
+      line = newLine(&grid);
       label = new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
       lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
       rte = new RadioTextEdit(line, rect_t{}, g_eeGeneral.bluetoothName,
                               LEN_BLUETOOTH_NAME);
-      line = newLine(&grid);
     }
   }
 
@@ -162,7 +161,7 @@ class BluetoothConfigWindow : public FormGroup
 void RadioHardwarePage::build(FormWindow * window)
 {
   window->setFlexLayout();
-  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
   lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
   // TODO: sub-title?
@@ -209,21 +208,30 @@ void RadioHardwarePage::build(FormWindow * window)
   });
   batCal->setWindowFlags(REFRESH_ALWAYS);
 
-  // RTC Batt display
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RTC_BATT, 0, COLOR_THEME_PRIMARY1);
-  new DynamicNumber<uint16_t>(line, rect_t{}, [] {
-      return getRTCBatteryVoltage();
-  }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
-
   // RTC Batt check enable
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+
+  box = new FormGroup(line, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
+  new CheckBox(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+
+  // RTC Batt display
+  new StaticText(box, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+  new DynamicNumber<uint16_t>(box, rect_t{}, [] {
+      return getRTCBatteryVoltage();
+  }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
+
+  // ADC filter
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  new InternalModuleWindow(window, rect_t{});
+  auto mod = new InternalModuleWindow(window, rect_t{});
+  mod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)
@@ -232,12 +240,8 @@ void RadioHardwarePage::build(FormWindow * window)
 #endif
 
   new Subtitle(window, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  new SerialConfigWindow(window, rect_t{});
-
-  // ADC filter
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+  auto serial = new SerialConfigWindow(window, rect_t{});
+  serial->padLeft(lv_dpx(8));
 
   // Calibration
   new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);

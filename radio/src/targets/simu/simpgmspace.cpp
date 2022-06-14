@@ -759,14 +759,26 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL)
-const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, nullptr };
+#if defined(AUX_SERIAL_PWR_GPIO)
+  static void _fake_pwr_aux(uint8_t) {}
+  #define AUX_SERIAL_PWR _fake_pwr_aux
+#else
+  #define AUX_SERIAL_PWR nullptr
+#endif
+const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, AUX_SERIAL_PWR };
 #define AUX_SERIAL_PORT &auxSerialPort
 #else
 #define AUX_SERIAL_PORT nullptr
 #endif
 
 #if defined(AUX2_SERIAL)
-const etx_serial_port_t aux2SerialPort = { "AUX2", nullptr, nullptr };
+#if defined(AUX_SERIAL_PWR_GPIO)
+  static void _fake_pwr_aux2(uint8_t) {}
+  #define AUX2_SERIAL_PWR _fake_pwr_aux2
+#else
+  #define AUX2_SERIAL_PWR nullptr
+#endif
+const etx_serial_port_t aux2SerialPort = { "AUX2", nullptr, AUX2_SERIAL_PWR };
 #define AUX2_SERIAL_PORT &aux2SerialPort
 #else
 #define AUX2_SERIAL_PORT nullptr
