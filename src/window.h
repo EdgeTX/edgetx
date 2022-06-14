@@ -195,6 +195,15 @@ class Window
       return rect;
     }
 
+    void padLeft(coord_t pad);
+    void padRight(coord_t pad);
+    void padTop(coord_t pad);
+    void padBottom(coord_t pad);
+    void padAll(coord_t pad);
+
+    void padRow(coord_t pad);
+    void padColumn(coord_t pad);
+
     bool isChildVisible(const Window * window) const;
     bool isChildFullSize(const Window * window) const;
 
