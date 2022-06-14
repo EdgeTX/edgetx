@@ -191,10 +191,12 @@ class LogicalSwitchEditPage: public Page
       }
 
       // AND switch
+      if(cs->func != LS_FUNC_SAFE){
       new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
       auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
       choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
       grid.nextLine();
+      }
 
       // Duration
       new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DURATION, 0, COLOR_THEME_PRIMARY1);
