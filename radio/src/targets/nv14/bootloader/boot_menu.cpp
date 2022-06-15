@@ -58,8 +58,12 @@ extern BitmapBuffer * lcd;
 
 void bootloaderInitScreen()
 {
-  backlightEnable(BACKLIGHT_LEVEL_MAX);
+  // Init display first
   lcdInitDisplayDriver();
+
+  // then backlight
+  backlightInit();
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
 static void bootloaderDrawTitle(const char* text)
