@@ -27,8 +27,6 @@ enum TouchEvent
     TE_NONE,
     TE_DOWN,
     TE_UP,
-    TE_SLIDE,
-    TE_SLIDE_END
 };
 
 struct TouchState
@@ -36,18 +34,14 @@ struct TouchState
   unsigned char event;
   short x;
   short y;
-  short startX;
-  short startY;
-  short deltaX;
-  short deltaY;
-  short lastDeltaX;
-  short lastDeltaY;
-  short tapCount;
 };
 
+struct TouchDriver
+{
+  bool (*touchOccured)(void);
+  TouchState (*readEvent)(void);
+};
 
-#define SLIDE_RANGE 6
-
-extern struct TouchState touchState;
+struct TouchState readTouchEvent();
 
 #endif // _TOUCH_H_
