@@ -269,10 +269,6 @@ void bootloaderInitApp()
 
   TRACE("\nBootloader started :)");
 
-  lcdInit();
-  backlightInit();
-  backlightFullOn();
-
 #if defined(BLUETOOTH)
   // we shutdown the bluetooth module now to be sure it will be detected on firmware start
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
