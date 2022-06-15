@@ -23,6 +23,7 @@ bool boardBacklightOn = false;
 bool isBacklightEnabled() { return boardBacklightOn; }
 void backlightFullOn() { boardBacklightOn = true; }
 
+void backlightInit() {}
 void backlightEnable(unsigned char) {}
 void backlightEnable(unsigned char, unsigned char) {}
 void backlightDisable() {}
