@@ -546,7 +546,7 @@ void perMain()
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(LIBOPENUI)
     // draw some image showing USB
-    lcd->reset();
+    lcdInitDirectDrawing();
     OpenTxTheme::instance()->drawUsbPluggedScreen(lcd);
     lcdRefresh();
 #else
