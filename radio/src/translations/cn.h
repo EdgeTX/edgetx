@@ -228,6 +228,7 @@
 #define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "标准","小","较小","中等","双倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)", "=(整体)"
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #define INDENT
 #define LEN_INDENT                   3
@@ -1196,6 +1197,7 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
+#define TR_SHOW                       INDENT "Show"
 
 #define TR_USE_THEME_COLOR            "使用主题颜色"
 

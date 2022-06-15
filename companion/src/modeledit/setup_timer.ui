@@ -92,6 +92,9 @@
     <widget class="AutoComboBox" name="persistent"/>
    </item>
    <item>
+    <widget class="AutoComboBox" name="showElapsed"/>
+   </item>
+   <item>
     <widget class="QLabel" name="persistentValue">
      <property name="text">
       <string notr="true"> (00:00:00)</string>

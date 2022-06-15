@@ -455,17 +455,18 @@ static const struct YamlNode struct_ModelHeader[] = {
 };
 static const struct YamlNode struct_TimerData[] = {
   YAML_IDX,
-  YAML_UNSIGNED( "start", 22 ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_SIGNED( "value", 22 ),
+  YAML_UNSIGNED("start", 22),
+  YAML_SIGNED_CUST("swtch", 10, r_swtchSrc, w_swtchSrc),
+  YAML_SIGNED("value", 22),
   YAML_ENUM("mode", 3, enum_TimerModes),
-  YAML_UNSIGNED( "countdownBeep", 2 ),
-  YAML_UNSIGNED( "minuteBeep", 1 ),
-  YAML_UNSIGNED( "persistent", 2 ),
-  YAML_SIGNED( "countdownStart", 2 ),
+  YAML_UNSIGNED("countdownBeep", 2),
+  YAML_UNSIGNED("minuteBeep", 1),
+  YAML_UNSIGNED("persistent", 2),
+  YAML_SIGNED("countdownStart", 2),
+  YAML_UNSIGNED("showElapsed", 1),
+  YAML_PADDING( 7 ),
   YAML_STRING("name", 8),
-  YAML_END
-};
+  YAML_END};
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 8 ),
   YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
@@ -836,7 +837,7 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
@@ -888,7 +889,7 @@ static const struct YamlNode struct_ModelData[] = {
 };
 static const struct YamlNode struct_PartialModel[] = {
   YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_END
 };
 
