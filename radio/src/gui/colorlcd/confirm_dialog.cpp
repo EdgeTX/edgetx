@@ -24,30 +24,35 @@
 #include "static.h"
 #include "gridlayout.h"
 
-ConfirmDialog::ConfirmDialog(Window * parent, const char * title, const char * message, std::function<void(void)> confirmHandler) :
-  Dialog(parent, title, {LCD_W / 10 , LCD_H / 4, LCD_W - 2 * LCD_W / 10, LCD_H - 2 * LCD_H / 4}),
-  confirmHandler(std::move(confirmHandler))
+ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
+                             const char* message,
+                             std::function<void(void)> confirmHandler) :
+    Dialog(parent, title, rect_t{}),
+    confirmHandler(std::move(confirmHandler))
 {
   auto form = &content->form;
-  FormGridLayout grid(content->form.width());
-  form->clear();
+  auto msg = new StaticText(form, rect_t{}, message);
+  msg->padAll(lv_dpx(16));
 
-  new StaticText(form, grid.getCenteredSlot(), message);
-  grid.setLabelWidth(15);
-  grid.setMarginRight(15);
-  grid.nextLine();
-  grid.nextLine();
+  auto box = new FormGroup(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
-  auto noButton = new TextButton(form, grid.getFieldSlot(2, 0), STR_NO, [=]() -> int8_t {
-      this->deleteLater();
-      return 0;
+  auto box_obj = box->getLvObj();
+  lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  
+  auto btn = new TextButton(box, rect_t{}, STR_NO, [=]() -> int8_t {
+    this->deleteLater();
+    return 0;
   });
+  lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
 
-  new TextButton(form, grid.getFieldSlot(2, 1), STR_YES, [=]() -> int8_t {
-      this->deleteLater();
-      this->confirmHandler();
-      return 0;
+  btn = new TextButton(box, rect_t{}, STR_YES, [=]() -> int8_t {
+    this->deleteLater();
+    this->confirmHandler();
+    return 0;
   });
+  lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
 
-  // noButton->setFocus(SET_FOCUS_DEFAULT);
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
 }
