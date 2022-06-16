@@ -97,7 +97,7 @@ void drawSleepBitmap()
     bgColor = COLOR_THEME_SECONDARY1;
   }
 
-  lcd->reset();
+  lcdInitDirectDrawing();
   lcd->clear(bgColor);
 
   const BitmapBuffer* bitmap = OpenTxTheme::instance()->shutdown;
