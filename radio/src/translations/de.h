@@ -40,7 +40,7 @@
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
 #define TR_TRNMODE                     "AUS","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "AUS","Telem Mirror","Telemetry In","SBUS Eingang","IBUS Eingang","CRSF Eingang","SUMD Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "AUS","Telem Mirror","Telemetry In","FrSky D In","SBUS Eingang","IBUS Eingang","CRSF Eingang","SUMD Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
 #define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste")
 #define TR_SLIDERTYPES                 "Keine","Schieber"
