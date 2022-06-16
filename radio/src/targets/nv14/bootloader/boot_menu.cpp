@@ -58,12 +58,7 @@ extern BitmapBuffer * lcd;
 
 void bootloaderInitScreen()
 {
-  // Init display first
   lcdInitDisplayDriver();
-
-  // then backlight
-  backlightInit();
-  backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
 static void bootloaderDrawTitle(const char* text)
@@ -105,6 +100,8 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
+    static bool _first_screen = true;
+
     lcdInitDirectDrawing();
     bootloaderDrawBackground();
 
@@ -225,6 +222,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                       LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
       }
     }
+
+    _first_screen = false;
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
