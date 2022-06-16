@@ -211,6 +211,10 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     }
   }
   lcdRefresh();
+
+  // invalidate screen to enable quick return
+  // to normal display routine
+  lv_obj_invalidate(lv_scr_act());
 }
 
 void drawFatalErrorScreen(const char * message)
