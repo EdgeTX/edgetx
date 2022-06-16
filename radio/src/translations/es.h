@@ -32,65 +32,14 @@
 
 
 
-<<<<<<< HEAD:radio/src/translations/es.h
 #define TR_OFFON               "OFF","ON"
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           "Silencio","Alarma","No tecla","Todo"
 #define TR_VBLMODE             "OFF","Teclas","Sticks","Ambos","ON"
 #define TR_TRNMODE             "OFF","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
-=======
-// NON ZERO TERMINATED STRINGS
-#define LEN_OFFON              "\003"
-#define TR_OFFON               "OFF""ON\0"
 
-#define LEN_MMMINV             "\003"
-#define TR_MMMINV              "---""INV"
-
-#define LEN_VBEEPMODE          "\010"
-#define TR_VBEEPMODE           "Silencio""Alarma\0 ""No tecla""Todo\0   "
-
-#define LEN_VBLMODE            "\006"
-#define TR_VBLMODE             "OFF\0  ""Teclas""Sticks""Ambos\0""ON\0   "
-
-#define LEN_TRNMODE            "\003"
-#define TR_TRNMODE             "OFF""+=\0"":="
-
-#define LEN_TRNCHN             "\003"
-#define TR_TRNCHN              "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES   "\015"
-#define TR_AUX_SERIAL_MODES    "OFF\0         ""Telem Mirror\0""Telemetría\0  ""FrSky D In\0  ""Entrenador SBUS""Entrenador IBUS""Entrenador CRSF""Entrenador SUMD""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
-
-#define LEN_SWTYPES            "\007"
-#define TR_SWTYPES             "Nada\0  ""Palanca""2POS\0  ""3POS\0  "
-
-#define LEN_POTTYPES           TR("\013", "\017")
-#define TR_POTTYPES            TR("Nada\0      ""Pot con fij""Multipos\0  ""Pot\0       ", "Nada\0          ""Pot con fijador""Switch multipos""Pot\0           ")
-
-#define LEN_SLIDERTYPES        "\006"
-#define TR_SLIDERTYPES         "Nada\0 ""Slider"
-
-#define LEN_VLCD               "\006"
-#define TR_VLCD                "NormalOptrex"
-
-#define LEN_VPERSISTENT        "\014"
-#define TR_VPERSISTENT         "OFF\0        ""Vuelo\0      ""Reset manual"
-
-#define LEN_COUNTRY_CODES       TR("\002", "\007")
-#define TR_COUNTRY_CODES        TR("US""JP""EU", "América""Japón\0 ""Europa\0")
-
-#define LEN_USBMODES           "\010"
-#define TR_USBMODES            "Pregunta""Joystick""SDCard\0 ""Serie\0  "
-
-#define LEN_JACK_MODES          "\010"
-#define TR_JACK_MODES           "Pregunta""Audio\0  ""Entrena."
-
-#define LEN_TELEMETRY_PROTOCOLS "\017"
-#define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetr."
->>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/es.h.txt
-
-#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetría","Entrenador SBUS","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetría","Entrenador SBUS","IBUS Input","CRSF Input","SUMD Input","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES             "Nada","Palanca","2POS","3POS"
 #define TR_POTTYPES            "Nada",TR("Pot con fij","Pot con fijador"),TR("Multipos","Switch multipos"),"Pot"
 #define TR_SLIDERTYPES         "Nada","Slider"

@@ -32,6 +32,7 @@
  *  \0               -ends current string
  */
 
+//#define TR_AUX_SERIAL_MODES                     "AUS\0         ""Telem Mirror\0""Telemetry In\0" "FrSky D In\0  " "SBUS Eingang\0""IBUS Eingang\0""CRSF Eingang\0""SUMD Eingang\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "AUS","EIN"
 #define TR_MMMINV                      "---","INV"
@@ -39,7 +40,7 @@
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
 #define TR_TRNMODE                     "AUS","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "AUS","Telem Mirror","Telemetry In","SBUS Eingang","IBUS Eingang","CRSF Eingang","SUMD Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
 #define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste")
 #define TR_SLIDERTYPES                 "Keine","Schieber"
@@ -60,79 +61,7 @@
 #define TR_VVARIOCENTER                "Ton","Ruhe"
 #define TR_CURVE_TYPES                 "Nur Y","X und Y" // "Standard","Custom"
 
-<<<<<<< HEAD:radio/src/translations/de.h
 #define TR_ADCFILTERVALUES           "Global","Aus","Ein"
-=======
-#define LEN_MMMINV                     "\003"
-#define TR_MMMINV                      "---""INV"
-
-#define LEN_VBEEPMODE                  "\005"
-#define TR_VBEEPMODE                   "Stumm""Alarm""NoKey""Alle\0"
-
-#define LEN_VBLMODE                    "\005"
-#define TR_VBLMODE                     "AUS\0 ""Taste""Stks\0""Beide""EIN\0 " // Anpassung
-
-#define LEN_TRNMODE                    "\003"
-#define TR_TRNMODE                     "AUS"" +="" :="
-
-#define LEN_TRNCHN                     "\003"
-#define TR_TRNCHN                      "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES           "\015"
-#define TR_AUX_SERIAL_MODES    			"AUS\0         ""Telem Mirror\0""Telemetry In\0" "FrSky D In\0  " "SBUS Eingang\0""IBUS Eingang\0""CRSF Eingang\0""SUMD Eingang\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
-
-#define LEN_SWTYPES            			"\006"
-#define TR_SWTYPES            			 "Kein\0 ""Taster""2POS\0 ""3POS\0"
-
-#define LEN_POTTYPES          			 TR("\013","\017")
-#define TR_POTTYPES           			 TR("None\0      ""Pot w. det\0""Multipos\0  ""Pot\0       ", "Kein\0          ""Poti mit Raste ""Stufen-Schalter""Poti ohne Raste\0")
-
-#define LEN_SLIDERTYPES        			"\006"
-#define TR_SLIDERTYPES         			"Keine\0""Slider"
-
-#define LEN_VLCD               			"\006"
-#define TR_VLCD               			 "NormalOptrex"
-
-#define LEN_VPERSISTENT        			"\014"
-#define TR_VPERSISTENT         			"AUS\0        ""Flugzeit\0   ""Manuell Ruck"
-
-#define LEN_COUNTRY_CODES       			TR("\002", "\007")
-#define TR_COUNTRY_CODES        			TR("US""JP""EU", "Amerika""Japan\0 ""Europa\0")
-
-#define LEN_USBMODES           			TR("\006", "\010")
-#define TR_USBMODES            			TR("Fragen""Joyst\0""SDCard""Serial", "Fragen\0 ""Joystick""Speicher""Seriell\0")
-
-#define LEN_JACK_MODES                  "\007"
-#define TR_JACK_MODES                   "Popup\0 ""Audio\0 ""Trainer"
-
-#define LEN_TELEMETRY_PROTOCOLS 		"\017"
-#define TR_TELEMETRY_PROTOCOLS 			"FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (Kabel)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
-
-#define TR_MULTI_CUSTOM        			"Custom"
-
-#define LEN_VTRIMINC          			 TR("\007", "\014") // ursprüglich "\006", "\013"
-#define TR_VTRIMINC           			 TR("Expo   ""ExFein ""Fein   ""Mittel ""Grob   ", "Exponentiell""Extrafein   ""Fein        ""Mittel      ""Grob        ")
-
-#define LEN_VDISPLAYTRIMS      			"\006"
-#define TR_VDISPLAYTRIMS       			"Nein\0 ""Kurz\0 ""Ja\0"  //Trimmwerte Keine, kurze Anzeigen, Ja
-
-#define LEN_VBEEPCOUNTDOWN     			"\006"
-#define TR_VBEEPCOUNTDOWN      			"Kein\0 ""Pieps\0""Stimme""Haptik"
-
-#define LEN_COUNTDOWNVALUES    "\003"
-#define TR_COUNTDOWNVALUES     "5s\0""10s""20s""30s"
-
-#define LEN_VVARIOCENTER       			"\006"
-#define TR_VVARIOCENTER        			"Ton\0  ""Ruhe  "
-
-#define LEN_CURVE_TYPES       			 "\010"
-#define TR_CURVE_TYPES        			 " Nur Y  "" X und Y"      //"Standard""Custom\0"
-
-#define LEN_ADCFILTERVALUES          "\006"
-#define TR_ADCFILTERVALUES           "Global""Aus\0  ""Ein\0  "
-
-#define LEN_RETA123           			 "\001"
->>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/de.h.txt
 
 #if defined(PCBX10)
   #define TR_RETA123                   "S","H","G","Q","1","3","2","4","5","6","7","L","R"

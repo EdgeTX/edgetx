@@ -30,7 +30,6 @@
  */
 
 
-<<<<<<< HEAD:radio/src/translations/cn.h
 #define TR_OFFON                       "禁用","开启"
 #define TR_MMMINV                      "---","反\0"
 #define TR_VBEEPMODE                   "静音","警告","忽略按键","全部"
@@ -38,7 +37,7 @@
 #define TR_TRNMODE                     "关","相加","替换"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","IBUS Input","CRSF Input","SUMD Input","LUA脚本","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "无","回弹","2段","3段"
 #define TR_POTTYPES                    "无","有中点旋钮","多段旋钮","无中点旋钮"
 #define TR_SLIDERTYPES                 "无","侧滑块"
@@ -59,80 +58,6 @@
 #define TR_CURVE_TYPES                 "标准","自定义"
 
 #define TR_ADCFILTERVALUES             "全局","禁用","开启"
-=======
-
-// NON ZERO TERMINATED STRINGS
-#define LEN_OFFON                      "\004"
-#define TR_OFFON                       "禁用" "开启"
-
-#define LEN_MMMINV                     "\003"
-#define TR_MMMINV                      "---" "反\0"
-
-#define LEN_VBEEPMODE                  "\010"
-#define TR_VBEEPMODE                   "静音\0   " "警告\0   " "忽略按键" "全部\0   "
-
-#define LEN_VBLMODE                    "\004"
-#define TR_VBLMODE                     "关闭" "按键" "操控" "全部" "开启"
-
-#define LEN_TRNMODE                    "\004"
-#define TR_TRNMODE                     "关\0 " "相加" "替换"
-
-#define LEN_TRNCHN                     "\003"
-#define TR_TRNCHN                      "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES           "\010"
-#define TR_AUX_SERIAL_MODES            "调试\0   " "回传镜像" "回传输入" "FrSkyDIn" "SBUS教练" "IBUS教练""CRSF教练""SUMD教练" "LUA脚本\0""CLI\0     ""GPS\0     ""Debug\0   "
-
-#define LEN_SWTYPES                    "\004"
-#define TR_SWTYPES                     "无\0 " "回弹" "2段\0""3段\0"
-
-#define LEN_POTTYPES                   "\012"
-#define TR_POTTYPES                    "无\0       " "有中点旋钮" "多段旋钮\0 " "无中点旋钮"
-
-#define LEN_SLIDERTYPES                "\006"
-#define TR_SLIDERTYPES                 "无\0   " "侧滑块"
-
-#define LEN_VLCD                       "\006"
-#define TR_VLCD                        "Normal" "Optrex"
-
-#define LEN_VPERSISTENT                "\016"
-#define TR_VPERSISTENT                 "禁用\0         " "随飞行记录复位" "随手动复位\0   "
-
-#define LEN_COUNTRY_CODES              "\004"
-#define TR_COUNTRY_CODES               "美国" "日本" "欧洲"
-
-#define LEN_USBMODES                   "\006"
-#define TR_USBMODES                    "询问\0 " "游戏柄" "U盘\0  " "串行\0 "
-
-#define LEN_JACK_MODES                 "\004"
-#define TR_JACK_MODES                  "询问" "音频" "教练"
-
-#define LEN_TELEMETRY_PROTOCOLS        "\017"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT\0  " "FrSky D\0       " "FrSky D (cable)" "TBS Crossfire\0 " "Spektrum\0      " "AFHDS2A IBUS\0  " "Multi Telemetry"
-
-#define LEN_VTRIMINC                   "\004"
-#define TR_VTRIMINC                    "指数" "很小" "较小" "中等" "较大"
-
-#define LEN_VDISPLAYTRIMS              "\010"
-#define TR_VDISPLAYTRIMS               "不显示\0 " "改变时\0 " "始终显示"
-
-#define LEN_VBEEPCOUNTDOWN             "\004"
-#define TR_VBEEPCOUNTDOWN              "静音" "蜂鸣" "语音" "震动"
-
-#define LEN_COUNTDOWNVALUES            "\004"
-#define TR_COUNTDOWNVALUES             "5秒\0" "10秒" "20秒" "30秒"
-
-#define LEN_VVARIOCENTER               "\004"
-#define TR_VVARIOCENTER                "音调" "静音"
-
-#define LEN_CURVE_TYPES                "\006"
-#define TR_CURVE_TYPES                 "标准\0 " "自定义"
-
-#define LEN_ADCFILTERVALUES             "\004"                                        
-#define TR_ADCFILTERVALUES              "全局""禁用" "开启"
-
-#define LEN_RETA123                    "\001"
->>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/cn.h.txt
 
 #if defined(PCBX10)
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
