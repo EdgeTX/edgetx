@@ -142,6 +142,9 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 
 void lcdInitDisplayDriver()
 {
+  // we already have a display: exit
+  if (disp != nullptr) return;
+
   lv_init();
 
   // Clear buffers first
