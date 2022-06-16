@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 enum SerialParity {
     ETX_Parity_None,
