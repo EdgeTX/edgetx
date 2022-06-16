@@ -40,8 +40,7 @@
 #define TR_TRNMODE             "UIT","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-<<<<<<< HEAD:radio/src/translations/nl.h
-#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","IBUS Input","CRSF Input","SUMD Input","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES             "Geen","Wissel","2POS","3POS"
 #define TR_POTTYPES            "Geen",TR("Pot w. det","Pot met Klik"),TR("Multipos","Standenschakelaar"),TR("Pot", "Pot zonder Klik")
 #define TR_SLIDERTYPES         "Geen","Schuif"
@@ -50,52 +49,6 @@
 #define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
 #define TR_JACK_MODES          "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
-=======
-#define LEN_MMMINV             "\003"
-#define TR_MMMINV              "---""INV"
-
-#define LEN_VBEEPMODE          "\005"
-#define TR_VBEEPMODE           "Stil\0""Alarm""NoKey""Alles"
-
-#define LEN_VBLMODE            TR("\005", "\010")
-#define TR_VBLMODE             TR("UIT\0 ""Keys\0""Stick""Beide""AAN\0 ", "UIT\0    ""Toetsen\0""Sticks\0 ""Beide\0  ""AAN\0    ")
-
-#define LEN_TRNMODE            "\003"
-#define TR_TRNMODE             "UIT"" +="" :="
-
-#define LEN_TRNCHN             "\003"
-#define TR_TRNCHN              "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES   "\015"
-#define TR_AUX_SERIAL_MODES    "UIT\0         ""Telem Mirror\0""Telemetry In\0""FrSky D In\0  ""SBUS Leerling""IBUS Leerling""CRSF Leerling""SUMD Leerling""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
-
-#define LEN_SWTYPES            "\006"
-#define TR_SWTYPES             "Geen\0 ""Wissel""2POS\0 ""3POS\0"
-
-#define LEN_POTTYPES           TR("\013","\021")
-#define TR_POTTYPES            TR("None\0      ""Pot w. det\0""Multipos\0  ""Pot\0       ", "Geen\0            ""Pot met Klik\0    ""Standenschakelaar""Pot zonder Klik\0 ")
-
-#define LEN_SLIDERTYPES        "\006"
-#define TR_SLIDERTYPES         "Geen\0 ""Schuif"
-
-#define LEN_VLCD               "\006"
-#define TR_VLCD                "NormalOptrex"
-
-#define LEN_VPERSISTENT        "\020"
-#define TR_VPERSISTENT         "UIT\0            ""Vliegtijd\0      ""Handmatige Reset"
-
-#define LEN_COUNTRY_CODES       TR("\002", "\007")
-#define TR_COUNTRY_CODES        TR("US""JP""EU", "Amerika""Japan\0 ""Europa\0")
-
-#define LEN_USBMODES           TR("\006", "\010")
-#define TR_USBMODES            TR("Ask\0  ""Joyst\0""SDCard""Serial", "Ask\0    ""Joystick""Storage\0""Serial\0 ")
-
-#define LEN_JACK_MODES                  "\007"
-#define TR_JACK_MODES                   "Popup\0 ""Audio\0 ""Trainer"
-
-#define LEN_TELEMETRY_PROTOCOLS "\017"
-#define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT\0  ""FrSky D\0       ""FrSky D (cable)""TBS Crossfire\0 ""Spektrum\0      ""AFHDS2A IBUS\0  ""Multi Telemetry"
->>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/nl.h.txt
 
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Exponentieel"),TR("ExFijn","Extra Fijn"),"Fijn","Medium","Grof"

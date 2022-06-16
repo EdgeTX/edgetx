@@ -32,7 +32,6 @@
  */
 
 // NON ZERO TERMINATED STRINGS
-<<<<<<< HEAD:radio/src/translations/cz.h
 #define TR_OFFON                       "VYP","ZAP"
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Tichý",TR("Alarm","Jen Alarm"),TR("BezKl","Bez kláves"),"Vše"
@@ -40,7 +39,7 @@
 #define TR_VBLMODE                     TR("Vyp","Vypnuto"),TR("Kláv.","Klávesy"),"Páky","Vše",TR("Zap","Zapnuto")
 #define TR_TRNMODE                     "X","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "VYP","Telem Mirror","Telemetry In","SBUS Trenér","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES            "VYP","Telem Mirror","Telemetry In","SBUS Trenér","IBUS Input","CRSF Input","SUMD Input","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
 #define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr")
 #define TR_SLIDERTYPES                 "Žádný","Slider"
@@ -50,56 +49,6 @@
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"
 #define TR_JACK_MODES                  "Zeptat","Audio","Trenér"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
-=======
-#define LEN_OFFON                      "\003"
-#define TR_OFFON                       "VYP""ZAP"
-
-#define LEN_MMMINV                     "\003"
-#define TR_MMMINV                      "---""INV"
-
-#define LEN_VBEEPMODE                  TR("\005","\012")
-#define TR_VBEEPMODE                   TR("Tichý""Alarm""BezKl""Vše\0", "Tichý\0    ""Jen alarm\0""Bez kláves""Vše\0      ")
-
-#define LEN_VBLMODE                    TR("\005", "\007")
-#define TR_VBLMODE                     TR("Vyp\0 ""Kláv.""Páky\0""Vše\0 ""Zap\0 ", "Vypnuto""Klávesy""Páky\0  ""Vše\0   ""Zapnuto")
-
-#define LEN_TRNMODE                    "\003"
-#define TR_TRNMODE                     " X "" +="" :="
-
-#define LEN_TRNCHN                     "\003"
-#define TR_TRNCHN                      "CH1CH2CH3CH4"
-
-#define LEN_AUX_SERIAL_MODES           "\015"
-#define TR_AUX_SERIAL_MODES            "VYP\0         ""Telem Mirror\0""Telemetry In\0""FrSky D In\0  ""SBUS Trenér\0 ""IBUS Trenér\0 ""CRSF Trenér\0 ""SUMD Trenér\0 ""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
-
-#define LEN_SWTYPES                    "\013"
-#define TR_SWTYPES                     "Žádný\0     ""Bez aretace""2-polohový\0""3-polohový\0"
-
-#define LEN_POTTYPES                   TR("\013","\016")
-#define TR_POTTYPES                    TR("Žádný\0     ""Pot s aret.""Vícepol př.""Pot\0       ", "Žádný\0        ""Pot s aretací\0""Vícepol. přep.""Potenciometr\0 ")
-
-#define LEN_SLIDERTYPES                "\006"
-#define TR_SLIDERTYPES                 "Žádný\0""Slider"
-
-#define LEN_VLCD                       "\006"
-#define TR_VLCD                        "NormalOptrex"
-
-#define LEN_VPERSISTENT                "\014"
-#define TR_VPERSISTENT                 "Ne\0         ""V rámci letu""Reset ručně\0"
-
-#define LEN_COUNTRY_CODES               TR("\002", "\010")
-#define TR_COUNTRY_CODES                TR("US""JP""EU", "Amerika\0""Japonsko""Evropa\0 ")
-
-#define LEN_USBMODES                   TR("\007", "\011")
-#define TR_USBMODES                    TR("Zeptat\0""Joyst\0 ""SDkarta""Serial\0", "Zeptat se""Joystick\0""Úložiště\0""Serial\0  ")
-
-#define LEN_JACK_MODES                  "\007"
-#define TR_JACK_MODES                   "Zeptat\0""Audio\0 ""Trenér"
-
-#define LEN_TELEMETRY_PROTOCOLS        "\017"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT\0  FrSky D\0       FrSky D (kabel)Spektrum\0      "
-
->>>>>>> 54ed562b8 (added CRSF trainer input):radio/src/translations/cz.h.txt
 #define TR_MULTI_CUSTOM                "Vlastní"
 #define TR_VTRIMINC                    "Expo","ExJemný","Jemný","Střední","Hrubý"
 #define TR_VDISPLAYTRIMS               "Ne","Změna","Ano"
