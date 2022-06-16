@@ -32,7 +32,6 @@
  *  \0               -ends current string
  */
 
-//#define TR_AUX_SERIAL_MODES                     "AUS\0         ""Telem Mirror\0""Telemetry In\0" "FrSky D In\0  " "SBUS Eingang\0""IBUS Eingang\0""CRSF Eingang\0""SUMD Eingang\0""LUA\0         ""CLI\0         ""GPS\0         ""Debug\0       "
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "AUS","EIN"
 #define TR_MMMINV                      "---","INV"
