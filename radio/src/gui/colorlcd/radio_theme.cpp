@@ -30,7 +30,6 @@
 #include "widget_settings.h"
 #include "sliders.h"
 #include "color_list.h"
-#include "color_editor_popup.h"
 #include "color_editor.h"
 #include "listbox.h"
 #include "preview_window.h"

@@ -27,8 +27,8 @@ set(GUI_SRC
   lz4_bitmaps.cpp
   theme.cpp
   theme_manager.cpp
-  color_editor_popup.cpp
   color_editor.cpp
+  color_picker.cpp
   color_list.cpp
   preview_window.cpp
   file_browser.cpp
