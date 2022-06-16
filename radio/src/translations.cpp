@@ -121,6 +121,9 @@ ISTR(TEXT_SIZE);
 ISTR(SUBTRIMMODES);
 ISTR(PWR_OFF_DELAYS);
 
+// sanity checks
+static_assert(UART_MODE_COUNT == (sizeof(STR_AUX_SERIAL_MODES) / sizeof(STR_AUX_SERIAL_MODES[0])));
+
 const char STR_POPUPS_ENTER_EXIT[] = TR_POPUPS_ENTER_EXIT;
 const char STR_OK[] = TR_OK;
 const char STR_FREE[] = TR_FREE;
