@@ -1276,7 +1276,7 @@
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS        "Otevřít Open Channel Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Otevřít Channel Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Otevřít mon. kanálů"
 #endif
 #define TR_DUPLICATE                    "Duplikovat"
 #define TR_ACTIVATE                     "Aktivovat"
