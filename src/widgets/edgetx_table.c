@@ -2,14 +2,14 @@
 #include "edgetx_table.h"
 
 
-#define MY_CLASS &lv_edgetx_table_class
+#define MY_CLASS &table_class
 
-static void edgetx_table_event(const lv_obj_class_t * class_p, lv_event_t * e);
+static void table_event(const lv_obj_class_t * class_p, lv_event_t * e);
 
-const lv_obj_class_t lv_edgetx_table_class  = {
+const lv_obj_class_t table_class  = {
     .constructor_cb = NULL,
     .destructor_cb = NULL,
-    .event_cb = edgetx_table_event,
+    .event_cb = table_event,
     .width_def = LV_SIZE_CONTENT,
     .height_def = LV_SIZE_CONTENT,
     .base_class = &lv_table_class,
@@ -19,7 +19,7 @@ const lv_obj_class_t lv_edgetx_table_class  = {
 };
 
 
-lv_obj_t * edgetx_table_create(lv_obj_t * parent)
+lv_obj_t * table_create(lv_obj_t * parent)
 {
     lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
     lv_obj_class_init_obj(obj);
@@ -27,7 +27,7 @@ lv_obj_t * edgetx_table_create(lv_obj_t * parent)
 }
 
 
-static void edgetx_table_event(const lv_obj_class_t * class_p, lv_event_t * e)
+static void table_event(const lv_obj_class_t * class_p, lv_event_t * e)
 {
   lv_res_t res;
 
