@@ -38,6 +38,7 @@ set(LIBOPENUI_SRC
   widgets/window_base.c
   widgets/simple_btn.c
   widgets/field_edit.c
+  widgets/edgetx_table.c
   )
 
 foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
