@@ -1058,7 +1058,7 @@
 #define TR_CELLINDEX                   "Článek"
 #define TR_LOGS                        "Logovat"
 #define TR_OPTIONS                     "Možnosti"
-#define TR_FIRMWARE_OPTIONS            "Firmware možnosti"
+#define TR_FIRMWARE_OPTIONS            "Možnosti firmwaru"
 
 #define TR_ALTSENSOR                   "Senzor výšky"
 #define TR_CELLSENSOR                  "Senzor článků"
