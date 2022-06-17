@@ -12,6 +12,7 @@
 
 #include "libopenui_config.h"
 #include "widgets/field_edit.h"
+#include "widgets/window_base.h"
 
 #include "lvgl_widgets/input_mix_line.h"
 #include "lvgl_widgets/input_mix_group.h"
@@ -829,6 +830,10 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
             lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
         }
 #endif
+    }
+    else if (lv_obj_check_type(obj, &window_base_class)) {
+        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
     }
     else if(lv_obj_check_type(obj, &input_mix_line_class)) {
         lv_obj_add_style(obj, &styles.line_btn, 0);
