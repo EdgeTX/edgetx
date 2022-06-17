@@ -727,6 +727,16 @@
   #define I2C_B1_GPIO_AF                  GPIO_AF_I2C3
   #define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource7
   #define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource8
+#elif defined(RADIO_FAMILY_T16)
+  #define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOH
+  #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C3
+  #define I2C_B1                          I2C3
+  #define I2C_B1_GPIO                     GPIOH
+  #define I2C_B1_SCL_GPIO_PIN             GPIO_Pin_7  // PH.07
+  #define I2C_B1_SDA_GPIO_PIN             GPIO_Pin_8  // PH.08
+  #define I2C_B1_GPIO_AF                  GPIO_AF_I2C3
+  #define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource7
+  #define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource8
 #else
   #define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOB
   #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C1
