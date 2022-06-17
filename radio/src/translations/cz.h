@@ -1274,7 +1274,7 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Trimy do Subtrimů"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Otevřít Open Channel Monitor"
+  #define TR_OPEN_CHANNEL_MONITORS        "Otevřít monitor kanálů"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Otevřít mon. kanálů"
 #endif
