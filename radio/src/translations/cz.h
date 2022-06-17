@@ -476,7 +476,7 @@
 
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
-#define TR_INT_GPS_LABEL               "Vnitřmí GPS"
+#define TR_INT_GPS_LABEL               "Vnitřní GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua skripty"
 #define TR_FREE_MEM_LABEL              "Free mem"
