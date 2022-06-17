@@ -12,6 +12,7 @@
 
 #include "libopenui_config.h"
 #include "widgets/field_edit.h"
+#include "widgets/edgetx_table.h"
 
 #include "lvgl_widgets/input_mix_line.h"
 #include "lvgl_widgets/input_mix_group.h"
@@ -885,7 +886,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_TABLE
-    else if(lv_obj_check_type(obj, &lv_table_class)) {
+    else if(lv_obj_check_type(obj, &lv_table_class) || lv_obj_check_type(obj, &lv_edgetx_table_class)) {
         lv_obj_add_style(obj, &styles.pad_zero, 0);
         lv_obj_add_style(obj, &styles.no_radius, 0);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
