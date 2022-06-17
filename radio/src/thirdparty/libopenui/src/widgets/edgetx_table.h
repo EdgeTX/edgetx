@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-extern const lv_obj_class_t lv_edgetx_table_class;
-lv_obj_t* edgetx_table_create(lv_obj_t* parent);
+extern const lv_obj_class_t table_class;
+lv_obj_t* table_create(lv_obj_t* parent);
 
 #ifdef __cplusplus
 };

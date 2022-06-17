@@ -136,7 +136,7 @@ void TableField::draw_end(lv_event_t* e)
 }
 
 TableField::TableField(Window* parent, const rect_t& rect, WindowFlags windowFlags) :
-  Window(parent, rect, windowFlags, 0, edgetx_table_create)
+  Window(parent, rect, windowFlags, 0, table_create)
 {
   lv_obj_add_event_cb(lvobj, TableField::event_cb, LV_EVENT_ALL, nullptr);
 }
