@@ -141,7 +141,7 @@ class VersionDialog : public Dialog
 
       char statusText[64];
       auto hz = 1000000 / getMixerSchedulerPeriod();
-      snprintf(statusText, 64, "%d Hz %lu Err", hz, telemetryErrors);
+      snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       status->setText(statusText);
     }
 #endif

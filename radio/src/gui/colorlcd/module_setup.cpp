@@ -153,7 +153,7 @@ void ModuleWindow::update()
                    COLOR_THEME_PRIMARY1);
     new DynamicText(this, grid.getFieldSlot(), [=] {
       char msg[64] = "";
-      sprintf(msg, "%d Hz %lu Err", 1000000 / getMixerSchedulerPeriod(),
+      sprintf(msg, "%d Hz %" PRIu32 " Err", 1000000 / getMixerSchedulerPeriod(),
               telemetryErrors);
       return std::string(msg);
     });
