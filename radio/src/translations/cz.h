@@ -1088,7 +1088,7 @@
 #define TR_ADD_MAIN_VIEW               "Přidat hlavní panel"
 #define TR_BACKGROUND_COLOR            "Barva pozadí"
 #define TR_MAIN_COLOR                  "Hlavní barva"
-#define TR_BAR2_COLOR                  "Vedlejší barva lišty"
+#define TR_BAR2_COLOR                  "Další barva lišty"
 #define TR_BAR1_COLOR                  "Hlavní barva lišty"
 #define TR_TEXT_COLOR                  "Barva textu"
 #define TR_TEXT_VIEWER                 "Prohlížeč textu"
