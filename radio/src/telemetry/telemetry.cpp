@@ -420,8 +420,10 @@ void telemetryInterrupt10ms()
 #if !defined(SIMU)
     telemetryData.rssi.reset();
 #endif
-    for (auto & telemetryItem: telemetryItems) {
-      if (telemetryItem.isAvailable()) {
+    for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+      const TelemetrySensor & sensor = g_model.telemetrySensors[i];
+      TelemetryItem & telemetryItem = telemetryItems[i];
+      if (telemetryItem.isAvailable() && !sensor.isOfflineFresh()) {
         telemetryItem.setOld();
       }
     }

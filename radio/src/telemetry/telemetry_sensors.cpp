@@ -409,6 +409,41 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
       }
       for (int i=0; i<maxitems; i++) {
         int8_t source = sensor.calc.sources[i];
+#if defined(GVARS)
+        if (GV_IS_GV_VALUE(source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
+          int32_t gvarvalue;
+          {
+            int8_t min = -MAX_TELEMETRY_SENSORS;
+            gvarvalue = getGVarValue(GV_INDEX_CALCULATION(source, MAX_TELEMETRY_SENSORS), mixerCurrentFlightMode);
+          }
+
+          if (sensor.formula == TELEM_FORMULA_MULTIPLY) {
+            if (source>0) {
+              //divide, actually
+              int32_t divisor = convertTelemetryValue(-gvarvalue, sensor.unit, 0, sensor.unit, 0);
+              if (divisor!=0) {
+                value = convertTelemetryValue(value, sensor.unit, mulprec, sensor.unit, mulprec+sensor.prec)/divisor;
+              } else {
+                value = 0;
+              }
+            } else {
+              value *= convertTelemetryValue(gvarvalue, sensor.unit, 0, sensor.unit, 0);
+              mulprec += sensor.prec;
+            }
+          }
+          else {
+            if (sensor.formula == TELEM_FORMULA_MIN)
+              value = (count==1 ? gvarvalue : min<int32_t>(value, gvarvalue));
+            else if (sensor.formula == TELEM_FORMULA_MAX)
+              value = (count==1 ? gvarvalue : max<int32_t>(value, gvarvalue));
+            else
+              value += gvarvalue;
+          }
+          count += 1;
+
+          continue;
+        }
+#endif
         if (source) {
           unsigned int index = abs(source)-1;
           TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
@@ -639,6 +674,25 @@ void TelemetrySensor::init(uint16_t id)
 bool TelemetrySensor::isAvailable() const
 {
   return ZLEN(label) > 0;
+}
+
+bool TelemetrySensor::isOfflineFresh() const
+{
+  if(type == TELEM_TYPE_CALCULATED && formula <= TELEM_FORMULA_MULTIPLY) {
+    int32_t maxitems = 4;
+    if(formula == TELEM_FORMULA_MULTIPLY) {
+      maxitems = 2;
+    }
+    for(int i=0; i<maxitems; i++) {
+      int8_t source = calc.sources[i];
+      if(source && !GV_IS_GV_VALUE(source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
 }
 
 PACK(typedef struct {
