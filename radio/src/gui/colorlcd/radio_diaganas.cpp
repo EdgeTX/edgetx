@@ -128,7 +128,7 @@ class AnaCalibratedViewWindow: public Window {
 //       dc->drawText(ximu, yimu, imudata);
 // #endif
 
-#if defined(HARDWARE_TOUCH)
+#if defined(HARDWARE_TOUCH) && 0
       TouchState rawTouchState = getInternalTouchState();
       constexpr coord_t y = MENU_CONTENT_TOP + 4 * FH;
 

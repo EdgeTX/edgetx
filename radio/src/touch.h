@@ -22,6 +22,8 @@
 #ifndef _TOUCH_H_
 #define _TOUCH_H_
 
+#define SLIDE_RANGE 6
+
 enum TouchEvent
 {
     TE_NONE,
@@ -39,7 +41,7 @@ struct TouchState
 struct TouchDriver
 {
   bool (*touchOccured)(void);
-  TouchState (*readEvent)(void);
+  struct TouchState (*readEvent)(void);
 };
 
 struct TouchState readTouchEvent();

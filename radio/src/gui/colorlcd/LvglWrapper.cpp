@@ -208,7 +208,7 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   
   if(st.event == TE_NONE) {
     TRACE("TE_NONE");
-  } else if(st.event == TE_DOWN || st.event == TE_SLIDE) {
+  } else if(st.event == TE_DOWN /*|| st.event == TE_SLIDE*/) {
     TRACE("INDEV_STATE_PRESSED");
     data->state = LV_INDEV_STATE_PRESSED;
     copy_ts_to_indev_data(st, data);

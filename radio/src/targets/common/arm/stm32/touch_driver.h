@@ -37,18 +37,29 @@
 #ifndef __TOUCH_DRIVER_H
 #define __TOUCH_DRIVER_H
 
-#ifdef __cplusplus
-extern "C" {
+#ifndef __cplusplus
+#error C++ only
 #endif
 
 #include <stdint.h>
+#include <functional>
+
 #include <touch.h>
 
-extern void TouchInit( void );
-extern void TouchDriver( void );
+
+struct TouchControllerDesc
+{
+  std::function<void()> init;
+  std::function<void()> reset;
+  std::function<TouchEvent()> read;
+  std::function<void(std::function<void()>)> setIrqCb;
+};
+
+void registerTouchController(TouchControllerDesc tc);
+
+TouchState touchPanelRead();
+void TouchInit();
+void TouchDriver();
 
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* __TOUCH_DRIVER_H */
