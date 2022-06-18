@@ -41,6 +41,11 @@ class FlexGridLayout
   {
   }
 
+  FlexGridLayout(const FlexGridLayout& g) :
+      col_dsc(g.col_dsc), row_dsc(g.row_dsc), padding(g.padding)
+  {
+  }
+
   void apply(Window* w) { apply(w->getLvObj()); }
 
   void apply(lv_obj_t* obj) {
