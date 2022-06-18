@@ -197,6 +197,7 @@ void lcdInitDirectDrawing()
   draw_ctx->buf_area = &screen_area;
   draw_ctx->clip_area = &screen_area;
   lcd->setData((pixel_t*)draw_ctx->buf);
+  lcd->reset();
 }
 
 //
