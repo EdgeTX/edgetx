@@ -50,9 +50,11 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
   lv_textarea_set_password_mode(lvobj, false);
   lv_textarea_set_one_line(lvobj, true);
 
-  auto value = _getValue();
-  this->setValue(value);
-  lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
+  if (_getValue) {
+    auto value = _getValue();
+    this->setValue(value);
+    lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
+  }
 }
 
 void NumberEdit::onEvent(event_t event)
