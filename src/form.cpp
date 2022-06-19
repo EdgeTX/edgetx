@@ -73,6 +73,12 @@ FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout) :
   construct();
 }
 
+FormGroup::Line::Line(Window* parent, FlexGridLayout* layout) :
+    Window(parent, rect_t{}), layout(layout)
+{
+  construct();
+}
+
 void FormGroup::Line::construct()
 {
   // forward scroll and focus
