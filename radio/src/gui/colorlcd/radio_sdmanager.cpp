@@ -32,7 +32,7 @@
 #include "file_preview.h"
 #include "file_browser.h"
 
-constexpr int WARN_FILE_LENGTH = 16;
+constexpr int WARN_FILE_LENGTH = 40 * 1024;
 
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
