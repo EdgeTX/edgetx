@@ -88,6 +88,7 @@ class FormGroup : public Window
 
    public:
     Line(Window *parent, lv_obj_t *obj, FlexGridLayout *layout = nullptr);
+    Line(Window *parent, FlexGridLayout *layout = nullptr);
 
    protected:
     void addChild(Window *window) override;
