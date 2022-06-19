@@ -76,7 +76,7 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
 #if defined(AFHDS2) && defined(PCBNV14)
     if (getNV14RfFwVersion() >= 0x1000E) {
       line = newLine(&grid);
-      static const _rf_power = {"Default", "High"};
+      static const char* _rf_power[] = {"Default", "High"};
       new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
       new Choice(line, rect_t{}, _rf_power, 0, 1,
                  GET_DEFAULT(md->flysky.rfPower),

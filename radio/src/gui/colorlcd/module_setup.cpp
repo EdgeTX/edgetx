@@ -43,6 +43,10 @@
 #include "flysky_settings.h"
 #endif
 
+#if defined(AFHDS2)
+#include "pulses/flysky.h"
+#endif
+
 #if defined(MULTIMODULE)
 #include "mpm_settings.h"
 #include "multi_rfprotos.h"
