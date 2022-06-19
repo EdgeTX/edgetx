@@ -256,7 +256,7 @@ endif()
 set(GVAR_SCREEN model_gvars.cpp)
 
 if(HARDWARE_TOUCH)
-  set(TOUCH_DRIVER tp_gt911.cpp)
+  set(TOUCH_DRIVER src/targets/common/stm32/touch/gt911.cpp)
   add_definitions(-DHARDWARE_TOUCH)
 endif()
 
