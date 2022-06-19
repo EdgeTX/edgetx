@@ -132,6 +132,11 @@ class BaseNumberEdit: public FormField
       _setValue = std::move(handler);
     }
 
+    void setGetValueHandler(std::function<int()> handler)
+    {
+      _getValue = std::move(handler);
+    }
+
     int32_t getValue() const
     {
       return (editMode && !instantChange) ? currentValue : _getValue();
@@ -157,6 +162,24 @@ class BaseNumberEdit: public FormField
       setValue(currentValue);
     }
 
+    void update()
+    {
+      auto newValue = _getValue();
+      if (newValue != currentValue) {
+        currentValue = newValue;
+      }
+      if (lvobj != nullptr) {
+        std::string str;
+        if (displayFunction != nullptr) {
+          str = displayFunction(currentValue);
+        } else {
+          str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
+                                     suffix.c_str());
+        }
+        lv_textarea_set_text(lvobj, str.c_str());
+      }
+    }
+  
     virtual void paint(BitmapBuffer* dc) override {};
 
   protected:
