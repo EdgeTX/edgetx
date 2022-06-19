@@ -46,6 +46,11 @@ class CheckBox : public FormField
     _setValue = std::move(handler);
   }
 
+  void setGetValueHandler(std::function<uint8_t()> handler)
+  {
+    _getValue = std::move(handler);
+  }
+
  protected:
   std::string label;
   std::function<uint8_t()> _getValue;
