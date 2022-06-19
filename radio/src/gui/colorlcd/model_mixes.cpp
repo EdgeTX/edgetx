@@ -371,7 +371,11 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
   uint8_t ch = group->getMixSrc() - MIXSRC_CH1;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
-    menu->addLine(STR_EDIT, [=]() { editMix(ch, index); });
+    menu->addLine(STR_EDIT, [=]() {
+        uint8_t idx = button->getIndex();
+        editMix(ch, idx);
+        _copyMode = 0;
+      });
     if (!reachMixesLimit()) {
       menu->addLine(STR_INSERT_BEFORE, [=]() {
         uint8_t idx = button->getIndex();
