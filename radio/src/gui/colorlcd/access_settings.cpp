@@ -27,6 +27,8 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+namespace pxx2 {
+
 static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
                                 uint8_t receiverIdx)
 {
@@ -195,7 +197,7 @@ void BindWaitDialog::checkEvents()
   Dialog::checkEvents();
 }
 
-ReceiverButton::ReceiverButton(FormGroup* parent, rect_t rect,
+ReceiverButton::ReceiverButton(Window* parent, rect_t rect,
                                uint8_t moduleIdx, uint8_t receiverIdx) :
     TextButton(parent, rect, STR_BIND,
                std::bind(&ReceiverButton::pressBind, this)),
@@ -880,3 +882,5 @@ void RxOptions::writeSettings()
     state = RO_WriteSettings;
   }
 }
+
+};

@@ -21,14 +21,17 @@
 
 #pragma once
 
-#include "page.h"
+#include "form.h"
+#include "module_setup.h"
 
-struct ModulePage : public Page {
-  ModulePage(uint8_t moduleIdx);
-};
+struct ModuleData;
 
-class ModuleOptions
+class FlySkySettings : public FormGroup, public ModuleOptions
 {
- public:
-  virtual void update() = 0;
+  ModuleData* md;
+
+  void update() override {}
+    
+public:
+  FlySkySettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

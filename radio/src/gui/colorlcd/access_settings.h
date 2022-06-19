@@ -28,6 +28,8 @@
 #include "textedit.h"
 #include "numberedit.h"
 
+namespace pxx2 {
+  
 class BindRxChoiceMenu : public Menu
 {
  public:
@@ -58,7 +60,7 @@ class BindWaitDialog : public Dialog
 class ReceiverButton : public TextButton
 {
  public:
-  ReceiverButton(FormGroup* parent, rect_t rect, uint8_t moduleIdx,
+  ReceiverButton(Window* parent, rect_t rect, uint8_t moduleIdx,
                  uint8_t receiverIdx);
 
   uint8_t pressBind();
@@ -142,4 +144,6 @@ class RxOptions : public Dialog
 
   void update();
   void writeSettings();
+};
+
 };
