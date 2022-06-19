@@ -444,6 +444,14 @@ PACK(struct TrainerModuleData {
 // Only used in case switch and if statements as "virtual" protocol
 #define MM_RF_CUSTOM_SELECTED 0xff
 #define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
+
+PACK(struct PpmModule {
+  int8_t  delay:6;
+  uint8_t pulsePol:1;
+  uint8_t outputType:1;    // false = open drain, true = push pull
+  int8_t  frameLength;
+});
+
 PACK(struct ModuleData {
   uint8_t type ENUM(ModuleType);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
@@ -454,12 +462,7 @@ PACK(struct ModuleData {
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
-    NOBACKUP(struct {
-      int8_t  delay:6;
-      uint8_t pulsePol:1;
-      uint8_t outputType:1;    // false = open drain, true = push pull
-      int8_t  frameLength;
-    } ppm);
+    NOBACKUP(PpmModule ppm);
     NOBACKUP(struct {
       uint8_t rfProtocol SKIP;
       uint8_t disableTelemetry:1;
