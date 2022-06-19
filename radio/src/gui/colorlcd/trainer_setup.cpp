@@ -230,6 +230,7 @@ void TrainerModuleWindow::update()
                      COLOR_THEME_PRIMARY1);
 
       // PPM frame length
+      // TODO: use PpmFrameSettings<TrainerModuleData>
       auto edit = new NumberEdit(
           this, grid.getFieldSlot(3, 0), 125, 35 * 5 + 225,
           GET_DEFAULT(g_model.trainerData.frameLength * 5 + 225),

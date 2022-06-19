@@ -21,14 +21,19 @@
 
 #pragma once
 
-#include "page.h"
+#include "form.h"
 
-struct ModulePage : public Page {
-  ModulePage(uint8_t moduleIdx);
+struct ModuleData;
+
+class PpmSettings : public FormGroup
+{
+  ModuleData* md;
+
+public:
+  PpmSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };
 
-class ModuleOptions
-{
- public:
-  virtual void update() = 0;
+template <typename T>
+struct PpmFrameSettings : public FormGroup {
+  PpmFrameSettings(Window* parent, const FlexGridLayout& g, T* ppm);
 };

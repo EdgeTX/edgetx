@@ -21,14 +21,29 @@
 
 #pragma once
 
-#include "page.h"
+#include "form.h"
+#include "module_setup.h"
 
-struct ModulePage : public Page {
-  ModulePage(uint8_t moduleIdx);
-};
+struct ModuleData;
+struct MPMProtoOption;
+struct MPMSubtype;
+struct MPMServoRate;
+struct MPMAutobind;
+struct MPMChannelMap;
 
-class ModuleOptions
+class MultimoduleSettings : public FormGroup, public ModuleOptions
 {
- public:
-  virtual void update() = 0;
+  ModuleData* md;
+  uint8_t moduleIdx;
+
+  MPMSubtype* st_line;
+  MPMProtoOption* opt_line;
+  MPMServoRate* sr_line;
+  MPMAutobind* ab_line;
+  MPMChannelMap* cm_line;
+
+  void update() override;
+    
+public:
+  MultimoduleSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };
