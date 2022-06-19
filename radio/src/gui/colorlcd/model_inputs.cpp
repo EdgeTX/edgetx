@@ -279,20 +279,22 @@ InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
   uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
-    menu->addLine(STR_EDIT, [=]() { editInput(input, index); });
+    menu->addLine(STR_EDIT, [=]() {
+      uint8_t idx = button->getIndex();
+      editInput(input, idx);
+      _copyMode = 0;
+    });
     if (!reachExposLimit()) {
-      menu->addLine(STR_INSERT_BEFORE,
-                    [=]() {
-                      uint8_t idx = button->getIndex();
-                      insertInput(input, idx);
-                      _copyMode = 0;
-                    });
-      menu->addLine(STR_INSERT_AFTER,
-                    [=]() {
-                      uint8_t idx = button->getIndex();
-                      insertInput(input, idx + 1);
-                      _copyMode = 0;
-                    });
+      menu->addLine(STR_INSERT_BEFORE, [=]() {
+        uint8_t idx = button->getIndex();
+        insertInput(input, idx);
+        _copyMode = 0;
+      });
+      menu->addLine(STR_INSERT_AFTER, [=]() {
+        uint8_t idx = button->getIndex();
+        insertInput(input, idx + 1);
+        _copyMode = 0;
+      });
       menu->addLine(STR_COPY, [=]() {
         _copyMode = COPY_MODE;
         _copySrc = button;
