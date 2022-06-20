@@ -702,10 +702,20 @@
 #define TR_FORMATTING                  "Formatierung..."
 #define TR_TEMP_CALIB                  "Temp.  abgl."
 #define TR_TIME                        "Uhrzeit:"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_MAXBAUDRATE                 "Max Baud"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+
+#define TR_SELECT_TEMPLATE_FOLDER      "WÄHLE VORLAGENVERZEICHNIS:"
+#define TR_SELECT_TEMPLATE             "WÄHLE MODELLVORLAGE:"
+#define TR_NO_TEMPLATES                "Es wurden keine Modellvorlagen in diesem Verzeichnis gefunden"
+#define TR_SAVE_TEMPLATE               "Als Vorlage speichern"
+#define TR_BLANK_MODEL                 "Leeres Modell"
+#define TR_BLANK_MODEL_INFO            "Erzeuge leeres Modell"
+#define TR_FILE_EXISTS                 "DATEI EXISTIERT SCHON"
+#define TR_ASK_OVERWRITE               "Möchten Sie überschreiben?"
 
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Discover"
@@ -713,7 +723,7 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Local addr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN Code"
-#define TR_BAUDRATE                    "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Aktiviert"
 #else

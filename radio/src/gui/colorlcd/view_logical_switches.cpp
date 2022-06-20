@@ -64,6 +64,7 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(8);
+  window->padAll(0);
 
   // Footer
   footer = new LogicalSwitchDisplayFooter(

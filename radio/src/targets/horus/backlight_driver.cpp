@@ -103,3 +103,8 @@ void backlightEnable(uint8_t dutyCycle)
     BACKLIGHT_TIMER->BDTR |= TIM_BDTR_MOE;
   }
 }
+
+void backlightFullOn()
+{
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
+}

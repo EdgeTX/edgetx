@@ -279,20 +279,22 @@ InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
   uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
-    menu->addLine(STR_EDIT, [=]() { editInput(input, index); });
+    menu->addLine(STR_EDIT, [=]() {
+      uint8_t idx = button->getIndex();
+      editInput(input, idx);
+      _copyMode = 0;
+    });
     if (!reachExposLimit()) {
-      menu->addLine(STR_INSERT_BEFORE,
-                    [=]() {
-                      uint8_t idx = button->getIndex();
-                      insertInput(input, idx);
-                      _copyMode = 0;
-                    });
-      menu->addLine(STR_INSERT_AFTER,
-                    [=]() {
-                      uint8_t idx = button->getIndex();
-                      insertInput(input, idx + 1);
-                      _copyMode = 0;
-                    });
+      menu->addLine(STR_INSERT_BEFORE, [=]() {
+        uint8_t idx = button->getIndex();
+        insertInput(input, idx);
+        _copyMode = 0;
+      });
+      menu->addLine(STR_INSERT_AFTER, [=]() {
+        uint8_t idx = button->getIndex();
+        insertInput(input, idx + 1);
+        _copyMode = 0;
+      });
       menu->addLine(STR_COPY, [=]() {
         _copyMode = COPY_MODE;
         _copySrc = button;
@@ -460,11 +462,12 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
 
 void ModelInputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
-  lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
+  window->setFlexLayout();
+  window->padRow(lv_dpx(8));
   
   form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+  form->setFlexLayout();
+  form->padRow(lv_dpx(8));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));

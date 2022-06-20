@@ -19,19 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "form.h"
 
-class ModelOutputsPage : public PageTab
+class SerialConfigWindow : public FormGroup
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(uint8_t channel);
+  SerialConfigWindow(Window *parent, const rect_t &rect);
 };
-
-#endif // _MODEL_OUTPUTS_H_

@@ -19,19 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "form.h"
+#include "dialog.h"
+#include "button.h"
 
-class ModelOutputsPage : public PageTab
-{
- public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
-
- protected:
-  void editOutput(uint8_t channel);
+struct HWSticks : public FormGroup {
+  HWSticks(Window* parent);
 };
 
-#endif // _MODEL_OUTPUTS_H_
+struct HWPots : public FormGroup {
+  HWPots(Window* parent);
+};
+
+struct HWSliders : public FormGroup {
+  HWSliders(Window* parent);
+};
+
+struct HWSwitches : public FormGroup {
+  HWSwitches(Window* parent);
+};
+
+template<class T>
+struct HWInputDialog : public Dialog
+{
+  HWInputDialog(const char* title = nullptr);
+};
+
+template <class T>
+TextButton* makeHWInputButton(Window* parent, const char* title)
+{
+  return new TextButton(parent, rect_t{}, title, [=]() {
+    new HWInputDialog<T>(title);
+    return 0;
+  });
+}

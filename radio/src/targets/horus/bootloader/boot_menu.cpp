@@ -53,7 +53,6 @@ extern BitmapBuffer * lcd;
 
 void bootloaderInitScreen()
 {
-  backlightEnable(BACKLIGHT_LEVEL_MAX);
   lcdInitDisplayDriver();
 }
 
@@ -96,8 +95,15 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
+    static bool _first_screen = true;
+    
     lcdInitDirectDrawing();
     bootloaderDrawBackground();
+
+    if (!_first_screen) {
+        // ... and turn backlight ON
+        backlightEnable(BACKLIGHT_LEVEL_MAX);
+    }
     
     if (st == ST_START) {
       bootloaderDrawTitle(88, BOOTLOADER_TITLE);
@@ -196,6 +202,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
         }        
     }
+
+    _first_screen = false;
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)

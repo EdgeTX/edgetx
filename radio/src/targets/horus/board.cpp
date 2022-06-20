@@ -209,9 +209,6 @@ void boardInit()
   }
 #endif
 
-  lcdInit();
-  backlightInit();
-
   globalData.flyskygimbals = false;
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
   flysky_hall_stick_check_init();
@@ -329,8 +326,7 @@ void boardOff()
 
 bool isBacklightEnabled()
 {
-  if(globalData.unexpectedShutdown)
-    return true;
+  if (globalData.unexpectedShutdown) return true;
   return boardBacklightOn;
 }
 

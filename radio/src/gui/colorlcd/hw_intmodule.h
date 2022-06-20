@@ -19,19 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "form.h"
 
-class ModelOutputsPage : public PageTab
+class InternalModuleWindow : public FormGroup
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  InternalModuleWindow(Window *parent, const rect_t &rect);
 
  protected:
-  void editOutput(uint8_t channel);
-};
+  uint8_t lastModule = 0;
+  lv_obj_t* br_box = nullptr;
 
-#endif // _MODEL_OUTPUTS_H_
+  static int getBaudrate();
+  static void setBaudrate(int val);
+
+  void setModuleType(int moduleType);
+  void updateBaudrateLine();
+};

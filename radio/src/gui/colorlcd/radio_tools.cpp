@@ -238,10 +238,8 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
   tools.sort(tool_compare_nocase);
 
-  window->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, 8);
-  lv_obj_t* w_obj = window->getLvObj();
-  lv_obj_set_style_pad_row(w_obj, 8, 0);
-  lv_obj_set_style_pad_all(w_obj, 8, 0);
+  window->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  window->padRow(lv_dpx(8));
   
   for (const auto& tool : tools) {
     new ToolButton(window, tool);

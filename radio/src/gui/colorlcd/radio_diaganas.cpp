@@ -523,20 +523,28 @@ class AnaMinMaxViewWindow: public Window {
 
 void AnaCalibratedViewPage::build(FormWindow *window)
 {
-    new AnaCalibratedViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
+  window->padAll(0);
+  new AnaCalibratedViewWindow(
+      window, {10, 10, window->width() - 10, window->height() - 10});
 }
 
 void AnaFilteredDevViewPage::build(FormWindow *window)
 {
-    new AnaFilteredDevViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
+  window->padAll(0);
+  new AnaFilteredDevViewWindow(
+      window, {10, 10, window->width() - 10, window->height() - 10});
 }
 
 void AnaUnfilteredRawViewPage::build(FormWindow *window)
 {
-    new AnaUnfilteredRawViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
+  window->padAll(0);
+  new AnaUnfilteredRawViewWindow(
+      window, {10, 10, window->width() - 10, window->height() - 10});
 }
 
 void AnaMinMaxViewPage::build(FormWindow *window)
 {
-    new AnaMinMaxViewWindow(window, {10, 10, window->width() - 10, window->height() - 10});
+  window->padAll(0);
+  new AnaMinMaxViewWindow(
+      window, {10, 10, window->width() - 10, window->height() - 10});
 }

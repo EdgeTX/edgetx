@@ -67,8 +67,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
 
   num_field = new NumberEdit(
       this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
-      [=](int32_t newValue) { return setValue(newValue - voffset); },
-      windowFlags, textFlags);
+      nullptr, windowFlags, textFlags);
 
 #if defined(GVARS)
   // The GVAR button
@@ -130,13 +129,16 @@ void GVarNumberEdit::update()
   if (GV_IS_GV_VALUE(value, vmin, vmax)) {
     // GVAR mode
     act_field = gvar_field;
+    num_field->setSetValueHandler(nullptr);
     lv_obj_clear_flag(gvar_obj, LV_OBJ_FLAG_HIDDEN);
     lv_event_send(gvar_obj, LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     // number edit mode
     act_field = num_field;
-    lv_obj_clear_flag(num_obj, LV_OBJ_FLAG_HIDDEN);
+    num_field->setSetValueHandler(
+        [=](int32_t newValue) { return setValue(newValue - voffset); });
     num_field->setValue(value + voffset);
+    lv_obj_clear_flag(num_obj, LV_OBJ_FLAG_HIDDEN);
   }
 
   if (has_focus) {

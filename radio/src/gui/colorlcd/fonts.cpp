@@ -32,6 +32,7 @@
       &lv_font_ ## name ## _13,      /* FONT_XS_INDEX */       \
       &lv_font_ ## name ## _24,      /* FONT_L_INDEX */        \
       &lv_font_ ## name ## _bold_32, /* FONT_XL_INDEX */       \
+      &lv_font_ ## name ## _bold_64, /* FONT_XXL_INDEX */      \
   }
 
 #if defined(TRANSLATIONS_CN)
