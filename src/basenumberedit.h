@@ -162,7 +162,7 @@ class BaseNumberEdit: public FormField
       setValue(currentValue);
     }
 
-    void update()
+    virtual void update()
     {
       auto newValue = _getValue();
       if (newValue != currentValue) {
