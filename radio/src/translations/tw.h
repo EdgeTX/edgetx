@@ -196,6 +196,12 @@
 
 #define TR_ON_ONE_SWITCHES              "ON","One"
 
+#if defined(COLORLCD)
+  #define TR_INVERT_ROTARY_OPT          "OFF","ON"
+#else
+  #define TR_INVERT_ROTARY_OPT          "OFF","ON","V-N","V-A"
+#endif
+
 #if defined(GYRO)
   #define TR_GYR_VSRCRAW                "GyrX","GyrY",
 #else
@@ -1201,9 +1207,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "將所有微調導入中點偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "打開通道監視器" 
+  #define TR_OPEN_CHANNEL_MONITORS        "打開通道監視器"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "通道監視" 
+  #define TR_OPEN_CHANNEL_MONITORS        "通道監視"
 #endif
 #define TR_DUPLICATE                  "複製"
 #define TR_ACTIVATE                   "啟用"

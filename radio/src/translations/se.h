@@ -75,7 +75,7 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
-                                  
+
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -242,6 +242,12 @@
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
+
+#if defined(COLORLCD)
+  #define TR_INVERT_ROTARY_OPT          "OFF","ON"
+#else
+  #define TR_INVERT_ROTARY_OPT          "OFF","ON","V-N","V-A"
+#endif
 
 #if defined(GYRO)
   #define TR_GYR_VSRCRAW                "GyrX","GyrY"

@@ -174,7 +174,7 @@
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM
- 
+
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
 #define TR_TELEM_RESERVE               TR("[--]","[---]")
@@ -232,7 +232,14 @@
 
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
+
 #define TR_ON_ONE_SWITCHES             "ON","One"
+
+#if defined(COLORLCD)
+  #define TR_INVERT_ROTARY_OPT         "OFF","ON"
+#else
+  #define TR_INVERT_ROTARY_OPT         "OFF","ON","V-N","V-A"
+#endif
 
 #if defined(GYRO)
   #define TR_GYR_VSRCRAW               "GyrX","GyrY"
@@ -750,7 +757,7 @@
 #define TR_PATH_TOO_LONG               "Polku liian pitkä"
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
-#define TR_FLASH_DEVICE                TR("Flash device","Flash device")      
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE       "Flash External Device"
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
