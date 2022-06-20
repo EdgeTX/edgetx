@@ -93,6 +93,12 @@ void FormGroup::Line::construct()
   lv_obj_set_width(lvobj, lv_pct(100));
 }
 
+void FormGroup::Line::setLayout(FlexGridLayout *l)
+{
+  layout = l;
+  if (layout) layout->apply(lvobj);
+}
+
 void FormGroup::Line::addChild(Window* window)
 {
   Window::addChild(window);
