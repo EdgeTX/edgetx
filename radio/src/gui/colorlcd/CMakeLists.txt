@@ -158,6 +158,7 @@ endif()
 
 if(BLUETOOTH)
   add_gui_src(trainer_bluetooth.cpp)
+  add_gui_src(hw_bluetooth.cpp)
 endif()
 
 set(SRC ${SRC} storage/modelslist.cpp)
