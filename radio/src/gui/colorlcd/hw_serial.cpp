@@ -47,6 +47,7 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, const rect_t &rect) :
 
     auto box = new FormGroup(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+    lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
     lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
     
     auto aux = new Choice(

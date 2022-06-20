@@ -29,19 +29,18 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-InternalModuleWindow::InternalModuleWindow(Window *parent, const rect_t &rect) :
-    FormGroup(parent, rect, FORWARD_SCROLL),
+InternalModuleWindow::InternalModuleWindow(Window *parent) :
+    FormGroup::Line(parent),
     lastModule(g_eeGeneral.internalModule)
 {
-  setFlexLayout();
-
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-  auto line = newLine(&grid);
+  setLayout(&grid);
 
-  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(this, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormGroup(this, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
   auto internalModule = new Choice(
       box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
@@ -56,6 +55,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, const rect_t &rect) :
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
   br_box = box->getLvObj();
+  lv_obj_set_width(br_box, LV_SIZE_CONTENT); 
   lv_obj_set_style_flex_cross_place(br_box, LV_FLEX_ALIGN_CENTER, 0);
 
   new StaticText(box, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);

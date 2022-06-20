@@ -23,10 +23,10 @@
 
 #include "form.h"
 
-class InternalModuleWindow : public FormGroup
+class InternalModuleWindow : public FormGroup::Line
 {
  public:
-  InternalModuleWindow(Window *parent, const rect_t &rect);
+  InternalModuleWindow(Window *parent);
 
  protected:
   uint8_t lastModule = 0;

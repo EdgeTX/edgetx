@@ -172,6 +172,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
+  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
   auto batMin =
       new NumberEdit(box, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
@@ -214,6 +215,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
   box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
   new CheckBox(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
 
@@ -230,7 +232,7 @@ void RadioHardwarePage::build(FormWindow * window)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  auto mod = new InternalModuleWindow(window, rect_t{});
+  auto mod = new InternalModuleWindow(window);
   mod->padLeft(lv_dpx(8));
 #endif
 
