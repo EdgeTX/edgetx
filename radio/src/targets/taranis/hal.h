@@ -2037,7 +2037,7 @@
 #define KEYS_BACKLIGHT_RCC_AHB1Periph        0
 
 // LCD driver
-#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_TPRO) || defined(RADIO_LR3PRO)
+#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_TPRO)
   #define LCD_VERTICAL_INVERT
 #endif
 #if defined(PCBX9E)
