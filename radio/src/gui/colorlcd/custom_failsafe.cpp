@@ -134,13 +134,13 @@ public:
 
   void toggle()
   {
-    auto& value = g_model.failsafeChannels[channel];
-    if (value == FAILSAFE_CHANNEL_HOLD) {
-      value = FAILSAFE_CHANNEL_NOPULSE;
-    } else if (value == FAILSAFE_CHANNEL_NOPULSE) {
-      value = 0;
+    auto value = &(g_model.failsafeChannels[channel]);
+    if (*value == FAILSAFE_CHANNEL_HOLD) {
+      *value = FAILSAFE_CHANNEL_NOPULSE;
+    } else if (*value == FAILSAFE_CHANNEL_NOPULSE) {
+      *value = 0;
     } else {
-      value = FAILSAFE_CHANNEL_HOLD;
+      *value = FAILSAFE_CHANNEL_HOLD;
     }
     update();
   }
