@@ -31,6 +31,10 @@
 #include "hw_serial.h"
 #include "hw_inputs.h"
 
+#if defined(BLUETOOTH)
+#include "hw_bluetooth.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -42,121 +46,6 @@ RadioHardwarePage::RadioHardwarePage():
   PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE)
 {
 }
-
-#if defined(BLUETOOTH)
-class ModeChoice : public Choice
-{
- public:
-  ModeChoice(Window *parent, const rect_t &rect, const char **values, int vmin,
-             int vmax, std::function<int()> getValue,
-             std::function<void(int)> setValue = nullptr,
-             bool *menuOpen = nullptr) :
-      Choice(parent, rect, values, vmin, vmax, getValue, setValue),
-      menuOpen(menuOpen)
-  {
-  }
-
- protected:
-  void openMenu()
-  {
-    if (menuOpen) *menuOpen = true;
-    Choice::openMenu();
-  }
-
- private:
-  bool *menuOpen;
-};
-
-class BluetoothConfigWindow : public FormGroup
-{
- public:
-  BluetoothConfigWindow(Window *parent, const rect_t &rect) :
-      FormGroup(parent, rect, FORWARD_SCROLL)
-  {
-    update();
-  }
-
-  void checkEvents() override
-  {
-    FormGroup::checkEvents();
-    if (!rte) return;
-    if (bluetooth.state != lastbluetoothstate) {
-      lastbluetoothstate = bluetooth.state;
-      if (!(modechoiceopen || rte->hasFocus())) update();
-    }
-  }
-
-  void update()
-  {
-    clear();
-
-    setFlexLayout();
-    FlexGridLayout grid(col_dsc, row_dsc, 2);
-    lv_obj_set_style_pad_left(lvobj, lv_dpx(8), 0);
-
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
-
-    modechoiceopen = false;
-    btMode = new ModeChoice(
-        line, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER,
-        GET_DEFAULT(g_eeGeneral.bluetoothMode),
-        [=](int32_t newValue) {
-          g_eeGeneral.bluetoothMode = newValue;
-          update();
-          modechoiceopen = false;
-          SET_DIRTY();
-        },
-        &modechoiceopen);
-
-    if (g_eeGeneral.bluetoothMode != BLUETOOTH_OFF) {
-      // Pin code (displayed for information only, not editable)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY) {
-        line = newLine(&grid);
-        auto label = new StaticText(line, rect_t{}, STR_BLUETOOTH_PIN_CODE, 0,
-                                    COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
-        new StaticText(line, rect_t{}, "000000", 0, COLOR_THEME_PRIMARY1);
-      }
-
-      // Local MAC
-      line = newLine(&grid);
-      auto label = new StaticText(line, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0,
-                                  COLOR_THEME_PRIMARY1);
-      lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
-      new StaticText(
-          line, rect_t{},
-          bluetooth.localAddr[0] == '\0' ? "---" : bluetooth.localAddr, 0,
-          COLOR_THEME_PRIMARY1);
-
-      // Remote MAC
-      line = newLine(&grid);
-      label = new StaticText(line, rect_t{}, STR_BLUETOOTH_DIST_ADDR, 0,
-                             COLOR_THEME_PRIMARY1);
-      lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
-      new StaticText(
-          line, rect_t{},
-          bluetooth.distantAddr[0] == '\0' ? "---" : bluetooth.distantAddr, 0,
-          COLOR_THEME_PRIMARY1);
-
-      // BT radio name
-      line = newLine(&grid);
-      label = new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      lv_obj_set_style_pad_left(label->getLvObj(), lv_dpx(8), LV_PART_MAIN);
-      rte = new RadioTextEdit(line, rect_t{}, g_eeGeneral.bluetoothName,
-                              LEN_BLUETOOTH_NAME);
-    }
-  }
-
- protected:
-  Choice *btMode = nullptr;
-  RadioTextEdit *rte = nullptr;
-
- private:
-  bool modechoiceopen = false;
-  uint8_t lastbluetoothstate = BLUETOOTH_STATE_OFF;
-};
-#endif
 
 void RadioHardwarePage::build(FormWindow * window)
 {
@@ -238,7 +127,8 @@ void RadioHardwarePage::build(FormWindow * window)
 
 #if defined(BLUETOOTH)
   new Subtitle(window, rect_t{}, STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
-  new BluetoothConfigWindow(window, rect_t{});
+  auto bt = new BluetoothConfigWindow(window);
+  bt->padLeft(lv_dpx(8));
 #endif
 
   new Subtitle(window, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
