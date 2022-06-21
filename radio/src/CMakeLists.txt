@@ -150,6 +150,8 @@ include(gui/CMakeLists.txt)
 
 set(SRC ${SRC} storage/storage_common.cpp)
 
+include(storage/conversions/CMakeLists.txt)
+
 if(${STORAGE} STREQUAL SDCARD)
   set(SRC ${SRC} storage/sdcard_common.cpp)
   if(${STORAGE_FORMAT} STREQUAL RAW)
@@ -160,8 +162,10 @@ if(${STORAGE} STREQUAL SDCARD)
     add_definitions(-DSDCARD_YAML)
     include(storage/yaml/CMakeLists.txt)
     if (${STORAGE_CONVERT} STREQUAL EEPROM_RLC)
-      set(SRC ${SRC} storage/eeprom_rlc.cpp)
-      add_definitions(-DEEPROM_RLC)
+      if (STORAGE_CONVERSIONS LESS 221)
+        set(SRC ${SRC} storage/eeprom_rlc.cpp)
+        add_definitions(-DEEPROM_RLC)
+      endif()
     else(${STORAGE_CONVERT} STREQUAL RAW)
       set(SRC ${SRC} storage/sdcard_raw.cpp)
     endif()
@@ -185,8 +189,6 @@ elseif(${STORAGE} STREQUAL EEPROM)
   endif()
 endif()
 
-
-include(storage/conversions/CMakeLists.txt)
 
 if(RTC_BACKUP_RAM)
   add_definitions(-DRTC_BACKUP_RAM)

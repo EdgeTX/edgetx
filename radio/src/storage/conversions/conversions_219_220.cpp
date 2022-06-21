@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#if STORAGE_CONVERSIONS < 220
+
 #include <cstdlib>
 #include <cstring>
 
@@ -34,8 +36,6 @@
 #else
   #include <storage/sdcard_common.h>
 #endif
-
-#if STORAGE_CONVERSIONS < 220
 
 //
 // Summary of all changes between 219 & 220
