@@ -19,6 +19,7 @@ set(simulation_SRCS
   simulateduiwidgetJumperT18.cpp
   simulateduiwidgetTX12.cpp
   simulateduiwidgetZorro.cpp
+  simulateduiwidgetLR3PRO.cpp
   simulateduiwidgetT8.cpp
   simulateduiwidgetTX16S.cpp
   simulateduiwidgetNV14.cpp
@@ -52,6 +53,7 @@ set(simulation_UIS
   simulateduiwidgetJumperT18.ui
   simulateduiwidgetTX12.ui
   simulateduiwidgetZorro.ui
+  simulateduiwidgetLR3PRO.ui 
   simulateduiwidgetT8.ui
   simulateduiwidgetTX16S.ui
   simulateduiwidgetNV14.ui
