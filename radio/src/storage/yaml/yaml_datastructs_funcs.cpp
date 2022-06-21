@@ -52,7 +52,6 @@ namespace yaml_conv_220 {
   bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs);
   bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs);
 
-  bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
   bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
@@ -998,7 +997,9 @@ static uint32_t r_beeperMode(const YamlNode* node, const char* val, uint8_t val_
 
 static bool w_beeperMode(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_beeperMode(node, val, wf, opaque);
+  int32_t sval = yaml_to_signed(val,node->size);
+  const char* str = yaml_output_enum(sval, enum_BeeperMode);
+  return wf(opaque, str, strlen(str));
 }
 
 static uint32_t r_5pos(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1821,6 +1822,17 @@ static const struct YamlIdStr enum_SerialPort[] = {
   {  0, NULL  }
 };
 
+#if STORAGE_CONVERSIONS >= 221
+const struct YamlIdStr _old_enum_UartModes[] = {
+  {  UART_MODE_NONE, "MODE_NONE"  },
+  {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
+  {  UART_MODE_TELEMETRY, "MODE_TELEMETRY"  },
+  {  UART_MODE_SBUS_TRAINER, "MODE_SBUS_TRAINER"  },
+  {  UART_MODE_LUA, "MODE_LUA"  },
+  {  0, NULL  }
+};
+#endif
+
 static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_NONE, "NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
@@ -1875,7 +1887,11 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   else
     return;
 
+#if STORAGE_CONVERSIONS < 221
   auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
+#else
+  auto m = yaml_parse_enum(_old_enum_UartModes, val, val_len);
+#endif
   if (!m) return;
   
   auto serialPort = reinterpret_cast<uint32_t*>(data);
