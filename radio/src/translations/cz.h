@@ -918,7 +918,7 @@
 #define TR_CRITICALALARM               INDENT "Kritický Alarm"
 #define TR_RSSIALARM_WARN              TR("RSSI","RSSI TELEMETRIE")
 #define TR_NO_RSSIALARM                TR(INDENT "Vypnuté alarmy", INDENT "Alarmy telemetrie vypnuty")
-#define TR_DISABLE_ALARM               TR(INDENT "Vypnout alarmy", INDENT "Vypnout telemetrické alarmy")
+#define TR_DISABLE_ALARM               TR(INDENT "Vypnout alarmy", INDENT "Vypnout alarmy telemetrie")
 #define TR_ENABLE_POPUP                "Povolit vyskakovací okno"
 #define TR_DISABLE_POPUP               "Zakázat vyskakovací okno"
 #define TR_POPUP                       "Vyskočit"
