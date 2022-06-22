@@ -643,6 +643,11 @@ bool isInternalModuleSupported(int moduleType)
 
 bool isInternalModuleAvailable(int moduleType)
 {
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(EXTERNAL_MODULE)) 
+    return false;
+#endif
+
   if (moduleType == MODULE_TYPE_NONE)
     return true;
 
@@ -681,6 +686,12 @@ bool isInternalModuleAvailable(int moduleType)
 
 bool isExternalModuleAvailable(int moduleType)
 {
+
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(INTERNAL_MODULE)) 
+    return false;
+#endif
+
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
   if (isModuleTypeR9MLite(moduleType) || moduleType == MODULE_TYPE_XJT_LITE_PXX2)
     return false;

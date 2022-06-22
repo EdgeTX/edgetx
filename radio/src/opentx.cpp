@@ -380,6 +380,12 @@ void generalDefault()
   g_eeGeneral.pwrOnSpeed = 1; // 1 second
 #endif
 
+#if defined(IFLIGHT_RELEASE)
+  g_eeGeneral.splashMode = 3;
+  g_eeGeneral.pwrOnSpeed = 2;
+  g_eeGeneral.pwrOffSpeed = 2;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
