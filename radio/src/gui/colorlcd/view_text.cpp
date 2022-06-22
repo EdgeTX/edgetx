@@ -61,26 +61,22 @@ void ViewTextWindow::buildBody(Window *window)
       offset = std::max( int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
       TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,  int(info.fsize) - bufSize + 1);
       if (sdReadTextFileBlock(fullPath.c_str(), bufSize, offset) == FR_OK) {
-        //ProcessTextBlock(buffer);
-        
         auto obj = window->getLvObj();
         lv_obj_add_flag(
             obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
                      LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
-        // lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
-        // lvb = obj;
+        // prevents resetting the group's edit mode
+        lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
         auto g = lv_group_get_default();
         lb = lv_label_create(obj);
         lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
-        //lv_label_set_long_mode(lb, LV_LABEL_LONG_DOT);
         lv_obj_set_style_pad_all(lb, lv_dpx(8), 0);
 
         lv_group_add_obj(g, obj);
         lv_group_set_editing(g, true);
         lv_label_set_text_static(lb, buffer);
-        lv_obj_add_event_cb(obj, ViewTextWindow::tv_event, LV_EVENT_SCROLL_END,
-                            nullptr);
 
         if (openFromEnd)
           lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
@@ -89,33 +85,6 @@ void ViewTextWindow::buildBody(Window *window)
       }
     }
   }
-}
-
-void ViewTextWindow::tv_event(lv_event_t *e)
-{
-//  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t *obj = lv_event_get_target(e);
-  if (obj) {
-    lv_group_t *g = (lv_group_t *)lv_obj_get_group(obj);
-    if (g) lv_group_set_editing(g, true);
-  }
-}
-
-int ViewTextWindow::ProcessTextBlock(char* cBuffer)
-{
-  std::string str(cBuffer);
-  static const std::string up = { STR_CHAR_UP[0], STR_CHAR_UP[1], '\0'};
-  static const std::string down = {STR_CHAR_DOWN[0], STR_CHAR_DOWN[1], '\0'};
-  size_t pos = 0;
-TRACE("%s", up.c_str());
-
-  while (std::string::npos != (pos = str.find("\\up", pos)) ) {
-    str.replace(pos, 3, up);
-  }
-
-TRACE("%s", str.c_str());
-  //memcpy(cBuffer, str.c_str(), str.length());
-  return 0;
 }
 
 FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,

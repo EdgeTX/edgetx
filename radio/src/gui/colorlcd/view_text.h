@@ -28,7 +28,7 @@
 
 #include "LvglWrapper.h"
 
-constexpr int maxTxtBuffSize = 4 * 1024;
+constexpr int maxTxtBuffSize = 64 * 1024;
 
 class ViewTextWindow : public Page
 {
@@ -54,7 +54,6 @@ class ViewTextWindow : public Page
       buffer = nullptr;
     }
   }
-  int ProcessTextBlock(char* buffer);
 
 #if defined(DEBUG_WINDOWS)
       std::string getName() const override { return "ViewTextWindow"; };
@@ -79,8 +78,6 @@ class ViewTextWindow : public Page
   void buildBody(Window* window);
 
   void onEvent(event_t event) override;
-
-  static void tv_event(lv_event_t* e);
 };
 
 void readModelNotes();
