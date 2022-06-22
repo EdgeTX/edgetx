@@ -131,7 +131,6 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 {
   setFlexLayout();
   updateModule();
-  // updateSubType();
 }
 
 void ModuleWindow::updateModule()
