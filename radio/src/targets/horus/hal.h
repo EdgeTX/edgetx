@@ -701,6 +701,8 @@
   #define TOUCH_RST_GPIO                  GPIOF
 #if defined(PCBX12S)
   #define TOUCH_RST_GPIO_PIN              GPIO_Pin_7   // PF.7
+#if defined(RADIO_T16)
+  #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
 #else
   #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
 #endif
