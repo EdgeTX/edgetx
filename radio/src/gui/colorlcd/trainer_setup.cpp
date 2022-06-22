@@ -188,6 +188,7 @@ void TrainerModuleWindow::update()
     } else
 #endif
         if (g_model.trainerData.mode == TRAINER_MODE_SLAVE) {
+      // TODO: use generic ChannelRange
 #define PPMCH_START_MIN 1
 #define PPMCH_START_MAX                                          \
   (MAX_OUTPUT_CHANNELS - g_model.trainerData.channelsCount + 1 - \

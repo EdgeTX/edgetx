@@ -30,6 +30,7 @@
 #include "bind_menu_d16.h"
 #include "custom_failsafe.h"
 #include "ppm_settings.h"
+#include "channel_range.h"
 
 #if defined(PXX2)
 #include "access_settings.h"
@@ -59,101 +60,6 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
-
-struct ChannelRange : public FormGroup {
-  uint8_t moduleIdx;
-  NumberEdit* chStart;
-  NumberEdit* chEnd;
-
-  ChannelRange(Window* parent, uint8_t moduleIdx);
-
-  void setStart(uint32_t newValue);
-  void setEnd(uint32_t newValue);
-
-  void update();
-  void updateStart();
-  void updateEnd();
-};
-
-ChannelRange::ChannelRange(Window* parent, uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}), moduleIdx(moduleIdx)
-{
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-
-  ModuleData* md = &g_model.moduleData[moduleIdx];
-  chStart = new NumberEdit(this, rect_t{}, 1, 1, GET_DEFAULT(1 + md->channelsStart));
-
-  chStart->setPrefix(STR_CH);
-  chStart->setSetValueHandler([=](int32_t newValue) { setStart(newValue); });
-
-  chEnd = new NumberEdit(this, rect_t{}, 8, 8,
-                         GET_DEFAULT(md->channelsStart + 8 + md->channelsCount));
-
-  chEnd->setPrefix(STR_CH);
-  chEnd->setSetValueHandler([=](int32_t newValue) { setEnd(newValue); });
-
-  update();
-}
-
-void ChannelRange::setStart(uint32_t newValue)
-{
-  ModuleData* md = &g_model.moduleData[moduleIdx];
-  md->channelsStart = newValue - 1;
-  updateEnd();
-  SET_DIRTY();
-}
-
-void ChannelRange::setEnd(uint32_t newValue)
-{
-  ModuleData* md = &g_model.moduleData[moduleIdx];
-  md->channelsCount = newValue - md->channelsStart - 8;
-  updateStart();
-  SET_DIRTY();
-}
-
-void ChannelRange::updateEnd()
-{
-  ModuleData* md = &g_model.moduleData[moduleIdx];
-  auto min_ch = md->channelsStart + minModuleChannels(moduleIdx);
-  chEnd->setMin(min_ch);
-
-  auto max_ch = md->channelsStart + maxModuleChannels(moduleIdx);
-  max_ch = min<int8_t>(MAX_OUTPUT_CHANNELS, max_ch);
-  chEnd->setMax(max_ch);
-  chEnd->setDefault(max_ch);
-
-  chEnd->update();
-}
-
-void ChannelRange::updateStart()
-{
-  chStart->setMax(MAX_OUTPUT_CHANNELS - sentModuleChannels(moduleIdx) + 1);
-}
-
-void ChannelRange::update()
-{
-  // ModuleData* md = &g_model.moduleData[moduleIdx];
-
-  updateStart();
-  updateEnd();
-
-  auto min_mod_ch = minModuleChannels(moduleIdx);
-  auto max_mod_ch = maxModuleChannels(moduleIdx);
-  chEnd->enable(min_mod_ch < max_mod_ch);
-
-  if (chEnd->getValue() > chEnd->getMax())
-    chEnd->setValue(chEnd->getMax());
-
-  if (!isModulePXX2(moduleIdx)) {
-    chEnd->setAvailableHandler(nullptr);
-  }
-#if defined(PXX2)
-  else {
-    chEnd->setAvailableHandler(
-        [=](int value) { return isPxx2IsrmChannelsCountAllowed(value - 8); });
-  }
-#endif
-}
 
 class ModuleWindow : public FormGroup
 {
@@ -259,7 +165,7 @@ void ModuleWindow::updateModule()
   // Channel Range
   auto line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
-  chRange = new ChannelRange(line, moduleIdx);
+  chRange = new ModuleChannelRange(line, moduleIdx);
 
   // PPM modules
   if (isModulePPM(moduleIdx)) {
