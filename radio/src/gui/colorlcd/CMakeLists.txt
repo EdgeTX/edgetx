@@ -156,6 +156,10 @@ if(GHOST)
   add_gui_src(radio_ghost_module_config.cpp)
 endif()
 
+if(BLUETOOTH)
+  add_gui_src(trainer_bluetooth.cpp)
+endif()
+
 set(SRC ${SRC} storage/modelslist.cpp)
 
 option(WINDOWS_INSPECT_BORDERS "Draw bounding boxes around windows" OFF)

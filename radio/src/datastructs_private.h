@@ -700,15 +700,6 @@ PACK(struct ModelData {
 
   FUNCTION_SWITCHS_FIELDS
 
-  bool isTrainerTraineeEnable() const
-  {
-#if defined(PCBNV14)
-    return trainerData.mode >= TRAINER_MODE_MASTER_TRAINER_JACK;
-#else
-    return true;
-#endif
-  }
-
   uint8_t getThrottleStickTrimSource() const
   {
     // The order here is TERA, so that 0 (default) means Throttle
