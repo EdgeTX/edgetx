@@ -168,7 +168,7 @@
 #if LCD_W >= 212
   #define TR_FSW_RESET_TIMERS          "Stopky1","Stopky2","Stopky3"
 #else
-  #define TR_FSW_RESET_TIMERS          "Cas1","Cas2","Cas3"
+  #define TR_FSW_RESET_TIMERS          "Čas1","Čas2","Čas3"
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"Vše",TR_FSW_RESET_TELEM
