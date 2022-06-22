@@ -32,13 +32,12 @@ constexpr unsigned int CPN_CURRENT_SETTINGS_VERSION = { 221 };
 struct EtxModelMetadata {
     std::string filename;
     std::string name;
-    int         category;
     int         modelIdx;
 };
 
 typedef std::list<EtxModelMetadata> EtxModelfiles;
 
-bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
+bool loadLabelsListFromYaml(std::vector<QString>& labels,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data);
 

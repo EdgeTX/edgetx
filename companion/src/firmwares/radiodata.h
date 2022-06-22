@@ -25,7 +25,7 @@ class RadioData {
     RadioData();
 
     GeneralSettings generalSettings;
-    std::vector<CategoryData> categories;
+    std::vector<QString> labels;
     std::vector<ModelData> models;
 
     void convert(RadioDataConversionState & cstate);

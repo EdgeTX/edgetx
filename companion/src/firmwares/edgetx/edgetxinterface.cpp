@@ -44,38 +44,34 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
     qDebug() << data_ostream.str().c_str();
 }
 
-bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
+bool loadLabelsListFromYaml(std::vector<QString>& labels,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
   if (data.size() == 0)
     return true;
-
   YAML::Node node = loadYamlFromByteArray(data);
   if (!node.IsSequence()) return false;
 
-  int modelIdx = 0;
   for (const auto& cat : node) {
     if (!cat.IsMap()) continue;
-
     for (const auto& cat_map : cat) {
-      categories.push_back(cat_map.first.Scalar().c_str());
-
-      const auto& models = cat_map.second;
-      if (!models.IsSequence()) continue;
-
-      for (const auto& model : models) {
-        std::string filename, name;
-        model["filename"] >> filename;
-        model["name"] >> name;
-        modelFiles.push_back(
-            {filename, name, (int)categories.size() - 1, modelIdx++});
+      if(cat_map.first.Scalar() == "Labels") {
+        if(!cat_map.second.IsSequence()) continue;
+        for(const auto& label : cat_map.second) {
+          if(!label.IsMap()) continue;
+          for(const auto &lbl : label) {
+            if(!lbl.first.IsScalar()) continue;
+            labels.push_back(lbl.first.Scalar().c_str());
+          }
+        }
       }
     }
   }
 
   return true;
 }
+
 
 bool loadModelFromYaml(ModelData& model, const QByteArray& data)
 {
@@ -101,15 +97,12 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
   return true;
 }
 
-// TODO:
-//   'modelFiles' should be ordered by Category index to avoid
-//   turning the sequence into a map.
-//
+//TODO ***
 bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
                            const EtxModelfiles& modelFiles,
                            QByteArray& data)
 {
-  YAML::Node node;
+  /*YAML::Node node;
   std::vector<CategoryData> cats = categories;
   std::vector<EtxModelMetadata> files = { modelFiles.begin(), modelFiles.end() };
 
@@ -142,7 +135,7 @@ bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
   }
 
   writeYamlToByteArray(node, data);
-  return true;
+  return true;*/
 }
 
 bool writeModelToYaml(const ModelData& model, QByteArray& data)

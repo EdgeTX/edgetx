@@ -154,6 +154,7 @@ enum Capability {
   HasBatMeterRange,
   DangerousFunctions,
   HasModelCategories,
+  HasModelLabels,
   HasSwitchableJack,
   HasSportConnector,
   PwrButtonPress,

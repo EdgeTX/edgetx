@@ -55,8 +55,8 @@ bool YamlFormat::writeFile(const QByteArray & filedata)
 }
 
 bool YamlFormat::load(RadioData & radioData)
-{
-  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+{  
+  bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
   int modelIdx = 0;
 
   QByteArray data;
@@ -78,10 +78,10 @@ bool YamlFormat::load(RadioData & radioData)
   if (node["header"].IsMap()) {
     qDebug() << "File" << filename << "appears to contain model data";
 
-    if (hasCategories) {
+    /*if (hasLabels) {
       CategoryData category(qPrintable(tr("New category")));
       radioData.categories.push_back(category);
-    }
+    }*/
 
     radioData.models.resize(1);
 
@@ -97,7 +97,7 @@ bool YamlFormat::load(RadioData & radioData)
       return false;
     }
 
-    model.category = 0;
+    /*model.category = 0;*/
     model.modelIndex = modelIdx;
     strncpy(model.filename, qPrintable(filename), sizeof(model.filename) - 1);
     model.used = true;

@@ -94,12 +94,12 @@ void RadioData::convert(RadioDataConversionState & cstate)
     models[i].convert(cstate.withModelIndex(i));
   }
 
-  if (categories.size() == 0) {
+  /*if (categories.size() == 0) {
     categories.push_back(CategoryData(qPrintable(tr("Models"))));
     for (unsigned i=0; i<models.size(); i++) {
       models[i].category = 0;
     }
-  }
+  }*/
 
   if (IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
     fixModelFilenames();

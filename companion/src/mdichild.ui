@@ -10,10 +10,7 @@
     <height>575</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
-   <property name="spacing">
-    <number>5</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="topToolbarLayout">
      <property name="spacing">
@@ -35,8 +32,28 @@
      </property>
     </widget>
    </item>
+   <item>
+    <layout class="QVBoxLayout" name="bottomLayout"/>
+   </item>
+   <item>
+    <widget class="LabelsEditor" name="lstLabels">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>150</height>
+      </size>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LabelsEditor</class>
+   <extends>QListView</extends>
+   <header>mdichild.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

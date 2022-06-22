@@ -138,12 +138,15 @@ TreeModel::TreeModel(RadioData * radioData, QObject * parent):
   QAbstractItemModel(parent),
   radioData(radioData)
 {
-  hasCategories = getCurrentFirmware()->getCapability(Capability::HasModelCategories);
+  hasLabels = getCurrentFirmware()->getCapability(Capability::HasModelLabels);
   QVector<QVariant> labels;
-  if (!hasCategories)
+  if (!hasLabels)
     labels << tr("Index");
   labels << tr("Name");
   labels << tr("RX #");
+  if (hasLabels)
+    labels << tr("Labels");
+
   rootItem = new TreeItem(labels);
   // uniqueId and version for drag/drop operations (see encodeHeaderData())
   mimeHeaderData.instanceId = QUuid::createUuid();
@@ -200,13 +203,9 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
   Qt::ItemFlags f = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
-  if (index.isValid()) {
-    if (getItem(index)->isCategory())
-      f |= Qt::ItemIsEditable;
-    else
-      f |= Qt::ItemIsDragEnabled;  // TODO drag/drop categories
-  }
+  f |= Qt::ItemIsDragEnabled;
   f |= Qt::ItemIsDropEnabled;
+  f |= Qt::ItemIsEditable;
 
   //qDebug() << f;
   return f;
@@ -644,12 +643,12 @@ void TreeModel::refresh()
   removeRows(0, rowCount());
   this->blockSignals(false);
 
-  if (hasCategories) {
+  /*if (hasCategories) {
     for (unsigned i = 0; i < radioData->categories.size(); i++) {
       TreeItem * current = rootItem->appendChild(i, -1);
       current->setData(0, QString(radioData->categories[i].name));
     }
-  }
+  }*/
 
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
@@ -658,25 +657,8 @@ void TreeModel::refresh()
 
     model.modelIndex = i;
 
-    if (hasCategories) {
-      if (!model.isEmpty()) {
-        TreeItem * categoryItem;
-        // TODO category should be set to -1 if not Horus
-        if (model.category >= 0 && model.category < rootItem->childCount()) {
-          categoryItem = rootItem->child(model.category);
-        }
-        else {
-          model.category = 0;
-          if (!defaultCategoryItem) {
-            defaultCategoryItem = rootItem->appendChild(0, -1);
-            /*: Translators do NOT use accent for this, this is the default category name on Horus. */
-            defaultCategoryItem->setData(0, tr("Models"));
-            radioData->categories.push_back(qPrintable(tr("Models")));
-          }
-          categoryItem = defaultCategoryItem;
-        }
-        current = categoryItem->appendChild(model.category, i);
-      }
+    if (hasLabels) {
+      current = rootItem->appendChild(0, i);
     }
     else {
       current = rootItem->appendChild(0, i);
@@ -715,6 +697,9 @@ void TreeModel::refresh()
       }
       current->setData(currentColumn++, rxs);
     }
+   if (hasLabels) {
+     current->setData(currentColumn++, QString(model.labels));
+   }
   }
 }
 
@@ -736,3 +721,4 @@ bool TreeModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsigned pro
   }
   return true;
 }
+
