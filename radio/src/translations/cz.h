@@ -189,7 +189,7 @@
   #define TR_TELEM_RSSI_RX             "Rx"
 #endif
 
-#define TR_TELEM_TIMERS                "Cas1","Cas2","Cas3"
+#define TR_TELEM_TIMERS                "Čas1","Čas2","Čas3"
 
 #define LENGTH_UNIT_IMP                "ft"
 #define SPEED_UNIT_IMP                 "mph"
