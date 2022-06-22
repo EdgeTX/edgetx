@@ -248,7 +248,7 @@
 #endif
 
 #define TR_RESERVE_VSRCRAW             "[--]"
-#define TR_EXTRA_VSRCRAW               "Bat.","Čas","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Cas1","Cas2","Cas3"
+#define TR_EXTRA_VSRCRAW               "Bat.","Čas","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Čas1","Čas2","Čas3"
 
 #define TR_VTMRMODES                   "VYP","ZAP","Pln>","Pln%","Pln*"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
