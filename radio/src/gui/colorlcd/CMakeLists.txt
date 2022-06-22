@@ -54,6 +54,7 @@ set(GUI_SRC
   trainer_setup.cpp
   custom_failsafe.cpp
   ppm_settings.cpp
+  channel_range.cpp
   module_setup.cpp
   timer_setup.cpp
   trims_setup.cpp
