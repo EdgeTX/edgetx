@@ -107,6 +107,7 @@ const char * loadRadioSettings()
 {
     FILINFO fno;
     if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
+#if STORAGE_CONVERSIONS < 221
 #if defined(STORAGE_MODELSLIST)
       uint8_t version;
       const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
@@ -126,6 +127,9 @@ const char * loadRadioSettings()
       eeConvert(versions[0]);
 #else
   #error "Unsupported conversion format"
+#endif
+#else
+      return "no radio settings";
 #endif
     }
 
