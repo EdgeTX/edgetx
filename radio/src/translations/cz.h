@@ -936,7 +936,7 @@
 #define TR_SMOOTH                      "Hladká"
 #define TR_COPY_STICKS_TO_OFS          TR("Páky do subtrimu", "Kopie pák do subtrimu")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
-#define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopie trimů do subtrimu")
+#define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
 #define TR_INCDEC                      "Zvěšit/Zmenšit"
 #define TR_GLOBALVAR                   "Glob. proměnná"
 #define TR_MIXSOURCE                   "Zdroje mixeru"
