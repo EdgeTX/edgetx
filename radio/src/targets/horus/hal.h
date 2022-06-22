@@ -701,6 +701,8 @@
   #define TOUCH_RST_GPIO                  GPIOF
 #if defined(PCBX12S)
   #define TOUCH_RST_GPIO_PIN              GPIO_Pin_7   // PF.7
+#elif defined(RADIO_T16)
+  #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
 #else
   #define TOUCH_RST_GPIO_PIN              GPIO_Pin_10   // PF.10
 #endif
@@ -717,7 +719,7 @@
 #endif
 
 // First I2C Bus
-#if defined(RADIO_T18)
+#if defined(RADIO_T18) || defined(RADIO_T16)
   #define I2C_B1_RCC_AHB1Periph           RCC_AHB1Periph_GPIOH
   #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C3
   #define I2C_B1                          I2C3
