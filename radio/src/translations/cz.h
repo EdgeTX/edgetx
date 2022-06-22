@@ -600,7 +600,7 @@
 #define TR_VOLTAGE                     INDENT"Napětí"
 #define TR_CURRENT                     INDENT"Proud"
 #define TR_SELECT_MODEL                "Vyber model"
-#define TR_MODEL_CATEGORIES            "Modely kategorie"
+#define TR_MODEL_CATEGORIES            "Kategorie modelů"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_CATEGORY             "Nová kategorie"
