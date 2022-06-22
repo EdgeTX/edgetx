@@ -159,13 +159,8 @@
 #define LEN_XJT_ACCST_RF_PROTOCOLS     "\004"
 #define TR_XJT_ACCST_RF_PROTOCOLS      "OFF\0""D16\0""D8\0 ""LR12"
 
-#if defined(INTERNAL_MODULE_PXX1) || defined(PCBHORUS)
 #define LEN_ISRM_RF_PROTOCOLS          "\006"
 #define TR_ISRM_RF_PROTOCOLS           "ACCESS""D16\0  ""LR12"
-#else
-#define LEN_ISRM_RF_PROTOCOLS          "\012"
-#define TR_ISRM_RF_PROTOCOLS           "OFF\0      ""ACCESS\0   ""ACCST D16\0""ACCST LR12""ACCST D8"
-#endif
 
 #define LEN_R9M_PXX2_RF_PROTOCOLS      "\006"
 #define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS""FCC\0  ""EU\0   ""Flex"
