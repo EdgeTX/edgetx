@@ -791,7 +791,7 @@
 #define TR_FIRMWARE_UPDATE_ERROR       TR("Chyba zápisu FW", "Chyba zápisu firmware")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Úspěšný zápis FW"
 #define TR_WRITING                     "Zapisuji..."
-#define TR_CONFIRM_FORMAT              "Provést formát?"
+#define TR_CONFIRM_FORMAT              "Formátovat?"
 #define TR_INTERNALRF                  "Interní RF modul"
 #define TR_INTERNAL_MODULE             "Interní modul"
 #define TR_EXTERNAL_MODULE             "Externí modul"
