@@ -63,6 +63,9 @@ void ViewTextWindow::buildBody(Window *window)
   lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW);
   lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
 
+  // prevents resetting the group's edit mode
+  lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
   auto g = lv_group_get_default();
   lv_group_add_obj(g, obj);
   lv_group_set_editing(g, true);
