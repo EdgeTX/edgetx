@@ -261,7 +261,7 @@
 #define TR_VTRAINER_MULTI              "Master/Multi"
 #define TR_VFAILSAFE                   "Nenastaven","Držet","Vlastní","Bez pulzů","Přijímač"
 #define TR_VSENSORTYPES                "Vlastní","Vypočtený"
-#define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Celkově","Článek","Spotřeba","Vzdálenost"
+#define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Celkem","Článek","Spotřeba","Vzdálenost"
 #define TR_VPREC                       "X","X.X","X.XX"
 #define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","Nejvíce","Delta"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(pouze středy)","= (symetrický)"
