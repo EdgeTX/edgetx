@@ -205,6 +205,8 @@ extern const char STR_BLUETOOTH_INIT[];
 extern const char STR_BLUETOOTH_DIST_ADDR[];
 extern const char STR_BLUETOOTH_LOCAL_ADDR[];
 extern const char STR_BLUETOOTH_PIN_CODE[];
+extern const char STR_BLUETOOTH_NODEVICES[];
+extern const char STR_BLUETOOTH_SCANNING[];
 extern const char* STR_BLUETOOTH_MODES[];
 
 #define NO_INDENT(x) (x) + LEN_INDENT

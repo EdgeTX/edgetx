@@ -665,6 +665,8 @@
 #define TR_BLUETOOTH_DIST_ADDR         "目标地址"
 #define TR_BLUETOOTH_LOCAL_ADDR        "本机地址"
 #define TR_BLUETOOTH_PIN_CODE          "PIN码"
+#define TR_BLUETOOTH_NODEVICES         "No Devices Found"
+#define TR_BLUETOOTH_SCANNING          "Scanning..."
 #define TR_BLUETOOTH_BAUDRATE          "蓝牙带宽"
 #define TR_BLUETOOTH_MODES             "---","回传","教练"
 #define TR_SELECT_TEMPLATE_FOLDER      "选择一个模板文件夹:"

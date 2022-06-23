@@ -24,19 +24,26 @@
 #include "form.h"
 #include "static.h"
 #include "button.h"
+#include "bluetooth.h"
 
 class BluetoothTrainerWindow : public FormGroup
 {
   bool is_master = true;
+  bool menuopened = false;
+  uint8_t lastbtstate=BLUETOOTH_STATE_OFF;
+  uint8_t devcount=0;
   StaticText* state;
   StaticText* r_addr;
+  StaticText* l_addr;
 
   Window* btn_line;
   TextButton* btn;
-    
+  void startScan();
+
 public:
   BluetoothTrainerWindow(Window* parent);
     
   void setMaster(bool master);
+  void checkEvents() override;
   void refresh();
 };

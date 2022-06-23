@@ -21,7 +21,7 @@
 
 #include "trainer_bluetooth.h"
 #include "opentx.h"
-#include "bluetooth.h"
+
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -47,8 +47,6 @@ BTDiscoverMenu::BTDiscoverMenu() :
   setTitle(STR_BT_SELECT_DEVICE);
   // TODO: set minimum height
 
-  reusableBuffer.moduleSetup.bt.devicesCount = 0;
-  bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
 }
 
 void BTDiscoverMenu::checkEvents()
@@ -83,15 +81,19 @@ BluetoothTrainerWindow::BluetoothTrainerWindow(Window* parent) :
   FlexGridLayout grid(col_dsc, row_dsc, 2);
 
   auto line = newLine(&grid);
-  state = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);  
+  state = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
   r_addr = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+
+  auto lclline = newLine(&grid);
+  new StaticText(lclline, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(lclline, rect_t{}, bluetooth.localAddr, 0, COLOR_THEME_PRIMARY1);
 
   btn_line = newLine(&grid);
   grid.nextCell();
 
   btn = new TextButton(btn_line, rect_t{}, "");
-  btn->setWidth(LV_DPI_DEF / 2);
-  btn->padAll(lv_dpx(4));
+  /*btn->setWidth(LV_DPI_DEF);
+  btn->padAll(lv_dpx(10));*/
 }
 
 void BluetoothTrainerWindow::setMaster(bool master)
@@ -107,10 +109,39 @@ void BluetoothTrainerWindow::setMaster(bool master)
 
 static const char _empty_addr[] = "---";
 
+void BluetoothTrainerWindow::checkEvents()
+{
+  if(bluetooth.state != lastbtstate ||
+     reusableBuffer.moduleSetup.bt.devicesCount != devcount)
+    refresh();
+  lastbtstate = bluetooth.state;
+  devcount = reusableBuffer.moduleSetup.bt.devicesCount;
+}
+
 void BluetoothTrainerWindow::refresh()
 {
   if (is_master) {
-    if (bluetooth.distantAddr[0]) {
+    if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_SENT) {
+      btn->setText(STR_BLUETOOTH_SCANNING);
+      btn->setPressHandler([=]() {
+        startScan(); // Allow restart scan if stuck here
+        return 0;});
+    } else if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_START) {
+      if(reusableBuffer.moduleSetup.bt.devicesCount && !menuopened) { // On first item found, open menu
+        auto btdm = new BTDiscoverMenu();
+        btdm->setCloseHandler([=]() {
+          menuopened = false;
+          if(bluetooth.state != BLUETOOTH_STATE_BIND_REQUESTED)
+            bluetooth.state = BLUETOOTH_STATE_IDLE;
+        });
+        menuopened = true;
+      }
+    } else if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
+      if(reusableBuffer.moduleSetup.bt.devicesCount == 0) {
+        new MessageDialog(this, STR_BLUETOOTH, STR_BLUETOOTH_NODEVICES);
+        bluetooth.state = BLUETOOTH_STATE_OFF;
+      }
+    } else if (bluetooth.distantAddr[0]) {
       r_addr->setText(bluetooth.distantAddr);
       btn->setText(STR_CLEAR);
       btn->setPressHandler([]() {
@@ -129,7 +160,7 @@ void BluetoothTrainerWindow::refresh()
       r_addr->setText(_empty_addr);
       btn->setText(STR_DISCOVER);
       btn->setPressHandler([=]() {
-        new BTDiscoverMenu();
+        startScan();
         return 0;
       });
     }
@@ -138,8 +169,17 @@ void BluetoothTrainerWindow::refresh()
   if (bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
     state->setText(STR_CONNECTED);
     if (!is_master) r_addr->setText(bluetooth.distantAddr);
-  } else {
+  } else if (bluetooth.state != BLUETOOTH_STATE_DISCOVER_REQUESTED ||
+             bluetooth.state != BLUETOOTH_STATE_DISCOVER_SENT ||
+             !is_master) {
     state->setText(STR_NOT_CONNECTED);
     if (!is_master) r_addr->setText(_empty_addr);
   }
+}
+
+void BluetoothTrainerWindow::startScan()
+{
+  reusableBuffer.moduleSetup.bt.devicesCount = 0;
+  devcount = 0;
+  bluetooth.state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
 }

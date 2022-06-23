@@ -724,6 +724,8 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Dir. remota"
 #define TR_BLUETOOTH_LOCAL_ADDR "Dir. local"
 #define TR_BLUETOOTH_PIN_CODE   "Código PIN"
+#define TR_BLUETOOTH_NODEVICES  "No Devices Found"
+#define TR_BLUETOOTH_SCANNING   "Scanning..."
 #define TR_BLUETOOTH_BAUDRATE   "Velocidad BT"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---","Activo"
