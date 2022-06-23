@@ -740,6 +740,8 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Vzdál. addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokál. addr"
 #define TR_BLUETOOTH_PIN_CODE          TR("PIN kód", "PIN kód")
+#define TR_BLUETOOTH_NODEVICES         "No Devices Found"
+#define TR_BLUETOOTH_SCANNING          "Scanning..."
 #define TR_BLUETOOTH_BAUDRATE          "Baudrate BT"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Povoleno"
