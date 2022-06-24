@@ -348,6 +348,7 @@ typedef struct
 
 #define CST836U_TOUCH_EVT_FLAG_SHIFT     6
 #define CST836U_TOUCH_EVT_FLAG_MASK      (3 << CST836U_TOUCH_EVT_FLAG_SHIFT)
+#define CST836U_TOUCH_EVT_FLAG_CONTACT   0x02
 
 #define LCD_VERTICAL                ( 0x00 )
 #define LCD_HORIZONTAL              ( 0x01 )

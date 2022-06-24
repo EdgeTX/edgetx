@@ -187,17 +187,6 @@ int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
   return 0;
 }
 
-int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-
-  HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, (uint32_t)-1, timeout);
-  if (err != HAL_OK) return -1;
-
-  return 0;
-}
-
 int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_t timeout)
 {
   I2C_HandleTypeDef* h = get_i2c_handle(bus);
@@ -207,6 +196,11 @@ int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_
   if (err != HAL_OK) return -1;
 
   return 0;
+}
+
+int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
+{
+  return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
 }
 
 static int i2c_enable_gpio_clock(GPIO_TypeDef *GPIOx)
