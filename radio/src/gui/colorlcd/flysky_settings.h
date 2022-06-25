@@ -28,9 +28,11 @@ struct ModuleData;
 
 class FlySkySettings : public FormGroup, public ModuleOptions
 {
+  uint8_t moduleIdx;
   ModuleData* md;
+  FlexGridLayout grid;
 
-  void update() override {}
+  void update() override;
     
 public:
   FlySkySettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);

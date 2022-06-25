@@ -28,8 +28,8 @@
 
 class FSProtoOpts : public FormGroup
 {
-  std::function<uint8_t()> getMode;
-  std::function<void(uint8_t)> setMode;
+  std::function<uint8_t()> _getMode;
+  std::function<void(uint8_t)> _setMode;
   
 public:
   FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
@@ -39,30 +39,44 @@ public:
 FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
                          std::function<void(uint8_t)> setMode) :
   FormGroup(parent, rect_t{}),
-  getMode(std::move(getMode)),
-  setMode(std::move(setMode))
+  _getMode(std::move(getMode)),
+  _setMode(std::move(setMode))
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
 
   // PPM / PWM
   new Choice(
       this, rect_t{}, STR_FLYSKY_PULSE_PROTO, 0, 1,
-      [=]() { return getMode() >> 1; },
-      [=](int v) { setMode((getMode() & 1) | ((v & 1) << 1)); SET_DIRTY(); });
+      [=]() -> int { return _getMode() >> 1; },
+      [=](int v) {
+        _setMode((_getMode() & 1) | ((v & 1) << 1));
+        SET_DIRTY();
+      });
+
   // SBUS / iBUS
   new Choice(
       this, rect_t{}, STR_FLYSKY_SERIAL_PROTO, 0, 1,
-      [=]() { return getMode() & 1; },
-      [=](int v) { setMode((getMode() & 2) | (v & 1)); SET_DIRTY(); });
+      [=]() -> int { return _getMode() & 1; },
+      [=](int v) {
+        _setMode((_getMode() & 2) | (v & 1));
+        SET_DIRTY();
+      });
 }
 
 FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
                                uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    FormGroup(parent, rect_t{}),
+    moduleIdx(moduleIdx),
+    md(&g_model.moduleData[moduleIdx]),
+    grid(g)
 {
-  FlexGridLayout grid(g);
   setFlexLayout();
+}
 
+void FlySkySettings::update()
+{
+  clear();
+  
   // RX options:
   auto line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
