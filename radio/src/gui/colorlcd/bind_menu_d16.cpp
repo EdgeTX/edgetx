@@ -41,7 +41,10 @@ BindChoiceMenu::BindChoiceMenu(Window *parent, uint8_t moduleIdx,
             [=]() { onSelect(Bind_9_16_TELEM_OFF); });
   }
   setTitle(STR_SELECT_MODE);
-  setCancelHandler(onCancel);
+  setCancelHandler([=] {
+    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+    onCancel();
+  });
 }
 
 void BindChoiceMenu::onSelect(BindChanMode mode)
@@ -64,16 +67,16 @@ void BindChoiceMenu::onSelect(BindChanMode mode)
       break;
   }
 
+  ModuleData* md = &g_model.moduleData[moduleIdx];
   if (isModuleMultimodule(moduleIdx)) {
-    g_model.moduleData[moduleIdx].multi.receiverTelemetryOff =
-        !receiverTelemetry;
-    g_model.moduleData[moduleIdx].multi.receiverHigherChannels =
-        receiverHigherChannels;
+    md->multi.receiverTelemetryOff = !receiverTelemetry;
+    md->multi.receiverHigherChannels = receiverHigherChannels;
+    setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
   } else {
-    g_model.moduleData[moduleIdx].pxx.receiverTelemetryOff = !receiverTelemetry;
-    g_model.moduleData[moduleIdx].pxx.receiverHigherChannels =
-        receiverHigherChannels;
+    md->pxx.receiverTelemetryOff = !receiverTelemetry;
+    md->pxx.receiverHigherChannels = receiverHigherChannels;
   }
 
+  moduleState[moduleIdx].mode = MODULE_MODE_BIND;
   if (onPressHandler) onPressHandler();
 }

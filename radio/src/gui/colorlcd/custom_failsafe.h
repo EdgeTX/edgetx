@@ -25,8 +25,6 @@
 
 class FailSafePage : public Page
 {
-  uint8_t moduleIdx;
-
  public:
   explicit FailSafePage(uint8_t moduleIdx);
 };

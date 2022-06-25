@@ -196,10 +196,10 @@
 
 #define TR_ON_ONE_SWITCHES              "ON","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW                "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW                "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -225,7 +225,6 @@
 #define TR_VFORMULAS                    "加","平均值","最小值","最大值","乘","總計值","單節電池","消耗量","距離"
 #define TR_VPREC                        "0.--","0.0-","0.00"
 #define TR_VCELLINDEX                   "最低值","1","2","3","4","5","6","最高值","差值"
-#define TR_GYROS                        "GyrX","GyrY"
 #define TR_TEXT_SIZE                    "標準","小","較小","中等","雙倍"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA "(中点)","=(整體)"
 
@@ -335,9 +334,9 @@
 #define TR_BEEP_PITCH                   "提示音音調"
 #define TR_HAPTIC_LABEL                 "振動"
 #define TR_STRENGTH                     "強度"
-#define TR_GYRO_LABEL                   "陀螺儀"
-#define TR_GYRO_OFFSET                  "補償"
-#define TR_GYRO_MAX                     "最大值"
+#define TR_IMU_LABEL                    "IMU"
+#define TR_IMU_OFFSET                   "補償"
+#define TR_IMU_MAX                      "最大值"
 #define TR_CONTRAST                     "對比度"
 #define TR_ALARMS_LABEL                 "警告"
 #define TR_BATTERY_RANGE                TR("Batt. range", "電壓測量範圍")
@@ -575,7 +574,7 @@
 #define TR_MODULES_RX_VERSION           "模塊/接收機版本"
 #define TR_MENU_MODULES_RX_VERSION      "模塊/接收機版本"
 #define TR_MENU_FIRM_OPTIONS            "韌體選項"
-#define TR_GYRO                         "陀螺儀"
+#define TR_IMU                         "陀螺儀"
 #define TR_STICKS_POTS_SLIDERS          "搖桿/旋鈕/滑塊"
 #define TR_PWM_STICKS_POTS_SLIDERS      "PWM 搖桿/旋鈕/滑塊"
 #define TR_RF_PROTOCOL                  "射頻協議"

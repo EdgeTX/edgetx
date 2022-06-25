@@ -47,17 +47,6 @@ void rotaryEncoderCheck();
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-#if defined(STM32F4)
-  #define PERI1_FREQUENCY               42000000
-  #define PERI2_FREQUENCY               84000000
-#else
-  #define PERI1_FREQUENCY               30000000
-  #define PERI2_FREQUENCY               60000000
-#endif
-
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
-
 extern uint16_t sessionTimer;
 
 // Board driver
@@ -749,14 +738,6 @@ uint8_t isBacklightEnabled();
 }
 #endif
 
-// I2C driver: EEPROM + Audio Volume
-#define EEPROM_SIZE                   (32*1024)
-
-void i2cInit();
-void eepromReadBlock(uint8_t * buffer, size_t address, size_t size);
-void eepromStartWrite(uint8_t * buffer, size_t address, size_t size);
-uint8_t eepromIsTransferComplete();
-
 // Debug driver
 void debugPutc(const char c);
 
@@ -980,16 +961,6 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 #endif
 
 #define INTMODULE_FIFO_SIZE            128
-
-// Gyro driver
-#define GYRO_VALUES_COUNT               6
-#define GYRO_BUFFER_LENGTH              (GYRO_VALUES_COUNT * sizeof(int16_t))
-int gyroInit();
-int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH]);
-#define GYRO_MAX_DEFAULT                30
-#define GYRO_MAX_RANGE                  60
-#define GYRO_OFFSET_MIN                 -30
-#define GYRO_OFFSET_MAX                 10
 
 #if defined (RADIO_TX12)
   #define BATTERY_DIVIDER 22830

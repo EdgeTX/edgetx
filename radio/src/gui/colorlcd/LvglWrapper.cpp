@@ -177,6 +177,11 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   TouchState st = touchPanelRead();
 
+#if defined(TOUCH_PANEL_INVERTED) && !defined(SIMU)
+      st.x = LCD_W - st.x;
+      st.y = LCD_H - st.y;
+#endif
+
   // no touch input if backlight is disabled
   if (!isBacklightEnabled()) {
     reset_inactivity();

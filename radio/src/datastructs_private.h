@@ -444,6 +444,14 @@ PACK(struct TrainerModuleData {
 // Only used in case switch and if statements as "virtual" protocol
 #define MM_RF_CUSTOM_SELECTED 0xff
 #define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
+
+PACK(struct PpmModule {
+  int8_t  delay:6;
+  uint8_t pulsePol:1;
+  uint8_t outputType:1;    // false = open drain, true = push pull
+  int8_t  frameLength;
+});
+
 PACK(struct ModuleData {
   uint8_t type ENUM(ModuleType);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
@@ -454,12 +462,7 @@ PACK(struct ModuleData {
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
-    NOBACKUP(struct {
-      int8_t  delay:6;
-      uint8_t pulsePol:1;
-      uint8_t outputType:1;    // false = open drain, true = push pull
-      int8_t  frameLength;
-    } ppm);
+    NOBACKUP(PpmModule ppm);
     NOBACKUP(struct {
       uint8_t rfProtocol SKIP;
       uint8_t disableTelemetry:1;
@@ -697,15 +700,6 @@ PACK(struct ModelData {
 
   FUNCTION_SWITCHS_FIELDS
 
-  bool isTrainerTraineeEnable() const
-  {
-#if defined(PCBNV14)
-    return trainerData.mode >= TRAINER_MODE_MASTER_TRAINER_JACK;
-#else
-    return true;
-#endif
-  }
-
   uint8_t getThrottleStickTrimSource() const
   {
     // The order here is TERA, so that 0 (default) means Throttle
@@ -769,14 +763,6 @@ PACK(struct TrainerData {
   #define SPLASH_MODE uint8_t splashSpares:3 SKIP
 #else
   #define SPLASH_MODE int8_t splashMode:3
-#endif
-
-#if defined(PCBXLITES)
-  #define GYRO_FIELDS \
-    int8_t   gyroMax; \
-    int8_t   gyroOffset;
-#else
-  #define GYRO_FIELDS
 #endif
 
 #if defined(COLORLCD)
@@ -911,14 +897,17 @@ PACK(struct RadioData {
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
-  GYRO_FIELDS
-
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);
   NOBACKUP(uint8_t  spare2:3 SKIP);
 #else
   NOBACKUP(uint8_t  spare2:6 SKIP);
+#endif
+
+#if defined(IMU)
+  NOBACKUP(int8_t imuMax);
+  NOBACKUP(int8_t imuOffset);
 #endif
 });
 

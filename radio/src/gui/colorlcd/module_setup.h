@@ -26,3 +26,9 @@
 struct ModulePage : public Page {
   ModulePage(uint8_t moduleIdx);
 };
+
+class ModuleOptions
+{
+ public:
+  virtual void update() = 0;
+};

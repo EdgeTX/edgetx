@@ -53,6 +53,8 @@ set(GUI_SRC
   bind_menu_d16.cpp
   trainer_setup.cpp
   custom_failsafe.cpp
+  ppm_settings.cpp
+  channel_range.cpp
   module_setup.cpp
   timer_setup.cpp
   trims_setup.cpp
@@ -130,6 +132,18 @@ if(PXX2 OR MULTIMODULE)
   add_gui_src(radio_spectrum_analyser.cpp)
 endif()
 
+if(CROSSFIRE)
+  add_gui_src(crossfire_settings.cpp)
+endif()
+
+if(AFHDS2 OR AFHDS3)
+  add_gui_src(flysky_settings.cpp)
+endif()
+
+if(MULTIMODULE)
+  add_gui_src(mpm_settings.cpp)
+endif()
+
 if(PXX2)
   add_gui_src(access_settings.cpp)
 endif()
@@ -140,6 +154,11 @@ endif()
 
 if(GHOST)
   add_gui_src(radio_ghost_module_config.cpp)
+endif()
+
+if(BLUETOOTH)
+  add_gui_src(trainer_bluetooth.cpp)
+  add_gui_src(hw_bluetooth.cpp)
 endif()
 
 set(SRC ${SRC} storage/modelslist.cpp)
