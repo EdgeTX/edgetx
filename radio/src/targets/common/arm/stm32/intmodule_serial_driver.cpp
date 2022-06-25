@@ -23,9 +23,16 @@
 #include "intmodule_serial_driver.h"
 #include "stm32_usart_driver.h"
 #include "board.h"
-#include "fifo.h"
 
-Fifo<uint8_t, INTMODULE_FIFO_SIZE> intmoduleFifo;
+#include "fifo.h"
+typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
+static RxFifo intmoduleFifo;
+
+struct IntmoduleCtx
+{
+  RxFifo* rxFifo;
+  const stm32_usart_t* usart;
+};
 
 #if !defined(INTMODULE_DMA_STREAM)
 static uint8_t * intmoduleTxBufferData;
@@ -88,6 +95,11 @@ static const stm32_usart_t intmoduleUSART = {
   .rxDMA_Channel = 0,
 };
 
+static const IntmoduleCtx intmoduleCtx = {
+  .rxFifo = &intmoduleFifo,
+  .usart = &intmoduleUSART,
+};
+
 void intmoduleStop()
 {
   stm32_usart_deinit(&intmoduleUSART);
@@ -115,7 +127,9 @@ void* intmoduleSerialStart(const etx_serial_init* params)
   intmodule_driver.on_error = nullptr;
 
   stm32_usart_init(&intmoduleUSART, params);
-  return nullptr;
+
+  intmoduleCtx.rxFifo->clear();
+  return (void*)&intmoduleCtx;
 }
 
 #define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
@@ -126,13 +140,13 @@ extern "C" void INTMODULE_USART_IRQHandler(void)
 
 void intmoduleSendByte(void* ctx, uint8_t byte)
 {
-  (void)ctx;
-  stm32_usart_send_byte(&intmoduleUSART, byte);
+  auto modCtx = (IntmoduleCtx*)ctx;
+  stm32_usart_send_byte(modCtx->usart, byte);
 }
 
 void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 {
-  (void)ctx;
+  auto modCtx = (IntmoduleCtx*)ctx;
   if (size == 0)
     return;
 
@@ -140,17 +154,31 @@ void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
   intmoduleTxBufferData = (uint8_t *)data;
   intmoduleTxBufferRemaining = size;
 #endif
-  stm32_usart_send_buffer(&intmoduleUSART, data, size);
+  stm32_usart_send_buffer(modCtx->usart, data, size);
 }
 
 void intmoduleWaitForTxCompleted(void* ctx)
 {
-  (void)ctx;
+  auto modCtx = (IntmoduleCtx*)ctx;
 #if defined(INTMODULE_DMA_STREAM)
-  stm32_usart_wait_for_tx_dma(&intmoduleUSART);
+  stm32_usart_wait_for_tx_dma(modCtx->usart);
 #else
   while (intmoduleTxBufferRemaining > 0);
 #endif
+}
+
+static int intmoduleGetByte(void* ctx, uint8_t* data)
+{
+  auto modCtx = (IntmoduleCtx*)ctx;
+  if (!modCtx->rxFifo) return -1;
+  return modCtx->rxFifo->pop(*data);
+}
+
+static void intmoduleClearRxBuffer(void* ctx)
+{
+  auto modCtx = (IntmoduleCtx*)ctx;
+  if (!modCtx->rxFifo) return;
+  modCtx->rxFifo->clear();
 }
 
 const etx_serial_driver_t IntmoduleSerialDriver = {
@@ -159,7 +187,8 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
   .sendByte = intmoduleSendByte,
   .sendBuffer = intmoduleSendBuffer,
   .waitForTxCompleted = intmoduleWaitForTxCompleted,
-  .getByte = nullptr,
+  .getByte = intmoduleGetByte,
+  .clearRxBuffer = intmoduleClearRxBuffer,
   .getBaudrate = nullptr,
   .setReceiveCb = nullptr,
   .setBaudrateCb = nullptr,

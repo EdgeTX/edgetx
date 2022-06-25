@@ -648,7 +648,6 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
 
 static void* pxx2InitInternal(uint8_t moduleType)
 {
-  intmoduleFifo.clear();
   void* uart_ctx = IntmoduleSerialDriver.init(&pxx2SerialInitParams);
   resetAccessAuthenticationCount();
 
@@ -697,6 +696,11 @@ static void pxx2SendPulsesInternal(void* context)
   }
 }
 
+static int pxx2GetByteInternal(void* context, uint8_t* data)
+{
+  return IntmoduleSerialDriver.getByte(context, data);
+}
+
 #include "hal/module_driver.h"
 
 const etx_module_driver_t Pxx2InternalDriver = {
@@ -705,6 +709,7 @@ const etx_module_driver_t Pxx2InternalDriver = {
   .deinit = pxx2DeInitInternal,
   .setupPulses = pxx2SetupPulsesInternal,
   .sendPulses = pxx2SendPulsesInternal,
+  .getByte = pxx2GetByteInternal,
 };
 
 #if defined(EXTMODULE_USART)

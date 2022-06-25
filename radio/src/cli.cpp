@@ -1143,7 +1143,7 @@ int cliSerialPassthrough(const char **argv)
       while (cdcConnected) {
 
         uint8_t data;
-        if (intmoduleFifo.pop(data)) {
+        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {

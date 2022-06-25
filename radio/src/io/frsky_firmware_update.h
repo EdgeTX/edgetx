@@ -24,10 +24,6 @@
 
 #include "dataconstants.h"
 #include "definitions.h"
-#include "frsky_pxx2.h"
-#include "pulses/modules_helpers.h"
-#include "ff.h"
-#include "popups.h"
 
 enum FrskyFirmwareProductFamily {
   FIRMWARE_FAMILY_INTERNAL_MODULE,
@@ -143,7 +139,7 @@ class FrskyDeviceFirmwareUpdate {
     void sendFrame();
 
     bool readBuffer(uint8_t * buffer, uint8_t count, uint32_t timeout);
-    const uint8_t * readFullDuplexFrame(ModuleFifo & fifo, uint32_t timeout);
+    const uint8_t * readFullDuplexFrame(uint32_t timeout);
     const uint8_t * readHalfDuplexFrame(uint32_t timeout);
     const uint8_t * readFrame(uint32_t timeout);
     bool waitState(State state, uint32_t timeout);

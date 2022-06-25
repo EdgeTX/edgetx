@@ -25,9 +25,16 @@
 
 #if defined(EXTMODULE_USART)
 #include "stm32_usart_driver.h"
+#include "fifo.h"
 
-#include "io/frsky_pxx2.h"
-ModuleFifo extmoduleFifo;
+typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
+static RxFifo extmoduleFifo;
+
+struct ExtmoduleCtx
+{
+  RxFifo* rxFifo;
+  const stm32_usart_t* usart;
+};
 
 static etx_serial_callbacks_t extmodule_driver = {
   nullptr, nullptr, nullptr
@@ -69,6 +76,11 @@ static const stm32_usart_t extmoduleUSART = {
   .rxDMA_Channel = 0,
 };
 
+static const ExtmoduleCtx extmoduleCtx = {
+  .rxFifo = &extmoduleFifo,
+  .usart = &extmoduleUSART,
+};
+
 static void* extmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return nullptr;
@@ -78,9 +90,9 @@ static void* extmoduleSerialStart(const etx_serial_init* params)
 
   // UART config
   stm32_usart_init(&extmoduleUSART, params);
-  extmoduleFifo.clear();
+  extmoduleCtx.rxFifo->clear();
 
-  return nullptr;
+  return (void*)&extmoduleCtx;
 }
 
 void extmoduleInvertedSerialStart(uint32_t baudrate)
@@ -91,16 +103,6 @@ void extmoduleInvertedSerialStart(uint32_t baudrate)
   extmoduleSerialStart(&params);
 }
 
-#if defined(PXX1)
-void extmodulePxx1SerialStart()
-{
-  EXTERNAL_MODULE_ON();
-  etx_serial_init params(extmoduleSerialParams);
-  params.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
-  ExtmoduleSerialDriver.init(&params);
-}
-#endif
-
 void extmoduleSerialStop(void*)
 {
   stm32_usart_deinit(&extmoduleUSART);
@@ -110,20 +112,37 @@ void extmoduleSerialStop(void*)
   extmodule_driver.on_error = nullptr;
 }
 
-static void extmoduleSendByte(void*, uint8_t byte)
+static void extmoduleSendByte(void* ctx, uint8_t byte)
 {
-  stm32_usart_send_byte(&extmoduleUSART, byte);
+  auto modCtx = (ExtmoduleCtx*)ctx;
+  stm32_usart_send_byte(modCtx->usart, byte);
 }
 
-static void extmoduleSendBuffer(void*, const uint8_t * data, uint8_t size)
+static void extmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 {
+  auto modCtx = (ExtmoduleCtx*)ctx;
   if (size == 0) return;
-  stm32_usart_send_buffer(&extmoduleUSART, data, size);
+  stm32_usart_send_buffer(modCtx->usart, data, size);
 }
 
-static void extmoduleWaitForTxCompleted(void*)
+static void extmoduleWaitForTxCompleted(void* ctx)
 {
-  stm32_usart_wait_for_tx_dma(&extmoduleUSART);
+  auto modCtx = (ExtmoduleCtx*)ctx;
+  stm32_usart_wait_for_tx_dma(modCtx->usart);
+}
+
+static int extmoduleGetByte(void* ctx, uint8_t* data)
+{
+  auto modCtx = (ExtmoduleCtx*)ctx;
+  if (!modCtx->rxFifo) return -1;
+  return modCtx->rxFifo->pop(*data);
+}
+
+static void extmoduleClearRxBuffer(void* ctx)
+{
+  auto modCtx = (ExtmoduleCtx*)ctx;
+  if (!modCtx->rxFifo) return;
+  modCtx->rxFifo->clear();
 }
 
 const etx_serial_driver_t ExtmoduleSerialDriver = {
@@ -132,7 +151,8 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
   .sendByte = extmoduleSendByte,
   .sendBuffer = extmoduleSendBuffer,
   .waitForTxCompleted = extmoduleWaitForTxCompleted,
-  .getByte = nullptr,
+  .getByte = extmoduleGetByte,
+  .clearRxBuffer = extmoduleClearRxBuffer,
   .getBaudrate = nullptr,
   .setReceiveCb = nullptr,
   .setBaudrateCb = nullptr,

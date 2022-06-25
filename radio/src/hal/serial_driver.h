@@ -75,6 +75,9 @@ typedef struct {
   // Fetch byte from internal buffer
   int (*getByte)(void* ctx, uint8_t* data);
 
+  // Clear internal buffer
+  void (*clearRxBuffer)(void* ctx);
+
   // Get current baudrate
   uint32_t (*getBaudrate)(void*);
   

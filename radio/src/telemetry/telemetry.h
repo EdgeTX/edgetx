@@ -50,7 +50,7 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 #define TELEMETRY_SERIAL_8E2           1
 #define TELEMETRY_SERIAL_WITHOUT_DMA   2
 
-#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3)
+#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3) || defined(PXX2)
 #define TELEMETRY_RX_PACKET_SIZE       128
 // multi module Spektrum telemetry is 18 bytes, FlySky is 37 bytes
 #else
@@ -304,7 +304,7 @@ extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
 #endif
 
-void processPXX2Frame(uint8_t module, const uint8_t *frame);
+void processPXX2TelemetryData(uint8_t data, uint8_t idx);
 
 // Module pulse synchronization
 struct ModuleSyncStatus
