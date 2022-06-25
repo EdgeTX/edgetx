@@ -138,10 +138,16 @@ void ModuleWindow::updateModule()
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   clear();
 
+  modOpts = nullptr;
+  chRange = nullptr;
+  bindButton = nullptr;
+  rangeButton = nullptr;
+  registerButton = nullptr;
+  fsLine = nullptr;
+
   // Module parameters
   ModuleData* md = &g_model.moduleData[moduleIdx];
 
-  modOpts = nullptr;
   if (md->type == MODULE_TYPE_NONE) {
     return;
   }
@@ -630,8 +636,9 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   moduleChoice->setSetValueHandler([=](int32_t newValue) {
     setModuleType(moduleIdx, newValue);
 
-    subTypeChoice->update();
     moduleWindow->updateModule();
+    subTypeChoice->update();
+
     SET_DIRTY();
   });
 
