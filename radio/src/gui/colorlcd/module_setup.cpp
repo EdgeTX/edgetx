@@ -514,13 +514,15 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
 
-    if (moduleIdx == INTERNAL_MODULE) {
-      md->subType = FLYSKY_SUBTYPE_AFHDS2A;
-      setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
-    } else {
-      md->subType = FLYSKY_SUBTYPE_AFHDS3;
-      setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-    }
+    // TODO:
+    // if (moduleIdx == INTERNAL_MODULE) {
+    //   md->subType = FLYSKY_SUBTYPE_AFHDS2A;
+    //   setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
+    // } else {
+    //   md->subType = FLYSKY_SUBTYPE_AFHDS3;
+    //   setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
+    // }
+    setAvailableHandler(nullptr);
   }
 #endif
 #if defined(MULTIMODULE)
