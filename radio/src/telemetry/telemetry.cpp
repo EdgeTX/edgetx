@@ -57,6 +57,10 @@
   #include "flysky_ibus.h"
 #endif
 
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
 uint8_t telemetryStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 uint8_t telemetryRxBufferCount = 0;
@@ -236,28 +240,6 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-#if defined(INTERNAL_MODULE_PXX2)
-static void pollIntPXX2()
-{
-  uint8_t frame[PXX2_FRAME_MAXLENGTH];
-
-  while (intmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(INTERNAL_MODULE, frame);
-  }
-}
-#endif  
-
-#if defined(PXX2) && defined(EXTMODULE_USART)
-static void pollExtPXX2()
-{
-  uint8_t frame[PXX2_FRAME_MAXLENGTH];
-
-  while (extmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(EXTERNAL_MODULE, frame);
-  }
-}
-#endif  
-
 #if defined(MULTI_PROTOLIST)
 static inline void pollMultiProtolist(uint8_t idx)
 {
@@ -268,18 +250,50 @@ static inline void pollMultiProtolist(uint8_t idx)
 }
 #endif
 
-static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
+static inline void pollIntTelemetry(void (*processData)(uint8_t, uint8_t))
 {
+  auto drv = getIntModuleDriver();
+  auto ctx = getIntModuleCtx();
+
+  if (!drv || !drv->getByte || !processData) return;
+  
   uint8_t data;
-  if (intmoduleFifo.pop(data)) {
+  if (drv->getByte(ctx, &data) > 0) {
     LOG_TELEMETRY_WRITE_START();
     do {
       telemetryMirrorSend(data);
       processData(data, INTERNAL_MODULE);
       LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (intmoduleFifo.pop(data));
-  }  
+    } while (drv->getByte(ctx, &data) > 0);
+  }
 }
+
+#if defined(INTERNAL_MODULE_PXX2)
+static void pollIntPXX2()
+{
+  pollIntTelemetry(processPXX2TelemetryData);
+}
+#endif  
+
+#if defined(PXX2) && defined(EXTMODULE_USART)
+static void pollExtPXX2()
+{
+  auto drv = getExtModuleDriver();
+  auto ctx = getExtModuleCtx();
+
+  if (!drv || !drv->getByte) return;
+  
+  uint8_t data;
+  if (drv->getByte(ctx, &data) > 0) {
+    LOG_TELEMETRY_WRITE_START();
+    do {
+      telemetryMirrorSend(data);
+      processPXX2TelemetryData(data, EXTERNAL_MODULE);
+      LOG_TELEMETRY_WRITE_BYTE(data);
+    } while (drv->getByte(ctx, &data) > 0);
+  }
+}
+#endif  
 
 #if defined(INTERNAL_MODULE_MULTI)
 static void pollIntMulti()

@@ -51,7 +51,7 @@ static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
 #endif
 
-#if defined(INTMODULE_USART)
+#if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_MULTI)
 #include "intmodule_serial_driver.h"
 
 etx_serial_init multiSerialInitParams = {
@@ -65,7 +65,7 @@ etx_serial_init multiSerialInitParams = {
 
 static void sendMulti(uint8_t moduleIdx, uint8_t b)
 {
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(INTERNAL_MODULE_MULTI)
   if (moduleIdx == INTERNAL_MODULE) {
     intmodulePulsesData.multi.sendByte(b);
   }
@@ -222,7 +222,6 @@ static void* multiInit(uint8_t module)
   
   // serial port setup
   intmodulePulsesData.multi.initFrame();
-  intmoduleFifo.clear();
   void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
 
   // mixer setup
@@ -266,6 +265,11 @@ static void multiSendPulses(void* context)
                                    intmodulePulsesData.multi.getSize());
 }
 
+static int multiGetByte(void* context, uint8_t* data)
+{
+  return IntmoduleSerialDriver.getByte(context, data);
+}
+
 #include "hal/module_driver.h"
 
 const etx_module_driver_t MultiInternalDriver = {
@@ -273,7 +277,8 @@ const etx_module_driver_t MultiInternalDriver = {
   .init = multiInit,
   .deinit = multiDeInit,
   .setupPulses = multiSetupPulses,
-  .sendPulses = multiSendPulses  
+  .sendPulses = multiSendPulses,
+  .getByte = multiGetByte,
 };
 #endif
 

@@ -356,6 +356,16 @@ uint8_t getRequiredProtocol(uint8_t module)
 static void* internalModuleContext = nullptr;
 static const etx_module_driver_t* internalModuleDriver = nullptr;
 
+const etx_module_driver_t* getIntModuleDriver()
+{
+  return internalModuleDriver;
+}
+
+void* getIntModuleCtx()
+{
+  return internalModuleContext;
+}
+
 static void enablePulsesInternalModule(uint8_t protocol)
 {
   // start new protocol hardware here
@@ -518,6 +528,16 @@ bool setupPulsesInternalModule()
 #if defined(HARDWARE_EXTERNAL_MODULE)
 static void* externalModuleContext = nullptr;
 static const etx_module_driver_t* externalModuleDriver = nullptr;
+
+const etx_module_driver_t* getExtModuleDriver()
+{
+  return externalModuleDriver;
+}
+
+void* getExtModuleCtx()
+{
+  return externalModuleContext;
+}
 
 void enablePulsesExternalModule(uint8_t protocol)
 {

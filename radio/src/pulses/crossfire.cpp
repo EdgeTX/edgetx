@@ -128,12 +128,9 @@ static void* crossfireInitInternal(uint8_t module)
   // serial port setup
   etx_serial_init params(intmoduleCrossfireInitParams);
   params.baudrate = INT_CROSSFIRE_BAUDRATE;
-
-  intmoduleFifo.clear();
-  IntmoduleSerialDriver.init(&params);
   INTERNAL_MODULE_ON();
 
-  return nullptr;
+  return IntmoduleSerialDriver.init(&params);
 }
 
 static void crossfireDeInitInternal(void* context)
@@ -143,7 +140,6 @@ static void crossfireDeInitInternal(void* context)
   INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
   intmoduleStop();
-  intmoduleFifo.clear();
 }
 
 static void crossfireSetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
@@ -159,12 +155,18 @@ static void crossfireSendPulsesInternal(void* context)
                                    intmodulePulsesData.crossfire.length);
 }
 
+static int crossfireGetByteInternal(void* context, uint8_t* data)
+{
+  return IntmoduleSerialDriver.getByte(context, data);
+}
+
 etx_module_driver_t CrossfireInternalDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
   .init = crossfireInitInternal,
   .deinit = crossfireDeInitInternal,
   .setupPulses = crossfireSetupPulsesInternal,
   .sendPulses = crossfireSendPulsesInternal,
+  .getByte = crossfireGetByteInternal,
 };
 #endif
 

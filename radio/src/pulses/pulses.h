@@ -229,11 +229,15 @@ extern TrainerPulsesData trainerPulsesData;
 bool setupPulsesInternalModule();
 void stopPulsesInternalModule();
 void intmoduleSendNextFrame();
+const etx_module_driver_t* getIntModuleDriver();
+void* getIntModuleCtx();
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
 void extmoduleSendNextFrame();
+const etx_module_driver_t* getExtModuleDriver();
+void* getExtModuleCtx();
 #endif
 void restartModule(uint8_t idx);
 void setupPulsesDSM2();
@@ -251,7 +255,6 @@ void intmodulePpmStart();
 void intmodulePxx1PulsesStart();
 void intmodulePxx1SerialStart();
 void extmodulePxx1PulsesStart();
-void extmodulePxx1SerialStart();
 void extmodulePpmStart();
 void intmoduleStop();
 void extmoduleStop();

@@ -62,5 +62,8 @@ struct etx_module_driver_t {
 
     // Send the pulses
     void (*sendPulses)(void* context);
+
+    // Fetch telemetry byte
+    int (*getByte)(void* context, uint8_t* data);
 };
 
