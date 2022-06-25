@@ -51,4 +51,6 @@ int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
 int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
                     uint8_t* data, uint16_t len, uint32_t timeout);
 
+int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_t timeout);
 int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout);
+
