@@ -165,7 +165,7 @@ void ListBase::onCancel()
 void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
   if (row != activeItem) return;
-
+  
   lv_area_t coords;
   lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
 

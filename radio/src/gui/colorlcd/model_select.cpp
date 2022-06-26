@@ -546,7 +546,7 @@ class ModelButton : public Button
       if (duration10ms == 0) {
         duration10ms = getTicks();
       }
-      captureWindow(this);
+      //captureWindow(this);
 
       return Button::onTouchStart(x, y);
     }
@@ -699,7 +699,7 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
     if (focus) {
       if (innerWindow.getChildren().size() > 0) {
         auto firstModel = *innerWindow.getChildren().begin();
-        firstModel->setFocus();
+        //firstModel->setFocus();
       }
     }
   });
@@ -709,32 +709,32 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 void ModelsPageBody::checkEvents()
 {
 
-  if (refresh) {
-    refresh = false;
-    int index = -1;
-    auto focusWindow = getFocus();
-    auto children = getChildren();
-    // if the window is dirty then update it but keep the same focused model.
-    if (focusWindow != nullptr && children.size() > 0) {
-      std::list<Window *>::iterator it = children.begin();
-      for (int i = 0; i < (int)children.size(); i++) {
-        if (*it == focusWindow) {
-          index = i;
-          break;
-        }
-        ++it;
-      }
-    }
+  // if (refresh) {
+  //   refresh = false;
+  //   int index = -1;
+  //   auto focusWindow = getFocus();
+  //   auto children = getChildren();
+  //   // if the window is dirty then update it but keep the same focused model.
+  //   if (focusWindow != nullptr && children.size() > 0) {
+  //     std::list<Window *>::iterator it = children.begin();
+  //     for (int i = 0; i < (int)children.size(); i++) {
+  //       if (*it == focusWindow) {
+  //         index = i;
+  //         break;
+  //       }
+  //       ++it;
+  //     }
+  //   }
 
-    update(index);
-  }
+  //   update(index);
+  // }
 
   FormWindow::checkEvents();
 }
 
 void ModelsPageBody::paint(BitmapBuffer *dc)
 {
-  dc->drawSolidRect(0, getScrollPositionY(), rect.w, rect.h, 2, COLOR_THEME_FOCUS);
+  //dc->drawSolidRect(0, getScrollPositionY(), rect.w, rect.h, 2, COLOR_THEME_FOCUS);
 }
 
 void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, int index)
@@ -811,7 +811,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
     }
     menu->addLine(STR_EDIT_LABELS, [=]() {
       auto labels = modelsLabels.getLabels();
-      button->setFocus();
+      //button->setFocus();
 
       // dont display menu if there will be no labels
       if (labels.size()) {
@@ -876,10 +876,10 @@ void ModelsPageBody::update(int selected)
   if (index % MODEL_CELLS_PER_LINE != 0) {
     y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
   }
-  innerWindow.setInnerHeight(y);
+  //innerWindow.setInnerHeight(y);
 
   if (selectButton != nullptr) {
-    selectButton->setFocus();
+    //selectButton->setFocus();
   }
 }
 
@@ -929,15 +929,15 @@ ModelLabelsWindow::ModelLabelsWindow() :
   buildBody(&body);
   buildHead(&header);
 
-  // make PG_UP and PG_DN work
-  lblselector->setNextField(mdlselector);
-  lblselector->setPreviousField(newButton);
-  mdlselector->setNextField(newButton);
-  mdlselector->setPreviousField(lblselector);
-  newButton->setNextField(lblselector);
-  newButton->setPreviousField(mdlselector);
+  // // make PG_UP and PG_DN work
+  // lblselector->setNextField(mdlselector);
+  // lblselector->setPreviousField(newButton);
+  // mdlselector->setNextField(newButton);
+  // mdlselector->setPreviousField(lblselector);
+  // newButton->setNextField(lblselector);
+  // newButton->setPreviousField(mdlselector);
 
-  lblselector->setFocus();
+  // lblselector->setFocus();
 
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();
@@ -972,29 +972,29 @@ bool isChildOfMdlSelector(Window *window)
 #if defined(HARDWARE_KEYS)
 void ModelLabelsWindow::onEvent(event_t event)
 {
-  if (event == EVT_KEY_BREAK(KEY_PGUP)) {
-    onKeyPress();
-    FormField *focus = dynamic_cast<FormField *>(getFocus());
-    if (isChildOfMdlSelector(focus))
-      lblselector->setFocus();
-    else if (focus != nullptr && focus->getPreviousField()) {
-      focus->getPreviousField()->setFocus(SET_FOCUS_BACKWARD, focus);
-    }
-  } else if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-    onKeyPress();
-    FormField *focus = dynamic_cast<FormField *>(getFocus());
-    if (isChildOfMdlSelector(focus))
-      newButton->setFocus();
-    else
-     if (focus != nullptr && focus->getNextField()) {
-      focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
-    }
-  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    killEvents(event);
-    deleteLater();
-  } else {
-    Page::onEvent(event);
-  }
+  // if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+  //   onKeyPress();
+  //   FormField *focus = dynamic_cast<FormField *>(getFocus());
+  //   if (isChildOfMdlSelector(focus))
+  //     lblselector->setFocus();
+  //   else if (focus != nullptr && focus->getPreviousField()) {
+  //     focus->getPreviousField()->setFocus(SET_FOCUS_BACKWARD, focus);
+  //   }
+  // } else if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+  //   onKeyPress();
+  //   FormField *focus = dynamic_cast<FormField *>(getFocus());
+  //   if (isChildOfMdlSelector(focus))
+  //     newButton->setFocus();
+  //   else
+  //    if (focus != nullptr && focus->getNextField()) {
+  //     focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
+  //   }
+  // } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+  //   killEvents(event);
+  //   deleteLater();
+  // } else {
+  //   Page::onEvent(event);
+  // }
 }
 #endif
 
@@ -1037,7 +1037,7 @@ void ModelLabelsWindow::buildHead(PageHeader *window)
       newCell->setModelName(g_model.header.name);
       auto labels = getLabels();
       lblselector->setNames(labels);
-      lblselector->clearSelection();
+      //lblselector->clearSelection();
       lblselector->setSelected(modelsLabels.getLabels().size());
       mdlselector->update(0);
       new SelectTemplateFolder([=]() {
@@ -1072,21 +1072,17 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 #else
   lblselector = new ListBox(window, {LAY_MARGIN, LAY_MARGIN, window->width() - LAY_MARGIN*2, MODELS_TOP - LAY_MARGIN*2},
 #endif
-    getLabels(),
-    [=] () {
-      return 0;
-    }, [=](uint32_t value) {}, LABELS_HEIGHT);
-  lblselector->setSelectionMode(ListBox::LISTBOX_MULTI_SELECT);
-  lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected){
+    getLabels());
+  //lblselector->setSelectionMode(ListBox::LISTBOX_MULTI_SELECT);
+  lblselector->setPressHandler([=](){
+    uint32_t selected = lblselector->getSelected();
     LabelsVector sellabels;
     LabelsVector labels = getLabels();
-    for(auto sel : selected) {
-      if(sel < labels.size())
-        sellabels.push_back(labels[sel]);
-    }
+    sellabels.push_back(labels[selected]);
     mdlselector->setLabels(sellabels); // Update the list
   });
-  lblselector->setLongPressHandler([=] (event_t event) {
+  
+  lblselector->setLongPressHandler([=] () {
     int selected = lblselector->getSelected();
     auto labels = getLabels();
 
@@ -1120,11 +1116,11 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         });
         menu->addLine(STR_DELETE_LABEL, [=] () {
           auto labelToDelete = labels[selected];
-          if (confirmationDialog(STR_DELETE_LABEL, labelToDelete.c_str())) {
-            modelsLabels.removeLabel(labelToDelete);
-            auto labels = getLabels();
-            lblselector->setNames(labels);
-          }
+          // if (confirmationDialog(STR_DELETE_LABEL, labelToDelete.c_str())) {
+          //   modelsLabels.removeLabel(labelToDelete);
+          //   auto labels = getLabels();
+          //   lblselector->setNames(labels);
+          // }
           return 0;
         });
         if(modelsLabels.getLabels().size() > 1) {

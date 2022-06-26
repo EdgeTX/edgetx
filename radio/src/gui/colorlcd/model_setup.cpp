@@ -235,27 +235,27 @@ void ModelSetupPage::build(FormWindow * window)
   new ModelNameEdit(line, rect_t{});
 
   // Model labels
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, "Labels", 0, COLOR_THEME_PRIMARY1);
-  labelTextButton =
-    new TextButton(line, rect_t{}, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL), [=] () {
-      Menu *menu = new Menu(window, true);
-      for (auto &label: modelsLabels.getLabels()) {
-        menu->addLine(label,
-          [=] () {
-            if (!modelsLabels.isLabelSelected(label, curmod))
-              modelsLabels.addLabelToModel(label, curmod);
-            else
-              modelsLabels.removeLabelFromModel(label, curmod);
-            labelTextButton->setText(modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL));
-            strcpy(g_model.header.labels, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL).c_str());
-            SET_DIRTY();
-          }, [=] () {
-            return modelsLabels.isLabelSelected(label, curmod);
-          });
-      }
-      return 0;
-    });
+  // line = window->newLine(&grid);
+  // new StaticText(line, rect_t{}, "Labels", 0, COLOR_THEME_PRIMARY1);
+  // labelTextButton =
+  //   new TextButton(line, rect_t{}, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL), [=] () {
+  //     Menu *menu = new Menu(window, true);
+  //     for (auto &label: modelsLabels.getLabels()) {
+  //       menu->addLine(label,
+  //         [=] () {
+  //           if (!modelsLabels.isLabelSelected(label, curmod))
+  //             modelsLabels.addLabelToModel(label, curmod);
+  //           else
+  //             modelsLabels.removeLabelFromModel(label, curmod);
+  //           labelTextButton->setText(modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL));
+  //           strcpy(g_model.header.labels, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL).c_str());
+  //           SET_DIRTY();
+  //         }, [=] () {
+  //           return modelsLabels.isLabelSelected(label, curmod);
+  //         });
+  //     }
+  //     return 0;
+  //   });
 
   // Bitmap
   line = window->newLine(&grid);
