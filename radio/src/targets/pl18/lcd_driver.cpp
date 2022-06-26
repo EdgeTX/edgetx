@@ -56,7 +56,7 @@ volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 static void LCD_Delay(void) {
   volatile unsigned int i;
 
-  for (i = 0; i < 20; i++) {
+  for (i = 0; i < 10000; i++) {
     ;
   }
 }
@@ -181,7 +181,7 @@ static void lcdSpiConfig(void) {
   GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
 
   /* Set the chip select pin aways low */
-  CLR_LCD_CS();
+  SET_LCD_CS();
 }
 
 void lcdDelay() {
@@ -216,6 +216,8 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
 }
 
 static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
+  CLR_LCD_CS();
+
   LCD_SCK_LOW();
   lcdDelay();
 
@@ -245,6 +247,7 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
   }
 
   LCD_SCK_LOW();
+  SET_LCD_CS();
 }
 
 unsigned char LCD_ReadByte(void) {
@@ -267,6 +270,7 @@ unsigned char LCD_ReadByte(void) {
   }
   CLR_LCD_CLK();
   SET_LCD_DATA_OUTPUT();
+
   return (ReceiveData);
 }
 
@@ -277,6 +281,7 @@ unsigned char LCD_ReadRegister(unsigned char Register) {
   LCD_DELAY();
   LCD_DELAY();
   ReadData = LCD_ReadByte();
+  SET_LCD_CS();
   return (ReadData);
 }
 
@@ -385,11 +390,21 @@ void LCD_HX8357D_Init(void) {
   lcdWriteData(0x66);
 
   lcdWriteCommand(0x36);
-  lcdWriteData(0x08);
+  lcdWriteData(0x28);
+  lcdWriteCommand( 0x2A );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0xDF );
+  lcdWriteCommand( 0x2B );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0x3F );
 
   lcdWriteCommand(0x29);
   delay_ms(10);
-#else
+#elif 0
   delay_ms(50);
   lcdWriteCommand(0xB9); //EXTC
   lcdWriteData(0xFF); //EXTC
@@ -512,7 +527,7 @@ void LCD_HX8357D_Init(void) {
   lcdWriteData(0x00);
   lcdWriteData(0x01);
   lcdWriteCommand(0x36);
-  lcdWriteData(0x18);
+  lcdWriteData(0x38);
 
   lcdWriteCommand(0x11); // SLPOUT
   delay_ms(200);
@@ -520,14 +535,135 @@ void LCD_HX8357D_Init(void) {
   lcdWriteCommand(0x29); // Display On
   delay_ms(25);
   lcdWriteCommand(0x2C);
+#else
+  lcdWriteCommand(0x11);
+  delay_ms(200);
 
+  lcdWriteCommand(0xB9);
+  lcdWriteData(0xFF);
+  lcdWriteData(0x83);
+  lcdWriteData(0x57);
+  delay_ms(5);
+
+//  lcdWriteCommand(0x36);
+//  lcdWriteData(0x10);
+
+  lcdWriteCommand(0xB1);
+  lcdWriteData(0x00);
+  lcdWriteData(0x14);
+  lcdWriteData(0x1C);
+  lcdWriteData(0x1C);
+  lcdWriteData(0xC7);
+  lcdWriteData(0x21);
+  lcdWriteCommand(0xB3);
+  lcdWriteData(0x83);
+  lcdWriteData(0x00);
+  lcdWriteData(0x06);
+  lcdWriteData(0x06);
+  lcdWriteCommand(0xB4);
+  lcdWriteData(0x11);
+  lcdWriteData(0x40);
+  lcdWriteData(0x00);
+  lcdWriteData(0x2A);
+  lcdWriteData(0x2A);
+  lcdWriteData(0x20);
+  lcdWriteData(0x4E);
+  lcdWriteCommand(0xB5);
+  lcdWriteData(0x03);
+  lcdWriteData(0x03);
+
+  lcdWriteCommand(0xB6);
+  lcdWriteData(0x38);
+
+  lcdWriteCommand(0xC0);
+  lcdWriteData(0x24);
+  lcdWriteData(0x24);
+  lcdWriteData(0x00);
+  lcdWriteData(0x10);
+  lcdWriteData(0xc8);
+  lcdWriteData(0x08);
+  lcdWriteCommand(0xC2);
+  lcdWriteData(0x00);
+  lcdWriteData(0x08);
+  lcdWriteData(0x04);
+  //GAMMA 2.5"
+  lcdWriteCommand(0xE0);
+  lcdWriteData(0x00);
+  lcdWriteData(0x06);
+  lcdWriteData(0x0D);
+  lcdWriteData(0x18);
+  lcdWriteData(0x23);
+  lcdWriteData(0x3B);
+  lcdWriteData(0x45);
+  lcdWriteData(0x4D);
+  lcdWriteData(0x4D);
+  lcdWriteData(0x46);
+  lcdWriteData(0x40);
+  lcdWriteData(0x37);
+  lcdWriteData(0x34);
+  lcdWriteData(0x2F);
+  lcdWriteData(0x2B);
+  lcdWriteData(0x21);
+  lcdWriteData(0x00);
+  lcdWriteData(0x06);
+  lcdWriteData(0x0D);
+  lcdWriteData(0x18);
+  lcdWriteData(0x23);
+  lcdWriteData(0x3B);
+  lcdWriteData(0x45);
+  lcdWriteData(0x4D);
+  lcdWriteData(0x4D);
+  lcdWriteData(0x46);
+  lcdWriteData(0x40);
+  lcdWriteData(0x37);
+  lcdWriteData(0x34);
+  lcdWriteData(0x2F);
+  lcdWriteData(0x2B);
+  lcdWriteData(0x21);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  // lcdWriteCommand(0x2A);
+  // lcdWriteData(0);
+  // lcdWriteData(0);
+  // lcdWriteData(480 >> 8);
+  // lcdWriteData(480);
+  // lcdWriteCommand(0x2B);
+  // lcdWriteData(0);
+  // lcdWriteData(0);
+  // lcdWriteData(320 >> 8);
+  // lcdWriteData(320);
+  lcdWriteCommand(0x3A);
+  lcdWriteData(0x66);
+
+  lcdWriteCommand(0xCC);
+  lcdWriteData(0x01);
+
+  lcdWriteCommand( 0x2A );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0xDF );
+  lcdWriteCommand( 0x2B );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0x3F );
+
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x20);
+
+  lcdWriteCommand(0xB9);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  delay_ms(5);
 #endif
 
 }
 
 void LCD_HX8357D_On(void) {
+  lcdWriteCommand(0x28);
   lcdWriteCommand(0x29);
-  lcdWriteCommand(0x22);
 }
 
 void LCD_HX8357D_Off(void) {
@@ -1003,9 +1139,8 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x96 );
 
   lcdWriteCommand( 0x36 );
-    lcdWriteData( 0x28 );
-  //  lcdWriteData( 0x88 );
-  //lcdWriteData( 0xB8 );
+  lcdWriteData( 0x28 );
+
   lcdWriteCommand( 0x2A );
   lcdWriteData( 0x00 );
   lcdWriteData( 0x00 );
@@ -1145,6 +1280,1403 @@ unsigned int LCD_ST7796S_ReadID(void) {
    return (ID);
  }
 
+
+unsigned int LCD_NT35310_ReadID( void )
+{
+    unsigned int ID = 0x3531;
+    
+    return( ID );
+
+}
+
+void LCD_NT35310_Init( void )
+{
+#if 1
+    lcdWriteCommand(0xED);
+    lcdWriteData(0x01);
+    lcdWriteData(0xFE);
+
+    lcdWriteCommand(0xEE);
+    lcdWriteData(0xDE);
+    lcdWriteData(0x21);
+
+    lcdWriteCommand(0x11);
+    delay_ms(120);
+    lcdWriteCommand(0xB3);
+    lcdWriteData(0x21);
+
+
+
+    lcdWriteCommand(0xC0);
+    lcdWriteData(0x33);
+    lcdWriteData(0x33);
+    lcdWriteData(0x10);
+    lcdWriteData(0x10);
+
+
+    lcdWriteCommand(0xC4);
+    lcdWriteData(0x56);  //3a
+
+    lcdWriteCommand(0xBF);
+    lcdWriteData(0xAA);
+
+    lcdWriteCommand(0xB0);
+    lcdWriteData(0x0D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x0D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x11);
+    lcdWriteData(0x00);
+    lcdWriteData(0x19);
+    lcdWriteData(0x00);
+    lcdWriteData(0x21);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5D);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB1);
+    lcdWriteData(0x80);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8B);
+    lcdWriteData(0x00);
+    lcdWriteData(0x96);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB2);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x03);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB3);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB4);
+    lcdWriteData(0x8B);
+    lcdWriteData(0x00);
+    lcdWriteData(0x96);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA1);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB5);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x03);
+    lcdWriteData(0x00);
+    lcdWriteData(0x04);
+    lcdWriteData(0x00);
+    lcdWriteCommand(0xB6);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB7);
+    lcdWriteData(0x3E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x9E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x74);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAC);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDC);
+    lcdWriteData(0x00);
+    lcdWriteData(0x70);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xEC);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDC);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB8);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xBA);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC1);
+    lcdWriteData(0x20);
+    lcdWriteData(0x00);
+    lcdWriteData(0x54);
+    lcdWriteData(0x00);
+    lcdWriteData(0xFF);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC2);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x04);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC3);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3A);
+    lcdWriteData(0x00);
+    lcdWriteData(0x39);
+    lcdWriteData(0x00);
+    lcdWriteData(0x37);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+    lcdWriteData(0x26);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+    lcdWriteData(0x26);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC4);
+    lcdWriteData(0x62);
+    lcdWriteData(0x00);
+    lcdWriteData(0x05);
+    lcdWriteData(0x00);
+    lcdWriteData(0x84);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF0);
+    lcdWriteData(0x00);
+    lcdWriteData(0x18);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA4);
+    lcdWriteData(0x00);
+    lcdWriteData(0x18);
+    lcdWriteData(0x00);
+    lcdWriteData(0x50);
+    lcdWriteData(0x00);
+    lcdWriteData(0x0C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x17);
+    lcdWriteData(0x00);
+    lcdWriteData(0x95);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+    lcdWriteData(0xE6);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC5);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+    lcdWriteData(0x76);
+    lcdWriteData(0x00);
+    lcdWriteData(0x88);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC6);
+    lcdWriteData(0x20);
+    lcdWriteData(0x00);
+    lcdWriteData(0x17);
+    lcdWriteData(0x00);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC7);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC8);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE0);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x06);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE1);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+    lcdWriteData(0x05);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE2);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x06);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE3);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+    lcdWriteData(0x05);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE4);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x06);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE5);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+    lcdWriteData(0x05);
+    lcdWriteData(0x00);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x25);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x6F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x7F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x98);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAE);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE6);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE7);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE8);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE9);
+    lcdWriteData(0xAA);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00); 
+
+    lcdWriteCommand(0x00);
+    lcdWriteData(0xAA);
+
+    lcdWriteCommand(0xCF);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xF0);
+    lcdWriteData(0x00);
+    lcdWriteData(0x50);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xF1);
+    lcdWriteData(0x01);
+
+    lcdWriteCommand(0xF9);
+    lcdWriteData(0x06);
+    lcdWriteData(0x10);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xDF);
+    lcdWriteData(0x10);
+    delay_ms(20);       
+    lcdWriteCommand(0x36);
+//    if( IsHorizontal )
+//        lcdWriteData(0x00);//需修改
+//    else    
+        lcdWriteData(0x14);	 
+
+    lcdWriteCommand(0x3A);
+    lcdWriteData(0x66);
+
+     lcdWriteCommand(0x21);
+
+    lcdWriteCommand(0x35);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0x29);
+#else
+    lcdWriteCommand(0xED);
+    lcdWriteData(0x01);
+    lcdWriteData(0xFE);
+
+    lcdWriteCommand(0xEE);
+    lcdWriteData(0xDE);
+    lcdWriteData(0x21);
+
+    lcdWriteCommand(0x11);
+    SYSTEM_DelayMS(120);
+    lcdWriteCommand(0xB3);
+    lcdWriteData(0x21);
+
+
+    lcdWriteCommand(0xc0);
+    lcdWriteData(0x56);
+    lcdWriteData(0x56);
+    lcdWriteData(0x24);
+    lcdWriteData(0x24);
+
+    lcdWriteCommand(0xC4);
+    lcdWriteData(0x30);  //3a
+
+    lcdWriteCommand(0xBF);
+    lcdWriteData(0xAA);
+
+    lcdWriteCommand(0xB0);
+    lcdWriteData(0x0D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x0D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x11);
+    lcdWriteData(0x00);
+    lcdWriteData(0x19);
+    lcdWriteData(0x00);
+    lcdWriteData(0x21);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5D);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5D);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB1);
+    lcdWriteData(0x80);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8B);
+    lcdWriteData(0x00);
+    lcdWriteData(0x96);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB2);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x03);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB3);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB4);
+    lcdWriteData(0x8B);
+    lcdWriteData(0x00);
+    lcdWriteData(0x96);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA1);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB5);
+    lcdWriteData(0x02);
+    lcdWriteData(0x00);
+    lcdWriteData(0x03);
+    lcdWriteData(0x00);
+    lcdWriteData(0x04);
+    lcdWriteData(0x00);
+    lcdWriteCommand(0xB6);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB7);
+    lcdWriteData(0x3E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x5E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x9E);
+    lcdWriteData(0x00);
+    lcdWriteData(0x74);
+    lcdWriteData(0x00);
+    lcdWriteData(0x8C);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAC);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDC);
+    lcdWriteData(0x00);
+    lcdWriteData(0x70);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xEC);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDC);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xB8);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xBA);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC1);
+    lcdWriteData(0x20);
+    lcdWriteData(0x00);
+    lcdWriteData(0x54);
+    lcdWriteData(0x00);
+    lcdWriteData(0xFF);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC2);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x04);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC3);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3A);
+    lcdWriteData(0x00);
+    lcdWriteData(0x39);
+    lcdWriteData(0x00);
+    lcdWriteData(0x37);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+    lcdWriteData(0x26);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x36);
+    lcdWriteData(0x00);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x2C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+    lcdWriteData(0x26);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x24);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC4);
+    lcdWriteData(0x62);
+    lcdWriteData(0x00);
+    lcdWriteData(0x05);
+    lcdWriteData(0x00);
+    lcdWriteData(0x84);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF0);
+    lcdWriteData(0x00);
+    lcdWriteData(0x18);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA4);
+    lcdWriteData(0x00);
+    lcdWriteData(0x18);
+    lcdWriteData(0x00);
+    lcdWriteData(0x50);
+    lcdWriteData(0x00);
+    lcdWriteData(0x0C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x17);
+    lcdWriteData(0x00);
+    lcdWriteData(0x95);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+    lcdWriteData(0xE6);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC5);
+    lcdWriteData(0x32);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+    lcdWriteData(0x76);
+    lcdWriteData(0x00);
+    lcdWriteData(0x88);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC6);
+    lcdWriteData(0x20);
+    lcdWriteData(0x00);
+    lcdWriteData(0x17);
+    lcdWriteData(0x00);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC7);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC8);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xC9);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE0);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD3);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);  
+
+    lcdWriteCommand(0xE1);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00); 
+
+    lcdWriteCommand(0xE2);
+    lcdWriteData(0x10);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD3);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);  
+
+    lcdWriteCommand(0xE3);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE4);
+    lcdWriteData(0x01);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD3);
+    lcdWriteData(0x00);
+    lcdWriteData(0xDA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE5);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x1F);
+    lcdWriteData(0x00);
+    lcdWriteData(0x3C);
+    lcdWriteData(0x00);
+    lcdWriteData(0x59);
+    lcdWriteData(0x00);
+    lcdWriteData(0x67);
+    lcdWriteData(0x00);
+    lcdWriteData(0x72);
+    lcdWriteData(0x00);
+    lcdWriteData(0x82);
+    lcdWriteData(0x00);
+    lcdWriteData(0x93);
+    lcdWriteData(0x00);
+    lcdWriteData(0xA0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xAB);
+    lcdWriteData(0x00);
+    lcdWriteData(0xB4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xBF);
+    lcdWriteData(0x00);
+    lcdWriteData(0xC6);
+    lcdWriteData(0x00);
+    lcdWriteData(0xCA);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD0);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD4);
+    lcdWriteData(0x00);
+    lcdWriteData(0xD9);
+    lcdWriteData(0x00);
+    lcdWriteData(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE6);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE7);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE8);
+    lcdWriteData(0x55);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x56);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x57);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x77);
+    lcdWriteData(0x00);
+    lcdWriteData(0x66);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x44);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x33);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x23);
+    lcdWriteData(0x00);
+    lcdWriteData(0x65);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xE9);
+    lcdWriteData(0xAA);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00); 
+
+    lcdWriteCommand(0x00);
+    lcdWriteData(0xAA);
+
+    lcdWriteCommand(0xCF);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xF0);
+    lcdWriteData(0x00);
+    lcdWriteData(0x50);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xF1);
+    lcdWriteData(0x01);
+
+    lcdWriteCommand(0xee);
+    lcdWriteData(0xde);
+    lcdWriteData(0x21);
+
+    lcdWriteCommand(0xF3);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xF9);
+    lcdWriteData(0x06);
+    lcdWriteData(0x10);
+    lcdWriteData(0x29);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0xDF);
+    lcdWriteData(0x10);
+    SYSTEM_DelayMS(20);       
+    lcdWriteCommand(0x36);
+    if( IsHorizontal )
+        lcdWriteData(0x14);//需修改
+    else    
+        lcdWriteData(0x14);
+    
+    lcdWriteCommand(0x3A);
+    lcdWriteData(0x66);
+
+    lcdWriteCommand(0x21);
+
+    lcdWriteCommand(0x35);
+    lcdWriteData(0x00);
+
+    lcdWriteCommand(0x28); 
+#endif
+}
+
+void LCD_NT35310_On( void )
+{
+    lcdWriteCommand( 0x29 );
+}
+
+void LCD_NT35310_Off( void )
+{
+    lcdWriteCommand( 0x28 );
+}
+
 static void lcdReset() {
   LCD_NRST_HIGH();
   delay_ms(1);
@@ -1182,7 +2714,8 @@ void LCD_Init_LTDC() {
   /* Initialize the data enable polarity as active low */
   LTDC_InitStruct.LTDC_DEPolarity = LTDC_DEPolarity_AL;
   /* Initialize the pixel clock polarity as input pixel clock */
-  LTDC_InitStruct.LTDC_PCPolarity = LTDC_PCPolarity_IPC;
+//  LTDC_InitStruct.LTDC_PCPolarity = LTDC_PCPolarity_IPC;
+  LTDC_InitStruct.LTDC_PCPolarity = LTDC_PCPolarity_IIPC;
 
   /* Configure R,G,B component values for LCD background color */
   LTDC_InitStruct.LTDC_BackgroundRedValue = 0;
@@ -1309,25 +2842,25 @@ void lcdInit(void)
   LCD_AF_GPIOConfig();
 
   /* Send LCD initialization commands */
-  if (LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
+  if (0 && LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
     TRACE("LCD INIT: ILI9481");
     boardLcdType = "ILI9481";
     lcdInitFunction = LCD_ILI9481_Init;
     lcdOffFunction = LCD_ILI9481_Off;
     lcdOnFunction = LCD_ILI9481_On;
-  } else if (LCD_ILI9486_ReadID() == LCD_ILI9486_ID) {
+  } else if (0 && LCD_ILI9486_ReadID() == LCD_ILI9486_ID) {
     TRACE("LCD INIT: ILI9486");
     boardLcdType = "ILI9486";
     lcdInitFunction = LCD_ILI9486_Init;
     lcdOffFunction = LCD_ILI9486_Off;
     lcdOnFunction = LCD_ILI9486_On;
-  } else if (LCD_ILI9488_ReadID() == LCD_ILI9488_ID) {
+  } else if (0 && LCD_ILI9488_ReadID() == LCD_ILI9488_ID) {
     TRACE("LCD INIT: ILI9488");
     boardLcdType = "ILI9488";
     lcdInitFunction = LCD_ILI9488_Init;
     lcdOffFunction = LCD_ILI9488_Off;
     lcdOnFunction = LCD_ILI9488_On;
-  } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID) {
+  } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID || 1) {
     TRACE("LCD INIT: HX8357D");
     boardLcdType = "HX8357D";
     lcdInitFunction = LCD_HX8357D_Init;
@@ -1339,9 +2872,15 @@ void lcdInit(void)
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
-  } else {
+  } else { // NT35310 can not be detected
+    TRACE("LCD INIT (default): NT35310");
+    boardLcdType = "NT35310";
+    lcdInitFunction = LCD_NT35310_Init;
+    lcdOffFunction = LCD_NT35310_Off;
+    lcdOnFunction = LCD_NT35310_On;
+/*  } else {
     TRACE("LCD INIT: unknown LCD controller");
-    boardLcdType = "unknown";
+    boardLcdType = "unknown";*/
   }
 
   lcdInitFunction();
