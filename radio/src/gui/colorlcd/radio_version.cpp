@@ -331,7 +331,7 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
 #endif
 
