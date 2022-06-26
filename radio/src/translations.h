@@ -9,7 +9,7 @@
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software; you can redistribute it and/or modify 
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
@@ -31,6 +31,9 @@
 #elif defined(TRANSLATIONS_IT)
 #include "translations/it.h"
 #define LEN_SPECIAL_CHARS 1
+#elif defined(TRANSLATIONS_DA)
+#include "translations/da.h"
+#define LEN_SPECIAL_CHARS 6
 #elif defined(TRANSLATIONS_SE)
 #include "translations/se.h"
 #define LEN_SPECIAL_CHARS 6
@@ -766,6 +769,7 @@ extern const LanguagePack * currentLanguagePack;
 extern uint8_t currentLanguagePackIdx;
 
 extern const LanguagePack czLanguagePack;
+extern const LanguagePack daLanguagePack;
 extern const LanguagePack deLanguagePack;
 extern const LanguagePack enLanguagePack;
 extern const LanguagePack esLanguagePack;
@@ -785,6 +789,7 @@ extern const LanguagePack * const languagePacks[];
 const LanguagePack * const languagePacks[] = {
   // alphabetical order
   &czLanguagePack,
+  &daLanguagePack,
   &deLanguagePack,
   &enLanguagePack,
   &esLanguagePack,
