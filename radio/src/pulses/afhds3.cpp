@@ -24,13 +24,26 @@
 #include "../definitions.h"
 #include <cstdio>
 
+#include "pulses.h"
+#include "telemetry/telemetry.h"
+#include "mixer_scheduler.h"
+#include "hal/module_driver.h"
+
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
+#endif
+
+#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
+#include "extmodule_serial_driver.h"
+#else
+#include "extmodule_driver.h"
+#endif
+
 #define FAILSAFE_HOLD 1
 #define FAILSAFE_CUSTOM 2
 #define MAX_RETRIES_AFHDS3 5
 
 extern void processFlySkySensor(const uint8_t * packet, uint8_t type);
-
-extern void extmoduleSerialStart(uint32_t baudrate, uint32_t period_half_us, bool inverted);
 
 namespace afhds3
 {
@@ -74,10 +87,15 @@ const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE
 PulsesData* AFHDS3PulsesData[EXTERNAL_MODULE + 1] = { nullptr, nullptr };
 
 //friends function that can access telemetry parsing method
-void processTelemetryData(uint8_t module, uint8_t data, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize)
+void processTelemetryData(uint8_t data, uint8_t module)
 {
+  uint8_t* rxBuffer = getTelemetryRxBuffer(module);
+  uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
+  uint8_t maxSize = TELEMETRY_RX_PACKET_SIZE;
+
   if (AFHDS3PulsesData[module]) {
-    AFHDS3PulsesData[module]->processTelemetryData(data, rxBuffer, rxBufferCount, maxSize);
+    AFHDS3PulsesData[module]->processTelemetryData(data, rxBuffer,
+                                                   rxBufferCount, maxSize);
   }
 }
 
@@ -711,4 +729,146 @@ uint8_t PulsesData::setFailSafe(int16_t* target)
   return (uint8_t) (MAX_CHANNELS);
 }
 
+#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
+
+static const etx_serial_init extmoduleUsartParams = {
+  .baudrate = AFHDS3_BAUDRATE,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+};
+
+static void* initExternal(uint8_t module)
+{
+  extmodulePulsesData.afhds3.init(module);
+  ExtmoduleSerialDriver.init(&extmoduleUsartParams);
+
+  mixerSchedulerSetPeriod(module, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
+  EXTERNAL_MODULE_ON();
+
+  return nullptr;
 }
+
+static void deinitExternal(void* context)
+{
+  EXTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+  ExtmoduleSerialDriver.deinit(context);
+}
+
+static void sendPulsesExternal(void* context)
+{
+  ExtmoduleSerialDriver.sendBuffer(context, extmodulePulsesData.afhds3.getData(),
+                                   extmodulePulsesData.afhds3.getSize());
+}
+
+#else // !defined(EXTMODULE_USART) || !defined(EXTMODULE_TX_INVERT_GPIO)
+
+static void* initExternal(uint8_t module)
+{
+  extmodulePulsesData.afhds3.init(module);
+  extmoduleSerialStart();
+
+  mixerSchedulerSetPeriod(module, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
+  return nullptr;
+}
+
+static void deinitExternal(void* context)
+{
+  (void)context;
+  extmoduleStop();
+  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+}
+
+static void sendPulsesExternal(void* context)
+{
+  (void)context;
+  extmoduleSendNextFrameSoftSerial(extmodulePulsesData.afhds3.getData(),
+                                   extmodulePulsesData.afhds3.getSize(),
+                                   false);
+}
+
+#endif
+
+static void setupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  (void)channels;
+  (void)nChannels;
+  extmodulePulsesData.afhds3.setupFrame();
+}
+
+etx_module_driver_t externalDriver = {
+  .protocol = PROTOCOL_CHANNELS_AFHDS3,
+  .init = initExternal,
+  .deinit = deinitExternal,
+  .setupPulses = setupPulsesExternal,
+  .sendPulses = sendPulsesExternal
+};
+
+#if defined(INTERNAL_MODULE_AFHDS3)
+
+static const etx_serial_init intmoduleUsartParams = {
+  .baudrate = 1500000,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+};
+
+static void* initInternal(uint8_t module)
+{
+  (void)module;
+
+  // serial port setup
+  intmodulePulsesData.afhds3.init(module);
+  void * ctx = IntmoduleSerialDriver.init(&intmoduleUsartParams);
+  mixerSchedulerSetPeriod(module, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
+  INTERNAL_MODULE_ON();
+
+  return ctx;
+}
+
+static void deinitInternal(void* context)
+{
+  (void)context;
+
+  INTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  intmoduleStop();
+}
+
+static void setupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
+{
+  (void)context;
+  (void)channels;
+  (void)nChannels;
+  intmodulePulsesData.afhds3.setupFrame();
+}
+
+static void sendPulsesInternal(void* context)
+{
+  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.afhds3.getData(),
+                                   intmodulePulsesData.afhds3.getSize());
+}
+
+static int getByteInternal(void* context, uint8_t* data)
+{
+  return IntmoduleSerialDriver.getByte(context, data);
+}
+
+etx_module_driver_t internalDriver = {
+  .protocol = PROTOCOL_CHANNELS_AFHDS3,
+  .init = initInternal,
+  .deinit = deinitInternal,
+  .setupPulses = setupPulsesInternal,
+  .sendPulses = sendPulsesInternal,
+  .getByte = getByteInternal,
+};
+
+#endif
+
+}
+
+

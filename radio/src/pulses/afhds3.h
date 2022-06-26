@@ -31,6 +31,8 @@
 #include <cstring>
 #include "fifo.h"
 
+#include "hal/module_driver.h"
+
 #define AFHDS_MAX_PULSES 72
 //max number of transitions measured so far 290 + 10%
 #define AFHDS_MAX_PULSES_TRANSITIONS 320
@@ -95,6 +97,7 @@ struct Data
   void reset()
   {
 #if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
+    ptr = pulses;
 #else
     pulsesSize = 0;
 #endif
@@ -472,7 +475,7 @@ struct CommandFifo
 
 };
 
-void processTelemetryData(uint8_t module, uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize);
+void processTelemetryData(uint8_t date, uint8_t module);
 
 class PulsesData: public Data, CommandFifo
 {
@@ -537,7 +540,7 @@ class PulsesData: public Data, CommandFifo
     void processTelemetryData(uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize);
 
     //friendship declaration - use for passing telemetry
-    friend void processTelemetryData(uint8_t module, uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize);
+    friend void processTelemetryData(uint8_t data, uint8_t module);
 
     /**
     * Returns max power that currently can be set - use it to validate before synchronization of settings
@@ -594,5 +597,12 @@ class PulsesData: public Data, CommandFifo
      */
     ModuleVersion version;
 };
+
+extern etx_module_driver_t externalDriver;
+
+#if defined(INTERNAL_MODULE_AFHDS3)
+extern etx_module_driver_t internalDriver;
+#endif
+  
 } /* Namespace ahfds3 */
 

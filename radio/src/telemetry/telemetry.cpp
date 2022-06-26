@@ -218,7 +218,7 @@ void processTelemetryData(uint8_t data)
 
 #if defined(AFHDS3)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_AFHDS3) {
-    afhds3::processTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount, TELEMETRY_RX_PACKET_SIZE);
+    afhds3::processTelemetryData(data, EXTERNAL_MODULE);
     return;
   }
 #endif
@@ -312,7 +312,7 @@ static void pollIntCrossfire()
 }
 #endif
 
-#if defined(PCBNV14)
+#if defined(INTERNAL_MODULE_AFHDS2A)
 static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
 {
   (void)idx;
@@ -322,6 +322,13 @@ static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
 static void pollIntAFHDS2A()
 {
   pollIntTelemetry(processFlySkyTelemetryData);
+}
+#endif
+
+#if defined(INTERNAL_MODULE_AFHDS3)
+static void pollIntAFHDS3()
+{
+  pollIntTelemetry(afhds3::processTelemetryData);
 }
 #endif
 
@@ -377,10 +384,16 @@ void telemetryWakeup()
     pollIntCrossfire();
   }
 #endif
-#if defined(PCBNV14)
+#if defined(INTERNAL_MODULE_AFHDS2A)
   //! moduleUpdateActive(INTERNAL_MODULE) &&
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
     pollIntAFHDS2A();
+  }
+#endif
+#if defined(INTERNAL_MODULE_AFHDS3)
+  //! moduleUpdateActive(INTERNAL_MODULE) &&
+  if (isModuleAFHDS3(INTERNAL_MODULE)) {
+    pollIntAFHDS3();
   }
 #endif
 
