@@ -32,12 +32,6 @@ constexpr int MAX_LABEL_SIZE = 30;
 
 class ModelButton;
 
-class ModelSelectMenu: public TabsGroup {
-  public:
-    ModelSelectMenu();
-    void build(int index=-1);
-};
-
 class ModelsPageBody : public FormWindow
 {
   public:

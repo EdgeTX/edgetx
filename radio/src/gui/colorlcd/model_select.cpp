@@ -32,21 +32,25 @@
 #include "model_templates.h"
 
 // bitmaps for toolbar
-const uint8_t mask_sort_alpha_up[] = {
+const uint8_t _mask_sort_alpha_up[] = {
 #include "mask_sort_alpha_up.lbm"
 };
+STATIC_LZ4_BITMAP(mask_sort_alpha_up);
 
-const uint8_t mask_sort_alpha_down[] = {
+const uint8_t _mask_sort_alpha_down[] = {
 #include "mask_sort_alpha_down.lbm"
 };
+STATIC_LZ4_BITMAP(mask_sort_alpha_down);
 
-const uint8_t mask_sort_date_up[] = {
+const uint8_t _mask_sort_date_up[] = {
 #include "mask_sort_date_up.lbm"
 };
+STATIC_LZ4_BITMAP(mask_sort_date_up);
 
-const uint8_t mask_sort_date_down[] = {
+const uint8_t _mask_sort_date_down[] = {
 #include "mask_sort_date_down.lbm"
 };
+STATIC_LZ4_BITMAP(mask_sort_date_down);
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -218,6 +222,7 @@ class ModelButton : public Button
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
 
+
     load();
 #if defined(HARDWARE_TOUCH)
     duration10ms = 0;
@@ -234,6 +239,7 @@ class ModelButton : public Button
   void onEvent(event_t event) override
   {
     switch (event) {
+      case EVT_RO
       case EVT_KEY_LONG(KEY_ENTER):
         if (longPressHandler) {
           killEvents(event);
@@ -259,10 +265,11 @@ class ModelButton : public Button
 #if defined(HARDWARE_TOUCH)
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override
     {
-      slid = true;
+
+      slid = true;/*
       if (touchState.event == TE_SLIDE_END) {
         duration10ms = 0;
-      }
+      }*/
 
       return Button::onTouchSlide(x, y, startX, startY, slideX, slideY);
     }
@@ -389,7 +396,7 @@ class ModelButton : public Button
   std::function<void ()> longPressHandler = nullptr;
 #if defined(HARDWARE_TOUCH)
   bool longPressed = false;
-  uint32_t duration10ms;
+  tmr10ms_t duration10ms;
 #endif
 };
 
@@ -425,7 +432,7 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
   setFocusHandler([=](bool focus) {
     if (focus) {
       if (innerWindow.getChildren().size() > 0) {
-        auto firstModel = *innerWindow.getChildren().begin();
+        //auto firstModel = *innerWindow.getChildren().begin();
         //firstModel->setFocus();
       }
     }
