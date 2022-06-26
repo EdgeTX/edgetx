@@ -147,7 +147,7 @@ class AnaCalibratedViewWindow: public Window {
       coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;
       x1 = dc->drawNumber(x1, y1, touchICfwver, LEFT, 4) + 16;
-#elif defined(PCBPL18)
+#elif defined(PCBPL18) && 0
       constexpr coord_t y1 = MENU_CONTENT_TOP + NUM_CALIBRATED_ANALOGS * FH;
       coord_t x1 = MENUS_MARGIN_LEFT;
       x1 = dc->drawText(x1, y1, "Touch Chip FW ver:") + 8;

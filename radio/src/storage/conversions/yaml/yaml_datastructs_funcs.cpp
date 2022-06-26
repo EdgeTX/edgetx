@@ -66,7 +66,7 @@ bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
   return true;
 }
 
-#if STORAGE_CONVERSIONS < 221
+#if STORAGE_CONVERSIONS < 221 || 1
 bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     const char* str = nullptr;
