@@ -25,8 +25,16 @@
 #include "board.h"
 
 #include "fifo.h"
+#include "dmafifo.h"
+
+#if defined(INTMODULE_RX_DMA)
+typedef DMAFifo<INTMODULE_FIFO_SIZE> RxFifo;
+static RxFifo intmoduleFifo __DMA(
+    __LL_DMA_GET_STREAM_INSTANCE(INTMODULE_RX_DMA, INTMODULE_RX_DMA_STREAM));
+#else
 typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
 static RxFifo intmoduleFifo;
+#endif
 
 struct IntmoduleCtx
 {
@@ -60,11 +68,13 @@ static etx_serial_callbacks_t intmodule_driver = {
   nullptr, nullptr
 };
 
+#if !defined(INTMODULE_RX_DMA)
 // TODO: move this somewhere else
 static void intmoduleFifoReceive(uint8_t data)
 {
   intmoduleFifo.push(data);
 }
+#endif
 
 static const LL_GPIO_InitTypeDef intmoduleUSART_PinDef = {
   .Pin = INTMODULE_TX_GPIO_PIN | INTMODULE_RX_GPIO_PIN,
@@ -90,9 +100,15 @@ static const stm32_usart_t intmoduleUSART = {
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
 #endif
+#if defined(INTMODULE_RX_DMA)
+  .rxDMA = INTMODULE_RX_DMA,
+  .rxDMA_Stream = INTMODULE_RX_DMA_STREAM,
+  .rxDMA_Channel = INTMODULE_RX_DMA_CHANNEL,
+#else
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
+#endif
 };
 
 static const IntmoduleCtx intmoduleCtx = {
@@ -123,12 +139,20 @@ void* intmoduleSerialStart(const etx_serial_init* params)
   //  - the UART seems to block when initialised with baudrate = 0
 
   // init callbacks
+#if !defined(INTMODULE_RX_DMA)
   intmodule_driver.on_receive = intmoduleFifoReceive;
+#else
+  intmodule_driver.on_receive = nullptr;
+#endif
   intmodule_driver.on_error = nullptr;
 
   stm32_usart_init(&intmoduleUSART, params);
 
   intmoduleCtx.rxFifo->clear();
+  if (params->rx_enable && intmoduleUSART.rxDMA) {
+    stm32_usart_init_rx_dma(&intmoduleUSART, intmoduleFifo.buffer(), intmoduleFifo.size());
+  }  
+  
   return (void*)&intmoduleCtx;
 }
 
