@@ -172,6 +172,10 @@ union InternalModulePulsesData {
   CrossfirePulsesData crossfire;
 #endif
 
+#if defined(INTERNAL_MODULE_AFHDS3)
+  afhds3::PulsesData afhds3;
+#endif
+
 #if defined(INTERNAL_MODULE_PPM)
   PpmPulsesData<pulse_duration_t> ppm;
 #endif

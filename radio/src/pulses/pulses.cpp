@@ -23,7 +23,6 @@
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 
-#include "io/frsky_pxx2.h"
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
 
@@ -430,6 +429,13 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
+#if defined(INTERNAL_MODULE_AFHDS3)
+    case PROTOCOL_CHANNELS_AFHDS3:
+      internalModuleContext = afhds3::internalDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &afhds3::internalDriver;
+      break;
+#endif
+
     default:
       // internal module stopped, use default mixer period
       mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
@@ -630,10 +636,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
-      // convert to serial module interface
-      extmodulePulsesData.afhds3.init(EXTERNAL_MODULE);
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
+      externalModuleContext = afhds3::externalDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &afhds3::externalDriver;
       break;
 #endif
 
@@ -710,12 +714,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
       return true;
 #endif
 
-#if defined(AFHDS3)
-    case PROTOCOL_CHANNELS_AFHDS3:
-      extmodulePulsesData.afhds3.setupFrame();
-      return true;
-#endif
-
     case PROTOCOL_CHANNELS_DSMP:
       setupPulsesLemonDSMP();
       return true;
@@ -747,19 +745,6 @@ void extmoduleSendNextFrame()
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       extmoduleSendNextFramePxx1(extmodulePulsesData.pxx.getData(),
                                  extmodulePulsesData.pxx.getSize());
-      break;
-#endif
-
-#if defined(AFHDS3)
-    case PROTOCOL_CHANNELS_AFHDS3:
-#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
-      extmoduleSendBuffer(extmodulePulsesData.afhds3.getData(),
-                          extmodulePulsesData.afhds3.getSize());
-#else
-      extmoduleSendNextFrameSoftSerial(extmodulePulsesData.afhds3.getData(),
-                                       extmodulePulsesData.afhds3.getSize(),
-                                       false);
-#endif
       break;
 #endif
 
