@@ -528,6 +528,7 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
 
 void ThemeSetupPage::build(FormWindow *window)
 {
+  window->padAll(0);
   pageWindow = window;
 
   auto tp = ThemePersistance::instance();

@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#if STORAGE_CONVERSIONS < 221
+
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -43,8 +45,6 @@ namespace yaml_conv_220 {
     const YamlNode* get_modeldata_nodes();
     const YamlNode* get_partialmodel_nodes();
 };
-
-#if STORAGE_CONVERSIONS < 221
 
 #if defined(STORAGE_MODELSLIST)
 

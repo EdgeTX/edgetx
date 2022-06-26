@@ -99,13 +99,9 @@ private:
 
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
-  new StaticText(&header,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_PREFLIGHT, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_PREFLIGHT);
 
-  auto form = new FormWindow(&body, rect_t{0, 0, body.width(), body.height()},
-                             NO_FOCUS | FORM_FORWARD_FOCUS);
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 

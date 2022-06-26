@@ -106,7 +106,7 @@
   #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
 #endif
 
-#define TR_VSRCRAW                     "---", TR_STICKS_VSRCRAW, TR_POTS_VSRCRAW, TR_GYR_VSRCRAW "MAX", TR_CYC_VSRCRAW, TR_TRIMS_VSRCRAW, TR_SW_VSRCRAW, TR_EXTRA_VSRCRAW
+#define TR_VSRCRAW                     "---", TR_STICKS_VSRCRAW, TR_POTS_VSRCRAW, TR_IMU_VSRCRAW "MAX", TR_CYC_VSRCRAW, TR_TRIMS_VSRCRAW, TR_SW_VSRCRAW, TR_EXTRA_VSRCRAW
 
 #define TR_CRSF_BAUDRATE               "115k","400k","921k","1.87M","3.75M","5.25M"
 

@@ -69,9 +69,9 @@ enum {
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_MODE)
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_LENGTH)
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_STRENGTH)
-  CASE_GYRO(ITEM_RADIO_SETUP_GYRO_LABEL)
-  CASE_GYRO(ITEM_RADIO_SETUP_GYRO_MAX)
-  CASE_GYRO(ITEM_RADIO_SETUP_GYRO_OFFSET)
+  CASE_IMU(ITEM_RADIO_SETUP_IMU_LABEL)
+  CASE_IMU(ITEM_RADIO_SETUP_IMU_MAX)
+  CASE_IMU(ITEM_RADIO_SETUP_IMU_OFFSET)
   ITEM_RADIO_SETUP_CONTRAST,
   ITEM_RADIO_SETUP_ALARMS_LABEL,
   ITEM_RADIO_SETUP_BATTERY_WARNING,
@@ -152,9 +152,9 @@ void menuRadioSetup(event_t event)
     CASE_HAPTIC(0)
     CASE_HAPTIC(0)
     CASE_HAPTIC(0)
-    CASE_GYRO(LABEL(GYRO))
-    CASE_GYRO(0)
-    CASE_GYRO(0)
+    CASE_IMU(LABEL(IMU))
+    CASE_IMU(0)
+    CASE_IMU(0)
     0, LABEL(ALARMS), 0, CASE_CAPACITY(0)
     0, 0, 0, 0, /* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM */
     CASE_BACKLIGHT(LABEL(BACKLIGHT))
@@ -387,29 +387,29 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if defined(GYRO)
-      case ITEM_RADIO_SETUP_GYRO_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_GYRO_LABEL);
+#if defined(IMU)
+      case ITEM_RADIO_SETUP_IMU_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_IMU_LABEL);
         break;
 
-      case ITEM_RADIO_SETUP_GYRO_MAX:
-        lcdDrawText(INDENT_WIDTH, y, STR_GYRO_MAX);
-        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, GYRO_MAX_DEFAULT + g_eeGeneral.gyroMax, attr|LEFT);
+      case ITEM_RADIO_SETUP_IMU_MAX:
+        lcdDrawText(INDENT_WIDTH, y, STR_IMU_MAX);
+        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, IMU_MAX_DEFAULT + g_eeGeneral.imuMax, attr|LEFT);
         lcdDrawChar(lcdLastRightPos, y, '@', attr);
         if (attr) {
-          CHECK_INCDEC_GENVAR(event, g_eeGeneral.gyroMax, GYRO_MAX_DEFAULT - GYRO_MAX_RANGE, GYRO_MAX_DEFAULT + GYRO_MAX_RANGE);
+          CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuMax, IMU_MAX_DEFAULT - IMU_MAX_RANGE, IMU_MAX_DEFAULT + IMU_MAX_RANGE);
           lcdDrawText(LCD_W-4*FW, y, "(");
           lcdDrawNumber(lcdLastRightPos, y, max(abs(gyro.outputs[0]), abs(gyro.outputs[1])) * 180 / 1024);
           lcdDrawText(lcdLastRightPos, y, ")");
         }
         break;
 
-      case ITEM_RADIO_SETUP_GYRO_OFFSET:
-        lcdDrawText(INDENT_WIDTH, y, STR_GYRO_OFFSET);
-        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.gyroOffset, attr|LEFT);
+      case ITEM_RADIO_SETUP_IMU_OFFSET:
+        lcdDrawText(INDENT_WIDTH, y, STR_IMU_OFFSET);
+        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.imuOffset, attr|LEFT);
         lcdDrawChar(lcdLastRightPos, y, '@', attr);
         if (attr) {
-          CHECK_INCDEC_GENVAR(event, g_eeGeneral.gyroOffset, GYRO_OFFSET_MIN, GYRO_OFFSET_MAX);
+          CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuOffset, IMU_OFFSET_MIN, IMU_OFFSET_MAX);
           lcdDrawText(LCD_W-4*FW, y, "(");
           lcdDrawNumber(lcdLastRightPos, y, gyro.outputs[0] * 180 / 1024);
           lcdDrawText(lcdLastRightPos, y, ")");

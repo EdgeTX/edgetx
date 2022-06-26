@@ -41,7 +41,7 @@ class LayoutChoice : public Button
   LayoutChoice(Window* parent, LayoutFactoryGetter getValue, LayoutFactorySetter setValue) :
     Button(parent, rect_t{}, nullptr, 0, 0, lv_btn_create),
       getValue(std::move(getValue)),
-      setValue(std::move(setValue))
+      _setValue(std::move(setValue))
   {
     canvas = lv_canvas_create(lvobj);
     lv_obj_center(canvas);
@@ -69,7 +69,7 @@ class LayoutChoice : public Button
  protected:
   lv_obj_t* canvas = nullptr;
   std::function<const LayoutFactory*()> getValue;
-  std::function<void(const LayoutFactory*)> setValue;
+  std::function<void(const LayoutFactory*)> _setValue;
 
   void update()
   {
@@ -85,6 +85,12 @@ class LayoutChoice : public Button
     lv_coord_t h = *(((uint16_t*)bitmap) + 1);
     void* buf = (void*)(bitmap + 4);
     lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+  }
+
+  void setValue(const LayoutFactory* layout)
+  {
+    if (_setValue) _setValue(layout);
+    update();
   }
 };
 

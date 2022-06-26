@@ -33,6 +33,8 @@
 #include "../../../timers.h"
 #include "../../../pulses/multi.h"
 
+#if STORAGE_CONVERSIONS < 221
+
 namespace yaml_conv_220 {
 
 #include "yaml_datastructs_funcs.cpp"
@@ -77,3 +79,11 @@ static_assert(MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN,
               "MAX_STR > MAX_RADIODATA_MODELDATA_PARTIALMODEL_STR_LEN");
 
 };
+
+#else
+
+namespace yaml_conv_220 {
+#include "yaml_datastructs_funcs.cpp"
+};
+
+#endif // STORAGE_CONVERSIONS

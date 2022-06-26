@@ -371,7 +371,11 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
   uint8_t ch = group->getMixSrc() - MIXSRC_CH1;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
-    menu->addLine(STR_EDIT, [=]() { editMix(ch, index); });
+    menu->addLine(STR_EDIT, [=]() {
+        uint8_t idx = button->getIndex();
+        editMix(ch, idx);
+        _copyMode = 0;
+      });
     if (!reachMixesLimit()) {
       menu->addLine(STR_INSERT_BEFORE, [=]() {
         uint8_t idx = button->getIndex();
@@ -533,11 +537,12 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 
 void ModelMixesPage::build(FormWindow * window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
-  lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
+  window->setFlexLayout();
+  window->padRow(lv_dpx(8));
   
   form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+  form->setFlexLayout();
+  form->padRow(lv_dpx(8));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));

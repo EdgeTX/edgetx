@@ -23,6 +23,7 @@
 #include "stm32_pulse_driver.h"
 
 #include "hal.h"
+#include "board.h"
 #include "timers_driver.h"
 
 static const stm32_pulse_timer_t extmoduleTimer = {

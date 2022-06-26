@@ -38,9 +38,6 @@
 #include "tp_gt911.h"
 #endif
 
-#if defined(IMU_LSM6DS33)
-#include "imu_lsm6ds33.h"
-#endif
 
 PACK(typedef struct {
   uint8_t pcbrev:2;
@@ -65,11 +62,6 @@ extern HardwareOptions hardwareOptions;
 #define LUA_MEM_EXTRA_MAX              (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                    (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-// HSI is at 168Mhz (over-drive is not enabled!)
-#define PERI1_FREQUENCY                42000000
-#define PERI2_FREQUENCY                84000000
-#define TIMER_MULT_APB1                2
-#define TIMER_MULT_APB2                2
 
 extern uint16_t sessionTimer;
 
@@ -542,12 +534,6 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 #define lcdRefreshWait(...)
 
 // Backlight driver
-void backlightInit();
-#if defined(SIMU) || !defined(__cplusplus)
-#define backlightEnable(...)
-#else
-void backlightEnable(uint8_t dutyCycle = 0);
-#endif
 #define BACKLIGHT_LEVEL_MAX     100
 #define BACKLIGHT_FORCED_ON     BACKLIGHT_LEVEL_MAX + 1
 #if defined(PCBX12S)
@@ -557,16 +543,29 @@ void backlightEnable(uint8_t dutyCycle = 0);
 #else
 #define BACKLIGHT_LEVEL_MIN   46
 #endif
-#if defined(SIMU)
-#define BACKLIGHT_ENABLE()
-#define BACKLIGHT_DISABLE()
-#define isBacklightEnabled(...) true
-#else
+
 extern bool boardBacklightOn;
-#define BACKLIGHT_ENABLE()    {boardBacklightOn = true; backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : BACKLIGHT_LEVEL_MAX - currentBacklightBright);}
-#define BACKLIGHT_DISABLE()   {boardBacklightOn = false; backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) && (g_eeGeneral.backlightMode != e_backlight_mode_off)) ? 0 : g_eeGeneral.blOffBright);}
+void backlightInit();
+void backlightEnable(uint8_t dutyCycle);
+void backlightFullOn();
 bool isBacklightEnabled();
-#endif
+
+#define BACKLIGHT_ENABLE()                                               \
+  {                                                                      \
+    boardBacklightOn = true;                                             \
+    backlightEnable(globalData.unexpectedShutdown                        \
+                        ? BACKLIGHT_LEVEL_MAX                            \
+                        : BACKLIGHT_LEVEL_MAX - currentBacklightBright); \
+  }
+#define BACKLIGHT_DISABLE()                                                 \
+  {                                                                         \
+    boardBacklightOn = false;                                               \
+    backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX     \
+                    : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) &&  \
+                       (g_eeGeneral.backlightMode != e_backlight_mode_off)) \
+                        ? 0                                                 \
+                        : g_eeGeneral.blOffBright);                         \
+  }
 
 #if !defined(SIMU)
 void usbJoystickUpdate();

@@ -128,9 +128,9 @@ void menuRadioDiagAnalogs(event_t event)
       entryCount++;
   }
 
-#if defined(GYRO)
+#if defined(IMU)
   y += FH;
-  lcdDrawTextAlignedLeft(y, STR_GYRO);
+  lcdDrawTextAlignedLeft(y, STR_IMU);
   y += FH;
   uint8_t x = INDENT_WIDTH;
   lcdDrawText(x, y, "X:");

@@ -93,7 +93,7 @@ void execMixerFrequentActions()
   processSbusInput();
 #endif
 
-#if defined(GYRO)
+#if defined(IMU)
   gyro.wakeup();
 #endif
 
@@ -196,6 +196,10 @@ TASK_FUNCTION(menusTask)
 
 #if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
   touchPanelInit();
+#endif
+
+#if defined(IMU)
+  gyroInit();
 #endif
   
   opentxInit();

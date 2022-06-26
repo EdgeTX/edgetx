@@ -280,7 +280,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
           else if (func >= FUNC_RANGECHECK && func <= FUNC_BIND) {
             val_max = NUM_MODULES-1;
-            lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, "\004Int.Ext.", CFN_PARAM(cfn), attr);
+            const char *text[] = {"Int.", "Ext."};
+            lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, text, CFN_PARAM(cfn), attr);
           }
 #endif
           else if (func == FUNC_SET_TIMER) {

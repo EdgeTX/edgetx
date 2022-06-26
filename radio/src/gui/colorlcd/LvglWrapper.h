@@ -25,38 +25,11 @@
 #include <lvgl/lvgl.h>
 #include "opentx_types.h"
 
+void initLvglTheme();
+
 lv_color_t makeLvColor(uint32_t colorFlags);
 
-class LvglWidgetFactory;
 typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
-typedef std::function<void (LvglWidgetFactory *factory)> LvStyleInitializer;
-
-class LvglWidgetFactory
-{
-  public:
-    LvglWidgetFactory(LvObjConstructor construct, LvStyleInitializer styleInitializer = nullptr) :
-      _construct(std::move(construct)),
-      _styleInitializer(std::move(styleInitializer))
-    {
-      lv_style_init(&style);
-      styleInitialized = false;
-    };
-
-    lv_style_t style;
-
-    inline lv_obj_t *construct(lv_obj_t *parent) { 
-      if (!styleInitialized && _styleInitializer != nullptr) {
-        (_styleInitializer(this));
-        styleInitialized = true;
-      }
-      return _construct(parent); 
-    }
-
-  private:
-    LvObjConstructor _construct;
-    LvStyleInitializer _styleInitializer;
-    bool styleInitialized;
-};
 
 class LvglWrapper
 {
@@ -79,7 +52,5 @@ class LvglWrapper
   // the LVGL timer handler (blocking UI code)
   static void runNested();
 };
-
-void initLvglTheme();
 
 #endif // _LVGLWRAPPER_H_

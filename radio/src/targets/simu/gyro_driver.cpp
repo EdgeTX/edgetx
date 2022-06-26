@@ -19,5 +19,6 @@
  * GNU General Public License for more details.
  */
 
+void gyroInit() {}
 void gyroRead() {}
 void gyroRead(unsigned char*) {}

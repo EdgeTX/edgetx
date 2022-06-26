@@ -634,6 +634,7 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
+  window->padAll(0);
 
   // Window::clearFocus();
 

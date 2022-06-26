@@ -24,12 +24,14 @@
 
 #include "dialog.h"
 
-class ConfirmDialog: public Dialog {
-  public:
-    ConfirmDialog(Window * parent, const char * title, const char * message, std::function<void(void)> confirmHandler);
+class ConfirmDialog : public Dialog
+{
+ public:
+  ConfirmDialog(Window* parent, const char* title, const char* message,
+                std::function<void(void)> confirmHandler);
 
-  protected:
-    std::function<void(void)> confirmHandler;
+ protected:
+  std::function<void(void)> confirmHandler;
 };
 
 #endif // _CONFIRM_DIALOG_H_

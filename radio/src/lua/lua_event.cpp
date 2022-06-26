@@ -21,8 +21,10 @@
 
 #include "lua_event.h"
 #include "opentx_helpers.h"
+#include "board_common.h"
 #include "timers_driver.h"
 #include "keys.h"
+
 
 extern "C" {
   #include "lua.h"
@@ -53,8 +55,7 @@ void luaNextEvent(LuaEventData* evt)
   if (evt->event != 0) {
     size_t len = sizeof(_lua_event_buffer) - sizeof(LuaEventData);
     memmove(_lua_event_buffer, _lua_event_buffer + 1, len);
-    memclear(_lua_event_buffer + (EVENT_BUFFER_SIZE - 1),
-             sizeof(EVENT_BUFFER_SIZE));
+    memclear(_lua_event_buffer + (EVENT_BUFFER_SIZE - 1), sizeof(LuaEventData));
   }
 }
 

@@ -373,12 +373,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  // TODO: use lv_indev_enable(touchDriver, true / false) instead
-  // #if defined(HARDWARE_TOUCH)
-  //   MainWindow* mainWin = MainWindow::instance();
-  //   mainWin->setTouchEnabled(!isFunctionActive(FUNCTION_DISABLE_TOUCH) &&
-  //   isBacklightEnabled());
-  // #endif
   LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
@@ -482,7 +476,6 @@ void guiMain(event_t evt)
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
-  static bool fatalError = false;
 
   checkSpeakerVolume();
 
@@ -515,7 +508,6 @@ void perMain()
 
 #if defined(RTC_BACKUP_RAM)
   if (globalData.unexpectedShutdown) {
-    fatalError = true;
     drawFatalErrorScreen(STR_EMERGENCY_MODE);
     return;
   }
@@ -533,26 +525,16 @@ void perMain()
 
     // TODO: implement for b/w
 #if defined(COLORLCD)
-    fatalError = true;
     drawFatalErrorScreen(STR_NO_SDCARD);
     return;
 #endif
   }
 #endif
 
-
-#if defined(LIBOPENUI)
-  if(fatalError)
-  {
-    clearFatalErrorScreen();
-    fatalError = false;
-  }
-#endif
-
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(LIBOPENUI)
     // draw some image showing USB
-    lcd->reset();
+    lcdInitDirectDrawing();
     OpenTxTheme::instance()->drawUsbPluggedScreen(lcd);
     lcdRefresh();
 #else

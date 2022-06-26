@@ -2488,7 +2488,7 @@ const luaL_Reg opentxLib[] = {
 const luaR_value_entry opentxConstants[] = {
   { "FULLSCALE", RESX },
 #if defined(COLORLCD)
-  { "XXLSIZE", FONT(XL) },
+  { "XXLSIZE", FONT(XXL) },
   { "DBLSIZE", FONT(XL) },
   { "MIDSIZE", FONT(L) },
   { "SMLSIZE", FONT(XS) },

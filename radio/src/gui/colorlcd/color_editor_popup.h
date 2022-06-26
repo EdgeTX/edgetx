@@ -31,68 +31,59 @@
 class ColorEditorContent : public ModalWindowContent
 {
   friend class ColorEditorPopup;
-  public:
-    ColorEditorContent(ModalWindow *window, const rect_t rect, uint32_t color, std::function<void (uint32_t rgb)> setValue = nullptr);
+
+ public:
+  ColorEditorContent(ModalWindow *window, const rect_t rect, uint32_t color,
+                     std::function<void(uint32_t rgb)> setValue = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ColorEditorContent";
-    }
+  std::string getName() const override { return "ColorEditorContent"; }
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override;
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchStart(coord_t x, coord_t y) override;
+  bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchStart(coord_t x, coord_t y) override;
 #endif
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
+  void onEvent(event_t event) override;
+  void paint(BitmapBuffer *dc) override;
 
-    void paint(BitmapBuffer *dc) override;
+ protected:
+  bool sliding = false;
+  bool colorPicking = false;
+  int r, g, b;
+  int hue = 0, s, v;
+  NumberEdit *rEdit;
+  NumberEdit *gEdit;
+  NumberEdit *bEdit;
 
-  protected:
-    bool sliding = false;
-    bool colorPicking = false;
-    int r, g, b;
-    int hue = 0, s, v;
-    NumberEdit *rEdit;
-    NumberEdit *gEdit;
-    NumberEdit *bEdit;
-
-    void drawHueBar(BitmapBuffer *dc);
-    void drawGrid(BitmapBuffer *dc);
-    void drawColorBox(BitmapBuffer *dc);
-    void setRGB();
-    std::function<void (uint32_t rgb)> setValue;
+  void drawHueBar(BitmapBuffer *dc);
+  void drawGrid(BitmapBuffer *dc);
+  void drawColorBox(BitmapBuffer *dc);
+  void setRGB();
+  std::function<void(uint32_t rgb)> setValue;
 };
 
 // a color editor popup
 class ColorEditorPopup : public ModalWindow
 {
-  public:
-    ColorEditorPopup(Window *window, std::function<uint32_t ()> getValue, std::function<void (uint32_t value)> setValue = nullptr);
-    
-    void deleteLater(bool detach = true, bool trash = true) override;
+ public:
+  ColorEditorPopup(Window *window, std::function<uint32_t()> getValue,
+                   std::function<void(uint32_t value)> setValue = nullptr);
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ColorEditorPopup";
-    }
+  std::string getName() const override { return "ColorEditorPopup"; }
 #endif
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchStart(coord_t x, coord_t y) override;
-    bool onTouchEnd(coord_t x, coord_t y) override;
+  bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
-  protected:
-    uint32_t color;
-    ColorEditorContent *content;
-    std::function<uint32_t ()> _getValue;
-    std::function<void (uint32_t value)> _setValue;
+ protected:
+  uint32_t color;
+  ColorEditorContent *content;
+  std::function<uint32_t()> _getValue;
+  std::function<void(uint32_t value)> _setValue;
 };
-

@@ -323,6 +323,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(66);
+  window->padAll(0);
 
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
 

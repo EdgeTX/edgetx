@@ -357,6 +357,7 @@ void ModelGVarsPage::build(FormWindow * window)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   grid.setLabelWidth(70);
+  window->padAll(0);
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
     Button * button = new GVarButton(window, grid.getLineSlot(), index);

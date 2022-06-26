@@ -108,8 +108,8 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_Ail, "Ail"  },
   {  MIXSRC_POT1, "POT1"  },
   {  MIXSRC_POT2, "POT2"  },
-  {  MIXSRC_GYRO1, "GYRO1"  },
-  {  MIXSRC_GYRO2, "GYRO2"  },
+  {  MIXSRC_TILT_X, "TILT_X"  },
+  {  MIXSRC_TILT_Y, "TILT_Y"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_CYC1, "CYC1"  },
   {  MIXSRC_CYC2, "CYC2"  },
@@ -400,10 +400,10 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
-  YAML_SIGNED( "gyroMax", 8 ),
-  YAML_SIGNED( "gyroOffset", 8 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_PADDING( 6 ),
+  YAML_SIGNED( "imuMax", 8 ),
+  YAML_SIGNED( "imuOffset", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

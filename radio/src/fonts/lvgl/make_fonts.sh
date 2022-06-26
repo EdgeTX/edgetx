@@ -32,7 +32,7 @@ function make_font() {
   local arg=$5
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
-               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${chars},${COMPARE} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${ARROWS_FONT} -r ${ARROWS} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
@@ -46,7 +46,7 @@ function make_font_no_sym() {
   local chars=$4
   local arg=$5
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
-               --font ${TTF_DIR}${ttf} -r ${ASCII},${chars} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII}${chars} \
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
 
@@ -78,14 +78,15 @@ function make_font_set() {
   make_font "${name}_bold" "${ttf_bold}" 17 ${chars}
   make_font_no_sym "${name}" "${ttf_normal}" 24 ${chars}
   make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars}
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 64
 }
 
 # Regular fonts
-make_font_set "roboto" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" "${LATIN1}"
+make_font_set "roboto" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${LATIN1}"
 
 # Bootloader font
 make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16
 
 # CJK fonts
-make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${TW_SYMBOLS}"
-make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${CN_SYMBOLS}"
+make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${TW_SYMBOLS}"
+make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${CN_SYMBOLS}"

@@ -223,6 +223,8 @@ void TabsGroup::setVisibleTab(PageTab* tab)
 
     rect_t r = rect_t{0, 0, body.width(), body.height()};
     auto form = new FormWindow(&body, r, NO_FOCUS);
+
+    form->padAll(lv_dpx(8));
     tab->build(form);
 
     header.setTitle(tab->title.c_str());

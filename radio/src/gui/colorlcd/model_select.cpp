@@ -1081,7 +1081,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
     sellabels.push_back(labels[selected]);
     mdlselector->setLabels(sellabels); // Update the list
   });
-  
+
   lblselector->setLongPressHandler([=] () {
     int selected = lblselector->getSelected();
     auto labels = getLabels();

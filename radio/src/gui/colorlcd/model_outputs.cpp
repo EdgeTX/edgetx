@@ -147,15 +147,14 @@ ModelOutputsPage::ModelOutputsPage() :
 
 void ModelOutputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
-  lv_obj_set_style_pad_all(window->getLvObj(), 8, 0);
+  window->setFlexLayout();
+  window->padRow(lv_dpx(8));
 
   auto form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(16));
+  form->padRow(lv_dpx(8));
 
   auto form_obj = form->getLvObj();
-  lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
-  lv_obj_set_style_pad_row(form_obj, lv_dpx(8), 0);
   lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
 
   // auto btn =
@@ -167,6 +166,7 @@ void ModelOutputsPage::build(FormWindow *window)
 
   auto box = new FormGroup(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+
   auto box_obj = box->getLvObj();
   lv_obj_set_width(box_obj, LV_SIZE_CONTENT);
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
@@ -183,7 +183,7 @@ void ModelOutputsPage::build(FormWindow *window)
     btn->setPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
-        editOutput(btn, ch);
+        editOutput(ch);
       });
       menu->addLine(STR_RESET, [=]() {
         output->min = 0;
@@ -211,11 +211,7 @@ void ModelOutputsPage::build(FormWindow *window)
   }
 }
 
-void ModelOutputsPage::editOutput(OutputLineButton *btn, uint8_t channel)
+void ModelOutputsPage::editOutput(uint8_t channel)
 {
-  // auto btn_obj = btn->getLvObj();
-  // Window *edit = 
   new OutputEditWindow(channel);
-  // edit->setCloseHandler(
-  //     [=]() { lv_event_send(btn_obj, LV_EVENT_VALUE_CHANGED, nullptr); });
 }

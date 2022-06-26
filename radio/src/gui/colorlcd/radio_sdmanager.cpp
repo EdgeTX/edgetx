@@ -154,6 +154,8 @@ static const lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPL
 void RadioSdManagerPage::build(FormWindow * window)
 {
   FlexGridLayout grid(col_dsc, row_dsc, 0);
+  window->padAll(0);
+  
   FormGroup* form = new FormGroup(window, rect_t{});
   form->setWidth(window->width());
   form->setHeight(window->height());

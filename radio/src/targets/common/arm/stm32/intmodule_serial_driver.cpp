@@ -65,7 +65,7 @@ static const LL_GPIO_InitTypeDef intmoduleUSART_PinDef = {
   .Speed = LL_GPIO_SPEED_FREQ_LOW,
   .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
   .Pull = LL_GPIO_PULL_UP,
-  .Alternate = INTMODULE_GPIO_AF_LL,
+  .Alternate = INTMODULE_GPIO_AF,
 };
 
 static const stm32_usart_t intmoduleUSART = {
@@ -75,7 +75,7 @@ static const stm32_usart_t intmoduleUSART = {
   .IRQn = INTMODULE_USART_IRQn,
   .IRQ_Prio = INTMODULE_USART_IRQ_PRIORITY,
   .txDMA = INTMODULE_DMA,
-  .txDMA_Stream = INTMODULE_DMA_STREAM_LL,
+  .txDMA_Stream = INTMODULE_DMA_STREAM,
   .txDMA_Channel = INTMODULE_DMA_CHANNEL,
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,

@@ -103,12 +103,6 @@ if(BLUETOOTH)
     )
 endif()
 
-if(NOT (PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14))
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../../../../../targets/${TARGET_DIR}/i2c_driver.cpp
-    )
-endif()
 
 if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   set(BOOTLOADER_SRC
@@ -158,7 +152,7 @@ else()
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
-    ../../../../../targets/${TARGET_DIR}/i2c_driver.cpp
+    ../../../../../targets/${TARGET_DIR}/eeprom_driver.cpp
     )
   remove_definitions(-DDEBUG)
 endif()
