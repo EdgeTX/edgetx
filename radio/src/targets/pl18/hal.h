@@ -387,26 +387,31 @@
 #define I2C_B1_RCC_APB1Periph           RCC_APB1Periph_I2C1
 #define I2C_B1                          I2C1
 #define I2C_B1_GPIO                     GPIOB
-#define I2C_B1_SDA_GPIO_PIN             GPIO_Pin_7  // PB.07
-#define I2C_B1_SCL_GPIO_PIN             GPIO_Pin_8  // PB.08
-#define I2C_B1_GPIO_AF                  GPIO_AF_I2C1
-#define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource7
-#define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource8
-#define I2C_B1_CLK_RATE                 100000
+#define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_7  // PB.07
+#define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_8  // PB.08
+#define I2C_B1_GPIO_AF                  GPIO_AF4_I2C1
+//#define I2C_B1_SDA_GPIO_PinSource       GPIO_PinSource7
+//#define I2C_B1_SCL_GPIO_PinSource       GPIO_PinSource8
+//#define I2C_B1_CLK_RATE                 100000
+
+#define TOUCH_I2C_BUS                 I2C_Bus_1
+#define TOUCH_I2C_CLK_RATE            400000
+
 
 #define TOUCH_RST_RCC_AHB1Periph        RCC_AHB1Periph_GPIOB
 #define TOUCH_RST_GPIO                  GPIOB
-#define TOUCH_RST_GPIO_PIN              GPIO_Pin_12   // PB.12
+#define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_12   // PB.12
 
 #define TOUCH_INT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOB
 #define TOUCH_INT_GPIO                  GPIOB
-#define TOUCH_INT_GPIO_PIN              GPIO_Pin_9    // PB.09
-#define TOUCH_INT_EXTI_LINE1            EXTI_Line9
-#define TOUCH_INT_EXTI_IRQn1            EXTI9_5_IRQn
-#define TOUCH_INT_EXTI_IRQHandler1      EXTI9_5_IRQHandler
-#define TOUCH_INT_EXTI_PortSource       EXTI_PortSourceGPIOB
-#define TOUCH_INT_EXTI_PinSource1       EXTI_PinSource9
-#define TOUCH_INT_STATUS()              (GPIO_ReadInputDataBit(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN))
+#define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_9    // PB.09
+#define TOUCH_INT_EXTI_LINE1            LL_EXTI_LINE_9
+
+#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_9
+#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTB
+#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE9
+#define TOUCH_INT_EXTI_IRQn           EXTI9_5_IRQn
+#define TOUCH_INT_EXTI_IRQHandler     EXTI9_5_IRQHandler
 
 // Haptic: TIM1_CH1
 #define HAPTIC_PWM
