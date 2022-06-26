@@ -28,8 +28,8 @@
 #include "pxx1.h"
 #include "pxx2.h"
 #include "multi.h"
-#include "afhds3.h"
 #include "afhds2.h"
+#include "afhds3_transport.h"
 #include "modules_helpers.h"
 #include "ff.h"
 #include "hal/module_driver.h"
@@ -173,7 +173,7 @@ union InternalModulePulsesData {
 #endif
 
 #if defined(INTERNAL_MODULE_AFHDS3)
-  afhds3::PulsesData afhds3;
+  afhds3::IntmoduleData afhds3;
 #endif
 
 #if defined(INTERNAL_MODULE_PPM)
@@ -199,7 +199,7 @@ union ExternalModulePulsesData {
 #endif
 
 #if defined(AFHDS3)
-  afhds3::PulsesData afhds3;
+  afhds3::ExtmoduleData afhds3;
 #endif
 
   PpmPulsesData<pulse_duration_t> ppm;

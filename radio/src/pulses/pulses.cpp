@@ -52,6 +52,10 @@
 #include "pulses/afhds2.h"
 #endif
 
+#if defined(AFHDS3)
+#include "pulses/afhds3.h"
+#endif
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
@@ -174,8 +178,8 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
   }
 #endif
 #if defined(AFHDS3)
-  if (moduleIdx == EXTERNAL_MODULE && isModuleAFHDS3(moduleIdx)) {
-    extmodulePulsesData.afhds3.getStatusString(statusText);
+  if (isModuleAFHDS3(moduleIdx)) {
+    afhds3::getStatusString(moduleIdx, statusText);
   }
 #endif
 }
@@ -189,8 +193,8 @@ void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
   }
 #endif
 #if defined(AFHDS3)
-  if (moduleIdx == EXTERNAL_MODULE && isModuleAFHDS3(moduleIdx)) {
-    extmodulePulsesData.afhds3.getPowerStatus(statusText);
+  if (isModuleAFHDS3(moduleIdx)) {
+    afhds3::getPowerStatus(moduleIdx, statusText);
   }
 #endif
 }
@@ -198,8 +202,8 @@ void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
 #if defined(AFHDS3)
 uint8_t actualAfhdsRunPower(int moduleIndex)
 {
-  if (moduleIndex == EXTERNAL_MODULE && isModuleAFHDS3(moduleIndex)) {
-    return (uint8_t)extmodulePulsesData.afhds3.actualRunPower();
+  if (isModuleAFHDS3(moduleIndex)) {
+    return (uint8_t)afhds3::getActualRunPower(moduleIndex);
   }
   return 0;
 }
