@@ -154,7 +154,7 @@ void telemetryStart()
 {
   if (!telemetryTimer) {
     telemetryTimer =
-        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+        xTimerCreateStatic("Telem", 2 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
                            telemetryTimerCb, &telemetryTimerBuffer);
   }
 
@@ -576,8 +576,9 @@ void telemetryInit(uint8_t protocol)
 
 #if defined(AFHDS3)
   else if (protocol == PROTOCOL_TELEMETRY_AFHDS3) {
-    telemetryPortInvertedInit(AFHDS3_BAUDRATE);
-    telemetryPortSetDirectionInput();
+    // TODO:
+    // telemetryPortInvertedInit(AFHDS3_BAUDRATE);
+    // telemetryPortSetDirectionInput();
   }
 #endif
 

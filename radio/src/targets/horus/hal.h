@@ -830,6 +830,7 @@
 #define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream7_IRQHandler
 #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF7
 #define INTMODULE_DMA_CHANNEL           DMA_Channel_4
+// RX DMA: DMA2_Stream2 - Channel 4
 #if defined(PCBX12S)
   #define INTMODULE_BOOTCMD_GPIO        GPIOC
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_2  // PC.02

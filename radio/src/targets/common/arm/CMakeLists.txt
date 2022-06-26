@@ -235,6 +235,11 @@ endif()
 
 if(AFHDS3)
   add_definitions(-DAFHDS3)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    afhds3.cpp
+    afhds3_transport.cpp
+    )
 endif()
 
 if(CROSSFIRE)
@@ -246,14 +251,6 @@ if(CROSSFIRE)
   set(SRC
     ${SRC}
     telemetry/crossfire.cpp
-    )
-endif()
-
-if(AFHDS3)
-  add_definitions(-DAFHDS3)
-  set(PULSES_SRC
-    ${PULSES_SRC}
-    afhds3.cpp
     )
 endif()
 

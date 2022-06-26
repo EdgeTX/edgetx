@@ -510,26 +510,12 @@ PACK(struct ModuleData {
         rx_freq[1] = 0;
       }
     } flysky);
-    NOBACKUP(PACK(struct {
-      uint8_t bindPower:3;
-      uint8_t runPower:3;
-      uint8_t emi:1;
+    NOBACKUP(struct {
+      uint8_t emi:2;
       uint8_t telemetry:1;
-      uint16_t failsafeTimeout;
-      uint8_t rx_freq[2];
-      uint8_t mode:2;
-      uint8_t reserved:6;
-      uint16_t rxFreq()
-      {
-        return (uint16_t)rx_freq[0] | (((uint16_t)rx_freq[1]) << 8);
-      }
-
-      void setRxFreq(uint16_t value)
-      {
-        rx_freq[0] = value & 0xFF;
-        rx_freq[1] = value >> 8;
-      }
-    } afhds3));
+      uint8_t phyMode:3;
+      uint8_t reserved:2;
+    } afhds3);
     NOBACKUP(struct {
       uint8_t raw12bits:1;
       uint8_t telemetryBaudrate:3;
