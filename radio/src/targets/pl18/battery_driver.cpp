@@ -155,6 +155,7 @@ void drawChargingInfo(uint16_t chargeState){
     lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
 #define CHARGE_INFO_DURATION 500
+void TouchInit();
 //this method should be called by timer interrupt or by GPIO interrupt
 void handle_battery_charge(uint32_t last_press_time)
 {
@@ -199,7 +200,7 @@ void handle_battery_charge(uint32_t last_press_time)
         lcdInit();
         lcdInitDisplayDriver();
         lcdInited = true;
-        touchPanelInit();
+        TouchInit();
       }
       else {
         lcdOn();

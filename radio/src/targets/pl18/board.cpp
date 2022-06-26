@@ -20,6 +20,7 @@
  */
  
 #include "board.h"
+#include "tp_cst340.h"
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
@@ -140,6 +141,7 @@ void boardInit()
   flysky_hall_stick_init();
   init2MhzTimer();
   init1msTimer();
+  TouchInit();
   usbInit();
 
   uint32_t press_start = 0;

@@ -58,7 +58,7 @@ TASK_FUNCTION(menusTask)
   }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(SIMU)
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18) && !defined(SIMU)
   touchPanelInit();
 #endif
 
