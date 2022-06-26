@@ -148,7 +148,7 @@ PACK(struct GhostPulsesData {
 });
 
 union InternalModulePulsesData {
-#if defined(PXX1)
+#if defined(INTERNAL_MODULE_PXX1)
 #if defined(INTMODULE_USART)
   UartPxx1Pulses pxx_uart;
 #else
@@ -156,19 +156,19 @@ union InternalModulePulsesData {
 #endif
 #endif
 
-#if defined(PXX2)
+#if defined(INTERNAL_MODULE_PXX2)
   Pxx2Pulses pxx2;
 #endif
 
-#if defined(INTMODULE_USART) && defined(AFHDS2)
+#if defined(INTERNAL_MODULE_AFHDS2A)
   FlySkySerialPulsesData flysky;
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(INTERNAL_MODULE_MULTI)
   UartMultiPulses multi;
 #endif
 
-#if defined(CROSSFIRE)
+#if defined(INTERNAL_MODULE_CRSF)
   CrossfirePulsesData crossfire;
 #endif
 
