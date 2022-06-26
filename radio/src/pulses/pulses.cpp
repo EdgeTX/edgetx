@@ -378,7 +378,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
   }
 
   switch (protocol) {
-#if defined(PXX1) && !defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1) && !defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       intmodulePxx1PulsesStart();
 #if defined(INTMODULE_HEARTBEAT)
@@ -388,14 +388,14 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(PXX1) && defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1) && defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
       internalModuleContext = Pxx1InternalSerialDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Pxx1InternalSerialDriver;
       break;
 #endif
 
-#if defined(PXX2)
+#if defined(INTERNAL_MODULE_PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
       internalModuleContext = Pxx2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Pxx2InternalDriver;

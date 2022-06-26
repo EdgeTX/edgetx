@@ -399,7 +399,6 @@
 #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 
 // Internal Module
-#define HARDWARE_INTERNAL_MODULE
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
 #define INTMODULE_PWR_GPIO              GPIOH
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_9  // PH.09
