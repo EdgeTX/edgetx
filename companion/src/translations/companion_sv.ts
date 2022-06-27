@@ -1736,7 +1736,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>Enable &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aktivera &amp;filter</translation>
     </message>
     <message>
         <source>Turn the filter on/off.</source>
@@ -2367,7 +2367,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Turnigy 9XR-PRO</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Turnigy 9XR-PRO</translation>
     </message>
     <message>
         <source>Enable HELI menu and cyclic mix support</source>
@@ -2856,7 +2856,7 @@ Du använder för närvarande:
     <name>FlightModeData</name>
     <message>
         <source>FM</source>
-        <translation>FL</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2867,7 +2867,7 @@ Du använder för närvarande:
     </message>
     <message>
         <source>GVAR%1</source>
-        <translation></translation>
+        <translation>GVAR%1</translation>
     </message>
     <message>
         <source>Popup enabled</source>
@@ -2887,7 +2887,7 @@ Du använder för närvarande:
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -2919,15 +2919,15 @@ Du använder för närvarande:
     </message>
     <message>
         <source>Prec</source>
-        <translation></translation>
+        <translation>Prec</translation>
     </message>
     <message>
         <source>Min</source>
-        <translation></translation>
+        <translation>Min</translation>
     </message>
     <message>
         <source>Max</source>
-        <translation></translation>
+        <translation>Max</translation>
     </message>
     <message>
         <source>0._</source>
@@ -3143,27 +3143,27 @@ p, li { white-space: pre-wrap; }
     <name>GVarData</name>
     <message>
         <source>%</source>
-        <translation></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>?</source>
-        <translation></translation>
+        <translation>?</translation>
     </message>
     <message>
         <source>0._</source>
-        <translation></translation>
+        <translation>0._</translation>
     </message>
     <message>
         <source>0.0</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>?.?</source>
-        <translation></translation>
+        <translation>?.?</translation>
     </message>
     <message>
         <source>GV</source>
-        <translation></translation>
+        <translation>GV</translation>
     </message>
     <message>
         <source>Own value</source>
@@ -3298,7 +3298,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>X-Short</source>
-        <translation>Extra-kort</translation>
+        <translation type="unfinished">Extra-kort</translation>
     </message>
     <message>
         <source>Short</source>
@@ -3314,7 +3314,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>X-Long</source>
-        <translation>Extra lång</translation>
+        <translation type="unfinished">Extra lång</translation>
     </message>
     <message>
         <source>Color 1</source>
@@ -4454,7 +4454,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Ctrl+Up</source>
-        <translation>Ctrl+Upp</translation>
+        <translation>Ctrl+Up</translation>
     </message>
     <message>
         <source>Move Down</source>
@@ -4462,7 +4462,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Ctrl+Down</source>
-        <translation>Ctrl+Ner</translation>
+        <translation>Ctrl+Down</translation>
     </message>
     <message>
         <source>Clear All Inputs</source>
@@ -4478,7 +4478,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till</translation>
     </message>
     <message>
         <source>Ctrl+A</source>
@@ -4486,7 +4486,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -4494,7 +4494,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -4502,15 +4502,15 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Klipp ut</translation>
     </message>
     <message>
         <source>Ctrl+X</source>
@@ -4518,19 +4518,19 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Klistra in</translation>
     </message>
     <message>
         <source>Ctrl+V</source>
-        <translation></translation>
+        <translation>Ctrl+V</translation>
     </message>
     <message>
         <source>Du&amp;plicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicera</translation>
     </message>
     <message>
         <source>Ctrl+U</source>
-        <translation></translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
         <source>Clear Inputs?</source>
@@ -4538,7 +4538,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Really clear all the inputs?</source>
-        <translation>Vill du verkligen ta bort alla inputs?</translation>
+        <translation>Vill du verkligen ta bort alla Inputs?</translation>
     </message>
 </context>
 <context>
@@ -4643,11 +4643,11 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Sticky</source>
-        <translation>Seg</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edge</source>
-        <translation>Kant</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -4659,7 +4659,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>LSW</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5140,7 +5140,7 @@ fält</translation>
     </message>
     <message>
         <source>Read Radio Firmware to File</source>
-        <translation>Spara radions firmware till fil</translation>
+        <translation type="unfinished">Spara radions firmware till fil</translation>
     </message>
     <message>
         <source>The OpenTX Companion project was originally forked from &lt;a href=&apos;%1&apos;&gt;eePe&lt;/a&gt;</source>
@@ -5480,7 +5480,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Companion :: Open files warning</source>
-        <translation>Companion :: Varning för öppna filer</translation>
+        <translation type="unfinished">Companion :: Varning för öppna filer</translation>
     </message>
     <message>
         <source>Please save or close modified file(s) before deleting the active profile.</source>
@@ -6190,15 +6190,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till</translation>
     </message>
     <message>
         <source>Ctrl+A</source>
-        <translation></translation>
+        <translation>CTRL+A</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -6206,11 +6206,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Toggle highlight</source>
-        <translation type="unfinished"></translation>
+        <translation>Skifta radmarkering av/på</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -6218,27 +6218,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <source>Ctrl+X</source>
-        <translation></translation>
+        <translation>Ctrl+X</translation>
     </message>
     <message>
         <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
+        <translation>Klipp ut</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Klistra in</translation>
     </message>
     <message>
         <source>Ctrl+V</source>
-        <translation></translation>
+        <translation>Ctrl+V</translation>
     </message>
     <message>
         <source>Du&amp;plicate</source>
@@ -6246,7 +6246,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Ctrl+U</source>
-        <translation></translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
         <source>Clear Mixes?</source>
@@ -6258,7 +6258,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation></translation>
+        <translation>Ctrl+T</translation>
     </message>
 </context>
 <context>
@@ -6559,7 +6559,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>MULT!</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Offset</source>
@@ -6631,7 +6631,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation>Håll senaste</translation>
+        <translation>Lås senaste</translation>
     </message>
     <message>
         <source>No Pulse</source>
@@ -6843,7 +6843,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Alt.</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blades</source>
@@ -6851,7 +6851,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Multi.</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F</source>
@@ -6859,7 +6859,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Inst</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Alt</source>
@@ -6871,7 +6871,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Prec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Ratio</source>
@@ -6879,11 +6879,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Multi</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A/Offset</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter</source>
@@ -6969,7 +6969,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> ms</source>
-        <translation></translation>
+        <translation> ms</translation>
     </message>
     <message>
         <source>Receiver</source>
@@ -6977,7 +6977,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Receiver No.</source>
-        <translation>Mottagare nr.</translation>
+        <translation>Mottagarnummer</translation>
     </message>
     <message>
         <source>CH </source>
@@ -6985,7 +6985,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> us</source>
-        <translation></translation>
+        <translation> us</translation>
     </message>
     <message>
         <source>Polarity</source>
@@ -7005,7 +7005,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation>Håll senaste</translation>
+        <translation type="unfinished">Lås senaste</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -7086,7 +7086,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%</source>
         <extracomment>abbreviation for percent</extracomment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>μs</source>
@@ -7123,7 +7123,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Registration ID</source>
-        <translation>Registrerings-ID</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>WARNING: Requires non-certified firmware!</source>
@@ -7135,7 +7135,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Ext. + Int.</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7304,7 +7304,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>SF%1</source>
-        <translation></translation>
+        <translation type="unfinished">SF%1</translation>
     </message>
     <message>
         <source>Special Functions</source>
@@ -7484,7 +7484,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Sink max</source>
-        <translation>Max.sjunk</translation>
+        <translation type="unfinished">Maxsjunk</translation>
     </message>
     <message>
         <source>Sink min</source>
@@ -7564,7 +7564,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>F.In</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F.Out</source>
@@ -7576,7 +7576,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>GF%1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Functions</source>
@@ -8447,15 +8447,15 @@ r</translation>
     </message>
     <message>
         <source>THs</source>
-        <translation>TRs</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TH%</source>
-        <translation>TR%</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>THt</source>
-        <translation>TRt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>???</source>
@@ -8475,7 +8475,7 @@ r</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9136,7 +9136,7 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
         <source>Show keyboard maping reference.</source>
-        <translation>Visa tangentbordsmappning.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F1</source>
