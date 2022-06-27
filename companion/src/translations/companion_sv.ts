@@ -6320,7 +6320,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Outputs</source>
-        <translation>Utgångar</translation>
+        <translation>Output</translation>
     </message>
     <message>
         <source>FullScreenDialog</source>
