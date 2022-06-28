@@ -20,11 +20,13 @@
  */
 
 #include "afhds3.h"
+#include "afhds3_transport.h"
+#include "pulses.h"
+
 #include "../debug.h"
 #include "../definitions.h"
-#include <cstdio>
+// #include <cstdio>
 
-#include "pulses.h"
 #include "telemetry/telemetry.h"
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
@@ -44,8 +46,6 @@
 
 #define FAILSAFE_KEEP_LAST 0x8000
 
-#define MAX_RETRIES_AFHDS3 5
-
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 
@@ -60,52 +60,6 @@ static uint8_t _phyMode_channels[] = {
   18, // ROUTINE_FLCR1_18CH
   8,  // ROUTINE_FLCR6_8CH
   12, // ROUTINE_LORA_12CH
-};
-
-enum AfhdsSpecialChars {
-  END = 0xC0,  // Frame end
-  START = END,
-  ESC_END = 0xDC,  // Escaped frame end - in case END occurs in fame then ESC
-                   // ESC_END must be used
-  ESC = 0xDB,      // Escaping character
-  ESC_ESC = 0xDD,  // Escaping character in case ESC occurs in fame then ESC
-                   // ESC_ESC  must be used
-};
-
-enum DeviceAddress
-{
-  TRANSMITTER = 0x01,
-  // MODULE = 0x03,
-  MODULE = 0x05,
-};
-
-enum FRAME_TYPE: uint8_t
-{
-  REQUEST_GET_DATA = 0x01,  //Get data response: ACK + DATA
-  REQUEST_SET_EXPECT_DATA = 0x02,  //Set data response: ACK + DATA
-  REQUEST_SET_EXPECT_ACK = 0x03,  //Set data response: ACK
-  REQUEST_SET_NO_RESP = 0x05,  //Set data response: none
-  RESPONSE_DATA = 0x10,  //Response ACK + DATA
-  RESPONSE_ACK = 0x20,  //Response ACK
-  NOT_USED = 0xff
-};
-
-enum COMMAND: uint8_t
-{
-  MODULE_READY = 0x01,
-  MODULE_STATE = 0x02,
-  MODULE_MODE = 0x03,
-  MODULE_SET_CONFIG = 0x04,
-  MODULE_GET_CONFIG = 0x06,
-  CHANNELS_FAILSAFE_DATA = 0x07,
-  TELEMETRY_DATA = 0x09,
-  SEND_COMMAND = 0x0C,
-  COMMAND_RESULT = 0x0D,
-  // MODULE_POWER_STATUS = 0x0F,
-  // MODULE_VERSION = 0x1F,
-  MODULE_VERSION = 0x20,
-  VIRTUAL_FAILSAFE = 0x99, // virtual command used to trigger failsafe
-  UNDEFINED = 0xFF
 };
 
 enum COMMAND_DIRECTION
@@ -356,82 +310,9 @@ union AfhdsFrameData
   CommandResult_s CommandResult;
 };
 
-PACK(struct AfhdsFrame
-{
-  uint8_t startByte;
-  uint8_t address;
-  uint8_t frameNumber;
-  uint8_t frameType;
-  uint8_t command;
-  uint8_t value;
-
-  AfhdsFrameData * GetData()
-  {
-    return reinterpret_cast<AfhdsFrameData*>(&value);
-  }
-});
-
 #define FRM302_STATUS 0x56
 
-enum State
-{
-  UNKNOWN = 0,
-  SENDING_COMMAND,
-  AWAITING_RESPONSE,
-  IDLE
-};
-
-// one byte frames for request queue
-struct Frame
-{
-  enum COMMAND command;
-  enum FRAME_TYPE frameType;
-  uint8_t payload;
-  uint8_t frameNumber;
-  bool useFrameNumber;
-  uint8_t payloadSize;
-};
-
-// simple fifo implementation because Pulses is used as member of union and can not be non trivial type
-struct CommandFifo
-{
-  Frame commandFifo[8];
-  volatile uint32_t setIndex;
-  volatile uint32_t getIndex;
-
-  void clearCommandFifo();
-
-  inline uint32_t nextIndex(uint32_t idx) const
-  {
-    return (idx + 1) & (sizeof(commandFifo) / sizeof(commandFifo[0]) - 1);
-  }
-
-  inline uint32_t prevIndex(uint32_t idx) const
-  {
-     if (idx == 0)
-     {
-       return (sizeof(commandFifo) / sizeof(commandFifo[0]) - 1);
-     }
-     return (idx - 1);
-  }
-
-  inline bool isEmpty() const
-  {
-    return (getIndex == setIndex);
-  }
-
-  inline void skip()
-  {
-    getIndex = nextIndex(getIndex);
-  }
-
-  void enqueueACK(COMMAND command, uint8_t frameNumber);
-
-  void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData = false, uint8_t byteContent = 0);
-
-};
-
-class ProtoState: public CommandFifo
+class ProtoState
 {
   public:
     /**
@@ -474,15 +355,9 @@ class ProtoState: public CommandFifo
 
   private:
 
-    inline void sendByte(uint8_t b);
-
-    inline void putBytes(uint8_t* data, int length);
-
-    inline void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr, uint8_t dataLength = 0, uint8_t* frame_index = nullptr);
-
     void parseData(uint8_t* rxBuffer, uint8_t rxBufferCount);
 
-    void setState(uint8_t state);
+    void setState(ModuleState state);
 
     bool syncSettings();
 
@@ -513,47 +388,43 @@ class ProtoState: public CommandFifo
     bool isConnectedMulticast();
 
     Transport trsp;
-    void*     trsp_buffer;
-    uint8_t frame_index;
-    uint8_t crc;
-    uint8_t state;
-    uint8_t timeout;
-    uint8_t esc_state;
 
     /**
      * Index of the module
      */
     uint8_t module_index;
+
+    /**
+     * Reported state of the HF module
+     */
+    ModuleState state;
+
     /**
      * Target mode to be set to the module one of MODULE_MODE_E
      */
     uint8_t requestedModuleMode;
-    /**
-     * Internal operation state one of UNKNOWN, SENDING_COMMAND, AWAITING_RESPONSE, IDLE
-     * Used to avoid sending commands when not allowed to
-     */
-    State operationState;
-    /**
-     * Actual repeat count for requested command/operation - incremented by every attempt sending anything
-     */
-    uint16_t repeatCount;
+
     /**
      * Command count used for counting actual number of commands sent in run mode
      */
     uint32_t cmdCount;
+
     /**
      * Command index of command to be send when cmdCount reached necessary value
      */
     uint32_t cmdIndex;
+
     /**
      * Actual power source of the module - should be requested time to time
      * Currently requested once
      */
     enum MODULE_POWER_SOURCE powerSource;
+
     /**
      * Pointer to module config - it is making operations easier and faster
      */
     ModuleData* moduleData;
+
     /**
      * Actual module configuration - must be requested from module
      */
@@ -597,9 +468,6 @@ static const COMMAND periodicRequestCommands[] =
   COMMAND::VIRTUAL_FAILSAFE
 };
 
-//Address used in transmitted frames - it constrains of target address and source address
-const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE << 4);
-
 //Static collection of afhds3 object instances by module
 static ProtoState protoState[NUM_MODULES];
 
@@ -630,40 +498,6 @@ void processTelemetryData(uint8_t data, uint8_t module)
                                           maxSize);
 }
 
-void CommandFifo::clearCommandFifo()
-{
-  memclear(commandFifo, sizeof(commandFifo));
-  setIndex = getIndex = 0;
-}
-
-void CommandFifo::enqueueACK(COMMAND command, uint8_t frameNumber)
-{
-  uint32_t next = nextIndex(setIndex);
-  if (next != getIndex) {
-    commandFifo[setIndex].command = command;
-    commandFifo[setIndex].frameType = FRAME_TYPE::RESPONSE_ACK;
-    commandFifo[setIndex].payload = 0;
-    commandFifo[setIndex].payloadSize = 0;
-    commandFifo[setIndex].frameNumber = frameNumber;
-    commandFifo[setIndex].useFrameNumber = true;
-    setIndex = next;
-  }
-}
-
-void CommandFifo::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData, uint8_t byteContent)
-{
-  uint32_t next = nextIndex(setIndex);
-  if (next != getIndex) {
-    commandFifo[setIndex].command = command;
-    commandFifo[setIndex].frameType = frameType;
-    commandFifo[setIndex].payload = byteContent;
-    commandFifo[setIndex].payloadSize = useData ? 1 : 0;
-    commandFifo[setIndex].frameNumber = 0;
-    commandFifo[setIndex].useFrameNumber = false;
-    setIndex = next;
-  }
-}
-
 void ProtoState::getStatusString(char* buffer) const
 {
   strcpy(buffer, state <= ModuleState::STATE_READY ? moduleStateText[state]
@@ -677,38 +511,11 @@ void ProtoState::getPowerStatus(char* buffer) const
 
 void ProtoState::processTelemetryData(uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize)
 {
-  if (rxBufferCount == 0 && byte != AfhdsSpecialChars::START) {
-    TRACE("AFHDS3 [SKIP] %02X", byte);
-    this->esc_state = 0;
+  if (!trsp.processTelemetryData(byte, rxBuffer, rxBufferCount, maxSize))
     return;
-  }
 
-  if (byte == AfhdsSpecialChars::ESC) {
-    this->esc_state = rxBufferCount;
-    return;
-  }
-
-  if (rxBufferCount > 1 && byte == AfhdsSpecialChars::END) {
-    rxBuffer[rxBufferCount++] = byte;
-    parseData(rxBuffer, rxBufferCount);
-    rxBufferCount = 0;
-    return;
-  }
-
-  if (this->esc_state && byte == AfhdsSpecialChars::ESC_END) {
-    byte = AfhdsSpecialChars::END;
-  }
-  else if (esc_state && byte == AfhdsSpecialChars::ESC_ESC) {
-    byte = AfhdsSpecialChars::ESC;
-  }
-  //reset esc index
-  this->esc_state = 0;
-
-  if (rxBufferCount >= maxSize) {
-    TRACE("AFHDS3 [BUFFER OVERFLOW]");
-    rxBufferCount = 0;
-  }
-  rxBuffer[rxBufferCount++] = byte;
+  parseData(rxBuffer, rxBufferCount);
+  rxBufferCount = 0;
 }
 
 bool ProtoState::isConnectedUnicast()
@@ -726,40 +533,22 @@ bool ProtoState::isConnectedMulticast()
 
 void ProtoState::setupFrame()
 {
-  if (operationState == State::AWAITING_RESPONSE) {
-    if (repeatCount++ < MAX_RETRIES_AFHDS3) {
-      return; //re-send
-    }
-    else
-    {
-      TRACE("AFHDS3 [NO RESP] module state %d", this->state);
-      clearFrameData();
-      this->state = ModuleState::STATE_NOT_READY;
-    }
-  }
-  else if (operationState == State::UNKNOWN) {
+  bool trsp_error = false;
+  if (trsp.handleRetransmissions(trsp_error)) return;
+
+  if (trsp_error) {
     this->state = ModuleState::STATE_NOT_READY;
+    clearFrameData();
   }
-  repeatCount = 0;
 
   if (this->state == ModuleState::STATE_NOT_READY) {
     TRACE("AFHDS3 [GET MODULE READY]");
-    putFrame(COMMAND::MODULE_READY, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.sendFrame(COMMAND::MODULE_READY, FRAME_TYPE::REQUEST_GET_DATA);
     return;
   }
 
-  // check waiting commands
-  if (!isEmpty()) {
-    Frame f = commandFifo[getIndex];
-    putFrame(f.command, f.frameType, &f.payload, f.payloadSize,
-             f.useFrameNumber ? &f.frameNumber : &frame_index);
-    getIndex = nextIndex(getIndex);
-    TRACE(
-        "AFHDS3 [CMD QUEUE] cmd: 0x%02x frameType 0x%02x, useFrameNumber %d "
-        "frame Number %d size %d",
-        f.command, f.frameType, f.useFrameNumber, f.frameNumber, f.payloadSize);
-    return;
-  }
+  // process backlog
+  if (trsp.processQueue()) return;
 
   // config should be loaded already
   if (syncSettings()) { return; }
@@ -771,7 +560,7 @@ void ProtoState::setupFrame()
       case STATE_BINDING:
         // TODO: poll status? handle timeout?
         // requestedModuleMode = MODULE_MODE_E::BIND;
-        // putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+        // trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
         //          &requestedModuleMode, 1);
         // return;
         break;
@@ -781,13 +570,13 @@ void ProtoState::setupFrame()
         TRACE("AFHDS3 [BIND]");
         setConfigFromModel();
 
-        putFrame(COMMAND::MODULE_SET_CONFIG,
+        trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
                  FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
                  cfg.version == 0 ? sizeof(cfg.v0) : sizeof(cfg.v1));
 
         requestedModuleMode = MODULE_MODE_E::BIND;
-        enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
-                requestedModuleMode);
+        trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
+                     requestedModuleMode);
         return;
 
         // default:
@@ -802,17 +591,18 @@ void ProtoState::setupFrame()
   //     cfg.config.runPower = RUN_POWER::RUN_POWER_FIRST;
   //     uint8_t data[] = { 0x13, 0x20, 0x02, cfg.config.runPower, 0 };
   //     TRACE("AFHDS3 SET TX POWER %d", moduleData->afhds3.runPower);
-  //     putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+  //     trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
   //              data, sizeof(data));
   //     return;
   //   }
   // }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_NORMAL) {
+
     // if module is ready but not started
     if (this->state == ModuleState::STATE_READY ||
         this->state == ModuleState::STATE_STANDBY) {
+
       cmdCount = 0;
-      repeatCount = 0;
       requestInfoAndRun(true);
       return;
     }
@@ -821,7 +611,7 @@ void ProtoState::setupFrame()
     if (state == STATE_BINDING) {
       TRACE("AFHDS3 [EXIT BIND]");
       requestedModuleMode = MODULE_MODE_E::RUN;
-      putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                &requestedModuleMode, 1);
       return;
     }
@@ -843,7 +633,7 @@ void ProtoState::setupFrame()
           uint16_t failSafe[AFHDS3_MAX_CHANNELS + 1] = {
               ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
           setFailSafe((int16_t*)(&failSafe[1]));
-          putFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
+          trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
                    FRAME_TYPE::REQUEST_SET_NO_RESP, (uint8_t*)failSafe,
                    AFHDS3_MAX_CHANNELS * 2 + 2);
         } else {
@@ -851,31 +641,31 @@ void ProtoState::setupFrame()
           uint8_t failSafe[3 + AFHDS3_MAX_CHANNELS * 2] = {
               0x11, 0x60, AFHDS3_MAX_CHANNELS * 2};
           setFailSafe((int16_t*)(failSafe + 3));
-          putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+          trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                    failSafe, 3 + AFHDS3_MAX_CHANNELS * 2);
         }
       } else {
-        putFrame(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+        trsp.sendFrame(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
       }
     } else {
-      putFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
+      trsp.sendFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
     }
   } else if (isConnected) {
     sendChannelsData();
   } else {
     //default frame - request state
-    putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.sendFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
   }
 }
 
 uint8_t* ProtoState::getBuffer()
 {
-  return (uint8_t*)trsp_buffer;
+  return trsp.getFrameBuffer();
 }
 
 uint32_t ProtoState::getBufferSize()
 {
-  return trsp.getSize(trsp_buffer);
+  return trsp.getFrameSize();
 }
 
 void ProtoState::init(uint8_t moduleIndex, bool resetFrameCount)
@@ -883,22 +673,19 @@ void ProtoState::init(uint8_t moduleIndex, bool resetFrameCount)
   module_index = moduleIndex;
 #if defined(INTERNAL_MODULE_AFHDS3)
   if (moduleIndex == INTERNAL_MODULE) {
-    trsp_buffer = &intmodulePulsesData.afhds3;
-    trsp.init(Transport::Serial);
+    trsp.init(ByteTransport::Serial, &intmodulePulsesData.afhds3);
   } else
 #endif
   {
-    trsp_buffer = &extmodulePulsesData.afhds3;
 #if defined(AFHDS3_EXT_UART)
-    trsp.init(Transport::Serial);
+    trsp.init(ByteTransport::Serial, &extmodulePulsesData.afhds3);
 #else
-    trsp.init(Transport::Pulses);
+    trsp.init(ByteTransport::Pulses, &extmodulePulsesData.afhds3);
 #endif
   }
 
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
-  operationState = State::UNKNOWN;
   state = ModuleState::STATE_NOT_READY;
   clearFrameData();
 }
@@ -906,84 +693,10 @@ void ProtoState::init(uint8_t moduleIndex, bool resetFrameCount)
 void ProtoState::clearFrameData()
 {
   TRACE("AFHDS3 clearFrameData");
-  trsp.reset(trsp_buffer);
-  clearCommandFifo();
-  repeatCount = 0;
+  trsp.clear();
+
   cmdCount = 0;
   cmdIndex = 0;
-  frame_index = 1;
-  timeout = 0;
-  esc_state = 0;
-}
-
-void ProtoState::sendByte(uint8_t b)
-{
-  trsp.sendByte(trsp_buffer, b);
-}
-
-void ProtoState::putBytes(uint8_t* data, int length)
-{
-  for (int i = 0; i < length; i++) {
-    uint8_t byte = data[i];
-    crc += byte;
-    if (END == byte) {
-      sendByte(ESC);
-      sendByte(ESC_END);
-    }
-    else if (ESC == byte) {
-      sendByte(ESC);
-      sendByte(ESC_ESC);
-    }
-    else {
-      sendByte(byte);
-    }
-  }
-}
-
-void ProtoState::putFrame(COMMAND command, FRAME_TYPE frame, uint8_t* data, uint8_t dataLength, uint8_t* frameIndex)
-{
-  //header
-  operationState = State::SENDING_COMMAND;
-  trsp.reset(trsp_buffer);
-  crc = 0;
-  sendByte(START);
-  if (frameIndex == nullptr) {
-    frameIndex = &frame_index;
-  }
-  uint8_t buffer[] = {FrameAddress, *frameIndex, frame, command};
-  putBytes(buffer, 4);
-
-  //payload
-  if (dataLength > 0) {
-    putBytes(data, dataLength);
-  }
-  //footer
-  uint8_t crcValue = crc ^ 0xff;
-  putBytes(&crcValue, 1);
-  sendByte(END);
-  *frameIndex = *frameIndex + 1;
-
-  switch (frame) {
-    case FRAME_TYPE::REQUEST_GET_DATA:
-    case FRAME_TYPE::REQUEST_SET_EXPECT_ACK:
-    case FRAME_TYPE::REQUEST_SET_EXPECT_DATA:
-      operationState = State::AWAITING_RESPONSE;
-      break;
-    default:
-      operationState = State::IDLE;
-  }
-
-  trsp.flush(trsp_buffer);
-}
-
-bool checkCRC(const uint8_t* data, uint8_t size)
-{
-  uint8_t crc = 0;
-  //skip start byte
-  for (uint8_t i = 1; i < size; i++) {
-    crc += data[i];
-  }
-  return (crc ^ 0xff) == data[size];
 }
 
 bool containsData(enum FRAME_TYPE frameType)
@@ -995,7 +708,7 @@ bool containsData(enum FRAME_TYPE frameType)
       frameType == FRAME_TYPE::REQUEST_SET_NO_RESP);
 }
 
-void ProtoState::setState(uint8_t state)
+void ProtoState::setState(ModuleState state)
 {
   if (state == this->state) {
     return;
@@ -1006,33 +719,29 @@ void ProtoState::setState(uint8_t state)
     setModuleMode(module_index, ::ModuleSettingsMode::MODULE_MODE_NORMAL);
   }
   if (state == ModuleState::STATE_NOT_READY) {
-    operationState = State::UNKNOWN;
+    trsp.clear();
   }
 }
 
 void ProtoState::requestInfoAndRun(bool send)
 {
   if (!send) {
-    enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
   }
 
-  // enqueue(COMMAND::MODULE_POWER_STATUS, FRAME_TYPE::REQUEST_GET_DATA);
+  // trsp.enqueue(COMMAND::MODULE_POWER_STATUS, FRAME_TYPE::REQUEST_GET_DATA);
 
   requestedModuleMode = MODULE_MODE_E::RUN;
-  enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
+  trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
           (uint8_t)requestedModuleMode);
 
   if (send) {
-    putFrame(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.sendFrame(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
   }
 }
 
 void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 {
-  if (!checkCRC(rxBuffer, rxBufferCount - 2)) {
-    TRACE("AFHDS3 [INVALID CRC]");
-    return;
-  }
   AfhdsFrame* responseFrame = reinterpret_cast<AfhdsFrame*>(rxBuffer);
   if (containsData((enum FRAME_TYPE) responseFrame->frameType)) {
     switch (responseFrame->command) {
@@ -1046,14 +755,15 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
           setState(ModuleState::STATE_NOT_READY);
         }
         break;
-      case COMMAND::MODULE_GET_CONFIG:
-        std::memcpy((void*) cfg.buffer, &responseFrame->value, sizeof(cfg.buffer));
+      case COMMAND::MODULE_GET_CONFIG: {
+        size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
+        std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
         // TRACE(
         //     "AFHDS3 [MODULE_GET_CONFIG] bind power %d run power %d mode %d "
         //     "pwm/ppm %d ibus/sbus %d",
         //     cfg.config.bindPower, cfg.config.runPower, cfg.config.telemetry,
         //     cfg.config.pulseMode, cfg.config.serialMode);
-        break;
+      } break;
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
         TRACE("AFHDS3 [MODULE_VERSION] Product %d, HW %d, BOOT %d, FW %d",
@@ -1066,7 +776,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
       //   break;
       case COMMAND::MODULE_STATE:
         TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
-        setState(responseFrame->value);
+        setState((ModuleState)responseFrame->value);
         break;
       case COMMAND::MODULE_MODE:
         TRACE("AFHDS3 [MODULE_MODE] %02X", responseFrame->value);
@@ -1075,8 +785,8 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         }
         else {
           if (requestedModuleMode == MODULE_MODE_E::RUN) {
-            enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
-            enqueue(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+            trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+            trsp.enqueue(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
           }
           requestedModuleMode = MODULE_MODE_UNKNOWN;
         }
@@ -1129,35 +839,18 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         }
       }
         break;
-      case COMMAND::COMMAND_RESULT:
-        {
-        //AfhdsFrameData* respData = responseFrame->GetData();
-        //TRACE("COMMAND RESULT %02X result %d datalen %d", respData->CommandResult.command, respData->CommandResult.result, respData->CommandResult.respLen);
-        }
-        break;
+      case COMMAND::COMMAND_RESULT: {
+        // AfhdsFrameData* respData = responseFrame->GetData();
+        // TRACE("COMMAND RESULT %02X result %d datalen %d",
+        // respData->CommandResult.command, respData->CommandResult.result,
+        // respData->CommandResult.respLen);
+      } break;
     }
   }
 
-  if (responseFrame->frameType == FRAME_TYPE::REQUEST_GET_DATA || responseFrame->frameType == FRAME_TYPE::REQUEST_SET_EXPECT_DATA) {
+  if (responseFrame->frameType == FRAME_TYPE::REQUEST_GET_DATA ||
+      responseFrame->frameType == FRAME_TYPE::REQUEST_SET_EXPECT_DATA) {
     TRACE("Command %02X NOT IMPLEMENTED!", responseFrame->command);
-  }
-  else if (responseFrame->frameType == FRAME_TYPE::REQUEST_SET_EXPECT_ACK) {
-    //check if such request is not queued
-    if (!isEmpty()) {
-      Frame f = commandFifo[getIndex];
-      if (f.frameType == FRAME_TYPE::RESPONSE_ACK && f.frameNumber == responseFrame->frameNumber) {
-        TRACE("ACK for frame %02X already queued", responseFrame->frameNumber);
-        return;
-      }
-    }
-    TRACE("AFHDS3 [QUEUE ACK] cmd %02X type %02X number %02X", responseFrame->command, responseFrame->frameType, responseFrame->frameNumber);
-    enqueueACK((enum COMMAND) responseFrame->command, responseFrame->frameNumber);
-    // TODO: send ACK immediately !!!
-  }
-  else if (responseFrame->frameType == FRAME_TYPE::RESPONSE_DATA || responseFrame->frameType == FRAME_TYPE::RESPONSE_ACK) {
-    if (operationState == State::AWAITING_RESPONSE) {
-      operationState = State::IDLE;
-    }
   }
 }
 
@@ -1210,7 +903,7 @@ bool ProtoState::syncSettings()
   //   cfg.config.runPower = moduleData->afhds3.runPower;
   //   uint8_t data[] = {0x13, 0x20, 0x02, moduleData->afhds3.runPower, 0};
   //   TRACE("AFHDS3 SET TX POWER %d", moduleData->afhds3.runPower);
-  //   putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
+  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
   //            sizeof(data));
   //   return true;
   // }
@@ -1226,7 +919,7 @@ bool ProtoState::syncSettings()
   //                     (uint8_t)(moduleData->afhds3.rxFreq() & 0xFF),
   //                     (uint8_t)(moduleData->afhds3.rxFreq() >> 8)};
   //   TRACE("AFHDS3 SET RX FREQ");
-  //   putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
+  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
   //            sizeof(data));
   //   return true;
   // }
@@ -1238,7 +931,7 @@ bool ProtoState::syncSettings()
   //   cfg.config.pulseMode = modelPulseMode;
   //   TRACE("AFHDS3 PWM/PPM %d", modelPulseMode);
   //   uint8_t data[] = {0x16, 0x70, 0x01, (uint8_t)(modelPulseMode)};
-  //   putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
+  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
   //            sizeof(data));
   //   return true;
   // }
@@ -1250,7 +943,7 @@ bool ProtoState::syncSettings()
   //   cfg.config.serialMode = modelSerialMode;
   //   TRACE("AFHDS3 IBUS/SBUS %d", modelSerialMode);
   //   uint8_t data[] = {0x18, 0x70, 0x01, (uint8_t)(modelSerialMode)};
-  //   putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
+  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
   //            sizeof(data));
   //   return true;
   // }
@@ -1260,7 +953,7 @@ bool ProtoState::syncSettings()
   //   uint8_t data[] = {0x12, 0x60, 0x02,
   //                     (uint8_t)(moduleData->afhds3.failsafeTimeout & 0xFF),
   //                     (uint8_t)(moduleData->afhds3.failsafeTimeout >> 8)};
-  //   putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
+  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
   //            sizeof(data));
   //   TRACE("AFHDS3 FAILSAFE TMEOUT, %d", moduleData->afhds3.failsafeTimeout);
   //   return true;
@@ -1289,7 +982,7 @@ void ProtoState::sendChannelsData()
     buffer[index] = channelValue;
   }
 
-  putFrame(COMMAND::CHANNELS_FAILSAFE_DATA, FRAME_TYPE::REQUEST_SET_NO_RESP,
+  trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA, FRAME_TYPE::REQUEST_SET_NO_RESP,
            (uint8_t*)buffer, (channels + 1) * 2);
 }
 
@@ -1297,7 +990,7 @@ void ProtoState::stop()
 {
   TRACE("AFHDS3 STOP");
   requestedModuleMode = MODULE_MODE_E::STANDBY;
-  putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+  trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
            &requestedModuleMode, 1);
 }
 

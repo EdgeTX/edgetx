@@ -21,68 +21,195 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "hal.h"
-
-#define AFHDS_MAX_PULSES 128
-
-// max number of transitions measured so far 290 + 10%
-// TODO: define as a function of MAX_PULSES
-#define AFHDS_MAX_PULSES_TRANSITIONS 320
-
-#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
-  #define AFHDS3_EXT_UART
-#else
-  #define AFHDS3_EXT_SOFTSERIAL
-#endif
-
-#define AFHDS3_UART_BAUDRATE        1500000
-#define AFHDS3_UART_COMMAND_TIMEOUT 5
-
-#if defined(AFHDS3_SLOW)
-  #define AFHDS3_SOFTSERIAL_BAUDRATE        57600
-  #define AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT 20
-#else
-  #define AFHDS3_SOFTSERIAL_BAUDRATE        115200
-  #define AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT 15
-#endif
+#include "afhds3_module.h"
+#include "definitions.h"
 
 namespace afhds3
 {
-
-struct SerialData {
-  uint8_t  pulses[AFHDS_MAX_PULSES];
-  uint8_t* ptr;  
-};
-
-struct PulsesData {
-  uint16_t  pulses[AFHDS_MAX_PULSES_TRANSITIONS];
-  uint16_t* ptr;
-};
-
-#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
-typedef SerialData ExtmoduleData;
-#else
-typedef PulsesData ExtmoduleData;
-#endif
-
-#if defined(INTERNAL_MODULE_AFHDS3)
-typedef SerialData IntmoduleData;
-#endif
-
-struct Transport {
-
-  enum Type {
-    Serial,
-    Pulses
-  };
   
+struct ByteTransport {
+  enum Type { Serial, Pulses };
+
   void (*reset)(void* buffer);
   void (*sendByte)(void* buffer, uint8_t b);
   void (*flush)(void* buffer);
   uint32_t (*getSize)(void* buffer);
-  
+
   void init(Type t);
 };
 
+enum FRAME_TYPE: uint8_t
+{
+  REQUEST_GET_DATA = 0x01,  //Get data response: ACK + DATA
+  REQUEST_SET_EXPECT_DATA = 0x02,  //Set data response: ACK + DATA
+  REQUEST_SET_EXPECT_ACK = 0x03,  //Set data response: ACK
+  REQUEST_SET_NO_RESP = 0x05,  //Set data response: none
+  RESPONSE_DATA = 0x10,  //Response ACK + DATA
+  RESPONSE_ACK = 0x20,  //Response ACK
+  NOT_USED = 0xff
+};
+
+enum COMMAND: uint8_t
+{
+  MODULE_READY = 0x01,
+  MODULE_STATE = 0x02,
+  MODULE_MODE = 0x03,
+  MODULE_SET_CONFIG = 0x04,
+  MODULE_GET_CONFIG = 0x06,
+  CHANNELS_FAILSAFE_DATA = 0x07,
+  TELEMETRY_DATA = 0x09,
+  SEND_COMMAND = 0x0C,
+  COMMAND_RESULT = 0x0D,
+  // MODULE_POWER_STATUS = 0x0F,
+  // MODULE_VERSION = 0x1F,
+  MODULE_VERSION = 0x20,
+  VIRTUAL_FAILSAFE = 0x99, // virtual command used to trigger failsafe
+  UNDEFINED = 0xFF
+};
+
+// one byte frames for request queue
+struct Frame
+{
+  enum COMMAND command;
+  enum FRAME_TYPE frameType;
+  uint8_t payload;
+  uint8_t frameNumber;
+  bool useFrameNumber;
+  uint8_t payloadSize;
+};
+
+union AfhdsFrameData;
+  
+PACK(struct AfhdsFrame {
+  uint8_t startByte;
+  uint8_t address;
+  uint8_t frameNumber;
+  uint8_t frameType;
+  uint8_t command;
+  uint8_t value;
+
+  AfhdsFrameData* GetData()
+  {
+    return reinterpret_cast<AfhdsFrameData*>(&value);
+  }
+});
+
+// simple fifo implementation because Pulses is used as member of union and can
+// not be non trivial type
+struct CommandFifo {
+  Frame commandFifo[8];
+  volatile uint32_t setIndex;
+  volatile uint32_t getIndex;
+
+  void clearCommandFifo();
+  Frame* getCommand();
+
+  inline uint32_t nextIndex(uint32_t idx) const
+  {
+    return (idx + 1) & (sizeof(commandFifo) / sizeof(commandFifo[0]) - 1);
+  }
+
+  inline uint32_t prevIndex(uint32_t idx) const
+  {
+    if (idx == 0) {
+      return (sizeof(commandFifo) / sizeof(commandFifo[0]) - 1);
+    }
+    return (idx - 1);
+  }
+
+  inline bool isEmpty() const { return (getIndex == setIndex); }
+
+  inline void skip() { getIndex = nextIndex(getIndex); }
+
+  void enqueueACK(COMMAND command, uint8_t frameNumber);
+
+  void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
+               uint8_t byteContent);
+};
+
+struct FrameTransport
+{
+  ByteTransport trsp;
+  void* trsp_buffer;
+
+  uint8_t crc;
+  // uint8_t timeout;
+  uint8_t esc_state;
+
+  void init(ByteTransport::Type t, void* buffer);
+  void clear();
+
+  void sendByte(uint8_t b);
+  void putBytes(uint8_t* data, int length);
+
+  void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
+                uint8_t dataLength, uint8_t frameIndex);
+
+  uint32_t getFrameSize() { return trsp.getSize(trsp_buffer); }
+  
+  bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
+                            uint8_t& rxBufferCount, uint8_t maxSize);
+};
+
+class Transport
+{
+  enum State {
+    UNKNOWN = 0,
+    SENDING_COMMAND,
+    AWAITING_RESPONSE,
+    IDLE
+  };
+
+  FrameTransport trsp;
+  CommandFifo    fifo;
+
+  /**
+   * Internal operation state one of UNKNOWN, SENDING_COMMAND, AWAITING_RESPONSE, IDLE
+   * Used to avoid sending commands when not allowed to
+   */
+  State operationState;
+
+  /**
+   * Current frame index
+   */
+  uint8_t frameIndex;
+
+  /**
+   * Actual repeat count for requested command/operation - incremented by every
+   * attempt sending anything
+   */
+  uint16_t repeatCount;
+
+  bool handleReply(uint8_t* buffer, uint8_t len);
+  
+ public:
+  void init(ByteTransport::Type t, void* buffer);
+
+  void clear();
+  
+  void sendFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
+                 uint8_t dataLength = 0);
+
+  void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData = false,
+               uint8_t byteContent = 0);
+
+  uint8_t* getFrameBuffer() { return (uint8_t*)trsp.trsp_buffer; }
+  uint32_t getFrameSize() { return trsp.getFrameSize(); }
+
+  /**
+   * Process retransmissions
+   * error: transport is in error state
+   * @return true if something was just sent
+   */
+  bool handleRetransmissions(bool& error);
+
+  /**
+   * Process queue backlog
+   * @return true if something was just sent
+   */
+  bool processQueue();
+
+  bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
+                            uint8_t& rxBufferCount, uint8_t maxSize);
+};
 };

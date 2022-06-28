@@ -32,7 +32,7 @@
 #include "fifo.h"
 
 #include "hal/module_driver.h"
-#include "afhds3_transport.h"
+#include "afhds3_module.h"
 
 #define AFHDS3_MIN_FREQ 50
 #define AFHDS3_MAX_FREQ 400
