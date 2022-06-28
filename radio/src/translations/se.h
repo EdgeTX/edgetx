@@ -732,6 +732,7 @@
 #define TR_FORMATTING                   "Formaterar..."
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
+#define TR_BAUDRATE                     "Baudrate"
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
@@ -751,9 +752,8 @@
 #define TR_BLUETOOTH_DIST_ADDR          "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR         "Lokal addr"
 #define TR_BLUETOOTH_PIN_CODE           "PIN-kod"
-#define TR_BLUETOOTH_NODEVICES          "No Devices Found"
-#define TR_BLUETOOTH_SCANNING           "Scanning..."
-#define TR_BAUDRATE                     "BT baudrate"
+#define TR_BLUETOOTH_NODEVICES          "Inga enheter funna"
+#define TR_BLUETOOTH_SCANNING           "Skannar..."
 #define TR_BLUETOOTH_BAUDRATE           "BT baudrate"
 #if defined(PCBX9E)
   #define TR_BLUETOOTH_MODES            "---","Aktiverad"
