@@ -667,7 +667,7 @@ void LCD_HX8357D_On(void) {
 }
 
 void LCD_HX8357D_Off(void) {
-  lcdWriteCommand(0x22);
+//  lcdWriteCommand(0x22);
   lcdWriteCommand(0x28);
 }
 
