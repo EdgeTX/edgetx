@@ -192,27 +192,13 @@ void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
     getModuleSyncStatus(moduleIdx).getRefreshString(statusText);
   }
 #endif
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(moduleIdx)) {
-    afhds3::getPowerStatus(moduleIdx, statusText);
-  }
-#endif
 }
-
-#if defined(AFHDS3)
-uint8_t actualAfhdsRunPower(int moduleIndex)
-{
-  if (isModuleAFHDS3(moduleIndex)) {
-    return (uint8_t)afhds3::getActualRunPower(moduleIndex);
-  }
-  return 0;
-}
-#endif
 
 ModuleSettingsMode getModuleMode(int moduleIndex)
 {
   return (ModuleSettingsMode)moduleState[moduleIndex].mode;
 }
+
 void setModuleMode(int moduleIndex, ModuleSettingsMode mode)
 {
   moduleState[moduleIndex].mode = mode;

@@ -77,22 +77,7 @@ extern etx_module_driver_t externalDriver;
 extern etx_module_driver_t internalDriver;
 #endif
 
-enum RUN_POWER
-{
-  PLUS_15bBm = 0x00,
-  RUN_POWER_FIRST = PLUS_15bBm,
-  PLUS_20bBm = 0x01,
-  PLUS_27dbm = 0x02,
-  PLUS_30dBm = 0x03,
-  PLUS_33dBm = 0x04,
-  RUN_POWER_LAST = PLUS_33dBm,
-};
-
 void getStatusString(uint8_t module, char* buffer);
-void getPowerStatus(uint8_t module, char* buffer);
-
-RUN_POWER getActualRunPower(uint8_t module);
-
 void processTelemetryData(uint8_t data, uint8_t module);
 
 }  // namespace afhds3

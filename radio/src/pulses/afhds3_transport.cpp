@@ -416,13 +416,17 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
       return true;
     }
 
-    TRACE("AFHDS3 [QUEUE ACK] cmd %02X type %02X number %02X",
+    TRACE("AFHDS3 [SEND ACK] cmd %02X type %02X number %02X",
           responseFrame->command, responseFrame->frameType,
           responseFrame->frameNumber);
 
+    // TODO: send ACK immediately !!!
+    // trsp.putFrame(command, FRAME_TYPE::RESPONSE_ACK, nullptr, 0,
+    //               responseFrame->frameNumber);
+    // return true;
+
     fifo.enqueueACK((enum COMMAND)responseFrame->command,
                     responseFrame->frameNumber);
-    // TODO: send ACK immediately !!!
 
   } else if (responseFrame->frameType == FRAME_TYPE::RESPONSE_DATA ||
              responseFrame->frameType == FRAME_TYPE::RESPONSE_ACK) {
