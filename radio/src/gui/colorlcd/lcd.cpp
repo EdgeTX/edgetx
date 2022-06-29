@@ -121,8 +121,6 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
       if(disp->inv_area_joined[i]) continue;
 
       const lv_area_t& refr_area = disp->inv_areas[i];
-      TRACE("{%d,%d,%d,%d}", refr_area.x1,
-            refr_area.y1, refr_area.x2, refr_area.y2);
 
       auto area_w = refr_area.x2 - refr_area.x1 + 1;
       auto area_h = refr_area.y2 - refr_area.y1 + 1;
@@ -132,7 +130,6 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
                     area_w, area_h);      
     }
     
-    TRACE("#############################");
     lv_disp_flush_ready(disp_drv);
 #endif
   } else {
