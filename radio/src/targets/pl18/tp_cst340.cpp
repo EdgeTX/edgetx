@@ -39,7 +39,7 @@ volatile static bool touchEventOccured;
 #define TOUCH_SDA_GPIO_PIN                I2C_B1_SDA_GPIO_PIN  // PB.09
 
 #define TOUCH_FT6236_I2C_ADDRESS          (0x70>>1)
-#define TOUCH_CST836U_I2C_ADDRESS         (0x15)
+#define TOUCH_CST340_I2C_ADDRESS          0x1A
 
 enum TouchControllers {TC_NONE, TC_FT6236, TC_CST340};
 TouchControllers touchController = TC_NONE;
@@ -385,17 +385,28 @@ static void ft6x06_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
 static void touch_cst340_debug_info(void)
 {
 #if defined(DEBUG)
-  TRACE("cst836u: fw ver 0x%02X %02X", TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_FW_VERSION_H_REG), TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_FW_VERSION_L_REG));
-  TRACE("cst836u: module version 0x%02X", TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_MODULE_VERSION_REG));
-  TRACE("cst836u: project name 0x%02X", TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_PROJECT_NAME_REG));
-  TRACE("cst836u: chip type 0x%02X 0x%02X", TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_CHIP_TYPE_H_REG), TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST836U_CHIP_TYPE_L_REG));
+  uint8_t tmp[4];
+  if (!TS_IO_Write(CST340_MODE_DEBUG_INFO, tmp, 0))
+      TRACE("CST340 chip NOT FOUND");
+
+  // Check the value, expected ChipID
+  uint32_t chipId = tmp[0] << 8) + tmp[1];
+
+  if (!I2C_CST340_ReadRegister(CST340_FWVER_REG, tmp, 4))
+    TRACE("Error reading CST340 firmware version!");
+  uint32_t fwVersion = tmp[0] << 24 | tmp[1]<<16 | tmp[2]<<8 | tmp[0];
+
+  // Enter normal mode
+  if (!I2C_CST340_WriteRegister(CST340_MODE_NORMAL, tmp, 0))
+      TRACE("ERROR chaning CST340 mode back to normal!");
+
+  TRACE("cst340: fw ver 0x%08X", fwVersion);
+  TRACE("cst836u: chip id 0x%04X", chipId);
 #endif
 }
 
 /**
  * @brief  Get the touch screen X and Y positions values
- *         Manage multi touch thanks to touch Index global
- *         variable 'tc_handle.currActiveTouchIdx'.
  * @param  DeviceAddr: Device address on communication Bus.
  * @param  X: Pointer to X position value
  * @param  Y: Pointer to Y position value
@@ -403,35 +414,16 @@ static void touch_cst340_debug_info(void)
  */
 static void cst340_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
 {
-  uint8_t regAddress = 0;
   uint8_t dataxy[4];
 
-  if (tc_handle.currActiveTouchIdx < tc_handle.currActiveTouchNb) {
-    switch (tc_handle.currActiveTouchIdx) {
-      case 0 :
-//        regAddress = CST836U_TOUCH1_XH_REG;
-        break;
-      case 1 :
-//        regAddress = CST836U_TOUCH2_XH_REG;
-        break;
-      default :
-        break;
-    }
+  /* Read X and Y positions */
+  TS_IO_ReadMultiple(TOUCH_CST340_I2C_ADDRESS, CST340_FINGER1_REG, dataxy, sizeof(dataxy));
+  /* Send back ready X position to caller */
+  *X = ((dataxy[1]<<4) + ((dataxy[3]>>4)&0x0f));
+  *Y = ((dataxy[2]<<4) + ((dataxy[3])&0x0f));
+  /* Send back ready Y position to caller */
 
-    /* Read X and Y positions */
-//    TS_IO_ReadMultiple(TOUCH_CST340_I2C_ADDRESS, regAddress, dataxy, sizeof(dataxy));
-    /* Send back ready X position to caller */
-//    *X = ((dataxy[0] & CST836U_MSB_MASK) << 8) | dataxy[1];
-    /* Send back ready Y position to caller */
-///    *Y = ((dataxy[2] & CST836U_MSB_MASK) << 8) | dataxy[3];
-
-//    *event = (dataxy[0] & CST836U_TOUCH_EVT_FLAG_MASK) >> CST836U_TOUCH_EVT_FLAG_SHIFT;
-    /*
-    uint32_t weight;
-    uint32_t area;
-    */
-    tc_handle.currActiveTouchIdx++;
-  }
+  *event = dataxy[0];
 }
 
 /**
@@ -439,18 +431,17 @@ static void cst340_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
  *         Try to detect new touches and forget the old ones (reset internal global
  *         variables).
  * @param  DeviceAddr: Device address on communication Bus.
- * @retval : Number of active touches detected (can be 0, 1 or 2).
+ * @retval : Number of active touches detected
  */
 static uint8_t cst340_TS_DetectTouch()
 {
-  volatile uint8_t nbTouch = 0;
+  uint8_t nbTouch;
+  uint8_t reg = TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST340_FINGER1_REG);
+  if( reg == 0x06 )
+    nbTouch = 1;
+  else
+    nbTouch = 0;
 
-  /* Read register CST836U_TOUCH_NUM_REG to check number of touches detection */
-//  nbTouch = TS_IO_Read(CST340_I2C_ADDR, CST836U_TOUCH_NUM_REG);
-//  if (nbTouch > CST836U_MAX_DETECTABLE_TOUCH) {
-//    /* If invalid number of touch detected, set it to zero */
-//    nbTouch = 0;
-//  }
   tc_handle.currActiveTouchNb = nbTouch;
 
   tc_handle.currActiveTouchIdx = 0;
@@ -477,15 +468,19 @@ static const TouchControllerDescriptor CST340 =
     .read = cst340_TS_GetXY,
     .detectTouch = cst340_TS_DetectTouch,
     .printDebugInfo = touch_cst340_debug_info,
-    .contactEvent = 0 //CST340_TOUCH_EVT_FLAG_CONTACT
+    .contactEvent = CST340_TOUCH_EVT_FLAG_CONTACT
 };
 
 void detectTouchController()
 {
-  touchController = TC_CST340;
-  tc = &CST340;
-  touchController = TC_FT6236;
-  tc = &FT6236;
+  if( stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST340_I2C_ADDRESS, 3, 5) == 0)
+   {
+     touchController = TC_CST340;
+     tc = &CST340;
+   } else {
+     touchController = TC_FT6236;
+     tc = &FT6236;
+   }
 }
 
 void TouchInit()
@@ -504,8 +499,11 @@ void handleTouch()
   tc->read(&touchX, &touchY, &tEvent);
 #if 0
   unsigned short tmp = /*(480 - 1) - */touchY;
-  touchY = touchX;
+  touchY = 319 - touchX;
   touchX = tmp;
+#else
+  touchX = 319 - touchX;
+  touchY = 479 - touchY;
 #endif
   if (tEvent == tc->contactEvent) {
     int dx = touchX - internalTouchState.x;
