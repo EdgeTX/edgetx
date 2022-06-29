@@ -50,6 +50,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
 lcdSpiInitFucPtr lcdOnFunction;
+uint32_t lcdPixelClock;
 
 volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 
@@ -186,6 +187,17 @@ static void lcdSpiConfig(void) {
 
 void lcdDelay() {
   delay_01us(1);
+}
+
+static void lcdReset() {
+  LCD_NRST_HIGH();
+  delay_ms(1);
+
+  LCD_NRST_LOW(); // RESET();
+  delay_ms(100);
+
+  LCD_NRST_HIGH();
+  delay_ms(100);
 }
 
 unsigned char LCD_ReadByteOnFallingEdge(void) {
@@ -667,12 +679,26 @@ void LCD_HX8357D_On(void) {
 }
 
 void LCD_HX8357D_Off(void) {
-//  lcdWriteCommand(0x22);
   lcdWriteCommand(0x28);
 }
 
 unsigned int LCD_HX8357D_ReadID(void) {
+  lcdReset();
   int ID = 0;
+
+  lcdWriteCommand( 0xB9 );
+  lcdWriteData( 0xff );
+  lcdWriteData( 0x83 );
+  lcdWriteData( 0x57 );
+
+  lcdWriteCommand( 0xFE );
+  lcdWriteData( 0xd0 );
+  ID = LCD_ReadRegister( 0xff );
+
+  lcdWriteCommand( 0xB9 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
 
   return (ID);
 }
@@ -1252,6 +1278,7 @@ void LCD_ST7796S_Off(void) {
 }
 
 unsigned int LCD_ST7796S_ReadID(void) {
+  lcdReset();
   unsigned int ID = 0;
 
   lcdWriteCommand( 0XF0 );
@@ -2677,26 +2704,16 @@ void LCD_NT35310_Off( void )
     lcdWriteCommand( 0x28 );
 }
 
-static void lcdReset() {
-  LCD_NRST_HIGH();
-  delay_ms(1);
-
-  LCD_NRST_LOW(); // RESET();
-  delay_ms(100);
-
-  LCD_NRST_HIGH();
-  delay_ms(100);
-}
-
 void LCD_Init_LTDC() {
   LTDC_InitTypeDef LTDC_InitStruct;
 
   /* Configure PLLSAI prescalers for LCD */
   /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 Mhz */
-  /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAI_N = 192 Mhz */
-  /* PLLLCDCLK = PLLSAI_VCO Output/PLL_LTDC = 192/3 = 64 Mhz */
-  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 64/4 = 16 Mhz */
-  RCC_PLLSAIConfig(192 * 2 / 3, 6, 3);
+  /* PLLSAI_VCO Output = PLLSAI_VCO Input * lcdPixelclock * 16 = XX Mhz */
+  /* PLLLCDCLK = PLLSAI_VCO Output/PLL_LTDC = PLLSAI_VCO/4 = YY Mhz */
+  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = YY/4 = lcdPixelClock Mhz */
+  uint32_t clock = (lcdPixelClock*16) / 1000000; // clock*16 in MHz
+  RCC_PLLSAIConfig(clock, 6, 4);
   RCC_LTDCCLKDivConfig (RCC_PLLSAIDivR_Div4);
 
   /* Enable PLLSAI Clock */
@@ -2842,49 +2859,54 @@ void lcdInit(void)
   LCD_AF_GPIOConfig();
 
   /* Send LCD initialization commands */
-  if (0 && LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
+  if (LCD_ILI9481_ReadID() == LCD_ILI9481_ID) {
     TRACE("LCD INIT: ILI9481");
     boardLcdType = "ILI9481";
     lcdInitFunction = LCD_ILI9481_Init;
     lcdOffFunction = LCD_ILI9481_Off;
     lcdOnFunction = LCD_ILI9481_On;
-  } else if (0 && LCD_ILI9486_ReadID() == LCD_ILI9486_ID) {
+    lcdPixelClock = 12000000;
+  } else if (LCD_ILI9486_ReadID() == LCD_ILI9486_ID) {
     TRACE("LCD INIT: ILI9486");
     boardLcdType = "ILI9486";
     lcdInitFunction = LCD_ILI9486_Init;
     lcdOffFunction = LCD_ILI9486_Off;
     lcdOnFunction = LCD_ILI9486_On;
-  } else if (0 && LCD_ILI9488_ReadID() == LCD_ILI9488_ID) {
+    lcdPixelClock = 12000000;
+  } else if (LCD_ILI9488_ReadID() == LCD_ILI9488_ID) {
     TRACE("LCD INIT: ILI9488");
     boardLcdType = "ILI9488";
     lcdInitFunction = LCD_ILI9488_Init;
     lcdOffFunction = LCD_ILI9488_Off;
     lcdOnFunction = LCD_ILI9488_On;
-  } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID || 1) {
+    lcdPixelClock = 12000000;
+  } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID) {
     TRACE("LCD INIT: HX8357D");
     boardLcdType = "HX8357D";
     lcdInitFunction = LCD_HX8357D_Init;
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
-  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
+    lcdPixelClock = 12000000;
+  } else if (1 || LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
     TRACE("LCD INIT (default): ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
-  } else { // NT35310 can not be detected
+    lcdPixelClock = 14500000;
+  /*} else { // NT35310 can not be detected
     TRACE("LCD INIT (default): NT35310");
     boardLcdType = "NT35310";
     lcdInitFunction = LCD_NT35310_Init;
     lcdOffFunction = LCD_NT35310_Off;
     lcdOnFunction = LCD_NT35310_On;
+    lcdPixelClock = 12500000;*/
 /*  } else {
     TRACE("LCD INIT: unknown LCD controller");
     boardLcdType = "unknown";*/
   }
 
   lcdInitFunction();
-
   LCD_Init_LTDC();
   LCD_LayerInit();
   LTDC_Cmd(ENABLE);
