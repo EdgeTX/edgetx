@@ -250,6 +250,7 @@ typedef struct
 #define CST340_FINGER1_REG          0xD000		// Touch info register
 #define CST340_CHIPTYPE_REG         0xD204		// uint16_t chip IC type & uint16_t project ID register
 #define CST340_FWVER_REG            0xD208		// Firmware version register(uint8_t major, uint8_t minor, uint16_t build)
+#define CST340_TOUCH_EVT_FLAG_CONTACT 6
 
 #define CST340_CHIP_ID              0x011C      // Expected answer to CST340_CHIPTYPE_REG query for the ChipID field
 
