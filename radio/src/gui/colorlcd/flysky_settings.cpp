@@ -90,12 +90,12 @@ void FlySkySettings::update()
 {
   clear();
   
-  // RX options:
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
-
 #if defined(AFHDS2)
   if (isModuleAFHDS2A(moduleIdx)) {
+    // RX options:
+    auto line = newLine(&grid);
+    new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
+
     new FSProtoOpts(
         line, [=]() { return md->flysky.mode; },
         [=](uint8_t v) { md->flysky.mode = v; });
@@ -119,7 +119,7 @@ void FlySkySettings::update()
   if (isModuleAFHDS3(moduleIdx)) {
 
     // Status
-    line = newLine(&grid);
+    auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
     new DynamicText(line, rect_t{}, [=] {
       char msg[64] = "";

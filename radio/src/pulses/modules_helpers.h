@@ -36,6 +36,10 @@
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
+#if defined(AFHDS3)
+#include "pulses/afhds3_module.h"
+#endif
+
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
@@ -584,6 +588,9 @@ inline bool isModuleModelIndexAvailable(uint8_t idx)
   if (isModuleCrossfire(idx))
     return true;
 
+  if (isModuleAFHDS3(idx))
+    return true;
+  
   return false;
 }
 
@@ -670,6 +677,10 @@ inline uint8_t getMaxRxNum(uint8_t idx)
   }
 #endif
 
+#if defined(AFHDS3)
+  if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
+#endif
+  
   return MAX_RXNUM;
 }
 

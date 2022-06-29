@@ -47,6 +47,8 @@
   #define AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT 15
 #endif
 
+#define AFHDS3_MAX_MODEL_ID 19
+
 namespace afhds3
 {
 

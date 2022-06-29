@@ -338,13 +338,6 @@ class ProtoState
     void getStatusString(char * statusText) const;
 
     /**
-    * Gets actual power source and voltage
-    */
-    void getPowerStatus(char* buffer) const;
-
-    RUN_POWER actualRunPower() const;
-
-    /**
     * Sends stop command to prevent any further module operations
     */
     void stop();
@@ -371,21 +364,14 @@ class ProtoState
 
     void clearFrameData();
 
-    void processTelemetryData(uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize);
+    void processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
+                              uint8_t& rxBufferCount, uint8_t maxSize);
 
     //friendship declaration - use for passing telemetry
     friend void processTelemetryData(uint8_t data, uint8_t module);
 
-    /**
-    * Returns max power that currently can be set - use it to validate before synchronization of settings
-    */
-    RUN_POWER getMaxRunPower() const;
-
-    RUN_POWER getRunPower() const;
-
-    bool isConnectedUnicast();
-
-    bool isConnectedMulticast();
+    bool isConnected();
+    bool hasTelemetry();
 
     Transport trsp;
 
@@ -400,11 +386,6 @@ class ProtoState
     ModuleState state;
 
     /**
-     * Target mode to be set to the module one of MODULE_MODE_E
-     */
-    uint8_t requestedModuleMode;
-
-    /**
      * Command count used for counting actual number of commands sent in run mode
      */
     uint32_t cmdCount;
@@ -413,12 +394,6 @@ class ProtoState
      * Command index of command to be send when cmdCount reached necessary value
      */
     uint32_t cmdIndex;
-
-    /**
-     * Actual power source of the module - should be requested time to time
-     * Currently requested once
-     */
-    enum MODULE_POWER_SOURCE powerSource;
 
     /**
      * Pointer to module config - it is making operations easier and faster
@@ -441,7 +416,7 @@ static const char* const moduleStateText[] =
   "Not ready",
   "HW Error",
   "Binding",
-  "Connecting",
+  "Disconnected",
   "Connected",
   "Standby",
   "Waiting for update",
@@ -453,17 +428,9 @@ static const char* const moduleStateText[] =
   "HW test"
 };
 
-static const char* const powerSourceText[] =
-{
-  "Unknown",
-  "Internal",
-  "External"
-};
-
 static const COMMAND periodicRequestCommands[] =
 {
   COMMAND::MODULE_STATE,
-  // COMMAND::MODULE_POWER_STATUS,
   COMMAND::MODULE_GET_CONFIG,
   COMMAND::VIRTUAL_FAILSAFE
 };
@@ -474,17 +441,6 @@ static ProtoState protoState[NUM_MODULES];
 void getStatusString(uint8_t module, char* buffer)
 {
   return protoState[module].getStatusString(buffer);
-}
-
-void getPowerStatus(uint8_t module, char* buffer)
-{
-  return protoState[module].getPowerStatus(buffer);
-}
-
-RUN_POWER getActualRunPower(uint8_t module)
-{
-  // return protoState[module].actualRunPower();
-  return (RUN_POWER)0;
 }
 
 //friends function that can access telemetry parsing method
@@ -504,12 +460,8 @@ void ProtoState::getStatusString(char* buffer) const
                                                    : "Unknown");
 }
 
-void ProtoState::getPowerStatus(char* buffer) const
-{
-  strcpy(buffer, this->powerSource <= MODULE_POWER_SOURCE::EXTERNAL ? powerSourceText[this->powerSource] : "Unknown");
-}
-
-void ProtoState::processTelemetryData(uint8_t byte, uint8_t* rxBuffer, uint8_t& rxBufferCount, uint8_t maxSize)
+void ProtoState::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
+                                      uint8_t& rxBufferCount, uint8_t maxSize)
 {
   if (!trsp.processTelemetryData(byte, rxBuffer, rxBufferCount, maxSize))
     return;
@@ -518,17 +470,17 @@ void ProtoState::processTelemetryData(uint8_t byte, uint8_t* rxBuffer, uint8_t& 
   rxBufferCount = 0;
 }
 
-bool ProtoState::isConnectedUnicast()
+bool ProtoState::isConnected()
 {
-  // return cfg.config.telemetry == TELEMETRY::TELEMETRY_ENABLED &&
   return this->state == ModuleState::STATE_SYNC_DONE;
 }
 
-bool ProtoState::isConnectedMulticast()
+bool ProtoState::hasTelemetry()
 {
-  // return cfg.config.telemetry == TELEMETRY::TELEMETRY_DISABLED &&
-  //        this->state == ModuleState::STATE_SYNC_RUNNING;
-  return false;
+  if (cfg.version == 0)
+    return cfg.v0.IsTwoWay;
+  else
+    return cfg.v1.IsTwoWay;
 }
 
 void ProtoState::setupFrame()
@@ -556,70 +508,48 @@ void ProtoState::setupFrame()
   ::ModuleSettingsMode moduleMode = getModuleMode(module_index);
 
   if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND) {
-    switch (state) {
-      case STATE_BINDING:
-        // TODO: poll status? handle timeout?
-        // requestedModuleMode = MODULE_MODE_E::BIND;
-        // trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-        //          &requestedModuleMode, 1);
-        // return;
-        break;
+    if (state != STATE_BINDING) {
+      TRACE("AFHDS3 [BIND]");
+      setConfigFromModel();
 
-      default:
-        // case STATE_STANDBY:
-        TRACE("AFHDS3 [BIND]");
-        setConfigFromModel();
+      trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
+                     FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
+                     cfg.version == 0 ? sizeof(cfg.v0) : sizeof(cfg.v1));
 
-        trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
-                 FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
-                 cfg.version == 0 ? sizeof(cfg.v0) : sizeof(cfg.v1));
-
-        requestedModuleMode = MODULE_MODE_E::BIND;
-        trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
-                     requestedModuleMode);
-        return;
-
-        // default:
-        //   // switch to standby mode first
-        //   stop();
-        //   return;
+      trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
+                   (uint8_t)MODULE_MODE_E::BIND);
+      return;
     }
   }
-  // else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_RANGECHECK) {
-  //   if (cfg.config.runPower != RUN_POWER::RUN_POWER_FIRST) {
-  //     TRACE("AFHDS3 [RANGE CHECK]");
-  //     cfg.config.runPower = RUN_POWER::RUN_POWER_FIRST;
-  //     uint8_t data[] = { 0x13, 0x20, 0x02, cfg.config.runPower, 0 };
-  //     TRACE("AFHDS3 SET TX POWER %d", moduleData->afhds3.runPower);
-  //     trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-  //              data, sizeof(data));
-  //     return;
-  //   }
-  // }
+  else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_RANGECHECK) {
+    TRACE("AFHDS3 [RANGE CHECK] not supported");
+  }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_NORMAL) {
 
     // if module is ready but not started
-    if (this->state == ModuleState::STATE_READY ||
-        this->state == ModuleState::STATE_STANDBY) {
+    if (this->state == ModuleState::STATE_READY) {
+      auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
+      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      return;
+    }
 
+    if (this->state == ModuleState::STATE_STANDBY) {
       cmdCount = 0;
       requestInfoAndRun(true);
       return;
     }
-
+    
     // exit bind
-    if (state == STATE_BINDING) {
+    if (this->state == STATE_BINDING) {
       TRACE("AFHDS3 [EXIT BIND]");
-      requestedModuleMode = MODULE_MODE_E::RUN;
-      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-               &requestedModuleMode, 1);
+      auto mode = (uint8_t)MODULE_MODE_E::RUN;
+      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
   }
 
-  bool isConnected = isConnectedUnicast() || isConnectedMulticast();
-
   if (cmdCount++ >= 150) {
+
     cmdCount = 0;
     if (cmdIndex >= sizeof(periodicRequestCommands)) {
       cmdIndex = 0;
@@ -627,8 +557,7 @@ void ProtoState::setupFrame()
     COMMAND cmd = periodicRequestCommands[cmdIndex++];
 
     if (cmd == COMMAND::VIRTUAL_FAILSAFE) {
-      if (isConnected) {
-        if (isConnectedMulticast()) {
+      if (isConnected() && !hasTelemetry()) {
           TRACE("AFHDS ONE WAY FAILSAFE");
           uint16_t failSafe[AFHDS3_MAX_CHANNELS + 1] = {
               ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
@@ -636,21 +565,15 @@ void ProtoState::setupFrame()
           trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
                    FRAME_TYPE::REQUEST_SET_NO_RESP, (uint8_t*)failSafe,
                    AFHDS3_MAX_CHANNELS * 2 + 2);
-        } else {
-          TRACE("AFHDS TWO WAYS FAILSAFE");
-          uint8_t failSafe[3 + AFHDS3_MAX_CHANNELS * 2] = {
-              0x11, 0x60, AFHDS3_MAX_CHANNELS * 2};
-          setFailSafe((int16_t*)(failSafe + 3));
-          trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-                   failSafe, 3 + AFHDS3_MAX_CHANNELS * 2);
-        }
-      } else {
-        trsp.sendFrame(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+          return;
       }
     } else {
       trsp.sendFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
+      return;
     }
-  } else if (isConnected) {
+  }
+
+  if (isConnected()) {
     sendChannelsData();
   } else {
     //default frame - request state
@@ -725,19 +648,15 @@ void ProtoState::setState(ModuleState state)
 
 void ProtoState::requestInfoAndRun(bool send)
 {
-  if (!send) {
-    trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
-  }
+  // set model ID
+  trsp.enqueue(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
+               g_model.header.modelId[module_index]);
 
-  // trsp.enqueue(COMMAND::MODULE_POWER_STATUS, FRAME_TYPE::REQUEST_GET_DATA);
-
-  requestedModuleMode = MODULE_MODE_E::RUN;
+  // RUN
   trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
-          (uint8_t)requestedModuleMode);
+               (uint8_t)MODULE_MODE_E::RUN);
 
-  if (send) {
-    trsp.sendFrame(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
-  }
+  if (send) { trsp.processQueue(); }
 }
 
 void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
@@ -749,7 +668,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         TRACE("AFHDS3 [MODULE_READY] %02X", responseFrame->value);
         if (responseFrame->value == MODULE_STATUS_READY) {
           setState(ModuleState::STATE_READY);
-          requestInfoAndRun();
+          // requestInfoAndRun();
         }
         else {
           setState(ModuleState::STATE_NOT_READY);
@@ -770,10 +689,6 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
               version.productNumber, version.hardwereVersion,
               version.bootloaderVersion, version.firmwareVersion);
         break;
-      // case COMMAND::MODULE_POWER_STATUS:
-      //   powerSource = (enum MODULE_POWER_SOURCE) responseFrame->value;
-      //   TRACE("AFHDS3 [MODULE_POWER_STATUS], %d", powerSource);
-      //   break;
       case COMMAND::MODULE_STATE:
         TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
         setState((ModuleState)responseFrame->value);
@@ -782,13 +697,6 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         TRACE("AFHDS3 [MODULE_MODE] %02X", responseFrame->value);
         if (responseFrame->value != CMD_RESULT::SUCCESS) {
           setState(ModuleState::STATE_NOT_READY);
-        }
-        else {
-          if (requestedModuleMode == MODULE_MODE_E::RUN) {
-            trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
-            trsp.enqueue(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
-          }
-          requestedModuleMode = MODULE_MODE_UNKNOWN;
         }
         break;
       case COMMAND::MODULE_SET_CONFIG:
@@ -862,35 +770,6 @@ inline bool isSbus(uint8_t mode)
 inline bool isPWM(uint8_t mode)
 {
   return !(mode & 2);
-}
-
-RUN_POWER ProtoState::getMaxRunPower() const
-{
-  if (powerSource == MODULE_POWER_SOURCE::EXTERNAL) {
-    return RUN_POWER::PLUS_33dBm;
-  }
-
-  return RUN_POWER::PLUS_27dbm;
-}
-
-RUN_POWER ProtoState::actualRunPower() const
-{
-  // uint8_t actualRfPower = cfg.config.runPower;
-  // if (getMaxRunPower() < actualRfPower) {
-  //   actualRfPower = getMaxRunPower();
-  // }
-  // return (RUN_POWER) actualRfPower;
-  return (RUN_POWER)0;
-}
-
-RUN_POWER ProtoState::getRunPower() const
-{
-  // RUN_POWER targetPower = (RUN_POWER) moduleData->afhds3.runPower;
-  // if (getMaxRunPower() < targetPower) {
-  //   targetPower = getMaxRunPower();
-  // }
-  // return targetPower;
-  return (RUN_POWER)0;
 }
 
 bool ProtoState::syncSettings()
@@ -989,28 +868,12 @@ void ProtoState::sendChannelsData()
 void ProtoState::stop()
 {
   TRACE("AFHDS3 STOP");
-  requestedModuleMode = MODULE_MODE_E::STANDBY;
-  trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-           &requestedModuleMode, 1);
+  auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
+  trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
 }
 
 void ProtoState::setConfigFromModel()
 {
-  // cfg.config.bindPower = moduleData->afhds3.bindPower;
-  // cfg.config.runPower = getRunPower();
-  // cfg.config.emiStandard = EMI_STANDARD::FCC;
-  // cfg.config.telemetry = moduleData->afhds3.telemetry; //always use bidirectional mode
-  // cfg.config.pwmFreq = moduleData->afhds3.rxFreq();
-  // cfg.config.serialMode = isSbus(moduleData->afhds3.mode)
-  //                             ? SERIAL_MODE::SBUS_MODE
-  //                             : SERIAL_MODE::IBUS;
-  // cfg.config.pulseMode = isPWM(moduleData->afhds3.mode) ? PULSE_MODE::PWM_MODE
-  //                                                       : PULSE_MODE::PPM_MODE;
-  // // use max channels - because channel count can not be changed after bind
-  // cfg.config.channelCount = AFHDS3_MAX_CHANNELS;
-  // cfg.config.failSafeTimout = moduleData->afhds3.failsafeTimeout;
-  // setFailSafe(cfg.config.failSafeMode);
-
   if (moduleData->afhds3.phyMode < ROUTINE_FLCR1_18CH) {
     cfg.version = 0;
   } else {
