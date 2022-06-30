@@ -57,7 +57,7 @@ volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 static void LCD_Delay(void) {
   volatile unsigned int i;
 
-  for (i = 0; i < 10000; i++) {
+  for (i = 0; i < 100; i++) {
     ;
   }
 }
@@ -228,7 +228,6 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
 }
 
 static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
-  CLR_LCD_CS();
 
   LCD_SCK_LOW();
   lcdDelay();
@@ -259,7 +258,6 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
   }
 
   LCD_SCK_LOW();
-  SET_LCD_CS();
 }
 
 unsigned char LCD_ReadByte(void) {
@@ -270,12 +268,10 @@ unsigned char LCD_ReadByte(void) {
   SET_LCD_DATA_INPUT();
   for (i = 0; i < 8; i++) {
     CLR_LCD_CLK();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     ReceiveData <<= 1;
     SET_LCD_CLK();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     if (READ_LCD_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
@@ -289,20 +285,25 @@ unsigned char LCD_ReadByte(void) {
 unsigned char LCD_ReadRegister(unsigned char Register) {
   unsigned char ReadData = 0;
 
+  CLR_LCD_CS();
   lcdWriteByte(0, Register);
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   ReadData = LCD_ReadByte();
   SET_LCD_CS();
   return (ReadData);
 }
 
 void lcdWriteCommand(uint8_t command) {
+  CLR_LCD_CS();
   lcdWriteByte(0, command);
+  SET_LCD_CS();
 }
 
 void lcdWriteData(uint8_t data) {
+  CLR_LCD_CS();
   lcdWriteByte(1, data);
+  SET_LCD_CS();
 }
 
 void LCD_HX8357D_Init(void) {
@@ -1294,11 +1295,11 @@ unsigned int LCD_ST7796S_ReadID(void) {
   SET_LCD_CLK_OUTPUT();
   SET_LCD_DATA_INPUT();
   CLR_LCD_CLK();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   SET_LCD_CLK();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
 
   LCD_ReadByte();
   ID += (uint16_t)(LCD_ReadByte())<<8;
@@ -2887,7 +2888,7 @@ void lcdInit(void)
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
     lcdPixelClock = 12000000;
-  } else if (1 || LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
+  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID || 1) {
     TRACE("LCD INIT (default): ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
