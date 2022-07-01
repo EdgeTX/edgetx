@@ -65,5 +65,7 @@ struct etx_module_driver_t {
 
     // Fetch telemetry byte
     int (*getByte)(void* context, uint8_t* data);
-};
 
+    // Process input data byte (telemetry)
+    void (*processData)(void* context, uint8_t data, uint8_t* buffer, uint8_t* len);
+};
