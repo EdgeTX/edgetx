@@ -395,7 +395,7 @@ static void processToolsFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-static void processPXX2Frame(uint8_t module, const uint8_t * frame)
+void processPXX2Frame(uint8_t module, const uint8_t * frame)
 {
   LOG_TELEMETRY_WRITE_START();
   for (uint8_t i = 0; i < 1 + frame[0]; i++) {
@@ -420,49 +420,3 @@ static void processPXX2Frame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processPXX2TelemetryData(uint8_t data, uint8_t idx)
-{
-  uint8_t * rxBuffer = getTelemetryRxBuffer(idx);
-  uint8_t &rxBufferCount = getTelemetryRxBufferCount(idx);
-
-  if (rxBufferCount == 0 && data != START_STOP) {
-    return;
-  }
-
-  if (rxBufferCount == 1 && data > 40) {
-    rxBufferCount = 0;
-    return;
-  }
-
-  if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-    rxBuffer[rxBufferCount++] = data;
-  }
-  else {
-    TRACE("[PXX2] array size %d error", rxBufferCount);
-    rxBufferCount = 0;
-  }
-
-  uint8_t len = rxBuffer[1];
-  /* 1 byte start + 2 bytes header + 2 bytes CRC = 5 */
-  if (rxBufferCount < unsigned(len + 5)) {
-    return;
-  }
-
-  uint16_t crc = 0xFFFF;
-  uint8_t* frame = rxBuffer + 1;
-
-  for (uint32_t i = 1; i <= len; i++) {
-    crc -= frame[i];
-  }
-
-  uint8_t crcHigh = frame[len + 1];
-  uint8_t crcLow = frame[len + 2];
-  
-  if (((crc >> 8) != crcHigh) || ((crc & 0xFF) == crcLow)) {
-    TRACE("[PXX2] crc error");
-    rxBufferCount = 0;
-    return;
-  }
-
-  processPXX2Frame(idx, frame);
-}

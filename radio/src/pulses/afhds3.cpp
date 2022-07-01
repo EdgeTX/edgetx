@@ -320,16 +320,23 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-
-    void init(uint8_t moduleIndex, bool resetFrameCount = true);
+    void init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv);
+    void deinit() { trsp.deinit(); }
 
     /**
-    * Fills DMA buffers with frame to be send depending on actual state
-    */
+     * Fills DMA buffers with frame to be send depending on actual state
+     */
     void setupFrame();
 
-    uint8_t* getBuffer();
-    uint32_t getBufferSize();
+    /**
+     * Sends prepared buffers
+     */
+    void sendFrame() { trsp.sendBuffer(); }
+
+    /**
+     * Fetch telemetry byte
+     */
+    int getTelemetryByte(uint8_t* data) { return trsp.getTelemetryByte(data); }
 
     /**
     * Gets actual module status into provided buffer
@@ -347,6 +354,10 @@ class ProtoState
     void setConfigFromModel();
 
   private:
+    //friendship declaration - use for passing telemetry
+    friend void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len);
+
+    void processTelemetryData(uint8_t data, uint8_t* buffer, uint8_t* len);
 
     void parseData(uint8_t* rxBuffer, uint8_t rxBufferCount);
 
@@ -364,12 +375,6 @@ class ProtoState
 
     void clearFrameData();
 
-    void processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
-                              uint8_t& rxBufferCount, uint8_t maxSize);
-
-    //friendship declaration - use for passing telemetry
-    friend void processTelemetryData(uint8_t data, uint8_t module);
-
     bool isConnected();
     bool hasTelemetry();
 
@@ -384,6 +389,8 @@ class ProtoState
      * Reported state of the HF module
      */
     ModuleState state;
+
+    bool modelIDSet;
 
     /**
      * Command count used for counting actual number of commands sent in run mode
@@ -444,14 +451,10 @@ void getStatusString(uint8_t module, char* buffer)
 }
 
 //friends function that can access telemetry parsing method
-void processTelemetryData(uint8_t data, uint8_t module)
+void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  uint8_t* rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
-  uint8_t maxSize = TELEMETRY_RX_PACKET_SIZE;
-
-  protoState[module].processTelemetryData(data, rxBuffer, rxBufferCount,
-                                          maxSize);
+  auto p_state = (ProtoState*)ctx;
+  p_state->processTelemetryData(data, buffer, len);
 }
 
 void ProtoState::getStatusString(char* buffer) const
@@ -460,14 +463,14 @@ void ProtoState::getStatusString(char* buffer) const
                                                    : "Unknown");
 }
 
-void ProtoState::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
-                                      uint8_t& rxBufferCount, uint8_t maxSize)
+void ProtoState::processTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
 {
-  if (!trsp.processTelemetryData(byte, rxBuffer, rxBufferCount, maxSize))
+  uint8_t maxSize = TELEMETRY_RX_PACKET_SIZE;
+  if (!trsp.processTelemetryData(byte, buffer, *len, maxSize))
     return;
 
-  parseData(rxBuffer, rxBufferCount);
-  rxBufferCount = 0;
+  parseData(buffer, *len);
+  *len = 0;
 }
 
 bool ProtoState::isConnected()
@@ -528,11 +531,23 @@ void ProtoState::setupFrame()
 
     // if module is ready but not started
     if (this->state == ModuleState::STATE_READY) {
-      auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      trsp.sendFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
       return;
     }
 
+    if (!modelIDSet) {
+      if (this->state != ModuleState::STATE_STANDBY) {
+        auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
+        trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+        return;        
+      } else {
+        modelIDSet = true;
+        trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+                       &g_model.header.modelId[module_index], 1);
+        return;
+      }
+    }
+    
     if (this->state == ModuleState::STATE_STANDBY) {
       cmdCount = 0;
       requestInfoAndRun(true);
@@ -581,35 +596,21 @@ void ProtoState::setupFrame()
   }
 }
 
-uint8_t* ProtoState::getBuffer()
-{
-  return trsp.getFrameBuffer();
-}
-
-uint32_t ProtoState::getBufferSize()
-{
-  return trsp.getFrameSize();
-}
-
-void ProtoState::init(uint8_t moduleIndex, bool resetFrameCount)
+void ProtoState::init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv)
 {
   module_index = moduleIndex;
-#if defined(INTERNAL_MODULE_AFHDS3)
-  if (moduleIndex == INTERNAL_MODULE) {
-    trsp.init(ByteTransport::Serial, &intmodulePulsesData.afhds3);
-  } else
-#endif
-  {
-#if defined(AFHDS3_EXT_UART)
-    trsp.init(ByteTransport::Serial, &extmodulePulsesData.afhds3);
-#else
-    trsp.init(ByteTransport::Pulses, &extmodulePulsesData.afhds3);
-#endif
+
+  // TODO: move bit/byte transport to serial driver
+  if (drv) {
+    trsp.init(ByteTransport::Serial, buffer, drv);
+  } else {
+    trsp.init(ByteTransport::Pulses, buffer, nullptr);
   }
 
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
   state = ModuleState::STATE_NOT_READY;
+  modelIDSet = false;
   clearFrameData();
 }
 
@@ -649,8 +650,8 @@ void ProtoState::setState(ModuleState state)
 void ProtoState::requestInfoAndRun(bool send)
 {
   // set model ID
-  trsp.enqueue(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
-               g_model.header.modelId[module_index]);
+  // trsp.enqueue(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
+  //              g_model.header.modelId[module_index]);
 
   // RUN
   trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
@@ -968,78 +969,49 @@ uint8_t ProtoState::setFailSafe(int16_t* target)
   return (uint8_t) (AFHDS3_MAX_CHANNELS);
 }
 
-#if defined(AFHDS3_EXT_UART)
-
-static const etx_serial_init extmoduleUsartParams = {
-  .baudrate = AFHDS3_UART_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
-};
-
 static void* initExternal(uint8_t module)
 {
+#if defined(AFHDS3_EXT_UART)
+  const etx_serial_driver_t* drv = &ExtmoduleSerialDriver;
+  uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */;
+#else
+  const etx_serial_driver_t* drv = nullptr;
+  uint16_t period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
+
+  telemetryPortInvertedInit(AFHDS3_SOFTSERIAL_BAUDRATE);
+  telemetryPortSetDirectionInput();
+#endif
+  
   auto p_state = &protoState[module];
+  p_state->init(module, &extmodulePulsesData.afhds3, drv);
 
-  p_state->init(module);
-  void* ctx = ExtmoduleSerialDriver.init(&extmoduleUsartParams);
-
-  mixerSchedulerSetPeriod(module, AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */);
+  mixerSchedulerSetPeriod(module, period);
   EXTERNAL_MODULE_ON();
 
-  return ctx;
+  return p_state;
 }
 
 static void deinitExternal(void* context)
 {
   EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  ExtmoduleSerialDriver.deinit(context);
+
+  auto p_state = (ProtoState*)context;
+  p_state->deinit();
 }
 
-static void sendPulsesExternal(void* context)
+static void sendPulses(void* context)
 {
-  auto p_state = &protoState[EXTERNAL_MODULE];
-  ExtmoduleSerialDriver.sendBuffer(context, p_state->getBuffer(), p_state->getBufferSize());
+  auto p_state = (ProtoState*)context;
+  p_state->sendFrame();
 }
 
-#else // !defined(AFHDS3_USART)
-
-static void* initExternal(uint8_t module)
+static void setupPulses(void* context, int16_t* channels, uint8_t nChannels)
 {
-  auto p_state = &protoState[module];
-
-  p_state->init(module);
-  extmoduleSerialStart();
-
-  mixerSchedulerSetPeriod(module, AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */);
-  return nullptr;
-}
-
-static void deinitExternal(void* context)
-{
-  (void)context;
-  extmoduleStop();
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-}
-
-static void sendPulsesExternal(void* context)
-{
-  (void)context;
-  auto p_state = &protoState[EXTERNAL_MODULE];
-  extmoduleSendNextFrameSoftSerial(p_state->getBuffer(), p_state->getBufferSize(), false);
-}
-
-#endif
-
-static void setupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
-{
-  (void)context;
   (void)channels;
   (void)nChannels;
 
-  auto p_state = &protoState[EXTERNAL_MODULE];
+  auto p_state = (ProtoState*)context;
   p_state->setupFrame();
 }
 
@@ -1047,70 +1019,48 @@ etx_module_driver_t externalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS3,
   .init = initExternal,
   .deinit = deinitExternal,
-  .setupPulses = setupPulsesExternal,
-  .sendPulses = sendPulsesExternal
+  .setupPulses = setupPulses,
+  .sendPulses = sendPulses,
+  .getByte = nullptr, // TODO
+  .processData = processTelemetryData,
 };
 
 #if defined(INTERNAL_MODULE_AFHDS3)
 
-static const etx_serial_init intmoduleUsartParams = {
-  .baudrate = AFHDS3_UART_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
-};
-
 static void* initInternal(uint8_t module)
 {
   auto p_state = &protoState[module];
-
-  p_state->init(module);
-  void* ctx = IntmoduleSerialDriver.init(&intmoduleUsartParams);
+  p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver);
 
   mixerSchedulerSetPeriod(module, AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */);
   INTERNAL_MODULE_ON();
 
-  return ctx;
+  return p_state;
 }
 
 static void deinitInternal(void* context)
 {
-  (void)context;
-
   INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-  intmoduleStop();
-}
 
-static void setupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
-{
-  (void)context;
-  (void)channels;
-  (void)nChannels;
-
-  auto p_state = &protoState[INTERNAL_MODULE];
-  p_state->setupFrame();
-}
-
-static void sendPulsesInternal(void* context)
-{
-  auto p_state = &protoState[INTERNAL_MODULE];  
-  IntmoduleSerialDriver.sendBuffer(context, p_state->getBuffer(), p_state->getBufferSize());
+  auto p_state = (ProtoState*)context;
+  p_state->deinit();
 }
 
 static int getByteInternal(void* context, uint8_t* data)
 {
-  return IntmoduleSerialDriver.getByte(context, data);
+  auto p_state = (ProtoState*)context;
+  return p_state->getTelemetryByte(data);
 }
 
 etx_module_driver_t internalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS3,
   .init = initInternal,
   .deinit = deinitInternal,
-  .setupPulses = setupPulsesInternal,
-  .sendPulses = sendPulsesInternal,
+  .setupPulses = setupPulses,
+  .sendPulses = sendPulses,
   .getByte = getByteInternal,
+  .processData = processTelemetryData,
 };
 
 #endif

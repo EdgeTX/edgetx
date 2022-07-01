@@ -23,6 +23,9 @@
 #include "opentx_helpers.h"
 #include "debug.h"
 
+#include "extmodule_driver.h"
+#include "board.h"
+
 // timer is 2 MHz
 #if defined(AFHDS3_SLOW)
   // 1000000/57600 = 17,36 us
@@ -308,9 +311,35 @@ void CommandFifo::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
   }
 }
 
-void Transport::init(ByteTransport::Type t, void* buffer)
+static const etx_serial_init _uartParams = {
+  .baudrate = AFHDS3_UART_BAUDRATE,
+  .parity = ETX_Parity_None,
+  .stop_bits = ETX_StopBits_One,
+  .word_length = ETX_WordLength_8,
+  .rx_enable = true,
+};
+
+void Transport::init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv)
 {
   trsp.init(t, buffer);
+
+  if (drv) {
+    uart_drv = drv;
+    uart_ctx = drv->init(&_uartParams);
+  } else {
+    uart_drv = nullptr;
+    uart_ctx = nullptr;
+    extmoduleSerialStart();
+  }
+}
+
+void Transport::deinit()
+{
+  if (uart_drv) {
+    uart_drv->deinit(uart_ctx);
+  } else {
+    extmoduleStop();
+  }
 }
 
 void Transport::clear()
@@ -352,6 +381,15 @@ void Transport::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
                         uint8_t byteContent)
 {
   fifo.enqueue(command, frameType, useData, byteContent);
+}
+
+void Transport::sendBuffer()
+{
+  if (uart_drv) {
+    uart_drv->sendBuffer(uart_ctx, (uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
+  } else {
+    extmoduleSendNextFrameSoftSerial((uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
+  }
 }
 
 bool Transport::processQueue()
@@ -420,13 +458,10 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
           responseFrame->command, responseFrame->frameType,
           responseFrame->frameNumber);
 
-    // TODO: send ACK immediately !!!
-    // trsp.putFrame(command, FRAME_TYPE::RESPONSE_ACK, nullptr, 0,
-    //               responseFrame->frameNumber);
-    // return true;
-
-    fifo.enqueueACK((enum COMMAND)responseFrame->command,
-                    responseFrame->frameNumber);
+    auto command = (enum COMMAND)responseFrame->command;
+    trsp.putFrame(command, FRAME_TYPE::RESPONSE_ACK, nullptr, 0,
+                  responseFrame->frameNumber);
+    sendBuffer();
 
   } else if (responseFrame->frameType == FRAME_TYPE::RESPONSE_DATA ||
              responseFrame->frameType == FRAME_TYPE::RESPONSE_ACK) {
@@ -437,6 +472,15 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
   }
 
   return false;
+}
+
+int Transport::getTelemetryByte(uint8_t* data)
+{
+  if (uart_drv) {
+    return uart_drv->getByte(uart_ctx, data);
+  } else {
+    return sportGetByte(data);
+  }
 }
 
 bool Transport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,

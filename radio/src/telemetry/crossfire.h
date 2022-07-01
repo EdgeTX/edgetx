@@ -100,7 +100,7 @@ enum CrossfireFrames{
   CRSF_FRAME_MODELID_SENT
 };
 
-void processCrossfireTelemetryData(uint8_t data, uint8_t module);
+void processCrossfireTelemetryFrame(uint8_t module);
 void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
 uint8_t createCrossfireModelIDFrame(uint8_t * frame);
 

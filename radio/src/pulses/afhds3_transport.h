@@ -24,6 +24,8 @@
 #include "afhds3_module.h"
 #include "definitions.h"
 
+#include "hal/serial_driver.h"
+
 namespace afhds3
 {
   
@@ -159,6 +161,9 @@ class Transport
     IDLE
   };
 
+  const etx_serial_driver_t* uart_drv;
+  void*                      uart_ctx;
+
   FrameTransport trsp;
   CommandFifo    fifo;
 
@@ -182,7 +187,8 @@ class Transport
   bool handleReply(uint8_t* buffer, uint8_t len);
   
  public:
-  void init(ByteTransport::Type t, void* buffer);
+  void init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv);
+  void deinit();
 
   void clear();
   
@@ -192,8 +198,7 @@ class Transport
   void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData = false,
                uint8_t byteContent = 0);
 
-  uint8_t* getFrameBuffer() { return (uint8_t*)trsp.trsp_buffer; }
-  uint32_t getFrameSize() { return trsp.getFrameSize(); }
+  void sendBuffer();
 
   /**
    * Process retransmissions
@@ -207,6 +212,8 @@ class Transport
    * @return true if something was just sent
    */
   bool processQueue();
+
+  int getTelemetryByte(uint8_t* data);
 
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);

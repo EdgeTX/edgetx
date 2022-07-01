@@ -304,7 +304,7 @@ extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
 #endif
 
-void processPXX2TelemetryData(uint8_t data, uint8_t idx);
+void processPXX2Frame(uint8_t idx, const uint8_t* frame);
 
 // Module pulse synchronization
 struct ModuleSyncStatus

@@ -29,14 +29,8 @@
 #include "pulses/pulses.h"
 #include "telemetry/telemetry.h"
 
-afhds2::afhds2() {
-  // TODO Auto-generated constructor stub
 
-}
 
-afhds2::~afhds2() {
-  // TODO Auto-generated destructor stub
-}
 
 const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
@@ -98,6 +92,11 @@ static int afhds2GetByte(void* context, uint8_t* data)
   return IntmoduleSerialDriver.getByte(context, data);
 }
 
+static void afhds2ProcessData(void*, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+  processInternalFlySkyTelemetryData(data, buffer, len);
+}
+
 const etx_module_driver_t Afhds2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS2A,
   .init = afhds2Init,
@@ -105,4 +104,5 @@ const etx_module_driver_t Afhds2InternalDriver = {
   .setupPulses = afhds2SetupPulses,
   .sendPulses = afhds2SendPulses,
   .getByte = afhds2GetByte,
+  .processData = afhds2ProcessData,
 };
