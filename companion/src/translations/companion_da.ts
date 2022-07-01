@@ -529,7 +529,7 @@ Mode 4:
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;You cannot switch Radio Type or change Build Options while there are unsaved file changes. What do you wish to do?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Save All&lt;/i&gt; - Save any open file(s) before saving Settings.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Revert to the previous Radio Type and Build Options before saving Settings.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Cancel&lt;/i&gt; - Return to the Settings editor dialog.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Du kan ikke skifte radio type eller byg parmetre med ændringer som ikke er gemt. Hvad skal der ske?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Gem alt&lt;/i&gt; - Gem de åbne filer før indstillinger gemmes.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Genskab til den forrige radio type og byg parametre før indstillinger gemmes.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Cancel&lt;/i&gt; - Gå tilbage til redigering af indstillinger.&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Du kan ikke skifte radio type eller byg tilvalg med ændringer som ikke er gemt. Hvad skal der ske?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Gem alt&lt;/i&gt; - Gem de åbne filer før indstillinger gemmes.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Genskab til den forrige radio type og byg parametre før indstillinger gemmes.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Cancel&lt;/i&gt; - Gå tilbage til redigering af indstillinger.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Select a folder for application logs</source>
@@ -876,7 +876,7 @@ Mode 4:
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Welcome to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for latest news, updates and documentation. Thank you for choosing OpenTX!&lt;/p&gt;- The OpenTX Team.</source>
-        <translation>&lt;p&gt;&lt;b&gt;Velkommen til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Som første trin, konfigurer basis Radio profil ved at vælge din Radio type, sprog og byg option.&lt;/p&gt;&lt;p&gt;Du har også mulighed for at studere andre mulige valg i Indstilling dialog.&lt;/p&gt;&lt;p&gt;Efter gem af opsætning, anbefaler vi att du henter den seneste firmware til din radio med &lt;i&gt;Fil -&amp;gt; hent&lt;/i&gt; menu.&lt;/p&gt;&lt;p&gt;Besøg gerne &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for siste nyheder, opdateringer og dokumentation. Tak for dit valg af EdgeTX!&lt;/p&gt;- The EdgeTX Team.</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Velkommen til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Som første trin, konfigurer basis Radio profil ved at vælge din Radio type, sprog og byg tilvalg.&lt;/p&gt;&lt;p&gt;Du har også mulighed for at studere andre mulige valg i Indstilling dialog.&lt;/p&gt;&lt;p&gt;Efter gem af opsætning, anbefaler vi att du henter den seneste firmware til din radio med &lt;i&gt;Fil -&amp;gt; hent&lt;/i&gt; menu.&lt;/p&gt;&lt;p&gt;Besøg gerne &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for siste nyheder, opdateringer og dokumentation. Tak for dit valg af EdgeTX!&lt;/p&gt;- The EdgeTX Team.</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The OpenTX Team.</source>
@@ -1650,7 +1650,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation>Omvendt</translation>
+        <translation>Omvendt (INV)</translation>
     </message>
     <message>
         <source>Load FW</source>
@@ -2093,7 +2093,7 @@ Er felte tomt, er indgangen aktiv hele tiden.</translation>
     </message>
     <message>
         <source>Invert All</source>
-        <translation>Alt omvendt</translation>
+        <translation>Alt omvendt (INV)</translation>
     </message>
     <message>
         <source>Popup menu available</source>
@@ -2108,36 +2108,36 @@ Er felte tomt, er indgangen aktiv hele tiden.</translation>
     </message>
     <message>
         <source>Copy selection as TAB-delimited text</source>
-        <translation>Kopiera urvalet som Tab-separerad text</translation>
+        <translation>Kopier udklip til Tab-separeret tekst</translation>
     </message>
     <message>
         <source>Copy selection as cooma-delimited text (CSV)</source>
-        <translation>Kopiera urvalet som kommaseparerad text (CSV)</translation>
+        <translation>Kopier udklip til komma-separeret tekst (CSV)</translation>
     </message>
     <message>
         <source>Copy selection as pipe-delimited text</source>
-        <translation>Kopiera urvalet som ¦-separerad text</translation>
+        <translation>Kopier udklip til ¦-separeret tekst</translation>
     </message>
     <message>
         <source>Copy selection as HTML</source>
-        <translation>Kopiera urvalet som HTML</translation>
+        <translation>Kopier udklip til HTML</translation>
     </message>
     <message>
         <source>Save selection to file</source>
         <translatorcomment>Spara till fil</translatorcomment>
-        <translation>Spara urval till fil</translation>
+        <translation>Gem udklip som fil</translation>
     </message>
     <message>
         <source>Tab-delimited text</source>
-        <translation>Tab-separerad text</translation>
+        <translation>Tab-separeret tekst</translation>
     </message>
     <message>
         <source>Comma-delimited text</source>
-        <translation>Kommaseparerad text</translation>
+        <translation>Komma-separeret tekst</translation>
     </message>
     <message>
         <source>Pipe-delimited text</source>
-        <translation>¦-separerad text</translation>
+        <translation>¦-separeret tekst</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -2145,7 +2145,7 @@ Er felte tomt, er indgangen aktiv hele tiden.</translation>
     </message>
     <message>
         <source>Save to file</source>
-        <translation></translation>
+        <translation>Gem i fil</translation>
     </message>
 </context>
 <context>
@@ -2915,7 +2915,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
 Please check advanced burn options to set the correct cpu type.</source>
         <translation>Din radio anvender en %1 CPU!!!
 
-Vælg CPU type i advancerede indstillinger i brænd firmware menu.</translation>
+Vælg CPU type i advancerede tilvalg i brænd firmware menu.</translation>
     </message>
     <message>
         <source>Your radio uses a %1 CPU!!!
@@ -3607,7 +3607,7 @@ Værdier mellem 5 og 10 volt accepteres</translation>
     </message>
     <message>
         <source>If this value is not 0, any keypress will turn on the backlight and turn it off after the specified number of seconds.</source>
-        <translation>Angiver antal sekunder som bakgrundsbelysningen er tændt efter sidste tryk på knap.</translation>
+        <translation>Angiver antal sekunder som baggrundsbelysningen er tændt efter sidste tryk på knap.</translation>
     </message>
     <message>
         <source> sec</source>
@@ -3623,7 +3623,7 @@ Værdier mellem 5 og 10 volt accepteres</translation>
     </message>
     <message>
         <source>Vario repeat at zero</source>
-        <translation>Repeterande vario-ton vid noll</translation>
+        <translation>Gentagende vario-ton ved nul</translation>
     </message>
     <message>
         <source>Backlight  Auto OFF after</source>
@@ -4482,19 +4482,19 @@ Er du sikker?</translation>
     <name>Heli</name>
     <message>
         <source>Invert Elevator</source>
-        <translation>Omvendt Højderor</translation>
+        <translation>Omvendt Højderor (INV)</translation>
     </message>
     <message>
         <source>Invert Aileron</source>
-        <translation>Omvendt krængeror</translation>
+        <translation>Omvendt krængeror (INV)</translation>
     </message>
     <message>
         <source>Invert Collective</source>
-        <translation>Omvendt collective</translation>
+        <translation>Omvendt collective (INV)</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation>Omvendt</translation>
+        <translation>Omvendt (INV)</translation>
     </message>
     <message>
         <source>Off</source>
@@ -5428,15 +5428,15 @@ Vi anbefaler at læse release beskrivelse med de seneste ændringer, og vurder o
     </message>
     <message>
         <source>Not enough flash available on this board for all the selected options</source>
-        <translation>Ej tillräckligt med programminne i radion för alla valda tillägg</translation>
+        <translation>Der er ikke nok hukommelse til programmer og indstillinger i radion med alle valgte tilvalg</translation>
     </message>
     <message>
         <source>Compilation server temporary failure, try later</source>
-        <translation>Temporärt Fejl på kompileringsservern, prova igen om ett tag</translation>
+        <translation>Temporær fejl på komplieringsserver, forsøg senere</translation>
     </message>
     <message>
         <source>Compilation error</source>
-        <translation>Kompilerings Fejl</translation>
+        <translation>Kompilerings fejl</translation>
     </message>
     <message>
         <source>Invalid firmware</source>
@@ -5882,7 +5882,7 @@ Vil du gemme ændringer?</translation>
         <comment>As in &quot;Copy 3 Models&quot; or &quot;Cut 1 Model&quot; or &quot;Delete 3 Models&quot; action).</comment>
         <translation>
             <numerusform>%n model</numerusform>
-            <numerusform>%n modeler</numerusform>
+            <numerusform>%n modeller</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -5890,7 +5890,7 @@ Vil du gemme ændringer?</translation>
         <comment>As in &quot;Paste 3 Models&quot; or &quot;Insert 1 Model.&quot;</comment>
         <translation>
             <numerusform>%n model</numerusform>
-            <numerusform>%n modeler</numerusform>
+            <numerusform>%n modeller</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -5907,7 +5907,7 @@ Vil du gemme ændringer?</translation>
     </message>
     <message>
         <source>Rename Category</source>
-        <translation>Ændre kategorinamn</translation>
+        <translation>Ændre kategori navn</translation>
     </message>
     <message>
         <source>Edit Model</source>
@@ -5935,11 +5935,11 @@ Vil du gemme ændringer?</translation>
     </message>
     <message>
         <source>Copy Radio Settings</source>
-        <translation>Kopier adio indstillinger</translation>
+        <translation>Kopier radio indstillinger</translation>
     </message>
     <message>
         <source>Paste Radio Settings</source>
-        <translation>Klistre ind eadio indstillinger</translation>
+        <translation>Sæt ind radio indstillinger</translation>
     </message>
     <message>
         <source>Simulate Radio</source>
@@ -6004,7 +6004,7 @@ Vil du gemme ændringer?</translation>
     </message>
     <message>
         <source>Category index out of range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategori index udenfor gyldig værdi</translation>
     </message>
     <message>
         <source>Cannot delete the last category.</source>
@@ -6012,57 +6012,57 @@ Vil du gemme ændringer?</translation>
     </message>
     <message>
         <source>Cannot insert model, last model in list would be deleted.</source>
-        <translation>Kan ej lägga till model, sista modelen i listan skulle raderas.</translation>
+        <translation>Kan ikke oprette endnu en model, siste model i listen ville blive slettet.</translation>
     </message>
     <message>
         <source>Cannot add model, could not find an available model slot.</source>
-        <translation>Kan ej lägga till model, ingen modelplats tillgänglig.</translation>
+        <translation>Kan ikke oprette endnu en model, ikke mere plads til modeller.</translation>
     </message>
     <message>
         <source>Cannot paste model, out of available model slots.</source>
-        <translation>Kan ej klistra in model, slut på lediga modelplatser.</translation>
+        <translation>Kan ikke indsætte model, ikke mere plads til modeller.</translation>
     </message>
     <message>
         <source>You are replacing an existing model, are you sure?</source>
-        <translation>Du kommer att ersätta en befintlig model, är du säker?</translation>
+        <translation>Du er ved at erstatte en eksisterende model, er du sikker?</translation>
     </message>
     <message numerus="yes">
         <source>Delete %n selected model(s)?</source>
         <translation>
             <numerusform>Radera %n vald model?</numerusform>
-            <numerusform>Radera %n valda modeler?</numerusform>
+            <numerusform>Slet de %n valgte modeller?</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Delete %n selected category(ies)?</source>
         <translation>
             <numerusform>Radera %n vald katagori?</numerusform>
-            <numerusform>Radera %n valda katagorier?</numerusform>
+            <numerusform>Slette de %n valgte katagorier?</numerusform>
         </translation>
     </message>
     <message>
         <source>Cannot duplicate model, could not find an available model slot.</source>
-        <translation>Kan ej duplicera modelen, ingen ledig modelplats finns.</translation>
+        <translation>Ikke muligt at duplikere model, ikke mere plads til modeller.</translation>
     </message>
     <message>
         <source>Do you wish to continue with the conversion?</source>
-        <translation>Vill du fortsätta med konverteringen?</translation>
+        <translation>Vil du gennemføre konvertering?</translation>
     </message>
     <message>
         <source>Choose &lt;i&gt;Apply&lt;/i&gt; to convert the file, or &lt;i&gt;Close&lt;/i&gt; to close it without conversion.</source>
-        <translation>Välj &lt;i&gt;Tillämpa&lt;/i&gt; för att konvertera filen, eller &lt;i&gt;Stäng&lt;/i&gt; för att stänga filen utan konvertering.</translation>
+        <translation>Vælg &lt;i&gt;Ok&lt;/i&gt; for at konvertere;i&gt;Luk&lt;/i&gt; for at afbryde uden at konvertere.</translation>
     </message>
     <message>
         <source>&lt;b&gt;The conversion generated some important messages, please review them below.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Konverteringen genererade några viktiga meddelanden, se nedan.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Konverteringen har vigtige meddelser, se nedenfor.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Companion :: Conversion Result for %1</source>
-        <translation>Companion :: Resultat för konverteringen av %1</translation>
+        <translation>Companion :: Resultat fra konvertering af %1</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Aktiv radiotyp (%1) är inte kompatibel med fil %3 (från %2), modeler og inställningar behöver konverteras.&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Gældende radiotype (%1) er ikke kompatibel med fil %3 (fra %2), modeller og indstillinger skal konverteres.&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -7977,7 +7977,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>[INV]</source>
-        <translation type="unfinished"></translation>
+        <translation>[INV]</translation>
     </message>
     <message>
         <source>Event</source>
@@ -8879,13 +8879,13 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
 
 </source>
         <translation>Omvendt gas.
-Gas er omvendt - betyder at tomgang er opad. Trim og gas advarsel vendes også.
+Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes også.
 
 </translation>
     </message>
     <message>
         <source>Reverse Throttle</source>
-        <translation>Omvendt gas</translation>
+        <translation>Omvendt gas (INV)</translation>
     </message>
     <message>
         <source>Throttle Trim Idle Only</source>
@@ -9448,7 +9448,7 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     <name>SimulatorStartupDialog</name>
     <message>
         <source>OpenTX Simulator - Startup Options</source>
-        <translation>EdgeTX simulator - Startalternativ</translation>
+        <translation>EdgeTX simulator - Start tilvalg</translation>
     </message>
     <message>
         <source>Simulator Startup Options:</source>
@@ -11129,11 +11129,11 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Model Options</source>
-        <translation>Modelfunktioner</translation>
+        <translation>Model tilvalg</translation>
     </message>
     <message>
         <source>Select additional options</source>
-        <translation>Vælg mere funktionalitet</translation>
+        <translation>Vælg flere tilvalg</translation>
     </message>
     <message>
         <source>Save Changes</source>
@@ -11141,7 +11141,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Manually check the direction of each control surface and reverse any channels that make controls move in the wrong direction. Remove the propeller/propellers before you try to control your model for the first time.&lt;br&gt;Please note that continuing removes all old model settings!</source>
-        <translation>Guiden har kopplat radiokanaler till kontroller i din model. Nu måste du själv ställa in riktningen för kontrollerna. Testa og reversera de kanaler som gör att dina kontroller rör sig i Fejl riktning.&lt;br&gt;Ta bort propellern/propellrarna innan du slår på din model första gången.&lt;br&gt;OBS! Om du slutför guiden tar du bort alla eventuella tidigare inställningar för modelplatsen!</translation>
+        <translation>Guiden har sammenkædet radiokanaler til kontroller i din model. Nu skal du selv indstille retningen for kontrollerne. Test og vend de kanaler (INV) som bevæger sig i den forkerte retning.&lt;br&gt;Forsøg at tænde og teste din model, UDEN propeller er monteret.&lt;br&gt;OBS! Om du slutför guiden tar du bort alla eventuella tidigare inställningar för modelplatsen!</translation>
     </message>
     <message>
         <source>Enter a name for your model and select model type.</source>
@@ -11149,27 +11149,27 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select the receiver channel that is connected to your ESC or throttle servo.&lt;br&gt;&lt;br&gt;Throttle - Spektrum: CH1, Futaba: CH3</source>
-        <translation>Vælg den kanal MANGLER somVälj den mottagarkanal som är kopplad till din ESC eller till gasservot.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3</translation>
+        <translation>Vælg den modtager kanal som er forbundet til ESC eller til gas servo.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3</translation>
     </message>
     <message>
         <source>Most aircraft have a main wing and a tail with control surfaces. Flying wings and delta winged aircraft only have a single wing. The main control surface on a standard wing controls the roll of the aircraft. This surface is called an aileron.&lt;br&gt;The control surface of a delta wing controls both roll and pitch. This surface is called an elevon. </source>
-        <translation>De flesta flygplan har en huvudvinge og en stjärt med kontrollytor. Flyvende vingar og deltavingar saknar däremot stjärt. Rodren på en huvudvinge används för att luta planet i sidled (kallas för att rolla eller banka). Denna typ av roder kallas för krængeror.&lt;br&gt; Rodren på en deltavinge fungerar som en kombination av krængeror og Højderor. </translation>
+        <translation>De fleste fly har en hovedvinge og en hale med kontrol flader. Flyvende vinger og deltavinger har ingen hale. Hovedkontrol af standardvinge er krængror.&lt;br&gt; Rodren på en deltavinge fungerar som en kombination av krængeror og højderor. </translation>
     </message>
     <message>
         <source>Models use one or two channels to control the ailerons.&lt;br&gt;A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. If your servos are connected by a Y-cable you should select the single-servo option.&lt;br&gt;&lt;br&gt;Aileron - Spektrum: CH2, Futaba: CH1</source>
-        <translation>modeler använder en eller två kontrollkanaler för att styra skevrodren.&lt;br&gt;En så kallad Y-kabel kan användas för att koppla två servon till en enda kanal. Om dina krængeror servon är inkopplade via en Y-kabel ska du välja inställningen för en kontrollkanal.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Modeller bruger 1 eller 2 kanaler til at kontrollere krængror.&lt;br&gt;Et Y-kabel kan bruges til at sammenkoble 2 servo til en kanal. Anvender du Y-kabel skal du selv ændre til dett ved at redigere din model.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
     </message>
     <message>
         <source>Models use two channels to control the elevons.&lt;br&gt;Select these two channels</source>
-        <translation>modeler använder två kanaler för att kontrollera rodren på en deltavinge/Flyvende vinge. Välj vilka dessa två kanaler är</translation>
+        <translation>Modeller bruger 2 kanaler til at kontrollere højden på en deltavinge/Flyvende vinge. Vælg hvilke kanaler det skal være</translation>
     </message>
     <message>
         <source>This wizard assumes that your flaps are controlled by a switch. If your flaps are controlled by a potentiometer you can change that manually later.</source>
-        <translation>Denna modelguide utgår ifrån att dina flaps styrs via en brytare. Om du istället vill styra via en Drejekontakt så får du själv ändra inställningen i modeleditorn.</translation>
+        <translation>Denne modelguide antager at dine flaps styres af en kontakt. Vil du istedet anvende en drejekontakt, skal du ændre det ved at selv redigere din model.</translation>
     </message>
     <message>
         <source>Air brakes are used to reduce the speed of advanced sail planes.&lt;br&gt;They are very uncommon on other types of planes.</source>
-        <translation>Luftbromsar används för att minska hastigheten för segelflygplan. &lt;br&gt;De är mycket ovanliga på andra typer av flygplan.</translation>
+        <translation>Luftbremser bruges til at sænke hastigheden for advancerede sejl flyvere. &lt;br&gt;De er meget anderledes end andre fly.</translation>
     </message>
     <message>
         <source>Select the receiver channel that is connected to your rudder.&lt;br&gt;&lt;br&gt;Rudder - Spektrum: CH4, Futaba: CH4</source>
@@ -11252,7 +11252,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Options: </source>
-        <translation>Funktioner: </translation>
+        <translation>Tilvalg: </translation>
     </message>
     <message>
         <source>Channel %1: </source>
@@ -11507,7 +11507,7 @@ m2560 for v4.1-kort</translation>
         <source>Press the Start button to start the stick range calibration procedure.
 You may change the channel assignments or inversion at any time.</source>
         <translation>Tryk på startknap for at begynde kalibrering af håndtag.
-Du kan altid ændre tildelte kanaler eller sætte dem omvendt.</translation>
+Du kan altid ændre tildelte kanaler eller sætte dem omvendt (INV).</translation>
     </message>
     <message>
         <source>Move sticks and pots in every direction making full movement
@@ -11530,7 +11530,7 @@ Tryk på næste når du er klar.</translation>
     <message>
         <source>Check inversion checkbox to if necessary to reverse direction.
 Press Next when done.</source>
-        <translation>Afkryds omvendt retning, hvis den skal være modsat.
+        <translation>Afkryds omvendt (INV) retning, hvis den skal være modsat.
 Tryk på næste når du er klar.</translation>
     </message>
     <message>
@@ -11560,7 +11560,7 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
     </message>
     <message>
         <source>Personal splash library</source>
-        <translation>Personligt bildbibliotek</translation>
+        <translation>Personligt billed bibliotek</translation>
     </message>
     <message>
         <source>Joystick</source>
@@ -11701,6 +11701,17 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
     <message>
         <source>Widgets:</source>
         <translation>Guide:</translation>
+    </message>
+</context>
+<context>
+    <name>YamlGeneralSettings</name>
+    <message>
+        <source>Warning: Radio settings file is missing the board entry!\n\nCurrent firmware profile board will be used.\n\nDo you wish to continue?</source>
+        <translation>Advarsel: Fil med radio indstillinger mangler ved firmware entry!\n\nAktuel firmware profil anvendes.\n\nØnsker du at forsætte?</translation>
+    </message>
+    <message>
+        <source>Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?</source>
+        <translation>Rasio indstillinger for (%1) passer ikke sammen med aktuelle profil (%2).\n\nØnsker du at forsætte?</translation>
     </message>
 </context>
 </TS>
