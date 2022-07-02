@@ -521,11 +521,7 @@ bool ModelMap::renameLabel(const std::string &from,
     if(progress != nullptr) {
       progress(modcell->modelFilename, (i++)*100 / mods.size());
     }
-#if defined(COLORLCD)
-    else { // REMOVEME
-      drawProgressScreen(lcd, title, modcell->modelFilename, i++, mods.size());
-    }
-#endif
+
     readModelYaml(modcell->modelFilename, (uint8_t*)modeldata, sizeof(ModelData));
 
     // Make sure there is room to rename

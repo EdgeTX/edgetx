@@ -83,7 +83,7 @@ void convertBinRadioData(const char * path, int version)
   unsigned converted = 0;
   auto to_convert = modelslist.getModelsCount() + 1;
 
-  drawProgressScreen(lcd, STR_CONVERTING, RADIO_FILENAME, converted, to_convert);
+  drawProgressScreen(RADIO_FILENAME, converted, to_convert);
   TRACE("converting '%s' (%d/%d)", RADIO_FILENAME, converted, to_convert);
 
 #if STORAGE_CONVERSIONS < 220
@@ -111,7 +111,7 @@ void convertBinRadioData(const char * path, int version)
     char* filename = model_ptr->modelFilename;
 
     TRACE("converting '%s' (%d/%d)", filename, converted, to_convert);
-    drawProgressScreen(lcd, STR_CONVERTING, filename, converted, to_convert);
+    drawProgressScreen(filename, converted, to_convert);
 
     // read only the version number (size=0)
     error = readModelBin(filename, nullptr, 0, &model_version);

@@ -52,30 +52,9 @@ void drawVerticalScrollbar(BitmapBuffer * dc, coord_t x, coord_t y, coord_t h, u
   }
 }
 
-void drawProgressScreen(BitmapBuffer * dc, const char * title, const char* message, int progress, int total)
-{
-  OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
-
-  lcd->reset();
-  l_theme->drawBackground(dc);
-  lcd->drawText(LCD_W/2, LCD_H/2 - 30, title, FONT(XL) | CENTERED | COLOR_THEME_WARNING);
-  lcd->drawText(LCD_W/2, LCD_H/2, message, FONT(STD) | CENTERED | COLOR_THEME_SECONDARY1);
-
-  l_theme->drawProgressBar(dc,
-                           LCD_W / 4,
-                           LCD_H / 2 + 40,
-                           LCD_W / 2,
-                           20,
-                           progress, total);
-
-  WDG_RESET();
-  lcdRefresh();
-}
-
 const uint8_t _LBM_TRIM_SHADOW[] = {
 #include "mask_trim_shadow.lbm"
 };
-
 STATIC_LZ4_BITMAP(LBM_TRIM_SHADOW);
 
 void drawTrimSquare(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color)
@@ -606,10 +585,10 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
   coord_t word;
   const char * nxt = str;
   flags &= ~(VCENTERED | CENTERED | RIGHT);
-
+  
   while (true) {
     for (bool done = false; !done; nxt++) {
-      switch (nxt[0]) {
+      switch (nxt[0]) {        
         case '-':
         case '/':
         case ':':
@@ -632,7 +611,7 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
     if (y + line > top + height) return;
     dc->drawSizedText(x, y, str, nxt - str, flags);
     x += word;
-    switch (nxt[0]) {
+    switch (nxt[0]) {        
       case '\0':
         return;
       case '\n':
