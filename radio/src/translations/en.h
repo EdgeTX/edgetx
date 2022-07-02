@@ -712,7 +712,7 @@
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
-#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE_FOLDER      "Select a template folder"
 #define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES                "No model templates were found in this folder"
 #define TR_SAVE_TEMPLATE               "Save as template"
@@ -756,7 +756,7 @@
 #define TR_PATH_TOO_LONG               "Path too long"
 #define TR_VIEW_TEXT                   "View text"
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
-#define TR_FLASH_DEVICE                TR("Flash device","Flash device")      
+#define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "Flash S.Port device")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -1263,9 +1263,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
 #endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"

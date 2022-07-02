@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "sdcard.h"
 #if !defined(SDCARD_YAML)
@@ -41,7 +42,7 @@
 // modelXXXXXXX.bin F,FF F,3F,FF\r\n
 #define LEN_MODELS_IDX_LINE (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n")-1)
 
-#define DEFAULT_MODEL_SORT DATE_DES
+#define DEFAULT_MODEL_SORT NAME_ASC
 
 struct ModelData;
 struct ModuleData;
@@ -88,7 +89,7 @@ class ModelCell
 
     void setModelId(uint8_t moduleIdx, uint8_t id);
     void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
-    bool  fetchRfData();
+    bool fetchRfData();
 };
 
 typedef struct {
@@ -129,7 +130,10 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     bool removeLabelFromModel(const std::string &label, ModelCell *, bool update=false);
     bool removeLabel(const std::string &);
     bool moveLabelTo(unsigned current, unsigned newind);
-    bool renameLabel(const std::string &from, const std::string &to, const char* title=STR_RENAME_FILE);
+    bool renameLabel(const std::string &from,
+                     const std::string &to,
+                     const char* title=STR_RENAME_FILE,
+                     std::function<void(const char *file, int progress)> progress=nullptr);
     std::string getCurrentLabel() {return currentlabel;};
     void setCurrentLabel(const std::string &lbl) {currentlabel = lbl; setDirty();}
     std::string getLabelString(ModelCell *, const char *noresults="");
@@ -154,7 +158,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
       std::multimap<uint16_t, ModelCell *>::clear();
     }
 
-
   private:
     bool _isDirty=true;
     LabelsVector labels; // Storage space for discovered labels
@@ -178,7 +181,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 };
 
 
-class ModelsList : public std::vector<ModelCell *>
+class ModelsList : public ModelsVector
 {
   bool loaded;
 

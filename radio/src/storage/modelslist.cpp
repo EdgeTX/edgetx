@@ -495,7 +495,10 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @return false success
  */
 
-bool ModelMap::renameLabel(const std::string &from, const std::string &to, const char *title)
+bool ModelMap::renameLabel(const std::string &from,
+                           const std::string &to,
+                           const char* title,
+                           std::function<void(const char *name, int progress)> progress)
 {
   DEBUG_TIMER_START(debugTimerYamlScan);
 
@@ -515,8 +518,13 @@ bool ModelMap::renameLabel(const std::string &from, const std::string &to, const
   ModelsVector mods = getModelsByLabel(from); // Find all models to be renamed
   int i=0;
   for (const auto &modcell: mods) {
+    if(progress != nullptr) {
+      progress(modcell->modelFilename, (i++)*100 / mods.size());
+    }
 #if defined(COLORLCD)
-    drawProgressScreen(lcd, title, modcell->modelFilename, i++, mods.size());
+    else { // REMOVEME
+      drawProgressScreen(lcd, title, modcell->modelFilename, i++, mods.size());
+    }
 #endif
     readModelYaml(modcell->modelFilename, (uint8_t*)modeldata, sizeof(ModelData));
 
@@ -567,7 +575,7 @@ bool ModelMap::renameLabel(const std::string &from, const std::string &to, const
     char path[256];
     getModelPath(path, modcell->modelFilename);
 
-    if(&(*modcell) == modelslist.getCurrentModel()) {
+    if(modcell == modelslist.getCurrentModel()) {
       // If working on the current model, write current data to file instead
       memcpy(g_model.header.labels, modeldata->header.labels, LABELS_LENGTH);
       fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model) != NULL);
@@ -583,6 +591,10 @@ bool ModelMap::renameLabel(const std::string &from, const std::string &to, const
       setDirty(true);
     }
   }
+
+  // Make sure to leave at 100, to kill rename dialog
+  if(progress != nullptr)
+    progress("", 100);
 
   free(modeldata);
 

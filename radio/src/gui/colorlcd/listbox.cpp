@@ -109,7 +109,9 @@ void ListBase::setSelected(int selected)
 
 void ListBase::setSelected(std::set<uint32_t> selected)
 {
-  for(int i=0; i < lv_table_get_row_cnt(lvobj); i++) {
+  if(!multiSelect) return;
+
+  for(int i=0; i < getRowCount(); i++) {
     if(selected.find(i) != selected.end())
       lv_table_add_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
     else
@@ -123,6 +125,17 @@ int ListBase::getSelected() const
   lv_table_get_selected_cell(lvobj, &row, &col);
   if (row != LV_TABLE_CELL_NONE) { return row; }
   return -1;
+}
+
+std::set<uint32_t> ListBase::getSelection()
+{
+  if(!multiSelect) return std::set<uint32_t>();
+  std::set<uint32_t> selectedIndexes;
+  for(int i=0; i < getRowCount(); i++) {
+  if(lv_table_has_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1))
+    selectedIndexes.insert(i);
+  }
+  return selectedIndexes;
 }
 
 void ListBase::setActiveItem(int item)
@@ -144,19 +157,15 @@ void ListBase::onPress(uint16_t row, uint16_t col)
 
   TRACE("SHORT_PRESS");
 
-  if(multiSelect) {
+  if(multiSelect && row < getRowCount()) {
+    std::set<uint32_t> lastSelection = getSelection();
+
     bool chk = lv_table_has_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
     if(chk) lv_table_clear_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
     else lv_table_add_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
 
     if(_multiSelectHandler) {
-      std::set<uint32_t> selectedIndexes;
-      for(int i=0; i < lv_table_get_row_cnt(lvobj); i++) {
-        if(lv_table_has_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1))
-          selectedIndexes.insert(i);
-      }
-
-      _multiSelectHandler(selectedIndexes);
+      _multiSelectHandler(getSelection(),lastSelection);
     }
   } else {
     if (pressHandler) { pressHandler(); }

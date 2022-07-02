@@ -731,7 +731,7 @@
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define LEN_SAMPLE_MODES               "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
-#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE_FOLDER      "Select a template folder"
 #define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES                "No model templates were found in this folder"
 #define TR_SAVE_TEMPLATE               "Save as template"

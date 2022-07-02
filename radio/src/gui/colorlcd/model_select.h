@@ -26,6 +26,7 @@
 #include "storage/modelslist.h"
 #include "libopenui.h"
 #include <algorithm>
+#include <functional>
 #include "listbox.h"
 
 constexpr int MAX_LABEL_SIZE = 30;
@@ -40,19 +41,18 @@ class ModelsPageBody : public FormWindow
     void setLabels(LabelsVector labels) {selectedLabels = labels; update();}
     void update(int selected = -1);
 
-    inline void setRefresh() { refresh = true; }
-    inline void setSortOrder(ModelsSortBy sortOrder) { _sortOrder = sortOrder; setRefresh(); }
-
-    void checkEvents() override;
+    inline void setSortOrder(ModelsSortBy sortOrder)
+    {
+      _sortOrder = sortOrder;
+      update();
+    }
 
     void deleteLater(bool detach = true, bool trash = true) override
     {
       innerWindow.deleteLater(true, false);
-
       Window::deleteLater(detach, trash);
     }
 
-    void paint(BitmapBuffer *dc) override;
     void setLblRefreshFunc(std::function<void()> fnc) {refreshLabels = std::move(fnc);}
 
   protected:
@@ -70,12 +70,8 @@ class ModelLabelsWindow : public Page {
   public:
     ModelLabelsWindow();
 
-#if defined (HARDWARE_KEYS)
-  void onEvent(event_t event) override;
-#endif
-
   protected:
-    ModelsSortBy sort = NAME_ASC;
+    ModelsSortBy sort = DEFAULT_MODEL_SORT;
     char tmpLabel[MAX_LABEL_SIZE + 1] = "\0";
     ListBox *lblselector;
     ModelsPageBody *mdlselector;
@@ -96,5 +92,24 @@ class ModelLabelsWindow : public Page {
     void labelRefreshRequest();
 };
 
+class RenameDialog : public Dialog
+{
+  uint32_t lastUpdate = 0;
+  Progress* progress;
+
+  std::function<void()> onClose;
+
+
+ public:
+  RenameDialog(Window* parent, std::function<void()> onClose);
+
+  void updateProgress(const char *filename, int percentage);
+
+  // disable keys
+  void onEvent(event_t) override;
+
+  void checkEvents() override;
+};
 
 #endif // _MODEL_SELECT_H_
+

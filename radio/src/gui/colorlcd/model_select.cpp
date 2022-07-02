@@ -69,6 +69,7 @@ constexpr int LABELS_HEIGHT = MENUS_LINE_HEIGHT;
 constexpr int LABELS_WIDTH = 120;
 constexpr int LABELS_LEFT = 5;
 constexpr int LABELS_TOP = 60;
+constexpr int LAY_MARGIN = 5;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LABELS_WIDTH - LABELS_LEFT - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
@@ -244,7 +245,7 @@ class ModelButton : public Button
                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);   // TODO: Delay read until visible for first time on screen?
+      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
       if (bitmap) {
         buffer->drawScaledBitmap(bitmap, 0, 0, width(), height());
         delete bitmap;
@@ -299,6 +300,7 @@ class ModelButton : public Button
 };
 
 //-----------------------------------------------------------------------------
+
 class MyMenu : public Menu
 {
   public:
@@ -324,23 +326,9 @@ class MyMenu : public Menu
 
 ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
     FormWindow(parent, rect),
-  innerWindow(this, { 4, 4, rect.w - 8, rect.h - 8 })
+    innerWindow(this, { 4, 4, rect.w - 8, rect.h - 8 })
 {
   update();
-  setFocusHandler([=](bool focus) {
-    if (focus) {
-      if (innerWindow.getChildren().size() > 0) {
-        //auto firstModel = *innerWindow.getChildren().begin();
-        //firstModel->setFocus();
-      }
-    }
-  });
-
-}
-
-void ModelsPageBody::paint(BitmapBuffer *dc)
-{
-  //dc->drawSolidRect(0, getScrollPositionY(), rect.w, rect.h, 2, COLOR_THEME_FOCUS);
 }
 
 void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, int index)
@@ -379,7 +367,6 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
         storageCheck(true);
         modelslist.setCurrentModel(model);
         checkAll();
-        //this->getParent()->getParent()->deleteLater();
       });
     }
     menu->addLine(STR_DUPLICATE_MODEL, [=]() {
@@ -458,20 +445,19 @@ void ModelsPageBody::update(int selected)
   coord_t y = 0;
   coord_t x = 0;
 
-  ModelButton* selectButton = nullptr;
-  ModelsVector models = modelsLabels.getModelsInLabels(selectedLabels, _sortOrder);
+  ModelsVector models;
+  if(selectedLabels.size()) {
+    models = modelsLabels.getModelsInLabels(selectedLabels, _sortOrder);
+  } else { // Show all
+    models = modelslist;
+  }
 
   for (auto &model : models) {
     auto button = new ModelButton(
         &innerWindow, {x, y, MODEL_SELECT_CELL_WIDTH, MODEL_SELECT_CELL_HEIGHT},
         model);
     initPressHandlers(button, model, index);
-    if (selected == index) {
-      selectButton = button;
-    }
-
     index++;
-
     if (index % MODEL_CELLS_PER_LINE == 0) {
       x = 0;
       y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
@@ -482,11 +468,6 @@ void ModelsPageBody::update(int selected)
 
   if (index % MODEL_CELLS_PER_LINE != 0) {
     y += MODEL_SELECT_CELL_HEIGHT + MODEL_CELL_PADDING;
-  }
-  //innerWindow.setInnerHeight(y);
-
-  if (selectButton != nullptr) {
-    //selectButton->setFocus();
   }
 }
 
@@ -509,14 +490,16 @@ class LabelDialog : public Dialog
       new TextEdit(&content->form, grid.getFieldSlot(), label, MAX_LABEL_SIZE);
       grid.nextLine();
 
-      rect_t r = {detailsDialogRect.w - (BUTTON_WIDTH + 5), grid.getWindowHeight() + 5, BUTTON_WIDTH, BUTTON_HEIGHT };
+      rect_t r = {detailsDialogRect.w - (BUTTON_WIDTH + 20), grid.getWindowHeight() + 5, BUTTON_WIDTH, BUTTON_HEIGHT };
       new TextButton(&content->form, r, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
           saveHandler(label);
         deleteLater();
         return 0;
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
-      r.x -= (BUTTON_WIDTH + 5);
+
+      r.x -= (BUTTON_WIDTH + 20);
+
       new TextButton(&content->form, r, STR_CANCEL, [=] () {
         deleteLater();
         return 0;
@@ -536,16 +519,6 @@ ModelLabelsWindow::ModelLabelsWindow() :
   buildBody(&body);
   buildHead(&header);
 
-  // // make PG_UP and PG_DN work
-  // lblselector->setNextField(mdlselector);
-  // lblselector->setPreviousField(newButton);
-  // mdlselector->setNextField(newButton);
-  // mdlselector->setPreviousField(lblselector);
-  // newButton->setNextField(lblselector);
-  // newButton->setPreviousField(mdlselector);
-
-  // lblselector->setFocus();
-
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();
   if (currentModel != nullptr) {
@@ -562,48 +535,6 @@ ModelLabelsWindow::ModelLabelsWindow() :
     }
   }
 }
-
-bool isChildOfMdlSelector(Window *window)
-{
-  while (window != nullptr)
-  {
-    if (dynamic_cast<ModelsPageBody *>(window) != nullptr)
-      return true;
-
-    window = window->getParent();
-  }
-
-  return false;
-}
-
-#if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onEvent(event_t event)
-{
-  // if (event == EVT_KEY_BREAK(KEY_PGUP)) {
-  //   onKeyPress();
-  //   FormField *focus = dynamic_cast<FormField *>(getFocus());
-  //   if (isChildOfMdlSelector(focus))
-  //     lblselector->setFocus();
-  //   else if (focus != nullptr && focus->getPreviousField()) {
-  //     focus->getPreviousField()->setFocus(SET_FOCUS_BACKWARD, focus);
-  //   }
-  // } else if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-  //   onKeyPress();
-  //   FormField *focus = dynamic_cast<FormField *>(getFocus());
-  //   if (isChildOfMdlSelector(focus))
-  //     newButton->setFocus();
-  //   else
-  //    if (focus != nullptr && focus->getNextField()) {
-  //     focus->getNextField()->setFocus(SET_FOCUS_FORWARD, focus);
-  //   }
-  // } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-  //   killEvents(event);
-  //   deleteLater();
-  // } else {
-  //   Page::onEvent(event);
-  // }
-}
-#endif
 
 void ModelLabelsWindow::buildHead(PageHeader *window)
 {
@@ -658,8 +589,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 {
   #if LCD_W > LCD_H
   // Models List and Filters - Right
-  mdlselector = new ModelsPageBody(window, {LABELS_WIDTH + LABELS_LEFT + 3, 5, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, window->height() - 40});
-  auto buttonHolder = new ButtonHolder(window, {LABELS_WIDTH + LABELS_LEFT + 3, window->height() - 33, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, 25 });
+  mdlselector = new ModelsPageBody(window, {LABELS_WIDTH + LABELS_LEFT + 3, LAY_MARGIN-3, window->width() - LABELS_WIDTH - 3 - LABELS_LEFT, window->height()-5});
+  auto buttonHolder = new ButtonHolder(window, {LAY_MARGIN, window->height() - 33, window->width() - labelWidth, 25 });
   #else
   mdlselector = new ModelsPageBody(window, {LAY_MARGIN, MODELS_TOP , window->width() - LAY_MARGIN*2, SORTBUTTONS_TOP - MODELS_TOP - LAY_MARGIN});
   auto buttonHolder = new ButtonHolder(window, {LAY_MARGIN, SORTBUTTONS_TOP, window->width() - LAY_MARGIN*2, window->height() - SORTBUTTONS_TOP - LAY_MARGIN});
@@ -675,17 +606,30 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
     mdlselector->setSortOrder(sort); // Update the list asynchronously
   });
 #if LCD_W > LCD_H
-  lblselector = new ListBox(window, {LABELS_LEFT, 5, LABELS_WIDTH, window->height() - 10 },
+  lblselector = new ListBox(window, {LAY_MARGIN, 5, LABELS_WIDTH, window->height() - 43 },
 #else
   lblselector = new ListBox(window, {LAY_MARGIN, LAY_MARGIN, window->width() - LAY_MARGIN*2, MODELS_TOP - LAY_MARGIN*2},
 #endif
     getLabels());
 
-  lblselector->setMultiSelectMode(true);
+  lblselector->setMultiSelect(true);
   lblselector->setSelected(modelsLabels.filteredLabels());
   updateFilteredLabels(modelsLabels.filteredLabels(), false);
 
-  lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected){
+  lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,std::set<uint32_t> oldselection) {
+    // Special case for mutually exclusive Unsorted
+    bool unsrt_is_selected = selected.find(lblselector->getRowCount()-1) != selected.end();
+    bool unsrt_was_selected = oldselection.find(lblselector->getRowCount()-1) != oldselection.end();
+
+    // Unsorted was just picked
+    if(unsrt_is_selected && !unsrt_was_selected) {
+      selected.clear();
+      selected.insert(lblselector->getRowCount() -1);
+    } else if(unsrt_is_selected && unsrt_was_selected) {
+      selected.erase(selected.find(lblselector->getRowCount()-1));
+    }
+
+    lblselector->setSelected(selected);
     updateFilteredLabels(selected);
   });
 
@@ -715,7 +659,15 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
           new LabelDialog(window, tmpLabel,
             [=] (std::string newLabel) {
-              modelsLabels.renameLabel(oldLabel, newLabel);
+              auto rndialog = new RenameDialog(this, [=](){});
+
+                modelsLabels.renameLabel(oldLabel,
+                                         newLabel,
+                                         STR_RENAME_FILE,
+                                         [=](const char* name, int percentage) {
+                    rndialog->updateProgress(name, percentage);
+                  });
+
               auto labels = getLabels();
               lblselector->setNames(labels);
             });
@@ -723,11 +675,11 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         });
         menu->addLine(STR_DELETE_LABEL, [=] () {
           auto labelToDelete = labels[selected];
-          // if (confirmationDialog(STR_DELETE_LABEL, labelToDelete.c_str())) {
-          //   modelsLabels.removeLabel(labelToDelete);
-          //   auto labels = getLabels();
-          //   lblselector->setNames(labels);
-          // }
+          if (confirmationDialog(STR_DELETE_LABEL, labelToDelete.c_str())) { // TODO.. FIX ME Crashing
+             modelsLabels.removeLabel(labelToDelete);
+             auto labels = getLabels();
+             lblselector->setNames(labels);
+           }
           return 0;
         });
         if(modelsLabels.getLabels().size() > 1) {
@@ -749,7 +701,6 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           }
         }
       }
-
     }
   });
 }
@@ -762,8 +713,8 @@ void ModelLabelsWindow::updateFilteredLabels(std::set<uint32_t> selected, bool s
       if(sel < labels.size())
         sellabels.push_back(labels[sel]);
     }
-    if(setdirty) {
-      modelsLabels.setFilteredLabels(selected); // Update the model map, will be saved to file
+    if(setdirty) { // Save to file?
+      modelsLabels.setFilteredLabels(selected);
       modelsLabels.setDirty();
     }
     mdlselector->setLabels(sellabels); // Update the list
@@ -773,4 +724,50 @@ void ModelLabelsWindow::labelRefreshRequest()
 {
   auto labels = getLabels();
   lblselector->setNames(labels);
+}
+
+//-----------------------------------------------------------------------------
+
+constexpr rect_t RFSCAN_DIALOG_RECT = {
+  50, 100, LCD_W - 100, LCD_H - 200
+};
+
+RenameDialog::RenameDialog(Window* parent,
+                           std::function<void()> onClose) :
+  Dialog(parent, "title", RFSCAN_DIALOG_RECT),
+  progress(new Progress(&content->form,
+                        {PAGE_PADDING, PAGE_PADDING,
+                        content->form.width() - 2 * PAGE_PADDING,
+                        content->form.height() - 2 * PAGE_PADDING})),
+  onClose(std::move(onClose))
+{
+  // disable canceling dialog
+  //setCloseWhenClickOutside(false);
+}
+
+void RenameDialog::updateProgress(const char *filename, int percentage)
+{
+  progress->setValue(percentage);
+  if(percentage == 101) {
+    deleteLater();
+    onClose();
+  }
+}
+
+// disable keys
+void RenameDialog::onEvent(event_t)
+{
+  return;
+}
+
+void RenameDialog::checkEvents()
+{
+//  if (RTOS_GET_MS() - lastUpdate >= 200) {
+    //showProgress();
+    //lastUpdate = RTOS_GET_MS();
+  //}
+//
+  //progress->setValue(percentage);
+
+  Dialog::checkEvents();
 }
