@@ -8510,11 +8510,11 @@ x</translation>
     <name>RawSwitch</name>
     <message>
         <source>↑</source>
-        <translation type="unfinished"></translation>
+        <translation>↑</translation>
     </message>
     <message>
         <source>↓</source>
-        <translation type="unfinished"></translation>
+        <translation>↓</translation>
     </message>
     <message>
         <source>-</source>
@@ -8526,35 +8526,35 @@ x</translation>
     </message>
     <message>
         <source>RudTrim Left</source>
-        <translation>SiderorTrim Venstre</translation>
+        <translation>Sideror trim venstre</translation>
     </message>
     <message>
         <source>RudTrim Right</source>
-        <translation>SiderorTrim Højre</translation>
+        <translation>Sideror trim højre</translation>
     </message>
     <message>
         <source>EleTrim Down</source>
-        <translation>HøjdeTrim ned</translation>
+        <translation>Højde trim ned</translation>
     </message>
     <message>
         <source>EleTrim Up</source>
-        <translation>HøjdeTrim op</translation>
+        <translation>Højde trim op</translation>
     </message>
     <message>
         <source>ThrTrim Down</source>
-        <translation>GasTrim ned</translation>
+        <translation>Gas trim ned</translation>
     </message>
     <message>
         <source>ThrTrim Up</source>
-        <translation>GasTrim upp</translation>
+        <translation>Gas trim op</translation>
     </message>
     <message>
         <source>AilTrim Left</source>
-        <translation>KrængrorTrim Venstre</translation>
+        <translation>Krængror trim venstre</translation>
     </message>
     <message>
         <source>AilTrim Right</source>
-        <translation>KrængrorTrim Højre</translation>
+        <translation>Krængror trim højre</translation>
     </message>
     <message>
         <source>Trim 5 Down</source>
@@ -8634,7 +8634,7 @@ x</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation type="unfinished"></translation>
+        <translation>SW</translation>
     </message>
 </context>
 <context>
@@ -8967,6 +8967,22 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
         <source>Pot/Slider Warnings</source>
         <translation>Drejekontakt/skyder advarsel</translation>
     </message>    
+    <message>
+        <source>Rud</source>
+        <translation>Sid</translation>
+    </message>
+    <message>
+        <source>Ele</source>
+        <translation>Høj</translation>
+    </message>
+    <message>
+        <source>Thr</source>
+        <translation>Gas</translation>
+    </message>
+    <message>
+        <source>Ail</source>
+        <translation>Kræ</translation>
+    </message>
 </context>
 <context>
     <name>SetupPanel</name>
