@@ -13,7 +13,7 @@
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
@@ -21,7 +21,7 @@
 #include "translations.h"
 #include "appdata.h"
 
-#include <QCoreApplication>
+#include <QCoreApplication> 
 #include <QDir>
 #include <QLibraryInfo>
 #include <QTranslator>
@@ -35,6 +35,7 @@ QStringList const Translations::getAvailableTranslations()
 
   if (!locales.size()) {
     locales << "cs_CZ"
+            << "da_DA"
             << "de_DE"
             << "en"
             << "es_ES"
