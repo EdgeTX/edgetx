@@ -26,9 +26,6 @@
 #include "conversions/conversions.h"
 #include "model_init.h"
 
-// defined either in sdcard_raw.cpp or sdcard_yaml.cpp
-void storageCreateModelsList();
-
 void getModelPath(char * path, const char * filename, const char* pathName)
 {
   unsigned int len = strlen(pathName);
@@ -71,9 +68,6 @@ void storageFormat()
   sdCheckAndCreateDirectory(MODELS_PATH);
   generalDefault();
   setModelDefaults();
-#if defined(STORAGE_MODELSLIST)
-  storageCreateModelsList();
-#endif
 }
 
 void storageCheck(bool immediately)

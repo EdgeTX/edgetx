@@ -69,7 +69,7 @@ ViewMain::ViewMain():
   lv_obj_set_user_data(tile_view, this);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
   lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
-
+  
   // create last to be on top
   topbar = dynamic_cast<TopbarImpl*>(TopbarFactory::create(this));
 }
@@ -113,7 +113,7 @@ rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
   auto visibleHeight = topbar->getVisibleHeight(hasTopbar ? 1.0 : 0.0);
   zone.y += visibleHeight;
   zone.h -= visibleHeight;
-
+  
   return zone;
 }
 
@@ -140,7 +140,7 @@ void ViewMain::previousMainView()
 {
   auto view = getCurrentMainView();
   if (view > 0)
-    view--;
+    view--;  
   else
     view = getMainViewsCount() - 1;
 
@@ -186,7 +186,7 @@ void ViewMain::updateTopbarVisibility()
 
   int view = scrollPos / pageWidth;
   // TODO: cap view ???
-
+  
   int leftScroll =  scrollPos % width();
   if (leftScroll == 0) {
     setTopbarVisible(hasTopbar(view));
