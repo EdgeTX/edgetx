@@ -92,6 +92,7 @@ class ModelLabelsWindow : public Page {
 
     void buildHead(PageHeader *window);
     void buildBody(FormWindow *window);
+    void updateFilteredLabels(std::set<uint32_t> selected, bool setdirty=true);
     void labelRefreshRequest();
 };
 

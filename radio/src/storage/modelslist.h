@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <stdint.h>
 #include <list>
+#include <set>
 #include <map>
 #include <string>
 #include <vector>
@@ -135,9 +136,15 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     void setDirty(bool save=false);
     bool isDirty() {return _isDirty;}
 
+    // Currently selected labels in the GUI
+    void setFilteredLabels(std::set<uint32_t> filtlbls) {this->filtlbls = std::move(filtlbls);}
+    void addFilteredLabel(const std::string &lbl);
+    bool isLabelFiltered(const std::string &lbl);
+    std::set<uint32_t> filteredLabels() {return filtlbls;}
+
   protected:
     void updateModelCell(ModelCell *);
-    bool removeModels(ModelCell *); // Should only be called from ModelsList remove model.
+    bool removeModels(ModelCell *);      // Should only be called from ModelsList remove model
     bool updateModelFile(ModelCell *);
     void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
@@ -151,6 +158,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   private:
     bool _isDirty=true;
     LabelsVector labels; // Storage space for discovered labels
+    std::set<uint32_t> filtlbls;
     std::string currentlabel = "";
 
     int getIndexByLabel(const std::string &str)

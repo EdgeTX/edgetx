@@ -63,7 +63,7 @@ constexpr int MODEL_CELLS_PER_LINE = 2;
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 95;
 constexpr LcdFlags textFont = FONT(STD);
-constexpr rect_t detailsDialogRect = {50, 50, 400, 100};
+constexpr rect_t detailsDialogRect = {50, 50, 400, 150};
 constexpr int labelWidth = 150;
 constexpr int LABELS_HEIGHT = MENUS_LINE_HEIGHT;
 constexpr int LABELS_WIDTH = 120;
@@ -78,7 +78,7 @@ constexpr int MODEL_CELLS_PER_LINE = 2;
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 75;
 constexpr LcdFlags textFont = FONT(XS);
-constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 100};
+constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 150};
 constexpr int labelWidth = 150;
 constexpr int LABELS_HEIGHT = 30;
 constexpr int LAY_MARGIN = 5;
@@ -222,11 +222,7 @@ class ModelButton : public Button
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
 
-
     load();
-#if defined(HARDWARE_TOUCH)
-    duration10ms = 0;
-#endif
   }
 
   ~ModelButton()
@@ -235,11 +231,12 @@ class ModelButton : public Button
   }
 
 
+/*
 #if defined(HARDWARE_KEYS)
+
   void onEvent(event_t event) override
   {
     switch (event) {
-      case EVT_RO
       case EVT_KEY_LONG(KEY_ENTER):
         if (longPressHandler) {
           killEvents(event);
@@ -263,13 +260,15 @@ class ModelButton : public Button
 #endif
 
 #if defined(HARDWARE_TOUCH)
+
+    // REMOVED...
     bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override
     {
 
-      slid = true;/*
+      slid = true;
       if (touchState.event == TE_SLIDE_END) {
         duration10ms = 0;
-      }*/
+      }
 
       return Button::onTouchSlide(x, y, startX, startY, slideX, slideY);
     }
@@ -317,7 +316,7 @@ class ModelButton : public Button
         }
       }
     }
-#endif
+#endif*/
 
   void load()
   {
@@ -335,7 +334,7 @@ class ModelButton : public Button
                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
+      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);   // TODO: Delay read until visible for first time on screen?
       if (bitmap) {
         buffer->drawScaledBitmap(bitmap, 0, 0, width(), height());
         delete bitmap;
@@ -346,10 +345,10 @@ class ModelButton : public Button
     }
   }
 
-  void setLongPressHandler(std::function<void ()> handler)
+/*  void setLongPressHandler(std::function<void ()> handler)
   {
     longPressHandler = std::move(handler);
-  }
+  }*/
 
   void paint(BitmapBuffer *dc) override
   {
@@ -393,7 +392,7 @@ class ModelButton : public Button
   bool slid = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
-  std::function<void ()> longPressHandler = nullptr;
+  //std::function<void ()> longPressHandler = nullptr;
 #if defined(HARDWARE_TOUCH)
   bool longPressed = false;
   tmr10ms_t duration10ms;
@@ -475,7 +474,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
 {
   button->setPressHandler([=]() -> uint8_t {return 1;});
   // Long Press Handler for Models
-  button->setLongPressHandler([=] () {
+  button->setLongPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(this);
     menu->setTitle(model->modelName);
     if (model != modelslist.getCurrentModel()) {
@@ -507,7 +506,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
         storageCheck(true);
         modelslist.setCurrentModel(model);
         checkAll();
-        this->getParent()->getParent()->deleteLater();
+        //this->getParent()->getParent()->deleteLater();
       });
     }
     menu->addLine(STR_DUPLICATE_MODEL, [=]() {
@@ -574,6 +573,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
         }
       }
     });
+    return 0;
   });
 }
 
@@ -807,13 +807,13 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   lblselector = new ListBox(window, {LAY_MARGIN, LAY_MARGIN, window->width() - LAY_MARGIN*2, MODELS_TOP - LAY_MARGIN*2},
 #endif
     getLabels());
-  //lblselector->setSelectionMode(ListBox::LISTBOX_MULTI_SELECT);
-  lblselector->setPressHandler([=](){
-    uint32_t selected = lblselector->getSelected();
-    LabelsVector sellabels;
-    LabelsVector labels = getLabels();
-    sellabels.push_back(labels[selected]);
-    mdlselector->setLabels(sellabels); // Update the list
+
+  lblselector->setMultiSelectMode(true);
+  lblselector->setSelected(modelsLabels.filteredLabels());
+  updateFilteredLabels(modelsLabels.filteredLabels(), false);
+
+  lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected){
+    updateFilteredLabels(selected);
   });
 
   lblselector->setLongPressHandler([=] () {
@@ -879,6 +879,21 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
     }
   });
+}
+
+void ModelLabelsWindow::updateFilteredLabels(std::set<uint32_t> selected, bool setdirty)
+{
+    LabelsVector sellabels;
+    LabelsVector labels = getLabels();
+    for(auto sel : selected) {
+      if(sel < labels.size())
+        sellabels.push_back(labels[sel]);
+    }
+    if(setdirty) {
+      modelsLabels.setFilteredLabels(selected); // Update the model map, will be saved to file
+      modelsLabels.setDirty();
+    }
+    mdlselector->setLabels(sellabels); // Update the list
 }
 
 void ModelLabelsWindow::labelRefreshRequest()

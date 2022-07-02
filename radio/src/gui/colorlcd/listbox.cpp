@@ -107,6 +107,16 @@ void ListBase::setSelected(int selected)
   select(selected, 0);
 }
 
+void ListBase::setSelected(std::set<uint32_t> selected)
+{
+  for(int i=0; i < lv_table_get_row_cnt(lvobj); i++) {
+    if(selected.find(i) != selected.end())
+      lv_table_add_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    else
+      lv_table_clear_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+  }
+}
+
 int ListBase::getSelected() const
 {
   uint16_t row, col;
@@ -133,7 +143,24 @@ void ListBase::onPress(uint16_t row, uint16_t col)
   if (row == LV_TABLE_CELL_NONE) return;
 
   TRACE("SHORT_PRESS");
-  if (pressHandler) { pressHandler(); }
+
+  if(multiSelect) {
+    bool chk = lv_table_has_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    if(chk) lv_table_clear_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    else lv_table_add_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+
+    if(_multiSelectHandler) {
+      std::set<uint32_t> selectedIndexes;
+      for(int i=0; i < lv_table_get_row_cnt(lvobj); i++) {
+        if(lv_table_has_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1))
+          selectedIndexes.insert(i);
+      }
+
+      _multiSelectHandler(selectedIndexes);
+    }
+  } else {
+    if (pressHandler) { pressHandler(); }
+  }
 }
 
 void ListBase::onLongPressed()
@@ -147,6 +174,7 @@ void ListBase::onClicked()
 {
   if (!getAutoEdit()) {
     lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), true);
+
   } else {
     TableField::onClicked();
   }
@@ -164,8 +192,10 @@ void ListBase::onCancel()
 
 void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  if (row != activeItem) return;
-  
+  if ((multiSelect == false && row != activeItem) ||
+      (multiSelect == true && !lv_table_has_cell_ctrl(lvobj, dsc->id, 0, LV_TABLE_CELL_CTRL_CUSTOM_1)))
+   return;
+
   lv_area_t coords;
   lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
 

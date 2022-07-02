@@ -376,6 +376,26 @@ bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell, bool upd
 }
 
 /**
+ * @brief Adds a label to the filter, used in yaml_labelslist on load
+ *
+ * @param label Label to be added
+ */
+
+void ModelMap::addFilteredLabel(const std::string &lbl)
+{
+  int ind = getIndexByLabel(lbl);
+  if(ind >= 0)
+    filtlbls.insert(ind);
+}
+
+bool ModelMap::isLabelFiltered(const std::string &lbl)
+{
+  if(filtlbls.find(getIndexByLabel(lbl)) != filtlbls.end())
+    return true;
+  return false;
+}
+
+/**
  * @brief Removes a label from a model
  *
  * @param label Label to be removed
@@ -1014,7 +1034,7 @@ const char * ModelsList::save()
   LabelsVector lbls = modelsLabels.getLabels();
   for(auto &lbl : lbls) {
     f_printf(&file, "  - %s:\r\n", lbl.c_str());
-    if(lbl == cursel)
+    if(modelsLabels.isLabelFiltered(lbl))
       f_printf(&file, "    - selected: true\r\n", lbl.c_str());
   }
 

@@ -51,7 +51,8 @@ struct labelslist_iter
     ModelCell   *curmodel;
     bool        modeldatavalid; // Used to determine if reading yaml values is necessary
     uint8_t     level;
-    char        current_attr[16]; // set after find_node()
+    char        current_attr[LABEL_LENGTH+1]; // set after find_node()
+    char        current_label[LABEL_LENGTH+1]; // set after find_node()
 };
 
 static labelslist_iter __labelslist_iter_inst;
@@ -164,6 +165,8 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     if(mi->level == labelslist_iter::LabelName)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
       modelsLabels.addLabel(mi->current_attr);
+      strncpy(mi->current_label,mi->current_attr, sizeof(mi->current_label));
+      mi->current_label[sizeof(mi->current_label)] = '\0';
     }
 
     return true;
@@ -266,7 +269,9 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
     if(!strcasecmp(mi->current_attr, "icon")) {
       TRACE_LABELS_YAML("Label Icon - %s", value);
       // TODO - Check icon exists, or ignore it.
-
+    } else if(!strcasecmp(mi->current_attr, "selected")) {
+      TRACE("FOUND %s Label is selected", mi->current_label);
+      modelsLabels.addFilteredLabel(mi->current_label);
     }
   }
 }
