@@ -220,10 +220,10 @@
 
 #define TR_ON_ONE_SWITCHES             "EN","En"
 
-#if defined(IMU)
-  #define TR_IMU_VSRCRAW               "TltX","TltY",
+#if defined(GYRO)
+  #define TR_GYR_VSRCRAW               "GyrX","GyrY",
 #else
-  #define TR_IMU_VSRCRAW
+  #define TR_GYR_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -249,6 +249,7 @@
 #define TR_VFORMULAS                   "Tillæg","Gennems.","Min","Max","Gange","Sum","Cell","Forbrug","Afstand"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Lavest","1","2","3","4","5","6","Højst","Delta"
+#define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "Standard","Tynd","Lille","Medium","Dobbelt"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center kun)","= (symmetrisk)"
 
@@ -378,9 +379,9 @@
 #define TR_BEEP_PITCH                  "Bip højde"
 #define TR_HAPTIC_LABEL                "Haptic"
 #define TR_STRENGTH                    "Styrke"
-#define TR_IMU_LABEL                   "IMU"
-#define TR_IMU_OFFSET                  "Offset"
-#define TR_IMU_MAX                     "Max"
+#define TR_GYRO_LABEL                  "Gyro"
+#define TR_GYRO_OFFSET                 "Offset"
+#define TR_GYRO_MAX                    "Max"
 #define TR_CONTRAST                    "Kontrast"
 #define TR_ALARMS_LABEL                "Alarmer"
 #define TR_BATTERY_RANGE               TR("Batt. range", "Battery meter range")
@@ -625,7 +626,7 @@
 #define TR_MODULES_RX_VERSION          "Moduler / RX version"
 #define TR_MENU_MODULES_RX_VERSION     "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE TILVALG"
-#define TR_IMU                        "IMU"
+#define TR_GYRO                        "Gyro"
 #define TR_STICKS_POTS_SLIDERS         "pinde/drejekontakter/skydere"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM pinde/drejekontakter/skydere"
 #define TR_RF_PROTOCOL                 "RF protokol"
@@ -725,8 +726,6 @@
 #define TR_BLUETOOTH_DIST_ADDR         "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokal addr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN code"
-#define TR_BLUETOOTH_NODEVICES         "No Devices Found"
-#define TR_BLUETOOTH_SCANNING          "Scanning..."
 #define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Enabled"
