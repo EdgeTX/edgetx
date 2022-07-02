@@ -107,7 +107,7 @@ configure_file(${COMPANION_SRC_DIRECTORY}/simulator.desktop.in ${CMAKE_CURRENT_B
 ### Generate .qm files and assemble resource (qrc) file.
 
 # available Companion translations (src/translations/*.ts)
-set(LANGUAGES cs de en es fi fr it pl ru sv zh_CN ja)
+set(LANGUAGES cs da de en es fi fr it pl ru sv zh_CN ja)
 foreach(language ${LANGUAGES})
   list(APPEND companion_TS translations/companion_${language}.ts)
 endforeach(language)

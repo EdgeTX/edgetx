@@ -30,6 +30,36 @@
 #endif
 
 #if defined(STORAGE_MODELSLIST)
+static void drawProgressScreen(const char* filename, int progress, int total)
+{
+#if defined(COLORLCD)
+  lcdInitDirectDrawing();
+
+  OpenTxTheme* l_theme = static_cast<OpenTxTheme*>(theme);
+  l_theme->drawBackground(lcd);
+
+  lcd->drawText(LCD_W / 2, LCD_H / 2 - 30, STR_CONVERTING,
+                FONT(XL) | CENTERED | COLOR_THEME_WARNING);
+  lcd->drawText(LCD_W / 2, LCD_H / 2, filename,
+                FONT(STD) | CENTERED | COLOR_THEME_SECONDARY1);
+
+  l_theme->drawProgressBar(lcd,
+                           LCD_W / 4,
+                           LCD_H / 2 + 40,
+                           LCD_W / 2,
+                           20,
+                           progress, total);
+  lcdRefresh();
+
+  // invalidate screen to enable quick return
+  // to normal display routine
+  lv_obj_invalidate(lv_scr_act());
+
+  WDG_RESET();
+#else
+  // TODO: BW progress screen
+#endif
+}
 
 void convertBinRadioData(const char * path, int version)
 {
