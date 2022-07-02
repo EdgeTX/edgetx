@@ -221,102 +221,12 @@ class ModelButton : public Button
   {
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
-
-    load();
   }
 
   ~ModelButton()
   {
     if (buffer) { delete buffer; }
   }
-
-
-/*
-#if defined(HARDWARE_KEYS)
-
-  void onEvent(event_t event) override
-  {
-    switch (event) {
-      case EVT_KEY_LONG(KEY_ENTER):
-        if (longPressHandler) {
-          killEvents(event);
-          longPressHandler();
-        }
-        break;
-
-      case EVT_KEY_FIRST(KEY_ENTER): // eat this because we dont want button to take action
-        break;
-      case EVT_KEY_BREAK(KEY_ENTER):
-        onPress();
-        break;
-      case EVT_KEY_FIRST(KEY_EXIT):
-        killEvents(event);
-        break;
-
-      default:
-        Button::onEvent(event);
-    }
-  }
-#endif
-
-#if defined(HARDWARE_TOUCH)
-
-    // REMOVED...
-    bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY) override
-    {
-
-      slid = true;
-      if (touchState.event == TE_SLIDE_END) {
-        duration10ms = 0;
-      }
-
-      return Button::onTouchSlide(x, y, startX, startY, slideX, slideY);
-    }
-
-    bool onTouchStart(coord_t x, coord_t y) override
-    {
-      slid = false;
-      if (duration10ms == 0) {
-        duration10ms = getTicks();
-      }
-      //captureWindow(this);
-
-      return Button::onTouchStart(x, y);
-    }
-
-    bool onTouchEnd(coord_t x, coord_t y) override
-    {
-      duration10ms = 0;
-      if (!longPressed)
-        return Button::onTouchEnd(x, y);
-      else {
-        longPressed = false;
-        return true;
-      }
-    }
-
-
-    bool isLongPress()
-    {
-      unsigned int curTimer = getTicks();
-      return (!slid && duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS);
-    }
-
-    void checkEvents() override
-    {
-      Button::checkEvents();
-
-      if (isLongPress()) {
-        if (longPressHandler) {
-          longPressHandler();
-          killAllEvents();
-          duration10ms = 0;
-          longPressed = true;
-          return;
-        }
-      }
-    }
-#endif*/
 
   void load()
   {
@@ -345,13 +255,12 @@ class ModelButton : public Button
     }
   }
 
-/*  void setLongPressHandler(std::function<void ()> handler)
-  {
-    longPressHandler = std::move(handler);
-  }*/
-
   void paint(BitmapBuffer *dc) override
   {
+    if(!loaded) { // Load them on the fly
+      load();
+      loaded = true;
+    }
     FormField::paint(dc);
 
     if (buffer)
@@ -364,14 +273,9 @@ class ModelButton : public Button
                         COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       LcdFlags textColor;
-      // if (hasFocus()) {
-      //   dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_FOCUS, 5);
-      //   textColor = COLOR_THEME_PRIMARY2;
-      // }
-      // else {
-        dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-        textColor = COLOR_THEME_SECONDARY1;
-      // }
+      dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
+
+      textColor = COLOR_THEME_SECONDARY1;
 
       dc->drawSizedText(width() / 2, 2, modelCell->modelName,
                         LEN_MODEL_NAME,
@@ -389,14 +293,9 @@ class ModelButton : public Button
   ModelCell* getModelCell() const { return modelCell; }
 
  protected:
-  bool slid = false;
+  bool loaded=false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
-  //std::function<void ()> longPressHandler = nullptr;
-#if defined(HARDWARE_TOUCH)
-  bool longPressed = false;
-  tmr10ms_t duration10ms;
-#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -437,32 +336,6 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
     }
   });
 
-}
-
-void ModelsPageBody::checkEvents()
-{
-
-  // if (refresh) {
-  //   refresh = false;
-  //   int index = -1;
-  //   auto focusWindow = getFocus();
-  //   auto children = getChildren();
-  //   // if the window is dirty then update it but keep the same focused model.
-  //   if (focusWindow != nullptr && children.size() > 0) {
-  //     std::list<Window *>::iterator it = children.begin();
-  //     for (int i = 0; i < (int)children.size(); i++) {
-  //       if (*it == focusWindow) {
-  //         index = i;
-  //         break;
-  //       }
-  //       ++it;
-  //     }
-  //   }
-
-  //   update(index);
-  // }
-
-  FormWindow::checkEvents();
 }
 
 void ModelsPageBody::paint(BitmapBuffer *dc)
