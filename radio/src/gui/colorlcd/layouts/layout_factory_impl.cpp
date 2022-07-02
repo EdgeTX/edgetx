@@ -106,9 +106,6 @@ void Layout::adjustLayout()
 
   // and update relevant windows
   updateZones();
-
-  // probably not needed
-  //invalidate();
 }
 
 rect_t Layout::getMainZone() const

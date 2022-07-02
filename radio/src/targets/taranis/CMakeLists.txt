@@ -172,6 +172,8 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DRADIO_FAMILY_JUMPER_T12)
     add_definitions(-DEEPROM_VARIANT=0x4003)
     add_definitions(-DMANUFACTURER_JUMPER)
+    set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+    set(CLI ON CACHE BOOL "Enable CLI")
   elseif(PCBREV STREQUAL TX12)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
@@ -387,24 +389,12 @@ elseif(PCB STREQUAL XLITES)
   set(STATUS_LEDS YES)
   set(PXX2 ON)
   set(BLUETOOTH YES)
-  set(GYRO YES)
+  set(IMU YES)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
 if(NOT PCB STREQUAL PCBXLITE)
   add_definitions(-DHARDWARE_TRAINER_JACK)
-endif()
-
-if(GYRO)
-  add_definitions(-DGYRO)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/stm32/lsm6ds_driver.cpp
-    )
-  set(SRC
-    ${SRC}
-    gyro.cpp
-    )
 endif()
 
 if(INTERNAL_MODULE_SERIAL)
@@ -535,7 +525,8 @@ set(FIRMWARE_TARGET_SRC
   ${LED_DRIVER}
   ${LCD_DRIVER}
   board.cpp
-  i2c_driver.cpp
+  volume_i2c.cpp
+  eeprom_driver.cpp
   backlight_driver.cpp
   trainer_driver.cpp
   )

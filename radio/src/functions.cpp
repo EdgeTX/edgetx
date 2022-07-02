@@ -350,7 +350,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
           case FUNC_LOGS:
             if (CFN_PARAM(cfn)) {
               newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay = CFN_PARAM(cfn);
+              logDelay100ms = CFN_PARAM(cfn);                   // logging period is 0..25.5s in 100ms increments
             }
             break;
 #endif

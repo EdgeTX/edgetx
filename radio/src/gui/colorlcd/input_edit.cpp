@@ -97,12 +97,12 @@ void InputEditWindow::buildBody(FormWindow* form)
   auto line = form->newLine(&grid);
   auto inputName = g_model.inputNames[input->chn];
   new StaticText(line, rect_t{}, STR_INPUTNAME, 0, COLOR_THEME_PRIMARY1);
-  new ModelTextEdit(line, rect_t{}, inputName, sizeof(inputName));
+  new ModelTextEdit(line, rect_t{}, inputName, LEN_INPUT_NAME);
 
   // Line Name
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_EXPONAME, 0, COLOR_THEME_PRIMARY1);
-  new ModelTextEdit(line, rect_t{}, input->name, sizeof(input->name));
+  new ModelTextEdit(line, rect_t{}, input->name, LEN_EXPOMIX_NAME);
 
   // Source
   line = form->newLine(&grid);

@@ -409,7 +409,12 @@ void LCD_LayerInit()
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t)lcdFront->getData();
+#if defined(LCD_VERTICAL_INVERT)
+  uint32_t layer_address = (uint32_t)_LCD_BUF_1;
+#else
+  uint32_t layer_address = (uint32_t)lcdFront->getData();
+#endif
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = layer_address;
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);

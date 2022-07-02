@@ -145,24 +145,25 @@ createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
   if (!factory || (customScreenIndex >= MAX_CUSTOM_SCREENS))
     return nullptr;
 
-  if (customScreens[customScreenIndex]) {
-    customScreens[customScreenIndex]->deleteLater(true, false);
-    delete customScreens[customScreenIndex];
+  auto& screen = customScreens[customScreenIndex];
+  auto& screenData = g_model.screenData[customScreenIndex];
+
+  if (screen != nullptr) {
+    screen->deleteLater(true, false);
+    delete screen;
   }
 
-  auto screen = factory->create(
-      ViewMain::instance(), &g_model.screenData[customScreenIndex].layoutData);
-  customScreens[customScreenIndex] = screen;
+  auto viewMain = ViewMain::instance();
+  screen = factory->create(viewMain, &screenData.layoutData);
 
-  if (screen) {
-    auto dst = g_model.screenData[customScreenIndex].LayoutId;
-    auto src = factory->getId();
-    strncpy(dst, src, sizeof(CustomScreenData::LayoutId));
-
-    return screen;
-  }
-
-  return nullptr;
+  if (!screen) return nullptr;
+  viewMain->addMainView(screen, customScreenIndex);
+  
+  auto dst = g_model.screenData[customScreenIndex].LayoutId;
+  auto src = factory->getId();
+  strncpy(dst, src, sizeof(CustomScreenData::LayoutId));
+  
+  return screen;
 }
 
 void disposeCustomScreen(unsigned idx)

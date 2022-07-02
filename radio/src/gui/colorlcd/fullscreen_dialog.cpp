@@ -154,11 +154,6 @@ void FullScreenDialog::runForever()
 {
   running = true;
 
-  MainWindow* mainWin = MainWindow::instance();
-#if defined(HARDWARE_TOUCH)
-  mainWin->setTouchEnabled(true);
-#endif
-
   // reset input devices to avoid
   // RELEASED/CLICKED to be called in a loop
   lv_indev_reset(nullptr, nullptr);
@@ -187,11 +182,6 @@ void FullScreenDialog::runForever()
 void FullScreenDialog::runForeverNoPwrCheck()
 {
   running = true;
-
-  MainWindow* mainWin = MainWindow::instance();
-#if defined(HARDWARE_TOUCH)
-  mainWin->setTouchEnabled(true);
-#endif
   while (running) {
     resetBacklightTimeout();
     run_ui_manually();

@@ -142,11 +142,18 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 
 void lcdInitDisplayDriver()
 {
+  // we already have a display: exit
+  if (disp != nullptr) return;
+
   lv_init();
 
-  // Clear buffers first (is that really needed?)
+  // Clear buffers first
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+
+  // Init hardware LCD driver
+  lcdInit();
+  backlightInit();
   
   lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
   lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
@@ -190,12 +197,61 @@ void lcdInitDirectDrawing()
   draw_ctx->buf_area = &screen_area;
   draw_ctx->clip_area = &screen_area;
   lcd->setData((pixel_t*)draw_ctx->buf);
+  lcd->reset();
+}
+
+//
+// Private code copied and adapted from LVGL / lv_refr.c
+// (_call_flush_cb & _draw_buf_flush)
+//
+static void _call_flush_cb(lv_disp_drv_t* drv, const lv_area_t* area,
+                           lv_color_t* color_p)
+{
+  lv_area_t offset_area = {.x1 = (lv_coord_t)(area->x1 + drv->offset_x),
+                           .y1 = (lv_coord_t)(area->y1 + drv->offset_y),
+                           .x2 = (lv_coord_t)(area->x2 + drv->offset_x),
+                           .y2 = (lv_coord_t)(area->y2 + drv->offset_y)};
+
+  drv->flush_cb(drv, &offset_area, color_p);
+}
+
+static void _draw_buf_flush(lv_disp_t* disp)
+{
+  lv_disp_draw_buf_t* draw_buf = lv_disp_get_draw_buf(disp);
+
+  /*Flush the rendered content to the display*/
+  lv_draw_ctx_t* draw_ctx = disp->driver->draw_ctx;
+  if (draw_ctx->wait_for_finish) draw_ctx->wait_for_finish(draw_ctx);
+
+  /* In double buffered mode wait until the other buffer is freed
+   * and driver is ready to receive the new buffer */
+  if (draw_buf->buf1 && draw_buf->buf2) {
+    while (draw_buf->flushing) {
+      if (disp->driver->wait_cb)
+        disp->driver->wait_cb(disp->driver);
+    }
+  }
+
+  draw_buf->flushing = 1;
+  draw_buf->flushing_last = 1;
+
+  if (disp->driver->flush_cb) {
+    _call_flush_cb(disp->driver, draw_ctx->buf_area,
+                   (lv_color_t*)draw_ctx->buf);
+  }
+
+  /*If there are 2 buffers swap them. */
+  if (draw_buf->buf1 && draw_buf->buf2) {
+    if (draw_buf->buf_act == draw_buf->buf1)
+      draw_buf->buf_act = draw_buf->buf2;
+    else
+      draw_buf->buf_act = draw_buf->buf1;
+  }
 }
 
 void lcdRefresh()
 {
-  _lv_inv_area(nullptr, &screen_area);
-  lv_refr_now(nullptr);
+  _draw_buf_flush(disp);
 }
 
 void lcdFlushed()

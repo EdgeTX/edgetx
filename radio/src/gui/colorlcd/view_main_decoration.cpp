@@ -98,6 +98,9 @@ void ViewMainDecoration::setFlightModeVisible(bool visible)
 
 rect_t ViewMainDecoration::getMainZone() const
 {
+  // update layout first
+  lv_obj_update_layout(parent->getLvObj());
+
   auto x_left = lv_obj_get_x2(w_ml->getLvObj()) + 1;
   auto x_right = lv_obj_get_x(w_mr->getLvObj());
 

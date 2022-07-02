@@ -457,6 +457,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
+  window->padAll(0);
 
   this->window = window;
 

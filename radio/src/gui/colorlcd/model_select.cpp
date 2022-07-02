@@ -633,6 +633,7 @@ class ModelCategoryPage : public PageTab
 
   void build(FormWindow *window) override
   {
+    window->padAll(0);
     new ModelCategoryPageBody(window, category);
   }
 };
@@ -679,6 +680,7 @@ class CategoryEditPage : public PageTab
       grid.setMarginRight(15);
       grid.setLabelWidth(0);
       grid.spacer();
+      window->padAll(0);
 
       coord_t y = 2;
 

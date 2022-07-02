@@ -536,9 +536,9 @@ bool inputsMoved()
     sum += anaIn(i) >> INAC_STICKS_SHIFT;
   for (uint8_t i=0; i<NUM_SWITCHES; i++)
     sum += getValue(MIXSRC_FIRST_SWITCH+i) >> INAC_SWITCHES_SHIFT;
-#if defined(GYRO)
+#if defined(IMU)
   for (uint8_t i=0; i<2; i++)
-    sum += getValue(MIXSRC_GYRO1+i) >> INAC_STICKS_SHIFT;
+    sum += getValue(MIXSRC_TILT_X+i) >> INAC_STICKS_SHIFT;
 #endif
 
   if (abs((int8_t)(sum-inactivity.sum)) > 1) {
@@ -564,23 +564,15 @@ void checkBacklight()
       }
     }
 
-#if defined(HARDWARE_TOUCH)
-    if (MainWindow::instance()->touchEventOccured()) {
-      inactivity.counter = 0;
-      if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {     
-        resetBacklightTimeout();
-      }
-    }
-#endif
-
     if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
       currentBacklightBright = g_eeGeneral.backlightBright;
       BACKLIGHT_ENABLE();
-    }
-    else {
+    } else {
       bool backlightOn = ((g_eeGeneral.backlightMode == e_backlight_mode_on) ||
-                          (g_eeGeneral.backlightMode != e_backlight_mode_off && lightOffCounter) ||
-                          (g_eeGeneral.backlightMode == e_backlight_mode_off && isFunctionActive(FUNCTION_BACKLIGHT)));
+                          (g_eeGeneral.backlightMode != e_backlight_mode_off &&
+                           lightOffCounter) ||
+                          (g_eeGeneral.backlightMode == e_backlight_mode_off &&
+                           isFunctionActive(FUNCTION_BACKLIGHT)));
 
       if (flashCounter) {
         backlightOn = !backlightOn;
@@ -589,12 +581,11 @@ void checkBacklight()
         currentBacklightBright = requiredBacklightBright;
 #if defined(COLORLCD)
         // force backlight on for color lcd radios
-        if(currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+        if (currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
           currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
 #endif
         BACKLIGHT_ENABLE();
-      }
-      else {
+      } else {
         BACKLIGHT_DISABLE();
       }
     }
@@ -605,7 +596,8 @@ void resetBacklightTimeout()
 {
   uint16_t autoOff = g_eeGeneral.lightAutoOff;
 #if defined(COLORLCD)
-  autoOff = std::max<uint16_t>(1, autoOff); // prevent the timeout from being 0 seconds on color lcd radios
+  // prevent the timeout from being 0 seconds on color lcd radios
+  autoOff = std::max<uint16_t>(1, autoOff); 
 #endif
   lightOffCounter = (autoOff*250) << 1;
 }
@@ -1884,6 +1876,10 @@ int main()
   }
 #endif
 
+#if defined(EEPROM) && defined(EEPROM_RLC)
+  eepromInit();
+#endif
+  
   tasksStart();
 }
 
@@ -2051,13 +2047,6 @@ uint32_t pwrCheck()
     }
   }
   else {
-#if defined(COLORLCD)
-    if (pwr_press_time != 0)
-    {
-      clearShutdownAnimation();
-      MainWindow::instance()->invalidate();
-    }
-#endif
     pwr_check_state = PWR_CHECK_ON;
     pwr_press_time = 0;
   }

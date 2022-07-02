@@ -186,8 +186,6 @@ void boardInit()
   memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
   adcInit(&stm32_hal_adc_driver);
-  backlightInit();
-  lcdInit();
   hapticInit();
 
 
