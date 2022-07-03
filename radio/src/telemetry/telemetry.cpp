@@ -223,17 +223,6 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-#if defined(MULTI_PROTOLIST)
-// TODO: FreeRTOS timer instead...
-static inline void pollMultiProtolist(uint8_t idx)
-{
-  if ((moduleState[idx].protocol == PROTOCOL_CHANNELS_MULTIMODULE) &&
-      MultiRfProtocols::instance(idx)->isScanning()) {
-    MultiRfProtocols::instance(idx)->scanReply();
-  }
-}
-#endif
-
 static inline void pollTelemetry(uint8_t module, const etx_module_driver_t* drv, void* ctx)
 {
   if (!drv || !drv->getByte || !drv->processData) return;

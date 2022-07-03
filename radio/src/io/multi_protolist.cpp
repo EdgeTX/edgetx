@@ -32,6 +32,28 @@
 
 #include <algorithm>
 
+#if !defined(SIMU)
+
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
+
+struct ProtoScanTimer {
+  TimerHandle_t timer = nullptr;
+  StaticTimer_t timerBuffer;
+};
+
+static ProtoScanTimer _protoScanTimers[NUM_MODULES];
+
+void MultiRfProtocols::timerCb(TimerHandle_t xTimer)
+{
+  uint8_t moduleIdx = (uint8_t)(uintptr_t)pvTimerGetTimerID(xTimer);
+  auto instance = MultiRfProtocols::instance(moduleIdx);
+  if (instance->scanState == ScanBegin || instance->scanState == Scanning) {
+    instance->fillBuiltinProtos();
+  }
+}
+#endif
+
 MultiRfProtocols* MultiRfProtocols::_instance[NUM_MODULES] = {};
 
 // MPM telemetry packet format type = MultiProtoDef (0x11)
@@ -231,6 +253,22 @@ bool MultiRfProtocols::triggerScan()
     currentProto = MULTI_INVALID_PROTO;
     moduleState[moduleIdx].mode = MODULE_MODE_GET_HARDWARE_INFO;
     scanStart = lastScan = RTOS_GET_MS();
+
+#if !defined(SIMU)
+    auto scanTimer = &_protoScanTimers[moduleIdx];
+    if (!scanTimer->timer) {
+      scanTimer->timer = xTimerCreateStatic(
+          "MPM", MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK, pdTRUE,
+          (void*)moduleIdx, MultiRfProtocols::timerCb, &scanTimer->timerBuffer);
+    }
+
+    if (scanTimer->timer) {
+      if( xTimerStart( scanTimer->timer, 0 ) != pdPASS ) {
+        /* The timer could not be set into the Active state. */
+      }
+    }
+#endif
+    
     return true;
   }
 
@@ -290,11 +328,31 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
 
           currentProto++;
           lastScan = RTOS_GET_MS();
+
+#if !defined(SIMU)
+          auto scanTimer = &_protoScanTimers[moduleIdx];
+          if (scanTimer->timer) {
+            if (xTimerChangePeriod(scanTimer->timer,
+                                   MULTI_PROTOLIST_TIMEOUT / RTOS_MS_PER_TICK,
+                                   0) != pdPASS) {
+              /* The timer period could not be reset. */
+            }
+          }
+#endif
           return true;
 
         } else {
           scanState = ScanEnd;
           setModuleMode(moduleIdx, MODULE_MODE_NORMAL);
+
+#if !defined(SIMU)
+          auto scanTimer = &_protoScanTimers[moduleIdx];
+          if (scanTimer->timer) {
+            if (xTimerStop(scanTimer->timer, 0) != pdPASS) {
+              /* The timer period could not be stopped. */
+            }
+          }
+#endif
           break;
         }
       } else {
