@@ -412,10 +412,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
 #if defined(GVARS)
         if (GV_IS_GV_VALUE(source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
           int32_t gvarvalue;
-          {
-            int8_t min = -MAX_TELEMETRY_SENSORS;
-            gvarvalue = getGVarValue(GV_INDEX_CALCULATION(source, MAX_TELEMETRY_SENSORS), mixerCurrentFlightMode);
-          }
+          gvarvalue = getGVarValue(GV_INDEX_CALCULATION(source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS), mixerCurrentFlightMode);
 
           if (sensor.formula == TELEM_FORMULA_MULTIPLY) {
             if (source>0) {

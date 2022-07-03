@@ -50,7 +50,7 @@
 #endif
 
 #define GV_GET_GV1_VALUE(vmin, vmax)        ((vmax<=GV_RANGESMALL && vmin>=GV_RANGESMALL_NEG) ? GV1_SMALL : GV1_LARGE)
-#define GV_INDEX_CALCULATION(x,max)  ((max<=GV_RANGESMALL && min>=GV_RANGESMALL_NEG) ? (uint8_t) x-GV1_SMALL : ((x&(GV1_LARGE*2-1))-GV1_LARGE))
+#define GV_INDEX_CALCULATION(x,min,max)  ((max<=GV_RANGESMALL && min>=GV_RANGESMALL_NEG) ? (uint8_t) x-GV1_SMALL : ((x&(GV1_LARGE*2-1))-GV1_LARGE))
 #define GV_IS_GV_VALUE(x,min,max)    ((max>GV1_SMALL || min<-GV1_SMALL) ? (x>GV_RANGELARGE || x<GV_RANGELARGE_NEG) : (x>max) || (x<min))
 
 #define GV_INDEX_CALC_DELTA(x,delta)   ((x&(delta*2-1)) - delta)
