@@ -128,6 +128,15 @@ void boardInit()
   __enable_irq();
 #endif
 
+  // detect NV14 vs EL18
+  if (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET) {
+    // pull-up connected: EL18
+    hardwareOptions.pcbrev = PCBREV_EL18;
+  } else {
+    // pull-down connected: NV14
+    hardwareOptions.pcbrev = PCBREV_NV14;
+  }
+  
 #if defined(DEBUG)
   serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
