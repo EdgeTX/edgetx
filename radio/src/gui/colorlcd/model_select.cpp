@@ -472,38 +472,54 @@ void ModelsPageBody::update(int selected)
 }
 
 //-----------------------------------------------------------------------------
+
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+
 class LabelDialog : public Dialog
 {
   public:
     LabelDialog(Window *parent, char *label, std::function<void (std::string label)> saveHandler = nullptr) :
-      Dialog(parent, STR_ENTER_LABEL, detailsDialogRect),
+      Dialog(parent, STR_ENTER_LABEL, rect_t{}),
       saveHandler(saveHandler)
     {
       strncpy(this->label, label, MAX_LABEL_SIZE);
       this->label[MAX_LABEL_SIZE] = '\0';
 
-      FormGridLayout grid(detailsDialogRect.w);
-      grid.setLabelWidth(labelWidth);
-      grid.spacer(8);
+      auto box = new FormGroup(&content->form, rect_t{});
+      box->setFlexLayout();
 
-      new StaticText(&content->form, grid.getLabelSlot(), STR_LABEL, 0, COLOR_THEME_PRIMARY1);
-      new TextEdit(&content->form, grid.getFieldSlot(), label, MAX_LABEL_SIZE);
-      grid.nextLine();
+      auto box_obj = box->getLvObj();
+      lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
 
-      rect_t r = {detailsDialogRect.w - (BUTTON_WIDTH + 20), grid.getWindowHeight() + 5, BUTTON_WIDTH, BUTTON_HEIGHT };
-      new TextButton(&content->form, r, STR_SAVE, [=] () {
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
+      grid.setColSpan(2);
+
+      auto line = box->newLine(&grid);
+      new TextEdit(line, rect_t{}, label, MAX_LABEL_SIZE);
+
+      grid.setColSpan(1);
+      line = box->newLine(&grid);
+      auto btn = new TextButton(line, rect_t{}, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
           saveHandler(label);
         deleteLater();
         return 0;
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
+      lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
 
-      r.x -= (BUTTON_WIDTH + 20);
+      grid.nextCell();
 
-      new TextButton(&content->form, r, STR_CANCEL, [=] () {
+      btn = new TextButton(line, rect_t{}, STR_CANCEL, [=] () {
         deleteLater();
         return 0;
       }, BUTTON_BACKGROUND | OPAQUE, textFont);
+      lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
+
+      content->setWidth(LCD_W * 0.8);
+      content->updateSize();
     }
 
   protected:
@@ -642,7 +658,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       std::string selecetedlabel = labels.at(selected);
       menu->setTitle(selecetedlabel);
       menu->addLine(STR_NEW_LABEL, [=] () {
-        new LabelDialog(window, tmpLabel,
+        new LabelDialog(parent, tmpLabel,
           [=] (std::string label) {
             if(modelsLabels.addLabel(label) >= 0) {
               auto labels = getLabels();
@@ -657,15 +673,15 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           strncpy(tmpLabel, oldLabel.c_str(), MAX_LABEL_SIZE);
           tmpLabel[MAX_LABEL_SIZE] = '\0';
 
-          new LabelDialog(window, tmpLabel,
+          new LabelDialog(parent, tmpLabel,
             [=] (std::string newLabel) {
-              auto rndialog = new RenameDialog(this, [=](){});
+              //auto rndialog = new RenameDialog(this, [=](){});
 
                 modelsLabels.renameLabel(oldLabel,
                                          newLabel,
                                          STR_RENAME_FILE,
                                          [=](const char* name, int percentage) {
-                    rndialog->updateProgress(name, percentage);
+                //    rndialog->updateProgress(name, percentage);
                   });
 
               auto labels = getLabels();
@@ -674,12 +690,14 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           return 0;
         });
         menu->addLine(STR_DELETE_LABEL, [=] () {
-          auto labelToDelete = labels[selected];
-          if (confirmationDialog(STR_DELETE_LABEL, labelToDelete.c_str())) { // TODO.. FIX ME Crashing
+            auto labelToDelete = labels[selected];
+            new ConfirmDialog(
+            parent, STR_DELETE_LABEL,
+            labelToDelete.c_str(), [=]() {
              modelsLabels.removeLabel(labelToDelete);
              auto labels = getLabels();
              lblselector->setNames(labels);
-           }
+            });
           return 0;
         });
         if(modelsLabels.getLabels().size() > 1) {

@@ -29,7 +29,7 @@
 #include <functional>
 #include "listbox.h"
 
-constexpr int MAX_LABEL_SIZE = 30;
+constexpr int MAX_LABEL_SIZE = 20;
 
 class ModelButton;
 
