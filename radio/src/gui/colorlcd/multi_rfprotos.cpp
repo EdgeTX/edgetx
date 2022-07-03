@@ -26,23 +26,25 @@
 #include "progress.h"
 
 // TODO: format for LCD_WIDTH > LCD_HEIGHT
-constexpr rect_t RFSCAN_DIALOG_RECT = {
-  50, 100, LCD_W - 100, LCD_H - 200
-};
 
 // TODO: translation
 const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
 
 RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
                            std::function<void()> onClose) :
-  Dialog(parent, RFSCAN_TITLE, RFSCAN_DIALOG_RECT),
+  Dialog(parent, RFSCAN_TITLE, rect_t{}),
   protos(protos),
-  progress(new Progress(&content->form,
-                        {PAGE_PADDING, PAGE_PADDING,
-                            content->form.width() - 2 * PAGE_PADDING,
-                            content->form.height() - 2 * PAGE_PADDING})),
+  progress(new Progress(&content->form, rect_t{})),
   onClose(std::move(onClose))
 {
+  progress->setHeight(LV_DPI_DEF / 4);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
+
+  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
+  progress->setWidth(content_w);
+  
   // disable canceling dialog
   setCloseWhenClickOutside(false);
   // setFocus();
