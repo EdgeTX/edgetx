@@ -95,8 +95,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
-#if !defined(SIMU)
-
 enum {
   PCBREV_NV14 = 0,
   PCBREV_EL18 = 1,
@@ -107,6 +105,8 @@ typedef struct {
 } HardwareOptions;
 
 extern HardwareOptions hardwareOptions;
+
+#if !defined(SIMU)
 
 #define INTERNAL_MODULE_OFF()                                     \
   do {                                                            \
