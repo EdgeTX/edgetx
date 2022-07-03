@@ -25,30 +25,17 @@
 
 #define ACC_LSB_VALUE	0.000488  // 0.488 mg/LSB
 
+#define ALPHA 0.98
+#define DT    0.01
+#define SCALE_FACT_ACC  0.005
+#define SCALE_FACT_GYRO 0.0078 // 250deg/s / 32000
+
 Gyro gyro;
 
-int GyroBuffer::read(int32_t values[IMU_VALUES_COUNT])
+static float deg2RESX(float deg)
 {
-  index = (index + 1) & (IMU_SAMPLES_COUNT - 1);
-
-  for (uint8_t i = 0; i < IMU_VALUES_COUNT; i++) {
-    sums[i] -= samples[index].values[i];
-  }
-
-  if (gyroRead(samples[index].raw) < 0)
-    return -1;
-
-  for (uint8_t i = 0; i < IMU_VALUES_COUNT; i++) {
-    sums[i] += samples[index].values[i];
-    values[i] = sums[i] >> IMU_SAMPLES_EXPONENT;
-  }
-
-  return 0;
-}
-
-float rad2RESX(float rad)
-{
-  return (rad * float(RESX)) / M_PI;
+  // [-90 : 90] -> [-RESX : RESX]
+  return (deg * float(RESX)) / 90.0;
 }
 
 void Gyro::wakeup()
@@ -61,32 +48,53 @@ void Gyro::wakeup()
 
   gyroWakeupTime = now + 1; /* 10ms default */
 
-  int32_t values[IMU_VALUES_COUNT];
-  if (gyroBuffer.read(values) < 0)
+  int16_t values[IMU_VALUES_COUNT];
+  if (gyroRead((uint8_t*)values) < 0) {
     ++errors;
+    return;
+  }
 
-  float accValues[3]; // m^2 / s
-  accValues[0] = -9.81 * float(values[3]) * ACC_LSB_VALUE;
-  accValues[1] = 9.81 * float(values[4]) * ACC_LSB_VALUE;
-  accValues[2] = 9.81 * float(values[5]) * ACC_LSB_VALUE;
+  int16_t gx = values[0];
+  int16_t gy = values[1];
+  // int16_t gz = values[2];
 
-  outputs[0] = rad2RESX(atan2f(accValues[1], accValues[2]));
-  outputs[1] = rad2RESX(atan2f(-accValues[0], accValues[2]));
+  int16_t ax = values[3];
+  int16_t ay = values[4];
+  int16_t az = values[5];
 
-  // TRACE("%d %d", values[0], values[1]);
+  // integrate gyro
+  roll  -= gx * SCALE_FACT_GYRO * DT;
+  pitch += gy * SCALE_FACT_GYRO * DT;
+
+  int32_t magn = abs(ax) + abs(ay) + abs(az);
+  if (magn > 8192 && magn < 32768) {
+
+    if (az < 0) az = -az;
+        
+    float rollAcc  = atan2f((float)ay,(float)az) * 57.3 /* 180/PI */;
+    float pitchAcc = atan2f((float)ax,(float)az) * 57.3 /* 180/PI */;
+
+    roll  = roll  * ALPHA + rollAcc  * (1.0-ALPHA);
+    pitch = pitch * ALPHA + pitchAcc * (1.0-ALPHA);
+  }
+
+  outputs[0] = deg2RESX(roll);
+  outputs[1] = deg2RESX(pitch);
 }
 
 int16_t Gyro::scaledX()
 {
-  return limit(-RESX,
-               (int)(outputs[0] - g_eeGeneral.imuOffset * RESX / 180) *
-                   (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
-               RESX);
+  // return limit(-RESX,
+  //              (int)(outputs[0] - g_eeGeneral.imuOffset * RESX / 180) *
+  //                  (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
+  //              RESX);
+  return limit<int16_t>(-RESX, outputs[0], RESX);
 }
 
 int16_t Gyro::scaledY()
 {
-  return limit(-RESX,
-               outputs[1] * (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
-               RESX);
+  // return limit(-RESX,
+  //              outputs[1] * (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
+  //              RESX);
+  return limit<int16_t>(-RESX, outputs[1], RESX);
 }
