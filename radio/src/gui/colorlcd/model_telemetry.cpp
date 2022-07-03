@@ -341,27 +341,155 @@ class SensorButton : public Button {
     }
 };
 
-class SensorSourceChoice : public SourceChoice
+class TelemetrySourceChoice : public ChoiceEx
 {
- public:
-  SensorSourceChoice(Window *window, const rect_t &rect, uint8_t *source,
-                     IsValueAvailable isValueAvailable) :
-      SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
-                   GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1)
-                                       : MIXSRC_NONE),
-                   [=](uint16_t newValue) {
-                     *source = newValue == MIXSRC_NONE
-                                   ? 0
-                                   : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
-                   })
-  {
-    setAvailableHandler([=](int16_t value) {
-      if (value == MIXSRC_NONE) return true;
-      if (value < MIXSRC_FIRST_TELEM) return false;
-      auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-      return qr.rem == 0 && isValueAvailable(qr.quot + 1);
-    });
-  }
+public:
+    TelemetrySourceChoice(FormGroup *window, const rect_t &rect, uint8_t *source, IsValueAvailable isValueAvailable, char negativeGVarPrefix=0) :
+        ChoiceEx(window, rect, negativeGVarPrefix!=0?-128:0, 127, GET_DEFAULT(static_cast<int8_t>(*source)), [=](int16_t newValue){*source=newValue;})
+    {
+        setAvailableHandler([=](int16_t value) -> bool {
+            if (value == 0) return true;
+            if (negativeGVarPrefix!=0){
+                //gvars allowed
+                //negative values allowed
+                int8_t gvindex = static_cast<int8_t>(GV_INDEX_CALCULATION(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS));
+                if(-MAX_GVARS <= gvindex && gvindex < MAX_GVARS) {
+                    return true;
+                }
+            }
+            //not a gvar, negative can be allowed
+            int index = abs(value);
+            return index <= MAX_TELEMETRY_SENSORS && isValueAvailable(index);
+        });
+        setTextHandler([=](int value) {
+            if(GV_IS_GV_VALUE(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
+                int index = GV_INDEX_CALCULATION(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS);
+                std::string ret(getGVarString(index));
+                if(value>0) {
+                    ret[0] = negativeGVarPrefix;
+                }
+                return ret;
+            } else if (value == 0) {
+                return std::string(getSourceString(0));
+            } else if (value < 0) {
+                std::string ret(getSourceString(MIXSRC_FIRST_TELEM+((-value)-1)*3));
+                ret.insert(0, 1, '-');
+                return ret;
+            } else {
+                return std::string(getSourceString(MIXSRC_FIRST_TELEM+(value-1)*3));
+            }
+        });
+    }
+};
+
+class SensorButton : public Button {
+  public:
+    SensorButton(FormGroup * parent, const rect_t &rect, uint8_t index, uint8_t number) :
+      Button(parent, rect),
+      index(index),
+      number(number)
+    {
+    }
+
+    static constexpr coord_t line1 = 1;
+
+    void checkEvents() override
+    {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
+      TelemetryItem & telemetryItem = telemetryItems[index];
+      if (telemetryItem.isFresh()) {
+        invalidate();
+      }
+
+      Button::checkEvents();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      TelemetryItem &telemetryItem = telemetryItems[index];
+
+      if (telemetryItem.isAvailable())
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, COLOR_THEME_ACTIVE);
+      else
+        dc->drawSolidFilledRect(2, 2, rect.w - 4, rect.h - 4, COLOR_THEME_PRIMARY2);
+
+      if (telemetryItem.isFresh())
+        dc->drawFilledCircle(SENSOR_COL2 - 10, (2 + rect.h - 4)/2, 4, COLOR_THEME_SECONDARY1);
+
+      dc->drawSizedText(SENSOR_COL1, line1, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
+
+      if (telemetryItem.isAvailable()) {
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_SECONDARY1;
+        drawSensorCustomValue(dc, SENSOR_COL2, line1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+      }
+      else {
+        dc->drawText(SENSOR_COL2, line1, "---", COLOR_THEME_SECONDARY1);
+      }
+
+      TelemetrySensor * sensor = & g_model.telemetrySensors[index];
+      if (IS_SPEKTRUM_PROTOCOL()) {
+        drawHexNumber(dc, SENSOR_COL3, line1, sensor->id, LEFT);
+      }
+      else if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
+        dc->drawNumber(SENSOR_COL3, line1, sensor->instance, LEFT);
+      }
+
+      if (hasFocus())
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
+      else
+        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
+    }
+
+  protected:
+    uint8_t index;
+    uint8_t number;
+    uint32_t lastRefresh = 0;
+};
+
+class SensorLiveValue: public Window {
+  public:
+    explicit SensorLiveValue(Window * parent, const rect_t & rect,  int index):
+      Window(parent, rect, OPAQUE),
+      index(index)
+    {
+    }
+
+    void checkEvents() override
+    {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
+      TelemetryItem & telemetryItem = telemetryItems[index];
+      if (telemetryItem.isFresh()) {
+        invalidate();
+      }
+
+      Window::checkEvents();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      TelemetryItem &telemetryItem = telemetryItems[index];
+
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+      if (telemetryItem.isAvailable()) {
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_PRIMARY2;
+        drawSensorCustomValue(dc, 0, 1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+      } else {
+        dc->drawText(0, 1, "---", COLOR_THEME_PRIMARY2);
+      }
+    }
+  protected:
+    uint8_t index;
+    uint32_t lastRefresh = 0;
 };
 
 class SensorEditWindow : public Page {
@@ -473,19 +601,28 @@ class SensorEditWindow : public Page {
       if (sensor->unit < UNIT_FIRST_VIRTUAL) {
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            lv_obj_clear_flag(paramLines[P_CELLSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLSENSOR, 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->cell.source, isCellsSensor);
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            lv_obj_clear_flag(paramLines[P_GPSSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_GPSSENSOR, 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->dist.gps, isGPSSensor);
           }
           else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
-            lv_obj_clear_flag(paramLines[P_CURRENTSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CURRENTSENSOR, 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->consumption.source, isSensorAvailable);
           }
           else if (sensor->formula == TELEM_FORMULA_TOTALIZE) {
-            lv_obj_clear_flag(paramLines[P_CONSUMPTIONSOURCE]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->consumption.source, isSensorAvailable);
+          }
+          else if (sensor->formula == TELEM_FORMULA_MULTIPLY) {
+              new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
+              new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[0], isSensorAvailable, '/');
           }
           else {
-            lv_obj_clear_flag(paramLines[P_CALC0]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[0], isSensorAvailable, '-');
           }
         }
         else {
@@ -505,10 +642,16 @@ class SensorEditWindow : public Page {
             lv_obj_clear_flag(paramLines[P_CELLINDEX]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            lv_obj_clear_flag(paramLines[P_ALTSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), &sensor->dist.alt, isAltSensor);
+          }
+          else if (sensor->formula == TELEM_FORMULA_MULTIPLY) {
+              new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
+              new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[1], isSensorAvailable, '/');
           }
           else {
-            lv_obj_clear_flag(paramLines[P_CALC1]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
+            new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[1], isSensorAvailable, '-');
           }
         }
         else if (sensor->unit == UNIT_RPMS) {
@@ -520,8 +663,13 @@ class SensorEditWindow : public Page {
       }
 
       if ((sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY)) {
-        lv_obj_clear_flag(paramLines[P_CALC2]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(paramLines[P_CALC3]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(3), 0, COLOR_THEME_PRIMARY1);
+        new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[2], isSensorAvailable, '-');
+        grid.nextLine();
+
+        new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_SOURCE + std::to_string(4), 0, COLOR_THEME_PRIMARY1);
+        new TelemetrySourceChoice(sensorParametersWindow, grid.getFieldSlot(), (uint8_t *) &sensor->calc.sources[3], isSensorAvailable, '-');
+        grid.nextLine();
       }
 
       // Auto Offset
