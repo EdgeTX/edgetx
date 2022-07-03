@@ -258,11 +258,15 @@ static inline void pollExtTelemetryLegacy()
 //   - telemetry polling needs to happen for each enabled module
 void telemetryWakeup()
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   auto int_drv = getIntModuleDriver();
   if (int_drv) pollTelemetry(INTERNAL_MODULE, int_drv, getIntModuleCtx());
+#endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   auto ext_drv = getExtModuleDriver();
   if (ext_drv) pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx());
+#endif
                              
   // TODO: needs to be moved to protocol/module init
   //       as-is, it implies only ONE telemetry protocol
