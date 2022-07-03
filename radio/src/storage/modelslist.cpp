@@ -1123,7 +1123,7 @@ void ModelsList::updateCurrentModelCell()
 {
   if(currentModel) {
 #if LEN_BITMAP_NAME > 0
-    strncpy(currentModel->modelBitmap,g_model.header.bitmap, sizeof(LEN_BITMAP_NAME));
+    strncpy(currentModel->modelBitmap,g_model.header.bitmap, LEN_BITMAP_NAME);
     currentModel->modelBitmap[LEN_BITMAP_NAME-1] = '\0';
 #endif
     currentModel->setModelName(g_model.header.name);
