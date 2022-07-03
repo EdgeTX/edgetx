@@ -145,19 +145,19 @@ Mode 4:
     </message>
     <message>
         <source>Mode 1 (RUD ELE THR AIL)</source>
-        <translation>Mode 1 (ROD HÖJ SPD SKE)</translation>
+        <translation>Mode 1 (SID HØJ GAS KRÆ)</translation>
     </message>
     <message>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation>Mode 2 (ROD SPD HÖJ SKE)</translation>
+        <translation>Mode 2 (SID GAS HØJ KRÆ)</translation>
     </message>
     <message>
         <source>Mode 3 (AIL ELE THR RUD)</source>
-        <translation>Mode 3 (SKE HÖJ SPD ROD)</translation>
+        <translation>Mode 3 (KRÆ HØJ GAS SID)</translation>
     </message>
     <message>
         <source>Mode 4 (AIL THR ELE RUD)</source>
-        <translation>Mode 4 (SKE SPD HÖJ ROD)</translation>
+        <translation>Mode 4 (KRÆ GAS HØJ SID)</translation>
     </message>
     <message>
         <source>Splash Screen</source>
@@ -169,99 +169,99 @@ Mode 4:
     </message>
     <message>
         <source>R E T A</source>
-        <translation>R H G S</translation>
+        <translation>S H G K</translation>
     </message>
     <message>
         <source>R E A T</source>
-        <translation>R H S G</translation>
+        <translation>S H K G</translation>
     </message>
     <message>
         <source>R T E A</source>
-        <translation>R G H S</translation>
+        <translation>S G H K</translation>
     </message>
     <message>
         <source>R T A E</source>
-        <translation>R G S H</translation>
+        <translation>S G K H</translation>
     </message>
     <message>
         <source>R A E T</source>
-        <translation>R S H G</translation>
+        <translation>S K H G</translation>
     </message>
     <message>
         <source>R A T E</source>
-        <translation>R S G H</translation>
+        <translation>S K G H</translation>
     </message>
     <message>
         <source>E R T A</source>
-        <translation>H R G S</translation>
+        <translation>H S G K</translation>
     </message>
     <message>
         <source>E R A T</source>
-        <translation>H R S G</translation>
+        <translation>H S K G</translation>
     </message>
     <message>
         <source>E T R A</source>
-        <translation>H G R S</translation>
+        <translation>H G S K</translation>
     </message>
     <message>
         <source>E T A R</source>
-        <translation>H G S R</translation>
+        <translation>H G K S</translation>
     </message>
     <message>
         <source>E A R T</source>
-        <translation>H S R G</translation>
+        <translation>H K S G</translation>
     </message>
     <message>
         <source>E A T R</source>
-        <translation>H S G R</translation>
+        <translation>H K G S</translation>
     </message>
     <message>
         <source>T R E A</source>
-        <translation>G R H S</translation>
+        <translation>G S H K</translation>
     </message>
     <message>
         <source>T R A E</source>
-        <translation>G R S H</translation>
+        <translation>G S K H</translation>
     </message>
     <message>
         <source>T E R A</source>
-        <translation>G H R S</translation>
+        <translation>G H S K</translation>
     </message>
     <message>
         <source>T E A R</source>
-        <translation>G H S R</translation>
+        <translation>G H K S</translation>
     </message>
     <message>
         <source>T A R E</source>
-        <translation>G S R H</translation>
+        <translation>G K S H</translation>
     </message>
     <message>
         <source>T A E R</source>
-        <translation>G S H R</translation>
+        <translation>G K H S</translation>
     </message>
     <message>
         <source>A R E T</source>
-        <translation>S R H G</translation>
+        <translation>K S H G</translation>
     </message>
     <message>
         <source>A R T E</source>
-        <translation>S R G H</translation>
+        <translation>K S G H</translation>
     </message>
     <message>
         <source>A E R T</source>
-        <translation>S H R G</translation>
+        <translation>K H S G</translation>
     </message>
     <message>
         <source>A E T R</source>
-        <translation>S H G R</translation>
+        <translation>K H G S</translation>
     </message>
     <message>
         <source>A T R E</source>
-        <translation>S G R H</translation>
+        <translation>K G S H</translation>
     </message>
     <message>
         <source>A T E R</source>
-        <translation>S G H R</translation>
+        <translation>K G H S</translation>
     </message>
     <message>
         <source>Profile Name</source>
@@ -876,11 +876,11 @@ Mode 4:
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Welcome to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for latest news, updates and documentation. Thank you for choosing OpenTX!&lt;/p&gt;- The OpenTX Team.</source>
-        <translation>&lt;p&gt;&lt;b&gt;Velkommen til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Som første trin, konfigurer basis Radio profil ved at vælge din Radio type, sprog og byg tilvalg.&lt;/p&gt;&lt;p&gt;Du har også mulighed for at studere andre mulige valg i Indstilling dialog.&lt;/p&gt;&lt;p&gt;Efter gem af opsætning, anbefaler vi att du henter den seneste firmware til din radio med &lt;i&gt;Fil -&amp;gt; hent&lt;/i&gt; menu.&lt;/p&gt;&lt;p&gt;Besøg gerne &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for siste nyheder, opdateringer og dokumentation. Tak for dit valg af EdgeTX!&lt;/p&gt;- The EdgeTX Team.</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Velkommen til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Som første trin, konfigurer basis Radio profil ved at vælge din Radio type, sprog og byg tilvalg.&lt;/p&gt;&lt;p&gt;Du har også mulighed for at studere andre mulige valg i Indstilling dialog.&lt;/p&gt;&lt;p&gt;Efter gem af opsætning, anbefaler vi at du henter den seneste firmware til din radio med &lt;i&gt;Fil -&amp;gt; hent&lt;/i&gt; menu.&lt;/p&gt;&lt;p&gt;Besøg gerne &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for siste nyheder, opdateringer og dokumentation. Tak for dit valg af EdgeTX!&lt;/p&gt;- The EdgeTX Team.</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The OpenTX Team.</source>
-        <translation>&lt;p&gt;&lt;b&gt;Tak for at opgradere til EdgeTX%1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en stor opgradering, som ændrer mange ting, læs venligst udgivelses information for at kende ændringer, og kontroller omhyggeligt alle dine radio modelle virker som forventet.&lt;/p&gt;&lt;p&gt;Besøg &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for udvivelses information og anden dokumentation (engelsk).&lt;/p&gt;- The EdgeTX Team.</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Tak for at opgradere til EdgeTX%1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en stor opgradering, som ændrer mange ting, læs venligst udgivelses information for at kende ændringer, og kontroller omhyggeligt alle dine radio modeller virker som forventet.&lt;/p&gt;&lt;p&gt;Besøg &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for udvivelses information og anden dokumentation (engelsk).&lt;/p&gt;- The EdgeTX Team.</translation>
     </message>
     <message>
         <source>The saved settings could not be imported, please try again or continue with current settings.</source>
@@ -2568,7 +2568,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Support for auto update on boot</source>
-        <translation>Stöd för automatisk uppdatering vid uppstart</translation>
+        <translation>Understøttelse af automatisk opdatering ved start</translation>
     </message>
     <message>
         <source>FrSky Taranis X-Lite S/PRO</source>
@@ -2576,7 +2576,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Support for ACCESS internal module replacement</source>
-        <translation>Stöd för utbyte av intern ACCESS-modul</translation>
+        <translation>Understøttelse af internt ACCESS modul</translation>
     </message>
     <message>
         <source>FrSky Horus X10 Express</source>
@@ -2705,11 +2705,11 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Wrong radio calibration data in profile, Settings not patched</source>
-        <translation>Fejlaktig information i profilen, radions kalibrering kunde inte läsas in</translation>
+        <translation>Fejlaktig information i profilen, radioens kalibrering kan ikke indlæses</translation>
     </message>
     <message>
         <source>Wrong radio setting data in profile, Settings not patched</source>
-        <translation>Fejlaktig information i profilen, radions inställningar kunde inte läsas in</translation>
+        <translation>Fejlaktig information i profilen, radioens indstillinger kan ikke indlæses</translation>
     </message>
     <message>
         <source>Cannot write file %1:
@@ -2977,14 +2977,14 @@ Du anvender aktuelt:
     <name>FlightModeData</name>
     <message>
         <source>FM</source>
-        <translation type="unfinished"></translation>
+        <translation>FM</translation>
     </message>
 </context>
 <context>
     <name>FlightModePanel</name>
     <message>
         <source>Rotary Encoder %1</source>
-        <translation>Inmatningshjul %1</translation>
+        <translation>Rulle vælger %1</translation>
     </message>
     <message>
         <source>GVAR%1</source>
@@ -3105,7 +3105,7 @@ Du anvender aktuelt:
     </message>
     <message>
         <source>Red</source>
-        <translation>Röd</translation>
+        <translation>Rød</translation>
     </message>
 </context>
 <context>
@@ -3321,11 +3321,11 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Wrong data in profile, radio calibration was not retrieved</source>
-        <translation>Fejlaktig information i profilen, radiokalibreringen kunde inte läsas in</translation>
+        <translation>Fejlaktig information i profilen, radiokalibreringen kan ikke indlæses</translation>
     </message>
     <message>
         <source>Wrong data in profile, hw related parameters were not retrieved</source>
-        <translation>Fejlaktig information i profilen, hårdvaruinställningar lästes inte in</translation>
+        <translation>Fejlaktig information i profilen, hardware indstillinger kan ikke indlæses</translation>
     </message>
     <message>
         <source>Do you want to store calibration in %1 profile&lt;br&gt;overwriting existing calibration?</source>
@@ -3463,7 +3463,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Vario pitch at zero</source>
-        <translation>Varioton vid nollpunkten</translation>
+        <translation>Vario tone vid nulpunkt</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -3475,7 +3475,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Readonly Unlock</source>
-        <translation>Upphäv skrivskyddet</translation>
+        <translation>Fjern skrivebeskyttelse</translation>
     </message>
     <message>
         <source>Sound Mode</source>
@@ -3829,21 +3829,21 @@ Mode 4:
   Right stick:  Elevator, Rudder
 
 </source>
-        <translation>Välj Mode:
+        <translation>Ønsket tilstand:
 
-Mode 1:
+Tilstand 1:
   Venstre pind:  Højderor, Sideror
   Højre pind  :  Gas, Krængeror
 
-Mode 2:
+Tilstand 2:
   Venstre pind:  Gas, Sideror
   Højre pind  :  Højderor, Krængeror
 
-Mode 3:
+Tilstand 3:
   Venstre pind:  Højderor, Krængeror
   Højre pind  :  Gas, Sideror
 
-Mode 4:
+Tilstand 4:
   Venstre pind:  Gas, Krængeror
   Højre pind  :  Højderor, Sideror
 
@@ -4963,11 +4963,11 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
     </message>
     <message>
         <source>Cursor A: %1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>Markør A: %1 m</translation>
     </message>
     <message>
         <source>Cursor B: %1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>Markør B: %1 m</translation>
     </message>
     <message>
         <source>Time delta: %1</source>
@@ -5140,7 +5140,7 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
     </message>
     <message>
         <source>Compilation server too busy, try later</source>
-        <translation>Byggservern är upptagen, försök igen senare</translation>
+        <translation>Compilation server er ttravl, forsøg senere</translation>
     </message>
     <message>
         <source>Unknown server failure, try later</source>
@@ -5548,7 +5548,7 @@ Vil du fortsætte?</translation>
     </message>
     <message>
         <source>Tabbed Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrangeret med faner</translation>
     </message>
     <message>
         <source>Use tabs to arrange open windows.</source>
@@ -5556,19 +5556,19 @@ Vil du fortsætte?</translation>
     </message>
     <message>
         <source>Tile Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrangeret som fliser</translation>
     </message>
     <message>
         <source>Arrange open windows across all the available space.</source>
-        <translation>Fordel åbne vinduer over den mulige plads.</translation>
+        <translation>Arrangeret med åbne vinduer fordelt over den mulige plads.</translation>
     </message>
     <message>
         <source>Cascade Windows</source>
-        <translation>Kaskade vinduer</translation>
+        <translation>Arrangeret som kaskade vinduer</translation>
     </message>
     <message>
         <source>Arrange all open windows in a stack.</source>
-        <translation>Stabling af åbne vinduer.</translation>
+        <translation>Arrangeret ved stabling af åbne vinduer.</translation>
     </message>
     <message>
         <source>Close All Windows</source>
@@ -5683,13 +5683,17 @@ Vil du fortsætte?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Firmware %1 ser ikke ud til nogensinde at være hentet.
+        <source>Firmware %1 does not seem to have ever been downloaded.
+    Version %2 is available.
+    Do you want to download it now?
+    
+    We recommend you view the release notes using the button below to learn about any changes that may be important to you.</source>
+        <translation>Firmware %1 ser ikke ud til nogensinde at være hentet.
 Version %2 findes tilgængelig.
 
 Vil du hente den nye version nu?
 
-Vi anbefaler at læse release beskrivelse med de seneste ændringer, og vurdere om de er vigtige for dig.</source>
-        <translation type="unfinished"></translation>
+Vi anbefaler at læse release beskrivelse med de seneste ændringer, og vurdere om de er vigtige for dig.</translation>
     </message>
     <message>
         <source>Do you want to download version %1 now ?</source>
@@ -5729,7 +5733,7 @@ Vi anbefaler at læse release beskrivelse med de seneste ændringer, og vurdere 
     </message>
     <message>
         <source>&lt;html&gt;&lt;p&gt;%1 and Simulator settings can be imported (restored) from a previosly saved export (backup) file. This will replace current settings with any settings found in the file.&lt;/p&gt;&lt;p&gt;An automatic backup of the current settings will be attempted. But if the current settings are useful then it is recommended that you make a manual backup first.&lt;/p&gt;&lt;p&gt;For best results when importing settings, &lt;b&gt;close any other %1 windows you may have open, and make sure the standalone Simulator application is not running.&lt;/p&gt;&lt;p&gt;Do you wish to continue?&lt;/p&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;p&gt;%1 og simulatorindsillingerne kan importeras (genskabes) fra en tidigare gemt eksportfil (sikkerhedskopi). Dette erstatter nuværende indstillinger med dem som findes i filen.&lt;/p&gt;&lt;p&gt;Ett försök till säkerhetskopiering av nuvarande inställningar kommer att göras men det är starkt rekommenderat att först göra en manuell säkerhetskopiering, särskilt om inställningarna är väl fungerande.&lt;/p&gt;&lt;p&gt;För bästa resultat vid import av inställningarna, &lt;b&gt;stäng alla %1 öppna fönster og säkerställ att den fristående simulatorn inte körs.&lt;/p&gt;&lt;p&gt;Vill du fortsätta?&lt;/p&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;p&gt;%1 og simulatorindsillingerne kan importeras (genskabes) fra en tidigare gemt eksportfil (sikkerhedskopi). Dette erstatter nuværende indstillinger med dem som findes i filen.&lt;/p&gt;&lt;p&gt;Et forsøg for sikkerhedskopiering af aktuelle indstillinger udføres straks, men det anbafales at du først tager en manuel sikkerhedskopi, særligt hvis din model er godt konfigureret.&lt;/p&gt;&lt;p&gt;Skal du importere indstillinger, fås det bedste resultat ved imprott af indstillinger, &lt;b&gt;luk alle %1 åbne vinduer - særligt simulator inden import.&lt;/p&gt;&lt;p&gt;Vil du fortsætte?&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Confirm Settings Import</source>
@@ -6069,11 +6073,11 @@ Vil du gemme ændringer?</translation>
     <name>MixData</name>
     <message>
         <source>MIX</source>
-        <translation type="unfinished"></translation>
+        <translation>MIX</translation>
     </message>
     <message>
         <source> (@%1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (@%1)</translation>
     </message>
 </context>
 <context>
@@ -6161,11 +6165,11 @@ This determines how mixer values are added.
 &quot;R&quot; means the value replaces the previous values.  If the switch is off the value will be ignored.</source>
         <translation>Multiplexer
 
-Anger hur mixervärden påverkar kanalen.
+Angiver hvordan mix værdier påvirker kanalen.
 
-&quot;+&quot; betyder att värdet av mixern läggs till tidigare mixar på samma kanal.
-&quot;*&quot; betyder att värdet av mixern multipliceras med tidigare mixar på samma kanal.
-&quot;R&quot; betyder att värdet används istället för tidigare värde. Om brytaren är av så ignoreras värdet.</translation>
+&quot;+&quot; betyder at værdi af mix lægges til mix som på samme kanal, som kommer før.
+&quot;*&quot; betyder at værdi af mix ganges med mix som på samme kanal, som kommer før.
+&quot;R&quot; betyder at værdi overskriver værdier på samme kanal som kommer før. Er en kontakt sat til FRA, gøres ingenting.</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -6235,13 +6239,13 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Fördröjning og Tröghet&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Forsinkelse og sejhed&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600; text-decoration: underline;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Dessa värden kontrollerar fördröjning og tröghet i utdata till mixern.  &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Disse værdier kontrollerer forsinkelse og sejhed i uddata til mix.  &lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om Fördröjningen inte är noll kommer påverkan på mixen att fördröjas med det angivna antelet sekunder.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Er forsinkelse ikke nul, påvirkes mix ved en forsinkelse på det anigvne antal sekunder.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om Tröghet inte är noll kommer hastigheten i förändringar att begränsas av det angivna värdet -&amp;gt; värdet specificerar det antal sekunder det tar att gå från fullt negativt utslag (-100) till fullt positivt utslag(100).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Er sejhed ikke nul, begrænses hastigheden af ændringer med den angivne værdi -&amp;gt; værdien angiver det antal sekunder det tager at gå fra fuld negativ udslag(-100) til fuld positiv udslag(100).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Click to access popup menu</source>
@@ -6261,7 +6265,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>DEST -&gt; %1</source>
-        <translation type="unfinished"></translation>
+        <translation>RETN -&gt; %1</translation>
     </message>
     <message>
         <source>FullScreenDialog</source>
@@ -6453,7 +6457,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>FullScreenDialog</source>
-        <translation>Fullskärmsdialog</translation>
+        <translation>Fuld skærmdialog</translation>
     </message>
     <message>
         <source>Custom Screens</source>
@@ -6500,7 +6504,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Master/CPPM Module</source>
-        <translation>Lärare/CPPM-modul</translation>
+        <translation>Træner/CPPM-modul</translation>
     </message>
     <message>
         <source>Master/SBUS in battery compartment</source>
@@ -6660,7 +6664,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Frame length</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame længde</translation>
     </message>
     <message>
         <source>PPM delay</source>
@@ -6860,7 +6864,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Trim idle only</source>
-        <translation>Gastrim enbart för tomgång</translation>
+        <translation>Gastrim kun for tomgang</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -6868,7 +6872,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Reversed</source>
-        <translation>Omvänd</translation>
+        <translation>Omvendt</translation>
     </message>
     <message>
         <source>Tmr</source>
@@ -7000,11 +7004,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>GPS</source>
-        <translation type="unfinished"></translation>
+        <translation>GPS</translation>
     </message>
     <message>
         <source>Alt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Høj.</translation>
     </message>
     <message>
         <source>Blades</source>
@@ -7032,7 +7036,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Prec</source>
-        <translation type="unfinished"></translation>
+        <translation>Præs.</translation>
     </message>
     <message>
         <source>Ratio</source>
@@ -7154,7 +7158,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Trainer Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Træner tilstand</translation>
     </message>
     <message>
         <source>PPM Frame Length</source>
@@ -7633,7 +7637,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Altimetry</source>
-        <translation>Höjdmätning</translation>
+        <translation>Høje måler</translation>
     </message>
     <message>
         <source>Vario source</source>
@@ -8030,7 +8034,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;b&gt;&lt;u&gt;WARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;This will reset the fuses of  %1 to the factory settings.&lt;br&gt;Writing fuses can mess up your radio.&lt;br&gt;Do this only if you are sure they are wrong!&lt;br&gt;Are you sure you want to continue?</source>
-        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Dette nulstiller beskyttelse for %1 til fabriks indstilling.&lt;br&gt;At ændre disse værdier kan give alvorlige problemer med din radio.&lt;br&gt;Ændre kun her, hvis du er helt sikker på at de bør ændres!&lt;br&gt;Er du sikker på att du vil fortsætte?</translation>
+        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Dette nulstiller beskyttelse for %1 til fabriks indstilling.&lt;br&gt;At ændre disse værdier kan give alvorlige problemer med din radio.&lt;br&gt;Ændre kun her, hvis du er helt sikker på at de bør ændres!&lt;br&gt;Er du sikker på at du vil fortsætte?</translation>
     </message>
     <message>
         <source>Could not delete temporary file: %1</source>
@@ -8381,7 +8385,7 @@ x</translation>
     </message>
     <message>
         <source>AirSpeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Air hastighed</translation>
     </message>
     <message>
         <source>dTE</source>
@@ -8996,7 +9000,7 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     </message>
     <message>
         <source>Profile Settings</source>
-        <translation>Profilinställningar</translation>
+        <translation>Profil indstillinger</translation>
     </message>
     <message>
         <source>SD structure path not specified or invalid</source>
@@ -9235,8 +9239,8 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <source>Radio data (.bin/.eeprom/.otx) image file to use OR data folder path (for Horus-style radios).
 NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
-        <translation>Radio datafil (.bin/.eeprom/.otx/.etx) att använda ELLER sti till datakatalog (för Horus-liknande radior).
-OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
+        <translation>Radio datafil (.bin/.eeprom/.otx/.etx) som anvendes ELLER sti til katalog (til Horus-lignende radioer).
+OBS! EEPROM-data som ikke er kompatible med valgt radiotype kan blive overskrevet!</translation>
     </message>
     <message>
         <source>[data-source]</source>
@@ -9258,20 +9262,20 @@ OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att
     </message>
     <message>
         <source>ERROR: No simulator libraries available.</source>
-        <translation>Fejl: Biblioteksfiler för simulatorn saknas.</translation>
+        <translation>Fejl: Biblioteksfiler til simulator mangler.</translation>
     </message>
     <message>
         <source>ERROR: Couldn&apos;t start simulator, missing radio/profile/data file/folder.
   Profile ID: [%1]; Radio ID: [%2];
 Data File: [%3]</source>
-        <translation>Fejl: Simulatorn kunde ej startas, radio/profil/datafil/katalog saknas.
+        <translation>Fejl: Simulator kan ikke starte, radio/profil/datafil/katalog mangler.
   Profile-ID: [%1]; Radio-ID: [%2];
 Datafil: [%3]</translation>
     </message>
     <message>
         <source>ERROR: Radio profile or simulator firmware not found.
 Profile ID: [%1]; Radio ID: [%2]</source>
-        <translation>Fejl: Radioprofil eller firmware för simulatorn saknas.
+        <translation>Fejl: Radioprofil eller firmware til simulator mangler.
 Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
@@ -9323,7 +9327,7 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
         <source>Reload all radio data without restarting the simulator.</source>
-        <translation>Indlæs alle radiodata igen, uden att genstarte simulator.</translation>
+        <translation>Indlæs alle radiodata igen, uden at genstarte simulator.</translation>
     </message>
     <message>
         <source>F9</source>
@@ -9696,7 +9700,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     </message>
     <message>
         <source>This feature does not validate your changes and assumes you are familiar with CSS syntax for QT.</source>
-        <translation>Denna feature validerar inte dina ändringar og förutsätter att du har kännedom om CSS syntax för QT.</translation>
+        <translation>Denne funktion validerer ikke ændringer og forudsætter at du kender til CSS syntax for QT.</translation>
     </message>
     <message>
         <source>Cannot retrieve style %1
@@ -9707,7 +9711,7 @@ Fejl: %2</translation>
     <message>
         <source>Cannot retrieve default style %1
 Error: %2</source>
-        <translation>Kan inte hämta förvald stil %1
+        <translation>Kan ikke hente standard stil %1
 Fejl: %2</translation>
     </message>
     <message>
@@ -9721,31 +9725,31 @@ Fejl: %2</translation>
     <name>Stylesheet</name>
     <message>
         <source>Style sheet data read from &apos;%1&apos;</source>
-        <translation>Data för stilguide läst från &apos;%1&apos;</translation>
+        <translation>Stil guide indlæst fra &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Style sheet data unable to be read from &apos;%1&apos;</source>
-        <translation>Data för stilguide kan ej läsas från &apos;%1&apos;</translation>
+        <translation>Stil guide kan ikke indlæses fra &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot create folder &apos;%1&apos;</source>
-        <translation>Kan ej skapa katalog &apos;%1&apos;</translation>
+        <translation>Katalog kan ikke oprettes &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot open file for writing &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej öppna fil för att skriva &apos;%1&apos;: Fejl: %2</translation>
+        <translation>Kan ikke for skrivning, åbne fil &apos;%1&apos;: Fejl: %2</translation>
     </message>
     <message>
         <source>Cannot write to file &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej skriva till fil &apos;%1&apos;: Fejl: %2</translation>
+        <translation>Kan ikke skrive til fil &apos;%1&apos;: Fejl: %2</translation>
     </message>
     <message>
         <source>Cannot flush buffer for file &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej tömma buffert för fil &apos;%1: Fejl: %2</translation>
+        <translation>Kan ikke tømme buffer for fil &apos;%1: Fejl: %2</translation>
     </message>
     <message>
         <source>Style sheet written to &apos;%1&apos;</source>
-        <translation>Stilguide skriven till &apos;%1&apos;</translation>
+        <translation>Stil guide skrevet til &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Custom style sheet deleted: &apos;%1&apos;</source>
@@ -9753,76 +9757,76 @@ Fejl: %2</translation>
     </message>
     <message>
         <source>Unable to delete custom style sheet: &apos;%1&apos;</source>
-        <translation>Kan ikke slettte tilpasset stil guide: &apos;%1&apos;</translation>
+        <translation>Kan ikke slette tilpasset stil guide: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>SyncProcess</name>
     <message>
         <source>[TEST RUN] </source>
-        <translation>[TESTKÖRNING] </translation>
+        <translation>[TESTKØRSEL] </translation>
     </message>
     <message>
         <source>Synchronization failed, nothing found to copy.</source>
-        <translation>Synkronisering misslyckades, inget att kopiera hittades.</translation>
+        <translation>Synkronisering fejlet, der er ikke fundet noget at kopiere.</translation>
     </message>
     <message>
         <source>Skipping large file: %1 (%2KB)</source>
-        <translation>Hoppar över stor fil: %1 (%2kB)</translation>
+        <translation>Springer over stor fil: %1 (%2kB)</translation>
     </message>
     <message>
         <source>Creating directory: %1</source>
-        <translation>Skapar katalog: %1</translation>
+        <translation>Opretter katalog: %1</translation>
     </message>
     <message>
         <source>Could not create directory: %1</source>
-        <translation>Kunde ej skapa katalog: %1</translation>
+        <translation>Kan ikke oprette katalog: %1</translation>
     </message>
     <message>
         <source>Skipping older file: %1</source>
-        <translation>Hoppar över äldre fil: %1</translation>
+        <translation>Springer over ældre fil: %1</translation>
     </message>
     <message>
         <source>Could not open source file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej öppna källfil &apos;%1&apos;: %2</translation>
+        <translation>Kan ikke åbne kilde &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Could not open destination file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej öppna målfil &apos;%1&apos;: %2</translation>
+        <translation>Kan ikke åbne mål &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Skipping identical file: %1</source>
-        <translation>Hoppar över identisk fil: %1</translation>
+        <translation>Springer over identisk fil: %1</translation>
     </message>
     <message>
         <source>Could not delete destination file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej ta bort målfil &apos;%1&apos;: %2</translation>
+        <translation>Kan ikke slette mål fil &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Copy failed: &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation>Kopiering misslyckades: &apos;%1&apos; till &apos;%2&apos;: %3</translation>
+        <translation>Kopiering fejlet: &apos;%1&apos; til &apos;%2&apos;: %3</translation>
     </message>
     <message>
         <source>Gathering file information for %1...</source>
-        <translation>Samlar filinformation för %1...</translation>
+        <translation>Samler filinformation for %1...</translation>
     </message>
     <message>
         <source>No files found in %1</source>
-        <translation>Inga filer hittades i %1</translation>
+        <translation>Ingen filer i %1</translation>
     </message>
     <message>
         <source>Synchronization aborted at %1 of %2 files.</source>
-        <translation>Synkronisering avbruten vid %1 av %2 filer.</translation>
+        <translation>Synkronisering afbrudt ved %1 af %2 filer.</translation>
     </message>
     <message>
         <source>Synchronization finished with %1 files in %2m %3s.</source>
-        <translation>Synkronisering avslutad med %1 filer på %2m %3s.</translation>
+        <translation>Synkronisering afsluttet med %1 filer på %2m %3s.</translation>
     </message>
     <message>
         <source>Synchronizing: %1
     To: %2</source>
-        <translation>Synchroniserar: %1
-    Till: %2</translation>
+        <translation>Synkroniserer: %1
+    Til: %2</translation>
     </message>
     <message>
         <source>Starting synchronization:
@@ -9887,7 +9891,7 @@ For mange fejl - afbryder.</translation>
     </message>
     <message>
         <source>Only one channel still available!&lt;br&gt;You probably should configure your model without using the wizard.</source>
-        <translation>Bara en ledig kanal kvar!&lt;br&gt;Du borde nog konfigurera din model utan att använda modelguiden.</translation>
+        <translation>Kun en fri kanal tilbage!&lt;br&gt;Du bør nok konfigurere din model uden brug af modelguiden.</translation>
     </message>
 </context>
 <context>
@@ -10088,7 +10092,7 @@ For mange fejl - afbryder.</translation>
     </message>
     <message>
         <source>Red</source>
-        <translation>Röd</translation>
+        <translation>Rød</translation>
     </message>
     <message>
         <source>&lt;</source>
@@ -10814,8 +10818,8 @@ hh:mm:ss</translation>
     <message>
         <source>Use mouse scroll or UP/DOWN arrow keys to change time in small steps.
 CTRL + scroll or PAGE UP/DOWN keys to change time in larger steps.</source>
-        <translation>Skrolla med musen eller UPP/NED piltangenter för att ändra tiden i små steg.
-Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i större steg.</translation>
+        <translation>Rul med mus eller OP/NED pile taster for at ændre tiden i små spring.
+Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</translation>
     </message>
     <message>
         <source>m</source>
@@ -10854,7 +10858,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Persistent (manual reset)</source>
-        <translation>Bestående (återställs manuellt)</translation>
+        <translation>Bestående (manuel nulstilling)</translation>
     </message>
     <message>
         <source>Haptic</source>
@@ -11093,7 +11097,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select the elevons channels</source>
-        <translation>Välj roderkanaler</translation>
+        <translation>Vælg kanal for højderor</translation>
     </message>
     <message>
         <source>Rudder</source>
@@ -11109,7 +11113,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select which type of tail your model is equiped with.</source>
-        <translation>Vælg din models hale type.</translation>
+        <translation>Vælg hale type for din model.</translation>
     </message>
     <message>
         <source>Tail</source>
@@ -11157,7 +11161,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Manually check the direction of each control surface and reverse any channels that make controls move in the wrong direction. Remove the propeller/propellers before you try to control your model for the first time.&lt;br&gt;Please note that continuing removes all old model settings!</source>
-        <translation>Guiden har sammenkædet radiokanaler til kontroller i din model. Nu skal du selv indstille retningen for kontrollerne. Test og vend de kanaler (INV) som bevæger sig i den forkerte retning.&lt;br&gt;Forsøg at tænde og teste din model, UDEN propeller er monteret.&lt;br&gt;OBS! Om du slutför guiden tar du bort alla eventuella tidigare inställningar för modelplatsen!</translation>
+        <translation>Guiden har sammenkædet radiokanaler til kontroller i din model. Nu skal du selv indstille retningen for kontrollerne. Test og vend de kanaler (INV) som bevæger sig i den forkerte retning.&lt;br&gt;Forsøg at tænde og teste din model, UDEN propeller er monteret.&lt;br&gt;OBS! Gennemføerer du guiden, sletter du alle tidligere indstillinger af modellen(modellen overskrives)!</translation>
     </message>
     <message>
         <source>Enter a name for your model and select model type.</source>
@@ -11332,7 +11336,7 @@ OBS! Skriv kun her, hvis du er sikker på hvad du gør! Der er ingen kontrol ell
     </message>
     <message>
         <source>Show Help</source>
-        <translation>Hjälp</translation>
+        <translation>Hjælp</translation>
     </message>
     <message>
         <source>Communication port to the programmer.
@@ -11406,7 +11410,7 @@ m2560 for v4.1-kort</translation>
     </message>
     <message>
         <source>&lt;b&gt;&lt;u&gt;WARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normally CPU type is automatically selected according to the chosen firmware.&lt;br&gt;If you change the CPU type the resulting eeprom could be inconsistent.</source>
-        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normaltt vælges CPU type med det progam som er valgt til att skrive.&lt;br&gt;Hvis du ændrer CPU type, kan resulatet blive en ugyldig og ikke fungerende EEPROM.</translation>
+        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normaltt vælges CPU type med det progam som er valgt til at skrive.&lt;br&gt;Hvis du ændrer CPU type, kan resulatet blive en ugyldig og ikke fungerende EEPROM.</translation>
     </message>
     <message>
         <source>Programmer Configuration</source>
@@ -11481,7 +11485,7 @@ m2560 for v4.1-kort</translation>
     </message>
     <message>
         <source>Next</source>
-        <translation>Næsta</translation>
+        <translation>Næste</translation>
     </message>
     <message>
         <source>Ok</source>
