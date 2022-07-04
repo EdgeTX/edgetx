@@ -33,7 +33,7 @@ struct MPMProtoOption : public FormGroup::Line
   Choice* choice;
   NumberEdit* edit;
   CheckBox* cb;
-  DynamicNumber<int>* rssi;
+  DynamicNumber<uint16_t>* rssi;
 
   MPMProtoOption(FormGroup* form, FlexGridLayout *layout);
   void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md);
@@ -51,8 +51,8 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
   choice = new Choice(box, rect_t{}, 0, 0, nullptr);
   edit = new NumberEdit(box, rect_t{}, 0, 0, nullptr);
   cb = new CheckBox(box, rect_t{}, nullptr, nullptr);
-  rssi = new DynamicNumber<int>(
-      box, rect_t{}, [] { return (int)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
+  rssi = new DynamicNumber<uint16_t>(
+      box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
 }
 
 void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)

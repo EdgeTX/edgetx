@@ -98,6 +98,7 @@ class OpenTxFirmware: public Firmware
     {
       addLanguage("en");
       addLanguage("cz");
+      addLanguage("da");
       addLanguage("de");
       addLanguage("es");
       addLanguage("fr");

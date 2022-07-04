@@ -182,7 +182,7 @@ void DebugViewPage::build(FormWindow *window)
   // Free mem
   new StaticText(window, grid.getLabelSlot(), STR_FREE_MEM_LABEL, 0,
                  COLOR_THEME_PRIMARY1);
-  new DynamicNumber<int>(
+  new DynamicNumber<int32_t>(
       window, grid.getFieldSlot(), [] { return availableMemory(); },
       COLOR_THEME_PRIMARY1, nullptr, "b");
   grid.nextLine();
