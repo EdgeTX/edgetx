@@ -485,7 +485,7 @@ Mode 4:
     </message>
     <message>
         <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
-        <translation>Slett tomme modelrækker, når model slettes (gælder kun sendere uden kattegorier)</translation>
+        <translation>Slet tomme modelrækker, når model slettes (gælder kun sendere uden kategorier)</translation>
     </message>
     <message>
         <source>Use model wizard</source>
@@ -2840,7 +2840,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Cannot save customized firmware</source>
-        <translation>Den tilretttede firmware fil kunne ikke gemmes</translation>
+        <translation>Den tilrettede firmware fil kunne ikke gemmes</translation>
     </message>
     <message>
         <source>Write Firmware to Radio</source>
@@ -5344,7 +5344,7 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
     </message>
     <message>
         <source>Open and view log file</source>
-        <translation>Åbne og vis logfil</translation>
+        <translation>Åbn og vis logfil</translation>
     </message>
     <message>
         <source>Settings...</source>
@@ -5520,11 +5520,11 @@ Vil du fortsætte?</translation>
     </message>
     <message>
         <source>Release notes...</source>
-        <translation>Releasenoteringar...</translation>
+        <translation>Release  information...</translation>
     </message>
     <message>
         <source>Show release notes</source>
-        <translation>Visa releasenoteringar</translation>
+        <translation>Vis release information</translation>
     </message>
     <message>
         <source>Create a new Radio Settings Profile</source>
@@ -7319,7 +7319,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Internal Radio System</source>
-        <translation>Intern sende modul / radio</translation>
+        <translation>Internt sende modul / radio</translation>
     </message>
     <message>
         <source>External Radio Module</source>
@@ -7878,7 +7878,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Error creating OTX archive</source>
-        <translation>Fejl ved opretttelse af arkiv</translation>
+        <translation>Fejl ved oprettelse af arkiv</translation>
     </message>
     <message>
         <source>Error adding %1 to OTX archive</source>
@@ -8068,7 +8068,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;No Radio was found!&lt;/p&gt;&lt;p&gt;Make sure that you hold the lower trim buttons towards the center while you turn it on.&lt;/p&gt;&lt;p&gt;Then connect the USB wire.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:&apos;arial,sans-serif&apos;; font-size:13px; font-style:italic; color:#222222; background-color:#ffffff;&quot;&gt;Note: if you have a Taranis that has not had the firmware upgraded to 2.0 then this version of Companion will not work.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ingen radio fundet!&lt;/p&gt;&lt;p&gt;Kontroller at du holder begge nedre ttrim mod centrum når du tænder radio.&lt;/p&gt;&lt;p&gt;Tilslut så USB-kabel.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:&apos;arial,sans-serif&apos;; font-size:13px; font-style:italic; color:#222222; background-color:#ffffff;&quot;&gt;OBS! Denne Companion version kræver at programmet i din radio er version 2.0 eller senare, for at kunne fungere.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ingen radio fundet!&lt;/p&gt;&lt;p&gt;Kontroller at du holder begge nedre trim mod centrum når du tænder radio.&lt;/p&gt;&lt;p&gt;Tilslut så USB-kabel.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:&apos;arial,sans-serif&apos;; font-size:13px; font-style:italic; color:#222222; background-color:#ffffff;&quot;&gt;OBS! Denne Companion version kræver at programmet i din radio er version 2.0 eller senare, for at kunne fungere.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -8696,7 +8696,7 @@ x</translation>
     <message>
         <source>Error opening file %1 in write mode:
 %2.</source>
-        <translation>Fejl ved åbning af fil %1 i skrive ttilstand:
+        <translation>Fejl ved åbning af fil %1 i skrive tilstand:
 %2.</translation>
     </message>
 </context>
@@ -11177,7 +11177,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Models use one or two channels to control the ailerons.&lt;br&gt;A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. If your servos are connected by a Y-cable you should select the single-servo option.&lt;br&gt;&lt;br&gt;Aileron - Spektrum: CH2, Futaba: CH1</source>
-        <translation>Modeller bruger 1 eller 2 kanaler til at kontrollere krængror.&lt;br&gt;Et Y-kabel kan bruges til at sammenkoble 2 servo til en kanal. Anvender du Y-kabel skal du selv ændre til dett ved at redigere din model.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Modeller bruger 1 eller 2 kanaler til at kontrollere krængror.&lt;br&gt;Et Y-kabel kan bruges til at sammenkoble 2 servo til en kanal. Anvender du Y-kabel skal du selv ændre til 2 servo, ved at redigere din model.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
     </message>
     <message>
         <source>Models use two channels to control the elevons.&lt;br&gt;Select these two channels</source>
@@ -11410,7 +11410,7 @@ m2560 for v4.1-kort</translation>
     </message>
     <message>
         <source>&lt;b&gt;&lt;u&gt;WARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normally CPU type is automatically selected according to the chosen firmware.&lt;br&gt;If you change the CPU type the resulting eeprom could be inconsistent.</source>
-        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normaltt vælges CPU type med det progam som er valgt til at skrive.&lt;br&gt;Hvis du ændrer CPU type, kan resulatet blive en ugyldig og ikke fungerende EEPROM.</translation>
+        <translation>&lt;b&gt;&lt;u&gt;Advarsel!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normalt vælges CPU type med det progam som er valgt til at skrive.&lt;br&gt;Hvis du ændrer CPU type, kan resulatet blive en ugyldig og ikke fungerende EEPROM.</translation>
     </message>
     <message>
         <source>Programmer Configuration</source>
