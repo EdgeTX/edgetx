@@ -142,7 +142,7 @@ class ScriptEditWindow : public Page {
             getSourceString(s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
             return std::string(s, sizeof(s) - 1);
           }, COLOR_THEME_PRIMARY1);
-          new DynamicNumber<int>(gOutputs, outputsGrid.getFieldSlot(), [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
+          new DynamicNumber<int16_t>(gOutputs, outputsGrid.getFieldSlot(), [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
 
           outputsGrid.nextLine();
         }
