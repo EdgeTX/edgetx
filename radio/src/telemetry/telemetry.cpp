@@ -166,12 +166,14 @@ void processTelemetryData(uint8_t data)
   }
 #endif
 
+#if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
       telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
     processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
                                  telemetryRxBufferCount);
     return;
   }
+#endif
 
 #if defined(MULTIMODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
