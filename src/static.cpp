@@ -74,3 +74,75 @@ void StaticText::setBackgroundColor(LcdFlags color)
   lv_color_t c = makeLvColor(bgColor);
   lv_obj_set_style_bg_color(lvobj, c, LV_PART_MAIN);
 }
+
+template <>
+void DynamicNumber<uint32_t>::updateText()
+{
+  if (lvobj) {
+    const char* p = prefix ? prefix : "";
+    const char* s = suffix ? suffix : "";
+    if ((textFlags & PREC2) == PREC2) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%02" PRIu32 "%s", p,
+                            value / 100, value % 100, s);
+    } else if (textFlags & PREC1) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%01" PRIu32 "%s", p,
+                            value / 10, value % 10, s);
+    } else {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 "%s", p, value, s);
+    }
+  }
+}
+
+template <>
+void DynamicNumber<int32_t>::updateText()
+{
+  if (lvobj) {
+    const char* p = prefix ? prefix : "";
+    const char* s = suffix ? suffix : "";
+    if ((textFlags & PREC2) == PREC2) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%02" PRId32 "%s", p,
+                            value / 100, value % 100, s);
+    } else if (textFlags & PREC1) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%01" PRId32 "%s", p,
+                            value / 10, value % 10, s);
+    } else {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId32 "%s", p, value, s);
+    }
+  }
+}
+
+template <>
+void DynamicNumber<uint16_t>::updateText()
+{
+  if (lvobj) {
+    const char* p = prefix ? prefix : "";
+    const char* s = suffix ? suffix : "";
+    if ((textFlags & PREC2) == PREC2) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%02" PRIu16 "%s", p,
+                            value / 100, value % 100, s);
+    } else if (textFlags & PREC1) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%01" PRIu16 "%s", p,
+                            value / 10, value % 10, s);
+    } else {
+      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 "%s", p, value, s);
+    }
+  }
+}
+
+template <>
+void DynamicNumber<int16_t>::updateText()
+{
+  if (lvobj) {
+    const char* p = prefix ? prefix : "";
+    const char* s = suffix ? suffix : "";
+    if ((textFlags & PREC2) == PREC2) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%02" PRId16 "%s", p,
+                            value / 100, value % 100, s);
+    } else if (textFlags & PREC1) {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%01" PRId16 "%s", p,
+                            value / 10, value % 10, s);
+    } else {
+      lv_label_set_text_fmt(lvobj, "%s%" PRId16 "%s", p, value, s);
+    }
+  }
+}
