@@ -31,7 +31,7 @@
 
 static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE);
 
-void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
+static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_GET_HARDWARE_INFO) {
     return;
@@ -60,7 +60,7 @@ void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processModuleSettingsFrame(uint8_t module, const uint8_t * frame)
+static void processModuleSettingsFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_MODULE_SETTINGS) {
     return;
@@ -80,7 +80,7 @@ void processModuleSettingsFrame(uint8_t module, const uint8_t * frame)
   moduleState[module].mode = MODULE_MODE_NORMAL;
 }
 
-void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
+static void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_RECEIVER_SETTINGS) {
     return;
@@ -117,7 +117,7 @@ void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
   moduleState[module].mode = MODULE_MODE_NORMAL;
 }
 
-void processRegisterFrame(uint8_t module, const uint8_t * frame)
+static void processRegisterFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_REGISTER) {
     return;
@@ -153,7 +153,7 @@ void processRegisterFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processBindFrame(uint8_t module, const uint8_t * frame)
+static void processBindFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_BIND) {
     return;
@@ -204,7 +204,7 @@ void processBindFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processResetFrame(uint8_t module, const uint8_t * frame)
+static void processResetFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_RESET) {
     return;
@@ -217,7 +217,7 @@ void processResetFrame(uint8_t module, const uint8_t * frame)
   moduleState[module].mode = MODULE_MODE_NORMAL;
 }
 
-void processTelemetryFrame(uint8_t module, const uint8_t * frame)
+static void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
   for (uint8_t i = 0; i < 1 + frame[0]; i++) {
     telemetryMirrorSend(frame[i]);
@@ -237,7 +237,7 @@ extern "C" {
 
 volatile int16_t authenticateFrames = 0;
 
-void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
+static void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
 {
   uint8_t cryptoType = frame[3];
   uint8_t messageDigest[16] = {0};
@@ -280,7 +280,7 @@ void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
 #define processAuthenticationFrame(module, frame)
 #endif
 
-void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
+static void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_SPECTRUM_ANALYSER) {
     return;
@@ -307,7 +307,7 @@ void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processPowerMeterFrame(uint8_t module, const uint8_t * frame)
+static void processPowerMeterFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_POWER_METER) {
     return;
@@ -319,7 +319,7 @@ void processPowerMeterFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
+static void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_OTA_UPDATE) {
     return;
@@ -345,7 +345,7 @@ void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processModuleFrame(uint8_t module, const uint8_t *frame)
+static void processModuleFrame(uint8_t module, const uint8_t *frame)
 {
   switch (frame[2]) {
     case PXX2_TYPE_ID_HW_INFO:
@@ -382,7 +382,7 @@ void processModuleFrame(uint8_t module, const uint8_t *frame)
   }
 }
 
-void processToolsFrame(uint8_t module, const uint8_t * frame)
+static void processToolsFrame(uint8_t module, const uint8_t * frame)
 {
   switch (frame[2]) {
     case PXX2_TYPE_ID_POWER_METER:
@@ -419,3 +419,4 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame)
       break;
   }
 }
+

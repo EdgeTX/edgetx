@@ -28,8 +28,8 @@
 #include "pxx1.h"
 #include "pxx2.h"
 #include "multi.h"
-#include "afhds3.h"
 #include "afhds2.h"
+#include "afhds3_module.h"
 #include "modules_helpers.h"
 #include "ff.h"
 #include "hal/module_driver.h"
@@ -148,7 +148,7 @@ PACK(struct GhostPulsesData {
 });
 
 union InternalModulePulsesData {
-#if defined(PXX1)
+#if defined(INTERNAL_MODULE_PXX1)
 #if defined(INTMODULE_USART)
   UartPxx1Pulses pxx_uart;
 #else
@@ -156,20 +156,24 @@ union InternalModulePulsesData {
 #endif
 #endif
 
-#if defined(PXX2)
+#if defined(INTERNAL_MODULE_PXX2)
   Pxx2Pulses pxx2;
 #endif
 
-#if defined(INTMODULE_USART) && defined(AFHDS2)
+#if defined(INTERNAL_MODULE_AFHDS2A)
   FlySkySerialPulsesData flysky;
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(INTERNAL_MODULE_MULTI)
   UartMultiPulses multi;
 #endif
 
-#if defined(CROSSFIRE)
+#if defined(INTERNAL_MODULE_CRSF)
   CrossfirePulsesData crossfire;
+#endif
+
+#if defined(INTERNAL_MODULE_AFHDS3)
+  afhds3::IntmoduleData afhds3;
 #endif
 
 #if defined(INTERNAL_MODULE_PPM)
@@ -195,7 +199,7 @@ union ExternalModulePulsesData {
 #endif
 
 #if defined(AFHDS3)
-  afhds3::PulsesData afhds3;
+  afhds3::ExtmoduleData afhds3;
 #endif
 
   PpmPulsesData<pulse_duration_t> ppm;
@@ -229,11 +233,15 @@ extern TrainerPulsesData trainerPulsesData;
 bool setupPulsesInternalModule();
 void stopPulsesInternalModule();
 void intmoduleSendNextFrame();
+const etx_module_driver_t* getIntModuleDriver();
+void* getIntModuleCtx();
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
 void extmoduleSendNextFrame();
+const etx_module_driver_t* getExtModuleDriver();
+void* getExtModuleCtx();
 #endif
 void restartModule(uint8_t idx);
 void setupPulsesDSM2();
@@ -251,7 +259,6 @@ void intmodulePpmStart();
 void intmodulePxx1PulsesStart();
 void intmodulePxx1SerialStart();
 void extmodulePxx1PulsesStart();
-void extmodulePxx1SerialStart();
 void extmodulePpmStart();
 void intmoduleStop();
 void extmoduleStop();

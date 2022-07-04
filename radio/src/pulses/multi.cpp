@@ -51,7 +51,7 @@ static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
 #endif
 
-#if defined(INTMODULE_USART)
+#if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_MULTI)
 #include "intmodule_serial_driver.h"
 
 etx_serial_init multiSerialInitParams = {
@@ -65,7 +65,7 @@ etx_serial_init multiSerialInitParams = {
 
 static void sendMulti(uint8_t moduleIdx, uint8_t b)
 {
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(INTERNAL_MODULE_MULTI)
   if (moduleIdx == INTERNAL_MODULE) {
     intmodulePulsesData.multi.sendByte(b);
   }
@@ -97,14 +97,17 @@ static void sendFailsafeChannels(uint8_t moduleIdx)
     int16_t failsafeValue = g_model.failsafeChannels[i];
     int pulseValue;
 
-    if (g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_HOLD || failsafeValue == FAILSAFE_CHANNEL_HOLD) {
+    if (g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_HOLD ||
+        failsafeValue == FAILSAFE_CHANNEL_HOLD) {
       pulseValue = 2047;
-    }
-    else if (g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_NOPULSES || failsafeValue == FAILSAFE_CHANNEL_NOPULSE) {
+    } else if (g_model.moduleData[moduleIdx].failsafeMode ==
+                   FAILSAFE_NOPULSES ||
+               failsafeValue == FAILSAFE_CHANNEL_NOPULSE) {
       pulseValue = 0;
-    }
-    else {
-      failsafeValue += 2 * PPM_CH_CENTER(g_model.moduleData[moduleIdx].channelsStart + i) - 2 * PPM_CENTER;
+    } else {
+      failsafeValue +=
+          2 * PPM_CH_CENTER(g_model.moduleData[moduleIdx].channelsStart + i) -
+          2 * PPM_CENTER;
       pulseValue = limit(1, (failsafeValue * 800 / 1000) + 1024, 2046);
     }
 
@@ -222,7 +225,6 @@ static void* multiInit(uint8_t module)
   
   // serial port setup
   intmodulePulsesData.multi.initFrame();
-  intmoduleFifo.clear();
   void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
 
   // mixer setup
@@ -266,6 +268,16 @@ static void multiSendPulses(void* context)
                                    intmodulePulsesData.multi.getSize());
 }
 
+static int multiGetByte(void* context, uint8_t* data)
+{
+  return IntmoduleSerialDriver.getByte(context, data);
+}
+
+static void multiProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+  processMultiTelemetryData(data, INTERNAL_MODULE);
+}
+
 #include "hal/module_driver.h"
 
 const etx_module_driver_t MultiInternalDriver = {
@@ -273,7 +285,9 @@ const etx_module_driver_t MultiInternalDriver = {
   .init = multiInit,
   .deinit = multiDeInit,
   .setupPulses = multiSetupPulses,
-  .sendPulses = multiSendPulses  
+  .sendPulses = multiSendPulses,
+  .getByte = multiGetByte,
+  .processData = multiProcessData,
 };
 #endif
 

@@ -99,6 +99,11 @@ class Fifo
       }
     }
 
+    T * buffer()
+    {
+      return fifo;
+    }
+
   protected:
     T fifo[N];
     volatile uint32_t widx;

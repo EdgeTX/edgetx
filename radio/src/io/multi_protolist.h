@@ -27,6 +27,12 @@
 #include <vector>
 #include <map>
 
+#if !defined(SIMU)
+// Forward declare FreeRTOS timer
+struct tmrTimerControl;
+typedef struct tmrTimerControl * TimerHandle_t;
+#endif
+
 class MultiRfProtocols
 {
   static MultiRfProtocols* _instance[NUM_MODULES];
@@ -45,6 +51,10 @@ class MultiRfProtocols
   MultiRfProtocols(unsigned int moduleIdx);
   void fillBuiltinProtos();
 
+#if !defined(SIMU)
+  static void timerCb(TimerHandle_t xTimer);
+#endif
+  
  public:
 
   struct RfProto {

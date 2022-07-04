@@ -53,12 +53,6 @@ extern uint16_t sessionTimer;
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 #define TRAINER_CONNECTED()             (true)
 
-PACK(typedef struct {
-  uint8_t pxx2Enabled:1;
-}) HardwareOptions;
-
-extern HardwareOptions hardwareOptions;
-
 // Board driver
 void boardInit();
 void boardOff();
@@ -101,16 +95,50 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 // SDRAM driver
 void SDRAM_Init();
 
+enum {
+  PCBREV_NV14 = 0,
+  PCBREV_EL18 = 1,
+};
+
+typedef struct {
+  uint8_t pcbrev;
+} HardwareOptions;
+
+extern HardwareOptions hardwareOptions;
+
 #if !defined(SIMU)
 
-#define INTERNAL_MODULE_OFF()           GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#define INTERNAL_MODULE_ON()            GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define INTERNAL_MODULE_OFF()                                     \
+  do {                                                            \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)                    \
+      GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN);   \
+    else                                                          \
+      GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN); \
+  } while (0)
+
+#define INTERNAL_MODULE_ON()                                      \
+  do {                                                            \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)                    \
+      GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN); \
+    else                                                          \
+      GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN);   \
+  } while (0)
+
+#define IS_INTERNAL_MODULE_ON()                                                \
+  (hardwareOptions.pcbrev == PCBREV_NV14                                       \
+       ? (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == \
+          Bit_SET)                                                             \
+       : (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == \
+          Bit_RESET))
+
+#define IS_EXTERNAL_MODULE_ON() \
+  (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+
 void EXTERNAL_MODULE_ON();
 void EXTERNAL_MODULE_OFF();
+
 #define BLUETOOTH_MODULE_ON()           GPIO_ResetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
 #define BLUETOOTH_MODULE_OFF()          GPIO_SetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
-#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
 
 #else
 

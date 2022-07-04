@@ -23,9 +23,8 @@
 #define _PULSES_PXX2_H_
 
 #include "fifo.h"
-#include "io/frsky_pxx2.h"
 #include "popups.h"
-#include "./pxx.h"
+#include "pxx.h"
 
 #include "hal/serial_driver.h"
 #include "hal/module_driver.h"
@@ -423,9 +422,6 @@ struct PXX2HardwareAndSettings {
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
 PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
-
-extern ModuleFifo intmoduleFifo;
-extern ModuleFifo extmoduleFifo;
 
 class Pxx2CrcMixin {
   protected:

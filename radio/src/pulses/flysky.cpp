@@ -32,6 +32,14 @@
 #define custom_log
 #endif
 
+enum AfhdsSpecialChars {
+  END = 0xC0,             //Frame end
+  START = END,
+  ESC_END = 0xDC,         //Escaped frame end - in case END occurs in fame then ESC ESC_END must be used
+  ESC = 0xDB,             //Escaping character
+  ESC_ESC = 0xDD,         //Escaping character in case ESC occurs in fame then ESC ESC_ESC  must be used
+};
+
 // 0:OFF, 1:RF frame only, 2:TX frame only, 3:Both RF and TX frame
 enum DEBUG_RF_FRAME_PRINT_E {
   FRAME_PRINT_OFF = 0,
@@ -399,16 +407,13 @@ inline void debugFrame(const uint8_t* rxBuffer, uint8_t rxBufferCount)
   TRACE("count [%d] data: %s", rxBufferCount, buffer);
 }
 
-inline void parseResponse()
+inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
 {
-  afhds2Resp* resp =
-      reinterpret_cast<afhds2Resp*>(intmodulePulsesData.flysky.telemetry);
-  uint8_t dataLen = intmodulePulsesData.flysky.telemetry_index;
-
+  afhds2Resp* resp = reinterpret_cast<afhds2Resp*>(buffer);
   if (resp->startByte != END || dataLen < 2) return;
 
   dataLen -= 2;
-  if (!checkFlySkyFrameCrc(intmodulePulsesData.flysky.telemetry + 1, dataLen)) {
+  if (!checkFlySkyFrameCrc(buffer + 1, dataLen)) {
     return;
   }
 
@@ -533,7 +538,7 @@ bool isrxBufferMsgOK(void)
   return isMsgOK && isFlySkyUsbDownload();
 }
 
-void processInternalFlySkyTelemetryData(uint8_t byte)
+void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
 {
   // #if !defined(SIMU)
   //   parseFlyskyData(&rxBuffer, byte);
@@ -559,9 +564,9 @@ void processInternalFlySkyTelemetryData(uint8_t byte)
   //   }
   //   usbDownloadTransmit(pt, rxBuffer.length + 5);
   // }
-  if (byte == END && intmodulePulsesData.flysky.telemetry_index > 0) {
-    parseResponse();
-    intmodulePulsesData.flysky.telemetry_index = 0;
+  if (byte == END && *len > 0) {
+    parseResponse(buffer, *len);
+    *len = 0;
   } else {
     if (byte == ESC) {
       intmodulePulsesData.flysky.esc_state = 1;
@@ -573,12 +578,10 @@ void processInternalFlySkyTelemetryData(uint8_t byte)
         else if (byte == ESC_ESC)
           byte = ESC;
       }
-      intmodulePulsesData.flysky
-          .telemetry[intmodulePulsesData.flysky.telemetry_index++] = byte;
-      if (intmodulePulsesData.flysky.telemetry_index >=
-          sizeof(intmodulePulsesData.flysky.telemetry)) {
+      buffer[(*len)++] = byte;
+      if (*len >= TELEMETRY_RX_PACKET_SIZE) {
         // TODO buffer is full, log an error?
-        intmodulePulsesData.flysky.telemetry_index = 0;
+        *len = 0;
       }
     }
   }

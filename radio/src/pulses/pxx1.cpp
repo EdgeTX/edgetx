@@ -222,7 +222,7 @@ template class Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport> >;
 template class Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport> >;
 template class Pxx1Pulses<UartPxx1Transport>;
 
-#if defined(INTMODULE_USART)
+#if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_PXX1)
 #include "intmodule_serial_driver.h"
 
 static const etx_serial_init pxx1SerialInit = {

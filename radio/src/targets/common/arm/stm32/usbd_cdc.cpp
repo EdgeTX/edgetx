@@ -297,15 +297,16 @@ void usbSerialSetBaudRateCb(void*, void (*cb)(uint32_t))
 // }
 
 static const etx_serial_driver_t usbSerialDriver = {
-  nullptr,
-  nullptr,
-  usbSerialPutc,
-  nullptr,
-  nullptr,
-  nullptr,
-  usbSerialBaudRate,
-  usbSerialSetReceiveDataCb,
-  usbSerialSetBaudRateCb,
+  .init = nullptr,
+  .deinit = nullptr,
+  .sendByte = usbSerialPutc,
+  .sendBuffer = nullptr,
+  .waitForTxCompleted = nullptr,
+  .getByte = nullptr,
+  .clearRxBuffer = nullptr,
+  .getBaudrate = usbSerialBaudRate,
+  .setReceiveCb = usbSerialSetReceiveDataCb,
+  .setBaudrateCb = usbSerialSetBaudRateCb,
 };
 
 const etx_serial_port_t UsbSerialPort = {

@@ -120,7 +120,7 @@ void RadioHardwarePage::build(FormWindow * window)
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   auto mod = new InternalModuleWindow(window);
   mod->padLeft(lv_dpx(8));
 #endif

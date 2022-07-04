@@ -23,7 +23,6 @@
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 
-#include "io/frsky_pxx2.h"
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
 
@@ -47,6 +46,10 @@
 
 #if defined(AFHDS2)
 #include "pulses/afhds2.h"
+#endif
+
+#if defined(AFHDS3)
+#include "pulses/afhds3.h"
 #endif
 
 uint8_t s_pulses_paused = 0;
@@ -171,8 +174,8 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
   }
 #endif
 #if defined(AFHDS3)
-  if (moduleIdx == EXTERNAL_MODULE && isModuleAFHDS3(moduleIdx)) {
-    extmodulePulsesData.afhds3.getStatusString(statusText);
+  if (isModuleAFHDS3(moduleIdx)) {
+    afhds3::getStatusString(moduleIdx, statusText);
   }
 #endif
 }
@@ -185,27 +188,13 @@ void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText)
     getModuleSyncStatus(moduleIdx).getRefreshString(statusText);
   }
 #endif
-#if defined(AFHDS3)
-  if (moduleIdx == EXTERNAL_MODULE && isModuleAFHDS3(moduleIdx)) {
-    extmodulePulsesData.afhds3.getPowerStatus(statusText);
-  }
-#endif
 }
-
-#if defined(AFHDS3)
-uint8_t actualAfhdsRunPower(int moduleIndex)
-{
-  if (moduleIndex == EXTERNAL_MODULE && isModuleAFHDS3(moduleIndex)) {
-    return (uint8_t)extmodulePulsesData.afhds3.actualRunPower();
-  }
-  return 0;
-}
-#endif
 
 ModuleSettingsMode getModuleMode(int moduleIndex)
 {
   return (ModuleSettingsMode)moduleState[moduleIndex].mode;
 }
+
 void setModuleMode(int moduleIndex, ModuleSettingsMode mode)
 {
   moduleState[moduleIndex].mode = mode;
@@ -352,6 +341,16 @@ uint8_t getRequiredProtocol(uint8_t module)
 static void* internalModuleContext = nullptr;
 static const etx_module_driver_t* internalModuleDriver = nullptr;
 
+const etx_module_driver_t* getIntModuleDriver()
+{
+  return internalModuleDriver;
+}
+
+void* getIntModuleCtx()
+{
+  return internalModuleContext;
+}
+
 static void enablePulsesInternalModule(uint8_t protocol)
 {
   // start new protocol hardware here
@@ -364,7 +363,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
   }
 
   switch (protocol) {
-#if defined(PXX1) && !defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1) && !defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       intmodulePxx1PulsesStart();
 #if defined(INTMODULE_HEARTBEAT)
@@ -374,14 +373,14 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(PXX1) && defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1) && defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
       internalModuleContext = Pxx1InternalSerialDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Pxx1InternalSerialDriver;
       break;
 #endif
 
-#if defined(PXX2)
+#if defined(INTERNAL_MODULE_PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
       internalModuleContext = Pxx2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Pxx2InternalDriver;
@@ -413,6 +412,13 @@ static void enablePulsesInternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_AFHDS2A:
       internalModuleContext = Afhds2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Afhds2InternalDriver;
+      break;
+#endif
+
+#if defined(INTERNAL_MODULE_AFHDS3)
+    case PROTOCOL_CHANNELS_AFHDS3:
+      internalModuleContext = afhds3::internalDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &afhds3::internalDriver;
       break;
 #endif
 
@@ -515,6 +521,16 @@ bool setupPulsesInternalModule()
 static void* externalModuleContext = nullptr;
 static const etx_module_driver_t* externalModuleDriver = nullptr;
 
+const etx_module_driver_t* getExtModuleDriver()
+{
+  return externalModuleDriver;
+}
+
+void* getExtModuleCtx()
+{
+  return externalModuleContext;
+}
+
 void enablePulsesExternalModule(uint8_t protocol)
 {
   // start new protocol hardware here
@@ -606,10 +622,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
-      // convert to serial module interface
-      extmodulePulsesData.afhds3.init(EXTERNAL_MODULE);
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, AFHDS3_COMMAND_TIMEOUT * 1000 /* us */);
+      externalModuleContext = afhds3::externalDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &afhds3::externalDriver;
       break;
 #endif
 
@@ -686,12 +700,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
       return true;
 #endif
 
-#if defined(AFHDS3)
-    case PROTOCOL_CHANNELS_AFHDS3:
-      extmodulePulsesData.afhds3.setupFrame();
-      return true;
-#endif
-
     case PROTOCOL_CHANNELS_DSMP:
       setupPulsesLemonDSMP();
       return true;
@@ -723,19 +731,6 @@ void extmoduleSendNextFrame()
     case PROTOCOL_CHANNELS_PXX1_PULSES:
       extmoduleSendNextFramePxx1(extmodulePulsesData.pxx.getData(),
                                  extmodulePulsesData.pxx.getSize());
-      break;
-#endif
-
-#if defined(AFHDS3)
-    case PROTOCOL_CHANNELS_AFHDS3:
-#if defined(EXTMODULE_USART) && defined(EXTMODULE_TX_INVERT_GPIO)
-      extmoduleSendBuffer(extmodulePulsesData.afhds3.getData(),
-                          extmodulePulsesData.afhds3.getSize());
-#else
-      extmoduleSendNextFrameSoftSerial(extmodulePulsesData.afhds3.getData(),
-                                       extmodulePulsesData.afhds3.getSize(),
-                                       false);
-#endif
       break;
 #endif
 

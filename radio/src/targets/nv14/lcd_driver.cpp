@@ -23,21 +23,23 @@
 #include "libopenui_config.h"
 #include "lcd.h"
 
-static pixel_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
-
-static uint16_t* next_frame_buffer;
-static rect_t next_frame_area;
+static volatile uint8_t _frame_addr_reloaded = 0;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
+  (void)copy_area;
 
-  next_frame_buffer = buffer;
-  next_frame_area = copy_area;
-  
-  // Enable line IRQ
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
+  LTDC_Layer1->CFBAR = (uint32_t)buffer;
+
+  // reload shadow registers on vertical blank
+  _frame_addr_reloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while(_frame_addr_reloaded == 0);
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -1197,6 +1199,7 @@ void LCD_Init_LTDC() {
 
   // Trigger on last line
   LTDC_LIPConfig(LCD_PHYS_H);
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 
 #if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
@@ -1252,7 +1255,8 @@ void LCD_LayerInit() {
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_FRAME_BUFFER;
+  uint32_t layer_address = (uint32_t)lcdFront->getData();
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = layer_address;
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
@@ -1273,9 +1277,6 @@ const char* boardLcdType = "";
 
 void lcdInit(void)
 {
-  // Clear buffers first
-  memset(LCD_FRAME_BUFFER, 0, sizeof(LCD_FRAME_BUFFER));
-
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
 
@@ -1503,14 +1504,5 @@ extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
   LTDC->ICR = LTDC_ICR_CLIF;
-  LTDC_ITConfig(LTDC_IER_LIE, DISABLE);
-
-  // TODO: use modified version with "Transfer Complete" IRQ
-  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-                next_frame_area.x, next_frame_area.y, next_frame_buffer,
-                next_frame_area.w, next_frame_area.h, 0, 0,
-                next_frame_area.w, next_frame_area.h);
-
-  // TODO: call on "Transfer Complete" IRQ
-  lcdFlushed();
+  _frame_addr_reloaded = 1;
 }
