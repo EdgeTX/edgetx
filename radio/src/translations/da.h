@@ -59,15 +59,15 @@
 #define TR_ADCFILTERVALUES             "Global","Fra","Til"
 
 #if defined(PCBX10)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
+  #define TR_RETA123                   "S","H","G","K","1","3","2","4","5","6","7","V","H"
 #elif defined(PCBHORUS)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
+  #define TR_RETA123                   "S","H","G","K","1","3","2","4","5","V","H"
 #elif defined(PCBX9E)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
+  #define TR_RETA123                   "S","H","G","K","1","2","3","4","V","H","V","H"
 #elif defined(PCBTARANIS)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
+  #define TR_RETA123                   "S","H","G","K","1","2","3","V","H"
 #else
-  #define TR_RETA123                   "R","E","T","A","1","2","3"
+  #define TR_RETA123                   "S","H","G","K","1","2","3"
 #endif
 
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"

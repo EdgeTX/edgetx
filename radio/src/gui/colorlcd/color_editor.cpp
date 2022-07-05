@@ -311,7 +311,7 @@ ColorEditor::ColorEditor(FormGroup *window, const rect_t rect, uint32_t color,
     lv_label_set_text_static(barLabels[i], _colorType->getLabelChars()[i]);
     
     barValLabels[i] = create_bar_value_label(lvobj, x + 10, y + 3);
-    lv_label_set_text_fmt(barValLabels[i], "%d", bar->value);
+    lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
   }
 
   lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
@@ -336,7 +336,7 @@ void ColorEditor::setRGB()
   // update bars & labels
   for (int i = 0; i < MAX_BARS; i++) {
     auto bar = _colorType->bars[i];
-    lv_label_set_text_fmt(barValLabels[i], "%d", bar->value);
+    lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
     bar->invalidate();
   }
 

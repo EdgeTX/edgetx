@@ -1475,9 +1475,9 @@
   #define INTMODULE_USART_IRQn            USART3_IRQn
   #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
   // DMA1_Stream3 is already used by SDIO
-  #define INTMODULE_DMA                   NULL
-  #define INTMODULE_DMA_CHANNEL           0
-  #define INTMODULE_DMA_STREAM            0
+  // #define INTMODULE_DMA                   NULL
+  // #define INTMODULE_DMA_CHANNEL           0
+  // #define INTMODULE_DMA_STREAM            0
 #if defined(RADIO_TLITE)
   #define INTMODULE_BOOTCMD_GPIO          GPIOA
   #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PA.05

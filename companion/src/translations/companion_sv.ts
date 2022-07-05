@@ -6320,7 +6320,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Outputs</source>
-        <translation>Utgångar</translation>
+        <translation>Output</translation>
     </message>
     <message>
         <source>FullScreenDialog</source>
@@ -6631,7 +6631,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation>Håll senaste</translation>
+        <translation>Lås senaste</translation>
     </message>
     <message>
         <source>No Pulse</source>
@@ -7005,11 +7005,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation>Håll senaste</translation>
+        <translation type="unfinished">Lås senaste</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Special</translation>
+        <translation>Egna värden</translation>
     </message>
     <message>
         <source>No Pulses</source>
@@ -7081,7 +7081,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show values in:</source>
-        <translation>Visa värden för:</translation>
+        <translation>Visa värden i:</translation>
     </message>
     <message>
         <source>%</source>
@@ -9015,7 +9015,7 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     </message>
     <message>
         <source>Directory containing the SD card image to use. The default is configured in the chosen Radio Profile.</source>
-        <translation>Katalog som innehåller SD-kortavbildningen. Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
+        <translation>Katalog som innehåller SD-kortavbildningen. Förvalt värde konfigureras i den valda radioprofilen.</translation>
     </message>
     <message>
         <source>path</source>
