@@ -633,16 +633,18 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   updateFilteredLabels(modelslabels.filteredLabels(), false);
 
   lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,std::set<uint32_t> oldselection) {
-    // Special case for mutually exclusive Unsorted
-    bool unsrt_is_selected = selected.find(lblselector->getRowCount()-1) != selected.end();
-    bool unsrt_was_selected = oldselection.find(lblselector->getRowCount()-1) != oldselection.end();
+    if(modelslabels.getUnlabeledModels().size() != 0) {
+      // Special case for mutually exclusive Unsorted
+      bool unsrt_is_selected = selected.find(lblselector->getRowCount()-1) != selected.end();
+      bool unsrt_was_selected = oldselection.find(lblselector->getRowCount()-1) != oldselection.end();
 
-    // Unsorted was just picked
-    if(unsrt_is_selected && !unsrt_was_selected) {
-      selected.clear();
-      selected.insert(lblselector->getRowCount() -1);
-    } else if(unsrt_is_selected && unsrt_was_selected) {
-      selected.erase(selected.find(lblselector->getRowCount()-1));
+      // Unsorted was just picked
+      if(unsrt_is_selected && !unsrt_was_selected) {
+        selected.clear();
+        selected.insert(lblselector->getRowCount() -1);
+      } else if(unsrt_is_selected && unsrt_was_selected) {
+        selected.erase(selected.find(lblselector->getRowCount()-1));
+      }
     }
 
     lblselector->setSelected(selected);
