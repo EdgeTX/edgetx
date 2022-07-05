@@ -413,7 +413,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
         menu->setFinishHandler([=] () {
           if (isDirty) {
             isDirty = false;
-            refresh = true;
+            update();
           }
         });
 
