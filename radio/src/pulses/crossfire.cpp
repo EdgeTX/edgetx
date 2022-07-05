@@ -27,6 +27,8 @@
 #include "intmodule_serial_driver.h"
 #endif
 
+#include "telemetry/crossfire.h"
+
 #define CROSSFIRE_CH_BITS           11
 #define CROSSFIRE_CENTER            0x3E0
 #if defined(PPM_CENTER_ADJUSTABLE)

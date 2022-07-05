@@ -23,6 +23,10 @@
 #include "hal/adc_driver.h"
 #include "aux_serial_driver.h"
 
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
 #if defined(PCBTARANIS)
 enum {
   ITEM_RADIO_HARDWARE_LABEL_STICKS,

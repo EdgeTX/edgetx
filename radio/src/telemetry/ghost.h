@@ -165,27 +165,3 @@ enum GhostFrames
   GHST_MENU_CONTROL
 };
 
-constexpr uint8_t GHST_MENU_LINES = 6;
-constexpr uint8_t GHST_MENU_CHARS = 20;
-
-// GHST_DL_MENU_DESC (27 bytes)
-struct GhostMenuFrame
-{
-  uint8_t address;
-  uint8_t length ;
-  uint8_t packetId;
-  uint8_t menuStatus;    // GhostMenuStatus
-  uint8_t lineFlags;     // GhostLineFlags
-  uint8_t lineIndex;     // 0 = first line
-  unsigned char menuText[GHST_MENU_CHARS];
-  uint8_t crc;
-};
-
-struct GhostMenuData
-{
-  uint8_t menuStatus;    // Update Line, Clear Menu, etc.
-  uint8_t lineFlags;     // Carat states, Inverse, Bold for each of Menu Label, and Value
-  uint8_t splitLine;     // Store beginning of Value substring
-  char menuText[GHST_MENU_CHARS + 1];
-};
-

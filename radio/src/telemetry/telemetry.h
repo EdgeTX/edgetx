@@ -23,27 +23,12 @@
 #define _TELEMETRY_H_
 
 #include "dataconstants.h"
-#include "frsky.h"
-#include "io/frsky_sport.h"
-#include "crossfire.h"
 #include "myeeprom.h"
-#include "io/frsky_sport.h"
-#if defined(GHOST)
-  #include "ghost.h"
-#endif
-#if defined(MULTIMODULE)
-  #include "spektrum.h"
-  #include "hitec.h"
-  #include "hott.h"
-  #include "multi.h"
-  #include "mlink.h"
-#endif
-#include "myeeprom.h"
-#if defined(MULTIMODULE) || defined(AFHDS3)
-  #include "flysky_ibus.h"
-#endif
 
 #include "pulses/modules_helpers.h"
+
+#include "frsky.h"
+#include "io/frsky_sport.h"
 
 extern uint8_t telemetryStreaming; // >0 (true) == data is streaming in. 0 = no data detected for some time
 

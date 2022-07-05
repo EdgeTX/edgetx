@@ -352,7 +352,7 @@ void processSpektrumPacket(const uint8_t *packet)
   uint8_t i2cAddress = (packet[2] & 0x7f);
 
   if (i2cAddress == I2C_FWD_PGM) {
-#if defined(LUA)
+#if defined(LUA) && defined(MULTIMODULE)
     // Forward Programming
     if (Multi_Buffer && memcmp(Multi_Buffer, "DSM", 3) == 0) {
       // Multi_Buffer[0..2]=="DSM" -> Lua script is running
@@ -571,11 +571,14 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
   /* Finally stop binding as the rx just told us that it is bound */
   if (getModuleMode(module) == MODULE_MODE_BIND) {
     auto module_type = g_model.moduleData[module].type;
+#if defined(MULTIMODULE)
     if (module_type == MODULE_TYPE_MULTIMODULE &&
         g_model.moduleData[module].multi.rfProtocol ==
             MODULE_SUBTYPE_MULTI_DSM2) {
       setMultiBindStatus(module, MULTI_BIND_FINISHED);
-    } else if (module_type == MODULE_TYPE_LEMON_DSMP) {
+    } else
+#endif
+    if (module_type == MODULE_TYPE_LEMON_DSMP) {
       setModuleMode(module, MODULE_MODE_NORMAL);
     }
   }

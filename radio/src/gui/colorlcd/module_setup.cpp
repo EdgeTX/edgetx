@@ -37,6 +37,7 @@
 #endif
 
 #if defined(CROSSFIRE)
+#include "telemetry/crossfire.h"
 #include "crossfire_settings.h"
 #endif
 
@@ -196,9 +197,11 @@ void ModuleWindow::updateModule()
                      GET_DEFAULT(*modelId), [=](int32_t newValue) {
                        if (newValue != *modelId) {
                          *modelId = newValue;
+#if defined(CROSSFIRE)
                          if (isModuleCrossfire(moduleIdx)) {
                            moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
                          }
+#endif
                          SET_DIRTY();
                        }
                      });
@@ -566,6 +569,7 @@ void ModuleSubTypeChoice::update()
 
 void ModuleSubTypeChoice::openMenu()
 {
+#if defined(MULTIMODULE)
   if (isModuleMultimodule(moduleIdx)) {
     auto menu = new Menu(this);
 
@@ -587,7 +591,9 @@ void ModuleSubTypeChoice::openMenu()
     ModuleData* md = &g_model.moduleData[moduleIdx];
     int idx = protos->getIndex(md->multi.rfProtocol);
     if (idx >= 0) menu->select(idx);
-  } else {
+  } else
+#endif
+  {
     Choice::openMenu();
   }
 }

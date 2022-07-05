@@ -24,6 +24,10 @@
 #include "fifo.h"
 #include "dmafifo.h"
 
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
+#endif
+
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 

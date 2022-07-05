@@ -40,6 +40,10 @@
 #include "pulses/crossfire.h"
 #endif
 
+#if defined(GHOST)
+#include "telemetry/ghost.h"
+#endif
+
 #if defined(MULTIMODULE)
 #include "io/multi_protolist.h"
 #include "pulses/multi.h"
@@ -388,14 +392,14 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_MULTI)
+#if defined(INTERNAL_MODULE_MULTI) && defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_MULTIMODULE:
       internalModuleContext = MultiInternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &MultiInternalDriver;
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_CRSF)
+#if defined(INTERNAL_MODULE_CRSF) && defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
       internalModuleContext = CrossfireInternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &CrossfireInternalDriver;
@@ -409,7 +413,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_AFHDS2A)
+#if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2A)
     case PROTOCOL_CHANNELS_AFHDS2A:
       internalModuleContext = Afhds2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Afhds2InternalDriver;

@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "mlink.h"
 
 struct MLinkSensor
 {

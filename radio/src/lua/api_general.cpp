@@ -25,8 +25,6 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-#include "telemetry/frsky.h"
-#include "telemetry/multi.h"
 #include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
@@ -75,6 +73,20 @@
   #include "lua/lua_exports_x9d.inc"
 #elif defined(PCBNV14)
   #include "lua/lua_exports_nv14.inc"
+#endif
+
+#include "telemetry/frsky.h"
+
+#if defined(MULTIMODULE)
+  #include "telemetry/multi.h"
+#endif
+
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
 #endif
 
 #if defined(SIMU)

@@ -22,6 +22,10 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
 uint8_t g_moduleIdx;
 
 uint8_t getSwitchWarningsCount()

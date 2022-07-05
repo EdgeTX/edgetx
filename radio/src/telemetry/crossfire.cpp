@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "crossfire.h"
+
 #include "opentx.h"
 #include "aux_serial_driver.h"
 
