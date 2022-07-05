@@ -536,12 +536,8 @@
 #define TR_VOLTAGE                      TR(INDENT "Voltage", INDENT "電壓來源")
 #define TR_CURRENT                      TR(INDENT "Current", INDENT "電流來源")
 #define TR_SELECT_MODEL                 "選擇模型"
-#define TR_MODEL_CATEGORIES            "模型分類"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                  "選擇模式"
-#define TR_CREATE_CATEGORY              "創建分類"
-#define TR_RENAME_CATEGORY              "分類改名"
-#define TR_DELETE_CATEGORY              "刪除分類"
 #define TR_CREATE_MODEL                 "創建模型"
 #define TR_FAVORITE_LABEL              "Favorites"
 #define TR_NEW_MODEL                   "New Model"
@@ -553,7 +549,6 @@
 #define TR_DELETE_MODEL                 "刪除模型"
 #define TR_RESTORE_MODEL                "恢復模型"
 #define TR_DELETE_ERROR                 "刪除失敗"
-#define TR_CAT_NOT_EMPTY                "分類未清空"
 #define TR_SDCARD_ERROR                 TR("SD error", "存儲卡錯誤")
 #define TR_SDCARD                       "存儲卡"
 #define TR_NO_FILES_ON_SD               "存儲卡中沒有文件!"

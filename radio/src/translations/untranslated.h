@@ -305,14 +305,6 @@
 
 #define TR_FSGROUPS                     "-","1","2","3"
 
-#define TR_ENTER_LABEL "Enter Label"
-#define TR_LABEL "Label"
-#define TR_NONE "None"
-#define TR_CURRENT_MODEL "Current"
-#define TR_NEW "New"
-#define TR_NEW_LABEL "New Label"
-#define TR_RENAME_LABEL "Rename Label"
-#define TR_DELETE_LABEL "Delete Label"
 //
 // HoTT Telemetry sensor names by Hott device
 //

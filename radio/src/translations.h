@@ -529,12 +529,8 @@ extern const char STR_BEEP_VOLUME[];
 extern const char STR_WAV_VOLUME[];
 extern const char STR_BG_VOLUME[];
 extern const char STR_SELECT_MODEL[];
-extern const char STR_MODEL_CATEGORIES[];
 extern const char STR_MODELS[];
 extern const char STR_SELECT_MODE[];
-extern const char STR_CREATE_CATEGORY[];
-extern const char STR_RENAME_CATEGORY[];
-extern const char STR_DELETE_CATEGORY[];
 extern const char STR_CREATE_MODEL[];
 extern const char STR_FAVORITE_LABEL[];
 extern const char STR_NEW_MODEL[];
@@ -631,7 +627,6 @@ extern const char STR_ASK_OVERWRITE[];
 extern const char STR_NEEDS_FILE[];
 extern const char STR_EXT_MULTI_SPEC[];
 extern const char STR_INT_MULTI_SPEC[];
-extern const char STR_CAT_NOT_EMPTY[];
 extern const char STR_WARNING[];
 extern const char STR_STORAGE_WARNING[];
 extern const char STR_EEPROM_CONVERTING[];
@@ -1195,8 +1190,13 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
+
+
+#if defined(COLORLCD)
+
 extern const char STR_ENTER_LABEL[];
 extern const char STR_LABEL[];
+extern const char STR_LABELS[];
 extern const char STR_SELECT_MODEL[];
 extern const char STR_NONE[];
 extern const char STR_CURRENT_MODEL[];
@@ -1204,9 +1204,6 @@ extern const char STR_NEW[];
 extern const char STR_NEW_LABEL[];
 extern const char STR_RENAME_LABEL[];
 extern const char STR_DELETE_LABEL[];
-
-#if defined(COLORLCD)
-
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
