@@ -22,6 +22,10 @@
 #include "bind_menu_d16.h"
 #include "opentx.h"
 
+#if defined(MULTIMODULE)
+  #include "telemetry/multi.h"
+#endif
+
 BindChoiceMenu::BindChoiceMenu(Window *parent, uint8_t moduleIdx,
                                std::function<void()> onPress,
                                std::function<void()> onCancel) :
@@ -68,11 +72,14 @@ void BindChoiceMenu::onSelect(BindChanMode mode)
   }
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
+#if defined(MULTIMODULE)
   if (isModuleMultimodule(moduleIdx)) {
     md->multi.receiverTelemetryOff = !receiverTelemetry;
     md->multi.receiverHigherChannels = receiverHigherChannels;
     setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
-  } else {
+  } else
+#endif
+  {
     md->pxx.receiverTelemetryOff = !receiverTelemetry;
     md->pxx.receiverHigherChannels = receiverHigherChannels;
   }

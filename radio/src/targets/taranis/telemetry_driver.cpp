@@ -22,6 +22,10 @@
 #include "board.h"
 #include "opentx.h"
 
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
+#endif
+
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 uint32_t telemetryErrors = 0;
 

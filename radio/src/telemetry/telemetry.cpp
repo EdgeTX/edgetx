@@ -36,6 +36,27 @@
   #include <FreeRTOS/include/timers.h>
 #endif
 
+#include "spektrum.h"
+
+#if defined(CROSSFIRE)
+  #include "crossfire.h"
+#endif
+
+#if defined(GHOST)
+  #include "ghost.h"
+#endif
+
+#if defined(MULTIMODULE)
+  #include "hitec.h"
+  #include "hott.h"
+  #include "multi.h"
+  #include "mlink.h"
+#endif
+
+#if defined(MULTIMODULE) || defined(AFHDS2A) || defined(AFHDS3)
+  #include "flysky_ibus.h"
+#endif
+
 uint8_t telemetryStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
 uint8_t telemetryRxBufferCount = 0;

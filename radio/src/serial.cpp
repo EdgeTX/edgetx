@@ -37,6 +37,10 @@
   #include "dataconstants.h"
 #endif
 
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
 #define PRINTF_BUFFER_SIZE    128
 
 static void (*dbg_serial_putc)(void*, uint8_t) = nullptr;

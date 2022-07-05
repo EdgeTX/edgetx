@@ -27,6 +27,10 @@
 #include "storage/modelslist.h"
 #endif
 
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
 // TODO find why we need this (for REGISTER at least)
 #if defined(PCBXLITE)
   #define EVT_BUTTON_PRESSED() EVT_KEY_FIRST(KEY_ENTER)
