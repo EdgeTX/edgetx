@@ -235,27 +235,29 @@ void ModelSetupPage::build(FormWindow * window)
   new ModelNameEdit(line, rect_t{});
 
   // Model labels
-  // line = window->newLine(&grid);
-  // new StaticText(line, rect_t{}, "Labels", 0, COLOR_THEME_PRIMARY1);
-  // labelTextButton =
-  //   new TextButton(line, rect_t{}, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL), [=] () {
-  //     Menu *menu = new Menu(window, true);
-  //     for (auto &label: modelsLabels.getLabels()) {
-  //       menu->addLine(label,
-  //         [=] () {
-  //           if (!modelsLabels.isLabelSelected(label, curmod))
-  //             modelsLabels.addLabelToModel(label, curmod);
-  //           else
-  //             modelsLabels.removeLabelFromModel(label, curmod);
-  //           labelTextButton->setText(modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL));
-  //           strcpy(g_model.header.labels, modelsLabels.getLabelString(curmod,STR_UNLABELEDMODEL).c_str());
-  //           SET_DIRTY();
-  //         }, [=] () {
-  //           return modelsLabels.isLabelSelected(label, curmod);
-  //         });
-  //     }
-  //     return 0;
-  //   });
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_LABELS, 0, COLOR_THEME_PRIMARY1);
+  auto curmod = modelslist.getCurrentModel();
+  labelTextButton =
+    new TextButton(line, rect_t{}, modelslabels.getLabelString(curmod ,STR_UNLABELEDMODEL), [=] () {
+       Menu *menu = new Menu(window, true);
+       menu->setTitle(STR_LABELS);
+       for (auto &label: modelslabels.getLabels()) {
+         menu->addLine(label,
+           [=] () {
+             if (!modelslabels.isLabelSelected(label, curmod))
+               modelslabels.addLabelToModel(label, curmod);
+             else
+               modelslabels.removeLabelFromModel(label, curmod);
+             labelTextButton->setText(modelslabels.getLabelString(curmod,STR_UNLABELEDMODEL));
+             strcpy(g_model.header.labels, modelslabels.getLabelString(curmod,STR_UNLABELEDMODEL).c_str());
+             SET_DIRTY();
+           }, [=] () {
+             return modelslabels.isLabelSelected(label, curmod);
+           });
+       }
+       return 0;
+     });
 
   // Bitmap
   line = window->newLine(&grid);
