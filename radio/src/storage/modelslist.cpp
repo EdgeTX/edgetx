@@ -846,13 +846,9 @@ void ModelMap::updateModelCell(ModelCell *cell)
 
 char *FILInfoToHexStr(char buffer[17], FILINFO *finfo)
 {
-  FInfoH fh;
-  fh.fdate = finfo->fdate;
-  fh.fsize = finfo->fsize;
-  fh.ftime = finfo->ftime;
   char *str = buffer;
-  for(unsigned int i=0; i < sizeof(FInfoH::data); i++) {
-    sprintf(str,"%02x",fh.data[i]);
+  for(unsigned int i=0; i < sizeof(FInfoH); i++) {
+    sprintf(str,"%02x",*((uint8_t*)finfo + i));
     str+=2;
   }
   return buffer;

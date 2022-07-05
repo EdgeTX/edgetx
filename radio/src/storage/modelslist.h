@@ -53,16 +53,13 @@ struct SimpleModuleData
   uint8_t subType=0;
 };
 
-typedef union {
-  struct {
+typedef struct PACKED {
 	  FSIZE_t	fsize;		/* File size */
 	  WORD	fdate;			/* Modified date */
-	  WORD	ftime;			/* Modified time */
-  };
-  uint8_t data[8];
+	  WORD	ftime;			/* Modified time */ 
 } FInfoH;
 
-#define FILE_HASH_LENGTH (sizeof(FInfoH::data) * 2) // Hex string output
+#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2) // Hex string output
 
 class ModelCell
 {
