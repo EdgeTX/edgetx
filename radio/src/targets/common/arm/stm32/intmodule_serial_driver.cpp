@@ -74,9 +74,15 @@ static const stm32_usart_t intmoduleUSART = {
   .pinInit = &intmoduleUSART_PinDef,
   .IRQn = INTMODULE_USART_IRQn,
   .IRQ_Prio = INTMODULE_USART_IRQ_PRIORITY,
+#if defined(INTMODULE_DMA)
   .txDMA = INTMODULE_DMA,
   .txDMA_Stream = INTMODULE_DMA_STREAM,
   .txDMA_Channel = INTMODULE_DMA_CHANNEL,
+#else
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+#endif
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,

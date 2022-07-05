@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -39,16 +40,10 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av","+=",":="
 #define TR_TRNCHN                       "KN1","KN2","KN3","KN4"
-
-#if defined(CLI) || defined(DEBUG)
-  #define TR_AUX_SERIAL_MODES           "Debug","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
-#else
-  #define TR_AUX_SERIAL_MODES           "Av","Spegling av S-Port","Telemetri","SBUS Instruktör","Lua"
-#endif
-
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                      "Ingen","Flipp","2Pos","3Pos"
 #define TR_POTTYPES                     TR("None","Ingen"),TR("Pot w. det","Mittläges-pot"),TR("Multipos","Flerlägesväljare"),TR("Pot","Potentiometer")
-#define TR_SLIDERTYPES                  "Ingen","Skjutpot"
+#define TR_SLIDERTYPES                  "Inga","Reglage"
 #define TR_VLCD                         "Normal","Optrex"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
@@ -56,7 +51,7 @@
 #define TR_JACK_MODES                   "Fråga","Audio","Instruktör"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.Port","FrSky D","FrSky D (sladd)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 #define TR_MULTI_CUSTOM                 "Custom"
-#define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra Fin"),"Fin","Medium","Grov"
+#define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS                "Nej","Ändra","Ja"
 #define TR_VBEEPCOUNTDOWN               "Tyst","Pip","Röst","Vibrera"
 #define TR_VVARIOCENTER                 "Pip","Tyst"
@@ -94,14 +89,14 @@
 #else
   #define TR_CSWTIMER                   "Tim"
   #define TR_CSWSTICKY                  "Seg"
-    #define TR_CSWRANGE                 "Vidd"
-    #define TR_CSWSTAY                  "Kant"
+  #define TR_CSWRANGE                   "Vidd"
+  #define TR_CSWSTAY                    "Kant"
 #endif
 
 #define TR_CSWEQUAL                     "a=x"
 #define TR_VCSWFUNC                     "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b","Δ≥x","|Δ|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#define TR_TEXT_SIZE                    "Standard","Tiny","Small","Mid","Double"
+#define TR_TEXT_SIZE                    "Standard","Mini","Liten","Medium","Dubbel"
 
 #if defined(VARIO)
   #define TR_VVARIO                     "Vario"
@@ -116,9 +111,9 @@
 #endif
 
 #if defined(HAPTIC)
-  #define TR_HAPTIC                     "Vibrator"
+  #define TR_HAPTIC                     "Haptisk"
 #else
-  #define TR_HAPTIC                     "[Vibrator]"
+  #define TR_HAPTIC                     "[Haptisk]"
 #endif
 
 #if defined(VOICE)
@@ -126,7 +121,7 @@
   #define TR_PLAY_BOTH                  "Spela båda"
   #define TR_PLAY_VALUE                 "Säg värdet"
 #else
-  #define TR_PLAY_TRACK                 "[Sp. spår]"
+  #define TR_PLAY_TRACK                 "[Sp. upp]"
   #define TR_PLAY_BOTH                  "[Sp. båda]"
   #define TR_PLAY_VALUE                 "[Sp. värde]"
 #endif
@@ -167,10 +162,10 @@
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
-#define TR_SF_DISABLE_TOUCH             "No touch"
-#define TR_SF_RESERVE                   "[reserve]"
+#define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
+#define TR_SF_RESERVE                   "[reserv]"
 
-#define TR_VFSWFUNC                     TR_SF_SAFETY,"Instruktör","Sätt trimm","Nollställ","Sätt",TR_ADJUST_GVAR,"Volym","SetFailsfe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning", TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
+#define TR_VFSWFUNC                     TR_SF_SAFETY,"Instruktör","Sätt trimm","Nollställ","Sätt",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Module bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning", TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 
@@ -204,7 +199,7 @@
 #define LENGTH_UNIT_METR               "m"
 #define SPEED_UNIT_METR                "kmh"
 
-#define TR_VUNITSSYSTEM                TR("Metri.","Metriska"),TR("Imper.","Imperial")
+#define TR_VUNITSSYSTEM                TR("Metr.","Metriska"),TR("Brit.","Brittiska")
 #define TR_VTELEMUNIT        "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
@@ -239,6 +234,7 @@
 #endif
 
 #define TR_ROTARY_ENCODERS
+#define TR_INVERT_ROTARY               "Invertera rullhjul"
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
@@ -268,7 +264,7 @@
 #define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Blåtand"),TR("Elev/BT","Elev/Blåtand")
 #define TR_VTRAINER_MULTI               "Lärare/Multi"
 
-#define TR_VFAILSAFE                    "Ej def.","Lås servo","Anpassat","Pulsfritt","Mottagare"
+#define TR_VFAILSAFE                    "Ej inställt","Lås senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
 #define TR_VSENSORTYPES                 "Egen","Beräknad"
 #define TR_VFORMULAS                    "Addera","Medel","Min","Max","Multipl.","Totalsumma","Cell","Förbrukning","Sträcka"
 #define TR_VPREC                        "0.--","0.0","0.00"
@@ -330,14 +326,13 @@
 #define TR_START                        "Start"
 #define TR_ELIMITS                      TR("Gränser++","Utökade gränser")
 #define TR_ETRIMS                       TR("Trimmar++","Utökade trimmar")
-#define TR_TRIMINC                      TR("Trimning","Trimökning")
-#define TR_DISPLAY_TRIMS                "Visa trimmar"
+#define TR_TRIMINC                      TR("Trimmning","Trimmökning")
+#define TR_DISPLAY_TRIMS                TR("Visa trimm", "Visa trimmar")
 #define TR_TTRACE                       TR("Följ gas", INDENT "Följ gas")
-#define TR_TTRIM                        TR("Gastrim", INDENT "Gastrim")
-#define TR_TTRIM_SW                     TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRIM                        TR("Gastrimm", INDENT "Gastrimm")
+#define TR_TTRIM_SW                     TR("Trimmknp", INDENT "Gastrimmknapp")
 #define TR_BEEPCTR                      TR("Cent.pip", "Centerpip")
 #define TR_USE_GLOBAL_FUNCS             TR("Glob.funk.", "Anv. globala funk.")
-
 #define TR_PROTOCOL                     TR("Proto.", "Protokoll")
 #define TR_PPMFRAME                     INDENT "PPM-paket"
 #define TR_REFRESHRATE                  TR(INDENT "Refresh", INDENT "Refresh rate")
@@ -360,7 +355,7 @@
 #define TR_ELEDIRECTION                 "HöJD riktning"
 #define TR_AILDIRECTION                 "SKEV riktning"
 #define TR_COLDIRECTION                 TR("PITCH riktn.","PITCH riktning")
-#define TR_MODE                         "Läge"
+#define TR_MODE                         "Typ"
 #define TR_SUBTYPE                      INDENT "Subtyp"
 #define TR_NOFREEEXPO                   "Ingen ledig expo!"
 #define TR_NOFREEMIXER                  "Ingen ledig mixer!"
@@ -374,7 +369,7 @@
 #define TR_DREX                         "DRex"
 #define DREX_CHBOX_OFFSET               30
 #define TR_CURVE                        "Kurva"
-#define TR_FLMODE                       TR("Läge","Flyglägen")
+#define TR_FLMODE                       TR("Flygläge","Flyglägen")
 #define TR_MIXWARNING                   "Varning"
 #define TR_OFF                          "AV"
 #define TR_ANTENNA                      "Antenn"
@@ -388,9 +383,9 @@
 #define TR_CV                           "KU"
 
 #if defined(PCBNV14)
-  #define TR_GV                           "GV"
+  #define TR_GV                         "GV"
 #else
-  #define TR_GV                           TR("G","GV")
+  #define TR_GV                         TR("G","GV")
 #endif
 
 #define TR_ACHANNEL                     "A"
@@ -400,19 +395,22 @@
 #define TR_ALARM                        "Alarm"
 #define TR_USRDATA                      TR("Anv.data","Användardata")
 #define TR_BLADES                       "Blad"
-#define TR_SCREEN                       "Skärm"
+#define TR_SCREEN                       "Skärm\001"
 #define TR_SOUND_LABEL                  "Ljud"
 #define TR_LENGTH                       "Tid"
 #define TR_BEEP_LENGTH                  "Pip-längd"
 #define TR_BEEP_PITCH                   "Pip-ton"
 #define TR_HAPTIC_LABEL                 "Vibrator"
 #define TR_STRENGTH                     "Styrka"
+#define TR_IMU_LABEL                    "IMU"
+#define TR_IMU_OFFSET                   "Offset"
+#define TR_IMU_MAX                      "Max"
 #define TR_GYRO_LABEL                   "Gyro"
 #define TR_GYRO_OFFSET                  "Offset"
 #define TR_GYRO_MAX                     "Max"
 #define TR_CONTRAST                     "Kontrast"
 #define TR_ALARMS_LABEL                 "Alarm"
-#define TR_BATTERY_RANGE                "Batteri-MinMax"
+#define TR_BATTERY_RANGE                 TR("Batt. min-max", "Batteriindikator Min-Max")
 #define TR_BATTERYCHARGING              "Laddar..."
 #define TR_BATTERYFULL                  "Batteri fullt"
 #define TR_BATTERYNONE                  "None!"
@@ -420,8 +418,7 @@
 #define TR_INACTIVITYALARM              "Inaktivitet"
 #define TR_MEMORYWARNING                "Lite minne"
 #define TR_ALARMWARNING                 "Ljud av"
-#define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI shutdown", "Check RSSI on shutdown")
-#define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
+#define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI shutdown", "Kolla RSSI vid avstängning")
 #define TR_MODEL_STILL_POWERED          TR("Modell på","Modell fortfarande på")
 #define TR_USB_STILL_CONNECTED          "USB fortfarande ansluten"
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
@@ -432,30 +429,32 @@
 #define TR_BEEPCOUNTDOWN                INDENT "Nedräkning"
 #define TR_PERSISTENT                   TR(INDENT "Persist.", INDENT "Alltid på")
 #define TR_BACKLIGHT_LABEL              "Belysning"
-#define TR_GHOST_MENU_LABEL             "GHOST MENU"
+#define TR_GHOST_MENU_LABEL             "GHOST MENY"
+#define TR_STATUS                       "Status"
 #define TR_BLDELAY                      INDENT "Av efter"
-#define TR_BLONBRIGHTNESS               INDENT "Ljusstyrka PÅ"
-#define TR_BLOFFBRIGHTNESS              INDENT "Ljusstyrka AV"
+#define TR_BLONBRIGHTNESS               INDENT "Ljusstyrka på"
+#define TR_BLOFFBRIGHTNESS              INDENT "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Keys backlight"
 #define TR_SPLASHSCREEN                 "Startbild"
 #define TR_PWR_ON_DELAY                 "Pwr On delay"
 #define TR_PWR_OFF_DELAY                "Pwr Off delay"
 #define TR_BLCOLOR                      "Färg"
-#define TR_THROTTLE_WARNING             "Gasvarning"
-#define TR_CUSTOM_THROTTLE_WARNING      TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
+#define TR_THROTTLE_WARNING             TR(INDENT "Gasvarn.", INDENT "Gasvarning")
+#define TR_CUSTOM_THROTTLE_WARNING      TR(INDENT INDENT INDENT INDENT "Egen pos", INDENT INDENT INDENT INDENT "Egen position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL  TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING                TR(INDENT "Bryt.varn.", INDENT "Brytarvarning")
-#define TR_POTWARNINGSTATE              TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
-#define TR_SLIDERWARNING                TR(INDENT "Slid. pos.", INDENT "Slider positions")
-#define TR_POTWARNING                   TR(INDENT "Pot warn.", INDENT "Pot positions")
+#define TR_POTWARNINGSTATE              TR(INDENT "Vred&Regl.", INDENT "Vred & reglage")
+#define TR_SLIDERWARNING                TR(INDENT "Regl. pos.", INDENT "Reglagepositioner")
+#define TR_POTWARNING                   TR(INDENT "Vredläge", INDENT "Vredlägen")
 #define TR_TIMEZONE                     "Tidszon"
 #define TR_ADJUST_RTC                   "Ändra RTC"
 #define TR_GPS                          "GPS"
 #define TR_RXCHANNELORD                 TR("Kanalordn. RX","Kanalordning i RX")
 #define TR_STICKS                       "Spakar"
-#define TR_POTS                         "Reglage"
+#define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"
-#define TR_SWITCHES_DELAY               "Brytarfördröjning"
+//#define TR_SWITCHES_DELAY               TR("Brytarfördröj.", "Brytarfördröjning")
+#define TR_SWITCHES_DELAY               TR("Play delay", "Play delay (sw. mid pos)")
 #define TR_SLAVE                        "Elev"
 #define TR_MODESRC                      "Läge\006% Källa"
 #define TR_MULTIPLIER                   "Styrka"
@@ -464,19 +463,21 @@
 #define TR_VTRIM                        "Trim- +"
 #define TR_BG                           "BG:"
 #define TR_CALIB_DONE                   "Kalibrering färdig"
+
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART                "Tryck [Enter] för att börja"
-  #define TR_SETMIDPOINT                "Centrera spakar/rattar/reglage och tryck [Enter]"
-  #define TR_MOVESTICKSPOTS             "Rör spakar/rattar/reglage och tryck [Enter]"
+  #define TR_SETMIDPOINT                "Centrera spakar/vred/reglage och tryck [Enter]"
+  #define TR_MOVESTICKSPOTS             "Rör spakar/vred/reglage och tryck [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
   #define TR_SETMIDPOINT                "CENTRERA ALLT"
   #define TR_MOVESTICKSPOTS             "RÖR SPAKAR/REGLAGE"
 #else
-  #define TR_MENUTOSTART                CENTER"\006" TR_ENTER " FÖR ATT BÖRJA"
-  #define TR_SETMIDPOINT                CENTER"\010CENTRERA ALLT"
-  #define TR_MOVESTICKSPOTS             CENTER"\004RÖR SPAKAR/REGLAGE"
+  #define TR_MENUTOSTART                CENTER "\010" TR_ENTER " FÖR ATT BÖRJA"
+  #define TR_SETMIDPOINT                TR(CENTER "\004CENTRERA ALLT", CENTER "\004CENTRERA SPAKAR/VRED/REGLAGE")
+  #define TR_MOVESTICKSPOTS             CENTER "\006RÖR SPAKAR/VRED/REGLAGE"
 #endif
+
 #define TR_RXBATT                       "RX batt:"
 #define TR_TXnRX                        "TX:\0RX:"
 #define OFS_RX                          4
@@ -493,7 +494,7 @@
 #define TR_LUA_SCRIPTS_LABEL            "Lua-skript"
 #define TR_FREE_MEM_LABEL               "Free mem"
 #define TR_TIMER_LABEL                  "Timer"
-#define TR_THROTTLE_PERCENT_LABEL       "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL       "Gas %"
 #define TR_BATT_LABEL                   "Batteri"
 #define TR_SESSION                      "Session"
 #define TR_MENUTORESET                  TR_ENTER " nollar"
@@ -503,10 +504,10 @@
 #define TR_FM                           "FL"
 #define TR_MIX                          "MIX"
 #define TR_EEPROMLOWMEM                 "Minnesbrist"
-#define TR_PRESS_ANY_KEY_TO_SKIP        "Tryck ned en knapp"
+#define TR_PRESS_ANY_KEY_TO_SKIP        "Avbryt med valfri knapp"
 #define TR_THROTTLE_NOT_IDLE            "Gasen är på!"
 #define TR_ALARMSDISABLED               "Alarmen avstängda!"
-#define TR_PRESSANYKEY                  "Tryck ned en knapp"
+#define TR_PRESSANYKEY                  TR("\010Tryck på en knapp", "Tryck på valfri knapp")
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
 #define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
 #define TR_EEPROMFORMATTING             "Minnet formateras"
@@ -514,69 +515,69 @@
 #define TR_EEPROMOVERFLOW               "Minnesfel"
 #define TR_RADIO_SETUP                  "INSTÄLLNINGAR"
 #define TR_MENUDATEANDTIME              "DAG OCH TID"
-#define TR_MENUTRAINER                  "TRAINER"
+#define TR_MENUTRAINER                  "LÄRARE"
 #define TR_MENUSPECIALFUNCS             "GLOBALA FUNKTIONER"
 #define TR_MENUVERSION                  "VERSION"
 #define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
-#define TR_MENU_RADIO_ANALOGS           "ANALOGA VÄRDEN"
-#define TR_MENU_RADIO_ANALOGS_CALIB     "CALIBRATED ANALOGS"
-#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
+#define TR_MENU_RADIO_ANALOGS           TR("ANALOGA", "TEST AV ANALOGA")
+#define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
+#define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENUCALIBRATION              "KALIBRERING"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
 #else
   #define TR_TRIMS2OFFSETS              "\006[Spara trimvärden]"
 #endif
-#define TR_CHANNELS2FAILSAFE            "Channels=>Failsafe"
-#define TR_CHANNEL2FAILSAFE             "Channel=>Failsafe"
+#define TR_CHANNELS2FAILSAFE            "Kanaler=>Failsafe"
+#define TR_CHANNEL2FAILSAFE             "Kanal=>Failsafe"
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
-#define TR_MENU_MODEL_SETUP             TR("MODELLINST.","MODELLINSTÄLLNINGAR")
+#define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
 #define TR_MENUFLIGHTMODE               "FLYGLÄGE"
 #define TR_MENUFLIGHTMODES              "FLYGLÄGEN"
 #define TR_MENUHELISETUP                "HELIKOPTER"
 
 #define TR_MENUINPUTS                   "INPUT"
-#define TR_MENULIMITS                   "SERVON"
+#define TR_MENULIMITS                   "OUTPUT"
 #define TR_MENUCURVES                   "KURVOR"
 #define TR_MENUCURVE                    "KURVA"
 #define TR_MENULOGICALSWITCH            "LOGISK BRYTARE"
 #define TR_MENULOGICALSWITCHES          "LOGISKA BRYTARE"
-#define TR_MENUCUSTOMFUNC               "BRYTARFUNKTIONER"
+#define TR_MENUCUSTOMFUNC               "SPECIALFUNKTIONER"
 #define TR_MENUCUSTOMSCRIPTS            "SPECIALKOD"
 #define TR_MENUTELEMETRY                "TELEMETRI"
 #define TR_MENUTEMPLATES                "MALLAR"
 #define TR_MENUSTAT                     "STATISTIK"
 #define TR_MENUDEBUG                    "DEBUG"
-#define TR_MONITOR_CHANNELS1            "CHANNELS MONITOR 1-8"
-#define TR_MONITOR_CHANNELS2            "CHANNELS MONITOR 9-16"
-#define TR_MONITOR_SWITCHES             "LOGICAL SWITCHES MONITOR"
-#define TR_MONITOR_CHANNELS3            "CHANNELS MONITOR 17-24"
-#define TR_MONITOR_CHANNELS4            "CHANNELS MONITOR 25-32"
-#define TR_MONITOR_OUTPUT_DESC          "Outputs"
-#define TR_MONITOR_MIXER_DESC           "Mixers"
+#define TR_MONITOR_CHANNELS1            "KANALÖVERSIKT - KN 1-8"
+#define TR_MONITOR_CHANNELS2            "KANALÖVERSIKT - KN 9-16"
+#define TR_MONITOR_CHANNELS3            "KANALÖVERSIKT - KN 17-24"
+#define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KN 25-32"
+#define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
+#define TR_MONITOR_OUTPUT_DESC          "Utdata"
+#define TR_MONITOR_MIXER_DESC           "Mixrar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
 #define TR_RECEIVER                     "Mottagare"
-#define TR_SYNCMENU                     "Synk [MENU]"
-#define TR_MULTI_RFTUNE                 TR("Freq tune", "Finjustera radiofrekvens")
+#define TR_SYNCMENU                     "Synk [MENY]"
+#define TR_MULTI_RFTUNE                 TR("Frekv.just", "Finjustera radiofrekvens")
 #define TR_MULTI_RFPOWER                "RF styrka"
 #define TR_MULTI_WBUS                   "Output"
 #define TR_MULTI_TELEMETRY              "Telemetri"
-#define TR_MULTI_VIDFREQ                TR("Vid.frek", "Videofrekvens")
+#define TR_MULTI_VIDFREQ                TR("Vid.frekv", "Videofrekvens")
 #define TR_RF_POWER                     "RF styrka"
 #define TR_MULTI_FIXEDID                TR("FixedID", "Fixed ID")
-#define TR_MULTI_OPTION                 TR("Option", "Option value")
-#define TR_MULTI_AUTOBIND               TR(INDENT "Bind Ch.",INDENT "Bind on channel")
-#define TR_DISABLE_CH_MAP               TR("No Ch. map", "Disable Ch. map")
-#define TR_DISABLE_TELEM                TR("No Telem", "Disable Telemetry")
-#define TR_MULTI_DSM_AUTODTECT          TR(INDENT "Autodetect", INDENT "Autodetect format")
+#define TR_MULTI_OPTION                 TR("Alternativ", "Alternativets värde")
+#define TR_MULTI_AUTOBIND               TR(INDENT "Bind ch.",INDENT "Bind on channel")
+#define TR_DISABLE_CH_MAP               TR("Ej Ch. map", "Inaktivera Ch. map")
+#define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
+#define TR_MULTI_DSM_AUTODTECT          TR(INDENT "Autodetektera", INDENT "Autodetektera format")
 #define TR_MULTI_LOWPOWER               TR(INDENT "Låg effekt", INDENT "Lågeffektläge")
 #define TR_MULTI_LNA_DISABLE            INDENT "LNA disable"
 #define TR_MODULE_TELEMETRY             TR(INDENT "S.Port", INDENT "S.Port link")
-#define TR_MODULE_TELEM_ON              TR("PÅ", "Aktiverad")
-#define TR_DISABLE_INTERNAL             TR("Disable int. RF", "Disable internal RF")
+#define TR_MODULE_TELEM_ON              TR("På", "Aktiverad")
+#define TR_DISABLE_INTERNAL             TR("Inaktiv. int. RF", "Inaktivera intern RF")
 #define TR_MODULE_NO_SERIAL_MODE        TR("!seriellt läge", "Ej i seriellt läge")
 #define TR_MODULE_NO_INPUT              TR("Ingen input", "Ingen seriell input")
-#define TR_MODULE_NO_TELEMETRY          TR3("No telemetry", "No MULTI_TELEMETRY", "No MULTI_TELEMETRY detected")
+#define TR_MODULE_NO_TELEMETRY          TR3("Ingen telem.", "Ingen MULTI_TELEMETRY", "Ingen MULTI_TELEMETRY detekterad")
 #define TR_MODULE_WAITFORBIND           "Bind to load protocol"
 #define TR_MODULE_BINDING               "Binding"
 #define TR_MODULE_UPGRADE_ALERT         TR3("Uppdat. nödv", "Modulen måste uppdateras", "Modulen\nbehöver uppdateras")
@@ -584,41 +585,41 @@
 #define TR_REBIND                       "Rebinding required"
 #define TR_REG_OK                       "Registrering ok"
 #define TR_BIND_OK                      "Bind successful"
-#define TR_BINDING_CH1_8_TELEM_ON       "Ch1-8 Telem PÅ"
-#define TR_BINDING_CH1_8_TELEM_OFF      "Ch1-8 Telem AV"
-#define TR_BINDING_CH9_16_TELEM_ON      "Ch9-16 Telem PÅ"
-#define TR_BINDING_CH9_16_TELEM_OFF     "Ch9-16 Telem AV"
+#define TR_BINDING_CH1_8_TELEM_ON       "Kn1-8 Telem på"
+#define TR_BINDING_CH1_8_TELEM_OFF      "Kn1-8 Telem av"
+#define TR_BINDING_CH9_16_TELEM_ON      "Kn9-16 Telem på"
+#define TR_BINDING_CH9_16_TELEM_OFF     "Kn9-16 Telem av"
 #define TR_PROTOCOL_INVALID             TR("Prot ogiltigt", "Ogiltigt protokoll")
 #define TR_MODULE_STATUS                TR(INDENT "Status", INDENT "Modulstatus")
 #define TR_MODULE_SYNC                  TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ              TR("Servo rate", "Servo update rate")
+#define TR_MULTI_SERVOFREQ              TR("Servofart", "Servouppdateringshastighet")
 #define TR_MULTI_MAX_THROW              TR("Max. Throw", "Enable max. throw")
-#define TR_MULTI_RFCHAN                 TR("RF Channel", "Select RF channel")
+#define TR_MULTI_RFCHAN                 TR("RF kanal", "Välj RF kanal")
 #define TR_LIMIT                        INDENT "Nivå"
 #define TR_MINRSSI                      "Min RSSI"
-#define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
+#define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI #", "Use FlySky RSSI value without rescaling")
 #define TR_LATITUDE                     "Breddgrad"
 #define TR_LONGITUDE                    "Längdgrad"
-#define TR_GPS_COORDS_FORMAT            TR("GPS-Koordinater", "GPS-koordinatsystem")
+#define TR_GPS_COORDS_FORMAT            TR("GPS-koord.sys", "GPS-koordinatsystem")
 #define TR_VARIO                        TR("Vario", "Variometer")
 #define TR_PITCH_AT_ZERO                "Ton vid noll"
 #define TR_PITCH_AT_MAX                 "Ton vid max"
-#define TR_REPEAT_AT_ZERO               "Repetera vid noll"
+#define TR_REPEAT_AT_ZERO               TR("Rep. vid noll", "Repetera vid noll")
 #define TR_SHUTDOWN                     "STÄNGER AV"
 #define TR_SAVE_MODEL                   "Spara modellinställn."
-#define TR_BATT_CALIB                   "Kalib. Batteri"
-#define TR_CURRENT_CALIB                "Kalib. Ström"
+#define TR_BATT_CALIB                   TR("Kalib. batt." ,"Kalib. batteri")
+#define TR_CURRENT_CALIB                "Kalib. ström"
 #define TR_VOLTAGE                      INDENT"Volt"
 #define TR_CURRENT                      INDENT"Ampere"
-#define TR_SELECT_MODEL                 "Välj Modell"
-#define TR_MODEL_CATEGORIES             "Model Categories"
-#define TR_MODELS                       "Models"
+#define TR_SELECT_MODEL                 "Välj modell"
+#define TR_MODEL_CATEGORIES             "Modellkategori"
+#define TR_MODELS                       "Modeller"
 #define TR_SELECT_MODE                  "Select mode"
 #define TR_CREATE_CATEGORY              "Skapa kategori"
-#define TR_RENAME_CATEGORY              "Byt kat.namn"
+#define TR_RENAME_CATEGORY              "Byt kategorinamn"
 #define TR_DELETE_CATEGORY              "Ta bort kategori"
 #define TR_CREATE_MODEL                 "Skapa modell"
-#define TR_DUPLICATE_MODEL              "Dupl. modell"
+#define TR_DUPLICATE_MODEL              "Duplicera modell"
 #define TR_COPY_MODEL                   "Kopiera modell"
 #define TR_MOVE_MODEL                   "Flytta modell"
 #define TR_BACKUP_MODEL                 "Modell-backup"
@@ -628,35 +629,36 @@
 #define TR_CAT_NOT_EMPTY                "Category is not empty"
 #define TR_SDCARD_ERROR                 "SD-kortfel"
 #define TR_SDCARD                       "SD-kort"
-#define TR_NO_FILES_ON_SD               "No files on SD!"
+#define TR_NO_FILES_ON_SD               "Inga filer på SD!"
 #define TR_NO_SDCARD                    "SD-kort saknas"
-#define TR_WAITING_FOR_RX               "Waiting for RX..."
-#define TR_WAITING_FOR_TX               "Waiting for TX.."
+#define TR_WAITING_FOR_RX               "Väntar på RX..."
+#define TR_WAITING_FOR_TX               "Väntar på TX.."
 #define TR_WAITING_FOR_MODULE           TR("Awaiting module", "Waiting for module...")
-#define TR_NO_TOOLS                     "No tools available"
+#define TR_NO_TOOLS                     "Inga verktyg tillgängliga"
 #define TR_NORMAL                       "Normal"
-#define TR_NOT_INVERTED                 "Not inv"
-#define TR_NOT_CONNECTED                "!Connected"
-#define TR_CONNECTED                    "Connected"
+#define TR_NOT_INVERTED                 "Ej inv"
+#define TR_NOT_CONNECTED                "!Ansluten"
+#define TR_CONNECTED                    "Ansluten"
 #define TR_FLEX_915                     "Flex 915MHz"
 #define TR_FLEX_868                     "Flex 868MHz"
-#define TR_16CH_WITHOUT_TELEMETRY       TR("16CH without telem.", "16CH without telemetry")
-#define TR_16CH_WITH_TELEMETRY          TR("16CH with telem.", "16CH with telemetry")
-#define TR_8CH_WITH_TELEMETRY           TR("8CH with telem.", "8CH with telemetry")
+#define TR_16CH_WITHOUT_TELEMETRY       TR("16KN utan telem.", "16KN med telemetri")
+#define TR_16CH_WITH_TELEMETRY          TR("16KN med telem.", "16KN med telemetri")
+#define TR_8CH_WITH_TELEMETRY           TR("8KN med telem.", "8KN med telemetri")
 #define TR_EXT_ANTENNA                  "Ext. antenn"
 #define TR_PIN                          "Pin"
-#define TR_UPDATE_RX_OPTIONS            "Update RX options?"
-#define TR_UPDATE_TX_OPTIONS            "Update TX options?"
-#define TR_MODULES_RX_VERSION           "Modules / RX version"
-#define TR_MENU_MODULES_RX_VERSION      "MODULES / RX VERSION"
-#define TR_MENU_FIRM_OPTIONS            "FIRMWARE OPTIONS"
+#define TR_UPDATE_RX_OPTIONS            "Uppdatera RX alternativ?"
+#define TR_UPDATE_TX_OPTIONS            "Uppdatera TX alternativ?"
+#define TR_MODULES_RX_VERSION           "Moduler / RX version"
+#define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
+#define TR_MENU_FIRM_OPTIONS            "FIRMWAREFUNKTIONER"
+#define TR_IMU                          "IMU"
 #define TR_GYRO                         "Gyro"
-#define TR_STICKS_POTS_SLIDERS          "Sticks/Pots/Sliders"
-#define TR_PWM_STICKS_POTS_SLIDERS      "PWM Sticks/Pots/Sliders"
+#define TR_STICKS_POTS_SLIDERS          "Spakar/Vred/Reglage"
+#define TR_PWM_STICKS_POTS_SLIDERS      "PWM Spakar/Vred/Reglage"
 #define TR_RF_PROTOCOL                  "RF Protocol"
-#define TR_MODULE_OPTIONS               "Module options"
+#define TR_MODULE_OPTIONS               "Modulalternativ"
 #define TR_POWER                        "Power"
-#define TR_NO_TX_OPTIONS                "No Tx options"
+#define TR_NO_TX_OPTIONS                "Inga TX alternativ"
 #define TR_RTC_BATT                     "RTC Batt"
 #define TR_POWER_METER_EXT              "Power Meter (EXT)"
 #define TR_POWER_METER_INT              "Power Meter (INT)"
@@ -670,12 +672,12 @@
 #define TR_WARNING                      "VARNING"
 #define TR_EEPROMWARN                   "EEPROM"
 #define TR_STORAGE_WARNING              "LAGRING"
-#define TR_EEPROM_CONVERTING            "EEPROM Konvertering"
-#define TR_SDCARD_CONVERSION_REQUIRE    "SD card conversion required"
-#define TR_CONVERTING                   "Converting: "
+#define TR_EEPROM_CONVERTING            "EEPROM konvertering"
+#define TR_SDCARD_CONVERSION_REQUIRE    "SD-kortet behöver konverteras"
+#define TR_CONVERTING                   "Konverteras: "
 #define TR_THROTTLE_UPPERCASE           "GAS"
 #define TR_ALARMSWARN                   "ALARM"
-#define TR_SWITCHWARN                   "BRYTARE"
+#define TR_SWITCHWARN                   "BRYTAR-"
 #define TR_FAILSAFEWARN                 "FAILSAFE"
 #define TR_TEST_WARNING                 TR("TESTING", "TEST BUILD")
 #define TR_TEST_NOTSAFE                 "Use for tests only"
@@ -683,7 +685,7 @@
 #define TR_WRONG_SDCARDVERSION          TR("Expected ver: ","Expected version: ")
 #define TR_WARN_RTC_BATTERY_LOW         "RTC Battery low"
 #define TR_WARN_MULTI_LOWPOWER          "Low power mode"
-#define TR_BATTERY                      "BATTERY"
+#define TR_BATTERY                      "BATTERI"
 #define TR_WRONG_PCBREV                 "Wrong PCB detected"
 #define TR_EMERGENCY_MODE               "EMERGENCY MODE"
 #define TR_PCBREV_ERROR                 "PCB error"
@@ -699,17 +701,17 @@
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "MB temp. \016>"
 #define TR_CAPAWARNING                  INDENT "Låg kapacitet"
-#define TR_TEMPWARNING                  TR(INDENT "Hög temp ", INDENT "Hög temperatur")
+#define TR_TEMPWARNING                  TR(INDENT "Hög temp", INDENT "Hög temperatur")
 #define TR_TTL_WARNING                  "Warning: use 3.3V logic levels"
 #define TR_FUNC                         "Funktion"
 #define TR_V1                           "V1"
 #define TR_V2                           "V2"
 #define TR_DURATION                     "Tidlängd"
 #define TR_DELAY                        "Fördröj"
-#define TR_SD_CARD                      "SD-kort"
+#define TR_SD_CARD                      "SD-KORT"
 #define TR_SDHC_CARD                    "SD/HC-kort"
-#define TR_NO_SOUNDS_ON_SD              "Inga ljud i SD"
-#define TR_NO_MODELS_ON_SD              "Ingen modell i SD"
+#define TR_NO_SOUNDS_ON_SD              "Inga ljud på SD"
+#define TR_NO_MODELS_ON_SD              "Inga modeller på SD"
 #define TR_NO_BITMAPS_ON_SD             "Ikoner saknas på SD"
 #define TR_NO_SCRIPTS_ON_SD             "Programkod saknas på SD"
 #define TR_SCRIPT_SYNTAX_ERROR          TR("Syntaxfel", "Skriptsyntaxfel")
@@ -718,7 +720,7 @@
 #define TR_SCRIPT_ERROR                 "Okänt fel"
 #define TR_PLAY_FILE                    "Spela"
 #define TR_DELETE_FILE                  "Radera"
-#define TR_COPY_FILE                    "Kopia"
+#define TR_COPY_FILE                    "Kopiera"
 #define TR_RENAME_FILE                  "Byt namn"
 #define TR_ASSIGN_BITMAP                "Tilldela ikon"
 #define TR_ASSIGN_SPLASH                "Startbild"
@@ -726,14 +728,24 @@
 #define TR_REMOVED                      " raderad"
 #define TR_SD_INFO                      "Information"
 #define TR_SD_FORMAT                    "Formatera"
-#define TR_NA                           "ET."
-#define TR_HARDWARE                     "Hårdvara"
+#define TR_NA                           "N/A"
+#define TR_HARDWARE                     "HÅRDVARA"
 #define TR_FORMATTING                   "Formaterar..."
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
+#define TR_BAUDRATE                     "Baudrate"
 #define TR_MAXBAUDRATE                  "Max bauds"
-#define TR_SAMPLE_MODE                  "Sample Mode"
+#define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
+
+#define TR_SELECT_TEMPLATE_FOLDER      "VÄLJ EN MALLKATALOG:"
+#define TR_SELECT_TEMPLATE             "VÄLJ EN MODELLMALL:"
+#define TR_NO_TEMPLATES                "Ingen modellmall finns i denna katalog"
+#define TR_SAVE_TEMPLATE               "Spara som mall"
+#define TR_BLANK_MODEL                 "Tom modell"
+#define TR_BLANK_MODEL_INFO            "Skapa en tom modell"
+#define TR_FILE_EXISTS                 "FILEN FINNS REDAN"
+#define TR_ASK_OVERWRITE               "Vill du skriva över?"
 
 #define TR_BLUETOOTH                    "Blåtand"
 #define TR_BLUETOOTH_DISC               "Upptäck"
@@ -741,13 +753,13 @@
 #define TR_BLUETOOTH_DIST_ADDR          "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR         "Lokal addr"
 #define TR_BLUETOOTH_PIN_CODE           "PIN-kod"
-#define TR_BLUETOOTH_NODEVICES          "No Devices Found"
-#define TR_BLUETOOTH_SCANNING           "Scanning..."
-#define TR_BAUDRATE                     "BT baudrate"
+#define TR_BLUETOOTH_NODEVICES          "Inga enheter funna"
+#define TR_BLUETOOTH_SCANNING           "Skannar..."
+#define TR_BLUETOOTH_BAUDRATE           "BT baudrate"
 #if defined(PCBX9E)
-  #define TR_BLUETOOTH_MODES            "---","Enabled"
+  #define TR_BLUETOOTH_MODES            "---","Aktiverad"
 #else
-  #define TR_BLUETOOTH_MODES            "---","Telemetri","Trainer"
+  #define TR_BLUETOOTH_MODES            "---","Telemetri","Lärare"
 #endif
 #define TR_SD_INFO_TITLE                "SD INFO"
 #define TR_SD_TYPE                      "Typ: "
@@ -762,7 +774,7 @@
 #define TR_OWN                          "Egen"
 #define TR_DATE                         "Datum"
 #define TR_MONTHS                       { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
-#define TR_ROTARY_ENCODER               "R.Enks"
+#define TR_ROTARY_ENCODER               "R.H."
 #define TR_CHANNELS_MONITOR             "Kanalöversikt"
 #define TR_MIXERS_MONITOR               "MIXERSKÄRM"
 #define TR_PATH_TOO_LONG                "För lång sökväg"
@@ -795,18 +807,18 @@
 #define TR_FIRMWARE_UPDATE_SUCCESS      "Flash successful"
 #define TR_WRITING                      "Skriver..."
 #define TR_CONFIRM_FORMAT               "Formatera minnet?"
-#define TR_INTERNALRF                   "Intern radio"
+#define TR_INTERNALRF                   "Intern radiomodul"
 #define TR_INTERNAL_MODULE              TR("Int. modul","Intern modul")
 #define TR_EXTERNAL_MODULE              TR("Ext. modul","Extern modul")
 #define TR_OPENTX_UPGRADE_REQUIRED      "EdgeTX upgrade required"
-#define TR_TELEMETRY_DISABLED           "Telem. disabled"
+#define TR_TELEMETRY_DISABLED           "Telem. inaktiverad"
 #define TR_MORE_OPTIONS_AVAILABLE       "More options available"
 #define TR_NO_MODULE_INFORMATION        "No module information"
 #define TR_EXTERNALRF                   "Extern radiomodul"
 #define TR_FAILSAFE                     TR(INDENT "Failsafe", INDENT "Failsafeläge")
 #define TR_FAILSAFESET                  "Failsafeinställning"
 #define TR_REG_ID                       "Reg. ID"
-#define TR_OWNER_ID                     "Owner ID"
+#define TR_OWNER_ID                     "Ägar-ID"
 #define TR_PINMAPSET                    "PINMAP"
 #define TR_HOLD                         "Hold"
 #define TR_HOLD_UPPERCASE               "HOLD"
@@ -817,10 +829,10 @@
 #define TR_POWERMETER_POWER             "Power"
 #define TR_POWERMETER_ATTN              "Attn"
 #define TR_POWERMETER_FREQ              "Freq."
-#define TR_MENUTOOLS                    "TOOLS"
-#define TR_TURN_OFF_RECEIVER            "Turn off receiver"
-#define TR_STOPPING                     "Stopping..."
-#define TR_MENU_SPECTRUM_ANALYSER       "SPECTRUM ANALYSER"
+#define TR_MENUTOOLS                    "VERKTYG"
+#define TR_TURN_OFF_RECEIVER            "Stäng av mottagare"
+#define TR_STOPPING                     "Stoppar..."
+#define TR_MENU_SPECTRUM_ANALYSER       "SPEKTRUMANALYSATOR"
 #define TR_MENU_POWER_METER             "POWER METER"
 #define TR_SENSOR                       "SENSOR"
 #define TR_COUNTRY_CODE                 "Landskod"
@@ -844,62 +856,62 @@
 #define TR_RESET_TIMER3                 "Nollställ timer3"
 #define TR_RESET_TELEMETRY              "Nollställ telemetri"
 #define TR_STATISTICS                   "Statistik"
-#define TR_ABOUT_US                     "Om Oss"
+#define TR_ABOUT_US                     "Om EdgeTX"
 #define TR_USB_JOYSTICK                 "USB Joystick (HID)"
-#define TR_USB_MASS_STORAGE             "USB Storage (SD)"
-#define TR_USB_SERIAL                   "USB Serial (Debug)"
+#define TR_USB_MASS_STORAGE             "USB Lagring (SD)"
+#define TR_USB_SERIAL                   "USB Seriell (Debug)"
 #define TR_SETUP_SCREENS                "Setup screens"
 #define TR_MONITOR_SCREENS              "Monitors"
-#define TR_AND_SWITCH                   "OCH Brytare"
+#define TR_AND_SWITCH                   "OCH-brytare"
 #define TR_SF                           "BF"
 #define TR_GF                           "GF"
-#define TR_ANADIAGS_CALIB               "Calibrated analogs"
-#define TR_ANADIAGS_FILTRAWDEV          "Filtered raw analogs with deviation"
-#define TR_ANADIAGS_UNFILTRAW           "Unfiltered raw analogs"
+#define TR_ANADIAGS_CALIB               "Kalibrerade analoga"
+#define TR_ANADIAGS_FILTRAWDEV          "Filterade råa analoga med avvikelse"
+#define TR_ANADIAGS_UNFILTRAW           "Ofiltrerade råa analoga"
 #define TR_ANADIAGS_MINMAX              "Min., max. and range"
 #define TR_ANADIAGS_MOVE                "Move analogs to their extremes!"
 #define TR_SPEAKER                      INDENT"Högtalare"
 #define TR_BUZZER                       INDENT"Summer"
 #define TR_BYTES                        "byte"
-#define TR_MODULE_BIND                  TR("[Bnd]", "[Bind]")
-#define TR_POWERMETER_ATTN_NEEDED       "Attenuator needed"
-#define TR_PXX2_SELECT_RX               "Select RX"
+#define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Bind"))
+#define TR_POWERMETER_ATTN_NEEDED       "Attenuator behövs"
+#define TR_PXX2_SELECT_RX               "Välj RX"
 #define TR_PXX2_DEFAULT                 "<default>"
-#define TR_BT_SELECT_DEVICE             "Select device"
-#define TR_DISCOVER                     "Discover"
+#define TR_BT_SELECT_DEVICE             "Välj enhet"
+#define TR_DISCOVER                     "Upptäck"
 #define TR_BUTTON_INIT                  BUTTON("Init")
-#define TR_WAITING                      "Waiting..."
-#define TR_RECEIVER_DELETE              "Delete receiver?"
-#define TR_RECEIVER_RESET               "Reset receiver?"
-#define TR_SHARE                        "Share"
+#define TR_WAITING                      "Väntar..."
+#define TR_RECEIVER_DELETE              "Radera mottagare?"
+#define TR_RECEIVER_RESET               "Återställ mottagare?"
+#define TR_SHARE                        "Dela"
 #define TR_BIND                         "Bind"
-#define TR_REGISTER                     TR("Reg", "Register")
-#define TR_MODULE_RANGE                 TR("[Tst]", "[Testa]")
-#define TR_RECEIVER_OPTIONS             TR("REC. OPTIONS", "RECEIVER OPTIONS")
+#define TR_REGISTER                     TR("Reg", "Registrera")
+#define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
+#define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGAR-ALTERNATIV")
 #define TR_DEL_BUTTON                   BUTTON(TR("Del", "Delete"))
-#define TR_RESET_BTN                    "[Nollställ]"
+#define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Nollställ"))
 #define TR_DEBUG                        "Debug"
-#define TR_KEYS_BTN                     BUTTON(TR("SW","Switches"))
-#define TR_ANALOGS_BTN                  BUTTON(TR("Analog","Analogs"))
-#define TR_TOUCH_NOTFOUND               "Touch hardware not found"
-#define TR_TOUCH_EXIT                   "Touch screen to exit"
-#define TR_SET                          "[Spara]"
+#define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
+#define TR_ANALOGS_BTN                  BUTTON(TR("Analo","Analoga"))
+#define TR_TOUCH_NOTFOUND               "Pekskärm ej funnen"
+#define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
+#define TR_SET                          BUTTON(TR("Def", "Ställ in"))
 #define TR_TRAINER                      "Instruktör"
 #define TR_CHANS                        "Kan"
 #define TR_ANTENNAPROBLEM               CENTER "Fel på TX-antennen"
 #define TR_MODELIDUSED                  TR("ID finns redan","Modell-ID används redan")
 #define TR_MODULE                       "Modul"
-#define TR_RX_NAME                      "RX Name"
+#define TR_RX_NAME                      "RX namn"
 #define TR_TELEMETRY_TYPE               "Telemetrityp"
 #define TR_TELEMETRY_SENSORS            "Sensorer"
 #define TR_VALUE                        "Värde"
 #define TR_REPEAT                       "Upprepa"
 #define TR_ENABLE                       "Aktivera"
-#define TR_TOPLCDTIMER                  "Top LCD Timer"
+#define TR_TOPLCDTIMER                  "Översta LCD timer"
 #define TR_UNIT                         "Enhet"
 #define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till sensor..."
-#define TR_CHANNELRANGE                 INDENT "Kanalområde"
-#define TR_RXFREQUENCY                  TR("RX Freqency", "RX Servo Frequency")
+#define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
+#define TR_RXFREQUENCY                  TR("RX frekv.", "RX servofrekvens")
 #define TR_AFHDS3_RX_FREQ               TR("RX freq.", "RX frequency")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
@@ -916,33 +928,33 @@
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
 #define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
-#define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Requires non"
-#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Requires FCC"
-#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Requires EU"
-#define TR_MODULE_PROTOCOL_WARN_LINE2             "certified firmware"
+#define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Kräver icke"
+#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC"
+#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU"
+#define TR_MODULE_PROTOCOL_WARN_LINE2             "certifierad firmware"
 #define TR_LOWALARM                     INDENT "Låg-alarm"
 #define TR_CRITICALALARM                INDENT "Kritiskt alarm"
 #define TR_RSSIALARM_WARN               TR("RSSI","TELEMETRI RSSI")
-#define TR_NO_RSSIALARM                 TR(INDENT "Alarm avaktiverade", INDENT "Telemetrialarm inaktiverade")
+#define TR_NO_RSSIALARM                 TR(INDENT "Alarm inaktiverade", INDENT "Telemetrialarm inaktiverade")
 #define TR_DISABLE_ALARM                TR(INDENT "Inaktivera alarm", INDENT "Inaktivera telemetrialarm")
 #define TR_ENABLE_POPUP                 "Slå på dialog"
 #define TR_DISABLE_POPUP                "Slå av dialog"
 #define TR_POPUP                        "Popup"
 #define TR_MIN                          "Min"
 #define TR_MAX                          "Max"
-#define TR_CURVE_PRESET                 "Lutning..."
+#define TR_CURVE_PRESET                 "Förinställd..."
 #define TR_PRESET                       "Lutning"
 #define TR_MIRROR                       "Spegla"
-#define TR_CLEAR                        "Töm"
+#define TR_CLEAR                        "Rensa"
 #define TR_RESET                        "Nollställ"
 #define TR_RESET_SUBMENU                "Nollställ..."
 #define TR_COUNT                        "Antal"
 #define TR_PT                           "pt"
 #define TR_PTS                          "pkt"
 #define TR_SMOOTH                       "Mjuk"
-#define TR_COPY_STICKS_TO_OFS           TR("Cpy stick->subtrim","Spara spakar som subtrim")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS      TR("Cpy min/max to all","Copy min/max/center to all outputs")
-#define TR_COPY_TRIMS_TO_OFS            TR("Cpy trim->subtrim","Spara trimmar som subtrim")
+#define TR_COPY_STICKS_TO_OFS           TR("Kop spak->subtrim","Spara spakläge som subtrim")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS      TR("Kop min/max för allt","Kopiera min/max/center till all output")
+#define TR_COPY_TRIMS_TO_OFS            TR("Kop trim->subtrim","Spara trimmar som subtrim")
 #define TR_INCDEC                       "Inkr/Dekrement"
 #define TR_GLOBALVAR                    "Globala var"
 #define TR_MIXSOURCE                    "Mixerkälla"
@@ -950,12 +962,12 @@
 #define TR_PERSISTENT_MAH               INDENT "Lagra mAh"
 #define TR_PREFLIGHT                    "Startkontroller"
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
-#define TR_FAS_OFFSET                   TR(INDENT "FAS Ofs", INDENT "FAS Offset")
+#define TR_FAS_OFFSET                   TR(INDENT "FAS ofs", INDENT "FAS offset")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
-#define TR_AUX_SERIAL_PORT_POWER        "Port power"
+#define TR_AUX_SERIAL_PORT_POWER        "Port-effekt"
 #define TR_SCRIPT                       "Programkod"
-#define TR_INPUTS                       "Input"
+#define TR_INPUTS                       "Inputs"
 #define TR_OUTPUTS                      "Outputs"
 #define STR_EEBACKUP                    "Säkerhetskopiera EEPROM"
 #define STR_FACTORYRESET                "Fabriksåterställning"
@@ -966,7 +978,7 @@
 #define TR_NO_TELEMETRY_SCREENS         "Ingen telemetriskärm"
 #define TR_TOUCH_PANEL                  "Pekskärm:"
 #define TR_FILE_SIZE                    "File size"
-#define TR_FILE_OPEN                    "Open anyway?"
+#define TR_FILE_OPEN                    "Öppna ändå?"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME          "Namn"
@@ -987,7 +999,7 @@
 #define TR_LIMITS_HEADERS_DIRECTION     "Riktning"
 #define TR_LIMITS_HEADERS_CURVE         "Kurva"
 #define TR_LIMITS_HEADERS_PPMCENTER     "PPM-center"
-#define TR_LIMITS_HEADERS_SUBTRIMMODE   "Subtrim-läge"
+#define TR_LIMITS_HEADERS_SUBTRIMMODE   "Subtrimmläge"
 #define TR_INVERTED                     "Inverterad"
 
 #define TR_LSW_HEADERS_FUNCTION         "Funktion"
@@ -998,35 +1010,35 @@
 #define TR_LSW_HEADERS_DELAY            "Fördröj"
 
 #define TR_GVAR_HEADERS_NAME            "Namn"
-#define TR_GVAR_HEADERS_FM0             "Value on FM0"
-#define TR_GVAR_HEADERS_FM1             "Value on FM1"
-#define TR_GVAR_HEADERS_FM2             "Value on FM2"
-#define TR_GVAR_HEADERS_FM3             "Value on FM3"
-#define TR_GVAR_HEADERS_FM4             "Value on FM4"
-#define TR_GVAR_HEADERS_FM5             "Value on FM5"
-#define TR_GVAR_HEADERS_FM6             "Value on FM6"
-#define TR_GVAR_HEADERS_FM7             "Value on FM7"
-#define TR_GVAR_HEADERS_FM8             "Value on FM8"
+#define TR_GVAR_HEADERS_FM0             "Värde för FL0"
+#define TR_GVAR_HEADERS_FM1             "Värde för FL1"
+#define TR_GVAR_HEADERS_FM2             "Värde för FL2"
+#define TR_GVAR_HEADERS_FM3             "Värde för FL3"
+#define TR_GVAR_HEADERS_FM4             "Värde för FL4"
+#define TR_GVAR_HEADERS_FM5             "Värde för FL5"
+#define TR_GVAR_HEADERS_FM6             "Värde för FL6"
+#define TR_GVAR_HEADERS_FM7             "Värde för FL7"
+#define TR_GVAR_HEADERS_FM8             "Värde för FL8"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
 
 // Horus layouts and widgets
-#define TR_FIRST_CHANNEL                "First channel"
-#define TR_FILL_BACKGROUND              "Fill background?"
-#define TR_BG_COLOR                     "BG Color"
-#define TR_SLIDERS_TRIMS                "Sliders+Trims"
-#define TR_SLIDERS                      "Sliders"
-#define TR_FLIGHT_MODE                  "Flight mode"
-#define TR_INVALID_FILE                 "Invalid File"
-#define TR_TIMER_SOURCE                 "Timer source"
-#define TR_SIZE                         "Size"
-#define TR_SHADOW                       "Shadow"
+#define TR_FIRST_CHANNEL                "Första kanal"
+#define TR_FILL_BACKGROUND              "Fyll bakgrund?"
+#define TR_BG_COLOR                     "Bakgrundsfärg"
+#define TR_SLIDERS_TRIMS                "Reglage+Trimmar"
+#define TR_SLIDERS                      "Reglage"
+#define TR_FLIGHT_MODE                  "Flygläge"
+#define TR_INVALID_FILE                 "Ogiltig fil"
+#define TR_TIMER_SOURCE                 "Timer-källa"
+#define TR_SIZE                         "Storlek"
+#define TR_SHADOW                       "Skugga"
 #define TR_TEXT                         "Text"
-#define TR_COLOR                        "Color"
-#define TR_MAIN_VIEW_X                  "Main view X"
-#define TR_PANEL1_BACKGROUND            "Panel1 background"
-#define TR_PANEL2_BACKGROUND            "Panel2 background"
+#define TR_COLOR                        "Färg"
+#define TR_MAIN_VIEW_X                  "Huvudvy X"
+#define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
+#define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"
@@ -1055,16 +1067,16 @@
 #define TR_VIEW_CHANNELS                "Visa kanaler"
 #define TR_VIEW_NOTES                   "Visa anteckningar"
 #define TR_MODEL_SELECT                 "Välj modell"
-#define TR_MODS_FORBIDDEN               "Modifikationer förbjudna!"
+#define TR_MODS_FORBIDDEN               "Modifikationer otillåtna!"
 #define TR_UNLOCKED                     "Olåst"
 #define TR_ID                           "ID"
 #define TR_PRECISION                    "Precision"
 #define TR_RATIO                        "Ratio"
 #define TR_FORMULA                      "Formel"
-#define TR_CELLINDEX                    "Cell index"
+#define TR_CELLINDEX                    "Cellindex"
 #define TR_LOGS                         "Loggar"
 #define TR_OPTIONS                      "Options"
-#define TR_FIRMWARE_OPTIONS             "Firmware options"
+#define TR_FIRMWARE_OPTIONS             "Firmwarefunktioner"
 
 #define TR_ALTSENSOR                    "Höjdsensor"
 #define TR_CELLSENSOR                   "Cellsensor"
@@ -1078,7 +1090,7 @@
 #define TR_SERVOS_KO                    "Servon KO"
 
 #define TR_INVERTED_SERIAL              INDENT "Invert"
-#define TR_IGNORE_INSTANCE              TR(INDENT "Inst.fel", INDENT "Hantera instansfel")
+#define TR_IGNORE_INSTANCE              TR(INDENT "Ej inst.", INDENT "Ignorera instansfel")
 #define TR_DISCOVER_SENSORS             "Sök nya sensorer"
 #define TR_STOP_DISCOVER_SENSORS        "Avbryt sökning"
 #define TR_DELETE_ALL_SENSORS           "Ta bort alla sensorer"
@@ -1086,7 +1098,7 @@
 #define TR_SELECT_WIDGET                "Välj widget"
 #define TR_REMOVE_WIDGET                "Ta bort widget"
 #define TR_WIDGET_SETTINGS              "Widgetinställningar"
-#define TR_REMOVE_SCREEN                "Ta bort skärm"
+#define TR_REMOVE_SCREEN                "Ta bort huvudvy"
 #define TR_SETUP_WIDGETS                "Konfigurera widgets"
 #define TR_USER_INTERFACE               "Användargränssnitt"
 #define TR_THEME                        "Tema"
@@ -1100,7 +1112,7 @@
 #define TR_TEXT_COLOR                   "Textfärg"
 #define TR_TEXT_VIEWER                  "Textgranskare"
 
-#define TR_MENU_INPUTS                  STR_CHAR_INPUT "Indata"
+#define TR_MENU_INPUTS                  STR_CHAR_INPUT "Input"
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua-skript"
 #define TR_MENU_STICKS                  STR_CHAR_STICK "Spakar"
 #define TR_MENU_POTS                    STR_CHAR_POT "Vred"
@@ -1113,10 +1125,12 @@
 #define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "Servon"
 #define TR_MENU_GVARS                   STR_CHAR_SLIDER "GVars"
 #define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "Telemetri"
+#define TR_MENUTEMPLATES                "MALLAR"
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
 #define TR_JITTER_FILTER                "ADC Filter"
+#define TR_DEAD_ZONE                    "Dead zone"
 #define TR_RTC_CHECK                    TR("Kolla RTC", "Kolla RTC-batteriet")
 #define TR_AUTH_FAILURE                 "Auth-failure"
 #define TR_RACING_MODE                  "Tävlingsläge"
@@ -1276,9 +1290,16 @@
 #define STR_SPEED                       "Spd "
 #define STR_FLOW                        "Flow"
 
+#define TR_USE_THEME_COLOR              "Använd temafärg"
+
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
-#define TR_USE_THEME_COLOR              "Använd temafärg"
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmonitorn" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmon." 
+#endif
+
 #define TR_DUPLICATE                    "Duplicera"
 #define TR_ACTIVATE                     "Aktivera"
 #define TR_RED                          "Röd"
@@ -1296,11 +1317,11 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
-#define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckningar"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställningar"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio-\ninställningar"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skärm-\ninställningar"
+#define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckn."
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal-\nmonitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställn."
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio-\ninställn."
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skärm-\ninställn."
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Återställ\ntelemetri"
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Om\nEdgeTX"
