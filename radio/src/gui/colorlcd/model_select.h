@@ -80,8 +80,8 @@ class ModelLabelsWindow : public Page {
 
     LabelsVector getLabels()
     {
-      auto labels = modelsLabels.getLabels();
-      if(modelsLabels.getUnlabeledModels().size() > 0)
+      auto labels = modelslabels.getLabels();
+      if(modelslabels.getUnlabeledModels().size() > 0)
         labels.emplace_back(STR_UNLABELEDMODEL);
       return labels;
     }

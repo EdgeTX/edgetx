@@ -47,7 +47,7 @@ using std::list;
 #endif
 
 ModelsList modelslist;
-ModelMap modelsLabels;
+ModelMap modelslabels;
 
 ModelCell::ModelCell(const char* name) : valid_rfData(false)
 {
@@ -135,7 +135,7 @@ ModelsVector ModelMap::getUnlabeledModels(ModelsSortBy sortby)
 {
   ModelsVector unlabeledModels;
   for (auto model : modelslist) {
-    if (modelsLabels.getLabelsByModel(model).size() == 0)
+    if (modelslabels.getLabelsByModel(model).size() == 0)
       unlabeledModels.emplace_back(model);
   }
   sortModelsBy(unlabeledModels, sortby);
@@ -436,8 +436,7 @@ bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell, b
  */
 
 bool ModelMap::removeLabel(const std::string &label)
-{
-  // Remove all the labels
+{    
   renameLabel(label, "", STR_MOVE);
   for(auto &lbl : labels) {
     if(lbl == label && getModelsByLabel(lbl).size() == 0) {
@@ -810,7 +809,7 @@ bool ModelsList::loadTxt()
 
 void ModelMap::updateModelCell(ModelCell *cell)
 {
-  modelsLabels.removeModels(cell);
+  modelslabels.removeModels(cell);
 
   ModelData *model = (ModelData*)malloc(sizeof(ModelData));
   if(!model) {
@@ -825,7 +824,7 @@ void ModelMap::updateModelCell(ModelCell *cell)
   char *cma;
   cma = strtok(model->header.labels, ",");
   while(cma != NULL) {
-    modelsLabels.addLabelToModel(cma,cell);
+    modelslabels.addLabelToModel(cma,cell);
     cma = strtok(NULL, ",");
   }
 
@@ -865,7 +864,7 @@ bool ModelsList::loadYaml()
 {
   // Clear labels + map
   modelslist.clear();
-  modelsLabels.clear();
+  modelslabels.clear();
   fileHashInfo.clear();
 
   DEBUG_TIMER_START(debugTimerYamlScan);
@@ -946,7 +945,7 @@ bool ModelsList::loadYaml()
     // Open and read each model if it's marked as dirty
     if(model->_isDirty) {
       updatelabelsyml = true;
-      modelsLabels.updateModelCell(model);
+      modelslabels.updateModelCell(model);
     }
   }
 
@@ -961,8 +960,8 @@ bool ModelsList::loadYaml()
   }
 
   // If no labels found. Add a favorites label
-  if(modelsLabels.getLabels().size() == 0) {
-    modelsLabels.addLabel(STR_FAVORITE_LABEL);
+  if(modelslabels.getLabels().size() == 0) {
+    modelslabels.addLabel(STR_FAVORITE_LABEL);
   }
 
   return true;
@@ -1034,11 +1033,11 @@ const char * ModelsList::save()
   // Save current selection
   f_puts("- Labels:\r\n", &file);
 
-  std::string cursel = modelsLabels.getCurrentLabel();
-  LabelsVector lbls = modelsLabels.getLabels();
+  std::string cursel = modelslabels.getCurrentLabel();
+  LabelsVector lbls = modelslabels.getLabels();
   for(auto &lbl : lbls) {
     f_printf(&file, "  - %s:\r\n", lbl.c_str());
-    if(modelsLabels.isLabelFiltered(lbl))
+    if(modelslabels.isLabelFiltered(lbl))
       f_printf(&file, "    - selected: true\r\n", lbl.c_str());
   }
 
@@ -1067,7 +1066,7 @@ const char * ModelsList::save()
     }
 
     f_puts("      labels: \"", &file);
-    LabelsVector labels = modelsLabels.getLabelsByModel(model);
+    LabelsVector labels = modelslabels.getLabelsByModel(model);
     bool comma=false;
     for(auto const& label: labels) {
       if(comma) {
@@ -1090,7 +1089,7 @@ const char * ModelsList::save()
 
   f_puts("\r\n", &file);
   f_close(&file);
-  modelsLabels._isDirty = false;
+  modelslabels._isDirty = false;
 
   return NULL;
 }
@@ -1107,7 +1106,7 @@ void ModelsList::setCurrentModel(ModelCell * cell)
   struct gtm t;
   gettime(&t);
   cell->lastOpened = gmktime(&t);
-  modelsLabels.setDirty();
+  modelslabels.setDirty();
 }
 
 /**
@@ -1124,7 +1123,7 @@ void ModelsList::updateCurrentModelCell()
 #endif
     currentModel->setModelName(g_model.header.name);
     currentModel->setRfData(&g_model);
-    modelsLabels.setDirty();
+    modelslabels.setDirty();
   } else {
     TRACE("ModelList Error - No Current Model");
   }
@@ -1188,7 +1187,7 @@ ModelCell * ModelsList::addModel(const char * name, bool save)
 bool ModelsList::removeModel(ModelCell * model)
 {
   erase(std::remove(begin(), end(), model), end());
-  modelsLabels.removeModels(model);
+  modelslabels.removeModels(model);
 
   // Create deleted folder if it doesn't exist
   DIR deletedFolder;
@@ -1240,7 +1239,7 @@ bool ModelsList::moveModelTo(unsigned curindex, unsigned toindex)
     std::rotate(begin() + curindex, begin() + curindex + 1, begin() + toindex + 1);
   }
 
-  modelsLabels.setDirty();
+  modelslabels.setDirty();
   return false;
 }
 

@@ -63,30 +63,30 @@ typedef struct PACKED {
 
 class ModelCell
 {
-  public:
-    char modelFilename[LEN_MODEL_FILENAME + 1] = "";
-    char modelName[LEN_MODEL_NAME + 1] = "";
-    char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
+public:
+  char modelFilename[LEN_MODEL_FILENAME + 1] = "";
+  char modelName[LEN_MODEL_NAME + 1] = "";
+  char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
 #if LEN_BITMAP_NAME > 0
-    char modelBitmap[LEN_BITMAP_NAME] = "";
+  char modelBitmap[LEN_BITMAP_NAME] = "";
 #endif
-    gtime_t lastOpened=0;
-    bool _isDirty = true;
+  gtime_t lastOpened=0;
+  bool _isDirty = true;
 
-    bool             valid_rfData;
-    uint8_t          modelId[NUM_MODULES] = {0,0};
-    SimpleModuleData moduleData[NUM_MODULES];
+  bool             valid_rfData;
+  uint8_t          modelId[NUM_MODULES] = {0,0};
+  SimpleModuleData moduleData[NUM_MODULES];
 
-    explicit ModelCell(const char * name);
-    explicit ModelCell(const char * name, uint8_t len);
+  explicit ModelCell(const char * name);
+  explicit ModelCell(const char * name, uint8_t len);
 
-    void setModelName(char * name);
-    void setModelName(char* name, uint8_t len);
-    void setRfData(ModelData * model);
+  void setModelName(char * name);
+  void setModelName(char* name, uint8_t len);
+  void setRfData(ModelData * model);
 
-    void setModelId(uint8_t moduleIdx, uint8_t id);
-    void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
-    bool fetchRfData();
+  void setModelId(uint8_t moduleIdx, uint8_t id);
+  void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
+  bool fetchRfData();
 };
 
 typedef struct {
@@ -94,7 +94,7 @@ typedef struct {
   // Anything else?
 } SLabelDetail;
 
-typedef std::vector<std::pair<int, ModelCell *>> ModelLabelsVector;
+typedef std::vector<std::pair<uint16_t, ModelCell *>> ModelLabelsVector;
 typedef std::vector<std::string> LabelsVector;
 typedef std::vector<ModelCell *> ModelsVector;
 typedef enum {
@@ -107,76 +107,75 @@ typedef enum {
 
 /**
  * @brief ModelMap is a multimap of all models and their cooresponding
- *        labels.
- *
+ *        labels. Lables are referenced by index, stored in var labels
  */
 
 class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 {
-  public:
-    ModelsVector getUnlabeledModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-    ModelsVector getModelsByLabel(const std::string &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-    ModelsVector getModelsByLabels(const LabelsVector &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-    ModelsVector getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-    LabelsVector getLabelsByModel(ModelCell *);
-    std::map<std::string, bool> getSelectedLabels(ModelCell *);
-    bool isLabelSelected(const std::string &, ModelCell *);
-    LabelsVector getLabels();
-    int addLabel(const std::string &);
-    bool addLabelToModel(const std::string &, ModelCell *, bool update=false);
-    bool removeLabelFromModel(const std::string &label, ModelCell *, bool update=false);
-    bool removeLabel(const std::string &);
-    bool moveLabelTo(unsigned current, unsigned newind);
-    bool renameLabel(const std::string &from,
-                     const std::string &to,
-                     const char* title=STR_RENAME_FILE,
-                     std::function<void(const char *file, int progress)> progress=nullptr);
-    std::string getCurrentLabel() {return currentlabel;};
-    void setCurrentLabel(const std::string &lbl) {currentlabel = lbl; setDirty();}
-    std::string getLabelString(ModelCell *, const char *noresults="");
-    void setDirty(bool save=false);
-    bool isDirty() {return _isDirty;}
+public:
+  ModelsVector getUnlabeledModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+  ModelsVector getModelsByLabel(const std::string &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+  ModelsVector getModelsByLabels(const LabelsVector &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+  ModelsVector getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+  LabelsVector getLabelsByModel(ModelCell *);
+  std::map<std::string, bool> getSelectedLabels(ModelCell *);
+  bool isLabelSelected(const std::string &, ModelCell *);
+  LabelsVector getLabels();
+  int addLabel(const std::string &);
+  bool addLabelToModel(const std::string &, ModelCell *, bool update=false);
+  bool removeLabelFromModel(const std::string &label, ModelCell *, bool update=false);
+  bool removeLabel(const std::string &);
+  bool moveLabelTo(unsigned current, unsigned newind);
+  bool renameLabel(const std::string &from,
+                    const std::string &to,
+                    const char* title=STR_RENAME_FILE,
+                    std::function<void(const char *file, int progress)> progress=nullptr);
+  std::string getCurrentLabel() {return currentlabel;};
+  void setCurrentLabel(const std::string &lbl) {currentlabel = lbl; setDirty();}
+  std::string getLabelString(ModelCell *, const char *noresults="");
+  void setDirty(bool save=false);
+  bool isDirty() {return _isDirty;}
 
-    // Currently selected labels in the GUI
-    void setFilteredLabels(std::set<uint32_t> filtlbls) {this->filtlbls = std::move(filtlbls);}
-    void addFilteredLabel(const std::string &lbl);
-    bool isLabelFiltered(const std::string &lbl);
-    std::set<uint32_t> filteredLabels() {return filtlbls;}
+  // Currently selected labels in the GUI
+  void setFilteredLabels(std::set<uint32_t> filtlbls) {this->filtlbls = std::move(filtlbls);}
+  void addFilteredLabel(const std::string &lbl);
+  bool isLabelFiltered(const std::string &lbl);
+  std::set<uint32_t> filteredLabels() {return filtlbls;}
 
-  protected:
-    void updateModelCell(ModelCell *);
-    bool removeModels(ModelCell *);      // Should only be called from ModelsList remove model
-    bool updateModelFile(ModelCell *);
-    void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
+protected:
+  void updateModelCell(ModelCell *);
+  bool removeModels(ModelCell *);      // Should only be called from ModelsList remove model
+  bool updateModelFile(ModelCell *);
+  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
-    void clear() {
-      _isDirty=true;
-      labels.clear();
-      std::multimap<uint16_t, ModelCell *>::clear();
-    }
+  void clear() {
+    _isDirty=true;
+    labels.clear();
+    std::multimap<uint16_t, ModelCell *>::clear();
+  }
 
-  private:
-    bool _isDirty=true;
-    LabelsVector labels; // Storage space for discovered labels
-    std::set<uint32_t> filtlbls;
-    std::string currentlabel = "";
+protected:
+  bool _isDirty=true;    
+  std::set<uint32_t> filtlbls;
+  std::string currentlabel = "";
 
-    int getIndexByLabel(const std::string &str)
-    {
-      auto a = std::find(labels.begin(), labels.end(), str);
-      return a == labels.end() ? -1 : a - labels.begin();
-    }
+  int getIndexByLabel(const std::string &str)
+  {
+    auto a = std::find(labels.begin(), labels.end(), str);
+    return a == labels.end() ? -1 : a - labels.begin();
+  }
 
-    std::string getLabelByIndex(uint16_t index) {
-      if(index < (uint16_t)labels.size())
-        return labels.at(index);
-      else
-        return std::string();
-    }
+  std::string getLabelByIndex(uint16_t index) {
+    if(index < (uint16_t)labels.size())
+      return labels.at(index);
+    else
+      return std::string();
+  }
 
-    friend class ModelsList;
+  friend class ModelsList;
+private:
+  LabelsVector labels; // Storage space for discovered labels 
 };
-
 
 class ModelsList : public ModelsVector
 {
@@ -249,6 +248,6 @@ protected:
 ModelLabelsVector getUniqueLabels();
 
 extern ModelsList modelslist;
-extern ModelMap modelsLabels;
+extern ModelMap modelslabels;
 
 #endif // _MODELSLIST_H_

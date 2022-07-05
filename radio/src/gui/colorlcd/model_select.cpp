@@ -379,8 +379,8 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
                     MODELS_PATH);
         ModelCell *newmodel = modelslist.addModel(duplicatedFilename);
         // Duplicated model should have same labels as orig. Add them
-        for(const auto &lbl : modelsLabels.getLabelsByModel(model)) {
-          modelsLabels.addLabelToModel(lbl, newmodel);
+        for(const auto &lbl : modelslabels.getLabelsByModel(model)) {
+          modelslabels.addLabelToModel(lbl, newmodel);
         }
         // Copy name & new filename
         strcpy(newmodel->modelName, model->modelName);
@@ -403,7 +403,7 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
       });
     }
     menu->addLine(STR_EDIT_LABELS, [=]() {
-      auto labels = modelsLabels.getLabels();
+      auto labels = modelslabels.getLabels();
       //button->setFocus();
 
       // dont display menu if there will be no labels
@@ -417,18 +417,18 @@ void ModelsPageBody::initPressHandlers(ModelButton *button, ModelCell *model, in
           }
         });
 
-        for (auto &label: modelsLabels.getLabels()) {
+        for (auto &label: modelslabels.getLabels()) {
           menu->addLine(label,
             [=] () {
-              if (!modelsLabels.isLabelSelected(label, model))
-                modelsLabels.addLabelToModel(label, model, true);
+              if (!modelslabels.isLabelSelected(label, model))
+                modelslabels.addLabelToModel(label, model, true);
               else
-                modelsLabels.removeLabelFromModel(label, model, true);
+                modelslabels.removeLabelFromModel(label, model, true);
               isDirty = true;
               if(refreshLabels != nullptr)
                 refreshLabels();
             }, [=] () {
-              return modelsLabels.isLabelSelected(label, model);
+              return modelslabels.isLabelSelected(label, model);
             });
         }
       }
@@ -447,7 +447,7 @@ void ModelsPageBody::update(int selected)
 
   ModelsVector models;
   if(selectedLabels.size()) {
-    models = modelsLabels.getModelsInLabels(selectedLabels, _sortOrder);
+    models = modelslabels.getModelsInLabels(selectedLabels, _sortOrder);
   } else { // Show all
     models = modelslist;
   }
@@ -538,7 +538,7 @@ ModelLabelsWindow::ModelLabelsWindow() :
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();
   if (currentModel != nullptr) {
-    auto modelLabels = modelsLabels.getLabelsByModel(currentModel);
+    auto modelLabels = modelslabels.getLabelsByModel(currentModel);
     if (modelLabels.size() > 0) {
       auto allLabels = getLabels();
       auto found = std::find(allLabels.begin(), allLabels.end(), modelLabels[0]);
@@ -592,7 +592,7 @@ void ModelLabelsWindow::buildHead(PageHeader *window)
       auto labels = getLabels();
       lblselector->setNames(labels);
       //lblselector->clearSelection();
-      lblselector->setSelected(modelsLabels.getLabels().size());
+      lblselector->setSelected(modelslabels.getLabels().size());
       mdlselector->update(0);
       new SelectTemplateFolder([=]() {
       });
@@ -629,8 +629,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
     getLabels());
 
   lblselector->setMultiSelect(true);
-  lblselector->setSelected(modelsLabels.filteredLabels());
-  updateFilteredLabels(modelsLabels.filteredLabels(), false);
+  lblselector->setSelected(modelslabels.filteredLabels());
+  updateFilteredLabels(modelslabels.filteredLabels(), false);
 
   lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,std::set<uint32_t> oldselection) {
     // Special case for mutually exclusive Unsorted
@@ -660,7 +660,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       menu->addLine(STR_NEW_LABEL, [=] () {
         new LabelDialog(parent, tmpLabel,
           [=] (std::string label) {
-            if(modelsLabels.addLabel(label) >= 0) {
+            if(modelslabels.addLabel(label) >= 0) {
               auto labels = getLabels();
               lblselector->setNames(labels);
             }
@@ -677,7 +677,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
             [=] (std::string newLabel) {
               //auto rndialog = new RenameDialog(this, [=](){});
 
-                modelsLabels.renameLabel(oldLabel,
+                modelslabels.renameLabel(oldLabel,
                                          newLabel,
                                          STR_RENAME_FILE,
                                          [=](const char* name, int percentage) {
@@ -694,24 +694,24 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
             new ConfirmDialog(
             parent, STR_DELETE_LABEL,
             labelToDelete.c_str(), [=]() {
-             modelsLabels.removeLabel(labelToDelete);
+             modelslabels.removeLabel(labelToDelete);
              auto labels = getLabels();
              lblselector->setNames(labels);
             });
           return 0;
         });
-        if(modelsLabels.getLabels().size() > 1) {
+        if(modelslabels.getLabels().size() > 1) {
           if(selected != 0) {
             menu->addLine("Move Up", [=] () {
-              modelsLabels.moveLabelTo(selected, selected - 1);
+              modelslabels.moveLabelTo(selected, selected - 1);
               auto labels = getLabels();
               lblselector->setNames(labels);
               return 0;
             });
           }
-          if(selected != (int)modelsLabels.getLabels().size() - 1) {
+          if(selected != (int)modelslabels.getLabels().size() - 1) {
             menu->addLine("Move Down", [=] () {
-              modelsLabels.moveLabelTo(selected, selected + 1);
+              modelslabels.moveLabelTo(selected, selected + 1);
               auto labels = getLabels();
               lblselector->setNames(labels);
               return 0;
@@ -732,8 +732,8 @@ void ModelLabelsWindow::updateFilteredLabels(std::set<uint32_t> selected, bool s
         sellabels.push_back(labels[sel]);
     }
     if(setdirty) { // Save to file?
-      modelsLabels.setFilteredLabels(selected);
-      modelsLabels.setDirty();
+      modelslabels.setFilteredLabels(selected);
+      modelslabels.setDirty();
     }
     mdlselector->setLabels(sellabels); // Update the list
 }

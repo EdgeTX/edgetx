@@ -164,7 +164,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     // Labels List
     if(mi->level == labelslist_iter::LabelName)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
-      modelsLabels.addLabel(mi->current_attr);
+      modelslabels.addLabel(mi->current_attr);
       strncpy(mi->current_label,mi->current_attr, sizeof(mi->current_label));
       mi->current_label[sizeof(mi->current_label)] = '\0';
     }
@@ -230,7 +230,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
         cma = strtok(value, ",");
         int numTokens = 0;
         while(cma != NULL) {
-          modelsLabels.addLabelToModel(cma,mi->curmodel);
+          modelslabels.addLabelToModel(cma,mi->curmodel);
           TRACE_LABELS_YAML(" Adding the label - %s", cma);
           cma = strtok(NULL, ",");
           numTokens++;
@@ -271,7 +271,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
       // TODO - Check icon exists, or ignore it.
     } else if(!strcasecmp(mi->current_attr, "selected")) {
       TRACE("FOUND %s Label is selected", mi->current_label);
-      modelsLabels.addFilteredLabel(mi->current_label);
+      modelslabels.addFilteredLabel(mi->current_label);
     }
   }
 }
