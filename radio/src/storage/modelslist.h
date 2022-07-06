@@ -114,6 +114,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 {
 public:
   ModelsVector getUnlabeledModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+  ModelsVector getAllModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
   ModelsVector getModelsByLabel(const std::string &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
   ModelsVector getModelsByLabels(const LabelsVector &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
   ModelsVector getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby=DEFAULT_MODEL_SORT);

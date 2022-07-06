@@ -448,8 +448,8 @@ void ModelsPageBody::update(int selected)
   ModelsVector models;
   if(selectedLabels.size()) {
     models = modelslabels.getModelsInLabels(selectedLabels, _sortOrder);
-  } else { // Show all
-    models = modelslist;
+  } else {
+    models = modelslabels.getAllModels(_sortOrder);
   }
 
   for (auto &model : models) {

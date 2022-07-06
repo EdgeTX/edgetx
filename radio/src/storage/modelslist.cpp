@@ -143,6 +143,17 @@ ModelsVector ModelMap::getUnlabeledModels(ModelsSortBy sortby)
 }
 
 /**
+ * @brief Returns a sorted list of all models
+ */
+
+ModelsVector ModelMap::getAllModels(ModelsSortBy sortby)
+{
+  ModelsVector all = modelslist;
+  sortModelsBy(all, sortby);
+  return all;
+}
+
+/**
  * @brief Returns all models that have a sepecified label
  *
  * @param lbl Label to search
