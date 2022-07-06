@@ -246,6 +246,10 @@ void writeHeader()
     }
   }
   f_puts("LSW,", &g_oLogFile);
+  
+  for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
+    f_printf(&g_oLogFile, "CH%d(us),", channel+1);
+  }
 #else
   f_puts("Rud,Ele,Thr,Ail,P1,P2,P3,THR,RUD,ELE,3POS,AIL,GEA,TRN,", &g_oLogFile);
 #endif
@@ -353,6 +357,10 @@ void logsWrite()
         }
       }
       f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+
+      for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
+        f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
+      }
 #else
       f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
           GET_2POS_STATE(THR),
