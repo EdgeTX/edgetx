@@ -359,7 +359,7 @@ void logsWrite()
       f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
-        f_printf(&g_oLogFile, "%d,", 1500+channelOutputs[channel]/2); // in us
+        f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
 #else
       f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
