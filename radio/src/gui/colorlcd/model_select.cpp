@@ -480,51 +480,54 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 
 class LabelDialog : public Dialog
 {
-  public:
-    LabelDialog(Window *parent, char *label, std::function<void (std::string label)> saveHandler = nullptr) :
-      Dialog(parent, STR_ENTER_LABEL, rect_t{}),
-      saveHandler(saveHandler)
-    {
-      strncpy(this->label, label, MAX_LABEL_SIZE);
-      this->label[MAX_LABEL_SIZE] = '\0';
+ public:
+  LabelDialog(Window *parent, char *label,
+              std::function<void(std::string label)> saveHandler = nullptr) :
+      Dialog(parent, STR_ENTER_LABEL, rect_t{}), saveHandler(saveHandler)
+  {
+    strncpy(this->label, label, MAX_LABEL_SIZE);
+    this->label[MAX_LABEL_SIZE] = '\0';
 
-      auto box = new FormGroup(&content->form, rect_t{});
-      box->setFlexLayout();
+    auto form = &content->form;
+    form->padRow(lv_dpx(8));
+    
+    auto form_obj = form->getLvObj();
+    lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-      auto box_obj = box->getLvObj();
-      lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+    new TextEdit(form, rect_t{}, label, MAX_LABEL_SIZE);
 
-      FlexGridLayout grid(col_dsc, row_dsc, 2);
-      grid.setColSpan(2);
+    auto box = new FormGroup(form, rect_t{});
+    box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
-      auto line = box->newLine(&grid);
-      new TextEdit(line, rect_t{}, label, MAX_LABEL_SIZE);
+    auto box_obj = box->getLvObj();
+    lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
 
-      grid.setColSpan(1);
-      line = box->newLine(&grid);
-      auto btn = new TextButton(line, rect_t{}, STR_SAVE, [=] () {
-        if (saveHandler != nullptr)
-          saveHandler(label);
-        deleteLater();
-        return 0;
-      }, BUTTON_BACKGROUND | OPAQUE, textFont);
-      lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
+    auto btn = new TextButton(
+        box, rect_t{}, STR_SAVE,
+        [=]() {
+          if (saveHandler != nullptr) saveHandler(label);
+          deleteLater();
+          return 0;
+        },
+        BUTTON_BACKGROUND | OPAQUE, textFont);
+    btn->setWidth(LV_DPI_DEF);
 
-      grid.nextCell();
+    btn = new TextButton(
+        box, rect_t{}, STR_CANCEL,
+        [=]() {
+          deleteLater();
+          return 0;
+        },
+        BUTTON_BACKGROUND | OPAQUE, textFont);
+    btn->setWidth(LV_DPI_DEF);
 
-      btn = new TextButton(line, rect_t{}, STR_CANCEL, [=] () {
-        deleteLater();
-        return 0;
-      }, BUTTON_BACKGROUND | OPAQUE, textFont);
-      lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
+    content->setWidth(LCD_W * 0.8);
+    content->updateSize();
+  }
 
-      content->setWidth(LCD_W * 0.8);
-      content->updateSize();
-    }
-
-  protected:
-    std::function<void (std::string label)> saveHandler;
-    char label[MAX_LABEL_SIZE+1];
+ protected:
+  std::function<void(std::string label)> saveHandler;
+  char label[MAX_LABEL_SIZE + 1];
 };
 
 //-----------------------------------------------------------------------------
