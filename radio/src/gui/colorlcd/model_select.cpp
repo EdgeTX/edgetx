@@ -751,27 +751,28 @@ void ModelLabelsWindow::labelRefreshRequest()
 
 //-----------------------------------------------------------------------------
 
-constexpr rect_t RFSCAN_DIALOG_RECT = {
-  50, 100, LCD_W - 100, LCD_H - 200
-};
-
 RenameDialog::RenameDialog(Window* parent,
                            std::function<void()> onClose) :
-  Dialog(parent, "title", RFSCAN_DIALOG_RECT),
-  progress(new Progress(&content->form,
-                        {PAGE_PADDING, PAGE_PADDING,
-                        content->form.width() - 2 * PAGE_PADDING,
-                        content->form.height() - 2 * PAGE_PADDING})),
+  Dialog(parent, "title", rect_t{}),
+  progress(new Progress(&content->form, rect_t{})),
   onClose(std::move(onClose))
 {
+  progress->setHeight(LV_DPI_DEF / 4);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
+
+  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
+  progress->setWidth(content_w);
+
   // disable canceling dialog
-  //setCloseWhenClickOutside(false);
+  setCloseWhenClickOutside(false);
 }
 
 void RenameDialog::updateProgress(const char *filename, int percentage)
 {
   progress->setValue(percentage);
-  if(percentage == 101) {
+  if(percentage >= 100) {
     deleteLater();
     onClose();
   }
@@ -781,16 +782,4 @@ void RenameDialog::updateProgress(const char *filename, int percentage)
 void RenameDialog::onEvent(event_t)
 {
   return;
-}
-
-void RenameDialog::checkEvents()
-{
-//  if (RTOS_GET_MS() - lastUpdate >= 200) {
-    //showProgress();
-    //lastUpdate = RTOS_GET_MS();
-  //}
-//
-  //progress->setValue(percentage);
-
-  Dialog::checkEvents();
 }

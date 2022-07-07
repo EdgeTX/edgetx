@@ -99,7 +99,6 @@ class RenameDialog : public Dialog
 
   std::function<void()> onClose;
 
-
  public:
   RenameDialog(Window* parent, std::function<void()> onClose);
 
@@ -107,8 +106,6 @@ class RenameDialog : public Dialog
 
   // disable keys
   void onEvent(event_t) override;
-
-  void checkEvents() override;
 };
 
 #endif // _MODEL_SELECT_H_
