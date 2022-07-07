@@ -102,14 +102,12 @@ void restartModule(uint8_t idx)
   pauseMixerCalculations();
   pausePulses();
 
-  if (idx == INTERNAL_MODULE) INTERNAL_MODULE_OFF();
-  else EXTERNAL_MODULE_OFF();
+  if (idx == INTERNAL_MODULE) stopPulsesInternalModule();
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  else stopPulsesExternalModule();
+#endif
 
-  RTOS_WAIT_MS(20); // 20ms so that the pulses interrupt will reinit the frame rate
-  telemetryProtocol = 255; // force telemetry port + module reinitialization
-
-  if (idx == INTERNAL_MODULE) INTERNAL_MODULE_ON();
-  else EXTERNAL_MODULE_ON();
+  RTOS_WAIT_MS(200); // 20ms so that the pulses interrupt will reinit the frame rate
 
   resumePulses();
   resumeMixerCalculations();
