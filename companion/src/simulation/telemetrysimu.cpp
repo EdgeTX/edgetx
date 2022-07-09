@@ -59,6 +59,8 @@ TelemetrySimulator::TelemetrySimulator(QWidget * parent, SimulatorInterface * si
   connect(&timer,    &QTimer::timeout, this, &TelemetrySimulator::generateTelemetryFrame);
   connect(&logTimer, &QTimer::timeout, this, &TelemetrySimulator::onLogTimerEvent);
 
+  gpsTimer.setInterval(250);
+  connect(&gpsTimer,&QTimer::timeout,this,&TelemetrySimulator::onGpsRunLoop);
   connect(ui->Simulate,          &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimEnabled(on);         });
   connect(ui->cbPauseOnHide,     &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimPauseOnHide(on);     });
   connect(ui->cbResetRssiOnStop, &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimResetRssiOnStop(on); });
@@ -154,6 +156,55 @@ void TelemetrySimulator::onLogTimerEvent()
   logPlayback->stepForward(false);
 }
 
+void TelemetrySimulator::onGpsRunLoop()
+{
+    int a = ui -> gps_latlon -> text().contains(",");
+    if(not a){
+        QMessageBox::information(this,tr("Bad GPS Format"),tr("Must be decimal lat,lon"));
+        ui -> gps_latlon -> setText("000.0000,000.0000");
+        ui -> GPSpushButton -> click();
+    }
+    else
+    {
+    QStringList lalo = (ui -> gps_latlon -> text()).split(",");
+    QString lat = lalo[0];
+    QString lon = lalo[1];
+    double B2 = lat.toDouble();
+    double C2 = lon.toDouble();
+    double D3 = ui -> gps_speed -> value() / 14400;
+    double F3 = ui -> gps_course -> value();
+    double J2 = 6378.1;
+    double B3 = qRadiansToDegrees(qAsin( qSin(qDegreesToRadians(B2))*qCos(D3/J2) + qCos(qDegreesToRadians(B2))*qSin(D3/J2)*qCos(qDegreesToRadians(F3))));
+    double Bb3 = B3;
+    if(Bb3 < 0)
+    {
+        Bb3 = Bb3 * -1;
+    }
+    if (Bb3 > 89.99)
+    {
+        F3 = F3 + 180;
+        if(F3 > 360)
+        {
+            F3 = F3 - 360;
+        }
+         ui -> gps_course -> setValue(F3);
+    }
+    double C3 = qRadiansToDegrees(qDegreesToRadians(C2) + qAtan2(qSin(qDegreesToRadians(F3))*qSin(D3/J2)*qCos(qDegreesToRadians(B2)),qCos(D3/J2)-qSin(qDegreesToRadians(B2))*qSin(qDegreesToRadians(B3))));
+    if (C3 > 180)
+    {
+       C3 = C3 - 360;
+    }
+    if (C3 < -180)
+    {
+        C3 = C3 + 360;
+    }
+    QString lats = QString::number(B3, 'f', 8);
+    QString lons = QString::number(C3, 'f', 8);
+    QString qs = lats + "," + lons;
+    ui -> gps_latlon -> setText(qs);
+    }
+
+}
 void TelemetrySimulator::onLoadLogFile()
 {
   onStop(); // in case we are in playback mode
@@ -1098,7 +1149,7 @@ void TelemetrySimulator::on_saveTelemetryvalues_clicked()
     if (fldr.isEmpty())
       fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    QString idFileNameAndPath = QFileDialog::getSaveFileName(this, tr("Save Telemetry"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
+    QString idFileNameAndPath = QFileDialog::getSaveFileName(this, tr("Save Telemetry"), fldr % "/telemetry.tlm", tr(".tlm Files (*.tlm)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
@@ -1184,7 +1235,7 @@ void TelemetrySimulator::on_loadTelemetryvalues_clicked()
     if (fldr.isEmpty())
       fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    QString idFileNameAndPath = QFileDialog::getOpenFileName(this, tr("Open Telemetry File"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
+    QString idFileNameAndPath = QFileDialog::getOpenFileName(this, tr("Open Telemetry File"), fldr % "/telemetry.tlm", tr(".tlm Files (*.tlm)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
@@ -1321,5 +1372,31 @@ void TelemetrySimulator::on_loadTelemetryvalues_clicked()
 
     file.close();
 
+}
+
+void TelemetrySimulator::on_GPSpushButton_clicked()
+{
+   if(ui ->GPSpushButton -> text() == "Run")
+   {
+       ui ->GPSpushButton -> setText("Stop");
+       gpsTimer.start();
+    }
+       else
+       {
+          ui -> GPSpushButton-> setText("Run");
+          gpsTimer.stop();
+       }
+}
+
+void TelemetrySimulator::on_gps_course_valueChanged(double arg1)
+{
+    if(ui ->gps_course ->value() > 360)
+    {
+        ui ->gps_course -> setValue(1);
+    }
+    if(ui ->gps_course ->value() < 1)
+    {
+        ui ->gps_course -> setValue(360);
+    }
 }
 

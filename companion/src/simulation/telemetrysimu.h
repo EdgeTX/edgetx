@@ -63,6 +63,7 @@ class TelemetrySimulator : public QWidget
     void setupDataFields();
     void onSimulateToggled(bool isChecked);
     void onLogTimerEvent();
+    void onGpsRunLoop();
     void onLoadLogFile();
     void onPlay();
     void onRewind();
@@ -79,6 +80,7 @@ class TelemetrySimulator : public QWidget
     Ui::TelemetrySimulator * ui;
     QTimer timer;
     QTimer logTimer;
+    QTimer gpsTimer;
     SimulatorInterface *simulator;
     bool m_simuStarted;
     bool m_logReplayEnable;
@@ -210,6 +212,8 @@ class TelemetrySimulator : public QWidget
 private slots:
     void on_saveTelemetryvalues_clicked();
     void on_loadTelemetryvalues_clicked();
+    void on_GPSpushButton_clicked();
+    void on_gps_course_valueChanged(double arg1);
 };  // TelemetrySimulator
 
 #endif // _TELEMETRYSIMU_H_
