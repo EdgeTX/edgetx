@@ -49,16 +49,15 @@ class ViewTextWindow : public Page
 
   ~ViewTextWindow()
   {
-    if(buffer) {
+    if (buffer) {
       free(buffer);
       buffer = nullptr;
     }
   }
 
 #if defined(DEBUG_WINDOWS)
-      std::string getName() const override { return "ViewTextWindow"; };
+  std::string getName() const override { return "ViewTextWindow"; };
 #endif
-
 
  protected:
   std::string path;

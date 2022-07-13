@@ -44,7 +44,7 @@ void ViewTextWindow::buildBody(Window *window)
 {
   FILINFO info;
 
-  if(buffer) {
+  if (buffer) {
     free(buffer);
     buffer = nullptr;
     bufSize = 0;
@@ -56,10 +56,11 @@ void ViewTextWindow::buildBody(Window *window)
     bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
 
     buffer = (char *)malloc(bufSize);
-    if (buffer)
-    {
-      offset = std::max( int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
-      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,  int(info.fsize) - bufSize + 1);
+    if (buffer) {
+      offset =
+          std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
+      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
+            int(info.fsize) - bufSize + 1);
       if (sdReadTextFileBlock(fullPath.c_str(), bufSize, offset) == FR_OK) {
         auto obj = window->getLvObj();
         lv_obj_add_flag(
@@ -98,20 +99,20 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
   auto res = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
   if (res == FR_OK) {
     res = f_lseek(&file, offset);
-    if(res == FR_OK) {
+    if (res == FR_OK) {
       UINT br;
       char c;
-      char* ptr = buffer;
-      for(int i = 0; i < (int)bufSize; i++) {
+      char *ptr = buffer;
+      for (int i = 0; i < (int)bufSize; i++) {
         res = f_read(&file, &c, 1, &br);
-        if(res == FR_OK && br == 1) {
-          if(c == '\\' && escape == 0) {
+        if (res == FR_OK && br == 1) {
+          if (c == '\\' && escape == 0) {
             escape = 1;
             continue;
-          } 
-          else if(c != '\\' && escape > 0 && escape < (int)sizeof(escape_chars)) {
+          } else if (c != '\\' && escape > 0 &&
+                     escape < (int)sizeof(escape_chars)) {
             escape_chars[escape - 1] = c;
-          
+
             if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
               *ptr++ = STR_CHAR_UP[0];
               c = STR_CHAR_UP[1];
@@ -145,8 +146,6 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
   }
   return res;
 }
-
-
 
 void ViewTextWindow::onEvent(event_t event)
 {
