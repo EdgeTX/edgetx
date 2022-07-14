@@ -161,41 +161,40 @@ void TelemetrySimulator::onGpsRunLoop()
 {
   int a = ui->gps_latlon->text().contains(",");
   if (!a) {
-    QMessageBox::information(this,tr("Bad GPS Format"),tr("Must be decimal latitude,longitude"));
+    QMessageBox::information(this, tr("Bad GPS Format"), tr("Must be decimal latitude,longitude"));
     ui->gps_latlon->setText("000.00000000,000.00000000");
     ui->GPSpushButton->click();
   }
   else
   {
-    QStringList lalo = (ui->gps_latlon->text()).split(",");
-    QString lat = lalo[0];
-    QString lon = lalo[1];
-    double B2 = lat.toDouble();
-    double C2 = lon.toDouble();
-    double D3 = ui -> gps_speed -> value() / 14400;
-    double F3 = ui -> gps_course -> value();
-    double J2 = 6378.1;
-    double B3 = qRadiansToDegrees(qAsin( qSin(qDegreesToRadians(B2))*qCos(D3/J2) + qCos(qDegreesToRadians(B2))*qSin(D3/J2)*qCos(qDegreesToRadians(F3))));
-    double Bb3 = B3;
-    if (Bb3 < 0) {
-      Bb3 = Bb3 * -1;
+    QStringList gpsLatLon = (ui->gps_latlon->text()).split(",");
+
+    double b2 = gpsLatLon[0].toDouble();
+    double c2 = gpsLatLon[1].toDouble();
+    double d3 = ui->gps_speed->value() / 14400;
+    double f3 = ui->gps_course->value();
+    double j2 = 6378.1;
+    double b3 = qRadiansToDegrees(qAsin( qSin(qDegreesToRadians(b2))*qCos(d3/j2) + qCos(qDegreesToRadians(b2))*qSin(d3/j2)*qCos(qDegreesToRadians(f3))));
+    double bb3 = b3;
+    if (bb3 < 0) {
+      bb3 = bb3 * -1;
     }
-    if (Bb3 > 89.99) {
-      F3 = F3 + 180;
-      if (F3 > 360) {
-        F3 = F3 - 360;
+    if (bb3 > 89.99) {
+      f3 = f3 + 180;
+      if (f3 > 360) {
+        f3 = f3 - 360;
       }
-      ui->gps_course->setValue(F3);
+      ui->gps_course->setValue(f3);
     }
-    double C3 = qRadiansToDegrees(qDegreesToRadians(C2) + qAtan2(qSin(qDegreesToRadians(F3))*qSin(D3/J2)*qCos(qDegreesToRadians(B2)),qCos(D3/J2)-qSin(qDegreesToRadians(B2))*qSin(qDegreesToRadians(B3))));
-    if (C3 > 180) {
-      C3 = C3 - 360;
+    double c3 = qRadiansToDegrees(qDegreesToRadians(c2) + qAtan2(qSin(qDegreesToRadians(f3))*qSin(d3/j2)*qCos(qDegreesToRadians(b2)),qCos(d3/j2)-qSin(qDegreesToRadians(b2))*qSin(qDegreesToRadians(b3))));
+    if (c3 > 180) {
+      c3 = c3 - 360;
     }
-    if (C3 < -180) {
-      C3 = C3 + 360;
+    if (c3 < -180) {
+      c3 = c3 + 360;
     }
-    QString lats = QString::number(B3, 'f', 8);
-    QString lons = QString::number(C3, 'f', 8);
+    QString lats = QString::number(b3, 'f', 8);
+    QString lons = QString::number(c3, 'f', 8);
     QString qs = lats + "," + lons;
     ui->gps_latlon->setText(qs);
   }
