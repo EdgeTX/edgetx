@@ -25,28 +25,13 @@
 #include "opentx.h"
 #include "sdcard.h"
 
-#define CASE_EVT_KEY_NEXT_LINE \
-  case EVT_ROTARY_RIGHT:       \
-  case EVT_KEY_BREAK(KEY_PGDN)
-//  case EVT_KEY_BREAK(KEY_DOWN)
-
-#define CASE_EVT_KEY_PREVIOUS_LINE \
-  case EVT_ROTARY_LEFT:            \
-  case EVT_KEY_BREAK(KEY_PGUP):    \
-  case EVT_KEY_BREAK(KEY_UP)
-
-#define CASE_EVT_START           \
-  case EVT_ENTRY:                \
-  case EVT_KEY_BREAK(KEY_ENTER): \
-  case EVT_KEY_BREAK(KEY_TELEM)
-
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
   uint8_t extLength;
 
   const char *ext =
-      getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
+      getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
   extension = std::string(ext);
   if (nameLength > TEXT_FILENAME_MAXLEN) nameLength = TEXT_FILENAME_MAXLEN;
 
@@ -57,236 +42,139 @@ void ViewTextWindow::extractNameSansExt()
 
 void ViewTextWindow::buildBody(Window *window)
 {
-  GridLayout grid(window);
-  grid.spacer();
-  int i;
-  FIL file;
+  FILINFO info;
 
-  // assume average characte is 10 pixels wide, round the string length to tens.
-  // Font is not fixed width, so this is for the worst case...
-  maxLineLength = static_cast<int>(window->width() / 10 / 10) * 10 - 2;
-  maxScreenLines = window->height() / (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-  // window->setFocus();
-  readLinesCount = 0;
-  lastLoadedLine = 0;
-
-  lines = new char *[maxScreenLines];
-  for (i = 0; i < maxScreenLines; i++) {
-    lines[i] = new char[maxLineLength + 1];
-    memclear(lines[i], maxLineLength + 1);
+  if (buffer) {
+    free(buffer);
+    buffer = nullptr;
+    bufSize = 0;
   }
 
-  if (isInSetup) {
-    if (FR_OK ==
-        f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ)) {
-      const int fileLenght = file.obj.objsize;
-      maxLines = 20 * fileLenght / maxLineLength;
-      f_close(&file);
+  auto res = f_stat((TCHAR *)fullPath.c_str(), &info);
+  if (res == FR_OK) {
+    fileLength = int(info.fsize);
+    bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
 
-      textBottom = false;
-      longestLine = 0;
-      loadOneScreen(maxLines);
+    buffer = (char *)malloc(bufSize);
+    if (buffer) {
+      offset =
+          std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
+      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
+            int(info.fsize) - bufSize + 1);
+      if (sdReadTextFileBlock(fullPath.c_str(), bufSize, offset) == FR_OK) {
+        auto obj = window->getLvObj();
+        lv_obj_add_flag(
+            obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
+                     LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+        lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
+        // prevents resetting the group's edit mode
+        lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-      maxPos =
-          (maxLines - maxScreenLines) * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
-      if (maxPos < body.getRect().h) maxPos = body.getRect().h;
-    }
-  }
+        auto g = lv_group_get_default();
+        lb = lv_label_create(obj);
+        lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
+        lv_obj_set_style_pad_all(lb, lv_dpx(8), 0);
 
-  isInSetup = false;
-  textVerticalOffset = 0;
-  loadOneScreen(openFromEnd ? (maxLines - maxScreenLines) : 0);
+        lv_group_add_obj(g, obj);
+        lv_group_set_editing(g, true);
+        lv_label_set_text_static(lb, buffer);
 
-  for (i = 0; i < maxScreenLines; i++) {
-    new DynamicText(window, grid.getSlot(), [=]() {
-      std::string str =
-          (lines[i][0]) ? std::string(lines[i]) : std::string(" ");
-      return std::string(str);
-    });
-    grid.nextLine();
-    }
-}
-
-#if defined(HARDWARE_TOUCH)
-bool ViewTextWindow::onTouchSlide(coord_t x, coord_t y, coord_t startX,
-                                  coord_t startY, coord_t slideX,
-                                  coord_t slideY)
-{
-  // if (&body == Window::focusWindow) {
-  //   const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
-  //   int deltaY = -slideY;
-  //   int lineStep = deltaY / step;
-
-  //   textVerticalOffset += lineStep;
-  //   if (textVerticalOffset < 0) textVerticalOffset = 0;
-
-  //   if (textVerticalOffset > maxLines - maxScreenLines)
-  //     textVerticalOffset = maxLines - maxScreenLines;
-  //   sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-  // }
-  // return Page::onTouchSlide(x, y, startX, startY, slideX, slideY);
-  return true;
-}
-#endif
-
-void ViewTextWindow::checkEvents()
-{
-//   if (&body == Window::focusWindow) {
-//     const int step = PAGE_LINE_HEIGHT + PAGE_LINE_SPACING;
-//     coord_t deltaY;
-//     event_t event = getWindowEvent();
-
-// #if defined(ROTARY_ENCODER_NAVIGATION)
-//     if (event == EVT_ROTARY_LEFT || event == EVT_ROTARY_RIGHT) {
-//       deltaY = ROTARY_ENCODER_SPEED() * step;
-//     } else {
-//       deltaY = step;
-//     }
-// #else
-//     deltaY = step;
-// #endif
-
-//     int lineStep = deltaY / step;
-//     if (lineStep > (maxScreenLines >> 1)) lineStep = maxScreenLines >> 1;
-
-//     switch (event) {
-//     CASE_EVT_START:
-//       textVerticalOffset = 0;
-//       readLinesCount = 0;
-//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-//       break;
-
-//     CASE_EVT_KEY_NEXT_LINE:
-//       if (textBottom && textVerticalOffset)
-//         break;
-//       else {
-//         textVerticalOffset += lineStep;
-//         if (textVerticalOffset > maxLines) textVerticalOffset = maxLines;
-//       }
-//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-//       break;
-
-//     CASE_EVT_KEY_PREVIOUS_LINE:
-//       if (textVerticalOffset == 0)
-//         break;
-//       else {
-//         textVerticalOffset -= lineStep;
-//         if (textVerticalOffset < 0) textVerticalOffset = 0;
-//       }
-
-//       sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-//       break;
-
-//       default:
-//         Page::onEvent(event);
-//         break;
-//     }
-//   }
-//   Page::checkEvents();
-}
-
-void ViewTextWindow::loadOneScreen(int offset)
-{
-  textVerticalOffset = offset;
-  readLinesCount = 0;
-  sdReadTextFileBlock(fullPath.c_str(), readLinesCount);
-}
-
-void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
-{
-  FIL file;
-  int result;
-  char c;
-  unsigned int sz = 0;
-  int line_length = 1;
-  uint8_t escape = 0;
-  char escape_chars[4] = {0};
-  int current_line = 0;
-  textBottom = false;
-
-  for (int i = 0; i < maxScreenLines; i++) {
-    memclear(lines[i], maxLineLength + 1);
-    lines[i][0] = ' ';
-  }
-
-  result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
-                         (lines_count == 0 ||
-                          current_line - textVerticalOffset < maxScreenLines))
-    {
-      if (c == '\n' || line_length >= maxLineLength) {
-        ++current_line;
-        line_length = 1;
-        escape = 0;
+        if (openFromEnd)
+          lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
+        else
+          lv_obj_scroll_to_y(obj, 0, LV_ANIM_OFF);
       }
-      if (c != '\r' && c != '\n' && current_line >= textVerticalOffset &&
-          current_line - textVerticalOffset < maxScreenLines &&
-          line_length < maxLineLength) {
-        if (c == '\\' && escape == 0) {
-          escape = 1;
-          continue;
-        } else if (c != '\\' && escape > 0 && escape < sizeof(escape_chars)) {
-          escape_chars[escape - 1] = c;
-          if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-            lines[current_line - textVerticalOffset][line_length++] = STR_CHAR_UP[0];
-            c = STR_CHAR_UP[1];
-          } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-            lines[current_line - textVerticalOffset][line_length++] = STR_CHAR_DOWN[0];
-            c = STR_CHAR_DOWN[1];
-          } else if (escape == 3) {
-            int val = atoi(escape_chars);
-            if (val >= 200 && val < 225) {
-              lines[current_line - textVerticalOffset][line_length++] = '\302';
-              c = '\200' + val - 200;
+    }
+  }
+}
+
+FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
+                                            const uint32_t bufSize,
+                                            const uint32_t offset)
+{
+  FIL file;
+  char escape_chars[4];
+  int escape = 0;
+
+  auto res = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
+  if (res == FR_OK) {
+    res = f_lseek(&file, offset);
+    if (res == FR_OK) {
+      UINT br;
+      char c;
+      char *ptr = buffer;
+      for (int i = 0; i < (int)bufSize; i++) {
+        res = f_read(&file, &c, 1, &br);
+        if (res == FR_OK && br == 1) {
+          if (c == '\\' && escape == 0) {
+            escape = 1;
+            continue;
+          } else if (c != '\\' && escape > 0 &&
+                     escape < (int)sizeof(escape_chars)) {
+            escape_chars[escape - 1] = c;
+
+            if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
+              *ptr++ = STR_CHAR_UP[0];
+              c = STR_CHAR_UP[1];
+              escape = 0;
+            } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
+              *ptr++ = STR_CHAR_DOWN[0];
+              c = STR_CHAR_DOWN[1];
+              escape = 0;
+            } else if (escape == 3) {
+              int val = atoi(escape_chars);
+              if (val >= 200 && val < 225) {
+                *ptr++ = '\302';
+                c = '\200' + val - 200;
+              }
+            } else if (escape == 1 && c == '~') {
+              c = 'z' + 1;
+            } else {
+              escape++;
+              continue;
             }
-          } else {
-            escape++;
+          } else if (c == '\t') {
+            c = 0x1D;  // tab
+          }
+          escape = 0;
+
+          if (c == 0xA && *(ptr - 1) == 0xD) {
+            *(ptr - 1) = '\n';
             continue;
           }
-        } else if (c == '~') {
-          c = 'z' + 1;
-        } else if (c == '\t') {
-          c = 0x1D;  // tab
+          *ptr++ = c;
         }
-        escape = 0;
-
-        lines[current_line - textVerticalOffset][line_length++] = c;
-        if (longestLine < line_length) longestLine = line_length;
-      } else if (current_line < textVerticalOffset) {
-        ++line_length;
       }
+      *ptr = '\0';
     }
-    if (c != '\n') {
-      ++current_line;
-    }
-
-    if (f_eof(&file)) {
-      textBottom = true;
-      if (isInSetup) maxLines = current_line;
-    }
-
     f_close(&file);
   }
-
-  if (lastLoadedLine < textVerticalOffset) lastLoadedLine = textVerticalOffset;
-
-  if (lines_count == 0) {
-    lines_count = current_line;
-  }
+  return res;
 }
 
-void ViewTextWindow::drawVerticalScrollbar(BitmapBuffer *dc)
+void ViewTextWindow::onEvent(event_t event)
 {
-  int readPos = textVerticalOffset * (PAGE_LINE_HEIGHT + PAGE_LINE_SPACING);
+#if defined(HARDWARE_KEYS)
+  if (int(bufSize) < fileLength) {
+    TRACE("BEFORE offset=%d", offset);
+    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+      offset += bufSize;
+      TRACE("event=DOWN");
+    }
 
-  coord_t yofs = divRoundClosest(body.getRect().h * readPos, maxPos)
-                     + header.getRect().h + (int)PAGE_LINE_SPACING;
-  coord_t yhgt = divRoundClosest(body.getRect().h * body.getRect().h, maxPos);
-  if (yhgt < 15) yhgt = 15;
-  if (yhgt + yofs > maxPos) yhgt = maxPos - yofs;
-  dc->drawSolidFilledRect(body.getRect().w - SCROLLBAR_WIDTH, yofs,
-                          SCROLLBAR_WIDTH, yhgt, COLOR_THEME_PRIMARY3);
+    if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+      TRACE("event=UP");
+      offset -= bufSize;
+    }
+
+    offset = std::max(offset, 0);
+    offset = std::min(offset, fileLength - (int)bufSize);
+
+    TRACE("AFTER offset=%d", offset);
+    sdReadTextFileBlock(fullPath.c_str(), bufSize, offset);
+    lv_label_set_text_static(lb, buffer);
+  }
+#endif
 }
 
 #include "datastructs.h"

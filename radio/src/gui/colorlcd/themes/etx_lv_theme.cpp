@@ -13,6 +13,7 @@
 #include "libopenui_config.h"
 #include "widgets/field_edit.h"
 #include "widgets/edgetx_table.h"
+#include "widgets/window_base.h"
 
 #include "lvgl_widgets/input_mix_line.h"
 #include "lvgl_widgets/input_mix_group.h"
@@ -830,29 +831,34 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
             lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
         }
 #endif
+    } 
+    else if (lv_obj_check_type(obj, &window_base_class)) {
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
     }
-    else if(lv_obj_check_type(obj, &input_mix_line_class)) {
-        lv_obj_add_style(obj, &styles.line_btn, 0);
-        lv_obj_add_style(obj, &styles.pad_small, 0);
-        lv_obj_set_style_bg_color(obj, makeLvColor(COLOR_THEME_SECONDARY3), LV_STATE_CHECKED);
-        lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);        
+    else if (lv_obj_check_type(obj, &input_mix_line_class)) {
+      lv_obj_add_style(obj, &styles.line_btn, 0);
+      lv_obj_add_style(obj, &styles.pad_small, 0);
+      lv_obj_set_style_bg_color(obj, makeLvColor(COLOR_THEME_SECONDARY3),
+                                LV_STATE_CHECKED);
+      lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
     }
 #endif
-    else if(lv_obj_check_type(obj, &input_mix_group_class)) {
+    else if (lv_obj_check_type(obj, &input_mix_group_class)) {
         lv_obj_add_style(obj, &styles.line_btn, 0);
         lv_obj_add_style(obj, &styles.pad_small, 0);
         lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
         lv_obj_set_style_text_font(obj, getFont(FONT(BOLD)), 0);
     }
-
 #if LV_USE_LINE
-    else if(lv_obj_check_type(obj, &lv_line_class)) {
+    else if (lv_obj_check_type(obj, &lv_line_class)) {
         lv_obj_add_style(obj, &styles.line, 0);
     }
 #endif
 
 #if LV_USE_BTNMATRIX
-    else if(lv_obj_check_type(obj, &lv_btnmatrix_class)) {
+    else if (lv_obj_check_type(obj, &lv_btnmatrix_class)) {
         // main
         lv_obj_add_style(obj, &styles.rounded, 0);
         // lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUS_KEY);
@@ -866,7 +872,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_BAR
-    else if(lv_obj_check_type(obj, &lv_bar_class)) {
+    else if (lv_obj_check_type(obj, &lv_bar_class)) {
         lv_obj_add_style(obj, &styles.bg_color_primary_muted, 0);
         lv_obj_add_style(obj, &styles.circle, 0);
         lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
@@ -877,7 +883,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_SLIDER
-    else if(lv_obj_check_type(obj, &lv_slider_class)) {
+    else if (lv_obj_check_type(obj, &lv_slider_class)) {
         lv_obj_add_style(obj, &styles.bg_color_primary_muted, 0);
         lv_obj_add_style(obj, &styles.circle, 0);
         lv_obj_add_style(obj, &styles.circle, LV_PART_INDICATOR);
@@ -886,7 +892,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_TABLE
-    else if(lv_obj_check_type(obj, &lv_table_class) || lv_obj_check_type(obj, &table_class)) {
+    else if (lv_obj_check_type(obj, &lv_table_class) || lv_obj_check_type(obj, &table_class)) {
         lv_obj_add_style(obj, &styles.pad_zero, 0);
         lv_obj_add_style(obj, &styles.no_radius, 0);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
@@ -900,7 +906,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_CHECKBOX
-    else if(lv_obj_check_type(obj, &lv_checkbox_class)) {
+    else if (lv_obj_check_type(obj, &lv_checkbox_class)) {
         lv_obj_add_style(obj, &styles.pad_gap, 0);
         lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
         lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
@@ -917,7 +923,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_SWITCH
-    else if(lv_obj_check_type(obj, &lv_switch_class)) {
+    else if (lv_obj_check_type(obj, &lv_switch_class)) {
         lv_obj_add_style(obj, &styles.bg_color_grey, 0);
         lv_obj_add_style(obj, &styles.circle, 0);
         lv_obj_add_style(obj, &styles.anim_fast, 0);
@@ -935,7 +941,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_CHART
-    else if(lv_obj_check_type(obj, &lv_chart_class)) {
+    else if (lv_obj_check_type(obj, &lv_chart_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_small, 0);
         lv_obj_add_style(obj, &styles.chart_bg, 0);
@@ -949,7 +955,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_ROLLER
-    else if(lv_obj_check_type(obj, &lv_roller_class)) {
+    else if (lv_obj_check_type(obj, &lv_roller_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.anim, 0);
         lv_obj_add_style(obj, &styles.line_space_large, 0);
@@ -961,7 +967,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_DROPDOWN
-    else if(lv_obj_check_type(obj, &lv_dropdown_class)) {
+    else if (lv_obj_check_type(obj, &lv_dropdown_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_small, 0);
         lv_obj_add_style(obj, &styles.transition_delayed, 0);
@@ -970,22 +976,24 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
         lv_obj_add_style(obj, &styles.outline_secondary, LV_STATE_EDITED);
         lv_obj_add_style(obj, &styles.transition_normal, LV_PART_INDICATOR);
-    }
-    else if(lv_obj_check_type(obj, &lv_dropdownlist_class)) {
-        // lv_obj_add_style(obj, &styles.card, 0);
-        lv_obj_add_style(obj, &styles.clip_corner, 0);
-        lv_obj_add_style(obj, &styles.line_space_large, 0);
-        lv_obj_add_style(obj, &styles.dropdown_list, 0);
-        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-        lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_SELECTED);
-        lv_obj_add_style(obj, &styles.bg_color_primary, LV_PART_SELECTED | LV_STATE_CHECKED);
-        lv_obj_add_style(obj, &styles.pressed, LV_PART_SELECTED | LV_STATE_PRESSED);
+    } else if (lv_obj_check_type(obj, &lv_dropdownlist_class)) {
+      // lv_obj_add_style(obj, &styles.card, 0);
+      lv_obj_add_style(obj, &styles.clip_corner, 0);
+      lv_obj_add_style(obj, &styles.line_space_large, 0);
+      lv_obj_add_style(obj, &styles.dropdown_list, 0);
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+      lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_SELECTED);
+      lv_obj_add_style(obj, &styles.bg_color_primary,
+                       LV_PART_SELECTED | LV_STATE_CHECKED);
+      lv_obj_add_style(obj, &styles.pressed,
+                       LV_PART_SELECTED | LV_STATE_PRESSED);
     }
 #endif
 
 #if LV_USE_ARC
-    else if(lv_obj_check_type(obj, &lv_arc_class)) {
+    else if (lv_obj_check_type(obj, &lv_arc_class)) {
         lv_obj_add_style(obj, &styles.arc_indic, 0);
         lv_obj_add_style(obj, &styles.arc_indic, LV_PART_INDICATOR);
         lv_obj_add_style(obj, &styles.arc_indic_primary, LV_PART_INDICATOR);
@@ -995,7 +1003,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
 
 #if LV_USE_SPINNER
-    else if(lv_obj_check_type(obj, &lv_spinner_class)) {
+    else if (lv_obj_check_type(obj, &lv_spinner_class)) {
         lv_obj_add_style(obj, &styles.arc_indic, 0);
         lv_obj_add_style(obj, &styles.arc_indic, LV_PART_INDICATOR);
         lv_obj_add_style(obj, &styles.arc_indic_primary, LV_PART_INDICATOR);
@@ -1003,7 +1011,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_METER
-    else if(lv_obj_check_type(obj, &lv_meter_class)) {
+    else if (lv_obj_check_type(obj, &lv_meter_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.circle, 0);
         lv_obj_add_style(obj, &styles.meter_indic, LV_PART_INDICATOR);
@@ -1011,7 +1019,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_TEXTAREA
-    else if(lv_obj_check_type(obj, &lv_textarea_class)) {
+    else if (lv_obj_check_type(obj, &lv_textarea_class)) {
         lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_small, 0);
         lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
@@ -1020,38 +1028,38 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
         lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
         lv_obj_add_style(obj, &styles.ta_cursor, LV_PART_CURSOR | LV_STATE_FOCUSED);
         lv_obj_add_style(obj, &styles.ta_placeholder, LV_PART_TEXTAREA_PLACEHOLDER);
-    }
-    else if(lv_obj_check_type(obj, &field_edit_class)) {
-        lv_obj_add_style(obj, &styles.field, 0);
-        lv_obj_add_style(obj, &styles.bg_color_focus, LV_STATE_FOCUSED);
-        lv_obj_add_style(obj, &styles.bg_color_edit, LV_STATE_EDITED);
+    } else if (lv_obj_check_type(obj, &field_edit_class)) {
+      lv_obj_add_style(obj, &styles.field, 0);
+      lv_obj_add_style(obj, &styles.bg_color_focus, LV_STATE_FOCUSED);
+      lv_obj_add_style(obj, &styles.bg_color_edit, LV_STATE_EDITED);
 
-        lv_obj_add_style(obj, &styles.field_cursor, LV_PART_CURSOR);
-        lv_obj_add_style(obj, &styles.edit_cursor, LV_PART_CURSOR | LV_STATE_EDITED);
+      lv_obj_add_style(obj, &styles.field_cursor, LV_PART_CURSOR);
+      lv_obj_add_style(obj, &styles.edit_cursor,
+                       LV_PART_CURSOR | LV_STATE_EDITED);
     }
 #endif
 
 #if LV_USE_CALENDAR
-    else if(lv_obj_check_type(obj, &lv_calendar_class)) {
+    else if (lv_obj_check_type(obj, &lv_calendar_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_zero, 0);
     }
 #endif
 
 #if LV_USE_CALENDAR_HEADER_ARROW
-    else if(lv_obj_check_type(obj, &lv_calendar_header_arrow_class)) {
+    else if (lv_obj_check_type(obj, &lv_calendar_header_arrow_class)) {
         lv_obj_add_style(obj, &styles.calendar_header, 0);
     }
 #endif
 
 #if LV_USE_CALENDAR_HEADER_DROPDOWN
-    else if(lv_obj_check_type(obj, &lv_calendar_header_dropdown_class)) {
+    else if (lv_obj_check_type(obj, &lv_calendar_header_dropdown_class)) {
         lv_obj_add_style(obj, &styles.calendar_header, 0);
     }
 #endif
 
 #if LV_USE_KEYBOARD
-    else if(lv_obj_check_type(obj, &lv_keyboard_class)) {
+    else if (lv_obj_check_type(obj, &lv_keyboard_class)) {
         lv_obj_add_style(obj, &styles.scr, 0);
         lv_obj_add_style(obj, disp_size == DISP_LARGE ? &styles.pad_small : &styles.pad_tiny, 0);
         // lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
@@ -1067,77 +1075,71 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     }
 #endif
 #if LV_USE_LIST
-    else if(lv_obj_check_type(obj, &lv_list_class)) {
+    else if (lv_obj_check_type(obj, &lv_list_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.list_bg, 0);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
         lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
         return;
-    }
-    else if(lv_obj_check_type(obj, &lv_list_text_class)) {
-        lv_obj_add_style(obj, &styles.bg_color_grey, 0);
-        lv_obj_add_style(obj, &styles.list_item_grow, 0);
-    }
-    else if(lv_obj_check_type(obj, &lv_list_btn_class)) {
-        lv_obj_add_style(obj, &styles.bg_color_white, 0);
-        lv_obj_add_style(obj, &styles.list_btn, 0);
-        lv_obj_add_style(obj, &styles.bg_color_primary, LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(obj, &styles.list_item_grow, LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(obj, &styles.list_item_grow, LV_STATE_PRESSED);
-        lv_obj_add_style(obj, &styles.pressed, LV_STATE_PRESSED);
+    } else if (lv_obj_check_type(obj, &lv_list_text_class)) {
+      lv_obj_add_style(obj, &styles.bg_color_grey, 0);
+      lv_obj_add_style(obj, &styles.list_item_grow, 0);
+    } else if (lv_obj_check_type(obj, &lv_list_btn_class)) {
+      lv_obj_add_style(obj, &styles.bg_color_white, 0);
+      lv_obj_add_style(obj, &styles.list_btn, 0);
+      lv_obj_add_style(obj, &styles.bg_color_primary, LV_STATE_FOCUS_KEY);
+      lv_obj_add_style(obj, &styles.list_item_grow, LV_STATE_FOCUS_KEY);
+      lv_obj_add_style(obj, &styles.list_item_grow, LV_STATE_PRESSED);
+      lv_obj_add_style(obj, &styles.pressed, LV_STATE_PRESSED);
 
     }
 #endif
 #if LV_USE_MENU
-    else if(lv_obj_check_type(obj, &lv_menu_class)) {
+    else if (lv_obj_check_type(obj, &lv_menu_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.menu_bg, 0);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_sidebar_cont_class)) {
-        lv_obj_add_style(obj, &styles.menu_sidebar_cont, 0);
-        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_main_cont_class)) {
-        lv_obj_add_style(obj, &styles.menu_main_cont, 0);
-        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_cont_class)) {
-        lv_obj_add_style(obj, &styles.menu_cont, 0);
-        lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
-        lv_obj_add_style(obj, &styles.bg_color_primary_muted, LV_STATE_PRESSED | LV_STATE_CHECKED);
-        lv_obj_add_style(obj, &styles.bg_color_primary_muted, LV_STATE_CHECKED);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_sidebar_header_cont_class) ||
-            lv_obj_check_type(obj, &lv_menu_main_header_cont_class)) {
-        lv_obj_add_style(obj, &styles.menu_header_cont, 0);
-        lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_page_class)) {
-        lv_obj_add_style(obj, &styles.menu_page, 0);
-        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_section_class)) {
-        lv_obj_add_style(obj, &styles.menu_section, 0);
-    }
-    else if(lv_obj_check_type(obj, &lv_menu_separator_class)) {
-        lv_obj_add_style(obj, &styles.menu_separator, 0);
+    } else if (lv_obj_check_type(obj, &lv_menu_sidebar_cont_class)) {
+      lv_obj_add_style(obj, &styles.menu_sidebar_cont, 0);
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+    } else if (lv_obj_check_type(obj, &lv_menu_main_cont_class)) {
+      lv_obj_add_style(obj, &styles.menu_main_cont, 0);
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+    } else if (lv_obj_check_type(obj, &lv_menu_cont_class)) {
+      lv_obj_add_style(obj, &styles.menu_cont, 0);
+      lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
+      lv_obj_add_style(obj, &styles.bg_color_primary_muted,
+                       LV_STATE_PRESSED | LV_STATE_CHECKED);
+      lv_obj_add_style(obj, &styles.bg_color_primary_muted, LV_STATE_CHECKED);
+    } else if (lv_obj_check_type(obj, &lv_menu_sidebar_header_cont_class) ||
+               lv_obj_check_type(obj, &lv_menu_main_header_cont_class)) {
+      lv_obj_add_style(obj, &styles.menu_header_cont, 0);
+      lv_obj_add_style(obj, &styles.menu_pressed, LV_STATE_PRESSED);
+    } else if (lv_obj_check_type(obj, &lv_menu_page_class)) {
+      lv_obj_add_style(obj, &styles.menu_page, 0);
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+    } else if (lv_obj_check_type(obj, &lv_menu_section_class)) {
+      lv_obj_add_style(obj, &styles.menu_section, 0);
+    } else if (lv_obj_check_type(obj, &lv_menu_separator_class)) {
+      lv_obj_add_style(obj, &styles.menu_separator, 0);
     }
 #endif
 #if LV_USE_MSGBOX
-    else if(lv_obj_check_type(obj, &lv_msgbox_class)) {
+    else if (lv_obj_check_type(obj, &lv_msgbox_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.msgbox_bg, 0);
         return;
-    }
-    else if(lv_obj_check_type(obj, &lv_msgbox_backdrop_class)) {
-        lv_obj_add_style(obj, &styles.msgbox_backdrop_bg, 0);
+    } else if (lv_obj_check_type(obj, &lv_msgbox_backdrop_class)) {
+      lv_obj_add_style(obj, &styles.msgbox_backdrop_bg, 0);
     }
 #endif
 #if LV_USE_SPINBOX
-    else if(lv_obj_check_type(obj, &lv_spinbox_class)) {
+    else if (lv_obj_check_type(obj, &lv_spinbox_class)) {
         // lv_obj_add_style(obj, &styles.card, 0);
         lv_obj_add_style(obj, &styles.pad_small, 0);
         // lv_obj_add_style(obj, &styles.outline_primary, LV_STATE_FOCUS_KEY);
@@ -1146,32 +1148,32 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
     }
 #endif
 #if LV_USE_TILEVIEW
-    else if(lv_obj_check_type(obj, &lv_tileview_class)) {
+    else if (lv_obj_check_type(obj, &lv_tileview_class)) {
         lv_obj_add_style(obj, &styles.scr, 0);
         lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
         lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-    }
-    else if(lv_obj_check_type(obj, &lv_tileview_tile_class)) {
-        lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-        lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+    } else if (lv_obj_check_type(obj, &lv_tileview_tile_class)) {
+      lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+      lv_obj_add_style(obj, &styles.scrollbar_scrolled,
+                       LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
     }
 #endif
 
 #if LV_USE_TABVIEW
-    else if(lv_obj_check_type(obj, &lv_tabview_class)) {
+    else if (lv_obj_check_type(obj, &lv_tabview_class)) {
         lv_obj_add_style(obj, &styles.scr, 0);
         lv_obj_add_style(obj, &styles.pad_zero, 0);
     }
 #endif
 
 #if LV_USE_WIN
-    else if(lv_obj_check_type(obj, &lv_win_class)) {
+    else if (lv_obj_check_type(obj, &lv_win_class)) {
         lv_obj_add_style(obj, &styles.clip_corner, 0);
     }
 #endif
 
 #if LV_USE_COLORWHEEL
-    else if(lv_obj_check_type(obj, &lv_colorwheel_class)) {
+    else if (lv_obj_check_type(obj, &lv_colorwheel_class)) {
         lv_obj_add_style(obj, &styles.colorwheel_main, 0);
         lv_obj_add_style(obj, &styles.pad_normal, 0);
         lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_KNOB);
@@ -1180,7 +1182,7 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 #endif
 
 #if LV_USE_LED
-    else if(lv_obj_check_type(obj, &lv_led_class)) {
+    else if (lv_obj_check_type(obj, &lv_led_class)) {
         lv_obj_add_style(obj, &styles.led, 0);
     }
 #endif
