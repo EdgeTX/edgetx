@@ -139,8 +139,8 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
           escape = 0;
 
           if (c == 0xA && *(ptr - 1) == 0xD) {
-            *(ptr - 1) = ' ';
-            c = '\n';
+            *(ptr - 1) = '\n';
+            continue;
           }
           *ptr++ = c;
         }
