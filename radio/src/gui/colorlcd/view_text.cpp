@@ -127,18 +127,23 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
                 *ptr++ = '\302';
                 c = '\200' + val - 200;
               }
+            } else if (escape == 1 && c == '~') {
+              c = 'z' + 1;
             } else {
               escape++;
               continue;
             }
-          } else if (c == '~') {
-            c = 'z' + 1;
           } else if (c == '\t') {
             c = 0x1D;  // tab
           }
           escape = 0;
+
+          if (c == 0xA && *(ptr - 1) == 0xD) {
+            *(ptr - 1) = ' ';
+            c = '\n';
+          }
+          *ptr++ = c;
         }
-        *ptr++ = c;
       }
       *ptr = '\0';
     }
