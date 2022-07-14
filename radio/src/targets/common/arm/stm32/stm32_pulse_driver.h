@@ -44,6 +44,8 @@ struct stm32_pulse_timer_t {
 void stm32_pulse_init(const stm32_pulse_timer_t* tim);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
 
+void stm32_pulse_config_input(const stm32_pulse_timer_t* tim);
+
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
                                uint32_t ocmode, uint32_t cmp_val);
 
@@ -64,7 +66,8 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim);
 
 #define __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch)       \
   ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH1N || \
-   (ch) == LL_TIM_CHANNEL_CH3)
+   (ch) == LL_TIM_CHANNEL_CH2 || (ch) == LL_TIM_CHANNEL_CH3 ||  \
+   (ch) == LL_TIM_CHANNEL_CH4)
 
 #define __STM32_PULSE_IS_DMA_STREAM_SUPPORTED(stream)       \
   ((stream) == LL_DMA_STREAM_1 || (stream) == LL_DMA_STREAM_5 || \

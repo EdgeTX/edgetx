@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "stm32_exti_driver.h"
+#include "aux_serial_driver.h"
+
 #include "opentx.h"
 
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
@@ -100,17 +102,23 @@ static uint8_t rxByte;
 static uint16_t bitLength;
 static uint16_t probeTimeFromStartBit;
 
+static void do_telemetry_exti()
+{
+  if (rxBitCount == 0) {
+
+    TELEMETRY_TIMER->ARR = probeTimeFromStartBit; // 1,5 cycle from start at 57600bps
+    TELEMETRY_TIMER->CR1 |= TIM_CR1_CEN;
+    
+    // disable start bit interrupt
+    EXTI->IMR &= ~EXTI_IMR_MR6;
+  }
+}
+
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
   if (baudrate == 0) {
 
-    //TODO:
-    // - handle conflict with HEARTBEAT disabled for trainer input...
-    // - probably need to stop trainer input/output and restore after this is closed
-#if !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER) && \
-    !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
-    NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
-#endif
+    stm32_exti_disable(TELEMETRY_EXTI_LINE);
     NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
 
     EXTI_InitTypeDef EXTI_InitStructure;
@@ -172,13 +180,7 @@ void telemetryPortInvertedInit(uint32_t baudrate)
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
 
-  //TODO:
-  // - handle conflict with HEARTBEAT disabled for trainer input...
-  // - probably need to stop trainer input/output and restore after this is closed
-#if !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_ROTARY_ENCODER) && !defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
-  NVIC_SetPriority(TELEMETRY_EXTI_IRQn, 0);
-  NVIC_EnableIRQ(TELEMETRY_EXTI_IRQn);
-#endif
+  stm32_exti_enable(TELEMETRY_EXTI_LINE, do_telemetry_exti);
 }
 
 void telemetryPortInvertedRxBit()
@@ -363,30 +365,6 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
     status = TELEMETRY_USART->SR;
   }
 }
-
-void check_telemetry_exti()
-{
-  if (EXTI_GetITStatus(TELEMETRY_EXTI_LINE) != RESET) {
-
-    if (rxBitCount == 0) {
-
-      TELEMETRY_TIMER->ARR = probeTimeFromStartBit; // 1,5 cycle from start at 57600bps
-      TELEMETRY_TIMER->CR1 |= TIM_CR1_CEN;
-    
-      // disable start bit interrupt
-      EXTI->IMR &= ~EXTI_IMR_MR6;
-    }
-
-    EXTI_ClearITPendingBit(TELEMETRY_EXTI_LINE);
-  }
-}
-
-#if defined(TELEMETRY_EXTI_IRQHandler)
-extern "C" void TELEMETRY_EXTI_IRQHandler(void)
-{
-  check_telemetry_exti();
-}
-#endif
 
 extern "C" void TELEMETRY_TIMER_IRQHandler()
 {

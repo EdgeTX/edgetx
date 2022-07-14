@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_exti_driver.h"
 #include "mixer_scheduler.h"
 #include "board.h"
 #include "debug.h"
@@ -31,6 +32,17 @@
 #include "FreeRTOSConfig.h"
 
 volatile HeartbeatCapture heartbeatCapture;
+
+static void trigger_intmodule_heartbeat()
+{
+  heartbeatCapture.timestamp = getTmr2MHz();
+#if defined(DEBUG_LATENCY)
+  heartbeatCapture.count++;
+#endif
+
+  mixerSchedulerResetTimer();
+  mixerSchedulerISRTrigger();
+}
 
 void init_intmodule_heartbeat()
 {
@@ -54,11 +66,7 @@ void init_intmodule_heartbeat()
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
 
-  NVIC_SetPriority(INTMODULE_HEARTBEAT_EXTI_IRQn,
-                   // Highest priority interrupt
-                   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
-
-  NVIC_EnableIRQ(INTMODULE_HEARTBEAT_EXTI_IRQn);
+  stm32_exti_enable(INTMODULE_HEARTBEAT_EXTI_LINE, trigger_intmodule_heartbeat);
   heartbeatCapture.valid = true;
 }
 
@@ -67,9 +75,7 @@ void stop_intmodule_heartbeat()
   TRACE("stop_intmodule_heartbeat");
   heartbeatCapture.valid = false;
 
-#if !defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
-  NVIC_DisableIRQ(INTMODULE_HEARTBEAT_EXTI_IRQn);
-#endif
+  stm32_exti_disable(INTMODULE_HEARTBEAT_EXTI_LINE);
 
   EXTI_InitTypeDef EXTI_InitStructure;
   EXTI_StructInit(&EXTI_InitStructure);
@@ -80,27 +86,4 @@ void stop_intmodule_heartbeat()
   EXTI_Init(&EXTI_InitStructure);
 }
 
-void check_intmodule_heartbeat()
-{
-  if (EXTI_GetITStatus(INTMODULE_HEARTBEAT_EXTI_LINE) != RESET) {
-    heartbeatCapture.timestamp = getTmr2MHz();
-#if defined(DEBUG_LATENCY)
-    heartbeatCapture.count++;
-#endif
-    EXTI_ClearITPendingBit(INTMODULE_HEARTBEAT_EXTI_LINE);
-
-    mixerSchedulerResetTimer();
-    mixerSchedulerISRTrigger();
-  }
-}
-#endif
-
-#if defined(INTMODULE_HEARTBEAT) && !defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
-extern "C" void INTMODULE_HEARTBEAT_EXTI_IRQHandler()
-{
-  check_intmodule_heartbeat();
-  #if defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
-    check_telemetry_exti();
-  #endif
-}
 #endif

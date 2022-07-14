@@ -149,7 +149,6 @@ set(FIRMWARE_TARGET_SRC
   ${LCD_DRIVER}
   ${TOUCH_DRIVER}
   sdram_driver.c
-  trainer_driver.cpp
   battery_driver.cpp
   audio_spi_driver.cpp
   backlight_driver.cpp
@@ -168,6 +167,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/intmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
   )

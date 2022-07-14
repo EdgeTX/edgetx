@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/trainer_driver.h"
 
 #define BIGSIZE       MIDSIZE
 #define LBOX_CENTERX  (BOX_WIDTH/2 + 16)
@@ -262,7 +263,7 @@ void displayTopBar()
   }
 
   if (SLAVE_MODE()) {
-    if (TRAINER_CONNECTED()) {
+    if (is_trainer_connected()) {
       LCD_NOTIF_ICON(x, ICON_TRAINEE);
       x -= 12;
     }

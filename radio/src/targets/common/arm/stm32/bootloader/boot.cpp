@@ -217,15 +217,12 @@ void bootloaderInitApp()
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
                              BACKLIGHT_RCC_APB1Periph |
-                             INTERRUPT_xMS_RCC_APB1Periph |
-                             AUX_SERIAL_RCC_APB1Periph |
-                             AUX2_SERIAL_RCC_APB1Periph | SD_RCC_APB1Periph,
+                             INTERRUPT_xMS_RCC_APB1Periph | SD_RCC_APB1Periph,
                          ENABLE);
 
-  RCC_APB2PeriphClockCmd(LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph |
-                             RCC_APB2Periph_SYSCFG | AUX_SERIAL_RCC_APB2Periph |
-                             AUX2_SERIAL_RCC_APB2Periph,
-                         ENABLE);
+  RCC_APB2PeriphClockCmd(
+      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | RCC_APB2Periph_SYSCFG,
+      ENABLE);
 
   pwrInit();
   keysInit();
