@@ -993,14 +993,14 @@ void checkTrims()
 #endif
     int8_t trimInc = g_model.trimInc + 1;
     int8_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
-    if (thro) v = 4; // if throttle trim and trim trottle then step=4
+    if (thro) v = 4; // if throttle trim and trim throttle then step=4
 #if defined(GVARS)
     if (TRIM_REUSED(idx)) v = 1;
 #endif
     int16_t after = (k&1) ? before + v : before - v;   // positive = k&1
-    bool beepTrim = false;
+    bool beepTrim = true;
 
-    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centerered trim when changing sides
+    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
       after = 0;
       beepTrim = true;
       AUDIO_TRIM_MIDDLE();
@@ -1014,13 +1014,13 @@ void checkTrims()
       int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
       if (after < vmin) {
         after = vmin;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
       else if (after > vmax) {
         after = vmax;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
@@ -1030,31 +1030,30 @@ void checkTrims()
     else
 #endif
     {
+      // Determine Max and Min trim values based on Extended Trim setting
       int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
       int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
-      if (before > tMin && after <= tMin) {
-        beepTrim = true;
+
+      // Play warning whe going past limits and remove any buffered trim moves
+      if (before >= tMin && after <= tMin) {
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
-      else if (before < tMax && after >= tMax) {
-        beepTrim = true;
+      else if (before <= tMax && after >= tMax) {
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
 
-      // Allow only move into the right direction if over the limits
-      if ((before < after && after > tMax) || // increasing over tMax
-          (before > after && after < tMin)) { // decreasing under tMin
-        after = before;
+      // If the new value is outside the limit, set it to the limit. This could have
+      // been done while playing the warning above but this way it catches any other
+      // scenarios
+      if (after < tMin) {
+        after = tMin;
       }
-
-      // Clip at hard limits
-      if (after < TRIM_EXTENDED_MIN) {
-        after = TRIM_EXTENDED_MIN;
-      }
-      else if (after > TRIM_EXTENDED_MAX) {
-        after = TRIM_EXTENDED_MAX;
+      else if (after > tMax) {
+        after = tMax;
       }
 
       if (!setTrimValue(phase, idx, after)) {
@@ -1063,10 +1062,9 @@ void checkTrims()
       }
     }
 
-    if (!beepTrim) {
+    if (beepTrim) {
       AUDIO_TRIM_PRESS(after);
     }
-
   }
 }
 
