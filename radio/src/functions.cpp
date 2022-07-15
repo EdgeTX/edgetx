@@ -76,7 +76,7 @@ PLAY_FUNCTION(playValue, source_t idx)
   }
   else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
     int flag = 0;
-    if (val > LONG_TIMER_DURATUON)  flag = PLAY_LONG_TIMER;
+    if (val > LONG_TIMER_DURATION)  flag = PLAY_LONG_TIMER;
     PLAY_DURATION(val, flag);
   } else if (idx == MIXSRC_TX_TIME) {
     PLAY_DURATION(val*60, PLAY_TIME);
