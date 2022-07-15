@@ -75,15 +75,16 @@ PLAY_FUNCTION(playValue, source_t idx)
     PLAY_NUMBER(val, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, attr);
   }
   else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
-    PLAY_DURATION(val, 0);
-  }
-  else if (idx == MIXSRC_TX_TIME) {
-    PLAY_DURATION(val*60, PLAY_TIME);
-  }
-  else if (idx == MIXSRC_TX_VOLTAGE) {
+    int flag = 0;
+    if (val > LONG_TIMER_DURATION || -val > LONG_TIMER_DURATION) {
+      flag = PLAY_LONG_TIMER;
+    }
+    PLAY_DURATION(val, flag);
+  } else if (idx == MIXSRC_TX_TIME) {
+    PLAY_DURATION(val * 60, PLAY_TIME);
+  } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
-  }
-  else {
+  } else {
     if (idx <= MIXSRC_LAST_CH) {
       val = calcRESXto100(val);
     }
