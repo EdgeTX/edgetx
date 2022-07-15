@@ -519,23 +519,6 @@ struct convert<GVarData> {
   }
 };
 
-struct YamlScriptDataInput { int i; };
-
-template <>
-struct convert<YamlScriptDataInput> {
-  static Node encode(const YamlScriptDataInput& rhs)
-  {
-    Node node;
-    node["u"]["value"] = rhs.i;
-    return node;
-  }
-  static bool decode(const Node& node, YamlScriptDataInput& rhs)
-  {
-    node["u"]["value"] >> rhs.i;
-    return true;
-  }
-};
-
 template <>
 struct convert<ScriptData> {
   static Node encode(const ScriptData& rhs)
@@ -545,7 +528,8 @@ struct convert<ScriptData> {
     node["name"] = rhs.name;
 
     for (int i=0; i < 6; i++) {
-      node["inputs"][std::to_string(i)]["u"]["value"] = (int)rhs.inputs[i];
+      if (rhs.inputs[i] != 0)
+        node["inputs"][std::to_string(i)]["u"]["value"] = (int)rhs.inputs[i];
     }
 
     return node;
@@ -556,11 +540,12 @@ struct convert<ScriptData> {
     node["file"] >> rhs.filename;
     node["name"] >> rhs.name;
 
-    YamlScriptDataInput inputs[CPN_MAX_SCRIPT_INPUTS];
-    node["inputs"] >> inputs;
-
     for (int i=0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
-      rhs.inputs[i] = inputs[i].i;
+      if (node["inputs"][std::to_string(i)]) {
+        if (node["inputs"][std::to_string(i)]["u"]["value"]) {
+          node["inputs"][std::to_string(i)]["u"]["value"] >> rhs.inputs[i];
+        }
+      }
     }
 
     return true;
@@ -938,7 +923,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   for (int i=0; i<CPN_MAX_SCRIPTS; i++) {
     if (strlen(rhs.scriptData[i].filename) > 0) {
-      node["scriptData"][std::to_string(i)] = rhs.scriptData[i];
+      node["scriptsData"][std::to_string(i)] = rhs.scriptData[i];
     }
   }
 
@@ -1135,7 +1120,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     trainer["pulsePol"] >> rhs.moduleData[2].ppm.pulsePol;
   }
 
-  node["scriptData"] >> rhs.scriptData;
+  node["scriptsData"] >> rhs.scriptData;
   node["telemetrySensors"] >> rhs.sensorData;
 
   node["toplcdTimer"] >> rhs.toplcdTimer;
