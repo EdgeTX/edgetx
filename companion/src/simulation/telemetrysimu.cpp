@@ -59,6 +59,9 @@ TelemetrySimulator::TelemetrySimulator(QWidget * parent, SimulatorInterface * si
   connect(&timer,    &QTimer::timeout, this, &TelemetrySimulator::generateTelemetryFrame);
   connect(&logTimer, &QTimer::timeout, this, &TelemetrySimulator::onLogTimerEvent);
 
+  gpsTimer.setInterval(250);
+  connect(&gpsTimer, &QTimer::timeout, this, &TelemetrySimulator::onGpsRunLoop);
+
   connect(ui->Simulate,          &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimEnabled(on);         });
   connect(ui->cbPauseOnHide,     &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimPauseOnHide(on);     });
   connect(ui->cbResetRssiOnStop, &QCheckBox::toggled, [&](bool on) { g.currentProfile().telemSimResetRssiOnStop(on); });
@@ -154,6 +157,48 @@ void TelemetrySimulator::onLogTimerEvent()
   logPlayback->stepForward(false);
 }
 
+void TelemetrySimulator::onGpsRunLoop()
+{
+  int a = ui->gps_latlon->text().contains(",");
+  if (!a) {
+    QMessageBox::information(this, tr("Bad GPS Format"), tr("Must be decimal latitude,longitude"));
+    ui->gps_latlon->setText("000.00000000,000.00000000");
+    ui->GPSpushButton->click();
+  }
+  else
+  {
+    QStringList gpsLatLon = (ui->gps_latlon->text()).split(",");
+
+    double b2 = gpsLatLon[0].toDouble();
+    double c2 = gpsLatLon[1].toDouble();
+    double d3 = ui->gps_speed->value() / 14400;
+    double f3 = ui->gps_course->value();
+    double j2 = 6378.1;
+    double b3 = qRadiansToDegrees(qAsin( qSin(qDegreesToRadians(b2))*qCos(d3/j2) + qCos(qDegreesToRadians(b2))*qSin(d3/j2)*qCos(qDegreesToRadians(f3))));
+    double bb3 = b3;
+    if (bb3 < 0) {
+      bb3 = bb3 * -1;
+    }
+    if (bb3 > 89.99) {
+      f3 = f3 + 180;
+      if (f3 > 360) {
+        f3 = f3 - 360;
+      }
+      ui->gps_course->setValue(f3);
+    }
+    double c3 = qRadiansToDegrees(qDegreesToRadians(c2) + qAtan2(qSin(qDegreesToRadians(f3))*qSin(d3/j2)*qCos(qDegreesToRadians(b2)),qCos(d3/j2)-qSin(qDegreesToRadians(b2))*qSin(qDegreesToRadians(b3))));
+    if (c3 > 180) {
+      c3 = c3 - 360;
+    }
+    if (c3 < -180) {
+      c3 = c3 + 360;
+    }
+    QString lats = QString::number(b3, 'f', 8);
+    QString lons = QString::number(c3, 'f', 8);
+    QString qs = lats + "," + lons;
+    ui->gps_latlon->setText(qs);
+  }
+}
 void TelemetrySimulator::onLoadLogFile()
 {
   onStop(); // in case we are in playback mode
@@ -1098,7 +1143,7 @@ void TelemetrySimulator::on_saveTelemetryvalues_clicked()
     if (fldr.isEmpty())
       fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    QString idFileNameAndPath = QFileDialog::getSaveFileName(this, tr("Save Telemetry"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
+    QString idFileNameAndPath = QFileDialog::getSaveFileName(this, tr("Save Telemetry"), fldr % "/telemetry.tlm", tr(".tlm Files (*.tlm)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
@@ -1184,7 +1229,7 @@ void TelemetrySimulator::on_loadTelemetryvalues_clicked()
     if (fldr.isEmpty())
       fldr = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
-    QString idFileNameAndPath = QFileDialog::getOpenFileName(this, tr("Open Telemetry File"), fldr % "/telemetry.txt", tr(".txt Files (*.txt)"));
+    QString idFileNameAndPath = QFileDialog::getOpenFileName(this, tr("Open Telemetry File"), fldr % "/telemetry.tlm", tr(".tlm Files (*.tlm)"));
     if (idFileNameAndPath.isEmpty())
         return;
 
@@ -1321,5 +1366,28 @@ void TelemetrySimulator::on_loadTelemetryvalues_clicked()
 
     file.close();
 
+}
+
+void TelemetrySimulator::on_GPSpushButton_clicked()
+{
+  if (ui->GPSpushButton->text() == "Run") {
+    ui->GPSpushButton->setText("Stop");
+    gpsTimer.start();
+  }
+  else
+  {
+    ui->GPSpushButton->setText("Run");
+    gpsTimer.stop();
+  }
+}
+
+void TelemetrySimulator::on_gps_course_valueChanged(double arg1)
+{
+  if (ui->gps_course->value() > 360) {
+    ui->gps_course->setValue(1);
+  }
+  if (ui->gps_course->value() < 1) {
+    ui->gps_course->setValue(360);
+  }
 }
 
