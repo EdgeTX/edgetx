@@ -615,14 +615,14 @@ static const struct YamlNode struct_RssiAlarmData[] = {
   YAML_SIGNED( "critical", 6 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_5[] = {
+static const struct YamlNode struct_PpmModule[] = {
   YAML_SIGNED( "delay", 6 ),
   YAML_UNSIGNED( "pulsePol", 1 ),
   YAML_UNSIGNED( "outputType", 1 ),
   YAML_SIGNED( "frameLength", 8 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_6[] = {
+static const struct YamlNode struct_anonymous_5[] = {
   YAML_PADDING( 8 ),
   YAML_UNSIGNED( "disableTelemetry", 1 ),
   YAML_UNSIGNED( "disableMapping", 1 ),
@@ -634,7 +634,7 @@ static const struct YamlNode struct_anonymous_6[] = {
   YAML_SIGNED( "optionValue", 8 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_7[] = {
+static const struct YamlNode struct_anonymous_6[] = {
   YAML_UNSIGNED( "power", 2 ),
   YAML_PADDING( 2 ),
   YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
@@ -643,7 +643,7 @@ static const struct YamlNode struct_anonymous_7[] = {
   YAML_PADDING( 8 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_8[] = {
+static const struct YamlNode struct_anonymous_7[] = {
   YAML_PADDING( 6 ),
   YAML_UNSIGNED( "noninverted", 1 ),
   YAML_PADDING( 1 ),
@@ -655,13 +655,13 @@ static const struct YamlNode struct_string_64[] = {
   YAML_STRING("val", 8),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_9[] = {
+static const struct YamlNode struct_anonymous_8[] = {
   YAML_UNSIGNED( "receivers", 7 ),
   YAML_UNSIGNED( "racingMode", 1 ),
   YAML_ARRAY("receiverName", 64, 3, struct_string_64, NULL),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_10[] = {
+static const struct YamlNode struct_anonymous_9[] = {
   YAML_ARRAY("rx_id", 8, 4, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "mode", 3 ),
   YAML_UNSIGNED( "rfPower", 1 ),
@@ -669,7 +669,7 @@ static const struct YamlNode struct_anonymous_10[] = {
   YAML_ARRAY("rx_freq", 8, 2, struct_unsigned_8, NULL),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_11[] = {
+static const struct YamlNode struct_anonymous_10[] = {
   YAML_UNSIGNED( "bindPower", 3 ),
   YAML_UNSIGNED( "runPower", 3 ),
   YAML_UNSIGNED( "emi", 1 ),
@@ -680,32 +680,32 @@ static const struct YamlNode struct_anonymous_11[] = {
   YAML_UNSIGNED( "reserved", 6 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_12[] = {
+static const struct YamlNode struct_anonymous_11[] = {
   YAML_UNSIGNED( "raw12bits", 1 ),
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
   YAML_PADDING( 4 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_13[] = {
+static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_14[] = {
+static const struct YamlNode struct_anonymous_13[] = {
   YAML_UNSIGNED( "flags", 8 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_ARRAY("raw", 8, 25, struct_unsigned_8, NULL),
-  YAML_STRUCT("ppm", 16, struct_anonymous_5, NULL),
-  YAML_STRUCT("multi", 24, struct_anonymous_6, NULL),
-  YAML_STRUCT("pxx", 16, struct_anonymous_7, NULL),
-  YAML_STRUCT("sbus", 16, struct_anonymous_8, NULL),
-  YAML_STRUCT("pxx2", 200, struct_anonymous_9, NULL),
-  YAML_STRUCT("flysky", 56, struct_anonymous_10, NULL),
-  YAML_STRUCT("afhds3", 64, struct_anonymous_11, NULL),
-  YAML_STRUCT("ghost", 8, struct_anonymous_12, NULL),
-  YAML_STRUCT("crsf", 8, struct_anonymous_13, NULL),
-  YAML_STRUCT("dsmp", 8, struct_anonymous_14, NULL),
+  YAML_STRUCT("ppm", 16, struct_PpmModule, NULL),
+  YAML_STRUCT("multi", 24, struct_anonymous_5, NULL),
+  YAML_STRUCT("pxx", 16, struct_anonymous_6, NULL),
+  YAML_STRUCT("sbus", 16, struct_anonymous_7, NULL),
+  YAML_STRUCT("pxx2", 200, struct_anonymous_8, NULL),
+  YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
+  YAML_STRUCT("afhds3", 64, struct_anonymous_10, NULL),
+  YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
+  YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
+  YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {
@@ -751,61 +751,61 @@ static const struct YamlNode struct_string_32[] = {
   YAML_STRING("val", 4),
   YAML_END
 };
-static const struct YamlNode union_anonymous_15_elmts[] = {
+static const struct YamlNode union_anonymous_14_elmts[] = {
   YAML_UNSIGNED( "id", 16 ),
   YAML_UNSIGNED( "persistentValue", 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_17[] = {
+static const struct YamlNode struct_anonymous_16[] = {
   YAML_UNSIGNED( "physID", 5 ),
   YAML_UNSIGNED( "rxIndex", 3 ),
   YAML_END
 };
-static const struct YamlNode union_anonymous_16_elmts[] = {
-  YAML_STRUCT("frskyInstance", 8, struct_anonymous_17, NULL),
+static const struct YamlNode union_anonymous_15_elmts[] = {
+  YAML_STRUCT("frskyInstance", 8, struct_anonymous_16, NULL),
   YAML_UNSIGNED( "instance", 8 ),
   YAML_ENUM("formula", 8, enum_TelemetrySensorFormula),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_19[] = {
+static const struct YamlNode struct_anonymous_18[] = {
   YAML_UNSIGNED( "ratio", 16 ),
   YAML_SIGNED( "offset", 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_20[] = {
+static const struct YamlNode struct_anonymous_19[] = {
   YAML_UNSIGNED( "source", 8 ),
   YAML_UNSIGNED( "index", 8 ),
   YAML_PADDING( 16 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_21[] = {
+static const struct YamlNode struct_anonymous_20[] = {
   YAML_ARRAY("sources", 8, 4, struct_signed_8, NULL),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_22[] = {
+static const struct YamlNode struct_anonymous_21[] = {
   YAML_UNSIGNED( "source", 8 ),
   YAML_PADDING( 24 ),
   YAML_END
 };
-static const struct YamlNode struct_anonymous_23[] = {
+static const struct YamlNode struct_anonymous_22[] = {
   YAML_UNSIGNED( "gps", 8 ),
   YAML_UNSIGNED( "alt", 8 ),
   YAML_PADDING( 16 ),
   YAML_END
 };
-static const struct YamlNode union_anonymous_18_elmts[] = {
-  YAML_STRUCT("custom", 32, struct_anonymous_19, NULL),
-  YAML_STRUCT("cell", 32, struct_anonymous_20, NULL),
-  YAML_STRUCT("calc", 32, struct_anonymous_21, NULL),
-  YAML_STRUCT("consumption", 32, struct_anonymous_22, NULL),
-  YAML_STRUCT("dist", 32, struct_anonymous_23, NULL),
+static const struct YamlNode union_anonymous_17_elmts[] = {
+  YAML_STRUCT("custom", 32, struct_anonymous_18, NULL),
+  YAML_STRUCT("cell", 32, struct_anonymous_19, NULL),
+  YAML_STRUCT("calc", 32, struct_anonymous_20, NULL),
+  YAML_STRUCT("consumption", 32, struct_anonymous_21, NULL),
+  YAML_STRUCT("dist", 32, struct_anonymous_22, NULL),
   YAML_UNSIGNED( "param", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_IDX,
-  YAML_UNION("id1", 16, union_anonymous_15_elmts, select_id1),
-  YAML_UNION("id2", 8, union_anonymous_16_elmts, select_id2),
+  YAML_UNION("id1", 16, union_anonymous_14_elmts, select_id1),
+  YAML_UNION("id2", 8, union_anonymous_15_elmts, select_id2),
   YAML_STRING("label", 4),
   YAML_UNSIGNED( "subId", 8 ),
   YAML_ENUM("type", 1, enum_TelemetrySensorType),
@@ -818,7 +818,7 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNSIGNED( "persistent", 1 ),
   YAML_UNSIGNED( "onlyPositive", 1 ),
   YAML_PADDING( 1 ),
-  YAML_UNION("cfg", 32, union_anonymous_18_elmts, select_sensor_cfg),
+  YAML_UNION("cfg", 32, union_anonymous_17_elmts, select_sensor_cfg),
   YAML_END
 };
 static const struct YamlNode struct_FrSkyBarData[] = {
