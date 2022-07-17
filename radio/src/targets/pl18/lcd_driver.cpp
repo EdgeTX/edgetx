@@ -664,8 +664,8 @@ void LCD_HX8357D_Init(void) {
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   delay_ms(5);
+  lcdWriteCommand(0x29);
 #endif
-
 }
 
 void LCD_HX8357D_On(void) {
