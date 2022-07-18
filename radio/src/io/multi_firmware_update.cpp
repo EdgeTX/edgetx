@@ -32,8 +32,6 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
-#else
-  #include "libopenui/src/libopenui_file.h"
 #endif
 
 #if defined(MULTI_PROTOLIST)
@@ -53,7 +51,7 @@ class MultiFirmwareUpdateDriver
   public:
     MultiFirmwareUpdateDriver() {}
     virtual ~MultiFirmwareUpdateDriver() {}
-    const char* flashFirmware(FIL* file, const char* label,
+    const char * flashFirmware(VfsFile& file, const char * label,
                               ProgressHandler progressHandler);
 
   protected:
@@ -376,7 +374,7 @@ void MultiFirmwareUpdateDriver::leaveProgMode(bool inverted)
 }
 
 const char* MultiFirmwareUpdateDriver::flashFirmware(
-    FIL* file, const char* label, ProgressHandler progressHandler)
+    VfsFile& file, const char* label, ProgressHandler progressHandler)
 {
 #if defined(SIMU)
   for (uint16_t i = 0; i < 100; i++) {
@@ -424,12 +422,14 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
     writeOffset = 0x1000; // start offset (word address)
   }
 
-  while (!f_eof(file)) {
-    progressHandler(label, STR_WRITING, file->fptr, file->obj.objsize);
+  size_t fSize = file.size();
 
-    UINT count = 0;
+  while (!file.eof()) {
+    progressHandler(label, STR_WRITING, file.tell(), fSize);
+
+    size_t count = 0;
     memclear(buffer, pageSize);
-    if (f_read(file, buffer, pageSize, &count) != FR_OK) {
+    if (file.read(buffer, pageSize, count) != VfsError::OK) {
       result = STR_DEVICE_FILE_ERROR;
       break;
     }
@@ -452,8 +452,8 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
     writeOffset += pageSize / 2;
   }
 
-  if (f_eof(file)) {
-    progressHandler(label, STR_WRITING, file->fptr, file->obj.objsize);
+  if (file.eof()) {
+    progressHandler(label, STR_WRITING, file.tell(), fSize);
   }
 
   leaveProgMode(inverted);
@@ -543,26 +543,26 @@ const char * MultiFirmwareInformation::readV2Signature(const char * buffer)
 
 const char * MultiFirmwareInformation::readMultiFirmwareInformation(const char * filename)
 {
-  FIL file;
-  if (f_open(&file, filename, FA_READ) != FR_OK)
+  VfsFile file;
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK)
     return STR_DEVICE_FILE_ERROR;
 
-  const char * err = readMultiFirmwareInformation(&file);
-  f_close(&file);
+  const char * err = readMultiFirmwareInformation(file);
+  file.close();
 
   return err;
 }
 
-const char * MultiFirmwareInformation::readMultiFirmwareInformation(FIL * file)
+const char * MultiFirmwareInformation::readMultiFirmwareInformation(VfsFile& file)
 {
   char buffer[MULTI_SIGN_SIZE];
-  UINT count;
+  size_t count;
 
-  if (f_size(file) < MULTI_SIGN_SIZE)
+  if (file.size() < MULTI_SIGN_SIZE)
     return STR_DEVICE_FILE_ERROR;
 
-  f_lseek(file, f_size(file) - MULTI_SIGN_SIZE);
-  if (f_read(file, buffer, MULTI_SIGN_SIZE, &count) != FR_OK || count != MULTI_SIGN_SIZE) {
+  file.lseek(file.size() - MULTI_SIGN_SIZE);
+  if (file.read(buffer, MULTI_SIGN_SIZE, count) != VfsError::OK || count != MULTI_SIGN_SIZE) {
     return STR_DEVICE_FILE_ERROR;
   }
 
@@ -575,32 +575,32 @@ const char * MultiFirmwareInformation::readMultiFirmwareInformation(FIL * file)
 
 bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
-  FIL file;
+  VfsFile file;
 
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
+  if (VirtualFS::instance().openFile(file, filename, VfsOpenFlags::READ) != VfsError::OK) {
     POPUP_WARNING(STR_DEVICE_FILE_ERROR);
     return false;
   }
 
   if (type == MULTI_TYPE_MULTIMODULE) {
     MultiFirmwareInformation firmwareFile;
-    if (firmwareFile.readMultiFirmwareInformation(&file)) {
-      f_close(&file);
+    if (firmwareFile.readMultiFirmwareInformation(file)) {
+      file.close();
       POPUP_WARNING(STR_DEVICE_FILE_ERROR);
       return false;
     }
-    f_lseek(&file, 0);
+    file.lseek(0);
 
     if (module == EXTERNAL_MODULE) {
       if (!firmwareFile.isMultiExternalFirmware()) {
-        f_close(&file);
+        file.close();
         POPUP_WARNING(STR_NEEDS_FILE, STR_EXT_MULTI_SPEC);
         return false;
       }
     }
     else {
       if (!firmwareFile.isMultiInternalFirmware()) {
-        f_close(&file);
+        file.close();
         POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MULTI_SPEC);
         return false;
       }
@@ -636,14 +636,14 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   SPORT_UPDATE_POWER_OFF();
 #endif
 
-  progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
+  progressHandler(VirtualFS::getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
   /* wait 2s off */
   watchdogSuspend(500 /*5s*/);
   RTOS_WAIT_MS(3000);
 
-  const char * result = driver->flashFirmware(&file, getBasename(filename), progressHandler);
-  f_close(&file);
+  const char * result = driver->flashFirmware(file, VirtualFS::getBasename(filename), progressHandler);
+  file.close();
 
   AUDIO_PLAY(AU_SPECIAL_SOUND_BEEP1);
   BACKLIGHT_ENABLE();

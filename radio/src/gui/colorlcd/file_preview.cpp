@@ -38,8 +38,9 @@ void FilePreview::setFile(const char *filename)
   if (bitmap != nullptr) delete bitmap;
   bitmap = nullptr;
 
-  const char *ext = getFileExtension(filename);
-  if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
+  VirtualFS& vfs = VirtualFS::instance();
+  const char *ext = vfs.getFileExtension(filename);
+  if (ext && vfs.isFileExtensionMatching(ext, BITMAPS_EXT)) {
     bitmap = BitmapBuffer::loadBitmap(filename);
   } else {
     bitmap = nullptr;

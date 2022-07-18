@@ -562,7 +562,7 @@ void telemetryInit(uint8_t protocol)
 
 
 #if defined(LOG_TELEMETRY) && !defined(SIMU)
-extern FIL g_telemetryFile;
+extern VfsFile g_telemetryFile;
 void logTelemetryWriteStart()
 {
   static tmr10ms_t lastTime = 0;
@@ -570,14 +570,14 @@ void logTelemetryWriteStart()
   if (lastTime != newTime) {
     struct gtm utm;
     gettime(&utm);
-    f_printf(&g_telemetryFile, "\r\n%4d-%02d-%02d,%02d:%02d:%02d.%02d0:", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+    g_telemetryFile.fprintf("\r\n%4d-%02d-%02d,%02d:%02d:%02d.%02d0:", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
     lastTime = newTime;
   }
 }
 
 void logTelemetryWriteByte(uint8_t data)
 {
-  f_printf(&g_telemetryFile, " %02X", data);
+  g_telemetryFile.fprintf" %02X", data);
 }
 #endif
 

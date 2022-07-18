@@ -248,8 +248,8 @@ void simuMain();
 
 #define configure_pins(...)
 
-#if defined(SDCARD) && !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
-  #define SIMU_USE_SDCARD
+#if (defined(SDCARD) || (defined(SPI_FLASH) && !defined(LITTLEFS))) && !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
+  #define SIMU_USE_FAT_EMU
 #endif
 
 #if defined(SIMU_DISKIO)
@@ -263,7 +263,7 @@ void simuMain();
   #define sdMounted()      (true)
 #endif
 
-#if defined(SIMU_USE_SDCARD)
+#if defined(SIMU_USE_FAT_EMU)
   void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
 #else
   #define simuFatfsSetPaths(...)

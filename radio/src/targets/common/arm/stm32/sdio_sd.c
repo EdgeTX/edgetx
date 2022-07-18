@@ -421,6 +421,11 @@ uint8_t SD_Detect(void)
   return status;
 }
 
+uint8_t SD_isHC(void)
+{
+  return CardType == SDIO_HIGH_CAPACITY_SD_CARD;
+}
+
 //---------------------------------------------------------------------------------------
 //disable optimize
 #define OPTIMIZE(level) __attribute__((optimize(level)))

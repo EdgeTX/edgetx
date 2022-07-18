@@ -226,14 +226,10 @@ extern uint8_t s_copySrcCh;
 extern int8_t s_currCh;
 extern uint8_t s_maxLines;
 
-#if defined(SDCARD)
 #define STATUS_LINE_LENGTH           32
 extern char statusLineMsg[STATUS_LINE_LENGTH];
 void showStatusLine();
 void drawStatusLine();
-#else
-#define drawStatusLine()
-#endif
 
 void menuTextView(event_t event);
 void pushMenuTextView(const char *filename);

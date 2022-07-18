@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "ff.h"
 #include "lcd.h"
 #include "menus.h"
 #include "page.h"

@@ -251,7 +251,7 @@ static void  MSC_BOT_CBW_Decode (USB_OTG_CORE_HANDLE  *pdev)
   
   if ((USBD_GetRxCount (pdev ,MSC_OUT_EP) != BOT_CBW_LENGTH) ||
       (MSC_BOT_cbw.dSignature != BOT_CBW_SIGNATURE)||
-        (MSC_BOT_cbw.bLUN > 1) || 
+        (MSC_BOT_cbw.bLUN > 2) ||
           (MSC_BOT_cbw.bCBLength < 1) || 
             (MSC_BOT_cbw.bCBLength > 16))
   {

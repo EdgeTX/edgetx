@@ -91,19 +91,19 @@ void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
 }
 
 
-void ModelCell::save(FIL* file)
+void ModelCell::save(VfsFile& file)
 {
 #if !defined(SDCARD_YAML)
-  f_puts(modelFilename, file);
-  f_putc('\n', file);
+  file.puts(modelFilename);
+  file.putc('\n');
 #else
-  f_puts("  - filename: \"", file);
-  f_puts(modelFilename, file);
-  f_puts("\"\n", file);
+  file.puts("  - filename: \"");
+  file.puts(modelFilename);
+  file.puts("\"\n");
 
-  f_puts("    name: \"", file);
-  f_puts(modelName, file);
-  f_puts("\"\n", file);
+  file.puts("    name: \"");
+  file.puts(modelName);
+  file.puts("\"\n");
 #endif
 }
 
@@ -139,17 +139,17 @@ bool ModelCell::fetchRfData()
   char buf[256];
   getModelPath(buf, modelFilename);
 
-  FIL      file;
+  VfsFile  file;
   uint16_t size;
   uint8_t  version;
 
   const char * err = openFileBin(buf, &file, &size, &version);
   if (err || version != EEPROM_VER) return false;
 
-  FSIZE_t start_offset = f_tell(&file);
+  isze_t start_offset = file.ftell();
 
-  UINT read;
-  if ((f_read(&file, buf, LEN_MODEL_NAME, &read) != FR_OK) || (read != LEN_MODEL_NAME))
+  size_t read;
+  if ((file.read(buf, LEN_MODEL_NAME, read) != VfsError::OK) || (read != LEN_MODEL_NAME))
     goto error;
 
   setModelName(buf);
@@ -157,27 +157,27 @@ bool ModelCell::fetchRfData()
   // 1. fetch modelId: NUM_MODULES @ offsetof(ModelHeader, modelId)
   // if (f_lseek(&file, start_offset + offsetof(ModelHeader, modelId)) != FR_OK)
   //   goto error;
-  if ((f_read(&file, modelId, NUM_MODULES, &read) != FR_OK) || (read != NUM_MODULES))
+  if ((filei.read(modelId, NUM_MODULES, read) != VfsError::OK) || (read != NUM_MODULES))
     goto error;
 
   // 2. fetch ModuleData: sizeof(ModuleData)*NUM_MODULES @ offsetof(ModelData, moduleData)
-  if (f_lseek(&file, start_offset + offsetof(ModelData, moduleData)) != FR_OK)
+  if (filei.lseek(start_offset + offsetof(ModelData, moduleData)) != VfsError::OK)
     goto error;
 
   for(uint8_t i=0; i<NUM_MODULES; i++) {
     ModuleData modData;
-    if ((f_read(&file, &modData, NUM_MODULES, &read) != FR_OK) || (read != NUM_MODULES))
+    if ((file.read(&modData, NUM_MODULES, &read) != VfsError::OK) || (read != NUM_MODULES))
       goto error;
 
     setRfModuleData(i, &modData);
   }
 
   valid_rfData = true;  
-  f_close(&file);
+  file.close;
   return true;
   
  error:
-  f_close(&file);
+  file.close;
   return false;
 
 #else
@@ -263,17 +263,17 @@ int ModelsCategory::getModelIndex(const ModelCell* model)
   return -1;
 }
 
-void ModelsCategory::save(FIL * file)
+void ModelsCategory::save(VfsFile& file)
 {
 #if !defined(SDCARD_YAML)
-  f_puts("[", file);
-  f_puts(name, file);
-  f_puts("]", file);
-  f_putc('\n', file);
+  file.puts("[");
+  file.puts(name);
+  file.puts("]");
+  file.putc('\n');
 #else
-  f_puts("- \"", file);
-  f_puts(name, file);
-  f_puts("\":\n", file);
+  file.puts("- \"");
+  file.puts(name);
+  file.puts("\":\n");
 #endif
   for (list<ModelCell *>::iterator it = begin(); it != end(); ++it) {
     (*it)->save(file);
@@ -313,8 +313,8 @@ bool ModelsList::loadTxt()
   ModelsCategory * category = nullptr;
   ModelCell * model = nullptr;
 
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
+  VfsError result = VirtualFS::instance().openFile(file, RADIO_MODELSLIST_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
 
     // TXT reader
     while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
@@ -340,7 +340,7 @@ bool ModelsList::loadTxt()
       }
     }
 
-    f_close(&file);
+    file.close();
     return true;
   }
 
@@ -351,21 +351,22 @@ bool ModelsList::loadTxt()
 bool ModelsList::loadYaml()
 {
   char line[LEN_MODELS_IDX_LINE+1];
-  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsError result = vfs.openFile(file, MODELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
 
-  if (result != FR_OK) {
+  if (result != VfsError::OK) {
     // move the YaML models list from the old to the new place
-    FILINFO fno;
-    if (f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK) {
-      if (!sdCopyFile(FALLBACK_MODELSLIST_YAML_PATH, MODELSLIST_YAML_PATH)) {
-        f_unlink(FALLBACK_MODELSLIST_YAML_PATH);
+    VfsFileInfo fno;
+    if (vfs.fstat(FALLBACK_MODELSLIST_YAML_PATH, fno) == VfsError::OK) {
+      if (vfs.copyFile(FALLBACK_MODELSLIST_YAML_PATH, MODELSLIST_YAML_PATH) != VfsError::OK) {
+        vfs.unlink(FALLBACK_MODELSLIST_YAML_PATH);
         result =
-            f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+            vfs.openFile(file, MODELSLIST_YAML_PATH, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
       }
     }
   }
 
-  if (result == FR_OK) {
+  if (result == VfsError::OK) {
     // YAML reader
     TRACE("YAML modelslist reader");
 
@@ -376,19 +377,19 @@ bool ModelsList::loadYaml()
 
     yp.init(get_modelslist_parser_calls(), ctx);
 
-    UINT bytes_read=0;
-    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
+    size_t bytes_read=0;
+    while (file.read(line, sizeof(line), bytes_read) == VfsError::OK) {
 
       // reached EOF?
       if (bytes_read == 0)
         break;
 
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
     }
 
-    f_close(&file);
+    file.close();
     return true;
   }
 
@@ -401,16 +402,17 @@ bool ModelsList::load(Format fmt)
   if (loaded)
     return true;
 
+  VirtualFS& vfs = VirtualFS::instance();
   bool res = false;
 #if !defined(SDCARD_YAML)
   (void)fmt;
   res = loadTxt();
 #else
-  FILINFO fno;
+  VfsFileInfo fno;
   if (fmt == Format::txt ||
       (fmt == Format::yaml_txt &&
-       f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
-       f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
+       vfs.fstat(MODELSLIST_YAML_PATH, fno) != VfsError::OK &&
+       vfs.fstat(FALLBACK_MODELSLIST_YAML_PATH, fno) != VfsError::OK)) {
     res = loadTxt();
   } else {
     res = loadYaml();
@@ -436,18 +438,18 @@ bool ModelsList::load(Format fmt)
 void ModelsList::save()
 {
 #if !defined(SDCARD_YAML)
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  VfsError result = VirtualFS::instance().openFile(file, RADIO_MODELSLIST_PATH, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
 #else
-  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  VfsError result = VirtualFS::instance().openFile(file, MODELSLIST_YAML_PATH, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
 #endif
-  if (result != FR_OK) return;
+  if (result != VfsError::OK) return;
 
   for (list<ModelsCategory *>::iterator it = categories.begin();
        it != categories.end(); ++it) {
-    (*it)->save(&file);
+    (*it)->save(file);
   }
 
-  f_close(&file);
+  file.close();
 }
 
 void ModelsList::setCurrentCategory(ModelsCategory * cat)
@@ -480,7 +482,7 @@ void ModelsList::setCurrentModel(ModelCell * cell)
 
 bool ModelsList::readNextLine(char * line, int maxlen)
 {
-  if (f_gets(line, maxlen, &file) != NULL) {
+  if (file.gets(line, maxlen) != NULL) {
     int curlen = strlen(line) - 1;
     if (line[curlen] == '\n') { // remove unwanted chars if file was edited using windows
       if (line[curlen - 1] == '\r') {

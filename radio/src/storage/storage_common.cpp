@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers_driver.h"
+#include "logs.h"
 
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"
@@ -216,9 +217,7 @@ void postModelLoad(bool alarms)
     resumePulses();
   }
 
-#if defined(SDCARD)
   referenceModelAudioFiles();
-#endif
 
 #if defined(COLORLCD)
   loadCustomScreens();

@@ -179,6 +179,7 @@ typedef struct
 SD_Error SD_Init(void);
 SDTransferState SD_GetStatus(void);
 uint8_t SD_Detect(void);
+uint8_t SD_isHC(void);
 SD_Error SD_PowerOFF(void);
 SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize);
 SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize, uint32_t NumberOfBlocks);

@@ -26,7 +26,6 @@
 #include "definitions.h"
 #include "frsky_pxx2.h"
 #include "pulses/modules_helpers.h"
-#include "ff.h"
 #include "popups.h"
 
 enum FrskyFirmwareProductFamily {
@@ -152,8 +151,8 @@ class FrskyDeviceFirmwareUpdate {
     const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
     const char * sendPowerOn();
     const char * sendReqVersion();
-    const char * uploadFileNormal(const char * filename, FIL * file, ProgressHandler progressHandler);
-    const char * uploadFileToHorusXJT(const char * filename, FIL * file, ProgressHandler progressHandler);
+    const char * uploadFileNormal(const char * filename, VfsFile& file, ProgressHandler progressHandler);
+    const char * uploadFileToHorusXJT(const char * filename, VfsFile& file, ProgressHandler progressHandler);
     const char * endTransfer();
 };
 

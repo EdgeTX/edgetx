@@ -40,16 +40,16 @@ ThemeFile::ThemeFile(std::string themePath) :
       deSerialize();
   }
 
-  FIL file;
+  VfsFile file;
   auto found = path.rfind('/');
   if (found != std::string::npos) {
     int n = 0;
     while (n < MAX_FILES) {
       auto baseFileName(path.substr(0, found + 1) + (n != 0 ? "screenshot" + std::to_string(n) : "logo") + ".png");
-      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
-      if (result == FR_OK) {
+      VfsError result = VirtualFS::instance().openFile(file, baseFileName, VfsOpenFlags::OPEN_EXISTING);
+      if (result == VfsError::OK) {
         _imageFileNames.emplace_back(baseFileName);
-        f_close(&file);
+        file.close();
       } else {
         break;
       }
@@ -81,16 +81,16 @@ std::vector<std::string> ThemeFile::getThemeImageFileNames()
 
 void ThemeFile::serialize()
 {
-  FIL file;
-  FRESULT result = f_open(&file, path.c_str(), FA_CREATE_ALWAYS | FA_WRITE);
-  if (result == FR_OK) {
-    f_printf(&file, "---\n");
-    f_printf(&file, "summary:\n");
-    f_printf(&file, "  name: %s\n", name);
-    f_printf(&file, "  author: %s\n", author);
-    f_printf(&file, "  info: %s\n", info);
-    f_printf(&file, "\n");
-    f_printf(&file, "colors:\n");
+  VfsFile file;
+  VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (result == VfsError::OK) {
+    file.fprintf("---\n");
+    file.fprintf("summary:\n");
+    file.fprintf("  name: %s\n", name);
+    file.fprintf("  author: %s\n", author);
+    file.fprintf("  info: %s\n", info);
+    file.fprintf("\n");
+    file.fprintf("colors:\n");
 
     for (auto colorEntry : colorList) {
       auto r = GET_RED(colorEntry.colorValue);
@@ -99,10 +99,9 @@ void ThemeFile::serialize()
 
       std::string colorName(colorNames[colorEntry.colorNumber]);
       colorName += ":";
-
-      f_printf(&file, "  %-11s 0x%02X%02X%02X\n", colorName.c_str(), r,g,b);
+      file.fprintf("  %-11s 0x%02X%02X%02X\n", colorName.c_str(), r,g,b);
     }
-    f_close(&file);
+    file.close();
   }
 }
 
@@ -111,9 +110,9 @@ void ThemeFile::deSerialize()
   char line[256 + 1];
   ScanState scanState = none;
 
-  FIL file;
-  FRESULT result = f_open(&file, path.c_str(), FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) return;
+  VfsFile file;
+  VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) return;
 
   int lineNo = 1;
   while (readNextLine(file, line, 256)) {
@@ -184,7 +183,7 @@ void ThemeFile::deSerialize()
     lineNo++;
   }
 
-  f_close(&file);
+  file.close();
 }
 
 bool ThemeFile::convertRGB(char *pColorRGB, uint32_t &color)
@@ -249,9 +248,9 @@ LcdColorIndex ThemeFile::findColorIndex(const char *name)
   return (LcdColorIndex)i;
 }
 
-bool ThemeFile::readNextLine(FIL &file, char *line, int maxlen)
+bool ThemeFile::readNextLine(VfsFile &file, char *line, int maxlen)
 {
-  if (f_gets(line, maxlen, &file) != NULL) {
+  if (file.gets(line, maxlen) != NULL) {
     int curlen = strlen(line) - 1;
     if (line[curlen] == '\n') {  // remove unwanted chars if file was edited using windows
       if (curlen > 0 && line[curlen - 1] == '\r') {
@@ -298,14 +297,15 @@ void ThemeFile::applyBackground()
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
+    VirtualFS& vfs = VirtualFS::instance();
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" + std::to_string(LCD_H) + ".png";
 
-    FIL file;
-    FRESULT result = f_open(&file, rootDir.c_str(), FA_OPEN_EXISTING);
-    if (result == FR_OK) {
+    VfsFile file;
+    VfsError result = vfs.openFile(file, rootDir, VfsOpenFlags::OPEN_EXISTING);
+    if (result == VfsError::OK) {
+      file.close();
       instance->setBackgroundImageFileName((char *)rootDir.c_str());
-      f_close(&file);
     } else {
       // TODO: This needs to be made user configurable, not
       // require the file be deleted to remove global background
@@ -313,10 +313,10 @@ void ThemeFile::applyBackground()
       fileName[FF_MAX_LFN] = '\0';
       strncpy(fileName, THEMES_PATH, FF_MAX_LFN);
       strcat(fileName, "/EdgeTX/background.png");
-      result = f_open(&file, fileName, FA_OPEN_EXISTING);
-      if (result == FR_OK) {
+      result = vfs.openFile(file, fileName, VfsOpenFlags::OPEN_EXISTING);
+      if (result == VfsError::OK) {
+        file.close();
         instance->setBackgroundImageFileName(fileName);
-        f_close(&file);
       } else {
         instance->setBackgroundImageFileName("");
       }
@@ -344,10 +344,10 @@ void ThemePersistance::clearThemes()
 
 void ThemePersistance::scanThemeFolder(char *fullPath)
 {
-  FIL file;
+  VfsFile file;
   strncat(fullPath, "/theme.yml", FF_MAX_LFN);
-  FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) return;
+  VfsError result = VirtualFS::instance().openFile(file, fullPath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) return;
 
   TRACE("scanForThemes: found file %s", fullPath);
   themes.emplace_back(new ThemeFile(fullPath));
@@ -357,8 +357,8 @@ void ThemePersistance::scanForThemes()
 {
   clearThemes();
 
-  DIR dir;
-  FILINFO fno;
+  VfsDir dir;
+  VfsFileInfo fno;
 
   char fullPath[FF_MAX_LFN + 1];
 
@@ -366,28 +366,27 @@ void ThemePersistance::scanForThemes()
   fullPath[FF_MAX_LFN] = '\0';
 
   TRACE("opening directory: %s", fullPath);
-  FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
-  if (res == FR_OK) {
+  VfsError res = VirtualFS::instance().openDirectory(dir, fullPath);  // Open the directory
+  if (res == VfsError::OK) {
     TRACE("scanForThemes: open successful");
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-
-      if (res != FR_OK || fno.fname[0] == 0)
+      res = dir.read(fno);
+      std::string name = fno.getName();
+      if (res != VfsError::OK || name.length() == 0)
         break;  // Break on error or end of dir
 
-      if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-      if (fno.fattrib & AM_DIR) {
+      if (name.length() > STORAGE_SCREEN_FILE_LENGTH) continue;
+      if (fno.getType() == VfsType::DIR) {
         char themePath[FF_MAX_LFN + 1];
         strncpy(themePath, fullPath, FF_MAX_LFN);
         strncat(themePath, "/", FF_MAX_LFN);
-        strncat(themePath, fno.fname, FF_MAX_LFN);
+        strncat(themePath, name.c_str(), FF_MAX_LFN);
         scanThemeFolder(themePath);
       }
     }
 
-    f_closedir(&dir);
+    dir.close();
     std::sort(themes.begin(), themes.end(),
       [](ThemeFile *a, ThemeFile *b) {
           return strcmp(a->getName(), b->getName()) < 0;
@@ -399,15 +398,15 @@ void ThemePersistance::loadDefaultTheme()
 {
   refresh();
 
-  FIL file;
-  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_READ);
-  if (status != FR_OK) return;
+  VfsFile file;
+  VfsError status = VirtualFS::instance().openFile(file, SELECTED_THEME_FILE, VfsOpenFlags::READ);
+  if (status != VfsError::OK) return;
 
   char line[256];
-  unsigned int len;
+  size_t len;
 
-  status = f_read(&file, line, 256, &len);
-  if (status == FR_OK) {
+  status = file.read(line, 256, len);
+  if (status == VfsError::OK) {
 
     line[len] = '\0';
 
@@ -421,7 +420,7 @@ void ThemePersistance::loadDefaultTheme()
       index++;
     }
   }
-  f_close(&file);
+  file.close();
 }
 
 char ** ThemePersistance::getColorNames()
@@ -440,14 +439,14 @@ bool ThemePersistance::deleteThemeByIndex(int index)
     strcat(newFile, ".deleted");
 
     // for now we are just renaming the file so we don't find it
-    FRESULT status = f_rename(theme->getPath().c_str(), newFile);
+    VfsError status = VirtualFS::instance().rename(theme->getPath().c_str(), newFile);
     refresh();
     
     // make sure currentTheme stays in bounds
     if (getThemeIndex() >= (int) themes.size())
       setThemeIndex(themes.size() - 1);
 
-    return status == FR_OK;
+    return status == VfsError::OK;
   }
   return false;
 }
@@ -459,9 +458,8 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
   fullPath[FF_MAX_LFN] = '\0';
   strncat(fullPath, "/", FF_MAX_LFN);
   strncat(fullPath, name.c_str(), FF_MAX_LFN);
-
-  FRESULT result = f_mkdir(fullPath);
-  if (result != FR_OK) return false;
+  VfsError result = VirtualFS::instance().makeDirectory(fullPath);
+  if (result != VfsError::OK) return false;
   strncat(fullPath, "/", FF_MAX_LFN);
   strncat(fullPath, "theme.yml", FF_MAX_LFN);
   theme.setPath(fullPath);
@@ -471,22 +469,22 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
 
 void ThemePersistance::deleteDefaultTheme()
 {
-  FIL file;
-  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
-  if (status == FR_OK) f_close(&file);
+  VfsFile file;
+  VfsError status = VirtualFS::instance().openFile(file, SELECTED_THEME_FILE, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  if (status == VfsError::OK) file.close();
 }
 
 void ThemePersistance::setDefaultTheme(int index)
 {
-  FIL file;
+  VfsFile file;
   if (index >= 0 && index < (int) themes.size()) {
     auto theme = themes[index];
-    FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
-    if (status != FR_OK) return;
+    VfsError status = VirtualFS::instance().openFile(file, SELECTED_THEME_FILE, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+    if (status != VfsError::OK) return;
 
     currentTheme = index;
-    f_printf(&file, theme->getPath().c_str());
-    f_close(&file);
+    file.puts(theme->getPath());
+    file.close();
   }
 }
 

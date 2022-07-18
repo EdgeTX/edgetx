@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <list>
 
-#include "sdcard.h"
+#include "VirtualFS.h"
 #if !defined(SDCARD_YAML)
 #include "sdcard_raw.h"
 #endif
@@ -61,7 +61,7 @@ class ModelCell
     explicit ModelCell(const char * name, uint8_t len);
     ~ModelCell();
 
-    void save(FIL * file);
+    void save(VfsFile& file);
 
     void setModelName(char * name);
     void setModelName(char* name, uint8_t len);
@@ -88,7 +88,7 @@ public:
 
   int getModelIndex(const ModelCell* model);
 
-  void save(FIL * file);
+  void save(VfsFile& file);
 };
 
 class ModelsList
@@ -172,7 +172,7 @@ public:
   void onNewModelCreated(ModelCell* cell, ModelData* model);
 
 protected:
-  FIL file;
+  VfsFile file;
 
   bool loadTxt();
 #if defined(SDCARD_YAML)

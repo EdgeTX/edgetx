@@ -327,16 +327,16 @@ static int ll_loadlib (lua_State *L) {
 
 
 static int readable (const char *filename) {
-#if defined(USE_FATFS)
-  FIL f;
-  FRESULT result = f_open(&f, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) return 0;
-  f_close(&f);
-#else
-  FILE *f = fopen(filename, "r");  /* try to open file */
+/* #if defined(USE_FATFS) */
+/*   FIL f; */
+/*   FRESULT result = f_open(&f, filename, FA_OPEN_EXISTING | FA_READ); */
+/*   if (result != FR_OK) return 0; */
+/*   f_close(&f); */
+/* #else */
+  lua_FILE *f = lua_fopen(filename, "r");  /* try to open file */
   if (f == NULL) return 0;  /* open failed */
-  fclose(f);
-#endif
+  lua_fclose(f);
+/* #endif */
   return 1;
 }
 

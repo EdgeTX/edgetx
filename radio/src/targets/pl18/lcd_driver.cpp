@@ -23,28 +23,22 @@
 #include "libopenui_config.h"
 #include "lcd.h"
 
-static pixel_t LCD_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
-
-static uint16_t* next_frame_buffer;
-static rect_t next_frame_area;
+static volatile uint8_t _frame_addr_reloaded = 0;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
+  (void)copy_area;
+  LTDC_Layer1->CFBAR = (uint32_t)buffer;
 
-  next_frame_buffer = buffer;
-  next_frame_area = copy_area;
-#if 1
-  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-                 next_frame_area.y, next_frame_area.x, next_frame_buffer,
-                 next_frame_area.h, next_frame_area.w, 0, 0,
-                 next_frame_area.h, next_frame_area.w);
-  lcdFlushed();
-#else
-  // Enable line IRQ
-  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
-#endif
+  // reload shadow registers on vertical blank
+  _frame_addr_reloaded = 0;
+  LTDC->SRCR = LTDC_SRCR_VBR;
+
+  // wait for reload
+  // TODO: replace through some smarter mechanism without busy wait
+  while(_frame_addr_reloaded == 0);
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -57,7 +51,7 @@ volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 static void LCD_Delay(void) {
   volatile unsigned int i;
 
-  for (i = 0; i < 10000; i++) {
+  for (i = 0; i < 100; i++) {
     ;
   }
 }
@@ -228,7 +222,6 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
 }
 
 static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
-  CLR_LCD_CS();
 
   LCD_SCK_LOW();
   lcdDelay();
@@ -259,7 +252,6 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
   }
 
   LCD_SCK_LOW();
-  SET_LCD_CS();
 }
 
 unsigned char LCD_ReadByte(void) {
@@ -270,12 +262,10 @@ unsigned char LCD_ReadByte(void) {
   SET_LCD_DATA_INPUT();
   for (i = 0; i < 8; i++) {
     CLR_LCD_CLK();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     ReceiveData <<= 1;
     SET_LCD_CLK();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     if (READ_LCD_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
@@ -289,20 +279,25 @@ unsigned char LCD_ReadByte(void) {
 unsigned char LCD_ReadRegister(unsigned char Register) {
   unsigned char ReadData = 0;
 
+  CLR_LCD_CS();
   lcdWriteByte(0, Register);
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   ReadData = LCD_ReadByte();
   SET_LCD_CS();
   return (ReadData);
 }
 
 void lcdWriteCommand(uint8_t command) {
+  CLR_LCD_CS();
   lcdWriteByte(0, command);
+  SET_LCD_CS();
 }
 
 void lcdWriteData(uint8_t data) {
+  CLR_LCD_CS();
   lcdWriteByte(1, data);
+  SET_LCD_CS();
 }
 
 void LCD_HX8357D_Init(void) {
@@ -669,8 +664,8 @@ void LCD_HX8357D_Init(void) {
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   delay_ms(5);
+  lcdWriteCommand(0x29);
 #endif
-
 }
 
 void LCD_HX8357D_On(void) {
@@ -1294,11 +1289,11 @@ unsigned int LCD_ST7796S_ReadID(void) {
   SET_LCD_CLK_OUTPUT();
   SET_LCD_DATA_INPUT();
   CLR_LCD_CLK();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   SET_LCD_CLK();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
 
   LCD_ReadByte();
   ID += (uint16_t)(LCD_ReadByte())<<8;
@@ -2757,6 +2752,7 @@ void LCD_Init_LTDC() {
   LTDC_InitStruct.LTDC_TotalHeigh = LCD_PHYS_H + VBP + VFP;
 
   LTDC_Init(&LTDC_InitStruct);
+  LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 
   // Configure IRQ (line)
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -2823,7 +2819,8 @@ void LCD_LayerInit() {
   LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = (uint32_t) LCD_FRAME_BUFFER;
+  uint32_t layer_address = (uint32_t)lcdFront->getData();
+  LTDC_Layer_InitStruct.LTDC_CFBStartAdress = layer_address;
 
   /* Initialize LTDC layer 1 */
   LTDC_LayerInit(LTDC_Layer1, &LTDC_Layer_InitStruct);
@@ -2844,9 +2841,6 @@ const char* boardLcdType = "";
 
 void lcdInit(void)
 {
-  // Clear buffers first
-  memset(LCD_FRAME_BUFFER, 0, sizeof(LCD_FRAME_BUFFER));
-
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
 
@@ -2887,7 +2881,7 @@ void lcdInit(void)
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
     lcdPixelClock = 12000000;
-  } else if (1 || LCD_ST7796S_ReadID() == LCD_ST7796S_ID) {
+  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID || 1) {
     TRACE("LCD INIT (default): ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
@@ -3080,14 +3074,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
   LTDC->ICR = LTDC_ICR_CLIF;
-  LTDC_ITConfig(LTDC_IER_LIE, DISABLE);
 
-  // TODO: use modified version with "Transfer Complete" IRQ
-  DMACopyBitmap((uint16_t *)LCD_FRAME_BUFFER, LCD_PHYS_W, LCD_PHYS_H,
-                 next_frame_area.y, next_frame_area.x, next_frame_buffer,
-                 next_frame_area.h, next_frame_area.w, 0, 0,
-                 next_frame_area.h, next_frame_area.w);
-
-  // TODO: call on "Transfer Complete" IRQ
-  lcdFlushed();
+  _frame_addr_reloaded = 1;
 }

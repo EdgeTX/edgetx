@@ -57,7 +57,7 @@ enum BluetoothStates {
 
 #if defined(LOG_BLUETOOTH)
   #define BLUETOOTH_TRACE(...)  \
-    f_printf(&g_bluetoothFile, __VA_ARGS__); \
+    g_bluetoothFile.fprintf(__VA_ARGS__); \
     TRACE_NOCRLF(__VA_ARGS__);
 #else
 #if defined(DEBUG_BLUETOOTH)

@@ -155,7 +155,7 @@ static const Proto* combine(lua_State* L, int n)
 static int writer(lua_State* L, const void* p, size_t size, void* u)
 {
  UNUSED(L);
- return (fwrite(p,size,1,(FILE*)u)!=1) && (size!=0);
+ return (lua_fwrite(p,size,1,(lua_FILE*)u)!=1) && (size!=0);
 }
 
 static int pmain(lua_State* L)
@@ -174,13 +174,13 @@ static int pmain(lua_State* L)
  if (listing) luaU_print(f,listing>1);
  if (dumping)
  {
-  FILE* D= (output==NULL) ? stdout : fopen(output,"wb");
+  lua_FILE* D= (output==NULL) ? stdout : lua_fopen(output,"wb");
   if (D==NULL) cannot("open");
   lua_lock(L);
   luaU_dump(L,f,writer,D,stripping);
   lua_unlock(L);
-  if (ferror(D)) cannot("write");
-  if (fclose(D)) cannot("close");
+  if (lua_ferror(D)) cannot("write");
+  if (lua_fclose(D)) cannot("close");
  }
  return 0;
 }

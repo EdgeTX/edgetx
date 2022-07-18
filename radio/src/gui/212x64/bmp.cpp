@@ -20,11 +20,12 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, uint16_t height)
 {
-  FIL bmpFile;
-  UINT read;
+  VfsFile bmpFile;
+  size_t read;
   uint8_t palette[16];
   uint8_t bmpBuf[LCD_W]; /* maximum with LCD_W */
   uint8_t * buf = &bmpBuf[0];
@@ -33,24 +34,24 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
     return nullptr;
   }
 
-  FRESULT result = f_open(&bmpFile, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  VfsError result = VirtualFS::instance().openFile(bmpFile, filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result != VfsError::OK) {
     return nullptr;
   }
 
-  if (f_size(&bmpFile) < 14) {
-    f_close(&bmpFile);
+  if (bmpFile.size() < 14) {
+    bmpFile.close();
     return nullptr;
   }
 
-  result = f_read(&bmpFile, buf, 14, &read);
-  if (result != FR_OK || read != 14) {
-    f_close(&bmpFile);
+  result = bmpFile.read(buf, 14, read);
+  if (result != VfsError::OK || read != 14) {
+    bmpFile.close();
     return nullptr;
   }
 
   if (buf[0] != 'B' || buf[1] != 'M') {
-    f_close(&bmpFile);
+    bmpFile.close();
     return nullptr;
   }
 
@@ -58,9 +59,9 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
   uint32_t hsize  = *((uint32_t *)&buf[10]); /* header size */
 
   uint32_t len = limit((uint32_t)4, (uint32_t)(hsize-14), (uint32_t)32);
-  result = f_read(&bmpFile, buf, len, &read);
-  if (result != FR_OK || read != len) {
-    f_close(&bmpFile);
+  result = bmpFile.read(buf, len, read);
+  if (result != VfsError::OK || read != len) {
+    bmpFile.close();
     return nullptr;
   }
 
@@ -68,17 +69,17 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
 
   /* invalid header size */
   if (ihsize + 14 > hsize) {
-    f_close(&bmpFile);
+    bmpFile.close();
     return nullptr;
   }
 
   /* sometimes file size is set to some headers size, set a real size in that case */
   if (fsize == 14 || fsize == ihsize + 14)
-    fsize = f_size(&bmpFile) - 2;
+    fsize = bmpFile.size() - 2;
 
   /* declared file size less than header size */
   if (fsize <= hsize) {
-    f_close(&bmpFile);
+    bmpFile.close();
     return nullptr;
   }
 
@@ -100,17 +101,17 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
       buf += 8;
       break;
     default:
-      f_close(&bmpFile);
+      bmpFile.close();
       return nullptr;
   }
 
   if (*((uint16_t *)&buf[0]) != 1) { /* planes */
-    f_close(&bmpFile);
+    bmpFile.close();
     return nullptr;
   }
 
   if (w > width || h > height) {
-    f_close(&bmpFile);
+    bmpFile.close();
     return nullptr;
   }
 
@@ -119,8 +120,8 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
   buf = &bmpBuf[0];
 
   if (depth == 4) {
-    if (f_lseek(&bmpFile, hsize-64) != FR_OK || f_read(&bmpFile, buf, 64, &read) != FR_OK || read != 64) {
-      f_close(&bmpFile);
+    if (bmpFile.lseek(hsize-64) != VfsError::OK || bmpFile.read(buf, 64, read) != VfsError::OK || read != 64) {
+      bmpFile.close();
       return nullptr;
     }
     for (uint8_t i=0; i<16; i++) {
@@ -128,8 +129,8 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
     }
   }
   else {
-    if (f_lseek(&bmpFile, hsize) != FR_OK) {
-      f_close(&bmpFile);
+    if (bmpFile.lseek(hsize) != VfsError::OK) {
+      bmpFile.close();
       return nullptr;
     }
   }
@@ -147,9 +148,9 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
     case 1:
       rowSize = ((w+31)/32)*4;
       for (uint32_t i=0; i<h; i+=2) {
-        result = f_read(&bmpFile, buf, rowSize*2, &read);
-        if (result != FR_OK || read != rowSize*2) {
-          f_close(&bmpFile);
+        result = bmpFile.read(buf, rowSize*2, read);
+        if (result != VfsError::OK || read != rowSize*2) {
+          bmpFile.close();
           return nullptr;
         }
 
@@ -166,9 +167,9 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
     case 4:
       rowSize = ((4*w+31)/32)*4;
       for (int32_t i=h-1; i>=0; i--) {
-        result = f_read(&bmpFile, buf, rowSize, &read);
-        if (result != FR_OK || read != rowSize) {
-          f_close(&bmpFile);
+        result = bmpFile.read(buf, rowSize, read);
+        if (result != VfsError::OK || read != rowSize) {
+          bmpFile.close();
           return nullptr;
         }
         uint8_t * dst = dest + (i/2)*w;
@@ -181,11 +182,11 @@ uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint16_t width, ui
       break;
 
     default:
-      f_close(&bmpFile);
+      bmpFile.close();
       return nullptr;
   }
 
-  f_close(&bmpFile);
+  bmpFile.close();
   return bmp;
 }
 

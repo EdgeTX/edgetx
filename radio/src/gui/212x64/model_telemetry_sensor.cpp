@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "logs.h"
 
 enum SensorFields {
   SENSOR_FIELD_NAME,

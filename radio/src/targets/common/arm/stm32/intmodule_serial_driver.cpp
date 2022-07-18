@@ -25,7 +25,8 @@
 #include "board.h"
 #include "fifo.h"
 
-Fifo<uint8_t, INTMODULE_FIFO_SIZE> intmoduleFifo;
+#include "io/frsky_pxx2.h"
+ModuleFifo intmoduleFifo;
 
 #if !defined(INTMODULE_DMA_STREAM)
 static uint8_t * intmoduleTxBufferData;

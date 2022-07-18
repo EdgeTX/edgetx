@@ -29,7 +29,7 @@
 
 // TODO: hotfix, through FatFS out of libopenui instead
 #if !defined(YAML_GENERATOR)
-#include "ffconf.h"
+#include "VirtualFS.h"
 #else
 #define FF_MAX_LFN 255
 #endif

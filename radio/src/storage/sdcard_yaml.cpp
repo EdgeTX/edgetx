@@ -26,6 +26,7 @@
 #include "sdcard_raw.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
+#include "VirtualFS.h"
 
 #include "yaml/yaml_tree_walker.h"
 #include "yaml/yaml_parser.h"
@@ -40,30 +41,31 @@
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx)
 {
-    FIL  file;
-    UINT bytes_read;
+    VfsFile  file;
+    size_t bytes_read;
 
-    FRESULT result = f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsError result = vfs.openFile(file, fullpath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
       
     YamlParser yp; //TODO: move to re-usable buffer
     yp.init(calls, parser_ctx);
 
     char buffer[32];
-    while (f_read(&file, buffer, sizeof(buffer), &bytes_read) == FR_OK) {
+    while (file.read(buffer, sizeof(buffer), bytes_read) == VfsError::OK) {
 
       // reached EOF?
       if (bytes_read == 0)
         break;
       
-      if (f_eof(&file)) yp.set_eof();
+      if (file.eof()) yp.set_eof();
       if (yp.parse(buffer, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
     }
 
-    f_close(&file);
+    file.close();
     return NULL;
 }
 
@@ -105,8 +107,9 @@ const char * loadRadioSettingsYaml()
 
 const char * loadRadioSettings()
 {
-    FILINFO fno;
-    if (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) {
+    VfsFileInfo fno;
+    VirtualFS& vfs = VirtualFS::instance();
+    if (vfs.fstat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) {
 #if STORAGE_CONVERSIONS < 221
 #if defined(STORAGE_MODELSLIST)
       uint8_t version;
@@ -143,30 +146,31 @@ const char * loadRadioSettings()
 }
 
 struct yaml_writer_ctx {
-    FIL*    file;
-    FRESULT result;
+    VfsFile* file;
+    VfsError result;
 };
 
 static bool yaml_writer(void* opaque, const char* str, size_t len)
 {
-    UINT bytes_written;
+    size_t bytes_written;
     yaml_writer_ctx* ctx = (yaml_writer_ctx*)opaque;
 
 #if defined(DEBUG_YAML)
     TRACE_NOCRLF("%.*s",len,str);
 #endif
 
-    ctx->result = f_write(ctx->file, str, len, &bytes_written);
-    return (ctx->result == FR_OK) && (bytes_written == len);
+    ctx->result = ctx->file->write(str, len, bytes_written);
+    return (ctx->result == VfsError::OK) && (bytes_written == len);
 }
 
 const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data)
 {
-    FIL file;
+    VfsFile file;
 
-    FRESULT result = f_open(&file, path, FA_CREATE_ALWAYS | FA_WRITE);
-    if (result != FR_OK) {
-        return SDCARD_ERROR(result);
+    VirtualFS::instance().unlink(path);
+    VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+    if (result != VfsError::OK) {
+        return STORAGE_ERROR(result);
     }
       
     YamlTreeWalker tree;
@@ -174,16 +178,16 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 
     yaml_writer_ctx ctx;
     ctx.file = &file;
-    ctx.result = FR_OK;
+    ctx.result = VfsError::OK;
     
     if (!tree.generate(yaml_writer, &ctx)) {
-        if (ctx.result != FR_OK) {
-            f_close(&file);
-            return SDCARD_ERROR(ctx.result);
+        if (ctx.result != VfsError::OK) {
+            file.close();
+            return STORAGE_ERROR(ctx.result);
         }
     }
 
-    f_close(&file);
+    file.close();
     return NULL;
 }
 
@@ -318,8 +322,8 @@ bool modelExists(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  FILINFO fno;
-  return f_stat(fname, &fno) == FR_OK;
+  VfsFileInfo fno;
+  return VirtualFS::instance().fstat(fname, fno) == VfsError::OK;
 }
 
 bool copyModel(uint8_t dst, uint8_t src)
@@ -333,7 +337,7 @@ bool copyModel(uint8_t dst, uint8_t src)
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
-  return sdCopyFile(fname_src, fname_dst);
+  return VirtualFS::instance().copyFile(fname_src, fname_dst) == VfsError::OK;
 }
 
 static void swapModelHeaders(uint8_t id1, uint8_t id2)
@@ -355,34 +359,35 @@ void swapModels(uint8_t id1, uint8_t id2)
   GET_FILENAME(fname1_tmp, MODELS_PATH, model_idx_1, ".tmp");
   GET_FILENAME(fname2, MODELS_PATH, model_idx_2, YAML_EXT);
 
-  FILINFO fno;
-  if (f_stat(fname2,&fno) != FR_OK) {
-    if (f_stat(fname1,&fno) == FR_OK) {
-      if (f_rename(fname1, fname2) == FR_OK)
+  VirtualFS &vfs = VirtualFS::instance();
+  VfsFileInfo fno;
+  if (vfs.fstat(fname2,fno) != VfsError::OK) {
+    if (vfs.fstat(fname1,fno) == VfsError::OK) {
+      if (vfs.rename(fname1, fname2) == VfsError::OK)
         swapModelHeaders(id1,id2);
     }
     return;
   }
 
-  if (f_stat(fname1,&fno) != FR_OK) {
-    f_rename(fname2, fname1);
+  if (vfs.fstat(fname1,fno) != VfsError::OK) {
+    vfs.rename(fname2, fname1);
     return;
   }
 
   // just in case...
-  f_unlink(fname1_tmp);
+  vfs.unlink(fname1_tmp);
 
-  if (f_rename(fname1, fname1_tmp) != FR_OK) {
+  if (vfs.rename(fname1, fname1_tmp) != VfsError::OK) {
     TRACE("Error renaming 1");
     return;
   }
 
-  if (f_rename(fname2, fname1) != FR_OK) {
+  if (vfs.rename(fname2, fname1) != VfsError::OK) {
     TRACE("Error renaming 2");
     return;
   }
 
-  if (f_rename(fname1_tmp, fname2) != FR_OK) {
+  if (vfs.rename(fname1_tmp, fname2) != VfsError::OK) {
     TRACE("Error renaming 1 tmp");
     return;
   }
@@ -396,7 +401,7 @@ int8_t deleteModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   GET_FILENAME(fname, MODELS_PATH, model_idx, YAML_EXT);
 
-  if (f_unlink(fname) != FR_OK) {
+  if (VirtualFS::instance().unlink(fname) != VfsError::OK) {
     return -1;
   }
 
@@ -409,7 +414,7 @@ const char * backupModel(uint8_t idx)
   char * buf = reusableBuffer.modelsel.mainname;
 
   // check and create folder here
-  const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
+  const char * error = VirtualFS::instance().checkAndCreateDirectory(STR_BACKUP_PATH);
   if (error) {
     return error;
   }
@@ -452,7 +457,7 @@ const char * backupModel(uint8_t idx)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
   
-  return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
+  return STORAGE_ERROR(VirtualFS::instance().copyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH));
 }
 
 const char * restoreModel(uint8_t idx, char *model_name)
@@ -465,7 +470,7 @@ const char * restoreModel(uint8_t idx, char *model_name)
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
 
-  const char* error = sdCopyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH);
+  const char* error = STORAGE_ERROR(VirtualFS::instance().copyFile(buf, STR_BACKUP_PATH, model_idx, STR_MODELS_PATH));
   if (!error) {
     loadModelHeader(idx, &modelHeaders[idx]);
   }
@@ -477,6 +482,5 @@ const char * restoreModel(uint8_t idx, char *model_name)
 
 bool storageReadRadioSettings(bool checks)
 {
-  if (!sdMounted()) sdInit();
   return loadRadioSettingsYaml() == nullptr;
 }

@@ -260,6 +260,7 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
+
 #if defined(PCBNV14) || defined(PCBPL18)
 
 extern uint32_t NV14internalModuleFwVersion;

@@ -20,6 +20,8 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
+    ../../../../../VirtualFS.cpp
+    bin_files_vfs.cpp
     )
 elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
   set(BOOTLOADER_SRC
@@ -35,6 +37,7 @@ elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
+    bin_files.cpp
     )
 else()
   set(BOOTLOADER_SRC
@@ -48,6 +51,7 @@ else()
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_spi.c
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_i2c.c
     ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/misc.c
+    bin_files.cpp
     )
 endif()
 
@@ -73,7 +77,6 @@ set(BOOTLOADER_SRC
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
   ../../../../../targets/${TARGET_DIR}/keys_driver.cpp
-  ../../../../../targets/${TARGET_DIR}/diskio.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../pwr_driver.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
@@ -86,8 +89,29 @@ set(BOOTLOADER_SRC
   ../flash_driver.cpp
   init.c
   boot.cpp
-  bin_files.cpp
   )
+
+if(SPI_FLASH)
+set(BOOTLOADER_SRC
+  ${BOOTLOADER_SRC}
+  ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
+  ../../../../../thirdparty/tjftl/tjftl.c
+  )
+endif()
+
+if(SDCARD OR (SPI_FLASH AND NOT LITTLEFS))
+  if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/diskio_sdio_spiflash.cpp
+      )
+  else()
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/diskio.cpp
+      )
+  endif()
+endif()
 
 if(ROTARY_ENCODER)
   set(BOOTLOADER_SRC

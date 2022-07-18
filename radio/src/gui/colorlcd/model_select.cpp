@@ -23,6 +23,7 @@
 #include "model_select.h"
 #include "opentx.h"
 #include "storage/modelslist.h"
+#include "strhelpers.h"
 #include "libopenui.h"
 #include "standalone_lua.h"
 #include "str_functions.h"
@@ -127,29 +128,31 @@ class SelectTemplate : public TemplatePage
     FormGridLayout grid;
     grid.spacer(PAGE_PADDING);
     std::list<std::string> files;
-    FILINFO fno;
-    DIR dir;
-    FRESULT res = f_opendir(&dir, path);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsFileInfo fno;
+    VfsDir dir;
+    VfsError res = vfs.openDirectory(dir, path);
 
-    if (res == FR_OK) {
+    if (res ==  VfsError::OK) {
       // read all entries
       bool firstTime = true;
       for (;;) {
-        res = sdReadDir(&dir, &fno, firstTime);
+        res = dir.read(fno);
         firstTime = false;
-        if (res != FR_OK || fno.fname[0] == 0)
+        std::string fname = fno.getName();
+        if (res != VfsError::OK || fname.length() == 0)
           break; // Break on error or end of dir
-        if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
+        if (fname.length() > STORAGE_SCREEN_FILE_LENGTH)
           continue;
-        if (fno.fname[0] == '.')
+        if (fname[0] == '.')
           continue;
-        if (!(fno.fattrib & AM_DIR)) {
-          const char *ext = getFileExtension(fno.fname);
+        if (fno.getType() != VfsType::DIR) {
+          const char *ext = vfs.getFileExtension(fname.c_str());
           if(ext && !strcasecmp(ext, YAML_EXT)) {
-            int len = ext - fno.fname;
-            if (len < FF_MAX_LFN) {
-              char name[FF_MAX_LFN] = { 0 };
-              strncpy(name, fno.fname, len);
+            int len = ext - fname.c_str();
+            if (len < VFS_MAX_LFN) {
+              char name[VFS_MAX_LFN] = { 0 };
+              strncpy(name, fname.c_str(), len);
               files.push_back(name);
             }
           }
@@ -191,7 +194,7 @@ class SelectTemplate : public TemplatePage
       }
     }
     
-    f_closedir(&dir);
+    dir.close();
     count = files.size();
     if (count == 0) {
       rect_t rect = body.getRect();
@@ -252,24 +255,24 @@ class SelectTemplateFolder : public TemplatePage
     grid.spacer(tfb->height() + 5);
 
     std::list<std::string> directories;
-    FILINFO fno;
-    DIR dir;
-    FRESULT res = f_opendir(&dir, TEMPLATES_PATH);
+    VirtualFS& vfs = VirtualFS::instance();
+    VfsFileInfo fno;
+    VfsDir dir;
+    VfsError res = vfs.openDirectory(dir, TEMPLATES_PATH);
 
-    if (res == FR_OK) {
+    if (res == VfsError::OK) {
       // read all entries
-      bool firstTime = true;
       for (;;) {
-        res = sdReadDir(&dir, &fno, firstTime);
-        firstTime = false;
-        if (res != FR_OK || fno.fname[0] == 0)
+        res = dir.read(fno);
+        std::string fname = fno.getName();
+        if (res != VfsError::OK || fname.length() == 0)
           break; // Break on error or end of dir
-        if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
+        if (fname.length() > STORAGE_SCREEN_FILE_LENGTH)
           continue;
-        if (fno.fname[0] == '.')
+        if (fname[0] == '.')
           continue;
-        if (fno.fattrib & AM_DIR)
-          directories.push_back((char*)fno.fname);
+        if (fno.getType() == VfsType::DIR)
+          directories.push_back(fname);
       }
 
       directories.sort(compare_nocase);
@@ -299,7 +302,7 @@ class SelectTemplateFolder : public TemplatePage
 #endif
     }
     
-    f_closedir(&dir);
+    dir.close();
     count = directories.size();
     if (count == 0) {
       rect_t rect = grid.getLabelSlot();
@@ -452,6 +455,7 @@ class ModelButton : public Button
 
 static void _saveTemplate(ModelCell* model)
 {
+  VirtualFS& vfs =VirtualFS::instance();
   storageDirty(EE_MODEL);
   storageCheck(true);
   constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
@@ -459,14 +463,14 @@ static void _saveTemplate(ModelCell* model)
   snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
   char templatePath[FF_MAX_LFN];
   snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
-  sdCheckAndCreateDirectory(TEMPLATES_PATH);
-  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
-  if (isFileAvailable(templatePath)) {
+  vfs.checkAndCreateDirectory(TEMPLATES_PATH);
+  vfs.checkAndCreateDirectory(PERS_TEMPL_PATH);
+  if (vfs.isFileAvailable(templatePath)) {
     new ConfirmDialog(Layer::back(), STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
-      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+      VirtualFS::instance().copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
     });
   } else {
-    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+    vfs.copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
   }
 }
 
@@ -566,12 +570,13 @@ class ModelCategoryPageBody : public FormWindow
 
   void duplicateModel(ModelCell* model)
   {
+    VirtualFS& vfs = VirtualFS::instance();
     char duplicatedFilename[LEN_MODEL_FILENAME + 1];
     memcpy(duplicatedFilename, model->modelFilename,
            sizeof(duplicatedFilename));
-    if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+    if (vfs.findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
                           MODELS_PATH)) {
-      sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+      vfs.copyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
                  MODELS_PATH);
       auto new_model = modelslist.addModel(category, duplicatedFilename);
       addModelButton(new_model);
@@ -696,7 +701,7 @@ class CategoryEditPage : public PageTab
 
         // Details
         char cnt[19];
-        snprintf(cnt, sizeof(cnt), "%u %s", (unsigned)category->size(), STR_MODELS);
+        snprintf(cnt, sizeof(cnt), "%zu %s", category->size(), STR_MODELS);
         new StaticText(window, grid.getFieldSlot(3,1), cnt);
 
         if(category->empty()) {

@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "VirtualFS.h"
 
 enum MenuModelDisplayItems {
   ITEM_DISPLAY_SCREEN_LABEL1,
@@ -93,7 +94,7 @@ void onTelemetryScriptFileSelectionMenu(const char * result)
   int screenIndex = DISPLAY_CURRENT_SCREEN(menuVerticalPosition - HEADER_LINE);
 
   if (result == STR_UPDATE_LIST) {
-    if (!sdListFiles(SCRIPTS_TELEM_PATH, SCRIPTS_EXT, sizeof(g_model.screens[screenIndex].script.file), nullptr)) {
+    if (!VirtualFS::instance().listFiles(SCRIPTS_TELEM_PATH, SCRIPTS_EXT, sizeof(g_model.screens[screenIndex].script.file), nullptr)) {
       POPUP_WARNING(STR_NO_SCRIPTS_ON_SD);
     }
   }
@@ -164,7 +165,7 @@ void menuModelDisplay(event_t event)
 
           if (menuHorizontalPosition==1 && attr && event==EVT_KEY_BREAK(KEY_ENTER) && READ_ONLY_UNLOCKED()) {
             s_editMode = 0;
-            if (sdListFiles(SCRIPTS_TELEM_PATH, SCRIPTS_EXT, sizeof(g_model.screens[screenIndex].script.file), g_model.screens[screenIndex].script.file)) {
+            if (VirtualFS::instance().listFiles(SCRIPTS_TELEM_PATH, SCRIPTS_EXT, sizeof(g_model.screens[screenIndex].script.file), g_model.screens[screenIndex].script.file)) {
               POPUP_MENU_START(onTelemetryScriptFileSelectionMenu);
             }
             else {

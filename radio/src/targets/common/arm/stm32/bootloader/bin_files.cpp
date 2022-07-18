@@ -19,15 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include <strings.h>
-#include <memory.h>
-
 #include "boot.h"
 #include "board.h"
-#include "sdcard.h"
 #include "bin_files.h"
 #include "fw_version.h"
 #include "strhelpers.h"
+#include "VirtualFS.h"
 
 // 'private'
 static DIR  dir;
@@ -129,7 +126,7 @@ FRESULT openBinFile(MemoryType mt, unsigned int index)
     return fr;
 
   // skip bootloader in firmware
-  if (mt == MEM_FLASH &&
+  if ((mt == MEM_SDCARD || mt == MEM_INTERNAL) &&
       ((fr = f_lseek(&FlashFile, BOOTLOADER_SIZE)) != FR_OK))
       return fr;
 

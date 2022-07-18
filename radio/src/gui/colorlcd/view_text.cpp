@@ -23,7 +23,7 @@
 #include "gridlayout.h"
 #include "menu.h"
 #include "opentx.h"
-#include "sdcard.h"
+#include "VirtualFS.h"
 
 #define CASE_EVT_KEY_NEXT_LINE \
   case EVT_ROTARY_RIGHT:       \
@@ -46,7 +46,7 @@ void ViewTextWindow::extractNameSansExt()
   uint8_t extLength;
 
   const char *ext =
-      getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
+      VirtualFS::getFileExtension(name.data(), 0, 0, &nameLength, &extLength);
   extension = std::string(ext);
   if (nameLength > TEXT_FILENAME_MAXLEN) nameLength = TEXT_FILENAME_MAXLEN;
 
@@ -60,7 +60,7 @@ void ViewTextWindow::buildBody(Window *window)
   GridLayout grid(window);
   grid.spacer();
   int i;
-  FIL file;
+  VfsFile file;
 
   // assume average characte is 10 pixels wide, round the string length to tens.
   // Font is not fixed width, so this is for the worst case...
@@ -77,11 +77,11 @@ void ViewTextWindow::buildBody(Window *window)
   }
 
   if (isInSetup) {
-    if (FR_OK ==
-        f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ)) {
-      const int fileLenght = file.obj.objsize;
+    if (VfsError::OK ==
+        VirtualFS::instance().openFile(file, fullPath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ)) {
+      const int fileLenght = file.size();
       maxLines = 20 * fileLenght / maxLineLength;
-      f_close(&file);
+      file.close();
 
       textBottom = false;
       longestLine = 0;
@@ -194,10 +194,10 @@ void ViewTextWindow::loadOneScreen(int offset)
 
 void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
 {
-  FIL file;
-  int result;
+  VfsFile file;
+  VfsError result;
   char c;
-  unsigned int sz = 0;
+  size_t sz = 0;
   int line_length = 1;
   uint8_t escape = 0;
   char escape_chars[4] = {0};
@@ -209,9 +209,11 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
     lines[i][0] = ' ';
   }
 
-  result = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    while (f_read(&file, &c, 1, &sz) == FR_OK && sz == 1 &&
+  VirtualFS& vfs = VirtualFS::instance();
+
+  result = vfs.openFile(file, (TCHAR *)filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (result == VfsError::OK) {
+    while (file.read(&c, 1, sz) == VfsError::OK && sz == 1 &&
                          (lines_count == 0 ||
                           current_line - textVerticalOffset < maxScreenLines))
     {
@@ -261,12 +263,12 @@ void ViewTextWindow::sdReadTextFileBlock(const char *filename, int &lines_count)
       ++current_line;
     }
 
-    if (f_eof(&file)) {
+    if (file.eof()) {
       textBottom = true;
       if (isInSetup) maxLines = current_line;
     }
 
-    f_close(&file);
+    file.close();
   }
 
   if (lastLoadedLine < textVerticalOffset) lastLoadedLine = textVerticalOffset;
@@ -308,7 +310,7 @@ static void replaceSpaceWithUnderscore(std::string &name)
 
 bool openNotes(const char buf[], std::string modelNotesName)
 {
-  if (isFileAvailable(modelNotesName.c_str())) {
+  if (VirtualFS::instance().isFileAvailable(modelNotesName.c_str())) {
     new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
     return true;
   } else {
@@ -323,7 +325,7 @@ void readModelNotes()
   std::string modelNotesName(g_model.header.name);
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
-  f_chdir((TCHAR *)buf);
+  VirtualFS::instance().changeDirectory(buf);
 
   notesFound = openNotes(buf, modelNotesName);
   if (!notesFound) {

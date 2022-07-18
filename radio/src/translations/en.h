@@ -58,7 +58,7 @@
 
 #if defined(PCBX10)
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
+#elif defined(PCBHORUS) || defined(PCBPL18)
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"

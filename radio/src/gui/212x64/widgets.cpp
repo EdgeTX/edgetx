@@ -170,7 +170,6 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 }
 #endif
 
-#if defined(SDCARD)
 char statusLineMsg[STATUS_LINE_LENGTH];
 tmr10ms_t statusLineTime = 0;
 uint8_t statusLineHeight = 0;
@@ -199,4 +198,3 @@ void drawStatusLine()
     lcdDrawFilledRect(0, LCD_H-statusLineHeight, LCD_W, FH, SOLID);
   }
 }
-#endif
