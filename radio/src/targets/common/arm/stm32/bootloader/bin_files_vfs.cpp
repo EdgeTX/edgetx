@@ -71,14 +71,14 @@ static VfsError findNextBinFile(VfsFileInfo* fno)
   do {
     fr = dir.read(*fno);
 
-    if (fr != VfsError::OK || fno->getName().length() == 0)
+    if (fr != VfsError::OK || strlen(fno->getName()) == 0)
       break;
 
-    int32_t len = fno->getName().length() - 4;
+    int32_t len = strlen(fno->getName()) - 4;
     if (len < 0)
         continue;
 
-    std::string fname = fno->getName();
+    const char* fname = fno->getName();
     if (fname[len] != '.')
         continue;
     
@@ -114,16 +114,16 @@ unsigned int fetchBinFiles(unsigned int index)
           return 0;
   }
 
-  strAppend(binFiles[0].name, file_info.getName().c_str());
+  strAppend(binFiles[0].name, file_info.getName());
   binFiles[0].size = file_info.getSize();
 
   unsigned int i = 1;
   for (; i < MAX_NAMES_ON_SCREEN+1; i++) {
 
-      if (findNextBinFile(&file_info) != VfsError::OK || file_info.getName().length() == 0)
+      if (findNextBinFile(&file_info) != VfsError::OK || strlen(file_info.getName()) == 0)
           return i;
   
-      strAppend(binFiles[i].name, file_info.getName().c_str());
+      strAppend(binFiles[i].name, file_info.getName());
       binFiles[i].size = file_info.getSize();
   }
 

@@ -21,6 +21,7 @@
 
 
 #include <cstdio>
+#include <string.h>
 #include "VirtualFS.h"
 #include "lua_api.h"
 #include "lua_file_api.h"
@@ -53,11 +54,11 @@ static int dir_iter(lua_State* L)
 
   VfsFileInfo info;
   VfsError res = dir->read(info);
-  if (res != VfsError::OK || info.getName().length() == 0) { /* Break on error or end of dir */
+  if (res != VfsError::OK || strlen(info.getName()) == 0) { /* Break on error or end of dir */
     return 0;
   }
  
-  lua_pushstring(L, info.getName().c_str());
+  lua_pushstring(L, info.getName());
   return 1;
 }
 

@@ -238,7 +238,7 @@ struct VfsFileInfo
 public:
   VfsFileInfo(){ clear(); }
 
-  std::string getName() const;
+  const char* getName() const;
   size_t getSize() const;
   VfsType getType() const;
   VfsFileAttributes getAttrib();
@@ -260,7 +260,7 @@ private:
     FILINFO fatInfo;
   };
 
-  std::string name;
+  const char* name = nullptr;
 };
 
 struct VfsDir

@@ -85,9 +85,9 @@ static int scan_files(std::list<std::string>& files,
   for (;;) {
     res = dir.read(fno);
 
-    if (res != VfsError::OK || fno.getName().length() == 0)
+    if (res != VfsError::OK || strlen(fno.getName()) == 0)
       break; // Break on error or end of dir
-    std::string fname = fno.getName();
+    const char* fname = fno.getName();
     if (fname[0] == '.' && fname[1] != '.')
       continue; // Ignore hidden files under UNIX, but not ..
 
