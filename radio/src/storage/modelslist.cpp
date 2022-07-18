@@ -588,6 +588,10 @@ bool ModelMap::renameLabel(const std::string &from,
     } else {
       fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)modeldata) != NULL);
     }
+#if defined(SIMU)
+    if (SIMU_SLEEP_OR_EXIT_MS(100))
+      break;
+#endif
   }
 
   // Rename the label
