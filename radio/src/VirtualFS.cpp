@@ -232,13 +232,13 @@ VfsFileAttributes operator&(VfsFileAttributes lhs,VfsFileAttributes rhs)
   & static_cast<underlying>(rhs));
 }
 
-std::string VfsFileInfo::getName() const
+const char* VfsFileInfo::getName() const
 {
   switch(type)
   {
   case VfsFileType::ROOT: return name;
 #if defined (USE_FATFS)
-  case VfsFileType::FAT:  return(!name.empty())?name:fatInfo.fname;
+  case VfsFileType::FAT:  return(name != nullptr)?name:fatInfo.fname;
 #endif
 #if defined(USE_LITTLEFS)
   case VfsFileType::LFS:  return lfsInfo.name;
@@ -270,7 +270,7 @@ VfsType VfsFileInfo::getType() const
     return VfsType::DIR;
 #if defined (USE_FATFS)
   case VfsFileType::FAT:
-    if (!name.empty())
+    if (name != nullptr)
       return VfsType::DIR;
     if(fatInfo.fattrib & AM_DIR)
       return VfsType::DIR;
@@ -350,7 +350,7 @@ void VfsFileInfo::clear() {
   lfsInfo = {0};
 #endif
   fatInfo = {0};
-  name.clear();
+  name = nullptr;
 }
 
 
@@ -1716,12 +1716,12 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 
     for (;;) {
       res = dir.read(fno);                   /* Read a directory item */
-      if (res != VfsError::OK || fno.getName().length() == 0) break;  /* Break on error or end of dir */
+      if (res != VfsError::OK || strlen(fno.getName()) == 0) break;  /* Break on error or end of dir */
       if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
       if ((int)(fno.getAttrib() & VfsFileAttributes::HID) != 0) continue;     /* Skip hidden files */
       if ((int)(fno.getAttrib() & VfsFileAttributes::SYS) != 0) continue;     /* Skip system files */
 
-      fnExt = getFileExtension(fno.getName().c_str(), 0, 0, &fnLen, &extLen);
+      fnExt = getFileExtension(fno.getName(), 0, 0, &fnLen, &extLen);
       fnLen -= extLen;
 
 //      TRACE_DEBUG("listSdFiles(%s, %s, %u, %s, %u): fn='%s'; fnExt='%s'; match=%d\n",
@@ -1732,7 +1732,7 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
               !isFileExtensionMatching(fnExt, extension) || (                            // wrong extension
                 !(flags & LIST_SD_FILE_EXT) &&                                       // only if we want unique file names...
                 strcasecmp(fnExt, getFileExtension(extension)) &&                    // possible duplicate file name...
-                isFilePatternAvailable(path, fno.getName().c_str(), extension, true, tmpExt) &&  // find the first file from extensions list...
+                isFilePatternAvailable(path, fno.getName(), extension, true, tmpExt) &&  // find the first file from extensions list...
                 strncasecmp(fnExt, tmpExt, LEN_FILE_EXTENSION_MAX)                   // found file doesn't match, this is a duplicate
               )
             )
@@ -1745,7 +1745,7 @@ bool VirtualFS::listFiles(const char * path, const char * extension, const uint8
 
       std::string fname = fno.getName();
       if (!(flags & LIST_SD_FILE_EXT)) {
-        fname = fname.substr(0,fnLen);;  // strip extension
+        fname = fname.substr(0,fnLen);  // strip extension
       }
 
       if (popupMenuOffset == 0) {

@@ -616,7 +616,7 @@ add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(firmware PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+#set_target_properties(firmware PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)
