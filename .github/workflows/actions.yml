@@ -40,7 +40,7 @@ jobs:
           - t18
           - t8
           - tlite
-          - tx12
+          - tx12;tx12mk2
           - tx16s
           - x10
           - x12s
