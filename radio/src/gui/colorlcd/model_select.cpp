@@ -482,8 +482,8 @@ class LabelDialog : public Dialog
 {
  public:
   LabelDialog(Window *parent, char *label,
-              std::function<void(std::string label)> saveHandler = nullptr) :
-      Dialog(parent, STR_ENTER_LABEL, rect_t{}), saveHandler(saveHandler)
+              std::function<void(std::string label)> _saveHandler = nullptr) :
+    Dialog(parent, STR_ENTER_LABEL, rect_t{}), saveHandler(std::move(_saveHandler))
   {
     strncpy(this->label, label, MAX_LABEL_SIZE);
     this->label[MAX_LABEL_SIZE] = '\0';
@@ -678,20 +678,16 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           strncpy(tmpLabel, oldLabel.c_str(), MAX_LABEL_SIZE);
           tmpLabel[MAX_LABEL_SIZE] = '\0';
 
-          new LabelDialog(parent, tmpLabel,
-            [=] (std::string newLabel) {
-              //auto rndialog = new RenameDialog(this, [=](){});
-
-                modelslabels.renameLabel(oldLabel,
-                                         newLabel,
-                                         STR_RENAME_FILE,
-                                         [=](const char* name, int percentage) {
-                //    rndialog->updateProgress(name, percentage);
-                  });
-
-              auto labels = getLabels();
-              lblselector->setNames(labels);
-            });
+          new LabelDialog(this, tmpLabel, [=](std::string newLabel) {
+            auto rndialog = new RenameDialog(this, [=]() {});
+            modelslabels.renameLabel(oldLabel, newLabel, STR_RENAME_FILE,
+                                     [=](const char *name, int percentage) {
+                                       rndialog->updateProgress(name,
+                                                                percentage);
+                                     });
+            auto labels = getLabels();
+            lblselector->setNames(labels);
+          });
           return 0;
         });
         menu->addLine(STR_DELETE_LABEL, [=] () {
@@ -775,6 +771,8 @@ void RenameDialog::updateProgress(const char *filename, int percentage)
   if(percentage >= 100) {
     deleteLater();
     onClose();
+  } else {
+    lv_refr_now(nullptr);
   }
 }
 
