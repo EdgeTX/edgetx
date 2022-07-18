@@ -20,6 +20,7 @@
  */
 
 #include "modelslist.h"
+
 #include <algorithm>
 
 using std::list;
@@ -27,18 +28,18 @@ using std::list;
 #if defined(SDCARD_YAML)
 #include "opentx.h"
 #include "storage/sdcard_yaml.h"
-#include "yaml/yaml_parser.h"
-#include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_datastructs.h"
+#include "yaml/yaml_labelslist.h"
+#include "yaml/yaml_parser.h"
+
 #endif
 
-#include "myeeprom.h"
+#include <cstring>
+
 #include "datastructs.h"
+#include "myeeprom.h"
 #include "pulses/modules_helpers.h"
 #include "strhelpers.h"
-#include "datastructs.h"
-
-#include <cstring>
 
 #ifdef DEBUG_LABELS
 #define TRACE_LABELS(...) TRACE(__VA_ARGS__)
@@ -49,13 +50,13 @@ using std::list;
 ModelsList modelslist;
 ModelMap modelslabels;
 
-ModelCell::ModelCell(const char* name) : valid_rfData(false)
+ModelCell::ModelCell(const char *name) : valid_rfData(false)
 {
-  strncpy(modelFilename, name, sizeof(modelFilename)-1);
-  modelFilename[sizeof(modelFilename)-1] = '\0';
+  strncpy(modelFilename, name, sizeof(modelFilename) - 1);
+  modelFilename[sizeof(modelFilename) - 1] = '\0';
 }
 
-ModelCell::ModelCell(const char* name, uint8_t len) : valid_rfData(false)
+ModelCell::ModelCell(const char *name, uint8_t len) : valid_rfData(false)
 {
   if (len > sizeof(modelFilename) - 1) len = sizeof(modelFilename) - 1;
 
@@ -63,34 +64,31 @@ ModelCell::ModelCell(const char* name, uint8_t len) : valid_rfData(false)
   modelFilename[len] = '\0';
 }
 
-void ModelCell::setModelName(char * name)
+void ModelCell::setModelName(char *name)
 {
   strncpy(modelName, name, LEN_MODEL_NAME);
   modelName[LEN_MODEL_NAME] = '\0';
 
   if (modelName[0] == '\0') {
-    char * tmp;
+    char *tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
-    tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);
-    if (tmp != nullptr)
-      *tmp = 0;
+    tmp = (char *)memchr(modelName, '.', LEN_MODEL_NAME);
+    if (tmp != nullptr) *tmp = 0;
   }
 }
 
-void ModelCell::setModelName(char* name, uint8_t len)
+void ModelCell::setModelName(char *name, uint8_t len)
 {
-  if (len > LEN_MODEL_NAME-1)
-    len = LEN_MODEL_NAME-1;
+  if (len > LEN_MODEL_NAME - 1) len = LEN_MODEL_NAME - 1;
 
   memcpy(modelName, name, len);
   modelName[len] = '\0';
 
   if (modelName[0] == 0) {
-    char * tmp;
+    char *tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
-    tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);
-    if (tmp != nullptr)
-      *tmp = 0;
+    tmp = (char *)memchr(modelName, '.', LEN_MODEL_NAME);
+    if (tmp != nullptr) *tmp = 0;
   }
 }
 
@@ -99,25 +97,23 @@ void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
   modelId[moduleIdx] = id;
 }
 
-void ModelCell::setRfData(ModelData* model)
+void ModelCell::setRfData(ModelData *model)
 {
   for (uint8_t i = 0; i < NUM_MODULES; i++) {
     modelId[i] = model->header.modelId[i];
     setRfModuleData(i, &(model->moduleData[i]));
-    TRACE("<%s/%i> : %X,%X,%X",
-          strlen(modelName) ? modelName : modelFilename,
+    TRACE("<%s/%i> : %X,%X,%X", strlen(modelName) ? modelName : modelFilename,
           i, moduleData[i].type, moduleData[i].subType, modelId[i]);
   }
   valid_rfData = true;
 }
 
-void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData* modData)
+void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData *modData)
 {
   moduleData[moduleIdx].type = modData->type;
   if (modData->type != MODULE_TYPE_MULTIMODULE) {
     moduleData[moduleIdx].subType = (uint8_t)modData->subType;
-  }
-  else {
+  } else {
     // do we care here about MM_RF_CUSTOM_SELECTED? probably not...
     moduleData[moduleIdx].subType = modData->multi.rfProtocol;
   }
@@ -157,18 +153,18 @@ ModelsVector ModelMap::getAllModels(ModelsSortBy sortby)
  * @brief Returns all models that have a sepecified label
  *
  * @param lbl Label to search
- * @return ModelsVector aka vector<ModelCell*> of all models belonging to a label
+ * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
+ * label
  */
 
-ModelsVector ModelMap::getModelsByLabel(const std::string &lbl, ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsByLabel(const std::string &lbl,
+                                        ModelsSortBy sortby)
 {
   int index = getIndexByLabel(lbl);
-  if(index < 0)
-    return ModelsVector();
+  if (index < 0) return ModelsVector();
   ModelsVector rv;
   for (auto it = begin(); it != end(); ++it) {
-    if(it->first == index)
-      rv.push_back(it->second);
+    if (it->first == index) rv.push_back(it->second);
   }
   sortModelsBy(rv, sortby);
   return rv;
@@ -178,31 +174,30 @@ ModelsVector ModelMap::getModelsByLabel(const std::string &lbl, ModelsSortBy sor
  * @brief Returns all models that are in multiple labels (OR function)
  *
  * @param lbls Labels to search
- * @return ModelsVector aka vector<ModelCell*> of all models belonging to a label
+ * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
+ * label
  */
 
-ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls, ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls,
+                                         ModelsSortBy sortby)
 {
   bool addunlabeled = false;
   // Build a list of the requested indexes
   std::vector<int> idxvect;
-  for(const auto &lbl: lbls) {
-    if(lbl == STR_UNLABELEDMODEL)
-      addunlabeled = true;
+  for (const auto &lbl : lbls) {
+    if (lbl == STR_UNLABELEDMODEL) addunlabeled = true;
     int index = getIndexByLabel(lbl);
-    if(index >= 0)
-      idxvect.push_back(index);
+    if (index >= 0) idxvect.push_back(index);
   }
 
   ModelsVector rv;
   for (auto it = begin(); it != end(); ++it) {
-    for(auto idx : idxvect) {
-      if(it->first == idx)
-        rv.push_back(it->second);
+    for (auto idx : idxvect) {
+      if (it->first == idx) rv.push_back(it->second);
     }
   }
 
-  if(addunlabeled) {
+  if (addunlabeled) {
     ModelsVector unlabeled = getUnlabeledModels();
     rv.insert(rv.end(), unlabeled.begin(), unlabeled.end());
   }
@@ -215,32 +210,34 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls, ModelsSortBy 
  * @brief Returns all models that are in multiple labels (AND function)
  *
  * @param lbls Labels to search
- * @return ModelsVector aka vector<ModelCell*> of all models belonging to a label
+ * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
+ * label
  */
 
-ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls,
+                                         ModelsSortBy sortby)
 {
-  if(lbls.size() == 0) return ModelsVector();
+  if (lbls.size() == 0) return ModelsVector();
 
   // Requesting only Unlabeled models
-  if(lbls.size() == 1 &&
-     lbls.at(0) == STR_UNLABELEDMODEL)
-     return getUnlabeledModels(sortby);
+  if (lbls.size() == 1 && lbls.at(0) == STR_UNLABELEDMODEL)
+    return getUnlabeledModels(sortby);
 
   ModelsVector rv;
 
-  for(const auto &mdl: modelslist) {
+  for (const auto &mdl : modelslist) {
     bool hasAllLabels = true;
     LabelsVector mdllables = getLabelsByModel(mdl);
-    for(const auto &lbl: lbls) {
-      if(lbl == STR_UNLABELEDMODEL) // If requesting unlabeled model ignore it
+    for (const auto &lbl : lbls) {
+      if (lbl == STR_UNLABELEDMODEL)  // If requesting unlabeled model ignore it
         break;
-      if(std::find(mdllables.begin(), mdllables.end(), lbl) == mdllables.end()) {
+      if (std::find(mdllables.begin(), mdllables.end(), lbl) ==
+          mdllables.end()) {
         hasAllLabels = false;
         break;
       }
     }
-    if(hasAllLabels) rv.push_back(mdl);
+    if (hasAllLabels) rv.push_back(mdl);
   }
 
   sortModelsBy(rv, sortby);
@@ -256,10 +253,10 @@ ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls, ModelsSortBy 
 
 LabelsVector ModelMap::getLabelsByModel(ModelCell *mdl)
 {
-  if(mdl == nullptr) return LabelsVector();
+  if (mdl == nullptr) return LabelsVector();
   LabelsVector rv;
   for (auto it = begin(); it != end(); ++it) {
-    if(it->second == mdl) {
+    if (it->second == mdl) {
       rv.push_back(getLabelByIndex(it->first));
     }
   }
@@ -271,19 +268,19 @@ LabelsVector ModelMap::getLabelsByModel(ModelCell *mdl)
  * @details Returns a map of all the labels and if they are selected in a model.
  *
  * @param cell ModelCell to search
- * @return std::map<std::string, bool> Map Containing all labels with a boolean if they are selected
+ * @return std::map<std::string, bool> Map Containing all labels with a boolean
+ * if they are selected
  */
 
 std::map<std::string, bool> ModelMap::getSelectedLabels(ModelCell *cell)
 {
   std::map<std::string, bool> rval;
-  for(auto lbl : labels) { // Add all labels
-    if(lbl == "")
-      continue;
+  for (auto lbl : labels) {  // Add all labels
+    if (lbl == "") continue;
     rval[lbl] = false;
   }
   LabelsVector modlbl = getLabelsByModel(cell);
-  for(const auto& ml : modlbl) { // Set to true if selected by the model
+  for (const auto &ml : modlbl) {  // Set to true if selected by the model
     rval[ml] = true;
   }
   return rval;
@@ -301,7 +298,7 @@ std::map<std::string, bool> ModelMap::getSelectedLabels(ModelCell *cell)
 bool ModelMap::isLabelSelected(const std::string &label, ModelCell *cell)
 {
   auto lbm = getLabelsByModel(cell);
-  if(std::find(lbm.begin(), lbm.end(), label) == lbm.end()) {
+  if (std::find(lbm.begin(), lbm.end(), label) == lbm.end()) {
     return false;
   }
   return true;
@@ -317,8 +314,7 @@ LabelsVector ModelMap::getLabels()
 {
   LabelsVector rv;
   for (auto &label : labels) {
-    if(label.size() > 0)
-      rv.emplace_back(label);
+    if (label.size() > 0) rv.emplace_back(label);
   }
   return rv;
 }
@@ -328,7 +324,8 @@ LabelsVector ModelMap::getLabels()
  * @details  Checks if the label already exists. If it does it returns the
  *           index to it. If label doesn't exist it adds it at the end of the
  *           list and returns the new index
- *           Won't allow creation of the special case label "Unlabeled" STR_UNLABELEDMODEL
+ *           Won't allow creation of the special case label "Unlabeled"
+ * STR_UNLABELEDMODEL
  *
  * @param lbl Adds a label to the list
  * @return int -1 on failure, label index on success
@@ -336,14 +333,13 @@ LabelsVector ModelMap::getLabels()
 
 int ModelMap::addLabel(const std::string &lbl)
 {
-  if(lbl.size() == 0)
-    return -1;
-  if(lbl == STR_UNLABELEDMODEL)
-    return -1;
+  if (lbl.size() == 0) return -1;
+  if (lbl == STR_UNLABELEDMODEL) return -1;
+
   // Add a new label if if doesn't already exist in the list
   // Returns the index to the label
   int ind = getIndexByLabel(lbl);
-  if(ind < 0) {
+  if (ind < 0) {
     labels.push_back(lbl);
     setDirty();
     TRACE_LABELS("Added a label %s", lbl.c_str());
@@ -362,26 +358,26 @@ int ModelMap::addLabel(const std::string &lbl)
  * @return false Success
  */
 
-bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell, bool update)
+bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell,
+                               bool update)
 {
   // First check that there aren't too many labels on this model
   LabelsVector lbs = getLabelsByModel(cell);
   int sz = 0;
-  for(auto const &it : lbs) {
-    sz = it.size() + 1; // Label length + ','
+  for (auto const &it : lbs) {
+    sz = it.size() + 1;  // Label length + ','
   }
-  sz += lbl.size() + 1; // New label + ','
-  if(sz > LABELS_LENGTH - 1) {
+  sz += lbl.size() + 1;  // New label + ','
+  if (sz > LABELS_LENGTH - 1) {
     TRACE("Cannot add the %s label to the model. Too many labels", lbl.c_str());
     return true;
   }
 
   setDirty();
   int labelindex = addLabel(lbl);
-  insert(std::pair<int, ModelCell *>(labelindex,cell));
+  insert(std::pair<int, ModelCell *>(labelindex, cell));
 
-  if(update)
-    updateModelFile(cell); // Write labels into model
+  if (update) updateModelFile(cell);  // Write labels into model
 
   return false;
 }
@@ -395,14 +391,12 @@ bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell, bool upd
 void ModelMap::addFilteredLabel(const std::string &lbl)
 {
   int ind = getIndexByLabel(lbl);
-  if(ind >= 0)
-    filtlbls.insert(ind);
+  if (ind >= 0) filtlbls.insert(ind);
 }
 
 bool ModelMap::isLabelFiltered(const std::string &lbl)
 {
-  if(filtlbls.find(getIndexByLabel(lbl)) != filtlbls.end())
-    return true;
+  if (filtlbls.find(getIndexByLabel(lbl)) != filtlbls.end()) return true;
   return false;
 }
 
@@ -415,21 +409,21 @@ bool ModelMap::isLabelFiltered(const std::string &lbl)
  * @return false Success
  */
 
-bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell, bool update)
+bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell,
+                                    bool update)
 {
-  int lblind=getIndexByLabel(label);
-  if(lblind < 0)
-    return true;
-  bool rv=true;
+  int lblind = getIndexByLabel(label);
+  if (lblind < 0) return true;
+  bool rv = true;
   // Erase items that match in the map
-  for (ModelMap::const_iterator itr = cbegin() ; itr != cend() ; ) {
-    itr = (itr->first == lblind && itr->second == cell) ? erase(itr) : std::next(itr);
+  for (ModelMap::const_iterator itr = cbegin(); itr != cend();) {
+    itr = (itr->first == lblind && itr->second == cell) ? erase(itr)
+                                                        : std::next(itr);
     setDirty();
     rv = false;
   }
 
-  if(update)
-    updateModelFile(cell); // Write labels into model
+  if (update) updateModelFile(cell);  // Write labels into model
 
   return rv;
 }
@@ -446,11 +440,13 @@ bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell, b
  * @return false Success
  */
 
-bool ModelMap::removeLabel(const std::string &label)
-{    
-  renameLabel(label, "", STR_MOVE);
-  for(auto &lbl : labels) {
-    if(lbl == label && getModelsByLabel(lbl).size() == 0) {
+bool ModelMap::removeLabel(
+    const std::string &label,
+    std::function<void(const char *file, int progress)> progress)
+{
+  renameLabel(label, "", std::move(progress));
+  for (auto &lbl : labels) {
+    if (lbl == label && getModelsByLabel(lbl).size() == 0) {
       lbl = "";
       setDirty();
       return false;
@@ -470,18 +466,17 @@ bool ModelMap::removeLabel(const std::string &label)
 
 bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
 {
-  if(curind == newind ||
-     curind >= labels.size() ||
-     newind >= labels.size())
+  if (curind == newind || curind >= labels.size() || newind >= labels.size())
     return true;
 
-  if(labels.at(curind) == "")
-    return true;
+  if (labels.at(curind) == "") return true;
 
-  if(curind < newind) { // Move forward
-    std::rotate(labels.rend() - curind - 1, labels.rend() - curind, labels.rend() - newind);
-  } else { // Move back
-    std::rotate(labels.begin() + curind, labels.begin() + curind + 1, labels.begin() + newind + 1);
+  if (curind < newind) {  // Move forward
+    std::rotate(labels.rend() - curind - 1, labels.rend() - curind,
+                labels.rend() - newind);
+  } else {  // Move back
+    std::rotate(labels.begin() + curind, labels.begin() + curind + 1,
+                labels.begin() + newind + 1);
   }
 
   // Reload the new labels order
@@ -505,18 +500,16 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @return false success
  */
 
-bool ModelMap::renameLabel(const std::string &from,
-                           const std::string &to,
-                           const char* title,
-                           std::function<void(const char *name, int progress)> progress)
+bool ModelMap::renameLabel(
+    const std::string &from, const std::string &to,
+    std::function<void(const char *file, int progress)> progress)
 {
   DEBUG_TIMER_START(debugTimerYamlScan);
 
-  if(from == "")
-    return true;
+  if (from == "") return true;
 
-  ModelData *modeldata = (ModelData*)malloc(sizeof(ModelData));
-  if(!modeldata) {
+  ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
+  if (!modeldata) {
     TRACE("Labels: Out Of Memory");
     return true;
   }
@@ -525,39 +518,39 @@ bool ModelMap::renameLabel(const std::string &from,
   storageCheck(true);
 
   bool fault = false;
-  ModelsVector mods = getModelsByLabel(from); // Find all models to be renamed
-  int i=0;
-  for (const auto &modcell: mods) {
-    if(progress != nullptr) {
-      progress(modcell->modelFilename, (i++)*100 / mods.size());
+  ModelsVector mods = getModelsByLabel(from);  // Find all models to be renamed
+  int i = 0;
+  for (const auto &modcell : mods) {
+    if (progress != nullptr) {
+      progress(modcell->modelFilename, (i++) * 100 / mods.size());
     }
 
-    readModelYaml(modcell->modelFilename, (uint8_t*)modeldata, sizeof(ModelData));
+    readModelYaml(modcell->modelFilename, (uint8_t *)modeldata,
+                  sizeof(ModelData));
 
     // Make sure there is room to rename
     int nlen = strlen(modeldata->header.labels) + to.size() - from.size();
-    if(nlen > LABELS_LENGTH - 1) {
+    if (nlen > LABELS_LENGTH - 1) {
       fault = true;
-      TRACE("Labels: Rename Error! Labels too long on %s - %s", modeldata->header.name,
-                                                                modcell->modelFilename);
+      TRACE("Labels: Rename Error! Labels too long on %s - %s",
+            modeldata->header.name, modcell->modelFilename);
       continue;
     }
 
     // Separate CSV
     LabelsVector lbls;
-    char *cma ;
+    char *cma;
     cma = strtok(modeldata->header.labels, ",");
     int numTokens = 0;
-    while(cma != NULL) {
+    while (cma != NULL) {
       lbls.push_back(cma);
       cma = strtok(NULL, ",");
       numTokens++;
     }
 
     // Replace from->to strings
-    for(auto &lbl: lbls) {
-      if(lbl == from)
-        lbl = to;
+    for (auto &lbl : lbls) {
+      if (lbl == from) lbl = to;
     }
 
     // Remove duplicates
@@ -567,13 +560,11 @@ bool ModelMap::renameLabel(const std::string &from,
     lbls.resize(std::distance(lbls.begin(), last));
 
     // Write back
-    bool comma=false;
+    bool comma = false;
     modeldata->header.labels[0] = '\0';
-    for(auto lbl: lbls) {
-      if(lbl == "")
-        continue;
-      if(comma)
-        strcat(modeldata->header.labels, ",");
+    for (auto lbl : lbls) {
+      if (lbl == "") continue;
+      if (comma) strcat(modeldata->header.labels, ",");
       strcat(modeldata->header.labels, lbl.c_str());
       comma = true;
     }
@@ -581,30 +572,30 @@ bool ModelMap::renameLabel(const std::string &from,
     char path[256];
     getModelPath(path, modcell->modelFilename);
 
-    if(modcell == modelslist.getCurrentModel()) {
+    if (modcell == modelslist.getCurrentModel()) {
       // If working on the current model, write current data to file instead
       memcpy(g_model.header.labels, modeldata->header.labels, LABELS_LENGTH);
-      fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)&g_model) != NULL);
+      fault = (writeFileYaml(path, get_modeldata_nodes(),
+                             (uint8_t *)&g_model) != NULL);
     } else {
-      fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)modeldata) != NULL);
+      fault = (writeFileYaml(path, get_modeldata_nodes(),
+                             (uint8_t *)modeldata) != NULL);
     }
 #if defined(SIMU)
-    if (SIMU_SLEEP_OR_EXIT_MS(100))
-      break;
+    if (SIMU_SLEEP_OR_EXIT_MS(100)) break;
 #endif
   }
 
   // Rename the label
-  for(auto &lbl: labels) {
-    if(lbl == from) {
+  for (auto &lbl : labels) {
+    if (lbl == from) {
       lbl = to;
       setDirty(true);
     }
   }
 
   // Make sure to leave at 100, to kill rename dialog
-  if(progress != nullptr)
-    progress("", 100);
+  if (progress != nullptr) progress("", 100);
 
   free(modeldata);
 
@@ -614,7 +605,8 @@ bool ModelMap::renameLabel(const std::string &from,
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Labels: Time to rename %d labels %luus", mods.size(), debugTimers[debugTimerYamlScan].getLast());
+  TRACE("Labels: Time to rename %d labels %luus", mods.size(),
+        debugTimers[debugTimerYamlScan].getLast());
 #endif
 
   return fault;
@@ -637,8 +629,7 @@ std::string ModelMap::getLabelString(ModelCell *curmod, const char *noresults)
       numModels++;
     }
   }
-  if (numModels == 0)
-    allLabels = noresults;
+  if (numModels == 0) allLabels = noresults;
 
   return allLabels;
 }
@@ -653,10 +644,10 @@ std::string ModelMap::getLabelString(ModelCell *curmod, const char *noresults)
 
 bool ModelMap::removeModels(ModelCell *cell)
 {
-  bool rv=true;
+  bool rv = true;
   // Erase items that match in the map
-  for (ModelMap::const_iterator itr = cbegin() ; itr != cend() ; ) {
-    if(itr->second == cell) {
+  for (ModelMap::const_iterator itr = cbegin(); itr != cend();) {
+    if (itr->second == cell) {
       itr = erase(itr);
       setDirty();
       rv = false;
@@ -669,8 +660,8 @@ bool ModelMap::removeModels(ModelCell *cell)
 
 /**
  * @brief Opens a model.yml File and writes labels data into it.
- * @details If the cell is current model then write the labels data to g_model and
- *          mark as dirty
+ * @details If the cell is current model then write the labels data to g_model
+ * and mark as dirty
  *
  * @param cell
  * @return true
@@ -680,34 +671,38 @@ bool ModelMap::removeModels(ModelCell *cell)
 bool ModelMap::updateModelFile(ModelCell *cell)
 {
   // Update memory copy if on current model
-  if(cell == modelslist.getCurrentModel()) {
-    strncpy(g_model.header.labels, getLabelString(cell).c_str(), LABELS_LENGTH-1);
-    g_model.header.labels[LABELS_LENGTH-1] = '\0';
+  if (cell == modelslist.getCurrentModel()) {
+    strncpy(g_model.header.labels, getLabelString(cell).c_str(),
+            LABELS_LENGTH - 1);
+    g_model.header.labels[LABELS_LENGTH - 1] = '\0';
     storageDirty(EE_MODEL);
     return false;
   }
 
-  ModelData *modeldata = (ModelData*)malloc(sizeof(ModelData));
-  if(!modeldata) {
+  ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
+  if (!modeldata) {
     TRACE("Labels: Out Of Memory");
     return true;
   }
 
   bool fault = false;
-  readModelYaml(cell->modelFilename, (uint8_t*)modeldata, sizeof(ModelData));
+  readModelYaml(cell->modelFilename, (uint8_t *)modeldata, sizeof(ModelData));
 
-  strncpy(modeldata->header.labels, getLabelString(cell).c_str(), LABELS_LENGTH-1);
-  modeldata->header.labels[LABELS_LENGTH-1] = '\0';
+  strncpy(modeldata->header.labels, getLabelString(cell).c_str(),
+          LABELS_LENGTH - 1);
+  modeldata->header.labels[LABELS_LENGTH - 1] = '\0';
 
   char path[256];
   getModelPath(path, cell->modelFilename);
-  fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t*)modeldata) != NULL);
+  fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t *)modeldata) !=
+           NULL);
 
   free(modeldata);
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Labels: Time to add/remove labels %luus", debugTimers[debugTimerYamlScan].getLast());
+  TRACE("Labels: Time to add/remove labels %luus",
+        debugTimers[debugTimerYamlScan].getLast());
 #endif
 
   return fault;
@@ -722,20 +717,20 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 
 void ModelMap::sortModelsBy(ModelsVector &mv, ModelsSortBy sortby)
 {
-  if(sortby == DATE_DES) {
-    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b)->bool{
+  if (sortby == DATE_DES) {
+    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
       return a->lastOpened > b->lastOpened;
     });
-  } else if(sortby == DATE_ASC) {
-    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b)->bool{
+  } else if (sortby == DATE_ASC) {
+    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
       return a->lastOpened < b->lastOpened;
     });
-  } else if(sortby == NAME_ASC) {
-    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b)->bool{
+  } else if (sortby == NAME_ASC) {
+    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
       return strcmp(a->modelName, b->modelName) < 0;
     });
-  } else if(sortby == NAME_DES) {
-    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b)->bool{
+  } else if (sortby == NAME_DES) {
+    std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
       return strcmp(a->modelName, b->modelName) > 0;
     });
   }
@@ -743,27 +738,22 @@ void ModelMap::sortModelsBy(ModelsVector &mv, ModelsSortBy sortby)
 
 /**
  * @brief Sets the ModelMap to dirty.
- * @details Causes labels.yml to be written after a delay in sdcard_common.cpp->storageCheck()
+ * @details Causes labels.yml to be written after a delay in
+ * sdcard_common.cpp->storageCheck()
  */
 
 void ModelMap::setDirty(bool save)
 {
   _isDirty = true;
   storageDirty(EE_LABELS);
-  if(save) storageCheck(true);
+  if (save) storageCheck(true);
 }
 
 //-----------------------------------------------------------------------------
 
-ModelsList::ModelsList()
-{
-  init();
-}
+ModelsList::ModelsList() { init(); }
 
-ModelsList::~ModelsList()
-{
-  clear();
-}
+ModelsList::~ModelsList() { clear(); }
 
 void ModelsList::init()
 {
@@ -786,19 +776,18 @@ void ModelsList::clear()
 
 bool ModelsList::loadTxt()
 {
-  char line[LEN_MODELS_IDX_LINE+1];
-  ModelCell * model = nullptr;
+  char line[LEN_MODELS_IDX_LINE + 1];
+  ModelCell *model = nullptr;
 
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
+  FRESULT result =
+      f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
-
     // TXT reader
     while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
-      int len = strlen(line); // TODO could be returned by readNextLine
-      if (len > 2 && line[0] == '[' && line[len-1] == ']') {
-        line[len-1] = '\0';
-      }
-      else if (len > 0) {
+      int len = strlen(line);  // TODO could be returned by readNextLine
+      if (len > 2 && line[0] == '[' && line[len - 1] == ']') {
+        line[len - 1] = '\0';
+      } else if (len > 0) {
         model = new ModelCell(line);
         push_back(model);
         if (!strncmp(line, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
@@ -816,30 +805,30 @@ bool ModelsList::loadTxt()
 
 #if defined(SDCARD_YAML)
 
- /**
-  * @brief Opens a YAML file, reads the data and updates the ModelCell
-  *
-  * @param cell Model to update
-  */
+/**
+ * @brief Opens a YAML file, reads the data and updates the ModelCell
+ *
+ * @param cell Model to update
+ */
 
 void ModelMap::updateModelCell(ModelCell *cell)
 {
   modelslabels.removeModels(cell);
 
-  ModelData *model = (ModelData*)malloc(sizeof(ModelData));
-  if(!model) {
+  ModelData *model = (ModelData *)malloc(sizeof(ModelData));
+  if (!model) {
     TRACE("Labels: Out Of Memory");
     return;
   }
 
   TRACE("Labels: Updating model %s", cell->modelFilename);
-  readModelYaml(cell->modelFilename, (uint8_t*)model, sizeof(ModelData));
+  readModelYaml(cell->modelFilename, (uint8_t *)model, sizeof(ModelData));
   strcpy(cell->modelName, model->header.name);
   strcpy(cell->modelBitmap, model->header.bitmap);
   char *cma;
   cma = strtok(model->header.labels, ",");
-  while(cma != NULL) {
-    modelslabels.addLabelToModel(cma,cell);
+  while (cma != NULL) {
+    modelslabels.addLabelToModel(cma, cell);
     cma = strtok(NULL, ",");
   }
 
@@ -861,9 +850,9 @@ void ModelMap::updateModelCell(ModelCell *cell)
 char *FILInfoToHexStr(char buffer[17], FILINFO *finfo)
 {
   char *str = buffer;
-  for(unsigned int i=0; i < sizeof(FInfoH); i++) {
-    sprintf(str,"%02x",*((uint8_t*)finfo + i));
-    str+=2;
+  for (unsigned int i = 0; i < sizeof(FInfoH); i++) {
+    sprintf(str, "%02x", *((uint8_t *)finfo + i));
+    str += 2;
   }
   return buffer;
 }
@@ -891,13 +880,15 @@ bool ModelsList::loadYaml()
     for (;;) {
       FRESULT res = f_readdir(&moddir, &finfo);
       if (res != FR_OK || finfo.fname[0] == 0) break;
-      if(finfo.fattrib & AM_DIR) continue;
+      if (finfo.fattrib & AM_DIR) continue;
       int len = strlen(finfo.fname);
       if (len < 5 ||
-          strcasecmp(finfo.fname + len - 4, YAML_EXT) || // Skip non .yml files
-          strcasecmp(finfo.fname, LABELS_FILENAME) == 0  || // Skip labels.yml file
-          strcasecmp(finfo.fname, MODELS_FILENAME) == 0  || // Skip models.yml file
-          (finfo.fattrib & AM_DIR)) { // Skip sub dirs
+          strcasecmp(finfo.fname + len - 4, YAML_EXT) ||  // Skip non .yml files
+          strcasecmp(finfo.fname, LABELS_FILENAME) ==
+              0 ||  // Skip labels.yml file
+          strcasecmp(finfo.fname, MODELS_FILENAME) ==
+              0 ||                     // Skip models.yml file
+          (finfo.fattrib & AM_DIR)) {  // Skip sub dirs
         continue;
       }
 
@@ -906,29 +897,33 @@ bool ModelsList::loadYaml()
       FILInfoToHexStr(cf.hash, &finfo);
       cf.name = finfo.fname;
       cf.celladded = false;
-      if (!strncmp(finfo.fname, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME))
+      if (!strncmp(finfo.fname, g_eeGeneral.currModelFilename,
+                   LEN_MODEL_FILENAME))
         cf.curmodel = true;
       else
         cf.curmodel = false;
       fileHashInfo.push_back(cf);
-      TRACE_LABELS("File - %s \r\n  HASH - %s - CM: %s", finfo.fname, cf.hash, cf.curmodel?"Y":"N");
+      TRACE_LABELS("File - %s \r\n  HASH - %s - CM: %s", finfo.fname, cf.hash,
+                   cf.curmodel ? "Y" : "N");
     }
     f_closedir(&moddir);
   }
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Lables: Time to scan models folder %luus", debugTimers[debugTimerYamlScan].getLast());
+  TRACE("Lables: Time to scan models folder %luus",
+        debugTimers[debugTimerYamlScan].getLast());
 #endif
 
   // Scan labels.yml
-  char line[LEN_MODELS_IDX_LINE+1];
-  FRESULT result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  char line[LEN_MODELS_IDX_LINE + 1];
+  FRESULT result =
+      f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
     YamlParser yp;
-    void* ctx = get_labelslist_iter();
+    void *ctx = get_labelslist_iter();
     yp.init(get_labelslist_parser_calls(), ctx);
-    UINT bytes_read=0;
+    UINT bytes_read = 0;
     while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
       if (bytes_read == 0) break;
       if (yp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
@@ -938,14 +933,16 @@ bool ModelsList::loadYaml()
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Lables: Time to scan labels.yml %luus", debugTimers[debugTimerYamlScan].getLast());
+  TRACE("Lables: Time to scan labels.yml %luus",
+        debugTimers[debugTimerYamlScan].getLast());
 #endif
 
   // Add modelcells for any remaining models that weren't in labels.yml
-  for(auto &filehash : fileHashInfo) {
+  for (auto &filehash : fileHashInfo) {
     ModelCell *model = NULL;
-    if(filehash.celladded == false) {
-      TRACE_LABELS("  Created a modelcell for %s, not in labels.yml", filehash.name.c_str());
+    if (filehash.celladded == false) {
+      TRACE_LABELS("  Created a modelcell for %s, not in labels.yml",
+                   filehash.name.c_str());
       model = new ModelCell(filehash.name.c_str());
       strcpy(model->modelFinfoHash, filehash.hash);
       modelslist.push_back(model);
@@ -955,10 +952,10 @@ bool ModelsList::loadYaml()
   }
 
   // Scan all models, to see if update needed
-  bool updatelabelsyml=false;
-  for(auto &model : modelslist) {
+  bool updatelabelsyml = false;
+  for (auto &model : modelslist) {
     // Open and read each model if it's marked as dirty
-    if(model->_isDirty) {
+    if (model->_isDirty) {
       updatelabelsyml = true;
       modelslabels.updateModelCell(model);
     }
@@ -967,7 +964,7 @@ bool ModelsList::loadYaml()
   fileHashInfo.clear();
 
   // If any items differed save the file
-  if(updatelabelsyml == true) {
+  if (updatelabelsyml == true) {
     TRACE_LABELS("LABELS.YML Wasn't in sync. Needs to be saved");
     modelslist.save();
   } else {
@@ -975,7 +972,7 @@ bool ModelsList::loadYaml()
   }
 
   // If no labels found. Add a favorites label
-  if(modelslabels.getLabels().size() == 0) {
+  if (modelslabels.getLabels().size() == 0) {
     modelslabels.addLabel(STR_FAVORITE_LABEL);
   }
 
@@ -986,15 +983,15 @@ bool ModelsList::loadYaml()
 /**
  * @brief Called to load the model data from file
  *
- * @param fmt Format::txt - Opens models.txt file, Format::yaml_txt - Opens labels.yml
+ * @param fmt Format::txt - Opens models.txt file, Format::yaml_txt - Opens
+ * labels.yml
  * @return true on success
  * @return false on failure
  */
 
 bool ModelsList::load(Format fmt)
 {
-  if (loaded)
-    return true;
+  if (loaded) return true;
 
   bool res = false;
 #if !defined(SDCARD_YAML)
@@ -1003,8 +1000,7 @@ bool ModelsList::load(Format fmt)
 #else
   FILINFO fno;
   if (fmt == Format::txt ||
-      (fmt == Format::yaml_txt &&
-       f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
+      (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
        f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
   } else {
@@ -1012,9 +1008,9 @@ bool ModelsList::load(Format fmt)
   }
 #endif
 
-  if(!currentModel) {
+  if (!currentModel) {
     TRACE("ERROR no Current Model Found");
-    if(modelslist.size()) {
+    if (modelslist.size()) {
       modelslist.setCurrentModel(modelslist.at(0));
       TRACE("  - Set current model to first available");
     } else {
@@ -1036,12 +1032,14 @@ bool ModelsList::load(Format fmt)
  * @return const char* Error String on failure
  */
 
-const char * ModelsList::save()
+const char *ModelsList::save()
 {
 #if !defined(SDCARD_YAML)
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT result =
+      f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
 #else
-  FRESULT result = f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
+  FRESULT result =
+      f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
 #endif
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
 
@@ -1050,14 +1048,14 @@ const char * ModelsList::save()
 
   std::string cursel = modelslabels.getCurrentLabel();
   LabelsVector lbls = modelslabels.getLabels();
-  for(auto &lbl : lbls) {
+  for (auto &lbl : lbls) {
     f_printf(&file, "  - %s:\r\n", lbl.c_str());
-    if(modelslabels.isLabelFiltered(lbl))
+    if (modelslabels.isLabelFiltered(lbl))
       f_printf(&file, "    - selected: true\r\n", lbl.c_str());
   }
 
   f_puts("  Models:\r\n", &file);
-  for (auto & model : modelslist) {
+  for (auto &model : modelslist) {
     f_puts("  - ", &file);
     f_puts(model->modelFilename, &file);
     f_puts(":\r\n", &file);
@@ -1071,20 +1069,23 @@ const char * ModelsList::save()
     f_puts("\"\r\n", &file);
 
     // TODO Maybe make sub-items instead.
-    for(int i=0; i < NUM_MODULES; i++) {
-      if(model->modelId[i])
-        f_printf(&file, "      " MODULE_ID_STR ": %u\r\n",i,(unsigned int)model->modelId[i]);
-      if(model->moduleData[i].type)
-        f_printf(&file, "      " MODULE_TYPE_STR ": %u\r\n",i,(unsigned int)model->moduleData[i].type);
-      if(model->moduleData[i].subType)
-        f_printf(&file, "      " MODULE_RFPROTOCOL_STR ": %u\r\n",i,(unsigned int)model->moduleData[i].subType);
+    for (int i = 0; i < NUM_MODULES; i++) {
+      if (model->modelId[i])
+        f_printf(&file, "      " MODULE_ID_STR ": %u\r\n", i,
+                 (unsigned int)model->modelId[i]);
+      if (model->moduleData[i].type)
+        f_printf(&file, "      " MODULE_TYPE_STR ": %u\r\n", i,
+                 (unsigned int)model->moduleData[i].type);
+      if (model->moduleData[i].subType)
+        f_printf(&file, "      " MODULE_RFPROTOCOL_STR ": %u\r\n", i,
+                 (unsigned int)model->moduleData[i].subType);
     }
 
     f_puts("      labels: \"", &file);
     LabelsVector labels = modelslabels.getLabelsByModel(model);
-    bool comma=false;
-    for(auto const& label: labels) {
-      if(comma) {
+    bool comma = false;
+    for (auto const &label : labels) {
+      if (comma) {
         f_puts(",", &file);
       }
       f_puts(label.c_str(), &file);
@@ -1115,7 +1116,7 @@ const char * ModelsList::save()
  * @param cell Model to set as current
  */
 
-void ModelsList::setCurrentModel(ModelCell * cell)
+void ModelsList::setCurrentModel(ModelCell *cell)
 {
   currentModel = cell;
   struct gtm t;
@@ -1131,10 +1132,10 @@ void ModelsList::setCurrentModel(ModelCell * cell)
 
 void ModelsList::updateCurrentModelCell()
 {
-  if(currentModel) {
+  if (currentModel) {
 #if LEN_BITMAP_NAME > 0
-    strncpy(currentModel->modelBitmap,g_model.header.bitmap, LEN_BITMAP_NAME);
-    currentModel->modelBitmap[LEN_BITMAP_NAME-1] = '\0';
+    strncpy(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
+    currentModel->modelBitmap[LEN_BITMAP_NAME - 1] = '\0';
 #endif
     currentModel->setModelName(g_model.header.name);
     currentModel->setRfData(&g_model);
@@ -1153,15 +1154,15 @@ void ModelsList::updateCurrentModelCell()
  * @return false Failure
  */
 
-bool ModelsList::readNextLine(char * line, int maxlen)
+bool ModelsList::readNextLine(char *line, int maxlen)
 {
   if (f_gets(line, maxlen, &file) != NULL) {
     int curlen = strlen(line) - 1;
-    if (line[curlen] == '\n') { // remove unwanted chars if file was edited using windows
+    if (line[curlen] ==
+        '\n') {  // remove unwanted chars if file was edited using windows
       if (line[curlen - 1] == '\r') {
         line[curlen - 1] = 0;
-      }
-      else {
+      } else {
         line[curlen] = 0;
       }
     }
@@ -1178,10 +1179,10 @@ bool ModelsList::readNextLine(char * line, int maxlen)
  * @return ModelCell* New Model
  */
 
-ModelCell * ModelsList::addModel(const char * name, bool save)
+ModelCell *ModelsList::addModel(const char *name, bool save)
 {
-  if(name == nullptr) return nullptr;
-  ModelCell * result = new ModelCell(name);
+  if (name == nullptr) return nullptr;
+  ModelCell *result = new ModelCell(name);
   strcpy(result->modelFilename, name);
   push_back(result);
   if (save) this->save();
@@ -1199,7 +1200,7 @@ ModelCell * ModelsList::addModel(const char * name, bool save)
  * @return true Failure
  */
 
-bool ModelsList::removeModel(ModelCell * model)
+bool ModelsList::removeModel(ModelCell *model)
 {
   erase(std::remove(begin(), end(), model), end());
   modelslabels.removeModels(model);
@@ -1208,22 +1209,23 @@ bool ModelsList::removeModel(ModelCell * model)
   DIR deletedFolder;
   FRESULT result = f_opendir(&deletedFolder, DELETED_MODELS_PATH);
   if (result != FR_OK) {
-    if (result == FR_NO_PATH)
-      result = f_mkdir(DELETED_MODELS_PATH);
+    if (result == FR_NO_PATH) result = f_mkdir(DELETED_MODELS_PATH);
     if (result != FR_OK) {
       TRACE("Unable to create deleted models folder");
       return true;
     }
   }
 
-  // Move model into deleted folder. If not moved will be re-added on next reboot
-  if(!sdCopyFile(model->modelFilename, MODELS_PATH, model->modelFilename, DELETED_MODELS_PATH)) {
+  // Move model into deleted folder. If not moved will be re-added on next
+  // reboot
+  if (!sdCopyFile(model->modelFilename, MODELS_PATH, model->modelFilename,
+                  DELETED_MODELS_PATH)) {
     char curFilename[sizeof(MODELS_PATH) + LEN_MODEL_FILENAME + 2] = "";
     strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
     strcat(curFilename, model->modelFilename);
     TRACE_LABELS("Deleting Model %s", model->modelFilename);
 
-    if(f_unlink(curFilename) != FR_OK) {
+    if (f_unlink(curFilename) != FR_OK) {
       TRACE("Labels: Unable to delete file");
       return true;
     }
@@ -1243,15 +1245,14 @@ bool ModelsList::removeModel(ModelCell * model)
 
 bool ModelsList::moveModelTo(unsigned curindex, unsigned toindex)
 {
-  if(curindex == toindex ||
-    curindex >= size() ||
-    toindex >= size())
-  return true;
+  if (curindex == toindex || curindex >= size() || toindex >= size())
+    return true;
 
-  if(curindex < toindex) { // Move forward
+  if (curindex < toindex) {  // Move forward
     std::rotate(rend() - curindex - 1, rend() - curindex, rend() - toindex);
-  } else { // Move back
-    std::rotate(begin() + curindex, begin() + curindex + 1, begin() + toindex + 1);
+  } else {  // Move back
+    std::rotate(begin() + curindex, begin() + curindex + 1,
+                begin() + toindex + 1);
   }
 
   modelslabels.setDirty();
@@ -1268,9 +1269,10 @@ bool ModelsList::moveModelTo(unsigned curindex, unsigned toindex)
  * @return false ID is used
  */
 
-bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_buf_len)
+bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char *warn_buf,
+                                 size_t warn_buf_len)
 {
-  ModelCell* modelCell = modelslist.getCurrentModel();
+  ModelCell *modelCell = modelslist.getCurrentModel();
   if (!modelCell || !modelCell->valid_rfData) {
     // in doubt, pretend it's unique
     return true;
@@ -1281,41 +1283,36 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
   uint8_t subType = modelCell->moduleData[moduleIdx].subType;
 
   uint8_t additionalOnes = 0;
-  char* curr = warn_buf;
+  char *curr = warn_buf;
   curr[0] = 0;
 
   bool hit_found = false;
 
   for (auto it = begin(); it != end(); ++it) {
-    if (modelCell == *it)
-      continue;
+    if (modelCell == *it) continue;
 
-    if (!(*it)->valid_rfData)
-      continue;
+    if (!(*it)->valid_rfData) continue;
 
     if ((type != MODULE_TYPE_NONE) &&
-        (type       == (*it)->moduleData[moduleIdx].type) &&
+        (type == (*it)->moduleData[moduleIdx].type) &&
         (subType == (*it)->moduleData[moduleIdx].subType) &&
-        (modelId    == (*it)->modelId[moduleIdx])) {
-
+        (modelId == (*it)->modelId[moduleIdx])) {
       // Hit found!
       hit_found = true;
 
-      const char * modelName = (*it)->modelName;
-      const char * modelFilename = (*it)->modelFilename;
+      const char *modelName = (*it)->modelName;
+      const char *modelFilename = (*it)->modelFilename;
 
-      // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2 (-2 for the ",")
+      // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2
+      // (-2 for the ",")
       if ((warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
-        if (warn_buf[0] != 0)
-          curr = strAppend(curr, ", ");
+        if (warn_buf[0] != 0) curr = strAppend(curr, ", ");
         if (modelName[0] == 0) {
-          size_t len = min<size_t>(strlen(modelFilename),LEN_MODEL_NAME);
+          size_t len = min<size_t>(strlen(modelFilename), LEN_MODEL_NAME);
           curr = strAppendFilename(curr, modelFilename, len);
-        }
-        else
+        } else
           curr = strAppend(curr, modelName, LEN_MODEL_NAME);
-      }
-      else {
+      } else {
         additionalOnes++;
       }
     }
@@ -1340,7 +1337,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_
 
 uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
 {
-  ModelCell * modelCell = modelslist.getCurrentModel();
+  ModelCell *modelCell = modelslist.getCurrentModel();
   if (!modelCell || !modelCell->valid_rfData) {
     return 0;
   }
@@ -1351,18 +1348,15 @@ uint8_t ModelsList::findNextUnusedModelId(uint8_t moduleIdx)
   uint8_t usedModelIds[(MAX_RXNUM + 7) / 8];
   memset(usedModelIds, 0, sizeof(usedModelIds));
 
-  for (auto it = begin(); it != end(); it++){
-    if (modelCell == *it)
-      continue;
+  for (auto it = begin(); it != end(); it++) {
+    if (modelCell == *it) continue;
 
-    if (!(*it)->valid_rfData)
-      continue;
+    if (!(*it)->valid_rfData) continue;
 
     // match module type and RF protocol
     if ((type != MODULE_TYPE_NONE) &&
-        (type       == (*it)->moduleData[moduleIdx].type) &&
+        (type == (*it)->moduleData[moduleIdx].type) &&
         (subType == (*it)->moduleData[moduleIdx].subType)) {
-
       uint8_t id = (*it)->modelId[moduleIdx];
       uint8_t mask = 1 << (id & 7u);
       usedModelIds[id >> 3u] |= mask;

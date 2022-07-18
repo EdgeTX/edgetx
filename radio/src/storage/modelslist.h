@@ -22,16 +22,18 @@
 #ifndef _MODELSLIST_H_
 #define _MODELSLIST_H_
 
-#include <algorithm>
 #include <stdint.h>
+
+#include <algorithm>
+#include <functional>
 #include <list>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include "sdcard.h"
+
 #if !defined(SDCARD_YAML)
 #include "sdcard_raw.h"
 #endif
@@ -40,52 +42,52 @@
 #include "rtc.h"
 
 // modelXXXXXXX.bin F,FF F,3F,FF\r\n
-#define LEN_MODELS_IDX_LINE (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n")-1)
+#define LEN_MODELS_IDX_LINE \
+  (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n") - 1)
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
 struct ModelData;
 struct ModuleData;
 
-struct SimpleModuleData
-{
-  uint8_t type=0;
-  uint8_t subType=0;
+struct SimpleModuleData {
+  uint8_t type = 0;
+  uint8_t subType = 0;
 };
 
 typedef struct PACKED {
-	  FSIZE_t	fsize;		/* File size */
-	  WORD	fdate;			/* Modified date */
-	  WORD	ftime;			/* Modified time */ 
+  FSIZE_t fsize; /* File size */
+  WORD fdate;    /* Modified date */
+  WORD ftime;    /* Modified time */
 } FInfoH;
 
-#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2) // Hex string output
+#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2)  // Hex string output
 
 class ModelCell
 {
-public:
+ public:
   char modelFilename[LEN_MODEL_FILENAME + 1] = "";
   char modelName[LEN_MODEL_NAME + 1] = "";
   char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
 #if LEN_BITMAP_NAME > 0
   char modelBitmap[LEN_BITMAP_NAME] = "";
 #endif
-  gtime_t lastOpened=0;
+  gtime_t lastOpened = 0;
   bool _isDirty = true;
 
-  bool             valid_rfData;
-  uint8_t          modelId[NUM_MODULES] = {0,0};
+  bool valid_rfData;
+  uint8_t modelId[NUM_MODULES] = {0, 0};
   SimpleModuleData moduleData[NUM_MODULES];
 
-  explicit ModelCell(const char * name);
-  explicit ModelCell(const char * name, uint8_t len);
+  explicit ModelCell(const char *name);
+  explicit ModelCell(const char *name, uint8_t len);
 
-  void setModelName(char * name);
-  void setModelName(char* name, uint8_t len);
-  void setRfData(ModelData * model);
+  void setModelName(char *name);
+  void setModelName(char *name, uint8_t len);
+  void setRfData(ModelData *model);
 
   void setModelId(uint8_t moduleIdx, uint8_t id);
-  void setRfModuleData(uint8_t moduleIdx, ModuleData* modData);
+  void setRfModuleData(uint8_t moduleIdx, ModuleData *modData);
   bool fetchRfData();
 };
 
@@ -112,51 +114,65 @@ typedef enum {
 
 class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 {
-public:
-  ModelsVector getUnlabeledModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-  ModelsVector getAllModels(ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-  ModelsVector getModelsByLabel(const std::string &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-  ModelsVector getModelsByLabels(const LabelsVector &, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
-  ModelsVector getModelsInLabels(const LabelsVector &lbls, ModelsSortBy sortby=DEFAULT_MODEL_SORT);
+ public:
+  ModelsVector getUnlabeledModels(ModelsSortBy sortby = DEFAULT_MODEL_SORT);
+  ModelsVector getAllModels(ModelsSortBy sortby = DEFAULT_MODEL_SORT);
+  ModelsVector getModelsByLabel(const std::string &,
+                                ModelsSortBy sortby = DEFAULT_MODEL_SORT);
+  ModelsVector getModelsByLabels(const LabelsVector &,
+                                 ModelsSortBy sortby = DEFAULT_MODEL_SORT);
+  ModelsVector getModelsInLabels(const LabelsVector &lbls,
+                                 ModelsSortBy sortby = DEFAULT_MODEL_SORT);
   LabelsVector getLabelsByModel(ModelCell *);
   std::map<std::string, bool> getSelectedLabels(ModelCell *);
   bool isLabelSelected(const std::string &, ModelCell *);
   LabelsVector getLabels();
   int addLabel(const std::string &);
-  bool addLabelToModel(const std::string &, ModelCell *, bool update=false);
-  bool removeLabelFromModel(const std::string &label, ModelCell *, bool update=false);
-  bool removeLabel(const std::string &);
+  bool addLabelToModel(const std::string &, ModelCell *, bool update = false);
+  bool removeLabelFromModel(const std::string &label, ModelCell *,
+                            bool update = false);
+  bool removeLabel(
+      const std::string &,
+      std::function<void(const char *file, int progress)> progress = nullptr);
   bool moveLabelTo(unsigned current, unsigned newind);
-  bool renameLabel(const std::string &from,
-                    const std::string &to,
-                    const char* title=STR_RENAME_FILE,
-                    std::function<void(const char *file, int progress)> progress=nullptr);
-  std::string getCurrentLabel() {return currentlabel;};
-  void setCurrentLabel(const std::string &lbl) {currentlabel = lbl; setDirty();}
-  std::string getLabelString(ModelCell *, const char *noresults="");
-  void setDirty(bool save=false);
-  bool isDirty() {return _isDirty;}
+  bool renameLabel(
+      const std::string &from, const std::string &to,
+      std::function<void(const char *file, int progress)> progress = nullptr);
+  std::string getCurrentLabel() { return currentlabel; };
+  void setCurrentLabel(const std::string &lbl)
+  {
+    currentlabel = lbl;
+    setDirty();
+  }
+  std::string getLabelString(ModelCell *, const char *noresults = "");
+  void setDirty(bool save = false);
+  bool isDirty() { return _isDirty; }
 
   // Currently selected labels in the GUI
-  void setFilteredLabels(std::set<uint32_t> filtlbls) {this->filtlbls = std::move(filtlbls);}
+  void setFilteredLabels(std::set<uint32_t> filtlbls)
+  {
+    this->filtlbls = std::move(filtlbls);
+  }
   void addFilteredLabel(const std::string &lbl);
   bool isLabelFiltered(const std::string &lbl);
-  std::set<uint32_t> filteredLabels() {return filtlbls;}
+  std::set<uint32_t> filteredLabels() { return filtlbls; }
 
-protected:
+ protected:
   void updateModelCell(ModelCell *);
-  bool removeModels(ModelCell *);      // Should only be called from ModelsList remove model
+  bool removeModels(
+      ModelCell *);  // Should only be called from ModelsList remove model
   bool updateModelFile(ModelCell *);
   void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
-  void clear() {
-    _isDirty=true;
+  void clear()
+  {
+    _isDirty = true;
     labels.clear();
     std::multimap<uint16_t, ModelCell *>::clear();
   }
 
-protected:
-  bool _isDirty=true;    
+ protected:
+  bool _isDirty = true;
   std::set<uint32_t> filtlbls;
   std::string currentlabel = "";
 
@@ -166,28 +182,29 @@ protected:
     return a == labels.end() ? -1 : a - labels.begin();
   }
 
-  std::string getLabelByIndex(uint16_t index) {
-    if(index < (uint16_t)labels.size())
+  std::string getLabelByIndex(uint16_t index)
+  {
+    if (index < (uint16_t)labels.size())
       return labels.at(index);
     else
       return std::string();
   }
 
   friend class ModelsList;
-private:
-  LabelsVector labels; // Storage space for discovered labels 
+
+ private:
+  LabelsVector labels;  // Storage space for discovered labels
 };
 
 class ModelsList : public ModelsVector
 {
   bool loaded;
 
-  ModelCell * currentModel;
+  ModelCell *currentModel;
 
   void init();
 
-public:
-
+ public:
   enum class Format {
     txt,
 #if defined(SDCARD_YAML)
@@ -206,37 +223,34 @@ public:
   const char *save();
   void clear();
 
-  void setCurrentModel(ModelCell * cell);
+  void setCurrentModel(ModelCell *cell);
   void updateCurrentModelCell();
 
-  ModelCell * getCurrentModel() const
-  {
-    return currentModel;
-  }
+  ModelCell *getCurrentModel() const { return currentModel; }
 
   unsigned int getModelsCount() const
   {
     return std::vector<ModelCell *>::size();
   }
 
-  bool readNextLine(char * line, int maxlen);
+  bool readNextLine(char *line, int maxlen);
 
-  ModelCell * addModel(const char * name, bool save=true);
-  bool removeModel(ModelCell * model);
+  ModelCell *addModel(const char *name, bool save = true);
+  bool removeModel(ModelCell *model);
   bool moveModelTo(unsigned curindex, unsigned toindex);
 
-  bool isModelIdUnique(uint8_t moduleIdx, char* warn_buf, size_t warn_buf_len);
+  bool isModelIdUnique(uint8_t moduleIdx, char *warn_buf, size_t warn_buf_len);
   uint8_t findNextUnusedModelId(uint8_t moduleIdx);
 
   typedef struct {
     std::string name;
     char hash[FILE_HASH_LENGTH + 1];
-    bool curmodel=false;
-    bool celladded=false;
+    bool curmodel = false;
+    bool celladded = false;
   } filedat;
   std::vector<filedat> fileHashInfo;
 
-protected:
+ protected:
   FIL file;
 
   bool loadTxt();
@@ -251,4 +265,4 @@ ModelLabelsVector getUniqueLabels();
 extern ModelsList modelslist;
 extern ModelMap modelslabels;
 
-#endif // _MODELSLIST_H_
+#endif  // _MODELSLIST_H_
