@@ -220,7 +220,7 @@ class ModelsList : public ModelsVector
   ~ModelsList();
 
   bool load(Format fmt = Format::load_default);
-  const char *save();
+  const char *save(LabelsVector newOrder=LabelsVector());
   void clear();
 
   void setCurrentModel(ModelCell *cell);

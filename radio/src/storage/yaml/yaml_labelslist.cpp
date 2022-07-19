@@ -165,8 +165,8 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     if(mi->level == labelslist_iter::LabelName)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
       modelslabels.addLabel(mi->current_attr);
-      strncpy(mi->current_label,mi->current_attr, sizeof(mi->current_label));
-      mi->current_label[sizeof(mi->current_label)] = '\0';
+      strncpy(mi->current_label,mi->current_attr, LABEL_LENGTH);
+      mi->current_label[LABEL_LENGTH] = '\0';
     }
 
     return true;

@@ -471,16 +471,18 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
 
   if (labels.at(curind) == "") return true;
 
+  LabelsVector newOrder = labels;
+
   if (curind < newind) {  // Move forward
-    std::rotate(labels.rend() - curind - 1, labels.rend() - curind,
-                labels.rend() - newind);
+    std::rotate(newOrder.rend() - curind - 1, newOrder.rend() - curind,
+                newOrder.rend() - newind);
   } else {  // Move back
-    std::rotate(labels.begin() + curind, labels.begin() + curind + 1,
-                labels.begin() + newind + 1);
+    std::rotate(newOrder.begin() + curind, newOrder.begin() + curind + 1,
+                newOrder.begin() + newind + 1);
   }
 
   // Reload the new labels order
-  modelslist.save();
+  modelslist.save(newOrder);
   modelslist.clear();
   modelslist.load();
 
@@ -1032,7 +1034,7 @@ bool ModelsList::load(Format fmt)
  * @return const char* Error String on failure
  */
 
-const char *ModelsList::save()
+const char *ModelsList::save(LabelsVector newOrder)
 {
 #if !defined(SDCARD_YAML)
   FRESULT result =
@@ -1047,8 +1049,9 @@ const char *ModelsList::save()
   f_puts("- Labels:\r\n", &file);
 
   std::string cursel = modelslabels.getCurrentLabel();
-  LabelsVector lbls = modelslabels.getLabels();
-  for (auto &lbl : lbls) {
+  if(newOrder.empty())
+    newOrder = modelslabels.getLabels();
+  for (auto &lbl : newOrder) {
     f_printf(&file, "  - %s:\r\n", lbl.c_str());
     if (modelslabels.isLabelFiltered(lbl))
       f_printf(&file, "    - selected: true\r\n", lbl.c_str());

@@ -679,9 +679,14 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       menu->setTitle(selectedLabel);
       menu->addLine(STR_NEW_LABEL, [=]() {
         new LabelDialog(parent, tmpLabel, [=](std::string label) {
-          if (modelslabels.addLabel(label) >= 0) {
+          int newlabindex = modelslabels.addLabel(label);
+          if (newlabindex >= 0) {
+            std::set<uint32_t> newset;
+            newset.insert(newlabindex);
             auto labels = getLabels();
             lblselector->setNames(labels);
+            lblselector->setSelected(newset);
+            updateFilteredLabels(newset);
           }
         });
         return 0;
@@ -715,7 +720,10 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                       deldialog->updateProgress(name, percentage);
                     });
                 auto labels = getLabels();
+                std::set<uint32_t> newset;
                 lblselector->setNames(labels);
+                lblselector->setSelected(newset);
+                updateFilteredLabels(newset);
               });
           return 0;
         });
@@ -723,16 +731,24 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           if (selected != 0) {
             menu->addLine("Move Up", [=]() {
               modelslabels.moveLabelTo(selected, selected - 1);
+              std::set<uint32_t> newset;
+              newset.insert(selected - 1);
               auto labels = getLabels();
               lblselector->setNames(labels);
+              lblselector->setSelected(newset);
+              updateFilteredLabels(newset);
               return 0;
             });
           }
           if (selected != (int)modelslabels.getLabels().size() - 1) {
             menu->addLine("Move Down", [=]() {
               modelslabels.moveLabelTo(selected, selected + 1);
+              std::set<uint32_t> newset;
+              newset.insert(selected + 1);
               auto labels = getLabels();
               lblselector->setNames(labels);
+              lblselector->setSelected(newset);
+              updateFilteredLabels(newset);
               return 0;
             });
           }
