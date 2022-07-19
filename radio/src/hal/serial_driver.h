@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 enum SerialParity {
     ETX_Parity_None,
@@ -73,7 +74,7 @@ typedef struct {
   void (*waitForTxCompleted)(void* ctx);
 
   // Fetch byte from internal buffer
-  int (*getByte)(void* ctx, uint8_t* data);
+  bool (*getByte)(void* ctx, uint8_t* data);
 
   // Get current baudrate
   uint32_t (*getBaudrate)(void*);

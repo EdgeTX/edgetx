@@ -49,7 +49,11 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
+#if defined(EXTENDED_TRAINER)
+  #define MAX_TRAINER_CHANNELS         32
+#else
   #define MAX_TRAINER_CHANNELS         16
+#endif
   #define MAX_TELEMETRY_SENSORS        60
   #define MAX_CUSTOM_SCREENS           5
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
@@ -64,7 +68,11 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
+#if defined(EXTENDED_TRAINER)
+  #define MAX_TRAINER_CHANNELS         32
+#else
   #define MAX_TRAINER_CHANNELS         16
+#endif
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
@@ -229,7 +237,11 @@ enum UartModes {
   UART_MODE_NONE,
   UART_MODE_TELEMETRY_MIRROR,
   UART_MODE_TELEMETRY,
+  UART_MODE_FRSKY_D_TELEMETRY,
   UART_MODE_SBUS_TRAINER,
+  UART_MODE_IBUS_TRAINER,
+  UART_MODE_CRSF_TRAINER,
+  UART_MODE_SUMD_TRAINER,
   UART_MODE_LUA,
   UART_MODE_CLI,
   UART_MODE_GPS,

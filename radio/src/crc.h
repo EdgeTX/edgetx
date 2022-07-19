@@ -104,4 +104,12 @@ static const unsigned short crc16tab_1189[256] = {
   0x7bc7,0x6a4e,0x58d5,0x495c,0x3de3,0x2c6a,0x1ef1,0x0f78
 };
 
+struct CRC8 final {
+    void reset();
+    CRC8& operator+=(const uint8_t b);
+    operator uint8_t() const;
+private:
+    uint8_t mSum = 0;
+};
+
 #endif
