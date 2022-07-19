@@ -86,9 +86,9 @@ void ThemeFile::serialize()
   if (result == FR_OK) {
     f_printf(&file, "---\n");
     f_printf(&file, "summary:\n");
-    f_printf(&file, "  name: %s\n", name);
-    f_printf(&file, "  author: %s\n", author);
-    f_printf(&file, "  info: %s\n", info);
+    f_printf(&file, "  name: \"%s\"\n", name);
+    f_printf(&file, "  author: \"%s\"\n", author);
+    f_printf(&file, "  info: \"%s\"\n", info);
     f_printf(&file, "\n");
     f_printf(&file, "colors:\n");
 
@@ -151,6 +151,9 @@ void ThemeFile::deSerialize()
       strncpy(lvalue, line, min((int)(ptr - line), 63));
       lvalue[ptr - line] = '\0';
       strncpy(rvalue, ptr + 1, 63);
+      std::string rval(rvalue);
+      rval.erase(std::remove(rval.begin(),rval.end(),'\"'),rval.end());
+      strncpy(rvalue, rval.c_str(), 63);
       plvalue = trim(lvalue);
       prvalue = trim(rvalue);
 
@@ -434,7 +437,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   // greater than 0 is intentional here.  cant delete default theme.
   if (index > 0 && index < (int) themes.size()) {
     ThemeFile* theme = themes[index];
-    
+
     char newFile[FF_MAX_LFN + 1];
     strncpy(newFile, theme->getPath().c_str(), FF_MAX_LFN);
     strcat(newFile, ".deleted");
@@ -442,7 +445,7 @@ bool ThemePersistance::deleteThemeByIndex(int index)
     // for now we are just renaming the file so we don't find it
     FRESULT status = f_rename(theme->getPath().c_str(), newFile);
     refresh();
-    
+
     // make sure currentTheme stays in bounds
     if (getThemeIndex() >= (int) themes.size())
       setThemeIndex(themes.size() - 1);
@@ -498,7 +501,7 @@ class DefaultEdgeTxTheme : public ThemeFile
       setName("EdgeTX Default");
       setAuthor("EdgeTX Team");
       setInfo("Default EdgeTX Color Scheme");
-    
+
       // initializze the default color table
       colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY1_INDEX, RGB(0, 0, 0) });
       colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY2_INDEX, RGB(255, 255, 255) });
