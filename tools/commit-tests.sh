@@ -88,6 +88,9 @@ do
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
+        tx12mk2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
