@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,29 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "releasenotesdialog.h"
-#include "ui_htmldialog.h"
-#include <QFile>
+#include "updatethemes.h"
+#include "eeprominterface.h"
 
-ReleaseNotesDialog::ReleaseNotesDialog(QWidget * parent) :
-  QDialog(parent),
-  ui(new Ui::HtmlDialog)
+UpdateThemes::UpdateThemes(QWidget * parent) :
+  UpdateInterface(parent)
 {
-  ui->setupUi(this);
+  setName("Themes");
+  setRepo(QString(GH_REPOS_EDGETX).append("/themes"));
 
-  setWindowTitle(tr("Companion Release Notes"));
-  setWindowIcon(CompanionIcon("changelog.png"));
-
-  QFile file(":/releasenotes.txt");
-  if (file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    ui->textEditor->setHtml(file.readAll());
-    ui->textEditor->setOpenExternalLinks(true);
-  }
-  ui->textEditor->scroll(0, 0);
-  ui->textEditor->setOpenExternalLinks(true);
-}
-
-ReleaseNotesDialog::~ReleaseNotesDialog()
-{
-  delete ui;
+  UpdateParameters::AssetParams &ap = dfltParams->addAsset();
+  ap.filterType = UpdateParameters::UFT_Startswith;
+  ap.filter = "edgetx-themes";
+  ap.maxExpected = 1;
+  ap.flags = dfltParams->data.flags | UPDFLG_CopyStructure;
 }

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,35 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FWPREFERENCESDIALOG_H_
-#define _FWPREFERENCESDIALOG_H_
+#pragma once
 
-#include <QDialog>
-#include <QCheckBox>
-#include "eeprominterface.h"
+#include <QtCore>
+#include <QWidget>
 
-namespace Ui {
-  class FirmwarePreferencesDialog;
-}
+class UpdateFactories;
 
-class Joystick;
-
-class FirmwarePreferencesDialog : public QDialog
+class Updates : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
   public:
-    explicit FirmwarePreferencesDialog(QWidget *parent = 0);
-    ~FirmwarePreferencesDialog();
+    explicit Updates(QWidget * parent, UpdateFactories * updateFactories);
+    virtual ~Updates();
+
+    void autoUpdates();
+    void manualUpdates();
 
   private:
-    Ui::FirmwarePreferencesDialog *ui;
-    void initSettings();
-
-  private slots:
-    void on_fw_dnld_clicked();
-    void on_sd_dnld_clicked();
-    void on_checkFWUpdates_clicked();
+    UpdateFactories *factories;
 };
-
-#endif // _FWPREFERENCESDIALOG_H_
