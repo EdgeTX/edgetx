@@ -111,12 +111,12 @@
 #define TR_SF_TEST             "Test"
 #define TR_SF_SAFETY           TR("Overr.","Override")
 
-#define TR_SF_SCREENSHOT      "Schermafdr"
-#define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_DISABLE_TOUCH   "No Touch"
-#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
-#define TR_SF_SET_SCREEN      "Set Main Screen"
-#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
+#define TR_SF_SCREENSHOT        "Schermafdr"
+#define TR_SF_RACING_MODE       "Racing Mode"
+#define TR_SF_DISABLE_TOUCH     "No Touch"
+#define TR_SF_DISABLE_AUDIO_AMP "Audio Amp Off"
+#define TR_SF_SET_SCREEN        "Set Main Screen"
+#define TR_SF_LCD_TO_VIDEO      "LCD to Video"
 
 #define TR_FSW_RESET_TELEM     TR("Telm", "Telemetrie")
 #define TR_FSW_RESET_TRIMS     "Trims"

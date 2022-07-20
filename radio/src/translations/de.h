@@ -114,7 +114,7 @@
 #define TR_SF_SAFETY                   TR("Übersch.", "Überschreibe")
 
 #define TR_SF_SCREENSHOT               "Screenshot"
-#define TR_SF_RACING_MODE              "RacingMode"
+#define TR_SF_RACING_MODE              "Racing Mode"
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
