@@ -34,8 +34,8 @@ class UpdateCompanion : public UpdateInterface
 
   protected:
     virtual bool asyncInstall() override;
-    virtual const QString currentRelease();
-    virtual const QString currentVersion();
-    virtual const bool isLatestRelease();
-    virtual const bool isUpdateAvailable();
+    virtual const QString currentRelease() override;
+    virtual const QString currentVersion() override;
+    virtual const bool isLatestRelease() override;
+    virtual const bool isUpdateAvailable() override;
 };
