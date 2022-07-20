@@ -16,6 +16,7 @@ set(storage_NAMES
   otx
   yaml
   crc
+  minizinterface
 )
 
 set(storage_SRCS

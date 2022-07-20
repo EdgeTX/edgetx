@@ -18,17 +18,17 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MAINWINDOW_H_
-#define _MAINWINDOW_H_
+#pragma once
 
 #include <QtWidgets>
 #include <QDateTime>
-#include "downloaddialog.h"
 #include "eeprominterface.h"
 
 #define SPLASH_TIME 5
 
 class MdiChild;
+class UpdateFactories;
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
@@ -47,18 +47,11 @@ class MainWindow : public QMainWindow
    ~MainWindow();
 
   signals:
-    void firmwareDownloadCompleted();
     void firmwareChanged();
     void startSync();
     void onInternalModuleChanged();
 
-  protected:
-    QString getCompanionUpdateBaseUrl() const;
-    QString seekCodeString(const QByteArray & qba, const QString & label) const;
-
   protected slots:
-    void dowloadLastFirmwareUpdate();
-    void startFirmwareDownload();
     virtual void closeEvent(QCloseEvent *event);
     virtual void changeEvent(QEvent *e);
     virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -83,17 +76,7 @@ class MainWindow : public QMainWindow
     void onSubwindowModified();
     void onCurrentProfileChanged();
 
-    void checkForUpdates();
-    void checkForFirmwareUpdate();
-
-    void checkForCompanionUpdateFinished(QNetworkReply * reply);
-    void checkForFirmwareUpdateFinished(QNetworkReply * reply);
-
     void displayWarnings();
-    void doAutoUpdates();
-    void doUpdates();
-    void updateDownloaded();
-    void firmwareDownloadAccepted();
     void newFile();
     void openFile();
     void save();
@@ -118,7 +101,6 @@ class MainWindow : public QMainWindow
     void about();
     void compare();
     void appPrefs();
-    void fwPrefs();
     void updateMenus();
     void createProfile();
     void copyProfile();
@@ -128,10 +110,9 @@ class MainWindow : public QMainWindow
     void importSettings();
     void autoClose();
     void chooseProfile();
+    void manualUpdates();
+    void autoUpdates();
 
-    void openUpdatesWaitDialog();
-    void closeUpdatesWaitDialog();
-    void onUpdatesError(const QString & err);
     void openFile(const QString & fileName, bool updateLastUsedDir = false);
 
   private:
@@ -165,11 +146,7 @@ class MainWindow : public QMainWindow
     QMdiArea *mdiArea;
 
     QString installer_fileName;
-    DownloadDialog * downloadDialog_forWait;
-    unsigned int checkForUpdatesState;
-    QString firmwareVersionString;
-
-    QNetworkAccessManager *networkManager;
+    UpdateFactories *updateFactories;
 
     QVector<QAction *> recentFileActs;
     QVector<QAction *> profileActs;
@@ -198,7 +175,7 @@ class MainWindow : public QMainWindow
     QAction *recentFilesAct;
     QAction *exitAct;
     QAction *appPrefsAct;
-    QAction *fwPrefsAct;
+    QAction *updatesAct;
     QAction *checkForUpdatesAct;
     QAction *sdsyncAct;
     QAction *changelogAct;
@@ -226,5 +203,3 @@ class MainWindow : public QMainWindow
     QAction *actCascadeWindows;
     QAction *actCloseAllWindows;
 };
-
-#endif // _MAINWINDOW_H_

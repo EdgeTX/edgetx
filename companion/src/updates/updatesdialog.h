@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,26 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RELEASENOTESDIALOG_H_
-#define _RELEASENOTESDIALOG_H_
+#pragma once
+
+#include "updateinterface.h"
+#include "appdata.h"
 
 #include <QDialog>
-#include "helpers.h"
+#include <QCheckBox>
+#include <QLabel>
+#include <QPushButton>
 
 namespace Ui {
-  class HtmlDialog;
+  class UpdatesDialog;
 }
 
-class ReleaseNotesDialog : public QDialog
+class UpdatesDialog : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
-    explicit ReleaseNotesDialog(QWidget *parent = 0);
-    ~ReleaseNotesDialog();
+    UpdatesDialog(QWidget * parent, UpdateFactories * factories);
+    virtual ~UpdatesDialog();
+
+  signals:
+
+  private slots:
 
   private:
-    Ui::HtmlDialog * ui;
+    Ui::UpdatesDialog *ui;
+    const UpdateFactories *factories;
+
+    QCheckBox *chkUpdate[MAX_COMPONENTS];
+    QLabel *lblCurrentRel[MAX_COMPONENTS];
+    QLabel *lblUpdateRel[MAX_COMPONENTS];
+    QPushButton *btnOptions[MAX_COMPONENTS];
 };
 
-#endif // _RELEASENOTESDIALOG_H_

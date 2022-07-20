@@ -25,8 +25,7 @@
   @{
 */
 
-#ifndef _APPDATA_H_
-#define _APPDATA_H_
+#pragma once
 
 #include "constants.h"
 #include "macros.h"
@@ -59,14 +58,9 @@
 #define CPN_SETTINGS_INI_FILE       QString(PRODUCT % " " % QCoreApplication::translate("Companion", "settings") % " %1.ini")
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
-#define CPN_URL_DOWNLOAD           "https://downloads.edgetx.org/"
-#define CPN_URL_DOWNLOAD_CUR_VERS  CPN_URL_DOWNLOAD QT_STRINGIFY(VERSION_MAJOR) "." QT_STRINGIFY(VERSION_MINOR) "/"
-#define CPN_URL_DOWNLOAD_CUR_REL   CPN_URL_DOWNLOAD_CUR_VERS "release/"
-#define CPN_URL_DOWNLOAD_CUR_RC    CPN_URL_DOWNLOAD_CUR_VERS "rc/"
-#define CPN_URL_DOWNLOAD_CUR_UNST  CPN_URL_DOWNLOAD_CUR_VERS "nightlies/"
-
 #define MAX_PROFILES 20
 #define MAX_JOYSTICKS 8
+#define MAX_COMPONENTS 10
 
 // It important that these function names are consistent everywhere.
 #define PROP_FSIG_INIT_IMPL         _init()
@@ -427,6 +421,51 @@ class Profile: public CompStoreObj
     }
 };
 
+//! \brief ComponentData class stores properties related to each updateable component.
+class ComponentData: public CompStoreObj
+{
+  Q_OBJECT
+  public:
+    ComponentData & operator=(const ComponentData & rhs);
+
+    enum ReleaseChannel {
+      RELEASE_CHANNEL_STABLE,
+      RELEASE_CHANNEL_PRERELEASE,
+      RELEASE_CHANNEL_NIGHTLY
+    };
+    Q_ENUM(ReleaseChannel)
+
+    void clearRelease();
+    static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
+
+    inline ReleaseChannel boundedReleaseChannel() const {
+      return qBound(RELEASE_CHANNEL_STABLE, releaseChannel(), RELEASE_CHANNEL_NIGHTLY);
+    }
+
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit ComponentData();
+    void setIndex(int idx) { index = idx; }
+    inline QString propertyGroup() const override { return QStringLiteral("Components"); }
+    inline QString settingsPath()  const override { return QString("%1/component%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+
+  private:
+    PROPERTYSTR (name)
+    PROPERTY    (bool,           checkForUpdate,  false)
+    PROPERTY    (ReleaseChannel, releaseChannel,  RELEASE_CHANNEL_STABLE)
+    PROPERTYSTRD(                release,         "unknown")
+    PROPERTY    (int,            id,              0)
+    PROPERTY    (bool,           prerelease,      false)
+    PROPERTYSTRD(                version,         "0")
+    PROPERTYSTRD(                date,            "")
+
+    int index;
+
+    CREATE_ENUM_FRIEND_STREAM_OPS(ComponentData::ReleaseChannel)
+};
 
 /*!
   \brief The AppData class acts as the main interface for all application settings.
@@ -441,13 +480,6 @@ class AppData: public CompStoreObj
 {
   Q_OBJECT
   public:
-    enum DownloadBranchType {
-      BRANCH_RELEASE_STABLE,
-      BRANCH_RC_TESTING,
-      BRANCH_NIGHTLY_UNSTABLE
-    };
-    Q_ENUM(DownloadBranchType)
-
     enum NewModelAction {
       MODEL_ACT_NONE,
       MODEL_ACT_WIZARD,
@@ -457,13 +489,24 @@ class AppData: public CompStoreObj
     };
     Q_ENUM(NewModelAction)
 
+    enum UpdateCheckFreq {
+      UPDATE_CHECK_MANUAL,
+      UPDATE_CHECK_STARTUP,
+      UPDATE_CHECK_DAILY,
+      UPDATE_CHECK_WEEKLY,
+      UPDATE_CHECK_MONTHLY
+    };
+    Q_ENUM(UpdateCheckFreq)
+
     static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Editor"), tr("Template"), tr("Prompt") } ; }
+    static QStringList updateCheckFreqsList() { return { tr("Manually"), tr("Startup"), tr("Daily"), tr("Weekly"), tr("Monthly") } ; }
 
     explicit AppData();
     void init() override;
     void initAll();
     void resetAllSettings();
     void storeAllSettings();
+    void resetUpdatesSettings();
 
     inline bool isFirstUse()         const { return firstUse; }
     inline QString previousVersion() const { return upgradeFromVersion; }
@@ -487,6 +530,13 @@ class AppData: public CompStoreObj
     //! List of all active profiles mapped by index.
     QMap<int, QString> getActiveProfiles() const;
 
+    //! Get a modifiable (non-const) index to ComponentData for \a name. Returns -1 if \a name not found.
+    int getComponentIndex(QString name) const;
+    //! Get a modifiable (non-const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
+    ComponentData & getComponent(int index);
+    //! Get a non-modifiable (const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
+    const ComponentData & getComponent(int index) const;
+
     //! Find the set of settings from the last previous version installed, if any. Used at virgin startup to offer import option.
     bool findPreviousVersionSettings(QString * version) const;
     //! Converts any old/refactored settings to new ones and removes anything stale if \a removeUnused is true. This is only important when
@@ -500,25 +550,10 @@ class AppData: public CompStoreObj
     bool exportSettings(QSettings * toSettings, bool clearDestination = true);
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
-    inline DownloadBranchType boundedOpenTxBranch() const {
-#if defined(ALLOW_NIGHTLY_BUILDS)
-      return qBound(BRANCH_RELEASE_STABLE, OpenTxBranch(), BRANCH_NIGHTLY_UNSTABLE);
-#else
-      return qBound(BRANCH_RELEASE_STABLE, OpenTxBranch(), BRANCH_RC_TESTING);
-#endif
-    }
-
-    inline QString openTxCurrentDownloadBranchUrl() const { return openTxDownloadBranchUrl(boundedOpenTxBranch()); }
-
-    static const QString openTxDownloadBranchUrl(DownloadBranchType type)
-    {
-      static const QStringList urlList({ CPN_URL_DOWNLOAD_CUR_REL, CPN_URL_DOWNLOAD_CUR_RC, CPN_URL_DOWNLOAD_CUR_UNST });
-      return urlList.value(type, CPN_URL_DOWNLOAD_CUR_VERS);
-    }
-
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JOYSTICKS];
     FwRevision fwRev;
+    ComponentData component[MAX_COMPONENTS];
 
   signals:
     void currentProfileChanged();
@@ -541,47 +576,56 @@ class AppData: public CompStoreObj
     PROPERTYQBA (mdiWinState)
     PROPERTYQBA (compareWinGeo)
 
-    PROPERTYSTR3(armMcu,          "arm_mcu",         QStringLiteral("at91sam3s4-9x"))
+    PROPERTYSTR3(armMcu,          "arm_mcu",            QStringLiteral("at91sam3s4-9x"))
     PROPERTYSTR2(avrArguments,    "avr_arguments")
     PROPERTYSTR2(avrPort,         "avr_port")
     PROPERTYSTR2(avrdudeLocation, "avrdudeLocation")
-    PROPERTYSTR3(dfuArguments,    "dfu_arguments",   QStringLiteral("-a 0"))
+    PROPERTYSTR3(dfuArguments,    "dfu_arguments",      QStringLiteral("-a 0"))
     PROPERTYSTR2(dfuLocation,     "dfu_location")
     PROPERTYSTR2(sambaLocation,   "samba_location")
-    PROPERTYSTR3(sambaPort,       "samba_port",      QStringLiteral("\\USBserial\\COM23"))
-    PROPERTYSTR2(backupDir,       "backupPath")
-    PROPERTYSTR2(eepromDir,       "lastDir")
-    PROPERTYSTR2(flashDir,        "lastFlashDir")
-    PROPERTYSTR2(imagesDir,       "lastImagesDir")
-    PROPERTYSTR2(logDir,          "lastLogDir")
+    PROPERTYSTR3(sambaPort,       "samba_port",         QStringLiteral("\\USBserial\\COM23"))
+
     PROPERTYSTR2(libDir,          "libraryPath")
-    PROPERTYSTR2(snapshotDir,     "snapshotpath")
-    PROPERTYSTR2(updatesDir,      "lastUpdatesDir")
+
+    PROPERTYSTR3(backupDir,       "backupPath",         CPN_DOCUMENTS_LOCATION % "/backups")
+    PROPERTYSTR3(eepromDir,       "lastDir",            CPN_DOCUMENTS_LOCATION % "/eeproms")
+    PROPERTYSTR3(flashDir,        "lastFlashDir",       CPN_DOCUMENTS_LOCATION % "/flash")
+    PROPERTYSTR3(imagesDir,       "lastImagesDir",      CPN_DOCUMENTS_LOCATION % "/images")
+    PROPERTYSTR3(logDir,          "lastLogDir",         CPN_DOCUMENTS_LOCATION % "/debuglogs")
+    PROPERTYSTRD(appLogsDir,                            CPN_DOCUMENTS_LOCATION % "/debuglogs")
+    PROPERTYSTR3(snapshotDir,     "snapshotpath",       CPN_DOCUMENTS_LOCATION % "/snapshots")
+    PROPERTYSTRD(templatesDir,                          CPN_DOCUMENTS_LOCATION % "/templates")
+    PROPERTYSTRD(downloadDir,                           CPN_DOCUMENTS_LOCATION % "/downloads")
+    PROPERTYSTRD(decompressDir,                         CPN_DOCUMENTS_LOCATION % "/decompress")
+    PROPERTY    (bool, decompressUseDwnld,              true)
+    PROPERTYSTRD(updateDir,                             CPN_DOCUMENTS_LOCATION % "/updates")
+    PROPERTY    (bool, updateUseSD,                     true)
+    PROPERTY    (int, updateLogLevel,                   0)
 
     PROPERTYSTR (locale)
     PROPERTYSTR (gePath)
     PROPERTYSTRD(mcu,        QStringLiteral("m64"))
     PROPERTYSTRD(programmer, QStringLiteral("usbasp"))
-    PROPERTYSTRD(appLogsDir, CPN_DOCUMENTS_LOCATION % "/DebugLogs")
 
-    PROPERTY(DownloadBranchType, OpenTxBranch,   BRANCH_RELEASE_STABLE)
-    PROPERTY(NewModelAction,     newModelAction, MODEL_ACT_WIZARD)
+    PROPERTY(NewModelAction, newModelAction, MODEL_ACT_WIZARD)
 
-    PROPERTY4(int, embedSplashes,   "embedded_splashes",  0)
-    PROPERTY4(int, fwServerFails,   "fwserver",           0)
-    PROPERTY4(int, iconSize,        "icon_size",          2)
-    PROPERTY4(int, jsCtrl,          "js_ctrl",            0)
-    PROPERTY4(int, historySize,     "history_size",      10)
-    PROPERTY (int, generalEditTab,  0)
-    PROPERTY (int, theme,           1)
-    PROPERTY (int, warningId,       0)
+    PROPERTY4(int, embedSplashes,         "embedded_splashes",        0)
+    PROPERTY4(int, fwServerFails,         "fwserver",                 0)
+    PROPERTY4(int, iconSize,              "icon_size",                2)
+    PROPERTY4(int, jsCtrl,                "js_ctrl",                  0)
+    PROPERTY4(int, historySize,           "history_size",             10)
+    PROPERTY (int, generalEditTab,                                    0)
+    PROPERTY (int, theme,                                             1)
+    PROPERTY (int, warningId,                                         0)
 
-    PROPERTY4(bool, jsSupport,       "js_support",              false)
-    PROPERTY4(bool, showSplash,      "show_splash",             true)
-    PROPERTY4(bool, snapToClpbrd,    "snapshot_to_clipboard",   false)
-    PROPERTY4(bool, autoCheckApp,    "startup_check_companion", false)
-    PROPERTY4(bool, autoCheckFw,     "startup_check_fw",        false)
-    PROPERTY4(bool, promptProfile,   "startup_prompt_profile",  false)
+    PROPERTY4(bool, jsSupport,            "js_support",               false)
+    PROPERTY4(bool, showSplash,           "show_splash",              true)
+    PROPERTY4(bool, snapToClpbrd,         "snapshot_to_clipboard",    false)
+
+    PROPERTY(UpdateCheckFreq, updateCheckFreq, UPDATE_CHECK_MANUAL)
+    PROPERTYSTR(lastUpdateCheck)
+
+    PROPERTY4(bool, promptProfile,        "startup_prompt_profile",   false)
 
     PROPERTY(bool, enableBackup,               false)
     PROPERTY(bool, backupOnFlash,              true)
@@ -605,11 +649,8 @@ class AppData: public CompStoreObj
     bool firstUse;
     QString upgradeFromVersion;
 
-    CREATE_ENUM_FRIEND_STREAM_OPS(AppData::DownloadBranchType)
     CREATE_ENUM_FRIEND_STREAM_OPS(AppData::NewModelAction)
+    CREATE_ENUM_FRIEND_STREAM_OPS(AppData::UpdateCheckFreq)
 };
 
 extern AppData g;
-
-//! @}
-#endif // _APPDATA_H_

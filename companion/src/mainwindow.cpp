@@ -24,13 +24,9 @@
 #include "comparedialog.h"
 #include "logsdialog.h"
 #include "apppreferencesdialog.h"
-#include "fwpreferencesdialog.h"
 #include "firmwareinterface.h"
-#include "downloaddialog.h"
 #include "printdialog.h"
 #include "version.h"
-#include "releasenotesdialog.h"
-#include "releasenotesfirmwaredialog.h"
 #include "customizesplashdialog.h"
 #include "flasheepromdialog.h"
 #include "flashfirmwaredialog.h"
@@ -49,51 +45,22 @@
 #include "dialogs/filesyncdialog.h"
 #include "profilechooser.h"
 #include "constants.h"
+#include "updates/updates.h"
+#include "updates/updateinterface.h"
 
 #include <QtGui>
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QMessageBox>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkProxyFactory>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
 
-// update check flags
-#define CHECK_COMPANION        1
-#define CHECK_FIRMWARE         2
-#define INTERACTIVE_DOWNLOAD   4
-#define AUTOMATIC_DOWNLOAD     8
-
-#define EDGETX_DOWNLOADS_PAGE_URL         QStringLiteral("https://edgetx.org/downloads")
 #define DONATE_STR                        QStringLiteral("https://opencollective.com/edgetx/donate")
 
-#ifdef Q_OS_MACOS
-  #define COMPANION_STAMP                 QStringLiteral("companion-macosx.stamp")
-  #define COMPANION_INSTALLER             QStringLiteral("macosx/opentx-companion-%1.dmg")
-  #define COMPANION_FILEMASK              QT_TRANSLATE_NOOP("MainWindow", "Diskimage (*.dmg)")
-  #define COMPANION_INSTALL_QUESTION      QT_TRANSLATE_NOOP("MainWindow", "Would you like to open the disk image to install the new version?")
-#elif defined(Q_OS_WIN)
-  #define COMPANION_STAMP                 QStringLiteral("companion-windows.stamp")
-  #define COMPANION_INSTALLER             QStringLiteral("windows/companion-windows-%1.exe")
-  #define COMPANION_FILEMASK              QT_TRANSLATE_NOOP("MainWindow", "Executable (*.exe)")
-  #define COMPANION_INSTALL_QUESTION      QT_TRANSLATE_NOOP("MainWindow", "Would you like to launch the installer?")
-#else
-  #define COMPANION_STAMP                 QStringLiteral("companion-linux.stamp")
-  #define COMPANION_INSTALLER             "" // no automated updates for linux
-  #define COMPANION_FILEMASK              QStringLiteral("*.*")
-  #define COMPANION_INSTALL_QUESTION      QT_TRANSLATE_NOOP("MainWindow", "Would you like to launch the installer?")
-#endif
-
 MainWindow::MainWindow():
-  downloadDialog_forWait(nullptr),
-  checkForUpdatesState(0),
-  networkManager(nullptr),
+  updateFactories(nullptr),
   windowsListActions(new QActionGroup(this))
 {
   // setUnifiedTitleAndToolBarOnMac(true);
   this->setWindowIcon(QIcon(":/icon.png"));
-  QNetworkProxyFactory::setUseSystemConfiguration(true);
   setAcceptDrops(true);
 
   mdiArea = new QMdiArea(this);
@@ -179,8 +146,10 @@ MainWindow::MainWindow():
     QTimer::singleShot(0, this, SLOT(autoClose()));
   }
 
+  updateFactories = new UpdateFactories(this);
+
   if (checkProfileRadioExists(g.sessionId()))
-    QTimer::singleShot(updateDelay, this, SLOT(doAutoUpdates()));
+    QTimer::singleShot(updateDelay, this, &MainWindow::autoUpdates);
   else
     g.warningId(g.warningId() | AppMessages::MSG_NO_RADIO_TYPE);
 }
@@ -190,6 +159,11 @@ MainWindow::~MainWindow()
   if (windowsListActions) {
     delete windowsListActions;
     windowsListActions = nullptr;
+  }
+
+  if (updateFactories) {
+    delete updateFactories;
+    updateFactories = nullptr;
   }
 }
 
@@ -219,388 +193,6 @@ void MainWindow::displayWarnings()
   shownMsgs |= msgId;
   if (shownMsgs != showMsgs)
     displayWarnings();  // in case more warnings need showing
-}
-
-void MainWindow::doAutoUpdates()
-{
-  if (g.autoCheckApp())
-    checkForUpdatesState |= CHECK_COMPANION;
-  if (g.autoCheckFw())
-    checkForUpdatesState |= CHECK_FIRMWARE;
-  checkForUpdates();
-}
-
-void MainWindow::doUpdates()
-{
-  checkForUpdatesState = CHECK_COMPANION | CHECK_FIRMWARE | INTERACTIVE_DOWNLOAD;
-  checkForUpdates();
-}
-
-void MainWindow::checkForFirmwareUpdate()
-{
-  checkForUpdatesState = CHECK_FIRMWARE | INTERACTIVE_DOWNLOAD;
-  checkForUpdates();
-}
-
-void MainWindow::dowloadLastFirmwareUpdate()
-{
-  checkForUpdatesState = CHECK_FIRMWARE | AUTOMATIC_DOWNLOAD | INTERACTIVE_DOWNLOAD;
-  checkForUpdates();
-}
-
-QString MainWindow::getCompanionUpdateBaseUrl() const
-{
-  return g.openTxCurrentDownloadBranchUrl() % QStringLiteral("companion/");
-}
-
-void MainWindow::checkForUpdates()
-{
-  if (!(checkForUpdatesState & (CHECK_COMPANION | CHECK_FIRMWARE))) {
-    if (networkManager) {
-      networkManager->deleteLater();
-      networkManager = nullptr;
-    }
-    checkForUpdatesState = 0;
-    return;
-  }
-
-  QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates via Companion currently unavailable. Please go to the EdgeTX <a href='%1'>website</a> for installation instructions. Update the application settings to disable this message.").arg("https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide"));
-  return;
-
-  if (networkManager)
-    disconnect(networkManager, 0, this, 0);
-  else
-    networkManager = new QNetworkAccessManager(this);
-
-  QUrl url;
-  if (checkForUpdatesState & CHECK_COMPANION) {
-    checkForUpdatesState -= CHECK_COMPANION;
-    if (checkForUpdatesState & INTERACTIVE_DOWNLOAD)
-      openUpdatesWaitDialog();
-    url.setUrl(getCompanionUpdateBaseUrl() % COMPANION_STAMP);
-    connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::checkForCompanionUpdateFinished);
-    qDebug() << "Checking for Companion update " << url.url();
-  }
-  else if (checkForUpdatesState & CHECK_FIRMWARE) {
-    checkForUpdatesState -= CHECK_FIRMWARE;
-    const QString stamp = getCurrentFirmware()->getStampUrl();
-    if (!stamp.isEmpty()) {
-      if (checkForUpdatesState & INTERACTIVE_DOWNLOAD)
-        openUpdatesWaitDialog();
-      url.setUrl(stamp);
-      connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::checkForFirmwareUpdateFinished);
-      qDebug() << "Checking for firmware update " << url.url();
-    }
-  }
-  if (!url.isValid()) {
-    checkForUpdates();
-    return;
-  }
-
-  QNetworkRequest request(url);
-  request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
-  QNetworkReply * repl = networkManager->get(request);
-  if (downloadDialog_forWait)
-    connect(downloadDialog_forWait, &DownloadDialog::rejected, repl, &QNetworkReply::abort);
-}
-
-void MainWindow::onUpdatesError(const QString &err)
-{
-  QMessageBox::warning(this, CPN_STR_APP_NAME, err);
-  checkForUpdates();
-}
-
-void MainWindow::openUpdatesWaitDialog()
-{
-  if (!downloadDialog_forWait) {
-    downloadDialog_forWait = new DownloadDialog(nullptr, tr("Checking for updates"));
-    downloadDialog_forWait->show();
-  }
-}
-
-void MainWindow::closeUpdatesWaitDialog()
-{
-  if (downloadDialog_forWait) {
-    downloadDialog_forWait->close();
-    delete downloadDialog_forWait;
-    downloadDialog_forWait = nullptr;
-  }
-}
-
-QString MainWindow::seekCodeString(const QByteArray & qba, const QString & label) const
-{
-  int posLabel = qba.indexOf(label);
-  if (posLabel < 0)
-    return QString();
-  int start = qba.indexOf("\"", posLabel + label.length());
-  if (start < 0)
-    return QString();
-  int end = qba.indexOf("\"", start + 1);
-  if (end < 0)
-    return QString();
-  return qba.mid(start + 1, end - start - 1);
-}
-
-void MainWindow::checkForCompanionUpdateFinished(QNetworkReply * reply)
-{
-  QByteArray qba = reply->readAll();
-  reply->deleteLater();
-  closeUpdatesWaitDialog();
-
-  QString version = seekCodeString(qba, "VERSION");
-  const QString errorString = seekCodeString(qba, "ERROR");
-
-  if (errorString == "NO_RC")
-    return onUpdatesError(tr("No Companion release candidates are currently being served for this version, please switch release channel"));
-  else if (errorString == "NO_NIGHTLY")
-    return onUpdatesError(tr("No nightly Companion builds are currently being served for this version, please switch release channel"));
-  else if (errorString == "NO_RELEASE")
-    return onUpdatesError(tr("No Companion release builds are currently being served for this version, please switch release channel"));
-
-  if (version.isNull())
-    return onUpdatesError(tr("Companion update check failed, new version information not found."));
-
-  int webVersion = version2index(version);
-  int ownVersion = version2index(VERSION);
-
-  if (ownVersion < webVersion) {
-#if defined WIN32 || defined __APPLE__
-    int ret = QMessageBox::question(this, CPN_STR_APP_NAME, tr("A new version of Companion is available (version %1)<br>"
-                                                        "Would you like to download it?").arg(version) ,
-                                    QMessageBox::Yes | QMessageBox::No);
-
-    if (ret == QMessageBox::Yes) {
-      QDir dir(g.updatesDir());
-      QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), dir.absoluteFilePath(QString(COMPANION_INSTALLER).arg(version)), tr(COMPANION_FILEMASK));
-
-      if (!fileName.isEmpty()) {
-        g.updatesDir(QFileInfo(fileName).dir().absolutePath());
-        DownloadDialog * dd = new DownloadDialog(this, getCompanionUpdateBaseUrl() % QString(COMPANION_INSTALLER).arg(version), fileName);
-        installer_fileName = fileName;
-        connect(dd, SIGNAL(accepted()), this, SLOT(updateDownloaded()));
-        dd->exec();
-      }
-    }
-#else
-    QMessageBox::warning(this, tr("New release available"), tr("A new release of Companion is available, please check the <a href='%1'>EdgeTX website!</a>").arg(EDGETX_DOWNLOADS_PAGE_URL));
-#endif
-  }
-  else {
-    if (checkForUpdatesState == INTERACTIVE_DOWNLOAD) {
-      QMessageBox::information(this, CPN_STR_APP_NAME, tr("No updates available at this time."));
-    }
-  }
-
-  checkForUpdates();
-}
-
-void MainWindow::updateDownloaded()
-{
-  int ret = QMessageBox::question(this, CPN_STR_APP_NAME, tr(COMPANION_INSTALL_QUESTION), QMessageBox::Yes | QMessageBox::No);
-  if (ret == QMessageBox::Yes) {
-    if (QDesktopServices::openUrl(QUrl::fromLocalFile(installer_fileName)))
-      QApplication::exit();
-  }
-}
-
-void MainWindow::firmwareDownloadAccepted()
-{
-  QString errormsg;
-  QFile file(g.profile[g.id()].fwName());
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {  //reading HEX TEXT file
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR,
-        tr("Error opening file %1:\n%2.")
-        .arg(g.profile[g.id()].fwName())
-        .arg(file.errorString()));
-    return;
-  }
-  file.reset();
-  QTextStream inputStream(&file);
-  QString hline = inputStream.readLine();
-  if (hline.startsWith("ERROR:")) {
-    int errnum = hline.mid(6).toInt();
-    switch(errnum) {
-      case 1:
-        errormsg = tr("Not enough flash available on this board for all the selected options");
-        break;
-      case 2:
-        errormsg = tr("Compilation server temporary failure, try later");
-        break;
-      case 3:
-        errormsg = tr("Compilation server too busy, try later");
-        break;
-      case 4:
-        errormsg = tr("Compilation error");
-        break;
-      case 5:
-        errormsg = tr("Invalid firmware");
-        break;
-      case 6:
-        errormsg = tr("Invalid board");
-        break;
-      case 7:
-        errormsg = tr("Invalid language");
-        break;
-      default:
-        errormsg = tr("Unknown server failure, try later");
-        break;
-    }
-    file.close();
-    file.remove();
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, errormsg);
-    return;
-  }
-  file.close();
-  g.fwRev.set(Firmware::getCurrentVariant()->getId(), version2index(firmwareVersionString));
-  if (g.profile[g.id()].burnFirmware()) {
-    int ret = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Do you want to write the firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
-    if (ret == QMessageBox::Yes) {
-      writeFlash(g.profile[g.id()].fwName());
-    }
-  }
-  emit firmwareDownloadCompleted();
-}
-
-void MainWindow::checkForFirmwareUpdateFinished(QNetworkReply * reply)
-{
-  bool download = false;
-  bool ignore = false;
-
-  const QByteArray qba = reply->readAll();
-  reply->deleteLater();
-  closeUpdatesWaitDialog();
-
-  const QString versionString = seekCodeString(qba, "VERSION");
-  const QString dateString = seekCodeString(qba, "DATE");
-  const QString errorString = seekCodeString(qba, "ERROR");
-  const QString blockedRadios = seekCodeString(qba, "BLOCK");
-  long version;
-
-  if (errorString == "NO_RC")
-    return onUpdatesError(tr("No firmware release candidates are currently being served for this version, please switch release channel"));
-  else if (errorString == "NO_NIGHTLY")
-    return onUpdatesError(tr("No firmware nightly builds are currently being served for this version, please switch release channel"));
-  else if (errorString == "NO_RELEASE")
-    return onUpdatesError(tr("No firmware release builds are currently being served for this version, please switch release channel"));
-  else if (errorString == "MOVE_TO_RC") {
-    QMessageBox msgbox;
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setText(tr("Release candidate builds are now available for this version, would you like to switch to using them?"));
-    msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgbox.setDefaultButton(QMessageBox::Yes);
-
-    if(msgbox.exec() == QMessageBox::Yes) {
-      g.OpenTxBranch(AppData::DownloadBranchType(AppData::BRANCH_RC_TESTING));
-      return onUpdatesError(tr("Channel changed to RC, please restart the download process"));
-    }
-  }
-  else if (errorString == "MOVE_TO_RELEASE") {
-    QMessageBox msgbox;
-    msgbox.setIcon(QMessageBox::Question);
-    msgbox.setText(tr("Official release builds are now available for this version, would you like to switch to using them?"));
-    msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgbox.setDefaultButton(QMessageBox::Yes);
-
-    if(msgbox.exec() == QMessageBox::Yes) {
-      g.OpenTxBranch(AppData::DownloadBranchType(AppData::BRANCH_RELEASE_STABLE));
-      return onUpdatesError(tr("Channel changed to Release, please restart the download process"));
-    }
-  }
-
-  QString variant = Firmware::getCurrentVariant()->getId();
-  QStringList splitId = variant.split("-");
-  if (blockedRadios.contains(splitId.value(1)))
-    return onUpdatesError(tr("This radio (%1) is not currently available in this firmware release channel").arg(getCurrentFirmware()->getName()));
-
-  if (versionString.isNull() || dateString.isNull() || (version = version2index(versionString)) <= 0)
-    return onUpdatesError(tr("Firmware update check failed, new version information not found or invalid."));
-
-  QString fullVersionString = QString("%1 (%2)").arg(versionString).arg(dateString);
-
-  if (checkForUpdatesState & AUTOMATIC_DOWNLOAD) {
-    checkForUpdatesState -= AUTOMATIC_DOWNLOAD;
-    download = true;
-  }
-  else {
-    int currentVersion = g.fwRev.get(Firmware::getCurrentVariant()->getId());
-    QString currentVersionString = index2version(currentVersion);
-
-    QString msgText;
-    if (currentVersion == 0)
-      msgText = tr("Firmware %1 does not seem to have ever been downloaded.\nVersion %2 is available.\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
-                  .arg(Firmware::getCurrentVariant()->getId()).arg(fullVersionString);
-    else if (version > currentVersion)
-      msgText = tr("A new version of %1 firmware is available:\n  - current is %2\n  - newer is %3\n\nDo you want to download it now?\n\nWe recommend you view the release notes using the button below to learn about any changes that may be important to you.")
-                  .arg(Firmware::getCurrentVariant()->getId()).arg(currentVersionString).arg(fullVersionString);
-    else if (checkForUpdatesState == INTERACTIVE_DOWNLOAD)
-      QMessageBox::information(this, CPN_STR_APP_NAME, tr("No updates available at this time."));
-
-    if (currentVersion == 0 || version > currentVersion) {
-      QMessageBox msgBox;
-      msgBox.setWindowTitle(CPN_STR_APP_NAME);
-      QSpacerItem * horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-      QGridLayout * layout = (QGridLayout*)msgBox.layout();
-      layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
-
-      QString rn = getCurrentFirmware()->getReleaseNotesUrl();
-      QAbstractButton *rnButton = nullptr;
-      msgBox.setText(msgText);
-      QAbstractButton *YesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
-      msgBox.addButton(tr("No"), QMessageBox::NoRole);
-      if (!rn.isEmpty()) {
-        rnButton = msgBox.addButton(tr("Release Notes"), QMessageBox::ActionRole);
-      }
-      msgBox.setIcon(QMessageBox::Question);
-      msgBox.resize(0, 0);
-      msgBox.exec();
-      if (msgBox.clickedButton() == rnButton) {
-        QDesktopServices::openUrl(QUrl(rn));
-        int ret2 = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Do you want to download version %1 now ?").arg(fullVersionString), QMessageBox::Yes | QMessageBox::No);
-        if (ret2 == QMessageBox::Yes)
-          download = true;
-        else
-          ignore = true;
-      }
-      else if (msgBox.clickedButton() == YesButton )
-        download = true;
-      else
-        ignore = true;
-    }
-  }
-
-  if (ignore) {
-    int res = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Ignore this version %1?").arg(fullVersionString), QMessageBox::Yes | QMessageBox::No);
-    if (res==QMessageBox::Yes)   {
-      g.fwRev.set(Firmware::getCurrentVariant()->getId(), version);
-    }
-  }
-  else if (download == true) {
-    firmwareVersionString = versionString;
-    startFirmwareDownload();
-  }
-
-  checkForUpdates();
-}
-
-void MainWindow::startFirmwareDownload()
-{
-  QString url = Firmware::getCurrentVariant()->getFirmwareUrl();
-  qDebug() << "Downloading firmware" << url;
-  QString ext = url.mid(url.lastIndexOf("."));
-  QString defaultFilename = g.flashDir() + "/" + Firmware::getCurrentVariant()->getId();
-  if (g.profile[g.id()].renameFwFiles()) {
-    defaultFilename += "-" + firmwareVersionString;
-  }
-  defaultFilename += ext;
-
-  QString filename = QFileDialog::getSaveFileName(this, tr("Save As"), defaultFilename);
-  if (!filename.isEmpty()) {
-    g.profile[g.id()].fwName(filename);
-    g.flashDir(QFileInfo(filename).dir().absolutePath());
-    DownloadDialog * dd = new DownloadDialog(this, url, filename);
-    connect(dd, SIGNAL(accepted()), this, SLOT(firmwareDownloadAccepted()));
-    dd->exec();
-  }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -641,6 +233,20 @@ void MainWindow::onLanguageChanged(QAction * act)
   QString lang = act->property("locale").toString();
   if (!lang.isNull())
     setLanguage(lang);
+}
+
+void MainWindow::autoUpdates()
+{
+  Updates *upd = new Updates(this, updateFactories);
+  upd->autoUpdates();
+  delete upd;
+}
+
+void MainWindow::manualUpdates()
+{
+  Updates *upd = new Updates(this, updateFactories);
+  upd->manualUpdates();
+  delete upd;
 }
 
 void  MainWindow::setTheme(int index)
@@ -825,17 +431,10 @@ void MainWindow::loadProfile()
 
 void MainWindow::appPrefs()
 {
-  AppPreferencesDialog * dialog = new AppPreferencesDialog(this);
+  AppPreferencesDialog * dialog = new AppPreferencesDialog(this, updateFactories);
   dialog->setMainWinHasDirtyChild(anyChildrenDirty());
   connect(dialog, &AppPreferencesDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
   connect(dialog, &AppPreferencesDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
-  dialog->exec();
-  dialog->deleteLater();
-}
-
-void MainWindow::fwPrefs()
-{
-  FirmwarePreferencesDialog * dialog = new FirmwarePreferencesDialog(this);
   dialog->exec();
   dialog->deleteLater();
 }
@@ -886,7 +485,7 @@ void MainWindow::sdsync()
 
 void MainWindow::changelog()
 {
-  QString link = "https://edgetx.org";
+  QString link = "https://github.com/EdgeTX/edgetx/releases";
   QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -1191,14 +790,14 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(saveAsAct, tr("Save As..."), tr("Save Models and Settings file"));
   trAct(closeAct,  tr("Close"),      tr("Close Models and Settings file"));
   trAct(exitAct,   tr("Exit"),       tr("Exit the application"));
-  trAct(aboutAct,  tr("About..."),   tr("Show the application's About box"));
+  trAct(aboutAct,  tr("About Companion..."),   tr("Show the application's About box"));
 
   trAct(recentFilesAct,     tr("Recent Files"),               tr("List of recently used files"));
   trAct(profilesMenuAct,    tr("Radio Profiles"),             tr("Create or Select Radio Profiles"));
   trAct(logsAct,            tr("View Log File..."),           tr("Open and view log file"));
   trAct(appPrefsAct,        tr("Settings..."),                tr("Edit Settings"));
-  trAct(fwPrefsAct,         tr("Download..."),                tr("Download firmware and voice files"));
-  trAct(checkForUpdatesAct, tr("Check for Updates..."),       tr("Check EdgeTX and Companion updates"));
+  trAct(updatesAct,         tr("Updates..."),                 tr("Update EdgeTX and supporting resources"));
+  trAct(checkForUpdatesAct, tr("Check for updates..."),       tr("Check for updates to EdgeTX and supporting resources"));
   trAct(changelogAct,       tr("Release notes..."),           tr("Show release notes"));
   trAct(compareAct,         tr("Compare Models..."),          tr("Compare models"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."), tr("Edit the splash image of your Radio"));
@@ -1256,7 +855,7 @@ void MainWindow::createActions()
 
   logsAct =            addAct("logs.png",           SLOT(logFile()),          tr("Ctrl+Alt+L"));
   appPrefsAct =        addAct("apppreferences.png", SLOT(appPrefs()),         QKeySequence::Preferences);
-  fwPrefsAct =         addAct("fwpreferences.png",  SLOT(fwPrefs()),          tr("Ctrl+Alt+D"));
+  updatesAct =         addAct("download.png",       SLOT(manualUpdates()),  tr("Ctrl+Alt+D"));
   compareAct =         addAct("compare.png",        SLOT(compare()),          tr("Ctrl+Alt+R"));
   sdsyncAct =          addAct("sdsync.png",         SLOT(sdsync()));
 
@@ -1283,7 +882,7 @@ void MainWindow::createActions()
   actCascadeWindows =  addAct("", SLOT(cascadeSubWindows()),    0, mdiArea);
   actCloseAllWindows = addAct("", SLOT(closeAllSubWindows()),   0, mdiArea);
 
-  checkForUpdatesAct = addAct("update.png",         SLOT(doUpdates()));
+  checkForUpdatesAct = addAct("update.png",         SLOT(autoUpdates()));
   aboutAct =           addAct("information.png",    SLOT(about()));
   openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
   changelogAct =       addAct("changelog.png",      SLOT(changelog()));
@@ -1301,7 +900,6 @@ void MainWindow::createActions()
 
   actTabbedWindows->setCheckable(true);
   compareAct->setEnabled(false);
-  fwPrefsAct->setEnabled(false);
 }
 
 void MainWindow::createMenus()
@@ -1315,7 +913,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(recentFilesAct);
   fileMenu->addSeparator();
   fileMenu->addAction(logsAct);
-  fileMenu->addAction(fwPrefsAct);
+  fileMenu->addAction(updatesAct);
   fileMenu->addAction(compareAct);
   fileMenu->addAction(sdsyncAct);
   fileMenu->addSeparator();
@@ -1374,14 +972,13 @@ void MainWindow::createMenus()
   windowMenu->addSeparator();
 
   helpMenu = menuBar()->addMenu("");
-  helpMenu->addSeparator();
   helpMenu->addAction(checkForUpdatesAct);
-  helpMenu->addSeparator();
-  helpMenu->addAction(aboutAct);
-  helpMenu->addAction(openDocURLAct);
-  helpMenu->addSeparator();
+  //helpMenu->addSeparator();
+  //helpMenu->addAction(openDocURLAct);
+  //helpMenu->addSeparator();
   helpMenu->addAction(changelogAct);
-  helpMenu->addSeparator();
+  //helpMenu->addSeparator();
+  helpMenu->addAction(aboutAct);
 
   recentFilesMenu = new QMenu(this);
   recentFilesMenu->setToolTipsVisible(true);
@@ -1419,7 +1016,7 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(closeAct);
   fileToolBar->addSeparator();
   fileToolBar->addAction(logsAct);
-  fileToolBar->addAction(fwPrefsAct);
+  fileToolBar->addAction(updatesAct);
   fileToolBar->addSeparator();
   fileToolBar->addAction(appPrefsAct);
   fileToolBar->addAction(profilesMenuAct);

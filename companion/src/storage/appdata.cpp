@@ -289,6 +289,42 @@ void Profile::resetFwVariables()
 }
 
 
+// ** ComponentData class********************
+
+ComponentData::ComponentData() : CompStoreObj(), index(-1)
+{
+  qRegisterMetaTypeStreamOperators<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+// The default copy operator can not be used since the index variable would be destroyed
+ComponentData & ComponentData::operator= (const ComponentData & rhs)
+{
+  for (int i = metaObject()->propertyOffset(), e = metaObject()->propertyCount(); i < e; ++i) {
+    const QMetaProperty & prop = metaObject()->property(i);
+    if (!prop.isValid() || !prop.isWritable()) {
+      qWarning() << "Could not copy property" << QString(prop.name()) << "isValid:" << prop.isValid() << "isWritable:" << prop.isWritable();
+      continue;
+    }
+    prop.write(this, prop.read(&rhs));
+  }
+  return *this;
+}
+
+bool ComponentData::existsOnDisk()
+{
+  return (m_settings.contains(settingsPath() % "name"));
+}
+
+void ComponentData::clearRelease()
+{
+  release(CompStoreObj::propertyDefaultValue(this, "release").toString());
+  id(CompStoreObj::propertyDefaultValue(this, "id").toInt());
+  prerelease(CompStoreObj::propertyDefaultValue(this, "prerelease").toBool());
+  date(CompStoreObj::propertyDefaultValue(this, "date").toString());
+  version(CompStoreObj::propertyDefaultValue(this, "version").toString());
+}
+
 // ** AppData class********************
 
 AppData::AppData() :
@@ -297,8 +333,8 @@ AppData::AppData() :
 {
   QMetaType::registerComparators<SimulatorOptions>();
   qRegisterMetaTypeStreamOperators<SimulatorOptions>("SimulatorOptions");
-  qRegisterMetaTypeStreamOperators<AppData::DownloadBranchType>("AppData::DownloadBranchType");
   qRegisterMetaTypeStreamOperators<AppData::NewModelAction>("AppData::NewModelAction");
+  qRegisterMetaTypeStreamOperators<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
 
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
@@ -315,6 +351,10 @@ AppData::AppData() :
   // Configure the joysticks
   for (int i=0; i<MAX_JOYSTICKS; i++)
     joystick[i].setIndex(i);
+
+  // Configure the updates
+  for (int i=0; i<MAX_COMPONENTS; i++)
+    component[i].setIndex(i);
 }
 
 static QString fmtHex(quint32 num)
@@ -346,6 +386,9 @@ void AppData::initAll()
   // Initialize the joysticks
   for (int i=0; i<MAX_JOYSTICKS; i++)
     joystick[i].init();
+  // Initialize the updatess
+  for (int i=0; i<MAX_COMPONENTS; i++)
+    component[i].init();
 }
 
 void AppData::resetAllSettings()
@@ -356,6 +399,8 @@ void AppData::resetAllSettings()
     profile[i].resetAll();
   for (int i=0; i<MAX_JOYSTICKS; i++)
     joystick[i].resetAll();
+  for (int i=0; i<MAX_COMPONENTS; i++)
+    component[i].resetAll();
   firstUse = true;
 }
 
@@ -366,6 +411,8 @@ void AppData::storeAllSettings()
     profile[i].storeAll();
   for (int i=0; i<MAX_JOYSTICKS; i++)
     joystick[i].storeAll();
+  for (int i=0; i<MAX_COMPONENTS; i++)
+    component[i].storeAll();
 }
 
 bool AppData::hasCurrentSettings() const
@@ -404,6 +451,15 @@ QMap<int, QString> AppData::getActiveProfiles() const
       active.insert(i, g.profile[i].name());
   }
   return active;
+}
+
+int AppData::getComponentIndex(QString name) const
+{
+  for (int i=0; i<MAX_COMPONENTS; i++) {
+    if (g.component[i].existsOnDisk() && g.component[i].name() == name)
+       return i;
+  }
+  return -1;
 }
 
 void AppData::convertSettings(QSettings & settings)
@@ -579,4 +635,28 @@ bool AppData::exportSettingsToFile(const QString & expFile, QString & resultMsg)
   else
     resultMsg.append(tr("for unknown reasons."));
   return false;
+}
+
+ComponentData & AppData::getComponent(int index)
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return component[index];
+  return component[0];
+}
+
+const ComponentData & AppData::getComponent(int index) const
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return component[index];
+  return component[0];
+}
+
+void AppData::resetUpdatesSettings()
+{
+  g.updateCheckFreqReset();
+  g.downloadDirReset();
+  g.decompressDirReset();
+  g.decompressUseDwnldReset();
+  g.updateDirReset();
+  g.updateUseSDReset();
 }
