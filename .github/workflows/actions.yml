@@ -40,7 +40,7 @@ jobs:
           - t18
           - t8
           - tlite
-          - tx12;tx12mk2
+          - tx12
           - tx16s
           - x10
           - x12s
@@ -85,7 +85,7 @@ jobs:
           - t18
           - t8;zorro
           - tlite;tpro
-          - tx12
+          - tx12;tx12mk2
           - tx16s
           - x10;x10-access
           - x12s
