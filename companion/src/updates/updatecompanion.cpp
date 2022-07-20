@@ -28,22 +28,21 @@
 #include <QDirIterator>
 
 #ifdef Q_OS_MACOS
-  #define
   #define OS_FILEPATTERN           "edgetx-cpn-osx"
   #define OS_INSTALLER_EXTN        "*.dmg"
-  #define OS_INSTALL_QUESTION      tr("Would you like to open the disk image to install the new version?")
+  #define OS_INSTALL_QUESTION      tr("Would you like to open the disk image to install the new version of Companion?")
 #elif defined(Q_OS_WIN64)
   #define OS_FILEPATTERN           "edgetx-cpn-win64"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the installer?")
+  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
 #elif defined(Q_OS_WIN32)
   #define OS_FILEPATTERN           "edgetx-cpn-win32"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the installer?")
+  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
 #else
   #define OS_FILEPATTERN           "edgetx-cpn-linux"
   #define OS_INSTALLER_EXTN        "*.AppImage"
-  #define OS_INSTALL_QUESTION      tr("Would you like to open the app image to install the new version?")
+  #define OS_INSTALL_QUESTION      tr("Would you like to open the app image to install the new version of Companion?")
 #endif
 
 UpdateCompanion::UpdateCompanion(QWidget * parent) :
