@@ -382,6 +382,7 @@ class Profile: public CompStoreObj
     PROPERTY4(bool, renameFwFiles, "rename_firmware_files", false)
     PROPERTY (bool, burnFirmware,  false)
     PROPERTY (bool, penableBackup, false)
+    PROPERTY (bool, runSDSync,  false)
 
     // Simulator variables
     PROPERTY(SimulatorOptions, simulatorOptions,  SimulatorOptions())
@@ -636,6 +637,7 @@ class AppData: public CompStoreObj
     PROPERTY(bool, tabbedMdi,                  false)
     PROPERTY(bool, appDebugLog,                false)
     PROPERTY(bool, fwTraceLog,                 false)
+    PROPERTY(bool, runInstaller,               false)
 
     // Simulator global (non-profile) settings
     PROPERTY(QStringList, simuDbgFilters, QStringList())

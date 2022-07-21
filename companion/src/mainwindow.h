@@ -95,7 +95,7 @@ class MainWindow : public QMainWindow
     void readBackup();
     void burnConfig();
     void burnList();
-    void sdsync();
+    void sdsync(bool postUpdate = false);
     void changelog();
     void customizeSplash();
     void about();
@@ -112,6 +112,7 @@ class MainWindow : public QMainWindow
     void chooseProfile();
     void manualUpdates();
     void autoUpdates();
+    void doUpdates(bool manual);
 
     void openFile(const QString & fileName, bool updateLastUsedDir = false);
 

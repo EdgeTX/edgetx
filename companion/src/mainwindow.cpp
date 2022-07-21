@@ -237,15 +237,27 @@ void MainWindow::onLanguageChanged(QAction * act)
 
 void MainWindow::autoUpdates()
 {
-  Updates *upd = new Updates(this, updateFactories);
-  upd->autoUpdates();
-  delete upd;
+  doUpdates(false);
 }
 
 void MainWindow::manualUpdates()
 {
+  doUpdates(true);
+}
+
+void MainWindow::doUpdates(bool manual)
+{
   Updates *upd = new Updates(this, updateFactories);
-  upd->manualUpdates();
+
+  connect(upd, &Updates::runSDSync, [=] () {
+    sdsync(true);
+  });
+
+  if (manual)
+    upd->manualUpdates();
+  else
+    upd->autoUpdates();
+
   delete upd;
 }
 
@@ -439,7 +451,7 @@ void MainWindow::appPrefs()
   dialog->deleteLater();
 }
 
-void MainWindow::sdsync()
+void MainWindow::sdsync(bool postUpdate)
 {
   // remember user-selectable options for duration of session  TODO: save to settings
   static SyncProcess::SyncOptions syncOpts;
@@ -452,6 +464,9 @@ void MainWindow::sdsync()
     syncOpts.folderB = QString();
     syncOpts.sessionId = g.sessionId();
   }
+
+  if (postUpdate)
+    syncOpts.folderA = g.updateDir();
 
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();

@@ -90,6 +90,7 @@ void AppPreferencesDialog::accept()
   g.appDebugLog(ui->opt_appDebugLog->isChecked());
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
   g.appLogsDir(ui->appLogsDir->text());
+  g.runInstaller(ui->chkPromptInstall->isChecked());
 
   if (ui->joystickChkB ->isChecked() && ui->joystickCB->isEnabled()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
@@ -130,6 +131,7 @@ void AppPreferencesDialog::accept()
   profile.pBackupDir(ui->profilebackupPath->text());
   profile.penableBackup(ui->pbackupEnable->isChecked());
   profile.splashFile(ui->SplashFileName->text());
+  profile.runSDSync(ui->chkPromptSDSync->isChecked());
 
   // The profile name may NEVER be empty
   if (ui->profileNameLE->text().isEmpty())
@@ -234,6 +236,7 @@ void AppPreferencesDialog::initSettings()
   ui->opt_fwTraceLog->setChecked(g.fwTraceLog());
   ui->appLogsDir->setText(g.appLogsDir());
   toggleAppLogSettings();
+  ui->chkPromptInstall->setChecked(g.runInstaller());
 
 #if defined(JOYSTICKS)
   ui->joystickChkB->setChecked(g.jsSupport());
@@ -296,6 +299,7 @@ void AppPreferencesDialog::initSettings()
       hwSettings = tr("AVAILABLE: Radio settings stored %1").arg(str);
   }
   ui->lblGeneralSettings->setText(hwSettings);
+  ui->chkPromptSDSync->setChecked(profile.runSDSync());
 
   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {

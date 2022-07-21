@@ -72,7 +72,8 @@ void Updates::autoUpdates()
 
     factories->resetAllRunEnvironments();
 
-    factories->autoUpdate();
+    if (factories->autoUpdate())
+      checkRunSDSync();
   }
 }
 
@@ -82,15 +83,29 @@ void Updates::manualUpdates()
 
   UpdatesDialog *dlg = new UpdatesDialog(this, factories);
 
+  bool ok = false;
+
   if (dlg->exec()) {
     ProgressDialog progressDialog(this, tr("Update Components"), CompanionIcon("fuses.png"), true);
     progressDialog.progress()->lock(true);
     progressDialog.progress()->setInfo(tr("Starting..."));
-    bool ok = factories->manualUpdate(progressDialog.progress());
+    ok = factories->manualUpdate(progressDialog.progress());
     progressDialog.progress()->lock(false);
     progressDialog.progress()->setInfo(tr("Finished %1").arg(ok ? tr("successfully") : tr("with errors")));
     progressDialog.exec();
   }
 
   delete dlg;
+
+  if (ok)
+    checkRunSDSync();
+}
+
+void Updates::checkRunSDSync()
+{
+  if (!g.currentProfile().runSDSync())
+    return;
+
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Run SD Sync now?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    emit runSDSync();
 }
