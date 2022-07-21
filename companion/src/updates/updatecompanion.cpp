@@ -20,8 +20,7 @@
  */
 
 #include "updatecompanion.h"
-#include "constants.h"
-#include "version.h"
+#include "appdata.h"
 
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -63,6 +62,11 @@ UpdateCompanion::UpdateCompanion(QWidget * parent) :
 
 bool UpdateCompanion::asyncInstall()
 {
+  reportProgress(tr("Run application installer: %1").arg(g.runInstaller() ? tr("true") : tr("false")), QtDebugMsg);
+
+  if (!g.runInstaller())
+    return true;
+
   progressMessage(tr("Async install"));
 
   assets->setFilterFlags(UPDFLG_AsyncInstall);

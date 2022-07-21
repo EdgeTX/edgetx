@@ -37,6 +37,11 @@ class Updates : public QWidget
     void autoUpdates();
     void manualUpdates();
 
+  signals:
+    void runSDSync();
+
   private:
     UpdateFactories *factories;
+
+    void checkRunSDSync();
 };

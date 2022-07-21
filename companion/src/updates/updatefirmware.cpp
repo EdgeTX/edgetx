@@ -44,6 +44,11 @@ UpdateFirmware::UpdateFirmware(QWidget * parent) :
 
 bool UpdateFirmware::asyncInstall()
 {
+  reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+
+  if (!g.currentProfile().burnFirmware())
+    return true;
+
   progressMessage(tr("Async install"));
 
   assets->setFilterFlags(UPDFLG_AsyncInstall);
@@ -84,15 +89,11 @@ bool UpdateFirmware::asyncInstall()
 
   g.currentProfile().fwName(destPath);
 
-  reportProgress(tr("Write firmware to radio option setting: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
-
-  if (g.currentProfile().burnFirmware()) {
-    int ret = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Do you want to write the firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
-    if (ret == QMessageBox::Yes) {
-      FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
-      dlg->exec();
-      dlg->deleteLater();
-    }
+  int ret = QMessageBox::question(this, CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
+  if (ret == QMessageBox::Yes) {
+    FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
+    dlg->exec();
+    dlg->deleteLater();
   }
 
   return true;
