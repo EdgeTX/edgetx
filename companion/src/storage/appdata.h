@@ -600,7 +600,7 @@ class AppData: public CompStoreObj
     PROPERTY    (bool, decompressUseDwnld,              true)
     PROPERTYSTRD(updateDir,                             CPN_DOCUMENTS_LOCATION % "/updates")
     PROPERTY    (bool, updateUseSD,                     true)
-    PROPERTY    (int, updateLogLevel,                   0)
+    PROPERTY    (int,  updateLogLevel,                  4)
 
     PROPERTYSTR (locale)
     PROPERTYSTR (gePath)
