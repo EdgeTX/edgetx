@@ -262,7 +262,7 @@ bool MinizInterface::unzipArchiveToPath(const QString & archiveFile, const QStri
   if (progress)
     progress->setValue(progress->maximum());
 
-  reportProgress(tr("Decompress complete"));
+  reportProgress(tr("Decompress complete"), QtDebugMsg);
 
   return true;
 }
@@ -275,7 +275,7 @@ bool MinizInterface::createDirectory(const QString & path)
       return false;
     }
     else
-      reportProgress(tr("Created directory: %1").arg(path));
+      reportProgress(tr("Created directory: %1").arg(path), QtDebugMsg);
   }
 
   return true;
