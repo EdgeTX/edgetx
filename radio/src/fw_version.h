@@ -27,7 +27,6 @@ extern const char fw_stamp[];
 extern const char vers_stamp[];
 extern const char date_stamp[];
 extern const char time_stamp[];
-extern const char cfgv_stamp[];
 #else
 extern const char vers_stamp[];
 #endif

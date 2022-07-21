@@ -272,7 +272,6 @@ void RadioVersionPage::build(FormWindow * window)
   version += vers_stamp + nl;
   version += date_stamp + nl;
   version += time_stamp + nl;
-  version += cfgv_stamp + nl;
   version += "OPTS: ";
 
   for (uint8_t i = 0; options[i]; i++) {
