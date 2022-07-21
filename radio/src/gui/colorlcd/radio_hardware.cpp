@@ -28,6 +28,7 @@
 #include "hal/adc_driver.h"
 #include "aux_serial_driver.h"
 #include "hw_intmodule.h"
+#include "hw_extmodule.h"
 #include "hw_serial.h"
 #include "hw_inputs.h"
 
@@ -119,23 +120,16 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SAMPLE_MODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_SAMPLE_MODES, 0, UART_SAMPLE_MODE_MAX,
-             [=] { return g_eeGeneral.uartSampleMode; },
-                            [=](int8_t newValue) {
-                               g_eeGeneral.uartSampleMode = newValue;
-                               SET_DIRTY();
-                               restartModule(EXTERNAL_MODULE);
-                            }
-             );
-#endif
-
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  auto mod = new InternalModuleWindow(window);
-  mod->padLeft(lv_dpx(8));
+  auto intMod = new InternalModuleWindow(window);
+  intMod->padLeft(lv_dpx(8));
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  new Subtitle(window, rect_t{}, TR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  auto extMod = new ExternalModuleWindow(window);
+  extMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)

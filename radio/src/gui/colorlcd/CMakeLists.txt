@@ -77,6 +77,7 @@ set(GUI_SRC
   radio_trainer.cpp
   radio_version.cpp
   hw_intmodule.cpp
+  hw_extmodule.cpp
   hw_inputs.cpp
   hw_serial.cpp
   radio_hardware.cpp
