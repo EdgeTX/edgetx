@@ -76,7 +76,7 @@ jobs:
       - name: Zip release file
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{ env.release_filename }} ./edgetx-firmware-nightly
+          args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy release
         uses: marvinpinto/action-automatic-releases@latest
