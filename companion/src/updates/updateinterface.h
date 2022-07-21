@@ -155,7 +155,7 @@ class UpdateInterface : public QWidget
     void initParamFolders(UpdateParameters * params);
     const UpdateParameters * const getDefaultParams() { return dfltParams; }
     UpdateParameters * getRunParams() { return runParams; }
-    void resetRunParams();
+    void resetRunEnvironment();
     void setRunUpdate() { runParams->data.flags |= UPDFLG_Update; }
 
     const QStringList getReleases();
@@ -278,8 +278,8 @@ class UpdateFactories : public QWidget
 
     const UpdateParameters * const getDefaultParams(const QString & name);
     UpdateParameters * const getRunParams(const QString & name);
-    void resetRunParams(const QString & name);
-    void resetAllRunParams();
+    void resetRunEnvironment(const QString & name);
+    void resetAllRunEnvironments();
     void setRunUpdate(const QString & name);
     const QMap<QString, int> sortedComponentsList();
 

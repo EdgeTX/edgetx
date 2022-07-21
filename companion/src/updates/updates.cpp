@@ -70,14 +70,16 @@ void Updates::autoUpdates()
                             tr("One or more updates are available. Update now?"),
                             (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::Yes) {
 
-    factories->resetAllRunParams();
+    factories->resetAllRunEnvironments();
+
     factories->autoUpdate();
   }
 }
 
 void Updates::manualUpdates()
 {
-  factories->resetAllRunParams();
+  factories->resetAllRunEnvironments();
+
   UpdatesDialog *dlg = new UpdatesDialog(this, factories);
 
   if (dlg->exec()) {

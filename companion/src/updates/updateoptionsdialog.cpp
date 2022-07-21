@@ -188,7 +188,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
 
   connect(ui->buttonBox, &QDialogButtonBox::clicked, [=](QAbstractButton * button) {
     if (ui->buttonBox->standardButton(button) == QDialogButtonBox::RestoreDefaults) {
-      factories->resetRunParams(name);
+      factories->resetRunEnvironment(name);
       update();
     }
     else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Discard) {
