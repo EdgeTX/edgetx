@@ -659,4 +659,5 @@ void AppData::resetUpdatesSettings()
   g.decompressUseDwnldReset();
   g.updateDirReset();
   g.updateUseSDReset();
+  g.updateLogLevelReset();
 }
