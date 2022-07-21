@@ -368,9 +368,10 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
   }
 }
 
-void UpdateInterface::resetRunParams()
+void UpdateInterface::resetRunEnvironment()
 {
   progress = nullptr;
+
   *runParams = *dfltParams;
   runParams->data.flags &= ~UPDFLG_Update;
 }
@@ -1392,20 +1393,20 @@ UpdateParameters * const UpdateFactories::getRunParams(const QString & name)
   return nullptr;
 }
 
-void UpdateFactories::resetRunParams(const QString & name)
+void UpdateFactories::resetRunEnvironment(const QString & name)
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (name == factory->name()) {
-      factory->instance()->resetRunParams();
+      factory->instance()->resetRunEnvironment();
       break;
     }
   }
 }
 
-void UpdateFactories::resetAllRunParams()
+void UpdateFactories::resetAllRunEnvironments()
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    factory->instance()->resetRunParams();
+    factory->instance()->resetRunEnvironment();
   }
 }
 
