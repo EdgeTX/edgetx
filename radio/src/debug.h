@@ -389,6 +389,7 @@ enum DebugTimers {
   debugTimerAudioIterval,
   debugTimerAudioDuration,
   debugTimerAudioConsume,
+  debugTimerYamlScan,
 
   DEBUG_TIMERS_COUNT
 };

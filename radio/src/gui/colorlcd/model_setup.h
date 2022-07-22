@@ -26,4 +26,6 @@ class ModelSetupPage: public PageTab {
     ModelSetupPage();
 
     void build(FormWindow * window) override;
+  private:
+    TextButton *labelTextButton = nullptr;
 };

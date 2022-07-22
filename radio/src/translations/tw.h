@@ -253,6 +253,7 @@
 #define TR_COPYINGMODEL                 "複製模型..."
 #define TR_MOVINGMODEL                  "移動模型..."
 #define TR_LOADINGMODEL                 "載入模型..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                         "名稱"
 #define TR_MODELNAME                    "模型名稱"
 #define TR_PHASENAME                    "模式名稱"
@@ -535,13 +536,12 @@
 #define TR_VOLTAGE                      TR(INDENT "Voltage", INDENT "電壓來源")
 #define TR_CURRENT                      TR(INDENT "Current", INDENT "電流來源")
 #define TR_SELECT_MODEL                 "選擇模型"
-#define TR_MODEL_CATEGORIES            "模型分類"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                  "選擇模式"
-#define TR_CREATE_CATEGORY              "創建分類"
-#define TR_RENAME_CATEGORY              "分類改名"
-#define TR_DELETE_CATEGORY              "刪除分類"
 #define TR_CREATE_MODEL                 "創建模型"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
 #define TR_DUPLICATE_MODEL              "複製模型"
 #define TR_COPY_MODEL                   "複製模型"
 #define TR_MOVE_MODEL                   "移動模型"
@@ -549,7 +549,6 @@
 #define TR_DELETE_MODEL                 "刪除模型"
 #define TR_RESTORE_MODEL                "恢復模型"
 #define TR_DELETE_ERROR                 "刪除失敗"
-#define TR_CAT_NOT_EMPTY                "分類未清空"
 #define TR_SDCARD_ERROR                 TR("SD error", "存儲卡錯誤")
 #define TR_SDCARD                       "存儲卡"
 #define TR_NO_FILES_ON_SD               "存儲卡中沒有文件!"
@@ -816,6 +815,7 @@
 #define TR_CHANS                       "通道"
 #define TR_ANTENNAPROBLEM CENTER       "發射機天線故障!"
 #define TR_MODELIDUSED                 "ID已使用:"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "模塊"
 #define TR_RX_NAME                     "接收機名稱"
 #define TR_TELEMETRY_TYPE              TR("Type", "回傳類型")

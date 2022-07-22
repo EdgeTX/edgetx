@@ -34,6 +34,7 @@ extern FIL g_oLogFile;
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
+#define DELETED_MODELS_PATH MODELS_PATH PATH_SEPARATOR "DELETED"
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
 #define PERS_TEMPL_PATH     TEMPLATES_PATH "/PERSONAL"
@@ -65,8 +66,11 @@ extern FIL g_oLogFile;
 const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
 const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;
 #if defined(SDCARD_YAML)
-const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR "models.yml";
-const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "models.yml";
+#define LABELS_FILENAME     "labels.yml"
+#define MODELS_FILENAME     "models.yml"
+const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char LABELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR LABELS_FILENAME;
 const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
 #endif
 #define    SPLASH_FILE             "splash.png"

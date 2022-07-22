@@ -583,13 +583,20 @@
 #define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
 #define TR_CURRENT                     TR(INDENT "Strom", INDENT "Stromquelle")
 #define TR_SELECT_MODEL                "Modell auswählen"
-#define TR_MODEL_CATEGORIES            "Model Categories"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
-#define TR_CREATE_CATEGORY             "Modelltyp erstellen"
-#define TR_RENAME_CATEGORY             "Modelltyp umbenennen"
-#define TR_DELETE_CATEGORY             "Modelltyp löschen"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "Kopiere Modell"
 #define TR_COPY_MODEL                  "Kopiere Modell"
 #define TR_MOVE_MODEL                  "Verschiebe Modell"
@@ -597,7 +604,6 @@
 #define TR_DELETE_MODEL                "Lösche Modell" // TODO merged into DELETEMODEL?
 #define TR_RESTORE_MODEL               TR("Modell wiederher.", "Modell wiederherstellen")
 #define TR_DELETE_ERROR                "Fehler beim\nLöschen"
-#define TR_CAT_NOT_EMPTY               "Modelltyp nicht leer"
 #define TR_SDCARD_ERROR                "SD-Kartenfehler"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"

@@ -67,6 +67,7 @@ set(GUI_SRC
   model_outputs.cpp
   model_curves.cpp
   model_gvars.cpp
+  model_templates.cpp
   model_logical_switches.cpp
   special_functions.cpp
   model_telemetry.cpp

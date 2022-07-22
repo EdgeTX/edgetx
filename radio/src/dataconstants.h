@@ -37,6 +37,9 @@
   #define LUA_EXPORT_EXTRA(...)
 #endif
 
+#define LABELS_LENGTH 100 // Maximum length of the label string
+#define LABEL_LENGTH 20   // Maximum length of a single label
+
 #if defined(PCBHORUS) || defined(PCBNV14)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32

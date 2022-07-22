@@ -338,7 +338,7 @@
 // tmp or t = temperature (single t may be followed by numner if device offers more temperature sensors
 // rp or r  = temperature (single r may be followed by numner if device offers more temperature sensors
 // fl = fuel
-//  
+//
 // TX
 #define STR_HOTT_ID_TX_RSSI_DL     "Tssi"
 #define STR_HOTT_ID_TX_LQI_DL      "Tqly"
@@ -346,7 +346,7 @@
 #define STR_HOTT_ID_RX_RSSI_UL     "Rssi"
 #define STR_HOTT_ID_RX_LQI_UL      "Rqly"
 #define STR_HOTT_ID_RX_VLT         "Rbt"
-#define STR_HOTT_ID_RX_TMP         "Rtmp" 
+#define STR_HOTT_ID_RX_TMP         "Rtmp"
 #define STR_HOTT_ID_RX_BAT_MIN     "Rbtm"
 #define STR_HOTT_ID_RX_VPCK        "Rvpk"
 #define STR_HOTT_ID_RX_EVENT       "Revt"
@@ -359,17 +359,17 @@
 #define STR_HOTT_ID_GPS_SPEED      "GPsp"
 #define STR_HOTT_ID_GPS_LL         "GPS"
 #define STR_HOTT_ID_GPS_DST        "GPdi"
-#define STR_HOTT_ID_GPS_ALT        "GPal" 
+#define STR_HOTT_ID_GPS_ALT        "GPal"
 #define STR_HOTT_ID_GPS_VV         "GPvv"
 #define STR_HOTT_ID_GPS_NSATS      "GPns"
 // ESC
 #define STR_HOTT_ID_ESC_VLT        "ESu1"
 #define STR_HOTT_ID_ESC_CAP        "EScp"
-#define STR_HOTT_ID_ESC_TMP        "ESt1" 
+#define STR_HOTT_ID_ESC_TMP        "ESt1"
 #define STR_HOTT_ID_ESC_CUR        "ESi1"
 #define STR_HOTT_ID_ESC_RPM        "ESrp"
 #define STR_HOTT_ID_ESC_BEC_VLT    "ESu2"
-#define STR_HOTT_ID_ESC_BEC_CUR    "ESi2" 
+#define STR_HOTT_ID_ESC_BEC_CUR    "ESi2"
 #define STR_HOTT_ID_ESC_BEC_TMP    "ESt2"
 #define STR_HOTT_ID_ESC_MOT_TMP    "ESt3"
 // GAM

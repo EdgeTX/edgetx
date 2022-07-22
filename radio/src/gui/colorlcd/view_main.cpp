@@ -227,7 +227,7 @@ void ViewMain::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
-      new ModelSelectMenu();
+      //new ModelSelectMenu();
       break;
 
     // TODO:

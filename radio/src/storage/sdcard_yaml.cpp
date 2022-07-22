@@ -47,7 +47,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
     if (result != FR_OK) {
         return SDCARD_ERROR(result);
     }
-      
+
     YamlParser yp; //TODO: move to re-usable buffer
     yp.init(calls, parser_ctx);
 
@@ -57,7 +57,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
       // reached EOF?
       if (bytes_read == 0)
         break;
-      
+
       if (f_eof(&file)) yp.set_eof();
       if (yp.parse(buffer, bytes_read) != YamlParser::CONTINUE_PARSING)
         break;
@@ -66,27 +66,6 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
     f_close(&file);
     return NULL;
 }
-
-
-//
-// Generic storage interface
-//
-
-#if defined(STORAGE_MODELSLIST)
-void storageCreateModelsList()
-{
-    modelslist.clear();
-    ModelsCategory* cat = modelslist.createCategory(DEFAULT_CATEGORY, false);
-    ModelCell* model = nullptr;
-    if (g_eeGeneral.currModelFilename[0] != '\0') {
-      model = modelslist.addModel(cat, g_eeGeneral.currModelFilename, false);
-    } else {
-      model = modelslist.addModel(cat, DEFAULT_MODEL_FILENAME, false);
-    }
-    model->setModelName(g_model.header.name);
-    modelslist.save();
-}
-#endif
 
 //
 // SDCARD storage interface
@@ -138,7 +117,7 @@ const char * loadRadioSettings()
       g_eeGeneral.chkSum = evalChkSum();
     }
     postRadioSettingsLoad();
-    
+
     return error;
 }
 
@@ -168,14 +147,14 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
     if (result != FR_OK) {
         return SDCARD_ERROR(result);
     }
-      
+
     YamlTreeWalker tree;
     tree.reset(root_node, data);
 
     yaml_writer_ctx ctx;
     ctx.file = &file;
     ctx.result = FR_OK;
-    
+
     if (!tree.generate(yaml_writer, &ctx)) {
         if (ctx.result != FR_OK) {
             f_close(&file);
@@ -213,7 +192,7 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
         TRACE("cannot find YAML data nodes for object size (size=%d)", size);
         return "YAML size error";
     }
-    
+
     char path[256];
     getModelPath(path, filename, pathName);
 
@@ -329,7 +308,7 @@ bool copyModel(uint8_t dst, uint8_t src)
   char model_idx_dst[MODELIDX_STRLEN];
   getModelNumberStr(src, model_idx_src);
   getModelNumberStr(dst, model_idx_dst);
-  
+
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
@@ -350,7 +329,7 @@ void swapModels(uint8_t id1, uint8_t id2)
   char model_idx_2[MODELIDX_STRLEN];
   getModelNumberStr(id1, model_idx_1);
   getModelNumberStr(id2, model_idx_2);
-  
+
   GET_FILENAME(fname1, MODELS_PATH, model_idx_1, YAML_EXT);
   GET_FILENAME(fname1_tmp, MODELS_PATH, model_idx_1, ".tmp");
   GET_FILENAME(fname2, MODELS_PATH, model_idx_2, YAML_EXT);
@@ -451,7 +430,7 @@ const char * backupModel(uint8_t idx)
   char model_idx[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(idx, model_idx);
   strcat(model_idx, STR_YAML_EXT);
-  
+
   return sdCopyFile(model_idx, STR_MODELS_PATH, buf, STR_BACKUP_PATH);
 }
 

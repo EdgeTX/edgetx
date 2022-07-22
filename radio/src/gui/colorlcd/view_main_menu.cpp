@@ -46,7 +46,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   auto carousel = new SelectFabCarousel(this);
   carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_SELECT_MODEL, [=]() -> uint8_t {
     deleteLater();
-    new ModelSelectMenu();
+    new ModelLabelsWindow();
     return 0;
   });
 

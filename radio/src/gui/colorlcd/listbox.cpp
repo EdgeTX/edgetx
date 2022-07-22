@@ -32,7 +32,7 @@ void ListBase::event_cb(lv_event_t* e)
 {
   static bool _nested = false;
   if (_nested) return;
-  
+
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t* obj = lv_event_get_target(e);
   if (!obj) return;
@@ -77,13 +77,13 @@ void ListBase::setAutoEdit(bool enable)
   autoEdit = enable;
   if (autoEdit && hasFocus()) {
     lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) lv_group_set_editing(g, true);    
+    if (g) lv_group_set_editing(g, true);
   }
 }
 
 void ListBase::setName(uint16_t idx, const std::string& name)
 {
-  lv_table_set_cell_value(lvobj, idx, 0, name.c_str());  
+  lv_table_set_cell_value(lvobj, idx, 0, name.c_str());
 }
 
 void ListBase::setNames(const std::vector<std::string>& names)
@@ -94,7 +94,7 @@ void ListBase::setNames(const std::vector<std::string>& names)
   for (const auto& name: names) {
     setName(row, name);
     row++;
-  }  
+  }
 }
 
 void ListBase::setLineHeight(uint8_t height)
@@ -107,12 +107,35 @@ void ListBase::setSelected(int selected)
   select(selected, 0);
 }
 
+void ListBase::setSelected(std::set<uint32_t> selected)
+{
+  if(!multiSelect) return;
+
+  for(int i=0; i < getRowCount(); i++) {
+    if(selected.find(i) != selected.end())
+      lv_table_add_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    else
+      lv_table_clear_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+  }
+}
+
 int ListBase::getSelected() const
 {
   uint16_t row, col;
   lv_table_get_selected_cell(lvobj, &row, &col);
   if (row != LV_TABLE_CELL_NONE) { return row; }
   return -1;
+}
+
+std::set<uint32_t> ListBase::getSelection()
+{
+  if(!multiSelect) return std::set<uint32_t>();
+  std::set<uint32_t> selectedIndexes;
+  for(int i=0; i < getRowCount(); i++) {
+  if(lv_table_has_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1))
+    selectedIndexes.insert(i);
+  }
+  return selectedIndexes;
 }
 
 void ListBase::setActiveItem(int item)
@@ -133,7 +156,20 @@ void ListBase::onPress(uint16_t row, uint16_t col)
   if (row == LV_TABLE_CELL_NONE) return;
 
   TRACE("SHORT_PRESS");
-  if (pressHandler) { pressHandler(); }
+
+  if(multiSelect && row < getRowCount()) {
+    std::set<uint32_t> lastSelection = getSelection();
+
+    bool chk = lv_table_has_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    if(chk) lv_table_clear_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+    else lv_table_add_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+
+    if(_multiSelectHandler) {
+      _multiSelectHandler(getSelection(),lastSelection);
+    }
+  } else {
+    if (pressHandler) { pressHandler(); }
+  }
 }
 
 void ListBase::onLongPressed()
@@ -147,6 +183,7 @@ void ListBase::onClicked()
 {
   if (!getAutoEdit()) {
     lv_group_set_editing((lv_group_t*)lv_obj_get_group(lvobj), true);
+
   } else {
     TableField::onClicked();
   }
@@ -164,7 +201,9 @@ void ListBase::onCancel()
 
 void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
-  if (row != activeItem) return;
+  if ((multiSelect == false && row != activeItem) ||
+      (multiSelect == true && !lv_table_has_cell_ctrl(lvobj, dsc->id, 0, LV_TABLE_CELL_CTRL_CUSTOM_1)))
+   return;
 
   lv_area_t coords;
   lv_coord_t area_h = lv_area_get_height(dsc->draw_area);

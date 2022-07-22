@@ -20,6 +20,8 @@
  */
 
 #pragma once
+#include "sdcard_common.h"
+
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 
 const char * loadRadioSettingsYaml();
