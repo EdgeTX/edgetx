@@ -150,6 +150,7 @@ namespace Board {
     HasColorLcd,
     HasSDCard,
     HasInternalModuleSupport,
+    HasExternalModuleSupport,
     SportMaxBaudRate
   };
 

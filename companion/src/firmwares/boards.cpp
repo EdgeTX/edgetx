@@ -497,6 +497,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
+    case HasExternalModuleSupport:
+      return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
+
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))

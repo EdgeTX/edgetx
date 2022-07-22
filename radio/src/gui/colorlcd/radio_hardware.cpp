@@ -28,6 +28,7 @@
 #include "hal/adc_driver.h"
 #include "aux_serial_driver.h"
 #include "hw_intmodule.h"
+#include "hw_extmodule.h"
 #include "hw_serial.h"
 #include "hw_inputs.h"
 
@@ -121,8 +122,14 @@ void RadioHardwarePage::build(FormWindow * window)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, TR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  auto mod = new InternalModuleWindow(window);
-  mod->padLeft(lv_dpx(8));
+  auto intMod = new InternalModuleWindow(window);
+  intMod->padLeft(lv_dpx(8));
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  new Subtitle(window, rect_t{}, TR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  auto extMod = new ExternalModuleWindow(window);
+  extMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)
