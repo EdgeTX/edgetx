@@ -3,17 +3,9 @@ name: Windows Companion 32-bit
 on:
   push:
     branches:
-      - 'win-cpn-32'
+      - 'main'
     tags:
       - v*
-    paths:
-      - '.github/workflows/win_cpn-32.yml'
-      - 'companion/**'
-      - 'tools/build-companion.sh'
-
-  pull_request:
-    branches:
-      - 'win-cpn-32'
     paths:
       - '.github/workflows/win_cpn-32.yml'
       - 'companion/**'
