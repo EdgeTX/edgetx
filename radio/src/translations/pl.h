@@ -432,7 +432,7 @@
 #define TR_MULTIPLIER          "Mnożnik"
 #define TR_CAL                 "Kal."
 #define TR_CALIBRATION                 "Calibration"
-#define TR_VTRIM               "Trym- +"
+#define TR_VTRIM               "Trym - +"
 #define TR_BG                  "BG:"
 #define TR_CALIB_DONE          "Calibration completed"
 #if defined(PCBHORUS)
