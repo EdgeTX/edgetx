@@ -212,8 +212,6 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
         chkDecompresses.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_Decompress :ap.flags &= ~UpdateInterface::UPDFLG_Decompress;
         chkInstalls.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_AsyncInstall : ap.flags &= ~UpdateInterface::UPDFLG_AsyncInstall;
         chkCopies.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_CopyDest : ap.flags &= ~UpdateInterface::UPDFLG_CopyDest;
-        ui->chkDelDownload->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_DelDownload : ap.flags &= ~UpdateInterface::UPDFLG_DelDownload;
-        ui->chkDelDecompress->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_DelDecompress : ap.flags &= ~UpdateInterface::UPDFLG_DelDecompress;
       }
 
       emit changed(idx);
@@ -250,9 +248,6 @@ void UpdateOptionsDialog::update()
     cboCopyFilterTypes.at(i)->setCurrentIndex((int)ap.copyFilterType);
     leCopyFilters.at(i)->setText(ap.copyFilter);
     leSubFolders.at(i)->setText(ap.destSubDir);
-
-    ui->chkDelDownload->setChecked(ap.flags & UpdateInterface::UPDFLG_DelDownload);
-    ui->chkDelDecompress->setChecked(ap.flags & UpdateInterface::UPDFLG_DelDecompress);
 
     i++;
   }

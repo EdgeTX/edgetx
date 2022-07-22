@@ -106,6 +106,6 @@ void Updates::checkRunSDSync()
   if (!g.currentProfile().runSDSync())
     return;
 
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Run SD Sync now?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Run SD card sync now?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     emit runSDSync();
 }

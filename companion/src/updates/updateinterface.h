@@ -63,9 +63,9 @@ class UpdateParameters : public QWidget
       QString currentRelease;
       QString updateRelease;
       QString downloadDir;
-      bool decompressUseDwnld;
+      bool decompressDirUseDwnld;
       QString decompressDir;
-      bool updateUseSD;
+      bool updateDirUseSD;
       QString updateDir;
       QVector<AssetParams> assets;
     };
@@ -101,14 +101,13 @@ class UpdateInterface : public QWidget
       UPDFLG_Locked          = 1 << 2,
       UPDFLG_Preparation     = 1 << 3,
       UPDFLG_Download        = 1 << 4,
-      UPDFLG_DelDownload     = 1 << 5,
-      UPDFLG_Decompress      = 1 << 6,
-      UPDFLG_DelDecompress   = 1 << 7,
-      UPDFLG_CopyDest        = 1 << 8,
-      UPDFLG_CopyFiles       = 1 << 9,
-      UPDFLG_CopyStructure   = 1 << 10,
-      UPDFLG_Housekeeping    = 1 << 11,
-      UPDFLG_AsyncInstall    = 1 << 12,
+      UPDFLG_Decompress      = 1 << 5,
+      UPDFLG_CopyDest        = 1 << 6,
+      UPDFLG_CopyFiles       = 1 << 7,
+      UPDFLG_CopyStructure   = 1 << 8,
+      UPDFLG_Housekeeping    = 1 << 9,
+      UPDFLG_AsyncInstall    = 1 << 10,
+      UPDFLG_DelDownloads    = 1 << 11,
       UPDFLG_Common          = UPDFLG_Preparation | UPDFLG_Download | UPDFLG_Decompress | UPDFLG_CopyDest | UPDFLG_Housekeeping,
     };
     Q_ENUM(UpdateFlags)

@@ -90,7 +90,7 @@ void AppPreferencesDialog::accept()
   g.appDebugLog(ui->opt_appDebugLog->isChecked());
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
   g.appLogsDir(ui->appLogsDir->text());
-  g.runInstaller(ui->chkPromptInstall->isChecked());
+  g.runAppInstaller(ui->chkPromptInstall->isChecked());
 
   if (ui->joystickChkB ->isChecked() && ui->joystickCB->isEnabled()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
@@ -106,11 +106,14 @@ void AppPreferencesDialog::accept()
   g.updateCheckFreq(AppData::UpdateCheckFreq(ui->cboUpdateCheckFreq->currentIndex()));
   g.downloadDir(ui->leDownloadDir->text());
 
-  g.decompressUseDwnld(ui->chkDecompressUseDwnld->isChecked());
+  g.decompressDirUseDwnld(ui->chkDecompressDirUseDwnld->isChecked());
   g.decompressDir(ui->leDecompressDir->text());
 
-  g.updateUseSD(ui->chkUpdateUseSD->isChecked());
+  g.updateDirUseSD(ui->chkUpdateDirUseSD->isChecked());
   g.updateDir(ui->leUpdateDir->text());
+
+  g.updDelDownloads(ui->chkDelDownloads->isChecked());
+  g.updLogLevel(ui->cboLogLevel->currentIndex());
 
   QMapIterator<QString, int> it(factories->sortedComponentsList());
 
@@ -236,7 +239,7 @@ void AppPreferencesDialog::initSettings()
   ui->opt_fwTraceLog->setChecked(g.fwTraceLog());
   ui->appLogsDir->setText(g.appLogsDir());
   toggleAppLogSettings();
-  ui->chkPromptInstall->setChecked(g.runInstaller());
+  ui->chkPromptInstall->setChecked(g.runAppInstaller());
 
 #if defined(JOYSTICKS)
   ui->joystickChkB->setChecked(g.jsSupport());
@@ -328,7 +331,7 @@ void AppPreferencesDialog::initSettings()
     }
   });
 
-  connect(ui->chkDecompressUseDwnld, &QCheckBox::toggled, [=](const bool checked) {
+  connect(ui->chkDecompressDirUseDwnld, &QCheckBox::toggled, [=](const bool checked) {
     if (!checked) {
       ui->leDecompressDir->setText(g.decompressDir());
       ui->leDecompressDir->setEnabled(true);
@@ -341,7 +344,7 @@ void AppPreferencesDialog::initSettings()
     }
   });
 
-  connect(ui->chkUpdateUseSD, &QCheckBox::toggled, [=](const bool checked) {
+  connect(ui->chkUpdateDirUseSD, &QCheckBox::toggled, [=](const bool checked) {
     if (!checked) {
       ui->leUpdateDir->setText(g.updateDir());
       ui->leUpdateDir->setEnabled(true);
@@ -414,6 +417,8 @@ void AppPreferencesDialog::initSettings()
 
   ui->grpComponents->setLayout(grid);
 
+  ui->cboLogLevel->addItems(AppData::updateLogLevelsList());
+
   loadUpdatesTab();
 }
 
@@ -422,11 +427,14 @@ void AppPreferencesDialog::loadUpdatesTab()
   ui->cboUpdateCheckFreq->setCurrentIndex(g.updateCheckFreq());
   ui->leDownloadDir->setText(g.downloadDir());
   //  trigger toggled signal by changing design value and then setting to saved value
-  ui->chkDecompressUseDwnld->setChecked(!ui->chkDecompressUseDwnld->isChecked());
-  ui->chkDecompressUseDwnld->setChecked(g.decompressUseDwnld());
+  ui->chkDecompressDirUseDwnld->setChecked(!ui->chkDecompressDirUseDwnld->isChecked());
+  ui->chkDecompressDirUseDwnld->setChecked(g.decompressDirUseDwnld());
   //  trigger toggled signal by changing design value and then setting to saved value
-  ui->chkUpdateUseSD->setChecked(!ui->chkUpdateUseSD->isChecked());
-  ui->chkUpdateUseSD->setChecked(g.updateUseSD());
+  ui->chkUpdateDirUseSD->setChecked(!ui->chkUpdateDirUseSD->isChecked());
+  ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
+
+  ui->chkDelDownloads->setChecked(g.updDelDownloads());
+  ui->cboLogLevel->setCurrentIndex(g.updLogLevel());
 
   QMapIterator<QString, int> it(factories->sortedComponentsList());
 
