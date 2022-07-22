@@ -1326,7 +1326,7 @@
   #define LED_BLUE_GPIO_PIN             GPIO_Pin_5  // PC.05
   #define LED_GREEN_GPIO                GPIOB
   #define LED_GREEN_GPIO_PIN            GPIO_Pin_1  // PB.01
-#elif defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#elif defined(RADIO_ZORRO)
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              GPIO_SetBits
   #define GPIO_LED_GPIO_OFF             GPIO_ResetBits
@@ -1336,6 +1336,16 @@
   #define LED_RED_GPIO_PIN              GPIO_Pin_13 // PE.13
   #define LED_BLUE_GPIO                 GPIOE
   #define LED_BLUE_GPIO_PIN             GPIO_Pin_2  // PE.02
+#elif defined(RADIO_TX12MK2)
+  #define STATUS_LEDS
+  #define GPIO_LED_GPIO_ON              GPIO_SetBits
+  #define GPIO_LED_GPIO_OFF             GPIO_ResetBits
+  #define LED_GREEN_GPIO                GPIOE
+  #define LED_GREEN_GPIO_PIN            GPIO_Pin_2  // PE.02
+  #define LED_RED_GPIO                  GPIOE
+  #define LED_RED_GPIO_PIN              GPIO_Pin_13 // PE.13
+  #define LED_BLUE_GPIO                 GPIOA
+  #define LED_BLUE_GPIO_PIN             GPIO_Pin_7  // PA.07
 #elif defined(PCBX7)
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              GPIO_SetBits
