@@ -40,7 +40,7 @@ UpdateMultiProtocol::UpdateMultiProtocol(QWidget * parent) :
   UpdateParameters::AssetParams &ap = dfltParams->addAsset();
   ap.filterType = UpdateParameters::UFT_Expression;
   ap.filter = "^mm-stm-serial-.*\\.bin$";
-  ap.flags = (dfltParams->data.flags | UPDFLG_CopyFiles) &~ (UPDFLG_Decompress | UPDFLG_DelDecompress);
+  ap.flags = (dfltParams->data.flags | UPDFLG_CopyFiles) &~ UPDFLG_Decompress;
   ap.destSubDir = "FIRMWARE";
   }
 }

@@ -47,8 +47,8 @@ UpdateParameters::UpdateParameters(QWidget * parent) :
   QWidget(parent)
 {
   data.flags = 0;
-  data.decompressUseDwnld = true;
-  data.updateUseSD =  true;
+  data.decompressDirUseDwnld = true;
+  data.updateDirUseSD =  true;
 }
 
 UpdateParameters& UpdateParameters::operator=(const UpdateParameters& source)
@@ -63,9 +63,9 @@ UpdateParameters& UpdateParameters::operator=(const UpdateParameters& source)
     data.currentRelease = source.data.currentRelease;
     data.updateRelease = source.data.updateRelease;
     data.downloadDir = source.data.downloadDir;
-    data.decompressUseDwnld = source.data.decompressUseDwnld;
+    data.decompressDirUseDwnld = source.data.decompressDirUseDwnld;
     data.decompressDir = source.data.decompressDir;
-    data.updateUseSD = source.data.updateUseSD;
+    data.updateDirUseSD = source.data.updateDirUseSD;
     data.updateDir = source.data.updateDir;
 
     while (!data.assets.isEmpty()) {
@@ -144,7 +144,6 @@ UpdateInterface::UpdateInterface(QWidget * parent) :
   file(nullptr)
 {
   progress = nullptr;
-  logLevel = g.updateLogLevel();
   settingsIdx = -1;
 
   QNetworkProxyFactory::setUseSystemConfiguration(true);
@@ -257,12 +256,8 @@ QString UpdateInterface::updateFlagsToString(UpdateFlags val)
       return "Preparation";
     case UPDFLG_Download:
       return "Download";
-    case UPDFLG_DelDownload:
-      return "Delete Download";
     case UPDFLG_Decompress:
       return "Decompress";
-    case UPDFLG_DelDecompress:
-      return "Delete Decompress";
     case UPDFLG_CopyDest:
       return "Copy to Destination";
     case UPDFLG_CopyFiles:
@@ -273,6 +268,8 @@ QString UpdateInterface::updateFlagsToString(UpdateFlags val)
       return "Housekeeping";
     case UPDFLG_AsyncInstall:
       return "Async Install";
+    case UPDFLG_DelDownloads:
+      return "Delete Downloads";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -345,9 +342,9 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
 
   params->data.downloadDir = g.downloadDir().trimmed();
 
-  params->data.decompressUseDwnld = g.decompressUseDwnld();
+  params->data.decompressDirUseDwnld = g.decompressDirUseDwnld();
 
-  if (params->data.decompressUseDwnld)
+  if (params->data.decompressDirUseDwnld)
     params->data.decompressDir = params->data.downloadDir;
   else {
     if (g.decompressDir().trimmed().isEmpty())
@@ -356,9 +353,9 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
     params->data.decompressDir = g.decompressDir().trimmed();
   }
 
-  params->data.updateUseSD = g.updateUseSD();
+  params->data.updateDirUseSD = g.updateDirUseSD();
 
-  if (params->data.updateUseSD && (!g.currentProfile().sdPath().trimmed().isEmpty()))
+  if (params->data.updateDirUseSD && (!g.currentProfile().sdPath().trimmed().isEmpty()))
       params->data.updateDir = g.currentProfile().sdPath().trimmed();
   else {
     if (g.updateDir().trimmed().isEmpty())
@@ -371,9 +368,16 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
 void UpdateInterface::resetRunEnvironment()
 {
   progress = nullptr;
+  logLevel = g.updLogLevel();
+  qDebug() << tr("Log level: %1").arg(logLevel);
 
   *runParams = *dfltParams;
   runParams->data.flags &= ~UPDFLG_Update;
+
+  if (g.updDelDownloads())
+    runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
+  else
+    runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
 }
 
 int UpdateInterface::getSettingsIdx()
@@ -542,17 +546,21 @@ bool UpdateInterface::setRunFolders()
 {
   QString fldr(releases->name());
   fldr = fldr.replace("\"", "");
-  fldr = fldr.replace("'", "");
+  fldr = fldr.replace("\'", "");
   fldr = fldr.replace(" ", "_");
+  fldr = fldr.replace("(", "_");
+  fldr = fldr.replace(")", "_");
+  fldr = fldr.replace("[", "_");
+  fldr = fldr.replace("]", "_");
 
-  downloadDir = runParams->data.downloadDir % "/" % name % "/" % fldr;
+  downloadDir = QString("%1/%2/%3").arg(runParams->data.downloadDir).arg(name).arg(fldr);
 
   if (!checkCreateDirectory(downloadDir, UPDFLG_Download))
     return false;
 
   reportProgress(tr("Download directory: %1").arg(downloadDir), QtDebugMsg);
 
-  decompressDir = runParams->data.decompressDir % "/" % name % "/" % fldr;
+  decompressDir = QString("%1/%2/%3").arg(runParams->data.decompressDir).arg(name).arg(fldr);
 
   if (!checkCreateDirectory(decompressDir, UPDFLG_Decompress))
     return false;
@@ -849,7 +857,7 @@ void UpdateInterface::downloadBinaryToFile(const QString & url, const QString & 
 {
   downloadSuccess = false;
 
-  QFileInfo f(downloadDir % "/" % QString("A%1/%2").arg(assets->id()).arg(filename));
+  QFileInfo f(QString("%1/A%2/%3").arg(downloadDir).arg(assets->id()).arg(filename));
 
   progressMessage(tr("Downloading: %1").arg(filename));
   reportProgress(tr("Download: %1").arg(filename), QtInfoMsg);
@@ -907,14 +915,14 @@ bool UpdateInterface::decompressAsset(int row)
   if (filename.isEmpty())
     return false;
 
-  QFileInfo f(downloadDir % "/" % QString("A%1/%2").arg(assets->id()).arg(assets->filename()));
+  QFileInfo f(QString("%1/A%2/%3").arg(downloadDir).arg(assets->id()).arg(assets->filename()));
 
   if (!f.exists())
     return false;
 
   reportProgress(tr("Decompress: %1").arg(filename), QtInfoMsg);
 
-  decompressArchive(f.absoluteFilePath(), decompressDir % "/" % QString("A%1").arg(assets->id()));
+  decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(decompressDir).arg(assets->id()));
 
   return true;
 }
@@ -971,7 +979,7 @@ bool UpdateInterface::copyStructure()
     progress->setMaximum(100);
   }
 
-  QDir srcPath(decompressDir % QString("/A%1/%2").arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName()));
+  QDir srcPath(QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName()));
 
   if (!srcPath.exists()) {
     reportProgress(tr("Decompressed file structure not found at %1").arg(QDir::toNativeSeparators(srcPath.path())), QtCriticalMsg);
@@ -1087,9 +1095,9 @@ bool UpdateInterface::copyFiles()
   QString srcPath;
 
   if (assets->flags() & UPDFLG_Decompress)
-    srcPath = decompressDir % QString("/A%1/%2").arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
+    srcPath = QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
   else if (assets->flags() & UPDFLG_Download)
-    srcPath = downloadDir % QString("/A%1").arg(assets->id());
+    srcPath = QString("%1/A%2").arg(downloadDir).arg(assets->id());
   else {
     reportProgress(tr("Unable to determine source directory for asset %1").arg(assets->filename()), QtCriticalMsg);
     return false;
@@ -1292,7 +1300,8 @@ bool UpdateInterface::housekeeping()
   if (progress)
     progress->setValue(++cnt);
 
-  if (runParams->data.assets.at(0).flags & UPDFLG_DelDownload) {
+  if (runParams->data.flags & UPDFLG_DelDownloads) {
+    reportProgress(tr("Delete download directory: %1").arg(downloadDir), QtDebugMsg);
     QDir d(downloadDir);
     if (!d.removeRecursively())
       reportProgress(tr("Failed to delete downloads folder %1").arg(downloadDir), QtCriticalMsg);
@@ -1301,7 +1310,8 @@ bool UpdateInterface::housekeeping()
   if (progress)
     progress->setValue(++cnt);
 
-  if (!g.decompressUseDwnld() && (runParams->data.assets.at(0).flags & UPDFLG_DelDecompress)) {
+  if (!g.decompressDirUseDwnld() && (runParams->data.flags & UPDFLG_DelDownloads)) {
+    reportProgress(tr("Delete decompress directory: %1").arg(decompressDir), QtDebugMsg);
     QDir d(decompressDir);
     if (!d.removeRecursively())
       reportProgress(tr("Failed to delete decompress folder %1").arg(decompressDir), QtCriticalMsg);
@@ -1320,6 +1330,7 @@ bool UpdateInterface::asyncInstall()
 
 bool UpdateInterface::saveReleaseSettings()
 {
+  reportProgress(tr("Save release settings"), QtDebugMsg);
   g.component[settingsIdx].release(releases->name());
   g.component[settingsIdx].version(releases->version());
   g.component[settingsIdx].id(releases->id());

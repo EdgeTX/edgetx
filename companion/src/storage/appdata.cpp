@@ -656,8 +656,9 @@ void AppData::resetUpdatesSettings()
   g.updateCheckFreqReset();
   g.downloadDirReset();
   g.decompressDirReset();
-  g.decompressUseDwnldReset();
+  g.decompressDirUseDwnldReset();
   g.updateDirReset();
-  g.updateUseSDReset();
-  g.updateLogLevelReset();
+  g.updateDirUseSDReset();
+  g.updDelDownloadsReset();
+  g.updLogLevelReset();
 }

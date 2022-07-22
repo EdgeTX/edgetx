@@ -47,7 +47,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   ui->leDownloadDir->setText(g.downloadDir());
 
-  connect(ui->chkDecompressUseDwnld, &QCheckBox::stateChanged, [=](const int checked) {
+  connect(ui->chkDecompressDirUseDwnld, &QCheckBox::stateChanged, [=](const int checked) {
     if (!checked) {
       ui->leDecompressDir->setText(g.decompressDir());
       ui->leDecompressDir->setEnabled(true);
@@ -60,10 +60,10 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     }
   });
 
-  ui->chkDecompressUseDwnld->setChecked(!g.decompressUseDwnld());
-  ui->chkDecompressUseDwnld->setChecked(g.decompressUseDwnld());
+  ui->chkDecompressDirUseDwnld->setChecked(!g.decompressDirUseDwnld());
+  ui->chkDecompressDirUseDwnld->setChecked(g.decompressDirUseDwnld());
 
-  connect(ui->chkUpdateUseSD, &QCheckBox::stateChanged, [=](const int checked) {
+  connect(ui->chkUpdateDirUseSD, &QCheckBox::stateChanged, [=](const int checked) {
     if (!checked) {
       ui->leUpdateDir->setText(g.updateDir());
       ui->leUpdateDir->setEnabled(true);
@@ -76,8 +76,8 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     }
   });
 
-  ui->chkUpdateUseSD->setChecked(!g.updateUseSD());
-  ui->chkUpdateUseSD->setChecked(g.updateUseSD());
+  ui->chkUpdateDirUseSD->setChecked(!g.updateDirUseSD());
+  ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
 
   connect(ui->btnDownloadSelect, &QPushButton::clicked, [=]() {
     QString dirPath = QFileDialog::getExistingDirectory(this,tr("Select your download folder"), g.downloadDir());
@@ -174,6 +174,8 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   ui->grpComponents->setLayout(grid);
 
+  ui->chkDelDownloads->setChecked(g.updDelDownloads());
+
   connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
     QMapIterator<QString, int> it(factories->sortedComponentsList());
 
@@ -187,10 +189,14 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
           UpdateParameters *runParams = factories->getRunParams(name);
           runParams->data.flags |= UpdateInterface::UPDFLG_Update;
           runParams->data.downloadDir = ui->leDownloadDir->text();
-          runParams->data.decompressUseDwnld = ui->chkDecompressUseDwnld->isChecked();
+          runParams->data.decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
           runParams->data.decompressDir = ui->leDecompressDir->text();
-          runParams->data.updateUseSD = ui->chkUpdateUseSD->isChecked();
+          runParams->data.updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
           runParams->data.updateDir = ui->leUpdateDir->text();
+          if (ui->chkDelDownloads->isChecked())
+            runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
+          else
+            runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
         }
       }
     }

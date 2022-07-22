@@ -501,6 +501,8 @@ class AppData: public CompStoreObj
 
     static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Editor"), tr("Template"), tr("Prompt") } ; }
     static QStringList updateCheckFreqsList() { return { tr("Manually"), tr("Startup"), tr("Daily"), tr("Weekly"), tr("Monthly") } ; }
+    // refer enum QtMsgType
+    static QStringList updateLogLevelsList() { return { tr("Debug"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Information") } ; }
 
     explicit AppData();
     void init() override;
@@ -598,10 +600,12 @@ class AppData: public CompStoreObj
     PROPERTYSTRD(templatesDir,                          CPN_DOCUMENTS_LOCATION % "/templates")
     PROPERTYSTRD(downloadDir,                           CPN_DOCUMENTS_LOCATION % "/downloads")
     PROPERTYSTRD(decompressDir,                         CPN_DOCUMENTS_LOCATION % "/decompress")
-    PROPERTY    (bool, decompressUseDwnld,              true)
     PROPERTYSTRD(updateDir,                             CPN_DOCUMENTS_LOCATION % "/updates")
-    PROPERTY    (bool, updateUseSD,                     true)
-    PROPERTY    (int,  updateLogLevel,                  4)
+    PROPERTY    (bool, decompressDirUseDwnld,           true)
+    PROPERTY    (bool, updateDirUseSD,                  true)
+    PROPERTY    (bool, runAppInstaller,                 false)
+    PROPERTY    (int,  updLogLevel,                     4)
+    PROPERTY    (bool, updDelDownloads,                 false)
 
     PROPERTYSTR (locale)
     PROPERTYSTR (gePath)
@@ -637,7 +641,6 @@ class AppData: public CompStoreObj
     PROPERTY(bool, tabbedMdi,                  false)
     PROPERTY(bool, appDebugLog,                false)
     PROPERTY(bool, fwTraceLog,                 false)
-    PROPERTY(bool, runInstaller,               false)
 
     // Simulator global (non-profile) settings
     PROPERTY(QStringList, simuDbgFilters, QStringList())

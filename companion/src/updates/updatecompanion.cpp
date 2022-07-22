@@ -62,9 +62,9 @@ UpdateCompanion::UpdateCompanion(QWidget * parent) :
 
 bool UpdateCompanion::asyncInstall()
 {
-  reportProgress(tr("Run application installer: %1").arg(g.runInstaller() ? tr("true") : tr("false")), QtDebugMsg);
+  reportProgress(tr("Run application installer: %1").arg(g.runAppInstaller() ? tr("true") : tr("false")), QtDebugMsg);
 
-  if (!g.runInstaller())
+  if (!g.runAppInstaller())
     return true;
 
   progressMessage(tr("Async install"));
