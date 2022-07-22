@@ -309,6 +309,10 @@ void boardOff()
   }
 #endif
 
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+  lcdInit(); 
+#endif
+
   lcdOff();
   SysTick->CTRL = 0; // turn off systick
   pwrOff();
