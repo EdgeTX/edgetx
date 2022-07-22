@@ -195,12 +195,12 @@
 #define LSM6DS33TR_ID                           0x69
 
 static const char configure[][2] = {
-  {LSM6DS_ACCEL_AXIS_EN_ADDR, 0x38},
-  {LSM6DS_ACCEL_ODR_ADDR, (0x3 << 4) | (0x1 << 2) | (0x3 << 0)},
-  {LSM6DS_GYRO_AXIS_EN_ADDR, 0x38},
-  {LSM6DS_GYRO_ODR_ADDR, (3 << 4) | (3 << 2) | (0 << 0)},
-  {LSM6DS_INT1_CTRL_ADDR, 0x3},
-  {LSM6DS_INT2_CTRL_ADDR, 0x3},
+  // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (+/-2 g full scale)
+  {LSM6DS_ACCEL_ODR_ADDR, 0x80},
+  // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
+  {LSM6DS_GYRO_ODR_ADDR, 0x80},
+  // IF_INC = 1 (automatically increment register address)
+  {LSM6DS_BDU_ADDR, 0x04}
 };
 
 #define I2C_TIMEOUT_MAX      10000
@@ -253,11 +253,6 @@ int gyroInit()
   uint8_t id = I2C_LSM6DS_ReadRegister(LSM6DS_WHO_AM_I);
   if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID)
     return -1;
-
-  I2C_LSM6DS_WriteRegister(0x12, 0x05);
-  delay_ms(1);
-  I2C_LSM6DS_WriteRegister(0x12, 0x04);
-  delay_ms(1);
 
   for (uint8_t i = 0; i < DIM(configure); i++) {
     I2C_LSM6DS_WriteRegister(configure[i][0], configure[i][1]);
