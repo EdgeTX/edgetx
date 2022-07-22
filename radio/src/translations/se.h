@@ -460,7 +460,7 @@
 #define TR_MULTIPLIER                   "Styrka"
 #define TR_CAL                          "Kal."
 #define TR_CALIBRATION                  "Kalibrering"
-#define TR_VTRIM                        "Trim- +"
+#define TR_VTRIM                        "Trim - +"
 #define TR_BG                           "BG:"
 #define TR_CALIB_DONE                   "Kalibrering färdig"
 

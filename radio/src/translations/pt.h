@@ -433,7 +433,7 @@
 #define TR_MULTIPLIER          "Multiplicar"
 #define TR_CAL                 "Cal"
 #define TR_CALIBRATION                 "Calibration"
-#define TR_VTRIM               "Trim- +"
+#define TR_VTRIM               "Trim - +"
 #define TR_BG                  "BG:"
 #define TR_CALIB_DONE                  "Calibration completed"
 #if defined(PCBHORUS)

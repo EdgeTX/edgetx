@@ -436,7 +436,7 @@
 #define TR_MODESRC             "Modo\006% Origine"
 #define TR_MULTIPLIER          "Moltiplica"
 #define TR_CAL                 "Cal"
-#define TR_VTRIM               "Trim- +"
+#define TR_VTRIM               "Trim - +"
 #define TR_BG                  "BG:"
 #define TR_CALIB_DONE                  "Calibratione completa"
 #if defined(PCBHORUS)

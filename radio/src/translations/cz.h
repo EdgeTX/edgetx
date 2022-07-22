@@ -450,7 +450,7 @@
 #define TR_MULTIPLIER                  "Násobič"
 #define TR_CAL                         "Kal."
 #define TR_CALIBRATION                 "Kalibrace"
-#define TR_VTRIM                       "Trim- +"
+#define TR_VTRIM                       "Trim - +"
 #define TR_BG                          "Poz:"
 #define TR_CALIB_DONE                  "Kalibrace dokončena"
 #if defined(PCBHORUS)
