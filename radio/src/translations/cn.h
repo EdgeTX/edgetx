@@ -541,7 +541,7 @@
 #define TR_MULTI_LNA_DISABLE           INDENT "禁用接收放大器"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("开", "启用")
-#define TR_DISABLE_INTERNAL            TR("禁用内置射频", "禁用内置射频")
+#define TR_DISABLE_INTERNAL            TR("禁用内置发射", "禁用内置发射")
 #define TR_MODULE_NO_SERIAL_MODE       TR("非串口模式", "未开启串口模式")
 #define TR_MODULE_NO_INPUT             TR("无输入", "无串行数据输入")
 #define TR_MODULE_NO_TELEMETRY         TR3("无回传", "未收到多协议回传信息", "未收到多协议回传信息")
@@ -778,14 +778,14 @@
 #define TR_FIRMWARE_UPDATE_SUCCESS     "固件更新成功"
 #define TR_WRITING                     "正在写入..."
 #define TR_CONFIRM_FORMAT              "是否格式化?"
-#define TR_INTERNALRF                  "内置射频"
-#define TR_INTERNAL_MODULE             TR("内置射频", "内置射频")
-#define TR_EXTERNAL_MODULE             TR("外置射频", "外置射频")
+#define TR_INTERNALRF                  "内置发射"
+#define TR_INTERNAL_MODULE             TR("内置发射", "内置发射")
+#define TR_EXTERNAL_MODULE             TR("外置发射", "外置发射")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX需要升级"
 #define TR_TELEMETRY_DISABLED          "禁用回传"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_NO_MODULE_INFORMATION       "无模块信息"
-#define TR_EXTERNALRF                  "外置射频"
+#define TR_EXTERNALRF                  "外置发射"
 #define TR_FAILSAFE                    TR(INDENT "失控保护", INDENT "失控保护模式")
 #define TR_FAILSAFESET                 "失控保护设置"
 #define TR_REG_ID                      "注册ID"
