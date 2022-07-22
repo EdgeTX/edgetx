@@ -214,7 +214,7 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
-#if defined(RADIO_TX12) || defined(RADIO_ZORRO)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO)
   CHECK_2POS(SW_SA);
   CHECK_3POS(0, SW_SB);
   CHECK_3POS(1, SW_SC);
@@ -256,7 +256,7 @@ void getSwitchesPosition(bool startup)
   CHECK_2POS(SW_SF);
   CHECK_2POS(SW_SG);
   CHECK_2POS(SW_SH);
-#elif defined(RADIO_TX12)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   CHECK_2POS(SW_SD);
   CHECK_3POS(2, SW_SE);
   CHECK_3POS(3, SW_SF);
