@@ -54,12 +54,44 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
   internalModule->setAvailableHandler(
       [](int module) { return isInternalModuleSupported(module); });
 
-#if defined(CROSSFIRE)
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   box = new FormGroup(box, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
+  ant_box = box->getLvObj();
+  lv_obj_set_width(ant_box, LV_SIZE_CONTENT);
+  lv_obj_set_style_flex_cross_place(ant_box, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(box, rect_t{}, STR_ANTENNA, 0, COLOR_THEME_PRIMARY1);
+  new Choice(
+      box, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
+      ANTENNA_MODE_EXTERNAL, GET_DEFAULT(g_eeGeneral.antennaMode),
+      [](int antenna) {
+        if (!isExternalAntennaEnabled() &&
+            (antenna == ANTENNA_MODE_EXTERNAL ||
+             (antenna == ANTENNA_MODE_PER_MODEL &&
+              g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                  ANTENNA_MODE_EXTERNAL))) {
+          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+            g_eeGeneral.antennaMode = antenna;
+            SET_DIRTY();
+          }
+        } else {
+          g_eeGeneral.antennaMode = antenna;
+          checkExternalAntenna();
+          SET_DIRTY();
+        }
+      });
+
+  updateAntennaLine();
+#endif
+
+#if defined(CROSSFIRE)
+  box = new FormGroup(box, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW);
+
   br_box = box->getLvObj();
-  lv_obj_set_width(br_box, LV_SIZE_CONTENT); 
+  lv_obj_set_width(br_box, LV_SIZE_CONTENT);
   lv_obj_set_style_flex_cross_place(br_box, LV_FLEX_ALIGN_CENTER, 0);
 
   new StaticText(box, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
@@ -78,6 +110,7 @@ void InternalModuleWindow::setModuleType(int moduleType)
   }
   g_eeGeneral.internalModule = moduleType;
   updateBaudrateLine();
+  updateAntennaLine();
   SET_DIRTY();
 }
 
@@ -102,6 +135,17 @@ void InternalModuleWindow::updateBaudrateLine()
     lv_obj_clear_flag(br_box, LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_add_flag(br_box, LV_OBJ_FLAG_HIDDEN);
+  }
+#endif
+}
+
+void InternalModuleWindow::updateAntennaLine()
+{
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+  if (isInternalModuleAvailable(MODULE_TYPE_XJT_PXX1)) {
+    lv_obj_clear_flag(ant_box, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(ant_box, LV_OBJ_FLAG_HIDDEN);
   }
 #endif
 }

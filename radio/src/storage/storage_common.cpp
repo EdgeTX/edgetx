@@ -107,15 +107,13 @@ void postRadioSettingsLoad()
 }
 
 #if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
-void onAntennaSelection(const char * result)
+void onAntennaSelection(const char* result)
 {
   if (result == STR_USE_INTERNAL_ANTENNA) {
     globalData.externalAntennaEnabled = false;
-  }
-  else if (result == STR_USE_EXTERNAL_ANTENNA) {
+  } else if (result == STR_USE_EXTERNAL_ANTENNA) {
     globalData.externalAntennaEnabled = true;
-  }
-  else {
+  } else {
     checkExternalAntenna();
   }
 }
@@ -132,33 +130,52 @@ void checkExternalAntenna()
 {
   if (isModuleXJT(INTERNAL_MODULE)) {
     if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
+      // TRACE("checkExternalAntenna(): External");
       globalData.externalAntennaEnabled = true;
-    }
-    else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode == ANTENNA_MODE_EXTERNAL) {
+    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+               g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                   ANTENNA_MODE_EXTERNAL) {
+      // TRACE("checkExternalAntenna(): Per Model, External");
       if (!globalData.externalAntennaEnabled) {
 #if defined(COLORLCD)
-#warning "Antenna confirmation dialog needed"
+        if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+          globalData.externalAntennaEnabled = true;
+        }
 #else
         POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
         SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
 #endif
       }
-    }
-    else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK || (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL && g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode == ANTENNA_MODE_ASK)) {
+    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
+               (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+                g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                    ANTENNA_MODE_ASK)) {
+      // TRACE("checkExternalAntenna(): Ask");
       globalData.externalAntennaEnabled = false;
+
 #if defined(COLORLCD)
-#warning "Antenna confirmation dialog needed"
+      static Menu* _askAntennaMenu = nullptr;
+
+      _askAntennaMenu = new Menu(MainWindow::instance());
+
+      _askAntennaMenu->setCloseHandler([]() { _askAntennaMenu = nullptr; });
+
+      _askAntennaMenu->setTitle(STR_ANTENNA);
+      _askAntennaMenu->addLine(STR_USE_INTERNAL_ANTENNA, [] {
+        onAntennaSelection(STR_USE_INTERNAL_ANTENNA);
+      });
+      _askAntennaMenu->addLine(STR_USE_EXTERNAL_ANTENNA, [] {
+        onAntennaSelection(STR_USE_EXTERNAL_ANTENNA);
+      });
 #else
       POPUP_MENU_ADD_ITEM(STR_USE_INTERNAL_ANTENNA);
       POPUP_MENU_ADD_ITEM(STR_USE_EXTERNAL_ANTENNA);
       POPUP_MENU_START(onAntennaSelection);
 #endif
-    }
-    else {
+    } else {
       globalData.externalAntennaEnabled = false;
     }
-  }
-  else {
+  } else {
     globalData.externalAntennaEnabled = false;
   }
 }
