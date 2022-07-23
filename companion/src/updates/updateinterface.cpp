@@ -335,6 +335,12 @@ void UpdateInterface::setName(QString name)
   currentRelease();
 }
 
+void UpdateInterface::setRepo(QString repo)
+{
+  releases->setRepo(repo);
+  assets->setRepo(repo);
+}
+
 void UpdateInterface::initParamFolders(UpdateParameters * params)
 {
   if (g.downloadDir().trimmed().isEmpty())
@@ -369,7 +375,6 @@ void UpdateInterface::resetRunEnvironment()
 {
   progress = nullptr;
   logLevel = g.updLogLevel();
-  qDebug() << tr("Log level: %1").arg(logLevel);
 
   *runParams = *dfltParams;
   runParams->data.flags &= ~UPDFLG_Update;
