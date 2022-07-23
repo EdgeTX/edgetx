@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,35 +19,40 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FWPREFERENCESDIALOG_H_
-#define _FWPREFERENCESDIALOG_H_
+#pragma once
+
+#include "updateinterface.h"
+#include "appdata.h"
 
 #include <QDialog>
 #include <QCheckBox>
-#include "eeprominterface.h"
+#include <QLabel>
+#include <QPushButton>
 
 namespace Ui {
-  class FirmwarePreferencesDialog;
+  class UpdatesDialog;
 }
 
-class Joystick;
-
-class FirmwarePreferencesDialog : public QDialog
+class UpdatesDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    explicit FirmwarePreferencesDialog(QWidget *parent = 0);
-    ~FirmwarePreferencesDialog();
+    UpdatesDialog(QWidget * parent, UpdateFactories * factories);
+    virtual ~UpdatesDialog();
 
-  private:
-    Ui::FirmwarePreferencesDialog *ui;
-    void initSettings();
+  signals:
 
   private slots:
-    void on_fw_dnld_clicked();
-    void on_sd_dnld_clicked();
-    void on_checkFWUpdates_clicked();
+    virtual void accept();
+
+  private:
+    Ui::UpdatesDialog *ui;
+    UpdateFactories *factories;
+
+    QCheckBox *chkUpdate[MAX_COMPONENTS];
+    QLabel *lblCurrentRel[MAX_COMPONENTS];
+    QLabel *lblUpdateRel[MAX_COMPONENTS];
+    QPushButton *btnOptions[MAX_COMPONENTS];
 };
 
-#endif // _FWPREFERENCESDIALOG_H_

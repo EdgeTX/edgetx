@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,32 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RELEASENOTESFIRMWAREDIALOG_H_
-#define _RELEASENOTESFIRMWAREDIALOG_H_
+#pragma once
 
-#include <QDialog>
-#include "eeprominterface.h"
-#include "downloaddialog.h"
+#pragma once
 
-namespace Ui {
-  class HtmlDialog;
-}
+#include "updateinterface.h"
 
-class ReleaseNotesFirmwareDialog : public QDialog
+class UpdateMultiProtocol : public UpdateInterface
 {
-  Q_OBJECT
+  Q_DECLARE_TR_FUNCTIONS(UpdateMultiProtocol)
 
   public:
-    explicit ReleaseNotesFirmwareDialog(QWidget *parent, const QString & rnurl);
-    ~ReleaseNotesFirmwareDialog();
 
-  private:
-    Ui::HtmlDialog *ui;
-    QNetworkAccessManager *manager;
+    explicit UpdateMultiProtocol(QWidget * parent);
+    virtual ~UpdateMultiProtocol() {}
 
-  private slots:
-    void replyFinished(QNetworkReply * reply);   
-    
 };
-
-#endif // _RELEASENOTESFIRMWAREDIALOG_H_

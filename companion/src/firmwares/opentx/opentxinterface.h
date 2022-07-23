@@ -111,11 +111,11 @@ class OpenTxFirmware: public Firmware
 
     virtual Firmware * getFirmwareVariant(const QString & id);
 
-    virtual QString getStampUrl();
+    virtual QString getStampUrl() { return ""; }  //  depreciated
 
     virtual QString getReleaseNotesUrl();
 
-    virtual QString getFirmwareUrl();
+    virtual QString getFirmwareUrl() { return ""; }  //  depreciated;
 
     virtual int getCapability(Capability);
 
@@ -129,7 +129,7 @@ class OpenTxFirmware: public Firmware
 
   protected:
 
-    QString getFirmwareBaseUrl();
+    QString getFirmwareBaseUrl() { return ""; }  //  depreciated;
 
 };
 

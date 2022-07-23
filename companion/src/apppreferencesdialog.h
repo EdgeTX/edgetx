@@ -18,25 +18,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _APPPREFERENCESDIALOG_H_
-#define _APPPREFERENCESDIALOG_H_
+#pragma once
+
+#include "eeprominterface.h"
+#include "appdata.h"
 
 #include <QDialog>
 #include <QCheckBox>
-#include "eeprominterface.h"
+#include <QComboBox>
 
 namespace Ui {
   class AppPreferencesDialog;
 }
 
 class Joystick;
+class UpdateFactories;
 
 class AppPreferencesDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    explicit AppPreferencesDialog(QWidget * parent = 0);
+    explicit AppPreferencesDialog(QWidget * parent, UpdateFactories * factories);
     ~AppPreferencesDialog();
 
     Joystick * joystick;
@@ -84,6 +87,12 @@ class AppPreferencesDialog : public QDialog
     QMap<QString, QCheckBox *> optionsCheckBoxes;
     bool updateLock;
     bool mainWinHasDirtyChild;
-};
 
-#endif // _APPPREFERENCESDIALOG_H_
+    UpdateFactories *factories;
+    QLabel *lblName[MAX_COMPONENTS];
+    QCheckBox *chkCheckForUpdate[MAX_COMPONENTS];
+    QComboBox *cboReleaseChannel[MAX_COMPONENTS];
+
+    void loadUpdatesTab();
+
+};

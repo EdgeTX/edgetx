@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,29 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "releasenotesdialog.h"
-#include "ui_htmldialog.h"
-#include <QFile>
+#pragma once
 
-ReleaseNotesDialog::ReleaseNotesDialog(QWidget * parent) :
-  QDialog(parent),
-  ui(new Ui::HtmlDialog)
+#include "updateinterface.h"
+
+class UpdateSounds : public UpdateInterface
 {
-  ui->setupUi(this);
+  Q_DECLARE_TR_FUNCTIONS(UpdateSounds)
 
-  setWindowTitle(tr("Companion Release Notes"));
-  setWindowIcon(CompanionIcon("changelog.png"));
+  public:
 
-  QFile file(":/releasenotes.txt");
-  if (file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    ui->textEditor->setHtml(file.readAll());
-    ui->textEditor->setOpenExternalLinks(true);
-  }
-  ui->textEditor->scroll(0, 0);
-  ui->textEditor->setOpenExternalLinks(true);
-}
+    explicit UpdateSounds(QWidget * parent);
+    virtual ~UpdateSounds() {}
 
-ReleaseNotesDialog::~ReleaseNotesDialog()
-{
-  delete ui;
-}
+};

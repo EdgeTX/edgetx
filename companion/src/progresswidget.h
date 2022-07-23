@@ -18,14 +18,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PROGRESSWIDGET_H_
-#define _PROGRESSWIDGET_H_
+#pragma once
 
 #include <QWidget>
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0))
-  #define QtInfoMsg    QtMsgType(4)
-#endif
 
 namespace Ui {
   class ProgressWidget;
@@ -71,5 +66,3 @@ class ProgressWidget : public QWidget
     bool m_forceOpen;
     bool m_hasDetails;
 };
-
-#endif // _PROGRESSWIDGET_H_

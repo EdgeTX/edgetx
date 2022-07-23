@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -25,7 +26,7 @@
 
 #include <QTime>
 
-DownloadDialog::DownloadDialog(QWidget *parent, QString src, QString tgt):
+DownloadDialog::DownloadDialog(QWidget *parent, QString src, QString tgt, QString contentType, QString title):
   QDialog(parent),
   ui(new Ui::DownloadDialog),
   reply(nullptr),
@@ -33,25 +34,33 @@ DownloadDialog::DownloadDialog(QWidget *parent, QString src, QString tgt):
   aborted(false)
 {
     ui->setupUi(this);
-    setWindowIcon(CompanionIcon("fwpreferences.png"));
-    ui->progressBar->setValue(1);
+    setWindowIcon(CompanionIcon("download.png"));
+    ui->progressBar->setValue(0);
     ui->progressBar->setMinimum(0);
-    ui->progressBar->setMaximum(0);
+    ui->progressBar->setMaximum(100);
 
     if (tgt.isEmpty()) {
       setWindowTitle(src);
       return;  // just show wait dialog.
     }
 
+    setWindowTitle(windowTitle() % title);
+
     file = new QFile(tgt);
     if (!file->open(QIODevice::WriteOnly)) {
-      QMessageBox::critical(this, CPN_STR_APP_NAME,
-          tr("Unable to save the file %1: %2.")
-          .arg(tgt).arg(file->errorString()));
+      QMessageBox::critical(this, CPN_STR_APP_NAME, tr("Unable to open the download file %1 for writing.\nError: %2").arg(tgt).arg(file->errorString()));
       QTimer::singleShot(0, this, SLOT(fileError()));
     }
     else {
-      reply = qnam.get(QNetworkRequest(QUrl(src)));
+      url.setUrl(src);
+      qDebug() << "url:" << url.url();
+      request.setUrl(url);
+      request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferNetwork);
+      request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+      request.setRawHeader(QByteArray("Accept"), contentType.toUtf8());
+
+      reply = qnam.get(request);
       connect(reply, SIGNAL(finished()), this, SLOT(httpFinished()));
       connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
       connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateDataReadProgress(qint64, qint64)));
@@ -81,6 +90,7 @@ void DownloadDialog::httpFinished()
   file->close();
 
   const bool ok = !(reply->error() || aborted);
+
   if (!ok) {
     file->remove();
     if (!aborted)
@@ -117,15 +127,3 @@ void DownloadDialog::fileError()
   file = nullptr;
   reject();
 }
-
-#if 0
-void DownloadDialog::closeEvent( QCloseEvent * event)
-{
-  // Delay closing 2 seconds to avoid unpleasant flashing download dialogs
-  QTime closeTime= QTime::currentTime().addSecs(2);
-  while( QTime::currentTime() < closeTime )
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-
-  event->accept();
-}
-#endif

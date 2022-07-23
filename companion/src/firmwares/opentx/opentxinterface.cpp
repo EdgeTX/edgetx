@@ -1185,26 +1185,10 @@ unsigned long OpenTxEepromInterface::loadBackup(RadioData &radioData, const uint
   return errors.to_ulong();
 }
 
-QString OpenTxFirmware::getFirmwareBaseUrl()
-{
-  return g.openTxCurrentDownloadBranchUrl() % QStringLiteral("firmware/");
-}
-
-QString OpenTxFirmware::getFirmwareUrl()
-{
-  return getFirmwareBaseUrl() % QString("getfw.php?fw=%1.bin").arg(QString(QUrl::toPercentEncoding(id)));
-}
-
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
   return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
 }
-
-QString OpenTxFirmware::getStampUrl()
-{
-  return getFirmwareBaseUrl() % QStringLiteral("stamp-opentx.txt");
-}
-
 
 // Firmware registrations
 // NOTE: "recognized" build options are defined in /radio/util/fwoptions.py

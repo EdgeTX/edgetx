@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DOWNLOADDIALOG_H_
-#define _DOWNLOADDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include <QtNetwork/QNetworkAccessManager>
@@ -36,34 +36,26 @@ class DownloadDialog : public QDialog
   Q_OBJECT
 
   public:
-    explicit DownloadDialog(QWidget *parent = 0, QString src = "", QString tgt = "");
+    explicit DownloadDialog(QWidget *parent = 0, QString src = "", QString tgt = "", QString contentType = "", QString title = "");
 
     ~DownloadDialog();
 
   public slots:
-
     virtual void reject() override;
 
   private slots:
-
     void fileError();
-
     void httpFinished();
-
     void httpReadyRead();
-
     void updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
 
   private:
-#if 0
-    void closeEvent(QCloseEvent * event);
-#endif
     Ui::DownloadDialog *ui;
 
     QNetworkAccessManager qnam;
     QNetworkReply *reply;
     QFile *file;
     bool aborted;
+    QNetworkRequest request;
+    QUrl url;
 };
-
-#endif // _DOWNLOADDIALOG_H_

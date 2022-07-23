@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+#pragma once
 
 #include <QCoreApplication>
 
@@ -84,5 +83,3 @@
 #define CPN_STR_SW_INDICATOR_REV       QCoreApplication::translate("RawSwitch", "!")             // Switch reversed logic (NOT) indicator.
 
 #define EDGETX_HOME_PAGE_URL           "https://edgetx.org"
-
-#endif // _CONSTANTS_H_
