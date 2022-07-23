@@ -172,7 +172,7 @@ bool MinizInterface::addFileToArchive(const QString & path)
 bool MinizInterface::unzipArchiveToPath(const QString & archiveFile, const QString & destinationPath)
 {
   if (progress)
-    progress->setInfo(tr("Decompressing %1 to %2").arg(archiveFile, destinationPath));
+    progress->setInfo(tr("Decompressing %1").arg(archiveFile));
   else
     qDebug() << QString("Decompressing %1 to %2").arg(archiveFile, destinationPath);
 
