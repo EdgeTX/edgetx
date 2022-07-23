@@ -272,7 +272,8 @@ static int luaLcdDrawText(lua_State *L)
 }
 
 /*luadoc
-@function lcd.sizeText(text [, flags])
+@function lcd.sizeText(text [, flags]) deprecated, please replace by
+@function lcd.getSizeText(text [, flags])
 
 Get the width and height of a text string drawn with flags
 
@@ -284,7 +285,7 @@ Get the width and height of a text string drawn with flags
 
 @status current Introduced in 2.5.0
 */
-static int luaLcdSizeText(lua_State *L)
+static int luaLcdGetSizeText(lua_State *L)
 {
   const char * s = luaL_checkstring(L, 1);
   LcdFlags flags = luaL_optunsigned(L, 2, 0);
@@ -1251,7 +1252,8 @@ const luaL_Reg lcdLib[] = {
   { "drawFilledRectangle", luaLcdDrawFilledRectangle },
   { "drawText", luaLcdDrawText },
   { "drawTextLines", luaLcdDrawTextLines },
-  { "sizeText", luaLcdSizeText },
+  { "sizeText", luaLcdGetSizeText },
+  { "getSizeText", luaLcdGetSizeText },
   { "drawTimer", luaLcdDrawTimer },
   { "drawNumber", luaLcdDrawNumber },
   { "drawChannel", luaLcdDrawChannel },
