@@ -36,6 +36,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QValidator>
 
 /*
 
@@ -179,8 +180,11 @@ bool UpdateInterface::autoUpdate(ProgressWidget * progress)
 {
   this->progress = progress;
 
-  if (dfltParams->data.flags & UPDFLG_Update && !isLatestRelease())
+  if (g.component[settingsIdx].checkForUpdate() && !isLatestRelease()) {
+    runParams->data.flags |= UPDFLG_Update;
+    runParams->data.updateRelease = latestRelease();
     return update();
+  }
 
   return true;
 }
@@ -206,38 +210,39 @@ bool UpdateInterface::update()
   reportProgress(tr("Processing updates for: %1").arg(name), QtInfoMsg);
 
   if ((runParams->data.flags & UPDFLG_Preparation) && !preparation()) {
-    reportProgress(tr("%1 step preparation failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 preparation failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_Download) && !download()) {
-    reportProgress(tr("%1 step download failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 download failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_Decompress) && !decompress()) {
-    reportProgress(tr("%1 step decompress failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 decompress failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_CopyDest) && !copyToDestination()) {
-    reportProgress(tr("%1 step copy to destination failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 copy to destination failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_Housekeeping) && !housekeeping()) {
-    reportProgress(tr("%1 step housekeeping failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 housekeeping failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_AsyncInstall) && !asyncInstall()) {
-    reportProgress(tr("%1 step start async failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 start async failed").arg(name), QtCriticalMsg);
     return false;
   }
 
   reportProgress(tr("%1 update successful").arg(name), QtInfoMsg);
 
-  QMessageBox::information(this, CPN_STR_APP_NAME, tr("%1 update successful").arg(name));
+  if (!progress)  //  auto update
+    QMessageBox::information(this, CPN_STR_APP_NAME, tr("%1 update successful").arg(name));
 
   return true;
 }
@@ -549,14 +554,29 @@ bool UpdateInterface::repoReleaseAssetsMetaData()
 
 bool UpdateInterface::setRunFolders()
 {
-  QString fldr(releases->name());
-  fldr = fldr.replace("\"", "");
-  fldr = fldr.replace("\'", "");
-  fldr = fldr.replace(" ", "_");
-  fldr = fldr.replace("(", "_");
-  fldr = fldr.replace(")", "_");
-  fldr = fldr.replace("[", "_");
-  fldr = fldr.replace("]", "_");
+  QRegExp rx("[0-9a-zA-Z_\\-.]+");
+  // the validator treats the regexp as "^[0-9a-zA-Z_\-.]+$"
+  QRegExpValidator v(rx);
+  int pos = 0;
+
+  QString fldr(releases->name().trimmed());
+
+  if (v.validate(fldr, pos) != QValidator::Acceptable) {
+    fldr.replace("\"", "");
+    fldr.replace("'", "");
+    fldr.replace("(", "_");
+    fldr.replace(")", "_");
+    fldr.replace("[", "_");
+    fldr.replace("]", "_");
+    fldr.replace(" ", "_");
+    fldr.replace("__", "_");
+
+    if (v.validate(fldr, pos) != QValidator::Acceptable) {
+      reportProgress(tr("Unable to use release name %1 for directory name using default %2")
+                     .arg(releases->name().trimmed()).arg(QString("R%1").arg(releases->id())), QtDebugMsg);
+      fldr = QString("R%1").arg(releases->id());
+    }
+  }
 
   downloadDir = QString("%1/%2/%3").arg(runParams->data.downloadDir).arg(name).arg(fldr);
 
@@ -925,6 +945,7 @@ bool UpdateInterface::decompressAsset(int row)
   if (!f.exists())
     return false;
 
+  progressMessage(tr("Decompressing %1").arg(filename));
   reportProgress(tr("Decompress: %1").arg(filename), QtInfoMsg);
 
   decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(decompressDir).arg(assets->id()));
@@ -1216,7 +1237,7 @@ bool UpdateInterface::preparation()
     progress->setValue(++cnt);
 
   if (!releases->getSetId(runParams->data.updateRelease)) {
-    reportProgress(tr("Set release id from update release name failed"), QtDebugMsg);
+    reportProgress(tr("Set release id from update release name failed"), QtCriticalMsg);
     return false;
   }
 
