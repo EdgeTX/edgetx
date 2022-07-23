@@ -44,10 +44,11 @@ class UpdatesDialog : public QDialog
   signals:
 
   private slots:
+    virtual void accept();
 
   private:
     Ui::UpdatesDialog *ui;
-    const UpdateFactories *factories;
+    UpdateFactories *factories;
 
     QCheckBox *chkUpdate[MAX_COMPONENTS];
     QLabel *lblCurrentRel[MAX_COMPONENTS];

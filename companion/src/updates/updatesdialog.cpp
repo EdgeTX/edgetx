@@ -27,6 +27,7 @@
 #include <QMap>
 #include <QFileDialog>
 #include <QTimer>
+#include <QMessageBox>
 
 UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   QDialog(parent),
@@ -76,8 +77,23 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     }
   });
 
-  ui->chkUpdateDirUseSD->setChecked(!g.updateDirUseSD());
-  ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
+  if (g.currentProfile().sdPath().trimmed().isEmpty())
+    ui->chkUpdateDirUseSD->setEnabled(false);
+  else
+    ui->chkUpdateDirUseSD->setEnabled(true);
+
+  if (g.updateDirUseSD() && g.currentProfile().sdPath().trimmed().isEmpty()) {
+    g.updateDirUseSD(false);
+    g.updateDirReset();
+  }
+
+  if (g.updateDirUseSD()) {
+    //  trigger toggled signal by changing design value and then setting to saved value
+    ui->chkUpdateDirUseSD->setChecked(!ui->chkUpdateDirUseSD->isChecked());
+    ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
+  }
+  else
+    ui->chkUpdateDirUseSD->setChecked(false);
 
   connect(ui->btnDownloadSelect, &QPushButton::clicked, [=]() {
     QString dirPath = QFileDialog::getExistingDirectory(this,tr("Select your download folder"), g.downloadDir());
@@ -176,34 +192,6 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   ui->chkDelDownloads->setChecked(g.updDelDownloads());
 
-  connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
-    QMapIterator<QString, int> it(factories->sortedComponentsList());
-
-    while (it.hasNext()) {
-      it.next();
-      int i = it.value();
-
-      if (g.component[i].checkForUpdate()) {
-        if (chkUpdate[i]->isChecked()) {
-          const QString name = it.key();
-          UpdateParameters *runParams = factories->getRunParams(name);
-          runParams->data.flags |= UpdateInterface::UPDFLG_Update;
-          runParams->data.downloadDir = ui->leDownloadDir->text();
-          runParams->data.decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
-          runParams->data.decompressDir = ui->leDecompressDir->text();
-          runParams->data.updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
-          runParams->data.updateDir = ui->leUpdateDir->text();
-          if (ui->chkDelDownloads->isChecked())
-            runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
-          else
-            runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
-        }
-      }
-    }
-
-    QDialog::accept();
-  });
-
   connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
     QDialog::reject();
   });
@@ -221,4 +209,56 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 UpdatesDialog::~UpdatesDialog()
 {
   delete ui;
+}
+
+void UpdatesDialog::accept()
+{
+  if (ui->leDownloadDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Download folder path missing!"));
+    return;
+  }
+
+  if (ui->leDecompressDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Decompress folder path missing!"));
+    return;
+  }
+
+  if (ui->leUpdateDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Update folder path missing!"));
+    return;
+  }
+
+  QMapIterator<QString, int> it(factories->sortedComponentsList());
+
+  int cnt = 0;
+
+  while (it.hasNext()) {
+    it.next();
+    int i = it.value();
+
+    if (g.component[i].checkForUpdate()) {
+      if (chkUpdate[i]->isChecked()) {
+        cnt++;
+        const QString name = it.key();
+        UpdateParameters *runParams = factories->getRunParams(name);
+        runParams->data.flags |= UpdateInterface::UPDFLG_Update;
+        runParams->data.downloadDir = ui->leDownloadDir->text();
+        runParams->data.decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
+        runParams->data.decompressDir = ui->leDecompressDir->text();
+        runParams->data.updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
+        runParams->data.updateDir = ui->leUpdateDir->text();
+        if (ui->chkDelDownloads->isChecked())
+          runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
+        else
+          runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+      }
+    }
+  }
+
+  if (cnt < 1) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("No components selected for update!"));
+    return;
+  }
+
+  QDialog::accept();
 }
