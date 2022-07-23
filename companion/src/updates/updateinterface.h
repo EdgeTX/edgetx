@@ -136,6 +136,9 @@ class UpdateInterface : public QWidget
     QString language;
     int logLevel;
 
+    virtual bool autoUpdate(ProgressWidget * progress = nullptr);
+    virtual bool manualUpdate(ProgressWidget * progress = nullptr);
+
     virtual bool update();
     virtual bool preparation();
     virtual bool flagAssets();
@@ -146,8 +149,18 @@ class UpdateInterface : public QWidget
     virtual bool housekeeping();
     virtual bool asyncInstall();
 
+    virtual const bool isUpdateAvailable();
+    virtual const QString currentVersion();
+    virtual const QString currentRelease();
+    virtual const QString updateRelease();
+    virtual const bool isLatestRelease();
+    virtual const bool isLatestVersion(const QString & current, const QString & latest);
+    virtual const QString latestRelease();
+    void clearRelease();
+    const QStringList getReleases();
+
     void setName(QString name);
-    void setRepo(QString repo) { releases->setRepo(repo); assets->setRepo(repo); }
+    void setRepo(QString repo);
     void setResultsPerPage(int cnt) { resultsPerPage = cnt; }
     void setReleasesNightlyName(QString name) { releases->setNightlyName(name); }
 
@@ -156,25 +169,6 @@ class UpdateInterface : public QWidget
     UpdateParameters * getRunParams() { return runParams; }
     void resetRunEnvironment();
     void setRunUpdate() { runParams->data.flags |= UPDFLG_Update; }
-
-    const QStringList getReleases();
-
-    virtual const bool isUpdateAvailable();
-
-    virtual bool autoUpdate(ProgressWidget * progress = nullptr);
-    virtual bool manualUpdate(ProgressWidget * progress = nullptr);
-
-    virtual const QString currentVersion();
-
-    void clearRelease();
-
-    virtual const QString currentRelease();
-    virtual const QString updateRelease();
-    virtual const bool isLatestRelease();
-    virtual const bool isLatestVersion(const QString & current, const QString & latest);
-    virtual const QString latestRelease();
-
-    void getRadioProfileSettings();
 
     bool repoReleasesMetaData();
     bool repoReleaseAssetsMetaData();
@@ -195,20 +189,20 @@ class UpdateInterface : public QWidget
     bool copyFlaggedAssets();
     bool copyStructure();
     bool copyFiles();
+    bool saveReleaseSettings();
 
     bool downloadTextFileToBuffer(const QString & path);
     void downloadFileToBuffer(const QString & url);
+    bool convertDownloadToJson(QJsonDocument * json);
+    bool decompressArchive(const QString & archivePath, const QString & destPath);
     QByteArray * getDownloadBuffer() { return buffer; }
 
-    bool convertDownloadToJson(QJsonDocument * json);
-
-    bool decompressArchive(const QString & archivePath, const QString & destPath);
-    bool saveReleaseSettings();
     void reportProgress(const QString & text, const int type = QtInfoMsg);
     void progressMessage(const QString & text);
     void criticalMsg(const QString & msg);
     static QString downloadDataTypeToString(DownloadDataType val);
     static QString updateFlagsToString(UpdateFlags val);
+    void getRadioProfileSettings();
 
   private slots:
     void onDownloadFinished(QNetworkReply * reply, DownloadDataType ddt, int subtype);

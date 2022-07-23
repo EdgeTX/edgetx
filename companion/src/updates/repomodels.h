@@ -215,15 +215,11 @@ class ReleasesMetaData : public QWidget
     void setId(int id) { m_id = id; }
     int id() { return m_id; }
 
-    int getSetId() { m_id = filteredItemModel->channelLatestId(); return m_id; }
+    int getSetId();
+    int getSetId(int row);
+    int getSetId(QVariant value, Qt::MatchFlags flags = Qt::MatchExactly, int role = Qt::DisplayRole);
 
-    int getSetId(int row) { m_id = filteredItemModel->id(row); return m_id; }
-
-    int getSetId(QVariant value, Qt::MatchFlags flags = Qt::MatchExactly, int role = Qt::DisplayRole)
-            { m_id = filteredItemModel->id(value, flags, role); return m_id; }
-
-    void parseMetaData(int mdt, QJsonDocument * jsonDoc)
-                        { itemModel->parseMetaData(mdt, jsonDoc); }
+    void parseMetaData(int mdt, QJsonDocument * jsonDoc) { itemModel->parseMetaData(mdt, jsonDoc); }
 
     int count() { return filteredItemModel->rows(); }
     QStringList list() { return filteredItemModel->list(); }
@@ -234,9 +230,9 @@ class ReleasesMetaData : public QWidget
     bool prerelease() { return filteredItemModel->prerelease(m_id); }
     QString version() { return filteredItemModel->version(m_id); }
 
-    QString urlReleases() { return m_repo % "/releases"; }
-    QString urlReleaseLatest() { return urlReleases() % "/latest"; }
-    QString urlRelease() { return urlReleases() % QString("/%1").arg(m_id); }
+    QString urlReleases() { return QString("%1/releases").arg(m_repo); }
+    QString urlReleaseLatest() { return QString("%1/latest").arg(urlReleases()); }
+    QString urlRelease() { return QString("%1/%2").arg(urlReleases()).arg(m_id); }
 
   private:
     ReleasesItemModel *itemModel;
@@ -257,10 +253,8 @@ class AssetsMetaData : public QWidget
     void setId(int id) { m_id = id; }
     int id() { return m_id; }
 
-    int getSetId(int row) { m_id = filteredItemModel->id(row); return m_id; }
-
-    int getSetId(QVariant value, Qt::MatchFlags flags = Qt::MatchExactly, int role = Qt::DisplayRole)
-            { m_id = filteredItemModel->id(value, flags, role); return m_id; }
+    int getSetId(int row);
+    int getSetId(QVariant value, Qt::MatchFlags flags = Qt::MatchExactly, int role = Qt::DisplayRole);
 
     void parseMetaData(int mdt, QJsonDocument * jsonDoc) { itemModel->parseMetaData(mdt, jsonDoc); }
 
@@ -285,10 +279,10 @@ class AssetsMetaData : public QWidget
     int flags() { return filteredItemModel->metaDataValue(m_id, UpdatesItemModel::IMDR_Flags).toInt(); }
 
     QString urlReleaseAssets(int releaseId, int max)
-                            { return urlReleases() % QString("/%1/assets").arg(releaseId) % (max > -1 ? QString("\?per_page=%1").arg(max) : ""); }
-    QString urlAsset() { return urlReleases() % QString("/assets/%1").arg(m_id); }
+                            { return QString("%1/%2/assets").arg(urlReleases()).arg(releaseId) % (max > -1 ? QString("\?per_page=%1").arg(max) : ""); }
+    QString urlAsset() { return QString("%1/assets/%2").arg(urlReleases()).arg(m_id); }
 
-    QString urlContent(QString path) { return m_repo % QString("/contents/%1").arg(path); }
+    QString urlContent(QString path) { return QString("%1/contents/%2").arg(m_repo).arg(path); }
 
   private:
     AssetsItemModel *itemModel;

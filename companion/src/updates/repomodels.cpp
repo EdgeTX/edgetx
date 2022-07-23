@@ -444,6 +444,24 @@ bool ReleasesMetaData::refreshRequired()
   return true;
 }
 
+int ReleasesMetaData::getSetId()
+{
+  m_id = filteredItemModel->channelLatestId();
+  return m_id;
+}
+
+int ReleasesMetaData::getSetId(int row)
+{
+  m_id = filteredItemModel->id(row);
+  return m_id;
+}
+
+int ReleasesMetaData::getSetId(QVariant value, Qt::MatchFlags flags, int role)
+{
+  m_id = filteredItemModel->id(value, flags, role);
+  return m_id;
+}
+
 /*
     AssetsMetaData
 */
@@ -453,4 +471,16 @@ AssetsMetaData::AssetsMetaData(QWidget * parent) :
 {
   itemModel = new AssetsItemModel();
   filteredItemModel = new AssetsFilteredItemModel(itemModel);
+}
+
+int AssetsMetaData::getSetId(int row)
+{
+  m_id = filteredItemModel->id(row);
+  return m_id;
+}
+
+int AssetsMetaData::getSetId(QVariant value, Qt::MatchFlags flags, int role)
+{
+  m_id = filteredItemModel->id(value, flags, role);
+  return m_id;
 }
