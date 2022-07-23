@@ -429,9 +429,24 @@ void AppPreferencesDialog::loadUpdatesTab()
   //  trigger toggled signal by changing design value and then setting to saved value
   ui->chkDecompressDirUseDwnld->setChecked(!ui->chkDecompressDirUseDwnld->isChecked());
   ui->chkDecompressDirUseDwnld->setChecked(g.decompressDirUseDwnld());
-  //  trigger toggled signal by changing design value and then setting to saved value
-  ui->chkUpdateDirUseSD->setChecked(!ui->chkUpdateDirUseSD->isChecked());
-  ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
+
+  if (g.currentProfile().sdPath().trimmed().isEmpty())
+    ui->chkUpdateDirUseSD->setEnabled(false);
+  else
+    ui->chkUpdateDirUseSD->setEnabled(true);
+
+  if (g.updateDirUseSD() && g.currentProfile().sdPath().trimmed().isEmpty()) {
+    g.updateDirUseSD(false);
+    g.updateDirReset();
+  }
+
+  if (g.updateDirUseSD()) {
+    //  trigger toggled signal by changing design value and then setting to saved value
+    ui->chkUpdateDirUseSD->setChecked(!ui->chkUpdateDirUseSD->isChecked());
+    ui->chkUpdateDirUseSD->setChecked(g.updateDirUseSD());
+  }
+  else
+    ui->chkUpdateDirUseSD->setChecked(false);
 
   ui->chkDelDownloads->setChecked(g.updDelDownloads());
   ui->cboLogLevel->setCurrentIndex(g.updLogLevel());
