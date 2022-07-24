@@ -57,7 +57,7 @@ void DialogWindowContent::updateSize()
 }
 
 #if defined(DEBUG_WINDOWS)
-std::string DialogWindowContent::getName() const override
+std::string DialogWindowContent::getName() const
 {
   return "DialogWindowContent";
 }
