@@ -177,6 +177,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
         UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
         connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
           QString name = g.component[i].name();
+          chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
           lblCurrentRel[i]->setText(factories->currentRelease(name));
           lblUpdateRel[i]->setText(factories->updateRelease(name));
         });

@@ -285,7 +285,7 @@ class UpdateFactories : public QWidget
 
     bool autoUpdate(ProgressWidget * progress = nullptr);
     bool manualUpdate(ProgressWidget * progress = nullptr);
-    const bool updatesAvailable();
+    const bool updatesAvailable(QStringList & names);
 
   private:
     QVector<UpdateFactoryInterface *> registeredUpdateFactories;

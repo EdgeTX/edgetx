@@ -63,17 +63,24 @@ void Updates::autoUpdates()
 
   g.lastUpdateCheck(QDateTime::currentDateTime().toString(Qt::ISODate));
 
-  if (!factories->updatesAvailable())
+  QStringList list;
+
+  if (!factories->updatesAvailable(list))
     return;
 
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
-                            tr("One or more updates are available. Update now?"),
+                            tr("Updates available for:\n  %1\n\nUpdate now?").arg(list.join("\n  ")),
                             (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::Yes) {
 
     factories->resetAllRunEnvironments();
 
-    if (factories->autoUpdate())
-      checkRunSDSync();
+    if (!factories->autoUpdate()) {
+      QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Updates finished with errors"));
+      return;
+    }
+
+    QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates finished successfully"));
+    checkRunSDSync();
   }
 }
 

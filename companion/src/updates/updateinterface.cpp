@@ -1574,12 +1574,14 @@ bool UpdateFactories::manualUpdate(ProgressWidget * progress)
   return ok;
 }
 
-const bool UpdateFactories::updatesAvailable()
+const bool UpdateFactories::updatesAvailable(QStringList & names)
 {
   bool ret = false;
+  names.clear();
 
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (factory->instance()->isUpdateAvailable()) {
+      names.append(factory->name());
       ret = true;
     }
   }
