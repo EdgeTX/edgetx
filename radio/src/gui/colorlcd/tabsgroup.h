@@ -86,7 +86,7 @@ public:
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override
   {
-    return "TabCarouselButton(" + std::to_string(icon) + ")";
+    return "TabCarouselButton(" + std::to_string(tabs[index]->getIcon()) + ")";
   }
 #endif
 
