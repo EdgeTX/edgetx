@@ -423,7 +423,7 @@ void UpdateInterface::getRadioProfileSettings()
   QStringList strl = QStringList(g.currentProfile().fwType().split('-'));
 
   if (strl.size() < 1) {
-    reportProgress(tr("Settings radio profile firmware type unexpected format"), QtWarningMsg);
+    //reportProgress(tr("Settings radio profile firmware type unexpected format"), QtWarningMsg);
     return;
   }
 
@@ -572,8 +572,8 @@ bool UpdateInterface::setRunFolders()
     fldr.replace("__", "_");
 
     if (v.validate(fldr, pos) != QValidator::Acceptable) {
-      reportProgress(tr("Unable to use release name %1 for directory name using default %2")
-                     .arg(releases->name().trimmed()).arg(QString("R%1").arg(releases->id())), QtDebugMsg);
+      //reportProgress(tr("Unable to use release name %1 for directory name using default %2")
+      //               .arg(releases->name().trimmed()).arg(QString("R%1").arg(releases->id())), QtDebugMsg);
       fldr = QString("R%1").arg(releases->id());
     }
   }
@@ -583,21 +583,21 @@ bool UpdateInterface::setRunFolders()
   if (!checkCreateDirectory(downloadDir, UPDFLG_Download))
     return false;
 
-  reportProgress(tr("Download directory: %1").arg(downloadDir), QtDebugMsg);
+  //reportProgress(tr("Download directory: %1").arg(downloadDir), QtDebugMsg);
 
   decompressDir = QString("%1/%2/%3").arg(runParams->data.decompressDir).arg(name).arg(fldr);
 
   if (!checkCreateDirectory(decompressDir, UPDFLG_Decompress))
     return false;
 
-  reportProgress(tr("Decompress directory: %1").arg(decompressDir), QtDebugMsg);
+  //reportProgress(tr("Decompress directory: %1").arg(decompressDir), QtDebugMsg);
 
   updateDir = runParams->data.updateDir;
 
   if (!checkCreateDirectory(updateDir, UPDFLG_CopyDest))
     return false;
 
-  reportProgress(tr("Update directory: %1").arg(updateDir), QtDebugMsg);
+  //reportProgress(tr("Update directory: %1").arg(updateDir), QtDebugMsg);
 
   return true;
 }
@@ -620,21 +620,21 @@ bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlag
 
 bool UpdateInterface::downloadReleasesMetaData()
 {
-  progressMessage(tr("Download releases metadata"));
+  //progressMessage(tr("Download releases metadata"));
   downloadMetaData(MDT_Releases, releases->urlReleases());
   return downloadSuccess;
 }
 
 bool UpdateInterface::downloadReleaseLatestMetaData()
 {
-  progressMessage(tr("Download latest release metadata"));
+  //progressMessage(tr("Download latest release metadata"));
   downloadMetaData(MDT_Release, releases->urlReleaseLatest());
   return downloadSuccess;
 }
 
 bool UpdateInterface::downloadReleaseMetaData(const int releaseId)
 {
-  progressMessage(tr("Download release %1 metadata").arg(releaseId));
+  //progressMessage(tr("Download release %1 metadata").arg(releaseId));
   releases->setId(releaseId);
   downloadMetaData(MDT_Release, releases->urlRelease());
   return downloadSuccess;
@@ -642,14 +642,14 @@ bool UpdateInterface::downloadReleaseMetaData(const int releaseId)
 
 bool UpdateInterface::downloadReleaseAssetsMetaData(const int releaseId)
 {
-  progressMessage(tr("Download release %1 assets metadata").arg(releaseId));
+  //progressMessage(tr("Download release %1 assets metadata").arg(releaseId));
   downloadMetaData(MDT_ReleaseAssets, assets->urlReleaseAssets(releaseId, resultsPerPage));
   return downloadSuccess;
 }
 
 bool UpdateInterface::downloadAssetMetaData(const int assetId)
 {
-  progressMessage(tr("Download asset %1 metadata").arg(assetId));
+  //progressMessage(tr("Download asset %1 metadata").arg(assetId));
   assets->setId(assetId);
   downloadMetaData(MDT_Asset, assets->urlAsset());
   return downloadSuccess;
@@ -657,14 +657,14 @@ bool UpdateInterface::downloadAssetMetaData(const int assetId)
 
 void UpdateInterface::downloadMetaData(const MetaDataType mdt, const QString & url)
 {
-  reportProgress(tr("Download metadata for: %1").arg(metaDataTypeToString(mdt).toLower()), QtDebugMsg);
+  //reportProgress(tr("Download metadata for: %1").arg(metaDataTypeToString(mdt).toLower()), QtDebugMsg);
   download(DDT_MetaData, mdt, url, GH_ACCEPT_HEADER_METADATA, QString());
 }
 
 bool UpdateInterface::downloadTextFileToBuffer(const QString & path)
 {
-  progressMessage(tr("Download file %1").arg(path));
-  reportProgress(tr("Download file: %1").arg(path), QtInfoMsg);
+  //progressMessage(tr("Download file %1").arg(path));
+  //reportProgress(tr("Download file: %1").arg(path), QtInfoMsg);
 
   downloadFileToBuffer(assets->urlContent(path));
   return downloadSuccess;
@@ -781,7 +781,7 @@ void UpdateInterface::onDownloadFinished(QNetworkReply * reply, DownloadDataType
 
 void UpdateInterface::parseMetaData(int mdt)
 {
-  reportProgress(tr("Parse and load data models with metadata"), QtDebugMsg);
+  //reportProgress(tr("Parse and load data models with metadata"), QtDebugMsg);
 
   QJsonDocument *json = new QJsonDocument();
 
@@ -823,7 +823,7 @@ bool UpdateInterface::getSetAssets(const int flags, const UpdateParameters::Upda
 {
   QString pattern(UpdateParameters::buildFilterPattern(assetsFilterType, assetsFilter));
   assets->setFilterPattern(pattern);
-  reportProgress(tr("Asset filter applied: %1").arg(pattern), QtDebugMsg);
+  //reportProgress(tr("Asset filter applied: %1").arg(pattern), QtDebugMsg);
 
   if (assets->count() < 0) {
     reportProgress(tr("No assets not found in release '%1' using filter pattern '%2'").arg(releases->name().arg(assetsFilter)), QtCriticalMsg);
@@ -835,7 +835,7 @@ bool UpdateInterface::getSetAssets(const int flags, const UpdateParameters::Upda
     return false;
   }
 
-  reportProgress(tr("Assets found: %1").arg(assets->count()), QtDebugMsg);
+  //reportProgress(tr("Assets found: %1").arg(assets->count()), QtDebugMsg);
 
   for (int i = 0; i < assets->count(); i++) {
     assets->getSetId(i);
@@ -861,7 +861,7 @@ bool UpdateInterface::getSetAssets(const int flags, const UpdateParameters::Upda
 bool UpdateInterface::downloadFlaggedAssets()
 {
   assets->setFilterFlags(UPDFLG_Download);
-  reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Download)).arg(assets->count()), QtDebugMsg);
+  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Download)).arg(assets->count()), QtDebugMsg);
 
   for (int i = 0; i < assets->count(); ++i) {
     if (!downloadAsset(i))
@@ -892,17 +892,18 @@ void UpdateInterface::downloadBinaryToFile(const QString & url, const QString & 
     int reply = QMessageBox::question(this, CPN_STR_APP_NAME, tr("File %1 exists. Download again?").arg(filename),
                               QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
     if (reply == QMessageBox::Cancel) {
-      reportProgress(tr("User action: Cancel"), QtDebugMsg);
+      //reportProgress(tr("User action: Cancel"), QtDebugMsg);
       downloadSuccess = false;
       return;
     }
     else if (reply == QMessageBox::No) {
-      reportProgress(tr("User action: Use previous download"), QtDebugMsg);
+      //reportProgress(tr("User action: Use previous download"), QtDebugMsg);
       downloadSuccess = true;
       return;
     }
     else {
-      reportProgress(tr("User action: Download again"), QtDebugMsg);
+      ;
+      //reportProgress(tr("User action: Download again"), QtDebugMsg);
     }
   }
   else if (!QDir().mkpath(f.path())) {
@@ -918,7 +919,7 @@ void UpdateInterface::downloadBinaryToFile(const QString & url, const QString & 
 bool UpdateInterface::decompressFlaggedAssets()
 {
   assets->setFilterFlags(UPDFLG_Decompress);
-  reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Decompress)).arg(assets->count()), QtDebugMsg);
+  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Decompress)).arg(assets->count()), QtDebugMsg);
 
   for (int i = 0; i < assets->count(); ++i) {
     if (!decompressAsset(i))
@@ -975,7 +976,7 @@ bool UpdateInterface::decompressArchive(const QString & archivePath, const QStri
 bool UpdateInterface::copyFlaggedAssets()
 {
   assets->setFilterFlags(UPDFLG_CopyDest);
-  reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_CopyDest)).arg(assets->count()), QtDebugMsg);
+  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_CopyDest)).arg(assets->count()), QtDebugMsg);
 
   for (int i = 0; i < assets->count(); ++i) {
     assets->getSetId(i);
@@ -998,7 +999,7 @@ bool UpdateInterface::copyAsset()
 
 bool UpdateInterface::copyStructure()
 {
-  reportProgress(tr("Copy directory structure"), QtDebugMsg);
+  //reportProgress(tr("Copy directory structure"), QtDebugMsg);
 
   if (progress) {
     progress->setValue(0);
@@ -1046,13 +1047,13 @@ bool UpdateInterface::copyStructure()
   reportProgress(tr("Directories checked/created: %1").arg(cnt), QtInfoMsg);
 
   QRegularExpression filter(assets->copyFilter(), QRegularExpression::CaseInsensitiveOption);
-  reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
+  //reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
 
   QDirIterator itcnt(srcPath.path(), QDir::Files, QDirIterator::Subdirectories);
 
   cnt = 0;
 
-  reportProgress(tr("Calculating number of files"), QtDebugMsg);
+  //reportProgress(tr("Calculating number of files"), QtDebugMsg);
 
   while (itcnt.hasNext())
   {
@@ -1111,7 +1112,7 @@ bool UpdateInterface::copyStructure()
 
 bool UpdateInterface::copyFiles()
 {
-  reportProgress(tr("Copy files"), QtDebugMsg);
+  //reportProgress(tr("Copy files"), QtDebugMsg);
 
   if (progress) {
     progress->setValue(0);
@@ -1145,13 +1146,13 @@ bool UpdateInterface::copyFiles()
   reportProgress(tr("Directories checked/created: %1").arg(1), QtDebugMsg);
 
   QRegularExpression filter(assets->copyFilter(), QRegularExpression::CaseInsensitiveOption);
-  reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
+  //reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
 
   QDirIterator itcnt(srcPath, QDir::Files, QDirIterator::Subdirectories);
 
   int cnt = 0;
 
-  reportProgress(tr("Calculating number of files"), QtDebugMsg);
+  //reportProgress(tr("Calculating number of files"), QtDebugMsg);
 
   while (itcnt.hasNext())
   {
