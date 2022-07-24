@@ -248,7 +248,7 @@ std::string Window::getIndentString() const
   return result;
 }
 
-std::string Window::getWindowDebugString(const char *name = nullptr) const
+std::string Window::getWindowDebugString(const char *name) const
 {
   return getName() + (name ? std::string(" [") + name + "] " : " ") +
          getRectString();
