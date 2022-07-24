@@ -76,11 +76,11 @@ void Updates::autoUpdates()
 
     if (!factories->autoUpdate()) {
       QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Updates finished with errors"));
-      return;
     }
-
-    QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates finished successfully"));
-    checkRunSDSync();
+    else {
+      QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates finished successfully"));
+      checkRunSDSync();
+    }
   }
 }
 
