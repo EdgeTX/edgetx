@@ -44,15 +44,15 @@ UpdateFirmware::UpdateFirmware(QWidget * parent) :
 
 bool UpdateFirmware::asyncInstall()
 {
-  reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+  //reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.currentProfile().burnFirmware())
     return true;
 
-  progressMessage(tr("Async install"));
+  progressMessage(tr("Install"));
 
   assets->setFilterFlags(UPDFLG_AsyncInstall);
-  reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
 
   if (assets->count() != 1) {
     reportProgress(tr("Expected 1 asset for install but none found"), QtCriticalMsg);
