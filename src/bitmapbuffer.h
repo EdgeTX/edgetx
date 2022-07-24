@@ -403,7 +403,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     inline void drawPixel(pixel_t * p, pixel_t value)
     {
-      if (data && (data <= p || p < data_end)) {
+      if (data && (data <= p && p < data_end)) {
         *p = value;
       }
 #if defined(DEBUG)
