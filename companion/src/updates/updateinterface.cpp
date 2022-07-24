@@ -949,9 +949,7 @@ bool UpdateInterface::decompressAsset(int row)
   progressMessage(tr("Decompressing %1").arg(filename));
   reportProgress(tr("Decompress: %1").arg(filename), QtInfoMsg);
 
-  decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(decompressDir).arg(assets->id()));
-
-  return true;
+  return decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(decompressDir).arg(assets->id()));
 }
 
 bool UpdateInterface::decompressArchive(const QString & archivePath, const QString & destDir)
@@ -966,7 +964,7 @@ bool UpdateInterface::decompressArchive(const QString & archivePath, const QStri
   MinizInterface mIface(progress, MinizInterface::PCM_SIZE, logLevel);
 
   if (!mIface.unzipArchiveToPath(archivePath, dest)) {
-    criticalMsg(tr("Failed to decompress %1").arg(archivePath));
+    reportProgress(tr("Failed to decompress %1").arg(archivePath), QtCriticalMsg);
     return false;
   }
 
