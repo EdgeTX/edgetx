@@ -657,7 +657,7 @@ bool UpdateInterface::downloadAssetMetaData(const int assetId)
 
 void UpdateInterface::downloadMetaData(const MetaDataType mdt, const QString & url)
 {
-  reportProgress(tr("Download metadata for: %1").arg(metaDataTypeToString(mdt).toLower()));
+  reportProgress(tr("Download metadata for: %1").arg(metaDataTypeToString(mdt).toLower()), QtDebugMsg);
   download(DDT_MetaData, mdt, url, GH_ACCEPT_HEADER_METADATA, QString());
 }
 
@@ -998,7 +998,7 @@ bool UpdateInterface::copyAsset()
 
 bool UpdateInterface::copyStructure()
 {
-  reportProgress(tr("Copy directory structure"), QtInfoMsg);
+  reportProgress(tr("Copy directory structure"), QtDebugMsg);
 
   if (progress) {
     progress->setValue(0);
@@ -1111,7 +1111,7 @@ bool UpdateInterface::copyStructure()
 
 bool UpdateInterface::copyFiles()
 {
-  reportProgress(tr("Copy files"), QtInfoMsg);
+  reportProgress(tr("Copy files"), QtDebugMsg);
 
   if (progress) {
     progress->setValue(0);
