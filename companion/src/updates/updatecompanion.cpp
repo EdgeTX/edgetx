@@ -69,15 +69,9 @@ UpdateCompanion::UpdateCompanion(QWidget * parent) :
   ap.flags = dfltParams->data.flags;
 }
 
-#ifndef OS_SUPPORTED_INSTALLER
 bool UpdateCompanion::asyncInstall()
 {
-  QMessageBox::warning(parentWidget(), CPN_STR_APP_NAME, OS_INSTALL_MSG);
-  return true;
-}
-#else
-bool UpdateCompanion::asyncInstall()
-{
+#ifdef OS_SUPPORTED_INSTALLER
   //reportProgress(tr("Run application installer: %1").arg(g.runAppInstaller() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.runAppInstaller())
@@ -139,8 +133,13 @@ bool UpdateCompanion::asyncInstall()
     return false;
   }
 
-  return true;
+  if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    QProcess::startDetached(fileName);
+    qApp->exit();
+  }
+
 #else
+
   int ret = QMessageBox::question(parentWidget(), CPN_STR_APP_NAME, OS_INSTALL_QUESTION, QMessageBox::Yes | QMessageBox::No);
 
   if (ret == QMessageBox::Yes) {
@@ -148,10 +147,15 @@ bool UpdateCompanion::asyncInstall()
       qApp->exit();
   }
 
+#endif  //  defined(__linux__) || defined(__linux)
+
   return true;
-#endif
+
+#else
+  QMessageBox::warning(parentWidget(), CPN_STR_APP_NAME, OS_INSTALL_MSG);
+  return true;
+#endif  //  OS_SUPPORTED_INSTALLER
 }
-#endif
 
 const QString UpdateCompanion::currentRelease()
 {
