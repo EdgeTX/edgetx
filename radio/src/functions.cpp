@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(COLORLCD)
+#include "view_main.h"
+#endif
+
 CustomFunctionsContext modelFunctionsContext = { 0 };
 
 CustomFunctionsContext globalFunctionsContext = { 0 };
@@ -394,12 +398,19 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
         	break;
 #endif
+#if defined(COLORLCD)
+          case FUNC_SET_SCREEN:
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
+              ViewMain::instance()->setCurrentMainView((CFN_PARAM(cfn)));
+            }
+#endif
+            break;
 #if defined(DEBUG)
-          case FUNC_TEST:
-            testFunc();
+                case FUNC_TEST : testFunc();
             break;
 #endif
-        }
+            }
 
         newActiveSwitches |= switch_mask;
       }

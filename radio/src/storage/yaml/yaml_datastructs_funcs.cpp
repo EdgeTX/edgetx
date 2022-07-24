@@ -1298,6 +1298,9 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     }
     break;
 
+#if defined(COLORLCD)
+  case FUNC_SET_SCREEN:
+#endif  
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
@@ -1472,6 +1475,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
+#if defined(COLORLCD)
+  case FUNC_SET_SCREEN:
+#endif
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     str = yaml_unsigned2str(CFN_PARAM(cfn));

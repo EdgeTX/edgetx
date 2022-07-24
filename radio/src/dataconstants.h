@@ -821,9 +821,10 @@ enum Functions {
   FUNC_RACING_MODE,
 #if defined(COLORLCD)
   FUNC_DISABLE_TOUCH,
+  FUNC_SET_SCREEN,
 #endif
 #if defined(DEBUG)
-  FUNC_TEST, // should remain the last before MAX as not added in Companion
+  FUNC_TEST,  // should remain the last before MAX as not added in Companion
 #endif
   FUNC_MAX SKIP
 };

@@ -22,6 +22,7 @@
 #include "special_functions.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "view_main.h"
 
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 
@@ -241,8 +242,16 @@ class SpecialFunctionEditPage : public Page
         break;
       }
 
+      case FUNC_SET_SCREEN:
+        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE,
+                       0, COLOR_THEME_PRIMARY1);
+        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+                       ViewMain::instance()->getMainViewsCount() - 1,
+                       GET_SET_DEFAULT(CFN_PARAM(cfn)));
+        grid.nextLine();
+        break;
+        
       case FUNC_ADJUST_GVAR: {
-
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
         auto gvarchoice =
             new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
@@ -549,6 +558,10 @@ class SpecialFunctionButton : public Button
         dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1 | PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
         break;
 
+      case FUNC_SET_SCREEN:
+        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        break;
+        
       case FUNC_ADJUST_GVAR:
         switch(CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
