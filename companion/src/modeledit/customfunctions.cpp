@@ -428,7 +428,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       populateFuncParamCB(fswtchParamT[i], func, cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM | CUSTOM_FUNCTION_ENABLE;
     }
-    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic) {
+    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic || func == FuncSetScreen) {
       if (func != FuncBackgroundMusic) {
         if (modified)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
@@ -507,6 +507,14 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
           cfn.param = (uint8_t)fswtchParamT[i]->currentIndex();
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
+      } else if (func == FuncSetScreen) {
+        fswtchParam[i]->setDecimals(0);
+        fswtchParam[i]->setMinimum(0);
+        fswtchParam[i]->setMaximum(5);  // This assumes that maximum number of custom screen is 5
+        fswtchParam[i]->setSingleStep(1);
+        if (modified) cfn.param = fswtchParam[i]->value();
+        fswtchParam[i]->setValue(cfn.param);
+        widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
     }
     else if (func == FuncPlayScript) {
