@@ -2625,6 +2625,7 @@ const luaR_value_entry opentxConstants[] = {
   { "FUNC_RACING_MODE", FUNC_RACING_MODE },
 #if defined(COLORLCD)
   { "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH },
+  { "FUNC_SET_SCREEN", FUNC_SET_SCREEN },
 
   { "SHADOWED", SHADOWED },
   { "COLOR", ZoneOption::Color },
