@@ -404,22 +404,24 @@ elseif(WIN32)
     message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
   endif()
 
-  # libeay (SSL) dlls  (used by QtNetwork) -- not strictly required but avoids possible issues with downloads and Qt warnings.
-  # file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
-  # find_path(EAY_LIB_DIR libeay32.dll HINTS
-  #   "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
-  #   "C:/OpenSSL/" "C:/OpenSSL-Win32/"
-  #   "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
-  #   "${MINGW_DIR}/../opt/bin"
-  #   "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
-  #   PATH_SUFFIXES bin
-  #   DOC "Path to libeay32.dll and ssleay32.dll (OpenSSL)"
-  # )
-  # if (EAY_LIB_DIR)
-  #   install(FILES "${EAY_LIB_DIR}/libeay32.dll" "${EAY_LIB_DIR}/ssleay32.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-  # else()
-  #   message(WARNING "Installer: SSL libs not found, set EAY_LIB_DIR manually.")
-  # endif()
+  # SSL dlls (used by QtNetwork)
+  file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
+  # try 64-bit
+  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1-x86.dll HINTS
+    "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
+    "C:/OpenSSL/" "C:/OpenSSL-Win32/"
+    "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
+    "${MINGW_DIR}/../opt/bin"
+    "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
+    PATH_SUFFIXES bin
+    DOC "Path to OpenSSL for Windows 1.1"
+  )
+  if (SSL_LIB_DIR)
+    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x64.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x86.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x86.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+  else()
+    message(WARNING "Installer: SSL libs not found, set SSL_LIB_DIR manually.")
+  endif()
 endif() # WIN32 install
 
 ############# Packaging ####################
