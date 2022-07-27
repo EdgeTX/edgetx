@@ -65,7 +65,7 @@ void Updates::autoUpdates()
 
   QStringList list;
 
-  if (!factories->updatesAvailable(list))
+  if (!factories->isUpdatesAvailable(list))
     return;
 
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
