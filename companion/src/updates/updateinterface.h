@@ -129,7 +129,6 @@ class UpdateInterface : public QWidget
     ProgressWidget *progress;
 
     QString name;
-    int settingsIdx;
     int resultsPerPage;
     QString downloadDir;
     QString decompressDir;
@@ -202,6 +201,7 @@ class UpdateInterface : public QWidget
     static QString downloadDataTypeToString(DownloadDataType val);
     static QString updateFlagsToString(UpdateFlags val);
     void initFlavourLanguage(UpdateParameters * params);
+    int settingsIdx() { return m_settingsIdx; }
 
   private slots:
     void onDownloadFinished(QNetworkReply * reply, DownloadDataType ddt, int subtype);
@@ -215,10 +215,10 @@ class UpdateInterface : public QWidget
     QUrl url;
 
     bool downloadSuccess;
+    int m_settingsIdx;
 
     static QString semanticVersion(QString version);
 
-    int getSettingsIdx();
     void setSettingsIdx();
     bool setRunFolders();
     bool checkCreateDirectory(const QString & dirSetting, const UpdateFlags flag);
@@ -284,7 +284,7 @@ class UpdateFactories : public QWidget
 
     bool autoUpdate(ProgressWidget * progress = nullptr);
     bool manualUpdate(ProgressWidget * progress = nullptr);
-    const bool updatesAvailable(QStringList & names);
+    const bool isUpdatesAvailable(QStringList & names);
 
   private:
     QVector<UpdateFactoryInterface *> registeredUpdateFactories;

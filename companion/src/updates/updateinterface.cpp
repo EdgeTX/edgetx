@@ -149,7 +149,7 @@ UpdateInterface::UpdateInterface(QWidget * parent) :
   file(nullptr)
 {
   progress = nullptr;
-  settingsIdx = -1;
+  m_settingsIdx = -1;
 
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
@@ -180,7 +180,7 @@ bool UpdateInterface::autoUpdate(ProgressWidget * progress)
 {
   this->progress = progress;
 
-  if (g.component[settingsIdx].checkForUpdate() && !isLatestRelease()) {
+  if (g.component[m_settingsIdx].checkForUpdate() && !isLatestRelease()) {
     runParams->data.flags |= UPDFLG_Update;
     runParams->data.updateRelease = latestRelease();
     return update();
@@ -346,6 +346,71 @@ void UpdateInterface::setRepo(QString repo)
   assets->setRepo(repo);
 }
 
+void UpdateInterface::setSettingsIdx()
+{
+  int i = g.getComponentIndex(name);
+
+  if (i < 0) {
+    for (i = 0; i < MAX_COMPONENTS && g.component[i].existsOnDisk(); i++)
+      ;
+    if (i >= MAX_COMPONENTS) {
+      reportProgress(tr("No free slot to save interface settings!"), QtCriticalMsg);
+      i = -1;
+    }
+    else {
+      g.component[i].init();
+      g.component[i].name(name);
+    }
+  }
+
+  m_settingsIdx = i;
+  releases->setSettingsIndex(m_settingsIdx);
+}
+
+bool UpdateInterface::isUpdateable()
+{
+  return g.component[m_settingsIdx].checkForUpdate();
+}
+
+void UpdateInterface::resetRunEnvironment()
+{
+  progress = nullptr;
+  logLevel = g.updLogLevel();
+
+  initFlavourLanguage(dfltParams);
+  initParamFolders(dfltParams);
+
+  *runParams = *dfltParams;
+  runParams->data.flags &= ~UPDFLG_Update;
+
+  if (g.updDelDownloads())
+    runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
+  else
+    runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+}
+
+void UpdateInterface::initFlavourLanguage(UpdateParameters * params)
+{
+  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
+  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
+
+  params->data.fwFlavour = "";
+
+  if (currVariant.size() > 1) {
+    params->data.fwFlavour = currVariant.at(1);
+    params->data.fwFlavour = params->data.fwFlavour.replace('+', 'p');
+  }
+
+  params->data.language = "";
+
+  for (const char *lang : baseFw->languageList()) {
+    if (currVariant.last() == lang) {
+      params->data.language = currVariant.last();
+      break;
+    }
+  }
+}
+
 void UpdateInterface::initParamFolders(UpdateParameters * params)
 {
   if (g.downloadDir().trimmed().isEmpty())
@@ -376,86 +441,15 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
   }
 }
 
-bool UpdateInterface::isUpdateable()
-{
-  return g.component[settingsIdx].checkForUpdate();
-}
-
-void UpdateInterface::resetRunEnvironment()
-{
-  progress = nullptr;
-  logLevel = g.updLogLevel();
-
-  initFlavourLanguage(dfltParams);
-  initParamFolders(dfltParams);
-
-  *runParams = *dfltParams;
-  runParams->data.flags &= ~UPDFLG_Update;
-
-  if (g.updDelDownloads())
-    runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
-  else
-    runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
-}
-
-int UpdateInterface::getSettingsIdx()
-{
-  int idx = g.getComponentIndex(name);
-
-  if (idx < 0) {
-    for (idx = 0; idx < MAX_COMPONENTS && g.component[idx].existsOnDisk(); idx++)
-      ;
-    if (idx >= MAX_COMPONENTS) {
-      reportProgress(tr("No free slot to save interface settings!"), QtCriticalMsg);
-      idx = -1;
-    }
-    else {
-      g.component[idx].init();
-      g.component[idx].name(name);
-    }
-  }
-
-  return idx;
-}
-
-void UpdateInterface::setSettingsIdx()
-{
-  const int idx = getSettingsIdx();
-  settingsIdx = idx;
-  releases->setSettingsIndex(idx);
-}
-
-void UpdateInterface::initFlavourLanguage(UpdateParameters * params)
-{
-  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
-  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
-
-  params->data.fwFlavour = "";
-
-  if (currVariant.size() > 1) {
-    params->data.fwFlavour = currVariant.at(1);
-    params->data.fwFlavour = params->data.fwFlavour.replace('+', 'p');
-  }
-
-  params->data.language = "";
-
-  for (const char *lang : baseFw->languageList()) {
-    if (currVariant.last() == lang) {
-      params->data.language = currVariant.last();
-      break;
-    }
-  }
-}
-
 void UpdateInterface::clearRelease()
 {
-  g.component[settingsIdx].clearRelease();
+  g.component[m_settingsIdx].clearRelease();
   currentRelease();
 }
 
 const QString UpdateInterface::currentRelease()
 {
-  dfltParams->data.currentRelease = g.component[settingsIdx].release();
+  dfltParams->data.currentRelease = g.component[m_settingsIdx].release();
   runParams->data.currentRelease = dfltParams->data.currentRelease;
   return dfltParams->data.currentRelease;
 }
@@ -487,7 +481,7 @@ const QString UpdateInterface::updateRelease()
 
 const bool UpdateInterface::isUpdateAvailable()
 {
-  if (g.component[settingsIdx].checkForUpdate())
+  if (g.component[m_settingsIdx].checkForUpdate())
     return !isLatestRelease();
   else {
     return false;
@@ -519,7 +513,7 @@ const bool UpdateInterface::isLatestRelease()
   QString currentVer = currentVersion();
   QString latestVer = releases->version();
   // nightlies often have the same version so also check id
-  if (isLatestVersion(currentVer, latestVer) && g.component[settingsIdx].id() == releases->id()) {
+  if (isLatestVersion(currentVer, latestVer) && g.component[m_settingsIdx].id() == releases->id()) {
     return true;
   }
   else {
@@ -529,7 +523,7 @@ const bool UpdateInterface::isLatestRelease()
 
 const QString UpdateInterface::currentVersion()
 {
-  return g.component[settingsIdx].version();
+  return g.component[m_settingsIdx].version();
 }
 
 const QStringList UpdateInterface::getReleases()
@@ -1364,10 +1358,10 @@ bool UpdateInterface::asyncInstall()
 bool UpdateInterface::saveReleaseSettings()
 {
   reportProgress(tr("Save release settings"), QtDebugMsg);
-  g.component[settingsIdx].release(releases->name());
-  g.component[settingsIdx].version(releases->version());
-  g.component[settingsIdx].id(releases->id());
-  g.component[settingsIdx].date(releases->date());
+  g.component[m_settingsIdx].release(releases->name());
+  g.component[m_settingsIdx].version(releases->version());
+  g.component[m_settingsIdx].id(releases->id());
+  g.component[m_settingsIdx].date(releases->date());
 
   return true;
 }
@@ -1471,7 +1465,7 @@ const QMap<QString, int> UpdateFactories::sortedComponentsList(bool updateableOn
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (updateableOnly && !factory->instance()->isUpdateable())
       continue;
-    map.insert(factory->name(), factory->instance()->settingsIdx);
+    map.insert(factory->name(), factory->instance()->settingsIdx());
   }
 
   return map;
@@ -1583,7 +1577,7 @@ bool UpdateFactories::manualUpdate(ProgressWidget * progress)
   return ok;
 }
 
-const bool UpdateFactories::updatesAvailable(QStringList & names)
+const bool UpdateFactories::isUpdatesAvailable(QStringList & names)
 {
   bool ret = false;
   names.clear();
