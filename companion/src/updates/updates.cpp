@@ -86,6 +86,11 @@ void Updates::autoUpdates()
 
 void Updates::manualUpdates()
 {
+  if (factories->sortedComponentsList(true).isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("No components have been flagged to check in Update Settings!"));
+    return;
+  }
+
   factories->resetAllRunEnvironments();
 
   UpdatesDialog *dlg = new UpdatesDialog(this, factories);

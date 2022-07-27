@@ -36,7 +36,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 {
   //  downloading the release meta data takes a few seconds for each component so display progress
   QDialog *status = new QDialog(parent);
-  status->setWindowTitle(tr("Progress"));
+  status->setWindowTitle(tr("Downloading Release Metadata"));
   QVBoxLayout *layout = new QVBoxLayout(status);
   QLabel *msg = new QLabel(status);
   msg->setFixedWidth(400);
@@ -141,7 +141,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
   grid->addItem(spacer, row, col++);
 
-  QMapIterator<QString, int> it(factories->sortedComponentsList());
+  QMapIterator<QString, int> it(factories->sortedComponentsList(true));
 
   while (it.hasNext()) {
     it.next();
@@ -149,44 +149,42 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
     const QString name = it.key();
 
-    if (g.component[i].checkForUpdate()) {
-      row++;
-      col = 0;
+    row++;
+    col = 0;
 
-      msg->setText(tr("Retrieving latest release information for %1").arg(name));
-      chkUpdate[i] = new QCheckBox();
-      chkUpdate[i]->setProperty("index", i);
-      chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
-      grid->addWidget(chkUpdate[i], row, col++);
-      grid->setAlignment(chkUpdate[i], Qt::AlignHCenter);
+    msg->setText(tr("Retrieving latest release information for %1").arg(name));
+    chkUpdate[i] = new QCheckBox();
+    chkUpdate[i]->setProperty("index", i);
+    chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
+    grid->addWidget(chkUpdate[i], row, col++);
+    grid->setAlignment(chkUpdate[i], Qt::AlignHCenter);
 
-      QLabel *lblName = new QLabel(name);
-      grid->addWidget(lblName, row, col++);
+    QLabel *lblName = new QLabel(name);
+    grid->addWidget(lblName, row, col++);
 
-      QLabel *lblRC = new QLabel(ComponentData::releaseChannelsList().at(g.component[i].releaseChannel()));
-      grid->addWidget(lblRC, row, col++);
+    QLabel *lblRC = new QLabel(ComponentData::releaseChannelsList().at(g.component[i].releaseChannel()));
+    grid->addWidget(lblRC, row, col++);
 
-      lblCurrentRel[i] = new QLabel(factories->currentRelease(name));
-      grid->addWidget(lblCurrentRel[i], row, col++);
+    lblCurrentRel[i] = new QLabel(factories->currentRelease(name));
+    grid->addWidget(lblCurrentRel[i], row, col++);
 
-      lblUpdateRel[i] = new QLabel(factories->updateRelease(name));
-      grid->addWidget(lblUpdateRel[i], row, col++);
+    lblUpdateRel[i] = new QLabel(factories->updateRelease(name));
+    grid->addWidget(lblUpdateRel[i], row, col++);
 
-      btnOptions[i] = new QPushButton(tr("Options"));
-      connect(btnOptions[i], &QPushButton::clicked, [=]() {
-        UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
-        connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
-          QString name = g.component[i].name();
-          chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
-          lblCurrentRel[i]->setText(factories->currentRelease(name));
-          lblUpdateRel[i]->setText(factories->updateRelease(name));
-        });
-        dlg->exec();
-        dlg->deleteLater();
+    btnOptions[i] = new QPushButton(tr("Options"));
+    connect(btnOptions[i], &QPushButton::clicked, [=]() {
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
+      connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
+        QString name = g.component[i].name();
+        chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
+        lblCurrentRel[i]->setText(factories->currentRelease(name));
+        lblUpdateRel[i]->setText(factories->updateRelease(name));
       });
+      dlg->exec();
+      dlg->deleteLater();
+    });
 
-      grid->addWidget(btnOptions[i], row, col++);
-    }
+    grid->addWidget(btnOptions[i], row, col++);
   }
 
   ui->grpComponents->setLayout(grid);
