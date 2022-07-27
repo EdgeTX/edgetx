@@ -104,7 +104,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
         leAssetFilter->setEnabled(!locked);
     });
 
-    QSpacerItem *hsp1 = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    QSpacerItem *hsp1 = new QSpacerItem(0, 0, QSizePolicy::Preferred, QSizePolicy::Minimum );
     layout1->addItem(hsp1);
 
     grpAssetsLayout->addLayout(layout1);
