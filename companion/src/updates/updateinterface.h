@@ -60,6 +60,8 @@ class UpdateParameters : public QWidget
 
     struct GeneralParams{
       int flags;
+      QString fwFlavour;
+      QString language;
       QString currentRelease;
       QString updateRelease;
       QString downloadDir;
@@ -76,7 +78,7 @@ class UpdateParameters : public QWidget
     virtual ~UpdateParameters() {}
 
     AssetParams & addAsset();
-    static QString buildFilterPattern(const UpdateFilterType filterType, const QString & filter);
+    QString buildFilterPattern(const UpdateFilterType filterType, const QString & filter);
 
     UpdateParameters& operator=(const UpdateParameters& source);
 };
@@ -132,8 +134,6 @@ class UpdateInterface : public QWidget
     QString downloadDir;
     QString decompressDir;
     QString updateDir;
-    QString fwFlavour;
-    QString language;
     int logLevel;
 
     virtual bool autoUpdate(ProgressWidget * progress = nullptr);
@@ -179,9 +179,7 @@ class UpdateInterface : public QWidget
 
     bool downloadReleaseAssetsMetaData(const int releaseId);
     bool downloadAssetMetaData(const int assetId);
-    bool getSetAssets(const int flags, const UpdateParameters::UpdateFilterType assetFilterType, const QString & assetsFilter,
-                      const int maxAssetsExpected, const QString & subDirectory,
-                      const UpdateParameters::UpdateFilterType copyFilterType, const QString & copyFilter);
+    bool getSetAssets(const UpdateParameters::AssetParams & ap);
     bool downloadAsset(int row);
     bool downloadFlaggedAssets();
     bool decompressAsset(int row);
@@ -202,7 +200,7 @@ class UpdateInterface : public QWidget
     void criticalMsg(const QString & msg);
     static QString downloadDataTypeToString(DownloadDataType val);
     static QString updateFlagsToString(UpdateFlags val);
-    void getRadioProfileSettings();
+    void initFlavourLanguage(UpdateParameters * params);
 
   private slots:
     void onDownloadFinished(QNetworkReply * reply, DownloadDataType ddt, int subtype);

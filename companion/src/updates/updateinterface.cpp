@@ -61,6 +61,8 @@ UpdateParameters& UpdateParameters::operator=(const UpdateParameters& source)
 
   if (this != &source) {
     data.flags = source.data.flags;
+    data.fwFlavour = source.data.fwFlavour;
+    data.language = source.data.language;
     data.currentRelease = source.data.currentRelease;
     data.updateRelease = source.data.updateRelease;
     data.downloadDir = source.data.downloadDir;
@@ -94,10 +96,12 @@ UpdateParameters::AssetParams & UpdateParameters::addAsset()
   return data.assets[data.assets.size() - 1];
 }
 
-//  static
 QString UpdateParameters::buildFilterPattern(const UpdateParameters::UpdateFilterType filterType, const QString & filter)
 {
-  QString pattern = filter;
+  QString pattern(filter);
+
+  pattern.replace("%FWFLAVOUR%", data.fwFlavour);
+  pattern.replace("%LANGUAGE%", data.language);
 
   switch ((int)filterType) {
     case UpdateParameters::UFT_Exact:
@@ -154,13 +158,9 @@ UpdateInterface::UpdateInterface(QWidget * parent) :
   dfltParams = new UpdateParameters(this);
   runParams = new UpdateParameters(this);
 
-  getRadioProfileSettings();
-
   setReleasesNightlyName("");
   dfltParams->data.flags = UPDFLG_Common;
   resultsPerPage = -1;
-
-  initParamFolders(dfltParams);
 }
 
 UpdateInterface::~UpdateInterface()
@@ -381,6 +381,9 @@ void UpdateInterface::resetRunEnvironment()
   progress = nullptr;
   logLevel = g.updLogLevel();
 
+  initFlavourLanguage(dfltParams);
+  initParamFolders(dfltParams);
+
   *runParams = *dfltParams;
   runParams->data.flags &= ~UPDFLG_Update;
 
@@ -417,23 +420,26 @@ void UpdateInterface::setSettingsIdx()
   releases->setSettingsIndex(idx);
 }
 
-void UpdateInterface::getRadioProfileSettings()
+void UpdateInterface::initFlavourLanguage(UpdateParameters * params)
 {
-  //  eg edgetx-ts16s-en
-  QStringList strl = QStringList(g.currentProfile().fwType().split('-'));
+  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
+  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
 
-  if (strl.size() < 1) {
-    //reportProgress(tr("Settings radio profile firmware type unexpected format"), QtWarningMsg);
-    return;
+  params->data.fwFlavour = "";
+
+  if (currVariant.size() > 1) {
+    params->data.fwFlavour = currVariant.at(1);
+    params->data.fwFlavour = params->data.fwFlavour.replace('+', 'p');
   }
 
-  if (strl.size() > 1) {
-    fwFlavour = strl.at(1);
-    fwFlavour = fwFlavour.replace('+', 'p');
-  }
+  params->data.language = "";
 
-  if (strl.size() > 2)
-    language = strl.at(2);
+  for (const char *lang : baseFw->languageList()) {
+    if (currVariant.last() == lang) {
+      params->data.language = currVariant.last();
+      break;
+    }
+  }
 }
 
 void UpdateInterface::clearRelease()
@@ -818,20 +824,19 @@ bool UpdateInterface::convertDownloadToJson(QJsonDocument * json)
   return true;
 }
 
-bool UpdateInterface::getSetAssets(const int flags, const UpdateParameters::UpdateFilterType assetsFilterType, const QString & assetsFilter, const int maxAssetsExpected,
-                                   const QString & subDirectory, const UpdateParameters::UpdateFilterType copyFilterType, const QString & copyFilter)
+bool UpdateInterface::getSetAssets(const UpdateParameters::AssetParams & ap)
 {
-  QString pattern(UpdateParameters::buildFilterPattern(assetsFilterType, assetsFilter));
+  QString pattern(runParams->buildFilterPattern(ap.filterType, ap.filter));
   assets->setFilterPattern(pattern);
   //reportProgress(tr("Asset filter applied: %1").arg(pattern), QtDebugMsg);
 
   if (assets->count() < 0) {
-    reportProgress(tr("No assets not found in release '%1' using filter pattern '%2'").arg(releases->name().arg(assetsFilter)), QtCriticalMsg);
+    reportProgress(tr("No assets not found in release '%1' using filter pattern '%2'").arg(releases->name().arg(pattern)), QtCriticalMsg);
     return false;
   }
-  else if (maxAssetsExpected > -1 && assets->count() > maxAssetsExpected) {
+  else if (ap.maxExpected > -1 && assets->count() > ap.maxExpected) {
     reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter pattern '%4'")
-                        .arg(assets->count()).arg(maxAssetsExpected).arg(releases->name().arg(assetsFilter)), QtCriticalMsg);
+                        .arg(assets->count()).arg(ap.maxExpected).arg(releases->name().arg(pattern)), QtCriticalMsg);
     return false;
   }
 
@@ -839,17 +844,17 @@ bool UpdateInterface::getSetAssets(const int flags, const UpdateParameters::Upda
 
   for (int i = 0; i < assets->count(); i++) {
     assets->getSetId(i);
-    if (!assets->setFlags(flags)) {
+    if (!assets->setFlags(ap.flags)) {
       reportProgress(tr("Unable to set processing flags for asset %1").arg(assets->filename()), QtCriticalMsg);
       return false;
     }
 
-    if (!assets->setSubDirectory(subDirectory)) {
+    if (!assets->setSubDirectory(ap.destSubDir)) {
       reportProgress(tr("Unable to set sub directory for asset %1").arg(assets->filename()), QtCriticalMsg);
       return false;
     }
 
-    if (!assets->setCopyFilter(UpdateParameters::buildFilterPattern(copyFilterType, copyFilter))) {
+    if (!assets->setCopyFilter(runParams->buildFilterPattern(ap.copyFilterType, ap.copyFilter))) {
       reportProgress(tr("Unable to set copy filter for asset %1").arg(assets->filename()), QtCriticalMsg);
       return false;
     }
@@ -913,8 +918,6 @@ void UpdateInterface::downloadBinaryToFile(const QString & url, const QString & 
 
   download(DDT_SaveToFile, 0, url, GH_ACCEPT_HEADER_BINARY, f.absoluteFilePath());
 }
-
-
 
 bool UpdateInterface::decompressFlaggedAssets()
 {
@@ -1263,8 +1266,8 @@ bool UpdateInterface::flagAssets()
   progressMessage(tr("Flagging assets"));
 
   for (int i = 0; i < runParams->data.assets.size(); i++) {
-    const UpdateParameters::AssetParams &ap = runParams->data.assets.at(i);
-    if (!getSetAssets(ap.flags, ap.filterType, ap.filter, ap.maxExpected, ap.destSubDir, ap.copyFilterType, ap.copyFilter))
+    const UpdateParameters::AssetParams & ap = runParams->data.assets.at(i);
+    if (!getSetAssets(ap))
       return false;
   }
 

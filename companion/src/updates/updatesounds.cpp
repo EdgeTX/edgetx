@@ -46,7 +46,7 @@ UpdateSounds::UpdateSounds(QWidget * parent) :
   //  only supports default for each language
   //  eg edgetx-sdcard-sounds-en-2.7.0.zip
   ap.filterType = UpdateParameters::UFT_Startswith;
-  ap.filter = QString("edgetx-sdcard-sounds-%1-").arg(language);
+  ap.filter = QString("edgetx-sdcard-sounds-%LANGUAGE%-");
   //  if user changes filter then more than one could be returned
   //ap.maxExpected = 1;
   ap.flags = dfltParams->data.flags | UPDFLG_CopyStructure;

@@ -33,7 +33,7 @@ UpdateSDCard::UpdateSDCard(QWidget * parent) :
 
   UpdateParameters::AssetParams &ap = dfltParams->addAsset();
   ap.filterType = UpdateParameters::UFT_Startswith;
-  ap.filter = QString("%1-").arg(fwFlavour);
+  ap.filter = QString("%FWFLAVOUR%-");
   ap.maxExpected = 1;
   ap.flags = dfltParams->data.flags | UPDFLG_CopyStructure;
 }
@@ -60,9 +60,9 @@ bool UpdateSDCard::flagAssets()
     return false;
   }
 
-  UpdateParameters::AssetParams ap = runParams->data.assets.at(0);
+  const UpdateParameters::AssetParams & ap = runParams->data.assets.at(0);
 
-  QRegularExpression filter(UpdateParameters::buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
+  QRegularExpression filter(runParams->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
   bool found = false;
   QString sdimage;
 
@@ -89,13 +89,17 @@ bool UpdateSDCard::flagAssets()
   }
 
   if (!found) {
-    reportProgress(tr("Radio flavour %1 not listed in %2").arg(fwFlavour).arg(mappingfile), QtCriticalMsg);
+    reportProgress(tr("Radio flavour %1 not listed in %2").arg(runParams->data.fwFlavour).arg(mappingfile), QtCriticalMsg);
     return false;
   }
 
   delete json;
 
-  if (!getSetAssets(ap.flags, UpdateParameters::UFT_Startswith, sdimage, ap.maxExpected, ap.destSubDir, ap.copyFilterType, ap.copyFilter))
+  UpdateParameters::AssetParams sd = ap;
+  sd.filterType = UpdateParameters::UFT_Startswith;
+  sd.filter = sdimage;
+
+  if (!getSetAssets(sd))
     return false;
 
   return true;
