@@ -169,6 +169,7 @@ class UpdateInterface : public QWidget
     UpdateParameters * getRunParams() { return runParams; }
     void resetRunEnvironment();
     void setRunUpdate() { runParams->data.flags |= UPDFLG_Update; }
+    bool isUpdateable();
 
     bool repoReleasesMetaData();
     bool repoReleaseAssetsMetaData();
@@ -272,7 +273,7 @@ class UpdateFactories : public QWidget
     void resetRunEnvironment(const QString & name);
     void resetAllRunEnvironments();
     void setRunUpdate(const QString & name);
-    const QMap<QString, int> sortedComponentsList();
+    const QMap<QString, int> sortedComponentsList(bool updateableOnly = false);
 
     void clearRelease(const QString & name);
     const QString currentRelease(const QString & name);

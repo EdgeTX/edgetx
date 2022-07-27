@@ -376,6 +376,11 @@ void UpdateInterface::initParamFolders(UpdateParameters * params)
   }
 }
 
+bool UpdateInterface::isUpdateable()
+{
+  return g.component[settingsIdx].checkForUpdate();
+}
+
 void UpdateInterface::resetRunEnvironment()
 {
   progress = nullptr;
@@ -1459,11 +1464,13 @@ void UpdateFactories::setRunUpdate(const QString & name)
   }
 }
 
-const QMap<QString, int> UpdateFactories::sortedComponentsList()
+const QMap<QString, int> UpdateFactories::sortedComponentsList(bool updateableOnly)
 {
   QMap<QString, int> map;
 
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
+    if (updateableOnly && !factory->instance()->isUpdateable())
+      continue;
     map.insert(factory->name(), factory->instance()->settingsIdx);
   }
 
@@ -1582,7 +1589,7 @@ const bool UpdateFactories::updatesAvailable(QStringList & names)
   names.clear();
 
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (factory->instance()->isUpdateAvailable()) {
+    if (factory->instance()->isUpdateable() && factory->instance()->isUpdateAvailable()) {
       names.append(factory->name());
       ret = true;
     }
