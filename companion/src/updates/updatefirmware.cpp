@@ -39,7 +39,7 @@ UpdateFirmware::UpdateFirmware(QWidget * parent) :
   ap.flags = dfltParams->data.flags | UPDFLG_CopyFiles;
   ap.destSubDir = "FIRMWARE";
   ap.copyFilterType = UpdateParameters::UFT_Expression;
-  ap.copyFilter = QString("^%1-.*\\.bin$").arg(fwFlavour);
+  ap.copyFilter = QString("^%FWFLAVOUR%-.*\\.bin$");
 }
 
 bool UpdateFirmware::asyncInstall()
