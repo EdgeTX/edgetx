@@ -518,6 +518,8 @@
 #define TR_PRESSANYKEY                 TR("\010Tryk en tast", "Tryk en tast")
 #define TR_BADEEPROMDATA               "Dårlig EEprom data"
 #define TR_BAD_RADIO_DATA              "Dårlig radio data"
+#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
+#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
 #define TR_EEPROMFORMATTING            "Formaterer EEPROM"
 #define TR_STORAGE_FORMAT              "Lager klargøres"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"

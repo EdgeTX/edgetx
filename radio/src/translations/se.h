@@ -549,6 +549,8 @@
 #define TR_PRESSANYKEY                  TR("\010Tryck på en knapp", "Tryck på valfri knapp")
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
 #define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
+#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
+#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
 #define TR_EEPROMFORMATTING             "Minnet formateras"
 #define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
 #define TR_EEPROMOVERFLOW               "Minnesfel"
