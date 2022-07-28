@@ -41,8 +41,8 @@ STATIC_LZ4_BITMAP(LBM_TIMER_BACKGROUND);
 class TimerWidget : public Widget
 {
  public:
-  TimerWidget(const WidgetFactory* factory, Window* parent,
-              const rect_t& rect, Widget::PersistentData* persistentData) :
+  TimerWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+              Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
   }
@@ -59,7 +59,6 @@ class TimerWidget : public Widget
     LcdFlags colorBack;  // background color
     LcdFlags colorFore;  // foreground color
 
-  TRACE("TIMER.start-%d", (int)timerData.start);
     // Middle size widget
     if (width() >= 180 && height() >= 70) {
       colorBack = (timerState.val >= 0 || !(timerState.val % 2))
@@ -72,24 +71,21 @@ class TimerWidget : public Widget
       // background
       dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
 
-      if (timerData.start && timerState.val >= 0)
-      {
+      if (timerData.start && timerState.val >= 0) {
         dc->drawBitmapPatternPie(
             2, 3, LBM_RSCALE, colorFore, 0,
             timerState.val <= 0
                 ? 360
                 : 360 * (timerData.start - timerState.val) / timerData.start);
+      } else {
+        dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
       }
-      else { dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore); }
       // value
       int val = timerState.val;
-      TRACE("1_0 Timer=%d\tannounceEllapsed=%d", val, timerData.showElapsed);
       if (timerData.start && timerData.showElapsed &&
           timerData.start != timerState.val)
-        val = (int)timerData.start - (int) timerState.val;
-      TRACE("1_1 Timer=%d", val);
-      splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1,
-                 abs(val), false);
+        val = (int)timerData.start - (int)timerState.val;
+      splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(val), false);
 
       dc->drawSizedText(76, 31, sDigitGroup0, ZLEN(sDigitGroup0),
                         FONT(XL) | colorFore);
@@ -123,11 +119,9 @@ class TimerWidget : public Widget
       }
       // value
       int val = timerState.val;
-      TRACE("2_0 Timer=%d", val);
       if (timerData.start && timerData.showElapsed &&
           timerData.start != timerState.val)
-        val = (int)timerData.start - (int) timerState.val;
-      TRACE("2_1 Timer=%d", val);
+        val = (int)timerData.start - (int)timerState.val;
       if (width() > 100 && height() > 40) {
         if (abs(val) >= 3600) {
           drawTimer(dc, 3, 20, abs(val),
@@ -145,13 +139,10 @@ class TimerWidget : public Widget
         } else {
           // value
           int val = timerState.val;
-          TRACE("3_0 Timer=%d", val);
           if (timerData.start && timerData.showElapsed &&
               timerData.start != timerState.val)
-            val = (int)timerData.start - (int) timerState.val;
-          TRACE("3_1 Timer=%d", val);
-          drawTimer(dc, 3, 18, abs(val),
-                    COLOR_THEME_PRIMARY2 | LEFT);
+            val = (int)timerData.start - (int)timerState.val;
+          drawTimer(dc, 3, 18, abs(val), COLOR_THEME_PRIMARY2 | LEFT);
         }
       }
     }

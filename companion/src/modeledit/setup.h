@@ -56,7 +56,7 @@ class TimerPanel : public ModelPanel
     void onModeChanged(int index);
     void onShowElapsedChanged(int index);
 
-   signals:
+  signals:
     void nameChanged();
 
   private:

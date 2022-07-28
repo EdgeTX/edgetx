@@ -678,7 +678,7 @@ extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
 extern const char STR_LIMITS_HEADERS_DIRECTION[];
 #if defined(COLORLCD)
-    extern const char STR_ASSIGN_SPLASH[];
+extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];
 extern const char STR_FILL_BACKGROUND[];
 extern const char STR_BG_COLOR[];

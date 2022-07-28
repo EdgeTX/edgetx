@@ -230,9 +230,9 @@ void editTimerStart(int timerIdx, coord_t y, LcdFlags attr, event_t event)
                        g_model.timers[timerIdx].showElapsed,
                        menuHorizontalPosition == 2 ? attr : 0);
   }
-  
+
   if (attr && menuHorizontalPosition < 0) {
-      lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 4 * FW, FH + 1);
+    lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 4 * FW, FH + 1);
   }
 
   if (attr && s_editMode > 0) {
@@ -553,7 +553,7 @@ void menuModelSetup(event_t event)
 
 
 #if TIMERS > 1
-          case ITEM_MODEL_SETUP_TIMER2:
+      case ITEM_MODEL_SETUP_TIMER2:
         editTimerMode(1, y, attr, event);
         break;
 
@@ -596,20 +596,20 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:
-          g_model.timers[2].minuteBeep = editCheckBox(
-              g_model.timers[2].minuteBeep, MODEL_SETUP_2ND_COLUMN, y,
-              INDENT TR_MINUTEBEEP, attr, event);
-          break;
+        g_model.timers[2].minuteBeep =
+            editCheckBox(g_model.timers[2].minuteBeep, MODEL_SETUP_2ND_COLUMN,
+                         y, INDENT TR_MINUTEBEEP, attr, event);
+        break;
 
-          case ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP:
-            editTimerCountdown(2, y, attr, event);
-            break;
+      case ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP:
+        editTimerCountdown(2, y, attr, event);
+        break;
 
-          case ITEM_MODEL_SETUP_TIMER3_PERSISTENT:
-            g_model.timers[2].persistent = editChoice(
-                MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT,
-                g_model.timers[2].persistent, 0, 2, attr, event);
-            break;
+      case ITEM_MODEL_SETUP_TIMER3_PERSISTENT:
+        g_model.timers[2].persistent = editChoice(
+            MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT,
+            g_model.timers[2].persistent, 0, 2, attr, event);
+        break;
 #endif
 
 #if defined(PCBX9E)
@@ -1763,7 +1763,7 @@ void menuModelSetup(event_t event)
         modelSetupModulePxx2ReceiverLine(CURRENT_MODULE_EDITED(k), CURRENT_RECEIVER_EDITED(k), y, event, attr);
         break;
 #endif
-        }
+    }
   }
 
 #if defined(PXX)

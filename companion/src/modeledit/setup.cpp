@@ -90,7 +90,6 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
   connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onShowElapsedChanged(int)));
-  
 
   disableMouseScrolling();
   QWidget::setTabOrder(prevFocus, ui->name);

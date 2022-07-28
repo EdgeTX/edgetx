@@ -197,9 +197,8 @@ QString TimerData::showElapsedToString() const
   return showElapsedToString(showElapsed);
 }
 
-
-    //  static
-AbstractStaticItemModel *TimerData::countdownBeepItemModel()
+//  static
+AbstractStaticItemModel * TimerData::countdownBeepItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_TIMER_COUNTDOWNBEEP);
