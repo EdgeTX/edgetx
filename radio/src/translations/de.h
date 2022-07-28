@@ -1261,7 +1261,7 @@
 #define STR_LOSS                       "Loss"
 #define STR_SPEED                      "Spd "
 #define STR_FLOW                       "Flow"
-#define TR_SHOW                        INDENT "Show"
+
 // The following content is Untranslated)
 
 #define TR_USE_THEME_COLOR             "Use theme color"

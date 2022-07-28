@@ -1255,7 +1255,6 @@
 #define STR_LOSS                      "Loss"
 #define STR_SPEED                     "Spd "
 #define STR_FLOW                      "Flow"
-#define TR_SHOW                       INDENT "Show"
 
 #define TR_USE_THEME_COLOR            "使用主题颜色"
 
