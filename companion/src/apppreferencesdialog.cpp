@@ -327,7 +327,7 @@ void AppPreferencesDialog::initSettings()
       }
       g.resetUpdatesSettings();
       QMessageBox::warning(this, CPN_STR_APP_NAME,
-                           tr("Update settings have been reset. You must restart Companion to avoid unexpected behaviour!"));
+                           tr("Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!"));
     }
   });
 
