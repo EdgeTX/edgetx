@@ -64,7 +64,10 @@ bool UpdateFirmware::asyncInstall()
   if (!assets->subDirectory().isEmpty())
     destPath.append("/" % assets->subDirectory());
 
-  QRegularExpression filter(runParams->data.assets.at(0).copyFilter, QRegularExpression::CaseInsensitiveOption);
+  const UpdateParameters::AssetParams &ap = runParams->data.assets.at(0);
+
+  QString pattern(runParams->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
+  QRegularExpression filter(pattern, QRegularExpression::CaseInsensitiveOption);
 
   QDirIterator it(destPath);
 

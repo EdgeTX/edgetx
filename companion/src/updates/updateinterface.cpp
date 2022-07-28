@@ -96,7 +96,7 @@ UpdateParameters::AssetParams & UpdateParameters::addAsset()
   return data.assets[data.assets.size() - 1];
 }
 
-QString UpdateParameters::buildFilterPattern(const UpdateParameters::UpdateFilterType filterType, const QString & filter)
+QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, const QString & filter)
 {
   QString pattern(filter);
 
@@ -330,7 +330,7 @@ void UpdateInterface::progressMessage(const QString & text)
 
 void UpdateInterface::criticalMsg(const QString & msg)
 {
-  QMessageBox::critical(nullptr, CPN_STR_APP_NAME % ": " % tr("Update Interface"), msg);
+  QMessageBox::critical(nullptr, tr("Update Interface"), msg);
 }
 
 void UpdateInterface::setName(QString name)
