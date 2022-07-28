@@ -422,8 +422,8 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_UNSIGNED( "minuteBeep", 1 ),
   YAML_UNSIGNED( "persistent", 2 ),
   YAML_SIGNED( "countdownStart", 2 ),
-  YAML_UNSIGNED("showElapsed", 1),
-  YAML_PADDING( 7 ),  
+  YAML_UNSIGNED( "showElapsed", 1 ),
+  YAML_PADDING( 7 ),
   YAML_STRING("name", 3),
   YAML_END
 };
