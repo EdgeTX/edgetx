@@ -307,6 +307,7 @@ class ModelData {
     static QString funcSwitchStartToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
+    int getCustomScreensCount() const;
 
   protected:
     void removeGlobalVar(int & var);
