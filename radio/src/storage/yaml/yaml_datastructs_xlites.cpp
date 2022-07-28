@@ -320,6 +320,8 @@ static const struct YamlNode struct_string_24[] = {
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
+  YAML_UNSIGNED( "manuallyEdited", 1 ),
+  YAML_PADDING( 7 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 6, struct_CalibData, NULL),
