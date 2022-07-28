@@ -510,7 +510,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       } else if (func == FuncSetScreen) {
         fswtchParam[i]->setDecimals(0);
         fswtchParam[i]->setMinimum(0);
-        fswtchParam[i]->setMaximum(5);  // This assumes that maximum number of custom screen is 5
+        fswtchParam[i]->setMaximum(MAX_CUSTOM_SCREENS); 
         fswtchParam[i]->setSingleStep(1);
         if (modified) cfn.param = fswtchParam[i]->value();
         fswtchParam[i]->setValue(cfn.param);
