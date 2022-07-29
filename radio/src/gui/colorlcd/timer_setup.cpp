@@ -78,7 +78,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
                timerValueUpdater(timer));
 
   // Timer direction
-  line = body.newLine(&grid);
+  line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_DIRECTION, 0,
                  COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_TIMER_DIR, 0, 1,
