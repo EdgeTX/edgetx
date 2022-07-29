@@ -229,7 +229,8 @@ bool CustomFunctionData::isFuncAvailable(const int index)
         ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
-        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard()))
+        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
+        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd)))
         );
   return !ret;
 }
