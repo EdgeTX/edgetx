@@ -245,8 +245,8 @@ class SpecialFunctionEditPage : public Page
       case FUNC_SET_SCREEN:
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE,
                        0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
-                       ViewMain::instance()->getMainViewsCount() - 1,
+        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
+                       ViewMain::instance()->getMainViewsCount(),
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
         grid.nextLine();
         break;
@@ -561,7 +561,7 @@ class SpecialFunctionButton : public Button
       case FUNC_SET_SCREEN:
         dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
-        
+
       case FUNC_ADJUST_GVAR:
         switch(CFN_GVAR_MODE(cfn)) {
         case FUNC_ADJUST_GVAR_CONSTANT:
