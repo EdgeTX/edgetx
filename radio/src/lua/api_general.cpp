@@ -534,6 +534,127 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
 }
 
 /*luadoc
+@function getFieldInfo(source)
+
+Return detailed information about field (source)
+
+The list of valid sources is available:
+
+| OpenTX Version | Radio |
+|----------------|-------|
+| 2.0 | [all](http://downloads-20.open-tx.org/firmware/lua_fields.txt) |
+| 2.1 | [X9D and X9D+](http://downloads-21.open-tx.org/firmware/lua_fields_taranis.txt), [X9E](http://downloads-21.open-tx.org/firmware/lua_fields_taranis_x9e.txt) |
+| 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
+| 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
+
+@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
+
+@retval table information about requested field, table elements:
+ * `id`   (number) field identifier
+ * `name` (string) field name
+ * `desc` (string) field description
+ * 'unit' (number) unit identifier [Full list](../appendix/units.html)
+
+@retval nil the requested field was not found
+
+@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
+*/
+static int luaGetFieldInfo(lua_State * L)
+{
+  bool found;
+  LuaField field;
+
+  if (lua_type(L, 1) == LUA_TNUMBER)
+    found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
+  else
+    found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);
+
+  if (found) {
+    lua_newtable(L);
+    lua_pushtableinteger(L, "id", field.id);
+    lua_pushtablestring(L, "name", field.name);
+    lua_pushtablestring(L, "desc", field.desc);
+    if (field.id >= MIXSRC_FIRST_TELEM && field.id <= MIXSRC_LAST_TELEM) {
+      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
+      lua_pushtableinteger(L, "unit", telemetrySensor.unit);
+    }
+    else {
+      lua_pushtablenil(L, "unit");
+    }
+    return 1;
+  }
+  return 0;
+}
+
+/*luadoc
+@function getValue(source)
+
+Returns the value of a source.
+
+The list of fixed sources:
+
+| OpenTX Version | Radio |
+|----------------|-------|
+| 2.0 | [all](http://downloads-20.open-tx.org/firmware/lua_fields.txt) |
+| 2.1 | [X9D and X9D+](http://downloads-21.open-tx.org/firmware/lua_fields_taranis.txt), [X9E](http://downloads-21.open-tx.org/firmware/lua_fields_taranis_x9e.txt) |
+| 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
+| 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
+
+In OpenTX 2.1.x the telemetry sources no longer have a predefined name.
+To get a telemetry value simply use it's sensor name. For example:
+ * Altitude sensor has a name "Alt"
+ * to get the current altitude use the source "Alt"
+ * to get the minimum altitude use the source "Alt-", to get the maximum use "Alt+"
+
+@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
+
+@retval value current source value (number). Zero is returned for:
+ * non-existing sources
+ * for all telemetry source when the telemetry stream is not received
+ * far all non allowed sensors while FAI MODE is active
+
+@retval table GPS position is returned in a table:
+ * `lat` (number) latitude, positive is North
+ * `lon` (number) longitude, positive is East
+ * `pilot-lat` (number) pilot latitude, positive is North
+ * `pilot-lon` (number) pilot longitude, positive is East
+
+@retval table GPS date/time, see getDateTime()
+
+@retval table Cells are returned in a table
+(except where no cells were detected in which
+case the returned value is 0):
+ * table has one item for each detected cell:
+  * key (number) cell number (1 to number of cells)
+  * value (number) current cell voltage
+
+@status current Introduced in 2.0.0, changed in 2.1.0, `Cels+` and
+`Cels-` added in 2.1.9
+
+@notice Getting a value by its numerical identifier is faster then by its name.
+While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
+`Cels-` will return a single value - the maximum or minimum Cels value.
+*/
+static int luaGetValue(lua_State * L)
+{
+  int src = 0;
+  if (lua_isnumber(L, 1)) {
+    src = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its id
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      src = field.id;
+    }
+  }
+  luaGetValueAndPush(L, src);
+  return 1;
+}
+
+/*luadoc
 @function getRotEncSpeed()
 
 Return rotary encoder current speed
@@ -975,127 +1096,6 @@ static int luaGhostTelemetryPush(lua_State * L)
   return 1;
 }
 #endif
-
-/*luadoc
-@function getFieldInfo(source)
-
-Return detailed information about field (source)
-
-The list of valid sources is available:
-
-| OpenTX Version | Radio |
-|----------------|-------|
-| 2.0 | [all](http://downloads-20.open-tx.org/firmware/lua_fields.txt) |
-| 2.1 | [X9D and X9D+](http://downloads-21.open-tx.org/firmware/lua_fields_taranis.txt), [X9E](http://downloads-21.open-tx.org/firmware/lua_fields_taranis_x9e.txt) |
-| 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
-| 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
-
-@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
-
-@retval table information about requested field, table elements:
- * `id`   (number) field identifier
- * `name` (string) field name
- * `desc` (string) field description
- * 'unit' (number) unit identifier [Full list](../appendix/units.html)
-
-@retval nil the requested field was not found
-
-@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
-*/
-static int luaGetFieldInfo(lua_State * L)
-{
-  bool found;
-  LuaField field;
-  
-  if (lua_type(L, 1) == LUA_TNUMBER)
-    found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
-  else
-    found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);
-  
-  if (found) {
-    lua_newtable(L);
-    lua_pushtableinteger(L, "id", field.id);
-    lua_pushtablestring(L, "name", field.name);
-    lua_pushtablestring(L, "desc", field.desc);
-    if (field.id >= MIXSRC_FIRST_TELEM && field.id <= MIXSRC_LAST_TELEM) {
-      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
-      lua_pushtableinteger(L, "unit", telemetrySensor.unit);
-    }
-    else {
-      lua_pushtablenil(L, "unit");
-    }
-    return 1;
-  }
-  return 0;
-}
-
-/*luadoc
-@function getValue(source)
-
-Returns the value of a source.
-
-The list of fixed sources:
-
-| OpenTX Version | Radio |
-|----------------|-------|
-| 2.0 | [all](http://downloads-20.open-tx.org/firmware/lua_fields.txt) |
-| 2.1 | [X9D and X9D+](http://downloads-21.open-tx.org/firmware/lua_fields_taranis.txt), [X9E](http://downloads-21.open-tx.org/firmware/lua_fields_taranis_x9e.txt) |
-| 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
-| 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
-
-In OpenTX 2.1.x the telemetry sources no longer have a predefined name.
-To get a telemetry value simply use it's sensor name. For example:
- * Altitude sensor has a name "Alt"
- * to get the current altitude use the source "Alt"
- * to get the minimum altitude use the source "Alt-", to get the maximum use "Alt+"
-
-@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
-
-@retval value current source value (number). Zero is returned for:
- * non-existing sources
- * for all telemetry source when the telemetry stream is not received
- * far all non allowed sensors while FAI MODE is active
-
-@retval table GPS position is returned in a table:
- * `lat` (number) latitude, positive is North
- * `lon` (number) longitude, positive is East
- * `pilot-lat` (number) pilot latitude, positive is North
- * `pilot-lon` (number) pilot longitude, positive is East
-
-@retval table GPS date/time, see getDateTime()
-
-@retval table Cells are returned in a table
-(except where no cells were detected in which
-case the returned value is 0):
- * table has one item for each detected cell:
-  * key (number) cell number (1 to number of cells)
-  * value (number) current cell voltage
-
-@status current Introduced in 2.0.0, changed in 2.1.0, `Cels+` and
-`Cels-` added in 2.1.9
-
-@notice Getting a value by its numerical identifier is faster then by its name.
-While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
-`Cels-` will return a single value - the maximum or minimum Cels value.
-*/
-static int luaGetValue(lua_State * L)
-{
-  int src = 0;
-  if (lua_isnumber(L, 1)) {
-    src = luaL_checkinteger(L, 1);
-  }
-  else {
-    // convert from field name to its id
-    const char *name = luaL_checkstring(L, 1);
-    LuaField field;
-    bool found = luaFindFieldByName(name, field);
-    if (found) {
-      src = field.id;
-    }
-  }
-  luaGetValueAndPush(L, src);
-  return 1;
-}
 
 /*luadoc
 @function getRAS()
@@ -1580,7 +1580,7 @@ static int luaPopupConfirmation(lua_State * L)
     warningText = nullptr;
     lua_pushnil(L);
   }
-  
+
   return 1;
 }
 
@@ -1982,7 +1982,7 @@ static int luaSerialWrite(lua_State * L)
     const char* p = str;
     while(wr_len--) _sendCb(_ctx, *p++);
   }
-  
+
   return 0;
 }
 
@@ -2041,7 +2041,7 @@ static int luaSerialRead(lua_State * L)
 static int shmVar[16] = {0};
 
 /*luadoc
-@function setShmVar(id, value) 
+@function setShmVar(id, value)
 
 @param id: integer between 1 and 16 identifying the shared memory variable.
 
@@ -2058,10 +2058,10 @@ static int luaSetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
   int value = luaL_checkinteger(L, 2);
-  
+
   if (1 <= id && id <= 16)
     shmVar[id - 1] = value;
-  
+
   return 0;
 }
 
@@ -2082,7 +2082,7 @@ Gets the value of a shared memory variable that can be used for passing data bet
 static int luaGetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
-  
+
   if (1 <= id && id <= 16)
     lua_pushinteger(L, shmVar[id - 1]);
   else
@@ -2093,14 +2093,14 @@ static int luaGetShmVar(lua_State * L)
 #endif
 
 /*luadoc
-@function setStickySwitch(id, value) 
+@function setStickySwitch(id, value)
 
 @param id: integer identifying the sticky logical switch (zero for LS1 etc.).
 
 @param value: true/false. The new value of the sticky logical switch.
 
-@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor 
-via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value 
+@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor
+via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value
 is returned and no messages was sent (i.e. the switch was not changed).
 
 Sets the value of a sticky logical switch.
@@ -2151,7 +2151,7 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 /*luadoc
 @function getSwitchIndex(positionName)
 
-@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have 
+@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have
 special characters in them like arrow up/down etc.
 
 @retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`. Also corresponds
@@ -2166,12 +2166,12 @@ static int luaGetSwitchIndex(lua_State * L)
   bool negate = false;
   bool found = false;
   swsrc_t idx;
-  
+
   if (name[0] == '!') {
     name++;
     negate = true;
   }
-  
+
   for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* s = getSwitchPositionName(idx);
@@ -2181,7 +2181,7 @@ static int luaGetSwitchIndex(lua_State * L)
       }
     }
   }
-  
+
   if (found) {
     if (negate)
       idx = -idx;
@@ -2196,7 +2196,7 @@ static int luaGetSwitchIndex(lua_State * L)
 /*luadoc
 @function getSwitchName(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: string naming the switch position as it is shown on radio menus where a switch can be chosen.
@@ -2219,7 +2219,7 @@ static int luaGetSwitchName(lua_State * L)
 /*luadoc
 @function getSwitchValue(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: true/false. The value of the switch.
@@ -2253,7 +2253,7 @@ static int luaNextSwitch(lua_State * L)
 {
   swsrc_t last = luaL_checkinteger(L, 1);
   swsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(idx);
@@ -2262,7 +2262,7 @@ static int luaNextSwitch(lua_State * L)
       return 2;
     }
   }
-  
+
   lua_pushnil(L);
   return 1;
 }
@@ -2271,7 +2271,7 @@ static int luaSwitches(lua_State * L)
 {
   swsrc_t first;
   swsrc_t last;
-  
+
   if (lua_isnumber(L, 1)) {
     first = luaL_checkinteger(L, 1) - 1;
     if (first < SWSRC_FIRST - 1)
@@ -2371,7 +2371,7 @@ static int luaNextSource(lua_State * L)
 {
   mixsrc_t last = luaL_checkinteger(L, 1);
   mixsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSourceAvailable(idx)) {
       char srcName[maxSourceNameLength];
