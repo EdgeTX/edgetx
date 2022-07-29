@@ -147,7 +147,7 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
           qDebug() << "Calculated checksum:" << calculatedChecksum;
           if (fileChecksum != calculatedChecksum) {
             qDebug() << "File checksum mismatch! Got: " << fileChecksum << ", expected: " << calculatedChecksum;
-            QMessageBox::critical(NULL, CPN_STR_APP_NAME, QCoreApplication::translate("EdgeTXInterface", "File checksum error - expected %1!").arg(calculatedChecksum));
+            QMessageBox::critical(NULL, CPN_STR_APP_NAME, QCoreApplication::translate("EdgeTXInterface", "Radio settings file checksum error. You are advised to review the settings"));
             //return false;
           }
         }

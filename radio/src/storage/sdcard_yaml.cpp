@@ -340,11 +340,15 @@ const char * writeGeneralSettings()
     TRACE("generalSettings written with checksum %u", file_checksum);
 
     if (p != NULL) {
-      return p;
+        return p;
     }
     f_unlink(RADIO_SETTINGS_YAML_PATH);
+  
     FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
-    return SDCARD_ERROR(result);
+    if(result != FR_OK)
+        return SDCARD_ERROR(result);
+
+    return nullptr;
 }
 
 
