@@ -172,12 +172,6 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-static void set_failsafe(lv_event_t* e)
-{
-  auto edit = (NumberEdit*)lv_event_get_user_data(e);
-  if (edit) edit->update();
-}
-
 FailSafePage::FailSafePage(uint8_t moduleIdx) :
     Page(ICON_STATS_ANALOGS)
 {
@@ -216,7 +210,6 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
 
     // Channel value
     auto edit = new ChannelFSCombo(line, ch, -lim, lim);
-    lv_obj_add_event_cb(btn->getLvObj(), set_failsafe, LV_EVENT_CLICKED, edit);
     
     // Channel bargraph
     auto bar = new ChannelFailsafeBargraph(line, rect_t{}, moduleIdx, ch);
