@@ -218,10 +218,10 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW               "GyrX","GyrY",
+#if defined(IMU)
+  #define TR_IMU_VSRCRAW               "TltX","TltY",
 #else
-  #define TR_GYR_VSRCRAW
+  #define TR_IMU_VSRCRAW
 #endif
 
 #if defined(HELI)
@@ -247,7 +247,6 @@
 #define TR_VFORMULAS                   "加算値","平均値","最小値","最大値","乗算値","合計値","セル","消費量","距離"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "最低値","1","2","3","4","5","6","最高値","差分"
-#define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "標準","極小","小","中","2倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (中央)","= (全体)"
 
@@ -377,9 +376,9 @@
 #define TR_BEEP_PITCH                  "ビープ音のピッチ"
 #define TR_HAPTIC_LABEL                "バイブ"
 #define TR_STRENGTH                    "強さ"
-#define TR_GYRO_LABEL                  "ジャイロ"
-#define TR_GYRO_OFFSET                 "オフセット"
-#define TR_GYRO_MAX                    "最大"
+#define TR_IMU_LABEL                   "ジャイロ"
+#define TR_IMU_OFFSET                  "オフセット"
+#define TR_IMU_MAX                     "最大"
 #define TR_CONTRAST                    "コントラスト"
 #define TR_ALARMS_LABEL                "アラーム"
 #define TR_BATTERY_RANGE               TR("Batt. range", "バッテリーメーター幅")
@@ -1043,7 +1042,7 @@
 #define TR_LOGS                        "ログ"
 #define TR_OPTIONS                     "オプション"
 #define TR_FIRMWARE_OPTIONS            "ファームウェアオプション"
-
+#define TR_IMU                         "IMU"
 #define TR_ALTSENSOR                   "Altセンサー"
 #define TR_CELLSENSOR                  "セルセンサー"
 #define TR_GPSSENSOR                   "GPSセンサー"
