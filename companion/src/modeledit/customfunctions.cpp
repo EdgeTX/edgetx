@@ -512,7 +512,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         fswtchParam[i]->setMinimum(1);
         fswtchParam[i]->setMaximum(model->getCustomScreensCount());
         fswtchParam[i]->setSingleStep(1);
-        if (modified) cfn.param = fswtchParam[i]->value();
+        cfn.param = fswtchParam[i]->value();
         fswtchParam[i]->setValue(cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
