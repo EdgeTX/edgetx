@@ -519,7 +519,7 @@ extern uint8_t currentBacklightBright;
 void perMain();
 void per10ms();
 
-getvalue_t getValue(mixsrc_t i);
+getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
 #define GETSWITCH_MIDPOS_DELAY   1
 bool getSwitch(swsrc_t swtch, uint8_t flags=0);

@@ -297,10 +297,11 @@ int16_t applyLimits(uint8_t channel, int32_t value)
 }
 
 // TODO same naming convention than the drawSource
-
-getvalue_t getValue(mixsrc_t i)
+// *valid added to return status to Lua for invalid sources
+getvalue_t getValue(mixsrc_t i, bool* valid)
 {
   if (i == MIXSRC_NONE) {
+    if (valid != nullptr) *valid = false;
     return 0;
   }
   else if (i <= MIXSRC_LAST_INPUT) {
@@ -312,6 +313,7 @@ getvalue_t getValue(mixsrc_t i)
     div_t qr = div(i-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
     return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
 #else
+    if (valid != nullptr) *valid = false;
     return 0;
 #endif
   }
@@ -338,6 +340,7 @@ getvalue_t getValue(mixsrc_t i)
 #if defined(HELI)
     return cyc_anas[i - MIXSRC_CYC1];
 #else
+    if (valid != nullptr) *valid = false;
     return 0;
 #endif
   }
@@ -355,6 +358,7 @@ getvalue_t getValue(mixsrc_t i)
       return (switchState(3*sw) ? -1024 : (IS_CONFIG_3POS(sw) && switchState(3*sw+1) ? 0 : 1024));
     }
     else {
+      if (valid != nullptr) *valid = false;
       return 0;
     }
   }
@@ -368,6 +372,7 @@ getvalue_t getValue(mixsrc_t i)
       return (switchState(3*sw) ? -1024 : (IS_CONFIG_3POS(sw) && switchState(3*sw+1) ? 0 : 1024));
     }
     else {
+      if (valid != nullptr) *valid = false;
       return 0;
     }
   }
@@ -400,6 +405,7 @@ getvalue_t getValue(mixsrc_t i)
 #if defined(GVARS)
     return GVAR_VALUE(i - MIXSRC_GVAR1, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_GVAR1));
 #else
+    if (valid != nullptr) *valid = false;
     return 0;
 #endif
   }
@@ -412,6 +418,7 @@ getvalue_t getValue(mixsrc_t i)
 #if defined(RTCLOCK)
     return (g_rtcTime % SECS_PER_DAY) / 60; // number of minutes from midnight
 #else
+    if (valid != nullptr) *valid = false;
     return 0;
 #endif
   }
@@ -421,6 +428,7 @@ getvalue_t getValue(mixsrc_t i)
 
   else if (i <= MIXSRC_LAST_TELEM) {
     if (IS_FAI_FORBIDDEN(i)) {
+      if (valid != nullptr) *valid = false;
       return 0;
     }
     i -= MIXSRC_FIRST_TELEM;
@@ -435,7 +443,10 @@ getvalue_t getValue(mixsrc_t i)
         return telemetryItem.value;
     }
   }
-  else return 0;
+  else {
+    if (valid != nullptr) *valid = false;
+    return 0;
+  }
 }
 
 void evalInputs(uint8_t mode)
