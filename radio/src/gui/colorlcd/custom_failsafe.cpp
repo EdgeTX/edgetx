@@ -148,6 +148,8 @@ public:
 
 class ChannelFSCombo : public FormGroup
 {
+  ChannelFailsafeEdit* edit = nullptr;
+  
 public:
   ChannelFSCombo(Window* parent, uint8_t ch, int vmin, int vmax) :
     FormGroup(parent, rect_t{})
@@ -156,7 +158,7 @@ public:
     lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
-    auto edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
+    edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
     auto btn = new TextButton(this, rect_t{}, LV_SYMBOL_SETTINGS, [=]() {
       edit->toggle();
       return 0;
@@ -164,6 +166,8 @@ public:
     btn->padTop(lv_dpx(4));
     btn->padBottom(lv_dpx(4));
   }
+
+  void update() { edit->update(); }
 };
 
 
@@ -174,8 +178,8 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 static void set_failsafe(lv_event_t* e)
 {
-  auto edit = (NumberEdit*)lv_event_get_user_data(e);
-  if (edit) edit->update();
+  auto combo = (ChannelFSCombo*)lv_event_get_user_data(e);
+  if (combo) combo->update();
 }
 
 FailSafePage::FailSafePage(uint8_t moduleIdx) :
@@ -215,8 +219,8 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
     new StaticText(line, rect_t{}, ch_label, 0, COLOR_THEME_PRIMARY1);
 
     // Channel value
-    auto edit = new ChannelFSCombo(line, ch, -lim, lim);
-    lv_obj_add_event_cb(btn->getLvObj(), set_failsafe, LV_EVENT_CLICKED, edit);
+    auto combo = new ChannelFSCombo(line, ch, -lim, lim);
+    lv_obj_add_event_cb(btn->getLvObj(), set_failsafe, LV_EVENT_CLICKED, combo);
     
     // Channel bargraph
     auto bar = new ChannelFailsafeBargraph(line, rect_t{}, moduleIdx, ch);
