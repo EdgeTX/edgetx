@@ -157,8 +157,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
     if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
       return QString("%1").arg(param);
-    } else if (func == FuncSetScreen)
-      return QString("%1").arg(param);
+    }
     else {
       return paramarm;
     }
