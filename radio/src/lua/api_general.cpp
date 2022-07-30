@@ -655,7 +655,7 @@ While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
 */
 static int luaGetValue(lua_State * L)
 {
-  int src = 0;
+  int src = MIXSRC_NONE;
   if (lua_isnumber(L, 1)) {
     src = luaL_checkinteger(L, 1);
   }
@@ -670,6 +670,136 @@ static int luaGetValue(lua_State * L)
   }
   luaGetValueAndPush(L, src);
   return 1;
+}
+
+/*luadoc
+@function getSourceValue(source)
+
+Returns the value of a source. Superseeds getValue.
+
+The list of fixed sources:
+
+| OpenTX Version | Radio |
+|----------------|-------|
+| 2.0 | [all](http://downloads-20.open-tx.org/firmware/lua_fields.txt) |
+| 2.1 | [X9D and X9D+](http://downloads-21.open-tx.org/firmware/lua_fields_taranis.txt), [X9E](http://downloads-21.open-tx.org/firmware/lua_fields_taranis_x9e.txt) |
+| 2.2 | [X9D and X9D+](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x9e.txt), [Horus](http://downloads.open-tx.org/2.2/release/firmware/lua_fields_x12s.txt) |
+| 2.3 | [X9D and X9D+](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9d.txt), [X9E](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x9e.txt), [X7](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x7.txt), [Horus](http://downloads.open-tx.org/2.3/release/firmware/lua_fields_x12s.txt) |
+
+In OpenTX 2.1.x the telemetry sources no longer have a predefined name.
+To get a telemetry value simply use it's sensor name. For example:
+ * Altitude sensor has a name "Alt"
+ * to get the current altitude use the source "Alt"
+ * to get the minimum altitude use the source "Alt-", to get the maximum use "Alt+"
+
+@param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
+
+@retval value current source value (number).
+
+value is nil for non-existing sources and all non-allowed sensors while FAI MODE is active
+
+value is a table for GPS position:
+ * `lat` (number) latitude, positive is North
+ * `lon` (number) longitude, positive is East
+ * `pilot-lat` (number) pilot latitude, positive is North
+ * `pilot-lon` (number) pilot longitude, positive is East
+
+value is a table for date/time, see getDateTime()
+
+value is a table for battery cells(except where no cells were detected in which case the returned value is 0):
+ * table has one item for each detected cell:
+  * key (number) cell number (1 to number of cells)
+  * value (number) current cell voltage
+
+
+@retval status is false for telemetry sources when the telemetry stream is not received, or value is nil. Otherwise, it is true
+
+@status current Introduced in 2.0.0, changed in 2.1.0, `Cels+` and
+`Cels-` added in 2.1.9
+
+@notice Getting a value by its numerical identifier is much faster than by its name.
+While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
+`Cels-` will return a single value - the maximum or minimum Cels value.
+*/
+
+static int luaGetSourceValue(lua_State * L)
+{
+  // Get source id
+  int src = MIXSRC_NONE;
+  if (lua_isnumber(L, 1)) {
+    src = luaL_checkinteger(L, 1);
+  }
+  else {
+    // convert from field name to its id
+    const char *name = luaL_checkstring(L, 1);
+    LuaField field;
+    bool found = luaFindFieldByName(name, field);
+    if (found) {
+      src = field.id;
+    }
+  }
+
+  // Get source value. Ignored for GPS, DATETIME, and CELLS
+  bool valid = true;
+  getvalue_t value = getValue(src, &valid);
+
+  if (!valid)
+  {
+    lua_pushnil(L);
+    lua_pushboolean(L, false);
+    return 2;
+  }
+
+  if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
+    div_t qr = div(src-MIXSRC_FIRST_TELEM, 3);
+    // telemetry values
+    if (telemetryItems[qr.quot].isAvailable()) {
+      TelemetrySensor & telemetrySensor = g_model.telemetrySensors[qr.quot];
+      switch (telemetrySensor.unit) {
+        case UNIT_GPS:
+          luaPushLatLon(L, telemetrySensor, telemetryItems[qr.quot]);
+          break;
+        case UNIT_DATETIME:
+          luaPushTelemetryDateTime(L, telemetrySensor, telemetryItems[qr.quot]);
+          break;
+        case UNIT_TEXT:
+          lua_pushstring(L, telemetryItems[qr.quot].text);
+          break;
+        case UNIT_CELLS:
+          if (qr.rem == 0) {
+            // Return nil if there are no cells
+            if (telemetryItems[qr.quot].cells.count == 0) {
+              lua_pushnil(L);
+              lua_pushboolean(L, false);
+              return 2;
+            }
+            luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
+            break;
+          }
+          // deliberate no break here to properly return `Cels-` and `Cels+`
+        default:
+          if (telemetrySensor.prec > 0)
+            lua_pushnumber(L, float(value)/telemetrySensor.getPrecDivisor());
+          else
+            lua_pushinteger(L, value);
+          break;
+      }
+      lua_pushboolean(L, TELEMETRY_STREAMING());
+    }
+    else { // telemetry is not available
+      lua_pushnil(L);
+      lua_pushboolean(L, false);
+    }
+  }
+  else if (src == MIXSRC_TX_VOLTAGE) {
+    lua_pushnumber(L, float(value) * 0.1f);
+    lua_pushboolean(L, true);
+  }
+  else {
+    lua_pushinteger(L, value);
+    lua_pushboolean(L, true);
+  }
+  return 2;
 }
 
 /*luadoc
@@ -2481,9 +2611,11 @@ const luaL_Reg opentxLib[] = {
   { "getRotEncMode", luaGetRotEncMode },
   { "getValue", luaGetValue },
   { "getOutputValue", luaGetOutputValue },
+  { "getSourceValue", luaGetSourceValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },
+  { "getSourceInfo", luaGetFieldInfo },
   { "getFlightMode", luaGetFlightMode },
   { "playFile", luaPlayFile },
   { "playNumber", luaPlayNumber },
