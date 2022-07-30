@@ -36,23 +36,36 @@ void MenuBody::onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* d
 void MenuBody::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
   lv_obj_t* icon = lines[row].getIcon();
-  if (!icon) return;
+  if (icon) {
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+    
+    lv_img_dsc_t* img = lv_canvas_get_img(icon);
+    lv_area_t coords;
 
-  lv_draw_img_dsc_t img_dsc;
-  lv_draw_img_dsc_init(&img_dsc);
-  
-  lv_img_dsc_t* img = lv_canvas_get_img(icon);
-  lv_area_t coords;
+    lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
 
-  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+    lv_coord_t cell_left = lv_obj_get_style_pad_left(lvobj, LV_PART_ITEMS);
+    coords.x1 = dsc->draw_area->x1 + cell_left;
+    coords.x2 = coords.x1 + img->header.w - 1;
+    coords.y1 = dsc->draw_area->y1 + (area_h - img->header.h) / 2;
+    coords.y2 = coords.y1 + img->header.h - 1;
+    
+    lv_draw_img(dsc->draw_ctx, &img_dsc, &coords, img);
+  }
 
-  lv_coord_t cell_left = lv_obj_get_style_pad_left(lvobj, LV_PART_ITEMS);
-  coords.x1 = dsc->draw_area->x1 + cell_left;
-  coords.x2 = coords.x1 + img->header.w - 1;
-  coords.y1 = dsc->draw_area->y1 + (area_h - img->header.h) / 2;
-  coords.y2 = coords.y1 + img->header.h - 1;
-  
-  lv_draw_img(dsc->draw_ctx, &img_dsc, &coords, img);
+  if(lines[row].isChecked != nullptr && 
+     lines[row].isChecked()) {    
+    lv_area_t coords;
+    lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
+    lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
+    lv_coord_t font_h = getFontHeight(FONT(STD));
+    coords.x1 = dsc->draw_area->x2 - cell_right - font_h;
+    coords.x2 = coords.x1 + font_h;
+    coords.y1 = dsc->draw_area->y1 + (area_h - font_h) / 2;
+    coords.y2 = coords.y1 + font_h - 1;
+    lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, LV_SYMBOL_OK, nullptr);
+  }
 }
 
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
@@ -109,8 +122,10 @@ void MenuBody::onPress(size_t index)
     if (menu->multiple) {
       if (selectedIndex == (int)index)
         lines[index].onPress();
-      else
+      else {
         setIndex(index);
+        lines[index].onPress();
+      }
     } else {
       // delete menu first to avoid
       // focus issues with onPress()
