@@ -429,10 +429,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
               int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
-              ViewMain::instance()->setCurrentMainView((screenNumber));
+              newActiveFunctions |= (1u << FUNC_SET_SCREEN);
+              ViewMain::instance()->setRequestedScreenNumber(screenNumber);
             }
-#endif
             break;
+#endif
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
