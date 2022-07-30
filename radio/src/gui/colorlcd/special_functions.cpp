@@ -562,9 +562,6 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_SET_SCREEN:
-        CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
-        CFN_PARAM(cfn) = (int16_t)min(
-            CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
         dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
