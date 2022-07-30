@@ -245,6 +245,9 @@ class SpecialFunctionEditPage : public Page
       case FUNC_SET_SCREEN:
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE,
                        0, COLOR_THEME_PRIMARY1);
+        CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
+        CFN_PARAM(cfn) =
+            (int16_t)min(CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
         new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
                        ViewMain::instance()->getMainViewsCount(),
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
