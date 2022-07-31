@@ -1262,7 +1262,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelFilteredModels = new FilteredItemModelFactory();
 
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                               RawSwitch::AllSwitchContexts),
+                                                               RawSwitch::MixesContext),
                                          FIM_TIMERSWITCH);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
 
