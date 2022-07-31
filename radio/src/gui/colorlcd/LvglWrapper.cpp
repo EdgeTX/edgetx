@@ -31,9 +31,12 @@ LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
-static lv_indev_drv_t rotaryDriver;
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
+static lv_indev_drv_t rotaryDriver;
 static lv_indev_t* rotaryDevice = nullptr;
+#endif
+
 static lv_indev_t* keyboardDevice = nullptr;
 static lv_indev_t* touchDevice = nullptr;
 
