@@ -344,6 +344,11 @@ if(SDCARD)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
 endif()
 
+if(SPI_FLASH)
+  add_definitions(-DSPI_FLASH)
+  set(SRC ${SRC} VirtualFS.cpp )
+endif()
+
 if(SHUTDOWN_CONFIRMATION)
   add_definitions(-DSHUTDOWN_CONFIRMATION)
 endif()
