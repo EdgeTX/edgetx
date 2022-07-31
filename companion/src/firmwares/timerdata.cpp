@@ -98,13 +98,6 @@ void TimerData::modeChanged()
     swtch = RawSwitch(SWITCH_TYPE_NONE);
 }
 
-void TimerData::showElapsedChanged()
-{
-  if (showElapsed != TIMER_SHOW_REMAINING) 
-    showElapsed = TIMER_SHOW_ELAPSED;
-  else
-    showElapsed = TIMER_SHOW_REMAINING;
-}
 //  static
 QString TimerData::countdownBeepToString(const int value)
 {

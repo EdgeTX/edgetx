@@ -59,7 +59,9 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
 
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
-  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onValueChanged(int)));
+  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=](const int val) {
+    update();
+  });
 
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
@@ -89,7 +91,6 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
 
   ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
   ui->showElapsed->setField(timer.showElapsed, this);
-  connect(ui->mode, SIGNAL(currentDataChanged(int)), this, SLOT(onShowElapsedChanged(int)));
 
   disableMouseScrolling();
   QWidget::setTabOrder(prevFocus, ui->name);
@@ -122,7 +123,7 @@ void TimerPanel::update()
   ui->minuteBeep->updateValue();
   ui->countdownStart->updateValue();
   ui->showElapsed->updateValue();
-  
+
   if (timer.mode != TimerData::TIMERMODE_OFF)
     ui->swtch->setEnabled(true);
   else
@@ -142,12 +143,13 @@ void TimerPanel::update()
     ui->persistentValue->setText(timer.pvalueToString());
   }
 
-  if(timer.val) {
+  if (timer.val) {
     ui->showElapsed->setEnabled(true);
-  } else {
+  }
+  else {
     ui->showElapsed->setEnabled(false);
   }
-  
+
   lock = false;
 }
 
@@ -191,12 +193,6 @@ void TimerPanel::onCountdownBeepChanged(int index)
 void TimerPanel::onModeChanged(int index)
 {
   timer.modeChanged();
-  update();
-}
-
-void TimerPanel::onShowElapsedChanged(int index)
-{
-  timer.showElapsedChanged();
   update();
 }
 

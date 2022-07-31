@@ -109,8 +109,7 @@ class TimerData {
 
     void countdownBeepChanged();
     void modeChanged();
-    void showElapsedChanged();
-    
+
     static QString countdownBeepToString(const int value);
     static QString countdownStartToString(const int value);
     static QString persistentToString(const int value, const bool verbose = true);

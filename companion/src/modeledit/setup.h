@@ -54,7 +54,6 @@ class TimerPanel : public ModelPanel
     void onItemModelUpdateComplete();
     void onCountdownBeepChanged(int index);
     void onModeChanged(int index);
-    void onShowElapsedChanged(int index);
 
   signals:
     void nameChanged();
@@ -224,7 +223,7 @@ class SetupPanel : public ModelPanel
     ModulePanel * modules[CPN_MAX_MODULES + 1];
     TimerPanel * timers[CPN_MAX_TIMERS];
     FunctionSwitchesPanel * funcswitches;
-    
+
     void updateStartupSwitches();
     void updatePotWarnings();
     void updateBeepCenter();
