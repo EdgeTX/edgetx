@@ -31,7 +31,7 @@ void ViewTextWindow::extractNameSansExt()
   uint8_t extLength;
 
   const char *ext =
-      getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
+      VirtualFS::getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
   extension = std::string(ext);
   if (nameLength > TEXT_FILENAME_MAXLEN) nameLength = TEXT_FILENAME_MAXLEN;
 
@@ -42,7 +42,7 @@ void ViewTextWindow::extractNameSansExt()
 
 void ViewTextWindow::buildBody(Window *window)
 {
-  FILINFO info;
+  VfsFileInfo info;
 
   if (buffer) {
     free(buffer);
@@ -50,18 +50,20 @@ void ViewTextWindow::buildBody(Window *window)
     bufSize = 0;
   }
 
-  auto res = f_stat((TCHAR *)fullPath.c_str(), &info);
-  if (res == FR_OK) {
-    fileLength = int(info.fsize);
+  VirtualFS &vfs = VirtualFS::instance();
+  auto res = vfs.fstat(fullPath, info);
+  if (res == VfsError::OK) {
+    int fsize = int(info.getSize());
+    fileLength = int(fsize);
     bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
 
     buffer = (char *)malloc(bufSize);
     if (buffer) {
       offset =
-          std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
+          std::max(int(openFromEnd ? int(fsize) - bufSize + 1 : 0), 0);
       TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
             int(info.fsize) - bufSize + 1);
-      if (sdReadTextFileBlock(bufSize, offset) == FR_OK) {
+      if (sdReadTextFileBlock(fbufSize, offset) == VritualFS::OK) {
         auto obj = window->getLvObj();
         lv_obj_add_flag(
             obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
@@ -88,23 +90,24 @@ void ViewTextWindow::buildBody(Window *window)
   }
 }
 
-FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
+VfsError ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
                                             const uint32_t offset)
 {
-  FIL file;
+  VirtualFS &vfs = VirtualFS::instance();
+  VfsFile file;
   char escape_chars[4];
   int escape = 0;
 
-  auto res = f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
-  if (res == FR_OK) {
-    res = f_lseek(&file, offset);
-    if (res == FR_OK) {
+  auto res = vfs.openFile(file, filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  if (res == VfsError::OK) {
+    res = file.lseek(offset);
+    if (res == VfsError::OK) {
       UINT br;
       char c;
       char *ptr = buffer;
       for (int i = 0; i < (int)bufSize; i++) {
-        res = f_read(&file, &c, 1, &br);
-        if (res == FR_OK && br == 1) {
+        res = file.read(&c, 1, br);
+        if (res == VfsError::OK && br == 1) {
           if (c == '\\' && escape == 0) {
             escape = 1;
             continue;
@@ -146,7 +149,7 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
       }
       *ptr = '\0';
     }
-    f_close(&file);
+    file.close();
   }
   return res;
 }
@@ -197,7 +200,7 @@ bool openNotes(const char buf[], std::string modelNotesName)
 {
   std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
 
-  if (isFileAvailable(modelNotesName.c_str())) {
+  if (VirtualFS::instance().isFileAvailable(modelNotesName.c_str())) {
     new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
     return true;
   } else {
