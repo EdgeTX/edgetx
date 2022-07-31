@@ -727,7 +727,7 @@
 #endif // HARDWARE_TOUCH
 
 // First I2C Bus
-#if defined(RADIO_T18)
+#if defined(RADIO_T18) || defined(RADIO_T16)
   #define I2C_B1                          I2C3
   #define I2C_B1_GPIO                     GPIOH
   #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
