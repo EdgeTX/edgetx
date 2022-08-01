@@ -3349,7 +3349,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   if (version >= 220) {
     internalField.Append(new SignedField<2>(this, generalData.uartSampleMode, "Uart Sample Mode"));
-    internalField.Append(new UnsignedField<2>(this, generalData.rotEncDirection));
+    internalField.Append(new UnsignedField<2>(this, generalData.rotEncMode));
     //internalField.Append(new SpareBitsField<6>(this));  // may need padding to end of 8 byte boundary
   }
 }

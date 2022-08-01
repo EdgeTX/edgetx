@@ -439,10 +439,11 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
       }
 
       do {
-        if (g_eeGeneral.rotEncDirection >= 2) {
-            DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        if (g_eeGeneral.rotEncMode >=
+            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+          DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         } else {
-            INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+          INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         }
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
@@ -462,20 +463,22 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
           DEC(l_posHorz, 0, maxcol);
           break;
         }
-      }
-      else if (l_posHorz > 0) {
+      } else if (l_posHorz > 0) {
         l_posHorz--;
         break;
-      }
-      else {
-        l_posHorz = g_eeGeneral.rotEncDirection == 3 ? 0 : 0xff;
+      } else {
+        l_posHorz =
+            g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT
+                ? 0
+                : 0xff;
       }
 
       do {
-        if (g_eeGeneral.rotEncDirection >= 2) {
-            INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        if (g_eeGeneral.rotEncMode >=
+            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+          INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         } else {
-            DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+          DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         }
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 

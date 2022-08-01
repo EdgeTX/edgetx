@@ -97,7 +97,7 @@ const char * runPopupMenu(event_t event)
   event_t eventTemp = event;
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
-  if (g_eeGeneral.rotEncDirection >= 2) {
+  if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) {
     if (eventTemp == EVT_ROTARY_LEFT) {
       eventTemp = EVT_ROTARY_RIGHT;
     } else if (eventTemp == EVT_ROTARY_RIGHT) {

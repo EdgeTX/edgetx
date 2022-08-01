@@ -219,9 +219,9 @@
 #define TR_ON_ONE_SWITCHES     "ON","One"
 
 #if defined(COLORLCD)
-  #define TR_INVERT_ROTARY_OPT         "OFF","ON"
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
 #else
-  #define TR_INVERT_ROTARY_OPT         "OFF","ON","V-N","V-A"
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -753,7 +753,7 @@
 #define TR_DATE                        "Fecha"
 #define TR_MONTHS                      { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_INVERT_ROTARY               "Invert Rotary"
+#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "MONITOR CANALES"
 #define TR_MIXERS_MONITOR              "MONITOR MEZCLAS"
 #define TR_PATH_TOO_LONG               "Path muy largo"

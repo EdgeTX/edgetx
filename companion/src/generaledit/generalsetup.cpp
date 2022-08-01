@@ -130,7 +130,7 @@ ui(new Ui::GeneralSetup)
     ui->invertRotary_label->hide();
   }
   else {
-    populateInvertRotaryCB();
+    populateRotEncModeCB();
   }
 
   if (!firmware->getCapability(HasPxxCountry)) {
@@ -483,10 +483,10 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
   emit modified();
 }
 
-void GeneralSetupPanel::populateInvertRotaryCB()
+void GeneralSetupPanel::populateRotEncModeCB()
 {
-  QComboBox * b = ui->invertRotary_CB;
-  QString strings[] = { tr("OFF"), tr("ON"), tr("V-N"), tr("V-A") };
+  QComboBox * b = ui->rotEncMode_CB;
+  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate") };
   int itemCount = 4;
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
@@ -497,13 +497,13 @@ void GeneralSetupPanel::populateInvertRotaryCB()
   for (uint8_t i=0; i < itemCount; i++) {
     b->addItem(strings[i], 0);
   }
-  b->setCurrentIndex(generalSettings.rotEncDirection);
+  b->setCurrentIndex(generalSettings.rotEncMode);
 }
 
-void GeneralSetupPanel::on_invertRotary_CB_currentIndexChanged(int index)
+void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
 {
   if (!lock) {
-    generalSettings.rotEncDirection = index;
+    generalSettings.rotEncMode = index;
     emit modified();
   }
 }

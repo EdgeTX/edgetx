@@ -568,19 +568,19 @@ static int luaGetRotEncSpeed(lua_State * L)
 }
 
 /*luadoc
-@function getRotEncInvert()
+@function getRotEncMode()
 
-Return rotary encoder inverted status
+Return rotary encoder mode
 
-@retval number in list: OFF = 0, ON = 1, V-N = 2, V-A = 3
+@retval number in list: Normal = 0, Both V and H inverted = 1, V-N = 2, V-A = 3
   return 0 on radio without rotary encoder
 
 @status current Introduced in 2.8.0
 */
-static int luaGetRotEncInvert(lua_State * L)
+static int luaGetRotEncMode(lua_State * L)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  lua_pushunsigned(L, g_eeGeneral.rotEncDirection);
+  lua_pushunsigned(L, g_eeGeneral.rotEncMode);
 #else
   lua_pushunsigned(L, 0);
 #endif
@@ -2453,7 +2453,7 @@ const luaL_Reg opentxLib[] = {
   { "getGeneralSettings", luaGetGeneralSettings },
   { "getGlobalTimer", luaGetGlobalTimer },
   { "getRotEncSpeed", luaGetRotEncSpeed },
-  { "getRotEncInvert", luaGetRotEncInvert },
+  { "getRotEncMode", luaGetRotEncMode },
   { "getValue", luaGetValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },

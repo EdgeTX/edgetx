@@ -240,9 +240,9 @@
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
 
 #if defined(COLORLCD)
-  #define TR_INVERT_ROTARY_OPT          "OFF","ON"
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted"
 #else
-  #define TR_INVERT_ROTARY_OPT          "OFF","ON","V-N","V-A"
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
