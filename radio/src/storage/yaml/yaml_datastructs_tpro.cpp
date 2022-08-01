@@ -412,8 +412,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 96 ),
   YAML_PADDING( 144 ),
   YAML_STRING("ownerRegistrationID", 8),
+  YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
+  YAML_UNSIGNED( "rotEncMode", 2 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
-  YAML_UNSIGNED( "rotEncDirection", 2 ),
   YAML_PADDING( 3 ),
   YAML_PADDING( 1 ),
   YAML_END
