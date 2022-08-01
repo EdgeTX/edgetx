@@ -139,7 +139,9 @@ class BaseNumberEdit: public FormField
 
     int32_t getValue() const
     {
-      return (editMode && !instantChange) ? currentValue : _getValue();
+      return (editMode && !instantChange) ? currentValue
+             : _getValue != nullptr       ? _getValue()
+                                          : 0;
     }
 
     void setEditMode(bool newEditMode) override
@@ -148,10 +150,10 @@ class BaseNumberEdit: public FormField
       FormField::setEditMode(newEditMode);
       if (!instantChange) {
         if (!previousEditMode && newEditMode) {
-          currentValue = _getValue();
+          if (_getValue != nullptr) currentValue = _getValue();
         }
         else if (previousEditMode && !newEditMode) {
-          _setValue(currentValue);
+          if (_setValue != nullptr) _setValue(currentValue);
         }
       }
     }
@@ -164,6 +166,7 @@ class BaseNumberEdit: public FormField
 
     virtual void update()
     {
+      if (_getValue == nullptr) return;
       auto newValue = _getValue();
       if (newValue != currentValue) {
         currentValue = newValue;
