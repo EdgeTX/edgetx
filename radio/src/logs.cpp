@@ -225,7 +225,7 @@ void writeHeader()
 
 #if defined(PCBFRSKY) || defined(PCBNV14)
   for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW[i] + 1;
+    const char * p = STR_VSRCRAW[i] + 2;
     size_t len = strlen(p);
     for (uint8_t j=0; j<len; ++j) {
       if (!*p) break;
