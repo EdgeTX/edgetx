@@ -155,7 +155,7 @@ void menuModelLimitsOne(event_t event)
 
       case ITEM_OUTPUTONE_DIR:
       {
-        lcdDrawTextAlignedLeft(y, TR_LIMITS_HEADERS_DIRECTION);
+        lcdDrawTextAlignedLeft(y, STR_LIMITS_HEADERS_DIRECTION);
         lcdDrawTextAtIndex(LIMITS_ONE_2ND_COLUMN, y, STR_MMMINV, ld->revert, attr);
         if (active) {
           CHECK_INCDEC_MODELVAR_ZERO(event, ld->revert, 1);

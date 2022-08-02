@@ -118,6 +118,7 @@ extern const char* STR_VTRIMINC[];
 extern const char* STR_VDISPLAYTRIMS[];
 extern const char* STR_RETA123[];
 
+extern const char* STR_TIMER_DIR[];
 
 extern const char* STR_VBLMODE[];
 extern const char* STR_VCURVEFUNC[];
@@ -675,6 +676,7 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+extern const char STR_LIMITS_HEADERS_DIRECTION[];
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];

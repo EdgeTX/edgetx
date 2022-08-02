@@ -225,6 +225,12 @@ void editTimerStart(int timerIdx, coord_t y, LcdFlags attr, event_t event)
             menuHorizontalPosition == 0 ? attr : 0,
             menuHorizontalPosition == 1 ? attr : 0);
 
+  if (g_model.timers[timerIdx].start) {
+    lcdDrawTextAtIndex(MODEL_SETUP_3RD_COLUMN, y, STR_TIMER_DIR,
+                       g_model.timers[timerIdx].showElapsed,
+                       menuHorizontalPosition == 2 ? attr : 0);
+  }
+
   if (attr && menuHorizontalPosition < 0) {
     lcdDrawFilledRect(MODEL_SETUP_2ND_COLUMN - 1, y - 1, 4 * FW, FH + 1);
   }
@@ -241,6 +247,12 @@ void editTimerStart(int timerIdx, coord_t y, LcdFlags attr, event_t event)
         timer->start -= qr.rem;
         if ((int16_t)timer->start < 0) timer->start = 0;
         if ((int16_t)timer->start > 5999) timer->start = 32399;  // 8:59:59
+        break;
+      case 2:
+        if (g_model.timers[timerIdx].start) {
+            g_model.timers[timerIdx].showElapsed = checkIncDecModel(
+                event, g_model.timers[timerIdx].showElapsed, 0, 1);
+        }
         break;
     }
   }
@@ -289,7 +301,10 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #endif
 
 #define TIMER_ROWS(x)                                                  \
-  1 | NAVIGATION_LINE_BY_LINE, 0, 1 | NAVIGATION_LINE_BY_LINE, 0, 0,   \
+  1 | NAVIGATION_LINE_BY_LINE, 0,                                      \
+      (uint8_t)(((g_model.timers[x].start) ? 2 : 1) |      \
+          NAVIGATION_LINE_BY_LINE),                                     \
+      0, 0,                                                            \
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
                                                           : (uint8_t)0
 
@@ -520,17 +535,22 @@ void menuModelSetup(event_t event)
         editTimerStart(0, y, attr, event);
         break;
 
-      case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
-        g_model.timers[0].minuteBeep = editCheckBox(g_model.timers[0].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_MINUTEBEEP, attr, event);
-        break;
+          case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
+            g_model.timers[0].minuteBeep = editCheckBox(
+                g_model.timers[0].minuteBeep, MODEL_SETUP_2ND_COLUMN, y,
+                INDENT TR_MINUTEBEEP, attr, event);
+            break;
 
-      case ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP:
-        editTimerCountdown(0, y, attr, event);
-        break;
+          case ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP:
+            editTimerCountdown(0, y, attr, event);
+            break;
 
-      case ITEM_MODEL_SETUP_TIMER1_PERSISTENT:
-        g_model.timers[0].persistent = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT, g_model.timers[0].persistent, 0, 2, attr, event);
-        break;
+          case ITEM_MODEL_SETUP_TIMER1_PERSISTENT:
+            g_model.timers[0].persistent = editChoice(
+                MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT,
+                g_model.timers[0].persistent, 0, 2, attr, event);
+            break;
+
 
 #if TIMERS > 1
       case ITEM_MODEL_SETUP_TIMER2:
@@ -576,7 +596,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:
-        g_model.timers[2].minuteBeep = editCheckBox(g_model.timers[2].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_MINUTEBEEP, attr, event);
+        g_model.timers[2].minuteBeep =
+            editCheckBox(g_model.timers[2].minuteBeep, MODEL_SETUP_2ND_COLUMN,
+                         y, INDENT TR_MINUTEBEEP, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP:
@@ -584,7 +606,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_PERSISTENT:
-        g_model.timers[2].persistent = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT, g_model.timers[2].persistent, 0, 2, attr, event);
+        g_model.timers[2].persistent = editChoice(
+            MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT,
+            g_model.timers[2].persistent, 0, 2, attr, event);
         break;
 #endif
 
