@@ -276,7 +276,7 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_VERT ? steps *= -1
+  (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH ? steps *= -1
                                                              : steps);
   ROTARY_ENCODER_NAVIGATION_VALUE += steps * ROTARY_ENCODER_GRANULARITY;
 #else
