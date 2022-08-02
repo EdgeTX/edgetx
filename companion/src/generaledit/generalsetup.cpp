@@ -126,8 +126,8 @@ ui(new Ui::GeneralSetup)
   }
 
   if (!firmware->getCapability(RotaryEncoderNavigation)) {
-    ui->invertRotary_CB->hide();
-    ui->invertRotary_label->hide();
+    ui->rotEncMode_CB->hide();
+    ui->rotEncMode_label->hide();
   }
   else {
     populateRotEncModeCB();
