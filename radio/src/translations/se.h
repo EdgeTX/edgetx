@@ -234,7 +234,6 @@
 #endif
 
 #define TR_ROTARY_ENCODERS
-#define TR_INVERT_ROTARY               "Invertera rullhjul"
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
@@ -782,6 +781,7 @@
 #define TR_DATE                         "Datum"
 #define TR_MONTHS                       { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER               "R.H."
+#define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR             "Kanalöversikt"
 #define TR_MIXERS_MONITOR               "MIXERSKÄRM"
 #define TR_PATH_TOO_LONG                "För lång sökväg"
