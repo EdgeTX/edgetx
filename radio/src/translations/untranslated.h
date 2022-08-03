@@ -160,7 +160,7 @@
 #define TR_XJT_ACCST_RF_PROTOCOLS      "OFF\0""D16\0""D8\0 ""LR12"
 
 #define LEN_ISRM_RF_PROTOCOLS          "\006"
-#define TR_ISRM_RF_PROTOCOLS           "ACCESS""D16\0  ""LR12"
+#define TR_ISRM_RF_PROTOCOLS           "OFF\0  ""ACCESS""D16\0  ""LR12"
 
 #define LEN_R9M_PXX2_RF_PROTOCOLS      "\006"
 #define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS""FCC\0  ""EU\0   ""Flex"
