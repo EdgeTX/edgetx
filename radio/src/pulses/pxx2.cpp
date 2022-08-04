@@ -768,14 +768,15 @@ static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_
   uint8_t crcHigh = frame[frame_len + 1];
   uint8_t crcLow = frame[frame_len + 2];
   
-  if (((crc >> 8) != crcHigh) || ((crc & 0xFF) == crcLow)) {
-    TRACE("[PXX2] crc error");
+  if (crc != (crcHigh << 8 | crcLow)) {
+    TRACE("[PXX2] crc error [%02x/%02x]", crc, crcHigh << 8 | crcLow);
     *len = 0;
     return;
   }
 
   auto state = (PXX2State*)context;
   processPXX2Frame(state->module, frame);
+  *len = 0;
 }
 
 
