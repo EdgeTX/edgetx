@@ -990,7 +990,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS : STR_INTERNAL_MODULE_PROTOCOLS,moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType: g_model.moduleData[moduleIdx].type,menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, 1+g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleISRM(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleDSM2(moduleIdx))
