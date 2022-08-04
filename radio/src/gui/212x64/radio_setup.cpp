@@ -95,7 +95,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
-  CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_INVERSE)
+  CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
   ITEM_RADIO_SETUP_MAX
@@ -124,7 +124,7 @@ void menuRadioSetup(event_t event)
 #endif
 
   uint8_t old_editMode = s_editMode;
-  
+
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX, {
     2, // date
     2, // time
@@ -183,6 +183,9 @@ void menuRadioSetup(event_t event)
 
   if (event == EVT_ENTRY) {
     reusableBuffer.generalSettings.stickMode = g_eeGeneral.stickMode;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+    reusableBuffer.generalSettings.rotaryEncoderMode = g_eeGeneral.rotEncMode;
+#endif
   }
 
   int sub = menuVerticalPosition;
@@ -591,8 +594,21 @@ void menuRadioSetup(event_t event)
         break;
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-      case ITEM_RADIO_SETUP_ROTARY_INVERSE:
-        g_eeGeneral.rotEncDirection = editCheckBox(g_eeGeneral.rotEncDirection, RADIO_SETUP_2ND_COLUMN, y, STR_INVERT_ROTARY, attr, event);
+      case ITEM_RADIO_SETUP_ROTARY_ENC_MODE:
+        lcdDrawTextAlignedLeft(y, STR_ROTARY_ENC_MODE);
+        lcdDrawTextAtIndex(RADIO_SETUP_2ND_COLUMN, y, STR_ROTARY_ENC_OPT,
+                           reusableBuffer.generalSettings.rotaryEncoderMode,
+                           attr);
+        if (attr && s_editMode > 0) {
+          CHECK_INCDEC_GENVAR(event,
+                              reusableBuffer.generalSettings.rotaryEncoderMode,
+                              ROTARY_ENCODER_MODE_NORMAL,
+                              ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT);
+        } else if (reusableBuffer.generalSettings.rotaryEncoderMode !=
+                   g_eeGeneral.rotEncMode) {
+          g_eeGeneral.rotEncMode =
+              reusableBuffer.generalSettings.rotaryEncoderMode;
+        }
         break;
 #endif
 

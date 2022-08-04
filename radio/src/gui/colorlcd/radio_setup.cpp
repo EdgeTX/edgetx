@@ -698,8 +698,10 @@ void RadioSetupPage::build(FormWindow * window)
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_INVERT_ROTARY, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.rotEncDirection));
+  new StaticText(line, rect_t{}, STR_ROTARY_ENC_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
+             ROTARY_ENCODER_MODE_INVERT_BOTH,
+             GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
 #endif
 
   // RX channel order

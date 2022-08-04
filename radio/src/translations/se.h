@@ -70,7 +70,7 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
-                                  
+
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -234,10 +234,15 @@
 #endif
 
 #define TR_ROTARY_ENCODERS
-#define TR_INVERT_ROTARY               "Invertera rullhjul"
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
+
+#if defined(COLORLCD)
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted"
+#else
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted","V-I H-N","V-I H-A"
+#endif
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW                "TltX","TltY",
@@ -776,6 +781,7 @@
 #define TR_DATE                         "Datum"
 #define TR_MONTHS                       { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER               "R.H."
+#define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR             "Kanalöversikt"
 #define TR_MIXERS_MONITOR               "MIXERSKÄRM"
 #define TR_PATH_TOO_LONG                "För lång sökväg"

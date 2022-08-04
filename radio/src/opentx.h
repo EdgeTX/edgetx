@@ -212,6 +212,15 @@
   #define RADIO_TOOLS
 #endif
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
+enum RotaryEncoderMode {
+  ROTARY_ENCODER_MODE_NORMAL,
+  ROTARY_ENCODER_MODE_INVERT_BOTH,
+  ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM,
+  ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT
+};
+#endif
+
 // RESX range is used for internal calculation; The menu says -100.0 to 100.0; internally it is -1024 to 1024 to allow some optimizations
 #define RESX_SHIFT 10
 #define RESX       1024
@@ -986,6 +995,9 @@ union ReusableBuffer
 
   struct {
     uint8_t stickMode;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+    uint8_t rotaryEncoderMode;
+#endif
   } generalSettings;
 
   struct {

@@ -597,7 +597,7 @@ void resetBacklightTimeout()
   uint16_t autoOff = g_eeGeneral.lightAutoOff;
 #if defined(COLORLCD)
   // prevent the timeout from being 0 seconds on color lcd radios
-  autoOff = std::max<uint16_t>(1, autoOff); 
+  autoOff = std::max<uint16_t>(1, autoOff);
 #endif
   lightOffCounter = (autoOff*250) << 1;
 }
@@ -1760,7 +1760,7 @@ void opentxInit()
 #endif  // #if !defined(EEPROM)
 
   initSerialPorts();
-  
+
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)

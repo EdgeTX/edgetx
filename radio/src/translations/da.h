@@ -748,7 +748,7 @@
 #define TR_DATE                        "Dato"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_INVERT_ROTARY               "Invert Rotary"
+#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "KANAL MONITOR"
 #define TR_MIXERS_MONITOR              "MIX MONITOR"
 #define TR_PATH_TOO_LONG               "Sti for lang"
