@@ -481,22 +481,74 @@ TelemetrySourceItemModel::TelemetrySourceItemModel(const GeneralSettings * const
   if (!modelData)
     return;
 
-  setUpdateMask(IMUE_TeleSensors | IMUE_Modules);
-  const int count = firmware->getCapability(Sensors);
+  setUpdateMask(IMUE_TeleSensors | IMUE_Modules | IMUE_GVars);
 
-  for (int i = -count; i <= count; ++i) {
+  addItems(SOURCE_TYPE_GVAR,       -firmware->getCapability(Gvars));
+  addItems(SOURCE_TYPE_TELEMETRY,  -firmware->getCapability(Sensors));
+  addItems(SOURCE_TYPE_NONE,       1);
+  addItems(SOURCE_TYPE_TELEMETRY,  firmware->getCapability(Sensors));
+  addItems(SOURCE_TYPE_GVAR,       firmware->getCapability(Gvars));
+}
+
+void TelemetrySourceItemModel::addItems(const RawSourceType & type, int count)
+{
+  int flags = 0;
+
+  if (type == SOURCE_TYPE_GVAR)
+    flags = RawSource::GVarsGroup;
+
+  int i = (count < 0 ? count : 1);
+  count = (i < 0 ? 0 : count + i);
+
+  for ( ; i < count; ++i) {
     QStandardItem * modelItem = new QStandardItem();
-    modelItem->setData(i, IMDR_Id);
-    modelItem->setData(i < 0 ? IMDG_Negative : i > 0 ? IMDG_Positive : IMDG_None, IMDR_Flags);
-    setDynamicItemData(modelItem, i);
+    int id = i;
+
+    if (type == SOURCE_TYPE_NONE)
+      id = 0;
+
+    if (type != SOURCE_TYPE_GVAR) {
+      flags = (i < 0 ? IMDG_Negative : i > 0 ? IMDG_Positive : IMDG_None);
+    }
+    else {
+      id = ((SENSOR_GVAR_START + 1) * (i < 0 ? -1 : 1)) - id;
+    }
+
+    modelItem->setData(id, IMDR_Id);
+    modelItem->setData((int)type, IMDR_Type);
+    modelItem->setData(flags , IMDR_Flags);
+    setDynamicItemData(modelItem);
     appendRow(modelItem);
   }
 }
 
-void TelemetrySourceItemModel::setDynamicItemData(QStandardItem * item, const int value) const
+void TelemetrySourceItemModel::setDynamicItemData(QStandardItem * item) const
 {
-  item->setText(SensorData::sourceToString(modelData, value));
-  item->setData(SensorData::isSourceAvailable(modelData, value), IMDR_Available);
+  const int type = item->data(IMDR_Type).toInt();
+  int id = item->data(IMDR_Id).toInt();
+
+  switch (type) {
+    case SOURCE_TYPE_NONE:
+      {
+        const RawSource src = RawSource(id);
+        item->setText(src.toString());
+        item->setData(true, IMDR_Available);
+        break;
+      }
+    case SOURCE_TYPE_TELEMETRY:
+      item->setText(SensorData::sourceToString(modelData, id));
+      item->setData(SensorData::isSourceAvailable(modelData, id), IMDR_Available);
+      break;
+    case SOURCE_TYPE_GVAR:
+      {
+        int idx = SENSOR_GVAR_START - abs(id);
+        item->setText((id < 0 ? "-" : "") % modelData->gvarData[idx].nameToString(idx));
+        item->setData(true, IMDR_Available);
+        break;
+      }
+    default:
+      break;
+  }
 }
 
 void TelemetrySourceItemModel::update(const int event)
@@ -505,7 +557,7 @@ void TelemetrySourceItemModel::update(const int event)
     emit aboutToBeUpdated();
 
     for (int i = 0; i < rowCount(); ++i) {
-      setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
+      setDynamicItemData(item(i));
     }
 
     emit updateComplete();
