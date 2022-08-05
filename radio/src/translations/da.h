@@ -39,7 +39,7 @@
 #define TR_TRNMODE                     "FRA","+=",":="
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 
-#define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri Ind","SBUS træner","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES                     "Ingen","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
@@ -49,10 +49,12 @@
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
+#define TR_SBUS_INVERSION_VALUES       "normal","ikke inverteret"
+#define TR_MULTI_TELEMETRY_MODE        "Fra","Til","Fra+Aux","Til+Aux"
 #define TR_MULTI_CUSTOM                "Tilpasset"
-#define TR_VTRIMINC                    TR("Expo","Exponential"),TR("ExFine","Ekstra fin"),"Fin","Medium","Grov"
+#define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Ekstra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS               "Nej","Ændre","Ja"
-#define TR_VBEEPCOUNTDOWN              "Stile","Bip","Stemme","Haptic"
+#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Haptic"
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"
@@ -216,6 +218,28 @@
   #define TR_TRIMS_SWITCHES            TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
 #endif
 
+#if defined(PCBHORUS) || defined(PCBNV14)
+  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
+#elif defined(PCBXLITE)
+  #define TR_VKEYS                     "Shift","Exit","Enter","Ned","Op","Højre","Venstre"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+  #define TR_VKEYS                     "Exit","Enter","Ned","Op","Højre","Venstre"
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
+  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(RADIO_T8)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
+#elif defined(RADIO_ZORRO)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(PCBTARANIS)
+  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
+#else
+  #define TR_VKEYS                     "Menu","Exit","Ned","Op","Højre","Venstre"
+#endif
+
+#if defined(PCBNV14)
+#define  TR_RFPOWER_AFHDS2             "Standard","Høj"
+#endif
+
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
@@ -264,6 +288,14 @@
   #define LEN_INDENT                   1
   #define INDENT_WIDTH                 (FW/2)
   #define BREAKSPACE                   " "
+#endif
+
+#if defined(COLORLCD)
+#if defined(BOLD)
+#define TR_FONT_SIZES                  "STD"
+#else
+#define TR_FONT_SIZES                  "STD","FED","XXS","XS","L","XL","XXL"
+#endif
 #endif
 
 #if defined(PCBFRSKY)
@@ -438,9 +470,9 @@
 #define TR_BG                          "BG:"
 #define TR_CALIB_DONE                  "Kalibrering færdig"
 #if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] to start"
-  #define TR_SETMIDPOINT               "Centrer pinde/dregekontakter/skydere og tryk [Enter]"
-  #define TR_MOVESTICKSPOTS            "Flyt pinde/dregekontakter/skydere og tryk [Enter]"
+  #define TR_MENUTOSTART               "Tryk [Enter] for start"
+  #define TR_SETMIDPOINT               "Centrer pinde/drejekontakter/skydere og tryk [Enter]"
+  #define TR_MOVESTICKSPOTS            "Flyt pinde/drejekontakter/skydere og tryk [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " FOR START"
   #define TR_SETMIDPOINT               "CENTER PINDE/SKYDER"
@@ -459,7 +491,7 @@
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
-#define TR_FREE_STACK                  "Free stack"
+#define TR_FREE_STACK                  "Fri stak"
 #define TR_INT_GPS_LABEL               "Intern GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
@@ -710,13 +742,13 @@
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Måle tilstand"
-#define TR_SAMPLE_MODES                "Normal","OneBit"
+#define TR_SAMPLE_MODES                "Normal","EnBit"
 
-#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
-#define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
-#define TR_NO_TEMPLATES                "No model templates were found in this folder"
+#define TR_SELECT_TEMPLATE_FOLDER      "VÆLG EN SKABELON MAPPE:"
+#define TR_SELECT_TEMPLATE             "VÆLG EN SKABELON til MODEL:"
+#define TR_NO_TEMPLATES                "Ingen model skabeloner fundet i mappe"
 #define TR_SAVE_TEMPLATE               "Gem som skabelon"
-#define TR_BLANK_MODEL                 "Tom Model"
+#define TR_BLANK_MODEL                 "Tom model"
 #define TR_BLANK_MODEL_INFO            "Opret en tom model"
 #define TR_FILE_EXISTS                 "FIL FINDES ALLEREDE"
 #define TR_ASK_OVERWRITE               "Vil du overskrive?"
@@ -724,12 +756,14 @@
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Opdag/søg"
 #define TR_BLUETOOTH_INIT              "Init"
-#define TR_BLUETOOTH_DIST_ADDR         "Dist addr"
-#define TR_BLUETOOTH_LOCAL_ADDR        "Lokal addr"
+#define TR_BLUETOOTH_DIST_ADDR         "Dist adr"
+#define TR_BLUETOOTH_LOCAL_ADDR        "Lokal adr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN code"
+#define TR_BLUETOOTH_NODEVICES         "Ingen enheder fundet"
+#define TR_BLUETOOTH_SCANNING          "Søger..."
 #define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
-#define TR_BLUETOOTH_MODES             "---","Enabled"
+#define TR_BLUETOOTH_MODES             "---","Aktiveret"
 #else
 #define TR_BLUETOOTH_MODES             "---","Telemetri","Træner"
 #endif
@@ -740,15 +774,15 @@
 #define TR_SD_SECTORS                  "Sektorer:"
 #define TR_SD_SIZE                     "Størrelse:"
 #define TR_TYPE                        INDENT "Type"
-#define TR_GLOBAL_VARS                 "Globale variabler"
+#define TR_GLOBAL_VARS                 "Globale variable"
 #define TR_GVARS                       "GVARS"
 #define TR_GLOBAL_VAR                  "Globale variable"
-#define TR_MENU_GLOBAL_VARS              "GLOBALE VARIABLE"
-#define TR_OWN                         "Own"
+#define TR_MENU_GLOBAL_VARS            "GLOBALE VARIABLE"
+#define TR_OWN                         "Egen"
 #define TR_DATE                        "Dato"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
+#define TR_ROTARY_ENC_MODE             TR("DrejeK. tilst.","Drejeknap tilstand")
 #define TR_CHANNELS_MONITOR            "KANAL MONITOR"
 #define TR_MIXERS_MONITOR              "MIX MONITOR"
 #define TR_PATH_TOO_LONG               "Sti for lang"
@@ -767,7 +801,7 @@
 #define TR_DEVICE_FILE_ERROR           TR("Enhed fil prob.", "Enhed fil prob.")
 #define TR_DEVICE_DATA_REFUSED         TR("Enhed data afvist", "Enhed data afvist")
 #define TR_DEVICE_WRONG_REQUEST        TR("Enhed adgang problem", "Enhed adgang problem")
-#define TR_DEVICE_FILE_REJECTED        TR("Enhed fil afvistt", "Enhed fil afvist")
+#define TR_DEVICE_FILE_REJECTED        TR("Enhed fil afvist", "Enhed fil afvist")
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Enhed file sig.", "Enhed file sig.")
 #define TR_CURRENT_VERSION             TR("Aktuel ver: ", "Aktuel version: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Brænd int. module", "Brænd intern module")
@@ -1054,25 +1088,25 @@
 #define TR_AUTOOFFSET                  "Auto Offset"
 #define TR_ONLYPOSITIVE                "Positive"
 #define TR_FILTER                      "Filter"
-#define TR_TELEMETRYFULL               TR("Alle slots full!", "Alle telemetri slots full!")
+#define TR_TELEMETRYFULL               TR("Alle slots fulde!", "Alle telemetri slots fulde!")
 #define TR_SERVOS_OK                   "Servos OK"
 #define TR_SERVOS_KO                   "Servos KO"
 #define TR_INVERTED_SERIAL             INDENT "Invert"
-#define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "Ignore instances")
+#define TR_IGNORE_INSTANCE             TR(INDENT "Ingen inst.", INDENT "Ignorer instans")
 #define TR_DISCOVER_SENSORS            "Søg efter nye"
 #define TR_STOP_DISCOVER_SENSORS       "Stop"
 #define TR_DELETE_ALL_SENSORS          "Slet alle"
 #define TR_CONFIRMDELETE               "Virkeligt " LCDW_128_480_LINEBREAK "slet alle ?"
 #define TR_SELECT_WIDGET               "Vælg widget"
-#define TR_REMOVE_WIDGET               "Remove widget"
+#define TR_REMOVE_WIDGET               "Slet widget"
 #define TR_WIDGET_SETTINGS             "Widget indstilinger"
 #define TR_REMOVE_SCREEN               "Slet skærm"
 #define TR_SETUP_WIDGETS               "Setup widgets"
-#define TR_USER_INTERFACE              "User interface"
+#define TR_USER_INTERFACE              "Bruger interface"
 #define TR_THEME                       "Tema"
 #define TR_SETUP                       "Setup"
 #define TR_LAYOUT                      "Layout"
-#define TR_ADD_MAIN_VIEW               "Add main view"
+#define TR_ADD_MAIN_VIEW               "Tilføj hoved billede"
 #define TR_BACKGROUND_COLOR            "Baggrund color"
 #define TR_MAIN_COLOR                  "Main color"
 #define TR_BAR2_COLOR                  "Secondary bar color"
