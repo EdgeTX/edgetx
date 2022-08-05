@@ -88,37 +88,11 @@
         TR_VTRAINER_MASTER_SBUS_MODULE, TR_VTRAINER_MASTER_CPPM_MODULE, \
         TR_VTRAINER_MASTER_BATTERY, TR_VTRAINER_BLUETOOTH, TR_VTRAINER_MULTI
 
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
-
 #define TR_VSRCRAW                     "---", TR_STICKS_VSRCRAW, TR_POTS_VSRCRAW, TR_IMU_VSRCRAW "MAX", TR_CYC_VSRCRAW, TR_TRIMS_VSRCRAW, TR_SW_VSRCRAW, TR_EXTRA_VSRCRAW
 
 #define TR_CRSF_BAUDRATE               "115k","400k","921k","1.87M","3.75M","5.25M"
 
 #define TR_MODULE_R9M_LITE             "R9MLite"
-
-#if defined(COLORLCD)
-#if defined(BOLD)
-#define TR_FONT_SIZES                  "STD"
-#else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
-#endif
-#endif
 
 #define TR_EXTERNAL_MODULE_PROTOCOLS \
   "OFF",                             \
@@ -144,8 +118,9 @@
 #define TR_FLYSKY_PROTOCOLS            "AFHDS3","AFHDS2A"
 #define TR_XJT_ACCST_RF_PROTOCOLS      "D16","D8","LR12"
 #define TR_ISRM_RF_PROTOCOLS           "ACCESS","D16","LR12"
-#define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS","FCC","EU","Flex"
+
 #define TR_SPORT_MODES                 "S.PORT","F.PORT","FBUS(FPORT2)"
+#define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS","FCC","EU","Flex"
 #define TR_R9M_REGION                  "FCC","EU","868MHz","915MHz"
 #define TR_R9M_LITE_FCC_POWER_VALUES   "(100mW)"
 #define TR_R9M_LITE_LBT_POWER_VALUES   "25mW 8CH","25mW 16CH","100mW NoTele"
@@ -163,18 +138,13 @@
 
 #define TR_MULTI_POWER                 "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
 #define TR_MULTI_WBUS_MODE             "WBUS","PPM"
-#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
+
 #define TR_AFHDS3_PROTOCOLS            "PWM/IBUS","PWM/SBUS","PPM/IBUS","PPM/SBUS"
 #define TR_AFHDS3_POWERS               "25 mW","100 mW","500 mW","1 W","2 W"
 #define TR_FLYSKY_PULSE_PROTO          "PWM","PPM"
 #define TR_FLYSKY_SERIAL_PROTO         "iBUS","SBUS"
 #define TR_PPM_POL                     "-","+"
-#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
 #define TR_PWR_OFF_DELAYS              "0s","1s","2s","4s"
-
-#if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "Default","High"
-#endif
 
 #define TR_SENSOR_RSSI                      "RSSI"
 #define TR_SENSOR_R9PW                      "R9PW"
