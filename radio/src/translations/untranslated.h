@@ -157,15 +157,10 @@
 #define TR_INTERNAL_MODULE_PROTOCOLS   TR_EXTERNAL_MODULE_PROTOCOLS
 
 #define LEN_XJT_ACCST_RF_PROTOCOLS     "\004"
-#define TR_XJT_ACCST_RF_PROTOCOLS      "OFF\0""D16\0""D8\0 ""LR12"
+#define TR_XJT_ACCST_RF_PROTOCOLS      "D16\0""D8\0 ""LR12"
 
-#if defined(COLORLCD)
 #define LEN_ISRM_RF_PROTOCOLS          "\006"
 #define TR_ISRM_RF_PROTOCOLS           "ACCESS""D16\0  ""LR12"
-#else
-#define LEN_ISRM_RF_PROTOCOLS          "\006"
-#define TR_ISRM_RF_PROTOCOLS           "OFF\0  ""ACCESS""D16\0  ""LR12"
-#endif
 
 #define LEN_R9M_PXX2_RF_PROTOCOLS      "\006"
 #define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS""FCC\0  ""EU\0   ""Flex"

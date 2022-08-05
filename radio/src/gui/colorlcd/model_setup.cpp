@@ -637,7 +637,7 @@ class ModuleWindow : public FormGroup {
       if (isModuleXJT(moduleIdx)) {
         rfChoice = new Choice(
             this, grid.getFieldSlot(2, 1), STR_XJT_ACCST_RF_PROTOCOLS,
-            MODULE_SUBTYPE_PXX1_OFF, MODULE_SUBTYPE_PXX1_LAST,
+            0, MODULE_SUBTYPE_PXX1_LAST,
             GET_DEFAULT(g_model.moduleData[moduleIdx].subType),
             [=](int32_t newValue) {
               g_model.moduleData[moduleIdx].subType = newValue;
