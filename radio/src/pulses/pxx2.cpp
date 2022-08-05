@@ -752,9 +752,13 @@ static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_
     *len = 0;
   }
 
+  // no size yet
+  if (*len < 2) return;
+
   uint8_t frame_len = buffer[1];
-  /* 1 byte start + 2 bytes header + 2 bytes CRC = 5 */
-  if (*len < unsigned(frame_len + 5)) {
+
+  /* 1 byte start + 1 byte len + 2 bytes CRC = 4 */
+  if (*len < unsigned(frame_len + 4)) {
     return;
   }
 

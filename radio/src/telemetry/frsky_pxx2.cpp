@@ -131,9 +131,6 @@ static void processRegisterFrame(uint8_t module, const uint8_t * frame)
         memcpy(mod.registerRxName, (const char *)&frame[4], PXX2_LEN_RX_NAME);
         mod.registerLoopIndex = frame[12];
         mod.registerStep = REGISTER_RX_NAME_RECEIVED;
-#if defined(COLORLCD)
-        pushEvent(EVT_REFRESH);
-#endif
       }
       break;
 
@@ -279,7 +276,7 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 }
 
 #else
-#define processAuthenticationFrame(module, frame)
+#define processAuthenticationFrame(module, frame, drv, ctx)
 #endif
 
 static void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
@@ -401,10 +398,6 @@ static void processToolsFrame(uint8_t module, const uint8_t * frame)
 void processPXX2Frame(uint8_t module, const uint8_t * frame,
                       const etx_serial_driver_t* drv, void* ctx)
 {
-  LOG_TELEMETRY_WRITE_START();
-  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
-    LOG_TELEMETRY_WRITE_BYTE(frame[i]);
-  }
 
   switch (frame[1]) {
     case PXX2_TYPE_C_MODULE:
