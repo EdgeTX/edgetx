@@ -53,7 +53,6 @@ jobs:
           - x9lites
           - xlite
           - xlites
-          - commando8
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -84,7 +83,7 @@ jobs:
           - t12
           - t16
           - t18
-          - t8;zorro
+          - t8;zorro;commando8
           - tlite;tpro
           - tx12;tx12mk2
           - tx16s
@@ -95,7 +94,6 @@ jobs:
           - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
-          - commando8
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
