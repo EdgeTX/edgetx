@@ -988,30 +988,50 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
 #endif
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS : STR_INTERNAL_MODULE_PROTOCOLS,moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType: g_model.moduleData[moduleIdx].type,menuHorizontalPosition == 0 ? attr : 0);
+        lcdDrawTextAtIndex(
+            MODEL_SETUP_2ND_COLUMN, y,
+            moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS
+                                         : STR_INTERNAL_MODULE_PROTOCOLS,
+            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType
+                                         : g_model.moduleData[moduleIdx].type,
+            menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS,
+                             g_model.moduleData[moduleIdx].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
         else if (isModuleISRM(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS,
+                             g_model.moduleData[INTERNAL_MODULE].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
         else if (isModuleDSM2(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS,
+                             g_model.moduleData[moduleIdx].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
         else if (isModuleR9MNonAccess(moduleIdx))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION, g_model.moduleData[moduleIdx].subType, (menuHorizontalPosition==1 ? attr : 0));
-        else if (moduleIdx == INTERNAL_MODULE && isModuleCrossfire(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_R9M_REGION,
+                             g_model.moduleData[moduleIdx].subType,
+                             (menuHorizontalPosition == 1 ? attr : 0));
+        else if (moduleIdx == INTERNAL_MODULE &&
+                 isModuleCrossfire(INTERNAL_MODULE))
+          lcdDrawTextAtIndex(
+              lcdNextPos + 3, y, STR_CRSF_BAUDRATE,
+              CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0);
 
-        if (attr && menuHorizontalPosition == 0  && moduleIdx == EXTERNAL_MODULE) {
+        if (attr && menuHorizontalPosition == 0 &&
+            moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
             g_model.moduleData[moduleIdx].type = MODULE_TYPE_NONE;
-          }
-          else if (reusableBuffer.moduleSetup.newType != reusableBuffer.moduleSetup.previousType) {
-            g_model.moduleData[moduleIdx].type = reusableBuffer.moduleSetup.newType;
-            reusableBuffer.moduleSetup.previousType = reusableBuffer.moduleSetup.newType;
+          } else if (reusableBuffer.moduleSetup.newType !=
+                     reusableBuffer.moduleSetup.previousType) {
+            g_model.moduleData[moduleIdx].type =
+                reusableBuffer.moduleSetup.newType;
+            reusableBuffer.moduleSetup.previousType =
+                reusableBuffer.moduleSetup.newType;
             setModuleType(moduleIdx, g_model.moduleData[moduleIdx].type);
             storageDirty(EE_MODEL);
-          }
-          else if (g_model.moduleData[moduleIdx].type == MODULE_TYPE_NONE) {
-            g_model.moduleData[moduleIdx].type = reusableBuffer.moduleSetup.newType;
+          } else if (g_model.moduleData[moduleIdx].type == MODULE_TYPE_NONE) {
+            g_model.moduleData[moduleIdx].type =
+                reusableBuffer.moduleSetup.newType;
           }
         }
         if (attr) {
@@ -1020,69 +1040,84 @@ void menuModelSetup(event_t event)
               case 0:
 #if defined(HARDWARE_INTERNAL_MODULE)
                 if (moduleIdx == INTERNAL_MODULE) {
-                  uint8_t moduleType = checkIncDec(event, g_model.moduleData[moduleIdx].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,
-                                                   isInternalModuleAvailable);
+                  uint8_t moduleType =
+                      checkIncDec(event, g_model.moduleData[moduleIdx].type,
+                                  MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,
+                                  isInternalModuleAvailable);
                   if (checkIncDec_Ret) {
                     setModuleType(moduleIdx, moduleType);
                   }
-                }
-                else
+                } else
 #endif
-                  reusableBuffer.moduleSetup.newType = checkIncDec(event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE, MODULE_TYPE_MAX, 0,
-                                                                   isExternalModuleAvailable);
+                  reusableBuffer.moduleSetup.newType =
+                      checkIncDec(event, reusableBuffer.moduleSetup.newType,
+                                  MODULE_TYPE_NONE, MODULE_TYPE_MAX, 0,
+                                  isExternalModuleAvailable);
                 break;
 
               case 1:
                 if (isModuleXJT(moduleIdx)) {
-                  g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
+                  g_model.moduleData[moduleIdx].subType =
+                      checkIncDec(event, g_model.moduleData[moduleIdx].subType,
+                                  0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL,
+                                  isRfProtocolAvailable);
                   if (checkIncDec_Ret) {
                     g_model.moduleData[moduleIdx].channelsStart = 0;
-                    g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
+                    g_model.moduleData[moduleIdx].channelsCount =
+                        defaultModuleChannels_M8(moduleIdx);
                   }
-                }
-                else if (isModuleISRM(moduleIdx)) {
-                  g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
-                }
-                else if (isModuleDSM2(moduleIdx)) {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].subType, DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
-                }
-                else if (isModuleR9MNonAccess(moduleIdx)) {
-                  g_model.moduleData[moduleIdx].subType = checkIncDec(event,
-                                                                      g_model.moduleData[moduleIdx].subType,
-                                                                      MODULE_SUBTYPE_R9M_FCC,
-                                                                      MODULE_SUBTYPE_R9M_LAST,
-                                                                      EE_MODEL);
+                } else if (isModuleISRM(moduleIdx)) {
+                  g_model.moduleData[moduleIdx].subType =
+                      checkIncDec(event, g_model.moduleData[moduleIdx].subType,
+                                  0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16,
+                                  EE_MODEL, isRfProtocolAvailable);
+                } else if (isModuleDSM2(moduleIdx)) {
+                  CHECK_INCDEC_MODELVAR(event,
+                                        g_model.moduleData[moduleIdx].subType,
+                                        DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+                } else if (isModuleR9MNonAccess(moduleIdx)) {
+                  g_model.moduleData[moduleIdx].subType =
+                      checkIncDec(event, g_model.moduleData[moduleIdx].subType,
+                                  MODULE_SUBTYPE_R9M_FCC,
+                                  MODULE_SUBTYPE_R9M_LAST, EE_MODEL);
                   if (checkIncDec_Ret) {
                     g_model.moduleData[moduleIdx].pxx.power = 0;
                     g_model.moduleData[moduleIdx].channelsStart = 0;
-                    g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
+                    g_model.moduleData[moduleIdx].channelsCount =
+                        defaultModuleChannels_M8(moduleIdx);
                   }
-                }
-                else {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST);
+                } else {
+                  CHECK_INCDEC_MODELVAR(event,
+                                        g_model.moduleData[moduleIdx].subType,
+                                        0, MODULE_SUBTYPE_PXX1_LAST);
                 }
 
                 if (checkIncDec_Ret) {
                   g_model.moduleData[moduleIdx].channelsStart = 0;
-                  g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
+                  g_model.moduleData[moduleIdx].channelsCount =
+                      defaultModuleChannels_M8(moduleIdx);
                 }
             }
           }
 #if POPUP_LEVEL > 1
           else if (old_editMode > 0) {
             if (isModuleR9MNonAccess(moduleIdx)) {
-              if (g_model.moduleData[moduleIdx].subType > MODULE_SUBTYPE_R9M_EU) {
+              if (g_model.moduleData[moduleIdx].subType >
+                  MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FLEX_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
               }
 #if POPUP_LEVEL >= 3
-              else if (g_model.moduleData[moduleIdx].subType == MODULE_SUBTYPE_R9M_EU) {
+              else if (g_model.moduleData[moduleIdx].subType ==
+                       MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
-              }
-              else {
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+              } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
               }
 #endif
             }

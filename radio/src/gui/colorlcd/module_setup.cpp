@@ -468,7 +468,6 @@ void ModuleSubTypeChoice::update()
   ModuleData* md = &g_model.moduleData[moduleIdx];
 
   if (isModuleXJT(moduleIdx)) {
-
     setMin(MODULE_SUBTYPE_PXX1_ACCST_D16);
     setMax(MODULE_SUBTYPE_PXX1_LAST);
     setValues(STR_XJT_ACCST_RF_PROTOCOLS);

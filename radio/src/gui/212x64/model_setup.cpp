@@ -907,32 +907,49 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE:
       {
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_INTERNAL_MODULE_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].type, menuHorizontalPosition==0 ? attr : 0);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,
+                           STR_INTERNAL_MODULE_PROTOCOLS,
+                           g_model.moduleData[INTERNAL_MODULE].type,
+                           menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS,
+                             g_model.moduleData[INTERNAL_MODULE].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
         else if (isModuleISRM(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS,
+                             g_model.moduleData[INTERNAL_MODULE].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
         else if (isModuleCrossfire(INTERNAL_MODULE))
-          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),0);
+          lcdDrawTextAtIndex(
+              lcdNextPos + 3, y, STR_CRSF_BAUDRATE,
+              CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0);
         if (attr) {
           if (menuHorizontalPosition == 0) {
-            uint8_t moduleType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL, isInternalModuleAvailable);
+            uint8_t moduleType =
+                checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].type,
+                            MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL,
+                            isInternalModuleAvailable);
             if (checkIncDec_Ret) {
               setModuleType(INTERNAL_MODULE, moduleType);
             }
-          }
-          else if (isModuleXJT(INTERNAL_MODULE)) {
-            g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
+          } else if (isModuleXJT(INTERNAL_MODULE)) {
+            g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(
+                event, g_model.moduleData[INTERNAL_MODULE].subType, 0,
+                MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
             if (checkIncDec_Ret) {
               g_model.moduleData[INTERNAL_MODULE].channelsStart = 0;
-              g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
+              g_model.moduleData[INTERNAL_MODULE].channelsCount =
+                  defaultModuleChannels_M8(INTERNAL_MODULE);
             }
-          }
-          else if (isModuleISRM(INTERNAL_MODULE)) {
-            g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
+          } else if (isModuleISRM(INTERNAL_MODULE)) {
+            g_model.moduleData[INTERNAL_MODULE].subType =
+                checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType,
+                            0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL,
+                            isRfProtocolAvailable);
             if (checkIncDec_Ret) {
               g_model.moduleData[INTERNAL_MODULE].channelsStart = 0;
-              g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
+              g_model.moduleData[INTERNAL_MODULE].channelsCount =
+                  defaultModuleChannels_M8(INTERNAL_MODULE);
             }
           }
         }
