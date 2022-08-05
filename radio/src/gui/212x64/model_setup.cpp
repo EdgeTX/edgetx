@@ -924,13 +924,16 @@ void menuModelSetup(event_t event)
           else if (isModuleXJT(INTERNAL_MODULE)) {
             g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
             if (checkIncDec_Ret) {
-              g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_XJT_PXX1;
               g_model.moduleData[INTERNAL_MODULE].channelsStart = 0;
               g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
             }
           }
-          else if (isModulePXX2(INTERNAL_MODULE)) {
+          else if (isModuleISRM(INTERNAL_MODULE)) {
             g_model.moduleData[INTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].subType, 0, MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, EE_MODEL, isRfProtocolAvailable);
+            if (checkIncDec_Ret) {
+              g_model.moduleData[INTERNAL_MODULE].channelsStart = 0;
+              g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
+            }
           }
         }
         break;

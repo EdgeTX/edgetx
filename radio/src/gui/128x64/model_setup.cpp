@@ -1036,10 +1036,6 @@ void menuModelSetup(event_t event)
                 if (isModuleXJT(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType = checkIncDec(event, g_model.moduleData[moduleIdx].subType, 0, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL, isRfProtocolAvailable);
                   if (checkIncDec_Ret) {
-                    if (isModuleXJTLite(moduleIdx))
-                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_LITE_PXX2;
-                    else
-                      g_model.moduleData[moduleIdx].type = MODULE_TYPE_XJT_PXX1;
                     g_model.moduleData[moduleIdx].channelsStart = 0;
                     g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
                   }
