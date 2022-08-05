@@ -775,7 +775,10 @@ static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_
   }
 
   auto state = (PXX2State*)context;
-  processPXX2Frame(state->module, frame);
+  auto module = state->module;
+  auto drv = state->uart_drv;
+  auto ctx = state->uart_ctx;
+  processPXX2Frame(module, frame, drv, ctx);
   *len = 0;
 }
 
