@@ -237,7 +237,8 @@ extern "C" {
 
 volatile int16_t authenticateFrames = 0;
 
-static void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
+static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
+                                       const etx_serial_driver_t* drv, void* ctx)
 {
   uint8_t cryptoType = frame[3];
   uint8_t messageDigest[16] = {0};
@@ -253,12 +254,13 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame)
 
   if (INTERNAL_MODULE == module &&
       access_denied(cryptoType, frame + 4, messageDigest)) {
-    moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
-    Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
-    pxx2.setupAuthenticationFrame(module, cryptoType,
-                                  (const uint8_t *)messageDigest);
 
-    IntmoduleSerialDriver.sendBuffer(pxx2.getData(), pxx2.getSize());
+    moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
+
+    Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
+    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);
+    drv->sendBuffer(ctx, pxx2.getData(), pxx2.getSize());
+
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the
     // end of the mixing process
     authenticateFrames++;
@@ -345,7 +347,8 @@ static void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-static void processModuleFrame(uint8_t module, const uint8_t *frame)
+static void processModuleFrame(uint8_t module, const uint8_t *frame,
+                               const etx_serial_driver_t* drv, void* ctx)
 {
   switch (frame[2]) {
     case PXX2_TYPE_ID_HW_INFO:
@@ -373,7 +376,7 @@ static void processModuleFrame(uint8_t module, const uint8_t *frame)
       break;
 
     case PXX2_TYPE_ID_AUTHENTICATION:
-      processAuthenticationFrame(module, frame);
+      processAuthenticationFrame(module, frame, drv, ctx);
       break;
 
     case PXX2_TYPE_ID_RESET:
@@ -395,7 +398,8 @@ static void processToolsFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
-void processPXX2Frame(uint8_t module, const uint8_t * frame)
+void processPXX2Frame(uint8_t module, const uint8_t * frame,
+                      const etx_serial_driver_t* drv, void* ctx)
 {
   LOG_TELEMETRY_WRITE_START();
   for (uint8_t i = 0; i < 1 + frame[0]; i++) {
@@ -404,7 +408,7 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame)
 
   switch (frame[1]) {
     case PXX2_TYPE_C_MODULE:
-      processModuleFrame(module, frame);
+      processModuleFrame(module, frame, drv, ctx);
       break;
 
     case PXX2_TYPE_C_POWER_METER:

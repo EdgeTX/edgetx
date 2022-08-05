@@ -224,7 +224,7 @@ if(NOT INTERNAL_MODULE_PXX1)
   option(ALLOW_TRAINER_MULTI "Allow multimodule to be use as trainer input" OFF)
 endif()
 
-if(PXX2 IN_LIST INTERNAL_MODULES)
+if("PXX2" IN_LIST INTERNAL_MODULES)
   if (NOT PCBREV STREQUAL EXPRESS)
     set(ACCESS_DENIED ON)
     add_definitions(-DACCESS_DENIED)
