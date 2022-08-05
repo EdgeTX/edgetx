@@ -135,4 +135,3 @@ void blExit(void)
       lcdRefreshWait();
 #endif
 }
-

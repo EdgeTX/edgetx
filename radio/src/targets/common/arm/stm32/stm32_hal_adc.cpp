@@ -100,7 +100,7 @@ stm32_hal_adc_channel ADC_MAIN_channels[] = {
     { ADC_CHANNEL_BATT,    ADC_SAMPTIME }
 #else
 #if defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8)
-    // fake channels to fill unsused POT1/POT2
+    // fake channels to fill unused POT1/POT2
     {0, 0},
     {0, 0},
 #elif defined(PCBX7) || defined(PCBXLITE)
