@@ -468,8 +468,7 @@ void ModuleSubTypeChoice::update()
   ModuleData* md = &g_model.moduleData[moduleIdx];
 
   if (isModuleXJT(moduleIdx)) {
-
-    setMin(MODULE_SUBTYPE_PXX1_OFF);
+    setMin(MODULE_SUBTYPE_PXX1_ACCST_D16);
     setMax(MODULE_SUBTYPE_PXX1_LAST);
     setValues(STR_XJT_ACCST_RF_PROTOCOLS);
     setGetValueHandler(GET_DEFAULT(md->subType));
@@ -479,8 +478,7 @@ void ModuleSubTypeChoice::update()
       md->channelsCount = defaultModuleChannels_M8(moduleIdx);
       SET_DIRTY();
     });
-    setAvailableHandler(
-        [](int index) { return index != MODULE_SUBTYPE_PXX1_OFF; });
+    setAvailableHandler(nullptr);
   }
   else if (isModuleDSM2(moduleIdx)) {
     setMin(DSM2_PROTO_LP45);
