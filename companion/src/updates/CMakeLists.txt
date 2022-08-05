@@ -12,6 +12,7 @@ set(updates_NAMES
   updatesounds
   updatethemes
   updatemultiprotocol
+  chooserdialog
 )
 
 foreach(name ${updates_NAMES})
@@ -22,6 +23,7 @@ endforeach()
 set(updates_UIS
   updatesdialog.ui
   updateoptionsdialog.ui
+  chooserdialog.ui
 )
 
 set(updates_QTS
@@ -30,6 +32,7 @@ set(updates_QTS
   updateoptionsdialog.h
   repomodels.h
   updateinterface.h
+  chooserdialog.h
 )
 
 qt5_wrap_ui(updates_SRCS ${updates_UIS})

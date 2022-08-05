@@ -48,7 +48,7 @@ class UpdateParameters : public QWidget
 
     static QString updateFilterTypeToString(UpdateFilterType uft);
 
-    struct AssetParams{
+    struct AssetParams {
       int flags;
       UpdateFilterType filterType;
       QString filter;
@@ -58,7 +58,7 @@ class UpdateParameters : public QWidget
       QString copyFilter;
     };
 
-    struct GeneralParams{
+    struct GeneralParams {
       int flags;
       QString fwFlavour;
       QString language;

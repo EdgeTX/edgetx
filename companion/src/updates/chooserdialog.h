@@ -21,31 +21,29 @@
 
 #pragma once
 
-#include "updateinterface.h"
-
+#include <QDialog>
+#include <QString>
 #include <QStandardItemModel>
+#include <QItemSelectionModel>
 
-class UpdateSounds : public UpdateInterface
+namespace Ui {
+  class ChooserDialog;
+}
+
+class ChooserDialog : public QDialog
 {
-  Q_DECLARE_TR_FUNCTIONS(UpdateSounds)
+    Q_OBJECT
 
   public:
+    ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel);
+    virtual ~ChooserDialog();
 
-    explicit UpdateSounds(QWidget * parent);
-    virtual ~UpdateSounds();
+    QItemSelectionModel* selectedItems();
 
-  protected:
-    virtual bool flagAssets() override;
+  signals:
+
+  private slots:
 
   private:
-    enum ItemModelDataRoles {
-      IMDR_Language = Qt::UserRole,
-      IMDR_Name,
-      IMDR_Directory,
-    };
-    Q_ENUM(ItemModelDataRoles)
-
-    QStandardItemModel *langPacks;
-
-    bool flagLanguageAsset(QString lang);
+    Ui::ChooserDialog *ui;
 };

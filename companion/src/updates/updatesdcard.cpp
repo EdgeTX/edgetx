@@ -88,12 +88,12 @@ bool UpdateSDCard::flagAssets()
     }
   }
 
+  delete json;
+
   if (!found) {
     reportProgress(tr("Radio flavour %1 not listed in %2").arg(runParams->data.fwFlavour).arg(mappingfile), QtCriticalMsg);
     return false;
   }
-
-  delete json;
 
   UpdateParameters::AssetParams sd = ap;
   sd.filterType = UpdateParameters::UFT_Startswith;
