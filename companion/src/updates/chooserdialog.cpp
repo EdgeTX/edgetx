@@ -19,33 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "chooserdialog.h"
+#include "ui_chooserdialog.h"
 
-#include "updateinterface.h"
-
-#include <QStandardItemModel>
-
-class UpdateSounds : public UpdateInterface
+ChooserDialog::ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel) :
+  QDialog(parent),
+  ui(new Ui::ChooserDialog)
 {
-  Q_DECLARE_TR_FUNCTIONS(UpdateSounds)
+  ui->setupUi(this);
 
-  public:
+  setWindowTitle(title);
 
-    explicit UpdateSounds(QWidget * parent);
-    virtual ~UpdateSounds();
+  ui->listView->setModel(itemModel);
 
-  protected:
-    virtual bool flagAssets() override;
+  connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
+    QDialog::accept();
+  });
 
-  private:
-    enum ItemModelDataRoles {
-      IMDR_Language = Qt::UserRole,
-      IMDR_Name,
-      IMDR_Directory,
-    };
-    Q_ENUM(ItemModelDataRoles)
+  connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
+    QDialog::reject();
+  });
+}
 
-    QStandardItemModel *langPacks;
+ChooserDialog::~ChooserDialog()
+{
+  delete ui;
+}
 
-    bool flagLanguageAsset(QString lang);
-};
+QItemSelectionModel* ChooserDialog::selectedItems()
+{
+  return ui->listView->selectionModel();
+}

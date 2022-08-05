@@ -104,18 +104,18 @@ QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, 
   pattern.replace("%LANGUAGE%", data.language);
 
   switch ((int)filterType) {
-    case UpdateParameters::UFT_Exact:
+    case UFT_Exact:
       pattern.prepend("^");
       pattern.append("$");
       break;
-    case UpdateParameters::UFT_Startswith:
+    case UFT_Startswith:
       pattern.prepend("^");
       break;
-    case UpdateParameters::UFT_Endswith:
+    case UFT_Endswith:
       pattern.append("$");
       break;
-    case UpdateParameters::UFT_Contains:
-    case UpdateParameters::UFT_Expression:
+    case UFT_Contains:
+    case UFT_Expression:
       break;
     default:
       pattern = "";
