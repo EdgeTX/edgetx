@@ -302,13 +302,17 @@ void ModuleWindow::updateModule()
   if (isModuleRFAccess(moduleIdx)) {
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-    registerButton = new TextButton(line, rect_t{}, STR_REGISTER);
+
+    auto box = new FormGroup(line, rect_t{});
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+
+    registerButton = new TextButton(box, rect_t{}, STR_REGISTER);
     registerButton->setPressHandler([=]() -> uint8_t {
       new pxx2::RegisterDialog(Layer::back(), moduleIdx);
       return 0;
     });
 
-    rangeButton = new TextButton(line, rect_t{}, STR_MODULE_RANGE);
+    rangeButton = new TextButton(box, rect_t{}, STR_MODULE_RANGE);
     rangeButton->setPressHandler([=]() -> uint8_t {
       if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
         moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
@@ -416,6 +420,11 @@ void ModuleWindow::updateSubType()
       lv_obj_add_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
   }
+
+  // TODO: ISRM
+  //  - ACCESS "Register" vs D16 "Bind"
+  //  - ACCESS module options
+  //  - ACCESS Rx list
 }
 
 #if defined(PCBNV14)
