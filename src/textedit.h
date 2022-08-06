@@ -27,7 +27,8 @@ class TextEdit : public FormField {
   friend class TextKeyboard;
 
   public:
-    TextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * _extra_chars = nullptr);
+    TextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
+             LcdFlags windowFlags = 0, const char* _extra_chars = nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -46,12 +47,10 @@ class TextEdit : public FormField {
       return value;
     }
 
+    void update();
+  
     void onEvent(event_t event) override;
     void onClicked() override;
-
-// #if defined(HARDWARE_TOUCH)
-//     bool onTouchEnd(coord_t x, coord_t y) override;
-// #endif
 
     void onFocusLost() override;
 
