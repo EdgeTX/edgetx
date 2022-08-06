@@ -120,11 +120,6 @@ void ModuleState::startBind(BindInformation* destination,
   bindInformation = destination;
   callback = bindCallback;
   mode = MODULE_MODE_BIND;
-#if defined(SIMU)
-  bindInformation->candidateReceiversCount = 2;
-  strcpy(bindInformation->candidateReceiversNames[0], "SimuRX1");
-  strcpy(bindInformation->candidateReceiversNames[1], "SimuRX2");
-#endif
 }
 
 void ModuleState::readModuleInformation(ModuleInformation* destination,

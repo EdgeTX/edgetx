@@ -236,19 +236,42 @@ void Pxx2Pulses::setupRegisterFrame(uint8_t module)
 {
   addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_REGISTER);
 
-  if (reusableBuffer.moduleSetup.pxx2.registerStep == REGISTER_RX_NAME_SELECTED) {
+  auto& modSetup = getPXX2ModuleSetupBuffer();
+  if (modSetup.registerStep == REGISTER_RX_NAME_SELECTED) {
     Pxx2Transport::addByte(0x01);
     for (uint8_t i=0; i<PXX2_LEN_RX_NAME; i++) {
-      Pxx2Transport::addByte(reusableBuffer.moduleSetup.pxx2.registerRxName[i]);
+      Pxx2Transport::addByte(modSetup.registerRxName[i]);
     }
     for (uint8_t i=0; i<PXX2_LEN_REGISTRATION_ID; i++) {
       Pxx2Transport::addByte(g_model.modelRegistrationID[i]);
     }
-    Pxx2Transport::addByte(reusableBuffer.moduleSetup.pxx2.registerLoopIndex);
+    Pxx2Transport::addByte(modSetup.registerLoopIndex);
   }
   else {
     Pxx2Transport::addByte(0);
   }
+
+#if defined(SIMU)
+  if (modSetup.registerStep == REGISTER_INIT) {
+    memcpy(modSetup.registerRxName, "SimuRx   ", PXX2_LEN_RX_NAME);
+    modSetup.registerStep = REGISTER_RX_NAME_RECEIVED;
+  } else if (modSetup.registerStep == REGISTER_RX_NAME_SELECTED) {
+    modSetup.registerStep = REGISTER_OK;
+    moduleState[module].mode = MODULE_MODE_NORMAL;
+  }
+#endif
+}
+
+void Pxx2Pulses::setupBindFrame(uint8_t module)
+{
+  if ((g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 &&
+       g_model.moduleData[module].subType !=
+       MODULE_SUBTYPE_ISRM_PXX2_ACCESS) ||
+      (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)) {
+    setupAccstBindFrame(module);
+  } else {
+    setupAccessBindFrame(module);
+  }  
 }
 
 void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
@@ -363,6 +386,14 @@ void Pxx2Pulses::setupAccessBindFrame(uint8_t module)
       Pxx2Transport::addByte(g_model.modelRegistrationID[i]);
     }
   }
+
+#if defined(SIMU)
+  if (moduleState[module].mode == MODULE_MODE_BIND) {
+    destination->candidateReceiversCount = 2;
+    strcpy(destination->candidateReceiversNames[0], "SimuRX1");
+    strcpy(destination->candidateReceiversNames[1], "SimuRX2");
+  }
+#endif
 }
 
 void Pxx2Pulses::setupResetFrame(uint8_t module)
@@ -483,14 +514,7 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
       setupRegisterFrame(module);
       break;
     case MODULE_MODE_BIND:
-      if ((g_model.moduleData[module].type == MODULE_TYPE_ISRM_PXX2 &&
-           g_model.moduleData[module].subType !=
-               MODULE_SUBTYPE_ISRM_PXX2_ACCESS) ||
-          (g_model.moduleData[module].type == MODULE_TYPE_XJT_LITE_PXX2)) {
-        setupAccstBindFrame(module);
-      } else {
-        setupAccessBindFrame(module);
-      }
+      setupBindFrame(module);
       break;
     case MODULE_MODE_RESET:
       setupResetFrame(module);
