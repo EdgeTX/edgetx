@@ -69,6 +69,8 @@ class ModuleWindow : public FormGroup
   void updateModule();
   void updateSubType();
 
+  uint8_t getModuleIdx() const { return moduleIdx; }
+  
  protected:
   uint8_t moduleIdx;
 
@@ -79,6 +81,7 @@ class ModuleWindow : public FormGroup
   TextButton *rangeButton = nullptr;
   TextButton *registerButton = nullptr;
   Window *fsLine = nullptr;
+  Choice *rfPower = nullptr;
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
 };
@@ -147,6 +150,7 @@ void ModuleWindow::updateModule()
   rangeButton = nullptr;
   registerButton = nullptr;
   fsLine = nullptr;
+  rfPower = nullptr;
 
   // Module parameters
   ModuleData* md = &g_model.moduleData[moduleIdx];
@@ -175,6 +179,11 @@ void ModuleWindow::updateModule()
   new StaticText(line, rect_t{}, STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
   chRange = new ModuleChannelRange(line, moduleIdx);
 
+  // Failsafe
+  fsLine = newLine(&grid);
+  new StaticText(fsLine, rect_t{}, STR_FAILSAFE, 0, COLOR_THEME_PRIMARY1);
+  new FailsafeChoice(fsLine, moduleIdx);
+
   // PPM modules
   if (isModulePPM(moduleIdx)) {
     new PpmSettings(this, grid, moduleIdx);
@@ -190,7 +199,7 @@ void ModuleWindow::updateModule()
     new StaticText(line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
 
     auto box = new FormGroup(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
     // Model index
     auto modelId = &g_model.header.modelId[moduleIdx];
@@ -291,15 +300,10 @@ void ModuleWindow::updateModule()
       }
     }
   }
-
-  // Failsafe
-  fsLine = newLine(&grid);
-  new StaticText(fsLine, rect_t{}, STR_FAILSAFE, 0, COLOR_THEME_PRIMARY1);
-  new FailsafeChoice(fsLine, moduleIdx);
-
 #if defined(PXX2)
-  // Register and Range buttons
-  if (isModuleRFAccess(moduleIdx)) {
+  else if (isModuleRFAccess(moduleIdx)) {
+
+    // Register and Range buttons
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
@@ -324,9 +328,7 @@ void ModuleWindow::updateModule()
       }
     });
 
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
-    auto options = new TextButton(line, rect_t{}, STR_SET);
+    auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
     options->setPressHandler([=]() {
       new pxx2::ModuleOptions(Layer::back(), moduleIdx);
       return 0;
@@ -335,22 +337,12 @@ void ModuleWindow::updateModule()
 #endif
 
   // R9M Power
-  if (isModuleR9M_FCC_VARIANT(moduleIdx)) {
+  if (isModuleR9MNonAccess(moduleIdx)) {
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
-    new Choice(line, rect_t{}, STR_R9M_FCC_POWER_VALUES, 0, R9M_FCC_POWER_MAX,
-               GET_SET_DEFAULT(md->pxx.power));
+    rfPower = new Choice(line, rect_t{}, 0, 0, GET_SET_DEFAULT(md->pxx.power));
   }
 
-  if (isModuleR9M_LBT(moduleIdx)) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
-    new Choice(line, rect_t{}, STR_R9M_LBT_POWER_VALUES, 0,
-               R9M_LBT_POWER_MAX,
-               GET_DEFAULT(min<uint8_t>(md->pxx.power,
-                                        R9M_LBT_POWER_MAX)),
-               SET_DEFAULT(md->pxx.power));
-  }
 #if defined(PXX2)
   // Receivers
   if (isModuleRFAccess(moduleIdx)) {
@@ -420,11 +412,16 @@ void ModuleWindow::updateSubType()
       lv_obj_add_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
   }
-
-  // TODO: ISRM
-  //  - ACCESS "Register" vs D16 "Bind"
-  //  - ACCESS module options
-  //  - ACCESS Rx list
+  if (rfPower) {
+    if (isModuleR9M_LBT(moduleIdx)) {
+      rfPower->setValues(STR_R9M_LBT_POWER_VALUES);
+      rfPower->setMax(R9M_LBT_POWER_MAX);
+    } else {
+      rfPower->setValues(STR_R9M_FCC_POWER_VALUES);
+      rfPower->setMax(R9M_FCC_POWER_MAX);
+    }
+    lv_event_send(rfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  }
 }
 
 #if defined(PCBNV14)
@@ -629,7 +626,11 @@ static void update_module_window(lv_event_t* e)
   ModuleWindow* mw = (ModuleWindow*)lv_event_get_user_data(e);
   if (!mw) return;
 
-  mw->updateSubType();
+  if (isModuleISRM(mw->getModuleIdx())) {
+    mw->updateModule();
+  } else {
+    mw->updateSubType();
+  }
 }
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
