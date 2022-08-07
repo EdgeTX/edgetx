@@ -1072,12 +1072,12 @@ char * strcat_zchar(char *dest, const char *name, uint8_t size, const char space
 
 #if !defined(STORAGE_MODELSLIST)
 
-#define strcat_modelname(dest, idx)                                     \
-  strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, 0, STR_MODEL, \
+#define strcat_modelname(dest, idx, spaceSym)                                     \
+  strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, spaceSym, STR_MODEL, \
                PSIZE(TR_MODEL), idx + 1)
 
-#define strcat_currentmodelname(dest, foo)      \
-  strcat_modelname(dest, g_eeGeneral.currModel)
+#define strcat_currentmodelname(dest, spaceSym)      \
+  strcat_modelname(dest, g_eeGeneral.currModel, spaceSym)
 
 #else
 
