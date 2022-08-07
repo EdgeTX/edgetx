@@ -108,7 +108,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   // Display checklist
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  auto fn = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
 
   // Checklist filename
   line = form->newLine(&grid);
@@ -131,6 +131,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
                 sizeof(g_model.modelNotesFileName));
         SET_DIRTY();
       });
+  make_conditional(line, fn);
 
   // Throttle warning
   line = form->newLine(&grid);
