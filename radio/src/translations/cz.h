@@ -712,6 +712,7 @@
 #define TR_RENAME_FILE                 "Přejmenovat"
 #define TR_ASSIGN_BITMAP               "Zvolit obrázek"
 #define TR_ASSIGN_SPLASH               "Úvodní obrazovka"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "Spustit"
 #define TR_REMOVED                     "odstraněn"
 #define TR_SD_INFO                     "Informace"

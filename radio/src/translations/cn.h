@@ -696,6 +696,7 @@
 #define TR_RENAME_FILE                 "重命名"
 #define TR_ASSIGN_BITMAP               "设置为模型图片"
 #define TR_ASSIGN_SPLASH               "设置为开机图片"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "执行"
 #define TR_REMOVED                     "已删除"
 #define TR_SD_INFO                     "信息"

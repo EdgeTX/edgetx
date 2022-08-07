@@ -708,6 +708,7 @@
 #define TR_RENAME_FILE                 "Nimeä uudelleen"
 #define TR_ASSIGN_BITMAP               "Määritä bittikartta"
 #define TR_ASSIGN_SPLASH               "Aloitusruutu"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "Suorittaa"
 #define TR_REMOVED                     "poistettu"
 #define TR_SD_INFO                     "Tiedot"

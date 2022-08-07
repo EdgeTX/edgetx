@@ -725,6 +725,7 @@
 #define TR_RENAME_FILE                  "Byt namn"
 #define TR_ASSIGN_BITMAP                "Tilldela ikon"
 #define TR_ASSIGN_SPLASH                "Startbild"
+#define TR_ASSIGN_NOTES                 "Assign as notes"
 #define TR_EXECUTE_FILE                 "Utför"
 #define TR_REMOVED                      " raderad"
 #define TR_SD_INFO                      "Information"

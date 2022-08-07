@@ -697,6 +697,7 @@
 #define TR_RENAME_FILE                 "Omdøb"
 #define TR_ASSIGN_BITMAP               "Tildel billede"
 #define TR_ASSIGN_SPLASH               "Start billde"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "Udfør"
 #define TR_REMOVED                     " slettet"
 #define TR_SD_INFO                     "Information"

@@ -697,6 +697,7 @@
 #define TR_RENAME_FILE         "Renomear"
 #define TR_ASSIGN_BITMAP       "Assign Bitmap"
 #define TR_ASSIGN_SPLASH       "Splash screen"
+#define TR_ASSIGN_NOTES        "Assign as notes"
 #define TR_EXECUTE_FILE        "Execute"
 #define TR_REMOVED             "Remover"
 #define TR_SD_INFO             "Dados SD"

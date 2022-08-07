@@ -248,6 +248,16 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
           }
         }
       });
+      if (!strcasecmp(MODELS_PATH, path)) {
+        menu->addLine(TR_ASSIGN_NOTES, [=]() {
+          int nameLength = std::min(sizeof(g_model.modelNotesFileName) - 1,
+                                    strlen(name) - sizeof(TEXT_EXT) + 1);
+          memcpy(g_model.modelNotesFileName, name, nameLength);
+          g_model.modelNotesFileName[nameLength] = 0;
+          g_model.displayChecklist = 1;
+          storageDirty(EE_MODEL);
+        });
+      }
     }
     if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
       if (isBootloader(fullpath)) {

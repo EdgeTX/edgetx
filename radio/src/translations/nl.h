@@ -702,6 +702,7 @@
 #define TR_RENAME_FILE         "Hernoemen"
 #define TR_ASSIGN_BITMAP       "Bitmap toekennen"
 #define TR_ASSIGN_SPLASH       "Splash screen"
+#define TR_ASSIGN_NOTES        "Assign as notes"
 #define TR_EXECUTE_FILE        "Uitvoeren"
 #define TR_REMOVED             " verwijderd"
 #define TR_SD_INFO             "Informatie"

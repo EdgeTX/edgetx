@@ -715,6 +715,7 @@
 #define TR_RENAME_FILE                 "Renommer"
 #define TR_ASSIGN_BITMAP               "Sélectionner image"
 #define TR_ASSIGN_SPLASH               "Logo d'accueil"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "Exécuter"
 #define TR_REMOVED                     " supprimé"
 #define TR_SD_INFO                     "Information"

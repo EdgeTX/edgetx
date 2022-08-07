@@ -676,6 +676,7 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+extern const char STR_ASSIGN_NOTES[];
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];

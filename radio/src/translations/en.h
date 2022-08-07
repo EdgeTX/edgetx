@@ -696,6 +696,7 @@
 #define TR_RENAME_FILE                 "Rename"
 #define TR_ASSIGN_BITMAP               "Assign bitmap"
 #define TR_ASSIGN_SPLASH               "Splash screen"
+#define TR_ASSIGN_NOTES                "Assign as notes"
 #define TR_EXECUTE_FILE                "Execute"
 #define TR_REMOVED                     " removed"
 #define TR_SD_INFO                     "Information"

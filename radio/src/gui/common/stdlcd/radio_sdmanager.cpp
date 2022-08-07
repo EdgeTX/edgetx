@@ -205,6 +205,14 @@ void onSdManagerMenu(const char * result)
     storageDirty(EE_MODEL);
   }
 #endif
+  else if (result == STR_ASSIGN_NOTES) {
+    int nameLength = std::min((int)sizeof(g_model.modelNotesFileName) - 1,
+                              (int)(strlen(line) - sizeof(TEXT_EXT) + 1));
+    memcpy(g_model.modelNotesFileName, line, nameLength);
+    g_model.modelNotesFileName[nameLength] = 0;
+    g_model.displayChecklist = 1;
+    storageDirty(EE_MODEL);
+  }
   else if (result == STR_VIEW_TEXT) {
     getSelectionFullPath(lfn);
     pushMenuTextView(lfn);
@@ -395,6 +403,11 @@ void menuRadioSdManager(event_t _event)
         if (ext) {
           if (!strcasecmp(ext, SOUNDS_EXT)) {
             POPUP_MENU_ADD_ITEM(STR_PLAY_FILE);
+          } else if (isExtensionMatching(ext, TEXT_EXT) &&
+                     (ext - line) <= (int)sizeof(g_model.modelNotesFileName) - 1) {
+            f_getcwd(lfn, FF_MAX_LFN);
+            if (!strcmp(lfn, MODELS_PATH))
+              POPUP_MENU_ADD_ITEM(STR_ASSIGN_NOTES);
           }
 #if LCD_DEPTH > 1
           else if (isExtensionMatching(ext, BITMAPS_EXT)) {
