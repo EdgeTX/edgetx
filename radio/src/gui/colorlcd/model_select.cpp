@@ -539,13 +539,12 @@ class ModelCategoryPageBody : public FormWindow
     memcpy(g_eeGeneral.currModelFilename, btn->modelFilename(),
            LEN_MODEL_FILENAME);
 
-    loadModel(g_eeGeneral.currModelFilename, false);
+    loadModel(g_eeGeneral.currModelFilename, true);
     storageDirty(EE_GENERAL);
     storageCheck(true);
 
     modelslist.setCurrentModel(btn->getModelCell());
     modelslist.setCurrentCategory(category);
-    checkAll();
 
     // Exit to main view
     auto w = Layer::back();
