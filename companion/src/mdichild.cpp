@@ -2002,3 +2002,55 @@ void LabelsEditor::currentRowChanged(const QModelIndex &current, const QModelInd
   QStringList labels = current.model()->data(current.model()->index(current.row(),LBLS_COL)).toString().split(',');
   qDebug() << "Current CSV" << labels;
 }
+
+LabelsModel::~LabelsModel()
+{
+
+}
+
+Qt::ItemFlags LabelsModel::flags(const QModelIndex &index) const
+{
+
+}
+
+bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+
+}
+
+QVariant LabelsModel::data(const QModelIndex &index, int role) const
+{
+
+}
+
+QModelIndex LabelsModel::index(int row, int column, const QModelIndex &parent) const
+{
+
+}
+
+QModelIndex LabelsModel::parent(const QModelIndex &index) const
+{
+
+}
+
+int LabelsModel::rowCount(const QModelIndex &parent) const
+{
+  Q_UNUSED(parent);
+  return 1;
+}
+
+int LabelsModel::columnCount(const QModelIndex &parent) const
+{
+  Q_UNUSED(parent);
+  return 1;
+}
+
+QVariant LabelsModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+
+}
+
+void LabelsModel::dataupdate()
+{
+
+}
