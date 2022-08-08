@@ -333,6 +333,13 @@ void ModuleWindow::updateModule()
       new pxx2::ModuleOptions(Layer::back(), moduleIdx);
       return 0;
     });
+
+    // Model index
+    line = newLine(&grid);
+    new StaticText(line, rect_t{}, STR_RECEIVER_NUM, 0, COLOR_THEME_PRIMARY1);
+    auto modelId = &g_model.header.modelId[moduleIdx];
+    new NumberEdit(line, rect_t{}, 0, getMaxRxNum(moduleIdx),
+                   GET_SET_DEFAULT(*modelId));
   }
 #endif
 
