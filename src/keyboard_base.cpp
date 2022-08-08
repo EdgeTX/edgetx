@@ -27,7 +27,6 @@ static void keyboard_event_cb(lv_event_t * e)
 {
   auto code = lv_event_get_code(e);
   if (code == LV_EVENT_READY) {
-    pushEvent(EVT_VIRTUAL_KEY('\n'));
     Keyboard::hide();
   } else if (code == LV_EVENT_CANCEL) {
     Keyboard::hide();
