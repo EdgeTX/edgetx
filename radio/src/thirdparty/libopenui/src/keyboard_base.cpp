@@ -104,13 +104,19 @@ void Keyboard::clearField()
   if (field) {
     // restore field's group
     auto obj = field->getLvObj();
-    lv_obj_remove_event_cb(obj, field_focus_leave);
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(obj);
-    if (g) _assign_lv_group(g);
+    if (obj) {
+      lv_obj_remove_event_cb(obj, field_focus_leave);
+    }
     
     field->setEditMode(false);
     field->changeEnd();
     field = nullptr;
+
+    if (fieldGroup) {
+      _assign_lv_group(fieldGroup);
+      lv_group_set_editing(fieldGroup, false);
+      fieldGroup = nullptr;
+    }
   }
 }
 
@@ -165,6 +171,7 @@ void Keyboard::setField(FormField* newField)
       _assign_lv_group(group);
       
       field = newField;
+      fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
     }
   }
 }

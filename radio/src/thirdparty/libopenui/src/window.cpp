@@ -328,8 +328,9 @@ void Window::deleteLater(bool detach, bool trash)
   deleteChildren();
 
   if (lvobj != nullptr) {
-    lv_obj_del(lvobj);
+    auto obj = lvobj;
     lvobj = nullptr;
+    lv_obj_del(obj);
   }
 }
 

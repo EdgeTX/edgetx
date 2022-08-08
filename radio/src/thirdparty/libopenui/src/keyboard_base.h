@@ -40,6 +40,7 @@ class Keyboard : public Window
 
   FormField* field = nullptr;
   Window* fieldContainer = nullptr;
+  lv_group_t* fieldGroup = nullptr;
   lv_coord_t scroll_pos = 0;
 
   void setField(FormField* newField);
