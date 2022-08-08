@@ -977,7 +977,7 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 
 #if defined (RADIO_TX12)
   #define BATTERY_DIVIDER 22830
-#elif defined (RADIO_T8)
+#elif defined (RADIO_T8) || defined(RADIO_COMMANDO8)
   #define BATTERY_DIVIDER 50000
 #elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2)
   #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
