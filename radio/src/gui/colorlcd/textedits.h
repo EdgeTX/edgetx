@@ -25,26 +25,24 @@
 #include "textedit.h"
 #include "storage/storage.h"
 
-class ModelTextEdit: public TextEdit
+class ModelTextEdit : public TextEdit
 {
-  public:
-    ModelTextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * extra_chars = nullptr):
-      TextEdit(parent, rect, value, length, windowFlags, extra_chars)
-    {
-      setChangeHandler([](){
-          storageDirty(EE_MODEL);
-      });
-    }
+ public:
+  ModelTextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
+                LcdFlags windowFlags = 0) :
+      TextEdit(parent, rect, value, length, windowFlags)
+  {
+    setChangeHandler([]() { storageDirty(EE_MODEL); });
+  }
 };
 
-class RadioTextEdit: public TextEdit
+class RadioTextEdit : public TextEdit
 {
-  public:
-    RadioTextEdit(Window * parent, const rect_t & rect, char * value, uint8_t length, LcdFlags windowFlags = 0, const char * extra_chars = nullptr):
-      TextEdit(parent, rect, value, length, windowFlags, extra_chars)
-    {
-      setChangeHandler([](){
-          storageDirty(EE_GENERAL);
-      });
-    }
+ public:
+  RadioTextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
+                LcdFlags windowFlags = 0) :
+      TextEdit(parent, rect, value, length, windowFlags)
+  {
+    setChangeHandler([]() { storageDirty(EE_GENERAL); });
+  }
 };
