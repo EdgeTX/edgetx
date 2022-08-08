@@ -32,7 +32,6 @@
 #else
   #define LCD_CONTRAST_OFFSET            160
 #endif
-
 #define RESET_WAIT_DELAY_MS            300 // Wait time after LCD reset before first command
 #define WAIT_FOR_DMA_END()             do { } while (lcd_busy)
 
@@ -44,6 +43,7 @@
 
 #define LCD_RST_HIGH()                 LCD_RST_GPIO->BSRRL = LCD_RST_GPIO_PIN
 #define LCD_RST_LOW()                  LCD_RST_GPIO->BSRRH = LCD_RST_GPIO_PIN
+
 bool lcdInitFinished = false;
 void lcdInitFinish();
 
