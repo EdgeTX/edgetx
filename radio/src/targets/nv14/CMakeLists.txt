@@ -49,7 +49,7 @@ add_definitions(-DPCBNV14 -DPCBFLYSKY -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
 add_definitions(-DBATTERY_CHARGE)
 
 # defines existing internal modules
-set(INTERNAL_MODULES AFHDS2A AFHDS3 CACHE STRING "Internal modules")
+set(INTERNAL_MODULES AFHDS2A;AFHDS3 CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET nv14_bitmaps)

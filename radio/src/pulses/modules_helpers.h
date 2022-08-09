@@ -803,7 +803,7 @@ inline void resetAfhdsOptions(uint8_t moduleIdx)
   data.afhds3.emi = 2; // FCC
   data.afhds3.telemetry = 1;
   data.afhds3.phyMode = 0;
-#elif defined(AFHDS2A)
+#elif defined(AFHDS2)
   auto & data = g_model.moduleData[moduleIdx];
   data.subType = FLYSKY_SUBTYPE_AFHDS2A;
   data.flysky.setDefault();
