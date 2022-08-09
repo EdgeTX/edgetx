@@ -117,7 +117,7 @@ void lcdStart()
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
   lcdWriteCommand(0xe2); // (14) Soft reset
-#if defined(RADIO_LR3PRO)
+#if defined(LCD_HORIZONTAL_INVERT)
   lcdWriteCommand(0xa1); // Set seg
 #else 
   lcdWriteCommand(0xa0); // Set seg
