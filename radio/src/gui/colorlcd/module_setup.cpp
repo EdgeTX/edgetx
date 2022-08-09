@@ -74,6 +74,7 @@ class ModuleWindow : public FormGroup
 
   ModuleOptions* modOpts = nullptr;
   ChannelRange* chRange = nullptr;
+  Window *rxID = nullptr;
   TextButton *bindButton = nullptr;
   TextButton *rangeButton = nullptr;
   TextButton *registerButton = nullptr;
@@ -141,6 +142,7 @@ void ModuleWindow::updateModule()
 
   modOpts = nullptr;
   chRange = nullptr;
+  rxID = nullptr;
   bindButton = nullptr;
   rangeButton = nullptr;
   registerButton = nullptr;
@@ -191,21 +193,20 @@ void ModuleWindow::updateModule()
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
     // Model index
-    if (isModuleModelIndexAvailable(moduleIdx)) {
-      auto modelId = &g_model.header.modelId[moduleIdx];
-      new NumberEdit(box, rect_t{}, 0, getMaxRxNum(moduleIdx),
-                     GET_DEFAULT(*modelId), [=](int32_t newValue) {
-                       if (newValue != *modelId) {
-                         *modelId = newValue;
+    auto modelId = &g_model.header.modelId[moduleIdx];
+    rxID = new NumberEdit(box, rect_t{}, 0, getMaxRxNum(moduleIdx),
+                          GET_DEFAULT(*modelId), [=](int32_t newValue) {
+                            if (newValue != *modelId) {
+                              *modelId = newValue;
 #if defined(CROSSFIRE)
-                         if (isModuleCrossfire(moduleIdx)) {
-                           moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
-                         }
+                              if (isModuleCrossfire(moduleIdx)) {
+                                moduleState[moduleIdx].counter =
+                                    CRSF_FRAME_MODELID;
+                              }
 #endif
-                         SET_DIRTY();
-                       }
-                     });
-    }
+                              SET_DIRTY();
+                            }
+                          });
 
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
@@ -399,6 +400,15 @@ void ModuleWindow::updateSubType()
 {
   if (modOpts) modOpts->update();
   if (chRange) chRange->update();
+
+  if (rxID) {
+    if (isModuleModelIndexAvailable(moduleIdx)) {
+      lv_obj_clear_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_add_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+
   if (fsLine) {
     if (isModuleFailsafeAvailable(moduleIdx)) {
       lv_obj_clear_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
