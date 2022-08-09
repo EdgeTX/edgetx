@@ -410,7 +410,7 @@ static void enablePulsesInternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2A)
+#if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
       internalModuleContext = Afhds2InternalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &Afhds2InternalDriver;
