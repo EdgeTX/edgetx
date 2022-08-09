@@ -56,7 +56,7 @@ bool YamlFormat::writeFile(const QByteArray & filedata)
 
 bool YamlFormat::load(RadioData & radioData)
 {  
-  bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
+  //bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
   int modelIdx = 0;
 
   QByteArray data;

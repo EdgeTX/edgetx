@@ -2,6 +2,7 @@
 
 #include "generalsettings.h"
 #include "modeldata.h"
+#include "labels.h"
 
 #include "datahelpers.h"  // required for getElementName
 
@@ -25,7 +26,7 @@ class RadioData {
     RadioData();
 
     GeneralSettings generalSettings;
-    std::vector<QString> labels;
+    QStringList labels;
     std::vector<ModelData> models;
 
     void convert(RadioDataConversionState & cstate);

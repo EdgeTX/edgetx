@@ -44,10 +44,11 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data)
     qDebug() << data_ostream.str().c_str();
 }
 
-bool loadLabelsListFromYaml(std::vector<QString>& labels,
+bool loadLabelsListFromYaml(QStringList& labels,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
+  labels.clear();
   if (data.size() == 0)
     return true;
   YAML::Node node = loadYamlFromByteArray(data);
@@ -62,7 +63,7 @@ bool loadLabelsListFromYaml(std::vector<QString>& labels,
           if(!label.IsMap()) continue;
           for(const auto &lbl : label) {
             if(!lbl.first.IsScalar()) continue;
-            labels.push_back(lbl.first.Scalar().c_str());
+            labels.append(lbl.first.Scalar().c_str());
           }
         }
       }

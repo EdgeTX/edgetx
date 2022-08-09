@@ -194,6 +194,7 @@ class MdiChild : public QWidget
 
     Ui::MdiChild * ui;
     TreeModel * modelsListModel;
+    LabelsModel * labelsListModel;
     QWidget * parentWindow;
 
     QString curFile;
@@ -204,8 +205,8 @@ class MdiChild : public QWidget
     QToolBar * labelsToolbar;
 
     QLabel *lblLabels;
-    LabelsProxy *labelsProxy;
-    LabelsDelegate *labelsDelegate;
+//    LabelsProxy *labelsProxy;
+//    LabelsDelegate *labelsDelegate;
 
     Firmware * firmware;
     RadioData radioData;
@@ -272,13 +273,13 @@ private slots:
 
 static constexpr int LBLS_COL=2;
 
-class LabelsEditor : public QListWidget
+class LabelsEditor : public QListView
 {
   Q_OBJECT
 
 public :
   LabelsEditor(QWidget *parent = nullptr);
-  void setModel(QAbstractItemModel *model) override;
+  //void setModel(QAbstractItemModel *model) override;
   void setSelectionModel(QItemSelectionModel *selModel) override;
   static constexpr int LBLS_COL=2;
 
@@ -292,25 +293,6 @@ private slots:
 };
 
 
-class LabelsModel : public QAbstractItemModel
-{
-  Q_OBJECT
 
-public:
-  LabelsModel(QObject *parent = nullptr);
-  ~LabelsModel();
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-  QModelIndex parent(const QModelIndex &index) const override;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
-private slots:
-  void dataupdate();
-
-};
 
 #endif // _MDICHILD_H_

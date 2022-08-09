@@ -36,3 +36,5 @@ private:
   QList<QModelIndex> modelIndices;
 };
 
+
+class LabelsModel : public Q

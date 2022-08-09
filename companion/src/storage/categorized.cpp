@@ -322,6 +322,16 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       radioData.generalSettings.currModelIndex = modelIdx;
       qDebug() << "currModelIndex =" << modelIdx;
       qDebug() << "currModelLabels =" << model.labels;
+      QStringList labels = QString(model.labels).split(',',Qt::SkipEmptyParts);
+      foreach(QString label, labels) {
+        if(!radioData.labels.contains(label)) {
+          radioData.labels.append(label);
+        }
+      }
+      // If no labels, add Favorites
+      if(!radioData.labels.size()) {
+        radioData.labels.append(tr("Favorites"));
+      }
     }
 
     model.used = true;

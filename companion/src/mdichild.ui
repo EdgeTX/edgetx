@@ -36,24 +36,23 @@
     <layout class="QVBoxLayout" name="bottomLayout"/>
    </item>
    <item>
-    <widget class="LabelsEditor" name="lstLabels">
+    <widget class="QTableView" name="lstLabels">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
        <height>150</height>
       </size>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>LabelsEditor</class>
-   <extends>QListView</extends>
-   <header>mdichild.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

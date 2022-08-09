@@ -205,7 +205,6 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 
   f |= Qt::ItemIsDragEnabled;
   f |= Qt::ItemIsDropEnabled;
-  f |= Qt::ItemIsEditable;
 
   //qDebug() << f;
   return f;

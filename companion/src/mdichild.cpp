@@ -33,6 +33,7 @@
 #include "radiointerface.h"
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
+#include "labels.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -41,6 +42,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   QWidget(parent, f),
   ui(new Ui::MdiChild),
   modelsListModel(NULL),
+  labelsListModel(NULL),
   parentWindow(parentWin),
   radioToolbar(NULL),
   labelsToolbar(NULL),
@@ -551,19 +553,12 @@ void MdiChild::initModelsList()
   ui->modelsList->setModel(modelsListModel);
   ui->modelsList->selectionModel()->currentIndex().row();
 
-  // Labels Editor
-  ui->lstLabels->setModel(modelsListModel);
-  ui->lstLabels->setSelectionModel(ui->modelsList->selectionModel());
-
-/*  ui->lstLabels->addItem("Favorite");
-  ui->lstLabels->addItem("Planes");
-  ui->lstLabels->addItem("Wings");
-  ui->lstLabels->addItem("Drones");
-  for(int i=0; i < ui->lstLabels->count(); i++) {
-    auto item = ui->lstLabels->item(i);
-    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-    item->setCheckState(i % 2 == 0?Qt::Unchecked:Qt::Checked);
-  }*/
+  // Labels Editor + Model
+  if(labelsListModel)
+    delete labelsListModel;
+  labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
+                                    &radioData, this);
+  ui->lstLabels->setModel(labelsListModel);
 
   ui->modelsList->setIndentation(0);
 
@@ -1949,12 +1944,12 @@ void LabelsDelegate::commitAndCloseEditor()
 }
 
 LabelsEditor::LabelsEditor(QWidget *parent)
-  : QListWidget(parent)
+  : QListView(parent)
 {
 
 }
 
-void LabelsEditor::setModel(QAbstractItemModel *model)
+/*void LabelsEditor::setModel(QAbstractItemModel *model)
 {
   if (mdlModels == model)
     return;
@@ -1972,11 +1967,12 @@ void LabelsEditor::setModel(QAbstractItemModel *model)
   connect(model, SIGNAL(destroyed()), SLOT(_destroyed()));
 
   mdlModels = model;
-}
+  QListView::setModel(model);
+}*/
 
 void LabelsEditor::setSelectionModel(QItemSelectionModel *selModel)
 {
-  if(mdlSelection == selModel)
+/*  if(mdlSelection == selModel)
     return;
   if(mdlSelection) {
     disconnect(mdlSelection, &QItemSelectionModel::currentRowChanged,
@@ -1984,7 +1980,8 @@ void LabelsEditor::setSelectionModel(QItemSelectionModel *selModel)
   }
   connect(selModel, &QItemSelectionModel::currentRowChanged,
              this, &LabelsEditor::currentRowChanged);
-  mdlSelection = selModel;
+  mdlSelection = selModel;*/
+  QListView::setSelectionModel(selModel);
 }
 
 void LabelsEditor::_dataChanged(const QModelIndex &topLeft,const QModelIndex &bottomRight,const QVector<int> &roles)
@@ -1999,58 +1996,7 @@ void LabelsEditor::_destroyed()
 
 void LabelsEditor::currentRowChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-  QStringList labels = current.model()->data(current.model()->index(current.row(),LBLS_COL)).toString().split(',');
-  qDebug() << "Current CSV" << labels;
+  //QStringList labels = current.model()->data(current.model()->index(current.row(),LBLS_COL)).toString().split(',');
+  //qDebug() << "Current CSV" << labels;
 }
 
-LabelsModel::~LabelsModel()
-{
-
-}
-
-Qt::ItemFlags LabelsModel::flags(const QModelIndex &index) const
-{
-
-}
-
-bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-
-}
-
-QVariant LabelsModel::data(const QModelIndex &index, int role) const
-{
-
-}
-
-QModelIndex LabelsModel::index(int row, int column, const QModelIndex &parent) const
-{
-
-}
-
-QModelIndex LabelsModel::parent(const QModelIndex &index) const
-{
-
-}
-
-int LabelsModel::rowCount(const QModelIndex &parent) const
-{
-  Q_UNUSED(parent);
-  return 1;
-}
-
-int LabelsModel::columnCount(const QModelIndex &parent) const
-{
-  Q_UNUSED(parent);
-  return 1;
-}
-
-QVariant LabelsModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-
-}
-
-void LabelsModel::dataupdate()
-{
-
-}
