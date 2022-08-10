@@ -172,15 +172,6 @@ static uint32_t cliGetBaudRate()
   return 0;
 }
 
-static void cliSetBaudRateCb(void (*cb)(uint32_t))
-{
-  auto drv = cliSerialDriver;
-  auto ctx = cliSerialDriverCtx;
-
-  if (drv && drv->setBaudrateCb) {
-    return drv->setBaudrateCb(ctx, cb);
-  }
-}
 
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
@@ -1063,17 +1054,9 @@ static const etx_serial_init spIntmoduleSerialInitParams = {
   .rx_enable = true,
 };
 
-static void spInternalModuleSetBaudRate(uint32_t baud)
-{
-  etx_serial_init params(spIntmoduleSerialInitParams);
-  params.baudrate = baud;
-
-  // re-configure serial port
-  spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
-}
-
 // TODO: use proper method instead
 extern bool cdcConnected;
+extern uint32_t usbSerialBaudRate(void*);
 
 int cliSerialPassthrough(const char **argv)
 {
@@ -1138,11 +1121,20 @@ int cliSerialPassthrough(const char **argv)
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
-      // setup CDC baudrate callback
-      cliSetBaudRateCb(spInternalModuleSetBaudRate);
 
       // loop until cable disconnected
       while (cdcConnected) {
+
+        uint32_t cli_br = cliGetBaudRate();
+        if (cli_br && (cli_br != (uint32_t)baudrate)) {
+          baudrate = cli_br;
+
+          etx_serial_init params(spIntmoduleSerialInitParams);
+          params.baudrate = baudrate;
+
+          // re-configure serial port
+          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+        }
 
         uint8_t data;
         if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
@@ -1161,7 +1153,6 @@ int cliSerialPassthrough(const char **argv)
       }
 
       // restore callsbacks
-      cliSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
       spInternalModuleCTX = nullptr;
 

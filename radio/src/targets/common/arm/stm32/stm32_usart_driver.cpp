@@ -34,6 +34,8 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t 
     NVIC_DisableIRQ(usart->IRQn);
   }
 
+  LL_DMA_DeInit(usart->rxDMA, usart->rxDMA_Stream);
+
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
   dmaInit.Channel = usart->rxDMA_Channel;
