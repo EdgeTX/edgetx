@@ -40,7 +40,7 @@
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
 #define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
-#define TR_POTTYPES            Brak,TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr")
+#define TR_POTTYPES             TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr")
 #define TR_SLIDERTYPES         "Brak","Suwak"
 #define TR_VPERSISTENT         "Wyłącz","Lot","Ręczny Reset"
 #define TR_COUNTRY_CODES       TR("US","Ameryka"),TR("JP","Japonia"),TR("EU", "Europa")
@@ -741,7 +741,7 @@
 #define TR_TEMP_CALIB          "Temp. kalibracji"
 #define TR_TIME                "Czas"
 #define TR_MAXBAUDRATE         "Max bauds"
-#define TR_BAUDRATE                    "Baudrate"
+#define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 #define TR_SELECT_TEMPLATE_FOLDER "SELECT A TEMPLATE FOLDER:"
@@ -761,7 +761,7 @@
 #define TR_BLUETOOTH_PIN_CODE   "PIN code"
 #define TR_BLUETOOTH_NODEVICES  "No Devices Found"
 #define TR_BLUETOOTH_SCANNING   "Scanning..."
-#define TR_BLUETOOTH_BAUDRATE   "Prędkość BT"
+#define TR_BLUETOOTH_BAUDRATE   "BT Prędkość"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---","Enabled"
 #else
@@ -1003,7 +1003,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Krzywa"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Środek PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Tryb subtrim"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Funkcja"
 #define TR_LSW_HEADERS_V1              "V1"

@@ -766,7 +766,6 @@
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
-#define LEN_SAMPLE_MODES               "\006"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
 #define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
 #define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
@@ -785,7 +784,7 @@
 #define TR_BLUETOOTH_PIN_CODE          "Code PIN"
 #define TR_BLUETOOTH_NODEVICES         "No Devices Found"
 #define TR_BLUETOOTH_SCANNING          "Scanning..."
-#define TR_BAUDRATE                    "Baudrate BT"
+#define TR_BLUETOOTH_BAUDRATE          "Baudrate BT"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Activé"
 #else
@@ -1034,7 +1033,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Courbe"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Neutre PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Mode subtrim"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Fonction"
 #define TR_LSW_HEADERS_V1              "V1"

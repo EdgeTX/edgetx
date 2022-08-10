@@ -766,7 +766,7 @@
 #define TR_BLUETOOTH_PIN_CODE   "Código PIN"
 #define TR_BLUETOOTH_NODEVICES  "No Devices Found"
 #define TR_BLUETOOTH_SCANNING   "Scanning..."
-#define TR_BLUETOOTH_BAUDRATE   "Velocidad BT"
+#define TR_BLUETOOTH_BAUDRATE   "BT Velocidad"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---","Activo"
 #else
@@ -1010,7 +1010,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Curva"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Centrado PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Simétrica"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Función"
 #define TR_LSW_HEADERS_V1              "V1"

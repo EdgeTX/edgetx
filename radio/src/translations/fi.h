@@ -457,6 +457,7 @@
 #define TR_PERSISTENT                  TR(INDENT"Persist.", INDENT"Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT"Duration"
 #define TR_BLONBRIGHTNESS              INDENT"ON Brightness"
 #define TR_BLOFFBRIGHTNESS             INDENT"OFF Brightness"
@@ -758,8 +759,19 @@
 #define TR_TEMP_CALIB                  "Lämpötilan kalibrointi"
 #define TR_TIME                        "Aika"
 #define TR_MAXBAUDRATE                 "Max bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+
+#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES                "No model templates were found in this folder"
+#define TR_SAVE_TEMPLATE               "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
+#define TR_FILE_EXISTS                 "FILE ALREADY EXISTS"
+#define TR_ASK_OVERWRITE               "Do you want to overwrite?"
+
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Discover"
 #define TR_BLUETOOTH_INIT              "Init"
@@ -768,7 +780,7 @@
 #define TR_BLUETOOTH_PIN_CODE          "Pin-koodi"
 #define TR_BLUETOOTH_NODEVICES         "No Devices Found"
 #define TR_BLUETOOTH_SCANNING          "Scanning..."
-#define TR_BAUDRATE                    "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Enabled"
 #else
@@ -1010,7 +1022,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Curve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Function"
 #define TR_LSW_HEADERS_V1              "V1"
@@ -1138,6 +1150,7 @@
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_JITTER_FILTER               "ADC Filter"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
@@ -1301,6 +1314,13 @@
 #define TR_USE_THEME_COLOR             "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Add all Trims to Subtrims"
+
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+#endif
+
 #define TR_DUPLICATE                   "Duplicate"
 #define TR_ACTIVATE                    "Set Active"
 #define TR_RED                         "Punainen"
