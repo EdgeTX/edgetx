@@ -245,6 +245,12 @@
 
 #define TR_ON_ONE_SWITCHES             "EN","En"
 
+#if defined(COLORLCD)
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
+#else
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted","V-I H-N","V-I H-A"
+#endif
+
 #if defined(IMU)
   #define TR_IMU_VSRCRAW               "TitX","TitY",
 #else
@@ -1003,7 +1009,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Kurve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim tilstand"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Funktion"
 #define TR_LSW_HEADERS_V1              "V1"

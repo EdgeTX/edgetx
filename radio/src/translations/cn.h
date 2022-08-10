@@ -765,7 +765,7 @@
 #define TR_BLUETOOTH_PIN_CODE          "PIN码"
 #define TR_BLUETOOTH_NODEVICES         "未找到设备"
 #define TR_BLUETOOTH_SCANNING          "正在扫描..."
-#define TR_BLUETOOTH_BAUDRATE          "蓝牙带宽"         
+#define TR_BLUETOOTH_BAUDRATE          "蓝牙带宽"
 #if defined(PCBX9E)
   #define TR_BLUETOOTH_MODES           "---","启用"
 #else
