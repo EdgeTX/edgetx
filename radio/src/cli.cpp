@@ -1046,10 +1046,11 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
+static void *spInternalModuleCTX = nullptr;
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(nullptr, *(buf++));
+    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
     len--;
   }
 }
@@ -1068,7 +1069,7 @@ static void spInternalModuleSetBaudRate(uint32_t baud)
   params.baudrate = baud;
 
   // re-configure serial port
-  IntmoduleSerialDriver.init(&params);
+  spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
 }
 
 // TODO: use proper method instead
@@ -1131,6 +1132,7 @@ int cliSerialPassthrough(const char **argv)
       params.baudrate = baudrate;
 
       void* uart_ctx = IntmoduleSerialDriver.init(&params);
+      spInternalModuleCTX = uart_ctx;
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
@@ -1161,6 +1163,7 @@ int cliSerialPassthrough(const char **argv)
       // restore callsbacks
       cliSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
+      spInternalModuleCTX = nullptr;
 
       // and stop module
       IntmoduleSerialDriver.deinit(uart_ctx);
