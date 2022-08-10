@@ -220,7 +220,6 @@ bool ColorEditorPopup::onTouchEnd(coord_t x, coord_t y)
 {
   TRACE("ColorEditorPopup::onTouchEnd");
   if (!Window::onTouchEnd(x, y) && closeWhenClickOutside) {
-    onKeyPress();
     deleteLater();
   }
   return true;

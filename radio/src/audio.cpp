@@ -1267,11 +1267,6 @@ void pushPrompt(uint16_t prompt, uint8_t id)
 #endif
 }
 
-void onKeyPress()
-{
-  audioKeyPress();
-}
-
 void onKeyError()
 {
   audioKeyError();

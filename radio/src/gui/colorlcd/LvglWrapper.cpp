@@ -209,9 +209,9 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
-  if (st.event == TE_UP) {  // on Touch Up
-      reset_inactivity();   // reset activity counter
-      onKeyPress();         // provide acoustic and/or haptic feedback if requested in settings
+  if (st.event == TE_DOWN) { // on first touch (same logic as key down)
+      reset_inactivity();    // reset activity counter
+      audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
   }
   
   backup_touch_data(data);

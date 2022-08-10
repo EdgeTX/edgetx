@@ -36,7 +36,6 @@ class ViewMainMenu : public Window
   bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override { return true; }
   bool onTouchEnd(coord_t x, coord_t y) override
   {
-    onKeyPress();
     deleteLater();
     return true;
   }

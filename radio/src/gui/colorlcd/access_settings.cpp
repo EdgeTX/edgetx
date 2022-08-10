@@ -117,7 +117,6 @@ bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
   //       by clicking outside the menu window and the onCancel
   //       handler is not accessible from here
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  onKeyPress();
   deleteLater();
   return true;
 }
