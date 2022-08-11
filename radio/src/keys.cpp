@@ -104,9 +104,11 @@ void Key::input(bool val)
       m_state = KSTATE_RPTDELAY;
       m_cnt = 0;
 
-      if(key() < TRM_BASE) {
-        audioKeyPress();                // provide acoustic and/or haptic feedback if requested in settings
-      }
+      #ifndef BOOT                // if not in bootloader provide acoustic and/or
+        if(key() < TRM_BASE) {    // haptic feedback on hard keys except trim switches
+          audioKeyPress();         
+        }
+      #endif
       
       break;
 

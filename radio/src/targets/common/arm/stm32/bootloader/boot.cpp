@@ -27,11 +27,6 @@
 #include "keys.h"
 #include "debug.h"
 
-// to satisfy linker for keys.cpp which is used in firmware too
-void audioKeyPress() {
-  return;
-}
-
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
 #else
