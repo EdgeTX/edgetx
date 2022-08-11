@@ -1267,11 +1267,6 @@ void pushPrompt(uint16_t prompt, uint8_t id)
 #endif
 }
 
-void onKeyPress()     // audio/haptic feedback on hard keys moved to keys.cpp
-{                     // audio/haptic feedback on touch in LvglWrapper.cpp
-  return;
-}
-
 void onKeyError()
 {
   audioKeyError();
