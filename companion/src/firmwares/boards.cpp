@@ -95,6 +95,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3878746F;
     case BOARD_RADIOMASTER_TX12:
       return 0x4178746F;
+    case BOARD_RADIOMASTER_TX12_MK2:
+      return 0x4878746F;
     case BOARD_RADIOMASTER_ZORRO:
       return 0x4778746F;
     case BOARD_RADIOMASTER_T8:
@@ -129,6 +131,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TPRO:
     case BOARD_RADIOMASTER_TX12:
+    case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_T8:
     case BOARD_RADIOMASTER_ZORRO:
       return EESIZE_TARANIS;
@@ -170,6 +173,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TPRO:
     case BOARD_RADIOMASTER_TX12:
+    case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_T8:
       return FSIZE_TARANIS;
@@ -252,6 +256,18 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
       {SWITCH_3POS,     "SF"},
       {SWITCH_2POS,     "SI"},
       {SWITCH_2POS,     "SJ"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
+  else if (IS_RADIOMASTER_TX12_MK2(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_TOGGLE,   "SA"},
+      {SWITCH_3POS,     "SB"},
+      {SWITCH_3POS,     "SC"},
+      {SWITCH_TOGGLE,   "SD"},
+      {SWITCH_3POS,     "SE"},
+      {SWITCH_3POS,     "SF"}
     };
     if (index < DIM(switches))
       return switches[index];
@@ -440,6 +456,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 4;
       else if (board == BOARD_FLYSKY_NV14)
         return 8;
+      else if (board == BOARD_RADIOMASTER_TX12_MK2)
+        return 6;
       else if (IS_FAMILY_T12(board))
         return 8;
       else if (IS_TARANIS_XLITE(board))
@@ -665,6 +683,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
       return "Radiomaster TX12";
+    case BOARD_RADIOMASTER_TX12_MK2:
+      return "Radiomaster TX12 Mark II";
     case BOARD_RADIOMASTER_ZORRO:
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
@@ -885,6 +905,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
 
   case BOARD_RADIOMASTER_ZORRO:
   case BOARD_BETAFPV_LR3PRO:
+  case BOARD_RADIOMASTER_TX12_MK2:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:

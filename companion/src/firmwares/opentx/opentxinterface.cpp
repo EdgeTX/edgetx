@@ -72,6 +72,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
       return "EdgeTX for Radiomaster TX12";
+    case BOARD_RADIOMASTER_TX12_MK2:
+      return "EdgeTX for Radiomaster TX12 Mark II";
     case BOARD_RADIOMASTER_ZORRO:
       return "EdgeTX for Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
@@ -359,6 +361,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     variant |= RADIOMASTER_TX12_VARIANT;
+  }
+  else if (IS_RADIOMASTER_TX12_MK2(board)) {
+    variant |= RADIOMASTER_TX12_MK2_VARIANT;
   }
   else if (IS_RADIOMASTER_ZORRO(board)) {
     variant |= RADIOMASTER_ZORRO_VARIANT;
@@ -753,12 +758,12 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board);
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasAux2SerialMode:
       return IS_FAMILY_T16(board);
     case HasVCPSerialMode:
       return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board);
+             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
@@ -777,8 +782,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
               IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
-              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
-              IS_JUMPER_T18(board));
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) || 
+              IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     default:
@@ -827,6 +832,8 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
             return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board);
+          case PULSES_CROSSFIRE:
+            IS_RADIOMASTER_TX12_MK2(board);
           case PULSES_AFHDS3:
             return IS_FLYSKY_NV14(board);
           default:
@@ -1073,6 +1080,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     if (variant != RADIOMASTER_TX12_VARIANT) {
+      variantError = true;
+    }
+  }
+  else if (IS_RADIOMASTER_TX12_MK2(board)) {
+    if (variant != RADIOMASTER_TX12_MK2_VARIANT) {
       variantError = true;
     }
   }
@@ -1441,6 +1453,16 @@ void registerOpenTxFirmwares()
 
   /* Radiomaster TX12 board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx12"), QCoreApplication::translate("Firmware", "Radiomaster TX12"), BOARD_RADIOMASTER_TX12);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
+  /* Radiomaster TX12 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("tx12mk2"), QCoreApplication::translate("Firmware", "Radiomaster TX12 Mark II"), BOARD_RADIOMASTER_TX12_MK2);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
