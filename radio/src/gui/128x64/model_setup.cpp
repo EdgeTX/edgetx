@@ -876,7 +876,7 @@ void menuModelSetup(event_t event)
               }
               lcdDrawSizedText(
                   MODEL_SETUP_2ND_COLUMN + qr.rem * ((2 * FW) + 1),
-                  y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH) - 1, 1,
+                  y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH), 1,
                   attr && (menuHorizontalPosition == current) ? INVERS : 0);
               lcdDrawText(lcdNextPos, y + FH * qr.quot,
                           getSwitchWarnSymbol(states & 0x03));
