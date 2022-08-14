@@ -158,7 +158,7 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
 {
-  if (!rfProto) {
+  if (!rfProto || rfProto->subProtos.size() == 0) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
