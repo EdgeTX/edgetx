@@ -273,7 +273,6 @@ void ModuleWindow::updateModule()
                             }
                           });
 
-
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
@@ -360,7 +359,7 @@ void ModuleWindow::updateModule()
 #if defined(PXX2)
   else if (isModuleRFAccess(moduleIdx)) {
 
-// Register and Range buttons
+    // Register and Range buttons
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
