@@ -580,7 +580,7 @@ void ModuleSubTypeChoice::update()
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
   }
-  else if (isModuleR9M(moduleIdx)) {
+  else if (isModuleR9MNonAccess(moduleIdx)) {
     setMin(MODULE_SUBTYPE_R9M_FCC);
     setMax(MODULE_SUBTYPE_R9M_LAST);
     setValues(STR_R9M_REGION);
@@ -589,7 +589,7 @@ void ModuleSubTypeChoice::update()
     setAvailableHandler(nullptr);
   }
 #if defined(PXX2)
-  else if (isModulePXX2(moduleIdx)) {
+  else if (isModuleISRM(moduleIdx)) {
     setMin(MODULE_SUBTYPE_ISRM_PXX2_ACCESS);
     setMax(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16);
     setValues(STR_ISRM_RF_PROTOCOLS);
