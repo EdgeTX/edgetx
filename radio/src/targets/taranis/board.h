@@ -920,6 +920,10 @@ void fsLedOn(uint8_t);
 #else
   #define LCD_CONTRAST_DEFAULT          15
 #endif
+#if defined(RADIO_LR3PRO)
+  // add offset 2px because driver (SH1106) of the 1.3 OLED is for a 132 display
+  #define LCD_W_OFFSET                  0x02
+#endif
 #endif
 
 #if defined(PCBX9D) || defined(PCBX9E) || (defined(PCBX9DP) && PCBREV < 2019)

@@ -214,10 +214,9 @@ void lcdRefresh(bool wait)
 
 #if LCD_W == 128
   uint8_t * p = displayBuf;
-  #if defined(RADIO_LR3PRO)
-    // add offset 2px because the driver (SH1106) of the 1.3 OLED is for a 132 display
-    lcdWriteCommand(0x02);
-  #endif
+#if defined(LCD_W_OFFSET)
+  lcdWriteCommand(LCD_W_OFFSET);
+#endif
   for (uint8_t y=0; y < 8; y++, p+=LCD_W) {
     lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y
