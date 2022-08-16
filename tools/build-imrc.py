@@ -35,7 +35,7 @@ def build(board, translation, srcdir):
         suffix = "" if index == 0 else "_%d" % index
         filename = "output/ghost_firm_%s_%s_%s%s.bin" % (board.lower(), translation.lower(), timestamp(), suffix)
         if not os.path.exists(filename):
-            shutil.copy("%s/firmware.bin" % path, filename)
+            shutil.copy("%s/arm-none-eabi/firmware.bin" % path, filename)
             break
         index += 1
     shutil.rmtree(path)
