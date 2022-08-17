@@ -258,9 +258,3 @@ void lcdFlushed()
   if (refr_disp != nullptr)
     lv_disp_flush_ready(refr_disp);
 }
-
-//TODO: move this somewhere else
-event_t getWindowEvent()
-{
-  return getEvent(false);
-}

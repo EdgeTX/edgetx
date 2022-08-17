@@ -121,8 +121,18 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   data->key = 0;
 
-  if (isEvent()) {
-    event_t evt = getWindowEvent();
+  if (isEvent()) {                            // event waiting
+    event_t evt = getEvent(false);            // get keyEvent for hard keys other than trim switches
+
+    if(evt == EVT_KEY_FIRST(KEY_PGUP) ||      // generate acoustic/haptic feedback if radio settings allow
+       evt == EVT_KEY_FIRST(KEY_PGDN) ||
+       evt == EVT_KEY_FIRST(KEY_ENTER) ||
+       evt == EVT_KEY_FIRST(KEY_MODEL) ||
+       evt == EVT_KEY_FIRST(KEY_EXIT) ||
+       evt == EVT_KEY_FIRST(KEY_TELEM) ||
+       evt == EVT_KEY_FIRST(KEY_RADIO)) {
+      audioKeyPress();
+    }
 
     // no focused item ?
     auto obj = get_focus_obj(keyboardDevice);

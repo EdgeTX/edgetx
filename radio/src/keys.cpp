@@ -103,13 +103,6 @@ void Key::input(bool val)
       inactivity.counter = 0;
       m_state = KSTATE_RPTDELAY;
       m_cnt = 0;
-
-      #ifndef BOOT                // if not in bootloader provide acoustic and/or
-        if(key() < TRM_BASE) {    // haptic feedback on hard keys except trim switches
-          audioKeyPress();         
-        }
-      #endif
-      
       break;
 
     case KSTATE_RPTDELAY: // gruvin: delay state before first key repeat
