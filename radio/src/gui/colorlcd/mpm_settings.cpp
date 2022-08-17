@@ -27,6 +27,14 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+static void update_mpm_settings(lv_event_t* e)
+{
+  MultimoduleSettings* ms = (MultimoduleSettings*)lv_event_get_user_data(e);
+  if (!ms) return;
+
+  ms->update();
+}
+
 struct MPMProtoOption : public FormGroup::Line
 {
   StaticText* label;
@@ -261,7 +269,9 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
       COLOR_THEME_PRIMARY1);
 
   st_line = new MPMSubtype(this, &grid, moduleIdx);
-  // TODO: set event cb on st_line->choice / LV_EVENT_VALUE_CHANGED ?
+
+  lv_obj_add_event_cb(st_line->getLvObj(), update_mpm_settings,
+                      LV_EVENT_VALUE_CHANGED, this);
 
   opt_line = new MPMProtoOption(this, &grid);
   sr_line = new MPMServoRate(this, &grid, moduleIdx);

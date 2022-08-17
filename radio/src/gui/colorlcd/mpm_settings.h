@@ -42,8 +42,8 @@ class MultimoduleSettings : public FormGroup, public ModuleOptions
   MPMAutobind* ab_line;
   MPMChannelMap* cm_line;
 
+ public:
+  MultimoduleSettings(Window* parent, const FlexGridLayout& g,
+                      uint8_t moduleIdx);
   void update() override;
-    
-public:
-  MultimoduleSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };
