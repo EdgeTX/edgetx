@@ -278,6 +278,9 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
 
   cm_line = new MPMChannelMap(this, &grid, moduleIdx);
+
+  // Ensure elements properly initalised
+  update();
 }
 
 void MultimoduleSettings::update()
