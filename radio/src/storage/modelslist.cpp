@@ -208,11 +208,13 @@ ModelsCategory::~ModelsCategory()
   }
 }
 
-ModelCell * ModelsCategory::addModel(const char * name)
+ModelCell * ModelsCategory::addModel(const char * fileName, const char* modelName)
 {
   if (!name) return NULL;
 
-  ModelCell * result = new ModelCell(name);
+  ModelCell * result = new ModelCell(fileName);
+  if(modelName)
+    memcpy(result->modelName, modelName, sizeof(modelName));
   push_back(result);
   return result;
 }
@@ -508,9 +510,10 @@ ModelsCategory * ModelsList::createCategory(const char* name, bool save)
   return result;
 }
 
-ModelCell * ModelsList::addModel(ModelsCategory * category, const char * name, bool save)
+ModelCell * ModelsList::addModel(ModelsCategory * category, const char * fileName, const char* modelName, bool save)
 {
-  ModelCell * result = category->addModel(name);
+  ModelCell * result = category->addModel(fileName, modelName);
+  TRACE("modelName is %s", result->modelName);
   modelsCount++;
   if (save) this->save();
   return result;
