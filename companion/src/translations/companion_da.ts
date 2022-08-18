@@ -8044,6 +8044,10 @@ p, li { white-space: pre-wrap; }
         <source>Unable to find Horus radio SD card!</source>
         <translation>Kan ikke finde Horus radio SD kort!</translation>
     </message>
+    <message>
+        <source>Unable to find radio SD card!</source>
+        <translation>Kan ikke finde radio SD kort!</translation>
+    </message>
 </context>
 <context>
     <name>RadioKnobWidget</name>
