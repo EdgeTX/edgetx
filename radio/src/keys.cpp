@@ -23,8 +23,6 @@
 #include "timers_driver.h"
 #include "opentx_helpers.h"
 
-#include "audio.h"
-
 #define KEY_LONG_DELAY              32  // long key press minimum duration (x10ms), must be less than KEY_REPEAT_DELAY
 #define KEY_REPEAT_DELAY            40  // press longer than this enables repeat (but does not fire it yet)
 #define KEY_REPEAT_TRIGGER          48  // repeat trigger, used in combination with m_state to produce decreasing times between repeat events
