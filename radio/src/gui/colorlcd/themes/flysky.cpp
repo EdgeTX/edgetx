@@ -250,14 +250,14 @@ class FlyskyTheme: public OpenTxTheme
       delete mixerSetupLabelIcon;
       mixerSetupLabelIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_label.png"));
 
-      delete mixerSetupCurveIcon;
-      mixerSetupCurveIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_curve.png"));
+      // delete mixerSetupCurveIcon;
+      // mixerSetupCurveIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_curve.png"));
 
       delete mixerSetupSwitchIcon;
       mixerSetupSwitchIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_switch.png"));
 
-      delete mixerSetupFlightmodeIcon;
-      mixerSetupFlightmodeIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_fm.png"));
+      // delete mixerSetupFlightmodeIcon;
+      // mixerSetupFlightmodeIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_fm.png"));
 
 //      delete mixerSetupSlowIcon;
 //      mixerSetupSlowIcon = BitmapBuffer::loadMask(getFilePath("mask_textline_slow.png"));

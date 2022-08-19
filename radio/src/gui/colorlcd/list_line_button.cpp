@@ -19,21 +19,27 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#include "list_line_button.h"
+#include "opentx.h"
 
-#include "tabsgroup.h"
+#include "lvgl_widgets/input_mix_line.h"
 
-class OutputLineButton;
-
-class ModelOutputsPage : public PageTab
+void ListLineButton::value_changed(lv_event_t* e)
 {
- public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  auto obj = lv_event_get_target(e);
+  auto btn = (ListLineButton*)lv_obj_get_user_data(obj);
+  if (btn) btn->refresh();
+}
 
- protected:
-  void editOutput(uint8_t channel, OutputLineButton* btn);
-};
+ListLineButton::ListLineButton(Window* parent, uint8_t index) :
+    Button(parent, rect_t{}, nullptr, 0, 0, input_mix_line_create),
+    index(index)
+{
+  lv_obj_add_event_cb(lvobj, ListLineButton::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
+}
 
-#endif // _MODEL_OUTPUTS_H_
+void ListLineButton::checkEvents()
+{
+  check(isActive());
+  Button::checkEvents();
+}

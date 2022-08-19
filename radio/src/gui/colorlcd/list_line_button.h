@@ -19,21 +19,26 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "button.h"
+#include "opentx_types.h"
 
-class OutputLineButton;
-
-class ModelOutputsPage : public PageTab
+class ListLineButton : public Button
 {
  public:
-  ModelOutputsPage();
-  void build(FormWindow* window) override;
+  ListLineButton(Window* parent, uint8_t index);
+
+  uint8_t getIndex() const { return index; }
+  void setIndex(uint8_t i) { index = i; }
+
+  void checkEvents() override;
 
  protected:
-  void editOutput(uint8_t channel, OutputLineButton* btn);
-};
+  uint8_t index;
 
-#endif // _MODEL_OUTPUTS_H_
+  static void value_changed(lv_event_t* e);
+
+  virtual bool isActive() const = 0;
+  virtual void refresh() = 0;
+};

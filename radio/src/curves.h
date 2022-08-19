@@ -47,4 +47,6 @@ int applyCustomCurve(int x, uint8_t idx);
 int applyCurve(int x, CurveRef & curve);
 int applyCurrentCurve(int x);
 
+char *getCurveRefString(char *dest, size_t len, const CurveRef& curve);
+
 #endif

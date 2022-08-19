@@ -21,98 +21,179 @@
 
 #include "model_outputs.h"
 #include "output_edit.h"
-#include "input_mix_button.h"
+#include "list_line_button.h"
 #include "channel_bar.h"
 
 #include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#if LCD_W > LCD_H
-static const coord_t btn_cols[] = {
-  90, 158, 208, 262, 306, 326
+static const uint8_t _mask_textline_curve[] = {
+#include "mask_textline_curve.lbm"
 };
-#else
-static const coord_t btn_cols[] = {
-  264, 66, 123, 180, 232, 264
+STATIC_LZ4_BITMAP(mask_textline_curve);
+
+#define CH_BAR_WIDTH  92
+#define CH_BAR_HEIGHT 14
+
+#if LCD_W > LCD_H // Landscape
+
+#define CH_BAR_COL     7
+#define CH_BAR_COLSPAN 1
+
+static const lv_coord_t col_dsc[] = {
+  80, 50, 54, 44, 60, 18, 18, LV_GRID_FR(1),
+  LV_GRID_TEMPLATE_LAST
 };
+
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#else // Portrait
+
+#define CH_BAR_COL     3
+#define CH_BAR_COLSPAN 3
+
+static const lv_coord_t col_dsc[] = {
+  80, 50, 60, 18, 18, LV_GRID_FR(1),
+  LV_GRID_TEMPLATE_LAST
+};
+
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
 #endif
 
-class OutputLineButton : public InputMixButton
+class OutputLineButton : public ListLineButton
 {
+  bool init = false;
+
+  lv_obj_t* source = nullptr;
+  lv_obj_t* revert = nullptr;
+  lv_obj_t* min = nullptr;
+  lv_obj_t* max = nullptr;
+  lv_obj_t* offset = nullptr;
+  lv_obj_t* center = nullptr;
+  lv_obj_t* curve = nullptr;
+  OutputChannelBar* bar = nullptr;
+
+  static lv_img_dsc_t curveIcon;
+  static void loadCurveIcon();
+
+  static void on_draw(lv_event_t * e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (OutputLineButton*)lv_obj_get_user_data(target);
+    if (line && !line->init) line->delayed_init(e);
+  }
+  
+  void delayed_init(lv_event_t* e)
+  {
+    uint8_t col = 1, row = 0;
+
+    min = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(min, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_set_style_text_font(min, getFont(FONT(BOLD)), LV_STATE_USER_1);
+    lv_obj_set_grid_cell(min, LV_GRID_ALIGN_END, col++, 1, LV_GRID_ALIGN_START,
+                         row, 1);
+
+    max = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(max, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_set_style_text_font(max, getFont(FONT(BOLD)), LV_STATE_USER_1);
+    lv_obj_set_grid_cell(max, LV_GRID_ALIGN_END, col++, 1, LV_GRID_ALIGN_START,
+                         row, 1);
+
+#if LCD_H > LCD_W
+    col = 1;
+    row++;
+#endif
+
+    offset = lv_label_create(lvobj);
+    lv_obj_set_grid_cell(offset, LV_GRID_ALIGN_END, col++, 1,
+                         LV_GRID_ALIGN_START, row, 1);
+
+    center = lv_label_create(lvobj);
+    lv_obj_set_style_pad_left(center, 8, 0);
+    lv_obj_set_grid_cell(center, LV_GRID_ALIGN_START, col++, 1,
+                         LV_GRID_ALIGN_START, row, 1);
+
+    revert = lv_img_create(lvobj);
+    lv_img_set_src(revert, LV_SYMBOL_SHUFFLE);
+    lv_obj_set_grid_cell(revert, LV_GRID_ALIGN_START, col++, 1,
+                         LV_GRID_ALIGN_START, row, 1);
+
+    curve = lv_img_create(lvobj);
+    loadCurveIcon();
+    lv_img_set_src(curve, &curveIcon);
+    lv_obj_set_style_img_recolor(curve, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_style_img_recolor_opa(curve, LV_OPA_COVER, 0);
+    lv_obj_set_grid_cell(curve, LV_GRID_ALIGN_START, col++, 1,
+                         LV_GRID_ALIGN_START, row, 1);
+
+    bar = new OutputChannelBar(this, rect_t{}, index);
+    bar->setWidth(CH_BAR_WIDTH);
+    bar->setHeight(CH_BAR_HEIGHT);
+    bar->setDrawLimits(false);
+
+    lv_obj_set_grid_cell(bar->getLvObj(), LV_GRID_ALIGN_END, CH_BAR_COL,
+                         CH_BAR_COLSPAN, LV_GRID_ALIGN_CENTER, 0, 1);
+
+    init = true;
+    refresh();
+    lv_obj_update_layout(lvobj);
+
+    auto param = lv_event_get_param(e);
+    lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+  }
+  
  public:
   OutputLineButton(Window* parent, uint8_t channel) :
-    InputMixButton(parent, channel)
+      ListLineButton(parent, channel)
   {
-#if LCD_H > LCD_W
-    auto font_h = getFontHeight(FONT(STD));
-    rect_t r{ 150, (font_h - 14) / 2, 100, 14 };
-#else
-    lv_obj_update_layout(lvobj);
-    auto font_h = getFontHeight(FONT(STD));
-    auto x = lv_obj_get_content_width(lvobj) - 92;
-    auto y = (font_h - 14) / 2;
+    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
+    lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
-    rect_t r{ x, y, 92, 14 };
-#endif
-    auto bar = new OutputChannelBar(this, r, channel);
-    bar->setDrawLimits(false);
+    source = lv_label_create(lvobj);
+    lv_obj_set_style_text_font(source, getFont(FONT(BOLD)), 0);
+    lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
+                         LV_GRID_ALIGN_START, 0, 1);
+
+    lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN, nullptr);
   }
 
-  void paint(BitmapBuffer *dc) override
+  void refresh() override
   {
-    LcdFlags textColor = COLOR_THEME_SECONDARY1;
-
+    if (!init) return;
+    
     const LimitData* output = limitAddress(index);
-    int chanZero = output->ppmCenter;
 
-    coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-    coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
-    coord_t left = pad_left + border;
-
-    // first line ...
-    coord_t x = left;
-    coord_t y = border + lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
-
-    x = left;
-    dc->drawText(x, y, getSourceString(MIXSRC_CH1 + index), FONT(BOLD) | textColor);
+    lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
 
     if (output->revert) {
-      x = left + btn_cols[0];
-      dc->drawText(x, y, LV_SYMBOL_SHUFFLE, textColor);
+      lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_add_flag(revert, LV_OBJ_FLAG_HIDDEN);
     }
 
-#if LCD_H > LCD_W      
-    y += lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
-      + getFontHeight(FONT(STD));
-#endif
-    
-    // Min
-    LcdFlags txtFlags = (value < chanZero - 5) ? FONT(BOLD) | textColor : textColor;
-    x = left + btn_cols[1];
-    drawValueOrGVar(dc, x, y, output->min, -GV_RANGELARGE, 0, RIGHT | PREC1 | txtFlags,
-                    nullptr, -LIMITS_MIN_MAX_OFFSET);
+    char s[32];
+    getValueOrGVarString(s, sizeof(s), output->min, -GV_RANGELARGE, 0, PREC1,
+                         nullptr, -LIMITS_MIN_MAX_OFFSET);
+    lv_label_set_text(min, s);
 
-    // Max
-    txtFlags = (value > chanZero + 5) ? FONT(BOLD) | textColor : textColor;
-    x = left + btn_cols[2];
-    drawValueOrGVar(dc, x, y, output->max, 0, GV_RANGELARGE,
-                    RIGHT | PREC1 | txtFlags, nullptr, +LIMITS_MIN_MAX_OFFSET);
+    getValueOrGVarString(s, sizeof(s), output->max, 0, GV_RANGELARGE, PREC1,
+                         nullptr, +LIMITS_MIN_MAX_OFFSET);
+    lv_label_set_text(max, s);
 
-    // Offset
-    x = left + btn_cols[3];
-    drawValueOrGVar(dc, x, y, output->offset, -LIMIT_STD_MAX,
-                    +LIMIT_STD_MAX, RIGHT | PREC1 | textColor, nullptr);
+    getValueOrGVarString(s, sizeof(s), output->offset, -LIMIT_STD_MAX,
+                         +LIMIT_STD_MAX, PREC1);
+    lv_label_set_text(offset, s);
 
-    // PPM center
-    x = left + btn_cols[4];
-    dc->drawNumber(x, y, PPM_CENTER + output->ppmCenter, RIGHT | textColor);
-    dc->drawText(x, y, output->symetrical ? "=" : STR_CHAR_DELTA, textColor);
+    lv_label_set_text_fmt(center, "%d%s", PPM_CENTER + output->ppmCenter,
+                          output->symetrical ? " =" : STR_CHAR_DELTA);
 
     if (output->curve) {
-      x = left + btn_cols[5];
-      // dc->drawText(x, y, getCurveString(output->curve), RIGHT | textColor);
-      dc->drawMask(x, y, mixerSetupCurveIcon, textColor);
+      lv_obj_clear_flag(curve, LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_add_flag(curve, LV_OBJ_FLAG_HIDDEN);
     }
   }
 
@@ -120,25 +201,62 @@ class OutputLineButton : public InputMixButton
   int value = 0;
 
   bool isActive() const override { return false; }
-  size_t getLines() const override
-  {
-#if LCD_H > LCD_W      
-    return 2;
-#else
-    return 1;
-#endif
-  }
 
   void checkEvents() override
   {
     Window::checkEvents();
+    if (!init) return;
+
     int newValue = channelOutputs[index];
     if (value != newValue) {
       value = newValue;
-      invalidate();
+
+      const LimitData* output = limitAddress(index);
+      int chanZero = output->ppmCenter;
+
+      if (value < chanZero - 5) {
+        lv_obj_add_state(min, LV_STATE_USER_1);
+      } else {
+        lv_obj_clear_state(min, LV_STATE_USER_1);
+      }
+
+      if (value > chanZero + 5) {
+        lv_obj_add_state(max, LV_STATE_USER_1);
+      } else {
+        lv_obj_clear_state(max, LV_STATE_USER_1);
+      }
     }
   }
 };
+
+lv_img_dsc_t OutputLineButton::curveIcon = {
+    .header =
+        {
+            .cf = LV_IMG_CF_ALPHA_8BIT,
+            .always_zero = 0,
+            .reserved = 0,
+            .w = 0,
+            .h = 0,
+        },
+    .data_size = 0,
+    .data = nullptr,
+};
+
+void OutputLineButton::loadCurveIcon()
+{
+  if (curveIcon.data) return;
+  
+  auto mask = (const uint8_t*)mask_textline_curve;
+  auto mask_hdr = (const uint16_t*)mask;
+  mask += 4;
+
+  auto w = mask_hdr[0];
+  auto h = mask_hdr[1];
+  curveIcon.header.w = w;
+  curveIcon.header.h = h;
+  curveIcon.data_size = w * h;
+  curveIcon.data = mask;
+}
 
 ModelOutputsPage::ModelOutputsPage() :
   PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
@@ -148,16 +266,16 @@ ModelOutputsPage::ModelOutputsPage() :
 void ModelOutputsPage::build(FormWindow *window)
 {
   window->setFlexLayout();
-  window->padRow(lv_dpx(8));
+  window->padRow(lv_dpx(4));
 
   auto form = new FormGroup(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(16));
   form->padRow(lv_dpx(8));
+  form->padBottom(lv_dpx(4));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-  // auto btn =
   new TextButton(form, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     moveTrimsToOffsets();
     window->invalidate();
@@ -178,12 +296,13 @@ void ModelOutputsPage::build(FormWindow *window)
 
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
+    // btn->refresh();
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
-        editOutput(ch);
+          editOutput(ch, btn);
       });
       menu->addLine(STR_RESET, [=]() {
         output->min = 0;
@@ -211,7 +330,10 @@ void ModelOutputsPage::build(FormWindow *window)
   }
 }
 
-void ModelOutputsPage::editOutput(uint8_t channel)
+void ModelOutputsPage::editOutput(uint8_t channel, OutputLineButton* btn)
 {
-  new OutputEditWindow(channel);
+  auto btn_obj = btn->getLvObj();
+  auto edit = new OutputEditWindow(channel);
+  edit->setCloseHandler(
+      [=]() { lv_event_send(btn_obj, LV_EVENT_VALUE_CHANGED, nullptr); });
 }

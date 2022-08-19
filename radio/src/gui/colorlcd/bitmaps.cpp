@@ -161,17 +161,11 @@ static const uint8_t mask_stats_throttle_graph[] = {
 static const uint8_t mask_stats_timers[] = {
 #include "mask_stats_timers.lbm"
 };
-static const uint8_t mask_textline_curve[] = {
-#include "mask_textline_curve.lbm"
-};
 static const uint8_t mask_textline_delay[] = {
 #include "mask_textline_delay.lbm"
 };
 static const uint8_t mask_textline_delayslow[] = {
 #include "mask_textline_delayslow.lbm"
-};
-static const uint8_t mask_textline_fm[] = {
-#include "mask_textline_fm.lbm"
 };
 static const uint8_t mask_textline_label[] = {
 #include "mask_textline_label.lbm"
@@ -241,13 +235,12 @@ BitmapBuffer * chanMonInvertedBitmap = nullptr;
 BitmapBuffer * mixerSetupMixerBitmap = nullptr;
 BitmapBuffer * mixerSetupToBitmap = nullptr;
 BitmapBuffer * mixerSetupOutputBitmap = nullptr;
-BitmapBuffer * mixerSetupCurveIcon = nullptr;
+// BitmapBuffer * mixerSetupCurveIcon = nullptr;
 BitmapBuffer * mixerSetupSwitchIcon = nullptr;
 BitmapBuffer * mixerSetupLabelIcon = nullptr;
 BitmapBuffer * mixerSetupDelayIcon = nullptr;
 BitmapBuffer * mixerSetupSlowIcon = nullptr;
 BitmapBuffer * mixerSetupDelaySlowIcon = nullptr;
-BitmapBuffer * mixerSetupFlightmodeIcon = nullptr;
 
 struct _BuiltinBitmap {
 
@@ -277,9 +270,8 @@ static const _BuiltinBitmap _builtinBitmaps[] = {
     {BMP_8BIT, mask_sbar_output, &mixerSetupOutputBitmap},
 
     {BMP_8BIT, mask_textline_label, &mixerSetupLabelIcon},
-    {BMP_8BIT, mask_textline_curve, &mixerSetupCurveIcon},
+    // {BMP_8BIT, mask_textline_curve, &mixerSetupCurveIcon},
     {BMP_8BIT, mask_textline_switch, &mixerSetupSwitchIcon},
-    {BMP_8BIT, mask_textline_fm, &mixerSetupFlightmodeIcon},
     {BMP_8BIT, mask_textline_slow, &mixerSetupSlowIcon},
     {BMP_8BIT, mask_textline_delay, &mixerSetupDelayIcon},
     {BMP_8BIT, mask_textline_delayslow, &mixerSetupDelaySlowIcon},

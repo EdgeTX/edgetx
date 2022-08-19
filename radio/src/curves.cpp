@@ -416,3 +416,34 @@ int applyCurrentCurve(int x)
   return applyCustomCurve(x, s_currIdxSubMenu);
 }
 #endif
+
+#if defined(COLORLCD)
+char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
+{
+  if (!len) return dest;
+  char *s = dest;
+
+  if (curve.value != 0) {
+    switch (curve.type) {
+      case CURVE_REF_DIFF:
+        *(s++) = 'D'; if (--len == 0) return dest;
+        getValueOrGVarString(s, len, curve.value, -100, 100, 0, "%");
+        return dest;
+
+      case CURVE_REF_EXPO:
+        *(s++) = 'E'; if (--len == 0) return dest;
+        getValueOrGVarString(s, len, curve.value, -100, 100, 0, "%");
+        return dest;
+
+      case CURVE_REF_FUNC:
+        strAppend(dest, STR_VCURVEFUNC[curve.value], len);
+        return dest;
+
+      case CURVE_REF_CUSTOM:
+        return getCurveString(dest, curve.value);
+    }
+  }
+
+  return dest;
+}
+#endif
