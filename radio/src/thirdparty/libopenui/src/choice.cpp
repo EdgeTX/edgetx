@@ -201,7 +201,6 @@ void Choice::setValue(int val)
 
 void Choice::onClicked()
 {
-  onKeyPress();
   openMenu();
 }
 

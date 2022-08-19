@@ -26,7 +26,6 @@ static void checkbox_event_handler(lv_event_t* e)
   lv_obj_t* target = lv_event_get_target(e);
   CheckBox* cb = (CheckBox*)lv_obj_get_user_data(target);
 
-  onKeyPress();
   if (cb) cb->setValue(lv_obj_get_state(target) & LV_STATE_CHECKED);
 }
 

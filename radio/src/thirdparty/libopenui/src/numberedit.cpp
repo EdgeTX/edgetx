@@ -71,7 +71,6 @@ void NumberEdit::onEvent(event_t event)
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
         if (value <= vmax) {
           setValue(value);
-          onKeyPress();
         }
         else {
           setValue(vmax);
@@ -87,7 +86,6 @@ void NumberEdit::onEvent(event_t event)
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
         if (value >= vmin) {
           setValue(value);
-          onKeyPress();
         }
         else {
           setValue(vmin);

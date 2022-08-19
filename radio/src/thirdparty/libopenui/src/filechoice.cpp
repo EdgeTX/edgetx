@@ -134,6 +134,5 @@ bool FileChoice::openMenu()
 
 void FileChoice::onClicked()
 {
-  onKeyPress();
   openMenu();
 }
