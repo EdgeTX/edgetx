@@ -121,8 +121,18 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   data->key = 0;
 
-  if (isEvent()) {
-    event_t evt = getWindowEvent();
+  if (isEvent()) {                            // event waiting
+    event_t evt = getEvent(false);            // get keyEvent for hard keys other than trim switches
+
+    if(evt == EVT_KEY_FIRST(KEY_PGUP) ||      // generate acoustic/haptic feedback if radio settings allow
+       evt == EVT_KEY_FIRST(KEY_PGDN) ||
+       evt == EVT_KEY_FIRST(KEY_ENTER) ||
+       evt == EVT_KEY_FIRST(KEY_MODEL) ||
+       evt == EVT_KEY_FIRST(KEY_EXIT) ||
+       evt == EVT_KEY_FIRST(KEY_TELEM) ||
+       evt == EVT_KEY_FIRST(KEY_RADIO)) {
+      audioKeyPress();
+    }
 
     // no focused item ?
     auto obj = get_focus_obj(keyboardDevice);
@@ -209,9 +219,9 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
-  if (st.event == TE_UP) {  // on Touch Up
-      reset_inactivity();   // reset activity counter
-      onKeyPress();         // provide acoustic and/or haptic feedback if requested in settings
+  if (st.event == TE_DOWN) { // on first touch (same logic as key down)
+      reset_inactivity();    // reset activity counter
+      audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
   }
   
   backup_touch_data(data);

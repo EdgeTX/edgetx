@@ -182,7 +182,6 @@ public:
       for (auto i = 0; i < (int) _tabs.size(); i++)
         _tabs[i]->check(i == _activeTab);
       _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
-      onKeyPress();
     }
   }
 
