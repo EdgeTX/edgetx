@@ -59,6 +59,7 @@ void ScreenMenu::updateTabs()
   }
 
   // set the active tab to the currently shown screen on the MainView
-  if ((unsigned)(g_model.view + 1) < getTabs())
-    setCurrentTab(g_model.view + 1);
+  auto view = ViewMain::instance()->getCurrentMainView();
+  if (view + 1 < getTabs())
+    setCurrentTab(view + 1);
 }
