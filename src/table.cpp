@@ -259,11 +259,9 @@ void TableField::selectNext(int16_t dir)
 void TableField::onEvent(event_t event)
 {
   if (event == EVT_ROTARY_RIGHT) {
-    onKeyPress();
     selectNext(1);
   }
   else if (event == EVT_ROTARY_LEFT) {
-    onKeyPress();
     selectNext(-1);
   }
   else {

@@ -42,7 +42,6 @@ void ModalWindow::deleteLater(bool detach, bool trash)
 void ModalWindow::onClicked()
 {
   if (closeWhenClickOutside) {
-    onKeyPress();
     deleteLater();
   }
 }

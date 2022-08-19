@@ -118,7 +118,6 @@ void MenuBody::onPress(size_t index)
 {
   Menu *menu = getParentMenu();
   if (index < lines.size()) {
-    onKeyPress();
     if (menu->multiple) {
       if (selectedIndex == (int)index)
         lines[index].onPress();
