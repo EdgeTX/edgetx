@@ -158,11 +158,6 @@ std::list<const WidgetFactory *> & getRegisteredWidgets()
   return widgets;
 }
 
-void registerWidget(const WidgetFactory * factory)
-{
-  TRACE("register widget %s", factory->getName());
-  getRegisteredWidgets().push_back(factory);
-}
 
 void unregisterWidget(const WidgetFactory * factory)
 {
@@ -179,6 +174,17 @@ const WidgetFactory * getWidgetFactory(const char * name)
     }
   }
   return nullptr;
+}
+
+void registerWidget(const WidgetFactory * factory)
+{
+  auto name = factory->getName();
+  auto oldWidget = getWidgetFactory(name);
+  if (oldWidget) {
+    unregisterWidget(oldWidget);
+  }
+  TRACE("register widget %s", name);
+  getRegisteredWidgets().push_back(factory);
 }
 
 Widget* loadWidget(const char* name, Window* parent, const rect_t& rect,
