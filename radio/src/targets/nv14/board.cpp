@@ -112,6 +112,18 @@ void delay_self(int count)
                                EXTMODULE_RCC_APB2Periph \
                               )
 
+uint8_t boardGetPcbRev()
+{
+  // detect NV14 vs EL18
+  if (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET) {
+    // pull-up connected: EL18
+    return PCBREV_EL18;
+  } else {
+    // pull-down connected: NV14
+    return PCBREV_NV14;
+  }
+}
+
 void boardInit()
 {
 #if defined(SEMIHOSTING)
@@ -129,13 +141,7 @@ void boardInit()
 #endif
 
   // detect NV14 vs EL18
-  if (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET) {
-    // pull-up connected: EL18
-    hardwareOptions.pcbrev = PCBREV_EL18;
-  } else {
-    // pull-down connected: NV14
-    hardwareOptions.pcbrev = PCBREV_NV14;
-  }
+  hardwareOptions.pcbrev = boardGetPcbRev();
   
 #if defined(DEBUG)
   serialInit(SP_AUX1, UART_MODE_DEBUG);

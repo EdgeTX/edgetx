@@ -108,6 +108,8 @@ extern HardwareOptions hardwareOptions;
 
 #if !defined(SIMU)
 
+uint8_t boardGetPcbRev();
+
 #define INTERNAL_MODULE_OFF()                                     \
   do {                                                            \
     if (hardwareOptions.pcbrev == PCBREV_NV14)                    \
@@ -139,6 +141,13 @@ void EXTERNAL_MODULE_OFF();
 
 #define BLUETOOTH_MODULE_ON()           GPIO_ResetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
 #define BLUETOOTH_MODULE_OFF()          GPIO_SetBits(BLUETOOTH_ON_GPIO, BLUETOOTH_ON_GPIO_PIN)
+
+#if defined(BOOT)
+
+#define USB_SW_TO_INTERNAL_MODULE() GPIO_SetBits(USB_SW_GPOIO, USB_SW_PIN);
+#define USB_SW_TO_MCU() GPIO_ResetBits(USB_SW_GPOIO, USB_SW_PIN);
+
+#endif
 
 #else
 

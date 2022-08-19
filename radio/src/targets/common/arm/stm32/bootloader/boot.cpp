@@ -323,7 +323,8 @@ int  bootloaderMain()
     if (tenms) {
       tenms = 0;
 
-      if (state != ST_USB && state != ST_FLASHING && state != ST_FLASH_DONE) {
+      if (state != ST_USB && state != ST_FLASHING
+          && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
         if (usbPlugged()) {
           state = ST_USB;
           if (!unlocked) {
@@ -522,7 +523,11 @@ int  bootloaderMain()
 #endif
       } else if (state == ST_RADIO_MENU) {
         if(bootloaderRadioMenu(radioMenuItem, event))
+        {
           state = ST_START;
+          vpos = 0;
+          bootloaderDrawScreen(state, vpos);
+        }
       }
 
       if (state == ST_FLASH_DONE) {

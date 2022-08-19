@@ -120,6 +120,16 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   }
 }
 
+uint32_t bootloaderGetMenuItemCount(int baseCount)
+{
+    return baseCount;
+}
+
+bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
+{
+    return true;
+}
+
 void blExit(void)
 {
 #if defined(RADIO_COMMANDO8)

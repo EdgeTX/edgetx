@@ -28,7 +28,7 @@
 
 #include <lvgl/lvgl.h>
 
-#define RADIO_MENU_LEN 1
+#define RADIO_MENU_LEN 2
 
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
@@ -118,8 +118,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(62, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
         coord_t pos = lcd->drawText(84, 75, "Write Firmware", BL_FOREGROUND);
         pos += 8;
-        if(hardwareOptions.pcbrev == PCBREV_EL18 || 1)
+        if(boardGetPcbRev() == PCBREV_EL18)
         {
+            lcd->drawText(62, 110, LV_SYMBOL_USB, BL_FOREGROUND);
             lcd->drawText(84, 110, "RF USB access", BL_FOREGROUND);
             pos += 8;
             yOffset = 35;
@@ -204,17 +205,6 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           lcd->drawText(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
                         LV_SYMBOL_OK, BL_GREEN);
         }
-      } else if (st == ST_RADIO_MENU) {
-        bootloaderDrawTitle("RF USB access");
-
-        coord_t pos = lcd->drawText(84, 75, rfUsbAccess?"Disable":"Enable", BL_FOREGROUND);
-        pos += 8;
-
-        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
-
-        pos -= 79;
-        lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
       }
 
       bootloaderDrawFooter();
@@ -243,6 +233,18 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
                       LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
       }
+    } else if (st == ST_RADIO_MENU) {
+      bootloaderDrawTitle("RF USB access");
+
+      lcd->drawText(62, 75, LV_SYMBOL_USB, BL_FOREGROUND);
+      coord_t pos = lcd->drawText(84, 75, rfUsbAccess?"Disable":"Enable", BL_FOREGROUND);
+      pos += 8;
+
+      lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+      lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+
+      pos -= 79;
+      lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
     }
 
     _first_screen = false;
@@ -262,8 +264,7 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 
 uint32_t bootloaderGetMenuItemCount(int baseCount)
 {
-    hardwareOptions.pcbrev = PCBREV_EL18;
-    if(hardwareOptions.pcbrev == PCBREV_EL18 || 1)
+    if(boardGetPcbRev() == PCBREV_EL18)
         return baseCount+1;
 
     return baseCount;
@@ -272,31 +273,34 @@ uint32_t bootloaderGetMenuItemCount(int baseCount)
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 {
     static int pos = 0;
+
     if (event == EVT_KEY_FIRST(KEY_DOWN)) {
         if (pos < RADIO_MENU_LEN-1)
             pos++;
-        return false;
     } else if (event == EVT_KEY_FIRST(KEY_UP)) {
         if (pos > 0)
             pos--;
-        return false;
     } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
         switch (pos) {
         case 0:
             if (rfUsbAccess)
             {
                 rfUsbAccess = false;
+                USB_SW_TO_MCU();
             } else {
                 rfUsbAccess = true;
+                USB_SW_TO_INTERNAL_MODULE();
             }
+            break;
         case 1: // fall through
         default:
+            USB_SW_TO_MCU();
             pos = 0;
             return true;
         }
     }
-    bootloaderDrawScreen(ST_RADIO_MENU, 0, nullptr);
-    return true;
+    bootloaderDrawScreen(ST_RADIO_MENU, pos, nullptr);
+    return false;
 }
 
 void blExit(void)
