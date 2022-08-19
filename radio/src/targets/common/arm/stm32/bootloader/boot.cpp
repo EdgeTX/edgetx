@@ -227,6 +227,10 @@ void bootloaderInitApp()
                              AUX2_SERIAL_RCC_APB2Periph,
                          ENABLE);
 
+#if defined(HAVE_BOARD_BOOTLOADER_INIT)
+  boardBootloaderInit();
+#endif
+
   pwrInit();
   keysInit();
 

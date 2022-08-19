@@ -60,17 +60,6 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
   
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
   RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, ENABLE) ; 
-
-#if defined(USB_SW_PIN) && defined(BOOT)
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Pin = USB_SW_PIN;
-  GPIO_Init(USB_SW_GPOIO, &GPIO_InitStructure);
-  RCC_AHB1PeriphClockCmd(USB_SW_AHB1Periph_GPIO, ENABLE);
-#endif
-
 }
 
 void USB_OTG_BSP_Deinit(USB_OTG_CORE_HANDLE *pdev)

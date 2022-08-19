@@ -112,8 +112,19 @@ void delay_self(int count)
                                EXTMODULE_RCC_APB2Periph \
                               )
 
-uint8_t boardGetPcbRev()
+static uint8_t boardGetPcbRev()
 {
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  RCC_AHB1PeriphClockCmd(INTMODULE_RCC_AHB1Periph, ENABLE);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_GPIO_PIN;
+  GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
+  delay_ms(1); // delay to let the input settle, else it does not work properly
+
   // detect NV14 vs EL18
   if (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET) {
     // pull-up connected: EL18
@@ -122,6 +133,23 @@ uint8_t boardGetPcbRev()
     // pull-down connected: NV14
     return PCBREV_NV14;
   }
+}
+
+void boardBootloaderInit()
+{
+#if defined(USB_SW_PIN)
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Pin = USB_SW_PIN;
+  GPIO_Init(USB_SW_GPOIO, &GPIO_InitStructure);
+  RCC_AHB1PeriphClockCmd(USB_SW_AHB1Periph_GPIO, ENABLE);
+#endif
+
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
 }
 
 void boardInit()

@@ -30,6 +30,9 @@
 
 #define RADIO_MENU_LEN 2
 
+#define USB_SW_TO_INTERNAL_MODULE() GPIO_SetBits(USB_SW_GPOIO, USB_SW_PIN);
+#define USB_SW_TO_MCU() GPIO_ResetBits(USB_SW_GPOIO, USB_SW_PIN);
+
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
 #define DOUBLE_PADDING  56
@@ -118,7 +121,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(62, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
         coord_t pos = lcd->drawText(84, 75, "Write Firmware", BL_FOREGROUND);
         pos += 8;
-        if(boardGetPcbRev() == PCBREV_EL18)
+        if(hardwareOptions.pcbrev == PCBREV_EL18)
         {
             lcd->drawText(62, 110, LV_SYMBOL_USB, BL_FOREGROUND);
             lcd->drawText(84, 110, "RF USB access", BL_FOREGROUND);
@@ -264,7 +267,7 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 
 uint32_t bootloaderGetMenuItemCount(int baseCount)
 {
-    if(boardGetPcbRev() == PCBREV_EL18)
+    if(hardwareOptions.pcbrev == PCBREV_EL18)
         return baseCount+1;
 
     return baseCount;
@@ -286,9 +289,11 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
             if (rfUsbAccess)
             {
                 rfUsbAccess = false;
+                INTERNAL_MODULE_OFF();
                 USB_SW_TO_MCU();
             } else {
                 rfUsbAccess = true;
+                INTERNAL_MODULE_ON();
                 USB_SW_TO_INTERNAL_MODULE();
             }
             break;
@@ -305,6 +310,7 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 
 void blExit(void)
 {
+  USB_SW_TO_MCU();
   lcdClear();
   lcdRefresh();
   lcdRefreshWait();
