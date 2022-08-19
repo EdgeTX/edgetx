@@ -40,10 +40,27 @@ static void tile_view_deleted_cb(lv_event_t* e)
   if (obj == target) { lv_obj_del(obj); }
 }
 
+static void saveViewId(unsigned view)
+{
+  if (view != g_model.view) {
+    TRACE("save view #%d", view);
+    g_model.view = view;
+    storageDirty(EE_MODEL);
+  }
+}
+
 static void tile_view_scroll(lv_event_t* e)
 {
-  (void)e;
-  if (ViewMain::instance()) ViewMain::instance()->updateTopbarVisibility();
+  // (void)e;
+  auto viewMain = ViewMain::instance();
+  if (viewMain) {
+    if (lv_event_get_code(e) == LV_EVENT_SCROLL_END) {
+      auto view = viewMain->getCurrentMainView();
+      saveViewId(view);
+    } else {
+      viewMain->updateTopbarVisibility();
+    }
+  }
 }
 
 ViewMain * ViewMain::_instance = nullptr;
@@ -52,11 +69,6 @@ ViewMain::ViewMain():
   Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR | OPAQUE)
 {
   Layer::push(this);
-
-  // setFocusHandler([&](bool focus) {
-  //     TRACE("[ViewMain] Focus %s",
-  //           focus ? "gained" : "lost");
-  //   });
 
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
@@ -68,6 +80,7 @@ ViewMain::ViewMain():
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
+  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END, nullptr);
   lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
   
   // create last to be on top
@@ -134,6 +147,7 @@ void ViewMain::nextMainView()
     view = 0;
 
   setCurrentMainView(view);
+  saveViewId(view);
 }
 
 void ViewMain::previousMainView()
@@ -145,6 +159,7 @@ void ViewMain::previousMainView()
     view = getMainViewsCount() - 1;
 
   setCurrentMainView(view);
+  saveViewId(view);
 }
 
 Topbar* ViewMain::getTopbar()
@@ -184,11 +199,9 @@ void ViewMain::updateTopbarVisibility()
   coord_t pageWidth = width();
   if (!pageWidth) return;
 
-  int view = scrollPos / pageWidth;
-  // TODO: cap view ???
-  
   int leftScroll =  scrollPos % width();
   if (leftScroll == 0) {
+    int view = scrollPos / pageWidth;
     setTopbarVisible(hasTopbar(view));
     if (customScreens[view])
       customScreens[view]->adjustLayout();
@@ -338,11 +351,6 @@ void ViewMain::paint(BitmapBuffer * dc)
 
   // TODO: set it as "window background" w/ LVGL
   OpenTxTheme::instance()->drawBackground(dc);
-
-  // TODO: move to "screen setup"
-  if (g_model.view >= getMainViewsCount()) {
-    g_model.view = 0;
-  }
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)
