@@ -299,6 +299,7 @@ int  bootloaderMain()
 {
   BootloaderState state = ST_START;
   uint32_t vpos = 0;
+  uint32_t radioMenuItem = 0;
   uint8_t index = 0;
   FRESULT fr;
   uint32_t nameCount = 0;
@@ -358,7 +359,7 @@ int  bootloaderMain()
         bootloaderDrawScreen(state, vpos);
 
         if (event == EVT_KEY_FIRST(KEY_DOWN)) {
-          if (vpos < MAIN_MENU_LEN - 1) { vpos++; }
+          if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
           continue;
         }
         else if (event == EVT_KEY_FIRST(KEY_UP)) {
@@ -378,7 +379,13 @@ int  bootloaderMain()
               break;
 #endif
             default:
-              state = ST_REBOOT;
+              if(vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN-1))
+              {
+                state = ST_RADIO_MENU;
+                radioMenuItem = vpos - MAIN_MENU_LEN - 1;
+              } else {
+                state = ST_REBOOT;
+              }
               break;
           }
 
@@ -513,6 +520,9 @@ int  bootloaderMain()
           state = ST_FLASH_DONE; // Backstop
         }
 #endif
+      } else if (state == ST_RADIO_MENU) {
+        if(bootloaderRadioMenu(radioMenuItem, event))
+          state = ST_START;
       }
 
       if (state == ST_FLASH_DONE) {
@@ -567,6 +577,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14))
 void *__dso_handle = nullptr;
 #endif
