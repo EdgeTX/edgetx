@@ -207,6 +207,7 @@ add_gui_src(input_mix_group.cpp)
 add_gui_src(input_mix_button.cpp)
 add_gui_src(channel_bar.cpp)
 
+add_gui_src(list_line_button.cpp)
 add_gui_src(lvgl_widgets/input_mix_line.c)
 add_gui_src(lvgl_widgets/input_mix_group.c)
 

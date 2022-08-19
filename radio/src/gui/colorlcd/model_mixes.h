@@ -26,6 +26,9 @@
 
 class ModelMixesPage : public ModelInputsPage
 {
+  bool showMonitors = false;
+  Window* scroll_win = nullptr;
+  
  public:
   ModelMixesPage();
 
@@ -48,4 +51,6 @@ class ModelMixesPage : public ModelInputsPage
   void pasteMix(uint8_t dst_idx, uint8_t channel);
   void pasteMixBefore(uint8_t dst_idx);
   void pasteMixAfter(uint8_t dst_idx);
+
+  void enableMonitors(bool enabled);
 };

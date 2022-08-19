@@ -69,18 +69,28 @@ InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
   lv_obj_set_size(line_container, lv_pct(100), LV_SIZE_CONTENT);
   lv_obj_set_flex_flow(line_container, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_style_flex_cross_place(line_container, LV_FLEX_ALIGN_END, 0);
-  lv_obj_set_style_pad_row(line_container, lv_dpx(8), LV_PART_MAIN);
+  lv_obj_set_style_pad_row(line_container, lv_dpx(4), LV_PART_MAIN);
 }
 
-void InputMixGroup::addMixerMonitor(uint8_t channel)
+void InputMixGroup::enableMixerMonitor(uint8_t channel)
 {
-  rect_t r{ 0, 0, 100, 14 };
-  auto mon = new MixerChannelBar(this, r, channel);
-  mon->setDrawMiddleBar(false);
+  if (monitor != nullptr) return;
 
-  lv_obj_t* mon_obj = mon->getLvObj();
+  rect_t r{ 0, 0, 100, 14 };
+  monitor = new MixerChannelBar(this, r, channel);
+  monitor->setDrawMiddleBar(false);
+
+  lv_obj_t* mon_obj = monitor->getLvObj();
   lv_obj_set_parent(mon_obj, line_container);
+  lv_obj_move_to_index(mon_obj, 0);
   lv_obj_set_style_translate_x(mon_obj, -lv_dpx(8), 0);
+}
+
+void InputMixGroup::disableMixerMonitor()
+{
+  if (!monitor) return;
+  monitor->deleteLater();
+  monitor = nullptr;
 }
 
 void InputMixGroup::addLine(Window* line, const uint8_t* symbol)
