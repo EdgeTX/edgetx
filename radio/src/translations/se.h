@@ -636,8 +636,8 @@
 #define TR_PROTOCOL_INVALID             TR("Prot ogiltigt", "Ogiltigt protokoll")
 #define TR_MODULE_STATUS                TR(INDENT "Status", INDENT "Modulstatus")
 #define TR_MODULE_SYNC                  TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ              TR("Servofart", "Servouppdateringshastighet")
-#define TR_MULTI_MAX_THROW              TR("Max. Throw", "Enable max. throw")
+#define TR_MULTI_SERVOFREQ              TR("Servofart", "Servouppdaterings-frekvens")
+#define TR_MULTI_MAX_THROW              TR("Max. utslag", "Aktivera max. utslag")
 #define TR_MULTI_RFCHAN                 TR("RF kanal", "Välj RF kanal")
 #define TR_LIMIT                        INDENT "Nivå"
 #define TR_MINRSSI                      "Min RSSI"
