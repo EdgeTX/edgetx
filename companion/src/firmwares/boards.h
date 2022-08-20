@@ -65,6 +65,7 @@ namespace Board {
     BOARD_FLYSKY_NV14,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
+    BOARD_BETAFPV_LR3PRO,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -242,6 +243,11 @@ inline bool IS_9XRPRO(Board::Type board)
   return board == Board::BOARD_9XRPRO;
 }
 
+inline bool IS_BETAFPV_LR3PRO(Board::Type board)
+{
+  return board == Board::BOARD_BETAFPV_LR3PRO;
+}
+
 inline bool IS_JUMPER_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12;
@@ -300,6 +306,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_BETAFPV_LR3PRO || 
          board == Board::BOARD_JUMPER_TPRO;
 }
 

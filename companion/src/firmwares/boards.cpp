@@ -79,6 +79,8 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_AR9X:
     case BOARD_9XRPRO:
       return 0x3278746F;
+    case BOARD_BETAFPV_LR3PRO:
+      return 0x4578746F;
     case BOARD_JUMPER_T12:
       return 0x3D78746F;
     case BOARD_JUMPER_TLITE:
@@ -122,6 +124,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_TARANIS_X9DP:
     case BOARD_TARANIS_X9DP_2019:
     case BOARD_TARANIS_X9E:
+    case BOARD_BETAFPV_LR3PRO:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TPRO:
@@ -162,6 +165,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_TARANIS_X9DP:
     case BOARD_TARANIS_X9DP_2019:
     case BOARD_TARANIS_X9E:
+    case BOARD_BETAFPV_LR3PRO:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TPRO:
@@ -201,7 +205,7 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
     if (index < DIM(switches))
       return switches[index];
   }
-  else if (IS_TARANIS_XLITE(board) || IS_JUMPER_TLITE(board) || IS_JUMPER_TPRO(board)) {
+  else if (IS_TARANIS_XLITE(board) || IS_JUMPER_TLITE(board) || IS_JUMPER_TPRO(board) || IS_BETAFPV_LR3PRO(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_3POS,   "SA"},
       {SWITCH_3POS,   "SB"},
@@ -368,7 +372,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case Pots:
       if (IS_TARANIS_X9LITE(board))
         return 1;
-      else if (IS_JUMPER_TLITE(board))
+      else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board))
         return 0;
       else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board))
         return 2;
@@ -432,7 +436,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
       else if (board == BOARD_TARANIS_X7)
         return 8;
-      else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TPRO)
+      else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO)
         return 4;
       else if (board == BOARD_FLYSKY_NV14)
         return 8;
@@ -455,7 +459,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case FactoryInstalledSwitches:
       if (IS_TARANIS_X9E(board))
         return 8;
-      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPRO(board))
+      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPRO(board) || IS_BETAFPV_LR3PRO(board))
         return 4;
       else if(IS_RADIOMASTER_ZORRO(board))
         return 8;
@@ -667,6 +671,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster T8";
     case BOARD_FLYSKY_NV14:
       return "FlySky NV14";
+    case BOARD_BETAFPV_LR3PRO:
+      return "BETAFPV LR3PRO";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -878,6 +884,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_RADIOMASTER_ZORRO:
+  case BOARD_BETAFPV_LR3PRO:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:

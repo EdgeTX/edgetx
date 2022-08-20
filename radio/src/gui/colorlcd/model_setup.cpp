@@ -42,7 +42,6 @@ ModelSetupPage::ModelSetupPage() :
 {
 }
 
-const char MODEL_NAME_EXTRA_CHARS[] = "_-.,:;<=>";
 
 static void onModelNameChanged()
 {
@@ -58,7 +57,7 @@ static void onModelNameChanged()
 struct ModelNameEdit : public ModelTextEdit {
   ModelNameEdit(Window *parent, const rect_t &rect) :
       ModelTextEdit(parent, rect, g_model.header.name,
-                    sizeof(g_model.header.name), 0, MODEL_NAME_EXTRA_CHARS)
+                    sizeof(g_model.header.name), 0)
   {
     setChangeHandler(onModelNameChanged);
   }

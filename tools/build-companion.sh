@@ -67,7 +67,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 tx12
                               zorro
-                              tlite tpro
+                              tlite tpro lr3pro
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14
@@ -103,6 +103,9 @@ do
             ;;
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+            ;;
+        lr3pro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"

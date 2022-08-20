@@ -547,6 +547,7 @@ OPTIMIZE("O0") SD_Error SD_PowerON(void)
       response = SDIO_GetResponse(SDIO_RESP1);
       validvoltage = (((response >> 31) == 1) ? 1 : 0);
       count++;
+      SDIO_ClearFlag(SDIO_FLAG_CCRCFAIL);
     }
     if (count >= SD_MAX_VOLT_TRIAL) {
       errorstatus = SD_INVALID_VOLTRANGE;

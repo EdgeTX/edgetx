@@ -82,10 +82,12 @@ class RegisterDialog : public Dialog
 
  protected:
   uint8_t moduleIdx;
-  NumberEdit* uid;
-  StaticText* waiting;
-  TextEdit* rxName = nullptr;
-  TextButton* exitButton;
+  uint8_t old_registerStep = 0;
+  Window* reg_id = nullptr;
+  Window* uid = nullptr;
+  TextEdit* rx_name = nullptr;
+  StaticText* status = nullptr;
+  Window* btn_ok = nullptr;
 };
 
 class ModuleOptions : public Dialog

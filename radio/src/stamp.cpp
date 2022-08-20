@@ -36,6 +36,8 @@
 #define DISPLAY_VERSION "-jumper"
 #elif defined(RADIOMASTER_RELEASE)
 #define DISPLAY_VERSION "-RM"
+#elif defined(IFLIGHT_RELEASE)
+#define DISPLAY_VERSION "-IF"
 #elif defined(TBS_RELEASE)
 #define DISPLAY_VERSION "-tbs"
 #elif defined(IMRC_RELEASE)
@@ -61,7 +63,7 @@
   const char vers_stamp[]   = "FW" TAB ": edgetx-" BOARD_NAME "\036VERS" TAB ": " VERSION DISPLAY_VERSION " (" GIT_STR ")" "\036DATE" TAB ": " DATE " " TIME;
 #elif defined(RADIOMASTER_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
-#elif defined(JUMPER_RELEASE)
+#elif defined(JUMPER_RELEASE) || defined(IFLIGHT_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
 #else
   #if defined(VERSION_TAG)
