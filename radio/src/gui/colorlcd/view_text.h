@@ -25,6 +25,7 @@
 #include "menus.h"
 #include "page.h"
 #include "static.h"
+#include "sdcard.h"
 
 #include "LvglWrapper.h"
 
@@ -37,14 +38,14 @@ class ViewTextWindow : public Page
                  unsigned int icon = ICON_RADIO_SD_MANAGER) :
       Page(icon), path(std::move(path)), name(std::move(name))
   {
-    fullPath = this->path + std::string("/") + this->name;
+    fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
     extractNameSansExt();
 
     header.setTitle(this->name);
     buildBody(&body);
   };
 
-  FRESULT sdReadTextFileBlock(const char* filename, const uint32_t bufSize,
+  FRESULT sdReadTextFileBlock(const uint32_t bufSize,
                               const uint32_t offset);
 
   ~ViewTextWindow()
