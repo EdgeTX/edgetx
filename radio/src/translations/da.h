@@ -53,7 +53,7 @@
 #define TR_MULTI_CUSTOM                "Tilpasset"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Ekstra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS               "Nej","Ændre","Ja"
-#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Haptic"
+#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Vibration"
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"
@@ -109,9 +109,9 @@
 #endif
 
 #if defined(HAPTIC)
-  #define TR_HAPTIC                    "Haptic"
+  #define TR_HAPTIC                    "Vibration"
 #else
-  #define TR_HAPTIC                    "[Haptic]"
+  #define TR_HAPTIC                    "[Vibration]"
 #endif
 
 #if defined(VOICE)
@@ -415,7 +415,7 @@
 #define TR_LENGTH                      "Længde"
 #define TR_BEEP_LENGTH                 "Bip længde"
 #define TR_BEEP_PITCH                  "Bip højde"
-#define TR_HAPTIC_LABEL                "Haptic"
+#define TR_HAPTIC_LABEL                "Vibration"
 #define TR_STRENGTH                    "Styrke"
 #define TR_IMU_LABEL                   "IMU"
 #define TR_IMU_OFFSET                  "Offset"
