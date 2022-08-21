@@ -269,12 +269,6 @@
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
 
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW                "GyrX","GyrY"
-#else
-  #define TR_GYR_VSRCRAW
-#endif
-
 #if defined(IMU)
   #define TR_IMU_VSRCRAW                "TltX","TltY",
 #else
