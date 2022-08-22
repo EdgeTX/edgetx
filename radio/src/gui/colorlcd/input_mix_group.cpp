@@ -78,7 +78,6 @@ void InputMixGroup::enableMixerMonitor(uint8_t channel)
 
   rect_t r{ 0, 0, 100, 14 };
   monitor = new MixerChannelBar(this, r, channel);
-  monitor->setDrawMiddleBar(false);
 
   lv_obj_t* mon_obj = monitor->getLvObj();
   lv_obj_set_parent(mon_obj, line_container);
