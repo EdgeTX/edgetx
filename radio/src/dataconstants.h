@@ -650,7 +650,7 @@ enum MixSources {
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
 #endif
 
-#if defined(SPACEMOUSE)
+#if defined(PCBHORUS)
   MIXSRC_FIRST_SPACEMOUSE SKIP,
   MIXSRC_SPACEMOUSE_A = MIXSRC_FIRST_SPACEMOUSE, LUA_EXPORT("smA", "SpaceMouse A")
   MIXSRC_SPACEMOUSE_B, LUA_EXPORT("smB", "SpaceMouse B")
