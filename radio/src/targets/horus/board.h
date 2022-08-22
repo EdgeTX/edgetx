@@ -340,11 +340,6 @@ void rotaryEncoderCheck();
 
 #define STORAGE_NUM_SLIDERS            4
 
-#if defined(SPACEMOUSE)
-  #define NUM_SPACEMOUSE               SPACEMOUSE_CHANNEL_COUNT
-#else
-  #define NUM_SPACEMOUSE               0
-#endif
 
 enum Analogs {
   STICK1,
