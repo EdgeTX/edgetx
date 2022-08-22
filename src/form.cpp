@@ -48,6 +48,20 @@ void FormField::setEditMode(bool newEditMode)
   invalidate();
 }
 
+void FormField::enable(bool value)
+{
+  if (value) {
+    lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
+  } else {
+    lv_obj_add_state(lvobj, LV_STATE_DISABLED);
+  }
+}
+
+bool FormField::isEnabled() const
+{
+  return !lv_obj_has_state(lvobj, LV_STATE_DISABLED);
+}
+
 void FormField::onClicked()
 {
   lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());

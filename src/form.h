@@ -52,14 +52,8 @@ class FormField : public Window
   inline bool isEditMode() const { return editMode; }
   virtual void setEditMode(bool newEditMode);
 
-  // TODO: replace with LVGL flags
-  void enable(bool value = true)
-  {
-    enabled = value;
-    invalidate();
-  }
-
-  bool isEnabled() const { return enabled; }
+  bool isEnabled() const;
+  void enable(bool value = true);
   void disable() { enable(false); }
 
   void onFocusLost() override
