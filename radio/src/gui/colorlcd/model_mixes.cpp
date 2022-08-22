@@ -324,8 +324,7 @@ InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
 InputMixGroup* ModelMixesPage::createGroup(FormGroup* form, mixsrc_t src)
 {
   auto group = new InputMixGroup(form, src);
-  // TODO: make optional
-  // group->addMixerMonitor(src - MIXSRC_CH1);
+  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_CH1);
   return group;
 }
 
