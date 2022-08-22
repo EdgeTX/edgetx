@@ -75,6 +75,7 @@ void CurveDataEdit::update()
                         ? 100
                         : points[curvePointsCount + i - 1]),
           [=](int32_t newValue) {
+            if (i == 0 || i == curvePointsCount - 1) return;
             points[curvePointsCount + i - 1] = newValue;
             SET_DIRTY();
             curveEdit->updatePreview();
