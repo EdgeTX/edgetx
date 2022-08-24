@@ -319,23 +319,23 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
 
     if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
                                   model.filename, sizeof(model.filename))) {
-      radioData.generalSettings.currModelIndex = modelIdx;
-      qDebug() << "currModelIndex =" << modelIdx;
-      qDebug() << "currModelLabels =" << model.labels;
+      radioData.generalSettings.currModelIndex = modelIdx;      
+    }
+
+    if (hasLabels) {
       QStringList labels = QString(model.labels).split(',',Qt::SkipEmptyParts);
       foreach(QString label, labels) {
-        if(!radioData.labels.contains(label)) {
-          radioData.labels.append(label);
-        }
-      }
-      // If no labels, add Favorites
-      if(!radioData.labels.size()) {
-        radioData.labels.append(tr("Favorites"));
+        radioData.addLabel(label);
       }
     }
 
     model.used = true;
     modelIdx++;
+  }
+
+  // If no labels, add a Favorites
+  if(hasLabels && !radioData.labels.size()) {
+    radioData.labels.append(tr("Favorites"));
   }
 
   return true;

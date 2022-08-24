@@ -326,21 +326,8 @@ void MdiChild::updateNavigation()
 
   labelsToolbar->setVisible(hasLabels);
   ui->lstLabels->setVisible(hasLabels);
+  //lblLabels->setVisible(hasLabels);
   action[ACT_GEN_PST]->setEnabled(hasClipboardData(1));
-
-  //action[ACT_ITM_EDT]->setEnabled(singleModelSelected || catsSelected == 1);
-  //action[ACT_ITM_EDT]->setText((hasCatSelected ? tr("Rename Category") : modelsSelected ? tr("Edit Model") : noSelection));
-  //action[ACT_ITM_DEL]->setEnabled(modelsSelected || catsSelected);
-  //action[ACT_ITM_DEL]->setText((action[ACT_ITM_DEL]->isEnabled() ? tr("Delete") % " " % (hasCatSelected ? catsRemvTxt : modelsRemvTxt) : noSelection));
-
-  //action[ACT_CAT_ADD]->setVisible(hasCats);
-  //action[ACT_CAT_SEP]->setVisible(hasCats);
-
-//  action[ACT_CAT_EDT]->setVisible(hasCats);
-//  action[ACT_CAT_EDT]->setEnabled(catsSelected == 1);
-//  action[ACT_CAT_DEL]->setVisible(hasCats);
-//  action[ACT_CAT_DEL]->setEnabled(catsSelected);
-//  action[ACT_CAT_DEL]->setText((hasCatSelected ? tr("Delete") % " " % catsRemTxt : noSelection));
 
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
@@ -352,35 +339,7 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
   action[ACT_MDL_SAV]->setEnabled(modelsSelected);
   action[ACT_MDL_SAV]->setText(tr("Save") % (modelsSelected ? sp % modelsRemvTxt : ns));
-
-  /*
-  if (hasCats && action[ACT_MDL_MOV]->menu()) {
-    action[ACT_MDL_MOV]->setVisible(true);
-    QModelIndex modelIndex = getCurrentIndex();
-    QMenu * catsMenu = action[ACT_MDL_MOV]->menu();
-    catsMenu->clear();
-    // TODO ***
-    if (modelsSelected && modelsListModel && radioData.categories.size() > 1) {
-      action[ACT_MDL_MOV]->setEnabled(true);
-      for (unsigned i=0; i < radioData.categories.size(); ++i) {
-        QAction * act = catsMenu->addAction(QString(radioData.categories[i].name), this, SLOT(onModelMoveToCategory()));
-        act->setProperty("categoryId", i);
-        if ((int)i < modelsListModel->getCategoryIndex(modelIndex))
-          act->setIcon(CompanionIcon("moveup.png"));
-        else if ((int)i > modelsListModel->getCategoryIndex(modelIndex))
-          act->setIcon(CompanionIcon("movedown.png"));
-        else
-          act->setEnabled(false);
-      }
-    }
-    else {
-      action[ACT_MDL_MOV]->setDisabled(true);
-    }
-  }
-  else {*/
-    action[ACT_MDL_MOV]->setVisible(false);
-  //}
-
+  action[ACT_MDL_MOV]->setVisible(false);
   action[ACT_MDL_DUP]->setEnabled(singleModelSelected);
   action[ACT_MDL_RTR]->setEnabled(singleModelSelected);
   action[ACT_MDL_WIZ]->setEnabled(singleModelSelected);
@@ -558,7 +517,17 @@ void MdiChild::initModelsList()
     delete labelsListModel;
   labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
                                     &radioData, this);
+  connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::refresh);
   ui->lstLabels->setModel(labelsListModel);
+  ui->lstLabels->setSelectionMode(QAbstractItemView::SingleSelection);
+  ui->lstLabels->setDragEnabled(true);
+  ui->lstLabels->setAcceptDrops(true);
+  ui->lstLabels->setDropIndicatorShown(true);
+  ui->lstLabels->setDragDropOverwriteMode(false);
+  ui->lstLabels->setDragDropMode(QAbstractItemView::InternalMove);  
+  ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+
+
 
   ui->modelsList->setIndentation(0);
 
@@ -1823,6 +1792,21 @@ void MdiChild::modelSave()
   saveSelectedModels();
 }
 
+void MdiChild::labelAdd()
+{
+
+}
+
+void MdiChild::labelEdit()
+{
+
+}
+
+void MdiChild::labelDelete()
+{
+
+}
+
 unsigned MdiChild::saveModels(const QVector<int> modelIndices)
 {
   unsigned saves = 0;
@@ -1868,135 +1852,3 @@ void MdiChild::saveSelectedModels()
 {
   saveModels(getSelectedModels());
 }
-
-//! [0]
-void LabelsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                         const QModelIndex &index) const
-{
-    /*if (index.data().canConvert<StarRating>()) {
-        StarRating starRating = qvariant_cast<StarRating>(index.data());
-
-        if (option.state & QStyle::State_Selected)
-            painter->fillRect(option.rect, option.palette.highlight());
-
-        starRating.paint(painter, option.rect, option.palette,
-                         StarRating::EditMode::ReadOnly);
-    } else {*/
-        QStyledItemDelegate::paint(painter, option, index);
-    //}
-}
-
-QSize LabelsDelegate::sizeHint(const QStyleOptionViewItem &option,
-                             const QModelIndex &index) const
-{
-    /*if (index.data().canConvert<QString>()) {
-        QStringList a = qvariant_cast<QString>(index.data()).split(',');
-        StarRating starRating =
-        return starRating.sizeHint();
-    }*/
-    return QStyledItemDelegate::sizeHint(option, index);
-}
-
-QWidget *LabelsDelegate::createEditor(QWidget *parent,
-                                    const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const
-
-{
-  QComboBox *cb = new QComboBox(parent);
-//  const int row = index.row();
-  return cb;
- /*   if (index.data().canConvert<StarRating>()) {
-        StarEditor *editor = new StarEditor(parent);
-        connect(editor, &StarEditor::editingFinished,
-                this, &StarDelegate::commitAndCloseEditor);
-        return editor;
-    }*/
-    //return QStyledItemDelegate::createEditor(parent, option, index);
-}
-
-void LabelsDelegate::setEditorData(QWidget *editor,
-                                 const QModelIndex &index) const
-{
-  QComboBox *cb = qobject_cast<QComboBox*>(editor);
-  QStringList items = index.data(Qt::EditRole).toString().split(',');
-  cb->clear();
-  for(int i=0; i < items.size(); i++) {
-    cb->addItem(items[i]);
-  }
-}
-
-void LabelsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                const QModelIndex &index) const
-{
-    /*if (index.data().canConvert<StarRating>()) {
-        StarEditor *starEditor = qobject_cast<StarEditor *>(editor);
-        model->setData(index, QVariant::fromValue(starEditor->starRating()));
-    } else {*/
-        QStyledItemDelegate::setModelData(editor, model, index);
-    //}
-}
-
-void LabelsDelegate::commitAndCloseEditor()
-{
- /*   StarEditor *editor = qobject_cast<StarEditor *>(sender());
-    emit commitData(editor);
-    emit closeEditor(editor);*/
-}
-
-LabelsEditor::LabelsEditor(QWidget *parent)
-  : QListView(parent)
-{
-
-}
-
-/*void LabelsEditor::setModel(QAbstractItemModel *model)
-{
-  if (mdlModels == model)
-    return;
-  // Disconnect Signals
-  if (mdlModels) {
-        disconnect(mdlModels, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this,
-                   SLOT(_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
-        disconnect(mdlModels, SIGNAL(destroyed()), this,
-                   SLOT(_destroyed()));
-    }
-
-  // Connect new Signals
-  connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-          SLOT(_dataChanged(QModelIndex,QModelIndex,QVector<int>)));
-  connect(model, SIGNAL(destroyed()), SLOT(_destroyed()));
-
-  mdlModels = model;
-  QListView::setModel(model);
-}*/
-
-void LabelsEditor::setSelectionModel(QItemSelectionModel *selModel)
-{
-/*  if(mdlSelection == selModel)
-    return;
-  if(mdlSelection) {
-    disconnect(mdlSelection, &QItemSelectionModel::currentRowChanged,
-               this, &LabelsEditor::currentRowChanged);
-  }
-  connect(selModel, &QItemSelectionModel::currentRowChanged,
-             this, &LabelsEditor::currentRowChanged);
-  mdlSelection = selModel;*/
-  QListView::setSelectionModel(selModel);
-}
-
-void LabelsEditor::_dataChanged(const QModelIndex &topLeft,const QModelIndex &bottomRight,const QVector<int> &roles)
-{
-
-}
-
-void LabelsEditor::_destroyed()
-{
-
-}
-
-void LabelsEditor::currentRowChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-  //QStringList labels = current.model()->data(current.model()->index(current.row(),LBLS_COL)).toString().split(',');
-  //qDebug() << "Current CSV" << labels;
-}
-

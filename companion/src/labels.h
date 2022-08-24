@@ -9,6 +9,12 @@
 
 class RadioData;
 
+typedef struct {
+  QString label;
+  QModelIndex index;
+  int radioLabelIndex;
+} LabelItem;
+
 class LabelsModel : public QAbstractItemModel
 {
   Q_OBJECT
@@ -24,15 +30,25 @@ public:
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  Qt::DropActions supportedDropActions() const override;
+  QStringList mimeTypes() const override;
+  QMimeData *mimeData(const QModelIndexList &indexes) const override;
+  bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
+  bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+  bool insertRows(int row, int count, const QModelIndex &parent) override;
+  bool removeRows(int row, int count, const QModelIndex &parent) override;
 
 private slots:
   void buildLabelsList();
   void modelsSelectionChanged();
+
+signals:
+  void modelChanged(int index);
 
 private:
   QItemSelectionModel *modelsSelection;
   RadioData *radioData;
   int selectedModel;
   QList<QModelIndex> modelIndices;
+  QList<LabelItem> labels;
 };
-

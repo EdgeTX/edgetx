@@ -36,7 +36,7 @@
     <layout class="QVBoxLayout" name="bottomLayout"/>
    </item>
    <item>
-    <widget class="QTableView" name="lstLabels">
+    <widget class="QListView" name="lstLabels">
      <property name="maximumSize">
       <size>
        <width>16777215</width>

@@ -139,6 +139,9 @@ class MdiChild : public QWidget
     void modelAdd();
     void modelEdit();
     void modelSave();
+    void labelAdd();
+    void labelEdit();
+    void labelDelete();
     void wizardEdit();
     void modelDuplicate();
 
@@ -205,8 +208,6 @@ class MdiChild : public QWidget
     QToolBar * labelsToolbar;
 
     QLabel *lblLabels;
-//    LabelsProxy *labelsProxy;
-//    LabelsDelegate *labelsDelegate;
 
     Firmware * firmware;
     RadioData radioData;
@@ -246,53 +247,5 @@ class ItemViewProxyStyle: public QProxyStyle
       }
     }
 };
-
-class LabelsDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-public:
-  LabelsDelegate(QObject *parent = nullptr)
-    : QStyledItemDelegate(parent)
-  {
-  }
-    using QStyledItemDelegate::QStyledItemDelegate;
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const override;
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const override;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const override;
-
-private slots:
-    void commitAndCloseEditor();
-};
-
-static constexpr int LBLS_COL=2;
-
-class LabelsEditor : public QListView
-{
-  Q_OBJECT
-
-public :
-  LabelsEditor(QWidget *parent = nullptr);
-  //void setModel(QAbstractItemModel *model) override;
-  void setSelectionModel(QItemSelectionModel *selModel) override;
-  static constexpr int LBLS_COL=2;
-
-private:
-  QAbstractItemModel *mdlModels = nullptr;
-  QItemSelectionModel *mdlSelection = nullptr;
-private slots:
-  void _dataChanged(const QModelIndex &topLeft,const QModelIndex &bottomRight,const QVector<int> &roles);
-  void _destroyed();
-  void	currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
-};
-
-
-
 
 #endif // _MDICHILD_H_
