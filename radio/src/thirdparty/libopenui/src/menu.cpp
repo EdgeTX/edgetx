@@ -35,6 +35,8 @@ void MenuBody::onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* d
 
 void MenuBody::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 {
+  if(row >= lines.size())  return;
+
   lv_obj_t* icon = lines[row].getIcon();
   if (icon) {
     lv_draw_img_dsc_t img_dsc;
