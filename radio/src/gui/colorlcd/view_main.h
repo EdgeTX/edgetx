@@ -64,8 +64,6 @@ class ViewMain: public Window
     rect_t getMainZone(rect_t zone, bool hasTopbar) const;
 
     unsigned getMainViewsCount() const;
-    //coord_t getMainViewLeftPos(unsigned view) const;
-  
     unsigned getCurrentMainView() const;
     void setCurrentMainView(unsigned view);
 

@@ -61,7 +61,7 @@ void ViewTextWindow::buildBody(Window *window)
           std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
       TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
             int(info.fsize) - bufSize + 1);
-      if (sdReadTextFileBlock(fullPath.c_str(), bufSize, offset) == FR_OK) {
+      if (sdReadTextFileBlock(bufSize, offset) == FR_OK) {
         auto obj = window->getLvObj();
         lv_obj_add_flag(
             obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
@@ -88,15 +88,14 @@ void ViewTextWindow::buildBody(Window *window)
   }
 }
 
-FRESULT ViewTextWindow::sdReadTextFileBlock(const char *filename,
-                                            const uint32_t bufSize,
+FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
                                             const uint32_t offset)
 {
   FIL file;
   char escape_chars[4];
   int escape = 0;
 
-  auto res = f_open(&file, (TCHAR *)filename, FA_OPEN_EXISTING | FA_READ);
+  auto res = f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
   if (res == FR_OK) {
     res = f_lseek(&file, offset);
     if (res == FR_OK) {
@@ -171,7 +170,7 @@ void ViewTextWindow::onEvent(event_t event)
     offset = std::min(offset, fileLength - (int)bufSize);
 
     TRACE("AFTER offset=%d", offset);
-    sdReadTextFileBlock(fullPath.c_str(), bufSize, offset);
+    sdReadTextFileBlock(bufSize, offset);
     lv_label_set_text_static(lb, buffer);
   }
 #endif
@@ -196,13 +195,16 @@ static void replaceSpaceWithUnderscore(std::string &name)
 
 bool openNotes(const char buf[], std::string modelNotesName)
 {
-  if (isFileAvailable(modelNotesName.c_str())) {
+  std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
+
+  if (isFileAvailable(fullPath.c_str())) {
     new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
     return true;
   } else {
     return false;
   }
 }
+
 void readModelNotes()
 {
   bool notesFound = false;
@@ -211,7 +213,6 @@ void readModelNotes()
   std::string modelNotesName(g_model.header.name);
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
-  f_chdir((TCHAR *)buf);
 
   notesFound = openNotes(buf, modelNotesName);
   if (!notesFound) {
