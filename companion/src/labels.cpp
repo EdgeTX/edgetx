@@ -52,7 +52,12 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
                      labels.at(index.row()).index);
     return true;
   } else if(role == Qt::EditRole) {
-    radioData->renameLabel(index.row(),value.toString());
+    if(radioData->renameLabel(index.row(),value.toString())) {
+      labels[index.row()].label = value.toString();
+      emit dataChanged(labels.at(index.row()).index,
+                       labels.at(index.row()).index);
+      emit modelChanged(selectedModel);
+    }
     return true;
   }
   return false;
@@ -66,7 +71,7 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
 
    QString label = radioData->labels.at(index.row());
 
-  if(role == Qt::DisplayRole) {
+  if(role == Qt::DisplayRole || role == Qt::EditRole) {
     if(index.column() == 0) {
       return labels.at(index.row()).label;
         //return label;

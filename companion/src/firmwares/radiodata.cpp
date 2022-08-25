@@ -128,27 +128,39 @@ void RadioData::deleteLabel(QString label)
   }
 }
 
-void RadioData::renameLabel(QString from, QString to)
+bool RadioData::renameLabel(QString from, QString to)
 {
+  bool success = true;
+  int lengthdiff = to.size() - from.size();
+
+  // Check that rename is possible, not too long
   for(auto& model : models) {
-    QStringList modelLabels = QString(model.labels).split(',',Qt::SkipEmptyParts);
-    int ind = labels.indexOf(from);
-    if(ind) {
-      labels.replace(ind, to);
-      strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+    if((int)strlen(model.labels) + lengthdiff > (int)sizeof(model.labels) - 1) {
+      success = false;
     }
   }
-  int ind = labels.indexOf(from);
-  if(ind) {
-    labels.replace(ind, to);
+  if(success) {
+    for(auto& model : models) {
+      QStringList modelLabels = QString(model.labels).split(',',Qt::SkipEmptyParts);
+      int ind = modelLabels.indexOf(from); // TOOD: Make sure it will fit
+      if(ind != -1) {
+        modelLabels.replace(ind, to);
+        strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+      }
+    }
+    int ind = labels.indexOf(from);
+    if(ind != -1) {
+      labels.replace(ind, to);
+    }
   }
+  return success;
 }
 
-void RadioData::renameLabel(int index, QString to)
+bool RadioData::renameLabel(int index, QString to)
 {
-  if(index >= labels.size()) return;
+  if(index >= labels.size()) return false;
   QString from = labels.at(index);
-  renameLabel(from, to);
+  return renameLabel(from, to);
 }
 
 bool RadioData::addLabelToModel(int index, QString label)
