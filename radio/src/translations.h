@@ -1245,6 +1245,34 @@ extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
 
 #endif
 
+#if defined(USBJ_EX)
+extern const char STR_USBJOYSTICK_LABEL[];
+extern const char STR_USBJOYSTICK_EXTMODE[];
+extern const char* STR_VUSBJOYSTICK_EXTMODE[];
+extern const char STR_USBJOYSTICK_SETTINGS[];
+extern const char STR_USBJOYSTICK_IF_MODE[];
+extern const char* STR_VUSBJOYSTICK_IF_MODE[];
+extern const char STR_USBJOYSTICK_CH_MODE[];
+extern const char* STR_VUSBJOYSTICK_CH_MODE[];
+extern const char* STR_VUSBJOYSTICK_CH_MODE_S[];
+extern const char STR_USBJOYSTICK_CH_BTNMODE[];
+extern const char* STR_VUSBJOYSTICK_CH_BTNMODE[];
+extern const char* STR_VUSBJOYSTICK_CH_BTNMODE_S[];
+extern const char STR_USBJOYSTICK_CH_SWPOS[];
+extern const char* STR_VUSBJOYSTICK_CH_SWPOS[];
+extern const char STR_USBJOYSTICK_CH_AXIS[];
+extern const char* STR_VUSBJOYSTICK_CH_AXIS[];
+extern const char STR_USBJOYSTICK_CH_SIM[];
+extern const char* STR_VUSBJOYSTICK_CH_SIM[];
+extern const char STR_USBJOYSTICK_CH_INVERSION[];
+extern const char STR_USBJOYSTICK_CH_BTNNUM[];
+extern const char STR_USBJOYSTICK_BTN_COLLISION[];
+extern const char STR_USBJOYSTICK_AXIS_COLLISION[];
+extern const char STR_USBJOYSTICK_CIRC_COUTOUT[];
+extern const char* STR_VUSBJOYSTICK_CIRC_COUTOUT[];
+extern const char STR_USBJOYSTICK_APPLY_CHANGES[];
+#endif
+
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT
 

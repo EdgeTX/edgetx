@@ -122,6 +122,9 @@ void menuModelCustomScripts(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
+#if defined(USBJ_EX)
+void menuModelUSBJoystick(event_t event);
+#endif
 
 extern const MenuHandlerFunc menuTabModel[MENU_MODEL_PAGES_COUNT];
 

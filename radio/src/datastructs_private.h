@@ -622,6 +622,21 @@ PACK(struct PartialModel {
   TimerData timers[MAX_TIMERS];
 });
 
+/*
+ * USB Joystick channel structure
+ */
+
+PACK(struct USBJoystickChData {
+  uint8_t mode:4 ENUM(USBJoystickCh);
+  uint8_t axis:4 ENUM(USBJoystickAxis);
+  uint8_t sim:4 ENUM(USBJoystickSim);
+  uint8_t btn_mode:4 ENUM(USBJoystickBtnMode);
+  uint8_t btn_num;
+  uint8_t inversion:1;
+  uint8_t switch_npos:3;
+  NOBACKUP(uint8_t paddingBits:4 SKIP);
+});
+
 PACK(struct ModelData {
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
@@ -645,6 +660,10 @@ PACK(struct ModelData {
   MixData   mixData[MAX_MIXERS] NO_IDX;
   LimitData limitData[MAX_OUTPUT_CHANNELS];
   ExpoData  expoData[MAX_EXPOS] NO_IDX;
+  uint8_t usbJoystickExtMode:1;
+  uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode);
+  uint8_t usbJoystickCircularCut:4;
+  USBJoystickChData usbJoystickCh[MAX_OUTPUT_CHANNELS];
 
   CurveHeader curves[MAX_CURVES];
   int8_t    points[MAX_CURVE_POINTS];

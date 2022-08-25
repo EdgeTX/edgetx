@@ -154,6 +154,45 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_TIMER3, "TIMER3"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_USBJoystickIfMode[] = {
+  {  USBJOYS_JOYSTICK, "JOYSTICK"  },
+  {  USBJOYS_GAMEPAD, "GAMEPAD"  },
+  {  USBJOYS_MULTIAXIS, "MULTIAXIS"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickCh[] = {
+  {  USBJOYS_CH_NONE, "CH_NONE"  },
+  {  USBJOYS_CH_BUTTON, "CH_BUTTON"  },
+  {  USBJOYS_CH_AXIS, "CH_AXIS"  },
+  {  USBJOYS_CH_SIM, "CH_SIM"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickAxis[] = {
+  {  USBJOYS_AXIS_X, "AXIS_X"  },
+  {  USBJOYS_AXIS_Y, "AXIS_Y"  },
+  {  USBJOYS_AXIS_Z, "AXIS_Z"  },
+  {  USBJOYS_AXIS_RX, "AXIS_RX"  },
+  {  USBJOYS_AXIS_RY, "AXIS_RY"  },
+  {  USBJOYS_AXIS_RZ, "AXIS_RZ"  },
+  {  USBJOYS_AXIS_SLIDER, "AXIS_SLIDER"  },
+  {  USBJOYS_AXIS_DIAL, "AXIS_DIAL"  },
+  {  USBJOYS_AXIS_WHEEL, "AXIS_WHEEL"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickSim[] = {
+  {  USBJOYS_SIM_AILERON, "SIM_AILERON"  },
+  {  USBJOYS_SIM_ELEVATOR, "SIM_ELEVATOR"  },
+  {  USBJOYS_SIM_RUDDER, "SIM_RUDDER"  },
+  {  USBJOYS_SIM_THROTTLE, "SIM_THROTTLE"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickBtnMode[] = {
+  {  USBJOYS_BTN_MODE_NORMAL, "BTN_MODE_NORMAL"  },
+  {  USBJOYS_BTN_MODE_ON_PULSE, "BTN_MODE_ON_PULSE"  },
+  {  USBJOYS_BTN_MODE_SW_EMU, "BTN_MODE_SW_EMU"  },
+  {  USBJOYS_BTN_MODE_DELTA, "BTN_MODE_DELTA"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_NONE, "FUNC_NONE"  },
   {  LS_FUNC_VEQUAL, "FUNC_VEQUAL"  },
@@ -498,6 +537,18 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_STRING("name", 6),
   YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
+  YAML_END
+};
+static const struct YamlNode struct_USBJoystickChData[] = {
+  YAML_IDX,
+  YAML_ENUM("mode", 4, enum_USBJoystickCh),
+  YAML_ENUM("axis", 4, enum_USBJoystickAxis),
+  YAML_ENUM("sim", 4, enum_USBJoystickSim),
+  YAML_ENUM("btn_mode", 4, enum_USBJoystickBtnMode),
+  YAML_UNSIGNED( "btn_num", 8 ),
+  YAML_UNSIGNED( "inversion", 1 ),
+  YAML_UNSIGNED( "switch_npos", 3 ),
+  YAML_PADDING( 4 ),
   YAML_END
 };
 static const struct YamlNode struct_CurveHeader[] = {
@@ -845,6 +896,10 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
   YAML_ARRAY("expoData", 136, 64, struct_ExpoData, NULL),
+  YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
+  YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
+  YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),
+  YAML_ARRAY("usbJoystickCh", 32, 32, struct_USBJoystickChData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),

@@ -22,6 +22,10 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
 #endif
@@ -153,6 +157,15 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_TRAINER_CHANNELS,
   ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS,
+
+#if defined(USBJ_EX)
+  ITEM_MODEL_SETUP_USBJOYSTICK_LABEL,
+  ITEM_MODEL_SETUP_USBJOYSTICK_MODE,
+  ITEM_MODEL_SETUP_USBJOYSTICK_IF_MODE,
+  ITEM_MODEL_SETUP_USBJOYSTICK_CIRC_CUTOUT,
+  ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON,
+  ITEM_MODEL_SETUP_USBJOYSTICK_APPLY,
+#endif
   ITEM_MODEL_SETUP_LINES_COUNT
 };
 
@@ -377,6 +390,25 @@ void onBluetoothConnectMenu(const char * result)
 #include "common/stdlcd/model_setup_afhds3.cpp"
 #endif
 
+#if defined(USBJ_EX)
+inline uint8_t USB_JOYSTICK_EXTROW()
+{
+  return (usbJoystickExtMode() ? (uint8_t)0 : HIDDEN_ROW);
+}
+
+inline uint8_t USB_JOYSTICK_APPLYROW()
+{
+  if(!usbJoystickExtMode()) return HIDDEN_ROW;
+  if(usbJoystickSettingsChanged()) return (uint8_t)0;
+  return READONLY_ROW;
+}
+
+#define USB_JOYSTICK_ROWS                LABEL(USBJoystick), (uint8_t)0, USB_JOYSTICK_EXTROW(), \
+                                         USB_JOYSTICK_EXTROW(), USB_JOYSTICK_EXTROW(), USB_JOYSTICK_APPLYROW()
+#else
+#define USB_JOYSTICK_ROWS
+#endif
+
 static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
 
 void menuModelSetup(event_t event)
@@ -457,7 +489,9 @@ void menuModelSetup(event_t event)
       IF_ACCESS_MODULE_RF(EXTERNAL_MODULE, 0),   // Receiver 2
       IF_ACCESS_MODULE_RF(EXTERNAL_MODULE, 0),   // Receiver 3
 
-    TRAINER_ROWS
+    TRAINER_ROWS,
+
+    USB_JOYSTICK_ROWS
   });
 
   MENU_CHECK(menuTabModel, MENU_MODEL_SETUP, ITEM_MODEL_SETUP_LINES_COUNT);
@@ -1760,6 +1794,39 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_RECEIVER_2:
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_RECEIVER_3:
         modelSetupModulePxx2ReceiverLine(CURRENT_MODULE_EDITED(k), CURRENT_RECEIVER_EDITED(k), y, event, attr);
+        break;
+#endif
+
+#if defined(USBJ_EX)
+      case ITEM_MODEL_SETUP_USBJOYSTICK_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_LABEL);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_MODE:
+        g_model.usbJoystickExtMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_EXTMODE, STR_VUSBJOYSTICK_EXTMODE, g_model.usbJoystickExtMode, 0, 1, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_IF_MODE:
+        g_model.usbJoystickIfMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_IF_MODE, STR_VUSBJOYSTICK_IF_MODE, g_model.usbJoystickIfMode, 0, USBJOYS_LAST, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_CIRC_CUTOUT:
+        g_model.usbJoystickCircularCut = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_CIRC_COUTOUT, STR_VUSBJOYSTICK_CIRC_COUTOUT, g_model.usbJoystickCircularCut, 0, 2, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
+        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
+        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+          pushMenu(menuModelUSBJoystick);
+        }
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
+        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
+        if (attr && !READ_ONLY() && event == EVT_KEY_FIRST(KEY_ENTER)) {
+          killEvents(event);
+          onUSBJoystickModelChanged();
+        }
         break;
 #endif
     }

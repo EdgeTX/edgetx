@@ -62,3 +62,11 @@ if(PXX2)
     ../common/stdlcd/model_receiver_options.cpp
     )
 endif()
+
+if(USBJ_EX)
+  set(GUI_SRC
+    ${GUI_SRC}
+    ../common/stdlcd/model_usbjoystick.cpp
+    )
+endif()
+

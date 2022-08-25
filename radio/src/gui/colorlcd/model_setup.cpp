@@ -33,6 +33,10 @@
 #include "throttle_params.h"
 #include "preflight_checks.h"
 
+#if defined(USBJ_EX)
+#include "model_usbjoystick.h"
+#endif
+
 #include <algorithm>
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
@@ -332,6 +336,17 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, STR_THROTTLE_LABEL,
                             []() { new ThrottleParams(); });
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+
+#if defined(USBJ_EX)
+  form = new FormGroup(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  form->padAll(lv_dpx(8));
+
+  btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL,
+                            []() { new ModelUSBJoystickPage(); });
+  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+#endif
 }
 
 #define MAX_SUBSCREEN_BTNS 9
