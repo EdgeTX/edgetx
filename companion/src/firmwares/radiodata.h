@@ -10,15 +10,6 @@
 
 class RadioDataConversionState;
 
-class CategoryData {
-  public:
-    CategoryData(const char * name) {
-      memset(this->name, 0, sizeof(CategoryData::name));
-      strncpy(this->name, name, sizeof(CategoryData::name)-1);
-    }
-    char name[15+1];
-};
-
 class RadioData {
   Q_DECLARE_TR_FUNCTIONS(RadioData)
 

@@ -114,7 +114,7 @@ void RadioData::deleteLabel(QString label)
 {
   // Remove labels in the models
   for(auto& model : models) {
-    QStringList modelLabels = QString(model.labels).split(',',Qt::SkipEmptyParts);
+    QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
     modelLabels.removeAll(label);
     strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
   }
@@ -141,7 +141,7 @@ bool RadioData::renameLabel(QString from, QString to)
   }
   if(success) {
     for(auto& model : models) {
-      QStringList modelLabels = QString(model.labels).split(',',Qt::SkipEmptyParts);
+      QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
       int ind = modelLabels.indexOf(from); // TOOD: Make sure it will fit
       if(ind != -1) {
         modelLabels.replace(ind, to);
@@ -170,7 +170,7 @@ bool RadioData::addLabelToModel(int index, QString label)
   char *modelLabelCsv = models[index].labels;
   // Make sure it will fit
   if(strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
-    QStringList modelLabels = QString(modelLabelCsv).split(',',Qt::SkipEmptyParts);
+    QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);
     if(!modelLabels.contains(label)) {
       modelLabels.append(label);
       strcpy(models[index].labels, QString(modelLabels.join(',')).toLocal8Bit().data());
@@ -185,7 +185,7 @@ bool RadioData::removeLabelFromModel(int index, QString label)
   if(index >= models.size()) return false;
 
   char *modelLabelCsv = models[index].labels;
-  QStringList modelLabels = QString(modelLabelCsv).split(',',Qt::SkipEmptyParts);
+  QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);
   if(modelLabels.contains(label)) {
     modelLabels.removeAll(label);
     strcpy(models[index].labels, QString(modelLabels.join(',')).toLocal8Bit().data());

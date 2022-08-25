@@ -18,14 +18,14 @@
  * GNU General Public License for more details.
  */
 
-#include "categorized.h"
+#include "labeled.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "miniz.c"    //  Can only be included once!
 
 #include <regex>
 
-bool CategorizedStorageFormat::load(RadioData & radioData)
+bool LabelsStorageFormat::load(RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
   if (st == STORAGE_TYPE_UNKNOWN) {
@@ -39,7 +39,7 @@ bool CategorizedStorageFormat::load(RadioData & radioData)
   }
 }
 
-bool CategorizedStorageFormat::write(const RadioData & radioData)
+bool LabelsStorageFormat::write(const RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
   if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML ||
@@ -50,7 +50,7 @@ bool CategorizedStorageFormat::write(const RadioData & radioData)
   return false;
 }
 
-StorageType CategorizedStorageFormat::probeFormat()
+StorageType LabelsStorageFormat::probeFormat()
 {
   if (QFile(filename + "/RADIO/radio.yml").exists()) // converted
     return getStorageType("radio.yml");
@@ -60,7 +60,7 @@ StorageType CategorizedStorageFormat::probeFormat()
     return getStorageType(filename);
 }
 
-bool CategorizedStorageFormat::loadBin(RadioData & radioData)
+bool LabelsStorageFormat::loadBin(RadioData & radioData)
 {
   QByteArray radioSettingsBuffer;
   if (!loadFile(radioSettingsBuffer, "RADIO/radio.bin")) {
@@ -149,7 +149,7 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
   return true;
 }
 
-bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
+bool LabelsStorageFormat::writeBin(const RadioData & radioData)
 {
   QByteArray modelsList;   // models.txt
   QByteArray radioSettingsData; // radio.bin
@@ -211,7 +211,7 @@ bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
   return true;
 }
 
-bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
+bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 {
   if (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX) {
     if (!QFile(filename + "/" + "RADIO/radio.yml").exists())
@@ -323,7 +323,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
     }
 
     if (hasLabels) {
-      QStringList labels = QString(model.labels).split(',',Qt::SkipEmptyParts);
+      QStringList labels = QString(model.labels).split(',',QString::SkipEmptyParts);
       foreach(QString label, labels) {
         radioData.addLabel(label);
       }
@@ -341,7 +341,7 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
   return true;
 }
 
-bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
+bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
 {
   QByteArray radioSettingsBuffer;
   if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer)) {
@@ -404,12 +404,11 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
   }
 
   if (hasLabels) {
-    QByteArray modelslistBuffer;
-    // TODO ***
-    /*if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
-        || !writeFile(modelslistBuffer, "MODELS/models.yml")) {
+    QByteArray labelsListBuffer;
+    if (!writeLabelsListToYaml(radioData, labelsListBuffer)
+        || !writeFile(labelsListBuffer, "MODELS/labels.yml")) {
       return false;
-    }*/
+    }
   }
 
   return true;

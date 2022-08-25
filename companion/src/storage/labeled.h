@@ -27,12 +27,12 @@
 #include <list>
 #include <string>
 
-class CategorizedStorageFormat : public StorageFormat
+class LabelsStorageFormat : public StorageFormat
 {
-  Q_DECLARE_TR_FUNCTIONS(CategorizedStorageFormat)
+  Q_DECLARE_TR_FUNCTIONS(LabelsStorageFormat)
 
   public:
-    CategorizedStorageFormat(const QString & filename):
+    LabelsStorageFormat(const QString & filename):
       StorageFormat(filename)
     {
     }

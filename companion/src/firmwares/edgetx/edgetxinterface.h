@@ -44,9 +44,7 @@ bool loadLabelsListFromYaml(QStringList& labels,
 bool loadModelFromYaml(ModelData& model, const QByteArray& data);
 bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data);
 
-bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
-                           const EtxModelfiles& modelFiles,
-                           QByteArray& data);
+bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data);
 
 bool writeModelToYaml(const ModelData& model, QByteArray& data);
 bool writeRadioSettingsToYaml(const GeneralSettings& settings, QByteArray& data);

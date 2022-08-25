@@ -98,45 +98,17 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
   return true;
 }
 
-//TODO ***
-bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
-                           const EtxModelfiles& modelFiles,
-                           QByteArray& data)
+bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
-  /*YAML::Node node;
-  std::vector<CategoryData> cats = categories;
-  std::vector<EtxModelMetadata> files = { modelFiles.begin(), modelFiles.end() };
-
-  std::stable_sort(files.begin(), files.end(),
-                   [](const EtxModelMetadata &a, const EtxModelMetadata &b) {
-                     return a.category < b.category;
-                   });
-
-  int catIdx = 0;
-  for (const auto& cat : cats) {
-    node[catIdx++][cat.name] = YAML::Node();
+  /* TODO
+  YAML::Node node;
+  YAML::Node labels;
+  foreach(QString label, radioData.labels) {
+    labels[label.toStdString()] = YAML::Null;
   }
-
-  for (const auto& modelFile: modelFiles) {
-
-    YAML::Node cat_attrs;
-    cat_attrs["filename"] = modelFile.filename;
-    cat_attrs["name"] = modelFile.name;
-
-    catIdx = modelFile.category;
-    if (catIdx >= (int)cats.size()) {
-      catIdx = 0;
-      if (cats.size() == 0) {
-        cats.push_back("Models");
-      }
-    }
-
-    const std::string cat_name = cats[catIdx].name;
-    node[catIdx][cat_name].push_back(cat_attrs);
-  }
-
-  writeYamlToByteArray(node, data);
-  return true;*/
+  node << labels;
+  writeYamlToByteArray(node, data); */
+  return true;
 }
 
 bool writeModelToYaml(const ModelData& model, QByteArray& data)
