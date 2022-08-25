@@ -214,7 +214,7 @@ ModelCell * ModelsCategory::addModel(const char * fileName, const char* modelNam
 
   ModelCell * result = new ModelCell(fileName);
   if(modelName)
-    memcpy(result->modelName, modelName, sizeof(modelName));
+    strncpy(result->modelName, modelName, LEN_MODEL_NAME);
   push_back(result);
   return result;
 }
