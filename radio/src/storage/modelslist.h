@@ -82,7 +82,7 @@ public:
   explicit ModelsCategory(const char * name, uint8_t len);
   ~ModelsCategory();
 
-  ModelCell * addModel(const char * name);
+  ModelCell* addModel(const char* fileName, const char* modelName = nullptr);
   void removeModel(ModelCell * model);
   void moveModel(ModelCell * model, int8_t step);
 
@@ -161,7 +161,7 @@ public:
   ModelsCategory * createCategory(const char * name, bool save=true);
   void removeCategory(ModelsCategory * category);
 
-  ModelCell * addModel(ModelsCategory * category, const char * name, bool save=true);
+  ModelCell * addModel(ModelsCategory * category, const char * name, const char* modelName = nullptr, bool save=true);
   void removeModel(ModelsCategory * category, ModelCell * model);
   void moveModel(ModelsCategory * category, ModelCell * model, int8_t step);
   void moveModel(ModelCell * model, ModelsCategory * previous_category, ModelsCategory * new_category);

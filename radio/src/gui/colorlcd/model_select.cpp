@@ -554,7 +554,7 @@ class ModelCategoryPageBody : public FormWindow
   void createModel()
   {
     storageCheck(true);
-    auto model = modelslist.addModel(category, ::createModel(), false);
+    auto model = modelslist.addModel(category, ::createModel(), nullptr, false);
     modelslist.setCurrentModel(model);
     new SelectTemplateFolder([=]() {
         model->setModelName(g_model.header.name);
@@ -572,7 +572,7 @@ class ModelCategoryPageBody : public FormWindow
                           MODELS_PATH)) {
       sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
                  MODELS_PATH);
-      auto new_model = modelslist.addModel(category, duplicatedFilename);
+      auto new_model = modelslist.addModel(category, duplicatedFilename, model->modelName);
       addModelButton(new_model);
     } else {
       POPUP_WARNING("Invalid File"); // TODO: translation

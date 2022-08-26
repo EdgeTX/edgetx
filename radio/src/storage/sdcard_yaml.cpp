@@ -79,9 +79,9 @@ void storageCreateModelsList()
     ModelsCategory* cat = modelslist.createCategory(DEFAULT_CATEGORY, false);
     ModelCell* model = nullptr;
     if (g_eeGeneral.currModelFilename[0] != '\0') {
-      model = modelslist.addModel(cat, g_eeGeneral.currModelFilename, false);
+      model = modelslist.addModel(cat, g_eeGeneral.currModelFilename, nullptr, false);
     } else {
-      model = modelslist.addModel(cat, DEFAULT_MODEL_FILENAME, false);
+      model = modelslist.addModel(cat, DEFAULT_MODEL_FILENAME, nullptr, false);
     }
     model->setModelName(g_model.header.name);
     modelslist.save();
