@@ -216,13 +216,19 @@ bool UpdateInterface::update()
     return false;
   }
 
-  if ((runParams->data.flags & UPDFLG_Housekeeping) && !housekeeping()) {
-    reportProgress(tr("%1 housekeeping failed").arg(name), QtCriticalMsg);
+  //  perform before async install in case Companion restarted
+  if (!saveReleaseSettings()) {
+    reportProgress(tr("Failed to save release settings"), QtDebugMsg);
     return false;
   }
 
   if ((runParams->data.flags & UPDFLG_AsyncInstall) && !asyncInstall()) {
     reportProgress(tr("%1 start async failed").arg(name), QtCriticalMsg);
+    return false;
+  }
+
+  if ((runParams->data.flags & UPDFLG_Housekeeping) && !housekeeping()) {
+    reportProgress(tr("%1 housekeeping failed").arg(name), QtCriticalMsg);
     return false;
   }
 
@@ -1311,12 +1317,7 @@ bool UpdateInterface::housekeeping()
 
   if (progress) {
     progress->setValue(cnt);
-    progress->setMaximum(3);
-  }
-
-  if (!saveReleaseSettings()) {
-    reportProgress(tr("Failed to save release settings"), QtDebugMsg);
-    return false;
+    progress->setMaximum(2);
   }
 
   if (progress)
