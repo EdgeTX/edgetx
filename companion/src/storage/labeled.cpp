@@ -75,31 +75,26 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   board = loadInterface->getBoard();
 
-  // Scan for all model files
-  QStringList modelFiles;
-  std::list<std::string> filelist;
-  if (!getFileList(filelist)) {
+  QByteArray modelsListBuffer;
+  if (!loadFile(modelsListBuffer, "RADIO/models.txt")) {
+    setError(tr("Cannot extract RADIO/models.txt"));
     return false;
   }
 
-  const std::regex yml_regex("MODELS/(model([0-9]+)\\.bin)");
-  for(const auto& f : filelist) {
-    std::smatch match;
-    if (std::regex_match(f, match, yml_regex)) {
-      if (match.size() == 3) {
-        std::ssub_match modelFile = match[1];
-        std::ssub_match modelIdx = match[2];
-           modelFiles.append(QString::fromStdString(modelFile.str()));
-      }
-    }
-  }
+  QList<QByteArray> lines = modelsListBuffer.split('\n');
+   int modelIndex = 0;
+   int categoryIndex = -1;
+   foreach (const QByteArray & lineArray, lines) {
+     QString line = QString(lineArray).trimmed();
+     if (line.isEmpty()) continue;
+     // qDebug() << "parsing line" << line;
 
-  int modelIndex = 0;
-  foreach (const QString & modelFile, modelFiles) {
-    if (modelFile.isEmpty()) continue;
+     if (line.startsWith('[') && line.endsWith(']')) {
+       continue;
+     }
 
     // determine if we have a model number
-    QStringList parts = modelFile.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     if (parts.size() == 2) {
       // parse model number
       int modelNumber = parts[0].toInt();
@@ -140,7 +135,7 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
     // invalid line
     // TODO add to parsing report
-    //qDebug() << "Invalid line" <<line;
+    qDebug() << "Invalid line" <<line;
     continue;
   }
   return true;
