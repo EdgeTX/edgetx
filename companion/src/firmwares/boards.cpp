@@ -560,6 +560,10 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
 
   if (IS_SKY9X(board)) {
     tbl.insert(tbl.end(), {"P1", "P2", "P3"});
+  } else if (IS_TARANIS_X9LITE(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "POT1"},
+                          });
   } else if (IS_TARANIS_X9E(board)) {
     tbl.insert(tbl.end(), {
                               {"F1", "POT1"},
@@ -578,7 +582,12 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"GyrX", "GYRO1"},
                               {"GyrY", "GYRO2"},
                           });
-  } else if (IS_TARANIS(board)) {
+  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
+    tbl.insert(tbl.end(), {
+                              {"S1", "POT1"},
+                              {"S2", "POT2"},
+                          });
+  } else if (IS_TARANIS_X9(board)) {
     tbl.insert(tbl.end(), {
                               {"S1", "POT1"},
                               {"S2", "POT2"},
@@ -597,11 +606,6 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"RS", "RS"},
                               {"JSx", "MOUSE1"},
                               {"JSy", "MOUSE2"},
-                          });
-  } else if (IS_FLYSKY_NV14(board)) {
-    tbl.insert(tbl.end(), {
-                              {"S1", "POT1"},
-                              {"S2", "POT2"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
