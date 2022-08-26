@@ -46,7 +46,7 @@ UpdateSounds::~UpdateSounds()
 
 bool UpdateSounds::flagAssets()
 {
-  progressMessage(tr("Flagging assets"));
+  progressMessage(tr("Processing available sounds"));
 
   QString pattern("sounds.json");
   assets->setFilterPattern(pattern);
@@ -125,11 +125,11 @@ bool UpdateSounds::flagAssets()
   if (langPacks->rowCount() > 1) {
     ChooserDialog *dlg = new ChooserDialog(nullptr, tr("Choose Language Packs"), langPacks);
 
-    dlg->exec();
+    bool ok = dlg->exec();
 
     QItemSelectionModel *selItems = dlg->selectedItems();
 
-    if (!selItems->hasSelection()) {
+    if (!ok || !selItems->hasSelection()) {
       QMessageBox::warning(this, CPN_STR_APP_NAME, tr("No language packs have been selected. Sounds update will be skipped!"));
       dlg->deleteLater();
       return true;
@@ -154,6 +154,8 @@ bool UpdateSounds::flagAssets()
 
 bool UpdateSounds::flagLanguageAsset(QString lang)
 {
+  progressMessage(tr("Flagging assets"));
+
   runParams->data.language = lang;
   UpdateParameters::AssetParams ap = runParams->data.assets[0];
   return getSetAssets(ap);
