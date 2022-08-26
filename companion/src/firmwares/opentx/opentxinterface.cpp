@@ -782,7 +782,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
               IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
-              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) || 
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
               IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
@@ -833,7 +833,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_MULTIMODULE:
             return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board);
           case PULSES_CROSSFIRE:
-            IS_RADIOMASTER_TX12_MK2(board);
+            return IS_RADIOMASTER_TX12_MK2(board);
           case PULSES_AFHDS3:
             return IS_FLYSKY_NV14(board);
           default:
