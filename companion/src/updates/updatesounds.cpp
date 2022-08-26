@@ -48,9 +48,20 @@ bool UpdateSounds::flagAssets()
 {
   progressMessage(tr("Flagging assets"));
 
-  const QString mappingfile = "sounds.json";
+  QString pattern("sounds.json");
+  assets->setFilterPattern(pattern);
 
-  if (!downloadTextFileToBuffer(mappingfile)) {
+  if (assets->count() < 0) {
+    reportProgress(tr("Asset not found in release '%1' using filter pattern '%2'").arg(releases->name().arg(pattern)), QtCriticalMsg);
+    return false;
+  }
+  else if (assets->count() > 1) {
+    reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter pattern '%4'")
+                        .arg(assets->count()).arg(1).arg(releases->name().arg(pattern)), QtCriticalMsg);
+    return false;
+  }
+
+  if (!downloadAssetToBuffer(assets->getSetId(0))) {
     return false;
   }
 
@@ -107,7 +118,7 @@ bool UpdateSounds::flagAssets()
   delete json;
 
   if (langPacks->rowCount() < 1) {
-    reportProgress(tr("Language %1 not listed in %2").arg(runParams->data.language).arg(mappingfile), QtCriticalMsg);
+    reportProgress(tr("Language %1 not listed in %2").arg(runParams->data.language).arg(pattern), QtCriticalMsg);
     return false;
   }
 

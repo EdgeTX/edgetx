@@ -666,6 +666,14 @@ void UpdateInterface::downloadMetaData(const MetaDataType mdt, const QString & u
   download(DDT_MetaData, mdt, url, GH_ACCEPT_HEADER_METADATA, QString());
 }
 
+bool UpdateInterface::downloadAssetToBuffer(const int assetId)
+{
+  //progressMessage(tr("Download asset %1").arg(assetId));
+  assets->setId(assetId);
+  download(DDT_Content, 0, assets->urlAsset(), GH_ACCEPT_HEADER_BINARY, QString());
+  return downloadSuccess;
+}
+
 bool UpdateInterface::downloadTextFileToBuffer(const QString & path)
 {
   //progressMessage(tr("Download file %1").arg(path));
