@@ -500,7 +500,7 @@ class AppData: public CompStoreObj
     Q_ENUM(UpdateCheckFreq)
 
     static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Editor"), tr("Template"), tr("Prompt") } ; }
-    static QStringList updateCheckFreqsList() { return { tr("Manually"), tr("Startup"), tr("Daily"), tr("Weekly"), tr("Monthly") } ; }
+    static QStringList updateCheckFreqsList() { return { tr("Manual"), tr("Startup"), tr("Daily"), tr("Weekly"), tr("Monthly") } ; }
     // refer enum QtMsgType
     static QStringList updateLogLevelsList() { return { tr("Debug"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Information") } ; }
 
