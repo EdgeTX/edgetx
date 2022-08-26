@@ -207,8 +207,21 @@ bool LabelsModel::insertRows(int row, int count, const QModelIndex &parent)
 {
   if (parent.isValid())
     return false;
-  for (int i = 0; i < count; i++)
-    radioData->labels.insert(row+i, "New");
+
+  // Find a New Number
+  for (int i = 0; i < count; i++) {
+    int newno=0;
+    QString newstr;
+    do {
+      newstr = QString(tr("New%1").arg(newno));
+      if(newno == 0)
+        newstr = QString(tr("New"));
+      newno++;
+    } while(radioData->labels.contains(newstr));
+    // Add it to radioData
+    radioData->labels.insert(row+i, newstr);
+  }
+  buildLabelsList();
   return true;
 }
 
@@ -216,11 +229,18 @@ bool LabelsModel::removeRows(int row, int count, const QModelIndex &parent)
 {
   if (parent.isValid())
        return false;
-   beginRemoveRows(parent, row, row + count - 1);
-   for (int i = 0; i != count; ++i)
-     radioData->labels.removeAt(row);
-   endRemoveRows();
-   return true;
+  bool deleted=false;
+  beginRemoveRows(parent, row, row + count - 1);
+  for (int i = 0; i != count; ++i)
+   if(radioData->deleteLabel(row+i)) {
+     deleted = true;
+   }
+  endRemoveRows();
+  // Refresh all
+  if(deleted)
+    emit modelChanged(-1);
+  buildLabelsList();
+return true;
 }
 
 void LabelsModel::buildLabelsList()

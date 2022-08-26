@@ -23,11 +23,12 @@ class RadioData {
     void convert(RadioDataConversionState & cstate);
 
     void addLabel(QString label);
-    void deleteLabel(QString label);
+    bool deleteLabel(QString label);
+    bool deleteLabel(int index);
     bool renameLabel(QString from, QString to);
     bool renameLabel(int index, QString to);
-    bool addLabelToModel(int modelIndex, QString label);
-    bool removeLabelFromModel(int modelIndex, QString label);
+    bool addLabelToModel(int index, QString label);
+    bool removeLabelFromModel(int index, QString label);
 
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();

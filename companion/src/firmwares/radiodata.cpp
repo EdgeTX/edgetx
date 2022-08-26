@@ -110,11 +110,14 @@ void RadioData::addLabel(QString label)
     labels.append(label);
 }
 
-void RadioData::deleteLabel(QString label)
+bool RadioData::deleteLabel(QString label)
 {
+  bool deleted = false;
   // Remove labels in the models
   for(auto& model : models) {
     QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
+    if(modelLabels.contains(label))
+      deleted = true;
     modelLabels.removeAll(label);
     strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
   }
@@ -126,6 +129,14 @@ void RadioData::deleteLabel(QString label)
   if(!labels.size()) {
     addLabel(tr("Favorites"));
   }
+  return deleted;
+}
+
+bool RadioData::deleteLabel(int index)
+{
+  if(index >= labels.size()) return false;
+  QString modelLabel = labels.at(index);
+  return deleteLabel(modelLabel);
 }
 
 bool RadioData::renameLabel(QString from, QString to)

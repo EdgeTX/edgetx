@@ -217,8 +217,8 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_RTR, "open.png",   SLOT(loadBackup()), tr("Alt+R"));
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
 
-  addAct(ACT_LBL_ADD, "add.png",    SLOT(addLabel()), tr("Alt-L"));
-  addAct(ACT_LBL_DEL, "clear.png",    SLOT(deleteLabel()), tr("Alt-L"));
+  addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",    SLOT(labelDelete()), tr("Alt-L"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -1772,14 +1772,10 @@ void MdiChild::labelAdd()
   labelsListModel->insertRow(0);
 }
 
-void MdiChild::labelEdit()
-{
-
-}
-
 void MdiChild::labelDelete()
 {
-
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  labelsListModel->removeRow(row);
 }
 
 unsigned MdiChild::saveModels(const QVector<int> modelIndices)
