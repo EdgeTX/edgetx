@@ -157,11 +157,12 @@ class WidgetFactory
           TRACE("WidgetFactory::initPersistentData() setting option '%s'", option->name);
           // TODO compiler bug? The CPU freezes ... persistentData->options[i++] = option->deflt;
           auto optVal = &persistentData->options[i];
-          if (setDefault) {
+          auto optType = zoneValueEnumFromType(option->type);
+          if (setDefault || optVal->type != optType) {
             // reset to default value
             memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
+            optVal->type = optType;
           }
-          optVal->type = zoneValueEnumFromType(option->type);
         }
       }
     }
