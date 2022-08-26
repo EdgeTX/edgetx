@@ -135,7 +135,6 @@ class UpdateInterface : public QWidget
     QString updateDir;
     int logLevel;
 
-    virtual bool autoUpdate(ProgressWidget * progress = nullptr);
     virtual bool manualUpdate(ProgressWidget * progress = nullptr);
 
     virtual bool update();
@@ -283,7 +282,6 @@ class UpdateFactories : public QWidget
     const QString latestRelease(const QString & name);
     const QStringList releases(const QString & name);
 
-    bool autoUpdate(ProgressWidget * progress = nullptr);
     bool manualUpdate(ProgressWidget * progress = nullptr);
     const bool isUpdatesAvailable(QStringList & names);
 
