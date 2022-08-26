@@ -75,7 +75,7 @@ bool CompareDialog::handleMimeData(const QMimeData * mimeData)
 {
   QVector<ModelData> mList;
   GeneralSettings gs;
-  if (!TreeModel::decodeMimeData(mimeData, &mList, &gs) || mList.isEmpty())
+  if (!ModelsListModel::decodeMimeData(mimeData, &mList, &gs) || mList.isEmpty())
     return false;
   for (int i=0; i < mList.size(); ++i) {
     GMData data;

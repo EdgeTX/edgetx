@@ -56,8 +56,6 @@ class MdiChild : public QWidget
       ACT_ITM_DEL,  // delete model or cat
       ACT_LBL_ADD,
       ACT_LBL_DEL,
-      ACT_LBL_REN,
-      ACT_LBL_MOV,
       ACT_MDL_ADD,  // model actions...
       ACT_MDL_CPY,
       ACT_MDL_CUT,
@@ -196,7 +194,7 @@ class MdiChild : public QWidget
     QList<QDialog *> * getModelEditDialogsList();
 
     Ui::MdiChild * ui;
-    TreeModel * modelsListModel;
+    ModelsListModel * modelsListModel;
     LabelsModel * labelsListModel;
     QWidget * parentWindow;
 

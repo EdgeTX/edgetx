@@ -52,23 +52,10 @@ bool loadLabelsListFromYaml(QStringList& labels,
   if (data.size() == 0)
     return true;
   YAML::Node node = loadYamlFromByteArray(data);
-  if (!node.IsSequence()) return false;
-
-  for (const auto& cat : node) {
-    if (!cat.IsMap()) continue;
-    for (const auto& cat_map : cat) {
-      if(cat_map.first.Scalar() == "Labels") {
-        if(!cat_map.second.IsSequence()) continue;
-        for(const auto& label : cat_map.second) {
-          if(!label.IsMap()) continue;
-          for(const auto &lbl : label) {
-            if(!lbl.first.IsScalar()) continue;
-            labels.append(lbl.first.Scalar().c_str());
-          }
-        }
-      }
-    }
-  }
+  if (!node.IsMap()) return false; // Root Map (Labels, Models)
+  for (const auto& lbl : node["Labels"]) {
+    labels.append(QString::fromStdString(lbl.first.as<std::string>()));
+   }
 
   return true;
 }
@@ -100,14 +87,11 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
 
 bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
-  /* TODO
   YAML::Node node;
-  YAML::Node labels;
   foreach(QString label, radioData.labels) {
-    labels[label.toStdString()] = YAML::Null;
+    node["Labels"][label.toStdString()];
   }
-  node << labels;
-  writeYamlToByteArray(node, data); */
+  writeYamlToByteArray(node, data);
   return true;
 }
 

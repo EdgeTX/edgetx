@@ -106,7 +106,6 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
     if (ver <= stateDataVersion) {
       bool visMdl, visGen;
       stream >> showLabelToolbar >> visMdl >> visGen;
-//      categoriesToolbar->setVisible(showLabelToolbar);
       modelsToolbar->setVisible(visMdl);
       radioToolbar->setVisible(visGen);
     }
@@ -143,7 +142,6 @@ void MdiChild::closeEvent(QCloseEvent *event)
   QByteArray state;
   QDataStream stream(&state, QIODevice::WriteOnly);
   stream << stateDataVersion
-//         << (firmware->getCapability(Capability::HasModelLabels) ? categoriesToolbar->isVisible() : showCatToolbar) // TODO *** what did this affect
          << false
          << modelsToolbar->isVisible()
          << radioToolbar->isVisible();
@@ -220,9 +218,7 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
 
   addAct(ACT_LBL_ADD, "add.png",    SLOT(addLabel()), tr("Alt-L"));
-  addAct(ACT_LBL_REN, "edit.png",    SLOT(editLabel()), Qt::Key_Enter);
   addAct(ACT_LBL_DEL, "clear.png",    SLOT(deleteLabel()), tr("Alt-L"));
-  addAct(ACT_LBL_MOV, ".png",    SLOT(addLabel()), tr("Alt-L"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -262,7 +258,6 @@ void MdiChild::setupNavigation()
   labelsToolbar->setStyleSheet(tbCss);
   labelsToolbar->addAction(getAction(ACT_LBL_ADD));
   labelsToolbar->addAction(getAction(ACT_LBL_DEL));
-  labelsToolbar->addAction(getAction(ACT_LBL_REN));
   ui->bottomLayout->addWidget(labelsToolbar);
 
   if (radioToolbar)
@@ -317,16 +312,13 @@ void MdiChild::updateNavigation()
   const int numOnClipbrd = modelsListModel->countModelsInMimeData(QApplication::clipboard()->mimeData());
   const QString modelsRemvTxt = tr("%n Model(s)", "As in \"Copy 3 Models\" or \"Cut 1 Model\" or \"Delete 3 Models\" action).", modelsSelected);
   const QString modelsAddTxt = tr("%n Model(s)", "As in \"Paste 3 Models\" or \"Insert 1 Model.\"", numOnClipbrd);
-  //const QString catsRemvTxt = tr("%n Category(ies)", "As in \"Delete 3 Categories\" or \"Delete 1 Category.\"", catsSelected);
   static const QString noSelection = tr("Nothing selected");
   static const QString sp = " ";
   static const QString ns;
 
-  //categoriesToolbar->setVisible(hasLabels && showLabelToolbar);
-
   labelsToolbar->setVisible(hasLabels);
   ui->lstLabels->setVisible(hasLabels);
-  //lblLabels->setVisible(hasLabels);
+  lblLabels->setVisible(hasLabels);
   action[ACT_GEN_PST]->setEnabled(hasClipboardData(1));
 
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
@@ -355,10 +347,11 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_PST]->setText(tr("Paste Radio Settings"));
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
 
+  action[ACT_ITM_EDT]->setText(tr("Edit Model"));
+  action[ACT_ITM_DEL]->setText(tr("Delete"));
+
   action[ACT_LBL_ADD]->setText(tr("Add Label"));
   action[ACT_LBL_DEL]->setText(tr("Delete Label"));
-  action[ACT_LBL_REN]->setText(tr("Rename Label"));
-  action[ACT_LBL_MOV]->setText(tr("Move Label"));
 
   action[ACT_MDL_ADD]->setText(tr("Add Model"));
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
@@ -388,10 +381,6 @@ QList<QAction *> MdiChild::getGeneralActions()
 QList<QAction *> MdiChild::getEditActions()
 {
   QList<QAction *> actGrp;
-  //if (incCatNew) {
-//    actGrp.append(getAction(ACT_CAT_ADD));
-//    actGrp.append(getAction(ACT_CAT_SEP));
-//  }
   actGrp.append(action[ACT_MDL_ADD]);
   QAction * sep2 = new QAction(this);
   sep2->setSeparator(true);
@@ -423,7 +412,6 @@ QList<QAction *> MdiChild::getLabelsActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(getAction(ACT_LBL_ADD));
-  actGrp.append(getAction(ACT_LBL_REN));
   actGrp.append(getAction(ACT_LBL_DEL));
   return actGrp;
 }
@@ -442,15 +430,6 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
   QMenu contextMenu;
 
   updateNavigation();
-
-  /*if (firmware->getCapability(Capability::HasModelLabels)) {
-    contextMenu.addAction(action[ACT_CAT_ADD]);
-    if(modelsListModel->isCategoryType(modelIndex)) {
-      contextMenu.addAction(action[ACT_ITM_EDT]);
-      contextMenu.addAction(action[ACT_ITM_DEL]);
-    }
-    contextMenu.addSeparator();
-  }*/
 
   if (modelsListModel->isModelType(modelIndex)) {
     contextMenu.addActions(getEditActions());
@@ -472,8 +451,6 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
 void MdiChild::showContextMenu(const QPoint & pos)
 {
   QMenu contextMenu;
-  //if (firmware->getCapability(Capability::HasModelLabels))
-//    contextMenu.addAction(categoriesToolbar->toggleViewAction());
   contextMenu.addAction(modelsToolbar->toggleViewAction());
   contextMenu.addAction(radioToolbar->toggleViewAction());
   if (!contextMenu.isEmpty())
@@ -503,10 +480,10 @@ void MdiChild::initModelsList()
   if (modelsListModel)
     delete modelsListModel;
 
-  modelsListModel = new TreeModel(&radioData, this);
-  connect(modelsListModel, &TreeModel::modelsDropped, this, &MdiChild::pasteModelData);
-  connect(modelsListModel, &TreeModel::modelsRemoved, this, &MdiChild::deleteModels);
-  connect(modelsListModel, &TreeModel::refreshRequested, this, &MdiChild::refresh);
+  modelsListModel = new ModelsListModel(&radioData, this);
+  connect(modelsListModel, &ModelsListModel::modelsDropped, this, &MdiChild::pasteModelData);
+  connect(modelsListModel, &ModelsListModel::modelsRemoved, this, &MdiChild::deleteModels);
+  connect(modelsListModel, &ModelsListModel::refreshRequested, this, &MdiChild::refresh);
   connect(modelsListModel, &QAbstractItemModel::dataChanged, this, &MdiChild::onDataChanged);
 
   ui->modelsList->setModel(modelsListModel);
@@ -526,8 +503,6 @@ void MdiChild::initModelsList()
   ui->lstLabels->setDragDropOverwriteMode(false);
   ui->lstLabels->setDragDropMode(QAbstractItemView::InternalMove);  
   ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
-
-
 
   ui->modelsList->setIndentation(0);
 
@@ -815,8 +790,8 @@ void MdiChild::findNewDefaultModel(const unsigned startAt)
     radioData.setCurrentModel(0);
 }
 
-// NOTE: insertModelRows() does not update the TreeModel, only modifies radioData.models[] array by inserting row(s) of blank model(s).
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data.
+// NOTE: insertModelRows() does not update the ModelsListModel, only modifies radioData.models[] array by inserting row(s) of blank model(s).
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data.
 // This invalidates any model indices stored previously.
 bool MdiChild::insertModelRows(int atModelIdx, int count)
 {
@@ -847,7 +822,7 @@ bool MdiChild::insertModelRows(int atModelIdx, int count)
 
 // Finds the first empty slot and inserts the model into it. In case of category-style models, will append to end of list.
 // Return -1 if no slot was found, otherwise new array index.
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data.
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data.
 int MdiChild::modelAppend(const ModelData model)
 {
   int newIdx = -1;
@@ -908,11 +883,11 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
 }
 
 
-// NOTE: deleteModelss() does not update the TreeModel, only modifies radioData.models[] array by clearing the model data.
+// NOTE: deleteModelss() does not update the ModelsListModel, only modifies radioData.models[] array by clearing the model data.
 // If (removeModelSlotsWhenDeleting == true) then removes array rows entirely (and pads w/blank model at the end if needed).
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data
 // We delete using stored indexes because actual indexes may change during inserts/deletes.
-//   Obviously this only works before the stored indexes get updated in TreeModel::refresh().
+//   Obviously this only works before the stored indexes get updated in ModelsListModel::refresh().
 unsigned MdiChild::deleteModels(const QVector<int> modelIndices)
 {
   unsigned deletes = 0;
@@ -997,7 +972,7 @@ unsigned MdiChild::countUsedModels(const int categoryId)
 void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row, bool insert, bool move)
 {
   QVector<ModelData> modelsList;
-  if (!TreeModel::decodeMimeData(mimeData, &modelsList))
+  if (!ModelsListModel::decodeMimeData(mimeData, &modelsList))
     return;
 
   bool modified = false;
@@ -1097,7 +1072,7 @@ void MdiChild::pasteGeneralData(const QMimeData * mimeData)
   GeneralSettings gs;
   bool hasGenSettings = false;
 
-  if (!TreeModel::decodeMimeData(mimeData, NULL, &gs, &hasGenSettings))
+  if (!ModelsListModel::decodeMimeData(mimeData, NULL, &gs, &hasGenSettings))
     return;
 
   if (hasGenSettings && askQuestion(tr("Do you want to overwrite radio general settings?")) == QMessageBox::Yes) {
@@ -1794,7 +1769,7 @@ void MdiChild::modelSave()
 
 void MdiChild::labelAdd()
 {
-
+  labelsListModel->insertRow(0);
 }
 
 void MdiChild::labelEdit()

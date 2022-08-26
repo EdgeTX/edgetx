@@ -20,7 +20,7 @@
 
 #include "modelslist.h"
 
-TreeItem::TreeItem(const QVector<QVariant> & itemData):
+ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
   parentItem(NULL),
   categoryIndex(-1),
@@ -30,60 +30,60 @@ TreeItem::TreeItem(const QVector<QVariant> & itemData):
 {
 }
 
-TreeItem::TreeItem(TreeItem * parent, int categoryIndex, int modelIndex):
-  TreeItem(QVector<QVariant>(parent->columnCount()))
+ModelListItem::ModelListItem(ModelListItem * parent, int categoryIndex, int modelIndex):
+  ModelListItem(QVector<QVariant>(parent->columnCount()))
 {
   setParent(parent);
   setCategoryIndex(categoryIndex);
   setModelIndex(modelIndex);
 }
 
-TreeItem::~TreeItem()
+ModelListItem::~ModelListItem()
 {
   qDeleteAll(childItems);
 }
 
-TreeItem * TreeItem::child(int number)
+ModelListItem * ModelListItem::child(int number)
 {
   return childItems.value(number);
 }
 
-int TreeItem::childCount() const
+int ModelListItem::childCount() const
 {
   return childItems.count();
 }
 
-int TreeItem::childNumber() const
+int ModelListItem::childNumber() const
 {
   if (parentItem)
-    return parentItem->childItems.indexOf(const_cast<TreeItem*>(this));
+    return parentItem->childItems.indexOf(const_cast<ModelListItem*>(this));
 
   return 0;
 }
 
-int TreeItem::columnCount() const
+int ModelListItem::columnCount() const
 {
   return itemData.count();
 }
 
-QVariant TreeItem::data(int column) const
+QVariant ModelListItem::data(int column) const
 {
   return itemData.value(column);
 }
 
-TreeItem *TreeItem::insertChild(const int row, int categoryIndex, int modelIndex)
+ModelListItem *ModelListItem::insertChild(const int row, int categoryIndex, int modelIndex)
 {
-  TreeItem * item = new TreeItem(this, categoryIndex, modelIndex);
+  ModelListItem * item = new ModelListItem(this, categoryIndex, modelIndex);
   childItems.insert(row, item);
   return item;
 }
 
-TreeItem * TreeItem::appendChild(int categoryIndex, int modelIndex)
+ModelListItem * ModelListItem::appendChild(int categoryIndex, int modelIndex)
 {
   return insertChild(childItems.size(), categoryIndex, modelIndex);
 }
 
-bool TreeItem::removeChildren(int position, int count)
+bool ModelListItem::removeChildren(int position, int count)
 {
   if (position < 0 || position + count > childItems.size())
     return false;
@@ -94,7 +94,7 @@ bool TreeItem::removeChildren(int position, int count)
   return true;
 }
 
-bool TreeItem::insertChildren(int row, int count)
+bool ModelListItem::insertChildren(int row, int count)
 {
   for (int i=0; i < count; ++i) {
     insertChild(row + i, -1, -1);
@@ -102,7 +102,7 @@ bool TreeItem::insertChildren(int row, int count)
   return true;
 }
 
-bool TreeItem::setData(int column, const QVariant & value)
+bool ModelListItem::setData(int column, const QVariant & value)
 {
   if (column < 0 || column >= itemData.size())
     return false;
@@ -111,7 +111,7 @@ bool TreeItem::setData(int column, const QVariant & value)
   return true;
 }
 
-void TreeItem::setFlag(const quint16 & flag, const bool on)
+void ModelListItem::setFlag(const quint16 & flag, const bool on)
 {
   if (on)
     flags |= flag;
@@ -119,22 +119,22 @@ void TreeItem::setFlag(const quint16 & flag, const bool on)
     flags &= ~flag;
 }
 
-bool TreeItem::isCategory() const
+bool ModelListItem::isCategory() const
 {
   return (modelIndex < 0 && categoryIndex > -1);
 }
 
-bool TreeItem::isModel() const
+bool ModelListItem::isModel() const
 {
   return (modelIndex > -1);
 }
 
 
 /*
- * TreeModel
+ * ModelsListModel
 */
 
-TreeModel::TreeModel(RadioData * radioData, QObject * parent):
+ModelsListModel::ModelsListModel(RadioData * radioData, QObject * parent):
   QAbstractItemModel(parent),
   radioData(radioData)
 {
@@ -147,32 +147,32 @@ TreeModel::TreeModel(RadioData * radioData, QObject * parent):
   if (hasLabels)
     labels << tr("Labels");
 
-  rootItem = new TreeItem(labels);
+  rootItem = new ModelListItem(labels);
   // uniqueId and version for drag/drop operations (see encodeHeaderData())
   mimeHeaderData.instanceId = QUuid::createUuid();
   mimeHeaderData.dataVersion = 1;
 
   refresh();
-  //connect(this, &QAbstractItemModel::rowsAboutToBeRemoved, this, &TreeModel::onRowsAboutToBeRemoved);
-  connect(this, &QAbstractItemModel::rowsRemoved, this, &TreeModel::onRowsRemoved);
+  //connect(this, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ModelsListModel::onRowsAboutToBeRemoved);
+  connect(this, &QAbstractItemModel::rowsRemoved, this, &ModelsListModel::onRowsRemoved);
 }
 
-TreeModel::~TreeModel()
+ModelsListModel::~ModelsListModel()
 {
   delete rootItem;
 }
 
-int TreeModel::columnCount(const QModelIndex & /* parent */) const
+int ModelsListModel::columnCount(const QModelIndex & /* parent */) const
 {
   return rootItem->columnCount();
 }
 
-QVariant TreeModel::data(const QModelIndex & index, int role) const
+QVariant ModelsListModel::data(const QModelIndex & index, int role) const
 {
   if (!index.isValid())
     return QVariant();
 
-  TreeItem * item = getItem(index);
+  ModelListItem * item = getItem(index);
 
   if (role == Qt::DisplayRole || role == Qt::EditRole) {
     return item->data(index.column());
@@ -184,7 +184,7 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
     return font;
   }
 
-  if (role == Qt::ForegroundRole && (item->getFlags() & TreeItem::MarkedForCut)) {
+  if (role == Qt::ForegroundRole && (item->getFlags() & ModelListItem::MarkedForCut)) {
     return QPalette().brush(QPalette::Disabled, QPalette::Text);
   }
 
@@ -199,7 +199,7 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
   return QVariant();
 }
 
-Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags ModelsListModel::flags(const QModelIndex &index) const
 {
   Qt::ItemFlags f = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
@@ -210,7 +210,7 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
   return f;
 }
 
-QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ModelsListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
     return rootItem->data(section);
@@ -218,36 +218,27 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int rol
   return QVariant();
 }
 
-QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) const
+QModelIndex ModelsListModel::index(int row, int column, const QModelIndex & parent) const
 {
   if (parent.isValid() && parent.column() != 0)
     return QModelIndex();
 
-  TreeItem * parentItem = getItem(parent);
-  TreeItem * childItem = parentItem->child(row);
+  ModelListItem * parentItem = getItem(parent);
+  ModelListItem * childItem = parentItem->child(row);
   if (childItem)
     return createIndex(row, column, childItem);
   else
     return QModelIndex();
 }
 
-QModelIndex TreeModel::parent(const QModelIndex & index) const
+QModelIndex ModelsListModel::parent(const QModelIndex & index) const
 {
-  if (!index.isValid())
-    return QModelIndex();
-
-  TreeItem * childItem = getItem(index);
-  TreeItem * parentItem = childItem->parent();
-
-  if (parentItem == rootItem)
-    return QModelIndex();
-
-  return createIndex(parentItem->childNumber(), 0, parentItem);
+  return QModelIndex();
 }
 
-bool TreeModel::removeRows(int position, int rows, const QModelIndex & parent)
+bool ModelsListModel::removeRows(int position, int rows, const QModelIndex & parent)
 {
-  TreeItem * parentItem = getItem(parent);
+  ModelListItem * parentItem = getItem(parent);
   if (!parentItem)
     return false;
 
@@ -262,9 +253,9 @@ bool TreeModel::removeRows(int position, int rows, const QModelIndex & parent)
 }
 
 /* unused but possibly useful in future
-bool TreeModel::insertRows(int row, int count, const QModelIndex & parent)
+bool ModelsListModel::insertRows(int row, int count, const QModelIndex & parent)
 {
-  TreeItem * parentItem = getItem(parent);
+  ModelListItem * parentItem = getItem(parent);
   if (!parentItem)
     return false;
 
@@ -278,13 +269,13 @@ bool TreeModel::insertRows(int row, int count, const QModelIndex & parent)
   return success;
 }  */
 
-int TreeModel::rowCount(const QModelIndex &parent) const
+int ModelsListModel::rowCount(const QModelIndex &parent) const
 {
-  TreeItem * parentItem = getItem(parent);
+  ModelListItem * parentItem = getItem(parent);
   return parentItem->childCount();
 }
 
-bool TreeModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool ModelsListModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
   if (role != Qt::EditRole)
     return false;
@@ -292,7 +283,7 @@ bool TreeModel::setData(const QModelIndex & index, const QVariant & value, int r
   if (!index.isValid())
     return false;
 
-  TreeItem * item = getItem(index);
+  ModelListItem * item = getItem(index);
   bool result = item->setData(index.column(), value);
 
   if (result) {
@@ -302,7 +293,7 @@ bool TreeModel::setData(const QModelIndex & index, const QVariant & value, int r
   return result;
 }
 
-QStringList TreeModel::mimeTypes() const
+QStringList ModelsListModel::mimeTypes() const
 {
   QStringList types;
   types << "application/x-companion-modeldata";
@@ -311,18 +302,18 @@ QStringList TreeModel::mimeTypes() const
   return types;
 }
 
-Qt::DropActions TreeModel::supportedDropActions() const
+Qt::DropActions ModelsListModel::supportedDropActions() const
 {
   return Qt::CopyAction | Qt::MoveAction;
 }
 
-Qt::DropActions TreeModel::supportedDragActions() const
+Qt::DropActions ModelsListModel::supportedDragActions() const
 {
   return Qt::CopyAction | Qt::MoveAction;
 }
 
 // This method encodes all the data on default drag operation, including general radio settings. This is useful for eg. Compare dialog/model printer.
-QMimeData * TreeModel::mimeData(const QModelIndexList & indexes) const
+QMimeData * ModelsListModel::mimeData(const QModelIndexList & indexes) const
 {
   QMimeData * mimeData = new QMimeData();
   getModelsMimeData(indexes, mimeData);
@@ -331,7 +322,7 @@ QMimeData * TreeModel::mimeData(const QModelIndexList & indexes) const
   return mimeData;
 }
 
-bool TreeModel::canDropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) const
+bool ModelsListModel::canDropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) const
 {
   Q_UNUSED(action);
   //qDebug() << action << row << column << parent.row();
@@ -343,7 +334,7 @@ bool TreeModel::canDropMimeData(const QMimeData * data, Qt::DropAction action, i
   return false;
 }
 
-bool TreeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent)
+bool ModelsListModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent)
 {
   if (!canDropMimeData(data, action, row, column, parent))
     return false;
@@ -378,7 +369,7 @@ bool TreeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int 
   return true;
 }
 
-QMimeData *TreeModel::getModelsMimeData(const QModelIndexList & indexes, QMimeData * mimeData) const
+QMimeData *ModelsListModel::getModelsMimeData(const QModelIndexList & indexes, QMimeData * mimeData) const
 {
   if (!mimeData)
     mimeData = new QMimeData();
@@ -388,7 +379,7 @@ QMimeData *TreeModel::getModelsMimeData(const QModelIndexList & indexes, QMimeDa
   return mimeData;
 }
 
-QMimeData *TreeModel::getGeneralMimeData(QMimeData * mimeData) const
+QMimeData *ModelsListModel::getGeneralMimeData(QMimeData * mimeData) const
 {
   if (!mimeData)
     mimeData = new QMimeData();
@@ -398,7 +389,7 @@ QMimeData *TreeModel::getGeneralMimeData(QMimeData * mimeData) const
   return mimeData;
 }
 
-QMimeData *TreeModel::getHeaderMimeData(QMimeData * mimeData) const
+QMimeData *ModelsListModel::getHeaderMimeData(QMimeData * mimeData) const
 {
   if (!mimeData)
     mimeData = new QMimeData();
@@ -408,14 +399,14 @@ QMimeData *TreeModel::getHeaderMimeData(QMimeData * mimeData) const
   return mimeData;
 }
 
-QUuid TreeModel::getMimeDataSourceId(const QMimeData * mimeData) const
+QUuid ModelsListModel::getMimeDataSourceId(const QMimeData * mimeData) const
 {
   MimeHeaderData header;
   decodeHeaderData(mimeData, &header);
   return header.instanceId;
 }
 
-bool TreeModel::hasSupportedMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasSupportedMimeData(const QMimeData * mimeData) const
 {
   foreach (const QString & mtype, mimeTypes()) {
     if (mimeData->hasFormat(mtype))
@@ -424,28 +415,28 @@ bool TreeModel::hasSupportedMimeData(const QMimeData * mimeData) const
   return false;
 }
 
-bool TreeModel::hasModelsMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasModelsMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-modeldata");
 }
 
-bool TreeModel::hasGenralMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasGenralMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-generaldata");
 }
 
-bool TreeModel::hasHeaderMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasHeaderMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-radiodata-header");
 }
 
 // returns true if mime data origin was this data model (vs. from another file window)
-bool TreeModel::hasOwnMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasOwnMimeData(const QMimeData * mimeData) const
 {
   return (getMimeDataSourceId(mimeData) == mimeHeaderData.instanceId);
 }
 
-void TreeModel::encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const
+void ModelsListModel::encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const
 {
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid() && index.column() == 0) {
@@ -457,15 +448,15 @@ void TreeModel::encodeModelsData(const QModelIndexList & indexes, QByteArray * d
   }
 }
 
-void TreeModel::encodeGeneralData(QByteArray * data) const
+void ModelsListModel::encodeGeneralData(QByteArray * data) const
 {
   data->append('G');
   data->append((char *)&radioData->generalSettings, sizeof(GeneralSettings));
 }
 
-void TreeModel::encodeHeaderData(QByteArray * data) const
+void ModelsListModel::encodeHeaderData(QByteArray * data) const
 {
-  // We use a unique ID representing this TreeModel instance (a unique file).
+  // We use a unique ID representing this ModelsListModel instance (a unique file).
   // This can be used eg. to detect cross-file drop operations.
   QDataStream stream(data, QIODevice::WriteOnly);
   stream << mimeHeaderData.dataVersion;
@@ -473,7 +464,7 @@ void TreeModel::encodeHeaderData(QByteArray * data) const
 }
 
 // static
-bool TreeModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header)
+bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header)
 {
   if (header && mimeData->hasFormat("application/x-companion-radiodata-header")) {
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
@@ -485,7 +476,7 @@ bool TreeModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * he
 }
 
 // static
-bool TreeModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models, GeneralSettings * gs, bool * hasGenSet)
+bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models, GeneralSettings * gs, bool * hasGenSet)
 {
   bool ret = false;
   char * gData;
@@ -526,7 +517,7 @@ bool TreeModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * 
 }
 
 // static
-int TreeModel::countModelsInMimeData(const QMimeData * mimeData)
+int ModelsListModel::countModelsInMimeData(const QMimeData * mimeData)
 {
   int ret = 0;
   if (mimeData->hasFormat("application/x-companion-modeldata")) {
@@ -537,10 +528,10 @@ int TreeModel::countModelsInMimeData(const QMimeData * mimeData)
 }
 
 
-TreeItem * TreeModel::getItem(const QModelIndex & index) const
+ModelListItem * ModelsListModel::getItem(const QModelIndex & index) const
 {
   if (index.isValid()) {
-    TreeItem * item = static_cast<TreeItem *>(index.internalPointer());
+    ModelListItem * item = static_cast<ModelListItem *>(index.internalPointer());
     if (item) {
       return item;
     }
@@ -549,7 +540,7 @@ TreeItem * TreeModel::getItem(const QModelIndex & index) const
 }
 
 // recursive
-QModelIndex TreeModel::getIndexForModel(const int modelIndex, QModelIndex parent)
+QModelIndex ModelsListModel::getIndexForModel(const int modelIndex, QModelIndex parent)
 {
   for (int i = 0; i < rowCount(parent); ++i) {
     QModelIndex idx = index(i, 0, parent);
@@ -561,7 +552,7 @@ QModelIndex TreeModel::getIndexForModel(const int modelIndex, QModelIndex parent
   return QModelIndex();
 }
 
-QModelIndex TreeModel::getIndexForCategory(const int categoryIndex)
+QModelIndex ModelsListModel::getIndexForCategory(const int categoryIndex)
 {
   for (int i = 0; i < rowCount(); ++i) {
     if (getItem(index(i, 0))->getCategoryIndex() == categoryIndex)
@@ -570,51 +561,51 @@ QModelIndex TreeModel::getIndexForCategory(const int categoryIndex)
   return QModelIndex();
 }
 
-int TreeModel::getModelIndex(const QModelIndex & index) const
+int ModelsListModel::getModelIndex(const QModelIndex & index) const
 {
   return getItem(index)->getModelIndex();
 }
 
-int TreeModel::getCategoryIndex(const QModelIndex & index) const
+int ModelsListModel::getCategoryIndex(const QModelIndex & index) const
 {
   return getItem(index)->getCategoryIndex();
 }
 
-int TreeModel::rowNumber(const QModelIndex & index) const
+int ModelsListModel::rowNumber(const QModelIndex & index) const
 {
   return getItem(index)->childNumber();
 }
 
-bool TreeModel::isCategoryType(const QModelIndex & index) const
+bool ModelsListModel::isCategoryType(const QModelIndex & index) const
 {
   return index.isValid() && getItem(index)->isCategory();
 }
 
-bool TreeModel::isModelType(const QModelIndex & index) const
+bool ModelsListModel::isModelType(const QModelIndex & index) const
 {
   return index.isValid() && getItem(index)->isModel();
 }
 
-void TreeModel::markItemForCut(const QModelIndex & index, bool on)
+void ModelsListModel::markItemForCut(const QModelIndex & index, bool on)
 {
   if (index.isValid() && index.column() == 0)
-    getItem(index)->setFlag(TreeItem::MarkedForCut, on);
+    getItem(index)->setFlag(ModelListItem::MarkedForCut, on);
 }
 
-void TreeModel::markItemsForCut(const QModelIndexList & indexes, bool on)
+void ModelsListModel::markItemsForCut(const QModelIndexList & indexes, bool on)
 {
   foreach (const QModelIndex &index, indexes)
     markItemForCut(index, on);
 }
 
 // onRowsAboutToBeRemoved could be a way to deal with models being drag-drop moved to another window/file.
-// TreeModel detects these as removals and runs removeRows(), which deletes the Model indexes
+// ModelsListModel detects these as removals and runs removeRows(), which deletes the Model indexes
 //   but not the actual models from the RadioData::models array.
 // BUT this also runs when moving rows within our own tree, and if there is an error during the move,
 //   or the user cancels the operation, removeRows() is still called automatically somewhere inside QAbstractItemModel().
 // If a solution could be found to this problem then we could enable DnD-moving models between file windows.
 /*
-void TreeModel::onRowsAboutToBeRemoved(const QModelIndex & parent, int first, int last)
+void ModelsListModel::onRowsAboutToBeRemoved(const QModelIndex & parent, int first, int last)
 {
   qDebug() << parent << first << last;
   QVector<int> modelIndices;
@@ -626,17 +617,17 @@ void TreeModel::onRowsAboutToBeRemoved(const QModelIndex & parent, int first, in
 }
 */
 
-void TreeModel::onRowsRemoved(const QModelIndex & parent, int first, int last)
+void ModelsListModel::onRowsRemoved(const QModelIndex & parent, int first, int last)
 {
   // This is a workaround to deal with models being DnD moved to another window/file or if user cancels a DnD move within our own.
-  //  TreeModel detects these as removals and runs removeRows(), which deletes the Model indexes but not our actual models. See notes above.
+  //  ModelsListModel detects these as removals and runs removeRows(), which deletes the Model indexes but not our actual models. See notes above.
   //qDebug() << parent << first << last;
   emit refreshRequested();  // request refresh from View because it may have it's own ideas
 }
 
-void TreeModel::refresh()
+void ModelsListModel::refresh()
 {
-  TreeItem * defaultCategoryItem = NULL;
+  ModelListItem * defaultCategoryItem = NULL;
 
   this->blockSignals(true);  // make sure onRowsRemoved is not triggered
   removeRows(0, rowCount());
@@ -644,7 +635,7 @@ void TreeModel::refresh()
 
   /*if (hasCategories) {
     for (unsigned i = 0; i < radioData->categories.size(); i++) {
-      TreeItem * current = rootItem->appendChild(i, -1);
+      ModelListItem * current = rootItem->appendChild(i, -1);
       current->setData(0, QString(radioData->categories[i].name));
     }
   }*/
@@ -652,7 +643,7 @@ void TreeModel::refresh()
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
     int currentColumn = 0;
-    TreeItem * current = NULL;
+    ModelListItem * current = NULL;
 
     model.modelIndex = i;
 
@@ -702,7 +693,7 @@ void TreeModel::refresh()
   }
 }
 
-bool TreeModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsigned protocol)
+bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsigned protocol)
 {
   int cnt = 0;
   if (protocol== PULSES_PXX_XJT_D8)

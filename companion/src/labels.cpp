@@ -208,7 +208,7 @@ bool LabelsModel::insertRows(int row, int count, const QModelIndex &parent)
   if (parent.isValid())
     return false;
   for (int i = 0; i < count; i++)
-    radioData->labels.insert(row+i, "");
+    radioData->labels.insert(row+i, "New");
   return true;
 }
 

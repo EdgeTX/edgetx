@@ -75,34 +75,31 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   board = loadInterface->getBoard();
 
-  QByteArray modelsListBuffer;
-  if (!loadFile(modelsListBuffer, "RADIO/models.txt")) {
-    setError(tr("Cannot extract RADIO/models.txt"));
+  // Scan for all model files
+  QStringList modelFiles;
+  std::list<std::string> filelist;
+  if (!getFileList(filelist)) {
     return false;
   }
 
-  QList<QByteArray> lines = modelsListBuffer.split('\n');
-  int modelIndex = 0;
-  int categoryIndex = -1;
-  foreach (const QByteArray & lineArray, lines) {
-    QString line = QString(lineArray).trimmed();
-    if (line.isEmpty()) continue;
-    // qDebug() << "parsing line" << line;
-
-    if (line.startsWith('[') && line.endsWith(']')) {
-      // ignore categories for boards that do not support them
-      /*if (getCurrentFirmware()->getCapability(HasModelLabels)) { TODO ***
-        QString name = line.mid(1, line.size() - 2);
-        CategoryData category(qPrintable(name));
-        radioData.categories.push_back(category);
-        categoryIndex++;
-        qDebug() << "added category" << name;
-      }*/
-      continue;
+  const std::regex yml_regex("MODELS/(model([0-9]+)\\.bin)");
+  for(const auto& f : filelist) {
+    std::smatch match;
+    if (std::regex_match(f, match, yml_regex)) {
+      if (match.size() == 3) {
+        std::ssub_match modelFile = match[1];
+        std::ssub_match modelIdx = match[2];
+           modelFiles.append(QString::fromStdString(modelFile.str()));
+      }
     }
+  }
+
+  int modelIndex = 0;
+  foreach (const QString & modelFile, modelFiles) {
+    if (modelFile.isEmpty()) continue;
 
     // determine if we have a model number
-    QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    QStringList parts = modelFile.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     if (parts.size() == 2) {
       // parse model number
       int modelNumber = parts[0].toInt();
@@ -143,7 +140,7 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
     // invalid line
     // TODO add to parsing report
-    qDebug() << "Invalid line" <<line;
+    //qDebug() << "Invalid line" <<line;
     continue;
   }
   return true;
@@ -151,7 +148,6 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
 bool LabelsStorageFormat::writeBin(const RadioData & radioData)
 {
-  QByteArray modelsList;   // models.txt
   QByteArray radioSettingsData; // radio.bin
   size_t numModels = radioData.models.size();
   size_t numCategories = radioData.labels.size();
@@ -172,40 +168,6 @@ bool LabelsStorageFormat::writeBin(const RadioData & radioData)
     if (!writeFile(modelData, modelFilename)) {
       return false;
     }
-
-
-    /* TODO ***
-    // For firmware that doesn't support categories, we can just construct
-    // models.txt as we iterate thru the models vector. For firmware that does
-    // support categories, we have a bit of work to do in order to sort the
-    // models first by category index, so we use the sortedModels data
-    // structure to do that.
-    if (!getCurrentFirmware()->getCapability(HasModelLabels)) {
-      // Use format with model number and file name. This is needed because
-      // radios without category support can have unused model slots
-      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename).toLocal8Bit());
-    } else {
-      sortedModels[model.category].push_back(QString("%1\n").arg(model.filename));
-    }
-    */
-  }
-
-  /*
-  if (getCurrentFirmware()->getCapability(HasModelLabels)) {
-    for (size_t c=0; c<numCategories; c++) {
-      modelsList.append(QString()
-                            .sprintf("[%s]\n", radioData.labels[c].toLocal8Bit().constData()) // TODO ***
-                            .toLocal8Bit());
-      numModels = sortedModels[c].size();
-      for (size_t m=0; m<numModels; m++) {
-        modelsList.append(sortedModels[c][m].toLocal8Bit());
-      }
-    }
-  }*/
-
-
-  if (!writeFile(modelsList, "RADIO/models.txt")) {
-    return false;
   }
 
   return true;

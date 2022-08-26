@@ -153,7 +153,6 @@ enum Capability {
   HasMixerExpo,
   HasBatMeterRange,
   DangerousFunctions,
-  HasModelCategories,
   HasModelLabels,
   HasSwitchableJack,
   HasSportConnector,
