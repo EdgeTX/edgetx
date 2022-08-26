@@ -176,19 +176,6 @@ UpdateInterface::~UpdateInterface()
   delete runParams;
 }
 
-bool UpdateInterface::autoUpdate(ProgressWidget * progress)
-{
-  this->progress = progress;
-
-  if (g.component[m_settingsIdx].checkForUpdate() && !isLatestRelease()) {
-    runParams->data.flags |= UPDFLG_Update;
-    runParams->data.updateRelease = latestRelease();
-    return update();
-  }
-
-  return true;
-}
-
 bool UpdateInterface::manualUpdate(ProgressWidget * progress)
 {
   this->progress = progress;
@@ -241,7 +228,7 @@ bool UpdateInterface::update()
 
   reportProgress(tr("%1 update successful").arg(name), QtInfoMsg);
 
-  if (!progress)  //  auto update
+  if (!progress)
     QMessageBox::information(this, CPN_STR_APP_NAME, tr("%1 update successful").arg(name));
 
   return true;
@@ -1557,19 +1544,6 @@ const QStringList UpdateFactories::releases(const QString & name)
   }
 
   return ret;
-}
-
-bool UpdateFactories::autoUpdate(ProgressWidget * progress)
-{
-  bool ok = false;
-
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    ok = factory->instance()->autoUpdate(progress);
-    if (!ok)
-      break;
-  }
-
-  return ok;
 }
 
 bool UpdateFactories::manualUpdate(ProgressWidget * progress)

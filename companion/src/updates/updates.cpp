@@ -71,16 +71,7 @@ void Updates::autoUpdates()
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
                             tr("Updates available for:\n  %1\n\nUpdate now?").arg(list.join("\n  ")),
                             (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::Yes) {
-
-    factories->resetAllRunEnvironments();
-
-    if (!factories->autoUpdate()) {
-      QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Updates finished with errors"));
-    }
-    else {
-      QMessageBox::information(this, CPN_STR_APP_NAME, tr("Updates finished successfully"));
-      checkRunSDSync();
-    }
+    manualUpdates();
   }
 }
 
