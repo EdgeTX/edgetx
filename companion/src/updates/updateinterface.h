@@ -189,6 +189,7 @@ class UpdateInterface : public QWidget
     bool copyFiles();
     bool saveReleaseSettings();
 
+    bool downloadAssetToBuffer(const int assetId);
     bool downloadTextFileToBuffer(const QString & path);
     void downloadFileToBuffer(const QString & url);
     bool convertDownloadToJson(QJsonDocument * json);
