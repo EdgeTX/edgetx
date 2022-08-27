@@ -44,6 +44,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 {
     FIL  file;
     UINT bytes_read;
+    UINT total_bytes = 0;
 
     FRESULT result = f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK) {
@@ -61,6 +62,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
     while (f_read(&file, buffer, sizeof(buffer)-1, &bytes_read) == FR_OK) {
       if (bytes_read == 0)  // EOF
         break;
+      total_bytes += bytes_read;
 
       uint16_t skip = 0;
       if(first_block) {
@@ -105,15 +107,15 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
       // Special case to handle "old" files with no checksum field
       // 25 was arbitrarily chosen as the minimum realistic file size
       // - The issue is to allow old files to pass, while still detecting garbled files
-      if ( (file_checksum == 0) && (bytes_read > 25) ) {
-        *checksum_result = ChecksumResult::Success;
-      }
-
-      // Normal case - compare read and calculated checksum
-      if (calculated_checksum == file_checksum) {
+      if ( (file_checksum == 0) && (total_bytes > 25) ) {
         *checksum_result = ChecksumResult::Success;
       } else {
-        *checksum_result = ChecksumResult::Failed;
+        // Normal case - compare read and calculated checksum
+        if (calculated_checksum == file_checksum) {
+          *checksum_result = ChecksumResult::Success;
+        } else {
+          *checksum_result = ChecksumResult::Failed;
+        }
       }
     }
 
