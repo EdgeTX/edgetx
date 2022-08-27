@@ -77,6 +77,7 @@ struct ZoneOption
   ZoneOptionValue deflt;
   ZoneOptionValue min;
   ZoneOptionValue max;
+  const char * displayName;
 };
 
 struct ZoneOptionValueTyped

@@ -57,7 +57,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
     auto line = form->newLine(&grid);
 
     auto option = *optPtr;
-    new StaticText(line, rect_t{}, option.name, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, option.displayName ? option.displayName : option.name, 0, COLOR_THEME_PRIMARY1);
 
     switch (option.type) {
       case ZoneOption::Integer:
