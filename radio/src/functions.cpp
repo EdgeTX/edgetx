@@ -22,7 +22,7 @@
 #include "opentx.h"
 
 #if defined(COLORLCD)
-#include "view_main.h"
+void setRequestedMainView(uint8_t view);
 #endif
 
 CustomFunctionsContext modelFunctionsContext = { 0 };
@@ -429,8 +429,8 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
               int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
-              newActiveFunctions |= (1u << FUNC_SET_SCREEN);
-              ViewMain::instance()->setRequestedScreenNumber(screenNumber);
+              setRequestedMainView(screenNumber);
+              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
             }
             break;
 #endif

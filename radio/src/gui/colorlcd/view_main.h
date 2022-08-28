@@ -76,16 +76,9 @@ class ViewMain: public Window
     void onClicked() override;
     void onCancel() override;
 
-    void setRequestedScreenNumber(const int8_t screenNumber)
-    {
-      currentScreen = screenNumber;
-    }
-
   protected:
     static ViewMain * _instance;
 
-    int8_t   currentScreen = 0;
-    unsigned views = 0;
     lv_obj_t*   tile_view = nullptr;
     TopbarImpl* topbar = nullptr;
     bool        widget_select = false;

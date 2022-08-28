@@ -25,6 +25,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   #include "gui/colorlcd/LvglWrapper.h"
+  #include "gui/colorlcd/view_main.h"
 #endif
 
 #if defined(CLI)
@@ -376,6 +377,18 @@ void guiMain(event_t evt)
   LvglWrapper::instance()->run();
   MainWindow::instance()->run();
 
+  bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
+  if (mainViewRequested) {
+    auto viewMain = ViewMain::instance();
+    if (g_model.view < viewMain->getMainViewsCount()) {
+      viewMain->setCurrentMainView(g_model.view);
+      storageDirty(EE_MODEL);
+    } else {
+      g_model.view = viewMain->getCurrentMainView();
+    }
+    mainRequestFlags &= ~(1u << REQUEST_MAIN_VIEW);
+  }
+  
   bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
   if (screenshotRequested) {
     writeScreenshot();

@@ -138,7 +138,11 @@ unsigned ViewMain::getCurrentMainView() const
 void ViewMain::setCurrentMainView(unsigned viewId)
 {
   lv_obj_set_tile_id(tile_view, viewId, 0, LV_ANIM_OFF);
-  currentScreen = viewId;
+}
+
+void setRequestedMainView(uint8_t view)
+{
+  g_model.view = view;
 }
 
 void ViewMain::nextMainView()
