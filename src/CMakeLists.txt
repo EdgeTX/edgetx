@@ -26,7 +26,6 @@ set(LIBOPENUI_SRC
   filechoice.cpp
   numberedit.cpp
   textedit.cpp
-  coloredit.cpp
   progress.cpp
   table.cpp
   modal_window.cpp
