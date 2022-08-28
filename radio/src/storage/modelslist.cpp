@@ -36,17 +36,17 @@ using std::list;
 
 ModelsList modelslist;
 
-ModelCell::ModelCell(const char* name) : valid_rfData(false)
+ModelCell::ModelCell(const char* modName) : valid_rfData(false)
 {
-  strncpy(modelFilename, name, sizeof(modelFilename)-1);
+  strncpy(modelFilename, modName, sizeof(modelFilename)-1);
   modelFilename[sizeof(modelFilename)-1] = '\0';
 }
 
-ModelCell::ModelCell(const char* name, uint8_t len) : valid_rfData(false)
+ModelCell::ModelCell(const char* modName, uint8_t len) : valid_rfData(false)
 {
   if (len > sizeof(modelFilename) - 1) len = sizeof(modelFilename) - 1;
 
-  memcpy(modelFilename, name, len);
+  memcpy(modelFilename, modName, len);
   modelFilename[len] = '\0';
 }
 
@@ -54,9 +54,9 @@ ModelCell::~ModelCell()
 {
 }
 
-void ModelCell::setModelName(char * name)
+void ModelCell::setModelName(char * modName)
 {
-  strncpy(modelName, name, LEN_MODEL_NAME);
+  strncpy(modelName, modName, LEN_MODEL_NAME);
   modelName[LEN_MODEL_NAME] = '\0';
 
   if (modelName[0] == '\0') {
@@ -68,15 +68,15 @@ void ModelCell::setModelName(char * name)
   }
 }
 
-void ModelCell::setModelName(char* name, uint8_t len)
+void ModelCell::setModelName(char* modName, uint8_t len)
 {
   if (len > LEN_MODEL_NAME-1)
     len = LEN_MODEL_NAME-1;
 
-  memcpy(modelName, name, len);
+  memcpy(modelName, modName, len);
   modelName[len] = '\0';
 
-  if (modelName[0] == 0) {
+  if (modelName[0] == '\0') {
     char * tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
     tmp = (char *) memchr(modelName, '.',  LEN_MODEL_NAME);
@@ -185,19 +185,19 @@ bool ModelCell::fetchRfData()
 #endif
 }
 
-ModelsCategory::ModelsCategory(const char * name)
+ModelsCategory::ModelsCategory(const char * categoryName)
 {
   memset(this->name, 0, sizeof(this->name));
-  strncpy(this->name, name, sizeof(this->name));
+  strncpy(this->name, categoryName, sizeof(this->name));
 }
 
-ModelsCategory::ModelsCategory(const char * name, uint8_t len)
+ModelsCategory::ModelsCategory(const char * categoryName, uint8_t len)
 {
   if (len > sizeof(this->name)-1)
       len = sizeof(this->name)-1;
       
   memset(this->name, 0, sizeof(this->name));
-  memcpy(this->name, name, len);
+  memcpy(this->name, categoryName, len);
   this->name[len] = '\0';
 }
 
@@ -208,13 +208,13 @@ ModelsCategory::~ModelsCategory()
   }
 }
 
-ModelCell * ModelsCategory::addModel(const char * fileName, const char* modelName)
+ModelCell * ModelsCategory::addModel(const char * fileName, const char* modName)
 {
-  if (!name) return NULL;
+  if (strlen(name) == 0) return NULL;
 
   ModelCell * result = new ModelCell(fileName);
-  if(modelName)
-    strncpy(result->modelName, modelName, LEN_MODEL_NAME);
+  if( strlen(modName) > 0)
+    strncpy(result->modelName, modName, LEN_MODEL_NAME);
   push_back(result);
   return result;
 }
@@ -502,17 +502,17 @@ ModelsCategory * ModelsList::createCategory(bool save)
   return createCategory("Category", save);
 }
 
-ModelsCategory * ModelsList::createCategory(const char* name, bool save)
+ModelsCategory * ModelsList::createCategory(const char* categoryName, bool save)
 {
-  ModelsCategory * result = new ModelsCategory(name);
+  ModelsCategory * result = new ModelsCategory(categoryName);
   categories.push_back(result);
   if (save) this->save();
   return result;
 }
 
-ModelCell * ModelsList::addModel(ModelsCategory * category, const char * fileName, const char* modelName, bool save)
+ModelCell * ModelsList::addModel(ModelsCategory * category, const char * fileName, const char* modName, bool save)
 {
-  ModelCell * result = category->addModel(fileName, modelName);
+  ModelCell * result = category->addModel(fileName, modName);
   TRACE("modelName is %s", result->modelName);
   modelsCount++;
   if (save) this->save();
