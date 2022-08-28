@@ -26,11 +26,17 @@
 constexpr lv_coord_t COLOR_PAD_WIDTH = (4 * LV_DPI_DEF) / 10;
 constexpr lv_coord_t COLOR_PAD_HEIGHT = (4 * LV_DPI_DEF) / 17;
 
+#if LCD_W > LCD_H
 // Landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else
+// Portrait
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
+#endif
 
 class ColorEditorPopup : public Dialog
 {
@@ -68,10 +74,12 @@ class ColorEditorPopup : public Dialog
 
     rect_t r{ 0, 0, 6 * LV_DPI_DEF / 5, LV_DPI_DEF };
     auto cedit = new ColorEditor(line, r, color, [=](uint32_t c) { setValue(c); });
+    lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
     auto vbox = new FormGroup(line, rect_t{});
-    // lv_obj_set_style_grid_cell_y_align(vbox->getLvObj(), LV_GRID_ALIGN_START, 0);
+    lv_obj_set_style_grid_cell_x_align(vbox->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
     vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
+    vbox->setWidth(r.w);
     vbox->padAll(lv_dpx(8));
 
     auto hbox = new FormGroup(vbox, rect_t{});
@@ -90,7 +98,6 @@ class ColorEditorPopup : public Dialog
     
     hbox = new FormGroup(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-    // lv_obj_set_style_grid_cell_y_align(hbox->getLvObj(), LV_GRID_ALIGN_START, 0);
 
     auto rgbBtn = new TextButton(hbox, rect_t{}, "RGB");
     auto hsvBtn = new TextButton(hbox, rect_t{}, "HSV");
