@@ -294,7 +294,6 @@ inline bool IS_RADIOMASTER_ZORRO(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_ZORRO;
 }
 
-
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
@@ -313,7 +312,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_JUMPER_TLITE ||
-         board == Board::BOARD_BETAFPV_LR3PRO || 
+         board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_JUMPER_TPRO;
 }
 

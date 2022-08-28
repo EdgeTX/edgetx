@@ -786,6 +786,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
+    case HasIntModuleMulti:
+      return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
+              IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
+              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs"));
+    case HasIntModuleCRSF:
+      return id.contains("internalcrsf");
+    case HasIntModuleELRS:
+      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board);
+    case HasIntModuleFlySky:
+      return id.contains("afhds3") || IS_FLYSKY_NV14(board);
     default:
       return 0;
   }
@@ -831,11 +841,11 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
-            return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board);
+            return getCapability(HasIntModuleMulti);
           case PULSES_CROSSFIRE:
-            return IS_RADIOMASTER_TX12_MK2(board);
+            return getCapability(HasIntModuleCRSF) || getCapability(HasIntModuleELRS);
           case PULSES_AFHDS3:
-            return IS_FLYSKY_NV14(board);
+            return getCapability(HasIntModuleFlySky);
           default:
             return false;
         }

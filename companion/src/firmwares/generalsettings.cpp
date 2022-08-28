@@ -346,6 +346,15 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   setDefaultControlTypes(cstate.toType);  // start with default switches/pots/sliders
 
+  cstate.setComponent("Hardware");
+  cstate.setItemType("Int. Module");
+  RadioDataConversionState::LogField oldData(internalModule, ModuleData::typeToString(internalModule));
+
+  if (internalModule != MODULE_TYPE_NONE && (int)internalModule != g.currentProfile().defaultInternalModule()) {
+    internalModule = MODULE_TYPE_NONE;
+    cstate.setInvalid(oldData);
+  }
+
   // Try to intelligently copy any custom control names
 
   // SE and SG are skipped on X7 board
