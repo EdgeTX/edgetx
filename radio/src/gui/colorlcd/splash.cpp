@@ -38,12 +38,11 @@ void draw_splash_cb(lv_event_t * e)
     lv_draw_img_dsc_t img_dsc;
     lv_draw_img_dsc_init(&img_dsc);
 
-    // TODO: center image
     lv_area_t coords;
-    coords.x1 = 0;
-    coords.y1 = 0;
-    coords.x2 = splashImg->width()-1;
-    coords.y2 = splashImg->height()-1;
+    coords.x1 = (LCD_W/2) - (splashImg->width()/2);
+    coords.y1 = (LCD_H/2) - (splashImg->height()/2);
+    coords.x2 = coords.x1 + splashImg->width()-1;
+    coords.y2 = coords.y1 + splashImg->height()-1;
 
     lv_draw_img_decoded(draw_ctx, &img_dsc, &coords,
                         (const uint8_t *)splashImg->getData(),
