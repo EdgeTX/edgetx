@@ -441,7 +441,7 @@ void ModelData::convert(RadioDataConversionState & cstate)
     origin = QString::number(cstate.modelIdx+1);
   cstate.setOrigin(tr("Model: ") % origin);
 
-  cstate.setComponent("SET", 0);
+  cstate.setComponent("Settings", 0);
   if (thrTraceSrc && (int)thrTraceSrc < cstate.fromBoard.getCapability(Board::Pots) + cstate.fromBoard.getCapability(Board::Sliders)) {
     cstate.setSubComp(tr("Throttle Source"));
     thrTraceSrc = RawSource(SOURCE_TYPE_STICK, (int)thrTraceSrc + 3).convert(cstate).index - 3;

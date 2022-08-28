@@ -169,7 +169,11 @@ enum Capability {
   HasModelsList,
   HasFlySkyGimbals,
   RotaryEncoderNavigation,
-  HasSoftwareSerialPower
+  HasSoftwareSerialPower,
+  HasIntModuleMulti,
+  HasIntModuleCRSF,
+  HasIntModuleELRS,
+  HasIntModuleFlySky,
 };
 
 class EEPROMInterface
