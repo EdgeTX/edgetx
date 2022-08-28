@@ -293,9 +293,9 @@ static lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x, lv_coord
 /////////////////////////////////////////////////////////////////////////
 ////// ColorEditor Base class
 /////////////////////////////////////////////////////////////////////////
-ColorEditor::ColorEditor(FormGroup *window, const rect_t rect, uint32_t color,
+ColorEditor::ColorEditor(Window *parent, const rect_t& rect, uint32_t color,
                          std::function<void (uint32_t rgb)> setValue) :
-  FormGroup(window, rect),
+  FormGroup(parent, rect),
   _setValue(std::move(setValue)),
   _color(color)
 {

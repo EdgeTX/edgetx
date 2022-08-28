@@ -27,6 +27,7 @@
 #include "libopenui.h"
 #include "layouts/layout_factory_impl.h"
 #include "widgets_setup.h"
+#include "color_picker.h"
 
 #define SET_DIRTY()   storageDirty(EE_MODEL)
 #define BUTTON_HEIGHT 30
@@ -322,7 +323,7 @@ void ScreenSetupPage::buildLayoutOptions()
         break;
 
       case ZoneOption::Color:
-        new ColorEdit(line, rect_t{}, GET_SET_DEFAULT(value->unsignedValue));
+        new ColorPicker(line, rect_t{}, GET_SET_DEFAULT(value->unsignedValue));
         break;
 
       default:

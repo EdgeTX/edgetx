@@ -24,6 +24,7 @@
 
 #include "widget_settings.h"
 #include "view_main.h"
+#include "color_picker.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -42,13 +43,10 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
   Dialog(ViewMain::instance(), STR_WIDGET_SETTINGS, widgetSettingsDialogRect)
 {
-  auto lv_content = content->getLvObj();
-  lv_obj_set_flex_flow(lv_content, LV_FLEX_FLOW_COLUMN);
 
   setCloseWhenClickOutside(true);
 
   auto form = &content->form;
-  form->setFlexLayout();
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
   
@@ -152,7 +150,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
         break;
 
       case ZoneOption::Color:
-        new ColorEdit(
+        new ColorPicker(
             line, rect_t{},
             [=]() -> int {  // getValue
               return (int)widget->getOptionValue(optIdx)->unsignedValue;
@@ -171,18 +169,4 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
 
   content->updateSize();
   setCloseHandler([=]() { widget->update(); });
-  // form->setFocus();
 }
-
-// #if defined(HARDWARE_KEYS)
-
-// void WidgetSettings::onEvent(event_t event)
-// {
-//   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-//   if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-//     deleteLater();
-//   }
-// }
-
-// #endif
