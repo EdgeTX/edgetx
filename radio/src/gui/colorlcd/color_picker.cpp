@@ -80,7 +80,6 @@ class ColorEditorPopup : public Dialog
     lv_obj_set_style_grid_cell_x_align(vbox->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
     vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
     vbox->setWidth(r.w);
-    vbox->padAll(lv_dpx(8));
 
     auto hbox = new FormGroup(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
