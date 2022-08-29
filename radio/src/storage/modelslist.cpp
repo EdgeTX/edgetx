@@ -1078,10 +1078,10 @@ const char *ModelsList::save(LabelsVector newOrder)
         f_printf(&file, "    " MODULE_ID_STR ": %u\r\n", i,
                  (unsigned int)model->modelId[i]);
       if (model->moduleData[i].type)
-        f_printf(&file, "      " MODULE_TYPE_STR ": %u\r\n", i,
+        f_printf(&file, "    " MODULE_TYPE_STR ": %u\r\n", i,
                  (unsigned int)model->moduleData[i].type);
       if (model->moduleData[i].subType)
-        f_printf(&file, "      " MODULE_RFPROTOCOL_STR ": %u\r\n", i,
+        f_printf(&file, "    " MODULE_RFPROTOCOL_STR ": %u\r\n", i,
                  (unsigned int)model->moduleData[i].subType);
     }
 
