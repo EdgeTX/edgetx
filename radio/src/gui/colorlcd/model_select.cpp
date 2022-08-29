@@ -72,10 +72,9 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
 #else
 constexpr int MODEL_CELLS_PER_LINE = 2;
 constexpr LcdFlags textFont = FONT(XS);
-constexpr int labelWidth = 150;
-constexpr int LAY_MARGIN = 5;
-constexpr int MODELS_TOP = 125;
-constexpr int SORTBUTTONS_TOP = LCD_H - 70 - LAY_MARGIN;
+constexpr int LAY_MARGIN = 8;
+constexpr int LABELS_HEIGHT = 140;
+constexpr int BUTTONS_HEIGHT = 30;
 
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LAY_MARGIN - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
@@ -318,8 +317,10 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
   padRow(MODEL_CELL_PADDING);
+#if LCD_W > LCD_H
   padAll(MODEL_CELL_PADDING);
-  
+#endif
+
   update();
 }
 
@@ -527,7 +528,7 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
         lblselector->setSelected(found - allLabels.begin());
       }
     } else {
-      // the current model has no labels so set the active label to "Unlabled"
+      // the current model has no labels so set the active label to "Unlabeled"
       lblselector->setSelected(getLabels().size() - 1);
     }
   }
@@ -563,7 +564,7 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   titleName += modelName;
 
   hdr->setTitle(titleName);
-  
+
   // new model button
   auto btn = new TextButton(
       hdr, rect_t{}, STR_NEW_MODEL,
@@ -580,18 +581,33 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
 }
 
+#if LCD_W > LCD_H
 static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LABELS_HEIGHT, LV_GRID_FR(1), BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
+#endif
 
 void ModelLabelsWindow::buildBody(FormWindow *window)
 {
   auto win_obj = window->getLvObj();
+
   lv_obj_set_grid_dsc_array(win_obj, col_dsc, row_dsc);
 
+  // Models List
+  mdlselector = new ModelsPageBody(window, rect_t{});
+  mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
+  auto mdl_obj = mdlselector->getLvObj();
+
+#if LCD_W > LCD_H
   // Labels + sorting buttons - Left
   auto box = new Window(window, rect_t{});
+
   box->padAll(lv_dpx(8));
   box->padRight(0);
+  lblselector = new ListBox(box, rect_t{}, getLabels());
+  auto btnh = new ButtonHolder(box, rect_t{});
 
   auto box_obj = box->getLvObj();
   lv_obj_set_width(box_obj, lv_pct(100));
@@ -600,15 +616,36 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
   lv_obj_update_layout(box_obj);
   auto box_cw = lv_obj_get_content_width(box_obj);
-  
-  // Models List - Right
-  mdlselector = new ModelsPageBody(window, rect_t{});
-  mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
 
-  auto obj = mdlselector->getLvObj();
-  lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+  lblselector->setColumnWidth(0, box_cw);
 
-  auto btnh = new ButtonHolder(box, rect_t{});
+#else
+
+  // Labels at top
+  lblselector = new ListBox(window, rect_t{}, getLabels());
+  auto lbl_obj = lblselector->getLvObj();
+
+  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
+                                LV_GRID_ALIGN_STRETCH, 0, 1);
+
+  // Models in middle
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_width(mdl_obj, lv_pct(100));
+
+  // Sort buttons at bottom
+  auto btnh = new ButtonHolder(window, rect_t{});
+  auto buth_obj = btnh->getLvObj();
+  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+
+  window->padAll(LAY_MARGIN);
+  window->padRow(LAY_MARGIN);
+
+  lv_obj_update_layout(mdl_obj);
+  lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
+
+#endif
+
   btnh->setPressHandler([=](int index, ButtonHolder::ButtonInfo *button) {
         if (index == 0) {  // alpha
           sort = button->sortState == 0 ? NAME_ASC : NAME_DES;
@@ -621,8 +658,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
   lv_obj_align(btnh->getLvObj(), LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
-  lblselector = new ListBox(box, rect_t{}, getLabels());
-  lblselector->setColumnWidth(0, box_cw);
+
   lblselector->setMultiSelect(true);
   lblselector->setSelected(modelslabels.filteredLabels());
   updateFilteredLabels(modelslabels.filteredLabels(), false);
