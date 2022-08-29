@@ -84,7 +84,7 @@ void ModelCell::setModelName(char *name, uint8_t len)
   memcpy(modelName, name, len);
   modelName[len] = '\0';
 
-  if (modelName[0] == 0) {
+  if (modelName[0] == '\0') {
     char *tmp;
     strncpy(modelName, modelFilename, LEN_MODEL_NAME);
     tmp = (char *)memchr(modelName, '.', LEN_MODEL_NAME);
