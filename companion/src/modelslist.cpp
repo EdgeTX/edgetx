@@ -189,7 +189,10 @@ QVariant ModelsListModel::data(const QModelIndex & index, int role) const
   }
 
   if (role == Qt::ForegroundRole && item->isModel()) {
-    if (index.column() == (item->columnCount() - 1) && item->isHighlightRX()) {
+    int col = item->columnCount() - 1;
+    if(hasLabels)
+        col --;
+    if (index.column() == col && item->isHighlightRX()) {
       QBrush brush;
       brush.setColor(Qt::red);
       return brush;
