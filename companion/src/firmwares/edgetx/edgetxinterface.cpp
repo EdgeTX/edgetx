@@ -89,38 +89,22 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
     qDebug() << data.toStdString().c_str();
 }
 
-bool loadModelsListFromYaml(std::vector<CategoryData>& categories,
+bool loadLabelsListFromYaml(QStringList& labels,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
+  labels.clear();
   if (data.size() == 0)
     return true;
-
   YAML::Node node = loadYamlFromByteArray(data);
-  if (!node.IsSequence()) return false;
-
-  int modelIdx = 0;
-  for (const auto& cat : node) {
-    if (!cat.IsMap()) continue;
-
-    for (const auto& cat_map : cat) {
-      categories.push_back(cat_map.first.Scalar().c_str());
-
-      const auto& models = cat_map.second;
-      if (!models.IsSequence()) continue;
-
-      for (const auto& model : models) {
-        std::string filename, name;
-        model["filename"] >> filename;
-        model["name"] >> name;
-        modelFiles.push_back(
-            {filename, name, (int)categories.size() - 1, modelIdx++});
-      }
-    }
-  }
+  if (!node.IsMap()) return false; // Root Map (Labels, Models)
+  for (const auto& lbl : node["Labels"]) {
+    labels.append(QString::fromStdString(lbl.first.as<std::string>()));
+   }
 
   return true;
 }
+
 
 bool loadModelFromYaml(ModelData& model, const QByteArray& data)
 {
@@ -168,46 +152,12 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
   return true;
 }
 
-// TODO:
-//   'modelFiles' should be ordered by Category index to avoid
-//   turning the sequence into a map.
-//
-bool writeModelsListToYaml(const std::vector<CategoryData>& categories,
-                           const EtxModelfiles& modelFiles,
-                           QByteArray& data)
+bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
   YAML::Node node;
-  std::vector<CategoryData> cats = categories;
-  std::vector<EtxModelMetadata> files = { modelFiles.begin(), modelFiles.end() };
-
-  std::stable_sort(files.begin(), files.end(),
-                   [](const EtxModelMetadata &a, const EtxModelMetadata &b) {
-                     return a.category < b.category;
-                   });
-
-  int catIdx = 0;
-  for (const auto& cat : cats) {
-    node[catIdx++][cat.name] = YAML::Node();
+  foreach(QString label, radioData.labels) {
+    node["Labels"][label.toStdString()];
   }
-
-  for (const auto& modelFile: modelFiles) {
-
-    YAML::Node cat_attrs;
-    cat_attrs["filename"] = modelFile.filename;
-    cat_attrs["name"] = modelFile.name;
-
-    catIdx = modelFile.category;
-    if (catIdx >= (int)cats.size()) {
-      catIdx = 0;
-      if (cats.size() == 0) {
-        cats.push_back("Models");
-      }
-    }
-
-    const std::string cat_name = cats[catIdx].name;
-    node[catIdx][cat_name].push_back(cat_attrs);
-  }
-
   writeYamlToByteArray(node, data);
   return true;
 }

@@ -94,13 +94,6 @@ void RadioData::convert(RadioDataConversionState & cstate)
     models[i].convert(cstate.withModelIndex(i));
   }
 
-  if (categories.size() == 0) {
-    categories.push_back(CategoryData(qPrintable(tr("Models"))));
-    for (unsigned i=0; i<models.size(); i++) {
-      models[i].category = 0;
-    }
-  }
-
   if (IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
     fixModelFilenames();
   }
@@ -109,4 +102,105 @@ void RadioData::convert(RadioDataConversionState & cstate)
   if (getCurrentFirmware()->getCapability(Models) && getCurrentFirmware()->getCapability(Models) != (int)models.size()) {
     models.resize(getCurrentFirmware()->getCapability(Models));
   }
+}
+
+void RadioData::addLabel(QString label)
+{
+  if(!labels.contains(label))
+    labels.append(label);
+}
+
+bool RadioData::deleteLabel(QString label)
+{
+  bool deleted = false;
+  // Remove labels in the models
+  for(auto& model : models) {
+    QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
+    if(modelLabels.contains(label))
+      deleted = true;
+    modelLabels.removeAll(label);
+    strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+  }
+
+  // Remove the label from the global list
+  labels.removeAll(label);
+
+  // If no labels remain, add a Favorites one
+  if(!labels.size()) {
+    addLabel(tr("Favorites"));
+  }
+  return deleted;
+}
+
+bool RadioData::deleteLabel(int index)
+{
+  if(index >= labels.size()) return false;
+  QString modelLabel = labels.at(index);
+  return deleteLabel(modelLabel);
+}
+
+bool RadioData::renameLabel(QString from, QString to)
+{
+  bool success = true;
+  int lengthdiff = to.size() - from.size();
+
+  // Check that rename is possible, not too long
+  for(auto& model : models) {
+    if((int)strlen(model.labels) + lengthdiff > (int)sizeof(model.labels) - 1) {
+      success = false;
+    }
+  }
+  if(success) {
+    for(auto& model : models) {
+      QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
+      int ind = modelLabels.indexOf(from); // TOOD: Make sure it will fit
+      if(ind != -1) {
+        modelLabels.replace(ind, to);
+        strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+      }
+    }
+    int ind = labels.indexOf(from);
+    if(ind != -1) {
+      labels.replace(ind, to);
+    }
+  }
+  return success;
+}
+
+bool RadioData::renameLabel(int index, QString to)
+{
+  if(index >= labels.size()) return false;
+  QString from = labels.at(index);
+  return renameLabel(from, to);
+}
+
+bool RadioData::addLabelToModel(int index, QString label)
+{
+  if(index >= models.size()) return false;
+
+  char *modelLabelCsv = models[index].labels;
+  // Make sure it will fit
+  if(strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
+    QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);
+    if(!modelLabels.contains(label)) {
+      modelLabels.append(label);
+      strcpy(models[index].labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+      return true;
+    }
+  }
+  return false;
+}
+
+bool RadioData::removeLabelFromModel(int index, QString label)
+{
+  if(index >= models.size()) return false;
+
+  char *modelLabelCsv = models[index].labels;
+  QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);
+  if(modelLabels.contains(label)) {
+    modelLabels.removeAll(label);
+    strcpy(models[index].labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+    return true;
+  }
+  return false;
 }
