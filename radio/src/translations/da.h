@@ -332,7 +332,7 @@
 #define TR_COPYINGMODEL                "Kopier model..."
 #define TR_MOVINGMODEL                 "Flytter model..."
 #define TR_LOADINGMODEL                "Indlæser model..."
-#define TR_UNLABELEDMODEL              "Unlabeled"
+#define TR_UNLABELEDMODEL              "Typeløs"
 #define TR_NAME                        "Navn"
 #define TR_MODELNAME                   "Model navn"
 #define TR_PHASENAME                   "Mode navn"
@@ -602,7 +602,7 @@
 #define TR_PROTOCOL_INVALID            TR("Prot. ugyldig", "Protocol ugyldig")
 #define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Module Status")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ             TR("Servo rate", "Servo opdaterings rate")
+#define TR_MULTI_SERVOFREQ             TR("Servo hastighed", "Servo opdaterings hastighed")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
 #define TR_MULTI_RFCHAN                TR("RF kanal", "Vælg RF kanal")
 #define TR_AFHDS3_RX_FREQ              TR("RX frekv.", "RX frekvens")
@@ -613,7 +613,7 @@
 #define TR_SYNCMENU                    "[Sync]"
 #define TR_LIMIT                       INDENT "Grænse"
 #define TR_MINRSSI                     "Min Rssi"
-#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI value without rescalling")
+#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
 #define TR_LATITUDE                    "Breddegrad"
 #define TR_LONGITUDE                   "Længdegrad"
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "Coordinate format")
@@ -631,17 +631,17 @@
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
-#define TR_FAVORITE_LABEL              "Favorites"
-#define TR_NEW_MODEL                   "New Model"
-#define TR_EDIT_LABELS                 "Edit Labels"
-#define TR_ENTER_LABEL                 "Enter Label"
-#define TR_LABEL                       "Label"
-#define TR_LABELS                      "Labels"
-#define TR_CURRENT_MODEL               "Current"
-#define TR_NEW                         "New"
-#define TR_NEW_LABEL                   "New Label"
-#define TR_RENAME_LABEL                "Rename Label"
-#define TR_DELETE_LABEL                "Delete Label"
+#define TR_FAVORITE_LABEL              "Favoritter"
+#define TR_NEW_MODEL                   "Ny model"
+#define TR_EDIT_LABELS                 "Ret type"
+#define TR_ENTER_LABEL                 "Vælg type"
+#define TR_LABEL                       "Type"
+#define TR_LABELS                      "Typer"
+#define TR_CURRENT_MODEL               "Aktuelle"
+#define TR_NEW                         "Ny"
+#define TR_NEW_LABEL                   "Ny type"
+#define TR_RENAME_LABEL                "Omdøb type"
+#define TR_DELETE_LABEL                "Slet type"
 #define TR_DUPLICATE_MODEL             "Dupliker model"
 #define TR_COPY_MODEL                  "Kopier model"
 #define TR_MOVE_MODEL                  "Flyt model"
@@ -894,7 +894,7 @@
 #define TR_BUZZER                      INDENT "Biper"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
-#define TR_POWERMETER_ATTN_NEEDED      "Attenuator needed"
+#define TR_POWERMETER_ATTN_NEEDED      "Attestering nøvendig"
 #define TR_PXX2_SELECT_RX              "Vælg RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "Vælg enhed"
@@ -913,14 +913,14 @@
 #define TR_DEBUG                       "Fejlfind"
 #define TR_KEYS_BTN                    BUTTON("Taster")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analo", "Analoge"))
-#define TR_TOUCH_NOTFOUND              "Touch hardware not found"
-#define TR_TOUCH_EXIT                  "Touch screen to exit"
+#define TR_TOUCH_NOTFOUND              "Tryk skærm ikke fundet"
+#define TR_TOUCH_EXIT                  "Tryk på skærm for at forlade"
 #define TR_SET                         BUTTON("Set")
 #define TR_TRAINER                     "Træner"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM              CENTER "TX antenne problem!"
 #define TR_MODELIDUSED                 "ID brugt i:"
-#define TR_MODELIDUNIQUE               "ID is Unique"
+#define TR_MODELIDUNIQUE               "ID er entydig"
 #define TR_MODULE                      "Modul"
 #define TR_RX_NAME                     "Rx Navn"
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetri type")
@@ -984,13 +984,13 @@
 #define TR_INPUTS                      "Indgange"
 #define TR_OUTPUTS                     "Udgange"
 #define STR_EEBACKUP                   "EEPROM backup"
-#define STR_FACTORYRESET               "Factory reset"
+#define STR_FACTORYRESET               "Nulstil til fabrik indstillinger"
 #define TR_CONFIRMRESET                TR("Slet ALLE", "Slet ALLE modeller og indstillinger?")
-#define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
+#define TR_TOO_MANY_LUA_SCRIPTS        "For mannge Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Strøm"
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO","TIL"
 #define TR_NO_TELEMETRY_SCREENS        "Ingen telemetri skærme"
-#define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_TOUCH_PANEL                 "Tryk panel:"
 #define TR_FILE_SIZE                   "Fil størrelse"
 #define TR_FILE_OPEN                   "Åbn alligevel?"
 
