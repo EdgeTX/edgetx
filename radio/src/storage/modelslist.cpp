@@ -1047,35 +1047,35 @@ const char *ModelsList::save(LabelsVector newOrder)
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
 
   // Save current selection
-  f_puts("- Labels:\r\n", &file);
+  f_puts("Labels:\r\n", &file);
 
   std::string cursel = modelslabels.getCurrentLabel();
   if(newOrder.empty())
     newOrder = modelslabels.getLabels();
   for (auto &lbl : newOrder) {
-    f_printf(&file, "  - %s:\r\n", lbl.c_str());
+    f_printf(&file, "  %s:\r\n", lbl.c_str());
     if (modelslabels.isLabelFiltered(lbl))
-      f_printf(&file, "    - selected: true\r\n", lbl.c_str());
+      f_printf(&file, "    selected: true\r\n", lbl.c_str());
   }
 
-  f_puts("  Models:\r\n", &file);
+  f_puts("Models:\r\n", &file);
   for (auto &model : modelslist) {
-    f_puts("  - ", &file);
+    f_puts("  ", &file);
     f_puts(model->modelFilename, &file);
     f_puts(":\r\n", &file);
 
-    f_puts("    - hash: \"", &file);
+    f_puts("    hash: \"", &file);
     f_puts(model->modelFinfoHash, &file);
     f_puts("\"\r\n", &file);
 
-    f_puts("      name: \"", &file);
+    f_puts("    name: \"", &file);
     f_puts(model->modelName, &file);
     f_puts("\"\r\n", &file);
 
     // TODO Maybe make sub-items instead.
     for (int i = 0; i < NUM_MODULES; i++) {
       if (model->modelId[i])
-        f_printf(&file, "      " MODULE_ID_STR ": %u\r\n", i,
+        f_printf(&file, "    " MODULE_ID_STR ": %u\r\n", i,
                  (unsigned int)model->modelId[i]);
       if (model->moduleData[i].type)
         f_printf(&file, "      " MODULE_TYPE_STR ": %u\r\n", i,
@@ -1085,7 +1085,7 @@ const char *ModelsList::save(LabelsVector newOrder)
                  (unsigned int)model->moduleData[i].subType);
     }
 
-    f_puts("      labels: \"", &file);
+    f_puts("    labels: \"", &file);
     LabelsVector labels = modelslabels.getLabelsByModel(model);
     bool comma = false;
     for (auto const &label : labels) {
@@ -1098,11 +1098,11 @@ const char *ModelsList::save(LabelsVector newOrder)
     f_puts("\"\r\n", &file);
 
 #if LEN_BITMAP_NAME > 0
-    f_puts("      bitmap: \"", &file);
+    f_puts("    bitmap: \"", &file);
     f_puts(model->modelBitmap, &file);
     f_puts("\"\r\n", &file);
 #endif
-    f_puts("      lastopen: ", &file);
+    f_puts("    lastopen: ", &file);
     f_puts(std::to_string(model->lastOpened).c_str(), &file);
     f_puts("\r\n", &file);
   }

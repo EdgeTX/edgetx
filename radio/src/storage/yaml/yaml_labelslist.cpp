@@ -124,13 +124,13 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     TRACE_LABELS_YAML("YAML Current Level %u", mi->level);
 
     // If in the labels node, force to labelsroot enum
-    if(mi->level == labelslist_iter::ModelsRoot && strcasecmp(mi->current_attr,"labels") == 0) {
+    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"labels") == 0) {
       TRACE_LABELS_YAML("Forced root");
       mi->level = labelslist_iter::LabelsRoot;
       TRACE_LABELS_YAML("YAML New Level %u", mi->level);
     }
 
-    if(mi->level == labelslist_iter::LabelsRoot && strcasecmp(mi->current_attr,"models") == 0) {
+    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"models") == 0) {
       TRACE_LABELS_YAML("Forced root");
       mi->level = labelslist_iter::ModelsRoot;
       TRACE_LABELS_YAML("YAML New Level %u", mi->level);
