@@ -31,6 +31,7 @@
 #include "custom_failsafe.h"
 #include "ppm_settings.h"
 #include "channel_range.h"
+#include "storage/modelslist.h"
 
 #if defined(PXX2)
 #include "access_settings.h"
@@ -70,7 +71,7 @@ class ModuleWindow : public FormGroup
   void updateSubType();
 
   uint8_t getModuleIdx() const { return moduleIdx; }
-  
+
  protected:
   uint8_t moduleIdx;
 
@@ -82,8 +83,11 @@ class ModuleWindow : public FormGroup
   TextButton *registerButton = nullptr;
   Window *fsLine = nullptr;
   Choice *rfPower = nullptr;
+  StaticText *idUnique = nullptr;
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
+
+  void updateIDStaticText(int mdIdx);
 };
 
 struct FailsafeChoice : public FormGroup {
@@ -136,6 +140,22 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 {
   setFlexLayout();
   updateModule();
+}
+
+void ModuleWindow::updateIDStaticText(int mdIdx)
+{
+  if(idUnique == nullptr)
+    return;
+  char buffer[50];
+  std::string idStr = STR_MODELIDUNIQUE;
+  if(!modelslist.isModelIdUnique(mdIdx, buffer, sizeof(buffer))) {
+    idStr = STR_MODELIDUSED;
+    idStr = idStr + buffer;
+    idUnique->setTextFlags(COLOR_THEME_WARNING);
+  } else {
+    idUnique->setTextFlags(COLOR_THEME_PRIMARY1);
+  }
+  idUnique->setText(idStr);
 }
 
 void ModuleWindow::updateModule()
@@ -194,6 +214,15 @@ void ModuleWindow::updateModule()
   // Bind and Range buttons
   if (!isModuleRFAccess(moduleIdx) && (isModuleModelIndexAvailable(moduleIdx) ||
                                        isModuleBindRangeAvailable(moduleIdx))) {
+    // Is Reciever ID Unique
+    if(isModuleModelIndexAvailable(moduleIdx)) {
+      auto line = newLine(&grid);
+      new StaticText(line, rect_t{},""); // TODO?? must be a better way
+      auto box = new FormGroup(line, rect_t{});
+      box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+      idUnique = new StaticText(box, rect_t{}, "", 0, 0);
+      updateIDStaticText(moduleIdx);
+    }
 
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
@@ -207,6 +236,9 @@ void ModuleWindow::updateModule()
                           GET_DEFAULT(*modelId), [=](int32_t newValue) {
                             if (newValue != *modelId) {
                               *modelId = newValue;
+                              modelslist.updateCurrentModelCell();
+                              updateIDStaticText(moduleIdx);
+                              lv_refr_now(nullptr);
 #if defined(CROSSFIRE)
                               if (isModuleCrossfire(moduleIdx)) {
                                 moduleState[moduleIdx].counter =
@@ -216,6 +248,7 @@ void ModuleWindow::updateModule()
                               SET_DIRTY();
                             }
                           });
+
 
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
@@ -303,7 +336,7 @@ void ModuleWindow::updateModule()
 #if defined(PXX2)
   else if (isModuleRFAccess(moduleIdx)) {
 
-    // Register and Range buttons
+// Register and Range buttons
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
@@ -517,7 +550,7 @@ void ModuleSubTypeChoice::update()
     setValues(STR_R9M_REGION);
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
-    setAvailableHandler(nullptr);    
+    setAvailableHandler(nullptr);
   }
 #if defined(PXX2)
   else if (isModulePXX2(moduleIdx)) {
@@ -526,7 +559,7 @@ void ModuleSubTypeChoice::update()
     setValues(STR_ISRM_RF_PROTOCOLS);
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
-    setAvailableHandler(nullptr);    
+    setAvailableHandler(nullptr);
   }
 #endif
 #if defined(AFHDS2) || defined(AFHDS3)
@@ -590,9 +623,9 @@ void ModuleSubTypeChoice::update()
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
-  
+
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-  
+
   // update choice value
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
@@ -669,7 +702,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                                         : isExternalModuleAvailable(moduleType);
   });
 
-  auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);  
+  auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
   auto moduleWindow = new ModuleWindow(form, moduleIdx);
 
   // This needs to be after moduleWindow has been created
