@@ -466,22 +466,17 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.warning));
-  edit->setDisplayHandler([](int32_t value) {
-    return std::to_string(g_model.rssiAlarms.getWarningRssi());
-  });
-//  window->setFirstField(edit);
+  auto edit = new NumberEdit(window, grid.getFieldSlot(), 0, 100,
+                             GET_SET_DEFAULT(g_model.rfAlarms.warning));
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(window, grid.getFieldSlot(), -30, 30, GET_SET_DEFAULT(g_model.rssiAlarms.critical));
-  edit->setDisplayHandler([](int32_t value) {
-    return std::to_string(g_model.rssiAlarms.getCriticalRssi());
-  });
+  edit = new NumberEdit(window, grid.getFieldSlot(), 0, 100,
+                        GET_SET_DEFAULT(g_model.rfAlarms.critical));
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.rssiAlarms.disabled));
+  new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.disableTelemetryWarning));
   grid.nextLine();
   
   if (LCD_W < LCD_H) grid.nextLine();
