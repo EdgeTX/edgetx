@@ -1236,7 +1236,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
       
   case FUNC_VOLUME:
-  case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
     // find "," and cut val_len
     CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
@@ -1439,7 +1438,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
       
   case FUNC_VOLUME:
-  case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
     if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
     break;

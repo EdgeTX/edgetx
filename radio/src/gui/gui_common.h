@@ -83,6 +83,7 @@ bool isLogicalSwitchFunctionAvailable(int function);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailable(int source);
+bool isBacklightSourceAvailable(int source);
 bool isSourceAvailableInGlobalFunctions(int source);
 bool isSourceAvailableInCustomSwitches(int source);
 bool isSourceAvailableInResetSpecialFunction(int index);

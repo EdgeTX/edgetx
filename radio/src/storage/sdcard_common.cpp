@@ -47,7 +47,7 @@ void storageEraseAll(bool warn)
 #endif
 
   // Init backlight mode before entering alert screens
-  requiredBacklightBright = BACKLIGHT_FORCED_ON;
+  forceBacklightOn = true;
 
 #if defined(PCBHORUS)
   g_eeGeneral.blOffBright = 20;

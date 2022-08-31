@@ -19,11 +19,34 @@
  * GNU General Public License for more details.
  */
 
+#include <stdint.h>
+
+#define BACKLIGHT_LEVEL_MAX 100
+
 bool boardBacklightOn = false;
-bool isBacklightEnabled() { return boardBacklightOn; }
+static uint8_t _backlightLevel = 0;
+
+bool isBacklightEnabled()
+{
+  return boardBacklightOn && (_backlightLevel > 0);
+}
 void backlightFullOn() { boardBacklightOn = true; }
 
 void backlightInit() {}
-void backlightEnable(unsigned char) {}
-void backlightEnable(unsigned char, unsigned char) {}
-void backlightDisable() {}
+
+void backlightEnable(uint8_t level)
+{
+  boardBacklightOn = true;
+#if defined(COLORLCD)
+  _backlightLevel = level;
+#else
+  _backlightLevel = 100 - level;
+#endif
+}
+
+void backlightEnable(uint8_t level, unsigned char) { backlightEnable(level); }
+
+void backlightDisable()
+{
+  boardBacklightOn = false;
+}

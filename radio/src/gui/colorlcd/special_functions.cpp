@@ -152,13 +152,6 @@ class SpecialFunctionEditPage : public Page
         grid.nextLine();
         break;
 
-      case FUNC_BACKLIGHT:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
-                         MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
-        break;
-
       case FUNC_PLAY_SOUND:
         new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
@@ -509,10 +502,6 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_VOLUME:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
-        break;
-
-      case FUNC_BACKLIGHT:
         drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 

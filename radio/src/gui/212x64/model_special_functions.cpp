@@ -342,14 +342,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               lcdDrawMMM(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, attr);
             }
           }
-          else if (func == FUNC_BACKLIGHT) {
-            val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
-            if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
-            }
-          }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
             switch (CFN_GVAR_MODE(cfn)) {

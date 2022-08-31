@@ -34,7 +34,7 @@
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
-uint8_t requiredBacklightBright = 0;
+bool forceBacklightOn = 0;
 uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;

@@ -557,6 +557,7 @@ bool isBacklightEnabled();
                         ? BACKLIGHT_LEVEL_MAX                            \
                         : BACKLIGHT_LEVEL_MAX - currentBacklightBright); \
   }
+
 #define BACKLIGHT_DISABLE()                                                 \
   {                                                                         \
     boardBacklightOn = false;                                               \

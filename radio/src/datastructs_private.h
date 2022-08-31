@@ -838,6 +838,7 @@ PACK(struct RadioData {
   int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;
   NOBACKUP(uint8_t lightAutoOff);
+  NOBACKUP(uint8_t backlightSrc);
   NOBACKUP(uint8_t templateSetup);   // RETA order for receiver channels
   NOBACKUP(int8_t PPM_Multiplier);
   NOBACKUP(int8_t hapticLength CUST(r_5pos,w_5pos));

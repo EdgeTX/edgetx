@@ -1024,7 +1024,6 @@ void evalMixes(uint8_t tick10ms)
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
     requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-    requiredBacklightBright = g_eeGeneral.backlightBright;
 
     if (!g_model.noGlobalFunctions) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);

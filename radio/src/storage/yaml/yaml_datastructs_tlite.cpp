@@ -80,7 +80,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_VARIO, "VARIO"  },
   {  FUNC_HAPTIC, "HAPTIC"  },
   {  FUNC_LOGS, "LOGS"  },
-  {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
   {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  0, NULL  }
@@ -360,6 +359,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "hapticMode", 2, r_beeperMode, w_beeperMode ),
   YAML_SIGNED( "switchesDelay", 8 ),
   YAML_UNSIGNED( "lightAutoOff", 8 ),
+  YAML_UNSIGNED( "backlightSrc", 8 ),
   YAML_UNSIGNED( "templateSetup", 8 ),
   YAML_SIGNED( "PPM_Multiplier", 8 ),
   YAML_SIGNED_CUST( "hapticLength", 8, r_5pos, w_5pos ),

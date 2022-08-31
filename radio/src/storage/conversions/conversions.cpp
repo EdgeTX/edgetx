@@ -69,8 +69,7 @@ void convertBinRadioData(const char * path, int version)
   // the theme has not been loaded before
   static_cast<OpenTxTheme*>(theme)->load();
 
-  // Init backlight mode before entering alert screens
-  requiredBacklightBright = BACKLIGHT_FORCED_ON;
+  // Init backlight OFF value before entering alert screens
   g_eeGeneral.blOffBright = 20;
 #endif
 

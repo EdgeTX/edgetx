@@ -419,6 +419,65 @@ class AlarmsPage : public Page {
     }
 };
 
+// defined in gui/gui_common.cpp
+uint8_t switchToMix(uint8_t source);
+
+class BacklightSourceChoice : public Choice
+{
+ public:
+  BacklightSourceChoice(Window* parent, const rect_t& rect) :
+    Choice(parent, rect, 0, MIXSRC_LAST_SWITCH, GET_SET_DEFAULT(g_eeGeneral.backlightSrc))
+  {
+    setBeforeDisplayMenuHandler([=](Menu* menu) {
+#if defined(AUTOSOURCE)
+      menu->setWaitHandler([=]() {
+        int16_t val = getMovedSource(MIXSRC_FIRST_POT);
+        if (val) {
+          //fillMenu(menu);
+          menu->select(getIndexFromValue(val));
+        }
+#if defined(AUTOSWITCH)
+        else {
+          swsrc_t swtch = abs(getMovedSwitch());
+          if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+            val = switchToMix(swtch);
+            if (val && (val >= MIXSRC_FIRST_SWITCH) && (val <= MIXSRC_LAST_SWITCH)) {
+              // fillMenu(menu);
+              menu->select(getIndexFromValue(val));
+            }
+          }
+        }
+#endif
+      });
+#endif
+    });
+
+    setTextHandler([=](int value) {
+      if (isValueAvailable && !isValueAvailable(value))
+        return std::to_string(0);  // we will fix this later
+
+      return std::string(getSourceString(value));
+    });
+
+    setAvailableHandler(::isSourceAvailable);
+  }
+
+// protected:
+//   static bool isSourceAvailable(int source)
+//   {
+//     if (source == MIXSRC_NONE) return true;
+//     if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
+//       return IS_POT_SLIDER_AVAILABLE(POT1+source - MIXSRC_FIRST_POT);
+//     }
+    
+//     if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
+//       return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
+//     }
+
+//     return false;
+//   }
+};
+
 class BacklightPage : public Page {
   public:
 	BacklightPage() :
@@ -467,8 +526,11 @@ class BacklightPage : public Page {
       backlightTimeout = edit;
 
       line = body.newLine(&grid);
-
+      new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
+      new BacklightSourceChoice(line, rect_t{});
+      
       // Backlight ON bright
+      line = body.newLine(&grid);
       new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
       grid.setColSpan(2);
       backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
@@ -487,10 +549,14 @@ class BacklightPage : public Page {
       // Backlight OFF bright
       new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
       grid.setColSpan(2);
-      backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+      backlightOffBright = new Slider(
+          line, rect_t{0, 0, lv_pct(50), PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN,
+          BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
           [=](int32_t newValue) {
-            int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-            if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+            int32_t onBright =
+                BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+            if (newValue <= onBright ||
+                g_eeGeneral.backlightMode == e_backlight_mode_off)
               g_eeGeneral.blOffBright = newValue;
             else
               g_eeGeneral.blOffBright = onBright;

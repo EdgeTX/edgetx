@@ -158,6 +158,10 @@ void FullScreenDialog::runForever()
   // RELEASED/CLICKED to be called in a loop
   lv_indev_reset(nullptr, nullptr);
   
+  if (type == WARNING_TYPE_ALERT) {
+    forceBacklightOn = true;
+  }
+
   while (running) {
     resetBacklightTimeout();
 
@@ -176,17 +180,24 @@ void FullScreenDialog::runForever()
     run_ui_manually();
   }
 
+  forceBacklightOn = false;
   deleteLater();
 }
 
 void FullScreenDialog::runForeverNoPwrCheck()
 {
   running = true;
+
+  if (type == WARNING_TYPE_ALERT) {
+    forceBacklightOn = true;
+  }
+
   while (running) {
     resetBacklightTimeout();
     run_ui_manually();
   }
 
+  forceBacklightOn = false;
   deleteLater();
 }
 

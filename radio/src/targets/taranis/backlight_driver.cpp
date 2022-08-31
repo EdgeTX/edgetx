@@ -21,6 +21,10 @@
 
 #include "board.h"
 
+#if !defined(BOOT)
+#include "myeeprom.h"
+#endif
+
 #if !defined(BACKLIGHT_GPIO)
   // no backlight
   void backlightInit() {}
@@ -50,15 +54,20 @@ void backlightInit()
   BACKLIGHT_TIMER->CR1 = TIM_CR1_CEN; // Counter enable
 }
 
-void backlightEnable(uint8_t level, uint8_t color)
+void backlightEnable(uint8_t level)
 {
+#if defined(BOOT)
+  uint8_t color = 0;
+#else
+  uint8_t color = g_eeGeneral.backlightColor;
+#endif
   BACKLIGHT_TIMER->CCR1 = ((100-level)*(20-color))/20;
   BACKLIGHT_TIMER->CCR2 = ((100-level)*color)/20;
 }
 
 void backlightFullOn()
 {
-  backlightEnable(0, 0);
+  backlightEnable(0);
 }
 
 void backlightDisable()
@@ -94,15 +103,20 @@ void backlightInit()
   BACKLIGHT_TIMER->CR1 = TIM_CR1_CEN; // Counter enable
 }
 
-void backlightEnable(uint8_t level, uint8_t color)
+void backlightEnable(uint8_t level)
 {
+#if defined(BOOT)
+  uint8_t color = 0;
+#else
+  uint8_t color = g_eeGeneral.backlightColor;
+#endif
   BACKLIGHT_TIMER->CCR4 = ((100-level)*(20-color))/20;
   BACKLIGHT_TIMER->CCR2 = ((100-level)*color)/20;
 }
 
 void backlightFullOn()
 {
-  backlightEnable(0, 0);
+  backlightEnable(0);
 }
 
 void backlightDisable()

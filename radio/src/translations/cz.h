@@ -165,7 +165,7 @@
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_RESERVE                  "[rezerva]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trenér","Insta-Trim","Reset","Změna",TR_ADJUST_GVAR,"Hlasitost","Nastavit Failsafe","Kontrola dosahu","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Podsvětlení",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trenér","Insta-Trim","Reset","Změna",TR_ADJUST_GVAR,"Hlasitost","Nastavit Failsafe","Kontrola dosahu","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 

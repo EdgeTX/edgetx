@@ -232,6 +232,20 @@ bool isSourceAvailable(int source)
   return true;
 }
 
+bool isBacklightSourceAvailable(int source)
+{
+  if (source == MIXSRC_NONE) return true;
+  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
+    return IS_POT_SLIDER_AVAILABLE(POT1+source - MIXSRC_FIRST_POT);
+  }
+    
+  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
+    return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
+  }
+
+  return false;
+}
+
 bool isSourceAvailableInGlobalFunctions(int source)
 {
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {

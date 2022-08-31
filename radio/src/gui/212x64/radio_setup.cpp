@@ -75,6 +75,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_BACKLIGHT_LABEL,
   ITEM_RADIO_SETUP_BACKLIGHT_MODE,
   ITEM_RADIO_SETUP_BACKLIGHT_DELAY,
+  ITEM_RADIO_SETUP_BACKLIGHT_SOURCE,
   ITEM_RADIO_SETUP_BRIGHTNESS,
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_FLASH_BEEP,
@@ -157,6 +158,7 @@ void menuRadioSetup(event_t event)
     LABEL(BACKLIGHT),
       0, // backlight mode
       0, // backlight delay
+      0, // backlight source
       0, // brightness
       CASE_PCBX9E_PCBX9DP(0) // backlight color
       0, // flash beep
@@ -462,6 +464,18 @@ void menuRadioSetup(event_t event)
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.lightAutoOff, 0, 600/5);
         break;
 
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
+        lcdDrawText(INDENT_WIDTH, y, STR_SOURCE);
+        drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightSrc, STREXPANDED|attr);
+        if (attr) {
+          g_eeGeneral.backlightSrc = checkIncDec(
+              event, g_eeGeneral.backlightSrc, 0, MIXSRC_LAST_SWITCH,
+              EE_MODEL | INCDEC_SOURCE | NO_INCDEC_MARKS,
+              isBacklightSourceAvailable);
+        }
+        break;
+        
+  
       case ITEM_RADIO_SETUP_BRIGHTNESS:
         lcdDrawText(INDENT_WIDTH, y, STR_BRIGHTNESS);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, 100-g_eeGeneral.backlightBright, attr|LEFT) ;

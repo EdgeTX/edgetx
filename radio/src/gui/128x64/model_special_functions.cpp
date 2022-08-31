@@ -342,14 +342,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(isSourceAvailable);
             }
           }
-          else if (func == FUNC_BACKLIGHT) {
-            val_max = MIXSRC_LAST_CH;
-            drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
-            if (active) {
-              INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE);
-              INCDEC_ENABLE_CHECK(isSourceAvailable);
-            }
-          }
 #if defined(SDCARD)
           else if (func == FUNC_LOGS) {
             if (val_displayed) {

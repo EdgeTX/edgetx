@@ -168,7 +168,7 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_RESERVE                  "[reserve]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Ecolage","Trim instant.","Remise à 0","Déf.",TR_ADJUST_GVAR,"Volume","DéfFailsafe","Test Port.","Bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Rétroécl.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Ecolage","Trim instant.","Remise à 0","Déf.",TR_ADJUST_GVAR,"Volume","DéfFailsafe","Test Port.","Bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Télm", "Télémétrie")
 

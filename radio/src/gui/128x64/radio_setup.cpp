@@ -83,6 +83,7 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_LABEL)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
+  CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
   CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_OFF)
   CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON)
@@ -500,6 +501,17 @@ void menuRadioSetup(event_t event)
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.lightAutoOff, 0, 600/5);
         break;
 
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
+        lcdDrawText(INDENT_WIDTH, y, STR_SOURCE);
+        drawSource(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.backlightSrc, STREXPANDED|attr);
+        if (attr) {
+          g_eeGeneral.backlightSrc = checkIncDec(
+              event, g_eeGeneral.backlightSrc, 0, MIXSRC_LAST_SWITCH,
+              EE_MODEL | INCDEC_SOURCE | NO_INCDEC_MARKS,
+              isBacklightSourceAvailable);
+        }
+        break;
+   
       case ITEM_RADIO_SETUP_BRIGHTNESS:
         lcdDrawText(INDENT_WIDTH, y, STR_BRIGHTNESS);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, 100-g_eeGeneral.backlightBright, attr|LEFT) ;

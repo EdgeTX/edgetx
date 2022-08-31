@@ -570,25 +570,40 @@ void checkBacklight()
       }
     }
 
-    if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
-      currentBacklightBright = g_eeGeneral.backlightBright;
+    currentBacklightBright = g_eeGeneral.backlightBright;
+    if (forceBacklightOn) {
       BACKLIGHT_ENABLE();
     } else {
-      bool backlightOn = ((g_eeGeneral.backlightMode == e_backlight_mode_on) ||
-                          (g_eeGeneral.backlightMode != e_backlight_mode_off &&
-                           lightOffCounter) ||
-                          (g_eeGeneral.backlightMode == e_backlight_mode_off &&
-                           isFunctionActive(FUNCTION_BACKLIGHT)));
+      bool backlightOn = (g_eeGeneral.backlightMode == e_backlight_mode_on) ||
+                         (g_eeGeneral.backlightMode != e_backlight_mode_off &&
+                          (lightOffCounter > 0));
 
       if (flashCounter) {
         backlightOn = !backlightOn;
       }
+
       if (backlightOn) {
-        currentBacklightBright = requiredBacklightBright;
+        if (g_eeGeneral.backlightSrc != MIXSRC_NONE) {
+          getvalue_t raw = getValue(g_eeGeneral.backlightSrc);
 #if defined(COLORLCD)
-        // force backlight on for color lcd radios
-        if (currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
-          currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+          if (raw == -RESX) {
+            currentBacklightBright = BACKLIGHT_LEVEL_MAX;
+          } else {
+            raw = ((RESX - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)) /
+                  (2 * RESX);
+            currentBacklightBright = (uint8_t)raw;
+          }
+#else
+          raw = ((RESXl - raw) * 100l) / (2*RESXl);
+          currentBacklightBright = (uint8_t)raw;
+#endif
+        }
+#if defined(COLORLCD)
+        else {
+          // if no physical control is used, force backlight on
+          if (currentBacklightBright > BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN)
+            currentBacklightBright = BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN;
+        }
 #endif
         BACKLIGHT_ENABLE();
       } else {
@@ -652,9 +667,12 @@ void doSplash()
       }
 #endif
 
-
+      forceBacklightOn = true;
       checkBacklight();
     }
+
+    forceBacklightOn = false;
+
 #if defined(LIBOPENUI)
     MainWindow::instance()->setActiveScreen();
 #endif
@@ -893,6 +911,7 @@ void checkThrottleStick()
     }
 #endif
 
+    forceBacklightOn = true;
     checkBacklight();
 
     WDG_RESET();
@@ -900,11 +919,12 @@ void checkThrottleStick()
     RTOS_WAIT_MS(10);
   }
 
+  forceBacklightOn = false;
   LED_ERROR_END();
 }
 #endif
 
-void checkAlarm() // added by Gohst
+void checkAlarm() // added by Ghost
 {
   if (g_eeGeneral.disableAlarmWarning) {
     return;
@@ -933,6 +953,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
     if (getEvent())  // wait for key release
       break;
 
+    forceBacklightOn = true;
     checkBacklight();
 
     WDG_RESET();
@@ -954,6 +975,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
 #endif
   }
 
+  forceBacklightOn = false;
   LED_ERROR_END();
 }
 
@@ -1768,7 +1790,7 @@ void opentxInit()
   initSerialPorts();
 
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-  currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
+  currentBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)
   setScaledVolume(currentSpeakerVolume);
 #endif

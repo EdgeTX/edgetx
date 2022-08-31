@@ -2620,7 +2620,6 @@ const luaR_value_entry opentxConstants[] = {
   { "FUNC_VARIO", FUNC_VARIO },
   { "FUNC_HAPTIC", FUNC_HAPTIC },
   { "FUNC_LOGS", FUNC_LOGS },
-  { "FUNC_BACKLIGHT", FUNC_BACKLIGHT },
   { "FUNC_SCREENSHOT", FUNC_SCREENSHOT },
   { "FUNC_RACING_MODE", FUNC_RACING_MODE },
 #if defined(COLORLCD)
