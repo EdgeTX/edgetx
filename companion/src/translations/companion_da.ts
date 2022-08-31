@@ -6041,14 +6041,12 @@ Vil du gemme ændringer?</translation>
     <message numerus="yes">
         <source>Delete %n selected model(s)?</source>
         <translation>
-            <numerusform>Radera %n vald model?</numerusform>
             <numerusform>Slet de %n valgte modeller?</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Delete %n selected category(ies)?</source>
         <translation>
-            <numerusform>Radera %n vald katagori?</numerusform>
             <numerusform>Slette de %n valgte katagorier?</numerusform>
         </translation>
     </message>
