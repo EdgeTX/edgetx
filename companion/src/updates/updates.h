@@ -34,8 +34,8 @@ class Updates : public QWidget
     explicit Updates(QWidget * parent, UpdateFactories * updateFactories);
     virtual ~Updates();
 
-    void autoUpdates();
-    void manualUpdates();
+    void checkForUpdates(bool manual);
+    void doUpdates();
 
   signals:
     void runSDSync();

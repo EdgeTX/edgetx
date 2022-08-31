@@ -110,9 +110,10 @@ class MainWindow : public QMainWindow
     void importSettings();
     void autoClose();
     void chooseProfile();
-    void manualUpdates();
-    void autoUpdates();
-    void doUpdates(bool manual);
+    void autoCheckForUpdates();
+    void manualCheckForUpdates();
+    void downloads();
+    void doUpdates(bool check, bool manual);
 
     void openFile(const QString & fileName, bool updateLastUsedDir = false);
 
@@ -176,8 +177,8 @@ class MainWindow : public QMainWindow
     QAction *recentFilesAct;
     QAction *exitAct;
     QAction *appPrefsAct;
-    QAction *updatesAct;
-    QAction *checkForUpdatesAct;
+    QAction *downloadsAct;
+    QAction *manualChkForUpdAct;
     QAction *sdsyncAct;
     QAction *changelogAct;
     QAction *compareAct;

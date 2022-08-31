@@ -149,7 +149,7 @@ MainWindow::MainWindow():
   updateFactories = new UpdateFactories(this);
 
   if (checkProfileRadioExists(g.sessionId()))
-    QTimer::singleShot(updateDelay, this, &MainWindow::autoUpdates);
+    QTimer::singleShot(updateDelay, this, &MainWindow::autoCheckForUpdates);
   else
     g.warningId(g.warningId() | AppMessages::MSG_NO_RADIO_TYPE);
 }
@@ -235,17 +235,22 @@ void MainWindow::onLanguageChanged(QAction * act)
     setLanguage(lang);
 }
 
-void MainWindow::autoUpdates()
+void MainWindow::autoCheckForUpdates()
 {
-  doUpdates(false);
+  doUpdates(true, false);
 }
 
-void MainWindow::manualUpdates()
+void MainWindow::manualCheckForUpdates()
 {
-  doUpdates(true);
+  doUpdates(true, true);
 }
 
-void MainWindow::doUpdates(bool manual)
+void MainWindow::downloads()
+{
+  doUpdates(false, true);
+}
+
+void MainWindow::doUpdates(bool check, bool manual)
 {
   Updates *upd = new Updates(this, updateFactories);
 
@@ -253,10 +258,10 @@ void MainWindow::doUpdates(bool manual)
     sdsync(true);
   });
 
-  if (manual)
-    upd->manualUpdates();
+  if (check)
+    upd->checkForUpdates(manual);
   else
-    upd->autoUpdates();
+    upd->doUpdates();
 
   delete upd;
 }
@@ -811,8 +816,8 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(profilesMenuAct,    tr("Radio Profiles"),             tr("Create or Select Radio Profiles"));
   trAct(logsAct,            tr("View Log File..."),           tr("Open and view log file"));
   trAct(appPrefsAct,        tr("Settings..."),                tr("Edit Settings"));
-  trAct(updatesAct,         tr("Updates..."),                 tr("Update EdgeTX and supporting resources"));
-  trAct(checkForUpdatesAct, tr("Check for updates..."),       tr("Check for updates to EdgeTX and supporting resources"));
+  trAct(downloadsAct,       tr("Download components..."),     tr("Download EdgeTX components and supporting resources"));
+  trAct(manualChkForUpdAct, tr("Check for updates..."),       tr("Check for updates to EdgeTX and supporting resources"));
   trAct(changelogAct,       tr("Release notes..."),           tr("Show release notes"));
   trAct(compareAct,         tr("Compare Models..."),          tr("Compare models"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."), tr("Edit the splash image of your Radio"));
@@ -870,7 +875,7 @@ void MainWindow::createActions()
 
   logsAct =            addAct("logs.png",           SLOT(logFile()),          tr("Ctrl+Alt+L"));
   appPrefsAct =        addAct("apppreferences.png", SLOT(appPrefs()),         QKeySequence::Preferences);
-  updatesAct =         addAct("download.png",       SLOT(manualUpdates()),  tr("Ctrl+Alt+D"));
+  downloadsAct =       addAct("download.png",       SLOT(downloads()),        tr("Ctrl+Alt+D"));
   compareAct =         addAct("compare.png",        SLOT(compare()),          tr("Ctrl+Alt+R"));
   sdsyncAct =          addAct("sdsync.png",         SLOT(sdsync()));
 
@@ -897,7 +902,7 @@ void MainWindow::createActions()
   actCascadeWindows =  addAct("", SLOT(cascadeSubWindows()),    0, mdiArea);
   actCloseAllWindows = addAct("", SLOT(closeAllSubWindows()),   0, mdiArea);
 
-  checkForUpdatesAct = addAct("update.png",         SLOT(autoUpdates()));
+  manualChkForUpdAct = addAct("update.png",         SLOT(manualCheckForUpdates()));
   aboutAct =           addAct("information.png",    SLOT(about()));
   openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
   changelogAct =       addAct("changelog.png",      SLOT(changelog()));
@@ -910,7 +915,7 @@ void MainWindow::createActions()
   aboutAct->setMenuRole(QAction::AboutRole);
   appPrefsAct->setMenuRole(QAction::PreferencesRole);
   openDocURLAct->setMenuRole(QAction::ApplicationSpecificRole);
-  checkForUpdatesAct->setMenuRole(QAction::ApplicationSpecificRole);
+  manualChkForUpdAct->setMenuRole(QAction::ApplicationSpecificRole);
   changelogAct->setMenuRole(QAction::ApplicationSpecificRole);
 
   actTabbedWindows->setCheckable(true);
@@ -928,7 +933,7 @@ void MainWindow::createMenus()
   fileMenu->addAction(recentFilesAct);
   fileMenu->addSeparator();
   fileMenu->addAction(logsAct);
-  fileMenu->addAction(updatesAct);
+  fileMenu->addAction(downloadsAct);
   fileMenu->addAction(compareAct);
   fileMenu->addAction(sdsyncAct);
   fileMenu->addSeparator();
@@ -987,7 +992,7 @@ void MainWindow::createMenus()
   windowMenu->addSeparator();
 
   helpMenu = menuBar()->addMenu("");
-  helpMenu->addAction(checkForUpdatesAct);
+  helpMenu->addAction(manualChkForUpdAct);
   //helpMenu->addSeparator();
   //helpMenu->addAction(openDocURLAct);
   //helpMenu->addSeparator();
@@ -1031,7 +1036,7 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(closeAct);
   fileToolBar->addSeparator();
   fileToolBar->addAction(logsAct);
-  fileToolBar->addAction(updatesAct);
+  fileToolBar->addAction(downloadsAct);
   fileToolBar->addSeparator();
   fileToolBar->addAction(appPrefsAct);
   fileToolBar->addAction(profilesMenuAct);
@@ -1068,7 +1073,7 @@ void MainWindow::createToolBars()
 
   helpToolBar = addToolBar("");
   helpToolBar->setObjectName("Help");
-  helpToolBar->addAction(checkForUpdatesAct);
+  helpToolBar->addAction(manualChkForUpdAct);
   helpToolBar->addAction(aboutAct);
 }
 
