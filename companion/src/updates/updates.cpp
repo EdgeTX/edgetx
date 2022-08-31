@@ -39,43 +39,48 @@ Updates::~Updates()
 {
 }
 
-void Updates::autoUpdates()
+void Updates::checkForUpdates(bool manual)
 {
-  if (g.updateCheckFreq() == AppData::UPDATE_CHECK_MANUAL)
-    return;
+  if (!manual) {
+    if (g.updateCheckFreq() == AppData::UPDATE_CHECK_MANUAL)
+      return;
 
-  if (g.lastUpdateCheck().trimmed().isEmpty())
-    g.lastUpdateCheck(QDateTime::currentDateTime().addDays(-60).toString(Qt::ISODate));
+    if (g.lastUpdateCheck().trimmed().isEmpty())
+      g.lastUpdateCheck(QDateTime::currentDateTime().addDays(-60).toString(Qt::ISODate));
 
-  QDateTime dt = QDateTime::fromString(g.lastUpdateCheck(), Qt::ISODate);
+    QDateTime dt = QDateTime::fromString(g.lastUpdateCheck(), Qt::ISODate);
 
-  if (g.updateCheckFreq() == AppData::UPDATE_CHECK_DAILY)
-    dt = dt.addDays(1);
-  else if (g.updateCheckFreq() == AppData::UPDATE_CHECK_WEEKLY)
-    dt = dt.addDays(7);
-  else if (g.updateCheckFreq() == AppData::UPDATE_CHECK_MONTHLY)
-    dt = dt.addDays(30);
+    if (g.updateCheckFreq() == AppData::UPDATE_CHECK_DAILY)
+      dt = dt.addDays(1);
+    else if (g.updateCheckFreq() == AppData::UPDATE_CHECK_WEEKLY)
+      dt = dt.addDays(7);
+    else if (g.updateCheckFreq() == AppData::UPDATE_CHECK_MONTHLY)
+      dt = dt.addDays(30);
 
-  if (dt > QDateTime::currentDateTime().toLocalTime()) {
-    qDebug() << "Update next due:" << dt.toString(Qt::ISODate);
-    return;
+    if (dt > QDateTime::currentDateTime().toLocalTime()) {
+      qDebug() << "Update next due:" << dt.toString(Qt::ISODate);
+      return;
+    }
   }
 
   g.lastUpdateCheck(QDateTime::currentDateTime().toString(Qt::ISODate));
 
   QStringList list;
 
-  if (!factories->isUpdatesAvailable(list))
+  if (!factories->isUpdatesAvailable(list)) {
+    if (manual)
+      QMessageBox::information(parentWidget(), CPN_STR_APP_NAME, tr("No updates available at this time"));
     return;
+  }
 
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
                             tr("Updates available for:\n  %1\n\nUpdate now?").arg(list.join("\n  ")),
                             (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::Yes) {
-    manualUpdates();
+    doUpdates();
   }
 }
 
-void Updates::manualUpdates()
+void Updates::doUpdates()
 {
   if (factories->sortedComponentsList(true).isEmpty()) {
     QMessageBox::warning(this, CPN_STR_APP_NAME, tr("No components have been flagged to check in Update Settings!"));
