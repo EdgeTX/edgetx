@@ -120,6 +120,7 @@ void processCrossfireTelemetryFrame(uint8_t module)
     moduleState[module].counter = CRSF_FRAME_MODELID;
   }
 
+  uint8_t crsfPayloadLen = rxBuffer[1];
   uint8_t id = rxBuffer[2];
   int32_t value;
   switch(id) {
@@ -156,6 +157,10 @@ void processCrossfireTelemetryFrame(uint8_t module)
         }
         processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
       }
+      // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
+      // but support including VARIO if the declared payload length is 6 bytes or more
+      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, module))
+        processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
       break;
 
     case LINK_ID:
