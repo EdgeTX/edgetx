@@ -65,10 +65,9 @@ class ModelsPageBody : public FormWindow
   LabelsVector selectedLabels;
   std::function<void()> refreshLabels = nullptr;
 
-  void modelMenu(ModelButton* btn);
-  void selectModel(ModelButton* btn);
+  void selectModel(ModelCell* model);
   void duplicateModel(ModelCell* model);
-  void deleteModel(ModelButton* btn);
+  void deleteModel(ModelCell* model);
   void editLabels(ModelCell* model);
 };
 

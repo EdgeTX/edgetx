@@ -79,8 +79,8 @@ class ModelCell
   uint8_t modelId[NUM_MODULES] = {0, 0};
   SimpleModuleData moduleData[NUM_MODULES];
 
-  explicit ModelCell(const char *name);
-  explicit ModelCell(const char *name, uint8_t len);
+  explicit ModelCell(const char *fileName);
+  explicit ModelCell(const char *fileName, uint8_t len);
 
   void setModelName(char *name);
   void setModelName(char *name, uint8_t len);
@@ -235,7 +235,7 @@ class ModelsList : public ModelsVector
 
   bool readNextLine(char *line, int maxlen);
 
-  ModelCell *addModel(const char *name, bool save = true, const char* modelName = nullptr);
+  ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);
   bool moveModelTo(unsigned curindex, unsigned toindex);
 

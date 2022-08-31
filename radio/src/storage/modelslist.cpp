@@ -50,17 +50,17 @@ using std::list;
 ModelsList modelslist;
 ModelMap modelslabels;
 
-ModelCell::ModelCell(const char *name) : valid_rfData(false)
+ModelCell::ModelCell(const char *fileName) : valid_rfData(false)
 {
-  strncpy(modelFilename, name, sizeof(modelFilename) - 1);
+  strncpy(modelFilename, fileName, sizeof(modelFilename) - 1);
   modelFilename[sizeof(modelFilename) - 1] = '\0';
 }
 
-ModelCell::ModelCell(const char *name, uint8_t len) : valid_rfData(false)
+ModelCell::ModelCell(const char *fileName, uint8_t len) : valid_rfData(false)
 {
   if (len > sizeof(modelFilename) - 1) len = sizeof(modelFilename) - 1;
 
-  memcpy(modelFilename, name, len);
+  memcpy(modelFilename, fileName, len);
   modelFilename[len] = '\0';
 }
 
@@ -578,10 +578,10 @@ bool ModelMap::renameLabel(
       // If working on the current model, write current data to file instead
       memcpy(g_model.header.labels, modeldata->header.labels, LABELS_LENGTH);
       fault = (writeFileYaml(path, get_modeldata_nodes(),
-                             (uint8_t *)&g_model) != NULL);
+                             (uint8_t *)&g_model, 0) != NULL);
     } else {
       fault = (writeFileYaml(path, get_modeldata_nodes(),
-                             (uint8_t *)modeldata) != NULL);
+                             (uint8_t *)modeldata, 0) != NULL);
     }
 #if defined(SIMU)
     if (SIMU_SLEEP_OR_EXIT_MS(100)) break;
@@ -696,7 +696,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 
   char path[256];
   getModelPath(path, cell->modelFilename);
-  fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t *)modeldata) !=
+  fault = (writeFileYaml(path, get_modeldata_nodes(), (uint8_t *)modeldata, 0) !=
            NULL);
 
   free(modeldata);
@@ -1021,6 +1021,7 @@ bool ModelsList::load(Format fmt)
       // No models found, make a new one
       auto model = modelslist.addModel(createModel(), true);
       modelslist.setCurrentModel(model);
+      updateCurrentModelCell();
     }
   }
 
@@ -1130,8 +1131,8 @@ void ModelsList::setCurrentModel(ModelCell *cell)
 }
 
 /**
- * @brief Takes the current g_model data in memory and updates the ModelCell
- *        data to match.
+ * @brief Takes the current g_model + filename data in memory and update
+ *        the ModelCell data to match.
  */
 
 void ModelsList::updateCurrentModelCell()
@@ -1141,6 +1142,8 @@ void ModelsList::updateCurrentModelCell()
     strncpy(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
     currentModel->modelBitmap[LEN_BITMAP_NAME - 1] = '\0';
 #endif
+    strncpy(currentModel->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
+    currentModel->modelFilename[LEN_MODEL_FILENAME] = '\0';
     currentModel->setModelName(g_model.header.name);
     currentModel->setRfData(&g_model);
     modelslabels.setDirty();
@@ -1178,18 +1181,27 @@ bool ModelsList::readNextLine(char *line, int maxlen)
 /**
  * @brief Creates a new ModelCell
  *
- * @param name Model Name
- * @param save True Update yaml right away
+ * @param name Model File Name
+ * @param save True=Update labels.yml right away
+ * @param copyCell If duplicating, copy the data from this cell. If duplicating, leave null
  * @return ModelCell* New Model
  */
 
-ModelCell *ModelsList::addModel(const char *name, bool save, const char* modelName)
+ModelCell *ModelsList::addModel(const char *fileName, bool save, ModelCell *copyCell)
 {
-  if (name == nullptr) return nullptr;
-  ModelCell *result = new ModelCell(name);
-  strncpy(result->modelFilename, name, LEN_MODEL_FILENAME);
-  if(modelName) strncpy(result->modelName, modelName, LEN_MODEL_NAME);
+  ModelCell *result = new ModelCell(fileName);
+  if(copyCell != nullptr) { // Duplicate all data
+    memcpy(result, copyCell, sizeof(ModelCell));
+  }
+
+  // Set the new File Name
+  strncpy(result->modelFilename, fileName, LEN_MODEL_FILENAME);
+  result->modelFilename[LEN_MODEL_FILENAME] = '\0';
+
+  // Add to the ModelsList
   push_back(result);
+
+  // Force save to labels.yml
   if (save) this->save();
   return result;
 }
@@ -1235,6 +1247,9 @@ bool ModelsList::removeModel(ModelCell *model)
       return true;
     }
   }
+
+  // Free memory
+  delete(model);
 
   return false;
 }

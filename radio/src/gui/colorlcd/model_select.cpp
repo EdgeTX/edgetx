@@ -324,7 +324,7 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
   update();
 }
 
-void ModelsPageBody::selectModel(ModelButton *btn)
+void ModelsPageBody::selectModel(ModelCell *model)
 {
   bool modelConnected =
       TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
@@ -344,14 +344,14 @@ void ModelsPageBody::selectModel(ModelButton *btn)
   // store changes (if any) and load selected model
   storageFlushCurrentModel();
   storageCheck(true);
-  memcpy(g_eeGeneral.currModelFilename, btn->modelFilename(),
+  memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
          LEN_MODEL_FILENAME);
 
   loadModel(g_eeGeneral.currModelFilename, true);
   storageDirty(EE_GENERAL);
   storageCheck(true);
 
-  modelslist.setCurrentModel(btn->getModelCell());
+  modelslist.setCurrentModel(model);
   checkAll();
 
   // Exit to main view
@@ -368,26 +368,27 @@ void ModelsPageBody::duplicateModel(ModelCell* model)
                         MODELS_PATH)) {
     sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
                MODELS_PATH);
-    auto new_model = modelslist.addModel(duplicatedFilename, true, model->modelName);
-    // Duplicated model should have same labels as orig. Add them
+    // Make a new model which is a copy of the selected one, set the same
+    // labels
+    auto new_model = modelslist.addModel(duplicatedFilename, true, model);
     for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
       modelslabels.addLabelToModel(lbl, new_model);
     }
     update();
   } else {
-    POPUP_WARNING("Invalid File"); // TODO: translation
+    TRACE("ModelsListError: Invalid File");
   }
 }
 
-void ModelsPageBody::deleteModel(ModelButton *btn)
+void ModelsPageBody::deleteModel(ModelCell *model)
 {
-  ModelCell *model = btn->getModelCell();
   new ConfirmDialog(
       parent, STR_DELETE_MODEL,
       std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
         modelslist.removeModel(model);
         if (refreshLabels != nullptr) refreshLabels();
-        btn->deleteLater(); // TODO: rather "update()" ???
+
+        update();
       });
 }
 
@@ -442,11 +443,11 @@ void ModelsPageBody::update(int selected)
       Menu *menu = new Menu(this);
       menu->setTitle(model->modelName);
       if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(button); });
+        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
       }
       menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
       if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_DELETE_MODEL, [=]() { selectModel(button); });
+        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
       }
       menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
       return 0;
@@ -537,18 +538,26 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 void ModelLabelsWindow::newModel()
 {
   // Save current
+  storageFlushCurrentModel();
   storageCheck(true);
 
-  const char* model_name = g_model.header.name;
-  auto newCell = modelslist.addModel(::createModel(), false, model_name);
+  // Create a new blank ModelCell and activate it first, createmodel() will modify
+  // the model in memory.
+  auto newCell = modelslist.addModel("", false);
   modelslist.setCurrentModel(newCell);
 
-  auto labels = getLabels();
-  lblselector->setNames(labels);
-  lblselector->setSelected(modelslabels.getLabels().size());
-  mdlselector->update(0);
+  // Make the new model
+  createModel();
 
-  new SelectTemplateFolder([=]() {});
+  new SelectTemplateFolder([=]() {
+    // On complete update the current cell's data
+    modelslist.updateCurrentModelCell();
+
+    auto labels = getLabels();
+    lblselector->setNames(labels);
+    lblselector->setSelected(modelslabels.getLabels().size());
+    mdlselector->update(0);
+  });
 }
 
 void ModelLabelsWindow::buildHead(PageHeader *hdr)
