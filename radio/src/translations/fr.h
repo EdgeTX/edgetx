@@ -542,6 +542,8 @@
 #define TR_PRESSANYKEY                 TR("Touche pour continuer", "Touche pour continuer")
 #define TR_BADEEPROMDATA               "EEPROM corrompue"
 #define TR_BAD_RADIO_DATA              "Réglages radio corrompus"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "Formatage EEPROM"
 #define TR_STORAGE_FORMAT              "Préparation stockage"
 #define TR_EEPROMOVERFLOW              "Dépassement EEPROM"

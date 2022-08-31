@@ -105,7 +105,7 @@ static inline void check_struct()
   CHKSIZE(TimerData, 3);
 
   CHKSIZE(FlightModeData, 30);
-  CHKSIZE(RadioData, 85);
+  CHKSIZE(RadioData, 86);
 
 #endif /* board specific ifdefs*/
 
@@ -117,33 +117,33 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 861);
+  CHKSIZE(RadioData, 862);
   CHKSIZE(ModelData, 6164);
 #elif defined(PCBXLITE)
-  CHKSIZE(RadioData, 859);
+  CHKSIZE(RadioData, 860);
   CHKSIZE(ModelData, 6164);
 #elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 842);
+  CHKSIZE(RadioData, 843);
   CHKSIZE(ModelData, 6189);
 #elif defined(PCBX7)
-  CHKSIZE(RadioData, 865);
+  CHKSIZE(RadioData, 866);
   CHKSIZE(ModelData, 6164);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 955);
+  CHKSIZE(RadioData, 956);
   CHKSIZE(ModelData, 6616);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 897);
+  CHKSIZE(RadioData, 898);
   CHKSIZE(ModelData, 6608);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 923);
+    CHKSIZE(RadioData, 924);
     CHKSIZE(ModelData, 11028);
   #else
-    CHKSIZE(RadioData, 905);
+    CHKSIZE(RadioData, 906);
     CHKSIZE(ModelData, 11026);
   #endif
 #elif defined(PCBNV14)
-  CHKSIZE(RadioData, 851);
+  CHKSIZE(RadioData, 852);
   CHKSIZE(ModelData, 10842);
 #endif
 

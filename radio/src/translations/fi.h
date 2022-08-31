@@ -528,6 +528,8 @@
 #define TR_PRESSANYKEY                 TR("\010Press any Key", "Press any Key")
 #define TR_BADEEPROMDATA               "Bad EEPROM Data"
 #define TR_BAD_RADIO_DATA              "Bad Radio Data"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "Formatting EEPROM"
 #define TR_STORAGE_FORMAT              "Storage Preparation"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"

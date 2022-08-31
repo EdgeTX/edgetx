@@ -804,6 +804,8 @@ PACK(struct TrainerData {
 PACK(struct RadioData {
 
   // Real attributes
+  NOBACKUP(uint8_t manuallyEdited:1);
+  NOBACKUP(int8_t spare0:7 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
