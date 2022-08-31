@@ -180,12 +180,12 @@ const char * loadRadioSettingsYaml()
             f_unlink(RADIO_SETTINGS_YAML_PATH);
             result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
             if (result != FR_OK) {
-              ALERT(STR_STORAGE_WARNING, TR_BAD_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+              ALERT(STR_STORAGE_WARNING, TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
               return SDCARD_ERROR(result);
             }
         }
         TRACE("Unable to recover radio data");
-        ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_BAD_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
+        ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
       }
     }
     return p;

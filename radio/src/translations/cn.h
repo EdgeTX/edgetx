@@ -517,8 +517,8 @@
 #define TR_PRESSANYKEY                 TR("\010按任意键", "按任意键")
 #define TR_BADEEPROMDATA               "存储数据错误"
 #define TR_BAD_RADIO_DATA              "系统数据错误"
-#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
-#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "格式化存储"
 #define TR_STORAGE_FORMAT              "存储准备"
 #define TR_EEPROMOVERFLOW              "存储超限"

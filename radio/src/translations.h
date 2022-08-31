@@ -403,7 +403,7 @@ extern const char STR_THROTTLE_NOT_IDLE[];
 extern const char STR_ALARMSDISABLED[];
 extern const char STR_PRESSANYKEY[];
 extern const char STR_BAD_RADIO_DATA[];
-extern const char STR_BAD_RADIO_DATA_UNRECOVERABLE[];
+extern const char STR_RADIO_DATA_UNRECOVERABLE[];
 extern const char STR_RADIO_DATA_RECOVERED[];
 extern const char STR_STORAGE_FORMAT[];
 extern const char STR_EEPROMOVERFLOW[];

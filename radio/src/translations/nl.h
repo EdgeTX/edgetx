@@ -524,8 +524,8 @@
 #define TR_PRESSANYKEY         TR("\010Druk een Toets", "Druk een Toets")
 #define TR_BADEEPROMDATA       "EEPROM Ongeldig"
 #define TR_BAD_RADIO_DATA      "Bad Radio Data"
-#define TR_RADIO_DATA_RECOVERED         "Radio data recovered from backup"
-#define TR_BAD_RADIO_DATA_UNRECOVERABLE "Unable to recover radio data"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING    "EEPROM Initialiseren"
 #define TR_STORAGE_FORMAT      "Storage Preparation"
 #define TR_EEPROMOVERFLOW      "EEPROM Overflow"
