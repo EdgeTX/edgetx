@@ -119,6 +119,7 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
     cb->setGetValueHandler([=]() { return md->multi.optionValue & 0x01; });
     cb->setSetValueHandler([=](int8_t newValue) {
       md->multi.optionValue = (md->multi.optionValue & 0xFE) + newValue;
+      SET_DIRTY();
     });
     lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     lv_event_send(cb->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
@@ -198,6 +199,7 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
       [=](int16_t newValue) {
         md->multi.optionValue =
             (md->multi.optionValue & 0xFD) + (newValue << 1);
+        SET_DIRTY();
       });
 }
 
