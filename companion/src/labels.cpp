@@ -2,9 +2,9 @@
 
 LabelsModel::LabelsModel(QItemSelectionModel *selectionModel,
                          RadioData *radioData, QObject *parent) :
+  QAbstractItemModel(parent),
   modelsSelection(selectionModel),
   radioData(radioData),
-  QAbstractItemModel(parent),
   selectedModel(-1)
 {
   connect(modelsSelection, &QItemSelectionModel::currentChanged,
@@ -48,14 +48,15 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
       if(radioData->addLabelToModel(selectedModel, radioData->labels.at(index.row())))
         emit modelChanged(selectedModel);
     }
-    emit dataChanged(labels.at(index.row()).index,
-                     labels.at(index.row()).index);
+    emit dataChanged(this->index(index.row(), 0),
+                     this->index(index.row(), 0));
     return true;
   } else if(role == Qt::EditRole) {
-    if(radioData->renameLabel(index.row(),value.toString())) {
-      labels[index.row()].label = value.toString();
-      emit dataChanged(labels.at(index.row()).index,
-                       labels.at(index.row()).index);
+    // Don't allow comma, replace with _
+    if(radioData->renameLabel(index.row(),value.toString().replace(',','_'))) {
+      labels[index.row()].label = value.toString().replace(',','_');
+      emit dataChanged(this->index(index.row(), 0),
+                       this->index(index.row(), 0));
       emit modelChanged(selectedModel);
     }
     return true;
@@ -64,7 +65,7 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
 }
 
 QVariant LabelsModel::data(const QModelIndex &index, int role) const
-{ 
+{
  // if(index.row() >= radioData->labels.size() || !index.isValid() )
   if(index.row() >= labels.size() || !index.isValid() )
     return QVariant();
@@ -90,7 +91,7 @@ QModelIndex LabelsModel::index(int row, int column, const QModelIndex &parent) c
   Q_UNUSED(parent)
 
   if(row < labels.size())
-    return labels[row].index;
+    return createIndex(row,0);
 
   return QModelIndex();
 }
@@ -130,7 +131,7 @@ Qt::DropActions LabelsModel::supportedDropActions() const
 QStringList LabelsModel::mimeTypes() const
 {
   QStringList types;
-  types << "application/vnd.text.list";
+  types << "application/edglbl.text.list";
   return types;
 }
 
@@ -148,7 +149,7 @@ QMimeData *LabelsModel::mimeData(const QModelIndexList &indexes) const
       }
   }
 
-  mimeData->setData("application/vnd.text.list", encodedData);
+  mimeData->setData("application/edglbl.text.list", encodedData);
   return mimeData;
 }
 
@@ -159,7 +160,7 @@ bool LabelsModel::canDropMimeData(const QMimeData *data, Qt::DropAction action,
   Q_UNUSED(row);
   Q_UNUSED(parent);
 
-  if (!data->hasFormat("application/vnd.text.list"))
+  if (!data->hasFormat("application/edglbl.text.list"))
       return false;
 
   if (column > 0)
@@ -170,6 +171,7 @@ bool LabelsModel::canDropMimeData(const QMimeData *data, Qt::DropAction action,
 
 bool LabelsModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
+  // TODO: This needs to be completed
   if (!canDropMimeData(data, action, row, column, parent))
     return false;
 
@@ -180,7 +182,7 @@ bool LabelsModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int
   else if (action  != Qt::MoveAction)
      return false;
 
-  QByteArray encodedData = data->data("application/vnd.text.list");
+  QByteArray encodedData = data->data("application/edglbl.text.list");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
   QStringList newItems;
   int rows = 0;
@@ -192,13 +194,12 @@ bool LabelsModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int
     ++rows;
   }
 
-  insertRows(row, rows, QModelIndex());
+  /*insertRows(row, rows, QModelIndex());
   for (const QString &text : qAsConst(newItems))
   {
       QModelIndex idx = index(row, 0, QModelIndex());
-      //setData(idx, text);
       row++;
-  }
+  }*/
 
   return true;
 }
@@ -251,13 +252,12 @@ void LabelsModel::buildLabelsList()
   foreach(QString lbl, radioData->labels) {
     LabelItem itm;
     itm.label = lbl;
-    itm.index = createIndex(i,0);
     itm.radioLabelIndex = i++;
     labels.append(itm);
   }
   if (i) {
-    emit dataChanged(labels.at(0).index,
-                     labels.at(i-1).index);
+    emit dataChanged(index(0,0),
+                     index(i-1,0));
   }
 }
 

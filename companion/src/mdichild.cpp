@@ -45,9 +45,10 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   labelsListModel(NULL),
   parentWindow(parentWin),
   radioToolbar(NULL),
+  modelsToolbar(NULL),
   labelsToolbar(NULL),
   lblLabels(NULL),
-  modelsToolbar(NULL),
+
   firmware(getCurrentFirmware()),
   lastSelectedModel(-1),
   isUntitled(true),
@@ -453,8 +454,6 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
 void MdiChild::showLabelsContextMenu(const QPoint &pos)
 {
   QMenu contextMenu;
-
-  updateNavigation();
 
   contextMenu.addAction(action[ACT_LBL_ADD]);
   contextMenu.addAction(action[ACT_LBL_DEL]);
