@@ -469,7 +469,7 @@
 #define TR_SLAVE                       CENTER "Slave"
 #define TR_MODESRC                     "Mode\006% Kilde"
 #define TR_MULTIPLIER                  "Multiplier"
-#define TR_CAL                         "Cal"
+#define TR_CAL                         "Kal"
 #define TR_CALIBRATION                 "Kalibrering"
 #define TR_VTRIM                       "Trim - +"
 #define TR_BG                          "BG:"
@@ -488,7 +488,7 @@
   #define TR_MOVESTICKSPOTS            CENTER "\006FLYT PINDE/DREJEKONTAKTER"
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " NÅR FÆRDIG"
 #endif
-#define TR_RXBATT                      "Rx Batt:"
+#define TR_RXBATT                      "Rx Bat:"
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_ACCEL                       "Acc:"
@@ -518,8 +518,8 @@
 #define TR_PRESSANYKEY                 TR("\010Tryk en tast", "Tryk en tast")
 #define TR_BADEEPROMDATA               "Dårlig EEprom data"
 #define TR_BAD_RADIO_DATA              "Dårlig radio data"
-#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
-#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
+#define TR_RADIO_DATA_RECOVERED        TR3("Anvender radio data fra backup","Anvender radio indstillinger fra backup","Radio indstillinger genskabt fra backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio indstillinger fejlagtige","Radio indstillinger ikke gyyldige", "Ikke muligt at indlæse gyyldige radio indstillinger")
 #define TR_EEPROMFORMATTING            "Formaterer EEPROM"
 #define TR_STORAGE_FORMAT              "Lager klargøres"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
