@@ -113,6 +113,7 @@ class MdiChild : public QWidget
     void setModified();
     void retranslateUi();
     void showModelsListContextMenu(const QPoint & pos);
+    void showLabelsContextMenu(const QPoint & pos);
     void showContextMenu(const QPoint & pos);
     void adjustToolbarLayout();
 
@@ -203,7 +204,6 @@ class MdiChild : public QWidget
     QToolBar * radioToolbar;
     QToolBar * modelsToolbar;
     QToolBar * labelsToolbar;
-
     QLabel *lblLabels;
 
     Firmware * firmware;

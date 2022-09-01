@@ -83,7 +83,6 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   QList<QByteArray> lines = modelsListBuffer.split('\n');
    int modelIndex = 0;
-   int categoryIndex = -1;
    foreach (const QByteArray & lineArray, lines) {
      QString line = QString(lineArray).trimmed();
      if (line.isEmpty()) continue;

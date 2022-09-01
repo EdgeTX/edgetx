@@ -75,6 +75,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   ui->modelsList->setDragDropMode(QAbstractItemView::DragDrop);
   ui->modelsList->setStyle(new ItemViewProxyStyle(ui->modelsList->style()));
   ui->modelsList->setStyleSheet("QTreeView::item {margin: 2px 0;}");  // a little more space for our drop indicators
+  ui->lstLabels->setContextMenuPolicy(Qt::CustomContextMenu);
 
   retranslateUi();
 
@@ -84,6 +85,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   connect(ui->modelsList, &QTreeView::pressed, this, &MdiChild::onItemSelected);
   connect(ui->modelsList->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MdiChild::onCurrentItemChanged);
   connect(QGuiApplication::clipboard(), &QClipboard::dataChanged, this, &MdiChild::updateNavigation);
+  connect(ui->lstLabels, &QTreeView::customContextMenuRequested, this, &MdiChild::showLabelsContextMenu);
 
   if (!(isMaximized() || isMinimized())) {
     QByteArray geo = g.mdiWinGeo();
@@ -446,6 +448,19 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
 
   if (!contextMenu.isEmpty())
     contextMenu.exec(ui->modelsList->mapToGlobal(pos));
+}
+
+void MdiChild::showLabelsContextMenu(const QPoint &pos)
+{
+  QMenu contextMenu;
+
+  updateNavigation();
+
+  contextMenu.addAction(action[ACT_LBL_ADD]);
+  contextMenu.addAction(action[ACT_LBL_DEL]);
+
+  if (!contextMenu.isEmpty())
+    contextMenu.exec(ui->lstLabels->mapToGlobal(pos));
 }
 
 void MdiChild::showContextMenu(const QPoint & pos)

@@ -156,7 +156,7 @@ bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
   YAML::Node node;
   foreach(QString label, radioData.labels) {
-    node["Labels"][label.toStdString()];
+    node["Labels"][label.toStdString()] = YAML::Null;
   }
   writeYamlToByteArray(node, data);
   return true;
