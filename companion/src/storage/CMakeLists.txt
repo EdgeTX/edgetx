@@ -10,7 +10,7 @@ set(storage_NAMES
   bineeprom
   eepe
   hexeeprom
-  categorized
+  labeled
   sdcard
   etx
   otx

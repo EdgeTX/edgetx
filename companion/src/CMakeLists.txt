@@ -211,6 +211,7 @@ set(companion_SRCS
   helpers_html.cpp
   mdichild.cpp
   modelslist.cpp
+  labels.cpp
   apppreferencesdialog.cpp
   fwpreferencesdialog.cpp
   burnconfigdialog.cpp
@@ -269,6 +270,7 @@ set(companion_MOC_HDRS
   modelprinter.h
   multimodelprinter.h
   modelslist.h
+  labels.h
   styleeditdialog.h
   helpers_html.h
   dialogs/filesyncdialog.h

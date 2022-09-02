@@ -331,6 +331,7 @@
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
 #define TR_LOADINGMODEL                "载入模型..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "名称"
 #define TR_MODELNAME                   "模型名称"
 #define TR_PHASENAME                   "模式名称"
@@ -626,13 +627,20 @@
 #define TR_VOLTAGE                     TR(INDENT "电压源", INDENT "电压来源")
 #define TR_CURRENT                     TR(INDENT "电流源", INDENT "电流来源")
 #define TR_SELECT_MODEL                "选择模型"
-#define TR_MODEL_CATEGORIES            "模型分类"
 #define TR_MODELS                      "个模型"
 #define TR_SELECT_MODE                 "选择模式"
-#define TR_CREATE_CATEGORY             "创建分类"
-#define TR_RENAME_CATEGORY             "分类改名"
-#define TR_DELETE_CATEGORY             "删除分类"
 #define TR_CREATE_MODEL                "创建模型"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "复制模型"
 #define TR_COPY_MODEL                  "复制模型"
 #define TR_MOVE_MODEL                  "移动模型"
@@ -640,7 +648,6 @@
 #define TR_DELETE_MODEL                "删除模型"
 #define TR_RESTORE_MODEL               "恢复模型"
 #define TR_DELETE_ERROR                "删除失败"
-#define TR_CAT_NOT_EMPTY               "分类未清空"
 #define TR_SDCARD_ERROR                TR("存储卡错误", "存储卡错误")
 #define TR_SDCARD                      "存储卡"
 #define TR_NO_FILES_ON_SD              "存储卡中没有文件!"
@@ -911,11 +918,8 @@
 #define TR_TRAINER                     "教练"
 #define TR_CHANS                       "通道"
 #define TR_ANTENNAPROBLEM              CENTER "发射机天线故障!"
-#if defined(COLORLCD)
-  #define TR_MODELIDUSED               "ID已使用:"
-#else
-  #define TR_MODELIDUSED               TR("ID已使用:","ID已使用:")
-#endif
+#define TR_MODELIDUSED                 "ID已使用:"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "模块"
 #define TR_RX_NAME                     "接收机名称"
 #define TR_TELEMETRY_TYPE              TR("类型", "回传类型")

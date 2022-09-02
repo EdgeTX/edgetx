@@ -743,6 +743,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   Node header;
   header["name"] = rhs.name;
   header["bitmap"] = rhs.bitmap;
+  header["labels"] = rhs.labels;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
@@ -986,6 +987,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     if (header.IsMap()) {
       header["name"] >> rhs.name;
       header["bitmap"] >> rhs.bitmap;
+      header["labels"] >> rhs.labels;
       header["modelId"] >> modelIds;
     }
   }

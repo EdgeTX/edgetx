@@ -20,17 +20,17 @@
 
 #pragma once
 
-#include "categorized.h"
+#include "labeled.h"
 
 #include <QtCore>
 
-class EtxFormat : public CategorizedStorageFormat
+class EtxFormat : public LabelsStorageFormat
 {
   Q_DECLARE_TR_FUNCTIONS(EtxFormat)
 
   public:
     EtxFormat(const QString & filename):
-      CategorizedStorageFormat(filename)
+      LabelsStorageFormat(filename)
     {
     }
 

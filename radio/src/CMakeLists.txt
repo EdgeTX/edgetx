@@ -46,6 +46,7 @@ option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
+option(DEBUG_LABELS "Turn on Labels traces" OFF)
 option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
 option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
@@ -210,11 +211,11 @@ if(LUA)
   if(LUA_MIXER)
     add_definitions(-DLUA_MODEL_SCRIPTS)
   endif()
-  
+
   # TODO: LUA CMAKE
-  set(SRC ${SRC} 
-    lua/interface.cpp 
-    lua/api_general.cpp 
+  set(SRC ${SRC}
+    lua/interface.cpp
+    lua/api_general.cpp
     lua/api_model.cpp
     lua/api_filesystem.cpp
     lua/lua_event.cpp
@@ -226,37 +227,37 @@ if(LUA)
     set(SRC ${SRC} lua/api_stdlcd.cpp)
   endif()
 
-  set(LUA_SRC 
-    lapi.c 
-    lcode.c 
-    lctype.c 
-    ldebug.c 
-    ldo.c 
-    ldump.c 
-    lfunc.c 
-    lgc.c 
-    llex.c 
-    lmem.c 
-    lobject.c 
-    lopcodes.c 
+  set(LUA_SRC
+    lapi.c
+    lcode.c
+    lctype.c
+    ldebug.c
+    ldo.c
+    ldump.c
+    lfunc.c
+    lgc.c
+    llex.c
+    lmem.c
+    lobject.c
+    lopcodes.c
     lparser.c
-    lstate.c 
-    lstring.c 
-    ltable.c 
-    lrotable.c 
-    ltm.c 
-    lundump.c 
-    lvm.c 
-    lzio.c 
+    lstate.c
+    lstring.c
+    ltable.c
+    lrotable.c
+    ltm.c
+    lundump.c
+    lvm.c
+    lzio.c
     linit.c
-    lbaselib.c 
-    lmathlib.c 
-    lbitlib.c 
-    loadlib.c 
-    lauxlib.c 
-    ltablib.c 
-    lcorolib.c 
-    liolib.c 
+    lbaselib.c
+    lmathlib.c
+    lbitlib.c
+    loadlib.c
+    lauxlib.c
+    ltablib.c
+    lcorolib.c
+    liolib.c
     lstrlib.c
   )
 
@@ -391,6 +392,10 @@ endif()
 
 if(DEBUG_YAML)
   add_definitions(-DDEBUG_YAML)
+endif()
+
+if(DEBUG_LABELS)
+  add_definitions(-DDEBUG_LABELS)
 endif()
 
 if(FRSKY_STICKS)

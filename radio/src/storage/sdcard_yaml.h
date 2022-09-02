@@ -22,6 +22,7 @@
 #pragma once
 
 enum class ChecksumResult {Success, Failed, None};
+#include "sdcard_common.h" // TODO CHECK REQUIRED
 
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 

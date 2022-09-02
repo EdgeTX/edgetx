@@ -45,11 +45,9 @@ ModelSetupPage::ModelSetupPage() :
 
 static void onModelNameChanged()
 {
-  modelslist.load();
   auto model = modelslist.getCurrentModel();
   if (model) {
     model->setModelName(g_model.header.name);
-    modelslist.save();
   }
   SET_DIRTY();
 }
@@ -232,6 +230,31 @@ void ModelSetupPage::build(FormWindow * window)
   auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   new ModelNameEdit(line, rect_t{});
+
+  // Model labels
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_LABELS, 0, COLOR_THEME_PRIMARY1);
+  auto curmod = modelslist.getCurrentModel();
+  labelTextButton =
+    new TextButton(line, rect_t{}, modelslabels.getLabelString(curmod ,STR_UNLABELEDMODEL), [=] () {
+       Menu *menu = new Menu(window, true);
+       menu->setTitle(STR_LABELS);
+       for (auto &label: modelslabels.getLabels()) {
+         menu->addLine(label,
+           [=] () {
+             if (!modelslabels.isLabelSelected(label, curmod))
+               modelslabels.addLabelToModel(label, curmod);
+             else
+               modelslabels.removeLabelFromModel(label, curmod);
+             labelTextButton->setText(modelslabels.getLabelString(curmod,STR_UNLABELEDMODEL));
+             strcpy(g_model.header.labels, modelslabels.getLabelString(curmod,STR_UNLABELEDMODEL).c_str());
+             SET_DIRTY();
+           }, [=] () {
+             return modelslabels.isLabelSelected(label, curmod);
+           });
+       }
+       return 0;
+     });
 
   // Bitmap
   line = window->newLine(&grid);

@@ -111,9 +111,9 @@ class ModelData {
 
     char      semver[8 + 1];
     bool      used;
-    int       category;
     char      name[15+1];
     char      filename[16+1];
+    char      labels[100];
     int       modelIndex;      // Companion only, temporary index position managed by data model.
 
     TimerData timers[CPN_MAX_TIMERS];

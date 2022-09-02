@@ -122,27 +122,6 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
     return NULL;
 }
 
-
-//
-// Generic storage interface
-//
-
-#if defined(STORAGE_MODELSLIST)
-void storageCreateModelsList()
-{
-    modelslist.clear();
-    ModelsCategory* cat = modelslist.createCategory(DEFAULT_CATEGORY, false);
-    ModelCell* model = nullptr;
-    if (g_eeGeneral.currModelFilename[0] != '\0') {
-      model = modelslist.addModel(cat, g_eeGeneral.currModelFilename, nullptr, false);
-    } else {
-      model = modelslist.addModel(cat, DEFAULT_MODEL_FILENAME, nullptr, false);
-    }
-    model->setModelName(g_model.header.name);
-    modelslist.save();
-}
-#endif
-
 //
 // SDCARD storage interface
 //
@@ -224,12 +203,16 @@ const char * loadRadioSettings()
 #endif
     }
 
+#if defined(DEFAULT_INTERNAL_MODULE)
+    g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
+#endif
+
     const char* error = loadRadioSettingsYaml();
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
     postRadioSettingsLoad();
-    
+
     return error;
 }
 
@@ -345,7 +328,7 @@ const char * writeGeneralSettings()
         return p;
     }
     f_unlink(RADIO_SETTINGS_YAML_PATH);
-  
+
     FRESULT result = f_rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);
     if(result != FR_OK)
         return SDCARD_ERROR(result);

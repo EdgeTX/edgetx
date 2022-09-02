@@ -18,14 +18,14 @@
  * GNU General Public License for more details.
  */
 
-#include "categorized.h"
+#include "labeled.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "miniz.c"    //  Can only be included once!
 
 #include <regex>
 
-bool CategorizedStorageFormat::load(RadioData & radioData)
+bool LabelsStorageFormat::load(RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
   if (st == STORAGE_TYPE_UNKNOWN) {
@@ -39,7 +39,7 @@ bool CategorizedStorageFormat::load(RadioData & radioData)
   }
 }
 
-bool CategorizedStorageFormat::write(const RadioData & radioData)
+bool LabelsStorageFormat::write(const RadioData & radioData)
 {
   StorageType st = getStorageType(filename);
   if (st == STORAGE_TYPE_ETX || st == STORAGE_TYPE_YML ||
@@ -50,7 +50,7 @@ bool CategorizedStorageFormat::write(const RadioData & radioData)
   return false;
 }
 
-StorageType CategorizedStorageFormat::probeFormat()
+StorageType LabelsStorageFormat::probeFormat()
 {
   if (QFile(filename + "/RADIO/radio.yml").exists()) // converted
     return getStorageType("radio.yml");
@@ -60,7 +60,7 @@ StorageType CategorizedStorageFormat::probeFormat()
     return getStorageType(filename);
 }
 
-bool CategorizedStorageFormat::loadBin(RadioData & radioData)
+bool LabelsStorageFormat::loadBin(RadioData & radioData)
 {
   QByteArray radioSettingsBuffer;
   if (!loadFile(radioSettingsBuffer, "RADIO/radio.bin")) {
@@ -82,24 +82,15 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
   }
 
   QList<QByteArray> lines = modelsListBuffer.split('\n');
-  int modelIndex = 0;
-  int categoryIndex = -1;
-  foreach (const QByteArray & lineArray, lines) {
-    QString line = QString(lineArray).trimmed();
-    if (line.isEmpty()) continue;
-    // qDebug() << "parsing line" << line;
+   int modelIndex = 0;
+   foreach (const QByteArray & lineArray, lines) {
+     QString line = QString(lineArray).trimmed();
+     if (line.isEmpty()) continue;
+     // qDebug() << "parsing line" << line;
 
-    if (line.startsWith('[') && line.endsWith(']')) {
-      // ignore categories for boards that do not support them
-      if (getCurrentFirmware()->getCapability(HasModelCategories)) {
-        QString name = line.mid(1, line.size() - 2);
-        CategoryData category(qPrintable(name));
-        radioData.categories.push_back(category);
-        categoryIndex++;
-        qDebug() << "added category" << name;
-      }
-      continue;
-    }
+     if (line.startsWith('[') && line.endsWith(']')) {
+       continue;
+     }
 
     // determine if we have a model number
     QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
@@ -136,9 +127,6 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
         radioData.generalSettings.currModelIndex = modelIndex;
         qDebug() << "currModelIndex =" << modelIndex;
       }
-      if (getCurrentFirmware()->getCapability(HasModelCategories)) {
-        radioData.models[modelIndex].category = categoryIndex;
-      }
       radioData.models[modelIndex].used = true;
       modelIndex++;
       continue;
@@ -152,12 +140,11 @@ bool CategorizedStorageFormat::loadBin(RadioData & radioData)
   return true;
 }
 
-bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
+bool LabelsStorageFormat::writeBin(const RadioData & radioData)
 {
-  QByteArray modelsList;   // models.txt
   QByteArray radioSettingsData; // radio.bin
   size_t numModels = radioData.models.size();
-  size_t numCategories = radioData.categories.size();
+  size_t numCategories = radioData.labels.size();
   std::vector<std::vector<QString>> sortedModels(numCategories);
 
   writeRadioSettingsToByteArray(radioData.generalSettings, radioSettingsData);
@@ -175,41 +162,12 @@ bool CategorizedStorageFormat::writeBin(const RadioData & radioData)
     if (!writeFile(modelData, modelFilename)) {
       return false;
     }
-
-    // For firmware that doesn't support categories, we can just construct
-    // models.txt as we iterate thru the models vector. For firmware that does
-    // support categories, we have a bit of work to do in order to sort the
-    // models first by category index, so we use the sortedModels data
-    // structure to do that.
-    if (!getCurrentFirmware()->getCapability(HasModelCategories)) {
-      // Use format with model number and file name. This is needed because
-      // radios without category support can have unused model slots
-      modelsList.append(QString("%1 %2\n").arg(m).arg(model.filename).toLocal8Bit());
-    } else {
-      sortedModels[model.category].push_back(QString("%1\n").arg(model.filename));
-    }
-  }
-
-  if (getCurrentFirmware()->getCapability(HasModelCategories)) {
-    for (size_t c=0; c<numCategories; c++) {
-      modelsList.append(QString()
-                            .sprintf("[%s]\n", radioData.categories[c].name)
-                            .toLocal8Bit());
-      numModels = sortedModels[c].size();
-      for (size_t m=0; m<numModels; m++) {
-        modelsList.append(sortedModels[c][m].toLocal8Bit());
-      }
-    }
-  }
-
-  if (!writeFile(modelsList, "RADIO/models.txt")) {
-    return false;
   }
 
   return true;
 }
 
-bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
+bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 {
   if (getStorageType(filename) == STORAGE_TYPE_UNKNOWN && probeFormat() == STORAGE_TYPE_ETX) {
     if (!QFile(filename + "/" + "RADIO/radio.yml").exists())
@@ -250,43 +208,23 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
   // get models
   EtxModelfiles modelFiles;
 
-  QByteArray modelslistBuffer;
-  if (loadFile(modelslistBuffer, "MODELS/models.yml")) {
+  // Labels - Read the labels from labels.yml file
+  //        - Always scan for /MODELS/modelXX.yml
+  //        - Update possible labels with all found in models too
+
+  QByteArray labelslistBuffer;
+  if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
-      if (!loadModelsListFromYaml(radioData.categories, modelFiles, modelslistBuffer)) {
-        setError(tr("Cannot load MODELS/models.yml"));
-        return false;
+      if (!loadLabelsListFromYaml(radioData.labels, modelFiles, labelslistBuffer)) {
+        setError(tr("Can't load MODELS/labels.yml"));
       }
     } catch(const std::runtime_error& e) {
-      setError(tr("Cannot load MODELS/models.yml") + ":\n" + QString(e.what()));
-      //return false;
-
-      //TODO: fall back to directory scan
-      std::list<std::string> filelist;
-      if (!getFileList(filelist)) {
-        return false;
-      }
-
-      // push default category
-      radioData.categories.push_back("Models");
-
-      const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
-      for(const auto& f : filelist) {
-        std::smatch match;
-        if (std::regex_match(f, match, yml_regex)) {
-          if (match.size() == 3) {
-            std::ssub_match modelFile = match[1];
-            std::ssub_match modelIdx = match[2];
-            modelFiles.push_back({ modelFile.str(), "", 0, std::stoi(modelIdx.str()) });
-          }
-        }
-      }
+      setError(tr("Can't load MODELS/labels.yml") + ":\n" + QString(e.what()));
     }
-  } else {
-    // fetch "MODELS/modelXX.yml"
+
+    // Scan for all models
     std::list<std::string> filelist;
     if (!getFileList(filelist)) {
-      setError(tr("Cannot list files"));
       return false;
     }
 
@@ -297,18 +235,18 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
         if (match.size() == 3) {
           std::ssub_match modelFile = match[1];
           std::ssub_match modelIdx = match[2];
-          modelFiles.push_back({ modelFile.str(), "", 0, std::stoi(modelIdx.str()) });
+             modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
         }
       }
     }
   }
 
   int modelIdx = 0;
-  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+  bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
   radioData.models.resize(modelFiles.size());
   for (const auto& mc : modelFiles) {
-    qDebug() << "Filename: " << mc.filename.c_str() << " / Category: " << mc.category;
+    qDebug() << "Filename: " << mc.filename.c_str();
 
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
@@ -332,24 +270,34 @@ bool CategorizedStorageFormat::loadYaml(RadioData & radioData)
       return false;
     }
 
-    model.category = mc.category;
     model.modelIndex = modelIdx;
     strncpy(model.filename, mc.filename.c_str(), sizeof(model.filename)-1);
 
-    if (hasCategories && !strncmp(radioData.generalSettings.currModelFilename,
+    if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
                                   model.filename, sizeof(model.filename))) {
-      radioData.generalSettings.currModelIndex = modelIdx;
-      qDebug() << "currModelIndex =" << modelIdx;
+      radioData.generalSettings.currModelIndex = modelIdx;      
+    }
+
+    if (hasLabels) {
+      QStringList labels = QString(model.labels).split(',',QString::SkipEmptyParts);
+      foreach(QString label, labels) {
+        radioData.addLabel(label);
+      }
     }
 
     model.used = true;
     modelIdx++;
   }
 
+  // If no labels, add a Favorites
+  if(hasLabels && !radioData.labels.size()) {
+    radioData.labels.append(tr("Favorites"));
+  }
+
   return true;
 }
 
-bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
+bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
 {
   QByteArray radioSettingsBuffer;
   if (!writeRadioSettingsToYaml(radioData.generalSettings, radioSettingsBuffer)) {
@@ -360,12 +308,12 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     return false;
   }
 
-  bool hasCategories = getCurrentFirmware()->getCapability(HasModelCategories);
+  bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
   //  B&W radios do not use the models.yml file and scan the MODELS folder for modelxx.yml files
   //  models have been deleted or reordered in Companion so delete all old modelxx.yml and just in case models.yml files
   //  from radio MODELS folder before writing new modelxx.yml files
-  if (!hasCategories) {
+  if (!hasLabels) {
     // fetch "MODELS/modelXX.yml"
     std::list<std::string> filelist;
     if (!getFileList(filelist)) {
@@ -393,12 +341,12 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
       continue;
 
     QString modelFilename;
-    if (hasCategories) {
+    if (hasLabels) {
       std::string ymlFilename = patchFilenameToYaml(model.filename);
       modelFilename =
           QString("MODELS/%1").arg(QString::fromStdString(ymlFilename));
       modelFiles.push_back(
-          {ymlFilename, std::string(model.name), model.category});
+          {ymlFilename, std::string(model.name)});
     } else {
       modelFilename = QString("MODELS/model%1.yml")
                           .arg(model.modelIndex, 2, 10, QLatin1Char('0'));
@@ -411,11 +359,10 @@ bool CategorizedStorageFormat::writeYaml(const RadioData & radioData)
     }
   }
 
-  if (hasCategories) {
-    // TODO: sort 'modelFiles' by category index
-    QByteArray modelslistBuffer;
-    if (!writeModelsListToYaml(radioData.categories, modelFiles, modelslistBuffer)
-        || !writeFile(modelslistBuffer, "MODELS/models.yml")) {
+  if (hasLabels) {
+    QByteArray labelsListBuffer;
+    if (!writeLabelsListToYaml(radioData, labelsListBuffer)
+        || !writeFile(labelsListBuffer, "MODELS/labels.yml")) {
       return false;
     }
   }
