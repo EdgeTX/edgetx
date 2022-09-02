@@ -28,7 +28,7 @@
 
 #include <cstring>
 
-#ifdef DEBUG_LABELS_YAML
+#ifdef DEBUG_LABELS
 #define TRACE_LABELS_YAML(...) TRACE(__VA_ARGS__)
 #else
 #define TRACE_LABELS_YAML(...)
@@ -46,6 +46,7 @@ struct labelslist_iter
         LabelsRoot=4,
         LabelName=5,
         LabelData=6,
+        SortRoot=7,
     };
 
     ModelCell   *curmodel;
@@ -78,9 +79,9 @@ static bool to_parent(void* ctx)
     if (mi->level == labelslist_iter::Root)
         return false;
 
-    if(mi->level == labelslist_iter::LabelName) {
-      TRACE_LABELS_YAML("Forced Models Root");
-      mi->level = labelslist_iter::ModelsRoot;
+    if(mi->level == labelslist_iter::ModelName ||
+       mi->level == labelslist_iter::LabelName) {
+      mi->level = labelslist_iter::Root;
     }
     else
       mi->level--;
@@ -133,6 +134,12 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"models") == 0) {
       TRACE_LABELS_YAML("Forced root");
       mi->level = labelslist_iter::ModelsRoot;
+      TRACE_LABELS_YAML("YAML New Level %u", mi->level);
+    }
+
+    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"sort") == 0) {
+      TRACE_LABELS_YAML("Forced root");
+      mi->level = labelslist_iter::SortRoot;
       TRACE_LABELS_YAML("YAML New Level %u", mi->level);
     }
 
@@ -244,25 +251,23 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
         snprintf(cmp, sizeof(cmp), MODULE_ID_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->modelId[i] = atoi(value);
+          mi->curmodel->modelId[i] = strtol(value,NULL,10);
           TRACE_LABELS_YAML("Set the module %d rfId to %s", i, value);
         }
         snprintf(cmp, sizeof(cmp), MODULE_TYPE_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->moduleData[i].type = atoi(value);
+          mi->curmodel->moduleData[i].type = strtol(value,NULL,10);
           TRACE_LABELS_YAML("Set the module %d rfType to %s", i, value);
         }
         snprintf(cmp, sizeof(cmp), MODULE_RFPROTOCOL_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->moduleData[i].subType = atoi(value);
+          mi->curmodel->moduleData[i].subType = strtol(value,NULL,10);
           TRACE_LABELS_YAML("Set the module %d rfProtocol to %s", i, value);
         }
-
       }
     }
-
 
   // Label Section
   } else if(mi->level == labelslist_iter::LabelData) {
@@ -273,6 +278,12 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
       TRACE("FOUND %s Label is selected", mi->current_label);
       modelslabels.addFilteredLabel(mi->current_label);
     }
+
+  // Sort Order
+  } else if (mi->level == labelslist_iter::SortRoot)  {
+    TRACE("Sort Order Found -- %s", mi->current_attr);
+    mi->level = labelslist_iter::Root;
+    modelslabels.setSortOrder((ModelsSortBy)strtol(value,NULL,10));
   }
 }
 

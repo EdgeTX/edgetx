@@ -127,14 +127,14 @@ void ModelCell::setRfModuleData(uint8_t moduleIdx, ModuleData *modData)
  * @return ModelsVector vector<ModelCell>
  */
 
-ModelsVector ModelMap::getUnlabeledModels(ModelsSortBy sortby)
+ModelsVector ModelMap::getUnlabeledModels()
 {
   ModelsVector unlabeledModels;
   for (auto model : modelslist) {
     if (modelslabels.getLabelsByModel(model).size() == 0)
       unlabeledModels.emplace_back(model);
   }
-  sortModelsBy(unlabeledModels, sortby);
+  sortModelsBy(unlabeledModels, _sortOrder);
   return unlabeledModels;
 }
 
@@ -142,10 +142,10 @@ ModelsVector ModelMap::getUnlabeledModels(ModelsSortBy sortby)
  * @brief Returns a sorted list of all models
  */
 
-ModelsVector ModelMap::getAllModels(ModelsSortBy sortby)
+ModelsVector ModelMap::getAllModels()
 {
   ModelsVector all = modelslist;
-  sortModelsBy(all, sortby);
+  sortModelsBy(all, _sortOrder);
   return all;
 }
 
@@ -157,8 +157,7 @@ ModelsVector ModelMap::getAllModels(ModelsSortBy sortby)
  * label
  */
 
-ModelsVector ModelMap::getModelsByLabel(const std::string &lbl,
-                                        ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsByLabel(const std::string &lbl)
 {
   int index = getIndexByLabel(lbl);
   if (index < 0) return ModelsVector();
@@ -166,7 +165,7 @@ ModelsVector ModelMap::getModelsByLabel(const std::string &lbl,
   for (auto it = begin(); it != end(); ++it) {
     if (it->first == index) rv.push_back(it->second);
   }
-  sortModelsBy(rv, sortby);
+  sortModelsBy(rv, _sortOrder);
   return rv;
 }
 
@@ -178,8 +177,7 @@ ModelsVector ModelMap::getModelsByLabel(const std::string &lbl,
  * label
  */
 
-ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls,
-                                         ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls)
 {
   bool addunlabeled = false;
   // Build a list of the requested indexes
@@ -202,7 +200,7 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls,
     rv.insert(rv.end(), unlabeled.begin(), unlabeled.end());
   }
 
-  sortModelsBy(rv, sortby);
+  sortModelsBy(rv, _sortOrder);
   return rv;
 }
 
@@ -214,14 +212,13 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls,
  * label
  */
 
-ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls,
-                                         ModelsSortBy sortby)
+ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls)
 {
   if (lbls.size() == 0) return ModelsVector();
 
   // Requesting only Unlabeled models
   if (lbls.size() == 1 && lbls.at(0) == STR_UNLABELEDMODEL)
-    return getUnlabeledModels(sortby);
+    return getUnlabeledModels();
 
   ModelsVector rv;
 
@@ -240,7 +237,7 @@ ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls,
     if (hasAllLabels) rv.push_back(mdl);
   }
 
-  sortModelsBy(rv, sortby);
+  sortModelsBy(rv, _sortOrder);
   return rv;
 }
 
@@ -324,17 +321,20 @@ LabelsVector ModelMap::getLabels()
  * @details  Checks if the label already exists. If it does it returns the
  *           index to it. If label doesn't exist it adds it at the end of the
  *           list and returns the new index
- *           Won't allow creation of the special case label "Unlabeled"
- * STR_UNLABELEDMODEL
+ *           Won't allow creation of the special case label "Unlabeled" STR_UNLABELEDMODEL
+ *           All commas(',') are replaced with underscore('_')
  *
  * @param lbl Adds a label to the list
  * @return int -1 on failure, label index on success
  */
 
-int ModelMap::addLabel(const std::string &lbl)
+int ModelMap::addLabel(std::string lbl)
 {
   if (lbl.size() == 0) return -1;
   if (lbl == STR_UNLABELEDMODEL) return -1;
+
+  // Remove any commas
+  std::replace(lbl.begin(), lbl.end(), ',', '_');
 
   // Add a new label if if doesn't already exist in the list
   // Returns the index to the label
@@ -398,6 +398,14 @@ bool ModelMap::isLabelFiltered(const std::string &lbl)
 {
   if (filtlbls.find(getIndexByLabel(lbl)) != filtlbls.end()) return true;
   return false;
+}
+
+void ModelMap::setSortOrder(ModelsSortBy sortby)
+{
+  if(sortby < SORT_COUNT && sortby >= NO_SORT) {
+    _sortOrder = sortby;
+    setDirty();
+  }
 }
 
 /**
@@ -1059,6 +1067,9 @@ const char *ModelsList::save(LabelsVector newOrder)
       f_printf(&file, "    selected: true\r\n", lbl.c_str());
   }
 
+  // Save current sort order
+  f_printf( &file, "Sort: %d\r\n", modelslabels.sortOrder());
+
   f_puts("Models:\r\n", &file);
   for (auto &model : modelslist) {
     f_puts("  ", &file);
@@ -1073,7 +1084,6 @@ const char *ModelsList::save(LabelsVector newOrder)
     f_puts(model->modelName, &file);
     f_puts("\"\r\n", &file);
 
-    // TODO Maybe make sub-items instead.
     for (int i = 0; i < NUM_MODULES; i++) {
       if (model->modelId[i])
         f_printf(&file, "    " MODULE_ID_STR ": %u\r\n", i,

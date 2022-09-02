@@ -217,7 +217,7 @@ void ModuleWindow::updateModule()
     // Is Reciever ID Unique
     if(isModuleModelIndexAvailable(moduleIdx)) {
       auto line = newLine(&grid);
-      new StaticText(line, rect_t{},""); // TODO?? must be a better way
+      new StaticText(line, rect_t{},"");
       auto box = new FormGroup(line, rect_t{});
       box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
       idUnique = new StaticText(box, rect_t{}, "", 0, 0);
@@ -238,7 +238,6 @@ void ModuleWindow::updateModule()
                               *modelId = newValue;
                               modelslist.updateCurrentModelCell();
                               updateIDStaticText(moduleIdx);
-                              lv_refr_now(nullptr);
 #if defined(CROSSFIRE)
                               if (isModuleCrossfire(moduleIdx)) {
                                 moduleState[moduleIdx].counter =

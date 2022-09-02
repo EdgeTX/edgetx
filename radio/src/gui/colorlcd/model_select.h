@@ -48,7 +48,7 @@ class ModelsPageBody : public FormWindow
 
   inline void setSortOrder(ModelsSortBy sortOrder)
   {
-    _sortOrder = sortOrder;
+    modelslabels.setSortOrder(sortOrder);
     update();
   }
 

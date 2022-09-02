@@ -105,6 +105,7 @@ typedef enum {
   NAME_DES,
   DATE_ASC,
   DATE_DES,
+  SORT_COUNT
 } ModelsSortBy;
 
 /**
@@ -115,19 +116,16 @@ typedef enum {
 class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 {
  public:
-  ModelsVector getUnlabeledModels(ModelsSortBy sortby = DEFAULT_MODEL_SORT);
-  ModelsVector getAllModels(ModelsSortBy sortby = DEFAULT_MODEL_SORT);
-  ModelsVector getModelsByLabel(const std::string &,
-                                ModelsSortBy sortby = DEFAULT_MODEL_SORT);
-  ModelsVector getModelsByLabels(const LabelsVector &,
-                                 ModelsSortBy sortby = DEFAULT_MODEL_SORT);
-  ModelsVector getModelsInLabels(const LabelsVector &lbls,
-                                 ModelsSortBy sortby = DEFAULT_MODEL_SORT);
+  ModelsVector getUnlabeledModels();
+  ModelsVector getAllModels();
+  ModelsVector getModelsByLabel(const std::string &);
+  ModelsVector getModelsByLabels(const LabelsVector &);
+  ModelsVector getModelsInLabels(const LabelsVector &lbls);
   LabelsVector getLabelsByModel(ModelCell *);
   std::map<std::string, bool> getSelectedLabels(ModelCell *);
   bool isLabelSelected(const std::string &, ModelCell *);
   LabelsVector getLabels();
-  int addLabel(const std::string &);
+  int addLabel(std::string lbl);
   bool addLabelToModel(const std::string &, ModelCell *, bool update = false);
   bool removeLabelFromModel(const std::string &label, ModelCell *,
                             bool update = false);
@@ -157,7 +155,15 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   bool isLabelFiltered(const std::string &lbl);
   std::set<uint32_t> filteredLabels() { return filtlbls; }
 
+  void setSortOrder(ModelsSortBy sortby);
+  ModelsSortBy sortOrder() {return _sortOrder;}
+
  protected:
+  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
+  bool _isDirty = true;
+  std::set<uint32_t> filtlbls;
+  std::string currentlabel = "";
+
   void updateModelCell(ModelCell *);
   bool removeModels(
       ModelCell *);  // Should only be called from ModelsList remove model
@@ -170,11 +176,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     labels.clear();
     std::multimap<uint16_t, ModelCell *>::clear();
   }
-
- protected:
-  bool _isDirty = true;
-  std::set<uint32_t> filtlbls;
-  std::string currentlabel = "";
 
   int getIndexByLabel(const std::string &str)
   {

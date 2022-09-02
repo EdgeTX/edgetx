@@ -57,25 +57,21 @@ inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 constexpr coord_t MODEL_CELL_PADDING = 6;
 constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
-
-#if LCD_W > LCD_H
+constexpr int BUTTONS_HEIGHT = 30;
 constexpr int MODEL_CELLS_PER_LINE = 2;
+
+#if LCD_W > LCD_H // Landscape
 constexpr LcdFlags textFont = FONT(STD);
-constexpr int labelWidth = 150;
 constexpr int LABELS_WIDTH = 132;
 constexpr int LAY_MARGIN = 5;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LABELS_WIDTH -
      (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
-
-#else
-constexpr int MODEL_CELLS_PER_LINE = 2;
+#else // Portrait
 constexpr LcdFlags textFont = FONT(XS);
 constexpr int LAY_MARGIN = 8;
 constexpr int LABELS_HEIGHT = 140;
-constexpr int BUTTONS_HEIGHT = 30;
-
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LAY_MARGIN - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
@@ -317,10 +313,6 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
   padRow(MODEL_CELL_PADDING);
-#if LCD_W > LCD_H
-  padAll(MODEL_CELL_PADDING);
-#endif
-
   update();
 }
 
@@ -429,9 +421,9 @@ void ModelsPageBody::update(int selected)
 
   ModelsVector models;
   if (selectedLabels.size()) {
-    models = modelslabels.getModelsInLabels(selectedLabels, _sortOrder);
+    models = modelslabels.getModelsInLabels(selectedLabels);
   } else {
-    models = modelslabels.getAllModels(_sortOrder);
+    models = modelslabels.getAllModels();
   }
 
   for (auto &model : models) {
@@ -592,7 +584,7 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
 
 #if LCD_W > LCD_H
 static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LABELS_HEIGHT, LV_GRID_FR(1), BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
@@ -609,51 +601,39 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
 
-#if LCD_W > LCD_H
-  // Labels + sorting buttons - Left
-  auto box = new Window(window, rect_t{});
-
-  box->padAll(lv_dpx(8));
-  box->padRight(0);
-  lblselector = new ListBox(box, rect_t{}, getLabels());
-  auto btnh = new ButtonHolder(box, rect_t{});
-
-  auto box_obj = box->getLvObj();
-  lv_obj_set_width(box_obj, lv_pct(100));
-  lv_obj_set_height(box_obj, lv_pct(100));
-  lv_obj_set_grid_cell(box_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
-
-  lv_obj_update_layout(box_obj);
-  auto box_cw = lv_obj_get_content_width(box_obj);
-
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
-  lblselector->setColumnWidth(0, box_cw);
-
-#else
-
-  // Labels at top
+  // Labels
   lblselector = new ListBox(window, rect_t{}, getLabels());
   auto lbl_obj = lblselector->getLvObj();
 
-  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                                LV_GRID_ALIGN_STRETCH, 0, 1);
-
-  // Models in middle
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
-  lv_obj_set_width(mdl_obj, lv_pct(100));
-
-  // Sort buttons at bottom
+  // Sort Buttons
   auto btnh = new ButtonHolder(window, rect_t{});
   auto buth_obj = btnh->getLvObj();
-  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+
+  // Labels top left
+  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
   window->padAll(LAY_MARGIN);
   window->padRow(LAY_MARGIN);
+  window->padColumn(LAY_MARGIN);
+
+#if LCD_W > LCD_H
+  // Buttons bottom left
+  // Models right
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 2);
+  lv_obj_set_width(mdl_obj, lv_pct(100));
+  window->padRight(0);
+  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+#else
+  // Models middle
+  // Buttons bottom
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_width(mdl_obj, lv_pct(100));
+
+  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+#endif
 
   lv_obj_update_layout(mdl_obj);
   lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
-
-#endif
 
   btnh->setPressHandler([=](int index, ButtonHolder::ButtonInfo *button) {
         if (index == 0) {  // alpha
@@ -665,12 +645,14 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         mdlselector->setSortOrder(sort);
       });
 
-  lv_obj_align(btnh->getLvObj(), LV_ALIGN_BOTTOM_LEFT, 0, 0);
+  //lv_obj_align(btnh->getLvObj(), LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
 
   lblselector->setMultiSelect(true);
   lblselector->setSelected(modelslabels.filteredLabels());
   updateFilteredLabels(modelslabels.filteredLabels(), false);
+  lv_obj_set_scrollbar_mode(lbl_obj, LV_SCROLLBAR_MODE_AUTO);
+  lv_obj_set_scrollbar_mode(mdl_obj, LV_SCROLLBAR_MODE_AUTO);
 
   lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,
                                          std::set<uint32_t> oldselection) {
