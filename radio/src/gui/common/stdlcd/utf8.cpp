@@ -56,6 +56,10 @@ static wchar_t _utf8_lut[] = {
   L'ż', L'ź', L'Ą', L'Ć', L'Ę', L'Ł', L'Ń',
   L'Ó', L'Ś', L'Ż', L'Ź',
 };
+#elif defined(TRANSLATIONS_SE)
+static wchar_t _utf8_lut[] = {
+  L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
+};
 #else
   #define NO_UTF8_LUT
 #endif
