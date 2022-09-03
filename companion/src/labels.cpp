@@ -36,12 +36,11 @@ Qt::ItemFlags LabelsModel::flags(const QModelIndex &index) const
 bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
   if(!index.isValid() || index.column() != 0 ||
-     index.row() >= radioData->labels.size() ||
-     selectedModel == -1)
+     index.row() >= radioData->labels.size())
     return false;
 
   if(role == Qt::CheckStateRole) {
-    if(value==Qt::Unchecked) {
+    if(value==Qt::Unchecked && selectedModel != -1) {
       if(radioData->removeLabelFromModel(selectedModel, radioData->labels.at(index.row())))
         emit modelChanged(selectedModel);
     } else {
@@ -52,12 +51,15 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
                      this->index(index.row(), 0));
     return true;
   } else if(role == Qt::EditRole) {
-    // Don't allow comma, replace with _
-    if(radioData->renameLabel(index.row(),value.toString().replace(',','_'))) {
-      labels[index.row()].label = value.toString().replace(',','_');
+    QString replFrom = labels[index.row()].label;
+    QString replTo = value.toString().replace(',','_'); // Don't allow comma, replace with _
+    if(radioData->labels.indexOf(replTo) == -1) { // Don't allow duplicates
+      bool modelsChanged = radioData->renameLabel(replFrom,replTo);
+      labels[index.row()].label = replTo;
       emit dataChanged(this->index(index.row(), 0),
                        this->index(index.row(), 0));
-      emit modelChanged(selectedModel);
+      if(selectedModel != -1 && modelsChanged)
+        emit modelChanged(selectedModel);
     }
     return true;
   }
@@ -66,7 +68,6 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 QVariant LabelsModel::data(const QModelIndex &index, int role) const
 {
- // if(index.row() >= radioData->labels.size() || !index.isValid() )
   if(index.row() >= labels.size() || !index.isValid() )
     return QVariant();
 
@@ -78,11 +79,12 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
         //return label;
     }
   } else if (role == Qt::CheckStateRole) {
-      if(index.column() == 0 && selectedModel >= 0 &&
-         selectedModel < (int)radioData->models.size()) {
-        return QString(radioData->models.at(selectedModel).labels).contains(label)?Qt::Checked:Qt::Unchecked;
-      }
+    if(index.column() == 0 && selectedModel >= 0 &&
+      selectedModel < (int)radioData->models.size()) {
+      QStringList modelLabels = QString(radioData->models.at(selectedModel).labels).split(',',QString::SkipEmptyParts);
+      return modelLabels.indexOf(label)==-1?Qt::Unchecked:Qt::Checked;
     }
+  }
   return QVariant();
 }
 
@@ -103,8 +105,7 @@ QModelIndex LabelsModel::parent(const QModelIndex &index) const
 
 int LabelsModel::rowCount(const QModelIndex &parent) const
 {
-  Q_UNUSED(parent);
-  //return radioData->labels.size();
+  Q_UNUSED(parent);  
   return labels.size();
 }
 
@@ -218,7 +219,7 @@ bool LabelsModel::insertRows(int row, int count, const QModelIndex &parent)
       if(newno == 0)
         newstr = QString(tr("New"));
       newno++;
-    } while(radioData->labels.contains(newstr));
+    } while(radioData->labels.indexOf(newstr) >= 0);
     // Add it to radioData
     radioData->labels.insert(row+i, newstr);
   }
