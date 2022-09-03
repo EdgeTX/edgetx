@@ -918,7 +918,8 @@
 #define TR_TRAINER             		   "DSC Buchse PPM In/Out"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM     		   CENTER "TX-Antennenproblem!"
-#define TR_MODELIDUSED                 "ID used in:"#define TR_MODELIDUNIQUE               "ID is unique"
+#define TR_MODELIDUSED                 "ID used in:"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE             		   "Modul-Typ"
 #define TR_RX_NAME                     "Rx Name"
 #define TR_TELEMETRY_TYPE      		   TR("Typ", "Telemetrietyp")
