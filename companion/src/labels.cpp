@@ -228,7 +228,7 @@ bool LabelsModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool LabelsModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-  if (parent.isValid())
+  if (parent.isValid() || row < 0)
        return false;
   bool deleted=false;
   beginRemoveRows(parent, row, row + count - 1);

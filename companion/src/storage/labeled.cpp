@@ -137,6 +137,11 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
     qDebug() << "Invalid line" <<line;
     continue;
   }
+
+  // Add a Favorites label
+  if(getCurrentFirmware()->getCapability(HasModelLabels)) {
+   radioData.labels.append(tr("Favorites"));
+  }
   return true;
 }
 
@@ -221,22 +226,22 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
     } catch(const std::runtime_error& e) {
       setError(tr("Can't load MODELS/labels.yml") + ":\n" + QString(e.what()));
     }
+  }
 
-    // Scan for all models
-    std::list<std::string> filelist;
-    if (!getFileList(filelist)) {
-      return false;
-    }
+  // Scan for all models
+  std::list<std::string> filelist;
+  if (!getFileList(filelist)) {
+    return false;
+  }
 
-    const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
-    for(const auto& f : filelist) {
-      std::smatch match;
-      if (std::regex_match(f, match, yml_regex)) {
-        if (match.size() == 3) {
-          std::ssub_match modelFile = match[1];
-          std::ssub_match modelIdx = match[2];
-             modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
-        }
+  const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
+  for(const auto& f : filelist) {
+    std::smatch match;
+    if (std::regex_match(f, match, yml_regex)) {
+      if (match.size() == 3) {
+        std::ssub_match modelFile = match[1];
+        std::ssub_match modelIdx = match[2];
+           modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
       }
     }
   }
