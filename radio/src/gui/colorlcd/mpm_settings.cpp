@@ -113,8 +113,8 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
     edit->setGetValueHandler(GET_DEFAULT(50 + 5 * md->multi.optionValue));
     edit->setSetValueHandler(SET_VALUE(md->multi.optionValue, (newValue - 50) / 5));
     edit->setStep(5);
+    edit->update();
     lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_event_send(edit->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else if (rfProto->proto == MODULE_SUBTYPE_MULTI_DSM2) {
     cb->setGetValueHandler([=]() { return md->multi.optionValue & 0x01; });
     cb->setSetValueHandler([=](int8_t newValue) {
@@ -135,7 +135,7 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
       edit->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       edit->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      lv_event_send(edit->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+      edit->update();
       if (title == STR_MULTI_RFTUNE)
         lv_obj_clear_flag(rssi->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
