@@ -11,7 +11,6 @@ class RadioData;
 
 typedef struct {
   QString label;
-  QModelIndex index;
   int radioLabelIndex;
 } LabelItem;
 
