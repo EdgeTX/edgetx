@@ -37,8 +37,10 @@ public:
   bool insertRows(int row, int count, const QModelIndex &parent) override;
   bool removeRows(int row, int count, const QModelIndex &parent) override;
 
-private slots:
+public slots:
   void buildLabelsList();
+
+private slots:
   void modelsSelectionChanged();
 
 signals:

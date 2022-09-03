@@ -576,19 +576,6 @@ void MdiChild::onCurrentItemChanged(const QModelIndex &, const QModelIndex &)
 void MdiChild::onDataChanged(const QModelIndex & index)
 {
   return;
-
-  // TODO ***
-  /*if (!modelsListModel->isCategoryType(index))
-    return;
-
-  int categoryIndex = modelsListModel->getCategoryIndex(index);
-  if (categoryIndex < 0 || categoryIndex >= (int)radioData.categories.size()) {
-    return;
-  }
-  strcpy(radioData.categories[categoryIndex].name, modelsListModel->data(index, 0).toString().left(sizeof(CategoryData::name)-1).toStdString().c_str());
-
-  setWindowModified(true);
-  emit modified();*/
 }
 
 /*
@@ -599,37 +586,6 @@ QModelIndex MdiChild::getCurrentIndex() const
 {
   return ui->modelsList->selectionModel()->currentIndex();
 }
-
-/*int MdiChild::getCurrentCategory() const
-{
-  return modelsListModel->getCategoryIndex(getCurrentIndex());
-}
-
-int MdiChild::countSelectedCats() const
-{
-  int ret = 0;
-
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
-    if (index.isValid() && modelsListModel->isCategoryType(index))
-      ++ret;
-  }
-  return ret;
-}
-
-bool MdiChild::hasSelectedCat()
-{
-  return modelsListModel->isCategoryType(getCurrentIndex());
-}
-
-QVector<int> MdiChild::getSelectedCategories() const
-{
-  QVector<int> cats;
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
-    if (index.isValid() && modelsListModel->isCategoryType(index))
-      cats.append(modelsListModel->getCategoryIndex(index));
-  }
-  return cats;
-}*/
 
 int MdiChild::getCurrentModel() const
 {
@@ -857,7 +813,7 @@ int MdiChild::modelAppend(const ModelData model)
   return newIdx;
 }
 
-int MdiChild::newModel(int modelIndex, int categoryIndex)
+int MdiChild::newModel(int modelIndex)
 {
   if (modelIndex < 0)
     modelIndex = modelAppend(ModelData());
@@ -866,9 +822,6 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
     showWarning(tr("Cannot add model, could not find an available model slot."));
     return -1;
   }
-
-  if (categoryIndex < 0)
-    categoryIndex = modelsListModel->getCategoryIndex(getCurrentIndex());
 
   bool isNewModel = radioData.models[modelIndex].isEmpty();
   checkAndInitModel(modelIndex);
@@ -946,33 +899,7 @@ void MdiChild::deleteSelectedModels()
   deleteModels(getSelectedModels());
 }
 
-/*
-void MdiChild::moveModelsToCategory(const QVector<int> models, const int toCategoryId)
-{
-  if (toCategoryId < 0 || !models.size())
-    return;
-
-  bool modified = false;
-  //QVector<int> models = getSelectedModels();
-  foreach(const int model, models) {
-    if (model < 0 || model >= (int)radioData.models.size())
-      continue;
-
-    if (radioData.models[model].category != toCategoryId) {
-      radioData.models[model].category = toCategoryId;
-      modified = true;
-    }
-  }
-  if (modified)
-    setModified();
-}
-
-void MdiChild::moveSelectedModelsToCat(const int toCategoryId)
-{
-  moveModelsToCategory(getSelectedModels(), toCategoryId);
-}*/
-
-unsigned MdiChild::countUsedModels(const int categoryId)
+unsigned MdiChild::countUsedModels()
 {
   unsigned count = 0;
   for (unsigned i=0; i < radioData.models.size(); ++i) {
@@ -1226,18 +1153,6 @@ void MdiChild::modelDuplicate()
   }
 }
 
-/*void MdiChild::onModelMoveToCategory()
-{
-  if (!sender()) {
-    return;
-  }
-  bool ok = false;
-  int toCatId = sender()->property("categoryId").toInt(&ok);
-  if (ok && toCatId >= 0) {
-    moveSelectedModelsToCat(toCatId);
-  }
-}*/
-
 void MdiChild::modelEdit()
 {
   openModelEditWindow(getCurrentModel());
@@ -1333,6 +1248,8 @@ void MdiChild::newFile(bool createDefaults)
   isUntitled = true;
   curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
+  radioData.addLabel(tr("Favorites"));
+  labelsListModel->buildLabelsList();
 }
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
