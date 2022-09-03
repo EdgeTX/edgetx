@@ -62,7 +62,7 @@ void drawSplash()
   // try splash from SD card first
   if (loadSplashImg && splashImg == nullptr) {
     if (!sdMounted()) sdInit();
-    splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE);
+    splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE, BMP_RGB565);
     loadSplashImg = false;
 
     if (splashImg == nullptr) {
