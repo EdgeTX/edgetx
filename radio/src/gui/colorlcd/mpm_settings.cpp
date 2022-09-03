@@ -121,14 +121,14 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
       md->multi.optionValue = (md->multi.optionValue & 0xFE) + newValue;
       SET_DIRTY();
     });
+    cb->update();
     lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_event_send(cb->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     if (min == 0 && max == 1) {
       cb->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       cb->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
+      cb->update();
       lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      lv_event_send(cb->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
     } else {
       edit->setMin(-128);
       edit->setMax(127);
