@@ -1063,6 +1063,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         deletesList.append(origMdlIdx);
         removeModelFromCutList(origMdlIdx);
       }
+      radioData.addLabelsFromModels();
     }
     //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
 

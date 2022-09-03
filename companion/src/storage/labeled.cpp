@@ -283,20 +283,17 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
       radioData.generalSettings.currModelIndex = modelIdx;      
     }
 
-    if (hasLabels) {
-      QStringList labels = QString(model.labels).split(',',QString::SkipEmptyParts);
-      foreach(QString label, labels) {
-        radioData.addLabel(label);
-      }
-    }
-
     model.used = true;
     modelIdx++;
   }
 
-  // If no labels, add a Favorites
-  if(hasLabels && !radioData.labels.size()) {
-    radioData.labels.append(tr("Favorites"));
+  // Add the labels in the models
+  if (hasLabels) {
+    radioData.addLabelsFromModels();
+
+    // If no labels, add a Favorites
+    if(!radioData.labels.size())
+      radioData.labels.append(tr("Favorites"));
   }
 
   return true;
