@@ -169,11 +169,11 @@ class MdiChild : public QWidget
     void findNewDefaultModel(const unsigned startAt = 0);
     bool insertModelRows(int atModelIdx, int count);
     int modelAppend(const ModelData model);
-    int newModel(int modelIndex = -1, int categoryIndex = -1);
+    int newModel(int modelIndex = -1);
     unsigned deleteModels(const QVector<int> modelIndices);
     bool deleteModel(const int modelIndex);
     void deleteSelectedModels();
-    unsigned countUsedModels(const int categoryId = -1);
+    unsigned countUsedModels();
     unsigned saveModels(const QVector<int> modelIndices);
     bool saveModel(const int modelIndex);
     void saveSelectedModels();
