@@ -22,6 +22,7 @@
 #pragma once
 
 #include "form.h"
+#include "checkbox.h"
 #include "module_setup.h"
 
 struct ModuleData;
@@ -40,6 +41,8 @@ class MultimoduleSettings : public FormGroup, public ModuleOptions
   MPMProtoOption* opt_line;
   MPMServoRate* sr_line;
   MPMAutobind* ab_line;
+  CheckBox* lp_mode;
+  CheckBox* disable_telem;
   MPMChannelMap* cm_line;
 
  public:

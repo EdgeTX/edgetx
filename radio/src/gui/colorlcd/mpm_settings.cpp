@@ -33,6 +33,7 @@ static void update_mpm_settings(lv_event_t* e)
   if (!ms) return;
 
   ms->update();
+  lv_event_send(ms->getParent()->getLvObj(), LV_EVENT_REFRESH, nullptr);
 }
 
 struct MPMProtoOption : public FormGroup::Line
@@ -150,6 +151,13 @@ struct MPMSubtype : public FormGroup::Line
   void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md);
 };
 
+static void subtype_event_cb(lv_event_t* e)
+{
+  if (lv_event_get_param(e)) return;
+  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
+  if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
 MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
   FormGroup::Line(form, layout)
 {
@@ -164,6 +172,8 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
         resetMultiProtocolsOptions(moduleIdx);
         SET_DIRTY();
       });
+
+  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb, LV_EVENT_VALUE_CHANGED, lvobj);
 }
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
@@ -177,7 +187,9 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md
   choice->setMax(rfProto->subProtos.size() - 1);
 
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-  lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+
+  bool stop=true;
+  lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
 struct MPMServoRate : public FormGroup::Line {
@@ -287,12 +299,12 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   // Low power mode
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
+  lp_mode = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
 
   // Disable telemetry
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_DISABLE_TELEM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
+  disable_telem = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
 
   cm_line = new MPMChannelMap(this, &grid, moduleIdx);
 
@@ -318,5 +330,7 @@ void MultimoduleSettings::update()
     ab_line->update();
   }
 
+  lp_mode->update();
+  disable_telem->update();
   cm_line->update(rfProto);
 }
