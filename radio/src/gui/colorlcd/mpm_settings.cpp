@@ -205,6 +205,10 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
 
 struct MPMAutobind : public FormGroup::Line {
   MPMAutobind(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+  void update() const { cb->update(); }
+
+ private:
+  CheckBox* cb;
 };
 
 MPMAutobind::MPMAutobind(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
@@ -214,7 +218,7 @@ MPMAutobind::MPMAutobind(FormGroup* form, FlexGridLayout *layout, uint8_t module
   new StaticText(this, rect_t{}, STR_MULTI_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
+  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
 }
 
 struct MPMChannelMap : public FormGroup::Line
@@ -311,6 +315,7 @@ void MultimoduleSettings::update()
   } else {
     lv_obj_add_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(ab_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    ab_line->update();
   }
 
   cm_line->update(rfProto);
