@@ -60,6 +60,8 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
                        this->index(index.row(), 0));
       if(selectedModel != -1 && modelsChanged)
         emit modelChanged(selectedModel);
+    } else {
+      emit renameFault(tr("Unable to rename \"%1\" to \"%2\" the label already exists").arg(replFrom).arg(replTo));
     }
     return true;
   }

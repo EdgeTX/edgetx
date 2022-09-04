@@ -509,6 +509,7 @@ void MdiChild::initModelsList()
   labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
                                     &radioData, this);
   connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
+  connect(labelsListModel, &LabelsModel::renameFault, this, &MdiChild::labelRenameFault);
   ui->lstLabels->setModel(labelsListModel);
   ui->lstLabels->setSelectionMode(QAbstractItemView::SingleSelection);
   ui->lstLabels->setDragEnabled(true);
@@ -1714,6 +1715,11 @@ void MdiChild::modelLabelsChanged()
 {
   setWindowModified(true);
   refresh();
+}
+
+void MdiChild::labelRenameFault(QString msg)
+{
+  QMessageBox::warning(this, CPN_STR_TTL_WARNING, msg);
 }
 
 unsigned MdiChild::saveModels(const QVector<int> modelIndices)
