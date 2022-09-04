@@ -549,22 +549,14 @@ void ModelLabelsWindow::newModel()
     lblselector->setNames(labels);
     lblselector->setSelected(modelslabels.getLabels().size());
     mdlselector->update(0);
+    setTitle();
   });
 }
 
 void ModelLabelsWindow::buildHead(PageHeader *hdr)
 {
   // page title
-  auto curModel = modelslist.getCurrentModel();
-  auto modelName = curModel != nullptr ? curModel->modelName : STR_NONE;
-
-  std::string titleName = STR_SELECT_MODEL;
-  titleName += "\n";
-  titleName += STR_CURRENT_MODEL;
-  titleName += ": ";
-  titleName += modelName;
-
-  hdr->setTitle(titleName);
+  setTitle();
 
   // new model button
   auto btn = new TextButton(
@@ -784,6 +776,20 @@ void ModelLabelsWindow::labelRefreshRequest()
 {
   auto labels = getLabels();
   lblselector->setNames(labels);
+}
+
+void ModelLabelsWindow::setTitle()
+{
+  auto curModel = modelslist.getCurrentModel();
+  auto modelName = curModel != nullptr ? curModel->modelName : STR_NONE;
+
+  std::string titleName = STR_SELECT_MODEL;
+  titleName += "\n";
+  titleName += STR_CURRENT_MODEL;
+  titleName += ": ";
+  titleName += modelName;
+
+  header.setTitle(titleName);
 }
 
 //-----------------------------------------------------------------------------
