@@ -146,7 +146,7 @@ MainWindow::MainWindow():
     QTimer::singleShot(0, this, SLOT(autoClose()));
   }
 
-  updateFactories = new UpdateFactories(this);
+  updateFactories = new UpdateFactories();
 
   if (checkProfileRadioExists(g.sessionId()))
     QTimer::singleShot(updateDelay, this, &MainWindow::autoCheckForUpdates);
