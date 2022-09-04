@@ -186,15 +186,19 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
     QDialog::accept();
   });
 
+  connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
+    QDialog::reject();
+  });
+
   connect(ui->buttonBox, &QDialogButtonBox::clicked, [=](QAbstractButton * button) {
     if (ui->buttonBox->standardButton(button) == QDialogButtonBox::RestoreDefaults) {
       factories->resetRunEnvironment(name);
       update();
     }
-    else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Discard) {
-      QDialog::reject();
-    }
-    else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Save) {
+    //else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Cancel) {
+    //  QDialog::reject();
+    //}
+    else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Ok) {
       runParams->data.updateRelease = ui->cboReleases->currentText();
 
       for (int i = 0; i < runParams->data.assets.size(); i++) {
