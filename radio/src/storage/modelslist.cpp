@@ -311,6 +311,7 @@ LabelsVector ModelMap::getLabels()
 {
   LabelsVector rv;
   for (auto &label : labels) {
+    // Skip the internal empty (removed) ones
     if (label.size() > 0) rv.emplace_back(label);
   }
   return rv;
@@ -402,7 +403,7 @@ bool ModelMap::isLabelFiltered(const std::string &lbl)
 
 void ModelMap::setSortOrder(ModelsSortBy sortby)
 {
-  if(sortby < SORT_COUNT && sortby >= NO_SORT) {
+  if (sortby < SORT_COUNT && sortby >= NO_SORT) {
     _sortOrder = sortby;
     setDirty();
   }
@@ -452,15 +453,22 @@ bool ModelMap::removeLabel(
     const std::string &label,
     std::function<void(const char *file, int progress)> progress)
 {
+  bool renameFault=true;
   renameLabel(label, "", std::move(progress));
   for (auto &lbl : labels) {
     if (lbl == label && getModelsByLabel(lbl).size() == 0) {
       lbl = "";
       setDirty();
-      return false;
+      renameFault = false;
     }
   }
-  return true;
+
+  // If no more labels, add a favorite
+  if (!renameFault && getLabels().size() == 0) {
+    addLabel(STR_FAVORITE_LABEL);
+  }
+
+  return renameFault;
 }
 
 /**
@@ -502,7 +510,7 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @details Opens all models which have a label that matches the <from> string.
  *          Renames the label with <to> string and saves file.
  *          If working on the current model it replaces the label string in
- *            g_model and saves the current copy in memory.
+ *            g_model
  *
  * @param from Label to search
  * @param to Replacement label
@@ -1039,7 +1047,8 @@ bool ModelsList::load(Format fmt)
 
 /**
  * @brief Writes labels.yml file
- *
+ * @param newOrder vector<string> - Forces a save of this label order. leave empty to use current
+ *                 order.
  * @return const char* NULL on success
  * @return const char* Error String on failure
  */
@@ -1200,7 +1209,7 @@ bool ModelsList::readNextLine(char *line, int maxlen)
 ModelCell *ModelsList::addModel(const char *fileName, bool save, ModelCell *copyCell)
 {
   ModelCell *result = new ModelCell(fileName);
-  if(copyCell != nullptr) { // Duplicate all data
+  if (copyCell != nullptr) { // Duplicate all data
     memcpy(result, copyCell, sizeof(ModelCell));
   }
 

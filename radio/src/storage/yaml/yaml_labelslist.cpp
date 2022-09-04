@@ -38,20 +38,17 @@ using std::list;
 
 struct labelslist_iter
 {
-    enum ItemData {
-        Root=0,
-        ModelsRoot=1,
-        ModelName=2,
-        ModelData=3,
-        LabelsRoot=4,
-        LabelName=5,
-        LabelData=6,
-        SortRoot=7,
+    enum SectionType {
+      SEC_Unknown=0,
+      SEC_Labels=1,
+      SEC_Models=2,
+      SEC_Sort=3,
     };
 
     ModelCell   *curmodel;
     bool        modeldatavalid; // Used to determine if reading yaml values is necessary
     uint8_t     level;
+    uint8_t     section;
     char        current_attr[LABEL_LENGTH+1]; // set after find_node()
     char        current_label[LABEL_LENGTH+1]; // set after find_node()
 };
@@ -60,12 +57,10 @@ static labelslist_iter __labelslist_iter_inst;
 
 void* get_labelslist_iter()
 {
-  // Thoughts... record the time here.
-  // If time > xxx while parsing models. pop up a window showing updating?
-
   __labelslist_iter_inst.modeldatavalid = false;
   __labelslist_iter_inst.curmodel = NULL;
   __labelslist_iter_inst.level = 0;
+  __labelslist_iter_inst.section = labelslist_iter::SEC_Unknown;
 
   TRACE_LABELS_YAML("YAML Label Reader Start %u", 0);
 
@@ -76,17 +71,12 @@ static bool to_parent(void* ctx)
 {
     labelslist_iter* mi = (labelslist_iter*)ctx;
 
-    if (mi->level == labelslist_iter::Root)
+    if (mi->level == 0)
         return false;
 
-    if(mi->level == labelslist_iter::ModelName ||
-       mi->level == labelslist_iter::LabelName) {
-      mi->level = labelslist_iter::Root;
-    }
-    else
-      mi->level--;
+    mi->level--;
 
-    TRACE_LABELS_YAML("YAML To Parent %u", mi->level);
+    TRACE_LABELS_YAML("-> YAML To Parent %u", mi->level);
 
     return true;
 }
@@ -97,20 +87,18 @@ static bool to_child(void* ctx)
 
     mi->level++;
 
-    TRACE_LABELS_YAML("YAML To Child");
-    TRACE_LABELS_YAML("YAML Level %u", mi->level);
+    TRACE_LABELS_YAML("<- YAML To Child %u", mi->level);
     return true;
 }
 
 static bool to_next_elmt(void* ctx)
 {
     labelslist_iter* mi = (labelslist_iter*)ctx;
-    if (mi->level == labelslist_iter::Root) {
+    if (mi->level == 0) {
         return false;
     }
 
-    TRACE_LABELS_YAML("YAML To Next Element");
-    TRACE_LABELS_YAML("YAML Current Level %u", mi->level);
+    TRACE_LABELS_YAML("YAML Next Element. Level %u", mi->level);
     return true;
 }
 
@@ -121,30 +109,25 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     memcpy(mi->current_attr, buf, len);
     mi->current_attr[len] = '\0';
 
-    TRACE_LABELS_YAML("YAML On Node %s", mi->current_attr);
-    TRACE_LABELS_YAML("YAML Current Level %u", mi->level);
+    TRACE_LABELS_YAML("YAML Found Node. Level = %u, Section= %u, %s", mi->level, mi->section, mi->current_attr);
 
-    // If in the labels node, force to labelsroot enum
-    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"labels") == 0) {
-      TRACE_LABELS_YAML("Forced root");
-      mi->level = labelslist_iter::LabelsRoot;
-      TRACE_LABELS_YAML("YAML New Level %u", mi->level);
-    }
 
-    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"models") == 0) {
-      TRACE_LABELS_YAML("Forced root");
-      mi->level = labelslist_iter::ModelsRoot;
-      TRACE_LABELS_YAML("YAML New Level %u", mi->level);
-    }
-
-    if(mi->level == labelslist_iter::Root && strcasecmp(mi->current_attr,"sort") == 0) {
-      TRACE_LABELS_YAML("Forced root");
-      mi->level = labelslist_iter::SortRoot;
-      TRACE_LABELS_YAML("YAML New Level %u", mi->level);
+    // Switch between the different maps in labels.yml
+    if (mi->level == 0) {
+      if (strcasecmp(mi->current_attr,"labels") == 0) {
+        mi->section = labelslist_iter::SEC_Labels;
+        TRACE_LABELS_YAML("YAML Set Section to Labels");
+      } else if (strcasecmp(mi->current_attr,"sort") == 0) {
+        mi->section = labelslist_iter::SEC_Sort;
+        TRACE_LABELS_YAML("YAML Set Section to Sort");
+      } else  if (strcasecmp(mi->current_attr,"models") == 0) {
+        mi->section = labelslist_iter::SEC_Models;
+        TRACE_LABELS_YAML("YAML Set Section to Models");
+      }
     }
 
     // Model List
-    if(mi->level == labelslist_iter::ModelName)  {
+    if(mi->level == 1 && mi->section == labelslist_iter::SEC_Models)  {
       bool found=false;
       for(auto &filehash : modelslist.fileHashInfo) {
         if(filehash.name == mi->current_attr) {
@@ -169,7 +152,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     }
 
     // Labels List
-    if(mi->level == labelslist_iter::LabelName)  {
+    if(mi->level == 1 && mi->section == labelslist_iter::SEC_Labels)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
       modelslabels.addLabel(mi->current_attr);
       strncpy(mi->current_label,mi->current_attr, LABEL_LENGTH);
@@ -186,11 +169,10 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
   value[len] = '\0';
 
   labelslist_iter* mi = (labelslist_iter*)ctx;
-  TRACE_LABELS_YAML("YAML Attr Level %u, %s = %s", mi->level, mi->current_attr, value);
+  TRACE_LABELS_YAML("YAML Attr Level %u, Section %u, %s = %s", mi->level, mi->section, mi->current_attr, value);
 
   // Model Section
-  if(mi->level == labelslist_iter::ModelData) {
-
+  if(mi->level == 2 && mi->section == labelslist_iter::SEC_Models) {
     // File Hash
     if(!strcasecmp(mi->current_attr, "hash")) {
       if(mi->curmodel != NULL) {
@@ -210,14 +192,14 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
     } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "name")) {
       if(mi->curmodel != NULL) {
         mi->curmodel->setModelName(value);
-        TRACE_LABELS_YAML("Set the models name");
+        TRACE_LABELS_YAML(" Set the models name");
       }
 
     // Last Opened
     } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "lastopen")) {
       if(mi->curmodel != NULL) {
         mi->curmodel->lastOpened = (gtime_t)strtol(value, NULL, 0);
-        TRACE_LABELS_YAML("Last Opened %lu", value);
+        TRACE_LABELS_YAML(" Last Opened %lu", value);
       }
 
     // Model Bitmap
@@ -226,7 +208,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
       if(mi->curmodel != NULL) {
         // TODO Check if it exists ?
         strcpy(mi->curmodel->modelBitmap, value);
-        TRACE_LABELS_YAML("Set the models bitmap");
+        TRACE_LABELS_YAML(" Set the models bitmap");
       }
 #endif
 
@@ -238,7 +220,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
         int numTokens = 0;
         while(cma != NULL) {
           modelslabels.addLabelToModel(cma,mi->curmodel);
-          TRACE_LABELS_YAML(" Adding the label - %s", cma);
+          TRACE_LABELS_YAML("  Adding the label - %s", cma);
           cma = strtok(NULL, ",");
           numTokens++;
         }
@@ -252,27 +234,27 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
           mi->curmodel->modelId[i] = strtol(value,NULL,10);
-          TRACE_LABELS_YAML("Set the module %d rfId to %s", i, value);
+          TRACE_LABELS_YAML( " Set the module %d rfId to %s", i, value);
         }
         snprintf(cmp, sizeof(cmp), MODULE_TYPE_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
           mi->curmodel->moduleData[i].type = strtol(value,NULL,10);
-          TRACE_LABELS_YAML("Set the module %d rfType to %s", i, value);
+          TRACE_LABELS_YAML(" Set the module %d rfType to %s", i, value);
         }
         snprintf(cmp, sizeof(cmp), MODULE_RFPROTOCOL_STR, i);
         cmp[sizeof(cmp)-1] = '\0';
         if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
           mi->curmodel->moduleData[i].subType = strtol(value,NULL,10);
-          TRACE_LABELS_YAML("Set the module %d rfProtocol to %s", i, value);
+          TRACE_LABELS_YAML(" Set the module %d rfProtocol to %s", i, value);
         }
       }
     }
 
   // Label Section
-  } else if(mi->level == labelslist_iter::LabelData) {
+  } else if(mi->level == 2 && mi->section == labelslist_iter::SEC_Labels) {
     if(!strcasecmp(mi->current_attr, "icon")) {
-      TRACE_LABELS_YAML("Label Icon - %s", value);
+      TRACE_LABELS_YAML(" Label Icon - %s", value);
       // TODO - Check icon exists, or ignore it.
     } else if(!strcasecmp(mi->current_attr, "selected")) {
       TRACE("FOUND %s Label is selected", mi->current_label);
@@ -280,9 +262,8 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
     }
 
   // Sort Order
-  } else if (mi->level == labelslist_iter::SortRoot)  {
-    TRACE("Sort Order Found -- %s", mi->current_attr);
-    mi->level = labelslist_iter::Root;
+  } else if (mi->level == 0 && mi->section == labelslist_iter::SEC_Sort)  {
+    TRACE_LABELS_YAML(" Sort Order Found -- %s", mi->current_attr);
     modelslabels.setSortOrder((ModelsSortBy)strtol(value,NULL,10));
   }
 }
