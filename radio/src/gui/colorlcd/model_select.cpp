@@ -553,6 +553,21 @@ void ModelLabelsWindow::newModel()
   });
 }
 
+void ModelLabelsWindow::newLabel()
+{
+  new LabelDialog(parent, tmpLabel, [=](std::string label) {
+    int newlabindex = modelslabels.addLabel(label);
+    if (newlabindex >= 0) {
+      std::set<uint32_t> newset;
+      newset.insert(newlabindex);
+      auto labels = getLabels();
+      lblselector->setNames(labels);
+      lblselector->setSelected(newset);
+      updateFilteredLabels(newset);
+    }
+  });
+}
+
 void ModelLabelsWindow::buildHead(PageHeader *hdr)
 {
   // page title
@@ -678,17 +693,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       menu->setTitle(selectedLabel);
       tmpLabel[0] = '\0';
       menu->addLine(STR_NEW_LABEL, [=]() {
-        new LabelDialog(parent, tmpLabel, [=](std::string label) {
-          int newlabindex = modelslabels.addLabel(label);
-          if (newlabindex >= 0) {
-            std::set<uint32_t> newset;
-            newset.insert(newlabindex);
-            auto labels = getLabels();
-            lblselector->setNames(labels);
-            lblselector->setSelected(newset);
-            updateFilteredLabels(newset);
-          }
-        });
+        newLabel();
         return 0;
       });
       if (selectedLabel != STR_UNLABELEDMODEL) {
