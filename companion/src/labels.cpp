@@ -83,6 +83,8 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
       selectedModel < (int)radioData->models.size()) {
       QStringList modelLabels = QString(radioData->models.at(selectedModel).labels).split(',',QString::SkipEmptyParts);
       return modelLabels.indexOf(label)==-1?Qt::Unchecked:Qt::Checked;
+    } else if (index.column() == 0 && selectedModel == -1) {
+      return Qt::Unchecked;
     }
   }
   return QVariant();
