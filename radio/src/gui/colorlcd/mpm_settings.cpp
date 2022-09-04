@@ -194,6 +194,10 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md
 
 struct MPMServoRate : public FormGroup::Line {
   MPMServoRate(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+  void update() const { lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr); }
+
+ private:
+  Choice* choice;
 };
 
 static const char* _servoRates[] = {"22ms", "11ms"};
@@ -205,14 +209,11 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
   new StaticText(this, rect_t{}, STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new Choice(
-      this, rect_t{}, _servoRates, 0, 1,
-      [=]() { return (md->multi.optionValue & 0x02) >> 1; },
-      [=](int16_t newValue) {
-        md->multi.optionValue =
-            (md->multi.optionValue & 0xFD) + (newValue << 1);
-        SET_DIRTY();
-      });
+  choice = new Choice(this, rect_t{}, _servoRates, 0, 1, 0, 0);
+
+  choice->setGetValueHandler(GET_DEFAULT((md->multi.optionValue & 0x02) >> 1));
+  choice->setSetValueHandler(SET_VALUE(
+      md->multi.optionValue, (md->multi.optionValue & 0xFD) + (newValue << 1)));
 }
 
 struct MPMAutobind : public FormGroup::Line {
@@ -323,6 +324,7 @@ void MultimoduleSettings::update()
   auto multi_proto = md->multi.rfProtocol;
   if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
     lv_obj_clear_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    sr_line->update();
     lv_obj_add_flag(ab_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_add_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
