@@ -199,7 +199,7 @@ class MainWindow : public QMainWindow
     QAction *deleteProfileAct;
     QAction *exportSettingsAct;
     QAction *importSettingsAct;
-    QAction *openDocURLAct;
+    //QAction *openDocURLAct;
     QAction *actTabbedWindows;
     QAction *actTileWindows;
     QAction *actCascadeWindows;
