@@ -2,9 +2,9 @@
  * Copyright (C) EdgeTX
  *
  * Based on code named
- *   opentx - https://github.com/opentx/opentx
- *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
+ *   opentx -   https://github.com/opentx/opentx
+ *   th9x -     http://code.google.com/p/th9x
+ *   er9x -     http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,10 @@
 #if defined(TRANSLATIONS_FR)
 static wchar_t _utf8_lut[] = {
   L'é', L'è', L'à', L'î', L'ç',
+};
+#elif defined(TRANSLATIONS_DA)
+static wchar_t _utf8_lut[] = {
+L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
 };
 #elif defined(TRANSLATIONS_DE)
 static wchar_t _utf8_lut[] = {
