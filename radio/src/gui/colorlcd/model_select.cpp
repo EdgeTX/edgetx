@@ -676,6 +676,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       Menu *menu = new Menu(window);
       std::string selectedLabel = labels.at(selected);
       menu->setTitle(selectedLabel);
+      tmpLabel[0] = '\0';
       menu->addLine(STR_NEW_LABEL, [=]() {
         new LabelDialog(parent, tmpLabel, [=](std::string label) {
           int newlabindex = modelslabels.addLabel(label);
