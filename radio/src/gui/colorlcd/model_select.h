@@ -96,6 +96,7 @@ class ModelLabelsWindow : public Page
   void buildBody(FormWindow *window);
   void updateFilteredLabels(std::set<uint32_t> selected, bool setdirty = true);
   void labelRefreshRequest();
+  void setTitle();
 };
 
 class ProgressDialog : public Dialog
