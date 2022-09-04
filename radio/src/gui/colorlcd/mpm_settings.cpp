@@ -238,6 +238,8 @@ struct MPMChannelMap : public FormGroup::Line
 {
   MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto);
+ private:
+  CheckBox* cb;
 };
 
 MPMChannelMap::MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
@@ -247,13 +249,14 @@ MPMChannelMap::MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t mo
   new StaticText(this, rect_t{}, STR_DISABLE_CH_MAP, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
-}  
+  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
+}
 
 void MPMChannelMap::update(const MultiRfProtocols::RfProto* rfProto)
 {
   if (rfProto && rfProto->supportsDisableMapping()) {
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    cb->update();
   } else {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
   }
