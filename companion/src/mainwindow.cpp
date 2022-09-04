@@ -825,7 +825,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),    tr("Write firmware to Radio"));
   trAct(sdsyncAct,          tr("Synchronize SD"),             tr("SD card synchronization"));
 
-  trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
+  //trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
   trAct(writeSettingsAct,   tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
   trAct(readSettingsAct,    tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
   trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
@@ -904,7 +904,7 @@ void MainWindow::createActions()
 
   manualChkForUpdAct = addAct("update.png",         SLOT(manualCheckForUpdates()));
   aboutAct =           addAct("information.png",    SLOT(about()));
-  openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
+  //openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
   changelogAct =       addAct("changelog.png",      SLOT(changelog()));
 
   // these two get assigned menus in createMenus()
@@ -914,8 +914,8 @@ void MainWindow::createActions()
   exitAct->setMenuRole(QAction::QuitRole);
   aboutAct->setMenuRole(QAction::AboutRole);
   appPrefsAct->setMenuRole(QAction::PreferencesRole);
-  openDocURLAct->setMenuRole(QAction::ApplicationSpecificRole);
-  manualChkForUpdAct->setMenuRole(QAction::ApplicationSpecificRole);
+  //openDocURLAct->setMenuRole(QAction::ApplicationSpecificRole);
+  //manualChkForUpdAct->setMenuRole(QAction::ApplicationSpecificRole);
   changelogAct->setMenuRole(QAction::ApplicationSpecificRole);
 
   actTabbedWindows->setCheckable(true);
