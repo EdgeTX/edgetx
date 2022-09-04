@@ -146,6 +146,17 @@ class ButtonHolder : public FormWindow
     addButton(mask_sort_alpha_up, mask_sort_alpha_down);
     addButton(mask_sort_date_up, mask_sort_date_down);
 
+    // New label button
+    auto btn = new TextButton(
+      this, rect_t{}, "New",
+      [=]() {
+        if(_newLabelHandler) _newLabelHandler();
+        return 0;
+      },
+      BUTTON_BACKGROUND | OPAQUE, textFont);
+    btn->padAll(lv_dpx(4));
+    lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
+
     _buttons[0].button->setSelected(true);
   }
 
@@ -155,10 +166,16 @@ class ButtonHolder : public FormWindow
     _pressHandler = std::move(pressHandler);
   }
 
+  inline void setNewLabelHandler(
+      std::function<void()> newLabelHandler)
+  {
+    _newLabelHandler = std::move(newLabelHandler);
+  }
+
   void addButton(const uint8_t *state1Bm, const uint8_t *state2Bm)
   {
     int buttonNumber = _buttons.size();
-    auto tb = new ToolbarButton(
+    auto tb = new ToolbarButton (
         this, {buttonNumber * (height() + 4), 0, height(), height()}, state1Bm);
     tb->setPressHandler([=]() {
       bool isSelected = tb->getSelected();
@@ -197,6 +214,7 @@ class ButtonHolder : public FormWindow
  protected:
   std::vector<ButtonInfo> _buttons;
   std::function<void(int index, ButtonInfo *button)> _pressHandler;
+  std::function<void()> _newLabelHandler;
 };
 
 class ModelButton : public Button
@@ -614,6 +632,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
   // Sort Buttons
   auto btnh = new ButtonHolder(window, rect_t{});
+  btnh->setNewLabelHandler(std::bind(&ModelLabelsWindow::newLabel, this));
   auto buth_obj = btnh->getLvObj();
 
   // Labels top left
