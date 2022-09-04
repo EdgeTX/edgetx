@@ -140,6 +140,7 @@ class MdiChild : public QWidget
     void modelSave();
     void labelAdd();
     void labelDelete();
+    void modelLabelsChanged();
     void wizardEdit();
     void modelDuplicate();
 
