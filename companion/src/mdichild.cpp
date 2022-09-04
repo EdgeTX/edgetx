@@ -508,7 +508,7 @@ void MdiChild::initModelsList()
     delete labelsListModel;
   labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
                                     &radioData, this);
-  connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::refresh);
+  connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
   ui->lstLabels->setModel(labelsListModel);
   ui->lstLabels->setSelectionMode(QAbstractItemView::SingleSelection);
   ui->lstLabels->setDragEnabled(true);
@@ -1708,6 +1708,12 @@ void MdiChild::labelDelete()
 {
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
   labelsListModel->removeRow(row);
+}
+
+void MdiChild::modelLabelsChanged()
+{
+  setWindowModified(true);
+  refresh();
 }
 
 unsigned MdiChild::saveModels(const QVector<int> modelIndices)
