@@ -29,7 +29,7 @@ static wchar_t _utf8_lut[] = {
 };
 #elif defined(TRANSLATIONS_DA)
 static wchar_t _utf8_lut[] = {
-L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
+  L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
 };
 #elif defined(TRANSLATIONS_DE)
 static wchar_t _utf8_lut[] = {

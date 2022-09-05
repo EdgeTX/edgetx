@@ -469,7 +469,7 @@
 #define TR_SLAVE                       CENTER "Slave"
 #define TR_MODESRC                     "Mode\006% Kilde"
 #define TR_MULTIPLIER                  "Multiplier"
-#define TR_CAL                         "Cal"
+#define TR_CAL                         "Kal"
 #define TR_CALIBRATION                 "Kalibrering"
 #define TR_VTRIM                       "Trim - +"
 #define TR_BG                          "BG:"
