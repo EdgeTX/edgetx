@@ -320,7 +320,9 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     static BitmapBuffer * load8bitMaskOnBackground(const uint8_t * lbm, LcdFlags foreground, LcdFlags background);
 
     static uint8_t * loadFont(const uint8_t * lbm, int len, int& w, int& h);
-  
+
+    uint8_t * to8bitMask(size_t* size) const;
+
     void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offsetX = 0, coord_t width = 0);
 
     void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, const BitmapBuffer * srcBitmap, coord_t offsetX = 0, coord_t offsetY = 0, coord_t width = 0, coord_t height = 0);
