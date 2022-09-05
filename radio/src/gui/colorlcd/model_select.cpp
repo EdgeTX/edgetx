@@ -157,7 +157,24 @@ class ButtonHolder : public FormWindow
     btn->padAll(lv_dpx(4));
     lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
 
-    _buttons[0].button->setSelected(true);
+    switch(modelslabels.sortOrder()) {
+      case NAME_ASC:
+        _buttons[0].button->setSelected(true);
+        break;
+      case NAME_DES:
+        _buttons[0].button->setSelected(true);
+        _buttons[0].sortState = 1;
+        _buttons[0].button->setBitmap(_buttons[0].states[1]);
+        break;
+      case DATE_ASC:
+        _buttons[1].button->setSelected(true);
+        break;
+      case DATE_DES:
+        _buttons[1].button->setSelected(true);
+        _buttons[1].sortState = 0;
+        _buttons[1].button->setBitmap(_buttons[1].states[1]);
+        break;
+    }
   }
 
   inline void setPressHandler(
