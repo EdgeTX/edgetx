@@ -29,7 +29,7 @@
 
 #if defined(_MSC_VER)
   #define OPTION_VALUE_UNSIGNED(x)    { uint32_t(x) }
-  #define OPTION_VALUE_SIGNED(x)      { uint32_t(x) }
+  #define OPTION_VALUE_SIGNED(x)      { int32_t(x) }
   #define OPTION_VALUE_BOOL(x)        {  bool(x) }
   #define OPTION_VALUE_STRING(...)    { *(ZoneOptionValue *)(const char *) #__VA_ARGS__ }
 #else
