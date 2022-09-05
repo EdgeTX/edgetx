@@ -106,6 +106,8 @@ void RadioData::convert(RadioDataConversionState & cstate)
 
 void RadioData::addLabel(QString label)
 {
+  label.replace("/c",",");
+  label.replace("//","/");
   if(labels.indexOf(label) == -1)
     labels.append(label);
 }
@@ -113,12 +115,16 @@ void RadioData::addLabel(QString label)
 bool RadioData::deleteLabel(QString label)
 {
   bool deleted = false;
+  QString csvLabel = label;
+  csvLabel.replace("/","//");
+  csvLabel.replace(",","/c");
+
   // Remove labels in the models
   for(auto& model : models) {
     QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
-    if(modelLabels.indexOf(label) >= 0)
+    if(modelLabels.indexOf(csvLabel) >= 0)
       deleted = true;
-    modelLabels.removeAll(label);
+    modelLabels.removeAll(csvLabel);
     strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
   }
 
@@ -143,6 +149,13 @@ bool RadioData::renameLabel(QString from, QString to)
 {
   bool success = true;
   int lengthdiff = to.size() - from.size();
+  QString csvFrom = from;
+  QString csvTo = to;
+  csvFrom.replace("/","//");
+  csvFrom.replace(",","/c");
+  csvTo.replace("/","//");
+  csvTo.replace(",","/c");
+
 
   // Check that rename is possible, not too long
   for(auto& model : models) {
@@ -153,10 +166,12 @@ bool RadioData::renameLabel(QString from, QString to)
   if(success) {
     for(auto& model : models) {
       QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
-      int ind = modelLabels.indexOf(from); // TOOD: Make sure it will fit
+      int ind = modelLabels.indexOf(csvFrom);
       if(ind != -1) {
-        modelLabels.replace(ind, to);
-        strcpy(model.labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+        modelLabels.replace(ind, csvTo);
+        QString outputcsv = QString(modelLabels.join(','));
+        if(outputcsv.toLocal8Bit().size() < (int)sizeof(model.labels));
+          strcpy(model.labels, outputcsv.toLocal8Bit().data());
       }
     }
     int ind = labels.indexOf(from);
@@ -178,6 +193,9 @@ bool RadioData::addLabelToModel(int index, QString label)
 {
   if(index >= models.size()) return false;
 
+  label.replace("/","//");
+  label.replace(",","/c");
+
   char *modelLabelCsv = models[index].labels;
   // Make sure it will fit
   if(strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
@@ -194,6 +212,8 @@ bool RadioData::addLabelToModel(int index, QString label)
 bool RadioData::removeLabelFromModel(int index, QString label)
 {
   if(index >= models.size()) return false;
+  label.replace("/","//");
+  label.replace(",","/c");
 
   char *modelLabelCsv = models[index].labels;
   QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);

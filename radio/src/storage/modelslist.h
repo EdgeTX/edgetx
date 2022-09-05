@@ -30,6 +30,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "sdcard.h"
@@ -157,6 +158,12 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 
   void setSortOrder(ModelsSortBy sortby);
   ModelsSortBy sortOrder() {return _sortOrder;}
+
+  static std::string toCSV(const LabelsVector &labels);
+  static LabelsVector fromCSV(const char *str);
+  static void replace_all(std::string &str,
+                          const std::string &from,
+                          const std::string &to);
 
  protected:
   ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;

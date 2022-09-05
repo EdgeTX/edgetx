@@ -630,18 +630,9 @@ void ModelsListModel::onRowsRemoved(const QModelIndex & parent, int first, int l
 
 void ModelsListModel::refresh()
 {
-  ModelListItem * defaultCategoryItem = NULL;
-
   this->blockSignals(true);  // make sure onRowsRemoved is not triggered
   removeRows(0, rowCount());
   this->blockSignals(false);
-
-  /*if (hasCategories) {
-    for (unsigned i = 0; i < radioData->categories.size(); i++) {
-      ModelListItem * current = rootItem->appendChild(i, -1);
-      current->setData(0, QString(radioData->categories[i].name));
-    }
-  }*/
 
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
