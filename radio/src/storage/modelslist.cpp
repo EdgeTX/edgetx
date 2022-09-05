@@ -481,12 +481,17 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
 
   LabelsVector newOrder = labels;
 
-  if (curind < newind) {  // Move forward
-    std::rotate(newOrder.rend() - curind - 1, newOrder.rend() - curind,
-                newOrder.rend() - newind);
-  } else {  // Move back
-    std::rotate(newOrder.begin() + curind, newOrder.begin() + curind + 1,
-                newOrder.begin() + newind + 1);
+  if (labels.size() > 2) {
+    if (curind < newind) {  // Move forward
+      std::rotate(newOrder.rend() - curind - 1, newOrder.rend() - curind,
+                  newOrder.rend() - newind);
+    } else {  // Move back
+      std::rotate(newOrder.begin() + curind, newOrder.begin() + curind + 1,
+                  newOrder.begin() + newind + 1);
+    }
+  } else {
+    newOrder[0] = labels[1];
+    newOrder[1] = labels[0];
   }
 
   // Reload the new labels order
