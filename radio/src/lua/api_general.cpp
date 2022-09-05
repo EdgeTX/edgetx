@@ -2603,6 +2603,10 @@ const luaR_value_entry opentxConstants[] = {
   { "SWITCH_COUNT", SWSRC_COUNT },
   { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },
 
+  { "MAX_OUTPUT_CHANNELS", MAX_OUTPUT_CHANNELS },
+  { "LIMIT_EXT_PERCENT", LIMIT_EXT_PERCENT },
+  { "LIMIT_STD_PERCENT", LIMIT_STD_PERCENT },
+
   { "LS_FUNC_NONE", LS_FUNC_NONE },
   { "LS_FUNC_VEQUAL", LS_FUNC_VEQUAL },
   { "LS_FUNC_VALMOSTEQUAL", LS_FUNC_VALMOSTEQUAL },
@@ -2653,6 +2657,8 @@ const luaR_value_entry opentxConstants[] = {
   { "COLOR", ZoneOption::Color },
   { "BOOL", ZoneOption::Bool },
   { "STRING", ZoneOption::String },
+  { "TIMER", ZoneOption::Timer },
+  { "TEXT_SIZE", ZoneOption::TextSize },
   { "MENU_HEADER_HEIGHT", COLOR2FLAGS(MENU_HEADER_HEIGHT) },
 
   // Colors gui/colorlcd/colors.h
