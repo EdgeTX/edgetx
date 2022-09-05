@@ -836,6 +836,39 @@ static int luaLcdDrawFilledRectangle(lua_State *L)
 
 
 /*luadoc
+@function lcd.invertRect(x, y, w, h [, flags])
+
+Invert a rectangle zone from top left corner (x,y) of specified width and height
+
+@param x,y (positive numbers) top left corner position
+
+@param w (number) width in pixels
+
+@param h (number) height in pixels
+
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@status current Introduced in 2.8.0
+*/
+static int luaLcdInvertRect(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  int x = luaL_checkinteger(L, 1);
+  int y = luaL_checkinteger(L, 2);
+  int w = luaL_checkinteger(L, 3);
+  int h = luaL_checkinteger(L, 4);
+
+  LcdFlags flags = luaL_optunsigned(L, 5, 0);
+  flags = flagsRGB(flags);
+
+  luaLcdBuffer->invertRect(x, y, w, h, flags);
+
+  return 0;
+}
+
+/*luadoc
 @function lcd.drawGauge(x, y, w, h, fill, maxfill [, flags])
 
 Draw a simple gauge that is filled based upon fill value
@@ -1350,6 +1383,7 @@ const luaL_Reg lcdLib[] = {
   { "drawLine", luaLcdDrawLine },
   { "drawRectangle", luaLcdDrawRectangle },
   { "drawFilledRectangle", luaLcdDrawFilledRectangle },
+  { "invertRect", luaLcdInvertRect },
   { "drawText", luaLcdDrawText },
   { "drawTextLines", luaLcdDrawTextLines },
   { "sizeText", luaLcdSizeText },
