@@ -260,8 +260,9 @@ Get model timer parameters
  * `minuteBeep` (boolean) minute beep
  * `persistent` (number) persistent timer
  * `name` (string) timer name
+ * `showElapsed` (boolean) show elapsed
 
-@status current Introduced in 2.0.0, name added in 2.3.6
+@status current Introduced in 2.0.0, name added in 2.3.6, showElapsed added in 2.8.0
 */
 static int luaModelGetTimer(lua_State *L)
 {
@@ -276,6 +277,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableboolean(L, "minuteBeep", timer.minuteBeep);
     lua_pushtableinteger(L, "persistent", timer.persistent);
     lua_pushtablenstring(L, "name", timer.name);
+    lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
   }
   else {
     lua_pushnil(L);
@@ -295,7 +297,7 @@ Set model timer parameters
 @notice If a parameter is missing from the value, then
 that parameter remains unchanged.
 
-@status current Introduced in 2.0.0, name added in 2.3.6
+@status current Introduced in 2.0.0, name added in 2.3.6, showElapsed added in 2.8.0
 */
 static int luaModelSetTimer(lua_State *L)
 {
@@ -325,9 +327,12 @@ static int luaModelSetTimer(lua_State *L)
       else if (!strcmp(key, "persistent")) {
         timer.persistent = luaL_checkinteger(L, -1);
       }
-      if (!strcmp(key, "name")) {
+      else if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
         strncpy(timer.name, name, sizeof(timer.name));
+      }
+      else if (!strcmp(key, "showElapsed")) {
+        timer.showElapsed = lua_toboolean(L, -1);
       }
     }
     storageDirty(EE_MODEL);
