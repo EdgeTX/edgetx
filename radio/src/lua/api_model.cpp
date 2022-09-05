@@ -38,22 +38,26 @@ Get current Model information
 
 @retval table model information:
  * `name` (string) model name
+ * `extendedLimits` (boolean) extended limits enabled
  * `bitmap` (string) bitmap name (not present on X7)
  * `filename` (string) model filename
 
-@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0
+@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits and labels added in 2.8.0
 */
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
   lua_pushtablenstring(L, "name", g_model.header.name);
+  lua_pushtableboolean(L, "extendedLimits", g_model.extendedLimits);
 #if LCD_DEPTH > 1
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
 
 #if defined(STORAGE_MODELSLIST)
+  lua_pushtablenstring(L, "labels", g_model.header.labels);
   lua_pushtablenstring(L, "filename", g_eeGeneral.currModelFilename);
 #else
+  lua_pushtablenstring(L, "labels", "");
   char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(g_eeGeneral.currModel, fname);
   strcat(fname, YAML_EXT);
@@ -73,7 +77,7 @@ Set the current Model information
 @notice If a parameter is missing from the value, then
 that parameter remains unchanged.
 
-@status current Introduced in 2.0.6, changed in TODO
+@status current Introduced in 2.0.6, extendedLimits added in 2.8.0
 */
 static int luaModelSetInfo(lua_State *L)
 {
@@ -87,6 +91,9 @@ static int luaModelSetInfo(lua_State *L)
 #if defined(EEPROM)
       memcpy(modelHeaders[g_eeGeneral.currModel].name, g_model.header.name, sizeof(g_model.header.name));
 #endif
+    }
+    else if (!strcmp(key, "extendedLimits")) {
+      g_model.extendedLimits = lua_toboolean(L, -1);
     }
 #if LCD_DEPTH > 1
     else if (!strcmp(key, "bitmap")) {
