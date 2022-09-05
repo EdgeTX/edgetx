@@ -148,7 +148,12 @@ class ButtonHolder : public FormWindow
 
     // New label button
     auto btn = new TextButton(
-      this, rect_t{}, "New",
+      this, rect_t{},
+#if LCD_W > LCD_H
+  STR_NEW,
+#else
+  STR_NEW_LABEL,
+#endif
       [=]() {
         if(_newLabelHandler) _newLabelHandler();
         return 0;
@@ -224,7 +229,6 @@ class ButtonHolder : public FormWindow
     });
 
     ButtonInfo bi = {tb, state1Bm, state2Bm, 0};
-
     _buttons.push_back(bi);
   }
 
@@ -590,6 +594,7 @@ void ModelLabelsWindow::newModel()
 
 void ModelLabelsWindow::newLabel()
 {
+  tmpLabel[0] = '\0';
   new LabelDialog(parent, tmpLabel, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
@@ -629,7 +634,7 @@ static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1), LV_GRID_TEMPLA
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LABELS_HEIGHT, LV_GRID_FR(1), BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT, BUTTONS_HEIGHT,  LV_GRID_TEMPLATE_LAST};
 #endif
 
 void ModelLabelsWindow::buildBody(FormWindow *window)
@@ -652,26 +657,30 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   btnh->setNewLabelHandler(std::bind(&ModelLabelsWindow::newLabel, this));
   auto buth_obj = btnh->getLvObj();
 
-  // Labels top left
-  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
-
   window->padAll(LAY_MARGIN);
   window->padRow(LAY_MARGIN);
   window->padColumn(LAY_MARGIN);
 
 #if LCD_W > LCD_H
+  // Labels top left
+  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+
   // Buttons bottom left
-  // Models right
   lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 2);
   lv_obj_set_width(mdl_obj, lv_pct(100));
   window->padRight(0);
+
+  // Models right
   lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 #else
-  // Models middle
-  // Buttons bottom
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  // Models top
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
   lv_obj_set_width(mdl_obj, lv_pct(100));
 
+  // Labels middle
+  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+
+  // Buttons bottom
   lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 #endif
 
@@ -687,9 +696,6 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         // Update the list asynchronously
         mdlselector->setSortOrder(sort);
       });
-
-  //lv_obj_align(btnh->getLvObj(), LV_ALIGN_BOTTOM_LEFT, 0, 0);
-
 
   lblselector->setMultiSelect(true);
   lblselector->setSelected(modelslabels.filteredLabels());
@@ -724,20 +730,15 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
     auto labels = getLabels();
 
     if (selected < (int)labels.size()) {
-      Menu *menu = new Menu(window);
       std::string selectedLabel = labels.at(selected);
-      menu->setTitle(selectedLabel);
-      tmpLabel[0] = '\0';
-      menu->addLine(STR_NEW_LABEL, [=]() {
-        newLabel();
-        return 0;
-      });
+
       if (selectedLabel != STR_UNLABELEDMODEL) {
+        Menu *menu = new Menu(window);
+        menu->setTitle(selectedLabel);
         menu->addLine(STR_RENAME_LABEL, [=]() {
           auto oldLabel = labels[selected];
           strncpy(tmpLabel, oldLabel.c_str(), MAX_LABEL_SIZE);
           tmpLabel[MAX_LABEL_SIZE] = '\0';
-
           new LabelDialog(this, tmpLabel, [=](std::string newLabel) {
             auto rndialog =
                 new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
