@@ -244,7 +244,7 @@ char* yaml_rgb2hex(uint32_t i)
 
 int32_t yaml_to_signed(uint32_t i, uint32_t bits)
 {
-    if (i & (1 << (bits-1))) {
+    if (bits < 32 && (i & (1 << (bits-1)))) {
         i |= 0xFFFFFFFF << bits;
     }
 
