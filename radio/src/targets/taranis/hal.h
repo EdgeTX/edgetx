@@ -1461,7 +1461,7 @@
   #define LED_RED_GPIO_PIN              GPIO_Pin_13 // PE.13
   #define LED_BLUE_GPIO                 GPIOE
   #define LED_BLUE_GPIO_PIN             GPIO_Pin_2  // PE.02
-#elif defined(RADIO_TPRO)
+#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TX12)
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              GPIO_SetBits
   #define GPIO_LED_GPIO_OFF             GPIO_ResetBits
