@@ -748,6 +748,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                 });
             auto labels = getLabels();
             lblselector->setNames(labels);
+            updateFilteredLabels(modelslabels.filteredLabels(), false);
           });
           return 0;
         });
