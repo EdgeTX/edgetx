@@ -323,7 +323,6 @@ LabelsVector ModelMap::getLabels()
  *           index to it. If label doesn't exist it adds it at the end of the
  *           list and returns the new index
  *           Won't allow creation of the special case label "Unlabeled" STR_UNLABELEDMODEL
- *           All commas(',') are replaced with underscore('_')
  *
  * @param lbl Adds a label to the list
  * @return int -1 on failure, label index on success
@@ -333,9 +332,6 @@ int ModelMap::addLabel(std::string lbl)
 {
   if (lbl.size() == 0) return -1;
   if (lbl == STR_UNLABELEDMODEL) return -1;
-
-  // Remove any commas
-  std::replace(lbl.begin(), lbl.end(), ',', '_');
 
   // Add a new label if if doesn't already exist in the list
   // Returns the index to the label
@@ -364,12 +360,8 @@ bool ModelMap::addLabelToModel(const std::string &lbl, ModelCell *cell,
 {
   // First check that there aren't too many labels on this model
   LabelsVector lbs = getLabelsByModel(cell);
-  int sz = 0;
-  for (auto const &it : lbs) {
-    sz = it.size() + 1;  // Label length + ','
-  }
-  sz += lbl.size() + 1;  // New label + ','
-  if (sz > LABELS_LENGTH - 1) {
+  lbs.push_back(lbl);
+  if(ModelMap::toCSV(lbs).size() > LABELS_LENGTH - 1) {
     TRACE("Cannot add the %s label to the model. Too many labels", lbl.c_str());
     return true;
   }
@@ -410,6 +402,73 @@ void ModelMap::setSortOrder(ModelsSortBy sortby)
 }
 
 /**
+ * @brief Convert a vector of labels to a comma separated list
+ *
+ * @param labels Vector of the labels
+ * @return labels list in CSV format
+ */
+
+std::string ModelMap::toCSV(const LabelsVector &labels)
+{
+  std::string csv;
+  bool comma=false;
+  for(auto lbl: labels) {
+    if(lbl == "")
+      continue;
+    if(comma) {
+      csv += ',';
+    }
+    // Escape out commas
+    replace_all(lbl, "/", "//");
+    replace_all(lbl, ",", "/c");
+    csv += lbl;
+    comma = true;
+  }
+  return csv;
+}
+
+/**
+ * @brief Convert a Comma separated string list to LabelsVector
+ *
+ * @param str Comma separated string of labels
+ * @return vector of all labels
+ */
+
+LabelsVector ModelMap::fromCSV(const char *str)
+{
+  LabelsVector lbls;
+  std::istringstream f(str);
+  std::string lbl;
+  while (std::getline(f, lbl, ',')) {
+    // Un-escape commas
+    replace_all(lbl, "/c", ",");
+    replace_all(lbl, "//", "/");
+    lbls.push_back(lbl);
+  }
+  return lbls;
+}
+
+/**
+ * @brief Replace all occurances of <from> to <to> in <str>
+ *
+ * @param str String
+ * @param from String to search
+ * @param to String to replace
+ */
+
+void ModelMap::replace_all(std::string &str,
+                           const std::string &from,
+                           const std::string &to)
+{
+  if(from.empty()) return;
+  size_t pos = 0;
+  while((pos = str.find(from, pos)) != std::string::npos) {
+        str.replace(pos, from.length(), to);
+        pos += to.length();
+  }
+}
+
+/**
  * @brief Removes a label from a model
  *
  * @param label Label to be removed
@@ -440,9 +499,8 @@ bool ModelMap::removeLabelFromModel(const std::string &label, ModelCell *cell,
 /**
  * @brief Removes a label
  * @details Remove a label from the list, only if there are no models that have
- *          the label selected. The label isn't actually removed only set blank
- *          this is to keep the proper index of the multimap.
- *          On reboot it will be re-synced again.
+ *          the label selected. The label is set blank, when writing this will be
+ *          skipped. Labels are re-synced
  *
  * @param label Label to be removed
  * @return true Label wasn't found or not empty
@@ -467,6 +525,11 @@ bool ModelMap::removeLabel(
   if (!renameFault && getLabels().size() == 0) {
     addLabel(STR_FAVORITE_LABEL);
   }
+
+  // Save and rescan
+  modelslist.save();
+  modelslist.clear();
+  modelslist.load();
 
   return renameFault;
 }
@@ -546,8 +609,18 @@ bool ModelMap::renameLabel(
     readModelYaml(modcell->modelFilename, (uint8_t *)modeldata,
                   sizeof(ModelData));
 
-    // Make sure there is room to rename
-    int nlen = strlen(modeldata->header.labels) + to.size() - from.size();
+    // Make sure there is room to rename, use toCSV to capture escape chars
+    LabelsVector tmpvect;
+    tmpvect.push_back(to);
+    int newlen = ModelMap::toCSV(tmpvect).size();
+    tmpvect.clear();
+    tmpvect.push_back(from);
+    int oldlen = ModelMap::toCSV(tmpvect).size();
+
+    // Separate Curent CSV
+    LabelsVector lbls = ModelMap::fromCSV(modeldata->header.labels);
+
+    int nlen = lbls.size() + newlen - oldlen;
     if (nlen > LABELS_LENGTH - 1) {
       fault = true;
       TRACE("Labels: Rename Error! Labels too long on %s - %s",
@@ -555,37 +628,20 @@ bool ModelMap::renameLabel(
       continue;
     }
 
-    // Separate CSV
-    LabelsVector lbls;
-    char *cma;
-    cma = strtok(modeldata->header.labels, ",");
-    int numTokens = 0;
-    while (cma != NULL) {
-      lbls.push_back(cma);
-      cma = strtok(NULL, ",");
-      numTokens++;
-    }
-
     // Replace from->to strings
     for (auto &lbl : lbls) {
       if (lbl == from) lbl = to;
     }
 
-    // Remove duplicates
+    // Remove possible duplicates
     std::sort(lbls.begin(), lbls.end());
     auto last = std::unique(lbls.begin(), lbls.end());
     lbls.erase(last, lbls.end());
     lbls.resize(std::distance(lbls.begin(), last));
 
     // Write back
-    bool comma = false;
-    modeldata->header.labels[0] = '\0';
-    for (auto lbl : lbls) {
-      if (lbl == "") continue;
-      if (comma) strcat(modeldata->header.labels, ",");
-      strcat(modeldata->header.labels, lbl.c_str());
-      comma = true;
-    }
+    strncpy(modeldata->header.labels, ModelMap::toCSV(lbls).c_str(), LABELS_LENGTH);
+    modeldata->header.labels[LABELS_LENGTH-1] = '\0';
 
     char path[256];
     getModelPath(path, modcell->modelFilename);
@@ -631,25 +687,20 @@ bool ModelMap::renameLabel(
 }
 
 /**
- * @brief Returns a comma separated list of the labels
+ * @brief Returns a comma separated list of the labels, used in model_setup
  *
- * @param curmod Module
- * @return std::string
+ * @param curmod Model Cell
+ * @param noresults String to return when no labels found
+ * @return std::string of all Labels, if no results return
  */
 
 std::string ModelMap::getLabelString(ModelCell *curmod, const char *noresults)
 {
-  std::string allLabels;
-  int numModels = 0;
-  for (auto &label : getSelectedLabels(curmod)) {
-    if (label.second) {
-      allLabels = allLabels + (numModels != 0 ? "," : "") + label.first;
-      numModels++;
-    }
+  std::string lbls = ModelMap::toCSV(getLabelsByModel(curmod));
+  if(lbls.size() == 0) {
+    return noresults;
   }
-  if (numModels == 0) allLabels = noresults;
-
-  return allLabels;
+  return lbls;
 }
 
 /**
@@ -781,6 +832,9 @@ void ModelsList::init()
 
 void ModelsList::clear()
 {
+  for(ModelCell *mdl: *this) {
+    delete(mdl);
+  }
   std::vector<ModelCell *>::clear();
   init();
 }
@@ -843,11 +897,9 @@ void ModelMap::updateModelCell(ModelCell *cell)
   readModelYaml(cell->modelFilename, (uint8_t *)model, sizeof(ModelData));
   strcpy(cell->modelName, model->header.name);
   strcpy(cell->modelBitmap, model->header.bitmap);
-  char *cma;
-  cma = strtok(model->header.labels, ",");
-  while (cma != NULL) {
-    modelslabels.addLabelToModel(cma, cell);
-    cma = strtok(NULL, ",");
+  LabelsVector labels = ModelMap::fromCSV(model->header.labels);
+  for(const auto &lbl : labels ) {
+    modelslabels.addLabelToModel(lbl,cell);
   }
 
   // Save Module Data
@@ -1105,17 +1157,7 @@ const char *ModelsList::save(LabelsVector newOrder)
                  (unsigned int)model->moduleData[i].subType);
     }
 
-    f_puts("    labels: \"", &file);
-    LabelsVector labels = modelslabels.getLabelsByModel(model);
-    bool comma = false;
-    for (auto const &label : labels) {
-      if (comma) {
-        f_puts(",", &file);
-      }
-      f_puts(label.c_str(), &file);
-      comma = true;
-    }
-    f_puts("\"\r\n", &file);
+    f_printf(&file, "    labels: \"%s\"\r\n", ModelMap::toCSV(modelslabels.getLabelsByModel(model)).c_str());
 
 #if LEN_BITMAP_NAME > 0
     f_puts("    bitmap: \"", &file);
@@ -1202,7 +1244,7 @@ bool ModelsList::readNextLine(char *line, int maxlen)
  *
  * @param name Model File Name
  * @param save True=Update labels.yml right away
- * @param copyCell If duplicating, copy the data from this cell. If duplicating, leave null
+ * @param copyCell If duplicating copy the data from this cell, otherwise leave null
  * @return ModelCell* New Model
  */
 

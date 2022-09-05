@@ -111,7 +111,6 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
 
     TRACE_LABELS_YAML("YAML Found Node. Level = %u, Section= %u, %s", mi->level, mi->section, mi->current_attr);
 
-
     // Switch between the different maps in labels.yml
     if (mi->level == 0) {
       if (strcasecmp(mi->current_attr,"labels") == 0) {
@@ -131,7 +130,11 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
       bool found=false;
       for(auto &filehash : modelslist.fileHashInfo) {
         if(filehash.name == mi->current_attr) {
-          TRACE_LABELS_YAML("  Model %s has a real file, creating a modelcell");
+          TRACE_LABELS_YAML("  Model %s has a real file, creating a modelcell", filehash.name);
+          if(filehash.celladded) {
+            TRACE_LABELS_YAML("    Duplicate found labels.yml model cell %s already added", filehash.name);
+            break;
+          }
           ModelCell *model = new ModelCell(mi->current_attr);
           strcpy(model->modelFinfoHash, filehash.hash);
           modelslist.push_back(model);
@@ -172,81 +175,71 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
   TRACE_LABELS_YAML("YAML Attr Level %u, Section %u, %s = %s", mi->level, mi->section, mi->current_attr, value);
 
   // Model Section
-  if(mi->level == 2 && mi->section == labelslist_iter::SEC_Models) {
+  if(mi->level == 2 && mi->section == labelslist_iter::SEC_Models && mi->curmodel != NULL) {
     // File Hash
     if(!strcasecmp(mi->current_attr, "hash")) {
-      if(mi->curmodel != NULL) {
-          if(!strcmp(mi->curmodel->modelFinfoHash, value)) {
-            TRACE_LABELS_YAML("FILE HASH MATCHES, No need to scan this model, just load the settings");
-            mi->modeldatavalid = true;
-            mi->curmodel->valid_rfData = true;
-            mi->curmodel->_isDirty = false;
-          } else {
-            TRACE_LABELS_YAML("FILE HASH Does not Match, Open model and rebuild modelcell");
-            mi->modeldatavalid = false;
-            mi->curmodel->_isDirty = true;
-          }
+      if(!strcmp(mi->curmodel->modelFinfoHash, value)) {
+        TRACE_LABELS_YAML("FILE HASH MATCHES, No need to scan this model, just load the settings");
+        mi->modeldatavalid = true;
+        mi->curmodel->valid_rfData = true;
+        mi->curmodel->_isDirty = false;
+      } else {
+        TRACE_LABELS_YAML("FILE HASH Does not Match, Open model and rebuild modelcell");
+        mi->modeldatavalid = false;
+        mi->curmodel->_isDirty = true;
       }
+    }
 
-    // Model Name
-    } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "name")) {
-      if(mi->curmodel != NULL) {
+    // Don't bother filling in values below if hash didn't match
+    if(mi->modeldatavalid) {
+      // Model Name
+      if(!strcasecmp(mi->current_attr, "name")) {
         mi->curmodel->setModelName(value);
         TRACE_LABELS_YAML(" Set the models name");
-      }
 
-    // Last Opened
-    } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "lastopen")) {
-      if(mi->curmodel != NULL) {
+      // Last Opened
+      } else if(!strcasecmp(mi->current_attr, "lastopen")) {
         mi->curmodel->lastOpened = (gtime_t)strtol(value, NULL, 0);
         TRACE_LABELS_YAML(" Last Opened %lu", value);
-      }
 
-    // Model Bitmap
-#if LEN_BITMAP_NAME > 0
-    } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "bitmap")) {
-      if(mi->curmodel != NULL) {
+      // Model Bitmap
+  #if LEN_BITMAP_NAME > 0
+      } else if(!strcasecmp(mi->current_attr, "bitmap")) {
         // TODO Check if it exists ?
         strcpy(mi->curmodel->modelBitmap, value);
         TRACE_LABELS_YAML(" Set the models bitmap");
-      }
-#endif
+  #endif
 
-    // Model Labels
-    } else if(mi->modeldatavalid && !strcasecmp(mi->current_attr, "labels")) {
-      if(mi->curmodel != NULL) {
-        char *cma;
-        cma = strtok(value, ",");
-        int numTokens = 0;
-        while(cma != NULL) {
-          modelslabels.addLabelToModel(cma,mi->curmodel);
-          TRACE_LABELS_YAML("  Adding the label - %s", cma);
-          cma = strtok(NULL, ",");
-          numTokens++;
+      // Model Labels
+      } else if(!strcasecmp(mi->current_attr, "labels")) {
+        LabelsVector labels = ModelMap::fromCSV(value);
+        for(const auto &lbl : labels ) {
+          modelslabels.addLabelToModel(lbl,mi->curmodel);
+          TRACE_LABELS_YAML("  Adding the label - %s", lbl.c_str());
         }
-      }
 
-    // RF Module Data
-    } else {
-      char cmp[15];
-      for(int i=0; i < NUM_MODULES; i++) {
-        snprintf(cmp, sizeof(cmp), MODULE_ID_STR, i);
-        cmp[sizeof(cmp)-1] = '\0';
-        if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->modelId[i] = strtol(value,NULL,10);
-          TRACE_LABELS_YAML( " Set the module %d rfId to %s", i, value);
-        }
-        snprintf(cmp, sizeof(cmp), MODULE_TYPE_STR, i);
-        cmp[sizeof(cmp)-1] = '\0';
-        if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->moduleData[i].type = strtol(value,NULL,10);
-          TRACE_LABELS_YAML(" Set the module %d rfType to %s", i, value);
-        }
-        snprintf(cmp, sizeof(cmp), MODULE_RFPROTOCOL_STR, i);
-        cmp[sizeof(cmp)-1] = '\0';
-        if(mi->curmodel != NULL && mi->modeldatavalid && !strcasecmp(mi->current_attr, cmp)) {
-          mi->curmodel->moduleData[i].subType = strtol(value,NULL,10);
-          TRACE_LABELS_YAML(" Set the module %d rfProtocol to %s", i, value);
+      // RF Module Data
+      } else {
+        char cmp[15];
+        for(int i=0; i < NUM_MODULES; i++) {
+          snprintf(cmp, sizeof(cmp), MODULE_ID_STR, i);
+          cmp[sizeof(cmp)-1] = '\0';
+          if(!strcasecmp(mi->current_attr, cmp)) {
+            mi->curmodel->modelId[i] = strtol(value,NULL,10);
+            TRACE_LABELS_YAML( " Set the module %d rfId to %s", i, value);
+          }
+          snprintf(cmp, sizeof(cmp), MODULE_TYPE_STR, i);
+          cmp[sizeof(cmp)-1] = '\0';
+          if(!strcasecmp(mi->current_attr, cmp)) {
+            mi->curmodel->moduleData[i].type = strtol(value,NULL,10);
+            TRACE_LABELS_YAML(" Set the module %d rfType to %s", i, value);
+          }
+          snprintf(cmp, sizeof(cmp), MODULE_RFPROTOCOL_STR, i);
+          cmp[sizeof(cmp)-1] = '\0';
+          if(!strcasecmp(mi->current_attr, cmp)) {
+            mi->curmodel->moduleData[i].subType = strtol(value,NULL,10);
+            TRACE_LABELS_YAML(" Set the module %d rfProtocol to %s", i, value);
+          }
         }
       }
     }

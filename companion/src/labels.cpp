@@ -52,7 +52,7 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
   } else if(role == Qt::EditRole) {
     QString replFrom = labels[index.row()].label;
-    QString replTo = value.toString().replace(',','_'); // Don't allow comma, replace with _
+    QString replTo = value.toString();
     if(radioData->labels.indexOf(replTo) == -1) { // Don't allow duplicates
       bool modelsChanged = radioData->renameLabel(replFrom,replTo);
       labels[index.row()].label = replTo;
@@ -84,6 +84,8 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
     if(index.column() == 0 && selectedModel >= 0 &&
       selectedModel < (int)radioData->models.size()) {
       QStringList modelLabels = QString(radioData->models.at(selectedModel).labels).split(',',QString::SkipEmptyParts);
+      label.replace("/","//");
+      label.replace(",","/c");
       return modelLabels.indexOf(label)==-1?Qt::Unchecked:Qt::Checked;
     } else if (index.column() == 0 && selectedModel == -1) {
       return Qt::Unchecked;
