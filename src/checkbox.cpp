@@ -45,10 +45,17 @@ CheckBox::CheckBox(Window* parent, const rect_t& rect,
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN);
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_STATE_FOCUSED);
 
-  if (_getValue && _getValue()) lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  update();
 
   lv_obj_add_event_cb(lvobj, checkbox_event_handler,
                       LV_EVENT_VALUE_CHANGED, this);
+}
+
+void CheckBox::update() const
+{
+  if (!_getValue) return;
+  if (_getValue()) lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+  else lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
 }
 
 void CheckBox::onClicked()

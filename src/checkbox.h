@@ -51,6 +51,8 @@ class CheckBox : public FormField
     _getValue = std::move(handler);
   }
 
+  void update() const;
+  
  protected:
   std::string label;
   std::function<uint8_t()> _getValue;
