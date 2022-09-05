@@ -171,7 +171,11 @@ void boardInit()
 
 #if defined(STATUS_LEDS)
   ledInit();
+#if defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TX12)
+  ledBlue();
+#else
   ledGreen();
+#endif
 #endif
 
 // Support for FS Led to indicate battery charge level
