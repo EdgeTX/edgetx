@@ -589,6 +589,57 @@ static int luaGetBitmapSize(lua_State * L)
 }
 
 /*luadoc
+@function Bitmap.resize(bitmap, width, height)
+
+Return a resized bitmap object
+
+@param bitmap (pointer) point to a bitmap previously opened with Bitmap.open()
+
+@param width (number) the new bitmap width
+
+@param height (number) the new bitmap height
+
+@notice Only available on Horus
+
+@status current Introduced in 2.8.0
+*/
+static int luaBitmapResize(lua_State * L)
+{
+  const BitmapBuffer * b = checkBitmap(L, 1);
+  unsigned int w = luaL_checkunsigned(L, 2);
+  unsigned int h = luaL_checkunsigned(L, 3);
+
+  if (!b) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  BitmapBuffer **n = (BitmapBuffer**)lua_newuserdata(L, sizeof(BitmapBuffer*));
+
+  if (luaExtraMemoryUsage > LUA_MEM_EXTRA_MAX) {
+    // already allocated more than max allowed, fail
+    TRACE("luaOpenBitmap: Error, using too much memory %u/%u",
+          luaExtraMemoryUsage, LUA_MEM_EXTRA_MAX);
+    *n = 0;
+  } else {
+    *n = new BitmapBuffer(BMP_ARGB4444, w, h);
+    (*n)->clear();
+    (*n)->drawScaledBitmap(b, 0, 0, w, h);
+  }
+
+  if (*n) {
+    uint32_t size = (*n)->getDataSize();
+    luaExtraMemoryUsage += size;
+    TRACE("luaResizeBitmap: %p (%u)", *n, size);
+  }
+
+  luaL_getmetatable(L, LUA_BITMAPHANDLE);
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
+
+/*luadoc
 @function Bitmap.toMask(bitmap)
 
 Return a 8bit bitmap mask that can be used with lcd.drawBitmapPattern()
@@ -635,6 +686,7 @@ static int luaDestroyBitmap(lua_State * L)
 const luaL_Reg bitmapFuncs[] = {
   { "open", luaOpenBitmap },
   { "getSize", luaGetBitmapSize },
+  { "resize", luaBitmapResize },
   { "toMask", luaBitmapTo8bitMask },
   { "__gc", luaDestroyBitmap },
   { NULL, NULL }
