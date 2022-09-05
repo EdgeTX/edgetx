@@ -917,6 +917,32 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadiu
   }
 }
 
+uint8_t * BitmapBuffer::to8bitMask(size_t* size) const {
+  *size = width() * height()+4;
+  uint8_t* mask = (uint8_t*)malloc(*size);
+  ((uint16_t*)mask)[0] = width();
+  ((uint16_t*)mask)[1] = height();
+  const pixel_t * p = getPixelPtrAbs(0, 0);
+  if (getFormat() == BMP_ARGB4444) {
+    auto ofs = 4u;
+    for (int i = width() * height(); i > 0; i--) {
+      ARGB_SPLIT(*p, a __attribute__((unused)), r, g, b);
+      auto v = ((uint32_t)r + (uint32_t)g + (uint32_t)b) / 3;
+      mask[ofs++] =  ((OPACITY_MAX - v) << 4);
+      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+    }
+  } else { // BMP_RGB565
+    auto ofs = 4u;
+    for (int i = width() * height(); i > 0; i--) {
+      auto v = ((GET_RED(*p) >> 1) + (GET_GREEN(*p) >> 2) + (GET_BLUE(*p) >> 1)) / 3;
+      mask[ofs++] =  ((OPACITY_MAX - v) << 4);
+      MOVE_TO_NEXT_RIGHT_PIXEL(p);
+    }
+  }
+
+  return mask;
+}
+
 void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offsetX, coord_t width)
 {
   if (!mask)
