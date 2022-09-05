@@ -2447,6 +2447,27 @@ static int luaSources(lua_State * L)
   return 3;
 }
 
+/*luadoc
+@function getOutputValue(outputIndex)
+
+@param outputIndex: integer identifying the output channel number 0 for CH1, up to MAX_OUTPUT_CHANNELS - 1.
+
+@retval value current output value (number). Zero is returned for:
+ * non-existing outputs
+
+@status current Introduced in 2.8.0
+*/
+static int luaGetOutputValue(lua_State * L)
+{
+  mixsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+    lua_pushinteger(L, channelOutputs[idx]);
+  } else {
+    lua_pushinteger(L, 0);
+  }
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -2459,6 +2480,7 @@ const luaL_Reg opentxLib[] = {
   { "getRotEncSpeed", luaGetRotEncSpeed },
   { "getRotEncMode", luaGetRotEncMode },
   { "getValue", luaGetValue },
+  { "getOutputValue", luaGetOutputValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },
