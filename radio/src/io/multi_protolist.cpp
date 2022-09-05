@@ -400,6 +400,15 @@ void MultiRfProtocols::fillBuiltinProtos()
     rfProto.flags =
         (pdef->failsafe ? 0x01 : 0) | (pdef->disable_ch_mapping ? 0x02 : 0);
 
+    if (pdef->optionsstr != nullptr) {
+      for (uint8_t i = 0; i < getMaxMultiOptions(); i++) {
+        if (pdef->optionsstr == mm_options_strings::options[i]) {
+          rfProto.flags |= i << 4;
+          break;
+        }
+      }
+    }
+
     if (pdef->subTypeString) {
       rfProto.fillSubProtoList(pdef->subTypeString, pdef->maxSubtype + 1);
     }

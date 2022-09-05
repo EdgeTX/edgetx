@@ -63,12 +63,16 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
+struct FailsafeChoice;
+
 class ModuleWindow : public FormGroup
 {
  public:
   ModuleWindow(Window* parent, uint8_t moduleIdx);
   void updateModule();
   void updateSubType();
+  void updateRxID();
+  void updateFailsafe();
 
   uint8_t getModuleIdx() const { return moduleIdx; }
 
@@ -77,11 +81,12 @@ class ModuleWindow : public FormGroup
 
   ModuleOptions* modOpts = nullptr;
   ChannelRange* chRange = nullptr;
-  Window *rxID = nullptr;
+  NumberEdit *rxID = nullptr;
   TextButton *bindButton = nullptr;
   TextButton *rangeButton = nullptr;
   TextButton *registerButton = nullptr;
   Window *fsLine = nullptr;
+  FailsafeChoice* fsChoice = nullptr;
   Choice *rfPower = nullptr;
   StaticText *idUnique = nullptr;
 
@@ -92,6 +97,10 @@ class ModuleWindow : public FormGroup
 
 struct FailsafeChoice : public FormGroup {
   FailsafeChoice(Window* parent, uint8_t moduleIdx);
+  void update() const;
+
+ private:
+  lv_obj_t* c_obj;
 };
 
 static void fs_changed(lv_event_t* e)
@@ -128,10 +137,24 @@ FailsafeChoice::FailsafeChoice(Window* parent, uint8_t moduleIdx) :
     return 0;
   });
 
-  auto c_obj = choice->getLvObj();
+  c_obj = choice->getLvObj();
   auto btn_obj = btn->getLvObj();
   lv_obj_add_event_cb(c_obj, fs_changed, LV_EVENT_VALUE_CHANGED, btn_obj);
   lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+void FailsafeChoice::update() const
+{
+  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+}
+
+static void mw_refresh_cb(lv_event_t* e)
+{
+  auto mw = (ModuleWindow*)lv_event_get_user_data(e);
+  if (mw) {
+    mw->updateRxID();
+    mw->updateFailsafe();
+  }
 }
 
 ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
@@ -140,6 +163,7 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 {
   setFlexLayout();
   updateModule();
+  lv_obj_add_event_cb(lvobj, mw_refresh_cb, LV_EVENT_REFRESH, this);
 }
 
 void ModuleWindow::updateIDStaticText(int mdIdx)
@@ -170,6 +194,7 @@ void ModuleWindow::updateModule()
   rangeButton = nullptr;
   registerButton = nullptr;
   fsLine = nullptr;
+  fsChoice = nullptr;
   rfPower = nullptr;
 
   // Module parameters
@@ -202,7 +227,7 @@ void ModuleWindow::updateModule()
   // Failsafe
   fsLine = newLine(&grid);
   new StaticText(fsLine, rect_t{}, STR_FAILSAFE, 0, COLOR_THEME_PRIMARY1);
-  new FailsafeChoice(fsLine, moduleIdx);
+  fsChoice = new FailsafeChoice(fsLine, moduleIdx);
 
   // PPM modules
   if (isModulePPM(moduleIdx)) {
@@ -436,21 +461,9 @@ void ModuleWindow::updateSubType()
   if (modOpts) modOpts->update();
   if (chRange) chRange->update();
 
-  if (rxID) {
-    if (isModuleModelIndexAvailable(moduleIdx)) {
-      lv_obj_clear_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_add_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
-  }
-
-  if (fsLine) {
-    if (isModuleFailsafeAvailable(moduleIdx)) {
-      lv_obj_clear_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_add_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
-  }
+  updateRxID();
+  updateFailsafe();
+  
   if (rfPower) {
     if (isModuleR9M_LBT(moduleIdx)) {
       rfPower->setValues(STR_R9M_LBT_POWER_VALUES);
@@ -460,6 +473,30 @@ void ModuleWindow::updateSubType()
       rfPower->setMax(R9M_FCC_POWER_MAX);
     }
     lv_event_send(rfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  }
+}
+
+void ModuleWindow::updateRxID()
+{
+  if (rxID) {
+    if (isModuleModelIndexAvailable(moduleIdx)) {
+      lv_obj_clear_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      rxID->update();
+    } else {
+      lv_obj_add_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+}
+
+void ModuleWindow::updateFailsafe()
+{
+  if (fsLine) {
+    if (isModuleFailsafeAvailable(moduleIdx)) {
+      lv_obj_clear_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      fsChoice->update();
+    } else {
+      lv_obj_add_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
   }
 }
 
