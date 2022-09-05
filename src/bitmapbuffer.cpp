@@ -1257,14 +1257,14 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 //}
 //
 
-BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename)
+BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::loadBitmap(%s)", filename);
   const char * ext = getFileExtension(filename);
   if (ext && !strcmp(ext, ".bmp"))
     return load_bmp(filename);
   else
-    return load_stb(filename);
+    return load_stb(filename, fmt);
 }
 
 BitmapBuffer * BitmapBuffer::loadRamBitmap(const uint8_t * buffer, int len)
@@ -1679,7 +1679,7 @@ const stbi_io_callbacks stbCallbacks = {
   stbc_eof
 };
 
-BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
+BitmapBuffer * BitmapBuffer::load_stb(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::load_stb(%s)", filename);
 
@@ -1708,7 +1708,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename)
   }
 
   //TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d/%d", filename, x, y, nn, n);
-  BitmapBuffer * bmp = convert_stb_bitmap(img, w, h, n);
+  BitmapBuffer * bmp = convert_stb_bitmap(img, w, h, n, fmt);
   stbi_image_free(img);
   return bmp;
 }
@@ -1727,22 +1727,24 @@ BitmapBuffer * BitmapBuffer::load_stb_buffer(const uint8_t * buffer, int len)
   return bmp;
 }
 
-BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int n)
+BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int n,
+                                                BitmapFormats fmt)
 {
   // convert to RGB565 or ARGB4444 format
-  //TRACE("  BitmapBuffer::convert_stb_bitmap(%d)", n);
-  BitmapBuffer * bmp = new BitmapBuffer(n == 4 ? BMP_ARGB4444 : BMP_RGB565, w, h);
+  BitmapFormats dst_fmt = fmt;
+  if (dst_fmt == BMP_INVALID) {
+    dst_fmt = (n == 4 ? BMP_ARGB4444 : BMP_RGB565);
+  }
+  
+  BitmapBuffer * bmp = new BitmapBuffer(dst_fmt, w, h);
   if (bmp == nullptr) {
     TRACE("convert_stn_bitmap: malloc failed");
     return nullptr;
   }
 
-#if 0 // use Stb's "stbi__vertically_flip_on_load" instead of this?
-  DMABitmapConvert(bmp->data, img, w, h, n == 4 ? DMA2D_ARGB4444 : DMA2D_RGB565);
-#else
   pixel_t * dest = bmp->getPixelPtrAbs(0, 0);
   const uint8_t * p = img;
-  if (n == 4) {
+  if (dst_fmt == BMP_ARGB4444) {
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {
         *dest = ARGB(p[3], p[0], p[1], p[2]);
@@ -1751,7 +1753,7 @@ BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int
       }
     }
   }
-  else { // assume 3 bytes, packed in groups of 4, I guess
+  else { // assume 3 bytes, packed in groups of 4
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {
         *dest = RGB(p[0], p[1], p[2]);
@@ -1760,7 +1762,6 @@ BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int
       }
     }
   }
-#endif
 
   return bmp;
 }
