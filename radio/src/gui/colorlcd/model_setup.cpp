@@ -247,7 +247,8 @@ void ModelSetupPage::build(FormWindow * window)
              else
                modelslabels.removeLabelFromModel(label, curmod);
              labelTextButton->setText(modelslabels.getBulletLabelString(curmod,STR_UNLABELEDMODEL));
-             strcpy(g_model.header.labels, modelslabels.getBulletLabelString(curmod,STR_UNLABELEDMODEL).c_str());
+             strncpy(g_model.header.labels, ModelMap::toCSV(modelslabels.getLabelsByModel(curmod)).c_str(),sizeof(g_model.header.labels));
+             g_model.header.labels[sizeof(g_model.header.labels)-1] = '\0';
              SET_DIRTY();
            }, [=] () {
              return modelslabels.isLabelSelected(label, curmod);
