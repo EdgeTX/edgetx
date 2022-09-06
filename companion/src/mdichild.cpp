@@ -516,7 +516,7 @@ void MdiChild::initModelsList()
   ui->lstLabels->setAcceptDrops(true);
   ui->lstLabels->setDropIndicatorShown(true);
   ui->lstLabels->setDragDropOverwriteMode(false);
-  ui->lstLabels->setDragDropMode(QAbstractItemView::InternalMove);  
+  ui->lstLabels->setDragDropMode(QAbstractItemView::InternalMove);
   ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 
   ui->modelsList->setIndentation(0);
@@ -756,6 +756,8 @@ int MdiChild::newModel(int modelIndex)
 
   bool isNewModel = radioData.models[modelIndex].isEmpty();
   checkAndInitModel(modelIndex);
+  radioData.fixModelFilenames();
+
   // Only set the default model if we just added the first one.
   if (countUsedModels() == 1) {
     radioData.setCurrentModel(modelIndex);
