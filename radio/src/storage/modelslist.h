@@ -143,7 +143,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     currentlabel = lbl;
     setDirty();
   }
-  std::string getLabelString(ModelCell *, const char *noresults = "");
+  std::string getBulletLabelString(ModelCell *, const char *noresults = "");
   void setDirty(bool save = false);
   bool isDirty() { return _isDirty; }
 

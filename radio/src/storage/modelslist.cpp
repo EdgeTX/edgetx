@@ -687,16 +687,19 @@ bool ModelMap::renameLabel(
 }
 
 /**
- * @brief Returns a comma separated list of the labels, used in model_setup
+ * @brief Returns a bullet separated list of the labels, used in model_setup
  *
  * @param curmod Model Cell
  * @param noresults String to return when no labels found
  * @return std::string of all Labels, if no results return
  */
 
-std::string ModelMap::getLabelString(ModelCell *curmod, const char *noresults)
+std::string ModelMap::getBulletLabelString(ModelCell *curmod, const char *noresults)
 {
   std::string lbls = ModelMap::toCSV(getLabelsByModel(curmod));
+  replace_all(lbls, ",", "\u2022");
+  replace_all(lbls, "/c", ",");
+  replace_all(lbls, "//", "/");
   if(lbls.size() == 0) {
     return noresults;
   }
@@ -741,7 +744,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 {
   // Update memory copy if on current model
   if (cell == modelslist.getCurrentModel()) {
-    strncpy(g_model.header.labels, getLabelString(cell).c_str(),
+    strncpy(g_model.header.labels, ModelMap::toCSV(getLabelsByModel(cell)).c_str(),
             LABELS_LENGTH - 1);
     g_model.header.labels[LABELS_LENGTH - 1] = '\0';
     storageDirty(EE_MODEL);
@@ -757,7 +760,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
   bool fault = false;
   readModelYaml(cell->modelFilename, (uint8_t *)modeldata, sizeof(ModelData));
 
-  strncpy(modeldata->header.labels, getLabelString(cell).c_str(),
+  strncpy(modeldata->header.labels, ModelMap::toCSV(getLabelsByModel(cell)).c_str(),
           LABELS_LENGTH - 1);
   modeldata->header.labels[LABELS_LENGTH - 1] = '\0';
 
