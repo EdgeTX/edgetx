@@ -1633,12 +1633,14 @@ void MdiChild::modelSave()
 void MdiChild::labelAdd()
 {
   labelsListModel->insertRow(0);
+  setWindowModified(true);
 }
 
 void MdiChild::labelDelete()
 {
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
   labelsListModel->removeRow(row);
+  setWindowModified(true);
 }
 
 void MdiChild::modelLabelsChanged()

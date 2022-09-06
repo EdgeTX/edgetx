@@ -946,7 +946,7 @@ bool ModelsList::loadYaml()
   // Scan all models in folder
   DIR moddir;
   FILINFO finfo;
-  if (f_opendir(&moddir, PATH_SEPARATOR MODELS_PATH) == FR_OK) {
+  if (f_opendir(&moddir, MODELS_PATH) == FR_OK) {
     for (;;) {
       FRESULT res = f_readdir(&moddir, &finfo);
       if (res != FR_OK || finfo.fname[0] == 0) break;
