@@ -44,8 +44,13 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
       if(radioData->removeLabelFromModel(selectedModel, radioData->labels.at(index.row())))
         emit modelChanged(selectedModel);
     } else {
+      try{
       if(radioData->addLabelToModel(selectedModel, radioData->labels.at(index.row())))
         emit modelChanged(selectedModel);
+      } catch(const std::length_error& le) {
+        emit labelsFault(tr("Unable to add label \"%1\" to model \"%2\" not enough room")\
+                         .arg(radioData->labels.at(index.row())).arg(le.what()));
+      }
     }
     emit dataChanged(this->index(index.row(), 0),
                      this->index(index.row(), 0));
@@ -53,15 +58,25 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
   } else if(role == Qt::EditRole) {
     QString replFrom = labels[index.row()].label;
     QString replTo = value.toString();
+    if(replFrom == replTo) // User exits edit without changing
+      return true;
     if(radioData->labels.indexOf(replTo) == -1) { // Don't allow duplicates
-      bool modelsChanged = radioData->renameLabel(replFrom,replTo);
+      bool modelsChanged = false;
+      try{
+        modelsChanged = radioData->renameLabel(replFrom,replTo);
+      } catch(const std::length_error& le) {
+        emit labelsFault(tr("Unable to rename \"%1\" to \"%2\" not enough room in model %3")\
+                         .arg(replFrom).arg(replTo).arg(le.what()));
+        return false;
+      }
       labels[index.row()].label = replTo;
       emit dataChanged(this->index(index.row(), 0),
                        this->index(index.row(), 0));
       if(selectedModel != -1 && modelsChanged)
         emit modelChanged(selectedModel);
     } else {
-      emit renameFault(tr("Unable to rename \"%1\" to \"%2\" the label already exists").arg(replFrom).arg(replTo));
+      emit labelsFault(tr("Unable to rename \"%1\" to \"%2\" the label already exists")\
+                       .arg(replFrom).arg(replTo));
     }
     return true;
   }

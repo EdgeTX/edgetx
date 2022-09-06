@@ -45,7 +45,7 @@ private slots:
 
 signals:
   void modelChanged(int index);
-  void renameFault(QString msg);
+  void labelsFault(QString msg);
 
 private:
   QItemSelectionModel *modelsSelection;
