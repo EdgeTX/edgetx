@@ -372,7 +372,7 @@
 #define TR_ELEDIRECTION                "HØJ retning"
 #define TR_AILDIRECTION                "KRÆ retning"
 #define TR_COLDIRECTION                "PIT retning"
-#define TR_MODE                        "Tilstand"
+#define TR_MODE                        "Tilst."
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
