@@ -49,8 +49,8 @@ struct labelslist_iter
     bool        modeldatavalid; // Used to determine if reading yaml values is necessary
     uint8_t     level;
     uint8_t     section;
-    char        current_attr[LABEL_LENGTH+1]; // set after find_node()
-    char        current_label[LABEL_LENGTH+1]; // set after find_node()
+    char        current_attr[LABELS_LENGTH+1]; // set after find_node()
+    char        current_label[LABELS_LENGTH+1]; // set after find_node()
 };
 
 static labelslist_iter __labelslist_iter_inst;
@@ -158,8 +158,8 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     if(mi->level == 1 && mi->section == labelslist_iter::SEC_Labels)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
       modelslabels.addLabel(mi->current_attr);
-      strncpy(mi->current_label,mi->current_attr, LABEL_LENGTH);
-      mi->current_label[LABEL_LENGTH] = '\0';
+      strncpy(mi->current_label,mi->current_attr, LABELS_LENGTH);
+      mi->current_label[LABELS_LENGTH] = '\0';
     }
 
     return true;
@@ -167,7 +167,11 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
 
 static void set_attr(void* ctx, char* buf, uint8_t len)
 {
-  char value[40];
+  char value[LABELS_LENGTH + 1];
+  if(len > LABELS_LENGTH) {
+    TRACE("ERROR: YAML too long for buffer");
+    return;
+  }
   memcpy(value, buf, len);
   value[len] = '\0';
 
@@ -256,7 +260,7 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
 
   // Sort Order
   } else if (mi->level == 0 && mi->section == labelslist_iter::SEC_Sort)  {
-    TRACE_LABELS_YAML(" Sort Order Found -- %s", mi->current_attr);
+    TRACE_LABELS_YAML(" Sort Order Found -- %s", value);
     modelslabels.setSortOrder((ModelsSortBy)strtol(value,NULL,10));
   }
 }
