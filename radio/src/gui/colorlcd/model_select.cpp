@@ -383,7 +383,6 @@ void ModelsPageBody::selectModel(ModelCell *model)
   storageCheck(true);
 
   modelslist.setCurrentModel(model);
-  checkAll();
 
   // Exit to main view
   auto w = Layer::back();
