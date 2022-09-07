@@ -1635,6 +1635,87 @@ static int luaModelResetSensor(lua_State *L)
   return 1;
 }
 
+#if defined(HELI)
+/*luadoc
+@function model.getSwashRing()
+
+Get heli swash parameters
+
+@retval table with heli swash parameters:
+* `type` (number) 0=---, 1=120, 2=120X, 3=140, 4=90
+* `value` (number) swash ring value (normally 0)
+* 'collectiveSource' (number) source index
+* 'aileronSource' (number) source index
+* 'elevatorSource' (number) source index
+* 'collectiveWeight'(value) -100 to 100
+* 'aileronWeight' (value) -100 to 100
+* 'elevatorWeight' (value) -100 to 100
+
+ @status current Introduced in 2.8.0
+*/
+static int luaModelGetSwashRing(lua_State *L)
+{
+  lua_newtable(L);
+  lua_pushtableinteger(L, "type", g_model.swashR.type);
+  lua_pushtableinteger(L, "value", g_model.swashR.value);
+  lua_pushtableinteger(L, "collectiveSource", g_model.swashR.collectiveSource);
+  lua_pushtableinteger(L, "aileronSource", g_model.swashR.aileronSource);
+  lua_pushtableinteger(L, "elevatorSource", g_model.swashR.elevatorSource);
+  lua_pushtableinteger(L, "collectiveWeight", g_model.swashR.collectiveWeight);
+  lua_pushtableinteger(L, "aileronWeight", g_model.swashR.aileronWeight);
+  lua_pushtableinteger(L, "elevatorWeight", g_model.swashR.elevatorWeight);
+
+  return 1;
+}
+
+/*luadoc
+@function model.setSwashRing(params)
+
+Set heli swash parameters
+
+@param value (table) swash ring parameters, see model.getSwashRing() for table format
+
+@notice If a parameter is missing, then that parameter remains unchanged.
+
+@status current Introduced in 2.8.0
+*/
+static int luaModelSetSwashRing(lua_State *L)
+{
+  luaL_checktype(L, -1, LUA_TTABLE);
+  for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+    luaL_checktype(L, -2, LUA_TSTRING); // key is string
+    const char * key = luaL_checkstring(L, -2);
+    if (!strcmp(key, "type")) {
+      g_model.swashR.type = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "value")) {
+      g_model.swashR.value = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "collectiveSource")) {
+      g_model.swashR.collectiveSource = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "aileronSource")) {
+      g_model.swashR.aileronSource = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "elevatorSource")) {
+      g_model.swashR.elevatorSource = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "collectiveWeight")) {
+      g_model.swashR.collectiveWeight = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "aileronWeight")) {
+      g_model.swashR.aileronWeight = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "elevatorWeight")) {
+      g_model.swashR.elevatorWeight = luaL_checkinteger(L, -1);
+    }
+  }
+
+  storageDirty(EE_MODEL);
+  return 0;
+}
+#endif // HELI
+
 const luaL_Reg modelLib[] = {
   { "getInfo", luaModelGetInfo },
   { "setInfo", luaModelSetInfo },
@@ -1671,5 +1752,9 @@ const luaL_Reg modelLib[] = {
 #endif
   { "getSensor", luaModelGetSensor },
   { "resetSensor", luaModelResetSensor },
-  { NULL, NULL }  /* sentinel */
+#if defined(HELI)
+  { "getSwashRing", luaModelGetSwashRing },
+  { "setSwashRing", luaModelSetSwashRing },
+#endif
+  { nullptr, nullptr }  /* sentinel */
 };
