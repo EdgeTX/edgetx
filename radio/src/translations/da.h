@@ -48,7 +48,7 @@
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
-#define TR_SBUS_INVERSION_VALUES       "normal","ikke inverteret"
+#define TR_SBUS_INVERSION_VALUES       "normal","ikke invers"
 #define TR_MULTI_TELEMETRY_MODE        "Fra","Til","Fra+Aux","Til+Aux"
 #define TR_MULTI_CUSTOM                "Tilpasset"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Ekstra fin"),"Fin","Medium","Grov"
@@ -151,7 +151,7 @@
 #endif
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                 "Overskriv"
+  #define TR_SF_SAFETY                 "Overskr."
 #elif defined(OVERRIDE_CHANNEL_FUNCTION)
   #define TR_SF_SAFETY                 "Overs."
 #else
@@ -182,7 +182,7 @@
 #define LENGTH_UNIT_METR               "m"
 #define SPEED_UNIT_METR                "kmh"
 
-#define TR_VUNITSSYSTEM                "Metrisk",TR("Imper.","Imperial")
+#define TR_VUNITSSYSTEM                "Metrisk",TR("Imper.","Imperiel")
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
@@ -245,9 +245,9 @@
 #define TR_ON_ONE_SWITCHES             "EN","En"
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
+  #define TR_ROTARY_ENC_OPT         "Normal","Invers"
 #else
-  #define TR_ROTARY_ENC_OPT         "Normal","Inverted","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT         "Normal","Invers","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -267,13 +267,13 @@
 
 #define TR_VTMRMODES                   "FRA","TIL","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "Fra"
-#define TR_VTRAINER_MASTER_JACK        "Master/Jack"
-#define TR_VTRAINER_SLAVE_JACK         "Slave/Jack"
-#define TR_VTRAINER_MASTER_SBUS_MODULE "Master/SBUS modul"
-#define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM modul"
-#define TR_VTRAINER_MASTER_BATTERY     "Master/Seriel"
-#define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
-#define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_MASTER_JACK        "Træner/Jack"
+#define TR_VTRAINER_SLAVE_JACK         "Elev/Jack"
+#define TR_VTRAINER_MASTER_SBUS_MODULE "Træner/SBUS modul"
+#define TR_VTRAINER_MASTER_CPPM_MODULE "Træner/CPPM modul"
+#define TR_VTRAINER_MASTER_BATTERY     "Træner/Seriel"
+#define TR_VTRAINER_BLUETOOTH          "Træner/" TR("BT","Bluetooth"), "Elev/" TR("BT","Bluetooth")
+#define TR_VTRAINER_MULTI              "Træner/Multi"
 #define TR_VFAILSAFE                   "Ikke sat","Hold","Tilpasset","Ingen puls","Modtager"
 #define TR_VSENSORTYPES                "Tilpasset","Beregnet"
 #define TR_VFORMULAS                   "Tillæg","Gennems.","Min","Max","Gange","Sum","Cell","Forbrug","Afstand"
@@ -281,7 +281,7 @@
 #define TR_VCELLINDEX                  "Lavest","1","2","3","4","5","6","Højst","Delta"
 #define TR_TEXT_SIZE                   "Standard","Tynd","Lille","Medium","Dobbelt"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center kun)","= (symmetrisk)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Remain", "Vis Remain"), TR("Elaps.", "Vis Elapsed")
 
 #if defined(COLORLCD)
   #define INDENT
@@ -345,7 +345,7 @@
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
 #define TR_TRIMINC                     "Trim Step"
 #define TR_DISPLAY_TRIMS               TR("Vis trim", "Vis trim")
-#define TR_TTRACE                      TR("T-kilde", INDENT "kilde")
+#define TR_TTRACE                      TR("T-kilde", INDENT "Kilde")
 #define TR_TTRIM                       TR("T-Trim-Tomgang", INDENT "Trim tomgang alene")
 #define TR_TTRIM_SW                    TR("T-Trim-Ko", INDENT "Trim kontakt")
 #define TR_BEEPCTR                     TR("Ctr Bip", "Center Bip")
@@ -372,11 +372,11 @@
 #define TR_ELEDIRECTION                "HØJ retning"
 #define TR_AILDIRECTION                "KRÆ retning"
 #define TR_COLDIRECTION                "PIT retning"
-#define TR_MODE                        "Tilst."
+#define TR_MODE                        "Tilst"
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
-#define TR_SOURCE                       "Kilde"
+#define TR_SOURCE                      "Kilde"
 #define TR_WEIGHT                      "Vægt"
 #define TR_EXPO                        TR("Expo", "Exponentiel")
 #define TR_SIDE                        "Side"
@@ -404,7 +404,7 @@
 #define TR_GV                          TR("G", "GV")
 #endif
 #define TR_ACHANNEL                    "En\004kanal"
-#define TR_RANGE                       INDENT "Rækkevidde"
+#define TR_RANGE                       INDENT "Rækkevid"
 #define TR_CENTER                      INDENT "Centrer"
 #define TR_BAR                         "Bar"
 #define TR_ALARM                       "Alarm"
@@ -458,7 +458,7 @@
 #define TR_POTWARNINGSTATE             TR(INDENT "Drejk.&Skyd.", INDENT "Drejekontakt & skyder")
 #define TR_SLIDERWARNING               TR(INDENT "Skyd. pos.", INDENT "Skyder position")
 #define TR_POTWARNING                  TR(INDENT "Drejk. adv.", INDENT "Drejekontakt position")
-#define TR_TIMEZONE                    "Time zone"
+#define TR_TIMEZONE                    "Tids zone"
 #define TR_ADJUST_RTC                  "Juster RTC"
 #define TR_GPS                         "GPS"
 #define TR_RXCHANNELORD                TR("Rx kanal ræk.", "Standard kanal rækkefølge")
@@ -599,23 +599,23 @@
 #define TR_BINDING_CH9_16_TELEM_ON     "KA9-16 Telem TIL"
 #define TR_BINDING_CH9_16_TELEM_OFF    "KA9-16 Telem FRA"
 #define TR_PROTOCOL_INVALID            TR("Prot. ugyldig", "Protocol ugyldig")
-#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Module Status")
-#define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
-#define TR_MULTI_SERVOFREQ             TR("Servo rate", "Servo opdaterings rate")
+#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Modul status")
+#define TR_MODULE_SYNC                 TR(INDENT "Synk", INDENT "Proto synk status")
+#define TR_MULTI_SERVOFREQ             TR("Servo hast", "Servo opdaterings hastighed")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
 #define TR_MULTI_RFCHAN                TR("RF kanal", "Vælg RF kanal")
 #define TR_AFHDS3_RX_FREQ              TR("RX frekv.", "RX frekvens")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetri")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Akt. strøm", "Aktuel strøm")
-#define TR_AFHDS3_POWER_SOURCE         TR("Strøm kilde", "Strøm kilde")
+#define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
 #define TR_SYNCMENU                    "[Sync]"
 #define TR_LIMIT                       INDENT "Grænse"
 #define TR_MINRSSI                     "Min Rssi"
-#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI value without rescalling")
+#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden rescalling")
 #define TR_LATITUDE                    "Breddegrad"
 #define TR_LONGITUDE                   "Længdegrad"
-#define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "Coordinate format")
+#define TR_GPS_COORDS_FORMAT           TR("GPS kordi.", "Kordinat format")
 #define TR_VARIO                       TR("Vario", "Variometer")
 #define TR_PITCH_AT_ZERO               "Højde nul"
 #define TR_PITCH_AT_MAX                "Højde max"
@@ -828,7 +828,7 @@
 #define TR_MORE_OPTIONS_AVAILABLE      "Flere tilvalg mulige"
 #define TR_NO_MODULE_INFORMATION       "Ingen modul information"
 #define TR_EXTERNALRF                  "Ekstern RF"
-#define TR_FAILSAFE                    TR(INDENT "Fejlsikring", INDENT "Fejlsikring tilstand")
+#define TR_FAILSAFE                    TR(INDENT "Fejlsikring", INDENT "Fejlsikring tilst")
 #define TR_FAILSAFESET                 "FEJLSIKRING INDSTILLING"
 #define TR_REG_ID                      "Reg. ID"
 #define TR_OWNER_ID                    "Ejer ID"
@@ -899,7 +899,7 @@
 #define TR_SHARE                       "Del"
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Registrer")
-#define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
+#define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevid"))
 #define TR_RECEIVER_OPTIONS            TR("MODT. TILVALG", "MODTAGER TILVALG")
 #define TR_DEL_BUTTON                  BUTTON(TR("Sle", "Sletter"))
 #define TR_RESET_BTN                   BUTTON("Reset")
@@ -927,7 +927,7 @@
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
-#define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevidde")
+#define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevid")
 #define TR_RXFREQUENCY                 TR("Rx Frekvens", "Rx Servo Frekvens")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNE"
 #if defined(PCBX12S)
