@@ -2,9 +2,9 @@
  * Copyright (C) EdgeTX
  *
  * Based on code named
- *   opentx   - https://github.com/opentx/opentx
- *   th9x     - http://code.google.com/p/th9x
- *   er9x     - http://code.google.com/p/er9x
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
@@ -17,7 +17,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 // DK translations author: Henrik Thuren <thuren.henrik@gmail.com>
