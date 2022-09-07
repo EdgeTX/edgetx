@@ -39,16 +39,18 @@ Get current Model information
 @retval table model information:
  * `name` (string) model name
  * `extendedLimits` (boolean) extended limits enabled
+ * `jitterFilter` (number) model level ADC filter
  * `bitmap` (string) bitmap name (not present on X7)
  * `filename` (string) model filename
 
-@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits and labels added in 2.8.0
+@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits, jitterFilter, and labels added in 2.8.0
 */
 static int luaModelGetInfo(lua_State *L)
 {
   lua_newtable(L);
   lua_pushtablenstring(L, "name", g_model.header.name);
   lua_pushtableboolean(L, "extendedLimits", g_model.extendedLimits);
+  lua_pushtableinteger(L, "jitterFilter", g_model.jitterFilter);
 #if LCD_DEPTH > 1
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
@@ -77,7 +79,7 @@ Set the current Model information
 @notice If a parameter is missing from the value, then
 that parameter remains unchanged.
 
-@status current Introduced in 2.0.6, extendedLimits added in 2.8.0
+@status current Introduced in 2.0.6, extendedLimits and jitterFilter added in 2.8.0
 */
 static int luaModelSetInfo(lua_State *L)
 {
@@ -94,6 +96,11 @@ static int luaModelSetInfo(lua_State *L)
     }
     else if (!strcmp(key, "extendedLimits")) {
       g_model.extendedLimits = lua_toboolean(L, -1);
+    }
+    else if (!strcmp(key, "jitterFilter")) {
+      auto j = lua_tounsigned(L, -1);
+      if (j > OVERRIDE_ON) j = OVERRIDE_ON;
+      g_model.jitterFilter = j;
     }
 #if LCD_DEPTH > 1
     else if (!strcmp(key, "bitmap")) {
