@@ -481,7 +481,22 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
 
   std::swap(labels[curind], labels[newind]);
 
+  ModelMap newmap;
+  newmap.labels = labels;
+
+  for (auto &mm : modelslabels) {
+    uint16_t ind = mm.first;
+    if (ind == curind)
+      ind = newind;
+    else if (ind == newind)
+      ind = curind;
+    newmap.insert(std::make_pair(ind, mm.second));
+  }
+
+  modelslabels = newmap;
+
   modelslist.save(labels);
+  setDirty();
 
   return false;
 }
