@@ -14,7 +14,7 @@ def is_special_char(c):
 
 def get_special_chars():
   result = {}
-  for lang in["en", "fr", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw"]:
+  for lang in["en", "fr", "da", "de", "cz", "nl", "es", "fi", "it", "pl", "pt", "se", "cn", "tw"]:
     charset = set()
     tools_path = os.path.dirname(os.path.realpath(__file__))
     with open(os.path.join(tools_path, "../radio/src/translations/%s.h" % lang), encoding='utf-8') as f:
@@ -58,6 +58,7 @@ def get_chars_encoding(subset):
 special_chars_BW = {
     "en": "",
     "fr": "éèàîç",
+    "da": "åæøÅÆØ",
     "de": "ÄäÖöÜüß",
     "cz": "áčéěíóřšúůýÁÍŘÝžÉ",
     "nl": "",
