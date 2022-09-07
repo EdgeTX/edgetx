@@ -1800,3 +1800,15 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
    mdl->loadItemList();
    return mdl;
  }
+
+int ModelData::getCustomScreensCount() const
+{
+  int cnt = 0;
+
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+    if (customScreens.customScreenData[i].layoutId[0] != '\0')
+      cnt++;
+  }
+
+  return cnt;
+}

@@ -1513,6 +1513,7 @@ class CustomFunctionsConversionTable: public ConversionTable {
         addConversion(FuncScreenshot, val++);
         addConversion(FuncRacingMode, val++);
         addConversion(FuncDisableTouch, val++);
+        addConversion(FuncSetScreen, val++);
       }
     }
 };
@@ -1581,7 +1582,7 @@ class ArmCustomFunctionField: public TransformedField {
 
     static bool hasRepeatParam(const CustomFunctionData & fn)
     {
-      return (fn.func == FuncPlaySound || fn.func == FuncPlayPrompt || fn.func == FuncPlayValue || fn.func == FuncPlayHaptic);
+      return (fn.func == FuncPlaySound || fn.func == FuncPlayPrompt || fn.func == FuncPlayValue || fn.func == FuncPlayHaptic || fn.func == FuncSetScreen);
     }
 
     void beforeExport() override

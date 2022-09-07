@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(COLORLCD)
+void setRequestedMainView(uint8_t view);
+#endif
+
 CustomFunctionsContext modelFunctionsContext = { 0 };
 
 CustomFunctionsContext globalFunctionsContext = { 0 };
@@ -150,7 +154,8 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
     if (swtch) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
-      bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      bool active = getSwitch(
+          swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
 
       if (HAS_ENABLE_PARAM(CFN_FUNC(cfn))) {
         active &= (bool)CFN_ACTIVE(cfn);
@@ -158,15 +163,13 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
       if (active) {
         switch (CFN_FUNC(cfn)) {
-
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
           case FUNC_OVERRIDE_CHANNEL:
             safetyCh[CFN_CH_INDEX(cfn)] = CFN_PARAM(cfn);
             break;
 #endif
 
-          case FUNC_TRAINER:
-          {
+          case FUNC_TRAINER: {
             uint8_t param = CFN_CH_INDEX(cfn);
             if (param == 0)
               newActiveFunctions |= 0x0F;
@@ -194,16 +197,20 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
                 timerReset(CFN_PARAM(cfn));
                 break;
               case FUNC_RESET_FLIGHT:
-              	if (!(functionsContext.activeSwitches & switch_mask)) {
-                  mainRequestFlags |= (1 << REQUEST_FLIGHT_RESET);     // on systems with threads flightReset() must not be called from the mixers thread!
+                if (!(functionsContext.activeSwitches & switch_mask)) {
+                  mainRequestFlags |=
+                      (1 << REQUEST_FLIGHT_RESET);  // on systems with threads
+                                                    // flightReset() must not be
+                                                    // called from the mixers
+                                                    // thread!
                 }
                 break;
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
             }
-            if (CFN_PARAM(cfn)>=FUNC_RESET_PARAM_FIRST_TELEM) {
-              uint8_t item = CFN_PARAM(cfn)-FUNC_RESET_PARAM_FIRST_TELEM;
+            if (CFN_PARAM(cfn) >= FUNC_RESET_PARAM_FIRST_TELEM) {
+              uint8_t item = CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM;
               if (item < MAX_TELEMETRY_SENSORS) {
                 telemetryItems[item].clear();
               }
@@ -220,46 +227,62 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
           case FUNC_RANGECHECK:
-          case FUNC_BIND:
-          {
+          case FUNC_BIND: {
             unsigned int moduleIndex = CFN_PARAM(cfn);
             if (moduleIndex < NUM_MODULES) {
-              moduleState[moduleIndex].mode = 1 + CFN_FUNC(cfn) - FUNC_RANGECHECK;
+              moduleState[moduleIndex].mode =
+                  1 + CFN_FUNC(cfn) - FUNC_RANGECHECK;
             }
             break;
           }
-#endif  
+#endif
 
 #if defined(GVARS)
           case FUNC_ADJUST_GVAR:
             if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_CONSTANT) {
-              SET_GVAR(CFN_GVAR_INDEX(cfn), CFN_PARAM(cfn), mixerCurrentFlightMode);
-            }
-            else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_GVAR) {
-              SET_GVAR(CFN_GVAR_INDEX(cfn), GVAR_VALUE(CFN_PARAM(cfn), getGVarFlightMode(mixerCurrentFlightMode, CFN_PARAM(cfn))), mixerCurrentFlightMode);
-            }
-            else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
+              SET_GVAR(CFN_GVAR_INDEX(cfn), CFN_PARAM(cfn),
+                       mixerCurrentFlightMode);
+            } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_GVAR) {
+              SET_GVAR(CFN_GVAR_INDEX(cfn),
+                       GVAR_VALUE(CFN_PARAM(cfn),
+                                  getGVarFlightMode(mixerCurrentFlightMode,
+                                                    CFN_PARAM(cfn))),
+                       mixerCurrentFlightMode);
+            } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
               if (!(functionsContext.activeSwitches & switch_mask)) {
-                SET_GVAR(CFN_GVAR_INDEX(cfn), limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)), GVAR_VALUE(CFN_GVAR_INDEX(cfn), getGVarFlightMode(mixerCurrentFlightMode, CFN_GVAR_INDEX(cfn))) + CFN_PARAM(cfn), MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))), mixerCurrentFlightMode);
+                SET_GVAR(CFN_GVAR_INDEX(cfn),
+                         limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                        GVAR_VALUE(CFN_GVAR_INDEX(cfn),
+                                                   getGVarFlightMode(
+                                                       mixerCurrentFlightMode,
+                                                       CFN_GVAR_INDEX(cfn))) +
+                                            CFN_PARAM(cfn),
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                         mixerCurrentFlightMode);
               }
-            }
-            else if (CFN_PARAM(cfn) >= MIXSRC_FIRST_TRIM && CFN_PARAM(cfn) <= MIXSRC_LAST_TRIM) {
-              trimGvar[CFN_PARAM(cfn)-MIXSRC_FIRST_TRIM] = CFN_GVAR_INDEX(cfn);
-            }
-            else {
-              SET_GVAR(CFN_GVAR_INDEX(cfn), limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)), calcRESXto100(getValue(CFN_PARAM(cfn))), MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))), mixerCurrentFlightMode);
+            } else if (CFN_PARAM(cfn) >= MIXSRC_FIRST_TRIM &&
+                       CFN_PARAM(cfn) <= MIXSRC_LAST_TRIM) {
+              trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
+                  CFN_GVAR_INDEX(cfn);
+            } else {
+              SET_GVAR(CFN_GVAR_INDEX(cfn),
+                       limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                      calcRESXto100(getValue(CFN_PARAM(cfn))),
+                                      MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                       mixerCurrentFlightMode);
             }
             break;
 #endif
 
-          case FUNC_VOLUME:
-          {
+          case FUNC_VOLUME: {
             getvalue_t raw = getValue(CFN_PARAM(cfn));
             // only set volume if input changed more than hysteresis
             if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
               requiredSpeakerVolumeRawLast = raw;
             }
-            requiredSpeakerVolume = ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) / 2048;
+            requiredSpeakerVolume =
+                ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
+                2048;
             break;
           }
 
@@ -277,13 +300,12 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
                   if (audioQueue.isEmpty()) {
                     AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + CFN_PARAM(cfn));
                   }
-                }
-                else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
+                } else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
                   PLAY_VALUE(CFN_PARAM(cfn), PLAY_INDEX);
                 }
 #if defined(HAPTIC)
                 else if (CFN_FUNC(cfn) == FUNC_HAPTIC) {
-                  haptic.event(AU_SPECIAL_SOUND_LAST+CFN_PARAM(cfn));
+                  haptic.event(AU_SPECIAL_SOUND_LAST + CFN_PARAM(cfn));
                 }
 #endif
                 else {
@@ -311,25 +333,30 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
           case FUNC_PLAY_BOTH:
-          case FUNC_PLAY_VALUE:
-          {
+          case FUNC_PLAY_VALUE: {
             tmr10ms_t tmr10ms = get_tmr10ms();
             uint8_t repeatParam = CFN_PLAY_REPEAT(cfn);
-            if (!functionsContext.lastFunctionTime[i] || (CFN_FUNC(cfn)==FUNC_PLAY_BOTH && active!=(bool)(functionsContext.activeSwitches&switch_mask)) || (repeatParam && (signed)(tmr10ms-functionsContext.lastFunctionTime[i])>=1000*repeatParam)) {
+            if (!functionsContext.lastFunctionTime[i] ||
+                (CFN_FUNC(cfn) == FUNC_PLAY_BOTH &&
+                 active !=
+                     (bool)(functionsContext.activeSwitches & switch_mask)) ||
+                (repeatParam &&
+                 (signed)(tmr10ms - functionsContext.lastFunctionTime[i]) >=
+                     1000 * repeatParam)) {
               functionsContext.lastFunctionTime[i] = tmr10ms;
               uint8_t param = CFN_PARAM(cfn);
               if (CFN_FUNC(cfn) == FUNC_PLAY_SOUND) {
-                AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST+param);
-              }
-              else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
+                AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + param);
+              } else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
                 PLAY_VALUE(param, PLAY_INDEX);
-              }
-              else {
+              } else {
 #if defined(GVARS)
                 if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK && param > 250)
-                  param = GVAR_VALUE(param-251, getGVarFlightMode(mixerCurrentFlightMode, param-251));
+                  param = GVAR_VALUE(
+                      param - 251,
+                      getGVarFlightMode(mixerCurrentFlightMode, param - 251));
 #endif
-                PUSH_CUSTOM_PROMPT(active ? param : param+1, PLAY_INDEX);
+                PUSH_CUSTOM_PROMPT(active ? param : param + 1, PLAY_INDEX);
               }
             }
             if (!active) {
@@ -346,20 +373,21 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             break;
 #endif
 
-
 #if defined(SDCARD)
           case FUNC_LOGS:
             if (CFN_PARAM(cfn)) {
               newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay100ms = CFN_PARAM(cfn);                   // logging period is 0..25.5s in 100ms increments
+              logDelay100ms = CFN_PARAM(
+                  cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
 #endif
 
-          case FUNC_BACKLIGHT:
-          {
+          case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
-            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works like original backlight and turn on regardless of backlight settings
+            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
+                                    // like original backlight and turn on
+                                    // regardless of backlight settings
               requiredBacklightBright = BACKLIGHT_FORCED_ON;
               break;
             }
@@ -369,7 +397,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             if (raw == -1024)
               requiredBacklightBright = 100;
             else
-              requiredBacklightBright = (1024 - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN) / 2048;
+              requiredBacklightBright =
+                  (1024 - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN) /
+                  2048;
 #else
             requiredBacklightBright = (1024 - raw) * 100 / 2048;
 #endif
@@ -392,7 +422,17 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 #if defined(HARDWARE_TOUCH)
           case FUNC_DISABLE_TOUCH:
             newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
-        	break;
+            break;
+#endif
+#if defined(COLORLCD)
+          case FUNC_SET_SCREEN:
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
+              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
+              setRequestedMainView(screenNumber);
+              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
+            }
+            break;
 #endif
 #if defined(DEBUG)
           case FUNC_TEST:
@@ -402,8 +442,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
         }
 
         newActiveSwitches |= switch_mask;
-      }
-      else {
+      } else {
         functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
         if (functionsContext.activeSwitches & switch_mask) {

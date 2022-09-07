@@ -75,11 +75,10 @@ class ViewMain: public Window
     void onEvent(event_t event) override;
     void onClicked() override;
     void onCancel() override;
-  
+
   protected:
     static ViewMain * _instance;
 
-    unsigned    views = 0;
     lv_obj_t*   tile_view = nullptr;
     TopbarImpl* topbar = nullptr;
     bool        widget_select = false;

@@ -107,7 +107,7 @@ void ViewMain::addMainView(Window* view, uint32_t viewId)
   auto view_obj = view->getLvObj();
   lv_obj_set_parent(view_obj, tile);
 
-  auto user_data = (void*)(unsigned long)viewId;
+  auto user_data = (void*)(intptr_t)viewId;
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED, user_data);
 }
 
@@ -138,6 +138,11 @@ unsigned ViewMain::getCurrentMainView() const
 void ViewMain::setCurrentMainView(unsigned viewId)
 {
   lv_obj_set_tile_id(tile_view, viewId, 0, LV_ANIM_OFF);
+}
+
+void setRequestedMainView(uint8_t view)
+{
+  g_model.view = view;
 }
 
 void ViewMain::nextMainView()
