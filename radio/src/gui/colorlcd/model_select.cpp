@@ -566,6 +566,36 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
   }
 }
 
+#if defined(HARDWARE_KEYS)
+void ModelLabelsWindow::onEvent(event_t event)
+{
+  if (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
+    std::set<uint32_t> curSel = lblselector->getSelection();
+    std::set<uint32_t> sellist;
+    int select = 0;
+    int rowcount = lblselector->getRowCount();
+    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+      if(curSel.size())
+        select = (*curSel.rbegin() + 1) % rowcount;
+    } else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+      if(curSel.size()) {
+        select = (int)*curSel.begin() - 1;
+        if(select < 0)
+          select += rowcount;
+      } else {
+        select = rowcount - 1;
+      }
+    }
+    sellist.insert(select);
+    lblselector->setSelected(sellist); // Check the items
+    lblselector->setSelected(select); // Causes the list to scroll
+    updateFilteredLabels(sellist); // Update the models
+  } else {
+    Page::onEvent(event);
+  }
+}
+#endif
+
 void ModelLabelsWindow::newModel()
 {
   // Save current

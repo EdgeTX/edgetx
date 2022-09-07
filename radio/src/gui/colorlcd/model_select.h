@@ -91,6 +91,10 @@ class ModelLabelsWindow : public Page
     return labels;
   }
 
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
+
   void newModel();
   void newLabel();
   void buildHead(PageHeader *window);
