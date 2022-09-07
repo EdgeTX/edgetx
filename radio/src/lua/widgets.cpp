@@ -144,6 +144,7 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
             luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
             luaL_checktype(lsWidgets, -1, LUA_TSTRING);  // value is string
             option->name = lua_tostring(lsWidgets, -1);
+            option->displayName = nullptr;
             // TRACE("name = %s", option->name);
             break;
           case 1:
@@ -224,7 +225,7 @@ void luaLoadWidgetCallback()
   const char * name=NULL;
 
   int widgetOptions = 0, createFunction = 0, updateFunction = 0,
-      refreshFunction = 0, backgroundFunction = 0;
+      refreshFunction = 0, backgroundFunction = 0, translateFunction = 0;
 
   luaL_checktype(lsWidgets, -1, LUA_TTABLE);
 
@@ -253,6 +254,10 @@ void luaLoadWidgetCallback()
       backgroundFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
       lua_pushnil(lsWidgets);
     }
+    else if (!strcmp(key, "translate")) {
+      translateFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+      lua_pushnil(lsWidgets);
+    }
   }
 
   if (name && createFunction) {
@@ -262,6 +267,8 @@ void luaLoadWidgetCallback()
       factory->updateFunction = updateFunction;
       factory->refreshFunction = refreshFunction;
       factory->backgroundFunction = backgroundFunction;   // NOSONAR
+      factory->translateFunction = translateFunction;
+      factory->translateOptions(options);
       TRACE("Loaded Lua widget %s", name);
     }
   }

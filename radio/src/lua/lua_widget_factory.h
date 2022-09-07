@@ -38,8 +38,11 @@ class LuaWidgetFactory : public WidgetFactory
                  bool init = true) const override;
 
  protected:
+  void translateOptions(ZoneOption * options);
+
   int createFunction;
   int updateFunction;
   int refreshFunction;
   int backgroundFunction;
+  int translateFunction;
 };
