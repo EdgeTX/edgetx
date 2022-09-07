@@ -219,9 +219,14 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
+  static bool onebeep=true; // TODO... This probably needs to be fixed in the driver it's sending two events
   if (st.event == TE_DOWN) { // on first touch (same logic as key down)
       reset_inactivity();    // reset activity counter
-      audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
+      if(onebeep)
+        audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
+      onebeep = false;
+  } else {
+    onebeep = true;
   }
   
   backup_touch_data(data);
