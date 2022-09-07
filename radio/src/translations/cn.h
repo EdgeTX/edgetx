@@ -160,7 +160,7 @@
 #define TR_SF_SCREENSHOT               "截屏"
 #define TR_SF_RACING_MODE              "竞速模式"
 #define TR_SF_DISABLE_TOUCH            "禁用触摸"
-#define TR_SF_SET_SCREEN               "SET Main Screen"
+#define TR_SF_SET_SCREEN               "Set Main Screen"
 #define TR_SF_RESERVE                  "[保留]"
 
 #define TR_VFSWFUNC                    TR_SF_SAFETY,"教练","摇杆值存储到微调","复位","设置",TR_ADJUST_GVAR,"音量","设置失控保护","测距模式","模块对频",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
