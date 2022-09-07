@@ -123,7 +123,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         pos += 8;
         if(hardwareOptions.pcbrev == PCBREV_EL18)
         {
-            lcd->drawText(62, 110, LV_SYMBOL_USB, BL_FOREGROUND);
+            lcd->drawText(57, 110, LV_SYMBOL_WIFI, BL_FOREGROUND);
             lcd->drawText(84, 110, "RF USB access", BL_FOREGROUND);
             pos += 8;
             yOffset = 35;
