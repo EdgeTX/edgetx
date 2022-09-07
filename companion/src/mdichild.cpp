@@ -756,7 +756,6 @@ int MdiChild::newModel(int modelIndex)
 
   bool isNewModel = radioData.models[modelIndex].isEmpty();
   checkAndInitModel(modelIndex);
-  radioData.fixModelFilenames();
 
   // Only set the default model if we just added the first one.
   if (countUsedModels() == 1) {
@@ -779,6 +778,7 @@ int MdiChild::newModel(int modelIndex)
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
 
+  radioData.fixModelFilenames();
   return modelIndex;
 }
 
@@ -1105,7 +1105,6 @@ void MdiChild::openModelWizard(int row)
   int res = wizard->exec();
   if (res == QDialog::Accepted && wizard->mix.complete /*TODO rather test the exec() result?*/) {
     radioData.models[row] = wizard->mix;
-    radioData.fixModelFilenames();
     setModified();
     setSelectedModel(row);
   }
