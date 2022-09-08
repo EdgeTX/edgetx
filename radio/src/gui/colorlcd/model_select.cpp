@@ -572,9 +572,6 @@ void ModelLabelsWindow::onEvent(event_t event)
 #if defined(KEYS_GPIO_REG_PGUP)
   if (event == EVT_KEY_BREAK(KEY_PGUP) ||
       event == EVT_KEY_BREAK(KEY_PGDN)) {
-#elif defined(PCBNV14)
-  if (event == EVT_KEY_BREAK(KEY_LEFT) ||
-      event == EVT_KEY_BREAK(KEY_RIGHT)) {
 #else
   if (event == EVT_KEY_LONG(KEY_PGDN) ||
       event == EVT_KEY_BREAK(KEY_PGDN)) {
@@ -585,8 +582,6 @@ void ModelLabelsWindow::onEvent(event_t event)
     int rowcount = lblselector->getRowCount();
 #if defined(KEYS_GPIO_REG_PGUP)
     if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-#elif defined(PCBNV14)
-    if (event == EVT_KEY_BREAK(KEY_LEFT)) {
 #else
     if (event == EVT_KEY_BREAK(KEY_PGDN)) {
 #endif
