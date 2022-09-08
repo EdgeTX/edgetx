@@ -280,7 +280,7 @@ QString MultiModelPrinter::print(QTextDocument * document)
   if (Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches)) {
     str.append(printFunctionSwitches());
   }
-  
+
   str.append(printModules());
   if (firmware->getCapability(Heli))
     str.append(printHeliSetup());
@@ -373,10 +373,11 @@ QString MultiModelPrinter::printModules()
     COMPARECELLWIDTH(modelPrinter->printModule(i), 80);
     columns.appendRowEnd();
   }
-  if (firmware->getCapability(ModelTrainerEnable))
+  if (firmware->getCapability(ModelTrainerEnable)) {
     columns.appendRowStart(tr("Trainer port"));
     COMPARECELL(modelPrinter->printModule(-1));
     columns.appendRowEnd();
+  }
   columns.appendTableEnd();
   str.append(columns.print());
   return str;
