@@ -2447,6 +2447,27 @@ static int luaSources(lua_State * L)
   return 3;
 }
 
+/*luadoc
+@function getOutputValue(outputIndex)
+
+@param outputIndex: integer identifying the output channel number 0 for CH1, up to MAX_OUTPUT_CHANNELS - 1.
+
+@retval value current output value (number). Zero is returned for:
+ * non-existing outputs
+
+@status current Introduced in 2.8.0
+*/
+static int luaGetOutputValue(lua_State * L)
+{
+  mixsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+    lua_pushinteger(L, channelOutputs[idx]);
+  } else {
+    lua_pushinteger(L, 0);
+  }
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -2459,6 +2480,7 @@ const luaL_Reg opentxLib[] = {
   { "getRotEncSpeed", luaGetRotEncSpeed },
   { "getRotEncMode", luaGetRotEncMode },
   { "getValue", luaGetValue },
+  { "getOutputValue", luaGetOutputValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },
@@ -2581,6 +2603,10 @@ const luaR_value_entry opentxConstants[] = {
   { "SWITCH_COUNT", SWSRC_COUNT },
   { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },
 
+  { "MAX_OUTPUT_CHANNELS", MAX_OUTPUT_CHANNELS },
+  { "LIMIT_EXT_PERCENT", LIMIT_EXT_PERCENT },
+  { "LIMIT_STD_PERCENT", LIMIT_STD_PERCENT },
+
   { "LS_FUNC_NONE", LS_FUNC_NONE },
   { "LS_FUNC_VEQUAL", LS_FUNC_VEQUAL },
   { "LS_FUNC_VALMOSTEQUAL", LS_FUNC_VALMOSTEQUAL },
@@ -2631,6 +2657,8 @@ const luaR_value_entry opentxConstants[] = {
   { "COLOR", ZoneOption::Color },
   { "BOOL", ZoneOption::Bool },
   { "STRING", ZoneOption::String },
+  { "TIMER", ZoneOption::Timer },
+  { "TEXT_SIZE", ZoneOption::TextSize },
   { "MENU_HEADER_HEIGHT", COLOR2FLAGS(MENU_HEADER_HEIGHT) },
 
   // Colors gui/colorlcd/colors.h
