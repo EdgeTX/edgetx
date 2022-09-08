@@ -245,6 +245,10 @@
 #define USB_GPIO_PinSource_DP           GPIO_PinSource12
 #define USB_GPIO_AF                     GPIO_AF_OTG1_FS
 
+#define USB_SW_AHB1Periph_GPIO          RCC_AHB1Periph_GPIOI
+#define USB_SW_GPOIO                    GPIOI
+#define USB_SW_PIN                      GPIO_Pin_10
+
 // LCD
 #define LCD_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_GPIOK | RCC_AHB1Periph_DMA2D)
 #define LCD_RCC_APB1Periph              0

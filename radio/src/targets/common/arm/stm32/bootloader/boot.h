@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 #include "stamp.h"
+#include "keys.h"
 
 #if LCD_W < 212
   #if defined(VERSION_TAG)
@@ -70,6 +71,7 @@ enum BootloaderState {
   ST_FLASH_DONE,
   ST_RESTORE_MENU,
   ST_USB,
+  ST_RADIO_MENU,
   ST_REBOOT,
 };
 
@@ -91,6 +93,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str = nullptr
 
 // Once for each file in a filename list on screen
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected);
+
+// get menu item count for main menu, by adding 1 to the baseCount, when a radio specific menu is used
+uint32_t bootloaderGetMenuItemCount(int baseCount);
+
+// when a radio specifc menu is used, all events are forwarded to that menu code
+// returns true on submenu exit
+bool bootloaderRadioMenu(uint32_t menuItem, event_t event);
 
 void blExit();
 

@@ -216,6 +216,16 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
     }
 }
 
+uint32_t bootloaderGetMenuItemCount(int baseCount)
+{
+    return baseCount;
+}
+
+bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
+{
+    return true;
+}
+
 void blExit(void)
 {
   lcdClear();
