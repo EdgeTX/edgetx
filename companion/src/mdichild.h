@@ -63,7 +63,7 @@ class MdiChild : public QWidget
       ACT_MDL_DUP,
       ACT_MDL_INS,
       ACT_MDL_MOV,
-      ACT_MDL_SAV,
+      ACT_MDL_EXP,
       ACT_MDL_RTR,  // ResToRe backup
       ACT_MDL_WIZ,
       ACT_MDL_DFT,  // set as DeFaulT
@@ -137,7 +137,7 @@ class MdiChild : public QWidget
     void confirmDelete();
     void modelAdd();
     void modelEdit();
-    void modelSave();
+    void modelExport();
     void labelAdd();
     void labelDelete();
     void modelLabelsChanged();
@@ -176,9 +176,9 @@ class MdiChild : public QWidget
     bool deleteModel(const int modelIndex);
     void deleteSelectedModels();
     unsigned countUsedModels();
-    unsigned saveModels(const QVector<int> modelIndices);
-    bool saveModel(const int modelIndex);
-    void saveSelectedModels();
+    unsigned exportModels(const QVector<int> modelIndices);
+    bool exportModel(const int modelIndex);
+    void exportSelectedModels();
 
     void clearCutList();
     void removeModelFromCutList(const int modelIndex);
