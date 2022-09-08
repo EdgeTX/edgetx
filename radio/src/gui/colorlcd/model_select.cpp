@@ -569,15 +569,31 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 #if defined(HARDWARE_KEYS)
 void ModelLabelsWindow::onEvent(event_t event)
 {
-  if (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_BREAK(KEY_PGUP)) {
+#if defined(KEYS_GPIO_REG_PGUP)
+  if (event == EVT_KEY_BREAK(KEY_PGUP) ||
+      event == EVT_KEY_BREAK(KEY_PGDN)) {
+#elif defined(PCBNV14)
+  if (event == EVT_KEY_BREAK(KEY_LEFT) ||
+      event == EVT_KEY_BREAK(KEY_RIGHT)) {
+#else
+  if (event == EVT_KEY_LONG(KEY_PGDN) ||
+      event == EVT_KEY_BREAK(KEY_PGDN)) {
+#endif
     std::set<uint32_t> curSel = lblselector->getSelection();
     std::set<uint32_t> sellist;
     int select = 0;
     int rowcount = lblselector->getRowCount();
+#if defined(KEYS_GPIO_REG_PGUP)
     if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+#elif defined(PCBNV14)
+    if (event == EVT_KEY_BREAK(KEY_LEFT)) {
+#else
+    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+#endif
       if(curSel.size())
         select = (*curSel.rbegin() + 1) % rowcount;
-    } else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+    } else {
+      killEvents(event);
       if(curSel.size()) {
         select = (int)*curSel.begin() - 1;
         if(select < 0)
