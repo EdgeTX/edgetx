@@ -566,6 +566,47 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
   }
 }
 
+#if defined(HARDWARE_KEYS)
+void ModelLabelsWindow::onEvent(event_t event)
+{
+#if defined(KEYS_GPIO_REG_PGUP)
+  if (event == EVT_KEY_BREAK(KEY_PGUP) ||
+      event == EVT_KEY_BREAK(KEY_PGDN)) {
+#else
+  if (event == EVT_KEY_LONG(KEY_PGDN) ||
+      event == EVT_KEY_BREAK(KEY_PGDN)) {
+#endif
+    std::set<uint32_t> curSel = lblselector->getSelection();
+    std::set<uint32_t> sellist;
+    int select = 0;
+    int rowcount = lblselector->getRowCount();
+#if defined(KEYS_GPIO_REG_PGUP)
+    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+#else
+    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+#endif
+      if(curSel.size())
+        select = (*curSel.rbegin() + 1) % rowcount;
+    } else {
+      killEvents(event);
+      if(curSel.size()) {
+        select = (int)*curSel.begin() - 1;
+        if(select < 0)
+          select += rowcount;
+      } else {
+        select = rowcount - 1;
+      }
+    }
+    sellist.insert(select);
+    lblselector->setSelected(sellist); // Check the items
+    lblselector->setSelected(select); // Causes the list to scroll
+    updateFilteredLabels(sellist); // Update the models
+  } else {
+    Page::onEvent(event);
+  }
+}
+#endif
+
 void ModelLabelsWindow::newModel()
 {
   // Save current
