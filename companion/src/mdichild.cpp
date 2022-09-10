@@ -483,7 +483,8 @@ void MdiChild::showContextMenu(const QPoint & pos)
   QMenu contextMenu;
   contextMenu.addAction(modelsToolbar->toggleViewAction());
   contextMenu.addAction(radioToolbar->toggleViewAction());
-  contextMenu.addAction(labelsToolbar->toggleViewAction());
+  if(firmware->getCapability(Capability::HasModelLabels))
+    contextMenu.addAction(labelsToolbar->toggleViewAction());
   if (!contextMenu.isEmpty())
     contextMenu.exec(mapToGlobal(pos));
 }
