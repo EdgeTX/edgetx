@@ -1676,8 +1676,8 @@ void MdiChild::labelMoveUp()
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
   radioData.swapLabel(row, row-1);
   labelsListModel->buildLabelsList();
-  ui->lstLabels->selectionModel()->select(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect |
-                                                                           QItemSelectionModel::Rows);
+  //ui->lstLabels->selectionModel()->select(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
 }
 
 void MdiChild::labelMoveDown()
@@ -1685,8 +1685,8 @@ void MdiChild::labelMoveDown()
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
   radioData.swapLabel(row, row+1);
   labelsListModel->buildLabelsList();
-  ui->lstLabels->selectionModel()->select(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect |
-                                                                           QItemSelectionModel::Rows);
+  //ui->lstLabels->selectionModel()->select(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
 
 }
 

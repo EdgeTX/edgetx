@@ -102,7 +102,7 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
       label = RadioData::escapeCSV(label);
       return modelLabels.indexOf(label)==-1?Qt::Unchecked:Qt::Checked;
     } else if (index.column() == 0 && selectedModel == -1) {
-      return Qt::PartiallyChecked;
+      return Qt::Unchecked;
     }
   }
   return QVariant();
