@@ -101,7 +101,7 @@ elseif(PCB STREQUAL X9D)
   set(CPU_TYPE_FULL STM32F205xE)  # for size report
   add_definitions(-DSTM32F205xx)
   set(LINKER_SCRIPT targets/taranis/stm32f2_flash.ld)
-  option(HAPTIC "Haptic support" OFF)
+  option(HAPTIC "Haptic support" ON) # While the X9D doesn't have haptic OOTB, it can be added
   set(LUA_EXPORT lua_export_x9d)
   add_definitions(-DPCBX9D -DPCBX9)
   add_definitions(-DEEPROM_VARIANT=0)
