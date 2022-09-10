@@ -681,8 +681,8 @@ void ModelsListModel::refresh()
       }
       current->setData(currentColumn++, rxs);
     }
-   if (hasLabels) {     
-     QStringList labels = RadioData::fromCSV(model.labels);
+   if (hasLabels) {
+      QStringList labels = RadioData::fromCSV(QString::fromUtf8(model.labels));
      current->setData(currentColumn++, labels.join(QChar(0x2022)));
    }
   }

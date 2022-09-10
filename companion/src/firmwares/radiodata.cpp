@@ -107,6 +107,19 @@ void RadioData::convert(RadioDataConversionState & cstate)
 void RadioData::addLabel(QString label)
 {
   label = unEscapeCSV(label);
+  // Truncate possible UTF-8 to 16char maximum
+  QByteArray output = label.toUtf8();
+  if (output.size() > LABEL_LENGTH) {
+      int truncateAt = 0;
+      for (int i = LABEL_LENGTH; i > 0; i--) {
+          if ((output[i] & 0xC0) != 0x80) {
+              truncateAt = i;
+              break;
+          }
+      }
+      output.truncate(truncateAt);
+  }
+  label = QString(output);
   if (labels.indexOf(label) == -1)
     labels.append(label);
 }
@@ -117,12 +130,12 @@ bool RadioData::deleteLabel(QString label)
 
   // Remove labels in the models
   for(auto& model : models) {
-    QStringList modelLabels = fromCSV(model.labels);
+    QStringList modelLabels = fromCSV(QString::fromUtf8(model.labels));
     if (modelLabels.indexOf(label) >= 0) {
       deleted = true;
       modelLabels.removeAll(label);
     }
-    strcpy(model.labels, toCSV(modelLabels).toLocal8Bit().data());
+    strcpy(model.labels, toCSV(modelLabels).toUtf8().data());
   }
 
   // Remove the label from the global list
@@ -151,10 +164,12 @@ bool RadioData::renameLabel(QString from, QString to)
 
   // Check that rename is possible (Rename won't cause too long of a string)
   for(auto& model : models) {
-    if ((int)strlen(model.labels) + lengthdiff > (int)sizeof(model.labels) - 1) {
-      success = false;     
-      throw std::length_error(model.name);
-      break;
+    if (RadioData::fromCSV(model.labels).indexOf(from) != -1) {
+      if ((int)strlen(model.labels) + lengthdiff > (int)sizeof(model.labels) - 1) {
+        success = false;
+        throw std::length_error(model.name);
+        break;
+      }
     }
   }
   if (success) {
@@ -164,8 +179,8 @@ bool RadioData::renameLabel(QString from, QString to)
       if (ind != -1) {
         modelLabels.replace(ind, csvTo);
         QString outputcsv = QString(modelLabels.join(','));
-        if (outputcsv.toLocal8Bit().size() < (int)sizeof(model.labels)) {
-          strcpy(model.labels, outputcsv.toLocal8Bit().data());
+        if (outputcsv.toUtf8().size() < (int)sizeof(model.labels)) {
+          strcpy(model.labels, outputcsv.toUtf8().data());
         } else { // Shouldn't ever get here, from check above
           success = false;
           throw std::length_error(model.name);
@@ -188,6 +203,19 @@ bool RadioData::renameLabel(int index, QString to)
   return renameLabel(from, to);
 }
 
+void RadioData::swapLabel(int indFrom, int indTo)
+{
+  if(abs(indFrom - indTo) > 1 ||
+      indFrom >= labels.size() ||
+      indTo >= labels.size() ||
+      indFrom < 0 ||
+      indTo < 0)
+    return;
+  QString tmplbl = labels.at(indFrom);
+  labels.replace(indFrom, labels.at(indTo));
+  labels.replace(indTo, tmplbl);
+}
+
 bool RadioData::addLabelToModel(int index, QString label)
 {
   if (index >= models.size()) return false;
@@ -196,10 +224,10 @@ bool RadioData::addLabelToModel(int index, QString label)
   char *modelLabelCsv = models[index].labels;
   // Make sure it will fit
   if (strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
-    QStringList modelLabels = QString(modelLabelCsv).split(',',QString::SkipEmptyParts);
+    QStringList modelLabels = QString::fromUtf8(modelLabelCsv).split(',',QString::SkipEmptyParts);
     if (modelLabels.indexOf(label) == -1) {
       modelLabels.append(label);
-      strcpy(models[index].labels, QString(modelLabels.join(',')).toLocal8Bit().data());
+      strcpy(models[index].labels, QString(modelLabels.join(',')).toUtf8().data());
       return true;
     }
   }
@@ -211,10 +239,10 @@ bool RadioData::removeLabelFromModel(int index, QString label)
 {
   if (index >= models.size()) return false;
 
-  QStringList lbls = fromCSV(models[index].labels);
+  QStringList lbls = fromCSV(QString::fromUtf8(models[index].labels));
   if (lbls.indexOf(label) >= 0) {
     lbls.removeAll(label);
-    strcpy(models[index].labels, toCSV(lbls).toLocal8Bit().data());
+    strcpy(models[index].labels, toCSV(lbls).toUtf8().data());
     return true;
   }
   return false;

@@ -4,6 +4,9 @@
 #include <QList>
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
+#include <QValidator>
+#include <QLineEdit>
+#include <QStyledItemDelegate>
 
 #include "radiodata.h"
 
@@ -29,11 +32,6 @@ public:
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-  Qt::DropActions supportedDropActions() const override;
-  QStringList mimeTypes() const override;
-  QMimeData *mimeData(const QModelIndexList &indexes) const override;
-  bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
-  bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
   bool insertRows(int row, int count, const QModelIndex &parent) override;
   bool removeRows(int row, int count, const QModelIndex &parent) override;
 
@@ -53,4 +51,28 @@ private:
   int selectedModel;
   QList<QModelIndex> modelIndices;
   QList<LabelItem> labels;
+};
+
+class LabelValidator : public QValidator
+{
+  Q_OBJECT
+public:
+  QValidator::State validate(QString &label, int &pos) const;
+ void fixup(QString &input) const;
+};
+
+class LabelEditTextDelegate : public QStyledItemDelegate
+{
+  Q_OBJECT
+
+public:
+  LabelEditTextDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const
+  {
+    QLineEdit *editor = new QLineEdit(parent);
+    editor->setValidator(new LabelValidator);
+    return editor;
+  }
 };

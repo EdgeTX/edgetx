@@ -47,6 +47,7 @@
   (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n") - 1)
 
 #define DEFAULT_MODEL_SORT NAME_ASC
+#define LABEL_TRUNCATE_LENGTH 25
 
 struct ModelData;
 struct ModuleData;
@@ -134,8 +135,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
       const std::string &,
       std::function<void(const char *file, int progress)> progress = nullptr);
   bool moveLabelTo(unsigned current, unsigned newind);
-  bool renameLabel(
-      const std::string &from, const std::string &to,
+  bool renameLabel(const std::string &from, std::string to,
       std::function<void(const char *file, int progress)> progress = nullptr);
   std::string getCurrentLabel() { return currentlabel; };
   void setCurrentLabel(const std::string &lbl)

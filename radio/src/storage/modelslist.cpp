@@ -333,7 +333,10 @@ int ModelMap::addLabel(std::string lbl)
   if (lbl.size() == 0) return -1;
   if (lbl == STR_UNLABELEDMODEL) return -1;
 
-  // Add a new label if if doesn't already exist in the list
+  // Limit maximum label length, TODO... Truncate UTF8 Properly
+  lbl = lbl.substr(0, LABEL_LENGTH);
+
+  // Add a new label if it doesn't already exist in the list
   // Returns the index to the label
   int ind = getIndexByLabel(lbl);
   if (ind < 0) {
@@ -581,11 +584,13 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @return false success
  */
 
-bool ModelMap::renameLabel(
-    const std::string &from, const std::string &to,
+bool ModelMap::renameLabel(const std::string &from, std::string to,
     std::function<void(const char *file, int progress)> progress)
 {
   DEBUG_TIMER_START(debugTimerYamlScan);
+
+  // Limit max label name. TODO: Warn user they entered too long of a string
+  to = to.substr(0, LABEL_LENGTH);
 
   if (from == "") return true;
 
@@ -600,6 +605,25 @@ bool ModelMap::renameLabel(
 
   bool fault = false;
   ModelsVector mods = getModelsByLabel(from);  // Find all models to be renamed
+
+  // Scan all these models first, recombine their labels to a csv,
+  // make sure re-size is going to fit before starting. Otherwise new partial
+  // labels would be created on next scan.
+  for(const auto &model: mods) {
+    int curlen = toCSV(getLabelsByModel(model)).size();
+    std::string csvto = to;
+    replace_all(to, "/", "//");
+    replace_all(to, ",", "/c");
+    std::string csvfrom = from;
+    replace_all(to, "/", "//");
+    replace_all(to, ",", "/c");
+    if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
+      TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
+      if (progress != nullptr) progress("", 100); // Kill progress dialog
+      return true;
+    }
+  }
+
   int i = 0;
   for (const auto &modcell : mods) {
     if (progress != nullptr) {
@@ -609,24 +633,8 @@ bool ModelMap::renameLabel(
     readModelYaml(modcell->modelFilename, (uint8_t *)modeldata,
                   sizeof(ModelData));
 
-    // Make sure there is room to rename, use toCSV to capture escape chars
-    LabelsVector tmpvect;
-    tmpvect.push_back(to);
-    int newlen = ModelMap::toCSV(tmpvect).size();
-    tmpvect.clear();
-    tmpvect.push_back(from);
-    int oldlen = ModelMap::toCSV(tmpvect).size();
-
     // Separate Curent CSV
     LabelsVector lbls = ModelMap::fromCSV(modeldata->header.labels);
-
-    int nlen = lbls.size() + newlen - oldlen;
-    if (nlen > LABELS_LENGTH - 1) {
-      fault = true;
-      TRACE("Labels: Rename Error! Labels too long on %s - %s",
-            modeldata->header.name, modcell->modelFilename);
-      continue;
-    }
 
     // Replace from->to strings
     for (auto &lbl : lbls) {
@@ -700,8 +708,13 @@ std::string ModelMap::getBulletLabelString(ModelCell *curmod, const char *noresu
   replace_all(lbls, ",", "\u2022");
   replace_all(lbls, "/c", ",");
   replace_all(lbls, "//", "/");
+
   if(lbls.size() == 0) {
     return noresults;
+  }
+  if(lbls.size() > LABEL_TRUNCATE_LENGTH) {
+    lbls = lbls.substr(0, LABEL_TRUNCATE_LENGTH);
+    lbls += "...";
   }
   return lbls;
 }

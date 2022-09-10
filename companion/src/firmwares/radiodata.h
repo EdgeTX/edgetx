@@ -27,6 +27,7 @@ class RadioData {
     bool deleteLabel(int index);
     bool renameLabel(QString from, QString to);
     bool renameLabel(int index, QString to);
+    void swapLabel(int indFrom, int indTo);
     bool addLabelToModel(int index, QString label);
     bool removeLabelFromModel(int index, QString label);
     void addLabelsFromModels();
