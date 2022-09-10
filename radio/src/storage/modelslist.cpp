@@ -422,8 +422,7 @@ std::string ModelMap::toCSV(const LabelsVector &labels)
       csv += ',';
     }
     // Escape out commas
-    replace_all(lbl, "/", "//");
-    replace_all(lbl, ",", "/c");
+    escapeCSV(lbl);
     csv += lbl;
     comma = true;
   }
@@ -443,12 +442,22 @@ LabelsVector ModelMap::fromCSV(const char *str)
   std::istringstream f(str);
   std::string lbl;
   while (std::getline(f, lbl, ',')) {
-    // Un-escape commas
-    replace_all(lbl, "/c", ",");
-    replace_all(lbl, "//", "/");
+    unEscapeCSV(lbl);
     lbls.push_back(lbl);
   }
   return lbls;
+}
+
+void ModelMap::escapeCSV(std::string &str)
+{
+  replace_all(str, "/c", ",");
+  replace_all(str, "//", "/");
+}
+
+void ModelMap::unEscapeCSV(std::string &str)
+{
+  replace_all(str, "//", "/");
+  replace_all(str, "/c", ",");
 }
 
 /**
@@ -612,11 +621,9 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
   for(const auto &model: mods) {
     int curlen = toCSV(getLabelsByModel(model)).size();
     std::string csvto = to;
-    replace_all(to, "/", "//");
-    replace_all(to, ",", "/c");
+    escapeCSV(csvto);
     std::string csvfrom = from;
-    replace_all(to, "/", "//");
-    replace_all(to, ",", "/c");
+    escapeCSV(csvfrom);
     if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
       TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
       if (progress != nullptr) progress("", 100); // Kill progress dialog
@@ -706,8 +713,7 @@ std::string ModelMap::getBulletLabelString(ModelCell *curmod, const char *noresu
 {
   std::string lbls = ModelMap::toCSV(getLabelsByModel(curmod));
   replace_all(lbls, ",", "\u2022");
-  replace_all(lbls, "/c", ",");
-  replace_all(lbls, "//", "/");
+  unEscapeCSV(lbls);
 
   if(lbls.size() == 0) {
     return noresults;
