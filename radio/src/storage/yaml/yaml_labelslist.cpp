@@ -130,9 +130,9 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
       bool found=false;
       for(auto &filehash : modelslist.fileHashInfo) {
         if(filehash.name == mi->current_attr) {
-          TRACE_LABELS_YAML("  Model %s has a real file, creating a modelcell", filehash.name);
+          TRACE_LABELS_YAML("  Model %s has a real file, creating a modelcell", mi->current_attr);
           if(filehash.celladded) {
-            TRACE_LABELS_YAML("    Duplicate found labels.yml model cell %s already added", filehash.name);
+            TRACE_LABELS_YAML("    Duplicate found labels.yml model cell %s already added", mi->current_attr);
             break;
           }
           ModelCell *model = new ModelCell(mi->current_attr);
