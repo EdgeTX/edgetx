@@ -70,6 +70,13 @@ static void setModelBitmap(std::string newValue)
 {
   strncpy(g_model.header.bitmap, newValue.c_str(),
           sizeof(g_model.header.bitmap));
+  g_model.header.bitmap[sizeof(g_model.header.bitmap)-1] = '\0';
+  auto model = modelslist.getCurrentModel();
+  if (model) {
+    strncpy(model->modelBitmap, newValue.c_str(),
+            sizeof(ModelCell::modelBitmap));
+    model->modelBitmap[sizeof(ModelCell::modelBitmap)-1] = '\0';
+  }
   SET_DIRTY();
 }
 
