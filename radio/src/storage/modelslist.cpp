@@ -1105,6 +1105,9 @@ bool ModelsList::load(Format fmt)
     TRACE("ERROR no Current Model Found");
     if (modelslist.size()) {
       modelslist.setCurrentModel(modelslist.at(0));
+      strncpy(g_eeGeneral.currModelFilename, modelslist.at(0)->modelFilename,
+              sizeof(g_eeGeneral.currModelFilename));
+      g_eeGeneral.currModelFilename[sizeof(g_eeGeneral.currModelFilename) - 1] = '\0';
       TRACE("  - Set current model to first available");
     } else {
       TRACE("  - No Models Found, making a new one");
