@@ -1675,20 +1675,19 @@ void MdiChild::labelRename()
 void MdiChild::labelMoveUp()
 {
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == 0) return;
   radioData.swapLabel(row, row-1);
   labelsListModel->buildLabelsList();
-  //ui->lstLabels->selectionModel()->select(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
   ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
 }
 
 void MdiChild::labelMoveDown()
 {
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == labelsListModel->rowCount() -1) return;
   radioData.swapLabel(row, row+1);
   labelsListModel->buildLabelsList();
-  //ui->lstLabels->selectionModel()->select(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
   ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
-
 }
 
 void MdiChild::modelLabelsChanged(int row)

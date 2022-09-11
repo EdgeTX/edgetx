@@ -221,6 +221,14 @@ QValidator::State LabelValidator::validate(QString &label, int &pos) const
   QString lbl = RadioData::escapeCSV(label);
   if (lbl.toUtf8().size() > LABEL_LENGTH)
     return QValidator::Invalid;
+  if(lbl.contains('\\') || // TODO: Fix me to allow all, requires FW changes
+     lbl.contains('\"') ||
+     lbl.contains(':') ||
+     lbl.contains('-') ||
+     lbl.contains('\''))
+    return QValidator::Invalid;
+  if(lbl.size() == 0)
+    return QValidator::Intermediate;
   return QValidator::Acceptable;
 }
 
@@ -238,4 +246,9 @@ void LabelValidator::fixup(QString &input) const
     output.truncate(truncateAt);
   }
   input = QString(output);
+  input.remove('\\'); // TODO: Fix me to allow all, requires FW changes
+  input.remove('\"');
+  input.remove(':');
+  input.remove('-');
+  input.remove('\'');
 }

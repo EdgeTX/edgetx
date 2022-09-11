@@ -49,9 +49,9 @@
 #define DEFAULT_MODEL_SORT NAME_ASC
 
 #if LCD_W > LCD_H // Landscape
-#define LABEL_TRUNCATE_LENGTH 23
+#define LABEL_TRUNCATE_LENGTH 21
 #else
-#define LABEL_TRUNCATE_LENGTH 18
+#define LABEL_TRUNCATE_LENGTH 16
 #endif
 
 struct ModelData;
@@ -168,6 +168,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   static LabelsVector fromCSV(const char *str);
   static void escapeCSV(std::string &str);
   static void unEscapeCSV(std::string &str);
+  static void removeYAMLChars(std::string &str);
   static void replace_all(std::string &str,
                           const std::string &from,
                           const std::string &to);

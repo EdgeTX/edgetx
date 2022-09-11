@@ -330,11 +330,12 @@ LabelsVector ModelMap::getLabels()
 
 int ModelMap::addLabel(std::string lbl)
 {
-  if (lbl.size() == 0) return -1;
   if (lbl == STR_UNLABELEDMODEL) return -1;
 
   // Limit maximum label length, TODO... Truncate UTF8 Properly
   lbl = lbl.substr(0, LABEL_LENGTH);
+  removeYAMLChars(lbl);
+  if (lbl.size() == 0) return -1;
 
   // Add a new label if it doesn't already exist in the list
   // Returns the index to the label
@@ -448,16 +449,28 @@ LabelsVector ModelMap::fromCSV(const char *str)
   return lbls;
 }
 
+// TODO - Fix me, ideally there should be no limitations
 void ModelMap::escapeCSV(std::string &str)
 {
-  replace_all(str, "/c", ",");
-  replace_all(str, "//", "/");
+  replace_all(str, "/", "//");
+  replace_all(str, ",", "/c");
 }
 
+// TODO - Fix me, ideally there should be no limitations
 void ModelMap::unEscapeCSV(std::string &str)
 {
   replace_all(str, "//", "/");
   replace_all(str, "/c", ",");
+}
+
+// TODO - Fix me, ideally there should be no limitations
+void ModelMap::removeYAMLChars(std::string &str)
+{
+  replace_all(str, "\\", "");
+  replace_all(str, "\"", "");
+  replace_all(str, ":", "");
+  replace_all(str, "\'", "");
+  replace_all(str, "-", "");
 }
 
 /**
@@ -596,12 +609,14 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
 bool ModelMap::renameLabel(const std::string &from, std::string to,
     std::function<void(const char *file, int progress)> progress)
 {
+  if (from == "") return true;
   DEBUG_TIMER_START(debugTimerYamlScan);
 
   // Limit max label name. TODO: Warn user they entered too long of a string
   to = to.substr(0, LABEL_LENGTH);
+  removeYAMLChars(to);
+  if(to.size() == 0) return true;
 
-  if (from == "") return true;
 
   ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
   if (!modeldata) {
@@ -1148,7 +1163,7 @@ const char *ModelsList::save(LabelsVector newOrder)
   if(newOrder.empty())
     newOrder = modelslabels.getLabels();
   for (auto &lbl : newOrder) {
-    f_printf(&file, "  %s:\r\n", lbl.c_str());
+    f_printf(&file, "  \"%s\":\r\n", lbl.c_str());
     if (modelslabels.isLabelFiltered(lbl))
       f_printf(&file, "    selected: true\r\n", lbl.c_str());
   }
