@@ -359,8 +359,8 @@ void MdiChild::retranslateUi()
   action[ACT_ITM_EDT]->setText(tr("Edit Model"));
   action[ACT_ITM_DEL]->setText(tr("Delete"));
 
-  action[ACT_LBL_ADD]->setText(tr("Add Label"));
-  action[ACT_LBL_DEL]->setText(tr("Delete Label"));
+  action[ACT_LBL_ADD]->setText(tr("Add"));
+  action[ACT_LBL_DEL]->setText(tr("Delete"));
   action[ACT_LBL_REN]->setText(tr("Rename"));
   action[ACT_LBL_MVU]->setText(tr("Move Up"));
   action[ACT_LBL_MVD]->setText(tr("Move Down"));
