@@ -49,9 +49,9 @@
 #define DEFAULT_MODEL_SORT NAME_ASC
 
 #if LCD_W > LCD_H // Landscape
-#define LABEL_TRUNCATE_LENGTH 25
+#define LABEL_TRUNCATE_LENGTH 23
 #else
-#define LABEL_TRUNCATE_LENGTH 20
+#define LABEL_TRUNCATE_LENGTH 18
 #endif
 
 struct ModelData;
