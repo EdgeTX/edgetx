@@ -6,6 +6,7 @@ languages = (
     "se",
     "it",
     "cz",
+    "da",
     "de",
     "pt",
     "es",
@@ -176,6 +177,7 @@ options_horus_x12s = {
     "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
     "pcbdev": ("PCBREV", "10", None),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "internalgps": ("INTERNAL_GPS", "YES", "NO"),
     "internalaccess": [("INTERNAL_MODULE_PXX1", "NO", None), ("INTERNAL_MODULE_PXX2", "YES", None)],
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
 }
@@ -203,6 +205,7 @@ options_horus_x10express = {
     "faimode": ("FAI", "YES", None),
     "faichoice": ("FAI", "CHOICE", None),
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
 }

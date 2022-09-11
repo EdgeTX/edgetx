@@ -87,7 +87,7 @@ do
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
             ;;
         x12s)
-            BUILD_OPTIONS+="-DPCB=X12S"
+            BUILD_OPTIONS+="-DPCB=X12S -DINTERNAL_GPS=ON"
             ;;
         t16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
