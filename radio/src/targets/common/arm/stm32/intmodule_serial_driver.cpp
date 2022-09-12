@@ -192,10 +192,10 @@ void intmoduleWaitForTxCompleted(void* ctx)
 #endif
 }
 
-static int intmoduleGetByte(void* ctx, uint8_t* data)
+static bool intmoduleGetByte(void* ctx, uint8_t* data)
 {
   auto modCtx = (IntmoduleCtx*)ctx;
-  if (!modCtx->rxFifo) return -1;
+  if (!modCtx->rxFifo) return false;
   return modCtx->rxFifo->pop(*data);
 }
 

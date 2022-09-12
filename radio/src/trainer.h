@@ -24,6 +24,7 @@
 
 #include <array>
 #include "dataconstants.h"
+#include "telemetry/crossfire.h"
 
 namespace Trainer {
     static constexpr int16_t MaxValue = +512;
