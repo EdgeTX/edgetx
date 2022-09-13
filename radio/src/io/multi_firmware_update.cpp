@@ -122,8 +122,8 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
     void deinit(bool inverted) override
     {
       IntmoduleSerialDriver.deinit(uart_ctx);
-      uart_ctx = nullptr;
       clear();
+      uart_ctx = nullptr;
     }
 };
 #endif
