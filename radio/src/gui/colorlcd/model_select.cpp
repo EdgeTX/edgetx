@@ -583,11 +583,9 @@ void ModelLabelsWindow::newModel()
     // On complete update the current cell's data
     modelslist.updateCurrentModelCell();
 
-    auto labels = getLabels();
-    lblselector->setNames(labels);
-    lblselector->setSelected(modelslabels.getLabels().size());
-    mdlselector->update(0);
-    setTitle();
+    // Close Window
+    auto w = Layer::back();
+    if (w) w->onCancel();
   });
 }
 
