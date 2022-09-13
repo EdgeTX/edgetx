@@ -296,7 +296,7 @@
 #define TR_VSENSORTYPES                "Vlastní","Vypočtený"
 #define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Celkem","Článek","Spotřeba","Vzdálenost"
 #define TR_VPREC                       "X","X.X","X.XX"
-#define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","Nejvíce","Delta"
+#define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","7","8","Nejvíce","Delta"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(pouze středy)","= (symetrický)"
 #define TR_TIMER_DIR                   TR("Zbývající", "Zobrazit zbývající"), TR("Uplynulý", "Zobrazit uplynulý")
 

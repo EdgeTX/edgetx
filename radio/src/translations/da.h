@@ -278,7 +278,7 @@
 #define TR_VSENSORTYPES                "Tilpasset","Beregnet"
 #define TR_VFORMULAS                   "Tillæg","Gennems.","Min","Max","Gange","Sum","Cell","Forbrug","Afstand"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Lavest","1","2","3","4","5","6","Højst","Delta"
+#define TR_VCELLINDEX                  "Lavest","1","2","3","4","5","6","7","8","Højst","Delta"
 #define TR_TEXT_SIZE                   "Standard","Tynd","Lille","Medium","Dobbelt"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center kun)","= (symmetrisk)"
 #define TR_TIMER_DIR                   TR("Rest", "Vis rest"), TR("Gået tid", "Vis gået tid")
