@@ -204,9 +204,9 @@
 
 #define TR_VUNITSSYSTEM                TR("Metr.","Metriska"),TR("Brit.","Brittiska")
 #if defined(COLORLCD)
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
 #else
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
 #endif
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
