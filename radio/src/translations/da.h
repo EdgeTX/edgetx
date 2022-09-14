@@ -270,7 +270,7 @@
 #define TR_EXTRA_VSRCRAW               "Bat","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
 #define TR_VTMRMODES                   "FRA","TIL","Strt","THs","TH%","THt"
-#define TR_VTRAINER_MASTER_OFF         "Fra"
+#define TR_VTRAINER_MASTER_OFF         "FRA"
 #define TR_VTRAINER_MASTER_JACK        "Træner/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Elev/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Træner/SBUS modul"

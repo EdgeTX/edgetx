@@ -882,7 +882,18 @@ bool isTrainerModeAvailable(int mode)
        mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
     return false;
 #endif
-  
+
+#if !defined(MULTIMODULE)
+  if (mode == TRAINER_MODE_MULTI) 
+    return false;
+#else
+  if (mode == TRAINER_MODE_MULTI &&
+      ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
+       (!isModuleMultimodule(INTERNAL_MODULE) &&
+        !isModuleMultimodule(EXTERNAL_MODULE))))
+    return false;
+#endif
+
   return true;
 }
 
