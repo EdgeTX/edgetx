@@ -56,7 +56,7 @@
 UpdateCompanion::UpdateCompanion(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName("Companion");
+  setName(tr("Companion"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx"));
   setReleasesNightlyName("nightly");
 
