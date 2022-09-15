@@ -726,7 +726,9 @@
   #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
 
 #if defined(PCBX12S)
-  #define TOUCH_PANEL_INVERTED
+  #if !defined(TOUCH_PANEL_UNINVERTED)
+    #define TOUCH_PANEL_INVERTED
+  #endif
 #endif
 #endif // HARDWARE_TOUCH
 
