@@ -88,7 +88,7 @@
         TR_VTRAINER_MASTER_SBUS_MODULE, TR_VTRAINER_MASTER_CPPM_MODULE, \
         TR_VTRAINER_MASTER_BATTERY, TR_VTRAINER_BLUETOOTH, TR_VTRAINER_MULTI
 
-#if defined(SPACEMOUSE)
+#if defined(PCBHORUS)
   #define TR_SM_VSRCRAW               "smA","smB","smC","smD","smE","smF",
 #else
   #define TR_SM_VSRCRAW
