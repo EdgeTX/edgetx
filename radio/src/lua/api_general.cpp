@@ -784,7 +784,7 @@ static int luaGetSourceValue(lua_State * L)
             lua_pushinteger(L, value);
           break;
       }
-      lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
+      lua_pushboolean(L, !telemetryItems[qr.quot].isOld());
     }
     else { // telemetry is not available
       lua_pushnil(L);
