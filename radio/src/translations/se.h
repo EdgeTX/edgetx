@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -172,7 +173,7 @@
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_RESERVE                   "[reserv]"
 
-#define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Nollställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Module bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning", TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
+#define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Nollställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Module bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 
@@ -278,12 +279,6 @@
 #endif
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
-
-#if defined(GYRO)
-  #define TR_GYR_VSRCRAW                "GyrX","GyrY"
-#else
-  #define TR_GYR_VSRCRAW
-#endif
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW                "TltX","TltY",
@@ -677,9 +672,6 @@
 #define TR_MODEL_CATEGORIES             "Modellkategori"
 #define TR_MODELS                       "Modeller"
 #define TR_SELECT_MODE                  "Välj läge"
-#define TR_CREATE_CATEGORY              "Skapa kategori"
-#define TR_RENAME_CATEGORY              "Byt kategorinamn"
-#define TR_DELETE_CATEGORY              "Ta bort kategori"
 #define TR_CREATE_MODEL                 "Skapa modell"
 #define TR_FAVORITE_LABEL               "Favoriter"
 #define TR_NEW_MODEL                    "Ny modell"
@@ -699,7 +691,6 @@
 #define TR_DELETE_MODEL                 "Ta bort modell"
 #define TR_RESTORE_MODEL                "Återställ modell"
 #define TR_DELETE_ERROR                 "Delete error"
-#define TR_CAT_NOT_EMPTY                "Kategorin är ej tom"
 #define TR_SDCARD_ERROR                 "SD-kortfel"
 #define TR_SDCARD                       "SD-kort"
 #define TR_NO_FILES_ON_SD               "Inga filer på SD!"
