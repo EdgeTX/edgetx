@@ -198,8 +198,12 @@ bool isSourceAvailable(int source)
 #if defined(PCBHORUS) && !defined(SPACEMOUSE)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
     return false;
+#elif defined(PCBHORUS) && defined(SPACEMOUSE)
+  if ((hasSerialMode(UART_MODE_SPACEMOUSE) == -1) &&
+      (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE))
+    return false;
 #endif
-  
+
   if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
     return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
   }
