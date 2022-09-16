@@ -335,10 +335,10 @@ class MyMenu : public Menu
 
   void deleteLater(bool detach = true, bool trash = true) override
   {
+    Menu::deleteLater(detach, trash);
     if (_finishHandler != nullptr) {
       _finishHandler();
     }
-    Menu::deleteLater(detach, trash);
   }
 
  protected:
