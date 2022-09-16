@@ -217,9 +217,6 @@ bool isSourceAvailable(int source)
     return isChannelUsed(source - MIXSRC_FIRST_CH);
   }
 
-  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
-    return g_model.trainerData.mode > 0;
-
   if (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) {
     LogicalSwitchData * cs = lswAddress(source - MIXSRC_FIRST_LOGICAL_SWITCH);
     return (cs->func != LS_FUNC_NONE);
@@ -232,6 +229,9 @@ bool isSourceAvailable(int source)
 
   if (source >= MIXSRC_FIRST_RESERVE && source <= MIXSRC_LAST_RESERVE)
     return false;
+
+  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
+    return g_model.trainerData.mode > 0;
 
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
@@ -292,7 +292,7 @@ bool isSourceAvailableInInputs(int source)
   }
 
   if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
-    return true;
+    return g_model.trainerData.mode > 0;
 
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
