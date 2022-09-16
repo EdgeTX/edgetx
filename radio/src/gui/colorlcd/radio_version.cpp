@@ -166,40 +166,45 @@ class VersionDialog : public Dialog
   void updateModule(uint8_t module, 
                     StaticText* name, StaticText* status,
                     Window* rx_name_w, StaticText* rx_name, 
-                    Window* rx_status_w, StaticText* rx_status)
-  {
-    char tmp[20];
+                    Window* rx_status_w, StaticText* rx_status) {
+    // initialize module name with module selection made in model settings
+    // initialize to module does not provide status
+    // PXX2 will overwrite name
+    // CRSF, MPM and PXX2 will overwrite status
+    name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
+    status->setText("---");
 
-    if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
-      name->setText(STR_OFF);
-      status->setText("---");
-    }
-#if defined(CROSSFIRE)
-    else if (isModuleCrossfire(module)) {
-      name->setText("CRSF");
-
+    // CRSF is able to provide status
+    #if defined(CROSSFIRE)
+    if (isModuleCrossfire(module)) {
       char statusText[64];
+
       auto hz = 1000000 / getMixerSchedulerPeriod();
       snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       status->setText(statusText);
     }
-#endif
-#if defined(MULTIMODULE)
-    else if (isModuleMultimodule(module)) {
-      name->setText("Multimodule");
+    #endif
 
-      char statusText[64] = "---";
+    // MPM is able to provide status
+    #if defined(MULTIMODULE)
+    if (isModuleMultimodule(module)) {
+      char statusText[64];
+
       getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
     }
-#endif
-#if defined(PXX2)
-    else if (isModulePXX2(module)) {
+    #endif
 
-      // PXX2 Module
+    // PXX2 modules are able to provide status
+    #if defined(PXX2)
+    if (isModulePXX2(module)) {
+      char tmp[20];
+      
+      // PXX2 module name
       name->setText(getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
                                       .information.modelID));
 
+      // PXX2 module status
       std::string mod_ver;
       if (reusableBuffer.hardwareAndSettings.modules[module]
               .information.modelID) {
@@ -263,11 +268,7 @@ class VersionDialog : public Dialog
         lv_obj_add_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
     }
-#endif
-    else {
-      name->setText(STR_NO_INFORMATION);
-      status->setText("---");
-    }
+    #endif
   }
 
   void checkEvents() override
