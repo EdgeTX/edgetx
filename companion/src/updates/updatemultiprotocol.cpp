@@ -27,20 +27,33 @@ UpdateMultiProtocol::UpdateMultiProtocol(QWidget * parent) :
   setName("Multiprotocol");
   setRepo(QString(GITHUB_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"));
   setResultsPerPage(50);  //  GitHub REST API default 30
+}
+
+void UpdateMultiProtocol::initAssetSettings()
+{
+  if (!isValidSettingsIndex())
+    return;
+
+  g.component[settingsIndex()].initAllAssets();
 
   {
-  UpdateParameters::AssetParams &ap = dfltParams->addAsset();
-  ap.filterType = UpdateParameters::UFT_Startswith;
-  ap.filter = "MultiLuaScripts";
-  ap.maxExpected = 1;
-  ap.flags = dfltParams->data.flags | UPDFLG_Locked | UPDFLG_CopyStructure;
+  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+  cad.desc("scripts");
+  cad.processes(UPDFLG_Common_Asset);
+  cad.flags(cad.processes() | UPDFLG_CopyStructure);
+  cad.filterType(UpdateParameters::UFT_Startswith);
+  cad.filter("MultiLuaScripts");
+  cad.maxExpected(1);
+  }
+  {
+  ComponentAssetData &cad = g.component[settingsIndex()].asset[1];
+  cad.desc("binaries");
+  cad.processes(UPDFLG_Common_Asset &~ UPDFLG_Decompress);
+  cad.flags(cad.processes() | UPDFLG_CopyFiles);
+  cad.filterType(UpdateParameters::UFT_Expression);
+  cad.filter("^mm-stm-serial-.*\\.bin$");
+  cad.destSubDir("FIRMWARE");
   }
 
-  {
-  UpdateParameters::AssetParams &ap = dfltParams->addAsset();
-  ap.filterType = UpdateParameters::UFT_Expression;
-  ap.filter = "^mm-stm-serial-.*\\.bin$";
-  ap.flags = (dfltParams->data.flags | UPDFLG_CopyFiles) &~ UPDFLG_Decompress;
-  ap.destSubDir = "FIRMWARE";
-  }
+  qDebug() << "Asset settings initialised";
 }

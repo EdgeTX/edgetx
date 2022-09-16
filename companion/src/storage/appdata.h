@@ -61,6 +61,7 @@
 #define MAX_PROFILES 20
 #define MAX_JOYSTICKS 8
 #define MAX_COMPONENTS 10
+#define MAX_COMPONENT_ASSETS 5
 
 // It important that these function names are consistent everywhere.
 #define PROP_FSIG_INIT_IMPL         _init()
@@ -422,6 +423,41 @@ class Profile: public CompStoreObj
     }
 };
 
+//! \brief ComponentAssetData class stores properties related to each updateable component.
+class ComponentAssetData: public CompStoreObj
+{
+  Q_OBJECT
+  public:
+    ComponentAssetData & operator=(const ComponentAssetData & rhs);
+
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit ComponentAssetData();
+    void setCompIndex(int idx) { compIndex = idx; }
+    void setIndex(int idx) { index = idx; }
+    void setIndexes(int compIdx, int idx) { compIndex = compIdx; index = idx; }
+    inline QString propertyGroup() const override { return QString("Components/component%1").arg(compIndex); }
+    inline QString settingsPath()  const override { return QString("%1/asset%2/").arg(propertyGroup()).arg(index); }
+    friend class ComponentData;
+    friend class AppData;
+
+  private:
+    PROPERTYSTR (      desc)
+    PROPERTY    (int,  processes,           0)
+    PROPERTY    (int,  flags,           0)
+    PROPERTY    (int,  filterType,      0)
+    PROPERTYSTR (      filter)
+    PROPERTY    (int,  maxExpected,     0)
+    PROPERTYSTR (      destSubDir)
+    PROPERTY    (int,  copyFilterType,  0)
+    PROPERTYSTR (      copyFilter)
+
+    int compIndex;
+    int index;
+};
+
 //! \brief ComponentData class stores properties related to each updateable component.
 class ComponentData: public CompStoreObj
 {
@@ -440,8 +476,13 @@ class ComponentData: public CompStoreObj
     static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
 
     inline ReleaseChannel boundedReleaseChannel() const {
-      return qBound(RELEASE_CHANNEL_STABLE, releaseChannel(), RELEASE_CHANNEL_NIGHTLY);
-    }
+      return qBound(RELEASE_CHANNEL_STABLE, releaseChannel(), RELEASE_CHANNEL_NIGHTLY); }
+
+    ComponentAssetData asset[MAX_COMPONENT_ASSETS];
+
+    ComponentAssetData & getAsset(int index);
+    const ComponentAssetData & getAsset(int index) const;
+    void initAllAssets();
 
   public slots:
     bool existsOnDisk();

@@ -166,6 +166,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Warning: these settings are for this run only and not saved as defaults</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer_4">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

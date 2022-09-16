@@ -427,8 +427,8 @@ bool AssetsFilteredItemModel::setCopyFilter(const int id, const QString filter)
     ReleasesMetaData
 */
 
-ReleasesMetaData::ReleasesMetaData(QWidget * parent) :
-  QWidget(parent),
+ReleasesMetaData::ReleasesMetaData(QObject * parent) :
+  QObject(parent),
   m_repo(""),
   m_id(0)
 {
@@ -462,12 +462,28 @@ int ReleasesMetaData::getSetId(QVariant value, Qt::MatchFlags flags, int role)
   return m_id;
 }
 
+QString ReleasesMetaData::name()
+{
+  if (m_id)
+    return filteredItemModel->name(m_id);
+
+  return "";
+}
+
+QString ReleasesMetaData::version()
+{
+  if (m_id)
+    return filteredItemModel->version(m_id);
+
+  return "0";
+}
+
 /*
     AssetsMetaData
 */
 
-AssetsMetaData::AssetsMetaData(QWidget * parent) :
-  QWidget(parent)
+AssetsMetaData::AssetsMetaData(QObject * parent) :
+  QObject(parent)
 {
   itemModel = new AssetsItemModel();
   filteredItemModel = new AssetsFilteredItemModel(itemModel);

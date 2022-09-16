@@ -21,7 +21,6 @@
 
 #include "updatesdialog.h"
 #include "ui_updatesdialog.h"
-#include "updateoptionsdialog.h"
 
 #include <QStandardItemModel>
 #include <QMap>
@@ -61,7 +60,8 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     }
   });
 
-  ui->chkDecompressDirUseDwnld->setChecked(!g.decompressDirUseDwnld());
+  //  trigger toggled signal by changing design value and then setting to saved value
+  ui->chkDecompressDirUseDwnld->setChecked(!ui->chkDecompressDirUseDwnld->isChecked());
   ui->chkDecompressDirUseDwnld->setChecked(g.decompressDirUseDwnld());
 
   connect(ui->chkUpdateDirUseSD, &QCheckBox::stateChanged, [=](const int checked) {
@@ -81,11 +81,6 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     ui->chkUpdateDirUseSD->setEnabled(false);
   else
     ui->chkUpdateDirUseSD->setEnabled(true);
-
-  if (g.updateDirUseSD() && g.currentProfile().sdPath().trimmed().isEmpty()) {
-    g.updateDirUseSD(false);
-    g.updateDirReset();
-  }
 
   if (g.updateDirUseSD()) {
     //  trigger toggled signal by changing design value and then setting to saved value
@@ -136,8 +131,6 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   QLabel *h5 = new QLabel(tr("Update Release"));
   grid->addWidget(h5, row, col++);
 
-  col++;  // options button
-
   QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
   grid->addItem(spacer, row, col++);
 
@@ -167,24 +160,9 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
     lblCurrentRel[i] = new QLabel(factories->currentRelease(name));
     grid->addWidget(lblCurrentRel[i], row, col++);
-
-    lblUpdateRel[i] = new QLabel(factories->updateRelease(name));
-    grid->addWidget(lblUpdateRel[i], row, col++);
-
-    btnOptions[i] = new QPushButton(tr("Options"));
-    connect(btnOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
-      connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
-        QString name = g.component[i].name();
-        chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
-        lblCurrentRel[i]->setText(factories->currentRelease(name));
-        lblUpdateRel[i]->setText(factories->updateRelease(name));
-      });
-      dlg->exec();
-      dlg->deleteLater();
-    });
-
-    grid->addWidget(btnOptions[i], row, col++);
+    cboUpdateRel[i] = new QComboBox();
+    cboUpdateRel[i]->addItems(factories->releases(name));
+    grid->addWidget(cboUpdateRel[i], row, col++);
   }
 
   ui->grpComponents->setLayout(grid);
@@ -240,16 +218,17 @@ void UpdatesDialog::accept()
         cnt++;
         const QString name = it.key();
         UpdateParameters *runParams = factories->getRunParams(name);
-        runParams->data.flags |= UpdateInterface::UPDFLG_Update;
-        runParams->data.downloadDir = ui->leDownloadDir->text();
-        runParams->data.decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
-        runParams->data.decompressDir = ui->leDecompressDir->text();
-        runParams->data.updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
-        runParams->data.updateDir = ui->leUpdateDir->text();
+        runParams->updateRelease = cboUpdateRel[i]->currentText();
+        runParams->flags |= UpdateInterface::UPDFLG_Update;
+        runParams->downloadDir = ui->leDownloadDir->text();
+        runParams->decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
+        runParams->decompressDir = ui->leDecompressDir->text();
+        runParams->updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
+        runParams->updateDir = ui->leUpdateDir->text();
         if (ui->chkDelDownloads->isChecked())
-          runParams->data.flags |= UpdateInterface::UPDFLG_DelDownloads;
+          runParams->flags |= UpdateInterface::UPDFLG_DelDownloads;
         else
-          runParams->data.flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+          runParams->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
       }
     }
   }

@@ -30,6 +30,7 @@
 #include "moduledata.h"
 #include "compounditemmodels.h"
 #include "updates/updateinterface.h"
+#include "updates/updateoptionsdialog.h"
 
 #include <QAbstractItemModel>
 
@@ -321,13 +322,10 @@ void AppPreferencesDialog::initSettings()
   connect(ui->btnResetUpdatesToDefaults, &QPushButton::clicked, [=]() {
     if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Reset all update settings to defaults. Are you sure?"),
                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
-      for (int i = 0; i < MAX_COMPONENTS; i++) {
-        if (g.component[i].existsOnDisk())
-          g.getComponent(i).resetAll();
-      }
       g.resetUpdatesSettings();
       QMessageBox::warning(this, CPN_STR_APP_NAME,
                            tr("Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!"));
+      loadUpdatesTab();
     }
   });
 
@@ -391,6 +389,8 @@ void AppPreferencesDialog::initSettings()
   QLabel *h2 = new QLabel(tr("Release channel"));
   grid->addWidget(h2, row, col++);
 
+  col++;  // options button
+
   QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
   grid->addItem(spacer, row, col++);
 
@@ -413,6 +413,14 @@ void AppPreferencesDialog::initSettings()
     cboReleaseChannel[i] = new QComboBox();
     cboReleaseChannel[i]->addItems(ComponentData::releaseChannelsList());
     grid->addWidget(cboReleaseChannel[i], row, col++);
+
+    btnComponentOptions[i] = new QPushButton(tr("Options"));
+    connect(btnComponentOptions[i], &QPushButton::clicked, [=]() {
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
+      dlg->exec();
+      dlg->deleteLater();
+    });
+    grid->addWidget(btnComponentOptions[i], row, col++);
   }
 
   ui->grpComponents->setLayout(grid);

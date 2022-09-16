@@ -22,7 +22,6 @@
 #pragma once
 
 #include <QtCore>
-#include <QWidget>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
@@ -199,11 +198,11 @@ class AssetsFilteredItemModel : public UpdatesFilteredItemModel
   private:
 };
 
-class ReleasesMetaData : public QWidget
+class ReleasesMetaData : public QObject
 {
     Q_OBJECT
   public:
-    explicit ReleasesMetaData(QWidget * parent);
+    explicit ReleasesMetaData(QObject * parent);
     virtual ~ReleasesMetaData() {};
 
     bool refreshRequired();
@@ -226,9 +225,9 @@ class ReleasesMetaData : public QWidget
     void dumpContentsFiltered() { filteredItemModel->dumpContents(); }
 
     QString date() { return filteredItemModel->date(m_id); }
-    QString name() { return filteredItemModel->name(m_id); }
+    QString name();
     bool prerelease() { return filteredItemModel->prerelease(m_id); }
-    QString version() { return filteredItemModel->version(m_id); }
+    QString version();
 
     QString urlReleases() { return QString("%1/releases").arg(m_repo); }
     QString urlReleaseLatest() { return QString("%1/latest").arg(urlReleases()); }
@@ -241,11 +240,11 @@ class ReleasesMetaData : public QWidget
     int m_id;
 };
 
-class AssetsMetaData : public QWidget
+class AssetsMetaData : public QObject
 {
     Q_OBJECT
   public:
-    explicit AssetsMetaData(QWidget * parent);
+    explicit AssetsMetaData(QObject * parent);
     virtual ~AssetsMetaData() {};
 
     void setRepo(QString repo) { m_repo = repo; }

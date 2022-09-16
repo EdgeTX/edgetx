@@ -113,7 +113,7 @@ class MainWindow : public QMainWindow
     void autoCheckForUpdates();
     void manualCheckForUpdates();
     void downloads();
-    void doUpdates(bool check, bool manual);
+    void doUpdates(bool check, bool interactive = true);
 
     void openFile(const QString & fileName, bool updateLastUsedDir = false);
 

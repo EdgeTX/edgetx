@@ -32,4 +32,7 @@ class UpdateThemes : public UpdateInterface
     explicit UpdateThemes(QWidget * parent);
     virtual ~UpdateThemes() {}
 
+  protected:
+    virtual void initAssetSettings() override;
+
 };

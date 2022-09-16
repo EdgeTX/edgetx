@@ -29,6 +29,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QVector>
+#include <QSpinBox>
 
 namespace Ui {
   class UpdateOptionsDialog;
@@ -44,29 +45,25 @@ class UpdateOptionsDialog : public QDialog
     UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx);
     virtual ~UpdateOptionsDialog();
 
-  signals:
-    void changed(int index);
-
   private slots:
     void update();
 
   private:
     Ui::UpdateOptionsDialog *ui;
-    const UpdateFactories *factories;
+    UpdateFactories *factories;
     const int idx;
     const QString name;
-    const UpdateParameters *dfltParams;
-    UpdateParameters *runParams;
 
     QVector<QComboBox *> cboAssetFilterTypes;
     QVector<QLineEdit *> leAssetFilters;
+    QVector<QSpinBox *>  sbMaxExpects;
     QVector<QCheckBox *> chkDownloads;
     QVector<QCheckBox *> chkDecompresses;
     QVector<QCheckBox *> chkInstalls;
     QVector<QCheckBox *> chkCopies;
-    QVector<QLabel *> lblCopyFilters;
+    QVector<QLabel *>    lblCopyFilters;
     QVector<QComboBox *> cboCopyFilterTypes;
     QVector<QLineEdit *> leCopyFilters;
-    QVector<QLabel *> lblSubFolders;
+    QVector<QLabel *>    lblSubFolders;
     QVector<QLineEdit *> leSubFolders;
 };

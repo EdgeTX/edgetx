@@ -33,6 +33,8 @@ class UpdateCompanion : public UpdateInterface
     virtual ~UpdateCompanion() {}
 
   protected:
+    virtual void initAssetSettings() override;
+
     virtual bool asyncInstall() override;
     virtual const QString currentRelease() override;
     virtual const QString currentVersion() override;
