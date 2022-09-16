@@ -41,22 +41,29 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), /*LV_GRID_FR(1),*/ LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 class VersionDialog : public Dialog
 {
+  Window*     int_module_name_w;
   StaticText* int_name;
+  Window*     int_module_status_w;
   StaticText* int_status;
-  Window*     int_rx_line;
+
+  Window*     int_rx_name_w;
   StaticText* int_rx_name;
+  Window*     int_rx_status_w;
   StaticText* int_rx_status;
 
+  Window*     ext_module_name_w;
   StaticText* ext_name;
   StaticText* ext_status;
-  Window*     ext_rx_line;
+  
+  Window*     ext_rx_name_w;
   StaticText* ext_rx_name;
+  Window*     ext_rx_status_w;
   StaticText* ext_rx_status;
   
  public:
@@ -82,36 +89,62 @@ class VersionDialog : public Dialog
 
     setCloseWhenClickOutside(true);
 
+    // define grid layout
+    FlexGridLayout grid(col_dsc, row_dsc);
+    
+    // define form
     auto form = &content->form;
     form->setFlexLayout();
     
-    FlexGridLayout grid(col_dsc, row_dsc);
-
+    // headline "Internal module"
     new StaticText(form, rect_t{}, STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
 
-    auto line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-    int_name = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    int_status = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    // Internal module name
+    int_module_name_w = form->newLine(&grid);
+    new StaticText(int_module_name_w, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+    int_name = new StaticText(int_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 
-    int_rx_line = form->newLine(&grid);
-    new StaticText(int_rx_line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    int_rx_name = new StaticText(int_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    int_rx_status = new StaticText(int_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(int_rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    // internal module status
+    int_module_status_w = form->newLine(&grid);
+    new StaticText(int_module_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+    int_status = new StaticText(int_module_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 
+    // internal receiver name
+    int_rx_name_w = form->newLine(&grid);
+    new StaticText(int_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
+    int_rx_name = new StaticText(int_rx_name_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(int_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+    // internal reciever status
+    int_rx_status_w = form->newLine(&grid);
+    new StaticText(int_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+    int_rx_status = new StaticText(int_rx_status_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(int_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+    // headline "External module"
     new StaticText(form, rect_t{}, STR_EXTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
 
-    line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-    ext_name = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    ext_status = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    // external module name
+    ext_module_name_w = form->newLine(&grid);
+    new StaticText(ext_module_name_w, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+    ext_name = new StaticText(ext_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    
+    // external module status
+    ext_module_name_w = form->newLine(&grid);
+    new StaticText(ext_module_name_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+    ext_status = new StaticText(ext_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 
-    ext_rx_line = form->newLine(&grid);
-    new StaticText(ext_rx_line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    ext_rx_name = new StaticText(ext_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    ext_rx_status = new StaticText(ext_rx_line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(ext_rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    // external receiver name
+    ext_rx_name_w = form->newLine(&grid);
+    new StaticText(ext_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
+    ext_rx_name = new StaticText(ext_rx_name_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(ext_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+    // external receiver status
+    ext_rx_status_w = form->newLine(&grid);
+    new StaticText(ext_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+    ext_rx_status = new StaticText(ext_rx_status_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(ext_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     content->setWidth(LCD_W * 0.8);
     update();
@@ -119,21 +152,27 @@ class VersionDialog : public Dialog
 
   void update()
   {
-    updateModule(INTERNAL_MODULE, int_name, int_status, int_rx_line,
-                 int_rx_name, int_rx_status);
-    updateModule(EXTERNAL_MODULE, ext_name, ext_status, ext_rx_line,
-                 ext_rx_name, ext_rx_status);
+    updateModule(INTERNAL_MODULE, 
+                 int_name, int_status, 
+                 int_rx_name_w, int_rx_name, 
+                 int_rx_status_w, int_rx_status);
+    updateModule(EXTERNAL_MODULE, 
+                 ext_name, ext_status, 
+                 ext_rx_name_w, ext_rx_name, 
+                 ext_rx_status_w, ext_rx_status);
     content->updateSize();
   }
 
-  void updateModule(uint8_t module, StaticText* name, StaticText* status,
-                    Window* rx_line, StaticText* rx_name, StaticText* rx_status)
+  void updateModule(uint8_t module, 
+                    StaticText* name, StaticText* status,
+                    Window* rx_name_w, StaticText* rx_name, 
+                    Window* rx_status_w, StaticText* rx_status)
   {
     char tmp[20];
 
     if (g_model.moduleData[module].type == MODULE_TYPE_NONE) {
       name->setText(STR_OFF);
-      status->setText("");
+      status->setText("---");
     }
 #if defined(CROSSFIRE)
     else if (isModuleCrossfire(module)) {
@@ -149,7 +188,7 @@ class VersionDialog : public Dialog
     else if (isModuleMultimodule(module)) {
       name->setText("Multimodule");
 
-      char statusText[64] = "";
+      char statusText[64] = "---";
       getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
     }
@@ -214,18 +253,20 @@ class VersionDialog : public Dialog
 
       if (!rx_n.empty() && !rx_ver.empty()) {
         // unhide RX labels
-        lv_obj_clear_flag(rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         rx_name->setText(rx_n);
+        lv_obj_clear_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         rx_status->setText(rx_ver);
       } else {
         // hide RX labels
-        lv_obj_add_flag(rx_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
     }
 #endif
     else {
       name->setText(STR_NO_INFORMATION);
-      status->setText("");
+      status->setText("---");
     }
   }
 
