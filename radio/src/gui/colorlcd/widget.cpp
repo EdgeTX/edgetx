@@ -86,6 +86,11 @@ void Widget::onEvent(event_t event)
 }
 #endif
 
+void Widget::onCancel()
+{
+  if (!fullscreen) Button::onCancel();
+}
+
 void Widget::update()
 {
   auto container = dynamic_cast<WidgetsContainer*>(parent);

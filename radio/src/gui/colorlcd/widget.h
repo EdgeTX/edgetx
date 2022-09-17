@@ -108,6 +108,7 @@ class Widget : public Button
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
 
+    void onCancel() override;
     void onLongPress() override;
     virtual void onFullscreen(bool enable) {}
 };
