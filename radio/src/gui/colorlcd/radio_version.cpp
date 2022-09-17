@@ -41,8 +41,7 @@ char *getVersion(char *str, PXX2Version version)
   }
 }
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), /*LV_GRID_FR(1),*/ LV_GRID_FR(2),
-                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 class VersionDialog : public Dialog
