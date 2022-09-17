@@ -327,8 +327,6 @@ static void luaPushLatLon(lua_State* L, TelemetrySensor & telemetrySensor, Telem
   int8_t delay = telemetryItem.getDelaySinceLastValue();
   if (delay >= 0)
     lua_pushtableinteger(L, "delay", delay);
-  else
-    lua_pushtablenil(L, "delay");
 }
 
 static void luaPushTelemetryDateTime(lua_State* L, TelemetrySensor & telemetrySensor, TelemetryItem & telemetryItem)
@@ -596,9 +594,6 @@ static int luaGetFieldInfo(lua_State * L)
       TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(int)((field.id-MIXSRC_FIRST_TELEM)/3)];
       lua_pushtableinteger(L, "unit", telemetrySensor.unit);
     }
-    else {
-      lua_pushtablenil(L, "unit");
-    }
     return 1;
   }
   return 0;
@@ -784,7 +779,7 @@ static int luaGetSourceValue(lua_State * L)
             lua_pushinteger(L, value);
           break;
       }
-      lua_pushboolean(L, !telemetryItems[qr.quot].isOld());
+      lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
     }
     else { // telemetry is not available
       lua_pushnil(L);
