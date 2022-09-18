@@ -342,7 +342,7 @@
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
-#define TR_UNLABELEDMODEL      "No cat."
+#define TR_UNLABELEDMODEL      "Senza etic."
 #define TR_NAME                "Nome"
 #define TR_MODELNAME            TR("Nome Mode.", "Nome Modello")
 #define TR_PHASENAME           "Nome Fase"
