@@ -43,7 +43,8 @@ class CurveParam : public Window
 
   void update();
   static void value_changed(lv_event_t* e);
-  
-public:
-  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref);
+  static void LongPressHandler(void* data);
+
+public : 
+CurveParam(Window* parent, const rect_t& rect, CurveRef* ref);
 };
