@@ -30,7 +30,7 @@ UpdateSounds::UpdateSounds(QWidget * parent) :
   UpdateInterface(parent),
   langPacks(new QStandardItemModel())
 {
-  setName("Sounds");
+  setName(tr("Sounds"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
 
   UpdateParameters::AssetParams &ap = dfltParams->addAsset();

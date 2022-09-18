@@ -25,7 +25,7 @@
 UpdateThemes::UpdateThemes(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName("Themes");
+  setName(tr("Themes"));
   setRepo(QString(GH_REPOS_EDGETX).append("/themes"));
 
   UpdateParameters::AssetParams &ap = dfltParams->addAsset();

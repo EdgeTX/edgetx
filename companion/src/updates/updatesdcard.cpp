@@ -26,7 +26,7 @@
 UpdateSDCard::UpdateSDCard(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName("SD Card");
+  setName(tr("SD Card"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx-sdcard"));
 
   dfltParams->data.flags = UPDFLG_Common | UPDFLG_Locked;

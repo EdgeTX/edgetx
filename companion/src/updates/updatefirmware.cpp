@@ -26,7 +26,7 @@
 UpdateFirmware::UpdateFirmware(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName("Firmware");
+  setName(tr("Firmware"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx"));
   setReleasesNightlyName("nightly");
 

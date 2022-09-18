@@ -24,7 +24,7 @@
 UpdateMultiProtocol::UpdateMultiProtocol(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName("Multiprotocol");
+  setName(tr("Multiprotocol"));
   setRepo(QString(GITHUB_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"));
   setResultsPerPage(50);  //  GitHub REST API default 30
 
