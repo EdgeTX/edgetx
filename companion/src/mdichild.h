@@ -56,6 +56,9 @@ class MdiChild : public QWidget
       ACT_ITM_DEL,  // delete model or cat
       ACT_LBL_ADD,
       ACT_LBL_DEL,
+      ACT_LBL_MVU,  // Move up
+      ACT_LBL_MVD,  // Move down
+      ACT_LBL_REN,  // Move down
       ACT_MDL_ADD,  // model actions...
       ACT_MDL_CPY,
       ACT_MDL_CUT,
@@ -140,8 +143,11 @@ class MdiChild : public QWidget
     void modelExport();
     void labelAdd();
     void labelDelete();
-    void modelLabelsChanged();
-    void labelRenameFault(QString msg);
+    void labelRename();
+    void labelMoveUp();
+    void labelMoveDown();
+    void modelLabelsChanged(int row);
+    void labelsFault(QString msg);
     void wizardEdit();
     void modelDuplicate();
 

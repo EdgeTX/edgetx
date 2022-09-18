@@ -221,7 +221,10 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
 
   addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
-  addAct(ACT_LBL_DEL, "clear.png",    SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",  SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_REN, "edit.png",   SLOT(labelRename()), tr("Alt-R"));
+  addAct(ACT_LBL_MVU, "moveup.png", SLOT(labelMoveUp()), tr("Alt-+"));
+  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -247,7 +250,7 @@ void MdiChild::setupNavigation()
   // Add labels Label to bottom layout
   if(lblLabels)
     lblLabels->deleteLater();
-  lblLabels = new QLabel(tr("Labels"));
+  lblLabels = new QLabel(tr("Labels Management"));
   lblLabels->setStyleSheet("font-weight: bold");
   ui->bottomLayout->addWidget(lblLabels);
 
@@ -261,6 +264,9 @@ void MdiChild::setupNavigation()
   labelsToolbar->setStyleSheet(tbCss);
   labelsToolbar->addAction(getAction(ACT_LBL_ADD));
   labelsToolbar->addAction(getAction(ACT_LBL_DEL));
+  labelsToolbar->addAction(getAction(ACT_LBL_REN));
+  labelsToolbar->addAction(getAction(ACT_LBL_MVU));
+  labelsToolbar->addAction(getAction(ACT_LBL_MVD));
   ui->bottomLayout->addWidget(labelsToolbar);
 
   if (radioToolbar)
@@ -353,8 +359,11 @@ void MdiChild::retranslateUi()
   action[ACT_ITM_EDT]->setText(tr("Edit Model"));
   action[ACT_ITM_DEL]->setText(tr("Delete"));
 
-  action[ACT_LBL_ADD]->setText(tr("Add Label"));
-  action[ACT_LBL_DEL]->setText(tr("Delete Label"));
+  action[ACT_LBL_ADD]->setText(tr("Add"));
+  action[ACT_LBL_DEL]->setText(tr("Delete"));
+  action[ACT_LBL_REN]->setText(tr("Rename"));
+  action[ACT_LBL_MVU]->setText(tr("Move Up"));
+  action[ACT_LBL_MVD]->setText(tr("Move Down"));
 
   action[ACT_MDL_ADD]->setText(tr("Add Model"));
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
@@ -369,6 +378,7 @@ void MdiChild::retranslateUi()
 
   radioToolbar->setWindowTitle(tr("Show Radio Actions Toolbar"));
   modelsToolbar->setWindowTitle(tr("Show Model Actions Toolbar"));
+  labelsToolbar->setWindowTitle(tr("Show Labels Actions Toolbar"));
 }
 
 QList<QAction *> MdiChild::getGeneralActions()
@@ -416,6 +426,9 @@ QList<QAction *> MdiChild::getLabelsActions()
   QList<QAction *> actGrp;
   actGrp.append(getAction(ACT_LBL_ADD));
   actGrp.append(getAction(ACT_LBL_DEL));
+  actGrp.append(getAction(ACT_LBL_REN));
+  actGrp.append(getAction(ACT_LBL_MVU));
+  actGrp.append(getAction(ACT_LBL_MVD));
   return actGrp;
 }
 
@@ -457,6 +470,9 @@ void MdiChild::showLabelsContextMenu(const QPoint &pos)
 
   contextMenu.addAction(action[ACT_LBL_ADD]);
   contextMenu.addAction(action[ACT_LBL_DEL]);
+  contextMenu.addAction(action[ACT_LBL_REN]);
+  contextMenu.addAction(action[ACT_LBL_MVU]);
+  contextMenu.addAction(action[ACT_LBL_MVD]);
 
   if (!contextMenu.isEmpty())
     contextMenu.exec(ui->lstLabels->mapToGlobal(pos));
@@ -467,6 +483,8 @@ void MdiChild::showContextMenu(const QPoint & pos)
   QMenu contextMenu;
   contextMenu.addAction(modelsToolbar->toggleViewAction());
   contextMenu.addAction(radioToolbar->toggleViewAction());
+  if(firmware->getCapability(Capability::HasModelLabels))
+    contextMenu.addAction(labelsToolbar->toggleViewAction());
   if (!contextMenu.isEmpty())
     contextMenu.exec(mapToGlobal(pos));
 }
@@ -509,15 +527,11 @@ void MdiChild::initModelsList()
   labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
                                     &radioData, this);
   connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
-  connect(labelsListModel, &LabelsModel::renameFault, this, &MdiChild::labelRenameFault);
+  connect(labelsListModel, &LabelsModel::labelsFault, this, &MdiChild::labelsFault);
   ui->lstLabels->setModel(labelsListModel);
   ui->lstLabels->setSelectionMode(QAbstractItemView::SingleSelection);
-  ui->lstLabels->setDragEnabled(true);
-  ui->lstLabels->setAcceptDrops(true);
-  ui->lstLabels->setDropIndicatorShown(true);
-  ui->lstLabels->setDragDropOverwriteMode(false);
-  ui->lstLabels->setDragDropMode(QAbstractItemView::InternalMove);
   ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+  ui->lstLabels->setItemDelegate(new LabelEditTextDelegate);
 
   ui->modelsList->setIndentation(0);
 
@@ -1634,23 +1648,56 @@ void MdiChild::modelExport()
 void MdiChild::labelAdd()
 {
   labelsListModel->insertRow(0);
+  QModelIndex newind = labelsListModel->index(0,0);
+  ui->lstLabels->setCurrentIndex(newind);
+  ui->lstLabels->edit(newind);
   setWindowModified(true);
 }
 
 void MdiChild::labelDelete()
 {
   int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row < 0) return;
   labelsListModel->removeRow(row);
   setWindowModified(true);
 }
 
-void MdiChild::modelLabelsChanged()
+void MdiChild::labelRename()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row < 0) return;
+  QModelIndex newind = labelsListModel->index(row,0);
+  ui->lstLabels->setCurrentIndex(newind);
+  ui->lstLabels->edit(newind);
+}
+
+void MdiChild::labelMoveUp()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == 0) return;
+  radioData.swapLabel(row, row-1);
+  labelsListModel->buildLabelsList();
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
+}
+
+void MdiChild::labelMoveDown()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == labelsListModel->rowCount() -1) return;
+  radioData.swapLabel(row, row+1);
+  labelsListModel->buildLabelsList();
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
+}
+
+void MdiChild::modelLabelsChanged(int row)
 {
   setWindowModified(true);
   refresh();
+  ui->modelsList->selectionModel()->select(modelsListModel->index(row,0), QItemSelectionModel::ClearAndSelect |
+                                                                          QItemSelectionModel::Rows);
 }
 
-void MdiChild::labelRenameFault(QString msg)
+void MdiChild::labelsFault(QString msg)
 {
   QMessageBox::warning(this, CPN_STR_TTL_WARNING, msg);
 }

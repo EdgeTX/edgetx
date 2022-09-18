@@ -383,7 +383,6 @@ void ModelsPageBody::selectModel(ModelCell *model)
   storageCheck(true);
 
   modelslist.setCurrentModel(model);
-  checkAll();
 
   // Exit to main view
   auto w = Layer::back();
@@ -496,8 +495,8 @@ class LabelDialog : public Dialog
       Dialog(parent, STR_ENTER_LABEL, rect_t{}),
       saveHandler(std::move(_saveHandler))
   {
-    strncpy(this->label, label, MAX_LABEL_SIZE);
-    this->label[MAX_LABEL_SIZE] = '\0';
+    strncpy(this->label, label, LABEL_LENGTH);
+    this->label[LABEL_LENGTH] = '\0';
 
     auto form = &content->form;
     form->padRow(lv_dpx(8));
@@ -505,7 +504,7 @@ class LabelDialog : public Dialog
     auto form_obj = form->getLvObj();
     lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-    new TextEdit(form, rect_t{}, label, MAX_LABEL_SIZE);
+    new TextEdit(form, rect_t{}, label, LABEL_LENGTH);
 
     auto box = new FormGroup(form, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
@@ -538,7 +537,7 @@ class LabelDialog : public Dialog
 
  protected:
   std::function<void(std::string label)> saveHandler;
-  char label[MAX_LABEL_SIZE + 1];
+  char label[LABEL_LENGTH + 1];
 };
 
 //-----------------------------------------------------------------------------
@@ -625,11 +624,9 @@ void ModelLabelsWindow::newModel()
     // On complete update the current cell's data
     modelslist.updateCurrentModelCell();
 
-    auto labels = getLabels();
-    lblselector->setNames(labels);
-    lblselector->setSelected(modelslabels.getLabels().size());
-    mdlselector->update(0);
-    setTitle();
+    // Close Window
+    auto w = Layer::back();
+    if (w) w->onCancel();
   });
 }
 
@@ -778,8 +775,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         menu->setTitle(selectedLabel);
         menu->addLine(STR_RENAME_LABEL, [=]() {
           auto oldLabel = labels[selected];
-          strncpy(tmpLabel, oldLabel.c_str(), MAX_LABEL_SIZE);
-          tmpLabel[MAX_LABEL_SIZE] = '\0';
+          strncpy(tmpLabel, oldLabel.c_str(), LABEL_LENGTH);
+          tmpLabel[LABEL_LENGTH] = '\0';
           new LabelDialog(this, tmpLabel, [=](std::string newLabel) {
             auto rndialog =
                 new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});

@@ -48,6 +48,12 @@
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
+#if LCD_W > LCD_H // Landscape
+#define LABEL_TRUNCATE_LENGTH 21
+#else
+#define LABEL_TRUNCATE_LENGTH 16
+#endif
+
 struct ModelData;
 struct ModuleData;
 
@@ -134,8 +140,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
       const std::string &,
       std::function<void(const char *file, int progress)> progress = nullptr);
   bool moveLabelTo(unsigned current, unsigned newind);
-  bool renameLabel(
-      const std::string &from, const std::string &to,
+  bool renameLabel(const std::string &from, std::string to,
       std::function<void(const char *file, int progress)> progress = nullptr);
   std::string getCurrentLabel() { return currentlabel; };
   void setCurrentLabel(const std::string &lbl)
@@ -143,7 +148,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     currentlabel = lbl;
     setDirty();
   }
-  std::string getLabelString(ModelCell *, const char *noresults = "");
+  std::string getBulletLabelString(ModelCell *, const char *noresults = "");
   void setDirty(bool save = false);
   bool isDirty() { return _isDirty; }
 
@@ -161,6 +166,9 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 
   static std::string toCSV(const LabelsVector &labels);
   static LabelsVector fromCSV(const char *str);
+  static void escapeCSV(std::string &str);
+  static void unEscapeCSV(std::string &str);
+  static void removeYAMLChars(std::string &str);
   static void replace_all(std::string &str,
                           const std::string &from,
                           const std::string &to);

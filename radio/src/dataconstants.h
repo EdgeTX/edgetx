@@ -38,7 +38,7 @@
 #endif
 
 #define LABELS_LENGTH 100 // Maximum length of the label string
-#define LABEL_LENGTH 20   // Maximum length of a single label
+#define LABEL_LENGTH 16
 
 #if defined(PCBHORUS) || defined(PCBNV14)
   #define MAX_MODELS                   60

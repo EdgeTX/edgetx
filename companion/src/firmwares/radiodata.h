@@ -27,9 +27,15 @@ class RadioData {
     bool deleteLabel(int index);
     bool renameLabel(QString from, QString to);
     bool renameLabel(int index, QString to);
+    void swapLabel(int indFrom, int indTo);
     bool addLabelToModel(int index, QString label);
     bool removeLabelFromModel(int index, QString label);
     void addLabelsFromModels();
+
+    static QStringList fromCSV(const QString &csv);
+    static QString toCSV(QStringList lbls);
+    static QString escapeCSV(QString str);
+    static QString unEscapeCSV(QString str);
 
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();
@@ -41,4 +47,5 @@ class RadioData {
 
   protected:
     void fixModelFilename(unsigned int index);
+
 };

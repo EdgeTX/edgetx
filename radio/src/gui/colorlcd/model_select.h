@@ -30,8 +30,6 @@
 #include "storage/modelslist.h"
 #include "tabsgroup.h"
 
-constexpr int MAX_LABEL_SIZE = 20;
-
 class ModelButton;
 
 class ModelsPageBody : public FormWindow
@@ -78,7 +76,7 @@ class ModelLabelsWindow : public Page
 
  protected:
   ModelsSortBy sort = DEFAULT_MODEL_SORT;
-  char tmpLabel[MAX_LABEL_SIZE + 1] = "\0";
+  char tmpLabel[LABEL_LENGTH + 1] = "\0";
   ListBox *lblselector;
   ModelsPageBody *mdlselector;
   std::string currentLabel;
