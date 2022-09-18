@@ -45,6 +45,8 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   ui->setupUi(this);
 
+  ui->chkDelDownloads->setChecked(g.updDelDownloads());
+  ui->chkDelDecompress->setChecked(g.updDelDecompress());
   ui->leDownloadDir->setText(g.downloadDir());
 
   connect(ui->chkDecompressDirUseDwnld, &QCheckBox::stateChanged, [=](const int checked) {
@@ -52,11 +54,19 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
       ui->leDecompressDir->setText(g.decompressDir());
       ui->leDecompressDir->setEnabled(true);
       ui->btnDecompressSelect->setEnabled(true);
+      ui->chkDelDownloads->setEnabled(true);
     }
     else {
       ui->leDecompressDir->setText(g.downloadDir());
       ui->leDecompressDir->setEnabled(false);
       ui->btnDecompressSelect->setEnabled(false);
+      if (ui->chkDelDecompress->isChecked()) {
+        ui->chkDelDownloads->setEnabled(true);
+      }
+      else {
+        ui->chkDelDownloads->setEnabled(false);
+        ui->chkDelDownloads->setChecked(false);
+      }
     }
   });
 
@@ -108,6 +118,18 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     QString dirPath = QFileDialog::getExistingDirectory(this,tr("Select your update destination folder"), g.updateDir());
     if (!dirPath.isEmpty()) {
       ui->leUpdateDir->setText(dirPath);
+    }
+  });
+
+  connect(ui->chkDelDecompress, &QCheckBox::stateChanged, [=](const int checked) {
+    if (!checked) {
+      if (ui->chkDecompressDirUseDwnld->isChecked()) {
+        ui->chkDelDownloads->setEnabled(false);
+        ui->chkDelDownloads->setChecked(false);
+      }
+    }
+    else {
+      ui->chkDelDownloads->setEnabled(true);
     }
   });
 
@@ -167,8 +189,6 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   ui->grpComponents->setLayout(grid);
 
-  ui->chkDelDownloads->setChecked(g.updDelDownloads());
-
   connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
     QDialog::reject();
   });
@@ -205,6 +225,12 @@ void UpdatesDialog::accept()
     return;
   }
 
+  if (!ui->chkDecompressDirUseDwnld->isChecked() &&
+      ui->leDecompressDir->text().trimmed() == ui->leDownloadDir->text().trimmed()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Decompress and download folders have the same path!"));
+    return;
+  }
+
   QMapIterator<QString, int> it(factories->sortedComponentsList());
 
   int cnt = 0;
@@ -229,6 +255,10 @@ void UpdatesDialog::accept()
           runParams->flags |= UpdateInterface::UPDFLG_DelDownloads;
         else
           runParams->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+        if (ui->chkDelDecompress->isChecked())
+          runParams->flags |= UpdateInterface::UPDFLG_DelDecompress;
+        else
+          runParams->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
       }
     }
   }

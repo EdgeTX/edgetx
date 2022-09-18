@@ -387,6 +387,11 @@ void UpdateInterface::resetRunEnvironment()
     runParams->flags |= UpdateInterface::UPDFLG_DelDownloads;
   else
     runParams->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+
+  if (g.updDelDecompress())
+    runParams->flags |= UpdateInterface::UPDFLG_DelDecompress;
+  else
+    runParams->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
 }
 
 void UpdateInterface::setFlavourLanguage()
@@ -1331,11 +1336,24 @@ bool UpdateInterface::housekeeping()
   if (progress)
     progress->setValue(++cnt);
 
-  if (!g.decompressDirUseDwnld() && (runParams->flags & UPDFLG_DelDownloads)) {
-    reportProgress(tr("Delete decompress directory: %1").arg(decompressDir), QtDebugMsg);
-    QDir d(decompressDir);
-    if (!d.removeRecursively())
-      reportProgress(tr("Failed to delete decompress folder %1").arg(decompressDir), QtCriticalMsg);
+  if (runParams->flags & UPDFLG_DelDecompress) {
+    if (!runParams->decompressDirUseDwnld) {
+      reportProgress(tr("Delete decompress directory: %1").arg(decompressDir), QtDebugMsg);
+      QDir d(decompressDir);
+      if (!d.removeRecursively())
+        reportProgress(tr("Failed to delete decompress folder %1").arg(decompressDir), QtCriticalMsg);
+    }
+    else if (!(runParams->flags & UPDFLG_DelDownloads)) {
+      assets->setFilterFlags(UPDFLG_Decompress);
+      for (int i = 0; i < assets->count(); i++) {
+        assets->getSetId(i);
+        QString path = QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
+        reportProgress(tr("Delete decompress folder: %1").arg(path), QtDebugMsg);
+        //QDir d(path);
+        if (!QDir(path).removeRecursively())
+          reportProgress(tr("Failed to delete decompress folder %1").arg(path), QtCriticalMsg);
+      }
+    }
   }
 
   if (progress)

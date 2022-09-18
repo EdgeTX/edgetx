@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>595</width>
-    <height>345</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -137,15 +137,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="grpOther">
+    <widget class="QGroupBox" name="grpOptions">
      <property name="title">
-      <string/>
+      <string>Options</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QCheckBox" name="chkDelDownloads">
         <property name="text">
-         <string>Delete downloads after update</string>
+         <string>Delete downloads</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkDelDecompress">
+        <property name="text">
+         <string>Delete decompressions</string>
         </property>
        </widget>
       </item>
@@ -167,6 +174,9 @@
    </item>
    <item>
     <widget class="QLabel" name="label">
+     <property name="styleSheet">
+      <string notr="true">color:red</string>
+     </property>
      <property name="text">
       <string>Warning: these settings are for this run only and not saved as defaults</string>
      </property>

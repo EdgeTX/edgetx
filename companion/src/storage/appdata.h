@@ -647,6 +647,7 @@ class AppData: public CompStoreObj
     PROPERTY    (bool, runAppInstaller,                 false)
     PROPERTY    (int,  updLogLevel,                     4)
     PROPERTY    (bool, updDelDownloads,                 false)
+    PROPERTY    (bool, updDelDecompress,                false)
 
     PROPERTYSTR (locale)
     PROPERTYSTR (gePath)

@@ -107,6 +107,7 @@ class UpdateInterface : public QWidget
       UPDFLG_Housekeeping    = 1 << 9,
       UPDFLG_AsyncInstall    = 1 << 10,
       UPDFLG_DelDownloads    = 1 << 11,
+      UPDFLG_DelDecompress   = 1 << 12,
       UPDFLG_Common_Asset    = UPDFLG_Download | UPDFLG_Decompress | UPDFLG_CopyDest,
       UPDFLG_Common          = UPDFLG_Common_Asset | UPDFLG_Preparation | UPDFLG_Housekeeping,
     };
