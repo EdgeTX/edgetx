@@ -349,12 +349,6 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   else if (IS_TARANIS_XLITE(board)) {
     variant |= TARANIS_XLITE_VARIANT;
   }
-  else if (IS_BETAFPV_LR3PRO(board)) {
-    variant |= BETAFPV_LR3PRO_VARIANT;
-  }
-  else if (IS_IFLIGHT_COMMANDO8(board)) {
-    variant |= IFLIGHT_COMMANDO8_VARIANT;
-  }
   else if (IS_JUMPER_T12(board)) {
     variant |= JUMPER_T12_VARIANT;
   }
@@ -1072,16 +1066,6 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_TARANIS_X9LITE(board)) {
     if (variant != TARANIS_X9LITE_VARIANT) {
-      variantError = true;
-    }
-  }
-  else if (IS_BETAFPV_LR3PRO(board)) {
-    if (variant != BETAFPV_LR3PRO_VARIANT) {
-      variantError = true;
-    }
-  }
-  else if (IS_IFLIGHT_COMMANDO8(board)) {
-    if (variant != IFLIGHT_COMMANDO8_VARIANT) {
       variantError = true;
     }
   }
