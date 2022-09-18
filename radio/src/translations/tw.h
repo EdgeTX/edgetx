@@ -37,7 +37,7 @@
 #define TR_TRNMODE                      "關","相加","替換"
 #define TR_TRNCHN                       "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試"
+#define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試","SpaceMouse"
 #define TR_SWTYPES                      "無","回彈","2段","3段"
 #define TR_POTTYPES                     "無","有中點旋鈕","多段旋鈕","無中點旋鈕"
 #define TR_SLIDERTYPES                  "無","側滑塊"

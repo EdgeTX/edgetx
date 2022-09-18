@@ -195,6 +195,15 @@ bool isSourceAvailable(int source)
     return false;
 #endif
 
+#if defined(PCBHORUS) && !defined(SPACEMOUSE)
+  if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
+    return false;
+#elif defined(PCBHORUS) && defined(SPACEMOUSE)
+  if ((hasSerialMode(UART_MODE_SPACEMOUSE) == -1) &&
+      (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE))
+    return false;
+#endif
+
   if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
     return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
   }
@@ -407,6 +416,15 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #elif defined(USB_SERIAL)
   // GPS is not supported on VCP
   if (port_nr == SP_VCP && mode == UART_MODE_GPS)
+    return false;
+#endif
+
+#if !defined(SPACEMOUSE)
+  if (mode == UART_MODE_SPACEMOUSE)
+    return false;
+#elif defined(USB_SERIAL)
+  // SPACEMOUSE is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_SPACEMOUSE)
     return false;
 #endif
 
