@@ -330,10 +330,14 @@ LabelsVector ModelMap::getLabels()
 
 int ModelMap::addLabel(std::string lbl)
 {
-  if (lbl.size() == 0) return -1;
   if (lbl == STR_UNLABELEDMODEL) return -1;
 
-  // Add a new label if if doesn't already exist in the list
+  // Limit maximum label length, TODO... Truncate UTF8 Properly
+  lbl = lbl.substr(0, LABEL_LENGTH);
+  removeYAMLChars(lbl);
+  if (lbl.size() == 0) return -1;
+
+  // Add a new label if it doesn't already exist in the list
   // Returns the index to the label
   int ind = getIndexByLabel(lbl);
   if (ind < 0) {
@@ -419,8 +423,7 @@ std::string ModelMap::toCSV(const LabelsVector &labels)
       csv += ',';
     }
     // Escape out commas
-    replace_all(lbl, "/", "//");
-    replace_all(lbl, ",", "/c");
+    escapeCSV(lbl);
     csv += lbl;
     comma = true;
   }
@@ -440,12 +443,34 @@ LabelsVector ModelMap::fromCSV(const char *str)
   std::istringstream f(str);
   std::string lbl;
   while (std::getline(f, lbl, ',')) {
-    // Un-escape commas
-    replace_all(lbl, "/c", ",");
-    replace_all(lbl, "//", "/");
+    unEscapeCSV(lbl);
     lbls.push_back(lbl);
   }
   return lbls;
+}
+
+// TODO - Fix me, ideally there should be no limitations
+void ModelMap::escapeCSV(std::string &str)
+{
+  replace_all(str, "/", "//");
+  replace_all(str, ",", "/c");
+}
+
+// TODO - Fix me, ideally there should be no limitations
+void ModelMap::unEscapeCSV(std::string &str)
+{
+  replace_all(str, "//", "/");
+  replace_all(str, "/c", ",");
+}
+
+// TODO - Fix me, ideally there should be no limitations
+void ModelMap::removeYAMLChars(std::string &str)
+{
+  replace_all(str, "\\", "");
+  replace_all(str, "\"", "");
+  replace_all(str, ":", "");
+  replace_all(str, "\'", "");
+  replace_all(str, "-", "");
 }
 
 /**
@@ -585,13 +610,17 @@ bool ModelMap::moveLabelTo(unsigned curind, unsigned newind)
  * @return false success
  */
 
-bool ModelMap::renameLabel(
-    const std::string &from, const std::string &to,
+bool ModelMap::renameLabel(const std::string &from, std::string to,
     std::function<void(const char *file, int progress)> progress)
 {
+  if (from == "") return true;
   DEBUG_TIMER_START(debugTimerYamlScan);
 
-  if (from == "") return true;
+  // Limit max label name. TODO: Warn user they entered too long of a string
+  to = to.substr(0, LABEL_LENGTH);
+  removeYAMLChars(to);
+  if(to.size() == 0) return true;
+
 
   ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
   if (!modeldata) {
@@ -604,6 +633,23 @@ bool ModelMap::renameLabel(
 
   bool fault = false;
   ModelsVector mods = getModelsByLabel(from);  // Find all models to be renamed
+
+  // Scan all these models first, recombine their labels to a csv,
+  // make sure re-size is going to fit before starting. Otherwise new partial
+  // labels would be created on next scan.
+  for(const auto &model: mods) {
+    int curlen = toCSV(getLabelsByModel(model)).size();
+    std::string csvto = to;
+    escapeCSV(csvto);
+    std::string csvfrom = from;
+    escapeCSV(csvfrom);
+    if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
+      TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
+      if (progress != nullptr) progress("", 100); // Kill progress dialog
+      return true;
+    }
+  }
+
   int i = 0;
   for (const auto &modcell : mods) {
     if (progress != nullptr) {
@@ -613,24 +659,8 @@ bool ModelMap::renameLabel(
     readModelYaml(modcell->modelFilename, (uint8_t *)modeldata,
                   sizeof(ModelData));
 
-    // Make sure there is room to rename, use toCSV to capture escape chars
-    LabelsVector tmpvect;
-    tmpvect.push_back(to);
-    int newlen = ModelMap::toCSV(tmpvect).size();
-    tmpvect.clear();
-    tmpvect.push_back(from);
-    int oldlen = ModelMap::toCSV(tmpvect).size();
-
     // Separate Curent CSV
     LabelsVector lbls = ModelMap::fromCSV(modeldata->header.labels);
-
-    int nlen = lbls.size() + newlen - oldlen;
-    if (nlen > LABELS_LENGTH - 1) {
-      fault = true;
-      TRACE("Labels: Rename Error! Labels too long on %s - %s",
-            modeldata->header.name, modcell->modelFilename);
-      continue;
-    }
 
     // Replace from->to strings
     for (auto &lbl : lbls) {
@@ -691,18 +721,25 @@ bool ModelMap::renameLabel(
 }
 
 /**
- * @brief Returns a comma separated list of the labels, used in model_setup
+ * @brief Returns a bullet separated list of the labels, used in model_setup
  *
  * @param curmod Model Cell
  * @param noresults String to return when no labels found
  * @return std::string of all Labels, if no results return
  */
 
-std::string ModelMap::getLabelString(ModelCell *curmod, const char *noresults)
+std::string ModelMap::getBulletLabelString(ModelCell *curmod, const char *noresults)
 {
   std::string lbls = ModelMap::toCSV(getLabelsByModel(curmod));
+  replace_all(lbls, ",", "\u2022");
+  unEscapeCSV(lbls);
+
   if(lbls.size() == 0) {
     return noresults;
+  }
+  if(lbls.size() > LABEL_TRUNCATE_LENGTH) {
+    lbls = lbls.substr(0, LABEL_TRUNCATE_LENGTH);
+    lbls += "...";
   }
   return lbls;
 }
@@ -745,7 +782,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 {
   // Update memory copy if on current model
   if (cell == modelslist.getCurrentModel()) {
-    strncpy(g_model.header.labels, getLabelString(cell).c_str(),
+    strncpy(g_model.header.labels, ModelMap::toCSV(getLabelsByModel(cell)).c_str(),
             LABELS_LENGTH - 1);
     g_model.header.labels[LABELS_LENGTH - 1] = '\0';
     storageDirty(EE_MODEL);
@@ -761,7 +798,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
   bool fault = false;
   readModelYaml(cell->modelFilename, (uint8_t *)modeldata, sizeof(ModelData));
 
-  strncpy(modeldata->header.labels, getLabelString(cell).c_str(),
+  strncpy(modeldata->header.labels, ModelMap::toCSV(getLabelsByModel(cell)).c_str(),
           LABELS_LENGTH - 1);
   modeldata->header.labels[LABELS_LENGTH - 1] = '\0';
 
@@ -1087,6 +1124,9 @@ bool ModelsList::load(Format fmt)
     TRACE("ERROR no Current Model Found");
     if (modelslist.size()) {
       modelslist.setCurrentModel(modelslist.at(0));
+      strncpy(g_eeGeneral.currModelFilename, modelslist.at(0)->modelFilename,
+              sizeof(g_eeGeneral.currModelFilename));
+      g_eeGeneral.currModelFilename[sizeof(g_eeGeneral.currModelFilename) - 1] = '\0';
       TRACE("  - Set current model to first available");
     } else {
       TRACE("  - No Models Found, making a new one");
@@ -1127,7 +1167,7 @@ const char *ModelsList::save(LabelsVector newOrder)
   if(newOrder.empty())
     newOrder = modelslabels.getLabels();
   for (auto &lbl : newOrder) {
-    f_printf(&file, "  %s:\r\n", lbl.c_str());
+    f_printf(&file, "  \"%s\":\r\n", lbl.c_str());
     if (modelslabels.isLabelFiltered(lbl))
       f_printf(&file, "    selected: true\r\n", lbl.c_str());
   }

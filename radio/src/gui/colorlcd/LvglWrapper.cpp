@@ -237,6 +237,9 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   static rotenc_t prevPos = 0;
+  static int8_t prevDir = 0;
+  static int8_t accel = 0;
+  static tmr10ms_t lastEvent = 0;
 
   rotenc_t newPos = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
   auto diff = newPos - prevPos;
@@ -245,8 +248,28 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
 
-  // Reset inactivity counters
-  if (diff != 0) { reset_inactivity(); }
+  if (diff != 0) {
+    reset_inactivity();
+
+    int8_t dir = 0;
+    if (diff < 0) dir = -1;
+    else if (diff > 0) dir = 1;
+
+    if (dir == prevDir) {
+      if (g_tmr10ms - lastEvent <= ROTENC_DELAY_HIGHSPEED) { // 160 ms
+        // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
+        accel += abs(diff);
+      } else if (g_tmr10ms - lastEvent >= ROTENC_DELAY_MIDSPEED) { // 320 ms
+        // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
+        accel = 0;
+      }
+      lastEvent = g_tmr10ms;
+      data->enc_diff = (int16_t)diff * max((int16_t)accel, (int16_t)1);
+    } else {
+      accel = 0;
+    }
+    prevDir = dir;
+  }
 }
 #endif
 

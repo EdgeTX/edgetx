@@ -30,15 +30,6 @@
 #include "touch.h"
 #endif
 
-static void openWidgetMenu(Widget * parent)
-{
-  Menu *menu = new Menu(parent);
-  menu->addLine("Full screen", [=]() { parent->setFullscreen(true); });
-  if (parent->getOptions() && parent->getOptions()->name)
-    menu->addLine(TR_WIDGET_SETTINGS,
-                  [=]() { new WidgetSettings(parent, parent); });
-}
-
 Widget::Widget(const WidgetFactory* factory, Window* parent,
                const rect_t &rect, WidgetPersistentData* persistentData) :
     Button(parent, rect, nullptr, 0, 0, window_create),
@@ -48,18 +39,32 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
+  if (dynamic_cast<Topbar*>(parent))
+    fsAllowed = false;
+  
   setPressHandler([&]() -> uint8_t {
     // When ViewMain is in "widget select mode",
     // the widget is added to a focus group
-    if (!fullscreen && lv_obj_get_group(lvobj))
-      openWidgetMenu(this);
+    if (!fullscreen && lv_obj_get_group(lvobj)) openMenu();
     return 0;
   });
 
   setLongPressHandler([&]() -> uint8_t {
-    if (!fullscreen) openWidgetMenu(this);
+    if (!fullscreen) openMenu();
     return 0;
   });
+}
+
+void Widget::openMenu()
+{
+  Menu* menu = new Menu(this);
+  if (fsAllowed) {
+    menu->addLine("Full screen", [&]() { setFullscreen(true); });
+  }
+  if (getOptions() && getOptions()->name) {
+    menu->addLine(TR_WIDGET_SETTINGS,
+                  [=]() { new WidgetSettings(this, this); });
+  }
 }
 
 void Widget::paint(BitmapBuffer * dc)
@@ -86,6 +91,11 @@ void Widget::onEvent(event_t event)
 }
 #endif
 
+void Widget::onCancel()
+{
+  if (!fullscreen) Button::onCancel();
+}
+
 void Widget::update()
 {
   auto container = dynamic_cast<WidgetsContainer*>(parent);
@@ -96,6 +106,7 @@ void Widget::update()
 
 void Widget::setFullscreen(bool enable)
 {
+  if (!fsAllowed) return;
   if (enable == fullscreen) return;
 
   // Leave Fullscreen Mode
@@ -145,6 +156,11 @@ void Widget::setFullscreen(bool enable)
 
     onFullscreen(enable);
   }
+}
+
+void Widget::disableFullscreen()
+{
+  fsAllowed = false;
 }
 
 void Widget::onLongPress()

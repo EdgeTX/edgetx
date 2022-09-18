@@ -93,6 +93,10 @@ class Widget : public Button
     // Set/unset fullscreen mode
     void setFullscreen(bool enable);
 
+    // Disable setting fullscreen mode
+    void disableFullscreen();
+    bool isFullscreenAllowed() { return fsAllowed; }
+  
     // Called when the widget options have changed
     virtual void update();
 
@@ -107,9 +111,13 @@ class Widget : public Button
     PersistentData * persistentData;
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
+    bool fsAllowed = true;
 
+    void onCancel() override;
     void onLongPress() override;
+
     virtual void onFullscreen(bool enable) {}
+    void openMenu();
 };
 
 void registerWidget(const WidgetFactory * factory);
