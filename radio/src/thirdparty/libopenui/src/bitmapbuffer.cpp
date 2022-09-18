@@ -1542,11 +1542,11 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
             return nullptr;
           }
           if (hasAlpha) {
-            *dst = ARGB(pixel & 0xff, (pixel >> 24) & 0xff, (pixel >> 16) & 0xff, (pixel >> 8) & 0xff);
+            *dst = ARGB((pixel >> 24) & 0xff, (pixel >> 16) & 0xff, (pixel >> 8) & 0xff, pixel & 0xff);
           }
           else {
-            if ((pixel & 0xff) == 0xff) {
-              *dst = RGB(pixel >> 24, (pixel >> 16) & 0xff, (pixel >> 8) & 0xff);
+            if (((pixel >> 24) & 0xff) == 0xff) {
+              *dst = RGB(pixel >> 16, (pixel >> 8) & 0xff, pixel & 0xff);
             }
             else {
               hasAlpha = true;
@@ -1555,7 +1555,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
                 pixel_t tmp = *p;
                 *p = ((tmp >> 1) & 0x0f) + (((tmp >> 7) & 0x0f) << 4) + (((tmp >> 12) & 0x0f) << 8);
               }
-              *dst = ARGB(pixel & 0xff, (pixel >> 24) & 0xff, (pixel >> 16) & 0xff, (pixel >> 8) & 0xff);
+              *dst = ARGB((pixel >> 24) & 0xff, (pixel >> 16) & 0xff, (pixel >> 8) & 0xff, pixel & 0xff);
             }
           }
           MOVE_TO_NEXT_RIGHT_PIXEL(dst);
