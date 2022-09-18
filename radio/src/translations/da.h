@@ -344,6 +344,7 @@
 #define TR_INPUTNAME                   TR("Indgang", "Indgang navn")
 #define TR_EXPONAME                    TR("Navn", "Line navn")
 #define TR_BITMAP                      "Model billede"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       TR("Timer", "Timer ")
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
@@ -637,7 +638,10 @@
 #define TR_CREATE_MODEL                "Opret model"
 #define TR_FAVORITE_LABEL              "Favoritter"
 #define TR_NEW_MODEL                   "Ny model"
+#define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Ret type"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL                 "Vælg type"
 #define TR_LABEL                       "Type"
 #define TR_LABELS                      "Typer"

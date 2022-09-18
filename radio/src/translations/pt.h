@@ -347,6 +347,7 @@
   #define TR_EXPONAME          "Expo Name"
 #endif
 #define TR_BITMAP              "Model Image"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER               "Cronom"
 #define TR_START                       "Start"
 #define TR_ELIMITS             "E.Limits"
@@ -639,7 +640,10 @@
 #define TR_CREATE_MODEL        "Criar Modelo"
 #define TR_FAVORITE_LABEL      "Favorites"
 #define TR_NEW_MODEL           "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS         "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL         "Enter Label"
 #define TR_LABEL               "Label"
 #define TR_LABELS              "Labels"

@@ -267,7 +267,10 @@ class ModelButton : public Button
     buffer->clear(COLOR_THEME_PRIMARY2);
 
     if (error) {
-      buffer->drawText(width() / 2, height() / 2, "(Invalid Model)",
+      std::string errorMsg = "(";
+      errorMsg += STR_INVALID_MODEL;
+      errorMsg += ")";
+      buffer->drawText(width() / 2, height() / 2, errorMsg.c_str(),
                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
@@ -276,7 +279,10 @@ class ModelButton : public Button
         buffer->drawScaledBitmap(bitmap, 0, 0, width(), height());
         delete bitmap;
       } else {
-        buffer->drawText(width() / 2, 56, "(No Picture)",
+        std::string errorMsg = "(";
+        errorMsg += STR_NO_PICTURE;
+        errorMsg += ")";
+        buffer->drawText(width() / 2, 56, errorMsg.c_str(),
                          FONT(XXS) | COLOR_THEME_SECONDARY1 | CENTERED);
       }
     }
@@ -810,7 +816,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
         });
         if (modelslabels.getLabels().size() > 1) {
           if (selected != 0) {
-            menu->addLine("Move Up", [=]() {
+            menu->addLine(STR_MOVE_UP, [=]() {
               modelslabels.moveLabelTo(selected, selected - 1);
               std::set<uint32_t> newset;
               newset.insert(selected - 1);
@@ -822,7 +828,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
             });
           }
           if (selected != (int)modelslabels.getLabels().size() - 1) {
-            menu->addLine("Move Down", [=]() {
+            menu->addLine(STR_MOVE_DOWN, [=]() {
               modelslabels.moveLabelTo(selected, selected + 1);
               std::set<uint32_t> newset;
               newset.insert(selected + 1);

@@ -362,6 +362,7 @@
 #define TR_INPUTNAME                   "Název"
 #define TR_EXPONAME                    "Popis"
 #define TR_BITMAP                      "Obrázek"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       "Stopky"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Limit +25%", "Kanál +/- 125%")
@@ -653,7 +654,10 @@
 #define TR_CREATE_MODEL                "Nový model"
 #define TR_FAVORITE_LABEL              "Favorites"
 #define TR_NEW_MODEL                   "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL                 "Enter Label"
 #define TR_LABEL                       "Label"
 #define TR_LABELS                      "Labels"

@@ -344,6 +344,7 @@
 #define TR_INPUTNAME                   TR("名称", "输入名称")
 #define TR_EXPONAME                    TR("名称", "曲线名称")
 #define TR_BITMAP                      "模型图片"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       TR("计时器", "计时器 ")
 #define TR_START                       "开始"
 #define TR_ELIMITS                     TR("扩展行程", "扩展通道行程")
@@ -637,7 +638,10 @@
 #define TR_CREATE_MODEL                "创建模型"
 #define TR_FAVORITE_LABEL              "Favorites"
 #define TR_NEW_MODEL                   "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL                 "Enter Label"
 #define TR_LABEL                       "Label"
 #define TR_LABELS                      "Labels"

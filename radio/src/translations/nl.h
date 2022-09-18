@@ -348,6 +348,7 @@
 #define TR_INPUTNAME           "Input Naam"
 #define TR_EXPONAME            "Lijn Naam"
 #define TR_BITMAP              "Modelafbeelding"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER               TR("Timer", "Timer ")
 #define TR_START               "Start"
 #define TR_ELIMITS             TR("E.Limits", "Extended Limits")
@@ -642,7 +643,10 @@
 #define TR_CREATE_MODEL        "Nieuw Model"
 #define TR_FAVORITE_LABEL      "Favorites"
 #define TR_NEW_MODEL           "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS         "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL         "Enter Label"
 #define TR_LABEL               "Label"
 #define TR_LABELS              "Labels"
