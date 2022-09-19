@@ -58,6 +58,7 @@ class VersionDialog : public Dialog
 
   Window*     ext_module_name_w;
   StaticText* ext_name;
+  Window*     ext_module_status_w;
   StaticText* ext_status;
   
   Window*     ext_rx_name_w;
@@ -107,17 +108,18 @@ class VersionDialog : public Dialog
     int_module_status_w = form->newLine(&grid);
     new StaticText(int_module_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
     int_status = new StaticText(int_module_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(int_module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // internal receiver name
     int_rx_name_w = form->newLine(&grid);
     new StaticText(int_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    int_rx_name = new StaticText(int_rx_name_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    int_rx_name = new StaticText(int_rx_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
     lv_obj_add_flag(int_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // internal reciever status
     int_rx_status_w = form->newLine(&grid);
     new StaticText(int_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    int_rx_status = new StaticText(int_rx_status_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    int_rx_status = new StaticText(int_rx_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
     lv_obj_add_flag(int_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // headline "External module"
@@ -129,20 +131,21 @@ class VersionDialog : public Dialog
     ext_name = new StaticText(ext_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
     
     // external module status
-    ext_module_name_w = form->newLine(&grid);
-    new StaticText(ext_module_name_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    ext_status = new StaticText(ext_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    ext_module_status_w = form->newLine(&grid);
+    new StaticText(ext_module_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+    ext_status = new StaticText(ext_module_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    lv_obj_add_flag(ext_module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // external receiver name
     ext_rx_name_w = form->newLine(&grid);
     new StaticText(ext_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    ext_rx_name = new StaticText(ext_rx_name_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    ext_rx_name = new StaticText(ext_rx_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
     lv_obj_add_flag(ext_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // external receiver status
     ext_rx_status_w = form->newLine(&grid);
     new StaticText(ext_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    ext_rx_status = new StaticText(ext_rx_status_w, rect_t{}, "---", 0, COLOR_THEME_PRIMARY1);
+    ext_rx_status = new StaticText(ext_rx_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
     lv_obj_add_flag(ext_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     content->setWidth(LCD_W * 0.8);
@@ -152,18 +155,21 @@ class VersionDialog : public Dialog
   void update()
   {
     updateModule(INTERNAL_MODULE, 
-                 int_name, int_status, 
+                 int_name, 
+                 int_module_status_w, int_status, 
                  int_rx_name_w, int_rx_name, 
                  int_rx_status_w, int_rx_status);
     updateModule(EXTERNAL_MODULE, 
-                 ext_name, ext_status, 
+                 ext_name, 
+                 ext_module_status_w, ext_status, 
                  ext_rx_name_w, ext_rx_name, 
                  ext_rx_status_w, ext_rx_status);
     content->updateSize();
   }
 
   void updateModule(uint8_t module, 
-                    StaticText* name, StaticText* status,
+                    StaticText* name, 
+                    Window* module_status_w, StaticText* status, 
                     Window* rx_name_w, StaticText* rx_name, 
                     Window* rx_status_w, StaticText* rx_status) {
     // initialize module name with module selection made in model settings
@@ -171,7 +177,7 @@ class VersionDialog : public Dialog
     // PXX2 will overwrite name
     // CRSF, MPM and PXX2 will overwrite status
     name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
-    status->setText("---");
+    lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // CRSF is able to provide status
     #if defined(CROSSFIRE)
@@ -181,6 +187,7 @@ class VersionDialog : public Dialog
       auto hz = 1000000 / getMixerSchedulerPeriod();
       snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       status->setText(statusText);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);   
     }
     #endif
 
@@ -191,6 +198,7 @@ class VersionDialog : public Dialog
 
       getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN); 
     }
     #endif
 
