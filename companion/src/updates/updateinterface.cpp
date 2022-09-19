@@ -1326,6 +1326,8 @@ bool UpdateInterface::housekeeping()
   if (progress)
     progress->setValue(++cnt);
 
+  g.lastUpdateDir(runParams->updateDir);  //  used by sdsync
+
   if (runParams->flags & UPDFLG_DelDownloads) {
     reportProgress(tr("Delete download directory: %1").arg(downloadDir), QtDebugMsg);
     QDir d(downloadDir);

@@ -475,7 +475,7 @@ void MainWindow::sdsync(bool postUpdate)
   }
 
   if (postUpdate)
-    syncOpts.folderA = g.updateDir();
+    syncOpts.folderA = g.lastUpdateDir();
 
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();
