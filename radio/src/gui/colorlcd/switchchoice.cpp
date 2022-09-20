@@ -28,7 +28,6 @@
 #include "opentx.h"
 #include "strhelpers.h"
 
-
 class SwitchChoiceMenuToolbar : public MenuToolbar
 {
  public:
@@ -42,7 +41,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   }
 };
 
-void SwitchChoice::LongPressHandler(void* data) 
+void SwitchChoice::LongPressHandler(void* data)
 {
   SwitchChoice* swch = (SwitchChoice*)data;
   if (!swch) return;
@@ -52,7 +51,6 @@ void SwitchChoice::LongPressHandler(void* data)
     swch->invalidate();
   }
 }
-
 
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
