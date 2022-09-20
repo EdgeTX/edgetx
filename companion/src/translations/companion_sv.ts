@@ -3850,6 +3850,10 @@ Dessa inställningar gäller för alla modeller.</translation>
         <source>OneBit</source>
         <translation></translation>
     </message>
+    <message>
+        <source>SpaceMouse</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>GeneralSetup</name>
@@ -5020,6 +5024,14 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Unable to rename &quot;%1&quot; to &quot;%2&quot; the label already exists</source>
         <translation>Kan inte byta namn på &quot;%1&quot; till &quot;%2&quot; då etiketten redan finns</translation>
+    </message>
+    <message>
+        <source>Unable to add label &quot;%1&quot; to model &quot;%2&quot; not enough room</source>
+        <translation>Kan inte lägga till etikett &quot;%1&quot; till modell &quot;%2&quot;, inte tillräckligt med plats</translation>
+    </message>
+    <message>
+        <source>Unable to rename &quot;%1&quot; to &quot;%2&quot; not enough room in model %3</source>
+        <translation>Kan inte ändra namn &quot;%1&quot; till &quot;%2&quot;, inte tillräckligt med plats i modell %3</translation>
     </message>
 </context>
 <context>
@@ -6289,18 +6301,6 @@ Vill du spara ändringarna?</translation>
         <translation>Temporär modell kunde inte tas bort!</translation>
     </message>
     <message>
-        <source>Add Label</source>
-        <translation>Lägg till etikett</translation>
-    </message>
-    <message>
-        <source>Delete Label</source>
-        <translation>Ta bort etikett</translation>
-    </message>
-    <message>
-        <source>Labels</source>
-        <translation>Etiketter</translation>
-    </message>
-    <message>
         <source>Alt-L</source>
         <translation></translation>
     </message>
@@ -6343,6 +6343,42 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Export model</source>
         <translation>Exportera modell</translation>
+    </message>
+    <message>
+        <source>Alt-R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt-+</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt--</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Labels Management</source>
+        <translation>Etiketthantering</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Byt namn</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Show Labels Actions Toolbar</source>
+        <translation>Visa verktygsfältet för etiketter</translation>
     </message>
 </context>
 <context>
@@ -8067,7 +8103,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable Max Throw</source>
-        <translation type="unfinished">Aktivera max slaglängd</translation>
+        <translation>Aktivera max utslag</translation>
     </message>
     <message>
         <source>RF Channel Number</source>
@@ -8583,6 +8619,10 @@ r</translation>
     <message>
         <source>SW%1</source>
         <translation>BR%1</translation>
+    </message>
+    <message>
+        <source>sm%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11528,7 +11568,7 @@ Varning: Detta går inte att ångra! Är du säker?</translation>
     <name>UpdateParameters</name>
     <message>
         <source>None</source>
-        <translation>Inga</translation>
+        <translation>Inget</translation>
     </message>
     <message>
         <source>Exact</source>
