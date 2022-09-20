@@ -453,7 +453,7 @@
 #define TR_LENGTH                       "Tid"
 #define TR_BEEP_LENGTH                  "Piplängd"
 #define TR_BEEP_PITCH                   "Pipton"
-#define TR_HAPTIC_LABEL                 "Vibrator"
+#define TR_HAPTIC_LABEL                 "Vibration"
 #define TR_STRENGTH                     "Styrka"
 #define TR_IMU_LABEL                    "IMU"
 #define TR_IMU_OFFSET                   "Offset"
