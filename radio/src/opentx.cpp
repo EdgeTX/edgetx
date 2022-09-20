@@ -69,6 +69,7 @@ const uint8_t bchout_ar[]  = {
 
 uint8_t channelOrder(uint8_t setup, uint8_t x)
 {
+  if (setup >= sizeof(bchout_ar)) return x;
   return ((*(bchout_ar + setup) >> (6 - (x - 1) * 2)) & 3) + 1;
 }
 
