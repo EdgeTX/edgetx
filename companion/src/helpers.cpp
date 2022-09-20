@@ -726,3 +726,87 @@ QString Helpers::removeAccents(const QString & str)
   }
   return result;
 }
+
+SemanticVersion::SemanticVersion(QString vers)
+{
+  if (!isValid(vers))
+    return;
+
+  QStringList strl = vers.split(".");
+  version.major = strl.at(0).toInt();
+  version.minor = strl.at(1).toInt();
+  if (strl.count() > 2) {
+    if (!strl.at(2).contains("-")) {
+      version.patch = strl.at(2).toInt();
+    } else {
+      QStringList ptch = strl.at(2).toLower().split("-");
+      version.patch = ptch.at(0).toInt();
+      if (ptch.at(1).left(2) == "rc") {
+        version.preReleaseType = PR_RC;
+        version.preReleaseNumber = ptch.at(1).mid(2).toInt();
+      } else if (ptch.at(1).left(5) == "alpha") {
+        version.preReleaseType = PR_ALPHA;
+        version.preReleaseNumber = ptch.at(1).mid(5).toInt();
+      } else if (ptch.at(1).left(4) == "beta") {
+        version.preReleaseType = PR_BETA;
+        version.preReleaseNumber = ptch.at(1).mid(4).toInt();
+      }
+    }
+  }
+}
+
+bool SemanticVersion::isValid(QString vers)
+{
+  if (vers.trimmed().isEmpty())
+    return false;
+
+  QStringList strl = vers.split(".");
+  if (strl.count() < 2)
+    return false;
+
+  return true;
+}
+
+QString SemanticVersion::toString() const
+{
+  QString ret(QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch));
+
+  if (version.preReleaseType != PR_NONE) {
+    ret.append("-");
+    if (version.preReleaseType == PR_RC)
+      ret.append("RC");
+    else if (version.preReleaseType == PR_ALPHA)
+      ret.append("ALPHA");
+    else if (version.preReleaseType == PR_BETA)
+      ret.append("BETA");
+
+    ret.append(QString::number(version.preReleaseNumber));
+  }
+
+  return ret;
+}
+
+int SemanticVersion::compare(const SemanticVersion& other)
+{
+  if (version.major != other.version.major) {
+    return version.major - other.version.major;
+  }
+
+  if (version.minor != other.version.minor) {
+    return version.minor - other.version.minor;
+  }
+
+  if (version.patch != other.version.patch) {
+    return version.patch - other.version.patch;
+  }
+
+  if (version.preReleaseType != other.version.preReleaseType) {
+    return version.preReleaseType - other.version.preReleaseType;
+  }
+
+  if (version.preReleaseNumber != other.version.preReleaseNumber) {
+    return version.preReleaseNumber - other.version.preReleaseNumber;
+  }
+
+  return 0;
+}
