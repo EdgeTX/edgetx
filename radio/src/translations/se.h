@@ -374,6 +374,7 @@
 #define TR_INPUTNAME                    TR("Input","Inputnamn")
 #define TR_EXPONAME                     TR("Namn","Radnamn")
 #define TR_BITMAP                       "Modellikon"
+#define TR_NO_PICTURE                   "Ingen bild"
 #define TR_TIMER                        TR("Timer","Timer ")
 #define TR_START                        "Start"
 #define TR_ELIMITS                      TR("Gränser++","Utökade gränser")
@@ -676,7 +677,10 @@
 #define TR_CREATE_MODEL                 "Skapa modell"
 #define TR_FAVORITE_LABEL               "Favoriter"
 #define TR_NEW_MODEL                    "Ny modell"
+#define TR_INVALID_MODEL                "Ogiltig modell"
 #define TR_EDIT_LABELS                  "Redigera etiketter"
+#define TR_MOVE_UP                      "Flytta uppp"
+#define TR_MOVE_DOWN                    "Flytta ner"
 #define TR_ENTER_LABEL                  "Ange etikett"
 #define TR_LABEL                        "Etikett"
 #define TR_LABELS                       "Etiketter"
