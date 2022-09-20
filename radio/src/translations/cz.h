@@ -163,7 +163,7 @@
 #define TR_SF_SCREENSHOT               "Snímek LCD"
 #define TR_SF_RACING_MODE              "Závodní režim"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
-#define TR_SF_SET_SCREEN               "Nastavit hlavní obrazovku"
+#define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"
 #define TR_SF_RESERVE                  "[rezerva]"
 
 #define TR_VFSWFUNC                    TR_SF_SAFETY,"Trenér","Insta-Trim","Reset","Změna",TR_ADJUST_GVAR,"Hlasitost","Nastavit Failsafe","Kontrola dosahu","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Podsvětlení",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
@@ -994,7 +994,7 @@
 #define TR_PTS                         "b."
 #define TR_SMOOTH                      "Hladká"
 #define TR_COPY_STICKS_TO_OFS          TR("Páky do subtrimu", "Kopie pák do subtrimu")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopie min/max do všech",  "Kopírovat min/max/center do všech výstupů")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopie min/max do všech",  "Kopírovat min/max/střed do všech výstupů")
 #define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
 #define TR_INCDEC                      "Zvěšit/Zmenšit"
 #define TR_GLOBALVAR                   "Glob. proměnná"
