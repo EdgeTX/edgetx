@@ -53,7 +53,7 @@
 #define TR_VLCD                         "Normal","Optrex"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                     "Fråga",TR("Joyst","Joystick"),TR("SD-kort","SD-kortlagring"),"Seriell"
+#define TR_USBMODES                     "Fråga","Joystick"),TR("SD-kort","SD-kortlagring"),"Seriell"
 #define TR_JACK_MODES                   "Fråga","Audio","Lärare"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.Port","FrSky D","FrSky D (sladd)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 #define TR_SBUS_INVERSION_VALUES        "normal","ej inverterad"
@@ -500,7 +500,7 @@
 #define TR_SLIDERWARNING                TR(INDENT "Regl. pos.", INDENT "Reglagepositioner")
 #define TR_POTWARNING                   TR(INDENT "Vredläge", INDENT "Vredlägen")
 #define TR_TIMEZONE                     "Tidszon"
-#define TR_ADJUST_RTC                   "Ändra RTC"
+#define TR_ADJUST_RTC                   "Justera RTC"
 #define TR_GPS                          "GPS"
 #define TR_RXCHANNELORD                 TR("Kanalordn. RX","Kanalordning i RX")
 #define TR_STICKS                       "Spakar"
