@@ -5834,15 +5834,15 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Tabbed Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Som flikar</translation>
     </message>
     <message>
         <source>Use tabs to arrange open windows.</source>
-        <translation>Används tabbar för att arrangera öppna fönster.</translation>
+        <translation>Använd flikar för att arrangera öppna fönster.</translation>
     </message>
     <message>
         <source>Tile Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Bredvid varandra</translation>
     </message>
     <message>
         <source>Arrange open windows across all the available space.</source>
@@ -5850,7 +5850,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Cascade Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Stapla på varandra</translation>
     </message>
     <message>
         <source>Arrange all open windows in a stack.</source>
@@ -6722,7 +6722,7 @@ p, li { white-space: pre-wrap; }
     <name>MixesPanel</name>
     <message>
         <source>Move Up</source>
-        <translation>Flytta uppåt</translation>
+        <translation>Flytta upp</translation>
     </message>
     <message>
         <source>Ctrl+Up</source>
@@ -6730,7 +6730,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Move Down</source>
-        <translation>Flytta nedåt</translation>
+        <translation>Flytta ner</translation>
     </message>
     <message>
         <source>Ctrl+Down</source>
@@ -9270,11 +9270,11 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     </message>
     <message>
         <source>Move Up</source>
-        <translation>Flytta uppåt</translation>
+        <translation>Flytta upp</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation>Flytta nedåt</translation>
+        <translation>Flytta ner</translation>
     </message>
     <message>
         <source>Paste</source>
@@ -10617,11 +10617,11 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation>Flytta uppåt</translation>
+        <translation>Flytta upp</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation>Flytta nedåt</translation>
+        <translation>Flytta ner</translation>
     </message>
     <message>
         <source>Paste</source>
