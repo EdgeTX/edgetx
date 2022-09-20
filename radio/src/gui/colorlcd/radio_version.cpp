@@ -231,6 +231,7 @@ class VersionDialog : public Dialog
         }
       }
       status->setText(mod_ver);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
       // PXX2 Receivers
       std::string rx_n;
@@ -265,10 +266,10 @@ class VersionDialog : public Dialog
 
       if (!rx_n.empty() && !rx_ver.empty()) {
         // unhide RX labels
-        lv_obj_clear_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         rx_name->setText(rx_n);
-        lv_obj_clear_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         rx_status->setText(rx_ver);
+        lv_obj_clear_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       } else {
         // hide RX labels
         lv_obj_add_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
