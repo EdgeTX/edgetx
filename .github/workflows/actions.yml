@@ -11,6 +11,11 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
+      - '.github/workflows/nightly.yml'
+      - '.github/workflows/linux_cpn.yml'
+      - '.github/workflows/macosx_cpn.yml'
+      - '.github/workflows/win-cpn-32.yml'
+      - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
@@ -22,6 +27,11 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
+      - '.github/workflows/nightly.yml'
+      - '.github/workflows/linux_cpn.yml'
+      - '.github/workflows/macosx_cpn.yml'
+      - '.github/workflows/win-cpn-32.yml'
+      - '.github/workflows/win_cpn-64.yml'
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
