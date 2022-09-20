@@ -22,41 +22,38 @@
 #define _CHOICEEX_H_
 #include "choice.h"
 
+typedef void (*lvHandler_t)(void*);
+typedef struct {
+  void* userData;
+  bool isLongPressed;
+  lvHandler_t lv_LongPressHandler;
+} lv_eventData_t;
+
 class ChoiceEx : public Choice
 {
-  public:
-   ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
-            std::function<int16_t()> getValue,
-            std::function<void(int16_t)> setValue = nullptr,
-            WindowFlags windowFlags = 0);
+ public:
+  ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
+           std::function<int16_t()> getValue,
+           std::function<void(int16_t)> setValue = nullptr,
+           WindowFlags windowFlags = 0);
 
-   void setLongPressHandler(std::function<void(event_t)> handler);
+  void set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data);
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
+  lv_eventData_t longPressData;
 
-#if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override;
-    bool onTouchStart(coord_t x, coord_t y) override;
-    void checkEvents(void) override;
-    bool isLongPress();
-#endif
+  void onClicked() override
+  {
+    if (!longPressData.isLongPressed) Choice::onClicked();
+  }
 
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ChoceEx";
-    }
-#endif
+ protected:
+  std::function<void(event_t)> longPressHandler = nullptr;
 
-protected:
-    std::function<void(event_t)> longPressHandler = nullptr;
-
-#if defined(HARDWARE_TOUCH)
-    uint32_t duration10ms;
-    bool longPressed = false;
-#endif
+  static void ClickHandler(lv_event_t* e)
+  {
+    ChoiceEx* ch = (ChoiceEx*)lv_event_get_user_data(e);
+    if (ch) ch->longPressData.isLongPressed = false;
+  }
 };
 
 #endif
