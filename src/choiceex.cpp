@@ -20,18 +20,24 @@
  */
 #include "choiceex.h"
 
-constexpr int LONG_PRESS_10MS = 40;
-
-extern inline tmr10ms_t getTicks()
+static void localLongPressHandler(lv_event_t* e)
 {
-  return g_tmr10ms;
+  lv_eventData_t* ld = (lv_eventData_t*)lv_event_get_user_data(e);
+  ld->isLongPressed = true;
+  ld->lv_LongPressHandler(ld->userData);
 }
 
-
-
-void ChoiceEx::setLongPressHandler(std::function<void(event_t)> handler)
+void ChoiceEx::set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data)
 {
-  longPressHandler = handler;
+  TRACE("longPressHandler=%p", longPressHandler);
+
+  if (longPressHandler) {
+    longPressData.userData = data;
+    longPressData.lv_LongPressHandler = longPressHandler;
+    lv_obj_add_event_cb(lvobj, localLongPressHandler, LV_EVENT_LONG_PRESSED,
+                        &longPressData);
+    lv_obj_add_event_cb(lvobj, ClickHandler, LV_EVENT_CLICKED, this);
+  }
 }
 
 ChoiceEx::ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin,
@@ -40,74 +46,5 @@ ChoiceEx::ChoiceEx(Window* parent, const rect_t& rect, int16_t vmin,
                    WindowFlags windowFlags) :
     Choice(parent, rect, vmin, vmax, getValue, setValue, windowFlags)
 {
-#if defined(HARDWARE_TOUCH)
-  duration10ms = 0;
-#endif
+  longPressData.isLongPressed = false;
 }
-
-#if defined(HARDWARE_KEYS)
-void ChoiceEx::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    if (longPressHandler) {
-      killEvents(event);
-      longPressHandler(event);
-      return;
-    }
-  }
-
-  Choice::onEvent(event);
-}
-#endif
-
-#if defined(HARDWARE_TOUCH)
-bool ChoiceEx::isLongPress()
-{
-  unsigned int curTimer = getTicks();
-  return (!longPressed && duration10ms != 0 && curTimer - duration10ms > LONG_PRESS_10MS);
-}
-
-void ChoiceEx::checkEvents(void)
-{
-  event_t event = getEvent();
-
-  if (isLongPress()) {
-    if (!longPressed && longPressHandler) {
-      longPressHandler(event);
-      killEvents(event);
-      duration10ms = 0;
-      longPressed = true;
-      return;
-    }
-  }
-
-  if (hasFocus())
-    onEvent(event);
-  else
-    pushEvent(event);
-}
-
-bool ChoiceEx::onTouchStart(coord_t x, coord_t y)
-{
-  if (!longPressed && duration10ms == 0) {
-    duration10ms = getTicks();
-  }
-
-  return Choice::onTouchStart(x, y);
-}
-
-
-bool ChoiceEx::onTouchEnd(coord_t x, coord_t y)
-{
-  if (longPressed) {
-    longPressed = false;
-    return false;
-  }
-
-  duration10ms = 0;
-  return Choice::onTouchEnd(x,y);
-}
-#endif
-
-
-
