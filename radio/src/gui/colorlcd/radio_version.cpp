@@ -175,35 +175,48 @@ class VersionDialog : public Dialog
     // initialize module name with module selection made in model settings
     // initialize to module does not provide status
     // PXX2 will overwrite name
-    // CRSF, MPM and PXX2 will overwrite status
+    // CRSF, MPM, NV14 and PXX2 will overwrite status
     name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
     lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
+#if defined(CROSSFIRE)
     // CRSF is able to provide status
-    #if defined(CROSSFIRE)
     if (isModuleCrossfire(module)) {
       char statusText[64];
 
       auto hz = 1000000 / getMixerSchedulerPeriod();
       snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       status->setText(statusText);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);   
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
-    #endif
+#endif
 
+#if defined(PCBNV14) && defined(AFHDS2)
+    // NV14 AFHDS2A internal module is able to provide FW version
+    extern uint32_t NV14internalModuleFwVersion;
+    if (isModuleAFHDS2A(module)) {
+      sprintf(reusableBuffer.moduleSetup.msg, "FW Ver %d.%d.%d",
+              (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
+              (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
+              (int)(NV14internalModuleFwVersion & 0xFF));
+      status->setText(reusableBuffer.moduleSetup.msg);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+#endif
+
+#if defined(MULTIMODULE)
     // MPM is able to provide status
-    #if defined(MULTIMODULE)
     if (isModuleMultimodule(module)) {
       char statusText[64];
 
       getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN); 
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
-    #endif
+#endif
 
+#if defined(PXX2)
     // PXX2 modules are able to provide status
-    #if defined(PXX2)
     if (isModulePXX2(module)) {
       char tmp[20];
       
@@ -276,7 +289,7 @@ class VersionDialog : public Dialog
         lv_obj_add_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
     }
-    #endif
+#endif
   }
 
   void checkEvents() override
@@ -306,7 +319,6 @@ RadioVersionPage::RadioVersionPage():
 }
 
 #if defined(PCBNV14)
-extern uint32_t NV14internalModuleFwVersion;
 extern const char* boardLcdType;
 #endif
 
@@ -333,16 +345,6 @@ void RadioVersionPage::build(FormWindow * window)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;
-
-#if defined(AFHDS2)
-  version += nl;
-  version += "RF FW: ";
-  sprintf(reusableBuffer.moduleSetup.msg, "%d.%d.%d",
-          (int)((NV14internalModuleFwVersion >> 16) & 0xFF),
-          (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
-          (int)(NV14internalModuleFwVersion & 0xFF));
-  version += reusableBuffer.moduleSetup.msg;
-#endif
 #endif
 
   auto txt = new StaticText(window, rect_t{}, version, 0, COLOR_THEME_PRIMARY1);
