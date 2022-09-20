@@ -177,7 +177,7 @@ void ModelData::clear()
   for (unsigned i = 0; i < CPN_MAX_SENSORS; i++)
     sensorData[i].clear();
 
-  trainerMode = TRAINER_MODE_MASTER_JACK;
+  trainerMode = TRAINER_MODE_OFF;
 
   const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
   RadioLayout::init(layoutId, customScreens);
