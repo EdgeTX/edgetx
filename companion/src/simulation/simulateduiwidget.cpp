@@ -168,6 +168,7 @@ void SimulatedUIWidget::wheelEvent(QWheelEvent * event)
   // steps can be negative or positive to determine direction (negative is UP/LEFT scroll)
   QPoint numSteps = event->angleDelta() / 8 / 15 * -1;  // one step per 15deg
   emit simulatorWheelEvent(numSteps.y());
+  event->accept();
 }
 
 void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)

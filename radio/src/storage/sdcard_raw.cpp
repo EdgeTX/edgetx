@@ -191,15 +191,3 @@ const char * writeGeneralSettingsBin()
   return writeFileBin(RADIO_SETTINGS_PATH, (uint8_t *)&g_eeGeneral, sizeof(g_eeGeneral));
 }
 
-#if !defined(SDCARD_YAML)
-void storageCreateModelsList()
-{
-  FIL file;
-
-  FRESULT result = f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-  if (result == FR_OK) {
-    f_puts("[" DEFAULT_CATEGORY "]\n" DEFAULT_MODEL_FILENAME "\n", &file);
-    f_close(&file);
-  }
-}
-#endif

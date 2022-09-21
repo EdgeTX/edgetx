@@ -21,28 +21,25 @@
 
 #pragma once
 
-#include "button.h"
+#include "list_line_button.h"
+#include "opentx_types.h"
 
-class InputMixButton : public Button
+class InputMixButton : public ListLineButton
 {
+  lv_obj_t* fm_canvas = nullptr;
+  void* fm_buffer = nullptr;
+  uint16_t fm_modes = 0;
+
  public:
   InputMixButton(Window* parent, uint8_t index);
-
-  uint8_t getIndex() const { return index; }
-  void setIndex(uint8_t i) { index = i; }
-
-  void checkEvents() override;
-
-  void drawFlightModes(BitmapBuffer *dc, FlightModesType value,
-                       LcdFlags textColor, coord_t x, coord_t y);
+  ~InputMixButton();
 
  protected:
-  uint8_t index;
+  lv_obj_t* weight;
+  lv_obj_t* source;
+  lv_obj_t* opts;
 
-  static void self_size(lv_event_t* e);
-  static void value_changed(lv_event_t* e);
-
-  lv_coord_t calcHeight() const;
-  virtual size_t getLines() const = 0;
-  virtual bool isActive() const = 0;
+  void setWeight(gvar_t value, gvar_t min, gvar_t max);
+  void setSource(mixsrc_t idx);
+  void setFlightModes(uint16_t modes);
 };

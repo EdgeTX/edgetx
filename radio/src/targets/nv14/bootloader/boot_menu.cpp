@@ -28,6 +28,11 @@
 
 #include <lvgl/lvgl.h>
 
+#define RADIO_MENU_LEN 2
+
+#define USB_SW_TO_INTERNAL_MODULE() GPIO_SetBits(USB_SW_GPOIO, USB_SW_PIN);
+#define USB_SW_TO_MCU() GPIO_ResetBits(USB_SW_GPOIO, USB_SW_PIN);
+
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
 #define DOUBLE_PADDING  56
@@ -55,6 +60,8 @@ LZ4Bitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background);
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
 extern BitmapBuffer * lcd;
+
+static bool rfUsbAccess = false;
 
 void bootloaderInitScreen()
 {
@@ -107,18 +114,26 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
     int center = LCD_W/2;
     if (st == ST_START) {
+        int yOffset = 0;
 
         bootloaderDrawTitle(BOOTLOADER_TITLE);
         
         lcd->drawText(62, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
         coord_t pos = lcd->drawText(84, 75, "Write Firmware", BL_FOREGROUND);
         pos += 8;
+        if(hardwareOptions.pcbrev == PCBREV_EL18)
+        {
+            lcd->drawText(57, 110, LV_SYMBOL_WIFI, BL_FOREGROUND);
+            lcd->drawText(84, 110, "RF USB access", BL_FOREGROUND);
+            pos += 8;
+            yOffset = 35;
+        }
 
-        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+        lcd->drawText(60, 110 + yOffset, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(84, 110 + yOffset, "Exit", BL_FOREGROUND);
 
         pos -= 79;
-        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+        lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
         
         lcd->drawBitmap(center - 55, 165, (const BitmapBuffer*)&BMP_PLUG_USB);
         lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
@@ -221,6 +236,18 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
                       LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
       }
+    } else if (st == ST_RADIO_MENU) {
+      bootloaderDrawTitle("RF USB access");
+
+      lcd->drawText(62, 75, LV_SYMBOL_USB, BL_FOREGROUND);
+      coord_t pos = lcd->drawText(84, 75, rfUsbAccess?"Disable":"Enable", BL_FOREGROUND);
+      pos += 8;
+
+      lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+      lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+
+      pos -= 79;
+      lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
     }
 
     _first_screen = false;
@@ -236,4 +263,55 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
                          LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2,
                          BL_SELECTED);
     }
+}
+
+uint32_t bootloaderGetMenuItemCount(int baseCount)
+{
+    if(hardwareOptions.pcbrev == PCBREV_EL18)
+        return baseCount+1;
+
+    return baseCount;
+}
+
+bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
+{
+    static int pos = 0;
+
+    if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (pos < RADIO_MENU_LEN-1)
+            pos++;
+    } else if (event == EVT_KEY_FIRST(KEY_UP)) {
+        if (pos > 0)
+            pos--;
+    } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+        switch (pos) {
+        case 0:
+            if (rfUsbAccess)
+            {
+                rfUsbAccess = false;
+                INTERNAL_MODULE_OFF();
+                USB_SW_TO_MCU();
+            } else {
+                rfUsbAccess = true;
+                INTERNAL_MODULE_ON();
+                USB_SW_TO_INTERNAL_MODULE();
+            }
+            break;
+        case 1: // fall through
+        default:
+            USB_SW_TO_MCU();
+            pos = 0;
+            return true;
+        }
+    }
+    bootloaderDrawScreen(ST_RADIO_MENU, pos, nullptr);
+    return false;
+}
+
+void blExit(void)
+{
+  USB_SW_TO_MCU();
+  lcdClear();
+  lcdRefresh();
+  lcdRefreshWait();
 }

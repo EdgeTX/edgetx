@@ -24,6 +24,8 @@
 
 #include "tabsgroup.h"
 
+class OutputLineButton;
+
 class ModelOutputsPage : public PageTab
 {
  public:
@@ -31,7 +33,7 @@ class ModelOutputsPage : public PageTab
   void build(FormWindow* window) override;
 
  protected:
-  void editOutput(uint8_t channel);
+  void editOutput(uint8_t channel, OutputLineButton* btn);
 };
 
 #endif // _MODEL_OUTPUTS_H_

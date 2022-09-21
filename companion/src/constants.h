@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+#pragma once
 
 #include <QCoreApplication>
 
@@ -49,6 +48,7 @@
 #define CPN_MAX_SENSORS                60
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
+#define CPN_MAX_SPACEMOUSE             6
 
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
@@ -84,5 +84,3 @@
 #define CPN_STR_SW_INDICATOR_REV       QCoreApplication::translate("RawSwitch", "!")             // Switch reversed logic (NOT) indicator.
 
 #define EDGETX_HOME_PAGE_URL           "https://edgetx.org"
-
-#endif // _CONSTANTS_H_

@@ -119,18 +119,24 @@ void loadCustomScreens()
 
     // layout is ok, let's add it
     viewMain->addMainView(screen, i);
-    // screen->attach(viewMain);
-    // viewMain->setMainViewsCount(i + 1);
-    // screen->setLeft(viewMain->getMainViewLeftPos(i));
     i++;
   }
 
   auto topbar = viewMain->getTopbar();
   topbar->load();
+
+  if (g_model.view < viewMain->getMainViewsCount()) {
+    viewMain->setCurrentMainView(g_model.view);
+  } else if (viewMain->getMainViewsCount() > 0) {
+    g_model.view = viewMain->getMainViewsCount() - 1;
+    storageDirty(EE_MODEL);
+    viewMain->setCurrentMainView(g_model.view);
+  }
+  // else {
+  //   TODO: load some default view?
+  // }
   
-  viewMain->setCurrentMainView(0);
   viewMain->updateTopbarVisibility();
-  // viewMain->setFocus();
 }
 
 //

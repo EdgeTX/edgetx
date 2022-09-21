@@ -22,72 +22,143 @@
 #include "input_mix_button.h"
 #include "opentx.h"
 
-#include "lvgl_widgets/input_mix_line.h"
+// icon: 17 x 17
+static const uint8_t _mask_textline_fm[] = {
+#include "mask_textline_fm.lbm"
+};
+STATIC_LZ4_BITMAP(mask_textline_fm);
 
-void InputMixButton::self_size(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto p = (lv_point_t*)lv_event_get_param(e);
+// total: 92 x 17
+#define FM_CANVAS_HEIGHT 17
+#define FM_CANVAS_WIDTH  92
 
-  auto btn = (InputMixButton*)lv_obj_get_user_data(obj);
-  if (!btn) return;
+#if LCD_W > LCD_H // Landscape
+static const lv_coord_t col_dsc[] = {
+  LV_GRID_FR(1),   // weigth
+  LV_GRID_FR(1),   // source
+  LV_GRID_FR(4),   // opts
+  FM_CANVAS_WIDTH, // flight modes
+  LV_GRID_TEMPLATE_LAST
+};
 
-  p->y = btn->calcHeight();
-}
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#else // Portrait
+static const lv_coord_t col_dsc[] = {
+  LV_GRID_FR(1),   // weigth
+  LV_GRID_FR(1),   // source
+  LV_GRID_FR(2),   // opts
+  LV_GRID_TEMPLATE_LAST
+};
 
-void InputMixButton::value_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  lv_obj_refresh_self_size(obj);
-}
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
+
+static const char _empty_txt[] = "";
 
 InputMixButton::InputMixButton(Window* parent, uint8_t index) :
-    Button(parent, rect_t{}, nullptr, 0, 0/*COLOR_THEME_PRIMARY1*/,
-           input_mix_line_create),
-    index(index)
+    ListLineButton(parent, index)
 {
-  lv_obj_add_event_cb(lvobj, InputMixButton::self_size, LV_EVENT_GET_SELF_SIZE, nullptr);
-  lv_obj_add_event_cb(lvobj, InputMixButton::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
+  lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
+
+  weight = lv_label_create(lvobj);
+  lv_obj_set_grid_cell(weight, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+  
+  source = lv_label_create(lvobj);
+  lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
+
+  opts = lv_label_create(lvobj);
+#if LCD_W > LCD_H // Landscape
+  lv_obj_set_grid_cell(opts, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 0, 1);
+#else
+  lv_obj_set_grid_cell(opts, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_START, 0, 2);
+#endif
 }
 
-void InputMixButton::checkEvents()
+InputMixButton::~InputMixButton()
 {
-  check(isActive());
-  Button::checkEvents();
+  if (fm_buffer) free(fm_buffer);
 }
 
-void InputMixButton::drawFlightModes(BitmapBuffer *dc, FlightModesType value,
-                                     LcdFlags textColor, coord_t x, coord_t y)
+void InputMixButton::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
-  dc->drawMask(x, y + 2, mixerSetupFlightmodeIcon, textColor);
+  char s[32];
+  getValueOrGVarString(s, sizeof(s), value, min, max, 0, "%");
+  lv_label_set_text(weight, s);
+}
+
+void InputMixButton::setSource(mixsrc_t idx)
+{
+  char* s = getSourceString(idx);
+  lv_label_set_text(source, s);
+}
+
+void InputMixButton::setFlightModes(uint16_t modes)
+{
+  if (modes == fm_modes) return;
+  fm_modes = modes;
+
+  if (!fm_modes) {
+    if (!fm_canvas) return;
+    lv_obj_del(fm_canvas);
+    free(fm_buffer);
+    fm_canvas = nullptr;
+    fm_buffer = nullptr;
+    return;
+  }
+
+  if (!fm_canvas) {
+    fm_canvas = lv_canvas_create(lvobj);
+    fm_buffer = malloc(FM_CANVAS_WIDTH * FM_CANVAS_HEIGHT);
+    lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
+                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
+
+#if LCD_W > LCD_H // Landscape
+    lv_obj_set_grid_cell(fm_canvas, LV_GRID_ALIGN_START, 3, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
+#else
+    lv_obj_set_grid_cell(fm_canvas, LV_GRID_ALIGN_CENTER, 0, 2,
+                         LV_GRID_ALIGN_CENTER, 1, 1);
+#endif
+
+    lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_style_img_recolor_opa(fm_canvas, LV_OPA_COVER, 0);
+  }
+
+  lv_canvas_fill_bg(fm_canvas, lv_color_black(), LV_OPA_TRANSP);
+
+  auto mask = (const uint8_t*)mask_textline_fm;
+  auto mask_hdr = (const uint16_t*)mask;
+  lv_coord_t w = mask_hdr[0];
+  lv_coord_t h = mask_hdr[1];
+
+  coord_t x = 0;
+  lv_canvas_copy_buf(fm_canvas, mask + 4, x, 0, w, h);
   x += 20;
 
+  lv_draw_label_dsc_t label_dsc;
+  lv_draw_label_dsc_init(&label_dsc);
+
+  lv_draw_rect_dsc_t rect_dsc;
+  lv_draw_rect_dsc_init(&rect_dsc);
+  rect_dsc.bg_opa = LV_OPA_COVER;
+ 
+  const lv_font_t* font = getFont(FONT(XS));
+  label_dsc.font = font;
+  
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     char s[] = " ";
     s[0] = '0' + i;
-    if (value & (1 << i)) {
-      dc->drawText(x, y + 2, s, FONT(XS) | COLOR_THEME_DISABLED);
+    if (fm_modes & (1 << i)) {
+      label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      dc->drawSolidFilledRect(x, y + 2, 8, 3, COLOR_THEME_FOCUS);
-      dc->drawText(x, y + 2, s, FONT(XS) | textColor);
+      lv_canvas_draw_rect(fm_canvas, x, 0, 8, 3, &rect_dsc);
+      label_dsc.color = lv_color_white();
     }
+    lv_canvas_draw_text(fm_canvas, x, 0, 8, &label_dsc, s);
     x += 8;
   }
-}
-
-lv_coord_t InputMixButton::calcHeight() const
-{
-  auto h = getFontHeight(FONT(STD));
-  // h += 2 * lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-  // h += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
-  // h += lv_obj_get_style_pad_bottom(lvobj, LV_PART_MAIN);
-
-  size_t lines = getLines();
-  if (lines > 1) {
-    lines -= 1;
-    h += lines * lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN);
-    h += lines * getFontHeight(FONT(STD));
-  }
-
-  return h;
 }

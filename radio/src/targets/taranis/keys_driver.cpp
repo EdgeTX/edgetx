@@ -184,11 +184,11 @@ uint32_t switchState(uint8_t index)
 
   switch (index) {
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     ADD_2POS_CASE(A);
     ADD_3POS_CASE(B, 1);
     ADD_3POS_CASE(C, 2);
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO)
+#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_LR3PRO)
     ADD_3POS_CASE(A, 0);
     ADD_3POS_CASE(B, 1);
     ADD_2POS_CASE(C);
@@ -236,9 +236,9 @@ uint32_t switchState(uint8_t index)
     ADD_3POS_CASE(F, 5);
     ADD_2POS_CASE(I);
     ADD_2POS_CASE(J);
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     ADD_2POS_CASE(D);
-#elif defined(RADIO_TLITE)
+#elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
     // Only 4 switches
 #elif defined(RADIO_TPRO)
     ADD_2POS_CASE(E);

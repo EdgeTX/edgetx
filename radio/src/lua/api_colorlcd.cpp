@@ -588,6 +588,84 @@ static int luaGetBitmapSize(lua_State * L)
   return 2;
 }
 
+/*luadoc
+@function Bitmap.resize(bitmap, width, height)
+
+Return a resized bitmap object
+
+@param bitmap (pointer) point to a bitmap previously opened with Bitmap.open()
+
+@param width (number) the new bitmap width
+
+@param height (number) the new bitmap height
+
+@notice Only available on Horus
+
+@status current Introduced in 2.8.0
+*/
+static int luaBitmapResize(lua_State * L)
+{
+  const BitmapBuffer * b = checkBitmap(L, 1);
+  unsigned int w = luaL_checkunsigned(L, 2);
+  unsigned int h = luaL_checkunsigned(L, 3);
+
+  if (!b) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  BitmapBuffer **n = (BitmapBuffer**)lua_newuserdata(L, sizeof(BitmapBuffer*));
+
+  if (luaExtraMemoryUsage > LUA_MEM_EXTRA_MAX) {
+    // already allocated more than max allowed, fail
+    TRACE("luaOpenBitmap: Error, using too much memory %u/%u",
+          luaExtraMemoryUsage, LUA_MEM_EXTRA_MAX);
+    *n = 0;
+  } else {
+    *n = new BitmapBuffer(BMP_ARGB4444, w, h);
+    (*n)->clear();
+    (*n)->drawScaledBitmap(b, 0, 0, w, h);
+  }
+
+  if (*n) {
+    uint32_t size = (*n)->getDataSize();
+    luaExtraMemoryUsage += size;
+    TRACE("luaResizeBitmap: %p (%u)", *n, size);
+  }
+
+  luaL_getmetatable(L, LUA_BITMAPHANDLE);
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
+
+/*luadoc
+@function Bitmap.toMask(bitmap)
+
+Return a 8bit bitmap mask that can be used with lcd.drawBitmapPattern()
+
+@param bitmap (pointer) point to a bitmap previously opened with Bitmap.open()
+
+@retval a bitmap mask
+
+@notice Only available on Horus
+
+@status current Introduced in 2.8.0
+*/
+static int luaBitmapTo8bitMask(lua_State * L)
+{
+  const BitmapBuffer * b = checkBitmap(L, 1);
+  if (b) {
+    size_t size;
+    auto mask = b->to8bitMask(&size);
+    lua_pushlstring(L, (char*)mask, size);
+  }
+  else {
+    lua_pushlstring(L, "\x00\x00\x00\x00", 4);
+  }
+  return 1;
+}
+
 static int luaDestroyBitmap(lua_State * L)
 {
   BitmapBuffer * b = checkBitmap(L, 1);
@@ -608,6 +686,8 @@ static int luaDestroyBitmap(lua_State * L)
 const luaL_Reg bitmapFuncs[] = {
   { "open", luaOpenBitmap },
   { "getSize", luaGetBitmapSize },
+  { "resize", luaBitmapResize },
+  { "toMask", luaBitmapTo8bitMask },
   { "__gc", luaDestroyBitmap },
   { NULL, NULL }
 };
@@ -654,6 +734,79 @@ static int luaLcdDrawBitmap(lua_State *L)
     else {
       luaLcdBuffer->drawBitmap(x, y, b);
     }
+  }
+
+  return 0;
+}
+
+
+/*luadoc
+@function lcd.drawBitmapPattern(bitmap, x, y [, flags])
+
+Displays a bitmap pattern at (x,y)
+
+@param bitmap (pointer) point to a bitmap previously opened with Bitmap.open()
+
+@param x,y (positive numbers) starting coordinates
+
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on Horus
+
+@status current Introduced in 2.8.0
+*/
+static int luaLcdDrawBitmapPattern(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  const char* m = luaL_checkstring(L, 1);
+
+  if (m) {
+    auto x = luaL_checkunsigned(L, 2);
+    auto y = luaL_checkunsigned(L, 3);
+    auto flags = luaL_optunsigned(L, 4, 0);
+    flags = flagsRGB(flags);
+    luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const uint8_t*>(m), flags);
+  }
+
+  return 0;
+}
+
+/*luadoc
+@function lcd.drawBitmapPatternPie(bitmap, x, y, startAngle, endAngle [, flags])
+
+Displays a bitmap pattern pie at (x,y)
+
+@param bitmap (pointer) point to a bitmap previously opened with Bitmap.open()
+
+@param x,y (positive numbers) starting coordinates
+
+@param startAngle Start angle
+
+@param endAngle End angle
+
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on Horus
+
+@status current Introduced in 2.8.0
+*/
+static int luaLcdDrawBitmapPatternPie(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  const char* m = luaL_checkstring(L, 1);
+
+  if (m) {
+    auto x = luaL_checkunsigned(L, 2);
+    auto y = luaL_checkunsigned(L, 3);
+    auto startAngle = luaL_checkinteger(L, 4);
+    auto endAngle = luaL_checkinteger(L, 5);
+    auto flags = luaL_optunsigned(L, 6, 0);
+    flags = flagsRGB(flags);
+    luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const uint8_t*>(m), flags, startAngle, endAngle);
   }
 
   return 0;
@@ -733,6 +886,39 @@ static int luaLcdDrawFilledRectangle(lua_State *L)
   return 0;
 }
 
+
+/*luadoc
+@function lcd.invertRect(x, y, w, h [, flags])
+
+Invert a rectangle zone from top left corner (x,y) of specified width and height
+
+@param x,y (positive numbers) top left corner position
+
+@param w (number) width in pixels
+
+@param h (number) height in pixels
+
+@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@status current Introduced in 2.8.0
+*/
+static int luaLcdInvertRect(lua_State *L)
+{
+  if (!luaLcdAllowed || !luaLcdBuffer)
+    return 0;
+
+  int x = luaL_checkinteger(L, 1);
+  int y = luaL_checkinteger(L, 2);
+  int w = luaL_checkinteger(L, 3);
+  int h = luaL_checkinteger(L, 4);
+
+  LcdFlags flags = luaL_optunsigned(L, 5, 0);
+  flags = flagsRGB(flags);
+
+  luaLcdBuffer->invertRect(x, y, w, h, flags);
+
+  return 0;
+}
 
 /*luadoc
 @function lcd.drawGauge(x, y, w, h, fill, maxfill [, flags])
@@ -1249,6 +1435,7 @@ const luaL_Reg lcdLib[] = {
   { "drawLine", luaLcdDrawLine },
   { "drawRectangle", luaLcdDrawRectangle },
   { "drawFilledRectangle", luaLcdDrawFilledRectangle },
+  { "invertRect", luaLcdInvertRect },
   { "drawText", luaLcdDrawText },
   { "drawTextLines", luaLcdDrawTextLines },
   { "sizeText", luaLcdSizeText },
@@ -1259,6 +1446,8 @@ const luaL_Reg lcdLib[] = {
   { "drawSource", luaLcdDrawSource },
   { "drawGauge", luaLcdDrawGauge },
   { "drawBitmap", luaLcdDrawBitmap },
+  { "drawBitmapPattern", luaLcdDrawBitmapPattern },
+  { "drawBitmapPatternPie", luaLcdDrawBitmapPatternPie },
   { "setColor", luaLcdSetColor },
   { "getColor", luaLcdGetColor },
   { "RGB", luaRGB },

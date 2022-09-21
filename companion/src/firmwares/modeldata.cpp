@@ -441,7 +441,7 @@ void ModelData::convert(RadioDataConversionState & cstate)
     origin = QString::number(cstate.modelIdx+1);
   cstate.setOrigin(tr("Model: ") % origin);
 
-  cstate.setComponent("SET", 0);
+  cstate.setComponent("Settings", 0);
   if (thrTraceSrc && (int)thrTraceSrc < cstate.fromBoard.getCapability(Board::Pots) + cstate.fromBoard.getCapability(Board::Sliders)) {
     cstate.setSubComp(tr("Throttle Source"));
     thrTraceSrc = RawSource(SOURCE_TYPE_STICK, (int)thrTraceSrc + 3).convert(cstate).index - 3;
@@ -1800,3 +1800,15 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
    mdl->loadItemList();
    return mdl;
  }
+
+int ModelData::getCustomScreensCount() const
+{
+  int cnt = 0;
+
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+    if (customScreens.customScreenData[i].layoutId[0] != '\0')
+      cnt++;
+  }
+
+  return cnt;
+}

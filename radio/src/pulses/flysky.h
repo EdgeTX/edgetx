@@ -26,4 +26,4 @@
 void setupPulsesAFHDS2();
 void resetPulsesAFHDS2();
 
-void processInternalFlySkyTelemetryData(uint8_t byte);
+void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len);

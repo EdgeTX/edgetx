@@ -302,14 +302,19 @@ void referenceSystemAudioFiles()
 
 const char * const suffixes[] = { "-off", "-on" };
 
-char * getModelAudioPath(char * path)
+char *getModelAudioPath(char *path)
 {
   strcpy(path, SOUNDS_PATH "/");
-  strncpy(path+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
-  char * result = strcat_currentmodelname(path+sizeof(SOUNDS_PATH), 0);
-  *result++ = '/';
-  *result = '\0';
-  return result;
+  strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+  char *buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
+
+  if (!isFileAvailable(path)) {
+    buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), 0);
+  }
+
+  *buf++ = '/';
+  *buf = '\0';
+  return buf;
 }
 
 void getFlightmodeAudioFile(char * filename, int index, unsigned int event)
@@ -478,8 +483,8 @@ void playModelEvent(uint8_t category, uint8_t index, event_t event)
 
 void playModelName()
 {
-  char filename[AUDIO_FILENAME_MAXLEN+1];
-  char * str = getModelAudioPath(filename);
+  char filename[AUDIO_FILENAME_MAXLEN + 1];
+  char *str = getModelAudioPath(filename);
   strcpy(str, "name.wav");
   audioQueue.playFile(filename);
 }
@@ -1260,11 +1265,6 @@ void pushPrompt(uint16_t prompt, uint8_t id)
   }
   audioQueue.playFile(filename, 0, id);
 #endif
-}
-
-void onKeyPress()
-{
-  audioKeyPress();
 }
 
 void onKeyError()

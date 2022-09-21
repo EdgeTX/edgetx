@@ -36,6 +36,10 @@
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
+#if defined(AFHDS3)
+#include "pulses/afhds3_module.h"
+#endif
+
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
@@ -584,6 +588,9 @@ inline bool isModuleModelIndexAvailable(uint8_t idx)
   if (isModuleCrossfire(idx))
     return true;
 
+  if (isModuleAFHDS3(idx))
+    return true;
+  
   return false;
 }
 
@@ -670,6 +677,10 @@ inline uint8_t getMaxRxNum(uint8_t idx)
   }
 #endif
 
+#if defined(AFHDS3)
+  if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
+#endif
+  
   return MAX_RXNUM;
 }
 
@@ -784,26 +795,18 @@ inline void resetAccessAuthenticationCount()
 #endif
 }
 
-inline void resetAfhds3Options(uint8_t moduleIdx)
+inline void resetAfhdsOptions(uint8_t moduleIdx)
 {
-  auto & data = g_model.moduleData[moduleIdx];
-  //data.rfProtocol = 0;
-  data.subType = 0;
 #if defined(AFHDS3)
-  data.afhds3.bindPower = 0;
-  data.afhds3.runPower = 0;
-  data.afhds3.emi = 0;
+  auto & data = g_model.moduleData[moduleIdx];
+  data.subType = FLYSKY_SUBTYPE_AFHDS3;
+  data.afhds3.emi = 2; // FCC
   data.afhds3.telemetry = 1;
-  data.afhds3.rx_freq[0] = 50;
-  data.afhds3.rx_freq[1] = 0;
-  data.afhds3.failsafeTimeout = 1000;
-  data.channelsCount = 14 - 8;
-  data.failsafeMode = 1;
-  //" PWM+i"" PWM+s"" PPM+i"" PPM+s"
-  data.subType = 0;
-  for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
-    g_model.failsafeChannels[channel] = 0;
-  }
+  data.afhds3.phyMode = 0;
+#elif defined(AFHDS2)
+  auto & data = g_model.moduleData[moduleIdx];
+  data.subType = FLYSKY_SUBTYPE_AFHDS2A;
+  data.flysky.setDefault();
 #endif
 }
 
@@ -819,8 +822,7 @@ inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
   else if (moduleData.type == MODULE_TYPE_PPM)
     setDefaultPpmFrameLength(moduleIdx);
   else if (moduleData.type == MODULE_TYPE_FLYSKY) {
-    // TODO: what if AFHDS2A
-    resetAfhds3Options(moduleIdx);
+    resetAfhdsOptions(moduleIdx);
   }
   else
     resetAccessAuthenticationCount();

@@ -2,21 +2,13 @@
 
 #include "generalsettings.h"
 #include "modeldata.h"
+#include "labels.h"
 
 #include "datahelpers.h"  // required for getElementName
 
 #include <QtCore>
 
 class RadioDataConversionState;
-
-class CategoryData {
-  public:
-    CategoryData(const char * name) {
-      memset(this->name, 0, sizeof(CategoryData::name));
-      strncpy(this->name, name, sizeof(CategoryData::name)-1);
-    }
-    char name[15+1];
-};
 
 class RadioData {
   Q_DECLARE_TR_FUNCTIONS(RadioData)
@@ -25,10 +17,25 @@ class RadioData {
     RadioData();
 
     GeneralSettings generalSettings;
-    std::vector<CategoryData> categories;
+    QStringList labels;
     std::vector<ModelData> models;
 
     void convert(RadioDataConversionState & cstate);
+
+    void addLabel(QString label);
+    bool deleteLabel(QString label);
+    bool deleteLabel(int index);
+    bool renameLabel(QString from, QString to);
+    bool renameLabel(int index, QString to);
+    void swapLabel(int indFrom, int indTo);
+    bool addLabelToModel(int index, QString label);
+    bool removeLabelFromModel(int index, QString label);
+    void addLabelsFromModels();
+
+    static QStringList fromCSV(const QString &csv);
+    static QString toCSV(QStringList lbls);
+    static QString escapeCSV(QString str);
+    static QString unEscapeCSV(QString str);
 
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();
@@ -40,4 +47,5 @@ class RadioData {
 
   protected:
     void fixModelFilename(unsigned int index);
+
 };

@@ -106,7 +106,7 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     bool getByte(uint8_t & byte) const override
     {
-      return intmoduleFifo.pop(byte);
+      return IntmoduleSerialDriver.getByte(uart_ctx, &byte) > 0;
     }
 
     void sendByte(uint8_t byte) const override
@@ -116,14 +116,14 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void clear() const override
     {
-      intmoduleFifo.clear();
+      IntmoduleSerialDriver.clearRxBuffer(uart_ctx);
     }
 
     void deinit(bool inverted) override
     {
       IntmoduleSerialDriver.deinit(uart_ctx);
-      uart_ctx = nullptr;
       clear();
+      uart_ctx = nullptr;
     }
 };
 #endif

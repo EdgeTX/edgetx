@@ -25,11 +25,6 @@ set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_M
 # the binary (default homebrew path)
 set(DFU_UTIL_PATH "/usr/local/bin/dfu-util")
 
-option(ALLOW_NIGHTLY_BUILDS "Allow nightly builds download / update") # Disabled by default
-if(ALLOW_NIGHTLY_BUILDS)
-  add_definitions(-DALLOW_NIGHTLY_BUILDS)
-endif(ALLOW_NIGHTLY_BUILDS)
-
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
   add_definitions(-DDEBUG_STORAGE_IMPORT)
@@ -198,6 +193,7 @@ add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(thirdparty/maxlibqt/src/widgets)
 add_subdirectory(thirdparty/miniz)
+add_subdirectory(updates)
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "Enable parse tools" FORCE)
@@ -211,13 +207,11 @@ set(companion_SRCS
   helpers_html.cpp
   mdichild.cpp
   modelslist.cpp
+  labels.cpp
   apppreferencesdialog.cpp
-  fwpreferencesdialog.cpp
   burnconfigdialog.cpp
   multimodelprinter.cpp
   comparedialog.cpp
-  releasenotesdialog.cpp
-  releasenotesfirmwaredialog.cpp
   customizesplashdialog.cpp
   radiointerface.cpp
   progresswidget.cpp
@@ -230,7 +224,6 @@ set(companion_SRCS
   printdialog.cpp
   modelprinter.cpp
   logsdialog.cpp
-  downloaddialog.cpp
   splashlibrarydialog.cpp
   mainwindow.cpp
   companion.cpp
@@ -244,13 +237,10 @@ set(companion_SRCS
 
 set(companion_MOC_HDRS
   apppreferencesdialog.h
-  fwpreferencesdialog.h
   burnconfigdialog.h
   comparedialog.h
   printdialog.h
   logsdialog.h
-  releasenotesdialog.h
-  releasenotesfirmwaredialog.h
   customizesplashdialog.h
   splashlibrarydialog.h
   splashlabel.h
@@ -261,7 +251,6 @@ set(companion_MOC_HDRS
   process_sync.h
   flashfirmwaredialog.h
   flasheepromdialog.h
-  downloaddialog.h
   mdichild.h
   mainwindow.h
   radionotfound.h
@@ -269,6 +258,7 @@ set(companion_MOC_HDRS
   modelprinter.h
   multimodelprinter.h
   modelslist.h
+  labels.h
   styleeditdialog.h
   helpers_html.h
   dialogs/filesyncdialog.h
@@ -280,9 +270,7 @@ set(companion_UIS
   comparedialog.ui
   logsdialog.ui
   apppreferencesdialog.ui
-  fwpreferencesdialog.ui
   burnconfigdialog.ui
-  downloaddialog.ui
   printdialog.ui
   htmldialog.ui
   customizesplashdialog.ui
@@ -304,7 +292,7 @@ qt5_wrap_ui(companion_SRCS ${companion_UIS})
 qt5_wrap_cpp(companion_SRCS ${companion_MOC_HDRS})
 
 add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${icon_RC})
-target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot miniz shared ${CPN_COMMON_LIB})
+target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot miniz shared updates ${CPN_COMMON_LIB})
 
 PrintTargetReport("${COMPANION_NAME}")
 
@@ -335,6 +323,8 @@ elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
   set(FLAVOUR tx12mk2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL ZORRO)
   set(FLAVOUR zorro)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
+  set(FLAVOUR lr3pro)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T8)
   set(FLAVOUR t8)
 elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
@@ -414,22 +404,24 @@ elseif(WIN32)
     message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
   endif()
 
-  # libeay (SSL) dlls  (used by QtNetwork) -- not strictly required but avoids possible issues with downloads and Qt warnings.
-  # file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
-  # find_path(EAY_LIB_DIR libeay32.dll HINTS
-  #   "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
-  #   "C:/OpenSSL/" "C:/OpenSSL-Win32/"
-  #   "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
-  #   "${MINGW_DIR}/../opt/bin"
-  #   "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
-  #   PATH_SUFFIXES bin
-  #   DOC "Path to libeay32.dll and ssleay32.dll (OpenSSL)"
-  # )
-  # if (EAY_LIB_DIR)
-  #   install(FILES "${EAY_LIB_DIR}/libeay32.dll" "${EAY_LIB_DIR}/ssleay32.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-  # else()
-  #   message(WARNING "Installer: SSL libs not found, set EAY_LIB_DIR manually.")
-  # endif()
+  # SSL dlls (used by QtNetwork)
+  file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
+  # try 64-bit
+  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1-x86.dll HINTS
+    "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
+    "C:/OpenSSL/" "C:/OpenSSL-Win32/"
+    "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
+    "${MINGW_DIR}/../opt/bin"
+    "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
+    PATH_SUFFIXES bin
+    DOC "Path to OpenSSL for Windows 1.1"
+  )
+  if (SSL_LIB_DIR)
+    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x64.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x86.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x86.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+  else()
+    message(WARNING "Installer: SSL libs not found, set SSL_LIB_DIR manually.")
+  endif()
 endif() # WIN32 install
 
 ############# Packaging ####################

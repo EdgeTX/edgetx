@@ -223,7 +223,7 @@ class SetupPanel : public ModelPanel
     ModulePanel * modules[CPN_MAX_MODULES + 1];
     TimerPanel * timers[CPN_MAX_TIMERS];
     FunctionSwitchesPanel * funcswitches;
-    
+
     void updateStartupSwitches();
     void updatePotWarnings();
     void updateBeepCenter();

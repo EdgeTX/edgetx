@@ -397,7 +397,7 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          6
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_2POS << 6) + (SWITCH_2POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0);
   #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 2) + (POT_WITHOUT_DETENT << 0)
-#elif defined(RADIO_TLITE)
+#elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   #define NUM_SWITCHES                  4
   #define STORAGE_NUM_SWITCHES          8
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_2POS << 6) + (SWITCH_2POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0);
@@ -432,7 +432,7 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 14) + (SWITCH_TOGGLE << 12) + (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_TOGGLE << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_TOGGLE << 0)
   #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2);
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define NUM_SWITCHES                  4
   #define STORAGE_NUM_SWITCHES          8
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_2POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
@@ -539,7 +539,7 @@ enum Analogs {
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              1
   #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO)
   #define NUM_POTS                      0
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              2
@@ -644,10 +644,14 @@ extern uint16_t adcValues[NUM_ANALOGS];
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
   #define BATTERY_MAX                   83 // 8.3V
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   // 1S Li-ion /  Lipo, LDO for 3.3V
   #define BATTERY_WARN                  35 // 3.5V
   #define BATTERY_MIN                   34 // 3.4V
+  #define BATTERY_MAX                   42 // 4.2V
+#elif defined(RADIO_COMMANDO8)
+  #define BATTERY_WARN                  32 // 3.5V
+  #define BATTERY_MIN                   30 // 3.0V
   #define BATTERY_MAX                   42 // 4.2V
 #else
   // NI-MH 7.2V
@@ -725,6 +729,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster T8"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', '8', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_LR3PRO)
+  #define USB_NAME                     "BETAFPV LR3PRO"
+  #define USB_MANUFACTURER             'B', 'E', 'T', 'A', 'F', 'P', 'V', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'L', 'R', '3', 'P', 'R', 'O', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_TLITE)
   #define USB_NAME                     "Jumper TLite"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
@@ -733,6 +741,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Jumper TPro"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '-', 'P', 'R', 'O', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_COMMANDO8)
+  #define USB_NAME                     "iFlight Commando 8"
+  #define USB_MANUFACTURER             'i', 'F', 'l', 'i', 'g', 'h', 't', '-'  /* 8 bytes */
+  #define USB_PRODUCT                  'C', 'o', 'm', 'm', 'a', 'n', 'd', 'o'  /* 8 Bytes */
 #else
   #define USB_NAME                     "FrSky Taranis"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
@@ -903,10 +915,14 @@ void fsLedOn(uint8_t);
 #define LCD_CONTRAST_MAX                30
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define LCD_CONTRAST_DEFAULT          20
-#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO)
+#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15
+#endif
+#if defined(RADIO_LR3PRO)
+  // add offset 2px because driver (SH1106) of the 1.3 OLED is for a 132 display
+  #define LCD_W_OFFSET                  0x02
 #endif
 #endif
 
@@ -969,10 +985,12 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 
 #if defined (RADIO_TX12)
   #define BATTERY_DIVIDER 22830
-#elif defined (RADIO_T8)
+#elif defined (RADIO_T8) || defined(RADIO_COMMANDO8)
   #define BATTERY_DIVIDER 50000
 #elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2)
   #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
+#elif defined (RADIO_LR3PRO)
+  #define BATTERY_DIVIDER 39500
 #else
   #define BATTERY_DIVIDER 26214
 #endif 

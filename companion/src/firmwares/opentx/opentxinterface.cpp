@@ -72,6 +72,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
       return "EdgeTX for Radiomaster TX12";
+    case BOARD_RADIOMASTER_TX12_MK2:
+      return "EdgeTX for Radiomaster TX12 Mark II";
     case BOARD_RADIOMASTER_ZORRO:
       return "EdgeTX for Radiomaster Zorro";
     case BOARD_RADIOMASTER_T8:
@@ -110,6 +112,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for FrSky X10 Express";
     case BOARD_FLYSKY_NV14:
       return "EdgeTX for FlySky NV14";
+    case BOARD_BETAFPV_LR3PRO:
+      return "EdgeTx for BETAFPV LR3PRO";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -343,6 +347,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   else if (IS_TARANIS_XLITE(board)) {
     variant |= TARANIS_XLITE_VARIANT;
   }
+  else if (IS_BETAFPV_LR3PRO(board)) {
+    variant |= BETAFPV_LR3PRO_VARIANT;
+  }
   else if (IS_JUMPER_T12(board)) {
     variant |= JUMPER_T12_VARIANT;
   }
@@ -354,6 +361,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     variant |= RADIOMASTER_TX12_VARIANT;
+  }
+  else if (IS_RADIOMASTER_TX12_MK2(board)) {
+    variant |= RADIOMASTER_TX12_MK2_VARIANT;
   }
   else if (IS_RADIOMASTER_ZORRO(board)) {
     variant |= RADIOMASTER_ZORRO_VARIANT;
@@ -709,6 +719,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return TARANIS_XLITES_VARIANT;
       else if (IS_TARANIS_XLITE(board))
         return TARANIS_XLITE_VARIANT;
+      else if (IS_BETAFPV_LR3PRO(board))
+        return BETAFPV_LR3PRO_VARIANT;
       else if (IS_JUMPER_T12(board))
         return JUMPER_T12_VARIANT;
       else if (IS_JUMPER_TLITE(board))
@@ -730,7 +742,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_HORUS_OR_TARANIS(board) ? true : id.contains("battgraph"));
     case DangerousFunctions:
       return id.contains("danger") ? 1 : 0;
-    case HasModelCategories:
+    case HasModelLabels:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasSwitchableJack:
       return IS_TARANIS_XLITES(board);
@@ -746,12 +758,12 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board);
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasAux2SerialMode:
       return IS_FAMILY_T16(board);
     case HasVCPSerialMode:
       return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board);
+             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
@@ -770,10 +782,20 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
               IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
-              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX16S(board) ||
-              IS_JUMPER_T18(board));
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
+              IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
+    case HasIntModuleMulti:
+      return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
+              IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
+              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs"));
+    case HasIntModuleCRSF:
+      return id.contains("internalcrsf");
+    case HasIntModuleELRS:
+      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board);
+    case HasIntModuleFlySky:
+      return id.contains("afhds3") || IS_FLYSKY_NV14(board);
     default:
       return 0;
   }
@@ -819,9 +841,11 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
           case PULSES_MULTIMODULE:
-            return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) || IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board);
+            return getCapability(HasIntModuleMulti);
+          case PULSES_CROSSFIRE:
+            return getCapability(HasIntModuleCRSF) || getCapability(HasIntModuleELRS);
           case PULSES_AFHDS3:
-            return IS_FLYSKY_NV14(board);
+            return getCapability(HasIntModuleFlySky);
           default:
             return false;
         }
@@ -853,7 +877,7 @@ bool OpenTxFirmware::isAvailable(PulsesProtocol proto, int port)
           case PULSES_XJT_LITE_X16:
           case PULSES_XJT_LITE_D8:
           case PULSES_XJT_LITE_LR12:
-            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board));
+            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board));
           default:
             return false;
         }
@@ -1044,6 +1068,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
       variantError = true;
     }
   }
+  else if (IS_BETAFPV_LR3PRO(board)) {
+    if (variant != BETAFPV_LR3PRO_VARIANT) {
+      variantError = true;
+    }
+  }
   else if (IS_JUMPER_T12(board)) {
     if (variant != JUMPER_T12_VARIANT) {
       variantError = true;
@@ -1061,6 +1090,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_RADIOMASTER_TX12(board)) {
     if (variant != RADIOMASTER_TX12_VARIANT) {
+      variantError = true;
+    }
+  }
+  else if (IS_RADIOMASTER_TX12_MK2(board)) {
+    if (variant != RADIOMASTER_TX12_MK2_VARIANT) {
       variantError = true;
     }
   }
@@ -1185,26 +1219,10 @@ unsigned long OpenTxEepromInterface::loadBackup(RadioData &radioData, const uint
   return errors.to_ulong();
 }
 
-QString OpenTxFirmware::getFirmwareBaseUrl()
-{
-  return g.openTxCurrentDownloadBranchUrl() % QStringLiteral("firmware/");
-}
-
-QString OpenTxFirmware::getFirmwareUrl()
-{
-  return getFirmwareBaseUrl() % QString("getfw.php?fw=%1.bin").arg(QString(QUrl::toPercentEncoding(id)));
-}
-
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
   return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
 }
-
-QString OpenTxFirmware::getStampUrl()
-{
-  return getFirmwareBaseUrl() % QStringLiteral("stamp-opentx.txt");
-}
-
 
 // Firmware registrations
 // NOTE: "recognized" build options are defined in /radio/util/fwoptions.py
@@ -1437,6 +1455,16 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* Radiomaster TX12 Mark II board */
+  firmware = new OpenTxFirmware(FIRMWAREID("tx12mk2"), QCoreApplication::translate("Firmware", "Radiomaster TX12 Mark II"), BOARD_RADIOMASTER_TX12_MK2);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
   /* Radiomaster Zorro board */
   firmware = new OpenTxFirmware(FIRMWAREID("zorro"), QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
   addOpenTxCommonOptions(firmware);
@@ -1484,6 +1512,16 @@ void registerOpenTxFirmwares()
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
+
+  /* BETAFPV LR3PRO board */
+  firmware = new OpenTxFirmware(FIRMWAREID("lr3pro"), QCoreApplication::translate("Firmware", "BETAFPV LiteRadio3 Pro"), BOARD_BETAFPV_LR3PRO);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
 
   /* 9XR-Pro */
   firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);

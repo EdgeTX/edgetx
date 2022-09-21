@@ -1298,6 +1298,9 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     }
     break;
 
+#if defined(COLORLCD)
+  case FUNC_SET_SCREEN:
+#endif  
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
@@ -1472,6 +1475,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
+#if defined(COLORLCD)
+  case FUNC_SET_SCREEN:
+#endif
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     str = yaml_unsigned2str(CFN_PARAM(cfn));
@@ -1807,6 +1813,13 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
   yaml_put_bits(data, i, bitoffs, 1);
 }
 
+static void r_rotEncDirection(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  uint32_t i = yaml_str2uint(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 2);
+}
+
 static void r_telemetryBaudrate(void* user, uint8_t* data, uint32_t bitoffs,
                                 const char* val, uint8_t val_len)
 {
@@ -1842,6 +1855,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },
   {  UART_MODE_DEBUG, "DEBUG"  },
+  {  UART_MODE_SPACEMOUSE, "SPACEMOUSE"  },
   {  0, NULL  }
 };
 

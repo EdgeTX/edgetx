@@ -43,7 +43,7 @@ bool EtxFormat::load(RadioData & radioData)
     return false;
   }
 
-  bool result = CategorizedStorageFormat::load(radioData);
+  bool result = LabelsStorageFormat::load(radioData);
   mz_zip_reader_end(&zip_archive);
   return result;
 }
@@ -58,7 +58,7 @@ bool EtxFormat::write(const RadioData & radioData)
     return false;
   }
 
-  bool result = CategorizedStorageFormat::write(radioData);
+  bool result = LabelsStorageFormat::write(radioData);
   if (result) {
     // finalize archive and get contents
     char * archiveContents;

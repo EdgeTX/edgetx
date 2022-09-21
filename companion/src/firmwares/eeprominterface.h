@@ -153,7 +153,7 @@ enum Capability {
   HasMixerExpo,
   HasBatMeterRange,
   DangerousFunctions,
-  HasModelCategories,
+  HasModelLabels,
   HasSwitchableJack,
   HasSportConnector,
   PwrButtonPress,
@@ -169,7 +169,11 @@ enum Capability {
   HasModelsList,
   HasFlySkyGimbals,
   RotaryEncoderNavigation,
-  HasSoftwareSerialPower
+  HasSoftwareSerialPower,
+  HasIntModuleMulti,
+  HasIntModuleCRSF,
+  HasIntModuleELRS,
+  HasIntModuleFlySky,
 };
 
 class EEPROMInterface

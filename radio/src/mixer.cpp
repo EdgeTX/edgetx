@@ -330,6 +330,12 @@ getvalue_t getValue(mixsrc_t i)
   }
 #endif
 
+#if defined(SPACEMOUSE)
+  else if (i >= MIXSRC_FIRST_SPACEMOUSE && i <= MIXSRC_LAST_SPACEMOUSE) {
+    return get_spacemouse_value(i - MIXSRC_FIRST_SPACEMOUSE);
+  }
+#endif
+
   else if (i == MIXSRC_MAX) {
     return 1024;
   }

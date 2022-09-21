@@ -46,6 +46,7 @@ class AbstractStaticItemModel;
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
 constexpr char AIM_MODELDATA_FUNCSWITCHSTART[]  {"modeldata.funcswitchstart"};
+constexpr int LABEL_LENGTH=16;
 
 #define CHAR_FOR_NAMES " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-."
 #define CHAR_FOR_NAMES_REGEX "[ A-Za-z0-9_.-,]*"
@@ -111,9 +112,9 @@ class ModelData {
 
     char      semver[8 + 1];
     bool      used;
-    int       category;
     char      name[15+1];
     char      filename[16+1];
+    char      labels[100];
     int       modelIndex;      // Companion only, temporary index position managed by data model.
 
     TimerData timers[CPN_MAX_TIMERS];
@@ -307,6 +308,7 @@ class ModelData {
     static QString funcSwitchStartToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
+    int getCustomScreensCount() const;
 
   protected:
     void removeGlobalVar(int & var);

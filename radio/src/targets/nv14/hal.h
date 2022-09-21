@@ -245,6 +245,10 @@
 #define USB_GPIO_PinSource_DP           GPIO_PinSource12
 #define USB_GPIO_AF                     GPIO_AF_OTG1_FS
 
+#define USB_SW_AHB1Periph_GPIO          RCC_AHB1Periph_GPIOI
+#define USB_SW_GPOIO                    GPIOI
+#define USB_SW_PIN                      GPIO_Pin_10
+
 // LCD
 #define LCD_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_GPIOK | RCC_AHB1Periph_DMA2D)
 #define LCD_RCC_APB1Periph              0
@@ -399,7 +403,6 @@
 #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 
 // Internal Module
-#define HARDWARE_INTERNAL_MODULE
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
 #define INTMODULE_PWR_GPIO              GPIOH
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_9  // PH.09
@@ -417,13 +420,11 @@
 #define INTMODULE_DMA_FLAG_TC           DMA_IT_TCIF1
 #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
 
-/*#define INTMODULE_RX_DMA_STREAM         DMA1_Stream3
-#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream3_IRQHandler
-#define INTMODULE_TX_DMA_STREAM         DMA1_Stream1
-#define INTMODULE_TX_DMA_Stream_IRQn    DMA1_Stream1_IRQn
-#define INTMODULE_TX_DMA_Stream_IRQHandler DMA1_Stream1_IRQHandler
-#define INTMODULE_TX_DMA_FLAG_TC        DMA_IT_TCIF1*/
+#define INTMODULE_RX_DMA                DMA1
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
+#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+// #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
+// #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
 #define INTMODULE_RCC_APB1Periph        (RCC_APB1Periph_UART7 | RCC_APB1Periph_TIM3)
 #define INTMODULE_RCC_APB2Periph        0

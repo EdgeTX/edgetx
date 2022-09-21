@@ -23,8 +23,21 @@
 #include "opentx.h"
 
 #include "pulses/flysky.h"
+#include "pulses/afhds3.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
+
+static const char* _afhds3_region[] = { "CE", "FCC" };
+
+static const char* _afhds3_phy_mode[] = {
+  // V0
+  "Classic 18ch",
+  "Classic 10ch",
+  // V1
+  "Routine 18ch",
+  "Fast 8ch",
+  "Lora 12ch",
+};
 
 class FSProtoOpts : public FormGroup
 {
@@ -77,12 +90,12 @@ void FlySkySettings::update()
 {
   clear();
   
-  // RX options:
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
-
 #if defined(AFHDS2)
   if (isModuleAFHDS2A(moduleIdx)) {
+    // RX options:
+    auto line = newLine(&grid);
+    new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
+
     new FSProtoOpts(
         line, [=]() { return md->flysky.mode; },
         [=](uint8_t v) { md->flysky.mode = v; });
@@ -104,22 +117,9 @@ void FlySkySettings::update()
 #endif
 #if defined(AFHDS3)
   if (isModuleAFHDS3(moduleIdx)) {
-    new FSProtoOpts(
-        line, [=]() { return md->afhds3.mode; },
-        [=](uint8_t v) { md->afhds3.mode = v; });
-
-    // TYPE
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-
-    // This is chosen when binding (menu? see stdlcd/model_setup_afhds3.cpp)
-    new StaticText(line, rect_t{},
-                   md->afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY
-                                        : TR_AFHDS3_ONE_TO_MANY,
-                   0, COLOR_THEME_PRIMARY1);
 
     // Status
-    line = newLine(&grid);
+    auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
     new DynamicText(line, rect_t{}, [=] {
       char msg[64] = "";
@@ -127,42 +127,55 @@ void FlySkySettings::update()
       return std::string(msg);
     });
 
-    // Power source
+    // TYPE
     line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_AFHDS3_POWER_SOURCE, 0,
-                   COLOR_THEME_PRIMARY1);
-    new DynamicText(line, rect_t{}, [=] {
-      char msg[64] = "";
-      getModuleSyncStatusString(moduleIdx, msg);
-      return std::string(msg);
-    });
+    new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
-    // RX Freq
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_AFHDS3_RX_FREQ, 0, COLOR_THEME_PRIMARY1);
-    auto edit = new NumberEdit(line, rect_t{}, MIN_FREQ, MAX_FREQ,
-                               GET_DEFAULT(md->afhds3.rxFreq()));
-    edit->setSetValueHandler(
-        [=](int32_t newValue) { md->afhds3.setRxFreq((uint16_t)newValue); });
-    edit->setSuffix(STR_HZ);
+    auto box = new FormGroup(line, rect_t{});
+    box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
-    // Module actual power
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_AFHDS3_ACTUAL_POWER, 0,
-                   COLOR_THEME_PRIMARY1);
-    new DynamicText(line, rect_t{}, [=] {
-      char msg[64] = "";
-      getStringAtIndex(msg, STR_AFHDS3_POWERS, actualAfhdsRunPower(moduleIdx));
-      return std::string(msg);
-    });
+    new Choice(box, rect_t{}, _afhds3_region, 1, afhds3::LNK_ES_FCC,
+               GET_SET_DEFAULT(md->afhds3.emi));
 
-    // Module power
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
-    new Choice(line, rect_t{}, STR_AFHDS3_POWERS,
-               afhds3::RUN_POWER::RUN_POWER_FIRST,
-               afhds3::RUN_POWER::RUN_POWER_LAST,
-               GET_SET_DEFAULT(md->afhds3.runPower));
+    new Choice(box, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
+               GET_SET_DEFAULT(md->afhds3.phyMode));
+
+    // // Power source
+    // line = newLine(&grid);
+    // new StaticText(line, rect_t{}, STR_AFHDS3_POWER_SOURCE, 0,
+    //                COLOR_THEME_PRIMARY1);
+    // new DynamicText(line, rect_t{}, [=] {
+    //   char msg[64] = "";
+    //   getModuleSyncStatusString(moduleIdx, msg);
+    //   return std::string(msg);
+    // });
+
+    // // RX Freq
+    // line = newLine(&grid);
+    // new StaticText(line, rect_t{}, STR_AFHDS3_RX_FREQ, 0, COLOR_THEME_PRIMARY1);
+    // auto edit = new NumberEdit(line, rect_t{}, AFHDS3_MIN_FREQ, AFHDS3_MAX_FREQ,
+    //                            GET_DEFAULT(md->afhds3.rxFreq()));
+    // edit->setSetValueHandler(
+    //     [=](int32_t newValue) { md->afhds3.setRxFreq((uint16_t)newValue); });
+    // edit->setSuffix(STR_HZ);
+
+    // // Module actual power
+    // line = newLine(&grid);
+    // new StaticText(line, rect_t{}, STR_AFHDS3_ACTUAL_POWER, 0,
+    //                COLOR_THEME_PRIMARY1);
+    // new DynamicText(line, rect_t{}, [=] {
+    //   char msg[64] = "";
+    //   getStringAtIndex(msg, STR_AFHDS3_POWERS, actualAfhdsRunPower(moduleIdx));
+    //   return std::string(msg);
+    // });
+
+    // // Module power
+    // line = newLine(&grid);
+    // new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
+    // new Choice(line, rect_t{}, STR_AFHDS3_POWERS,
+    //            afhds3::RUN_POWER::RUN_POWER_FIRST,
+    //            afhds3::RUN_POWER::RUN_POWER_LAST,
+    //            GET_SET_DEFAULT(md->afhds3.runPower));
   }
 #endif
 }

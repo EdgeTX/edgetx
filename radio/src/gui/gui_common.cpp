@@ -195,6 +195,15 @@ bool isSourceAvailable(int source)
     return false;
 #endif
 
+#if defined(PCBHORUS) && !defined(SPACEMOUSE)
+  if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
+    return false;
+#elif defined(PCBHORUS) && defined(SPACEMOUSE)
+  if ((hasSerialMode(UART_MODE_SPACEMOUSE) == -1) &&
+      (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE))
+    return false;
+#endif
+
   if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
     return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
   }
@@ -407,6 +416,15 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #elif defined(USB_SERIAL)
   // GPS is not supported on VCP
   if (port_nr == SP_VCP && mode == UART_MODE_GPS)
+    return false;
+#endif
+
+#if !defined(SPACEMOUSE)
+  if (mode == UART_MODE_SPACEMOUSE)
+    return false;
+#elif defined(USB_SERIAL)
+  // SPACEMOUSE is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_SPACEMOUSE)
     return false;
 #endif
 
@@ -643,6 +661,11 @@ bool isInternalModuleSupported(int moduleType)
 
 bool isInternalModuleAvailable(int moduleType)
 {
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(EXTERNAL_MODULE)) 
+    return false;
+#endif
+
   if (moduleType == MODULE_TYPE_NONE)
     return true;
 
@@ -681,6 +704,12 @@ bool isInternalModuleAvailable(int moduleType)
 
 bool isExternalModuleAvailable(int moduleType)
 {
+
+#if defined(MUTUALLY_EXCLUSIVE_MODULES)
+  if (!isModuleNone(INTERNAL_MODULE)) 
+    return false;
+#endif
+
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
   if (isModuleTypeR9MLite(moduleType) || moduleType == MODULE_TYPE_XJT_LITE_PXX2)
     return false;
@@ -871,7 +900,18 @@ bool isTrainerModeAvailable(int mode)
        mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
     return false;
 #endif
-  
+
+#if !defined(MULTIMODULE)
+  if (mode == TRAINER_MODE_MULTI) 
+    return false;
+#else
+  if (mode == TRAINER_MODE_MULTI &&
+      ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
+       (!isModuleMultimodule(INTERNAL_MODULE) &&
+        !isModuleMultimodule(EXTERNAL_MODULE))))
+    return false;
+#endif
+
   return true;
 }
 

@@ -48,7 +48,7 @@
   #include "mlink.h"
 #endif
 
-#if defined(MULTIMODULE) || defined(AFHDS2A) || defined(AFHDS3)
+#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
   #include "flysky_ibus.h"
 #endif
 

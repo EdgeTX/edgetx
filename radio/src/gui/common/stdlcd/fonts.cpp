@@ -27,7 +27,7 @@ const unsigned char font_5x7[]  = {
 #if defined(TRANSLATIONS_DE)
 #include "font_de_05x07.lbm"
 #elif defined(TRANSLATIONS_DA)
-#include "font_se_05x07.lbm"
+#include "font_da_05x07.lbm"
 #elif defined(TRANSLATIONS_CZ)
 #include "font_cz_05x07.lbm"
 #elif defined(TRANSLATIONS_ES)
@@ -57,7 +57,7 @@ const unsigned char font_10x14[]  = {
   #if defined(TRANSLATIONS_DE)
   #include "font_de_10x14.lbm"
   #elif defined(TRANSLATIONS_DA)
-  #include "font_se_10x14.lbm"
+  #include "font_da_10x14.lbm"
   #elif defined(TRANSLATIONS_CZ)
   #include "font_cz_10x14.lbm"
   #elif defined(TRANSLATIONS_ES)
@@ -86,7 +86,7 @@ const unsigned char font_4x6[]  = {
 #if defined(TRANSLATIONS_DE)
 #include "font_de_04x06.lbm"
 #elif defined(TRANSLATIONS_DA)
-#include "font_se_04x06.lbm"
+#include "font_da_04x06.lbm"
 #elif defined(TRANSLATIONS_CZ)
 #include "font_cz_04x06.lbm"
 #elif defined(TRANSLATIONS_ES)
@@ -111,7 +111,7 @@ const unsigned char font_8x10[]  = {
 #if defined(TRANSLATIONS_DE)
 #include "font_de_08x10.lbm"
 #elif defined(TRANSLATIONS_DA)
-#include "font_cz_08x10.lbm"
+#include "font_da_08x10.lbm"
 #elif defined(TRANSLATIONS_CZ)
 #include "font_cz_08x10.lbm"
 #elif defined(TRANSLATIONS_ES)

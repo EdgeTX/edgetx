@@ -81,7 +81,7 @@ enum COLOR_EDITOR_TYPE
 class ColorEditor : public FormGroup
 {
  public:
-  ColorEditor(FormGroup* window, const rect_t rect, uint32_t color,
+  ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
               std::function<void(uint32_t rgb)> setValue = nullptr);
 
 #if defined(DEBUG_WINDOWS)

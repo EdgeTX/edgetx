@@ -48,6 +48,8 @@
   #include "yaml_datastructs_t8.cpp"
  #elif defined(RADIO_TPRO)
   #include "yaml_datastructs_tpro.cpp"
+ #elif defined(RADIO_LR3PRO)
+  #include "yaml_datastructs_lr3pro.cpp"
  #else
   #include "yaml_datastructs_x7.cpp"
  #endif

@@ -121,6 +121,7 @@ extern const char* STR_VTRIMINC[];
 extern const char* STR_VDISPLAYTRIMS[];
 extern const char* STR_RETA123[];
 
+extern const char* STR_TIMER_DIR[];
 
 extern const char* STR_VBLMODE[];
 extern const char* STR_VCURVEFUNC[];
@@ -139,6 +140,8 @@ extern const char* STR_VSWASHTYPE[];
 extern const char* STR_VKEYS[];
 extern const char* STR_VSWITCHES[];
 extern const char* STR_VSRCRAW[];
+
+extern const char* STR_ROTARY_ENC_OPT[];
 
 #if defined(TRANSLATIONS_CZ)
 extern const char* STR_INPUTNAMES[];
@@ -234,8 +237,10 @@ extern const char STR_DELETEMODEL[];
 extern const char STR_COPYINGMODEL[];
 extern const char STR_MOVINGMODEL[];
 extern const char STR_LOADINGMODEL[];
+extern const char STR_UNLABELEDMODEL[];
 extern const char STR_NAME[];
 extern const char STR_BITMAP[];
+extern const char STR_NO_PICTURE[];
 extern const char STR_TIMER[];
 extern const char STR_START[];
 extern const char STR_ELIMITS[];
@@ -403,6 +408,8 @@ extern const char STR_THROTTLE_NOT_IDLE[];
 extern const char STR_ALARMSDISABLED[];
 extern const char STR_PRESSANYKEY[];
 extern const char STR_BAD_RADIO_DATA[];
+extern const char STR_RADIO_DATA_UNRECOVERABLE[];
+extern const char STR_RADIO_DATA_RECOVERED[];
 extern const char STR_STORAGE_FORMAT[];
 extern const char STR_EEPROMOVERFLOW[];
 extern const char STR_TRIMS2OFFSETS[];
@@ -526,17 +533,20 @@ extern const char STR_CURRENT_CALIB[];
 extern const char STR_UNITS_SYSTEM[];
 extern const char STR_VOICE_LANGUAGE[];
 extern const char STR_MODELIDUSED[];
+extern const char STR_MODELIDUNIQUE[];
 extern const char STR_BEEP_VOLUME[];
 extern const char STR_WAV_VOLUME[];
 extern const char STR_BG_VOLUME[];
 extern const char STR_SELECT_MODEL[];
-extern const char STR_MODEL_CATEGORIES[];
 extern const char STR_MODELS[];
 extern const char STR_SELECT_MODE[];
-extern const char STR_CREATE_CATEGORY[];
-extern const char STR_RENAME_CATEGORY[];
-extern const char STR_DELETE_CATEGORY[];
 extern const char STR_CREATE_MODEL[];
+extern const char STR_FAVORITE_LABEL[];
+extern const char STR_NEW_MODEL[];
+extern const char STR_INVALID_MODEL[];
+extern const char STR_EDIT_LABELS[];
+extern const char STR_MOVE_UP[];
+extern const char STR_MOVE_DOWN[];
 extern const char STR_DUPLICATE_MODEL[];
 extern const char STR_COPY_MODEL[];
 extern const char STR_MOVE_MODEL[];
@@ -629,7 +639,6 @@ extern const char STR_ASK_OVERWRITE[];
 extern const char STR_NEEDS_FILE[];
 extern const char STR_EXT_MULTI_SPEC[];
 extern const char STR_INT_MULTI_SPEC[];
-extern const char STR_CAT_NOT_EMPTY[];
 extern const char STR_WARNING[];
 extern const char STR_STORAGE_WARNING[];
 extern const char STR_EEPROM_CONVERTING[];
@@ -678,6 +687,7 @@ extern const char STR_SCRIPT_KILLED[];
 extern const char STR_SCRIPT_ERROR[];
 extern const char STR_PLAY_FILE[];
 extern const char STR_ASSIGN_BITMAP[];
+extern const char STR_LIMITS_HEADERS_DIRECTION[];
 #if defined(COLORLCD)
 extern const char STR_ASSIGN_SPLASH[];
 extern const char STR_FIRST_CHANNEL[];
@@ -728,7 +738,7 @@ extern const char STR_GLOBAL_VAR[];
 extern const char STR_OWN[];
 extern const char STR_DATE[];
 extern const char STR_ROTARY_ENCODER[];
-extern const char STR_INVERT_ROTARY[];
+extern const char STR_ROTARY_ENC_MODE[];
 extern const char STR_CHANNELS_MONITOR[];
 extern const char STR_MIXERS_MONITOR[];
 extern const char STR_PATH_TOO_LONG[];
@@ -1193,8 +1203,20 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
+
+
 #if defined(COLORLCD)
 
+extern const char STR_ENTER_LABEL[];
+extern const char STR_LABEL[];
+extern const char STR_LABELS[];
+extern const char STR_SELECT_MODEL[];
+extern const char STR_NONE[];
+extern const char STR_CURRENT_MODEL[];
+extern const char STR_NEW[];
+extern const char STR_NEW_LABEL[];
+extern const char STR_RENAME_LABEL[];
+extern const char STR_DELETE_LABEL[];
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];

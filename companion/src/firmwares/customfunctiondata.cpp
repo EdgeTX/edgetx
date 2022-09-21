@@ -123,6 +123,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Racing Mode");
   else if (func == FuncDisableTouch)
     return tr("Disable Touch");
+  else if (func == FuncSetScreen)
+    return tr("Set Main Screen");
   else {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -148,6 +150,9 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   }
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
+  }
+  else if (func ==FuncSetScreen) {
+    return QString("%1").arg(param);
   }
   else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
     if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
@@ -223,7 +228,8 @@ bool CustomFunctionData::isFuncAvailable(const int index)
         ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
-		((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard()))
+        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
+        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd)))
         );
   return !ret;
 }

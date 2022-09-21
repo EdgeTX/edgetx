@@ -37,7 +37,7 @@
 #define TR_TRNMODE                      "關","相加","替換"
 #define TR_TRNCHN                       "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試"
+#define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試","SpaceMouse"
 #define TR_SWTYPES                      "無","回彈","2段","3段"
 #define TR_POTTYPES                     "無","有中點旋鈕","多段旋鈕","無中點旋鈕"
 #define TR_SLIDERTYPES                  "無","側滑塊"
@@ -47,6 +47,8 @@
 #define TR_JACK_MODES                   "詢問","音頻","教練"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
+#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM                "自定義"
 #define TR_VTRIMINC                     "指數","很小","較小","中等","較大"
 #define TR_VDISPLAYTRIMS                "不顯示","改變時","始終顯示"
@@ -158,9 +160,10 @@
 #define TR_SF_SCREENSHOT               "截屏"
 #define TR_SF_RACING_MODE              "競速模式"
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
+#define TR_SF_SET_SCREEN               "Set Main Screen"
 #define TR_SF_RESERVE                  "[保留]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"教練","搖桿值存儲到微調","重啟","設置",TR_ADJUST_GVAR,"音量","設置失控保護","測距模式","模塊對頻",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"教練","搖桿值存儲到微調","重啟","設置",TR_ADJUST_GVAR,"音量","設置失控保護","測距模式","模塊對頻",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH, TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             "回傳參數"
 
@@ -180,8 +183,11 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "公制",TR("英制","英制")
+#if defined(COLORLCD)
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#else
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-
+#endif
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
 
@@ -214,10 +220,38 @@
   #define TR_TRIMS_SWITCHES            TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
 #endif
 
+#if defined(PCBHORUS) || defined(PCBNV14)
+  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
+#elif defined(PCBXLITE)
+  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
+  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(RADIO_T8)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
+#elif defined(RADIO_ZORRO)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(PCBTARANIS)
+  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
+#else
+  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
+#endif
+
+#if defined(PCBNV14)
+#define  TR_RFPOWER_AFHDS2             "Default","High"
+#endif
+
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
+
+#if defined(COLORLCD)
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted"
+#else
+  #define TR_ROTARY_ENC_OPT          "Normal","Inverted","V-I H-N","V-I H-A"
+#endif
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW               "TltX","TltY",
@@ -250,6 +284,7 @@
 #define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","最高值","差值"
 #define TR_TEXT_SIZE                   "標準","小","較小","中等","雙倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)","=(整體)"
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
 #define INDENT
@@ -261,6 +296,14 @@
   #define LEN_INDENT                   1
   #define INDENT_WIDTH                 (FW/2)
   #define BREAKSPACE                   " "
+#endif
+
+#if defined(COLORLCD)
+#if defined(BOLD)
+#define TR_FONT_SIZES                  "STD"
+#else
+#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#endif
 #endif
 
 #if defined(PCBFRSKY)
@@ -292,6 +335,7 @@
 #define TR_COPYINGMODEL                "複製模型..."
 #define TR_MOVINGMODEL                 "移動模型..."
 #define TR_LOADINGMODEL                "載入模型..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "名稱"
 #define TR_MODELNAME                   "模型名稱"
 #define TR_PHASENAME                   "模式名稱"
@@ -299,6 +343,7 @@
 #define TR_INPUTNAME                   TR("名稱", "輸入名稱")
 #define TR_EXPONAME                    TR("名稱", "曲線名稱")
 #define TR_BITMAP                      "模型圖片"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       TR("計時器", "計時器 ")
 #define TR_START                       "開始"
 #define TR_ELIMITS                     TR("E.Limits", "擴展通道行程")
@@ -478,6 +523,8 @@
 #define TR_PRESSANYKEY                 TR("\010按任意鍵", "按任意鍵")
 #define TR_BADEEPROMDATA               "存儲數據錯誤"
 #define TR_BAD_RADIO_DATA              "系統數據錯誤"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "格式化存儲"
 #define TR_STORAGE_FORMAT              "存儲準備"
 #define TR_EEPROMOVERFLOW              "存儲超限"
@@ -585,13 +632,23 @@
 #define TR_VOLTAGE                     TR(INDENT "電壓源", INDENT "電壓來源")
 #define TR_CURRENT                     TR(INDENT "電流源", INDENT "電流來源")
 #define TR_SELECT_MODEL                "選擇模型"
-#define TR_MODEL_CATEGORIES            "模型分類"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
-#define TR_CREATE_CATEGORY             "創建分類"
-#define TR_RENAME_CATEGORY             "分類改名"
-#define TR_DELETE_CATEGORY             "刪除分類"
 #define TR_CREATE_MODEL                "創建模型"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "複製模型"
 #define TR_COPY_MODEL                  "複製模型"
 #define TR_MOVE_MODEL                  "移動模型"
@@ -599,7 +656,6 @@
 #define TR_DELETE_MODEL                "刪除模型"
 #define TR_RESTORE_MODEL               "恢復模型"
 #define TR_DELETE_ERROR                "刪除失敗"
-#define TR_CAT_NOT_EMPTY               "分類未清空"
 #define TR_SDCARD_ERROR                TR("存儲卡錯誤", "存儲卡錯誤")
 #define TR_SDCARD                      "存儲卡"
 #define TR_NO_FILES_ON_SD              "存儲卡中沒有文件!"
@@ -747,7 +803,7 @@
 #define TR_DATE                        "日期"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec " }
 #define TR_ROTARY_ENCODER              "滾輪"
-#define TR_INVERT_ROTARY               "滾輪反向"
+#define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "通道查看器"
 #define TR_MIXERS_MONITOR              "混控查看器"
 #define TR_PATH_TOO_LONG               "路徑太長"
@@ -870,11 +926,8 @@
 #define TR_TRAINER                     "教練"
 #define TR_CHANS                       "通道"
 #define TR_ANTENNAPROBLEM               CENTER "發射機天線故障!"
-#if defined(COLORLCD)
-  #define TR_MODELIDUSED               "ID已使用:"
-#else
-  #define TR_MODELIDUSED               TR("ID已使用:","ID已使用:")
-#endif
+#define TR_MODELIDUSED                 "ID已使用:"
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "模塊"
 #define TR_RX_NAME                     "接收機名稱"
 #define TR_TELEMETRY_TYPE              TR("類型", "回傳類型")

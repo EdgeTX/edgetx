@@ -39,7 +39,7 @@
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
 #define TR_POTTYPES                    "None", TR("Pot w. det","Pot with detent"),TR("Multipos","Monias. Kytkin"),TR("Pot","Potikka")
 #define TR_SLIDERTYPES                 "Rien","Slider"
@@ -49,6 +49,9 @@
 #define TR_USBMODES                    "Kysy",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
 #define TR_JACK_MODES                  "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
+
+#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM                "Custom"
 #define TR_VTRIMINC                    TR("Expo","Exponential"),TR("EriHie","Eri Hieno"),"Hieno","Keski","Karkea"
 #define TR_VDISPLAYTRIMS               "No","Change","Yes"
@@ -162,9 +165,10 @@
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
+#define TR_SF_SET_SCREEN               "Set Main Screen"
 #define TR_SF_RESERVE                  "[reserve]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trainer","Inst. Trim","Reset","Set",TR_ADJUST_GVAR,"Volume","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Backlight",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trainer","Inst. Trim","Reset","Set",TR_ADJUST_GVAR,"Volume","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Backlight",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetry")
 
@@ -200,8 +204,11 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "Metric",TR("Imper.","Imperial")
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km"
-
+#if defined(COLORLCD)
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#else
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#endif
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
 
@@ -231,9 +238,38 @@
   #define TR_TRIMS_SWITCHES            TR("tRl",STR_CHAR_TRIM "Rl"),TR("tRr",STR_CHAR_TRIM "Rr"),TR("tEd",STR_CHAR_TRIM "Ed"),TR("tEu",STR_CHAR_TRIM "Eu"),TR("tTd",STR_CHAR_TRIM "Td"),TR("tTu",STR_CHAR_TRIM "Tu"),TR("tAl",STR_CHAR_TRIM "Al"),TR("tAr",STR_CHAR_TRIM "Ar")
 #endif
 
+#if defined(PCBHORUS) || defined(PCBNV14)
+  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
+#elif defined(PCBXLITE)
+  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
+  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
+#elif defined(RADIO_ZORRO)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(PCBTARANIS)
+  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
+#else
+  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
+#endif
+
+#if defined(PCBNV14)
+#define  TR_RFPOWER_AFHDS2             "Default","High"
+#endif
+
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
+
 #define TR_ON_ONE_SWITCHES             "ON","One"
+
+#if defined(COLORLCD)
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
+#else
+  #define TR_ROTARY_ENC_OPT         "Normal","Inverted","V-I H-N","V-I H-A"
+#endif
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW               "TltX","TltY",
@@ -251,7 +287,7 @@
 #define TR_EXTRA_VSRCRAW               "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
 #define TR_VTMRMODES                   "OFF","ABS","THs","TH%","THt"
-#define TR_VTRAINER_MASTER_OFF         "Off"
+#define TR_VTRAINER_MASTER_OFF         "OFF"
 #define TR_VTRAINER_MASTER_JACK        "Master/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Slave/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Master/SBUS Module"
@@ -265,11 +301,20 @@
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Alin","1","2","3","4","5","6","Korkein","Ero"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
+#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 // ZERO TERMINATED STRINGS
 #define INDENT                         "\001"
 #define LEN_INDENT                     1
 #define INDENT_WIDTH                   (FW/2)
+
+#if defined(COLORLCD)
+#if defined(BOLD)
+#define TR_FONT_SIZES                  "STD"
+#else
+#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#endif
+#endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
   #define TR_ENTER                     "[ENTER]"
@@ -302,6 +347,7 @@
 #define TR_COPYINGMODEL                "Copying model..."
 #define TR_MOVINGMODEL                 "Moving model..."
 #define TR_LOADINGMODEL                "Loading model..."
+#define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "Name"
 #define TR_MODELNAME                   "Model Name"
 #define TR_PHASENAME                   "Mode Name"
@@ -313,6 +359,7 @@
   #define TR_EXPONAME                  "Expo Name"
 #endif
 #define TR_BITMAP                      "Model Image"
+#define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER                       "Timer"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("E.Limits", "Extended Limits")
@@ -416,6 +463,7 @@
 #define TR_PERSISTENT                  TR(INDENT"Persist.", INDENT"Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT"Duration"
 #define TR_BLONBRIGHTNESS              INDENT"ON Brightness"
 #define TR_BLOFFBRIGHTNESS             INDENT"OFF Brightness"
@@ -486,6 +534,8 @@
 #define TR_PRESSANYKEY                 TR("\010Press any Key", "Press any Key")
 #define TR_BADEEPROMDATA               "Bad EEPROM Data"
 #define TR_BAD_RADIO_DATA              "Bad Radio Data"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "Formatting EEPROM"
 #define TR_STORAGE_FORMAT              "Storage Preparation"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
@@ -597,13 +647,23 @@
 #define TR_VOLTAGE                     INDENT"Jännite"
 #define TR_CURRENT                     INDENT"Virta"
 #define TR_SELECT_MODEL                "Select Model"
-#define TR_MODEL_CATEGORIES            "Model Categories"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
-#define TR_CREATE_CATEGORY             "Create Category"
-#define TR_RENAME_CATEGORY             "Rename Category"
-#define TR_DELETE_CATEGORY             "Delete Category"
 #define TR_CREATE_MODEL                "Create Model"
+#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_NEW_MODEL                   "New Model"
+#define TR_INVALID_MODEL               "Invalid Model"
+#define TR_EDIT_LABELS                 "Edit Labels"
+#define TR_MOVE_UP                     "Move Up"
+#define TR_MOVE_DOWN                   "Move Down"
+#define TR_ENTER_LABEL                 "Enter Label"
+#define TR_LABEL                       "Label"
+#define TR_LABELS                      "Labels"
+#define TR_CURRENT_MODEL               "Current"
+#define TR_NEW                         "New"
+#define TR_NEW_LABEL                   "New Label"
+#define TR_RENAME_LABEL                "Rename Label"
+#define TR_DELETE_LABEL                "Delete Label"
 #define TR_DUPLICATE_MODEL             "Duplicate Model"
 #define TR_COPY_MODEL                  "Copy Model"
 #define TR_MOVE_MODEL                  "Move Model"
@@ -611,7 +671,6 @@
 #define TR_DELETE_MODEL                "Delete Model"
 #define TR_RESTORE_MODEL               "Restore Model"
 #define TR_DELETE_ERROR                "Delete error"
-#define TR_CAT_NOT_EMPTY               "Luokka ei ole tyhjä"
 #define TR_SDCARD_ERROR                "SDCARD Error"
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "No files on SD!"
@@ -717,8 +776,19 @@
 #define TR_TEMP_CALIB                  "Lämpötilan kalibrointi"
 #define TR_TIME                        "Aika"
 #define TR_MAXBAUDRATE                 "Max bauds"
+#define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+
+#define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
+#define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
+#define TR_NO_TEMPLATES                "No model templates were found in this folder"
+#define TR_SAVE_TEMPLATE               "Save as template"
+#define TR_BLANK_MODEL                 "Blank Model"
+#define TR_BLANK_MODEL_INFO            "Create a blank model"
+#define TR_FILE_EXISTS                 "FILE ALREADY EXISTS"
+#define TR_ASK_OVERWRITE               "Do you want to overwrite?"
+
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Discover"
 #define TR_BLUETOOTH_INIT              "Init"
@@ -727,7 +797,7 @@
 #define TR_BLUETOOTH_PIN_CODE          "Pin-koodi"
 #define TR_BLUETOOTH_NODEVICES         "No Devices Found"
 #define TR_BLUETOOTH_SCANNING          "Scanning..."
-#define TR_BAUDRATE                    "BT Baudrate"
+#define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Enabled"
 #else
@@ -747,6 +817,7 @@
 #define TR_DATE                        "Päivämäärä"
 #define TR_MONTHS                      { "tam", "hel", "maa", "huh", "tou", "kes", "hei", "elo", "syy", "lok", "mar", "jou" }
 #define TR_ROTARY_ENCODER              "R.E."
+#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "CHANNELS MONITOR"
 #define TR_MIXERS_MONITOR              "MIXERS MONITOR"
 #define TR_PATH_TOO_LONG               "Polku liian pitkä"
@@ -870,6 +941,7 @@
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM              CENTER "Lähettimen antenniongelma!"
 #define TR_MODELIDUSED                 TR("ID used in:", "Receiver ID used in:")
+#define TR_MODELIDUNIQUE               "ID is unique"
 #define TR_MODULE                      "Module"
 #define TR_RX_NAME                     "Rx Name"
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetry Type")
@@ -968,7 +1040,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Curve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Function"
 #define TR_LSW_HEADERS_V1              "V1"
@@ -1096,6 +1168,7 @@
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_JITTER_FILTER               "ADC Filter"
+#define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
@@ -1259,6 +1332,13 @@
 #define TR_USE_THEME_COLOR             "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Add all Trims to Subtrims"
+
+#if LCD_W > LCD_H
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor" 
+#else
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+#endif
+
 #define TR_DUPLICATE                   "Duplicate"
 #define TR_ACTIVATE                    "Set Active"
 #define TR_RED                         "Punainen"

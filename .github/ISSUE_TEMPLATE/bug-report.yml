@@ -63,6 +63,7 @@ body:
         - 2.6.0
         - 2.5.0
         - 2.4.0
+        - Nightly (Please give date/commit below)
         - Other (Please specify below)
     validations:
       required: true

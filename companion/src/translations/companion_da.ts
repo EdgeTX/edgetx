@@ -681,7 +681,7 @@ Mode 4:
     </message>
 </context>
 <context>
-    <name>ChannelsPanel</name>
+    <name>Channels</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
@@ -1454,7 +1454,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>SD Logs</source>
-        <translation>SD logning</translation>
+        <translation>Log data til SD</translation>
     </message>
     <message>
         <source>Volume</source>
@@ -1526,7 +1526,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>Rotary Encoder</source>
-        <translation>Rotary Encoder</translation>
+        <translation>Indstillnings hjul</translation>
     </message>
     <message>
         <source>REa</source>
@@ -1554,7 +1554,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>repeat(%1s)</source>
-        <translation>gentag(%1s)</translation>
+        <translation>gentag (efter %1s)</translation>
     </message>
     <message>
         <source>DISABLED</source>
@@ -2423,8 +2423,12 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
         <translation>Deaktiver globale variable</translation>
     </message>
     <message>
+        <source>Support internal GPS</source>
+        <translation>Intern GPS-modul</translation>
+    </message>
+    <message>
         <source>Enable Lua custom scripts screen</source>
-        <translation>Aktiver understøttelse af Lua mix script</translation>
+        <translation>Aktiver tilpasning af Lua script</translation>
     </message>
     <message>
         <source>Use alternative SQT5 font</source>
@@ -2512,7 +2516,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Battery graph</source>
-        <translation>Batteri ikon</translation>
+        <translation>Batteri graf</translation>
     </message>
     <message>
         <source>Don&apos;t use bold font for highlighting active items</source>
@@ -2984,7 +2988,7 @@ Du anvender aktuelt:
     <name>FlightModePanel</name>
     <message>
         <source>Rotary Encoder %1</source>
-        <translation>Rulle vælger %1</translation>
+        <translation>Indstillnings hjul %1</translation>
     </message>
     <message>
         <source>GVAR%1</source>
@@ -3388,6 +3392,10 @@ Disse indstillinger gælder for alle modeller.</translation>
     <message>
         <source>NMEA</source>
         <translation>NMEA</translation>
+    </message>
+    <message>
+        <source>UBLOX</source>
+        <translation>UBLOX</translation>
     </message>
     <message>
         <source>Voice Language</source>
@@ -4300,11 +4308,11 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>PPM Multiplier</source>
-        <translation>PPM-multiplikator</translation>
+        <translation>PPM multiplikator</translation>
     </message>
     <message>
         <source>Current Offset</source>
-        <translation>Nuværende offset</translation>
+        <translation>Offset til strømstyrke</translation>
     </message>
     <message>
         <source>PPM 4</source>
@@ -6033,14 +6041,12 @@ Vil du gemme ændringer?</translation>
     <message numerus="yes">
         <source>Delete %n selected model(s)?</source>
         <translation>
-            <numerusform>Radera %n vald model?</numerusform>
             <numerusform>Slet de %n valgte modeller?</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Delete %n selected category(ies)?</source>
         <translation>
-            <numerusform>Radera %n vald katagori?</numerusform>
             <numerusform>Slette de %n valgte katagorier?</numerusform>
         </translation>
     </message>
@@ -6433,7 +6439,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Setup</source>
-        <translation>Indstillinger</translation>
+        <translation>Grund indstillinger</translation>
     </message>
     <message>
         <source>Mixes</source>
@@ -7335,39 +7341,39 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>10mW - 16CH</source>
-        <translation>10mW - 16KN</translation>
+        <translation>10mW - 16KA</translation>
     </message>
     <message>
         <source>100mW - 16CH</source>
-        <translation>100mW - 16KN</translation>
+        <translation>100mW - 16KA</translation>
     </message>
     <message>
         <source>500mW - 16CH</source>
-        <translation>500mW - 16KN</translation>
+        <translation>500mW - 16KA</translation>
     </message>
     <message>
         <source>Auto &lt;= 1W - 16CH</source>
-        <translation>Auto &lt;= 1W - 16KN</translation>
+        <translation>Auto &lt;= 1W - 16KA</translation>
     </message>
     <message>
         <source>25mW - 8CH</source>
-        <translation>25mW - 8KN</translation>
+        <translation>25mW - 8KA</translation>
     </message>
     <message>
         <source>25mW - 16CH</source>
-        <translation>25mW - 16KN</translation>
+        <translation>25mW - 16KA</translation>
     </message>
     <message>
         <source>200mW - 16CH (no telemetry)</source>
-        <translation>200mW - 16KN (ingen telemetri)</translation>
+        <translation>200mW - 16KA (ingen telemetri)</translation>
     </message>
     <message>
         <source>500mW - 16CH (no telemetry)</source>
-        <translation>500mW - 16KN (ingen telemetri)</translation>
+        <translation>500mW - 16KA (ingen telemetri)</translation>
     </message>
     <message>
         <source>100mW - 16CH (no telemetry)</source>
-        <translation>100mW - 16KN (ingen telemetri)</translation>
+        <translation>100mW - 16KA (ingen telemetri)</translation>
     </message>
 </context>
 <context>
@@ -7378,7 +7384,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation>Behold senaste</translation>
+        <translation>Behold seneste</translation>
     </message>
     <message>
         <source>No Pulse</source>
@@ -7457,7 +7463,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Curves</source>
-        <translation>Kurve</translation>
+        <translation>Kurver</translation>
     </message>
     <message>
         <source>L%1</source>
@@ -7768,7 +7774,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Radio output power</source>
-        <translation>Radion udgang effekt</translation>
+        <translation>Radio udgangs effekt</translation>
     </message>
     <message>
         <source>Servo output frequency</source>
@@ -8043,6 +8049,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Unable to find Horus radio SD card!</source>
         <translation>Kan ikke finde Horus radio SD kort!</translation>
+    </message>
+    <message>
+        <source>Unable to find radio SD card!</source>
+        <translation>Kan ikke finde radio SD kort!</translation>
     </message>
 </context>
 <context>
@@ -11169,7 +11179,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Select the receiver channel that is connected to your ESC or throttle servo.&lt;br&gt;&lt;br&gt;Throttle - Spektrum: CH1, Futaba: CH3</source>
-        <translation>Vælg den modtager kanal som er forbundet til ESC eller til gas servo.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3</translation>
+        <translation>Vælg den modtager kanal som er forbundet til fartregulator (ESC) eller til gas servo.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KA1, Futaba: KA3</translation>
     </message>
     <message>
         <source>Most aircraft have a main wing and a tail with control surfaces. Flying wings and delta winged aircraft only have a single wing. The main control surface on a standard wing controls the roll of the aircraft. This surface is called an aileron.&lt;br&gt;The control surface of a delta wing controls both roll and pitch. This surface is called an elevon. </source>
@@ -11177,7 +11187,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Models use one or two channels to control the ailerons.&lt;br&gt;A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. If your servos are connected by a Y-cable you should select the single-servo option.&lt;br&gt;&lt;br&gt;Aileron - Spektrum: CH2, Futaba: CH1</source>
-        <translation>Modeller bruger 1 eller 2 kanaler til at kontrollere krængror.&lt;br&gt;Et Y-kabel kan bruges til at sammenkoble 2 servo til en kanal. Anvender du Y-kabel skal du selv ændre til 2 servo, ved at redigere din model.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Modeller bruger 1 eller 2 kanaler til at kontrollere krængror.&lt;br&gt;Et Y-kabel kan bruges til at sammenkoble 2 servo til en kanal. Anvender du Y-kabel skal du selv ændre til 2 servo, ved at redigere din model.&lt;br&gt;&lt;br&gt;Krængeror - Spektrum: KA2, Futaba: KA1</translation>
     </message>
     <message>
         <source>Models use two channels to control the elevons.&lt;br&gt;Select these two channels</source>
@@ -11193,7 +11203,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Select the receiver channel that is connected to your rudder.&lt;br&gt;&lt;br&gt;Rudder - Spektrum: CH4, Futaba: CH4</source>
-        <translation>Angiv kanal til Sideror.&lt;br&gt;&lt;br&gt;Sideror - Spektrum: CH4, Futaba: CH4</translation>
+        <translation>Angiv kanal til Sideror.&lt;br&gt;&lt;br&gt;Sideror - Spektrum: KA4, Futaba: KA4</translation>
     </message>
     <message>
         <source>Select the tail type of your plane.</source>
@@ -11201,11 +11211,11 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Select the Rudder and Elevator channels.&lt;br&gt;&lt;br&gt;Rudder - Spektrum: CH4, Futaba: CH4&lt;br&gt;Elevator - Spektrum: CH3, Futaba: CH2</source>
-        <translation>Angiv kanaler til sideror og højderor.&lt;br&gt;&lt;br&gt;Sideror - Spektrum: CH4, Futaba: CH4&lt;br&gt;Højderor - Spektrum: CH3, Futaba: CH2</translation>
+        <translation>Angiv kanaler til sideror og højderor.&lt;br&gt;&lt;br&gt;Sideror - Spektrum: KA4, Futaba: KA4&lt;br&gt;Højderor - Spektrum: KA3, Futaba: KA2</translation>
     </message>
     <message>
         <source>Select the Elevator channel.&lt;br&gt;&lt;br&gt;Elevator - Spektrum: CH3, Futaba: CH2</source>
-        <translation>Angiv kanal til højderor.&lt;br&gt;&lt;br&gt; Højderor - Spektrum: CH3, Futaba: CH2</translation>
+        <translation>Angiv kanal til højderor.&lt;br&gt;&lt;br&gt; Højderor - Spektrum: KA3, Futaba: KA2</translation>
     </message>
     <message>
         <source>TBD.</source>
@@ -11213,7 +11223,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     </message>
     <message>
         <source>Select the control channels for your multirotor.&lt;br&gt;&lt;br&gt;Throttle - Spektrum: CH1, Futaba: CH3&lt;br&gt;Yaw - Spektrum: CH4, Futaba: CH4&lt;br&gt;Pitch - Spektrum: CH3, Futaba: CH2&lt;br&gt;Roll - Spektrum: CH2, Futaba: CH1</source>
-        <translation>Vælg hvilke kanaler som skal bruges til at kontrollere din Multirotor.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3&lt;br&gt;Sideror - Spektrum: KN4, Futaba: KN4&lt;br&gt;Højderor - Spektrum: KN3, Futaba: KN2&lt;br&gt;Krængeror - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Vælg hvilke kanaler som skal bruges til at kontrollere din Multirotor.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KA1, Futaba: KA3&lt;br&gt;Sideror - Spektrum: KA4, Futaba: KA4&lt;br&gt;Højderor - Spektrum: KA3, Futaba: KA2&lt;br&gt;Krængeror - Spektrum: KA2, Futaba: KA1</translation>
     </message>
     <message>
         <source>There is no help available for the current page.</source>
@@ -11445,35 +11455,35 @@ m2560 for v4.1-kort</translation>
     </message>
     <message>
         <source>Ch2</source>
-        <translation>Kn2</translation>
+        <translation>Ka2</translation>
     </message>
     <message>
         <source>Ch1</source>
-        <translation>Kn1</translation>
+        <translation>Ka1</translation>
     </message>
     <message>
         <source>Ch4</source>
-        <translation>Kn4</translation>
+        <translation>Ka4</translation>
     </message>
     <message>
         <source>Ch6</source>
-        <translation>Kn6</translation>
+        <translation>Ka6</translation>
     </message>
     <message>
         <source>Ch3</source>
-        <translation>Kn3</translation>
+        <translation>Ka3</translation>
     </message>
     <message>
         <source>Ch5</source>
-        <translation>Kn5</translation>
+        <translation>Ka5</translation>
     </message>
     <message>
         <source>Ch7</source>
-        <translation>Kn7</translation>
+        <translation>Ka7</translation>
     </message>
     <message>
         <source>Ch8</source>
-        <translation>Kn8</translation>
+        <translation>Ka8</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -11565,7 +11575,7 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
     </message>
 </context>
 <context>
-    <name>preferencesDialog</name>
+    <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Preferencer</translation>

@@ -141,6 +141,7 @@ class GeneralSettings {
       AUX_SERIAL_CLI,
       AUX_SERIAL_GPS,
       AUX_SERIAL_DEBUG,
+      AUX_SERIAL_SPACEMOUSE,
       AUX_SERIAL_COUNT
     };
 
@@ -238,7 +239,7 @@ class GeneralSettings {
     bool noJitterFilter;
     bool rtcCheckDisable;
     bool keysBacklight;
-    bool rotEncDirection;
+    unsigned int rotEncMode;
     unsigned int imperial;
     char ttsLanguage[TTS_LANGUAGE_LEN + 1];
     int beepVolume;

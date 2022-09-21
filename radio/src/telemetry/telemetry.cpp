@@ -53,8 +53,12 @@
   #include "mlink.h"
 #endif
 
-#if defined(MULTIMODULE) || defined(AFHDS2A) || defined(AFHDS3)
+#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
   #include "flysky_ibus.h"
+#endif
+
+#if defined(INTMODULE_USART)
+#include "intmodule_serial_driver.h"
 #endif
 
 uint8_t telemetryStreaming = 0;
@@ -150,7 +154,7 @@ void telemetryStart()
 {
   if (!telemetryTimer) {
     telemetryTimer =
-        xTimerCreateStatic("Telem", 4 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+        xTimerCreateStatic("Telem", 2 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
                            telemetryTimerCb, &telemetryTimerBuffer);
   }
 
@@ -165,7 +169,7 @@ void telemetryStop()
 {
   if (telemetryTimer) {
     if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
+      /* The timer could not be stopped. */
     }
   }
 }
@@ -173,13 +177,7 @@ void telemetryStop()
 
 void processTelemetryData(uint8_t data)
 {
-#if defined(CROSSFIRE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    processCrossfireTelemetryData(data, EXTERNAL_MODULE);
-    return;
-  }
-#endif
-
+// TODO: move these to new interface
 #if defined(GHOST)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
     processGhostTelemetryData(data);
@@ -194,32 +192,21 @@ void processTelemetryData(uint8_t data)
     return;
   }
 
+// TODO: move these to new interface
 #if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
-    processFlySkyTelemetryData(data, telemetryRxBuffer, telemetryRxBufferCount);
-    return;
-  }
   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
     processMultiTelemetryData(data, EXTERNAL_MODULE);
     return;
   }
 #endif
 
-#if defined(AFHDS2)
-  if(telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
-    processInternalFlySkyTelemetryData(data);
-    return;
+#if defined(PXX1)
+  if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||
+      telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D ||
+      telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
+    processFrskyTelemetryData(data);
   }
 #endif
-
-#if defined(AFHDS3)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_AFHDS3) {
-    afhds3::processTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer, telemetryRxBufferCount, TELEMETRY_RX_PACKET_SIZE);
-    return;
-  }
-#endif
-
-  processFrskyTelemetryData(data);
 }
 
 inline bool isBadAntennaDetected()
@@ -236,82 +223,25 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-#if defined(INTERNAL_MODULE_PXX2)
-static void pollIntPXX2()
+static inline void pollTelemetry(uint8_t module, const etx_module_driver_t* drv, void* ctx)
 {
-  uint8_t frame[PXX2_FRAME_MAXLENGTH];
+  if (!drv || !drv->getByte || !drv->processData) return;
 
-  while (intmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(INTERNAL_MODULE, frame);
-  }
-}
-#endif  
+  uint8_t* rxBuffer = getTelemetryRxBuffer(module);
+  uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
 
-#if defined(PXX2) && defined(EXTMODULE_USART)
-static void pollExtPXX2()
-{
-  uint8_t frame[PXX2_FRAME_MAXLENGTH];
-
-  while (extmoduleFifo.getFrame(frame)) {
-    processPXX2Frame(EXTERNAL_MODULE, frame);
-  }
-}
-#endif  
-
-#if defined(MULTI_PROTOLIST)
-static inline void pollMultiProtolist(uint8_t idx)
-{
-  if ((moduleState[idx].protocol == PROTOCOL_CHANNELS_MULTIMODULE) &&
-      MultiRfProtocols::instance(idx)->isScanning()) {
-    MultiRfProtocols::instance(idx)->scanReply();
-  }
-}
-#endif
-
-static inline void pollIntTelemetry(void (*processData)(uint8_t,uint8_t))
-{
   uint8_t data;
-  if (intmoduleFifo.pop(data)) {
+  if (drv->getByte(ctx, &data) > 0) {
     LOG_TELEMETRY_WRITE_START();
     do {
       telemetryMirrorSend(data);
-      processData(data, INTERNAL_MODULE);
+      drv->processData(ctx, data, rxBuffer, &rxBufferCount);
       LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (intmoduleFifo.pop(data));
-  }  
+    } while (drv->getByte(ctx, &data) > 0);
+  }
 }
 
-#if defined(INTERNAL_MODULE_MULTI)
-static void pollIntMulti()
-{
-  pollIntTelemetry(processMultiTelemetryData);
-#if defined(MULTI_PROTOLIST)
-  pollMultiProtolist(INTERNAL_MODULE);
-#endif
-}
-#endif
-
-#if defined(INTERNAL_MODULE_CRSF)
-static void pollIntCrossfire()
-{
-  pollIntTelemetry(processCrossfireTelemetryData);
-}
-#endif
-
-#if defined(PCBNV14)
-static void processFlySkyTelemetryData(uint8_t data, uint8_t idx)
-{
-  (void)idx;
-  processInternalFlySkyTelemetryData(data);
-}
-
-static void pollIntAFHDS2A()
-{
-  pollIntTelemetry(processFlySkyTelemetryData);
-}
-#endif
-
-static void pollExtTelemetry()
+static inline void pollExtTelemetryLegacy()
 {
   uint8_t data;
   if (telemetryGetByte(&data)) {
@@ -322,57 +252,34 @@ static void pollExtTelemetry()
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (telemetryGetByte(&data));
   }  
-#if defined(MULTI_PROTOLIST)
-  if (isModuleMultimodule(EXTERNAL_MODULE)) {
-    pollMultiProtolist(EXTERNAL_MODULE);
-  }
-#endif
-#if defined(PXX2) && defined(EXTMODULE_USART)
-  if (isModulePXX2(EXTERNAL_MODULE)) {
-    pollExtPXX2();
-  }
-#endif
 }
 
 // TODO: this needs to be rewritten completely
 //   - telemetry polling needs to happen for each enabled module
 void telemetryWakeup()
 {
-  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+#if defined(HARDWARE_INTERNAL_MODULE)
+  auto int_drv = getIntModuleDriver();
+  if (int_drv) pollTelemetry(INTERNAL_MODULE, int_drv, getIntModuleCtx());
+#endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  auto ext_drv = getExtModuleDriver();
+  if (ext_drv) pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx());
+#endif
+                             
   // TODO: needs to be moved to protocol/module init
   //       as-is, it implies only ONE telemetry protocol
   //       enabled at the same time
+  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+
   if (telemetryProtocol != requiredTelemetryProtocol) {
     telemetryInit(requiredTelemetryProtocol);
   }
 
-  // Poll internal modules
-#if defined(INTERNAL_MODULE_PXX2)
-  if (isModuleISRM(INTERNAL_MODULE)) {
-    pollIntPXX2();
-  }
-#endif
-#if defined(INTERNAL_MODULE_MULTI)
-  if (isModuleMultimodule(INTERNAL_MODULE)) {
-    pollIntMulti();
-  }
-#endif
-#if defined(INTERNAL_MODULE_CRSF)
-  if (isModuleCrossfire(INTERNAL_MODULE)) {
-    pollIntCrossfire();
-  }
-#endif
-#if defined(PCBNV14)
-  //! moduleUpdateActive(INTERNAL_MODULE) &&
-  if (isModuleAFHDS2A(INTERNAL_MODULE)) {
-    pollIntAFHDS2A();
-  }
-#endif
-
   // Poll external / S.PORT telemetry
   // TODO: how to switch this OFF ???
-  pollExtTelemetry();
+  pollExtTelemetryLegacy();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];
@@ -435,6 +342,7 @@ void telemetryWakeup()
         if (telemetryState == TELEMETRY_KO) {
           AUDIO_TELEMETRY_BACK();
 #if defined(CROSSFIRE)
+          // TODO: move to crossfire code
           if (isModuleCrossfire(EXTERNAL_MODULE)) {
             moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
           }
@@ -503,29 +411,19 @@ void telemetryInit(uint8_t protocol)
   if (protocol == PROTOCOL_TELEMETRY_FRSKY_D) {
     telemetryPortInit(FRSKY_D_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
   }
-
 #if defined(MULTIMODULE)
-  else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE || protocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS) {
-    // The DIY Multi module always speaks 100000 baud regardless of the telemetry protocol in use
+  else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
+    // The DIY Multi module always speaks 100000 baud regardless of the
+    // telemetry protocol in use
     telemetryPortInit(MULTIMODULE_BAUDRATE, TELEMETRY_SERIAL_8E2);
 #if defined(LUA)
     outputTelemetryBuffer.reset();
 #endif
     telemetryPortSetDirectionInput();
-  }
-  else if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
-    // Spektrum's own small race RX (SPM4648) uses 125000 8N1, use the same since there is no real standard
+  } else if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
+    // Spektrum's own small race RX (SPM4648) uses 125000 8N1, use the same
+    // since there is no real standard
     telemetryPortInit(125000, TELEMETRY_SERIAL_DEFAULT);
-  }
-#endif
-
-#if defined(CROSSFIRE)
-  else if (protocol == PROTOCOL_TELEMETRY_CROSSFIRE) {
-    telemetryPortInit(EXT_CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-#if defined(LUA)
-    outputTelemetryBuffer.reset();
-#endif
-    telemetryPortSetDirectionOutput();
   }
 #endif
 
@@ -542,37 +440,18 @@ void telemetryInit(uint8_t protocol)
 #if defined(AUX_SERIAL)
   else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
     telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
-    // Note: this is done in initSerialPorts()
-    //auxSerialTelemetryInit(PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY);
-  }
-#endif
-
-#if defined(AFHDS3)
-  else if (protocol == PROTOCOL_TELEMETRY_AFHDS3) {
-    telemetryPortInvertedInit(AFHDS3_BAUDRATE);
-    telemetryPortSetDirectionInput();
-  }
-#endif
-
-#if defined(AFHDS2)
-  else if (protocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) {
-    telemetryPortInit(INTMODULE_USART_AFHDS2_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-    telemetryPortSetDirectionInput();
   }
 #endif
   else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
     // soft serial
     telemetryPortInvertedInit(115200);
-  }
-  else {
+  } else {
     telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
 #if defined(LUA)
     outputTelemetryBuffer.reset();
 #endif
   }
-
 }
-
 
 #if defined(LOG_TELEMETRY) && !defined(SIMU)
 extern FIL g_telemetryFile;
@@ -583,7 +462,9 @@ void logTelemetryWriteStart()
   if (lastTime != newTime) {
     struct gtm utm;
     gettime(&utm);
-    f_printf(&g_telemetryFile, "\r\n%4d-%02d-%02d,%02d:%02d:%02d.%02d0:", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+    f_printf(&g_telemetryFile, "\r\n%4d-%02d-%02d,%02d:%02d:%02d.%02d0:",
+             utm.tm_year + TM_YEAR_BASE, utm.tm_mon + 1, utm.tm_mday,
+             utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
     lastTime = newTime;
   }
 }

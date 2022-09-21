@@ -227,6 +227,10 @@ void bootloaderInitApp()
                              AUX2_SERIAL_RCC_APB2Periph,
                          ENABLE);
 
+#if defined(HAVE_BOARD_BOOTLOADER_INIT)
+  boardBootloaderInit();
+#endif
+
   pwrInit();
   keysInit();
 
@@ -248,7 +252,7 @@ void bootloaderInitApp()
     }
   }
 
-#if defined(RADIO_T8) && !defined(RADIOMASTER_RELEASE)
+#if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
   // Bind button not pressed
   if ((~KEYS_GPIO_REG_BIND & KEYS_GPIO_PIN_BIND) == false) {
 #else
@@ -299,6 +303,7 @@ int  bootloaderMain()
 {
   BootloaderState state = ST_START;
   uint32_t vpos = 0;
+  uint32_t radioMenuItem = 0;
   uint8_t index = 0;
   FRESULT fr;
   uint32_t nameCount = 0;
@@ -322,7 +327,8 @@ int  bootloaderMain()
     if (tenms) {
       tenms = 0;
 
-      if (state != ST_USB && state != ST_FLASHING && state != ST_FLASH_DONE) {
+      if (state != ST_USB && state != ST_FLASHING
+          && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
         if (usbPlugged()) {
           state = ST_USB;
           if (!unlocked) {
@@ -358,7 +364,7 @@ int  bootloaderMain()
         bootloaderDrawScreen(state, vpos);
 
         if (event == EVT_KEY_FIRST(KEY_DOWN)) {
-          if (vpos < MAIN_MENU_LEN - 1) { vpos++; }
+          if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
           continue;
         }
         else if (event == EVT_KEY_FIRST(KEY_UP)) {
@@ -378,7 +384,13 @@ int  bootloaderMain()
               break;
 #endif
             default:
-              state = ST_REBOOT;
+              if(vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN-1))
+              {
+                state = ST_RADIO_MENU;
+                radioMenuItem = vpos - MAIN_MENU_LEN - 1;
+              } else {
+                state = ST_REBOOT;
+              }
               break;
           }
 
@@ -513,6 +525,13 @@ int  bootloaderMain()
           state = ST_FLASH_DONE; // Backstop
         }
 #endif
+      } else if (state == ST_RADIO_MENU) {
+        if(bootloaderRadioMenu(radioMenuItem, event))
+        {
+          state = ST_START;
+          vpos = 0;
+          bootloaderDrawScreen(state, vpos);
+        }
       }
 
       if (state == ST_FLASH_DONE) {
@@ -551,16 +570,12 @@ int  bootloaderMain()
     }
 
     if (state == ST_REBOOT) {
-      lcdClear();
-      lcdRefresh();
-      lcdRefreshWait();
-
 #if !defined(SIMU)
 #if defined(RTC_BACKUP_RAM)
       rtcInit();
       RTC->BKP0R = SOFTRESET_REQUEST;
 #endif
-
+      blExit();
       NVIC_SystemReset();
 #else
       exit(1);
@@ -571,6 +586,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if defined(PCBHORUS) || defined(PCBNV14)
+#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14))
 void *__dso_handle = nullptr;
 #endif

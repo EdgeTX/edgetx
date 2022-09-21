@@ -27,6 +27,7 @@
 class RadioMenu: public TabsGroup {
   public:
     RadioMenu();
+    ~RadioMenu();
 };
 
 #endif // _MENU_RADIO_H_

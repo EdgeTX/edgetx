@@ -23,9 +23,8 @@
 #define _PULSES_PXX2_H_
 
 #include "fifo.h"
-#include "io/frsky_pxx2.h"
 #include "popups.h"
-#include "./pxx.h"
+#include "pxx.h"
 
 #include "hal/serial_driver.h"
 #include "hal/module_driver.h"
@@ -424,9 +423,6 @@ PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
 PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
 
-extern ModuleFifo intmoduleFifo;
-extern ModuleFifo extmoduleFifo;
-
 class Pxx2CrcMixin {
   protected:
     void initCrc()
@@ -475,6 +471,8 @@ class Pxx2Pulses: public Pxx2Transport {
     void setupHardwareInfoFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void setupRegisterFrame(uint8_t module);
+
+    void setupBindFrame(uint8_t module);
 
     void setupAccstBindFrame(uint8_t module);
 

@@ -69,6 +69,7 @@ const uint8_t bchout_ar[]  = {
 
 uint8_t channelOrder(uint8_t setup, uint8_t x)
 {
+  if (setup >= sizeof(bchout_ar)) return x;
   return ((*(bchout_ar + setup) >> (6 - (x - 1) * 2)) & 3) + 1;
 }
 
@@ -380,6 +381,12 @@ void generalDefault()
   g_eeGeneral.pwrOnSpeed = 1; // 1 second
 #endif
 
+#if defined(IFLIGHT_RELEASE)
+  g_eeGeneral.splashMode = 3;
+  g_eeGeneral.pwrOnSpeed = 2;
+  g_eeGeneral.pwrOffSpeed = 2;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
@@ -541,6 +548,11 @@ bool inputsMoved()
     sum += getValue(MIXSRC_TILT_X+i) >> INAC_STICKS_SHIFT;
 #endif
 
+#if defined(SPACEMOUSE)
+  for (uint8_t i=0; i<(MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE); i++)
+    sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
+#endif
+
   if (abs((int8_t)(sum-inactivity.sum)) > 1) {
     inactivity.sum = sum;
     return true;
@@ -597,7 +609,7 @@ void resetBacklightTimeout()
   uint16_t autoOff = g_eeGeneral.lightAutoOff;
 #if defined(COLORLCD)
   // prevent the timeout from being 0 seconds on color lcd radios
-  autoOff = std::max<uint16_t>(1, autoOff); 
+  autoOff = std::max<uint16_t>(1, autoOff);
 #endif
   lightOffCounter = (autoOff*250) << 1;
 }
@@ -1760,7 +1772,7 @@ void opentxInit()
 #endif  // #if !defined(EEPROM)
 
   initSerialPorts();
-  
+
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)

@@ -56,7 +56,7 @@ static pixel_t _LCD_BUF1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
 pixel_t* simuLcdBuf = _LCD_BUF1;
-pixel_t* simuLcdBackBuf = _LCD_BUF1;
+pixel_t* simuLcdBackBuf = _LCD_BUF2;
 
 // Copy 2 pixels at once to speed up a little
 static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)

@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-#define MAX_STR 40
+#define MAX_STR 100
 #define MAX_DEPTH 16 // 12 real + 4 virtual
 
 struct YamlParserCalls
@@ -78,7 +78,7 @@ class YamlParser
     // tree iterator state
     const YamlParserCalls* calls;
     void*                  ctx;
-    
+
     // Reset parser state for next line
     void reset();
 
@@ -97,7 +97,7 @@ public:
     YamlParser();
 
     void init(const YamlParserCalls* parser_calls, void* parser_ctx);
-    
+
     YamlResult parse(const char* buffer, unsigned int size);
 
     void set_eof() { eof = true; }

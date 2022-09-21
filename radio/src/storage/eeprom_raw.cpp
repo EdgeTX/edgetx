@@ -450,7 +450,7 @@ const char * eeBackupModel(uint8_t i_fileSrc)
   }
 
   buf[sizeof(MODELS_PATH)-1] = '/';
-  strcpy(strcat_modelname(&buf[sizeof(MODELS_PATH)], i_fileSrc), STR_MODELS_EXT);
+  strcpy(strcat_modelname(&buf[sizeof(MODELS_PATH)], i_fileSrc, 0), STR_MODELS_EXT);
 
   FRESULT result = f_open(&archiveFile, buf, FA_CREATE_ALWAYS | FA_WRITE);
   if (result != FR_OK) {

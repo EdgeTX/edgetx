@@ -42,15 +42,12 @@ ModelSetupPage::ModelSetupPage() :
 {
 }
 
-const char MODEL_NAME_EXTRA_CHARS[] = "_-.,:;<=>";
 
 static void onModelNameChanged()
 {
-  modelslist.load();
   auto model = modelslist.getCurrentModel();
   if (model) {
     model->setModelName(g_model.header.name);
-    modelslist.save();
   }
   SET_DIRTY();
 }
@@ -58,7 +55,7 @@ static void onModelNameChanged()
 struct ModelNameEdit : public ModelTextEdit {
   ModelNameEdit(Window *parent, const rect_t &rect) :
       ModelTextEdit(parent, rect, g_model.header.name,
-                    sizeof(g_model.header.name), 0, MODEL_NAME_EXTRA_CHARS)
+                    sizeof(g_model.header.name), 0)
   {
     setChangeHandler(onModelNameChanged);
   }
@@ -73,6 +70,13 @@ static void setModelBitmap(std::string newValue)
 {
   strncpy(g_model.header.bitmap, newValue.c_str(),
           sizeof(g_model.header.bitmap));
+  g_model.header.bitmap[sizeof(g_model.header.bitmap)-1] = '\0';
+  auto model = modelslist.getCurrentModel();
+  if (model) {
+    strncpy(model->modelBitmap, newValue.c_str(),
+            sizeof(ModelCell::modelBitmap));
+    model->modelBitmap[sizeof(ModelCell::modelBitmap)-1] = '\0';
+  }
   SET_DIRTY();
 }
 
@@ -123,7 +127,7 @@ void SubScreenButton::event_cb(lv_event_t* e)
   auto btn = (SubScreenButton*)lv_obj_get_user_data(obj);
   if (!btn) return;
 
-  lv_event_code_t code = lv_event_get_code(e);  
+  lv_event_code_t code = lv_event_get_code(e);
   if (code == LV_EVENT_DRAW_PART_BEGIN) {
 
     lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
@@ -138,7 +142,7 @@ void SubScreenButton::event_cb(lv_event_t* e)
   } else if (code == LV_EVENT_DRAW_PART_END) {
 
     if (btn->text.empty()) return;
-    
+
     lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
     if (dsc->part != LV_PART_MAIN) return;
 
@@ -234,6 +238,32 @@ void ModelSetupPage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   new ModelNameEdit(line, rect_t{});
 
+  // Model labels
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_LABELS, 0, COLOR_THEME_PRIMARY1);
+  auto curmod = modelslist.getCurrentModel();
+  labelTextButton =
+    new TextButton(line, rect_t{}, modelslabels.getBulletLabelString(curmod ,STR_UNLABELEDMODEL), [=] () {
+       Menu *menu = new Menu(window, true);
+       menu->setTitle(STR_LABELS);
+       for (auto &label: modelslabels.getLabels()) {
+         menu->addLine(label,
+           [=] () {
+             if (!modelslabels.isLabelSelected(label, curmod))
+               modelslabels.addLabelToModel(label, curmod);
+             else
+               modelslabels.removeLabelFromModel(label, curmod);
+             labelTextButton->setText(modelslabels.getBulletLabelString(curmod,STR_UNLABELEDMODEL));
+             strncpy(g_model.header.labels, ModelMap::toCSV(modelslabels.getLabelsByModel(curmod)).c_str(),sizeof(g_model.header.labels));
+             g_model.header.labels[sizeof(g_model.header.labels)-1] = '\0';
+             SET_DIRTY();
+           }, [=] () {
+             return modelslabels.isLabelSelected(label, curmod);
+           });
+       }
+       return 0;
+     });
+
   // Bitmap
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
@@ -256,7 +286,7 @@ void ModelSetupPage::build(FormWindow * window)
   form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   form->padAll(lv_dpx(8));
-  
+
   Window* btn = new IntmoduleButton(form);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
@@ -313,11 +343,11 @@ TimerBtnMatrix::TimerBtnMatrix(Window* parent, const rect_t& r) :
   setText(1, TR_TIMER "2");
   setText(2, TR_TIMER "3");
   update();
-  
+
   lv_btnmatrix_set_btn_width(lvobj, 3, 2);
   lv_obj_set_width(lvobj, lv_pct(100));
   lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
-  
+
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, 0);
   lv_obj_set_style_pad_all(lvobj, lv_dpx(8), 0);
 

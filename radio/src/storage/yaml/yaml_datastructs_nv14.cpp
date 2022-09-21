@@ -84,6 +84,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
   {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
+  {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
@@ -355,6 +356,8 @@ static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
+  YAML_UNSIGNED( "manuallyEdited", 1 ),
+  YAML_PADDING( 7 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 9, struct_CalibData, NULL),
@@ -367,7 +370,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ENUM("antennaMode", 2, enum_AntennaModes),
   YAML_UNSIGNED( "disableRtcWarning", 1 ),
   YAML_UNSIGNED( "keysBacklight", 1 ),
-  YAML_SIGNED( "rotEncDirection", 1 ),
+  YAML_PADDING( 1 ),
   YAML_ENUM("internalModule", 8, enum_ModuleType),
   YAML_STRUCT("trainer", 128, struct_TrainerData, NULL),
   YAML_UNSIGNED( "view", 8 ),
@@ -437,9 +440,11 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("themeName", 8),
   YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
+  YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
+  YAML_UNSIGNED( "rotEncMode", 2 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
-  YAML_PADDING( 3 ),
+  YAML_PADDING( 1 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -451,6 +456,7 @@ static const struct YamlNode struct_ModelHeader[] = {
   YAML_STRING("name", 15),
   YAML_ARRAY("modelId", 8, 2, struct_unsigned_8, NULL),
   YAML_STRING("bitmap", 14),
+  YAML_STRING("labels", 100),
   YAML_END
 };
 static const struct YamlNode struct_TimerData[] = {
@@ -463,6 +469,8 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_UNSIGNED( "minuteBeep", 1 ),
   YAML_UNSIGNED( "persistent", 2 ),
   YAML_SIGNED( "countdownStart", 2 ),
+  YAML_UNSIGNED( "showElapsed", 1 ),
+  YAML_PADDING( 7 ),
   YAML_STRING("name", 8),
   YAML_END
 };
@@ -656,14 +664,10 @@ static const struct YamlNode struct_anonymous_9[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_10[] = {
-  YAML_UNSIGNED( "bindPower", 3 ),
-  YAML_UNSIGNED( "runPower", 3 ),
-  YAML_UNSIGNED( "emi", 1 ),
+  YAML_UNSIGNED( "emi", 2 ),
   YAML_UNSIGNED( "telemetry", 1 ),
-  YAML_UNSIGNED( "failsafeTimeout", 16 ),
-  YAML_ARRAY("rx_freq", 8, 2, struct_unsigned_8, NULL),
-  YAML_UNSIGNED( "mode", 2 ),
-  YAML_UNSIGNED( "reserved", 6 ),
+  YAML_UNSIGNED( "phyMode", 3 ),
+  YAML_UNSIGNED( "reserved", 2 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_11[] = {
@@ -688,7 +692,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("sbus", 16, struct_anonymous_7, NULL),
   YAML_STRUCT("pxx2", 200, struct_anonymous_8, NULL),
   YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
-  YAML_STRUCT("afhds3", 64, struct_anonymous_10, NULL),
+  YAML_STRUCT("afhds3", 8, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
@@ -835,8 +839,8 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 };
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
-  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_UNSIGNED( "telemetryProtocol", 3 ),
   YAML_UNSIGNED( "thrTrim", 1 ),
   YAML_UNSIGNED( "noGlobalFunctions", 1 ),
@@ -887,8 +891,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
-  YAML_STRUCT("header", 248, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 128, 3, struct_TimerData, NULL),
+  YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
+  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
   YAML_END
 };
 

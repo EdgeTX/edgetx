@@ -283,6 +283,7 @@ Node convert<TimerData>::encode(const TimerData& rhs)
   node["persistent"] = rhs.persistent;
   node["countdownStart"] = rhs.countdownStart;
   node["value"] = rhs.pvalue;
+  node["showElapsed"] = rhs.showElapsed;
   return node;
 }
 
@@ -297,6 +298,7 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   node["persistent"] >> rhs.persistent;
   node["countdownStart"] >> rhs.countdownStart;
   node["value"] >> rhs.pvalue;
+  node["showElapsed"] >> rhs.showElapsed;
   return true;
 }
 
@@ -741,6 +743,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   Node header;
   header["name"] = rhs.name;
   header["bitmap"] = rhs.bitmap;
+  header["labels"] = rhs.labels;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
@@ -984,6 +987,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     if (header.IsMap()) {
       header["name"] >> rhs.name;
       header["bitmap"] >> rhs.bitmap;
+      header["labels"] >> rhs.labels;
       header["modelId"] >> modelIds;
     }
   }

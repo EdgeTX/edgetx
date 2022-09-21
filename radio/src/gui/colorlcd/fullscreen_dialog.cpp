@@ -147,7 +147,7 @@ static void run_ui_manually()
 
   RTOS_WAIT_MS(10);
   LvglWrapper::runNested();
-  MainWindow::instance()->run();
+  MainWindow::instance()->run(false);
 }
 
 void FullScreenDialog::runForever()
