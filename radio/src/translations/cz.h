@@ -545,8 +545,8 @@
 #define TR_PRESSANYKEY                 TR("\006Stiskni klávesu", "Stiskni klávesu")
 #define TR_BADEEPROMDATA               TR("\006Chyba dat EEPROM", "Chyba dat EEPROM")
 #define TR_BAD_RADIO_DATA              "Chybná data rádia"
-#define TR_RADIO_DATA_RECOVERED        TR3("Použití zálohy dat vysílače","Použití zálohy dat vysílače","Nastavení vysílače bylo obnoveno ze zálohy")
-#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Neplatné nastavení vysílače","Neplatné nastavení vysílače", "Nelze načíst platné nastavení vysílače")
+#define TR_RADIO_DATA_RECOVERED        TR3("Použití zálohy dat TX","Použití zálohy dat vysílače","Nastavení vysílače bylo obnoveno ze zálohy")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Neplatné nastavení TX","Neplatné nastavení vysílače", "Nelze načíst platné nastavení vysílače")
 #define TR_EEPROMFORMATTING            TR("\004Formatování EEPROM", "Formatování EEPROM")
 #define TR_STORAGE_FORMAT              "Příprava úložiště"
 #define TR_EEPROMOVERFLOW              "Přetekla EEPROM"
@@ -841,11 +841,11 @@
 #define TR_DEVICE_FILE_REJECTED        TR("Zař. soubor odmítnut", "Zařízení-soubor odmítnut")
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Zař. podpis souboru", "Zařízení-neodpovídá podpis")
 #define TR_CURRENT_VERSION             TR("Současná ver. ", "Současná verze: ")
-#define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash vnitřního modulu")
+#define TR_FLASH_INTERNAL_MODULE       TR("Flash vnitř. modulu", "Flash interního modulu")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash int. Multi", "Flash interního modulu Multi")
-#define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externího zařízení")
+#define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. modulu", "Flash externího modulu")
 #define TR_FLASH_EXTERNAL_MULTI        TR("Flash ext. Multi", "Flash externího modulu Multi")
-#define TR_FLASH_EXTERNAL_ELRS         TR("Flash ext. ELRS", "Flash externího ELRS")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Flash ext. ELRS", "Flash externího modulu ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("Chyba zápisu FW", "Chyba zápisu firmware")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Úspěšný zápis FW"
 #define TR_WRITING                     "Zapisuji..."
