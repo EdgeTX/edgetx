@@ -70,9 +70,9 @@ bool UpdateSDCard::flagAssets()
     return false;
   }
 
-  const UpdateParameters::AssetParams & ap = runParams->assets.at(0);
+  const UpdateParameters::AssetParams & ap = params->assets.at(0);
 
-  QRegularExpression filter(runParams->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
+  QRegularExpression filter(params->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
   bool found = false;
   QString sdimage;
 
@@ -101,7 +101,7 @@ bool UpdateSDCard::flagAssets()
   delete json;
 
   if (!found) {
-    reportProgress(tr("Radio flavour %1 not listed in %2").arg(runParams->fwFlavour).arg(mappingfile), QtCriticalMsg);
+    reportProgress(tr("Radio flavour %1 not listed in %2").arg(params->fwFlavour).arg(mappingfile), QtCriticalMsg);
     return false;
   }
 

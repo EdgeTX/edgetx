@@ -200,7 +200,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
     btnOptions[i] = new QPushButton(tr("Options"));
     connect(btnOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, true);
       connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
         QString name = g.component[i].name();
         chkUpdate[i]->setChecked(!factories->isLatestRelease(name));
@@ -275,22 +275,22 @@ void UpdatesDialog::accept()
     if (chkUpdate[i]->isChecked()) {
       cnt++;
       const QString name = it.key();
-      UpdateParameters *runParams = factories->getRunParams(name);
-      runParams->updateRelease = cboUpdateRel[i]->currentText();
-      runParams->flags |= UpdateInterface::UPDFLG_Update;
-      runParams->downloadDir = ui->leDownloadDir->text();
-      runParams->decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
-      runParams->decompressDir = ui->leDecompressDir->text();
-      runParams->updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
-      runParams->updateDir = ui->leUpdateDir->text();
+      UpdateParameters *params = factories->getParams(name);
+      params->updateRelease = cboUpdateRel[i]->currentText();
+      params->flags |= UpdateInterface::UPDFLG_Update;
+      params->downloadDir = ui->leDownloadDir->text();
+      params->decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
+      params->decompressDir = ui->leDecompressDir->text();
+      params->updateDirUseSD = ui->chkUpdateDirUseSD->isChecked();
+      params->updateDir = ui->leUpdateDir->text();
       if (ui->chkDelDownloads->isChecked())
-        runParams->flags |= UpdateInterface::UPDFLG_DelDownloads;
+        params->flags |= UpdateInterface::UPDFLG_DelDownloads;
       else
-        runParams->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+        params->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
       if (ui->chkDelDecompress->isChecked())
-        runParams->flags |= UpdateInterface::UPDFLG_DelDecompress;
+        params->flags |= UpdateInterface::UPDFLG_DelDecompress;
       else
-        runParams->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
+        params->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
     }
   }
 

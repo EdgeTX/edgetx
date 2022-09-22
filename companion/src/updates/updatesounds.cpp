@@ -109,7 +109,7 @@ bool UpdateSounds::flagAssets()
           lang = langVariant.split("-").at(0);
         }
 
-        if (lang == runParams->language) {
+        if (lang == params->language) {
           QStandardItem * item = new QStandardItem();
 
           if (!obj.value("language").isUndefined())
@@ -130,7 +130,7 @@ bool UpdateSounds::flagAssets()
   delete json;
 
   if (langPacks->rowCount() < 1) {
-    reportProgress(tr("Language %1 not listed in %2").arg(runParams->language).arg(pattern), QtCriticalMsg);
+    reportProgress(tr("Language %1 not listed in %2").arg(params->language).arg(pattern), QtCriticalMsg);
     return false;
   }
 
@@ -168,7 +168,7 @@ bool UpdateSounds::flagLanguageAsset(QString lang)
 {
   progressMessage(tr("Flagging assets"));
 
-  runParams->language = lang;
-  UpdateParameters::AssetParams ap = runParams->assets[0];
+  params->language = lang;
+  UpdateParameters::AssetParams ap = params->assets[0];
   return getSetAssets(ap);
 }

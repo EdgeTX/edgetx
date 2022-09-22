@@ -67,8 +67,8 @@ bool UpdateFirmware::asyncInstall()
   if (assets->count() < 1)
     return true;
 
-  if (assets->count() != runParams->assets.at(0).maxExpected) {
-    reportProgress(tr("Expected %1 asset for install but %2 found").arg(runParams->assets.at(0).maxExpected).arg(assets->count()), QtCriticalMsg);
+  if (assets->count() != params->assets.at(0).maxExpected) {
+    reportProgress(tr("Expected %1 asset for install but %2 found").arg(params->assets.at(0).maxExpected).arg(assets->count()), QtCriticalMsg);
     return false;
   }
 
@@ -77,9 +77,9 @@ bool UpdateFirmware::asyncInstall()
   if (!assets->subDirectory().isEmpty())
     destPath.append("/" % assets->subDirectory());
 
-  const UpdateParameters::AssetParams &ap = runParams->assets.at(0);
+  const UpdateParameters::AssetParams &ap = params->assets.at(0);
 
-  QString pattern(runParams->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
+  QString pattern(params->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
   QRegularExpression filter(pattern, QRegularExpression::CaseInsensitiveOption);
 
   QDirIterator it(destPath);

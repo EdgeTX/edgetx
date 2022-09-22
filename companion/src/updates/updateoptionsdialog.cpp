@@ -30,14 +30,17 @@
 #include <QVBoxLayout>
 #include <QTimer>
 
-UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx) :
+UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx, const bool isRun) :
   QDialog(parent),
   ui(new Ui::UpdateOptionsDialog),
   factories(factories),
   idx(idx),
-  name(g.component[idx].name())
+  name(g.component[idx].name()),
+  isRun(isRun)
 {
   ui->setupUi(this);
+
+  params = factories->getParams(name);
 
   setWindowTitle(tr("%1 %2").arg(name).arg(tr("Options")));
 
@@ -48,6 +51,8 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
                              QMessageBox::Yes |QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
       factories->clearRelease(name);
       ui->txtCurrentRelease->setText(factories->currentRelease(name));
+      emit changed(idx);
+
     }
   });
 

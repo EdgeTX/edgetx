@@ -458,7 +458,7 @@ void AppPreferencesDialog::initSettings()
 
     btnComponentOptions[i] = new QPushButton(tr("Options"));
     connect(btnComponentOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i);
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, false);
       dlg->exec();
       dlg->deleteLater();
     });

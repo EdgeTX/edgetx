@@ -124,7 +124,7 @@ class UpdateInterface : public QWidget
 
     ReleasesMetaData *releases;
     AssetsMetaData *assets;
-    UpdateParameters *runParams;
+    UpdateParameters *params;
     ProgressWidget *progress;
 
     QString name;
@@ -165,9 +165,9 @@ class UpdateInterface : public QWidget
     void setReleaseChannel(int channel);
 
     void setParamFolders();
-    UpdateParameters * getRunParams() { return runParams; }
+    UpdateParameters * getParams() { return params; }
     void resetRunEnvironment();
-    void setRunUpdate() { runParams->flags |= UPDFLG_Update; }
+    void setRunUpdate() { params->flags |= UPDFLG_Update; }
     bool isUpdateable();
 
     bool repoReleasesMetaData();
@@ -272,7 +272,7 @@ class UpdateFactories : public QWidget
 
     void initAssetSettings(const QString & name);
 
-    UpdateParameters * const getRunParams(const QString & name);
+    UpdateParameters * const getParams(const QString & name);
     void resetRunEnvironment(const QString & name);
     void resetAllRunEnvironments();
     void setRunUpdate(const QString & name);

@@ -42,8 +42,11 @@ class UpdateOptionsDialog : public QDialog
     Q_OBJECT
 
   public:
-    UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx);
+    UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx, const bool isRun);
     virtual ~UpdateOptionsDialog();
+
+  signals:
+    void changed(int index);
 
   private slots:
     void update();
@@ -53,6 +56,8 @@ class UpdateOptionsDialog : public QDialog
     UpdateFactories *factories;
     const int idx;
     const QString name;
+    const bool isRun;
+    UpdateParameters *params;
 
     QVector<QComboBox *> cboAssetFilterTypes;
     QVector<QLineEdit *> leAssetFilters;
