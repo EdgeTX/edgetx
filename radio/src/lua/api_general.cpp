@@ -742,7 +742,8 @@ static int luaGetSourceValue(lua_State * L)
   {
     lua_pushnil(L);
     lua_pushboolean(L, false);
-    return 2;
+    lua_pushboolean(L, false);
+    return 3;
   }
 
   if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
@@ -766,7 +767,8 @@ static int luaGetSourceValue(lua_State * L)
             if (telemetryItems[qr.quot].cells.count == 0) {
               lua_pushnil(L);
               lua_pushboolean(L, false);
-              return 2;
+              lua_pushboolean(L, false);
+              return 3;
             }
             luaPushCells(L, telemetrySensor, telemetryItems[qr.quot]);
             break;
@@ -780,21 +782,25 @@ static int luaGetSourceValue(lua_State * L)
           break;
       }
       lua_pushboolean(L, !telemetryItems[qr.quot].isOld());
+      lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
     }
     else { // telemetry is not available
       lua_pushnil(L);
+      lua_pushboolean(L, false);
       lua_pushboolean(L, false);
     }
   }
   else if (src == MIXSRC_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
     lua_pushboolean(L, true);
+    lua_pushboolean(L, true);
   }
   else {
     lua_pushinteger(L, value);
     lua_pushboolean(L, true);
+    lua_pushboolean(L, true);
   }
-  return 2;
+  return 3;
 }
 
 /*luadoc
