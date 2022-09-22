@@ -151,7 +151,7 @@
     </message>
     <message>
         <source>Menu Language</source>
-        <translation>Språkinställningar</translation>
+        <translation>Språkinställning</translation>
     </message>
     <message>
         <source>Default Stick Mode</source>
