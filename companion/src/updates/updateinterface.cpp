@@ -378,6 +378,7 @@ void UpdateInterface::resetRunEnvironment()
   progress = nullptr;
 
   runParams->logLevel = g.updLogLevel();
+  setReleaseChannel(g.component[m_settingsIdx].releaseChannel());
   runParams->updateRelease = "";
   setFlavourLanguage();
   loadAssetSettings();
@@ -392,6 +393,12 @@ void UpdateInterface::resetRunEnvironment()
     runParams->flags |= UpdateInterface::UPDFLG_DelDecompress;
   else
     runParams->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
+}
+
+void UpdateInterface::setReleaseChannel(int channel)
+{
+  runParams->releaseChannel = channel;
+  releases->setReleaseChannel(channel);
 }
 
 void UpdateInterface::setFlavourLanguage()
@@ -1489,6 +1496,16 @@ void UpdateFactories::clearRelease(const QString & name)
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (name == factory->name()) {
       factory->instance()->clearRelease();
+      break;
+    }
+  }
+}
+
+void UpdateFactories::setReleaseChannel(const QString & name, int channel)
+{
+  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
+    if (name == factory->name()) {
+      factory->instance()->setReleaseChannel(channel);
       break;
     }
   }

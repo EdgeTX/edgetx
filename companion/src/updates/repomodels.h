@@ -85,17 +85,21 @@ class ReleasesItemModel : public UpdatesItemModel
 
     void setNightlyName(const QString name) { m_nightlyName = name.toLower(); }
     void setSettingsIndex(const int index) { m_settingsIdx = index; }
+    void setReleaseChannel(const int channel);
 
     void parseMetaData(const int mdt, QJsonDocument * json);
     int settingsIndex() { return m_settingsIdx; }
-    bool releaseChannelChanged();
+    bool refreshRequired() { return m_refreshRequired; }
 
   private:
     int m_settingsIdx;
     QString m_nightlyName;
     int m_releaseChannel;
+    bool m_refreshRequired;
 
-    bool isReleaseAvailable(const QString tagname, const bool prerelease);
+    void setDynamicItemData(QStandardItem * item);
+    void update();
+    bool isReleaseAvailable(QStandardItem * item);
 
     void parseRelease();
     void parseReleases();
@@ -209,7 +213,8 @@ class ReleasesMetaData : public QObject
 
     void setRepo(QString repo) { m_repo = repo; }
     void setNightlyName(QString name) { itemModel->setNightlyName(name); }
-    void setSettingsIndex(int index) { itemModel->setSettingsIndex(index); }
+    void setSettingsIndex(const int index) { itemModel->setSettingsIndex(index); }
+    void setReleaseChannel(const int channel) { itemModel->setReleaseChannel(channel); }
 
     void setId(int id) { m_id = id; }
     int id() { return m_id; }

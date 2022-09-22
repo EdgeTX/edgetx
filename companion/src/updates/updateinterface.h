@@ -63,6 +63,7 @@ class UpdateParameters : public QObject
     int logLevel;
     QString fwFlavour;
     QString language;
+    int releaseChannel;
     QString currentRelease;
     QString updateRelease;
     QString downloadDir;
@@ -161,6 +162,7 @@ class UpdateInterface : public QWidget
     void setRepo(QString repo);
     void setResultsPerPage(int cnt) { resultsPerPage = cnt; }
     void setReleasesNightlyName(QString name) { releases->setNightlyName(name); }
+    void setReleaseChannel(int channel);
 
     void setParamFolders();
     UpdateParameters * getRunParams() { return runParams; }
@@ -277,6 +279,7 @@ class UpdateFactories : public QWidget
     const QMap<QString, int> sortedComponentsList(bool updateableOnly = false);
 
     void clearRelease(const QString & name);
+    void setReleaseChannel(const QString & name, int channel);
     const QString currentRelease(const QString & name);
     const QString updateRelease(const QString & name);
     const bool isLatestRelease(const QString & name);

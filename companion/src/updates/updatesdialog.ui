@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>595</width>
-    <height>368</height>
+    <height>385</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -170,16 +170,6 @@
        </spacer>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="styleSheet">
-      <string notr="true">color:red</string>
-     </property>
-     <property name="text">
-      <string>Warning: these settings are for this run only and not saved as defaults</string>
-     </property>
     </widget>
    </item>
    <item>
