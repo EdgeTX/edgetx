@@ -6695,8 +6695,8 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>imgage</source>
-        <translation type="unfinished"></translation>
+        <source>image</source>
+        <translation>bild</translation>
     </message>
 </context>
 <context>
@@ -7505,11 +7505,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open Drain</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Push Pull</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Antenna</source>
@@ -12169,9 +12169,9 @@ Uppdatera nu?</translation>
 Current firmware profile board will be used.
 
 Do you wish to continue?</source>
-        <translation>Varning: Radioinställningsfilen saknar &quot;board entry&quot;!
+        <translation>Varning: Radioinställningsfilen saknar radiotyp!
 
-&quot;Profile board&quot; för nuvarande firmware kommer användas.
+Radiotyp för nuvarande profil kommer användas.
 
 Vill du fortsätta?</translation>
     </message>
@@ -12179,7 +12179,7 @@ Vill du fortsätta?</translation>
         <source>Settings file board (%1) does not match current profile board (%2).
 
 Do you wish to continue?</source>
-        <translation>Inställningens &quot;file board&quot; (%1) matchar inte nuvarande &quot;profile board&quot; (%2).
+        <translation>Radiotyp i vald inställningsfil (%1) matchar inte aktuell profils radiotyp (%2).
 
 Vill du fortsätta?</translation>
     </message>
