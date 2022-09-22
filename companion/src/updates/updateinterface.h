@@ -166,7 +166,7 @@ class UpdateInterface : public QWidget
 
     void setParamFolders();
     UpdateParameters * getParams() { return params; }
-    void resetRunEnvironment();
+    void resetEnvironment();
     void setRunUpdate() { params->flags |= UPDFLG_Update; }
     bool isUpdateable();
 
@@ -271,10 +271,11 @@ class UpdateFactories : public QWidget
     void unregisterUpdateFactories();
 
     void initAssetSettings(const QString & name);
+    void saveAssetSettings(const QString & name);
 
     UpdateParameters * const getParams(const QString & name);
-    void resetRunEnvironment(const QString & name);
-    void resetAllRunEnvironments();
+    void resetEnvironment(const QString & name);
+    void resetAllEnvironments();
     void setRunUpdate(const QString & name);
     const QMap<QString, int> sortedComponentsList(bool updateableOnly = false);
 

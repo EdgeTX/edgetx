@@ -371,7 +371,7 @@ bool UpdateInterface::isUpdateable()
   return g.component[m_settingsIdx].checkForUpdate();
 }
 
-void UpdateInterface::resetRunEnvironment()
+void UpdateInterface::resetEnvironment()
 {
   //  reset from previous run if any
   params->flags &= ~UPDFLG_Update;
@@ -1439,6 +1439,16 @@ void UpdateFactories::initAssetSettings(const QString & name)
   }
 }
 
+void UpdateFactories::saveAssetSettings(const QString & name)
+{
+  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
+    if (name == factory->name()) {
+      factory->instance()->saveAssetSettings();
+      break;
+    }
+  }
+}
+
 UpdateParameters * const UpdateFactories::getParams(const QString & name)
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
@@ -1451,20 +1461,20 @@ UpdateParameters * const UpdateFactories::getParams(const QString & name)
   return nullptr;
 }
 
-void UpdateFactories::resetRunEnvironment(const QString & name)
+void UpdateFactories::resetEnvironment(const QString & name)
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (name == factory->name()) {
-      factory->instance()->resetRunEnvironment();
+      factory->instance()->resetEnvironment();
       break;
     }
   }
 }
 
-void UpdateFactories::resetAllRunEnvironments()
+void UpdateFactories::resetAllEnvironments()
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    resetRunEnvironment(factory->name());
+    resetEnvironment(factory->name());
   }
 }
 

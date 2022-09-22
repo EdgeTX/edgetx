@@ -318,5 +318,6 @@ void UpdatesDialog::saveAsDefaults()
     it.next();
     int i = it.value();
     g.component[i].releaseChannel((ComponentData::ReleaseChannel)cboRelChannel[i]->currentIndex());
+    factories->saveAssetSettings(it.key());
   }
 }

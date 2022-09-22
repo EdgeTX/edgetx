@@ -40,6 +40,8 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
 {
   ui->setupUi(this);
 
+  if (!isRun) factories->resetEnvironment(name);
+
   params = factories->getParams(name);
 
   setWindowTitle(tr("%1 %2").arg(name).arg(tr("Options")));
@@ -58,9 +60,11 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
 
   QVBoxLayout *grpAssetsLayout = new QVBoxLayout();
 
-  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[idx].asset[i].existsOnDisk(); i++) {
-    int processes = g.component[idx].asset[i].processes();
-    int flags = g.component[idx].asset[i].flags();
+  for (int i = 0; i < params->assets.size(); i++) {
+    const UpdateParameters::AssetParams & ap = params->assets.at(i);
+
+    int processes = ap.processes;
+    int flags = ap.flags;
     const bool locked = flags & UpdateInterface::UPDFLG_Locked;
 
     QHBoxLayout *layout1 = new QHBoxLayout();
@@ -225,40 +229,31 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
   ui->grpAssets->setLayout(grpAssetsLayout);
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
-    for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[idx].asset[i].existsOnDisk(); i++) {
-      ComponentAssetData &cad = g.component[idx].asset[i];
+    for (int i = 0; i < params->assets.size(); i++) {
+      UpdateParameters::AssetParams & ap = params->assets[i];
 
-      int flags = cad.flags();
+      int flags = ap.flags;
 
       if (!(flags & UpdateInterface::UPDFLG_Locked)) {
-        cad.filterType(cboAssetFilterTypes.at(i)->currentIndex());
-        cad.filter(leAssetFilters.at(i)->text());
-        cad.maxExpected(sbMaxExpects.at(i)->value());
-        cad.copyFilterType(cboCopyFilterTypes.at(i)->currentIndex());
-        cad.copyFilter(leCopyFilters.at(i)->text());
-        cad.destSubDir(leSubFolders.at(i)->text());
+        ap.filterType = (UpdateParameters::UpdateFilterType)cboAssetFilterTypes.at(i)->currentIndex();
+        ap.filter = leAssetFilters.at(i)->text();
+        ap.maxExpected = sbMaxExpects.at(i)->value();
+        ap.copyFilterType = (UpdateParameters::UpdateFilterType)cboCopyFilterTypes.at(i)->currentIndex();
+        ap.copyFilter = leCopyFilters.at(i)->text();
+        ap.destSubDir = leSubFolders.at(i)->text();
       }
 
       chkDownloads.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_Download : flags &= ~UpdateInterface::UPDFLG_Download;
       chkDecompresses.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_Decompress : flags &= ~UpdateInterface::UPDFLG_Decompress;
       chkInstalls.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_AsyncInstall : flags &= ~UpdateInterface::UPDFLG_AsyncInstall;
       chkCopies.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_CopyDest : flags &= ~UpdateInterface::UPDFLG_CopyDest;
-      cad.flags(flags);
+      ap.flags = flags;
     }
     QDialog::accept();
   });
 
   connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
     QDialog::reject();
-  });
-
-  connect(ui->buttonBox, &QDialogButtonBox::clicked, [=](QAbstractButton * button) {
-    if (ui->buttonBox->standardButton(button) == QDialogButtonBox::RestoreDefaults) {
-      factories->initAssetSettings(name);
-      update();
-    }
-    //else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Ok) {
-    //}
   });
 
   update();
@@ -275,24 +270,24 @@ UpdateOptionsDialog::~UpdateOptionsDialog()
 
 void UpdateOptionsDialog::update()
 {
-  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[idx].asset[i].existsOnDisk(); i++) {
-    const ComponentAssetData &cad = g.component[idx].asset[i];
-    cboAssetFilterTypes.at(i)->setCurrentIndex(cad.filterType());
-    leAssetFilters.at(i)->setText(cad.filter());
+  for (int i = 0; i < params->assets.size(); i++) {
+    const UpdateParameters::AssetParams & ap = params->assets.at(i);
+    cboAssetFilterTypes.at(i)->setCurrentIndex(ap.filterType);
+    leAssetFilters.at(i)->setText(ap.filter);
 
-    sbMaxExpects.at(i)->setValue(cad.maxExpected());
+    sbMaxExpects.at(i)->setValue(ap.maxExpected);
 
-    chkDownloads.at(i)->setChecked(cad.flags() & UpdateInterface::UPDFLG_Download);
+    chkDownloads.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Download);
 
-    chkDecompresses.at(i)->setChecked(cad.flags() & UpdateInterface::UPDFLG_Decompress);
+    chkDecompresses.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Decompress);
 
     chkCopies.at(i)->setChecked(!chkCopies.at(i)->isChecked());
-    chkCopies.at(i)->setChecked(cad.flags() & UpdateInterface::UPDFLG_CopyDest);
+    chkCopies.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_CopyDest);
     cboCopyFilterTypes.at(i)->setCurrentIndex(-1);
-    cboCopyFilterTypes.at(i)->setCurrentIndex(cad.copyFilterType());
-    leCopyFilters.at(i)->setText(cad.copyFilter());
-    leSubFolders.at(i)->setText(cad.destSubDir());
+    cboCopyFilterTypes.at(i)->setCurrentIndex(ap.copyFilterType);
+    leCopyFilters.at(i)->setText(ap.copyFilter);
+    leSubFolders.at(i)->setText(ap.destSubDir);
 
-    chkInstalls.at(i)->setChecked(cad.flags() & UpdateInterface::UPDFLG_AsyncInstall);
+    chkInstalls.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_AsyncInstall);
   }
 }

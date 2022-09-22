@@ -65,7 +65,7 @@ void Updates::autoUpdates(bool interactive)
 
   g.lastUpdateCheck(QDateTime::currentDateTime().toString(Qt::ISODate));
 
-  factories->resetAllRunEnvironments();
+  factories->resetAllEnvironments();
 
   QStringList list;
 
@@ -96,7 +96,7 @@ void Updates::manualUpdates()
     return;
   }
 
-  factories->resetAllRunEnvironments();
+  factories->resetAllEnvironments();
 
   UpdatesDialog *dlg = new UpdatesDialog(this, factories);
   dlg->deleteLater();
