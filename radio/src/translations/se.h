@@ -53,7 +53,7 @@
 #define TR_VLCD                         "Normal","Optrex"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                     "Fråga",TR("Joyst","Joystick"),TR("SD-kort","SD-kortlagring"),"Seriell"
+#define TR_USBMODES                     "Fråga","Joystick",TR("SD-kort","SD-kortlagring"),"Seriell"
 #define TR_JACK_MODES                   "Fråga","Audio","Lärare"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.Port","FrSky D","FrSky D (sladd)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 #define TR_SBUS_INVERSION_VALUES        "normal","ej inverterad"
@@ -171,7 +171,7 @@
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
-#define TR_SF_SET_SCREEN                "Set Main Screen"
+#define TR_SF_SET_SCREEN                "Sätt huvudskärm"
 #define TR_SF_RESERVE                   "[reserv]"
 
 #define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Nollställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Module bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
@@ -373,8 +373,8 @@
 #define TR_MIXNAME                      TR("Namn","Mixernamn")
 #define TR_INPUTNAME                    TR("Input","Inputnamn")
 #define TR_EXPONAME                     TR("Namn","Radnamn")
-#define TR_BITMAP                       "Modellikon"
 #define TR_NO_PICTURE                   "Ingen bild"
+#define TR_BITMAP                       "Modellikon"
 #define TR_TIMER                        TR("Timer","Timer ")
 #define TR_START                        "Start"
 #define TR_ELIMITS                      TR("Gränser++","Utökade gränser")
@@ -453,7 +453,7 @@
 #define TR_LENGTH                       "Tid"
 #define TR_BEEP_LENGTH                  "Piplängd"
 #define TR_BEEP_PITCH                   "Pipton"
-#define TR_HAPTIC_LABEL                 "Vibrator"
+#define TR_HAPTIC_LABEL                 "Vibration"
 #define TR_STRENGTH                     "Styrka"
 #define TR_IMU_LABEL                    "IMU"
 #define TR_IMU_OFFSET                   "Offset"
@@ -500,7 +500,7 @@
 #define TR_SLIDERWARNING                TR(INDENT "Regl. pos.", INDENT "Reglagepositioner")
 #define TR_POTWARNING                   TR(INDENT "Vredläge", INDENT "Vredlägen")
 #define TR_TIMEZONE                     "Tidszon"
-#define TR_ADJUST_RTC                   "Ändra RTC"
+#define TR_ADJUST_RTC                   "Justera RTC"
 #define TR_GPS                          "GPS"
 #define TR_RXCHANNELORD                 TR("Kanalordn. RX","Kanalordning i RX")
 #define TR_STICKS                       "Spakar"
@@ -679,7 +679,7 @@
 #define TR_NEW_MODEL                    "Ny modell"
 #define TR_INVALID_MODEL                "Ogiltig modell"
 #define TR_EDIT_LABELS                  "Redigera etiketter"
-#define TR_MOVE_UP                      "Flytta uppp"
+#define TR_MOVE_UP                      "Flytta upp"
 #define TR_MOVE_DOWN                    "Flytta ner"
 #define TR_ENTER_LABEL                  "Ange etikett"
 #define TR_LABEL                        "Etikett"
