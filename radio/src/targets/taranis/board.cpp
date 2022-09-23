@@ -171,7 +171,9 @@ void boardInit()
 
 #if defined(STATUS_LEDS)
   ledInit();
-#if defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TX12)
+#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
+    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
+    defined(RADIO_ZORRO)
   ledBlue();
 #else
   ledGreen();

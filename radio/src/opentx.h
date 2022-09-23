@@ -890,9 +890,10 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
   #define LED_ERROR_BEGIN()            ledRed()
 // Green is preferred "ready to use" color for these radios
 #if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
-    defined(RADIO_TPRO) || defined(RADIO_TX12)
-  #define LED_ERROR_END()              ledGreen()
-  #define LED_BIND()                   ledBlue()
+    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
+    defined(RADIO_ZORRO)
+#define LED_ERROR_END() ledGreen()
+#define LED_BIND() ledBlue()
 #else
 // Either green is not an option, or blue is preferred "ready to use" color
   #define LED_ERROR_END()              ledBlue()
