@@ -27,8 +27,8 @@ set(GUI_SRC
   lz4_bitmaps.cpp
   theme.cpp
   theme_manager.cpp
-  color_editor_popup.cpp
   color_editor.cpp
+  color_picker.cpp
   color_list.cpp
   preview_window.cpp
   file_browser.cpp
@@ -67,6 +67,7 @@ set(GUI_SRC
   model_outputs.cpp
   model_curves.cpp
   model_gvars.cpp
+  model_templates.cpp
   model_logical_switches.cpp
   special_functions.cpp
   model_telemetry.cpp
@@ -77,6 +78,7 @@ set(GUI_SRC
   radio_trainer.cpp
   radio_version.cpp
   hw_intmodule.cpp
+  hw_extmodule.cpp
   hw_inputs.cpp
   hw_serial.cpp
   radio_hardware.cpp
@@ -206,6 +208,7 @@ add_gui_src(input_mix_group.cpp)
 add_gui_src(input_mix_button.cpp)
 add_gui_src(channel_bar.cpp)
 
+add_gui_src(list_line_button.cpp)
 add_gui_src(lvgl_widgets/input_mix_line.c)
 add_gui_src(lvgl_widgets/input_mix_group.c)
 

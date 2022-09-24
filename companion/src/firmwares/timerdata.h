@@ -32,6 +32,7 @@ constexpr char AIM_TIMER_COUNTDOWNBEEP[]  {"timerdata.countdownBeep"};
 constexpr char AIM_TIMER_COUNTDOWNSTART[] {"timerdata.countdownStart"};
 constexpr char AIM_TIMER_PERSISTENT[]     {"timerdata.persistent"};
 constexpr char AIM_TIMER_MODE[]           {"timerdata.mode"};
+constexpr char AIM_TIMER_SHOWELAPSED[]    {"timerdata.showElapsed"};
 
 constexpr int TIMER_NAME_LEN {8};
 
@@ -74,6 +75,12 @@ class TimerData {
       TIMERMODE_MAX = TIMERMODE_COUNT - 1
     };
 
+  enum TimerShowDirection {
+    TIMER_SHOW_REMAINING,
+    TIMER_SHOW_ELAPSED,
+    TIMER_SHOW_COUNT
+  };
+
     TimerData() { clear(); }
 
     RawSwitch    swtch;
@@ -85,6 +92,7 @@ class TimerData {
     unsigned int persistent;
     int          countdownStart;
     int          pvalue;
+    unsigned int showElapsed;
 
     void convert(RadioDataConversionState & cstate);
     void clear();
@@ -97,6 +105,8 @@ class TimerData {
     QString pvalueToString() const;
     QString valToString() const;
     QString modeToString() const;
+    QString showElapsedToString() const;
+
     void countdownBeepChanged();
     void modeChanged();
 
@@ -106,9 +116,10 @@ class TimerData {
     static QString pvalueToString(const int value);
     static QString valToString(const int value);
     static QString modeToString(const int value);
+    static QString showElapsedToString(const unsigned int value);
     static AbstractStaticItemModel * countdownBeepItemModel();
     static AbstractStaticItemModel * countdownStartItemModel();
     static AbstractStaticItemModel * persistentItemModel();
     static AbstractStaticItemModel * modeItemModel();
-
+    static AbstractStaticItemModel * showElapsedItemModel();
 };

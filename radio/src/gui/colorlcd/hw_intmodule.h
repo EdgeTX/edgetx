@@ -32,8 +32,10 @@ class InternalModuleWindow : public FormGroup::Line
   uint8_t lastModule = 0;
   lv_obj_t* br_box = nullptr;
 
+#if defined(CROSSFIRE)
   static int getBaudrate();
   static void setBaudrate(int val);
+#endif
 
   void setModuleType(int moduleType);
   void updateBaudrateLine();

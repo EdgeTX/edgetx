@@ -174,18 +174,22 @@ class MixLineButton : public InputMixButton
 {
  public:
   MixLineButton(Window* parent, uint8_t index);
-  void paint(BitmapBuffer* dc) override;
+
   void deleteLater(bool detach = true, bool trash = true) override;
+  void refresh() override;
 
  protected:
-  size_t getLines() const override;
   bool isActive() const override { return isMixActive(index); }
 };
 
 static void mix_draw_mplex(lv_event_t* e)
 {
+  auto target = (lv_obj_t*)lv_event_get_target(e);
+  auto group = (InputMixGroup*)lv_obj_get_user_data(target);
+  uint32_t offset = group->mixerMonitorEnabled() ? 1 : 0;
+  
   auto obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (!obj || (lv_obj_get_index(obj) <= 1)) return;
+  if (!obj || (lv_obj_get_index(obj) <= offset)) return;
 
   auto btn = (MixLineButton*)lv_obj_get_user_data(obj);
   if (!btn) return;
@@ -249,94 +253,56 @@ void MixLineButton::deleteLater(bool detach, bool trash)
   InputMixButton::deleteLater(detach, trash);
 }
 
-size_t MixLineButton::getLines() const
-{
-  size_t lines = 1;
-  const MixData* mix = mixAddress(index);
-
-  uint8_t delayslow = 0;
-  if (mix->speedDown || mix->speedUp) delayslow = 1;
-  if (mix->delayUp || mix->delayDown) delayslow += 2;
-
-  if (mix->flightModes || mix->name[0] || delayslow) {
-    lines += 1;
-  }
-
-  return lines;
-}
-
-void MixLineButton::paint(BitmapBuffer* dc)
+void MixLineButton::refresh()
 {
   const MixData& line = g_model.mixData[index];
-  LcdFlags textColor = COLOR_THEME_SECONDARY1;
+  setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
+  setSource(line.srcRaw);
 
-  coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-  coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
-  coord_t pad_right = lv_obj_get_style_pad_right(lvobj, LV_PART_MAIN);
+  char tmp_str[64];
+  size_t maxlen = sizeof(tmp_str);
 
-  coord_t left = pad_left + border;
-  coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
-    + getFontHeight(FONT(STD));
+  char *s = tmp_str;
+  *s = '\0';
 
-#if LCD_W > LCD_H
-  const coord_t pad = 42;
-#else
-  const coord_t pad = 0;
-#endif
-  
-  // first line ...
-  coord_t y = 0;
-  y += border;
-  y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
+  if (line.name[0]) {
+    int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
+    if (cnt >= maxlen) maxlen = 0;
+    else { maxlen -= cnt; s += cnt; }
+  }
 
-  coord_t x = left;
-  drawValueOrGVar(dc, x, y, line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, textColor);
-  x += 46 + pad;
-
-  drawSource(dc, x, y, line.srcRaw, textColor);
-  x += 60 + pad;
-
-  // second line ...
   if (line.swtch || line.curve.value) {
     if (line.swtch) {
-      if (pad) dc->drawMask(x - 20, y, mixerSetupSwitchIcon, textColor);
-      drawSwitch(dc, x, y, line.swtch, textColor);
+      char* sw_pos = getSwitchPositionName(line.swtch);
+      int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
+      if (cnt >= maxlen) maxlen = 0;
+      else { maxlen -= cnt; s += cnt; }
     }
-    x += 44 + pad;
-    if (line.curve.value) {
-      if (pad) dc->drawMask(x - 20, y, mixerSetupCurveIcon, textColor);
-      drawCurveRef(dc, x, y, line.curve, textColor);
-    }
-    // x += 48 + pad;
-  }
-
-  uint8_t delayslow = 0;
-  if (line.speedDown || line.speedUp) delayslow = 1;
-  if (line.delayUp || line.delayDown) delayslow += 2;
-
-  if (line.flightModes || line.name[0] || delayslow) {
-    y += line_h;
-    x = left;
-
-    if (line.flightModes) {
-      drawFlightModes(dc, line.flightModes, textColor, x, y);
-    }
-    x += 104 + 3*pad/2;
-
-    if (line.name[0]) {
-      dc->drawMask(x, y, mixerSetupLabelIcon, textColor);
-      dc->drawSizedText(x + 20, y, line.name, sizeof(line.name), textColor);
-    }
-
-    if (delayslow) {
-      BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
-                                      mixerSetupDelaySlowIcon};
-      const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
-      coord_t w = lv_obj_get_width(lvobj);
-      w -= mask->width();
-      dc->drawMask(w - border - pad_right, y, mask, textColor);
+    if (line.curve.value != 0) {
+      getCurveRefString(s, maxlen, line.curve);
+      int cnt = strnlen(s, maxlen);
+      if (cnt >= maxlen) maxlen = 0;
+      else { maxlen -= cnt; s += cnt; }
     }
   }
+  lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
+
+  setFlightModes(line.flightModes);
+
+  // TODO: should we add these? then it would be best to have them in the font...
+  //
+  // uint8_t delayslow = 0;
+  // if (line.speedDown || line.speedUp) delayslow = 1;
+  // if (line.delayUp || line.delayDown) delayslow += 2;
+
+  // if (delayslow) {
+  //   BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
+  //                                   mixerSetupDelaySlowIcon};
+  //   const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
+  //   coord_t w = lv_obj_get_width(lvobj);
+  //   w -= mask->width();
+  //   dc->drawMask(w - border - pad_right, y, mask, textColor);
+  // }
 }
 
 ModelMixesPage::ModelMixesPage() :
@@ -358,13 +324,15 @@ InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
 InputMixGroup* ModelMixesPage::createGroup(FormGroup* form, mixsrc_t src)
 {
   auto group = new InputMixGroup(form, src);
-  group->addMixerMonitor(src - MIXSRC_CH1);
+  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_CH1);
   return group;
 }
 
 InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t index)
 {
   auto button = new MixLineButton(group, index);
+  button->refresh();
+
   lines.emplace_back(button);
   group->addLine(button);
 
@@ -537,15 +505,29 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 
 void ModelMixesPage::build(FormWindow * window)
 {
+  scroll_win = window->getParent();
   window->setFlexLayout();
   window->padRow(lv_dpx(8));
-  
+
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout();
-  form->padRow(lv_dpx(8));
+  form->padRow(lv_dpx(4));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));
+
+  auto box = new FormGroup(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  box->padLeft(lv_dpx(8));
+
+  auto box_obj = box->getLvObj();
+  lv_obj_set_width(box_obj, lv_pct(100));
+  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(box, rect_t{}, "Show mixer monitors", 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(
+      box, rect_t{}, [=]() { return showMonitors; },
+      [=](uint8_t val) { enableMonitors(val); });
 
   auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
     newMix();
@@ -553,6 +535,7 @@ void ModelMixesPage::build(FormWindow * window)
   });
   auto btn_obj = btn->getLvObj();
   lv_obj_set_width(btn_obj, lv_pct(100));
+  lv_group_focus_obj(btn_obj);
 
   groups.clear();
   lines.clear();
@@ -580,3 +563,24 @@ void ModelMixesPage::build(FormWindow * window)
   }
 }
 
+void ModelMixesPage::enableMonitors(bool enabled)
+{
+  if (showMonitors == enabled) return;
+  showMonitors = enabled;
+
+  auto form_obj = form->getLvObj();
+  auto h = lv_obj_get_height(form_obj);
+  for(auto* group : groups) {
+    if (enabled) {
+      group->enableMixerMonitor(group->getMixSrc() - MIXSRC_CH1);
+    } else {
+      group->disableMixerMonitor();
+    }
+  }
+
+  lv_obj_update_layout(form_obj);
+  auto diff = h - lv_obj_get_height(form_obj);
+  auto scroll_obj = scroll_win->getLvObj();
+  lv_obj_scroll_by_bounded(scroll_obj, 0, diff, LV_ANIM_OFF);
+  TRACE("diff = %d", diff);
+}

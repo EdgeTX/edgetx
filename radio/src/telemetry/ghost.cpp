@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "ghost.h"
+#include "ghost_menu.h"
+
 #include "opentx.h"
 #include "aux_serial_driver.h"
 

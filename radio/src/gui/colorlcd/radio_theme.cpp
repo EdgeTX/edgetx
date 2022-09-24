@@ -30,7 +30,6 @@
 #include "widget_settings.h"
 #include "sliders.h"
 #include "color_list.h"
-#include "color_editor_popup.h"
 #include "color_editor.h"
 #include "listbox.h"
 #include "preview_window.h"
@@ -182,7 +181,6 @@ public:
       for (auto i = 0; i < (int) _tabs.size(); i++)
         _tabs[i]->check(i == _activeTab);
       _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
-      onKeyPress();
     }
   }
 

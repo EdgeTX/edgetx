@@ -43,6 +43,21 @@ static std::function<void(uint32_t)> timerValueUpdater(uint8_t timer)
     };
 }
 
+static void timer_start_changed(lv_event_t* e)
+{
+  lv_obj_t* target = lv_event_get_target(e);
+  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
+  auto val = (TimeEdit*)lv_obj_get_user_data(target);
+
+  if (!obj || !val) return;
+
+  if (val->getValue() > 0) {
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 {
   std::string title = std::string(STR_TIMER) + std::to_string(timer + 1);
@@ -74,8 +89,21 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   // Timer start value
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_START, 0, COLOR_THEME_PRIMARY1);
-  new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
-               timerValueUpdater(timer));
+  auto timerValue =
+      new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
+                   timerValueUpdater(timer));
+
+  // Timer direction
+  auto timerDirLine = form->newLine(&grid);
+  new StaticText(timerDirLine, rect_t{}, STR_LIMITS_HEADERS_DIRECTION, 0,
+                 COLOR_THEME_PRIMARY1);
+  new Choice(timerDirLine, rect_t{}, STR_TIMER_DIR, 0, 1,
+             GET_SET_DEFAULT(p_timer->showElapsed));
+
+  if (timerValue->getValue() == 0) {
+    auto obj = timerDirLine->getLvObj();
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+  }
 
   // Timer minute beep
   line = form->newLine(&grid);
@@ -88,7 +116,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
-  
+
   new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
              COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
   new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
@@ -100,4 +128,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 
   new Choice(line, rect_t{}, STR_VPERSISTENT, 0, 2,
              GET_SET_DEFAULT(p_timer->persistent));
+
+  lv_obj_add_event_cb(timerValue->getLvObj(), timer_start_changed,
+                      LV_EVENT_VALUE_CHANGED, timerDirLine->getLvObj());
 }

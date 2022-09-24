@@ -62,6 +62,9 @@ static const char * const options[] = {
 #if defined(INTERNAL_GPS)
   "internalgps",
 #endif
+#if defined(SPACEMOUSE)
+  "spacemouse",
+#endif
 #if defined(INTERNAL_MODULE_PPM)
   "internalppm",
 #endif
@@ -106,6 +109,7 @@ static const char * const options[] = {
 #endif
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
+    "cli",
 #endif
   nullptr //sentinel
 };

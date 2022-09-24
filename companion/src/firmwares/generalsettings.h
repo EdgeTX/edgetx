@@ -41,6 +41,7 @@ constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
 constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
 constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
 constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
+constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
@@ -140,6 +141,7 @@ class GeneralSettings {
       AUX_SERIAL_CLI,
       AUX_SERIAL_GPS,
       AUX_SERIAL_DEBUG,
+      AUX_SERIAL_SPACEMOUSE,
       AUX_SERIAL_COUNT
     };
 
@@ -151,6 +153,12 @@ class GeneralSettings {
       SP_AUX2,
       SP_VCP,
       SP_COUNT,
+    };
+
+    enum UartSampleMode {
+      UART_SAMPLE_MODE_NORMAL,
+      UART_SAMPLE_MODE_ONEBIT,
+      UART_SAMPLE_MODE_COUNT
     };
 
     GeneralSettings() { clear(); }
@@ -231,7 +239,7 @@ class GeneralSettings {
     bool noJitterFilter;
     bool rtcCheckDisable;
     bool keysBacklight;
-    bool rotEncDirection;
+    unsigned int rotEncMode;
     unsigned int imperial;
     char ttsLanguage[TTS_LANGUAGE_LEN + 1];
     int beepVolume;
@@ -274,6 +282,7 @@ class GeneralSettings {
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;
     QString internalModuleBaudrateToString() const;
+    QString uartSampleModeToString() const;
 
     static QString antennaModeToString(int value);
     static QString bluetoothModeToString(int value);
@@ -281,9 +290,12 @@ class GeneralSettings {
     static QString moduleBaudrateToString(int value);
     static FieldRange getPPM_MultiplierRange();
     static FieldRange getTxCurrentCalibration();
+    static QString uartSampleModeToString(int value);
+
     static AbstractStaticItemModel * antennaModeItemModel();
     static AbstractStaticItemModel * bluetoothModeItemModel();
     static AbstractStaticItemModel * serialModeItemModel(int port_nr);
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
     static AbstractStaticItemModel * stickDeadZoneItemModel();
+    static AbstractStaticItemModel * uartSampleModeItemModel();
 };

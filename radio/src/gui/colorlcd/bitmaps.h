@@ -51,7 +51,6 @@ extern BitmapBuffer * mixerSetupAddBitmap;
 extern BitmapBuffer * mixerSetupMultiBitmap;
 extern BitmapBuffer * mixerSetupReplaceBitmap;
 extern BitmapBuffer * mixerSetupLabelIcon;
-extern BitmapBuffer * mixerSetupFlightmodeIcon;
 extern BitmapBuffer * mixerSetupCurveIcon;
 extern BitmapBuffer * mixerSetupSwitchIcon;
 extern BitmapBuffer * mixerSetupDelayIcon;

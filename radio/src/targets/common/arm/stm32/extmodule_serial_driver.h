@@ -30,13 +30,4 @@
 void extmoduleFifoReceive(uint8_t data);
 void extmoduleFifoError();
 
-// void extmoduleSerialStart();
-// void extmoduleInvertedSerialStart(uint32_t baudrate);
-// void extmoduleSendBuffer(const uint8_t * data, uint8_t size);
-// void extmoduleSendNextFrame();
-
-#if defined(PXX1)
-void extmodulePxx1SerialStart();
-#endif
-
 extern const etx_serial_driver_t ExtmoduleSerialDriver;

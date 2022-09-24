@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
+    <width>531</width>
     <height>571</height>
    </rect>
   </property>
@@ -471,7 +471,7 @@ If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
           </size>
          </property>
          <property name="text">
-          <string>imgage</string>
+          <string>image</string>
          </property>
         </widget>
        </item>

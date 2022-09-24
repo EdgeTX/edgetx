@@ -389,6 +389,11 @@ enum DebugTimers {
   debugTimerAudioIterval,
   debugTimerAudioDuration,
   debugTimerAudioConsume,
+  debugTimerYamlScan,
+
+#if defined(SPACEMOUSE)
+  debugTimerSpacemouseWakeup,
+#endif
 
   DEBUG_TIMERS_COUNT
 };

@@ -25,8 +25,14 @@ void menuModelNotes(event_t event)
 {
   if (event == EVT_ENTRY) {
     strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
-    char *buf = strcat_currentmodelname(&reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
+    char *buf = strcat_currentmodelname(
+        &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], ' ');
     strcpy(buf, TEXT_EXT);
+    if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+      buf = strcat_currentmodelname(
+          &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
+      strcpy(buf, TEXT_EXT);
+    }
   }
 
   menuTextView(event);

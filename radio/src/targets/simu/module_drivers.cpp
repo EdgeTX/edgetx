@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "hal.h"
 #include "hal/serial_driver.h"
 #include "intmodule_serial_driver.h"
 #include "extmodule_serial_driver.h"
-
-#include "io/frsky_pxx2.h"
-ModuleFifo intmoduleFifo;
-ModuleFifo extmoduleFifo;
 
 void intmoduleStop() {}
 void intmoduleFifoError() {}
@@ -40,7 +37,6 @@ void extmoduleFifoReceive(uint8_t){}
 
 void extmodulePpmStart(unsigned short, bool) {}
 void extmoduleSerialStart() {}
-void extmodulePxx1SerialStart() {}
 void extmodulePxx1PulsesStart() {}
 void extmoduleInitTxPin() {}
 void extmoduleSendInvertedByte(uint8_t) {}
@@ -78,6 +74,7 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
     .getByte = getByte,
+    .clearRxBuffer = nullptr,
     .getBaudrate = nullptr,
     .setReceiveCb = nullptr,
     .setBaudrateCb = nullptr,
@@ -90,6 +87,7 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
     .getByte = getByte,
+    .clearRxBuffer = nullptr,
     .getBaudrate = nullptr,
     .setReceiveCb = nullptr,
     .setBaudrateCb = nullptr,

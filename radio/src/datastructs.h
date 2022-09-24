@@ -54,7 +54,7 @@ static inline void check_struct()
   CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 28 + 2*NUM_TRIMS);
-  CHKSIZE(TimerData, 11);
+  CHKSIZE(TimerData, 12);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
   CHKSIZE(FrSkyLineData, 4);
@@ -68,7 +68,7 @@ static inline void check_struct()
   CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 40);
-  CHKSIZE(TimerData, 16);
+  CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
   CHKSIZE(FrSkyLineData, 6);
@@ -81,9 +81,9 @@ static inline void check_struct()
   CHKSIZE(LimitData, 13);
   CHKSIZE(CustomFunctionData, 19);
   CHKSIZE(FlightModeData, 44);
-  CHKSIZE(TimerData, 16);
+  CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
-  CHKSIZE(ModelHeader, 31);
+  CHKSIZE(ModelHeader, 131);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(CustomScreenData, 850);
   CHKTYPE(TopBarPersistentData, 300);
@@ -105,7 +105,7 @@ static inline void check_struct()
   CHKSIZE(TimerData, 3);
 
   CHKSIZE(FlightModeData, 30);
-  CHKSIZE(RadioData, 85);
+  CHKSIZE(RadioData, 86);
 
 #endif /* board specific ifdefs*/
 
@@ -117,6 +117,7 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
+
   CHKSIZE(RadioData, 1501);
   CHKSIZE(ModelData, 7441);
 #elif defined(PCBXLITE)
@@ -145,6 +146,7 @@ static inline void check_struct()
 #elif defined(PCBNV14)
   CHKSIZE(RadioData, 1491);
   CHKSIZE(ModelData, 12119);
+
 #endif
 
 #undef CHKSIZE

@@ -96,7 +96,7 @@
 #define STORAGE_NUM_SWITCHES 6
 #elif defined(RADIO_TPRO)
 #define STORAGE_NUM_SWITCHES 10
-#elif defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_T8) || defined(PCBX7ACCESS) || defined(PCBX7)
+#elif defined(RADIO_TLITE) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_T8) || defined(PCBX7ACCESS) || defined(PCBX7)
 #define STORAGE_NUM_SWITCHES 8
 #elif defined(PCBX9LITES)
 #define STORAGE_NUM_SWITCHES 7

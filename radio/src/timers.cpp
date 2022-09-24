@@ -77,6 +77,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
     tmrstart_t timerStart = g_model.timers[i].start;
     int16_t     timerSwtch = g_model.timers[i].swtch;
     TimerState * timerState = &timersStates[i];
+    uint32_t showElapsed = g_model.timers[i].showElapsed;
 
     if (timerMode) {
       if ((timerState->state == TMR_OFF)
@@ -166,7 +167,9 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
               AUDIO_TIMER_COUNTDOWN(i, newTimerVal);
             }
             if (g_model.timers[i].minuteBeep && (newTimerVal % 60) == 0) {
-              AUDIO_TIMER_MINUTE(newTimerVal);
+              tmrval_t announceVal = newTimerVal;
+              if (showElapsed) announceVal = timerStart - newTimerVal;
+              AUDIO_TIMER_MINUTE(announceVal);
               // TRACE("Timer[%d] %d minute announcement", i, newTimerVal/60);
             }
           }

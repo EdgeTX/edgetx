@@ -33,27 +33,12 @@
 #define IMU_SAMPLES_EXPONENT  3
 #define IMU_SAMPLES_COUNT     (2 ^ IMU_SAMPLES_EXPONENT)
 
-class GyroBuffer
-{
- protected:
-  union {
-    int16_t values[IMU_VALUES_COUNT];
-    uint8_t raw[IMU_BUFFER_LENGTH];
-  } samples[IMU_SAMPLES_COUNT];
-
-  int32_t sums[IMU_VALUES_COUNT];
-
-  uint8_t index;
-
- public:
-  int read(int32_t values[IMU_VALUES_COUNT]);
-};
-
 class Gyro
 {
  protected:
-  GyroBuffer gyroBuffer;
   uint8_t errors = 0;
+  float roll = 0.0;
+  float pitch = 0.0;
 
  public:
   int16_t outputs[2];

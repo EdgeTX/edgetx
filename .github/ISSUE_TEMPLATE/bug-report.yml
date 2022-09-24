@@ -63,6 +63,7 @@ body:
         - 2.6.0
         - 2.5.0
         - 2.4.0
+        - Nightly (Please give date/commit below)
         - Other (Please specify below)
     validations:
       required: true
@@ -93,7 +94,7 @@ body:
         - Jumper T-Lite
         - Jumper T-Pro
         - Radiomaster T8
-        - RadioMaster TX12
+        - RadioMaster TX12 / TX12MK2
         - Radiomaster TX16S
         - Radiomaster Zorro
         - Other (Please specify below)

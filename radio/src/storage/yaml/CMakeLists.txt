@@ -6,9 +6,10 @@ set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
                storage/yaml/yaml_datastructs.cpp)
 
 if(STORAGE_MODELSLIST)
-  set(SRC ${SRC} storage/yaml/yaml_modelslist.cpp)
+  set(SRC ${SRC} storage/yaml/yaml_labelslist.cpp)
+  add_definitions(-DSTORAGE_MODELSLIST)
 endif()
-          
+
 # Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
 #          in the same directory.
 
@@ -25,12 +26,16 @@ elseif(PCB STREQUAL X7)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_tlite.cpp)
   elseif(PCBREV STREQUAL TX12)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_tx12.cpp)
+  elseif(PCBREV STREQUAL TX12MK2)
+    set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_tx12mk2.cpp)
   elseif(PCBREV STREQUAL ZORRO)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_zorro.cpp)
   elseif(PCBREV STREQUAL T8)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_t8.cpp)
   elseif(PCBREV STREQUAL TPRO)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_tpro.cpp)
+  elseif(PCBREV STREQUAL LR3PRO)
+    set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_lr3pro.cpp)
   else()
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_x7.cpp)
   endif()

@@ -59,6 +59,9 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
 
   ui->value->setField(timer.val, this);
   ui->value->setMaximumTime(firmware->getMaxTimerStart());
+  connect(ui->value, &AutoTimeEdit::currentDataChanged, [=](const int val) {
+    update();
+  });
 
   ui->mode->setModel(panelItemModels->getItemModel(AIM_TIMER_MODE));
   ui->mode->setField(timer.mode, this);
@@ -85,6 +88,10 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   ui->countdownStart->setModel(panelItemModels->getItemModel(AIM_TIMER_COUNTDOWNSTART));
   ui->countdownStart->setField(timer.countdownStart, this);
 
+
+  ui->showElapsed->setModel(panelItemModels->getItemModel(AIM_TIMER_SHOWELAPSED));
+  ui->showElapsed->setField(timer.showElapsed, this);
+
   disableMouseScrolling();
   QWidget::setTabOrder(prevFocus, ui->name);
   QWidget::setTabOrder(ui->name, ui->value);
@@ -93,6 +100,7 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   QWidget::setTabOrder(ui->countdownBeep, ui->countdownStart);
   QWidget::setTabOrder(ui->countdownStart, ui->minuteBeep);
   QWidget::setTabOrder(ui->minuteBeep, ui->persistent);
+  QWidget::setTabOrder(ui->persistent, ui->showElapsed);
 
   update();
   lock = false;
@@ -114,6 +122,7 @@ void TimerPanel::update()
   ui->countdownBeep->updateValue();
   ui->minuteBeep->updateValue();
   ui->countdownStart->updateValue();
+  ui->showElapsed->updateValue();
 
   if (timer.mode != TimerData::TIMERMODE_OFF)
     ui->swtch->setEnabled(true);
@@ -132,6 +141,13 @@ void TimerPanel::update()
   if (firmware->getCapability(PermTimers)) {
     ui->persistent->updateValue();
     ui->persistentValue->setText(timer.pvalueToString());
+  }
+
+  if (timer.val) {
+    ui->showElapsed->setEnabled(true);
+  }
+  else {
+    ui->showElapsed->setEnabled(false);
   }
 
   lock = false;
@@ -1262,7 +1278,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelFilteredModels = new FilteredItemModelFactory();
 
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                               RawSwitch::AllSwitchContexts),
+                                                               RawSwitch::MixesContext),
                                          FIM_TIMERSWITCH);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
 
@@ -1276,7 +1292,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
-
+  panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   Board::Type board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));

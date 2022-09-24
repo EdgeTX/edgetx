@@ -92,7 +92,7 @@ WizMix::operator ModelData()
   int throttleChannel = -1;
 
   ModelData model;
-  model.category = originalModelData.category;
+  model.labels[0] = '\0';
   model.used = true;
   model.moduleData[0].modelId = modelId;
   model.setDefaultInputs(settings);

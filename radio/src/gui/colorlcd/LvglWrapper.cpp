@@ -121,8 +121,18 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   data->key = 0;
 
-  if (isEvent()) {
-    event_t evt = getWindowEvent();
+  if (isEvent()) {                            // event waiting
+    event_t evt = getEvent(false);            // get keyEvent for hard keys other than trim switches
+
+    if(evt == EVT_KEY_FIRST(KEY_PGUP) ||      // generate acoustic/haptic feedback if radio settings allow
+       evt == EVT_KEY_FIRST(KEY_PGDN) ||
+       evt == EVT_KEY_FIRST(KEY_ENTER) ||
+       evt == EVT_KEY_FIRST(KEY_MODEL) ||
+       evt == EVT_KEY_FIRST(KEY_EXIT) ||
+       evt == EVT_KEY_FIRST(KEY_TELEM) ||
+       evt == EVT_KEY_FIRST(KEY_RADIO)) {
+      audioKeyPress();
+    }
 
     // no focused item ?
     auto obj = get_focus_obj(keyboardDevice);
@@ -209,8 +219,15 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     copy_ts_to_indev_data(st, data);
   }
 
-  // Reset inactivity counters
-  if (st.event != TE_NONE) { reset_inactivity(); }
+  static bool onebeep=true; // TODO... This probably needs to be fixed in the driver it's sending two events
+  if (st.event == TE_DOWN) { // on first touch (same logic as key down)
+      reset_inactivity();    // reset activity counter
+      if(onebeep)
+        audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
+      onebeep = false;
+  } else {
+    onebeep = true;
+  }
   
   backup_touch_data(data);
 #endif
@@ -220,6 +237,9 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   static rotenc_t prevPos = 0;
+  static int8_t prevDir = 0;
+  static int8_t accel = 0;
+  static tmr10ms_t lastEvent = 0;
 
   rotenc_t newPos = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
   auto diff = newPos - prevPos;
@@ -228,8 +248,28 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
 
-  // Reset inactivity counters
-  if (diff != 0) { reset_inactivity(); }
+  if (diff != 0) {
+    reset_inactivity();
+
+    int8_t dir = 0;
+    if (diff < 0) dir = -1;
+    else if (diff > 0) dir = 1;
+
+    if (dir == prevDir) {
+      if (g_tmr10ms - lastEvent <= ROTENC_DELAY_HIGHSPEED) { // 160 ms
+        // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
+        accel += abs(diff);
+      } else if (g_tmr10ms - lastEvent >= ROTENC_DELAY_MIDSPEED) { // 320 ms
+        // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
+        accel = 0;
+      }
+      lastEvent = g_tmr10ms;
+      data->enc_diff = (int16_t)diff * max((int16_t)accel, (int16_t)1);
+    } else {
+      accel = 0;
+    }
+    prevDir = dir;
+  }
 }
 #endif
 

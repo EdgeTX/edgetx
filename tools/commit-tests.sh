@@ -88,8 +88,14 @@ do
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
+        tx12mk2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+            ;;
+        lr3pro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
@@ -132,6 +138,9 @@ do
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
+            ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
     esac
 

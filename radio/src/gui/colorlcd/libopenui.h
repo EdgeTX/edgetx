@@ -54,7 +54,6 @@
 #include "gridlayout.h"
 #include "getset_helpers.h"
 #include "curveedit.h"
-#include "coloredit.h"
 #include "draw_functions.h"
 #include "textedits.h"
 #include "LvglWrapper.h"

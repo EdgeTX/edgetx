@@ -172,15 +172,6 @@ static uint32_t cliGetBaudRate()
   return 0;
 }
 
-static void cliSetBaudRateCb(void (*cb)(uint32_t))
-{
-  auto drv = cliSerialDriver;
-  auto ctx = cliSerialDriverCtx;
-
-  if (drv && drv->setBaudrateCb) {
-    return drv->setBaudrateCb(ctx, cb);
-  }
-}
 
 char cliLastLine[CLI_COMMAND_MAX_LEN+1];
 
@@ -1046,10 +1037,11 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
+static void *spInternalModuleCTX = nullptr;
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(nullptr, *(buf++));
+    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
     len--;
   }
 }
@@ -1062,17 +1054,9 @@ static const etx_serial_init spIntmoduleSerialInitParams = {
   .rx_enable = true,
 };
 
-static void spInternalModuleSetBaudRate(uint32_t baud)
-{
-  etx_serial_init params(spIntmoduleSerialInitParams);
-  params.baudrate = baud;
-
-  // re-configure serial port
-  IntmoduleSerialDriver.init(&params);
-}
-
 // TODO: use proper method instead
 extern bool cdcConnected;
+extern uint32_t usbSerialBaudRate(void*);
 
 int cliSerialPassthrough(const char **argv)
 {
@@ -1131,19 +1115,29 @@ int cliSerialPassthrough(const char **argv)
       params.baudrate = baudrate;
 
       void* uart_ctx = IntmoduleSerialDriver.init(&params);
+      spInternalModuleCTX = uart_ctx;
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
-      // setup CDC baudrate callback
-      cliSetBaudRateCb(spInternalModuleSetBaudRate);
 
       // loop until cable disconnected
       while (cdcConnected) {
 
+        uint32_t cli_br = cliGetBaudRate();
+        if (cli_br && (cli_br != (uint32_t)baudrate)) {
+          baudrate = cli_br;
+
+          etx_serial_init params(spIntmoduleSerialInitParams);
+          params.baudrate = baudrate;
+
+          // re-configure serial port
+          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+        }
+
         uint8_t data;
-        if (intmoduleFifo.pop(data)) {
+        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1159,8 +1153,8 @@ int cliSerialPassthrough(const char **argv)
       }
 
       // restore callsbacks
-      cliSetBaudRateCb(nullptr);
       cliReceiveCallBack = backupCB;
+      spInternalModuleCTX = nullptr;
 
       // and stop module
       IntmoduleSerialDriver.deinit(uart_ctx);
@@ -1478,6 +1472,27 @@ int cliGps(const char ** argv)
 }
 #endif
 
+#if defined(SPACEMOUSE)
+int cliSpaceMouse(const char ** argv)
+{
+#if defined(DEBUG)
+  if (!strcmp(argv[1], "trace")) {
+    spacemouseTraceEnabled = !spacemouseTraceEnabled;
+  } else
+#endif
+  if (!strcmp(argv[1], "poll")) {
+    spacemousePoll();
+  } else if (!strcmp(argv[1], "tare")) {
+    spacemouseTare();
+  } else if (!strcmp(argv[1], "startstreaming")) {
+    spacemouseStartStreaming();
+  } else if (!strcmp(argv[1], "stopstreaming")) {
+    spacemouseStopStreaming();
+  }
+  return 0;
+}
+#endif
+
 #if defined(BLUETOOTH)
 int cliBlueTooth(const char ** argv)
 {
@@ -1584,6 +1599,9 @@ const CliCommand cliCommands[] = {
 #endif
 #if defined(INTERNAL_GPS)
   { "gps", cliGps, "<baudrate>|$<command>|trace" },
+#endif
+#if defined(SPACEMOUSE)
+  { "spacemouse", cliSpaceMouse, "poll | tare | startstreaming | stopstreaming | trace" },
 #endif
 #if defined(BLUETOOTH)
   { "bt", cliBlueTooth, "<baudrate>|<command>" },

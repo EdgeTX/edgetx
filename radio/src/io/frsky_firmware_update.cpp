@@ -121,7 +121,7 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
       uint32_t elapsed = 0;
       uint8_t index = 0;
       while (index < count && elapsed < timeout) {
-        if (intmoduleFifo.pop(buffer[index])) {
+        if (IntmoduleSerialDriver.getByte(uart_ctx, &(buffer[index]))) {
           ++index;
         }
         else {
@@ -141,14 +141,15 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
 }
 #endif
 
-const uint8_t * FrskyDeviceFirmwareUpdate::readFullDuplexFrame(ModuleFifo & fifo, uint32_t timeout)
+const uint8_t * FrskyDeviceFirmwareUpdate::readFullDuplexFrame(uint32_t timeout)
 {
+#if defined(INTMODULE_USART)
   uint8_t len = 0;
   bool bytestuff = false;
   while (len < 10) {
     uint32_t elapsed = 0;
-    uint8_t byte;
-    while (!fifo.pop(byte)) {
+    uint8_t byte = 0;
+    while (IntmoduleSerialDriver.getByte(uart_ctx, &byte) == 0) {
       RTOS_WAIT_MS(1);
       if (elapsed++ >= timeout) {
         return nullptr;
@@ -170,6 +171,9 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFullDuplexFrame(ModuleFifo & fifo
     }
   }
   return &frame[1];
+#else
+  return nullptr;
+#endif
 }
 
 const uint8_t * FrskyDeviceFirmwareUpdate::readHalfDuplexFrame(uint32_t timeout)
@@ -193,7 +197,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
   switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
     case INTERNAL_MODULE:
-      return readFullDuplexFrame(intmoduleFifo, timeout);
+      return readFullDuplexFrame(timeout);
 #endif
 
     default:
@@ -794,8 +798,10 @@ const char * FrskyChipFirmwareUpdate::flashFirmware(const char * filename, Progr
   INTERNAL_MODULE_OFF();
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   uint8_t extPwr = IS_EXTERNAL_MODULE_ON();
   EXTERNAL_MODULE_OFF();
+#endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
   uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();

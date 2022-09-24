@@ -212,6 +212,15 @@
   #define RADIO_TOOLS
 #endif
 
+#if defined(ROTARY_ENCODER_NAVIGATION)
+enum RotaryEncoderMode {
+  ROTARY_ENCODER_MODE_NORMAL,
+  ROTARY_ENCODER_MODE_INVERT_BOTH,
+  ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM,
+  ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT
+};
+#endif
+
 // RESX range is used for internal calculation; The menu says -100.0 to 100.0; internally it is -1024 to 1024 to allow some optimizations
 #define RESX_SHIFT 10
 #define RESX       1024
@@ -879,11 +888,14 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
 #if defined(STATUS_LEDS)
   #define LED_ERROR_BEGIN()            ledRed()
-#if defined(RADIO_T8)
-  // Because of green backlit logo, green is preferred on this radio
-  #define LED_ERROR_END()              ledGreen()
-  #define LED_BIND()                   ledBlue()
+// Green is preferred "ready to use" color for these radios
+#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
+    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
+    defined(RADIO_ZORRO)
+#define LED_ERROR_END() ledGreen()
+#define LED_BIND() ledBlue()
 #else
+// Either green is not an option, or blue is preferred "ready to use" color
   #define LED_ERROR_END()              ledBlue()
 #endif
 #else
@@ -903,6 +915,10 @@ constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
 #endif
 
 constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
+
+#if defined(GHOST)
+  #include "telemetry/ghost_menu.h"
+#endif
 
 union ReusableBuffer
 {
@@ -966,13 +982,14 @@ union ReusableBuffer
     char id[27];
   } version;
 
-  // moduleOptions, receiverOptions, radioVersion
-  PXX2HardwareAndSettings hardwareAndSettings;
+  PXX2HardwareAndSettings hardwareAndSettings; // radio_version
 
   struct {
     ModuleInformation modules[NUM_MODULES];
-    uint8_t linesCount;
     char msg[64];
+#if !defined(COLORLCD)
+    uint8_t linesCount;
+#endif
   } radioTools;
 
   struct {
@@ -981,6 +998,9 @@ union ReusableBuffer
 
   struct {
     uint8_t stickMode;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+    uint8_t rotaryEncoderMode;
+#endif
   } generalSettings;
 
   struct {
@@ -1055,12 +1075,12 @@ char * strcat_zchar(char *dest, const char *name, uint8_t size, const char space
 
 #if !defined(STORAGE_MODELSLIST)
 
-#define strcat_modelname(dest, idx)                                     \
-  strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, 0, STR_MODEL, \
+#define strcat_modelname(dest, idx, spaceSym)                                     \
+  strcat_zchar(dest, modelHeaders[idx].name, LEN_MODEL_NAME, spaceSym, STR_MODEL, \
                PSIZE(TR_MODEL), idx + 1)
 
-#define strcat_currentmodelname(dest, foo)      \
-  strcat_modelname(dest, g_eeGeneral.currModel)
+#define strcat_currentmodelname(dest, spaceSym)      \
+  strcat_modelname(dest, g_eeGeneral.currModel, spaceSym)
 
 #else
 
@@ -1156,6 +1176,10 @@ extern Clipboard clipboard;
 
 #if defined(INTERNAL_GPS)
   #include "gps.h"
+#endif
+
+#if defined(SPACEMOUSE)
+  #include "spacemouse.h"
 #endif
 
 #if defined(JACK_DETECT_GPIO)

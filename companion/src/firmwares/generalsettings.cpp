@@ -346,6 +346,15 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   setDefaultControlTypes(cstate.toType);  // start with default switches/pots/sliders
 
+  cstate.setComponent("Hardware");
+  cstate.setItemType("Int. Module");
+  RadioDataConversionState::LogField oldData(internalModule, ModuleData::typeToString(internalModule));
+
+  if (internalModule != MODULE_TYPE_NONE && (int)internalModule != g.currentProfile().defaultInternalModule()) {
+    internalModule = MODULE_TYPE_NONE;
+    cstate.setInvalid(oldData);
+  }
+
   // Try to intelligently copy any custom control names
 
   // SE and SG are skipped on X7 board
@@ -492,6 +501,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("GPS");
     case AUX_SERIAL_DEBUG:
       return tr("Debug");
+    case AUX_SERIAL_SPACEMOUSE:
+      return tr("SpaceMouse");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -567,8 +578,9 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
     if (port_nr == SP_VCP &&
         (i == AUX_SERIAL_TELE_IN ||
          i == AUX_SERIAL_SBUS_TRAINER ||
-         i == AUX_SERIAL_GPS)) {
-      // These 3 are disabled on VCP
+         i == AUX_SERIAL_GPS ||
+         i == AUX_SERIAL_SPACEMOUSE)) {
+      // These are disabled on VCP
       continue;
     }
     mdl->appendToItemList(serialModeToString(i), i);
@@ -600,6 +612,38 @@ AbstractStaticItemModel * GeneralSettings::stickDeadZoneItemModel()
 
   for (int i = 0; i <= 7; i++) {
     mdl->appendToItemList(i ? QString::number((int)(2 << (i - 1))) : QString::number(0), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::uartSampleModeToString() const
+{
+  return uartSampleModeToString(uartSampleMode);
+}
+
+//  static
+QString GeneralSettings::uartSampleModeToString(int value)
+{
+  switch(value) {
+    case UART_SAMPLE_MODE_NORMAL:
+      return tr("Normal");
+    case UART_SAMPLE_MODE_ONEBIT:
+      return tr("OneBit");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::uartSampleModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_UARTSAMPLEMODE);
+
+  for (int i = 0; i < UART_SAMPLE_MODE_COUNT; i++) {
+    mdl->appendToItemList(uartSampleModeToString(i), i);
   }
 
   mdl->loadItemList();

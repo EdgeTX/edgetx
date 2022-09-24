@@ -259,12 +259,12 @@ void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curv
     switch (curve.type) {
       case CURVE_REF_DIFF:
         x = dc->drawText(x, y, "D", flags);
-        drawValueOrGVar(dc, x, y + 2, curve.value, -100, 100, LEFT | FONT(XS) | flags);
+        drawValueOrGVar(dc, x, y, curve.value, -100, 100, LEFT | flags);
         break;
 
       case CURVE_REF_EXPO:
         x = dc->drawText(x, y, "E", flags);
-        drawValueOrGVar(dc, x, y + 2, curve.value, -100, 100, LEFT | FONT(XS) | flags);
+        drawValueOrGVar(dc, x, y, curve.value, -100, 100, LEFT | flags);
         break;
 
       case CURVE_REF_FUNC:
@@ -595,8 +595,8 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
         case '(':
         case '{':
         case '[':
-        case ' ':
           nxt++;
+        case ' ':
         case '\n':
         case '\0':
           done = true;

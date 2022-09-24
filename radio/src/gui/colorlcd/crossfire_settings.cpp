@@ -24,6 +24,8 @@
 
 #include "mixer_scheduler.h"
 
+#include "telemetry/crossfire.h"
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,

@@ -36,7 +36,7 @@ class DMAFifo
 
     void clear()
     {
-      ridx = 0;
+      ridx = N - stream->NDTR;
     }
 
     uint32_t size()

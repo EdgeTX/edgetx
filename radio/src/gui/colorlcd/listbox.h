@@ -35,6 +35,7 @@ class ListBase : public TableField
 {
   std::function<void()> longPressHandler = nullptr;
   std::function<void()> pressHandler = nullptr;
+  std::function<void(std::set<uint32_t>, std::set<uint32_t>)> _multiSelectHandler = nullptr;
   bool autoEdit = false;
 
  public:
@@ -49,11 +50,23 @@ class ListBase : public TableField
   void setLineHeight(uint8_t height);
 
   virtual void setSelected(int selected);
+  virtual void setSelected(std::set<uint32_t> selected);
+
   int getSelected() const;
+  std::set<uint32_t> getSelection();
+
+  void setMultiSelect(bool mode) {
+    multiSelect = mode;
+  }
 
   virtual void setActiveItem(int item);
   int getActiveItem() const;
-  
+
+  void setMultiSelectHandler(std::function<void(std::set<uint32_t>, std::set<uint32_t>)> handler)
+  {
+    _multiSelectHandler = std::move(handler);
+  }
+
   void setLongPressHandler(std::function<void()> handler)
   {
     longPressHandler = std::move(handler);
@@ -71,6 +84,7 @@ class ListBase : public TableField
  protected:
   static void event_cb(lv_event_t* e);
   int activeItem = -1;
+  bool multiSelect = false;
 
   void onPress(uint16_t row, uint16_t col) override;
   void onLongPressed();

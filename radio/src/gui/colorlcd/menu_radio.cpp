@@ -44,3 +44,8 @@ RadioMenu::RadioMenu():
   addTab(new RadioHardwarePage());
   addTab(new RadioVersionPage());
 }
+
+RadioMenu::~RadioMenu()
+{
+    storageCheck(true);
+}

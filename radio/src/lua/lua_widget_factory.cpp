@@ -40,11 +40,26 @@ LuaWidgetFactory::LuaWidgetFactory(const char* name, ZoneOption* widgetOptions,
     createFunction(createFunction),
     updateFunction(0),
     refreshFunction(0),
-    backgroundFunction(0)
+    backgroundFunction(0),
+    translateFunction(0)
 {
 }
 
-LuaWidgetFactory::~LuaWidgetFactory() { unregisterWidget(this); }
+LuaWidgetFactory::~LuaWidgetFactory() {
+  unregisterWidget(this);
+
+  if (displayName) {
+    delete displayName;
+  }
+
+  auto option = getOptions();
+  while (option && option->name != nullptr) {
+    if (option->displayName) {
+      delete option->displayName;
+    }
+    option++;
+  }
+}
 
 Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
                                  Widget::PersistentData* persistentData,
@@ -89,4 +104,41 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData);
   if (err) lw->setErrorMessage("create()");
   return lw;
+}
+
+
+void LuaWidgetFactory::translateOptions(ZoneOption * options)
+{
+  if (lsWidgets == 0) return;
+
+  // No translations provided
+  if (!translateFunction) return;
+
+  auto lang = TRANSLATIONS;
+
+  auto option = options;
+  while (option && option->name != nullptr) {
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, translateFunction);
+    lua_pushstring(lsWidgets, option->name);
+    lua_pushstring(lsWidgets, lang);
+    bool err = lua_pcall(lsWidgets, 2, 1, 0);
+    if (!err) {
+      auto dn = lua_tostring(lsWidgets, -1);
+      if (dn) option->displayName = strdup(dn);
+    }
+    lua_pop(lsWidgets, 1);
+
+    option++;
+  }
+
+  // Widget display name
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, translateFunction);
+  lua_pushstring(lsWidgets, name);
+  lua_pushstring(lsWidgets, lang);
+  bool err = lua_pcall(lsWidgets, 2, 1, 0);
+  if (!err) {
+    auto dn = lua_tostring(lsWidgets, -1);
+    if (dn) displayName = strdup(dn);
+  }
+  lua_pop(lsWidgets, 1);
 }

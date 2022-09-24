@@ -23,27 +23,12 @@
 #define _TELEMETRY_H_
 
 #include "dataconstants.h"
-#include "frsky.h"
-#include "io/frsky_sport.h"
-#include "crossfire.h"
 #include "myeeprom.h"
-#include "io/frsky_sport.h"
-#if defined(GHOST)
-  #include "ghost.h"
-#endif
-#if defined(MULTIMODULE)
-  #include "spektrum.h"
-  #include "hitec.h"
-  #include "hott.h"
-  #include "multi.h"
-  #include "mlink.h"
-#endif
-#include "myeeprom.h"
-#if defined(MULTIMODULE) || defined(AFHDS3)
-  #include "flysky_ibus.h"
-#endif
 
 #include "pulses/modules_helpers.h"
+
+#include "frsky.h"
+#include "io/frsky_sport.h"
 
 extern uint8_t telemetryStreaming; // >0 (true) == data is streaming in. 0 = no data detected for some time
 
@@ -65,7 +50,7 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 #define TELEMETRY_SERIAL_8E2           1
 #define TELEMETRY_SERIAL_WITHOUT_DMA   2
 
-#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3)
+#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3) || defined(PXX2)
 #define TELEMETRY_RX_PACKET_SIZE       128
 // multi module Spektrum telemetry is 18 bytes, FlySky is 37 bytes
 #else
@@ -319,7 +304,8 @@ extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 extern Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo;
 #endif
 
-void processPXX2Frame(uint8_t module, const uint8_t *frame);
+void processPXX2Frame(uint8_t idx, const uint8_t* frame,
+                      const etx_serial_driver_t* drv, void* ctx);
 
 // Module pulse synchronization
 struct ModuleSyncStatus

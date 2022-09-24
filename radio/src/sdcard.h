@@ -34,6 +34,7 @@ extern FIL g_oLogFile;
 #define PATH_SEPARATOR      "/"
 #define ROOT_PATH           PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
+#define DELETED_MODELS_PATH MODELS_PATH PATH_SEPARATOR "DELETED"
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
 #define PERS_TEMPL_PATH     TEMPLATES_PATH "/PERSONAL"
@@ -65,9 +66,16 @@ extern FIL g_oLogFile;
 const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
 const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;
 #if defined(SDCARD_YAML)
-const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR "models.yml";
-const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "models.yml";
+#define LABELS_FILENAME     "labels.yml"
+#define MODELS_FILENAME     "models.yml"
+const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char LABELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR LABELS_FILENAME;
 const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
+const char RADIO_SETTINGS_TMPFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio_new.yml";
+const char RADIO_SETTINGS_ERRORFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio_error.yml";
+
+const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #endif
 #define    SPLASH_FILE             "splash.png"
 #endif
@@ -156,8 +164,12 @@ const char * getBasename(const char * path);
   #define ETX_FOURCC 0x4278746F // etx for Jumper TLite
 #elif defined(RADIO_TPRO)
   #define ETX_FOURCC 0x4678746F // etx for Jumper TPro
+#elif defined(RADIO_LR3PRO)
+  #define ETX_FOURCC 0x4478746F // etx for BETAFPV LR3PRO
 #elif defined(RADIO_TX12)
   #define ETX_FOURCC 0x4178746F // etx for Radiomaster TX12
+#elif defined(RADIO_TX12MK2)
+  #define ETX_FOURCC 0x4878746F // etx for Radiomaster TX12MK2
 #elif defined(RADIO_ZORRO)
   #define ETX_FOURCC 0x4778746F // otx for Radiomaster Zorro
 #elif defined(RADIO_T8)

@@ -59,6 +59,16 @@ if(INTERNAL_MODULE_CRSF)
   add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
 endif()
 
+if(INTERNAL_MODULE_AFHDS2A)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_AFHDS2A)
+endif()
+
+if(INTERNAL_MODULE_AFHDS3)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_AFHDS3)
+endif()
+
 if(INTERNAL_MODULE_PPM)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
   add_definitions(-DINTERNAL_MODULE_PPM)
@@ -211,13 +221,13 @@ endif()
 
 if(MULTIMODULE)
   add_definitions(-DMULTIMODULE)
-  set(SRC ${SRC} pulses/multi.cpp telemetry/spektrum.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
+  set(SRC ${SRC} pulses/multi.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
 endif()
 if(MULTIMODULE OR AFHDS3)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
 endif()
 
-if(AFHDS2)
+if(AFHDS2 AND INTERNAL_MODULE_AFHDS2A)
   add_definitions(-DAFHDS2)
   set(SRC ${SRC} telemetry/flysky_nv14.cpp)
   set(PULSES_SRC ${PULSES_SRC} flysky.cpp)
@@ -225,6 +235,11 @@ endif()
 
 if(AFHDS3)
   add_definitions(-DAFHDS3)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    afhds3.cpp
+    afhds3_transport.cpp
+    )
 endif()
 
 if(CROSSFIRE)
@@ -236,14 +251,6 @@ if(CROSSFIRE)
   set(SRC
     ${SRC}
     telemetry/crossfire.cpp
-    )
-endif()
-
-if(AFHDS3)
-  add_definitions(-DAFHDS3)
-  set(PULSES_SRC
-    ${PULSES_SRC}
-    afhds3.cpp
     )
 endif()
 
@@ -286,6 +293,7 @@ set(SRC
   telemetry/frsky_d.cpp
   telemetry/frsky_sport.cpp
   telemetry/frsky_pxx2.cpp
+  telemetry/spektrum.cpp
   crc.cpp
   vario.cpp
   )

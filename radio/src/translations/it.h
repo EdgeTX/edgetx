@@ -40,7 +40,7 @@
 #define TR_TRNMODE             "OFF","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug"
+#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES             "Disab.","Toggle","2POS","3POS"
 #define TR_POTTYPES            "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro")
 #define TR_SLIDERTYPES         "Disab.","Slider"
@@ -48,7 +48,10 @@
 #define TR_COUNTRY_CODES       TR("US","America"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES            TR("Chied","Chiedi"),TR("Joyst","Joystick"),TR("SDCard","Storage"),TR("Serial","Seriale")
 #define TR_JACK_MODES          "Chiedi","Audio","Trainer"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
+#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Telemetria Multi"
+
+#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM        "Person."
 #define TR_VTRIMINC            "Exp","ExFine","Fine","Medio","Ampio "
 #define TR_VDISPLAYTRIMS       "No","Cambio","Si"
@@ -115,12 +118,12 @@
 #endif
 
 #if defined(VOICE)
-    #define TR_PLAY_TRACK      "SuonaTraccia"
-  #define TR_PLAY_BOTH         "Play Entr."
-  #define TR_PLAY_VALUE        TR("LeggiVal", "LeggiValore")
+    #define TR_PLAY_TRACK      "Suona Traccia"
+  #define TR_PLAY_BOTH         "Suona Entr."
+  #define TR_PLAY_VALUE        TR("LeggiVal", "Leggi Valore")
 #else
   #define TR_PLAY_TRACK        "[Brano]"
-  #define TR_PLAY_BOTH         "[Play Entr.]"
+  #define TR_PLAY_BOTH         "[Suona Entr.]"
   #define TR_PLAY_VALUE        "[LeggiValore]"
 #endif
 
@@ -161,9 +164,10 @@
 #define TR_SF_SCREENSHOT       "Screenshot"
 #define TR_SF_RACING_MODE      "Modo Racing"
 #define TR_SF_DISABLE_TOUCH    "No Touch"
+#define TR_SF_SET_SCREEN       "Setta Schermo Princ."
 #define TR_SF_RESERVE          "[riserva]"
 
-#define TR_VFSWFUNC            TR_SF_SAFETY,"Maestro","Trim Instant.","Azzera","Set",TR_ADJUST_GVAR,"Volume","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Retroillum.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH TR_SF_TEST
+#define TR_VFSWFUNC            TR_SF_SAFETY,"Maestro","Trim Instant.","Azzera","Set",TR_ADJUST_GVAR,"Volume","SettaFailsafe","RangeCheck","BindModulo",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Retroillum.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM   TR("Telm", "Telemetr.")
 
@@ -183,8 +187,11 @@
 #define SPEED_UNIT_METR        "kmh"
 
 #define TR_VUNITSSYSTEM        TR("Metric","Metriche"),TR("Imper.","Imperiali")
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km"
-
+#if defined(COLORLCD)
+#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#else
+#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#endif
 #define STR_V                  (STR_VTELEMUNIT[1])
 #define STR_A                  (STR_VTELEMUNIT[2])
 
@@ -217,11 +224,39 @@
 #define TR_TRIMS_SWITCHES    TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al",  TRIM_SWITCH_CHAR "Ar"
 #endif
 
+#if defined(PCBHORUS) || defined(PCBNV14)
+  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
+#elif defined(PCBXLITE)
+  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_FAMILY_JUMPER_T12)
+  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
+  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
+#elif defined(RADIO_ZORRO)
+  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
+#elif defined(PCBTARANIS)
+  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
+#else
+  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
+#endif
+
+#if defined(PCBNV14)
+#define  TR_RFPOWER_AFHDS2             "Default","High"
+#endif
+
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
 
 #define TR_ON_ONE_SWITCHES     "ON","One"
+
+#if defined(COLORLCD)
+  #define TR_ROTARY_ENC_OPT         "Normale","Invertito"
+#else
+  #define TR_ROTARY_ENC_OPT         "Normale","Invertito","V-I H-N","V-I H-A"
+#endif
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW       "TltX","TltY",
@@ -248,12 +283,13 @@
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
 #define TR_VFAILSAFE                   "Non settato","Mantieni","Personali","No impulsi","Ricevente"
-#define TR_VSENSORTYPES                "Custom","Calcolato"
+#define TR_VSENSORTYPES                "Person.","Calcolato"
 #define TR_VFORMULAS                   "Somma","Media","Min","Max","Moltipl","Totalizza","Cella","Consumo","Distanza"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","Maggiore","Delta"
-#define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
+#define TR_TEXT_SIZE                   "Standard","Minusc.","Piccolo","Medio","Doppio"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
+#define TR_TIMER_DIR                   TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")
 
 #if defined(COLORLCD)
   #define INDENT               "\007"
@@ -265,6 +301,14 @@
   #define LEN_INDENT           1
   #define INDENT_WIDTH         (FW/2)
   #define BREAKSPACE           " "
+#endif
+
+#if defined(COLORLCD)
+#if defined(BOLD)
+#define TR_FONT_SIZES                  "STD"
+#else
+#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#endif
 #endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
@@ -292,26 +336,28 @@
 
 #define TR_MENUWHENDONE        CENTER "\007" TR_ENTER " Conferma"
 #define TR_FREE                "Disp."
-#define TR_YES                         "Si"
-#define TR_NO                          "No"
+#define TR_YES                 "Si"
+#define TR_NO                  "No"
 #define TR_DELETEMODEL         "CANCELLA" BREAKSPACE "MODELLO"
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
+#define TR_UNLABELEDMODEL      "Senza etic."
 #define TR_NAME                "Nome"
-#define TR_MODELNAME            TR("Nome Mode.", "Nome Modello")
-#define TR_PHASENAME           "Nome fase"
-#define TR_MIXNAME             "Nome mix"
+#define TR_MODELNAME           TR("Nome Mode.", "Nome Modello")
+#define TR_PHASENAME           "Nome Fase"
+#define TR_MIXNAME             "Nome Mix"
 #define TR_INPUTNAME           "Nome Ingr."
-  #define TR_EXPONAME          "Nome expo"
+#define TR_EXPONAME            "Nome Expo"
 #define TR_BITMAP              "Immagine"
+#define TR_NO_PICTURE          "No immagine"
 #define TR_TIMER               TR("Timer", "Timer ")
-#define TR_START                       "Start"
-#define TR_ELIMITS             TR("Limiti.E", "Limiti Estesi")
-#define TR_ETRIMS              TR("Trim Ext", "Trim Estesi")
+#define TR_START               "Start"
+#define TR_ELIMITS             TR("Lim. Est.", "Limiti Estesi")
+#define TR_ETRIMS              TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC             "Passo Trim"
-#define TR_DISPLAY_TRIMS       TR("Mos. Trims", "Mostra Trims")
-#define TR_TTRACE              TR("So. motore", INDENT "Sorgente Motore")
+#define TR_DISPLAY_TRIMS       TR("Mos.Trims", "Mostra Trims")
+#define TR_TTRACE              TR("Sor. Mot.", INDENT "Sorgente Motore")
 #define TR_TTRIM               TR("Trim Mot.", INDENT "Trim Motore")
 #define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR             TR("Beep al c.", "Beep al centro")
@@ -397,8 +443,8 @@
 #define TR_MEMORYWARNING       TR(INDENT "Avv. Mem.", INDENT "Avviso Memoria")
 #define TR_ALARMWARNING        INDENT "Spegni suono"
 #define TR_RSSI_SHUTDOWN_ALARM TR(INDENT "RSSI Shut.", INDENT "Control. RSSI al Shutdown")
-#define TR_MODEL_STILL_POWERED "Ricevente ancora connessa"
-#define TR_USB_STILL_CONNECTED         "USB ancora connesso"
+#define TR_MODEL_STILL_POWERED "Ricevente ancora\nconnessa"
+#define TR_USB_STILL_CONNECTED         "USB ancora\nconnesso"
 #define TR_MODEL_SHUTDOWN              "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL      "Motore"
@@ -436,7 +482,7 @@
 #define TR_MODESRC             "Modo\006% Origine"
 #define TR_MULTIPLIER          "Moltiplica"
 #define TR_CAL                 "Cal"
-#define TR_VTRIM               "Trim- +"
+#define TR_VTRIM               "Trim - +"
 #define TR_BG                  "BG:"
 #define TR_CALIB_DONE                  "Calibratione completa"
 #if defined(PCBHORUS)
@@ -482,6 +528,8 @@
 #define TR_PRESSANYKEY         "\010Premi un tasto"
 #define TR_BADEEPROMDATA       "Dati corrotti!"
 #define TR_BAD_RADIO_DATA      "Dati radio errati"
+#define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING    "Formatto EEPROM..."
 #define TR_STORAGE_FORMAT      "Preparazione storage"
 #define TR_EEPROMOVERFLOW      "EEPROM Piena"
@@ -585,13 +633,23 @@
 #define TR_VOLTAGE             TR(INDENT "Voltagg.",INDENT "Voltaggio")
 #define TR_CURRENT             TR(INDENT "Corrente",INDENT "Corrente")
 #define TR_SELECT_MODEL        TR("Scegli mod.", "Scegli Modello")
-#define TR_MODEL_CATEGORIES            "Categorie Modelli"
-#define TR_MODELS                      "Modelli"
-#define TR_SELECT_MODE                 "Seleziona modo"
-#define TR_CREATE_CATEGORY     "Crea Categoria"
-#define TR_RENAME_CATEGORY     "Rinomina Categoria"
-#define TR_DELETE_CATEGORY     "Cancella Categoria"
+#define TR_MODELS              "Modelli"
+#define TR_SELECT_MODE         "Seleziona modo"
 #define TR_CREATE_MODEL        "Crea Modello"
+#define TR_FAVORITE_LABEL      "Favoriti"
+#define TR_NEW_MODEL           "Nuovo Modello"
+#define TR_INVALID_MODEL       "Modello invalido"
+#define TR_EDIT_LABELS         "Edita Etichette"
+#define TR_MOVE_UP             "Muovi Su"
+#define TR_MOVE_DOWN           "Muovi Giù"
+#define TR_ENTER_LABEL         "Edita Etichetta"
+#define TR_LABEL               "Etichetta"
+#define TR_LABELS              "Etichette"
+#define TR_CURRENT_MODEL       "Corrente"
+#define TR_NEW                 "Nuovo"
+#define TR_NEW_LABEL           "Nuova Etichetta"
+#define TR_RENAME_LABEL        "Rinomina Etichetta"
+#define TR_DELETE_LABEL        "Cancella Etichetta"
 #define TR_DUPLICATE_MODEL     "Duplica Modello"
 #define TR_COPY_MODEL          "Copia Modello"
 #define TR_MOVE_MODEL          "Sposta Modello"
@@ -599,7 +657,6 @@
 #define TR_DELETE_MODEL        TR("Elim. Modello", "Elimina Modello")
 #define TR_RESTORE_MODEL       TR("Ripr. Modello", "Ripristina Modello")
 #define TR_DELETE_ERROR        "Errore cancell."
-#define TR_CAT_NOT_EMPTY       "Categoria non vuota"
 #define TR_SDCARD_ERROR        TR("Errore SD", "Errore SDCard")
 #define TR_SDCARD                      "SD Card"
 #define TR_NO_FILES_ON_SD              "SD senza file!"
@@ -705,7 +762,7 @@
 #define TR_TEMP_CALIB          "Temp. Calib."
 #define TR_TIME                "Ora"
 #define TR_MAXBAUDRATE         "Max Bauds"
-#define TR_BAUDRATE                    "Baudrate"
+#define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Modo Semplice"
 #define TR_SAMPLE_MODES        "Normale","OneBit"
 #define TR_SELECT_TEMPLATE_FOLDER "SELEZIONA CARTELLA TEMPLATE:"
@@ -723,9 +780,9 @@
 #define TR_BLUETOOTH_DIST_ADDR  "Ind. Dist."
 #define TR_BLUETOOTH_LOCAL_ADDR "Ind. Loc."
 #define TR_BLUETOOTH_PIN_CODE   "Codice PIN"
-#define TR_BLUETOOTH_NODEVICES  "No Devices Found"
-#define TR_BLUETOOTH_SCANNING   "Scanning..."
-#define TR_BLUETOOTH_BAUDRATE   "Baudrate BT"
+#define TR_BLUETOOTH_NODEVICES  "Nessun Dispositivo Trovato"
+#define TR_BLUETOOTH_SCANNING   "Scansione..."
+#define TR_BLUETOOTH_BAUDRATE   "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES      "---","Attivo"
 #else
@@ -745,7 +802,7 @@
 #define TR_DATE                "Data"
 #define TR_MONTHS              { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic" }
 #define TR_ROTARY_ENCODER      "R.E."
-#define TR_INVERT_ROTARY       "Inverti Rotary"
+#define TR_ROTARY_ENC_MODE     TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR    "MONITOR CANALI"
 #define TR_MIXERS_MONITOR      "MONITOR MIXER"
 #define TR_PATH_TOO_LONG       "Path troppo lungo"
@@ -870,6 +927,7 @@
 #define TR_CHANS                       "Canali"
 #define TR_ANTENNAPROBLEM      CENTER "Problemi antenna TX!"
 #define TR_MODELIDUSED         TR("ID già usato", "ID Modello già usato")
+#define TR_MODELIDUNIQUE             "ID is unique"
 #define TR_MODULE              "Modulo"
 #define TR_RX_NAME                     "Nome RX"
 #define TR_TELEMETRY_TYPE      "Tipo Telemetria"
@@ -968,7 +1026,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Curve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Centro PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Simmetria"
-#define TR_INVERTED     "Inverted"
+#define TR_INVERTED                    "Inverted"
 
 #define TR_LSW_HEADERS_FUNCTION        "Funzione"
 #define TR_LSW_HEADERS_V1              "V1"
@@ -1083,7 +1141,7 @@
 #define TR_MENU_INPUTS          STR_CHAR_INPUT "Ingressi"
 #define TR_MENU_LUA             STR_CHAR_LUA "Lua scripts"
 #define TR_MENU_STICKS           STR_CHAR_STICK "Sticks"
-#define TR_MENU_POTS            STR_CHAR_POT "Pots"
+#define TR_MENU_POTS            STR_CHAR_POT "Potenziometri"
 #define TR_MENU_MAX             STR_CHAR_FUNCTION "MAX"
 #define TR_MENU_HELI            STR_CHAR_CYC "Ciclico"
 #define TR_MENU_TRIMS            STR_CHAR_TRIM "Trims"
@@ -1092,7 +1150,7 @@
 #define TR_MENU_TRAINER         STR_CHAR_TRAINER "Trainer"
 #define TR_MENU_CHANNELS        STR_CHAR_CHANNEL "Canali"
 #define TR_MENU_GVARS           STR_CHAR_SLIDER "GVars"
-#define TR_MENU_TELEMETRY       STR_CHAR_TELEMETRY "Telemetry"
+#define TR_MENU_TELEMETRY       STR_CHAR_TELEMETRY "Telemetria"
 #define TR_MENU_DISPLAY        "DISPLAY"
 #define TR_MENU_OTHER          "Altro"
 #define TR_MENU_INVERT         "Inverti"

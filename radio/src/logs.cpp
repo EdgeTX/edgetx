@@ -225,7 +225,7 @@ void writeHeader()
 
 #if defined(PCBFRSKY) || defined(PCBNV14)
   for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW[i] + 1;
+    const char * p = STR_VSRCRAW[i] + 2;
     size_t len = strlen(p);
     for (uint8_t j=0; j<len; ++j) {
       if (!*p) break;
@@ -246,6 +246,10 @@ void writeHeader()
     }
   }
   f_puts("LSW,", &g_oLogFile);
+  
+  for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
+    f_printf(&g_oLogFile, "CH%d(us),", channel+1);
+  }
 #else
   f_puts("Rud,Ele,Thr,Ail,P1,P2,P3,THR,RUD,ELE,3POS,AIL,GEA,TRN,", &g_oLogFile);
 #endif
@@ -271,7 +275,7 @@ void logsWrite()
   }
 
   if (isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {
-    #if defined(SIMU)
+    #if defined(SIMU) || !defined(RTCLOCK)
     tmr10ms_t tmr10ms = get_tmr10ms();                                        // tmr10ms works in 10ms increments
     if (lastLogTime == 0 || (tmr10ms_t)(tmr10ms - lastLogTime) >= (tmr10ms_t)(logDelay100ms*10)-1) {
       lastLogTime = tmr10ms;
@@ -325,6 +329,9 @@ void logsWrite()
             else if (sensor.unit == UNIT_DATETIME) {
               f_printf(&g_oLogFile, "%4d-%02d-%02d %02d:%02d:%02d,", telemetryItem.datetime.year, telemetryItem.datetime.month, telemetryItem.datetime.day, telemetryItem.datetime.hour, telemetryItem.datetime.min, telemetryItem.datetime.sec);
             }
+            else if (sensor.unit == UNIT_TEXT) {
+              f_printf(&g_oLogFile, "\"%s\",", telemetryItem.text);
+            }
             else if (sensor.prec == 2) {
               div_t qr = div((int)telemetryItem.value, 100);
               if (telemetryItem.value < 0) f_printf(&g_oLogFile, "-");
@@ -353,6 +360,10 @@ void logsWrite()
         }
       }
       f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+
+      for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
+        f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
+      }
 #else
       f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
           GET_2POS_STATE(THR),

@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "crossfire.h"
+
 #include "opentx.h"
 #include "aux_serial_driver.h"
 
@@ -91,14 +93,6 @@ void processCrossfireTelemetryValue(uint8_t index, int32_t value)
                     value, sensor.unit, sensor.precision);
 }
 
-bool checkCrossfireTelemetryFrameCRC(uint8_t module)
-{
-  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t len = rxBuffer[1];
-  uint8_t crc = crc8(&rxBuffer[2], len-1);
-  return (crc == rxBuffer[len+1]);
-}
-
 template<int N>
 bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t module)
 {
@@ -126,6 +120,7 @@ void processCrossfireTelemetryFrame(uint8_t module)
     moduleState[module].counter = CRSF_FRAME_MODELID;
   }
 
+  uint8_t crsfPayloadLen = rxBuffer[1];
   uint8_t id = rxBuffer[2];
   int32_t value;
   switch(id) {
@@ -162,6 +157,10 @@ void processCrossfireTelemetryFrame(uint8_t module)
         }
         processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
       }
+      // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
+      // but support including VARIO if the declared payload length is 6 bytes or more
+      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, module))
+        processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
       break;
 
     case LINK_ID:
@@ -267,85 +266,6 @@ void processCrossfireTelemetryFrame(uint8_t module)
       }
       break;
 #endif
-  }
-}
-
-bool crossfireLenIsSane(uint8_t len)
-{
-  // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
-}
-
-void crossfireTelemetrySeekStart(uint8_t *rxBuffer, uint8_t &rxBufferCount)
-{
-  // Bad telemetry packets frequently are just truncated packets, with the start
-  // of a new packet contained in the data. This causes multiple packet drops as
-  // the parser tries to resync.
-  // Search through the rxBuffer for a sync byte, shift the contents if found
-  // and reduce rxBufferCount
-  for (uint8_t idx=1; idx<rxBufferCount; ++idx) {
-    uint8_t data = rxBuffer[idx];
-    if (data == RADIO_ADDRESS || data == UART_SYNC) {
-      uint8_t remain = rxBufferCount - idx;
-      // If there's at least 2 bytes, check the length for validity too
-      if (remain > 1 && !crossfireLenIsSane(rxBuffer[idx+1]))
-        continue;
-
-      //TRACE("Found 0x%02x with %u remain", data, remain);
-      // copy the data to the front of the buffer
-      for (uint8_t src=idx; src<rxBufferCount; ++src) {
-        rxBuffer[src-idx] = rxBuffer[src];
-      }
-
-      rxBufferCount = remain;
-      return;
-    } // if found sync
-  }
-
-  // Not found, clear the buffer
-  rxBufferCount = 0;
-}
-
-void processCrossfireTelemetryData(uint8_t data, uint8_t module)
-{
-  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
-
-  if (rxBufferCount == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
-    TRACE("[XF] address 0x%02X error", data);
-    return;
-  }
-
-  if (rxBufferCount == 1 && !crossfireLenIsSane(data)) {
-    TRACE("[XF] length 0x%02X error", data);
-    rxBufferCount = 0;
-    return;
-  }
-
-  if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-    rxBuffer[rxBufferCount++] = data;
-  }
-  else {
-    TRACE("[XF] array size %d error", rxBufferCount);
-    rxBufferCount = 0;
-  }
-
-  // rxBuffer[1] holds the packet length-2, check if the whole packet was received
-  while (rxBufferCount > 4 && (rxBuffer[1]+2) == rxBufferCount) {
-    if (checkCrossfireTelemetryFrameCRC(module)) {
-#if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
-          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(rxBuffer, rxBufferCount);
-      }
-#endif
-      processCrossfireTelemetryFrame(module);
-      rxBufferCount = 0;
-    }
-    else {
-      TRACE("[XF] CRC error ");
-      crossfireTelemetrySeekStart(rxBuffer, rxBufferCount); // adjusts rxBufferCount
-    }
   }
 }
 

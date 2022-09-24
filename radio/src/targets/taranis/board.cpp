@@ -151,7 +151,7 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined (RADIO_ZORRO)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
     
   if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
   {
@@ -171,7 +171,13 @@ void boardInit()
 
 #if defined(STATUS_LEDS)
   ledInit();
+#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
+    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
+    defined(RADIO_ZORRO)
+  ledBlue();
+#else
   ledGreen();
+#endif
 #endif
 
 // Support for FS Led to indicate battery charge level
@@ -309,6 +315,10 @@ void boardOff()
   }
 #endif
 
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+  lcdInit(); 
+#endif
+
   lcdOff();
   SysTick->CTRL = 0; // turn off systick
   pwrOff();
@@ -423,4 +433,31 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
 {
   if (port_nr >= MAX_AUX_SERIAL) return nullptr;
   return serialPorts[port_nr];
+}
+
+void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
+{
+#if defined(AUDIO_MUTE_PIN_INVERT)
+  GPIO_ResetBits(GPIOx, Pinx);
+#else
+  GPIO_SetBits(GPIOx, Pinx);
+#endif
+}
+
+void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
+{
+#if defined(AUDIO_MUTE_PIN_INVERT)
+  GPIO_SetBits(GPIOx, Pinx);
+#else
+  GPIO_ResetBits(GPIOx, Pinx);
+#endif
+}
+
+uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx)
+{
+#if defined(AUDIO_MUTE_PIN_INVERT)
+  return !GPIO_ReadOutputDataBit(GPIOx, Pinx);
+#else
+  return GPIO_ReadOutputDataBit(GPIOx, Pinx);
+#endif
 }

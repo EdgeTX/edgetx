@@ -1513,6 +1513,7 @@ class CustomFunctionsConversionTable: public ConversionTable {
         addConversion(FuncScreenshot, val++);
         addConversion(FuncRacingMode, val++);
         addConversion(FuncDisableTouch, val++);
+        addConversion(FuncSetScreen, val++);
       }
     }
 };
@@ -1581,7 +1582,7 @@ class ArmCustomFunctionField: public TransformedField {
 
     static bool hasRepeatParam(const CustomFunctionData & fn)
     {
-      return (fn.func == FuncPlaySound || fn.func == FuncPlayPrompt || fn.func == FuncPlayValue || fn.func == FuncPlayHaptic);
+      return (fn.func == FuncPlaySound || fn.func == FuncPlayPrompt || fn.func == FuncPlayValue || fn.func == FuncPlayHaptic || fn.func == FuncSetScreen);
     }
 
     void beforeExport() override
@@ -3035,11 +3036,10 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new BoolField<1>(this, generalData.rtcCheckDisable));
   if (IS_JUMPER_T18(board)) {
     internalField.Append(new BoolField<1>(this, generalData.keysBacklight));
-    internalField.Append(new BoolField<1>(this, generalData.rotEncDirection));
+    internalField.Append(new SpareBitsField<1>(this));
   }
   else {
-    internalField.Append(new SpareBitsField<1>(this));
-    internalField.Append(new  BoolField<1>(this, generalData.rotEncDirection));
+    internalField.Append(new SpareBitsField<2>(this));
   }
 
   for (int i=0; i<4; i++) {
@@ -3350,6 +3350,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
 
   if (version >= 220) {
     internalField.Append(new SignedField<2>(this, generalData.uartSampleMode, "Uart Sample Mode"));
+    internalField.Append(new UnsignedField<2>(this, generalData.rotEncMode));
     //internalField.Append(new SpareBitsField<6>(this));  // may need padding to end of 8 byte boundary
   }
 }

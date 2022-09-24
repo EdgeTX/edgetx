@@ -117,20 +117,29 @@ bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
   //       by clicking outside the menu window and the onCancel
   //       handler is not accessible from here
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  onKeyPress();
   deleteLater();
   return true;
 }
 #endif
 
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                          LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
+                                          LV_GRID_TEMPLATE_LAST};
+
 BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
                                uint8_t receiverIdx) :
-    Dialog(parent, STR_BIND, {50, 73, LCD_W - 100, LCD_H - 146}),
+    Dialog(parent, STR_BIND, rect_t{}),
     moduleIdx(moduleIdx),
     receiverIdx(receiverIdx)
 {
-  new StaticText(&content->form, {0, height() / 2, width(), PAGE_LINE_HEIGHT},
-                 STR_WAITING_FOR_RX, 0, CENTERED | COLOR_THEME_PRIMARY1);
+  setCloseWhenClickOutside(true);
+  auto form = &content->form;
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
 
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
@@ -143,6 +152,8 @@ void BindWaitDialog::deleteLater(bool detach, bool trash)
 void BindWaitDialog::checkEvents()
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
+
+  auto form = &content->form;
 
   if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
 
@@ -217,7 +228,6 @@ uint8_t ReceiverButton::pressBind()
       return 0;
     });
     menu->addLine(STR_OPTIONS, [=]() {
-      // pushMenu(menuModelReceiverOptions);
       new RxOptions(this, moduleIdx, receiverIdx);
       return 0;
     });
@@ -243,7 +253,7 @@ uint8_t ReceiverButton::pressBind()
       memclear(&modSetup, sizeof(modSetup));
       modSetup.resetReceiverIndex = receiverIdx;
       modSetup.resetReceiverFlags = 0xFF;
-      new ConfirmDialog(parent, STR_RECEIVER, STR_RECEIVER_DELETE, [=]() {
+      new ConfirmDialog(parent, STR_RECEIVER, STR_RECEIVER_RESET, [=]() {
         moduleState[moduleIdx].mode = MODULE_MODE_RESET;
         removePXX2Receiver(moduleIdx, receiverIdx);
       });
@@ -299,50 +309,58 @@ void ReceiverButton::checkEvents()
 }
 
 RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
-    Dialog(parent, STR_REGISTER, {50, 73, LCD_W - 100, 0}), moduleIdx(moduleIdx)
+    Dialog(parent, STR_REGISTER, rect_t{}), moduleIdx(moduleIdx)
 {
-  FormGroup* form = &content->form;
-  FormGridLayout grid(content->form.width());
-  grid.setLabelWidth(150);
-  grid.spacer(PAGE_PADDING);
+  setCloseWhenClickOutside(true);
+  auto form = &content->form;
+
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Register ID
-  new StaticText(form, grid.getLabelSlot(), STR_REG_ID, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto edit =
-      new ModelTextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID,
-                        sizeof(g_model.modelRegistrationID));
-  grid.nextLine();
+  auto line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_REG_ID, 0, COLOR_THEME_PRIMARY1);
+  reg_id = new ModelTextEdit(line, rect_t{}, g_model.modelRegistrationID,
+                             sizeof(g_model.modelRegistrationID));
 
   // UID
-  new StaticText(form, grid.getLabelSlot(), "UID", 0, COLOR_THEME_PRIMARY1);
-  uid = new NumberEdit(
-      form, grid.getFieldSlot(), 0, 2,
-      GET_SET_DEFAULT(getPXX2ModuleSetupBuffer().registerLoopIndex));
-  grid.nextLine();
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, "UID", 0, COLOR_THEME_PRIMARY1);
+
+  auto* modSetup = &(getPXX2ModuleSetupBuffer());
+  uid = new NumberEdit(line, rect_t{}, 0, 2, GET_SET_DEFAULT(modSetup->registerLoopIndex));
 
   // RX name
-  new StaticText(form, grid.getLabelSlot(), STR_RX_NAME, 0,
-                 COLOR_THEME_PRIMARY1);
-  waiting = new StaticText(form, grid.getFieldSlot(), STR_WAITING_FOR_RX, 0,
-                           COLOR_THEME_PRIMARY1);
-  grid.nextLine();
-  grid.spacer(6);
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_RX_NAME, 0, COLOR_THEME_PRIMARY1);
 
-  // Buttons
-  exitButton =
-      new TextButton(form, grid.getLabelSlot(), "EXIT", [=]() -> int8_t {
-        this->deleteLater();
-        return 0;
-      });
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
-  grid.nextLine();
-  grid.spacer(PAGE_PADDING);
+  start(); // clears registration data buffer
+  rx_name = new ModelTextEdit(line, rect_t{}, modSetup->registerRxName, PXX2_LEN_RX_NAME);
+  //lv_textarea_set_text(rx_name->getLvObj(), STR_WAITING_FOR_RX);
+  lv_obj_add_state(rx_name->getLvObj(), LV_STATE_DISABLED);
 
-  form->setHeight(grid.getWindowHeight());
-  content->adjustHeight();
+  // Status
+  // line = form->newLine(&grid);
+  // new StaticText(line, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+  // status = new StaticText(line, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
 
-  start();
+  auto box = new FormGroup(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  box->padAll(lv_dpx(8));
+  
+  new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
+    this->deleteLater();
+    return 0;
+  });
+
+  btn_ok = new TextButton(box, rect_t{}, STR_SAVE, [=]() -> int8_t {
+    modSetup->registerStep = REGISTER_RX_NAME_SELECTED;
+    return 0;
+  });
+  lv_obj_add_flag(btn_ok->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
 
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
@@ -352,40 +370,53 @@ void RegisterDialog::start()
     auto& pxx2Setup = getPXX2ModuleSetupBuffer();
     memclear(&pxx2Setup, sizeof(pxx2Setup));
     moduleState[moduleIdx].mode = MODULE_MODE_REGISTER;
+    old_registerStep = REGISTER_INIT;
 }
 
 void RegisterDialog::checkEvents()
 {
   auto& modSetup = getPXX2ModuleSetupBuffer();
-  if (!rxName && modSetup.registerStep >= REGISTER_RX_NAME_RECEIVED) {
-    rect_t rect = waiting->getRect();
-    waiting->deleteLater();
 
-    rxName = new ModelTextEdit(&content->form, rect, modSetup.registerRxName,
-                               PXX2_LEN_RX_NAME);
-    rect = exitButton->getRect();
-    auto okButton = new TextButton(&content->form, rect, "OK", [=]() -> int8_t {
-      auto& modSetup = getPXX2ModuleSetupBuffer();
-      modSetup.registerStep = REGISTER_RX_NAME_SELECTED;
-      return 0;
-    });
-    exitButton->setLeft(left() + rect.w + 10);
-  } else if (modSetup.registerStep == REGISTER_OK) {
-    deleteLater();
-    POPUP_INFORMATION(STR_REG_OK);
+#if defined(SIMU)
+  if (modSetup.registerStep == REGISTER_INIT) {
+    memcpy(modSetup.registerRxName, "SimuRx   ", PXX2_LEN_RX_NAME);
+    modSetup.registerStep = REGISTER_RX_NAME_RECEIVED;
+  } else if (modSetup.registerStep == REGISTER_RX_NAME_SELECTED) {
+    modSetup.registerStep = REGISTER_OK;
+    moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  }
+#endif
+  
+  if (old_registerStep != modSetup.registerStep) {
+    old_registerStep = modSetup.registerStep;
+
+    if (modSetup.registerStep == REGISTER_RX_NAME_RECEIVED) {
+      lv_obj_clear_state(rx_name->getLvObj(), LV_STATE_DISABLED);
+      lv_obj_clear_flag(btn_ok->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      // lv_obj_add_flag(status->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      rx_name->update();
+    } else if (modSetup.registerStep == REGISTER_OK) {
+      deleteLater();
+      POPUP_INFORMATION(STR_REG_OK);
+      // pop-up call garbage collector,
+      // so that the dialog is alread destroyed
+      return;
+    }
   }
 
   Dialog::checkEvents();
 }
 
 ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
-  Dialog(parent, STR_MODULE_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
+  Dialog(parent, STR_MODULE_OPTIONS, rect_t{}),
   moduleIdx(moduleIdx)
 {
   setCloseWhenClickOutside(true);
   auto form = &content->form;
-  new StaticText(form, {0, height() / 2, width(), PAGE_LINE_HEIGHT},
-                 STR_WAITING_FOR_MODULE, CENTERED | VCENTERED | COLOR_THEME_PRIMARY1);
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_MODULE, COLOR_THEME_PRIMARY1);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
 
 #if defined(SIMU)
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -395,7 +426,6 @@ ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
   state = MO_ReadModuleSettings;
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  // setFocus();
 }
 
 void ModuleOptions::checkEvents()
@@ -477,22 +507,23 @@ void ModuleOptions::update()
       getPXX2ModuleOptions(modelId) &
       ((1 << MODULE_OPTION_EXTERNAL_ANTENNA) | (1 << MODULE_OPTION_POWER));
 
-  FormGridLayout grid(content->form.width(), 10);
-  grid.setLabelWidth(width() / 3);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
-  new StaticText(form, grid.getLabelSlot(), STR_MODULE);
-  new StaticText(form, grid.getFieldSlot(), getPXX2ModuleName(modelId));
-  grid.nextLine();
+  auto line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MODULE);
+  new StaticText(line, rect_t{}, getPXX2ModuleName(modelId));
 
   if (!optionsAvailable) {
     // no options available
-    new StaticText(form, grid.getCenteredSlot(), STR_NO_TX_OPTIONS, 0, CENTERED);
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_NO_TX_OPTIONS, 0);
   } else {
     // some options available
     if (optionsAvailable & (1 << MODULE_OPTION_EXTERNAL_ANTENNA)) {
-      new StaticText(form, grid.getLabelSlot(), STR_EXT_ANTENNA, 0,
-                     COLOR_THEME_PRIMARY1);
-      new CheckBox(form, grid.getFieldSlot(),
+
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_EXT_ANTENNA, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{},
                    []() {
                      const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
                      return hwSettings.moduleSettings.externalAntenna;
@@ -501,16 +532,15 @@ void ModuleOptions::update()
                      auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
                      hwSettings.moduleSettings.externalAntenna = val;
                    });
-      grid.nextLine();
     }
 
     if (optionsAvailable & (1 << MODULE_OPTION_POWER)) {
 
       // TODO: use isTelemetryAvailable() to check if rebind is necessary
-      new StaticText(form, grid.getLabelSlot(), STR_POWER, 0,
-                     COLOR_THEME_PRIMARY1);
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_POWER, 0, COLOR_THEME_PRIMARY1);
       auto txPower = new Choice(
-          form, grid.getFieldSlot(), 0, 30,
+          line, rect_t{}, 0, 30,
           []() {
             const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
             return hwSettings.moduleSettings.txPower;
@@ -544,33 +574,30 @@ void ModuleOptions::update()
         const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
         return isPXX2PowerAvailable(hwSettings.modules[moduleIdx].information, val);
       });
-      grid.nextLine();
     }
   }
 
-  new DynamicText(form, grid.getFieldSlot(), [=]() { return statusText; });
-  grid.setLabelWidth(15);
-  grid.setMarginRight(15);
-  grid.nextLine();
+  line = form->newLine(&grid);
+  new DynamicText(line, rect_t{}, [=]() { return statusText; });
 
-  auto exitButton =
-    new TextButton(form, grid.getFieldSlot(2, 0), STR_EXIT, [=]() -> int8_t {
-        this->deleteLater();
-        return 0;
-      });
+  line = form->newLine(&grid);
 
-  new TextButton(form, grid.getFieldSlot(2, 1), STR_OK, [=]() -> int8_t {
+  auto box = new FormGroup(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  box->padAll(lv_dpx(8));
+
+  new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
+    this->deleteLater();
+    return 0;
+  });
+
+  new TextButton(box, rect_t{}, STR_SAVE, [=]() -> int8_t {
     this->writeSettings();
     return 0;
   });
 
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
-  grid.nextLine();
-  grid.spacer(PAGE_PADDING);
-
-
-  content->adjustHeight();
-  content->setWindowCentered();
+  content->updateSize();
 }
 
 void ModuleOptions::writeSettings()
@@ -582,17 +609,16 @@ void ModuleOptions::writeSettings()
 }
 
 RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
-  Dialog(parent, STR_RECEIVER_OPTIONS, {50, 73, LCD_W - 100, LCD_H - 146}),
+  Dialog(parent, STR_RECEIVER_OPTIONS, rect_t{}),
   moduleIdx(moduleIdx),
   receiverIdx(rxIdx)
 {
   setCloseWhenClickOutside(true);
   auto form = &content->form;
-  new StaticText(
-      form,
-      {0, static_cast<coord_t>(form->height() / 2 - PAGE_LINE_HEIGHT),
-       form->width(), PAGE_LINE_HEIGHT},
-      STR_WAITING_FOR_RX, 0, CENTERED | VCENTERED | COLOR_THEME_PRIMARY1);
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
 
 #if defined(SIMU)
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -609,7 +635,6 @@ RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
   }
 #endif
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-  // setFocus();
 }
 
 void RxOptions::checkEvents()
@@ -716,19 +741,18 @@ void RxOptions::update()
   uint8_t receiverVariant = rxInfo.variant;
   uint8_t capabilities = rxInfo.capabilities;
 
-  FormGridLayout grid(content->form.width(), 10);
-  grid.setLabelWidth(width() / 3);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
-  new StaticText(form, grid.getLabelSlot(), STR_RECEIVER);
-  new StaticText(form, grid.getFieldSlot(),
+  auto line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_RECEIVER);
+  new StaticText(line, rect_t{},
                  g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx]);
-  grid.nextLine();
 
   // PWM rate
-  new StaticText(form, grid.getLabelSlot(),
-                 isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
   new CheckBox(
-      form, grid.getFieldSlot(),
+      line, rect_t{},
       []() {
         auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
         return hwSettings.receiverSettings.pwmRate;
@@ -737,12 +761,12 @@ void RxOptions::update()
         auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
         hwSettings.receiverSettings.pwmRate = val;
       });
-  grid.nextLine();
 
   // telemetry disabled
-  new StaticText(form, grid.getLabelSlot(), STR_TELEMETRY_DISABLED);
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_TELEMETRY_DISABLED);
   auto tele25mw = new CheckBox(
-        form, grid.getFieldSlot(),
+        line, rect_t{},
         []() {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           return hwSettings.receiverSettings.telemetryDisabled;
@@ -757,13 +781,13 @@ void RxOptions::update()
     // read only field in this case
     tele25mw->disable();
   }
-  grid.nextLine();
 
   if (capabilities & (1 << RECEIVER_CAPABILITY_TELEMETRY_25MW)) {
     // telemetry 25 mW
-    new StaticText(form, grid.getLabelSlot(), "25mw Tele");
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, "25mw Tele");
     new CheckBox(
-        form, grid.getFieldSlot(),
+        line, rect_t{},
         []() {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           return hwSettings.receiverSettings.telemetry25mw;
@@ -772,16 +796,16 @@ void RxOptions::update()
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           hwSettings.receiverSettings.telemetry25mw = val;
         });
-    grid.nextLine();
   }
 
   if (capabilities &
       ((1 << RECEIVER_CAPABILITY_FPORT) | (1 << RECEIVER_CAPABILITY_FPORT2))) {
 
     // SPORT modes
-    new StaticText(form, grid.getLabelSlot(), STR_PROTOCOL);
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_PROTOCOL);
     auto sportModes = new Choice(
-        form, grid.getFieldSlot(2, 0), STR_SPORT_MODES, 0, 2,
+        line, rect_t{}, STR_SPORT_MODES, 0, 2,
         []() {
           const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           const auto& rxSettings = hwSettings.receiverSettings;
@@ -803,13 +827,13 @@ void RxOptions::update()
       }
       return true;
     });
-    grid.nextLine();
   }
 
   auto outputsCount = min<uint8_t>(16, hwSettings.receiverSettings.outputsCount);
   for (uint8_t i = 0; i < outputsCount; i++) {
+    line = form->newLine(&grid);
     std::string i_str = std::to_string(i+1);
-    new StaticText(form, grid.getLabelSlot(), std::string(STR_PIN) + i_str);
+    new StaticText(line, rect_t{}, std::string(STR_PIN) + i_str);
 
     uint8_t channelsMax = sentModuleChannels(moduleIdx) - 1;
     uint8_t selectionMax = channelsMax;
@@ -821,15 +845,16 @@ void RxOptions::update()
     uint8_t mapping = hwSettings.receiverSettings.outputsMapping[i];
     uint8_t channel = getShiftedChannel(moduleIdx, mapping);
 
-    auto r = grid.getFieldSlot(2, 1);
-    if (r.h > BAR_HEIGHT) {
-      r.y += (r.h - BAR_HEIGHT)/2;
-      r.h = BAR_HEIGHT;
-    }
-    auto chBar = new OutputChannelBar(form, r, channel);
+    // TODO
+    // auto r = grid.getFieldSlot(2, 1);
+    // if (r.h > BAR_HEIGHT) {
+    //   r.y += (r.h - BAR_HEIGHT)/2;
+    //   r.h = BAR_HEIGHT;
+    // }
+    // auto chBar = new OutputChannelBar(form, r, channel);
 
     auto chDn = new Choice(
-        form, grid.getFieldSlot(2, 0), 0, selectionMax,
+        line, rect_t{}, 0, selectionMax,
         [=]() {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           return hwSettings.receiverSettings.outputsMapping[i];
@@ -837,42 +862,36 @@ void RxOptions::update()
         [=](int val) {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
           hwSettings.receiverSettings.outputsMapping[i] = val;
-          if (val <= channelsMax) {
-            chBar->setChannel(getShiftedChannel(moduleIdx, val));
-            lv_obj_clear_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-          } else {
-            lv_obj_add_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-          }
+          // if (val <= channelsMax) {
+          //   chBar->setChannel(getShiftedChannel(moduleIdx, val));
+          //   lv_obj_clear_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          // } else {
+          //   lv_obj_add_flag(chBar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          // }
         });
     chDn->setTextHandler(
         [=](int val) { return getChannelText(moduleIdx, i, val); });
-
-    grid.nextLine();
   }
 
-  new DynamicText(form, grid.getFieldSlot(), [=]() { return statusText; });
-  grid.setLabelWidth(15);
-  grid.setMarginRight(15);
-  grid.nextLine();
+  line = form->newLine(&grid);
+  new DynamicText(line, rect_t{}, [=]() { return statusText; });
 
-  auto exitButton =
-    new TextButton(form, grid.getFieldSlot(2, 0), STR_EXIT, [=]() -> int8_t {
-        this->deleteLater();
-        return 0;
-      });
+  auto box = new FormGroup(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  box->padAll(lv_dpx(8));
 
-  new TextButton(form, grid.getFieldSlot(2, 1), STR_OK, [=]() -> int8_t {
+  new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
+    this->deleteLater();
+    return 0;
+  });
+
+  new TextButton(box, rect_t{}, STR_SAVE, [=]() -> int8_t {
     this->writeSettings();
     return 0;
   });
 
-  // exitButton->setFocus(SET_FOCUS_DEFAULT);
-  grid.nextLine();
-  grid.spacer(PAGE_PADDING);
-
-
-  content->adjustHeight();
-  content->setWindowCentered();
+  content->updateSize();
 }
 
 void RxOptions::writeSettings()

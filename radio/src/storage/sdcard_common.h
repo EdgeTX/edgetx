@@ -25,8 +25,6 @@
 #include "ff.h"
 #include "translations.h"
 
-#define DEFAULT_CATEGORY "Models"
-
 #define MODEL_FILENAME_PREFIX    "model"
 #if defined(SDCARD_RAW)
 #define MODEL_FILENAME_SUFFIX    ".bin"
@@ -53,7 +51,7 @@ const char *loadFileBin(const char *fullpath, uint8_t *data,
 
 // writes a complete YAML file
 struct YamlNode;
-const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data);
+const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data, uint16_t checksum);
 
 void getModelPath(char * path, const char * filename, const char* pathName = STR_MODELS_PATH);
 

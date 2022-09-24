@@ -82,8 +82,10 @@ void rotaryEncoderInit()
 #define INC_ROT        1
 #define INC_ROT_2      2
 #else
-#define INC_ROT        (g_eeGeneral.rotEncDirection ? -1 : 1);
-#define INC_ROT_2      (g_eeGeneral.rotEncDirection ? -2 : 2);
+#define INC_ROT \
+  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -1 : 1);
+#define INC_ROT_2 \
+  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -2 : 2);
 #endif
 
 void rotaryEncoderCheck()
@@ -120,7 +122,7 @@ void rotaryEncoderCheck()
 #else
   uint8_t newPosition = ROTARY_ENCODER_POSITION();
   if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(RADIO_ZORRO) // zorro def. rotation dir is inverse of other radios
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) // def. rotation dir is inverse of other radios
     if (!(rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
 #else
     if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {

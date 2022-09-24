@@ -727,7 +727,7 @@
 #endif // HARDWARE_TOUCH
 
 // First I2C Bus
-#if defined(RADIO_T18)
+#if defined(RADIO_T18) || defined(RADIO_T16)
   #define I2C_B1                          I2C3
   #define I2C_B1_GPIO                     GPIOH
   #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
@@ -829,7 +829,10 @@
 #define INTMODULE_DMA_STREAM_IRQ        DMA2_Stream7_IRQn
 #define INTMODULE_DMA_STREAM_IRQHandler DMA2_Stream7_IRQHandler
 #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF7
-#define INTMODULE_DMA_CHANNEL           DMA_Channel_4
+#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_4
+#define INTMODULE_RX_DMA                DMA2
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_2
+#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
 #if defined(PCBX12S)
   #define INTMODULE_BOOTCMD_GPIO        GPIOC
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_2  // PC.02

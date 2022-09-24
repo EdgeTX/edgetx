@@ -345,7 +345,16 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
     case EVT_KEY_FIRST(KEY_DOWN):
       if (s_editMode>0) break;
       do {
+#if defined(ROTARY_ENCODER_NAVIGATION)
+        if (g_eeGeneral.rotEncMode >=
+            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+          DEC(l_posVert, 0, maxrow);
+        } else {
+          INC(l_posVert, 0, maxrow);
+        }
+#else
         INC(l_posVert, 0, maxrow);
+#endif
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -368,12 +377,13 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
       if (l_posHorz > 0) {
         l_posHorz--;
         break;
-      }
-      else if (IS_ROTARY_LEFT(event) && s_editMode == 0) {
+      } else if (IS_ROTARY_LEFT(event) && s_editMode == 0) {
         l_posHorz = 0xff;
-      }
-      else {
-        l_posHorz = maxcol;
+      } else {
+        l_posHorz =
+            g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT
+                ? 0
+                : maxcol;
         break;
       }
 #else
@@ -388,7 +398,16 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
       if (s_editMode>0) break;
 
       do {
+#if defined(ROTARY_ENCODER_NAVIGATION)
+        if (g_eeGeneral.rotEncMode >=
+            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+          INC(l_posVert, 0, maxrow);
+        } else {
+          DEC(l_posVert, 0, maxrow);
+        }
+#else
         DEC(l_posVert, 0, maxrow);
+#endif
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
 #if defined(ROTARY_ENCODER_NAVIGATION)

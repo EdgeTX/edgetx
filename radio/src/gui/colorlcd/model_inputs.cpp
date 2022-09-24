@@ -131,76 +131,45 @@ class InputLineButton : public InputMixButton
  public:
   using InputMixButton::InputMixButton;
 
-  void paint(BitmapBuffer *dc) override
+  void refresh() override
   {
     const ExpoData &line = g_model.expoData[index];
-    LcdFlags textColor = COLOR_THEME_SECONDARY1;
+    setWeight(line.weight, -100, 100);
+    setSource(line.srcRaw);
 
-    coord_t border = lv_obj_get_style_border_width(lvobj, LV_PART_MAIN);
-    coord_t pad_left = lv_obj_get_style_pad_left(lvobj, LV_PART_MAIN);
+    char tmp_str[64];
+    size_t maxlen = sizeof(tmp_str);
 
-    coord_t left = pad_left + border;
-    coord_t line_h = lv_obj_get_style_text_line_space(lvobj, LV_PART_MAIN)
-      + getFontHeight(FONT(STD));
-
-    // first line ...
-    coord_t y = 0;
-    y += border;
-    y += lv_obj_get_style_pad_top(lvobj, LV_PART_MAIN);
-
-    coord_t x = left;
-    drawValueOrGVar(dc, x, y, line.weight, -100, 100, textColor);
-    drawSource(dc, x + 65, y, line.srcRaw, textColor);
+    char *s = tmp_str;
+    *s = '\0';
 
     if (line.name[0]) {
-      dc->drawMask(146, y, mixerSetupLabelIcon, textColor);
-      dc->drawSizedText(166, y, line.name, sizeof(line.name), textColor);
+      int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
+      if (cnt >= maxlen) maxlen = 0;
+      else { maxlen -= cnt; s += cnt; }
     }
 
-    // second line ...
-    y += line_h;
     if (line.swtch || line.curve.value) {
-      if (line.swtch) {
-        dc->drawMask(x, y, mixerSetupSwitchIcon, textColor);
-        drawSwitch(dc, x + 21, y, line.swtch, textColor);
-      }
-      if (line.curve.value != 0) {
-        dc->drawMask(x + 65, y, mixerSetupCurveIcon, textColor);
-        drawCurveRef(dc, x + 85, y, line.curve, textColor);
-      }
+       if (line.swtch) {
+         char* sw_pos = getSwitchPositionName(line.swtch);
+         int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
+         if (cnt >= maxlen) maxlen = 0;
+         else { maxlen -= cnt; s += cnt; }
+       }
+       if (line.curve.value != 0) {
+         getCurveRefString(s, maxlen, line.curve);
+         int cnt = strnlen(s, maxlen);
+         if (cnt >= maxlen) maxlen = 0;
+         else { maxlen -= cnt; s += cnt; }
+       }
     }
+    lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
 
-    if (line.flightModes) {
-#if LCD_H > LCD_W
-      // third line ...
-      y += line_h;
-      x = left;
-#else
-      x = 146;
-#endif
-      drawFlightModes(dc, line.flightModes, textColor, x, y);
-    }
+    setFlightModes(line.flightModes);
   }
 
 protected:
   bool isActive() const override { return isExpoActive(index); }
-  size_t getLines() const override {
-    const ExpoData* line = expoAddress(index);
-    size_t lines = 1;
-#if LCD_W > LCD_H
-    if (line->swtch || line->curve.value != 0 || line->flightModes) {
-      lines += 1;
-    }
-#else
-    if (line->swtch || line->curve.value != 0) {
-      lines += 1;
-    }
-    if (line->flightModes) {
-      lines += 1;
-    }    
-#endif
-    return lines;
-  }
 };
 
 ModelInputsPage::ModelInputsPage():
@@ -273,6 +242,8 @@ InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
                                                   uint8_t index)
 {
   auto button = new InputLineButton(group, index);
+  button->refresh();
+  
   lines.emplace_back(button);
   group->addLine(button);
 
@@ -467,7 +438,7 @@ void ModelInputsPage::build(FormWindow *window)
   
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout();
-  form->padRow(lv_dpx(8));
+  form->padRow(lv_dpx(4));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));

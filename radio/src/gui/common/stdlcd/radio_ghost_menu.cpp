@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
+#endif
+
 void menuGhostModuleConfig(event_t event)
 {
   switch (event) {

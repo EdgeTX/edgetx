@@ -94,7 +94,19 @@ const char * runPopupMenu(event_t event)
     drawVerticalScrollbar(MENU_X+MENU_W-1, y+1, MENU_MAX_DISPLAY_LINES * (FH+1), popupMenuOffset, popupMenuItemsCount, display_count);
   }
 
-  switch (event) {
+  event_t eventTemp = event;
+
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
+  if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) {
+    if (eventTemp == EVT_ROTARY_LEFT) {
+      eventTemp = EVT_ROTARY_RIGHT;
+    } else if (eventTemp == EVT_ROTARY_RIGHT) {
+      eventTemp = EVT_ROTARY_LEFT;
+    }
+  }
+#endif
+
+  switch (eventTemp) {
 #if defined(ROTARY_ENCODER_NAVIGATION)
     CASE_EVT_ROTARY_LEFT
 #endif

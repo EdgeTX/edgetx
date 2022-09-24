@@ -98,6 +98,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
   int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
   int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::internalModuleBaudrateItemModel());
+  int uartmodelid = editorItemModels->registerItemModel(GeneralSettings::uartSampleModeItemModel());
 
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
@@ -123,29 +124,26 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams(row, spnStickDeadZone);
   }
 
-  addSection(tr("Pots"), row);
-
   count = Boards::getCapability(board, Board::Pots);
   count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
   if (count > 0) {
+    addSection(tr("Pots"), row);
     for (int i = 0; i < count; i++) {
       addPot(i, row);
     }
   }
 
-  addSection(tr("Sliders"), row);
-
   count = Boards::getCapability(board, Board::Sliders);
   if (count) {
+    addSection(tr("Sliders"), row);
     for (int i = 0; i < count; i++) {
       addSlider(i, row);
     }
   }
 
-  addSection(tr("Switches"), row);
-
   count = Boards::getCapability(board, Board::Switches);
   if (count) {
+    addSection(tr("Switches"), row);
     for (int i = 0; i < count; i++) {
       addSwitch(i, row);
     }
@@ -216,11 +214,20 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     row++;
   }
 
+  if (Boards::getCapability(board, Board::HasExternalModuleSupport)) {
+    addLabel(tr("Sample Mode"), row, 0);
+    AutoComboBox *uartSampleMode = new AutoComboBox(this);
+    uartSampleMode->setModel(editorItemModels->getItemModel(uartmodelid));
+    uartSampleMode->setField(generalSettings.uartSampleMode);
+    addParams(row, uartSampleMode);
+  }
+
   // All values except 0 are mutually exclusive
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
-  addSection(tr("Serial port"), row);
+  if (firmware->getCapability(HasAuxSerialMode) || firmware->getCapability(HasAux2SerialMode) || firmware->getCapability(HasVCPSerialMode))
+    addSection(tr("Serial ports"), row);
 
   if (firmware->getCapability(HasAuxSerialMode)) {
     QString lbl = "AUX1";

@@ -239,6 +239,8 @@ PACK(struct TimerData {
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
+  uint8_t  showElapsed:1; 
+  uint8_t  spare:7 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
 });
 
@@ -510,26 +512,12 @@ PACK(struct ModuleData {
         rx_freq[1] = 0;
       }
     } flysky);
-    NOBACKUP(PACK(struct {
-      uint8_t bindPower:3;
-      uint8_t runPower:3;
-      uint8_t emi:1;
+    NOBACKUP(struct {
+      uint8_t emi:2;
       uint8_t telemetry:1;
-      uint16_t failsafeTimeout;
-      uint8_t rx_freq[2];
-      uint8_t mode:2;
-      uint8_t reserved:6;
-      uint16_t rxFreq()
-      {
-        return (uint16_t)rx_freq[0] | (((uint16_t)rx_freq[1]) << 8);
-      }
-
-      void setRxFreq(uint16_t value)
-      {
-        rx_freq[0] = value & 0xFF;
-        rx_freq[1] = value >> 8;
-      }
-    } afhds3));
+      uint8_t phyMode:3;
+      uint8_t reserved:2;
+    } afhds3);
     NOBACKUP(struct {
       uint8_t raw12bits:1;
       uint8_t telemetryBaudrate:3;
@@ -564,6 +552,9 @@ PACK(struct ModelHeader {
   char      name[LEN_MODEL_NAME]; // must be first for eeLoadModelName
   uint8_t   modelId[NUM_MODULES];
   MODEL_HEADER_BITMAP_FIELD
+#if defined(STORAGE_MODELSLIST)
+  char      labels[LABELS_LENGTH];
+#endif
 });
 
 #if defined(COLORLCD)
@@ -812,12 +803,14 @@ PACK(struct TrainerData {
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
-  #define BUZZER_FIELD int8_t spare1:2 SKIP
+  #define BUZZER_FIELD int8_t spare2:2 SKIP
 #endif
 
 PACK(struct RadioData {
 
   // Real attributes
+  NOBACKUP(uint8_t manuallyEdited:1);
+  NOBACKUP(int8_t spare0:7 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
   CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
@@ -830,7 +823,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  int8_t rotEncDirection:1;
+  NOBACKUP(uint8_t spare1:1 SKIP);
   NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -899,13 +892,17 @@ PACK(struct RadioData {
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
+  CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
+  NOBACKUP(uint8_t  rotEncMode:2);
+
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
+
 #if defined(STICK_DEAD_ZONE)
   NOBACKUP(uint8_t  stickDeadZone:3);
-  NOBACKUP(uint8_t  spare2:3 SKIP);
 #else
-  NOBACKUP(uint8_t  spare2:6 SKIP);
+  NOBACKUP(uint8_t  stickDeadZoneSpare:3 SKIP);
 #endif
+  NOBACKUP(uint8_t  spare4:1 SKIP);
 
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);

@@ -180,6 +180,16 @@ QString TimerData::modeToString(const int value)
   }
 }
 
+QString TimerData::showElapsedToString(const unsigned int value)
+{
+  return (value) ? tr("Show Elapsed") : tr("Show Remaining");
+}
+
+QString TimerData::showElapsedToString() const
+{
+  return showElapsedToString(showElapsed);
+}
+
 //  static
 AbstractStaticItemModel * TimerData::countdownBeepItemModel()
 {
@@ -230,6 +240,19 @@ AbstractStaticItemModel * TimerData::modeItemModel()
 
   for (int i = 0; i < TIMERMODE_COUNT; i++) {
     mdl->appendToItemList(modeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * TimerData::showElapsedItemModel()
+{
+  AbstractStaticItemModel *mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_TIMER_SHOWELAPSED);
+
+  for (unsigned int i = 0; i < TIMER_SHOW_COUNT; i++) {
+    mdl->appendToItemList(showElapsedToString(i), i);
   }
 
   mdl->loadItemList();

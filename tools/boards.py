@@ -66,4 +66,8 @@ boards = {
         "PCB": "X7",
         "PCBREV": "TX12",
     },
+    "COMMANDO8": {
+        "PCB": "X7",
+        "PCBREV": "COMMANDO8",
+    },
 }

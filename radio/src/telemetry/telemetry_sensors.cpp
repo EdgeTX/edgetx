@@ -27,7 +27,30 @@
   #include "libopenui.h"
 #endif
 
-#include "telemetry/flysky_nv14.h"
+#include "spektrum.h"
+
+#if defined(CROSSFIRE)
+  #include "crossfire.h"
+#endif
+
+#if defined(GHOST)
+  #include "ghost.h"
+#endif
+
+#if defined(PCBNV14)
+  #include "telemetry/flysky_nv14.h"
+#endif
+
+#if defined(MULTIMODULE)
+  #include "hitec.h"
+  #include "hott.h"
+  #include "multi.h"
+  #include "mlink.h"
+#endif
+
+#if defined(MULTIMODULE) || defined(AFHDS2) || defined(AFHDS3)
+  #include "flysky_ibus.h"
+#endif
 
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 uint8_t allowNewSensors;
@@ -551,17 +574,17 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
         break;
 #endif
 
-#if defined(AFHDS2)
+#if defined(AFHDS2) && defined(PCBNV14)
       case PROTOCOL_TELEMETRY_FLYSKY_NV14:
         flySkyNv14SetDefault(index, id, subId, instance);
         break;
 #endif
 
-#if defined(MULTIMODULE)
       case PROTOCOL_TELEMETRY_SPEKTRUM:
         spektrumSetDefault(index, id, subId, instance);
         break;
 
+#if defined(MULTIMODULE)
       case PROTOCOL_TELEMETRY_HITEC:
         hitecSetDefault(index, id, subId, instance);
         break;

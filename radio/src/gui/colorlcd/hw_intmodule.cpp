@@ -22,6 +22,10 @@
 #include "hw_intmodule.h"
 #include "opentx.h"
 
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
@@ -77,6 +81,7 @@ void InternalModuleWindow::setModuleType(int moduleType)
   SET_DIRTY();
 }
 
+#if defined(CROSSFIRE)
 int InternalModuleWindow::getBaudrate()
 {
   return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
@@ -88,6 +93,7 @@ void InternalModuleWindow::setBaudrate(int val)
   restartModule(INTERNAL_MODULE);
   SET_DIRTY();
 }
+#endif
 
 void InternalModuleWindow::updateBaudrateLine()
 {

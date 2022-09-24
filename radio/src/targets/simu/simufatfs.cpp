@@ -134,7 +134,7 @@ bool redirectToSettingsDirectory(const std::string & path)
   #endif
 #endif
 #if defined(SDCARD_YAML)
-    if (path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH)
+    if (path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH || path == RADIO_SETTINGS_TMPFILE_YAML_PATH || path == RADIO_SETTINGS_ERRORFILE_YAML_PATH)
       return true;
     if (startsWith(path, MODELS_PATH) && endsWith(path, YAML_EXT)) return true;
 #endif

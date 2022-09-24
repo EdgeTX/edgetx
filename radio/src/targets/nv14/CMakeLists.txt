@@ -18,8 +18,7 @@ set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
 set(HARDWARE_EXTERNAL_MODULE YES)
-#set(AUX_SERIAL ON)
-# set(NAVIGATION_TYPE touch)
+
 set(TARGET_DIR nv14)
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
@@ -46,13 +45,11 @@ set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 set(FLAVOUR nv14)
-#add_definitions(-DPCBNV14 -DPCBFLYSKY -DINTERNAL_MODULE_BAUDRATE=${PCB_RF_BAUD})
-add_definitions(-DPCBNV14 -DPCBFLYSKY -DINTERNAL_MODULE_SERIAL -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
-add_definitions(-DBATTERY_CHARGE)  # -DSOFTWARE_VOLUME
-add_definitions(-DINTERNAL_MODULE_AFHDS2A)
+add_definitions(-DPCBNV14 -DPCBFLYSKY -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
+add_definitions(-DBATTERY_CHARGE)
 
 # defines existing internal modules
-set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
+set(INTERNAL_MODULES AFHDS2A;AFHDS3 CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET nv14_bitmaps)
@@ -75,11 +72,6 @@ add_definitions(
 add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
-add_definitions(-DCROSSFIRE_NATIVE)
-add_definitions(-DAFHDS2) 
-add_definitions(-DHARDWARE_EXTERNAL_MODULE)
-#add_definitions(-DAUX_SERIAL)
-#add_definitions(-DFLYSKY_AUTO_POWER_DOWN)
 
 if(STICKS_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -94,9 +86,7 @@ if(STICKS_DEAD_ZONE)
 endif()
 
 set(AFHDS2 ON)
-
-# disable for now as it crashes on radio
-#set(AFHDS3 ON)
+set(AFHDS3 ON)
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")

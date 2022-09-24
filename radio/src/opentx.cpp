@@ -69,6 +69,7 @@ const uint8_t bchout_ar[]  = {
 
 uint8_t channelOrder(uint8_t setup, uint8_t x)
 {
+  if (setup >= sizeof(bchout_ar)) return x;
   return ((*(bchout_ar + setup) >> (6 - (x - 1) * 2)) & 3) + 1;
 }
 
@@ -380,6 +381,12 @@ void generalDefault()
   g_eeGeneral.pwrOnSpeed = 1; // 1 second
 #endif
 
+#if defined(IFLIGHT_RELEASE)
+  g_eeGeneral.splashMode = 3;
+  g_eeGeneral.pwrOnSpeed = 2;
+  g_eeGeneral.pwrOffSpeed = 2;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
@@ -541,6 +548,11 @@ bool inputsMoved()
     sum += getValue(MIXSRC_TILT_X+i) >> INAC_STICKS_SHIFT;
 #endif
 
+#if defined(SPACEMOUSE)
+  for (uint8_t i=0; i<(MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE); i++)
+    sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
+#endif
+
   if (abs((int8_t)(sum-inactivity.sum)) > 1) {
     inactivity.sum = sum;
     return true;
@@ -597,7 +609,7 @@ void resetBacklightTimeout()
   uint16_t autoOff = g_eeGeneral.lightAutoOff;
 #if defined(COLORLCD)
   // prevent the timeout from being 0 seconds on color lcd radios
-  autoOff = std::max<uint16_t>(1, autoOff); 
+  autoOff = std::max<uint16_t>(1, autoOff);
 #endif
   lightOffCounter = (autoOff*250) << 1;
 }
@@ -993,14 +1005,14 @@ void checkTrims()
 #endif
     int8_t trimInc = g_model.trimInc + 1;
     int8_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
-    if (thro) v = 4; // if throttle trim and trim trottle then step=4
+    if (thro) v = 4; // if throttle trim and trim throttle then step=4
 #if defined(GVARS)
     if (TRIM_REUSED(idx)) v = 1;
 #endif
     int16_t after = (k&1) ? before + v : before - v;   // positive = k&1
-    bool beepTrim = false;
+    bool beepTrim = true;
 
-    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centerered trim when changing sides
+    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
       after = 0;
       beepTrim = true;
       AUDIO_TRIM_MIDDLE();
@@ -1014,13 +1026,13 @@ void checkTrims()
       int16_t vmax = GVAR_MAX - g_model.gvars[gvar].max;
       if (after < vmin) {
         after = vmin;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
       else if (after > vmax) {
         after = vmax;
-        beepTrim = true;
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
@@ -1030,31 +1042,30 @@ void checkTrims()
     else
 #endif
     {
+      // Determine Max and Min trim values based on Extended Trim setting
       int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
       int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
-      if (before > tMin && after <= tMin) {
-        beepTrim = true;
+
+      // Play warning whe going past limits and remove any buffered trim moves
+      if (before >= tMin && after <= tMin) {
+        beepTrim = false;
         AUDIO_TRIM_MIN();
         killEvents(event);
       }
-      else if (before < tMax && after >= tMax) {
-        beepTrim = true;
+      else if (before <= tMax && after >= tMax) {
+        beepTrim = false;
         AUDIO_TRIM_MAX();
         killEvents(event);
       }
 
-      // Allow only move into the right direction if over the limits
-      if ((before < after && after > tMax) || // increasing over tMax
-          (before > after && after < tMin)) { // decreasing under tMin
-        after = before;
+      // If the new value is outside the limit, set it to the limit. This could have
+      // been done while playing the warning above but this way it catches any other
+      // scenarios
+      if (after < tMin) {
+        after = tMin;
       }
-
-      // Clip at hard limits
-      if (after < TRIM_EXTENDED_MIN) {
-        after = TRIM_EXTENDED_MIN;
-      }
-      else if (after > TRIM_EXTENDED_MAX) {
-        after = TRIM_EXTENDED_MAX;
+      else if (after > tMax) {
+        after = tMax;
       }
 
       if (!setTrimValue(phase, idx, after)) {
@@ -1063,10 +1074,9 @@ void checkTrims()
       }
     }
 
-    if (!beepTrim) {
+    if (beepTrim) {
       AUDIO_TRIM_PRESS(after);
     }
-
   }
 }
 
@@ -1762,7 +1772,7 @@ void opentxInit()
 #endif  // #if !defined(EEPROM)
 
   initSerialPorts();
-  
+
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
   currentBacklightBright = requiredBacklightBright = g_eeGeneral.backlightBright;
 #if !defined(SOFTWARE_VOLUME)

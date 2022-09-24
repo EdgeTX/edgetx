@@ -22,14 +22,15 @@ jobs:
           - t12
           - t16
           - t18
-          - t8;zorro
-          - tlite;tpro
-          - tx12
+          - t8;zorro;commando8
+          - tlite;tpro;lr3pro
+          - tx12;tx12mk2
           - tx16s
           - x10;x10-access
           - x12s
           - x7;x7-access
           - x9d;x9dp;x9dp2019
+          - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
     container:
@@ -76,7 +77,7 @@ jobs:
       - name: Zip release file
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{ env.release_filename }} ./edgetx-firmware-nightly
+          args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
       - name: Deploy release
         uses: marvinpinto/action-automatic-releases@latest

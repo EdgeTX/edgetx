@@ -67,6 +67,66 @@
         <source>for unknown reasons.</source>
         <translation>av okända skäl.</translation>
     </message>
+    <message>
+        <source>Manual</source>
+        <translation>Manuellt</translation>
+    </message>
+    <message>
+        <source>Startup</source>
+        <translation>Vid uppstart</translation>
+    </message>
+    <message>
+        <source>Daily</source>
+        <translation>Dagligen</translation>
+    </message>
+    <message>
+        <source>Weekly</source>
+        <translation>Veckovis</translation>
+    </message>
+    <message>
+        <source>Monthly</source>
+        <translation>Månadsvis</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Varning</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Critical</source>
+        <translation>Kritisk</translation>
+    </message>
+    <message>
+        <source>Fatal</source>
+        <translation>Fatal</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Wizard</source>
+        <translation>Guide</translation>
+    </message>
+    <message>
+        <source>Editor</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Mall</translation>
+    </message>
+    <message>
+        <source>Prompt</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>AppMessages</name>
@@ -90,12 +150,8 @@
         <translation>Kanalordning</translation>
     </message>
     <message>
-        <source>Build Options</source>
-        <translation>Tillval</translation>
-    </message>
-    <message>
         <source>Menu Language</source>
-        <translation>Menyspråk</translation>
+        <translation>Språkinställning</translation>
     </message>
     <message>
         <source>Default Stick Mode</source>
@@ -274,14 +330,6 @@ Mode 4:
         <translation>Rensa bild</translation>
     </message>
     <message>
-        <source>Append version number to FW file name</source>
-        <translation>Addera versionsnumret till FW-filnamnet</translation>
-    </message>
-    <message>
-        <source>Offer to write FW to Tx after download</source>
-        <translation>Skriva firmware till radion efter nedladdning</translation>
-    </message>
-    <message>
         <source>Radio Type</source>
         <translation>Radiotyp</translation>
     </message>
@@ -302,20 +350,12 @@ Mode 4:
         <translation>Programmet</translation>
     </message>
     <message>
-        <source>Show splash screen when Companion starts</source>
-        <translation>Visa startbild då Companion startas</translation>
-    </message>
-    <message>
-        <source>Automatic check for Companion updates</source>
-        <translation>Sök automatiskt efter uppdateringar av Companion</translation>
+        <source>Show splash screen</source>
+        <translation>Visa startbild</translation>
     </message>
     <message>
         <source>Enable automatic backup before writing firmware</source>
-        <translation>Säkerhetskopiera innan firmware-skrivning</translation>
-    </message>
-    <message>
-        <source>Automatic check for OpenTX firmware updates</source>
-        <translation>Sök automatiskt efter uppdateringar av firmware</translation>
+        <translation>Säkerhetskopiera innan firmware skrivs</translation>
     </message>
     <message>
         <source>Splash Screen Library</source>
@@ -386,8 +426,8 @@ Mode 4:
         <translation>Spara bara bilder till Urklipp</translation>
     </message>
     <message>
-        <source>Remember simulator switch values</source>
-        <translation>Spara läget för alla brytare i simulatorn</translation>
+        <source>Save switch/pot positions on simulator exit</source>
+        <translation>Spara läget för alla brytare när simulatorn avslutas</translation>
     </message>
     <message>
         <source>My Radio</source>
@@ -447,11 +487,11 @@ Mode 4:
     </message>
     <message>
         <source>If set it will override the application general setting</source>
-        <translation>om angiven, ersätter de generella programinställningarna</translation>
+        <translation>Om angiven kommer de generella programinställningarna ersättas</translation>
     </message>
     <message>
         <source>if set, will override general backup enable</source>
-        <translation type="unfinished"></translation>
+        <translation>om satt, kommer de generella backupinställningarna att ersättas</translation>
     </message>
     <message>
         <source>Simulator Volume Gain</source>
@@ -483,30 +523,18 @@ Mode 4:
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta val behåller hanteringen från äldre OpenTX versioner, där tomma modellrader behålls när en modell flyttas eller raderas.&lt;/p&gt;&lt;p&gt;När detta val avmarkeras flyttas de andra modellerna så att den tomma modellens plats ersätts och inte lämnas kvar tom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
         <translation>Ta bort tomma modellrader när modeller raderas (gäller endast sändare utan kategorier)</translation>
     </message>
     <message>
-        <source>Use model wizard</source>
-        <translation>Använd modellguide</translation>
-    </message>
-    <message>
-        <source>Open model editor</source>
-        <translation>Öppna modellredigeraren</translation>
-    </message>
-    <message>
-        <source>Just create the model</source>
-        <translation>Skapa bara modellen</translation>
-    </message>
-    <message>
         <source>Debug Output Logging</source>
         <translation>Loggning av utdata för felsökning</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep a log of all debugging messages generated by the desktop Companion/Simulator applications. An OpenTX developer may request this to help diagnose an issue.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep a log of all debugging messages generated by the desktop Companion/Simulator applications. An EdgeTX developer may request this to help diagnose an issue.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Behåll en loggfil av alla felsökningsmeddelanden som skapas av Companion-/Simulator-programmen. En systemutvecklare kan efterfråga denna för att underlätta felsökning.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -531,47 +559,123 @@ Mode 4:
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;You cannot switch Radio Type or change Build Options while there are unsaved file changes. What do you wish to do?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Save All&lt;/i&gt; - Save any open file(s) before saving Settings.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Revert to the previous Radio Type and Build Options before saving Settings.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Cancel&lt;/i&gt; - Return to the Settings editor dialog.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Du kan inte byta radiotyp eller ändra bygginställningarna när det finns filer med osparade ändringar. Vad vill du göra?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Spara alla&lt;/i&gt; - Spara öppna filer innan inställningarna sparas.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Gå tillbaka till tidigare radiotyp och bygginställningar innan inställningarns sparas.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Avbryta&lt;/i&gt; - Återgå till dialogen för inställningar.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Select a folder for application logs</source>
         <translation>Välj katalog för programloggar</translation>
     </message>
     <message>
+        <source>Clear saved positions</source>
+        <translation>Rensa sparade positioner</translation>
+    </message>
+    <message>
+        <source>Prompt for radio profile</source>
+        <translation>Fråga efter radioprofil</translation>
+    </message>
+    <message>
+        <source>Simulator controls</source>
+        <translation>Simulatorkontroller</translation>
+    </message>
+    <message>
+        <source>Append version number to firmware file name</source>
+        <translation>Lägg till versionsnumret i firmwarefilnamnet</translation>
+    </message>
+    <message>
+        <source>Prompt to write firmware to radio after update</source>
+        <translation>Skriv firmware till radion efter uppdatering</translation>
+    </message>
+    <message>
+        <source>Prompt to run installer after update</source>
+        <translation>Föreslå att köra installation efter uppdatering</translation>
+    </message>
+    <message>
+        <source>Update Settings</source>
+        <translation>Uppdateringar</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Tillvalda funktioner</translation>
+    </message>
+    <message>
+        <source>Prompt to run SD Sync after update</source>
+        <translation>Föreslå att synka SD-kort efter uppdatering</translation>
+    </message>
+    <message>
+        <source>Check frequency</source>
+        <translation>Kolla efter uppdateringar</translation>
+    </message>
+    <message>
+        <source>Reset to Defaults</source>
+        <translation>Återställ till förval</translation>
+    </message>
+    <message>
+        <source>Folders</source>
+        <translation>Kataloger</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Nerladdning</translation>
+    </message>
+    <message>
+        <source>Decompress</source>
+        <translation>Uppackning</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Uppdatering</translation>
+    </message>
+    <message>
+        <source>Create sub-folders in Download folder</source>
+        <translation>Skapa underkataloger i nerladdningskatalogen</translation>
+    </message>
+    <message>
+        <source>Use Radio Profile SD Structure</source>
+        <translation>Använd radioprofilens SD-kortstruktur</translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <translation>Komponenter</translation>
+    </message>
+    <message>
+        <source>Check</source>
+        <translation>Kolla</translation>
+    </message>
+    <message>
         <source>Release channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Publiceringskanal</translation>
     </message>
     <message>
-        <source>Releases (stable)</source>
-        <translation type="unfinished"></translation>
+        <source>Delete downloads after update</source>
+        <translation>Radera nerladdningar efter uppdatering</translation>
     </message>
     <message>
-        <source>Release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <source>Logging</source>
+        <translation>Loggningsnivå</translation>
     </message>
     <message>
-        <source>Nightly builds (unstable)</source>
-        <translation type="unfinished"></translation>
+        <source>Default Int. Module</source>
+        <translation>Förvald intern modul</translation>
     </message>
     <message>
-        <source>Note: Nightly builds are not available in this version, Release/RC update channel will be used.</source>
-        <translation type="unfinished"></translation>
+        <source>Reset all update settings to defaults. Are you sure?</source>
+        <translation>Återställ alla uppdateringsinställningar till förvalda värden. Är du säker?</translation>
     </message>
     <message>
-        <source>Use releases (stable)</source>
-        <translation type="unfinished"></translation>
+        <source>Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!</source>
+        <translation>Inställningar för uppdatering har ändrats. Vänligen stäng och starta om Companion för att undvika oväntade problem!</translation>
     </message>
     <message>
-        <source>Use release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <source>Select your download folder</source>
+        <translation>Välj katalog för nerladdning</translation>
     </message>
     <message>
-        <source>Use nightly builds (unstable)</source>
-        <translation type="unfinished"></translation>
+        <source>Select your decompress folder</source>
+        <translation>Välj din katalog för uppackning</translation>
     </message>
     <message>
-        <source>Use releases and release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <source>Select your update destination folder</source>
+        <translation>Välj katalog för uppdateringen</translation>
     </message>
 </context>
 <context>
@@ -582,12 +686,12 @@ Mode 4:
     </message>
     <message>
         <source>Cannot save EEPROM</source>
-        <translation>Kan ej spara EEPROM</translation>
+        <translation>Kan inte spara EEPROM</translation>
     </message>
     <message>
         <source>Cannot open file %1:
 %2.</source>
-        <translation>Kan ej öppna fil %1:
+        <translation>Kan inte öppna fil %1:
 %2.</translation>
     </message>
     <message>
@@ -628,24 +732,36 @@ Mode 4:
         <translation></translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>Okänd</translation>
+        <source>None</source>
+        <translation>Ingen</translation>
     </message>
     <message>
-        <source>Rud</source>
-        <translation>Rod</translation>
+        <source>2 Positions Toggle</source>
+        <translation>2-lägen momentan</translation>
     </message>
     <message>
-        <source>Ele</source>
-        <translation>Hjd</translation>
+        <source>2 Positions</source>
+        <translation>2 lägen</translation>
     </message>
     <message>
-        <source>Thr</source>
-        <translation>Gas</translation>
+        <source>3 Positions</source>
+        <translation>3 lägen</translation>
     </message>
     <message>
-        <source>Ail</source>
-        <translation>Ske</translation>
+        <source>Pot with detent</source>
+        <translation>Vred med mittklick</translation>
+    </message>
+    <message>
+        <source>Multi pos switch</source>
+        <translation>Flerlägesväljare</translation>
+    </message>
+    <message>
+        <source>Pot without detent</source>
+        <translation>Vred utan mittklick</translation>
+    </message>
+    <message>
+        <source>Slider with detent</source>
+        <translation>Reglage med mittklick</translation>
     </message>
 </context>
 <context>
@@ -664,26 +780,7 @@ Mode 4:
     </message>
 </context>
 <context>
-    <name>CategorizedStorageFormat</name>
-    <message>
-        <source>Can&apos;t extract RADIO/radio.bin</source>
-        <translation>Kan ej hämta RADIO/radio.bin</translation>
-    </message>
-    <message>
-        <source>Can&apos;t extract RADIO/models.txt</source>
-        <translation>Kan ej hämta RADIO/models.txt</translation>
-    </message>
-    <message>
-        <source>Can&apos;t extract %1</source>
-        <translation>Kan ej hämta %1</translation>
-    </message>
-    <message>
-        <source>Error loading models</source>
-        <translation>Fel vid inläsning av modell</translation>
-    </message>
-</context>
-<context>
-    <name>Channels</name>
+    <name>ChannelsPanel</name>
     <message>
         <source>Name</source>
         <translation>Namn</translation>
@@ -726,27 +823,67 @@ Mode 4:
     </message>
     <message>
         <source>CH%1</source>
-        <translation>KN%1</translation>
+        <translation>KA%1</translation>
     </message>
     <message>
         <source>Popup menu available</source>
         <translation>Popupmeny tillgänglig</translation>
     </message>
     <message>
-        <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopiera</translation>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
     </message>
     <message>
-        <source>&amp;Cut</source>
-        <translation type="unfinished">Klipp &amp;Ut</translation>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
     </message>
     <message>
-        <source>&amp;Paste</source>
-        <translation type="unfinished">Klistra &amp;In</translation>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Ta bort</translation>
+        <source>Delete</source>
+        <translation>Radera</translation>
+    </message>
+    <message>
+        <source>Delete Channel. Are you sure?</source>
+        <translation>Radera kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägga till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear Channel. Are you sure?</source>
+        <translation>Rensa kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all Channels. Are you sure?</source>
+        <translation>Rensa alla kanaler. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Channel. Are you sure?</source>
+        <translation>Klipp ut kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Plot</source>
+        <translation>Utseende</translation>
     </message>
 </context>
 <context>
@@ -757,19 +894,19 @@ Mode 4:
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importera...</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Please note, the maximum width displayable is radio model limited. Also, renaming the model will break the link to this checklist file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vänligen notera att antal tecken som kan visas är beroende av radiomodell. Om modellens namn ändras bryts länken till checklistan.</translation>
     </message>
     <message>
         <source>File: unknown</source>
@@ -790,31 +927,31 @@ Mode 4:
     <message>
         <source>Cannot open file for writing %1:
 %2.</source>
-        <translation>Kan ej öppna fil för att skriva %1:
+        <translation>Kan inte öppna fil för att skriva %1:
 %2.</translation>
     </message>
     <message>
         <source>Cannot write to file %1:
 %2.</source>
-        <translation>Kan ej skriva till fil %1:
+        <translation>Kan inte skriva till fil %1:
 %2.</translation>
     </message>
     <message>
         <source>Cannot write file %1:
 %2.</source>
-        <translation>Kan ej skriva fil %1:
+        <translation>Kan inte skriva fil %1:
 %2.</translation>
     </message>
     <message>
         <source>Cannot open file %1:
 %2.</source>
-        <translation>Kan ej öppna fil %1:
+        <translation>Kan inte öppna fil %1:
 %2.</translation>
     </message>
     <message>
         <source>Cannot read file %1:
 %2.</source>
-        <translation>Kan ej läsa fil %1:
+        <translation>Kan inte läsa fil %1:
 %2.</translation>
     </message>
     <message>
@@ -827,11 +964,25 @@ Mode 4:
     </message>
 </context>
 <context>
-    <name>Companion</name>
+    <name>ChooserDialog</name>
     <message>
-        <source>OpenTX Companion</source>
-        <translation>EdgeTX Companion</translation>
+        <source>Dialog</source>
+        <translation></translation>
     </message>
+</context>
+<context>
+    <name>ColorCustomScreensPanel</name>
+    <message>
+        <source>User Interface</source>
+        <translation>Användargränssnitt</translation>
+    </message>
+    <message>
+        <source>Main View %1</source>
+        <translation>Huvudvy %1</translation>
+    </message>
+</context>
+<context>
+    <name>Companion</name>
     <message>
         <source>Information</source>
         <translation>Information</translation>
@@ -873,24 +1024,12 @@ Mode 4:
         <translation>Ett fel uppstod vid start av simulatorn.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;&lt;b&gt;Welcome to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for latest news, updates and documentation. Thank you for choosing OpenTX!&lt;/p&gt;- The OpenTX Team.</source>
-        <translation type="unfinished">&lt;p&gt;&lt;b&gt;Välkommen till EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for latest news, updates and documentation. Tack för att du väljer EdgeTX!&lt;/p&gt;- The EdgeTX Team.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to OpenTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.open-tx.org&apos;&gt;open-tx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The OpenTX Team.</source>
-        <translation type="unfinished">&lt;p&gt;&lt;b&gt;Tack för att du uppgraderar till EdgeTX%1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;http://www.edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release-information and other documentation.&lt;/p&gt;- The EdgeTX Team.</translation>
-    </message>
-    <message>
         <source>The saved settings could not be imported, please try again or continue with current settings.</source>
         <translation>Sparade inställningar kunde inte hämtas. Vänligen försök igen eller fortsätt med nuvarande inställningar.</translation>
     </message>
     <message>
         <source>Import from File</source>
         <translation>Hämta från fil</translation>
-    </message>
-    <message>
-        <source>Import from v%1</source>
-        <translation>Hämta från v%1</translation>
     </message>
     <message>
         <source>Do not import</source>
@@ -905,16 +1044,6 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <source>Import settings from a file, or start with current values.</source>
         <translation>Hämta inställningar från fil, eller starta med nuvarande värden.</translation>
-    </message>
-    <message>
-        <source>We have found existing settings for Companion version: %1.
-Do you want to import them?
-
-If you have a settings backup file, you may import that instead.</source>
-        <translation>Det verkar finnas befintliga inställningar för Companion version: %1.
-Vill du hämta dessa?
-
-Om du har en säkerhetskopia för inställningarna kan du istället hämta från den.</translation>
     </message>
     <message>
         <source>Select %1:</source>
@@ -976,6 +1105,18 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <source>&lt;p&gt;The radio type in the selected profile does not exist. Using the default type instead.&lt;/p&gt; &lt;p&gt;&lt;b&gt;Please update your profile settings!&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;Typen av sändare i vald profil saknas. Använder förinställd typ istället.&lt;/p&gt; &lt;p&gt;&lt;b&gt;Vänligen uppdatera dina profilinställningar!&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>EdgeTX Companion</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Welcome to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for latest news, updates and documentation. Thank you for choosing EdgeTX!&lt;/p&gt;- The EdgeTX Team.</source>
+        <translation>&lt;p&gt;&lt;b&gt;Välkommen till EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Som ett första steg, konfigurera den första radioprofilen   genom att välja radiotyp, menyspråk och bygginställningar.&lt;/p&gt;&lt;p&gt;Du kanske också ska passa på att granska de andra inställningarna som finns i den visade inställningsdialogen.&lt;/p&gt;&lt;p&gt;När du sparat inställningarna rekommenderar vi att du laddar ner den senaste versionen av firmware för din radio, via menyvalet &lt;i&gt;Fil -&amp;gt; Ladda ner&lt;/i&gt;.&lt;/p&gt;&lt;p&gt;Besök gärna &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; för dokumentation samt senaste nyheter och uppdateringar. Tack för att du väljer EdgeTX!&lt;/p&gt;- EdgeTX-teamet.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The EdgeTX Team.</source>
+        <translation>&lt;p&gt;&lt;b&gt;Tack för att du uppgraderar till EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Detta är en omfattande uppdatering som lägger till och ändrar många saker, så missa inte att läsa uppdateringsdokumentationen och kontrollera ordentligt att alla modeller fungerar som avsett.&lt;/p&gt;&lt;p&gt;Besök gärna &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; för information om uppdateringen och för annan dokumentation.&lt;/p&gt;-  EdgeTX-teamet.</translation>
+    </message>
 </context>
 <context>
     <name>CompareDialog</name>
@@ -1021,6 +1162,21 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
 </context>
 <context>
+    <name>ComponentData</name>
+    <message>
+        <source>Releases</source>
+        <translation>Stabila versioner</translation>
+    </message>
+    <message>
+        <source>Pre-release</source>
+        <translation>Testversioner</translation>
+    </message>
+    <message>
+        <source>Nightly</source>
+        <translation>Instabila versioner (nattliga)</translation>
+    </message>
+</context>
+<context>
     <name>ConclusionPage</name>
     <message>
         <source>OK, I understand.</source>
@@ -1035,170 +1191,73 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Cannot write %1 (reason: %2)</source>
-        <translation>Kan ej skriva %1 (orsak: %2)</translation>
+        <translation>Kan inte skriva %1 (orsak: %2)</translation>
     </message>
     <message>
         <source>Cannot open %1 (reason: %2)</source>
-        <translation>Kan ej öppna %1 (orsak: %2)</translation>
-    </message>
-</context>
-<context>
-    <name>CreditsDialog</name>
-    <message>
-        <source>OpenTX Contributors</source>
-        <translation>Bidragande till EdgeTX</translation>
-    </message>
-    <message>
-        <source>Honors go to Rafal Tomczak (RadioClone), Thomas Husterer (th9x) and Erez Raviv (er9x and eePe)</source>
-        <translation>All ära åt Rafal Tomczak (RadioClone), Thomas Husterer (th9x) och Erez Raviv (er9x and eePe)</translation>
-    </message>
-    <message>
-        <source>OpenTX Blacklist</source>
-        <translation>EdgeTX svarta lista</translation>
-    </message>
-    <message>
-        <source>Main developers</source>
-        <translation>Huvudsakliga utvecklare</translation>
-    </message>
-    <message>
-        <source>Translators</source>
-        <translation>Översättare</translation>
-    </message>
-    <message>
-        <source>Companies and projects who have donated to OpenTX</source>
-        <translation>Företag och projekt som har donerat till EdgeTX</translation>
-    </message>
-    <message>
-        <source>People who have donated to OpenTX</source>
-        <translation>Personer som har donerat till EdgeTX</translation>
-    </message>
-    <message>
-        <source>Other contributors</source>
-        <translation>Andra bidragande</translation>
-    </message>
-    <message>
-        <source>monthly</source>
-        <translation type="unfinished">månatlig</translation>
+        <translation>Kan inte öppna %1 (orsak: %2)</translation>
     </message>
 </context>
 <context>
     <name>CurveData</name>
     <message>
         <source>CV</source>
-        <translation>KV</translation>
+        <translation>KU</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Anpassad</translation>
+    </message>
+    <message>
+        <source>%1 points</source>
+        <translation>%1 punkter</translation>
     </message>
 </context>
 <context>
-    <name>CurveGroup</name>
+    <name>CurveDialog</name>
     <message>
-        <source>Diff</source>
-        <translation>Diff</translation>
+        <source>Curve Creator</source>
+        <translation>Skapa kurva</translation>
     </message>
     <message>
-        <source>Expo</source>
-        <translation>Expo</translation>
+        <source>Name</source>
+        <translation>Namn</translation>
     </message>
     <message>
-        <source>Func</source>
-        <translation>Funk</translation>
-    </message>
-    <message>
-        <source>Curve</source>
-        <translation>Kurva</translation>
-    </message>
-</context>
-<context>
-    <name>CurveReference</name>
-    <message>
-        <source>Diff(%1)</source>
-        <translation>Diff(%1)</translation>
-    </message>
-    <message>
-        <source>Expo(%1)</source>
-        <translation>Expo(%1)</translation>
-    </message>
-    <message>
-        <source>Function(%1)</source>
-        <translation>Funktion(%1)</translation>
-    </message>
-    <message>
-        <source>Curve(%1)</source>
-        <translation>Kurva(%1)</translation>
-    </message>
-</context>
-<context>
-    <name>Curves</name>
-    <message>
-        <source>Fixed X</source>
-        <translation>X fixerad</translation>
-    </message>
-    <message>
-        <source>Custom X</source>
-        <translation>X vald</translation>
-    </message>
-    <message>
-        <source>Lines</source>
-        <translation>Linjer</translation>
+        <source>Type</source>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Smooth</source>
         <translation>Mjuk</translation>
     </message>
     <message>
-        <source>Curve type</source>
-        <translation>Kurvtyp</translation>
+        <source>Template</source>
+        <translation>Mall</translation>
     </message>
     <message>
-        <source>Curve Creator</source>
-        <translation>Skapa kurva</translation>
-    </message>
-    <message>
-        <source>Y at X=0</source>
-        <translation>Y vid X=0</translation>
+        <source>Y at X=-100</source>
+        <translation>Y vid X=-100</translation>
     </message>
     <message>
         <source>Y at X=100</source>
         <translation>Y vid X=100</translation>
     </message>
     <message>
-        <source>Both</source>
-        <translation>Båda</translation>
-    </message>
-    <message>
-        <source>x&gt;0</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>x&lt;0</source>
-        <translation></translation>
+        <source>Side</source>
+        <translation>Sida</translation>
     </message>
     <message>
         <source>Apply</source>
         <translation>Utför</translation>
     </message>
     <message>
-        <source>Side</source>
-        <translation>Sida</translation>
-    </message>
-    <message>
-        <source>Y at X=-100</source>
-        <translation>Y vid X=100</translation>
-    </message>
-    <message>
-        <source>Coefficient</source>
-        <translation>Koefficient</translation>
-    </message>
-    <message>
-        <source>Curve name</source>
-        <translation>Kurvans namn</translation>
-    </message>
-    <message>
-        <source>Curve %1</source>
-        <translation>Kurva %1</translation>
-    </message>
-    <message>
-        <source>%1 points</source>
-        <translation>%1 punkter</translation>
+        <source>Point size</source>
+        <translation>Punktstorlek</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -1217,16 +1276,105 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Symmetrisk f(x)=f(-x)</translation>
     </message>
     <message>
-        <source>Editing curve %1</source>
-        <translation>Redigera kurva %1</translation>
+        <source>Coefficient</source>
+        <translation>Koefficient</translation>
     </message>
     <message>
-        <source>Not enough free points in EEPROM to store the curve.</source>
-        <translation>Kurvan får inte plats i minnet.</translation>
+        <source>Both</source>
+        <translation>Båda</translation>
+    </message>
+    <message>
+        <source>x&lt;0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>x&gt;0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Not enough free points in global points array to store the curve.</source>
+        <translation>Inte tilläckligt med ledig plats för punkter i minnet för att spara kurvan.</translation>
+    </message>
+    <message>
+        <source>Y at X=0</source>
+        <translation>Y vid X=0</translation>
+    </message>
+    <message>
+        <source>Editing curve %1: %2</source>
+        <translation>Redigerar kurva %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>CurveImageWidget</name>
+    <message>
+        <source>Double click to edit</source>
+        <translation>Dubbelklicka för att redigera</translation>
+    </message>
+</context>
+<context>
+    <name>CurveReference</name>
+    <message>
+        <source>Diff</source>
+        <translation>Differentiell</translation>
+    </message>
+    <message>
+        <source>Expo</source>
+        <translation>Exponentiell</translation>
+    </message>
+    <message>
+        <source>Func</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Anpassad</translation>
+    </message>
+</context>
+<context>
+    <name>CurvesPanel</name>
+    <message>
+        <source>Note: to create a curve right click on the curve row label</source>
+        <translation>OBS! För att skapa en kurva, högerklicka på kurvans namn (KUxx)</translation>
+    </message>
+    <message>
+        <source>CV%1</source>
+        <translation>KU%1</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Namn:</translation>
+    </message>
+    <message>
+        <source>Popup menu available</source>
+        <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>Type:</source>
+        <translation>Typ:</translation>
+    </message>
+    <message>
+        <source>Points:</source>
+        <translation>Punkter:</translation>
+    </message>
+    <message>
+        <source>Smooth:</source>
+        <translation>Mjuk:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>Copy</source>
         <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
     </message>
     <message>
         <source>Paste</source>
@@ -1237,24 +1385,40 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Rensa</translation>
     </message>
     <message>
-        <source>Clear all curves</source>
-        <translation>Rensa alla kurvor</translation>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
     </message>
     <message>
-        <source>Are you sure you want to reset curve %1?</source>
-        <translation>Är du säker på att du vill återställa kurva %1?</translation>
+        <source>Delete</source>
+        <translation>Radera</translation>
     </message>
     <message>
-        <source>Are you sure you want to reset all curves?</source>
-        <translation>Är du säker på att du vill återställa alla kurvor?</translation>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
     </message>
     <message>
-        <source>Point size</source>
-        <translation>Punktstorlek</translation>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
     </message>
     <message>
-        <source>Popup menu available</source>
-        <translation>Popupmeny tillgänglig</translation>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear curve %1:%2. Are you sure?</source>
+        <translation>Rensa kurva %1: %2. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all curves. Are you sure?</source>
+        <translation>Rensa alla kurvor. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut curve %1:%2. Are you sure?</source>
+        <translation>Klipp ut kurva %1: %2. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete curve %1:%2. Are you sure?</source>
+        <translation>Radera kurva %1: %2. Är du säker?</translation>
     </message>
 </context>
 <context>
@@ -1269,11 +1433,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Override %1</source>
-        <translation>Åsidosätta %1</translation>
-    </message>
-    <message>
-        <source>Trainer</source>
-        <translation>Elev</translation>
+        <translation>Åsidosätt %1</translation>
     </message>
     <message>
         <source>Trainer RUD</source>
@@ -1308,10 +1468,6 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Återställ</translation>
     </message>
     <message>
-        <source>Set Timer %1</source>
-        <translation>Ställ in timer %1</translation>
-    </message>
-    <message>
         <source>Vario</source>
         <translation>Vario</translation>
     </message>
@@ -1328,12 +1484,8 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Spela upp värde</translation>
     </message>
     <message>
-        <source>Play Script</source>
-        <translation>Kör skript</translation>
-    </message>
-    <message>
         <source>SD Logs</source>
-        <translation>SD-loggar</translation>
+        <translation>Logga data</translation>
     </message>
     <message>
         <source>Volume</source>
@@ -1360,40 +1512,12 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Justera %1</translation>
     </message>
     <message>
-        <source>SetFailsafe Int. Module</source>
-        <translation>Felsäkert läge int. modul</translation>
-    </message>
-    <message>
-        <source>SetFailsafe Ext. Module</source>
-        <translation>Felsäkert läge ext. modul</translation>
-    </message>
-    <message>
-        <source>RangeCheck Int. Module</source>
-        <translation>Räckvidskontoll int. modul</translation>
-    </message>
-    <message>
-        <source>RangeCheck Ext. Module</source>
-        <translation>Räckvidskontoll ext. modul</translation>
-    </message>
-    <message>
         <source>Bind Int. Module</source>
         <translation>Parkoppla int. modul</translation>
     </message>
     <message>
         <source>Bind Ext. Module</source>
         <translation>Parkoppla ext. modul</translation>
-    </message>
-    <message>
-        <source>Timer1</source>
-        <translation>Timer1</translation>
-    </message>
-    <message>
-        <source>Timer2</source>
-        <translation>Timer2</translation>
-    </message>
-    <message>
-        <source>Timer3</source>
-        <translation>Timer3</translation>
     </message>
     <message>
         <source>Flight</source>
@@ -1404,36 +1528,88 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>Telemetri</translation>
     </message>
     <message>
-        <source>Rotary Encoder</source>
-        <translation>Inmatningshjul</translation>
-    </message>
-    <message>
-        <source>REa</source>
-        <translation>REa</translation>
-    </message>
-    <message>
-        <source>REb</source>
-        <translation>REb</translation>
-    </message>
-    <message>
         <source>s</source>
         <translation></translation>
     </message>
     <message>
-        <source>&lt;font color=red&gt;&lt;b&gt;Inconsistent parameter&lt;/b&gt;&lt;/font&gt;</source>
-        <translation>&lt;font color=red&gt;&lt;b&gt;Ogiltig parameter&lt;/b&gt;&lt;/font&gt;</translation>
+        <source>Beep 1</source>
+        <translation></translation>
     </message>
     <message>
-        <source>Value </source>
-        <translation>Värde </translation>
+        <source>Beep 2</source>
+        <translation></translation>
     </message>
     <message>
-        <source>played once, not during startup</source>
-        <translation>spelas en gång, ej vid uppstart</translation>
+        <source>Beep 3</source>
+        <translation></translation>
     </message>
     <message>
-        <source>repeat(%1s)</source>
-        <translation>repetera(%1s)</translation>
+        <source>Warn 1</source>
+        <translation>Varning 1</translation>
+    </message>
+    <message>
+        <source>Warn 2</source>
+        <translation>Varning 2</translation>
+    </message>
+    <message>
+        <source>Cheep</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ratata</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Tick</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Siren</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sci Fi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Robot</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Chirp</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Tada</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Cricket</source>
+        <translation>Syrsa</translation>
+    </message>
+    <message>
+        <source>Alarm Clock</source>
+        <translation>Väckarklocka</translation>
+    </message>
+    <message>
+        <source>Global Variable</source>
+        <translation>Global variabel</translation>
+    </message>
+    <message>
+        <source>Inc/Decrement</source>
+        <translation>Räkna upp/ner</translation>
+    </message>
+    <message>
+        <source>Played once, not during startup</source>
+        <translation>Spela en gång, inte vid uppstart</translation>
+    </message>
+    <message>
+        <source>Repeat %1s</source>
+        <translation>Repetera (efter %1s)</translation>
     </message>
     <message>
         <source>DISABLED</source>
@@ -1442,6 +1618,58 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     <message>
         <source>CFN</source>
         <translation>CFN</translation>
+    </message>
+    <message>
+        <source>Set Failsafe</source>
+        <translation>Sätt failsafe</translation>
+    </message>
+    <message>
+        <source>No repeat</source>
+        <translation>Spela en gång</translation>
+    </message>
+    <message>
+        <source>Lua Script</source>
+        <translation>Lua-skript</translation>
+    </message>
+    <message>
+        <source>Set %1</source>
+        <translation>Sätt %1</translation>
+    </message>
+    <message>
+        <source>Trainer Sticks</source>
+        <translation>Lärarspakar</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Källa</translation>
+    </message>
+    <message>
+        <source>Racing Mode</source>
+        <translation>Tävlingsläge</translation>
+    </message>
+    <message>
+        <source>Disable Touch</source>
+        <translation>Inaktivera pekskärm</translation>
+    </message>
+    <message>
+        <source>Trainer Channels</source>
+        <translation>Lärarkanaler</translation>
+    </message>
+    <message>
+        <source>Range Check Int. Module</source>
+        <translation>Räckviddskontroll Intern modul</translation>
+    </message>
+    <message>
+        <source>Range Check Ext. Module</source>
+        <translation>Räckviddskontroll Extern modul</translation>
+    </message>
+    <message>
+        <source>Set Main Screen</source>
+        <translation>Ställ in huvudskärm</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Värde</translation>
     </message>
 </context>
 <context>
@@ -1453,10 +1681,6 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     <message>
         <source>Parameters</source>
         <translation>Parametrar</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation>Slå på</translation>
     </message>
     <message>
         <source>Action</source>
@@ -1471,40 +1695,24 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
         <translation>PÅ</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Ta bort</translation>
+        <source>Delete</source>
+        <translation>Radera</translation>
     </message>
     <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Kopiera</translation>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
     </message>
     <message>
-        <source>&amp;Cut</source>
-        <translation>Klipp &amp;Ut</translation>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
     </message>
     <message>
-        <source>&amp;Paste</source>
-        <translation>Klistra &amp;In</translation>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
     </message>
     <message>
         <source>GF%1</source>
         <translation>GF%1</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Värde</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Källa</translation>
-    </message>
-    <message>
-        <source>GVAR</source>
-        <translation>GVAR</translation>
-    </message>
-    <message>
-        <source>Increment</source>
-        <translation>Ökning</translation>
     </message>
     <message>
         <source>Popup menu available</source>
@@ -1517,8 +1725,106 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     <message>
         <source>Unable to find or open sound file:
 %1</source>
-        <translation>Kan ej hitta eller öppna ljudfil:
+        <translation>Kan inte hitta eller öppna ljudfil:
 %1</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear all Functions. Are you sure?</source>
+        <translation>Rensa alla funktioner. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Function. Are you sure?</source>
+        <translation>Rensa funktionen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Special Function. Are you sure?</source>
+        <translation>Klipp ut specialfunktionen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete Function. Are you sure?</source>
+        <translation>Radera specialfunktionen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>GV</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+</context>
+<context>
+    <name>CustomScreen</name>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Numbers</source>
+        <translation>Siffror</translation>
+    </message>
+    <message>
+        <source>Bars</source>
+        <translation>Staplar</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Skript</translation>
+    </message>
+</context>
+<context>
+    <name>CustomScreenPanel</name>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Top bar</source>
+        <translation>Övre raden</translation>
+    </message>
+    <message>
+        <source>Flight mode</source>
+        <translation>Flygläge</translation>
+    </message>
+    <message>
+        <source>Sliders</source>
+        <translation>Skjutreglage</translation>
+    </message>
+    <message>
+        <source>Trims</source>
+        <translation>Trimmar</translation>
+    </message>
+    <message>
+        <source>Mirror</source>
+        <translation>Spegla</translation>
+    </message>
+    <message>
+        <source>Option #%1</source>
+        <translation>Tillval #%1</translation>
+    </message>
+    <message>
+        <source>Layout:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Widgets:</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1585,7 +1891,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Failed to refresh image from file %1</source>
-        <translation>Det gick ej att återladda bilden från fil %1</translation>
+        <translation>Det gick inte att uppdatera bilden från fil %1</translation>
     </message>
     <message>
         <source>File Save Error</source>
@@ -1593,7 +1899,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source>Failed to write image to %1</source>
-        <translation>Bilden kunde ej skrivas till %1</translation>
+        <translation>Bilden kunde inte skrivas till %1</translation>
     </message>
     <message>
         <source>Open Image to load</source>
@@ -1655,7 +1961,7 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
     <message>
         <source> cannot be exported on this board!</source>
-        <translation> kan ej exporteras för aktuell hårdvara!</translation>
+        <translation> kan inte exporteras för aktuell hårdvara!</translation>
     </message>
     <message>
         <source>Source</source>
@@ -1683,10 +1989,53 @@ Om du har en säkerhetskopia för inställningarna kan du istället hämta från
     </message>
 </context>
 <context>
+    <name>DataHelpers</name>
+    <message>
+        <source>Disabled</source>
+        <translation>Inaktiverad</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiverad</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>ON</source>
+        <translation>PÅ</translation>
+    </message>
+    <message>
+        <source>False</source>
+        <translation>Falskt</translation>
+    </message>
+    <message>
+        <source>True</source>
+        <translation>Sant</translation>
+    </message>
+    <message>
+        <source>N</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <translation>O</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+</context>
+<context>
     <name>DebugOutput</name>
     <message>
         <source>Debug Output</source>
-        <translation type="unfinished">Debug utdata</translation>
+        <translation>Debug utdata</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable or disable the filter. If the button won&apos;t stay enabled, it is likely there is a syntax error in the Regular Expression entered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1712,7 +2061,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>Filter &amp;Help</source>
-        <translation>Filter &amp;Hjälp</translation>
+        <translation>Filter &amp;hjälp</translation>
     </message>
     <message>
         <source>Show information about using the filter.</source>
@@ -1720,7 +2069,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>Word &amp;Wrap</source>
-        <translation type="unfinished"></translation>
+        <translation>Radbr&amp;yt</translation>
     </message>
     <message>
         <source>Toggle word wrapping on/off.</source>
@@ -1728,7 +2077,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rensa</translation>
     </message>
     <message>
         <source>Clear the output window of all text.</source>
@@ -1736,7 +2085,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>Enable &amp;Filter</source>
-        <translation type="unfinished">Aktivera &amp;filter</translation>
+        <translation>Aktivera &amp;filter</translation>
     </message>
     <message>
         <source>Turn the filter on/off.</source>
@@ -1744,7 +2093,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;style&gt;kbd {background-color: palette(alternate-base); font-size: large; white-space: nowrap;}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;The filter supports two syntax types: basic matching with common wildcards as well as full Perl-style (&lt;code&gt;pcre&lt;/code&gt;) Regular Expressions.&lt;/p&gt;&lt;p&gt;By default a filter will only show lines which match (&lt;b&gt;inclusive&lt;/b&gt;). To make an &lt;b&gt;exclusive&lt;/b&gt; filter which removes matching lines, prefix the filter expression with a &lt;kbd&gt;!&lt;/kbd&gt; (exclamation mark).&lt;/p&gt;&lt;p&gt;To use &lt;b&gt;Regular Expressions&lt;/b&gt; (RegEx), prefix the filter text with a &lt;kbd&gt;/&lt;/kbd&gt; (slash) or &lt;kbd&gt;^&lt;/kbd&gt; (up caret). &lt;ul&gt;&lt;li&gt;Put the &lt;kbd&gt;/&lt;/kbd&gt; or &lt;kbd&gt;^&lt;/kbd&gt; after the exclusive &lt;kbd&gt;!&lt;/kbd&gt; indicator if you&apos;re using one.&lt;/li&gt;&lt;li&gt;By default the match is case-sensitive. To make it insensitive, add the typical &lt;kbd&gt;/i&lt;/kbd&gt; (slash i) operator at the end of your RegEx.&lt;/li&gt;&lt;li&gt;If you use a caret (^) to denote a RegEx, it will become part of the Reg. Ex. (that is, matches from start of line).&lt;/li&gt;&lt;li&gt;If the RegEx is invalid, the filter edit field should show a red border and you will not be able to enable the filter.&lt;/li&gt;&lt;li&gt;A useful resource for testing REs (with a full reference) can be found at &lt;a href=&quot;http://www.regexr.com/&quot;&gt;http://www.regexr.com/&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;p&gt;To use &lt;b&gt;basic matching&lt;/b&gt; just type any text.&lt;ul&gt;&lt;li&gt;Wildcards: &lt;kbd&gt;*&lt;/kbd&gt; (asterisk) matches zero or more of any character(s), and &lt;kbd&gt;?&lt;/kbd&gt; (question mark) matches any single character.&lt;/li&gt;&lt;li&gt;The match is always case-insensitive.&lt;/li&gt;&lt;li&gt;The match always starts from the beginning of a log line. To ignore characters at the start, use a leading &lt;kbd&gt;*&lt;/kbd&gt; wildcard.&lt;/li&gt;&lt;li&gt;A trailing &lt;kbd&gt;*&lt;/kbd&gt; is always implied (that is, matches anything to the end of the log line). To avoid this, use a RegEx.&lt;/li&gt;&lt;li&gt;You can match literal wildcard characters by prefixing them with a &lt;kbd&gt;\&lt;/kbd&gt; (backslash) character (eg. &quot;foo\*bar&quot; matches &quot;foo*bar&quot;).&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;p&gt;After &lt;b&gt;editing text&lt;/b&gt;, press ENTER or TAB key (or click anywhere outside the box) to update the filter.&lt;/p&gt;&lt;p&gt;To &lt;b&gt;remove an entry&lt;/b&gt; from the filter selector list, first choose it, and while in the line editor press &lt;kbd&gt;Shift-Delete&lt;/kbd&gt; (or &lt;kbd&gt;Shift-Backspace&lt;/kbd&gt;) key combination. The default filters cannot be removed. Up to 50 filters are stored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Debug Console Filter Help</source>
@@ -1758,12 +2107,14 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
         <translation>Laddar ner: </translation>
     </message>
     <message>
-        <source>Unable to save the file %1: %2.</source>
-        <translation>Kan ej spara filen %1: %2.</translation>
+        <source>Download failed: %1.</source>
+        <translation>Nerladdningen misslyckades: %1.</translation>
     </message>
     <message>
-        <source>Download failed: %1.</source>
-        <translation>Nedladdningen misslyckades: %1.</translation>
+        <source>Unable to open the download file %1 for writing.
+Error: %2</source>
+        <translation>Kan inte öppna nerladdningsfil %1 för skrivning.
+Fel: %2</translation>
     </message>
 </context>
 <context>
@@ -1781,20 +2132,8 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
         <translation>- EEPROM är inte från EdgeTX</translation>
     </message>
     <message>
-        <source>- Eeprom is not from Th9X</source>
-        <translation>- EEPROM är inte från Th9X</translation>
-    </message>
-    <message>
-        <source>- Eeprom is not from Gruvin9X</source>
-        <translation>- EEPROM är inte från Gruvin9X</translation>
-    </message>
-    <message>
         <source>- Eeprom is not from ErSky9X</source>
         <translation>- EEPROM är inte från ErSkyTX</translation>
-    </message>
-    <message>
-        <source>- Eeprom is not from Er9X</source>
-        <translation>- EEPROM är inte från Er9X</translation>
     </message>
     <message>
         <source>- Eeprom size is invalid</source>
@@ -1827,14 +2166,25 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     <message>
         <source>- Your radio probably uses a wrong firmware,
  eeprom size is 4096 but only the first 2048 are used</source>
-        <translation type="unfinished">- Din radio har förmodliogen fel firmware,
+        <translation>- Din radio har förmodliogen fel firmware,
 EEPROM storlek är 4096 men bara de första 2048 används</translation>
     </message>
     <message>
         <source>- Your eeprom is from an old version of OpenTX, upgrading!
  To keep your original file as a backup, please choose File -&gt; Save As specifying a different name.</source>
-        <translation type="unfinished">- DIn EEPROM är från en äldre version av EdgeTX, uppgraderar!
+        <translation>- DIn EEPROM är från en äldre version av OpenTX/EdgeTX, uppgraderar!
  För att behålla ursprungsfilen som säkerhetskopia, välj Fil -&gt; Spara som och ange ett annat namn.</translation>
+    </message>
+</context>
+<context>
+    <name>EdgeTXInterface</name>
+    <message>
+        <source>Radio settings file checksum error. You are advised to review the settings</source>
+        <translation>Fel på checksumman för radioinställningsfilen. Vänligen granska inställningarna</translation>
+    </message>
+    <message>
+        <source>Companion does not support settings version %1!</source>
+        <translation>Companion stödjer inte inställningversion %1!</translation>
     </message>
 </context>
 <context>
@@ -1860,6 +2210,43 @@ EEPROM storlek är 4096 men bara de första 2048 används</translation>
     </message>
 </context>
 <context>
+    <name>EtxFormat</name>
+    <message>
+        <source>Error opening file %1:
+%2.</source>
+        <translation>Fel vid öppning av fil %1:
+%2.</translation>
+    </message>
+    <message>
+        <source>Error opening EdgeTX archive %1</source>
+        <translation>Fel vid öppning av EdgeTX-arkiv %1</translation>
+    </message>
+    <message>
+        <source>Error initializing EdgeTX archive writer</source>
+        <translation>Fel vid initiering av EdgeTX arkivskrivare</translation>
+    </message>
+    <message>
+        <source>Error writing file %1:
+%2.</source>
+        <translation>Fel vid skrivning av fil %1:
+%2.</translation>
+    </message>
+    <message>
+        <source>Error creating EdgeTX file %1:
+%2.</source>
+        <translation>Fel vid skapande av EdgeTX-fil %1:
+%2.</translation>
+    </message>
+    <message>
+        <source>Error creating EdgeTX archive</source>
+        <translation>Fel vid skapande av EdgeTX-arkiv</translation>
+    </message>
+    <message>
+        <source>Error adding %1 to EdgeTX archive</source>
+        <translation>Fel vid tillägg av %1 till EdgeTX-arkiv</translation>
+    </message>
+</context>
+<context>
     <name>ExpoData</name>
     <message>
         <source>INP</source>
@@ -1868,6 +2255,14 @@ EEPROM storlek är 4096 men bara de första 2048 används</translation>
     <message>
         <source> (@%1)</source>
         <translation> (@%1)</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>ON</source>
+        <translation>PÅ</translation>
     </message>
 </context>
 <context>
@@ -1893,14 +2288,6 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
     <message>
         <source>Include Trim</source>
         <translation>Inkludera trim</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nej</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
     </message>
     <message>
         <source>Curve</source>
@@ -1968,7 +2355,7 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
     </message>
     <message>
         <source>Set All</source>
-        <translation type="unfinished">Sätt alla</translation>
+        <translation>Ställ in alla</translation>
     </message>
     <message>
         <source>Invert All</source>
@@ -1977,6 +2364,14 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
     <message>
         <source>Popup menu available</source>
         <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>unit</source>
+        <translation>enhet</translation>
+    </message>
+    <message>
+        <source>image</source>
+        <translation>bild</translation>
     </message>
 </context>
 <context>
@@ -2057,32 +2452,16 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
         <translation>Är du säker på att du vill avbryta synkroniseringen?</translation>
     </message>
     <message>
-        <source>Source Folder:</source>
-        <translation type="unfinished">Från-mapp:</translation>
+        <source>Folder A</source>
+        <translation>Mapp A</translation>
     </message>
     <message>
-        <source>Destination Folder:</source>
-        <translation type="unfinished">Till-mapp:</translation>
-    </message>
-    <message>
-        <source>%1%2 Both directions, to destination folder first</source>
-        <translation type="unfinished">%1%2 Båda riktningarna, -&gt; till-mappen först</translation>
-    </message>
-    <message>
-        <source>%1%2 Both directions, to source folder first</source>
-        <translation type="unfinished">%1%2 Båda riktningarna, -&gt; från-mappen först</translation>
-    </message>
-    <message>
-        <source> %1  Only from source folder to destination folder</source>
-        <translation type="unfinished"> %1  Endast från från-mapp -&gt; till-mapp</translation>
-    </message>
-    <message>
-        <source> %1  Only from destination folder to source folder</source>
-        <translation type="unfinished"> %1 .Endast från till-mapp -&gt; från-mapp</translation>
+        <source>Folder B</source>
+        <translation>Mapp B</translation>
     </message>
     <message>
         <source>How to handle overwriting files which already exist in the destination folder.</source>
-        <translation type="unfinished">Hur befintliga filer i till-mappen, som riskerar att skrivas över, ska hanteras.</translation>
+        <translation>Hur befintliga filer i tillmappen, som riskerar att skrivas över, ska hanteras.</translation>
     </message>
     <message>
         <source>Copy only if newer and different (compare contents)</source>
@@ -2090,11 +2469,11 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
     </message>
     <message>
         <source>Copy only if newer (do not compare contents)</source>
-        <translation>Kopiera endast om nyare (jämför ej innehållet)</translation>
+        <translation>Kopiera endast om nyare (jämför inte innehållet)</translation>
     </message>
     <message>
         <source>Copy only if different (ignore file time stamps)</source>
-        <translation type="unfinished">Kopiera endast om olika (ignorera hur gammal filen är)</translation>
+        <translation>Kopiera endast om olika (ignorera hur gammal filen är)</translation>
     </message>
     <message>
         <source>Always copy (force overwite existing files)</source>
@@ -2102,21 +2481,33 @@ Om fältet lämnas tomt så är raden aktiv hela tiden.</translation>
     </message>
     <message>
         <source>Any size</source>
-        <translation type="unfinished">Alla storlekar</translation>
+        <translation>Alla storlekar</translation>
     </message>
     <message>
         <source>Skip files larger than this size. Enter zero for unlimited.</source>
-        <translation type="unfinished">Hoppa över filer större än så här. Ange noll för obegränsad.</translation>
+        <translation>Hoppa över filer större än så här. Ange noll för obegränsad.</translation>
     </message>
     <message>
         <source>Minimum reporting level. Events of this type and of higher importance are shown.
 WARNING: High log rates may make the user interface temporarily unresponsive.</source>
-        <translation type="unfinished">Minsta rapportnivå. Händelser på denna och högre nivå visas.
+        <translation>Minsta rapportnivå. Händelser på denna och högre nivå visas.
 VARNING: Hög loggningsfrekvens kan tidvis göra användargränssnittet långsamt.</translation>
     </message>
     <message>
+        <source>%1 not found.</source>
+        <translation>%1 hittades inte.</translation>
+    </message>
+    <message>
+        <source>Folders are the same.</source>
+        <translation>Katalogerna är likadana.</translation>
+    </message>
+    <message>
+        <source> %1  Only from %2 to %3</source>
+        <translation> %1  Endast från %2 till %3</translation>
+    </message>
+    <message>
         <source>Skipped</source>
-        <translation type="unfinished">Överhoppad</translation>
+        <translation>Överhoppad</translation>
     </message>
     <message>
         <source>Created</source>
@@ -2163,8 +2554,8 @@ Tomt betyder exkludera inga. ?, * and [...] jokertecken accepteras.</translation
     <message>
         <source>One or more file pattern(s) to include, separated by commas.
 Blank means include all. ?, *, and [...] wildcards accepted.</source>
-        <translation type="unfinished">En eller flera mönster som ska inkluderas, kommaseparerade.
-Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation>
+        <translation>En eller flera mönster som ska inkluderas, kommaseparerade.
+Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation>
     </message>
     <message>
         <source>Include:</source>
@@ -2200,19 +2591,19 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Filter Options:</source>
-        <translation type="unfinished">Filter-tillval:</translation>
+        <translation>Filtertillval:</translation>
     </message>
     <message>
         <source>Folder Options:</source>
-        <translation type="unfinished">Mapp-tillval:</translation>
+        <translation>Mapptillval:</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Tillval</translation>
+        <translation>Tillval</translation>
     </message>
     <message>
         <source>Show extra options</source>
-        <translation type="unfinished">Visa extra tillval</translation>
+        <translation>Visa extra tillval</translation>
     </message>
     <message>
         <source>Reset to defaults</source>
@@ -2256,19 +2647,11 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Current: &lt;b&gt;%1&lt;/b&gt; of </source>
-        <translation type="unfinished">Status: &lt;b&gt;%1&lt;/b&gt; av </translation>
+        <translation>Status: &lt;b&gt;%1&lt;/b&gt; av </translation>
     </message>
     <message>
-        <source>Source folder not found.</source>
-        <translation>Från-mappen hittas ej.</translation>
-    </message>
-    <message>
-        <source>Destination folder not found.</source>
-        <translation>Till-mappen hittas ej.</translation>
-    </message>
-    <message>
-        <source>Source and destination folders are the same.</source>
-        <translation>Från- och till-mapp är densamma.</translation>
+        <source>%1%2 Both directions, to %3 first</source>
+        <translation>%1%2 Båda hållen, till %3 först</translation>
     </message>
 </context>
 <context>
@@ -2279,7 +2662,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>No OverrideCH functions available</source>
-        <translation>Inga funktioner finns  för att ersätta kanaldata</translation>
+        <translation>Inga funktioner tillgängliga för att åsidosätta kanaldata</translation>
     </message>
     <message>
         <source>Possibility to enable FAI MODE (no telemetry) at field</source>
@@ -2302,6 +2685,10 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
         <translation>Avaktivera Globala variabler</translation>
     </message>
     <message>
+        <source>Support internal GPS</source>
+        <translation>Stöd intern GPS-modul</translation>
+    </message>
+    <message>
         <source>Enable Lua custom scripts screen</source>
         <translation>Aktivera stöd för Lua-mixerskript</translation>
     </message>
@@ -2314,28 +2701,12 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
         <translation>Använd potentiometrar för menyskrollning</translation>
     </message>
     <message>
-        <source>FrSky Taranis X9D+</source>
-        <translation>FrSky Taranis X9D+</translation>
-    </message>
-    <message>
-        <source>Support for PPM internal module hack</source>
-        <translation>Stöd för hårdvaruhack med intern PPM-modul</translation>
-    </message>
-    <message>
         <source>Disable RAS (SWR)</source>
         <translation>Avaktivera RAS (SWR)</translation>
     </message>
     <message>
-        <source>FrSky Taranis X9D</source>
-        <translation>FrSky Taranis X9D</translation>
-    </message>
-    <message>
         <source>Haptic module installed</source>
         <translation>Vibratormodul är installerad</translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X9E</source>
-        <translation>FrSky Taranis X9E</translation>
     </message>
     <message>
         <source>Confirmation before radio shutdown</source>
@@ -2343,31 +2714,11 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Horus gimbals installed (Hall sensors)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X7 / X7S</source>
-        <translation>FrSky Taranis X7 / X7S</translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X-Lite</source>
-        <translation>FrSky Taranis X-Lite</translation>
-    </message>
-    <message>
-        <source>FrSky Horus X10 / X10S</source>
-        <translation>FrSky Horus X10 / X10S</translation>
-    </message>
-    <message>
-        <source>FrSky Horus X12S</source>
-        <translation>FrSky Horus X12S</translation>
+        <translation>Horusspakar installerade (hall sensor)</translation>
     </message>
     <message>
         <source>Use ONLY with first DEV pcb version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Turnigy 9XR-PRO</source>
-        <translation type="unfinished">Turnigy 9XR-PRO</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Enable HELI menu and cyclic mix support</source>
@@ -2387,118 +2738,174 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>No graphical check boxes and sliders</source>
-        <translation type="unfinished">Använd inte grafiska kontroller</translation>
+        <translation>Använd inte grafiska kontroller</translation>
     </message>
     <message>
         <source>Battery graph</source>
-        <translation>Batteriikon</translation>
+        <translation>Batterigraf</translation>
     </message>
     <message>
         <source>Don&apos;t use bold font for highlighting active items</source>
         <translation>Använd inte feta typsnitt för att markera aktiva objekt</translation>
     </message>
     <message>
-        <source>Turnigy 9XR with m128 chip</source>
-        <translation>Turnigy 9XR med m128 chip</translation>
-    </message>
-    <message>
-        <source>Turnigy 9XR</source>
-        <translation>Turnigy 9XR</translation>
-    </message>
-    <message>
-        <source>9X with stock board</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enable resetting values by pressing up and down at the same time</source>
-        <translation type="unfinished">Slå på nollställning av värden genom att hålla ner upp- och ned-knappen samtidigt</translation>
-    </message>
-    <message>
-        <source>9X with stock board and m128 chip</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9X with AR9X board</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9X with Sky9x board</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9X with Gruvin9x board</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DIY MEGA2560 radio</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå på nollställning av värden genom att hålla ner upp- och ned-knappen samtidigt</translation>
     </message>
     <message>
         <source>Enable non certified firmwares</source>
-        <translation type="unfinished">Tillåt icke-certifierad firmware</translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X9D+ 2019</source>
-        <translation>FrSky Taranis X9D+ 2019</translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X9-Lite</source>
-        <translation>FrSky Taranis X9-Lite</translation>
-    </message>
-    <message>
-        <source>Support for auto update on boot</source>
-        <translation>Stöd för automatisk uppdatering vid uppstart</translation>
-    </message>
-    <message>
-        <source>FrSky Taranis X-Lite S/PRO</source>
-        <translation>FrSky Taranis X-Lite S/PRO</translation>
+        <translation>Tillåt icke-certifierad firmware</translation>
     </message>
     <message>
         <source>Support for ACCESS internal module replacement</source>
         <translation>Stöd för utbyte av intern ACCESS-modul</translation>
     </message>
     <message>
-        <source>FrSky Horus X10 Express</source>
-        <translation>FrSky Horus X10 Express</translation>
+        <source>Enable AFHDS3 support</source>
+        <translation>Aktivera stöd för AFHDS3</translation>
     </message>
     <message>
-        <source>Jumper T12</source>
-        <translation>Jumper T12</translation>
+        <source>Allow bind using bind key</source>
+        <translation>Tillåt parkoppling med &quot;bindknapp&quot;</translation>
     </message>
     <message>
-        <source>Enable non certified R9M firmwares</source>
-        <translation>Aktivera icke-certifierade R9M firmware</translation>
+        <source>Support for bluetooth module</source>
+        <translation>Stöd för Bluetooth-modul</translation>
+    </message>
+    <message>
+        <source>Support for MULTI internal module</source>
+        <translation>Stöd för intern MULTI-modul</translation>
+    </message>
+    <message>
+        <source>Support hardware mod: R9M ACCESS</source>
+        <translation>Stöd för hårdvarumodifiering: R9M ACCESS</translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9D+</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9D+ 2019</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9D</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9E</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9-Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X9-Lite S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X7 / X7S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X7 / X7S Access</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X-Lite S/PRO</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Taranis X-Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Horus X10 / X10S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Horus X10 Express / X10S Express</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky Horus X12S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T12 / T12 Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T-Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T-Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T16 / T16+ / T16 Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster TX12</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster TX12 Mark II</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster Zorro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select if internal ELRS module is installed</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster T8</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster TX16S / SE / Hall / Masterfire</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T18</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FlySky NV14</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>BETAFPV LiteRadio3 Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Turnigy 9XR-PRO</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>9X with AR9X board</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>9X with Sky9x board</source>
+        <translation></translation>
     </message>
 </context>
 <context>
-    <name>FirmwarePreferencesDialog</name>
+    <name>FirmwareInterface</name>
     <message>
-        <source>Downloads</source>
-        <translation>Nedladdningar</translation>
-    </message>
-    <message>
-        <source>Check for updates</source>
-        <translation>Sök efter uppdateringar</translation>
-    </message>
-    <message>
-        <source>Firmware</source>
-        <translation>Firmware</translation>
-    </message>
-    <message>
-        <source>Latest Download</source>
-        <translation>Senaste nedladdning</translation>
-    </message>
-    <message>
-        <source>Download firmware</source>
-        <translation>Ladda ner firmware</translation>
-    </message>
-    <message>
-        <source>Download SD contents</source>
-        <translation>Ladda ner SD-innehåll</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Okänd</translation>
+        <source>Compressed image size exceeds reserved space.</source>
+        <translation>Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
     </message>
 </context>
 <context>
@@ -2623,7 +3030,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     <name>FlashFirmwareDialog</name>
     <message>
         <source>Flash Firmware</source>
-        <translation>Flasha firmware</translation>
+        <translation>Skriv firmware</translation>
     </message>
     <message>
         <source>Load...</source>
@@ -2659,7 +3066,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Allows Companion to write to older version of the firmware</source>
-        <translation>Tillåter Companon att skriva till äldre firmware-versioner</translation>
+        <translation>Tillåter Companion att skriva till äldre firmware-versioner</translation>
     </message>
     <message>
         <source>Check Hardware compatibility</source>
@@ -2731,7 +3138,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Could not check firmware from radio</source>
-        <translation>Kunde ej verifiera firmware från radion</translation>
+        <translation>Kunde inte verifiera firmware från radion</translation>
     </message>
     <message>
         <source>New firmware is not compatible with the one currently installed!</source>
@@ -2743,7 +3150,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Cannot convert Models and Settings for use with this firmware, original data will be used</source>
-        <translation>Modeller och inställningar kan ej översättas till denna firmware, ingen information uppdateras</translation>
+        <translation>Modeller och inställningar kan inte konverteras till denna firmware, ursprunglig data kommer användas</translation>
     </message>
     <message>
         <source>Restore failed</source>
@@ -2751,7 +3158,7 @@ Tomt betyder inkludera alla. ?, * and [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Could not restore Models and Settings to Radio. The models and settings data file can be found at: %1</source>
-        <translation>Det gick ej att återställa modeller och inställningar till radion. Filen kan hittas här: %1</translation>
+        <translation>Det gick inte att återställa modeller och inställningar till radion. Filen kan hittas här: %1</translation>
     </message>
     <message>
         <source>Flashing done</source>
@@ -2851,12 +3258,20 @@ Du använder för närvarande:
         <source>Switch</source>
         <translation>Brytare</translation>
     </message>
+    <message>
+        <source>trim6</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>trim5</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>FlightModeData</name>
     <message>
         <source>FM</source>
-        <translation type="unfinished"></translation>
+        <translation>FL</translation>
     </message>
 </context>
 <context>
@@ -2879,23 +3294,95 @@ Du använder för närvarande:
     </message>
     <message>
         <source>Value source</source>
-        <translation type="unfinished">Värdets ursprung</translation>
+        <translation>Värdets källa</translation>
     </message>
     <message>
         <source>Value</source>
         <translation>Värde</translation>
     </message>
     <message>
-        <source>&amp;Clear</source>
+        <source>Clear</source>
         <translation>Rensa</translation>
     </message>
     <message>
-        <source>Clear</source>
-        <translation>Ta bort</translation>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
     </message>
     <message>
-        <source>Clear all current Flight Mode properties?</source>
-        <translation>Rensa alla inställningar för nuvarande flygläge?</translation>
+        <source>Clear all Flight Modes. Are you sure?</source>
+        <translation>Rensa alla flyglägen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all Global Variables for all Flight Modes. Are you sure?</source>
+        <translation>Rensa alla globala variabler för alla flyglägen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all Global Variables for this Flight Mode. Are you sure?</source>
+        <translation>Rensa alla globala variabler för detta flygläge. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Flight Mode. Are you sure?</source>
+        <translation>Rensa flygläget. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Global Variable across all Flight Modes. Are you sure?</source>
+        <translation>Rensa den globala variabeln i alla flyglägen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Global Variable. Are you sure?</source>
+        <translation>Rensa den globala variabeln. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
+    </message>
+    <message>
+        <source>Cut Flight Mode. Are you sure?</source>
+        <translation>Klipp ut flygläget. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Global Variable across all Flight Modes. Are you sure?</source>
+        <translation>Klipp ut den globala variabeln från alla flyglägen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Global Variable. Are you sure?</source>
+        <translation>Klipp ut den globala variabeln. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Radera</translation>
+    </message>
+    <message>
+        <source>Delete Flight Mode. Are you sure?</source>
+        <translation>Radera flygläget. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete Global Variable. Are you sure?</source>
+        <translation>Radera den globala variabeln. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ned</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
+    </message>
+    <message>
+        <source>Paste to selected Global Variable across all Flight Modes. Are you sure?</source>
+        <translation>Klistra in den globala variabeln i alla flyglägen. Är du säker?</translation>
     </message>
     <message>
         <source>Trim disabled</source>
@@ -2911,7 +3398,7 @@ Du använder för närvarande:
     </message>
     <message>
         <source>Use Trim from Flight mode %1 + Own Trim as an offset</source>
-        <translation>Använd trim från flygläge %1 + eget trim som offset</translation>
+        <translation>Använd trim från flygläge %1 + egen trim som offset</translation>
     </message>
     <message>
         <source>Unit</source>
@@ -2940,6 +3427,14 @@ Du använder för närvarande:
     <message>
         <source>Popup menu available</source>
         <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>Warning: Global variable links back to itself. Flight Mode 0 value used.</source>
+        <translation>Varning: globla variabeln länkar till sig själv. Värdet från flygläge 0 används.</translation>
+    </message>
+    <message>
+        <source>Warning: Rotary encoder links back to itself. Flight Mode 0 value used.</source>
+        <translation>Varning: Inmatningshjulet länkar till sig själv. Värdet från flygläge 0 används.</translation>
     </message>
 </context>
 <context>
@@ -2999,6 +3494,44 @@ Du använder för närvarande:
     </message>
 </context>
 <context>
+    <name>FunctionSwitches</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    <message>
+        <source>Function Switches</source>
+        <translation>Funktionsbrytare</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Namn</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Grupp</translation>
+    </message>
+    <message>
+        <source>Always On</source>
+        <translation>Alltid på</translation>
+    </message>
+</context>
+<context>
+    <name>FunctionSwitchesPanel</name>
+    <message>
+        <source>SW%1</source>
+        <translation>BR%1</translation>
+    </message>
+</context>
+<context>
     <name>FusesDialog</name>
     <message>
         <source>Fuses</source>
@@ -3025,11 +3558,11 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;Läser säkringarna i AVR-kontrollern.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;Giltiga lägen för &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;AtMega 64 &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring ej tillslagen: 0E, 81, FF&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring inte tillslagen: 0E, 81, FF&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring tillslagen: 0E, 89, FF&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;Giltiga lägen för AtMega 2560 :&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring ej tillslagen: D7, 11, FC&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring inte tillslagen: D7, 11, FC&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8pt;&quot;&gt;EEPROM tömningssäkring tillslagen: D7, 19, FC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -3155,7 +3688,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>0.0</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>?.?</source>
@@ -3188,7 +3721,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Trainer</source>
-        <translation>Elev</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <source>Store calib. and hw settings in selected profile</source>
@@ -3232,7 +3765,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
-        <translation>Fel data i profilen, brytar-/pot-inställningar lästes ej in</translation>
+        <translation>Fel data i profilen, brytar-/pot-inställningar lästes inte in</translation>
     </message>
 </context>
 <context>
@@ -3241,12 +3774,92 @@ Dessa inställningar gäller för alla modeller.</translation>
         <source>Radio Settings</source>
         <translation>Radioinställningar</translation>
     </message>
+    <message>
+        <source>Internal</source>
+        <translation>Intern</translation>
+    </message>
+    <message>
+        <source>Ask</source>
+        <translation>Fråga</translation>
+    </message>
+    <message>
+        <source>Per model</source>
+        <translation>Per modell</translation>
+    </message>
+    <message>
+        <source>Internal + External</source>
+        <translation>Intern + Extern</translation>
+    </message>
+    <message>
+        <source>External</source>
+        <translation>Extern</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation>Telemetri</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation>Lärare</translation>
+    </message>
+    <message>
+        <source>Telemetry Mirror</source>
+        <translation>Speglad telemetri</translation>
+    </message>
+    <message>
+        <source>Telemetry In</source>
+        <translation>Telemetri in</translation>
+    </message>
+    <message>
+        <source>SBUS Trainer</source>
+        <translation>SBUS Lärare</translation>
+    </message>
+    <message>
+        <source>LUA</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CLI</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>mA</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>OneBit</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>SpaceMouse</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>GeneralSetup</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulär</translation>
     </message>
     <message>
         <source>GPS Coordinates</source>
@@ -3269,8 +3882,12 @@ Dessa inställningar gäller för alla modeller.</translation>
         <translation>Röstspråk</translation>
     </message>
     <message>
+        <source>Rotary Encoder Mode</source>
+        <translation>Läge för inmatningshjul</translation>
+    </message>
+    <message>
         <source>Timeshift from UTC</source>
-        <translation>Tidsdifferens till UTC</translation>
+        <translation>Tidsskillnad mot UTC</translation>
     </message>
     <message>
         <source>Metric</source>
@@ -3298,7 +3915,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>X-Short</source>
-        <translation type="unfinished">Extra-kort</translation>
+        <translation>Extra kort</translation>
     </message>
     <message>
         <source>Short</source>
@@ -3314,7 +3931,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>X-Long</source>
-        <translation type="unfinished">Extra lång</translation>
+        <translation>Extra lång</translation>
     </message>
     <message>
         <source>Color 1</source>
@@ -3338,7 +3955,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Vario pitch at zero</source>
-        <translation>Vario-ton vid noll</translation>
+        <translation>Vario tonläge vid noll</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -3346,7 +3963,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Optrex</source>
-        <translation>Optrex</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Readonly Unlock</source>
@@ -3367,7 +3984,7 @@ Dessa inställningar gäller för alla modeller.</translation>
         <translation>Summervolym
 
 0 - Tyst.  Inga pip alls.
-1 - Ej vid knapptryck.  Normala pip, men inte vid knapptryckningar.
+1 - Ej knappar.  Normala pip, dock inte för menyknappar.
 2 - Normalt.
 3 - Högt.
 4 - Extra högt.</translation>
@@ -3467,18 +4084,8 @@ p, li { white-space: pre-wrap; }
         <translation>Batterivarning</translation>
     </message>
     <message>
-        <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
-
-Acceptable values are 5v..10v</source>
-        <translation>Varning för batteriets spänningsnivå.
-Detta är det gränsvärde vid vilket batterivarningen ljuder.
-
-Värden mellan mellan 5 och 10 volt accepteras</translation>
-    </message>
-    <message>
         <source>Vario pitch at max</source>
-        <translation>Vario-ton vid maxhöjd</translation>
+        <translation>Vario tonläge vid max</translation>
     </message>
     <message>
         <source>If this value is not 0, any keypress will turn on the backlight and turn it off after the specified number of seconds.</source>
@@ -3506,7 +4113,7 @@ Värden mellan mellan 5 och 10 volt accepteras</translation>
     </message>
     <message>
         <source>Backlight color</source>
-        <translation>Färg på bakgrundsljuset</translation>
+        <translation>Färg på bakgrundsbelysningen</translation>
     </message>
     <message>
         <source>Contrast</source>
@@ -3554,19 +4161,11 @@ Värden mellan mellan 5 och 10 volt accepteras</translation>
     </message>
     <message>
         <source>Backlight Switch</source>
-        <translation>Ljusbrytare</translation>
+        <translation>Brytare för bakgrundsbelysning</translation>
     </message>
     <message>
         <source>Show Splash Screen on Startup</source>
         <translation>Visa startbild</translation>
-    </message>
-    <message>
-        <source>This is the switch selectrion for turning on the backlight (if installed).
-
-</source>
-        <translation>Välj brytare för att slå på bakrundsbelysningen.
-
-</translation>
     </message>
     <message>
         <source>LCD Display Type</source>
@@ -3618,7 +4217,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>---</source>
-        <translation>----</translation>
+        <translation></translation>
     </message>
     <message>
         <source>2s</source>
@@ -3658,7 +4257,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Beep volume</source>
-        <translation>Ljudstyrka varningston</translation>
+        <translation>Ljudstyrka varning</translation>
     </message>
     <message>
         <source>Wav volume</source>
@@ -3882,7 +4481,7 @@ Mode 4:
     </message>
     <message>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working. This function cannot be disabled by the radio.</source>
-        <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna att fungera. Detta går ej att ändra från radion.</translation>
+        <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna att fungera. Detta går inte att ändra från radion.</translation>
     </message>
     <message>
         <source>RSSI Poweroff Warning</source>
@@ -3917,10 +4516,6 @@ Mode 4:
         <translation>ID för ägarregistrering</translation>
     </message>
     <message>
-        <source>aaaaaaAA</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Power On Delay</source>
         <translation>Fördröjning vid uppstart</translation>
     </message>
@@ -3934,7 +4529,7 @@ Mode 4:
     </message>
     <message>
         <source>Trainer</source>
-        <translation>Elev</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <source>DMS</source>
@@ -3945,12 +4540,30 @@ Mode 4:
         <translation>Fördröjning vid avstängning</translation>
     </message>
     <message>
-        <source>Power On Speed</source>
-        <translation>Hastighet vid uppstart</translation>
+        <source>nnnnnnNN</source>
+        <translation></translation>
     </message>
     <message>
-        <source>Power Off Speed</source>
-        <translation>Hastighet vid avstängning</translation>
+        <source>This is the switch selectrion for turning on the backlight (if installed).
+
+</source>
+        <translation>Detta är brytarinställningen för att slå på bakgrundsbelysningen (om installerad).
+
+</translation>
+    </message>
+    <message>
+        <source>Keys Backlight</source>
+        <translation>Knappbelysning</translation>
+    </message>
+    <message>
+        <source>Battery warning voltage.
+This is the threashhold where the battery warning sounds.
+
+Acceptable values are 3v..12v</source>
+        <translation>Varning för batteriets spänningsnivå.
+Detta är det gränsvärde vid vilket batterivarningen ljuder.
+
+Acceptabla värden är 3 - 12 volt</translation>
     </message>
 </context>
 <context>
@@ -3978,6 +4591,10 @@ Mode 4:
     <message>
         <source>English</source>
         <translation>Engelska</translation>
+    </message>
+    <message>
+        <source>Danish</source>
+        <translation>Danska</translation>
     </message>
     <message>
         <source>Dutch</source>
@@ -4056,8 +4673,24 @@ Mode 4:
 This function cannot be disabled by the radio.
 Are you sure ?</source>
         <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna 
-att fungera. Detta går ej att ändra från radion.
+att fungera. Detta går inte att ändra från radion.
 Är du säker?</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Inverted</source>
+        <translation>Inverterad</translation>
+    </message>
+    <message>
+        <source>Vertical Inverted, Horizontal Normal</source>
+        <translation>Vertikal inverterad, Horisontell normal</translation>
+    </message>
+    <message>
+        <source>Vertical Inverted, Horizontal Alternate</source>
+        <translation>Vertikal inverterad, Horisontell alternativ</translation>
     </message>
 </context>
 <context>
@@ -4076,194 +4709,34 @@ att fungera. Detta går ej att ändra från radion.
     </message>
 </context>
 <context>
-    <name>Hardware</name>
+    <name>HardwarePanel</name>
     <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>Sticks</source>
+        <translation>Spakar</translation>
     </message>
     <message>
-        <source>SQ</source>
-        <translation>SQ</translation>
+        <source>Dead zone</source>
+        <translation>Dödläge</translation>
     </message>
     <message>
-        <source>SR</source>
-        <translation>SR</translation>
+        <source>Pots</source>
+        <translation>Vred</translation>
     </message>
     <message>
-        <source>LS2</source>
-        <translation>LS2</translation>
+        <source>Sliders</source>
+        <translation>Reglage</translation>
     </message>
     <message>
-        <source>SP</source>
-        <translation>SP</translation>
+        <source>Switches</source>
+        <translation>Brytare</translation>
     </message>
     <message>
-        <source>SO</source>
-        <translation>SO</translation>
-    </message>
-    <message>
-        <source>S4</source>
-        <translation>S4</translation>
-    </message>
-    <message>
-        <source>RS</source>
-        <translation>RS</translation>
-    </message>
-    <message>
-        <source>SB</source>
-        <translation>SB</translation>
-    </message>
-    <message>
-        <source>PPM 2</source>
-        <translation>PPM 2</translation>
-    </message>
-    <message>
-        <source>OFF</source>
-        <translation>Av</translation>
-    </message>
-    <message>
-        <source>S-Port Mirror</source>
-        <translation>Speglad S-port</translation>
-    </message>
-    <message>
-        <source>Telemetry</source>
-        <translation>Telemetri</translation>
-    </message>
-    <message>
-        <source>SBUS Trainer</source>
-        <translation>SBUS-lärare</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Rud</source>
-        <translation>Rod</translation>
-    </message>
-    <message>
-        <source>PPM 3</source>
-        <translation>PPM 3</translation>
-    </message>
-    <message>
-        <source>S1</source>
-        <translation>S1</translation>
-    </message>
-    <message>
-        <source>S2</source>
-        <translation>S2</translation>
-    </message>
-    <message>
-        <source>S3</source>
-        <translation>S3</translation>
-    </message>
-    <message>
-        <source>PPM 1</source>
-        <translation>PPM 1</translation>
-    </message>
-    <message>
-        <source>Serial Port</source>
-        <translation>Serieport</translation>
-    </message>
-    <message>
-        <source>v</source>
-        <translation>v</translation>
-    </message>
-    <message>
-        <source>PPM Multiplier</source>
-        <translation>PPM-multiplikator</translation>
-    </message>
-    <message>
-        <source>Current Offset</source>
-        <translation>Offset för strömstyrka</translation>
-    </message>
-    <message>
-        <source>PPM 4</source>
-        <translation>PPM 4</translation>
-    </message>
-    <message>
-        <source>SA</source>
-        <translation>SA</translation>
-    </message>
-    <message>
-        <source>Ele</source>
-        <translation>Hjd</translation>
-    </message>
-    <message>
-        <source>Ail</source>
-        <translation>Ske</translation>
-    </message>
-    <message>
-        <source>Thr</source>
-        <translation>Gas</translation>
-    </message>
-    <message>
-        <source>SC</source>
-        <translation>SC</translation>
-    </message>
-    <message>
-        <source>LS</source>
-        <translation>LS</translation>
-    </message>
-    <message>
-        <source>SD</source>
-        <translation>SD</translation>
-    </message>
-    <message>
-        <source>Battery Offset</source>
-        <translation>Offset för batteriet</translation>
-    </message>
-    <message>
-        <source>SE</source>
-        <translation>SE</translation>
-    </message>
-    <message>
-        <source>SF</source>
-        <translation>SF</translation>
-    </message>
-    <message>
-        <source>SG</source>
-        <translation>SG</translation>
-    </message>
-    <message>
-        <source>SH</source>
-        <translation>SH</translation>
-    </message>
-    <message>
-        <source>SI</source>
-        <translation>SI</translation>
-    </message>
-    <message>
-        <source>SJ</source>
-        <translation>SJ</translation>
-    </message>
-    <message>
-        <source>SK</source>
-        <translation>SK</translation>
-    </message>
-    <message>
-        <source>SL</source>
-        <translation>SL</translation>
-    </message>
-    <message>
-        <source>SM</source>
-        <translation>SM</translation>
-    </message>
-    <message>
-        <source>SN</source>
-        <translation>SN</translation>
-    </message>
-    <message>
-        <source>RS2</source>
-        <translation>RS2</translation>
+        <source>RTC Battery Check</source>
+        <translation>RTC batterikontroll</translation>
     </message>
     <message>
         <source>Bluetooth</source>
-        <translation>Blåtand</translation>
-    </message>
-    <message>
-        <source>ADC Filter</source>
-        <translation>ADC-filter</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Device Name:</source>
@@ -4274,79 +4747,44 @@ att fungera. Detta går ej att ändra från radion.
         <translation>Antenn</translation>
     </message>
     <message>
-        <source>S5</source>
-        <translation>S5</translation>
-    </message>
-</context>
-<context>
-    <name>HardwarePanel</name>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
+        <source>Internal module</source>
+        <translation>Intern modul</translation>
     </message>
     <message>
-        <source>2 Positions Toggle</source>
-        <translation>2-lägesbrytare</translation>
+        <source>Sample Mode</source>
+        <translation></translation>
     </message>
     <message>
-        <source>2 Positions</source>
-        <translation>2 lägen</translation>
+        <source>Serial ports</source>
+        <translation>Seriella portar</translation>
     </message>
     <message>
-        <source>3 Positions</source>
-        <translation>3 lägen</translation>
+        <source>%1</source>
+        <translation></translation>
     </message>
     <message>
-        <source>Pot with detent</source>
-        <translation>Vred med mittklick</translation>
+        <source>Power</source>
+        <translation>Ström</translation>
     </message>
     <message>
-        <source>Multipos switch</source>
-        <translation>Flerlägesväljare</translation>
+        <source>USB-VCP</source>
+        <translation></translation>
     </message>
     <message>
-        <source>Pot without detent</source>
-        <translation>Vred utan mittklick</translation>
+        <source>ADC Filter</source>
+        <translation>ADC-filter</translation>
     </message>
     <message>
-        <source>Slider with detent</source>
-        <translation>Skjutpot med mittklick</translation>
+        <source>S.Port Power</source>
+        <translation>S.Port strömkälla</translation>
     </message>
     <message>
-        <source>OFF</source>
-        <translation>Av</translation>
+        <source>Current Offset</source>
+        <translation>Offset för strömstyrka</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Aktiverad</translation>
-    </message>
-    <message>
-        <source>Telemetry</source>
-        <translation>Telemetri</translation>
-    </message>
-    <message>
-        <source>Trainer</source>
-        <translation>Elev</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation>Intern</translation>
-    </message>
-    <message>
-        <source>Ask</source>
-        <translation>Fråga</translation>
-    </message>
-    <message>
-        <source>Per model</source>
-        <translation>Per modell</translation>
-    </message>
-    <message>
-        <source>Internal + External</source>
-        <translation>Intern + Extern</translation>
-    </message>
-    <message>
-        <source>External</source>
-        <translation>Extern</translation>
+        <source>Warning: Changing the Internal module may invalidate the internal module protocol of the models!</source>
+        <translation>Varning: Byte av den interna modulen kan göra modellernas interna modulprotokoll ogiltiga!</translation>
     </message>
 </context>
 <context>
@@ -4436,7 +4874,7 @@ att fungera. Detta går ej att ändra från radion.
     <message>
         <source>Cannot open file %1:
 %2.</source>
-        <translation>Kan ej öppna fil %1:
+        <translation>Kan inte öppna fil %1:
 %2.</translation>
     </message>
     <message>
@@ -4450,43 +4888,39 @@ att fungera. Detta går ej att ändra från radion.
     <name>InputsPanel</name>
     <message>
         <source>Move Up</source>
-        <translation>Flytta uppåt</translation>
+        <translation>Flytta upp</translation>
     </message>
     <message>
         <source>Ctrl+Up</source>
-        <translation>Ctrl+Up</translation>
+        <translation>Ctrl+Upp</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation>Flytta nedåt</translation>
+        <translation>Flytta ned</translation>
     </message>
     <message>
         <source>Ctrl+Down</source>
-        <translation>Ctrl+Down</translation>
+        <translation>Ctrl+Ner</translation>
     </message>
     <message>
         <source>Clear All Inputs</source>
         <translation>Nollställ alla inputs</translation>
     </message>
     <message>
-        <source>Not enough available inputs!</source>
-        <translation>För få inputs är tillgängliga!</translation>
-    </message>
-    <message>
-        <source>Delete Selected Inputs?</source>
-        <translation>Ta bort valda inputs?</translation>
+        <source>Delete selected Input lines. Are you sure?</source>
+        <translation>Radera valda inputrader. Är du säker?</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation>Lägg till</translation>
+        <translation>&amp;Lägg till</translation>
     </message>
     <message>
         <source>Ctrl+A</source>
-        <translation>CTRL+A</translation>
+        <translation>Ctrl+A</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation>Redigera</translation>
+        <translation>Redig&amp;era</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -4494,15 +4928,15 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>Ta bort</translation>
+        <translation>&amp;Radera</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>Kopiera</translation>
+        <translation>&amp;Kopiera</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
@@ -4510,7 +4944,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Cut</source>
-        <translation>Klipp ut</translation>
+        <translation>Klipp &amp;ut</translation>
     </message>
     <message>
         <source>Ctrl+X</source>
@@ -4518,7 +4952,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>Klistra in</translation>
+        <translation>Klistra &amp;in</translation>
     </message>
     <message>
         <source>Ctrl+V</source>
@@ -4526,19 +4960,149 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Du&amp;plicate</source>
-        <translation>Duplicera</translation>
+        <translation>Du&amp;plicera</translation>
     </message>
     <message>
         <source>Ctrl+U</source>
         <translation>Ctrl+U</translation>
     </message>
     <message>
-        <source>Clear Inputs?</source>
-        <translation>Rensa input?</translation>
+        <source>Clear</source>
+        <translation>Rensa</translation>
     </message>
     <message>
-        <source>Really clear all the inputs?</source>
-        <translation>Vill du verkligen ta bort alla Inputs?</translation>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear all Input lines. Are you sure?</source>
+        <translation>Rensa alla inputrader. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all lines for the selected Input. Are you sure?</source>
+        <translation>Rensa alla rader för vald input. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut selected Input lines. Are you sure?</source>
+        <translation>Klipp ut valda inputrader. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete all lines for the selected Input. Are you sure?</source>
+        <translation>Radera alla rader för vald input. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lines</source>
+        <translation>Rader</translation>
+    </message>
+    <message>
+        <source>Not enough available Inputs!</source>
+        <translation>Inte nog många tillgängliga inputs!</translation>
+    </message>
+</context>
+<context>
+    <name>LabelsModel</name>
+    <message>
+        <source>Labels</source>
+        <translation>Etiketter</translation>
+    </message>
+    <message>
+        <source>New%1</source>
+        <translation>Ny%1</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Ny</translation>
+    </message>
+    <message>
+        <source>Unable to rename &quot;%1&quot; to &quot;%2&quot; the label already exists</source>
+        <translation>Kan inte byta namn på &quot;%1&quot; till &quot;%2&quot; då etiketten redan finns</translation>
+    </message>
+    <message>
+        <source>Unable to add label &quot;%1&quot; to model &quot;%2&quot; not enough room</source>
+        <translation>Kan inte lägga till etikett &quot;%1&quot; till modell &quot;%2&quot;, inte tillräckligt med plats</translation>
+    </message>
+    <message>
+        <source>Unable to rename &quot;%1&quot; to &quot;%2&quot; not enough room in model %3</source>
+        <translation>Kan inte ändra namn &quot;%1&quot; till &quot;%2&quot;, inte tillräckligt med plats i modell %3</translation>
+    </message>
+</context>
+<context>
+    <name>LabelsStorageFormat</name>
+    <message>
+        <source>Cannot extract RADIO/radio.bin</source>
+        <translation>Kan inte extrahera RADIO/radio.bin</translation>
+    </message>
+    <message>
+        <source>Cannot extract RADIO/models.txt</source>
+        <translation>Kan inte extrahera RADIO/models.txt</translation>
+    </message>
+    <message>
+        <source>Cannot extract %1</source>
+        <translation>Kan inte extrahera %1</translation>
+    </message>
+    <message>
+        <source>Error loading models</source>
+        <translation>Fel vid laddning av modeller</translation>
+    </message>
+    <message>
+        <source>Cannot find %1/RADIO/radio.yml</source>
+        <translation>Kan inte hitta %1/RADIO/radio.yml</translation>
+    </message>
+    <message>
+        <source>Found %1/RADIO/radio.yml</source>
+        <translation>Hittade %1/RADIO/radio.yml</translation>
+    </message>
+    <message>
+        <source>Cannot find %1/MODELS/models.yml</source>
+        <translation>Kan inte hitta %1/MODELS/models.yml</translation>
+    </message>
+    <message>
+        <source>Found %1/MODELS/models.yml</source>
+        <translation>Hittade %1/MODELS/models.yml</translation>
+    </message>
+    <message>
+        <source>Cannot find %1</source>
+        <translation>Kan inte hitta %1</translation>
+    </message>
+    <message>
+        <source>Found %1</source>
+        <translation>Hittade %1</translation>
+    </message>
+    <message>
+        <source>Cannot extract RADIO/radio.yml</source>
+        <translation>Kan inte extrahera RADIO/radio.yml</translation>
+    </message>
+    <message>
+        <source>Cannot load RADIO/radio.yml</source>
+        <translation>Kan inte ladda RADIO/radio.yml</translation>
+    </message>
+    <message>
+        <source>Cannot extract </source>
+        <translation>Kan inte extrahera </translation>
+    </message>
+    <message>
+        <source>Cannot load </source>
+        <translation>Kan inte ladda </translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation>Favoriter</translation>
+    </message>
+    <message>
+        <source>Can&apos;t load MODELS/labels.yml</source>
+        <translation>Kan inte ladda MODELS/labels.yml</translation>
+    </message>
+    <message>
+        <source>Cannot list files</source>
+        <translation>Kan inte lista filer</translation>
     </message>
 </context>
 <context>
@@ -4553,7 +5117,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>CH</source>
-        <translation></translation>
+        <translation>KA</translation>
     </message>
 </context>
 <context>
@@ -4587,11 +5151,11 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>AND</source>
-        <translation>OCH</translation>
+        <translation>AND</translation>
     </message>
     <message>
         <source>OR</source>
-        <translation>ELLER</translation>
+        <translation>OR</translation>
     </message>
     <message>
         <source>XOR</source>
@@ -4643,11 +5207,11 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Sticky</source>
-        <translation type="unfinished"></translation>
+        <translation>Seg</translation>
     </message>
     <message>
         <source>Edge</source>
-        <translation type="unfinished"></translation>
+        <translation>Kant</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -4659,18 +5223,18 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>LSW</source>
-        <translation type="unfinished"></translation>
+        <translation>LBR</translation>
     </message>
 </context>
 <context>
     <name>LogicalSwitchesPanel</name>
     <message>
         <source>V1</source>
-        <translation>V1</translation>
+        <translation></translation>
     </message>
     <message>
         <source>V2</source>
-        <translation>V2</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Function</source>
@@ -4689,20 +5253,20 @@ att fungera. Detta går ej att ändra från radion.
         <translation>Fördröjning</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <source>Delete</source>
+        <translation>Radera</translation>
     </message>
     <message>
-        <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
     </message>
     <message>
-        <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
     </message>
     <message>
-        <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
     </message>
     <message>
         <source>(instant)</source>
@@ -4715,6 +5279,42 @@ att fungera. Detta går ej att ändra från radion.
     <message>
         <source>Popup menu available</source>
         <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear all Logical Switches. Are you sure?</source>
+        <translation>Rensa alla logiska brytare. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Logical Switch. Are you sure?</source>
+        <translation>Rensa den logiska brytaren. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Logical Switch. Are you sure?</source>
+        <translation>Klipp ut den logiska brytaren. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete Logical Switch. Are you sure?</source>
+        <translation>Radera den logiska brytaren. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ned</translation>
     </message>
 </context>
 <context>
@@ -4753,7 +5353,7 @@ att fungera. Detta går ej att ändra från radion.
     </message>
     <message>
         <source>Telemetry logs</source>
-        <translation>Telemetriloggningar</translation>
+        <translation>Telemetriloggar</translation>
     </message>
     <message>
         <source>Time (hh:mm:ss)</source>
@@ -4793,7 +5393,7 @@ Kolumnerna för höjd (GAlt) och hastighet (GSpd) är valfria</translation>
     <message>
         <source>Cannot write file %1:
 %2.</source>
-        <translation>Kan ej skriva fil %1:
+        <translation>Kan inte skriva fil %1:
 %2.</translation>
     </message>
     <message>
@@ -4810,12 +5410,8 @@ fält</translation>
         <translation>Vald loggfil innehåller %1 felaktiga rader, av totalt %2 rader</translation>
     </message>
     <message>
-        <source>total duration </source>
-        <translation>totaltid </translation>
-    </message>
-    <message>
         <source>duration </source>
-        <translation>tid </translation>
+        <translation>varaktighet </translation>
     </message>
     <message>
         <source> (L1)</source>
@@ -4835,15 +5431,15 @@ fält</translation>
     </message>
     <message>
         <source>Cursor A: %1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>Markör A: %1 m</translation>
     </message>
     <message>
         <source>Cursor B: %1 m</source>
-        <translation type="unfinished"></translation>
+        <translation>Markör B: %1 m</translation>
     </message>
     <message>
         <source>Time delta: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta tid: %1</translation>
     </message>
     <message>
         <source>Climb rate: %1 m/s</source>
@@ -4857,28 +5453,16 @@ fält</translation>
         <source>Error: no GPS data found</source>
         <translation>Fel: ingen GPS-data funnen</translation>
     </message>
+    <message>
+        <source>time span</source>
+        <translation>tidsspann</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source>File loaded</source>
         <translation>Filen laddad</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Spara som</translation>
-    </message>
-    <message>
-        <source>No updates available at this time.</source>
-        <translation>Inga updateringar finns tillgängliga.</translation>
-    </message>
-    <message>
-        <source>Executable (*.exe)</source>
-        <translation>Program (*.exe)</translation>
-    </message>
-    <message>
-        <source>Would you like to launch the installer?</source>
-        <translation>Vill du starta installationsprogrammet?</translation>
     </message>
     <message>
         <source>File saved</source>
@@ -4909,14 +5493,6 @@ fält</translation>
         <translation>Systemspråk</translation>
     </message>
     <message>
-        <source>Fuses...</source>
-        <translation>Säkringar...</translation>
-    </message>
-    <message>
-        <source>A tribute to those who have contributed to OpenTX and Companion</source>
-        <translation>Ett tack till alla de som bidragit till EdgeTX och Companion</translation>
-    </message>
-    <message>
         <source>Settings</source>
         <translation>Inställningar</translation>
     </message>
@@ -4929,32 +5505,12 @@ fält</translation>
         <translation>Redigera inställningar</translation>
     </message>
     <message>
-        <source>Download firmware and voice files</source>
-        <translation>Ladda ned firmware och röstfiler</translation>
-    </message>
-    <message>
         <source>Exit the application</source>
         <translation>Avsluta programmet</translation>
     </message>
     <message>
-        <source>List available programmers</source>
-        <translation>Lista tillgängliga programmerare</translation>
-    </message>
-    <message>
-        <source>Show fuses dialog</source>
-        <translation>Visa säkringsdialog</translation>
-    </message>
-    <message>
         <source>Show the application&apos;s About box</source>
         <translation>Visa information om programmet</translation>
-    </message>
-    <message>
-        <source>Checking for updates</source>
-        <translation>Letar efter uppdateringar</translation>
-    </message>
-    <message>
-        <source>OpenTX Home Page: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</source>
-        <translation>EdgeTX hemsida: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</translation>
     </message>
     <message>
         <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
@@ -5001,24 +5557,6 @@ fält</translation>
         <translation>Redo</translation>
     </message>
     <message>
-        <source>New release available</source>
-        <translation>En ny version finns tillgänglig</translation>
-    </message>
-    <message>
-        <source>Error opening file %1:
-%2.</source>
-        <translation>Fel vid öppning av filen %1:
-%2.</translation>
-    </message>
-    <message>
-        <source>Compilation server too busy, try later</source>
-        <translation>Byggservern är upptagen, försök igen senare</translation>
-    </message>
-    <message>
-        <source>Unknown server failure, try later</source>
-        <translation>Okänt serverfel, försök igen senare</translation>
-    </message>
-    <message>
         <source>Compare models</source>
         <translation>Jämför modeller</translation>
     </message>
@@ -5037,10 +5575,6 @@ fält</translation>
     <message>
         <source>Read firmware from Radio</source>
         <translation>Läs firmware från radion</translation>
-    </message>
-    <message>
-        <source>Write Firmware to Radio</source>
-        <translation>Skriv firmware till radion</translation>
     </message>
     <message>
         <source>Write firmware to Radio</source>
@@ -5091,26 +5625,6 @@ fält</translation>
         <translation>%2</translation>
     </message>
     <message>
-        <source>New Radio</source>
-        <translation>Ny radio</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>A new version of Companion is available (version %1)&lt;br&gt;Would you like to download it?</source>
-        <translation>En ny version av Companion finns tillgänglig (version %1)&lt;br&gt;Vill du ladda ned den?</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nej</translation>
-    </message>
-    <message>
-        <source>Release Notes</source>
-        <translation>Releasenötter</translation>
-    </message>
-    <message>
         <source>The new theme will be loaded the next time you start Companion.</source>
         <translation>De nya ikonerna kommer att användas nästa gång Companion startas.</translation>
     </message>
@@ -5127,10 +5641,6 @@ fält</translation>
         <translation>Ett monokromt svart ikontema</translation>
     </message>
     <message>
-        <source>Do you want to write the firmware to the radio now ?</source>
-        <translation>Vill du skriva firmware till radion nu?</translation>
-    </message>
-    <message>
         <source>Read Models and Settings From Radio</source>
         <translation>Läs modeller och inställningar från radion</translation>
     </message>
@@ -5140,15 +5650,7 @@ fält</translation>
     </message>
     <message>
         <source>Read Radio Firmware to File</source>
-        <translation type="unfinished">Spara radions firmware till fil</translation>
-    </message>
-    <message>
-        <source>The OpenTX Companion project was originally forked from &lt;a href=&apos;%1&apos;&gt;eePe&lt;/a&gt;</source>
-        <translation>EdgeTX-Companion-projektet grenades ursprungligen av från &lt;a href=&apos;%1&apos;&gt;eePe&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Copyright OpenTX Team</source>
-        <translation>Copyright EdgeTX Team</translation>
+        <translation>Spara radions firmware till fil</translation>
     </message>
     <message>
         <source>New</source>
@@ -5188,7 +5690,7 @@ fält</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>Normal</translation>
+        <translation>Normala</translation>
     </message>
     <message>
         <source>Use big toolbar icons</source>
@@ -5207,10 +5709,6 @@ fält</translation>
         <translation>Mycket stora</translation>
     </message>
     <message>
-        <source>About...</source>
-        <translation>Om...</translation>
-    </message>
-    <message>
         <source>View Log File...</source>
         <translation>Visa loggfil...</translation>
     </message>
@@ -5223,44 +5721,16 @@ fält</translation>
         <translation>Inställningar...</translation>
     </message>
     <message>
-        <source>Download...</source>
-        <translation>Nedladdning...</translation>
-    </message>
-    <message>
-        <source>Check for Updates...</source>
-        <translation>Sök efter uppdateringar...</translation>
-    </message>
-    <message>
-        <source>Check OpenTX and Companion updates</source>
-        <translation>Sök efter uppdateringar av Companion och EdgeTX</translation>
-    </message>
-    <message>
         <source>Compare Models...</source>
         <translation>Jämför modeller...</translation>
-    </message>
-    <message>
-        <source>List programmers...</source>
-        <translation>Visa programmerare...</translation>
     </message>
     <message>
         <source>Add Radio Profile</source>
         <translation>Lägg till radioprofil</translation>
     </message>
     <message>
-        <source>Manuals and other Documents</source>
-        <translation>Manualer och andra dokument</translation>
-    </message>
-    <message>
-        <source>Open the OpenTX document page in a web browser</source>
-        <translation>Öppna EdgeTX dokumentsida i en webbläsare</translation>
-    </message>
-    <message>
         <source>Configure Communications...</source>
         <translation>Kommunikationsinställningar...</translation>
-    </message>
-    <message>
-        <source>Contributors...</source>
-        <translation>Bidragande...</translation>
     </message>
     <message>
         <source>Set Icon Theme</source>
@@ -5279,50 +5749,6 @@ fält</translation>
         <translation>Synkronisering av SD-kort</translation>
     </message>
     <message>
-        <source>A new version of %1 firmware is available:
-  - current is %2
-  - newer is %3
-
-Do you want to download it now?
-
-We recommend you view the release notes using the button below to learn about any changes that may be important to you.</source>
-        <translation>En ny programvaruversion för radion finns tillgänglig (%1):
-  - installerad version %2
-  - ny version %3
-
-Vill du ladda ned den nya versionen nu?
-
-Vi rekommenderar att du använder knappen nedan för att ta del av de senaste förändringarna och bedöma om de är viktiga för dig.</translation>
-    </message>
-    <message>
-        <source>OpenTX Companion %1 - Radio: %2 - Profile: %3</source>
-        <translation>EdgeTX Companion %1 - Radio: %2 - Profil: %3</translation>
-    </message>
-    <message>
-        <source>Not enough flash available on this board for all the selected options</source>
-        <translation>Ej tillräckligt med programminne i radion för alla valda tillägg</translation>
-    </message>
-    <message>
-        <source>Compilation server temporary failure, try later</source>
-        <translation>Temporärt fel på kompileringsservern, prova igen om ett tag</translation>
-    </message>
-    <message>
-        <source>Compilation error</source>
-        <translation>Kompileringsfel</translation>
-    </message>
-    <message>
-        <source>Invalid firmware</source>
-        <translation>Ogiltig firmware</translation>
-    </message>
-    <message>
-        <source>Invalid board</source>
-        <translation>Ogiltig hårdvara</translation>
-    </message>
-    <message>
-        <source>Invalid language</source>
-        <translation>Ogiltigt språk</translation>
-    </message>
-    <message>
         <source>Some text will not be translated until the next time you start Companion. Please note that some translations may not be complete.</source>
         <translation>En del text kommer inte översättas förrän du startat om Companion. Vänligen notera att vissa översättningar kan saknas.</translation>
     </message>
@@ -5332,7 +5758,7 @@ Vi rekommenderar att du använder knappen nedan för att ta del av de senaste f�
     </message>
     <message>
         <source>This function is not yet implemented</source>
-        <translation>Denna funktion är ej implementerad ännu</translation>
+        <translation>Denna funktion är inte implementerad ännu</translation>
     </message>
     <message>
         <source>Use default system language.</source>
@@ -5341,18 +5767,6 @@ Vi rekommenderar att du använder knappen nedan för att ta del av de senaste f�
     <message>
         <source>Use %1 language (some translations may not be complete).</source>
         <translation>Använd %1 språk. Vissa översättningar kan saknas.</translation>
-    </message>
-    <message>
-        <source>Diskimage (*.dmg)</source>
-        <translation>Diskavbildning (*.dmg)</translation>
-    </message>
-    <message>
-        <source>Would you like to open the disk image to install the new version?</source>
-        <translation>Vill du öppna diskavbildningsfilen för att installera den nya versionen?</translation>
-    </message>
-    <message>
-        <source>A new release of Companion is available, please check the &lt;a href=&apos;%1&apos;&gt;OpenTX website!&lt;/a&gt;</source>
-        <translation>En ny version av Companion finns tillgänglig, se &lt;a href=&apos;%1&apos;&gt;EdgeTX website!&lt;/a&gt;</translation>
     </message>
     <message>
         <source>There are unsaved file changes which you may lose when switching radio types.
@@ -5420,15 +5834,15 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Tabbed Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Som flikar</translation>
     </message>
     <message>
         <source>Use tabs to arrange open windows.</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd flikar för att arrangera öppna fönster.</translation>
     </message>
     <message>
         <source>Tile Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Bredvid varandra</translation>
     </message>
     <message>
         <source>Arrange open windows across all the available space.</source>
@@ -5436,7 +5850,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Cascade Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Stapla på varandra</translation>
     </message>
     <message>
         <source>Arrange all open windows in a stack.</source>
@@ -5456,23 +5870,23 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+L</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+%1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source> - Copy</source>
@@ -5480,7 +5894,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Companion :: Open files warning</source>
-        <translation type="unfinished">Companion :: Varning för öppna filer</translation>
+        <translation>Companion :: Varning för öppna filer</translation>
     </message>
     <message>
         <source>Please save or close modified file(s) before deleting the active profile.</source>
@@ -5488,7 +5902,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Not possible to remove profile</source>
-        <translation>Profilen kan ej tas bort</translation>
+        <translation>Profilen kan inte tas bort</translation>
     </message>
     <message>
         <source>The default profile can not be removed.</source>
@@ -5500,75 +5914,7 @@ Vill du fortsätta?</translation>
     </message>
     <message>
         <source>Are you sure you wish to delete the &quot;%1&quot; radio profile? There is no way to undo this action!</source>
-        <translation>Vill du verkligen ta bort radioprofil %1? Detta går ej att ångra!</translation>
-    </message>
-    <message>
-        <source>No Companion release candidates are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No nightly Companion builds are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Companion release builds are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Companion update check failed, new version information not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No firmware release candidates are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No firmware nightly builds are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No firmware release builds are currently being served for this version, please switch release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Release candidate builds are now available for this version, would you like to switch to using them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Channel changed to RC, please restart the download process</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Official release builds are now available for this version, would you like to switch to using them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Channel changed to Release, please restart the download process</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This radio (%1) is not currently available in this firmware release channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Firmware update check failed, new version information not found or invalid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Firmware %1 does not seem to have ever been downloaded.
-Version %2 is available.
-Do you want to download it now?
-
-We recommend you view the release notes using the button below to learn about any changes that may be important to you.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to download version %1 now ?</source>
-        <translation>Vill du ladda ner version %1 nu?</translation>
-    </message>
-    <message>
-        <source>Ignore this version %1?</source>
-        <translation>Ignorera denna version %1?</translation>
+        <translation>Vill du verkligen radera radioprofil %1? Detta går inte att ångra!</translation>
     </message>
     <message>
         <source>Local Folder</source>
@@ -5620,7 +5966,7 @@ We recommend you view the release notes using the button below to learn about an
     </message>
     <message>
         <source>The settings could not be imported.</source>
-        <translation>Inställningarna kunde ej importeras.</translation>
+        <translation>Inställningarna kunde inte importeras.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;p&gt;New settings have been imported from:&lt;br&gt; %1.&lt;/p&gt;&lt;p&gt;%2 will now re-initialize.&lt;/p&gt;&lt;p&gt;Note that you may need to close and restart %2 before some settings like language and icon theme take effect.&lt;/p&gt;</source>
@@ -5629,6 +5975,50 @@ We recommend you view the release notes using the button below to learn about an
     <message>
         <source>&lt;p&gt;The previous settings were backed up to:&lt;br&gt; %1&lt;/p&gt;</source>
         <translation>&lt;p&gt;Föregående inställningar säkerhetskopierades till:&lt;br&gt; %1&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>EdgeTX Home Page: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</source>
+        <translation>EdgeTX hemsida: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>The EdgeTX Companion project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
+        <translation>Companion för EdgeTX har sitt ursprung i &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>File new &lt;a href=&apos;%1&apos;&gt;Issue or Request&lt;/a&gt;</source>
+        <translation>Anmäl &lt;a href=&apos;%1&apos;&gt;problem eller önskemål&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Copyright</source>
+        <translation>Copyright</translation>
+    </message>
+    <message>
+        <source>EdgeTX Companion %1 - Radio: %2 - Profile: %3</source>
+        <translation>EdgeTX Companion %1 - Radio: %2 - Profil: %3</translation>
+    </message>
+    <message>
+        <source>About Companion...</source>
+        <translation>Om Companion...</translation>
+    </message>
+    <message>
+        <source>Download components...</source>
+        <translation>Ladda ner komponenter...</translation>
+    </message>
+    <message>
+        <source>Download EdgeTX components and supporting resources</source>
+        <translation>Ladda ner EdgeTX komponenter och understödda resurser</translation>
+    </message>
+    <message>
+        <source>Check for updates...</source>
+        <translation>Sök efter uppdateringar...</translation>
+    </message>
+    <message>
+        <source>Check for updates to EdgeTX and supporting resources</source>
+        <translation>Sök efter uppdateringar för EdgeTX och understödda resurser</translation>
+    </message>
+    <message>
+        <source>Write Firmware to Radio</source>
+        <translation>Skriv firmware till radion</translation>
     </message>
 </context>
 <context>
@@ -5639,7 +6029,7 @@ We recommend you view the release notes using the button below to learn about an
     </message>
     <message>
         <source>Unable to find file %1!</source>
-        <translation>Kan inte hitta filen %1 !</translation>
+        <translation>Kan inte hitta filen %1!</translation>
     </message>
     <message>
         <source>Error reading file %1:
@@ -5658,10 +6048,6 @@ We recommend you view the release notes using the button below to learn about an
         <translation>Spara som</translation>
     </message>
     <message>
-        <source>free bytes</source>
-        <translation>bytes lediga</translation>
-    </message>
-    <message>
         <source>%1 has been modified.
 Do you want to save your changes?</source>
         <translation>%1 har ändrats.
@@ -5669,7 +6055,7 @@ Vill du spara ändringarna?</translation>
     </message>
     <message>
         <source>Cannot write temporary file!</source>
-        <translation>Kan ej skriva till temporär fil!</translation>
+        <translation>Kan inte skriva till temporär fil!</translation>
     </message>
     <message>
         <source>Open backup Models and Settings file</source>
@@ -5681,11 +6067,7 @@ Vill du spara ändringarna?</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Move to Category</source>
-        <translation>Flytta till kategori</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <source>Alt+S</source>
@@ -5696,57 +6078,36 @@ Vill du spara ändringarna?</translation>
         <translation>Vill du skriva över de generella radioinställningarna?</translation>
     </message>
     <message>
-        <source>This category is not empty!</source>
-        <translation>Denna kategori är ej tom!</translation>
-    </message>
-    <message>
-        <source>New model</source>
-        <extracomment>Translators: do NOT use accents here, this is a default model name.</extracomment>
-        <translation>Ny modell</translation>
-    </message>
-    <message>
-        <source>Unable to find Horus radio SD card!</source>
-        <translation>Kan ej hitta radions SD-kort!</translation>
-    </message>
-    <message>
-        <source>Models and Settings written</source>
-        <translation>Modeller och inställningar sparade</translation>
-    </message>
-    <message>
         <source>Alt+Shift+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+Shift+S</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+W</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+U</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message numerus="yes">
         <source>%n Model(s)</source>
@@ -5764,21 +6125,9 @@ Vill du spara ändringarna?</translation>
             <numerusform>%n modeller</numerusform>
         </translation>
     </message>
-    <message numerus="yes">
-        <source>%n Category(ies)</source>
-        <comment>As in &quot;Delete 3 Categories&quot; or &quot;Delete 1 Category.&quot;</comment>
-        <translation>
-            <numerusform>%n kategori</numerusform>
-            <numerusform>%n kategorier</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Nothing selected</source>
         <translation>Inget valt</translation>
-    </message>
-    <message>
-        <source>Rename Category</source>
-        <translation>Ändra kategorinamn</translation>
     </message>
     <message>
         <source>Edit Model</source>
@@ -5817,14 +6166,6 @@ Vill du spara ändringarna?</translation>
         <translation>Simulera radio</translation>
     </message>
     <message>
-        <source>Add Category</source>
-        <translation>Lägg till kategori</translation>
-    </message>
-    <message>
-        <source>Category</source>
-        <translation>Kategori</translation>
-    </message>
-    <message>
         <source>Add Model</source>
         <translation>Lägg till modell</translation>
     </message>
@@ -5857,45 +6198,24 @@ Vill du spara ändringarna?</translation>
         <translation>Duplicera modell</translation>
     </message>
     <message>
-        <source>Show Category Actions Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Radio Actions Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa verktygsfältet för radio</translation>
     </message>
     <message>
         <source>Show Model Actions Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New category</source>
-        <extracomment>Translators do NOT use accent for this, this is the default category name on Horus.</extracomment>
-        <translation>Ny kategori</translation>
-    </message>
-    <message>
-        <source>Category index out of range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot delete the last category.</source>
-        <translation>Kan ej radera den sista kategorin.</translation>
+        <translation>Visa verktygsfältet för modell</translation>
     </message>
     <message>
         <source>Cannot insert model, last model in list would be deleted.</source>
-        <translation>Kan ej lägga till modell, sista modellen i listan skulle raderas.</translation>
+        <translation>Kan inte lägga till modell, sista modellen i listan skulle raderas.</translation>
     </message>
     <message>
         <source>Cannot add model, could not find an available model slot.</source>
-        <translation>Kan ej lägga till modell, ingen modellplats tillgänglig.</translation>
+        <translation>Kan inte lägga till modell, ingen modellplats tillgänglig.</translation>
     </message>
     <message>
         <source>Cannot paste model, out of available model slots.</source>
-        <translation>Kan ej klistra in modell, slut på lediga modellplatser.</translation>
-    </message>
-    <message>
-        <source>You are replacing an existing model, are you sure?</source>
-        <translation>Du kommer att ersätta en befintlig modell, är du säker?</translation>
+        <translation>Kan inte klistra in modell, slut på lediga modellplatser.</translation>
     </message>
     <message numerus="yes">
         <source>Delete %n selected model(s)?</source>
@@ -5904,16 +6224,9 @@ Vill du spara ändringarna?</translation>
             <numerusform>Radera %n valda modeller?</numerusform>
         </translation>
     </message>
-    <message numerus="yes">
-        <source>Delete %n selected category(ies)?</source>
-        <translation>
-            <numerusform>Radera %n vald katagori?</numerusform>
-            <numerusform>Radera %n valda katagorier?</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Cannot duplicate model, could not find an available model slot.</source>
-        <translation>Kan ej duplicera modellen, ingen ledig modellplats finns.</translation>
+        <translation>Kan inte duplicera modellen, ingen ledig modellplats finns.</translation>
     </message>
     <message>
         <source>Do you wish to continue with the conversion?</source>
@@ -5934,6 +6247,253 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Aktiv radiotyp (%1) är inte kompatibel med fil %3 (från %2), modeller och inställningar behöver konverteras.&lt;/b&gt;&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>read only</source>
+        <translation>endast läsning</translation>
+    </message>
+    <message>
+        <source>Unable to Edit Radio Settings whilst models are open for editing.</source>
+        <translation>Kan inte ändra radioinställnngar medan modeller är öppna för redigering.</translation>
+    </message>
+    <message>
+        <source>You are about to overwrite ALL models on the Radio.</source>
+        <translation>Du är på väg att skriva över ALLA modeller på radion.</translation>
+    </message>
+    <message>
+        <source>Do you want to continue?</source>
+        <translation>Vill du fortsätta?</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again</source>
+        <translation>Visa inte detta meddelande igen</translation>
+    </message>
+    <message>
+        <source>Saved models and settings to radio</source>
+        <translation>Modeller och inställningar har sparats till radion</translation>
+    </message>
+    <message>
+        <source>Error saving models and settings to radio!</source>
+        <translation>Fel uppstod när modeller och inställningar sparades till radion!</translation>
+    </message>
+    <message>
+        <source>Select a model template file</source>
+        <translation>Välj en modellmallsfil</translation>
+    </message>
+    <message>
+        <source>Add a new model using</source>
+        <translation>Lägg till modell genom att använda</translation>
+    </message>
+    <message>
+        <source>Defaults</source>
+        <translation>Förval</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Redigera</translation>
+    </message>
+    <message>
+        <source>Wizard</source>
+        <translation>Guide</translation>
+    </message>
+    <message>
+        <source>Failed to remove temporary model!</source>
+        <translation>Temporär modell kunde inte tas bort!</translation>
+    </message>
+    <message>
+        <source>Alt-L</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportera</translation>
+    </message>
+    <message>
+        <source>Export Model</source>
+        <translation>Exportera modell</translation>
+    </message>
+    <message>
+        <source>Model already exists! Do you want to overwrite it or insert into a new slot?</source>
+        <translation>Modellen finns redan! Vill du skriva över den eller lägga till den på en ny plats?</translation>
+    </message>
+    <message>
+        <source>Overwrite</source>
+        <translation>Skriva över</translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation>Favoriter</translation>
+    </message>
+    <message>
+        <source>Unable to find radio SD card!</source>
+        <translation>Kan inte hitta radions SD-kort!</translation>
+    </message>
+    <message>
+        <source>Internal module protocol changed to &lt;b&gt;OFF&lt;/b&gt; for %1 models!</source>
+        <translation>Den interna modulens protokoll ändrades till &lt;b&gt;AV&lt;/b&gt; för %1 modeller!</translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Mall</translation>
+    </message>
+    <message>
+        <source>Export model</source>
+        <translation>Exportera modell</translation>
+    </message>
+    <message>
+        <source>Alt-R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt-+</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt--</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Labels Management</source>
+        <translation>Etiketthantering</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Byt namn</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Show Labels Actions Toolbar</source>
+        <translation>Visa verktygsfältet för etiketter</translation>
+    </message>
+</context>
+<context>
+    <name>MinizInterface</name>
+    <message>
+        <source>Progress calculation method: file %1</source>
+        <translation>Metod för beräkning av framdrift: %1</translation>
+    </message>
+    <message>
+        <source>count</source>
+        <translation type="unfinished">antal</translation>
+    </message>
+    <message>
+        <source>size</source>
+        <translation>storlek</translation>
+    </message>
+    <message>
+        <source>Compressing %1 to %2 with append %3</source>
+        <translation>Komprimerar %1 till %2 med tillägg av %3</translation>
+    </message>
+    <message>
+        <source>Miniz version: %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Existing archive will be overwritten</source>
+        <translation>Befintligt arkiv kommer skrivas över</translation>
+    </message>
+    <message>
+        <source>Unable to open existing archive</source>
+        <translation>Kan inte öppna befintligt arkiv</translation>
+    </message>
+    <message>
+        <source>Existing archive opened</source>
+        <translation>Befintligt arkiv öppnat</translation>
+    </message>
+    <message>
+        <source>Unable to write to existing archive</source>
+        <translation>Kan inte skriva till befintligt arkiv</translation>
+    </message>
+    <message>
+        <source>Existing archive initialised</source>
+        <translation>Befintligt arkiv initierat</translation>
+    </message>
+    <message>
+        <source>Failure to initialise archive</source>
+        <translation>Fel vid initiering av arkiv</translation>
+    </message>
+    <message>
+        <source>Archive initialised</source>
+        <translation>Arkiv initierat</translation>
+    </message>
+    <message>
+        <source>Calculating number of items to archive</source>
+        <translation>Beräknar antal objekt att arkivera</translation>
+    </message>
+    <message>
+        <source>Failure to finalise archive</source>
+        <translation>Kan inte göra klart arkiv</translation>
+    </message>
+    <message>
+        <source>Compress complete</source>
+        <translation>Komprimering färdig</translation>
+    </message>
+    <message>
+        <source>Failure to add %1</source>
+        <translation>Fel vid tillägg av %1</translation>
+    </message>
+    <message>
+        <source>Added file: %1</source>
+        <translation>Tillagd fil: %1</translation>
+    </message>
+    <message>
+        <source>Decompressing %1</source>
+        <translation>Packar upp %1</translation>
+    </message>
+    <message>
+        <source>File does not appear to be a compressed archive</source>
+        <translation>Filen verkar inte vara ett komprimerat arkiv</translation>
+    </message>
+    <message>
+        <source>Compressed archive does not contain any files</source>
+        <translation>Packat arkiv innehåller inte några filer</translation>
+    </message>
+    <message>
+        <source>File status error</source>
+        <translation>Filstatusfel</translation>
+    </message>
+    <message>
+        <source>Unable to obtain file status for index: %1</source>
+        <translation>Kan inte erhålla filstatus för index: %1</translation>
+    </message>
+    <message>
+        <source>Failed to extract %1 to %2</source>
+        <translation>Kunde inte extrahera %1 till %2</translation>
+    </message>
+    <message>
+        <source>File %1 extracted size %2 does not match original %3</source>
+        <translation>Storleken %2 på fil %1 matchar inte ursprunglig storlek %3</translation>
+    </message>
+    <message>
+        <source>Extracted file: %1</source>
+        <translation>Extraherad fil: %1</translation>
+    </message>
+    <message>
+        <source>Decompress complete</source>
+        <translation>Uppackning avslutad</translation>
+    </message>
+    <message>
+        <source>Failed to create directory: %1</source>
+        <translation>Kunde inte skapa kataog: %1</translation>
+    </message>
+    <message>
+        <source>Created directory: %1</source>
+        <translation>Skapad katalog: %1</translation>
     </message>
 </context>
 <context>
@@ -6044,7 +6604,7 @@ Anger hur mixervärden påverkar kanalen.
     </message>
     <message>
         <source>MULTIPLY</source>
-        <translation>Flerfaldiga</translation>
+        <translation>Multiplicera</translation>
     </message>
     <message>
         <source>REPLACE</source>
@@ -6112,7 +6672,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om Fördröjningen inte är noll kommer påverkan på mixen att fördröjas med det angivna antelet sekunder.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om Tröghet inte är noll kommer hastigheten i förändringar att begränsas av det angivna värdet -&amp;gt; värdet specificerar det antal sekunder det tar att gå från fullt negativt utslag (-100) till fullt positivt utslag(100).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om tröghet inte är noll kommer hastigheten i förändringar att begränsas av det angivna värdet -&amp;gt; värdet specificerar det antal sekunder det tar att gå från fullt negativt utslag (-100) till fullt positivt utslag (100).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Click to access popup menu</source>
@@ -6135,8 +6695,8 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>FullScreenDialog</source>
-        <translation>Fullskärmsdialog</translation>
+        <source>image</source>
+        <translation>bild</translation>
     </message>
 </context>
 <context>
@@ -6162,19 +6722,19 @@ p, li { white-space: pre-wrap; }
     <name>MixesPanel</name>
     <message>
         <source>Move Up</source>
-        <translation>Flytta uppåt</translation>
+        <translation>Flytta upp</translation>
     </message>
     <message>
         <source>Ctrl+Up</source>
-        <translation>Ctrl+Up</translation>
+        <translation>Ctrl+Upp</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation>Flytta nedåt</translation>
+        <translation>Flytta ner</translation>
     </message>
     <message>
         <source>Ctrl+Down</source>
-        <translation>Ctrl+Down</translation>
+        <translation>Ctrl+Ner</translation>
     </message>
     <message>
         <source>Clear Mixes</source>
@@ -6182,23 +6742,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Not enough available mixers!</source>
-        <translation>För få mixar är tillgängliga!</translation>
+        <translation>För få tillgängliga mixar!</translation>
     </message>
     <message>
-        <source>Delete Selected Mixes?</source>
-        <translation>Ta bort valda mixar?</translation>
+        <source>Delete selected Mix lines. Are you sure?</source>
+        <translation>Radera valda mixar. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut selected Mix lines. Are you sure?</source>
+        <translation>Klipp ut valda mixar. Är du säker?</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation>Lägg till</translation>
+        <translation>&amp;Lägg till</translation>
     </message>
     <message>
         <source>Ctrl+A</source>
-        <translation>CTRL+A</translation>
+        <translation>Ctrl+A</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation>Redigera</translation>
+        <translation>Redig&amp;era</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -6206,19 +6770,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Toggle highlight</source>
-        <translation>Skifta radmarkering av/på</translation>
+        <translation>Skif&amp;ta radmarkering av/på</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>Ta bort</translation>
+        <translation>&amp;Radera</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>Kopiera</translation>
+        <translation>&amp;Kopiera</translation>
     </message>
     <message>
         <source>Ctrl+C</source>
@@ -6230,11 +6794,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>C&amp;ut</source>
-        <translation>Klipp ut</translation>
+        <translation>Klipp &amp;ut</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>Klistra in</translation>
+        <translation>Klistra &amp;in</translation>
     </message>
     <message>
         <source>Ctrl+V</source>
@@ -6268,8 +6832,72 @@ p, li { white-space: pre-wrap; }
         <translation>Modell: </translation>
     </message>
     <message>
+        <source>THR</source>
+        <translation>GAS</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
         <source>Throttle Source</source>
-        <translation>Gas-källa</translation>
+        <translation>Gaskälla</translation>
+    </message>
+    <message>
+        <source>Slave/Jack</source>
+        <translation>Elev/Uttag</translation>
+    </message>
+    <message>
+        <source>Master/SBUS Module</source>
+        <translation>Lärare/SBUS-modul</translation>
+    </message>
+    <message>
+        <source>Master/CPPM Module</source>
+        <translation>Lärare/CPPM-modul</translation>
+    </message>
+    <message>
+        <source>Master/Battery</source>
+        <translation>Lärare/SBUS i batterifacket</translation>
+    </message>
+    <message>
+        <source>Master/Jack</source>
+        <translation>Lärare/Uttag</translation>
+    </message>
+    <message>
+        <source>Master/Bluetooth</source>
+        <translation>Lärare/Bluetooth</translation>
+    </message>
+    <message>
+        <source>Slave/Bluetooth</source>
+        <translation>Elev/Bluetooth</translation>
+    </message>
+    <message>
+        <source>Master/Multi</source>
+        <translation>Lärare/Multi</translation>
+    </message>
+    <message>
+        <source>NONE</source>
+        <translation>INGEN</translation>
+    </message>
+    <message>
+        <source>TOGGLE</source>
+        <translation>SKIFTA</translation>
+    </message>
+    <message>
+        <source>2POS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Inactive</source>
+        <translation>Inaktiv</translation>
+    </message>
+    <message>
+        <source>Active</source>
+        <translation>Aktiv</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation>Återställ</translation>
     </message>
 </context>
 <context>
@@ -6284,7 +6912,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Inputs</source>
-        <translation></translation>
+        <translation>Input</translation>
     </message>
     <message>
         <source>Special Functions</source>
@@ -6300,7 +6928,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Setup</source>
-        <translation>Inställningar</translation>
+        <translation>Grundinställningar</translation>
     </message>
     <message>
         <source>Mixes</source>
@@ -6323,8 +6951,8 @@ p, li { white-space: pre-wrap; }
         <translation>Output</translation>
     </message>
     <message>
-        <source>FullScreenDialog</source>
-        <translation>Fullskärmsdialog</translation>
+        <source>Custom Screens</source>
+        <translation>Anpassade skärmar</translation>
     </message>
 </context>
 <context>
@@ -6354,30 +6982,6 @@ p, li { white-space: pre-wrap; }
         <translation>Okänd</translation>
     </message>
     <message>
-        <source>Slave/Jack</source>
-        <translation>Elev/Uttag</translation>
-    </message>
-    <message>
-        <source>Master/SBUS Module</source>
-        <translation>Lärare/SBUS-modul</translation>
-    </message>
-    <message>
-        <source>Master/CPPM Module</source>
-        <translation>Lärare/CPPM-modul</translation>
-    </message>
-    <message>
-        <source>Master/SBUS in battery compartment</source>
-        <translation>Lärare/SBUS i batterifacket</translation>
-    </message>
-    <message>
-        <source>Master/Jack</source>
-        <translation>Lärare/Uttag</translation>
-    </message>
-    <message>
-        <source>Persistent</source>
-        <translation>Bestående</translation>
-    </message>
-    <message>
         <source>Off</source>
         <translation>Av</translation>
     </message>
@@ -6394,16 +6998,12 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>Weight</source>
-        <translation>Vikt</translation>
-    </message>
-    <message>
-        <source>Switch</source>
-        <translation>Brytare</translation>
-    </message>
-    <message>
         <source>NoTrim</source>
-        <translation>EjTrim</translation>
+        <translation>Ingen trim</translation>
+    </message>
+    <message>
+        <source>No Trim</source>
+        <translation>Ingen trim</translation>
     </message>
     <message>
         <source>No DR/Expo</source>
@@ -6416,10 +7016,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Custom</source>
         <translation>Special</translation>
-    </message>
-    <message>
-        <source>Standard</source>
-        <translation>Standard</translation>
     </message>
     <message>
         <source>Offset(%1)</source>
@@ -6440,6 +7036,26 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>140</source>
         <translation>140</translation>
+    </message>
+    <message>
+        <source>Weight(%1)</source>
+        <translation>Vikt(%1)</translation>
+    </message>
+    <message>
+        <source>Switch(%1)</source>
+        <translation>Brytare(%1)</translation>
+    </message>
+    <message>
+        <source>Delay(u%1:d%2)</source>
+        <translation>Fördröjning(u%1:d%2)</translation>
+    </message>
+    <message>
+        <source>Slow(u%1:d%2)</source>
+        <translation>Långsam(u%1:d%2)</translation>
+    </message>
+    <message>
+        <source>Warn(%1)</source>
+        <translation>Varning(%1)</translation>
     </message>
     <message>
         <source>instant</source>
@@ -6499,7 +7115,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Frame length</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramlängd</translation>
     </message>
     <message>
         <source>PPM delay</source>
@@ -6527,7 +7143,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Subtype</source>
-        <translation>Sub-typ</translation>
+        <translation>Subtyp</translation>
     </message>
     <message>
         <source>Option value</source>
@@ -6535,7 +7151,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Sub Type</source>
-        <translation>Sub-typ</translation>
+        <translation>Subtyp</translation>
     </message>
     <message>
         <source>RF Output Power</source>
@@ -6546,32 +7162,8 @@ p, li { white-space: pre-wrap; }
         <translation>Ingen</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Namn</translation>
-    </message>
-    <message>
-        <source>Countdown</source>
-        <translation>Nedräkning</translation>
-    </message>
-    <message>
-        <source>Minute call</source>
-        <translation>Minutangivelse</translation>
-    </message>
-    <message>
         <source>MULT!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Offset</source>
-        <translation>Offset</translation>
-    </message>
-    <message>
-        <source>Slow</source>
-        <translation type="unfinished">Tröghet</translation>
-    </message>
-    <message>
-        <source>Warn</source>
-        <translation>Varna</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Flight modes</source>
@@ -6619,15 +7211,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Manual</source>
-        <translation>Manuella</translation>
+        <translation>Manuell</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation>Automatiska</translation>
+        <translation>Automatisk</translation>
     </message>
     <message>
         <source>Failsafe Mode</source>
-        <translation>Failsafe-läge</translation>
+        <translation>Failsafemetod</translation>
     </message>
     <message>
         <source>Hold</source>
@@ -6644,30 +7236,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>No pulses</source>
         <translation>Inga pulser</translation>
-    </message>
-    <message>
-        <source>Silent</source>
-        <translation>Tyst</translation>
-    </message>
-    <message>
-        <source>Beeps</source>
-        <translation>Pip</translation>
-    </message>
-    <message>
-        <source>Voice</source>
-        <translation>Röst</translation>
-    </message>
-    <message>
-        <source>Haptic</source>
-        <translation>Vibrera</translation>
-    </message>
-    <message>
-        <source>Flight</source>
-        <translation>Flygning</translation>
-    </message>
-    <message>
-        <source>Manual reset</source>
-        <translation>Manuell återställning</translation>
     </message>
     <message>
         <source>Step</source>
@@ -6708,10 +7276,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Reversed</source>
         <translation>Omvänd</translation>
-    </message>
-    <message>
-        <source>Tmr</source>
-        <translation>Tmr</translation>
     </message>
     <message>
         <source>FrSky S.PORT</source>
@@ -6762,144 +7326,12 @@ p, li { white-space: pre-wrap; }
         <translation>Celler</translation>
     </message>
     <message>
-        <source>Calculated</source>
-        <translation>Beräknad</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Lägg till</translation>
-    </message>
-    <message>
-        <source>Average</source>
-        <translation>Medel</translation>
-    </message>
-    <message>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
         <source>Max</source>
         <translation>Max</translation>
-    </message>
-    <message>
-        <source>Multiply</source>
-        <translation>Multiplicera</translation>
-    </message>
-    <message>
-        <source>Totalise</source>
-        <translation>Lägg ihop</translation>
-    </message>
-    <message>
-        <source>Cell</source>
-        <translation>Cell</translation>
-    </message>
-    <message>
-        <source>Consumption</source>
-        <translation>Förbrukning</translation>
-    </message>
-    <message>
-        <source>Distance</source>
-        <translation>Avstånd</translation>
-    </message>
-    <message>
-        <source>Lowest</source>
-        <translation>Lägsta</translation>
-    </message>
-    <message>
-        <source>Cell %1</source>
-        <translation>Cell %1</translation>
-    </message>
-    <message>
-        <source>Highest</source>
-        <translation>Högsta</translation>
-    </message>
-    <message>
-        <source>Delta</source>
-        <translation>Delta</translation>
-    </message>
-    <message>
-        <source>Formula</source>
-        <translation>Formel</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation>ID</translation>
-    </message>
-    <message>
-        <source>Instance</source>
-        <translation>Instans</translation>
-    </message>
-    <message>
-        <source>Sensor</source>
-        <translation>Sensor</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation>Källor</translation>
-    </message>
-    <message>
-        <source>GPS</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Alt.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Blades</source>
-        <translation>Blad</translation>
-    </message>
-    <message>
-        <source>Multi.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Inst</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <translation>Höj</translation>
-    </message>
-    <message>
-        <source>Unit</source>
-        <translation>Enhet</translation>
-    </message>
-    <message>
-        <source>Prec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ratio</source>
-        <translation>Förhållande</translation>
-    </message>
-    <message>
-        <source>Multi</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A/Offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation>Filter</translation>
-    </message>
-    <message>
-        <source>Persist</source>
-        <translation>Bestå</translation>
-    </message>
-    <message>
-        <source>Positive</source>
-        <translation>Positiv</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation>Logga</translation>
     </message>
     <message>
         <source>Numbers</source>
@@ -6919,7 +7351,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Error: Unable to open or read file!</source>
-        <translation>FEL: Kan ej öppna eller läsa fil!</translation>
+        <translation>FEL: Kan inte öppna eller läsa fil!</translation>
+    </message>
+    <message>
+        <source>Output Type</source>
+        <translation>Utdatatyp</translation>
+    </message>
+    <message>
+        <source>RX Output Frequency</source>
+        <translation>RX utdatafrekvens</translation>
+    </message>
+    <message>
+        <source>Raw 12 bits</source>
+        <translation>Rå 12 bits</translation>
+    </message>
+    <message>
+        <source>Scale(%1)</source>
+        <translation>Skala(%1)</translation>
     </message>
 </context>
 <context>
@@ -6946,10 +7394,34 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ModelsListModel</name>
+    <message>
+        <source>Index</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Namn</translation>
+    </message>
+    <message>
+        <source>RX #</source>
+        <translation>Mottagare #</translation>
+    </message>
+    <message>
+        <source>Labels</source>
+        <translation>Etiketter</translation>
+    </message>
+    <message>
+        <source>Model %1</source>
+        <extracomment>Translators: do NOT use accents here, this is a default model name.</extracomment>
+        <translation>Modell %1</translation>
+    </message>
+</context>
+<context>
     <name>Module</name>
     <message>
         <source>Failsafe Mode</source>
-        <translation>Failsafe-läge</translation>
+        <translation>Failsafeläge</translation>
     </message>
     <message>
         <source>Start</source>
@@ -6981,7 +7453,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>CH </source>
-        <translation>KN </translation>
+        <translation>KA </translation>
     </message>
     <message>
         <source> us</source>
@@ -6993,11 +7465,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Trainer Mode</source>
-        <translation></translation>
+        <translation>Lärarläge</translation>
     </message>
     <message>
         <source>PPM Frame Length</source>
-        <translation>PPM-ram</translation>
+        <translation>PPM-ramlängd</translation>
     </message>
     <message>
         <source>Channels</source>
@@ -7005,7 +7477,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">Lås senaste</translation>
+        <translation>Lås senaste</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -7017,31 +7489,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failsafe Positions</source>
-        <translation>Failsafe-lägen</translation>
+        <translation>Failsafeinställningar</translation>
     </message>
     <message>
         <source>Protocol</source>
         <translation>Protokoll</translation>
-    </message>
-    <message>
-        <source>Master/Jack</source>
-        <translation>Lärare/Uttag</translation>
-    </message>
-    <message>
-        <source>Slave/Jack</source>
-        <translation>Elev/Uttag</translation>
-    </message>
-    <message>
-        <source>Master/SBUS Module</source>
-        <translation>Lärare/SBUS-modul</translation>
-    </message>
-    <message>
-        <source>Master/CPPM Module</source>
-        <translation>Lärare/CPPM-modul</translation>
-    </message>
-    <message>
-        <source>Master/SBUS in battery compartment</source>
-        <translation>Lärare/SBUS i batterifacket</translation>
     </message>
     <message>
         <source>Not set</source>
@@ -7053,11 +7505,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open Drain</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Push Pull</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Antenna</source>
@@ -7066,10 +7518,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Option value</source>
         <translation>Tillvalsvärde</translation>
-    </message>
-    <message>
-        <source>Bind on startup</source>
-        <translation>Parkoppla vid uppstart</translation>
     </message>
     <message>
         <source>Low Power</source>
@@ -7086,7 +7534,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>%</source>
         <extracomment>abbreviation for percent</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>μs</source>
@@ -7099,7 +7547,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Sub Type</source>
-        <translation>Sub-typ</translation>
+        <translation>Variant</translation>
     </message>
     <message>
         <source>Receiver 1</source>
@@ -7123,19 +7571,35 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Registration ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrerings-ID</translation>
     </message>
     <message>
         <source>WARNING: Requires non-certified firmware!</source>
         <translation>VARNING: Kräver ocertifierad firmware!</translation>
     </message>
     <message>
-        <source>Internal</source>
-        <translation>Intern</translation>
+        <source>Disable Telemetry</source>
+        <translation>Inaktivera telemetri</translation>
     </message>
     <message>
-        <source>Ext. + Int.</source>
-        <translation type="unfinished"></translation>
+        <source>Racing Mode</source>
+        <translation>Tävlingsläge</translation>
+    </message>
+    <message>
+        <source>Disable Ch. Map</source>
+        <translation>Inaktivera kanalmappning</translation>
+    </message>
+    <message>
+        <source>RX Frequency</source>
+        <translation>RX frekvens</translation>
+    </message>
+    <message>
+        <source> Hz</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Raw 12 bits</source>
+        <translation>Rå 12 bits</translation>
     </message>
 </context>
 <context>
@@ -7150,19 +7614,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Trainer Port</source>
-        <translation type="unfinished">Lärar-ingång</translation>
+        <translation>Lärarport</translation>
     </message>
     <message>
         <source>Internal Radio System</source>
-        <translation>Intern radiosändare</translation>
+        <translation>Intern radiomodul</translation>
     </message>
     <message>
         <source>External Radio Module</source>
-        <translation>Extern sändarmodul</translation>
+        <translation>Extern radiomodul</translation>
     </message>
     <message>
         <source>Extra Radio System</source>
-        <translation>Ytterligare radiosändare</translation>
+        <translation>Ytterligare radiosystem</translation>
     </message>
     <message>
         <source>Radio System</source>
@@ -7170,39 +7634,59 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>10mW - 16CH</source>
-        <translation>10mW - 16KN</translation>
+        <translation>10mW - 16KA</translation>
     </message>
     <message>
         <source>100mW - 16CH</source>
-        <translation>100mW - 16KN</translation>
+        <translation>100mW - 16KA</translation>
     </message>
     <message>
         <source>500mW - 16CH</source>
-        <translation>500mW - 16KN</translation>
+        <translation>500mW - 16KA</translation>
     </message>
     <message>
         <source>Auto &lt;= 1W - 16CH</source>
-        <translation>Auto &lt;= 1W - 16KN</translation>
+        <translation>Auto &lt;= 1W - 16KA</translation>
     </message>
     <message>
         <source>25mW - 8CH</source>
-        <translation>25mW - 8KN</translation>
+        <translation>25mW - 8KA</translation>
     </message>
     <message>
         <source>25mW - 16CH</source>
-        <translation>25mW - 16KN</translation>
+        <translation>25mW - 16KA</translation>
     </message>
     <message>
         <source>200mW - 16CH (no telemetry)</source>
-        <translation>200mW - 16KN (ingen telemetri)</translation>
+        <translation>200mW - 16KA (ingen telemetri)</translation>
     </message>
     <message>
         <source>500mW - 16CH (no telemetry)</source>
-        <translation>500mW - 16KN (ingen telemetri)</translation>
+        <translation>500mW - 16KA (ingen telemetri)</translation>
     </message>
     <message>
         <source>100mW - 16CH (no telemetry)</source>
-        <translation>100mW - 16KN (ingen telemetri)</translation>
+        <translation>100mW - 16KA (ingen telemetri)</translation>
+    </message>
+    <message>
+        <source>25 mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>100 mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>500 mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>1 W</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>2 W</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -7234,6 +7718,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>External</source>
         <translation>Extern</translation>
+    </message>
+    <message>
+        <source>Bind on channel</source>
+        <translation>Parkoppla via kanal</translation>
+    </message>
+    <message>
+        <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
+        <translation>Varning: Den interna modulens protokoll &lt;b&gt;%1&lt;/b&gt; är inkompatibel med hårdvarans interna modul &lt;b&gt;%2&lt;/b&gt; och har satts till &lt;b&gt;AV&lt;/b&gt;!</translation>
     </message>
 </context>
 <context>
@@ -7267,16 +7759,12 @@ p, li { white-space: pre-wrap; }
         <translation>Namn</translation>
     </message>
     <message>
-        <source>Offset</source>
-        <translation>Offset</translation>
-    </message>
-    <message>
         <source>Min</source>
-        <translation>Min</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Max</source>
-        <translation>Max</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Global Variables</source>
@@ -7284,7 +7772,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Inputs</source>
-        <translation>Inputs</translation>
+        <translation>Input</translation>
     </message>
     <message>
         <source>Mixers</source>
@@ -7304,23 +7792,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>SF%1</source>
-        <translation type="unfinished">SF%1</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Special Functions</source>
         <translation>Specialfunktioner</translation>
     </message>
     <message>
-        <source>Analogs</source>
-        <translation>Analoga</translation>
-    </message>
-    <message>
         <source>Unit</source>
         <translation>Enhet</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Skala</translation>
     </message>
     <message>
         <source>RSSI Alarms</source>
@@ -7328,7 +7808,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Input</source>
-        <translation>Input</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Weight</source>
@@ -7344,11 +7824,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Collective</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Generell</translation>
+        <translation>Allmänt</translation>
     </message>
     <message>
         <source>EEprom Size</source>
@@ -7380,11 +7860,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Annat</translation>
+        <translation>Annan</translation>
     </message>
     <message>
         <source>Timers</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Time</source>
@@ -7428,11 +7908,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Outputs</source>
-        <translation>Utgångar</translation>
+        <translation>Output</translation>
     </message>
     <message>
         <source>Subtrim</source>
-        <translation>Subtrim</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Direct</source>
@@ -7476,15 +7956,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Vario source</source>
-        <translation>Vario-källa</translation>
+        <translation>Vario källa</translation>
     </message>
     <message>
         <source>Vario limits &gt;</source>
-        <translation>Vario-gränser &gt;</translation>
+        <translation>Vario gränser</translation>
     </message>
     <message>
         <source>Sink max</source>
-        <translation type="unfinished">Maxsjunk</translation>
+        <translation>Max.sjunk</translation>
     </message>
     <message>
         <source>Sink min</source>
@@ -7504,43 +7984,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Top Bar</source>
-        <translation>Övre stapeln</translation>
+        <translation>Övre raden</translation>
     </message>
     <message>
         <source>Volts source</source>
-        <translation>Volt-källa</translation>
+        <translation>Volt källa</translation>
     </message>
     <message>
         <source>Altitude source</source>
         <translation>Höjdkälla</translation>
-    </message>
-    <message>
-        <source>Various</source>
-        <translation>Diverse</translation>
-    </message>
-    <message>
-        <source>Serial protocol</source>
-        <translation>Seriellt protokoll</translation>
-    </message>
-    <message>
-        <source>FAS offset</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mAh count</source>
-        <translation type="unfinished">mAh-antal</translation>
-    </message>
-    <message>
-        <source>Persistent mAh</source>
-        <translation>Bestående mAh</translation>
-    </message>
-    <message>
-        <source>Current source</source>
-        <translation>Strömkälla</translation>
-    </message>
-    <message>
-        <source>Blades</source>
-        <translation>Blad</translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -7556,7 +8008,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Min.call</source>
-        <translation type="unfinished"></translation>
+        <translation>Minutannonsering</translation>
     </message>
     <message>
         <source>Persist</source>
@@ -7564,11 +8016,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>F.In</source>
-        <translation type="unfinished"></translation>
+        <translation>Tona in</translation>
     </message>
     <message>
         <source>F.Out</source>
-        <translation>F.Ut</translation>
+        <translation>Tona ut</translation>
     </message>
     <message>
         <source>Global vars</source>
@@ -7576,7 +8028,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>GF%1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Global Functions</source>
@@ -7586,12 +8038,36 @@ p, li { white-space: pre-wrap; }
         <source>Checklist</source>
         <translation>Checklista</translation>
     </message>
+    <message>
+        <source>Mode</source>
+        <translation>Läge</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>Function Switches</source>
+        <translation>Funktionsbrytare</translation>
+    </message>
+    <message>
+        <source>Switch %1</source>
+        <translation>Brytare %1</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Grupp</translation>
+    </message>
+    <message>
+        <source>Always On</source>
+        <translation>Alltid på</translation>
+    </message>
 </context>
 <context>
     <name>Multiprotocols</name>
     <message>
         <source>Subtype</source>
-        <translation>Sub-typ</translation>
+        <translation>Variant</translation>
     </message>
     <message>
         <source>Video TX frequency</source>
@@ -7600,10 +8076,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Telemetry</source>
         <translation>Telemetri</translation>
-    </message>
-    <message>
-        <source>Radio output power</source>
-        <translation>Radions uteffekt</translation>
     </message>
     <message>
         <source>Servo output frequency</source>
@@ -7626,8 +8098,16 @@ p, li { white-space: pre-wrap; }
         <translation>Fast ID-värde</translation>
     </message>
     <message>
-        <source>Custom - proto %1)</source>
-        <translation>Eget - proto %1</translation>
+        <source>RF power</source>
+        <translation>RF effekt</translation>
+    </message>
+    <message>
+        <source>Enable Max Throw</source>
+        <translation>Aktivera max utslag</translation>
+    </message>
+    <message>
+        <source>RF Channel Number</source>
+        <translation>RF kanalnummer</translation>
     </message>
 </context>
 <context>
@@ -7661,11 +8141,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Cannot write radio settings</source>
-        <translation>Ken ej skriva radioinställningar</translation>
+        <translation>Ken inte skriva radioinställningar</translation>
     </message>
     <message>
         <source>Cannot write model %1</source>
-        <translation>Ken ej skriva modell %1</translation>
+        <translation>Ken inte skriva modell %1</translation>
     </message>
 </context>
 <context>
@@ -7692,32 +8172,32 @@ p, li { white-space: pre-wrap; }
 %2.</translation>
     </message>
     <message>
-        <source>Error opening OTX archive %1</source>
-        <translation>Fel vid öppning av arkiv %1</translation>
-    </message>
-    <message>
-        <source>Error initializing OTX archive writer</source>
-        <translation>Fel vid initialisering av arkivskrivfunktionen</translation>
-    </message>
-    <message>
         <source>Error writing file %1:
 %2.</source>
         <translation>Fel vid skrivning av filen %1:
 %2.</translation>
     </message>
     <message>
-        <source>Error creating OTX file %1:
+        <source>Error opening OpenTX archive %1</source>
+        <translation>Fel vid öppning av OpenTX-arkiv %1</translation>
+    </message>
+    <message>
+        <source>Error initializing OpenTX archive writer</source>
+        <translation>Fel vid initiering av OpenTX arkivskrivare</translation>
+    </message>
+    <message>
+        <source>Error creating OpenTX file %1:
 %2.</source>
-        <translation>Fel vid skapande av arkivfil %1:
+        <translation>Fel vid skapande av OpenTX-fil %1:
 %2.</translation>
     </message>
     <message>
-        <source>Error creating OTX archive</source>
-        <translation>Fel vid skapande av arkiv</translation>
+        <source>Error creating OpenTX archive</source>
+        <translation>Fel vid skapande av OpenTX-arkiv</translation>
     </message>
     <message>
-        <source>Error adding %1 to OTX archive</source>
-        <translation>Fel vid tillägg av %1 till arkivfil</translation>
+        <source>Error adding %1 to OpenTX archive</source>
+        <translation>Fel vid tillägg av %1 till OpenTX-arkiv</translation>
     </message>
 </context>
 <context>
@@ -7739,16 +8219,27 @@ p, li { white-space: pre-wrap; }
         <translation>Skriv ut dokument</translation>
     </message>
     <message>
-        <source>Select PDF output file</source>
-        <translation>Välj PDF-fil att skriva till</translation>
-    </message>
-    <message>
-        <source>ODF files (*.odt);;PDF Files(*.pdf);;HTML-Files (*.htm *.html);;All Files (*)</source>
-        <translation>ODF-filer (*.odt);;PDF-filer(*.pdf);;HTML-filer (*.htm *.html);;Alla filer (*)</translation>
-    </message>
-    <message>
         <source>Style</source>
         <translation>Stil</translation>
+    </message>
+    <message>
+        <source>Select output file</source>
+        <translation>Välj utdatafil</translation>
+    </message>
+    <message>
+        <source>PDF files(*.pdf);;HTML files (*.htm *.html);;All files (*)</source>
+        <translation>PDF-filer(*.pdf);;HTML-filer (*.htm *.html);;Alla filer (*)</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileChooserDialog</name>
+    <message>
+        <source>Select Profile</source>
+        <translation>Välj profil</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation>Profil</translation>
     </message>
 </context>
 <context>
@@ -7774,10 +8265,21 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <source>WARNING</source>
+        <translation>VARNING</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Importing JumperTX data into OpenTX 2.3 is &lt;b&gt;not supported and dangerous.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;It is unfortunately not possible for us to differentiate JumperTX data from legitimate FrSky X10 data, but &lt;b&gt;You should only continue here if the file you opened comes from a real FrSky X10.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Do you really want to continue?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Import av JumperTX data till OpenTX 2.3 är &lt;b&gt;stödjs inte kan vara mycket riskfyllt.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Det är tyvärr inte möjligt att skilja JumperTX-data från riktiga FrSky X10-data, och &lt;b&gt;du bör endast fortsätta här om  filen du öppnat kommer från en äkta FrSky X10&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Vill du verkligen fortsätta?&lt;/p&gt;</translation>
+    </message>
+</context>
+<context>
     <name>RadioData</name>
     <message>
-        <source>Models</source>
-        <translation>Modeller</translation>
+        <source>Favorites</source>
+        <translation>Favoriter</translation>
     </message>
 </context>
 <context>
@@ -7792,35 +8294,35 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>verify is</source>
-        <translation type="unfinished">verifiera är</translation>
+        <translation>verifiera är</translation>
     </message>
     <message>
         <source>[DBG]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[NFO]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[WRN]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[CVT]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[ERR]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[INV]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Origin</source>
@@ -7828,7 +8330,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Comp</source>
-        <translation type="unfinished"></translation>
+        <translation>Komp</translation>
     </message>
     <message>
         <source>Sub-Component</source>
@@ -7848,7 +8350,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished">Funktion</translation>
+        <translation>Funktion</translation>
     </message>
     <message>
         <source>New</source>
@@ -7856,7 +8358,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Seq</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekv</translation>
     </message>
 </context>
 <context>
@@ -7864,20 +8366,24 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Cannot write file %1:
 %2.</source>
-        <translation>Kan ej skriva fil %1:
+        <translation>Kan inte skriva fil %1:
 %2.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;&lt;u&gt;WARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;This will reset the fuses of  %1 to the factory settings.&lt;br&gt;Writing fuses can mess up your radio.&lt;br&gt;Do this only if you are sure they are wrong!&lt;br&gt;Are you sure you want to continue?</source>
-        <translation>&lt;b&gt;&lt;u&gt;VARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Detta åerställer säkringarna för %1 till deras ursprungliga värden.&lt;br&gt;Att ändra dessa värden kan skapa allvarliga problem med din radio.&lt;br&gt;Ändra säkringarna  bara om du är helt säker på att de har fel värde!&lt;br&gt;Är du säker på att du vill fortsätta?</translation>
-    </message>
-    <message>
         <source>Could not delete temporary file: %1</source>
-        <translation>Det gick ej att radera temporärfilen: %1</translation>
+        <translation>Det gick inte att radera temporärfilen: %1</translation>
     </message>
     <message>
-        <source>Unable to find Horus radio SD card!</source>
-        <translation>Kan ej hitta radions SD-kort!</translation>
+        <source>Unable to find radio SD card!</source>
+        <translation>Kan inte hitta radions SD-kort!</translation>
+    </message>
+    <message>
+        <source>Failed to read Models and Settings from</source>
+        <translation>Kunde inte läsa modeller och inställningar från</translation>
+    </message>
+    <message>
+        <source>Failed to write Models and Setting file</source>
+        <translation>Kunde inte skriva fil med modeller och inställningar</translation>
     </message>
 </context>
 <context>
@@ -7926,7 +8432,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Channel Outputs</source>
-        <translation>Kanal-utdata</translation>
+        <translation>Kanaler</translation>
     </message>
     <message>
         <source>L
@@ -7976,7 +8482,7 @@ r</translation>
     </message>
     <message>
         <source>Mix Outputs</source>
-        <translation>Mixer-utdata</translation>
+        <translation>Mixar</translation>
     </message>
     <message>
         <source>M
@@ -8014,54 +8520,6 @@ r</translation>
     </message>
     <message>
         <source>s</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>ft</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>m</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>°C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>°</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mph</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>km/h</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>m/s</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mAh</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>W</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>g</source>
         <translation></translation>
     </message>
     <message>
@@ -8105,219 +8563,11 @@ r</translation>
         <translation>Tid</translation>
     </message>
     <message>
-        <source>Timer1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Timer2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Timer3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>RAS</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>RSSI Tx</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>RSSI Rx</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A4</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Rpm</source>
-        <translation>Varvtal</translation>
-    </message>
-    <message>
-        <source>Fuel</source>
-        <translation>Tank</translation>
-    </message>
-    <message>
-        <source>T1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>T2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Speed</source>
-        <translation>Hastighet</translation>
-    </message>
-    <message>
-        <source>Dist</source>
-        <translation>Avst</translation>
-    </message>
-    <message>
-        <source>GPS Alt</source>
-        <translation>GPS Höj</translation>
-    </message>
-    <message>
-        <source>Cell</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Cells</source>
-        <translation>Celler</translation>
-    </message>
-    <message>
-        <source>Vfas</source>
-        <translation>VFAS</translation>
-    </message>
-    <message>
-        <source>Curr</source>
-        <translation>Ström</translation>
-    </message>
-    <message>
-        <source>Cnsp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Powr</source>
-        <translation>Effekt</translation>
-    </message>
-    <message>
-        <source>AccX</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>AccY</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>AccZ</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Hdg </source>
-        <translation>Riktn </translation>
-    </message>
-    <message>
-        <source>VSpd</source>
-        <translation>VHast</translation>
-    </message>
-    <message>
-        <source>AirSpeed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>dTE</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A1-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A2-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A3-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A4-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Alt-</source>
-        <translation>Hjd-</translation>
-    </message>
-    <message>
-        <source>Alt+</source>
-        <translation>Hjd+</translation>
-    </message>
-    <message>
-        <source>Rpm+</source>
-        <translation>Varv+</translation>
-    </message>
-    <message>
-        <source>T1+</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>T2+</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Speed+</source>
-        <translation>Hastighet+</translation>
-    </message>
-    <message>
-        <source>Dist+</source>
-        <translation>Avst+</translation>
-    </message>
-    <message>
-        <source>AirSpeed+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cell-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Cells-</source>
-        <translation>Celler-</translation>
-    </message>
-    <message>
-        <source>Vfas-</source>
-        <translation>VFAS-</translation>
-    </message>
-    <message>
-        <source>Curr+</source>
-        <translation>Ström+</translation>
-    </message>
-    <message>
-        <source>Powr+</source>
-        <translation>Effekt+</translation>
-    </message>
-    <message>
-        <source>ACC</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>GPS Time</source>
-        <translation>GPS-tid</translation>
-    </message>
-    <message>
         <source>REa</source>
         <translation></translation>
     </message>
     <message>
         <source>REb</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>???</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>----</source>
         <translation></translation>
     </message>
     <message>
@@ -8345,6 +8595,34 @@ r</translation>
     <message>
         <source>SRC</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Reserved1</source>
+        <translation>Reserverad1</translation>
+    </message>
+    <message>
+        <source>Reserved2</source>
+        <translation>Reserverad2</translation>
+    </message>
+    <message>
+        <source>Reserved3</source>
+        <translation>Reserverad3</translation>
+    </message>
+    <message>
+        <source>Reserved4</source>
+        <translation>Reserverad4</translation>
+    </message>
+    <message>
+        <source>SW%1</source>
+        <translation>BR%1</translation>
+    </message>
+    <message>
+        <source>sm%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8431,11 +8709,11 @@ r</translation>
     </message>
     <message>
         <source>REa</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>REb</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>OFF</source>
@@ -8447,18 +8725,14 @@ r</translation>
     </message>
     <message>
         <source>THs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>TH%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>THt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>???</source>
         <translation></translation>
     </message>
     <message>
@@ -8470,41 +8744,20 @@ r</translation>
         <translation></translation>
     </message>
     <message>
+        <source>Act</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Telemetry</source>
         <translation>Telemetri</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ReleaseNotesDialog</name>
-    <message>
-        <source>Companion Release Notes</source>
-        <translation>Companion releasenoteringar</translation>
-    </message>
-</context>
-<context>
-    <name>ReleaseNotesFirmwareDialog</name>
-    <message>
-        <source>OpenTX Release Notes</source>
-        <translation>EdgeTX releasenoteringar</translation>
-    </message>
-</context>
-<context>
-    <name>RepeatComboBox</name>
-    <message>
-        <source>Played once, not during startup</source>
-        <translation>Spelas en gång, ej vid uppstart</translation>
-    </message>
-    <message>
-        <source>No repeat</source>
-        <translation>Repetera ej</translation>
-    </message>
-    <message>
-        <source>%1s</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>SW%1</source>
+        <translation>BR%1</translation>
     </message>
 </context>
 <context>
@@ -8535,6 +8788,10 @@ r</translation>
 %2.</source>
         <translation>Fel vid öppning av fil %1 i skrivläge:
 %2.</translation>
+    </message>
+    <message>
+        <source>Error deleting file %1</source>
+        <translation>Fel vid radering av fil %1</translation>
     </message>
 </context>
 <context>
@@ -8636,12 +8893,160 @@ r</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Internal</source>
-        <translation>Intern</translation>
+        <source>Custom</source>
+        <translation>Anpassad</translation>
     </message>
     <message>
-        <source>External</source>
-        <translation>Extern</translation>
+        <source>Calculated</source>
+        <translation>Beräknad</translation>
+    </message>
+    <message>
+        <source>(default)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Addera</translation>
+    </message>
+    <message>
+        <source>Alt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Auto Offset</source>
+        <translation>Auto offset</translation>
+    </message>
+    <message>
+        <source>Average</source>
+        <translation>Medelvärde</translation>
+    </message>
+    <message>
+        <source>Blades</source>
+        <translation>Blad</translation>
+    </message>
+    <message>
+        <source>Cell</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Cell %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Consumption</source>
+        <translation>Förbrukning</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Distance</source>
+        <translation>Avstånd</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Formula</source>
+        <translation>Formel</translation>
+    </message>
+    <message>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Hertz</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Highest</source>
+        <translation>Högsta</translation>
+    </message>
+    <message>
+        <source>Id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Instance</source>
+        <translation>Instans</translation>
+    </message>
+    <message>
+        <source>Log</source>
+        <translation>Logg</translation>
+    </message>
+    <message>
+        <source>Lowest</source>
+        <translation>Lägsta</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>ml/minute</source>
+        <translation>ml/minut</translation>
+    </message>
+    <message>
+        <source>mS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Multiplier</source>
+        <translation>Multiplikator</translation>
+    </message>
+    <message>
+        <source>Multiply</source>
+        <translation>Multiplicera</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Persist</source>
+        <translation>Bestå</translation>
+    </message>
+    <message>
+        <source>Positive</source>
+        <translation>Positiv</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sensor</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>Källor</translation>
+    </message>
+    <message>
+        <source>Totalize</source>
+        <translation>Slå ihop</translation>
+    </message>
+    <message>
+        <source>Unit</source>
+        <translation>Enhet</translation>
+    </message>
+    <message>
+        <source>uS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation>Förhållande</translation>
+    </message>
+    <message>
+        <source>Raw (-)</source>
+        <translation>Rå (-)</translation>
     </message>
 </context>
 <context>
@@ -8737,16 +9142,12 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
         <translation>Varningar</translation>
     </message>
     <message>
-        <source>Pot Warnings</source>
-        <translation>Pot-varningar</translation>
-    </message>
-    <message>
         <source>Manual</source>
-        <translation>Manuella</translation>
+        <translation>Manuell</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation>Automatiska</translation>
+        <translation>Automatisk</translation>
     </message>
     <message>
         <source>Model</source>
@@ -8770,7 +9171,7 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     </message>
     <message>
         <source>Trims Display</source>
-        <translation>Trim-visning</translation>
+        <translation>Visa trimmar</translation>
     </message>
     <message>
         <source>Global Functions</source>
@@ -8784,6 +9185,34 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
         <source>Edit Checklist...</source>
         <translation>Redigera checklista...</translation>
     </message>
+    <message>
+        <source>Throttle trim switch</source>
+        <translation>Gastrimbrytare</translation>
+    </message>
+    <message>
+        <source>Custom Throttle Warning</source>
+        <translation>Anpassad gasvarning</translation>
+    </message>
+    <message>
+        <source>Pot/Slider Warnings</source>
+        <translation>Reglage-/vredvarning</translation>
+    </message>
+    <message>
+        <source>ADC filter</source>
+        <translation>ADC-filter</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Av</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
+    </message>
 </context>
 <context>
     <name>SetupPanel</name>
@@ -8792,16 +9221,68 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
         <translation></translation>
     </message>
     <message>
-        <source>THR</source>
-        <translation>GAS</translation>
-    </message>
-    <message>
         <source>Profile Settings</source>
         <translation>Profilinställningar</translation>
     </message>
     <message>
         <source>SD structure path not specified or invalid</source>
-        <translation>Katalogstruktur för SD-kort ej specifierad eller ogiltig</translation>
+        <translation>Katalogstruktur för SD-kort inte specifierad eller ogiltig</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear all Timers. Are you sure?</source>
+        <translation>Rensa alla timers. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear Timer. Are you sure?</source>
+        <translation>Rensa timern. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
+    </message>
+    <message>
+        <source>Cut Timer. Are you sure?</source>
+        <translation>Klipp ut timern. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Radera</translation>
+    </message>
+    <message>
+        <source>Delete Timer. Are you sure?</source>
+        <translation>Radera timern. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
+    </message>
+    <message>
+        <source>Popup menu available</source>
+        <translation>Popupmeny tillgänglig</translation>
     </message>
 </context>
 <context>
@@ -8816,163 +9297,163 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     <message>
         <source>screenshot</source>
         <comment>Simulator LCD screenshot file name prefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>skärmbild</translation>
     </message>
     <message>
         <source>ENTER</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>PG-UP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>PG-DN</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>DEL</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>BKSP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>ESC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>INS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;+&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;-&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;larr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;rarr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;uarr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;darr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x2686;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21b6;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21b7;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21c6;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d3;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d1;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d5;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/mouse.svg&apos; width=20 height=18 /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/arrow_click.svg&apos; width=18 height=18 /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ MENU ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;pre&gt;[ MENY ]&lt;/pre&gt;</translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PAGE ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;pre&gt;[ SIDA ]&lt;/pre&gt;</translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ EXIT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;pre&gt;[ AVSLUTA ]&lt;/pre&gt;</translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ ENT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ UP ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;pre&gt;[ UPP ]&lt;/pre&gt;</translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ DN ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;pre&gt;[ NER ]&lt;/pre&gt;</translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;+&lt;/font&gt; ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;-&lt;/font&gt; ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PgUp ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PgDn ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ MDL ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ RTN ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ SYS ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ TELE ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x2261;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ SHIFT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -9034,12 +9515,6 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
         <translation>datakälla</translation>
     </message>
     <message>
-        <source>Radio data (.bin/.eeprom/.otx) image file to use OR data folder path (for Horus-style radios).
-NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
-        <translation>Radiodatafil (.bin/.eeprom/.otx/.etx) att använda ELLER sökvägen till datakatalog (för Horus-liknande radior).
-OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
-    </message>
-    <message>
         <source>[data-source]</source>
         <translation>[datakälla]</translation>
     </message>
@@ -9054,7 +9529,7 @@ OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att
     <message>
         <source>WARNING: couldn&apos;t initialize SDL:
 %1</source>
-        <translation>VARNING: Kunde ej initialisera SDL:
+        <translation>VARNING: Kunde inte initialisera SDL:
 %1</translation>
     </message>
     <message>
@@ -9065,7 +9540,7 @@ OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att
         <source>ERROR: Couldn&apos;t start simulator, missing radio/profile/data file/folder.
   Profile ID: [%1]; Radio ID: [%2];
 Data File: [%3]</source>
-        <translation>FEL: Simulatorn kunde ej startas, radio/profil/datafil/katalog saknas.
+        <translation>FEL: Simulatorn kunde inte startas, radio/profil/datafil/katalog saknas.
   Profile-ID: [%1]; Radio-ID: [%2];
 Datafil: [%3]</translation>
     </message>
@@ -9078,6 +9553,12 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     <message>
         <source>Uknown error during Simulator startup.</source>
         <translation>Okänt fel vid uppstart av simulatorn.</translation>
+    </message>
+    <message>
+        <source>Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).
+NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
+        <translation>Radiodatafil (.bin/.eeprom/.etx) att använda ELLER sökväg till datakatalogen (för sändare av Horus-typ).
+OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms att skrivas över!</translation>
     </message>
 </context>
 <context>
@@ -9136,7 +9617,7 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
         <source>Show keyboard maping reference.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa mappning av tangentbordsknapparna.</translation>
     </message>
     <message>
         <source>F1</source>
@@ -9204,7 +9685,7 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
         <source>ERROR: Failed to create simulator interface, possibly missing or bad library.</source>
-        <translation>FEL: Kunde ej skapa gränsnitt för simulatorn, möjligen pga saknat eller felaktigt bibliotek.</translation>
+        <translation>FEL: Kunde inte skapa gränsnitt för simulatorn, möjligen pga saknat eller felaktigt bibliotek.</translation>
     </message>
     <message>
         <source>Alt+T</source>
@@ -9264,10 +9745,6 @@ Profil-ID: [%1]; Radio-ID [%2]</translation>
 <context>
     <name>SimulatorStartupDialog</name>
     <message>
-        <source>OpenTX Simulator - Startup Options</source>
-        <translation>EdgeTX simulator - Startalternativ</translation>
-    </message>
-    <message>
         <source>Simulator Startup Options:</source>
         <translation>Startalternativ för simulatorn:</translation>
     </message>
@@ -9311,7 +9788,7 @@ Radiotypen som angetts i vald profil används som förval.</translation>
         <source>Radio data (.bin/.eeprom/.otx) image file to use. A new file with a default image will be created if necessary.&lt;br /&gt;
 &lt;b&gt;NOTE&lt;/b&gt;: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
         <translation>Radiodatafil (.bin/.eeprom/.otx/.etx) att använda. En ny fil med förvald bild skapas om så behövs.&lt;br /&gt;
-OBS! Befintlig EEPROM-data som ej är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
+OBS! Befintlig EEPROM-data som inte är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
     </message>
     <message>
         <source>Select data file...</source>
@@ -9373,6 +9850,10 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
         <source>Select SD Card Image Folder</source>
         <translation>Välj katalog med SD-kortavbildningen</translation>
     </message>
+    <message>
+        <source>EdgeTX Simulator - Startup Options</source>
+        <translation>EdgeTX simulator - Startalternativ</translation>
+    </message>
 </context>
 <context>
     <name>SimulatorWidget</name>
@@ -9386,11 +9867,11 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Could not determine startup data source.</source>
-        <translation>Kunde ej bestämma datakälla för uppstart.</translation>
+        <translation>Kunde inte bestämma datakälla för uppstart.</translation>
     </message>
     <message>
         <source>Could not load data, possibly wrong format.</source>
-        <translation>Kunde ej ladda data, möjligen fel format.</translation>
+        <translation>Kunde inte ladda data, möjligen fel format.</translation>
     </message>
     <message>
         <source>Data Load Error</source>
@@ -9406,11 +9887,11 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Error saving data: could open file for writing: &apos;%1&apos;</source>
-        <translation>Data kunde ej sparas: kunde inte öppnas för skrivning: &apos;%1&apos;</translation>
+        <translation>Data kunde inte sparas: kunde inte öppnas för skrivning: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Error saving data: could not get data from simulator interface.</source>
-        <translation>Data kunde ej sparas: kunde inte hämta data från simulatorn.</translation>
+        <translation>Data kunde inte sparas: kunde inte hämta data från simulatorn.</translation>
     </message>
     <message>
         <source>An unexpected error occurred while attempting to save radio data to file &apos;%1&apos;.</source>
@@ -9422,7 +9903,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Cannot open joystick, joystick disabled</source>
-        <translation>Joysticken kan inte hittas, joysticken stängs av</translation>
+        <translation>Joysticken kan inte hittas, joystick inaktiverad</translation>
     </message>
     <message>
         <source>Radio firmware error: %1</source>
@@ -9474,7 +9955,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     <name>Storage</name>
     <message>
         <source>Unable to find file %1!</source>
-        <translation>Kan ej hitta filen %1!</translation>
+        <translation>Kan inte hitta filen %1!</translation>
     </message>
 </context>
 <context>
@@ -9485,15 +9966,15 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>&amp;Reset to default</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Återställ till förval</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>This feature does not validate your changes and assumes you are familiar with CSS syntax for QT.</source>
@@ -9526,23 +10007,23 @@ Fel: %2</translation>
     </message>
     <message>
         <source>Style sheet data unable to be read from &apos;%1&apos;</source>
-        <translation>Data för stilguide kan ej läsas från &apos;%1&apos;</translation>
+        <translation>Data för stilguide kan inte läsas från &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot create folder &apos;%1&apos;</source>
-        <translation>Kan ej skapa katalog &apos;%1&apos;</translation>
+        <translation>Kan inte skapa katalog &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot open file for writing &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej öppna fil för att skriva &apos;%1&apos;: Fel: %2</translation>
+        <translation>Kan inte öppna fil för att skriva &apos;%1&apos;: Fel: %2</translation>
     </message>
     <message>
         <source>Cannot write to file &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej skriva till fil &apos;%1&apos;: Fel: %2</translation>
+        <translation>Kan inte skriva till fil &apos;%1&apos;: Fel: %2</translation>
     </message>
     <message>
         <source>Cannot flush buffer for file &apos;%1&apos;: Error: %2</source>
-        <translation>Kan ej tömma buffert för fil &apos;%1: Fel: %2</translation>
+        <translation>Kan inte tömma buffert för fil &apos;%1: Fel: %2</translation>
     </message>
     <message>
         <source>Style sheet written to &apos;%1&apos;</source>
@@ -9554,7 +10035,7 @@ Fel: %2</translation>
     </message>
     <message>
         <source>Unable to delete custom style sheet: &apos;%1&apos;</source>
-        <translation>Kan ej radera anpassad stilguide: &apos;%1&apos;</translation>
+        <translation>Kan inte radera anpassad stilguide: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -9577,7 +10058,7 @@ Fel: %2</translation>
     </message>
     <message>
         <source>Could not create directory: %1</source>
-        <translation>Kunde ej skapa katalog: %1</translation>
+        <translation>Kunde inte skapa katalog: %1</translation>
     </message>
     <message>
         <source>Skipping older file: %1</source>
@@ -9585,11 +10066,11 @@ Fel: %2</translation>
     </message>
     <message>
         <source>Could not open source file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej öppna källfil &apos;%1&apos;: %2</translation>
+        <translation>Kunde inte öppna källfil &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Could not open destination file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej öppna målfil &apos;%1&apos;: %2</translation>
+        <translation>Kunde inte öppna målfil &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Skipping identical file: %1</source>
@@ -9597,7 +10078,7 @@ Fel: %2</translation>
     </message>
     <message>
         <source>Could not delete destination file &apos;%1&apos;: %2</source>
-        <translation>Kunde ej ta bort målfil &apos;%1&apos;: %2</translation>
+        <translation>Kunde inte radera målfil &apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Copy failed: &apos;%1&apos; to &apos;%2&apos;: %3</source>
@@ -9688,7 +10169,7 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Only one channel still available!&lt;br&gt;You probably should configure your model without using the wizard.</source>
-        <translation>Bara en ledig kanal kvar!&lt;br&gt;Du borde nog konfigurera din modell utan att använda modellguiden.</translation>
+        <translation>Bara en ledig kanal kvar!&lt;br&gt;Du bör konfigurera din modell utan att använda modellguiden.</translation>
     </message>
 </context>
 <context>
@@ -9754,7 +10235,7 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Volt source</source>
-        <translation>Voltkälla</translation>
+        <translation>Volt källa</translation>
     </message>
     <message>
         <source>Current source</source>
@@ -9794,11 +10275,11 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Vario source</source>
-        <translation>Vario-källa</translation>
+        <translation>Vario källa</translation>
     </message>
     <message>
         <source>Vario limits</source>
-        <translation>Vario-gränser</translation>
+        <translation>Vario gränser</translation>
     </message>
     <message>
         <source>Altimetry</source>
@@ -9834,11 +10315,11 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Volts source</source>
-        <translation>Volts-källa</translation>
+        <translation>Volt källa</translation>
     </message>
     <message>
         <source>Top Bar</source>
-        <translation>Övre stapeln</translation>
+        <translation>Övre raden</translation>
     </message>
     <message>
         <source>Sensors</source>
@@ -9943,28 +10424,16 @@ För många fel - ger upp.</translation>
         <source>mAmps (mA)</source>
         <translation>mAmpere (mA)</translation>
     </message>
-    <message>
-        <source>Range</source>
-        <translation>Räckvidd</translation>
-    </message>
 </context>
 <context>
     <name>TelemetryCustomScreen</name>
-    <message>
-        <source>Custom Screen Type</source>
-        <translation>Visa data som</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Staplar</translation>
-    </message>
     <message>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation>Ursprung</translation>
+        <translation>Källa</translation>
     </message>
     <message>
         <source>Gauge</source>
@@ -9975,24 +10444,19 @@ För många fel - ger upp.</translation>
         <translation>Max</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
-    <message>
-        <source>Numbers</source>
-        <translation>Siffror</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Skript</translation>
+        <source>Type</source>
+        <translation>Typ</translation>
     </message>
 </context>
 <context>
-    <name>TelemetryPanel</name>
+    <name>TelemetryCustomScreensPanel</name>
     <message>
         <source>Telemetry screen %1</source>
         <translation>Telemetriskärm %1</translation>
     </message>
+</context>
+<context>
+    <name>TelemetryPanel</name>
     <message>
         <source>Low Alarm</source>
         <translation>Låg alarmnivå</translation>
@@ -10010,14 +10474,6 @@ För många fel - ger upp.</translation>
         <translation>Winged Shadow How High (stöds ej)</translation>
     </message>
     <message>
-        <source>A1</source>
-        <translation>A1</translation>
-    </message>
-    <message>
-        <source>Alti</source>
-        <translation>Höjd</translation>
-    </message>
-    <message>
         <source>FrSky S.PORT</source>
         <translation>FrSky S.PORT</translation>
     </message>
@@ -10030,51 +10486,23 @@ För många fel - ger upp.</translation>
         <translation>FrSky D (kabel)</translation>
     </message>
     <message>
-        <source>Alti+</source>
-        <translation>Höjd+</translation>
-    </message>
-    <message>
-        <source>A2</source>
-        <translation>A2</translation>
-    </message>
-    <message>
-        <source>A3</source>
-        <translation>A3</translation>
-    </message>
-    <message>
-        <source>A4</source>
-        <translation>A4</translation>
-    </message>
-    <message>
-        <source>FAS</source>
-        <translation>FAS</translation>
-    </message>
-    <message>
-        <source>---</source>
-        <translation>----</translation>
-    </message>
-    <message>
-        <source>VSpeed</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Cells</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Source</source>
         <translation>Källa</translation>
+    </message>
+    <message>
+        <source>Delete Sensor. Are you sure?</source>
+        <translation>Radera telemetrisensorn. Är du säker?</translation>
     </message>
 </context>
 <context>
     <name>TelemetrySensor</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulär</translation>
     </message>
     <message>
-        <source>Custom</source>
-        <translation>Special</translation>
+        <source>TELE##</source>
+        <translation></translation>
     </message>
     <message>
         <source>Id</source>
@@ -10083,38 +10511,6 @@ För många fel - ger upp.</translation>
     <message>
         <source>Instance</source>
         <translation>Instans</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Lägg till</translation>
-    </message>
-    <message>
-        <source>Average</source>
-        <translation>Medel</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Multiply</source>
-        <translation>Multiplicera</translation>
-    </message>
-    <message>
-        <source>Cell</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Consumption</source>
-        <translation>Förbrukning</translation>
-    </message>
-    <message>
-        <source>Dist</source>
-        <translation>Avst</translation>
     </message>
     <message>
         <source>Cells Sensor :</source>
@@ -10131,10 +10527,6 @@ För många fel - ger upp.</translation>
     <message>
         <source>Alt. Sensor :</source>
         <translation>Höjdsensor :</translation>
-    </message>
-    <message>
-        <source>Raw (-)</source>
-        <translation>Rå (-)</translation>
     </message>
     <message>
         <source>Precision</source>
@@ -10155,18 +10547,6 @@ För många fel - ger upp.</translation>
     <message>
         <source>Persistent</source>
         <translation>Bestående</translation>
-    </message>
-    <message>
-        <source>Calculated</source>
-        <translation>Beräknad</translation>
-    </message>
-    <message>
-        <source>Totalize</source>
-        <translation>Lägga ihop</translation>
-    </message>
-    <message>
-        <source>RPM</source>
-        <translation>RPM</translation>
     </message>
     <message>
         <source>Blades</source>
@@ -10193,118 +10573,66 @@ För många fel - ger upp.</translation>
         <translation></translation>
     </message>
     <message>
-        <source>V</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>A</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mA</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>kt</source>
-        <translation>knop</translation>
-    </message>
-    <message>
-        <source>m/s</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>ft/s</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>km/h</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mph</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>m</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>ft</source>
-        <translation>fot</translation>
-    </message>
-    <message>
-        <source>°C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>°F</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mAh</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>W</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>dBm</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>g</source>
-        <translation>g</translation>
-    </message>
-    <message>
-        <source>°</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mL</source>
-        <translation>ml</translation>
-    </message>
-    <message>
-        <source>US fl.Oz.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>mW</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Rad</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Rx</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Mod.</source>
         <translation></translation>
     </message>
 </context>
 <context>
     <name>TelemetrySensorPanel</name>
     <message>
-        <source>Lowest</source>
-        <translation>Lägsta</translation>
+        <source>Clear</source>
+        <translation>Rensa</translation>
     </message>
     <message>
-        <source>Cell %1</source>
-        <translation>Cell%1</translation>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
     </message>
     <message>
-        <source>Highest</source>
-        <translation>Högsta</translation>
+        <source>Clear all Telemetry Sensors. Are you sure?</source>
+        <translation>Rensa alla telemtrisensorer. Är du säker?</translation>
     </message>
     <message>
-        <source>Delta</source>
+        <source>Clear Telemetry Sensor. Are you sure?</source>
+        <translation>Rensa telemtrisensorn. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
+    </message>
+    <message>
+        <source>Cut Telemetry Sensor. Are you sure?</source>
+        <translation>Klipp ut telemetrisensorn. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Radera</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägg till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
+    </message>
+    <message>
+        <source>Popup menu available</source>
+        <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>TELE%1</source>
         <translation></translation>
     </message>
 </context>
@@ -10344,7 +10672,7 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>When enabled, sends any non-blank values as simulated telemetry data.</source>
-        <translation>När aktiverad, skickar alla ej tomma värden som simulerade telemetridata.</translation>
+        <translation>När aktiverad, skickar alla icke tomma värden som simulerade telemetridata.</translation>
     </message>
     <message>
         <source>Simulate</source>
@@ -10403,10 +10731,6 @@ Tidsstämpel</translation>
     <message>
         <source>V / ratio</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Db</source>
-        <translation>dB</translation>
     </message>
     <message>
         <source>RxBt</source>
@@ -10568,6 +10892,70 @@ hh:mm:ss</translation>
         <source>Pause simulation when hidden.</source>
         <translation>Pausa simuleringen när fönstret är dolt.</translation>
     </message>
+    <message>
+        <source>dB</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <source>GPS sim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Run/Stop</source>
+        <translation>Kör/Stopp</translation>
+    </message>
+    <message>
+        <source>Load Telemetry Values</source>
+        <translation>Ladda telemetrivärden</translation>
+    </message>
+    <message>
+        <source>Save Telemetry Values</source>
+        <translation>Spara telemetrivärden</translation>
+    </message>
+    <message>
+        <source>25.9973,-97.1572</source>
+        <translation>25.9973,-97.1572</translation>
+    </message>
+    <message>
+        <source>*</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Bad GPS Format</source>
+        <translation>Felaktigt GPS-format</translation>
+    </message>
+    <message>
+        <source>Must be decimal latitude,longitude</source>
+        <translation>Måste vara decimal latitud,longitud</translation>
+    </message>
+    <message>
+        <source>Save Telemetry</source>
+        <translation>Spara telemetri</translation>
+    </message>
+    <message>
+        <source>.tlm Files (*.tlm)</source>
+        <translation>Telemetrifiler (*.tlm)</translation>
+    </message>
+    <message>
+        <source>Unable to open file for writing.
+%1</source>
+        <translation>Kan inte öppna fil för skrivning.
+%1</translation>
+    </message>
+    <message>
+        <source>Open Telemetry File</source>
+        <translation>Öppna telemetrifil</translation>
+    </message>
+    <message>
+        <source>Unable to open file for reading.
+%1</source>
+        <translation>Kan inte öppna fil för läsning.
+%1</translation>
+    </message>
 </context>
 <context>
     <name>ThrottlePage</name>
@@ -10591,6 +10979,10 @@ hh:mm:ss</translation>
         <translation>Nedräkning</translation>
     </message>
     <message>
+        <source>Start</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Minute Call</source>
         <translation>Minutangivelse</translation>
     </message>
@@ -10604,6 +10996,99 @@ hh:mm:ss</translation>
     <message>
         <source>Timer %1</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>TMR</source>
+        <comment>as in Timer</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silent</source>
+        <translation>Tyst</translation>
+    </message>
+    <message>
+        <source>Beeps</source>
+        <translation>Pip</translation>
+    </message>
+    <message>
+        <source>Voice</source>
+        <translation>Röst</translation>
+    </message>
+    <message>
+        <source>Haptic</source>
+        <translation>Vibration</translation>
+    </message>
+    <message>
+        <source>5s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>10s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>20s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>30s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Not persistent</source>
+        <translation>Ej bestående</translation>
+    </message>
+    <message>
+        <source>NOT</source>
+        <translation>EJ</translation>
+    </message>
+    <message>
+        <source>Persistent (flight)</source>
+        <translation>Bestående (för flygning)</translation>
+    </message>
+    <message>
+        <source>Flight</source>
+        <translation>Flygning</translation>
+    </message>
+    <message>
+        <source>Persistent (manual reset)</source>
+        <translation>Bestående (manuell återställning)</translation>
+    </message>
+    <message>
+        <source>Manual reset</source>
+        <translation>Manuell återställning</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>ON</source>
+        <translation>PÅ</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>THs</source>
+        <translation>GAs</translation>
+    </message>
+    <message>
+        <source>TH%</source>
+        <translation>GA%</translation>
+    </message>
+    <message>
+        <source>THt</source>
+        <translation>GAt</translation>
+    </message>
+    <message>
+        <source>Show Elapsed</source>
+        <translation>Visa utgången</translation>
+    </message>
+    <message>
+        <source>Show Remaining</source>
+        <translation>Visa återstående</translation>
     </message>
 </context>
 <context>
@@ -10628,77 +11113,10 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
 </context>
 <context>
-    <name>TimerPanel</name>
+    <name>TrainerMix</name>
     <message>
-        <source>Silent</source>
-        <translation>Tyst</translation>
-    </message>
-    <message>
-        <source>Beeps</source>
-        <translation>Pip</translation>
-    </message>
-    <message>
-        <source>Voice</source>
-        <translation>Röst</translation>
-    </message>
-    <message>
-        <source>Not persistent</source>
-        <translation>Ej bestående</translation>
-    </message>
-    <message>
-        <source>Persistent (flight)</source>
-        <translation>Bestående (under flygning)</translation>
-    </message>
-    <message>
-        <source>Persistent (manual reset)</source>
-        <translation>Bestående (återställs manuellt)</translation>
-    </message>
-    <message>
-        <source>Haptic</source>
-        <translation>Vibration</translation>
-    </message>
-</context>
-<context>
-    <name>Trainer</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Mode</source>
-        <translation>Läge</translation>
-    </message>
-    <message>
-        <source>Input</source>
-        <translation>Input</translation>
-    </message>
-    <message>
-        <source>Weight</source>
-        <translation>Vikt</translation>
-    </message>
-    <message>
-        <source>Rud</source>
-        <translation>Rod</translation>
-    </message>
-    <message>
-        <source>Beeper volume
-
-0 - Quiet.  No beeps at all.
-1 - No Keys.  Normal beeps but menu keys do not beep.
-2 - Normal.
-3 - Loud.
-4 - Extra loud.</source>
-        <translation>Summervolym
-
-0 - Tyst.  Inga pip alls.
-1 - Ej vid knapptryck.  Normala pip, men inte vid knapptryckningar.
-2 - Normalt.
-3 - Högt.
-4 - Extra högt.</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation>Av</translation>
+        <source>OFF</source>
+        <translation>AV</translation>
     </message>
     <message>
         <source>+= (Sum)</source>
@@ -10709,32 +11127,31 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>:= (Ersätt)</translation>
     </message>
     <message>
-        <source>chn1</source>
-        <translation>kn1</translation>
+        <source>CH%1</source>
+        <translation>KN%1</translation>
+    </message>
+</context>
+<context>
+    <name>TrainerPanel</name>
+    <message>
+        <source>Mode</source>
+        <translation>Läge</translation>
     </message>
     <message>
-        <source>chn2</source>
-        <translation>kn2</translation>
+        <source>Weight</source>
+        <translation>Vikt</translation>
     </message>
     <message>
-        <source>chn3</source>
-        <translation>kn3</translation>
+        <source>Source</source>
+        <translation>Källa</translation>
     </message>
     <message>
-        <source>chn4</source>
-        <translation>kn4</translation>
+        <source>Calibration</source>
+        <translation>Kalibrering</translation>
     </message>
     <message>
-        <source>Ele</source>
-        <translation>Hjd</translation>
-    </message>
-    <message>
-        <source>Thr</source>
-        <translation>Gas</translation>
-    </message>
-    <message>
-        <source>Ail</source>
-        <translation>Ske</translation>
+        <source>Multiplier</source>
+        <translation>Multiplikator</translation>
     </message>
 </context>
 <context>
@@ -10745,32 +11162,665 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
 </context>
 <context>
-    <name>TreeModel</name>
+    <name>UpdateCompanion</name>
     <message>
-        <source>Index</source>
+        <source>Companion</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>Installera</translation>
+    </message>
+    <message>
+        <source>Expected 1 asset for install but none found</source>
+        <translation>Förväntades en tillgång att installera men ingen hittades</translation>
+    </message>
+    <message>
+        <source>Installer not found in %1 using filter %2</source>
+        <translation>Installationsprogram hittdes inte i %1 med filter %2</translation>
+    </message>
+    <message>
+        <source>Unable to set file permissions on the AppImage</source>
+        <translation>Kan inte sätta filbehörigheter för AppImage</translation>
+    </message>
+    <message>
+        <source>Save File</source>
+        <translation>Spara fil</translation>
+    </message>
+    <message>
+        <source>Unable to delete file %1</source>
+        <translation>Kan inte radera fil %1</translation>
+    </message>
+    <message>
+        <source>Unable to copy file to %1</source>
+        <translation>Kan inte kopiera fil till %1</translation>
+    </message>
+    <message>
+        <source>Images (*.AppImage)</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>UpdateFirmware</name>
+    <message>
+        <source>Firmware</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>Installera</translation>
+    </message>
+    <message>
+        <source>Expected 1 asset for install but none found</source>
+        <translation>Förväntades en tillgång att installera men ingen hittades</translation>
+    </message>
+    <message>
+        <source>Firmware not found in %1 using filter %2</source>
+        <translation>Firmware hittades inte i %1 med filter %2</translation>
+    </message>
+    <message>
+        <source>Write the updated firmware to the radio now ?</source>
+        <translation>Skriv uppdaterad firmware till radion nu?</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateInterface</name>
+    <message>
+        <source>Processing updates for: %1</source>
+        <translation>Bearbetar uppdateringar för: %1</translation>
+    </message>
+    <message>
+        <source>%1 preparation failed</source>
+        <translation>%1 förberedelse misslyckades</translation>
+    </message>
+    <message>
+        <source>%1 download failed</source>
+        <translation>%1 nerladdning misslyckades</translation>
+    </message>
+    <message>
+        <source>%1 decompress failed</source>
+        <translation>%1 uppackning misslyckades</translation>
+    </message>
+    <message>
+        <source>%1 copy to destination failed</source>
+        <translation>%1 kopiering till målet misslyckades</translation>
+    </message>
+    <message>
+        <source>Failed to save release settings</source>
+        <translation>Misslyckades att spara versionsinställningarna</translation>
+    </message>
+    <message>
+        <source>%1 start async failed</source>
+        <translation>%1 start av async misslyckades</translation>
+    </message>
+    <message>
+        <source>%1 housekeeping failed</source>
+        <translation>%1 uppstädning misslyckades</translation>
+    </message>
+    <message>
+        <source>%1 update successful</source>
+        <translation>%1 uppdatering lyckades</translation>
+    </message>
+    <message>
+        <source>Update Interface</source>
+        <translation>Uppdateringsinterface</translation>
+    </message>
+    <message>
+        <source>No free slot to save interface settings!</source>
+        <translation>Ingen fri plats för att spara interfaceinställningar!</translation>
+    </message>
+    <message>
+        <source>Unable to download release meta data</source>
+        <translation>Kunde inte ladda ner metadata för versionen</translation>
+    </message>
+    <message>
+        <source>Unable to download release channel assets information</source>
+        <translation>Kunde inte ladda information om tillgångarna från versionskanalen</translation>
+    </message>
+    <message>
+        <source>%1 directory not configured in application settings!</source>
+        <translation>%1 katalog inte konfigurerad i programinställningarna!</translation>
+    </message>
+    <message>
+        <source>Failed to create %1 directory %2!</source>
+        <translation>Kunde inte skapa %1 katalog %2!</translation>
+    </message>
+    <message>
+        <source>Invalid URL: %1</source>
+        <translation>Ogiltig URL: %1</translation>
+    </message>
+    <message>
+        <source>URL: %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Network error has occurred. Error code: %1</source>
+        <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
+    </message>
+    <message>
+        <source>No assets not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
+        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
+        <translation>%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
+    </message>
+    <message>
+        <source>Unable to set processing flags for asset %1</source>
+        <translation>Kunde inte sätta bearbetningsflaggor för tillgång %1</translation>
+    </message>
+    <message>
+        <source>Unable to set sub directory for asset %1</source>
+        <translation>Kunde inte sätta underkatalog för tillgång %1</translation>
+    </message>
+    <message>
+        <source>Unable to set copy filter for asset %1</source>
+        <translation>Kunde inte sätta kopieringsfilter för tillgång %1</translation>
+    </message>
+    <message>
+        <source>Downloading: %1</source>
+        <translation>Laddar ner: %1</translation>
+    </message>
+    <message>
+        <source>Download: %1</source>
+        <translation>Nerladdning: %1</translation>
+    </message>
+    <message>
+        <source>File exists: %1</source>
+        <translation>Filen finns redan: %1</translation>
+    </message>
+    <message>
+        <source>File %1 exists. Download again?</source>
+        <translation>Fil %1 finns redan. Ladda ner igen?</translation>
+    </message>
+    <message>
+        <source>Failed to create directory %1!</source>
+        <translation>Kunde inte skapa katalog%1!</translation>
+    </message>
+    <message>
+        <source>Decompressing %1</source>
+        <translation>Packar upp %1</translation>
+    </message>
+    <message>
+        <source>Decompress: %1</source>
+        <translation>Uppackning: %1</translation>
+    </message>
+    <message>
+        <source>Failed to decompress %1</source>
+        <translation>Kunde inte packa upp %1</translation>
+    </message>
+    <message>
+        <source>Decompressed file structure not found at %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy file structure from: %1</source>
+        <translation>Kopiera filstrukturen från: %1</translation>
+    </message>
+    <message>
+        <source>Failed to create directory %1</source>
+        <translation>Kunde inte skapa katalog%1</translation>
+    </message>
+    <message>
+        <source>Check/create directory: %1</source>
+        <translation>Kolla/skapa katalog: %1</translation>
+    </message>
+    <message>
+        <source>Directories checked/created: %1</source>
+        <translation>Kataloger kontrollerade/skapde: %1</translation>
+    </message>
+    <message>
+        <source>Failed to delete existing file %1</source>
+        <translation>Kunde inte radera befintlig fil: %1</translation>
+    </message>
+    <message>
+        <source>Failed to copy file %1</source>
+        <translation>Kunde inte kopiera fil %1</translation>
+    </message>
+    <message>
+        <source>Files copied: %1</source>
+        <translation>Kopierade filer: %1</translation>
+    </message>
+    <message>
+        <source>Unable to determine source directory for asset %1</source>
+        <translation>Kunde inte bestämma källkatalog för tillgång %1</translation>
+    </message>
+    <message>
+        <source>Copy files from %1</source>
+        <translation>Kopiera filer från %1</translation>
+    </message>
+    <message>
+        <source>Deleted file: %1</source>
+        <translation>Raderad fil: %1</translation>
+    </message>
+    <message>
+        <source>Copied %1 to %2</source>
+        <translation>Kopierade %1 till %2</translation>
+    </message>
+    <message>
+        <source>No downloaded or decompressed files matched filter &apos;%1&apos;</source>
+        <translation>Inga nedladdade eller uppackade filer matchade filter &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Preparing</source>
+        <translation>Förbereder</translation>
+    </message>
+    <message>
+        <source>Set run folders failed</source>
+        <translation>Kunde inte sätta körkataloger</translation>
+    </message>
+    <message>
+        <source>Set release id from update release name failed</source>
+        <translation>Kunde inte sätta versions-id från uppdateringens versionsnamn</translation>
+    </message>
+    <message>
+        <source>Flagging assets</source>
+        <translation>Flaggar tillgångar</translation>
+    </message>
+    <message>
+        <source>Downloading assets</source>
+        <translation>Laddar ner tillgångar</translation>
+    </message>
+    <message>
+        <source>Unable to download flagged assets</source>
+        <translation>Kunde inte ladda ner flaggade tillgångar</translation>
+    </message>
+    <message>
+        <source>Decompressing assets</source>
+        <translation>Packar upp tillgångar</translation>
+    </message>
+    <message>
+        <source>Unable to decompress flagged assets</source>
+        <translation>Kunde inte packa upp flaggade tillgångar</translation>
+    </message>
+    <message>
+        <source>Copying to destination</source>
+        <translation>Kopierar till destination</translation>
+    </message>
+    <message>
+        <source>Unable to copy assets</source>
+        <translation>Kunde inte kopiera tillgångar</translation>
+    </message>
+    <message>
+        <source>Housekeeping</source>
+        <translation>Uppstädning</translation>
+    </message>
+    <message>
+        <source>Delete download directory: %1</source>
+        <translation>Radera nedladdningskatalog: %1</translation>
+    </message>
+    <message>
+        <source>Failed to delete downloads folder %1</source>
+        <translation>Kunde inte radera nedladdningskatalog %1</translation>
+    </message>
+    <message>
+        <source>Delete decompress directory: %1</source>
+        <translation>Radera uppackningskatalog: %1</translation>
+    </message>
+    <message>
+        <source>Failed to delete decompress folder %1</source>
+        <translation>Kunde inte radera Radera uppackningskatalog %1</translation>
+    </message>
+    <message>
+        <source>Save release settings</source>
+        <translation>Spara versionsinställningarna</translation>
+    </message>
+    <message>
+        <source>Unable to open the download file %1 for writing.
+Error: %2</source>
+        <translation>Kunde inte öppna nerladdningsfil %1 för skrivning.
+Fel: %2</translation>
+    </message>
+    <message>
+        <source>Unable to download %1.
+Error:%2
+%3</source>
+        <translation>Kunde inte ladda ner %1.
+Fel:%2
+%3</translation>
+    </message>
+    <message>
+        <source>Unable to convert downloaded data to json format.
+Error:%1
+%2</source>
+        <translation>Kunde inte konvertera nerladdad data till json-format.
+Fel:%1
+%2</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateMultiProtocol</name>
+    <message>
+        <source>Multiprotocol</source>
+        <translation>Multiprotokoll</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateOptionsDialog</name>
+    <message>
+        <source>%1 %2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Tillval</translation>
+    </message>
+    <message>
+        <source>Clear current release information.
+Warning: There is no undo! Are you sure?</source>
+        <translation>Rensa nuvarande releaseinformation.
+Varning: Detta går inte att ångra! Är du säker?</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filter</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Ladda ner</translation>
+    </message>
+    <message>
+        <source>Decompress</source>
+        <translation>Packa upp</translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>Installera</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Sub folder</source>
+        <translation>Underkatalog</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation>Nuvarande</translation>
+    </message>
+    <message>
+        <source>Update to</source>
+        <translation>Uppdatera till</translation>
+    </message>
+    <message>
+        <source>Assets</source>
+        <translation>Tillgångar</translation>
+    </message>
+    <message>
+        <source>Forget</source>
+        <translation>Glöm</translation>
+    </message>
+    <message>
+        <source>Advanced Options</source>
+        <translation>Avancerade tillval</translation>
+    </message>
+    <message>
+        <source>Clear the last updated release information</source>
+        <translation>Rensa den senaste uppdaterade versionsinformationen</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateParameters</name>
+    <message>
+        <source>None</source>
+        <translation>Inget</translation>
+    </message>
+    <message>
+        <source>Exact</source>
+        <translation>Exakt</translation>
+    </message>
+    <message>
+        <source>Startswith</source>
+        <translation>Börjar med</translation>
+    </message>
+    <message>
+        <source>Endswith</source>
+        <translation>Slutar med</translation>
+    </message>
+    <message>
+        <source>Contains</source>
+        <translation>Innehåller</translation>
+    </message>
+    <message>
+        <source>Expression</source>
+        <translation>Uttryck</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateSDCard</name>
+    <message>
+        <source>SD Card</source>
+        <translation>SD-kort</translation>
+    </message>
+    <message>
+        <source>Flagging assets</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radio flavour %1 not listed in %2</source>
+        <translation>Radiovariant %1 finns inte listad i %2</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateSounds</name>
+    <message>
+        <source>Sounds</source>
+        <translation>Ljud</translation>
+    </message>
+    <message>
+        <source>Processing available sounds</source>
+        <translation>Bearbetar tillgängliga ljud</translation>
+    </message>
+    <message>
+        <source>Asset not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
+        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
+        <translation>%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
+    </message>
+    <message>
+        <source>Language %1 not listed in %2</source>
+        <translation>Språk %1 finns inte listad i %2</translation>
+    </message>
+    <message>
+        <source>Choose Language Packs</source>
+        <translation>Välj språkpaket</translation>
+    </message>
+    <message>
+        <source>No language packs have been selected. Sounds update will be skipped!</source>
+        <translation>Inga språkpaket är valda. Uppdatering av ljudfiler hoppas över!</translation>
+    </message>
+    <message>
+        <source>Flagging assets</source>
+        <translation>Flaggar tillgångar</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateThemes</name>
+    <message>
+        <source>Themes</source>
+        <translation>Teman</translation>
+    </message>
+</context>
+<context>
+    <name>Updates</name>
+    <message>
+        <source>No updates available at this time</source>
+        <translation>Inga uppdateringar tillgängliga i nuläget</translation>
+    </message>
+    <message>
+        <source>Checking for Updates</source>
+        <translation>Kollar efter uppdateringar</translation>
+    </message>
+    <message>
+        <source>Updates available for:
+  %1
+
+Update now?</source>
+        <translation>Uppdateringar tillgängliga för:
+  %1
+
+Uppdatera nu?</translation>
+    </message>
+    <message>
+        <source>No components have been flagged to check in Update Settings!</source>
+        <translation>Inga komponenter har flaggats för kontroll i uppdateringsinställningarna!</translation>
+    </message>
+    <message>
+        <source>Update Components</source>
+        <translation>Uppdatera komponenter</translation>
+    </message>
+    <message>
+        <source>Starting...</source>
+        <translation>Startar...</translation>
+    </message>
+    <message>
+        <source>Finished %1</source>
+        <translation>Avslutade %1</translation>
+    </message>
+    <message>
+        <source>successfully</source>
+        <translation>utan problem</translation>
+    </message>
+    <message>
+        <source>with errors</source>
+        <translation>med fel</translation>
+    </message>
+    <message>
+        <source>Run SD card sync now?</source>
+        <translation>Synka SD-kortet nu?</translation>
+    </message>
+</context>
+<context>
+    <name>UpdatesDialog</name>
+    <message>
+        <source>Downloading Release Metadata</source>
+        <translation>Laddar ner metadata för versionen</translation>
+    </message>
+    <message>
+        <source>Select your download folder</source>
+        <translation>Välj nedladdningskatalog</translation>
+    </message>
+    <message>
+        <source>Select your decompress folder</source>
+        <translation>Välj din katalog för uppackning</translation>
+    </message>
+    <message>
+        <source>Select your update destination folder</source>
+        <translation>Välj katalog för uppdateringen</translation>
     </message>
     <message>
         <source>Name</source>
         <translation>Namn</translation>
     </message>
     <message>
-        <source>Size</source>
-        <translation>Storlek</translation>
+        <source>Channel</source>
+        <translation>Kanal</translation>
     </message>
     <message>
-        <source>Models</source>
-        <extracomment>Translators do NOT use accent for this, this is the default category name on Horus.</extracomment>
-        <translation>Modeller</translation>
+        <source>Current Release</source>
+        <translation>Nuvarande version</translation>
     </message>
     <message>
-        <source>Model %1</source>
-        <extracomment>Translators: do NOT use accents here, this is a default model name.</extracomment>
-        <translation>Modell %1</translation>
+        <source>Update Release</source>
+        <translation>Uppdateringsversion</translation>
     </message>
     <message>
-        <source>RX #</source>
-        <translation></translation>
+        <source>Retrieving latest release information for %1</source>
+        <translation>Hämtar senaste versionsinformation för %1</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Tillval</translation>
+    </message>
+    <message>
+        <source>Download folder path missing!</source>
+        <translation>Sökväg till nedladdningskatalog saknas!</translation>
+    </message>
+    <message>
+        <source>Update folder path missing!</source>
+        <translation>Sökväg till uppdateringskatalog saknas!</translation>
+    </message>
+    <message>
+        <source>Decompress folder path missing!</source>
+        <translation>Sökväg till uppackningskatalog saknas!</translation>
+    </message>
+    <message>
+        <source>No components selected for update!</source>
+        <translation>Inga komponenter är valda att uppdateras!</translation>
+    </message>
+    <message>
+        <source>Process Updates</source>
+        <translation>Göra uppdateringar</translation>
+    </message>
+    <message>
+        <source>Folders</source>
+        <translation>Kataloger</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Nerladdning</translation>
+    </message>
+    <message>
+        <source>Decompress</source>
+        <translation>Uppackning</translation>
+    </message>
+    <message>
+        <source>Select folder</source>
+        <translation>Välj katalog</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Uppdatering</translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <translation>Komponenter</translation>
+    </message>
+    <message>
+        <source>Delete downloads after update</source>
+        <translation>Radera nerladdade filer efter uppdatering</translation>
+    </message>
+    <message>
+        <source>Use Radio Profile SD structure</source>
+        <translation>Använd radioprofilens SD-kortstruktur</translation>
+    </message>
+    <message>
+        <source>Create sub-folders in Download folder</source>
+        <translation>Skapa underkataloger i nerladdningskatalogen</translation>
+    </message>
+</context>
+<context>
+    <name>UserInterfacePanel</name>
+    <message>
+        <source>Information unavailable</source>
+        <translation>Information saknas</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema:</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Upphovsman:</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Information:</translation>
+    </message>
+    <message>
+        <source>Cannot load %1</source>
+        <translation>Kan inte ladda %1</translation>
+    </message>
+    <message>
+        <source>Top Bar</source>
+        <translation>Övre raden:</translation>
     </message>
 </context>
 <context>
@@ -10902,7 +11952,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Tail Type</source>
-        <translation>Stjärt-typ</translation>
+        <translation>Stjärttyp</translation>
     </message>
     <message>
         <source>Select which type of tail your model is equiped with.</source>
@@ -10962,7 +12012,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select the receiver channel that is connected to your ESC or throttle servo.&lt;br&gt;&lt;br&gt;Throttle - Spektrum: CH1, Futaba: CH3</source>
-        <translation>Välj den mottagarkanal som är kopplad till din ESC eller till gasservot.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3</translation>
+        <translation>Välj den mottagarkanal som är kopplad till ditt fartreglage eller till gasservot.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KA1, Futaba: KA3</translation>
     </message>
     <message>
         <source>Most aircraft have a main wing and a tail with control surfaces. Flying wings and delta winged aircraft only have a single wing. The main control surface on a standard wing controls the roll of the aircraft. This surface is called an aileron.&lt;br&gt;The control surface of a delta wing controls both roll and pitch. This surface is called an elevon. </source>
@@ -10970,7 +12020,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Models use one or two channels to control the ailerons.&lt;br&gt;A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. If your servos are connected by a Y-cable you should select the single-servo option.&lt;br&gt;&lt;br&gt;Aileron - Spektrum: CH2, Futaba: CH1</source>
-        <translation>Modeller använder en eller två kontrollkanaler för att styra skevrodren.&lt;br&gt;En så kallad Y-kabel kan användas för att koppla två servon till en enda kanal. Om dina skevroderservon är inkopplade via en Y-kabel ska du välja inställningen för en kontrollkanal.&lt;br&gt;&lt;br&gt;Skevroder - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Modeller använder en eller två kontrollkanaler för att styra skevrodren.&lt;br&gt;En så kallad Y-kabel kan användas för att koppla två servon till en enda kanal. Om dina skevroderservon är inkopplade via en Y-kabel ska du välja inställningen för en kontrollkanal.&lt;br&gt;&lt;br&gt;Skevroder - Spektrum: KA2, Futaba: KA1</translation>
     </message>
     <message>
         <source>Models use two channels to control the elevons.&lt;br&gt;Select these two channels</source>
@@ -10978,7 +12028,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>This wizard assumes that your flaps are controlled by a switch. If your flaps are controlled by a potentiometer you can change that manually later.</source>
-        <translation>Denna modellguide utgår ifrån att dina flaps styrs via en brytare. Om du istället vill styra via en potentiometer så får du själv ändra inställningen i modelleditorn.</translation>
+        <translation>Denna modellguide utgår ifrån att dina klaffar styrs via en brytare. Om du istället vill styra via en potentiometer får du själv ändra inställningen i modellredigeraren.</translation>
     </message>
     <message>
         <source>Air brakes are used to reduce the speed of advanced sail planes.&lt;br&gt;They are very uncommon on other types of planes.</source>
@@ -10986,19 +12036,19 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select the receiver channel that is connected to your rudder.&lt;br&gt;&lt;br&gt;Rudder - Spektrum: CH4, Futaba: CH4</source>
-        <translation>Ange vilken kontrollkanal som används för att styra modellens sidroder.&lt;br&gt;&lt;br&gt;Sidroder - Spektrum: CH4, Futaba: CH4</translation>
+        <translation>Ange vilken kontrollkanal som används för att styra modellens sidroder.&lt;br&gt;&lt;br&gt;Sidroder - Spektrum: KA4, Futaba:KA4</translation>
     </message>
     <message>
         <source>Select the tail type of your plane.</source>
-        <translation>Angej vilken typ av stärt din modell har.</translation>
+        <translation>Ange vilken typ av stjärt din modell har.</translation>
     </message>
     <message>
         <source>Select the Rudder and Elevator channels.&lt;br&gt;&lt;br&gt;Rudder - Spektrum: CH4, Futaba: CH4&lt;br&gt;Elevator - Spektrum: CH3, Futaba: CH2</source>
-        <translation>Ange kontrollkanaler för sidrodret och höjdrodret.&lt;br&gt;&lt;br&gt;Sidroder - Spektrum: CH4, Futaba: CH4&lt;br&gt;Höjdroder - Spektrum: CH3, Futaba: CH2</translation>
+        <translation>Ange kontrollkanaler för sidrodret och höjdrodret.&lt;br&gt;&lt;br&gt;Sidroder - Spektrum: KA, Futaba: KA4&lt;br&gt;Höjdroder - Spektrum: KA3, Futaba: KA2</translation>
     </message>
     <message>
         <source>Select the Elevator channel.&lt;br&gt;&lt;br&gt;Elevator - Spektrum: CH3, Futaba: CH2</source>
-        <translation>Ange kontrollkanal för höjdrodret.&lt;br&gt;&lt;br&gt; Höjdroder - Spektrum: CH3, Futaba: CH2</translation>
+        <translation>Ange kontrollkanal för höjdrodret.&lt;br&gt;&lt;br&gt; Höjdroder - Spektrum: KA3, Futaba: KA2</translation>
     </message>
     <message>
         <source>TBD.</source>
@@ -11006,7 +12056,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Select the control channels for your multirotor.&lt;br&gt;&lt;br&gt;Throttle - Spektrum: CH1, Futaba: CH3&lt;br&gt;Yaw - Spektrum: CH4, Futaba: CH4&lt;br&gt;Pitch - Spektrum: CH3, Futaba: CH2&lt;br&gt;Roll - Spektrum: CH2, Futaba: CH1</source>
-        <translation>Välj vilka kanaler som skall användas för att kontrollera din multikopter.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KN1, Futaba: KN3&lt;br&gt;Yaw - Spektrum: KN4, Futaba: KN4&lt;br&gt;Pitch - Spektrum: KN3, Futaba: KN2&lt;br&gt;Roll - Spektrum: KN2, Futaba: KN1</translation>
+        <translation>Välj vilka kanaler som skall användas för att kontrollera din multikopter.&lt;br&gt;&lt;br&gt;Gas - Spektrum: KA1, Futaba: KA3&lt;br&gt;Yaw - Spektrum: KA4, Futaba: KA4&lt;br&gt;Pitch - Spektrum: KA3, Futaba: KA2&lt;br&gt;Roll - Spektrum: KA2, Futaba: KA1</translation>
     </message>
     <message>
         <source>There is no help available for the current page.</source>
@@ -11073,37 +12123,76 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
 </context>
 <context>
-    <name>burnConfigDialog</name>
+    <name>YamlFormat</name>
     <message>
-        <source>Location of AVRDUDE executable</source>
-        <translation>Sökväg till AVRDUDE-programmet</translation>
+        <source>Error opening file %1:
+%2.</source>
+        <translation>Fel vid öppning av fil %1:
+%2.</translation>
     </message>
     <message>
+        <source>Error opening file %1 in write mode:
+%2.</source>
+        <translation>Fel vid öppning av fil %1 för skrivning:
+%2.</translation>
+    </message>
+    <message>
+        <source>Cannot read %1</source>
+        <translation>Kan inte läsa %1</translation>
+    </message>
+    <message>
+        <source>File %1 is not a valid format</source>
+        <translation>Fil %1 har inte ett giltigt format</translation>
+    </message>
+    <message>
+        <source>Cannot load </source>
+        <translation>Kan inte ladda </translation>
+    </message>
+    <message>
+        <source>Please check all radio and model settings as no conversion could be performed.</source>
+        <translation>Vänligen kontrollera alla radio- och modellinställningar då konvertering inte kunde genomföras.</translation>
+    </message>
+    <message>
+        <source>File %1 appears to contain radio settings and importing is unsupported.</source>
+        <translation>Fil %1 verkar inte innehålla radioinställningar och stödjs ej.</translation>
+    </message>
+    <message>
+        <source>Unable to determine content type for file %1</source>
+        <translation>Kan inte bestämma typ av innehåll i fil %1</translation>
+    </message>
+</context>
+<context>
+    <name>YamlGeneralSettings</name>
+    <message>
+        <source>Warning: Radio settings file is missing the board entry!
+
+Current firmware profile board will be used.
+
+Do you wish to continue?</source>
+        <translation>Varning: Radioinställningsfilen saknar radiotyp!
+
+Radiotyp för nuvarande profil kommer användas.
+
+Vill du fortsätta?</translation>
+    </message>
+    <message>
+        <source>Settings file board (%1) does not match current profile board (%2).
+
+Do you wish to continue?</source>
+        <translation>Radiotyp i vald inställningsfil (%1) matchar inte aktuell profils radiotyp (%2).
+
+Vill du fortsätta?</translation>
+    </message>
+</context>
+<context>
+    <name>burnConfigDialog</name>
+    <message>
         <source>The location of the AVRDUDE executable.</source>
-        <oldsource>The location of the AVRDUDE.EXE executable.</oldsource>
         <translation>Sökvägen till AVRDUDE-programmet.</translation>
     </message>
     <message>
         <source>Browse...</source>
         <translation>Sök...</translation>
-    </message>
-    <message>
-        <source>Programmer</source>
-        <translation>Programmerare</translation>
-    </message>
-    <message>
-        <source>Programmer used for communicating with the controller.
-Please consult the programmer&apos;s documentation and the AVRDUDE documentation to select the appropriate programmer.</source>
-        <translation>Programmerare som används för att kommunicera med sändaren.
-Läs både programmerarens dokumentation och i dokumentationen för AVRDUDE innan du väljer programmerare.</translation>
-    </message>
-    <message>
-        <source>List all available programmers.</source>
-        <translation>Visa alla tillgängliga programmerare.</translation>
-    </message>
-    <message>
-        <source>List Available</source>
-        <translation>Visa tillgängliga</translation>
     </message>
     <message>
         <source>Extra arguments that will be passed to AVRDUDE on every call</source>
@@ -11120,30 +12209,8 @@ Dessa kan användas för att ge överföringsprogrammet AVRDUDE mer information.
 OBS! Fyll enbart i detta fält om du är säker på vad du gör! Ingen kontroll av parametrarna görs och felaktiga parametrar kan leda till allvarliga problem med sändaren.</translation>
     </message>
     <message>
-        <source>Extra Arguments</source>
-        <translation>Extra parametrar</translation>
-    </message>
-    <message>
-        <source>Show AVRDUDE help</source>
-        <translation>Visa AVRDUDE-hjälpen</translation>
-    </message>
-    <message>
-        <source>Show Help</source>
-        <translation>Hjälp</translation>
-    </message>
-    <message>
-        <source>Communication port to the programmer.
-</source>
-        <translation>Programmerarens kommunikationsport.
-</translation>
-    </message>
-    <message>
         <source>Port</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>AVRDUDE Location</source>
-        <translation>Sökväg till AVRDUDE</translation>
     </message>
     <message>
         <source>Select Location</source>
@@ -11194,16 +12261,8 @@ m2560 för v4.1-kort</translation>
         <translation>Alternativ enhet</translation>
     </message>
     <message>
-        <source>MCU</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Use advanced controls</source>
         <translation>Använd avancerade kontroller</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;&lt;u&gt;WARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;Normally CPU type is automatically selected according to the chosen firmware.&lt;br&gt;If you change the CPU type the resulting eeprom could be inconsistent.</source>
-        <translation>&lt;b&gt;&lt;u&gt;VARNING!&lt;/u&gt;&lt;/b&gt;&lt;br&gt;I vanliga fall väljs CPU-typ utgående från den programvara som valts för skrivning.&lt;br&gt;Om du ändrar CPU-typ så kan resultatet bli ett ogiltigt EEPROM.</translation>
     </message>
     <message>
         <source>Programmer Configuration</source>
@@ -11217,18 +12276,6 @@ m2560 för v4.1-kort</translation>
         <source>SAM-BA Configuration</source>
         <translation>Inställningar för SAM-BA</translation>
     </message>
-    <message>
-        <source>AVRDUDE Configuration</source>
-        <translation>Inställningar för AVRDUDE</translation>
-    </message>
-    <message>
-        <source>List available programmers</source>
-        <translation>Lista tillgängliga prorammerare</translation>
-    </message>
-    <message>
-        <source>Avrdude help</source>
-        <translation>Hjälp för AVRDUDE</translation>
-    </message>
 </context>
 <context>
     <name>joystickDialog</name>
@@ -11238,35 +12285,35 @@ m2560 för v4.1-kort</translation>
     </message>
     <message>
         <source>Ch2</source>
-        <translation>Kn2</translation>
+        <translation>Ka2</translation>
     </message>
     <message>
         <source>Ch1</source>
-        <translation>Kn1</translation>
+        <translation>Ka1</translation>
     </message>
     <message>
         <source>Ch4</source>
-        <translation>Kn4</translation>
+        <translation>Ka4</translation>
     </message>
     <message>
         <source>Ch6</source>
-        <translation>Kn6</translation>
+        <translation>Ka6</translation>
     </message>
     <message>
         <source>Ch3</source>
-        <translation>Kn3</translation>
+        <translation>Ka3</translation>
     </message>
     <message>
         <source>Ch5</source>
-        <translation>Kn5</translation>
+        <translation>Ka5</translation>
     </message>
     <message>
         <source>Ch7</source>
-        <translation>Kn7</translation>
+        <translation>Ka7</translation>
     </message>
     <message>
         <source>Ch8</source>
-        <translation>Kn8</translation>
+        <translation>Ka8</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -11354,99 +12401,7 @@ Tryck Avbryt för att avsluta kalibreringen utan att spara.</translation>
     </message>
     <message>
         <source>Calibration not complete, save anyway?</source>
-        <translation>Kalibreringen ej slutförd, spara ändå?</translation>
-    </message>
-</context>
-<context>
-    <name>preferencesDialog</name>
-    <message>
-        <source>Preferences</source>
-        <translation>Konfiguration</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Splash library behaviour</source>
-        <translation>Beteende för bildbibliotek</translation>
-    </message>
-    <message>
-        <source>Personal splash library</source>
-        <translation>Personligt bildbibliotek</translation>
-    </message>
-    <message>
-        <source>Joystick</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Open Folder</source>
-        <translation>Öppna katalog</translation>
-    </message>
-    <message>
-        <source>Blue</source>
-        <oldsource>Blu</oldsource>
-        <translation>Blå</translation>
-    </message>
-    <message>
-        <source>Green</source>
-        <translation>Grön</translation>
-    </message>
-    <message>
-        <source>Red</source>
-        <translation>Röd</translation>
-    </message>
-    <message>
-        <source>Orange</source>
-        <translation>Orange</translation>
-    </message>
-    <message>
-        <source>Yellow</source>
-        <translation>Gul</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation>Aktivera</translation>
-    </message>
-    <message>
-        <source>Remember simulator switches</source>
-        <translation>Spara läget för simulatorbrytarna</translation>
-    </message>
-    <message>
-        <source>Calibrate</source>
-        <translation>Kalibrera</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>Öppna bild</translation>
-    </message>
-    <message>
-        <source>Invert Pixels</source>
-        <translation>Invertera bild</translation>
-    </message>
-    <message>
-        <source>Include companion splashes</source>
-        <translation>Inkludera Companion-bilder</translation>
-    </message>
-    <message>
-        <source>Only user defined splashes</source>
-        <translation>Enbart användarens bilder</translation>
-    </message>
-    <message>
-        <source>Custom TX splash screen</source>
-        <translation>Egen uppstartsbild</translation>
-    </message>
-    <message>
-        <source>Simu BackLight</source>
-        <translation>Simulatorbelysning</translation>
-    </message>
-    <message>
-        <source>Simulator capture folder</source>
-        <translation>Katalog för simulator-data</translation>
-    </message>
-    <message>
-        <source>Use clipboard only</source>
-        <translation>Använd bara clipboard</translation>
+        <translation>Kalibreringen inte slutförd, spara ändå?</translation>
     </message>
 </context>
 </TS>

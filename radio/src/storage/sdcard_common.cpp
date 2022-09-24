@@ -26,9 +26,6 @@
 #include "conversions/conversions.h"
 #include "model_init.h"
 
-// defined either in sdcard_raw.cpp or sdcard_yaml.cpp
-void storageCreateModelsList();
-
 void getModelPath(char * path, const char * filename, const char* pathName)
 {
   unsigned int len = strlen(pathName);
@@ -71,9 +68,6 @@ void storageFormat()
   sdCheckAndCreateDirectory(MODELS_PATH);
   generalDefault();
   setModelDefaults();
-#if defined(STORAGE_MODELSLIST)
-  storageCreateModelsList();
-#endif
 }
 
 void storageCheck(bool immediately)
@@ -87,10 +81,24 @@ void storageCheck(bool immediately)
     }
   }
 
+#if defined(STORAGE_MODELSLIST)
+  if (storageDirtyMsk & EE_LABELS) {
+    TRACE("SD card write labels");
+    storageDirtyMsk &= ~EE_LABELS;
+    const char * error = modelslist.save();
+    if (error) {
+      TRACE("writeLabels error=%s", error);
+    }
+  }
+#endif
+
   if (storageDirtyMsk & EE_MODEL) {
     TRACE("eeprom write model");
     storageDirtyMsk &= ~EE_MODEL;
     const char * error = writeModel();
+#if defined(STORAGE_MODELSLIST)
+    modelslist.updateCurrentModelCell();
+#endif
     if (error) {
       TRACE("writeModel error=%s", error);
     }
@@ -206,14 +214,14 @@ void storageReadAll()
     storageDirty(EE_GENERAL);
     storageCheck(true);
   }
-  
+
   if (loadModel(g_eeGeneral.currModelFilename, false) != nullptr) {
     TRACE("No current model or SD card error");
   }
 #else
   if (loadModel(g_eeGeneral.currModel, false) != nullptr) {
     TRACE("No current model or SD card error");
-  }  
+  }
 #endif
 }
 

@@ -99,18 +99,24 @@ I18N_PLAY_FUNCTION(da, playDuration, int seconds PLAY_DURATION_ATT)
     seconds = -seconds;
   }
 
-  uint8_t tmp = seconds / 3600;
-  seconds %= 3600;
-  if (tmp > 0 || IS_PLAY_TIME()) {
-    PLAY_NUMBER(tmp, UNIT_HOURS, 0);
+  uint8_t tmp;
+  if (IS_PLAY_LONG_TIMER()) {
+    tmp = seconds / 60;
+    if (seconds % 60 >= 30) tmp += 1;
+    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
+  } else {
+    tmp = seconds / 3600;
+    seconds %= 3600;
+    if (tmp > 0 || IS_PLAY_TIME()) {
+      PLAY_NUMBER(tmp, UNIT_HOURS, 0);
+    }
   }
 
   tmp = seconds / 60;
   seconds %= 60;
   if (tmp > 0) {
     PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-    if (seconds > 0)
-      PUSH_NUMBER_PROMPT(DA_PROMPT_AND);
+    if (seconds > 0) PUSH_NUMBER_PROMPT(DA_PROMPT_AND);
   }
 
   if (seconds > 0) {

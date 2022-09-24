@@ -288,14 +288,19 @@ void LCD_Init_LTDC()
   LTDC_InitTypeDef LTDC_InitStruct;
 
   /* Configure PLLSAI prescalers for LCD */
-  /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 Mhz */
-  /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAI_N = 192 Mhz */
-  /* PLLLCDCLK = PLLSAI_VCO Output/PLL_LTDC = 192/3 = 64 Mhz */
-  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 64/4 = 16 Mhz */
+  /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 MHz */
+  /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAI_N = 192 MHz */
+  /* PLLLCDCLK = PLLSAI_VCO Output/PLL_LTDC = 192/3 = 64 MHz */
+  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 64/4 = 16 MHz */
+  /* alternatively LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 64/8 = 8 MHz */
   //second pam is for audio
   //third pam is for LCD
   RCC_PLLSAIConfig(192, 6, 3);
-  RCC_LTDCCLKDivConfig(RCC_PLLSAIDivR_Div4);
+  #if defined(RADIO_TX16S)
+    RCC_LTDCCLKDivConfig(RCC_PLLSAIDivR_Div8);
+  #else
+    RCC_LTDCCLKDivConfig(RCC_PLLSAIDivR_Div4);
+  #endif
   /* Enable PLLSAI Clock */
   RCC_PLLSAICmd(ENABLE);
 

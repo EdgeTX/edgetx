@@ -20,6 +20,8 @@
  */
 
 #include "opentx.h"
+#include "telemetry/ghost.h"
+#include "telemetry/ghost_menu.h"
 
 uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {

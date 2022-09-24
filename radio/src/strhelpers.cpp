@@ -391,6 +391,21 @@ char *getGVarString(char *dest, int idx)
   return dest;
 }
 
+#if defined(LIBOPENUI)
+char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin, gvar_t vmax,
+                           LcdFlags flags, const char* suffix, gvar_t offset)
+{
+  if (GV_IS_GV_VALUE(value, vmin, vmax)) {
+    int index = GV_INDEX_CALC_DELTA(value, GV_GET_GV1_VALUE(vmin, vmax));
+    return getGVarString(dest, index);
+  }
+
+  value += offset;
+  BitmapBuffer::formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
+  return dest;
+}
+#endif
+
 char *getFlightModeString(char *dest, int8_t idx)
 {
   char *s = dest;
@@ -415,7 +430,7 @@ int getRawSwitchIdx(char sw)
   if (sw < 'A' || sw > 'Z')
     return -1;
 
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2)
   if (sw >= 'H')
     return sw - 'H' + 5;
 #if defined(RADIO_T12)
@@ -433,7 +448,7 @@ int getRawSwitchIdx(char sw)
 
 char getRawSwitchFromIdx(int idx)
 {
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_TX12MK2) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
     if (idx >= 5)
       return 'H' + idx - 5;
     else if (idx == 4)
@@ -444,7 +459,7 @@ char getRawSwitchFromIdx(int idx)
   #endif
     else
       return 'A' + idx;
-#elif defined(RADIO_TX12) || defined(RADIO_T8)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     if (idx < 6)
         return 'A' + idx;
     else

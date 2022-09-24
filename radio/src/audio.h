@@ -617,7 +617,10 @@ void playModelName();
 #define PLAY_DURATION(d, att)    playDuration((d), (att), id)
 #define PLAY_DURATION_ATT        , uint8_t flags
 #define PLAY_TIME                1
-#define IS_PLAY_TIME()           (flags&PLAY_TIME)
+#define PLAY_LONG_TIMER          2
+#define LONG_TIMER_DURATION      (10 * 60)  // 10 minutes
+#define IS_PLAY_TIME()           (flags & PLAY_TIME)
+#define IS_PLAY_LONG_TIMER()     (flags & PLAY_LONG_TIMER)
 #define IS_PLAYING(id)           audioQueue.isPlaying((id))
 #define PLAY_VALUE(v, id)        playValue((v), (id))
 #define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id))

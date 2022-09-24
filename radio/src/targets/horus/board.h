@@ -335,6 +335,7 @@ void rotaryEncoderCheck();
 
 #define STORAGE_NUM_SLIDERS            4
 
+
 enum Analogs {
   STICK1,
   STICK2,

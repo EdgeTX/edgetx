@@ -36,7 +36,8 @@ static bool fnHasRepeat(AssignFunc fn)
   return (fn == FuncPlayPrompt)
     || (fn == FuncPlayValue)
     || (fn == FuncPlayHaptic)
-    || (fn == FuncPlaySound);
+    || (fn == FuncPlaySound)
+    || (fn == FuncSetScreen);
 }
 
 static const YamlLookupTable customFnLut = {
@@ -63,6 +64,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncScreenshot, "SCREENSHOT"  },
   {  FuncRacingMode, "RACING_MODE"  },
   {  FuncDisableTouch, "DISABLE_TOUCH"  },
+  {  FuncSetScreen, "SET_SCREEN"},
 };
 
 static const YamlLookupTable trainerLut = {
@@ -206,6 +208,9 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncLogs:
     def += std::to_string(rhs.param);
     break;
+  case FuncSetScreen:
+    def += std::to_string(rhs.param);
+    break;
   default:
     add_comma = false;
     break;
@@ -345,6 +350,11 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     rhs.func = (AssignFunc)((int)rhs.func + module);
   } break;
   case FuncLogs: {
+    int param = 0;
+    def >> param;
+    rhs.param = param;
+  } break;
+  case FuncSetScreen: {
     int param = 0;
     def >> param;
     rhs.param = param;

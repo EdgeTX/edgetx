@@ -33,6 +33,7 @@
 #include "radiointerface.h"
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
+#include "labels.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -41,14 +42,16 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   QWidget(parent, f),
   ui(new Ui::MdiChild),
   modelsListModel(NULL),
+  labelsListModel(NULL),
   parentWindow(parentWin),
   radioToolbar(NULL),
-  categoriesToolbar(NULL),
   modelsToolbar(NULL),
+  labelsToolbar(NULL),
+  lblLabels(NULL),
+
   firmware(getCurrentFirmware()),
   lastSelectedModel(-1),
   isUntitled(true),
-  showCatToolbar(true),
   forceCloseFlag(false),
   stateDataVersion(1)
 {
@@ -73,6 +76,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   ui->modelsList->setDragDropMode(QAbstractItemView::DragDrop);
   ui->modelsList->setStyle(new ItemViewProxyStyle(ui->modelsList->style()));
   ui->modelsList->setStyleSheet("QTreeView::item {margin: 2px 0;}");  // a little more space for our drop indicators
+  ui->lstLabels->setContextMenuPolicy(Qt::CustomContextMenu);
 
   retranslateUi();
 
@@ -82,6 +86,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   connect(ui->modelsList, &QTreeView::pressed, this, &MdiChild::onItemSelected);
   connect(ui->modelsList->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MdiChild::onCurrentItemChanged);
   connect(QGuiApplication::clipboard(), &QClipboard::dataChanged, this, &MdiChild::updateNavigation);
+  connect(ui->lstLabels, &QTreeView::customContextMenuRequested, this, &MdiChild::showLabelsContextMenu);
 
   if (!(isMaximized() || isMinimized())) {
     QByteArray geo = g.mdiWinGeo();
@@ -103,8 +108,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
     stream >> ver;
     if (ver <= stateDataVersion) {
       bool visMdl, visGen;
-      stream >> showCatToolbar >> visMdl >> visGen;
-      categoriesToolbar->setVisible(showCatToolbar);
+      stream >> showLabelToolbar >> visMdl >> visGen;
       modelsToolbar->setVisible(visMdl);
       radioToolbar->setVisible(visGen);
     }
@@ -141,7 +145,7 @@ void MdiChild::closeEvent(QCloseEvent *event)
   QByteArray state;
   QDataStream stream(&state, QIODevice::WriteOnly);
   stream << stateDataVersion
-         << (firmware->getCapability(Capability::HasModelCategories) ? categoriesToolbar->isVisible() : showCatToolbar)
+         << false
          << modelsToolbar->isVisible()
          << radioToolbar->isVisible();
   g.mdiWinState(state);
@@ -212,15 +216,15 @@ void MdiChild::setupNavigation()
   addAct(ACT_ITM_EDT, "edit.png",  SLOT(edit()),          Qt::Key_Enter);
   addAct(ACT_ITM_DEL, "clear.png", SLOT(confirmDelete()), QKeySequence::Delete);
 
-  addAct(ACT_CAT_ADD, "add.png",   SLOT(categoryAdd()),   tr("Alt+C"));
-  //addAct(ACT_CAT_EDT, "edit.png",  SLOT(edit()),          Qt::Key_Enter);
-  //addAct(ACT_CAT_DEL, "clear.png", SLOT(confirmDelete()), QKeySequence::Delete);
-  action[ACT_CAT_SEP] = new QAction(this);
-  action[ACT_CAT_SEP]->setSeparator(true);
-
   addAct(ACT_MDL_ADD, "add.png",    SLOT(modelAdd()),   tr("Alt+A"));
   addAct(ACT_MDL_RTR, "open.png",   SLOT(loadBackup()), tr("Alt+R"));
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
+
+  addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",  SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_REN, "edit.png",   SLOT(labelRename()), tr("Alt-R"));
+  addAct(ACT_LBL_MVU, "moveup.png", SLOT(labelMoveUp()), tr("Alt-+"));
+  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -231,7 +235,7 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
   addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
   addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
-  addAct(ACT_MDL_SAV, "save.png",  SLOT(modelSave()),     tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_EXP, "save.png",  SLOT(modelExport()),   tr("Ctrl+Alt+S"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
@@ -243,16 +247,27 @@ void MdiChild::setupNavigation()
   QSize tbIcnSz(16, 16);
   QString tbCss = "QToolBar {border: 1px solid palette(midlight);}";
 
-  if (categoriesToolbar)
-    categoriesToolbar->deleteLater();
-  categoriesToolbar = new QToolBar(this);
-  categoriesToolbar->setObjectName("TB_CATEGORIES");
-  categoriesToolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-  categoriesToolbar->setFloatable(false);
-  categoriesToolbar->setIconSize(tbIcnSz);
-  categoriesToolbar->setStyleSheet(tbCss);
-  categoriesToolbar->addAction(getAction(ACT_CAT_ADD));
-  ui->topToolbarLayout->addWidget(categoriesToolbar);
+  // Add labels Label to bottom layout
+  if(lblLabels)
+    lblLabels->deleteLater();
+  lblLabels = new QLabel(tr("Labels Management"));
+  lblLabels->setStyleSheet("font-weight: bold");
+  ui->bottomLayout->addWidget(lblLabels);
+
+  if(labelsToolbar)
+    labelsToolbar->deleteLater();
+  labelsToolbar = new QToolBar(this);
+  labelsToolbar->setObjectName("TB_LABELS");
+  labelsToolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+  labelsToolbar->setFloatable(false);
+  labelsToolbar->setIconSize(tbIcnSz);
+  labelsToolbar->setStyleSheet(tbCss);
+  labelsToolbar->addAction(getAction(ACT_LBL_ADD));
+  labelsToolbar->addAction(getAction(ACT_LBL_DEL));
+  labelsToolbar->addAction(getAction(ACT_LBL_REN));
+  labelsToolbar->addAction(getAction(ACT_LBL_MVU));
+  labelsToolbar->addAction(getAction(ACT_LBL_MVD));
+  ui->bottomLayout->addWidget(labelsToolbar);
 
   if (radioToolbar)
     radioToolbar->deleteLater();
@@ -282,7 +297,7 @@ void MdiChild::setupNavigation()
   modelsToolbar->setFloatable(false);
   modelsToolbar->setIconSize(tbIcnSz);
   modelsToolbar->setStyleSheet(tbCss);
-  modelsToolbar->addActions(getEditActions(false));
+  modelsToolbar->addActions(getEditActions());
   modelsToolbar->addSeparator();
   modelsToolbar->addActions(getModelActions());
   if ((btn = qobject_cast<QToolButton *>(modelsToolbar->widgetForAction(action[ACT_MDL_ADD])))) {
@@ -293,7 +308,6 @@ void MdiChild::setupNavigation()
   }
   ui->botToolbarLayout->addWidget(modelsToolbar);
 
-  connect(categoriesToolbar, &QToolBar::visibilityChanged, this, &MdiChild::adjustToolbarLayout);
   connect(radioToolbar, &QToolBar::visibilityChanged, this, &MdiChild::adjustToolbarLayout);
   connect(modelsToolbar, &QToolBar::visibilityChanged, this, &MdiChild::adjustToolbarLayout);
 }
@@ -301,35 +315,20 @@ void MdiChild::setupNavigation()
 void MdiChild::updateNavigation()
 {
   const int modelsSelected = countSelectedModels();
-  const int catsSelected = countSelectedCats();
   const bool singleModelSelected = (modelsSelected == 1);
   const bool hasModelSlotSelcted = (getCurrentModel() > -1);
-  const bool hasCats = firmware->getCapability(Capability::HasModelCategories);
-  const bool hasCatSelected = hasCats && modelsListModel->isCategoryType(getCurrentIndex());
+  const bool hasLabels = firmware->getCapability(Capability::HasModelLabels);
   const int numOnClipbrd = modelsListModel->countModelsInMimeData(QApplication::clipboard()->mimeData());
   const QString modelsRemvTxt = tr("%n Model(s)", "As in \"Copy 3 Models\" or \"Cut 1 Model\" or \"Delete 3 Models\" action).", modelsSelected);
   const QString modelsAddTxt = tr("%n Model(s)", "As in \"Paste 3 Models\" or \"Insert 1 Model.\"", numOnClipbrd);
-  const QString catsRemvTxt = tr("%n Category(ies)", "As in \"Delete 3 Categories\" or \"Delete 1 Category.\"", catsSelected);
   static const QString noSelection = tr("Nothing selected");
   static const QString sp = " ";
   static const QString ns;
 
-  categoriesToolbar->setVisible(hasCats && showCatToolbar);
-
+  labelsToolbar->setVisible(hasLabels);
+  ui->lstLabels->setVisible(hasLabels);
+  lblLabels->setVisible(hasLabels);
   action[ACT_GEN_PST]->setEnabled(hasClipboardData(1));
-
-  action[ACT_ITM_EDT]->setEnabled(singleModelSelected || catsSelected == 1);
-  action[ACT_ITM_EDT]->setText((hasCatSelected ? tr("Rename Category") : modelsSelected ? tr("Edit Model") : noSelection));
-  action[ACT_ITM_DEL]->setEnabled(modelsSelected || catsSelected);
-  action[ACT_ITM_DEL]->setText((action[ACT_ITM_DEL]->isEnabled() ? tr("Delete") % " " % (hasCatSelected ? catsRemvTxt : modelsRemvTxt) : noSelection));
-
-  action[ACT_CAT_ADD]->setVisible(hasCats);
-  action[ACT_CAT_SEP]->setVisible(hasCats);
-//  action[ACT_CAT_EDT]->setVisible(hasCats);
-//  action[ACT_CAT_EDT]->setEnabled(catsSelected == 1);
-//  action[ACT_CAT_DEL]->setVisible(hasCats);
-//  action[ACT_CAT_DEL]->setEnabled(catsSelected);
-//  action[ACT_CAT_DEL]->setText((hasCatSelected ? tr("Delete") % " " % catsRemTxt : noSelection));
 
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
@@ -337,37 +336,11 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_CPY]->setText(tr("Copy") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_PST]->setEnabled(numOnClipbrd);
   action[ACT_MDL_PST]->setText(tr("Paste") % (numOnClipbrd ? sp % modelsAddTxt : ns));
-  action[ACT_MDL_INS]->setEnabled(numOnClipbrd && (hasModelSlotSelcted || catsSelected));
+  action[ACT_MDL_INS]->setEnabled(numOnClipbrd && hasModelSlotSelcted);
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
-  action[ACT_MDL_SAV]->setEnabled(modelsSelected);
-  action[ACT_MDL_SAV]->setText(tr("Save") % (modelsSelected ? sp % modelsRemvTxt : ns));
-
-  if (hasCats && action[ACT_MDL_MOV]->menu()) {
-    action[ACT_MDL_MOV]->setVisible(true);
-    QModelIndex modelIndex = getCurrentIndex();
-    QMenu * catsMenu = action[ACT_MDL_MOV]->menu();
-    catsMenu->clear();
-    if (modelsSelected && modelsListModel && radioData.categories.size() > 1) {
-      action[ACT_MDL_MOV]->setEnabled(true);
-      for (unsigned i=0; i < radioData.categories.size(); ++i) {
-        QAction * act = catsMenu->addAction(QString(radioData.categories[i].name), this, SLOT(onModelMoveToCategory()));
-        act->setProperty("categoryId", i);
-        if ((int)i < modelsListModel->getCategoryIndex(modelIndex))
-          act->setIcon(CompanionIcon("moveup.png"));
-        else if ((int)i > modelsListModel->getCategoryIndex(modelIndex))
-          act->setIcon(CompanionIcon("movedown.png"));
-        else
-          act->setEnabled(false);
-      }
-    }
-    else {
-      action[ACT_MDL_MOV]->setDisabled(true);
-    }
-  }
-  else {
-    action[ACT_MDL_MOV]->setVisible(false);
-  }
-
+  action[ACT_MDL_EXP]->setEnabled(modelsSelected);
+  action[ACT_MDL_EXP]->setText(tr("Export") % (modelsSelected ? sp % modelsRemvTxt : ns));
+  action[ACT_MDL_MOV]->setVisible(false);
   action[ACT_MDL_DUP]->setEnabled(singleModelSelected);
   action[ACT_MDL_RTR]->setEnabled(singleModelSelected);
   action[ACT_MDL_WIZ]->setEnabled(singleModelSelected);
@@ -383,14 +356,19 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_PST]->setText(tr("Paste Radio Settings"));
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
 
-  action[ACT_CAT_ADD]->setText(tr("Add Category"));
-  action[ACT_CAT_ADD]->setIconText(tr("Category"));
-  //action[ACT_CAT_EDT]->setText(tr("Rename Category"));
+  action[ACT_ITM_EDT]->setText(tr("Edit Model"));
+  action[ACT_ITM_DEL]->setText(tr("Delete"));
+
+  action[ACT_LBL_ADD]->setText(tr("Add"));
+  action[ACT_LBL_DEL]->setText(tr("Delete"));
+  action[ACT_LBL_REN]->setText(tr("Rename"));
+  action[ACT_LBL_MVU]->setText(tr("Move Up"));
+  action[ACT_LBL_MVD]->setText(tr("Move Down"));
 
   action[ACT_MDL_ADD]->setText(tr("Add Model"));
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
-  action[ACT_MDL_SAV]->setText(tr("Save Model"));
-  action[ACT_MDL_SAV]->setIconText(tr("Save"));
+  action[ACT_MDL_EXP]->setText(tr("Export Model"));
+  action[ACT_MDL_EXP]->setIconText(tr("Export"));
   action[ACT_MDL_RTR]->setText(tr("Restore from Backup"));
   action[ACT_MDL_WIZ]->setText(tr("Model Wizard"));
   action[ACT_MDL_DFT]->setText(tr("Set as Default"));
@@ -398,11 +376,9 @@ void MdiChild::retranslateUi()
   action[ACT_MDL_SIM]->setText(tr("Simulate Model"));
   action[ACT_MDL_DUP]->setText(tr("Duplicate Model"));
 
-  action[ACT_MDL_MOV]->setText(tr("Move to Category"));
-
-  categoriesToolbar->setWindowTitle(tr("Show Category Actions Toolbar"));
   radioToolbar->setWindowTitle(tr("Show Radio Actions Toolbar"));
   modelsToolbar->setWindowTitle(tr("Show Model Actions Toolbar"));
+  labelsToolbar->setWindowTitle(tr("Show Labels Actions Toolbar"));
 }
 
 QList<QAction *> MdiChild::getGeneralActions()
@@ -415,13 +391,9 @@ QList<QAction *> MdiChild::getGeneralActions()
   return actGrp;
 }
 
-QList<QAction *> MdiChild::getEditActions(bool incCatNew)
+QList<QAction *> MdiChild::getEditActions()
 {
   QList<QAction *> actGrp;
-  if (incCatNew) {
-    actGrp.append(getAction(ACT_CAT_ADD));
-    actGrp.append(getAction(ACT_CAT_SEP));
-  }
   actGrp.append(action[ACT_MDL_ADD]);
   QAction * sep2 = new QAction(this);
   sep2->setSeparator(true);
@@ -434,7 +406,7 @@ QList<QAction *> MdiChild::getEditActions(bool incCatNew)
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
   actGrp.append(getAction(ACT_MDL_MOV));
-  actGrp.append(getAction(ACT_MDL_SAV));
+  actGrp.append(getAction(ACT_MDL_EXP));
   return actGrp;
 }
 
@@ -449,15 +421,16 @@ QList<QAction *> MdiChild::getModelActions()
   return actGrp;
 }
 
-//QList<QAction *> MdiChild::getCategoryActions()
-//{
-//  QList<QAction *> actGrp;
-//  actGrp.append(getAction(ACT_CAT_ADD));
-//  actGrp.append(getAction(ACT_CAT_EDT));
-//  actGrp.append(getAction(ACT_CAT_DEL));
-//  actGrp.append(getAction(ACT_CAT_SEP));
-//  return actGrp;
-//}
+QList<QAction *> MdiChild::getLabelsActions()
+{
+  QList<QAction *> actGrp;
+  actGrp.append(getAction(ACT_LBL_ADD));
+  actGrp.append(getAction(ACT_LBL_DEL));
+  actGrp.append(getAction(ACT_LBL_REN));
+  actGrp.append(getAction(ACT_LBL_MVU));
+  actGrp.append(getAction(ACT_LBL_MVD));
+  return actGrp;
+}
 
 QAction * MdiChild::getAction(const MdiChild::Actions type)
 {
@@ -473,15 +446,6 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
   QMenu contextMenu;
 
   updateNavigation();
-
-  if (firmware->getCapability(Capability::HasModelCategories)) {
-    contextMenu.addAction(action[ACT_CAT_ADD]);
-    if(modelsListModel->isCategoryType(modelIndex)) {
-      contextMenu.addAction(action[ACT_ITM_EDT]);
-      contextMenu.addAction(action[ACT_ITM_DEL]);
-    }
-    contextMenu.addSeparator();
-  }
 
   if (modelsListModel->isModelType(modelIndex)) {
     contextMenu.addActions(getEditActions());
@@ -500,13 +464,27 @@ void MdiChild::showModelsListContextMenu(const QPoint & pos)
     contextMenu.exec(ui->modelsList->mapToGlobal(pos));
 }
 
+void MdiChild::showLabelsContextMenu(const QPoint &pos)
+{
+  QMenu contextMenu;
+
+  contextMenu.addAction(action[ACT_LBL_ADD]);
+  contextMenu.addAction(action[ACT_LBL_DEL]);
+  contextMenu.addAction(action[ACT_LBL_REN]);
+  contextMenu.addAction(action[ACT_LBL_MVU]);
+  contextMenu.addAction(action[ACT_LBL_MVD]);
+
+  if (!contextMenu.isEmpty())
+    contextMenu.exec(ui->lstLabels->mapToGlobal(pos));
+}
+
 void MdiChild::showContextMenu(const QPoint & pos)
 {
   QMenu contextMenu;
-  if (firmware->getCapability(Capability::HasModelCategories))
-    contextMenu.addAction(categoriesToolbar->toggleViewAction());
   contextMenu.addAction(modelsToolbar->toggleViewAction());
   contextMenu.addAction(radioToolbar->toggleViewAction());
+  if(firmware->getCapability(Capability::HasModelLabels))
+    contextMenu.addAction(labelsToolbar->toggleViewAction());
   if (!contextMenu.isEmpty())
     contextMenu.exec(mapToGlobal(pos));
 }
@@ -534,26 +512,36 @@ void MdiChild::initModelsList()
   if (modelsListModel)
     delete modelsListModel;
 
-  modelsListModel = new TreeModel(&radioData, this);
-  connect(modelsListModel, &TreeModel::modelsDropped, this, &MdiChild::pasteModelData);
-  connect(modelsListModel, &TreeModel::modelsRemoved, this, &MdiChild::deleteModels);
-  connect(modelsListModel, &TreeModel::refreshRequested, this, &MdiChild::refresh);
+  modelsListModel = new ModelsListModel(&radioData, this);
+  connect(modelsListModel, &ModelsListModel::modelsDropped, this, &MdiChild::pasteModelData);
+  connect(modelsListModel, &ModelsListModel::modelsRemoved, this, &MdiChild::deleteModels);
+  connect(modelsListModel, &ModelsListModel::refreshRequested, this, &MdiChild::refresh);
   connect(modelsListModel, &QAbstractItemModel::dataChanged, this, &MdiChild::onDataChanged);
 
   ui->modelsList->setModel(modelsListModel);
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    ui->modelsList->setIndentation(20);
-    // ui->modelsList->resetIndentation(); // introduced in next Qt versions ...
-  }
-  else {
-    ui->modelsList->setIndentation(0);
-  }
+  ui->modelsList->selectionModel()->currentIndex().row();
+
+  // Labels Editor + Model
+  if(labelsListModel)
+    delete labelsListModel;
+  labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
+                                    &radioData, this);
+  connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
+  connect(labelsListModel, &LabelsModel::labelsFault, this, &MdiChild::labelsFault);
+  ui->lstLabels->setModel(labelsListModel);
+  ui->lstLabels->setSelectionMode(QAbstractItemView::SingleSelection);
+  ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+  ui->lstLabels->setItemDelegate(new LabelEditTextDelegate);
+
+  ui->modelsList->setIndentation(0);
+
   refresh();
 
-  if (firmware->getCapability(Capability::HasModelCategories)) {
+  if (firmware->getCapability(Capability::HasModelLabels)) {
     ui->modelsList->header()->resizeSection(0, ui->modelsList->header()->sectionSize(0) * 2);   // pad out categories and model names
-  }
-  else {
+  } else if (firmware->getCapability(Capability::HasModelLabels)) {
+
+  } else {
     ui->modelsList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);           // minimise Index
     ui->modelsList->header()->resizeSection(1, ui->modelsList->header()->sectionSize(1) * 1.5); // pad out model names
   }
@@ -602,17 +590,7 @@ void MdiChild::onCurrentItemChanged(const QModelIndex &, const QModelIndex &)
 
 void MdiChild::onDataChanged(const QModelIndex & index)
 {
-  if (!modelsListModel->isCategoryType(index))
-    return;
-
-  int categoryIndex = modelsListModel->getCategoryIndex(index);
-  if (categoryIndex < 0 || categoryIndex >= (int)radioData.categories.size()) {
-    return;
-  }
-  strcpy(radioData.categories[categoryIndex].name, modelsListModel->data(index, 0).toString().left(sizeof(CategoryData::name)-1).toStdString().c_str());
-
-  setWindowModified(true);
-  emit modified();
+  return;
 }
 
 /*
@@ -622,37 +600,6 @@ void MdiChild::onDataChanged(const QModelIndex & index)
 QModelIndex MdiChild::getCurrentIndex() const
 {
   return ui->modelsList->selectionModel()->currentIndex();
-}
-
-int MdiChild::getCurrentCategory() const
-{
-  return modelsListModel->getCategoryIndex(getCurrentIndex());
-}
-
-int MdiChild::countSelectedCats() const
-{
-  int ret = 0;
-
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
-    if (index.isValid() && modelsListModel->isCategoryType(index))
-      ++ret;
-  }
-  return ret;
-}
-
-bool MdiChild::hasSelectedCat()
-{
-  return modelsListModel->isCategoryType(getCurrentIndex());
-}
-
-QVector<int> MdiChild::getSelectedCategories() const
-{
-  QVector<int> cats;
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
-    if (index.isValid() && modelsListModel->isCategoryType(index))
-      cats.append(modelsListModel->getCategoryIndex(index));
-  }
-  return cats;
 }
 
 int MdiChild::getCurrentModel() const
@@ -733,75 +680,6 @@ void MdiChild::onFirmwareChanged()
 }
 
 /*
- * Categories CRUD
-*/
-
-void MdiChild::categoryAdd()
-{
-  /*: Translators do NOT use accent for this, this is the default category name on Horus. */
-  CategoryData category(qPrintable(tr("New category")));
-  radioData.categories.push_back(category);
-  setModified();
-  QModelIndex idx = modelsListModel->getIndexForCategory(radioData.categories.size()-1);
-  if (idx.isValid()) {
-    ui->modelsList->scrollTo(idx);
-    ui->modelsList->setCurrentIndex(idx);
-    ui->modelsList->edit(idx);
-  }
-}
-
-// NOTE: this does not refresh the data/view, need to call setModified() at some point afterwards.
-bool MdiChild::deleteCategory(int categoryIndex, QString * error)
-{
-  if (categoryIndex < 0)
-    categoryIndex = modelsListModel->getCategoryIndex(getCurrentIndex());
-  if (categoryIndex < 0 || categoryIndex >= (int)radioData.categories.size()) {
-    if (error)
-      *error = tr("Category index out of range.");
-    return false;
-  }
-  if (radioData.categories.size() <= 1) {
-    if (error)
-      *error = tr("Cannot delete the last category.");
-    return false;
-  }
-  if (countUsedModels(categoryIndex)) {
-    if (error)
-      *error = tr("This category is not empty!");
-    return false;
-  }
-
-  radioData.categories.erase(radioData.categories.begin() + categoryIndex);
-
-  for (unsigned i=0; i < radioData.models.size(); ++i) {
-    ModelData & model = radioData.models.at(i);
-    if (model.used && model.category > categoryIndex) {
-      --radioData.models[i].category;
-    }
-  }
-
-  return true;
-}
-
-void MdiChild::deleteSelectedCats()
-{
-  bool modified = false;
-  QString error;
-  QVector<int> cats = getSelectedCategories();
-  std::sort(cats.begin(), cats.end());
-  std::reverse(cats.begin(), cats.end());
-  foreach (const int cat, cats) {
-    error.clear();
-    if (deleteCategory(cat, &error))
-      modified = true;
-    else
-      showWarning(error);
-  }
-  if (modified)
-    setModified();
-}
-
-/*
  * Models CRUD
 */
 
@@ -827,8 +705,8 @@ void MdiChild::findNewDefaultModel(const unsigned startAt)
     radioData.setCurrentModel(0);
 }
 
-// NOTE: insertModelRows() does not update the TreeModel, only modifies radioData.models[] array by inserting row(s) of blank model(s).
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data.
+// NOTE: insertModelRows() does not update the ModelsListModel, only modifies radioData.models[] array by inserting row(s) of blank model(s).
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data.
 // This invalidates any model indices stored previously.
 bool MdiChild::insertModelRows(int atModelIdx, int count)
 {
@@ -859,7 +737,7 @@ bool MdiChild::insertModelRows(int atModelIdx, int count)
 
 // Finds the first empty slot and inserts the model into it. In case of category-style models, will append to end of list.
 // Return -1 if no slot was found, otherwise new array index.
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data.
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data.
 int MdiChild::modelAppend(const ModelData model)
 {
   int newIdx = -1;
@@ -880,7 +758,7 @@ int MdiChild::modelAppend(const ModelData model)
   return newIdx;
 }
 
-int MdiChild::newModel(int modelIndex, int categoryIndex)
+int MdiChild::newModel(int modelIndex)
 {
   if (modelIndex < 0)
     modelIndex = modelAppend(ModelData());
@@ -890,17 +768,9 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
     return -1;
   }
 
-  if (categoryIndex < 0)
-    categoryIndex = modelsListModel->getCategoryIndex(getCurrentIndex());
-
   bool isNewModel = radioData.models[modelIndex].isEmpty();
   checkAndInitModel(modelIndex);
-  if (isNewModel && firmware->getCapability(Capability::HasModelCategories) && categoryIndex > -1) {
-    radioData.models[modelIndex].category = categoryIndex;
-    strcpy(radioData.models[modelIndex].filename, radioData.getNextModelFilename().toStdString().c_str());
-    /*: Translators: do NOT use accents here, this is a default model name. */
-    strcpy(radioData.models[modelIndex].name, qPrintable(tr("New model")));  // TODO: Why not just use existing default model name?
-  }
+
   // Only set the default model if we just added the first one.
   if (countUsedModels() == 1) {
     radioData.setCurrentModel(modelIndex);
@@ -922,15 +792,16 @@ int MdiChild::newModel(int modelIndex, int categoryIndex)
   else if (g.newModelAction() == AppData::MODEL_ACT_EDITOR)
     openModelEditWindow(modelIndex);
 
+  radioData.fixModelFilenames();
   return modelIndex;
 }
 
 
-// NOTE: deleteModelss() does not update the TreeModel, only modifies radioData.models[] array by clearing the model data.
+// NOTE: deleteModelss() does not update the ModelsListModel, only modifies radioData.models[] array by clearing the model data.
 // If (removeModelSlotsWhenDeleting == true) then removes array rows entirely (and pads w/blank model at the end if needed).
-//  TreeModel::refresh() needs to be called at some point afterwards to sync the data
+//  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data
 // We delete using stored indexes because actual indexes may change during inserts/deletes.
-//   Obviously this only works before the stored indexes get updated in TreeModel::refresh().
+//   Obviously this only works before the stored indexes get updated in ModelsListModel::refresh().
 unsigned MdiChild::deleteModels(const QVector<int> modelIndices)
 {
   unsigned deletes = 0;
@@ -975,37 +846,12 @@ void MdiChild::deleteSelectedModels()
   deleteModels(getSelectedModels());
 }
 
-void MdiChild::moveModelsToCategory(const QVector<int> models, const int toCategoryId)
-{
-  if (toCategoryId < 0 || !models.size())
-    return;
-
-  bool modified = false;
-  //QVector<int> models = getSelectedModels();
-  foreach(const int model, models) {
-    if (model < 0 || model >= (int)radioData.models.size())
-      continue;
-
-    if (radioData.models[model].category != toCategoryId) {
-      radioData.models[model].category = toCategoryId;
-      modified = true;
-    }
-  }
-  if (modified)
-    setModified();
-}
-
-void MdiChild::moveSelectedModelsToCat(const int toCategoryId)
-{
-  moveModelsToCategory(getSelectedModels(), toCategoryId);
-}
-
-unsigned MdiChild::countUsedModels(const int categoryId)
+unsigned MdiChild::countUsedModels()
 {
   unsigned count = 0;
   for (unsigned i=0; i < radioData.models.size(); ++i) {
     ModelData & model = radioData.models.at(i);
-    if (!model.isEmpty() && (categoryId < 0 || model.category == categoryId))
+    if (!model.isEmpty())
       ++count;
   }
   return count;
@@ -1014,12 +860,12 @@ unsigned MdiChild::countUsedModels(const int categoryId)
 void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row, bool insert, bool move)
 {
   QVector<ModelData> modelsList;
-  if (!TreeModel::decodeMimeData(mimeData, &modelsList))
+  if (!ModelsListModel::decodeMimeData(mimeData, &modelsList))
     return;
 
   bool modified = false;
   int modelIdx = modelsListModel->getModelIndex(row);
-  int categoryIdx = modelsListModel->getCategoryIndex(row);
+//  int categoryIdx = modelsListModel->getCategoryIndex(row);
   unsigned inserts = 0;
   QVector<int> deletesList;
 
@@ -1084,9 +930,6 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
       //   this is esp. important because otherwise we may delete this model during a move operation (eg. after a cut)
       radioData.models[modelIdx].modelIndex = -modelIdx;
-      // Set the destination category, so a user can copy/paste across categories.
-      if (categoryIdx > -1)
-        radioData.models[modelIdx].category = categoryIdx;
       strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
@@ -1094,6 +937,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         deletesList.append(origMdlIdx);
         removeModelFromCutList(origMdlIdx);
       }
+      radioData.addLabelsFromModels();
     }
     //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
 
@@ -1117,7 +961,7 @@ void MdiChild::pasteGeneralData(const QMimeData * mimeData)
   GeneralSettings gs;
   bool hasGenSettings = false;
 
-  if (!TreeModel::decodeMimeData(mimeData, NULL, &gs, &hasGenSettings))
+  if (!ModelsListModel::decodeMimeData(mimeData, NULL, &gs, &hasGenSettings))
     return;
 
   if (hasGenSettings && askQuestion(tr("Do you want to overwrite radio general settings?")) == QMessageBox::Yes) {
@@ -1225,11 +1069,6 @@ void MdiChild::confirmDelete()
       deleteSelectedModels();
     }
   }
-  else if (hasSelectedCat()) {
-    if (askQuestion(tr("Delete %n selected category(ies)?", 0, countSelectedCats())) == QMessageBox::Yes) {
-      deleteSelectedCats();
-    }
-  }
 }
 
 void MdiChild::modelAdd()
@@ -1261,18 +1100,6 @@ void MdiChild::modelDuplicate()
   }
 }
 
-void MdiChild::onModelMoveToCategory()
-{
-  if (!sender()) {
-    return;
-  }
-  bool ok = false;
-  int toCatId = sender()->property("categoryId").toInt(&ok);
-  if (ok && toCatId >= 0) {
-    moveSelectedModelsToCat(toCatId);
-  }
-}
-
 void MdiChild::modelEdit()
 {
   openModelEditWindow(getCurrentModel());
@@ -1292,7 +1119,6 @@ void MdiChild::openModelWizard(int row)
   int res = wizard->exec();
   if (res == QDialog::Accepted && wizard->mix.complete /*TODO rather test the exec() result?*/) {
     radioData.models[row] = wizard->mix;
-    radioData.fixModelFilenames();
     setModified();
     setSelectedModel(row);
   }
@@ -1368,10 +1194,8 @@ void MdiChild::newFile(bool createDefaults)
   isUntitled = true;
   curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
-
-  if (createDefaults && firmware->getCapability(Capability::HasModelCategories)) {
-    categoryAdd();
-  }
+  radioData.addLabel(tr("Favorites"));
+  labelsListModel->buildLabelsList();
 }
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
@@ -1775,11 +1599,6 @@ void MdiChild::openModelTemplate(int row)
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     radioData.models[row].moduleData[i].modelId = row + 1;
   }
-
-  setModified();
-  setSelectedModel(row);
-
-  openModelEditWindow(row);
 }
 
 void MdiChild::openModelPrompt(int row)
@@ -1821,12 +1640,69 @@ void MdiChild::openModelPrompt(int row)
   return;
 }
 
-void MdiChild::modelSave()
+void MdiChild::modelExport()
 {
-  saveSelectedModels();
+  exportSelectedModels();
 }
 
-unsigned MdiChild::saveModels(const QVector<int> modelIndices)
+void MdiChild::labelAdd()
+{
+  labelsListModel->insertRow(0);
+  QModelIndex newind = labelsListModel->index(0,0);
+  ui->lstLabels->setCurrentIndex(newind);
+  ui->lstLabels->edit(newind);
+  setWindowModified(true);
+}
+
+void MdiChild::labelDelete()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row < 0) return;
+  labelsListModel->removeRow(row);
+  setWindowModified(true);
+}
+
+void MdiChild::labelRename()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row < 0) return;
+  QModelIndex newind = labelsListModel->index(row,0);
+  ui->lstLabels->setCurrentIndex(newind);
+  ui->lstLabels->edit(newind);
+}
+
+void MdiChild::labelMoveUp()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == 0) return;
+  radioData.swapLabel(row, row-1);
+  labelsListModel->buildLabelsList();
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
+}
+
+void MdiChild::labelMoveDown()
+{
+  int row = ui->lstLabels->selectionModel()->currentIndex().row();
+  if(row == labelsListModel->rowCount() -1) return;
+  radioData.swapLabel(row, row+1);
+  labelsListModel->buildLabelsList();
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
+}
+
+void MdiChild::modelLabelsChanged(int row)
+{
+  setWindowModified(true);
+  refresh();
+  ui->modelsList->selectionModel()->select(modelsListModel->index(row,0), QItemSelectionModel::ClearAndSelect |
+                                                                          QItemSelectionModel::Rows);
+}
+
+void MdiChild::labelsFault(QString msg)
+{
+  QMessageBox::warning(this, CPN_STR_TTL_WARNING, msg);
+}
+
+unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 {
   unsigned saves = 0;
 
@@ -1837,7 +1713,7 @@ unsigned MdiChild::saveModels(const QVector<int> modelIndices)
     const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
     qDebug() << path;
 
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save model"), path, YML_FILES_FILTER);
+    QString filename = QFileDialog::getSaveFileName(this, tr("Export model"), path, YML_FILES_FILTER);
 
     if (filename.isEmpty())
       return false;
@@ -1854,21 +1730,20 @@ unsigned MdiChild::saveModels(const QVector<int> modelIndices)
 
     ++saves;
   }
-
-  return saves;
+ return saves;
 }
 
-bool MdiChild::saveModel(const int modelIndex)
+bool MdiChild::exportModel(const int modelIndex)
 {
   QVector<int> list = QVector<int>() << modelIndex;
 
-  if (saveModels(list) == 1)
+  if (exportModels(list) == 1)
     return true;
   else
     return false;
 }
 
-void MdiChild::saveSelectedModels()
+void MdiChild::exportSelectedModels()
 {
-  saveModels(getSelectedModels());
+  exportModels(getSelectedModels());
 }

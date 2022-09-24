@@ -27,6 +27,15 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+static void update_mpm_settings(lv_event_t* e)
+{
+  MultimoduleSettings* ms = (MultimoduleSettings*)lv_event_get_user_data(e);
+  if (!ms) return;
+
+  ms->update();
+  lv_event_send(ms->getParent()->getLvObj(), LV_EVENT_REFRESH, nullptr);
+}
+
 struct MPMProtoOption : public FormGroup::Line
 {
   StaticText* label;
@@ -82,37 +91,44 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
     choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
     choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
     lv_obj_clear_flag(choice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  } else if (title == STR_MULTI_TELEMETRY) {
+    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  } else if (title == STR_MULTI_TELEMETRY) { // e.g. Bayang
     choice->setValues(STR_MULTI_TELEMETRY_MODE);
     choice->setMin(min);
     choice->setMax(max);
     choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
     choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
     lv_obj_clear_flag(choice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  } else if (title == STR_MULTI_WBUS) {
+    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  } else if (title == STR_MULTI_WBUS) { // e.g. WFLY2 but may not be used anymore
     choice->setValues(STR_MULTI_WBUS_MODE);
     choice->setMin(0);
     choice->setMax(1);
     choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
     choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
     lv_obj_clear_flag(choice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else if (rfProto->proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
     edit->setMin(50);
     edit->setMax(400);
     edit->setGetValueHandler(GET_DEFAULT(50 + 5 * md->multi.optionValue));
     edit->setSetValueHandler(SET_VALUE(md->multi.optionValue, (newValue - 50) / 5));
     edit->setStep(5);
+    edit->update();
     lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   } else if (rfProto->proto == MODULE_SUBTYPE_MULTI_DSM2) {
     cb->setGetValueHandler([=]() { return md->multi.optionValue & 0x01; });
     cb->setSetValueHandler([=](int8_t newValue) {
       md->multi.optionValue = (md->multi.optionValue & 0xFE) + newValue;
+      SET_DIRTY();
     });
+    cb->update();
     lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   } else {
     if (min == 0 && max == 1) {
       cb->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       cb->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
+      cb->update();
       lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     } else {
       edit->setMin(-128);
@@ -120,7 +136,9 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
       edit->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       edit->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      lv_obj_clear_flag(rssi->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      edit->update();
+      if (title == STR_MULTI_RFTUNE)
+        lv_obj_clear_flag(rssi->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
   }
 }
@@ -132,6 +150,13 @@ struct MPMSubtype : public FormGroup::Line
   MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md);
 };
+
+static void subtype_event_cb(lv_event_t* e)
+{
+  if (lv_event_get_param(e)) return;
+  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
+  if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
+}
 
 MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
   FormGroup::Line(form, layout)
@@ -147,11 +172,13 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
         resetMultiProtocolsOptions(moduleIdx);
         SET_DIRTY();
       });
+
+  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb, LV_EVENT_VALUE_CHANGED, lvobj);
 }
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
 {
-  if (!rfProto) {
+  if (!rfProto || rfProto->subProtos.size() == 0) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
@@ -160,11 +187,17 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md
   choice->setMax(rfProto->subProtos.size() - 1);
 
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-  lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+
+  bool stop=true;
+  lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
 struct MPMServoRate : public FormGroup::Line {
   MPMServoRate(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+  void update() const { lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr); }
+
+ private:
+  Choice* choice;
 };
 
 static const char* _servoRates[] = {"22ms", "11ms"};
@@ -176,17 +209,19 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
   new StaticText(this, rect_t{}, STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new Choice(
-      this, rect_t{}, _servoRates, 0, 1,
-      [=]() { return (md->multi.optionValue & 0x02) >> 1; },
-      [=](int16_t newValue) {
-        md->multi.optionValue =
-            (md->multi.optionValue & 0xFD) + (newValue << 1);
-      });
+  choice = new Choice(this, rect_t{}, _servoRates, 0, 1, 0, 0);
+
+  choice->setGetValueHandler(GET_DEFAULT((md->multi.optionValue & 0x02) >> 1));
+  choice->setSetValueHandler(SET_VALUE(
+      md->multi.optionValue, (md->multi.optionValue & 0xFD) + (newValue << 1)));
 }
 
 struct MPMAutobind : public FormGroup::Line {
   MPMAutobind(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+  void update() const { cb->update(); }
+
+ private:
+  CheckBox* cb;
 };
 
 MPMAutobind::MPMAutobind(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
@@ -196,13 +231,15 @@ MPMAutobind::MPMAutobind(FormGroup* form, FlexGridLayout *layout, uint8_t module
   new StaticText(this, rect_t{}, STR_MULTI_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
+  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
 }
 
 struct MPMChannelMap : public FormGroup::Line
 {
   MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto);
+ private:
+  CheckBox* cb;
 };
 
 MPMChannelMap::MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
@@ -212,13 +249,14 @@ MPMChannelMap::MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t mo
   new StaticText(this, rect_t{}, STR_DISABLE_CH_MAP, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
-}  
+  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
+}
 
 void MPMChannelMap::update(const MultiRfProtocols::RfProto* rfProto)
 {
   if (rfProto && rfProto->supportsDisableMapping()) {
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    cb->update();
   } else {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
   }
@@ -254,7 +292,9 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
       COLOR_THEME_PRIMARY1);
 
   st_line = new MPMSubtype(this, &grid, moduleIdx);
-  // TODO: set event cb on st_line->choice / LV_EVENT_VALUE_CHANGED ?
+
+  lv_obj_add_event_cb(st_line->getLvObj(), update_mpm_settings,
+                      LV_EVENT_VALUE_CHANGED, this);
 
   opt_line = new MPMProtoOption(this, &grid);
   sr_line = new MPMServoRate(this, &grid, moduleIdx);
@@ -263,14 +303,17 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   // Low power mode
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
+  lp_mode = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
 
   // Disable telemetry
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_DISABLE_TELEM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
+  disable_telem = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
 
   cm_line = new MPMChannelMap(this, &grid, moduleIdx);
+
+  // Ensure elements properly initalised
+  update();
 }
 
 void MultimoduleSettings::update()
@@ -284,11 +327,15 @@ void MultimoduleSettings::update()
   auto multi_proto = md->multi.rfProtocol;
   if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
     lv_obj_clear_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    sr_line->update();
     lv_obj_add_flag(ab_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_add_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(ab_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    ab_line->update();
   }
 
+  lp_mode->update();
+  disable_telem->update();
   cm_line->update(rfProto);
 }

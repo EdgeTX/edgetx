@@ -25,8 +25,6 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-#include "telemetry/frsky.h"
-#include "telemetry/multi.h"
 #include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
@@ -55,10 +53,16 @@
   #include "lua/lua_exports_tpro.inc"
 #elif defined(RADIO_TX12)
   #include "lua/lua_exports_tx12.inc"
+#elif defined(RADIO_TX12MK2)
+  #include "lua/lua_exports_tx12mk2.inc"
+#elif defined(RADIO_LR3PRO)
+  #include "lua/lua_exports_lr3pro.inc"
 #elif defined(RADIO_ZORRO)
   #include "lua/lua_exports_zorro.inc"
 #elif defined(RADIO_T8)
   #include "lua/lua_exports_t8.inc"
+#elif defined(RADIO_COMMANDO8)
+  #include "lua/lua_exports_commando8.inc"
 #elif defined(PCBX9LITES)
   #include "lua/lua_exports_x9lites.inc"
 #elif defined(PCBX9LITE)
@@ -73,6 +77,20 @@
   #include "lua/lua_exports_x9d.inc"
 #elif defined(PCBNV14)
   #include "lua/lua_exports_nv14.inc"
+#endif
+
+#include "telemetry/frsky.h"
+
+#if defined(MULTIMODULE)
+  #include "telemetry/multi.h"
+#endif
+
+#if defined(CROSSFIRE)
+  #include "telemetry/crossfire.h"
+#endif
+
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
 #endif
 
 #if defined(SIMU)
@@ -554,6 +572,26 @@ static int luaGetRotEncSpeed(lua_State * L)
 }
 
 /*luadoc
+@function getRotEncMode()
+
+Return rotary encoder mode
+
+@retval number in list: Normal = 0, Both V and H inverted = 1, V-N = 2, V-A = 3
+  return 0 on radio without rotary encoder
+
+@status current Introduced in 2.8.0
+*/
+static int luaGetRotEncMode(lua_State * L)
+{
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  lua_pushunsigned(L, g_eeGeneral.rotEncMode);
+#else
+  lua_pushunsigned(L, 0);
+#endif
+  return 1;
+}
+
+/*luadoc
 @function sportTelemetryPop()
 
 Pops a received SPORT packet from the queue. Please note that only packets using a data ID within 0x5000 to 0x50FF
@@ -1006,12 +1044,12 @@ static int luaGetFieldInfo(lua_State * L)
 {
   bool found;
   LuaField field;
-  
+
   if (lua_type(L, 1) == LUA_TNUMBER)
     found = luaFindFieldById(luaL_checkinteger(L, 1), field, FIND_FIELD_DESC);
   else
     found = luaFindFieldByName(luaL_checkstring(L, 1), field, FIND_FIELD_DESC);
-  
+
   if (found) {
     lua_newtable(L);
     lua_pushtableinteger(L, "id", field.id);
@@ -1580,7 +1618,7 @@ static int luaPopupConfirmation(lua_State * L)
     warningText = nullptr;
     lua_pushnil(L);
   }
-  
+
   return 1;
 }
 
@@ -1982,7 +2020,7 @@ static int luaSerialWrite(lua_State * L)
     const char* p = str;
     while(wr_len--) _sendCb(_ctx, *p++);
   }
-  
+
   return 0;
 }
 
@@ -2041,7 +2079,7 @@ static int luaSerialRead(lua_State * L)
 static int shmVar[16] = {0};
 
 /*luadoc
-@function setShmVar(id, value) 
+@function setShmVar(id, value)
 
 @param id: integer between 1 and 16 identifying the shared memory variable.
 
@@ -2058,10 +2096,10 @@ static int luaSetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
   int value = luaL_checkinteger(L, 2);
-  
+
   if (1 <= id && id <= 16)
     shmVar[id - 1] = value;
-  
+
   return 0;
 }
 
@@ -2082,7 +2120,7 @@ Gets the value of a shared memory variable that can be used for passing data bet
 static int luaGetShmVar(lua_State * L)
 {
   int id = luaL_checkinteger(L, 1);
-  
+
   if (1 <= id && id <= 16)
     lua_pushinteger(L, shmVar[id - 1]);
   else
@@ -2093,14 +2131,14 @@ static int luaGetShmVar(lua_State * L)
 #endif
 
 /*luadoc
-@function setStickySwitch(id, value) 
+@function setStickySwitch(id, value)
 
 @param id: integer identifying the sticky logical switch (zero for LS1 etc.).
 
 @param value: true/false. The new value of the sticky logical switch.
 
-@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor 
-via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value 
+@retval bufferFull: true/false. This function sends a message from Lua to the logical switch processor
+via a buffer with eight slots that are read 10 times per second. If the buffer is full, then a true value
 is returned and no messages was sent (i.e. the switch was not changed).
 
 Sets the value of a sticky logical switch.
@@ -2151,7 +2189,7 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 /*luadoc
 @function getSwitchIndex(positionName)
 
-@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have 
+@param positionName: string naming a switch position as it is shown on radio menus where you can select a switch. Notice that many names have
 special characters in them like arrow up/down etc.
 
 @retval value: integer. The switchIndex, which can be used as input for `getSwitchName(switchIndex)` and `getSwitchValue(switchIndex)`. Also corresponds
@@ -2166,12 +2204,12 @@ static int luaGetSwitchIndex(lua_State * L)
   bool negate = false;
   bool found = false;
   swsrc_t idx;
-  
+
   if (name[0] == '!') {
     name++;
     negate = true;
   }
-  
+
   for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* s = getSwitchPositionName(idx);
@@ -2181,7 +2219,7 @@ static int luaGetSwitchIndex(lua_State * L)
       }
     }
   }
-  
+
   if (found) {
     if (negate)
       idx = -idx;
@@ -2196,7 +2234,7 @@ static int luaGetSwitchIndex(lua_State * L)
 /*luadoc
 @function getSwitchName(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: string naming the switch position as it is shown on radio menus where a switch can be chosen.
@@ -2219,7 +2257,7 @@ static int luaGetSwitchName(lua_State * L)
 /*luadoc
 @function getSwitchValue(switchIndex)
 
-@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by 
+@param switchIndex: integer identifying a switch as returned by `getSwitchIndex(positionName)` or fields in the table returned by
 `model.getLogicalSwitch(switch)` identifying switches.
 
 @retval value: true/false. The value of the switch.
@@ -2253,7 +2291,7 @@ static int luaNextSwitch(lua_State * L)
 {
   swsrc_t last = luaL_checkinteger(L, 1);
   swsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
       char* name = getSwitchPositionName(idx);
@@ -2262,7 +2300,7 @@ static int luaNextSwitch(lua_State * L)
       return 2;
     }
   }
-  
+
   lua_pushnil(L);
   return 1;
 }
@@ -2271,7 +2309,7 @@ static int luaSwitches(lua_State * L)
 {
   swsrc_t first;
   swsrc_t last;
-  
+
   if (lua_isnumber(L, 1)) {
     first = luaL_checkinteger(L, 1) - 1;
     if (first < SWSRC_FIRST - 1)
@@ -2371,7 +2409,7 @@ static int luaNextSource(lua_State * L)
 {
   mixsrc_t last = luaL_checkinteger(L, 1);
   mixsrc_t idx = luaL_checkinteger(L, 2);
-  
+
   while (++idx <= last) {
     if (isSourceAvailable(idx)) {
       char srcName[maxSourceNameLength];
@@ -2409,6 +2447,27 @@ static int luaSources(lua_State * L)
   return 3;
 }
 
+/*luadoc
+@function getOutputValue(outputIndex)
+
+@param outputIndex: integer identifying the output channel number 0 for CH1, up to MAX_OUTPUT_CHANNELS - 1.
+
+@retval value current output value (number). Zero is returned for:
+ * non-existing outputs
+
+@status current Introduced in 2.8.0
+*/
+static int luaGetOutputValue(lua_State * L)
+{
+  mixsrc_t idx = luaL_checkinteger(L, 1);
+  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+    lua_pushinteger(L, channelOutputs[idx]);
+  } else {
+    lua_pushinteger(L, 0);
+  }
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -2419,7 +2478,9 @@ const luaL_Reg opentxLib[] = {
   { "getGeneralSettings", luaGetGeneralSettings },
   { "getGlobalTimer", luaGetGlobalTimer },
   { "getRotEncSpeed", luaGetRotEncSpeed },
+  { "getRotEncMode", luaGetRotEncMode },
   { "getValue", luaGetValue },
+  { "getOutputValue", luaGetOutputValue },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },
@@ -2542,6 +2603,10 @@ const luaR_value_entry opentxConstants[] = {
   { "SWITCH_COUNT", SWSRC_COUNT },
   { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },
 
+  { "MAX_OUTPUT_CHANNELS", MAX_OUTPUT_CHANNELS },
+  { "LIMIT_EXT_PERCENT", LIMIT_EXT_PERCENT },
+  { "LIMIT_STD_PERCENT", LIMIT_STD_PERCENT },
+
   { "LS_FUNC_NONE", LS_FUNC_NONE },
   { "LS_FUNC_VEQUAL", LS_FUNC_VEQUAL },
   { "LS_FUNC_VALMOSTEQUAL", LS_FUNC_VALMOSTEQUAL },
@@ -2586,11 +2651,14 @@ const luaR_value_entry opentxConstants[] = {
   { "FUNC_RACING_MODE", FUNC_RACING_MODE },
 #if defined(COLORLCD)
   { "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH },
+  { "FUNC_SET_SCREEN", FUNC_SET_SCREEN },
 
   { "SHADOWED", SHADOWED },
   { "COLOR", ZoneOption::Color },
   { "BOOL", ZoneOption::Bool },
   { "STRING", ZoneOption::String },
+  { "TIMER", ZoneOption::Timer },
+  { "TEXT_SIZE", ZoneOption::TextSize },
   { "MENU_HEADER_HEIGHT", COLOR2FLAGS(MENU_HEADER_HEIGHT) },
 
   // Colors gui/colorlcd/colors.h
@@ -2669,7 +2737,7 @@ const luaR_value_entry opentxConstants[] = {
   { "ROTENC_LOWSPEED", ROTENC_LOWSPEED },
   { "ROTENC_MIDSPEED", ROTENC_MIDSPEED },
   { "ROTENC_HIGHSPEED", ROTENC_HIGHSPEED },
-#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_T8) // key reverted between field nav and value change
+#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)// key reverted between field nav and value change
   { "EVT_VIRTUAL_PREV", EVT_KEY_FIRST(KEY_PLUS) },
   { "EVT_VIRTUAL_PREV_REPT", EVT_KEY_REPT(KEY_PLUS) },
   { "EVT_VIRTUAL_NEXT", EVT_KEY_FIRST(KEY_MINUS) },
@@ -2706,7 +2774,7 @@ const luaR_value_entry opentxConstants[] = {
   { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
   { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-#if defined(RADIO_TX12) || defined(RADIO_ZORRO) || defined(RADIO_T8)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_PAGEUP) },
   { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PAGEDN) },
   { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_MODEL) },

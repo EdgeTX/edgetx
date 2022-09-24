@@ -37,6 +37,9 @@
   #define LUA_EXPORT_EXTRA(...)
 #endif
 
+#define LABELS_LENGTH 100 // Maximum length of the label string
+#define LABEL_LENGTH 16
+
 #if defined(PCBHORUS) || defined(PCBNV14)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
@@ -237,6 +240,7 @@ enum UartModes {
   UART_MODE_CLI,
   UART_MODE_GPS,
   UART_MODE_DEBUG,
+  UART_MODE_SPACEMOUSE,
   UART_MODE_COUNT SKIP,
   UART_MODE_MAX SKIP = UART_MODE_COUNT-1
 };
@@ -652,6 +656,17 @@ enum MixSources {
   MIXSRC_TILT_Y,                       LUA_EXPORT("tilty", "Tilt Y")
 #endif
 
+#if defined(PCBHORUS)
+  MIXSRC_FIRST_SPACEMOUSE SKIP,
+  MIXSRC_SPACEMOUSE_A = MIXSRC_FIRST_SPACEMOUSE, LUA_EXPORT("sma", "SpaceMouse A")
+  MIXSRC_SPACEMOUSE_B, LUA_EXPORT("smb", "SpaceMouse B")
+  MIXSRC_SPACEMOUSE_C, LUA_EXPORT("smc", "SpaceMouse C")
+  MIXSRC_SPACEMOUSE_D, LUA_EXPORT("smd", "SpaceMouse D")
+  MIXSRC_SPACEMOUSE_E, LUA_EXPORT("sme", "SpaceMouse E")
+  MIXSRC_SPACEMOUSE_F, LUA_EXPORT("smf", "SpaceMouse F")
+  MIXSRC_LAST_SPACEMOUSE SKIP = MIXSRC_SPACEMOUSE_F,
+#endif
+
   MIXSRC_MAX,                          LUA_EXPORT("max", "MAX")
 
   MIXSRC_FIRST_HELI SKIP,
@@ -824,9 +839,10 @@ enum Functions {
   FUNC_RACING_MODE,
 #if defined(COLORLCD)
   FUNC_DISABLE_TOUCH,
+  FUNC_SET_SCREEN,
 #endif
 #if defined(DEBUG)
-  FUNC_TEST, // should remain the last before MAX as not added in Companion
+  FUNC_TEST,  // should remain the last before MAX as not added in Companion
 #endif
   FUNC_MAX SKIP
 };
