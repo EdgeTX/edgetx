@@ -51,8 +51,8 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 11);
-  CHKSIZE(LogicalSwitchData, 9);
-  CHKSIZE(CustomFunctionData, 11);
+  CHKSIZE(LogicalSwitchData, 19);
+  CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 28 + 2*NUM_TRIMS);
   CHKSIZE(TimerData, 12);
   CHKSIZE(SwashRingData, 8);
@@ -65,8 +65,8 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(LogicalSwitchData, 9);
-  CHKSIZE(CustomFunctionData, 11);
+  CHKSIZE(LogicalSwitchData, 19);
+  CHKSIZE(CustomFunctionData, 21);
   CHKSIZE(FlightModeData, 40);
   CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
@@ -79,7 +79,7 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(CustomFunctionData, 9);
+  CHKSIZE(CustomFunctionData, 19);
   CHKSIZE(FlightModeData, 44);
   CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
@@ -109,7 +109,7 @@ static inline void check_struct()
 
 #endif /* board specific ifdefs*/
 
-  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(LogicalSwitchData, 19);
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
@@ -117,34 +117,36 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 862);
-  CHKSIZE(ModelData, 6164);
+
+  CHKSIZE(RadioData, 1501);
+  CHKSIZE(ModelData, 7441);
 #elif defined(PCBXLITE)
-  CHKSIZE(RadioData, 860);
-  CHKSIZE(ModelData, 6164);
+  CHKSIZE(RadioData, 1499);
+  CHKSIZE(ModelData, 7441);
 #elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 843);
-  CHKSIZE(ModelData, 6189);
+  CHKSIZE(RadioData, 1482);
+  CHKSIZE(ModelData, 7466);
 #elif defined(PCBX7)
-  CHKSIZE(RadioData, 866);
-  CHKSIZE(ModelData, 6164);
+  CHKSIZE(RadioData, 1505);
+  CHKSIZE(ModelData, 7441);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 956);
-  CHKSIZE(ModelData, 6616);
+  CHKSIZE(RadioData, 1595);
+  CHKSIZE(ModelData, 7893);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 898);
-  CHKSIZE(ModelData, 6608);
+  CHKSIZE(RadioData, 1537);
+  CHKSIZE(ModelData, 7885);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 924);
-    CHKSIZE(ModelData, 11128);
+    CHKSIZE(RadioData, 1563);
+    CHKSIZE(ModelData, 12305);
   #else
-    CHKSIZE(RadioData, 906);
-    CHKSIZE(ModelData, 11126);
+    CHKSIZE(RadioData, 1545);
+    CHKSIZE(ModelData, 12303);
   #endif
 #elif defined(PCBNV14)
-  CHKSIZE(RadioData, 852);
-  CHKSIZE(ModelData, 10942);
+  CHKSIZE(RadioData, 1491);
+  CHKSIZE(ModelData, 12119);
+
 #endif
 
 #undef CHKSIZE
