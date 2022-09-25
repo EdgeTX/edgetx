@@ -45,6 +45,9 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                    std::move(setValue), windowFlags, textFlags,
                    field_edit_create)
 {
+  // Allow encoder acceleration
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
+
   // properties
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_textarea_set_password_mode(lvobj, false);
