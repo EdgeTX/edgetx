@@ -1324,7 +1324,7 @@
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Monitor"
+  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Mon."
 #endif
 #define TR_DUPLICATE                   "Duplizieren"
 #define TR_ACTIVATE                    "Aktivieren"
