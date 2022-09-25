@@ -599,12 +599,12 @@
 #define TR_MODULE_NO_INPUT             TR("No input", "No serial input")
 #define TR_MODULE_NO_TELEMETRY         TR3("Keine Telem.", "Keine MULTI_TELEMETRIE", "Keine Telemetrie (aktiviere MULTI_TELEMETRIE)")
 #define TR_MODULE_WAITFORBIND          "Warten auf Bindung"
-#define TR_MODULE_BINDING              "Bindung"
+#define TR_MODULE_BINDING              "Binde"
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. nötig", "Modul Upgrade nötig", "Modul\nUpgrade nötig")
 #define TR_MODULE_UPGRADE              TR("Upg. empf.", "Modul Upgrade empf.")
 #define TR_REBIND                      "Neu binden nötig"
 #define TR_REG_OK                      "Registration ok"
-#define TR_BIND_OK                     "Bindung erfolgreich"
+#define TR_BIND_OK                     "Binden erfolgreich"
 #define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telem AN"
 #define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telem AUS"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telem AN"
@@ -858,7 +858,7 @@
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   "TOOLS"
 #define TR_TURN_OFF_RECEIVER           "Empf. ausschalten"
-#define TR_STOPPING                    "Stoppen..."
+#define TR_STOPPING                    "Stoppe..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPECTRUM ANALYSER"
 #define TR_MENU_POWER_METER            "POWER METER"
 #define TR_SENSOR                      "SENSOR"
@@ -1322,9 +1322,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Alle Trimmungen übernehmen"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Monitor"
 #endif
 #define TR_DUPLICATE                   "Duplizieren"
 #define TR_ACTIVATE                    "Aktivieren"
