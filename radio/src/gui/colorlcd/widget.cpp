@@ -140,7 +140,10 @@ void Widget::setFullscreen(bool enable)
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
     setRect(parent->getRect());
     fullscreen = true;
-    ViewMain::instance()->disableTopbar();
+
+    auto view = ViewMain::instance();
+    view->enableWidgetSelect(false);
+    view->disableTopbar();
     bringToTop();
 
     if (!lv_obj_get_group(lvobj)) {
