@@ -19,6 +19,7 @@
  */
 
 #include "appdata.h"
+#include "updates/updateoptionsdialog.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -289,6 +290,32 @@ void Profile::resetFwVariables()
 }
 
 
+// ** ComponentAssetData class********************
+
+ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+// The default copy operator can not be used since the index variable would be destroyed
+ComponentAssetData & ComponentAssetData::operator= (const ComponentAssetData & rhs)
+{
+  for (int i = metaObject()->propertyOffset(), e = metaObject()->propertyCount(); i < e; ++i) {
+    const QMetaProperty & prop = metaObject()->property(i);
+    if (!prop.isValid() || !prop.isWritable()) {
+      qWarning() << "Could not copy property" << QString(prop.name()) << "isValid:" << prop.isValid() << "isWritable:" << prop.isWritable();
+      continue;
+    }
+    prop.write(this, prop.read(&rhs));
+  }
+  return *this;
+}
+
+bool ComponentAssetData::existsOnDisk()
+{
+  return (m_settings.contains(settingsPath() % "desc"));
+}
+
 // ** ComponentData class********************
 
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
@@ -318,11 +345,32 @@ bool ComponentData::existsOnDisk()
 
 void ComponentData::clearRelease()
 {
-  release(CompStoreObj::propertyDefaultValue(this, "release").toString());
-  id(CompStoreObj::propertyDefaultValue(this, "id").toInt());
-  prerelease(CompStoreObj::propertyDefaultValue(this, "prerelease").toBool());
-  date(CompStoreObj::propertyDefaultValue(this, "date").toString());
-  version(CompStoreObj::propertyDefaultValue(this, "version").toString());
+  releaseReset();
+  idReset();
+  prereleaseReset();
+  dateReset();
+  versionReset();
+}
+
+ComponentAssetData & ComponentData::getAsset(int index)
+{
+  if (index > -1 && index < MAX_COMPONENT_ASSETS)
+    return asset[index];
+  return asset[0];
+}
+
+const ComponentAssetData & ComponentData::getAsset(int index) const
+{
+  if (index > -1 && index < MAX_COMPONENT_ASSETS)
+    return asset[index];
+  return asset[0];
+}
+
+void ComponentData::initAllAssets()
+{
+  for (int i = 0; i < MAX_COMPONENT_ASSETS; i++) {
+    asset[i].resetAll();
+  }
 }
 
 // ** AppData class********************
@@ -345,16 +393,20 @@ AppData::AppData() :
     qWarning() << "Could not create settings backup path" << CPN_SETTINGS_BACKUP_DIR;
 
   // Configure the profiles
-  for (int i=0; i<MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].setIndex(i);
 
   // Configure the joysticks
-  for (int i=0; i<MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].setIndex(i);
 
   // Configure the updates
-  for (int i=0; i<MAX_COMPONENTS; i++)
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].setIndex(i);
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
+      component[i].asset[j].setIndexes(i, j);
+    }
+  }
 }
 
 static QString fmtHex(quint32 num)
@@ -381,38 +433,49 @@ void AppData::initAll()
   // Initialize all variables. Use default values if no saved settings.
   CompStoreObj::initAllProperties(this);
   // Initialize the profiles
-  for (int i=0; i<MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].init();
   // Initialize the joysticks
-  for (int i=0; i<MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].init();
   // Initialize the updatess
-  for (int i=0; i<MAX_COMPONENTS; i++)
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
+      component[i].asset[j].init();
+    }
+  }
 }
 
 void AppData::resetAllSettings()
 {
   resetAll();
   fwRev.resetAll();
-  for (int i=0; i<MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].resetAll();
-  for (int i=0; i<MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].resetAll();
-  for (int i=0; i<MAX_COMPONENTS; i++)
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
+      component[i].asset[j].resetAll();
+    }
+  }
   firstUse = true;
 }
 
 void AppData::storeAllSettings()
 {
   storeAll();
-  for (int i=0; i<MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].storeAll();
-  for (int i=0; i<MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].storeAll();
-  for (int i=0; i<MAX_COMPONENTS; i++)
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
+      component[i].asset[j].storeAll();
+  }
 }
 
 bool AppData::hasCurrentSettings() const
@@ -653,12 +716,18 @@ const ComponentData & AppData::getComponent(int index) const
 
 void AppData::resetUpdatesSettings()
 {
-  g.updateCheckFreqReset();
-  g.downloadDirReset();
-  g.decompressDirReset();
-  g.decompressDirUseDwnldReset();
-  g.updateDirReset();
-  g.updateDirUseSDReset();
-  g.updDelDownloadsReset();
-  g.updLogLevelReset();
+  updateCheckFreqReset();
+  downloadDirReset();
+  decompressDirReset();
+  decompressDirUseDwnldReset();
+  updateDirReset();
+  updateDirUseSDReset();
+  updDelDownloadsReset();
+  updLogLevelReset();
+
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
+    component[i].resetAll();
+    for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
+      component[i].asset[j].resetAll();
+  }
 }

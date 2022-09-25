@@ -33,5 +33,7 @@ class UpdateSDCard : public UpdateInterface
     virtual ~UpdateSDCard() {}
 
   protected:
+    virtual void initAssetSettings() override;
+
     virtual bool flagAssets() override;
 };

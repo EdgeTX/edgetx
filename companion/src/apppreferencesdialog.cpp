@@ -30,6 +30,7 @@
 #include "moduledata.h"
 #include "compounditemmodels.h"
 #include "updates/updateinterface.h"
+#include "updates/updateoptionsdialog.h"
 
 #include <QAbstractItemModel>
 
@@ -103,6 +104,27 @@ void AppPreferencesDialog::accept()
 
   //  Updates tab
 
+  if (ui->leDownloadDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Update Settings: Download folder path missing!"));
+    return;
+  }
+
+  if (ui->leDecompressDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Update Settings: Decompress folder path missing!"));
+    return;
+  }
+
+  if (ui->leUpdateDir->text().isEmpty()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Update Settings: Update folder path missing!"));
+    return;
+  }
+
+  if (!ui->chkDecompressDirUseDwnld->isChecked() &&
+      ui->leDecompressDir->text().trimmed() == ui->leDownloadDir->text().trimmed()) {
+    QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Update Settings: Decompress and download folders have the same path!"));
+    return;
+  }
+
   g.updateCheckFreq(AppData::UpdateCheckFreq(ui->cboUpdateCheckFreq->currentIndex()));
   g.downloadDir(ui->leDownloadDir->text());
 
@@ -113,6 +135,7 @@ void AppPreferencesDialog::accept()
   g.updateDir(ui->leUpdateDir->text());
 
   g.updDelDownloads(ui->chkDelDownloads->isChecked());
+  g.updDelDecompress(ui->chkDelDecompress->isChecked());
   g.updLogLevel(ui->cboLogLevel->currentIndex());
 
   QMapIterator<QString, int> it(factories->sortedComponentsList());
@@ -321,13 +344,10 @@ void AppPreferencesDialog::initSettings()
   connect(ui->btnResetUpdatesToDefaults, &QPushButton::clicked, [=]() {
     if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Reset all update settings to defaults. Are you sure?"),
                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
-      for (int i = 0; i < MAX_COMPONENTS; i++) {
-        if (g.component[i].existsOnDisk())
-          g.getComponent(i).resetAll();
-      }
       g.resetUpdatesSettings();
       QMessageBox::warning(this, CPN_STR_APP_NAME,
                            tr("Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!"));
+      loadUpdatesTab();
     }
   });
 
@@ -336,11 +356,19 @@ void AppPreferencesDialog::initSettings()
       ui->leDecompressDir->setText(g.decompressDir());
       ui->leDecompressDir->setEnabled(true);
       ui->btnDecompressSelect->setEnabled(true);
+      ui->chkDelDownloads->setEnabled(true);
     }
     else {
       ui->leDecompressDir->setText(g.downloadDir());
       ui->leDecompressDir->setEnabled(false);
       ui->btnDecompressSelect->setEnabled(false);
+      if (ui->chkDelDecompress->isChecked()) {
+        ui->chkDelDownloads->setEnabled(true);
+      }
+      else {
+        ui->chkDelDownloads->setEnabled(false);
+        ui->chkDelDownloads->setChecked(false);
+      }
     }
   });
 
@@ -378,6 +406,18 @@ void AppPreferencesDialog::initSettings()
     }
   });
 
+  connect(ui->chkDelDecompress, &QCheckBox::stateChanged, [=](const int checked) {
+    if (!checked) {
+      if (ui->chkDecompressDirUseDwnld->isChecked()) {
+        ui->chkDelDownloads->setEnabled(false);
+        ui->chkDelDownloads->setChecked(false);
+      }
+    }
+    else {
+      ui->chkDelDownloads->setEnabled(true);
+    }
+  });
+
   int row = 0;
   int col = 0;
 
@@ -390,6 +430,8 @@ void AppPreferencesDialog::initSettings()
 
   QLabel *h2 = new QLabel(tr("Release channel"));
   grid->addWidget(h2, row, col++);
+
+  col++;  // options button
 
   QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
   grid->addItem(spacer, row, col++);
@@ -413,6 +455,14 @@ void AppPreferencesDialog::initSettings()
     cboReleaseChannel[i] = new QComboBox();
     cboReleaseChannel[i]->addItems(ComponentData::releaseChannelsList());
     grid->addWidget(cboReleaseChannel[i], row, col++);
+
+    btnComponentOptions[i] = new QPushButton(tr("Options"));
+    connect(btnComponentOptions[i], &QPushButton::clicked, [=]() {
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, false);
+      dlg->exec();
+      dlg->deleteLater();
+    });
+    grid->addWidget(btnComponentOptions[i], row, col++);
   }
 
   ui->grpComponents->setLayout(grid);
@@ -425,6 +475,8 @@ void AppPreferencesDialog::initSettings()
 void AppPreferencesDialog::loadUpdatesTab()
 {
   ui->cboUpdateCheckFreq->setCurrentIndex(g.updateCheckFreq());
+  ui->chkDelDownloads->setChecked(g.updDelDownloads());
+  ui->chkDelDecompress->setChecked(g.updDelDecompress());
   ui->leDownloadDir->setText(g.downloadDir());
   //  trigger toggled signal by changing design value and then setting to saved value
   ui->chkDecompressDirUseDwnld->setChecked(!ui->chkDecompressDirUseDwnld->isChecked());

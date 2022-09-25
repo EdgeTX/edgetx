@@ -92,6 +92,7 @@ class AppPreferencesDialog : public QDialog
     QLabel *lblName[MAX_COMPONENTS];
     QCheckBox *chkCheckForUpdate[MAX_COMPONENTS];
     QComboBox *cboReleaseChannel[MAX_COMPONENTS];
+    QPushButton *btnComponentOptions[MAX_COMPONENTS];
 
     void loadUpdatesTab();
 

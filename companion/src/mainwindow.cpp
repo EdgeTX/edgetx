@@ -237,20 +237,24 @@ void MainWindow::onLanguageChanged(QAction * act)
 
 void MainWindow::autoCheckForUpdates()
 {
+  statusBar()->showMessage(tr("Checking for updates..."));
   doUpdates(true, false);
+  statusBar()->clearMessage();
 }
 
 void MainWindow::manualCheckForUpdates()
 {
-  doUpdates(true, true);
+  statusBar()->showMessage(tr("Checking for updates..."));
+  doUpdates(true);
+  statusBar()->clearMessage();
 }
 
 void MainWindow::downloads()
 {
-  doUpdates(false, true);
+  doUpdates(false);
 }
 
-void MainWindow::doUpdates(bool check, bool manual)
+void MainWindow::doUpdates(bool check, bool interactive)
 {
   Updates *upd = new Updates(this, updateFactories);
 
@@ -259,9 +263,9 @@ void MainWindow::doUpdates(bool check, bool manual)
   });
 
   if (check)
-    upd->checkForUpdates(manual);
+    upd->autoUpdates(interactive);
   else
-    upd->doUpdates();
+    upd->manualUpdates();
 
   delete upd;
 }
@@ -471,7 +475,7 @@ void MainWindow::sdsync(bool postUpdate)
   }
 
   if (postUpdate)
-    syncOpts.folderA = g.updateDir();
+    syncOpts.folderA = g.lastUpdateDir();
 
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();

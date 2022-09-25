@@ -24,13 +24,13 @@
 #include "repomodels.h"
 #include "constants.h"
 #include "progresswidget.h"
+#include "appdata.h"
 
 #include <QtCore>
-#include <QWidget>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 
-class UpdateParameters : public QWidget
+class UpdateParameters : public QObject
 {
     Q_OBJECT
 
@@ -49,6 +49,7 @@ class UpdateParameters : public QWidget
     static QString updateFilterTypeToString(UpdateFilterType uft);
 
     struct AssetParams {
+      int processes;
       int flags;
       UpdateFilterType filterType;
       QString filter;
@@ -58,34 +59,31 @@ class UpdateParameters : public QWidget
       QString copyFilter;
     };
 
-    struct GeneralParams {
-      int flags;
-      QString fwFlavour;
-      QString language;
-      QString currentRelease;
-      QString updateRelease;
-      QString downloadDir;
-      bool decompressDirUseDwnld;
-      QString decompressDir;
-      bool updateDirUseSD;
-      QString updateDir;
-      QVector<AssetParams> assets;
-    };
+    int flags;
+    int logLevel;
+    QString fwFlavour;
+    QString language;
+    int releaseChannel;
+    QString currentRelease;
+    QString updateRelease;
+    QString downloadDir;
+    bool decompressDirUseDwnld;
+    QString decompressDir;
+    QString sdDir;
+    bool updateDirUseSD;
+    QString updateDir;
+    QVector<AssetParams> assets;
 
-    GeneralParams data;
-
-    UpdateParameters(QWidget * parent);
+    UpdateParameters(QObject * parent);
     virtual ~UpdateParameters() {}
 
     AssetParams & addAsset();
     QString buildFilterPattern(const UpdateFilterType filterType, const QString & filter);
-
-    UpdateParameters& operator=(const UpdateParameters& source);
 };
 
 class UpdateInterface : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
 
@@ -110,7 +108,9 @@ class UpdateInterface : public QWidget
       UPDFLG_Housekeeping    = 1 << 9,
       UPDFLG_AsyncInstall    = 1 << 10,
       UPDFLG_DelDownloads    = 1 << 11,
-      UPDFLG_Common          = UPDFLG_Preparation | UPDFLG_Download | UPDFLG_Decompress | UPDFLG_CopyDest | UPDFLG_Housekeeping,
+      UPDFLG_DelDecompress   = 1 << 12,
+      UPDFLG_Common_Asset    = UPDFLG_Download | UPDFLG_Decompress | UPDFLG_CopyDest,
+      UPDFLG_Common          = UPDFLG_Common_Asset | UPDFLG_Preparation | UPDFLG_Housekeeping,
     };
     Q_ENUM(UpdateFlags)
 
@@ -124,8 +124,7 @@ class UpdateInterface : public QWidget
 
     ReleasesMetaData *releases;
     AssetsMetaData *assets;
-    UpdateParameters *dfltParams;
-    UpdateParameters *runParams;
+    UpdateParameters *params;
     ProgressWidget *progress;
 
     QString name;
@@ -133,11 +132,13 @@ class UpdateInterface : public QWidget
     QString downloadDir;
     QString decompressDir;
     QString updateDir;
-    int logLevel;
 
-    virtual bool manualUpdate(ProgressWidget * progress = nullptr);
+    virtual bool update(ProgressWidget * progress = nullptr);
 
-    virtual bool update();
+    virtual void initAssetSettings() = 0;
+    virtual void loadAssetSettings();
+    virtual void saveAssetSettings();
+
     virtual bool preparation();
     virtual bool flagAssets();
     virtual bool download();
@@ -153,7 +154,7 @@ class UpdateInterface : public QWidget
     virtual const QString updateRelease();
     virtual const bool isLatestRelease();
     virtual const bool isLatestVersion(const QString & current, const QString & latest);
-    virtual const QString latestRelease();
+    virtual QString latestRelease();
     void clearRelease();
     const QStringList getReleases();
 
@@ -161,12 +162,12 @@ class UpdateInterface : public QWidget
     void setRepo(QString repo);
     void setResultsPerPage(int cnt) { resultsPerPage = cnt; }
     void setReleasesNightlyName(QString name) { releases->setNightlyName(name); }
+    void setReleaseChannel(int channel);
 
-    void initParamFolders(UpdateParameters * params);
-    const UpdateParameters * const getDefaultParams() { return dfltParams; }
-    UpdateParameters * getRunParams() { return runParams; }
-    void resetRunEnvironment();
-    void setRunUpdate() { runParams->data.flags |= UPDFLG_Update; }
+    void setParamFolders();
+    UpdateParameters * getParams() { return params; }
+    void resetEnvironment();
+    void setRunUpdate() { params->flags |= UPDFLG_Update; }
     bool isUpdateable();
 
     bool repoReleasesMetaData();
@@ -200,8 +201,9 @@ class UpdateInterface : public QWidget
     void criticalMsg(const QString & msg);
     static QString downloadDataTypeToString(DownloadDataType val);
     static QString updateFlagsToString(UpdateFlags val);
-    void initFlavourLanguage(UpdateParameters * params);
-    int settingsIdx() { return m_settingsIdx; }
+    void setFlavourLanguage();
+    int settingsIndex() { return m_settingsIdx; }
+    bool isValidSettingsIndex() { return m_settingsIdx > -1 && m_settingsIdx < MAX_COMPONENTS; }
 
   private slots:
     void onDownloadFinished(QNetworkReply * reply, DownloadDataType ddt, int subtype);
@@ -219,7 +221,7 @@ class UpdateInterface : public QWidget
 
     static QString semanticVersion(QString version);
 
-    void setSettingsIdx();
+    void setSettingsIndex();
     bool setRunFolders();
     bool checkCreateDirectory(const QString & dirSetting, const UpdateFlags flag);
 
@@ -258,7 +260,7 @@ class UpdateFactory : public UpdateFactoryInterface
 
 class UpdateFactories : public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
   public:
     explicit UpdateFactories(QWidget * parent = nullptr);
@@ -268,22 +270,26 @@ class UpdateFactories : public QWidget
     void registerUpdateFactories();
     void unregisterUpdateFactories();
 
-    const UpdateParameters * const getDefaultParams(const QString & name);
-    UpdateParameters * const getRunParams(const QString & name);
-    void resetRunEnvironment(const QString & name);
-    void resetAllRunEnvironments();
+    void initAssetSettings(const QString & name);
+    void saveAssetSettings(const QString & name);
+
+    UpdateParameters * const getParams(const QString & name);
+    void resetEnvironment(const QString & name);
+    void resetAllEnvironments();
     void setRunUpdate(const QString & name);
     const QMap<QString, int> sortedComponentsList(bool updateableOnly = false);
 
     void clearRelease(const QString & name);
+    void setReleaseChannel(const QString & name, int channel);
     const QString currentRelease(const QString & name);
     const QString updateRelease(const QString & name);
     const bool isLatestRelease(const QString & name);
     const QString latestRelease(const QString & name);
     const QStringList releases(const QString & name);
 
-    bool manualUpdate(ProgressWidget * progress = nullptr);
-    const bool isUpdatesAvailable(QStringList & names);
+    bool update(const QString & name, ProgressWidget * progress = nullptr);
+    bool updateAll(ProgressWidget * progress = nullptr);
+    const bool isUpdateAvailable(QStringList & names);
 
   private:
     QVector<UpdateFactoryInterface *> registeredUpdateFactories;

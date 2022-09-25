@@ -34,4 +34,7 @@ class UpdateMultiProtocol : public UpdateInterface
     explicit UpdateMultiProtocol(QWidget * parent);
     virtual ~UpdateMultiProtocol() {}
 
+  protected:
+    virtual void initAssetSettings() override;
+
 };

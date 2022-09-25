@@ -27,7 +27,10 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QLabel>
+#include <QComboBox>
 #include <QPushButton>
+#include <QString>
+#include <QMap>
 
 namespace Ui {
   class UpdatesDialog;
@@ -49,10 +52,15 @@ class UpdatesDialog : public QDialog
   private:
     Ui::UpdatesDialog *ui;
     UpdateFactories *factories;
+    UpdateParameters *runParams;
+
+    QMap<QString, int> sortedCompList;
 
     QCheckBox *chkUpdate[MAX_COMPONENTS];
+    QComboBox *cboRelChannel[MAX_COMPONENTS];
     QLabel *lblCurrentRel[MAX_COMPONENTS];
-    QLabel *lblUpdateRel[MAX_COMPONENTS];
+    QComboBox *cboUpdateRel[MAX_COMPONENTS];
     QPushButton *btnOptions[MAX_COMPONENTS];
-};
 
+    void saveAsDefaults();
+};

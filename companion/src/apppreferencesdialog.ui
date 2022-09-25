@@ -1531,15 +1531,22 @@ Mode 4:
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="grpOther">
+        <widget class="QGroupBox" name="grpOptions">
          <property name="title">
-          <string/>
+          <string>Options</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QCheckBox" name="chkDelDownloads">
             <property name="text">
-             <string>Delete downloads after update</string>
+             <string>Delete downloads</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkDelDecompress">
+            <property name="text">
+             <string>Delete decompressions</string>
             </property>
            </widget>
           </item>
