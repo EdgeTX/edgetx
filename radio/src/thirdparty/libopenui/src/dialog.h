@@ -53,4 +53,5 @@ class Dialog : public ModalWindow
   DialogWindowContent* content;
 
   void onCancel() override;
+  void onEvent(event_t event) override;
 };
