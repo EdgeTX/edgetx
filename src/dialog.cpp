@@ -74,3 +74,9 @@ void Dialog::onCancel()
 {
   deleteLater();
 }
+
+void Dialog::onEvent(event_t event)
+{
+  // block key events 
+  (void)event;
+}
