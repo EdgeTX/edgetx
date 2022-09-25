@@ -334,7 +334,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       Menu *menu = new Menu(window);
       for (int angle = -45; angle <= 45; angle += 15) {
         char label[16];
-        strAppend(strAppendSigned(label, angle), "@");
+        strAppend(strAppendSigned(label, angle), "°");
         menu->addLine(label, [=]() {
           int dx = 2000 / (5 + curve.points - 1);
           for (uint8_t i = 0; i < 5 + curve.points; i++) {
