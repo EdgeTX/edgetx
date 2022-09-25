@@ -434,8 +434,8 @@
 #define TR_CONTRAST                    "LCD-Kontrast"
 #define TR_ALARMS_LABEL                "Alarme"
 #define TR_BATTERY_RANGE               TR("Akku Bereich", "Akku Spannungsbereich") // Symbol Akku Ladezustand
-#define TR_BATTERYCHARGING             "Laden..."
-#define TR_BATTERYFULL                 "Batterie voll"
+#define TR_BATTERYCHARGING             "Lädt..."
+#define TR_BATTERYFULL                 "Akku voll"
 #define TR_BATTERYNONE                 "None!"
 #define TR_BATTERYWARNING              TR("Akku Warnung", "Akkuspannungswarnung")
 #define TR_INACTIVITYALARM             TR("Inaktivität", "Inaktivität nach")
@@ -613,7 +613,7 @@
 #define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "Modul Status")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
 #define TR_MULTI_SERVOFREQ             TR(INDENT "Servo Rate", INDENT "Servo Update Rate")
-#define TR_MULTI_MAX_THROW             TR("Max. Throw", "Aktiviere Max. Throw")
+#define TR_MULTI_MAX_THROW             TR("Max. Weg", "Aktiviere Max. Weg")
 #define TR_MULTI_RFCHAN                TR("RF Channel", "Wähle RF Kanal")
 #define TR_SYNCMENU                    "Sync [MENU]"
 #define TR_LIMIT                       INDENT "Grenzen"
@@ -712,7 +712,7 @@
 #define TR_WRONG_SDCARDVERSION         TR("Erw. Version: ","Erwartete Version: ")
 #define TR_WARN_RTC_BATTERY_LOW        "RTC Batterie schwach"
 #define TR_WARN_MULTI_LOWPOWER         "reduzierte Leistung"
-#define TR_BATTERY                     "BATTERIE"
+#define TR_BATTERY                     "AKKU"
 #define TR_WRONG_PCBREV                "Falsche PCB erkannt"
 #define TR_EMERGENCY_MODE              "NOTFALL MODUS"
 #define TR_PCBREV_ERROR                "PCB Problem"
@@ -782,7 +782,7 @@
 #define TR_BLUETOOTH_LOCAL_ADDR        "Local addr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN Code"
 #define TR_BLUETOOTH_NODEVICES         "kein Gerät gefunden"
-#define TR_BLUETOOTH_SCANNING          "Suchen..."
+#define TR_BLUETOOTH_SCANNING          "Suche..."
 #define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES             "---","Aktiviert"
@@ -907,7 +907,7 @@
 #define TR_BT_SELECT_DEVICE            "Select device"
 #define TR_DISCOVER                    "Discover"
 #define TR_BUTTON_INIT                 BUTTON("Init")
-#define TR_WAITING                     "Warten..."
+#define TR_WAITING                     "Warte..."
 #define TR_RECEIVER_DELETE             "Empfänger löschen?"
 #define TR_RECEIVER_RESET              "Empfänger resetten?"
 #define TR_SHARE                       "Share"
@@ -1001,9 +1001,9 @@
 #define TR_TOO_MANY_LUA_SCRIPTS        "Zu viele Skripte!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO","EIN"
-#define TR_NO_TELEMETRY_SCREENS        "Keine Telemetrie Seite"
+#define TR_NO_TELEMETRY_SCREENS        "Keine Telemetrie Seiten"
 #define TR_TOUCH_PANEL                 "Touch panel:"
-#define TR_FILE_SIZE                   "Datei Größe"
+#define TR_FILE_SIZE                   "Dateigröße"
 #define TR_FILE_OPEN                   "trotzdem öffnen?"
 
 // Horus and Taranis specific column headers
@@ -1021,7 +1021,7 @@
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL               "Erster Kanal"
 #define TR_FILL_BACKGROUND             "Hintergrund füllen?"
-#define TR_BG_COLOR                    "Hintergrund Farbe"
+#define TR_BG_COLOR                    "Hintergrundfarbe"
 #define TR_SLIDERS_TRIMS               "Schieber+Trim"
 #define TR_SLIDERS                     "Schieber"
 #define TR_FLIGHT_MODE                 "Flugphase"
@@ -1135,7 +1135,7 @@
 #define TR_MAIN_COLOR                  "Hauptfarbe"
 #define TR_BAR2_COLOR                  "Sekundärfarbe (Bar)"
 #define TR_BAR1_COLOR                  "Hauptfarbe (Bar)"
-#define TR_TEXT_COLOR                  "Text Farbe"
+#define TR_TEXT_COLOR                  "Textfarbe"
 #define TR_TEXT_VIEWER                 "Text Betrachter"
 // ----------------------------- Symbole für Auswahlliste----------
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Inputs"
@@ -1322,9 +1322,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Alle Trimmungen übernehmen"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Monitor"
+  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmonitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanal Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmon."
 #endif
 #define TR_DUPLICATE                   "Duplizieren"
 #define TR_ACTIVATE                    "Aktivieren"
@@ -1343,7 +1343,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL      "Wähle\nModell"
-#define TR_MAIN_MENU_MODEL_NOTES       "Model\nNotizen"
+#define TR_MAIN_MENU_MODEL_NOTES       "Modell\nNotizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell\nKonfig."
 #define TR_MAIN_MENU_RADIO_SETTINGS    "Sender\nKonfig."
