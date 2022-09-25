@@ -86,3 +86,4 @@
 #define COLOR_VAL(flags)               ((flags) >> 16u)
 #define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
 
+#define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1

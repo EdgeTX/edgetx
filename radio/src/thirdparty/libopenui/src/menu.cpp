@@ -73,6 +73,9 @@ void MenuBody::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
   TableField(parent, rect)
 {
+  // Allow encoder acceleration
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
+
   setColumnCount(1);
   setColumnWidth(0, rect.w);
 
