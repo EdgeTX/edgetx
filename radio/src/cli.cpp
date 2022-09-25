@@ -1571,6 +1571,40 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
+
+// from tp_gt911.cpp
+extern uint8_t tp_gt911_cfgVer;
+
+int cliResetGT911(const char** argv)
+{
+    (void)argv;
+
+    if (!touchGT911Flag) {
+        cliSerialPrint("GT911 not detected: exit\n");
+        return 0;
+    }
+
+    // stop pulses & suspend RTOS scheduler
+    watchdogSuspend(200/*2s*/);
+    stopPulses();
+    vTaskSuspendAll();
+
+    // reset touch controller
+    touchPanelDeInit();
+    cliSerialPrintf("GT911: old config version is %u\n", tp_gt911_cfgVer);
+    tp_gt911_cfgVer = 0;
+    touchPanelInit();
+    cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
+
+    // restart pulses & RTOS scheduler
+    startPulses();
+    xTaskResumeAll();
+
+    return 0;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1608,6 +1642,9 @@ const CliCommand cliCommands[] = {
 #endif
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
+#endif
+#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
+  { "reset_gt911", cliResetGT911, ""},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
