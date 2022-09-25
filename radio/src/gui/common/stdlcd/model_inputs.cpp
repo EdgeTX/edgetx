@@ -55,7 +55,12 @@ void insertExpo(uint8_t idx)
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
-  expo->srcRaw = (s_currCh > 4 ? MIXSRC_Rud - 1 + s_currCh : MIXSRC_Rud - 1 + channelOrder(s_currCh));
+  for (int i = s_currCh; i < INPUTSRC_LAST; i++) {
+    expo->srcRaw = (s_currCh > 4 ? MIXSRC_Rud - 1 + i: MIXSRC_Rud - 1 + channelOrder(i));
+    if (isSourceAvailableInInputs(expo->srcRaw)) {
+      break;
+    }
+  }
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3; // pos+neg
   expo->chn = s_currCh - 1;

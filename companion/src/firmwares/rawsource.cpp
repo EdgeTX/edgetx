@@ -333,6 +333,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(index))
       return false;
 
+    if (type == SOURCE_TYPE_PPM && model->trainerMode == TRAINER_MODE_OFF)
+      return false;
+
     if (type == SOURCE_TYPE_CUSTOM_SWITCH && model->logicalSw[index].isEmpty())
       return false;
 
