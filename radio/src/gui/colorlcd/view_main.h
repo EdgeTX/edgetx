@@ -58,6 +58,7 @@ class ViewMain: public Window
     void enableTopbar();
     void disableTopbar();
     void updateTopbarVisibility();
+    bool enableWidgetSelect(bool enable);
 
     // Get the available space in the middle of the screen
     // (without topbar)
@@ -95,7 +96,6 @@ class ViewMain: public Window
     void setTopbarVisible(float visible);
 
     void openMenu();
-    bool enableWidgetSelect(bool enable);
     void refreshWidgetSelectTimer();
 
     static void long_pressed(lv_event_t* e);
