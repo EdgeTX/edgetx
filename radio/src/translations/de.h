@@ -943,7 +943,7 @@
 #define TR_AFHDS3_RX_FREQ              TR("RX Freq.", "RX Frequenz")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetrie")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
-#define TR_AFHDS3_ACTUAL_POWER         TR("Akt.Leis", "Aktuelle Leistung")
+#define TR_AFHDS3_ACTUAL_POWER         TR("Tat.Leis", "tatsäch. Leistung")
 #define TR_AFHDS3_POWER_SOURCE         TR("Stromqu.", "Stromquelle")
 #define TR_ANTENNACONFIRM1             "Ant. umschalten"
 #if defined(PCBX12S)
