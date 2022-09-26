@@ -61,7 +61,6 @@ constexpr int BUTTONS_HEIGHT = 30;
 constexpr int MODEL_CELLS_PER_LINE = 2;
 
 #if LCD_W > LCD_H // Landscape
-constexpr LcdFlags textFont = FONT(STD);
 constexpr int LABELS_WIDTH = 132;
 constexpr int LAY_MARGIN = 5;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
@@ -69,7 +68,6 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
      (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
 #else // Portrait
-constexpr LcdFlags textFont = FONT(XS);
 constexpr int LAY_MARGIN = 8;
 constexpr int LABELS_HEIGHT = 140;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
@@ -147,18 +145,17 @@ class ButtonHolder : public FormWindow
     addButton(mask_sort_date_up, mask_sort_date_down);
 
     // New label button
-    auto btn = new TextButton(
-      this, rect_t{},
+    auto btn = new TextButton(this, rect_t{},
 #if LCD_W > LCD_H
-  STR_NEW,
+                              STR_NEW,
 #else
-  STR_NEW_LABEL,
+                              STR_NEW_LABEL,
 #endif
-      [=]() {
-        if(_newLabelHandler) _newLabelHandler();
-        return 0;
-      },
-      BUTTON_BACKGROUND | OPAQUE, textFont);
+                              [=]() {
+                                if (_newLabelHandler) _newLabelHandler();
+                                return 0;
+                              });
+
     btn->padAll(lv_dpx(4));
     lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
 
@@ -524,8 +521,7 @@ class LabelDialog : public Dialog
           if (saveHandler != nullptr) saveHandler(label);
           deleteLater();
           return 0;
-        },
-        BUTTON_BACKGROUND | OPAQUE, textFont);
+        });
     btn->setWidth(LV_DPI_DEF);
 
     btn = new TextButton(
@@ -533,8 +529,7 @@ class LabelDialog : public Dialog
         [=]() {
           deleteLater();
           return 0;
-        },
-        BUTTON_BACKGROUND | OPAQUE, textFont);
+        });
     btn->setWidth(LV_DPI_DEF);
 
     content->setWidth(LCD_W * 0.8);
@@ -658,13 +653,10 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(
-      hdr, rect_t{}, STR_NEW_MODEL,
-      [=]() {
-        newModel();
-        return 0;
-      },
-      BUTTON_BACKGROUND | OPAQUE, textFont);
+  auto btn = new TextButton(hdr, rect_t{}, STR_NEW_MODEL, [=]() {
+    newModel();
+    return 0;
+  });
 
   btn->padAll(lv_dpx(4));
 

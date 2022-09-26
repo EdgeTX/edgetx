@@ -149,10 +149,11 @@ class ThemedButton : public TextButton
   public:
     ThemedButton(FormGroup *window, const rect_t &rect, std::string text, bool isChecked, WindowFlags windowFlags, 
                  LcdColorIndex colorIndex) :
-      TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS, COLOR(colorIndex)),
+      TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS),
       _colorIndex(colorIndex),
       _isChecked(isChecked)
     {
+      setTextFlags(COLOR(colorIndex));
       setPressHandler([=] () { return _isChecked; });
     }
 
