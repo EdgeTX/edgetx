@@ -1605,6 +1605,9 @@ int cliResetGT911(const char** argv)
     // restart pulses & RTOS scheduler
     startPulses();
     xTaskResumeAll();
+    return 0;
+}
+#endif
 
 #if defined(EXTENDED_TRAINER)
 static int trainer_stats(const char** const argv) {
