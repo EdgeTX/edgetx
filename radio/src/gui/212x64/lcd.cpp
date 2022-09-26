@@ -762,7 +762,7 @@ void drawGPSCoord(coord_t x, coord_t y, int32_t value, const char * direction, L
   att &= ~RIGHT;
   if (x > 10) x-=10;
   lcdDrawNumber(x, y, absvalue / 1000000, att); // ddd
-  lcdDrawChar(lcdLastRightPos, y, '@', att);
+  lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, att);
   absvalue = absvalue % 1000000;
   absvalue *= 60;
   if (g_eeGeneral.gpsFormat == 0 || !seconds) {
