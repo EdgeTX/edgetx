@@ -39,7 +39,7 @@ static int8_t getTextHorizontalOffset(LcdFlags flags)
   if (font_index >= sizeof(text_horizontal_offset)) {
     return 0;
   }
-  return text_horizontal_offset[font_index];
+  return 0;//text_horizontal_offset[font_index];
 }
 
 static int8_t getTextVerticalOffset(LcdFlags flags)
