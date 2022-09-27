@@ -689,11 +689,12 @@ To get a telemetry value simply use it's sensor name. For example:
 
 @param source can be an index (number) (which was obtained by `getFieldInfo` or `getSourceIndex`) or a name (string) of the source.
 
-@retval value current source value (number).
+@retval value current source value (number), or last known telemetry item value.
 
-value is nil for non-existing sources and all non-allowed sensors while FAI MODE is active
+value is nil for non-existing sources. all non-allowed sensors while FAI MODE is active, or if a telemetry item value has never been received
 
 value is a table for GPS position:
+
  * `lat` (number) latitude, positive is North
  * `lon` (number) longitude, positive is East
  * `pilot-lat` (number) pilot latitude, positive is North
@@ -706,11 +707,11 @@ value is a table for battery cells(except where no cells were detected in which 
   * key (number) cell number (1 to number of cells)
   * value (number) current cell voltage
 
+@retval isCurrent is true for telemetry sources that are within the "Sensor Lost" duration and telemetry is streaming . Always true for non-telemetry items.
 
-@retval status is false for telemetry sources when the telemetry stream is not received, or value is nil. Otherwise, it is true
+@retval isFresh is true for telemetry sources which have been recently updated and telemetry is streaming. Always true for non-telemetry items.
 
-@status current Introduced in 2.0.0, changed in 2.1.0, `Cels+` and
-`Cels-` added in 2.1.9
+@status current Introduced in 2.0.0, changed in 2.1.0, `Cels+` and `Cels-` added in 2.1.9
 
 @notice Getting a value by its numerical identifier is much faster than by its name.
 While `Cels` sensor returns current values of all cells in a table, a `Cels+` or
