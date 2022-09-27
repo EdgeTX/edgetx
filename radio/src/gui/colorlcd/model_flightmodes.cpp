@@ -124,8 +124,7 @@ struct FMTrimSettings : public Dialog {
               SET_DIRTY();
               return 0;
             }
-          },
-          0, COLOR_THEME_PRIMARY1);
+          });
 
       if (tr->mode != TRIM_MODE_NONE) btn->check();
       btn->setWidth(LV_DPI_DEF / 2);

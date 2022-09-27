@@ -296,12 +296,12 @@ static void style_init(void)
                                                  : lv_disp_dpx(theme.disp, 8)));
 
     lv_style_set_bg_opa(&styles.btn, LV_OPA_COVER);
-    lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY2));
+    lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_PRIMARY2));
 
     lv_style_set_border_opa(&styles.btn, LV_OPA_0);
     lv_style_set_border_width(&styles.btn, BORDER_WIDTH);
 
-    lv_style_set_text_color(&styles.btn, color_text);
+    lv_style_set_text_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY1));
     lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
     lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
     lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
