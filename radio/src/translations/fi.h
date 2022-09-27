@@ -296,7 +296,7 @@
 #define TR_VSENSORTYPES                "Custom","Calculated"
 #define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Kulutus","Etäisyys"
 #define TR_VPREC                       "0.--","0.0","0.00"
-#define TR_VCELLINDEX                  "Alin","1","2","3","4","5","6","Korkein","Ero"
+#define TR_VCELLINDEX                  "Alin","1","2","3","4","5","6","7","8","Korkein","Ero"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 

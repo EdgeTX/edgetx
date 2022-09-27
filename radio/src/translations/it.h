@@ -283,7 +283,7 @@
 #define TR_VSENSORTYPES                "Person.","Calcolato"
 #define TR_VFORMULAS                   "Somma","Media","Min","Max","Moltipl","Totalizza","Cella","Consumo","Distanza"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","Maggiore","Delta"
+#define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","7","8","Maggiore","Delta"
 #define TR_TEXT_SIZE                   "Standard","Minusc.","Piccolo","Medio","Doppio"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")

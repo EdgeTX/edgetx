@@ -243,7 +243,7 @@ void menuModelSensor(event_t event)
       case SENSOR_FIELD_PARAM2:
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            sensor->cell.index = editChoice(SENSOR_2ND_COLUMN, y, STR_CELLINDEX, STR_VCELLINDEX, sensor->cell.index, 0, 8, attr, event);
+            sensor->cell.index = editChoice(SENSOR_2ND_COLUMN, y, STR_CELLINDEX, STR_VCELLINDEX, sensor->cell.index, TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST, attr, event);
             break;
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {

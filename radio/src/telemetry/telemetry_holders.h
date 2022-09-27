@@ -28,7 +28,7 @@
 
 #define TELEMETRY_AVERAGE_COUNT   3     // we actually average one more reading!
 #define RAW_FRSKY_MINMAX(v)       v.values[TELEMETRY_AVERAGE_COUNT-1]
-#define MAX_CELLS                 6
+#define MAX_CELLS                 8
 
 class TelemetryValue {
   public:

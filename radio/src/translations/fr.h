@@ -299,7 +299,7 @@
 #define TR_VSENSORTYPES                "Perso","Calculé"
 #define TR_VFORMULAS                   "Addition","Moyenne","Min","Max","Multipl.","Totalise","Elément","Consomm.","Distance"
 #define TR_VPREC                       "0.--","0.0","0.00"
-#define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","Maxi.","Diff."
+#define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
