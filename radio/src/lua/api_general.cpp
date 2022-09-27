@@ -740,10 +740,7 @@ static int luaGetSourceValue(lua_State * L)
 
   if (!valid)
   {
-    lua_pushnil(L);
-    lua_pushnil(L);
-    lua_pushnil(L);
-    return 3;
+    return 0;
   }
 
   if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
@@ -785,9 +782,7 @@ static int luaGetSourceValue(lua_State * L)
       lua_pushboolean(L, telemetryItems[qr.quot].isFresh());
     }
     else { // telemetry is not available
-      lua_pushnil(L);
-      lua_pushnil(L);
-      lua_pushnil(L);
+      return 0;
     }
   }
   else if (src == MIXSRC_TX_VOLTAGE) {
