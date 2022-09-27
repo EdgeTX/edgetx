@@ -78,8 +78,7 @@ class TextButton: public Button
   public:
    TextButton(Window* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
-              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE,
-              LcdFlags textFlags = 0);
+              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE);
               
 #if defined(DEBUG_WINDOWS)
    std::string getName() const override

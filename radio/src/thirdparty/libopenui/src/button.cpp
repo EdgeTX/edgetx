@@ -102,12 +102,10 @@ void Button::long_pressed(lv_event_t* e)
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
                        std::function<uint8_t(void)> pressHandler,
-                       WindowFlags windowFlags, LcdFlags textFlags) :
-    Button(parent, rect, std::move(pressHandler), windowFlags, textFlags,
-           lv_btn_create),
+                       WindowFlags windowFlags) :
+    Button(parent, rect, std::move(pressHandler), windowFlags, 0, lv_btn_create),
     text(std::move(text))
 {
-  setTextFlags(textFlags | COLOR_THEME_PRIMARY1);
   update_checked_flag(lvobj, windowFlags);
 
   label = lv_label_create(lvobj);
