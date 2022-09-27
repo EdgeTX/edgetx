@@ -156,7 +156,7 @@
 #if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
   #define TR_SF_SAFETY                 "Überschreibe"
 #elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Überschr."
+  #define TR_SF_SAFETY                 "Übersch."
 #else
   #define TR_SF_SAFETY                 "---"
 #endif
