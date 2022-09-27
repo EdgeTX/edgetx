@@ -261,10 +261,11 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     else if (diff > 0) dir = 1;
 
     if (use_accel && (dir == prevDir)) {
-      if (g_tmr10ms - lastEvent <= ROTENC_DELAY_HIGHSPEED) { // 160 ms
+      auto speed = (g_tmr10ms - lastEvent) / abs(diff);
+      if (speed <= ROTENC_DELAY_HIGHSPEED/2) { // 80 ms
         // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
-        accel += abs(diff);
-      } else if (g_tmr10ms - lastEvent >= ROTENC_DELAY_MIDSPEED) { // 320 ms
+        accel = min((int8_t)(accel + 1), (int8_t)25);
+      } else if (speed >= ROTENC_DELAY_MIDSPEED/2) { // 160 ms
         // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
         accel = 0;
       }
