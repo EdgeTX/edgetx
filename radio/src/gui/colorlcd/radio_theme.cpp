@@ -59,7 +59,6 @@
 #if (LCD_W > LCD_H)
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 75;
-constexpr LcdFlags textFont = FONT(STD);
 constexpr rect_t detailsDialogRect = {50, 50, 400, 170};
 constexpr int labelWidth = 150;
 
@@ -69,7 +68,6 @@ constexpr int COLOR_BOX_HEIGHT = 27;
 #else
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 65;
-constexpr LcdFlags textFont = FONT(XS);
 constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 340};
 constexpr int labelWidth = 120;
 
@@ -112,12 +110,12 @@ class ThemeDetailsDialog: public Dialog
           saveHandler(this->theme);
         deleteLater();
         return 0;
-      }, BUTTON_BACKGROUND | OPAQUE, textFont);
+      });
       r.x -= (BUTTON_WIDTH + 5);
       new TextButton(&content->form, r, STR_CANCEL, [=] () {
         deleteLater();
         return 0;
-      }, BUTTON_BACKGROUND | OPAQUE, textFont);
+      });
     }
 
   protected:
@@ -270,16 +268,14 @@ protected:
         [=] () {
           setActiveColorBar(0);
           return 1;
-        }, 
-        0, COLOR_THEME_PRIMARY1));
+        }));
     r.x += (BUTTON_WIDTH + 5);
     _tabs.emplace_back(
       new TextButton(window, r, "HSV", 
         [=] () {
           setActiveColorBar(1);
           return 1;
-        },
-        0, COLOR_THEME_PRIMARY1));
+        }));
     _tabs[1]->check(true);
   }
 };
@@ -352,7 +348,7 @@ class ThemeEditPage : public Page
           _dirty = true;
         });
         return 0;
-      }, BUTTON_BACKGROUND | OPAQUE, textFont);
+      });
     }
 
     void buildBody(FormGroup *window)
