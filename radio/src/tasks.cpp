@@ -100,6 +100,14 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
+
+#if defined(SIMU)
+  if (!s_pulses_paused) {
+    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+    telemetryWakeup();
+    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
+  }
+#endif
 }
 
 TASK_FUNCTION(mixerTask)
