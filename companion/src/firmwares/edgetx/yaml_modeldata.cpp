@@ -34,6 +34,7 @@
 #include "output_data.h"
 #include "eeprominterface.h"
 #include "version.h"
+#include "helpers.h"
 
 #include <string>
 
@@ -1140,6 +1141,19 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
   node["switchNames"] >> rhs.functionSwitchNames;
+
+  //  preferably perform conversions here to avoid cluttering the field decodes
+
+  if (SemanticVersion(QString(rhs.semver)) < SemanticVersion("2.8.0")) {
+    //  Cells 7 and 8 introduced requiring Highest and Delta to be shifted + 2
+    for (int i = 0; i < CPN_MAX_SENSORS; i++) {
+      SensorData &sd = rhs.sensorData[i];
+      if (!sd.isEmpty() && sd.type == SensorData::TELEM_TYPE_CALCULATED &&
+          sd.formula == SensorData::TELEM_FORMULA_CELL && sd.index > 6)
+        sd.index += 2;
+    }
+  }
+
   return true;
 }
 
