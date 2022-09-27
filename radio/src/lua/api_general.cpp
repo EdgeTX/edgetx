@@ -741,8 +741,8 @@ static int luaGetSourceValue(lua_State * L)
   if (!valid)
   {
     lua_pushnil(L);
-    lua_pushboolean(L, false);
-    lua_pushboolean(L, false);
+    lua_pushnil(L);
+    lua_pushnil(L);
     return 3;
   }
 
@@ -786,8 +786,8 @@ static int luaGetSourceValue(lua_State * L)
     }
     else { // telemetry is not available
       lua_pushnil(L);
-      lua_pushboolean(L, false);
-      lua_pushboolean(L, false);
+      lua_pushnil(L);
+      lua_pushnil(L);
     }
   }
   else if (src == MIXSRC_TX_VOLTAGE) {
