@@ -1836,7 +1836,7 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Option #%1</source>
-        <translation>Altarnativ #%1</translation>
+        <translation>Alternativ #%1</translation>
     </message>
     <message>
         <source>Layout:</source>
