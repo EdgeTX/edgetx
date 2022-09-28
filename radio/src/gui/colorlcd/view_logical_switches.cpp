@@ -32,10 +32,15 @@ class LogicalSwitchDisplayButton : public TextButton
                               std::string text, unsigned index) :
        TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
    {
-     setBgColorHandler([=]() -> LcdFlags {
-       if (getSwitch(SWSRC_SW1 + index)) return COLOR_THEME_ACTIVE;
-       return COLOR_THEME_PRIMARY2;
-     });
+     lv_style_init(&style_active);
+     lv_style_set_bg_color(&style_active, makeLvColor(COLOR_THEME_ACTIVE));
+     lv_style_set_text_color(&style_active, makeLvColor(COLOR_THEME_SECONDARY1));
+     lv_style_set_text_font(&style_active, getFont(FONT(BOLD)));
+
+     lv_style_init(&style_std);
+     lv_style_set_bg_color(&style_std, makeLvColor(COLOR_THEME_PRIMARY2));
+     lv_style_set_text_color(&style_std, makeLvColor(COLOR_THEME_SECONDARY1));
+     lv_style_set_text_font(&style_std, getFont(FONT(STD)));
    }
 
    void checkEvents() override
@@ -43,9 +48,9 @@ class LogicalSwitchDisplayButton : public TextButton
      bool newvalue = getSwitch(SWSRC_SW1 + index);
      if (value != newvalue) {
        if (newvalue) {
-         setTextFlags(FONT(BOLD) | COLOR_THEME_SECONDARY1);
+         lv_obj_add_style(lvobj, &style_active, 0);
        } else {
-         setTextFlags(FONT(STD) | COLOR_THEME_SECONDARY1);
+         lv_obj_add_style(lvobj, &style_std, 0);
        }
        value = newvalue;
        invalidate();
@@ -56,6 +61,8 @@ class LogicalSwitchDisplayButton : public TextButton
   protected:
     unsigned index = 0;
     bool value = false;
+    lv_style_t style_active;
+    lv_style_t style_std;
 };
 
 void LogicalSwitchesViewPage::build(FormWindow * window)
