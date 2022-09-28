@@ -352,7 +352,7 @@ class FlyskyTheme: public OpenTxTheme
                               COLOR_THEME_SECONDARY1);  // the title line background
                                                //
       if (title) {
-        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 2, title, COLOR_THEME_SECONDARY1);
+        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 1, title, COLOR_THEME_SECONDARY1);
       }
     }
 
