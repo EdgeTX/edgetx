@@ -170,19 +170,20 @@ bool UpdateCompanion::asyncInstall()
 const QString UpdateCompanion::currentRelease()
 {
 #if defined(VERSION_TAG)
-  return UpdateInterface::latestRelease();
+  params->currentRelease = QString("EdgeTX \"%1\" %2").arg(CODENAME).arg(VERSION_TAG);
 #else
-  params->currentRelease = QString("EdgeTX v%1.%2 (Custom)").arg(VERSION_MAJOR).arg(VERSION_MINOR);
-  return params->currentRelease;
+  params->currentRelease = QString("EdgeTX v%1.%2.%3-%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
 #endif
+
+  return params->currentRelease;
 }
 
 const QString UpdateCompanion::currentVersion()
 {
 #if defined(VERSION_TAG)
-  return UpdateInterface::latestRelease();
+  return VERSION_TAG;
 #else
-  return QString(QString("v%1.%2").arg(VERSION_MAJOR).arg(VERSION_MINOR));
+  return QString("v%1").arg(VERSION);
 #endif
 }
 
