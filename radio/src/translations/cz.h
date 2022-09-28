@@ -649,6 +649,7 @@
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
 #define TR_FAVORITE_LABEL              "Oblíbené"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upravit štítek"

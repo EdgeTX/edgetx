@@ -633,6 +633,7 @@
 #define TR_SELECT_MODE                 "选择模式"
 #define TR_CREATE_MODEL                "创建模型"
 #define TR_FAVORITE_LABEL              "Favorites"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "New Model"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
@@ -806,7 +807,7 @@
 #define TR_PATH_TOO_LONG               "路径太长"
 #define TR_VIEW_TEXT                   "查看文本"
 #define TR_FLASH_BOOTLOADER            "更新引导程序"
-#define TR_FLASH_DEVICE                TR("更新设备","更新设备")      
+#define TR_FLASH_DEVICE                TR("更新设备","更新设备")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("从S.Port更新", "从 S.Port 端口更新外设固件")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -1309,9 +1310,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS    "打开通道监视器" 
+  #define TR_OPEN_CHANNEL_MONITORS    "打开通道监视器"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS    "通道监视" 
+  #define TR_OPEN_CHANNEL_MONITORS    "通道监视"
 #endif
 #define TR_DUPLICATE                  "复制"
 #define TR_ACTIVATE                   "启用"

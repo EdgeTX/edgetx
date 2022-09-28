@@ -36,7 +36,6 @@ struct modelslist_iter
         Model=2
     };
 
-    ModelsList* root;
     std::vector<std::string>* filelist;
     uint8_t     level;
     char        current_attr[16]; // set after find_node()
@@ -46,7 +45,6 @@ static modelslist_iter __modelslist_iter_inst;
 
 void* get_modelslist_iter(std::vector<std::string>* filelist)
 {
-    __modelslist_iter_inst.root = &modelslist;
     __modelslist_iter_inst.filelist = filelist;
     __modelslist_iter_inst.level = 0;
 

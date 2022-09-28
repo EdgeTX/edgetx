@@ -1025,17 +1025,21 @@ bool ModelsList::loadYaml()
   // Any files found above that are not listed in the file will be moved into
   // /MDOELS/UNUSED and removed from the discovered file hash list
   char line[LEN_MODELS_IDX_LINE + 1];
-  bool oldloc = false;
-  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-  if(result != FR_OK) {
+  FILINFO fno;
+  FRESULT result;
+  bool foundInModels = f_stat(MODELSLIST_YAML_PATH, &fno) == FR_OK;
+  bool foundInRadio = f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK;
+
+  if(foundInModels) { // Default to /Models copy
+    result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  } else if (foundInRadio) {
     result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-    oldloc = true;
   }
-  if(result == FR_OK) {
-    if(oldloc)
-      TRACE("FOUND modelslist.yml in /radio, Scanning it");
-    else
+  if((foundInModels || foundInRadio) && result == FR_OK) {
+    if(foundInModels)
       TRACE("FOUND modelslist.yml in /models, Scanning it");
+    else if(foundInRadio)
+      TRACE("FOUND modelslist.yml in /radio, Scanning it");
     YamlParser ymp;
     std::vector<std::string> modfiles;
     void *ctx = get_modelslist_iter(&modfiles);
@@ -1075,44 +1079,30 @@ bool ModelsList::loadYaml()
             }
           }
         }
-        TRACE_LABELS("Couldn't find %s in models.yml, moving it to unused", fhas.name.c_str());
-          // Move model into unused folder.
-        if (!sdCopyFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH)) {
-          char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR)  + LEN_MODEL_FILENAME + 1] = "";
-          strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
-          strcat(curFilename, fhas.name.c_str());
-          TRACE_LABELS("Moved Model %s", fhas.name.c_str());
-          if (f_unlink(curFilename) != FR_OK) {
-            TRACE("Labels: Unable to remove %s", fhas.name.c_str());
-            return false;
-          }
-        }
+        TRACE_LABELS("Model %s not in models.yml, moving to /UNUSED", fhas.name.c_str());
+        // Move model into unused folder.
+        const char *warning = sdMoveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
+        if(warning)
+          POPUP_WARNING(warning);
       } else {
         newFileHash.push_back(fhas);
       }
     }
 
+    if(foundInRadio) {
+      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      if(warning)
+        POPUP_WARNING(warning);
+    }
+    if(foundInModels) { // Will overwrite the copy from /radio if both existed, do last
+      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      if(warning)
+        POPUP_WARNING(warning);
+    }
     if(moveRequired) {
-      // Update the new file hash
+      // Update the new file list
       fileHashInfo = newFileHash;
-      // Move models.yml into unused folder.
-      char modelsymlloc[sizeof(MODELS_PATH)+ LEN_MODEL_FILENAME + 1];
-      if(oldloc)
-        strcpy(modelsymlloc, RADIO_PATH);
-      else
-        strcpy(modelsymlloc, MODELS_PATH);
-      if (!sdCopyFile(MODELS_FILENAME, modelsymlloc, MODELS_FILENAME, UNUSED_MODELS_PATH)) {
-        char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR) + LEN_MODEL_FILENAME + 1] = "";
-        strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
-        strcat(curFilename, MODELS_FILENAME);
-        TRACE_LABELS("Moved Model %s", MODELS_FILENAME);
-        if (f_unlink(curFilename) != FR_OK) {
-          TRACE("Labels: Unable to remove %s", MODELS_FILENAME);
-          return false;
-        }
-      }
-      // Show a PopUp
-      POPUP_WARNING("Unused models moved to /MODELS/UNUSED"); // TODO Translate me..
+      POPUP_WARNING(STR_MODELS_MOVED, UNUSED_MODELS_PATH);
     }
   }
 
@@ -1435,17 +1425,11 @@ bool ModelsList::removeModel(ModelCell *model)
 
   // Move model into deleted folder. If not moved will be re-added on next
   // reboot
-  if (!sdCopyFile(model->modelFilename, MODELS_PATH, model->modelFilename,
-                  DELETED_MODELS_PATH)) {
-    char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR) + LEN_MODEL_FILENAME + 1] = "";
-    strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
-    strcat(curFilename, model->modelFilename);
-    TRACE_LABELS("Deleting Model %s", model->modelFilename);
-
-    if (f_unlink(curFilename) != FR_OK) {
-      TRACE("Labels: Unable to delete file");
-      return true;
-    }
+  TRACE_LABELS("Deleting Model %s", model->modelFilename);
+  const char *warning = sdMoveFile(model->modelFilename, MODELS_PATH, model->modelFilename, DELETED_MODELS_PATH);
+  if (warning) {
+    TRACE("Labels: Unable to move file");
+    return true;
   }
 
   // Free memory

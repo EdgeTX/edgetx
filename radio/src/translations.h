@@ -9,7 +9,7 @@
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
- * This program is free software; you can redistribute it and/or modify 
+ * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
@@ -539,6 +539,7 @@ extern const char STR_MODELS[];
 extern const char STR_SELECT_MODE[];
 extern const char STR_CREATE_MODEL[];
 extern const char STR_FAVORITE_LABEL[];
+extern const char STR_MODELS_MOVED[];
 extern const char STR_NEW_MODEL[];
 extern const char STR_INVALID_MODEL[];
 extern const char STR_EDIT_LABELS[];

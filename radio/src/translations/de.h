@@ -632,6 +632,7 @@
 #define TR_SELECT_MODE                 "Wähle Mode"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
 #define TR_FAVORITE_LABEL              "Favoriten"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "Neues Modell"
 #define TR_INVALID_MODEL               "ungültiges Modell"
 #define TR_EDIT_LABELS                 "Label ändern"

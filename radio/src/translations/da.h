@@ -29,7 +29,7 @@
  *  \001 to \034     -extended spacing (value * FW/2)
  *  \0               -ends current string
  */
- 
+
 #define TR_OFFON                       "FRA","TIL"
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Stille","Alarm","NoKey","Alle"
@@ -633,6 +633,7 @@
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
 #define TR_FAVORITE_LABEL              "Favoritter"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "Ny model"
 #define TR_INVALID_MODEL               "Ingen billede"
 #define TR_EDIT_LABELS                 "Ret type"
@@ -806,7 +807,7 @@
 #define TR_PATH_TOO_LONG               "Sti for lang"
 #define TR_VIEW_TEXT                   "Vis tekst"
 #define TR_FLASH_BOOTLOADER            "Brænde bootloader"
-#define TR_FLASH_DEVICE                TR("Brænde enhed","Brænde enhed")      
+#define TR_FLASH_DEVICE                TR("Brænde enhed","Brænde enhed")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Brænde S.Port", "Brænde S.Port enhed")
 #define TR_FLASH_RECEIVER_OTA          "Brænde modtager OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Brænde RX med ext. OTA"
@@ -1309,9 +1310,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Tillæg alle trim til subtrim"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Monitor" 
+  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Mon."
 #endif
 #define TR_DUPLICATE                    "Dupliker"
 #define TR_ACTIVATE                     "Set aktiv"

@@ -192,6 +192,8 @@ unsigned int findNextFileIndex(char * filename, uint8_t size, const char * direc
 
 const char * sdCopyFile(const char * src, const char * dest);
 const char * sdCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
+const char * sdMoveFile(const char * src, const char * dest);
+const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
 
 #define LIST_NONE_SD_FILE   1
 #define LIST_SD_FILE_EXT    2
