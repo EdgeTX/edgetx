@@ -222,7 +222,7 @@ class Theme480: public OpenTxTheme
       dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
                               COLOR_THEME_SECONDARY1);  // the title line background
       if (title) {
-        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 3, title, COLOR_THEME_PRIMARY2);
+        dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 1, title, COLOR_THEME_PRIMARY2);
       }
 
       drawMenuDatetime(dc);
