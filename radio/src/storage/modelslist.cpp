@@ -616,15 +616,19 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
   if (from == "") return true;
   DEBUG_TIMER_START(debugTimerYamlScan);
 
-  // Limit max label name. TODO: Warn user they entered too long of a string
-  to = to.substr(0, LABEL_LENGTH);
-  removeYAMLChars(to);
-  if(to.size() == 0) return true;
-
+  if(to.size() > 0) { // Ignore check if deleting a label, size will be zero
+    to = to.substr(0, LABEL_LENGTH); // Limit max label name. TODO: Warn user they entered too long of a string
+    removeYAMLChars(to); // Remove special chars
+    if(to.size() == 0 || from == to) { // Abort rename if no chars left or same
+      if (progress != nullptr) progress("", 100); // Kill progress dialog
+      return true;
+    }
+  }
 
   ModelData *modeldata = (ModelData *)malloc(sizeof(ModelData));
   if (!modeldata) {
     TRACE("Labels: Out Of Memory");
+    if (progress != nullptr) progress("", 100); // Kill progress dialog
     return true;
   }
 
