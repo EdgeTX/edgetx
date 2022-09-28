@@ -907,7 +907,7 @@
 #define TR_RECEIVER_DELETE             "Empfänger löschen?"
 #define TR_RECEIVER_RESET              "Empfänger resetten?"
 #define TR_SHARE                       "Share"
-#define TR_BIND                        "Binde"
+#define TR_BIND                        "Binden"
 #define TR_REGISTER             	   TR("Reg", "Register")
 #define TR_MODULE_RANGE        		   BUTTON(TR("Rng", "Reichweite"))  //9XR-Pro
 #define TR_RECEIVER_OPTIONS            TR("RX OPTIONEN", "RX OPTIONEN")
