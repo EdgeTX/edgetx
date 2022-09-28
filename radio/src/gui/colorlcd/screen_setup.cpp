@@ -250,21 +250,6 @@ void ScreenSetupPage::build(FormWindow * form)
   obj = layoutForm->getLvObj();
   lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
 
-  Window* btn = new LayoutChoice(layoutForm, getFactory, setLayout);
-  obj = btn->getLvObj();
-  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
-
-  btn = new TextButton(layoutForm, rect_t{}, STR_SETUP_WIDGETS,
-                       startWidgetsSetup(menu, idx));
-  obj = btn->getLvObj();
-  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
-
   line = form->newLine();
   layoutOptions = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
   buildLayoutOptions();
@@ -272,7 +257,7 @@ void ScreenSetupPage::build(FormWindow * form)
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
     line = form->newLine();
-    btn = new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
+    Window* btn = new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
     obj = btn->getLvObj();
     lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
     lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
@@ -282,6 +267,22 @@ void ScreenSetupPage::build(FormWindow * form)
     lv_obj_set_width(obj, lv_pct(50));
     lv_obj_center(obj);
   }
+
+  Window* btn = new LayoutChoice(layoutForm, getFactory, setLayout);
+  obj = btn->getLvObj();
+  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
+  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
+  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
+  lv_group_focus_obj(obj);
+
+  btn = new TextButton(layoutForm, rect_t{}, STR_SETUP_WIDGETS,
+                       startWidgetsSetup(menu, idx));
+  obj = btn->getLvObj();
+  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
+  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
+  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
 
   form->updateSize();
 }
