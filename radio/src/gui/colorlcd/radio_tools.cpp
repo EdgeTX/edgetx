@@ -173,7 +173,10 @@ struct ToolButton : public TextButton {
         return 0;
       })
   {
-    setWidth(LV_DPI_DEF);
+    if (LCD_W > LCD_H)
+      setWidth((LCD_W - 3*10) / 3); // 3 columns on landscape
+    else
+      setWidth((LCD_W - 2*11) / 2); // 2 columns on portrait
     setHeight(LV_DPI_DEF / 2);
 
     lv_obj_set_width(label, lv_pct(100));
