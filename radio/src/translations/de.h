@@ -1152,7 +1152,7 @@
 #define TR_MENU_INVERT                 "Invertieren<!>"
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_DEAD_ZONE                   "Dead zone"
-#define TR_RTC_CHECK                   TR("RTC Prüfen", "RTC Volt prüfen")
+#define TR_RTC_CHECK                   TR("RTC Prüfen", "RTC Spann. prüfen")
 #define TR_AUTH_FAILURE                "Auth-Fehler"
 #define TR_RACING_MODE                 "Racing mode"
 
