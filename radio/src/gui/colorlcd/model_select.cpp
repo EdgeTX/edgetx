@@ -784,15 +784,17 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
           strncpy(tmpLabel, oldLabel.c_str(), LABEL_LENGTH);
           tmpLabel[LABEL_LENGTH] = '\0';
           new LabelDialog(this, tmpLabel, [=](std::string newLabel) {
-            auto rndialog =
-                new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
-            modelslabels.renameLabel(
-                oldLabel, newLabel, [=](const char *name, int percentage) {
-                  rndialog->updateProgress(name, percentage);
-                });
-            auto labels = getLabels();
-            lblselector->setNames(labels);
-            updateFilteredLabels(modelslabels.filteredLabels(), false);
+            if(newLabel.size() > 0) {
+              auto rndialog =
+                  new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
+              modelslabels.renameLabel(
+                  oldLabel, newLabel, [=](const char *name, int percentage) {
+                    rndialog->updateProgress(name, percentage);
+                  });
+              auto labels = getLabels();
+              lblselector->setNames(labels);
+              updateFilteredLabels(modelslabels.filteredLabels(), false);
+            }
           });
           return 0;
         });
