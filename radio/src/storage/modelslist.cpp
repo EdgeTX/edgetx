@@ -30,6 +30,7 @@ using std::list;
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"
+#include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
 
 #endif
@@ -1020,6 +1021,101 @@ bool ModelsList::loadYaml()
     f_closedir(&moddir);
   }
 
+  // Check if models.yml exists
+  // Any files found above that are not listed in the file will be moved into
+  // /MDOELS/UNUSED and removed from the discovered file hash list
+  char line[LEN_MODELS_IDX_LINE + 1];
+  bool oldloc = false;
+  FRESULT result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  if(result != FR_OK) {
+    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+    oldloc = true;
+  }
+  if(result == FR_OK) {
+    if(oldloc)
+      TRACE("FOUND modelslist.yml in /radio, Scanning it");
+    else
+      TRACE("FOUND modelslist.yml in /models, Scanning it");
+    YamlParser ymp;
+    std::vector<std::string> modfiles;
+    void *ctx = get_modelslist_iter(&modfiles);
+    ymp.init(get_modelslist_parser_calls(), ctx);
+    UINT bytes_read = 0;
+    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
+      if (bytes_read == 0) break;
+      if (f_eof(&file)) ymp.set_eof();
+      if (ymp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
+    }
+    f_close(&file);
+
+    // Loop through file hases, move any files found that don't exists in modelsymlfiles into /unused
+    std::vector<filedat> newFileHash;
+    bool firstMoveRequired=false;
+    bool moveRequired=false;
+    for(const auto &fhas: fileHashInfo) {
+      bool found = false;
+      for(const auto &file : modfiles) {
+        if(file == fhas.name) {
+          TRACE_LABELS("Found file %s in models.yml.. OK!", file);
+          found = true;
+          }
+      }
+      if(!found) {
+        if(!firstMoveRequired) {
+          // Create Unused if it doesn't exist
+          firstMoveRequired = true;
+          moveRequired = true;
+          DIR unusedFolder;
+          FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
+          if (result != FR_OK) {
+            if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
+            if (result != FR_OK) {
+              TRACE("Unable to create unused models folder");
+              return false;
+            }
+          }
+        }
+        TRACE_LABELS("Couldn't find %s in models.yml, moving it to unused", fhas.name.c_str());
+          // Move model into unused folder.
+        if (!sdCopyFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH)) {
+          char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR)  + LEN_MODEL_FILENAME + 1] = "";
+          strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
+          strcat(curFilename, fhas.name.c_str());
+          TRACE_LABELS("Moved Model %s", fhas.name.c_str());
+          if (f_unlink(curFilename) != FR_OK) {
+            TRACE("Labels: Unable to remove %s", fhas.name.c_str());
+            return false;
+          }
+        }
+      } else {
+        newFileHash.push_back(fhas);
+      }
+    }
+
+    if(moveRequired) {
+      // Update the new file hash
+      fileHashInfo = newFileHash;
+      // Move models.yml into unused folder.
+      char modelsymlloc[sizeof(MODELS_PATH)+ LEN_MODEL_FILENAME + 1];
+      if(oldloc)
+        strcpy(modelsymlloc, RADIO_PATH);
+      else
+        strcpy(modelsymlloc, MODELS_PATH);
+      if (!sdCopyFile(MODELS_FILENAME, modelsymlloc, MODELS_FILENAME, UNUSED_MODELS_PATH)) {
+        char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR) + LEN_MODEL_FILENAME + 1] = "";
+        strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
+        strcat(curFilename, MODELS_FILENAME);
+        TRACE_LABELS("Moved Model %s", MODELS_FILENAME);
+        if (f_unlink(curFilename) != FR_OK) {
+          TRACE("Labels: Unable to remove %s", MODELS_FILENAME);
+          return false;
+        }
+      }
+      // Show a PopUp
+      POPUP_WARNING("Unused models moved to /MODELS/UNUSED"); // TODO Translate me..
+    }
+  }
+
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
   TRACE("Lables: Time to scan models folder %luus",
@@ -1027,9 +1123,7 @@ bool ModelsList::loadYaml()
 #endif
 
   // Scan labels.yml
-  char line[LEN_MODELS_IDX_LINE + 1];
-  FRESULT result =
-      f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
     YamlParser yp;
     void *ctx = get_labelslist_iter();
@@ -1115,6 +1209,7 @@ bool ModelsList::load(Format fmt)
       (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
        f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
+    // CHECK WHAT HAPPENS HERE.. MIGHT NOT WORK.. TODO, might have to call loadYaml right after.
   } else {
     res = loadYaml();
   }
@@ -1342,7 +1437,7 @@ bool ModelsList::removeModel(ModelCell *model)
   // reboot
   if (!sdCopyFile(model->modelFilename, MODELS_PATH, model->modelFilename,
                   DELETED_MODELS_PATH)) {
-    char curFilename[sizeof(MODELS_PATH) + LEN_MODEL_FILENAME + 2] = "";
+    char curFilename[sizeof(MODELS_PATH) + sizeof(PATH_SEPARATOR) + LEN_MODEL_FILENAME + 1] = "";
     strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
     strcat(curFilename, model->modelFilename);
     TRACE_LABELS("Deleting Model %s", model->modelFilename);
