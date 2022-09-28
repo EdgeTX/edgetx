@@ -34,6 +34,9 @@ class ModelMenu : public TabsGroup
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ModelMenu"; }
 #endif
+
+protected:
+ void addButton(TabsGroupHeader* header);
 };
 
 #endif // _MENU_MODEL_H_
