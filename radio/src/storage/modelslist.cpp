@@ -1052,22 +1052,21 @@ bool ModelsList::loadYaml()
     }
     f_close(&file);
 
-    // Loop through file hases, move any files found that don't exists in modelsymlfiles into /unused
+    // Loop through file hases, move any files found that don't exists to /unused
     std::vector<filedat> newFileHash;
-    bool firstMoveRequired=false;
     bool moveRequired=false;
     for(const auto &fhas: fileHashInfo) {
       bool found = false;
       for(const auto &file : modfiles) {
-        if(file == fhas.name) {
+        if (file == fhas.name) {
           TRACE_LABELS("Found file %s in models.yml.. OK!", file);
           found = true;
-          }
+          break;
+        }
       }
       if(!found) {
-        if(!firstMoveRequired) {
-          // Create Unused if it doesn't exist
-          firstMoveRequired = true;
+        if(!moveRequired) {
+          // Create /Models/Unused if it doesn't exist
           moveRequired = true;
           DIR unusedFolder;
           FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
@@ -1085,7 +1084,7 @@ bool ModelsList::loadYaml()
         if(warning)
           POPUP_WARNING(warning);
       } else {
-        newFileHash.push_back(fhas);
+        newFileHash.push_back(fhas); // File exists, keep it
       }
     }
 
@@ -1100,8 +1099,7 @@ bool ModelsList::loadYaml()
         POPUP_WARNING(warning);
     }
     if(moveRequired) {
-      // Update the new file list
-      fileHashInfo = newFileHash;
+      fileHashInfo = newFileHash; // Update the new file list
       POPUP_WARNING(STR_MODELS_MOVED, UNUSED_MODELS_PATH);
     }
   }
@@ -1199,7 +1197,6 @@ bool ModelsList::load(Format fmt)
       (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
        f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
     res = loadTxt();
-    // CHECK WHAT HAPPENS HERE.. MIGHT NOT WORK.. TODO, might have to call loadYaml right after.
   } else {
     res = loadYaml();
   }
