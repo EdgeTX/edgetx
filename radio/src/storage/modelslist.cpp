@@ -1100,7 +1100,7 @@ bool ModelsList::loadYaml()
     }
     if(moveRequired) {
       fileHashInfo = newFileHash; // Update the new file list
-      POPUP_WARNING(STR_MODELS_MOVED, UNUSED_MODELS_PATH);
+      POPUP_WARNING(TR_MODELS_MOVED "\n" UNUSED_MODELS_PATH, "\n" TR_PRESS_ANY_KEY_TO_SKIP);
     }
   }
 
