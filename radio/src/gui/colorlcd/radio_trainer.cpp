@@ -57,7 +57,7 @@ void RadioTrainerPage::build(FormWindow * form)
     TrainerMix* td = &g_eeGeneral.trainer.mix[chan - 1];
 
     auto line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_VSRCRAW[i + 1], 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_VSRCRAW[chan], 0, COLOR_THEME_PRIMARY1);
 
     auto box = new FormGroup(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
