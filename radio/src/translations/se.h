@@ -60,7 +60,7 @@
 #define TR_MULTI_TELEMETRY_MODE         "Av","På","Av+Aux","På+Aux"
 #define TR_MULTI_CUSTOM                 "Custom"
 #define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
-#define TR_VDISPLAYTRIMS                "Nej","Ändra","Ja"
+#define TR_VDISPLAYTRIMS                "Nej","Ändring","Ja"
 #define TR_VBEEPCOUNTDOWN               "Tyst","Pip","Röst","Vibrera"
 #define TR_VVARIOCENTER                 "Pip","Tyst"
 #define TR_CURVE_TYPES                  "Normal","Anpassad"
@@ -174,7 +174,7 @@
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
 #define TR_SF_RESERVE                   "[reserv]"
 
-#define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Nollställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Module bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
+#define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Nollställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Range check","Bind modul",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 
@@ -622,7 +622,7 @@
 #define TR_RF_POWER                     "RF styrka"
 #define TR_MULTI_FIXEDID                TR("FixedID", "Fixed ID")
 #define TR_MULTI_OPTION                 TR("Alternativ", "Alternativets värde")
-#define TR_MULTI_AUTOBIND               TR(INDENT "Bind ch.",INDENT "Parkoppla via kanal")
+#define TR_MULTI_AUTOBIND               TR(INDENT "Bind ch.",INDENT "Bind via kanal")
 #define TR_DISABLE_CH_MAP               TR("Ej ka.översikt", "Inaktivera kanalöversikt")
 #define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
 #define TR_MULTI_DSM_AUTODTECT          TR(INDENT "Auto", INDENT "Autodetektera format")
@@ -634,13 +634,13 @@
 #define TR_MODULE_NO_SERIAL_MODE        TR("!seriellt läge", "Ej i seriellt läge")
 #define TR_MODULE_NO_INPUT              TR("Ingen input", "Ingen seriell input")
 #define TR_MODULE_NO_TELEMETRY          TR3("Ingen telem.", "Ingen MULTI_TELEMETRY", "Ingen MULTI_TELEMETRY detekterad")
-#define TR_MODULE_WAITFORBIND           "Bind to load protocol"
-#define TR_MODULE_BINDING               "Binding"
+#define TR_MODULE_WAITFORBIND           "Bind för att ladda protokoll"
+#define TR_MODULE_BINDING               "Binder"
 #define TR_MODULE_UPGRADE_ALERT         TR3("Uppdat. nödv", "Modulen måste uppdateras", "Modulen\nbehöver uppdateras")
 #define TR_MODULE_UPGRADE               TR("Uppdat. rekomm", "Moduluppdatering rekommenderas")
-#define TR_REBIND                       "Rebinding required"
+#define TR_REBIND                       "Ny bindning krävs"
 #define TR_REG_OK                       "Registrering ok"
-#define TR_BIND_OK                      "Parkoppling klar"
+#define TR_BIND_OK                      "Bindning klar"
 #define TR_BINDING_CH1_8_TELEM_ON       "Ka1-8 Telem på"
 #define TR_BINDING_CH1_8_TELEM_OFF      "Ka1-8 Telem av"
 #define TR_BINDING_CH9_16_TELEM_ON      "Ka9-16 Telem på"
@@ -951,7 +951,7 @@
 #define TR_RECEIVER_DELETE              "Radera mottagare?"
 #define TR_RECEIVER_RESET               "Återställ mottagare?"
 #define TR_SHARE                        "Dela"
-#define TR_BIND                         "Bind"
+#define TR_BIND                         "Binder"
 #define TR_REGISTER                     TR("Reg", "Registrera")
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
