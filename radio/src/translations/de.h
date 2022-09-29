@@ -914,8 +914,8 @@
 #define TR_DEL_BUTTON                  BUTTON(TR("Del", "Delete"))
 #define TR_RESET_BTN           		   BUTTON("Reset")
 #define TR_DEBUG                       "Testen"
-#define TR_KEYS_BTN                	   BUTTON(TR("SW","Switches"))
-#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))
+#define TR_KEYS_BTN                	   BUTTON(TR("SW","Schalter"))
+#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analoge"))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_CALIBRATION                 "Kalibrieren"
