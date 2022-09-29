@@ -1036,10 +1036,18 @@ bool ModelsList::loadYaml()
     result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   }
   if((foundInModels || foundInRadio) && result == FR_OK) {
-    if(foundInModels)
-      TRACE("FOUND modelslist.yml in /models, Scanning it");
-    else if(foundInRadio)
-      TRACE("FOUND modelslist.yml in /radio, Scanning it");
+    // Create /Models/Unused if it doesn't exist
+    bool moveRequired = false;
+    DIR unusedFolder;
+    FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
+    if (result != FR_OK) {
+      if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
+      if (result != FR_OK) {
+        TRACE("Unable to create unused models folder");
+        return false;
+      }
+    }
+
     YamlParser ymp;
     std::vector<std::string> modfiles;
     void *ctx = get_modelslist_iter(&modfiles);
@@ -1054,7 +1062,6 @@ bool ModelsList::loadYaml()
 
     // Loop through file hases, move any files found that don't exists to /unused
     std::vector<filedat> newFileHash;
-    bool moveRequired=false;
     for(const auto &fhas: fileHashInfo) {
       bool found = false;
       for(const auto &file : modfiles) {
@@ -1065,19 +1072,7 @@ bool ModelsList::loadYaml()
         }
       }
       if(!found) {
-        if(!moveRequired) {
-          // Create /Models/Unused if it doesn't exist
-          moveRequired = true;
-          DIR unusedFolder;
-          FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
-          if (result != FR_OK) {
-            if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
-            if (result != FR_OK) {
-              TRACE("Unable to create unused models folder");
-              return false;
-            }
-          }
-        }
+        moveRequired = true;
         TRACE_LABELS("Model %s not in models.yml, moving to /UNUSED", fhas.name.c_str());
         // Move model into unused folder.
         const char *warning = sdMoveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
