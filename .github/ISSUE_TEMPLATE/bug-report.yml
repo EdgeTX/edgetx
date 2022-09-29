@@ -76,7 +76,10 @@ body:
         affecting more than one transmitter.
       multiple: true
       options:
-        - FlySky NV14
+        - BetaFPV LiteRadio3 Pro
+        - iFlight Commando8
+        - Flysky EL18
+        - Flysky NV14
         - FrSky Q X7 / Q X7S (ACCST)
         - FrSky Q X7 / Q X7S (ACCESS)
         - FrSky X9D
@@ -95,7 +98,7 @@ body:
         - Jumper T-Pro
         - Radiomaster T8
         - RadioMaster TX12 / TX12MK2
-        - Radiomaster TX16S
+        - Radiomaster TX16S / TX16MK2
         - Radiomaster Zorro
         - Other (Please specify below)
     validations:
