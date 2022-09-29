@@ -32,6 +32,9 @@ class LogicalSwitchDisplayButton : public TextButton
                               std::string text, unsigned index) :
        TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
    {
+     lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
+     lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_STATE_USER_1);
+     lv_obj_set_style_text_font(lvobj, getFont(FONT(BOLD)), LV_STATE_USER_1);
    }
 
    void checkEvents() override
@@ -39,13 +42,9 @@ class LogicalSwitchDisplayButton : public TextButton
      bool newvalue = getSwitch(SWSRC_SW1 + index);
      if (value != newvalue) {
        if (newvalue) {
-         lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE), 0);
-         lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
-         lv_obj_set_style_text_font(lvobj, getFont(FONT(BOLD)), 0);
+         lv_obj_add_state(lvobj, LV_STATE_USER_1);
        } else {
-         lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), 0);
-         lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
-         lv_obj_set_style_text_font(lvobj, getFont(FONT(STD)), 0);
+         lv_obj_clear_state(lvobj, LV_STATE_USER_1);
        }
        value = newvalue;
        invalidate();
