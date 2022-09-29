@@ -61,7 +61,7 @@ ModelMenu::ModelMenu():
 #endif
   addTab(new ModelTelemetryPage());
 
-  addButton(&header);
+  addGoToMonitorsButton();
 }
 
 void ModelMenu::onEvent(event_t event)
@@ -76,10 +76,10 @@ void ModelMenu::onEvent(event_t event)
 #endif
 }
 
-void ModelMenu::addButton(TabsGroupHeader* header)
+void ModelMenu::addGoToMonitorsButton()
 {
   OpenTxTheme::instance()->createTextButton(
-      header, {LCD_W / 2 + 6, MENU_TITLE_TOP + 1, LCD_W / 2 - 8, MENU_TITLE_HEIGHT - 2},
+      &header, {LCD_W / 2 + 6, MENU_TITLE_TOP + 1, LCD_W / 2 - 8, MENU_TITLE_HEIGHT - 2},
       STR_OPEN_CHANNEL_MONITORS, [=]() {
         pushEvent(EVT_KEY_FIRST(KEY_MODEL));
         return 0;

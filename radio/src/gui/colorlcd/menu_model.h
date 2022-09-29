@@ -36,7 +36,7 @@ class ModelMenu : public TabsGroup
 #endif
 
 protected:
- void addButton(TabsGroupHeader* header);
+ void addGoToMonitorsButton(void);
 };
 
 #endif // _MENU_MODEL_H_
