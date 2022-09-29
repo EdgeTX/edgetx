@@ -1046,7 +1046,7 @@ bool ModelsList::loadYaml()
         TRACE("Unable to create unused models folder");
         return false;
       }
-    }
+    } else f_closedir(&unusedFolder);
 
     YamlParser ymp;
     std::vector<std::string> modfiles;
@@ -1413,7 +1413,7 @@ bool ModelsList::removeModel(ModelCell *model)
       TRACE("Unable to create deleted models folder");
       return true;
     }
-  }
+  } else f_closedir(&deletedFolder);
 
   // Move model into deleted folder. If not moved will be re-added on next
   // reboot
