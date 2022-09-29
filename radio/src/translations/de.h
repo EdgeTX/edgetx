@@ -39,18 +39,18 @@
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
 #define TR_TRNMODE                     "AUS","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "AUS","Telem Mirror","Telemetry In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
 #define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste")
-#define TR_SLIDERTYPES                 "Keine","Slider"
+#define TR_SLIDERTYPES                 "Keine","Schieber"
 #define TR_VLCD                        "Normal","Optrex"
-#define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Ruck"
+#define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Fragen",TR("Joyst","Joystick"),TR("SDCard","Speicher"),TR("Serial","Seriell")
 #define TR_JACK_MODES                  "Popup","Audio","Trainer"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (Kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
+#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (Kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetrie"
 
-#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_SBUS_INVERSION_VALUES       "normal","nicht inv."
 #define TR_MULTI_TELEMETRY_MODE        "Aus","Ein","Aus+Aux","Ein+Aux"
 #define TR_MULTI_CUSTOM                "Benutzer"
 #define TR_VTRIMINC                    TR("Expo","Exponentiell"),TR("ExFein","Extrafein"),"Fein","Mittel","Grob"
@@ -154,9 +154,9 @@
 #endif
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                 "Override"
+  #define TR_SF_SAFETY                 "Überschreibe"
 #elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Overr."
+  #define TR_SF_SAFETY                 "Übersch."
 #else
   #define TR_SF_SAFETY                 "---"
 #endif
@@ -342,8 +342,8 @@
 #define TR_MODELNAME                   "Modellname"
 #define TR_PHASENAME                   "Phase-Name"
 #define TR_MIXNAME                     "Mix-Name"
-#define TR_INPUTNAME                   TR("Input", "Input name")
-#define TR_EXPONAME                    TR("Name", "Line name")
+#define TR_INPUTNAME                   TR("Input", "Inputname")
+#define TR_EXPONAME                    TR("Name", "Zeilenname")
 #define TR_BITMAP                      "Modellfoto"
 #define TR_NO_PICTURE                  "kein Foto"
 #define TR_TIMER                       "Timer"
@@ -351,7 +351,7 @@
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
-#define TR_DISPLAY_TRIMS               TR("Trimanzeige", "Trimwerte anzeigen")
+#define TR_DISPLAY_TRIMS               TR("Trimmanzeige", "Trimmwerte anzeigen")
 #define TR_TTRACE                      TR("Gasquelle", INDENT "Gas-Timerquelle")
 #define TR_TTRIM 	       	           TR("Gastrim", INDENT "Gas-Leerlauftrim")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
@@ -363,7 +363,7 @@
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                 		   "ms"
-#define TR_FREQUENCY                   INDENT "Frequency"
+#define TR_FREQUENCY                   INDENT "Frequenz"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
 #define TR_TRIMS                       "Trimmer"
 #define TR_FADEIN                      "Langs. Ein"
@@ -429,7 +429,7 @@
 #define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "LCD-Kontrast"
 #define TR_ALARMS_LABEL                "Alarme"
-#define TR_BATTERY_RANGE               TR("Akku Bereich", "Akku Spannungsbereich") // Symbol Akku Ladezustand
+#define TR_BATTERY_RANGE               TR("Akku Bereich", "Akku Spann. Bereich") // Symbol Akku Ladezustand
 #define TR_BATTERYCHARGING             "Lädt..."
 #define TR_BATTERYFULL                 "Akku voll"
 #define TR_BATTERYNONE                 "None!"
@@ -480,7 +480,7 @@
 #define TR_CAL                         "Kal."
 #define TR_VTRIM                       "Trim - +"
 #define TR_BG                          "BG:"
-#define TR_CALIB_DONE                  "Calibration completed"
+#define TR_CALIB_DONE                  "Kalibrierung fertig"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Drücke [Enter] zum Start"
   #define TR_SETMIDPOINT               "Knüppel/Potis/Sliders auf Mitte [Enter]"
@@ -758,7 +758,7 @@
 #define TR_TIME                        "Uhrzeit:"
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_MAXBAUDRATE                 "Max Baud"
-#define TR_SAMPLE_MODE                 "Sample Mode"
+#define TR_SAMPLE_MODE                 "Abtastmodus"
 
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
@@ -788,7 +788,7 @@
 #define TR_SD_INFO_TITLE               "SD-INFO"
 #define TR_SD_TYPE                     "Typ:"
 #define TR_SD_SPEED                    "Geschw:"
-#define TR_SD_SECTORS                  "Sectoren:"
+#define TR_SD_SECTORS                  "Sektoren:"
 #define TR_SD_SIZE                     "Größe:"
 #define TR_TYPE                        INDENT "Typ"
 #define TR_GLOBAL_VARS                 "Globale Variablen"
@@ -798,12 +798,12 @@
 #define TR_OWN                         "Eigen"
 #define TR_DATE                        "Datum:"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez" }
-#define TR_ROTARY_ENCODER              "Drehgeber"
-#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
+#define TR_ROTARY_ENCODER              "Drehg."
+#define TR_ROTARY_ENC_MODE             TR("Drehg. Modus","Drehgeber Modus")
 #define TR_CHANNELS_MONITOR            "Kanal-Monitor==>"
 #define TR_MIXERS_MONITOR              "==>Mischer Monitor"
 #define TR_PATH_TOO_LONG               "Pfad zu Lang"
-#define TR_VIEW_TEXT                   "View Text"
+#define TR_VIEW_TEXT                   "Zeige Text"
 #define TR_FLASH_DEVICE                TR("Flash Gerät","Flash Gerät")
 #define TR_FLASH_BOOTLOADER            TR("Flash bootloader","Flash bootloader")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash ext. Gerät","Flash externes Gerät")
@@ -834,7 +834,7 @@
 #define TR_INTERNAL_MODULE             TR("Int. module","Internal module")
 #define TR_EXTERNAL_MODULE             TR("Ext. module","External module")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade nötig"
-#define TR_TELEMETRY_DISABLED          "Deaktiviere Telem."
+#define TR_TELEMETRY_DISABLED          "Deaktiv. Telem."  //more chars doesn't fit on QX7
 #define TR_MORE_OPTIONS_AVAILABLE      "mehr Optionen verfügbar"
 #define TR_NO_MODULE_INFORMATION       "keine Modul Info"
 #define TR_EXTERNALRF                  "Externes HF-Modul"
@@ -888,34 +888,34 @@
 #define TR_AND_SWITCH                  "UND Schalt" // UND mit weiterem Schaltern
 #define TR_SF                          "SF" // Spezial Funktionen
 #define TR_GF                          "GF" // Globale Funktionen
-#define TR_ANADIAGS_CALIB              "Calibrated analogs"
-#define TR_ANADIAGS_FILTRAWDEV         "Filtered raw analogs with deviation"
-#define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
-#define TR_ANADIAGS_MINMAX             "Min., max. and range"
+#define TR_ANADIAGS_CALIB              "analoge Geber Kalibriert"
+#define TR_ANADIAGS_FILTRAWDEV         "analoge Geber gefiltert und unbearbeitet mit Abweichungen"
+#define TR_ANADIAGS_UNFILTRAW          "analoge Geber ungefiltert und unbearbeitet"
+#define TR_ANADIAGS_MINMAX             "Min., Max. und Bereich"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
 #define TR_SPEAKER                     INDENT "Lautspr"
 #define TR_BUZZER                      INDENT "Summer"
 #define TR_BYTES                       "Bytes"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd","Bind"))   //9XR-Pro
-#define TR_POWERMETER_ATTN_NEEDED      "Attenuator needed"
-#define TR_PXX2_SELECT_RX              "Select RX"
+#define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
+#define TR_POWERMETER_ATTN_NEEDED      "Dämpfungsgl. nötig"
+#define TR_PXX2_SELECT_RX              "Wähle RX"
 #define TR_PXX2_DEFAULT                "<default>"
-#define TR_BT_SELECT_DEVICE            "Select device"
-#define TR_DISCOVER                    "Discover"
+#define TR_BT_SELECT_DEVICE            "Wähle Gerät"
+#define TR_DISCOVER                    "Suche"
 #define TR_BUTTON_INIT                 BUTTON("Init")
 #define TR_WAITING                     "Warte..."
 #define TR_RECEIVER_DELETE             "Empfänger löschen?"
 #define TR_RECEIVER_RESET              "Empfänger resetten?"
 #define TR_SHARE                       "Share"
-#define TR_BIND                        "Bind"
+#define TR_BIND                        "Binden"
 #define TR_REGISTER             	   TR("Reg", "Register")
-#define TR_MODULE_RANGE        		   BUTTON(TR("Rng", "Range"))  //9XR-Pro
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
+#define TR_MODULE_RANGE        		   BUTTON(TR("Rng", "Reichweite"))  //9XR-Pro
+#define TR_RECEIVER_OPTIONS            TR("RX OPTIONEN", "RX OPTIONEN")
 #define TR_DEL_BUTTON                  BUTTON(TR("Del", "Delete"))
 #define TR_RESET_BTN           		   BUTTON("Reset")
 #define TR_DEBUG                       "Testen"
-#define TR_KEYS_BTN                	   BUTTON(TR("SW","Switches"))
-#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))
+#define TR_KEYS_BTN                	   BUTTON(TR("SW","Schalter"))
+#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analoge"))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_CALIBRATION                 "Kalibrieren"
@@ -1152,8 +1152,8 @@
 #define TR_MENU_INVERT                 "Invertieren<!>"
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_DEAD_ZONE                   "Dead zone"
-#define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
-#define TR_AUTH_FAILURE                "Auth-failure"
+#define TR_RTC_CHECK                   TR("RTC Prüfen", "RTC Spann. prüfen")
+#define TR_AUTH_FAILURE                "Auth-Fehler"
 #define TR_RACING_MODE                 "Racing mode"
 
 // ----------------------------------------------------------------
