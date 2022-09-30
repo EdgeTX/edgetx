@@ -359,7 +359,7 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
         _copyMode = COPY_MODE;
         _copySrc = button;
       });
-      if (s_copyMode != 0) {
+      if (_copyMode != 0) {
         menu->addLine(STR_PASTE_BEFORE, [=]() {
           uint8_t idx = button->getIndex();
           pasteMixBefore(idx);
@@ -494,13 +494,13 @@ static int _mixChnFromIndex(uint8_t index)
 void ModelMixesPage::pasteMixBefore(uint8_t dst_idx)
 {
   int channel = _mixChnFromIndex(dst_idx);
-  pasteInput(dst_idx, channel);
+  pasteMix(dst_idx, channel);
 }
 
 void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 {
   int channel = _mixChnFromIndex(dst_idx);
-  pasteInput(dst_idx + 1, channel);
+  pasteMix(dst_idx + 1, channel);
 }
 
 void ModelMixesPage::build(FormWindow * window)
