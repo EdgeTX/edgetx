@@ -483,6 +483,8 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   new StaticText(window, grid.getLabelSlot(true), STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.rssiAlarms.disabled));
   grid.nextLine();
+  
+  if (LCD_W < LCD_H) grid.nextLine();
 
   // Sensors
   grid.setLabelWidth(140);
