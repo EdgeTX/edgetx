@@ -25,6 +25,12 @@
 
 #include <utility>
 
+#if LCD_W > LCD_H // Landscape
+  #define BTN_MATRIX_COL 8
+#else // Portrait
+  #define BTN_MATRIX_COL 4
+#endif
+
 class LogicalSwitchDisplayButton : public TextButton
 {
   public:
@@ -32,9 +38,6 @@ class LogicalSwitchDisplayButton : public TextButton
                               std::string text, unsigned index) :
        TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
    {
-     lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
-     lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_STATE_USER_1);
-     lv_obj_set_style_text_font(lvobj, getFont(FONT(BOLD)), LV_STATE_USER_1);
    }
 
    void checkEvents() override
@@ -42,9 +45,9 @@ class LogicalSwitchDisplayButton : public TextButton
      bool newvalue = getSwitch(SWSRC_SW1 + index);
      if (value != newvalue) {
        if (newvalue) {
-         lv_obj_add_state(lvobj, LV_STATE_USER_1);
+         lv_obj_add_state(lvobj, LV_STATE_CHECKED);
        } else {
-         lv_obj_clear_state(lvobj, LV_STATE_USER_1);
+         lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
        }
        value = newvalue;
        invalidate();
@@ -62,7 +65,7 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
   constexpr coord_t LSW_VIEW_FOOTER_HEIGHT = 20;
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(8);
+  grid.setLabelWidth(BTN_MATRIX_COL);
   window->padAll(0);
 
   // Footer
@@ -78,7 +81,7 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
     strAppendSigned(&lsString[1], i + 1, 2);
 
     auto button = new LogicalSwitchDisplayButton(
-        window, grid.getFieldSlot(8, i % 8), lsString, i);
+        window, grid.getFieldSlot(BTN_MATRIX_COL, i % BTN_MATRIX_COL), lsString, i);
 
     button->setFocusHandler([=](bool focus) {
       if (focus) {
@@ -87,6 +90,6 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
       }
       return 0;
     });
-    if ((i + 1) % 8 == 0) grid.nextLine();
+    if ((i + 1) % BTN_MATRIX_COL == 0) grid.nextLine();
   }
 }
