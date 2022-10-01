@@ -410,9 +410,9 @@ bool getLogicalSwitch(uint8_t idx)
       else if (s == LS_FAMILY_TIMER) {
         result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) <= 0);
       }
-      // else if (s == LS_FAMILY_STICKY) {
-      //   result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
-      // }
+      else if (s == LS_FAMILY_STICKY) {
+         result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
+      }
       else if (s == LS_FAMILY_SAFE) {
         result = LS_LAST_VALUE(mixerCurrentFlightMode, idx);
       }
