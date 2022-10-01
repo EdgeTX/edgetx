@@ -207,8 +207,8 @@ void MenuBody::onEvent(event_t event)
   else {
     TableField::onEvent(event);
   }
-}
 #endif
+}
 
 void MenuBody::onCancel()
 {
@@ -254,12 +254,22 @@ void Menu::setToolbar(Window * window)
   toolbar->setHeight(content->height());
 }
 
+void Menu::setOutline(Window* obj)
+{
+  lv_obj_set_style_outline_width(obj->getLvObj(), 4, LV_PART_MAIN);
+  lv_obj_set_style_outline_color(obj->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
+  lv_obj_set_style_outline_opa(obj->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
+  lv_obj_set_style_outline_pad(obj->getLvObj(),  1, LV_PART_MAIN);
+
+}
+
 void Menu::updatePosition()
 {
   coord_t height = content->body.getContentHeight();
 
   if (toolbar) {
     content->setLeft((LCD_W - content->width() + toolbar->width())/2);
+    setOutline(toolbar);
   } else {
     content->setLeft((LCD_W - content->width())/2);
     auto headerHeight = content->getHeaderHeight();
@@ -267,8 +277,9 @@ void Menu::updatePosition()
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2);
     content->setHeight(headerHeight + bodyHeight);
     content->body.setTop(headerHeight);
-    content->body.setHeight(bodyHeight);    
+    content->body.setHeight(bodyHeight);
   }
+  setOutline(content);
 }
 
 void Menu::setTitle(std::string text)

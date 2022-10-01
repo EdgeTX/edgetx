@@ -221,6 +221,8 @@ class Menu: public ModalWindow
     Window * toolbar = nullptr;
     std::function<void()> waitHandler;
     void updatePosition();
+
+    void setOutline(Window* obj);
 };
 
 Menu * MenuBody::getParentMenu()
