@@ -416,6 +416,43 @@ const char * sdCopyFile(const char * srcFilename, const char * srcDir, const cha
 
   return sdCopyFile(srcPath, destPath);
 }
+
+// Will overwrite if destination exists
+const char * sdMoveFile(const char * srcPath, const char * destPath)
+{
+  const char *result;
+  result = sdCopyFile(srcPath, destPath);
+  if(result != 0) {
+    return result;
+  }
+
+  FRESULT fres = f_unlink(srcPath);
+  if(fres != FR_OK) {
+    return SDCARD_ERROR(fres);
+  }
+  return nullptr;
+}
+
+// Will overwrite if destination exists
+const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir)
+{
+  const char *result;
+  result = sdCopyFile(srcFilename, srcDir, destFilename, destDir);
+  if(result != 0) {
+    return result;
+  }
+
+  char srcPath[2*CLIPBOARD_PATH_LEN+1];
+  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
+  *tmp++ = '/';
+  strAppend(tmp, srcFilename, CLIPBOARD_PATH_LEN);
+  FRESULT fres = f_unlink(srcPath);
+  if(fres != FR_OK) {
+    return SDCARD_ERROR(fres);
+  }
+  return nullptr;
+}
+
 #endif // defined(SDCARD)
 
 

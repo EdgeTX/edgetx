@@ -30,6 +30,7 @@ using std::list;
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"
+#include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
 
 #endif
@@ -1024,6 +1025,84 @@ bool ModelsList::loadYaml()
     f_closedir(&moddir);
   }
 
+  // Check if models.yml exists
+  // Any files found above that are not listed in the file will be moved into
+  // /MDOELS/UNUSED and removed from the discovered file hash list
+  char line[LEN_MODELS_IDX_LINE + 1];
+  FILINFO fno;
+  FRESULT result;
+  bool foundInModels = f_stat(MODELSLIST_YAML_PATH, &fno) == FR_OK;
+  bool foundInRadio = f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK;
+
+  if(foundInModels) { // Default to /Models copy
+    result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  } else if (foundInRadio) {
+    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  }
+  if((foundInModels || foundInRadio) && result == FR_OK) {
+    // Create /Models/Unused if it doesn't exist
+    bool moveRequired = false;
+    DIR unusedFolder;
+    FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
+    if (result != FR_OK) {
+      if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
+      if (result != FR_OK) {
+        TRACE("Unable to create unused models folder");
+        return false;
+      }
+    } else f_closedir(&unusedFolder);
+
+    YamlParser ymp;
+    std::vector<std::string> modfiles;
+    void *ctx = get_modelslist_iter(&modfiles);
+    ymp.init(get_modelslist_parser_calls(), ctx);
+    UINT bytes_read = 0;
+    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
+      if (bytes_read == 0) break;
+      if (f_eof(&file)) ymp.set_eof();
+      if (ymp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
+    }
+    f_close(&file);
+
+    // Loop through file hases, move any files found that don't exists to /unused
+    std::vector<filedat> newFileHash;
+    for(const auto &fhas: fileHashInfo) {
+      bool found = false;
+      for(const auto &file : modfiles) {
+        if (file == fhas.name) {
+          TRACE_LABELS("Found file %s in models.yml.. OK!", file);
+          found = true;
+          break;
+        }
+      }
+      if(!found) {
+        moveRequired = true;
+        TRACE_LABELS("Model %s not in models.yml, moving to /UNUSED", fhas.name.c_str());
+        // Move model into unused folder.
+        const char *warning = sdMoveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
+        if(warning)
+          POPUP_WARNING(warning);
+      } else {
+        newFileHash.push_back(fhas); // File exists, keep it
+      }
+    }
+
+    if(foundInRadio) {
+      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      if(warning)
+        POPUP_WARNING(warning);
+    }
+    if(foundInModels) { // Will overwrite the copy from /radio if both existed, do last
+      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      if(warning)
+        POPUP_WARNING(warning);
+    }
+    if(moveRequired) {
+      fileHashInfo = newFileHash; // Update the new file list
+      POPUP_WARNING(TR_MODELS_MOVED "\n" UNUSED_MODELS_PATH, "\n" TR_PRESS_ANY_KEY_TO_SKIP);
+    }
+  }
+
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
   TRACE("Lables: Time to scan models folder %luus",
@@ -1031,9 +1110,7 @@ bool ModelsList::loadYaml()
 #endif
 
   // Scan labels.yml
-  char line[LEN_MODELS_IDX_LINE + 1];
-  FRESULT result =
-      f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
+  result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
     YamlParser yp;
     void *ctx = get_labelslist_iter();
@@ -1340,21 +1417,15 @@ bool ModelsList::removeModel(ModelCell *model)
       TRACE("Unable to create deleted models folder");
       return true;
     }
-  }
+  } else f_closedir(&deletedFolder);
 
   // Move model into deleted folder. If not moved will be re-added on next
   // reboot
-  if (!sdCopyFile(model->modelFilename, MODELS_PATH, model->modelFilename,
-                  DELETED_MODELS_PATH)) {
-    char curFilename[sizeof(MODELS_PATH) + LEN_MODEL_FILENAME + 2] = "";
-    strcat(curFilename, MODELS_PATH PATH_SEPARATOR);
-    strcat(curFilename, model->modelFilename);
-    TRACE_LABELS("Deleting Model %s", model->modelFilename);
-
-    if (f_unlink(curFilename) != FR_OK) {
-      TRACE("Labels: Unable to delete file");
-      return true;
-    }
+  TRACE_LABELS("Deleting Model %s", model->modelFilename);
+  const char *warning = sdMoveFile(model->modelFilename, MODELS_PATH, model->modelFilename, DELETED_MODELS_PATH);
+  if (warning) {
+    TRACE("Labels: Unable to move file");
+    return true;
   }
 
   // Free memory

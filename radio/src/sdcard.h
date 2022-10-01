@@ -35,6 +35,7 @@ extern FIL g_oLogFile;
 #define ROOT_PATH           PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
 #define DELETED_MODELS_PATH MODELS_PATH PATH_SEPARATOR "DELETED"
+#define UNUSED_MODELS_PATH  MODELS_PATH PATH_SEPARATOR "UNUSED"
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
 #define PERS_TEMPL_PATH     TEMPLATES_PATH "/PERSONAL"
@@ -191,6 +192,8 @@ unsigned int findNextFileIndex(char * filename, uint8_t size, const char * direc
 
 const char * sdCopyFile(const char * src, const char * dest);
 const char * sdCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
+const char * sdMoveFile(const char * src, const char * dest);
+const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
 
 #define LIST_NONE_SD_FILE   1
 #define LIST_SD_FILE_EXT    2
