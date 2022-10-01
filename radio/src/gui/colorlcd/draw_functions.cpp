@@ -580,7 +580,7 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
 {
   coord_t x = left;
   coord_t y = top;
-  coord_t line = getFontHeight(flags & 0xFFFF);
+  coord_t line = getFontHeightCondensed(flags & 0xFFFF);
   coord_t space = getTextWidth(" ", 1, flags);
   coord_t word;
   const char * nxt = str;
