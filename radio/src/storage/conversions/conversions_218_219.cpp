@@ -181,7 +181,7 @@ void convertModelData_218_to_219(ModelData &model)
         sw.v2 = convertSource_218_to_219(sw.v2);
       }
     }
-    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_SAFE) {
       sw.v1 = convertSwitch_218_to_219(sw.v1);
       sw.v2 = convertSwitch_218_to_219(sw.v2);
     }
