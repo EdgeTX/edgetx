@@ -1088,12 +1088,12 @@ bool ModelsList::loadYaml()
     }
 
     if(foundInRadio) {
-      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
       if(warning)
         POPUP_WARNING(warning);
     }
     if(foundInModels) { // Will overwrite the copy from /radio if both existed, do last
-      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME, UNUSED_MODELS_PATH);
+      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
       if(warning)
         POPUP_WARNING(warning);
     }
