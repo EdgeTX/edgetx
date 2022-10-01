@@ -304,17 +304,6 @@
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 // ZERO TERMINATED STRINGS
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -350,7 +339,7 @@
 #define TR_FREE                        "disp"
 #define TR_YES                         "Yes"
 #define TR_NO                          "No"
-#define TR_DELETEMODEL                 "SUPPRIMER" BREAKSPACE "MODELE"
+#define TR_DELETEMODEL                 "SUPPRIMER MODELE"
 #define TR_COPYINGMODEL                "Copie..."
 #define TR_MOVINGMODEL                 "Déplacement..."
 #define TR_LOADINGMODEL                "Chargement..."

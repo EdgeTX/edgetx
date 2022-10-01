@@ -287,17 +287,6 @@
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 // ZERO TERMINATED STRINGS
-#if defined(COLORLCD)
-  #define INDENT                       "   "
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -734,10 +723,10 @@
 #define TR_DELAY                       "Verzögerung"
 #define TR_SD_CARD                     "SD-Karte"
 #define TR_SDHC_CARD                   "SDHC-Karte"
-#define TR_NO_SOUNDS_ON_SD             "Keine Töne" BREAKSPACE "auf SD"
-#define TR_NO_MODELS_ON_SD             "Kein Modelle" BREAKSPACE "auf SD"
-#define TR_NO_BITMAPS_ON_SD            "Keine Bitmaps" BREAKSPACE "auf SD"
-#define TR_NO_SCRIPTS_ON_SD            "Keine Skripte" BREAKSPACE "auf SD"
+#define TR_NO_SOUNDS_ON_SD             "Keine Töne auf SD"
+#define TR_NO_MODELS_ON_SD             "Kein Modelle auf SD"
+#define TR_NO_BITMAPS_ON_SD            "Keine Bitmaps auf SD"
+#define TR_NO_SCRIPTS_ON_SD            "Keine Skripte auf SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaxfehler", "Skript Syntaxfehler")
 #define TR_SCRIPT_PANIC                "Skript Panik"
 #define TR_SCRIPT_KILLED               "Skript beendet"

@@ -289,18 +289,6 @@
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT           3
-  #define INDENT_WIDTH         12
-  #define BREAKSPACE           "\036"
-#else
-  #define INDENT               "\001"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         (FW/2)
-  #define BREAKSPACE           " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
@@ -333,7 +321,7 @@
 #define TR_FREE                "vrij"
 #define TR_YES                 "Yes"
 #define TR_NO                  "No"
-#define TR_DELETEMODEL         "WIS" BREAKSPACE "MODEL"
+#define TR_DELETEMODEL         "WIS MODEL"
 #define TR_COPYINGMODEL        "Kopieer Model"
 #define TR_MOVINGMODEL         "Verplaats Model"
 #define TR_LOADINGMODEL        "Laad Model..."
@@ -741,10 +729,10 @@
 #define TR_DELAY               "Vertrag."
 #define TR_SD_CARD             "SD-Card"
 #define TR_SDHC_CARD           "SD-HC CARD"
-#define TR_NO_SOUNDS_ON_SD     "Geen Geluiden" BREAKSPACE "op SD"
-#define TR_NO_MODELS_ON_SD     "Geen Modellen" BREAKSPACE "op SD"
-#define TR_NO_BITMAPS_ON_SD    "Geen Bitmaps" BREAKSPACE "op SD"
-#define TR_NO_SCRIPTS_ON_SD    "Geen Scripts" BREAKSPACE "op SD"
+#define TR_NO_SOUNDS_ON_SD     "Geen Geluiden op SD"
+#define TR_NO_MODELS_ON_SD     "Geen Modellen op SD"
+#define TR_NO_BITMAPS_ON_SD    "Geen Bitmaps op SD"
+#define TR_NO_SCRIPTS_ON_SD    "Geen Scripts op SD"
 #define TR_SCRIPT_SYNTAX_ERROR TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC        "Script panic"
 #define TR_SCRIPT_KILLED       "Script killed"
