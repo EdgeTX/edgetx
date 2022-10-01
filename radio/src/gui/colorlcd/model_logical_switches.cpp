@@ -304,7 +304,7 @@ class LogicalSwitchButton : public Button
     //dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
       dc->drawText(col1, line1, ls->custName, COLOR_THEME_SECONDARY1);
     // CSW params
-    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY || ls->func ==LS_FUNC_SAFE) {
+    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY || ls->func == LS_FUNC_SAFE) {
       drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
       drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
     } else if (lsFamily == LS_FAMILY_EDGE) {

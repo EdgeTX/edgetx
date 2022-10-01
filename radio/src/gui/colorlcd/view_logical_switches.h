@@ -55,7 +55,7 @@ class LogicalSwitchDisplayFooter : public Window
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
 
-    if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+    if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_SAFE) {
       drawSwitch(dc, CSW_2ND_COLUMN, 1, cs->v1, textColor);
       drawSwitch(dc, CSW_3RD_COLUMN, 1, cs->v2, textColor);
     } else if (cstate == LS_FAMILY_EDGE) {
