@@ -78,7 +78,7 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
-
+                                  
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -673,7 +673,7 @@
 #define TR_SELECT_MODE                  "Välj läge"
 #define TR_CREATE_MODEL                 "Skapa modell"
 #define TR_FAVORITE_LABEL               "Favoriter"
-#define TR_MODELS_MOVED                 "Unused models moved to"
+#define TR_MODELS_MOVED                 "Oanvända modeller flyttade till"
 #define TR_NEW_MODEL                    "Ny modell"
 #define TR_INVALID_MODEL                "Ogiltig modell"
 #define TR_EDIT_LABELS                  "Redigera etiketter"
@@ -982,7 +982,7 @@
 #define TR_ENABLE                       "Aktivera"
 #define TR_TOPLCDTIMER                  "Översta LCD timer"
 #define TR_UNIT                         "Enhet"
-#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
+#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..." 
 #define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
 #define TR_RXFREQUENCY                  TR("RX frekv.", "RX frekvens")
 #define TR_AFHDS3_RX_FREQ               TR("RX frekv", "RX frekvens")
@@ -1374,9 +1374,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmonitorn"
+  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmonitorn" 
 #else
-  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmon."
+  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmon." 
 #endif
 
 #define TR_DUPLICATE                    "Duplicera"
