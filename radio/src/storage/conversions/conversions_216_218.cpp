@@ -991,7 +991,7 @@ void convertModelData_216_to_217(ModelData &model)
         sw.v2 = convertSource_216_to_217((uint8_t)sw.v2);
       }
     }
-    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_SAFE ) {
       sw.v1 = convertSwitch_216_to_217(sw.v1);
       sw.v2 = convertSwitch_216_to_217(sw.v2);
     }
@@ -1170,7 +1170,7 @@ void convertModelData_217_to_218(ModelData &model)
         sw.v2 = convertSource_217_to_218((uint8_t)sw.v2);
       }
     }
-    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+    else if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_SAFE) {
       sw.v1 = convertSwitch_217_to_218(sw.v1);
       sw.v2 = convertSwitch_217_to_218(sw.v2);
     }
