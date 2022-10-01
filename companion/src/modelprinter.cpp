@@ -517,6 +517,9 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
     case LS_FAMILY_STICKY:
       result += tr("Sticky") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
       break;
+    case LS_FAMILY_SAFE:
+      result += tr("Safe") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
+      break;
     case LS_FAMILY_TIMER:
       result += tr("Timer") + QString("(%1, %2)").arg(ValToTim(ls.val1)).arg(ValToTim(ls.val2));
       break;
