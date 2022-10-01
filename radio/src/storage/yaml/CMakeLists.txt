@@ -7,6 +7,7 @@ set(SRC ${SRC} storage/yaml/yaml_tree_walker.cpp
 
 if(STORAGE_MODELSLIST)
   set(SRC ${SRC} storage/yaml/yaml_labelslist.cpp)
+  set(SRC ${SRC} storage/yaml/yaml_modelslist.cpp)
   add_definitions(-DSTORAGE_MODELSLIST)
 endif()
 
