@@ -35,8 +35,10 @@ class ModelMenu : public TabsGroup
   std::string getName() const override { return "ModelMenu"; }
 #endif
 
+#if defined(PCBNV14) || defined(PCBPL18)
 protected:
  void addGoToMonitorsButton(void);
+#endif
 };
 
 #endif // _MENU_MODEL_H_
