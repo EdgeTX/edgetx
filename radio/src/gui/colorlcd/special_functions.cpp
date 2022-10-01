@@ -60,10 +60,13 @@ class SpecialFunctionEditPage : public Page
   {
     Page::checkEvents();
     if (active != isActive()) {
+      if(isActive()) {
+        lv_obj_add_state(headerSF->getLvObj(), LV_STATE_USER_1);
+      } else {
+        lv_obj_clear_state(headerSF->getLvObj(), LV_STATE_USER_1);
+      }
+      active = isActive();
       invalidate();
-      headerSF->setTextFlags(isActive() ? FONT(BOLD) | COLOR_THEME_ACTIVE
-                                        : COLOR_THEME_PRIMARY2);
-      active = !active;
     }
   }
 
@@ -80,6 +83,9 @@ class SpecialFunctionEditPage : public Page
          LCD_W - PAGE_TITLE_LEFT, 20},
         (functions == g_model.customFn ? "SF" : "GF") + std::to_string(index+1),
         0, COLOR_THEME_PRIMARY2);
+
+    lv_obj_set_style_text_color(headerSF->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
+    lv_obj_set_style_text_font(headerSF->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
   }
 
   void updateSpecialFunctionOneWindow()
