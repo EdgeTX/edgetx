@@ -248,6 +248,7 @@ Menu::Menu(Window * parent, bool multiple):
 void Menu::setToolbar(Window * window)
 {
   toolbar = window;
+  updatePosition();
   toolbar->setLeft(content->left() - toolbar->width());
   toolbar->setTop(content->top());
   toolbar->setHeight(content->height());
@@ -257,8 +258,10 @@ void Menu::updatePosition()
 {
   coord_t height = content->body.getContentHeight();
 
-  if (!toolbar) {
-    // there is no navigation bar at the left, we may center the window on screen
+  if (toolbar) {
+    content->setLeft((LCD_W - content->width() + toolbar->width())/2);
+  } else {
+    content->setLeft((LCD_W - content->width())/2);
     auto headerHeight = content->getHeaderHeight();
     auto bodyHeight = min<coord_t>(height, MENUS_MAX_HEIGHT - headerHeight);
     content->setTop((LCD_H - headerHeight - bodyHeight) / 2);
