@@ -43,6 +43,8 @@
   FONT_TABLE(roboto);
 #endif
 
+#endif // BOOT
+
 // used to set the line height to the line heights used in Edgetx < 2.7 and OpenTX
 static const int8_t FontHeightCorrection[FONTS_COUNT] {
   -2, // STD
@@ -53,8 +55,6 @@ static const int8_t FontHeightCorrection[FONTS_COUNT] {
   -5, // XL
   -2, // XXL
 };
-
-#endif // BOOT
 
 const lv_font_t* getFont(LcdFlags flags)
 {
