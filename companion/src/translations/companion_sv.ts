@@ -1533,11 +1533,11 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Bind Int. Module</source>
-        <translation>Parkoppla int. modul</translation>
+        <translation>Parkoppla (bind) int. modul</translation>
     </message>
     <message>
         <source>Bind Ext. Module</source>
-        <translation>Parkoppla ext. modul</translation>
+        <translation>Parkoppla (bind) ext. modul</translation>
     </message>
     <message>
         <source>Flight</source>
@@ -3785,7 +3785,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
-        <translation>Fel data i profilen, brytar-/pot-inställningar lästes inte in</translation>
+        <translation>Fel data i profilen, brytar-/pot.inställningar lästes inte in</translation>
     </message>
 </context>
 <context>
@@ -7745,7 +7745,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Bind on channel</source>
-        <translation>Parkoppla via kanal</translation>
+        <translation>Parkoppla (bind) via kanal</translation>
     </message>
     <message>
         <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
@@ -7880,7 +7880,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Pot Warnings</source>
-        <translation>Pot-varningar</translation>
+        <translation>Pot.varningar</translation>
     </message>
     <message>
         <source>Other</source>
@@ -11656,7 +11656,7 @@ Fel:%1
     </message>
     <message>
         <source>Language %1 not listed in %2</source>
-        <translation>Språk %1 finns inte listad i %2</translation>
+        <translation>Språk &apos;%1&apos; saknas i %2</translation>
     </message>
     <message>
         <source>Choose Language Packs</source>
