@@ -24,5 +24,6 @@
 
 const lv_font_t* getFont(LcdFlags flags);
 uint8_t getFontHeight(LcdFlags flags);
+uint8_t getFontHeightCondensed(LcdFlags flags);
 int getTextWidth(const char * s, int len = 0, LcdFlags flags = 0);
 
