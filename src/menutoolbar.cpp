@@ -31,17 +31,18 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
 
 void MenuToolbarButton::paint(BitmapBuffer * dc)
 {
+  lv_coord_t width = lv_obj_get_content_width(lvobj);
   if (checked()) {
     dc->drawSolidFilledRect(
         MENUS_TOOLBAR_BUTTON_PADDING, MENUS_TOOLBAR_BUTTON_PADDING,
-        MENUS_TOOLBAR_BUTTON_WIDTH - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
+        width - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
         MENUS_TOOLBAR_BUTTON_WIDTH - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
         COLOR_THEME_FOCUS);
-    dc->drawText(rect.w / 2, (rect.h - getFontHeight(FONT(STD))) / 2 + 1,
-                 picto, CENTERED | COLOR_THEME_PRIMARY2);
+    dc->drawText(width / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
+                 picto, FONT(L) | CENTERED | COLOR_THEME_PRIMARY2);
   } else {
-    dc->drawText(rect.w / 2, (rect.h - getFontHeight(FONT(STD))) / 2 + 1,
-                 picto, CENTERED | COLOR_THEME_PRIMARY1);
+    dc->drawText(width / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
+                 picto, FONT(L) | CENTERED | COLOR_THEME_PRIMARY1);
   }
 }
 
@@ -83,10 +84,12 @@ void MenuToolbar::onEvent(event_t event)
   }
 }
 
-static rect_t _get_button_rect(size_t buttons)
+rect_t MenuToolbar::getButtonRect(size_t buttons)
 {
-  coord_t y = buttons * MENUS_TOOLBAR_BUTTON_WIDTH;
-  return {0, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH};
+  coord_t y = buttons * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
+  coord_t width = std::max<coord_t>(MENUS_TOOLBAR_BUTTON_WIDTH, lv_obj_get_content_width(lvobj));
+  return {0, y, LV_PCT(100), MENUS_TOOLBAR_BUTTON_WIDTH};
+
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
@@ -131,7 +134,7 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
       getFirstAvailable(filtermin, filtermax, choice->isValueAvailable) == 0)
     return;
 
-  rect_t r = _get_button_rect(children.size());
+  rect_t r = getButtonRect(children.size());
   auto button = new MenuToolbarButton(this, r, picto);
 
   button->setPressHandler(

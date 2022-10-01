@@ -52,4 +52,6 @@ class MenuToolbar : public Window
 
   void addButton(const char* picto, int16_t filtermin, int16_t filtermax);
   bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax);
+
+  rect_t getButtonRect(size_t buttons);
 };
