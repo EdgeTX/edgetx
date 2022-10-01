@@ -105,6 +105,7 @@ class CustomFunctionData {
     unsigned int enabled; // TODO perhaps not any more the right name
     unsigned int adjustMode;
     int repeatParam;
+    char custName[10+1];
 
     void convert(RadioDataConversionState & cstate);
 
