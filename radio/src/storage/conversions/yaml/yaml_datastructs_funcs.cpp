@@ -1041,6 +1041,12 @@ bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
     break;
 
+  case LS_FAMILY_SAFE:
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    break;
+
   case LS_FAMILY_EDGE:
     if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;

@@ -99,7 +99,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << "";
+  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << "" << "Name";
   TableLayout * tableLayout = new TableLayout(this, fswCapability, headerLabels);
 
   for (int i = 0; i < fswCapability; i++) {
@@ -116,6 +116,16 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     connect(label, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     tableLayout->addWidget(i, 0, label);
+    
+
+    // The Custom Name
+    name[i] = new QLineEdit(this);
+    name[i]->setProperty("index", i);
+    name[i]->setMaxLength(10);
+    QRegExp rx(CHAR_FOR_NAMES_REGEX);
+    name[i]->setValidator(new QRegExpValidator(rx, this));
+    connect(name[i], SIGNAL(editingFinished()), this, SLOT(nameEdited()));
+    tableLayout->addWidget(i, 5, name[i]);
 
     // The switch
     fswtchSwtch[i] = new QComboBox(this);
@@ -205,6 +215,8 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchEnable[i]->setFixedWidth(200);
     repeatLayout->addWidget(fswtchEnable[i], i + 1);
     connect(fswtchEnable[i], SIGNAL(stateChanged(int)), this, SLOT(customFunctionEdited()));
+
+ 
   }
 
   disableMouseScrolling();
@@ -330,24 +342,43 @@ void CustomFunctionsPanel::functionEdited()
   }
 }
 
+void CustomFunctionsPanel::nameEdited()
+{
+    QLineEdit *le = qobject_cast<QLineEdit*>(sender());
+    int index = le->property("index").toInt();
+    CustomFunctionData & cfn = functions[index];
+    if (cfn.custName != le->text()) {
+      strcpy(cfn.custName, le->text().toLatin1());
+      
+      emit modified();
+    }
+}
+
 void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
 {
   CustomFunctionData & cfn = functions[i];
   AssignFunc func = (AssignFunc)fswtchFunc[i]->currentData().toInt();
+  
+    
 
   unsigned int widgetsMask = 0;
   if (modified) {
+
     cfn.swtch = RawSwitch(fswtchSwtch[i]->currentData().toInt());
     cfn.func = func;
     cfn.enabled = fswtchEnable[i]->isChecked();
+
   }
   else {
-    fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(cfn.swtch.toValue()));
-    fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(cfn.func));
+        name[i]->setText(cfn.custName); 
+        fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(cfn.swtch.toValue()));
+        fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(cfn.func));
   }
 
   if (!cfn.isEmpty()) {
     widgetsMask |= CUSTOM_FUNCTION_SHOW_FUNC;
+
+     name[i]->setText(cfn.custName);
 
     if (func >= FuncOverrideCH1 && func <= FuncOverrideCH32) {
       if (model) {
@@ -356,8 +387,11 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         fswtchParam[i]->setSingleStep(1);
         fswtchParam[i]->setMinimum(-channelsMax);
         fswtchParam[i]->setMaximum(channelsMax);
+        name[i]->setText(cfn.custName);
+
         if (modified) {
           cfn.param = fswtchParam[i]->value();
+          strcpy(cfn.custName, name[i]->text().toLatin1());
         }
         fswtchParam[i]->setValue(cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM | CUSTOM_FUNCTION_ENABLE;
