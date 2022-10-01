@@ -38,6 +38,8 @@ CSFunctionFamily LogicalSwitchData::getFunctionFamily() const
     return LS_FAMILY_TIMER;
   else if (func == LS_FN_STICKY)
     return LS_FAMILY_STICKY;
+  else if (func == LS_FN_SAFE)
+    return LS_FAMILY_SAFE;
   else if (func < LS_FN_AND || func > LS_FN_ELESS)
     return LS_FAMILY_VOFS;
   else if (func < LS_FN_EQUAL)
@@ -102,6 +104,8 @@ QString LogicalSwitchData::funcToString() const
       return tr("Timer");
     case LS_FN_STICKY:
       return tr("Sticky");
+    case LS_FN_SAFE:
+      return tr("Safe");
     case LS_FN_EDGE:
       return tr("Edge");
     default:
@@ -124,6 +128,10 @@ void LogicalSwitchData::convert(RadioDataConversionState & cstate)
       val1 = RawSource(val1).convert(cstate.withComponentField("V1")).toValue();
       break;
     case LS_FAMILY_STICKY:
+    case LS_FAMILY_SAFE:
+      val1 = RawSwitch(val1).convert(cstate.withComponentField("V1")).toValue();
+      val2 = RawSwitch(val2).convert(cstate.withComponentField("V2")).toValue();
+      break;
     case LS_FAMILY_VBOOL:
       val1 = RawSwitch(val1).convert(cstate.withComponentField("V1")).toValue();
       val2 = RawSwitch(val2).convert(cstate.withComponentField("V2")).toValue();

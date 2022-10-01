@@ -1347,6 +1347,7 @@ class LogicalSwitchesFunctionsTable: public ConversionTable {
       addConversion(LS_FN_DAPOS, val++);
       addConversion(LS_FN_TIMER, val++);
       addConversion(LS_FN_STICKY, val++);
+      addConversion(LS_FN_SAFE, val++);
     }
 };
 
@@ -1402,7 +1403,7 @@ class LogicalSwitchField: public TransformedField {
         v2 = csw.val2;
         v3 = csw.val3;
       }
-      else if ((csw.func >= LS_FN_AND && csw.func <= LS_FN_XOR) || csw.func == LS_FN_STICKY) {
+      else if ((csw.func >= LS_FN_AND && csw.func <= LS_FN_XOR) || csw.func == LS_FN_STICKY || csw.func == LS_FN_SAFE) {
         switchesConversionTable->exportValue(csw.val1, v1);
         switchesConversionTable->exportValue(csw.val2, v2);
       }
@@ -1427,7 +1428,7 @@ class LogicalSwitchField: public TransformedField {
         csw.val2 = v2;
         csw.val3 = v3;
       }
-      else if ((csw.func >= LS_FN_AND && csw.func <= LS_FN_XOR) || csw.func == LS_FN_STICKY) {
+      else if ((csw.func >= LS_FN_AND && csw.func <= LS_FN_XOR) || csw.func == LS_FN_STICKY || csw.func == LS_FN_SAFE) {
         switchesConversionTable->importValue(v1, csw.val1);
         switchesConversionTable->importValue(v2, csw.val2);
       }
