@@ -767,6 +767,7 @@ void CustomFunctionsPanel::swapData(int idx1, int idx2)
 void CustomFunctionsPanel::resetCBsAndRefresh(int idx)
 {
   lock = true;
+  name[idx]->clear();
   fswtchSwtch[idx]->setCurrentIndex(fswtchSwtch[idx]->findData(functions[idx].swtch.toValue()));
   fswtchFunc[idx]->setCurrentIndex(fswtchFunc[idx]->findData(functions[idx].func));
   fswtchGVmode[idx]->setCurrentIndex(functions[idx].adjustMode);
