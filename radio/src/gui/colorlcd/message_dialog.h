@@ -28,7 +28,8 @@ class MessageDialog : public Dialog
 {
  public:
   MessageDialog(Window* parent, const char* title, const char* message,
-                const char* info = "");
+                const char* info = "", LcdFlags messageFlags = CENTERED,
+                LcdFlags infoFlags = CENTERED);
 
   void setInfoText(std::string text) { infoWidget->setText(std::move(text)); }
 
