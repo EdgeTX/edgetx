@@ -627,6 +627,7 @@ void LogicalSwitchesPanel::cmClear(bool prompt)
 
   model->logicalSw[selectedIndex].clear();
   model->updateAllReferences(ModelData::REF_UPD_TYPE_LOGICAL_SWITCH, ModelData::REF_UPD_ACT_CLEAR, selectedIndex);
+  name[selectedIndex]->clear();
   updateLine(selectedIndex);
   updateItemModels();
   emit modified();
@@ -639,6 +640,7 @@ void LogicalSwitchesPanel::cmClearAll()
 
   for (int i = 0; i < lsCapability; i++) {
     model->logicalSw[i].clear();
+    name[i]->clear();
     model->updateAllReferences(ModelData::REF_UPD_TYPE_LOGICAL_SWITCH, ModelData::REF_UPD_ACT_CLEAR, i);
   }
   update();
