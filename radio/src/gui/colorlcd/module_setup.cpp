@@ -273,7 +273,6 @@ void ModuleWindow::updateModule()
                             }
                           });
 
-
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
@@ -360,7 +359,7 @@ void ModuleWindow::updateModule()
 #if defined(PXX2)
   else if (isModuleRFAccess(moduleIdx)) {
 
-// Register and Range buttons
+    // Register and Range buttons
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
@@ -580,7 +579,7 @@ void ModuleSubTypeChoice::update()
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
   }
-  else if (isModuleR9M(moduleIdx)) {
+  else if (isModuleR9MNonAccess(moduleIdx)) {
     setMin(MODULE_SUBTYPE_R9M_FCC);
     setMax(MODULE_SUBTYPE_R9M_LAST);
     setValues(STR_R9M_REGION);
@@ -589,7 +588,7 @@ void ModuleSubTypeChoice::update()
     setAvailableHandler(nullptr);
   }
 #if defined(PXX2)
-  else if (isModulePXX2(moduleIdx)) {
+  else if (isModuleISRM(moduleIdx)) {
     setMin(MODULE_SUBTYPE_ISRM_PXX2_ACCESS);
     setMax(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16);
     setValues(STR_ISRM_RF_PROTOCOLS);
