@@ -788,7 +788,7 @@ Mode 4:
     <name>CalibrationPanel</name>
     <message>
         <source>Negative span</source>
-        <translation>Negativa värden</translation>
+        <translation>Negativt spann</translation>
     </message>
     <message>
         <source>Mid value</source>
@@ -796,7 +796,7 @@ Mode 4:
     </message>
     <message>
         <source>Positive span</source>
-        <translation>Positiva värden</translation>
+        <translation>Positivt spann</translation>
     </message>
 </context>
 <context>
@@ -1354,7 +1354,7 @@ Vill du hämta inställningarna från en fil?</translation>
     <name>CurvesPanel</name>
     <message>
         <source>Note: to create a curve right click on the curve row label</source>
-        <translation>OBS! För att skapa en kurva, högerklicka på kurvans namn (KUxx)</translation>
+        <translation>OBS! För att skapa en kurva, högerklicka på kurvans namn (KU#)</translation>
     </message>
     <message>
         <source>CV%1</source>
@@ -2714,7 +2714,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Use alternative SQT5 font</source>
-        <translation>Använd SQT5-typsnitt</translation>
+        <translation>Använd SQT5 typsnitt</translation>
     </message>
     <message>
         <source>Pots use in menus navigation</source>
@@ -2738,7 +2738,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Use ONLY with first DEV pcb version</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enable HELI menu and cyclic mix support</source>
@@ -2882,7 +2882,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Select if internal ELRS module is installed</source>
-        <translation></translation>
+        <translation>Välj om intern ELRS-modul är installerad</translation>
     </message>
     <message>
         <source>Radiomaster T8</source>
@@ -2894,7 +2894,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
-        <translation></translation>
+        <translation>Stöd för intern hårdvarumodd: FlySky Paladin EV Gimbals</translation>
     </message>
     <message>
         <source>Jumper T18</source>
@@ -11587,11 +11587,11 @@ Fel:%1
     </message>
     <message>
         <source>Max.Expected</source>
-        <translation type="unfinished">Max. förväntade</translation>
+        <translation>Max. förväntade</translation>
     </message>
     <message>
         <source>No Limit</source>
-        <translation type="unfinished">Ingen gräns</translation>
+        <translation>Ingen gräns</translation>
     </message>
 </context>
 <context>
