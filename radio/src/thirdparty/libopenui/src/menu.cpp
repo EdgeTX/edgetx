@@ -176,6 +176,12 @@ void MenuBody::setIndex(int index)
 
     lv_obj_invalidate(lvobj);
     lv_table_t* table = (lv_table_t*)lvobj;
+
+    if (index < 0) {
+      table->row_act = LV_TABLE_CELL_NONE;
+      table->col_act = LV_TABLE_CELL_NONE;
+      return;
+    }
     
     table->row_act = index;
     table->col_act = 0;
