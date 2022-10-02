@@ -382,10 +382,10 @@ void ModelsPageBody::selectModel(ModelCell *model)
          LEN_MODEL_FILENAME);
 
   loadModel(g_eeGeneral.currModelFilename, true);
+  modelslist.setCurrentModel(model);
+
   storageDirty(EE_GENERAL);
   storageCheck(true);
-
-  modelslist.setCurrentModel(model);
 
   // Exit to main view
   auto w = Layer::back();
