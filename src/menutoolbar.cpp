@@ -70,6 +70,14 @@ MenuToolbar::~MenuToolbar()
   lv_group_del(group);
 }
 
+void MenuToolbar::resetFilter()
+{
+  if (lv_group_get_focused(group) != lvobj) {
+    lv_group_focus_obj(lvobj);
+    choice->fillMenu(menu);
+  }
+}
+
 void MenuToolbar::onEvent(event_t event)
 {
   
@@ -91,9 +99,7 @@ void MenuToolbar::onEvent(event_t event)
 rect_t MenuToolbar::getButtonRect(size_t buttons)
 {
   coord_t y = buttons * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
-  coord_t width = std::max<coord_t>(MENUS_TOOLBAR_BUTTON_WIDTH, lv_obj_get_content_width(lvobj));
   return {0, y, LV_PCT(100), MENUS_TOOLBAR_BUTTON_WIDTH};
-
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,

@@ -42,6 +42,7 @@ class MenuToolbar : public Window
   MenuToolbar(Choice* choice, Menu* menu);
   ~MenuToolbar();
 
+  void resetFilter();
   void onEvent(event_t event) override;
 
  protected:
