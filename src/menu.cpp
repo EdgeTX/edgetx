@@ -126,6 +126,7 @@ void MenuBody::removeLines()
 {
   lines.clear();
   setRowCount(0);
+  selectedIndex = 0;
 
   // reset vertical scroll
   lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
