@@ -70,6 +70,11 @@ void MenuBody::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc
   }
 }
 
+static void _force_editing(lv_group_t* g)
+{
+  lv_group_set_editing(g, true);
+}
+
 MenuBody::MenuBody(Window * parent, const rect_t & rect):
   TableField(parent, rect)
 {
@@ -80,7 +85,16 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
   setColumnWidth(0, rect.w);
 
   lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-  if (g) { lv_group_set_editing(g, true); }
+  if (g) {
+    setFocusHandler([=](bool focus) {
+      if (focus) {
+        lv_group_set_focus_cb(g, _force_editing);
+      } else {
+        lv_group_set_focus_cb(g, nullptr);
+      }
+    });
+    lv_group_set_editing(g, true);
+  }
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
@@ -112,6 +126,9 @@ void MenuBody::removeLines()
 {
   lines.clear();
   setRowCount(0);
+
+  // reset vertical scroll
+  lv_obj_scroll_to_y(lvobj, 0, LV_ANIM_OFF);
 }
 
 coord_t MenuBody::getContentHeight()
