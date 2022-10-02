@@ -54,4 +54,6 @@ class MenuToolbar : public Window
   bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax);
 
   rect_t getButtonRect(size_t buttons);
+
+  void onClicked() override;
 };
