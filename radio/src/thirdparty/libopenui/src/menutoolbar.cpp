@@ -21,12 +21,21 @@
 #include "choice.h"
 #include "font.h"
 
+static void toolbar_btn_defocus(lv_event_t* event)
+{
+  auto obj = lv_event_get_target(event);
+  auto btn = (MenuToolbarButton*)lv_obj_get_user_data(obj);
+  btn->check(false);
+}
+
 MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
                                      const char* picto) :
     Button(parent, rect, nullptr, 0, 0, window_create), picto(picto)
 {
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
+  lv_obj_add_event_cb(lvobj, toolbar_btn_defocus, LV_EVENT_DEFOCUSED, nullptr);
 }
 
 void MenuToolbarButton::paint(BitmapBuffer * dc)
@@ -53,6 +62,7 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
     group(lv_group_create())
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+  lv_group_add_obj(group, lvobj);
 }
 
 MenuToolbar::~MenuToolbar()
@@ -62,11 +72,6 @@ MenuToolbar::~MenuToolbar()
 
 void MenuToolbar::onEvent(event_t event)
 {
-  lv_obj_t* obj = lv_group_get_focused(group);
-  if (obj) {
-    auto btn = (MenuToolbarButton*)lv_obj_get_user_data(obj);
-    if (btn) { btn->check(false); }
-  }
   
   if (event == EVT_KEY_BREAK(KEY_PGDN)) {
     lv_group_focus_next(group);
@@ -75,12 +80,11 @@ void MenuToolbar::onEvent(event_t event)
     lv_group_focus_prev(group);
   }
     
-  obj = lv_group_get_focused(group);
+  auto obj = lv_group_get_focused(group);
   if (!obj) {
     choice->fillMenu(menu);
   } else {
-    auto btn = (MenuToolbarButton*)lv_obj_get_user_data(obj);
-    if (btn) btn->onClicked();
+    lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
   }
 }
 
@@ -121,7 +125,6 @@ static int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable
   return retval;
 }
 
-
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
                             int16_t filtermax)
 {
@@ -141,4 +144,9 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
       std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax));
 
   lv_group_add_obj(group, button->getLvObj());
+}
+
+void MenuToolbar::onClicked()
+{
+  choice->fillMenu(menu);
 }
