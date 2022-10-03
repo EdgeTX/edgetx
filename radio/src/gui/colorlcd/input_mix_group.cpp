@@ -53,11 +53,21 @@ InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
   lv_obj_add_event_cb(lvobj, InputMixGroup::value_changed,
                       LV_EVENT_VALUE_CHANGED, nullptr);
 
-  label = lv_label_create(lvobj);
-  lv_label_set_text(label, getSourceString(idx));
-  lv_obj_set_grid_cell(label,
+  chText = lv_label_create(lvobj);
+  lv_label_set_text_fmt(chText, "%02u: ", idx - MIXSRC_CH1 + 1);
+  lv_obj_set_style_text_font(chText, getFont(FONT(XS)), 0);
+  lv_obj_set_style_pad_top(chText, 0, 0);
+  lv_obj_set_grid_cell(chText,
                        LV_GRID_ALIGN_START, 0, 1,
                        LV_GRID_ALIGN_START, 0, 1);
+
+  label = lv_label_create(lvobj);
+  lv_label_set_text(label, getSourceString(idx));
+  lv_obj_set_style_pad_top(label, 3, 0);
+  lv_obj_set_style_pad_bottom(label, 0, 0);
+  lv_obj_set_grid_cell(label,
+                       LV_GRID_ALIGN_START, 0, 1,
+                       LV_GRID_ALIGN_END, 0, 1);
 
   auto box = window_create(lvobj);
   lv_obj_set_size(box, lv_pct(100), LV_SIZE_CONTENT);

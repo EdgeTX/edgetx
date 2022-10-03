@@ -42,6 +42,7 @@ class InputMixGroup : public Window
   mixsrc_t idx;
   std::list<Line> lines;
 
+  lv_obj_t* chText;
   lv_obj_t* label;
   lv_obj_t* line_container;
 

@@ -153,9 +153,17 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
     source = lv_label_create(lvobj);
+
+#if LCD_H > LCD_W
     lv_obj_set_style_text_font(source, getFont(FONT(BOLD)), 0);
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
-                         LV_GRID_ALIGN_START, 0, 1);
+                         LV_GRID_ALIGN_CENTER, 0, 2);
+
+#else
+    lv_obj_set_style_text_font(source, getFont(FONT(XS)), 0);
+    lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
+#endif
 
     lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN, nullptr);
   }
@@ -166,8 +174,11 @@ class OutputLineButton : public ListLineButton
     
     const LimitData* output = limitAddress(index);
 
-    lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
-
+#if LCD_H > LCD_W
+    lv_label_set_text_fmt(source, "%02u:\n%s", index +1, getSourceString(MIXSRC_CH1 + index));
+#else
+    lv_label_set_text_fmt(source, "%02u: %s", index +1, getSourceString(MIXSRC_CH1 + index));
+#endif
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);
     } else {
