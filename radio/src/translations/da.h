@@ -457,13 +457,13 @@
 #define TR_SPLASHSCREEN                "Start skærm"
 #define TR_PWR_ON_DELAY                "Str til forsinkelse"
 #define TR_PWR_OFF_DELAY               "Str fra forsinkelse"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-advarsel", INDENT "Gas tilstand")
+#define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Tilp-Pos", INDENT INDENT INDENT INDENT "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING               TR(INDENT "K-advarsel", INDENT "Kontakter position")
-#define TR_POTWARNINGSTATE             TR(INDENT "Drejk.&Skyd.", INDENT "Drejekontakt & skyder")
-#define TR_SLIDERWARNING               TR(INDENT "Skyd. pos.", INDENT "Skyder position")
-#define TR_POTWARNING                  TR(INDENT "Drejk. adv.", INDENT "Drejekontakt position")
+#define TR_SWITCHWARNING               TR(INDENT "Kon. adv", INDENT "Kontakt position")
+#define TR_POTWARNINGSTATE             TR(INDENT "Drejk.&Skyd.", INDENT "Drejekontakt & skyder position")
+#define TR_SLIDERWARNING               TR(INDENT "Skyd. pos", INDENT "Skyder position")
+#define TR_POTWARNING                  TR(INDENT "Drejk. adv", INDENT "Drejekontakt position")
 #define TR_TIMEZONE                    "Tids zone"
 #define TR_ADJUST_RTC                  "Juster RTC"
 #define TR_GPS                         "GPS"
@@ -505,7 +505,7 @@
 #define TR_FREE_STACK                  "Fri stak"
 #define TR_INT_GPS_LABEL               "Intern GPS"
 #define TR_HEARTBEAT_LABEL             "Hjerte puls"
-#define TR_LUA_SCRIPTS_LABEL           "Lua program"
+#define TR_LUA_SCRIPTS_LABEL           "Lua script"
 #define TR_FREE_MEM_LABEL              "Fri mem"
 #define TR_TIMER_LABEL                 "Timer"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
@@ -583,10 +583,10 @@
 #define TR_MULTI_OPTION                TR("Tilvalg", "Tilvalg værdi")
 #define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ka.", INDENT "Bind til kanal")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Deaktiver Ch. map")
-#define TR_DISABLE_TELEM               TR("No Telem", "Deaktiver Telemetri")
+#define TR_DISABLE_TELEM               TR("No Telem", "Deaktiver telemetri")
 #define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Autodetect", INDENT "Autodetect format")
 #define TR_MULTI_LOWPOWER              TR(INDENT "Lav strøm", INDENT "Lav strøm tilstand")
-#define TR_MULTI_LNA_DISABLE           INDENT "LNA disable"
+#define TR_MULTI_LNA_DISABLE           INDENT "LNA deaktiver"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("TIL", "Aktiveret")
 #define TR_DISABLE_INTERNAL            TR("Deaktiver int.", "Deaktiver intern RF")
@@ -615,7 +615,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Akt. strøm", "Aktuel strøm")
 #define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
-#define TR_SYNCMENU                    "[Sync]"
+#define TR_SYNCMENU                    "[Synk]"
 #define TR_LIMIT                       INDENT "Grænse"
 #define TR_MINRSSI                     "Min Rssi"
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
@@ -645,7 +645,7 @@
 #define TR_ENTER_LABEL                 "Vælg type"
 #define TR_LABEL                       "Type"
 #define TR_LABELS                      "Typer"
-#define TR_CURRENT_MODEL               "Aktuelle"
+#define TR_CURRENT_MODEL               "Aktuel"
 #define TR_NEW                         "Ny"
 #define TR_NEW_LABEL                   "Ny type"
 #define TR_RENAME_LABEL                "Omdøb type"
@@ -724,11 +724,11 @@
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Skarphed"
 #define TR_CPU_TEMP                    "CPU temp."
-#define TR_CPU_CURRENT                 "Current"
+#define TR_CPU_CURRENT                 "CPU strøm"
 #define TR_CPU_MAH                     "Forbrug"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
-#define TR_CAPAWARNING                 INDENT "Kapasitet lav"
+#define TR_CAPAWARNING                 INDENT "Kapacitet lav"
 #define TR_TEMPWARNING                 INDENT "For varm"
 #define TR_TTL_WARNING                 "Advarsel: brug 3.3V logisk niveau"
 #define TR_FUNC                        "Funk"
@@ -780,7 +780,7 @@
 #define TR_BLUETOOTH_INIT              "Init"
 #define TR_BLUETOOTH_DIST_ADDR         "Dist adr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Lokal adr"
-#define TR_BLUETOOTH_PIN_CODE          "PIN code"
+#define TR_BLUETOOTH_PIN_CODE          "PIN kode"
 #define TR_BLUETOOTH_NODEVICES         "Ingen enheder fundet"
 #define TR_BLUETOOTH_SCANNING          "Søger..."
 #define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
@@ -827,10 +827,10 @@
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Enhed file sig.", "Enhed file sig.")
 #define TR_CURRENT_VERSION             TR("Aktuel ver: ", "Aktuel version: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Brænde int. module", "Brænde intern modul")
-#define TR_FLASH_INTERNAL_MULTI        TR("Brænde Int. Multi", "Brænde intern Multi")
+#define TR_FLASH_INTERNAL_MULTI        TR("Brænde int. multi", "Brænde intern multi")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Brænde ext. module", "Brænde ekstern modul")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Brænde Ext. Multi", "Brænde ekstern Multi")
-#define TR_FLASH_EXTERNAL_ELRS         TR("Brænde Ext. ELRS", "Brænde ekstern ELRS")
+#define TR_FLASH_EXTERNAL_MULTI        TR("Brænde ext. multi", "Brænde ekstern multi")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Brænde ext. ELRS", "Brænde ekstern ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW opdatering fejl", "Firmware opdaterings fejl")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Brændning successful"
 #define TR_WRITING                     "Skriver..."
@@ -885,15 +885,15 @@
 #define TR_RESET_TELEMETRY             "Nulstil telemetri"
 #define TR_STATISTICS                  "Statistik"
 #define TR_ABOUT_US                    "Om"
-#define TR_USB_JOYSTICK                "USB Joystick (HID)"
-#define TR_USB_MASS_STORAGE            "USB Storage (SD)"
-#define TR_USB_SERIAL                  "USB Serial (VCP)"
+#define TR_USB_JOYSTICK                "USB joystick (HID)"
+#define TR_USB_MASS_STORAGE            "USB lager (SD)"
+#define TR_USB_SERIAL                  "USB seriel (VCP)"
 #define TR_SETUP_SCREENS               "Setup skærm"
 #define TR_MONITOR_SCREENS             "Monitor"
 #define TR_AND_SWITCH                  "OG kontakt"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
-#define TR_ANADIAGS_CALIB              "Kalibreret analoge"
+#define TR_ANADIAGS_CALIB              "Kalibreret analog"
 #define TR_ANADIAGS_FILTRAWDEV         "Filteret rå analog med deviation"
 #define TR_ANADIAGS_UNFILTRAW          "Ufilteret rå analog"
 #define TR_ANADIAGS_MINMAX             "Min., max. and range"
@@ -977,7 +977,7 @@
 #define TR_COPY_STICKS_TO_OFS          TR("Kopi pind->subtrim", "Kopier pinde til subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopi min/max ->alle",  "Kopier min/max/center til alle udgange")
 #define TR_COPY_TRIMS_TO_OFS           TR("Kopi trim->subtrim", "Kopier trim til subtrim")
-#define TR_INCDEC                      "Inc/Decrement"
+#define TR_INCDEC                      "Øg/sænk"
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "Mix kilde"
 #define TR_CONSTANT                    "Konstant"
@@ -1022,7 +1022,7 @@
 #define TR_LIMITS_HEADERS_CURVE        "Kurve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim tilstand"
-#define TR_INVERTED                    "Inverted"
+#define TR_INVERTED                    "Invers"
 
 #define TR_LSW_HEADERS_FUNCTION        "Funktion"
 #define TR_LSW_HEADERS_V1              "V1"
@@ -1110,7 +1110,7 @@
 #define TR_TELEMETRYFULL               TR("Alle slots fulde!", "Alle telemetri slots fulde!")
 #define TR_SERVOS_OK                   "Servo OK"
 #define TR_SERVOS_KO                   "Servo KO"
-#define TR_INVERTED_SERIAL             INDENT "Invert"
+#define TR_INVERTED_SERIAL             INDENT "Invers"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Ingen inst.", INDENT "Ignorer instans")
 #define TR_DISCOVER_SENSORS            "Søg efter nye"
 #define TR_STOP_DISCOVER_SENSORS       "Stop"
