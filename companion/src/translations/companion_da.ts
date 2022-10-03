@@ -65,6 +65,66 @@
         <source>for unknown reasons.</source>
         <translation>af ukendte årsager.</translation>
     </message>
+    <message>
+        <source>Manual</source>
+        <translation>Manuel</translation>
+    </message>
+    <message>
+        <source>Startup</source>
+        <translation>Ved programstart</translation>
+    </message>
+    <message>
+        <source>Daily</source>
+        <translation>Dagligt</translation>
+    </message>
+    <message>
+        <source>Weekly</source>
+        <translation>Ugenligt</translation>
+    </message>
+    <message>
+        <source>Monthly</source>
+        <translation>Månedsvis</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Fejlsøg</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Advarsel</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Critical</source>
+        <translation>Kritisk</translation>
+    </message>
+    <message>
+        <source>Fatal</source>
+        <translation>Fatal</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Wizard</source>
+        <translation>Guide</translation>
+    </message>
+    <message>
+        <source>Editor</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Skabelon</translation>
+    </message>
+    <message>
+        <source>Prompt</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>AppMessages</name>
@@ -3411,7 +3471,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Imperial</source>
-        <translation>Imperial</translation>
+        <translation>Imperiel</translation>
     </message>
     <message>
         <source>Country Code</source>
@@ -4134,7 +4194,7 @@ Tilstand 4:
     </message>
     <message>
         <source>Czech</source>
-        <translation>Tjeckiska</translation>
+        <translation>Tjekkisk</translation>
     </message>
     <message>
         <source>Slovak</source>
@@ -11575,7 +11635,7 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesDialog</name>
+    <name>preferencesDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Preferencer</translation>
@@ -11705,6 +11765,10 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
         <translation>Information ikke tilgængelig</translation>
     </message>
     <message>
+        <source>Top bar</source>
+        <translation>Top menu</translation>
+    </message>
+    <message>
         <source>Top Bar</source>
         <translation>Top menu</translation>
     </message>
@@ -11741,7 +11805,7 @@ Tryk Afbryd for at afslutte kalibrering uden at gemme.</translation>
     </message>
     <message>
         <source>Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?</source>
-        <translation>Rasio indstillinger for (%1) passer ikke sammen med aktuelle profil (%2).\n\nØnsker du at forsætte?</translation>
+        <translation>Radio indstillinger for (%1) passer ikke sammen med aktuelle profil (%2).\n\nØnsker du at forsætte?</translation>
     </message>
 </context>
 </TS>
