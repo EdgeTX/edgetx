@@ -66,14 +66,15 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
     ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
 {
   setBeforeDisplayMenuHandler([=](Menu *menu) {
-    menu->setToolbar(new SourceChoiceMenuToolbar(this, menu));
+    auto tb = new SourceChoiceMenuToolbar(this, menu);
+    menu->setToolbar(tb);
+
 #if defined(AUTOSOURCE)
     menu->setWaitHandler([=]() {
       int16_t val = getMovedSource(vmin);
       if (val) {
-        fillMenu(menu);
+        tb->resetFilter();
         menu->select(getIndexFromValue(val));
-        // TODO: reset toolbar
       }
 #if defined(AUTOSWITCH)
       else {
@@ -81,9 +82,8 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
         if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
           val = switchToMix(swtch);
           if (val && (val >= vmin) && (val <= vmax)) {
-            fillMenu(menu);
+            tb->resetFilter();
             menu->select(getIndexFromValue(val));
-            // TODO: reset toolbar
           }
         }
       }
