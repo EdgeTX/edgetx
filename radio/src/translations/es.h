@@ -1053,6 +1053,12 @@
 #define TR_MAIN_VIEW_X                "Vista principal X"
 #define TR_PANEL1_BACKGROUND          "Fondo panel1"
 #define TR_PANEL2_BACKGROUND          "Fondo panel2"
+#define TR_WIDGET_GAUGE                "Gauge"
+#define TR_WIDGET_MODELBMP             "Models"
+#define TR_WIDGET_OUTPUTS              "Outputs"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Value"
 
 // Taranis About screen
 #define TR_ABOUTUS             "Nosotros"

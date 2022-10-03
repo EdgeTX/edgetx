@@ -709,6 +709,12 @@ extern const char STR_COLOR[];
 extern const char STR_MAIN_VIEW_X[];
 extern const char STR_PANEL1_BACKGROUND[];
 extern const char STR_PANEL2_BACKGROUND[];
+extern const char STR_WIDGET_GAUGE[];
+extern const char STR_WIDGET_MODELBMP[];
+extern const char STR_WIDGET_OUTPUTS[];
+extern const char STR_WIDGET_TEXT[];
+extern const char STR_WIDGET_TIMER[];
+extern const char STR_WIDGET_VALUE[];
 extern const char STR_MODULES_RX_VERSION[];
 #endif
 extern const char STR_EXECUTE_FILE[];
