@@ -34,6 +34,8 @@ extern uint8_t ppmInputValidityTimer;
 extern uint8_t currentTrainerMode;
 #define IS_TRAINER_INPUT_VALID() (ppmInputValidityTimer != 0)
 
+extern uint8_t trainerStatus;
+
 void checkTrainerSignalWarning();
 void checkTrainerSettings();
 void stopTrainer();
