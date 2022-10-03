@@ -941,8 +941,10 @@ void ModelMap::updateModelCell(ModelCell *cell)
 
   TRACE("Labels: Updating model %s", cell->modelFilename);
   readModelYaml(cell->modelFilename, (uint8_t *)model, sizeof(ModelData));
-  strcpy(cell->modelName, model->header.name);
-  strcpy(cell->modelBitmap, model->header.bitmap);
+  strncpy(cell->modelName, model->header.name, LEN_MODEL_NAME);
+  cell->modelName[LEN_MODEL_NAME] = '\0';
+  strncpy(cell->modelBitmap, model->header.bitmap, LEN_BITMAP_NAME);
+  cell->modelBitmap[LEN_BITMAP_NAME] = '\0';
   LabelsVector labels = ModelMap::fromCSV(model->header.labels);
   for(const auto &lbl : labels ) {
     modelslabels.addLabelToModel(lbl,cell);
@@ -1137,7 +1139,8 @@ bool ModelsList::loadYaml()
       TRACE_LABELS("  Created a modelcell for %s, not in labels.yml",
                    filehash.name.c_str());
       model = new ModelCell(filehash.name.c_str());
-      strcpy(model->modelFinfoHash, filehash.hash);
+      strncpy(model->modelFinfoHash, filehash.hash, FILE_HASH_LENGTH);
+      model->modelFinfoHash[FILE_HASH_LENGTH] = '\0';
       modelslist.push_back(model);
       filehash.celladded = true;
       model->_isDirty = true;
