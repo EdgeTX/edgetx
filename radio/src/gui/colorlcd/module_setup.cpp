@@ -281,6 +281,11 @@ void ModuleWindow::updateModule()
         }
         if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
           moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+#if defined(MULTIMODULE)
+          if (isModuleMultimodule(moduleIdx)) {
+            setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
+          }
+#endif
 #if defined(AFHDS2)
           if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
 #endif
