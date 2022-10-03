@@ -1155,6 +1155,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
 #if !defined(BOOT)
   else if (canvas) {
+    DMAWait();
     lv_canvas_draw_text(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
                         &label_draw_dsc, buffer);
   }
