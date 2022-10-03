@@ -75,6 +75,15 @@ void setDefaultGVars()
 #endif
 }
 
+void setDefaultRSSIValues()
+{
+  // Set to legacy FrSky values until
+  // a better solution is found (module specific?)
+  //
+  g_model.rfAlarms.warning = 45;
+  g_model.rfAlarms.critical = 42;
+}
+
 void setVendorSpecificModelDefaults(uint8_t id)
 {
 #if defined(FRSKY_RELEASE)
@@ -108,6 +117,7 @@ void applyDefaultTemplate()
   setDefaultInputs();
   setDefaultMixes();
   setDefaultGVars();
+  setDefaultRSSIValues();
 
   setDefaultModelRegistrationID();
 
