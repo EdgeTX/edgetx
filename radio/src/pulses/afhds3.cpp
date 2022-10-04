@@ -391,6 +391,7 @@ class ProtoState
     ModuleState state;
 
     bool modelIDSet;
+    uint8_t modelID;
 
     /**
      * Command count used for counting actual number of commands sent in run mode
@@ -541,6 +542,7 @@ void ProtoState::setupFrame()
         return;        
       } else {
         modelIDSet = true;
+        modelID = g_model.header.modelId[module_index];
         trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                        &g_model.header.modelId[module_index], 1);
 
@@ -548,6 +550,11 @@ void ProtoState::setupFrame()
         trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
         return;
       }
+    } else if (modelID != g_model.header.modelId[module_index]) {
+      modelIDSet = false;
+      auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
+      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      return;
     }
     
     if (this->state == ModuleState::STATE_STANDBY) {
