@@ -65,6 +65,8 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 
   auto form = new FormGroup(&body, rect_t{});
   form->setFlexLayout();
+  form->padAll(lv_dpx(8));
+
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   TimerData* p_timer = &g_model.timers[timer];
@@ -116,6 +118,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
   new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
              COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
