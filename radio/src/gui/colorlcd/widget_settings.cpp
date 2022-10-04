@@ -81,6 +81,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             [=](int16_t newValue) {
               widget->getOptionValue(optIdx)->unsignedValue =
                   (uint32_t)newValue;
+              SET_DIRTY();
             });
         break;
 
