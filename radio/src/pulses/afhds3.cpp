@@ -438,7 +438,6 @@ static const char* const moduleStateText[] =
 static const COMMAND periodicRequestCommands[] =
 {
   COMMAND::MODULE_STATE,
-  COMMAND::MODULE_GET_CONFIG,
   COMMAND::VIRTUAL_FAILSAFE
 };
 
@@ -544,6 +543,9 @@ void ProtoState::setupFrame()
         modelIDSet = true;
         trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                        &g_model.header.modelId[module_index], 1);
+
+        // always fetch config after setting model ID
+        trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
         return;
       }
     }
