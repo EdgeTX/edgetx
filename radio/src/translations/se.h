@@ -1160,7 +1160,7 @@
 #define TR_REMOVE_WIDGET                "Ta bort widget"
 #define TR_WIDGET_SETTINGS              "Widgetinställningar"
 #define TR_WIDGET_GAUGE                 "Mätare"
-#define TR_WIDGET_MODELBMP              "Modellbild"
+#define TR_WIDGET_MODELBMP              "Modellinfo"
 #define TR_WIDGET_OUTPUTS               "Output"
 #define TR_WIDGET_TEXT                  "Text"
 #define TR_WIDGET_TIMER                 "Timer"
