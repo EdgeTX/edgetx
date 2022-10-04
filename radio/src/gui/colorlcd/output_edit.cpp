@@ -74,6 +74,7 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
   buildBody(form);
 
   buildHeader(&header);
+  lv_obj_add_event_cb(lvobj, OutputEditWindow::onDrawBegin, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
 }
 
 void OutputEditWindow::checkEvents()
@@ -137,12 +138,12 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Min
   line = form->newLine(&grid);
   minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
+  minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
                      PREC1, -LIMIT_STD_MAX);
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
+  maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
                      PREC1, +LIMIT_STD_MAX);
 
   // Direction
@@ -183,3 +184,34 @@ void OutputEditWindow::buildBody(FormWindow* form)
   new Choice(line, rect_t{}, STR_SUBTRIMMODES, 0, 1,
              GET_SET_DEFAULT(output->symetrical));
 }
+
+void OutputEditWindow::onDrawBegin(lv_event_t * e)
+{
+  lv_obj_t* target = lv_event_get_target(e);
+  auto window = (OutputEditWindow*)lv_obj_get_user_data(target);
+  if (window)
+    window->onDrawBeginImpl();
+}
+
+void OutputEditWindow::onDrawBeginImpl()
+{
+  int val = channelOutputs[channel];
+  if(val < 0)
+  {
+    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(BOLD)), 0);
+    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(BOLD)), 0);
+    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
+  } else if (val > 0) {
+    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(BOLD)), 0);
+    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(BOLD)), 0);
+  } else { // val == 0
+    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
+  }
+}
+
