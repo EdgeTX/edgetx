@@ -155,7 +155,6 @@ class OutputLineButton : public ListLineButton
     source = lv_label_create(lvobj);
 
 #if LCD_H > LCD_W
-    lv_obj_set_style_text_font(source, getFont(FONT(BOLD)), 0);
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 2);
 
