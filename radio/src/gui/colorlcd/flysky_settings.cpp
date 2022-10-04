@@ -137,6 +137,7 @@ void FlySkySettings::update()
 
     auto box = new FormGroup(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
     new Choice(box, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
                GET_SET_DEFAULT(md->afhds3.phyMode));
