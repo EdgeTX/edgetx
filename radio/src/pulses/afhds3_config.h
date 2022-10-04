@@ -107,5 +107,6 @@ union Config_u
 };
 
 Config_u* getConfig(uint8_t moduleIdx);
+void applyModelConfig(uint8_t moduleIdx);
 
 };

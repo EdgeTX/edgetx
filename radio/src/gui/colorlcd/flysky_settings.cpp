@@ -149,6 +149,7 @@ void FlySkySettings::update()
     uint8_t module = moduleIdx;
     new TextButton(box, rect_t{}, STR_MODULE_OPTIONS,
                    [=]() {
+                       afhds3::applyModelConfig(module);
                        new AFHDS3_Options(module);
                        return 0;
                    });

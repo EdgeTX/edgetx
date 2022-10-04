@@ -223,10 +223,11 @@ class ProtoState
 
     Config_u* getConfig() { return &cfg; } 
 
+    void applyConfigFromModel();
+
   protected:
 
     void resetConfig(uint8_t version);
-    void setConfigFromModel();
 
   private:
     //friendship declaration - use for passing telemetry
@@ -389,7 +390,7 @@ void ProtoState::setupFrame()
   if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND) {
     if (state != STATE_BINDING) {
       TRACE("AFHDS3 [BIND]");
-      setConfigFromModel();
+      applyConfigFromModel();
 
       trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
@@ -775,7 +776,7 @@ void ProtoState::resetConfig(uint8_t version)
   }
 }
 
-void ProtoState::setConfigFromModel()
+void ProtoState::applyConfigFromModel()
 {
   uint8_t version = 0;
   if (moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
@@ -852,6 +853,12 @@ Config_u* getConfig(uint8_t module)
 {
   auto p_state = &protoState[module];
   return p_state->getConfig();
+}
+
+void applyModelConfig(uint8_t module)
+{
+  auto p_state = &protoState[module];
+  p_state->applyConfigFromModel();
 }
 
 static void* initExternal(uint8_t module)
