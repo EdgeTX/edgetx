@@ -2598,14 +2598,19 @@ static int luaGetOutputValue(lua_State * L)
 /*luadoc
 @function getTrainerStatus()
 
-@retval value current output value (number). Zero is returned for:
- * non-existing outputs
+@retval value current output value (number).
+ 0 - Not Connected
+ 1 - Connected
+ 2 - Disconnected
+ 3 - Reconnected
 
 @status current Introduced in 2.8.0
 */
 static int luaGetTrainerStatus(lua_State * L)
 {
-  return trainerStatus;
+  extern uint8_t trainerStatus;
+  lua_pushinteger(L, trainerStatus);
+  return 1;
 }
 
 const luaL_Reg opentxLib[] = {
