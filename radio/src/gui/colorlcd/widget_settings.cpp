@@ -102,7 +102,6 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
         new ModelTextEdit(line, rect_t{},
                           widget->getOptionValue(optIdx)->stringValue,
                           sizeof(widget->getOptionValue(optIdx)->stringValue));
-        SET_DIRTY();
         break;
 
       case ZoneOption::File:
@@ -150,7 +149,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             [=](int16_t newValue) {  // setValue
               widget->getOptionValue(optIdx)->unsignedValue =
                   (uint32_t)newValue;
-            SET_DIRTY();
+              SET_DIRTY();
             });
         break;
 
