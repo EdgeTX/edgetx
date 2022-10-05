@@ -102,6 +102,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
         new ModelTextEdit(line, rect_t{},
                           widget->getOptionValue(optIdx)->stringValue,
                           sizeof(widget->getOptionValue(optIdx)->stringValue));
+        SET_DIRTY();
         break;
 
       case ZoneOption::File:
