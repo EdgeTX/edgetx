@@ -74,7 +74,7 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
   buildBody(form);
 
   buildHeader(&header);
-  lv_obj_add_event_cb(lvobj, OutputEditWindow::onDrawBegin, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  lv_obj_add_event_cb(lvobj, OutputEditWindow::onDrawBegin, LV_EVENT_DRAW_POST_END, nullptr);
 }
 
 void OutputEditWindow::checkEvents()
@@ -140,11 +140,15 @@ void OutputEditWindow::buildBody(FormWindow* form)
   minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
   minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
                      PREC1, -LIMIT_STD_MAX);
+  lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
+  lv_obj_set_style_bg_color(minText->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN);
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
   maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
                      PREC1, +LIMIT_STD_MAX);
+  lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
+  lv_obj_set_style_bg_color(maxText->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN);
 
   // Direction
   line = form->newLine(&grid);
@@ -198,18 +202,24 @@ void OutputEditWindow::onDrawBeginImpl()
   int val = channelOutputs[channel];
   if(val < 0)
   {
+    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
     lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(BOLD)), 0);
     lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(BOLD)), 0);
+    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
     lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
   } else if (val > 0) {
+    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
     lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
     lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(BOLD)), 0);
     lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(BOLD)), 0);
   } else { // val == 0
+    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
     lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
+    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
     lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
   }
