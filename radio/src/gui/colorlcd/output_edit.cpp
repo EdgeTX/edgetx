@@ -74,7 +74,6 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
   buildBody(form);
 
   buildHeader(&header);
-  lv_obj_add_event_cb(lvobj, OutputEditWindow::onDrawBegin, LV_EVENT_DRAW_POST_END, nullptr);
 }
 
 void OutputEditWindow::checkEvents()
@@ -84,13 +83,19 @@ void OutputEditWindow::checkEvents()
     value = newValue;
 
     int chanVal = calcRESXto100(channelOutputs[channel]);
-    minText->setBackgroundColor(chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE
-                                                       : 0U);
+    minText->setBackgroudOpacity(chanVal < chanZero - 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
+    minText->setFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD));
     minText->invalidate();
-    maxText->setBackgroundColor(chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE
-                                                       : 0U);
+    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD)), 0);
+    minEdit->invalidate();
+
+    maxText->setBackgroudOpacity(chanVal > chanZero + 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
+    maxText->setFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD));
     maxText->invalidate();
+    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD)), 0);
+    maxEdit->invalidate();
   }
+
   Window::checkEvents();
 }
 
@@ -140,15 +145,13 @@ void OutputEditWindow::buildBody(FormWindow* form)
   minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
   minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
                      PREC1, -LIMIT_STD_MAX);
-  lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(minText->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN);
+  minText->setBackgroundColor(COLOR_THEME_ACTIVE);
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
   maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
                      PREC1, +LIMIT_STD_MAX);
-  lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(maxText->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_PART_MAIN);
+  maxText->setBackgroundColor(COLOR_THEME_ACTIVE);
 
   // Direction
   line = form->newLine(&grid);
@@ -188,40 +191,3 @@ void OutputEditWindow::buildBody(FormWindow* form)
   new Choice(line, rect_t{}, STR_SUBTRIMMODES, 0, 1,
              GET_SET_DEFAULT(output->symetrical));
 }
-
-void OutputEditWindow::onDrawBegin(lv_event_t * e)
-{
-  lv_obj_t* target = lv_event_get_target(e);
-  auto window = (OutputEditWindow*)lv_obj_get_user_data(target);
-  if (window)
-    window->onDrawBeginImpl();
-}
-
-void OutputEditWindow::onDrawBeginImpl()
-{
-  int val = channelOutputs[channel];
-  if(val < 0)
-  {
-    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
-    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(BOLD)), 0);
-    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(BOLD)), 0);
-    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
-  } else if (val > 0) {
-    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
-    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(BOLD)), 0);
-    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(BOLD)), 0);
-  } else { // val == 0
-    lv_obj_set_style_bg_opa(minText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-    lv_obj_set_style_text_font(minText->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_bg_opa(maxText->getLvObj(),  LV_OPA_0, LV_PART_MAIN);
-    lv_obj_set_style_text_font(maxText->getLvObj(), getFont(FONT(STD)), 0);
-    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);
-  }
-}
-

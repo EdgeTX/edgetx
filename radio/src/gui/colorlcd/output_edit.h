@@ -46,8 +46,4 @@ class OutputEditWindow : public Page
   void checkEvents() override;
   void buildHeader(Window *window);
   void buildBody(FormWindow *window);
-  void onDrawBeginImpl();
-
- private:
-  static void onDrawBegin(lv_event_t * e);
 };
