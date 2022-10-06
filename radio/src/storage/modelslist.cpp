@@ -1144,6 +1144,8 @@ bool ModelsList::loadYaml()
       modelslist.push_back(model);
       filehash.celladded = true;
       model->_isDirty = true;
+      if(filehash.curmodel == true)
+        modelslist.setCurrentModel(model);
     }
   }
 
