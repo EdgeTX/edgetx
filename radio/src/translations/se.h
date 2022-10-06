@@ -313,11 +313,11 @@
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
 
 #if defined(COLORLCD)
-#if defined(BOLD)
-#define TR_FONT_SIZES                   "STD"
-#else
-#define TR_FONT_SIZES                   "STD","FET","XXS","XS","L","XL","XXL"
-#endif
+  #if defined(BOLD)
+    #define TR_FONT_SIZES               "STD"
+  #else
+    #define TR_FONT_SIZES               "STD","FET","XXS","XS","L","XL","XXL"
+  #endif
 #endif
 
 
@@ -346,7 +346,7 @@
 #define TR_FREE                         "kvar"
 #define TR_YES                          "Ja"
 #define TR_NO                           "Nej"
-#define TR_DELETEMODEL                  "RADERA MODELL"
+#define TR_DELETEMODEL                  "RADERA" BREAKSPACE "MODELL"
 #define TR_COPYINGMODEL                 "Kopierar..."
 #define TR_MOVINGMODEL                  "Flyttar..."
 #define TR_LOADINGMODEL                 "Laddar..."
