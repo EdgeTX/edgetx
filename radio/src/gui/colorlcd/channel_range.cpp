@@ -28,6 +28,7 @@ ChannelRange::ChannelRange(Window* parent) :
     FormGroup(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
 }
 
 void ChannelRange::build()

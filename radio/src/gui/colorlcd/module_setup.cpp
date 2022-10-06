@@ -123,6 +123,7 @@ FailsafeChoice::FailsafeChoice(Window* parent, uint8_t moduleIdx) :
   FormGroup(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
 
   auto md = &g_model.moduleData[moduleIdx];
   auto choice =
@@ -245,6 +246,7 @@ void ModuleWindow::updateModule()
       new StaticText(line, rect_t{},"");
       auto box = new FormGroup(line, rect_t{});
       box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+      lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
       idUnique = new StaticText(box, rect_t{}, "", 0, 0);
       updateIDStaticText(moduleIdx);
     }
@@ -254,6 +256,7 @@ void ModuleWindow::updateModule()
 
     auto box = new FormGroup(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+    lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
     // Model index
     auto modelId = &g_model.header.modelId[moduleIdx];
@@ -726,6 +729,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
   auto moduleChoice = new Choice(box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS,
