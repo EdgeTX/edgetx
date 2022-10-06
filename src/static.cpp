@@ -75,6 +75,16 @@ void StaticText::setBackgroundColor(LcdFlags color)
   lv_obj_set_style_bg_color(lvobj, c, LV_PART_MAIN);
 }
 
+void StaticText::setBackgroudOpacity(uint32_t opa)
+{
+  lv_obj_set_style_bg_opa(lvobj,  opa, LV_PART_MAIN);
+}
+
+void StaticText::setFont(LcdFlags font)
+{
+  lv_obj_set_style_text_font(lvobj, getFont(font), 0);
+}
+
 template <>
 void DynamicNumber<uint32_t>::updateText()
 {
