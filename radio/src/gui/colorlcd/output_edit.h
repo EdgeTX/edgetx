@@ -23,6 +23,7 @@
 
 #include "page.h"
 #include "form.h"
+#include "gvar_numberedit.h"
 #include "static.h"
 
 class OutputEditStatusBar;
@@ -37,7 +38,9 @@ class OutputEditWindow : public Page
   int value = 0;
   int chanZero = 0;
   StaticText *minText;
+  GVarNumberEdit* minEdit;
   StaticText *maxText;
+  GVarNumberEdit* maxEdit;
   OutputEditStatusBar *statusBar = nullptr;
 
   void checkEvents() override;
