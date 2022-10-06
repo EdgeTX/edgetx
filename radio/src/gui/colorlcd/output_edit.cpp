@@ -83,13 +83,19 @@ void OutputEditWindow::checkEvents()
     value = newValue;
 
     int chanVal = calcRESXto100(channelOutputs[channel]);
-    minText->setBackgroundColor(chanVal < chanZero - 1 ? COLOR_THEME_ACTIVE
-                                                       : 0U);
+    minText->setBackgroudOpacity(chanVal < chanZero - 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
+    minText->setFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD));
     minText->invalidate();
-    maxText->setBackgroundColor(chanVal > chanZero + 1 ? COLOR_THEME_ACTIVE
-                                                       : 0U);
+    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD)), 0);
+    minEdit->invalidate();
+
+    maxText->setBackgroudOpacity(chanVal > chanZero + 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
+    maxText->setFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD));
     maxText->invalidate();
+    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD)), 0);
+    maxEdit->invalidate();
   }
+
   Window::checkEvents();
 }
 
@@ -137,13 +143,15 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Min
   line = form->newLine(&grid);
   minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
+  minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
                      PREC1, -LIMIT_STD_MAX);
+  minText->setBackgroundColor(COLOR_THEME_ACTIVE);
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
+  maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
                      PREC1, +LIMIT_STD_MAX);
+  maxText->setBackgroundColor(COLOR_THEME_ACTIVE);
 
   // Direction
   line = form->newLine(&grid);
