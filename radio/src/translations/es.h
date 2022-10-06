@@ -284,18 +284,6 @@
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else

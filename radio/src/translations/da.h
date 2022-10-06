@@ -284,18 +284,6 @@
 #define TR_TIMER_DIR                   TR("Rest", "Vis rest"), TR("Gået tid", "Vis gået tid")
 
 #if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
@@ -328,7 +316,7 @@
 #define TR_FREE                        "fri"
 #define TR_YES                         "Ja"
 #define TR_NO                          "Nej"
-#define TR_DELETEMODEL                 "SLET" BREAKSPACE "MODEL"
+#define TR_DELETEMODEL                 "SLET MODEL"
 #define TR_COPYINGMODEL                "Kopier model..."
 #define TR_MOVINGMODEL                 "Flytter model..."
 #define TR_LOADINGMODEL                "Indlæser model..."
@@ -735,10 +723,10 @@
 #define TR_DELAY                       "Forsinkelse"
 #define TR_SD_CARD                     "SD CARD"
 #define TR_SDHC_CARD                   "SD-HC CARD"
-#define TR_NO_SOUNDS_ON_SD             "Ingen lyde" BREAKSPACE "på SD"
-#define TR_NO_MODELS_ON_SD             "Ingen modeller" BREAKSPACE "på SD"
-#define TR_NO_BITMAPS_ON_SD            "Ingen bitmapper" BREAKSPACE "på SD"
-#define TR_NO_SCRIPTS_ON_SD            "Ingen scripts" BREAKSPACE "på SD"
+#define TR_NO_SOUNDS_ON_SD             "Ingen lyde på SD"
+#define TR_NO_MODELS_ON_SD             "Ingen modeller på SD"
+#define TR_NO_BITMAPS_ON_SD            "Ingen bitmapper på SD"
+#define TR_NO_SCRIPTS_ON_SD            "Ingen scripts på SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntax fejl", "Script syntax fejl")
 #define TR_SCRIPT_PANIC                "Script panik"
 #define TR_SCRIPT_KILLED               "Script dræbt"

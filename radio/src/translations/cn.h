@@ -284,18 +284,6 @@
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 #if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-  #else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
@@ -328,7 +316,7 @@
 #define TR_FREE                        "空闲"
 #define TR_YES                         "是"
 #define TR_NO                          "否"
-#define TR_DELETEMODEL                 "删除" BREAKSPACE "模型"
+#define TR_DELETEMODEL                 "删除 模型"
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
 #define TR_LOADINGMODEL                "载入模型..."
