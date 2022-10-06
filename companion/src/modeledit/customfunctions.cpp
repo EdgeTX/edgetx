@@ -333,9 +333,14 @@ void CustomFunctionsPanel::functionEdited()
     lock = true;
     int index = sender()->property("index").toInt();
     RawSwitch swtch = functions[index].swtch;
+    int paramTemp =functions[index].param;
+    
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
+    functions[index].param = paramTemp;
+    strcpy(functions[index].custName, name[index]->text().toLatin1());
+        
     refreshCustomFunction(index);
     emit modified();
     lock = false;
