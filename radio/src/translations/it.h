@@ -289,18 +289,6 @@
 #define TR_TIMER_DIR                   TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")
 
 #if defined(COLORLCD)
-  #define INDENT               "\007"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         12
-  #define BREAKSPACE           "\036"
-#else
-  #define INDENT               "\001"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         (FW/2)
-  #define BREAKSPACE           " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
@@ -335,7 +323,7 @@
 #define TR_FREE                "Disp."
 #define TR_YES                 "Si"
 #define TR_NO                  "No"
-#define TR_DELETEMODEL         "CANCELLA" BREAKSPACE "MODELLO"
+#define TR_DELETEMODEL         "CANCELLA MODELLO"
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
@@ -715,7 +703,7 @@
 #define TR_WRONG_PCBREV        "PCB sbagliato"
 #define TR_EMERGENCY_MODE      "MODALITA' EMERGENZA"
 #define TR_PCBREV_ERROR        "Errore PCB"
-#define TR_NO_FAILSAFE         "Failsafe" BREAKSPACE "non settato"
+#define TR_NO_FAILSAFE         "Failsafe non settato"
 #define TR_KEYSTUCK            "Tasto bloccato"
 #define TR_INVERT_THR          "Inverti Mot?"
 #define TR_VOLUME              "Volume Audio"
@@ -736,10 +724,10 @@
 #define TR_DELAY               "Ritardo"
 #define TR_SD_CARD             "SD Card"
 #define TR_SDHC_CARD           "SD-HC Card"
-#define TR_NO_SOUNDS_ON_SD     "No Suoni" BREAKSPACE "su SD"
-#define TR_NO_MODELS_ON_SD     "No Model." BREAKSPACE "su SD"
-#define TR_NO_BITMAPS_ON_SD    "No Immag." BREAKSPACE "su SD"
-#define TR_NO_SCRIPTS_ON_SD    "No Scripts" BREAKSPACE "su SD"
+#define TR_NO_SOUNDS_ON_SD     "No Suoni su SD"
+#define TR_NO_MODELS_ON_SD     "No Model. su SD"
+#define TR_NO_BITMAPS_ON_SD    "No Immag. su SD"
+#define TR_NO_SCRIPTS_ON_SD    "No Scripts su SD"
 #define TR_SCRIPT_SYNTAX_ERROR TR("Errore sintassi", "Script errore sintassi")
 #define TR_SCRIPT_PANIC        "Script panico"
 #define TR_SCRIPT_KILLED       "Script fermato"
@@ -828,7 +816,7 @@
 #define TR_FLASH_INTERNAL_MULTI        TR("Prog. MULTI int.", "Programma MULTI interno")
 #define TR_FLASH_EXTERNAL_MULTI        TR("Prog. MULTI est.", "Programma MULTI esterno")
 #define TR_FIRMWARE_UPDATE_ERROR       TR(INDENT "Errore agg. FW",INDENT "Errore aggiornamento firmware")
-#define TR_FIRMWARE_UPDATE_SUCCESS     "Aggiornamento" BREAKSPACE "riuscito"
+#define TR_FIRMWARE_UPDATE_SUCCESS     "Aggiornamento riuscito"
 #define TR_WRITING                     "Scrittura..."
 #define TR_CONFIRM_FORMAT              "Confermi formattazione?"
 #define TR_INTERNALRF                  "Modulo interno"

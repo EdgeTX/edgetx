@@ -301,23 +301,13 @@
 #define TR_TIMER_DIR                   TR("Zbývající", "Zobrazit zbývající"), TR("Uplynulý", "Zobrazit uplynulý")
 
 // ZERO TERMINATED STRINGS
+
 #if defined(COLORLCD)
-  #define INDENT                       "\007"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-#define INDENT                         "\001"
-#define LEN_INDENT                     1
-#define INDENT_WIDTH                   (FW/2)
-#define BREAKSPACE                     " "
-#endif
-#if defined(COLORLCD)
-#if defined(BOLD)
-#define TR_FONT_SIZES                  "STD"
-#else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
-#endif
+  #if defined(BOLD)
+    #define TR_FONT_SIZES                  "STD"
+  #else
+    #define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+  #endif
 #endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
@@ -346,7 +336,7 @@
 #define TR_FREE                        TR("volné:", "volných")
 #define TR_YES                         "Ano"
 #define TR_NO                          "Ne"
-#define TR_DELETEMODEL                 "SMAZAT" BREAKSPACE "MODEL"
+#define TR_DELETEMODEL                 "SMAZAT MODEL"
 #define TR_COPYINGMODEL                "Kopíruji model..."
 #define TR_MOVINGMODEL                 "Přesouvám model..."
 #define TR_LOADINGMODEL                "Aktivuji model..."
@@ -751,10 +741,10 @@
 #define TR_DELAY                       "Zdržet"
 #define TR_SD_CARD                     "SD"
 #define TR_SDHC_CARD                   "SD-HC"
-#define TR_NO_SOUNDS_ON_SD             "žádný zvuk" BREAKSPACE "na SD"
-#define TR_NO_MODELS_ON_SD             "žádný model" BREAKSPACE "na SD"
-#define TR_NO_BITMAPS_ON_SD            "žádné obrázky" BREAKSPACE "na SD"
-#define TR_NO_SCRIPTS_ON_SD            "žádný skript" BREAKSPACE "na SD"
+#define TR_NO_SOUNDS_ON_SD             "žádný zvuk na SD"
+#define TR_NO_MODELS_ON_SD             "žádný model na SD"
+#define TR_NO_BITMAPS_ON_SD            "žádné obrázky na SD"
+#define TR_NO_SCRIPTS_ON_SD            "žádný skript na SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaktická chyba", "Syntaktická chyba skriptu")
 #define TR_SCRIPT_PANIC                "Script zmaten"
 #define TR_SCRIPT_KILLED               "Script ukončen"

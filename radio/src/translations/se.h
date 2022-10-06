@@ -313,18 +313,6 @@
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
 
 #if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                    3
-  #define INDENT_WIDTH                  12
-  #define BREAKSPACE                    "\036"
-#else
-  #define INDENT                        "\001"
-  #define LEN_INDENT                    1
-  #define INDENT_WIDTH                  (FW/2)
-  #define BREAKSPACE                    " "
-#endif
-
-#if defined(COLORLCD)
 #if defined(BOLD)
 #define TR_FONT_SIZES                   "STD"
 #else
@@ -358,7 +346,7 @@
 #define TR_FREE                         "kvar"
 #define TR_YES                          "Ja"
 #define TR_NO                           "Nej"
-#define TR_DELETEMODEL                  "RADERA" BREAKSPACE "MODELL"
+#define TR_DELETEMODEL                  "RADERA MODELL"
 #define TR_COPYINGMODEL                 "Kopierar..."
 #define TR_MOVINGMODEL                  "Flyttar..."
 #define TR_LOADINGMODEL                 "Laddar..."

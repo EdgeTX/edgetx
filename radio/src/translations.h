@@ -95,8 +95,12 @@
 
 #if defined(COLORLCD)
   #define BUTTON(x) x
+  #define INDENT
 #else
-  #define BUTTON(x) "[" x "]"
+  #define BUTTON(x)    "[" x "]"
+  #define INDENT       "\001"
+  #define LEN_INDENT   1
+  #define INDENT_WIDTH (FW/2)
 #endif
 
 #if (LCD_W == 212)
