@@ -1100,6 +1100,12 @@
 #define TR_MAIN_VIEW_X                  "Huvudvy X"
 #define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
 #define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
+#define TR_WIDGET_GAUGE                 "Mätare"
+#define TR_WIDGET_MODELBMP              "Modellinfo"
+#define TR_WIDGET_OUTPUTS               "Output"
+#define TR_WIDGET_TEXT                  "Text"
+#define TR_WIDGET_TIMER                 "Timer"
+#define TR_WIDGET_VALUE                 "Värde"
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"
@@ -1159,12 +1165,6 @@
 #define TR_SELECT_WIDGET                "Välj widget"
 #define TR_REMOVE_WIDGET                "Ta bort widget"
 #define TR_WIDGET_SETTINGS              "Widgetinställningar"
-#define TR_WIDGET_GAUGE                 "Mätare"
-#define TR_WIDGET_MODELBMP              "Modellinfo"
-#define TR_WIDGET_OUTPUTS               "Output"
-#define TR_WIDGET_TEXT                  "Text"
-#define TR_WIDGET_TIMER                 "Timer"
-#define TR_WIDGET_VALUE                 "Värde"
 #define TR_REMOVE_SCREEN                "Ta bort huvudvy"
 
 #if LCD_W > LCD_H
