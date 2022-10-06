@@ -69,6 +69,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             },
             [=](int32_t newValue) {
               widget->getOptionValue(optIdx)->signedValue = newValue;
+              SET_DIRTY();
             });
         break;
 
@@ -81,6 +82,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             [=](int16_t newValue) {
               widget->getOptionValue(optIdx)->unsignedValue =
                   (uint32_t)newValue;
+              SET_DIRTY();
             });
         break;
 
@@ -128,6 +130,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             [=](int newValue) {  // setValue
               widget->getOptionValue(optIdx)->unsignedValue =
                   (uint32_t)newValue;
+              SET_DIRTY();
             });
 
         tmChoice->setTextHandler([](int value) {
@@ -146,6 +149,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
             [=](int16_t newValue) {  // setValue
               widget->getOptionValue(optIdx)->unsignedValue =
                   (uint32_t)newValue;
+              SET_DIRTY();
             });
         break;
 
