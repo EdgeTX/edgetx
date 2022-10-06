@@ -36,6 +36,9 @@ class StaticText: public Window
     const std::string& getText() const;
 
     void setBackgroundColor(LcdFlags color);
+    void setBackgroudOpacity(uint32_t opa);
+    void setFont(LcdFlags font);
+
 
   protected:
     std::string text;
