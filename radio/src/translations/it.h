@@ -1051,12 +1051,12 @@
 #define TR_MAIN_VIEW_X                 "Vista principale X"
 #define TR_PANEL1_BACKGROUND           "Sfondo Panello 1"
 #define TR_PANEL2_BACKGROUND           "Sfondo Panello 2"
-#define TR_WIDGET_GAUGE                "Gauge"
-#define TR_WIDGET_MODELBMP             "Models"
-#define TR_WIDGET_OUTPUTS              "Outputs"
-#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_GAUGE                "Indicatore"
+#define TR_WIDGET_MODELBMP             "Immagine e nome modello"
+#define TR_WIDGET_OUTPUTS              "Uscite"
+#define TR_WIDGET_TEXT                 "Testo"
 #define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Value"
+#define TR_WIDGET_VALUE                "Valore"
 
 // About screen
 #define TR_ABOUTUS             TR(" INFO ", "INFO SU")

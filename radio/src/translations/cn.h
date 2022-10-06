@@ -621,7 +621,7 @@
 #define TR_SELECT_MODE                 "选择模式"
 #define TR_CREATE_MODEL                "创建模型"
 #define TR_FAVORITE_LABEL              "Favorites"
-#define TR_MODELS_MOVED                "Unused models moved to"
+#define TR_MODELS_MOVED                "未使用模型移至"
 #define TR_NEW_MODEL                   "New Model"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
@@ -1046,12 +1046,12 @@
 #define TR_MAIN_VIEW_X                 "Main view X"
 #define TR_PANEL1_BACKGROUND           "面板1背景"
 #define TR_PANEL2_BACKGROUND           "面板2背景"
-#define TR_WIDGET_GAUGE                "Gauge"
-#define TR_WIDGET_MODELBMP             "Models"
-#define TR_WIDGET_OUTPUTS              "Outputs"
-#define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Value"
+#define TR_WIDGET_GAUGE                "行程"
+#define TR_WIDGET_MODELBMP             "模型信息"
+#define TR_WIDGET_OUTPUTS              "输出"
+#define TR_WIDGET_TEXT                 "文本"
+#define TR_WIDGET_TIMER                "计时器"
+#define TR_WIDGET_VALUE                "数值"
 
 // About screen
 #define TR_ABOUTUS                     TR(" 关于 ", "关于")
