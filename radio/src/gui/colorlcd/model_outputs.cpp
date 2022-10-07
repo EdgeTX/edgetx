@@ -172,12 +172,17 @@ class OutputLineButton : public ListLineButton
     if (!init) return;
     
     const LimitData* output = limitAddress(index);
-
-#if LCD_H > LCD_W
-    lv_label_set_text_fmt(source, "%02u:\n%s", index +1, getSourceString(MIXSRC_CH1 + index));
-#else
-    lv_label_set_text_fmt(source, "%02u: %s", index +1, getSourceString(MIXSRC_CH1 + index));
+    if(g_model.limitData[index].name[0] != '\0')
+    {
+#if LCD_W > LCD_H
+      lv_obj_set_style_text_line_space(source, -3, LV_PART_MAIN);
+      lv_obj_set_style_pad_top(source, -7, 0);
+      lv_obj_set_style_pad_bottom(source, -7, 0);
 #endif
+      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_CH1 + index), index + 1);
+    } else {
+      lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
+    }
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);
     } else {
