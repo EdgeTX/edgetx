@@ -141,8 +141,10 @@ class OutputLineButton : public ListLineButton
     refresh();
     lv_obj_update_layout(lvobj);
 
-    auto param = lv_event_get_param(e);
-    lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    if(e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    }
   }
   
  public:
@@ -157,7 +159,10 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_START, 0, 1);
 
-    lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN, nullptr);
+    lv_obj_update_layout(parent->getLvObj());
+    if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
+
+    lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
 
   void refresh() override
