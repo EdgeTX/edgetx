@@ -280,7 +280,7 @@ void Menu::setToolbar(Window * window)
 
 void Menu::setOutline(Window* obj)
 {
-  lv_obj_set_style_outline_width(obj->getLvObj(), 4, LV_PART_MAIN);
+  lv_obj_set_style_outline_width(obj->getLvObj(), 2, LV_PART_MAIN);
   lv_obj_set_style_outline_color(obj->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
   lv_obj_set_style_outline_opa(obj->getLvObj(),  LV_OPA_100, LV_PART_MAIN);
   lv_obj_set_style_outline_pad(obj->getLvObj(),  1, LV_PART_MAIN);
