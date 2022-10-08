@@ -117,6 +117,10 @@ QString LogicalSwitchData::nameToString(int index) const
 {
   return RadioData::getElementName(tr("L"), index + 1, NULL, true);
 }
+QString LogicalSwitchData::custNameToString() const
+{
+  return custName;
+}
 
 void LogicalSwitchData::convert(RadioDataConversionState & cstate)
 {
