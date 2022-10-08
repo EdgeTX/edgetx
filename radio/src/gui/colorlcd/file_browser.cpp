@@ -203,7 +203,10 @@ void FileBrowser::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* 
 
 void FileBrowser::onSelected(const char* name, bool is_dir)
 {
-  if (is_dir) return;
+  if (is_dir) {
+    if (fileSelected) fileSelected(nullptr, nullptr, nullptr);
+    return;
+  }
   const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
   if (fileSelected) fileSelected(path, name, fullpath);
