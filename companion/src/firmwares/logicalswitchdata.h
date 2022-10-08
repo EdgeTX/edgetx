@@ -87,6 +87,7 @@ class LogicalSwitchData {
     unsigned int getRangeFlags() const;
     QString funcToString() const;
     QString nameToString(int index) const;
+    QString custNameToString() const;
     void convert(RadioDataConversionState & cstate);
 };
 
