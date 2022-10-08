@@ -136,6 +136,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchSwtch[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     fswtchSwtch[i]->setMaxVisibleItems(10);
     connect(fswtchSwtch[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
+    connect(fswtchSwtch[i], SIGNAL(LogicalSwitchesPanel::editingFinished()), this, SLOT(refreshSwitchComboBoxes()));
     tableLayout->addWidget(i, 1, fswtchSwtch[i]);
 
     // The function
@@ -234,6 +235,18 @@ CustomFunctionsPanel::~CustomFunctionsPanel()
     stopSound(mediaPlayerCurrent);
   delete tabModelFactory;
   delete tabFilterFactory;
+}
+void CustomFunctionsPanel::refreshSwitchComboBoxes()
+{
+  // The switch
+  for (int i = 0; i < fswCapability; i++) {
+    fswtchSwtch[i]->setProperty("index", i);
+    fswtchSwtch[i]->setModel(tabFilterFactory->getItemModel(rawSwitchId));
+    fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(functions[i].swtch.toValue()));
+    fswtchSwtch[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+    fswtchSwtch[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    fswtchSwtch[i]->setMaxVisibleItems(10);
+  }
 }
 
 void CustomFunctionsPanel::onMediaPlayerStateChanged(QMediaPlayer::State state)
