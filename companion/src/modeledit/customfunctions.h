@@ -47,6 +47,7 @@ class CustomFunctionsPanel : public GenericPanel
   private slots:
     void customFunctionEdited();
     void nameEdited();
+    void refreshSwitchComboBoxes();
     void functionEdited();
     void onCustomContextMenuRequested(QPoint pos);
     void refreshCustomFunction(int index, bool modified=false);
