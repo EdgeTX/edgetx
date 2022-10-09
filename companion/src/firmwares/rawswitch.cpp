@@ -86,9 +86,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_VIRTUAL:
         if (modelData)
-          return modelData->logicalSw[index].nameToString(index-1) + ": " + modelData->logicalSw[index-1].custNameToString() ;
+          return modelData->logicalSw[index - 1].nameToString(index - 1);
         else
-          return LogicalSwitchData().nameToString(index-1);
+          return LogicalSwitchData().nameToString(index - 1);
 
       case SWITCH_TYPE_FUNCTIONSWITCH:
         if (!Boards::getCapability(board, Board::FunctionSwitches))

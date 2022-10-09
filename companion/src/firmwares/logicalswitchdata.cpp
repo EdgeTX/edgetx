@@ -27,7 +27,7 @@
 
 bool LogicalSwitchData::isEmpty() const
 {
-  return (func == 0);
+  return (func == LS_FN_OFF);
 }
 
 CSFunctionFamily LogicalSwitchData::getFunctionFamily() const
@@ -115,11 +115,7 @@ QString LogicalSwitchData::funcToString() const
 
 QString LogicalSwitchData::nameToString(int index) const
 {
-  return RadioData::getElementName(tr("L"), index + 1, NULL, true);
-}
-QString LogicalSwitchData::custNameToString() const
-{
-  return custName;
+  return RadioData::getElementName(tr("L"), index + 1, custName, true);
 }
 
 void LogicalSwitchData::convert(RadioDataConversionState & cstate)
