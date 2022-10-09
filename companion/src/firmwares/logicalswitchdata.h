@@ -18,10 +18,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef LOGICALSWITCHDATA_H
-#define LOGICALSWITCHDATA_H
+#pragma once
 
 #include <QtCore>
+
+#define LS_CUSTNAME_LEN       10
 
 class RadioDataConversionState;
 
@@ -49,8 +50,8 @@ enum CSFunction {
   LS_FN_EDGE,
   LS_FN_SAFE,
   // later ... LS_FN_RANGE,
-    LS_FN_MAX,
-    
+  LS_FN_MAX,
+
 };
 
 enum CSFunctionFamily {
@@ -79,7 +80,7 @@ class LogicalSwitchData {
     unsigned int delay;
     unsigned int duration;
     int andsw;
-    char custName[10+1];
+    char custName[LS_CUSTNAME_LEN + 1];
 
     void clear() { memset(this, 0, sizeof(LogicalSwitchData)); }
     bool isEmpty() const;
@@ -87,8 +88,5 @@ class LogicalSwitchData {
     unsigned int getRangeFlags() const;
     QString funcToString() const;
     QString nameToString(int index) const;
-    QString custNameToString() const;
     void convert(RadioDataConversionState & cstate);
 };
-
-#endif // LOGICALSWITCHDATA_H

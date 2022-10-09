@@ -99,7 +99,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << "" << "Name";
+  headerLabels << "#" << tr("Name") << tr("Switch") << tr("Action") << tr("Parameters") << "";
   TableLayout * tableLayout = new TableLayout(this, fswCapability, headerLabels);
 
   for (int i = 0; i < fswCapability; i++) {
@@ -116,16 +116,16 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     connect(label, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     tableLayout->addWidget(i, 0, label);
-    
 
     // The Custom Name
     name[i] = new QLineEdit(this);
     name[i]->setProperty("index", i);
-    name[i]->setMaxLength(10);
+    name[i]->setMaxLength(CF_CUSTNAME_LEN);
     QRegExp rx(CHAR_FOR_NAMES_REGEX);
     name[i]->setValidator(new QRegExpValidator(rx, this));
-    connect(name[i], SIGNAL(editingFinished()), this, SLOT(nameEdited()));
-    tableLayout->addWidget(i, 5, name[i]);
+    name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
+    tableLayout->addWidget(i, 1, name[i]);
 
     // The switch
     fswtchSwtch[i] = new QComboBox(this);
@@ -136,8 +136,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchSwtch[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     fswtchSwtch[i]->setMaxVisibleItems(10);
     connect(fswtchSwtch[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
-    connect(fswtchSwtch[i], SIGNAL(LogicalSwitchesPanel::editingFinished()), this, SLOT(refreshSwitchComboBoxes()));
-    tableLayout->addWidget(i, 1, fswtchSwtch[i]);
+    tableLayout->addWidget(i, 2, fswtchSwtch[i]);
 
     // The function
     fswtchFunc[i] = new QComboBox(this);
@@ -146,11 +145,11 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(functions[i].func));
     fswtchFunc[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(fswtchFunc[i], SIGNAL(currentIndexChanged(int)), this, SLOT(functionEdited()));
-    tableLayout->addWidget(i, 2, fswtchFunc[i]);
+    tableLayout->addWidget(i, 3, fswtchFunc[i]);
 
     // The parameters
     QHBoxLayout * paramLayout = new QHBoxLayout();
-    tableLayout->addLayout(i, 3, paramLayout);
+    tableLayout->addLayout(i, 4, paramLayout);
 
     fswtchGVmode[i] = new QComboBox(this);
     fswtchGVmode[i]->setProperty("index", i);
@@ -201,11 +200,11 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     connect(playBT[i], &QToolButton::clicked, this, &CustomFunctionsPanel::toggleSound);
 
     QHBoxLayout * repeatLayout = new QHBoxLayout();
-    tableLayout->addLayout(i, 4, repeatLayout);
+    tableLayout->addLayout(i, 5, repeatLayout);
     fswtchRepeat[i] = new QComboBox(this);
     fswtchRepeat[i]->setProperty("index", i);
     fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
-    fswtchRepeat[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    fswtchRepeat[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     fswtchRepeat[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     repeatLayout->addWidget(fswtchRepeat[i], i + 1);
     connect(fswtchRepeat[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
@@ -216,13 +215,11 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchEnable[i]->setFixedWidth(200);
     repeatLayout->addWidget(fswtchEnable[i], i + 1);
     connect(fswtchEnable[i], SIGNAL(stateChanged(int)), this, SLOT(customFunctionEdited()));
-
- 
   }
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->setColumnWidth(3, 300);
+  tableLayout->setColumnWidth(5, 300);
   tableLayout->pushRowsUp(fswCapability + 1);
 
   update();
@@ -235,18 +232,6 @@ CustomFunctionsPanel::~CustomFunctionsPanel()
     stopSound(mediaPlayerCurrent);
   delete tabModelFactory;
   delete tabFilterFactory;
-}
-void CustomFunctionsPanel::refreshSwitchComboBoxes()
-{
-  // The switch
-  for (int i = 0; i < fswCapability; i++) {
-    fswtchSwtch[i]->setProperty("index", i);
-    fswtchSwtch[i]->setModel(tabFilterFactory->getItemModel(rawSwitchId));
-    fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(functions[i].swtch.toValue()));
-    fswtchSwtch[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
-    fswtchSwtch[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    fswtchSwtch[i]->setMaxVisibleItems(10);
-  }
 }
 
 void CustomFunctionsPanel::onMediaPlayerStateChanged(QMediaPlayer::State state)
@@ -347,27 +332,26 @@ void CustomFunctionsPanel::functionEdited()
     int index = sender()->property("index").toInt();
     RawSwitch swtch = functions[index].swtch;
     int paramTemp =functions[index].param;
-    
+
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
     functions[index].param = paramTemp;
     strcpy(functions[index].custName, name[index]->text().toLatin1());
-        
+
     refreshCustomFunction(index);
     emit modified();
     lock = false;
   }
 }
 
-void CustomFunctionsPanel::nameEdited()
+void CustomFunctionsPanel::onNameEdited()
 {
     QLineEdit *le = qobject_cast<QLineEdit*>(sender());
     int index = le->property("index").toInt();
     CustomFunctionData & cfn = functions[index];
     if (cfn.custName != le->text()) {
       strcpy(cfn.custName, le->text().toLatin1());
-      
       emit modified();
     }
 }
@@ -376,8 +360,8 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
 {
   CustomFunctionData & cfn = functions[i];
   AssignFunc func = (AssignFunc)fswtchFunc[i]->currentData().toInt();
-  
-    
+
+
 
   unsigned int widgetsMask = 0;
   if (modified) {
@@ -388,7 +372,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
 
   }
   else {
-        name[i]->setText(cfn.custName); 
+        name[i]->setText(cfn.custName);
         fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(cfn.swtch.toValue()));
         fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(cfn.func));
   }

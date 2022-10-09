@@ -43,7 +43,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
   lsCapabilityExt = firmware->getCapability(LogicalSwitchesExt);
 
   QStringList headerLabels;
-  headerLabels  << "#" << "Name" << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
+  headerLabels  << "#" << tr("Name") << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
   if (lsCapabilityExt) {
     headerLabels << tr("Duration") << tr("Delay");
   }
@@ -66,12 +66,12 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
    // The Custom Name
     name[i] = new QLineEdit(this);
     name[i]->setProperty("index", i);
-    name[i]->setMaxLength(10);
+    name[i]->setMaxLength(LS_CUSTNAME_LEN);
     QRegExp rx(CHAR_FOR_NAMES_REGEX);
     name[i]->setValidator(new QRegExpValidator(rx, this));
-    connect(name[i], SIGNAL(editingFinished()), this, SLOT(nameEdited()));
+    name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
     tableLayout->addWidget(i, 1, name[i]);
-
 
     // The function
     cbFunction[i] = new QComboBox(this);
@@ -166,7 +166,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(lsCapability+1);
+  tableLayout->pushRowsUp(lsCapability + 1);
 }
 
 LogicalSwitchesPanel::~LogicalSwitchesPanel()
@@ -174,19 +174,18 @@ LogicalSwitchesPanel::~LogicalSwitchesPanel()
   delete rawSourceFilteredModel;
   delete rawSwitchFilteredModel;
 }
-void LogicalSwitchesPanel::nameEdited()
-{
-  
-    QLineEdit *le = qobject_cast<QLineEdit*>(sender());
-    int index = le->property("index").toInt();
-    
-    if (model->logicalSw[index].custName != le->text()) {
-      strcpy(model->logicalSw[index].custName, le->text().toLatin1());
 
-      int	currentCbInt = cbSource1[index]->currentIndex();
-      model->logicalSw[index].val1 = cbSource1[index]->itemData(currentCbInt).toInt();
-      emit modified();
-    }
+void LogicalSwitchesPanel::onNameEdited()
+{
+  QLineEdit *le = qobject_cast<QLineEdit*>(sender());
+  int index = le->property("index").toInt();
+
+  if (model->logicalSw[index].custName != le->text()) {
+    strcpy(model->logicalSw[index].custName, le->text().toLatin1());
+    if (model->logicalSw[index].func != LS_FN_OFF)
+      updateItemModels();
+    emit modified();
+  }
 }
 
 void LogicalSwitchesPanel::onFunctionChanged()
