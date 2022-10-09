@@ -1020,6 +1020,12 @@
 #define TR_MAIN_VIEW_X                 "Hauptansicht X"
 #define TR_PANEL1_BACKGROUND           "Panel1 Hintergrund"
 #define TR_PANEL2_BACKGROUND           "Panel2 Hintergrund"
+#define TR_WIDGET_GAUGE                "Pegel"
+#define TR_WIDGET_MODELBMP             "Modellinfo"
+#define TR_WIDGET_OUTPUTS              "Ausgänge"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Wert"
 
 // Taranis Info Zeile Anzeigen
 #define TR_LIMITS_HEADERS_NAME         "Name"

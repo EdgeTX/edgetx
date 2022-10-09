@@ -1067,6 +1067,12 @@
 #define TR_MAIN_VIEW_X                 "Hlavní pohled X"
 #define TR_PANEL1_BACKGROUND           "Panel1 pozadí"
 #define TR_PANEL2_BACKGROUND           "Panel2 pozadí"
+#define TR_WIDGET_GAUGE                "Měřidlo"
+#define TR_WIDGET_MODELBMP             "Model info"
+#define TR_WIDGET_OUTPUTS              "Výstupy"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Časovač"
+#define TR_WIDGET_VALUE                "Hodnota"
 
 // Taranis About screen
 #define TR_ABOUTUS                     "O nás"

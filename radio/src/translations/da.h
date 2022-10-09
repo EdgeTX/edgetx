@@ -1046,6 +1046,12 @@
 #define TR_MAIN_VIEW_X                 "Hoved visning X"
 #define TR_PANEL1_BACKGROUND           "Panel1 baggrund"
 #define TR_PANEL2_BACKGROUND           "Panel2 baggrund"
+#define TR_WIDGET_GAUGE                "Gauge"
+#define TR_WIDGET_MODELBMP             "Models"
+#define TR_WIDGET_OUTPUTS              "Outputs"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Value"
 
 // About screen
 #define TR_ABOUTUS                     TR(" OM ", "OM")
