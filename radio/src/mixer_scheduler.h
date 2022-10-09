@@ -64,7 +64,7 @@ void mixerSchedulerISRTrigger();
 #define mixerSchedulerStart()
 #define mixerSchedulerStop()
 #define mixerSchedulerResetTimer()
-#define mixerSchedulerSetPeriod(m,p)
+#define mixerSchedulerSetPeriod(m,p) ((void)(p))
 #define mixerSchedulerClearTrigger()
 
 #define mixerSchedulerEnableTrigger()
