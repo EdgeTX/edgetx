@@ -78,7 +78,7 @@ class OutputChannelBar : public ChannelBar
   LcdFlags outputBarLimitsColor = COLOR_THEME_SECONDARY1;
 };
 
-constexpr coord_t lmargin = 25;
+constexpr coord_t lmargin = 15;
 
 class ComboChannelBar : public Window
 {
@@ -132,13 +132,13 @@ class ComboChannelBar : public Window
       // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED)
-        dc->drawMask(0, 1, chanMonLockedBitmap, textColor);
+        dc->drawMask(0, 5, chanMonLockedBitmap, textColor);
 #endif
 
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        dc->drawMask(0, 20, chanMonInvertedBitmap, textColor);
+        dc->drawMask(0, 25, chanMonInvertedBitmap, textColor);
       }
     }
 

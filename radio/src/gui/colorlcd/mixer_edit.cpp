@@ -50,7 +50,7 @@ class MixerEditStatusBar : public Window
                             {MIX_STATUS_BAR_MARGIN, 0,
                              rect.w - (MIX_STATUS_BAR_MARGIN * 2), rect.h},
                             channel);
-    channelBar->setLeftMargin(0);
+    channelBar->setLeftMargin(15);
     channelBar->setTextColor(COLOR_THEME_PRIMARY2);
     channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
   }

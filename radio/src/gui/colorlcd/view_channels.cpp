@@ -75,8 +75,8 @@ void ChannelsViewPage::build(FormWindow * window)
     coord_t xPos = hmargin;
     coord_t yPos = (chan % 8) * ((window->height() - CHANNEL_VIEW_FOOTER_HEIGHT - 8) / 8);
 #else
-    coord_t width = window->width() / 2 - hmargin;
-    coord_t xPos = (chan % 8) >= 4 ? width + hmargin : hmargin;
+    coord_t width = window->width() / 2 - (hmargin * 2);
+    coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
     coord_t yPos = (chan % 4) * ((window->height() - CHANNEL_VIEW_FOOTER_HEIGHT - 4) / 4);
 #endif
     new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 1}, chan);

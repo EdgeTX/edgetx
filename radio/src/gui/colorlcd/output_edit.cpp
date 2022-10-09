@@ -44,7 +44,7 @@ class OutputEditStatusBar : public Window
       Window(parent, rect), _channel(channel)
   {
     channelBar = new ComboChannelBar(this, {OUTPUT_EDIT_STATUS_BAR_MARGIN, 0, rect.w - (OUTPUT_EDIT_STATUS_BAR_MARGIN * 2), rect.h}, channel);
-    channelBar->setLeftMargin(0);
+    channelBar->setLeftMargin(15);
     channelBar->setTextColor(COLOR_THEME_PRIMARY2);
     channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
   }
