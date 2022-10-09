@@ -181,6 +181,7 @@ class OutputLineButton : public ListLineButton
 #endif
       lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_CH1 + index), index + 1);
     } else {
+      lv_obj_set_style_text_font(source, getFont(FONT(STD)), 0);
       lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
     }
     if (output->revert) {
