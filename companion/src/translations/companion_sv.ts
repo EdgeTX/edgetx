@@ -8176,7 +8176,7 @@ p, li { white-space: pre-wrap; }
     <name>OptionsPage</name>
     <message>
         <source>Throttle Cut</source>
-        <translation>Gas-spärr</translation>
+        <translation>Gasspärr</translation>
     </message>
     <message>
         <source>Throttle Timer</source>
@@ -9129,7 +9129,7 @@ r</translation>
     </message>
     <message>
         <source>Throttle Warning</source>
-        <translation>Gas-varning</translation>
+        <translation>Gasvarning</translation>
     </message>
     <message>
         <source>Reverse throttle operation.
