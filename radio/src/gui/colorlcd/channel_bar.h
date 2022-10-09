@@ -116,7 +116,7 @@ class ComboChannelBar : public Window
 
     void paint(BitmapBuffer * dc) override
     {
-      char chanString[] = "CH32 ";
+      char chanString[] = TR_CH"32 ";
       int usValue = PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
 
       // Channel number
