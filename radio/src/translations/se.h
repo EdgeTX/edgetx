@@ -346,7 +346,7 @@
 #define TR_FREE                         "kvar"
 #define TR_YES                          "Ja"
 #define TR_NO                           "Nej"
-#define TR_DELETEMODEL                  "RADERA" BREAKSPACE "MODELL"
+#define TR_DELETEMODEL                  "RADERA MODELL"
 #define TR_COPYINGMODEL                 "Kopierar..."
 #define TR_MOVINGMODEL                  "Flyttar..."
 #define TR_LOADINGMODEL                 "Laddar..."
