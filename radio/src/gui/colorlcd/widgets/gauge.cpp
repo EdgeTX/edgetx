@@ -82,4 +82,5 @@ const ZoneOption GaugeWidget::options[] = {
   { nullptr, ZoneOption::Bool }
 };
 
-BaseWidgetFactory<GaugeWidget> gaugeWidget("Gauge", GaugeWidget::options);
+BaseWidgetFactory<GaugeWidget> gaugeWidget("Gauge", GaugeWidget::options,
+                                           STR_WIDGET_GAUGE);
