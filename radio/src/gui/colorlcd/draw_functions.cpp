@@ -365,10 +365,10 @@ void drawDate(BitmapBuffer * dc, coord_t x, coord_t y, TelemetryItem & telemetry
 
 coord_t drawGPSCoord(BitmapBuffer * dc, coord_t x, coord_t y, int32_t value, const char * direction, LcdFlags flags, bool seconds=true)
 {
-  char s[32];
+  char s[32] = {};
   uint32_t absvalue = abs(value);
   char * tmp = strAppendUnsigned(s, absvalue / 1000000);
-  *tmp++ = '@';
+  tmp = strAppend(tmp, "°");
   absvalue = absvalue % 1000000;
   absvalue *= 60;
   if (g_eeGeneral.gpsFormat == 0 || !seconds) {
@@ -580,7 +580,7 @@ void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, 
 {
   coord_t x = left;
   coord_t y = top;
-  coord_t line = getFontHeight(flags & 0xFFFF);
+  coord_t line = getFontHeightCondensed(flags & 0xFFFF);
   coord_t space = getTextWidth(" ", 1, flags);
   coord_t word;
   const char * nxt = str;

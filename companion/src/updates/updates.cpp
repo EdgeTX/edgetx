@@ -39,9 +39,9 @@ Updates::~Updates()
 {
 }
 
-void Updates::checkForUpdates(bool manual)
+void Updates::autoUpdates(bool interactive)
 {
-  if (!manual) {
+  if (!interactive) {
     if (g.updateCheckFreq() == AppData::UPDATE_CHECK_MANUAL)
       return;
 
@@ -65,45 +65,56 @@ void Updates::checkForUpdates(bool manual)
 
   g.lastUpdateCheck(QDateTime::currentDateTime().toString(Qt::ISODate));
 
+  factories->resetAllEnvironments();
+
   QStringList list;
 
-  if (!factories->isUpdatesAvailable(list)) {
-    if (manual)
+  if (!factories->isUpdateAvailable(list)) {
+    if (interactive)
       QMessageBox::information(parentWidget(), CPN_STR_APP_NAME, tr("No updates available at this time"));
     return;
   }
 
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
-                            tr("Updates available for:\n  %1\n\nUpdate now?").arg(list.join("\n  ")),
-                            (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::Yes) {
-    doUpdates();
+                            tr("Updates available for:\n  - %1\n\nProcess now?").arg(list.join("\n  - ")),
+                            (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) == QMessageBox::No) {
+    return;
   }
+
+  for (int i = 0; i < list.count(); i++) {
+    factories->setRunUpdate(list.at(i));
+    factories->updateRelease(list.at(i));
+  }
+
+  runUpdate();
 }
 
-void Updates::doUpdates()
+void Updates::manualUpdates()
 {
   if (factories->sortedComponentsList(true).isEmpty()) {
     QMessageBox::warning(this, CPN_STR_APP_NAME, tr("No components have been flagged to check in Update Settings!"));
     return;
   }
 
-  factories->resetAllRunEnvironments();
+  factories->resetAllEnvironments();
 
   UpdatesDialog *dlg = new UpdatesDialog(this, factories);
+  dlg->deleteLater();
 
+  if (dlg->exec())
+    runUpdate();
+}
+
+void Updates::runUpdate()
+{
   bool ok = false;
-
-  if (dlg->exec()) {
-    ProgressDialog progressDialog(this, tr("Update Components"), CompanionIcon("fuses.png"), true);
-    progressDialog.progress()->lock(true);
-    progressDialog.progress()->setInfo(tr("Starting..."));
-    ok = factories->manualUpdate(progressDialog.progress());
-    progressDialog.progress()->lock(false);
-    progressDialog.progress()->setInfo(tr("Finished %1").arg(ok ? tr("successfully") : tr("with errors")));
-    progressDialog.exec();
-  }
-
-  delete dlg;
+  ProgressDialog progressDialog(this, tr("Update Components"), CompanionIcon("fuses.png"), true);
+  progressDialog.progress()->lock(true);
+  progressDialog.progress()->setInfo(tr("Starting..."));
+  ok = factories->updateAll(progressDialog.progress());
+  progressDialog.progress()->lock(false);
+  progressDialog.progress()->setInfo(tr("Finished %1").arg(ok ? tr("successfully") : tr("with errors")));
+  progressDialog.exec();
 
   if (ok)
     checkRunSDSync();

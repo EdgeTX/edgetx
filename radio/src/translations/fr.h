@@ -205,11 +205,8 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                TR("Métr.","Métriques"),TR("Impér.","Impériales")
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
+
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
 
@@ -302,22 +299,11 @@
 #define TR_VSENSORTYPES                "Perso","Calculé"
 #define TR_VFORMULAS                   "Addition","Moyenne","Min","Max","Multipl.","Totalise","Elément","Consomm.","Distance"
 #define TR_VPREC                       "0.--","0.0","0.00"
-#define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","Maxi.","Diff."
+#define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 
 // ZERO TERMINATED STRINGS
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -353,7 +339,7 @@
 #define TR_FREE                        "disp"
 #define TR_YES                         "Yes"
 #define TR_NO                          "No"
-#define TR_DELETEMODEL                 "SUPPRIMER" BREAKSPACE "MODELE"
+#define TR_DELETEMODEL                 "SUPPRIMER MODELE"
 #define TR_COPYINGMODEL                "Copie..."
 #define TR_MOVINGMODEL                 "Déplacement..."
 #define TR_LOADINGMODEL                "Chargement..."
@@ -656,6 +642,7 @@
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Créer modèle"
 #define TR_FAVORITE_LABEL              "Favorites"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "New Model"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"

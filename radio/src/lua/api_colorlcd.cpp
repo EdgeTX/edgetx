@@ -39,7 +39,7 @@ static int8_t getTextHorizontalOffset(LcdFlags flags)
   if (font_index >= sizeof(text_horizontal_offset)) {
     return 0;
   }
-  return text_horizontal_offset[font_index];
+  return 0;//text_horizontal_offset[font_index];
 }
 
 static int8_t getTextVerticalOffset(LcdFlags flags)
@@ -954,7 +954,7 @@ static int luaLcdDrawGauge(lua_State *L)
   flags = flagsRGB(flags);
   
   luaLcdBuffer->drawRect(x, y, w, h, 1, 0xff, flags);
-  uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
+  uint16_t len = limit((uint16_t)1, uint16_t(w*num/den), uint16_t(w));
   luaLcdBuffer->drawSolidFilledRect(x+1, y+1, len, h-2, flags);
 
   return 0;

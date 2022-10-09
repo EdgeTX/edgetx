@@ -181,11 +181,8 @@
 #define SPEED_UNIT_METR        "kmh"
 
 #define TR_VUNITSSYSTEM        "Metric",TR("Imper.","Imperial")
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
+
 #define STR_V                  (STR_VTELEMUNIT[1])
 #define STR_A                  (STR_VTELEMUNIT[2])
 
@@ -279,22 +276,10 @@
 #define TR_VSENSORTYPES                "Custom","Calculated"
 #define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Consumpt","Distance"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Lowest","1","2","3","4","5","6","Highest","Delta"
+#define TR_VCELLINDEX                  "Lowest","1","2","3","4","5","6","7","8","Highest","Delta"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
-
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -639,11 +624,12 @@
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL        "Criar Modelo"
 #define TR_FAVORITE_LABEL      "Favorites"
+#define TR_MODELS_MOVED        "Unused models moved to"
 #define TR_NEW_MODEL           "New Model"
-#define TR_INVALID_MODEL               "Invalid Model"
+#define TR_INVALID_MODEL       "Invalid Model"
 #define TR_EDIT_LABELS         "Edit Labels"
-#define TR_MOVE_UP                     "Move Up"
-#define TR_MOVE_DOWN                   "Move Down"
+#define TR_MOVE_UP             "Move Up"
+#define TR_MOVE_DOWN           "Move Down"
 #define TR_ENTER_LABEL         "Enter Label"
 #define TR_LABEL               "Label"
 #define TR_LABELS              "Labels"

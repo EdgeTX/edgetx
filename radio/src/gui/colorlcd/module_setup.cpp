@@ -123,6 +123,7 @@ FailsafeChoice::FailsafeChoice(Window* parent, uint8_t moduleIdx) :
   FormGroup(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
 
   auto md = &g_model.moduleData[moduleIdx];
   auto choice =
@@ -245,6 +246,7 @@ void ModuleWindow::updateModule()
       new StaticText(line, rect_t{},"");
       auto box = new FormGroup(line, rect_t{});
       box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+      lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
       idUnique = new StaticText(box, rect_t{}, "", 0, 0);
       updateIDStaticText(moduleIdx);
     }
@@ -254,6 +256,7 @@ void ModuleWindow::updateModule()
 
     auto box = new FormGroup(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+    lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
     // Model index
     auto modelId = &g_model.header.modelId[moduleIdx];
@@ -273,7 +276,6 @@ void ModuleWindow::updateModule()
                             }
                           });
 
-
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
@@ -282,6 +284,11 @@ void ModuleWindow::updateModule()
         }
         if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
           moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+#if defined(MULTIMODULE)
+          if (isModuleMultimodule(moduleIdx)) {
+            setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
+          }
+#endif
 #if defined(AFHDS2)
           if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
 #endif
@@ -360,7 +367,7 @@ void ModuleWindow::updateModule()
 #if defined(PXX2)
   else if (isModuleRFAccess(moduleIdx)) {
 
-// Register and Range buttons
+    // Register and Range buttons
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
@@ -580,7 +587,7 @@ void ModuleSubTypeChoice::update()
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
   }
-  else if (isModuleR9M(moduleIdx)) {
+  else if (isModuleR9MNonAccess(moduleIdx)) {
     setMin(MODULE_SUBTYPE_R9M_FCC);
     setMax(MODULE_SUBTYPE_R9M_LAST);
     setValues(STR_R9M_REGION);
@@ -589,7 +596,7 @@ void ModuleSubTypeChoice::update()
     setAvailableHandler(nullptr);
   }
 #if defined(PXX2)
-  else if (isModulePXX2(moduleIdx)) {
+  else if (isModuleISRM(moduleIdx)) {
     setMin(MODULE_SUBTYPE_ISRM_PXX2_ACCESS);
     setMax(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16);
     setValues(STR_ISRM_RF_PROTOCOLS);
@@ -727,6 +734,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
+  lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
   auto moduleChoice = new Choice(box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS,

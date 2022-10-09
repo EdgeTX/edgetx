@@ -40,7 +40,7 @@ int32_t getVolume()
 
 void setVolume(uint8_t volume)
 {
-  // stm32_i2c_init(VOLUME_I2C_BUS, I2C_B1_CLK_RATE);
+  stm32_i2c_init(VOLUME_I2C_BUS, I2C_B1_CLK_RATE);
   stm32_i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1, 10);
 }
 

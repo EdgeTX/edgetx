@@ -77,7 +77,7 @@ class ModelCell
   char modelName[LEN_MODEL_NAME + 1] = "";
   char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
 #if LEN_BITMAP_NAME > 0
-  char modelBitmap[LEN_BITMAP_NAME] = "";
+  char modelBitmap[LEN_BITMAP_NAME + 1] = "";
 #endif
   gtime_t lastOpened = 0;
   bool _isDirty = true;

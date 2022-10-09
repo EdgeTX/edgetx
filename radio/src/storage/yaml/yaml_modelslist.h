@@ -19,21 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _YAML_MODELSLIST_H_
+#define _YAML_MODELSLIST_H_
 
-#include "updateinterface.h"
+#include <vector>
+#include <string>
 
-class UpdateFirmware : public UpdateInterface
-{
-  Q_DECLARE_TR_FUNCTIONS(UpdateFirmware)
+struct YamlParserCalls;
 
-  public:
+void* get_modelslist_iter(std::vector<std::string>* filelist);
+const YamlParserCalls* get_modelslist_parser_calls();
 
-    explicit UpdateFirmware(QWidget * parent);
-    virtual ~UpdateFirmware() {}
-
-  protected:
-    virtual void initAssetSettings() override;
-
-    virtual bool asyncInstall() override;
-};
+#endif

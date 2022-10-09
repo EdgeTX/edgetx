@@ -279,6 +279,9 @@
 #define STR_CHAR_TELEMETRY "\302\223"
 #define STR_CHAR_LUA       "\302\224"
 
+#define STR_CHAR_BW_GREATEREQUAL '}'
+#define STR_CHAR_BW_DEGREE       '@'
+
 #define TR_FSGROUPS                     "-","1","2","3"
 
 //

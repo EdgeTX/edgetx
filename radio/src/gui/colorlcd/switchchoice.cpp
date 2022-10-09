@@ -58,9 +58,11 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
     ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
 {
   setBeforeDisplayMenuHandler([=](Menu* menu) {
-    menu->setToolbar(new SwitchChoiceMenuToolbar(this, menu));
+    auto tb = new SwitchChoiceMenuToolbar(this, menu);
+    menu->setToolbar(tb);
+
 #if defined(AUTOSWITCH)
-    menu->setWaitHandler([menu, this, setValue]() {
+    menu->setWaitHandler([menu, this, setValue, tb]() {
       swsrc_t val = 0;
       swsrc_t swtch = getMovedSwitch();
       if (swtch) {
@@ -73,9 +75,9 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
           val = swtch;
         }
         if (val && (!isValueAvailable || isValueAvailable(val))) {
-          fillMenu(menu);
+          // if (filtered) fillMenu(menu);
+          tb->resetFilter();
           menu->select(getIndexFromValue(val));
-          // TODO: reset toolbar
         }
       }
     });

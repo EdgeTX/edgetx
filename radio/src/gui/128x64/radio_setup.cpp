@@ -398,7 +398,7 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_IMU_MAX:
         lcdDrawText(INDENT_WIDTH, y, STR_IMU_MAX);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, IMU_MAX_DEFAULT + g_eeGeneral.imuMax, attr|LEFT);
-        lcdDrawChar(lcdLastRightPos, y, '@', attr);
+        lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuMax, IMU_MAX_DEFAULT - IMU_MAX_RANGE, IMU_MAX_DEFAULT + IMU_MAX_RANGE);
           lcdDrawText(LCD_W-4*FW, y, "(");
@@ -410,7 +410,7 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_IMU_OFFSET:
         lcdDrawText(INDENT_WIDTH, y, STR_IMU_OFFSET);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.imuOffset, attr|LEFT);
-        lcdDrawChar(lcdLastRightPos, y, '@', attr);
+        lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.imuOffset, IMU_OFFSET_MIN, IMU_OFFSET_MAX);
           lcdDrawText(LCD_W-4*FW, y, "(");

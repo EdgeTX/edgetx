@@ -187,11 +187,6 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   TouchState st = touchPanelRead();
 
-#if defined(TOUCH_PANEL_INVERTED) && !defined(SIMU)
-      st.x = LCD_W - st.x;
-      st.y = LCD_H - st.y;
-#endif
-
   // no touch input if backlight is disabled
   if (!isBacklightEnabled()) {
     reset_inactivity();
@@ -251,15 +246,26 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   if (diff != 0) {
     reset_inactivity();
 
+    bool use_accel = false;
+    auto i = lv_indev_get_act();
+    if (i) {
+      auto g = i->group;
+      if (g && lv_group_get_editing(g)) {
+        auto obj = lv_group_get_focused(g);
+        use_accel = obj && lv_obj_has_flag(obj, LV_OBJ_FLAG_ENCODER_ACCEL);
+      }
+    }
+    
     int8_t dir = 0;
     if (diff < 0) dir = -1;
     else if (diff > 0) dir = 1;
 
-    if (dir == prevDir) {
-      if (g_tmr10ms - lastEvent <= ROTENC_DELAY_HIGHSPEED) { // 160 ms
+    if (use_accel && (dir == prevDir)) {
+      auto speed = (g_tmr10ms - lastEvent) / abs(diff);
+      if (speed <= ROTENC_DELAY_HIGHSPEED/2) { // 80 ms
         // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
-        accel += abs(diff);
-      } else if (g_tmr10ms - lastEvent >= ROTENC_DELAY_MIDSPEED) { // 320 ms
+        accel = min((int8_t)(accel + 1), (int8_t)25);
+      } else if (speed >= ROTENC_DELAY_MIDSPEED/2) { // 160 ms
         // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
         accel = 0;
       }

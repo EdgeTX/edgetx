@@ -240,3 +240,58 @@ private:
 };
 
 extern Stopwatch gStopwatch;
+
+class SemanticVersion
+{
+  public:
+    explicit SemanticVersion(QString vers);
+    ~SemanticVersion() = default;;
+
+    bool isValid(const QString vers);
+    QString toString() const;
+
+    bool operator==(const SemanticVersion& rhs) {
+      return compare(rhs) == 0;
+    }
+
+    bool operator!=(const SemanticVersion& rhs) {
+      return compare(rhs) != 0;
+    }
+
+    bool operator>(const SemanticVersion& rhs) {
+      return compare(rhs) > 0;
+    }
+
+    bool operator>=(const SemanticVersion& rhs) {
+      return compare(rhs) >= 0;
+    }
+
+    bool operator<(const SemanticVersion& rhs) {
+      return compare(rhs) < 0;
+    }
+
+    bool operator<=(const SemanticVersion& rhs) {
+      return compare(rhs) <= 0;
+    }
+
+  private:
+    enum PreRelease {
+      PR_ALPHA = 0,
+      PR_BETA = 1,
+      PR_RC = 2,
+      PR_NONE = 3
+    };
+
+    struct Version {
+      int major                     = 0;
+      int minor                     = 1;
+      int patch                     = 0;
+      PreRelease preReleaseType     = PR_NONE;
+      int preReleaseNumber          = 0;
+    };
+
+    Version version;
+
+    int compare(const SemanticVersion& other);
+
+};

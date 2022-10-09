@@ -202,11 +202,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                TR("Metr.","Metrické"),TR("Imper.","Imperiální")
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -300,28 +296,18 @@
 #define TR_VSENSORTYPES                "Vlastní","Vypočtený"
 #define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Celkem","Článek","Spotřeba","Vzdálenost"
 #define TR_VPREC                       "X","X.X","X.XX"
-#define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","Nejvíce","Delta"
+#define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","7","8","Nejvíce","Delta"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(pouze středy)","= (symetrický)"
 #define TR_TIMER_DIR                   TR("Zbývající", "Zobrazit zbývající"), TR("Uplynulý", "Zobrazit uplynulý")
 
 // ZERO TERMINATED STRINGS
+
 #if defined(COLORLCD)
-  #define INDENT                       "\007"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-#define INDENT                         "\001"
-#define LEN_INDENT                     1
-#define INDENT_WIDTH                   (FW/2)
-#define BREAKSPACE                     " "
-#endif
-#if defined(COLORLCD)
-#if defined(BOLD)
-#define TR_FONT_SIZES                  "STD"
-#else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
-#endif
+  #if defined(BOLD)
+    #define TR_FONT_SIZES                  "STD"
+  #else
+    #define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+  #endif
 #endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
@@ -350,7 +336,7 @@
 #define TR_FREE                        TR("volné:", "volných")
 #define TR_YES                         "Ano"
 #define TR_NO                          "Ne"
-#define TR_DELETEMODEL                 "SMAZAT" BREAKSPACE "MODEL"
+#define TR_DELETEMODEL                 "SMAZAT MODEL"
 #define TR_COPYINGMODEL                "Kopíruji model..."
 #define TR_MOVINGMODEL                 "Přesouvám model..."
 #define TR_LOADINGMODEL                "Aktivuji model..."
@@ -653,6 +639,7 @@
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
 #define TR_FAVORITE_LABEL              "Oblíbené"
+#define TR_MODELS_MOVED                "Nepoužívané modely přesunuty do"
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upravit štítek"
@@ -754,10 +741,10 @@
 #define TR_DELAY                       "Zdržet"
 #define TR_SD_CARD                     "SD"
 #define TR_SDHC_CARD                   "SD-HC"
-#define TR_NO_SOUNDS_ON_SD             "žádný zvuk" BREAKSPACE "na SD"
-#define TR_NO_MODELS_ON_SD             "žádný model" BREAKSPACE "na SD"
-#define TR_NO_BITMAPS_ON_SD            "žádné obrázky" BREAKSPACE "na SD"
-#define TR_NO_SCRIPTS_ON_SD            "žádný skript" BREAKSPACE "na SD"
+#define TR_NO_SOUNDS_ON_SD             "žádný zvuk na SD"
+#define TR_NO_MODELS_ON_SD             "žádný model na SD"
+#define TR_NO_BITMAPS_ON_SD            "žádné obrázky na SD"
+#define TR_NO_SCRIPTS_ON_SD            "žádný skript na SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaktická chyba", "Syntaktická chyba skriptu")
 #define TR_SCRIPT_PANIC                "Script zmaten"
 #define TR_SCRIPT_KILLED               "Script ukončen"

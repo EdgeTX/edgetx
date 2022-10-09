@@ -36,10 +36,9 @@ void setDefaultInputs()
     expo->chn = i;
     expo->weight = 100;
     expo->mode = 3; // TODO constant
-    strncpy(g_model.inputNames[i], STR_VSRCRAW[stick_index] + 1, 3);
-#if LEN_INPUT_NAME > 3
-    g_model.inputNames[i][3] = '\0';
-#endif
+    strncpy(g_model.inputNames[i],
+            STR_VSRCRAW[stick_index] + sizeof(STR_CHAR_STICK) - 1,
+            LEN_INPUT_NAME);
   }
   storageDirty(EE_MODEL);
 }

@@ -37,11 +37,11 @@ const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 const std::string copyright_str = "Copyright (C) 2022 EdgeTX";
 
 AboutUs::AboutUs() :
-  MessageDialog(MainWindow::instance(), STR_ABOUT_US, "")
+  MessageDialog(MainWindow::instance(), STR_ABOUT_US, "", "",
+                CENTERED | FONT(BOLD) | COLOR_THEME_SECONDARY1, CENTERED)
 {
   content->setRect({(LCD_W - ABOUT_WIDTH) / 2, 20, ABOUT_WIDTH, LCD_H - 40});
 
-  messageWidget->setTextFlags(CENTERED | FONT(BOLD) | COLOR_THEME_SECONDARY1);
   messageWidget->setTop(content->top() + 40);
   messageWidget->setHeight(2*PAGE_LINE_HEIGHT);
 

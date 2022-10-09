@@ -171,19 +171,20 @@ class TelemetrySimulator : public QWidget
     class FlvssEmulator
     {
       public:
-        uint32_t setAllCells_GetNextPair(double cellValues[6]);
-        static const uint32_t MAXCELLS = 6;
+        static const uint32_t MAXCELLS = 8;
+        uint32_t setAllCells_GetNextPair(double cellValues[MAXCELLS]);
 
       private:
         void encodeAllCells();
         void splitIntoCells(double totalVolts);
         static uint32_t encodeCellPair(uint8_t cellNum, uint8_t firstCellNo, double cell1, double cell2);
-        double cellFloats[6];
+        double cellFloats[MAXCELLS];
         uint32_t nextCellNum;
         uint32_t numCells;
         uint32_t cellData1;
         uint32_t cellData2;
         uint32_t cellData3;
+        uint32_t cellData4;
     };  // FlvssEmulator
 
     class GPSEmulator

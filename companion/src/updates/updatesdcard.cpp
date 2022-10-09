@@ -28,14 +28,24 @@ UpdateSDCard::UpdateSDCard(QWidget * parent) :
 {
   setName(tr("SD Card"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx-sdcard"));
+}
 
-  dfltParams->data.flags = UPDFLG_Common | UPDFLG_Locked;
+void UpdateSDCard::initAssetSettings()
+{
+  if (!isValidSettingsIndex())
+    return;
 
-  UpdateParameters::AssetParams &ap = dfltParams->addAsset();
-  ap.filterType = UpdateParameters::UFT_Startswith;
-  ap.filter = QString("%FWFLAVOUR%-");
-  ap.maxExpected = 1;
-  ap.flags = dfltParams->data.flags | UPDFLG_CopyStructure;
+  g.component[settingsIndex()].initAllAssets();
+
+  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+  cad.desc("files");
+  cad.processes(UPDFLG_Common_Asset);
+  cad.flags(cad.processes() | UPDFLG_Locked | UPDFLG_CopyStructure);
+  cad.filterType(UpdateParameters::UFT_Startswith);
+  cad.filter("%FWFLAVOUR%-");
+  cad.maxExpected(1);
+
+  qDebug() << "Asset settings initialised";
 }
 
 bool UpdateSDCard::flagAssets()
@@ -60,9 +70,9 @@ bool UpdateSDCard::flagAssets()
     return false;
   }
 
-  const UpdateParameters::AssetParams & ap = runParams->data.assets.at(0);
+  const UpdateParameters::AssetParams & ap = params->assets.at(0);
 
-  QRegularExpression filter(runParams->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
+  QRegularExpression filter(params->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
   bool found = false;
   QString sdimage;
 
@@ -91,7 +101,7 @@ bool UpdateSDCard::flagAssets()
   delete json;
 
   if (!found) {
-    reportProgress(tr("Radio flavour %1 not listed in %2").arg(runParams->data.fwFlavour).arg(mappingfile), QtCriticalMsg);
+    reportProgress(tr("Radio flavour %1 not listed in %2").arg(params->fwFlavour).arg(mappingfile), QtCriticalMsg);
     return false;
   }
 

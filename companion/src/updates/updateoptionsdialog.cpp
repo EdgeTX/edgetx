@@ -30,40 +30,42 @@
 #include <QVBoxLayout>
 #include <QTimer>
 
-UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx) :
+UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx, const bool isRun) :
   QDialog(parent),
   ui(new Ui::UpdateOptionsDialog),
   factories(factories),
   idx(idx),
   name(g.component[idx].name()),
-  dfltParams(factories->getDefaultParams(name)),
-  runParams(factories->getRunParams(name))
+  isRun(isRun)
 {
   ui->setupUi(this);
 
+  if (!isRun) factories->resetEnvironment(name);
+
+  params = factories->getParams(name);
+
   setWindowTitle(tr("%1 %2").arg(name).arg(tr("Options")));
 
-  ui->leCurrent->setText(dfltParams->data.currentRelease);
+  ui->txtCurrentRelease->setText(factories->currentRelease(name));
 
-  connect(ui->btnForget, &QPushButton::clicked, [=]() {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear current release information.\nWarning: There is no undo! Are you sure?"),
+  connect(ui->btnClearRelease, &QPushButton::clicked, [=]() {
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear current release information. Are you sure?"),
                              QMessageBox::Yes |QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
       factories->clearRelease(name);
-      ui->leCurrent->setText(dfltParams->data.currentRelease);
+      ui->txtCurrentRelease->setText(factories->currentRelease(name));
       emit changed(idx);
+
     }
   });
 
-  ui->cboReleases->addItems(factories->releases(name));
-
-  int i = -1;
-
   QVBoxLayout *grpAssetsLayout = new QVBoxLayout();
 
-  foreach (const UpdateParameters::AssetParams &ap, dfltParams->data.assets) {
+  for (int i = 0; i < params->assets.size(); i++) {
+    const UpdateParameters::AssetParams & ap = params->assets.at(i);
+
+    int processes = ap.processes;
     int flags = ap.flags;
     const bool locked = flags & UpdateInterface::UPDFLG_Locked;
-    i++;
 
     QHBoxLayout *layout1 = new QHBoxLayout();
 
@@ -111,17 +113,25 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
 
     QHBoxLayout *layout2 = new QHBoxLayout();
 
+    layout2->addWidget(new QLabel(tr("Max.Expected")));
+
+    QSpinBox *sbMaxExpected = new QSpinBox();
+    sbMaxExpected->setEnabled(!locked);
+    sbMaxExpected->setSpecialValueText(tr("No Limit"));
+    sbMaxExpects << sbMaxExpected;
+    layout2->addWidget(sbMaxExpected);
+
     QCheckBox *chkDownload = new QCheckBox(tr("Download"));
     chkDownloads << chkDownload;
     layout2->addWidget(chkDownload);
 
     QCheckBox *chkDecompress = new QCheckBox(tr("Decompress"));
-    chkDecompress->setEnabled(flags & UpdateInterface::UPDFLG_Decompress);
+    chkDecompress->setEnabled(processes & UpdateInterface::UPDFLG_Decompress);
     chkDecompresses << chkDecompress;
     layout2->addWidget(chkDecompress);
 
     QCheckBox *chkInstall = new QCheckBox(tr("Install"));
-    chkInstall->setEnabled(flags & UpdateInterface::UPDFLG_AsyncInstall);
+    chkInstall->setEnabled(processes & UpdateInterface::UPDFLG_AsyncInstall);
     chkInstalls << chkInstall;
     layout2->addWidget(chkInstall);
 
@@ -133,23 +143,23 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
     QGridLayout *layout3 = new QGridLayout();
 
     QCheckBox *chkCopy = new QCheckBox(tr("Copy"));
-    chkCopy->setEnabled(flags & UpdateInterface::UPDFLG_CopyDest);
+    chkCopy->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest);
     chkCopies << chkCopy;
     layout3->addWidget(chkCopy, 0, 0);
 
     QLabel *lblCopyFilter = new QLabel(tr("Filter"));
-    lblCopyFilter->setEnabled(flags & UpdateInterface::UPDFLG_CopyDest);
+    lblCopyFilter->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest);
     lblCopyFilters << lblCopyFilter;
     layout3->addWidget(lblCopyFilter, 0, 1);
 
     QComboBox *cboCopyFilterType = new QComboBox();
-    cboCopyFilterType->setEnabled(!locked);
+    cboCopyFilterType->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest && (!locked));
     cboCopyFilterType->addItems(UpdateParameters::updateFilterTypeList());
     cboCopyFilterTypes << cboCopyFilterType;
     layout3->addWidget(cboCopyFilterType, 0, 2);
 
     QLineEdit *leCopyFilter = new QLineEdit();
-    leCopyFilter->setEnabled(flags & UpdateInterface::UPDFLG_CopyDest && (!locked));
+    leCopyFilter->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest && (!locked));
     leCopyFilters << leCopyFilter;
     layout3->addWidget(leCopyFilter, 0, 3);
 
@@ -168,14 +178,50 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
     });
 
     QLabel *lblSubFolder = new QLabel(tr("Sub folder"));
-    lblSubFolder->setEnabled(flags & UpdateInterface::UPDFLG_CopyDest);
+    lblSubFolder->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest);
     lblSubFolders << lblSubFolder;
     layout3->addWidget(lblSubFolder, 1, 1);
 
     QLineEdit *leSubFolder = new QLineEdit();
-    leSubFolder->setEnabled(flags & UpdateInterface::UPDFLG_CopyDest && (!locked));
+    leSubFolder->setEnabled(processes & UpdateInterface::UPDFLG_CopyDest && (!locked));
     leSubFolders << leSubFolder;
     layout3->addWidget(leSubFolder, 1, 2, 1, 2);
+
+    connect(chkDownload, &QCheckBox::stateChanged, [=](const int checked) {
+      if (!checked) {
+        chkDecompress->setChecked(false);
+        chkCopy->setChecked(false);
+        chkInstall->setChecked(false);
+      }
+      else {
+        chkDecompress->setChecked(processes & UpdateInterface::UPDFLG_Decompress);
+        chkCopy->setChecked(processes & UpdateInterface::UPDFLG_CopyDest);
+        chkInstall->setChecked(processes & UpdateInterface::UPDFLG_AsyncInstall);
+      }
+    });
+
+    connect(chkDecompress, &QCheckBox::stateChanged, [=](const int checked) {
+      if (!checked) {
+        chkCopy->setChecked(false);
+        chkInstall->setChecked(false);
+      }
+      else {
+        chkCopy->setChecked(processes & UpdateInterface::UPDFLG_CopyDest);
+        chkInstall->setChecked(processes & UpdateInterface::UPDFLG_AsyncInstall);
+      }
+    });
+
+    connect(chkCopy, &QCheckBox::stateChanged, [=](const int checked) {
+      cboCopyFilterType->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);
+      leCopyFilter->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);
+      leSubFolder->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);
+      if (!checked) {
+        chkInstall->setChecked(false);
+      }
+      else {
+        chkInstall->setChecked(processes & UpdateInterface::UPDFLG_AsyncInstall);
+      }
+    });
 
     grpAssetsLayout->addLayout(layout3);
   }
@@ -183,43 +229,31 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
   ui->grpAssets->setLayout(grpAssetsLayout);
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
+    for (int i = 0; i < params->assets.size(); i++) {
+      UpdateParameters::AssetParams & ap = params->assets[i];
+
+      int flags = ap.flags;
+
+      if (!(flags & UpdateInterface::UPDFLG_Locked)) {
+        ap.filterType = (UpdateParameters::UpdateFilterType)cboAssetFilterTypes.at(i)->currentIndex();
+        ap.filter = leAssetFilters.at(i)->text();
+        ap.maxExpected = sbMaxExpects.at(i)->value();
+        ap.copyFilterType = (UpdateParameters::UpdateFilterType)cboCopyFilterTypes.at(i)->currentIndex();
+        ap.copyFilter = leCopyFilters.at(i)->text();
+        ap.destSubDir = leSubFolders.at(i)->text();
+      }
+
+      chkDownloads.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_Download : flags &= ~UpdateInterface::UPDFLG_Download;
+      chkDecompresses.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_Decompress : flags &= ~UpdateInterface::UPDFLG_Decompress;
+      chkInstalls.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_AsyncInstall : flags &= ~UpdateInterface::UPDFLG_AsyncInstall;
+      chkCopies.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_CopyDest : flags &= ~UpdateInterface::UPDFLG_CopyDest;
+      ap.flags = flags;
+    }
     QDialog::accept();
   });
 
   connect(ui->buttonBox, &QDialogButtonBox::rejected, [=]() {
     QDialog::reject();
-  });
-
-  connect(ui->buttonBox, &QDialogButtonBox::clicked, [=](QAbstractButton * button) {
-    if (ui->buttonBox->standardButton(button) == QDialogButtonBox::RestoreDefaults) {
-      factories->resetRunEnvironment(name);
-      update();
-    }
-    //else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Cancel) {
-    //  QDialog::reject();
-    //}
-    else if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Ok) {
-      runParams->data.updateRelease = ui->cboReleases->currentText();
-
-      for (int i = 0; i < runParams->data.assets.size(); i++) {
-        UpdateParameters::AssetParams &ap = runParams->data.assets[i];
-
-        if (!(ap.flags & UpdateInterface::UPDFLG_Locked)) {
-          ap.filterType = (UpdateParameters::UpdateFilterType)cboAssetFilterTypes.at(i)->currentIndex();
-          ap.filter = leAssetFilters.at(i)->text();
-          ap.copyFilterType = (UpdateParameters::UpdateFilterType)cboCopyFilterTypes.at(i)->currentIndex();
-          ap.copyFilter = leCopyFilters.at(i)->text();
-          ap.destSubDir = leSubFolders.at(i)->text();
-        }
-
-        chkDownloads.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_Download : ap.flags &= ~UpdateInterface::UPDFLG_Download;
-        chkDecompresses.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_Decompress :ap.flags &= ~UpdateInterface::UPDFLG_Decompress;
-        chkInstalls.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_AsyncInstall : ap.flags &= ~UpdateInterface::UPDFLG_AsyncInstall;
-        chkCopies.at(i)->isChecked() ? ap.flags |= UpdateInterface::UPDFLG_CopyDest : ap.flags &= ~UpdateInterface::UPDFLG_CopyDest;
-      }
-
-      emit changed(idx);
-    }
   });
 
   update();
@@ -236,23 +270,24 @@ UpdateOptionsDialog::~UpdateOptionsDialog()
 
 void UpdateOptionsDialog::update()
 {
-  ui->cboReleases->setCurrentText(runParams->data.updateRelease);
-
-  int i = 0;
-
-  foreach (const UpdateParameters::AssetParams &ap, runParams->data.assets) {
-    cboAssetFilterTypes.at(i)->setCurrentIndex((int)ap.filterType);
+  for (int i = 0; i < params->assets.size(); i++) {
+    const UpdateParameters::AssetParams & ap = params->assets.at(i);
+    cboAssetFilterTypes.at(i)->setCurrentIndex(ap.filterType);
     leAssetFilters.at(i)->setText(ap.filter);
 
-    chkDownloads.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Download);
-    chkDecompresses.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Decompress);
-    chkInstalls.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_AsyncInstall);
+    sbMaxExpects.at(i)->setValue(ap.maxExpected);
 
+    chkDownloads.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Download);
+
+    chkDecompresses.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_Decompress);
+
+    chkCopies.at(i)->setChecked(!chkCopies.at(i)->isChecked());
     chkCopies.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_CopyDest);
-    cboCopyFilterTypes.at(i)->setCurrentIndex((int)ap.copyFilterType);
+    cboCopyFilterTypes.at(i)->setCurrentIndex(-1);
+    cboCopyFilterTypes.at(i)->setCurrentIndex(ap.copyFilterType);
     leCopyFilters.at(i)->setText(ap.copyFilter);
     leSubFolders.at(i)->setText(ap.destSubDir);
 
-    i++;
+    chkInstalls.at(i)->setChecked(ap.flags & UpdateInterface::UPDFLG_AsyncInstall);
   }
 }

@@ -314,9 +314,6 @@ QString MultiModelPrinter::printSetup()
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
   ROWLABELCOMPARECELL(tr("Name"), 20, model->name, 80);
-  if (!IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
-    ROWLABELCOMPARECELL(tr("EEprom Size"), 0, modelPrinter->printEEpromSize(), 0);
-  }
   if (firmware->getCapability(HasModelImage)) {
     ROWLABELCOMPARECELL(tr("Model Image"), 0, model->bitmap, 0);
   }

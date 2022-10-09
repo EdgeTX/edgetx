@@ -140,6 +140,8 @@ ColorBar::ColorBar(Window* parent, const rect_t& r, uint32_t value,
                    uint32_t maxValue, bool invert) :
   FormField(parent, r)
 {
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
+  
   lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
   lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
   lv_obj_add_event_cb(lvobj, ColorBar::on_key, LV_EVENT_KEY, nullptr);

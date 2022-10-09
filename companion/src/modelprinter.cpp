@@ -791,7 +791,7 @@ QString ModelPrinter::printPotWarnings()
     for (int i=0; i<board.getCapability(Board::Pots)+board.getCapability(Board::Sliders); i++) {
       RawSource src(SOURCE_TYPE_STICK, CPN_MAX_STICKS + i);
       if ((src.isPot(&genAryIdx) && generalSettings.isPotAvailable(genAryIdx)) || (src.isSlider(&genAryIdx) && generalSettings.isSliderAvailable(genAryIdx))) {
-        if (!model.potsWarnEnabled[i])
+        if (model.potsWarnEnabled[i])
           str += src.toString(&model, &generalSettings);
       }
     }

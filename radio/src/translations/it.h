@@ -187,11 +187,8 @@
 #define SPEED_UNIT_METR        "kmh"
 
 #define TR_VUNITSSYSTEM        TR("Metric","Metriche"),TR("Imper.","Imperiali")
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
+
 #define STR_V                  (STR_VTELEMUNIT[1])
 #define STR_A                  (STR_VTELEMUNIT[2])
 
@@ -286,22 +283,10 @@
 #define TR_VSENSORTYPES                "Person.","Calcolato"
 #define TR_VFORMULAS                   "Somma","Media","Min","Max","Moltipl","Totalizza","Cella","Consumo","Distanza"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","Maggiore","Delta"
+#define TR_VCELLINDEX                  "Minore","1","2","3","4","5","6","7","8","Maggiore","Delta"
 #define TR_TEXT_SIZE                   "Standard","Minusc.","Piccolo","Medio","Doppio"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")
-
-#if defined(COLORLCD)
-  #define INDENT               "\007"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         12
-  #define BREAKSPACE           "\036"
-#else
-  #define INDENT               "\001"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         (FW/2)
-  #define BREAKSPACE           " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -338,7 +323,7 @@
 #define TR_FREE                "Disp."
 #define TR_YES                 "Si"
 #define TR_NO                  "No"
-#define TR_DELETEMODEL         "CANCELLA" BREAKSPACE "MODELLO"
+#define TR_DELETEMODEL         "CANCELLA MODELLO"
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
@@ -637,6 +622,7 @@
 #define TR_SELECT_MODE         "Seleziona modo"
 #define TR_CREATE_MODEL        "Crea Modello"
 #define TR_FAVORITE_LABEL      "Favoriti"
+#define TR_MODELS_MOVED        "Modelli inutilizzati spostati in"
 #define TR_NEW_MODEL           "Nuovo Modello"
 #define TR_INVALID_MODEL       "Modello invalido"
 #define TR_EDIT_LABELS         "Edita Etichette"
@@ -717,7 +703,7 @@
 #define TR_WRONG_PCBREV        "PCB sbagliato"
 #define TR_EMERGENCY_MODE      "MODALITA' EMERGENZA"
 #define TR_PCBREV_ERROR        "Errore PCB"
-#define TR_NO_FAILSAFE         "Failsafe" BREAKSPACE "non settato"
+#define TR_NO_FAILSAFE         "Failsafe non settato"
 #define TR_KEYSTUCK            "Tasto bloccato"
 #define TR_INVERT_THR          "Inverti Mot?"
 #define TR_VOLUME              "Volume Audio"
@@ -738,10 +724,10 @@
 #define TR_DELAY               "Ritardo"
 #define TR_SD_CARD             "SD Card"
 #define TR_SDHC_CARD           "SD-HC Card"
-#define TR_NO_SOUNDS_ON_SD     "No Suoni" BREAKSPACE "su SD"
-#define TR_NO_MODELS_ON_SD     "No Model." BREAKSPACE "su SD"
-#define TR_NO_BITMAPS_ON_SD    "No Immag." BREAKSPACE "su SD"
-#define TR_NO_SCRIPTS_ON_SD    "No Scripts" BREAKSPACE "su SD"
+#define TR_NO_SOUNDS_ON_SD     "No Suoni su SD"
+#define TR_NO_MODELS_ON_SD     "No Model. su SD"
+#define TR_NO_BITMAPS_ON_SD    "No Immag. su SD"
+#define TR_NO_SCRIPTS_ON_SD    "No Scripts su SD"
 #define TR_SCRIPT_SYNTAX_ERROR TR("Errore sintassi", "Script errore sintassi")
 #define TR_SCRIPT_PANIC        "Script panico"
 #define TR_SCRIPT_KILLED       "Script fermato"
@@ -830,7 +816,7 @@
 #define TR_FLASH_INTERNAL_MULTI        TR("Prog. MULTI int.", "Programma MULTI interno")
 #define TR_FLASH_EXTERNAL_MULTI        TR("Prog. MULTI est.", "Programma MULTI esterno")
 #define TR_FIRMWARE_UPDATE_ERROR       TR(INDENT "Errore agg. FW",INDENT "Errore aggiornamento firmware")
-#define TR_FIRMWARE_UPDATE_SUCCESS     "Aggiornamento" BREAKSPACE "riuscito"
+#define TR_FIRMWARE_UPDATE_SUCCESS     "Aggiornamento riuscito"
 #define TR_WRITING                     "Scrittura..."
 #define TR_CONFIRM_FORMAT              "Confermi formattazione?"
 #define TR_INTERNALRF                  "Modulo interno"

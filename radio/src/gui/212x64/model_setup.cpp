@@ -1435,9 +1435,12 @@ void menuModelSetup(event_t event)
             }
             moduleState[moduleIdx].mode = newFlag;
 #if defined(MULTIMODULE)
-            if (isModuleMultimodule(moduleIdx) &&
-                (newFlag == MODULE_MODE_BIND)) {
-              setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+            if (isModuleMultimodule(moduleIdx) && (oldFlag != newFlag)) {
+              if (newFlag == MODULE_MODE_BIND) {
+                setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+              } else if (getMultiBindStatus(moduleIdx) != MULTI_BIND_NONE) {
+                setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
+              }
             }
 #endif
             if (isModuleDSMP(moduleIdx) &&

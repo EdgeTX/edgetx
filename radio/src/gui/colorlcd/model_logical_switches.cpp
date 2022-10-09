@@ -68,9 +68,13 @@ class LogicalSwitchEditPage: public Page
     {
       Page::checkEvents();
       if (active != isActive()) {
+        if(isActive()) {
+          lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+        } else {
+          lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+        }
+        active = isActive();
         invalidate();
-        headerSwitchName->setTextFlags(isActive() ? FONT(BOLD) | COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY2);
-        active = !active;
       }
     }
 
@@ -85,6 +89,9 @@ class LogicalSwitchEditPage: public Page
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
            LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
           getSwitchPositionName(SWSRC_SW1 + index), 0, COLOR_THEME_PRIMARY2);
+
+      lv_obj_set_style_text_color(headerSwitchName->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
+      lv_obj_set_style_text_font(headerSwitchName->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
     }
 
     void updateLogicalSwitchOneWindow()

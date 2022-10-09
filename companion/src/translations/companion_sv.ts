@@ -595,7 +595,7 @@ Mode 4:
     </message>
     <message>
         <source>Options</source>
-        <translation>Tillvalda funktioner</translation>
+        <translation>Alternativ</translation>
     </message>
     <message>
         <source>Prompt to run SD Sync after update</source>
@@ -646,10 +646,6 @@ Mode 4:
         <translation>Publiceringskanal</translation>
     </message>
     <message>
-        <source>Delete downloads after update</source>
-        <translation>Radera nerladdningar efter uppdatering</translation>
-    </message>
-    <message>
         <source>Logging</source>
         <translation>Loggningsnivå</translation>
     </message>
@@ -676,6 +672,30 @@ Mode 4:
     <message>
         <source>Select your update destination folder</source>
         <translation>Välj katalog för uppdateringen</translation>
+    </message>
+    <message>
+        <source>Delete downloads</source>
+        <translation>Radera nerladdningar</translation>
+    </message>
+    <message>
+        <source>Delete decompressions</source>
+        <translation>Radera uppackade filer</translation>
+    </message>
+    <message>
+        <source>Update Settings: Download folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för nerladdning saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Decompress folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Update folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppdateringar saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Decompress and download folders have the same path!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
     </message>
 </context>
 <context>
@@ -768,7 +788,7 @@ Mode 4:
     <name>CalibrationPanel</name>
     <message>
         <source>Negative span</source>
-        <translation>Negativa värden</translation>
+        <translation>Negativt spann</translation>
     </message>
     <message>
         <source>Mid value</source>
@@ -776,7 +796,7 @@ Mode 4:
     </message>
     <message>
         <source>Positive span</source>
-        <translation>Positiva värden</translation>
+        <translation>Positivt spann</translation>
     </message>
 </context>
 <context>
@@ -1334,7 +1354,7 @@ Vill du hämta inställningarna från en fil?</translation>
     <name>CurvesPanel</name>
     <message>
         <source>Note: to create a curve right click on the curve row label</source>
-        <translation>OBS! För att skapa en kurva, högerklicka på kurvans namn (KUxx)</translation>
+        <translation>OBS! För att skapa en kurva, högerklicka på kurvans namn (KU#)</translation>
     </message>
     <message>
         <source>CV%1</source>
@@ -1513,11 +1533,11 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Bind Int. Module</source>
-        <translation>Parkoppla int. modul</translation>
+        <translation>Parkoppla (bind) int. modul</translation>
     </message>
     <message>
         <source>Bind Ext. Module</source>
-        <translation>Parkoppla ext. modul</translation>
+        <translation>Parkoppla (bind) ext. modul</translation>
     </message>
     <message>
         <source>Flight</source>
@@ -1816,7 +1836,7 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Option #%1</source>
-        <translation>Tillval #%1</translation>
+        <translation>Alternativ #%1</translation>
     </message>
     <message>
         <source>Layout:</source>
@@ -2591,19 +2611,19 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Filter Options:</source>
-        <translation>Filtertillval:</translation>
+        <translation>Filteralternativ:</translation>
     </message>
     <message>
         <source>Folder Options:</source>
-        <translation>Mapptillval:</translation>
+        <translation>Mappalternativ:</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Tillval</translation>
+        <translation>Alternativ</translation>
     </message>
     <message>
         <source>Show extra options</source>
-        <translation>Visa extra tillval</translation>
+        <translation>Visa extra alternativ</translation>
     </message>
     <message>
         <source>Reset to defaults</source>
@@ -2694,7 +2714,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Use alternative SQT5 font</source>
-        <translation>Använd SQT5-typsnitt</translation>
+        <translation>Använd SQT5 typsnitt</translation>
     </message>
     <message>
         <source>Pots use in menus navigation</source>
@@ -2718,7 +2738,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Use ONLY with first DEV pcb version</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enable HELI menu and cyclic mix support</source>
@@ -2862,7 +2882,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Select if internal ELRS module is installed</source>
-        <translation></translation>
+        <translation>Välj om intern ELRS-modul är installerad</translation>
     </message>
     <message>
         <source>Radiomaster T8</source>
@@ -2874,7 +2894,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
-        <translation></translation>
+        <translation>Stöd för intern hårdvarumodd: FlySky Paladin EV Gimbals</translation>
     </message>
     <message>
         <source>Jumper T18</source>
@@ -3765,7 +3785,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     </message>
     <message>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
-        <translation>Fel data i profilen, brytar-/pot-inställningar lästes inte in</translation>
+        <translation>Fel data i profilen, brytar-/pot.inställningar lästes inte in</translation>
     </message>
 </context>
 <context>
@@ -6020,6 +6040,10 @@ Vill du fortsätta?</translation>
         <source>Write Firmware to Radio</source>
         <translation>Skriv firmware till radion</translation>
     </message>
+    <message>
+        <source>Checking for updates...</source>
+        <translation>Kollar efter uppdateringar...</translation>
+    </message>
 </context>
 <context>
     <name>MdiChild</name>
@@ -7147,7 +7171,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Option value</source>
-        <translation>Tillvalsvärde</translation>
+        <translation>Alternativ värde</translation>
     </message>
     <message>
         <source>Sub Type</source>
@@ -7517,7 +7541,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Option value</source>
-        <translation>Tillvalsvärde</translation>
+        <translation>Alternativ värde</translation>
     </message>
     <message>
         <source>Low Power</source>
@@ -7721,7 +7745,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Bind on channel</source>
-        <translation>Parkoppla via kanal</translation>
+        <translation>Parkoppla (bind) via kanal</translation>
     </message>
     <message>
         <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
@@ -7856,7 +7880,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Pot Warnings</source>
-        <translation>Pot-varningar</translation>
+        <translation>Pot.varningar</translation>
     </message>
     <message>
         <source>Other</source>
@@ -8083,7 +8107,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Option value</source>
-        <translation>Tillvalsvärde</translation>
+        <translation>Alternativ värde</translation>
     </message>
     <message>
         <source>DEFAULT</source>
@@ -11211,16 +11235,16 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Installera</translation>
     </message>
     <message>
-        <source>Expected 1 asset for install but none found</source>
-        <translation>Förväntades en tillgång att installera men ingen hittades</translation>
-    </message>
-    <message>
         <source>Firmware not found in %1 using filter %2</source>
         <translation>Firmware hittades inte i %1 med filter %2</translation>
     </message>
     <message>
         <source>Write the updated firmware to the radio now ?</source>
         <translation>Skriv uppdaterad firmware till radion nu?</translation>
+    </message>
+    <message>
+        <source>Expected %1 asset for install but %2 found</source>
+        <translation>Förväntade tillgång %1 för installation men hittade %2</translation>
     </message>
 </context>
 <context>
@@ -11231,19 +11255,19 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>%1 preparation failed</source>
-        <translation>%1 förberedelse misslyckades</translation>
+        <translation>Förberedelse av %1 misslyckades</translation>
     </message>
     <message>
         <source>%1 download failed</source>
-        <translation>%1 nerladdning misslyckades</translation>
+        <translation>Nerladdning av %1 misslyckades</translation>
     </message>
     <message>
         <source>%1 decompress failed</source>
-        <translation>%1 uppackning misslyckades</translation>
+        <translation>Uppackning av %1 misslyckades</translation>
     </message>
     <message>
         <source>%1 copy to destination failed</source>
-        <translation>%1 kopiering till målet misslyckades</translation>
+        <translation>Kopiering av %1 till målet misslyckades</translation>
     </message>
     <message>
         <source>Failed to save release settings</source>
@@ -11251,15 +11275,15 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>%1 start async failed</source>
-        <translation>%1 start av async misslyckades</translation>
+        <translation>Start av async för %1 misslyckades</translation>
     </message>
     <message>
         <source>%1 housekeeping failed</source>
-        <translation>%1 uppstädning misslyckades</translation>
+        <translation>Uppstädning av %1 misslyckades</translation>
     </message>
     <message>
         <source>%1 update successful</source>
-        <translation>%1 uppdatering lyckades</translation>
+        <translation>Uppdatering av %1 lyckades</translation>
     </message>
     <message>
         <source>Update Interface</source>
@@ -11279,7 +11303,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>%1 directory not configured in application settings!</source>
-        <translation>%1 katalog inte konfigurerad i programinställningarna!</translation>
+        <translation>Katalog för %1 inte konfigurerad i programinställningarna!</translation>
     </message>
     <message>
         <source>Failed to create %1 directory %2!</source>
@@ -11296,14 +11320,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     <message>
         <source>Network error has occurred. Error code: %1</source>
         <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
-    </message>
-    <message>
-        <source>No assets not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
-        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
-        <translation>%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
     </message>
     <message>
         <source>Unable to set processing flags for asset %1</source>
@@ -11410,10 +11426,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Kunde inte sätta körkataloger</translation>
     </message>
     <message>
-        <source>Set release id from update release name failed</source>
-        <translation>Kunde inte sätta versions-id från uppdateringens versionsnamn</translation>
-    </message>
-    <message>
         <source>Flagging assets</source>
         <translation>Flaggar tillgångar</translation>
     </message>
@@ -11487,6 +11499,26 @@ Error:%1
 Fel:%1
 %2</translation>
     </message>
+    <message>
+        <source>Asset filter: %1</source>
+        <translation>Filter för tillgångar: %1</translation>
+    </message>
+    <message>
+        <source>No assets found in release &apos;%1&apos; using filter &apos;%2&apos;</source>
+        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filter &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter &apos;%4&apos;</source>
+        <translation>%1 tillgångar hittades, när %2 förväntades för version &apos;%3&apos; med filter &apos;%4&apos;</translation>
+    </message>
+    <message>
+        <source>Set release id from update release &apos;%1&apos; failed</source>
+        <translation>Kunde ej sätta versions-id från uppdateringversion &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Delete decompress folder: %1</source>
+        <translation>Radera uppackningskatalog: %1</translation>
+    </message>
 </context>
 <context>
     <name>UpdateMultiProtocol</name>
@@ -11503,13 +11535,7 @@ Fel:%1
     </message>
     <message>
         <source>Options</source>
-        <translation>Tillval</translation>
-    </message>
-    <message>
-        <source>Clear current release information.
-Warning: There is no undo! Are you sure?</source>
-        <translation>Rensa nuvarande releaseinformation.
-Varning: Detta går inte att ångra! Är du säker?</translation>
+        <translation>Alternativ</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -11536,32 +11562,36 @@ Varning: Detta går inte att ångra! Är du säker?</translation>
         <translation>Underkatalog</translation>
     </message>
     <message>
-        <source>Release</source>
-        <translation>Version</translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation>Nuvarande</translation>
-    </message>
-    <message>
-        <source>Update to</source>
-        <translation>Uppdatera till</translation>
-    </message>
-    <message>
         <source>Assets</source>
         <translation>Tillgångar</translation>
     </message>
     <message>
-        <source>Forget</source>
-        <translation>Glöm</translation>
-    </message>
-    <message>
         <source>Advanced Options</source>
-        <translation>Avancerade tillval</translation>
+        <translation>Avancerade alternativ</translation>
     </message>
     <message>
-        <source>Clear the last updated release information</source>
-        <translation>Rensa den senaste uppdaterade versionsinformationen</translation>
+        <source>Current Release:</source>
+        <translation>Nuvarande version:</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>okänd</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Clear current release information. Are you sure?</source>
+        <translation>Rensa nuvarande versionsinformation. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Max.Expected</source>
+        <translation>Max. förväntade</translation>
+    </message>
+    <message>
+        <source>No Limit</source>
+        <translation>Ingen gräns</translation>
     </message>
 </context>
 <context>
@@ -11626,7 +11656,7 @@ Varning: Detta går inte att ångra! Är du säker?</translation>
     </message>
     <message>
         <source>Language %1 not listed in %2</source>
-        <translation>Språk %1 finns inte listad i %2</translation>
+        <translation>Språk &apos;%1&apos; saknas i %2</translation>
     </message>
     <message>
         <source>Choose Language Packs</source>
@@ -11659,16 +11689,6 @@ Varning: Detta går inte att ångra! Är du säker?</translation>
         <translation>Kollar efter uppdateringar</translation>
     </message>
     <message>
-        <source>Updates available for:
-  %1
-
-Update now?</source>
-        <translation>Uppdateringar tillgängliga för:
-  %1
-
-Uppdatera nu?</translation>
-    </message>
-    <message>
         <source>No components have been flagged to check in Update Settings!</source>
         <translation>Inga komponenter har flaggats för kontroll i uppdateringsinställningarna!</translation>
     </message>
@@ -11695,6 +11715,16 @@ Uppdatera nu?</translation>
     <message>
         <source>Run SD card sync now?</source>
         <translation>Synka SD-kortet nu?</translation>
+    </message>
+    <message>
+        <source>Updates available for:
+  - %1
+
+Process now?</source>
+        <translation>Uppdateringar tillgängliga för:
+  - %1
+
+Bearbeta nu?</translation>
     </message>
 </context>
 <context>
@@ -11724,20 +11754,12 @@ Uppdatera nu?</translation>
         <translation>Kanal</translation>
     </message>
     <message>
-        <source>Current Release</source>
-        <translation>Nuvarande version</translation>
-    </message>
-    <message>
-        <source>Update Release</source>
-        <translation>Uppdateringsversion</translation>
-    </message>
-    <message>
         <source>Retrieving latest release information for %1</source>
         <translation>Hämtar senaste versionsinformation för %1</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Tillval</translation>
+        <translation>Alternativ</translation>
     </message>
     <message>
         <source>Download folder path missing!</source>
@@ -11784,16 +11806,36 @@ Uppdatera nu?</translation>
         <translation>Komponenter</translation>
     </message>
     <message>
-        <source>Delete downloads after update</source>
-        <translation>Radera nerladdade filer efter uppdatering</translation>
-    </message>
-    <message>
         <source>Use Radio Profile SD structure</source>
         <translation>Använd radioprofilens SD-kortstruktur</translation>
     </message>
     <message>
         <source>Create sub-folders in Download folder</source>
         <translation>Skapa underkataloger i nerladdningskatalogen</translation>
+    </message>
+    <message>
+        <source>Delete downloads</source>
+        <translation>Radera nerladdningar</translation>
+    </message>
+    <message>
+        <source>Delete decompressions</source>
+        <translation>Radera uppackningar</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation>Nuvarande</translation>
+    </message>
+    <message>
+        <source>Update to</source>
+        <translation>Uppdatera till</translation>
+    </message>
+    <message>
+        <source>Save as Defaults</source>
+        <translation>Spara som förval</translation>
+    </message>
+    <message>
+        <source>Decompress and download folders have the same path!</source>
+        <translation>Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
     </message>
 </context>
 <context>

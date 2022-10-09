@@ -308,7 +308,7 @@ class SensorEditWindow : public Page {
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
             new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_CELLINDEX, 0, COLOR_THEME_PRIMARY1);
-            new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VCELLINDEX, 0, 8, GET_SET_DEFAULT(sensor->cell.index));
+            new Choice(sensorParametersWindow, grid.getFieldSlot(), STR_VCELLINDEX, TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST, GET_SET_DEFAULT(sensor->cell.index));
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
             new StaticText(sensorParametersWindow, grid.getLabelSlot(), STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
@@ -483,6 +483,8 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   new StaticText(window, grid.getLabelSlot(true), STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.rssiAlarms.disabled));
   grid.nextLine();
+  
+  if (LCD_W < LCD_H) grid.nextLine();
 
   // Sensors
   grid.setLabelWidth(140);

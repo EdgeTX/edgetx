@@ -247,6 +247,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       ui->trainerMode->setField(model.trainerMode);
       connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
               update();
+              emit updateItemModels();
               emit modified();
       });
     }
@@ -1538,6 +1539,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     modules[CPN_MAX_MODULES] = new ModulePanel(this, model, model.moduleData[CPN_MAX_MODULES], generalSettings, firmware, -1, panelFilteredModels);
     ui->modulesLayout->addWidget(modules[CPN_MAX_MODULES]);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::modified, this, &SetupPanel::modified);
+    connect(modules[CPN_MAX_MODULES], &ModulePanel::updateItemModels, this, &SetupPanel::onModuleUpdateItemModels);
   }
 
   disableMouseScrolling();

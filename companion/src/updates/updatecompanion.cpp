@@ -20,7 +20,6 @@
  */
 
 #include "updatecompanion.h"
-#include "appdata.h"
 
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -59,14 +58,25 @@ UpdateCompanion::UpdateCompanion(QWidget * parent) :
   setName(tr("Companion"));
   setRepo(QString(GH_REPOS_EDGETX).append("/edgetx"));
   setReleasesNightlyName("nightly");
+}
 
-  dfltParams->data.flags = (UPDFLG_Common | UPDFLG_Locked | UPDFLG_AsyncInstall) & ~UPDFLG_CopyDest;
+void UpdateCompanion::initAssetSettings()
+{
+  if (!isValidSettingsIndex())
+    return;
 
-  UpdateParameters::AssetParams &ap = dfltParams->addAsset();
-  ap.filterType = UpdateParameters::UFT_Startswith;
-  ap.filter = QString("%1").arg(QString(OS_FILEPATTERN));
-  ap.maxExpected = 1;
-  ap.flags = dfltParams->data.flags;
+  g.component[settingsIndex()].initAllAssets();
+
+  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+
+  cad.desc("installer");
+  cad.processes((UPDFLG_Common_Asset | UPDFLG_AsyncInstall) & ~UPDFLG_CopyDest);
+  cad.flags(cad.processes() | UPDFLG_CopyFiles | UPDFLG_Locked);
+  cad.filterType(UpdateParameters::UFT_Startswith);
+  cad.filter(QString("%1").arg(QString(OS_FILEPATTERN)));
+  cad.maxExpected(1);
+
+  qDebug() << "Asset settings initialised";
 }
 
 bool UpdateCompanion::asyncInstall()
@@ -110,7 +120,7 @@ bool UpdateCompanion::asyncInstall()
 #if defined(__linux__) || defined(__linux)
   QFile f(installerPath);
   if (!f.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner)) {
-    QMessageBox::critical(parentWidget(), CPN_STR_APP_NAME, tr("Unable to set file permissions on the AppImage"));
+    QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to set file permissions on the AppImage"));
     return false;
   }
 
@@ -123,24 +133,24 @@ bool UpdateCompanion::asyncInstall()
 
   if (dest.exists()) {
     if (!dest.remove()) {
-      QMessageBox::critical(parentWidget(), CPN_STR_APP_NAME, tr("Unable to delete file %1").arg(fileName));
+      QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to delete file %1").arg(fileName));
       return false;
     }
   }
 
   if (!QFile::copy(installerPath, fileName)) {
-    QMessageBox::critical(parentWidget(), CPN_STR_APP_NAME, tr("Unable to copy file to %1").arg(fileName));
+    QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to copy file to %1").arg(fileName));
     return false;
   }
 
-  if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+  if (QMessageBox::question(progress, CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     QProcess::startDetached(fileName);
     qApp->exit();
   }
 
 #else
 
-  int ret = QMessageBox::question(parentWidget(), CPN_STR_APP_NAME, OS_INSTALL_QUESTION, QMessageBox::Yes | QMessageBox::No);
+  int ret = QMessageBox::question(progress, CPN_STR_APP_NAME, OS_INSTALL_QUESTION, QMessageBox::Yes | QMessageBox::No);
 
   if (ret == QMessageBox::Yes) {
     if (QDesktopServices::openUrl(QUrl::fromLocalFile(installerPath)))
@@ -152,7 +162,7 @@ bool UpdateCompanion::asyncInstall()
   return true;
 
 #else
-  QMessageBox::warning(parentWidget(), CPN_STR_APP_NAME, OS_INSTALL_MSG);
+  QMessageBox::warning(progress, CPN_STR_APP_NAME, OS_INSTALL_MSG);
   return true;
 #endif  //  OS_SUPPORTED_INSTALLER
 }
@@ -160,20 +170,20 @@ bool UpdateCompanion::asyncInstall()
 const QString UpdateCompanion::currentRelease()
 {
 #if defined(VERSION_TAG)
-  return UpdateInterface::latestRelease();
+  params->currentRelease = QString("EdgeTX \"%1\" %2").arg(CODENAME).arg(VERSION_TAG);
 #else
-  dfltParams->data.currentRelease = QString("EdgeTX v%1.%2 (Custom)").arg(VERSION_MAJOR).arg(VERSION_MINOR);
-  runParams->data.currentRelease = dfltParams->data.currentRelease;
-  return dfltParams->data.currentRelease;
+  params->currentRelease = QString("EdgeTX v%1.%2.%3-%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
 #endif
+
+  return params->currentRelease;
 }
 
 const QString UpdateCompanion::currentVersion()
 {
 #if defined(VERSION_TAG)
-  return UpdateInterface::latestRelease();
+  return VERSION_TAG;
 #else
-  return QString(QString("v%1.%2").arg(VERSION_MAJOR).arg(VERSION_MINOR));
+  return QString("v%1").arg(VERSION);
 #endif
 }
 

@@ -22,7 +22,6 @@
 #pragma once
 
 #include <QtCore>
-#include <QWidget>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
@@ -86,17 +85,21 @@ class ReleasesItemModel : public UpdatesItemModel
 
     void setNightlyName(const QString name) { m_nightlyName = name.toLower(); }
     void setSettingsIndex(const int index) { m_settingsIdx = index; }
+    void setReleaseChannel(const int channel);
 
     void parseMetaData(const int mdt, QJsonDocument * json);
     int settingsIndex() { return m_settingsIdx; }
-    bool releaseChannelChanged();
+    bool refreshRequired() { return m_refreshRequired; }
 
   private:
     int m_settingsIdx;
     QString m_nightlyName;
     int m_releaseChannel;
+    bool m_refreshRequired;
 
-    bool isReleaseAvailable(const QString tagname, const bool prerelease);
+    void setDynamicItemData(QStandardItem * item);
+    void update();
+    bool isReleaseAvailable(QStandardItem * item);
 
     void parseRelease();
     void parseReleases();
@@ -199,18 +202,19 @@ class AssetsFilteredItemModel : public UpdatesFilteredItemModel
   private:
 };
 
-class ReleasesMetaData : public QWidget
+class ReleasesMetaData : public QObject
 {
     Q_OBJECT
   public:
-    explicit ReleasesMetaData(QWidget * parent);
+    explicit ReleasesMetaData(QObject * parent);
     virtual ~ReleasesMetaData() {};
 
     bool refreshRequired();
 
     void setRepo(QString repo) { m_repo = repo; }
     void setNightlyName(QString name) { itemModel->setNightlyName(name); }
-    void setSettingsIndex(int index) { itemModel->setSettingsIndex(index); }
+    void setSettingsIndex(const int index) { itemModel->setSettingsIndex(index); }
+    void setReleaseChannel(const int channel) { itemModel->setReleaseChannel(channel); }
 
     void setId(int id) { m_id = id; }
     int id() { return m_id; }
@@ -226,9 +230,9 @@ class ReleasesMetaData : public QWidget
     void dumpContentsFiltered() { filteredItemModel->dumpContents(); }
 
     QString date() { return filteredItemModel->date(m_id); }
-    QString name() { return filteredItemModel->name(m_id); }
+    QString name();
     bool prerelease() { return filteredItemModel->prerelease(m_id); }
-    QString version() { return filteredItemModel->version(m_id); }
+    QString version();
 
     QString urlReleases() { return QString("%1/releases").arg(m_repo); }
     QString urlReleaseLatest() { return QString("%1/latest").arg(urlReleases()); }
@@ -241,11 +245,11 @@ class ReleasesMetaData : public QWidget
     int m_id;
 };
 
-class AssetsMetaData : public QWidget
+class AssetsMetaData : public QObject
 {
     Q_OBJECT
   public:
-    explicit AssetsMetaData(QWidget * parent);
+    explicit AssetsMetaData(QObject * parent);
     virtual ~AssetsMetaData() {};
 
     void setRepo(QString repo) { m_repo = repo; }

@@ -183,11 +183,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "公制",TR("英制","英制")
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -282,22 +278,10 @@
 #define TR_VSENSORTYPES                "自定义","运算"
 #define TR_VFORMULAS                   "加","平均值","最小值","最大值","乘","总计值","单节电池","消耗量","距离"
 #define TR_VPREC                       "0.--","0.0-","0.00"
-#define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","最高值","差值"
+#define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","7","8","最高值","差值"
 #define TR_TEXT_SIZE                   "标准","小","较小","中等","双倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)", "=(整体)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
-
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-  #else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -332,7 +316,7 @@
 #define TR_FREE                        "空闲"
 #define TR_YES                         "是"
 #define TR_NO                          "否"
-#define TR_DELETEMODEL                 "删除" BREAKSPACE "模型"
+#define TR_DELETEMODEL                 "删除 模型"
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
 #define TR_LOADINGMODEL                "载入模型..."
@@ -637,6 +621,7 @@
 #define TR_SELECT_MODE                 "选择模式"
 #define TR_CREATE_MODEL                "创建模型"
 #define TR_FAVORITE_LABEL              "Favorites"
+#define TR_MODELS_MOVED                "Unused models moved to"
 #define TR_NEW_MODEL                   "New Model"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
@@ -810,7 +795,7 @@
 #define TR_PATH_TOO_LONG               "路径太长"
 #define TR_VIEW_TEXT                   "查看文本"
 #define TR_FLASH_BOOTLOADER            "更新引导程序"
-#define TR_FLASH_DEVICE                TR("更新设备","更新设备")      
+#define TR_FLASH_DEVICE                TR("更新设备","更新设备")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("从S.Port更新", "从 S.Port 端口更新外设固件")
 #define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
@@ -1313,9 +1298,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS    "打开通道监视器" 
+  #define TR_OPEN_CHANNEL_MONITORS    "打开通道监视器"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS    "通道监视" 
+  #define TR_OPEN_CHANNEL_MONITORS    "通道监视"
 #endif
 #define TR_DUPLICATE                  "复制"
 #define TR_ACTIVATE                   "启用"

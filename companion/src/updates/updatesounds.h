@@ -35,6 +35,8 @@ class UpdateSounds : public UpdateInterface
     virtual ~UpdateSounds();
 
   protected:
+    virtual void initAssetSettings() override;
+
     virtual bool flagAssets() override;
 
   private:

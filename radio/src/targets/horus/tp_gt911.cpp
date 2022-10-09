@@ -241,7 +241,11 @@ const uint8_t TOUCH_GT911_Cfg[] =
     0x10,                // 0x804A Y ouptut max : y 272
     0x01,
     GT911_MAX_TP,        // 0x804C Touch number
+#if defined(TOUCH_PANEL_INVERTED)
+    0x3C | 0xC0,         // 0x804D Module switch 1 : 180° rotation
+#else
     0x3C,                // 0x804D Module switch 1 : bit4= xy change Int mode
+#endif
     0x20,                // 0x804E Module switch 2
     0x22,                // 0x804F Shake_Count
     0x0A,                // 0x8050 Filter
@@ -562,21 +566,24 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t *buf, uint8_t len)
   return true;
 }
 
-bool I2C_GT911_SendConfig()
+bool I2C_GT911_SendConfig(uint8_t cfgVer)
 {
-  uint8_t buf[2];
-  uint8_t i = 0;
-  buf[0] = 0;
-  buf[1] = 1;
+  uint8_t buf[2] = { cfgVer, 1 };
   bool bResult = true;
 
-  for (i = 0; i < sizeof(TOUCH_GT911_Cfg); i++) {
+  for (uint8_t i = 1; i < sizeof(TOUCH_GT911_Cfg); i++) {
     buf[0] += TOUCH_GT911_Cfg[i]; //check sum
   }
   
   buf[0] = (~buf[0]) + 1;
-  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, (uint8_t *)TOUCH_GT911_Cfg,
-                               sizeof(TOUCH_GT911_Cfg))) {
+
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, (uint8_t *)&cfgVer, 1)) {
+    TRACE("GT911 ERROR: write config failed");
+    bResult = false;
+  }
+
+  if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG+1, (uint8_t *)&TOUCH_GT911_Cfg[1],
+                               sizeof(TOUCH_GT911_Cfg)-1)) {
     TRACE("GT911 ERROR: write config failed");
     bResult = false;
   }
@@ -586,6 +593,7 @@ bool I2C_GT911_SendConfig()
     TRACE("GT911 ERROR: write config checksum failed");
     bResult = false;
   }
+
   return bResult;
 }
 
@@ -594,6 +602,8 @@ void touchPanelDeInit(void)
   TOUCH_AF_ExtiStop();
   touchGT911Flag = false;
 }
+
+uint8_t tp_gt911_cfgVer = GT911_CFG_NUMBER;
 
 bool touchPanelInit(void)
 {
@@ -638,11 +648,15 @@ bool touchPanelInit(void)
       }
 
       TRACE("Chip config Ver:%x", tmp[0]);
-      if (tmp[0] < GT911_CFG_NUMBER) { // Config ver
+      if ((tp_gt911_cfgVer == 0) || (tmp[0] < tp_gt911_cfgVer)) { // Config ver
         TRACE("Sending new config %d", GT911_CFG_NUMBER);
-        if (!I2C_GT911_SendConfig()) {
+        if (!I2C_GT911_SendConfig(tp_gt911_cfgVer)) {
           TRACE("GT911 ERROR: sending configration failed");
         }
+        if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1)) {
+          TRACE("GT911 ERROR: configuration register read failed");
+        }
+        tp_gt911_cfgVer = tmp[0];
       }
 
       if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2)) {

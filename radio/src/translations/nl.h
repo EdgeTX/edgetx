@@ -186,11 +186,8 @@
 #define SPEED_UNIT_METR        "kmh"
 
 #define TR_VUNITSSYSTEM        TR("Mtrsch","Metrisch"),"Engels"
-#if defined(COLORLCD)
 #define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#else
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
-#endif
+
 #define STR_V                  (STR_VTELEMUNIT[1])
 #define STR_A                  (STR_VTELEMUNIT[2])
 
@@ -285,23 +282,11 @@
 #define TR_VSENSORTYPES                "Custom","Berekend"
 #define TR_VFORMULAS                   "Optellen","Gemiddeld","Min","Max","Vermenigvuld","Totaal","Cellen","Verbruik","Afstand"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Laagste","1e Cel","2e Cel","3e Cel","4e Cel","5e Cel","6e Cel","Hoogste","Delta"
+#define TR_VCELLINDEX                  "Laagste","1e Cel","2e Cel","3e Cel","4e Cel","5e Cel","6e Cel","7e Cel","8e Cel","Hoogste","Delta"
 #define TR_GYROS                       "GyrX","GyrY"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
-
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT           3
-  #define INDENT_WIDTH         12
-  #define BREAKSPACE           "\036"
-#else
-  #define INDENT               "\001"
-  #define LEN_INDENT           1
-  #define INDENT_WIDTH         (FW/2)
-  #define BREAKSPACE           " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -336,7 +321,7 @@
 #define TR_FREE                "vrij"
 #define TR_YES                 "Yes"
 #define TR_NO                  "No"
-#define TR_DELETEMODEL         "WIS" BREAKSPACE "MODEL"
+#define TR_DELETEMODEL         "WIS MODEL"
 #define TR_COPYINGMODEL        "Kopieer Model"
 #define TR_MOVINGMODEL         "Verplaats Model"
 #define TR_LOADINGMODEL        "Laad Model..."
@@ -642,11 +627,12 @@
 #define TR_SELECT_MODE         "Select mode"
 #define TR_CREATE_MODEL        "Nieuw Model"
 #define TR_FAVORITE_LABEL      "Favorites"
+#define TR_MODELS_MOVED        "Unused models moved to"
 #define TR_NEW_MODEL           "New Model"
-#define TR_INVALID_MODEL               "Invalid Model"
+#define TR_INVALID_MODEL       "Invalid Model"
 #define TR_EDIT_LABELS         "Edit Labels"
-#define TR_MOVE_UP                     "Move Up"
-#define TR_MOVE_DOWN                   "Move Down"
+#define TR_MOVE_UP             "Move Up"
+#define TR_MOVE_DOWN           "Move Down"
 #define TR_ENTER_LABEL         "Enter Label"
 #define TR_LABEL               "Label"
 #define TR_LABELS              "Labels"
@@ -743,10 +729,10 @@
 #define TR_DELAY               "Vertrag."
 #define TR_SD_CARD             "SD-Card"
 #define TR_SDHC_CARD           "SD-HC CARD"
-#define TR_NO_SOUNDS_ON_SD     "Geen Geluiden" BREAKSPACE "op SD"
-#define TR_NO_MODELS_ON_SD     "Geen Modellen" BREAKSPACE "op SD"
-#define TR_NO_BITMAPS_ON_SD    "Geen Bitmaps" BREAKSPACE "op SD"
-#define TR_NO_SCRIPTS_ON_SD    "Geen Scripts" BREAKSPACE "op SD"
+#define TR_NO_SOUNDS_ON_SD     "Geen Geluiden op SD"
+#define TR_NO_MODELS_ON_SD     "Geen Modellen op SD"
+#define TR_NO_BITMAPS_ON_SD    "Geen Bitmaps op SD"
+#define TR_NO_SCRIPTS_ON_SD    "Geen Scripts op SD"
 #define TR_SCRIPT_SYNTAX_ERROR TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC        "Script panic"
 #define TR_SCRIPT_KILLED       "Script killed"

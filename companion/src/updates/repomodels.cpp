@@ -49,25 +49,23 @@ ReleasesItemModel::ReleasesItemModel() :
   UpdatesItemModel("Releases"),
   m_settingsIdx(-1),
   m_nightlyName(""),
-  m_releaseChannel(-1)
+  m_releaseChannel(-1),
+  m_refreshRequired(true)
 {
   setSortRole(UpdatesItemModel::IMDR_Date);
 }
 
-bool ReleasesItemModel::releaseChannelChanged()
+void ReleasesItemModel::setReleaseChannel(const int channel)
 {
-  if (m_settingsIdx > -1 && m_releaseChannel != (int)g.component[m_settingsIdx].releaseChannel())
-    return true;
-  else
-    return false;
+  if (m_releaseChannel != channel) {
+    m_releaseChannel = channel;
+    update();
+  }
 }
 
 void ReleasesItemModel::parseMetaData(const int mdt, QJsonDocument * jsonDoc)
 {
   json = jsonDoc;
-
-  if (m_settingsIdx > -1)
-    m_releaseChannel = g.component[m_settingsIdx].releaseChannel();
 
   switch (mdt) {
     case MDT_Release:
@@ -105,6 +103,7 @@ void ReleasesItemModel::parseReleases()
   }
 
   sort(0, Qt::DescendingOrder);
+  m_refreshRequired = false;
 }
 
 void ReleasesItemModel::parseJsonObject(const QJsonObject & obj)
@@ -136,19 +135,31 @@ void ReleasesItemModel::parseJsonObject(const QJsonObject & obj)
     item->setData(QDateTime::fromString(obj.value("created_at").toString(), Qt::ISODate), UpdatesItemModel::IMDR_Date);
   }
 
-  item->setData(isReleaseAvailable(tag, prerelease), UpdatesItemModel::IMDR_Available);
+  setDynamicItemData(item);
 
   appendRow(item);
 }
 
-bool ReleasesItemModel::isReleaseAvailable(const QString tagname, const bool prerelease)
+void ReleasesItemModel::setDynamicItemData(QStandardItem * item)
 {
-  if (prerelease) {
+  item->setData(isReleaseAvailable(item), UpdatesItemModel::IMDR_Available);
+}
+
+void ReleasesItemModel::update()
+{
+  for (int i = 0; i < rowCount(); ++i)
+    setDynamicItemData(item(i));
+}
+
+bool ReleasesItemModel::isReleaseAvailable(QStandardItem * item)
+{
+  if (item->data(IMDR_Prerelease).toBool()) {
     if (m_releaseChannel == ComponentData::RELEASE_CHANNEL_STABLE) {
       //qDebug() << "Release channel stable" << tagname << "is pre-release" ;
       return false;
     }
-    else if (m_releaseChannel == ComponentData::RELEASE_CHANNEL_PRERELEASE && tagname.toLower() == m_nightlyName) {
+    else if (m_releaseChannel == ComponentData::RELEASE_CHANNEL_PRERELEASE &&
+             item->data(IMDR_Tag).toString().toLower() == m_nightlyName) {
       //qDebug() << "Release channel pre-release" << tagname << "is nightly" ;
       return false;
     }
@@ -382,7 +393,6 @@ QStringList UpdatesFilteredItemModel::list()
   return strl;
 }
 
-
 /*
     ReleasesFilteredItemModel
 */
@@ -427,8 +437,8 @@ bool AssetsFilteredItemModel::setCopyFilter(const int id, const QString filter)
     ReleasesMetaData
 */
 
-ReleasesMetaData::ReleasesMetaData(QWidget * parent) :
-  QWidget(parent),
+ReleasesMetaData::ReleasesMetaData(QObject * parent) :
+  QObject(parent),
   m_repo(""),
   m_id(0)
 {
@@ -438,10 +448,7 @@ ReleasesMetaData::ReleasesMetaData(QWidget * parent) :
 
 bool ReleasesMetaData::refreshRequired()
 {
-  if (m_id != 0)
-    return itemModel->releaseChannelChanged();
-
-  return true;
+  return m_id == 0 ? true : itemModel->refreshRequired();
 }
 
 int ReleasesMetaData::getSetId()
@@ -462,12 +469,28 @@ int ReleasesMetaData::getSetId(QVariant value, Qt::MatchFlags flags, int role)
   return m_id;
 }
 
+QString ReleasesMetaData::name()
+{
+  if (m_id)
+    return filteredItemModel->name(m_id);
+
+  return "";
+}
+
+QString ReleasesMetaData::version()
+{
+  if (m_id)
+    return filteredItemModel->version(m_id);
+
+  return "0";
+}
+
 /*
     AssetsMetaData
 */
 
-AssetsMetaData::AssetsMetaData(QWidget * parent) :
-  QWidget(parent)
+AssetsMetaData::AssetsMetaData(QObject * parent) :
+  QObject(parent)
 {
   itemModel = new AssetsItemModel();
   filteredItemModel = new AssetsFilteredItemModel(itemModel);

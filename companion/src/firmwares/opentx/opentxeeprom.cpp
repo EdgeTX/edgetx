@@ -2067,6 +2067,12 @@ class SensorField: public TransformedField {
         }
       }
 
+      //  Cells 7 and 8 introduced in v2.8 requiring Highest and Delta to be shifted + 2
+      if (version < 221) {
+        if (sensor.formula == SensorData::TELEM_FORMULA_CELL && sensor.index > 6)
+          sensor.index += 2;
+      }
+
       qCDebug(eepromImport) << QString("imported %1").arg(internalField.getName());
     }
 

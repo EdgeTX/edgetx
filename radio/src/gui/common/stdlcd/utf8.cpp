@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "definitions.h"
+#include "translations/untranslated.h"
 
 #if defined(TRANSLATIONS_FR)
 static wchar_t _utf8_lut[] = {
@@ -103,7 +104,9 @@ unsigned char map_utf8_char(const char*& s, uint8_t& len)
       return (unsigned char)w;
     }
     if(w == L'≥')
-      return '}';
+      return STR_CHAR_BW_GREATEREQUAL;
+    if(w == L'°')
+      return STR_CHAR_BW_DEGREE;
 #if !defined(NO_UTF8_LUT)
     return lookup_utf8_mapping(w);
 #else

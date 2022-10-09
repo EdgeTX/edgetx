@@ -562,7 +562,10 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       } else if (func == FuncSetScreen) {
         fswtchParam[i]->setDecimals(0);
         fswtchParam[i]->setMinimum(1);
-        fswtchParam[i]->setMaximum(model->getCustomScreensCount());
+        if(model)
+          fswtchParam[i]->setMaximum(model->getCustomScreensCount());
+        else
+          fswtchParam[i]->setMaximum(1);
         fswtchParam[i]->setSingleStep(1);
         cfn.param = fswtchParam[i]->value();
         fswtchParam[i]->setValue(cfn.param);
