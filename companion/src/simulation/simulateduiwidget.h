@@ -111,6 +111,8 @@ namespace Ui {
   class SimulatedUIWidgetX9D2019;
   class SimulatedUIWidgetX10;
   class SimulatedUIWidgetX12;
+  class SimulatedUIWidgetLR3PRO;
+  class SimulatedUIWidgetCommando8;
   class SimulatedUIWidgetJumperT12;
   class SimulatedUIWidgetJumperTLITE;
   class SimulatedUIWidgetJumperTPRO;
@@ -119,7 +121,6 @@ namespace Ui {
   class SimulatedUIWidgetTX16S;
   class SimulatedUIWidgetTX12;
   class SimulatedUIWidgetZorro;
-  class SimulatedUIWidgetLR3PRO;
   class SimulatedUIWidgetT8;
   class SimulatedUIWidgetNV14;
 }
@@ -236,6 +237,30 @@ class SimulatedUIWidgetX12: public SimulatedUIWidget
     Ui::SimulatedUIWidgetX12 * ui;
 };
 
+class SimulatedUIWidgetLR3PRO: public SimulatedUIWidget
+{
+  Q_OBJECT
+  
+  public:
+    explicit SimulatedUIWidgetLR3PRO(SimulatorInterface * simulator, QWidget * parent = NULL);
+    virtual ~SimulatedUIWidgetLR3PRO();
+
+  private:
+    Ui::SimulatedUIWidgetLR3PRO * ui;
+};
+
+class SimulatedUIWidgetCommando8: public SimulatedUIWidget
+{
+  Q_OBJECT
+
+  public:
+    explicit SimulatedUIWidgetCommando8(SimulatorInterface * simulator, QWidget * parent = nullptr);
+    virtual ~SimulatedUIWidgetCommando8();
+
+  private:
+    Ui::SimulatedUIWidgetCommando8 * ui;
+};
+
 class SimulatedUIWidgetJumperT12: public SimulatedUIWidget
 {
   Q_OBJECT
@@ -270,18 +295,6 @@ class SimulatedUIWidgetJumperTPRO: public SimulatedUIWidget
 
   private:
     Ui::SimulatedUIWidgetJumperTPRO * ui;
-};
-
-class SimulatedUIWidgetLR3PRO: public SimulatedUIWidget
-{
-  Q_OBJECT
-  
-  public:
-    explicit SimulatedUIWidgetLR3PRO(SimulatorInterface * simulator, QWidget * parent = NULL);
-    virtual ~SimulatedUIWidgetLR3PRO();
-
-  private:
-    Ui::SimulatedUIWidgetLR3PRO * ui;
 };
 
 class SimulatedUIWidgetJumperT16: public SimulatedUIWidget
