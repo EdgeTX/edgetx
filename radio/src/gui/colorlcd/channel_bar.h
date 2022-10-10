@@ -28,6 +28,8 @@
 constexpr coord_t ROW_HEIGHT = 42;
 constexpr coord_t BAR_HEIGHT = 13;
 constexpr coord_t LEG_COLORBOX = 15;
+constexpr coord_t LMARGIN = 15;
+constexpr coord_t TMARGIN = 2;
 
 class ChannelBar : public Window
 {
@@ -78,8 +80,6 @@ class OutputChannelBar : public ChannelBar
   LcdFlags outputBarLimitsColor = COLOR_THEME_SECONDARY1;
 };
 
-constexpr coord_t lmargin = 15;
-
 class ComboChannelBar : public Window
 {
   public:
@@ -88,11 +88,11 @@ class ComboChannelBar : public Window
       Window(parent, rect), channel(channel)
     {
       outputChannelBar = new OutputChannelBar(
-          this, {leftMargin, BAR_HEIGHT, width() - leftMargin, BAR_HEIGHT},
+          this, {leftMargin, BAR_HEIGHT + TMARGIN, width() - leftMargin, BAR_HEIGHT},
           channel);
       new MixerChannelBar(
           this,
-          {leftMargin, 2 * BAR_HEIGHT + 1, width() - leftMargin, BAR_HEIGHT},
+          {leftMargin, (2 * BAR_HEIGHT) + TMARGIN + 1, width() - leftMargin, BAR_HEIGHT},
           channel);
     }
 
@@ -164,7 +164,7 @@ class ComboChannelBar : public Window
     uint8_t channel;
     OutputChannelBar *outputChannelBar = nullptr;
     int value = 0;
-    int leftMargin = lmargin;
+    int leftMargin = LMARGIN;
     uint32_t textColor = COLOR_THEME_SECONDARY1;
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
     int safetyChValue = OVERRIDE_CHANNEL_UNDEFINED;
