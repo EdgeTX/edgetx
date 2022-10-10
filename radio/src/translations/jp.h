@@ -801,7 +801,7 @@
 #define TR_DATE                        "日付"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_INVERT_ROTARY               "選択操作リバース"
+#define TR_ROTARY_ENC_MODE             "選択操作リバース"
 #define TR_CHANNELS_MONITOR            "チャンネルモニター"
 #define TR_MIXERS_MONITOR              "ミキサーモニター"
 #define TR_PATH_TOO_LONG               "パスが長すぎます"
