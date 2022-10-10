@@ -1115,6 +1115,7 @@
 #define TR_DELETE_ALL_SENSORS  "Borrar sensores"
 #define TR_CONFIRMDELETE       "Seguro " LCDW_128_480_LINEBREAK "borrar todo ?"
 #define TR_SELECT_WIDGET       "Seleccionar widget"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET       "Borrar widget"
 #define TR_WIDGET_SETTINGS     "Config. widget"
 #define TR_REMOVE_SCREEN       "Borrar pantalla"

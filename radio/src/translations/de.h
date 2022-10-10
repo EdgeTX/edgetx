@@ -1114,6 +1114,7 @@
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"
 #define TR_CONFIRMDELETE               "Wirklich alle " LCDW_128_480_LINEBREAK "löschen ?"
 #define TR_SELECT_WIDGET               "Widget auswählen"  // grafisches Element
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET               "Widget löschen"
 #define TR_WIDGET_SETTINGS             "Widget einstellen"
 #define TR_REMOVE_SCREEN               "Seite löschen"

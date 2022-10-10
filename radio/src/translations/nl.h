@@ -1124,6 +1124,7 @@
 #define TR_DELETE_ALL_SENSORS  "Wis alle sensors"
 #define TR_CONFIRMDELETE       "Echt alles wissen?"
 #define TR_SELECT_WIDGET       "Widget kiezen"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET       "Widget wissen"
 #define TR_WIDGET_SETTINGS     "Widget instellen"
 #define TR_REMOVE_SCREEN       "Scherm wissen"
