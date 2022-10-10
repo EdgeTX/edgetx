@@ -77,6 +77,8 @@ class FullScreenDialog : public Window
     bool running = false;
     std::function<bool(void)> closeCondition;
     std::function<void(void)> confirmHandler;
+
+    static void long_pressed(lv_event_t* e);
 };
 
 #endif // _FULLSCREEN_DIALOG_H_
