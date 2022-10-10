@@ -668,8 +668,8 @@ swsrc_t getMovedSwitch()
       auto prev = (uint8_t )(bfSingleBitGet(fsswitches_states, i) >> (i));
       uint8_t next = getFSLogicalState(i);
       if (prev != next) {
-        switches_states ^= (-next ^ switches_states) & (1 << i);
-        result = 2 + (3 * (i + NUM_REGULAR_SWITCHES)) + next;
+        fsswitches_states = (fsswitches_states & ~(1 << i)) | (next << i);
+        result = SWSRC_FIRST_FUNCTION_SWITCH + i*3 + (next ? 2 : 0);
       }
     }
   }
