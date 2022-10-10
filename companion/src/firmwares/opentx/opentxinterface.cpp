@@ -114,6 +114,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for FlySky NV14";
     case BOARD_BETAFPV_LR3PRO:
       return "EdgeTx for BETAFPV LR3PRO";
+    case BOARD_IFLIGHT_COMMANDO8:
+      return "EdgeTX for iFlight Commando 8";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -346,9 +348,6 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_TARANIS_XLITE(board)) {
     variant |= TARANIS_XLITE_VARIANT;
-  }
-  else if (IS_BETAFPV_LR3PRO(board)) {
-    variant |= BETAFPV_LR3PRO_VARIANT;
   }
   else if (IS_JUMPER_T12(board)) {
     variant |= JUMPER_T12_VARIANT;
@@ -721,6 +720,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
         return TARANIS_XLITE_VARIANT;
       else if (IS_BETAFPV_LR3PRO(board))
         return BETAFPV_LR3PRO_VARIANT;
+      else if (IS_IFLIGHT_COMMANDO8(board))
+        return IFLIGHT_COMMANDO8_VARIANT;
       else if (IS_JUMPER_T12(board))
         return JUMPER_T12_VARIANT;
       else if (IS_JUMPER_TLITE(board))
@@ -793,7 +794,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
     case HasIntModuleELRS:
-      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board);
+      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) || IS_IFLIGHT_COMMANDO8(board);
     case HasIntModuleFlySky:
       return id.contains("afhds3") || IS_FLYSKY_NV14(board);
     default:
@@ -1065,11 +1066,6 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_TARANIS_X9LITE(board)) {
     if (variant != TARANIS_X9LITE_VARIANT) {
-      variantError = true;
-    }
-  }
-  else if (IS_BETAFPV_LR3PRO(board)) {
-    if (variant != BETAFPV_LR3PRO_VARIANT) {
       variantError = true;
     }
   }
@@ -1522,6 +1518,16 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
+
+  /* Radiomaster T8 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("commando8"), QCoreApplication::translate("Firmware", "iFlight Commando8"), BOARD_IFLIGHT_COMMANDO8);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, NONE);
 
   /* 9XR-Pro */
   firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
