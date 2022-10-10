@@ -578,9 +578,9 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   }
 #if defined(FUNCTION_SWITCHES)
   else if (cs_idx <= SWSRC_LAST_SWITCH) {
-    div_t qr = div(cs_idx - 3 * NUM_FUNCTIONS_SWITCHES, 3);
-    auto value = getFSLogicalState(qr.quot + 1);
-    result = qr.rem == -2 ? 1 - value : value;
+    div_t qr = div(cs_idx - SWSRC_FIRST_FUNCTION_SWITCH, 3);
+    auto value = getFSLogicalState(qr.quot);
+    result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
   }
 #endif
 #if NUM_XPOTS > 0
