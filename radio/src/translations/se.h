@@ -1165,7 +1165,7 @@
 #define TR_SELECT_WIDGET                "Välj widget"
 #define TR_REMOVE_WIDGET                "Ta bort widget"
 #define TR_WIDGET_SETTINGS              "Widgetinställningar"
-#define TR_WIDGET_FULLSCREEN            "Helskärm"
+#define TR_WIDGET_FULLSCREEN            "Hel skärm"
 #define TR_REMOVE_SCREEN                "Ta bort huvudvy"
 
 #if LCD_W > LCD_H
