@@ -144,6 +144,12 @@ public:
     }
     update();
   }
+
+  void copyChannel()
+  {
+    g_model.failsafeChannels[channel] = channelOutputs[channel];
+    update();
+  }
 };
 
 class ChannelFSCombo : public FormGroup
@@ -161,6 +167,13 @@ public:
     edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
     auto btn = new TextButton(this, rect_t{}, LV_SYMBOL_SETTINGS, [=]() {
       edit->toggle();
+      return 0;
+    });
+    btn->padTop(lv_dpx(4));
+    btn->padBottom(lv_dpx(4));
+
+    btn = new TextButton(this, rect_t{}, LV_SYMBOL_COPY, [=]() {
+      edit->copyChannel();
       return 0;
     });
     btn->padTop(lv_dpx(4));
