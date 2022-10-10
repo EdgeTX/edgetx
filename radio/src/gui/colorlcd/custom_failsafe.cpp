@@ -161,6 +161,8 @@ public:
     FormGroup(parent, rect_t{})
   {
     setFlexLayout(LV_FLEX_FLOW_ROW);
+    lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+    
     lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
@@ -184,7 +186,7 @@ public:
 };
 
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(3),
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3), LV_GRID_FR(3),
                                           LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
@@ -194,6 +196,13 @@ static void set_failsafe(lv_event_t* e)
   auto combo = (ChannelFSCombo*)lv_event_get_user_data(e);
   if (combo) combo->update();
 }
+
+#if LCD_H > LCD_W
+  #define FS_BARGRAPH_WIDTH (LV_DPI_DEF / 2)
+#else 
+  #define FS_BARGRAPH_WIDTH (LV_DPI_DEF)
+#endif
+
 
 FailSafePage::FailSafePage(uint8_t moduleIdx) :
     Page(ICON_STATS_ANALOGS)
@@ -237,7 +246,8 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
     
     // Channel bargraph
     auto bar = new ChannelFailsafeBargraph(line, rect_t{}, moduleIdx, ch);
-    bar->setWidth(LV_DPI_DEF);
+    bar->setWidth(FS_BARGRAPH_WIDTH);
     bar->setHeight(LV_DPI_DEF / 5);
+    lv_obj_set_style_grid_cell_x_align(bar->getLvObj(), LV_GRID_ALIGN_END, 0);
   }
 }
