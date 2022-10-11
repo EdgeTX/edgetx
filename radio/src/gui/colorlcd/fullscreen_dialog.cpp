@@ -28,7 +28,7 @@
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
     const std::function<void(void)>& confirmHandler) :
-    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
+    Window(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
     type(type),
     title(std::move(title)),
     message(std::move(message)),

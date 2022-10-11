@@ -116,47 +116,6 @@ const uint8_t _LBM_SHUTDOWN_CIRCLE[] = {
 };
 STATIC_LZ4_BITMAP(LBM_SHUTDOWN_CIRCLE);
 
-class ShutdownAnimation: public FormGroup
-{
-  public:
-  ShutdownAnimation(uint32_t duration, uint32_t totalDuration):
-      FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE | FORM_NO_BORDER),
-      duration(duration),
-      totalDuration(totalDuration)
-    {
-      Layer::push(this);
-      bringToTop();
-      // setFocus(SET_FOCUS_DEFAULT);
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ShutdownAnimation";
-    }
-#endif
-    void paint(BitmapBuffer * dc) override
-    {
-    }
-
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      Layer::pop(this);
-      Window::deleteLater(detach, trash);
-    }
-
-    void update(uint32_t newDuration, uint32_t newTotalDuration)
-    {
-      duration = newDuration;
-      totalDuration = newTotalDuration;
-    }
-
-  protected:
-    uint32_t duration;
-    uint32_t totalDuration;
-    std::string message;
-};
-
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message)
 {
