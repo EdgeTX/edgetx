@@ -1109,6 +1109,7 @@
 #define TR_DELETE_ALL_SENSORS  "Usuń czujniki     "
 #define TR_CONFIRMDELETE       "Usunąć wszystkie?"
 #define TR_SELECT_WIDGET       "Select widget"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET       "Remove widget"
 #define TR_WIDGET_SETTINGS     "Widget settings"
 #define TR_REMOVE_SCREEN       "Remove screen"
