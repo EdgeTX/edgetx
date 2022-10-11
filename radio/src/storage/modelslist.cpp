@@ -1000,7 +1000,6 @@ bool ModelsList::loadYaml()
       if (res != FR_OK || finfo.fname[0] == 0) break;
       if (finfo.fattrib & AM_DIR) continue;
       unsigned int len = strlen(finfo.fname);
-      TRACE("SIZO OF %d", sizeof(MODEL_FILENAME_PREFIX));
 
       // Only open model###.yml files
       bool modelNameInvalid = false;
