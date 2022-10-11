@@ -149,6 +149,10 @@ if(MULTIMODULE)
   add_gui_src(mpm_settings.cpp)
 endif()
 
+if(INTERNAL_MODULE_PXX1)
+  add_gui_src(pxx1_settings.cpp)
+endif()
+
 if(PXX2)
   add_gui_src(access_settings.cpp)
 endif()

@@ -33,6 +33,10 @@
 #include "channel_range.h"
 #include "storage/modelslist.h"
 
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#include "pxx1_settings.h"
+#endif
+
 #if defined(PXX2)
 #include "access_settings.h"
 #endif
@@ -217,6 +221,12 @@ void ModuleWindow::updateModule()
 #if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
     modOpts = new MultimoduleSettings(this, grid, moduleIdx);
+  }
+#endif
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+  else if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
+           g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
+    modOpts = new PXX1AntennaSettings(this, grid, moduleIdx);
   }
 #endif
 
@@ -532,17 +542,6 @@ void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
     if (closeHandler) closeHandler();
   });
 }
-
-// void ModuleWindow::checkEvents()
-// {
-//   if (isModuleFailsafeAvailable(moduleIdx) != hasFailsafe && rfChoice &&
-//       !rfChoice->isEditMode()) {
-//     hasFailsafe = isModuleFailsafeAvailable(moduleIdx);
-//     update();
-//   }
-
-//   FormGroup::checkEvents();
-// }
 
 class ModuleSubTypeChoice: public Choice
 {
