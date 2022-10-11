@@ -246,7 +246,7 @@ void FlightModeBtn::paint(BitmapBuffer* dc)
 
   LcdFlags txt_flags;
   if (active) {
-    txt_flags = FONT(BOLD) | COLOR_THEME_PRIMARY2;
+    txt_flags = FONT(BOLD) | COLOR_THEME_PRIMARY1;
   } else {
     txt_flags = FONT(STD) | COLOR_THEME_SECONDARY1;
   }
