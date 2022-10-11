@@ -38,11 +38,13 @@ void FilePreview::setFile(const char *filename)
   if (bitmap != nullptr) delete bitmap;
   bitmap = nullptr;
 
-  const char *ext = getFileExtension(filename);
-  if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
-    bitmap = BitmapBuffer::loadBitmap(filename);
-  } else {
-    bitmap = nullptr;
+  if (filename) {
+    const char *ext = getFileExtension(filename);
+    if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
+      bitmap = BitmapBuffer::loadBitmap(filename);
+    } else {
+      bitmap = nullptr;
+    }
   }
   invalidate();
 }

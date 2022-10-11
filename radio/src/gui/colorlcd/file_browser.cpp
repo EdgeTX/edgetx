@@ -203,10 +203,15 @@ void FileBrowser::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* 
 
 void FileBrowser::onSelected(const char* name, bool is_dir)
 {
-  if (is_dir) return;
+  if (is_dir) {
+    if (fileSelected) fileSelected(nullptr, nullptr, nullptr);
+    return;
+  }
+
   const char* path = getCurrentPath();
   const char* fullpath = getFullPath(name);  
   if (fileSelected) fileSelected(path, name, fullpath);
+  selected = name;
 }
 
 void FileBrowser::onPress(const char* name, bool is_dir)
@@ -216,7 +221,15 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   if (is_dir) {
     f_chdir(fullpath);
     refresh();
-  } else if (fileAction){
+    return;
+  }
+
+  if (!selected || (selected != name)) {
+    onSelected(name, is_dir);
+    return;
+  }
+  
+  if (fileAction){
     fileAction(path, name, fullpath);
   }
 }
