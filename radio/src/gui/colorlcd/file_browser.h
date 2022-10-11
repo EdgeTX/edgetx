@@ -48,6 +48,7 @@ class FileBrowser : public TableField
   void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
 
  private:
+  const char* selected = nullptr;
   FileAction fileAction;
   FileAction fileSelected;
 };
