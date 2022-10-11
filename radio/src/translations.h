@@ -1061,6 +1061,7 @@ extern const char STR_CONFIRMDELETE[];
 extern const char STR_SELECT_WIDGET[];
 extern const char STR_REMOVE_WIDGET[];
 extern const char STR_WIDGET_SETTINGS[];
+extern const char STR_WIDGET_FULLSCREEN[];
 extern const char STR_REMOVE_SCREEN[];
 extern const char STR_SETUP_WIDGETS[];
 extern const char STR_USER_INTERFACE[];
