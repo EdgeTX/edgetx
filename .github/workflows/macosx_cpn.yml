@@ -62,7 +62,7 @@ jobs:
         run: cmake -E make_directory ${{github.workspace}}/build
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: ${{ env.QT_VERSION }}
           setup-python: 'false'
