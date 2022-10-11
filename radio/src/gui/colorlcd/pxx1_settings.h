@@ -22,23 +22,16 @@
 #pragma once
 
 #include "form.h"
+#include "module_setup.h"
 
-class InternalModuleWindow : public FormGroup::Line
+struct ModuleData;
+
+class PXX1AntennaSettings : public FormGroup, public ModuleOptions
 {
- public:
-  InternalModuleWindow(Window *parent);
+  ModuleData* md;
 
- protected:
-  uint8_t lastModule = 0;
-  lv_obj_t* br_box = nullptr;
-  lv_obj_t* ant_box = nullptr;
-
-#if defined(CROSSFIRE)
-  static int getBaudrate();
-  static void setBaudrate(int val);
-#endif
-
-  void setModuleType(int moduleType);
-  void updateBaudrateLine();
-  void updateAntennaLine();
+  void update() override {}
+  
+public:
+  PXX1AntennaSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

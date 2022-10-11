@@ -573,6 +573,104 @@ bool isSourceAvailableInResetSpecialFunction(int index)
   }
 }
 
+#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+
+#if defined(COLORLCD)
+
+class AntennaSelectionMenu : public Menu
+{
+  bool& done;
+
+public:
+  AntennaSelectionMenu(bool& done) : Menu(MainWindow::instance()), done(done) {
+    setTitle(STR_ANTENNA);
+    addLine(STR_USE_INTERNAL_ANTENNA,
+            [] { globalData.externalAntennaEnabled = false; });
+    addLine(STR_USE_EXTERNAL_ANTENNA,
+            [] { globalData.externalAntennaEnabled = true; });
+    setCloseHandler([=]() { this->done = true; });
+    setCloseWhenClickOutside(false);
+  }
+protected:
+  void onCancel() override {}
+};
+
+static void runAntennaSelectionMenu()
+{
+  bool finished = false;
+  new AntennaSelectionMenu(finished);
+
+  while (!finished) {
+    WDG_RESET();
+    MainWindow::instance()->run();
+    LvglWrapper::runNested();
+    RTOS_WAIT_MS(20);
+  }
+}
+#else
+void onAntennaSelection(const char* result)
+{
+  if (result == STR_USE_INTERNAL_ANTENNA) {
+    globalData.externalAntennaEnabled = false;
+  } else if (result == STR_USE_EXTERNAL_ANTENNA) {
+    globalData.externalAntennaEnabled = true;
+  } else {
+    checkExternalAntenna();
+  }
+}
+
+void onAntennaSwitchConfirm(const char * result)
+{
+  if (result == STR_OK) {
+    // Switch to external antenna confirmation
+    globalData.externalAntennaEnabled = true;
+  }
+}
+#endif
+
+void checkExternalAntenna()
+{
+  if (isModuleXJT(INTERNAL_MODULE)) {
+    if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
+      // TRACE("checkExternalAntenna(): External");
+      globalData.externalAntennaEnabled = true;
+    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+               g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                   ANTENNA_MODE_EXTERNAL) {
+      // TRACE("checkExternalAntenna(): Per Model, External");
+      if (!globalData.externalAntennaEnabled) {
+#if defined(COLORLCD)
+        if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+          globalData.externalAntennaEnabled = true;
+        }
+#else
+        POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
+        SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+#endif
+      }
+    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
+               (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+                g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                    ANTENNA_MODE_ASK)) {
+
+      // TRACE("checkExternalAntenna(): Ask");
+      globalData.externalAntennaEnabled = false;
+
+#if defined(COLORLCD)
+      runAntennaSelectionMenu();
+#else
+      POPUP_MENU_ADD_ITEM(STR_USE_INTERNAL_ANTENNA);
+      POPUP_MENU_ADD_ITEM(STR_USE_EXTERNAL_ANTENNA);
+      POPUP_MENU_START(onAntennaSelection);
+#endif
+    } else {
+      globalData.externalAntennaEnabled = false;
+    }
+  } else {
+    globalData.externalAntennaEnabled = false;
+  }
+}
+#endif
 
 #if defined(PXX2)
 bool isPxx2IsrmChannelsCountAllowed(int channels)

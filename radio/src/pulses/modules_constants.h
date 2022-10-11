@@ -88,7 +88,7 @@ enum R9MLBTPowerValues {
 };
 
 enum AntennaTypes {
-  XJT_INTERNAL_ANTENNA,
+  XJT_INTERNAL_ANTENNA = 0,
   XJT_EXTERNAL_ANTENNA
 };
 
