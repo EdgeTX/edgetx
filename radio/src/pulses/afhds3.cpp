@@ -924,6 +924,7 @@ static void* initInternal(uint8_t module)
   auto p_state = &protoState[module];
   p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver);
 
+  telemetryProtocol = PROTOCOL_TELEMETRY_AFHDS3;
   mixerSchedulerSetPeriod(module, AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */);
   INTERNAL_MODULE_ON();
 
@@ -933,6 +934,7 @@ static void* initInternal(uint8_t module)
 static void deinitInternal(void* context)
 {
   INTERNAL_MODULE_OFF();
+  telemetryProtocol = 0xFF;
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
 
   auto p_state = (ProtoState*)context;

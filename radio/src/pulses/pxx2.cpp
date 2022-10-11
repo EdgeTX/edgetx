@@ -834,6 +834,8 @@ static void* pxx2InitExternal(uint8_t module, uint32_t baudrate)
   mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
   EXTERNAL_MODULE_ON();
 
+  telemetryProtocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
+
   auto state = &pxx2State[module];
   state->init(module, &extmodulePulsesData.pxx2, &ExtmoduleSerialDriver,
               ExtmoduleSerialDriver.init(&params));
@@ -856,6 +858,7 @@ static void pxx2DeInitExternal(void* context)
   EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
   ExtmoduleSerialDriver.deinit(context);
+  telemetryProtocol = 0xFF;
 }
 
 static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
