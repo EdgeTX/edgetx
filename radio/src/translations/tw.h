@@ -160,7 +160,7 @@
 #define TR_SF_SCREENSHOT               "截屏"
 #define TR_SF_RACING_MODE              "競速模式"
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
-#define TR_SF_SET_SCREEN               "Set Main Screen"
+#define TR_SF_SET_SCREEN               "選擇主屏"
 #define TR_SF_RESERVE                  "[保留]"
 
 #define TR_VFSWFUNC                    TR_SF_SAFETY,"教練","搖桿值存儲到微調","重啟","設置",TR_ADJUST_GVAR,"音量","設置失控保護","測距模式","模塊對頻",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH, TR_SF_SET_SCREEN TR_SF_TEST
@@ -245,9 +245,9 @@
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT          "Normal","Inverted"
+  #define TR_ROTARY_ENC_OPT          "正常","反向"
 #else
-  #define TR_ROTARY_ENC_OPT          "Normal","Inverted","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT          "正常","反向","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -320,7 +320,7 @@
 #define TR_COPYINGMODEL                "複製模型..."
 #define TR_MOVINGMODEL                 "移動模型..."
 #define TR_LOADINGMODEL                "載入模型..."
-#define TR_UNLABELEDMODEL              "Unlabeled"
+#define TR_UNLABELEDMODEL              "未分組"
 #define TR_NAME                        "名稱"
 #define TR_MODELNAME                   "模型名稱"
 #define TR_PHASENAME                   "模式名稱"
@@ -328,11 +328,11 @@
 #define TR_INPUTNAME                   TR("名稱", "輸入名稱")
 #define TR_EXPONAME                    TR("名稱", "曲線名稱")
 #define TR_BITMAP                      "模型圖片"
-#define TR_NO_PICTURE                  "No Picture"
+#define TR_NO_PICTURE                  "無圖片"
 #define TR_TIMER                       TR("計時器", "計時器 ")
 #define TR_START                       "開始"
-#define TR_ELIMITS                     TR("E.Limits", "擴展通道行程")
-#define TR_ETRIMS                      TR("E.Trims", "擴展微調量")
+#define TR_ELIMITS                     TR("擴展行程", "擴展通道行程")
+#define TR_ETRIMS                      TR("擴展微調", "擴展微調量")
 #define TR_TRIMINC                     "微調步幅"
 #define TR_DISPLAY_TRIMS               TR("微調顯示", "微調顯示")
 #define TR_TTRACE                      TR("輸入源", INDENT "輸入源")
@@ -620,21 +620,21 @@
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
-#define TR_FAVORITE_LABEL              "Favorites"
+#define TR_FAVORITE_LABEL              "收藏夾"
 #define TR_MODELS_MOVED                "未使用模型移至"
-#define TR_NEW_MODEL                   "New Model"
-#define TR_INVALID_MODEL               "Invalid Model"
-#define TR_EDIT_LABELS                 "Edit Labels"
-#define TR_MOVE_UP                     "Move Up"
-#define TR_MOVE_DOWN                   "Move Down"
-#define TR_ENTER_LABEL                 "Enter Label"
-#define TR_LABEL                       "Label"
-#define TR_LABELS                      "Labels"
-#define TR_CURRENT_MODEL               "Current"
-#define TR_NEW                         "New"
-#define TR_NEW_LABEL                   "New Label"
-#define TR_RENAME_LABEL                "Rename Label"
-#define TR_DELETE_LABEL                "Delete Label"
+#define TR_NEW_MODEL                   "新建模型"
+#define TR_INVALID_MODEL               "無效模型"
+#define TR_EDIT_LABELS                 "編輯分組"
+#define TR_MOVE_UP                     "上移"
+#define TR_MOVE_DOWN                   "下移"
+#define TR_ENTER_LABEL                 "輸入分組名稱"
+#define TR_LABEL                       "分組"
+#define TR_LABELS                      "分組"
+#define TR_CURRENT_MODEL               "當前模型"
+#define TR_NEW                         "新建分組"
+#define TR_NEW_LABEL                   "新建分組"
+#define TR_RENAME_LABEL                "分組改名"
+#define TR_DELETE_LABEL                "刪除分組"
 #define TR_DUPLICATE_MODEL             "複製模型"
 #define TR_COPY_MODEL                  "複製模型"
 #define TR_MOVE_MODEL                  "移動模型"
@@ -648,7 +648,7 @@
 #define TR_NO_SDCARD                   "存儲卡未安裝"
 #define TR_WAITING_FOR_RX              "等待接收機響應..."
 #define TR_WAITING_FOR_TX              "等待發射機響應..."
-#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
+#define TR_WAITING_FOR_MODULE          TR("等待模塊", "等待模塊響應...")
 #define TR_NO_TOOLS                    "無可用附加功能"
 #define TR_NORMAL                      "正常"
 #define TR_NOT_INVERTED                "正向"
@@ -728,7 +728,7 @@
 #define TR_NO_BITMAPS_ON_SD            "存儲卡中無圖片"
 #define TR_NO_SCRIPTS_ON_SD            "存儲卡中無腳本"
 #define TR_SCRIPT_SYNTAX_ERROR         "腳本程序語法錯誤"
-#define TR_SCRIPT_PANIC                "Script panic"
+#define TR_SCRIPT_PANIC                "腳本異常"
 #define TR_SCRIPT_KILLED               "清除腳本進程"
 #define TR_SCRIPT_ERROR                "未知錯誤"
 #define TR_PLAY_FILE                   "播放"
@@ -749,7 +749,7 @@
 #define TR_MAXBAUDRATE                 "最大帶寬"
 #define TR_BAUDRATE                    "波特率"
 #define TR_SAMPLE_MODE                 "採樣模式"
-#define TR_SAMPLE_MODES                "Normal","OneBit"
+#define TR_SAMPLE_MODES                "標準","OneBit"
 
 #define TR_SELECT_TEMPLATE_FOLDER      "選擇一個樣板檔案夾:"
 #define TR_SELECT_TEMPLATE             "選擇一個樣板:"
@@ -789,7 +789,7 @@
 #define TR_DATE                        "日期"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec " }
 #define TR_ROTARY_ENCODER              "滾輪"
-#define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
+#define TR_ROTARY_ENC_MODE              TR("滾輪模式","滾輪模式")
 #define TR_CHANNELS_MONITOR            "通道查看器"
 #define TR_MIXERS_MONITOR              "混控查看器"
 #define TR_PATH_TOO_LONG               "路徑太長"
@@ -802,7 +802,7 @@
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Flash RX by int. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Flash FC by ext. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
-#define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "刷新藍牙模塊")
+#define TR_FLASH_BLUETOOTH_MODULE      TR("刷新藍牙模塊", "刷新藍牙模塊")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
 #define TR_DEVICE_NO_RESPONSE          TR("無響應", "設備無響應")
 #define TR_DEVICE_FILE_ERROR           TR("文件錯誤", "設備文件錯誤")
@@ -859,8 +859,8 @@
 #define TR_COPY                        "複製"
 #define TR_MOVE                        "移動"
 #define TR_PASTE                       "貼上"
-#define TR_PASTE_AFTER                 "貼上到之前"
-#define TR_PASTE_BEFORE                "貼上到之後"
+#define TR_PASTE_AFTER                 "貼上到本條之後"
+#define TR_PASTE_BEFORE                "貼上到本條之前"
 #define TR_DELETE                      "刪除"
 #define TR_INSERT                      "插入"
 #define TR_RESET_FLIGHT                "重啟飛行記錄"
@@ -1108,6 +1108,7 @@
 #define TR_DELETE_ALL_SENSORS          "刪除所有回傳項目"
 #define TR_CONFIRMDELETE               "真的 " LCDW_128_480_LINEBREAK "要刪除全部嗎 ?"
 #define TR_SELECT_WIDGET               "選擇小部件"
+#define TR_WIDGET_FULLSCREEN           "全屏"
 #define TR_REMOVE_WIDGET               "移除小部件"
 #define TR_WIDGET_SETTINGS             "小部件設置"
 #define TR_REMOVE_SCREEN               "移除頁面"
@@ -1143,7 +1144,7 @@
 #define TR_DEAD_ZONE                   "死區"
 #define TR_RTC_CHECK                   TR("檢查時間電池", "檢查時間驅動電池電壓")
 #define TR_AUTH_FAILURE                "驗證失敗"
-#define TR_RACING_MODE                 "Racing mode"
+#define TR_RACING_MODE                 "競速模式"
 
 #define STR_VFR                       "VFR"
 #define STR_RSSI                      "RSSI"
