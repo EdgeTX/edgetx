@@ -458,7 +458,9 @@ bool setupPulsesInternalModule(uint8_t protocol)
 
 void stopPulsesInternalModule()
 {
-  if (moduleState[INTERNAL_MODULE].protocol != PROTOCOL_CHANNELS_UNINITIALIZED) {
+  auto& proto = moduleState[INTERNAL_MODULE].protocol;
+  if (proto != PROTOCOL_CHANNELS_UNINITIALIZED &&
+      proto != PROTOCOL_CHANNELS_NONE) {
     if (internalModuleDriver) {
       internalModuleDriver->deinit(internalModuleContext);
       internalModuleDriver = nullptr;
@@ -467,7 +469,7 @@ void stopPulsesInternalModule()
       mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
       intmoduleStop();
     }
-    moduleState[INTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+    proto = PROTOCOL_CHANNELS_NONE;
   }
 }
 
@@ -766,8 +768,9 @@ void extmoduleSendNextFrame()
 
 void stopPulsesExternalModule()
 {
-  if (moduleState[EXTERNAL_MODULE].protocol !=
-      PROTOCOL_CHANNELS_UNINITIALIZED) {
+  auto& proto = moduleState[EXTERNAL_MODULE].protocol;
+  if (proto != PROTOCOL_CHANNELS_UNINITIALIZED &&
+      proto != PROTOCOL_CHANNELS_NONE) {
     if (externalModuleDriver) {
       externalModuleDriver->deinit(externalModuleContext);
       externalModuleDriver = nullptr;
@@ -776,7 +779,7 @@ void stopPulsesExternalModule()
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
       extmoduleStop();
     }
-    moduleState[EXTERNAL_MODULE].protocol = PROTOCOL_CHANNELS_NONE;
+    proto = PROTOCOL_CHANNELS_NONE;
   }
 }
 
