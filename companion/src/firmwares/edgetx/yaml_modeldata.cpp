@@ -543,10 +543,12 @@ struct convert<ScriptData> {
     node["file"] >> rhs.filename;
     node["name"] >> rhs.name;
 
-    for (int i=0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
-      if (node["inputs"][std::to_string(i)]) {
-        if (node["inputs"][std::to_string(i)]["u"]["value"]) {
-          node["inputs"][std::to_string(i)]["u"]["value"] >> rhs.inputs[i];
+    if (node["inputs"]) {
+      for (int i = 0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
+        if (node["inputs"][std::to_string(i)]) {
+          if (node["inputs"][std::to_string(i)]["u"]["value"]) {
+            node["inputs"][std::to_string(i)]["u"]["value"] >> rhs.inputs[i];
+          }
         }
       }
     }
