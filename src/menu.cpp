@@ -98,28 +98,41 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
 }
 
 void MenuBody::addLine(const std::string &text, std::function<void()> onPress,
-                       std::function<bool()> isChecked)
+                       std::function<bool()> isChecked, bool update)
 {
-  lines.emplace_back(std::move(onPress), std::move(isChecked), nullptr);
+  lines.emplace_back(text, std::move(onPress), std::move(isChecked), nullptr);
 
-  auto idx = lines.size() - 1;
-  lv_table_set_cell_value(lvobj, idx, 0, text.c_str());
+  if (update) {
+    auto idx = lines.size() - 1;
+    lv_table_set_cell_value(lvobj, idx, 0, text.c_str());
+  }
 }
 
 void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
                        std::function<void()> onPress,
-                       std::function<bool()> isChecked)
+                       std::function<bool()> isChecked,
+                       bool update)
 {
   lv_obj_t* canvas = lv_canvas_create(nullptr);
-  lines.emplace_back(std::move(onPress), std::move(isChecked), canvas);
+  lines.emplace_back(text, std::move(onPress), std::move(isChecked), canvas);
 
   lv_coord_t w = *((uint16_t *)icon_mask);
   lv_coord_t h = *(((uint16_t *)icon_mask)+1);
   void* buf = (void*)(icon_mask + 4);
   lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
 
-  auto idx = lines.size() - 1;
-  lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
+  if (update) {
+    auto idx = lines.size() - 1;
+    lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
+  }
+}
+
+void MenuBody::updateLines()
+{
+  setRowCount(lines.size());
+  for(unsigned int idx = 0; idx < lines.size(); idx++) {
+    lv_table_set_cell_value_fmt(lvobj, idx, 0, lines[idx].text.c_str());
+  }
 }
 
 void MenuBody::removeLines()
@@ -324,6 +337,25 @@ void Menu::addLine(const uint8_t *icon_mask, const std::string &text,
                    std::function<bool()> isChecked)
 {
   content->body.addLine(icon_mask, text, std::move(onPress), std::move(isChecked));
+  updatePosition();
+}
+
+void Menu::addLineBuffered(const std::string &text, std::function<void()> onPress,
+                   std::function<bool()> isChecked)
+{
+  content->body.addLine(text, std::move(onPress), std::move(isChecked), false);
+}
+
+void Menu::addLineBuffered(const uint8_t *icon_mask, const std::string &text,
+                   std::function<void()> onPress,
+                   std::function<bool()> isChecked)
+{
+  content->body.addLine(icon_mask, text, std::move(onPress), std::move(isChecked), false);
+}
+
+void Menu::updateLines()
+{
+  content->body.updateLines();
   updatePosition();
 }
 

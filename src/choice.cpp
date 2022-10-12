@@ -210,19 +210,22 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
   auto value = _getValue();
   
   int count = 0;
+  int selectedIx = -1;
   for (int i = vmin; i <= vmax; ++i) {
     if (filter && !filter(i)) continue;
     if (isValueAvailable && !isValueAvailable(i)) continue;
     if (textHandler) {
-      menu->addLine(textHandler(i), [=]() { setValue(i); });
+      menu->addLineBuffered(textHandler(i), [=]() { setValue(i); });
     } else if (unsigned(i - vmin) < values.size()) {
-      menu->addLine(values[i - vmin], [=]() { setValue(i); });
+      menu->addLineBuffered(values[i - vmin], [=]() { setValue(i); });
     } else {
-      menu->addLine(std::to_string(i), [=]() { setValue(i); });
+      menu->addLineBuffered(std::to_string(i), [=]() { setValue(i); });
     }
-    if (value == i) { menu->select(count); }
+    if (value == i) { selectedIx = count; }
     ++count;
   }
+  menu->updateLines();
+  if (selectedIx >= 0) { menu->select(selectedIx); }
 }
 
 void Choice::openMenu()

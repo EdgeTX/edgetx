@@ -101,7 +101,7 @@ bool FileChoice::openMenu()
       int current = -1;
       std::string value = getValue();
       for (const auto &file : files) {
-        menu->addLine(file, [=]() {
+        menu->addLineBuffered(file, [=]() {
             setValue(file);
             lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
         });
@@ -113,6 +113,7 @@ bool FileChoice::openMenu()
         }
         ++count;
       }
+      menu->updateLines();
 
       if (current >= 0) {
         menu->select(current);

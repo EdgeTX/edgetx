@@ -53,9 +53,9 @@ class MenuBody: public TableField
     friend class MenuBody;
 
    public:
-    MenuLine(std::function<void()> onPress, std::function<bool()> isChecked,
+    MenuLine(const std::string& text, std::function<void()> onPress, std::function<bool()> isChecked,
              lv_obj_t *icon) :
-        onPress(std::move(onPress)), isChecked(std::move(isChecked)), icon(icon)
+        text(text), onPress(std::move(onPress)), isChecked(std::move(isChecked)), icon(icon)
     {
     }
 
@@ -65,6 +65,7 @@ class MenuBody: public TableField
     lv_obj_t* getIcon() { return icon.get(); }
     
    protected:
+    std::string text;
     std::function<void()> onPress;
     std::function<bool()> isChecked;
     std::unique_ptr<lv_obj_t, lvobj_delete> icon;
@@ -96,11 +97,14 @@ class MenuBody: public TableField
     void onCancel() override;
 
     void addLine(const std::string &text, std::function<void()> onPress,
-                 std::function<bool()> isChecked);
+                 std::function<bool()> isChecked, bool update = true);
 
     void addLine(const uint8_t *icon_mask, const std::string &text,
                  std::function<void()> onPress,
-                 std::function<bool()> isChecked);
+                 std::function<bool()> isChecked,
+                 bool update = true);
+
+    void updateLines();
 
     void removeLines();
 
@@ -184,6 +188,15 @@ class Menu: public ModalWindow
     void addLine(const uint8_t *icon_mask, const std::string &text,
                  std::function<void()> onPress,
                  std::function<bool()> isChecked = nullptr);
+
+    void addLineBuffered(const std::string &text, std::function<void()> onPress,
+                 std::function<bool()> isChecked = nullptr);
+
+    void addLineBuffered(const uint8_t *icon_mask, const std::string &text,
+                 std::function<void()> onPress,
+                 std::function<bool()> isChecked = nullptr);
+
+    void updateLines();
 
     void addSeparator();
 
