@@ -156,7 +156,7 @@ void SubScreenButton::event_cb(lv_event_t* e)
     label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
 
     if (btn->isActive()) {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY2);
+      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY1);
     } else {
       label_draw_dsc.color = makeLvColor(COLOR_THEME_SECONDARY1);
     }
