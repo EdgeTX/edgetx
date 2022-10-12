@@ -965,7 +965,7 @@
 #define TR_INCDEC                      "增减"
 #define TR_GLOBALVAR                   "全局变量"
 #define TR_MIXSOURCE                   "混控源"
-#define TR_CONSTANT                    "不变化"
+#define TR_CONSTANT                    "固定值"
 #define TR_PERSISTENT_MAH              TR(INDENT "关机保持mAh", INDENT "关机保持 mAh")
 #define TR_PREFLIGHT                   "初始位置检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
