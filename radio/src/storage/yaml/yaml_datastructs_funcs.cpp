@@ -364,6 +364,31 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     return true;
 }
 
+static void r_rssiDisabled(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  data -= offsetof(ModelData, rfAlarms);
+  auto md = reinterpret_cast<ModelData*>(data);
+  md->disableTelemetryWarning = yaml_str2int(val, val_len);
+}
+
+static void r_rssiWarning(void* user, uint8_t* data, uint32_t bitoffs,
+                          const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  auto rf_alarm = reinterpret_cast<RFAlarmData*>(data);
+  rf_alarm->warning = yaml_str2int(val, val_len) + 45;
+}
+
+static void r_rssiCritical(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  data += bitoffs >> 3UL;
+  auto rf_alarm = reinterpret_cast<RFAlarmData*>(data);
+  rf_alarm->critical = yaml_str2int(val, val_len) + 42;
+}
+
 static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_len)
 {
     int32_t v = yaml_str2int(val, val_len);

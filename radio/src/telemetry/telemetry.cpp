@@ -322,7 +322,7 @@ void telemetryWakeup()
       }
     }
 
-    if (sensorLost && TELEMETRY_STREAMING() && !g_model.rssiAlarms.disabled) {
+    if (sensorLost && TELEMETRY_STREAMING() && !g_model.disableTelemetryWarning) {
       audioEvent(AU_SENSOR_LOST);
     }
 
@@ -334,13 +334,13 @@ void telemetryWakeup()
     }
 #endif
 
-    if (!g_model.rssiAlarms.disabled) {
+    if (!g_model.disableTelemetryWarning) {
       if (TELEMETRY_STREAMING()) {
-        if (TELEMETRY_RSSI() < g_model.rssiAlarms.getCriticalRssi() ) {
+        if (TELEMETRY_RSSI() < g_model.rfAlarms.critical ) {
           AUDIO_RSSI_RED();
           SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
         }
-        else if (TELEMETRY_RSSI() < g_model.rssiAlarms.getWarningRssi() ) {
+        else if (TELEMETRY_RSSI() < g_model.rfAlarms.warning ) {
           AUDIO_RSSI_ORANGE();
           SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
         }

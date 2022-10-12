@@ -113,7 +113,7 @@ static inline void check_struct()
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
-  CHKSIZE(RssiAlarmData, 2);
+  CHKSIZE(RFAlarmData, 2);
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
