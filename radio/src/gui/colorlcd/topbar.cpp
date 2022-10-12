@@ -34,7 +34,7 @@ Topbar * TopbarFactory::create(Window * parent)
   return new TopbarImpl(parent);
 }
 
-SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
+SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
   FormWindow(ViewMain::instance(), rect_t{}, FORM_FORWARD_FOCUS),
   menu(menu)
 {
@@ -45,7 +45,6 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage(ScreenMenu* menu):
 
   // save current view & switch to 1st one
   viewMain->setCurrentMainView(0);
-  viewMain->bringToTop();
 
   // adopt the dimensions of the main view
   setRect(viewMain->getRect());
@@ -79,12 +78,13 @@ void SetupTopBarWidgetsPage::onCancel()
 
 void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 {
-  // restore screen setting tab on top
-  menu->bringToTop();
   Layer::pop(this);
 
   // and continue async deletion...
   FormWindow::deleteLater(detach, trash);
+
+  // restore screen setting tab on top
+  new ScreenMenu(0);
 
   storageDirty(EE_MODEL);
 }
