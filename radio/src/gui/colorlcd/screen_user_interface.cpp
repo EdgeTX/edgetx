@@ -22,6 +22,7 @@
 #include "screen_user_interface.h"
 #include "theme_manager.h"
 #include "file_preview.h"
+#include "menu_screen.h"
 
 struct ThemeDetails : public Window {
   ThemeDetails(Window* parent, ThemeFile* theme) : Window(parent, rect_t{})
@@ -89,6 +90,7 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
   menu(menu)
 {
 }
+
 void ScreenUserInterfacePage::build(FormWindow* form)
 {
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
@@ -101,7 +103,8 @@ void ScreenUserInterfacePage::build(FormWindow* form)
   auto menu = this->menu;
   auto setupTopbarWidgets = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS);
   setupTopbarWidgets->setPressHandler([menu]() -> uint8_t {
-      new SetupTopBarWidgetsPage(menu);
+      menu->deleteLater();
+      new SetupTopBarWidgetsPage();
       return 0;
   });
 

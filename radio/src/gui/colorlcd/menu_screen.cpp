@@ -25,10 +25,10 @@
 #include "view_main.h"
 #include "storage/storage.h"
 
-ScreenMenu::ScreenMenu():
+ScreenMenu::ScreenMenu(int8_t tabIdx):
   TabsGroup(ICON_THEME)
 {
-  updateTabs();
+  updateTabs(tabIdx);
 
   setCloseHandler([]{
       ViewMain::instance()->updateTopbarVisibility();
@@ -36,7 +36,7 @@ ScreenMenu::ScreenMenu():
   });
 }
 
-void ScreenMenu::updateTabs()
+void ScreenMenu::updateTabs(int8_t tabIdx)
 {
   removeAllTabs();
 
@@ -59,7 +59,16 @@ void ScreenMenu::updateTabs()
   }
 
   // set the active tab to the currently shown screen on the MainView
-  auto view = ViewMain::instance()->getCurrentMainView();
-  if (view + 1 < getTabs())
-    setCurrentTab(view + 1);
+  auto viewMain = ViewMain::instance();
+  auto tab = viewMain->getCurrentMainView() + 1;
+
+  if (tabIdx >= 0) {
+    tab = tabIdx;
+  }
+
+  auto tabs = getTabs();
+  if (tab >= tabs - 1) {
+    tab = tabs - 2;
+  }
+  setCurrentTab(tab);
 }

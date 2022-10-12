@@ -45,7 +45,7 @@ class TopbarFactory
 class SetupTopBarWidgetsPage : public FormWindow
 {
  public:
-  explicit SetupTopBarWidgetsPage(ScreenMenu* menu);
+  explicit SetupTopBarWidgetsPage();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SetupTopBarWidgetsPage"; }

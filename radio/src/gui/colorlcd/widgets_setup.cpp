@@ -74,9 +74,8 @@ void SetupWidgetsPageSlot::paint(BitmapBuffer* dc)
   }
 }
 
-SetupWidgetsPage::SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx) :
+SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
     FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
-    menu(menu),
     customScreenIdx(customScreenIdx)
 {
   Layer::push(this);
@@ -88,13 +87,12 @@ SetupWidgetsPage::SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx) :
     auto viewMain = ViewMain::instance();
     savedView = viewMain->getCurrentMainView();
     viewMain->setCurrentMainView(customScreenIdx);
-    viewMain->bringToTop();
   }
 
   for (unsigned i = 0; i < screen->getZonesCount(); i++) {
     auto rect = screen->getZone(i);
     auto widget_container = customScreens[customScreenIdx];
-    auto widget = new SetupWidgetsPageSlot(this, rect, widget_container, i);
+    new SetupWidgetsPageSlot(this, rect, widget_container, i);
   }
 
 #if defined(HARDWARE_TOUCH)
@@ -123,7 +121,6 @@ void SetupWidgetsPage::onCancel()
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
   // restore screen setting tab on top
-  menu->bringToTop();
   Layer::pop(this);
 
   // and continue async deletion...
@@ -133,6 +130,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->setCurrentMainView(savedView);
   }
   FormWindow::deleteLater(detach, trash);
+  new ScreenMenu(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);
 }
