@@ -394,7 +394,7 @@
 #define TR_OFFSET                      "Ofset"
 #define TR_TRIM                        "Trim"
 #define TR_DREX                        "DR/Expo"
-#define DREX_CHBOX_OFFSET              45
+#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Křivka"
 #define TR_FLMODE                      "Režim"
 #define TR_MIXWARNING                  "Varování"
@@ -447,7 +447,7 @@
 #define TR_MODEL_SHUTDOWN              "Vypnout?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
-#define TR_THROTTLEREVERSE             TR("ReversPlyn", INDENT"Revers plynu")
+#define TR_THROTTLEREVERSE             TR("ReverzPlyn", INDENT"Reverz plynu")
 #define TR_MINUTEBEEP                  TR("Minuta", "Oznamovat minuty")
 #define TR_BEEPCOUNTDOWN               INDENT"Odpočet"
 #define TR_PERSISTENT                  INDENT"Trvalé"
@@ -587,7 +587,7 @@
 #define TR_MULTI_TELEMETRY             "Telemetrie"
 #define TR_MULTI_VIDFREQ               TR(INDENT "Freq. videa", INDENT "Frekvence videa")
 #define TR_RF_POWER                     INDENT "Výkon RF"
-#define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
+#define TR_MULTI_FIXEDID               TR("PevnéID", "Pevné ID")
 #define TR_MULTI_OPTION                TR(INDENT "Možnosti", INDENT "Hodnota")
 #define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ch.",INDENT "Bind při zapnutí")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Vypnout mapování kanálů")
@@ -606,7 +606,7 @@
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Aktualizace modulu vyžadována", "Modul\naktualizace vyžadována")
 #define TR_MODULE_UPGRADE              TR("Upg. advised", "Aktualizace modulu doporučena")
 #define TR_REBIND                      "Nutno přepárovat"
-#define TR_REG_OK                      "Registrace ok"
+#define TR_REG_OK                      "Registrace OK"
 #define TR_BIND_OK                     "Úspěšné párovaní"
 #define TR_BINDING_CH1_8_TELEM_ON      "k1-8 telem ZAP"
 #define TR_BINDING_CH1_8_TELEM_OFF     "k1-8 telem VYP"
@@ -697,7 +697,7 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
 #define TR_SDCARD_FULL                 "Plná SD karta"
-#define TR_NEEDS_FILE                  "NEEDS FILE"
+#define TR_NEEDS_FILE                  "Vyžadován soubor"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Nekompatibilní"
@@ -746,8 +746,8 @@
 #define TR_NO_BITMAPS_ON_SD            "žádné obrázky na SD"
 #define TR_NO_SCRIPTS_ON_SD            "žádný skript na SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntaktická chyba", "Syntaktická chyba skriptu")
-#define TR_SCRIPT_PANIC                "Script zmaten"
-#define TR_SCRIPT_KILLED               "Script ukončen"
+#define TR_SCRIPT_PANIC                "Skript zmaten"
+#define TR_SCRIPT_KILLED               "Skript ukončen"
 #define TR_SCRIPT_ERROR                "Neznámá chyba"
 #define TR_PLAY_FILE                   "Přehrát"
 #define TR_DELETE_FILE                 "Odstranit"
@@ -806,7 +806,7 @@
 #define TR_DATE                        "Datum"
 #define TR_MONTHS                      { "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro" }
 #define TR_ROTARY_ENCODER              "R.Enko"
-#define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Režim otočného tlačítka")
+#define TR_ROTARY_ENC_MODE             TR("R.Enko mód","Režim otočného tlačítka")
 #define TR_CHANNELS_MONITOR            "MONITOR KANÁLU"
 #define TR_MIXERS_MONITOR              "MONITOR MIXU"
 #define TR_PATH_TOO_LONG               "Cesta je moc dlouhá"
@@ -843,7 +843,7 @@
 #define TR_OPENTX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
 #define TR_TELEMETRY_DISABLED          "Telem. zakázána"
 #define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
-#define TR_NO_MODULE_INFORMATION       "Žádné info. o modulu"
+#define TR_NO_MODULE_INFORMATION       "Žádné info o modulu"
 #define TR_EXTERNALRF                  "Externí RF modul"
 #define TR_FAILSAFE                    TR("Failsafe", "Mód Failsafe")
 #define TR_FAILSAFESET                 "NASTAVENÍ FAILSAFE"
@@ -983,7 +983,7 @@
 #define TR_COPY_STICKS_TO_OFS          TR("Páky do subtrimu", "Kopie pák do subtrimu")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopie min/max do všech",  "Kopírovat min/max/střed do všech výstupů")
 #define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
-#define TR_INCDEC                      "Zvěšit/Zmenšit"
+#define TR_INCDEC                      "Zvětšit/Zmenšit"
 #define TR_GLOBALVAR                   "Glob. proměnná"
 #define TR_MIXSOURCE                   "Zdroje mixeru"
 #define TR_CONSTANT                    "Konstanta"
@@ -1129,7 +1129,7 @@
 #define TR_DELETE_ALL_SENSORS          "Odebrat všechny senzory"
 #define TR_CONFIRMDELETE               "Opravdu " LCDW_128_480_LINEBREAK "odstranit vše?"
 #define TR_SELECT_WIDGET               "Zvolit widget"
-#define TR_WIDGET_FULLSCREEN           "Full screen"
+#define TR_WIDGET_FULLSCREEN           "Celá obrazovka"
 #define TR_REMOVE_WIDGET               "Odstranit widget"
 #define TR_WIDGET_SETTINGS             "Nastavení widgetu"
 #define TR_REMOVE_SCREEN               "Odstranit panel"
