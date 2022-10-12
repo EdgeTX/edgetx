@@ -470,7 +470,12 @@ void ModelsPageBody::update(int selected)
 
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model);
-    button->setPressHandler([=]() -> uint8_t { return 1; });
+    button->setPressHandler([=]() -> uint8_t {
+      if (model != modelslist.getCurrentModel()) {
+        selectModel(model);
+	}
+        return 0;
+     });
 
     // Long Press Handler for Models
     button->setLongPressHandler([=]() -> uint8_t {
