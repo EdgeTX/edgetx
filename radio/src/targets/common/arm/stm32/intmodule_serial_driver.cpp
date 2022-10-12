@@ -148,10 +148,10 @@ void* intmoduleSerialStart(const etx_serial_init* params)
 
   stm32_usart_init(&intmoduleUSART, params);
 
-  intmoduleCtx.rxFifo->clear();
   if (params->rx_enable && intmoduleUSART.rxDMA) {
     stm32_usart_init_rx_dma(&intmoduleUSART, intmoduleFifo.buffer(), intmoduleFifo.size());
   }  
+  intmoduleCtx.rxFifo->clear();
   
   return (void*)&intmoduleCtx;
 }
