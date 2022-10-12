@@ -245,6 +245,7 @@ void ViewMain::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
+      killEvents(KEY_MODEL);
       new ModelLabelsWindow();
       break;
 
