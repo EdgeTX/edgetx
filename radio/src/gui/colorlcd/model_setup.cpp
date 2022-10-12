@@ -247,7 +247,7 @@ void ModelSetupPage::build(FormWindow * window)
        Menu *menu = new Menu(window, true);
        menu->setTitle(STR_LABELS);
        for (auto &label: modelslabels.getLabels()) {
-         menu->addLine(label,
+         menu->addLineBuffered(label,
            [=] () {
              if (!modelslabels.isLabelSelected(label, curmod))
                modelslabels.addLabelToModel(label, curmod);
@@ -261,6 +261,7 @@ void ModelSetupPage::build(FormWindow * window)
              return modelslabels.isLabelSelected(label, curmod);
            });
        }
+       menu->updateLines();
        return 0;
      });
 

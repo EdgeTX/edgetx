@@ -441,7 +441,7 @@ void ModelsPageBody::editLabels(ModelCell* model)
     });
 
     for (auto &label : modelslabels.getLabels()) {
-      menu->addLine(
+      menu->addLineBuffered(
           label,
           [=]() {
             if (!modelslabels.isLabelSelected(label, model))
@@ -453,6 +453,7 @@ void ModelsPageBody::editLabels(ModelCell* model)
           },
           [=]() { return modelslabels.isLabelSelected(label, model); });
     }
+    menu->updateLines();
   }
 }
 
