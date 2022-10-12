@@ -418,7 +418,7 @@ static void style_init(void)
     style_init_reset(&styles.bg_color_active);
     lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
     lv_style_set_bg_opa(&styles.bg_color_active, LV_OPA_COVER);
-    lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY2));
+    lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY1));
 
     style_init_reset(&styles.bg_color_focus);
     lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
