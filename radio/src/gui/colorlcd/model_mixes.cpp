@@ -421,9 +421,10 @@ void ModelMixesPage::newMix()
       }
     } else {
       std::string ch_name(getSourceString(MIXSRC_CH1 + ch));
-      menu->addLine(ch_name.c_str(), [=]() { insertMix(ch, index); });
+      menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
+  menu->updateLines();
 }
 
 void ModelMixesPage::editMix(uint8_t channel, uint8_t index)

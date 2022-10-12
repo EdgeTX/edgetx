@@ -335,7 +335,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
       for (int angle = -45; angle <= 45; angle += 15) {
         char label[16];
         strAppend(strAppendSigned(label, angle), "°");
-        menu->addLine(label, [=]() {
+        menu->addLineBuffered(label, [=]() {
           int dx = 2000 / (5 + curve.points - 1);
           for (uint8_t i = 0; i < 5 + curve.points; i++) {
             int x = -1000 + i * dx;
@@ -348,6 +348,7 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
           rebuild(window, index);
         });
       }
+      menu->updateLines();
     };
 
     if (isCurveUsed(index)) {
