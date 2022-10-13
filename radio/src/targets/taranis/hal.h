@@ -2044,8 +2044,6 @@
   #define INTMODULE_HEARTBEAT_EXTI_PortSource     EXTI_PortSourceGPIOB
   #define INTMODULE_HEARTBEAT_EXTI_PinSource      GPIO_PinSource1
   #define INTMODULE_HEARTBEAT_EXTI_LINE           EXTI_Line1
-  #define INTMODULE_HEARTBEAT_EXTI_IRQn           EXTI1_IRQn
-  #define INTMODULE_HEARTBEAT_EXTI_IRQHandler     EXTI1_IRQHandler
   // INTMODULE_HEARTBEAT_EXTI IRQ
   #if !defined(USE_EXTI1_IRQ)
     #define USE_EXTI1_IRQ
@@ -2084,9 +2082,8 @@
 #if defined(PCBX9LITE) || defined(PCBXLITE) || defined(RADIO_X9DP2019) || \
     defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
   #define TRAINER_MODULE_CPPM
-  #define TRAINER_MODULE_RCC_AHB1Periph        0
   #define TRAINER_MODULE_CPPM_TIMER            TIM3
-  #define TRAINER_MODULE_CCPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define TRAINER_MODULE_CPPM_GPIO             EXTMODULE_USART_GPIO
   #define TRAINER_MODULE_CPPM_GPIO_PIN         EXTMODULE_RX_GPIO_PIN
   #define TRAINER_MODULE_CPPM_TIMER_Channel    LL_TIM_CHANNEL_CH2
@@ -2095,40 +2092,29 @@
 #if defined(PCBX9LITE) ||  defined(PCBXLITE)
   #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM3_IRQHandler
 #endif
-  // #define TRAINER_MODULE_SBUS -> use ext module serial buffers?
-  #define TRAINER_MODULE_SBUS_GPIO             EXTMODULE_USART_GPIO
-  #define TRAINER_MODULE_SBUS_GPIO_PIN         TRAINER_MODULE_CPPM_GPIO_PIN
-  #define TRAINER_MODULE_SBUS_GPIO_AF          EXTMODULE_USART_GPIO_AF
-  #define TRAINER_MODULE_SBUS_USART            EXTMODULE_USART
-  #define TRAINER_MODULE_SBUS_GPIO_PinSource   TRAINER_MODULE_CPPM_GPIO_PinSource
-  #define TRAINER_MODULE_SBUS_DMA_STREAM       EXTMODULE_USART_RX_DMA_STREAM
-  #define TRAINER_MODULE_SBUS_DMA_CHANNEL      EXTMODULE_USART_RX_DMA_CHANNEL
-#else
-#if defined(INTMODULE_HEARTBEAT_GPIO) && defined(HARDWARE_EXTERNAL_MODULE)
+  #define TRAINER_MODULE_SBUS
+#elif defined(INTMODULE_HEARTBEAT_GPIO) && defined(HARDWARE_EXTERNAL_MODULE)
   // Trainer CPPM input on heartbeat pin
   #define TRAINER_MODULE_CPPM
-  #define TRAINER_MODULE_RCC_AHB1Periph           RCC_AHB1Periph_GPIOC
   #define TRAINER_MODULE_CPPM_TIMER               TRAINER_TIMER
-  #define TRAINER_MODULE_CCPM_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define TRAINER_MODULE_CPPM_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define TRAINER_MODULE_CPPM_GPIO                INTMODULE_HEARTBEAT_GPIO
   #define TRAINER_MODULE_CPPM_GPIO_PIN            INTMODULE_HEARTBEAT_GPIO_PIN
   #define TRAINER_MODULE_CPPM_TIMER_Channel       LL_TIM_CHANNEL_CH2
   #define TRAINER_MODULE_CPPM_TIMER_IRQn          TRAINER_TIMER_IRQn
   #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF_TIM3
   // Trainer SBUS input on heartbeat pin
-  // #define TRAINER_MODULE_SBUS -> use ext module serial buffers?
-  //                             -> these targets have no external serial module 
-  #define TRAINER_MODULE_SBUS_GPIO_AF             GPIO_AF_USART6
+  #define TRAINER_MODULE_SBUS
   #define TRAINER_MODULE_SBUS_USART               USART6
+  #define TRAINER_MODULE_SBUS_GPIO_AF             GPIO_AF_USART6
   #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
   #define TRAINER_MODULE_SBUS_GPIO_PIN            INTMODULE_HEARTBEAT_GPIO_PIN
-  #define TRAINER_MODULE_SBUS_GPIO_PinSource      INTMODULE_HEARTBEAT_EXTI_PinSource
+  #define TRAINER_MODULE_SBUS_DMA                 DMA2
   #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1
+  #define TRAINER_MODULE_SBUS_DMA_STREAM_LL       LL_DMA_STREAM_1
   #define TRAINER_MODULE_SBUS_DMA_CHANNEL         DMA_Channel_5
 #else
   // TODO: replace SBUS trainer with S.PORT pin
-  #define TRAINER_MODULE_RCC_AHB1Periph           0
-#endif
 #endif
 
 // USB
