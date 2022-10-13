@@ -83,8 +83,13 @@ void MenuToolbar::onEvent(event_t event)
   
   if (event == EVT_KEY_BREAK(KEY_PGDN)) {
     lv_group_focus_next(group);
-  } else if (event == EVT_KEY_LONG(KEY_PGDN) ||
-             event == EVT_KEY_BREAK(KEY_PGUP)) {
+  }
+#if defined(KEYS_GPIO_REG_PGUP)
+  else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+#else
+  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
+    killEvents(event);
+#endif
     lv_group_focus_prev(group);
   }
     
