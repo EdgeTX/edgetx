@@ -338,3 +338,93 @@ extern "C" void TRAINER_MODULE_CPPM_TIMER_IRQHandler()
 #endif
 
 #endif // TRAINER_MODULE_CPPM
+
+#if defined(TRAINER_MODULE_SBUS)
+
+const etx_serial_init sbusTrainerParams = {
+    .baudrate = SBUS_BAUDRATE,
+    .parity = ETX_Parity_Even,
+    .stop_bits = ETX_StopBits_Two,
+    .word_length = ETX_WordLength_9,
+    .rx_enable = true,
+};
+
+// external module has a full-duplex USART
+#if defined(EXTMODULE_USART)
+#include "extmodule_serial_driver.h"
+
+static void* sbus_trainer_ctx = nullptr;
+
+void init_trainer_module_sbus()
+{
+  sbus_trainer_ctx = ExtmoduleSerialDriver.init(&sbusTrainerParams);
+}
+
+void stop_trainer_module_sbus()
+{
+  auto ctx = sbus_trainer_ctx;
+  if (ctx) {
+    sbus_trainer_ctx = nullptr;
+    ExtmoduleSerialDriver.deinit(ctx);
+  }
+}
+
+int trainerModuleSbusGetByte(uint8_t* data)
+{
+  auto ctx = sbus_trainer_ctx;
+  if (ctx) {
+    return ExtmoduleSerialDriver.getByte(ctx, data);
+  }
+
+  return 0;
+}
+
+#elif defined(TRAINER_MODULE_SBUS_USART)
+#include "stm32_usart_driver.h"
+
+static const LL_GPIO_InitTypeDef sbus_trainer_USART_PinDef = {
+  .Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = TRAINER_MODULE_SBUS_GPIO_AF,
+};
+
+static const stm32_usart_t sbus_trainer_USART = {
+  .USARTx = TRAINER_MODULE_SBUS_USART,
+  .GPIOx = TRAINER_MODULE_SBUS_GPIO,
+  .pinInit = &sbus_trainer_USART_PinDef,
+  .IRQn = (IRQn_Type)-1,
+  .IRQ_Prio = 0,
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+  .rxDMA = TRAINER_MODULE_SBUS_DMA,
+  .rxDMA_Stream = TRAINER_MODULE_SBUS_DMA_STREAM_LL,
+  .rxDMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL,
+};
+
+static DMAFifo<32> sbus_trainer_fifo __DMA (TRAINER_MODULE_SBUS_DMA_STREAM);
+
+void init_trainer_module_sbus()
+{
+  stm32_usart_init(&sbus_trainer_USART, &sbusTrainerParams);
+  stm32_usart_init_rx_dma(&sbus_trainer_USART, sbus_trainer_fifo.buffer(),
+                          sbus_trainer_fifo.size());
+}
+
+void stop_trainer_module_sbus()
+{
+  stm32_usart_deinit(&sbus_trainer_USART);
+}
+
+int trainerModuleSbusGetByte(uint8_t* data)
+{
+  return sbus_trainer_fifo.pop(*data);
+}
+
+#else
+  #error "No available SBUS trainer implementation"
+#endif
+#endif // TRAINER_MODULE_SBUS
