@@ -21,7 +21,8 @@
 
 #include "keyboard_curve.h"
 #include "button.h"
-#include "lcd.h"
+
+#include "translations/untranslated.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 110;
 
