@@ -113,7 +113,6 @@ void boardInit()
                          SPORT_UPDATE_RCC_AHB1Periph |
                          AUX_SERIAL_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
-                         TRAINER_MODULE_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);
