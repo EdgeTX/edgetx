@@ -241,6 +241,7 @@ class ModelButton : public Button
   ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
       Button(parent, rect), modelCell(modelCell)
   {
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
   }
@@ -323,6 +324,14 @@ class ModelButton : public Button
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
+
+  void onClicked() override {
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_group_focus_obj(lvobj);
+    } else {
+      Button::onClicked();
+    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -470,10 +479,9 @@ void ModelsPageBody::update(int selected)
 
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model);
-    button->setPressHandler([=]() -> uint8_t { return 1; });
 
     // Long Press Handler for Models
-    button->setLongPressHandler([=]() -> uint8_t {
+    button->setPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(this);
       menu->setTitle(model->modelName);
       if (model != modelslist.getCurrentModel()) {
