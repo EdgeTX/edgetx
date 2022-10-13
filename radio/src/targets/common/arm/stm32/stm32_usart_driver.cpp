@@ -99,10 +99,14 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 
   LL_DMA_DeInit(usart->rxDMA, usart->rxDMA_Stream);
 
-  // Enable IRQ based RX
-  LL_USART_EnableIT_RXNE(usart->USARTx);
-  NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
-  NVIC_EnableIRQ(usart->IRQn);
+  if ((int32_t)(usart->IRQn) >= 0) {
+
+    // Enable IRQ based RX
+    LL_USART_EnableIT_RXNE(usart->USARTx);
+
+    NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
+    NVIC_EnableIRQ(usart->IRQn);
+  }
 }
 
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
@@ -181,7 +185,10 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
   if (usart->txDMA) {
     LL_DMA_DeInit(usart->txDMA, usart->txDMA_Stream);
   }
-  NVIC_DisableIRQ(usart->IRQn);
+
+  if ((int32_t)(usart->IRQn) >= 0) {
+    NVIC_DisableIRQ(usart->IRQn);
+  }
   LL_USART_DeInit(usart->USARTx);
   disable_usart_clock(usart->USARTx);
 
@@ -226,7 +233,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     // Please note that we don't use the buffer:
     // it should be set internally by the driver user
     // and each byte is returned individually by on_send()
-    LL_USART_EnableIT_TXE(usart->USARTx);
+    if ((int32_t)(usart->IRQn) >= 0) LL_USART_EnableIT_TXE(usart->USARTx);
   }
 }
 
