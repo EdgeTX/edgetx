@@ -369,8 +369,13 @@ void Menu::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
   if (toolbar &&
-      (event == EVT_KEY_BREAK(KEY_PGDN) || event == EVT_KEY_LONG(KEY_PGDN) ||
-       event == EVT_KEY_BREAK(KEY_PGUP))) {
+      (event == EVT_KEY_BREAK(KEY_PGDN) ||
+#if defined(KEYS_GPIO_REG_PGUP)
+       event == EVT_KEY_BREAK(KEY_PGUP)
+#else
+       event == EVT_KEY_LONG(KEY_PGDN)
+#endif
+       )) {
     toolbar->onEvent(event);
   }
 #endif
