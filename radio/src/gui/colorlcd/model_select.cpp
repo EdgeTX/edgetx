@@ -589,11 +589,8 @@ void ModelLabelsWindow::onEvent(event_t event)
     std::set<uint32_t> sellist;
     int select = 0;
     int rowcount = lblselector->getRowCount();
-#if defined(KEYS_GPIO_REG_PGUP)
+
     if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-#else
-    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-#endif
       if(curSel.size())
         select = (*curSel.rbegin() + 1) % rowcount;
     } else {
