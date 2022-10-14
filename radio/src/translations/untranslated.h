@@ -279,6 +279,13 @@
 #define STR_CHAR_TELEMETRY "\302\223"
 #define STR_CHAR_LUA       "\302\224"
 
+#if !defined(COLORLCD)
+  // '~' is remapped to 0x7B in B&W font
+  #define STR_CHAR_TILDE "{"
+#else
+  #define STR_CHAR_TILDE "~"
+#endif
+
 #define STR_CHAR_BW_GREATEREQUAL '}'
 #define STR_CHAR_BW_DEGREE       '@'
 
