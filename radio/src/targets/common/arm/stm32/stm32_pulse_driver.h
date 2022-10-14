@@ -51,6 +51,8 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity);
 
+void stm32_pulse_set_cmp_val(const stm32_pulse_timer_t* tim, uint32_t cmp_val);
+
 // return true if it could be disabled without interrupting a pulse train, false otherwise
 bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim);
 
