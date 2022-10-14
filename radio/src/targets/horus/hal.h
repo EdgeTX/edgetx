@@ -92,6 +92,10 @@
 #define ROTARY_ENCODER_TIMER_IRQn       TIM4_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM4_IRQHandler
 
+#if defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)
+  #define ROTARY_ENCODER_SUPPORT_BUGGY_WIRING
+#endif
+
 // Switches
 #define STORAGE_SWITCH_A
 #define HARDWARE_SWITCH_A

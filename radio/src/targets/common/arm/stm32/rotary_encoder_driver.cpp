@@ -91,7 +91,7 @@ void rotaryEncoderCheck()
   static uint8_t state = 0;
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
-#if (defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)) || defined(RADIO_TX12)
+#if defined(ROTARY_ENCODER_SUPPORT_BUGGY_WIRING)
   if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
     if ((pins ^ (state & 0x03)) == 0x03) {
       if (pins == 3) {
@@ -111,7 +111,7 @@ void rotaryEncoderCheck()
   }
 #else
   if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) // def. rotation dir is inverse of other radios
+#if defined(ROTARY_ENCODER_INVERTED)
     if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
 #else
     if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
