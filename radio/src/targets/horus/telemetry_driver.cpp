@@ -19,10 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_exti_driver.h"
+#include "aux_serial_driver.h"
+
 #include "opentx.h"
 
-#include "fifo.h"
-#include "dmafifo.h"
 
 #if defined(GHOST)
   #include "telemetry/ghost.h"
@@ -157,19 +159,24 @@ static uint8_t rxByte;
 static uint16_t bitLength;
 static uint16_t probeTimeFromStartBit;
 
+static void do_telemetry_exti()
+{
+  if (rxBitCount == 0) {
+
+    TELEMETRY_TIMER->ARR = probeTimeFromStartBit; // 1,5 cycle from start at 57600bps
+    TELEMETRY_TIMER->CR1 |= TIM_CR1_CEN;
+    
+    // disable start bit interrupt
+    EXTI->IMR &= ~EXTI_IMR_MR6;
+  }
+}
+
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
   if (baudrate == 0) {
-    NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
-    NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
 
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_StructInit(&EXTI_InitStructure);
-    EXTI_InitStructure.EXTI_Line = TELEMETRY_EXTI_LINE;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = TELEMETRY_EXTI_TRIGGER;
-    EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-    EXTI_Init(&EXTI_InitStructure);
+    stm32_exti_disable(TELEMETRY_EXTI_LINE);
+    NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
     return;
   }
 
@@ -215,19 +222,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
   telemetryInitDirPin();
 
   // Connect EXTI line to TELEMETRY RX pin
-  SYSCFG_EXTILineConfig(TELEMETRY_EXTI_PortSource, TELEMETRY_EXTI_PinSource);
+  LL_SYSCFG_SetEXTISource(TELEMETRY_EXTI_PORT, TELEMETRY_EXTI_SYS_LINE);
 
   // Configure EXTI for raising edge (start bit)
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = TELEMETRY_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = TELEMETRY_EXTI_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  NVIC_SetPriority(TELEMETRY_EXTI_IRQn, 0);
-  NVIC_EnableIRQ(TELEMETRY_EXTI_IRQn);
+  stm32_exti_enable(TELEMETRY_EXTI_LINE, TELEMETRY_EXTI_TRIGGER, do_telemetry_exti);
 }
 
 void telemetryPortInvertedRxBit()
@@ -265,7 +263,7 @@ void telemetryPortSetDirectionOutput()
     TELEMETRY_USART->BRR = BRR_400K;
   }
 #endif
-  TELEMETRY_DIR_GPIO->BSRRL = TELEMETRY_DIR_GPIO_PIN;     // output enable
+  GPIO_SetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
   TELEMETRY_USART->CR1 &= ~USART_CR1_RE;                  // turn off receiver
 }
 
@@ -282,7 +280,7 @@ void telemetryPortSetDirectionInput()
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
-  TELEMETRY_DIR_GPIO->BSRRH = TELEMETRY_DIR_GPIO_PIN;     // output disable
+  GPIO_ResetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
   TELEMETRY_USART->CR1 |= USART_CR1_RE;                   // turn on receiver
 }
 
@@ -402,23 +400,6 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
 #endif
     }
     status = TELEMETRY_USART->SR;
-  }
-}
-
-extern "C" void TELEMETRY_EXTI_IRQHandler(void)
-{
-  if (EXTI_GetITStatus(TELEMETRY_EXTI_LINE) != RESET) {
-
-    if (rxBitCount == 0) {
-
-      TELEMETRY_TIMER->ARR = probeTimeFromStartBit; // 1,5 cycle from start at 57600bps
-      TELEMETRY_TIMER->CR1 |= TIM_CR1_CEN;
-    
-      // disable start bit interrupt
-      EXTI->IMR &= ~EXTI_IMR_MR6;
-    }
-
-    EXTI_ClearITPendingBit(TELEMETRY_EXTI_LINE);
   }
 }
 

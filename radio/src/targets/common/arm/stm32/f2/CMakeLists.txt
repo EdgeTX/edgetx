@@ -37,22 +37,25 @@ include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F2)
 
-set(STM32LIB_SRC
-  ${STM32LIB_SRC}
-  CMSIS/Device/ST/STM32F2xx/Source/Templates/gcc_ride7/startup_stm32f2xx.s
-  STM32F2xx_StdPeriph_Driver/src/misc.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_gpio.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_exti.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_dbgmcu.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rcc.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_syscfg.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_spi.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_dma.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rtc.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_pwr.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_usart.c
-  STM32F2xx_StdPeriph_Driver/src/stm32f2xx_adc.c
+set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver)
+
+add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+  ${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Source/Templates/gcc_ride7/startup_stm32f2xx.s
+  ${STM32_STDPERIPH_DIR}/src/misc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_gpio.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dbgmcu.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rcc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_syscfg.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_spi.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dma.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rtc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_pwr.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_usart.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_adc.c
   )
+
+set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
 
 if(NOT NATIVE_BUILD)
   #

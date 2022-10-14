@@ -499,15 +499,6 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_EXTI_PortSource       EXTI_PortSourceGPIOD
-#define TELEMETRY_EXTI_PinSource        EXTI_PinSource6
-#define TELEMETRY_EXTI_LINE             EXTI_Line6
-#define TELEMETRY_EXTI_IRQn             EXTI9_5_IRQn
-#define TELEMETRY_EXTI_IRQHandler       EXTI9_5_IRQHandler
-#define TELEMETRY_EXTI_TRIGGER          EXTI_Trigger_Rising
-#define TELEMETRY_TIMER                 TIM11
-#define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
-#define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 #if defined(PCBX12S)
   #define TELEMETRY_DMA_Stream_RX       DMA1_Stream5
   #define TELEMETRY_DMA_Channel_RX      DMA_Channel_4
@@ -519,6 +510,19 @@
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
 #define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
 #define TELEMETRY_USART_IRQn            USART2_IRQn
+#define TELEMETRY_EXTI_PORT             LL_SYSCFG_EXTI_PORTD
+#define TELEMETRY_EXTI_SYS_LINE         LL_SYSCFG_EXTI_LINE6
+#define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_6
+#define TELEMETRY_EXTI_TRIGGER          LL_EXTI_TRIGGER_RISING
+// TELEMETRY_EXTI IRQ
+#if !defined(USE_EXTI9_5_IRQ)
+  #define USE_EXTI9_5_IRQ
+  #define EXTI9_5_IRQ_Priority 5
+#endif
+
+#define TELEMETRY_TIMER                 TIM11
+#define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
+#define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
