@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "stm32_exti_driver.h"
 #include "board.h"
 
@@ -105,8 +106,6 @@ void rotaryEncoderStartDelay()
 
 void rotaryEncoderInit()
 {
-  rotencPosition = ROTARY_ENCODER_POSITION();
-
   ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
   ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
   ROTARY_ENCODER_TIMER->CCER = 0;
@@ -115,22 +114,12 @@ void rotaryEncoderInit()
   ROTARY_ENCODER_TIMER->CR1 = 0;
   ROTARY_ENCODER_TIMER->DIER |= TIM_DIER_UIE;
 
-  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource1);
-  SYSCFG_EXTILineConfig(ROTARY_ENCODER_EXTI_PortSource, ROTARY_ENCODER_EXTI_PinSource2);
+  LL_SYSCFG_SetEXTISource(ROTARY_ENCODER_EXTI_PORT, ROTARY_ENCODER_EXTI_SYS_LINE1);
+  LL_SYSCFG_SetEXTISource(ROTARY_ENCODER_EXTI_PORT, ROTARY_ENCODER_EXTI_SYS_LINE2);
 
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE1;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  EXTI_InitStructure.EXTI_Line = ROTARY_ENCODER_EXTI_LINE2;
-  EXTI_Init(&EXTI_InitStructure);
-
-  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE1, rotaryEncoderStartDelay);
-  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE2, rotaryEncoderStartDelay);
+  uint32_t trigger = LL_EXTI_TRIGGER_RISING_FALLING;
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE1, trigger, rotaryEncoderStartDelay);
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE2, trigger, rotaryEncoderStartDelay);
     
   NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);

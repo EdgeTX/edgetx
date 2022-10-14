@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "stm32_exti_driver.h"
 #include "mixer_scheduler.h"
 #include "board.h"
@@ -47,26 +48,23 @@ static void trigger_intmodule_heartbeat()
 void init_intmodule_heartbeat()
 {
   TRACE("init_intmodule_heartbeat");
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_HEARTBEAT_GPIO_PIN;
-  GPIO_Init(INTMODULE_HEARTBEAT_GPIO, &GPIO_InitStructure);
 
-  SYSCFG_EXTILineConfig(INTMODULE_HEARTBEAT_EXTI_PortSource,
-                        INTMODULE_HEARTBEAT_EXTI_PinSource);
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  
+  pinInit.Pin = INTMODULE_HEARTBEAT_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_INPUT;
+  pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull = LL_GPIO_PULL_UP;
 
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = INTMODULE_HEARTBEAT_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = INTMODULE_HEARTBEAT_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  LL_GPIO_Init(INTMODULE_HEARTBEAT_GPIO, &pinInit);
+  
+  LL_SYSCFG_SetEXTISource(INTMODULE_HEARTBEAT_EXTI_PORT, INTMODULE_HEARTBEAT_EXTI_SYS_LINE);
+  
+  stm32_exti_enable(INTMODULE_HEARTBEAT_EXTI_LINE, INTMODULE_HEARTBEAT_TRIGGER,
+                    trigger_intmodule_heartbeat);
 
-  stm32_exti_enable(INTMODULE_HEARTBEAT_EXTI_LINE, trigger_intmodule_heartbeat);
   heartbeatCapture.valid = true;
 }
 
@@ -76,14 +74,6 @@ void stop_intmodule_heartbeat()
   heartbeatCapture.valid = false;
 
   stm32_exti_disable(INTMODULE_HEARTBEAT_EXTI_LINE);
-
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = INTMODULE_HEARTBEAT_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = INTMODULE_HEARTBEAT_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-  EXTI_Init(&EXTI_InitStructure);
 }
 
 #endif
