@@ -39,7 +39,7 @@ add_definitions(-DSTM32F4)
 
 set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver)
 
-add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+set(STM32_STDPERIPH_SRC
   targets/common/arm/stm32/f4/system_stm32f4xx.c
   ${STM32_STDPERIPH_DIR}/src/misc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_gpio.c
@@ -52,11 +52,25 @@ add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_ltdc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
+)
+
+if(CPU_TYPE_FULL STREQUAL STM32F429xI)
+  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+    targets/${TARGET_DIR}/startup_stm32f42_43xxx.s
+    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
+    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_ltdc.c
+    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
+    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
+    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
+    )
+elseif()
+  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+    targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
+    )  
+endif()
+
+add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+  ${STM32_STDPERIPH_SRC}
   )
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
