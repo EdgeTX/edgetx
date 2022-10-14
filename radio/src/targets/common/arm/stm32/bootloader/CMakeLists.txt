@@ -1,18 +1,6 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-if(CPU_TYPE_FULL STREQUAL STM32F429xI)
-  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-    ../../../../../targets/${TARGET_DIR}/startup_stm32f42_43xxx.s
-    )
-elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
-  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-    ../../../../../targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
-    )
-else()
-  # startup file is already included from CMSIS in F2 CMakeLists.txt
-endif()
-
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
   ../../../../../gui/${GUI_DIR}/lcd.cpp

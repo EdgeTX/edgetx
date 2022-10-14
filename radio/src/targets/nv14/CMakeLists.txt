@@ -135,7 +135,6 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   board.cpp
-  startup_stm32f42_43xxx.s
   ${LCD_DRIVER}
   ${TOUCH_DRIVER}
   sdram_driver.c
@@ -164,16 +163,6 @@ set(FIRMWARE_SRC
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
-
-set(STM32LIB_SRC
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
-  )
 
 if(PYTHONINTERP_FOUND)
   add_custom_command(

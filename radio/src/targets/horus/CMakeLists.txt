@@ -289,7 +289,6 @@ set(FIRMWARE_TARGET_SRC
   backlight_driver.cpp
   led_driver.cpp
   sdram_driver.c
-  startup_stm32f42_43xxx.s
   )
 
 set(FIRMWARE_SRC
@@ -331,14 +330,6 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
-
-set(STM32LIB_SRC
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
-  )
 
 if(PYTHONINTERP_FOUND)
   add_custom_command(
