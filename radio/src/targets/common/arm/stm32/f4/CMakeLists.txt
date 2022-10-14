@@ -52,6 +52,7 @@ set(STM32_STDPERIPH_SRC
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_flash.c
 )
 
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)
@@ -63,7 +64,7 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
     )
-elseif()
+else()
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
     targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
     )  
