@@ -190,6 +190,11 @@ static void set_compare_reg(const stm32_pulse_timer_t* tim, uint32_t val)
   }
 }
 
+void stm32_pulse_set_cmp_val(const stm32_pulse_timer_t* tim, uint32_t cmp_val)
+{
+  set_compare_reg(tim, cmp_val);
+}
+
 static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
 {
   uint32_t channel = tim->TIM_Channel;

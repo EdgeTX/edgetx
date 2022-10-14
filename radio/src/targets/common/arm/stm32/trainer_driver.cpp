@@ -183,6 +183,7 @@ static const stm32_pulse_timer_t trainerOutputTimer = {
 static void trainerSendNextFrame()
 {
   stm32_pulse_set_polarity(&trainerOutputTimer, GET_TRAINER_PPM_POLARITY());
+  stm32_pulse_set_cmp_val(&trainerOutputTimer, GET_TRAINER_PPM_DELAY() * 2);
   
   // load the first period: next reload when CC compare event triggers
   trainerPulsesData.ppm.ptr = trainerPulsesData.ppm.pulses;
