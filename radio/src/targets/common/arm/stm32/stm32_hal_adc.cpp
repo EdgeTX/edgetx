@@ -82,7 +82,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE); // ADC_CR2_DDS
 }
 
-stm32_hal_adc_channel ADC_MAIN_channels[] = {
+static const stm32_hal_adc_channel ADC_MAIN_channels[] = {
     {ADC_CHANNEL_STICK_LH, ADC_SAMPTIME},
     {ADC_CHANNEL_STICK_LV, ADC_SAMPTIME},
     {ADC_CHANNEL_STICK_RV, ADC_SAMPTIME},
@@ -228,7 +228,7 @@ static uint16_t* ADC_EXT_get_dma_buffer()
 }
 #endif
 
-stm32_hal_adc ADC_hal_def[] = {
+static const stm32_hal_adc ADC_hal_def[] = {
     {
       ADC_MAIN,
       ADC_DMA_Stream, ADC_DMA_Channel, ADC_MAIN_get_dma_buffer,
