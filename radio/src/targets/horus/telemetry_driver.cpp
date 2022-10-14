@@ -25,7 +25,6 @@
 
 #include "opentx.h"
 
-
 #if defined(GHOST)
   #include "telemetry/ghost.h"
 #endif
@@ -34,6 +33,8 @@ Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 
 #if defined(PCBX12S)
+#include "dmafifo.h"
+
 DMAFifo<TELEMETRY_FIFO_SIZE> telemetryDMAFifo __DMA (TELEMETRY_DMA_Stream_RX);
 uint8_t telemetryFifoMode;
 #endif
