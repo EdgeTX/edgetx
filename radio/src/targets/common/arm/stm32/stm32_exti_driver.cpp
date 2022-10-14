@@ -82,8 +82,20 @@ static bool _has_handler(stm32_exti_handler_t* _handlers, uint8_t len)
   return false;
 }
 
-void stm32_exti_enable(uint32_t line, stm32_exti_handler_t cb)
+void stm32_exti_enable(uint32_t line, uint32_t trigger, stm32_exti_handler_t cb)
 {
+  if (line > LL_EXTI_LINE_15) return;
+
+  LL_EXTI_InitTypeDef EXTI_init;
+  LL_EXTI_StructInit(&EXTI_init);
+
+  EXTI_init.Line_0_31 = line;
+  EXTI_init.Mode = LL_EXTI_MODE_IT;
+  EXTI_init.Trigger = trigger;
+  EXTI_init.LineCommand = ENABLE;
+
+  LL_EXTI_Init(&EXTI_init);
+  
   uint32_t line_pos = POSITION_VAL(line);
 
 #if defined(USE_EXTI1_IRQ)
@@ -114,4 +126,6 @@ void stm32_exti_disable(uint32_t line)
 #if defined(USE_EXTI15_10_IRQ)
   _CLEAR_EXTI_IRQ_HANDLER(EXTI15_10_IRQ, 10, 15, line_pos);
 #endif
+
+  LL_EXTI_DisableIT_0_31(line);
 }

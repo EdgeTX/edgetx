@@ -13,6 +13,7 @@ add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_dma.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_usart.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rcc.c
+  ${STM32CUBE_DIR}/Src/stm32f2xx_ll_exti.c
   # HAL drivers
   ${STM32CUBE_DIR}/Src/stm32f2xx_hal_rcc.c
   ${STM32CUBE_DIR}/Src/stm32f2xx_hal_i2c.c

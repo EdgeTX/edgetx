@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "stm32_exti_driver.h"
 #include "aux_serial_driver.h"
 
@@ -124,14 +125,6 @@ void telemetryPortInvertedInit(uint32_t baudrate)
 
     stm32_exti_disable(TELEMETRY_EXTI_LINE);
     NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
-
-    EXTI_InitTypeDef EXTI_InitStructure;
-    EXTI_StructInit(&EXTI_InitStructure);
-    EXTI_InitStructure.EXTI_Line = TELEMETRY_EXTI_LINE;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = TELEMETRY_EXTI_TRIGGER;
-    EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-    EXTI_Init(&EXTI_InitStructure);
     return;
   }
 
@@ -173,18 +166,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
   telemetryInitDirPin();
 
   // Connect EXTI line to TELEMETRY RX pin
-  SYSCFG_EXTILineConfig(TELEMETRY_EXTI_PortSource, TELEMETRY_EXTI_PinSource);
+  LL_SYSCFG_SetEXTISource(TELEMETRY_EXTI_PORT, TELEMETRY_EXTI_SYS_LINE);
 
   // Configure EXTI for raising edge (start bit)
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = TELEMETRY_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = TELEMETRY_EXTI_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  stm32_exti_enable(TELEMETRY_EXTI_LINE, do_telemetry_exti);
+  stm32_exti_enable(TELEMETRY_EXTI_LINE, TELEMETRY_EXTI_TRIGGER, do_telemetry_exti);
 }
 
 void telemetryPortInvertedRxBit()
