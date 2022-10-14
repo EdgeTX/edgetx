@@ -577,6 +577,7 @@ void ModuleSubTypeChoice::update()
       SET_DIRTY();
     });
     setAvailableHandler(nullptr);
+    setTextHandler(nullptr);
   }
   else if (isModuleDSM2(moduleIdx)) {
     setMin(DSM2_PROTO_LP45);
@@ -585,6 +586,7 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
+    setTextHandler(nullptr);
   }
   else if (isModuleR9MNonAccess(moduleIdx)) {
     setMin(MODULE_SUBTYPE_R9M_FCC);
@@ -593,6 +595,7 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
+    setTextHandler(nullptr);
   }
 #if defined(PXX2)
   else if (isModuleISRM(moduleIdx)) {
@@ -602,6 +605,7 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
+    setTextHandler(nullptr);
   }
 #endif
 #if defined(AFHDS2) || defined(AFHDS3)
@@ -628,6 +632,7 @@ void ModuleSubTypeChoice::update()
 #else
     setAvailableHandler(nullptr);
 #endif
+    setTextHandler(nullptr);
   }
 #endif
 #if defined(MULTIMODULE)
