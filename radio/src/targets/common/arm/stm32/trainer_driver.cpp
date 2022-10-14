@@ -154,10 +154,10 @@ static void _init_trainer_capture(const stm32_pulse_timer_t* tim)
     LL_TIM_EnableIT_CC2(tim->TIMx);
     break;
   case LL_TIM_CHANNEL_CH3:
-    LL_TIM_EnableIT_CC1(tim->TIMx);
+    LL_TIM_EnableIT_CC3(tim->TIMx);
     break;
   case LL_TIM_CHANNEL_CH4:
-    LL_TIM_EnableIT_CC2(tim->TIMx);
+    LL_TIM_EnableIT_CC4(tim->TIMx);
     break;
   }
 
