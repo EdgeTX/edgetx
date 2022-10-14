@@ -40,6 +40,7 @@ add_definitions(-DSTM32F2)
 set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver)
 
 add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+  targets/common/arm/stm32/f2/system_stm32f2xx.c
   ${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Source/Templates/gcc_ride7/startup_stm32f2xx.s
   ${STM32_STDPERIPH_DIR}/src/misc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_gpio.c
@@ -84,9 +85,6 @@ if(NOT NATIVE_BUILD)
   #
   # System and FreeRTOS port files
   #
-  set(FIRMWARE_SRC ${FIRMWARE_SRC}
-    $<TARGET_OBJECTS:freertos>
-    targets/common/arm/stm32/f2/system_stm32f2xx.c
-    )
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:freertos>)
 endif()
 
