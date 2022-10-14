@@ -483,11 +483,11 @@ void ModuleWindow::updateSubType()
   
   if (rfPower) {
     if (isModuleR9M_LBT(moduleIdx)) {
-      rfPower->setValues(STR_R9M_LBT_POWER_VALUES);
       rfPower->setMax(R9M_LBT_POWER_MAX);
+      rfPower->setValues(STR_R9M_LBT_POWER_VALUES);
     } else {
-      rfPower->setValues(STR_R9M_FCC_POWER_VALUES);
       rfPower->setMax(R9M_FCC_POWER_MAX);
+      rfPower->setValues(STR_R9M_FCC_POWER_VALUES);
     }
     lv_event_send(rfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   }
