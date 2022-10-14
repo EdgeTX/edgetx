@@ -37,21 +37,30 @@ include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F4)
 
-set(STM32LIB_SRC
-  ${STM32LIB_SRC}
-  STM32F4xx_StdPeriph_Driver/src/misc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c
+set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver)
+
+add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+  targets/common/arm/stm32/f4/system_stm32f4xx.c
+  ${STM32_STDPERIPH_DIR}/src/misc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_gpio.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dbgmcu.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rcc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_syscfg.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_spi.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rtc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_usart.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_ltdc.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
+  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
   )
+
+set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
 
 if(NOT NATIVE_BUILD)
   #
@@ -80,8 +89,5 @@ if(NOT NATIVE_BUILD)
   #
   # System and FreeRTOS port files
   #
-  set(FIRMWARE_SRC ${FIRMWARE_SRC}
-    $<TARGET_OBJECTS:freertos>
-    targets/common/arm/stm32/f4/system_stm32f4xx.c
-    )
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:freertos>)
 endif()

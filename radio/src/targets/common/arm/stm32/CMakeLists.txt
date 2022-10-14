@@ -84,9 +84,6 @@ endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
-foreach(FILE ${STM32LIB_SRC})
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32LIB_DIR}/${FILE})
-endforeach()
 
 foreach(FILE ${STM32USB_SRC})
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32USB_DIR}/${FILE})
