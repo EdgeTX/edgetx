@@ -75,6 +75,8 @@
   #define ETX_FOURCC 0x3C78746F // etx for Taranis X9-Lite
 #elif defined(PCBX9D) || defined(PCBX9DP)
   #define ETX_FOURCC 0x3378746F // etx for Taranis X9D
+#elif defined(RADIO_LR3PRO)
+  #define ETX_FOURCC 0x4478746F // etx for BETAFPV LR3PRO
 #elif defined(PCBNV14)
   #define ETX_FOURCC 0x3A78746F // otx for NV14
 #elif defined(PCBPL18)
@@ -91,6 +93,8 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 #define SDCARD_PATH         PATH_SEPARATOR "SDCARD" PATH_SEPARATOR
 #define INTERNAL_ST_PATH    PATH_SEPARATOR "INTERNAL" PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
+#define DELETED_MODELS_PATH MODELS_PATH PATH_SEPARATOR "DELETED"
+#define UNUSED_MODELS_PATH  MODELS_PATH PATH_SEPARATOR "UNUSED"
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
 #define PERS_TEMPL_PATH     TEMPLATES_PATH "/PERSONAL"
@@ -126,12 +130,20 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
 const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;
 #if defined(SDCARD_YAML)
-const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR "models.yml";
-const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "models.yml";
+#define LABELS_FILENAME     "labels.yml"
+#define MODELS_FILENAME     "models.yml"
+const char MODELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char FALLBACK_MODELSLIST_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR MODELS_FILENAME;
+const char LABELSLIST_YAML_PATH[] = MODELS_PATH PATH_SEPARATOR LABELS_FILENAME;
 const char RADIO_SETTINGS_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio.yml";
+const char RADIO_SETTINGS_TMPFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio_new.yml";
+const char RADIO_SETTINGS_ERRORFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "radio_error.yml";
+
+const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #endif
 #define    SPLASH_FILE             "splash.png"
 #endif
+
 
 #define MODELS_EXT          ".bin"
 #define LOGS_EXT            ".csv"
@@ -385,7 +397,7 @@ public:
   const std::string& getCurWorkDir() const { return curWorkDir;}
 #if !defined(BOOT)
   VfsError unlink(const std::string& path);
-#endif
+#endif // !BOOT
   VfsError changeDirectory(const std::string& path);
   VfsError openDirectory(VfsDir& dir, const char * path);
   VfsError makeDirectory(const std::string& path);
@@ -394,12 +406,15 @@ public:
   VfsError utime(const std::string& path, const VfsFileInfo& fileInfo);
   VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);
 
-  #if !defined(BOOT)
+#if !defined(BOOT)
   VfsError rename(const char* oldPath, const char* newPath);
   VfsError copyFile(const std::string& source, const std::string& destination);
   VfsError copyFile(const std::string& srcFile, const std::string& srcDir,
              const std::string& destDir, const std::string& destFile);
-#endif
+  const char * moveFile(const std::string& source, const std::string& destination);
+  const char * moveFile(const std::string& srcFile, const std::string& srcDir,
+                          const std::string& destDir, const std::string& destFile);
+#endif // !BOOT
 
   bool sdCardMounted();
   size_t sdGetFreeSectors();

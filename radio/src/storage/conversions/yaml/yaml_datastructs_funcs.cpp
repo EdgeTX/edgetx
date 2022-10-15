@@ -66,7 +66,7 @@ bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
   return true;
 }
 
-#if STORAGE_CONVERSIONS < 221 || 1
+#if STORAGE_CONVERSIONS < 221
 bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     const char* str = nullptr;
@@ -180,6 +180,7 @@ uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 
 #define r_zov_source nullptr
 
+#if STORAGE_CONVERSIONS < 221
 bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
                   yaml_writer_func wf, void* opaque)
 {
@@ -187,6 +188,7 @@ bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
   auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
   return w_mixSrcRaw(nullptr, p_val->unsignedValue, wf, opaque);
 }
+#endif
 
 #include "colors.h"
 #define r_zov_color nullptr

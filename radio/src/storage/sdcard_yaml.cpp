@@ -61,7 +61,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
 
     bool first_block = true;
     char buffer[32];
-    while (file.read(file, buffer, sizeof(buffer)-1, bytes_read) == VfsError::OK) {
+    while (file.read(buffer, sizeof(buffer)-1, bytes_read) == VfsError::OK) {
       if (bytes_read == 0)  // EOF
         break;
       total_bytes += bytes_read;
@@ -79,7 +79,7 @@ const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, vo
           // Advance through the value
           while((*endPos != '\r') && (*endPos != '\n')) {
             if (endPos > buffer + bytes_read) {
-              return SDCARD_ERROR(	FR_INT_ERR );
+              return STORAGE_ERROR(	VfsError::INVAL );
             }
             endPos++;
           }
@@ -161,9 +161,9 @@ const char * loadRadioSettingsYaml()
         if (p == NULL && (checksum_status == ChecksumResult::Success)) {
             vfs.unlink(RADIO_SETTINGS_YAML_PATH);
             result = vfs.rename(RADIO_SETTINGS_TMPFILE_YAML_PATH, RADIO_SETTINGS_YAML_PATH);  // Rename previously saved file to active file
-            if (result != FR_OK) {
+            if (result != VfsError::OK) {
               ALERT(STR_STORAGE_WARNING, TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
-              return SDCARD_ERROR(result);
+              return STORAGE_ERROR(result);
             }
         }
         TRACE("Unable to recover radio data");
@@ -177,7 +177,7 @@ const char * loadRadioSettings()
 {
     VfsFileInfo fno;
     VirtualFS& vfs = VirtualFS::instance();
-    if ( (vfs.stat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) && ((vfs.stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, fno) != VfsError::OK)) ) {
+    if ( (vfs.fstat(RADIO_SETTINGS_YAML_PATH, fno) != VfsError::OK) && ((vfs.fstat(RADIO_SETTINGS_TMPFILE_YAML_PATH, fno) != VfsError::OK)) ) {
       // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
       // - thus requiring a conversion from binary to YAML.
 #if STORAGE_CONVERSIONS < 221
@@ -246,7 +246,7 @@ bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checks
     ctx.checksum_invalid = false;
 
     if (!tree.generate(yaml_checksummer, &ctx)) {
-        if (ctx.result != FR_OK) {
+        if (ctx.result != VfsError::OK) {
           ctx.checksum_invalid = true;
           return false;
         }
@@ -297,10 +297,10 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
     // Try to add CRC
     if (checksum != 0) {
       if (!yaml_writer(&ctx, YAMLFILE_CHECKSUM_TAG_NAME, strlen(YAMLFILE_CHECKSUM_TAG_NAME))) return NULL;
-      if (!yaml_writer(&ctx, ": ", 2)) return SDCARD_ERROR(FR_INVALID_PARAMETER);
+      if (!yaml_writer(&ctx, ": ", 2)) return STORAGE_ERROR(VfsError::INVAL);
       const char* p_out = NULL;
       p_out = yaml_unsigned2str((int)checksum);
-      if (p_out && !yaml_writer(&ctx, p_out, strlen(p_out))) return SDCARD_ERROR(FR_INVALID_PARAMETER);
+      if (p_out && !yaml_writer(&ctx, p_out, strlen(p_out))) return STORAGE_ERROR(VfsError::INVAL);
       yaml_writer(&ctx, "\r\n", 2);
     }
 

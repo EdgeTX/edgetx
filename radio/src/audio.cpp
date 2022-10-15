@@ -308,7 +308,7 @@ char *getModelAudioPath(char *path)
   strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
   char *buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
 
-  if (!isFileAvailable(path)) {
+  if (!VirtualFS::instance().isFileAvailable(path)) {
     buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), 0);
   }
 

@@ -39,8 +39,8 @@ void FilePreview::setFile(const char *filename)
   bitmap = nullptr;
 
   if (filename) {
-    const char *ext = vIRTUALfs..getFileExtension(filename);
-    if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
+    const char *ext = VirtualFS::getFileExtension(filename);
+    if (ext && VirtualFS::isFileExtensionMatching(ext, BITMAPS_EXT)) {
       bitmap = BitmapBuffer::loadBitmap(filename);
     } else {
       bitmap = nullptr;

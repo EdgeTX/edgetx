@@ -154,7 +154,6 @@
 #define TR_FLYSKY_SERIAL_PROTO         "iBUS","SBUS"
 #define TR_PPM_POL                     "-","+"
 #define TR_PWR_OFF_DELAYS              "0s","1s","2s","4s"
-#if defined(PCBNV14) || defined(PCBPL18)
 
 #define TR_SENSOR_RSSI                      "RSSI"
 #define TR_SENSOR_R9PW                      "R9PW"
