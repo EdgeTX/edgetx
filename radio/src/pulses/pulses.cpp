@@ -104,9 +104,14 @@ void restartModule(uint8_t idx)
   pauseMixerCalculations();
   pausePulses();
 
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (idx == INTERNAL_MODULE) stopPulsesInternalModule();
+#endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  else stopPulsesExternalModule();
+#if defined(HARDWARE_INTERNAL_MODULE)
+  else
+#endif
+    stopPulsesExternalModule();
 #endif
 
   RTOS_WAIT_MS(200); // 20ms so that the pulses interrupt will reinit the frame rate

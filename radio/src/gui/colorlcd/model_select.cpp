@@ -405,13 +405,13 @@ void ModelsPageBody::duplicateModel(ModelCell* model)
 {
   storageFlushCurrentModel();
   storageCheck(true);
-
+  VirtualFS& vfs = VirtualFS::instance();
   char duplicatedFilename[LEN_MODEL_FILENAME + 1];
   memcpy(duplicatedFilename, model->modelFilename,
          sizeof(duplicatedFilename));
-  if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+  if (vfs.findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
                         MODELS_PATH)) {
-    sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+    vfs.copyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
                MODELS_PATH);
     // Make a new model which is a copy of the selected one, set the same
     // labels
@@ -439,6 +439,7 @@ void ModelsPageBody::deleteModel(ModelCell *model)
 
 void ModelsPageBody::saveAsTemplate(ModelCell *model)
 {
+  VirtualFS& vfs = VirtualFS::instance();
   storageDirty(EE_MODEL);
   storageCheck(true);
   constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
@@ -446,14 +447,14 @@ void ModelsPageBody::saveAsTemplate(ModelCell *model)
   snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
   char templatePath[FF_MAX_LFN];
   snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
-  sdCheckAndCreateDirectory(TEMPLATES_PATH);
-  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+  vfs.checkAndCreateDirectory(TEMPLATES_PATH);
+  vfs.checkAndCreateDirectory(PERS_TEMPL_PATH);
   if (isFileAvailable(templatePath)) {
     new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
-      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+      vfs.copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
     });
   } else {
-    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+    vfs.copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
   }
 }
 

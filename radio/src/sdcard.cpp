@@ -69,53 +69,6 @@ bool sdCardFormat()
   }
 }
 
-
-// Will overwrite if destination exists
-const char * sdMoveFile(const char * srcPath, const char * destPath)
-{
-  const char *result;
-  result = sdCopyFile(srcPath, destPath);
-  if(result != 0) {
-    return result;
-  }
-
-  FRESULT fres = f_unlink(srcPath);
-  if(fres != FR_OK) {
-    return SDCARD_ERROR(fres);
-  }
-  return nullptr;
-}
-
-// Will overwrite if destination exists
-const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir)
-{
-  const char *result;
-  result = sdCopyFile(srcFilename, srcDir, destFilename, destDir);
-  if(result != 0) {
-    return result;
-  }
-
-  char srcPath[2*CLIPBOARD_PATH_LEN+1];
-  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
-  *tmp++ = '/';
-  strAppend(tmp, srcFilename, CLIPBOARD_PATH_LEN);
-  FRESULT fres = f_unlink(srcPath);
-  if(fres != FR_OK) {
-    return SDCARD_ERROR(fres);
-  }
-  return nullptr;
-}
-
-#if !defined(SIMU) || defined(SIMU_DISKIO)
-uint32_t sdGetNoSectors()
-{
-  static DWORD noSectors = 0;
-  if (noSectors == 0 ) {
-    disk_ioctl(0, GET_SECTOR_COUNT, &noSectors);
-  }
-  return noSectors;
-}
-
 uint32_t sdGetSize()
 {
   return (sdGetNoSectors() / 1000000) * BLOCK_SIZE;

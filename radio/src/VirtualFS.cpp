@@ -1343,6 +1343,52 @@ VfsError VirtualFS::copyFile(const std::string& srcFile, const std::string& srcD
 {
   return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
 }
+
+// Will overwrite if destination exists
+const char * VirtualFS::moveFile(const std::string& srcPath, const std::string& destPath)
+{
+
+  auto res = copyFile(srcPath, destPath);
+  if(res != VfsError::OK) {
+    return STORAGE_ERROR(res);
+  }
+
+  res = unlink(srcPath);
+  if(res != VfsError::OK) {
+    return STORAGE_ERROR(res);
+  }
+  return nullptr;
+}
+
+// Will overwrite if destination exists
+const char * VirtualFS::moveFile(const std::string& srcFilename, const std::string& srcDir, const std::string& destFilename, const std::string& destDir)
+{
+  auto res = copyFile(srcFilename, srcDir, destFilename, destDir);
+  if(res != VfsError::OK) {
+    return STORAGE_ERROR(res);
+  }
+
+  char srcPath[2*CLIPBOARD_PATH_LEN+1] = { 0 };
+  char * tmp = strAppend(srcPath, srcDir.c_str(), CLIPBOARD_PATH_LEN);
+  *tmp++ = '/';
+  strAppend(tmp, srcFilename.c_str(), CLIPBOARD_PATH_LEN);
+  res = unlink(srcPath);
+  if(res != VfsError::OK) {
+    return STORAGE_ERROR(res);
+  }
+  return nullptr;
+}
+#endif // !BOOT
+#if !defined(SIMU) || defined(SIMU_DISKIO)
+uint32_t sdGetNoSectors()
+{
+  static DWORD noSectors = 0;
+  if (noSectors == 0 ) {
+    disk_ioctl(0, GET_SECTOR_COUNT, &noSectors);
+  }
+  return noSectors;
+}
+
 #endif
 VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
 {

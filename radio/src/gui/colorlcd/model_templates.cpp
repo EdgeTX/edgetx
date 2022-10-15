@@ -29,12 +29,12 @@ std::function<void(void)> TemplatePage::update = nullptr;
 
 void TemplatePage::updateInfo()
 {
-  FIL fp;
-  FRESULT res = f_open (&fp, buffer, FA_READ);
-  unsigned int bytesRead = 0;
-  if (res == FR_OK) {
-    f_read (&fp, infoText, LEN_INFO_TEXT, &bytesRead);
-    f_close(&fp);
+  VfsFile fp;
+  VfsError res = VirtualFS::instance().openFile(fp, buffer, VfsOpenFlags::READ);
+  size_t bytesRead = 0;
+  if (res == VfsError::OK) {
+    fp.read(infoText, LEN_INFO_TEXT, bytesRead);
+    fp.close();
   }
   infoText[bytesRead] = '\0';
   invalidate();
@@ -78,29 +78,29 @@ SelectTemplate::SelectTemplate(TemplatePage* tp)
   FormGridLayout grid;
   grid.spacer(PAGE_PADDING);
   std::list<std::string> files;
-  FILINFO fno;
-  DIR dir;
-  FRESULT res = f_opendir(&dir, path);
+  VirtualFS& vfs = VirtualFS::instance();
+  VfsFileInfo fno;
+  VfsDir dir;
+  VfsError res = vfs.openDirectory(dir, path);
 
-  if (res == FR_OK) {
+  if (res == VfsError::OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
-      if (res != FR_OK || fno.fname[0] == 0)
+      res = dir.read(fno);
+      if (res != VfsError::OK || fno.getName()[0] == 0)
         break; // Break on error or end of dir
-      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
+      const char* fName = fno.getName();
+      if (strlen(fName) > STORAGE_SCREEN_FILE_LENGTH)
         continue;
-      if (fno.fname[0] == '.')
+      if (fName[0] == '.')
         continue;
-      if (!(fno.fattrib & AM_DIR)) {
-        const char *ext = getFileExtension(fno.fname);
+      if (fno.getType() == VfsType::FILE) {
+        const char *ext = vfs.getFileExtension(fName);
         if(ext && !strcasecmp(ext, YAML_EXT)) {
-          int len = ext - fno.fname;
+          int len = ext - fName;
           if (len < FF_MAX_LFN) {
             char name[FF_MAX_LFN] = { 0 };
-            strncpy(name, fno.fname, len);
+            strncpy(name, fName, len);
             files.push_back(name);
           }
         }
@@ -121,7 +121,8 @@ SelectTemplate::SelectTemplate(TemplatePage* tp)
 #if defined(LUA)
           // If there is a wizard Lua script, fire it up
           snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
-          if (f_stat(buffer, 0) == FR_OK) {
+          VfsFileInfo info;
+          if (VirtualFS::instance().fstat(buffer, info) == VfsError::OK) {
             luaExec(buffer);
             // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
             update();
@@ -142,7 +143,7 @@ SelectTemplate::SelectTemplate(TemplatePage* tp)
     }
   }
 
-  f_closedir(&dir);
+  dir.close();
   count = files.size();
   if (count == 0) {
     rect_t rect = body.getRect();
@@ -197,24 +198,23 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
   grid.spacer(tfb->height() + 5);
 
   std::list<std::string> directories;
-  FILINFO fno;
-  DIR dir;
-  FRESULT res = f_opendir(&dir, TEMPLATES_PATH);
+  VfsFileInfo fno;
+  VfsDir dir;
+  VfsError res = VirtualFS::instance().openDirectory(dir, TEMPLATES_PATH);
 
-  if (res == FR_OK) {
+  if (res == VfsError::OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
-      if (res != FR_OK || fno.fname[0] == 0)
+      res = dir.read(fno);
+      if (res != VfsError::OK || fno.getName() == 0)
         break; // Break on error or end of dir
-      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
+      const char* fName = fno.getName();
+      if (strlen(fName) > STORAGE_SCREEN_FILE_LENGTH)
         continue;
-      if (fno.fname[0] == '.')
+      if (fName[0] == '.')
         continue;
-      if (fno.fattrib & AM_DIR)
-        directories.push_back((char*)fno.fname);
+      if (fno.getType() == VfsType::DIR)
+        directories.push_back(fName);
     }
 
     directories.sort(compare_nocase);
@@ -244,7 +244,7 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
 #endif
   }
 
-  f_closedir(&dir);
+  dir.close();
   count = directories.size();
   if (count == 0) {
     rect_t rect = grid.getLabelSlot();

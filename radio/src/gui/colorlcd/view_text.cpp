@@ -61,9 +61,9 @@ void ViewTextWindow::buildBody(Window *window)
     if (buffer) {
       offset =
           std::max(int(openFromEnd ? int(fsize) - bufSize + 1 : 0), 0);
-      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.fsize, bufSize,
-            int(info.fsize) - bufSize + 1);
-      if (sdReadTextFileBlock(fbufSize, offset) == VritualFS::OK) {
+      TRACE("info.fsize=%d\tbufSize=%d\toffset=%d", info.getSize(), bufSize,
+            int(info.getSize()) - bufSize + 1);
+      if (sdReadTextFileBlock(bufSize, offset) == VfsError::OK) {
         auto obj = window->getLvObj();
         lv_obj_add_flag(
             obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
@@ -98,11 +98,11 @@ VfsError ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
   char escape_chars[4];
   int escape = 0;
 
-  auto res = vfs.openFile(file, filename, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  auto res = vfs.openFile(file, fullPath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   if (res == VfsError::OK) {
     res = file.lseek(offset);
     if (res == VfsError::OK) {
-      UINT br;
+      size_t br;
       char c;
       char *ptr = buffer;
       for (int i = 0; i < (int)bufSize; i++) {
