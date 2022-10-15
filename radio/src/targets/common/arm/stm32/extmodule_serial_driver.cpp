@@ -27,8 +27,8 @@
 #include "stm32_usart_driver.h"
 #include "fifo.h"
 
-typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
-static RxFifo extmoduleFifo;
+typedef DMAFifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
+static RxFifo extmoduleFifo __DMA (EXTMODULE_USART_RX_DMA_STREAM);
 
 struct ExtmoduleCtx
 {
@@ -71,9 +71,9 @@ static const stm32_usart_t extmoduleUSART = {
   .txDMA = EXTMODULE_USART_TX_DMA,
   .txDMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
   .txDMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
-  .rxDMA = nullptr,
-  .rxDMA_Stream = 0,
-  .rxDMA_Channel = 0,
+  .rxDMA = EXTMODULE_USART_TX_DMA,
+  .rxDMA_Stream = EXTMODULE_USART_RX_DMA_STREAM_LL,
+  .rxDMA_Channel = EXTMODULE_USART_RX_DMA_CHANNEL,
 };
 
 static const ExtmoduleCtx extmoduleCtx = {
