@@ -337,7 +337,7 @@ Mode 4:
     </message>
     <message>
         <source>Offer to write FW to Tx after download</source>
-        <translation>Skal radio opdateres med firmware efter overførsel</translation>
+        <translation>Skal radio opdateres med firmware efter hentning</translation>
     </message>
     <message>
         <source>Radio Type</source>
@@ -444,6 +444,10 @@ Mode 4:
         <translation>Gem billeder i klippebord</translation>
     </message>
     <message>
+        <source>Save switch/pot positions on simulator exit</source>
+        <translation>Gem position på alle kontakter/pinde ved afslutning af simulator</translation>
+    </message>
+    <message>
         <source>Remember simulator switch values</source>
         <translation>Gem simulator kontakt indstillinger</translation>
     </message>
@@ -541,7 +545,7 @@ Mode 4:
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dette valg bestemmer hvordan ældre OpenTx versioner håndteres når tomme model indgange slettes eller flyttes. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
@@ -596,40 +600,168 @@ Mode 4:
         <translation>Vælg katalog til logge fra program</translation>
     </message>
     <message>
+        <source>Clear saved positions</source>
+        <translation>Nulstil gemte positioner</translation>
+    </message>
+    <message>
+        <source>Prompt for radio profile</source>
+        <translation>Vælg radioprofil</translation>
+    </message>
+    <message>
+        <source>Simulator controls</source>
+        <translation>Simulator indstilling</translation>
+    </message>
+    <message>
+        <source>Append version number to firmware file name</source>
+        <translation>Skriv versionsnummer filnavn for firmware</translation>
+    </message>
+    <message>
+        <source>Prompt to write firmware to radio after update</source>
+        <translation>Spørg efter at brænde radio med firmware efter opdatering</translation>
+    </message>
+    <message>
+        <source>Prompt to run installer after update</source>
+        <translation>Spørg efter at starte installation efter opdatering</translation>
+    </message>
+    <message>
+        <source>Update Settings</source>
+        <translation>Opdateringer</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Alternativer</translation>
+    </message>
+    <message>
+        <source>Prompt to run SD Sync after update</source>
+        <translation>Spørg efter at synkronisere SD-struktur efter opdatering</translation>
+    </message>
+    <message>
+        <source>Check frequency</source>
+        <translation>Frekvens for at søge efter opdatering</translation>
+    </message>
+    <message>
+        <source>Reset to Defaults</source>
+        <translation>Nulstil til standard</translation>
+    </message>
+    <message>
+        <source>Folders</source>
+        <translation>Kataloger</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Hentning til</translation>
+    </message>
+    <message>
+        <source>Decompress</source>
+        <translation>Dekomprimer</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Opdatering</translation>
+    </message>
+    <message>
+        <source>Create sub-folders in Download folder</source>
+        <translation>Opret underkatalog i ønskede katalog</translation>
+    </message>
+    <message>
+        <source>Use Radio Profile SD Structure</source>
+        <translation>Brug radioprofilens SD-struktur</translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <translation>Komponenter</translation>
+    </message>
+    <message>
+        <source>Check</source>
+        <translation>Søg opdatering</translation>
+    </message>
+    <message>
         <source>Release channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Release kanal</translation>
+    </message>
+    <message>
+        <source>Logging</source>
+        <translation>Loggningsnivå</translation>
+    </message>
+    <message>
+        <source>Default Int. Module</source>
+        <translation>Förvald intern modul</translation>
+    </message>
+    <message>
+        <source>Reset all update settings to defaults. Are you sure?</source>
+        <translation>Återställ alla uppdateringsinställningar till förvalda värden. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!</source>
+        <translation>Inställningar för uppdatering har ändrats. Vänligen stäng och starta om Companion för att undvika oväntade problem!</translation>
+    </message>
+    <message>
+        <source>Select your download folder</source>
+        <translation>Välj katalog för nerladdning</translation>
+    </message>
+    <message>
+        <source>Select your decompress folder</source>
+        <translation>Välj din katalog för uppackning</translation>
+    </message>
+    <message>
+        <source>Select your update destination folder</source>
+        <translation>Välj katalog för uppdateringen</translation>
+    </message>
+    <message>
+        <source>Delete downloads</source>
+        <translation>Radera nerladdningar</translation>
+    </message>
+    <message>
+        <source>Delete decompressions</source>
+        <translation>Radera uppackade filer</translation>
+    </message>
+    <message>
+        <source>Update Settings: Download folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för nerladdning saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Decompress folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Update folder path missing!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppdateringar saknas!</translation>
+    </message>
+    <message>
+        <source>Update Settings: Decompress and download folders have the same path!</source>
+        <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
     </message>
     <message>
         <source>Releases (stable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Releases (stabile)</translation>
     </message>
     <message>
         <source>Release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <translation>Release kandidater (til test)</translation>
     </message>
     <message>
         <source>Nightly builds (unstable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Natlig byg (måske ustabile)</translation>
     </message>
     <message>
         <source>Note: Nightly builds are not available in this version, Release/RC update channel will be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bemærk: Natlig byg findes ikke i denne version, istedet anvendes Release kanal for opdateringer.</translation>
     </message>
     <message>
         <source>Use releases (stable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug release (stabil)</translation>
     </message>
     <message>
         <source>Use release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug release kandidat (til test)</translation>
     </message>
     <message>
         <source>Use nightly builds (unstable)</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug natlig byg (måske ustabile)</translation>
     </message>
     <message>
         <source>Use releases and release candidates (testing)</source>
-        <translation type="unfinished"></translation>
+        <translation>Brug release og release kandidater (til test)</translation>
     </message>
 </context>
 <context>
@@ -719,6 +851,113 @@ Mode 4:
     <message>
         <source>Positive span</source>
         <translation>Højste værdi</translation>
+    </message>
+</context>
+<context>
+    <name>ChannelsPanel</name>
+    <message>
+        <source>Name</source>
+        <translation>Namn</translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation>Kurva</translation>
+    </message>
+    <message>
+        <source>Subtrim</source>
+        <translation>Subtrim</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>Riktning</translation>
+    </message>
+    <message>
+        <source>PPM Center</source>
+        <translation>PPM-centrum</translation>
+    </message>
+    <message>
+        <source>Linear Subtrim</source>
+        <translation>Linjär subtrim</translation>
+    </message>
+    <message>
+        <source>---</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>INV</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CH%1</source>
+        <translation>KA%1</translation>
+    </message>
+    <message>
+        <source>Popup menu available</source>
+        <translation>Popupmeny tillgänglig</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation>Klipp ut</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Klistra in</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Radera</translation>
+    </message>
+    <message>
+        <source>Delete Channel. Are you sure?</source>
+        <translation>Radera kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Rensa</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation>Lägga till</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flytta upp</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flytta ner</translation>
+    </message>
+    <message>
+        <source>Clear All</source>
+        <translation>Rensa alla</translation>
+    </message>
+    <message>
+        <source>Clear Channel. Are you sure?</source>
+        <translation>Rensa kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Clear all Channels. Are you sure?</source>
+        <translation>Rensa alla kanaler. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Cut Channel. Are you sure?</source>
+        <translation>Klipp ut kanalen. Är du säker?</translation>
+    </message>
+    <message>
+        <source>Plot</source>
+        <translation>Utseende</translation>
     </message>
 </context>
 <context>
@@ -6134,6 +6373,253 @@ Vil du gemme ændringer?</translation>
         <source>&lt;p&gt;&lt;b&gt;Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Gældende radiotype (%1) er ikke kompatibel med fil %3 (fra %2), modeller og indstillinger skal konverteres.&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>read only</source>
+        <translation>kun læsning</translation>
+    </message>
+    <message>
+        <source>Unable to Edit Radio Settings whilst models are open for editing.</source>
+        <translation>Radioindstillinger kan ikke ændres. mens modeller redigeres.</translation>
+    </message>
+    <message>
+        <source>You are about to overwrite ALL models on the Radio.</source>
+        <translation>Du er ved at overskrive ALLE radioens modeller.</translation>
+    </message>
+    <message>
+        <source>Do you want to continue?</source>
+        <translation>Ønsker du at fortsætte?</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again</source>
+        <translation>Vis ikke denne meddelelse igen</translation>
+    </message>
+    <message>
+        <source>Saved models and settings to radio</source>
+        <translation>Modeller og indstillinger er gemt i radioen</translation>
+    </message>
+    <message>
+        <source>Error saving models and settings to radio!</source>
+        <translation>Fejl ved gemning af modeller og indstillinger i radioen!</translation>
+    </message>
+    <message>
+        <source>Select a model template file</source>
+        <translation>Vælg en model template</translation>
+    </message>
+    <message>
+        <source>Add a new model using</source>
+        <translation>Tilføj en model som anvender</translation>
+    </message>
+    <message>
+        <source>Defaults</source>
+        <translation>Standard valg</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Rediger</translation>
+    </message>
+    <message>
+        <source>Wizard</source>
+        <translation>Guide</translation>
+    </message>
+    <message>
+        <source>Failed to remove temporary model!</source>
+        <translation>Den temporære model kan ikke slettes!</translation>
+    </message>
+    <message>
+        <source>Alt-L</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+S</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Eksport</translation>
+    </message>
+    <message>
+        <source>Export Model</source>
+        <translation>Eksporter model</translation>
+    </message>
+    <message>
+        <source>Model already exists! Do you want to overwrite it or insert into a new slot?</source>
+        <translation>Model findes allerede! Ønsker du at overskrive eller vælge ny plads?</translation>
+    </message>
+    <message>
+        <source>Overwrite</source>
+        <translation>Overskriv</translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation>Favoritter</translation>
+    </message>
+    <message>
+        <source>Unable to find radio SD card!</source>
+        <translation>Radioens SD kort kan ikke findes!</translation>
+    </message>
+    <message>
+        <source>Internal module protocol changed to &lt;b&gt;OFF&lt;/b&gt; for %1 models!</source>
+        <translation>Protokol for interne modul er ændret til &lt;b&gt;FRA&lt;/b&gt; for %1 modeller!</translation>
+    </message>
+    <message>
+        <source>Template</source>
+        <translation>Skabelon</translation>
+    </message>
+    <message>
+        <source>Export model</source>
+        <translation>Eksporter model</translation>
+    </message>
+    <message>
+        <source>Alt-R</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt-+</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alt--</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Labels Management</source>
+        <translation>Label styring</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Tilføj</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Skift navn</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Flyt op</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Flyt ned</translation>
+    </message>
+    <message>
+        <source>Show Labels Actions Toolbar</source>
+        <translation>Vis værktøjer for labels</translation>
+    </message>
+</context>
+<context>
+    <name>MinizInterface</name>
+    <message>
+        <source>Progress calculation method: file %1</source>
+        <translation>Metode til beregning: %1</translation>
+    </message>
+    <message>
+        <source>count</source>
+        <translation>antal</translation>
+    </message>
+    <message>
+        <source>size</source>
+        <translation>størrelse</translation>
+    </message>
+    <message>
+        <source>Compressing %1 to %2 with append %3</source>
+        <translation>Komprimer %1 til %2 med ekstra %3</translation>
+    </message>
+    <message>
+        <source>Miniz version: %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Existing archive will be overwritten</source>
+        <translation>Eksisterende arkiv vil overskrives</translation>
+    </message>
+    <message>
+        <source>Unable to open existing archive</source>
+        <translation>Ekisterende arkiv kan ikke åbnes</translation>
+    </message>
+    <message>
+        <source>Existing archive opened</source>
+        <translation>Ekisterende arkiv åbnet</translation>
+    </message>
+    <message>
+        <source>Unable to write to existing archive</source>
+        <translation>Kan ikke skrive i ekisterende arkiv</translation>
+    </message>
+    <message>
+        <source>Existing archive initialised</source>
+        <translation>Ekisterende arkiv initialiseret</translation>
+    </message>
+    <message>
+        <source>Failure to initialise archive</source>
+        <translation>Fejl ved initialisering af arkiv</translation>
+    </message>
+    <message>
+        <source>Archive initialised</source>
+        <translation>Arkiv initialiseret</translation>
+    </message>
+    <message>
+        <source>Calculating number of items to archive</source>
+        <translation>Beregner antallet af emner som skal arkiveres</translation>
+    </message>
+    <message>
+        <source>Failure to finalise archive</source>
+        <translation>Kan ikke klargøre arkiv</translation>
+    </message>
+    <message>
+        <source>Compress complete</source>
+        <translation>Komprimering slut</translation>
+    </message>
+    <message>
+        <source>Failure to add %1</source>
+        <translation>Fejl ved tilføjning af %1</translation>
+    </message>
+    <message>
+        <source>Added file: %1</source>
+        <translation>Tilføjet fil: %1</translation>
+    </message>
+    <message>
+        <source>Decompressing %1</source>
+        <translation>Dekomprimering af %1</translation>
+    </message>
+    <message>
+        <source>File does not appear to be a compressed archive</source>
+        <translation>Filen ser ikke ud til at være et komprimeret arkiv</translation>
+    </message>
+    <message>
+        <source>Compressed archive does not contain any files</source>
+        <translation>Komprimeret arkiv indeholder ingen filer</translation>
+    </message>
+    <message>
+        <source>File status error</source>
+        <translation>Fejl ved fil status</translation>
+    </message>
+    <message>
+        <source>Unable to obtain file status for index: %1</source>
+        <translation>Kan ikke hente status for fil ved indeks: %1</translation>
+    </message>
+    <message>
+        <source>Failed to extract %1 to %2</source>
+        <translation>Kan ikke dekomprimere %1 til %2</translation>
+    </message>
+    <message>
+        <source>File %1 extracted size %2 does not match original %3</source>
+        <translation>Størrelsen %2 for filen %1 svarer ikke til orignalen %3</translation>
+    </message>
+    <message>
+        <source>Extracted file: %1</source>
+        <translation>Dekomprimeret fil: %1</translation>
+    </message>
+    <message>
+        <source>Decompress complete</source>
+        <translation>Dekomprimering slut</translation>
+    </message>
+    <message>
+        <source>Failed to create directory: %1</source>
+        <translation>Kand ikke oprette katalog: %1</translation>
+    </message>
+    <message>
+        <source>Created directory: %1</source>
+        <translation>Oprettet katalog: %1</translation>
+    </message>
 </context>
 <context>
     <name>MixData</name>
@@ -6790,7 +7276,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>MULT!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Offset</source>
@@ -7082,15 +7568,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Multi.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Inst</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt</source>
@@ -7110,11 +7596,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Multi</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A/Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>A/offset</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -7284,7 +7770,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open Drain</source>
-        <translation type="unfinished"></translation>
+        <translation>Åben drain</translation>
     </message>
     <message>
         <source>Push Pull</source>
@@ -8027,23 +8513,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>[DBG]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[NFO]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[WRN]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[CVT]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[ERR]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[INV]</source>
@@ -9089,163 +9575,163 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <source>screenshot</source>
         <comment>Simulator LCD screenshot file name prefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>Simulator LCD skærmklip fil prefix</translation>
     </message>
     <message>
         <source>ENTER</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>PG-UP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>PG-DN</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>DEL</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>BKSP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>ESC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>INS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;+&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;-&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;larr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;rarr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;uarr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;darr;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x2686;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21b6;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21b7;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21c6;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d3;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d1;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x21d5;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/mouse.svg&apos; width=20 height=18 /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/arrow_click.svg&apos; width=18 height=18 /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ MENU ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PAGE ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ EXIT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ ENT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ UP ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ DN ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;+&lt;/font&gt; ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;-&lt;/font&gt; ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PgUp ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ PgDn ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ MDL ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ RTN ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ SYS ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ TELE ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;font size=+3&gt;&amp;#x2261;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;pre&gt;[ SHIFT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
