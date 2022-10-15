@@ -26,8 +26,8 @@
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
-// Callbacks using intmoduleFifo
-void extmoduleFifoReceive(uint8_t data);
-void extmoduleFifoError();
+// Use an alternative USART as external module
+void extmoduleSetSerialPort(const etx_serial_driver_t* port);
 
-extern const etx_serial_driver_t ExtmoduleSerialDriver;
+// Return the serial driver to be used as external module
+const etx_serial_driver_t* extmoduleGetSerialPort();

@@ -864,7 +864,9 @@ void applyModelConfig(uint8_t module)
 static void* initExternal(uint8_t module)
 {
 #if defined(AFHDS3_EXT_UART)
-  const etx_serial_driver_t* drv = &ExtmoduleSerialDriver;
+  auto drv = extmoduleGetSerialPort();
+  if (!drv) return nullptr;
+
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */;
 #else
   const etx_serial_driver_t* drv = nullptr;

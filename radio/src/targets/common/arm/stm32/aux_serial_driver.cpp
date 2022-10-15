@@ -32,7 +32,7 @@
 #define AUX_SERIAL_TX_BUFFER 512
 
 #if defined(SDRAM)
-  #define AUX_SERIAL_RX_BUFFER 128
+  #define AUX_SERIAL_RX_BUFFER 512
 #else
   #define AUX_SERIAL_RX_BUFFER 32
 #endif
@@ -53,8 +53,8 @@ static void* aux_serial_init(const SerialState* st, const etx_serial_init* param
   stm32_usart_init(st->usart, params);
   
   if (params->rx_enable && st->usart->rxDMA) {
-    st->rxFifo->clear();
     stm32_usart_init_rx_dma(st->usart, st->rxFifo->buffer(), st->rxFifo->size());
+    st->rxFifo->clear();
   }
 
   return (void*)st;
@@ -62,17 +62,25 @@ static void* aux_serial_init(const SerialState* st, const etx_serial_init* param
 
 static void aux_serial_putc(void* ctx, uint8_t c)
 {
+  // When sending single bytes,
+  // send is based on IRQ, so that this
+  // only enables the corresponding IRQ
+
   auto st = (const SerialState*)ctx;
   if (st->txFifo->isFull()) return;
   st->txFifo->push(c);
 
-  // Send is based on IRQ, so that this
-  // only enables the corresponding IRQ
-  stm32_usart_send_buffer(st->usart, &c, 1);
+  stm32_usart_enable_tx_irq(st->usart);
 }
 
 static void aux_serial_send_buffer(void* ctx, const uint8_t* data, uint8_t size)
 {
+  auto st = (const SerialState*)ctx;
+  if (st->usart->txDMA) {
+    stm32_usart_send_buffer(st->usart, data, size);
+    return;
+  }
+  
   while(size > 0) {
     aux_serial_putc(ctx, *data++);
     size--;
@@ -112,15 +120,22 @@ static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
   .Alternate = AUX_SERIAL_GPIO_AF_LL,
 };
 
+#if !defined(AUX_SERIAL_DMA_TX)
+  #define AUX_SERIAL_DMA_TX                   nullptr
+  #define AUX_SERIAL_DMA_Stream_TX            nullptr
+  #define AUX_SERIAL_DMA_Stream_TX_LL         0
+  #define AUX_SERIAL_DMA_Channel_TX           0
+#endif
+
 static const stm32_usart_t auxUSART = {
   .USARTx = AUX_SERIAL_USART,
   .GPIOx = AUX_SERIAL_GPIO,
   .pinInit = &auxUSARTPinInit,
   .IRQn = AUX_SERIAL_USART_IRQn,
   .IRQ_Prio = 7, // TODO: define constant
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
+  .txDMA = AUX_SERIAL_DMA_TX,
+  .txDMA_Stream = AUX_SERIAL_DMA_Stream_TX_LL,
+  .txDMA_Channel = AUX_SERIAL_DMA_Channel_TX,
   .rxDMA = AUX_SERIAL_DMA_RX,
   .rxDMA_Stream = AUX_SERIAL_DMA_Stream_RX_LL,
   .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,

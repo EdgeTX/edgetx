@@ -743,6 +743,26 @@ void rtcSetTime(const struct gtm * t)
 const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+static void* _fake_drv_init(const etx_serial_init*) { return nullptr; }
+static void _fake_drv_fct1(void*) {}
+static void _fake_drv_send_byte(void*, uint8_t) {}
+static void _fake_drv_send_buffer(void*, const uint8_t*, uint8_t) {}
+static int _fake_drv_get_byte(void*, uint8_t*) { return 0; }
+static const etx_serial_driver_t _fake_drv = {
+  .init = _fake_drv_init,
+  .deinit = _fake_drv_fct1,
+  .sendByte = _fake_drv_send_byte,
+  .sendBuffer = _fake_drv_send_buffer,
+  .waitForTxCompleted = _fake_drv_fct1,
+  .getByte = _fake_drv_get_byte,
+  .clearRxBuffer = nullptr,
+  .getBaudrate = nullptr,
+  .setReceiveCb = nullptr,
+  .setBaudrateCb = nullptr,
+};
+#endif
+
 #if defined(AUX_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
   static void _fake_pwr_aux(uint8_t) {}
@@ -750,7 +770,7 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #else
   #define AUX_SERIAL_PWR nullptr
 #endif
-const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, AUX_SERIAL_PWR };
+static const etx_serial_port_t auxSerialPort = {"AUX1", &_fake_drv, AUX_SERIAL_PWR};
 #define AUX_SERIAL_PORT &auxSerialPort
 #else
 #define AUX_SERIAL_PORT nullptr
@@ -763,7 +783,7 @@ const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, AUX_SERIAL_PWR };
 #else
   #define AUX2_SERIAL_PWR nullptr
 #endif
-const etx_serial_port_t aux2SerialPort = { "AUX2", nullptr, AUX2_SERIAL_PWR };
+static const etx_serial_port_t aux2SerialPort = {"AUX2", &_fake_drv, AUX2_SERIAL_PWR};
 #define AUX2_SERIAL_PORT &aux2SerialPort
 #else
 #define AUX2_SERIAL_PORT nullptr

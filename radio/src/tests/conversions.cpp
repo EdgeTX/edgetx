@@ -95,12 +95,15 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_STRNEQ("Tes", g_model.gvars[0].name); // ZSTREQ
   EXPECT_STRNEQ("Test", g_model.flightModeData[0].name); // ZSTREQ
 
-#if defined(INTERNAL_MODULE_PXX2)
+  // Please note: we don't wipe the model's module settings
+  // in case the module is not supported anymore.
+  //
+  // #if defined(INTERNAL_MODULE_PXX2)
   EXPECT_EQ(MODULE_TYPE_ISRM_PXX2, g_model.moduleData[INTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, g_model.moduleData[INTERNAL_MODULE].subType);
-#else
-  EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
-#endif
+  // #else
+  //   EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
+  // #endif
 
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);

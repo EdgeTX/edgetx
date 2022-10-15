@@ -207,9 +207,11 @@ uint8_t getModuleType(uint8_t module)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE && isExternalModuleAvailable(type)) {
     return type;
   }
+#endif
 
   return MODULE_TYPE_NONE;
 }
@@ -579,7 +581,7 @@ void enablePulsesExternalModule(uint8_t protocol)
       break;
 #endif
 
-#if defined(PXX2) && defined(EXTMODULE_USART)
+#if defined(PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
       externalModuleContext = Pxx2ExternalDriver.init(EXTERNAL_MODULE);
       externalModuleDriver = &Pxx2ExternalDriver;
