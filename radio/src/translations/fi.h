@@ -36,6 +36,8 @@
 #define BREAKSPACE                    " "
 #define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
 #define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "POI","PÄÄ"
 #define TR_MMMINV                      "---","KÄÄ"

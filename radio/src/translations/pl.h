@@ -36,6 +36,7 @@
 #define BREAKSPACE                    " "
 #define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
 #define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
 
 #define TR_OFFON               "WYŁ","ZAŁ"
 #define TR_MMMINV              "---","REV"
