@@ -229,12 +229,13 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
+static int8_t _rotary_enc_accel = 1;
+
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   static rotenc_t prevPos = 0;
   static int8_t prevDir = 0;
-  static int8_t accel = 0;
-  static tmr10ms_t lastEvent = 0;
+  static uint32_t lastEvent = 0;
 
   rotenc_t newPos = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
   auto diff = newPos - prevPos;
@@ -261,23 +262,29 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     else if (diff > 0) dir = 1;
 
     if (use_accel && (dir == prevDir)) {
-      auto speed = (g_tmr10ms - lastEvent) / abs(diff);
-      if (speed <= ROTENC_DELAY_HIGHSPEED/2) { // 80 ms
-        // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
-        accel = min((int8_t)(accel + 1), (int8_t)25);
-      } else if (speed >= ROTENC_DELAY_MIDSPEED/2) { // 160 ms
-        // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
-        accel = 0;
-      }
-      lastEvent = g_tmr10ms;
-      data->enc_diff = (int16_t)diff * max((int16_t)accel, (int16_t)1);
+      auto now = lv_tick_get();
+      auto dx_dt = (abs(diff) * 50) / max(lv_tick_elaps(lastEvent), (uint32_t)1);
+
+      _rotary_enc_accel = max((int8_t)dx_dt, (int8_t)1);
+      lastEvent = now;
+
+      data->enc_diff = (int16_t)diff * (int16_t)_rotary_enc_accel;
     } else {
-      accel = 0;
+      _rotary_enc_accel = 1;
     }
     prevDir = dir;
   }
 }
-#endif
+
+// libopenui_depends.h
+int8_t rotaryEncoderGetAccel() { return _rotary_enc_accel; }
+
+#else // !defined(ROTARY_ENCODER_NAVIGATION)
+
+// libopenui_depends.h
+int8_t rotaryEncoderGetAccel() { return 1; }
+
+#endif // defined(ROTARY_ENCODER_NAVIGATION)
 
 /**
  * Helper function to translate a colorFlags value to a lv_color_t suitable

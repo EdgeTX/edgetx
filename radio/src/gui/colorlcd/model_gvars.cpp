@@ -301,6 +301,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
                            setProperties();
                        }
   );
+  min->setAccelFactor(16);
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(), STR_MAX, 0, COLOR_THEME_PRIMARY1);
@@ -312,6 +313,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
                            setProperties();
                        }
   );
+  max->setAccelFactor(16);
   grid.nextLine();
   char flightModeName[16];
   FlightModeData * fmData;
@@ -337,6 +339,7 @@ void GVarEditWindow::buildBody(FormWindow * window)
 
     values[flightMode] = new NumberEdit(window, grid.getFieldSlot(2, 1), GVAR_MIN + gvar->min, GVAR_MAX + MAX_FLIGHT_MODES - 1,
                                         GET_SET_DEFAULT(fmData->gvars[index]));
+    values[flightMode]->setAccelFactor(16);
     grid.nextLine();
   }
 
