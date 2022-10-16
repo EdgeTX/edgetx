@@ -526,8 +526,9 @@ static int luaModelSetFlightMode(lua_State * L)
     }
     else if (!strcmp(key, "trimsValues")) {
       luaL_checktype(L, -1, LUA_TTABLE);
-      uint8_t idx = 0;
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1), idx++) {
+      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
+        if (idx < 0 || idx >= NUM_TRIMS) continue;
         int16_t val = luaL_checkinteger(L, -1);
         if (idx < NUM_TRIMS)
           fm->trim[idx].value = (val & 0x3FF);
@@ -535,8 +536,9 @@ static int luaModelSetFlightMode(lua_State * L)
     }
     else if (!strcmp(key, "trimsModes")) {
       luaL_checktype(L, -1, LUA_TTABLE);
-      uint8_t idx = 0;
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1), idx++) {
+      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
+        if (idx < 0 || idx >= NUM_TRIMS) continue;
         uint16_t val = luaL_checkinteger(L, -1);
         if (idx < NUM_TRIMS)
           fm->trim[idx].mode = (val & 0x1F);
