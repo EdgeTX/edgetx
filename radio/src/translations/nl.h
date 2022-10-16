@@ -31,7 +31,11 @@
  *  \0               -ends current string
  */
 
-
+#define TR_MIN_PLURAL2  2
+#define TR_MAX_PLURAL2  2
+#define BREAKSPACE                    " "
+#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
 
 #define TR_OFFON               "UIT","AAN"
 #define TR_MMMINV              "---","INV"

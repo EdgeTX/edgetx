@@ -112,6 +112,13 @@
  #define LCDW_128_480_LINEBREAK        "\036"
 #endif
 
+constexpr int g_max_plural2 = TR_MAX_PLURAL2;
+constexpr int g_min_plural2 = TR_MIN_PLURAL2;
+
+extern const char STR_MINUTE_SINGULAR[];
+extern const char STR_MINUTE_PLURAL1[];
+extern const char STR_MINUTE_PLURAL2[];
+
 extern const char* const STR_OFFON[];
 extern const char* const STR_MMMINV[];
 extern const char* const STR_VBEEPMODE[];

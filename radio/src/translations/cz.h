@@ -31,6 +31,11 @@
  *  \001 to \034     -extended spacing (value * FW/2)
  */
 
+#define TR_MIN_PLURAL2  2
+#define TR_MAX_PLURAL2  2
+#define BREAKSPACE                    " "
+#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "VYP","ZAP"
 #define TR_MMMINV                      "---","INV"

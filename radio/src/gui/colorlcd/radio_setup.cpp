@@ -434,7 +434,12 @@ class AlarmsPage : public Page {
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
       lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      edit->setSuffix("minutes");
+      std::string suffix(STR_MINUTE_PLURAL2);
+      if(g_eeGeneral.inactivityTimer < g_min_plural2)
+        suffix = std::string(STR_MINUTE_SINGULAR);
+      else if(g_eeGeneral.inactivityTimer < g_max_plural2)
+        suffix = std::string(STR_MINUTE_PLURAL1);
+      edit->setSuffix(suffix);
       line = body.newLine(&grid);
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
