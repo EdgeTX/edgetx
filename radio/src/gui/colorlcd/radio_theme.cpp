@@ -511,6 +511,7 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
       auto value = listBox->getSelected();
       if (themeColorPreview && authorText && nameText && fileCarosell) {
         ThemeFile *theme = tp->getThemeByIndex(value);
+        if (!theme) return;
         themeColorPreview->setColorList(theme->getColorList());
         setAuthor(theme);
         nameText->setText(theme->getName());
