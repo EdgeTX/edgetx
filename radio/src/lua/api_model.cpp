@@ -530,8 +530,12 @@ static int luaModelSetFlightMode(lua_State * L)
         int idx = luaL_checkinteger(L, -2) - 1; // key is integer
         if (idx < 0 || idx >= NUM_TRIMS) continue;
         int16_t val = luaL_checkinteger(L, -1);
+        if (g_model.extendedTrims)
+          val = limit<int16_t>(val, TRIM_EXTENDED_MIN, TRIM_EXTENDED_MAX);
+        else
+          val = limit<int16_t>(val, TRIM_MIN, TRIM_MAX);
         if (idx < NUM_TRIMS)
-          fm->trim[idx].value = (val & 0x3FF);
+          fm->trim[idx].value = val;
       }
     }
     else if (!strcmp(key, "trimsModes")) {
