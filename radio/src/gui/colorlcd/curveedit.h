@@ -48,6 +48,7 @@ class CurveEdit: public FormField
 
   public:
     CurveEdit(Window * parent, const rect_t & rect, uint8_t index);
+    static void SetCurrentSource(uint32_t source);
 
     void deleteLater(bool detach = true, bool trash = true) override
     {
@@ -55,6 +56,7 @@ class CurveEdit: public FormField
         return;
 
       preview.deleteLater(true, false);
+//      CurveEdit::currentSource = 0;
 
       FormField::deleteLater(detach, trash);
     }
@@ -72,6 +74,7 @@ class CurveEdit: public FormField
     Curve preview;
     uint8_t index;
     uint8_t current;
+    static mixsrc_t currentSource;
     void next();
     void previous();
     void up();

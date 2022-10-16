@@ -115,20 +115,30 @@ void CurveDataEdit::update()
 
 }
 
-void CurveDataEdit::paint(BitmapBuffer * dc)
+void CurveDataEdit::paint(BitmapBuffer* dc)
 {
   dc->clear(COLOR_THEME_SECONDARY3);
   // dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
   // dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
 }
 
-CurveEdit::CurveEdit(Window * parent, const rect_t & rect, uint8_t index) :
-  FormField(parent, rect, NO_FOCUS),
-  preview(this, {0, 0, width(), height()}, [=](int x) -> int {
-    return applyCustomCurve(x, index);
-  }),
-  index(index),
-  current(0)
+void CurveEdit::SetCurrentSource(uint32_t source)
+{
+  CurveEdit::currentSource = source;
+}
+
+mixsrc_t CurveEdit::currentSource = 0;
+
+CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
+    FormField(parent, rect, NO_FOCUS),
+    preview(
+        this, {0, 0, width(), height()},
+        [=](int x) -> int { return applyCustomCurve(x, index); },
+        [=]()->int {
+          return getValue(CurveEdit::currentSource);
+        }),
+    index(index),
+    current(0)
 {
   updatePreview();
 }
