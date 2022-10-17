@@ -56,7 +56,6 @@ class CurveEdit: public FormField
         return;
 
       preview.deleteLater(true, false);
-//      CurveEdit::currentSource = 0;
 
       FormField::deleteLater(detach, trash);
     }
@@ -64,17 +63,19 @@ class CurveEdit: public FormField
     void updatePreview();
 
     void onEvent(event_t event) override;
+    void checkEvents(void) override;
 
-// #if defined(HARDWARE_TOUCH)
-//     bool onTouchEnd(coord_t x, coord_t y) override;
-//     void onFocusLost() override;
-// #endif
+    // #if defined(HARDWARE_TOUCH)
+    //     bool onTouchEnd(coord_t x, coord_t y) override;
+    //     void onFocusLost() override;
+    // #endif
 
-  protected:
+   protected:
     Curve preview;
     uint8_t index;
     uint8_t current;
     static mixsrc_t currentSource;
+    static bool lockSource;
     void next();
     void previous();
     void up();
