@@ -56,7 +56,6 @@ class CurveEdit: public FormField
         return;
 
       preview.deleteLater(true, false);
-//      CurveEdit::currentSource = 0;
 
       FormField::deleteLater(detach, trash);
     }
@@ -76,6 +75,7 @@ class CurveEdit: public FormField
     uint8_t index;
     uint8_t current;
     static mixsrc_t currentSource;
+    static bool lockSource;
     void next();
     void previous();
     void up();

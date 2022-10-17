@@ -125,9 +125,12 @@ void CurveDataEdit::paint(BitmapBuffer* dc)
 void CurveEdit::SetCurrentSource(uint32_t source)
 {
   CurveEdit::currentSource = source;
+  if (source) 
+    lockSource = true;
 }
 
 mixsrc_t CurveEdit::currentSource = 0;
+bool CurveEdit::lockSource = false;
 
 CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
     FormField(parent, rect, NO_FOCUS),
