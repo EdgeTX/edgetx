@@ -2677,6 +2677,11 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
 <context>
     <name>Firmware</name>
     <message>
+        <source>%1/downloads</source>
+        <extracomment>Location of downloads as subdir to EDGETX_HOME_PAGE_URL</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Channel values displayed in us</source>
         <translation>Kanalvärden visade i us</translation>
     </message>

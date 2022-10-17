@@ -4158,6 +4158,11 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
 <context>
     <name>Firmware</name>
     <message>
+        <source>%1/downloads</source>
+        <extracomment>Location of downloads as subdir to EDGETX_HOME_PAGE_URL</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1145"/>
         <source>Channel values displayed in us</source>
         <translation>Kanalwerte Anzeige in µs statt %</translation>

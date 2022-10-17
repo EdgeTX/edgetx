@@ -1217,7 +1217,7 @@ unsigned long OpenTxEepromInterface::loadBackup(RadioData &radioData, const uint
 
 QString OpenTxFirmware::getReleaseNotesUrl()
 {
-  return QString("%1/downloads").arg(EDGETX_HOME_PAGE_URL);
+  return QString( tr("%1/downloads")).arg(EDGETX_HOME_PAGE_URL);
 }
 
 // Firmware registrations
