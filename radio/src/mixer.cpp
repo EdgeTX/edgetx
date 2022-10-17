@@ -1045,6 +1045,8 @@ void evalMixes(uint8_t tick10ms)
 
     if (!g_model.noGlobalFunctions) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+    } else {
+      globalFunctionsContext.reset();
     }
     evalFunctions(g_model.customFn, modelFunctionsContext);
   }
