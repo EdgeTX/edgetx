@@ -76,15 +76,12 @@ static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
     break;
 
   case KEY_EXIT:
-    if (evt != EVT_KEY_LONG(KEY_EXIT)) {
+    if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
       data->key = LV_KEY_ESC;
-    } else {
-      // prevent subsequent RELEASE event
-      lv_indev_wait_release(lv_indev_get_act());
       data->state = LV_INDEV_STATE_PRESSED;
-      return false;
+      return true;
     }
-    break;    
+    return false;
 
   default:
     // abort LVGL event
@@ -107,9 +104,9 @@ static void dispatch_kb_event(Window* w, event_t evt)
   event_t key = EVT_KEY_MASK(evt);
   if (evt == EVT_KEY_BREAK(KEY_ENTER)) {
     w->onClicked();
-  } else if (evt == EVT_KEY_FIRST(KEY_EXIT)) {
+  } else if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
     w->onCancel();
-  } else if (key != KEY_ENTER /*&& key != KEY_EXIT*/) {
+  } else if (key != KEY_ENTER) {
     w->onEvent(evt);
   } else if (evt == EVT_KEY_LONG(KEY_ENTER)) {
     killEvents(KEY_ENTER);
@@ -157,6 +154,12 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   // no event: send a copy of the last one
   copy_kb_data_backup(data);
+
+  // simulate EXIT release: necessary to map
+  // EVT_KEY_BREAK(KEY_EXIT) to LV_EVENT_CANCEL
+  if (data->key == KEY_EXIT && data->state == LV_INDEV_STATE_PRESSED) {
+    data->state = LV_INDEV_STATE_RELEASED;
+  }
 }
 
 static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
