@@ -145,6 +145,7 @@ void LuaEventHandler::onCancel()
 
 void LuaEventHandler::onEvent(event_t event)
 {
+  if (event == EVT_KEY_LONG(KEY_EXIT)) killEvents(KEY_EXIT);
   luaPushEvent(event);
 }
 
