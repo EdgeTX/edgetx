@@ -403,6 +403,9 @@ void ModelsPageBody::selectModel(ModelCell *model)
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
 {
+  storageFlushCurrentModel();
+  storageCheck(true);
+
   char duplicatedFilename[LEN_MODEL_FILENAME + 1];
   memcpy(duplicatedFilename, model->modelFilename,
          sizeof(duplicatedFilename));
