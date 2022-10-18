@@ -387,10 +387,10 @@
 #define TR_ANTENNA                     "Antenne"
 #define TR_NO_INFORMATION              TR("Ingen info", "Ingen information")
 #define TR_MULTPX                      "Multiplex"
-#define TR_DELAYDOWN                   TR("Forsink ned", "Forsink ned")
-#define TR_DELAYUP                     "Forsink op"
+#define TR_DELAYDOWN                   TR("Forsink ned", "Forsinkelse ned")
+#define TR_DELAYUP                     TR("Forsink op", "Forsinkelse op")
 #define TR_SLOWDOWN                    TR("Langsom ned", "Langsom ned")
-#define TR_SLOWUP                      "Langsom op"
+#define TR_SLOWUP                      TR("Langsom op", "Langsom op")
 #define TR_MIXES                       "MIX"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
@@ -401,7 +401,7 @@
 #define TR_ACHANNEL                    "En\004kanal"
 #define TR_RANGE                       INDENT "Rækkevid"
 #define TR_CENTER                      INDENT "Centrer"
-#define TR_BAR                         "Bar"
+#define TR_BAR                         "Bjælke"
 #define TR_ALARM                       "Alarm"
 #define TR_USRDATA                     TR("UsrData", "User data")
 #define TR_BLADES                      "Blade/Poler"
@@ -434,7 +434,7 @@
 #define TR_THROTTLEREVERSE             TR("T-omvendt", INDENT "Omvendt")
 #define TR_MINUTEBEEP                  TR("Minut", "Minut kald")
 #define TR_BEEPCOUNTDOWN               INDENT "Nedtælling"
-#define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
+#define TR_PERSISTENT                  TR(INDENT "Varig", INDENT "Varig")
 #define TR_BACKLIGHT_LABEL             "Baggrunds lys"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
@@ -444,8 +444,8 @@
 #define TR_KEYS_BACKLIGHT              "Taster klarhed"
 #define TR_BLCOLOR                     "Farve"
 #define TR_SPLASHSCREEN                "Start skærm"
-#define TR_PWR_ON_DELAY                "Str til forsinkelse"
-#define TR_PWR_OFF_DELAY               "Str fra forsinkelse"
+#define TR_PWR_ON_DELAY                "Strøm forsink TIL"
+#define TR_PWR_OFF_DELAY               "Strøm forsink FRA"
 #define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Tilp-Pos", INDENT INDENT INDENT INDENT "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
@@ -460,7 +460,7 @@
 #define TR_STICKS                      "Pinde"
 #define TR_POTS                        "Drejekontakt"
 #define TR_SWITCHES                    "Kontakter"
-#define TR_SWITCHES_DELAY              TR("Spil delay", "Spil delay (sw. mid pos)")
+#define TR_SWITCHES_DELAY              TR("Cen forsink", "Center forsinkelse")
 #define TR_SLAVE                       CENTER "Slave"
 #define TR_MODESRC                     "Mode\006% Kilde"
 #define TR_MULTIPLIER                  "Multiplier"
@@ -971,7 +971,7 @@
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "Mix kilde"
 #define TR_CONSTANT                    "Konstant"
-#define TR_PERSISTENT_MAH              TR(INDENT "Str mAh", INDENT "Persistent mAh")
+#define TR_PERSISTENT_MAH              TR(INDENT "Varig mAh", INDENT "Varig mAh")
 #define TR_PREFLIGHT                   "Fly checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Vis checkliste")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS offset")
