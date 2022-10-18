@@ -5919,16 +5919,8 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
         <translation>Hent radio firmware</translation>
     </message>
     <message>
-        <source>Write Firmware to Radio</source>
-        <translation>Send firmware til radio</translation>
-    </message>
-    <message>
         <source>Write firmware to Radio</source>
         <translation>Send firmware til radio</translation>
-    </message>
-    <message>
-        <source>Write Models and Settings To Radio</source>
-        <translation>Send modeller og indstillinger til radio</translation>
     </message>
     <message>
         <source>Write Models and Settings to Radio</source>
