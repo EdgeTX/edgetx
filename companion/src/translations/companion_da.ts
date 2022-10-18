@@ -1206,7 +1206,7 @@ Mode 4:
     </message>
     <message>
         <source>Widgets:</source>
-        <translation>Guide:</translation>
+        <translation>Widget:</translation>
     </message>
 </context>
 <context>
@@ -2144,7 +2144,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>Widgets:</source>
-        <translation></translation>
+        <translation>Widget:</translation>
     </message>
 </context>
 <context>
