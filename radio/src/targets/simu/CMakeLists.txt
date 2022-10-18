@@ -11,6 +11,8 @@ set(SIMU_DRIVERS
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  switch_driver.cpp
+  adc_driver.cpp
   module_drivers.cpp
   led_driver.cpp
   backlight_driver.cpp
@@ -18,6 +20,19 @@ set(SIMU_DRIVERS
   bt_driver.cpp
   )
 
+set(HW_DESC_JSON ${FLAVOUR}.json)
+AddHardwareDefTarget(${HW_DESC_JSON})
+AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
+
+set(SIMU_DRIVERS ${SIMU_DRIVERS}
+  ${CMAKE_CURRENT_BINARY_DIR}/simu_keys.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/simu_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
+  )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(SDL2_FOUND)
   include_directories(${SDL2_INCLUDE_DIRS})
@@ -156,7 +171,6 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
 
 if(FOX_FOUND)
   add_executable(simu WIN32

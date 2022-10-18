@@ -22,15 +22,11 @@
 #include "opentx.h"
 #include "radio_diaganas.h"
 #include "libopenui.h"
-#include "../../hal/adc_driver.h"
+#include "hal/adc_driver.h"
 
 // #if defined(IMU_LSM6DS33)
 // #include "imu_lsm6ds33.h"
 // #endif
-
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
 
 #define STATSDEPTH 8 // ideally a value of power of 2
 
@@ -74,7 +70,10 @@ class AnaViewWindow: public FormWindow {
     {
       char s[10];
 
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+      auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+        + adcGetMaxInputs(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < max_inputs; i++) {
 #if LCD_W > LCD_H
         if ((i & 1) == 0)
           line = newLine(grid);
@@ -88,7 +87,7 @@ class AnaViewWindow: public FormWindow {
         new StaticText(line, rect_t{}, s, COLOR_THEME_PRIMARY1);
 
         auto lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256);
+          return std::to_string((int16_t)calibratedAnalogs[i] * 25 / 256);
         }, COLOR_THEME_PRIMARY1);
         lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
 
@@ -209,14 +208,7 @@ class AnaCalibratedViewWindow: public AnaViewWindow {
   protected:
     int16_t column3(int i) override
     {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-        return hall_raw_values[i];
-      else
-        return anaIn(i);
-#else
       return anaIn(i);
-#endif
     }
 };
 
@@ -301,24 +293,11 @@ class AnaFilteredDevViewWindow: public AnaViewWindow {
         }
     };
 
-    Stats stats[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+    Stats stats[MAX_CALIB_ANALOG_INPUTS];
 
     int16_t column3(int i) override
     {
-      extern uint32_t s_anaFilt[NUM_ANALOGS];
-
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-        return hall_raw_values[i];
-      else
-        return s_anaFilt[i]/JITTER_ALPHA;
-#else
-#if !defined(SIMU)
-      return s_anaFilt[i]/JITTER_ALPHA;
-#else
-      return anaIn(i);
-#endif
-#endif
+      return anaIn_diag(i);
     }
 
     const char* column4prefix() override { return "+/- "; }
@@ -333,21 +312,20 @@ class AnaFilteredDevViewWindow: public AnaViewWindow {
     AnaFilteredDevViewWindow(Window * parent):
       AnaViewWindow(parent)
     {
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++)
+      auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+        + adcGetMaxInputs(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < max_inputs; i++)
         stats[i].clear();
     }
 
     void checkEvents() override
     {
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-        if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-          stats[i].write(hall_raw_values[i]);
-        else
-          stats[i].write(getAnalogValue(i));
-#else
+      auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+        + adcGetMaxInputs(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < max_inputs; i++) {
         stats[i].write(getAnalogValue(i));
-#endif
       }
       AnaViewWindow::checkEvents();
     }
@@ -363,14 +341,7 @@ class AnaUnfilteredRawViewWindow: public AnaViewWindow {
   protected:
     int16_t column3(int i) override
     {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-        return hall_raw_values[i];
-      else
-        return getAnalogValue(i);
-#else
       return getAnalogValue(i);
-#endif
     }
 };
 
@@ -419,7 +390,7 @@ class AnaMinMaxViewWindow: public AnaViewWindow {
         }
     };
 
-    MinMax minmax[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+    MinMax minmax[MAX_CALIB_ANALOG_INPUTS];
 
     int16_t column3(int i) override
     {
@@ -444,7 +415,10 @@ class AnaMinMaxViewWindow: public AnaViewWindow {
     AnaMinMaxViewWindow(Window * parent):
       AnaViewWindow(parent)
     {
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++)
+      auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+        + adcGetMaxInputs(ADC_INPUT_POT);
+      
+      for (uint8_t i = 0; i < max_inputs; i++)
         minmax[i].clear();
     }
     
@@ -459,15 +433,11 @@ class AnaMinMaxViewWindow: public AnaViewWindow {
 
     void checkEvents() override
     {
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-        if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-          minmax[i].write(hall_raw_values[i]);
-        else
-          minmax[i].write(getAnalogValue(i));
-#else
+      auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+        + adcGetMaxInputs(ADC_INPUT_POT);
+      
+      for (uint8_t i = 0; i < max_inputs; i++) {
         minmax[i].write(getAnalogValue(i));
-#endif
       }
       AnaViewWindow::checkEvents();
     }

@@ -70,6 +70,7 @@ void menuRadioTrainer(event_t event);
 void menuRadioVersion(event_t event);
 void menuRadioDiagKeys(event_t event);
 void menuRadioDiagAnalogs(event_t event);
+void menuRadioDiagFS(event_t event);
 void menuRadioHardware(event_t event);
 void menuRadioTools(event_t event);
 void menuRadioSpectrumAnalyser(event_t event);

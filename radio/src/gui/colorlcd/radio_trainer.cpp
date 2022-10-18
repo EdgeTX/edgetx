@@ -22,6 +22,10 @@
 #include "radio_trainer.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "input_mapping.h"
+
+#include "hal/adc_driver.h"
+#include "strhelpers.h"
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
@@ -59,13 +63,13 @@ void RadioTrainerPage::build(FormWindow * form)
   form->padRight(8);
 #endif
 
-  for (uint8_t i = 0; i < NUM_STICKS; i++) {
-    uint8_t chan = channelOrder(i + 1);
-    TrainerMix* td = &g_eeGeneral.trainer.mix[chan - 1];
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (uint8_t i = 0; i < max_sticks; i++) {
+    uint8_t chan = inputMappingChannelOrder(i);
+    TrainerMix* td = &g_eeGeneral.trainer.mix[chan];
 
     auto line = form->newLine(&grid);
-
-    new StaticText(line, rect_t{}, STR_VSRCRAW[chan], 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, getMainControlLabel(chan), 0, COLOR_THEME_PRIMARY1);
 
     new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
     new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));

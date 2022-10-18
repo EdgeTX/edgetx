@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include "tasks.h"
 
+#include "hal/adc_driver.h"
+
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
 #endif
@@ -60,9 +62,6 @@ void menuStatisticsView(event_t event)
 #endif
       break;
 
-#if !defined(PCBTARANIS)
-    case EVT_KEY_LONG(KEY_MENU): // historical
-#endif
     case EVT_KEY_LONG(KEY_ENTER):
       g_eeGeneral.globalTimer = 0;
       storageDirty(EE_GENERAL);

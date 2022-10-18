@@ -667,18 +667,18 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 void ModelLabelsWindow::onEvent(event_t event)
 {
 #if defined(KEYS_GPIO_REG_PGUP)
-  if (event == EVT_KEY_BREAK(KEY_PGUP) ||
-      event == EVT_KEY_BREAK(KEY_PGDN)) {
+  if (event == EVT_KEY_BREAK(KEY_PAGEUP) ||
+      event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #else
-  if (event == EVT_KEY_LONG(KEY_PGDN) ||
-      event == EVT_KEY_BREAK(KEY_PGDN)) {
+  if (event == EVT_KEY_LONG(KEY_PAGEDN) ||
+      event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #endif
     std::set<uint32_t> curSel = lblselector->getSelection();
     std::set<uint32_t> sellist;
     int select = 0;
     int rowcount = lblselector->getRowCount();
 
-    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+    if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       if(curSel.size())
         select = (*curSel.rbegin() + 1) % rowcount;
     } else {

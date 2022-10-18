@@ -19,8 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "switches.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -35,7 +40,7 @@ uint8_t g_moduleIdx;
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i=0; i<NUM_SWITCHES; ++i) {
+  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
@@ -396,20 +401,21 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #elif TIMERS == 3
 #define TIMERS_ROWS                       TIMER_ROWS(0), TIMER_ROWS(1), TIMER_ROWS(2)
 #endif
+
 #if defined(PCBX9E)
   #define SW_WARN_ROWS \
     PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1))), \
     PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > 8 ? TITLE_ROW : HIDDEN_ROW)), \
     PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > 16 ? TITLE_ROW : HIDDEN_ROW))
   #define POT_WARN_ROWS \
-    PREFLIGHT_ROW(uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(NUM_POTS+NUM_SLIDERS) : 0)), \
+    PREFLIGHT_ROW(uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(MAX_POTS) : 0)), \
     PREFLIGHT_ROW(uint8_t(g_model.potsWarnMode ? TITLE_ROW : HIDDEN_ROW))
   #define TOPLCD_ROWS                     0,
 #else
   #define SW_WARN_ROWS \
     PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount()))
   #define POT_WARN_ROWS \
-    PREFLIGHT_ROW(uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(NUM_POTS+NUM_SLIDERS) : 0))
+    PREFLIGHT_ROW(uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(MAX_POTS) : 0))
   #define TOPLCD_ROWS
 #endif
 
@@ -537,7 +543,7 @@ void menuModelSetup(event_t event)
       SW_WARN_ROWS, // Switch warning
       POT_WARN_ROWS, // Pot warning
 
-    NAVIGATION_LINE_BY_LINE | (NUM_STICKS+NUM_POTS+NUM_SLIDERS-1), // Center beeps
+    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_POT + 1) - 1)), // Center beeps
 
     0, // ADC Jitter filter
 
@@ -796,7 +802,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              NUM_POTS + NUM_SLIDERS + MAX_OUTPUT_CHANNELS,
+              MAX_POTS + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -811,7 +817,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
         lcdDrawTextAlignedLeft(y, STR_TTRIM_SW);
         if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, NUM_TRIMS - 1);
+          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, MAX_TRIMS - 1);
         drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
         break;
 
@@ -846,7 +852,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SWITCHES_WARNING3:
       case ITEM_MODEL_SETUP_POTS_WARNING2:
         if (i==0) {
-          if (CURSOR_MOVED_LEFT(event))
+          if (IS_PREVIOUS_EVENT(event))
             menuVerticalOffset--;
           else
             menuVerticalOffset++;
@@ -858,7 +864,7 @@ void menuModelSetup(event_t event)
       {
 #if defined(PCBX9E)
         if (i>=NUM_BODY_LINES-2 && getSwitchWarningsCount() > 8*(NUM_BODY_LINES-i)) {
-          if (CURSOR_MOVED_LEFT(event))
+          if (IS_PREVIOUS_EVENT(event))
             menuVerticalOffset--;
           else
             menuVerticalOffset++;
@@ -881,7 +887,7 @@ void menuModelSetup(event_t event)
                   getMovedSwitch();
                   // Mask switches enabled for warnings
                   swarnstate_t sw_mask = 0;
-                  for(uint8_t i=0; i<NUM_SWITCHES; i++) {
+                  for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
                     if (SWITCH_WARNING_ALLOWED(i))
                       if (g_model.switchWarningState & (0x07 << (3 * i)))
                         sw_mask |= (0x07 << (3 * i));
@@ -899,7 +905,7 @@ void menuModelSetup(event_t event)
         LcdFlags line = attr;
 
         int current = 0;
-        for (int i=0; i<NUM_SWITCHES; i++) {
+        for (int i = 0; i < switchGetMaxSwitches(); i++) {
           if (SWITCH_WARNING_ALLOWED(i)) {
             div_t qr = div(current, 8);
             if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && line &&
@@ -935,7 +941,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_POTS_WARNING:
 #if defined(PCBX9E)
         if (i==NUM_BODY_LINES-1 && g_model.potsWarnMode) {
-          if (CURSOR_MOVED_LEFT(event))
+          if (IS_PREVIOUS_EVENT(event))
             menuVerticalOffset--;
           else
             menuVerticalOffset++;
@@ -971,25 +977,25 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          for (int i=0; i<NUM_POTS+NUM_SLIDERS; ++i) {
-            if (i<NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(POT1+i)) {
-              if (attr && (menuHorizontalPosition==i+1)) REPEAT_LAST_CURSOR_MOVE();
+          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+          for (int i = 0; i < max_pots; ++i) {
+
+            if (!IS_POT_SLIDER_AVAILABLE(i)) {
+              // skip non configured pot
+              if (attr && (menuHorizontalPosition==i+1)) repeatLastCursorMove(event);
             }
             else {
-#if defined(PCBX9E)
-              if (i == NUM_XPOTS) {
+              if (max_pots > 5 && i == 3) {
                 y += FH;
                 x = MODEL_SETUP_2ND_COLUMN;
               }
-#endif
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) &&
+                  (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 
-              // skip "---" (+1) and source symbol (+2)
-              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
-              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
+              lcdDrawText(x, y, getPotLabel(i), flags);
               x = lcdNextPos+3;
             }
           }
@@ -1003,17 +1009,22 @@ void menuModelSetup(event_t event)
         }
         break;
 
-      case ITEM_MODEL_SETUP_BEEP_CENTER:
-      {
+      case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        coord_t x = MODEL_SETUP_2ND_COLUMN;
-        for (int i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-          if (i>=POT1 && i<POT1+NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(i)) {
-            if (attr && menuHorizontalPosition == i) REPEAT_LAST_CURSOR_MOVE();
+        uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+        uint8_t max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_POT);
+        for (uint8_t i = 0; i < max_inputs; i++) {
+          coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
+          if ( i >= pot_offset && IS_POT_MULTIPOS(i - pot_offset) ) {
+            if (attr && menuHorizontalPosition == i) repeatLastCursorMove(event);
             continue;
           }
-          lcdDrawTextAtIndex(x, y, STR_RETA123, i, ((menuHorizontalPosition==i) && attr) ? BLINK|INVERS : (((g_model.beepANACenter & ((BeepANACenter)1<<i)) || (attr && CURSOR_ON_LINE())) ? INVERS : 0 ) );
-          x += FW;
+          LcdFlags flags = 0;
+          if ((menuHorizontalPosition == i) && attr)
+            flags = BLINK | INVERS;
+          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+            flags = INVERS;
+          lcdDrawText(x, y, getAnalogShortLabel(i), flags);
         }
         if (attr && CURSOR_ON_CELL) {
           if (event==EVT_KEY_BREAK(KEY_ENTER)) {

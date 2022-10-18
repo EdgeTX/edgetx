@@ -137,7 +137,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 
 void SetupWidgetsPage::onEvent(event_t event)
 {
-  if (event == EVT_KEY_FIRST(KEY_PGUP) || event == EVT_KEY_FIRST(KEY_PGDN)) {
+  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN)) {
     killEvents(event);
   } else {
     FormWindow::onEvent(event);

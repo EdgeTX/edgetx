@@ -69,26 +69,10 @@
 
 #define TR_ADCFILTERVALUES             "グローバル","OFF","ON"
 
-#if defined(PCBX10)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
-#elif defined(PCBX9E)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
-#else
-  #define TR_RETA123                   "R","E","T","A","1","2","3"
-#endif
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "加算","乗算","置換"
 #define TR_VMLTPX2                     "+=","*=",":="
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                 "OFF","ON","Rud","Ele","Thr","Ail","T5","T6"
-#else
-  #define TR_VMIXTRIMS                 "OFF","ON","Rud","Ele","Thr","Ail"
-#endif
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Timer"
@@ -105,73 +89,34 @@
 #define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA,"≥x","|",STR_CHAR_DELTA,"|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#if defined(VARIO)
-  #define TR_VVARIO                    "バリオ"
-#else
-  #define TR_VVARIO                    "[Vario]"
-#endif
-
-#if defined(AUDIO)
-  #define TR_SOUND                     "サウンド再生"
-#else
-  #define TR_SOUND                     "ビープ音"
-#endif
-
-#if defined(HAPTIC)
-  #define TR_HAPTIC                    "バイブレート"
-#else
-  #define TR_HAPTIC                    "[Haptic]"
-#endif
-
-#if defined(VOICE)
-  #define TR_PLAY_TRACK                "音源再生"
-  #define TR_PLAY_VALUE                TR("Play Val","再生値")
-#else
-  #define TR_PLAY_TRACK                "[Play Trk]"
-  #define TR_PLAY_VALUE                "[Play Val]"
-#endif
-
-#define TR_SF_BG_MUSIC                 "BGM再生","BGM一時停止"
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS                   "SDログ出力"
-#else
-  #define TR_SDCLOGS                   "[SDログ出力]"
-#endif
-
-#if defined(GVARS)
-  #define TR_ADJUST_GVAR               "G変数修正"
-#else
-  #define TR_ADJUST_GVAR               "[GV値修正]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT            "LUAスクリプト"
-#else
-  #define TR_SF_PLAY_SCRIPT            "[LUA]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST                   ,"テスト"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                 "上書き"
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Overr."
-#else
-  #define TR_SF_SAFETY                 "---"
-#endif
+#define TR_SF_TRAINER                  "トレーナー"
+#define TR_SF_INST_TRIM                "Inst.トリム"
+#define TR_SF_RESET                    "リセット"
+#define TR_SF_SET_TIMER                "設定"
+#define TR_SF_VOLUME                   "ダイヤル"
+#define TR_SF_FAILSAFE                 "フェイルセーフ"
+#define TR_SF_RANGE_CHECK              "レンジチェック"
+#define TR_SF_MOD_BIND                 "モジュールバインド"
+ 
+#define TR_SOUND                       "サウンド再生"
+#define TR_PLAY_TRACK                  "音源再生"
+#define TR_PLAY_VALUE                  TR("Play Val","再生値")
+#define TR_SF_HAPTIC                   "バイブレート"
+#define TR_SF_PLAY_SCRIPT              "LUAスクリプト"
+#define TR_SF_BG_MUSIC                 "BGM再生"
+#define TR_SF_BG_MUSIC_PAUSE           "BGM一時停止"
+#define TR_SF_LOGS                     "SDログ出力"
+#define TR_ADJUST_GVAR                 "G変数修正"
+#define TR_SF_BACKLIGHT                "バックライト"
+#define TR_SF_VARIO                    "バリオ"
+#define TR_SF_TEST                     "テスト"
+#define TR_SF_SAFETY                   TR("Overr.","上書き")
 
 #define TR_SF_SCREENSHOT               "画面キャプチャ"
 #define TR_SF_RACING_MODE              "レースモード"
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_SET_SCREEN               "メインスクリーン設定"
 #define TR_SF_RESERVE                  "[予備]"
-
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"トレーナー","Inst.トリム","リセット","設定",TR_ADJUST_GVAR,"ダイヤル","フェイルセーフ","レンジチェック","モジュールバインド",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"バックライト",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "テレメトリー")
 
@@ -202,38 +147,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Rud", STR_CHAR_STICK "Ele", STR_CHAR_STICK "Thr", STR_CHAR_STICK "Ail"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail", STR_CHAR_TRIM "T5", STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail"
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES            STR_CHAR_TRIM "Rl", STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR             TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES            TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
+#define TR_STICK_NAMES                 "Rud", "Ele", "Thr", "Ail"
+#define TR_SURFACE_NAMES               "ST", "TH"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"
@@ -262,8 +177,11 @@
   #define TR_CYC_VSRCRAW               "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW             "[--]"
-#define TR_EXTRA_VSRCRAW               "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
+
+#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_TIME                    "Time"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES                   "OFF","ON","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
@@ -532,6 +450,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "アナログ キャリブレーション"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW アナログ (5 Hz)"
 #define TR_MENUCALIBRATION             "キャリブレーション"
+#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "トリム => サブトリム"
 #else
@@ -916,6 +835,7 @@
 #define TR_DEBUG                       "デバッグ"
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "タッチパネルは見つかりませんでした"
 #define TR_TOUCH_EXIT                  "画面をタップして終了します"
 #define TR_SET                         BUTTON("設定")

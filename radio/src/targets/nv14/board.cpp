@@ -18,21 +18,29 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+ 
+#include "stm32_adc.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
 
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
 
-#include "stm32_hal_adc.h"
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
+
+#include "lcd_driver.h"
+#include "lcd_driver.h"
+#include "battery_driver.h"
+#include "touch_driver.h"
+#include "watchdog_driver.h"
 
 #include "bitmapbuffer.h"
 #include "colors.h"
@@ -47,6 +55,36 @@ extern "C" {
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
+
+// common ADC driver
+extern const etx_hal_adc_driver_t _adc_driver;
+
+enum PowerReason {
+  SHUTDOWN_REQUEST = 0xDEADBEEF,
+  SOFTRESET_REQUEST = 0xCAFEDEAD,
+};
+
+constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
+
+bool UNEXPECTED_SHUTDOWN()
+{
+#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+  return false;
+#else
+  if (WAS_RESET_BY_WATCHDOG())
+    return true;
+  else if (WAS_RESET_BY_SOFTWARE())
+    return RTC->BKP0R != SOFTRESET_REQUEST;
+  else
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
+#endif
+}
+
+void SET_POWER_REASON(uint32_t value)
+{
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
+}
 
 HardwareOptions hardwareOptions;
 
@@ -148,6 +186,18 @@ void boardBootloaderInit()
   hardwareOptions.pcbrev = boardGetPcbRev();
 }
 
+static void monitorInit()
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+
+  GPIO_InitStructure.GPIO_Pin = VBUS_MONITOR_PIN;
+  GPIO_Init(GPIOJ, &GPIO_InitStructure);
+}
+
 void boardInit()
 {
 #if defined(SEMIHOSTING)
@@ -183,7 +233,7 @@ void boardInit()
 
   init_trainer();
   battery_charge_init();
-  globalData.flyskygimbals = flysky_gimbal_init();
+  flysky_gimbal_init();
   init2MhzTimer();
   init1msTimer();
   TouchInit();
@@ -227,12 +277,13 @@ void boardInit()
   }
 
   keysInit();
+  switchInit();
   audioInit();
   // we need to initialize g_FATFS_Obj here, because it is in .ram section (because of DMA access)
   // and this section is un-initialized
   memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
-  adcInit(&stm32_hal_adc_driver);
+  adcInit(&_adc_driver);
   hapticInit();
 
 
@@ -251,6 +302,8 @@ void boardInit()
       ENABLE);
 #endif
 }
+
+extern void rtcDisableBackupReg();
 
 void boardOff()
 {
@@ -275,10 +328,7 @@ void boardOff()
   // Shutdown the Haptic
   hapticDone();
 
-#if defined(RTC_BACKUP_RAM)
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
-  PWR_BackupRegulatorCmd(DISABLE);
-#endif
+  rtcDisableBackupReg();
 
   if (usbPlugged())
   {

@@ -30,8 +30,10 @@
 #include "input_mix_group.h"
 #include "input_mix_button.h"
 #include "mixer_edit.h"
+#include "input_mapping.h"
 
 #include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
@@ -75,8 +77,11 @@ void insertMix(uint8_t idx, uint8_t channel)
   mix->destCh = channel;
   mix->srcRaw = channel + 1;
   if (!isSourceAvailable(mix->srcRaw)) {
-    mix->srcRaw = (channel > 3 ? MIXSRC_Rud - 1 + channel
-                               : MIXSRC_Rud - 1 + channelOrder(channel));
+    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
+    } else {
+      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
+    }
     while (!isSourceAvailable(mix->srcRaw)) {
       mix->srcRaw += 1;
     }
@@ -320,13 +325,13 @@ InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
 
   int ch = mix->destCh;
-  return getGroupBySrc(MIXSRC_CH1 + ch);
+  return getGroupBySrc(MIXSRC_FIRST_CH + ch);
 }
 
 InputMixGroup* ModelMixesPage::createGroup(FormWindow* form, mixsrc_t src)
 {
   auto group = new InputMixGroup(form, src);
-  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_CH1);
+  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_FIRST_CH);
   return group;
 }
 
@@ -338,7 +343,7 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
   lines.emplace_back(button);
   group->addLine(button);
 
-  uint8_t ch = group->getMixSrc() - MIXSRC_CH1;
+  uint8_t ch = group->getMixSrc() - MIXSRC_FIRST_CH;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
     menu->addLine(STR_EDIT, [=]() {
@@ -394,7 +399,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  addLineButton(MIXSRC_CH1 + channel, index);
+  addLineButton(MIXSRC_FIRST_CH + channel, index);
 }
 
 void ModelMixesPage::newMix()
@@ -416,7 +421,7 @@ void ModelMixesPage::newMix()
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     } else {
-      std::string ch_name(getSourceString(MIXSRC_CH1 + ch));
+      std::string ch_name(getSourceString(MIXSRC_FIRST_CH + ch));
       menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
@@ -447,7 +452,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  addLineButton(MIXSRC_CH1 + channel, index);
+  addLineButton(MIXSRC_FIRST_CH + channel, index);
   editMix(channel, index);
 }
 
@@ -531,7 +536,7 @@ void ModelMixesPage::build(FormWindow * window)
     if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
-      auto group = createGroup(form, MIXSRC_CH1 + ch);
+      auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line
@@ -573,7 +578,7 @@ void ModelMixesPage::enableMonitors(bool enabled)
   auto h = lv_obj_get_height(form_obj);
   for(auto* group : groups) {
     if (enabled) {
-      group->enableMixerMonitor(group->getMixSrc() - MIXSRC_CH1);
+      group->enableMixerMonitor(group->getMixSrc() - MIXSRC_FIRST_CH);
     } else {
       group->disableMixerMonitor();
     }

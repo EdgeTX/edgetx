@@ -57,7 +57,7 @@ if (PCB STREQUAL X10)
   add_definitions(-DSOFTWARE_VOLUME)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
-    targets/common/arm/stm32/stm32_hal_adc.cpp
+    targets/common/arm/stm32/stm32_adc.cpp
     targets/common/arm/stm32/audio_dac_driver.cpp
     )
   if (NOT PCBREV STREQUAL TX16S)
@@ -69,7 +69,6 @@ if (PCB STREQUAL X10)
   set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
-  set(LUA_EXPORT lua_export_x10)
   if (PCBREV STREQUAL EXPRESS)
     set(FLAVOUR x10express)
     set(DEFAULT_INTERNAL_MODULE ISRM_PXX2 CACHE STRING "Default internal module")
@@ -80,7 +79,6 @@ if (PCB STREQUAL X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   elseif (PCBREV STREQUAL T16)
     set(FLAVOUR t16)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_T16)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -95,7 +93,6 @@ if (PCB STREQUAL X10)
     set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_TX16S)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -113,7 +110,6 @@ if (PCB STREQUAL X10)
     set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_T18)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -151,12 +147,10 @@ elseif (PCB STREQUAL X12S)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
     audio_spi_driver.cpp
-    x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)
   set(FONTS_TARGET x12s_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
-  set(LUA_EXPORT lua_export_x12s)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
@@ -269,20 +263,15 @@ set(FIRMWARE_TARGET_SRC
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
-  boards/generic_stm32/module_ports.cpp
-  boards/generic_stm32/aux_ports.cpp
-  boards/generic_stm32/sport_update.cpp
-  boards/generic_stm32/intmodule_heartbeat.cpp
   targets/common/arm/stm32/stm32_exti_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
+  targets/common/arm/stm32/ads79xx.cpp
   targets/common/arm/stm32/sdio_sd.c
   )
 

@@ -33,9 +33,6 @@ struct HWPots : public FormGroup {
   HWPots(Window* parent);
 };
 
-struct HWSliders : public FormGroup {
-  HWSliders(Window* parent);
-};
 
 struct HWSwitches : public FormGroup {
   HWSwitches(Window* parent);

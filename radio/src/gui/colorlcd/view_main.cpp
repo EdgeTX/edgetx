@@ -260,29 +260,29 @@ void ViewMain::onEvent(event_t event)
       new ModelLabelsWindow();
       break;
 
-    case EVT_KEY_BREAK(KEY_RADIO):
+    case EVT_KEY_BREAK(KEY_SYS):
       if (viewMainMenu) viewMainMenu->onCancel();
       new RadioMenu();
       break;
 
-    case EVT_KEY_LONG(KEY_RADIO):
+    case EVT_KEY_LONG(KEY_SYS):
       {
-        killEvents(KEY_RADIO);
+        killEvents(KEY_SYS);
         // Radio setup
         auto m = new RadioMenu();
         m->setCurrentTab(2);
       }
       break;
 
-    case EVT_KEY_FIRST(KEY_TELEM):
+    case EVT_KEY_FIRST(KEY_TELE):
       if (viewMainMenu) viewMainMenu->onCancel();
       new ScreenMenu();
       break;
 
 #if defined(KEYS_GPIO_REG_PGUP)
-    case EVT_KEY_FIRST(KEY_PGDN):
+    case EVT_KEY_FIRST(KEY_PAGEDN):
 #else
-    case EVT_KEY_BREAK(KEY_PGDN):
+    case EVT_KEY_BREAK(KEY_PAGEDN):
 #endif
       if (!widget_select) {
         if (viewMainMenu) viewMainMenu->onCancel();
@@ -293,9 +293,9 @@ void ViewMain::onEvent(event_t event)
 //TODO: these need to go away!
 // -> board code should map the keys as required
 #if defined(KEYS_GPIO_REG_PGUP)
-    case EVT_KEY_FIRST(KEY_PGUP):
+    case EVT_KEY_FIRST(KEY_PAGEUP):
 #else
-    case EVT_KEY_LONG(KEY_PGDN):
+    case EVT_KEY_LONG(KEY_PAGEDN):
 #endif
       killEvents(event);
       if (!widget_select) {

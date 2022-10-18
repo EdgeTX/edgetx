@@ -223,12 +223,6 @@ extern uint16_t maxLuaInterval;
 extern uint16_t maxLuaDuration;
 extern uint8_t instructionsPercent;
 
-#if defined(KEYS_GPIO_REG_PAGE)
-  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER && ((scriptInternalData[0].reference ==  SCRIPT_STANDALONE) || (key) != KEY_PAGE))
-#else
-  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
-#endif
-
 struct LuaField {
   uint16_t id;
   char name[20];
@@ -266,23 +260,6 @@ struct LuaMemTracer {
 
 void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 
-inline bool isLuaStandaloneRunning() {
-  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
-}
-
-// #if defined(HARDWARE_TOUCH)
-// struct LuaTouchData {
-//   coord_t touchX;
-//   coord_t touchY;
-//   coord_t startX;
-//   coord_t startY;
-//   coord_t slideX;
-//   coord_t slideY;
-//   short tapCount;
-// };
-
-// extern LuaTouchData touches[EVENT_BUFFER_SIZE];
-// #endif
 
 #else  // defined(LUA)
 
