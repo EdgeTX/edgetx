@@ -8,12 +8,15 @@ if(NOT NATIVE_BUILD)
   include_directories(${STM32CUBE_DIR}/Inc)
 
   add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
+    # LL drivers
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_gpio.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_tim.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_exti.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_adc.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_spi.c
     # HAL drivers
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pwr.c
@@ -49,11 +52,8 @@ set(STM32_STDPERIPH_SRC
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_gpio.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dbgmcu.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rcc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_syscfg.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_spi.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_flash.c
 )
 
@@ -66,6 +66,10 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
     )
+elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
+  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+    targets/${TARGET_DIR}/startup_stm32f413vgtx.s
+  )
 else()
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
     targets/${TARGET_DIR}/startup_stm32f40_41xxx.s

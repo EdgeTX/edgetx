@@ -91,8 +91,17 @@ void rtcInit()
   rtcGetTime(&utm);
   g_rtcTime = gmktime(&utm);
 #endif
+
 #if defined(RTC_BACKUP_RAM) && !defined(BOOT)
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
   HAL_PWREx_EnableBkUpReg();
+#endif
+}
+
+void rtcDisableBackupReg()
+{
+#if defined(RTC_BACKUP_RAM)
+  __HAL_RCC_BKPSRAM_CLK_DISABLE();
+  HAL_PWREx_DisableBkUpReg();
 #endif
 }

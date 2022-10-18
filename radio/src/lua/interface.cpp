@@ -33,6 +33,7 @@
 
 #include "sdcard.h"
 #include "api_filesystem.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -77,6 +78,11 @@ struct our_longjmp * global_lj = 0;
 #if defined(COLORLCD)
 uint32_t luaExtraMemoryUsage = 0;
 #endif
+
+static bool _is_standalone_script()
+{
+  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
+}
 
 #if defined(LUA_ALLOCATOR_TRACER)
 
@@ -245,6 +251,10 @@ void luaDisable()
 {
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+  if (_is_standalone_script()) setTrimsAsButtons(false);
+#endif
 }
 
 void luaClose(lua_State ** L)
@@ -980,6 +990,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
  
   // Loading has finished - start running scripts
   luaState = INTERPRETER_START_RUNNING;
+
 } // luaLoadScripts
 
 void luaExec(const char * filename)
@@ -1241,6 +1252,10 @@ bool luaTask(event_t evt, bool allowLcdUsage)
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;
       luaState = INTERPRETER_LOADING;
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+      if (_is_standalone_script()) setTrimsAsButtons(false);
+#endif
    
     case INTERPRETER_LOADING:
       PROTECT_LUA() {
@@ -1253,7 +1268,11 @@ bool luaTask(event_t evt, bool allowLcdUsage)
     case INTERPRETER_START_RUNNING:
       init = true;
       luaState = INTERPRETER_RUNNING;
-   
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+      if (_is_standalone_script()) setTrimsAsButtons(true);
+#endif
+      
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
         scriptWasRun = resumeLua(init, allowLcdUsage);

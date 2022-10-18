@@ -28,8 +28,11 @@
 #include "input_edit.h"
 #include "input_mix_group.h"
 #include "input_mix_button.h"
+#include "input_mapping.h"
 
 #include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
+
 #include <algorithm>
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -90,7 +93,11 @@ void insertExpo(uint8_t idx, uint8_t input)
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
-  expo->srcRaw = (input >= 4 ? MIXSRC_Rud + input : MIXSRC_Rud + channelOrder(input + 1) - 1);
+  if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+    expo->srcRaw = MIXSRC_FIRST_STICK + input;
+  } else {
+    expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
+  } 
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3; // pos+neg
   expo->chn = input;

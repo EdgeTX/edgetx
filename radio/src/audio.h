@@ -32,9 +32,10 @@
   Implements a bit field, number of bits is set by the template,
   each bit can be modified and read by the provided methods.
 */
-template <unsigned int NUM_BITS> class BitField {
+template <unsigned int NUM_BITS> class BitField
+{
   private:
-    uint8_t bits[(NUM_BITS+7)/8];
+    uint8_t bits[(NUM_BITS + 7) / 8];
   public:
     BitField()
     {
@@ -54,7 +55,6 @@ template <unsigned int NUM_BITS> class BitField {
 
     bool getBit(unsigned int bitNo) const
     {
-      // assert(bitNo < NUM_BITS);
       if (bitNo >= NUM_BITS) return false;
       return bits[bitNo >> 3] & (1 << (bitNo & 0x07));
     }

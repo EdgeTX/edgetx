@@ -28,6 +28,9 @@
 #include "opentx.h"
 #include "simulcd.h"
 
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
+
 #include <errno.h>
 #include <stdarg.h>
 #include <string>
@@ -45,16 +48,20 @@ char * main_thread_error = nullptr;
 bool simu_shutdown = false;
 bool simu_running = false;
 
-uint32_t telemetryErrors = 0;
 
-typedef int32_t rotenc_t;
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
 
+rotenc_t rotaryEncoderGetValue()
+{
+  return rotencValue / ROTARY_ENCODER_GRANULARITY;
+}
+
+rotenc_t rotaryEncoderGetRawValue() { return rotencValue; }
+
 // TODO: remove all STM32 defs
-GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-ADC_Common_TypeDef adc;
-RTC_TypeDef rtc;
+
+extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
 
@@ -114,9 +121,12 @@ void simuInit()
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
+
+  // Init ADC driver callback
+  adcInit(&simu_adc_driver);
 }
 
-bool keysStates[NUM_KEYS] = { false };
+bool keysStates[MAX_KEYS] = { false };
 void simuSetKey(uint8_t key, bool state)
 {
   // TRACE("simuSetKey(%d, %d)", key, state);
@@ -124,20 +134,12 @@ void simuSetKey(uint8_t key, bool state)
   keysStates[key] = state;
 }
 
-bool trimsStates[NUM_TRIMS_KEYS] = { false };
+bool trimsStates[MAX_TRIMS * 2] = { false };
 void simuSetTrim(uint8_t trim, bool state)
 {
   // TRACE("simuSetTrim(%d, %d)", trim, state);
   assert(trim < DIM(trimsStates));
   trimsStates[trim] = state;
-}
-
-int8_t switchesStates[NUM_SWITCHES] = { -1 };
-void simuSetSwitch(uint8_t swtch, int8_t state)
-{
-  // TRACE("simuSetSwitch(%d, %d)", swtch, state);
-  assert(swtch < DIM(switchesStates));
-  switchesStates[swtch] = state;
 }
 
 #if defined(SIMU_BOOTLOADER)
@@ -206,9 +208,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
-  // Init LCD call backs
+  // Init LCD callbacks
   lcdInit();
-  
+
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
 #else
@@ -421,86 +423,28 @@ void lcdSetRefVolt(uint8_t val)
 }
 #endif
 
-void telemetryPortInit(uint8_t baudrate)
-{
-}
-
-void telemetryPortInit()
-{
-}
-
-void sportUpdatePowerOn()
-{
-}
-
-void sportUpdatePowerOff()
-{
-}
-
-void sportUpdatePowerInit()
-{
-}
-
-void telemetryPortSetDirectionInput()
-{
-}
-
-void telemetryPortSetDirectionOutput()
-{
-}
-
-void rxPdcUsart( void (*pChProcess)(uint8_t x) )
-{
-}
-
-void telemetryPortInit(uint32_t baudrate, uint8_t mode)
-{
-}
-
-bool sportGetByte(uint8_t * byte)
-{
-  return false;
-}
-
-void telemetryClearFifo()
-{
-}
-
-void telemetryPortInvertedInit(uint32_t baudrate)
-{
-}
-
-void sportSendByte(uint8_t byte)
-{
-}
-
-void sportSendBuffer(const uint8_t * buffer, uint32_t count)
-{
-}
-
-void check_telemetry_exti()
-{
-}
-
 void boardInit()
 {
 }
 
 uint32_t pwrCheck() { return simu_shutdown ? e_power_off : e_power_on; }
+
 bool pwrPressed() { return false; }
+bool pwrOffPressed()
+{
+#if defined(PWR_BUTTON_PRESS)
+  return pwrPressed();
+#else
+  return !pwrPressed();
+#endif
+}
+
 void pwrInit() {}
 void pwrOn() {}
 void pwrOff() {}
 
-bool keyDown()
-{
-  return readKeys();
-}
-
-bool trimDown(uint8_t idx)
-{
-  return readTrims() & (1 << idx);
-}
+bool UNEXPECTED_SHUTDOWN() { return false; }
+void SET_POWER_REASON(uint32_t value) {}
 
 #if defined(TRIMS_EMULATE_BUTTONS)
 bool trimsAsButtons = false;
@@ -521,7 +465,7 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
 
-  for (int i = 0; i < NUM_KEYS; i++) {
+  for (int i = 0; i < MAX_KEYS; i++) {
     if (keysStates[i]) {
       // TRACE("key pressed %d", i);
       result |= 1 << i;
@@ -535,7 +479,7 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
-  for (int i=0; i<NUM_TRIMS_KEYS; i++) {
+  for (int i = 0; i < MAX_TRIMS; i++) {
     if (trimsStates[i]) {
       // TRACE("trim pressed %d", i);
       result |= 1 << i;
@@ -543,25 +487,11 @@ uint32_t readTrims()
   }
 
 #if defined(PCBXLITE)
-  if (IS_SHIFT_PRESSED())
+  if (keysStates[KEY_SHIFT])
     result = ((result & 0x03) << 6) | ((result & 0x0c) << 2);
 #endif
 
   return result;
-}
-
-uint32_t switchState(uint8_t index)
-{
-  div_t qr = div(index, 3);
-  int state = switchesStates[qr.quot];
-  switch (qr.rem) {
-    case 0:
-      return state < 0;
-    case 2:
-      return state > 0;
-    default:
-      return state == 0;
-  }
 }
 
 int usbPlugged() { return false; }
@@ -598,16 +528,6 @@ bool isJackPlugged()
 void serialPrintf(const char * format, ...) { }
 void serialCrlf() { }
 void serialPutc(char c) { }
-
-uint16_t getBatteryVoltage()
-{
-  return (g_eeGeneral.vBatWarn * 10) + 50; // 0.5 volt above alerm (value is PREC1)
-}
-
-uint16_t getRTCBatteryVoltage()
-{
-  return 300;
-}
 
 void boardOff()
 {

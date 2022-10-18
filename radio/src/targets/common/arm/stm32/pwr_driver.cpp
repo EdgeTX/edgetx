@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "watchdog_driver.h"
 
 void pwrInit()
 {
@@ -107,9 +108,22 @@ bool pwrForcePressed()
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET || GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
+              Bit_RESET ||
+          GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO,
+                                PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
 #else
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
+  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
+         Bit_RESET;
+#endif
+}
+
+bool pwrOffPressed()
+{
+#if defined(PWR_BUTTON_PRESS)
+  return pwrPressed();
+#else
+  return !pwrPressed();
 #endif
 }
 

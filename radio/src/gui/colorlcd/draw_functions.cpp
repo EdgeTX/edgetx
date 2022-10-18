@@ -24,6 +24,8 @@
 #include "theme_manager.h"
 #include "libopenui.h"
 
+#include "watchdog_driver.h"
+
 coord_t drawStringWithIndex(BitmapBuffer * dc, coord_t x, coord_t y, const char * str, int idx, LcdFlags flags, const char * prefix, const char * suffix)
 {
   char s[64];
@@ -235,11 +237,6 @@ void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curv
         break;
     }
   }
-}
-
-void drawStickName(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFlags att)
-{
-  dc->drawText(x, y, STR_VSRCRAW[idx]+1, att);
 }
 
 void drawModelName(BitmapBuffer * dc, coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att)

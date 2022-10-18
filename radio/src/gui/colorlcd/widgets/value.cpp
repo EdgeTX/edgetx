@@ -204,7 +204,7 @@ class ValueWidget: public Widget
 };
 
 const ZoneOption ValueWidget::options[] = {
-  { STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_Rud) },
+  { STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_FIRST_STICK) },
   { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2) },
   { STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)  },
   { STR_ALIGN_LABEL, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT) },

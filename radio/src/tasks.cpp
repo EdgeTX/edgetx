@@ -96,13 +96,9 @@ TASK_FUNCTION(menusTask)
   toplcdOff();
 #endif
 
-#if defined(PCBHORUS)
-  ledOff();
-#endif
-
   drawSleepBitmap();
   opentxClose();
-  boardOff(); // Only turn power off if necessary
+  boardOff();
 
   TASK_RETURN();
 }

@@ -24,6 +24,8 @@
 #include "hal.h"
 
 #include "stm32_i2c_driver.h"
+#include "stm32_gpio_driver.h"
+
 #include "timers_driver.h"
 #include "delays_driver.h"
 #include "touch_driver.h"
@@ -128,21 +130,11 @@ void I2C_FreeBus()
 //   __HAL_RCC_I2C1_RELEASE_RESET();
 // }
 
-static int _enable_gpio_clock(GPIO_TypeDef *GPIOx)
-{
-  if (GPIOx == GPIOB)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-  else
-    return -1;
-
-  return 0;
-}
-
 void I2C_Init()
 {
   stm32_i2c_deinit(TOUCH_I2C_BUS);
 
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+  stm32_gpio_enable_clock(TOUCH_GPIO);
   __HAL_RCC_SYSCFG_CLK_ENABLE();
 
   __HAL_RCC_I2C1_CLK_ENABLE();
@@ -155,8 +147,8 @@ void I2C_Init()
   LL_GPIO_InitTypeDef gpioInit;
   LL_GPIO_StructInit(&gpioInit);
 
-  _enable_gpio_clock(TOUCH_RST_GPIO);
-  _enable_gpio_clock(TOUCH_INT_GPIO);
+  stm32_gpio_enable_clock(TOUCH_RST_GPIO);
+  stm32_gpio_enable_clock(TOUCH_INT_GPIO);
 
   gpioInit.Pin = TOUCH_RST_GPIO_PIN;
   gpioInit.Mode = LL_GPIO_MODE_OUTPUT;

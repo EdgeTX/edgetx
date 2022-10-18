@@ -60,7 +60,7 @@ void menuModelLogicalSwitchOne(event_t event)
 
   LogicalSwitchData * cs = lswAddress(s_currIdx);
 
-  uint8_t sw = SWSRC_SW1+s_currIdx;
+  uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+s_currIdx;
   uint8_t cstate = lswFamily(cs->func);
 
   drawSwitch(14*FW, 0, sw, (getSwitch(sw) ? BOLD : 0));
@@ -209,7 +209,7 @@ void menuModelLogicalSwitchOne(event_t event)
         if (cstate == LS_FAMILY_EDGE) {
           lcdDrawText(CSWONE_2ND_COLUMN, y, STR_NA);
           if (attr) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
           break;
         }
@@ -285,7 +285,7 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    uint8_t sw = SWSRC_SW1+k;
+    uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
 
     drawSwitch(0, y, sw, (sub==k ? INVERS : 0) | (getSwitch(sw) ? BOLD : 0));
 

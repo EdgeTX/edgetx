@@ -48,6 +48,11 @@ RadioHardwarePage::RadioHardwarePage():
 {
 }
 
+void RadioHardwarePage::checkEvents()
+{
+  enableVBatBridge();
+}
+
 void RadioHardwarePage::build(FormWindow * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
@@ -163,15 +168,9 @@ void RadioHardwarePage::build(FormWindow * window)
   auto btn = makeHWInputButton<HWSticks>(box, STR_STICKS);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
-  // Pots
+  // Pots & Sliders
   btn = makeHWInputButton<HWPots>(box, STR_POTS);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  // Sliders
-#if (NUM_SLIDERS > 0)
-  btn = makeHWInputButton<HWSliders>(box, STR_SLIDERS);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-#endif
 
   // Switches
   btn = makeHWInputButton<HWSwitches>(box, STR_SWITCHES);

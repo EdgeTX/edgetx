@@ -21,6 +21,7 @@
 
 #include "trims.h"
 #include "sliders.h"
+#include "input_mapping.h"
 
 #include "opentx.h"
 
@@ -67,7 +68,7 @@ void MainViewTrim::setRange()
 void MainViewTrim::checkEvents()
 {
   Window::checkEvents();
-  int8_t stickIndex = CONVERT_MODE(idx);
+  int8_t stickIndex = inputMappingConvertMode(idx);
   int newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
 
   setRange();

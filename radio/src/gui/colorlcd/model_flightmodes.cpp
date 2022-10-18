@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "lvgl_widgets/input_mix_line.h"
+#include "hal/key_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -107,7 +108,7 @@ class FlightModeEdit : public Page
 
       FlexGridLayout trim_grid(trims_col_dsc, line_row_dsc);
 
-      for (int t = 0; t < NUM_TRIMS; t++) {
+      for (int t = 0; t < MAX_TRIMS; t++) {
         lastTrim[t] = p_fm->trim[t].value;
 
         if ((t % TRIMS_PER_LINE) == 0) {
@@ -160,7 +161,7 @@ class FlightModeEdit : public Page
 
     void checkEvents() override
     {
-      for (int i = 0; i < NUM_TRIMS; i += 1) {
+      for (int i = 0; i < keysGetMaxTrims(); i += 1) {
         const auto& fm = g_model.flightModeData[index];
         if (lastTrim[i] != fm.trim[i].value) {
           lastTrim[i] = fm.trim[i].value;
@@ -171,9 +172,9 @@ class FlightModeEdit : public Page
 
   protected:
     uint8_t index;
-    Choice* tr_mode[NUM_TRIMS] = {nullptr};
-    NumberEdit* tr_value[NUM_TRIMS] = {nullptr};
-    int lastTrim[NUM_TRIMS];
+    Choice* tr_mode[MAX_TRIMS] = {nullptr};
+    NumberEdit* tr_value[MAX_TRIMS] = {nullptr};
+    int lastTrim[MAX_TRIMS];
 
     void showControls(int trim, uint8_t mode)
     {
@@ -413,7 +414,7 @@ class FlightModeBtn : public Button
     lv_obj_t* trims_cont = fmStyle.newTrimCont(container);
     lv_obj_set_user_data(trims_cont, this);
 
-    for (int i = 0; i < NUM_TRIMS; i += 1) {
+    for (int i = 0; i < keysGetMaxTrims(); i += 1) {
       fmTrimMode[i] = fmStyle.newTrimMode(trims_cont, i);
       fmTrimValue[i] = fmStyle.newTrimValue(trims_cont, i);
     }
@@ -446,7 +447,7 @@ class FlightModeBtn : public Button
     if (!refreshing && init) {
       refreshing = true;
       const auto& fm = g_model.flightModeData[index];
-      for (int t = 0; t < NUM_TRIMS; t += 1) {
+      for (int t = 0; t < keysGetMaxTrims(); t += 1) {
         if (lastTrim[t] != fm.trim[t].value) {
           lastTrim[t] = fm.trim[t].value;
 
@@ -485,7 +486,7 @@ class FlightModeBtn : public Button
       lv_label_set_text(fmSwitch, "");
     }
 
-    for (int i = 0; i < NUM_TRIMS; i += 1) {
+    for (int i = 0; i < keysGetMaxTrims(); i += 1) {
       uint8_t mode = fm.trim[i].mode;
       bool checked = (mode != TRIM_MODE_NONE);
       bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
@@ -510,11 +511,11 @@ class FlightModeBtn : public Button
   lv_obj_t* fmID = nullptr;
   lv_obj_t* fmName = nullptr;
   lv_obj_t* fmSwitch = nullptr;
-  lv_obj_t* fmTrimMode[NUM_TRIMS] = {nullptr};
-  lv_obj_t* fmTrimValue[NUM_TRIMS] = {nullptr};
+  lv_obj_t* fmTrimMode[MAX_TRIMS] = {nullptr};
+  lv_obj_t* fmTrimValue[MAX_TRIMS] = {nullptr};
   lv_obj_t* fmFadeIn = nullptr;
   lv_obj_t* fmFadeOut = nullptr;
-  int lastTrim[NUM_TRIMS];
+  int lastTrim[MAX_TRIMS];
 };
 
 ModelFlightModesPage::ModelFlightModesPage():

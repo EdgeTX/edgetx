@@ -27,7 +27,7 @@
 void menuRadioDiagAnalogs(event_t event)
 {
     static int8_t entryCount = 0;
-    static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+    static uint16_t lastShownAnalogValue[MAX_ANALOG_INPUTS];
 
     enum ANAVIEWS{
        ANAVIEW_FIRST,
@@ -53,7 +53,7 @@ void menuRadioDiagAnalogs(event_t event)
     case (ANAVIEW_RAWLOWFPS): SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_RAWLOWFPS, 0); break;
   }
 
-  for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + (i/2)*FH;
     uint8_t x = i&1 ? LCD_W/2 + FW : 0;
     lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
@@ -75,9 +75,9 @@ void menuRadioDiagAnalogs(event_t event)
 #if defined(JITTER_MEASURE)
     lcdDrawNumber(x+10*FW-1, y, rawJitter[i].get(), RIGHT);
     lcdDrawNumber(x+13*FW-1, y, avgJitter[i].get(), RIGHT);
-    lcdDrawNumber(x+17*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
+    lcdDrawNumber(x+17*FW-1, y, (int16_t)calibratedAnalogs[i]*25/256, RIGHT);
 #else
-    lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
+    lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[i]*25/256, RIGHT);
 #endif
   }
 

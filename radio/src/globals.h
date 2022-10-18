@@ -32,8 +32,7 @@ PACK(struct GlobalData {
   uint8_t authenticationCount:2;
   uint8_t upgradeModulePopup:1;
   uint8_t internalModuleVersionChecked:1;
-  uint8_t flyskygimbals:1;
-  uint8_t spare:1;
+  uint8_t spare:2;
 });
 
 extern GlobalData globalData;
@@ -81,7 +80,7 @@ extern int32_t act[MAX_MIXERS];
 extern int8_t  virtualInputsTrims[MAX_INPUTS];
 
 extern int16_t anas [MAX_INPUTS];
-extern int16_t trims[NUM_TRIMS];
+extern int16_t trims[MAX_TRIMS];
 extern int32_t chans[MAX_OUTPUT_CHANNELS];
 extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Outputs (before LIMITS) of the last perMain
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
@@ -91,7 +90,7 @@ extern BeepANACenter bpanaCenter;
 
 extern uint8_t s_mixer_first_run_done;
 
-extern int16_t calibratedAnalogs[NUM_CALIBRATED_ANALOGS];
+extern int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 
 extern uint8_t g_beepCnt;
 extern uint8_t beepAgain;
