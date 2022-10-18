@@ -433,17 +433,35 @@ bool AssetsFilteredItemModel::setCopyFilter(const int id, const QString filter)
   return setMetaDataValue(id, UpdatesItemModel::IMDR_CopyFilter, QVariant(filter));
 }
 
+
+/*
+    RepoMetaData
+*/
+
+RepoMetaData::RepoMetaData(QObject * parent) :
+  QObject(parent)
+{
+
+}
+
 /*
     ReleasesMetaData
 */
 
 ReleasesMetaData::ReleasesMetaData(QObject * parent) :
-  QObject(parent),
-  m_repo(""),
+  RepoMetaData(parent),
   m_id(0)
 {
   itemModel = new ReleasesItemModel();
   filteredItemModel = new ReleasesFilteredItemModel(itemModel);
+}
+
+void ReleasesMetaData::init(const QString repo, const QString nightly, const int settingsIndex, const int resultsPerPage)
+{
+  m_repo = repo;
+  m_resultsPerPage = resultsPerPage;
+  itemModel->setNightlyName(nightly);
+  itemModel->setSettingsIndex(settingsIndex);
 }
 
 bool ReleasesMetaData::refreshRequired()
@@ -490,10 +508,16 @@ QString ReleasesMetaData::version()
 */
 
 AssetsMetaData::AssetsMetaData(QObject * parent) :
-  QObject(parent)
+  RepoMetaData(parent)
 {
   itemModel = new AssetsItemModel();
   filteredItemModel = new AssetsFilteredItemModel(itemModel);
+}
+
+void AssetsMetaData::init(const QString repo, const int resultsPerPage)
+{
+  m_repo = repo;
+  m_resultsPerPage = resultsPerPage;
 }
 
 int AssetsMetaData::getSetId(int row)
