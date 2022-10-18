@@ -101,70 +101,70 @@
 // Switches
 #define STORAGE_SWITCH_A
 #define HARDWARE_SWITCH_A
-#define SWITCHES_GPIO_REG_A_H           GPIOH->IDR
+#define SWITCHES_GPIO_REG_A_H           GPIOH
 #define SWITCHES_GPIO_PIN_A_H           GPIO_Pin_9  // PH.09
-#define SWITCHES_GPIO_REG_A_L           GPIOI->IDR
+#define SWITCHES_GPIO_REG_A_L           GPIOI
 #define SWITCHES_GPIO_PIN_A_L           GPIO_Pin_15 // PI.15
 #define STORAGE_SWITCH_B
 #define HARDWARE_SWITCH_B
-#define SWITCHES_GPIO_REG_B_H           GPIOH->IDR
+#define SWITCHES_GPIO_REG_B_H           GPIOH
 #define SWITCHES_GPIO_PIN_B_H           GPIO_Pin_12 // PH.12
-#define SWITCHES_GPIO_REG_B_L           GPIOB->IDR
+#define SWITCHES_GPIO_REG_B_L           GPIOB
 #define SWITCHES_GPIO_PIN_B_L           GPIO_Pin_12 // PB.12
 #define STORAGE_SWITCH_C
 #define HARDWARE_SWITCH_C
-#define SWITCHES_GPIO_REG_C_H           GPIOD->IDR
+#define SWITCHES_GPIO_REG_C_H           GPIOD
 #define SWITCHES_GPIO_PIN_C_H           GPIO_Pin_11 // PD.11
-#define SWITCHES_GPIO_REG_C_L           GPIOB->IDR
+#define SWITCHES_GPIO_REG_C_L           GPIOB
 #define SWITCHES_GPIO_PIN_C_L           GPIO_Pin_15 // PB.15
 #define STORAGE_SWITCH_D
 #define HARDWARE_SWITCH_D
-#define SWITCHES_GPIO_REG_D_H           GPIOJ->IDR
+#define SWITCHES_GPIO_REG_D_H           GPIOJ
 #define SWITCHES_GPIO_PIN_D_H           GPIO_Pin_7  // PJ.07
-#define SWITCHES_GPIO_REG_D_L           GPIOG->IDR
+#define SWITCHES_GPIO_REG_D_L           GPIOG
 #define SWITCHES_GPIO_PIN_D_L           GPIO_Pin_2  // PG.02
 #define STORAGE_SWITCH_E
 #define HARDWARE_SWITCH_E
-#define SWITCHES_GPIO_REG_E_H           GPIOH->IDR
+#define SWITCHES_GPIO_REG_E_H           GPIOH
 #define SWITCHES_GPIO_PIN_E_H           GPIO_Pin_4  // PH.04
-#define SWITCHES_GPIO_REG_E_L           GPIOE->IDR
+#define SWITCHES_GPIO_REG_E_L           GPIOE
 #define SWITCHES_GPIO_PIN_E_L           GPIO_Pin_3  // PE.03
 #define STORAGE_SWITCH_F
 #define HARDWARE_SWITCH_F
-#define SWITCHES_GPIO_REG_F             GPIOH->IDR
+#define SWITCHES_GPIO_REG_F             GPIOH
 #define SWITCHES_GPIO_PIN_F             GPIO_Pin_3  // PH.03
 #define STORAGE_SWITCH_G
 #define HARDWARE_SWITCH_G
-#define SWITCHES_GPIO_REG_G_H           GPIOG->IDR
+#define SWITCHES_GPIO_REG_G_H           GPIOG
 #define SWITCHES_GPIO_PIN_G_H           GPIO_Pin_6  // PG.06
-#define SWITCHES_GPIO_REG_G_L           GPIOG->IDR
+#define SWITCHES_GPIO_REG_G_L           GPIOG
 #define SWITCHES_GPIO_PIN_G_L           GPIO_Pin_3  // PG.03
 #define STORAGE_SWITCH_H
 #define HARDWARE_SWITCH_H
-#define SWITCHES_GPIO_REG_H             GPIOG->IDR
+#define SWITCHES_GPIO_REG_H             GPIOG
 #define SWITCHES_GPIO_PIN_H             GPIO_Pin_7  // PG.07
 
 #if defined(PCBX10)
   // Gimbal switch left
   #define STORAGE_SWITCH_I
   #define HARDWARE_SWITCH_I
-  #define SWITCHES_GPIO_REG_I           GPIOH->IDR
+  #define SWITCHES_GPIO_REG_I           GPIOH
   #define SWITCHES_GPIO_PIN_I           GPIO_Pin_14 // PH.14
   // Gimbal switch right
   #define STORAGE_SWITCH_J
   #define HARDWARE_SWITCH_J
-  #define SWITCHES_GPIO_REG_J           GPIOH->IDR
+  #define SWITCHES_GPIO_REG_J           GPIOH
   #define SWITCHES_GPIO_PIN_J           GPIO_Pin_15 // PH.15
 #elif defined(PCBX12S)
   // Gimbal switch left
   #define STORAGE_SWITCH_I
   #define HARDWARE_SWITCH_I
-  #define SWITCHES_GPIO_REG_I           GPIOB->IDR
+  #define SWITCHES_GPIO_REG_I           GPIOB
   #define SWITCHES_GPIO_PIN_I           GPIO_Pin_1 // PB.01
   // Gimbal switch right
   #define STORAGE_SWITCH_J
   #define HARDWARE_SWITCH_J
-  #define SWITCHES_GPIO_REG_J           GPIOB->IDR
+  #define SWITCHES_GPIO_REG_J           GPIOB
   #define SWITCHES_GPIO_PIN_J           GPIO_Pin_0 // PB.00
 #endif
 
@@ -305,6 +305,8 @@
   #define ADC_GPIO_PIN_BATT             GPIO_Pin_7      // PF.07
   #define ADC_GPIO_PIN_EXT1             GPIO_Pin_8      // PF.08
   #define ADC_GPIO_PIN_EXT2             GPIO_Pin_9      // PF.09
+  #define ADC_GPIO_PIN_EXT3             ADC_GPIO_PIN_STICK_RH
+  #define ADC_GPIO_PIN_EXT4             ADC_GPIO_PIN_STICK_RV
   #if !defined(RADIO_TX16S)
     #define PWM_TIMER                   TIM5
     #define PWM_GPIO                    GPIOA
@@ -314,9 +316,9 @@
     #define PWM_GPIOA_PINS              (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
   #endif
   #define ADC_GPIOA_PINS_FS            (GPIO_Pin_2 | GPIO_Pin_3)
-  #define ADC_GPIOA_PINS               (STICKS_PWM_ENABLED() ? 0 : (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3))
-  #define ADC_GPIOC_PINS                (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
-  #define ADC_GPIOF_PINS                (GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9)
+  #define ADC_GPIOA_PINS               (STICKS_PWM_ENABLED() ? 0 : (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV | ))
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER2)
+  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_EXT2)
   #define ADC_CHANNEL_STICK_LH          ADC_Channel_0   // ADC3_IN0
   #define ADC_CHANNEL_STICK_LV          ADC_Channel_1   // ADC3_IN1
   #define ADC_CHANNEL_STICK_RH          ADC_Channel_2   // ADC3_IN2
@@ -331,8 +333,10 @@
   #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
   #define ADC_CHANNEL_EXT3              ADC_Channel_2   // ADC3_IN2: same as RH
   #define ADC_CHANNEL_EXT4              ADC_Channel_3   // ADC3_IN3: same as RV
+  #define ADC_CHANNEL_RTC_BATT          ADC_Channel_Vbat // ADC1_IN16
   #define ADC_MAIN                      ADC3
   #define ADC_EXT                       ADC1
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
   #define ADC_SAMPTIME                  3
   #define ADC_DMA                       DMA2
   #define ADC_DMA_Channel               DMA_Channel_2

@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/switch_driver.h"
+#include "stm32_switch_driver.h"
+
 #include "board.h"
 
 uint32_t readKeys()
@@ -140,161 +143,6 @@ bool keyDown()
   return readKeys() || readTrims();
 }
 
-#if defined(PCBX9E)
-  #define ADD_2POS_CASE(x) \
-    case SW_S ## x ## 2: \
-      xxx = SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-      break; \
-    case SW_S ## x ## 0: \
-      xxx = ~SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-      break
-#else
-  #define ADD_2POS_CASE(x) \
-    case SW_S ## x ## 0: \
-      xxx = SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-      break; \
-    case SW_S ## x ## 2: \
-      xxx = ~SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-      break
-#endif
-
-#define ADD_3POS_CASE(x, i) \
-  case SW_S ## x ## 0: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_CONFIG_3POS(i)) { \
-      xxx = xxx && (~SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break; \
-  case SW_S ## x ## 1: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H) && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    break; \
-  case SW_S ## x ## 2: \
-    xxx = (~SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_CONFIG_3POS(i)) { \
-      xxx = xxx && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break
-
-#if !defined(BOOT)
-#include "opentx.h"
-
-uint32_t switchState(uint8_t index)
-{
-  uint32_t xxx = 0;
-
-  switch (index) {
-
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-    ADD_2POS_CASE(A);
-    ADD_3POS_CASE(B, 1);
-    ADD_3POS_CASE(C, 2);
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_LR3PRO)
-    ADD_3POS_CASE(A, 0);
-    ADD_3POS_CASE(B, 1);
-    ADD_2POS_CASE(C);
-    ADD_2POS_CASE(D);
-#else
-    ADD_3POS_CASE(A, 0);
-    ADD_3POS_CASE(B, 1);
-    ADD_3POS_CASE(C, 2);
-#endif
-#if defined(PCBX9LITES)
-    ADD_2POS_CASE(D);
-    ADD_2POS_CASE(E);
-    ADD_2POS_CASE(F);
-    ADD_2POS_CASE(G);
-#elif defined(PCBX9LITE)
-    ADD_2POS_CASE(D);
-    ADD_2POS_CASE(E);
-#elif defined(PCBXLITES)
-    ADD_3POS_CASE(D, 3);
-    ADD_2POS_CASE(E);
-    ADD_2POS_CASE(F);
-    // no SWG and SWH on XLITES
-#elif defined(PCBXLITE)
-    ADD_3POS_CASE(D, 3);
-    // no SWE, SWF, SWG and SWH on XLITE
-#elif defined(PCBX7ACCESS)    
-    ADD_3POS_CASE(D, 3);
-    ADD_2POS_CASE(F);
-    ADD_2POS_CASE(H);
-    ADD_2POS_CASE(I);
-    // no SWJ on XLITE
-#elif defined(RADIO_ZORRO)
-    ADD_2POS_CASE(D);
-    ADD_2POS_CASE(E);
-    ADD_2POS_CASE(F);
-    ADD_2POS_CASE(G);
-    ADD_2POS_CASE(H);
-#elif defined(RADIO_TX12MK2)
-    ADD_2POS_CASE(D);
-    ADD_3POS_CASE(E, 4);
-    ADD_3POS_CASE(F, 5);
-#elif defined(RADIO_BOXER)
-    ADD_2POS_CASE(D);
-    ADD_2POS_CASE(E);
-    ADD_2POS_CASE(F);
-#elif defined(RADIO_TX12) || defined(RADIO_ZORRO)
-    ADD_2POS_CASE(D);
-    ADD_3POS_CASE(E, 4);
-    ADD_3POS_CASE(F, 5);
-    ADD_2POS_CASE(I);
-    ADD_2POS_CASE(J);
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-    ADD_2POS_CASE(D);
-#elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
-    // Only 4 switches
-#elif defined(RADIO_TPRO)
-    ADD_2POS_CASE(E);
-    ADD_2POS_CASE(F);
-    ADD_2POS_CASE(G);
-    ADD_2POS_CASE(H);
-    ADD_2POS_CASE(I);
-    ADD_2POS_CASE(J);
-#elif defined(PCBX7)
-    ADD_3POS_CASE(D, 3);
-#if defined(RADIO_T12)
-    ADD_2POS_CASE(G);
-#else
-    ADD_2POS_CASE(F);
-#endif
-    ADD_2POS_CASE(H);
-    ADD_2POS_CASE(I);
-    ADD_2POS_CASE(J);
-#else
-    ADD_3POS_CASE(D, 3);
-    ADD_3POS_CASE(E, 4);
-    ADD_2POS_CASE(F);
-    ADD_3POS_CASE(G, 6);
-    ADD_2POS_CASE(H);
-#endif
-
-#if defined(RADIO_X9DP2019)
-    ADD_2POS_CASE(I);
-#endif
-
-#if defined(PCBX9E)
-    ADD_3POS_CASE(I, 8);
-    ADD_3POS_CASE(J, 9);
-    ADD_3POS_CASE(K, 10);
-    ADD_3POS_CASE(L, 11);
-    ADD_3POS_CASE(M, 12);
-    ADD_3POS_CASE(N, 13);
-    ADD_3POS_CASE(O, 14);
-    ADD_3POS_CASE(P, 15);
-    ADD_3POS_CASE(Q, 16);
-    ADD_3POS_CASE(R, 17);
-#endif
-
-    default:
-      break;
-  }
-
-  // TRACE("switch %d => %d", index, xxx);
-  return xxx;
-}
-#endif
-
 void keysInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -331,3 +179,46 @@ void keysInit()
   INIT_KEYS_PINS(GPIOG);
 #endif
 }
+
+#if !defined(BOOT)
+
+#include <stdlib.h>
+
+static const stm32_switch_t _switch_defs[] = {
+  #include "hw_switches.inc"
+};
+
+static const char* _switch_names[] = {
+  "SA", "SB", "SC", "SD", "SF", "SH",
+};
+
+uint8_t switchGetMaxSwitches()
+{
+  return DIM(_switch_defs);
+}
+  
+// returns state (0 / 1) of a specific switch position
+uint32_t switchState(uint8_t pos_idx)
+{
+  auto d = div(pos_idx, 3);
+  return stm32_switch_get_state(&_switch_defs[d.quot], (SwitchHwPos)d.rem);
+}
+
+SwitchHwPos switchGetPosition(uint8_t idx)
+{
+  if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
+  return stm32_switch_get_position(&_switch_defs[idx]);
+}
+
+const char* switchGetName(uint8_t idx)
+{
+  if (idx >= DIM(_switch_defs)) return "";
+  return _switch_names[idx];
+}
+
+const char** switchGetNames()
+{
+  return _switch_names;
+}
+
+#endif

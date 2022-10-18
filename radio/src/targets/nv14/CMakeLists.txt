@@ -171,3 +171,14 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
   )
 
+set(HW_DESC_JSON ${FLAVOUR}.json)
+AddHardwareDefTarget(${HW_DESC_JSON})
+AddHWGenTarget(${HW_DESC_JSON} switches hw_switches.inc)
+
+# enable generating JSON definition separately for debugging
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON})
+
+set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
+  )

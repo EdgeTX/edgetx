@@ -1,0 +1,28 @@
+static const stm32_adc_input_t _ADC_inputs[] = {
+{% for adc in adcs %}
+  {% for input in adc.adc_inputs %}
+  {
+    "{{ input.name }}", {{ input.type }},
+    {{ input.gpio if input.gpio else 'nullptr' }},
+    {{ input.channel }}
+  },
+  {% endfor %}
+{% endfor %}
+};
+
+{% for adc in adcs %}
+static const uint8_t _ADC_{{ adc.name }}_channels[] = {
+  {% for input in adc.adc_inputs %}
+  { {{ adc_index[input.name] }}, {{ input.channel }} },
+  {% endfor %}
+};
+
+{% endfor %}
+static const stm32_adc_t _ADC_adc[] = {
+{% set ns = namespace(start_offs=0) %}
+        {% for adc in adcs %}
+  {% set input_count = adc.adc_inputs | count %}
+  { {{ adc.adc }}, _ADC_{{ adc.name }}_channels, {{ ns.start_offs }}, {{ input_count }} },
+  {% set ns.start_offs = ns.start_offs + input_count %}
+{% endfor %}
+};

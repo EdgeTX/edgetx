@@ -64,29 +64,19 @@ set(YAML_GEN_TEMPLATE ${RADIO_DIRECTORY}/util/yaml_parser.tmpl)
 SET(YAML_NODES        "\"RadioData,ModelData,PartialModel\"")
 set(YAML_GEN_ARGS     myeeprom.h ${YAML_GEN_TEMPLATE} ${YAML_NODES} -DYAML_GENERATOR)
 
-get_property(flags DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY COMPILE_DEFINITIONS)
-foreach(flag ${flags})
-  #message(STATUS "dir='${dir}'")
-  set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -D${flag})
-endforeach()
-
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-foreach(dir ${dirs})
-  #message(STATUS "dir='${dir}'")
-  set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -I${dir})
-endforeach()
+AddCompilerFlags(YAML_GEN_ARGS)
 
 # Force to build 32 bit binaries (Fix for Apple Silicon M1 hosts)
 # TODO: find a way to detect APPLE & M1
 # set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
 
-set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -Wno-inconsistent-missing-override)
-
-#message(STATUS "YAML_GEN_ARGS=${YAML_GEN_ARGS}")
+set(YAML_GEN_ARGS ${YAML_GEN_ARGS}
+  -Wno-inconsistent-missing-override
+  ${SYSROOT_ARG})
 
 add_custom_target(yaml_data
     WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} ${SYSROOT_ARG} > ${YAML_GEN_OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} ${YAML_GEN} ${YAML_GEN_ARGS} > ${YAML_GEN_OUTPUT}
     DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h
             ${RADIO_DIRECTORY}/src/dataconstants.h
             ${RADIO_DIRECTORY}/src/myeeprom.h

@@ -1,0 +1,21 @@
+{% for switch in switches %}
+  {% if switch.type == '2POS' %}
+{
+  {{ switch.gpio }}, {{ switch.pin }},
+  nullptr, 0,
+  SWITCH_HW_2POS, {{ switch.flags }}
+},
+  {% elif switch.type == '3POS' %}
+{
+  {{ switch.gpio_high }}, {{ switch.pin_high }},
+  {{ switch.gpio_low }}, {{ switch.pin_low }},
+  SWITCH_HW_3POS, {{ switch.flags }}
+},
+  {% elif switch.type == 'ADC' %}
+{
+  nullptr, {{ adc_index[switch.adc_input] }},
+  nullptr, 0,
+  SWITCH_HW_ADC, {{ switch.flags }}
+},
+  {% endif %}
+{% endfor %}

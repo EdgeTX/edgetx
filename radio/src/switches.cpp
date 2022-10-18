@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/switch_driver.h"
+
 #include "opentx.h"
 #include "switches.h"
 
@@ -57,12 +59,7 @@ CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
 #define LS_LAST_VALUE(fm, idx) lswFm[fm].lsw[idx].lastValue
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-#if defined(PCBX9E)
-tmr10ms_t switchesMidposStart[16];
-#else
-tmr10ms_t switchesMidposStart[6]; // TODO constant
-#endif
+tmr10ms_t switchesMidposStart[NUM_SWITCHES];
 uint64_t  switchesPos = 0;
 tmr10ms_t potsLastposStart[NUM_XPOTS];
 uint8_t   potsPos[NUM_XPOTS];
@@ -157,44 +154,39 @@ void evalFunctionSwitches()
 
 div_t switchInfo(int switchPosition)
 {
-  return div(switchPosition-SWSRC_FIRST_SWITCH, 3);
+  return div(switchPosition - SWSRC_FIRST_SWITCH, 3);
 }
 
-uint64_t check2PosSwitchPosition(uint8_t sw)
-{
-  uint32_t index = (switchState(sw) ? sw : sw + 2);
-  uint64_t result = ((uint64_t)1 << index);
-
-  if (!(switchesPos & result)) {
-    PLAY_SWITCH_MOVED(index);
-  }
-
-  return result;
-}
-
-uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
+static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
 {
   uint64_t result;
-  uint32_t index;
+  uint32_t index = idx * 3;
 
-  if (switchState(sw)) {
-    index = sw;
+  auto pos = switchGetPosition(idx);
+  switch(pos) {
+
+  case SWITCH_HW_UP:
     result = ((MASK_CFN_TYPE)1 << index);
     switchesMidposStart[idx] = 0;
-  }
-  else if (switchState(sw+2)) {
-    index = sw + 2;
+    break;
+
+  case SWITCH_HW_DOWN:
+    index += 2;
     result = ((MASK_CFN_TYPE)1 << index);
     switchesMidposStart[idx] = 0;
-  }
-  else {
-    index = sw + 1;
-    if (startup || SWITCH_POSITION(index) || g_eeGeneral.switchesDelay==SWITCHES_DELAY_NONE || (switchesMidposStart[idx] && (tmr10ms_t)(get_tmr10ms() - switchesMidposStart[idx]) > SWITCHES_DELAY())) {
+    break;
+
+  case SWITCH_HW_MID:
+    if (startup || SWITCH_POSITION(index) ||
+        g_eeGeneral.switchesDelay == SWITCHES_DELAY_NONE ||
+        (switchesMidposStart[idx] &&
+         (tmr10ms_t)(get_tmr10ms() - switchesMidposStart[idx]) >
+         SWITCHES_DELAY())) {
+      index += 1;
       result = ((MASK_CFN_TYPE)1 << index);
       switchesMidposStart[idx] = 0;
-    }
-    else {
-      result = (switchesPos & ((MASK_CFN_TYPE)0x7 << sw));
+    } else {
+      result = (switchesPos & ((MASK_CFN_TYPE)0x7 << index));
       if (!switchesMidposStart[idx]) {
         switchesMidposStart[idx] = get_tmr10ms();
       }
@@ -208,117 +200,13 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
   return result;
 }
 
-#define CHECK_2POS(sw)       newPos |= check2PosSwitchPosition(sw ## 0)
-#define CHECK_3POS(idx, sw)  newPos |= check3PosSwitchPosition(idx, sw ## 0, startup)
-
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  CHECK_2POS(SW_SA);
-  CHECK_3POS(0, SW_SB);
-  CHECK_3POS(1, SW_SC);
-#elif defined(RADIO_TPRO)
-  CHECK_3POS(0, SW_SA);
-  CHECK_3POS(1, SW_SB);
-  CHECK_2POS(SW_SC);
-  CHECK_2POS(SW_SD);
-#elif defined(PCBNV14)
-  CHECK_2POS(SW_SA);
-  CHECK_3POS(0, SW_SB);
-  CHECK_2POS(SW_SC);
-  CHECK_2POS(SW_SD);
-#else
-  CHECK_3POS(0, SW_SA);
-  CHECK_3POS(1, SW_SB);
-  CHECK_3POS(2, SW_SC);
-#endif
-
-#if defined(PCBX9LITES)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
-#elif defined(PCBX9LITE)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-#elif defined(PCBXLITES)
-  CHECK_3POS(3, SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  // no SWG and SWH on XLITES
-#elif defined(PCBXLITE)
-  CHECK_3POS(3, SW_SD);
-  // no SWE, SWF, SWG and SWH on XLITE
-#elif defined(RADIO_ZORRO)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
-  CHECK_2POS(SW_SH);
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  CHECK_2POS(SW_SD);
-  CHECK_3POS(2, SW_SE);
-  CHECK_3POS(3, SW_SF);
-#elif defined(RADIO_BOXER)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-#elif defined(RADIO_TPRO)
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
-  CHECK_2POS(SW_SH);
-  CHECK_2POS(SW_SI);
-  CHECK_2POS(SW_SJ);
-#elif defined(PCBX7)
-  CHECK_3POS(3, SW_SD);
-  #if defined(HARDWARE_SWITCH_F)
-    CHECK_2POS(SW_SF);
-  #endif
-  #if defined(HARDWARE_SWITCH_G)
-    CHECK_2POS(SW_SG);
-  #endif
-  #if defined(HARDWARE_SWITCH_H)
-    CHECK_2POS(SW_SH);
-  #endif
-#elif defined(PCBNV14)
-  CHECK_2POS(SW_SE);
-  CHECK_3POS(1, SW_SF);
-  CHECK_3POS(2, SW_SG);
-  CHECK_2POS(SW_SH);
-#else
-  CHECK_3POS(3, SW_SD);
-  CHECK_3POS(4, SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_3POS(5, SW_SG);
-  CHECK_2POS(SW_SH);
-#endif
-
-#if defined(RADIO_X9DP2019)
-  CHECK_2POS(SW_SI);
-#endif
-
-#if defined(PCBX7ACCESS)
-  CHECK_2POS(SW_SI);
-#elif defined(PCBHORUS) || (defined(PCBX7) && !defined(RADIO_ZORRO))
-  CHECK_2POS(SW_SI);
-  CHECK_2POS(SW_SJ);
-#endif
-
-#if defined(PCBX9E)
-  CHECK_3POS(6, SW_SI);
-  CHECK_3POS(7, SW_SJ);
-  CHECK_3POS(8, SW_SK);
-  CHECK_3POS(9, SW_SL);
-  CHECK_3POS(10, SW_SM);
-  CHECK_3POS(11, SW_SN);
-  CHECK_3POS(12, SW_SO);
-  CHECK_3POS(13, SW_SP);
-  CHECK_3POS(14, SW_SQ);
-  CHECK_3POS(15, SW_SR);
-#endif
-
+  for (unsigned i = 0; i < switchGetMaxSwitches(); i++) {
+    newPos |= checkSwitchPosition(i, startup);
+  }
+  
   switchesPos = newPos;
 
   for (int i=0; i<NUM_XPOTS; i++) {
@@ -334,8 +222,9 @@ void getSwitchesPosition(bool startup)
         else if (pos != previousPos) {
           potsLastposStart[i] = get_tmr10ms();
           potsPos[i] = (pos << 4) | previousStoredPos;
-        }
-        else if (g_eeGeneral.switchesDelay==SWITCHES_DELAY_NONE || (tmr10ms_t)(get_tmr10ms() - potsLastposStart[i]) > SWITCHES_DELAY()) {
+        } else if (g_eeGeneral.switchesDelay == SWITCHES_DELAY_NONE ||
+                   (tmr10ms_t)(get_tmr10ms() - potsLastposStart[i]) >
+                       SWITCHES_DELAY()) {
           potsLastposStart[i] = 0;
           potsPos[i] = (pos << 4) | pos;
           if (previousStoredPos != pos) {
@@ -362,9 +251,6 @@ getvalue_t getValueForLogicalSwitch(mixsrc_t i)
   }
   return result;
 }
-#else
-  #define getValueForLogicalSwitch(i) getValue(i)
-#endif
 
 PACK(typedef struct {
   uint8_t state;
@@ -571,14 +457,10 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   }
 #endif
   else if (cs_idx <= (SWSRC_LAST_SWITCH - 3 * NUM_FUNCTIONS_SWITCHES)) {
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
     if (flags & GETSWITCH_MIDPOS_DELAY)
       result = SWITCH_POSITION(cs_idx-SWSRC_FIRST_SWITCH);
     else
-      result = switchState(cs_idx-SWSRC_FIRST_SWITCH);
-#else
-    result = switchState(cs_idx-SWSRC_FIRST_SWITCH);
-#endif
+      result = switchState(cs_idx - SWSRC_FIRST_SWITCH);
   }
 #if defined(FUNCTION_SWITCHES)
   else if (cs_idx <= SWSRC_LAST_SWITCH) {

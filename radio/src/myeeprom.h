@@ -84,8 +84,7 @@
 #define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
 #define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  #define SWITCH_CONFIG(x)            (bfGet<swconfig_t>(g_eeGeneral.switchConfig, 2*(x), 2))
+#define SWITCH_CONFIG(x)              (bfGet<swconfig_t>(g_eeGeneral.switchConfig, 2*(x), 2))
 #if defined(FUNCTION_SWITCHES)
   #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, 2*(x), 2))
   #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2*(x), 2))
@@ -100,13 +99,7 @@
   #define IS_CONFIG_TOGGLE(x)         (SWITCH_CONFIG(x) == SWITCH_TOGGLE)
   #define IS_SWITCH_FS(x)             (false)
 #endif
-  #define SWITCH_WARNING_ALLOWED(x)   (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
-#else
-  #define IS_CONFIG_3POS(x)           IS_3POS(x)
-  #define IS_CONFIG_TOGGLE(x)         IS_TOGGLE(x)
-  #define switchInfo(x)               ((x) >= 3 ? (x)-2 : 0)
-  #define SWITCH_EXISTS(x)            true
-#endif
+#define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
 
 #define ALTERNATE_VIEW                0x10
 

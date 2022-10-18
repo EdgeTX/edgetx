@@ -86,5 +86,45 @@ function(GenerateDatacopy source output)
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
     DEPENDS ${GEN_DATACOPY_DEPEND}
     )
+endfunction()
 
+function(AddHardwareDefTarget output)
+
+  AddCompilerFlags(HW_DEF_ARGS)
+
+  set(HW_DEF_SRC ${RADIO_DIRECTORY}/src/targets/${TARGET_DIR}/hal.h)
+
+  separate_arguments(flags UNIX_COMMAND ${CMAKE_CXX_FLAGS})
+  foreach(flag ${flags})
+    set(HW_DEF_ARGS ${HW_DEF_ARGS} ${flag})
+  endforeach()
+
+  set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -E -dM ${HW_DEF_SRC})
+  set(GEN_HW_DEFS ${GEN_HW_DEFS} | sed "'/^#define _/d'" | sort)
+
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_hw_def.py)
+  set(GEN_JSON ${GEN_JSON} -i defines -)
+
+  add_custom_command(OUTPUT ${output}
+    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} | jq . > ${output}
+    DEPENDS ${HW_DEF_SRC}
+    )
+endfunction()
+
+function(AddHWGenTarget input template output)
+
+  # Script
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_hw_def.py)
+
+  # Inputs
+  set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
+  set(TEMPLATE ${RADIO_DIRECTORY}/util/${template}.jinja)
+
+  # Command
+  set(GEN_JSON ${GEN_JSON} -t ${TEMPLATE} ${INPUT_JSON})
+
+  add_custom_command(OUTPUT ${output}
+    COMMAND ${GEN_JSON} > ${output}
+    DEPENDS ${INPUT_JSON} ${RADIO_DIRECTORY}/util/${template}.jinja
+    )
 endfunction()

@@ -646,7 +646,7 @@ void menuMainView(event_t event)
             drawSwitch(x[i], y[i], sw, 0, false);
           }
         }
-#elif defined(PCBTARANIS)
+#else
         uint8_t switches = min(NUM_SWITCHES- NUM_FUNCTIONS_SWITCHES, 6);
         for (int i = 0; i < switches; ++i) {
           if (SWITCH_EXISTS(i)) {
@@ -659,49 +659,6 @@ void menuMainView(event_t event)
             getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
             drawSwitch(x, y, sw, 0, false);
           }
-        }
-#elif defined(PCBTANGO)
-        int sw_i;
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 20;
-            if (i >= NUM_SWITCHES / 2) {
-              x = 16 * FW + 6;
-              y -= (NUM_SWITCHES / 2) * FH;
-            }
-            //TDOD : move switchesReorder definition in board.h
-            static const uint8_t switchesReorder[] = {0, 1, 5, 3, 2, 4};
-
-            // re-arrange order according to physical layout
-            i = switchesReorder[i];
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + sw_i);
-            getvalue_t sw = ((val < 0) ? 3 * sw_i + 1 : ((val == 0) ? 3 * sw_i + 2 : 3 * sw_i + 3));
-            drawSwitch(x, y, sw, 0);
-          }
-        }
-#elif defined(PCBMAMBO)
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;
-            if (i >= NUM_SWITCHES / 2) {
-              x = 16 * FW + 6;
-              y -= (NUM_SWITCHES / 2) * FH;
-            }
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x, y, sw, 0);
-          }
-        }
-#else
-        // The ID0 3-POS switch is merged with the TRN switch
-        for (uint8_t i = SWSRC_THR; i <= SWSRC_TRN; i++) {
-          int8_t sw = (i == SWSRC_TRN ? (switchState(SW_ID0) ? SWSRC_ID0 : (switchState(SW_ID1) ? SWSRC_ID1 : SWSRC_ID2)) : i);
-          uint8_t x = 2 * FW - 2, y = i * FH + 1;
-          if (i >= SWSRC_AIL) {
-            x = 17 * FW - 1;
-            y -= 3 * FH;
-          }
-          drawSwitch(x, y, sw, getSwitch(i) ? INVERS : 0, false);
         }
 #endif
       }
