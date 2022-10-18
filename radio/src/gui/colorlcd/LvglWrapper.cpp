@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/rotary_encoder.h"
 
 #include "LvglWrapper.h"
 #include "themes/etx_lv_theme.h"
@@ -120,16 +121,17 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   data->key = 0;
 
-  if (isEvent()) {                            // event waiting
-    event_t evt = getEvent(false);            // get keyEvent for hard keys other than trim switches
+  if (isEvent()) { // event waiting
+    event_t evt = getEvent();
 
-    if(evt == EVT_KEY_FIRST(KEY_PGUP) ||      // generate acoustic/haptic feedback if radio settings allow
-       evt == EVT_KEY_FIRST(KEY_PGDN) ||
+    if(evt == EVT_KEY_FIRST(KEY_PAGEUP) ||
+       evt == EVT_KEY_FIRST(KEY_PAGEDN) ||
        evt == EVT_KEY_FIRST(KEY_ENTER) ||
        evt == EVT_KEY_FIRST(KEY_MODEL) ||
        evt == EVT_KEY_FIRST(KEY_EXIT) ||
-       evt == EVT_KEY_FIRST(KEY_TELEM) ||
-       evt == EVT_KEY_FIRST(KEY_RADIO)) {
+       evt == EVT_KEY_FIRST(KEY_TELE) ||
+       evt == EVT_KEY_FIRST(KEY_SYS)) {
+      // generate acoustic/haptic feedback if radio settings allow
       audioKeyPress();
     }
 
@@ -244,7 +246,7 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   static int8_t prevDir = 0;
   static uint32_t lastDt = 0;
 
-  rotenc_t newPos = ROTARY_ENCODER_NAVIGATION_VALUE;
+  rotenc_t newPos = rotaryEncoderGetRawValue();
   rotenc_t diff = (newPos - prevPos) / ROTARY_ENCODER_GRANULARITY;
   prevPos += diff * ROTARY_ENCODER_GRANULARITY;
 
@@ -269,9 +271,6 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     } else {
       _rotary_enc_accel = 0;
     }
-
-    // For Lua getRotEncSpeed() function
-    rotencSpeed = max(_rotary_enc_accel, (int8_t)1);
 
     prevDir = dir;
     lastDt = rotencDt;
@@ -299,7 +298,7 @@ uint32_t makeLvColor32(uint32_t colorFlags)
 std::string makeRecolor(std::string value, uint32_t colorFlags)
 {
   char s[32];
-  snprintf(s, 32, "#%06x %s#", makeLvColor32(colorFlags), value.c_str());
+  snprintf(s, 32, "#%06" PRIx32 " %s#", makeLvColor32(colorFlags), value.c_str());
   return std::string(s);
 }
 

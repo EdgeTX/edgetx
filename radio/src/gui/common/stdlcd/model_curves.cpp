@@ -52,20 +52,12 @@ void menuModelCurvesAll(event_t event)
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
-  switch (event) {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    case EVT_ROTARY_BREAK:
-#endif
-#if !defined(PCBTARANIS)
-    case EVT_KEY_FIRST(KEY_RIGHT):
-#endif
-    case EVT_KEY_FIRST(KEY_ENTER):
-      if (CURVE_SELECTED() && !READ_ONLY()) {
-        s_currIdxSubMenu = sub;
-        s_currSrcRaw = MIXSRC_NONE;
-        pushMenu(menuModelCurveOne);
-      }
-      break;
+  if (event == EVT_KEY_BREAK(KEY_ENTER) &&
+      CURVE_SELECTED() && !READ_ONLY()) {
+
+    s_currIdxSubMenu = sub;
+    s_currSrcRaw = MIXSRC_NONE;
+    pushMenu(menuModelCurveOne);
   }
 
   for (uint8_t i=0; i<LCD_LINES-1; i++) {

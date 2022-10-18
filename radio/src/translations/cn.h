@@ -71,110 +71,48 @@
 
 #define TR_ADCFILTERVALUES             "全局","禁用","开启"
 
-#if defined(PCBX10)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
-#elif defined(PCBX9E)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
-#else
-  #define TR_RETA123                   "R","E","T","A","1","2","3"
-#endif
 #define TR_VCURVETYPE                  "单边","指数","函数","自定义"
-
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "相加","相乘","替换"
 #define TR_VMLTPX2                     "+=","*=",":="
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                 "禁用","启用","Rud","Ele","Thr","Ail","T5","T6"
-#else
-  #define TR_VMIXTRIMS                 "禁用","启用","Rud","Ele","Thr","Ail"
-#endif
 
-#if LCD_W >= 212
-  #define TR_CSWTIMER                  "定时"
-  #define TR_CSWSTICKY                 "粘滞"
-  #define TR_CSWRANGE                  "范围"
-  #define TR_CSWSTAY                   "边沿"
-#else
-  #define TR_CSWTIMER                  "定时"
-  #define TR_CSWSTICKY                 "粘滞"
-  #define TR_CSWRANGE                  "范围"
-  #define TR_CSWSTAY                   "边沿"
-#endif
+#define TR_CSWTIMER                  "定时"
+#define TR_CSWSTICKY                 "粘滞"
+#define TR_CSWRANGE                  "范围"
+#define TR_CSWSTAY                   "边沿"
 
 #define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#if defined(VARIO)
-  #define TR_VVARIO                    "Vario传感器"
-#else
-  #define TR_VVARIO                    "[Vario]"
-#endif
 
-#if defined(AUDIO)
-  #define TR_SOUND                     "播放声音"
-#else
-  #define TR_SOUND                     "蜂鸣"
-#endif
+#define TR_SF_TRAINER                  "教练"
+#define TR_SF_INST_TRIM                "摇杆值存储到微调"
+#define TR_SF_RESET                    "复位"
+#define TR_SF_SET_TIMER                "设置"
+#define TR_SF_VOLUME                   "音量"
+#define TR_SF_FAILSAFE                 "设置失控保护"
+#define TR_SF_RANGE_CHECK              "测距模式"
+#define TR_SF_MOD_BIND                 "模块对频"
 
-#if defined(HAPTIC)
-  #define TR_HAPTIC                    "振动"
-#else
-  #define TR_HAPTIC                    "[振动]"
-#endif
-
-#if defined(VOICE)
-  #define TR_PLAY_TRACK                "播放音频文件"
-  #define TR_PLAY_VALUE                "播放数值"
-#else
-  #define TR_PLAY_TRACK                "[播放音频]"
-  #define TR_PLAY_VALUE                "[播放数值]"
-#endif
-
-#define TR_SF_BG_MUSIC                 "播放背景音乐","暂停背景音乐"
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS                   "记录日志到SD卡"
-#else
-  #define TR_SDCLOGS                   "[记录日志到SD卡]"
-#endif
-
-#if defined(GVARS)
-  #define TR_ADJUST_GVAR               "修改全局变量GV值"
-#else
-  #define TR_ADJUST_GVAR               "[修改GV值]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT            "Lua脚本"
-#else
-  #define TR_SF_PLAY_SCRIPT            "[Lua]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST                   ,"测试"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "锁定通道值"
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "锁定通道"
-#else
-  #define TR_SF_SAFETY                 "---"
-#endif
+#define TR_SOUND                       "播放声音"
+#define TR_PLAY_TRACK                  "播放音频文件"
+#define TR_PLAY_VALUE                  "播放数值"
+#define TR_SF_HAPTIC                   "振动"
+#define TR_SF_BG_MUSIC                 "播放背景音乐"
+#define TR_SF_BG_MUSIC_PAUSE           "暂停背景音乐"
+#define TR_SF_LOGS                     "记录日志到SD卡"
+#define TR_ADJUST_GVAR                 "修改全局变量GV值"
+#define TR_SF_PLAY_SCRIPT              "Lua脚本"
+#define TR_SF_BACKLIGHT                "背光"
+#define TR_SF_VARIO                    "Vario传感器"
+#define TR_SF_TEST                     "测试"
+#define TR_SF_SAFETY                   "锁定通道值"
 
 #define TR_SF_SCREENSHOT               "截屏"
 #define TR_SF_RACING_MODE              "竞速模式"
 #define TR_SF_DISABLE_TOUCH            "禁用触摸"
 #define TR_SF_SET_SCREEN               "选择主屏"
 #define TR_SF_RESERVE                  "[保留]"
-
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"教练","摇杆值存储到微调","复位","设置",TR_ADJUST_GVAR,"音量","设置失控保护","测距模式","模块对频",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"背光",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             "回传参数"
 
@@ -205,38 +143,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Rud", STR_CHAR_STICK "Ele", STR_CHAR_STICK "Thr", STR_CHAR_STICK "Ail"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail", STR_CHAR_TRIM "T5", STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Rud", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Thr", STR_CHAR_TRIM "Ail"
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES            STR_CHAR_TRIM "Rl", STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR             TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES            TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
+#define TR_STICK_NAMES                 "Rud", "Ele", "Thr", "Ail"
+#define TR_SURFACE_NAMES               "ST", "TH"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"
@@ -265,8 +173,11 @@
   #define TR_CYC_VSRCRAW               "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW             "[--]"
-#define TR_EXTRA_VSRCRAW               "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
+
+#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_TIME                    "Time"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES                   "OFF","ON","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "禁用"
@@ -535,6 +446,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "已校准的模拟值"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始模拟值 (5 Hz)"
 #define TR_MENUCALIBRATION             "校准"
+#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "将当前微调量保存至中点"
 #else
@@ -919,6 +831,7 @@
 #define TR_DEBUG                       "调试"
 #define TR_KEYS_BTN                    BUTTON("按键")
 #define TR_ANALOGS_BTN                 BUTTON(TR("模拟", "模拟量"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "未找到触摸硬件"
 #define TR_TOUCH_EXIT                  "点击屏幕退出"
 #define TR_SET                         BUTTON("设置")

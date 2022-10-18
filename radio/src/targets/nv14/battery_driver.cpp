@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #include "opentx.h"
+#include "battery_driver.h"
 
 #define  __BATTERY_DRIVER_C__
 

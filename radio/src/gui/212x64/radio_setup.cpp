@@ -19,10 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "opentx.h"
 #include "tasks/mixer_task.h"
+#include "input_mapping.h"
 
 const unsigned char sticks[]  = {
 #include "sticks.lbm"
@@ -583,10 +586,15 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
-        for (uint8_t i=1; i<=4; i++) {
-          putsChnLetter(RADIO_SETUP_2ND_COLUMN - FW + i*FW, y, channelOrder(i), attr);
+        {
+          for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
+            putsChnLetter(RADIO_SETUP_2ND_COLUMN - FW + i*FW, y, inputMappingChannelOrder(i), attr);
+          }
+          if (attr) {
+            auto max_order = inputMappingGetMaxChannelOrder() - 1;
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.templateSetup, 0, max_order);
+          }
         }
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.templateSetup, 0, 23);
         break;
 
       case ITEM_RADIO_SETUP_STICK_MODE_LABELS:
@@ -616,19 +624,23 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_STICK_MODE:
-        lcdDrawChar(2*FW, y, '1'+reusableBuffer.generalSettings.stickMode, attr);
-        for (uint8_t i=0; i<4; i++) {
-          drawStickName((6+4*i)*FW, y, *(modn12x3 + 4*reusableBuffer.generalSettings.stickMode + i), 0);
-        }
-        if (attr && s_editMode>0) {
-          CHECK_INCDEC_GENVAR(event, reusableBuffer.generalSettings.stickMode, 0, 3);
-        }
-        else if (reusableBuffer.generalSettings.stickMode != g_eeGeneral.stickMode) {
-          mixerTaskStop();
-          g_eeGeneral.stickMode = reusableBuffer.generalSettings.stickMode;
-          checkThrottleStick();
-          mixerTaskStart();
-          waitKeysReleased();
+        {
+          auto& mode = reusableBuffer.generalSettings.stickMode;
+          lcdDrawChar(2*FW, y, '1' + mode, attr);
+          for (uint8_t i=0; i<4; i++) {
+            auto ctrl = inputMappingConvertMode(mode, i);
+            drawMainControlLabel((6+4*i)*FW, y, ctrl, 0);
+          }
+          if (attr && s_editMode > 0) {
+            CHECK_INCDEC_GENVAR(event, mode, 0, 3);
+          }
+          else if (mode != g_eeGeneral.stickMode) {
+            mixerTaskStop();
+            g_eeGeneral.stickMode = mode;
+            checkThrottleStick();
+            mixerTaskStart();
+            waitKeysReleased();
+          }
         }
         break;
     }

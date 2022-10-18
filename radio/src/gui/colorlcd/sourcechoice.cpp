@@ -28,6 +28,7 @@
 #include "strhelpers.h"
 #include "draw_functions.h"
 #include "opentx.h"
+#include "switches.h"
 
 class SourceChoiceMenuToolbar : public MenuToolbar
 {

@@ -39,7 +39,6 @@ extern "C" {
 
 #include "board.h"
 #include "debug.h"
-#include "debounce.h"
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)
@@ -60,8 +59,17 @@ void setSelectedUsbMode(int mode)
 
 int usbPlugged()
 {
-  static PinDebounce debounce;
-  return debounce.debounce(USB_GPIO, USB_GPIO_PIN_VBUS);
+  static uint8_t debouncedState = 0;
+  static uint8_t lastState = 0;
+
+  uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+
+  if (state == lastState)
+    debouncedState = state;
+  else
+    lastState = state;
+  
+  return debouncedState;
 }
 
 USB_OTG_CORE_HANDLE USB_OTG_dev;

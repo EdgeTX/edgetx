@@ -318,9 +318,7 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Pin = usart->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-  pinInit.Alternate = LL_GPIO_AF_0;
+  pinInit.Mode = LL_GPIO_MODE_INPUT;
   LL_GPIO_Init(usart->GPIOx, &pinInit);
   LL_GPIO_ResetOutputPin(usart->GPIOx, pinInit.Pin);
 }

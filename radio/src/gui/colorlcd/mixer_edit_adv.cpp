@@ -32,7 +32,7 @@ MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
 {
   std::string title(STR_MIXES);
   title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
+  title += getSourceString(MIXSRC_FIRST_CH + channel);
   header.setTitle(title);
 
   auto form = new FormWindow(&body, rect_t{});

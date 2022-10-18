@@ -59,11 +59,16 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
   // Trim
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-  auto c = new Choice(line, rect_t{}, STR_VMIXTRIMS, -TRIM_OFF,
-                          -TRIM_LAST, GET_VALUE(-input->trimSource),
-                          SET_VALUE(input->trimSource, -newValue));
+  auto c = new Choice(line, rect_t{}, -TRIM_OFF, -TRIM_LAST,
+                      GET_VALUE(-input->trimSource),
+                      SET_VALUE(input->trimSource, -newValue));
+
+  uint16_t srcRaw = input->srcRaw;
   c->setAvailableHandler([=](int value) {
-    return value != TRIM_ON || input->srcRaw <= MIXSRC_Ail;
+    return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
+  });
+  c->setTextHandler([=](int value) -> std::string {
+    return getTrimSourceLabel(srcRaw, -value);
   });
 
   // Flight modes

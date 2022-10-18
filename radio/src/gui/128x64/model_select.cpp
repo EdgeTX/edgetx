@@ -90,10 +90,35 @@ void onModelSelectMenu(const char * result)
 #endif
 }
 
+static void moveToFreeModelSlot(bool forward, int8_t& sub, int8_t oldSub)
+{
+  int8_t next_ofs = s_copyTgtOfs + oldSub - menuVerticalPosition;
+  if (next_ofs == MAX_MODELS || next_ofs == -MAX_MODELS) next_ofs = 0;
+
+  if (s_copySrcRow < 0 && s_copyMode == COPY_MODE) {
+    s_copySrcRow = oldSub;
+    // find a hole (in the first empty slot above / below)
+    sub = findEmptyModel(s_copySrcRow, forward);
+    if (sub < 0) {
+      // no free room for duplicating the model
+      AUDIO_ERROR();
+      sub = oldSub;
+      s_copyMode = 0;
+    }
+    next_ofs = 0;
+    menuVerticalPosition = sub;
+  }
+  s_copyTgtOfs = next_ofs;
+}
+
 void menuModelSelect(event_t event)
 {
+  // Suppress "edit mode": model select has none
+  // Suppress exit in "copy mode": handled in this function
   event_t _event_ = event;
-  if ((s_copyMode && IS_KEY_EVT(event, KEY_EXIT)) || event == EVT_KEY_BREAK(KEY_EXIT) || IS_ROTARY_BREAK(event) || IS_ROTARY_LONG(event)) {
+  if ((s_copyMode && IS_KEY_EVT(event, KEY_EXIT)) ||
+      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER) ||
+      event == EVT_KEY_LONG(KEY_ENTER)) {
     _event_ = 0;
   }
 
@@ -179,7 +204,9 @@ void menuModelSelect(event_t event)
         s_copyMode = 0;
         event = EVT_ENTRY_UP;
       }
-      else if (event == EVT_KEY_LONG(KEY_ENTER) || IS_ROTARY_BREAK(event)) {
+      else if (event == EVT_KEY_BREAK(KEY_ENTER) ||
+               event == EVT_KEY_LONG(KEY_ENTER)) {
+
         s_copyMode = 0;
         killEvents(event);
         if (g_eeGeneral.currModel != sub) {
@@ -232,57 +259,25 @@ void menuModelSelect(event_t event)
       chainMenu(menuModelSetup);
       break;
 #else
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    case EVT_ROTARY_LEFT:
-    case EVT_ROTARY_RIGHT:
-#endif
     case EVT_KEY_FIRST(KEY_LEFT):
     case EVT_KEY_FIRST(KEY_RIGHT):
-#if defined(ROTARY_ENCODER_NAVIGATION)
-      if ((!IS_ROTARY_RIGHT(event) && !IS_ROTARY_LEFT(event)) || s_editMode < 0) {
-#endif
       if (sub == g_eeGeneral.currModel) {
-        chainMenu((IS_ROTARY_RIGHT(event) || event == EVT_KEY_FIRST(KEY_RIGHT)) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
-      }
-      else {
+        bool forward = (event == EVT_KEY_FIRST(KEY_RIGHT));
+        chainMenu(forward ? menuModelSetup
+                          : menuTabModel[DIM(menuTabModel) - 1]);
+      } else {
         AUDIO_WARNING2();
       }
       break;
-#if defined(ROTARY_ENCODER_NAVIGATION)
-      }
-      // no break
 #endif
-#endif
+  }
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && defined(NAVIGATION_X7)
-    case EVT_ROTARY_LEFT:
-    case EVT_ROTARY_RIGHT:
-#endif
-    case EVT_KEY_FIRST(KEY_UP):
-    case EVT_KEY_REPT(KEY_UP):
-    case EVT_KEY_FIRST(KEY_DOWN):
-    case EVT_KEY_REPT(KEY_DOWN):
-      if (s_copyMode) {
-        int8_t next_ofs = s_copyTgtOfs + oldSub - menuVerticalPosition;
-        if (next_ofs == MAX_MODELS || next_ofs == -MAX_MODELS)
-          next_ofs = 0;
-
-        if (s_copySrcRow < 0 && s_copyMode==COPY_MODE) {
-          s_copySrcRow = oldSub;
-          // find a hole (in the first empty slot above / below)
-          sub = findEmptyModel(s_copySrcRow, IS_ROTARY_RIGHT(event) || event==EVT_KEY_FIRST(KEY_DOWN));
-          if (sub < 0) {
-            // no free room for duplicating the model
-            AUDIO_ERROR();
-            sub = oldSub;
-            s_copyMode = 0;
-          }
-          next_ofs = 0;
-          menuVerticalPosition = sub;
-        }
-        s_copyTgtOfs = next_ofs;
-      }
-      break;
+  if (s_copyMode) {
+    if (IS_PREVIOUS_EVENT(event)) {
+      moveToFreeModelSlot(false, sub, oldSub);
+    } else if (IS_NEXT_EVENT(event)) {
+      moveToFreeModelSlot(true, sub, oldSub);
+    }
   }
 
 #if defined(EEPROM)
@@ -293,8 +288,6 @@ void menuModelSelect(event_t event)
 
 #if defined(NAVIGATION_X7)
   drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), 0);
-#elif defined(ROTARY_ENCODER_NAVIGATION)
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? ((IS_ROTARY_ENCODER_NAVIGATION_ENABLE() && s_editMode < 0) ? INVERS|BLINK : INVERS) : 0);
 #else
   drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? INVERS : 0);
 #endif

@@ -20,23 +20,18 @@
  */
 
 #include "opentx.h"
-#include "hal/module_port.h"
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
+#include "hal/module_port.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "switches.h"
+
+
 uint8_t switchToMix(uint8_t source)
 {
   div_t qr = div(source-1, 3);
-  return qr.quot+MIXSRC_FIRST_SWITCH;
+  return qr.quot + MIXSRC_FIRST_SWITCH;
 }
-#else
-uint8_t switchToMix(uint8_t source)
-{
-  if (source <= 3)
-    return MIXSRC_3POS;
-  else
-    return MIXSRC_FIRST_SWITCH - 3 + source;
-}
-#endif
 
 int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable)
 {
@@ -180,20 +175,25 @@ bool isSourceAvailable(int source)
 #if defined(LUA_MODEL_SCRIPTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
     div_t qr = div(source - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    return (qr.rem<scriptInputsOutputs[qr.quot].outputsCount);
+    return (qr.rem < scriptInputsOutputs[qr.quot].outputsCount);
   }
 #elif defined(LUA_INPUTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA)
     return false;
 #endif
 
-  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
-    return IS_POT_SLIDER_AVAILABLE(POT1+source - MIXSRC_FIRST_POT);
+  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK) {
+    auto idx = source - MIXSRC_FIRST_STICK;
+    return idx < adcGetMaxInputs(ADC_INPUT_MAIN);
   }
 
-#if defined(PCBX10)
-  if (source >= MIXSRC_MOUSE1 && source <= MIXSRC_MOUSE2)
-    return false;
+  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
+    return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
+  }
+
+#if MAX_AXIS > 0
+  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
+    return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
 #endif
 
 #if defined(PCBHORUS) && !defined(SPACEMOUSE)
@@ -210,12 +210,12 @@ bool isSourceAvailable(int source)
   }
 
 #if !defined(HELI)
-  if (source >= MIXSRC_CYC1 && source <= MIXSRC_CYC3)
+  if (source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI)
     return false;
 #endif
 
-  if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH) {
-    return isChannelUsed(source - MIXSRC_FIRST_CH);
+  if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM) {
+    return (source - MIXSRC_FIRST_TRIM) < keysGetMaxTrims();
   }
 
   if (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) {
@@ -223,16 +223,24 @@ bool isSourceAvailable(int source)
     return (cs->func != LS_FUNC_NONE);
   }
 
+  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
+    return g_model.trainerData.mode > 0;
+
+  if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH) {
+    return isChannelUsed(source - MIXSRC_FIRST_CH);
+  }
+
 #if !defined(GVARS)
   if (source >= MIXSRC_GVAR1 && source <= MIXSRC_LAST_GVAR)
     return false;
 #endif
 
-  if (source >= MIXSRC_FIRST_RESERVE && source <= MIXSRC_LAST_RESERVE)
-    return false;
+  // TX VOLTAGE, TIME and GPS are always true
 
-  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
-    return g_model.trainerData.mode > 0;
+  if (source >= MIXSRC_FIRST_TIMER && source <= MIXSRC_LAST_TIMER) {
+    TimerData *timer = &g_model.timers[source - MIXSRC_FIRST_TIMER];
+    return timer->mode != 0;
+  }
 
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
@@ -267,19 +275,38 @@ bool isSourceAvailableInCustomSwitches(int source)
 
 bool isSourceAvailableInInputs(int source)
 {
-  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
-    return IS_POT_SLIDER_AVAILABLE(POT1+source - MIXSRC_FIRST_POT);
+  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK) {
+    auto idx = source - MIXSRC_FIRST_STICK;
+    return idx < adcGetMaxInputs(ADC_INPUT_MAIN);
+  }
 
-#if defined(PCBX10)
-  if (source >= MIXSRC_MOUSE1 && source <= MIXSRC_MOUSE2)
-    return false;
+  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
+    return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
+
+#if MAX_AXIS > 0
+  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS) {
+    auto idx = source - MIXSRC_FIRST_AXIS;
+    return idx < adcGetMaxInputs(ADC_INPUT_AXIS);
+  }
 #endif
 
-  if (source >= MIXSRC_Rud && source <= MIXSRC_MAX)
+#if defined(IMU)
+  if (source == MIXSRC_TILT_X || source == MIXSRC_TILT_Y)
+    return true;
+#endif
+
+#if defined(PCBHORUS) && defined(SPACEMOUSE)
+  if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
+    return true;
+#endif
+  
+  if (source == MIXSRC_MAX)
     return true;
 
-  if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM)
-    return true;
+  if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM) {
+    auto idx = source - MIXSRC_FIRST_TRIM;
+    return idx < keysGetMaxTrims();
+  }
 
   if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
     return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
@@ -288,7 +315,7 @@ bool isSourceAvailableInInputs(int source)
     return true;
 
   if (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    LogicalSwitchData * cs = lswAddress(source - MIXSRC_SW1);
+    LogicalSwitchData * cs = lswAddress(source - MIXSRC_FIRST_LOGICAL_SWITCH);
     return (cs->func != LS_FUNC_NONE);
   }
 
@@ -344,13 +371,16 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     return true;
   }
 
-#if NUM_XPOTS > 0
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    int index __attribute__((unused)) = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    return IS_POT_MULTIPOS(POT1+index);
+    int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
+    return IS_POT_MULTIPOS(index);
   }
-#endif
 
+  if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
+    int index = (swtch - SWSRC_FIRST_TRIM) / 2;
+    return index < keysGetMaxTrims();
+  }
+  
   if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
     if (context == GeneralCustomFunctionsContext) {
       return false;
@@ -502,7 +532,7 @@ bool isThrottleSourceAvailable(int src)
   src = throttleSource2Source(src);
 #endif
   return isSourceAvailable(src) &&
-    ((src == MIXSRC_Thr) ||
+    ((src == MIXSRC_FIRST_STICK + inputMappingGetThrottle()) ||
      ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
      ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
@@ -532,18 +562,17 @@ bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
       return false;
 #endif
 #if !defined(HAPTIC)
-      case FUNC_HAPTIC:
+    case FUNC_HAPTIC:
 #endif
-    case FUNC_RESERVE4:
 #if !defined(DANGEROUS_MODULE_FUNCTIONS)
     case FUNC_RANGECHECK:
     case FUNC_BIND:
+      return false;
 #endif
 #if !defined(LUA)
     case FUNC_PLAY_SCRIPT:
-#endif
-    case FUNC_RESERVE5:
       return false;
+#endif
 
     default:
       return true;

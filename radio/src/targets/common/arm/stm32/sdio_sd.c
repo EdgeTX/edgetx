@@ -21,6 +21,12 @@
 #include "sdio_sd.h"
 #include "debug.h"
 
+#if defined(STM32F4)
+ #include "stm32f4xx_sdio.h"
+#elif defined(STM32F2)
+ #include "stm32f2xx_sdio.h"
+#endif
+
 #define SDIO_STATIC_FLAGS               ((uint32_t)0x000005FF)
 #define SDIO_CMD0TIMEOUT                ((uint32_t)0x00010000)
 

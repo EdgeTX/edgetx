@@ -40,12 +40,10 @@ void menuChannelsView(event_t event)
       popMenu();
       break;
 
-    case EVT_KEY_FIRST(KEY_RIGHT):
-    case EVT_KEY_FIRST(KEY_LEFT):
-#if defined(ROTARY_ENCODER_NAVIGATION)
     case EVT_ROTARY_LEFT:
     case EVT_ROTARY_RIGHT:
-#endif
+    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_FIRST(KEY_MINUS):
       reusableBuffer.viewChannels.secondPage = !reusableBuffer.viewChannels.secondPage;
       break;
 

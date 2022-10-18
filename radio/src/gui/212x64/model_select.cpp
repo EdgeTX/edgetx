@@ -79,6 +79,27 @@ void onModelSelectMenu(const char * result)
   }
 }
 
+static void moveToFreeModelSlot(bool forward, int8_t& sub, int8_t oldSub)
+{
+  int8_t next_ofs = s_copyTgtOfs + oldSub - menuVerticalPosition;
+  if (next_ofs == MAX_MODELS || next_ofs == -MAX_MODELS) next_ofs = 0;
+
+  if (s_copySrcRow < 0 && s_copyMode == COPY_MODE) {
+    s_copySrcRow = oldSub;
+    // find a hole (in the first empty slot above / below)
+    sub = findEmptyModel(s_copySrcRow, forward);
+    if (sub < 0) {
+      // no free room for duplicating the model
+      AUDIO_ERROR();
+      sub = oldSub;
+      s_copyMode = 0;
+    }
+    next_ofs = 0;
+    menuVerticalPosition = sub;
+  }
+  s_copyTgtOfs = next_ofs;
+}
+
 void menuModelSelect(event_t event)
 {
   if (warningResult) {
@@ -89,10 +110,13 @@ void menuModelSelect(event_t event)
     event = EVT_ENTRY_UP;
   }
 
-  event_t _event_ = ((event==EVT_KEY_BREAK(KEY_ENTER) || event==EVT_KEY_LONG(KEY_ENTER)) ? 0 : event);
-
-  if ((s_copyMode && EVT_KEY_MASK(event) == KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    _event_ -= KEY_EXIT;
+  // Suppress "edit mode": model select has none
+  // Suppress exit in "copy mode": handled in this function
+  event_t _event_ = event;
+  if ((s_copyMode && IS_KEY_EVT(event, KEY_EXIT)) ||
+      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER) ||
+      event == EVT_KEY_LONG(KEY_ENTER)) {
+    _event_ = 0;
   }
 
   int8_t oldSub = menuVerticalPosition;
@@ -101,7 +125,7 @@ void menuModelSelect(event_t event)
 
   if (s_editMode > 0) s_editMode = 0;
 
-  int sub = menuVerticalPosition;
+  int8_t sub = menuVerticalPosition;
 
   switch (event) {
       case EVT_ENTRY:
@@ -208,39 +232,19 @@ void menuModelSelect(event_t event)
 
       case EVT_KEY_BREAK(KEY_PAGE):
       case EVT_KEY_LONG(KEY_PAGE):
-        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
+        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE)
+                      ? menuModelSetup
+                      : menuTabModel[DIM(menuTabModel) - 1]);
         killEvents(event);
         break;
+  }
 
-      case EVT_KEY_FIRST(KEY_UP):
-      case EVT_KEY_REPT(KEY_UP):
-      case EVT_KEY_FIRST(KEY_DOWN):
-      case EVT_KEY_REPT(KEY_DOWN):
-#if defined(ROTARY_ENCODER_NAVIGATION)
-      case EVT_ROTARY_LEFT:
-      case EVT_ROTARY_RIGHT:
-#endif
-        if (s_copyMode) {
-          int8_t next_ofs = s_copyTgtOfs + oldSub - menuVerticalPosition;
-          if (next_ofs == MAX_MODELS || next_ofs == -MAX_MODELS)
-            next_ofs = 0;
-
-          if (s_copySrcRow < 0 && s_copyMode==COPY_MODE) {
-            s_copySrcRow = oldSub;
-            // find a hole (in the first empty slot above / below)
-            sub = findEmptyModel(s_copySrcRow, event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN));
-            if (sub < 0) {
-              // no free room for duplicating the model
-              AUDIO_ERROR();
-              sub = oldSub;
-              s_copyMode = 0;
-            }
-            next_ofs = 0;
-            menuVerticalPosition = sub;
-          }
-          s_copyTgtOfs = next_ofs;
-        }
-        break;
+  if (s_copyMode) {
+    if (IS_PREVIOUS_EVENT(event)) {
+      moveToFreeModelSlot(false, sub, oldSub);
+    } else if (IS_NEXT_EVENT(event)) {
+      moveToFreeModelSlot(true, sub, oldSub);
+    }
   }
 
 #if defined(EEPROM)

@@ -24,6 +24,9 @@
 #include "lcd.h"
 #include <lvgl/lvgl.h>
 
+#include "stm32f4xx_dma2d.h"
+#include "stm32f4xx_ltdc.h"
+
 #if defined(RADIO_T18)
   #define HBP  43
   #define VBP  12

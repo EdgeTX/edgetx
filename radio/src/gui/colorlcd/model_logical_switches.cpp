@@ -72,7 +72,8 @@ class LogicalSwitchEditPage : public Page
   void buildHeader(Window* window)
   {
     header.setTitle(STR_MENULOGICALSWITCHES);
-    headerSwitchName = header.setTitle2(getSwitchPositionName(SWSRC_SW1 + index));
+    headerSwitchName = header.setTitle2(
+        getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
 
     lv_obj_set_style_text_color(headerSwitchName->getLvObj(),
                                 makeLvColor(COLOR_THEME_ACTIVE),
@@ -411,7 +412,7 @@ class LogicalSwitchButton : public Button
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
-    lv_label_set_text(lsName, getSwitchPositionName(SWSRC_SW1 + lsIndex));
+    lv_label_set_text(lsName, getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + lsIndex));
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
@@ -526,7 +527,7 @@ void ModelLogicalSwitchesPage::newLS(FormWindow* window, bool pasteLS)
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData* ls = lswAddress(i);
     if (ls->func == LS_FUNC_NONE) {
-      std::string ch_name(getSwitchPositionName(SWSRC_SW1 + i));
+      std::string ch_name(getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i));
       menu->addLineBuffered(ch_name.c_str(), [=]() {
         if (pasteLS) {
           *ls = clipboard.data.csw;

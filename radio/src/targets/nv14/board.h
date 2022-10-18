@@ -24,21 +24,10 @@
 
 #include "definitions.h"
 #include "opentx_constants.h"
+
 #include "board_common.h"
 #include "hal.h"
 #include "hal/serial_port.h"
-
-#if !defined(LUA_EXPORT_GENERATION)
-#include "stm32f4xx_sdio.h"
-#include "stm32f4xx_dma2d.h"
-#include "stm32f4xx_ltdc.h"
-#include "stm32f4xx_fmc.h"
-#endif
-
-#include "touch_driver.h"
-#include "lcd_driver.h"
-#include "battery_driver.h"
-#include "watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
@@ -150,191 +139,18 @@ extern HardwareOptions hardwareOptions;
 #define IS_UART_MODULE(port)            (port == INTERNAL_MODULE)
 #define IS_PXX2_INTERNAL_ENABLED()      (false)
 
-// Keys driver
-enum EnumKeys
-{
-  KEY_ENTER,
-  KEY_EXIT,
-  KEY_PGUP,
-  KEY_PGDN,
-  KEY_UP,
-  KEY_DOWN,
-  KEY_LEFT,
-  KEY_RIGHT,
-  KEY_MODEL,
-  KEY_RADIO,
-  KEY_TELEM,
-  TRM_BASE,
-  TRM_LH_DWN = TRM_BASE,
-  TRM_LH_UP,
-  TRM_LV_DWN,
-  TRM_LV_UP,
-  TRM_RV_DWN,
-  TRM_RV_UP,
-  TRM_RH_DWN,
-  TRM_RH_UP,
-  TRM_LS_DWN,
-  TRM_LS_UP,
-  TRM_LAST = TRM_LS_UP,
-
-  NUM_KEYS
-};
-
-#define IS_SHIFT_KEY(index)             (false)
-#define IS_SHIFT_PRESSED()              (false)
-enum VirtualKeys {
-  VKEY_MIN,
-  VKEY_MAX,
-  VKEY_INC,
-  VKEY_DEC,
-  VKEY_INC_LARGE,
-  VKEY_DEC_LARGE,
-  VKEY_DEFAULT,
-};
-
-enum LUATouchEvent {
-  TOUCH_DOWN = 1,
-  TOUCH_UP,
-  TOUCH_SLIDE_UP,
-  TOUCH_SLIDE_DOWN,
-  TOUCH_SLIDE_LEFT,
-  TOUCH_SLIDE_RIGHT,
-};
-
-enum EnumSwitches
-{
-  SW_SA,
-  SW_SB,
-  SW_SC,
-  SW_SD,
-  SW_SE,
-  SW_SF,
-  SW_SG,
-  SW_SH,
-  NUM_SWITCHES
-};
-
-#define STORAGE_NUM_SWITCHES  NUM_SWITCHES
-#define DEFAULT_SWITCH_CONFIG (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_3POS << 10) + (SWITCH_TOGGLE << 8) + (SWITCH_2POS << 6) + (SWITCH_TOGGLE << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
-
-enum EnumSwitchesPositions
-{
-  SW_SA0,
-  SW_SA1,
-  SW_SA2,
-  SW_SB0,
-  SW_SB1,
-  SW_SB2,
-  SW_SC0,
-  SW_SC1,
-  SW_SC2,
-  SW_SD0,
-  SW_SD1,
-  SW_SD2,
-  SW_SE0,
-  SW_SE1,
-  SW_SE2,
-  SW_SF0,
-  SW_SF1,
-  SW_SF2,
-  SW_SG0,
-  SW_SG1,
-  SW_SG2,
-  SW_SH0,
-  SW_SH1,
-  SW_SH2,
-  NUM_SWITCHES_POSITIONS
-};
-
-#define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
-
 #if !defined(NUM_FUNCTIONS_SWITCHES)
 #define NUM_FUNCTIONS_SWITCHES        0
 #endif
 
-void monitorInit();
-void keysInit();
-uint8_t keyState(uint8_t index);
-uint32_t switchState(uint8_t index);
-uint32_t readKeys();
-uint32_t readTrims();
-void setTrimsAsButtons(bool);
-bool getTrimsAsButtons();
-#define TRIMS_EMULATE_BUTTONS
-#define NUM_TRIMS                       NUM_STICKS
 #define NUM_TRIMS_KEYS                  (NUM_TRIMS * 2)
-#define TRIMS_PRESSED()                 (readTrims())
-#define KEYS_PRESSED()                  (readKeys())
-#define DBLKEYS_PRESSED_RGT_LFT(in)     (false)
-#define DBLKEYS_PRESSED_UP_DWN(in)      (false)
-#define DBLKEYS_PRESSED_RGT_UP(in)      (false)
-#define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
-
-// ADC driver
-#define NUM_POTS                        2
-#define NUM_XPOTS                       0 // NUM_POTS
-#define NUM_SLIDERS                     0
-#define NUM_PWMSTICKS                   0
-#define NUM_MOUSE_ANALOGS               0
-#define STORAGE_NUM_POTS                5
-#define STORAGE_NUM_SLIDERS             0
-#define STORAGE_NUM_MOUSE_ANALOGS       0
-
-enum Analogs {
-  STICK1,
-  STICK2,
-  STICK3,
-  STICK4,
-  POT_FIRST,
-  POT1 = POT_FIRST,
-  POT2,
-  POT_LAST = POT2,
-  SWITCH_FIRST,
-  SWA = SWITCH_FIRST,
-  SWB,
-  SWC,
-  SWD,
-  SWE,
-  SWF,
-  SWG,
-  SWH,
-  SUB_ANALOG_POS = SWH,
-  SWITCH_END = SWH,
-  TX_VOLTAGE,
-  TX_VBAT,
-  NUM_ANALOGS
-};
-
-#define SLIDER_FIRST  0
-#define SLIDER_LAST  -1
 
 #define DEFAULT_STICK_DEADZONE          2
 
-#define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
-
-enum CalibratedAnalogs {
-  CALIBRATED_STICK1,
-  CALIBRATED_STICK2,
-  CALIBRATED_STICK3,
-  CALIBRATED_STICK4,
-  CALIBRATED_POT1,
-  CALIBRATED_POT2,
-  CALIBRATED_SWA,
-  CALIBRATED_SWB,
-  CALIBRATED_SWC,
-  CALIBRATED_SWD,
-  CALIBRATED_SWE,
-  CALIBRATED_SWF,
-  CALIBRATED_SWG,
-  CALIBRATED_SWH,
-  NUM_CALIBRATED_ANALOGS
-};
-
-#define IS_POT(x)                       ((x)>=POT_FIRST && (x)<=POT_LAST)
-#define IS_SLIDER(x)                    (false)
-
-extern uint16_t adcValues[NUM_ANALOGS];
-
+// 2 pots without detent
+#define DEFAULT_POTS_CONFIG   \
+  (POT_WITHOUT_DETENT << 0) + \
+      (POT_WITHOUT_DETENT << 2)
 
 #define BATTERY_WARN                  36 // 3.6V
 #define BATTERY_MIN                   35 // 3.5V
@@ -348,35 +164,8 @@ enum EnumPowerupState
   BOARD_REBOOT = 0xC00010FF,
 };
 
-
-#if defined(__cplusplus)
-enum PowerReason {
-  SHUTDOWN_REQUEST = 0xDEADBEEF,
-  SOFTRESET_REQUEST = 0xCAFEDEAD,
-};
-
-constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
-
-inline bool UNEXPECTED_SHUTDOWN()
-{
-#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
-  return false;
-#else
-  if (WAS_RESET_BY_WATCHDOG())
-    return true;
-  else if (WAS_RESET_BY_SOFTWARE())
-    return RTC->BKP0R != SOFTRESET_REQUEST;
-  else
-    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
-#endif
-}
-
-inline void SET_POWER_REASON(uint32_t value)
-{
-  RTC->BKP0R = value;
-  RTC->BKP1R = POWER_REASON_SIGNATURE;
-}
-#endif
+bool UNEXPECTED_SHUTDOWN();
+void SET_POWER_REASON(uint32_t value);
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
@@ -395,6 +184,7 @@ void pwrSoftReboot();
 void pwrOff();
 void pwrResetHandler();
 bool pwrPressed();
+bool pwrOffPressed();
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   bool pwrForcePressed();
 #else

@@ -16,11 +16,6 @@ macro(git_id RESULT)
   endif()
 endmacro(git_id)
 
-macro(use_cxx11)
-  if (CMAKE_VERSION VERSION_LESS "3.1" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
-  endif ()
-endmacro(use_cxx11)
 
 macro(PrintTargetReport targetName)
   if(CMAKE_CXX_COMPILER MATCHES "/(clang-)?cl\\.exe$")
@@ -60,7 +55,6 @@ function(AddCompilerFlags output)
   endforeach()
 
   # Add hotfix for arm64
-  set(ARGS ${ARGS} -Wno-asm-operand-widths -Wno-pragma-once-outside-header)
 
   set(${output} ${${output}} ${ARGS} PARENT_SCOPE)
 endfunction()
@@ -73,6 +67,8 @@ function(GenerateDatacopy source output)
   # Fetch defines / include directories in use
   AddCompilerFlags(GEN_DATACOPY_ARGS)
 
+  # Hack to get rid of warnings in StdPeriph lib
+
   set(GEN_DATACOPY_ARGS
     # source file MUST be the first argument
     ${CMAKE_CURRENT_SOURCE_DIR}/${source}
@@ -80,11 +76,57 @@ function(GenerateDatacopy source output)
 
   set(GEN_DATACOPY_CMD
     ${PYTHON_EXECUTABLE} ${GEN_DATACOPY} ${GEN_DATACOPY_ARGS})
-  
+
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
     DEPENDS ${GEN_DATACOPY_DEPEND}
     )
+endfunction()
 
+function(AddHardwareDefTarget output)
+
+  AddCompilerFlags(HW_DEF_ARGS)
+
+  set(HW_DEF_SRC ${RADIO_DIRECTORY}/src/targets/${TARGET_DIR}/hal.h)
+
+  separate_arguments(flags UNIX_COMMAND ${CMAKE_CXX_FLAGS})
+  foreach(flag ${flags})
+    set(HW_DEF_ARGS ${HW_DEF_ARGS} ${flag})
+  endforeach()
+
+  set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
+  set(GEN_HW_DEFS ${GEN_HW_DEFS} | grep -v "^#define _" | sort)
+
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
+  set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
+
+  add_custom_command(OUTPUT ${output}
+    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+    )
+
+  add_custom_command(OUTPUT ${output}.h
+    COMMAND ${GEN_HW_DEFS} > ${output}.h
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+    )
+endfunction()
+
+function(AddHWGenTarget input template output)
+
+  # Script
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
+
+  # Inputs
+  set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
+  set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
+  set(LEGACY_JSON ${RADIO_DIRECTORY}/util/hw_defs/legacy_names.py)
+
+  # Command
+  set(GEN_JSON ${GEN_JSON} -t ${TEMPLATE} -T ${FLAVOUR} ${INPUT_JSON})
+
+  add_custom_command(OUTPUT ${output}
+    COMMAND ${GEN_JSON} > ${output}
+    DEPENDS ${INPUT_JSON} ${LEGACY_JSON} ${TEMPLATE}
+    )
 endfunction()

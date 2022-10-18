@@ -21,14 +21,6 @@
 
 #include "opentx.h"
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
-#define EVT_KEY_NEXT_LINE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_LINE          EVT_ROTARY_LEFT
-#else
-#define EVT_KEY_NEXT_LINE              EVT_KEY_FIRST(KEY_DOWN)
-#define EVT_KEY_PREVIOUS_LINE          EVT_KEY_FIRST(KEY_UP)
-#endif
-
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
 
 static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
@@ -132,32 +124,22 @@ void readModelNotes()
 
 void menuTextView(event_t event)
 {
-  switch (event) {
-    case EVT_ENTRY:
+  if (event == EVT_ENTRY) {
       menuVerticalOffset = 0;
       reusableBuffer.viewText.linesCount = 0;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_PREVIOUS_LINE:
-      if (menuVerticalOffset == 0)
-        break;
-      else
-        menuVerticalOffset--;
+  } else if (IS_PREVIOUS_EVENT(event)) {
+    if (menuVerticalOffset > 0) {
+      menuVerticalOffset--;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_NEXT_LINE:
-      if (menuVerticalOffset+LCD_LINES-1 >= reusableBuffer.viewText.linesCount)
-        break;
-      else
-        ++menuVerticalOffset;
+    }
+  } else if (IS_NEXT_EVENT(event)) {
+    if (menuVerticalOffset + LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+      ++menuVerticalOffset;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_BREAK(KEY_EXIT):
-      popMenu();
-      break;
+    }
+  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    popMenu();
   }
 
   for (int i=0; i<LCD_LINES-1; i++) {
@@ -185,6 +167,3 @@ void pushMenuTextView(const char *filename)
     pushMenu(menuTextView);
   }
 }
-
-#undef EVT_KEY_NEXT_LINE
-#undef EVT_KEY_PREVIOUS_LINE

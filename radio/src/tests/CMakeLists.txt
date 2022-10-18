@@ -9,7 +9,6 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
-  use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
 
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
 
@@ -40,7 +39,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   endif()
 
 
-  file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp)
+  file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
+    CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
+
   set(TEST_SRC_FILES ${TEST_SRC_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/location.h
     ${SIMU_SRC}
@@ -62,6 +63,4 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   endif()
   target_link_libraries(gtests-radio gtests-radio-lib pthread Qt5::Core Qt5::Widgets)
   message(STATUS "Added optional gtests target")
-else()
-  message(WARNING "WARNING: gtests target will not be available (check that GTEST_INCDIR, GTEST_SRCDIR, and Qt5Widgets are configured).")
 endif()

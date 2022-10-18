@@ -265,7 +265,7 @@ void menuModelDisplay(event_t event)
             }
           }
           if (attr && menuHorizontalPosition == NUM_LINE_ITEMS) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
         }
         break;

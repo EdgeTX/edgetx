@@ -71,7 +71,7 @@ jobs:
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis
-          python -m pip install clang
+          python -m pip install clang jinja2
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3

@@ -11,7 +11,7 @@ set(TRANSLATIONS "EN" CACHE STRING "Radio language, one of: ${RADIO_LANGUAGES}")
 set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(SPLASH "DEFAULT" CACHE STRING "Splash (DEFAULT/OFF/FRSKY)")
 set_property(CACHE SPLASH PROPERTY STRINGS DEFAULT OFF FRSKY)
-set(PPM_UNIT "PERCENT_PREC1" CACHE STRING "PPM display unit (US/PERCENT_PREC1/PERCENT_PREC0)")
+set(PPM_UNIT "PERCENT_PREC0" CACHE STRING "PPM display unit (US/PERCENT_PREC1/PERCENT_PREC0)")
 set_property(CACHE PPM_UNIT PROPERTY STRINGS US PERCENT_PREC1 PERCENT_PREC0)
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
@@ -48,7 +48,6 @@ option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
-option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
 option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
@@ -72,15 +71,6 @@ set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c com
 set(FIRMWARE_C_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c compiler (note: CMAKE_C_FLAGS_DEBUG is ignored for firmware/bootloader).")
 set(FIRMWARE_CXX_FLAGS "" CACHE STRING "Additional flags for firmware target c++ compiler (note: all CMAKE_CXX_FLAGS[_*] are ignored for firmware/bootloader).")
 set(FIRMWARE_CXX_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c++ compiler (note: CMAKE_CXX_FLAGS_DEBUG is ignored for firmware/bootloader).")
-
-set(GCC_ARM_PATH "" CACHE STRING "Alternative GCC ARM path")
-
-set(FIRMWARE_C_COMPILER "${GCC_ARM_PATH}arm-none-eabi-gcc" CACHE STRING "Specific C compiler for firmware target.")
-set(FIRMWARE_CXX_COMPILER "${GCC_ARM_PATH}arm-none-eabi-g++" CACHE STRING "Specific C++ compiler for firmware target.")
-set(FIRMWARE_ASM_COMPILER "${GCC_ARM_PATH}arm-none-eabi-as" CACHE STRING "Specific assembler for firmware target.")
-set(FIRMWARE_OBJCOPY "${GCC_ARM_PATH}arm-none-eabi-objcopy" CACHE STRING "Specific objcopy for firmware target.")
-set(FIRMWARE_SIZE "${GCC_ARM_PATH}arm-none-eabi-size" CACHE STRING "Specific size for firmware target.")
-set(FIRMWARE_RANLIB "${GCC_ARM_PATH}arm-none-eabi-ranlib" CACHE STRING "Specific ranlib for firmware target.")
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
@@ -111,15 +101,16 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+set(HW_DESC_JSON ${FLAVOUR}.json)
+AddHardwareDefTarget(${HW_DESC_JSON})
+
+# enable generating JSON definition separately for debugging
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+
+include(hal/CMakeLists.txt)
+
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
-
-if(NOT PCB STREQUAL 9XRPRO)
-  option(DBLKEYS "Double Keys" ON)
-  if(DBLKEYS)
-    add_definitions(-DDBLKEYS)
-  endif()
-endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
@@ -131,6 +122,7 @@ endif()
 
 if(CPU_FAMILY STREQUAL STM32)
   include(targets/common/arm/stm32/CMakeLists.txt)
+  include(boards/generic_stm32/CMakeLists.txt)
 endif()
 
 if(ARCH STREQUAL ARM)
@@ -178,7 +170,7 @@ if(RTC_BACKUP_RAM)
     )
 
   # Add custom target for debugging
-  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.cpp)
+  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
 
 if(LUA)
@@ -318,10 +310,6 @@ if(DEBUG_LABELS)
   add_definitions(-DDEBUG_LABELS)
 endif()
 
-if(FRSKY_STICKS)
-  add_definitions(-DFRSKY_STICKS)
-endif()
-
 if(IMU_LSM6DS33)
     add_definitions(-DIMU_LSM6DS33)
 endif()
@@ -398,6 +386,7 @@ set(SRC
   functions.cpp
   strhelpers.cpp
   switches.cpp
+  analogs.cpp
   mixer.cpp
   mixer_scheduler.cpp
   stamp.cpp
@@ -406,7 +395,8 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
-  hal/module_port.cpp
+  input_mapping.cpp
+  inactivity_timer.cpp
   tasks/mixer_task.cpp
   )
 
@@ -549,7 +539,7 @@ endif()
 
 add_definitions(-DFREE_RTOS)
 
-add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
+add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -611,3 +601,5 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
+
+AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

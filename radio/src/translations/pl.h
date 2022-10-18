@@ -71,27 +71,10 @@
 #define TR_CURVE_TYPES         "Standard","Własny"
 #define TR_ADCFILTERVALUES     "Globalne","WYŁ","ZAŁ"
 
-#if defined(PCBX10)
-  #define TR_RETA123           "K","W","G","L","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
-  #define TR_RETA123           "K","W","G","L","1","3","2","4","5","L","R"
-#elif defined(PCBX9E)
-  #define TR_RETA123           "K","W","G","L","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123           "K","W","G","L","1","2","3","L","R"
-#else
-  #define TR_RETA123           "K","W","G","L","1","2","3"
-#endif
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC          "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX              "Dodaj","Mnóż","Zastąp"
 #define TR_VMLTPX2             "+=","*=",":="
-
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS         "WYŁ","ZAŁ","SK","SW","GAZ","Lot","Ail","T5","T6"
-#else
-  #define TR_VMIXTRIMS         "WYŁ","ZAŁ","SK","SW","GAZ","Lot"
-#endif
 
 #if LCD_W >= 212
   #define TR_CSWTIMER          "Timer"
@@ -108,73 +91,33 @@
 #define TR_CSWEQUAL  "a=x"
 #define TR_VCSWFUNC  "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#if defined(VARIO)
-  #define TR_VVARIO            "Wario"
-#else
-  #define TR_VVARIO            "[Wario]"
-#endif
-
-#if defined(AUDIO)
-  #define TR_SOUND             "GrajDźwięk"
-#else
-  #define TR_SOUND             "Pikanie"
-#endif
-
-#if defined(HAPTIC)
-  #define TR_HAPTIC            "Wibracje"
-#else
-  #define TR_HAPTIC            "[Wibracje]"
-#endif
-
-#if defined(VOICE)
-  #define TR_PLAY_TRACK        "GrajŚcieżk"
-  #define TR_PLAY_VALUE        TR("Graj Wart","GrajWartoś")
-#else
-  #define TR_PLAY_TRACK        "[Graj Ści]"
-  #define TR_PLAY_VALUE        "[Graj War]"
-#endif
-
-#define TR_SF_BG_MUSIC        "Muz. tła","Muz.tła ||"
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS           "Logi->SD"
-#else
-  #define TR_SDCLOGS           "[Logować]"
-#endif
-
-#if defined(GVARS)
-  #define TR_ADJUST_GVAR       "Ustaw"
-#else
-  #define TR_ADJUST_GVAR       "[UstawZG]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT   "SkryptyLua"
-#else
-  #define TR_SF_PLAY_SCRIPT   "[Lua]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST          ,"Test"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY        "Bezpiecz"
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY        "Bezp."
-#else
-  #define TR_SF_SAFETY        "---"
-#endif
+#define TR_SF_TRAINER         "Trener"
+#define TR_SF_INST_TRIM       "Inst-Trim"
+#define TR_SF_RESET           "Resetuj"
+#define TR_SF_SET_TIMER       "Ustaw"
+#define TR_SF_VOLUME          "Głośność"
+#define TR_SF_FAILSAFE        "SetFailsafe"
+#define TR_SF_RANGE_CHECK     "RangeCheck"
+#define TR_SF_MOD_BIND        "ModuleBind"
+ 
+#define TR_SOUND              "GrajDźwięk"
+#define TR_PLAY_TRACK         "GrajŚcieżk"
+#define TR_PLAY_VALUE         TR("Graj Wart","GrajWartoś")
+#define TR_SF_HAPTIC          "Wibracje"
+#define TR_SF_PLAY_SCRIPT     "SkryptyLua"
+#define TR_SF_BG_MUSIC        "Muz. tła"
+#define TR_SF_BG_MUSIC_PAUSE  "Muz. tła ||"
+#define TR_SF_LOGS            "Logi->SD"
+#define TR_ADJUST_GVAR        "Ustaw"
+#define TR_SF_BACKLIGHT       "Podświetl"
+#define TR_SF_VARIO           "Wario"
+#define TR_SF_TEST            "Test"
+#define TR_SF_SAFETY          TR("Bezp.","Bezpiecz")
 
 #define TR_SF_SCREENSHOT      "Zrzut Ekra"
 #define TR_SF_RACING_MODE     "RacingMode"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
-#define TR_SF_RESERVE         "[rezerwa]"
-
-#define TR_VFSWFUNC            TR_SF_SAFETY,"Trener","Inst-Trim","Resetuj","Ustaw",TR_ADJUST_GVAR,"Głośność","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Podświetl",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM   TR("Telm", "Telemetra")
 
@@ -204,38 +147,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW      STR_CHAR_STICK "SK", STR_CHAR_STICK "SW", STR_CHAR_STICK "Gaz", STR_CHAR_STICK "Lot"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW     STR_CHAR_TRIM "SK", STR_CHAR_TRIM "SW", STR_CHAR_TRIM "Gaz", STR_CHAR_TRIM "Lot", STR_CHAR_TRIM "T5",  STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW     STR_CHAR_TRIM "SK", STR_CHAR_TRIM "SW", STR_CHAR_TRIM "Gaz", STR_CHAR_TRIM "Lot"
-#endif
-
-#if defined(PCBHORUS)
-#define TR_TRIMS_SWITCHES    STR_CHAR_TRIM "Rl", STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR   TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES  TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
+#define TR_STICK_NAMES         "SK", "SW", "Gaz", "Lot"
+#define TR_SURFACE_NAMES       "SK", "Gaz"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"
@@ -264,8 +177,11 @@
   #define TR_CYC_VSRCRAW      "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW   "[--]"
-#define TR_EXTRA_VSRCRAW     "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
+
+#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_TIME                    "Time"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES                   "WYŁ","ABS","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
@@ -535,6 +451,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB       "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS   "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION     "KALIBRACJA"
+#define TR_MENU_FSWITCH        "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS     "Trymery => Subtrimy"
 #else
@@ -749,7 +666,7 @@
 #define TR_TIME                "Czas"
 #define TR_MAXBAUDRATE         "Max bauds"
 #define TR_BAUDRATE            "Baudrate"
-#define TR_SAMPLE_MODE         "Sample Mode"
+#define TR_SAMPLE_MODE         TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 #define TR_LOADING             "Ładowanie..."
 #define TR_DELETE_THEME        "Usunąć motyw?"
@@ -914,6 +831,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogi"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_SET                 "[Set]"

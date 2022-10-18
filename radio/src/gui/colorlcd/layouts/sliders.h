@@ -38,34 +38,21 @@ constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_TICKS_COUNT * 4 + TRIM_SQUARE
 
 class MainViewSlider : public Window
 {
-  public:
-    MainViewSlider(Window * parent, const rect_t & rect, uint8_t idx):
-      Window(parent, rect),
-      idx(idx)
-    {
-    }
+ public:
+  MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx);
+  void checkEvents() override;
 
-    void checkEvents() override
-    {
-      Window::checkEvents();
-      int16_t newValue = calibratedAnalogs[idx];
-      if (value != newValue) {
-        value = newValue;
-        invalidate();
-      }
-    }
-
-  protected:
-    uint8_t idx;
-    int16_t value = 0;
+ protected:
+  uint8_t idx;
+  int16_t value = 0;
 };
 
 class MainViewHorizontalSlider : public MainViewSlider
 {
-  public:
-    using MainViewSlider::MainViewSlider;
-    MainViewHorizontalSlider(Window* parent, uint8_t idx);
-    void paint(BitmapBuffer * dc) override;
+ public:
+  using MainViewSlider::MainViewSlider;
+  MainViewHorizontalSlider(Window* parent, uint8_t idx);
+  void paint(BitmapBuffer* dc) override;
 };
 
 class MainView6POS : public MainViewSlider

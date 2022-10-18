@@ -26,6 +26,13 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
+echo "=== Step $((STEP++)): Installing Python jinja2 ==="
+
+python -m pip install jinja2
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
 
 echo "=== Step $((STEP++)): Installing Python setuptools and wheel ==="
 python -m pip install setuptools wheel

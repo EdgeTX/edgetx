@@ -24,8 +24,10 @@
 #include "radio_setup.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "input_mapping.h"
 
 #include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
@@ -708,12 +710,16 @@ void RadioSetupPage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_DEF_CHAN_ORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
-  choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
+
+  uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
+  auto max_order = inputMappingGetMaxChannelOrder() - 1;
+  choice = new Choice(line, rect_t{}, 0, max_order,
                       GET_SET_DEFAULT(g_eeGeneral.templateSetup));
-  choice->setTextHandler([](uint8_t value) {
+
+  choice->setTextHandler([=](uint8_t value) {
     std::string s;
-    for (uint8_t i = 0; i < 4; i++) {
-      s += STR_RETA123[channelOrder(value, i + 1) - 1];
+    for (uint8_t i = 0; i < mains; i++) {
+      s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
     }
     return s;
   });
@@ -730,11 +736,11 @@ void RadioSetupPage::build(FormWindow * window)
                         mixerTaskStart();
                       });
   choice->setTextHandler([](uint8_t value) {
+    auto stick0 = inputMappingConvertMode(value, 0);
+    auto stick1 = inputMappingConvertMode(value, 1);
     return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
-           std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) +
-           "+" +
-           std::string(
-               &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
+           std::string(getMainControlLabel(stick0)) + "+" +
+           std::string(getMainControlLabel(stick1));
   });
 
   // Model quick select

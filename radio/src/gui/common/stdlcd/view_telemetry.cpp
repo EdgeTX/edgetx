@@ -33,8 +33,8 @@ enum NavigationDirection {
 #define incrTelemetryScreen() direction = NAVIGATION_DIRECTION_DOWN
 
 #if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && IS_SHIFT_PRESSED())
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && IS_SHIFT_PRESSED())
+  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
+  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
 #elif defined(KEYS_GPIO_REG_PAGEDN)
   #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_PAGEUP))
   #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_PAGEDN))

@@ -61,7 +61,7 @@ void menuModelExpoOne(event_t event)
     killEvents(event);
   }
 #elif defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && IS_SHIFT_PRESSED()) {
+  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
     killEvents(event);
   }
@@ -150,12 +150,20 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_TRIM:
-        uint8_t notStick = (ed->srcRaw > MIXSRC_Ail);
-        int8_t trimSource = -ed->trimSource;
         lcdDrawTextAlignedLeft(y, STR_TRIM);
-        lcdDrawTextAtIndex(EXPO_ONE_2ND_COLUMN, y, STR_VMIXTRIMS, (notStick && trimSource == 0) ? 0 : trimSource + 1, RIGHT | (menuHorizontalPosition==0 ? attr : 0));
-        if (attr)
-          ed->trimSource = -checkIncDecModel(event, trimSource, notStick ? TRIM_ON : -TRIM_OFF, -TRIM_LAST);
+        {
+          const char* trim_str = getTrimSourceLabel(ed->srcRaw, ed->trimSource);
+          LcdFlags flags = RIGHT | (menuHorizontalPosition==0 ? attr : 0);
+          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
+
+          if (attr) {
+            int8_t min = TRIM_ON;
+            if (ed->srcRaw >= MIXSRC_FIRST_STICK && ed->srcRaw <= MIXSRC_LAST_STICK) {
+              min = -TRIM_OFF;
+            }
+            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
+          }
+        }
         break;
     }
     y += FH;

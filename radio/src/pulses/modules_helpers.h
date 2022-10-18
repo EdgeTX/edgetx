@@ -218,6 +218,11 @@ inline bool isModuleCrossfire(uint8_t idx)
 {
   return false;
 }
+
+inline bool isInternalModuleCrossfire()
+{
+  return false;
+}
 #endif
 
 #if defined(GHOST)
