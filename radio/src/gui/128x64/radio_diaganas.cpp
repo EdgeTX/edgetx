@@ -20,18 +20,14 @@
  */
 
 #include "opentx.h"
-#include "../../hal/adc_driver.h"
-
-#if defined(FLYSKY_GIMBAL)
- #include "flysky_gimbal_driver.h"
-#endif
+#include "hal/adc_driver.h"
 
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
 
 void menuRadioDiagAnalogs(event_t event)
 {
     static int8_t entryCount = 0;
-    static int16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+    static uint16_t lastShownAnalogValue[MAX_ANALOG_INPUTS];
 
     enum ANAVIEWS{
        ANAVIEW_FIRST,
@@ -50,12 +46,9 @@ void menuRadioDiagAnalogs(event_t event)
 #endif
 
   switch (event) {
-    case EVT_KEY_FIRST(KEY_UP):
-#if defined(KEYS_GPIO_REG_PAGEDN)
+    case EVT_KEY_FIRST(KEY_RIGHT):
     case EVT_KEY_BREAK(KEY_PAGEDN):
-#elif defined(NAVIGATION_X7)
     case EVT_KEY_BREAK(KEY_PAGE):
-#endif
     {
      if (viewpage == ANAVIEW_LAST)
        viewpage = ANAVIEW_FIRST;
@@ -65,12 +58,9 @@ void menuRadioDiagAnalogs(event_t event)
      break;
     }
 
-    case EVT_KEY_FIRST(KEY_DOWN):
-#if defined(KEYS_GPIO_REG_PAGEUP)
+    case EVT_KEY_FIRST(KEY_LEFT):
     case EVT_KEY_BREAK(KEY_PAGEUP):
-#elif defined(NAVIGATION_X7)
     case EVT_KEY_LONG(KEY_PAGE):
-#endif
     {
      if (viewpage == ANAVIEW_FIRST)
        viewpage = ANAVIEW_LAST;
@@ -94,10 +84,10 @@ void menuRadioDiagAnalogs(event_t event)
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
 
-  lcdDrawTextAlignedLeft(y, STICKS_PWM_ENABLED() ? STR_PWM_STICKS_POTS_SLIDERS
-                                                 : STR_STICKS_POTS_SLIDERS);
+  lcdDrawTextAlignedLeft(y, STR_STICKS_POTS_SLIDERS);
 
-  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_ALL); i++) {
+    // TODO: if available
     uint8_t x;
     if (i & 1) {
       x = LCD_W / 2 + INDENT_WIDTH;
@@ -110,15 +100,7 @@ void menuRadioDiagAnalogs(event_t event)
     switch (viewpage) {
       case (ANAVIEW_RAWLOWFPS):
         if (entryCount == 0) {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-            if (globalData.flyskygimbals && i < FIRST_ANALOG_ADC_FS)
-            {
-              lastShownAnalogValue[i] = hall_raw_values[i];
-            } else
-#endif
-            {
-              lastShownAnalogValue[i] = getAnalogValue(i); // Update value
-            }
+          lastShownAnalogValue[i] = getAnalogValue(i); // Update value
         }
         lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i],
                       LEADING0|LEFT, 4);
@@ -129,7 +111,7 @@ void menuRadioDiagAnalogs(event_t event)
         break;
     }
     lcdDrawNumber(x+10*FW-1, y,
-                  (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256,
+                  (int16_t)calibratedAnalogs[i]*25/256,
                   RIGHT);
   }
 

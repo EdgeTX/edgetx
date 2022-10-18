@@ -106,72 +106,56 @@ const char * runPopupMenu(event_t event)
   }
 #endif
 
-  switch (eventTemp) {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    CASE_EVT_ROTARY_LEFT
-#endif
-    case EVT_KEY_FIRST(KEY_UP):
-    case EVT_KEY_REPT(KEY_UP):
-      if (popupMenuSelectedItem > 0) {
-        popupMenuSelectedItem--;
-      }
+  if (IS_PREVIOUS_EVENT(eventTemp)) {
+    if (popupMenuSelectedItem > 0) {
+      popupMenuSelectedItem--;
+    }
 #if defined(SDCARD)
-      else if (popupMenuOffset > 0) {
-        popupMenuOffset--;
+    else if (popupMenuOffset > 0) {
+      popupMenuOffset--;
+      result = STR_UPDATE_LIST;
+    }
+#endif
+    else {
+      popupMenuSelectedItem = min<uint8_t>(display_count, MENU_MAX_DISPLAY_LINES) - 1;
+#if defined(SDCARD)
+      if (popupMenuItemsCount > MENU_MAX_DISPLAY_LINES) {
+        popupMenuOffset = popupMenuItemsCount - display_count;
         result = STR_UPDATE_LIST;
       }
 #endif
-      else {
-        popupMenuSelectedItem = min<uint8_t>(display_count, MENU_MAX_DISPLAY_LINES) - 1;
+    }
+  } else if (IS_NEXT_EVENT(eventTemp)) {
+    if (popupMenuSelectedItem < display_count - 1 && popupMenuOffset + popupMenuSelectedItem + 1 < popupMenuItemsCount) {
+      popupMenuSelectedItem++;
+    }
 #if defined(SDCARD)
-        if (popupMenuItemsCount > MENU_MAX_DISPLAY_LINES) {
-          popupMenuOffset = popupMenuItemsCount - display_count;
-          result = STR_UPDATE_LIST;
-        }
+    else if (popupMenuItemsCount > popupMenuOffset + display_count) {
+      popupMenuOffset++;
+      result = STR_UPDATE_LIST;
+    }
 #endif
-      }
-      break;
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    CASE_EVT_ROTARY_RIGHT
-#endif
-    case EVT_KEY_FIRST(KEY_DOWN):
-    case EVT_KEY_REPT(KEY_DOWN):
-      if (popupMenuSelectedItem < display_count - 1 && popupMenuOffset + popupMenuSelectedItem + 1 < popupMenuItemsCount) {
-        popupMenuSelectedItem++;
-      }
+    else {
+      popupMenuSelectedItem = 0;
 #if defined(SDCARD)
-      else if (popupMenuItemsCount > popupMenuOffset + display_count) {
-        popupMenuOffset++;
+      if (popupMenuOffset) {
+        popupMenuOffset = 0;
         result = STR_UPDATE_LIST;
       }
 #endif
-      else {
-        popupMenuSelectedItem = 0;
-#if defined(SDCARD)
-        if (popupMenuOffset) {
-          popupMenuOffset = 0;
-          result = STR_UPDATE_LIST;
-        }
-#endif
-      }
-      break;
-
-    case EVT_KEY_BREAK(KEY_ENTER):
-      result = popupMenuItems[popupMenuSelectedItem + (popupMenuOffsetType == MENU_OFFSET_INTERNAL ? popupMenuOffset : 0)];
-      popupMenuItemsCount = 0;
-      popupMenuSelectedItem = 0;
-      popupMenuOffset = 0;
-      popupMenuTitle = nullptr;
-      break;
-
-    case EVT_KEY_BREAK(KEY_EXIT):
-      result = STR_EXIT;
-      popupMenuItemsCount = 0;
-      popupMenuSelectedItem = 0;
-      popupMenuOffset = 0;
-      popupMenuTitle = nullptr;
-      break;
+    }
+  } else if (eventTemp == EVT_KEY_BREAK(KEY_ENTER)) {
+    result = popupMenuItems[popupMenuSelectedItem + (popupMenuOffsetType == MENU_OFFSET_INTERNAL ? popupMenuOffset : 0)];
+    popupMenuItemsCount = 0;
+    popupMenuSelectedItem = 0;
+    popupMenuOffset = 0;
+    popupMenuTitle = nullptr;
+  } else if (eventTemp == EVT_KEY_BREAK(KEY_EXIT)) {
+    result = STR_EXIT;
+    popupMenuItemsCount = 0;
+    popupMenuSelectedItem = 0;
+    popupMenuOffset = 0;
+    popupMenuTitle = nullptr;
   }
 
   return result;

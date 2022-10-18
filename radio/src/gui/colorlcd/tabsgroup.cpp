@@ -278,18 +278,18 @@ void TabsGroup::onEvent(event_t event)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
 #if defined(KEYS_GPIO_REG_PGUP)
-  if (event == EVT_KEY_FIRST(KEY_PGDN)) {
+  if (event == EVT_KEY_FIRST(KEY_PAGEDN)) {
 #else
-  if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+  if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #endif
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex() + 1;
     setCurrentTab(current >= tabs.size() ? 0 : current);
   }
 #if defined(KEYS_GPIO_REG_PGUP)
-  else if (event == EVT_KEY_FIRST(KEY_PGUP)) {
+  else if (event == EVT_KEY_FIRST(KEY_PAGEUP)) {
 #else
-  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
+  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
 #endif
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();

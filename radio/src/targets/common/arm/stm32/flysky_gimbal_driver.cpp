@@ -22,6 +22,7 @@
 #include "flysky_gimbal_driver.h"
 #include "stm32_serial_driver.h"
 #include "delays_driver.h"
+#include "hal/adc_driver.h"
 
 #include "hal.h"
 #include "crc.h"
@@ -46,19 +47,7 @@ DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, 0);
 
 static STRUCT_HALL HallProtocol = { 0 };
 
-signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
-unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
-
 static void* _fs_usart_ctx = nullptr;
-
-uint16_t get_flysky_hall_adc_value(uint8_t ch)
-{
-  if (ch >= FLYSKY_HALL_CHANNEL_COUNT) {
-    return 0;
-  }
-
-  return 2 * FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
-}
 
 static int _fs_get_byte(uint8_t* data)
 {
@@ -130,33 +119,31 @@ static volatile bool _fs_gimbal_detected;
 
 static void flysky_gimbal_loop()
 {
-    uint8_t byte;
+  uint8_t byte;
 
-    while(_fs_get_byte(&byte))
-    {
-        HallProtocol.index++;
+  while (_fs_get_byte(&byte)) {
+    HallProtocol.index++;
 
-        _fs_parse(&HallProtocol, byte);
-        if ( HallProtocol.msg_OK )
-        {
-            HallProtocol.msg_OK = 0;
-            HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
+    _fs_parse(&HallProtocol, byte);
+    if (HallProtocol.msg_OK) {
+      HallProtocol.msg_OK = 0;
+      HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
 
-            switch ( HallProtocol.hallID.hall_Id.receiverID )
-            {
-            case TRANSFER_DIR_TXMCU:
-                if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_VALUES) {
-                  memcpy(hall_raw_values, HallProtocol.data, sizeof(hall_raw_values));
-                  for ( uint8_t channel = 0; channel < 4; channel++ )
-                  {
-                    hall_adc_values[channel] = FLYSKY_OFFSET_VALUE + hall_raw_values[channel];
-                  }
-                }
-                break;
+      switch (HallProtocol.hallID.hall_Id.receiverID) {
+        case TRANSFER_DIR_TXMCU:
+          if (HallProtocol.hallID.hall_Id.packetID ==
+              FLYSKY_HALL_RESP_TYPE_VALUES) {
+            int16_t* p_values = (int16_t*)HallProtocol.data;
+            uint16_t* adcValues = getAnalogValues();
+            for (uint8_t i = 0; i < 4; i++) {
+              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }
-            _fs_gimbal_detected = true;
-        }
+          }
+          break;
+      }
+      _fs_gimbal_detected = true;
     }
+  }
 }
 
 static void flysky_gimbal_deinit()

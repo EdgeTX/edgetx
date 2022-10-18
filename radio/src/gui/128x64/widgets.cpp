@@ -21,6 +21,34 @@
 
 #include "opentx.h"
 
+// For surface radio
+void drawWheel(coord_t centrex, int16_t tval)
+{
+  constexpr coord_t BOX_CENTERY = (LCD_H - 9 - BOX_WIDTH / 2);
+  constexpr coord_t MARKER_WIDTH = 5;
+  lcdDrawSquare(centrex-BOX_WIDTH/2, BOX_CENTERY-BOX_WIDTH/2, BOX_WIDTH);
+  lcdDrawSolidHorizontalLine(centrex - MARKER_WIDTH /2 , BOX_CENTERY, MARKER_WIDTH);
+  coord_t x1 = centrex - MARKER_WIDTH - tval / 300;
+  coord_t x2 = centrex - MARKER_WIDTH + tval / 300;
+  lcdDrawLine( x1, BOX_CENTERY+BOX_WIDTH / MARKER_WIDTH, x2, BOX_CENTERY-BOX_WIDTH / MARKER_WIDTH, SOLID, FORCE);
+  lcdDrawLine( x1 + BOX_WIDTH/2, BOX_CENTERY+BOX_WIDTH / MARKER_WIDTH,
+              x2 + BOX_WIDTH / 2, BOX_CENTERY-BOX_WIDTH / MARKER_WIDTH, SOLID, FORCE);
+#undef BOX_CENTERY
+#undef MARKER_WIDTH
+}
+
+// For surface radio
+void drawThrottle(coord_t centrex, int16_t wval)
+{
+  constexpr coord_t BOX_CENTERY = (LCD_H - 9 - BOX_WIDTH / 2);
+  constexpr coord_t MARKER_WIDTH = 5;
+  lcdDrawSquare(centrex-BOX_WIDTH/2, BOX_CENTERY-BOX_WIDTH/2, BOX_WIDTH);
+  lcdDrawSolidHorizontalLine(centrex - MARKER_WIDTH, BOX_CENTERY, 2 * MARKER_WIDTH + 1);
+  coord_t tsize = wval / 150;
+  lcdDrawLine( centrex - tsize, BOX_CENTERY, centrex, BOX_CENTERY + tsize, SOLID, FORCE);
+  lcdDrawLine( centrex + tsize, BOX_CENTERY, centrex, BOX_CENTERY + tsize, SOLID, FORCE);
+}
+
 void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 {
 #define BOX_CENTERY   (LCD_H-9-BOX_WIDTH/2)

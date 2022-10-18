@@ -26,11 +26,6 @@ else()
   set(LINKER_SCRIPT targets/nv14/stm32f4_flash.ld)
 endif()
 
-if(YAML_STORAGE)
-  set(STORAGE_CONVERT RAW)
-  set(STORAGE_FORMAT  YAML)
-endif()
-
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 # for size report script
@@ -44,7 +39,7 @@ set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 set(FLAVOUR nv14)
 add_definitions(-DPCBNV14 -DPCBFLYSKY -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
-add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DBATTERY_CHARGE -DUSE_TRIMS_AS_BUTTONS)
 
 # defines existing internal modules
 set(INTERNAL_MODULES AFHDS2A;AFHDS3 CACHE STRING "Internal modules")
@@ -53,7 +48,6 @@ set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 set(BITMAPS_TARGET nv14_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
-set(LUA_EXPORT lua_export_nv14)
 set(TOUCH_DRIVER touch_driver.cpp)
 set(HARDWARE_TOUCH YES)
 
@@ -146,12 +140,8 @@ set(FIRMWARE_TARGET_SRC
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
-  boards/generic_stm32/module_ports.cpp
-  boards/generic_stm32/aux_ports.cpp
-  targets/common/arm/stm32/stm32_hal_adc.cpp
+  targets/common/arm/stm32/stm32_adc.cpp
   targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
-  targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp

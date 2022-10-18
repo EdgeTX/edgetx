@@ -49,27 +49,29 @@
 
 
 // Trims
-#define TRIMS_GPIO_REG_RHL              GPIOD->IDR
-#define TRIMS_GPIO_PIN_RHL              GPIO_Pin_7  // PD.07
-#define TRIMS_GPIO_REG_RHR              GPIOG->IDR
-#define TRIMS_GPIO_PIN_RHR              GPIO_Pin_10 // PG.10
-#define TRIMS_GPIO_REG_RVD              GPIOJ->IDR
-#define TRIMS_GPIO_PIN_RVD              GPIO_Pin_0  // PJ.00
-#define TRIMS_GPIO_REG_RVU              GPIOB->IDR
-#define TRIMS_GPIO_PIN_RVU              GPIO_Pin_15 // PB.15
-#define TRIMS_GPIO_REG_RPRESS           GPIOC->IDR
-#define TRIMS_GPIO_PIN_RPRESS           GPIO_Pin_13 // PC.13
+#define TRIMS_GPIO_REG_RHL              GPIOD
+#define TRIMS_GPIO_PIN_RHL              LL_GPIO_PIN_7  // PD.07
+#define TRIMS_GPIO_REG_RHR              GPIOG
+#define TRIMS_GPIO_PIN_RHR              LL_GPIO_PIN_10 // PG.10
+#define TRIMS_GPIO_REG_RVD              GPIOJ
+#define TRIMS_GPIO_PIN_RVD              LL_GPIO_PIN_0  // PJ.00
+#define TRIMS_GPIO_REG_RVU              GPIOB
+#define TRIMS_GPIO_PIN_RVU              LL_GPIO_PIN_15 // PB.15
 
-#define TRIMS_GPIO_REG_LHL              GPIOH->IDR
-#define TRIMS_GPIO_PIN_LHL              GPIO_Pin_2  // PH.02
-#define TRIMS_GPIO_REG_LHR              GPIOG->IDR
-#define TRIMS_GPIO_PIN_LHR              GPIO_Pin_2  // PG.02
-#define TRIMS_GPIO_REG_LVU              GPIOH->IDR
-#define TRIMS_GPIO_PIN_LVU              GPIO_Pin_7  // PH.07
-#define TRIMS_GPIO_REG_LVD              GPIOJ->IDR
-#define TRIMS_GPIO_PIN_LVD              GPIO_Pin_12 // PJ.12
-#define TRIMS_GPIO_REG_LPRESS           GPIOG->IDR
-#define TRIMS_GPIO_PIN_LPRESS           GPIO_Pin_11 // PG.11
+#define KEYS_GPIO_REG_ENTER             GPIOC
+#define KEYS_GPIO_PIN_ENTER             LL_GPIO_PIN_13 // PC.13
+
+#define TRIMS_GPIO_REG_LHL              GPIOH
+#define TRIMS_GPIO_PIN_LHL              LL_GPIO_PIN_2  // PH.02
+#define TRIMS_GPIO_REG_LHR              GPIOG
+#define TRIMS_GPIO_PIN_LHR              LL_GPIO_PIN_2  // PG.02
+#define TRIMS_GPIO_REG_LVU              GPIOH
+#define TRIMS_GPIO_PIN_LVU              LL_GPIO_PIN_7  // PH.07
+#define TRIMS_GPIO_REG_LVD              GPIOJ
+#define TRIMS_GPIO_PIN_LVD              LL_GPIO_PIN_12 // PJ.12
+
+#define KEYS_GPIO_REG_EXIT              GPIOG
+#define KEYS_GPIO_PIN_EXIT              LL_GPIO_PIN_11 // PG.11
 
 // Monitor pin
 #define MONITOR_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOJ)
@@ -104,62 +106,78 @@
 #define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
 
 // ADC
-#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
-#define ADC_RCC_APB2Periph              (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
-// FLYSKY_HALL_STICKS
-#define ADC_GPIO_PIN_STICK_LH           0
-#define ADC_GPIO_PIN_STICK_LV           0
-#define ADC_GPIO_PIN_STICK_RH           0
-#define ADC_GPIO_PIN_STICK_RV           0
+#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
+#define ADC_RCC_APB2Periph              0
 
-#define ADC_GPIO_PIN_POT1               GPIO_Pin_6      // PA.06 VRA
-#define ADC_GPIO_PIN_POT2               GPIO_Pin_4      // PC.04 VRB
-#define ADC_GPIO_PIN_SWA                GPIO_Pin_1      // PB.01
-#define ADC_GPIO_PIN_SWB                GPIO_Pin_8      // PF.08
-#define ADC_GPIO_PIN_SWC                GPIO_Pin_0      // PB.00
-#define ADC_GPIO_PIN_SWD                GPIO_Pin_10     // PF.10
-#define ADC_GPIO_PIN_SWE                GPIO_Pin_2      // PC.02
-#define ADC_GPIO_PIN_SWF                GPIO_Pin_7      // PA.07
-#define ADC_GPIO_PIN_SWG                GPIO_Pin_0      // PC.00
-#define ADC_GPIO_PIN_SWH                GPIO_Pin_1      // PC.01
-#define ADC_GPIO_PIN_BATT               GPIO_Pin_5      // PC.05
+#define ADC_GPIO_PIN_STICK_LH
+#define ADC_GPIO_PIN_STICK_LV
+#define ADC_GPIO_PIN_STICK_RV
+#define ADC_GPIO_PIN_STICK_RH
+
+#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_6      // PA.06 VRA
+#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_4      // PC.04 VRB
+#define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_1      // PB.01
+#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_8      // PF.08
+#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_0      // PB.00
+#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_10     // PF.10
+#define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_0      // PC.00
+#define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_1      // PC.01
+#define ADC_GPIO_PIN_SWG                LL_GPIO_PIN_2      // PC.02
+#define ADC_GPIO_PIN_SWH                LL_GPIO_PIN_7      // PA.07
+
+#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05
 
 // FLYSKY_HALL_STICKS
-#define ADC_GPIOA_PINS_FS               (GPIO_Pin_6 | GPIO_Pin_7)
-#define ADC_GPIOA_PINS                  ADC_GPIOA_PINS_FS
-#define ADC_GPIOB_PINS                  (GPIO_Pin_0 | GPIO_Pin_1)
+// #define ADC_GPIOA_PINS_FS               (GPIO_Pin_6 | GPIO_Pin_7)
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SWH)
+#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_SWA | ADC_GPIO_PIN_SWC)
 #define ADC_GPIOC_PINS \
-  (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_5)
-#define ADC_GPIOF_PINS                  (GPIO_Pin_8 | GPIO_Pin_10)
+  (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF | ADC_GPIO_PIN_SWG | ADC_GPIO_PIN_BATT)
+#define ADC_GPIOF_PINS                  (ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_SWD)
 
-#define ADC_CHANNEL_STICK_LH            0
-#define ADC_CHANNEL_STICK_LV            0
-#define ADC_CHANNEL_STICK_RH            0
-#define ADC_CHANNEL_STICK_RV            0
+#define ADC_CHANNEL_STICK_LH
+#define ADC_CHANNEL_STICK_LV
+#define ADC_CHANNEL_STICK_RV
+#define ADC_CHANNEL_STICK_RH
 
-#define ADC_CHANNEL_POT1                ADC_Channel_6   // ADC12_IN6  -> ADC1_IN6
-#define ADC_CHANNEL_POT2                ADC_Channel_14  // ADC12_IN14 -> ADC1_IN14
-#define ADC_CHANNEL_SWA                 ADC_Channel_9   // ADC12_IN9  -> ADC1_IN9
-#define ADC_CHANNEL_SWB                 ADC_Channel_6   // ADC3_IN6   -> ADC3_IN6
-#define ADC_CHANNEL_SWC                 ADC_Channel_8   // ADC12_IN8  -> ADC1_IN8
-#define ADC_CHANNEL_SWD                 ADC_Channel_8   // ADC3_IN8   -> ADC3_IN8
-#define ADC_CHANNEL_SWE                 ADC_Channel_10  // ADC123_IN10-> ADC1_IN10
-#define ADC_CHANNEL_SWF                 ADC_Channel_11  // ADC123_IN11-> ADC1_IN11
-#define ADC_CHANNEL_SWG                 ADC_Channel_7   // ADC12_IN7  -> ADC1_IN7
-#define ADC_CHANNEL_SWH                 ADC_Channel_12  // ADC123_IN12-> ADC1_IN12
+#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_6   // ADC12_IN6  -> ADC1_IN6
+#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_14  // ADC12_IN14 -> ADC1_IN14
+#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_9   // ADC12_IN9  -> ADC1_IN9
+#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_6   // ADC3_IN6   -> ADC3_IN6
+#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_8   // ADC12_IN8  -> ADC1_IN8
+#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_8   // ADC3_IN8   -> ADC3_IN8
+#define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_10  // ADC123_IN10-> ADC1_IN10
+#define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_11  // ADC123_IN11-> ADC1_IN11
+#define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_12  // ADC123_IN12-> ADC1_IN12
+#define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_7   // ADC12_IN7  -> ADC1_IN7
 
-#define ADC_CHANNEL_BATT                ADC_Channel_15  // ADC12_IN15 -> ADC1_IN15
+#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15  // ADC12_IN15 -> ADC1_IN15
+#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
+
 #define ADC_MAIN                        ADC1
 #define ADC_EXT                         ADC3
-#define ADC_SAMPTIME                    2
+#define ADC_EXT_CHANNELS                { ADC_CHANNEL_SWB, ADC_CHANNEL_SWD }
+#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
 #define ADC_DMA                         DMA2
-#define ADC_DMA_Channel                 DMA_Channel_0
-#define ADC_DMA_Stream                  DMA2_Stream4
-#define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
+#define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
+#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
+#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
 
-#define ADC_EXT_DMA_Channel             DMA_Channel_2
-#define ADC_EXT_DMA_Stream              DMA2_Stream0
-#define ADC_EXT_TC_Flag                 DMA_FLAG_TCIF0
+#define ADC_EXT_DMA                     DMA2
+#define ADC_EXT_DMA_CHANNEL             LL_DMA_CHANNEL_2
+#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
+#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
+#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
+#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_28CYCLES
+#define ADC_VREF_PREC2                  660
+
+#define ADC_DIRECTION                                                   \
+    { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \
+      -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/, 0 /*SWB*/, 0 /*SWC*/,         \
+      0 /*SWD*/, 0 /*SWE*/, -1 /*SWF*/,  -1 /*SWG*/, 0 /*SWH*/,         \
+      0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/                                   \
+      }
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI

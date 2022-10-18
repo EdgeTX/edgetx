@@ -29,15 +29,6 @@
 
 #include "fw_version.h"
 
-// TODO duplicated code
-#if defined(ROTARY_ENCODER_NAVIGATION)
-#define EVT_KEY_NEXT_LINE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_LINE          EVT_ROTARY_LEFT
-#else
-#define EVT_KEY_NEXT_LINE              EVT_KEY_FIRST(KEY_DOWN)
-#define EVT_KEY_PREVIOUS_LINE          EVT_KEY_FIRST(KEY_UP)
-#endif
-
 #define MENU_BODY_TOP    (FH + 1)
 #define MENU_BODY_BOTTOM (LCD_H)
 
@@ -227,27 +218,21 @@ void menuRadioModulesVersion(event_t event)
     drawVerticalScrollbar(LCD_W-1, FH, LCD_H-FH, menuVerticalOffset, lines, NUM_BODY_LINES);
   }
 
-  switch(event) {
-    case EVT_KEY_PREVIOUS_LINE:
-      if (lines > NUM_BODY_LINES) {
-        if (menuVerticalOffset-- == 0)
-          menuVerticalOffset = lines - 1;
-      }
-      break;
-
-    case EVT_KEY_NEXT_LINE:
-      if (lines > NUM_BODY_LINES) {
-        if (++menuVerticalOffset + NUM_BODY_LINES > lines)
-          menuVerticalOffset = 0;
-      }
-      break;
-
-    case EVT_KEY_BREAK(KEY_EXIT):
-      if (menuVerticalOffset != 0)
+  if (IS_PREVIOUS_EVENT(event)) {
+    if (lines > NUM_BODY_LINES) {
+      if (menuVerticalOffset-- == 0)
+        menuVerticalOffset = lines - 1;
+    }
+  } else if (IS_NEXT_EVENT(event)) {
+    if (lines > NUM_BODY_LINES) {
+      if (++menuVerticalOffset + NUM_BODY_LINES > lines)
         menuVerticalOffset = 0;
-      else
-        popMenu();
-      break;
+    }
+  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    if (menuVerticalOffset != 0)
+      menuVerticalOffset = 0;
+    else
+      popMenu();
   }
 }
 #endif

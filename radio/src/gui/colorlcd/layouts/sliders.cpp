@@ -21,6 +21,9 @@
 
 #include "sliders.h"
 #include "opentx.h"
+#include "switches.h"
+
+#include "hal/adc_driver.h"
 
 enum slider_type {
   SLIDER_HORIZ,
@@ -40,6 +43,23 @@ static void slider_self_size(lv_event_t* e)
     s->x = MULTIPOS_W;
     s->y = MULTIPOS_H;
     break;
+  }
+}
+
+MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect,
+                               uint8_t idx) :
+    Window(parent, rect), idx(idx)
+{
+}
+
+void MainViewSlider::checkEvents()
+{
+  Window::checkEvents();
+  auto pot_idx = adcGetInputOffset(ADC_INPUT_POT) + idx;
+  int16_t newValue = calibratedAnalogs[pot_idx];
+  if (value != newValue) {
+  value = newValue;
+  invalidate();
   }
 }
 
@@ -86,7 +106,6 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
 
 void MainView6POS::paint(BitmapBuffer * dc)
 {
-#if NUM_XPOTS > 0 // prevent compiler warning
   coord_t x = MULTIPOS_W_SPACING/4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
     dc->drawNumber(x+TRIM_SQUARE_SIZE/4, 0, value+1, FONT(XS) | COLOR_THEME_SECONDARY1);
@@ -94,23 +113,20 @@ void MainView6POS::paint(BitmapBuffer * dc)
   }
 
   // The square
-  value = (potsPos[idx] & 0x0f);
-  x = MULTIPOS_W_SPACING/4+MULTIPOS_W_SPACING*value;
+  value = getXPotPosition(idx);
+  x = MULTIPOS_W_SPACING / 4 + MULTIPOS_W_SPACING * value;
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
   dc->drawNumber(x+MULTIPOS_W_SPACING/4, -2, value+1, FONT(BOLD) | COLOR_THEME_PRIMARY2);
-#endif
 }
 
 void MainView6POS::checkEvents()
 {
   Window::checkEvents();
-#if NUM_XPOTS > 0 // prevent compiler warning
-  int16_t newValue = (potsPos[idx] & 0x0f);
+  int16_t newValue = getXPotPosition(idx);
   if (value != newValue) {
     value = newValue;
     invalidate();
   }
-#endif
 }
 
 MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :

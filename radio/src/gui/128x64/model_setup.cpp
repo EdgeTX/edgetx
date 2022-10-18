@@ -21,6 +21,9 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "switches.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -44,18 +47,16 @@
 
 uint8_t g_moduleIdx;
 
-#if defined(PCBTARANIS)
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i=0; i<NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; ++i) {
+  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
   }
   return count;
 }
-#endif
 
 enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_NAME,
@@ -329,7 +330,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0))
+#define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? adcGetMaxInputs(ADC_INPUT_POT) : (uint8_t)0))
 
 #define TIMER_ROWS(x)                                                  \
   1, TIMER_ROW(x,0),                                                   \
@@ -504,14 +505,9 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   #define EXTERNAL_MODULE_ROWS
 #endif
 
-#if defined(PCBTARANIS)
-  #define WARN_ROWS \
-    SW_WARN_ROWS, /* Switch warning */ \
-    POT_WARN_ROWS, /* Pot warning */
-#else
-  #define WARN_ROWS \
-    PREFLIGHT_ROW((NUM_SWITCHES - 1), /* Switch warning */
-#endif
+#define WARN_ROWS                         \
+  SW_WARN_ROWS,      /* Switch warning */ \
+  POT_WARN_ROWS,     /* Pot warning */
 
 #if defined(USBJ_EX)
 inline uint8_t USB_JOYSTICK_EXTROW()
@@ -585,7 +581,7 @@ void menuModelSetup(event_t event)
       PREFLIGHT_ROW(0), // Custom position for throttle warning value
       WARN_ROWS
 
-    NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
+    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_POT + 1) - 1)), // Center beeps
 
     0, // ADC Jitter filter
 
@@ -795,7 +791,8 @@ void menuModelSetup(event_t event)
       {
         int index = k - ITEM_MODEL_SETUP_SW1;
         int config = FSWITCH_CONFIG(index);
-        lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES - MIXSRC_Rud + index + 1, menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
+        drawStringWithIndex(lcdNextPos, y, STR_FUNC_SW, index, menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
@@ -822,7 +819,7 @@ void menuModelSetup(event_t event)
           }
         }
         else if (attr && menuHorizontalPosition == 3) {  // Non visible checkbox
-          REPEAT_LAST_CURSOR_MOVE();
+          repeatLastCursorMove(event);
         }
         break;
       }
@@ -891,7 +888,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              NUM_POTS + NUM_SLIDERS + MAX_OUTPUT_CHANNELS,
+              adcGetMaxInputs(ADC_INPUT_POT) + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -907,7 +904,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
         lcdDrawText(INDENT_WIDTH, y, STR_TTRIM_SW);
         if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, NUM_TRIMS - 1);
+          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
         drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.getThrottleStickTrimSource(), attr);
         break;
 
@@ -939,7 +936,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING2:
         if (i==0) {
-          if (CURSOR_MOVED_LEFT(event))
+          if (IS_PREVIOUS_EVENT(event))
             menuVerticalOffset--;
           else
             menuVerticalOffset++;
@@ -948,13 +945,12 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
-          #define FIRSTSW_STR   (&STR_VSRCRAW[MIXSRC_FIRST_SWITCH-MIXSRC_FIRST_STICK+1])
           uint8_t switchWarningsCount = getSwitchWarningsCount();
           //uint8_t length = STR_VSRCRAW[0];
           horzpos_t l_posHorz = menuHorizontalPosition;
 
           if (i>=NUM_BODY_LINES-2 && getSwitchWarningsCount() > MAX_SWITCH_PER_LINE*(NUM_BODY_LINES-i)) {
-            if (CURSOR_MOVED_LEFT(event))
+            if (IS_PREVIOUS_EVENT(event))
               menuVerticalOffset--;
             else
               menuVerticalOffset++;
@@ -987,7 +983,7 @@ void menuModelSetup(event_t event)
                     getMovedSwitch();
                     // Mask switches enabled for warnings
                     swarnstate_t sw_mask = 0;
-                    for(uint8_t i=0; i<NUM_SWITCHES; i++) {
+                    for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
                       if (SWITCH_WARNING_ALLOWED(i))
                         if (g_model.switchWarningState & (0x07 << (3 * i)))
                           sw_mask |= (0x07 << (3 * i));
@@ -1003,7 +999,7 @@ void menuModelSetup(event_t event)
           }
 
           int current = 0;
-          for (int i = 0; i < NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; i++) {
+          for (int i = 0; i < switchGetMaxSwitches(); i++) {
             if (SWITCH_WARNING_ALLOWED(i)) {
               div_t qr = div(current, MAX_SWITCH_PER_LINE);
               if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && attr &&
@@ -1019,9 +1015,10 @@ void menuModelSetup(event_t event)
                 s_editMode = 0;
 #endif
               }
-              lcdDrawSizedText(
+
+              lcdDrawChar(
                   MODEL_SETUP_2ND_COLUMN + qr.rem * ((2 * FW) + 1),
-                  y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH), 1,
+                  y + FH * qr.quot, switchGetLetter(i),
                   attr && (menuHorizontalPosition == current) ? INVERS : 0);
               lcdDrawText(lcdNextPos, y + FH * qr.quot,
                           getSwitchWarnSymbol(states & 0x03));
@@ -1066,30 +1063,38 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          for (int i=0; i<NUM_POTS+NUM_SLIDERS; ++i) {
-            if (i<NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(POT1+i)) {
-              if (attr && (menuHorizontalPosition==i+1)) REPEAT_LAST_CURSOR_MOVE();
+          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+          for (int i = 0; i < max_pots; ++i) {
+
+            if (!IS_POT_SLIDER_AVAILABLE(i)) {
+              // skip non configured pot
+              if (attr && (menuHorizontalPosition==i+1)) repeatLastCursorMove(event);
             }
             else {
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) &&
+                  (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 
-              // skip "---" (+1) and source symbol (+2)
-              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
-              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
+              lcdDrawText(x, y, getPotLabel(i), flags);
               x = lcdNextPos+3;
             }
           }
         }
         break;
 
-      case ITEM_MODEL_SETUP_BEEP_CENTER:
+      case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        for (uint8_t i = 0; i < NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+        uint8_t input_max = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_POT);
+        for (uint8_t i = 0; i < input_max; i++) {
           coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
-          lcdDrawTextAtIndex(x, y, STR_RETA123, i, ((menuHorizontalPosition==i) && attr) ? BLINK | INVERS : (((g_model.beepANACenter & ((BeepANACenter)1<<i)) || (attr && CURSOR_ON_LINE())) ? INVERS : 0 ) );
+          LcdFlags flags = 0;
+          if ((menuHorizontalPosition == i) && attr)
+            flags = BLINK | INVERS;
+          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+            flags = INVERS;
+          lcdDrawText(x, y, getAnalogShortLabel(i), flags);
         }
         if (attr) {
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -1100,7 +1105,7 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
+      } break;
 
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
         g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
@@ -1970,7 +1975,7 @@ void menuModelSetup(event_t event)
             if (isModuleTypeR9MLiteNonPro(module.type)) { // R9M lite FCC has only one power value, so displayed for info only
               lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_R9M_LITE_FCC_POWER_VALUES, 0, LEFT);
               if (attr) {
-                REPEAT_LAST_CURSOR_MOVE();
+                repeatLastCursorMove(event);
               }
             }
             else {

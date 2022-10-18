@@ -29,7 +29,9 @@
 #include "multi_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"
+
 #include "timers_driver.h"
+#include "watchdog_driver.h"
 
 #include <memory>
 

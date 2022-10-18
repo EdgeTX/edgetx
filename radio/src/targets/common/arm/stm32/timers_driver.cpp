@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "watchdog_driver.h"
 
 static volatile uint32_t msTickCount; // Used to get 1 kHz counter
 

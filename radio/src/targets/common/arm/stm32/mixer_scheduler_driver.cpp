@@ -19,12 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "mixer_scheduler.h"
-
-#if !defined(SIMU)
+#include "stm32_hal_ll.h"
 
 #include "FreeRTOSConfig.h"
+#include "hal.h"
 
 // Start scheduler with default period
 void mixerSchedulerStart()
@@ -81,5 +80,3 @@ extern "C" void MIXER_SCHEDULER_TIMER_IRQHandler(void)
   // trigger mixer start
   mixerSchedulerISRTrigger();
 }
-
-#endif

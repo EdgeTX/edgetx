@@ -23,6 +23,7 @@
 #include "board.h"
 
 #include "globals.h"
+#include "lcd_driver.h"
 
 void backlightLowInit( void )
 {
