@@ -41,7 +41,7 @@
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"
 #else
-  #define TR_SWTYPES                      "Ingen","Toggle","2POS","3POS"
+  #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
 #endif
 
 #define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
@@ -1117,12 +1117,11 @@
 #define TR_REMOVE_WIDGET               "Slet widget"
 #define TR_WIDGET_SETTINGS             "Widget indstilinger"
 #define TR_REMOVE_SCREEN               "Slet skærm"
-#define TR_SETUP_WIDGETS               "Opsæt widgets"
 
 #if LCD_W > LCD_H
-  #define TR_SETUP_WIDGETS              "Opsæt widgets"
+  #define TR_SETUP_WIDGETS              "Opsæt widget"
 #else
-  #define TR_SETUP_WIDGETS              "Opsæt widgets"
+  #define TR_SETUP_WIDGETS              "Widget"
 #endif
 
 #define TR_USER_INTERFACE              "Bruger interface"
