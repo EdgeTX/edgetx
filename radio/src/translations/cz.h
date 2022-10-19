@@ -687,6 +687,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Uložit nastavení?"
 #define TR_UPDATE_TX_OPTIONS           "Uložit nastavení?"
 #define TR_MODULES_RX_VERSION          "Verze modulu a RX"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "VERZE MODULU A RX"
 #define TR_MENU_FIRM_OPTIONS           "MOŽNOSTI FIRMWARE"
 #define TR_IMU                         "IMU"

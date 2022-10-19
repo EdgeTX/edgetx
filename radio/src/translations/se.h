@@ -708,6 +708,7 @@
 #define TR_UPDATE_RX_OPTIONS            "Uppdatera Rx alternativ?"
 #define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           "Moduler / Rx version"
+#define TR_SHOW_MIXER_MONITORS          "Visa mixerskärmar"
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS            "FIRMWAREFUNKTIONER"
 #define TR_IMU                          "IMU"

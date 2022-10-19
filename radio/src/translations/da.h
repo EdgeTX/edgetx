@@ -674,6 +674,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Opdater RX tilvalg?"
 #define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
 #define TR_MODULES_RX_VERSION          "Moduler / RX version"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE TILVALG"
 #define TR_IMU                         "IMU"

@@ -681,6 +681,7 @@
 #define TR_UPDATE_RX_OPTIONS           "受信オプションをアップデートしますか ?"
 #define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          "モジュール / 受信機バージョン"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "モジュール / 受信機バージョン"
 #define TR_MENU_FIRM_OPTIONS           "ファームウェアオプション"
 #define TR_IMU                         "IMU"

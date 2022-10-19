@@ -669,6 +669,7 @@
 #define TR_UPDATE_RX_OPTIONS           "是否升級接收機?"
 #define TR_UPDATE_TX_OPTIONS           "是否升級發射機?"
 #define TR_MODULES_RX_VERSION          "模塊/接收機版本"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "模塊/接收機版本"
 #define TR_MENU_FIRM_OPTIONS           "韌體選項"
 #define TR_IMU                         "陀螺儀"
