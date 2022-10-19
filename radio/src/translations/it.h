@@ -33,7 +33,7 @@
  */
 
 
-#define TR_OFFON               "OFF","ON"
+#define TR_OFFON               TR("OFF","Disattivato"),TR("ON","Attivato")
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           TR("Silen","Silente"),TR("Avvis","Avvisi"),TR("Notst","No Tasti"),"Tutti"
 #define TR_VBLMODE             TR("OFF","Spenta"),"Tasti",TR("Stks","Sticks"),"Tutti",TR("ON","Accesa")
@@ -337,7 +337,7 @@
 #define TR_BITMAP              "Immagine"
 #define TR_NO_PICTURE          "No immagine"
 #define TR_TIMER               TR("Timer", "Timer ")
-#define TR_START               "Start"
+#define TR_START               "Partenza"
 #define TR_ELIMITS             TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS              TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC             "Passo Trim"
@@ -438,7 +438,7 @@
 #define TR_MODEL_SHUTDOWN              "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL      "Motore"
-#define TR_THROTTLE_START      "Modi timer"
+#define TR_THROTTLE_START      "Partenza motore"
 #define TR_THROTTLEREVERSE     TR("Mot inv.", "Motore Inverso")
 #define TR_MINUTEBEEP          "Minuto"
 #define TR_BEEPCOUNTDOWN       TR(INDENT "Conto rov", INDENT "Conto rovescia")
@@ -503,7 +503,7 @@
 #define TR_LUA_SCRIPTS_LABEL          "Lua scripts"
 #define TR_FREE_MEM_LABEL             "Mem. libera"
 #define TR_TIMER_LABEL                "Timer"
-#define TR_THROTTLE_PERCENT_LABEL     "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL     "% Motore"
 #define TR_BATT_LABEL                 "Batteria"
 #define TR_SESSION                    "Sessione"
 #define TR_MENUTORESET         TR_ENTER" per azzerare"
