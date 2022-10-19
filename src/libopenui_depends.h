@@ -30,6 +30,9 @@ void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t 
 void onKeyError();
 void killEvents(event_t event);
 
+// multiplication factor between 0 and 25
+int8_t rotaryEncoderGetAccel();
+
 //
 // These colors MUST be defined
 //
