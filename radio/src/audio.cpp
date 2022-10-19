@@ -332,7 +332,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
   if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
-    *str++ = 'A' + swinfo.quot;
+    *str++ = getRawSwitchFromIdx(swinfo.quot);
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
