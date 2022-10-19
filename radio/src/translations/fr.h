@@ -1380,7 +1380,7 @@
 #define TR_VOICE_ESPANOL                "Espanol"
 #define TR_VOICE_FRANCAIS               "Francais"
 #define TR_VOICE_HUNGARIAN              "Hungarian"
-#define TR_VOICE_ITALINO                "Italiano"
+#define TR_VOICE_ITALIANO               "Italiano"
 #define TR_VOICE_POLISH                 "Polish"
 #define TR_VOICE_PORTUGUES              "Portugues"
 #define TR_VOICE_RUSSIAN                "Russian"
