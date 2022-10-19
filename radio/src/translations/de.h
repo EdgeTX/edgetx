@@ -438,6 +438,7 @@
 #define TR_MODEL_SHUTDOWN              "Herunterfahren?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Drücke [ENTER] zum Bestätigen"
 #define TR_THROTTLE_LABEL              "Gas-Kontrolle"
+#define TR_THROTTLE_START              "Gas-Kontrolle Start"
 #define TR_THROTTLEREVERSE             TR("Gas invers", INDENT "Vollgas hinten?") //Änderung wg TH9x, Taranis
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
@@ -669,7 +670,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Update RX Optionen?"
 #define TR_UPDATE_TX_OPTIONS           "Update TX Optionen?"
 #define TR_MODULES_RX_VERSION          "Modul / RX version"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "Zeige Mischermonitor"
 #define TR_MENU_MODULES_RX_VERSION     "MODUL / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONEN"
 #define TR_IMU                        "IMU"
@@ -997,7 +998,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "Dateigröße"
 #define TR_FILE_OPEN                   "trotzdem öffnen?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis specific column headers
 #define TR_PHASES_HEADERS_NAME         "Name "

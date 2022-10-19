@@ -436,6 +436,7 @@
 #define TR_MODEL_SHUTDOWN              "Luk ned?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Tryk enter for bekræft"
 #define TR_THROTTLE_LABEL              "Gas"
+#define TR_THROTTLE_START              "Gas Start"
 #define TR_THROTTLEREVERSE             TR("T-omvendt", INDENT "Omvendt")
 #define TR_MINUTEBEEP                  TR("Minut", "Minut kald")
 #define TR_BEEPCOUNTDOWN               INDENT "Nedtælling"
@@ -997,7 +998,7 @@
 #define TR_TOUCH_PANEL                 "Tryk panel:"
 #define TR_FILE_SIZE                   "Fil størrelse"
 #define TR_FILE_OPEN                   "Åbn alligevel?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Navn"

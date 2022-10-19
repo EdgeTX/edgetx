@@ -466,6 +466,7 @@
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Tryck [ENTER] för att bekräfta"
 #define TR_THROTTLE_LABEL               "Gas"
+#define TR_THROTTLE_START               "Gas Start"
 #define TR_THROTTLEREVERSE              TR("Inv. gas", INDENT "Inverterad gas")
 #define TR_MINUTEBEEP                   "Minutpip"
 #define TR_BEEPCOUNTDOWN                INDENT "Nedräkning"
@@ -1045,7 +1046,7 @@
 #define TR_TOUCH_PANEL                  "Pekskärm:"
 #define TR_FILE_SIZE                    "Filstorlek"
 #define TR_FILE_OPEN                    "Öppna ändå?"
-#define TR_TIMER_MODES                  {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                  {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME          "Namn"

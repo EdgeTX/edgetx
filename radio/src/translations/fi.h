@@ -459,6 +459,7 @@
 #define TR_MODEL_SHUTDOWN              "Shutdown ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
 #define TR_THROTTLE_LABEL              "Throttle"
+#define TR_THROTTLE_START              "Throttle Start"
 #define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "Throttle reverse")
 #define TR_MINUTEBEEP                  TR("Minute", "Minute call")
 #define TR_BEEPCOUNTDOWN               INDENT"Countdown"
@@ -1023,7 +1024,7 @@
 #define TR_TOUCH_PANEL                 "Kosketusnäyttö:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"

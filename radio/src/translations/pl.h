@@ -328,11 +328,11 @@
 #define TR_PHASENAME           "Nazwa Fazy"
 #define TR_MIXNAME             "Nazwa Mix"
 #define TR_INPUTNAME           "Wpisz Nazw"
-  #define TR_EXPONAME          "LiniaNazw"
-#define TR_BITMAP              "Obrazek    "
+#define TR_EXPONAME            "LiniaNazw"
+#define TR_BITMAP              "Obrazek"
 #define TR_NO_PICTURE          "Bez obrazka"
 #define TR_TIMER               TR("Timer", "Timer ")
-#define TR_START                       "Start"
+#define TR_START               "Start"
 #define TR_ELIMITS             TR("Limi+25%", "Kanał +/- 125% ")
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")
 #define TR_TRIMINC             "Krok Trym"
@@ -432,7 +432,8 @@
 #define TR_USB_STILL_CONNECTED         "USB jest podłączone"
 #define TR_MODEL_SHUTDOWN              "Wyłączyć?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
-#define TR_THROTTLE_LABEL      "Gaz    "
+#define TR_THROTTLE_LABEL      "Gaz"
+#define TR_THROTTLE_START      "Gaz Start"
 #define TR_THROTTLEREVERSE     TR("OdwrGaz", INDENT "OdwrGaz")
 #define TR_MINUTEBEEP          TR("Minuta", "PikCoMinutę")
 #define TR_BEEPCOUNTDOWN       INDENT "Odliczanie"
@@ -992,7 +993,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nazwa"

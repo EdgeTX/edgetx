@@ -438,6 +438,7 @@
 #define TR_MODEL_SHUTDOWN              "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL      "Motore"
+#define TR_THROTTLE_START      "Modi timer"
 #define TR_THROTTLEREVERSE     TR("Mot inv.", "Motore Inverso")
 #define TR_MINUTEBEEP          "Minuto"
 #define TR_BEEPCOUNTDOWN       TR(INDENT "Conto rov", INDENT "Conto rovescia")
@@ -670,7 +671,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Agg. opzioni RX?"
 #define TR_UPDATE_TX_OPTIONS           "Agg. opzioni TX?"
 #define TR_MODULES_RX_VERSION          "Versioni Moduli / RX"
-#define TR_SHOW_MIXER_MONITORS         "Mostra monitor mixer"
+#define TR_SHOW_MIXER_MONITORS         "Mostra monitors mixer"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONI MODULI / RX"
 #define TR_MENU_FIRM_OPTIONS           "OPZIONI FIRMWARE"
 #define TR_IMU                         "IMU"
@@ -997,7 +998,7 @@
 #define TR_TOUCH_PANEL                 "Schermo touch:"
 #define TR_FILE_SIZE                   "Dimensione file"
 #define TR_FILE_OPEN                   "Apro comunque?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nome"

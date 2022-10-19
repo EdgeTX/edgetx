@@ -452,6 +452,7 @@
 #define TR_MODEL_SHUTDOWN              "Vypnout?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
+#define TR_THROTTLE_START              "Plyn Start"
 #define TR_THROTTLEREVERSE             TR("ReverzPlyn", INDENT"Reverz plynu")
 #define TR_MINUTEBEEP                  TR("Minuta", "Oznamovat minuty")
 #define TR_BEEPCOUNTDOWN               INDENT"Odpočet"
@@ -687,7 +688,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Uložit nastavení?"
 #define TR_UPDATE_TX_OPTIONS           "Uložit nastavení?"
 #define TR_MODULES_RX_VERSION          "Verze modulu a RX"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "Zobrazit monitor mixů"
 #define TR_MENU_MODULES_RX_VERSION     "VERZE MODULU A RX"
 #define TR_MENU_FIRM_OPTIONS           "MOŽNOSTI FIRMWARE"
 #define TR_IMU                         "IMU"
@@ -1013,7 +1014,7 @@
 #define TR_TOUCH_PANEL                 "Dotyková obrazovka:"
 #define TR_FILE_SIZE                   "Velikost souboru"
 #define TR_FILE_OPEN                   "Otevřít?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Název"
