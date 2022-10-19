@@ -438,7 +438,7 @@
 #define TR_MODEL_SHUTDOWN              "Herunterfahren?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Drücke [ENTER] zum Bestätigen"
 #define TR_THROTTLE_LABEL              "Gas-Kontrolle"
-#define TR_THROTTLE_START              "Gas-Kontrolle Start"
+#define TR_THROTTLE_START              "Gas Start"
 #define TR_THROTTLEREVERSE             TR("Gas invers", INDENT "Vollgas hinten?") //Änderung wg TH9x, Taranis
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
@@ -505,7 +505,7 @@
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_TIMER_LABEL                 "Timer"
-#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Battery"
 #define TR_SESSION                     "Session"
 #define TR_MENUTORESET                 TR_ENTER " für Reset"
