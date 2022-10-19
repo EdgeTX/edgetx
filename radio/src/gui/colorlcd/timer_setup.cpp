@@ -94,6 +94,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   auto timerValue =
       new TimeEdit(line, rect_t{}, 0, TIMER_MAX, GET_DEFAULT(p_timer->start),
                    timerValueUpdater(timer));
+  timerValue->setAccelFactor(16);
 
   // Timer direction
   auto timerDirLine = form->newLine(&grid);

@@ -74,12 +74,22 @@ void ColorBar::on_key(lv_event_t* e)
   uint32_t key = *(uint32_t*)lv_event_get_param(e);
   if (key == LV_KEY_LEFT) {
     if (bar->value > 0) {
+      auto accel = rotaryEncoderGetAccel();
       bar->value--;
+      if (accel > 0) {
+        if (accel > bar->value) bar->value = 0;
+        else bar->value -= accel;
+      }
       lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
     }
   } else if (key == LV_KEY_RIGHT) {
     if (bar->value < bar->maxValue) {
+      auto accel = rotaryEncoderGetAccel();
       bar->value++;
+      if (accel > 0) {
+        if (accel < bar->maxValue - bar->value) bar->value += accel;
+        else bar->value = bar->maxValue;
+      }
       lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
     }
   }
