@@ -36,9 +36,14 @@
 #define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
 #define TR_TRNMODE                     "FRA","+=",":="
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
-
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse"
-#define TR_SWTYPES                     "Ingen","Toggle","2POS","3POS"
+
+#if LCD_W > LCD_H
+  #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"
+#else
+  #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
+#endif
+
 #define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
@@ -157,10 +162,10 @@
   #define TR_SF_SAFETY                 "---"
 #endif
 
-#define TR_SF_SCREENSHOT               "Screenshot"
+#define TR_SF_SCREENSHOT               "Skærm klip"
 #define TR_SF_RACING_MODE              "RacingMode"
-#define TR_SF_DISABLE_TOUCH            "No Touch"
-#define TR_SF_SET_SCREEN               "Set Main Screen"
+#define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
+#define TR_SF_SET_SCREEN               "Vælg hoved skærm"
 #define TR_SF_RESERVE                  "[reserve]"
 
 #define TR_VFSWFUNC                    TR_SF_SAFETY,"Træner","Inst. Trim","Nulstil","Sæt",TR_ADJUST_GVAR,"Volume","SetFejlsikr","AfstandCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Baggrundslys",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
@@ -382,10 +387,10 @@
 #define TR_ANTENNA                     "Antenne"
 #define TR_NO_INFORMATION              TR("Ingen info", "Ingen information")
 #define TR_MULTPX                      "Multiplex"
-#define TR_DELAYDOWN                   TR("Forsink ned", "Forsink ned")
-#define TR_DELAYUP                     "Forsink op"
+#define TR_DELAYDOWN                   TR("Forsink ned", "Forsinkelse ned")
+#define TR_DELAYUP                     TR("Forsink op", "Forsinkelse op")
 #define TR_SLOWDOWN                    TR("Langsom ned", "Langsom ned")
-#define TR_SLOWUP                      "Langsom op"
+#define TR_SLOWUP                      TR("Langsom op", "Langsom op")
 #define TR_MIXES                       "MIX"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
@@ -396,11 +401,11 @@
 #define TR_ACHANNEL                    "En\004kanal"
 #define TR_RANGE                       INDENT "Rækkevid"
 #define TR_CENTER                      INDENT "Centrer"
-#define TR_BAR                         "Bar"
+#define TR_BAR                         "Bjælke"
 #define TR_ALARM                       "Alarm"
 #define TR_USRDATA                     TR("UsrData", "User data")
-#define TR_BLADES                      "Blades/Poles"
-#define TR_SCREEN                      "Screen\001"
+#define TR_BLADES                      "Blade/Poler"
+#define TR_SCREEN                      "Skærm\001"
 #define TR_SOUND_LABEL                 "Lyd"
 #define TR_LENGTH                      "Længde"
 #define TR_BEEP_LENGTH                 "Bip længde"
@@ -429,7 +434,7 @@
 #define TR_THROTTLEREVERSE             TR("T-omvendt", INDENT "Omvendt")
 #define TR_MINUTEBEEP                  TR("Minut", "Minut kald")
 #define TR_BEEPCOUNTDOWN               INDENT "Nedtælling"
-#define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
+#define TR_PERSISTENT                  TR(INDENT "Varig", INDENT "Varig")
 #define TR_BACKLIGHT_LABEL             "Baggrunds lys"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
@@ -439,8 +444,8 @@
 #define TR_KEYS_BACKLIGHT              "Taster klarhed"
 #define TR_BLCOLOR                     "Farve"
 #define TR_SPLASHSCREEN                "Start skærm"
-#define TR_PWR_ON_DELAY                "Str til forsinkelse"
-#define TR_PWR_OFF_DELAY               "Str fra forsinkelse"
+#define TR_PWR_ON_DELAY                "Strøm forsink TIL"
+#define TR_PWR_OFF_DELAY               "Strøm forsink FRA"
 #define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Tilp-Pos", INDENT INDENT INDENT INDENT "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
@@ -455,7 +460,7 @@
 #define TR_STICKS                      "Pinde"
 #define TR_POTS                        "Drejekontakt"
 #define TR_SWITCHES                    "Kontakter"
-#define TR_SWITCHES_DELAY              TR("Spil delay", "Spil delay (sw. mid pos)")
+#define TR_SWITCHES_DELAY              TR("Cen forsink", "Center forsinkelse")
 #define TR_SLAVE                       CENTER "Slave"
 #define TR_MODESRC                     "Mode\006% Kilde"
 #define TR_MULTIPLIER                  "Multiplier"
@@ -966,7 +971,7 @@
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "Mix kilde"
 #define TR_CONSTANT                    "Konstant"
-#define TR_PERSISTENT_MAH              TR(INDENT "Str mAh", INDENT "Persistent mAh")
+#define TR_PERSISTENT_MAH              TR(INDENT "Varig mAh", INDENT "Varig mAh")
 #define TR_PREFLIGHT                   "Fly checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Vis checkliste")
 #define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS offset")
@@ -1108,14 +1113,20 @@
 #define TR_DELETE_ALL_SENSORS          "Slet alle"
 #define TR_CONFIRMDELETE               "Virkeligt " LCDW_128_480_LINEBREAK "slet alle ?"
 #define TR_SELECT_WIDGET               "Vælg widget"
-#define TR_WIDGET_FULLSCREEN           "Full screen"
+#define TR_WIDGET_FULLSCREEN           "Fuld skærm"
 #define TR_REMOVE_WIDGET               "Slet widget"
 #define TR_WIDGET_SETTINGS             "Widget indstilinger"
 #define TR_REMOVE_SCREEN               "Slet skærm"
-#define TR_SETUP_WIDGETS               "Opsæt widgets"
+
+#if LCD_W > LCD_H
+  #define TR_SETUP_WIDGETS              "Opsæt widget"
+#else
+  #define TR_SETUP_WIDGETS              "Widget"
+#endif
+
 #define TR_USER_INTERFACE              "Bruger interface"
 #define TR_THEME                       "Tema"
-#define TR_SETUP                       "Setup"
+#define TR_SETUP                       "Opsætning"
 #define TR_LAYOUT                      "Layout"
 #define TR_ADD_MAIN_VIEW               "Tilføj hoved billede"
 #define TR_BACKGROUND_COLOR            "Baggrund farve"
@@ -1125,7 +1136,7 @@
 #define TR_TEXT_COLOR                  "Tekst farve"
 #define TR_TEXT_VIEWER                 "Tekst Viewer"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Indgange"
-#define TR_MENU_LUA                    STR_CHAR_LUA "Lua scripts"
+#define TR_MENU_LUA                    STR_CHAR_LUA "Lua script"
 #define TR_MENU_STICKS                 STR_CHAR_STICK "Pinde"
 #define TR_MENU_POTS                   STR_CHAR_POT "Drejekontakt"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "MAX"
@@ -1141,9 +1152,9 @@
 #define TR_MENU_OTHER                  "Andet"
 #define TR_MENU_INVERT                 "Invers"
 #define TR_JITTER_FILTER               "ADC filter"
-#define TR_DEAD_ZONE                   "Dead zone"
+#define TR_DEAD_ZONE                   "Dødt område"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC spænding")
-#define TR_AUTH_FAILURE                "Auth-failure"
+#define TR_AUTH_FAILURE                "Godkendelse fejlet"
 #define TR_RACING_MODE                 "Racing tilstand"
 
 #define STR_VFR                       "VFR"
@@ -1304,11 +1315,13 @@
 #define TR_USE_THEME_COLOR              "Brug tema farve"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Tillæg alle trim til subtrim"
+
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Monitor"
+  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal monitor"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Åbn kanal mon."
 #endif
+
 #define TR_DUPLICATE                    "Dupliker"
 #define TR_ACTIVATE                     "Set aktiv"
 #define TR_RED                          "Rød"
@@ -1330,8 +1343,26 @@
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nIndstilling"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio\nIndstilling"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skærme\nIndstilling"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skærm\nIndstilling"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Nulstil\nTelemetri"
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Om\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "Engelsk"
+#define TR_VOICE_CHINESE                "Kinesisk"
+#define TR_VOICE_CZECH                  "Tjekkisk"
+#define TR_VOICE_DANISH                 "Dansk"
+#define TR_VOICE_DEUTSCH                "Tysk"
+#define TR_VOICE_DUTCH                  "Hollandsk"
+#define TR_VOICE_ESPANOL                "Spansk"
+#define TR_VOICE_FRANCAIS               "Fransk"
+#define TR_VOICE_HUNGARIAN              "Ungarsk"
+#define TR_VOICE_ITALINO                "Italiensk"
+#define TR_VOICE_POLISH                 "Polsk"
+#define TR_VOICE_PORTUGUES              "Portugisisk"
+#define TR_VOICE_RUSSIAN                "Russisk"
+#define TR_VOICE_SLOVAK                 "Slovakisk"
+#define TR_VOICE_SWEDISH                "Svensk"
+
