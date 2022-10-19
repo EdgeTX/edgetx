@@ -118,6 +118,7 @@ static const IntmoduleCtx intmoduleCtx = {
 
 void intmoduleStop()
 {
+  INTERNAL_MODULE_OFF();
   stm32_usart_deinit(&intmoduleUSART);
 
   // reset callbacks
