@@ -1012,6 +1012,7 @@
 #define TR_TOUCH_PANEL                 "Dotyková obrazovka:"
 #define TR_FILE_SIZE                   "Velikost souboru"
 #define TR_FILE_OPEN                   "Otevřít?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Název"

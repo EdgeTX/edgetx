@@ -24,10 +24,6 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-// TODO: translation
-const char* STR_TIMER_MODES[] = {"OFF",      "ON",         "Start",
-                                 "Throttle", "Throttle %", "Throttle Start"};
-
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,

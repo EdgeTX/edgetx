@@ -1003,6 +1003,7 @@
 #define TR_TOUCH_PANEL                 "タッチパネル:"
 #define TR_FILE_SIZE                   "ファイルサイズ"
 #define TR_FILE_OPEN                   "ファイルを開きますか？"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名称"

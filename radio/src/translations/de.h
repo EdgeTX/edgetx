@@ -996,6 +996,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "Dateigröße"
 #define TR_FILE_OPEN                   "trotzdem öffnen?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis specific column headers
 #define TR_PHASES_HEADERS_NAME         "Name "

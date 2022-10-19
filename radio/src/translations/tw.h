@@ -991,6 +991,7 @@
 #define TR_TOUCH_PANEL                 "觸摸屏:"
 #define TR_FILE_SIZE                   "文件大小"
 #define TR_FILE_OPEN                   "強制打開?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名稱"
