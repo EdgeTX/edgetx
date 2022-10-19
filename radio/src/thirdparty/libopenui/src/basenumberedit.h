@@ -78,6 +78,26 @@ class BaseNumberEdit: public FormField
       return step;
     }
 
+    void setFastStep(int value)
+    {
+      fastStep = value;
+    }
+
+    int32_t getFastStep() const
+    {
+      return fastStep;
+    }
+
+    void setAccelFactor(int value)
+    {
+      accelFactor = value;
+    }
+
+    int32_t getAccelFactor() const
+    {
+      return accelFactor;
+    }
+
     void setValue(int value)
     {
       auto newValue = limit(vmin, value, vmax);
@@ -190,6 +210,8 @@ class BaseNumberEdit: public FormField
     int vmin;
     int vmax;
     int step = 1;
+    int fastStep = 10;
+    int accelFactor = 4;
     int currentValue;
     bool instantChange = true;
     std::string prefix;

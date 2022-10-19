@@ -66,8 +66,10 @@ void NumberEdit::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
       case EVT_ROTARY_RIGHT: {
         int value = getValue();
+        auto step = getStep();
+        step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
-          value += ROTARY_ENCODER_SPEED() * step;
+          value += step;
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
         if (value <= vmax) {
           setValue(value);
@@ -81,8 +83,10 @@ void NumberEdit::onEvent(event_t event)
 
       case EVT_ROTARY_LEFT: {
         int value = getValue();
+        auto step = getStep();
+        step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
-          value -= ROTARY_ENCODER_SPEED() * step;
+          value -= step;
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
         if (value >= vmin) {
           setValue(value);
@@ -104,11 +108,11 @@ void NumberEdit::onEvent(event_t event)
         break;
 
       case EVT_VIRTUAL_KEY_FORWARD:
-        setValue(getValue() + 10 * getStep());
+        setValue(getValue() + getFastStep() * getStep());
         break;
 
       case EVT_VIRTUAL_KEY_BACKWARD:
-        setValue(getValue() - 10 * getStep());
+        setValue(getValue() - getFastStep() * getStep());
         break;
 
       case EVT_VIRTUAL_KEY_DEFAULT:
