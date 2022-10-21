@@ -1341,7 +1341,7 @@
 #define TR_VOICE_CHINESE                "Chinese"
 #define TR_VOICE_CZECH                  "Czech"
 #define TR_VOICE_DANISH                 "Danish"
-#define TR_VOICE_DEUTSCH                "Deutsch"
+#define TR_VOICE_DEUTSCH                "German"
 #define TR_VOICE_DUTCH                  "Dutch"
 #define TR_VOICE_ESPANOL                "Espanol"
 #define TR_VOICE_FRANCAIS               "Francais"
