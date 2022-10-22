@@ -1143,7 +1143,7 @@
 #define ADC_DMA_Stream                  DMA2_Stream4
 #define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
 #define ADC_SAMPTIME                    2   // sample time = 28 cycles
-#define ADC_CHANNEL_RTC_BAT             ADC_Channel_VBat
+#define ADC_CHANNEL_RTC_BAT             ADC_Channel_Vbat
 
 #if defined(PCBX9E)
   #define HARDWARE_POT1

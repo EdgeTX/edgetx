@@ -583,6 +583,7 @@ set(FIRMWARE_TARGET_SRC
   ${LED_DRIVER}
   ${LCD_DRIVER}
   board.cpp
+  adc_driver.cpp
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp
@@ -616,12 +617,14 @@ endif()
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} switches hw_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} adcs hw_adc_inputs.inc)
 
 # enable generating JSON definition separately for debugging
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC}
   ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/hw_adc_inputs.inc
   ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 

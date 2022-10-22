@@ -47,7 +47,6 @@ class ADCInput:
     TYPE_SLIDER = 'SLIDER'
     TYPE_EXT    = 'EXT'
     TYPE_SWITCH = 'SWITCH'
-    TYPE_SWITCH = 'SWITCH'
     TYPE_BATT   = 'BATT'
 
     def __init__(self, name, adc_input_type, adc, gpio, pin, channel):

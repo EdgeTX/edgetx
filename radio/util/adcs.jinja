@@ -7,7 +7,7 @@ static const stm32_adc_input_t _ADC_inputs[] = {
 {% for input in adc_inputs.inputs %}
   {
     "{{ input.name }}",
-    {{ input.type }},
+    ADC_INPUT_{{ input.type }},
     {{ input.gpio if input.gpio else 'nullptr' }},
     {{ input.channel }},
     {{ '1 // inverted' if input.inverted else '0 // normal' }}
@@ -19,7 +19,7 @@ static const stm32_adc_input_t _ADC_inputs[] = {
 {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) %}
 static const uint8_t _ADC_{{ adc.name }}_channels[] = {
   {% for input in inputs %}
-  { {{ adc_index[input.name] }}, {{ input.channel }} },
+    {{ adc_index[input.name] }},
   {% endfor %}
 };
 
@@ -29,20 +29,21 @@ static const stm32_adc_t _ADC_adc[] = {
 {% for adc in adc_inputs.adcs %}
   {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) %}
   {% set input_count = inputs | list | count %}
-  { {{ adc.adc }}, _ADC_{{ adc.name }}_channels, {{ ns.start_offs }}, {{ input_count }} },
+  { {{ adc.adc }}, nullptr, 0, 0, // TODO: DMA settings
+    _ADC_{{ adc.name }}_channels, {{ input_count }}, 0/*sample_time*/ },
   {% set ns.start_offs = ns.start_offs + input_count %}
 {% endfor %}
 };
 
 {% for adc_gpio, adc_inputs in adc_gpios.items() | sort %}
-static const uint8_t _ADC_{{ adc_gpio }}_pins[] = {
+static const uint32_t _ADC_{{ adc_gpio }}_pins[] = {
   {% for input in adc_inputs %}
-  { {{ input.pin }}, {{ input.idx }} },
+    {{ input.idx }},
   {% endfor %}
 };
 
 {% endfor %}
-static const uint8_t _ADC_GPIOs[] = {
+static const stm32_adc_gpio_t _ADC_GPIOs[] = {
 {% for adc_gpio, adc_inputs in adc_gpios.items() | sort %}
   { {{ adc_gpio }}, _ADC_{{ adc_gpio }}_pins, {{ adc_inputs|count }} },
 {% endfor %}

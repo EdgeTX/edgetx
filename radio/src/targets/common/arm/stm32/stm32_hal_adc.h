@@ -21,25 +21,49 @@
 
 #pragma once
 
-struct stm32_hal_adc_channel {
-  const uint8_t adc_channel;
-  const uint8_t sample_time;
+#include "stm32_hal_ll.h"
+#include "hal/adc_driver.h"
+
+enum {
+  ADC_INPUT_STICK=0,
+  ADC_INPUT_POT,
+  ADC_INPUT_SLIDER,
+  ADC_INPUT_EXT,
+  ADC_INPUT_SWITCH,
+  ADC_INPUT_BATT,
 };
 
-typedef const stm32_hal_adc_channel* (*stm32_hal_adc_get_channels)();
-typedef uint8_t (*stm32_hal_adc_get_nconv)();
-typedef uint16_t* (*stm32_hal_adc_get_dma_buffer)();
+struct stm32_adc_input_t {
+  const char*   name;
+  uint8_t       type;
+  GPIO_TypeDef* GPIOx;
+  uint32_t      ADC_Channel;
+  uint8_t       inverted;
+};
 
-struct stm32_hal_adc {
-  ADC_TypeDef* adc;
+struct stm32_adc_t {
+  ADC_TypeDef*         ADCx;
+  DMA_TypeDef*         DMAx;
+  uint32_t             DMA_Stream;
+  uint32_t             DMA_Channel;
+  const uint8_t*       channels;
+  uint8_t              n_channels;
+  uint8_t              sample_time;
+};
 
-  DMA_Stream_TypeDef*                dma_stream;
-  uint32_t                           dma_channel;
-  const stm32_hal_adc_get_dma_buffer get_dma_buffer;
-
-  const stm32_hal_adc_get_nconv    get_nconv;
-  const stm32_hal_adc_get_channels get_channels;
+struct stm32_adc_gpio_t {
+  GPIO_TypeDef*   GPIOx;
+  const uint32_t* pins;
+  uint8_t         n_pins;
 };
 
 // Driver to be passed to adcInit()
-extern const etx_hal_adc_driver_t stm32_hal_adc_driver;
+//extern const etx_hal_adc_driver_t stm32_hal_adc_driver;
+
+bool stm32_hal_adc_init(const stm32_adc_t* ADCs,
+                        const stm32_adc_gpio_t* ADC_GPIOs,
+                        uint8_t n_ADC);
+
+bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC);
+
+void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC);

@@ -19,12 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_adc.h"
+
 #include "board.h"
 #include "debug.h"
 #include "rtc.h"
-
-#include "hal/adc_driver.h"
-#include "stm32_hal_adc.h"
 
 #include "../common/arm/stm32/timers_driver.h"
 
@@ -48,6 +47,9 @@ extern "C" {
 #endif
 
 HardwareOptions hardwareOptions;
+
+// adc_driver.cpp
+extern const etx_hal_adc_driver_t _adc_driver;
 
 void watchdogInit(unsigned int duration)
 {
@@ -181,7 +183,7 @@ void boardInit()
 
    if (usbPlugged()) {
      delaysInit();
-     adcInit(&stm32_hal_adc_driver);
+     adcInit(&_adc_driver);
      getADC();
      pwrOn(); // required to get bat adc reads
      storageReadRadioSettings(false);  // Needed for bat calibration
@@ -225,7 +227,7 @@ void boardInit()
   }
 #endif
 
-  if (!adcInit(&stm32_hal_adc_driver))
+  if (!adcInit(&_adc_driver))
       TRACE("adcInit failed");
   lcdInit(); // delaysInit() must be called before
   audioInit();
