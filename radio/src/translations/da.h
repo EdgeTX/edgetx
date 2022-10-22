@@ -1365,4 +1365,4 @@
 #define TR_VOICE_RUSSIAN                "Russisk"
 #define TR_VOICE_SLOVAK                 "Slovakisk"
 #define TR_VOICE_SWEDISH                "Svensk"
-
+#define TR_VOICE_TAIWANESE              "Taiwanesisk"
