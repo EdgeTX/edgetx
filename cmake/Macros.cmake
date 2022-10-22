@@ -109,6 +109,11 @@ function(AddHardwareDefTarget output)
     COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} | jq . > ${output}
     DEPENDS ${HW_DEF_SRC}
     )
+
+  add_custom_command(OUTPUT ${output}.h
+    COMMAND ${GEN_HW_DEFS} > ${output}.h
+    DEPENDS ${HW_DEF_SRC}
+    )
 endfunction()
 
 function(AddHWGenTarget input template output)

@@ -108,7 +108,7 @@ do
     cmake --build arm-none-eabi --target hardware_defs
 
     mkdir -p ${TARGET_DIR}
-    mv arm-none-eabi/radio/src/*.json ${TARGET_DIR}
+    mv arm-none-eabi/radio/src/*.json* ${TARGET_DIR}
     
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done

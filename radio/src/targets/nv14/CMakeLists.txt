@@ -176,7 +176,7 @@ AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} switches hw_switches.inc)
 
 # enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC}
   ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
