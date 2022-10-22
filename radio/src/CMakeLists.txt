@@ -190,9 +190,21 @@ endif()
 
 if(RTC_BACKUP_RAM)
   add_definitions(-DRTC_BACKUP_RAM)
-  set(SRC ${SRC} storage/rlc.cpp)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} storage/rtc_backup.cpp)
-  set(GTEST_SRC ${GTEST_SRC} ${RADIO_SRC_DIR}/storage/rtc_backup.cpp)
+
+  GenerateDataCopy(datastructs_private.h datacopy.inc)
+
+  set(SRC ${SRC}
+    storage/rlc.cpp
+    storage/rtc_backup.cpp
+    )
+
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+    storage/rtc_backup.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc
+    )
+
+  # Add custom target for debugging
+  # add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.cpp)
 endif()
 
 if(LUA)
@@ -600,7 +612,7 @@ add_definitions(-DFREE_RTOS)
 
 add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
 link_libraries(firmware -lstdc++)
-add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
+add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 if(ACCESS_DENIED)

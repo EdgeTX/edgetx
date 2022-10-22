@@ -47,3 +47,44 @@ macro(PrintTargetReport targetName)
     message("--------------")
   endif()
 endmacro(PrintTargetReport)
+
+function(AddCompilerFlags output)
+  get_property(flags DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY COMPILE_DEFINITIONS)
+  foreach(flag ${flags})
+    set(ARGS ${ARGS} -D${flag})
+  endforeach()
+
+  get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+  foreach(dir ${dirs})
+    set(ARGS ${ARGS} -I${dir})
+  endforeach()
+
+  # prevent some warnings
+  set(ARGS ${ARGS} -Wno-asm-operand-widths -Wno-pragma-once-outside-header)
+  
+  set(${output} ${${output}} ${ARGS} PARENT_SCOPE)
+endfunction()
+
+function(GenerateDatacopy source output)
+
+  set(GEN_DATACOPY ${RADIO_DIRECTORY}/util/generate_datacopy.py)
+  set(GEN_DATACOPY_DEPEND ${CMAKE_CURRENT_SOURCE_DIR}/${source} ${GEN_DATACOPY})
+
+  # Fetch defines / include directories in use
+  AddCompilerFlags(GEN_DATACOPY_ARGS)
+
+  set(GEN_DATACOPY_ARGS
+    # source file MUST be the first argument
+    ${CMAKE_CURRENT_SOURCE_DIR}/${source}
+    -DBACKUP ${GEN_DATACOPY_ARGS} ${SYSROOT_ARG})
+
+  set(GEN_DATACOPY_CMD
+    ${PYTHON_EXECUTABLE} ${GEN_DATACOPY} ${GEN_DATACOPY_ARGS})
+  
+  add_custom_command(
+    OUTPUT ${output}
+    COMMAND ${GEN_DATACOPY_CMD} > ${output}
+    DEPENDS ${GEN_DATACOPY_DEPEND}
+    )
+
+endfunction()

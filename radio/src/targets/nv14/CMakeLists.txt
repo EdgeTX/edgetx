@@ -60,7 +60,6 @@ set(TOUCH_DRIVER touch_driver.cpp)
 set(HARDWARE_TOUCH YES)
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
-set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 
@@ -164,21 +163,13 @@ set(FIRMWARE_SRC
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
 
-if(PYTHONINTERP_FOUND)
-  add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h
-      -DPCBFLYSKY -DPCBNV14 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU
-      -I. -Igui/colorlcd -Itargets/nv14 -Itargets/common/arm/stm32
-      -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include
-      -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG}
-    > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
-    )
-  add_custom_target(datacopy DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp)
-endif()
+set(STM32LIB_SRC
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
+  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
+  )
 

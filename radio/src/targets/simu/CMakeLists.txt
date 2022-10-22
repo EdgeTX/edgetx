@@ -48,6 +48,23 @@ if(SIMU_BOOTLOADER)
     )
 endif()
 
+if(RTC_BACKUP_RAM)
+  GenerateDataCopy(../../datastructs_private.h ../../datacopy.inc)
+  set(SIMU_SRC ${SIMU_SRC} ${CMAKE_CURRENT_BINARY_DIR}/../../datacopy.inc)
+endif()
+
+# Pack all radio sources into an object lib
+add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
+  ${SIMU_SRC})
+
+# Add -DSIMU here PRIVATE, whereby it is added again
+# for the executable targets
+target_compile_options(radiolib_native PRIVATE -DSIMU)
+add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+
+# Replace SIMU_SRC with the object from radiolib_native
+set(SIMU_SRC $<TARGET_OBJECTS:radiolib_native>)
+
 if(Qt5Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
@@ -56,7 +73,6 @@ if(Qt5Widgets_FOUND)
   qt5_wrap_cpp(SIMULATOR_SRC ${COMPANION_SRC_DIRECTORY}/simulation/simulatorinterface.h opentxsimulator.h)
   list(APPEND SIMULATOR_SRC ${SIMU_SRC} opentxsimulator.cpp)
   add_library(${SIMULATOR_TARGET} SHARED ${SIMULATOR_SRC})
-  add_dependencies(${SIMULATOR_TARGET} ${RADIO_DEPENDENCIES})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})  # set in top-level CMakeLists
   target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
 
@@ -144,16 +160,11 @@ if(FOX_FOUND)
 
   add_executable(simu WIN32
     EXCLUDE_FROM_ALL
-    ${SIMU_SRC} ${RADIO_SRC_DIR}/simu.cpp)
-
-  add_dependencies(simu ${RADIO_DEPENDENCIES})
+    ${SIMU_SRC}
+    ${RADIO_SRC_DIR}/simu.cpp)
 
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
   target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL_LIBRARY})
-  target_compile_definitions(simu PUBLIC -DSIMU)
-  if(SIMU_DISKIO)
-    target_compile_definitions(simu PUBLIC -DSIMU_DISKIO)
-  endif()
 endif()
 
 if(APPLE)

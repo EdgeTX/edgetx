@@ -41,9 +41,6 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     target_link_libraries(gtests-radio-lib PRIVATE ${SDL_LIBRARY})
   endif()
 
-  foreach(FILE ${SRC})
-    set(RADIO_SRC ${RADIO_SRC} ../${FILE})
-  endforeach()
 
   file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp)
 
@@ -56,18 +53,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     ${GTEST_SRC}
     ${TEST_SRC_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/location.h
-    ${RADIO_SRC}
-    ../targets/simu/simpgmspace.cpp
-    ../targets/simu/simueeprom.cpp
-    ../targets/simu/simufatfs.cpp
-    ../targets/simu/simulcd.cpp
-    ../targets/simu/module_drivers.cpp
-    ../targets/simu/led_driver.cpp
-    ../targets/simu/backlight_driver.cpp
-    ../targets/simu/gyro_driver.cpp
-    ../targets/simu/bt_driver.cpp
+    $<TARGET_OBJECTS:radiolib_native>
     )
-  add_dependencies(gtests-radio ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES} gtests-radio-lib)
+  add_dependencies(gtests-radio gtests-radio-lib)
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
     add_dependencies(gtests-radio ${HORUS_MODEL_FILES})
   endif()
