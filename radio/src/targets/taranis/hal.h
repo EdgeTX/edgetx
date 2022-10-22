@@ -1143,6 +1143,7 @@
 #define ADC_DMA_Stream                  DMA2_Stream4
 #define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
 #define ADC_SAMPTIME                    2   // sample time = 28 cycles
+#define ADC_CHANNEL_RTC_BAT             ADC_Channel_VBat
 
 #if defined(PCBX9E)
   #define HARDWARE_POT1
@@ -1427,6 +1428,32 @@
   #define ADC_CHANNEL_SLIDER2           ADC_Channel_15
   #define ADC_CHANNEL_BATT              ADC_Channel_10
   #define ADC_VREF_PREC2                330
+#endif
+
+#if defined(PCBX9E)
+  #if defined(HORUS_STICKS)
+    #define ADC_DIRECTION { 1,-1,1,-1,-1,-1,-1,1, -1,1,1,-1, -1,-1 }
+  #else
+    #define ADC_DIRECTION { 1,1,-1,-1,-1,-1,-1,1, -1,1,1,-1, -1,-1 }
+  #endif // HORUS_STICKS
+#elif defined(PCBX9DP)
+  #define ADC_DIRECTION {1,-1,1,-1,  1,1,-1,  1,1,  1,  1}
+#elif defined(PCBX9D)
+  #define ADC_DIRECTION {1,-1,1,-1,  1,1,0,   1,1,  1,  1}
+#elif defined(RADIO_TX12)
+  #define ADC_DIRECTION {-1,1,-1,1,  -1,-1,  1,  1}
+#elif defined(RADIO_TX12MK2)
+  #define ADC_DIRECTION {-1,1,-1,1,  1,-1}
+#elif defined(RADIO_ZORRO)
+  #define ADC_DIRECTION {-1, 1, 1, -1, -1, 1, 1, 1}
+#elif defined(RADIO_TPRO)
+  #define ADC_DIRECTION {1,-1,1,-1,  1,1,  1,  1}
+#elif defined(PCBX7)
+  #define ADC_DIRECTION {-1,1,-1,1,  1,1,  1,  1}
+#elif defined(PCBX9LITE)
+  #define ADC_DIRECTION {-1,1,-1,1,  1,1,  1}
+#elif defined(PCBXLITE)
+  #define ADC_DIRECTION {1,-1,-1,1,  -1,1,  1,  1}
 #endif
 
 // PWR and LED driver

@@ -152,6 +152,13 @@
 #define ADC_EXT_DMA_Stream              DMA2_Stream0
 #define ADC_EXT_TC_Flag                 DMA_FLAG_TCIF0
 
+#define ADC_DIRECTION                                                   \
+    { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \
+      -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,                   \
+      0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,                    \
+      0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,                                  \
+      0 /*SWB*/, 0 /*SWD*/}
+
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
 #define PWR_ON_GPIO                     GPIOI

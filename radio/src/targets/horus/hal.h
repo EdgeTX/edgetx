@@ -280,11 +280,16 @@
   #define ADC_SPI_PinSource_SCK         GPIO_PinSource2
   #define ADC_SPI_PinSource_MISO        GPIO_PinSource5
   #define ADC_SPI_PinSource_MOSI        GPIO_PinSource6
+
+  #define ADC_MAIN                      ADC3
   #define ADC_GPIO_PIN_MOUSE1           GPIO_Pin_8 // PF.08 ADC3_IN6 J5 MOUSE_X
   #define ADC_GPIO_PIN_MOUSE2           GPIO_Pin_9 // PF.09 ADC3_IN7 J6 MOUSE_Y
   #define ADC_GPIO_MOUSE                GPIOF
   #define ADC_CHANNEL_MOUSE1            6
   #define ADC_CHANNEL_MOUSE2            7
+  #define ADC_EXT                       ADC1
+  #define ADC_CHANNEL_RTC_BAT           ADC_Channel_Vbat // ADC1_IN16
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
   #define ADC_DMA                       DMA2
   #define ADC_DMA_Stream                DMA2_Stream0
   #define ADC_SAMPTIME                  3
@@ -333,7 +338,7 @@
   #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
   #define ADC_CHANNEL_EXT3              ADC_Channel_2   // ADC3_IN2: same as RH
   #define ADC_CHANNEL_EXT4              ADC_Channel_3   // ADC3_IN3: same as RV
-  #define ADC_CHANNEL_RTC_BATT          ADC_Channel_Vbat // ADC1_IN16
+  #define ADC_CHANNEL_RTC_BAT           ADC_Channel_Vbat // ADC1_IN16
   #define ADC_MAIN                      ADC3
   #define ADC_EXT                       ADC1
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
@@ -353,6 +358,21 @@
   #endif
 #endif
 
+#if defined(RADIO_T16)
+  #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
+#elif defined(RADIO_T18)
+  #define ADC_DIRECTION                 {1,-1,1,-1, -1,1,-1,  -1,1,1,1,  -1,1 }
+#elif defined(RADIO_TX16S)
+  #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
+#elif defined(PCBX10)
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 }
+#elif defined(PCBX12S)
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0}
+#else
+  #error "Missing ADC_DIRECTION array"
+#endif
+
+  
 // Power
 #if defined(RADIO_T18)
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_GPIOB

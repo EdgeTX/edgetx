@@ -50,9 +50,10 @@ class ADCInput:
     TYPE_SWITCH = 'SWITCH'
     TYPE_BATT   = 'BATT'
 
-    def __init__(self, name, adc_input_type, gpio, pin, channel):
+    def __init__(self, name, adc_input_type, adc, gpio, pin, channel):
         self.name = name
         self.type = adc_input_type
+        self.adc = adc
         self.gpio = gpio
         self.pin = pin
         self.channel = channel
@@ -123,7 +124,7 @@ def parse_switches(hw_defs, adc_parser):
         pin_high = f'{pin}_H'
         pin_low = f'{pin}_L'
 
-        adc_input_name = f'S{s}'
+        adc_input_name = f'SW{s}'
 
         if reg in hw_defs:
             # 2POS switch
@@ -148,17 +149,8 @@ class ADC:
     def __init__(self, name, adc):
         self.name = name
         self.adc = adc
-        self.adc_inputs = []
 
-    def add_input(self, adc_input):
-        if adc_input is not None:
-            self.adc_inputs.append(adc_input)
 
-    def find_input(self, name):
-        for i in self.adc_inputs:
-            if i.name == name:
-                return i
-        return None
     
 
 class ADCInputParser:
@@ -166,11 +158,9 @@ class ADCInputParser:
     ADC_MAIN = 'MAIN'
     ADC_EXT = 'EXT'
 
-    STICKS = ['RV','RH','LH','LV']
-
     ADC_INPUTS = {
         ADCInput.TYPE_STICK: {
-            'range': ['RV','RH','LH','LV'],
+            'range': ['LH','LV','RV','RH'],
             'suffix': 'STICK_{}',
             'name': '{}',
         },
@@ -192,7 +182,7 @@ class ADCInputParser:
         ADCInput.TYPE_SWITCH: {
             'range': AZ_seq(),
             'suffix': 'SW{}',
-            'name': 'S{}',
+            'name': 'SW{}',
         },
     }
     
@@ -200,6 +190,7 @@ class ADCInputParser:
     def __init__(self, hw_defs):
         self.hw_defs = hw_defs
         self.regs = self._parse_regs()
+        self.dirs = self._parse_dirs()
         self.adcs = []
 
     def _parse_regs(self):
@@ -213,12 +204,22 @@ class ADCInputParser:
 
         return regs
 
+    def _parse_dirs(self):
+
+        ret = []
+        dirs = self.hw_defs['ADC_DIRECTION'].strip('{} ').split(',')
+        # print(dirs)
+        for i in dirs:
+            ret.append(int(i))
+
+        return ret
+        
     def _find_adc(self, channel_def):
 
         if (self.ext_list is None) or (channel_def not in self.ext_list):
-            return 0 # self.ADC_MAIN
+            return self.ADC_MAIN
         else:
-            return 1 # self.ADC_EXT
+            return self.ADC_EXT
         
     def _find_gpio(self, pin):
         gpio = None
@@ -247,60 +248,68 @@ class ADCInputParser:
 
         return adcs
 
-    def _parse_vbat(self):
-
-        channel_def = 'ADC_CHANNEL_BATT'
-        vbat = self.hw_defs.get(channel_def)
-        if vbat:
-            adc = self._find_adc(channel_def)
-            return (adc, ADCInput('VBAT', 'BATT', None, None, vbat))
-
-        return (None, None)
-
     def _parse_input_type(self, input_type, name, suffix):
 
-        pin_def = f'ADC_GPIO_PIN_{suffix}'
-        pin = self.hw_defs[pin_def]
-        gpio = self._find_gpio(pin_def)
+        gpio = None
+        pin = None
+        d = 1 # non-inverted
 
-        # check if 'pin' is maybe an alias
-        alias = self.hw_defs.get(pin)
-        if alias is not None:
-            alias_gpio = self._find_gpio(pin)
-            gpio = alias_gpio if alias_gpio else gpio
-            pin = alias
+        if name != 'RTC_BAT':
+            pin_def = f'ADC_GPIO_PIN_{suffix}'
+            pin = self.hw_defs[pin_def]
+            gpio = self._find_gpio(pin_def)
+
+            # check if 'pin' is maybe an alias
+            alias = self.hw_defs.get(pin)
+            if alias is not None:
+                alias_gpio = self._find_gpio(pin)
+                gpio = alias_gpio if alias_gpio else gpio
+                pin = alias
         
         channel_def = f'ADC_CHANNEL_{suffix}'
         channel = self.hw_defs[channel_def]
         adc = self._find_adc(channel_def)
 
-        return (adc, ADCInput(name, input_type, gpio, pin, channel))
+        return ADCInput(name, input_type, adc, gpio, pin, channel)
 
-    def _add_input(self, adc, adc_input):
+    def _add_input(self, adc_input):
         if adc_input is not None:
-            self.adcs[adc].add_input(adc_input)
+            if adc_input.type != 'BATT':
+                d = self.dirs[len(self.inputs)]
+                if d < 0:
+                    adc_input.inverted = True
+            self.inputs.append(adc_input)
 
     def parse_inputs(self):
 
         self.adcs = self._parse_adcs()
+        self.inputs = []
 
         for input_type, adc_input in self.ADC_INPUTS.items():
             try:
                 for i in adc_input['range']:
                     name = adc_input['name'].format(i)
                     suffix = adc_input['suffix'].format(i)
-                    self._add_input(*self._parse_input_type(input_type, name, suffix))
+                    self._add_input(self._parse_input_type(input_type, name, suffix))
             except KeyError:
                 pass
 
-        self._add_input(*self._parse_vbat())
-        return self.adcs
+        try:
+            self._add_input(self._parse_input_type('BATT', 'VBAT', 'BATT'))
+        except KeyError:
+            pass
+
+        try:
+            self._add_input(self._parse_input_type('BATT', 'RTC_BAT', 'RTC_BAT'))
+        except KeyError:
+            pass
+
+        return { 'adcs': self.adcs, 'inputs': self.inputs }
 
     def find_input(self, name):
-        for adc in self.adcs:
-            i = adc.find_input(name)
-            if i is not None:
-                return i
+        for adc_input in self.inputs:
+            if adc_input.name == name:
+                return adc_input
         return None
 
 
@@ -312,25 +321,50 @@ def parse_defines(filename):
     # parse ADC first, we might have switches using ADC
     adc_parser = ADCInputParser(hw_defs)
     adc_inputs = adc_parser.parse_inputs()
-    out_defs["adcs"] = adc_inputs
+    out_defs["adc_inputs"] = adc_inputs
 
     switches = parse_switches(hw_defs, adc_parser)
     out_defs["switches"] = switches
 
     print(json.dumps(out_defs, cls=DictEncoder))
 
-
-def build_adc_index(adcs):
+#
+# These methods are used on JSON structure, not on the object collections
+#
+def build_adc_index(adc_inputs):
 
     i = 0
     index = {}
-    for adc in adcs:
-        for adc_input in adc.get('adc_inputs'):
-            name = adc_input['name']
-            index[name] = i
-            i = i + 1
+    for adc_input in adc_inputs['inputs']:
+        name = adc_input['name']
+        index[name] = i
+        i = i + 1
 
     return index
+
+def build_adc_gpio_port_index(adc_inputs):
+
+    i = 0
+    gpios = {}
+    for adc_input in adc_inputs['inputs']:
+
+        gpio = adc_input['gpio']
+        if gpio is None:
+            i = i + 1
+            continue
+
+        if gpio not in gpios:
+            gpios[gpio] = []
+
+        pin = {
+            'pin': adc_input['pin'],
+            'idx': i
+        }
+
+        gpios[gpio].append(pin)
+        i = i + 1
+
+    return gpios
 
 def generate_from_template(json_filename, template_filename):
 
@@ -338,7 +372,10 @@ def generate_from_template(json_filename, template_filename):
         with open(template_filename) as template_file:
 
             root_obj = json.load(json_file)
-            adc_index = build_adc_index(root_obj.get('adcs'))
+
+            adc_inputs = root_obj.get('adc_inputs')
+            adc_index = build_adc_index(adc_inputs)
+            adc_gpios = build_adc_gpio_port_index(adc_inputs)
 
             env = jinja2.Environment(
                 lstrip_blocks=True,
@@ -348,7 +385,9 @@ def generate_from_template(json_filename, template_filename):
             template_str = template_file.read()
             template = env.from_string(template_str)
 
-            print(template.render(root_obj, adc_index=adc_index))
+            print(template.render(root_obj,
+                                  adc_index=adc_index,
+                                  adc_gpios=adc_gpios))
 
 if __name__ == "__main__":
 

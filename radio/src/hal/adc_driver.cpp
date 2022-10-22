@@ -39,11 +39,11 @@ const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 };
 #elif defined(PCBX9E)
   const int8_t adcDirection[NUM_ANALOGS] = {
-#if defined(HORUS_STICKS)
+  #if defined(HORUS_STICKS)
     1,-1,1,-1,
-#else
+  #else
     1,1,-1,-1,
-#endif // HORUS_STICKS
+  #endif // HORUS_STICKS
     // other analogs are the same
     -1,-1,-1,1, -1,1,1,-1, -1,-1 };
 
