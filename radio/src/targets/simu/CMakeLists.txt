@@ -61,6 +61,7 @@ add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
 # for the executable targets
 target_compile_options(radiolib_native PRIVATE -DSIMU)
 add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # Replace SIMU_SRC with the object from radiolib_native
 set(SIMU_SRC $<TARGET_OBJECTS:radiolib_native>)
@@ -165,6 +166,7 @@ if(FOX_FOUND)
 
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
   target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL_LIBRARY})
+  target_compile_options(simu PRIVATE -DSIMU)
 endif()
 
 if(APPLE)
