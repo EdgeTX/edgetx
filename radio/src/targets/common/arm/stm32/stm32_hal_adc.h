@@ -37,6 +37,7 @@ struct stm32_adc_input_t {
   const char*   name;
   uint8_t       type;
   GPIO_TypeDef* GPIOx;
+  uint32_t      GPIO_Pin;
   uint32_t      ADC_Channel;
   uint8_t       inverted;
 };
@@ -60,9 +61,8 @@ struct stm32_adc_gpio_t {
 // Driver to be passed to adcInit()
 //extern const etx_hal_adc_driver_t stm32_hal_adc_driver;
 
-bool stm32_hal_adc_init(const stm32_adc_t* ADCs,
-                        const stm32_adc_gpio_t* ADC_GPIOs,
-                        uint8_t n_ADC);
+bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                        const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO);
 
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC);
 

@@ -78,3 +78,11 @@ extern JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
 
 void getADC();
 uint16_t anaIn(uint8_t chan);
+uint16_t getBatteryVoltage();
+
+// STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
+// Measuring VBAT puts considerable drain (22 µA) on the battery instead of
+// normal drain (~10 nA)
+void enableVBatBridge();
+void disableVBatBridge();
+bool isVBatBridgeEnabled();

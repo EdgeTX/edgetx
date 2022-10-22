@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
 #define STATS_1ST_COLUMN               1
 #define STATS_2ND_COLUMN               7*FW+FW/2

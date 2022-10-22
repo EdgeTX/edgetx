@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "hal/adc_driver.h"
 
 #if !defined(EEPROM)
 #include "storage/sdcard_common.h"

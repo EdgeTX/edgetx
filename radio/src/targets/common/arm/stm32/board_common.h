@@ -43,7 +43,6 @@
   #include "stm32f4xx_gpio.h"
   #include "stm32f4xx_exti.h"
   #include "stm32f4xx_tim.h"
-  #include "stm32f4xx_adc.h"
   #include "stm32f4xx_spi.h"
   #include "stm32f4xx_pwr.h"
   #include "stm32f4xx_dma.h"
@@ -58,7 +57,6 @@
   #include "stm32f2xx_gpio.h"
   #include "stm32f2xx_exti.h"
   #include "stm32f2xx_tim.h"
-  #include "stm32f2xx_adc.h"
   #include "stm32f2xx_spi.h"
   #include "stm32f2xx_pwr.h"
   #include "stm32f2xx_dma.h"
@@ -81,25 +79,6 @@
 #if defined(SIMU)
 #include "../simu/simpgmspace.h"
 #endif
-
-uint16_t getBatteryVoltage();
-
-// STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
-// Measuring VBAT puts considerable drain (22 µA) on the battery instead of normal drain (~10 nA)
-static inline void enableVBatBridge()
-{
-  ADC->CCR |= ADC_CCR_VBATE;
-}
-
-static inline void disableVBatBridge()
-{
-  ADC->CCR &= ~ADC_CCR_VBATE;
-}
-
-static inline bool isVBatBridgeEnabled()
-{
-  return ADC->CCR & ADC_CCR_VBATE;
-}
 
 // Delays driver
 #define SYSTEM_TICKS_1MS  ((CPU_FREQ + 500) / 1000)

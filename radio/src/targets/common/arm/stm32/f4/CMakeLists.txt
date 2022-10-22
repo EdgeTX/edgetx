@@ -8,12 +8,14 @@ if(NOT NATIVE_BUILD)
   include_directories(${STM32CUBE_DIR}/Inc)
 
   add_library(stm32cube_ll OBJECT EXCLUDE_FROM_ALL
+    # LL drivers
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_gpio.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_tim.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_exti.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_adc.c
     # HAL drivers
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pwr.c

@@ -22,68 +22,85 @@
 #include "stm32_hal_adc.h"
 #include "opentx.h"
 
+#define ADC_COMMON ((ADC_Common_TypeDef *) ADC_BASE)
+
+// STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
+// Measuring VBAT puts considerable drain (22 µA) on the battery instead of
+// normal drain (~10 nA)
+void enableVBatBridge()
+{
+  // Set internal measurement path for vbat sensor
+  LL_ADC_SetCommonPathInternalCh(ADC_COMMON, LL_ADC_PATH_INTERNAL_VBAT);
+}
+
+void disableVBatBridge()
+{
+  // Set internal measurement path to none
+  LL_ADC_SetCommonPathInternalCh(ADC_COMMON, LL_ADC_PATH_INTERNAL_NONE);
+}
+
+bool isVBatBridgeEnabled()
+{
+  return LL_ADC_GetCommonPathInternalCh(ADC_COMMON) == LL_ADC_PATH_INTERNAL_VBAT;
+}
+
 static bool adc_disable_dma(DMA_TypeDef* DMAx, uint32_t stream);
 static void adc_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t stream);
 
 static void adc_init_pins(const stm32_adc_gpio_t* GPIOs, uint8_t n_GPIO)
 {
-  (void)GPIOs;
-  (void)n_GPIO;
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
   
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  pinInit.Mode = LL_GPIO_MODE_ANALOG;
+  pinInit.Pull = LL_GPIO_PULL_NO;
 
-  // TODO: replace with a loop over _ADC_GPIOs
-  // TODO: check if pin is already initialised
-#if defined(ADC_GPIOA_PINS)
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-  if (globalData.flyskygimbals)
-  {
-      GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS_FS;
+  const stm32_adc_gpio_t* gpio = GPIOs;
+  while (n_GPIO > 0) {
+
+    pinInit.Pin = 0;
+
+    for (uint8_t pin_idx = 0; pin_idx < gpio->n_pins; pin_idx++) {
+
+      uint32_t pin = gpio->pins[pin_idx];
+      uint32_t mode = LL_GPIO_GetPinMode(gpio->GPIOx, pin);
+
+      // Output or AF: pin is probably used somewhere else
+      if (mode != LL_GPIO_MODE_INPUT || mode != LL_GPIO_MODE_ANALOG) continue;
+      
+      pinInit.Pin |= pin;
+    }
+
+    LL_GPIO_Init(gpio->GPIOx, &pinInit);
+    gpio++; n_GPIO--;
   }
-  else
-#endif
-      GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
-
-#if defined(ADC_GPIOB_PINS)
-  GPIO_InitStructure.GPIO_Pin = ADC_GPIOB_PINS;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-#endif
-
-#if defined(ADC_GPIOC_PINS)
-  GPIO_InitStructure.GPIO_Pin = ADC_GPIOC_PINS;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-#endif
-
-#if defined(ADC_GPIOF_PINS)
-  GPIO_InitStructure.GPIO_Pin = ADC_GPIOF_PINS;
-  GPIO_Init(GPIOF, &GPIO_InitStructure);
-#endif  
 }
 
 static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 {
-  ADC_InitTypeDef ADC_InitStructure;
-  ADC_StructInit(&ADC_InitStructure);
+  // ADC must be disabled for the functions used here
+  LL_ADC_Disable(ADCx);
 
-  ADC_InitStructure.ADC_ScanConvMode = ENABLE; // Sets ADC_CR1_SCAN
-  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE; // Clears ADC_CR2_CONT
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // Software trigger
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfConversion = nconv; // Channel count
-  
-  ADC_Init(ADCx, &ADC_InitStructure);
+  LL_ADC_InitTypeDef adcInit;
+  LL_ADC_StructInit(&adcInit);
 
-  // enable ADC_MAIN
-  ADC_Cmd(ADCx, ENABLE);                            // ADC_CR2_ADON
-  // enable DMA for ADC
-  ADC_DMACmd(ADCx, ENABLE);                         // ADC_CR2_DMA
-  ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE); // ADC_CR2_DDS
+  adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
+  adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;  
+  LL_ADC_Init(ADCx, &adcInit);
+
+  LL_ADC_REG_InitTypeDef adcRegInit;
+  LL_ADC_REG_StructInit(&adcRegInit);
+
+  adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+  adcRegInit.SequencerLength = nconv;
+  adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+  adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_LIMITED;
+  LL_ADC_REG_Init(ADCx, &adcRegInit);
+
+  // Enable ADC
+  // TODO: check ADC_CR2_DDS (normally only for circular DMA
+  //       but the old was using it (no clue why)
+  LL_ADC_Enable(ADCx);  
 }
 
 static void adc_init_channels(const stm32_adc_t* adc,
@@ -93,7 +110,8 @@ static void adc_init_channels(const stm32_adc_t* adc,
 
   uint8_t rank = 1;
   while (nconv > 0) {
-    ADC_RegularChannelConfig(adc->ADCx, *chan, rank, adc->sample_time);
+    LL_ADC_REG_SetSequencerRanks(adc->ADCx, rank, *chan);
+    LL_ADC_SetChannelSamplingTime(adc->ADCx, *chan, adc->sample_time);
     nconv--; rank++; chan++;
   }
 }
@@ -133,17 +151,17 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
 // Max 16 channels per ADC
 static uint16_t _adc_dma_buffer[16] __DMA;
 
-bool stm32_hal_adc_init(const stm32_adc_t* ADCs,
-                        const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_ADC)
+bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                        const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO)
 {
-  adc_init_pins(ADC_GPIOs, n_ADC);
+  adc_init_pins(ADC_GPIOs, n_GPIO);
 
   // Init common to all ADCs
-  ADC_CommonInitTypeDef ADC_CommonInitStruct;
-  ADC_CommonStructInit(&ADC_CommonInitStruct);
-  ADC_CommonInitStruct.ADC_Mode = ADC_Mode_Independent;
-  ADC_CommonInitStruct.ADC_Prescaler = ADC_Prescaler_Div2;
-  ADC_CommonInit(&ADC_CommonInitStruct);
+  LL_ADC_CommonInitTypeDef commonInit;
+  LL_ADC_CommonStructInit(&commonInit);
+
+  commonInit.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV2;
+  LL_ADC_CommonInit(ADC_COMMON, &commonInit);
 
   const stm32_adc_t* adc = ADCs;
   while (n_ADC > 0) {
@@ -169,9 +187,6 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs,
   }
 
   //TODO: move VBat & PWM sticks somewhere else.
-
-  // Enable vbat sensor
-  ADC_VBATCmd(ENABLE);
 
 #if NUM_PWMSTICKS > 0
   if (STICKS_PWM_ENABLED()) {
@@ -294,10 +309,13 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC)
   }  
 
   // TODO: this hack needs to go away...
-#if defined(ADC_EXT) && !defined(ADC_EXT_DMA_Stream)
+  // #if defined(ADC_EXT) && !defined(ADC_EXT_DMA_Stream)
   if (isVBatBridgeEnabled()) {
-    rtcBatteryVoltage = ADC_EXT->DR;
-    disableVBatBridge();
+  //     rtcBatteryVoltage = ADC_EXT->DR;
+     disableVBatBridge();
   }
-#endif
+  // #endif
+
+  // TODO: copy internal DMA buffer into analog value array
+  //       while mapping the channels back in order.
 }

@@ -288,7 +288,7 @@
   #define ADC_CHANNEL_MOUSE1            6
   #define ADC_CHANNEL_MOUSE2            7
   #define ADC_EXT                       ADC1
-  #define ADC_CHANNEL_RTC_BAT           ADC_Channel_Vbat // ADC1_IN16
+  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN16
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
   #define ADC_DMA                       DMA2
   #define ADC_DMA_Stream                DMA2_Stream0
@@ -324,24 +324,24 @@
   #define ADC_GPIOA_PINS               (STICKS_PWM_ENABLED() ? 0 : (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV | ))
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER2)
   #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_EXT2)
-  #define ADC_CHANNEL_STICK_LH          ADC_Channel_0   // ADC3_IN0
-  #define ADC_CHANNEL_STICK_LV          ADC_Channel_1   // ADC3_IN1
-  #define ADC_CHANNEL_STICK_RH          ADC_Channel_2   // ADC3_IN2
-  #define ADC_CHANNEL_STICK_RV          ADC_Channel_3   // ADC3_IN3
-  #define ADC_CHANNEL_POT1              ADC_Channel_10  // ADC3_IN10
-  #define ADC_CHANNEL_POT2              ADC_Channel_11  // ADC3_IN11
-  #define ADC_CHANNEL_POT3              ADC_Channel_12  // ADC3_IN12
-  #define ADC_CHANNEL_SLIDER1           ADC_Channel_4   // ADC3_IN4
-  #define ADC_CHANNEL_SLIDER2           ADC_Channel_13  // ADC3_IN13
-  #define ADC_CHANNEL_BATT              ADC_Channel_5   // ADC3_IN5
-  #define ADC_CHANNEL_EXT1              ADC_Channel_6   // ADC3_IN6
-  #define ADC_CHANNEL_EXT2              ADC_Channel_7   // ADC3_IN7
-  #define ADC_CHANNEL_EXT3              ADC_Channel_2   // ADC3_IN2: same as RH
-  #define ADC_CHANNEL_EXT4              ADC_Channel_3   // ADC3_IN3: same as RV
-  #define ADC_CHANNEL_RTC_BAT           ADC_Channel_Vbat // ADC1_IN16
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0   // ADC3_IN0
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1   // ADC3_IN1
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_2   // ADC3_IN2
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_3   // ADC3_IN3
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10  // ADC3_IN10
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11  // ADC3_IN11
+  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_12  // ADC3_IN12
+  #define ADC_CHANNEL_SLIDER1           LL_ADC_CHANNEL_4   // ADC3_IN4
+  #define ADC_CHANNEL_SLIDER2           LL_ADC_CHANNEL_13  // ADC3_IN13
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_5   // ADC3_IN5
+  #define ADC_CHANNEL_EXT1              LL_ADC_CHANNEL_6   // ADC3_IN6
+  #define ADC_CHANNEL_EXT2              LL_ADC_CHANNEL_7   // ADC3_IN7
+  #define ADC_CHANNEL_EXT3              LL_ADC_CHANNEL_2   // ADC3_IN2: same as RH
+  #define ADC_CHANNEL_EXT4              LL_ADC_CHANNEL_3   // ADC3_IN3: same as RV
+  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN16
   #define ADC_MAIN                      ADC3
   #define ADC_EXT                       ADC1
-  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BAT }
   #define ADC_SAMPTIME                  3
   #define ADC_DMA                       DMA2
   #define ADC_DMA_Channel               DMA_Channel_2
