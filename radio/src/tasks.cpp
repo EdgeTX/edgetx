@@ -40,7 +40,7 @@ void stackPaint()
   menusStack.paint();
   mixerStack.paint();
   audioStack.paint();
-#if defined(CLI)
+#if defined(CLI) && !defined(SIMU)
   cliStack.paint();
 #endif
 }
@@ -266,7 +266,7 @@ void tasksStart()
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 
-#if defined(CLI)
+#if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 

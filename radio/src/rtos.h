@@ -314,17 +314,9 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   #define TASK_RETURN()                 vTaskDelete(nullptr)
 
 #else // no RTOS
-  static inline void RTOS_START()
-  {
-  }
 
-  static inline void RTOS_WAIT_MS(unsigned x)
-  {
-  }
+  #error "No RTOS implementation defined"
 
-  static inline void RTOS_WAIT_TICKS(unsigned x)
-  {
-  }
 #endif  // RTOS type
 
 #ifdef __cplusplus
