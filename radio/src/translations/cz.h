@@ -1374,4 +1374,4 @@
 #define TR_VOICE_RUSSIAN                "Ruština"
 #define TR_VOICE_SLOVAK                 "Slovenština"
 #define TR_VOICE_SWEDISH                "Švédština"
-#define TR_VOICE_TAIWANESE              "Taiwanese"
+#define TR_VOICE_TAIWANESE              "Tchajwanština"
