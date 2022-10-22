@@ -1357,7 +1357,7 @@
 #define TR_VOICE_HUNGARIAN              "Ungherese"
 #define TR_VOICE_ITALIANO               "Italiano"
 #define TR_VOICE_POLISH                 "Polacco"
-#define TR_VOICE_PORTUGUES              "Portoguese"
+#define TR_VOICE_PORTUGUES              "Portoghese"
 #define TR_VOICE_RUSSIAN                "Russo"
 #define TR_VOICE_SLOVAK                 "Slovacco"
 #define TR_VOICE_SWEDISH                "Svedese"
