@@ -55,12 +55,31 @@ class ModelsPageBody : public FormWindow
     refreshLabels = std::move(fnc);
   }
 
+  void setFocusedMCell(ModelCell* mC)
+  { 
+    focusedMCell = mC;
+  }
+
+  ModelButton* getCurrentModelButton() 
+  { 
+    return currentModelButton;
+  }
+
+  void setInitialized()
+  { 
+    initialized = true; 
+  }
+
  protected:
   ModelsSortBy _sortOrder;
   bool isDirty = false;
   bool refresh = false;
   std::string selectedLabel;
   LabelsVector selectedLabels;
+  ModelCell *focusedMCell = nullptr;
+  ModelButton *currentModelButton = nullptr;
+  ModelButton *newFocusedButton = nullptr;
+  bool initialized = false;
   std::function<void()> refreshLabels = nullptr;
 
   void selectModel(ModelCell* model);

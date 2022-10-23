@@ -314,6 +314,11 @@ class ModelButton : public Button
       dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
     } else {
       dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
+      // Remember which ModelCell is focused so it can stay that if order changed
+      ModelsPageBody *p = (ModelsPageBody *)parent;
+      if (p) {
+        p->setFocusedMCell(this->getModelCell());
+      }
     }
   }
 
@@ -324,7 +329,7 @@ class ModelButton : public Button
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
-
+  
   void onClicked() override {
     if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
       lv_group_focus_obj(lvobj);
@@ -332,6 +337,7 @@ class ModelButton : public Button
       Button::onClicked();
     }
   }
+  
 };
 
 //-----------------------------------------------------------------------------
@@ -492,6 +498,7 @@ void ModelsPageBody::editLabels(ModelCell* model)
 void ModelsPageBody::update(int selected)
 {
   clear();
+  currentModelButton = nullptr;  // will soon have new buttons
 
   ModelsVector models;
   if (selectedLabels.size()) {
@@ -500,24 +507,49 @@ void ModelsPageBody::update(int selected)
     models = modelslabels.getAllModels();
   }
 
+  ModelCell *curModel = modelslist.getCurrentModel();
+ 
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model);
 
-    // Long Press Handler for Models
+    if (!currentModelButton) {  // save fist button as default to get focus
+      currentModelButton = button;
+    }
+
+    if (focusedMCell == model) {    // if find focused ModelCell save it
+      newFocusedButton = button;
+    }
+
+    if (model == curModel) {        // if current selected model in list save it
+      currentModelButton = button;
+    }
+
     button->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(this);
-      menu->setTitle(model->modelName);
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
+      if (button->hasFocus() && model != curModel) {
+        selectModel(model);
       }
-      menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
-      }
-      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
-      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
+
+    // Long Press Handler for Models
+    button->setLongPressHandler([=]() -> uint8_t {
+      Menu *menu = new Menu(this);
+      menu->setTitle(model->modelName);
+      menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
+      menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
+      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
+      if (model != curModel) {
+        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
+      }
+      return 0;
+    });
+  }
+  if (initialized) {
+    if (newFocusedButton) {
+      lv_group_focus_obj(newFocusedButton->getLvObj());
+    } else if (currentModelButton) {
+      lv_group_focus_obj(currentModelButton->getLvObj());
+    } 
   }
 }
 
@@ -597,6 +629,11 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
       lblselector->setSelected(getLabels().size() - 1);
     }
   }
+  ModelButton *curModelB = mdlselector->getCurrentModelButton();
+  if (curModelB) {
+    lv_group_focus_obj(curModelB->getLvObj());
+  }
+  mdlselector->setInitialized();
 }
 
 #if defined(HARDWARE_KEYS)
