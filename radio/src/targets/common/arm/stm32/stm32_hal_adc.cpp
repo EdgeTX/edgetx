@@ -23,6 +23,19 @@
 #include "opentx.h"
 
 #define ADC_COMMON ((ADC_Common_TypeDef *) ADC_BASE)
+#define MAX_ADC_INPUTS 32
+#define OVERSAMPLING   4
+
+// Max 32 inputs supported
+static uint32_t _adc_input_mask = 0;
+
+// DMA buffers
+static uint16_t _adc_dma_buffer[MAX_ADC_INPUTS] __DMA;
+
+// Need for oversampling and decimation
+static uint8_t _adc_run;
+static uint8_t _adc_oversampling_disabled = 0;
+static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of
@@ -105,6 +118,8 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 
   if (nconv > 1) {
     adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
+  } else {
+    adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_DISABLE;
   }
 
   adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;  
@@ -114,10 +129,10 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_REG_StructInit(&adcRegInit);
 
   adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+  adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
 
   if (nconv > 1) {
     adcRegInit.SequencerLength = _seq_length_lookup[nconv - 1];
-    adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
     adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_UNLIMITED;
   }
 
@@ -156,9 +171,12 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
   if (!chan || !nconv) return 0;
 
   uint8_t rank = 0;
+  uint32_t channel_mask = 0;
+  
   while (nconv > 0) {
 
-    const stm32_adc_input_t* input = &inputs[*chan];
+    uint8_t input_idx = *chan;
+    const stm32_adc_input_t* input = &inputs[input_idx];
 
     // TODO: save some bitmask with used channels
     uint32_t mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
@@ -168,11 +186,27 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
       continue;
     }
 
+    // channel is already used, probably a secondary input
+    // using the same ADC channel
+    uint32_t mask = (1 << (ADC_CHANNEL_ID_MASK & input->ADC_Channel));
+    if (channel_mask & mask) {
+      nconv--; chan++;
+      continue;
+    }
+
+    // update mask for used channels
+    channel_mask |= mask;
+
+    // update mask for valid inputs
+    _adc_input_mask |= (1 << input_idx);
+    
     LL_ADC_REG_SetSequencerRanks(adc->ADCx, _rank_lookup[rank],
                                  input->ADC_Channel);
 
     LL_ADC_SetChannelSamplingTime(adc->ADCx, input->ADC_Channel,
                                   adc->sample_time);
+
+    
     nconv--;
     rank++;
     chan++;
@@ -212,9 +246,6 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
   return true;
 }
 
-// Max 16 channels per ADC
-static uint16_t _adc_dma_buffer[16] __DMA;
-
 bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
                         const stm32_adc_input_t* inputs,
                         const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO)
@@ -228,6 +259,8 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   commonInit.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV2;
   LL_ADC_CommonInit(ADC_COMMON, &commonInit);
 
+  _adc_input_mask = 0;
+  uint16_t* dma_buffer = _adc_dma_buffer;
   const stm32_adc_t* adc = ADCs;
   while (n_ADC > 0) {
 
@@ -240,13 +273,20 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
       nconv = adc_init_channels(adc, inputs, chan, nconv);
       adc_setup_scan_mode(adc->ADCx, nconv);
 
-      if (adc->DMAx) {
-        if (!adc_init_dma_stream(adc->ADCx, adc->DMAx, adc->DMA_Stream,
-                                 adc->DMA_Channel, _adc_dma_buffer, nconv))
-          return false;
+      if (nconv > 1) {
+        if (adc->DMAx) {
+          if (!adc_init_dma_stream(adc->ADCx, adc->DMAx, adc->DMA_Stream,
+                                   adc->DMA_Channel, dma_buffer, nconv))
+            return false;
+        }
+      } else {
+        // single conversion
       }
     }
 
+    // increment DMA buffer for next ADC
+    dma_buffer += nconv;
+    
     // move to next ADC definition
     adc++; n_ADC--;
   }
@@ -321,26 +361,39 @@ static bool adc_disable_dma(DMA_TypeDef* DMAx, uint32_t stream)
 static void adc_start_single_conversion(ADC_TypeDef* ADCx)
 {
   ADCx->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADCx->CR2 |= (uint32_t)ADC_CR2_SWSTART;  
+  ADCx->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+}
+
+static bool adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
+{
+  const stm32_adc_t* adc = ADCs;
+  while (n_ADC > 0) {
+
+    if (LL_ADC_GetSequencersScanMode(adc->ADCx) == LL_ADC_SEQ_SCAN_ENABLE) {
+      // more than one channel enable on this ADC
+      if (adc->DMAx) {
+        if(!adc_start_dma_conversion(adc->ADCx, adc->DMAx, adc->DMA_Stream))
+          return false;
+      }
+    } else {
+      // just one channel
+      adc_start_single_conversion(adc->ADCx);
+    }
+
+    // move to next ADC
+    adc++; n_ADC--;
+  }
+
+  return true;
 }
 
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
 {
-  const stm32_adc_t* adc = ADCs;
-  while (n_ADC > 0) {
-    uint8_t nconv = adc->n_channels;
-    if (nconv > 0) {
-      if (adc->DMAx) {
-        if (!adc_start_dma_conversion(adc->ADCx, adc->DMAx, adc->DMA_Stream))
-          return false;
-      } else if (nconv == 1) {
-        adc_start_single_conversion(adc->ADCx);
-      }
-    }
-    // move to next ADC definition
-    adc++; n_ADC--;
-  }
-  return true;
+  // init oversampling
+  memclear(_adc_oversampling, sizeof(_adc_oversampling));
+  _adc_run = 0;
+
+  return adc_start_read(ADCs, n_ADC);
 }
 
 static void copy_adc_values(uint16_t* dst, uint16_t* src,
@@ -351,8 +404,8 @@ static void copy_adc_values(uint16_t* dst, uint16_t* src,
     uint8_t channel = adc->channels[i];
     const stm32_adc_input_t* input = &inputs[channel];
 
-    uint32_t pin_mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
-    if (pin_mode != LL_GPIO_MODE_ANALOG) {
+    // if input disabled, skip
+    if (~_adc_input_mask & (1 << channel)) {
       continue;
     }
 
@@ -365,48 +418,120 @@ static void copy_adc_values(uint16_t* dst, uint16_t* src,
   }
 }
 
-void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
-                                   const stm32_adc_input_t* inputs)
+static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                                const stm32_adc_input_t* inputs)
 {
   //TODO:
   // - replace with IRQ trigger (both)
   // - move RTC batt reading somewhere else
 
+  uint16_t* dma_buffer = _adc_dma_buffer;
   const stm32_adc_t* adc = ADCs;
   while (n_ADC > 0) {
 
-    switch(adc->DMA_Stream){
+    // if the ADC has no active channels,
+    // it has not been enabled at all
+    if (!LL_ADC_IsEnabled(adc->ADCx))
+      continue;
 
-    case LL_DMA_STREAM_0:
-      // for (unsigned int i=0; i<10000; i++) {
-      //   if (!LL_DMA_IsActiveFlag_TC0(adc->DMAx)) break;
-      // }
-      while(!LL_DMA_IsActiveFlag_TC0(adc->DMAx));
-      break;
+    // Code bellow assumes nconv > 0
+    // otherwise the ADC should not be enabled
+    //
+    // TODO: timeout?
+    //
+    if (adc->DMAx && LL_DMA_IsEnabledStream(adc->DMAx, adc->DMA_Stream)) {
 
-    case LL_DMA_STREAM_4:
-      // for (unsigned int i=0; i<10000; i++) {
-      //   if (!LL_DMA_IsActiveFlag_TC4(adc->DMAx)) break;
+      switch(adc->DMA_Stream){
+
+      case LL_DMA_STREAM_0:
+        while (LL_DMA_IsEnabledStream(adc->DMAx, adc->DMA_Stream) &&
+               !LL_DMA_IsActiveFlag_TC0(adc->DMAx)) {
+          // busy wait
+        }
+        break;
+
+      case LL_DMA_STREAM_4:
+        while(LL_DMA_IsEnabledStream(adc->DMAx, adc->DMA_Stream) &&
+              !LL_DMA_IsActiveFlag_TC4(adc->DMAx)) {
+          // busy wait
+        }
+        break;
+      }
+
+      adc_disable_dma(adc->DMAx, adc->DMA_Stream);
+    } else {
+      // no DMA used, wait for ADC to complete
+      // while (!LL_ADC_IsActiveFlag_EOCS(adc->ADCx)) {
+      //   // busy wait
       // }
-      while(!LL_DMA_IsActiveFlag_TC4(adc->DMAx));
-      break;
     }
 
-    adc_disable_dma(adc->DMAx, adc->DMA_Stream);
-    copy_adc_values(adcValues, _adc_dma_buffer, adc, inputs);
-    
-    // move to next ADC definition
+    // fetch number of copnversions
+    uint16_t* tmp_buf = dma_buffer;
+    uint32_t seq_len = LL_ADC_REG_GetSequencerLength(adc->ADCx);
+    if (seq_len == LL_ADC_REG_SEQ_SCAN_DISABLE) {
+      // single conversion
+      *dma_buffer = adc->ADCx->DR;
+      dma_buffer++;
+    }
+    else {
+      // sequence
+      seq_len = (seq_len >> ADC_SQR1_L_Pos) + 1;
+      dma_buffer += seq_len;
+    }
+
+    // finally copy the values into their final destination
+    copy_adc_values(adcValues, tmp_buf, adc, inputs);
+
+    // and move to the next ADC
     adc++; n_ADC--;
-  }  
-
-  // TODO: this hack needs to go away...
-  // #if defined(ADC_EXT) && !defined(ADC_EXT_DMA_Stream)
-  if (isVBatBridgeEnabled()) {
-  //     rtcBatteryVoltage = ADC_EXT->DR;
-     disableVBatBridge();
   }
-  // #endif
+}
 
-  // TODO: copy internal DMA buffer into analog value array
-  //       while mapping the channels back in order.
+void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                                   const stm32_adc_input_t* inputs, uint8_t n_inputs)
+{
+  while(++_adc_run <= OVERSAMPLING) {
+    adc_wait_completion(ADCs, n_ADC, inputs);
+
+    if (_adc_oversampling_disabled)
+      return;
+
+    for (uint8_t i = 0; i < n_inputs; i++) {
+
+      // if input disabled, skip
+      if (~_adc_input_mask & (1 << i)) {
+        continue;
+      }
+
+      uint16_t val = adcValues[i];
+#if defined(JITTER_MEASURE)
+      if (JITTER_MEASURE_ACTIVE()) {
+        rawJitter[i].measure(val);
+      }
+#endif
+      _adc_oversampling[i] += val;
+    }
+    adc_start_read(ADCs, n_ADC);
+  }
+
+  for (uint8_t i = 0; i < n_inputs; i++) {
+
+    // if input disabled, skip
+    if (~_adc_input_mask & (1 << i)) {
+      continue;
+    }
+
+    adcValues[i] = _adc_oversampling[i] / OVERSAMPLING;
+  }
+}
+
+void stm32_hal_adc_disable_oversampling()
+{
+  _adc_oversampling_disabled = 1;
+}
+
+void stm32_hal_adc_isr(const stm32_adc_t* adc)
+{
+  // TODO: chain the next ADC
 }

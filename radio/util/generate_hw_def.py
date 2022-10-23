@@ -123,24 +123,33 @@ def parse_switches(hw_defs, adc_parser):
         pin_high = f'{pin}_H'
         pin_low = f'{pin}_L'
 
+        inverted = f'SWITCHES_{s}_INVERTED'
+        
         adc_input_name = f'SW{s}'
 
+        switch = None
         if reg in hw_defs:
             # 2POS switch
             reg = hw_defs[reg]
             pin = hw_defs[pin]
-            switches.append(Switch2POS(name, reg, pin))
+            switch = Switch2POS(name, reg, pin)
         elif (reg_high in hw_defs) and (reg_low in hw_defs):
             # 3POS switch
             reg_high = hw_defs[reg_high]
             pin_high = hw_defs[pin_high]
             reg_low = hw_defs[reg_low]
             pin_low = hw_defs[pin_low]
-            switches.append(Switch3POS(name, reg_high, pin_high, reg_low, pin_low))
+            switch = Switch3POS(name, reg_high, pin_high, reg_low, pin_low)
         else:
             # ADC switch
             if adc_parser.find_input(adc_input_name):
-                switches.append(SwitchADC(name, adc_input_name))
+                switch = SwitchADC(name, adc_input_name)
+
+        if switch:
+            if inverted in hw_defs:
+                switch.inverted = True
+                # print(switch.inverted)
+            switches.append(switch)
 
     return switches
 
@@ -168,15 +177,15 @@ class ADCInputParser:
             'suffix': 'POT{}',
             'name': 'P{}',
         },
-        ADCInput.TYPE_SLIDER: {
-            'range': range(1, MAX_SLIDERS + 1),
-            'suffix': 'SLIDER{}',
-            'name': 'SL{}',
-        },
         ADCInput.TYPE_EXT: {
             'range': range(1, MAX_EXTS + 1),
             'suffix': 'EXT{}',
             'name': 'EXT{}',
+        },
+        ADCInput.TYPE_SLIDER: {
+            'range': range(1, MAX_SLIDERS + 1),
+            'suffix': 'SLIDER{}',
+            'name': 'SL{}',
         },
         ADCInput.TYPE_SWITCH: {
             'range': AZ_seq(),
@@ -228,27 +237,40 @@ class ADCInputParser:
 
         return gpio
 
+
+    def _parse_adc(self, name, periph, prefix):
+
+        adc_periph = self.hw_defs.get(periph)
+        if not adc_periph:
+            return None
+
+        adc = ADC(name, adc_periph)
+        adc.dma = self.hw_defs.get(f'{prefix}_DMA')
+        if adc.dma:
+            adc.dma_channel = self.hw_defs[f'{prefix}_DMA_CHANNEL']
+            adc.dma_stream = self.hw_defs[f'{prefix}_DMA_STREAM']
+            adc.dma_stream_irq = self.hw_defs[f'{prefix}_DMA_STREAM_IRQ']
+            adc.dma_stream_irq_handler = self.hw_defs[f'{prefix}_DMA_STREAM_IRQHandler']
+
+        adc.sample_time = self.hw_defs[f'{prefix}_SAMPTIME']
+        return adc
+    
     def _parse_adcs(self):
 
         adcs = []
 
-        adc_main = self.hw_defs.get('ADC_MAIN')
+        adc_main = self._parse_adc('MAIN', 'ADC_MAIN', 'ADC')
         if adc_main is None:
             # SPI ADC not yet supported (X12S only?)
             return []
+        else:
+            adcs.append(adc_main)
 
-        adc = ADC('MAIN', adc_main)
-        adc.dma = self.hw_defs.get('ADC_DMA')
-        adc.dma_stream = self.hw_defs.get('ADC_DMA_STREAM')
-        adc.dma_channel = self.hw_defs.get('ADC_DMA_CHANNEL')
-        adc.sample_time = self.hw_defs.get('ADC_SAMPTIME')
-        adcs.append(adc)
-    
-        adc_ext = self.hw_defs.get('ADC_EXT')
-        self.ext_list = self.hw_defs.get('ADC_EXT_CHANNELS')
-
+        self.ext_list = None
+        adc_ext = self._parse_adc('EXT', 'ADC_EXT', 'ADC_EXT')
         if adc_ext:
-            adcs.append(ADC('EXT', adc_ext))
+            self.ext_list = self.hw_defs['ADC_EXT_CHANNELS']
+            adcs.append(adc_ext)
 
         return adcs
 
@@ -300,6 +322,12 @@ class ADCInputParser:
 
         try:
             self._add_input(self._parse_input_type('BATT', 'VBAT', 'BATT'))
+        except KeyError:
+            pass
+
+        try: # X12S special treatment... (must be after TX_VOLTAGE
+            self._add_input(self._parse_input_type('MOUSE', 'JSx', 'MOUSE1'))
+            self._add_input(self._parse_input_type('MOUSE', 'JSy', 'MOUSE2'))
         except KeyError:
             pass
 

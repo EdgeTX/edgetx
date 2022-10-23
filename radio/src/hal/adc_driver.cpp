@@ -25,7 +25,7 @@
 // IS_POT_SLIDER_AVAILABLE()
 #include "opentx.h"
 
-const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
+const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
 
@@ -35,71 +35,38 @@ uint16_t rtcBatteryVoltage;
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
-  etx_hal_adc_driver = driver;
-  if (!etx_hal_adc_driver)
-    return false;
-
-  // If there is an init function
-  // it should succeed
-  if (etx_hal_adc_driver->init &&
-      !etx_hal_adc_driver->init()) {
-    return false;
+  // If there is an init function, it MUST succeed
+  if (driver && (!driver->init || driver->init())) {
+    _hal_adc_driver = driver;
+    return true;
   }
 
-  return true;
+  _hal_adc_driver = nullptr;
+  return false;
 }
 
 static bool adcSingleRead()
 {
-  if (!etx_hal_adc_driver)
-      return false;
-
-  if (etx_hal_adc_driver->start_conversion &&
-      !etx_hal_adc_driver->start_conversion())
+  if (!_hal_adc_driver)
     return false;
 
-  if (etx_hal_adc_driver->wait_completion)
-    etx_hal_adc_driver->wait_completion();
+  if (_hal_adc_driver->start_conversion &&
+      !_hal_adc_driver->start_conversion())
+    return false;
+
+  if (_hal_adc_driver->wait_completion)
+    _hal_adc_driver->wait_completion();
 
   return true;
 }
 
-// Declare adcRead() weak so it can be re-declared
-#pragma weak adcRead
 bool adcRead()
 {
-  uint16_t temp[NUM_ANALOGS] = { 0 };
-
-  uint8_t first_analog_adc;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        first_analog_adc = FIRST_ANALOG_ADC_FS;
-    } else
-    {
-        first_analog_adc = FIRST_ANALOG_ADC;
-    }
-#else
-    first_analog_adc = FIRST_ANALOG_ADC;
-#endif
-
-
-  for (int i=0; i<4; i++) {
-    if (!adcSingleRead())
-        return false;
-    for (uint8_t x=first_analog_adc; x<NUM_ANALOGS; x++) {
-      uint16_t val = adcValues[x];
-#if defined(JITTER_MEASURE)
-      if (JITTER_MEASURE_ACTIVE()) {
-        rawJitter[x].measure(val);
-      }
-#endif
-      temp[x] += val;
-    }
-  }
-
-  for (uint8_t x=first_analog_adc; x<NUM_ANALOGS; x++) {
-    adcValues[x] = temp[x] >> 2;
+  adcSingleRead();
+  
+  // TODO: this hack needs to go away...
+  if (isVBatBridgeEnabled()) {
+    disableVBatBridge();
   }
 
 #if NUM_PWMSTICKS > 0
@@ -107,6 +74,7 @@ bool adcRead()
     sticksPwmRead(adcValues);
   }
 #endif
+
   return true;
 }
 

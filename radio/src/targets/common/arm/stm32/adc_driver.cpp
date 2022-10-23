@@ -33,6 +33,7 @@ extern const etx_hal_adc_driver_t _adc_driver;
 
 constexpr uint8_t n_ADC = DIM(_ADC_adc);
 constexpr uint8_t n_GPIO = DIM(_ADC_GPIOs);
+constexpr uint8_t n_inputs = DIM(_ADC_inputs);
 
 static bool adc_init()
 {
@@ -46,7 +47,7 @@ static bool adc_start_read()
 
 static void adc_wait_completion()
 {
-  return stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs);
+  return stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
 }
 
 const etx_hal_adc_driver_t _adc_driver = {

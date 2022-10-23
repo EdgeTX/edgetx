@@ -39,15 +39,19 @@
 #include "aux_serial_driver.h"
 #endif
 
+// common ADC driver
+extern const etx_hal_adc_driver_t _adc_driver;
+
 #if !defined(PCBX12S)
   #include "stm32_hal_adc.h"
-  #define ADC_DRIVER stm32_hal_adc_driver
+  #define ADC_DRIVER _adc_driver
 #else
   #include "x12s_adc_driver.h"
   #define ADC_DRIVER x12s_adc_driver
 #endif
 
 extern void flysky_hall_stick_check_init(void);
+extern void flysky_hall_stick_check_deinit(void);
 extern void flysky_hall_stick_init(void);
 extern void flysky_hall_stick_loop( void );
 
@@ -203,9 +207,10 @@ void boardInit()
 
 #endif
 
-  if (globalData.flyskygimbals)
-  {
-      flysky_hall_stick_init();
+  if (globalData.flyskygimbals) {
+    flysky_hall_stick_init();
+  } else {
+    flysky_hall_stick_check_deinit();
   }
 
   if (!adcInit(&ADC_DRIVER))

@@ -31,6 +31,7 @@ enum {
   ADC_INPUT_EXT,
   ADC_INPUT_SWITCH,
   ADC_INPUT_BATT,
+  ADC_INPUT_MOUSE,
 };
 
 struct stm32_adc_input_t {
@@ -45,8 +46,9 @@ struct stm32_adc_input_t {
 struct stm32_adc_t {
   ADC_TypeDef*         ADCx;
   DMA_TypeDef*         DMAx;
-  uint32_t             DMA_Stream;
   uint32_t             DMA_Channel;
+  uint32_t             DMA_Stream;
+  IRQn_Type            DMA_Stream_IRQn;
   const uint8_t*       channels;
   uint8_t              n_channels;
   uint8_t              sample_time;
@@ -68,4 +70,6 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC);
 
 void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
-                                   const stm32_adc_input_t* inputs);
+                                   const stm32_adc_input_t* inputs, uint8_t n_inputs);
+
+void stm32_hal_adc_isr(const stm32_adc_t* adc);

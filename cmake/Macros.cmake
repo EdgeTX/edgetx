@@ -107,12 +107,12 @@ function(AddHardwareDefTarget output)
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} | jq . > ${output}
-    DEPENDS ${HW_DEF_SRC}
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/generate_hw_def.py
     )
 
   add_custom_command(OUTPUT ${output}.h
     COMMAND ${GEN_HW_DEFS} > ${output}.h
-    DEPENDS ${HW_DEF_SRC}
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/generate_hw_def.py
     )
 endfunction()
 

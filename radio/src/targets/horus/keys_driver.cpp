@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/switch_driver.h"
+#include "stm32_switch_driver.h"
+
 #include "opentx_types.h"
 #include "board.h"
 #include "keys.h"
@@ -92,89 +95,32 @@ bool keyDown()
   return readKeys() || readTrims();
 }
 
-#define ADD_2POS_CASE(x) \
-  case SW_S ## x ## 0: \
-    xxx = SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-    break; \
-  case SW_S ## x ## 2: \
-    xxx = ~SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-    break
-#define ADD_INV_2POS_CASE(x) \
-  case SW_S ## x ## 2: \
-    xxx = SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-    break; \
-  case SW_S ## x ## 0: \
-    xxx = ~SWITCHES_GPIO_REG_ ## x  & SWITCHES_GPIO_PIN_ ## x ; \
-    break
-#define ADD_3POS_CASE(x, i) \
-  case SW_S ## x ## 0: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_3POS(i)) { \
-      xxx = xxx && (~SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break; \
-  case SW_S ## x ## 1: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H) && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    break; \
-  case SW_S ## x ## 2: \
-    xxx = (~SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_3POS(i)) { \
-      xxx = xxx && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break
-#define ADD_INV_3POS_CASE(x, i) \
-  case SW_S ## x ## 2: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_3POS(i)) { \
-      xxx = xxx && (~SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break; \
-  case SW_S ## x ## 1: \
-    xxx = (SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H) && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    break; \
-  case SW_S ## x ## 0: \
-    xxx = (~SWITCHES_GPIO_REG_ ## x ## _H & SWITCHES_GPIO_PIN_ ## x ## _H); \
-    if (IS_3POS(i)) { \
-      xxx = xxx && (SWITCHES_GPIO_REG_ ## x ## _L & SWITCHES_GPIO_PIN_ ## x ## _L); \
-    } \
-    break
-
 #if !defined(BOOT)
-uint32_t switchState(uint8_t index)
+
+#include <stdlib.h>
+
+static const stm32_switch_t _switch_defs[] = {
+  #include "hw_switches.inc"
+};
+
+uint8_t switchGetMaxSwitches()
 {
-  uint32_t xxx = 0;
-
-  switch (index) {
-#if defined(PCBX12S)
-    ADD_3POS_CASE(A, 0);
-    ADD_3POS_CASE(B, 1);
-    ADD_3POS_CASE(C, 2);
-    ADD_3POS_CASE(D, 3);
-    ADD_3POS_CASE(E, 4);
-    ADD_INV_2POS_CASE(F);
-    ADD_3POS_CASE(G, 6);
-    ADD_2POS_CASE(H);
-    ADD_2POS_CASE(I);
-    ADD_2POS_CASE(J);
-#else
-    ADD_3POS_CASE(A, 0);
-    ADD_INV_3POS_CASE(B, 1);
-    ADD_3POS_CASE(C, 2);
-    ADD_INV_3POS_CASE(D, 3);
-    ADD_INV_3POS_CASE(E, 4);
-    ADD_2POS_CASE(F);
-    ADD_3POS_CASE(G, 6);
-    ADD_2POS_CASE(H);
-    ADD_2POS_CASE(I);
-    ADD_2POS_CASE(J);
-#endif
-    default:
-      break;
-  }
-
-  // TRACE("switch %d => %d", index, xxx);
-  return xxx;
+  return DIM(_switch_defs);
 }
+
+// returns state (0 / 1) of a specific switch position
+uint32_t switchState(uint8_t pos_idx)
+{
+  auto d = div(pos_idx, 3);
+  return stm32_switch_get_state(&_switch_defs[d.quot], (SwitchHwPos)d.rem);
+}
+
+SwitchHwPos switchGetPosition(uint8_t idx)
+{
+  if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
+  return stm32_switch_get_position(&_switch_defs[idx]);
+}
+
 #endif
 
 void keysInit()

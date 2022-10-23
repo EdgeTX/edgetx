@@ -188,10 +188,6 @@ static const stm32_switch_t _switch_defs[] = {
   #include "hw_switches.inc"
 };
 
-static const char* _switch_names[] = {
-  "SA", "SB", "SC", "SD", "SF", "SH",
-};
-
 uint8_t switchGetMaxSwitches()
 {
   return DIM(_switch_defs);
@@ -208,17 +204,6 @@ SwitchHwPos switchGetPosition(uint8_t idx)
 {
   if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
   return stm32_switch_get_position(&_switch_defs[idx]);
-}
-
-const char* switchGetName(uint8_t idx)
-{
-  if (idx >= DIM(_switch_defs)) return "";
-  return _switch_names[idx];
-}
-
-const char** switchGetNames()
-{
-  return _switch_names;
 }
 
 #endif

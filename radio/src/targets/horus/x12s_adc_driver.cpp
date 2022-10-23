@@ -19,9 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "stm32_hal_adc.h"
 #include "x12s_adc_driver.h"
 
+#include "opentx.h"
 
 #define ADC_CS_HIGH()                  (ADC_SPI_GPIO->BSRRL = ADC_SPI_PIN_CS)
 #define ADC_CS_LOW()                   (ADC_SPI_GPIO->BSRRH = ADC_SPI_PIN_CS)
@@ -102,43 +103,14 @@ static void ADS7952_Init()
 
 static bool x12s_adc_init()
 {
+  // init SPI ADC
   ADS7952_Init();
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = ADC_GPIO_PIN_MOUSE1 | ADC_GPIO_PIN_MOUSE2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(ADC_GPIO_MOUSE, &GPIO_InitStructure);
+  // we're going to do it ourselves
+  stm32_hal_adc_disable_oversampling();
 
-  ADC3->CR1 = ADC_CR1_SCAN;
-  ADC3->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC3->SQR1 = (2 - 1) << 20;
-  ADC3->SQR2 = 0;
-  ADC3->SQR3 = (ADC_CHANNEL_MOUSE1 << 0) + (ADC_CHANNEL_MOUSE2 << 5);
-  ADC3->SMPR1 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-  ADC3->SMPR2 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-  ADC->CCR = 0;
-
-  // Enable the DMA channel here, DMA2 stream 1, channel 2
-  ADC_DMA_Stream->CR = DMA_SxCR_PL | DMA_SxCR_CHSEL_1 | DMA_SxCR_MSIZE_0 | DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC;
-  ADC_DMA_Stream->PAR = CONVERT_PTR_UINT(&ADC3->DR);
-  ADC_DMA_Stream->M0AR = CONVERT_PTR_UINT(&adcValues[MOUSE1]);
-  ADC_DMA_Stream->NDTR = 2;
-  ADC_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
-
-  ADC->CCR = ADC_CCR_VBATE; // Enable RTC coin cell sampling bridge
-  
-  ADC1->CR1 = ADC_CR1_SCAN;
-  ADC1->CR2 = ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_DDS;
-  ADC1->SQR1 = (1 - 1) << 20;
-  ADC1->SQR2 = 0;
-  ADC1->SQR3 = (ADC_Channel_Vbat << 0);
-  ADC1->SMPR1 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24);
-  ADC1->SMPR2 = (ADC_SAMPTIME << 0) + (ADC_SAMPTIME << 3) + (ADC_SAMPTIME << 6) + (ADC_SAMPTIME << 9) + (ADC_SAMPTIME << 12) + (ADC_SAMPTIME << 15) + (ADC_SAMPTIME << 18) + (ADC_SAMPTIME << 21) + (ADC_SAMPTIME << 24) + (ADC_SAMPTIME << 27);
-
-  return true;
+  // init onboard ADC
+  return _adc_driver.init();
 }
 
 const uint16_t adcCommands[MOUSE1+2] =
@@ -205,39 +177,41 @@ uint32_t adcReadNextSPIChannel(uint8_t index)
   return result >> 2;
 }
 
-void adcOnChipReadStart()
+bool x12s_adc_start_read()
 {
-  ADC_DMA_Stream->CR &= ~DMA_SxCR_EN;           // Disable DMA
-  ADC3->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC_DMA->LIFCR = DMA_LIFCR_CTCIF0 | DMA_LIFCR_CHTIF0 | DMA_LIFCR_CTEIF0 | DMA_LIFCR_CDMEIF0 | DMA_LIFCR_CFEIF0; // Write ones to clear bits
-  ADC_DMA_Stream->M0AR = CONVERT_PTR_UINT(&adcValues[MOUSE1]);
-  ADC_DMA_Stream->NDTR = 2;
-  ADC_DMA_Stream->CR |= DMA_SxCR_EN;            // Enable DMA
-  ADC3->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+  // onboard ADC
+  _adc_driver.start_conversion();
 
-  ADC1->SR &= ~(uint32_t)(ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR);
-  ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+  adcReadSPIDummy();
+  adcReadSPIDummy();
+
+  return true;
 }
 
-bool adcOnChipReadFinished()
-{
-  return (ADC_DMA->LISR & DMA_LISR_TCIF0);
-}
-
-// Re-declare adcRead()
-// (takes precedence over hal/adc_driver.cpp)
-bool adcRead()
+void x12s_adc_wait_completion()
 {
   uint16_t temp[NUM_ANALOGS-MOUSE1] = { 0 };
   uint8_t noInternalReads = 0;
 
-  adcOnChipReadStart();
-  adcReadSPIDummy();
-  adcReadSPIDummy();
+  // At this point, the first conversion has been started
+  // in x12s_adc_start_read()
+  
+  // for each SPI channel
   for (uint32_t index=0; index<MOUSE1; index++) {
+    
+    // read SPI channel
     adcValues[index] = adcReadNextSPIChannel(index);
-    if (noInternalReads < 4 && adcOnChipReadFinished()) {
+
+    // check if not enough internal ADC samples
+    // or one just finished (TC cleared on new sample started)
+    if (noInternalReads < 4) {
+
+      _adc_driver.wait_completion();
+
+      // for each internal ADC channel
       for (uint8_t x=0; x<NUM_ANALOGS-MOUSE1; x++) {
+
+        // do the averaging math
         uint16_t val = adcValues[MOUSE1+x];
 #if defined(JITTER_MEASURE)
         if (JITTER_MEASURE_ACTIVE()) {
@@ -246,8 +220,10 @@ bool adcRead()
 #endif
         temp[x] += val;
       }
+
+      // restart internal ADC if not yet done
       if (++noInternalReads < 4) {
-        adcOnChipReadStart();
+        _adc_driver.start_conversion();
       }
     }
   }
@@ -269,13 +245,8 @@ bool adcRead()
   return true;
 }
 
-//TODO: implement these based on stm32_hal_adc.cpp
-//static bool x12s_adc_init();
-//static bool x12s_adc_start_read();
-//static void x12s_adc_wait_completion();
-
 const etx_hal_adc_driver_t x12s_adc_driver = {
   x12s_adc_init,
-  nullptr,//x12s_adc_start_read,
-  nullptr,//x12s_adc_wait_completion
+  x12s_adc_start_read,
+  x12s_adc_wait_completion
 };

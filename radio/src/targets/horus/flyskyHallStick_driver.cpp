@@ -213,6 +213,18 @@ void flysky_hall_stick_check_init()
     DMA_Cmd(FLYSKY_HALL_DMA_Stream_RX, ENABLE);
 }
 
+void flysky_hall_stick_check_deinit()
+{
+  DMA_DeInit(FLYSKY_HALL_DMA_Stream_RX);
+  USART_DeInit(FLYSKY_HALL_SERIAL_USART);
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_StructInit(&GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Pin = FLYSKY_HALL_SERIAL_RX_GPIO_PIN;
+  GPIO_Init(FLYSKY_HALL_SERIAL_GPIO, &GPIO_InitStructure);  
+}
+
 void flysky_hall_stick_init()
 {
   USART_DeInit(FLYSKY_HALL_SERIAL_USART);

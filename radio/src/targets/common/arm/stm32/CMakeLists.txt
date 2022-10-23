@@ -39,6 +39,22 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
   ../common/arm/stm32/stm32_switch_driver.cpp
+  ../common/arm/stm32/adc_driver.cpp
+  ../common/arm/stm32/stm32_hal_adc.cpp
+  )
+
+set(HW_DESC_JSON ${FLAVOUR}.json)
+AddHardwareDefTarget(${HW_DESC_JSON})
+AddHWGenTarget(${HW_DESC_JSON} switches hw_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} adcs hw_adc_inputs.inc)
+
+# enable generating JSON definition separately for debugging
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+
+set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/hw_adc_inputs.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 
 if(IMU)

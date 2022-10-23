@@ -1141,6 +1141,9 @@
 #define ADC_DMA                         DMA2
 #define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
 #define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
+#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
+
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT
 
@@ -1185,10 +1188,11 @@
   #define ADC_EXT                       ADC3
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_POT1, ADC_CHANNEL_SLIDER1, ADC_CHANNEL_SLIDER2 }
   #define ADC_EXT_DMA                   DMA2
-  #define ADC_EXT_DMA_Stream            DMA2_Stream0
-  #define ADC_EXT_DMA_Channel           DMA_Channel_2
-  #define ADC_EXT_TC_Flag               DMA_FLAG_TCIF0
-  #define ADC_EXT_SAMPTIME              3    // sample time = 56 cycles
+  #define ADC_EXT_DMA_CHANNEL           LL_DMA_CHANNEL_2
+  #define ADC_EXT_DMA_STREAM            LL_DMA_STREAM_0
+  #define ADC_EXT_DMA_STREAM_IRQ        DMA2_Stream0_IRQn
+  #define ADC_EXT_DMA_STREAM_IRQHandler DMA2_Stream0_IRQHandler
+  #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                300
 #elif defined(PCBX9DP)
   #define HARDWARE_POT1
@@ -1989,15 +1993,15 @@
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 
 // PCBREV
-#if defined(RADIO_X7)
-  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOA
-  #define PCBREV_GPIO                   GPIOA
-  #define PCBREV_GPIO_PIN               GPIO_Pin_14  // PA.14
-  #define PCBREV_GPIO_PULL_DOWN
-  #define PCBREV_VALUE()                GPIO_ReadInputDataBit(PCBREV_GPIO, PCBREV_GPIO_PIN)
-#else
+// #if defined(RADIO_X7)
+  // #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOA
+  // #define PCBREV_GPIO                   GPIOA
+  // #define PCBREV_GPIO_PIN               GPIO_Pin_14  // PA.14
+  // #define PCBREV_GPIO_PULL_DOWN
+  // #define PCBREV_VALUE()                GPIO_ReadInputDataBit(PCBREV_GPIO, PCBREV_GPIO_PIN)
+// #else
   #define PCBREV_RCC_AHB1Periph         0
-#endif
+// #endif
 
 
 // USB Charger
