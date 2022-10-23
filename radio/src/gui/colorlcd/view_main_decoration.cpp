@@ -144,17 +144,23 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 #endif
 
 #if NUM_SLIDERS > 0
-  sl = new MainViewVerticalSlider(ml, CALIBRATED_SLIDER_REAR_LEFT);
-  sl->updateSize(); // only pos...
-  sliders[SLIDERS_REAR_LEFT] = sl;
+  // create containers for the sliders, so that they are at the borders of the display
+  // on top of each other, when there are two sliders to display per side
+  auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
+  leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
 
-  sl = new MainViewVerticalSlider(mr, CALIBRATED_SLIDER_REAR_RIGHT);
-  sl->updateSize(); // only pos...
-  sliders[SLIDERS_REAR_RIGHT] = sl;
+  auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
+  rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+
+  auto vertSlLeft1 = new MainViewVerticalSlider(leftPots, CALIBRATED_SLIDER_REAR_LEFT);
+  sliders[SLIDERS_REAR_LEFT] = vertSlLeft1;
+
+  auto vertSlRight1 = new MainViewVerticalSlider(rightPots, CALIBRATED_SLIDER_REAR_RIGHT);
+  sliders[SLIDERS_REAR_RIGHT] = vertSlRight1;
 
 #if defined(HARDWARE_EXT1) || defined(PCBX12S)
   if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-    sl = new MainViewVerticalSlider(ml, CALIBRATED_POT_EXT1);
+    sl = new MainViewVerticalSlider(leftPots, CALIBRATED_POT_EXT1);
     sl->updateSize();
     sliders[SLIDERS_EXT1] = sl;
   }
@@ -162,11 +168,13 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 
 #if defined(HARDWARE_EXT2) || defined(PCBX12S)
   if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-    sl = new MainViewVerticalSlider(mr, CALIBRATED_POT_EXT2);
+    sl = new MainViewVerticalSlider(rightPots, CALIBRATED_POT_EXT2);
     sl->updateSize();
     sliders[SLIDERS_EXT2] = sl;
   }
 #endif
+  vertSlLeft1->updateSize();
+  vertSlRight1->updateSize();
 #endif // NUM_SLIDERS > 0
 }
 
