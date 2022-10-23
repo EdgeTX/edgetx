@@ -159,7 +159,7 @@ div_t switchInfo(int switchPosition)
 
 static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
 {
-  uint64_t result;
+  uint64_t result = 0;
   uint32_t index = idx * 3;
 
   auto pos = switchGetPosition(idx);
@@ -191,6 +191,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
         switchesMidposStart[idx] = get_tmr10ms();
       }
     }
+    break;
   }
 
   if (!(switchesPos & result)) {

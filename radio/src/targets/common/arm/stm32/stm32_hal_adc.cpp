@@ -66,7 +66,7 @@ static void adc_init_pins(const stm32_adc_gpio_t* GPIOs, uint8_t n_GPIO)
       uint32_t mode = LL_GPIO_GetPinMode(gpio->GPIOx, pin);
 
       // Output or AF: pin is probably used somewhere else
-      if (mode != LL_GPIO_MODE_INPUT || mode != LL_GPIO_MODE_ANALOG) continue;
+      if (mode != LL_GPIO_MODE_INPUT && mode != LL_GPIO_MODE_ANALOG) continue;
       
       pinInit.Pin |= pin;
     }
@@ -76,6 +76,25 @@ static void adc_init_pins(const stm32_adc_gpio_t* GPIOs, uint8_t n_GPIO)
   }
 }
 
+static const uint32_t _seq_length_lookup[] = {
+  LL_ADC_REG_SEQ_SCAN_DISABLE,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_2RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_3RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_4RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_5RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_6RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_7RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_8RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_9RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_10RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_11RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_12RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_13RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_14RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_15RANKS,
+  LL_ADC_REG_SEQ_SCAN_ENABLE_16RANKS,
+};
+
 static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 {
   // ADC must be disabled for the functions used here
@@ -84,7 +103,10 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_InitTypeDef adcInit;
   LL_ADC_StructInit(&adcInit);
 
-  adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
+  if (nconv > 1) {
+    adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
+  }
+
   adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;  
   LL_ADC_Init(ADCx, &adcInit);
 
@@ -92,9 +114,13 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_REG_StructInit(&adcRegInit);
 
   adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
-  adcRegInit.SequencerLength = nconv;
-  adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
-  adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_LIMITED;
+
+  if (nconv > 1) {
+    adcRegInit.SequencerLength = _seq_length_lookup[nconv - 1];
+    adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+    adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_UNLIMITED;
+  }
+
   LL_ADC_REG_Init(ADCx, &adcRegInit);
 
   // Enable ADC
@@ -103,17 +129,56 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_Enable(ADCx);  
 }
 
-static void adc_init_channels(const stm32_adc_t* adc,
-                              const uint8_t* chan,
-{
-  if (!chan || !nconv) return;
+static const uint32_t _rank_lookup[] = {
+  LL_ADC_REG_RANK_1,
+  LL_ADC_REG_RANK_2,
+  LL_ADC_REG_RANK_3,
+  LL_ADC_REG_RANK_4,
+  LL_ADC_REG_RANK_5,
+  LL_ADC_REG_RANK_6,
+  LL_ADC_REG_RANK_7,
+  LL_ADC_REG_RANK_8,
+  LL_ADC_REG_RANK_9,
+  LL_ADC_REG_RANK_10,
+  LL_ADC_REG_RANK_11,
+  LL_ADC_REG_RANK_12,
+  LL_ADC_REG_RANK_13,
+  LL_ADC_REG_RANK_14,
+  LL_ADC_REG_RANK_15,
+  LL_ADC_REG_RANK_16,
+};
 
-  uint8_t rank = 1;
+static uint8_t adc_init_channels(const stm32_adc_t* adc,
+                                 const stm32_adc_input_t* inputs,
+                                 const uint8_t* chan,
+                                 uint8_t nconv)
+{
+  if (!chan || !nconv) return 0;
+
+  uint8_t rank = 0;
   while (nconv > 0) {
-    LL_ADC_REG_SetSequencerRanks(adc->ADCx, rank, *chan);
-    LL_ADC_SetChannelSamplingTime(adc->ADCx, *chan, adc->sample_time);
-    nconv--; rank++; chan++;
+
+    const stm32_adc_input_t* input = &inputs[*chan];
+
+    // TODO: save some bitmask with used channels
+    uint32_t mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
+    if (mode != LL_GPIO_MODE_ANALOG) {
+      // skip channel
+      nconv--; chan++;
+      continue;
+    }
+
+    LL_ADC_REG_SetSequencerRanks(adc->ADCx, _rank_lookup[rank],
+                                 input->ADC_Channel);
+
+    LL_ADC_SetChannelSamplingTime(adc->ADCx, input->ADC_Channel,
+                                  adc->sample_time);
+    nconv--;
+    rank++;
+    chan++;
   }
+
+  return rank;
 }
 
 static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
@@ -132,10 +197,9 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
                          CONVERT_PTR_UINT(dest),
                          LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
   LL_DMA_SetDataLength(DMAx, stream, nconv);
-
-  // Very high priority, 1 byte transfers, increment memory
   LL_DMA_SetChannelSelection(DMAx, stream, channel);
 
+  // Very high priority, 1 byte transfers, increment memory
   LL_DMA_ConfigTransfer(DMAx, stream,
                         LL_DMA_PRIORITY_VERYHIGH | LL_DMA_MDATAALIGN_HALFWORD |
                         LL_DMA_PDATAALIGN_HALFWORD | LL_DMA_MEMORY_INCREMENT |
@@ -152,6 +216,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
 static uint16_t _adc_dma_buffer[16] __DMA;
 
 bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                        const stm32_adc_input_t* inputs,
                         const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO)
 {
   adc_init_pins(ADC_GPIOs, n_GPIO);
@@ -169,11 +234,11 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     // TODO: compute this thing based on initialised ports
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
-      adc_setup_scan_mode(adc->ADCx, nconv);
 
       // configure each channel
       const uint8_t* chan = adc->channels;
-      adc_init_channels(adc, chan, nconv);
+      nconv = adc_init_channels(adc, inputs, chan, nconv);
+      adc_setup_scan_mode(adc->ADCx, nconv);
 
       if (adc->DMAx) {
         if (!adc_init_dma_stream(adc->ADCx, adc->DMAx, adc->DMA_Stream,
@@ -278,7 +343,30 @@ bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
   return true;
 }
 
-void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC)
+static void copy_adc_values(uint16_t* dst, uint16_t* src,
+                            const stm32_adc_t* adc,
+                            const stm32_adc_input_t* inputs)
+{
+  for (uint8_t i=0; i < adc->n_channels; i++) {
+    uint8_t channel = adc->channels[i];
+    const stm32_adc_input_t* input = &inputs[channel];
+
+    uint32_t pin_mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
+    if (pin_mode != LL_GPIO_MODE_ANALOG) {
+      continue;
+    }
+
+    if (input->inverted)
+      dst[channel] = ADCMAXVALUE - *src;
+    else
+      dst[channel] = *src;
+
+    src++;
+  }
+}
+
+void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                                   const stm32_adc_input_t* inputs)
 {
   //TODO:
   // - replace with IRQ trigger (both)
@@ -290,19 +378,22 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC)
     switch(adc->DMA_Stream){
 
     case LL_DMA_STREAM_0:
-      for (unsigned int i=0; i<10000; i++) {
-        if (!LL_DMA_IsActiveFlag_TC0(adc->DMAx)) break;
-      }
+      // for (unsigned int i=0; i<10000; i++) {
+      //   if (!LL_DMA_IsActiveFlag_TC0(adc->DMAx)) break;
+      // }
+      while(!LL_DMA_IsActiveFlag_TC0(adc->DMAx));
       break;
 
     case LL_DMA_STREAM_4:
-      for (unsigned int i=0; i<10000; i++) {
-        if (!LL_DMA_IsActiveFlag_TC4(adc->DMAx)) break;
-      }
+      // for (unsigned int i=0; i<10000; i++) {
+      //   if (!LL_DMA_IsActiveFlag_TC4(adc->DMAx)) break;
+      // }
+      while(!LL_DMA_IsActiveFlag_TC4(adc->DMAx));
       break;
     }
 
     adc_disable_dma(adc->DMAx, adc->DMA_Stream);
+    copy_adc_values(adcValues, _adc_dma_buffer, adc, inputs);
     
     // move to next ADC definition
     adc++; n_ADC--;

@@ -1139,10 +1139,9 @@
 // ADC
 #define ADC_MAIN                        ADC1
 #define ADC_DMA                         DMA2
-#define ADC_DMA_Channel                 DMA_Channel_0
-#define ADC_DMA_Stream                  DMA2_Stream4
-#define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
-#define ADC_SAMPTIME                    2   // sample time = 28 cycles
+#define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
+#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT
 
 #if defined(PCBX9E)

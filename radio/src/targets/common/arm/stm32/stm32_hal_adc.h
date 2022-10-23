@@ -62,8 +62,10 @@ struct stm32_adc_gpio_t {
 //extern const etx_hal_adc_driver_t stm32_hal_adc_driver;
 
 bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                        const stm32_adc_input_t* inputs,
                         const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO);
 
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC);
 
-void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC);
+void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
+                                   const stm32_adc_input_t* inputs);

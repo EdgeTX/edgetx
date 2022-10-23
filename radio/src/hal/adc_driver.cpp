@@ -27,69 +27,6 @@
 
 const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 
-#if defined(SIMU)
-  // not needed
-#elif defined(RADIO_T16)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
-#elif defined(RADIO_T18)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1, -1,1,-1,  -1,1,1,1,  -1,1 };
-#elif defined(RADIO_TX16S)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
-#elif defined(PCBX10)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 };
-#elif defined(PCBX9E)
-  const int8_t adcDirection[NUM_ANALOGS] = {
-  #if defined(HORUS_STICKS)
-    1,-1,1,-1,
-  #else
-    1,1,-1,-1,
-  #endif // HORUS_STICKS
-    // other analogs are the same
-    -1,-1,-1,1, -1,1,1,-1, -1,-1 };
-
-  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            11 /*POT1*/, 4 /*POT2*/, 5 /*POT3*/, 6 /*POT4*/,
-                                            12 /*SLIDER1*/, 13 /*SLIDER2*/, 7 /*SLIDER3*/, 8 /*SLIDER4*/,
-                                            9 /*TX_VOLTAGE*/, 10 /*TX_VBAT*/ };
-#elif defined(PCBX9DP)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,-1,  1,1,  1,  1};
-#elif defined(PCBX9D)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,0,   1,1,  1,  1};
-#elif defined(RADIO_TX12)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  -1,-1,  1,  1};
-#elif defined(RADIO_TX12MK2)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,-1};
-#elif defined(RADIO_BOXER)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,-1};
-#elif defined(RADIO_ZORRO)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1, 1, 1, -1, -1, 1, 1, 1};
-#elif defined(RADIO_TPRO)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,  1,  1};
-#elif defined(PCBX7)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1,  1};
-#elif defined(PCBX9LITE)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1};
-#elif defined(PCBXLITE)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
-#elif defined(PCBNV14)
-  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
-                                            7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                            11/*SWG*/,  10/*SWH*/,
-                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
-
-  const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
-                                            -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,
-                                             0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
-                                             0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
-                                             0 /*SWB*/, 0 /*SWD*/};
-
-#elif defined(PCBX12S)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
-#else
-  #error "ADC driver does not suppport this target"
-#endif
-
 uint16_t adcValues[NUM_ANALOGS] __DMA;
 
 #if defined(PCBX10) || defined(PCBX12S)
@@ -193,17 +130,12 @@ uint16_t getAnalogValue(uint8_t index)
 {
   if (IS_POT(index) && !IS_POT_SLIDER_AVAILABLE(index)) {
     // Use fixed analog value for non-existing and/or non-connected pots.
-    // Non-connected analog inputs will slightly follow the adjacent connected analog inputs,
-    // which produces ghost readings on these inputs.
+    // Non-connected analog inputs will slightly follow the adjacent connected
+    // analog inputs, which produces ghost readings on these inputs.
     return 0;
   }
-#if defined(PCBX9E) || defined(PCBNV14)
-  index = adcMapping[index];
-#endif
-  if (adcDirection[index] < 0)
-    return ADCMAXVALUE - adcValues[index];
-  else
-    return adcValues[index];
+
+  return adcValues[index];
 }
 
 // used by diaganas

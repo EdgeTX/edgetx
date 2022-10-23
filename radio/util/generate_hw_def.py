@@ -237,7 +237,12 @@ class ADCInputParser:
             # SPI ADC not yet supported (X12S only?)
             return []
 
-        adcs.append(ADC('MAIN', adc_main))
+        adc = ADC('MAIN', adc_main)
+        adc.dma = self.hw_defs.get('ADC_DMA')
+        adc.dma_stream = self.hw_defs.get('ADC_DMA_STREAM')
+        adc.dma_channel = self.hw_defs.get('ADC_DMA_CHANNEL')
+        adc.sample_time = self.hw_defs.get('ADC_SAMPTIME')
+        adcs.append(adc)
     
         adc_ext = self.hw_defs.get('ADC_EXT')
         self.ext_list = self.hw_defs.get('ADC_EXT_CHANNELS')

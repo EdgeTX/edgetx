@@ -28,15 +28,15 @@ bool stm32_switch_get_state(const stm32_switch_t* sw, SwitchHwPos pos)
       switch (pos) {
         case SWITCH_HW_UP:
           if (sw->flags & SWITCH_HW_INVERTED)
-            return LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
-          else
             return !LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
+          else
+            return LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
 
         case SWITCH_HW_DOWN:
           if (sw->flags & SWITCH_HW_INVERTED)
-            return !LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
-          else
             return LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
+          else
+            return !LL_GPIO_IsInputPinSet(sw->GPIOx_high, sw->Pin_high);
 
         default:
           return false;
