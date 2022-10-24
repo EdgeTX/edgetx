@@ -19,32 +19,37 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "hal/switch_driver.h"
+#include "stm32_switch_driver.h"
 
-#include <stdint.h>
+#include "definitions.h"
 
-enum SwitchHwType {
-  SWITCH_HW_2POS = 0,
-  SWITCH_HW_3POS,
-  SWITCH_HW_ADC,
+#include <stdlib.h>
+
+static const stm32_switch_t _switch_defs[] = {
+  #include "hw_switches.inc"
 };
 
-enum SwitchHwPos {
-  SWITCH_HW_UP = 0,
-  SWITCH_HW_MID,
-  SWITCH_HW_DOWN,
-};
-
-#define SWITCH_HW_INVERTED 1
-
-// returns the maximum number of switches supported in hardware
-uint8_t switchGetMaxSwitches();
-
+uint8_t switchGetMaxSwitches()
+{
+  return DIM(_switch_defs);
+}
+  
 // returns state (0 / 1) of a specific switch position
-uint32_t switchState(uint8_t pos_idx);
+uint32_t switchState(uint8_t pos_idx)
+{
+  auto d = div(pos_idx, 3);
+  return stm32_switch_get_state(&_switch_defs[d.quot], (SwitchHwPos)d.rem);
+}
 
-// returns a position for a switch index
-SwitchHwPos switchGetPosition(uint8_t idx);
+SwitchHwPos switchGetPosition(uint8_t idx)
+{
+  if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
+  return stm32_switch_get_position(&_switch_defs[idx]);
+}
 
-const char* switchGetName(uint8_t idx);
-
+const char* switchGetName(uint8_t idx)
+{
+  if (idx >= DIM(_switch_defs)) return "";
+  return _switch_defs[idx].name;
+}
