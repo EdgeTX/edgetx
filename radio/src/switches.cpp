@@ -157,6 +157,27 @@ div_t switchInfo(int switchPosition)
   return div(switchPosition - SWSRC_FIRST_SWITCH, 3);
 }
 
+int switchLookupIdx(char c)
+{
+  for (unsigned idx = 0; idx < switchGetMaxSwitches(); idx++) {
+    const char *name = switchGetName(idx);
+    if (name[1] == c) return idx;
+  }
+
+  return -1;
+}
+
+char switchGetLetter(uint8_t idx)
+{
+  if (idx >= switchGetMaxSwitches())
+    return -1;
+
+  const char* name = switchGetName(idx);
+  if (!name) return -1;
+  
+  return name[1];
+}
+
 static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
 {
   uint64_t result = 0;

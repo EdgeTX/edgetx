@@ -40,3 +40,9 @@ uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
 bool isSwitchWarningRequired(uint16_t &bad_pots);
+
+// Lookup switch index by letter ('A' to 'Z')
+int switchLookupIdx(char c);
+
+// Get switch letter ('A' to 'Z')
+char switchGetLetter(uint8_t idx);

@@ -35,6 +35,7 @@
 
 #if !defined(BOOT)
   #include "opentx.h"
+  #include "hal/switch_driver.h"
 #endif
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
@@ -747,45 +748,40 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
   }
   else if (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) {
 
+    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
+
 #if defined(FUNCTION_SWITCHES)    
     if(idx >= MIXSRC_FIRST_FS_SWITCH) {
-      idx = idx-(MIXSRC_FIRST_SWITCH+NUM_REGULAR_SWITCHES);
-      if (ZEXIST(g_model.switchNames[idx])) {
-        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
+      idx = idx - (MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES);
+      if (*g_model.switchNames[idx]) {
         lcdDrawSizedText(lcdNextPos, y, g_model.switchNames[idx], LEN_SWITCH_NAME, att);
       }
       else {
-        char s[LEN_SWITCH_NAME] = {'S', 'W'};
-        s[LEN_SWITCH_NAME-1] = '1' + idx;
-        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
+        char s[LEN_SWITCH_NAME] = { 0 };
+        s = { 'S', 'W', '1' + idx };
         lcdDrawSizedText(lcdNextPos, y, s, LEN_SWITCH_NAME, att);
       }
+
+      return;
     }
-    else {
-      idx = idx-MIXSRC_FIRST_SWITCH;
-      if (ZEXIST(g_eeGeneral.switchNames[idx])) {
-        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
-        lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME, att);
-      }
-      else
-        lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1, att);
-    }
-#else
-  idx = idx-MIXSRC_FIRST_SWITCH;
-  if (ZEXIST(g_eeGeneral.switchNames[idx])) {
-    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att); //switch symbol
-    lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME, att);
-  }
-  else
-    lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1, att);
 #endif
 
+    idx = idx - MIXSRC_FIRST_SWITCH;
+    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
+
+    const char* name = nullptr;
+    if (*g_eeGeneral.switchNames[idx])
+      name = g_eeGeneral.switchNames[idx];
+    else
+      name = switchGetName(idx);
+
+    lcdDrawSizedText(lcdNextPos, y, name, LEN_SWITCH_NAME, att);
   }
-  else if (idx < MIXSRC_SW1)
+  else if (idx < MIXSRC_FIRST_LOGICAL_SWITCH)
     lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx-MIXSRC_Rud+1, att);
   else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH)
     drawSwitch(x, y, SWSRC_SW1+idx-MIXSRC_SW1, att);
-  else if (idx < MIXSRC_CH1)
+  else if (idx < MIXSRC_FIRST_CH)
     drawStringWithIndex(x, y, STR_PPM_TRAINER, idx-MIXSRC_FIRST_TRAINER+1, att);
   else if (idx <= MIXSRC_LAST_CH) {
     drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);

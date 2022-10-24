@@ -24,6 +24,7 @@
 #include "yaml_tree_walker.h"
 
 #include "pulses/multi.h"
+#include "switches.h"
 #include "stamp.h"
 
 //
@@ -965,7 +966,7 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   //
   swtchWarn = 0;
   while (val_len--) {
-    signed swtch = getRawSwitchIdx(*(val++));
+    signed swtch = switchLookupIdx(*(val++));
     if (swtch < 0) break;
 
     unsigned state = 0;
@@ -1007,7 +1008,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
       // state == 1 -> UP
       // state == 2 -> MIDDLE
       // state == 3 -> DOWN
-      char swtchWarn[2] = {getRawSwitchFromIdx(i), 0};
+      char swtchWarn[2] = {switchGetLetter(i), 0};
 
       switch (state) {
         case 0:
@@ -1027,7 +1028,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
           break;
       }
 
-      if (swtchWarn[1] != 0) {
+      if (swtchWarn[1] >= 'A' && swtchWarn[1] != 0) {
         if (!wf(opaque, swtchWarn, 2)) {
           return false;
         }

@@ -24,6 +24,7 @@
 
 #if !defined(BOOT)
 #include "opentx.h"
+#include "hal/switch_driver.h"
 
 const char s_charTab[] = "_-.,";
 
@@ -425,75 +426,30 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
-int getRawSwitchIdx(char sw)
+char* getSwitchName(char *dest, uint8_t idx)
 {
-  if (sw < 'A' || sw > 'Z')
-    return -1;
-
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2) && !defined(RADIO_BOXER)
-  if (sw >= 'H')
-    return sw - 'H' + 5;
-#if defined(RADIO_T12)
-  else if (sw == 'G')
-#else
-  else if (sw == 'F')
-#endif
-    return 4;
-  else
-    return sw - 'A';
-#else
-  return sw - 'A';
-#endif
-}
-
-char getRawSwitchFromIdx(int idx)
-{
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_TX12MK2) && !defined(RADIO_BOXER) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
-    if (idx >= 5)
-      return 'H' + idx - 5;
-    else if (idx == 4)
-  #if defined(RADIO_T12)
-      return 'G';
-  #else
-      return 'F';
-  #endif
-    else
-      return 'A' + idx;
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-    if (idx < 6)
-        return 'A' + idx;
-    else
-        return 'A' + idx + 2;
-#else
-    return 'A' + idx;
-#endif
-}
-
-char *getSwitchName(char *dest, swsrc_t idx)
-{
-  div_t swinfo = switchInfo(idx);
-  if (g_eeGeneral.switchNames[swinfo.quot][0] != '\0') {
+  if (g_eeGeneral.switchNames[idx][0] != '\0') {
     dest =
-        strAppend(dest, g_eeGeneral.switchNames[swinfo.quot], LEN_SWITCH_NAME);
+        strAppend(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
   } 
   else {
 #if defined(FUNCTION_SWITCHES) 
-    if (swinfo.quot >= NUM_REGULAR_SWITCHES)  {
-      int fsIdx = swinfo.quot - NUM_REGULAR_SWITCHES;
+    if (idx >= NUM_REGULAR_SWITCHES)  {
+      int fsIdx = idx - NUM_REGULAR_SWITCHES;
       if(ZEXIST(g_model.switchNames[fsIdx])){
         dest = strAppend(dest, g_model.switchNames[fsIdx], LEN_SWITCH_NAME);
       }
       else {
         *dest++ = 'S';
         *dest++ = 'W';
-        *dest++ = '1' + swinfo.quot - 4;
+        *dest++ = '1' + fsIdx;
       }
       return dest;
     }  
 #endif
-    *dest++ = 'S';
-    *dest++ = getRawSwitchFromIdx(swinfo.quot);
+    strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
   }
+
   return dest;
 }
 
@@ -543,7 +499,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
 
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, idx);
+    s = getSwitchName(s, swinfo.quot);
     s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
     *s = '\0';
   }

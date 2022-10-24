@@ -223,9 +223,14 @@ void writeHeader()
     }
   }
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW[i] + 2;
+  for (mixsrc_t i = MIXSRC_FIRST_STICK; i <= MIXSRC_LAST_POT; i++) {
+    const char * p = getSourceString(i);
+    if (!p) continue;
+
+    // skip symbol
+    if (IS_UTF8(*p))
+      p += UTF8_WIDTH(*p);
+
     size_t len = strlen(p);
     for (uint8_t j=0; j<len; ++j) {
       if (!*p) break;
@@ -239,7 +244,7 @@ void writeHeader()
     if (SWITCH_EXISTS(i)) {
       char s[LEN_SWITCH_NAME + 2];
       char * temp;
-      temp = getSwitchName(s, SWSRC_FIRST_SWITCH + i * 3);
+      temp = getSwitchName(s, i);
       *temp++ = ',';
       *temp = '\0';
       f_puts(s, &g_oLogFile);
@@ -250,9 +255,6 @@ void writeHeader()
   for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
     f_printf(&g_oLogFile, "CH%d(us),", channel+1);
   }
-#else
-  f_puts("Rud,Ele,Thr,Ail,P1,P2,P3,THR,RUD,ELE,3POS,AIL,GEA,TRN,", &g_oLogFile);
-#endif
 
   f_puts("TxBat(V)\n", &g_oLogFile);
 }

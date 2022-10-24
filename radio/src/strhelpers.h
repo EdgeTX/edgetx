@@ -24,10 +24,24 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
+
 #include <string>
 
 #include <string>
 #include <cstring>
+
+#define IS_UFT8_2BYTES(c) \
+    ( (((uint8_t)c) & 0xE0) == 0xC0 )
+
+#define IS_UTF8_3BYTES(c) \
+    ( (((uint8_t)c) & 0xF0) == 0xE0 )
+
+#define IS_UTF8(c) \
+    ( IS_UFT8_2BYTES(c) || IS_UTF8_3BYTES(c) )
+
+#define UTF8_WIDTH(c) \
+    ( IS_UFT8_2BYTES(c) ? 2 : IS_UTF8_3BYTES(c) ? 3 : 1 )
+
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
@@ -82,7 +96,7 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
-char *getSwitchName(char *dest, swsrc_t idx);
+char *getSwitchName(char *dest, uint8_t idx);
 
 template<size_t L>
 char* getSourceString(char (&dest)[L], mixsrc_t idx);
@@ -91,8 +105,6 @@ template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
                                  LcdFlags flags);
 
-int  getRawSwitchIdx(char sw);
-char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);
