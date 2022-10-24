@@ -133,14 +133,6 @@ void simuSetTrim(uint8_t trim, bool state)
   trimsStates[trim] = state;
 }
 
-int8_t switchesStates[NUM_SWITCHES] = { -1 };
-void simuSetSwitch(uint8_t swtch, int8_t state)
-{
-  // TRACE("simuSetSwitch(%d, %d)", swtch, state);
-  assert(swtch < DIM(switchesStates));
-  switchesStates[swtch] = state;
-}
-
 #if defined(SIMU_BOOTLOADER)
 int bootloaderMain();
 static void* bootloaderThread(void*)
@@ -547,20 +539,6 @@ uint32_t readTrims()
 #endif
 
   return result;
-}
-
-uint32_t switchState(uint8_t index)
-{
-  div_t qr = div(index, 3);
-  int state = switchesStates[qr.quot];
-  switch (qr.rem) {
-    case 0:
-      return state < 0;
-    case 2:
-      return state > 0;
-    default:
-      return state == 0;
-  }
 }
 
 int usbPlugged() { return false; }
