@@ -20,7 +20,7 @@
  *
  */
 
-// NL translations author: Jean-Pierre van Melis (Frater)
+// NL translations author: Jean-Pierre van Melis (Fraternl)
 
 /*
  * Formatting octal codes available in TR_ strings:
