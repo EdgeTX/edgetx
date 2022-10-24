@@ -123,7 +123,7 @@ void MenuBody::addLine(const uint8_t *icon_mask, const std::string &text,
 
   if (update) {
     auto idx = lines.size() - 1;
-    lv_table_set_cell_value_fmt(lvobj, idx, 0, text.c_str());
+    lv_table_set_cell_value(lvobj, idx, 0, text.c_str());
   }
 }
 
@@ -131,7 +131,7 @@ void MenuBody::updateLines()
 {
   setRowCount(lines.size());
   for(unsigned int idx = 0; idx < lines.size(); idx++) {
-    lv_table_set_cell_value_fmt(lvobj, idx, 0, lines[idx].text.c_str());
+    lv_table_set_cell_value(lvobj, idx, 0, lines[idx].text.c_str());
   }
 }
 
