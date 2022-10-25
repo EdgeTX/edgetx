@@ -67,6 +67,7 @@ class ModelsPageBody : public FormWindow
   void duplicateModel(ModelCell* model);
   void deleteModel(ModelCell* model);
   void editLabels(ModelCell* model);
+  void saveAsTemplate(ModelCell *model);
 };
 
 class ModelLabelsWindow : public Page
