@@ -54,11 +54,11 @@ set_property(TARGET simu_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(SIMU_SRC
   $<TARGET_OBJECTS:radiolib_native>
   $<TARGET_OBJECTS:simu_drivers>
-  PARENT_SCOPE)
+  )
+set(SIMU_SRC ${SIMU_SRC} PARENT_SCOPE)
 
 # Set the options as well in parent scope to be used by unit tests
 set(SIMU_SRC_OPTIONS ${SIMU_SRC_OPTIONS} PARENT_SCOPE)
-
 
 if(Qt5Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
