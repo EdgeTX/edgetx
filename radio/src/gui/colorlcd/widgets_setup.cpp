@@ -134,3 +134,12 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 
   storageDirty(EE_MODEL);
 }
+
+void SetupWidgetsPage::onEvent(event_t event)
+{
+  if (event == EVT_KEY_FIRST(KEY_PGUP) || event == EVT_KEY_FIRST(KEY_PGDN)) {
+    killEvents(event);
+  } else {
+    FormWindow::onEvent(event);
+  }
+}
