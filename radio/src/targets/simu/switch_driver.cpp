@@ -22,6 +22,7 @@
 #include "hal/switch_driver.h"
 #include "definitions.h"
 
+#include <stdlib.h>
 #include <assert.h>
 
 const char* _hw_switch_name[] = {
