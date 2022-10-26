@@ -37,6 +37,9 @@ enum SwitchHwPos {
 
 #define SWITCH_HW_INVERTED 1
 
+// init hardware for switches
+void switchInit();
+
 // returns the maximum number of switches supported in hardware
 uint8_t switchGetMaxSwitches();
 

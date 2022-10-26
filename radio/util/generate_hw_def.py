@@ -374,6 +374,12 @@ def build_adc_index(adc_inputs):
 
     return index
 
+def append_to_index(d, key, val):
+    if key not in d:
+        d[key] = []
+
+    d[key].append(val)
+
 def build_adc_gpio_port_index(adc_inputs):
 
     i = 0
@@ -398,6 +404,29 @@ def build_adc_gpio_port_index(adc_inputs):
 
     return gpios
 
+def build_switch_gpio_port_index(switches):
+
+    i = 0
+    gpios = {}
+    for switch in switches:
+        sw_type = switch['type']
+
+        if sw_type == '2POS':
+            # gpio = switch['gpio']
+
+            # if gpio not in gpios:
+            #     gpios[gpio] = []
+
+            # gpios[gpio].append(switch['pin'])
+            append_to_index(gpios, switch['gpio'], switch['pin'])
+
+        elif sw_type == '3POS':
+
+            append_to_index(gpios, switch['gpio_high'], switch['pin_high'])
+            append_to_index(gpios, switch['gpio_low'], switch['pin_low'])
+
+    return gpios
+
 def generate_from_template(json_filename, template_filename):
 
     with open(json_filename) as json_file:
@@ -409,6 +438,9 @@ def generate_from_template(json_filename, template_filename):
             adc_index = build_adc_index(adc_inputs)
             adc_gpios = build_adc_gpio_port_index(adc_inputs)
 
+            switches = root_obj.get('switches')
+            switch_gpios = build_switch_gpio_port_index(switches);
+
             env = jinja2.Environment(
                 lstrip_blocks=True,
                 trim_blocks=True
@@ -419,7 +451,8 @@ def generate_from_template(json_filename, template_filename):
 
             print(template.render(root_obj,
                                   adc_index=adc_index,
-                                  adc_gpios=adc_gpios))
+                                  adc_gpios=adc_gpios,
+                                  switch_gpios=switch_gpios))
 
 if __name__ == "__main__":
 

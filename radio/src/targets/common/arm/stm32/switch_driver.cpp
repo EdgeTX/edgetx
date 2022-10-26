@@ -21,18 +21,27 @@
 
 #include "hal/switch_driver.h"
 #include "stm32_switch_driver.h"
+#include "stm32_gpio_driver.h"
 
 #include "definitions.h"
 
+// generated switch structs
+#include "hw_switches.inc"
+
 #include <stdlib.h>
 
-static const stm32_switch_t _switch_defs[] = {
-  #include "hw_switches.inc"
-};
+constexpr uint8_t n_switches = DIM(_switch_defs);
+
+void switchInit()
+{
+  for (uint8_t i = 0; i < DIM(_switch_GPIOs); i++) {
+    stm32_gpio_enable_clock(_switch_GPIOs[i]);
+  }
+}
 
 uint8_t switchGetMaxSwitches()
 {
-  return DIM(_switch_defs);
+  return n_switches;
 }
   
 // returns state (0 / 1) of a specific switch position
@@ -44,12 +53,12 @@ uint32_t switchState(uint8_t pos_idx)
 
 SwitchHwPos switchGetPosition(uint8_t idx)
 {
-  if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
+  if (idx >= n_switches) return SWITCH_HW_UP;
   return stm32_switch_get_position(&_switch_defs[idx]);
 }
 
 const char* switchGetName(uint8_t idx)
 {
-  if (idx >= DIM(_switch_defs)) return "";
+  if (idx >= n_switches) return "";
   return _switch_defs[idx].name;
 }

@@ -24,6 +24,7 @@
 #include "hal/serial_driver.h"
 #include "hal/serial_port.h"
 #include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
 
 #include "board.h"
 #include "timers_driver.h"
@@ -180,6 +181,7 @@ void boardInit()
   audioInit();
 
   keysInit();
+  switchInit();
   rotaryEncoderInit();
 
 #if NUM_PWMSTICKS > 0

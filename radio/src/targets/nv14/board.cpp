@@ -28,6 +28,8 @@
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "stm32_hal_adc.h"
+#include "hal/switch_driver.h"
+
 #include "timers_driver.h"
 
 #include "bitmapbuffer.h"
@@ -218,6 +220,7 @@ void boardInit()
   }
 
   keysInit();
+  switchInit();
   audioInit();
   // we need to initialize g_FATFS_Obj here, because it is in .ram section (because of DMA access)
   // and this section is un-initialized
