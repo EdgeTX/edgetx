@@ -1028,7 +1028,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
           break;
       }
 
-      if (swtchWarn[1] >= 'A' && swtchWarn[1] != 0) {
+      if (swtchWarn[0] >= 'A' && swtchWarn[1] != 0) {
         if (!wf(opaque, swtchWarn, 2)) {
           return false;
         }
