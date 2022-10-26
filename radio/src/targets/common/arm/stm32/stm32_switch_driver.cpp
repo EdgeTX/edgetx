@@ -20,6 +20,7 @@
  */
 
 #include "stm32_switch_driver.h"
+#include "hal/adc_driver.h"
 
 bool stm32_switch_get_state(const stm32_switch_t* sw, SwitchHwPos pos)
 {
@@ -68,19 +69,20 @@ bool stm32_switch_get_state(const stm32_switch_t* sw, SwitchHwPos pos)
       }
     } break;
 
-    default:
     case SWITCH_HW_ADC: {
-      // TODO:
-      //   uint16_t value = getAnalogValue(SWITCH_FIRST + index / 3);
-      //   uint8_t position;
-      //   if (value < 1024)
-      //     position = 0;
-      //   else if (value > 3 * 1024)
-      //     position = 2;
-      //   else
-      //     position = 1;
-      //   return position == (index % 3);
+      uint16_t value = getAnalogValue(sw->Pin_high);
+      switch (pos) {
+      case SWITCH_HW_UP:
+        return value < 1024;
+      case SWITCH_HW_DOWN:
+        return value > 3 * 1024;
+      case SWITCH_HW_MID:
+        return (value >= 1024) && (value <= 3 * 1024);
+      }
     } break;
+
+    default:
+      break;
   }
 
   return false;
@@ -107,9 +109,13 @@ SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw)
         ret = SWITCH_HW_DOWN;
     } break;
 
-    case SWITCH_HW_ADC:
-     // not yet supported (needed for NV14)
-     return ret;
+    case SWITCH_HW_ADC: {
+      uint16_t value = getAnalogValue(sw->Pin_high);
+      if (value > 3 * 1024)
+        ret = SWITCH_HW_DOWN;
+      else if (value >= 1024)
+        ret = SWITCH_HW_MID;
+    } break;
   }
 
   if (inv) {
