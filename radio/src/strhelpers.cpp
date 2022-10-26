@@ -447,7 +447,7 @@ char* getSwitchName(char *dest, uint8_t idx)
       return dest;
     }  
 #endif
-    strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
+    dest = strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
   }
 
   return dest;
