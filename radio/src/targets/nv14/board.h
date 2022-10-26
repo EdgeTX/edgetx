@@ -311,7 +311,7 @@ enum Analogs {
   SUB_ANALOG_POS = SWH,
   SWITCH_END = SWH,
   TX_VOLTAGE,
-  TX_VBAT,
+  TX_RTC_VOLTAGE,
   NUM_ANALOGS
 };
 

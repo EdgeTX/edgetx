@@ -113,23 +113,6 @@ bool keyDown()
   return readKeys() || readTrims();
 }
 
-#if !defined(BOOT)
-uint32_t switchState(uint8_t index)
-{
-  uint16_t value = getAnalogValue(SWITCH_FIRST + index / 3);
-  uint8_t position;
-
-  if (value < 1024)
-    position = 0;
-  else if (value > 3 * 1024)
-    position = 2;
-  else
-    position = 1;
-
-  return position == (index % 3);
-}
-#endif
-
 void monitorInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;

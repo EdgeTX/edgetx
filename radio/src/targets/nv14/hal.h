@@ -139,18 +139,24 @@
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_12  // ADC123_IN12-> ADC1_IN12
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15  // ADC12_IN15 -> ADC1_IN15
+#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
+
 #define ADC_MAIN                        ADC1
 #define ADC_EXT                         ADC3
 #define ADC_EXT_CHANNELS                { ADC_CHANNEL_SWB, ADC_CHANNEL_SWD }
-#define ADC_SAMPTIME                    2
+#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
 #define ADC_DMA                         DMA2
-#define ADC_DMA_Channel                 DMA_Channel_0
-#define ADC_DMA_Stream                  DMA2_Stream4
-#define ADC_DMA_TC_Flag                 DMA_FLAG_TCIF4
+#define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
+#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
+#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
 
-#define ADC_EXT_DMA_Channel             DMA_Channel_2
-#define ADC_EXT_DMA_Stream              DMA2_Stream0
-#define ADC_EXT_TC_Flag                 DMA_FLAG_TCIF0
+#define ADC_EXT_DMA_CHANNEL             LL_DMA_CHANNEL_2
+#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
+#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
+#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
+#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_28CYCLES
+#define ADC_VREF_PREC2                  660
 
 #define ADC_DIRECTION                                                   \
     { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \

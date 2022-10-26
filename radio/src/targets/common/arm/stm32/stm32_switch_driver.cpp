@@ -69,8 +69,18 @@ bool stm32_switch_get_state(const stm32_switch_t* sw, SwitchHwPos pos)
     } break;
 
     default:
-    case SWITCH_HW_ADC: // TODO
-      break;
+    case SWITCH_HW_ADC: {
+      // TODO:
+      //   uint16_t value = getAnalogValue(SWITCH_FIRST + index / 3);
+      //   uint8_t position;
+      //   if (value < 1024)
+      //     position = 0;
+      //   else if (value > 3 * 1024)
+      //     position = 2;
+      //   else
+      //     position = 1;
+      //   return position == (index % 3);
+    } break;
   }
 
   return false;
