@@ -26,6 +26,7 @@
 
 struct stm32_switch_t
 {
+  const char*   name;
   GPIO_TypeDef* GPIOx_high;
   uint32_t      Pin_high;
 
