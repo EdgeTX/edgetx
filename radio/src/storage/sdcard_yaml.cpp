@@ -144,7 +144,7 @@ const char * loadRadioSettingsYaml()
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
 
     if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
-      VirtualFS vfs = VirtualFS::instance();
+      VirtualFS &vfs = VirtualFS::instance();
       // Read failed or checksum check failed
       VfsError result = VfsError::OK;
       TRACE("radio settings: Reading failed");
@@ -319,7 +319,7 @@ const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* 
 const char * writeGeneralSettings()
 {
     TRACE("YAML radio settings writer");
-	VirtualFS vfs = VirtualFS::instance();
+	VirtualFS &vfs = VirtualFS::instance();
     uint16_t file_checksum = 0;
 
     YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
