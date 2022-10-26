@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include <math.h>
 
+#include "switches.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
@@ -333,7 +335,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
   if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
-    *str++ = getRawSwitchFromIdx(swinfo.quot);
+    *str++ = switchGetLetter(swinfo.quot);
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
