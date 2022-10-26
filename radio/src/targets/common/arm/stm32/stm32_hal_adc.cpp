@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_adc.h"
+#include "stm32_gpio_driver.h"
 #include "opentx.h"
 
 #define ADC_COMMON ((ADC_Common_TypeDef *) ADC_BASE)
@@ -57,6 +58,13 @@ bool isVBatBridgeEnabled()
   return LL_ADC_GetCommonPathInternalCh(ADC_COMMON) == LL_ADC_PATH_INTERNAL_VBAT;
 }
 
+static void adc_enable_clock(ADC_TypeDef* ADCx)
+{
+  uint32_t adc_idx = (((uint32_t) ADCx) - ADC1_BASE) / 0x100UL;
+  uint32_t adc_msk = RCC_APB2ENR_ADC1EN << adc_idx;
+  LL_APB2_GRP1_EnableClock(adc_msk);
+}
+
 static bool adc_disable_dma(DMA_TypeDef* DMAx, uint32_t stream);
 static void adc_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t stream);
 
@@ -84,6 +92,7 @@ static void adc_init_pins(const stm32_adc_gpio_t* GPIOs, uint8_t n_GPIO)
       pinInit.Pin |= pin;
     }
 
+    stm32_gpio_enable_clock(gpio->GPIOx);
     LL_GPIO_Init(gpio->GPIOx, &pinInit);
     gpio++; n_GPIO--;
   }
@@ -113,6 +122,9 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   // ADC must be disabled for the functions used here
   LL_ADC_Disable(ADCx);
 
+  // enable periph clock
+  adc_enable_clock(ADCx);
+  
   LL_ADC_InitTypeDef adcInit;
   LL_ADC_StructInit(&adcInit);
 

@@ -104,8 +104,8 @@
 #define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
 
 // ADC
-#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
-#define ADC_RCC_APB2Periph              (RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC3)
+#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
+#define ADC_RCC_APB2Periph              0
 
 #define ADC_GPIO_PIN_POT1               GPIO_Pin_6      // PA.06 VRA
 #define ADC_GPIO_PIN_POT2               GPIO_Pin_4      // PC.04 VRB
