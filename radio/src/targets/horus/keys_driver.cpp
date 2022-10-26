@@ -95,34 +95,6 @@ bool keyDown()
   return readKeys() || readTrims();
 }
 
-#if !defined(BOOT)
-
-#include <stdlib.h>
-
-static const stm32_switch_t _switch_defs[] = {
-  #include "hw_switches.inc"
-};
-
-uint8_t switchGetMaxSwitches()
-{
-  return DIM(_switch_defs);
-}
-
-// returns state (0 / 1) of a specific switch position
-uint32_t switchState(uint8_t pos_idx)
-{
-  auto d = div(pos_idx, 3);
-  return stm32_switch_get_state(&_switch_defs[d.quot], (SwitchHwPos)d.rem);
-}
-
-SwitchHwPos switchGetPosition(uint8_t idx)
-{
-  if (idx >= DIM(_switch_defs)) return SWITCH_HW_UP;
-  return stm32_switch_get_position(&_switch_defs[idx]);
-}
-
-#endif
-
 void keysInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
