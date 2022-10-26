@@ -825,7 +825,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  NOBACKUP(uint8_t spare1:1 SKIP);
+  uint8_t spare1:1 SKIP;
   NOBACKUP(uint8_t internalModule ENUM(ModuleType));
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
