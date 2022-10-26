@@ -46,6 +46,7 @@ class SetupWidgetsPage : public FormWindow
  protected:
   uint8_t customScreenIdx;
   unsigned savedView = 0;
+  void onEvent(event_t event)  override;
 };
 
 class SetupWidgetsPageSlot : public Button
