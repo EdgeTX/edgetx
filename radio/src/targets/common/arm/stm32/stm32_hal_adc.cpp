@@ -178,12 +178,14 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
     uint8_t input_idx = *chan;
     const stm32_adc_input_t* input = &inputs[input_idx];
 
-    // TODO: save some bitmask with used channels
-    uint32_t mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
-    if (mode != LL_GPIO_MODE_ANALOG) {
-      // skip channel
-      nconv--; chan++;
-      continue;
+    // internal channel don't have a GPIO + pin defined
+    if (!__LL_ADC_IS_CHANNEL_INTERNAL(input->ADC_Channel)) {
+      uint32_t mode = LL_GPIO_GetPinMode(input->GPIOx, input->GPIO_Pin);
+      if (mode != LL_GPIO_MODE_ANALOG) {
+        // skip channel
+        nconv--; chan++;
+        continue;
+      }
     }
 
     // channel is already used, probably a secondary input
@@ -409,6 +411,11 @@ static void copy_adc_values(uint16_t* dst, uint16_t* src,
       continue;
     }
 
+    // do not overwrite internal channel if not enabled
+    if (__LL_ADC_IS_CHANNEL_INTERNAL(input->ADC_Channel)
+        && (LL_ADC_GetCommonPathInternalCh(ADC_COMMON) == LL_ADC_PATH_INTERNAL_NONE))
+      continue;
+
     if (input->inverted)
       dst[channel] = ADCMAXVALUE - *src;
     else
@@ -431,15 +438,24 @@ static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
 
     // if the ADC has no active channels,
     // it has not been enabled at all
-    if (!LL_ADC_IsEnabled(adc->ADCx))
+    if (!LL_ADC_IsEnabled(adc->ADCx)) {
+      adc++; n_ADC--;
       continue;
+    }
 
     // Code bellow assumes nconv > 0
     // otherwise the ADC should not be enabled
-    //
-    // TODO: timeout?
-    //
-    if (adc->DMAx && LL_DMA_IsEnabledStream(adc->DMAx, adc->DMA_Stream)) {
+
+    // fetch number of copnversions
+    uint32_t seq_len = LL_ADC_REG_GetSequencerLength(adc->ADCx);
+    if (seq_len == LL_ADC_REG_SEQ_SCAN_DISABLE) {
+
+      while (!LL_ADC_IsActiveFlag_EOCS(adc->ADCx)) {
+        // busy wait
+      }
+      *dma_buffer = adc->ADCx->DR;
+
+    } else if (adc->DMAx && LL_DMA_IsEnabledStream(adc->DMAx, adc->DMA_Stream)) {
 
       switch(adc->DMA_Stream){
 
@@ -459,19 +475,13 @@ static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
       }
 
       adc_disable_dma(adc->DMAx, adc->DMA_Stream);
-    } else {
-      // no DMA used, wait for ADC to complete
-      // while (!LL_ADC_IsActiveFlag_EOCS(adc->ADCx)) {
-      //   // busy wait
-      // }
     }
 
-    // fetch number of copnversions
-    uint16_t* tmp_buf = dma_buffer;
-    uint32_t seq_len = LL_ADC_REG_GetSequencerLength(adc->ADCx);
+    // finally copy the values into their final destination
+    copy_adc_values(adcValues, dma_buffer, adc, inputs);
+
     if (seq_len == LL_ADC_REG_SEQ_SCAN_DISABLE) {
       // single conversion
-      *dma_buffer = adc->ADCx->DR;
       dma_buffer++;
     }
     else {
@@ -479,9 +489,6 @@ static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
       seq_len = (seq_len >> ADC_SQR1_L_Pos) + 1;
       dma_buffer += seq_len;
     }
-
-    // finally copy the values into their final destination
-    copy_adc_values(adcValues, tmp_buf, adc, inputs);
 
     // and move to the next ADC
     adc++; n_ADC--;
