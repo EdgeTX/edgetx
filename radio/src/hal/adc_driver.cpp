@@ -29,10 +29,6 @@ const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
 
-#if defined(PCBX10) || defined(PCBX12S)
-uint16_t rtcBatteryVoltage;
-#endif
-
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
   // If there is an init function, it MUST succeed
@@ -81,17 +77,8 @@ bool adcRead()
 #if !defined(SIMU)
 uint16_t getRTCBatteryVoltage()
 {
-#if defined(HAS_TX_RTC_VOLTAGE)
-  return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBX10) || defined(PCBX12S)
-  return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBNV14)
-  #warning "TODO RTC voltage"
-  return 330;
-#else
-  #warning "RTC battery not supported on this target"
-  return 0;
-#endif
+  // anaIn() outputs value divided by (1 << ANALOG_SCALE)
+  return (anaIn(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / (2048 >> ANALOG_SCALE);
 }
 
 uint16_t getAnalogValue(uint8_t index)

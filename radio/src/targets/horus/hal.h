@@ -102,47 +102,47 @@
 #define STORAGE_SWITCH_A
 #define HARDWARE_SWITCH_A
 #define SWITCHES_GPIO_REG_A_H           GPIOH
-#define SWITCHES_GPIO_PIN_A_H           GPIO_Pin_9  // PH.09
+#define SWITCHES_GPIO_PIN_A_H           LL_GPIO_PIN_9  // PH.09
 #define SWITCHES_GPIO_REG_A_L           GPIOI
-#define SWITCHES_GPIO_PIN_A_L           GPIO_Pin_15 // PI.15
+#define SWITCHES_GPIO_PIN_A_L           LL_GPIO_PIN_15 // PI.15
 #define STORAGE_SWITCH_B
 #define HARDWARE_SWITCH_B
 #define SWITCHES_GPIO_REG_B_H           GPIOH
-#define SWITCHES_GPIO_PIN_B_H           GPIO_Pin_12 // PH.12
+#define SWITCHES_GPIO_PIN_B_H           LL_GPIO_PIN_12 // PH.12
 #define SWITCHES_GPIO_REG_B_L           GPIOB
-#define SWITCHES_GPIO_PIN_B_L           GPIO_Pin_12 // PB.12
+#define SWITCHES_GPIO_PIN_B_L           LL_GPIO_PIN_12 // PB.12
 #define STORAGE_SWITCH_C
 #define HARDWARE_SWITCH_C
 #define SWITCHES_GPIO_REG_C_H           GPIOD
-#define SWITCHES_GPIO_PIN_C_H           GPIO_Pin_11 // PD.11
+#define SWITCHES_GPIO_PIN_C_H           LL_GPIO_PIN_11 // PD.11
 #define SWITCHES_GPIO_REG_C_L           GPIOB
-#define SWITCHES_GPIO_PIN_C_L           GPIO_Pin_15 // PB.15
+#define SWITCHES_GPIO_PIN_C_L           LL_GPIO_PIN_15 // PB.15
 #define STORAGE_SWITCH_D
 #define HARDWARE_SWITCH_D
 #define SWITCHES_GPIO_REG_D_H           GPIOJ
-#define SWITCHES_GPIO_PIN_D_H           GPIO_Pin_7  // PJ.07
+#define SWITCHES_GPIO_PIN_D_H           LL_GPIO_PIN_7  // PJ.07
 #define SWITCHES_GPIO_REG_D_L           GPIOG
-#define SWITCHES_GPIO_PIN_D_L           GPIO_Pin_2  // PG.02
+#define SWITCHES_GPIO_PIN_D_L           LL_GPIO_PIN_2  // PG.02
 #define STORAGE_SWITCH_E
 #define HARDWARE_SWITCH_E
 #define SWITCHES_GPIO_REG_E_H           GPIOH
-#define SWITCHES_GPIO_PIN_E_H           GPIO_Pin_4  // PH.04
+#define SWITCHES_GPIO_PIN_E_H           LL_GPIO_PIN_4  // PH.04
 #define SWITCHES_GPIO_REG_E_L           GPIOE
-#define SWITCHES_GPIO_PIN_E_L           GPIO_Pin_3  // PE.03
+#define SWITCHES_GPIO_PIN_E_L           LL_GPIO_PIN_3  // PE.03
 #define STORAGE_SWITCH_F
 #define HARDWARE_SWITCH_F
 #define SWITCHES_GPIO_REG_F             GPIOH
-#define SWITCHES_GPIO_PIN_F             GPIO_Pin_3  // PH.03
+#define SWITCHES_GPIO_PIN_F             LL_GPIO_PIN_3  // PH.03
 #define STORAGE_SWITCH_G
 #define HARDWARE_SWITCH_G
 #define SWITCHES_GPIO_REG_G_H           GPIOG
-#define SWITCHES_GPIO_PIN_G_H           GPIO_Pin_6  // PG.06
+#define SWITCHES_GPIO_PIN_G_H           LL_GPIO_PIN_6  // PG.06
 #define SWITCHES_GPIO_REG_G_L           GPIOG
-#define SWITCHES_GPIO_PIN_G_L           GPIO_Pin_3  // PG.03
+#define SWITCHES_GPIO_PIN_G_L           LL_GPIO_PIN_3  // PG.03
 #define STORAGE_SWITCH_H
 #define HARDWARE_SWITCH_H
 #define SWITCHES_GPIO_REG_H             GPIOG
-#define SWITCHES_GPIO_PIN_H             GPIO_Pin_7  // PG.07
+#define SWITCHES_GPIO_PIN_H             LL_GPIO_PIN_7  // PG.07
 
 #if defined(PCBX12S)
   #define SWITCHES_F_INVERTED
@@ -157,23 +157,23 @@
   #define STORAGE_SWITCH_I
   #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOH
-  #define SWITCHES_GPIO_PIN_I           GPIO_Pin_14 // PH.14
+  #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_14 // PH.14
   // Gimbal switch right
   #define STORAGE_SWITCH_J
   #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOH
-  #define SWITCHES_GPIO_PIN_J           GPIO_Pin_15 // PH.15
+  #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_15 // PH.15
 #elif defined(PCBX12S)
   // Gimbal switch left
   #define STORAGE_SWITCH_I
   #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOB
-  #define SWITCHES_GPIO_PIN_I           GPIO_Pin_1 // PB.01
+  #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_1 // PB.01
   // Gimbal switch right
   #define STORAGE_SWITCH_J
   #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOB
-  #define SWITCHES_GPIO_PIN_J           GPIO_Pin_0 // PB.00
+  #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_0 // PB.00
 #endif
 
 // Trims
@@ -305,7 +305,7 @@
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
   #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
-  #define ADC_VREF_PREC2                300
+  #define ADC_VREF_PREC2                600
 #elif defined(PCBX10)
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
@@ -362,12 +362,13 @@
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
 
+  // VBat divider is /4 on F42x and F43x devices
   #if defined(RADIO_TX16S)
-    #define ADC_VREF_PREC2              330
+    #define ADC_VREF_PREC2              660
   #elif defined(RADIO_T16) || defined(RADIO_T18)
-    #define ADC_VREF_PREC2              300
+    #define ADC_VREF_PREC2              600
   #else
-    #define ADC_VREF_PREC2              250
+    #define ADC_VREF_PREC2              500
   #endif
 #endif
 

@@ -353,6 +353,7 @@ enum Analogs {
   MOUSE1, // after voltage because previous ones come from SPI on X12S
   MOUSE2,
 #endif
+  TX_RTC_VOLTAGE,
   NUM_ANALOGS
 };
 

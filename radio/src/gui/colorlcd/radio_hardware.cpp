@@ -48,6 +48,11 @@ RadioHardwarePage::RadioHardwarePage():
 {
 }
 
+void RadioHardwarePage::checkEvents()
+{
+  enableVBatBridge();
+}
+
 void RadioHardwarePage::build(FormWindow * window)
 {
   window->setFlexLayout();
