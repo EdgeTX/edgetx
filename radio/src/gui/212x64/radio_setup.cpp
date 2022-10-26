@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "opentx.h"

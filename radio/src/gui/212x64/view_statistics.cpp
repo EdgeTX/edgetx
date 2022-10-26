@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
 #include "opentx.h"
 
 #define STATS_1ST_COLUMN               FW/2

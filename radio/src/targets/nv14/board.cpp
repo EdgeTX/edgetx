@@ -26,9 +26,9 @@
 #include "debug.h"
 
 #include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
 #include "hal/trainer_driver.h"
 #include "stm32_hal_adc.h"
-#include "hal/switch_driver.h"
 
 #include "timers_driver.h"
 

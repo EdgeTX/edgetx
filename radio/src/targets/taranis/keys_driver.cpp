@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "board.h"
 
 uint32_t readKeys()

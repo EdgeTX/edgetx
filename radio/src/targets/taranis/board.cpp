@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_adc.h"
+#include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 
 #include "board.h"
