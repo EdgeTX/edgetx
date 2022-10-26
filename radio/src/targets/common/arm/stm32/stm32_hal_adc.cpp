@@ -421,6 +421,12 @@ static void copy_adc_values(uint16_t* dst, uint16_t* src,
     else
       dst[channel] = *src;
 
+#if defined(JITTER_MEASURE)
+    if (JITTER_MEASURE_ACTIVE()) {
+      rawJitter[channel].measure(dst[channel]);
+    }
+#endif
+
     src++;
   }
 }
@@ -511,13 +517,7 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
         continue;
       }
 
-      uint16_t val = adcValues[i];
-#if defined(JITTER_MEASURE)
-      if (JITTER_MEASURE_ACTIVE()) {
-        rawJitter[i].measure(val);
-      }
-#endif
-      _adc_oversampling[i] += val;
+      _adc_oversampling[i] += adcValues[i];
     }
     adc_start_read(ADCs, n_ADC);
   }
