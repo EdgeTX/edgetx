@@ -437,6 +437,26 @@ void ModelsPageBody::deleteModel(ModelCell *model)
       });
 }
 
+void ModelsPageBody::saveAsTemplate(ModelCell *model)
+{
+  storageDirty(EE_MODEL);
+  storageCheck(true);
+  constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+  char modelName[size];
+  snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+  char templatePath[FF_MAX_LFN];
+  snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+  sdCheckAndCreateDirectory(TEMPLATES_PATH);
+  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+  if (isFileAvailable(templatePath)) {
+    new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+    });
+  } else {
+    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+  }
+}
+
 void ModelsPageBody::editLabels(ModelCell* model)
 {
   auto labels = modelslabels.getLabels();
@@ -495,6 +515,7 @@ void ModelsPageBody::update(int selected)
         menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
       }
       menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
+      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
   }
