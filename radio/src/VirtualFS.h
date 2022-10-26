@@ -364,6 +364,8 @@ class VirtualFS
 public:
   VirtualFS();
   ~VirtualFS();
+  VirtualFS(const VirtualFS&) = delete;
+  VirtualFS& operator=(VirtualFS&) = delete;
 
   void stop();
   void restart();
@@ -430,6 +432,7 @@ public:
   #define LIST_SD_FILE_EXT    2
 private:
   static VirtualFS* _instance;
+
 
 #if defined(USE_LITTLEFS)
   lfs_config lfsCfg = {0};
