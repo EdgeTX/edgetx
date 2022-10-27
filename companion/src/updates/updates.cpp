@@ -67,12 +67,21 @@ void Updates::autoUpdates(bool interactive)
 
   factories->resetAllEnvironments();
 
-  QStringList list;
+  QMap<QString, int> components;
 
-  if (!factories->isUpdateAvailable(list)) {
+  if (!factories->isUpdateAvailable(components)) {
     if (interactive)
       QMessageBox::information(parentWidget(), CPN_STR_APP_NAME, tr("No updates available at this time"));
     return;
+  }
+
+  QMapIterator<QString, int> it(components);
+
+  QStringList list;
+
+  while (it.hasNext()) {
+    it.next();
+    list << it.key();
   }
 
   if (QMessageBox::question(parentWidget(), CPN_STR_APP_NAME % ": " % tr("Checking for Updates"),
@@ -81,9 +90,12 @@ void Updates::autoUpdates(bool interactive)
     return;
   }
 
-  for (int i = 0; i < list.count(); i++) {
-    factories->setRunUpdate(list.at(i));
-    factories->updateRelease(list.at(i));
+  it.toFront();
+
+  while (it.hasNext()) {
+    it.next();
+    factories->setRunUpdate(it.value());
+    factories->updateRelease(it.value());
   }
 
   runUpdate();

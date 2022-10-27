@@ -35,24 +35,24 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
   ui(new Ui::UpdateOptionsDialog),
   factories(factories),
   idx(idx),
-  name(g.component[idx].name()),
   isRun(isRun)
 {
   ui->setupUi(this);
 
-  if (!isRun) factories->resetEnvironment(name);
+  if (!isRun)
+    factories->resetEnvironment(idx);
 
-  params = factories->getParams(name);
+  params = factories->getParams(idx);
 
-  setWindowTitle(tr("%1 %2").arg(name).arg(tr("Options")));
+  setWindowTitle(tr("%1 %2").arg(factories->name(idx)).arg(tr("Options")));
 
-  ui->txtCurrentRelease->setText(factories->currentRelease(name));
+  ui->txtCurrentRelease->setText(factories->currentRelease(idx));
 
   connect(ui->btnClearRelease, &QPushButton::clicked, [=]() {
     if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear current release information. Are you sure?"),
                              QMessageBox::Yes |QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
-      factories->clearRelease(name);
-      ui->txtCurrentRelease->setText(factories->currentRelease(name));
+      factories->clearRelease(idx);
+      ui->txtCurrentRelease->setText(factories->currentRelease(idx));
       emit changed(idx);
 
     }

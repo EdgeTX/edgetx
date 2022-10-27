@@ -26,8 +26,7 @@
 UpdateSDCard::UpdateSDCard(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName(tr("SD Card"));
-  setRepo(QString(GH_REPOS_EDGETX).append("/edgetx-sdcard"));
+  init(CID_SDCard, tr("SD Card"), QString(GH_REPOS_EDGETX).append("/edgetx-sdcard"));
 }
 
 void UpdateSDCard::initAssetSettings()
@@ -35,9 +34,9 @@ void UpdateSDCard::initAssetSettings()
   if (!isValidSettingsIndex())
     return;
 
-  g.component[settingsIndex()].initAllAssets();
+  g.component[id()].initAllAssets();
 
-  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+  ComponentAssetData &cad = g.component[id()].asset[0];
   cad.desc("files");
   cad.processes(UPDFLG_Common_Asset);
   cad.flags(cad.processes() | UPDFLG_Locked | UPDFLG_CopyStructure);
@@ -54,8 +53,8 @@ bool UpdateSDCard::flagAssets()
   /*
   {
     "targets": [
-      ["Flysky NV14", "nv14-", "nv14"],
-      ["FrSky Horus X10", "x10-", "horus"],
+      ["Flysky NV14", "nv14-", "c320x480"],
+      ["FrSky Horus X10", "x10-", "c480x272"],
   */
 
   const QString mappingfile = "sdcard.json";

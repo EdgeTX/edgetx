@@ -39,7 +39,7 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       1 // Note: bumped to ensure 2.7 Nightly version users also get upgraded
+#define CPN_SETTINGS_REVISION       2 // Note: bumped for fix during 2.8 RCs
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
@@ -495,11 +495,10 @@ class ComponentData: public CompStoreObj
     friend class AppData;
 
   private:
-    PROPERTYSTR (name)
     PROPERTY    (bool,           checkForUpdate,  false)
     PROPERTY    (ReleaseChannel, releaseChannel,  RELEASE_CHANNEL_STABLE)
     PROPERTYSTRD(                release,         "unknown")
-    PROPERTY    (int,            id,              0)
+    PROPERTY    (int,            releaseId,       0)
     PROPERTY    (bool,           prerelease,      false)
     PROPERTYSTRD(                version,         "0")
     PROPERTYSTRD(                date,            "")
@@ -574,8 +573,6 @@ class AppData: public CompStoreObj
     //! List of all active profiles mapped by index.
     QMap<int, QString> getActiveProfiles() const;
 
-    //! Get a modifiable (non-const) index to ComponentData for \a name. Returns -1 if \a name not found.
-    int getComponentIndex(QString name) const;
     //! Get a modifiable (non-const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
     ComponentData & getComponent(int index);
     //! Get a non-modifiable (const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
