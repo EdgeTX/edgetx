@@ -209,7 +209,19 @@ TEST(Conversions, ConversionXLiteFrom23)
 }
 #endif
 
-#if defined(PCBX7) && (STORAGE_CONVERSIONS <= 219)
+#if defined(RADIO_X7) && (STORAGE_CONVERSIONS <= 219)
+
+static swarnstate_t get_configured_switch_warn_mask()
+{
+  swarnstate_t mask = 0;
+  for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+    if (SWITCH_CONFIG(i) != 0)
+      mask |= 7 << (3 * i);
+  }
+
+  return mask;
+}
+
 TEST(Conversions, ConversionX7From23)
 {
 #if defined(SDCARD_YAML)
@@ -248,11 +260,11 @@ TEST(Conversions, ConversionX7From23)
     (0x02) |            // SA middle
     (0x01 << (3 * 1)) | // SB up
     (0x03 << (3 * 2)) | // SC down
-    (0x03 << (3 * 4));  // SF down
-
-  swarnstate_t sw_mask = (1 << (NUM_SWITCHES * 3)) - 1;
+    (0x03 << (3 * 4)) | // SF down
+    (0x01 << (3 * 5));  // SH up
   
-  // check only the "allowed switches"
+  // check only configured switches (as the code does)
+  swarnstate_t sw_mask = get_configured_switch_warn_mask();
   EXPECT_EQ(state & sw_mask, g_model.switchWarningState & sw_mask);
   
   EXPECT_STRNEQ("Test", g_model.header.name);
