@@ -249,6 +249,10 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
       chkCopies.at(i)->isChecked() ? flags |= UpdateInterface::UPDFLG_CopyDest : flags &= ~UpdateInterface::UPDFLG_CopyDest;
       ap.flags = flags;
     }
+
+    if (!isRun)
+      factories->saveAssetSettings(idx);
+
     QDialog::accept();
   });
 
