@@ -1340,3 +1340,21 @@
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX\nについて"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "英語"
+#define TR_VOICE_CHINESE                "中国語 簡体"
+#define TR_VOICE_CZECH                  "チェコ語"
+#define TR_VOICE_DANISH                 "デンマーク語"
+#define TR_VOICE_DEUTSCH                "ドイツ語"
+#define TR_VOICE_DUTCH                  "オランダ語"
+#define TR_VOICE_ESPANOL                "スペイン語"
+#define TR_VOICE_FRANCAIS               "フランス語"
+#define TR_VOICE_HUNGARIAN              "ハンガリー語"
+#define TR_VOICE_ITALIANO               "イタリア語"
+#define TR_VOICE_POLISH                 "ポーランド語"
+#define TR_VOICE_PORTUGUES              "ポルトガル語"
+#define TR_VOICE_RUSSIAN                "ロシア語"
+#define TR_VOICE_SLOVAK                 "スロバキア語"
+#define TR_VOICE_SWEDISH                "スウェーデン語"
+#define TR_VOICE_TAIWANESE              "中国語 繁体"

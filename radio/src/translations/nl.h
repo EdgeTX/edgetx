@@ -20,7 +20,7 @@
  *
  */
 
-// NL translations author: Jean-Pierre van Melis (Frater)
+// NL translations author: Jean-Pierre van Melis (Fraternl)
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -1355,3 +1355,21 @@
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "English"
+#define TR_VOICE_CHINESE                "Chinese"
+#define TR_VOICE_CZECH                  "Czech"
+#define TR_VOICE_DANISH                 "Danish"
+#define TR_VOICE_DEUTSCH                "Deutsch"
+#define TR_VOICE_DUTCH                  "Dutch"
+#define TR_VOICE_ESPANOL                "Espanol"
+#define TR_VOICE_FRANCAIS               "Francais"
+#define TR_VOICE_HUNGARIAN              "Hungarian"
+#define TR_VOICE_ITALIANO               "Italiano"
+#define TR_VOICE_POLISH                 "Polish"
+#define TR_VOICE_PORTUGUES              "Portugues"
+#define TR_VOICE_RUSSIAN                "Russian"
+#define TR_VOICE_SLOVAK                 "Slovak"
+#define TR_VOICE_SWEDISH                "Swedish"
+#define TR_VOICE_TAIWANESE              "Taiwanese"
