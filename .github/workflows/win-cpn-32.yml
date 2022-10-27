@@ -45,7 +45,6 @@ jobs:
                                 mingw-w64-i686-python-pip \
                                 mingw-w64-i686-python-pillow \
                                 mingw-w64-i686-python-lz4 \
-                                mingw-w64-i686-arm-none-eabi-gcc \
                                 mingw-w64-i686-libjpeg-turbo \
                                 mingw-w64-i686-zlib \
                                 mingw-w64-i686-libtiff \
