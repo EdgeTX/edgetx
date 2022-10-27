@@ -55,9 +55,7 @@
 UpdateCompanion::UpdateCompanion(QWidget * parent) :
   UpdateInterface(parent)
 {
-  setName(tr("Companion"));
-  setRepo(QString(GH_REPOS_EDGETX).append("/edgetx"));
-  setReleasesNightlyName("nightly");
+  init(CID_Companion, tr("Companion"), QString(GH_REPOS_EDGETX).append("/edgetx"), "nightly");
 }
 
 void UpdateCompanion::initAssetSettings()
@@ -65,9 +63,9 @@ void UpdateCompanion::initAssetSettings()
   if (!isValidSettingsIndex())
     return;
 
-  g.component[settingsIndex()].initAllAssets();
+  g.component[id()].initAllAssets();
 
-  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+  ComponentAssetData &cad = g.component[id()].asset[0];
 
   cad.desc("installer");
   cad.processes((UPDFLG_Common_Asset | UPDFLG_AsyncInstall) & ~UPDFLG_CopyDest);

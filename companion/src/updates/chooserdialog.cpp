@@ -31,6 +31,7 @@ ChooserDialog::ChooserDialog(QWidget * parent, QString title, QStandardItemModel
   setWindowTitle(title);
 
   ui->listView->setModel(itemModel);
+  ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
     QDialog::accept();
