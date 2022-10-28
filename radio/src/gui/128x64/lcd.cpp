@@ -758,7 +758,7 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
       }
       else {
         char s[LEN_SWITCH_NAME] = { 0 };
-        s = { 'S', 'W', '1' + idx };
+        s[0] = 'S'; s[1] = 'W'; s[2] = '1' + idx;
         lcdDrawSizedText(lcdNextPos, y, s, LEN_SWITCH_NAME, att);
       }
 
