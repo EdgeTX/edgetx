@@ -72,4 +72,6 @@ bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC);
 void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
                                    const stm32_adc_input_t* inputs, uint8_t n_inputs);
 
+void stm32_hal_adc_disable_oversampling();
+
 void stm32_hal_adc_isr(const stm32_adc_t* adc);

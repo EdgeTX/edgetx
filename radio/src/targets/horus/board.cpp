@@ -196,28 +196,25 @@ void boardInit()
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
   flysky_hall_stick_check_init();
 
-  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
-  for (uint8_t ui8 = 0; ui8 < 70; ui8++)
-  {
-      flysky_hall_stick_loop();
-      delay_ms(1);
-      if (globalData.flyskygimbals)
-      {
-          break;
-      }
+  // Wait 70ms for FlySky gimbals to respond.
+  // According to LA trace, minimally 23ms is required
+  for (uint8_t ui8 = 0; ui8 < 70; ui8++) {
+    flysky_hall_stick_loop();
+    delay_ms(1);
+    if (globalData.flyskygimbals) {
+      break;
+    }
   }
-
-#endif
 
   if (globalData.flyskygimbals) {
     flysky_hall_stick_init();
   } else {
     flysky_hall_stick_check_deinit();
   }
+#endif
 
   if (!adcInit(&ADC_DRIVER))
       TRACE("adcInit failed");
-
 
   init2MhzTimer();
   init1msTimer();

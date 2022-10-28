@@ -24,8 +24,8 @@
 
 #include "opentx.h"
 
-#define ADC_CS_HIGH()                  (ADC_SPI_GPIO->BSRRL = ADC_SPI_PIN_CS)
-#define ADC_CS_LOW()                   (ADC_SPI_GPIO->BSRRH = ADC_SPI_PIN_CS)
+#define ADC_CS_HIGH()                  LL_GPIO_SetOutputPin(ADC_SPI_GPIO, ADC_SPI_PIN_CS)
+#define ADC_CS_LOW()                   LL_GPIO_ResetOutputPin(ADC_SPI_GPIO, ADC_SPI_PIN_CS)
 
 #define SPI_STICK1                     0
 #define SPI_STICK2                     1
@@ -100,6 +100,8 @@ static void ADS7952_Init()
   SPIx_ReadWriteByte(MANUAL_MODE);
   ADC_CS_HIGH();
 }
+
+extern const etx_hal_adc_driver_t _adc_driver;
 
 static bool x12s_adc_init()
 {
@@ -212,13 +214,7 @@ void x12s_adc_wait_completion()
       for (uint8_t x=0; x<NUM_ANALOGS-MOUSE1; x++) {
 
         // do the averaging math
-        uint16_t val = adcValues[MOUSE1+x];
-#if defined(JITTER_MEASURE)
-        if (JITTER_MEASURE_ACTIVE()) {
-          rawJitter[MOUSE1+x].measure(val);
-        }
-#endif
-        temp[x] += val;
+        temp[x] += adcValues[MOUSE1+x];
       }
 
       // restart internal ADC if not yet done
@@ -237,12 +233,6 @@ void x12s_adc_wait_completion()
   for (uint8_t x=0; x<NUM_ANALOGS-MOUSE1; x++) {
     adcValues[MOUSE1+x] = temp[x] >> 2;
   }
-
-  if (isVBatBridgeEnabled()) {
-    rtcBatteryVoltage = ADC1->DR;
-  }
-
-  return true;
 }
 
 const etx_hal_adc_driver_t x12s_adc_driver = {
