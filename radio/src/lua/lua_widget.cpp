@@ -126,10 +126,15 @@ void LuaEventHandler::onClicked()
     LuaEventData* es = luaGetEventSlot();
     if (!es) return;
 
-    es->event = EVT_TOUCH_TAP;
+		TouchState touchState = getInternalTouchState();
+		if (touchState.tapCount > 0) {
+			es->event = EVT_TOUCH_TAP;
+			es->tapCount = touchState.tapCount;
+		} else
+			es->event = EVT_TOUCH_BREAK;
+		
     es->touchX = point_act.x;
     es->touchY = point_act.y;
-    es->tapCount = 1;
     _sliding = false;
     return;
   }
