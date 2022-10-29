@@ -35,6 +35,13 @@
 #define TR_MIN_PLURAL2  2
 #define TR_MAX_PLURAL2  2
 #define BREAKSPACE                    " "
+// For this number of minute in the last decimal place singular form is used in
+// plural
+#define TR_USE_SINGULAR_IN_PLURAL 1
+#define TR_USE_PLURAL2_SPECIAL_CASE 0
+// If the number of minutes is above this value PLURAL2 is used
+#define TR_USE_PLURAL2 INT_MAX
+
 #define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
 #define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
 #define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"

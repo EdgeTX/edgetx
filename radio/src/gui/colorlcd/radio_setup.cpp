@@ -435,15 +435,23 @@ class AlarmsPage : public Page {
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
       lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      edit->setDisplayHandler( [=] (int value) -> std::string {
+      edit->setDisplayHandler([=](int value) -> std::string {
         std::string suffix(STR_MINUTE_PLURAL2);
-        const int secondDecimal = (value / 10) % 10;
-        if (secondDecimal != 1) {
-          const int firstDecimal = value % 10;
-          if (firstDecimal && firstDecimal < g_min_plural2)
-            suffix = std::string(STR_MINUTE_SINGULAR);
-          else if (firstDecimal < g_max_plural2)
-            suffix = std::string(STR_MINUTE_PLURAL1);
+        if (value == 1)
+          suffix = std::string(STR_MINUTE_SINGULAR);
+        else if (value < g_use_plural2) {
+          const int secondDecimal = (value / 10) % 10;
+          if (secondDecimal != 1) {
+            const int firstDecimal = value % 10;
+            if (firstDecimal) {
+              if (firstDecimal < g_min_plural2 &&
+                  firstDecimal == g_use_singular_in_plural)
+                suffix = std::string(STR_MINUTE_SINGULAR);
+              else if (firstDecimal < g_max_plural2 &&
+                       firstDecimal != g_use_plural2_special_case)
+                suffix = std::string(STR_MINUTE_PLURAL1);
+            }
+          }
         }
         return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
       });

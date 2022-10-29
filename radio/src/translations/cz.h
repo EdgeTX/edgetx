@@ -31,12 +31,19 @@
  *  \001 to \034     -extended spacing (value * FW/2)
  */
 
-#define TR_MIN_PLURAL2  2
-#define TR_MAX_PLURAL2  2
-#define BREAKSPACE                    " "
-#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MIN_PLURAL2 2
+#define TR_MAX_PLURAL2 5
+// For this number of minute in the last decimal place singular form is used in
+// plural
+#define TR_USE_SINGULAR_IN_PLURAL 0
+#define TR_USE_PLURAL2_SPECIAL_CASE 1
+// If the number of minutes is above this value PLURAL2 is used
+#define TR_USE_PLURAL2 20
+
+#define BREAKSPACE " "
+#define TR_MINUTE_SINGULAR BREAKSPACE "minuta"
+#define TR_MINUTE_PLURAL1  BREAKSPACE "minuty"
+#define TR_MINUTE_PLURAL2  BREAKSPACE "minut"
 
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "VYP","ZAP"
