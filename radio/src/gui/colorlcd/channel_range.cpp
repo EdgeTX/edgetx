@@ -21,6 +21,7 @@
 
 #include "channel_range.h"
 #include "opentx.h"
+#include "dataconstants.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -31,14 +32,25 @@ ChannelRange::ChannelRange(Window* parent) :
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
 }
 
+#define PPMCH_START_MIN 1
+#define PPMCH_START_MAX                                          \
+  (MAX_OUTPUT_CHANNELS - g_model.trainerData.channelsCount + 1 - \
+   DEF_TRAINER_CHANNELS)
+#define PPMCH_END_MIN (g_model.trainerData.channelsStart + MIN_TRAINER_CHANNELS)
+#define PPMCH_END_MAX                                                    \
+  min<uint8_t>(g_model.trainerData.channelsStart + MAX_TRAINER_CHANNELS, \
+               MAX_OUTPUT_CHANNELS)
+
 void ChannelRange::build()
 {
-  chStart = new NumberEdit(this, rect_t{}, 1, 1, GET_DEFAULT(1 + getChannelsStart()));
+  chStart = new NumberEdit(this, rect_t{}, PPMCH_START_MIN, PPMCH_START_MAX,
+                           GET_DEFAULT(1 + getChannelsStart()));
   chStart->setSetValueHandler([=](int newValue) { setStart(newValue); });
   chStart->setPrefix(STR_CH);
 
-  chEnd = new NumberEdit(this, rect_t{}, 8, 8,
-                         GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
+  chEnd =
+      new NumberEdit(this, rect_t{}, PPMCH_END_MIN, PPMCH_END_MAX,
+                     GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);
   chEnd->setSetValueHandler([=](int newValue) { setEnd(newValue); });
