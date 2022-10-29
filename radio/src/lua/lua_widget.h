@@ -27,9 +27,16 @@
 
 #include "opentx_types.h"
 
+#define LUA_TAP_TIME 250 // 250 ms
+
 class LuaEventHandler
 {
 #if defined(HARDWARE_TOUCH)
+  // "tap" handling
+  static uint32_t downTime;
+  static uint32_t tapTime;
+  static uint32_t tapCount;
+  // "swipe" / "slide" handling
   static tmr10ms_t swipeTimeOut;
   static bool _sliding;
   static coord_t _startX;
