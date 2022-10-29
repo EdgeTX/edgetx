@@ -107,25 +107,36 @@
 #define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
 #define ADC_RCC_APB2Periph              0
 
+#define ADC_GPIO_PIN_STICK_LH
+#define ADC_GPIO_PIN_STICK_LV
+#define ADC_GPIO_PIN_STICK_RV
+#define ADC_GPIO_PIN_STICK_RH
+
 #define ADC_GPIO_PIN_POT1               GPIO_Pin_6      // PA.06 VRA
 #define ADC_GPIO_PIN_POT2               GPIO_Pin_4      // PC.04 VRB
 #define ADC_GPIO_PIN_SWA                GPIO_Pin_1      // PB.01
 #define ADC_GPIO_PIN_SWB                GPIO_Pin_8      // PF.08
 #define ADC_GPIO_PIN_SWC                GPIO_Pin_0      // PB.00
 #define ADC_GPIO_PIN_SWD                GPIO_Pin_10     // PF.10
-#define ADC_GPIO_PIN_SWE                GPIO_Pin_2      // PC.02
-#define ADC_GPIO_PIN_SWF                GPIO_Pin_7      // PA.07
-#define ADC_GPIO_PIN_SWG                GPIO_Pin_0      // PC.00
-#define ADC_GPIO_PIN_SWH                GPIO_Pin_1      // PC.01
+#define ADC_GPIO_PIN_SWE                GPIO_Pin_0      // PC.00
+#define ADC_GPIO_PIN_SWF                GPIO_Pin_1      // PC.01
+#define ADC_GPIO_PIN_SWG                GPIO_Pin_2      // PC.02
+#define ADC_GPIO_PIN_SWH                GPIO_Pin_7      // PA.07
+
 #define ADC_GPIO_PIN_BATT               GPIO_Pin_5      // PC.05
 
 // FLYSKY_HALL_STICKS
 // #define ADC_GPIOA_PINS_FS               (GPIO_Pin_6 | GPIO_Pin_7)
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SWF)
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SWH)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_SWA | ADC_GPIO_PIN_SWC)
 #define ADC_GPIOC_PINS \
-  (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWG | ADC_GPIO_PIN_SWH | ADC_GPIO_PIN_BATT)
+  (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF | ADC_GPIO_PIN_SWG | ADC_GPIO_PIN_BATT)
 #define ADC_GPIOF_PINS                  (ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_SWD)
+
+#define ADC_CHANNEL_STICK_LH
+#define ADC_CHANNEL_STICK_LV
+#define ADC_CHANNEL_STICK_RV
+#define ADC_CHANNEL_STICK_RH
 
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_6   // ADC12_IN6  -> ADC1_IN6
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_14  // ADC12_IN14 -> ADC1_IN14
@@ -135,8 +146,8 @@
 #define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_8   // ADC3_IN8   -> ADC3_IN8
 #define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_10  // ADC123_IN10-> ADC1_IN10
 #define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_11  // ADC123_IN11-> ADC1_IN11
-#define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_7   // ADC12_IN7  -> ADC1_IN7
-#define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_12  // ADC123_IN12-> ADC1_IN12
+#define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_12  // ADC123_IN12-> ADC1_IN12
+#define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_7   // ADC12_IN7  -> ADC1_IN7
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15  // ADC12_IN15 -> ADC1_IN15
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
@@ -151,6 +162,7 @@
 #define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
 #define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
 
+#define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMA_CHANNEL_2
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
 #define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
@@ -160,10 +172,10 @@
 
 #define ADC_DIRECTION                                                   \
     { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \
-      -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,                   \
-      0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,                    \
-      0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,                                  \
-      0 /*SWB*/, 0 /*SWD*/}
+      -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/, 0 /*SWB*/, 0 /*SWC*/,         \
+      0 /*SWD*/, 0 /*SWE*/, -1 /*SWF*/,  -1 /*SWG*/, 0 /*SWH*/,         \
+      0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/                                   \
+      }
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
