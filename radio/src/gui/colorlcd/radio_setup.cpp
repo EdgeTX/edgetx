@@ -434,23 +434,33 @@ class AlarmsPage : public Page {
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
       lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      std::string suffix(STR_MINUTE_PLURAL2);
-      if(g_eeGeneral.inactivityTimer < g_min_plural2)
-        suffix = std::string(STR_MINUTE_SINGULAR);
-      else if(g_eeGeneral.inactivityTimer < g_max_plural2)
-        suffix = std::string(STR_MINUTE_PLURAL1);
-      edit->setSuffix(suffix);
+
+      edit->setDisplayHandler( [=] (int value) -> std::string {
+        std::string suffix(STR_MINUTE_PLURAL2);
+        const int secondDecimal = (value / 10) % 10;
+        if (secondDecimal != 1) {
+          const int firstDecimal = value % 10;
+          if (firstDecimal && firstDecimal < g_min_plural2)
+            suffix = std::string(STR_MINUTE_SINGULAR);
+          else if (firstDecimal < g_max_plural2)
+            suffix = std::string(STR_MINUTE_PLURAL1);
+        }
+        return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
+      });
       line = body.newLine(&grid);
+
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      new CheckBox(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
       line = body.newLine(&grid);
 
       // RSSI shutdown alarm
-      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
+      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0,
+                     COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
       line = body.newLine(&grid);
-
     }
 };
 
