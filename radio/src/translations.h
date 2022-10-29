@@ -22,6 +22,7 @@
 #ifndef _TRANSLATIONS_H_
 #define _TRANSLATIONS_H_
 
+#include <limits.h>
 #include "opentx_types.h"
 #include "translations/untranslated.h"
 
