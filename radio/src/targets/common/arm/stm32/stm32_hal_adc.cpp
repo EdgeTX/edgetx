@@ -122,9 +122,6 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   // ADC must be disabled for the functions used here
   LL_ADC_Disable(ADCx);
 
-  // enable periph clock
-  adc_enable_clock(ADCx);
-  
   LL_ADC_InitTypeDef adcInit;
   LL_ADC_StructInit(&adcInit);
 
@@ -282,6 +279,9 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
 
+      // enable periph clock
+      adc_enable_clock(adc->ADCx);
+  
       // configure each channel
       const uint8_t* chan = adc->channels;
       nconv = adc_init_channels(adc, inputs, chan, nconv);
