@@ -422,7 +422,7 @@
 #define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "Kontrast"
 #define TR_ALARMS_LABEL                "Alarmer"
-#define TR_BATTERY_RANGE               TR("Bat. afstd", "Batteri afstand i m.")
+#define TR_BATTERY_RANGE               TR("Bat. interval", "Batteri spændings interval")
 #define TR_BATTERYCHARGING             "Lader..."
 #define TR_BATTERYFULL                 "Fuldt batteri"
 #define TR_BATTERYNONE                 "Intet!"
@@ -449,8 +449,8 @@
 #define TR_KEYS_BACKLIGHT              "Taster klarhed"
 #define TR_BLCOLOR                     "Farve"
 #define TR_SPLASHSCREEN                "Start skærm"
-#define TR_PWR_ON_DELAY                "Strøm forsink TIL"
-#define TR_PWR_OFF_DELAY               "Strøm forsink FRA"
+#define TR_PWR_ON_DELAY                "Forsinkelse ved tænd"
+#define TR_PWR_OFF_DELAY               "Forsinkelse ved sluk"
 #define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Tilp-Pos", INDENT INDENT INDENT INDENT "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
@@ -540,7 +540,7 @@
 #endif
 #define TR_CHANNELS2FAILSAFE           "Kanaler=>Fejlsikring"
 #define TR_CHANNEL2FAILSAFE            "Kanal=>Fejlsikring"
-#define TR_MENUMODELSEL                TR("MODELVAL", "MODEL VALG")
+#define TR_MENUMODELSEL                TR("MODELLER", "MODEL VALG")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
 #define TR_MENUFLIGHTMODES             "FLYVE TILSTANDE"
 #define TR_MENUFLIGHTMODE              "FLYVE TILSTAND"
@@ -989,7 +989,7 @@
 #define STR_EEBACKUP                   "EEPROM backup"
 #define STR_FACTORYRESET               "Nulstil til fabrik indstillinger"
 #define TR_CONFIRMRESET                TR("Slet ALLE", "Slet ALLE modeller og indstillinger?")
-#define TR_TOO_MANY_LUA_SCRIPTS        "For mannge Lua scripts!"
+#define TR_TOO_MANY_LUA_SCRIPTS        "For mange Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Strøm"
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO","TIL"
 #define TR_NO_TELEMETRY_SCREENS        "Ingen telemetri skærme"
