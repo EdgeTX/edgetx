@@ -367,7 +367,7 @@
 #define TR_ELEDIRECTION                "HØJ retning"
 #define TR_AILDIRECTION                "KRÆ retning"
 #define TR_COLDIRECTION                "PIT retning"
-#define TR_MODE                        "Tilst."
+#define TR_MODE                        TR("Tils.","Tilstand")
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Venstre"
 #else
