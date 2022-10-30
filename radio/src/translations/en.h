@@ -363,6 +363,7 @@
 #define TR_AILDIRECTION                "AIL Direction"
 #define TR_COLDIRECTION                "PIT Direction"
 #define TR_MODE                        "Mode"
+#define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "No free expo!"
 #define TR_NOFREEMIXER                 "No free mixer!"
