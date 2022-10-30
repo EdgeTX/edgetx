@@ -375,6 +375,7 @@
 #define TR_AILDIRECTION                "エルロン"
 #define TR_COLDIRECTION                "ピッチ"
 #define TR_MODE                        "モード"
+#define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     INDENT "サブタイプ"
 #define TR_NOFREEEXPO                  "Expoが未設定です!!"
 #define TR_NOFREEMIXER                 "ミキサーが未設定です!!"

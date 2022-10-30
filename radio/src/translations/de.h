@@ -369,6 +369,7 @@
 #define TR_AILDIRECTION                TR("Roll   Richtung", "Roll   Servo Richtung")
 #define TR_COLDIRECTION                TR("Pitch Richtung", "Pitch Servo Richtung")
 #define TR_MODE                        "Modus"
+#define TR_LEFT_STICK                  "Links"
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "Expos voll!"
 #define TR_NOFREEMIXER                 "Mischer voll!"

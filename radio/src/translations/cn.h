@@ -363,6 +363,7 @@
 #define TR_AILDIRECTION                "横滚方向"
 #define TR_COLDIRECTION                "螺距方向"
 #define TR_MODE                        "模式"
+#define TR_LEFT_STICK                  "Left"
 #define TR_SUBTYPE                     INDENT "子类型"
 #define TR_NOFREEEXPO                  "指数曲线已满!"
 #define TR_NOFREEMIXER                 "混控数量已满!"

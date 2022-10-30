@@ -383,6 +383,7 @@
 #define TR_AILDIRECTION                "\012Křidélka"
 #define TR_COLDIRECTION                "\012Kolektiv"
 #define TR_MODE                        "Mód"
+#define TR_LEFT_STICK                  "Vlevo"
 #define TR_SUBTYPE                     INDENT "Subtyp"
 #define TR_NOFREEEXPO                  "Není volné expo!"
 #define TR_NOFREEMIXER                 "Není volný mix!"

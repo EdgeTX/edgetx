@@ -370,6 +370,7 @@
 #define TR_AILDIRECTION        TR("Direzione AIL", "Direzione cic. lat.")
 #define TR_COLDIRECTION        TR("Direzione PIT", "Direzione passo coll.")
 #define TR_MODE                "Modo"
+#define TR_LEFT_STICK          "Sinistro"
 #define TR_SUBTYPE             INDENT "Sottotipo"
 #define TR_NOFREEEXPO          "Expo pieni!"
 #define TR_NOFREEMIXER         "Mixer pieni!"
