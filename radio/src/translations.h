@@ -719,6 +719,7 @@ extern const char STR_WIDGET_TEXT[];
 extern const char STR_WIDGET_TIMER[];
 extern const char STR_WIDGET_VALUE[];
 extern const char STR_MODULES_RX_VERSION[];
+extern const char STR_LEFT_STICK[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
