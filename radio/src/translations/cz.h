@@ -32,7 +32,7 @@
  */
 
 #define TR_MIN_PLURAL2 2
-#define TR_MAX_PLURAL2 5
+#define TR_MAX_PLURAL2 4
 // For this number of minute in the last decimal place singular form is used in
 // plural
 #define TR_USE_SINGULAR_IN_PLURAL 0

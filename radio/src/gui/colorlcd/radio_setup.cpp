@@ -447,7 +447,7 @@ class AlarmsPage : public Page {
               if (firstDecimal < g_min_plural2 &&
                   firstDecimal == g_use_singular_in_plural)
                 suffix = std::string(STR_MINUTE_SINGULAR);
-              else if (firstDecimal < g_max_plural2 &&
+              else if (firstDecimal <= g_max_plural2 &&
                        firstDecimal != g_use_plural2_special_case)
                 suffix = std::string(STR_MINUTE_PLURAL1);
             }
