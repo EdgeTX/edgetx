@@ -122,19 +122,19 @@ class BaseNumberEdit: public FormField
     void setPrefix(std::string value)
     {
       prefix = std::move(value);
-      setValue(currentValue);
+      update();
     }
 
     void setSuffix(std::string value)
     {
       suffix = std::move(value);
-      setValue(currentValue);
+      update();
     }
 
     void setZeroText(std::string value)
     {
       zeroText = std::move(value);
-      setValue(currentValue);
+      update();
     }
 
     void enableInstantChange(bool value)
@@ -181,7 +181,7 @@ class BaseNumberEdit: public FormField
     void setDisplayHandler(std::function<std::string(int value)> function)
     {
       displayFunction = std::move(function);
-      setValue(currentValue);
+      update();
     }
 
     virtual void update()
