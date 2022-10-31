@@ -265,29 +265,32 @@ void telemetryWakeup()
   if (int_drv) pollTelemetry(INTERNAL_MODULE, int_drv, getIntModuleCtx());
 #endif
 
+  bool disable_legacy_polling = false;
 #if defined(HARDWARE_EXTERNAL_MODULE)
   auto ext_drv = getExtModuleDriver();
   if (ext_drv) {
     if (pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx())) {
       // skip legacy telemetry polling in case external module
       // driver defines telemetry methods (getByte & processData)
-      return;
+      disable_legacy_polling = true;
     }
   }
 #endif
-                             
-  // TODO: needs to be moved to protocol/module init
-  //       as-is, it implies only ONE telemetry protocol
-  //       enabled at the same time
-  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
 
-  if (telemetryProtocol != requiredTelemetryProtocol) {
-    telemetryInit(requiredTelemetryProtocol);
+  if (!disable_legacy_polling) {
+    // TODO: needs to be moved to protocol/module init
+    //       as-is, it implies only ONE telemetry protocol
+    //       enabled at the same time
+    uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+
+    if (telemetryProtocol != requiredTelemetryProtocol) {
+      telemetryInit(requiredTelemetryProtocol);
+    }
+
+    // Poll external / S.PORT telemetry
+    // TODO: how to switch this OFF ???
+    pollExtTelemetryLegacy();
   }
-
-  // Poll external / S.PORT telemetry
-  // TODO: how to switch this OFF ???
-  pollExtTelemetryLegacy();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];
