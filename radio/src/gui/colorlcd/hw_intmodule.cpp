@@ -40,7 +40,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   setLayout(&grid);
 
-  new StaticText(this, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(this, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
   auto box = new FormGroup(this, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));

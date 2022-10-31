@@ -737,7 +737,6 @@ bool areModulesConflicting(int intModuleType, int extModuleType)
 bool isInternalModuleSupported(int moduleType)
 {
   switch(moduleType) {
-  case MODULE_TYPE_NONE: return true;
 #if defined(INTERNAL_MODULE_MULTI)
   case MODULE_TYPE_MULTIMODULE: return true;
 #endif
