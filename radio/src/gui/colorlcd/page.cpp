@@ -83,3 +83,8 @@ void Page::onClicked()
 {
   Keyboard::hide();
 }
+
+void Page::onEvent(event_t event)
+{
+  // block event bubbling
+}
