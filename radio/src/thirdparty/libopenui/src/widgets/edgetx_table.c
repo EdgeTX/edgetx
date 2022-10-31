@@ -30,19 +30,23 @@ lv_obj_t * table_create(lv_obj_t * parent)
 static void table_event(const lv_obj_class_t * class_p, lv_event_t * e)
 {
   lv_res_t res;
-
-  lv_table_t * obj = (lv_table_t *) lv_event_get_target(e);
-  uint16_t col = obj->col_act;
-  uint16_t row = obj->row_act;
-
-  /*Call the ancestor's event handler*/
-  res = lv_obj_event_base(MY_CLASS, e);
-  if(res != LV_RES_OK) return;
-
   lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_RELEASED) {
-    obj->col_act = col;
-    obj->row_act = row;
-    lv_obj_invalidate((lv_obj_t *)obj);
+  if (code != LV_EVENT_RELEASED) {
+    /*Call the ancestor's event handler*/
+    res = lv_obj_event_base(MY_CLASS, e);
+    if(res != LV_RES_OK) return;
+  } else {
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_table_t * table = (lv_table_t *)obj;
+
+    /*From lv_table.c: handler for LV_EVENT_RELEASED*/
+    lv_obj_invalidate(obj);
+    lv_indev_t* indev = lv_indev_get_act();
+    lv_obj_t* scroll_obj = lv_indev_get_scroll_obj(indev);
+    if (table->col_act != LV_TABLE_CELL_NONE &&
+        table->row_act != LV_TABLE_CELL_NONE && scroll_obj == NULL) {
+      res = lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+      if (res != LV_RES_OK) return;
+    }
   }
 }
