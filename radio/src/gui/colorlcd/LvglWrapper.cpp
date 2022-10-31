@@ -157,8 +157,9 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   // simulate EXIT release: necessary to map
   // EVT_KEY_BREAK(KEY_EXIT) to LV_EVENT_CANCEL
-  if (data->key == KEY_EXIT && data->state == LV_INDEV_STATE_PRESSED) {
+  if (data->key == LV_KEY_ESC && data->state == LV_INDEV_STATE_PRESSED) {
     data->state = LV_INDEV_STATE_RELEASED;
+    backup_kb_data(data);
   }
 }
 
