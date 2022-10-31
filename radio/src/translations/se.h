@@ -393,10 +393,10 @@
 #define TR_AILDIRECTION                 "SKEV riktning"
 #define TR_COLDIRECTION                 TR("PITCH riktn.","PITCH riktning")
 #define TR_MODE                         TR("Typ","Spakfunktioner")
-#if defined(PCBNV14)
-  #define TR_LEFT_STICK                 "Vä"
-#else
+#if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Vänster"
+#else
+  #define TR_LEFT_STICK                 "Vä"
 #endif
 #define TR_SUBTYPE                      INDENT "Subtyp"
 #define TR_NOFREEEXPO                   "Ingen ledig expo!"
