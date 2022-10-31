@@ -368,7 +368,11 @@
 #define TR_AILDIRECTION        "AIL Direction"
 #define TR_COLDIRECTION        "PIT Direction"
 #define TR_MODE                "Mode"
-#define TR_LEFT_STICK          "Linkerkant"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK        "Linkerkant"
+#else
+  #define TR_LEFT_STICK        "Li"
+#endif
 #define TR_SUBTYPE             INDENT "Subtype"
 #define TR_NOFREEEXPO          "Geen vrije expo!"
 #define TR_NOFREEMIXER         "Geen vrije mixer!"

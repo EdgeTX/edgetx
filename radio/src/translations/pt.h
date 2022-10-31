@@ -367,7 +367,11 @@
 #define TR_AILDIRECTION        "AIL Sentido"
 #define TR_COLDIRECTION        "COL Sentido"
 #define TR_MODE                "Modo"
-#define TR_LEFT_STICK          "Esquerda"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK        "Esquerda"
+#else
+  #define TR_LEFT_STICK        "Esq"
+#endif
 #define TR_SUBTYPE             INDENT "Subtype"
 #define TR_NOFREEEXPO          "No free expo!"
 #define TR_NOFREEMIXER         "No free mixer!"

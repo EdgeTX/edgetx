@@ -365,7 +365,11 @@
 #define TR_AILDIRECTION        TR("Kierunek Lotk","Lateral cyc. direction")
 #define TR_COLDIRECTION        TR("PIT Direction","Coll. pitch direction")
 #define TR_MODE                "Tryb"
-#define TR_LEFT_STICK          "Lewy"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK        "Lewy"
+#else
+  #define TR_LEFT_STICK        "Lewy"
+#endif
 #define TR_SUBTYPE             INDENT "Podtyp"
 #define TR_NOFREEEXPO          "BrakWoln.Expo!"
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"

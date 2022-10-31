@@ -386,7 +386,11 @@
 #define TR_AILDIRECTION                TR("Inv. latéral", "Inversion latéral")
 #define TR_COLDIRECTION                TR("Inv. collectif", "Inversion collectif")
 #define TR_MODE                        "Mode"
-#define TR_LEFT_STICK                  "Gauche"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "Gauche"
+#else
+  #define TR_LEFT_STICK                "Gauche"
+#endif
 #define TR_SUBTYPE                     INDENT "Sous-type"
 #define TR_NOFREEEXPO                  "Max expos atteint!"
 #define TR_NOFREEMIXER                 "Max mixages atteint!"
