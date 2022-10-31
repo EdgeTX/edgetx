@@ -30,6 +30,9 @@
 #define MAX_INSTRUCTIONS       (20000/100)
 
 #if defined(HARDWARE_TOUCH)
+uint32_t LuaEventHandler::downTime = 0;
+uint32_t LuaEventHandler::tapTime = 0;
+uint32_t LuaEventHandler::tapCount = 0;
 tmr10ms_t LuaEventHandler::swipeTimeOut = 0;
 coord_t LuaEventHandler::_startX;
 coord_t LuaEventHandler::_startY;
@@ -108,6 +111,21 @@ void LuaEventHandler::event_cb(lv_event_t* e)
 
       _startX = rel_pos.x;
       _startY = rel_pos.y;
+
+      downTime = RTOS_GET_MS();
+    }
+  } else if (code == LV_EVENT_RELEASED) {
+    // tap count handling
+    uint32_t now = RTOS_GET_MS();
+    if (now - downTime <= LUA_TAP_TIME) {
+      if (now - tapTime > LUA_TAP_TIME) {
+        tapCount = 1;
+      } else {
+        tapCount++;
+      }
+      tapTime = now;
+    } else {
+      tapCount = 0;
     }
   }
 #endif  
@@ -126,10 +144,16 @@ void LuaEventHandler::onClicked()
     LuaEventData* es = luaGetEventSlot();
     if (!es) return;
 
-    es->event = EVT_TOUCH_TAP;
+    if (tapCount > 0) {
+      es->event = EVT_TOUCH_TAP;
+      es->tapCount = tapCount;
+    } else {
+      es->event = EVT_TOUCH_BREAK;
+    }
+
     es->touchX = point_act.x;
     es->touchY = point_act.y;
-    es->tapCount = 1;
+
     _sliding = false;
     return;
   }
