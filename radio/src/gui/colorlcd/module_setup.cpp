@@ -372,6 +372,16 @@ void ModuleWindow::updateModule()
           }
         });
       }
+
+#if defined(PXX2)
+      if (isModuleISRM(moduleIdx)) {
+        auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
+        options->setPressHandler([=]() {
+          new pxx2::ModuleOptions(Layer::back(), moduleIdx);
+          return 0;
+        });
+      }
+#endif
     }
   }
 #if defined(PXX2)
