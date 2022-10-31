@@ -61,6 +61,8 @@ class Page : public Window
  protected:
   PageHeader header;
   FormWindow body;
+
+  void onEvent(event_t event) override;
 };
 
 #endif // _PAGE_H_

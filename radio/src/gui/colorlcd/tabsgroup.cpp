@@ -271,8 +271,6 @@ void TabsGroup::onEvent(event_t event)
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();
     setCurrentTab(current == 0 ? tabs.size() - 1 : current - 1);
-  } else if (parent) {
-    parent->onEvent(event);
   }
 #endif
 }
