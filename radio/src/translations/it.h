@@ -33,7 +33,7 @@
  */
 
 
-#define TR_OFFON               "OFF","ON"
+#define TR_OFFON               TR("OFF","Disattivato"),TR("ON","Attivato")
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           TR("Silen","Silente"),TR("Avvis","Avvisi"),TR("Notst","No Tasti"),"Tutti"
 #define TR_VBLMODE             TR("OFF","Spenta"),"Tasti",TR("Stks","Sticks"),"Tutti",TR("ON","Accesa")
@@ -337,7 +337,7 @@
 #define TR_BITMAP              "Immagine"
 #define TR_NO_PICTURE          "No immagine"
 #define TR_TIMER               TR("Timer", "Timer ")
-#define TR_START               "Start"
+#define TR_START               "Partenza"
 #define TR_ELIMITS             TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS              TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC             "Passo Trim"
@@ -438,6 +438,7 @@
 #define TR_MODEL_SHUTDOWN              "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL      "Motore"
+#define TR_THROTTLE_START      "Partenza motore"
 #define TR_THROTTLEREVERSE     TR("Mot inv.", "Motore Inverso")
 #define TR_MINUTEBEEP          "Minuto"
 #define TR_BEEPCOUNTDOWN       TR(INDENT "Conto rov", INDENT "Conto rovescia")
@@ -502,7 +503,7 @@
 #define TR_LUA_SCRIPTS_LABEL          "Lua scripts"
 #define TR_FREE_MEM_LABEL             "Mem. libera"
 #define TR_TIMER_LABEL                "Timer"
-#define TR_THROTTLE_PERCENT_LABEL     "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL     "% Motore"
 #define TR_BATT_LABEL                 "Batteria"
 #define TR_SESSION                    "Sessione"
 #define TR_MENUTORESET         TR_ENTER" per azzerare"
@@ -670,9 +671,10 @@
 #define TR_UPDATE_RX_OPTIONS           "Agg. opzioni RX?"
 #define TR_UPDATE_TX_OPTIONS           "Agg. opzioni TX?"
 #define TR_MODULES_RX_VERSION          "Versioni Moduli / RX"
+#define TR_SHOW_MIXER_MONITORS         "Mostra monitors mixer"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONI MODULI / RX"
 #define TR_MENU_FIRM_OPTIONS           "OPZIONI FIRMWARE"
-#define TR_IMU                        "IMU"
+#define TR_IMU                         "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Interruttori/Pots/Sliders"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Interruttori/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "Protocollo RF"
@@ -996,6 +998,7 @@
 #define TR_TOUCH_PANEL                 "Schermo touch:"
 #define TR_FILE_SIZE                   "Dimensione file"
 #define TR_FILE_OPEN                   "Apro comunque?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nome"

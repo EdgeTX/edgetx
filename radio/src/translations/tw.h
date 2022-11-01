@@ -669,6 +669,7 @@
 #define TR_UPDATE_RX_OPTIONS           "是否升級接收機?"
 #define TR_UPDATE_TX_OPTIONS           "是否升級發射機?"
 #define TR_MODULES_RX_VERSION          "模塊/接收機版本"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "模塊/接收機版本"
 #define TR_MENU_FIRM_OPTIONS           "韌體選項"
 #define TR_IMU                         "陀螺儀"
@@ -991,6 +992,7 @@
 #define TR_TOUCH_PANEL                 "觸摸屏:"
 #define TR_FILE_SIZE                   "文件大小"
 #define TR_FILE_OPEN                   "強制打開?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名稱"

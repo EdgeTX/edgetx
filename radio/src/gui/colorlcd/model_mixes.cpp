@@ -528,7 +528,7 @@ void ModelMixesPage::build(FormWindow * window)
   lv_obj_set_width(box_obj, lv_pct(100));
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-  new StaticText(box, rect_t{}, "Show mixer monitors", 0, COLOR_THEME_PRIMARY1);
+  new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });
