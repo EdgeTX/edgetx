@@ -733,12 +733,10 @@ void RadioSetupPage::build(FormWindow * window)
                         resumePulses();
                       });
   choice->setTextHandler([](uint8_t value) {
-    return std::to_string(1 + value) + ": left=" +
+    return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
            std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) +
            "+" +
            std::string(
                &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
 }
-
-

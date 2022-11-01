@@ -391,6 +391,11 @@
 #define TR_AILDIRECTION                TR("AIL Direction","Lateral cyc. direction")
 #define TR_COLDIRECTION                TR("PIT Direction","Coll. pitch direction")
 #define TR_MODE                        "Mode"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "Vasemmalle"
+#else
+  #define TR_LEFT_STICK                "Va"
+#endif
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "No free expo!"
 #define TR_NOFREEMIXER                 "No free mixer!"

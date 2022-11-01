@@ -368,6 +368,11 @@
 #define TR_AILDIRECTION                "KRÆ retning"
 #define TR_COLDIRECTION                "PIT retning"
 #define TR_MODE                        "Tilst."
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "Venstre"
+#else
+  #define TR_LEFT_STICK                "Ven"
+#endif
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
