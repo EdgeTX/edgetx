@@ -493,7 +493,7 @@ Mode 4:
     </message>
     <message>
         <source>Select the folder replicating your SD structure</source>
-        <translation>Vælg katalog til en kopi af SD-struktur</translation>
+        <translation>Vælg katalog til en kopi af SD struktur</translation>
     </message>
     <message>
         <source>Open Image to load</source>
@@ -637,7 +637,7 @@ Mode 4:
     </message>
     <message>
         <source>Prompt to run SD Sync after update</source>
-        <translation>Spørg efter at synkronisere SD-struktur efter opdatering</translation>
+        <translation>Spørg efter at synkronisere SD struktur efter opdatering</translation>
     </message>
     <message>
         <source>Check frequency</source>
@@ -669,7 +669,7 @@ Mode 4:
     </message>
     <message>
         <source>Use Radio Profile SD Structure</source>
-        <translation>Brug radioprofilens SD-struktur</translation>
+        <translation>Brug radioprofilens SD struktur</translation>
     </message>
     <message>
         <source>Components</source>
@@ -3285,7 +3285,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modify calibration parameters using settings from current profile&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uppdatera kalibreringsparametrarna med data från nuvarande profil&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Opdater kalibrerings parametere med data fra gældende profil&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Patch calibration setting from profile</source>
@@ -12426,7 +12426,7 @@ Fejl:%1
     <name>UpdateMultiProtocol</name>
     <message>
         <source>Multiprotocol</source>
-        <translation></translation>
+        <translation>Multiprotokol</translation>
     </message>
 </context>
 <context>
@@ -12527,7 +12527,7 @@ Fejl:%1
     <name>UpdateSDCard</name>
     <message>
         <source>SD Card</source>
-        <translation></translation>
+        <translation>SD struktur</translation>
     </message>
     <message>
         <source>Flagging assets</source>
@@ -12542,7 +12542,7 @@ Fejl:%1
     <name>UpdateSounds</name>
     <message>
         <source>Sounds</source>
-        <translation></translation>
+        <translation>Stemme</translation>
     </message>
     <message>
         <source>Processing available sounds</source>
@@ -12577,7 +12577,7 @@ Fejl:%1
     <name>UpdateThemes</name>
     <message>
         <source>Themes</source>
-        <translation></translation>
+        <translation>Tema</translation>
     </message>
 </context>
 <context>
@@ -12725,7 +12725,7 @@ Berarbejd dem nu?</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation>Nuvarande</translation>
+        <translation>Nuværende</translation>
     </message>
     <message>
         <source>Update to</source>
@@ -12737,7 +12737,7 @@ Berarbejd dem nu?</translation>
     </message>
     <message>
         <source>Decompress and download folders have the same path!</source>
-        <translation>Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
+        <translation>Sti til dekomprimeringskatalog og udpakning er ens!</translation>
     </message>
 </context>
 <context>
