@@ -363,6 +363,11 @@
 #define TR_AILDIRECTION                "橫滾方向"
 #define TR_COLDIRECTION                "螺距方向"
 #define TR_MODE                        "模式"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "左搖桿"
+#else
+  #define TR_LEFT_STICK                "左搖桿"
+#endif
 #define TR_SUBTYPE INDENT              "子類型"
 #define TR_NOFREEEXPO                  "指數曲線已滿!"
 #define TR_NOFREEMIXER                 "混控數量已滿!"

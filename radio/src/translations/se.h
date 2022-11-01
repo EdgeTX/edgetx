@@ -392,7 +392,12 @@
 #define TR_ELEDIRECTION                 "HöJD riktning"
 #define TR_AILDIRECTION                 "SKEV riktning"
 #define TR_COLDIRECTION                 TR("PITCH riktn.","PITCH riktning")
-#define TR_MODE                         "Typ"
+#define TR_MODE                         TR("Typ","Spakfunktioner")
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                 "Vänster"
+#else
+  #define TR_LEFT_STICK                 "Vä"
+#endif
 #define TR_SUBTYPE                      INDENT "Subtyp"
 #define TR_NOFREEEXPO                   "Ingen ledig expo!"
 #define TR_NOFREEMIXER                  "Ingen ledig mixer!"
@@ -473,8 +478,8 @@
 #define TR_BLOFFBRIGHTNESS              INDENT "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Tangentbelysning"
 #define TR_SPLASHSCREEN                 "Startbild"
-#define TR_PWR_ON_DELAY                 "Start fördröjn."
-#define TR_PWR_OFF_DELAY                "Avslut fördröjn."
+#define TR_PWR_ON_DELAY                 "Fördröj start"
+#define TR_PWR_OFF_DELAY                "Fördröj avslut"
 #define TR_BLCOLOR                      "Färg"
 #define TR_THROTTLE_WARNING             TR(INDENT "Gasvarn.", INDENT "Gasvarning")
 #define TR_CUSTOM_THROTTLE_WARNING      TR(INDENT INDENT INDENT INDENT "Egen pos", INDENT INDENT INDENT INDENT "Egen position?")
@@ -490,8 +495,7 @@
 #define TR_STICKS                       "Spakar"
 #define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"
-//#define TR_SWITCHES_DELAY               TR("Brytarfördröj.", "Brytarfördröjning")
-#define TR_SWITCHES_DELAY               TR("Play delay", "Play delay (sw. mid pos)")
+#define TR_SWITCHES_DELAY               TR("Fördröj ljud", "Fördröj ljuduppspelning")
 #define TR_SLAVE                        "Elev"
 #define TR_MODESRC                      "Läge\006% källa"
 #define TR_MULTIPLIER                   "Styrka"
@@ -598,7 +602,7 @@
 #define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
 #define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
-#define TR_MONITOR_MIXER_DESC           "Mixrar"
+#define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
 #define TR_RECEIVER                     "Mottagare"
 #define TR_SYNCMENU                     "Synk [MENY]"
