@@ -443,6 +443,7 @@
 #define TR_MODEL_SHUTDOWN              "シャットダウンしますか？"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"
 #define TR_THROTTLE_LABEL              "スロットル"
+#define TR_THROTTLE_START              "スロットルスタート"
 #define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "リバース")
 #define TR_MINUTEBEEP                  TR("Minute", "分単位コール")
 #define TR_BEEPCOUNTDOWN               INDENT "カウントダウン"
@@ -681,6 +682,7 @@
 #define TR_UPDATE_RX_OPTIONS           "受信オプションをアップデートしますか ?"
 #define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          "モジュール / 受信機バージョン"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "モジュール / 受信機バージョン"
 #define TR_MENU_FIRM_OPTIONS           "ファームウェアオプション"
 #define TR_IMU                         "IMU"
@@ -1003,6 +1005,7 @@
 #define TR_TOUCH_PANEL                 "タッチパネル:"
 #define TR_FILE_SIZE                   "ファイルサイズ"
 #define TR_FILE_OPEN                   "ファイルを開きますか？"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名称"

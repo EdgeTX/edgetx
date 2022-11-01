@@ -290,7 +290,6 @@ class PreviewWindow : public FormGroup
     // time on top bar
     struct gtm t;
     char str[16];
-    const char *const STR_MONTHS[] = TR_MONTHS;
 
     gettime(&t);
     int s = snprintf(str, sizeof(str), "%d %s\n", t.tm_mday, STR_MONTHS[t.tm_mon]);

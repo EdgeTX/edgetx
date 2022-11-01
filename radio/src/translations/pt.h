@@ -332,9 +332,9 @@
   #define TR_EXPONAME          "Expo Name"
 #endif
 #define TR_BITMAP              "Model Image"
-#define TR_NO_PICTURE                  "No Picture"
+#define TR_NO_PICTURE          "No Picture"
 #define TR_TIMER               "Cronom"
-#define TR_START                       "Start"
+#define TR_START               "Start"
 #define TR_ELIMITS             "E.Limits"
 #define TR_ETRIMS              "E.Trims"
 #define TR_TRIMINC             "Trim Step"
@@ -435,6 +435,7 @@
 #define TR_MODEL_SHUTDOWN              "Shutdown ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
 #define TR_THROTTLE_LABEL      "Throttle"
+#define TR_THROTTLE_START      "Throttle Start"
 #define TR_THROTTLEREVERSE     TR("Inverte Acel.", INDENT "Inverte Acel.")
 #define TR_MINUTEBEEP          "Beep Minuto"
 #define TR_BEEPCOUNTDOWN       INDENT "Beep Regressivo"
@@ -672,6 +673,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Update RX options?"
 #define TR_UPDATE_TX_OPTIONS           "Update TX options?"
 #define TR_MODULES_RX_VERSION          "Modules / RX version"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
@@ -997,6 +999,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"

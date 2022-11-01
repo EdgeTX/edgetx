@@ -431,6 +431,7 @@
 #define TR_MODEL_SHUTDOWN              "关机 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER键确认"
 #define TR_THROTTLE_LABEL              "油门"
+#define TR_THROTTLE_START              "油门开始"
 #define TR_THROTTLEREVERSE             TR("油门反向", INDENT "油门反向")
 #define TR_MINUTEBEEP                  TR("分", "分钟播报")
 #define TR_BEEPCOUNTDOWN               INDENT "倒数"
@@ -669,6 +670,7 @@
 #define TR_UPDATE_RX_OPTIONS           "是否升级接收机?"
 #define TR_UPDATE_TX_OPTIONS           "是否升级发射机?"
 #define TR_MODULES_RX_VERSION          "模块/接收机版本"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "模块/接收机版本"
 #define TR_MENU_FIRM_OPTIONS           "固件选项"
 #define TR_IMU                         "陀螺仪"
@@ -991,6 +993,7 @@
 #define TR_TOUCH_PANEL                 "触摸屏:"
 #define TR_FILE_SIZE                   "文件大小"
 #define TR_FILE_OPEN                   "强制打开?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名称"

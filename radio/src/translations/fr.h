@@ -455,6 +455,7 @@
 #define TR_MODEL_SHUTDOWN              "Eteindre ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Presser [Enter] pour confirmer"
 #define TR_THROTTLE_LABEL              "Gaz"
+#define TR_THROTTLE_START              "Gaz Start"
 #define TR_THROTTLEREVERSE             TR("Inv. gaz", INDENT "Inversion gaz")
 #define TR_MINUTEBEEP                  TR("Bip min.", "Annonces minutes")
 #define TR_BEEPCOUNTDOWN               TR(INDENT "Bip fin", INDENT "Compte à rebours")
@@ -690,6 +691,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Sauver options RX?"
 #define TR_UPDATE_TX_OPTIONS           "Sauver options TX?"
 #define TR_MODULES_RX_VERSION          "Versions modules / RX"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONS MODULES / RX "
 #define TR_MENU_FIRM_OPTIONS           "OPTIONS FIRMWARE"
 #define TR_IMU                        "IMU"
@@ -1022,6 +1024,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nom"
