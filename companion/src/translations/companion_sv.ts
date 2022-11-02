@@ -2920,6 +2920,10 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <source>9X with Sky9x board</source>
         <translation></translation>
     </message>
+    <message>
+        <source>iFlight Commando8</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>FirmwareInterface</name>
@@ -7855,10 +7859,6 @@ p, li { white-space: pre-wrap; }
         <translation>Allmänt</translation>
     </message>
     <message>
-        <source>EEprom Size</source>
-        <translation>EEPROM-storlek</translation>
-    </message>
-    <message>
         <source>Model Image</source>
         <translation>Modellikon</translation>
     </message>
@@ -8646,7 +8646,7 @@ r</translation>
     </message>
     <message>
         <source>sm%1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -11290,16 +11290,8 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Uppdateringsinterface</translation>
     </message>
     <message>
-        <source>No free slot to save interface settings!</source>
-        <translation>Ingen fri plats för att spara interfaceinställningar!</translation>
-    </message>
-    <message>
         <source>Unable to download release meta data</source>
         <translation>Kunde inte ladda ner metadata för versionen</translation>
-    </message>
-    <message>
-        <source>Unable to download release channel assets information</source>
-        <translation>Kunde inte ladda information om tillgångarna från versionskanalen</translation>
     </message>
     <message>
         <source>%1 directory not configured in application settings!</source>
@@ -11518,6 +11510,18 @@ Fel:%1
     <message>
         <source>Delete decompress folder: %1</source>
         <translation>Radera uppackningskatalog: %1</translation>
+    </message>
+    <message>
+        <source>Component id: %1 exceeds maximum application settings components: %2!</source>
+        <translation type="unfinished">Komponent id: %1 överskrider &quot;maximum application settings components&quot;: %2!</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>okänd</translation>
+    </message>
+    <message>
+        <source>Unable to download release assets information</source>
+        <translation>Kunde inte ladda ner information om versionens tillgångar</translation>
     </message>
 </context>
 <context>

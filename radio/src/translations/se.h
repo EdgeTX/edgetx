@@ -392,7 +392,7 @@
 #define TR_ELEDIRECTION                 "HöJD riktning"
 #define TR_AILDIRECTION                 "SKEV riktning"
 #define TR_COLDIRECTION                 TR("PITCH riktn.","PITCH riktning")
-#define TR_MODE                         TR("Typ","Spakfunktioner")
+#define TR_MODE                         "Typ"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Vänster"
 #else
@@ -709,7 +709,7 @@
 #define TR_UPDATE_RX_OPTIONS            "Uppdatera Rx alternativ?"
 #define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           "Moduler / Rx version"
-#define TR_SHOW_MIXER_MONITORS          "Visa mixerskärmar"
+#define TR_SHOW_MIXER_MONITORS          "Visa mixervärden"
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS            "FIRMWAREFUNKTIONER"
 #define TR_IMU                          "IMU"
