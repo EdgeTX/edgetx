@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         target:
-          - nv14
+          - nv14;el18
           - t12
           - t16
           - t18
