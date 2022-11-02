@@ -13,6 +13,11 @@ boards = {
         "PCB": "NV14",
         "DEFAULT_MODE": "1",
     },
+    "EL18": {
+        "PCB": "NV14",
+        "PCBREV": "EL18",
+        "DEFAULT_MODE": "1",
+    },
 }
 
 translations = [
