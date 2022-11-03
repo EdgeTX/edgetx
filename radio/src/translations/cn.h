@@ -670,7 +670,7 @@
 #define TR_UPDATE_RX_OPTIONS           "是否升级接收机?"
 #define TR_UPDATE_TX_OPTIONS           "是否升级发射机?"
 #define TR_MODULES_RX_VERSION          "模块/接收机版本"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "显示通道混控"
 #define TR_MENU_MODULES_RX_VERSION     "模块/接收机版本"
 #define TR_MENU_FIRM_OPTIONS           "固件选项"
 #define TR_IMU                         "陀螺仪"
