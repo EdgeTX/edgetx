@@ -42,27 +42,22 @@ void EXTERNAL_MODULE_OFF()
 void extModuleInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN);
-  GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
-
-  //for additional transistor to ensuring module is completely disabled
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  //pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
   if (hardwareOptions.pcbrev == PCBREV_NV14) {
     GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_FIX_GPIO_PIN;
+    // pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
+    // for additional transistor to ensuring module is completely disabled
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_SetBits(EXTMODULE_PWR_FIX_GPIO, EXTMODULE_PWR_FIX_GPIO_PIN);
     GPIO_Init(EXTMODULE_PWR_FIX_GPIO, &GPIO_InitStructure);
   }
-
+  
   GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_INVERT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  // Use push pull for inverter output to ensure the output not floating
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_Init(EXTMODULE_TX_INVERT_GPIO, &GPIO_InitStructure);
 
   GPIO_InitStructure.GPIO_Pin = EXTMODULE_RX_INVERT_GPIO_PIN;
