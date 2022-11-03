@@ -118,9 +118,9 @@
   #define TR_PLAY_BOTH                 "同時播放"
   #define TR_PLAY_VALUE                "播放數值"
 #else
-  #define TR_PLAY_TRACK                "[Play Trk]"
-  #define TR_PLAY_BOTH                 "[Play Bth]"
-  #define TR_PLAY_VALUE                "[Play Val]"
+  #define TR_PLAY_TRACK                "[播放音頻]"
+  #define TR_PLAY_BOTH                 "[同時播放]"
+  #define TR_PLAY_VALUE                "[播放數值]"
 #endif
 
 #define TR_SF_BG_MUSIC                 "播放背景音樂","暫停背景音樂"
@@ -225,7 +225,7 @@
   #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8)
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
 #elif defined(RADIO_ZORRO)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
@@ -431,6 +431,7 @@
 #define TR_MODEL_SHUTDOWN              "關機 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER鍵確認"
 #define TR_THROTTLE_LABEL              "油門"
+#define TR_THROTTLE_START              "油門開始"
 #define TR_THROTTLEREVERSE             TR("油門反向", INDENT "油門反向")
 #define TR_MINUTEBEEP                  TR("分", "分鐘播報")
 #define TR_BEEPCOUNTDOWN               INDENT "倒數"
@@ -669,7 +670,7 @@
 #define TR_UPDATE_RX_OPTIONS           "是否升級接收機?"
 #define TR_UPDATE_TX_OPTIONS           "是否升級發射機?"
 #define TR_MODULES_RX_VERSION          "模塊/接收機版本"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "顯示通道混控"
 #define TR_MENU_MODULES_RX_VERSION     "模塊/接收機版本"
 #define TR_MENU_FIRM_OPTIONS           "韌體選項"
 #define TR_IMU                         "陀螺儀"
