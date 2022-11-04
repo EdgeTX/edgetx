@@ -1101,13 +1101,6 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   strncpy(buffer, s, len);
   buffer[len] = '\0';
 
-  int height = getFontHeight(flags);
-
-  if (y + height <= ymin || y >= ymax) {
-    RESTORE_OFFSET();
-    return x;
-  }
-
   coord_t pos = x;
   const coord_t orig_pos = pos;
 
