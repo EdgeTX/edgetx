@@ -334,17 +334,17 @@ void ModelOutputsPage::build(FormWindow *window)
         output->curve = 0;
         output->symetrical = 0;
         storageDirty(EE_MODEL);
-        btn->invalidate();
+        btn->refresh();
       });
       menu->addLine(STR_COPY_STICKS_TO_OFS, [=]() {
         copySticksToOffset(ch);
         storageDirty(EE_MODEL);
-        btn->invalidate();
+        btn->refresh();
       });
       menu->addLine(STR_COPY_TRIMS_TO_OFS, [=]() {
         copyTrimsToOffset(ch);
         storageDirty(EE_MODEL);
-        btn->invalidate();
+        btn->refresh();
       });
       return 0;
     });
