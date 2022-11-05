@@ -43,8 +43,8 @@
 
 #define BREAKSPACE                    " "
 #define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minuten"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minuten"
 
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                       "AUS","EIN"

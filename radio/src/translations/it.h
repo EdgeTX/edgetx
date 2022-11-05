@@ -42,9 +42,9 @@
 #define TR_USE_PLURAL2 INT_MAX
 
 #define BREAKSPACE                    " "
-#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MINUTE_SINGULAR            BREAKSPACE"minuto"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minuti"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minuti"
 
 #define TR_OFFON               TR("OFF","Disattivato"),TR("ON","Attivato")
 #define TR_MMMINV              "---","INV"

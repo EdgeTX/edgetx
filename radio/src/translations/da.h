@@ -40,9 +40,9 @@
 #define TR_USE_PLURAL2 INT_MAX
 
 #define BREAKSPACE                    " "
-#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MINUTE_SINGULAR            BREAKSPACE "minut"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minutter"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minutter"
 
 #define TR_OFFON                       "FRA","TIL"
 #define TR_MMMINV                      "---","INV"

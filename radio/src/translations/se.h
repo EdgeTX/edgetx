@@ -42,9 +42,9 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
-#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MINUTE_SINGULAR            BREAKSPACE"minut"
+#define TR_MINUTE_PLURAL1             BREAKSPACE "minuter"
+#define TR_MINUTE_PLURAL2             BREAKSPACE "minuter"
 
 // NON ZERO TERMINATED STRINGS
 #define TR_OFFON                        "Av","På"

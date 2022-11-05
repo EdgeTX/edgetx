@@ -39,9 +39,9 @@
 #define TR_USE_PLURAL2 INT_MAX
 
 #define BREAKSPACE                    " "
-#define TR_MINUTE_SINGULAR            BREAKSPACE"minute"
-#define TR_MINUTE_PLURAL1             BREAKSPACE "minutes"
-#define TR_MINUTE_PLURAL2             BREAKSPACE "minutes"
+#define TR_MINUTE_SINGULAR              BREAKSPACE "分钟"
+#define TR_MINUTE_PLURAL1               BREAKSPACE "分钟"
+#define TR_MINUTE_PLURAL2               BREAKSPACE "分钟"
 
 #define TR_OFFON                       "禁用","开启"
 #define TR_MMMINV                      "---","反\0"
