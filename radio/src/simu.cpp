@@ -466,6 +466,8 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   #endif
 }
 
+extern volatile uint32_t rotencDt;
+
 long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 {
   if (hasFocus()) {
@@ -484,6 +486,14 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
     }
     else {
       rotencAction = false;
+    }
+
+    static uint32_t last_tick = 0;
+    if (rotencAction) {
+      uint32_t now = RTOS_GET_MS();
+      uint32_t dt = now - last_tick;
+      rotencDt += dt;
+      last_tick = now;
     }
 #endif
   }
