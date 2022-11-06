@@ -387,7 +387,7 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
 	    splashSize = RleBitmap::encode(b, SPLASH_SIZE_MAX);
 	    if(splashSize > RLE_SPLASH_MAX_SIZE){
 	      if(parentDialog)
-            QMessageBox::critical(parentDialog, CPN_STR_TTL_ERROR, parentDialog->tr("Compressed image size exceeds reserved space."));
+            QMessageBox::critical(parentDialog, CPN_STR_TTL_ERROR, QObject::tr("Compressed image size exceeds reserved space."));
           return false;
 	    }
     }
