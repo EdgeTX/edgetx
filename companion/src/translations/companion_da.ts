@@ -1965,7 +1965,7 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
     </message>
     <message>
         <source>Flight</source>
-        <translation>Flygning</translation>
+        <translation>Flyvning</translation>
     </message>
     <message>
         <source>Telemetry</source>
@@ -2004,12 +2004,144 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
         <translation>gentag (efter %1s)</translation>
     </message>
     <message>
+        <source>Beep 1</source>
+        <translation>Bip 1</translation>
+    </message>
+    <message>
+        <source>Beep 2</source>
+        <translation>Bip 2</translation>
+    </message>
+    <message>
+        <source>Beep 3</source>
+        <translation>Bip 3</translation>
+    </message>
+    <message>
+        <source>Warn 1</source>
+        <translation>Advarsel 1</translation>
+    </message>
+    <message>
+        <source>Warn 2</source>
+        <translation>Advarsel 2</translation>
+    </message>
+    <message>
+        <source>Cheep</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ratata</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Tick</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Siren</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ring</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sci Fi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Robot</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Chirp</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Tada</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Cricket</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Alarm Clock</source>
+        <translation>Alarm klokke</translation>
+    </message>
+    <message>
+        <source>Global Variable</source>
+        <translation>Global variabel</translation>
+    </message>
+    <message>
+        <source>Inc/Decrement</source>
+        <translation>Tæl op/ned</translation>
+    </message>
+    <message>
+        <source>Played once, not during startup</source>
+        <translation>Spil en gang, ikke ved opstart</translation>
+    </message>
+    <message>
+        <source>Repeat %1s</source>
+        <translation>Gentag (efter %1s)</translation>
+    </message>
+    <message>
         <source>DISABLED</source>
         <translation>INAKTIV</translation>
     </message>
     <message>
         <source>CFN</source>
         <translation>CFN</translation>
+    </message>
+    <message>
+        <source>Set Failsafe</source>
+        <translation>indstil fejlsikring</translation>
+    </message>
+    <message>
+        <source>No repeat</source>
+        <translation>Spil en gang</translation>
+    </message>
+    <message>
+        <source>Lua Script</source>
+        <translation>Lua skript</translation>
+    </message>
+    <message>
+        <source>Set %1</source>
+        <translation>Indstil %1</translation>
+    </message>
+    <message>
+        <source>Trainer Sticks</source>
+        <translation>Træner stik</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Kilde</translation>
+    </message>
+    <message>
+        <source>Racing Mode</source>
+        <translation>Ræs tilstand</translation>
+    </message>
+    <message>
+        <source>Disable Touch</source>
+        <translation>Deaktiver touch</translation>
+    </message>
+    <message>
+        <source>Trainer Channels</source>
+        <translation>Træner kanaler</translation>
+    </message>
+    <message>
+        <source>Range Check Int. Module</source>
+        <translation>Kontroller rækkevidde Intern modul</translation>
+    </message>
+    <message>
+        <source>Range Check Ext. Module</source>
+        <translation>Kontroller rækkevidde Extern modul</translation>
+    </message>
+    <message>
+        <source>Set Main Screen</source>
+        <translation>Indstil hoved billede</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>Værdi</translation>
     </message>
 </context>
 <context>
@@ -5144,7 +5276,7 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Invert Collective</source>
-        <translation>Omvendt collective (INV)</translation>
+        <translation>Omvendt samling (INV)</translation>
     </message>
     <message>
         <source>Invert</source>
@@ -5172,7 +5304,7 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Collective</source>
-        <translation>Collective</translation>
+        <translation>Samling</translation>
     </message>
     <message>
         <source>Swash Type</source>
@@ -8123,6 +8255,10 @@ p, li { white-space: pre-wrap; }
         <source>Error: Unable to open or read file!</source>
         <translation>Fejl: Kan ikke åbne eller læse fil!</translation>
     </message>
+    <message>
+        <source>THR</source>
+        <translation>GAS</translation>
+    </message>
 </context>
 <context>
     <name>ModelSelectionPage</name>
@@ -10313,7 +10449,7 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     </message>
     <message>
         <source>Data source type to use (applicable to Horus only). One of:</source>
-        <translation>Type af datakilde (gæller kun Horus lignende radioer). En av:</translation>
+        <translation>Type af datakilde (gæller kun Horus lignende radioer). En af:</translation>
     </message>
     <message>
         <source>type</source>
@@ -10684,7 +10820,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     </message>
     <message>
         <source>Data Load Error</source>
-        <translation>Fejl ved data indlæsiningladdning</translation>
+        <translation>Fejl ved data indlæsning</translation>
     </message>
     <message>
         <source>Invalid startup data provided. Plese specify a proper file/path.</source>
@@ -11906,6 +12042,94 @@ hh:mm:ss</translation>
         <source>Timer %1</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Silent</source>
+        <translation>Stille</translation>
+    </message>
+    <message>
+        <source>Beeps</source>
+        <translation>Bip</translation>
+    </message>
+    <message>
+        <source>Voice</source>
+        <translation>Stemme</translation>
+    </message>
+    <message>
+        <source>NOT</source>
+        <translation>Ikke</translation>
+    </message>
+    <message>
+        <source>Flight</source>
+        <translation>Flyvning</translation>
+    </message>
+    <message>
+        <source>Manual reset</source>
+        <translation>Manuel nulstil</translation>
+    </message>
+    <message>
+        <source>Not persistent</source>
+        <translation>Ikke varig</translation>
+    </message>
+    <message>
+        <source>Persistent (flight)</source>
+        <translation>Varig (under flyvning)</translation>
+    </message>
+    <message>
+        <source>Persistent (manual reset)</source>
+        <translation>Varig (manuel nulstilling)</translation>
+    </message>
+    <message>
+        <source>Haptic</source>
+        <translation>Vibration</translation>
+    </message>
+    <message>
+        <source>5s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>10s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>20s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>30s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>Fra</translation>
+    </message>
+    <message>
+        <source>ON</source>
+        <translation>Til</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>THs</source>
+        <translation>THs</translation>
+    </message>
+    <message>
+        <source>TH%</source>
+        <translation>TH%</translation>
+    </message>
+    <message>
+        <source>THt</source>
+        <translation>THt</translation>
+    </message>
+    <message>
+        <source>Show Elapsed</source>
+        <translation>Vis tid gået</translation>
+    </message>
+    <message>
+        <source>Show Remaining</source>
+        <translation>Vis tid tilbage</translation>
+    </message>
 </context>
 <context>
     <name>TimerEdit</name>
@@ -11926,37 +12150,6 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     <message>
         <source>s</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>TimerPanel</name>
-    <message>
-        <source>Silent</source>
-        <translation>Stille</translation>
-    </message>
-    <message>
-        <source>Beeps</source>
-        <translation>Bip</translation>
-    </message>
-    <message>
-        <source>Voice</source>
-        <translation>Stemme</translation>
-    </message>
-    <message>
-        <source>Not persistent</source>
-        <translation>Ikke varig</translation>
-    </message>
-    <message>
-        <source>Persistent (flight)</source>
-        <translation>Varig (under flyvning)</translation>
-    </message>
-    <message>
-        <source>Persistent (manual reset)</source>
-        <translation>Varig (manuel nulstilling)</translation>
-    </message>
-    <message>
-        <source>Haptic</source>
-        <translation>Vibration</translation>
     </message>
 </context>
 <context>
@@ -12989,7 +13182,7 @@ Berarbejd dem nu?</translation>
     </message>
     <message>
         <source>Most aircraft have a main wing and a tail with control surfaces. Flying wings and delta winged aircraft only have a single wing. The main control surface on a standard wing controls the roll of the aircraft. This surface is called an aileron.&lt;br&gt;The control surface of a delta wing controls both roll and pitch. This surface is called an elevon. </source>
-        <translation>De fleste fly har en hovedvinge og en hale med kontrol flader. Flyvende vinger og deltavinger har ingen hale. Hovedkontrol af standardvinge er krængror.&lt;br&gt; Rodren på en deltavinge fungerar som en kombination av krængeror og højderor. </translation>
+        <translation>De fleste fly har en hovedvinge og en hale med kontrol flader. Flyvende vinger og deltavinger har ingen hale. Hovedkontrol af standardvinge er krængror.&lt;br&gt; Roret på en deltavinge fungerer som en kombination af krængeror og højderor. </translation>
     </message>
     <message>
         <source>Models use one or two channels to control the ailerons.&lt;br&gt;A so called Y-cable can be used to connect a single receiver channel to two separate aileron servos. If your servos are connected by a Y-cable you should select the single-servo option.&lt;br&gt;&lt;br&gt;Aileron - Spektrum: CH2, Futaba: CH1</source>
@@ -13093,6 +13286,30 @@ Berarbejd dem nu?</translation>
     <message>
         <source>Channel %1: </source>
         <translation>Kanal %1:   </translation>
+    </message>
+    <message>
+        <source>THR</source>
+        <translation>GAS</translation>
+    </message>
+    <message>
+        <source>RUD</source>
+        <translation>SID</translation>
+    </message>
+    <message>
+        <source>ELE</source>
+        <translation>HØJ</translation>
+    </message>
+    <message>
+        <source>AIL</source>
+        <translation>KRÆ</translation>
+    </message>
+    <message>
+        <source>FLP</source>
+        <translation>FLP</translation>
+    </message>
+    <message>
+        <source>AIR</source>
+        <translation>AIR</translation>
     </message>
 </context>
 <context>
