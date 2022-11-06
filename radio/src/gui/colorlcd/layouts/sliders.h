@@ -73,6 +73,7 @@ class MainView6POS : public MainViewSlider
     // using MainViewSlider::MainViewSlider;
     MainView6POS(Window* parent, uint8_t idx);
     void paint(BitmapBuffer * dc) override;
+    void checkEvents() override;
 };
 
 class MainViewVerticalSlider : public MainViewSlider

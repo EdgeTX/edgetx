@@ -96,11 +96,22 @@ void MainView6POS::paint(BitmapBuffer * dc)
   }
 
   // The square
-  auto value = 1 + (potsPos[idx] & 0x0f);
+  value = 1 + (potsPos[idx] & 0x0f);
   x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
   dc->drawNumber(x + 1, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
 #endif
+}
+
+void MainView6POS::checkEvents()
+{
+  Window::checkEvents();
+  int16_t newValue = 1 + (potsPos[idx] & 0x0f);
+  TRACE("newValue=%d", newValue);
+  if (value != newValue) {
+    value = newValue;
+    invalidate();
+  }
 }
 
 MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :
