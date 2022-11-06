@@ -107,7 +107,6 @@ void MainView6POS::checkEvents()
 {
   Window::checkEvents();
   int16_t newValue = 1 + (potsPos[idx] & 0x0f);
-  TRACE("newValue=%d", newValue);
   if (value != newValue) {
     value = newValue;
     invalidate();
