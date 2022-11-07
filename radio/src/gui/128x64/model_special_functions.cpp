@@ -230,7 +230,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             else if (param == NUM_STICKS + 1)
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
             else
-              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_Rud + param - 1, attr);
+              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {

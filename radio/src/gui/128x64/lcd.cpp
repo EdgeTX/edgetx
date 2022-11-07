@@ -36,6 +36,7 @@
 #if !defined(BOOT)
   #include "opentx.h"
   #include "hal/switch_driver.h"
+  #include "hal/adc_driver.h"
 #endif
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
@@ -704,7 +705,7 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
 void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
 {
   if (idx == MIXSRC_NONE) {
-    lcdDrawTextAtIndex(x, y, STR_VSRCRAW, 0, att); // TODO macro
+    lcdDrawText(x, y, STR_EMPTY, att);
   }
   else if (idx <= MIXSRC_LAST_INPUT) {
     lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
@@ -732,79 +733,53 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
   }
 #endif
   else if (idx <= MIXSRC_LAST_POT) {
-    idx = idx - MIXSRC_Rud;
-    if (g_eeGeneral.anaNames[idx][0]) {
-      if (idx < MIXSRC_FIRST_POT-MIXSRC_Rud )
-        lcdDrawSizedText(x, y, STR_CHAR_STICK, 2, att);
-      else if (idx <= MIXSRC_LAST_POT-MIXSRC_Rud )
-        lcdDrawSizedText(x, y, STR_CHAR_POT, 2, att);
-      else
-        lcdDrawSizedText(x, y, STR_CHAR_SLIDER, 2, att);
-      lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, att);
-    }
-    else {
-      lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx + 1, att);
-    }
+    lcdDrawText(x, y, getSourceString(idx), att);
   }
   else if (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) {
-
-    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
-
-#if defined(FUNCTION_SWITCHES)    
-    if(idx >= MIXSRC_FIRST_FS_SWITCH) {
-      idx = idx - (MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES);
-      if (*g_model.switchNames[idx]) {
-        lcdDrawSizedText(lcdNextPos, y, g_model.switchNames[idx], LEN_SWITCH_NAME, att);
-      }
-      else {
-        char s[LEN_SWITCH_NAME] = { 0 };
-        s[0] = 'S'; s[1] = 'W'; s[2] = '1' + idx;
-        lcdDrawSizedText(lcdNextPos, y, s, LEN_SWITCH_NAME, att);
-      }
-
-      return;
-    }
-#endif
-
-    idx = idx - MIXSRC_FIRST_SWITCH;
-    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
-
-    const char* name = nullptr;
-    if (*g_eeGeneral.switchNames[idx])
-      name = g_eeGeneral.switchNames[idx];
-    else
-      name = switchGetName(idx);
-
-    lcdDrawSizedText(lcdNextPos, y, name, LEN_SWITCH_NAME, att);
+    lcdDrawText(x, y, getSourceString(idx), att);
   }
-  else if (idx < MIXSRC_FIRST_LOGICAL_SWITCH)
-    lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx-MIXSRC_Rud+1, att);
   else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH)
-    drawSwitch(x, y, SWSRC_SW1+idx-MIXSRC_SW1, att);
+    drawSwitch(x, y, SWSRC_SW1 + idx - MIXSRC_FIRST_LOGICAL_SWITCH, att);
   else if (idx < MIXSRC_FIRST_CH)
-    drawStringWithIndex(x, y, STR_PPM_TRAINER, idx-MIXSRC_FIRST_TRAINER+1, att);
+    drawStringWithIndex(x, y, STR_PPM_TRAINER, idx - MIXSRC_FIRST_TRAINER + 1, att);
   else if (idx <= MIXSRC_LAST_CH) {
-    drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);
-    if (ZEXIST(g_model.limitData[idx-MIXSRC_CH1].name) && (att & STREXPANDED)) {
+    drawStringWithIndex(x, y, STR_CH, idx - MIXSRC_FIRST_CH + 1, att);
+    if (ZEXIST(g_model.limitData[idx-MIXSRC_FIRST_CH].name) && (att & STREXPANDED)) {
       lcdDrawChar(lcdLastRightPos, y, ' ', att|SMLSIZE);
-      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx-MIXSRC_CH1].name, LEN_CHANNEL_NAME, att|SMLSIZE);
+      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx-MIXSRC_FIRST_CH].name, LEN_CHANNEL_NAME, att|SMLSIZE);
     }
   }
   else if (idx <= MIXSRC_LAST_GVAR) {
-    drawStringWithIndex(x, y, STR_GV, idx-MIXSRC_GVAR1+1, att);
+    idx -= MIXSRC_FIRST_GVAR - 1;
+    drawStringWithIndex(x, y, STR_GV, idx, att);
   }
   else if (idx < MIXSRC_FIRST_TIMER) {
-    lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx-MIXSRC_Rud+1-MAX_LOGICAL_SWITCHES-MAX_TRAINER_CHANNELS-MAX_OUTPUT_CHANNELS-MAX_GVARS, att);
-  }
-  else if (idx <= MIXSRC_LAST_TIMER) {
-    if(ZEXIST(g_model.timers[idx-MIXSRC_FIRST_TIMER].name)) {
-      lcdDrawSizedText(x, y, g_model.timers[idx-MIXSRC_FIRST_TIMER].name, LEN_TIMER_NAME, att);
+    // Built-in sources: TX Voltage, Time, GPS (+ reserved)
+    const char* src_str;
+    switch(idx) {
+    case MIXSRC_TX_VOLTAGE:
+      src_str = STR_SRC_BATT;
+      break;
+    case MIXSRC_TX_TIME:
+      src_str = STR_SRC_TIME;
+      break;
+    case MIXSRC_TX_GPS:
+      src_str = STR_SRC_BATT;
+      break;
+    default:
+      src_str = "";
+      break;
+    }
+    lcdDrawText(x, y, src_str, att);
+  } else if (idx <= MIXSRC_LAST_TIMER) {
+    idx -= MIXSRC_FIRST_TIMER;
+    if(g_model.timers[idx].name[0]) {
+      lcdDrawSizedText(x, y, g_model.timers[idx].name, LEN_TIMER_NAME, att);
     }
     else {
-      lcdDrawTextAtIndex(x, y, STR_VSRCRAW, idx-MIXSRC_Rud+1-MAX_LOGICAL_SWITCHES-MAX_TRAINER_CHANNELS-MAX_OUTPUT_CHANNELS-MAX_GVARS, att);
+      drawStringWithIndex(x, y, STR_SRC_TIMER, idx, att);
     }
-  }
-  else {
+  } else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div(idx, 3);
     lcdDrawSizedText(x, y, g_model.telemetrySensors[qr.quot].label, TELEM_LABEL_LEN, att);

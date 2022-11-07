@@ -56,7 +56,7 @@ void insertExpo(uint8_t idx)
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
   for (int i = s_currCh; i < INPUTSRC_LAST; i++) {
-    expo->srcRaw = (s_currCh > 4 ? MIXSRC_Rud - 1 + i: MIXSRC_Rud - 1 + channelOrder(i));
+    expo->srcRaw = (s_currCh > 4 ? MIXSRC_FIRST_STICK - 1 + i: MIXSRC_FIRST_STICK - 1 + channelOrder(i));
     if (isSourceAvailableInInputs(expo->srcRaw)) {
       break;
     }
@@ -177,12 +177,12 @@ void displayExpoInfos(coord_t y, ExpoData * ed)
   drawSwitch(EXPO_LINE_SWITCH_POS, y, ed->swtch, 0);
 }
 
-void displayExpoLine(coord_t y, ExpoData * ed)
+void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, 0);
+  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
 
   if (ed->carryTrim != TRIM_ON) {
-    lcdDrawChar(EXPO_LINE_TRIM_POS, y, ed->carryTrim > 0 ? '-' : STR_RETA123[-ed->carryTrim][0]);
+    lcdDrawChar(EXPO_LINE_TRIM_POS, y, ed->carryTrim > 0 ? '-' : STR_RETA123[-ed->carryTrim][0], attr);
   }
 
   if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
@@ -191,7 +191,7 @@ void displayExpoLine(coord_t y, ExpoData * ed)
     displayFlightModes(EXPO_LINE_FM_POS, y, ed->flightModes);
 
   if (ed->name[0]) {
-    lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), 0);
+    lcdDrawSizedText(EXPO_LINE_NAME_POS, y, ed->name, sizeof(ed->name), attr);
   }
   
 #if LCD_DEPTH > 1
@@ -200,7 +200,7 @@ void displayExpoLine(coord_t y, ExpoData * ed)
   }
 #endif
 }
-#else
+#else // LCD_W < 212
 #define EXPO_LINE_WEIGHT_POS           7*FW+8
 #define EXPO_LINE_SRC_POS              8*FW+3
 #define EXPO_LINE_INFOS_POS            11*FW+11
@@ -218,12 +218,12 @@ void displayExpoInfos(coord_t y, ExpoData * ed)
   }
 }
 
-void displayExpoLine(coord_t y, ExpoData * ed)
+void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 {
-  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, 0);
+  drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, attr);
   
   if (ed->name[0])
-    lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, 0);
+    lcdDrawSizedText(EXPO_LINE_INFOS_POS, y, ed->name, LEN_EXPOMIX_NAME, attr);
   else if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
     displayExpoInfos(y, ed);
   else
@@ -420,7 +420,7 @@ void menuModelExposAll(event_t event)
           LcdFlags attr = ((s_copyMode || sub != cur) ? 0 : INVERS);
           
           GVAR_MENU_ITEM(EXPO_LINE_WEIGHT_POS, y, ed->weight, -100, 100, RIGHT | attr | (isExpoActive(i) ? BOLD : 0), 0, 0);
-          displayExpoLine(y, ed);
+          displayExpoLine(y, ed, attr);
           
           if (s_copyMode) {
             if ((s_copyMode==COPY_MODE || s_copyTgtOfs == 0) && s_copySrcCh == ch && i == (s_copySrcIdx + (s_copyTgtOfs<0))) {

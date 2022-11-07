@@ -487,7 +487,8 @@ CLANG_LIB_LOCATIONS = [
     '/usr/local/Cellar/llvm/6.0.0/lib/libclang.dylib',
     '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib',
     '/Library/Developer/CommandLineTools/usr/lib/libclang.dylib',
-    '/usr/lib/x86_64-linux-gnu/libclang-6.0.so.1'
+    '/usr/lib/x86_64-linux-gnu/libclang-6.0.so.1',
+    '/usr/lib/aarch64-linux-gnu/libclang-6.0.so.1'
 ]
 
 # set clang lib file

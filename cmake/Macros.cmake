@@ -73,6 +73,9 @@ function(GenerateDatacopy source output)
   # Fetch defines / include directories in use
   AddCompilerFlags(GEN_DATACOPY_ARGS)
 
+  # Hack to get rid of warnings in StdPeriph lib
+  set(GEN_DATACOPY_ARGS ${GEN_DATACOPY_ARGS} -Wno-asm-operand-widths)
+
   set(GEN_DATACOPY_ARGS
     # source file MUST be the first argument
     ${CMAKE_CURRENT_SOURCE_DIR}/${source}
@@ -80,7 +83,7 @@ function(GenerateDatacopy source output)
 
   set(GEN_DATACOPY_CMD
     ${PYTHON_EXECUTABLE} ${GEN_DATACOPY} ${GEN_DATACOPY_ARGS})
-  
+
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}

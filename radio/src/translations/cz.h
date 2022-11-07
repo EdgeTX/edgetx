@@ -283,6 +283,11 @@
 #define TR_RESERVE_VSRCRAW             "[--]"
 #define TR_EXTRA_VSRCRAW               "Bat.","Čas","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Čas1","Čas2","Čas3"
 
+#define TR_SRC_BATT                    "Bat."
+#define TR_SRC_TIME                    "Čas"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Čas"
+
 #define TR_VTMRMODES                   "VYP","ZAP","Pln>","Pln%","Pln*"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
 #define TR_VTRAINER_MASTER_JACK        "Učitel/Jack"

@@ -98,7 +98,7 @@ void insertExpo(uint8_t idx, uint8_t input)
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
-  expo->srcRaw = (input >= 4 ? MIXSRC_Rud + input : MIXSRC_Rud + channelOrder(input + 1) - 1);
+  expo->srcRaw = (input >= 4 ? MIXSRC_FIRST_STICK + input : MIXSRC_FIRST_STICK + channelOrder(input + 1) - 1);
   expo->curve.type = CURVE_REF_EXPO;
   expo->mode = 3; // pos+neg
   expo->chn = input;

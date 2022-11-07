@@ -19,33 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/adc_driver.h"
-#include "definitions.h"
+#pragma once
 
-#include "hw_inputs.inc"
+#include "opentx_types.h"
 
-void enableVBatBridge(){}
-void disableVBatBridge(){}
-bool isVBatBridgeEnabled(){ return false; }
-
-const char* adcGetStickName(uint8_t idx)
-{
-  if (idx >= DIM(_stick_inputs)) return "";
-  return _stick_inputs[idx];
-}
-
-const char* adcGetPotName(uint8_t idx)
-{
-  if (idx >= DIM(_pot_inputs)) return "";
-  return _pot_inputs[idx];
-}
-
-uint8_t adcGetMaxSticks()
-{
-  return DIM(_stick_inputs);
-}
-
-uint8_t adcGetMaxPots()
-{
-  return DIM(_pot_inputs);
-}
+// Runs the main calibration steps
+void menuCommonCalib(event_t event);

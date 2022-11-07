@@ -237,7 +237,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
 
     // Channel name
     auto line = form->newLine(&grid);
-    const char* ch_label = getSourceString(MIXSRC_CH1 + ch);
+    const char* ch_label = getSourceString(MIXSRC_FIRST_CH + ch);
     new StaticText(line, rect_t{}, ch_label, 0, COLOR_THEME_PRIMARY1);
 
     // Channel value

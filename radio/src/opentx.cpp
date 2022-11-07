@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "aux_serial_driver.h"
 #include "timers_driver.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -318,9 +319,9 @@ void generalDefault()
   g_eeGeneral.switchConfig = DEFAULT_SWITCH_CONFIG;
 #endif
 
-#if defined(DEFAULT_SLIDERS_CONFIG)
-  g_eeGeneral.slidersConfig = DEFAULT_SLIDERS_CONFIG;
-#endif
+// #if defined(DEFAULT_SLIDERS_CONFIG)
+//   g_eeGeneral.slidersConfig = DEFAULT_SLIDERS_CONFIG;
+// #endif
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
@@ -423,21 +424,21 @@ int8_t getMovedSource(uint8_t min)
 
   static int16_t inputsStates[MAX_INPUTS];
   if (min <= MIXSRC_FIRST_INPUT) {
-    for (uint8_t i=0; i<MAX_INPUTS; i++) {
+    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
       if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
         if (!isInputRecursive(i)) {
-          result = MIXSRC_FIRST_INPUT+i;
+          result = MIXSRC_FIRST_INPUT + i;
           break;
         }
       }
     }
   }
 
-  static int16_t sourcesStates[NUM_STICKS+NUM_POTS+NUM_SLIDERS+NUM_MOUSE_ANALOGS];
+  static int16_t sourcesStates[MAX_ANALOG_INPUTS];
   if (result == 0) {
-    for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+    for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-        result = MIXSRC_Rud+i;
+        result = MIXSRC_FIRST_STICK + i;
         break;
       }
     }
@@ -539,25 +540,25 @@ ls_telemetry_value_t maxTelemValue(source_t channel)
 bool inputsMoved()
 {
   uint8_t sum = 0;
-  for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++)
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++)
     sum += anaIn(i) >> INAC_STICKS_SHIFT;
-  for (uint8_t i=0; i<NUM_SWITCHES; i++)
-    sum += getValue(MIXSRC_FIRST_SWITCH+i) >> INAC_SWITCHES_SHIFT;
+  for (uint8_t i = 0; i < MAX_SWITCHES; i++)
+    sum += getValue(MIXSRC_FIRST_SWITCH + i) >> INAC_SWITCHES_SHIFT;
 #if defined(IMU)
-  for (uint8_t i=0; i<2; i++)
-    sum += getValue(MIXSRC_TILT_X+i) >> INAC_STICKS_SHIFT;
+  for (uint8_t i = 0; i < 2; i++)
+    sum += getValue(MIXSRC_TILT_X + i) >> INAC_STICKS_SHIFT;
 #endif
 
 #if defined(SPACEMOUSE)
-  for (uint8_t i=0; i<(MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE); i++)
+  for (uint8_t i = 0; i < (MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE + 1);
+       i++)
     sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
 #endif
 
-  if (abs((int8_t)(sum-inactivity.sum)) > 1) {
+  if (abs((int8_t)(sum - inactivity.sum)) > 1) {
     inactivity.sum = sum;
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -811,9 +812,12 @@ bool isThrottleWarningAlertNeeded()
 
   // throttle channel is either the stick according stick mode (already handled in evalInputs)
   // or P1 to P3;
-  // in case an output channel is choosen as throttle source (thrTraceSrc>NUM_POTS+NUM_SLIDERS) we assume the throttle stick is the input
-  // no other information available at the moment, and good enough to my option (otherwise too much exceptions...)
-  uint8_t thrchn = ((g_model.thrTraceSrc==0) || (g_model.thrTraceSrc>NUM_POTS+NUM_SLIDERS)) ? THR_STICK : g_model.thrTraceSrc+NUM_STICKS-1;
+  // in case an output channel is choosen as throttle source (thrTraceSrc > MAX_POTS) we assume the throttle stick is the input
+  // no other information available at the moment, and good enough to my option (otherwise too many exceptions...)
+  uint8_t thrchn =
+      ((g_model.thrTraceSrc == 0) || (g_model.thrTraceSrc > MAX_POTS))
+          ? THR_STICK
+          : g_model.thrTraceSrc + MAX_STICKS - 1;
 
   GET_ADC_IF_MIXER_NOT_RUNNING();
   evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
@@ -1181,8 +1185,6 @@ void doMixerCalculations()
   getSwitchesPosition(!s_mixer_first_run_done);
   DEBUG_TIMER_STOP(debugTimerGetSwitches);
 
-
-
   DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
@@ -1205,8 +1207,8 @@ void doMixerPeriodicUpdates()
     /* Throttle trace */
     int16_t val;
 
-    if (g_model.thrTraceSrc > NUM_POTS+NUM_SLIDERS) {
-      uint8_t ch = g_model.thrTraceSrc-NUM_POTS-NUM_SLIDERS-1;
+    if (g_model.thrTraceSrc > MAX_POTS) {
+      uint8_t ch = g_model.thrTraceSrc - MAX_POTS - 1;
       val = channelOutputs[ch];
 
       LimitData * lim = limitAddress(ch);

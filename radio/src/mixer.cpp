@@ -35,7 +35,7 @@ SwOn    swOn  [MAX_MIXERS]; // TODO better name later...
 uint8_t mixWarning;
 
 
-int16_t calibratedAnalogs[NUM_CALIBRATED_ANALOGS];
+int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
@@ -191,8 +191,9 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
         //========== TRIMS ================
         if (ed->carryTrim < TRIM_ON)
           virtualInputsTrims[cur_chn] = -ed->carryTrim - 1;
-        else if (ed->carryTrim == TRIM_ON && ed->srcRaw >= MIXSRC_Rud && ed->srcRaw <= MIXSRC_Ail)
-          virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_Rud;
+        else if (ed->carryTrim == TRIM_ON && ed->srcRaw >= MIXSRC_FIRST_STICK &&
+                 ed->srcRaw <= MIXSRC_LAST_STICK)
+          virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
         anas[cur_chn] = v;
@@ -320,7 +321,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 #endif
 
   else if (i <= MIXSRC_LAST_POT + NUM_MOUSE_ANALOGS) {
-    return calibratedAnalogs[i - MIXSRC_Rud];
+    return calibratedAnalogs[i - MIXSRC_FIRST_STICK];
   }
 
 #if defined(IMU)
@@ -342,9 +343,9 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     return 1024;
   }
 
-  else if (i <= MIXSRC_CYC3) {
+  else if (i <= MIXSRC_LAST_HELI) {
 #if defined(HELI)
-    return cyc_anas[i - MIXSRC_CYC1];
+    return cyc_anas[i - MIXSRC_FIRST_HELI];
 #else
     if (valid != nullptr) *valid = false;
     return 0;
@@ -393,12 +394,12 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     return x * 2;
   }
   else if (i <= MIXSRC_LAST_CH) {
-    return ex_chans[i - MIXSRC_CH1];
+    return ex_chans[i - MIXSRC_FIRST_CH];
   }
 
   else if (i <= MIXSRC_LAST_GVAR) {
 #if defined(GVARS)
-    return GVAR_VALUE(i - MIXSRC_GVAR1, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_GVAR1));
+    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_FIRST_GVAR));
 #else
     if (valid != nullptr) *valid = false;
     return 0;
@@ -444,6 +445,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 }
 
+// TODO: move to analogs.cpp
 void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
@@ -465,12 +467,13 @@ void evalInputs(uint8_t mode)
   }
 #endif
 
-  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  // TODO: use real number of sticks / inputs here
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
     // normalization [0..2048] -> [-1024..1024]
-    uint8_t ch = (i < NUM_STICKS ? CONVERT_MODE(i) : i);
+    uint8_t ch = (i < MAX_STICKS ? CONVERT_MODE(i) : i);
     int16_t v = anaIn(i);
 
-    if (IS_POT_MULTIPOS(i)) {
+    if (i >= MAX_STICKS && IS_POT_MULTIPOS(i - MAX_STICKS)) {
       v -= RESX;
     }
 #if !defined(SIMU)
@@ -514,7 +517,7 @@ void evalInputs(uint8_t mode)
       if (tmp==0 || (tmp==1 && (bpanaCenter & mask))) {
         anaCenter |= mask;
         if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) && s_mixer_first_run_done && !menuCalibrationState) {
-          if (!IS_POT(i) || IS_POT_SLIDER_AVAILABLE(i)) {
+          if (i < MAX_STICKS || IS_POT_SLIDER_AVAILABLE(i - MAX_STICKS)) {
             AUDIO_POT_MIDDLE(i);
           }
         }
@@ -550,19 +553,6 @@ void evalInputs(uint8_t mode)
     }
   }
 
-#if NUM_MOUSE_ANALOGS > 0
-  for (uint8_t i=0; i<NUM_MOUSE_ANALOGS; i++) {
-    uint8_t ch = NUM_STICKS+NUM_POTS+NUM_SLIDERS+i;
-    int16_t v = anaIn(MOUSE1+i);
-    CalibData * calib = &g_eeGeneral.calib[ch];
-    v -= calib->mid;
-    v = v * (int32_t) RESX / (max((int16_t) 100, (v > 0 ? calib->spanPos : calib->spanNeg)));
-    if (v < -RESX) v = -RESX;
-    if (v >  RESX) v =  RESX;
-    calibratedAnalogs[ch] = v;
-  }
-#endif
-
   /* EXPOs */
   applyExpos(anas, mode);
 
@@ -594,8 +584,8 @@ int getStickTrimValue(int stick, int stickValue)
 
 int getSourceTrimOrigin(int source)
 {
-  if (source >= MIXSRC_Rud && source <= MIXSRC_Ail)
-    return source - MIXSRC_Rud;
+  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
+    return source - MIXSRC_FIRST_STICK;
   else if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT)
     return virtualInputsTrims[source - MIXSRC_FIRST_INPUT];
   else
@@ -710,7 +700,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         break;
 #endif
 
-      mixsrc_t stickIndex = md->srcRaw - MIXSRC_Rud;
+      mixsrc_t stickIndex = md->srcRaw - MIXSRC_FIRST_STICK;
 
       if (!(dirtyChannels & ((bitfield_channels_t)1 << md->destCh)))
         continue;
@@ -748,10 +738,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
           continue;
       }
       else {
-        mixsrc_t srcRaw = MIXSRC_Rud + stickIndex;
+        mixsrc_t srcRaw = MIXSRC_FIRST_STICK + stickIndex;
         v = getValue(srcRaw);
-        srcRaw -= MIXSRC_CH1;
-        if (srcRaw <= MIXSRC_LAST_CH-MIXSRC_CH1 && md->destCh != srcRaw) {
+        srcRaw -= MIXSRC_FIRST_CH;
+        if (srcRaw <= MIXSRC_LAST_CH-MIXSRC_FIRST_CH && md->destCh != srcRaw) {
           if (dirtyChannels & ((bitfield_channels_t)1 << srcRaw) & (passDirtyChannels|~(((bitfield_channels_t) 1 << md->destCh)-1)))
             passDirtyChannels |= (bitfield_channels_t) 1 << md->destCh;
           if (srcRaw < md->destCh || pass > 0)

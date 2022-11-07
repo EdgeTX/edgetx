@@ -189,10 +189,10 @@ class OutputLineButton : public ListLineButton
       lv_obj_set_style_pad_top(source, -7, 0);
       lv_obj_set_style_pad_bottom(source, -7, 0);
 #endif
-      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_CH1 + index), index + 1);
+      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_FIRST_CH + index), index + 1);
     } else {
       lv_obj_set_style_text_font(source, getFont(FONT(STD)), 0);
-      lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
+      lv_label_set_text(source, getSourceString(MIXSRC_FIRST_CH + index));
     }
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);

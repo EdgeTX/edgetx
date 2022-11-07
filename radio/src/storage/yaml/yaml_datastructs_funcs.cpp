@@ -25,6 +25,7 @@
 
 #include "pulses/multi.h"
 #include "switches.h"
+#include "analogs.h"
 #include "stamp.h"
 
 //
@@ -514,12 +515,13 @@ static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
   return 5;
 }
 
+// TODO: replace indexes with canonical stick names
 static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
 
   uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
+  if (sw >= MIXSRC_FIRST_STICK) return sw - MIXSRC_FIRST_STICK;
 
   // detect invalid values
   if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
@@ -535,26 +537,7 @@ static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
   uint16_t idx = tw->getElmts();
 
   const char* str =
-      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
-  return str ? wf(opaque, str, strlen(str)) : true;
-}
-
-static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
-{
-  (void)user;
-  uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sw >= MIXSRC_FIRST_SWITCH) return sw - MIXSRC_FIRST_SWITCH;
-
-  return -1;
-}
-
-bool sw_write(void* user, yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts();
-
-  const char* str =
-      yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
+      yaml_output_enum(idx + MIXSRC_FIRST_STICK, enum_MixSources);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
@@ -563,11 +546,9 @@ static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
-  if (idx >= NUM_STICKS) return;
+  if (idx >= MAX_STICKS) return;
 
-  data -= offsetof(RadioData, switchConfig);
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+  analogSetCustomStickName(idx, val, val_len);
 }
 
 static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
@@ -576,12 +557,9 @@ static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  data -= offsetof(RadioData, switchConfig);
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
+  const char* name = analogGetCustomStickName(idx);
   if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, rd->anaNames[idx],
-          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
-    return false;
+  if (!wf(opaque, name, strlen(name))) return false;
   return wf(opaque, "\"", 1);
 }
 
@@ -589,15 +567,29 @@ static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return rd->anaNames[idx][0] != '\0';
+  return analogHasCustomStickName(idx);
 }
 
-static const struct YamlNode struct_sticksConfig[] = {
+static const struct YamlNode struct_stickConfig[] = {
     YAML_IDX,
     YAML_CUSTOM( "name", r_stick_name, w_stick_name),
     YAML_END
 };
+
+static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  return switchLookupIdx(val, val_len);
+}
+
+bool sw_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str = switchGetCanonicalName(idx);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
 
 static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
@@ -605,13 +597,8 @@ static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, switchConfig);
 
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  strncpy(rd->switchNames[idx], val,
-          std::min<uint8_t>(val_len, LEN_SWITCH_NAME));
+  switchSetCustomName(idx, val, val_len);
 }
 
 static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
@@ -620,12 +607,8 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, switchConfig);
 
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  const char* str = rd->switchNames[idx];
+  const char* str = switchGetCustomName(idx);
   if (!wf(opaque, "\"", 1)) return false;
   if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
     return false;
@@ -650,10 +633,7 @@ static const struct YamlNode struct_switchConfig[] = {
 static uint32_t pot_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
-  uint32_t pot = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (pot >= MIXSRC_FIRST_POT) return pot - MIXSRC_FIRST_POT;
-
-  return -1;
+  return analogLookupPotIdx(val, val_len);
 }
 
 static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
@@ -661,7 +641,7 @@ static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str = yaml_output_enum(idx + MIXSRC_FIRST_POT, enum_MixSources);
+  const char* str = analogGetCanonicalPotName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
@@ -670,14 +650,7 @@ static void pot_name_read(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, potsConfig);
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS;
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+  analogSetCustomPotName(idx, val, val_len);
 }
 
 static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
@@ -686,16 +659,9 @@ static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, potsConfig);
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS;
-  const char* str = rd->anaNames[idx];
+  const char* str = analogGetCanonicalPotName(idx);
   if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
-    return false;
+  if (!wf(opaque, str, strlen(str))) return false;
   return wf(opaque, "\"", 1);
 }
 
@@ -711,90 +677,6 @@ static const struct YamlNode struct_potConfig[] = {
     YAML_IDX_CUST( "pot", pot_read, pot_write ),
     YAML_ENUM( "type", 2, enum_PotConfig),
     YAML_CUSTOM( "name", pot_name_read, pot_name_write),
-    YAML_END
-};
-
-static uint32_t slider_read(void* user, const char* val, uint8_t val_len)
-{
-  (void)user;
-  uint32_t sl = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sl >= MIXSRC_FIRST_SLIDER) return sl - MIXSRC_FIRST_SLIDER;
-
-  return -1;
-}
-
-static bool slider_write(void* user, yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts();
-
-  const char* str =
-      yaml_output_enum(idx + MIXSRC_FIRST_SLIDER, enum_MixSources);
-  return str ? wf(opaque, str, strlen(str)) : true;
-}
-
-static void sl_name_read(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-#if defined(PCBTARANIS)
-  // Please note:
-  //   slidersConfig is defined as a bit-field member,
-  //   so let's take the next field and subtract 1
-  //
-  data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-  data -= offsetof(RadioData, potsConfig) - 1;
-#else
-  data -= (idx + 1) / 8;
-  data -= offsetof(RadioData, slidersConfig);
-#endif
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS + STORAGE_NUM_POTS;
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-
-static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
-                          yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-#if defined(PCBTARANIS)
-  // Please note:
-  //   slidersConfig is defined as a bit-field member,
-  //   so let's take the next field and subtract 1
-  //
-  data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-  data -= offsetof(RadioData, potsConfig) - 1;
-#else
-  data -= (idx + 1) / 8;
-  data -= offsetof(RadioData, slidersConfig);
-#endif
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS + STORAGE_NUM_POTS;
-  const char* str = rd->anaNames[idx];
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
-    return false;
-  return wf(opaque, "\"", 1);
-}
-
-static const struct YamlIdStr enum_SliderConfig[] = {
-    {  SLIDER_NONE, "none" },
-    {  SLIDER_WITH_DETENT, "with_detent" },
-    {  0, NULL }
-};
-
-static const struct YamlNode struct_sliderConfig[] = {
-    YAML_IDX_CUST( "sl", slider_read, slider_write ),
-    YAML_ENUM( "type", 1, enum_SliderConfig),
-    YAML_CUSTOM( "name", sl_name_read, sl_name_write),
     YAML_END
 };
 
@@ -816,7 +698,6 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
         ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
-#if NUM_XPOTS > 0
     else if (val_len > 3
         && val[0] == '6'
         && val[1] == 'P'
@@ -826,7 +707,6 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
             + SWSRC_FIRST_MULTIPOS_SWITCH;
     }
-#endif
     else if (val_len == 3
              && val[0] == 'F'
              && val[1] == 'M'
@@ -864,7 +744,6 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
         str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
         return wf(opaque,str, strlen(str));
     }
-#if NUM_XPOTS > 0
     else if (sval >= SWSRC_FIRST_MULTIPOS_SWITCH
              && sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
 
@@ -879,7 +758,6 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
         str = yaml_unsigned2str(sval % XPOTS_MULTIPOS_COUNT);
         return wf(opaque,str, strlen(str));
     }
-#endif
     else if (sval >= SWSRC_FIRST_FLIGHT_MODE
              && sval <= SWSRC_LAST_FLIGHT_MODE) {
 

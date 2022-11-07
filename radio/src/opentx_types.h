@@ -32,10 +32,16 @@ typedef int16_t safetych_t;
 typedef int16_t gvar_t;
 typedef uint32_t bitfield_channels_t;
 typedef uint16_t FlightModesType;
-#if defined(PCBFRSKY) || defined(PCBNV14)
 typedef uint16_t source_t;
-#else
-typedef uint8_t source_t;
-#endif
+
+// 2 bits per switch, max 32 switches
+typedef uint64_t swconfig_t;
+typedef uint64_t swarnstate_t;
+
+// pot config: 3 bits per pot
+typedef uint32_t potconfig_t;
+
+// pot warning enabled: 1 bit per pot
+typedef uint8_t potwarnen_t;
 
 #endif // _OPENTX_TYPES_H_

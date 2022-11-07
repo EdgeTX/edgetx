@@ -27,6 +27,7 @@
 #include "menutoolbar.h"
 #include "opentx.h"
 #include "strhelpers.h"
+#include "switches.h"
 
 class SwitchChoiceMenuToolbar : public MenuToolbar
 {

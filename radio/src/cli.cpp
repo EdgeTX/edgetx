@@ -1439,11 +1439,13 @@ int cliRepeat(const char ** argv)
 int cliShowJitter(const char ** argv)
 {
   cliSerialPrint(  "#   anaIn   rawJ   avgJ");
-  for (int i=0; i<NUM_ANALOGS; i++) {
-    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i), rawJitter[i].get(), avgJitter[i].get());
-    if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[i];
-      for (int j=0; j<calib->count; j++) {
+  for (int i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i),
+                   rawJitter[i].get(), avgJitter[i].get());
+
+    if (i >= MAX_STICKS && IS_POT_MULTIPOS(i - MAX_STICKS)) {
+      StepsCalibData *calib = (StepsCalibData *)&g_eeGeneral.calib[i];
+      for (int j = 0; j < calib->count; j++) {
         cliSerialPrint("    s%d %04X", j, calib->steps[j]);
       }
     }

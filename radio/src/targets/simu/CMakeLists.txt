@@ -23,9 +23,11 @@ set(SIMU_DRIVERS
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} simu_switches hw_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} simu_inputs hw_inputs.inc)
 
 set(SIMU_DRIVERS ${SIMU_DRIVERS}
   ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/hw_inputs.inc
   ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

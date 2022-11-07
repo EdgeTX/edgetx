@@ -30,8 +30,6 @@
 
 #include <stdlib.h>
 
-constexpr uint8_t n_switches = DIM(_switch_defs);
-
 void switchInit()
 {
   for (uint8_t i = 0; i < DIM(_switch_GPIOs); i++) {
@@ -43,7 +41,12 @@ uint8_t switchGetMaxSwitches()
 {
   return n_switches;
 }
-  
+
+uint8_t switchGetMaxFctSwitches()
+{
+  return n_fct_switches;
+}
+
 // returns state (0 / 1) of a specific switch position
 uint32_t switchState(uint8_t pos_idx)
 {
@@ -53,12 +56,18 @@ uint32_t switchState(uint8_t pos_idx)
 
 SwitchHwPos switchGetPosition(uint8_t idx)
 {
-  if (idx >= n_switches) return SWITCH_HW_UP;
+  if (idx >= n_total_switches) return SWITCH_HW_UP;
   return stm32_switch_get_position(&_switch_defs[idx]);
 }
 
 const char* switchGetName(uint8_t idx)
 {
-  if (idx >= n_switches) return "";
+  if (idx >= n_total_switches) return "";
   return _switch_defs[idx].name;
+}
+
+SwitchHwType switchGetHwType(uint8_t idx)
+{
+  if (idx >= n_total_switches) return SWITCH_HW_2POS;
+  return _switch_defs[idx].type;
 }

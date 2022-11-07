@@ -126,7 +126,7 @@ void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 
 void drawShortTrimMode(coord_t x, coord_t y, uint8_t mode, uint8_t idx, LcdFlags att);
 
-#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_CH1+idx-1, att)
+#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_FIRST_CH + idx - 1, att)
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);
 
 void putsVolts(coord_t x, coord_t y, uint16_t volts, LcdFlags att);

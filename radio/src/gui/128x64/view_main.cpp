@@ -20,15 +20,8 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
-#if defined(HARDWARE_NO_TRIMS)
-struct {
-  int8_t preStickIdx = -1;
-  int8_t curStickIdx = -1;
-  tmr10ms_t preEnterTime;
-  bool preEnterValid = false;
-} trimSelection;
-#endif
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)
@@ -84,9 +77,12 @@ void drawExternalAntennaAndRSSI()
 void drawPotsBars()
 {
   // Optimization by Mike Blandford
-  for (uint8_t x = LCD_W / 2 - (NUM_POTS + NUM_SLIDERS - 1) * 5 / 2, i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; x += 5, i++) {
+  uint8_t max_pots = adcGetMaxPots();
+  for (uint8_t x = LCD_W / 2 - (max_pots - 1) * 5 / 2, i = 0; i < max_pots; x += 5, i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
-      uint8_t len = ((calibratedAnalogs[i] + RESX) * BAR_HEIGHT / (RESX * 2)) + 1l;  // calculate once per loop
+      // calculate once per loop
+      auto v = calibratedAnalogs[MAX_STICKS + i] + RESX;
+      uint8_t len = (v * BAR_HEIGHT / (RESX * 2)) + 1l;
       V_BAR(x, LCD_H - 8, len);
     }
   }
@@ -103,39 +99,9 @@ void doMainScreenGraphics()
   if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
     calibStickVert = -calibStickVert;
   drawStick(RBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(3)], calibStickVert);
-#if defined(HARDWARE_POT1)
+
   drawPotsBars();
-#endif
 }
-
-#if defined(HARDWARE_NO_TRIMS)
-void doMainScreenGraphics(uint8_t views, uint32_t ptr)
-{
-  int16_t * calibStickValPtr = nullptr;
-  int16_t calibStickVert = 0;
-
-  if (ptr)
-    calibStickValPtr = (int16_t *)(ptr);
-  else
-    calibStickValPtr = calibratedAnalogs;
-  calibStickVert = calibStickValPtr[CONVERT_MODE(1)];
-
-  if (views & MAINSCREEN_GRAPHICS_STICKS) {
-    if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
-      calibStickVert = -calibStickVert;
-    drawStick(LBOX_CENTERX, calibStickValPtr[CONVERT_MODE(0)], calibStickVert);
-
-    calibStickVert = calibStickValPtr[CONVERT_MODE(2)];
-    if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
-      calibStickVert = -calibStickVert;
-    drawStick(RBOX_CENTERX, calibStickValPtr[CONVERT_MODE(3)], calibStickVert);
-  }
-
-  if (views & MAINSCREEN_GRAPHICS_POTS) {
-    drawPotsBars();
-  }
-}
-#endif
 
 void displayTrims(uint8_t phase)
 {

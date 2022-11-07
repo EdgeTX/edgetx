@@ -555,19 +555,20 @@ PACK(struct ModelHeader {
 #endif
 });
 
-#if defined(COLORLCD)
-typedef uint32_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#elif defined(PCBX9E)
-typedef uint64_t swconfig_t;
-typedef uint64_t swarnstate_t;
-#elif defined(PCBX9D) || defined(PCBX9DP)
-typedef uint32_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#else
-typedef uint16_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#endif
+// 2 bits per switch, max 32 switches
+static_assert(sizeof(swconfig_t) >= (MAX_SWITCHES * 2 + 7) / 8,
+              "MAX_SWITCHES must fit swconfig_t");
+
+static_assert(sizeof(swarnstate_t) >= (MAX_SWITCHES * 2 + 7) / 8,
+              "MAX_SWITCHES must fit swarnstate_t");
+
+// pot config: 3 bits per pot
+static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 3) + 1,
+              "MAX_POTS must fit potconfig_t");
+
+// pot warning enabled: 1 bit per pot
+static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
+              "MAX_POTS must fit potwarnen_t");
 
 #if defined(COLORLCD) && defined(BACKUP)
 #define CUSTOM_SCREENS_DATA
@@ -606,7 +607,7 @@ PACK(struct CustomScreenData {
   #define SCRIPT_DATA
 #endif
 
-#if defined(FUNCTION_SWITCHES) && NUM_FUNCTIONS_SWITCHES < 8
+#if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHS_FIELDS \
     uint16_t functionSwitchConfig;  \
     uint16_t functionSwitchGroup; \
@@ -682,8 +683,8 @@ PACK(struct ModelData {
   SCRIPT_DATA
 
   NOBACKUP(char inputNames[MAX_INPUTS][LEN_INPUT_NAME]);
-  NOBACKUP(uint16_t potsWarnEnabled);
-  NOBACKUP(int8_t potsWarnPosition[STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS]);
+  NOBACKUP(potwarnen_t potsWarnEnabled);
+  NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 
   NOBACKUP(TelemetrySensor telemetrySensors[MAX_TELEMETRY_SENSORS];)
 
@@ -762,12 +763,6 @@ PACK(struct TrainerData {
 
 #if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
-    CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
-    swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);       \
-    uint16_t potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */ \
-    uint8_t slidersConfig ARRAY(1,struct_sliderConfig,nullptr); /* 1 bit per slider */ \
-    NOBACKUP(char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME] SKIP); \
-    NOBACKUP(char anaNames[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP); \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
     NOBACKUP(uint8_t modelQuickSelect:1); \
     NOBACKUP(uint8_t blOffBright:7); \
@@ -781,14 +776,7 @@ PACK(struct TrainerData {
     #define BLUETOOTH_FIELDS
   #endif
   #define EXTRA_GENERAL_FIELDS \
-    uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
-    uint8_t  spare5:4 SKIP; \
-    uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
-    CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
-    swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr); \
-    char switchNames[STORAGE_NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME] SKIP; \
-    char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP; \
     BLUETOOTH_FIELDS
 #endif
 
@@ -815,7 +803,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t spare0:7 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
-  CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
+  CalibData calib[MAX_ANALOG_INPUTS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);
@@ -887,6 +875,10 @@ PACK(struct RadioData {
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
   NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
+
+  CUST_ARRAY(sticksConfig, struct_stickConfig, stick_name_valid);
+  potconfig_t potsConfig ARRAY(3,struct_potConfig,nullptr);
+  swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
 
   EXTRA_GENERAL_FIELDS
 

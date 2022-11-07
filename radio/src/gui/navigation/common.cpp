@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val)

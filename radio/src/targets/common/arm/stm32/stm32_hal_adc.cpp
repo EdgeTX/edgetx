@@ -23,6 +23,7 @@
 #include "stm32_gpio_driver.h"
 #include "opentx.h"
 
+#define ADCMAXVALUE 4095
 #define ADC_COMMON ((ADC_Common_TypeDef *) ADC_BASE)
 #define MAX_ADC_INPUTS 32
 #define OVERSAMPLING   4

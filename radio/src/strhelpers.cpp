@@ -24,7 +24,11 @@
 
 #if !defined(BOOT)
 #include "opentx.h"
+
 #include "hal/switch_driver.h"
+#include "hal/adc_driver.h"
+#include "switches.h"
+#include "analogs.h"
 
 const char s_charTab[] = "_-.,";
 
@@ -428,25 +432,9 @@ char *getFlightModeString(char *dest, int8_t idx)
 
 char* getSwitchName(char *dest, uint8_t idx)
 {
-  if (g_eeGeneral.switchNames[idx][0] != '\0') {
-    dest =
-        strAppend(dest, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME);
-  } 
-  else {
-#if defined(FUNCTION_SWITCHES) 
-    if (idx >= NUM_REGULAR_SWITCHES)  {
-      int fsIdx = idx - NUM_REGULAR_SWITCHES;
-      if(ZEXIST(g_model.switchNames[fsIdx])){
-        dest = strAppend(dest, g_model.switchNames[fsIdx], LEN_SWITCH_NAME);
-      }
-      else {
-        *dest++ = 'S';
-        *dest++ = 'W';
-        *dest++ = '1' + fsIdx;
-      }
-      return dest;
-    }  
-#endif
+  if (switchHasCustomName(idx)) {
+    dest = strAppend(dest, switchGetCustomName(idx), LEN_SWITCH_NAME);
+  } else {
     dest = strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
   }
 
@@ -544,6 +532,22 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
+const char* getStickName(uint8_t idx)
+{
+  if (analogHasCustomStickName(idx))
+    return analogGetCustomStickName(idx);
+
+  return adcGetStickName(idx);
+}
+
+const char* getPotName(uint8_t idx)
+{
+  if (analogHasCustomPotName(idx))
+    return analogGetCustomPotName(idx);
+
+  return adcGetPotName(idx);
+}
+
 // this should be declared in header, but it used so much foreign symbols that
 // we declare it in cpp-file and pre-instantiate it for the uses
 template <size_t L>
@@ -552,7 +556,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   size_t dest_len = L;
 
   if (idx == MIXSRC_NONE) {
-    return getStringAtIndex(dest, STR_VSRCRAW, 0);
+    strncpy(dest, STR_EMPTY, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_INPUT) {
     idx -= MIXSRC_FIRST_INPUT;
     static_assert(L > sizeof(STR_CHAR_INPUT) - 1, "dest string too small");
@@ -596,70 +600,76 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   }
 #endif
   else if (idx <= MIXSRC_LAST_POT) {
-    if (g_eeGeneral.anaNames[idx - MIXSRC_Rud][0]) {
-      char* pos = dest;
-      if (idx <= MIXSRC_LAST_STICK) {
-        pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
-        dest_len -= sizeof(STR_CHAR_STICK) - 1;
-#if NUM_SLIDERS > 0
-      } else if (idx < MIXSRC_FIRST_SLIDER) {
-        pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
-        dest_len -= sizeof(STR_CHAR_POT) - 1;
-      } else {
+    char* pos = dest;
+    idx -= MIXSRC_FIRST_STICK;
+
+    const char* name;
+    if (idx < MAX_STICKS) {
+      pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
+      dest_len -= sizeof(STR_CHAR_STICK) - 1;
+      name = getStickName(idx);
+    } else {
+      idx -= MAX_STICKS;
+      if (IS_SLIDER(idx)) {
         pos = strAppend(pos, STR_CHAR_SLIDER, sizeof(STR_CHAR_SLIDER) - 1);
         dest_len -= sizeof(STR_CHAR_SLIDER) - 1;
-#else
       } else {
         pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
         dest_len -= sizeof(STR_CHAR_POT) - 1;
-#endif
       }
-      idx -= MIXSRC_Rud;
-      size_t ana_len = std::min(sizeof(g_eeGeneral.anaNames[idx]), dest_len - 1);
-      strncpy(pos, g_eeGeneral.anaNames[idx], ana_len);
-      pos[ana_len] = '\0';
-    } else {
-      idx -= MIXSRC_Rud;
-      getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
+      name = getPotName(idx);
     }
+    strncpy(pos, name, dest_len - 1);
+    pos[dest_len - 1] = '\0';
   } else if (idx <= MIXSRC_LAST_TRIM) {
-    idx -= MIXSRC_Rud;
-    getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
+    // TODO: trim strings
+    // idx -= MIXSRC_Rud;
+    // getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
-    if (g_eeGeneral.switchNames[idx][0] != '\0') {
-      copyToTerminated(dest, g_eeGeneral.switchNames[idx]);
-    } else {
-      getStringAtIndex(dest, STR_VSRCRAW,
-                       idx + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1);
-    }
+    char* pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
+    getSwitchName(pos, idx);
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    getSwitchPositionName(dest, SWSRC_SW1 + idx - MIXSRC_SW1);
+    // TODO: unnecessary, use the direct way instead
+    getSwitchPositionName(dest, SWSRC_SW1 + idx - MIXSRC_FIRST_LOGICAL_SWITCH);
   } else if (idx <= MIXSRC_LAST_TRAINER) {
     strAppendStringWithIndex(dest, STR_PPM_TRAINER,
                              idx - MIXSRC_FIRST_TRAINER + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
-    auto ch = idx - MIXSRC_CH1;
+    auto ch = idx - MIXSRC_FIRST_CH;
     if (g_model.limitData[ch].name[0] != '\0') {
       copyToTerminated(dest, g_model.limitData[ch].name);
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
   } else if (idx <= MIXSRC_LAST_GVAR) {
-    strAppendStringWithIndex(dest, STR_GV, idx - MIXSRC_GVAR1 + 1);
+    strAppendStringWithIndex(dest, STR_GV, idx - MIXSRC_FIRST_GVAR + 1);
   } else if (idx < MIXSRC_FIRST_TIMER) {
-    getStringAtIndex(dest, STR_VSRCRAW,
-                     idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
-                         MAX_TRAINER_CHANNELS - MAX_OUTPUT_CHANNELS -
-                         MAX_GVARS);
+    idx -= MIXSRC_TX_VOLTAGE;
+
+    // Built-in sources: TX Voltage, Time, GPS (+ reserved)
+    const char* src_str;
+    switch(idx) {
+    case MIXSRC_TX_VOLTAGE:
+      src_str = STR_SRC_BATT;
+      break;
+    case MIXSRC_TX_TIME:
+      src_str = STR_SRC_TIME;
+      break;
+    case MIXSRC_TX_GPS:
+      src_str = STR_SRC_BATT;
+      break;
+    default:
+      src_str = "";
+      break;
+    }    
+    strncpy(dest, src_str, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_TIMER) {
-    if (g_model.timers[idx - MIXSRC_FIRST_TIMER].name[0] != '\0') {
-      copyToTerminated(dest, g_model.timers[idx - MIXSRC_FIRST_TIMER].name);
+    idx -= MIXSRC_FIRST_TIMER;
+    if (g_model.timers[idx].name[0] != '\0') {
+      copyToTerminated(dest, g_model.timers[idx].name);
     } else {
-      getStringAtIndex(dest, STR_VSRCRAW,
-                       idx - MIXSRC_Rud + 1 - MAX_LOGICAL_SWITCHES -
-                           MAX_TRAINER_CHANNELS - MAX_OUTPUT_CHANNELS -
-                           MAX_GVARS);
+      strAppendStringWithIndex(dest, STR_SRC_TIMER, idx);
     }
   } else {
     idx -= MIXSRC_FIRST_TELEM;

@@ -33,6 +33,7 @@
 
 #include "sdcard.h"
 #include "api_filesystem.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "api_colorlcd.h"

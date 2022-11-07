@@ -19,33 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/adc_driver.h"
-#include "definitions.h"
+#pragma once
 
-#include "hw_inputs.inc"
+#include <stddef.h>
+#include <stdint.h>
 
-void enableVBatBridge(){}
-void disableVBatBridge(){}
-bool isVBatBridgeEnabled(){ return false; }
+void analogSetCustomStickName(uint8_t idx, const char* str, size_t len);
+const char* analogGetCustomStickName(uint8_t idx);
+bool analogHasCustomStickName(uint8_t idx);
 
-const char* adcGetStickName(uint8_t idx)
-{
-  if (idx >= DIM(_stick_inputs)) return "";
-  return _stick_inputs[idx];
-}
+void analogSetCustomPotName(uint8_t idx, const char* str, size_t len);
+const char* analogGetCustomPotName(uint8_t idx);
+bool analogHasCustomPotName(uint8_t idx);
 
-const char* adcGetPotName(uint8_t idx)
-{
-  if (idx >= DIM(_pot_inputs)) return "";
-  return _pot_inputs[idx];
-}
-
-uint8_t adcGetMaxSticks()
-{
-  return DIM(_stick_inputs);
-}
-
-uint8_t adcGetMaxPots()
-{
-  return DIM(_pot_inputs);
-}
+int analogLookupPotIdx(const char* name, size_t len);
+const char* analogGetCanonicalPotName(uint8_t idx);

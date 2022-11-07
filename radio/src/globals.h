@@ -91,7 +91,7 @@ extern BeepANACenter bpanaCenter;
 
 extern uint8_t s_mixer_first_run_done;
 
-extern int16_t calibratedAnalogs[NUM_CALIBRATED_ANALOGS];
+extern int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 
 extern uint8_t g_beepCnt;
 extern uint8_t beepAgain;

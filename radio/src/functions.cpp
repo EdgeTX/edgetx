@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);

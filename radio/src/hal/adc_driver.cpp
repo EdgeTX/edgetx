@@ -25,6 +25,7 @@
 // IS_POT_SLIDER_AVAILABLE()
 #include "opentx.h"
 
+
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 
 uint16_t adcValues[NUM_ANALOGS] __DMA;
@@ -74,6 +75,134 @@ bool adcRead()
   return true;
 }
 
+#define XPOT_DELTA 10
+#define XPOT_DELAY 10 /* cycles */
+
+void adcCalibMinMax()
+{
+  // get low and high vals for sticks and pots
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+
+    int16_t vt = anaIn(i);
+    auto& calib = reusableBuffer.calib.inputs[i];
+    calib.input.loVal = min(vt, calib.input.loVal);
+    calib.input.hiVal = max(vt, calib.input.hiVal);
+
+    if (i >= MAX_STICKS) {
+      uint8_t idx = i - MAX_STICKS;
+      if (IS_POT_WITHOUT_DETENT(idx)) {
+        calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
+      } else if (IS_POT_MULTIPOS(idx)) {
+        auto& xpot = calib.xpot;
+        int count = xpot.stepsCount;
+        if (count <= XPOTS_MULTIPOS_COUNT) {
+          // use raw analog value for multipos calibraton,
+          // anaIn() already has multipos decoded value
+          vt = getAnalogValue(i) >> 1;
+          if (xpot.lastCount == 0 || vt < xpot.lastPosition - XPOT_DELTA ||
+              vt > xpot.lastPosition + XPOT_DELTA) {
+            xpot.lastPosition = vt;
+            xpot.lastCount = 1;
+          } else {
+            if (xpot.lastCount < 255) xpot.lastCount++;
+          }
+          if (xpot.lastCount == XPOT_DELAY) {
+            int16_t position = xpot.lastPosition;
+            bool found = false;
+            for (int j = 0; j < count; j++) {
+              int16_t step = xpot.steps[j];
+              if (position >= step - XPOT_DELTA &&
+                  position <= step + XPOT_DELTA) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              if (count < XPOTS_MULTIPOS_COUNT) {
+                xpot.steps[count] = position;
+              }
+              xpot.stepsCount += 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void adcCalibSetMidPoint()
+{
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    auto& calib = reusableBuffer.calib.inputs[i];
+    if (i < MAX_STICKS || !IS_POT_MULTIPOS(i - MAX_STICKS)) {
+      calib.input.loVal = 15000;
+      calib.input.hiVal = -15000;
+      calib.input.midVal = getAnalogValue(i) >> 1;
+    } else {
+      calib.xpot.stepsCount = 0;
+      calib.xpot.lastCount = 0;
+    }
+  }
+}
+
+void adcCalibSetMinMax()
+{
+  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    auto& calib = reusableBuffer.calib.inputs[i];        
+    if (abs(calib.input.loVal - calib.input.hiVal) > 50) {
+      g_eeGeneral.calib[i].mid = calib.input.midVal;
+      int16_t v = calib.input.midVal - calib.input.loVal;
+      g_eeGeneral.calib[i].spanNeg = v - v / STICK_TOLERANCE;
+      v = calib.input.hiVal - calib.input.midVal;
+      g_eeGeneral.calib[i].spanPos = v - v / STICK_TOLERANCE;
+    }
+  }
+}
+
+void adcCalibSetXPot()
+{
+  for (uint8_t i = MAX_STICKS; i < MAX_ANALOG_INPUTS; i++) {
+    int idx = i - MAX_STICKS;
+    if (!IS_POT_MULTIPOS(idx)) continue;
+
+    auto& xpot = reusableBuffer.calib.inputs[i].xpot;
+    int count = xpot.stepsCount;
+    if (count > 1 && count <= XPOTS_MULTIPOS_COUNT) {
+      for (int j = 0; j < count; j++) {
+        for (int k = j + 1; k < count; k++) {
+          if (xpot.steps[k] < xpot.steps[j]) {
+            SWAP(xpot.steps[j], xpot.steps[k]);
+          }
+        }
+      }
+      StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i];
+      calib->count = count - 1;
+      for (int j = 0; j < calib->count; j++) {
+        calib->steps[j] = (xpot.steps[j + 1] + xpot.steps[j]) >> 5;
+      }
+    } else {
+      // TODO: a way to provide to 6POS default calibration values
+      //
+      // // load 6pos calib with factory data if 6 pos was not manually calibrated
+      // constexpr int16_t factoryValues[]= {0x5,0xd,0x16,0x1f,0x28};
+      // StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT3];
+      // calib->count = 5;
+      // for (int j=0; j<calib->count ; j++) {
+      //   calib->steps[j] = factoryValues[j];
+      // }
+
+      // not enough config points -> disable
+      g_eeGeneral.potsConfig &= POT_CONFIG_DISABLE_MASK(idx);
+    }
+  }
+}
+
+void adcCalibStore()
+{
+  g_eeGeneral.chkSum = evalChkSum();
+  storageDirty(EE_GENERAL);
+}
+
 #if !defined(SIMU)
 uint16_t getRTCBatteryVoltage()
 {
@@ -83,11 +212,14 @@ uint16_t getRTCBatteryVoltage()
 
 uint16_t getAnalogValue(uint8_t index)
 {
-  if (IS_POT(index) && !IS_POT_SLIDER_AVAILABLE(index)) {
-    // Use fixed analog value for non-existing and/or non-connected pots.
-    // Non-connected analog inputs will slightly follow the adjacent connected
-    // analog inputs, which produces ghost readings on these inputs.
-    return 0;
+  if (index >= MAX_STICKS) {
+    index -= MAX_STICKS;
+    if (!IS_POT_SLIDER_AVAILABLE(index)) {
+      // Use fixed analog value for non-existing and/or non-connected pots.
+      // Non-connected analog inputs will slightly follow the adjacent connected
+      // analog inputs, which produces ghost readings on these inputs.
+      return 0;
+    }
   }
 
   return adcValues[index];

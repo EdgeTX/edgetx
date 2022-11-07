@@ -23,6 +23,10 @@
 #include "button_matrix.h"
 #include "opentx.h"
 
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "strhelpers.h"
+
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -160,8 +164,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 static std::string switchWarninglabel(swsrc_t index)
 {
   auto warn_pos = g_model.switchWarningState >> (3 * index) & 0x07;
-  return TEXT_AT_INDEX(STR_VSRCRAW,
-                       (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
+  return std::string(switchGetName(index)) +
          std::string(getSwitchWarnSymbol(warn_pos));
 }
 
@@ -241,16 +244,9 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = POT_FIRST; i <= POT_LAST; i++) {
-    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      pot_idx[btn_cnt] = i - POT_FIRST;
-      btn_cnt++;
-    }
-  }
-
-  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
-    if (IS_SLIDER(i)) {
-      pot_idx[btn_cnt] = i - POT_FIRST;
+  for (uint8_t i = 0; i <= MAX_POTS; i++) {
+    if (IS_POT_AVAILABLE(i)) {
+      pot_idx[btn_cnt] = i;
       btn_cnt++;
     }
   }
@@ -259,15 +255,8 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   update();
 
   uint8_t btn_id = 0;
-  for (uint16_t i = POT_FIRST; i <= POT_LAST; i++) {
-    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
-      setTextWithColor(btn_id);
-      btn_id++;
-    }
-  }
-  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
-    if (IS_SLIDER(i)) {
+  for (uint16_t i = 0; i <= MAX_POTS; i++) {
+    if (IS_POT_AVAILABLE(i)) {
       lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
       setTextWithColor(btn_id);
       btn_id++;
@@ -293,7 +282,9 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 
 void PotWarnMatrix::setTextWithColor(uint8_t btn_id)
 {
-  setText(btn_id, makeRecolor(STR_VSRCRAW[pot_idx[btn_id] + POT_FIRST + 1], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+  auto idx = pot_idx[btn_id];
+  auto color = isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1;
+  setText(btn_id, makeRecolor(getPotName(idx), color).c_str());
 }
 
 void PotWarnMatrix::onPress(uint8_t btn_id)

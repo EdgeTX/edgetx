@@ -243,9 +243,12 @@ const char * const audioFilenames[] = {
   "timovr3"
 };
 
+constexpr unsigned int MAX_SWITCH_POSITIONS =
+    MAX_SWITCHES * 3 + MAX_POTS * XPOTS_MULTIPOS_COUNT;
+
 BitField<(AU_SPECIAL_SOUND_FIRST)> sdAvailableSystemAudioFiles;
 BitField<(MAX_FLIGHT_MODES * 2/*on, off*/)> sdAvailableFlightmodeAudioFiles;
-BitField<(SWSRC_LAST_SWITCH+NUM_XPOTS*XPOTS_MULTIPOS_COUNT)> sdAvailableSwitchAudioFiles;
+BitField<MAX_SWITCH_POSITIONS> sdAvailableSwitchAudioFiles;
 BitField<(MAX_LOGICAL_SWITCHES * 2/*on, off*/)> sdAvailableLogicalSwitchAudioFiles;
 
 char * getAudioPath(char * path)
@@ -332,22 +335,21 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
 {
   char * str = getModelAudioPath(filename);
 
-  if (index <= SWSRC_LAST_SWITCH) {
+  if (index <= MAX_SWITCHES * 3) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
     *str++ = switchGetLetter(swinfo.quot);
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
-#if NUM_XPOTS > 0
   else {
-    div_t swinfo = div(int(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
+    index -= MAX_SWITCHES * 3;
+    div_t swinfo = div((int)index, XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
     *str++ = '1' + swinfo.quot;
     *str++ = '1' + swinfo.rem;
     *str = '\0';
   }
-#endif
   strcat(str, SOUNDS_EXT);
 }
 
@@ -409,11 +411,11 @@ void referenceModelAudioFiles()
       }
 
       // Switches Audio Files <switchname>-[up|mid|down].wav
-      for (int i=SWSRC_FIRST_SWITCH; i<=SWSRC_LAST_SWITCH+NUM_XPOTS*XPOTS_MULTIPOS_COUNT && !found; i++) {
+      for (int i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
         getSwitchAudioFile(path, i);
         // TRACE("referenceModelAudioFiles(): searching for %s in %s (%d)", path, fno.fname, i);
         if (!strcasecmp(filename, fno.fname)) {
-          sdAvailableSwitchAudioFiles.setBit(i-SWSRC_FIRST_SWITCH);
+          sdAvailableSwitchAudioFiles.setBit(i);
           found = true;
           TRACE("\tfound: %s", filename);
         }

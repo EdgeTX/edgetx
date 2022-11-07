@@ -286,6 +286,11 @@
 #define TR_RESERVE_VSRCRAW             "[--]"
 #define TR_EXTRA_VSRCRAW               "Batt","H:M","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Chr1","Chr2","Chr3"
 
+#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_TIME                    "H_M"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Chr"
+
 #define TR_VTMRMODES                   "OFF","ON","GZs","GZ%","GZt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
 #define TR_VTRAINER_MASTER_JACK        "Maître/Jack"

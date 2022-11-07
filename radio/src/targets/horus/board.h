@@ -365,18 +365,19 @@ enum Analogs {
 #define SLIDER1 SLIDER_FRONT_LEFT
 #define SLIDER2 SLIDER_FRONT_RIGHT
 
-#define DEFAULT_SWITCH_CONFIG  (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_2POS << 10) + (SWITCH_3POS << 8) + (SWITCH_3POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0)
-#if defined(RADIO_FAMILY_T16)
-  #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_MULTIPOS_SWITCH << 2) + (POT_WITH_DETENT << 0)
-#else
-  #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_MULTIPOS_SWITCH << 2) + (POT_WITHOUT_DETENT << 0)
-#endif
+// #define DEFAULT_SWITCH_CONFIG  (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_2POS << 10) + (SWITCH_3POS << 8) + (SWITCH_3POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0)
+// #if defined(RADIO_FAMILY_T16)
+//   #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_MULTIPOS_SWITCH << 2) + (POT_WITH_DETENT << 0)
+// #else
+//   #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_MULTIPOS_SWITCH << 2) + (POT_WITHOUT_DETENT << 0)
+// #endif
 
-#if defined(PCBX12S)
-#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 3) + (SLIDER_WITH_DETENT << 2) + (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
-#else
-#define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
-#endif
+// TODO: integrate into JSON hw defs
+// #if defined(PCBX12S)
+// #define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 3) + (SLIDER_WITH_DETENT << 2) + (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
+// #else
+// #define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
+// #endif
 
 #define HARDWARE_POT3
 #if !defined(PCBX12S) // ext are used by mouse on X12S
@@ -414,8 +415,6 @@ enum CalibratedAnalogs {
   NUM_CALIBRATED_ANALOGS
 };
 
-#define IS_POT(x)                      ((x)>=POT_FIRST && (x)<=POT_LAST)
-#define IS_SLIDER(x)                   ((x)>=SLIDER_FIRST && (x)<=SLIDER_LAST)
 extern uint16_t adcValues[NUM_ANALOGS];
 
 #if defined(PCBX12S)

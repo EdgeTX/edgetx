@@ -408,44 +408,6 @@ enum Analogs {
 
 #define HAS_TX_RTC_VOLTAGE
 
-#if defined(PCBX9LITE)
-  #define NUM_POTS                      1
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              1
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO)
-  #define NUM_POTS                      0
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              2
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_BOXER)
-  #define NUM_POTS                      3 // S1 + S2 + 6POS
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              3
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(PCBXLITE) || defined(PCBX7)
-  #define NUM_POTS                      2
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              2
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(PCBX9E)
-  #define NUM_POTS                      4
-  #define NUM_SLIDERS                   4
-  #define STORAGE_NUM_POTS              4
-  #define STORAGE_NUM_SLIDERS           4
-#elif defined(PCBX9DP)
-  #define NUM_POTS                      3
-  #define NUM_SLIDERS                   2
-  #define STORAGE_NUM_POTS              3
-  #define STORAGE_NUM_SLIDERS           2
-#else
-  #define NUM_POTS                      3 // TODO X9D has only 2 pots
-  #define NUM_SLIDERS                   2
-  #define STORAGE_NUM_POTS              3
-  #define STORAGE_NUM_SLIDERS           2
-#endif
-
-#define NUM_XPOTS                       STORAGE_NUM_POTS
 #define NUM_TRIMS                       4
 #define NUM_MOUSE_ANALOGS               0
 #define STORAGE_NUM_MOUSE_ANALOGS       0
@@ -489,26 +451,6 @@ extern HardwareOptions hardwareOptions;
   #define IS_PXX2_INTERNAL_ENABLED()            (true)
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
-
-enum CalibratedAnalogs {
-  CALIBRATED_STICK1,
-  CALIBRATED_STICK2,
-  CALIBRATED_STICK3,
-  CALIBRATED_STICK4,
-  CALIBRATED_POT_FIRST,
-  CALIBRATED_POT_LAST = CALIBRATED_POT_FIRST + NUM_POTS - 1,
-  CALIBRATED_SLIDER_FIRST,
-  CALIBRATED_SLIDER_LAST = CALIBRATED_SLIDER_FIRST + NUM_SLIDERS - 1,
-  NUM_CALIBRATED_ANALOGS
-};
-
-#if defined(PCBX9D)
-  #define IS_POT(x)                     ((x)>=POT_FIRST && (x)<=POT2) // POT3 is only defined in software
-#else
-  #define IS_POT(x)                     ((x)>=POT_FIRST && (x)<=POT_LAST)
-#endif
-
-#define IS_SLIDER(x)                    ((x)>POT_LAST && (x)<TX_VOLTAGE)
 
 extern uint16_t adcValues[NUM_ANALOGS];
 

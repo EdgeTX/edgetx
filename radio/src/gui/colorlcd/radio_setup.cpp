@@ -760,10 +760,10 @@ void RadioSetupPage::build(FormWindow * window)
                       });
   choice->setTextHandler([](uint8_t value) {
     return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
-           std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) +
+           std::string(&getSourceString(MIXSRC_FIRST_STICK + modn12x3[4 * value])[1]) +
            "+" +
            std::string(
-               &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
+               &getSourceString(MIXSRC_FIRST_STICK + modn12x3[4 * value + 1])[1]);
   });
   grid.setColSpan(1);
 

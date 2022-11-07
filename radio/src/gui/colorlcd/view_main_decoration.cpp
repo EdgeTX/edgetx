@@ -130,6 +130,7 @@ rect_t ViewMainDecoration::getMainZone() const
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
+  // TODO: make dynamic
   Window* sl = new MainViewHorizontalSlider(bl, CALIBRATED_POT1);
   sl->updateSize();
   sliders[SLIDERS_POT1] = sl;
@@ -143,7 +144,7 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     sl->updateSize();
     sliders[SLIDERS_POT2] = sl;
   }
-  else if (IS_POT(POT2)) {
+  else if (IS_POT_AVAILABLE(POT2)) {
     sl = new MainViewHorizontalSlider(bc, CALIBRATED_POT2);
     sl->updateSize();
     sliders[SLIDERS_POT2] = sl;

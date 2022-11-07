@@ -3,8 +3,11 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
+{% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
+{% set function_switches = switches | selectattr('type','==','FSWITCH') | list %}
+
 static const stm32_switch_t _switch_defs[] = {
-{% for switch in switches %}
+{% for switch in regular_switches %}
   {% if switch.type == '2POS' %}
   {
     "{{ switch.name }}",
@@ -28,6 +31,14 @@ static const stm32_switch_t _switch_defs[] = {
   },
   {% endif %}
 {% endfor %}
+{% for switch in function_switches %}
+  {
+    "{{ switch.name }}",
+    {{ switch.gpio }}, {{ switch.pin }},
+    nullptr, 0,
+    SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
+  },
+{% endfor %}
 };
 
 static GPIO_TypeDef* const _switch_GPIOs[] = {
@@ -35,3 +46,7 @@ static GPIO_TypeDef* const _switch_GPIOs[] = {
   {{ sw_gpio }},
 {% endfor %}
 };
+
+constexpr uint8_t n_switches = {{ regular_switches | count }};
+constexpr uint8_t n_fct_switches = {{ function_switches | count }};
+constexpr uint8_t n_total_switches = {{ switches | count }};

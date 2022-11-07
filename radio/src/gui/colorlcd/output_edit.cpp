@@ -64,7 +64,7 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
 {
   std::string title(STR_MENULIMITS);
   title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
+  title += getSourceString(MIXSRC_FIRST_CH + channel);
 
   auto form = new FormWindow(&body, rect_t{});
   auto form_obj = form->getLvObj();

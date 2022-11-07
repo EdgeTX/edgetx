@@ -40,8 +40,20 @@ enum SwitchHwPos {
 // init hardware for switches
 void switchInit();
 
-// returns the maximum number of switches supported in hardware
+// returns the maximum number of regular switches supported in hardware
 uint8_t switchGetMaxSwitches();
+
+// returns the maximu number of function switches supported in hardware
+uint8_t switchGetMaxFctSwitches();
+
+// The functions bellow support regular as well as function switches.
+//
+// Regular switches are indexed from `0` to `switchGetMaxSwitches() - 1`
+// Function switches are indexed above the previous range.
+//
+// The total number of switches (and max index + 1) is:
+//   switchGetMaxSwitches() + switchGetMaxFctSwitches()
+//
 
 // returns state (0 / 1) of a specific switch position
 uint32_t switchState(uint8_t pos_idx);
@@ -50,4 +62,5 @@ uint32_t switchState(uint8_t pos_idx);
 SwitchHwPos switchGetPosition(uint8_t idx);
 
 const char* switchGetName(uint8_t idx);
+SwitchHwType switchGetHwType(uint8_t idx);
 

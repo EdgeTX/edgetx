@@ -81,7 +81,7 @@ void drawHexNumber(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t val, LcdFla
 void drawTextLines(BitmapBuffer * dc, coord_t left, coord_t top, coord_t width, coord_t height, const char * str, LcdFlags flags);
 inline void drawChn(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFlags flags)
 {
-  drawSource(dc, x, y, MIXSRC_CH1 + idx - 1, flags);
+  drawSource(dc, x, y, MIXSRC_FIRST_CH + idx - 1, flags);
 }
 
 // Screen templates

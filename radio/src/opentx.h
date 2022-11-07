@@ -240,52 +240,38 @@ enum RotaryEncoderMode {
 
 #include "debug.h"
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-  #define SWSRC_THR                    SWSRC_SB2
-  #define SWSRC_GEA                    SWSRC_SG2
-  #define SWSRC_ID0                    SWSRC_SA0
-  #define SWSRC_ID1                    SWSRC_SA1
-  #define SWSRC_ID2                    SWSRC_SA2
-  #define IS_MOMENTARY(sw)             false // TODO
-#else
-  #define SW_DSM2_BIND     SW_TRN
-#endif
 
 #include "myeeprom.h"
 #include "curves.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBHORUS)
-  #define POT_CONFIG(x)                ((g_eeGeneral.potsConfig >> (2*((x)-POT1)))&0x03)
-  #define IS_POT_MULTIPOS(x)           (IS_POT(x) && POT_CONFIG(x)==POT_MULTIPOS_SWITCH)
-  #define IS_POT_WITHOUT_DETENT(x)     (IS_POT(x) && POT_CONFIG(x)==POT_WITHOUT_DETENT)
-  #define IS_SLIDER_AVAILABLE(x)       ((x) == SLIDER1 || (x) == SLIDER2 || (IS_SLIDER(x) && (g_eeGeneral.slidersConfig & (0x01 << ((x)-SLIDER1)))))
-  #define IS_POT_AVAILABLE(x)          (IS_POT(x) && POT_CONFIG(x)!=POT_NONE)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (IS_POT_AVAILABLE(x) || IS_SLIDER_AVAILABLE(x))
-  #define IS_MULTIPOS_CALIBRATED(cal)  (cal->count>0 && cal->count<XPOTS_MULTIPOS_COUNT)
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
-  #define POT_CONFIG(x)                ((g_eeGeneral.potsConfig >> (2*((x)-POT1)))&0x03)
-  #define IS_POT_MULTIPOS(x)           (IS_POT(x) && POT_CONFIG(x)==POT_MULTIPOS_SWITCH)
-  #define IS_POT_WITHOUT_DETENT(x)     (IS_POT(x) && POT_CONFIG(x)==POT_WITHOUT_DETENT)
-  #define IS_POT_AVAILABLE(x)          (IS_POT(x) && POT_CONFIG(x)!=POT_NONE)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (IS_POT_AVAILABLE(x))
-  #define IS_MULTIPOS_CALIBRATED(cal)  (cal->count>0 && cal->count<XPOTS_MULTIPOS_COUNT)
-#else
-  #define IS_POT_MULTIPOS(x)           (false)
-  #define IS_POT_WITHOUT_DETENT(x)     (true)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (true)
-  #define IS_MULTIPOS_CALIBRATED(cal)  (false)
-#endif
+// TODO: move these config check macros somewhere else
+#define POT_CFG_BITS                   3 // 3 bits per pot
+#define POT_CFG_MASK                   ((1 << POT_CFG_BITS) - 1)
+#define POT_CONFIG_POS(x)              (POT_CFG_BITS * (x))
+#define POT_CONFIG_MASK(x)             (POT_CFG_MASK << POT_CONFIG_POS(x))
+#define POT_CONFIG_DISABLE_MASK(x)     (~POT_CONFIG_MASK(x))
+#define POT_CONFIG(x) \
+  ((g_eeGeneral.potsConfig >> POT_CONFIG_POS(x)) & POT_CFG_MASK)
 
-#if NUM_XPOTS > 0
-  #define IS_SWITCH_MULTIPOS(x)         (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
-#else
-  #define IS_SWITCH_MULTIPOS(x)         (false)
-#endif
+#define IS_POT_MULTIPOS(x)             (POT_CONFIG(x) == POT_MULTIPOS_SWITCH)
+#define IS_POT_WITHOUT_DETENT(x)       (POT_CONFIG(x) == POT_WITHOUT_DETENT)
+#define IS_SLIDER(x)                   (POT_CONFIG(x) == POT_SLIDER_WITH_DETENT)
+#define IS_POT_AVAILABLE(x)            (POT_CONFIG(x) != POT_NONE)
+#define IS_POT_SLIDER_AVAILABLE(x)     (IS_POT_AVAILABLE(x))
+#define IS_MULTIPOS_CALIBRATED(cal)    (cal->count > 0 && cal->count < XPOTS_MULTIPOS_COUNT)
 
-#define GET_LOWRES_POT_POSITION(i)     (getValue(MIXSRC_FIRST_POT+(i)) >> 4)
-#define SAVE_POT_POSITION(i)           g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
+#define IS_SWITCH_MULTIPOS(x) \
+  (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
+
+#define GET_LOWRES_POT_POSITION(i) (getValue(MIXSRC_FIRST_POT + (i)) >> 4)
+
+#define SAVE_POT_POSITION(i) \
+  g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
+
+#define ANALOG_CENTER_BEEP(x) \
+  (g_model.beepANACenter & ((BeepANACenter)1 << (x)))
 
 #define PPM_CENTER                     1500
 
@@ -402,10 +388,9 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-div_t switchInfo(int switchPosition);
-extern uint8_t potsPos[NUM_XPOTS];
-#endif
+// #if defined(PCBFRSKY) || defined(PCBNV14)
+// extern uint8_t potsPos[NUM_XPOTS];
+// #endif
 
 bool trimDown(uint8_t idx);
 
@@ -490,24 +475,6 @@ void perMain();
 void per10ms();
 
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
-
-#define GETSWITCH_MIDPOS_DELAY   1
-bool getSwitch(swsrc_t swtch, uint8_t flags=0);
-
-void logicalSwitchesTimerTick();
-void logicalSwitchesReset();
-
-void evalLogicalSwitches(bool isCurrentFlightmode=true);
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
-
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-  void getSwitchesPosition(bool startup);
-#else
-  #define getSwitchesPosition(...)
-#endif
-
-extern swarnstate_t switches_states;
-swsrc_t getMovedSwitch();
 
 int8_t getMovedSource(uint8_t min);
 #define GET_MOVED_SOURCE(min, max) getMovedSource(min)
@@ -952,18 +919,20 @@ union ReusableBuffer
   } moduleSetup;
 
   struct {
-    int16_t midVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
-    int16_t loVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
-    int16_t hiVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
     uint8_t state;
-#if defined(PCBFRSKY)
-    struct {
-      uint8_t stepsCount;
-      int16_t steps[XPOTS_MULTIPOS_COUNT];
-      uint8_t lastCount;
-      int16_t lastPosition;
-    } xpotsCalib[NUM_XPOTS];
-#endif
+    union {
+      struct {
+        int16_t midVal;
+        int16_t loVal;
+        int16_t hiVal;
+      } input;
+      struct {
+        uint8_t stepsCount;
+        int16_t steps[XPOTS_MULTIPOS_COUNT];
+        uint8_t lastCount;
+        int16_t lastPosition;
+      } xpot;
+    } inputs[MAX_ANALOG_INPUTS];
   } calib;
 
 #if defined(SDCARD)

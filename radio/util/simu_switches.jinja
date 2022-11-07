@@ -1,3 +1,15 @@
-{% for switch in switches %}
-  "{{ switch.name }}",
+{% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
+{% set function_switches = switches | selectattr('type','==','FSWITCH') | list %}
+
+const hw_switch_def _hw_switch_defs[] = {
+{% for switch in regular_switches %}
+  { "{{ switch.name }}", SWITCH_HW_{{ switch.type }} },
 {% endfor %}
+{% for switch in function_switches %}
+  { "{{ switch.name }}", SWITCH_HW_2POS },
+{% endfor %}
+};
+
+constexpr uint8_t n_switches = {{ regular_switches | count }};
+constexpr uint8_t n_fct_switches = {{ function_switches | count }};
+constexpr uint8_t n_total_switches = {{ switches | count }};

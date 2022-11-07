@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "ff.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -351,11 +352,11 @@ void logsWrite()
         }
       }
 
-      for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+        // TODO: if enabled
         f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
       }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
       for (uint8_t i=0; i<NUM_SWITCHES; i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
@@ -366,16 +367,6 @@ void logsWrite()
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
         f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
-#else
-      f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
-          GET_2POS_STATE(THR),
-          GET_2POS_STATE(RUD),
-          GET_2POS_STATE(ELE),
-          GET_3POS_STATE(ID),
-          GET_2POS_STATE(AIL),
-          GET_2POS_STATE(GEA),
-          GET_2POS_STATE(TRN));
-#endif
 
       div_t qr = div(g_vbat100mV, 10);
       int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));

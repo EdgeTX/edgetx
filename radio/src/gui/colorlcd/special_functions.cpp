@@ -24,6 +24,9 @@
 #include "libopenui.h"
 #include "view_main.h"
 
+#include "hal/adc_driver.h"
+#include "strhelpers.h"
+
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -126,14 +129,14 @@ class SpecialFunctionEditPage : public Page
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         auto choice =
             new Choice(line, rect_t{}, 0,
-                       NUM_STICKS + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
+                       adcGetMaxSticks() + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
             return std::string(STR_STICKS);
           else if (value == NUM_STICKS + 1)
             return std::string(STR_CHANS);
           else
-            return TEXT_AT_INDEX(STR_VSRCRAW, value);
+            return std::string(getStickName(value));
           ;
         });
         line = specialFunctionOneWindow->newLine(&grid);

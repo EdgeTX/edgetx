@@ -226,6 +226,7 @@ extern const char* STR_BLUETOOTH_MODES[];
 
 #define NO_INDENT(x) (x) + LEN_INDENT
 
+extern const char STR_EMPTY[];
 extern const char STR_POPUPS_ENTER_EXIT[];
 extern const char STR_OK[];
 extern const char STR_EXIT[];
@@ -1221,6 +1222,11 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
+extern const char STR_SRC_BATT[];
+extern const char STR_SRC_TIME[];
+extern const char STR_SRC_GPS[];
+extern const char STR_SRC_TIMER[];
+extern const char STR_FUNC_SW[];
 
 
 #if defined(COLORLCD)

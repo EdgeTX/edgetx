@@ -44,8 +44,8 @@ class ADCInput:
 
     TYPE_STICK  = 'STICK'
     TYPE_POT    = 'POT'
-    TYPE_SLIDER = 'SLIDER'
     TYPE_EXT    = 'EXT'
+    TYPE_SLIDER = 'SLIDER'
     TYPE_SWITCH = 'SWITCH'
     TYPE_BATT   = 'BATT'
 
@@ -111,6 +111,12 @@ def parse_switches(hw_defs, adc_parser):
 
     switches = []
 
+    def find_switch(name):
+        for sw in switches:
+            if name == sw.name:
+                return sw
+        return None
+    
     for s in AZ_seq():
 
         name = f'S{s}'
@@ -151,6 +157,14 @@ def parse_switches(hw_defs, adc_parser):
                 # print(switch.inverted)
             switches.append(switch)
 
+    for i in range(1, 6 + 1):
+        f_sw_marker = f'FUNCTION_SWITCH_{i}'
+        if f_sw_marker in hw_defs:
+            switch = find_switch(hw_defs[f_sw_marker])
+            if switch:
+                switch.type = 'FSWITCH'
+                switch.name = f'SW{i}'
+
     return switches
 
 class ADC:
@@ -158,41 +172,55 @@ class ADC:
         self.name = name
         self.adc = adc
 
-
-    
+class MouseName:
+    AXIS = ['x','y']
+    def format(self, idx):
+        axis = self.AXIS[idx - 1]
+        return f'JS{axis}'
 
 class ADCInputParser:
 
     ADC_MAIN = 'MAIN'
     ADC_EXT = 'EXT'
 
-    ADC_INPUTS = {
-        ADCInput.TYPE_STICK: {
+    ADC_INPUTS = [
+        {
             'range': ['LH','LV','RV','RH'],
+            'type': ADCInput.TYPE_STICK,
             'suffix': 'STICK_{}',
             'name': '{}',
         },
-        ADCInput.TYPE_POT: {
+        {
             'range': range(1, MAX_POTS + 1),
+            'type': ADCInput.TYPE_POT,
             'suffix': 'POT{}',
             'name': 'P{}',
         },
-        ADCInput.TYPE_EXT: {
+        {
             'range': range(1, MAX_EXTS + 1),
+            'type': ADCInput.TYPE_POT,
             'suffix': 'EXT{}',
             'name': 'EXT{}',
         },
-        ADCInput.TYPE_SLIDER: {
+        {
             'range': range(1, MAX_SLIDERS + 1),
+            'type': ADCInput.TYPE_SLIDER,
             'suffix': 'SLIDER{}',
             'name': 'SL{}',
         },
-        ADCInput.TYPE_SWITCH: {
+        {
+            'range': range(1, 2 + 1),
+            'type': 'AXIS',
+            'suffix': 'MOUSE{}',
+            'name': MouseName(),
+        },
+        {
             'range': AZ_seq(),
+            'type': ADCInput.TYPE_SWITCH,
             'suffix': 'SW{}',
             'name': 'SW{}',
         },
-    }
+    ]
     
 
     def __init__(self, hw_defs):
@@ -311,8 +339,9 @@ class ADCInputParser:
         self.adcs = self._parse_adcs()
         self.inputs = []
 
-        for input_type, adc_input in self.ADC_INPUTS.items():
+        for adc_input in self.ADC_INPUTS:
             try:
+                input_type = adc_input['type']
                 for i in adc_input['range']:
                     name = adc_input['name'].format(i)
                     suffix = adc_input['suffix'].format(i)
@@ -322,12 +351,6 @@ class ADCInputParser:
 
         try:
             self._add_input(self._parse_input_type('BATT', 'VBAT', 'BATT'))
-        except KeyError:
-            pass
-
-        try: # X12S special treatment... (must be after TX_VOLTAGE
-            self._add_input(self._parse_input_type('MOUSE', 'JSx', 'MOUSE1'))
-            self._add_input(self._parse_input_type('MOUSE', 'JSy', 'MOUSE2'))
         except KeyError:
             pass
 

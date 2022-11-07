@@ -121,6 +121,7 @@ ISTR(TEXT_SIZE);
 ISTR(SUBTRIMMODES);
 ISTR(PWR_OFF_DELAYS);
 
+const char STR_EMPTY[] = TR_EMPTY;
 const char STR_POPUPS_ENTER_EXIT[] = TR_POPUPS_ENTER_EXIT;
 const char STR_OK[] = TR_OK;
 const char STR_FREE[] = TR_FREE;
@@ -787,6 +788,11 @@ const char STR_FILE_OPEN[] = TR_FILE_OPEN;
 const char* STR_TIMER_MODES[] = TR_TIMER_MODES;
 const char* STR_MONTHS[] = TR_MONTHS;
 const char STR_LIMITS_HEADERS_DIRECTION[] = TR_LIMITS_HEADERS_DIRECTION;
+const char STR_SRC_BATT[] = TR_SRC_BATT;
+const char STR_SRC_TIME[] = TR_SRC_TIME;
+const char STR_SRC_GPS[] = TR_SRC_GPS;
+const char STR_SRC_TIMER[] = TR_SRC_TIMER;
+const char STR_FUNC_SW[] = TR_FUNC_SW;
 
 #if defined(COLORLCD)
 const char STR_ASSIGN_SPLASH[] = TR_ASSIGN_SPLASH;

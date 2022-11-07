@@ -83,6 +83,8 @@
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA", STR_CHAR_SWITCH"SB", STR_CHAR_SWITCH"SC", STR_CHAR_SWITCH"SD", STR_CHAR_SWITCH"SE", STR_CHAR_SWITCH"SF", STR_CHAR_SWITCH"SG", STR_CHAR_SWITCH"SH"
 #endif
 
+#define TR_FUNC_SW                     "SW"
+
 // only special switches here
 #define TR_VSWITCHES                   "---", TR_TRIMS_SWITCHES, TR_ON_ONE_SWITCHES
 
@@ -97,6 +99,7 @@
   #define TR_SM_VSRCRAW
 #endif
 
+#define TR_EMPTY                       "---"
 #define TR_VSRCRAW                     "---", TR_STICKS_VSRCRAW, TR_POTS_VSRCRAW, TR_IMU_VSRCRAW TR_SM_VSRCRAW "MAX", TR_CYC_VSRCRAW, TR_TRIMS_VSRCRAW, TR_SW_VSRCRAW, TR_EXTRA_VSRCRAW
 
 #define TR_CRSF_BAUDRATE               "115k","400k","921k","1.87M","3.75M","5.25M"

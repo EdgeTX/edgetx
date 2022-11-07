@@ -340,9 +340,6 @@ enum CalibratedAnalogs {
   NUM_CALIBRATED_ANALOGS
 };
 
-#define IS_POT(x)                       ((x)>=POT_FIRST && (x)<=POT_LAST)
-#define IS_SLIDER(x)                    (false)
-
 extern uint16_t adcValues[NUM_ANALOGS];
 
 

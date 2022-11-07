@@ -25,33 +25,46 @@
 #include <stdlib.h>
 #include <assert.h>
 
-const char* _hw_switch_name[] = {
-  #include "hw_switches.inc"
+struct hw_switch_def {
+  const char*  name;
+  SwitchHwType type;
 };
 
-constexpr uint8_t NUM_SWITCHES = DIM(_hw_switch_name);
+#include "hw_switches.inc"
 
-int8_t switchesStates[NUM_SWITCHES] = { -1 };
+int8_t switchesStates[n_total_switches] = { -1 };
+
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
-  assert(swtch < DIM(switchesStates));
+  assert(swtch < n_total_switches);
   switchesStates[swtch] = state;
 }
 
 uint8_t switchGetMaxSwitches()
 {
-  return DIM(_hw_switch_name);
+  return n_switches;
+}
+
+uint8_t switchGetMaxFctSwitches()
+{
+  return n_fct_switches;
 }
 
 const char* switchGetName(uint8_t idx)
 {
-  assert(idx < NUM_SWITCHES);
-  return _hw_switch_name[idx];
+  assert(idx < n_total_switches);
+  return _hw_switch_defs[idx].name;
+}
+
+SwitchHwType switchGetHwType(uint8_t idx)
+{
+  assert(idx < n_total_switches);
+  return _hw_switch_defs[idx].type;
 }
 
 uint32_t switchState(uint8_t pos)
 {
-  assert(pos < NUM_SWITCHES * 3);
+  assert(pos < n_total_switches * 3);
 
   div_t qr = div(pos, 3);
   int state = switchesStates[qr.quot];
@@ -67,7 +80,7 @@ uint32_t switchState(uint8_t pos)
 
 SwitchHwPos switchGetPosition(uint8_t idx)
 {
-  assert(idx < NUM_SWITCHES);
+  assert(idx < n_total_switches);
 
   if (switchesStates[idx] < 0)
     return SWITCH_HW_UP;

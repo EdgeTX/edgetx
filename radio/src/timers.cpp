@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers.h"
+#include "switches.h"
 
 volatile tmr10ms_t g_tmr10ms;
 
@@ -181,10 +182,12 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
 
 int16_t throttleSource2Source(int16_t thrSrc)
 {
-  if (thrSrc == 0) return (int16_t)MIXSRC_Thr;
-  if (--thrSrc < NUM_POTS + NUM_SLIDERS)
+  if (thrSrc == 0) {
+    return (int16_t)MIXSRC_Thr;
+  }
+  if (--thrSrc < MAX_POTS)
     return (int16_t)(thrSrc + MIXSRC_FIRST_POT);
-  return (int16_t)(thrSrc - (NUM_POTS + NUM_SLIDERS) + MIXSRC_FIRST_CH);
+  return (int16_t)(thrSrc - MAX_POTS + MIXSRC_FIRST_CH);
 }
 
 int16_t source2ThrottleSource(int16_t src)
@@ -194,6 +197,6 @@ int16_t source2ThrottleSource(int16_t src)
   else if (src <= MIXSRC_LAST_POT)
     return src - MIXSRC_FIRST_POT + 1;
   else if (src <= MIXSRC_LAST_CH)
-    return src - MIXSRC_FIRST_CH + NUM_POTS + NUM_SLIDERS + 1;
+    return src - MIXSRC_FIRST_CH + MAX_POTS + 1;
   return -1;
 }

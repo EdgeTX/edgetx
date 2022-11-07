@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
 void clearInputs()
 {
@@ -28,18 +29,17 @@ void clearInputs()
 
 void setDefaultInputs()
 {
-  for (int i=0; i<NUM_STICKS; i++) {
-    uint8_t stick_index = channelOrder(i+1);
+  for (int i = 0; i < adcGetMaxSticks(); i++) {
+    uint8_t stick_index = channelOrder(i + 1) - 1;
     ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_Rud - 1 + stick_index;
+    expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
     expo->weight = 100;
     expo->mode = 3; // TODO constant
-    strncpy(g_model.inputNames[i],
-            STR_VSRCRAW[stick_index] + sizeof(STR_CHAR_STICK) - 1,
-            LEN_INPUT_NAME);
+    strncpy(g_model.inputNames[i], getStickName(stick_index), LEN_INPUT_NAME);
   }
+
   storageDirty(EE_MODEL);
 }
 

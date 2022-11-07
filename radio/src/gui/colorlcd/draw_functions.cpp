@@ -237,11 +237,6 @@ void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curv
   }
 }
 
-void drawStickName(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t idx, LcdFlags att)
-{
-  dc->drawText(x, y, STR_VSRCRAW[idx]+1, att);
-}
-
 void drawModelName(BitmapBuffer * dc, coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att)
 {
   uint8_t len = sizeof(g_model.header.name);

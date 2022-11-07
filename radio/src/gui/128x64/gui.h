@@ -150,7 +150,10 @@ void check_submenu_simple(event_t event, uint8_t maxrow);
 
 void title(const char * s);
 
-#define MENU_TAB(...) const uint8_t mstate_tab[] = __VA_ARGS__
+#define MENU_TAB_ARRAY_NAME mstate_tab
+#define MENU_TAB_ARRAY_TYPE const uint8_t
+#define MENU_TAB_ARRAY_DEF  MENU_TAB_ARRAY_TYPE MENU_TAB_ARRAY_NAME
+#define MENU_TAB(...)       MENU_TAB_ARRAY_DEF[] = __VA_ARGS__
 
 #define MENU_CHECK(tab, menu, lines_count) \
   check(event, menu, tab, DIM(tab), mstate_tab, DIM(mstate_tab)-1, (lines_count)-HEADER_LINE)

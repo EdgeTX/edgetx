@@ -61,13 +61,21 @@ CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
 tmr10ms_t switchesMidposStart[NUM_SWITCHES];
 uint64_t  switchesPos = 0;
-tmr10ms_t potsLastposStart[NUM_XPOTS];
-uint8_t   potsPos[NUM_XPOTS];
 
-#define SWITCH_POSITION(sw)  (switchesPos & ((MASK_CFN_TYPE)1<<(sw)))
-#define POT_POSITION(sw)     ((potsPos[(sw)/XPOTS_MULTIPOS_COUNT] & 0x0f) == ((sw) % XPOTS_MULTIPOS_COUNT))
+static_assert(sizeof(uint64_t) * 8 >= ((MAX_SWITCHES - 1) / 2) + 1,
+              "MAX_SWITCHES too big for uint64_t position state");
+
+tmr10ms_t potsLastposStart[MAX_POTS];
+uint8_t   potsPos[MAX_POTS];
+
+#define SWITCH_POSITION(sw) (switchesPos & ((MASK_CFN_TYPE)1 << (sw)))
+#define POT_POSITION(sw)                            \
+  ((potsPos[(sw) / XPOTS_MULTIPOS_COUNT] & 0x0f) == \
+   ((sw) % XPOTS_MULTIPOS_COUNT))
 
 #if defined(FUNCTION_SWITCHES)
+// Function switches
+// 
 // Non pushed : SWSRC_Sx0 = -1024 = Sx(up) = state 0
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
@@ -101,7 +109,8 @@ uint8_t getFSLogicalState(uint8_t index)
 
 uint8_t getFSPhysicalState(uint8_t index)
 {
-  return switchState(((index + NUM_REGULAR_SWITCHES) * 3) + 2) ? 1 : 0;
+  index += switchGetMaxSwitches();
+  return switchGetPosition(index) != SWITCH_HW_UP;
 }
 
 uint8_t getFSPreviousPhysicalState(uint8_t index)
@@ -111,34 +120,37 @@ uint8_t getFSPreviousPhysicalState(uint8_t index)
 
 void evalFunctionSwitches()
 {
-  for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
+  uint8_t fct_switches = switchGetMaxFctSwitches();
+  for (uint8_t i = 0; i < fct_switches; i++) {
     if (FSWITCH_CONFIG(i) == SWITCH_NONE) {
       fsLedOff(i);
       continue;
     }
 
     uint8_t physicalState = getFSPhysicalState(i);
-    if (physicalState != getFSPreviousPhysicalState(i)) {      // FS was moved
-      if ((FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) || (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)) {
-        if (IS_FSWITCH_GROUP_ON(FSWITCH_GROUP(i)) != 0) { // In an always on group
-          g_model.functionSwitchLogicalState |= 1 << i;   // Set bit
-        }
-        else {
-          g_model.functionSwitchLogicalState ^= 1 << i;   // Toggle bit
+    if (physicalState != getFSPreviousPhysicalState(i)) {
+      // FS was moved
+      if ((FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) ||
+          (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)) {
+        if (IS_FSWITCH_GROUP_ON(FSWITCH_GROUP(i)) != 0) {
+          // In an always on group
+          g_model.functionSwitchLogicalState |= 1 << i;  // Set bit
+        } else {
+          g_model.functionSwitchLogicalState ^= 1 << i;  // Toggle bit
         }
       }
 
-      if (FSWITCH_GROUP(i) && physicalState == 1) {    // switch is in a group, other in group need to be turned off
+      if (FSWITCH_GROUP(i) && physicalState == 1) {
+        // switch is in a group, other in group need to be turned off
         for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
-          if (i == j)
-            continue;
+          if (i == j) continue;
           if (FSWITCH_GROUP(j) == FSWITCH_GROUP(i)) {
-            g_model.functionSwitchLogicalState &= ~(1 << j);   // clear state
+            g_model.functionSwitchLogicalState &= ~(1 << j);  // clear state
           }
         }
       }
 
-      fsPreviousState ^= 1 << i;    // Toggle state
+      fsPreviousState ^= 1 << i;  // Toggle state
       storageDirty(EE_MODEL);
     }
 
@@ -150,7 +162,7 @@ void evalFunctionSwitches()
     }
   }
 }
-#endif
+#endif // FUNCTION_SWITCHES
 
 div_t switchInfo(int switchPosition)
 {
@@ -159,24 +171,84 @@ div_t switchInfo(int switchPosition)
 
 int switchLookupIdx(char c)
 {
+  uint8_t idx = 1; // Sx
+  if (c >= '1' && c <= '9') {
+      idx = 2; // SWx
+  }
+
   for (unsigned idx = 0; idx < switchGetMaxSwitches(); idx++) {
     const char *name = switchGetName(idx);
-    if (name[1] == c) return idx;
+    if (name[idx] == c) return idx;
   }
 
   return -1;
 }
 
+int switchLookupIdx(const char* name, size_t len)
+{
+  if (len < 2 || name[0] != 'S') return -1;
+
+  uint8_t idx = 1; // Sx
+  if (len > 2) idx = 2; // SWx
+
+  for (unsigned idx = 0; idx < switchGetMaxSwitches(); idx++) {
+    const char *sw_name = switchGetName(idx);
+    if (sw_name[2] == name[2]) return idx;
+  }
+
+  return -1;  
+}
+
 char switchGetLetter(uint8_t idx)
 {
-  if (idx >= switchGetMaxSwitches())
+  if (idx >= switchGetMaxSwitches() + switchGetMaxFctSwitches())
     return -1;
 
+  uint8_t c = 1;
+  if (idx >= switchGetMaxSwitches()) c = 2;
+  
   const char* name = switchGetName(idx);
   if (!name) return -1;
   
-  return name[1];
+  return name[c];
 }
+
+static char _switchNames[MAX_SWITCHES][LEN_SWITCH_NAME + 1] = { 0 };
+
+void switchSetCustomName(uint8_t idx, const char* str, size_t len)
+{
+  strncpy(_switchNames[idx], str, min<size_t>(LEN_SWITCH_NAME, len));
+  _switchNames[idx][LEN_SWITCH_NAME] = '\0';  
+}
+
+const char* switchGetCustomName(uint8_t idx)
+{
+  return _switchNames[idx];
+}
+
+bool switchHasCustomName(uint8_t idx)
+{
+  return *switchGetCustomName(idx) != 0;
+}
+
+const char* switchGetCanonicalName(uint8_t idx)
+{
+  if (idx >= switchGetMaxSwitches())
+    return nullptr;
+
+  return switchGetName(idx);
+}
+
+SwitchConfig switchGetMaxType(uint8_t idx)
+{
+  auto hw_type = switchGetHwType(idx);
+  if (hw_type == SWITCH_HW_2POS) {
+    return SWITCH_2POS;
+  } else {
+    return SWITCH_3POS;
+  }
+}
+
 
 static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
 {
@@ -231,11 +303,11 @@ void getSwitchesPosition(bool startup)
   
   switchesPos = newPos;
 
-  for (int i=0; i<NUM_XPOTS; i++) {
-    if (IS_POT_MULTIPOS(POT1+i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT1+i];
+  for (int i=0; i<MAX_POTS; i++) {
+    if (IS_POT_MULTIPOS(i)) {
+      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
       if (IS_MULTIPOS_CALIBRATED(calib)) {
-        uint8_t pos = anaIn(POT1+i) / (2*RESX/calib->count);
+        uint8_t pos = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
         uint8_t previousPos = potsPos[i] >> 4;
         uint8_t previousStoredPos = potsPos[i] & 0x0F;
         if (startup) {
@@ -354,7 +426,7 @@ bool getLogicalSwitch(uint8_t idx)
 
 
       }
-      else if (v1 >= MIXSRC_GVAR1) {
+      else if (v1 >= MIXSRC_FIRST_GVAR) {
         y = ls->v2;
       }
       else {
@@ -367,7 +439,7 @@ bool getLogicalSwitch(uint8_t idx)
           break;
         case LS_FUNC_VALMOSTEQUAL:
 #if defined(GVARS)
-          if (v1 >= MIXSRC_GVAR1 && v1 <= MIXSRC_LAST_GVAR)
+          if (v1 >= MIXSRC_FIRST_GVAR && v1 <= MIXSRC_LAST_GVAR)
             result = (x==y);
           else
 #endif
@@ -529,6 +601,12 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   return swtch > 0 ? result : !result;
 }
 
+uint8_t getXPotPosition(uint8_t idx)
+{
+  if (idx >= MAX_POTS || !IS_POT_MULTIPOS(idx)) return 0;
+  return potsPos[idx] & 0x0F;
+}
+
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode
 */
@@ -561,7 +639,7 @@ swsrc_t getMovedSwitch()
     if (SWITCH_EXISTS(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x07 << (i * 3));
       uint8_t prev = (switches_states & mask) >> (i * 3);
-      uint8_t next = (1024 + getValue(MIXSRC_SA + i)) / 1024 + 1;
+      uint8_t next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 3));
@@ -584,14 +662,14 @@ swsrc_t getMovedSwitch()
 #endif
 
   // Multipos
-  for (int i = 0; i < NUM_XPOTS; i++) {
-    if (IS_POT_MULTIPOS(POT1 + i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT1 + i];
+  for (int i = 0; i < MAX_POTS; i++) {
+    if (IS_POT_MULTIPOS(i)) {
+      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
       if (IS_MULTIPOS_CALIBRATED(calib)) {
         uint8_t prev = potsPos[i] & 0x0F;
-        uint8_t next = anaIn(POT1 + i) / (2 * RESX / calib->count);
+        uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
         if (prev != next) {
-          result = SWSRC_LAST_SWITCH + i * XPOTS_MULTIPOS_COUNT + next + 1;
+          result = MAX_SWITCHES * 3 + i * XPOTS_MULTIPOS_COUNT + next + 1;
         }
       }
     }
@@ -624,10 +702,8 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   if (g_model.potsWarnMode) {
     evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
-    for (int  i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) {
-        continue;
-      }
+    for (int  i = 0; i < MAX_POTS; i++) {
+      if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&
           (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {
         warn = true;
@@ -700,28 +776,24 @@ void checkSwitches()
       }
 
       if (g_model.potsWarnMode) {
-        for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
-          if (!IS_POT_SLIDER_AVAILABLE(POT1+i)) {
-            continue;
-          }
+        for (int i = 0; i < MAX_POTS; i++) {
+          if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
           if (g_model.potsWarnEnabled & (1 << i)) {
             if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
               if (++numWarnings < 6) {
-                lcdDrawTextAtIndex(x, y, STR_VSRCRAW, NUM_STICKS + 1 + i, INVERS);
-                if (IS_POT(POT1 + i))
-                  lcdDrawChar(
-                      lcdNextPos, y,
-                      g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i)
-                          ? 126
-                          : 127,
-                      INVERS);  // TODO: use constants for chars
-                else
-                  lcdDrawText(
-                      lcdNextPos, y,
-                      g_model.potsWarnPosition[i] > GET_LOWRES_POT_POSITION(i)
-                          ? STR_CHAR_UP
-                          : STR_CHAR_DOWN,
-                      INVERS);
+                drawSource(x, y, MIXSRC_FIRST_POT + i, INVERS);
+                const char* symbol;
+                auto warn_pos = g_model.potsWarnPosition[i];
+                if (IS_SLIDER(i)) {
+                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                    ? STR_CHAR_UP
+                    : STR_CHAR_DOWN;
+                } else {
+                  symbol =  warn_pos > GET_LOWRES_POT_POSITION(i)
+                    ? STR_CHAR_RIGHT
+                    : STR_CHAR_LEFT;
+                }
+                lcdDrawText(lcdNextPos, y, symbol, INVERS);
                 x = lcdNextPos + 3;
               }
             }

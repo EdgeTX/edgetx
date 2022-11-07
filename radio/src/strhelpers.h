@@ -98,6 +98,9 @@ const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
 char *getSwitchName(char *dest, uint8_t idx);
 
+const char* getStickName(uint8_t idx);
+const char* getPotName(uint8_t idx);
+
 template<size_t L>
 char* getSourceString(char (&dest)[L], mixsrc_t idx);
 

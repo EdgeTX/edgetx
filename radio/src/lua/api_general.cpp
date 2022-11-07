@@ -26,6 +26,7 @@
 #include "lua_api.h"
 #include "api_filesystem.h"
 #include "aux_serial_driver.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -2730,25 +2731,26 @@ const luaR_value_entry opentxConstants[] = {
   { "REPLACE", MLTPX_REPL },
   { "MIXSRC_MAX", MIXSRC_MAX },
   { "MIXSRC_FIRST_INPUT", MIXSRC_FIRST_INPUT },
-  { "MIXSRC_Rud", MIXSRC_Rud },
-  { "MIXSRC_Ele", MIXSRC_Ele },
-  { "MIXSRC_Thr", MIXSRC_Thr },
-  { "MIXSRC_Ail", MIXSRC_Ail },
-  { "MIXSRC_SA", MIXSRC_SA },
-  { "MIXSRC_SB", MIXSRC_SB },
-  { "MIXSRC_SC", MIXSRC_SC },
-  { "MIXSRC_SD", MIXSRC_SD },
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
-  { "MIXSRC_SE", MIXSRC_SE },
-  { "MIXSRC_SG", MIXSRC_SG },
-#endif
-#if defined(HARDWARE_SWITCH_F)
-  { "MIXSRC_SF", MIXSRC_SF },
-#endif
-#if defined(HARDWARE_SWITCH_H)
-  { "MIXSRC_SH", MIXSRC_SH },
-#endif
-  { "MIXSRC_CH1", MIXSRC_CH1 },
+  { "MIXSRC_Rud", MIXSRC_FIRST_STICK },
+  { "MIXSRC_Ele", MIXSRC_FIRST_STICK + 1 },
+  { "MIXSRC_Thr", MIXSRC_FIRST_STICK + 2 },
+  { "MIXSRC_Ail", MIXSRC_FIRST_STICK + 3 },
+// TODO: LUA switch names
+//   { "MIXSRC_SA", MIXSRC_SA },
+//   { "MIXSRC_SB", MIXSRC_SB },
+//   { "MIXSRC_SC", MIXSRC_SC },
+//   { "MIXSRC_SD", MIXSRC_SD },
+// #if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
+//   { "MIXSRC_SE", MIXSRC_SE },
+//   { "MIXSRC_SG", MIXSRC_SG },
+// #endif
+// #if defined(HARDWARE_SWITCH_F)
+//   { "MIXSRC_SF", MIXSRC_SF },
+// #endif
+// #if defined(HARDWARE_SWITCH_H)
+//   { "MIXSRC_SH", MIXSRC_SH },
+// #endif
+  { "MIXSRC_CH1", MIXSRC_FIRST_CH },
   { "SWSRC_LAST", SWSRC_LAST_LOGICAL_SWITCH },
   { "SWITCH_COUNT", SWSRC_COUNT },
   { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },

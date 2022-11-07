@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "switches.h"
 
 #if !defined(EEPROM)
 #include "storage/sdcard_common.h"
@@ -260,11 +262,9 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
+#define POT_WARN_ROWS ((g_model.potsWarnMode) ? adcGetMaxPots() : (uint8_t)0)
 #define TIMER_ROWS(x)                                                  \
-  1, 0,                                                                \
-      (uint8_t)((g_model.timers[x].start) ? 2 : 1),                   \
-      0, 0,                                                            \
+  1, 0, (uint8_t)((g_model.timers[x].start) ? 2 : 1), 0, 0,            \
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
                                                           : (uint8_t)0
 
@@ -467,7 +467,7 @@ void menuModelSetup(event_t event)
       0, // Custom position for throttle warning value
       WARN_ROWS
 
-    NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
+    uint8_t(adcGetMaxSticks() + adcGetMaxPots() - 1), // Center beeps
     0, // Global functions
 
     0, // ADC Jitter filter
@@ -658,7 +658,8 @@ void menuModelSetup(event_t event)
       {
         int index = k - ITEM_MODEL_SETUP_SW1;
         int config = FSWITCH_CONFIG(index);
-        lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, MIXSRC_FIRST_SWITCH + NUM_REGULAR_SWITCHES - MIXSRC_Rud + index + 1, menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
+        drawStringWithIndex(lcdNextPos, y, STR_FUNC_SW, index, menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
@@ -749,7 +750,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              NUM_POTS + NUM_SLIDERS + MAX_OUTPUT_CHANNELS,
+              adcGetMaxPots() + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -805,7 +806,6 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
-          #define FIRSTSW_STR   (&STR_VSRCRAW[MIXSRC_FIRST_SWITCH-MIXSRC_FIRST_STICK+1])
           uint8_t switchWarningsCount = getSwitchWarningsCount();
           //uint8_t length = STR_VSRCRAW[0];
           horzpos_t l_posHorz = menuHorizontalPosition;
@@ -860,7 +860,7 @@ void menuModelSetup(event_t event)
           }
 
           int current = 0;
-          for (int i = 0; i < NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; i++) {
+          for (int i = 0; i < switchGetMaxSwitches(); i++) {
             if (SWITCH_WARNING_ALLOWED(i)) {
               div_t qr = div(current, MAX_SWITCH_PER_LINE);
               if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && attr &&
@@ -876,9 +876,10 @@ void menuModelSetup(event_t event)
                 s_editMode = 0;
 #endif
               }
-              lcdDrawSizedText(
+
+              lcdDrawChar(
                   MODEL_SETUP_2ND_COLUMN + qr.rem * ((2 * FW) + 1),
-                  y + FH * qr.quot, FIRSTSW_STR[i] + sizeof(STR_CHAR_SWITCH), 1,
+                  y + FH * qr.quot, switchGetLetter(i),
                   attr && (menuHorizontalPosition == current) ? INVERS : 0);
               lcdDrawText(lcdNextPos, y + FH * qr.quot,
                           getSwitchWarnSymbol(states & 0x03));
@@ -923,30 +924,38 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          for (int i=0; i<NUM_POTS+NUM_SLIDERS; ++i) {
-            if (i<NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(POT1+i)) {
+          uint8_t max_pots = adcGetMaxPots();
+          for (int i = 0; i < max_pots; ++i) {
+
+            if (!IS_POT_SLIDER_AVAILABLE(i)) {
+              // skip non configured pot
               if (attr && (menuHorizontalPosition==i+1)) REPEAT_LAST_CURSOR_MOVE();
             }
             else {
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) &&
+                  (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 
-              // skip "---" (+1) and source symbol (+2)
-              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
-              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
+              lcdDrawText(x, y, getPotName(i), flags);
               x = lcdNextPos+3;
             }
           }
         }
         break;
 
-      case ITEM_MODEL_SETUP_BEEP_CENTER:
+      case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        for (uint8_t i = 0; i < NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+        uint8_t input_max = adcGetMaxSticks() + adcGetMaxPots();
+        for (uint8_t i = 0; i < input_max; i++) {
           coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
-          lcdDrawTextAtIndex(x, y, STR_RETA123, i, ((menuHorizontalPosition==i) && attr) ? BLINK | INVERS : (((g_model.beepANACenter & ((BeepANACenter)1<<i)) || (attr && CURSOR_ON_LINE())) ? INVERS : 0 ) );
+          LcdFlags flags = 0;
+          if ((menuHorizontalPosition == i) && attr)
+            flags = BLINK | INVERS;
+          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+            flags = INVERS;
+          lcdDrawTextAtIndex(x, y, STR_RETA123, i, flags);
         }
         if (attr) {
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -957,7 +966,7 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
+      } break;
 
       case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:
         lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);

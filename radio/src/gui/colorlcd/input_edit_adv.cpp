@@ -64,7 +64,7 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
                           -TRIM_LAST, GET_VALUE(-input->carryTrim),
                           SET_VALUE(input->carryTrim, -newValue));
   c->setAvailableHandler([=](int value) {
-    return value != TRIM_ON || input->srcRaw <= MIXSRC_Ail;
+    return value != TRIM_ON || input->srcRaw <= MIXSRC_LAST_STICK;
   });
 
   // Flight modes
