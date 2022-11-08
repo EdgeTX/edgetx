@@ -220,6 +220,8 @@ enum {
                                            (MIXSRC_SI - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SJ - MIXSRC_FIRST_SWITCH == sw)) ? SWITCH_2POS : SWITCH_3POS)
 #elif defined(RADIO_TX12MK2)
   #define SWITCH_TYPE_MAX(sw)            (((MIXSRC_SA - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SD - MIXSRC_FIRST_SWITCH == sw)) ? SWITCH_2POS : SWITCH_3POS)
+#elif defined(RADIO_BOXER)
+  #define SWITCH_TYPE_MAX(sw)            (((MIXSRC_SB - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SC - MIXSRC_FIRST_SWITCH == sw)) ? SWITCH_3POS : SWITCH_2POS)
 #elif defined(RADIO_T12)
   #define SWITCH_TYPE_MAX(sw)            ((MIXSRC_SG - MIXSRC_FIRST_SWITCH == sw || MIXSRC_SH - MIXSRC_FIRST_SWITCH == sw) ? SWITCH_2POS : SWITCH_3POS)
 #else

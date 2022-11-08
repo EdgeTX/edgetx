@@ -111,7 +111,7 @@ void rotaryEncoderCheck()
   }
 #else
   if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) // def. rotation dir is inverse of other radios
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) // def. rotation dir is inverse of other radios
     if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
 #else
     if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
