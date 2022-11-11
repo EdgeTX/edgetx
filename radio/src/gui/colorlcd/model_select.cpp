@@ -11,7 +11,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation. 
+ * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -301,13 +301,9 @@ class ModelButton : public Button
       dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
                         COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
-      LcdFlags textColor;
       dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-
-      textColor = COLOR_THEME_SECONDARY1;
-
       dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        textColor | CENTERED);
+                        COLOR_THEME_SECONDARY1 | CENTERED);
     }
 
     if (!hasFocus()) {
@@ -463,7 +459,7 @@ void ModelsPageBody::saveAsTemplate(ModelCell *model)
   }
 }
 
-void ModelsPageBody::editLabels(ModelCell* model)
+void ModelsPageBody::editLabels(ModelCell *model)
 {
   auto labels = modelslabels.getLabels();
 
@@ -538,6 +534,7 @@ void ModelsPageBody::update(int selected)
       menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
       menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
       menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
+      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model); });
       if (model != curModel) {
         menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
       }
