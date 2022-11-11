@@ -36,7 +36,7 @@ static const char* _afhds3_region[] = { "CE", "FCC" };
 static const char* _afhds3_phy_mode[] = {
   // V0
   "Classic 18ch",
-  "Classic 10ch",
+  "C-Fast 10ch",
   // V1
   "Routine 18ch",
   "Fast 8ch",
