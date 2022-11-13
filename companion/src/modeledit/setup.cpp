@@ -220,6 +220,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_RF_RACING_MODE (1<<16)
 #define MASK_GHOST          (1<<17)
 #define MASK_BAUDRATE       (1<<18)
+#define MASK_MULTIOPTCHECK  (1<<19)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -492,8 +493,12 @@ void ModulePanel::update()
           mask |= MASK_CHANNELS_COUNT;
         else
           module.channelsCount = 16;
-        if (pdef.optionsstr != nullptr)
-          mask |= MASK_MULTIOPTION;
+        if (pdef.optionsstr != nullptr) {
+          if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+            mask |= MASK_MULTIOPTCHECK;
+          else
+            mask |= MASK_MULTIOPTION;
+        }
         if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
           mask |= MASK_FAILSAFES;
         break;
@@ -629,6 +634,8 @@ void ModulePanel::update()
   ui->multiProtocol->setVisible(mask & MASK_MULTIMODULE);
   ui->label_option->setVisible(mask & MASK_MULTIOPTION);
   ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
+  ui->lblChkOption->setVisible(mask & MASK_MULTIOPTCHECK);
+  ui->chkOption->setVisible(mask & MASK_MULTIOPTCHECK);
   ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
   ui->disableChMap->setVisible(mask & MASK_MULTIMODULE);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
@@ -651,6 +658,11 @@ void ModulePanel::update()
     ui->optionValue->setMaximum(pdef.getOptionMax());
     ui->optionValue->setValue(module.multi.optionValue);
     ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+  }
+
+  if (mask & MASK_MULTIOPTCHECK) {
+    ui->lblChkOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+    ui->chkOption->setChecked(module.multi.optionValue);
   }
 
   // Ghost settings fields
@@ -850,6 +862,14 @@ void ModulePanel::on_optionValue_editingFinished()
 {
   if (module.multi.optionValue != ui->optionValue->value()) {
     module.multi.optionValue = ui->optionValue->value();
+    emit modified();
+  }
+}
+
+void ModulePanel::on_chkOption_stateChanged(int state)
+{
+  if (module.multi.optionValue != state) {
+    module.multi.optionValue = state;
     emit modified();
   }
 }
