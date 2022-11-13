@@ -65,7 +65,7 @@
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Expotencja"),TR("B.Dokł","B.Dokładny"),TR("Dokł.","Dokładny"),"Średni",TR("Zgrubn","Zgrubny")
 #define TR_VDISPLAYTRIMS       "Nie","Zmień","Tak"
-#define TR_VBEEPCOUNTDOWN      "Cichy","Pik","Dźwięk","Wibrac"
+#define TR_VBEEPCOUNTDOWN      "Cichy","Pik","Dźwięk","Wibrac",TR2_2("P & W","Pik & Wibrac"),TR2_2("Dzw & Wbr","Dźwięk & Wibrac")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Ton","Cicho"
 #define TR_CURVE_TYPES         "Standard","Własny"

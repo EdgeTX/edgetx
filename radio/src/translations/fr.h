@@ -68,7 +68,7 @@
 #define TR_MULTI_CUSTOM                "Perso"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Extra Fin"),"Fin","Moyen",TR("Gros","Grossier")
 #define TR_VDISPLAYTRIMS               "Non","Change","Oui"
-#define TR_VBEEPCOUNTDOWN              "Aucun","Bips","Voix","Haptic"
+#define TR_VBEEPCOUNTDOWN              "Aucun","Bips","Voix","Haptic",TR2_2("B & H","Bips & Haptic"),TR2_2("V & H","Voix & Haptic")
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "Standard","Libre"
 

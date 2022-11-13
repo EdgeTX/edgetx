@@ -341,16 +341,29 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 {
   TimerData & timer = g_model.timers[timerIdx];
   lcdDrawTextAlignedLeft(y, STR_BEEPCOUNTDOWN);
-  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VBEEPCOUNTDOWN, timer.countdownBeep, (menuHorizontalPosition == 0 ? attr : 0));
+  int value = timer.countdownBeep;
+  if (timer.extraHaptic) value += (COUNTDOWN_VOICE + 1);
+  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VBEEPCOUNTDOWN, value, (menuHorizontalPosition == 0 ? attr : 0));
   if (timer.countdownBeep != COUNTDOWN_SILENT) {
     lcdDrawNumber(MODEL_SETUP_2ND_COLUMN + 6 * FW, y, TIMER_COUNTDOWN_START(timerIdx), (menuHorizontalPosition == 1 ? attr : 0) | LEFT);
     lcdDrawChar(lcdLastRightPos, y, 's');
   }
   if (attr && s_editMode > 0) {
     switch (menuHorizontalPosition) {
-      case 0:
-        CHECK_INCDEC_MODELVAR(event, timer.countdownBeep, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1);
-        break;
+      case 0: 
+      {
+        value = timer.countdownBeep;
+        if (timer.extraHaptic) value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        CHECK_INCDEC_MODELVAR(event, value, COUNTDOWN_SILENT,
+                              COUNTDOWN_COUNT - 1);
+        if (value > COUNTDOWN_VOICE + 1) {
+          timer.extraHaptic = 1;
+          timer.countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        } else {
+          timer.extraHaptic = 0;
+          timer.countdownBeep = value;
+        }
+      } break;
       case 1:
         timer.countdownStart = -checkIncDecModel(event, -timer.countdownStart, -1, +2);
         break;

@@ -1024,7 +1024,8 @@ void audioTimerCountdown(uint8_t timer, int value)
     }
   }
 #if defined(HAPTIC)
-  else if (g_model.timers[timer].countdownBeep == COUNTDOWN_HAPTIC) {
+  if ( (g_model.timers[timer].countdownBeep == COUNTDOWN_HAPTIC) ||
+       (g_model.timers[timer].extraHaptic) ) {
     if (value == 0) {
       haptic.play(15, 3, PLAY_NOW);
     }

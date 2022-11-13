@@ -64,7 +64,7 @@
 #define TR_MULTI_CUSTOM                "カスタム"
 #define TR_VTRIMINC                    "ステップExpo","ステップ極小","ステップ小","ステップ中","ステップ大"
 #define TR_VDISPLAYTRIMS               "非表示","変更時","常時表示"
-#define TR_VBEEPCOUNTDOWN              "消音","ビープ","音声","バイブレート"
+#define TR_VBEEPCOUNTDOWN              "消音","ビープ","音声","バイブレート",TR2_2("B & H","Beeps & Haptic"),TR("V & H","Voice & Haptic")
 #define TR_COUNTDOWNVALUES             "5秒","10秒","20秒","30秒"
 #define TR_VVARIOCENTER                "トーン","消音"
 #define TR_CURVE_TYPES                 "スタンダード","カスタム"

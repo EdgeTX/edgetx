@@ -63,7 +63,7 @@
 #define TR_MULTI_CUSTOM                "Custom"
 #define TR_VTRIMINC                    TR("Expo","Exponential"),TR("ExFine","Extra Fine"),"Fine","Medium","Coarse"
 #define TR_VDISPLAYTRIMS               "No","Change","Yes"
-#define TR_VBEEPCOUNTDOWN              "Silent","Beeps","Voice","Haptic"
+#define TR_VBEEPCOUNTDOWN              "Silent","Beeps","Voice","Haptic",TR2_2("B & H","Beeps & Haptic"),TR2_2("V & H","Voice & Haptic")
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "Standard","Custom"

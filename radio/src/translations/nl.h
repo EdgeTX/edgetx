@@ -66,7 +66,7 @@
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Exponentieel"),TR("ExFijn","Extra Fijn"),"Fijn","Medium","Grof"
 #define TR_VDISPLAYTRIMS       "Nee","Kort","Ja"
-#define TR_VBEEPCOUNTDOWN      "Stilte","Beeps","Spraak","Tril"
+#define TR_VBEEPCOUNTDOWN      "Stilte","Beeps","Spraak","Tril",TR2_2("B & T","Beeps & Tril"),TR2_2("Spr & Tr","Spraak & Tril")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tonen","Stilte"
 #define TR_CURVE_TYPES         "Standaard","Custom"

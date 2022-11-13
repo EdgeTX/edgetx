@@ -68,7 +68,7 @@
 #define TR_MULTI_CUSTOM                "Vlastní"
 #define TR_VTRIMINC                    "Expo","ExJemný","Jemný","Střední","Hrubý"
 #define TR_VDISPLAYTRIMS               "Ne","Změna","Ano"
-#define TR_VBEEPCOUNTDOWN              "Ne","Zvuk","Hlas","Vibrace"
+#define TR_VBEEPCOUNTDOWN              "Ne", "Zvuk", "Hlas", "Vibrace", TR2_2("Zv & Vib","Zvuk & Vibrace"),TR2_2("Hl & Vib", "Hlas & Vibrace")
 #define TR_VVARIOCENTER                "Tón","Ticho"
 #define TR_CURVE_TYPES                 "Rastr-X","Volná-XY"
 
