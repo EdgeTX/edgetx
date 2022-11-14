@@ -545,7 +545,6 @@ class BacklightPage : public Page {
     }
 };
 
-#if defined(INTERNAL_GPS)
 class GpsPage : public Page {
   public:
 	GpsPage() :
@@ -583,7 +582,6 @@ class GpsPage : public Page {
       line = body.newLine(&grid);
     }
 };
-#endif
 
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
@@ -609,10 +607,8 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
       {STR_ALARM, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-#if defined(INTERNAL_GPS)
       {STR_GPS, [](){new GpsPage();}},
-#endif
-  });
+});
 
 
 #if defined(PWR_BUTTON_PRESS)
