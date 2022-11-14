@@ -334,7 +334,7 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     auto ret = file.read(&information, sizeof(FrSkyFirmwareInformation), count);
     if (ret != VfsError::OK || count != sizeof(FrSkyFirmwareInformation)) {
-      file.close()
+      file.close();
       return STR_DEVICE_FILE_ERROR;
     }
   } else {

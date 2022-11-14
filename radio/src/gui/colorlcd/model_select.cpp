@@ -449,9 +449,9 @@ void ModelsPageBody::saveAsTemplate(ModelCell *model)
   snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
   vfs.checkAndCreateDirectory(TEMPLATES_PATH);
   vfs.checkAndCreateDirectory(PERS_TEMPL_PATH);
-  if (isFileAvailable(templatePath)) {
+  if (vfs.isFileAvailable(templatePath)) {
     new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
-      vfs.copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+      VirtualFS::instance().copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
     });
   } else {
     vfs.copyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
