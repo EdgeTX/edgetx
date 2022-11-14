@@ -812,7 +812,7 @@ QString MultiModelPrinter::printTelemetry()
     columns.appendRowEnd();
   }
 
-  ROWLABELCOMPARECELL("Multi sensors", 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
+  ROWLABELCOMPARECELL(tr("Multi sensors"), 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
 
   // Various
   columns.appendTableEnd();

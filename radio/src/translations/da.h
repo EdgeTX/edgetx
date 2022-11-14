@@ -36,7 +36,7 @@
 #define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
 #define TR_TRNMODE                     "FRA","+=",":="
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES            "FRA","Telem spejle","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"
@@ -86,9 +86,9 @@
 #endif
 
 #if LCD_W >= 212
-  #define TR_CSWTIMER                  "Timer"
+  #define TR_CSWTIMER                  "Tid"
   #define TR_CSWSTICKY                 "Sej"
-  #define TR_CSWRANGE                  "Range"
+  #define TR_CSWRANGE                  "Afstand"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "Tid"
@@ -173,9 +173,9 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Timer 1","Timer 2","Timer 3"
+  #define TR_FSW_RESET_TIMERS          "Ur 1","Ur 2","Ur 3"
 #else
-  #define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"
+  #define TR_FSW_RESET_TIMERS          "Ur1","Ur2","Ur3"
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM
@@ -272,8 +272,8 @@
 
 #define TR_VTMRMODES                   "FRA","TIL","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "FRA"
-#define TR_VTRAINER_MASTER_JACK        "Træner/Jack"
-#define TR_VTRAINER_SLAVE_JACK         "Elev/Jack"
+#define TR_VTRAINER_MASTER_JACK        "Træner/Stik"
+#define TR_VTRAINER_SLAVE_JACK         "Elev/Stik"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Træner/SBUS modul"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Træner/CPPM modul"
 #define TR_VTRAINER_MASTER_BATTERY     "Træner/Seriel"
@@ -334,7 +334,7 @@
 #define TR_EXPONAME                    TR("Navn", "Line navn")
 #define TR_BITMAP                      "Model billede"
 #define TR_NO_PICTURE                  "Ingen billede"
-#define TR_TIMER                       TR("Timer", "Timer ")
+#define TR_TIMER                       TR("Ur", "Ur ")
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
@@ -401,7 +401,7 @@
 #define TR_SLOWDOWN                    TR("Langsom ned", "Langsom ned")
 #define TR_SLOWUP                      TR("Langsom op", "Langsom op")
 #define TR_MIXES                       "MIX"
-#define TR_CV                          "CV"
+#define TR_CV                          "KU"
 #if defined(PCBNV14)
 #define TR_GV                          "GV"
 #else
@@ -506,7 +506,7 @@
 #define TR_HEARTBEAT_LABEL             "Hjerte puls"
 #define TR_LUA_SCRIPTS_LABEL           "Lua script"
 #define TR_FREE_MEM_LABEL              "Fri mem"
-#define TR_TIMER_LABEL                 "Timer"
+#define TR_TIMER_LABEL                 "Ur"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Batteri"
 #define TR_SESSION                     "Session"
@@ -514,7 +514,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "KA"
 #define TR_MODEL                       "MODEL"
-#define TR_FM                          "FM"
+#define TR_FM                          "FT"
 #define TR_MIX                         "MIX"
 #define TR_EEPROMLOWMEM                "EEPROM lav mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk tast for at droppe"
@@ -570,8 +570,8 @@
 #define TR_MONITOR_SWITCHES            "LOGISK KONTAKT MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Udgange"
 #define TR_MONITOR_MIXER_DESC          "Mix"
-  #define TR_RECEIVER_NUM              TR("RxNr", "Rx modtager Nr.")
-  #define TR_RECEIVER                  "Modtager"
+#define TR_RECEIVER_NUM                TR("RxNr", "Rx modtager Nr.")
+#define TR_RECEIVER                    "Modtager"
 #define TR_MULTI_RFTUNE                TR("Freq tune", "RF Frekv. fin tune")
 #define TR_MULTI_RFPOWER               "RF strøm"
 #define TR_MULTI_WBUS                  "Udgang"
@@ -798,7 +798,7 @@
 #define TR_SD_SIZE                     "Størrelse:"
 #define TR_TYPE                        INDENT "Type"
 #define TR_GLOBAL_VARS                 "Globale variable"
-#define TR_GVARS                       "GVARS"
+#define TR_GVARS                       "GV"
 #define TR_GLOBAL_VAR                  "Globale variable"
 #define TR_MENU_GLOBAL_VARS            "GLOBALE VARIABLE"
 #define TR_OWN                         "Egen"
@@ -880,9 +880,9 @@
 #define TR_DELETE                      "Slet"
 #define TR_INSERT                      "Indsæt"
 #define TR_RESET_FLIGHT                "Nulstil flyvning"
-#define TR_RESET_TIMER1                "Nulstil timer1"
-#define TR_RESET_TIMER2                "Nulstil timer2"
-#define TR_RESET_TIMER3                "Nulstil timer3"
+#define TR_RESET_TIMER1                "Nulstil ur 1"
+#define TR_RESET_TIMER2                "Nulstil ur 2"
+#define TR_RESET_TIMER3                "Nulstil ur 3"
 #define TR_RESET_TELEMETRY             "Nulstil telemetri"
 #define TR_STATISTICS                  "Statistik"
 #define TR_ABOUT_US                    "Om"
@@ -937,7 +937,7 @@
 #define TR_VALUE                       "Værdi"
 #define TR_REPEAT                      "Gentag"
 #define TR_ENABLE                      "Aktiver"
-#define TR_TOPLCDTIMER                 "Top LCD Timer"
+#define TR_TOPLCDTIMER                 "Top LCD ur"
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
 #define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevid")
@@ -1034,15 +1034,15 @@
 #define TR_LSW_HEADERS_DELAY           "Forsinkelse"
 
 #define TR_GVAR_HEADERS_NAME           "Navn"
-#define TR_GVAR_HEADERS_FM0            "Værdi ved FM0"
-#define TR_GVAR_HEADERS_FM1            "Værdi ved FM1"
-#define TR_GVAR_HEADERS_FM2            "Værdi ved FM2"
-#define TR_GVAR_HEADERS_FM3            "Værdi ved FM3"
-#define TR_GVAR_HEADERS_FM4            "Værdi ved FM4"
-#define TR_GVAR_HEADERS_FM5            "Værdi ved FM5"
-#define TR_GVAR_HEADERS_FM6            "Værdi ved FM6"
-#define TR_GVAR_HEADERS_FM7            "Værdi ved FM7"
-#define TR_GVAR_HEADERS_FM8            "Værdi ved FM8"
+#define TR_GVAR_HEADERS_FM0            "Værdi ved FT0"
+#define TR_GVAR_HEADERS_FM1            "Værdi ved FT1"
+#define TR_GVAR_HEADERS_FM2            "Værdi ved FT2"
+#define TR_GVAR_HEADERS_FM3            "Værdi ved FT3"
+#define TR_GVAR_HEADERS_FM4            "Værdi ved FT4"
+#define TR_GVAR_HEADERS_FM5            "Værdi ved FT5"
+#define TR_GVAR_HEADERS_FM6            "Værdi ved FT6"
+#define TR_GVAR_HEADERS_FM7            "Værdi ved FT7"
+#define TR_GVAR_HEADERS_FM8            "Værdi ved FT8"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk kontakt", "Minimum SAND varighed for betingelse bliver sand" }
@@ -1055,7 +1055,7 @@
 #define TR_SLIDERS                     "Skydere"
 #define TR_FLIGHT_MODE                 "Flyve tilstand"
 #define TR_INVALID_FILE                "Ugyldig fil"
-#define TR_TIMER_SOURCE                "Timer kilde"
+#define TR_TIMER_SOURCE                "Ur kilde"
 #define TR_SIZE                        "Størrelse"
 #define TR_SHADOW                      "Skygge"
 #define TR_TEXT                        "Tekst"
@@ -1067,7 +1067,7 @@
 #define TR_WIDGET_MODELBMP             "Models"
 #define TR_WIDGET_OUTPUTS              "Outputs"
 #define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_TIMER                "Ur"
 #define TR_WIDGET_VALUE                "Value"
 
 // About screen
@@ -1158,7 +1158,7 @@
 #define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Logiske kontakter"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Træner"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Kanaler"
-#define TR_MENU_GVARS                  STR_CHAR_SLIDER "GVars"
+#define TR_MENU_GVARS                  STR_CHAR_SLIDER "Globale Var"
 #define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Telemetri"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Andet"
