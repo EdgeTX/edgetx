@@ -264,9 +264,17 @@ void boardOff()
   PWR_BackupRegulatorCmd(DISABLE);
 #endif
 
-  RTC->BKP0R = SHUTDOWN_REQUEST;
+  if (usbPlugged())
+  {
+    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+  else
+  {
+    RTC->BKP0R = SHUTDOWN_REQUEST;
+    pwrOff();
+  }
 
-  pwrOff();
 
   // We reach here only in forced power situations, such as hw-debugging with external power  
   // Enter STM32 stop mode / deep-sleep
