@@ -544,7 +544,9 @@ void OpenTxSim::refreshDisplay()
 
 #if !defined(COLORLCD)
     FXColor offColor = isBacklightEnabled() ? BL_COLOR : FXRGB(200, 200, 200);
+#if LCD_DEPTH == 1
     FXColor onColor = FXRGB(0, 0, 0);
+#endif
 #endif
     for (int x = 0; x < LCD_W; x++) {
       for (int y = 0; y < LCD_H; y++) {

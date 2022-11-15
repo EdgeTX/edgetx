@@ -184,8 +184,8 @@ void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 
 void intmoduleWaitForTxCompleted(void* ctx)
 {
-  auto modCtx = (IntmoduleCtx*)ctx;
 #if defined(INTMODULE_DMA_STREAM)
+  auto modCtx = (IntmoduleCtx*)ctx;
   stm32_usart_wait_for_tx_dma(modCtx->usart);
 #else
   while (intmoduleTxBufferRemaining > 0);
