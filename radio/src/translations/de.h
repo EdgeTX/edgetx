@@ -408,7 +408,7 @@
 #define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s") // 9XR-Pro
 #define TR_CENTER                      TR(INDENT "Mitte", INDENT "Variomitte     m/s")
 #define TR_BAR                         "Balken"
-#define TR_ALARM                       TR("Alarme ", "Aufleuchten bei Alarm")  // 9XR-Pro
+#define TR_ALARM                       TR("Alarme ", "Alarme")  // 9XR-Pro
 #define TR_USRDATA                     "Daten berechnen aus"
 #define TR_BLADES                      TR("Prop", "Prop-Blätter") // 9XR-Pro
 #define TR_SCREEN                      "Seite: "
@@ -443,7 +443,7 @@
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
-#define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
+#define TR_BACKLIGHT_LABEL             "Bildschirm"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
