@@ -529,11 +529,7 @@ void audioTask(void * pdata)
   // The audio amp needs ~2s to start
   RTOS_WAIT_MS(1000); // 1s
 #elif defined(PCBNV14)
-  while(!isAudioReady())
-  {
-    audioChipReset();
-    RTOS_WAIT_MS(1000);
-  }
+  audioOn();
 #endif
 
   while (true) {

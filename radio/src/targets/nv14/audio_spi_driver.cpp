@@ -135,6 +135,12 @@ void audioSpiInit(void)
   SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_TXE);
 }
 
+void audioWaitReady()
+{
+  // The audio amp needs ~2s to start
+  RTOS_WAIT_MS(2000); // 2s
+}
+
 void audioSpiSetSpeed(uint8_t speed)
 {
   AUDIO_SPI->CR1 &= 0xFFC7; // Fsck=Fcpu/256
@@ -271,29 +277,24 @@ void audioResetDecodeTime(void)
 
 uint8_t audioHardReset(void)
 {
-  uint8_t retry=0;
-  RST_LOW();
-  delay_ms(20);
   XDCS_HIGH();
   CS_HIGH();
+  RST_LOW();
+  delay_ms(100); // 100ms
   RST_HIGH();
-  while (READ_DREQ() == 0 && retry < 200)
-  {
-    retry++;
-    delay_us(50);
-  }
+
+  if (!audioWaitDreq(5000))
+    return 0;
+
   delay_ms(20); // 20ms
-  return retry < 200;
+  return 1;
 }
 
 uint8_t audioSoftReset(void)
 {
   audioSpiSetSpeed(SPI_SPEED_64);
   if (!audioWaitDreq(100))
-  {
-    TRACE("audioSoftReset !audioWaitDreq");
     return 0;
-  }
 
   audioSpiReadWriteByte(0Xff);
 
@@ -308,6 +309,7 @@ uint8_t audioSoftReset(void)
     retry++;
     audioSpiWriteCmd(SPI_CLOCKF, 0x9800);
   }
+
   audioResetDecodeTime(); // reset the decoding time
   audioSpiSetSpeed(SPI_SPEED_8);
   XDCS_LOW();
@@ -355,6 +357,8 @@ void audioSendRiffHeader()
   audioSpiWriteBuffer(RiffHeader, sizeof(RiffHeader));
 }
 
+#if defined(PCBX12S) || defined(PCBNV14)
+
 void audioOn()
 {
   GPIO_SetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
@@ -365,7 +369,7 @@ void audioOff()
   GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
 }
 
-void audioAmpInit()
+void audioShutdownInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = AUDIO_SHUTDOWN_GPIO_PIN;
@@ -376,45 +380,21 @@ void audioAmpInit()
   GPIO_Init(AUDIO_SHUTDOWN_GPIO, &GPIO_InitStructure);
   GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
 }
-
-bool hardResetDone = false;
-bool softResetDone = false;
-
-bool isAudioReady()
-{
-  return hardResetDone && softResetDone;
-}
-
-void audioWaitReady()
-{
-  while (!isAudioReady()) {
-    audioChipReset();
-    RTOS_WAIT_MS(1000);
-  }
-}
-
-bool audioChipReset()
-{
-  audioSpiSetSpeed(SPI_SPEED_64);
-  if (!hardResetDone) {
-    hardResetDone = audioHardReset() > 0;
-    softResetDone = false;
-  }
-  if (!softResetDone) {
-    softResetDone = audioSoftReset() > 0;
-  }
-  audioSpiSetSpeed(SPI_SPEED_8);
-  if (hardResetDone && softResetDone) {
-    audioSendRiffHeader();
-    audioOn();
-  }
-  return hardResetDone && softResetDone;
-}
+#endif
 
 void audioInit()
 {
-  audioAmpInit();
+#if defined(PCBX12S) || defined(PCBNV14)
+  audioShutdownInit();
+  // TODO X10 code missing
+#endif
+
   audioSpiInit();
+  audioHardReset();
+  audioSoftReset();
+  audioSpiSetSpeed(SPI_SPEED_8);
+  delay_ms(1); // 1ms
+  audioSendRiffHeader();
 }
 
 uint8_t * currentBuffer = nullptr;
@@ -435,14 +415,10 @@ void audioSetCurrentBuffer(const AudioBuffer * buffer)
 
 void audioConsumeCurrentBuffer()
 {
-  if (!hardResetDone || !softResetDone) {
-     return;
-  }
-
   if (newVolume >= 0) {
     uint8_t value = newVolume;
     audioSpiWriteCmd(SPI_VOL, (value << 8) + value);
-    audioSendRiffHeader();
+    // audioSendRiffHeader();
     newVolume = -1;
   }
 
