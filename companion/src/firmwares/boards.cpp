@@ -432,13 +432,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 0;
 
     case MouseAnalogs:
-      if (IS_HORUS_X12S(board))
+      if (IS_FAMILY_HORUS_OR_T16(board))
         return 2;
       else
         return 0;
 
     case GyroAnalogs:
-      if (IS_TARANIS_XLITES(board))
+      if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board))
         return 2;
       else
         return 0;
@@ -591,12 +591,12 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"LS", "SLIDER3"},
                               {"RS", "SLIDER4"},
                           });
-  } else if (IS_TARANIS_XLITE(board)) {
+  } else if (IS_TARANIS_XLITES(board)) {
     tbl.insert(tbl.end(), {
                               {"S1", "POT1"},
                               {"S2", "POT2"},
-                              {"GyrX", "GYRO1"},
-                              {"GyrY", "GYRO2"},
+                              {"TltX", "TILT_X"},
+                              {"TltY", "TILT_Y"},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
@@ -622,6 +622,8 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"RS", "RS"},
                               {"JSx", "MOUSE1"},
                               {"JSy", "MOUSE2"},
+                              {"TltX", "TILT_X"},
+                              {"TltY", "TILT_Y"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
@@ -634,6 +636,10 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {"EX4", "EXT4"},
                               {"LS", "LS"},
                               {"RS", "RS"},
+                              {"JSx", "MOUSE1"},
+                              {"JSy", "MOUSE2"},
+                              {"TltX", "TILT_X"},
+                              {"TltY", "TILT_Y"},
                           });
   }
 
