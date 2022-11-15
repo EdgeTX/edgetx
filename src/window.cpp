@@ -513,7 +513,7 @@ void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
 void Window::bringToTop()
 {
   attach(parent); // does a detach + attach
-  if (lvobj) lv_obj_move_foreground(lvobj);
+  if (lvobj && lv_obj_get_parent(lvobj)) lv_obj_move_foreground(lvobj);
 }
 
 void Window::checkEvents()
