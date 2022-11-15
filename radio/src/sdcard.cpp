@@ -69,6 +69,7 @@ bool sdCardFormat()
   }
 }
 
+#if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t sdGetSize()
 {
   return (sdGetNoSectors() / 1000000) * BLOCK_SIZE;

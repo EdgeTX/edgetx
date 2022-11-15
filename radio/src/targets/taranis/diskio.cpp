@@ -952,9 +952,6 @@ void sdPoll10ms()
   }
 }
 
-bool _g_FATFS_init = false;
-    _g_FATFS_init = true;
-  return g_FATFS_Obj.fs_type != 0;
 uint32_t sdIsHC()
 {
   return (CardType & CT_BLOCK);

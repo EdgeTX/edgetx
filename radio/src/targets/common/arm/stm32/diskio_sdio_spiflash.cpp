@@ -474,9 +474,6 @@ DRESULT disk_ioctl (
 }
 
 #if defined (SDCARD)
-bool _g_FATFS_init = false;
-    _g_FATFS_init = true;
-  return g_FATFS_Obj.fs_type != 0;
 uint32_t sdIsHC()
 {
   return SD_isHC();

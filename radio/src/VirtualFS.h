@@ -183,6 +183,8 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
   filename[sizeof(path)+sizeof(var)] = '\0'; \
   strcat(&filename[sizeof(path)], ext)
 
+extern uint8_t logDelay100ms; // this does not belong here, this is just the way it was before VirtualFS
+
 class VirtualFS;
 
 enum class VfsType { UNKOWN, DIR, FILE };
