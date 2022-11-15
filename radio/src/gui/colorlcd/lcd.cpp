@@ -89,8 +89,8 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 #endif
   
 #if defined(DEBUG_WINDOWS)
-  if (refr_area.x1 != 0 || refr_area.x2 != LCD_PHYS_W-1 || refr_area.y1 != 0 ||
-      refr_area.y2 != LCD_PHYS_H-1) {
+  if (area->x1 != 0 || area->x2 != LCD_PHYS_W-1 || area->y1 != 0 ||
+      area->y2 != LCD_PHYS_H-1) {
     TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, area->x1,
           area->y1, area->x2, area->y2);
   } else {
@@ -161,7 +161,11 @@ void lcdInitDisplayDriver()
 
   disp_drv.hor_res = LCD_PHYS_W;               /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_PHYS_H;               /*Set the vertical resolution in pixels*/
+#if defined (PCBPL18)
   disp_drv.full_refresh = 1;
+#else
+  disp_drv.full_refresh = 0;
+#endif
 
 #if !defined(LCD_VERTICAL_INVERT)
   disp_drv.direct_mode = 1;
