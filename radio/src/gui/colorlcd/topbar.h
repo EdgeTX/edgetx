@@ -54,7 +54,4 @@ class SetupTopBarWidgetsPage : public FormWindow
   void onClicked() override;
   void onCancel() override;
   void deleteLater(bool detach = true, bool trash = true) override;
-
- protected:
-  ScreenMenu* menu;
 };

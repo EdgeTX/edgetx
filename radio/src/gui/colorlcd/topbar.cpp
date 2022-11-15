@@ -35,8 +35,7 @@ Topbar * TopbarFactory::create(Window * parent)
 }
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
-  FormWindow(ViewMain::instance(), rect_t{}, FORM_FORWARD_FOCUS),
-  menu(menu)
+  FormWindow(ViewMain::instance(), rect_t{}, FORM_FORWARD_FOCUS)
 {
   // remember focus
   Layer::push(this);
@@ -82,9 +81,6 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 
   // and continue async deletion...
   FormWindow::deleteLater(detach, trash);
-
-  // restore screen setting tab on top
-  new ScreenMenu(0);
 
   storageDirty(EE_MODEL);
 }
