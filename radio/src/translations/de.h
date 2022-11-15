@@ -443,7 +443,7 @@
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
-#define TR_BACKLIGHT_LABEL             "LCD"
+#define TR_BACKLIGHT_LABEL             "Bildschirm"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
