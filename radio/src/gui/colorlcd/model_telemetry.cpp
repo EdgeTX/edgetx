@@ -466,12 +466,12 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(window, grid.getFieldSlot(), 0, 100,
+  new NumberEdit(window, grid.getFieldSlot(), 0, 100,
                              GET_SET_DEFAULT(g_model.rfAlarms.warning));
   grid.nextLine();
 
   new StaticText(window, grid.getLabelSlot(true), STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(window, grid.getFieldSlot(), 0, 100,
+  new NumberEdit(window, grid.getFieldSlot(), 0, 100,
                         GET_SET_DEFAULT(g_model.rfAlarms.critical));
   grid.nextLine();
 

@@ -52,9 +52,6 @@ void draw_splash_cb(lv_event_t * e)
 
 void drawSplash()
 {
-  constexpr LcdFlags splash_background_color =
-    COLOR2FLAGS(((0xC >> 3) << 11) | ((0x3F >> 2) << 5) | (0x66 >> 3));
-
   static bool loadSplashImg = true;
   static BitmapBuffer* splashImg = nullptr;
   static lv_obj_t* splashScreen = nullptr;

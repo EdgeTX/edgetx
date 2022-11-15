@@ -145,7 +145,7 @@ class InputLineButton : public InputMixButton
 
     if (line.name[0]) {
       int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
-      if (cnt >= maxlen) maxlen = 0;
+      if ((size_t)cnt >= maxlen) maxlen = 0;
       else { maxlen -= cnt; s += cnt; }
     }
 
@@ -153,13 +153,13 @@ class InputLineButton : public InputMixButton
        if (line.swtch) {
          char* sw_pos = getSwitchPositionName(line.swtch);
          int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
-         if (cnt >= maxlen) maxlen = 0;
+         if ((size_t)cnt >= maxlen) maxlen = 0;
          else { maxlen -= cnt; s += cnt; }
        }
        if (line.curve.value != 0) {
          getCurveRefString(s, maxlen, line.curve);
          int cnt = strnlen(s, maxlen);
-         if (cnt >= maxlen) maxlen = 0;
+         if ((size_t)cnt >= maxlen) maxlen = 0;
          else { maxlen -= cnt; s += cnt; }
        }
     }
