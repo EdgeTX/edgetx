@@ -404,13 +404,13 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>") // 9XR-Pro
-#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s") // 9XR-Pro
+#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>")
+#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s")
 #define TR_CENTER                      TR(INDENT "Mitte", INDENT "Variomitte     m/s")
 #define TR_BAR                         "Balken"
-#define TR_ALARM                       TR("Alarme ", "Alarme")  // 9XR-Pro
+#define TR_ALARM                       "Alarme"
 #define TR_USRDATA                     "Daten berechnen aus"
-#define TR_BLADES                      TR("Prop", "Prop-Blätter") // 9XR-Pro
+#define TR_BLADES                      TR("Prop", "Prop-Blätter")
 #define TR_SCREEN                      "Seite: "
 #define TR_SOUND_LABEL                 "Töne"
 #define TR_LENGTH                      "Dauer"
