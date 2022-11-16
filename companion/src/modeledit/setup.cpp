@@ -664,12 +664,12 @@ void ModulePanel::update()
 
   if (mask & MASK_MULTI_DSM_OPT) {
     ui->lblChkOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
-    ui->chkOption->setChecked(module.multi.optionValue & 0x01);
+    ui->chkOption->setChecked(Helpers::getBitmappedValue(module.multi.optionValue, 0));
     ui->lblCboOption->setText(qApp->translate("Multiprotocols", "Servo update rate"));
     ui->cboOption->clear();
     ui->cboOption->addItems({"22ms", "11ms"});
     ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    ui->cboOption->setCurrentIndex((module.multi.optionValue & 0x02) >> 1);
+    ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
   }
 
   // Ghost settings fields
@@ -877,8 +877,10 @@ void ModulePanel::on_chkOption_stateChanged(int state)
 {
   if (!lock) {
     if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
-      if ((module.multi.optionValue & 0x01) != (state == Qt::Checked)) {
-        module.multi.optionValue = (module.multi.optionValue & 0xFE) + (state == Qt::Checked);
+      unsigned int opt = (unsigned int)module.multi.optionValue;
+      if (Helpers::getBitmappedValue(opt, 0) != (state == Qt::Checked)) {
+        Helpers::setBitmappedValue(opt, (state == Qt::Checked), 0);
+        module.multi.optionValue = opt;
         emit modified();
       }
     }
@@ -891,10 +893,12 @@ void ModulePanel::on_chkOption_stateChanged(int state)
 
 void ModulePanel::on_cboOption_currentIndexChanged(int value)
 {
-  if (!lock) {
+  if (!lock && value >= 0) {
     if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
-      if (((module.multi.optionValue & 0x02) >> 1) != value) {
-        module.multi.optionValue = (module.multi.optionValue & 0xFD) + (value << 1);
+      unsigned int opt = (unsigned int)module.multi.optionValue;
+      if (Helpers::getBitmappedValue(opt, 1) != (unsigned int)value) {
+        Helpers::setBitmappedValue(opt, value, 1);
+        module.multi.optionValue = opt;
         emit modified();
       }
     }
