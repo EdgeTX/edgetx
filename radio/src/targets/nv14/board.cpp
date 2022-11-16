@@ -249,24 +249,45 @@ void boardInit()
 }
 
 void boardOff()
-{
-  lcd->drawFilledRect(0, 0, LCD_WIDTH, LCD_HEIGHT, SOLID, COLOR_THEME_FOCUS);
+{    
   lcdOff();
-
-  SysTick->CTRL = 0; // turn off systick
 
   while (pwrPressed()) {
     WDG_RESET();
   }
+
+  SysTick->CTRL = 0; // turn off systick
+
+  // Shutdown the Audio amp
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = AUDIO_SHUTDOWN_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_Init(AUDIO_SHUTDOWN_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+
+  // Shutdown the Haptic
+  hapticDone();
 
 #if defined(RTC_BACKUP_RAM)
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
   PWR_BackupRegulatorCmd(DISABLE);
 #endif
 
-  RTC->BKP0R = SHUTDOWN_REQUEST;
+  if (usbPlugged())
+  {
+    delay_ms(100);  // Add a delay to wait for lcdOff
+    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+  else
+  {
+    RTC->BKP0R = SHUTDOWN_REQUEST;
+    pwrOff();
+  }
 
-  pwrOff();
 
   // We reach here only in forced power situations, such as hw-debugging with external power  
   // Enter STM32 stop mode / deep-sleep
