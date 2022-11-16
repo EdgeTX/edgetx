@@ -285,7 +285,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     }
 
     if (node.IsScalar() && node.as<std::string>().size() == 12 && node.as<std::string>().substr(0, 11) == "SPACEMOUSE_") {
-      int sm_idx;
+      int sm_idx = 0;
       node >> spacemouseLut >> sm_idx;
       if (sm_idx >= 0) {
         rhs.type = SOURCE_TYPE_SPACEMOUSE;

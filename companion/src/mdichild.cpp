@@ -507,8 +507,6 @@ void MdiChild::adjustToolbarLayout()
 
 void MdiChild::initModelsList()
 {
-  Board::Type board = firmware->getBoard();
-
   if (modelsListModel)
     delete modelsListModel;
 
