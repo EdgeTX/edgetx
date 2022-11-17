@@ -11375,7 +11375,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Directories checked/created: %1</source>
-        <translation>Kataloger kontrollerade/skapde: %1</translation>
+        <translation>Kataloger kontrollerade/skapade: %1</translation>
     </message>
     <message>
         <source>Failed to delete existing file %1</source>
@@ -11686,7 +11686,7 @@ Fel:%1
     <name>Updates</name>
     <message>
         <source>No updates available at this time</source>
-        <translation>Inga uppdateringar tillgängliga i nuläget</translation>
+        <translation>Inga uppdateringar är tillgängliga för närvarande</translation>
     </message>
     <message>
         <source>Checking for Updates</source>
