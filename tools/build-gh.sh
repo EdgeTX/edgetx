@@ -173,6 +173,10 @@ do
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
+        *)
+            echo "Unknown target: $target_name"
+            exit 1
+            ;;
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
