@@ -538,7 +538,7 @@
 #define TR_INT_GPS_LABEL                "Intern GPS"
 #define TR_HEARTBEAT_LABEL              "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL            "Lua-skript"
-#define TR_FREE_MEM_LABEL               "Free mem"
+#define TR_FREE_MEM_LABEL               "Ledigt minne"
 #define TR_TIMER_LABEL                  "Timer"
 #define TR_THROTTLE_PERCENT_LABEL       "Gas %"
 #define TR_BATT_LABEL                   "Batteri"
