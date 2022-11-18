@@ -189,6 +189,7 @@ void OutputEditWindow::buildBody(FormWindow* form)
                                SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
   center->setFastStep(20);
   center->setAccelFactor(8);
+  center->setDefault(PPM_CENTER);
 
   // Subtrims mode
   label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIMMODE, 0,
