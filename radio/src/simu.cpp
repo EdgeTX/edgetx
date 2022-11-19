@@ -656,23 +656,16 @@ int main(int argc, char ** argv)
   return application.run();
 }
 
-uint16_t anaIn(uint8_t chan)
+uint16_t simu_get_analog(uint8_t idx)
 {
-  if (chan < MAX_STICKS)
-    return opentxSim->sliders[chan]->getValue();
-  else if (chan < MAX_STICKS + adcGetMaxPots())
-    return opentxSim->knobs[chan - MAX_STICKS]->getValue();
-#if defined(PCBTARANIS)
-  else if (chan == TX_RTC_VOLTAGE)
+  if (idx < MAX_STICKS)
+    return opentxSim->sliders[idx]->getValue();
+  else if (idx < MAX_STICKS + adcGetMaxPots())
+    return opentxSim->knobs[idx - MAX_STICKS]->getValue();
+  else if (idx == TX_RTC_VOLTAGE)
     return 800; // 2.34V
-#endif
   else
     return 0;
-}
-
-uint16_t getAnalogValue(uint8_t index)
-{
-  return anaIn(index);
 }
 
 void createBitmap(int index, uint16_t *data, int x, int y, int w, int h)

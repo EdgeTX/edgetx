@@ -22,6 +22,7 @@
 #include "opentxsimulator.h"
 #include "opentx.h"
 #include "simulcd.h"
+#include "switches.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -44,14 +45,9 @@ QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
   #define TAP_TIME 25
 #endif
 
-uint16_t anaIn(uint8_t chan)
+uint16_t simu_get_analog(uint8_t idx)
 {
-  return g_anas[chan];
-}
-
-uint16_t getAnalogValue(uint8_t index)
-{
-  return anaIn(index);
+  return g_anas[idx];
 }
 
 void firmwareTraceCb(const char * text)

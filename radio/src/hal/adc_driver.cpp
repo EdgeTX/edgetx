@@ -203,7 +203,6 @@ void adcCalibStore()
   storageDirty(EE_GENERAL);
 }
 
-#if !defined(SIMU)
 uint16_t getRTCBatteryVoltage()
 {
   // anaIn() outputs value divided by (1 << ANALOG_SCALE)
@@ -213,8 +212,7 @@ uint16_t getRTCBatteryVoltage()
 uint16_t getAnalogValue(uint8_t index)
 {
   if (index >= MAX_STICKS) {
-    index -= MAX_STICKS;
-    if (!IS_POT_SLIDER_AVAILABLE(index)) {
+    if (!IS_POT_SLIDER_AVAILABLE(index - MAX_STICKS)) {
       // Use fixed analog value for non-existing and/or non-connected pots.
       // Non-connected analog inputs will slightly follow the adjacent connected
       // analog inputs, which produces ghost readings on these inputs.
@@ -264,8 +262,6 @@ uint16_t getBatteryVoltage()
 #endif
 }
 
-extern uint16_t get_flysky_hall_adc_value(uint8_t ch);
-
 void getADC()
 {
 #if defined(JITTER_MEASURE)
@@ -285,21 +281,8 @@ void getADC()
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
-    uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        if (x < 4) {
-          v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
-        } else {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-        }
-    }
-    else
-#endif
-    {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-    }
+
+    uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
     // Jitter filter:
     //    * pass trough any big change directly
@@ -381,4 +364,3 @@ void getADC()
   }
 }
 
-#endif // #if !defined(SIMU)

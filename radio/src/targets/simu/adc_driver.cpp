@@ -21,12 +21,31 @@
 
 #include "hal/adc_driver.h"
 #include "definitions.h"
+#include "dataconstants.h"
 
 #include "hw_inputs.inc"
 
 void enableVBatBridge(){}
 void disableVBatBridge(){}
 bool isVBatBridgeEnabled(){ return false; }
+
+extern uint16_t simu_get_analog(uint8_t idx);
+
+static bool simu_start_conversion()
+{
+  for (int i=0; i<MAX_ANALOG_INPUTS; i++)
+    adcValues[i] = simu_get_analog(i);
+
+  return true;
+}
+
+extern const etx_hal_adc_driver_t simu_adc_driver;
+
+const etx_hal_adc_driver_t simu_adc_driver = {
+  .init = nullptr,
+  .start_conversion = simu_start_conversion,
+  .wait_completion = nullptr,
+};
 
 const char* adcGetStickName(uint8_t idx)
 {

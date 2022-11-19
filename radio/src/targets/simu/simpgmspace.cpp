@@ -23,6 +23,7 @@
 
 #include "opentx.h"
 #include "simulcd.h"
+#include "hal/adc_driver.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -56,6 +57,8 @@ GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpio
 USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
 ADC_Common_TypeDef adc;
 RTC_TypeDef rtc;
+
+extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
 
@@ -200,8 +203,11 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
-  // Init LCD call backs
+  // Init LCD callbacks
   lcdInit();
+
+  // Init ADC driver callback
+  adcInit(&simu_adc_driver);
   
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
@@ -620,16 +626,6 @@ bool isJackPlugged()
 void serialPrintf(const char * format, ...) { }
 void serialCrlf() { }
 void serialPutc(char c) { }
-
-uint16_t getBatteryVoltage()
-{
-  return (g_eeGeneral.vBatWarn * 10) + 50; // 0.5 volt above alerm (value is PREC1)
-}
-
-uint16_t getRTCBatteryVoltage()
-{
-  return 300;
-}
 
 void boardOff()
 {

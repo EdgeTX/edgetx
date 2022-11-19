@@ -200,7 +200,6 @@ extern char * main_thread_error;
 
 #define OPENTX_START_DEFAULT_ARGS  simu_start_mode
 
-inline void getADC() { }
 
 uint64_t simuTimerMicros(void);
 uint8_t simuSleep(uint32_t ms);  // returns true if thread shutdown requested

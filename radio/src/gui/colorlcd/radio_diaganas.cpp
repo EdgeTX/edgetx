@@ -20,17 +20,14 @@
  */
 
 #include "opentx.h"
-#include "radio_diaganas.h"
 #include "libopenui.h"
-#include "../../hal/adc_driver.h"
+
+#include "radio_diaganas.h"
+#include "hal/adc_driver.h"
 
 // #if defined(IMU_LSM6DS33)
 // #include "imu_lsm6ds33.h"
 // #endif
-
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-#include "../../targets/horus/flyskyHallStick_driver.h"
-#endif
 
 #define STATSDEPTH 8 // ideally a value of power of 2
 
@@ -64,69 +61,39 @@ class AnaCalibratedViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-        if (globalData.flyskygimbals)
-        {
-            for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, hall_raw_values[i], RIGHT | COLOR_THEME_PRIMARY1);
-            }
-
-            for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, anaIn(i), RIGHT | COLOR_THEME_PRIMARY1);
-            }
-        }
+      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+#if LCD_W > LCD_H
+        coord_t y = 1 + (i / 2) * FH;
+        uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#else
+        coord_t y = 1 + i * FH;
+        uint8_t x = 10;
 #endif
+        dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+        dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + CA_X_OFFSET, y,
+                       (int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256,
+                       RIGHT | COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + VALUE_X_OFFSET, y, anaIn(i),
+                       RIGHT | COLOR_THEME_PRIMARY1);
+      }
 
-        if (!globalData.flyskygimbals) // Also Simulator
-        {
-            for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, anaIn(i), RIGHT | COLOR_THEME_PRIMARY1);
-            }
-        }
-
-// #if !defined(SIMU) && defined(IMU_LSM6DS33)
-//       coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
-//       coord_t ximu = MENUS_MARGIN_LEFT;
-//       char imudata[80];
-//       sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f, %.2f, %.2f",
-//               IMUoutput.fTemperatureDegC,
-//               IMUoutput.fGyroXradps, IMUoutput.fGyroYradps, IMUoutput.fGyroZradps);
-//       dc->drawText(ximu, yimu, imudata);
-//       yimu = MENU_CONTENT_TOP + 4 * FH;
-//       sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f %.2f",
-//                 IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
-//       dc->drawText(ximu, yimu, imudata);
-// #endif
+      // #if !defined(SIMU) && defined(IMU_LSM6DS33)
+      //       coord_t yimu = MENU_CONTENT_TOP + 3 * FH;
+      //       coord_t ximu = MENUS_MARGIN_LEFT;
+      //       char imudata[80];
+      //       sprintf(imudata, "IMU temp.: %.2f deg.C, Gyro XYZ [rad/s]: %.2f,
+      //       %.2f, %.2f",
+      //               IMUoutput.fTemperatureDegC,
+      //               IMUoutput.fGyroXradps, IMUoutput.fGyroYradps,
+      //               IMUoutput.fGyroZradps);
+      //       dc->drawText(ximu, yimu, imudata);
+      //       yimu = MENU_CONTENT_TOP + 4 * FH;
+      //       sprintf(imudata, "Linear acceleration XYZ [m/s^2]: %.2f %.2f
+      //       %.2f",
+      //                 IMUoutput.fAccX, IMUoutput.fAccY, IMUoutput.fAccZ);
+      //       dc->drawText(ximu, yimu, imudata);
+      // #endif
 
 #if defined(HARDWARE_TOUCH)
       TouchState rawTouchState = getInternalTouchState();
@@ -248,77 +215,38 @@ class AnaFilteredDevViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-        static Stats stats[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+      static Stats stats[MAX_ANALOG_INPUTS];
 
-        if (ClearStats)
-        {
-            for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                stats[i].clear();
-            }
-            ClearStats = false;
-        }
-
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-          if (globalData.flyskygimbals)
-          {
-              for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + i * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  stats[i].write(hall_raw_values[i]);
-                  dc->drawNumber(x + VALUE_X_OFFSET, y, hall_raw_values[i], RIGHT | COLOR_THEME_PRIMARY1); // no need to use calculated mean for FlySky - the output is stable enough to display directly
-                  dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
-              }
-
-              for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + i * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  stats[i].write(getAnalogValue(i));
-                  extern uint32_t s_anaFilt[NUM_ANALOGS];
-                  dc->drawNumber(x + VALUE_X_OFFSET, y, s_anaFilt[i]/JITTER_ALPHA, RIGHT | COLOR_THEME_PRIMARY1); // use integrated filter
-                  dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
-              }
+      if (ClearStats) {
+          for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+              stats[i].clear();
           }
+          ClearStats = false;
+      }
+
+      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+#if LCD_W > LCD_H
+          coord_t y = 1 + (i / 2) * FH;
+          uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#else
+          coord_t y = 1 + i * FH;
+          uint8_t x = 10;
 #endif
-
-          if (!globalData.flyskygimbals) // Also Simulator
-          {
-              for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + i * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  stats[i].write(getAnalogValue(i));
-                  #if !defined(SIMU)
-                    extern uint32_t s_anaFilt[NUM_ANALOGS];
-                    dc->drawNumber(x + VALUE_X_OFFSET, y, s_anaFilt[i]/JITTER_ALPHA, RIGHT | COLOR_THEME_PRIMARY1); // use integrated filter
-                  #else
-                    dc->drawNumber(x + VALUE_X_OFFSET, y, anaIn(i), RIGHT | COLOR_THEME_PRIMARY1); // for simu, can use directly the input values without filtering
-                  #endif
-                  dc->drawNumber(dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1), y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
-              }
-          }
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1,
+                         2);
+          dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + CA_X_OFFSET, y,
+                         (int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256,
+                         RIGHT | COLOR_THEME_PRIMARY1);
+          stats[i].write(getAnalogValue(i));
+          extern uint32_t s_anaFilt[NUM_ANALOGS];
+          dc->drawNumber(
+              x + VALUE_X_OFFSET, y, s_anaFilt[i] / JITTER_ALPHA,
+              RIGHT | COLOR_THEME_PRIMARY1);  // use integrated filter
+          dc->drawNumber(
+              dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1),
+              y, stats[i].maxDev(), LEFT | COLOR_THEME_PRIMARY1);
+      }
     };
 };
 
@@ -337,58 +265,26 @@ class AnaUnfilteredRawViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-        if (globalData.flyskygimbals)
-        {
-            for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, hall_raw_values[i], RIGHT | COLOR_THEME_PRIMARY1);
-            }
-
-            for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, getAnalogValue(i), RIGHT | COLOR_THEME_PRIMARY1);
-            }
-        }
+      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+#if LCD_W > LCD_H
+          coord_t y = 1 + (i / 2) * FH;
+          uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#else
+          coord_t y = 1 + i * FH;
+          uint8_t x = 10;
 #endif
-
-        if (!globalData.flyskygimbals) // Also Simulator
-        {
-            for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                #if LCD_W > LCD_H
-                  coord_t y = 1 + (i / 2) * FH;
-                  uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                #else
-                  coord_t y = 1 + i * FH;
-                  uint8_t x = 10;
-                #endif
-                dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                dc->drawNumber(x + VALUE_X_OFFSET, y, getAnalogValue(i), RIGHT | COLOR_THEME_PRIMARY1);
-            }
-        }
+          dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1,
+                         2);
+          dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + CA_X_OFFSET, y,
+                         (int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256,
+                         RIGHT | COLOR_THEME_PRIMARY1);
+          dc->drawNumber(x + VALUE_X_OFFSET, y, getAnalogValue(i),
+                         RIGHT | COLOR_THEME_PRIMARY1);
+      }
     };
 
-  protected:
+   protected:
 };
 
 class AnaMinMaxViewWindow: public Window {
@@ -449,75 +345,37 @@ class AnaMinMaxViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-        static MinMax minmax[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+      static MinMax minmax[MAX_ANALOG_INPUTS];
 
-        if (ClearStats)
-        {
-            for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                minmax[i].clear();
-            }
-            ClearStats = false;
+      if (ClearStats) {
+        for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+          minmax[i].clear();
         }
-        dc->drawText(10, 1, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
+        ClearStats = false;
+      }
+      dc->drawText(10, 1, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
 
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-          if (globalData.flyskygimbals)
-          {
-              for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2 + 1) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + (i + 1) * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  minmax[i].write(hall_raw_values[i]);
-                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
-              }
-
-              for (uint8_t i = FLYSKY_HALL_CHANNEL_COUNT; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2 + 1) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + (i + 1) * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":",  COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  minmax[i].write(getAnalogValue(i));
-                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
-              }
-          }
+      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+#if LCD_W > LCD_H
+        coord_t y = 1 + (i / 2 + 1) * FH;
+        uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
+#else
+        coord_t y = 1 + (i + 1) * FH;
+        uint8_t x = 10;
 #endif
-
-          if (!globalData.flyskygimbals) // Also Simulator
-          {
-              for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-                  #if LCD_W > LCD_H
-                    coord_t y = 1 + (i / 2 + 1) * FH;
-                    uint8_t x = i & 1 ? LCD_W / 2 + 10 : 10;
-                  #else
-                    coord_t y = 1 + (i + 1) * FH;
-                    uint8_t x = 10;
-                  #endif
-                  dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
-                  dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + CA_X_OFFSET, y, (int16_t) calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256, RIGHT | COLOR_THEME_PRIMARY1);
-                  minmax[i].write(getAnalogValue(i));
-                  dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(), RIGHT | COLOR_THEME_PRIMARY1);
-                  dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(), LEFT | COLOR_THEME_PRIMARY1);
-              }
-          }
+        dc->drawNumber(x, y, i + 1, LEADING0 | LEFT | COLOR_THEME_PRIMARY1, 2);
+        dc->drawText(x + 2 * 15 - 2, y, ":", COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + CA_X_OFFSET, y,
+                       (int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256,
+                       RIGHT | COLOR_THEME_PRIMARY1);
+        minmax[i].write(getAnalogValue(i));
+        dc->drawNumber(x + MIN_X_OFFSET, y, minmax[i].MinVal(),
+                       RIGHT | COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + MAX_X_OFFSET, y, minmax[i].MaxVal(),
+                       RIGHT | COLOR_THEME_PRIMARY1);
+        dc->drawNumber(x + RANGE_X_OFFSET, y, minmax[i].Range(),
+                       LEFT | COLOR_THEME_PRIMARY1);
+      }
     };
 };
 

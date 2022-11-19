@@ -31,8 +31,6 @@ unsigned char HallCmd[264] __DMA;
 
 STRUCT_HALL HallProtocol = { 0 };
 STRUCT_HALL HallProtocolTx = { 0 };
-signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
-unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
 /* crc16 implementation according to CCITT standards */
 const unsigned short CRC16Table[256]= {
@@ -83,16 +81,6 @@ unsigned short calc_crc16(void *pBuffer,unsigned char BufferSize)
     BufferSize--;
   }
   return crc16;
-}
-
-uint16_t get_flysky_hall_adc_value(uint8_t ch)
-{
-  if (ch >= FLYSKY_HALL_CHANNEL_COUNT)
-  {
-    return 0;
-  }
-
-  return 2*FLYSKY_OFFSET_VALUE - hall_adc_values[ch];
 }
 
 void HallSendBuffer(uint8_t * buffer, uint32_t count)
@@ -360,31 +348,28 @@ exit:
 /* Run it in 1ms timer routine */
 void flysky_hall_stick_loop(void)
 {
-    uint8_t byte;
+  uint8_t byte;
 
-    while(HallGetByte(&byte))
-    {
-        HallProtocol.index++;
+  while (HallGetByte(&byte)) {
+    HallProtocol.index++;
 
-        Parse_Character(&HallProtocol, byte);
-        if ( HallProtocol.msg_OK )
-        {
-            HallProtocol.msg_OK = 0;
-            HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
+    Parse_Character(&HallProtocol, byte);
+    if (HallProtocol.msg_OK) {
+      HallProtocol.msg_OK = 0;
+      HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
 
-            switch ( HallProtocol.hallID.hall_Id.receiverID )
-            {
-            case TRANSFER_DIR_TXMCU:
-                if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_VALUES) {
-                  memcpy(hall_raw_values, HallProtocol.data, sizeof(hall_raw_values));
-                  for ( uint8_t channel = 0; channel < 4; channel++ )
-                  {
-                    hall_adc_values[channel] = FLYSKY_OFFSET_VALUE + hall_raw_values[channel];
-                  }
-                }
-                break;
+      switch (HallProtocol.hallID.hall_Id.receiverID) {
+        case TRANSFER_DIR_TXMCU:
+          if (HallProtocol.hallID.hall_Id.packetID ==
+              FLYSKY_HALL_RESP_TYPE_VALUES) {
+            int16_t *p_values = (int16_t*)HallProtocol.data;
+            for (uint8_t i = 0; i < 4; i++) {
+              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }
-            globalData.flyskygimbals = true;
-        }
+          }
+          break;
+      }
+      globalData.flyskygimbals = true;
     }
+  }
 }

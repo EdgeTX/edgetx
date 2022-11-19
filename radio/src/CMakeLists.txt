@@ -462,6 +462,7 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
+  hal/adc_driver.cpp
   )
 
 if(GUI)
