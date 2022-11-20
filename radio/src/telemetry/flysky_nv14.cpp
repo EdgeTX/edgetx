@@ -69,7 +69,7 @@ const FlyskyNv14Sensor Nv14Sensor[]=
     {FLYSKY_SENSOR_RX_SNR,     1, STR_SENSOR_RX_QUALITY,  UNIT_PERCENT,       0, 0, 2, false},
     {FLYSKY_SENSOR_TEMP,       0, STR_SENSOR_TEMP1,       UNIT_CELSIUS,       1, 0, 2, true},
     {FLYSKY_SENSOR_EXT_VOLTAGE,0, STR_SENSOR_A3,          UNIT_VOLTS,         2, 0, 2, false},
-    {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 0, 2, false},
+    {FLYSKY_SENSOR_MOTO_RPM,   0, STR_SENSOR_RPM,         UNIT_RPMS,          0, 11, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   0, STR_SENSOR_PRES,        UNIT_RAW,           1, 0, 2, false},
     {FLYSKY_SENSOR_PRESSURE,   1, STR_SENSOR_ALT,         UNIT_METERS,        2, 0, 2, true},
 //    {FLYSKY_SENSOR_PRESSURE,   2, STR_SENSOR_TEMP2,       UNIT_CELSIUS,       1, 0, 4, true},
