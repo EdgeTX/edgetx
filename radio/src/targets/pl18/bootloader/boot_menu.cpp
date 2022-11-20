@@ -48,14 +48,6 @@ const uint8_t __bmp_background[] {
 };
 LZ4Bitmap BMP_BACKGROUND(BMP_ARGB4444, __bmp_background);
 
-const uint8_t LBM_FILE[] = {
-#include "icon_file.lbm"
-};
-
-const uint8_t LBM_OK[] = {
-#include "icon_ok.lbm"
-};
-
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
 #define BL_BACKGROUND COLOR2FLAGS(BLACK)
@@ -258,8 +250,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                         MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
                         BL_FOREGROUND);
 
-          lcd->drawBitmapPattern(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
-                                 LBM_OK, BL_GREEN);
+          lcd->drawText(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
+                        LV_SYMBOL_OK, BL_GREEN);
         }
       }
 
@@ -294,7 +286,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 {
-    lcd->drawBitmapPattern(DEFAULT_PADDING, 76 + (line * 25), LBM_FILE, BL_FOREGROUND);
+    lcd->drawText(DEFAULT_PADDING, 75 + (line * 25), LV_SYMBOL_FILE, BL_FOREGROUND);
     lcd->drawText(DEFAULT_PADDING + 30, 75 + (line * 25), str, BL_FOREGROUND);
 
     if (selected) {
