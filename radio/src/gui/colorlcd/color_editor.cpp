@@ -334,25 +334,39 @@ void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
   if (_colorType != nullptr) {
     delete _colorType;
   }
-  if (colorType == RGB_COLOR_EDITOR) 
+  if (colorType == RGB_COLOR_EDITOR) {
     _colorType = new RGBColorType(this, _color);
-  else
+    setRGB();
+  } else {
     _colorType = new HSVColorType(this, _color);
+    setHSV();
+  }
   invalidate();
 }
 
-void ColorEditor::setRGB()
+void ColorEditor::setText()
 {
-  _color = _colorType->getRGB();
-
-  // update bars & labels
   for (int i = 0; i < MAX_BARS; i++) {
     auto bar = _colorType->bars[i];
+    lv_label_set_text_static(barLabels[i], _colorType->getLabelChars()[i]);
     lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
     bar->invalidate();
   }
 
   if (_setValue != nullptr) _setValue(_color);
+}
+
+void ColorEditor::setRGB()
+{
+  _color = _colorType->getRGB();
+  // update bars & labels
+  setText();
+}
+
+void ColorEditor::setHSV()
+{
+  // update bars & labels
+  setText();
 }
 
 void ColorEditor::value_changed(lv_event_t* e)
