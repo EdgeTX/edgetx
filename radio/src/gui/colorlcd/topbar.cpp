@@ -82,5 +82,8 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
   // and continue async deletion...
   FormWindow::deleteLater(detach, trash);
 
+  // restore screen setting tab on top
+  new ScreenMenu(0);
+
   storageDirty(EE_MODEL);
 }
