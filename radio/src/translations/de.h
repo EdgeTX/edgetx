@@ -282,9 +282,9 @@
 #define TR_VFORMULAS                   "Addieren","Mittelwert","Min","Max","Multiplizier","Gesamt","Zelle","Verbrauch","Distanz"
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Niedrigst","1. Zelle","2. Zelle","3. Zelle","4. Zelle","5. Zelle","6. Zelle","7. Zelle","8. Zelle","Höchster","Differenz"
-#define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
+#define TR_TEXT_SIZE                   "Standard","Winzig","Klein","Mittel","Gross"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Rückw.", "Rückwärts"), TR("Vorwä.", "Vorwärts")
 
 // ZERO TERMINATED STRINGS
 
@@ -292,7 +292,7 @@
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#define TR_FONT_SIZES                  "STD","FETT","XXS","XS","L","XL","XXL"
 #endif
 #endif
 
@@ -348,9 +348,9 @@
 #define TR_USE_GLOBAL_FUNCS            TR("Glob. Funkt.", "Globale Funkt verw.")
 #define TR_PROTOCOL          		   TR("Protok.", "Protokoll")
 #define TR_PPMFRAME          	  	   INDENT "PPM-Frame"
-#define TR_REFRESHRATE             	   TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
-#define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
+#define TR_REFRESHRATE             	   TR(INDENT "Refresh", INDENT "Refresh Rate")
+#define STR_WARN_BATTVOLTAGE           TR(INDENT "Ausg. ist VBAT: ", INDENT "Warnung: Ausg.pegel ist VBAT: ")
+#define TR_WARN_5VOLTS                 "Warnung: Ausgangspegel ist 5 Volt"
 #define TR_MS                 		   "ms"
 #define TR_FREQUENCY                   INDENT "Frequenz"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
@@ -404,13 +404,13 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>") // 9XR-Pro
-#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s") // 9XR-Pro
+#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>")
+#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s")
 #define TR_CENTER                      TR(INDENT "Mitte", INDENT "Variomitte     m/s")
 #define TR_BAR                         "Balken"
-#define TR_ALARM                       TR("Alarme ", "Aufleuchten bei Alarm")  // 9XR-Pro
+#define TR_ALARM                       "Alarme"
 #define TR_USRDATA                     "Daten berechnen aus"
-#define TR_BLADES                      TR("Prop", "Prop-Blätter") // 9XR-Pro
+#define TR_BLADES                      TR("Prop", "Prop-Blätter")
 #define TR_SCREEN                      "Seite: "
 #define TR_SOUND_LABEL                 "Töne"
 #define TR_LENGTH                      "Dauer"
@@ -443,7 +443,7 @@
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
-#define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
+#define TR_BACKLIGHT_LABEL             "Bildschirm"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
