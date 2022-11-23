@@ -55,9 +55,12 @@ void LuaEventHandler::event_cb(lv_event_t* e)
     }
   }
   else if (code == LV_EVENT_LONG_PRESSED) {
-    // Do not use `lv_indev_wait_release()` as some LUA scripts
-    // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
-    luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+    lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+    if(indev_type != LV_INDEV_TYPE_POINTER) {
+      // Do not use `lv_indev_wait_release()` as some LUA scripts
+      // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
+      luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+    }
   }
 #if defined(HARDWARE_TOUCH)
   else if (code == LV_EVENT_PRESSED || code == LV_EVENT_PRESSING) {
