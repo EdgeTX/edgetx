@@ -188,11 +188,11 @@ protected:
   ThemeFile  _theme;
   TextButton *_cancelButton;
   ColorEditor *_colorEditor;
-  PreviewWindow *_previewWindow;
+  PreviewWindow *_previewWindow = nullptr;
   std::vector<Button *> _tabs;
   int _activeTab = 0;
-  ColorSquare *_colorSquare;
-  StaticText *_hexBox;
+  ColorSquare *_colorSquare = nullptr;
+  StaticText *_hexBox = nullptr;
 
   void buildBody(FormWindow* window)
   {
