@@ -139,12 +139,8 @@ void boardInit()
                          TELEMETRY_RCC_APB2Periph,
                          ENABLE);
 
-#if defined(BLUETOOTH) && !defined(PCBX9E)
-  bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
-#endif
-
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
-    
+
   if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
   {
     FLASH_OB_Unlock();
@@ -187,7 +183,7 @@ void boardInit()
      storageReadRadioSettings(false);  // Needed for bat calibration
      INTERNAL_MODULE_OFF();
      EXTERNAL_MODULE_OFF();
-    
+
      while (usbPlugged()) {
        // Let it charge ...
        getADC();
@@ -308,7 +304,7 @@ void boardOff()
 #endif
 
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
-  lcdInit(); 
+  lcdInit();
 #endif
 
   lcdOff();

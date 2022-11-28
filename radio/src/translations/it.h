@@ -40,7 +40,7 @@
 #define TR_TRNMODE             "OFF","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES             "Disab.","Toggle","2POS","3POS"
 #define TR_POTTYPES            "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro")
 #define TR_SLIDERTYPES         "Disab.","Slider"

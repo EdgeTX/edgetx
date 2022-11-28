@@ -40,7 +40,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av","+=",":="
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos flipp","2 pos","3 pos"
@@ -78,7 +78,7 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
-                                  
+
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -984,7 +984,7 @@
 #define TR_ENABLE                       "Aktivera"
 #define TR_TOPLCDTIMER                  "Översta LCD timer"
 #define TR_UNIT                         "Enhet"
-#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..." 
+#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
 #define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
 #define TR_RXFREQUENCY                  TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_RX_FREQ               TR("Rx frekv", "Rx frekvens")
@@ -1385,9 +1385,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn" 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon." 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon."
 #endif
 
 #define TR_DUPLICATE                    "Duplicera"

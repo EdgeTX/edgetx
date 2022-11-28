@@ -118,7 +118,6 @@ void boardInit()
                          AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
-                         BT_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -145,7 +144,8 @@ void boardInit()
                          ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph |
-                         BT_RCC_APB2Periph |
+                         AUX_SERIAL_RCC_APB2Periph |
+                         AUX2_SERIAL_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
@@ -217,11 +217,6 @@ void boardInit()
   usbInit();
   hapticInit();
 
-#if defined(BLUETOOTH)
-  bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
-#endif
-
-
 #if defined(DEBUG)
   DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
 #endif
@@ -276,8 +271,8 @@ void boardOff()
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
   pwrOff();
-  
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -291,7 +286,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 

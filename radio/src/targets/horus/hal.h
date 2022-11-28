@@ -997,20 +997,6 @@
 
 // Bluetooth
 #define STORAGE_BLUETOOTH
-#if defined(BLUETOOTH)
-#define BT_RCC_APB2Periph               RCC_APB2Periph_USART6
-#define BT_USART                        USART6
-#define BT_GPIO_AF                      GPIO_AF_USART6
-#define BT_USART_IRQn                   USART6_IRQn
-#define BT_USART_GPIO                   GPIOG
-#define BT_TX_GPIO_PIN                  GPIO_Pin_14 // PG.14
-#define BT_RX_GPIO_PIN                  GPIO_Pin_9  // PG.09
-#define BT_TX_GPIO_PinSource            GPIO_PinSource14
-#define BT_RX_GPIO_PinSource            GPIO_PinSource9
-#define BT_USART_IRQHandler             USART6_IRQHandler
-#else
-#define BT_RCC_APB2Periph               0
-#endif
 #if defined(PCBX12S)
   #if PCBREV >= 13
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOG)

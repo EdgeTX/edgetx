@@ -658,10 +658,6 @@ void hapticOn(uint32_t pwmPercent);
 #define BLUETOOTH_BOOTLOADER_BAUDRATE  230400
 #define BLUETOOTH_FACTORY_BAUDRATE     57600
 #define BLUETOOTH_DEFAULT_BAUDRATE     115200
-void bluetoothInit(uint32_t baudrate, bool enable);
-void bluetoothWriteWakeup();
-uint8_t bluetoothIsWriting();
-void bluetoothDisable();
 
 #if defined (RADIO_TX16S)
   #define BATTERY_DIVIDER 1495

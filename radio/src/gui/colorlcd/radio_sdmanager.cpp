@@ -318,13 +318,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
               });
         }
 #endif
-#if defined(BLUETOOTH)
-        if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP) {
-          menu->addLine(STR_FLASH_BLUETOOTH_MODULE, [=]() {
-            FrSkyFirmwareUpdate(fullpath, STR_FLASH_BLUETOOTH_MODULE);
-          });
-        }
-#endif
 #if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
         if (information.productFamily ==
             FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {

@@ -403,7 +403,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
     return false;
 #endif
-  
+
   if (mode == UART_MODE_NONE)
     return true;
 
@@ -435,6 +435,15 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+#if !defined(BLUETOOTH)
+  if (mode == UART_MODE_BLUETOOTH)
+    return false;
+#elif defined(USB_SERIAL)
+  // BLUETOOTH is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_BLUETOOTH)
+    return false;
+#endif
+
 #if !defined(AUX_SERIAL_DMA_TX) || defined(EXTMODULE_USART)
   if (mode == UART_MODE_EXT_MODULE)
     return false;
@@ -443,7 +452,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   if (mode == UART_MODE_EXT_MODULE && port_nr != SP_AUX1)
     return false;
 #endif
-  
+
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
@@ -455,7 +464,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
       (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
     return false;
 #endif
-  
+
   auto p = hasSerialMode(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
@@ -732,7 +741,7 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
     case MODULE_TYPE_CROSSFIRE:
       if (moduleBay == INTERNAL_MODULE)
         return false;
-      
+
     default:
       return true;
   }
@@ -775,7 +784,7 @@ bool isInternalModuleSupported(int moduleType)
 bool isInternalModuleAvailable(int moduleType)
 {
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(EXTERNAL_MODULE)) 
+  if (!isModuleNone(EXTERNAL_MODULE))
     return false;
 #endif
 
@@ -820,7 +829,7 @@ bool isExternalModuleAvailable(int moduleType)
 {
 
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(INTERNAL_MODULE)) 
+  if (!isModuleNone(INTERNAL_MODULE))
     return false;
 #endif
 
@@ -1030,7 +1039,7 @@ bool isTrainerModeAvailable(int mode)
 #endif
 
 #if !defined(MULTIMODULE)
-  if (mode == TRAINER_MODE_MULTI) 
+  if (mode == TRAINER_MODE_MULTI)
     return false;
 #else
   if (mode == TRAINER_MODE_MULTI &&

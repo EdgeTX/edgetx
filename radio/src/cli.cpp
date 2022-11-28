@@ -134,7 +134,7 @@ static void cliSerialPrintf(const char * format, ...)
 
   // no need to do anything if we don't have an output
   if (!cliSendCb) return;
-  
+
   va_start(arglist, format);
   vsnprintf(tmp, CLI_PRINT_BUFFER_SIZE-1, format, arglist);
   tmp[CLI_PRINT_BUFFER_SIZE-1] = '\0';
@@ -1097,7 +1097,7 @@ int cliSerialPassthrough(const char **argv)
       cliSerialPrint("%s: invalid port # '%s'", port_num);
       return -1;
     }
-    
+
     //  stop pulses
     watchdogSuspend(200/*2s*/);
     stopPulses();
@@ -1173,12 +1173,12 @@ int cliSerialPassthrough(const char **argv)
 
     // suspend RTOS scheduler
     xTaskResumeAll();
-    
+
   } else {
     cliSerialPrint("%s: invalid port type '%s'", port_type);
     return -1;
   }
-  
+
   return 0;
 }
 #endif
@@ -1504,12 +1504,12 @@ int cliBlueTooth(const char ** argv)
   }
   else if (toInt(argv, 1, &baudrate) > 0) {
     if (baudrate > 0) {
-      bluetoothInit(baudrate, true);
+      bluetoothEnable();
       char * line = bluetooth.readline();
       cliSerialPrint("<BT %s", line);
     }
     else {
-      bluetoothDisable();
+      bluetoothEnable(false);
       cliSerialPrint("BT turned off");
     }
   }
@@ -1714,7 +1714,7 @@ void cliTask(void * pdata)
 
     // TODO: implement block read instead
     //       of going byte-by-byte.
-    
+
     /* Block for max 100ms. */
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);

@@ -39,7 +39,7 @@
 #define TR_VBLMODE                     TR("Vyp","Vypnuto"),TR("Kláv.","Klávesy"),"Páky","Vše",TR("Zap","Zapnuto")
 #define TR_TRNMODE                     "X","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
 #define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr")
 #define TR_SLIDERTYPES                 "Žádný","Slider"

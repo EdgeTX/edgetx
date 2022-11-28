@@ -37,7 +37,7 @@
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ"
+#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","Bluetooth","LUAスクリプト","CLI","GPS","デバッグ"
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
 #define TR_POTTYPES                    "なし",TR("Pot w. det","ダイヤル(ノッチ有)"),TR("Multipos","マルチPOSスイッチ"),"ダイヤル"
 #define TR_SLIDERTYPES                 "なし","スライダー"
@@ -810,7 +810,7 @@
 #define TR_PATH_TOO_LONG               "パスが長すぎます"
 #define TR_VIEW_TEXT                   "テキストビュー"
 #define TR_FLASH_BOOTLOADER            "Bootloader書き込み"
-#define TR_FLASH_DEVICE                TR("Flash device","デバイスに書き込み")      
+#define TR_FLASH_DEVICE                TR("Flash device","デバイスに書き込み")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "S.Portデバイスに書き込み")
 #define TR_FLASH_RECEIVER_OTA          "OTAにて受信機に書き込み"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "OTAにて外部受信機に書き込み"
@@ -1321,9 +1321,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "サブトリムにすべてのトリムを追加"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "チャンネルモニター起動" 
+  #define TR_OPEN_CHANNEL_MONITORS        "チャンネルモニター起動"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
 #endif
 #define TR_DUPLICATE                    "複製"
 #define TR_ACTIVATE                     "設定の有効"

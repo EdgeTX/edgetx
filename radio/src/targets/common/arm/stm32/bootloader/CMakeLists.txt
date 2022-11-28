@@ -47,14 +47,6 @@ if(ROTARY_ENCODER)
     )
 endif()
 
-if(BLUETOOTH)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../../../../../targets/common/arm/stm32/bluetooth_driver.cpp
-    )
-endif()
-
-
 if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
@@ -73,7 +65,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
   endforeach()
-  
+
   if(USB_CHARGER)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
@@ -88,7 +80,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       ../../../../../targets/${TARGET_DIR}/extmodule_helper.cpp
       )
   endif()
-  
+
   if(DEBUG)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}

@@ -38,7 +38,7 @@
 #define TR_VBLMODE             TR("Wył","Wyłącz"),TR("Przy","Przycisk"),TR("Drąż","Drązki"),"Oba",TR("Zał","Włącz")
 #define TR_TRNMODE             "Wył","+=",":="
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
-#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
 #define TR_POTTYPES             TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr")
 #define TR_SLIDERTYPES         "Brak","Suwak"

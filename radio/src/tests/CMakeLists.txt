@@ -28,7 +28,7 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
       set(HORUS_MODEL_FILES ${HORUS_MODEL_FILES} ${model_file}_files)
     endforeach()
   endif()
-  
+
   if(WIN32)
     target_include_directories(gtests-radio-lib PUBLIC ${WIN_INCLUDE_DIRS})
     target_link_libraries(gtests-radio-lib PRIVATE ${WIN_LINK_LIBRARIES})
