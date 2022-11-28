@@ -28,7 +28,7 @@
 #include "sdcard.h"
 
 #include "LvglWrapper.h"
-#include "Layer.h"
+#include "layer.h"
 
 constexpr int maxTxtBuffSize = 64 * 1024;
 
