@@ -28,6 +28,7 @@
 #include "sdcard.h"
 
 #include "LvglWrapper.h"
+#include "Layer.h"
 
 constexpr int maxTxtBuffSize = 64 * 1024;
 
@@ -54,6 +55,8 @@ class ViewTextWindow : public Page
       free(buffer);
       buffer = nullptr;
     }
+    auto w = Layer::back();
+    if (w) w->onCancel();
   }
 
 #if defined(DEBUG_WINDOWS)

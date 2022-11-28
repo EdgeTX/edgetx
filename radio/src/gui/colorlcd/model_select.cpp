@@ -397,8 +397,12 @@ void ModelsPageBody::selectModel(ModelCell *model)
   storageCheck(true);
 
   // Exit to main view
-  auto w = Layer::back();
-  if (w) w->onCancel();
+  // If modelNotes are displayed this happens in the
+  // ~ViewTextWindow()
+  if (!(g_model.displayChecklist && modelHasNotes())) {
+    auto w = Layer::back();
+    if (w) w->onCancel();
+  }
 }
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
