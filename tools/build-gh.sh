@@ -70,7 +70,7 @@ fi
 : "${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev "}"
 : "${EXTRA_OPTIONS:="$EXTRA_OPTIONS"}"
 
-COMMON_OPTIONS+=${EXTRA_OPTIONS}
+COMMON_OPTIONS+=${EXTRA_OPTIONS}" "
 
 : "${FIRMARE_TARGET:="firmware-size"}"
 
@@ -172,6 +172,10 @@ do
             ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
+        *)
+            echo "Unknown target: $target_name"
+            exit 1
             ;;
     esac
 
