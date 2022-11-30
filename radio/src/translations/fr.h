@@ -375,7 +375,11 @@
 #define TR_FADEIN                      "Fondu ON"
 #define TR_FADEOUT                     "Fondu OFF"
 #define TR_DEFAULT                     "(défaut)"
-#define TR_CHECKTRIMS                  "\006Vérif\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Vérif Trims"
+#else
+  #define TR_CHECKTRIMS                "\006Vérif\012Trims"
+#endif
 #define OFS_CHECKTRIMS                 (9*FW)
 #define TR_SWASHTYPE                   TR("Type de Plat.", "Type de plateau")
 #define TR_COLLECTIVE                  TR("Collectif", "Source collectif")

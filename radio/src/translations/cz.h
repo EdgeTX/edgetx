@@ -372,7 +372,11 @@
 #define TR_FADEIN                      "Přechod Zap"
 #define TR_FADEOUT                     "Přechod Vyp"
 #define TR_DEFAULT                     "(výchozí)"
-#define TR_CHECKTRIMS                  "\011Kont.\010Trimy"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Kont. Trimy"
+#else
+  #define TR_CHECKTRIMS                "\011Kont.\010Trimy"
+#endif
 #define OFS_CHECKTRIMS                 (9*FW)
 #define TR_SWASHTYPE                   "Typ cykliky"
 #define TR_COLLECTIVE                  "Kolektiv"

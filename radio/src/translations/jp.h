@@ -364,7 +364,11 @@
 #define TR_FADEIN                      "フェードイン"
 #define TR_FADEOUT                     "フェードアウト"
 #define TR_DEFAULT                     "(デフォルト)"
-#define TR_CHECKTRIMS                  CENTER "\006チェック\012トリム"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "チェック トリム"
+#else
+  #define TR_CHECKTRIMS                CENTER "\006チェック\012トリム"
+#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "スワッシュタイプ"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch ソース")

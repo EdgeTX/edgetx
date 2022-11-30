@@ -359,7 +359,11 @@
 #define TR_FADEIN              "Diss.In"
 #define TR_FADEOUT             "Diss.Out"
 #define TR_DEFAULT             "(Predefinita)"
-#define TR_CHECKTRIMS          CENTER "\006Contr.\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS        "Contr. Trims"
+#else
+  #define TR_CHECKTRIMS        CENTER "\006Contr.\012Trims"
+#endif
 #define OFS_CHECKTRIMS         CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE           "Tipo Ciclico"
 #define TR_COLLECTIVE          TR("Collettivo", "Origine Collettivo")

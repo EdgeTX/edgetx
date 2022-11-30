@@ -382,7 +382,11 @@
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"
 #define TR_DEFAULT                      "Default"
-#define TR_CHECKTRIMS                   CENTER "\006Kolla\012trimmar"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                 "Kolla FL-trimmar"
+#else
+  #define TR_CHECKTRIMS                 CENTER "\006Kolla\012trimmar"
+#endif 
 #define OFS_CHECKTRIMS                  CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                    "Swashtyp"
 #define TR_COLLECTIVE                   "Kollektiv"
@@ -1087,6 +1091,7 @@
 #define TR_GVAR_HEADERS_FM6             "Värde för FL6"
 #define TR_GVAR_HEADERS_FM7             "Värde för FL7"
 #define TR_GVAR_HEADERS_FM8             "Värde för FL8"
+//#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }

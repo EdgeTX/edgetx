@@ -356,7 +356,11 @@
 #define TR_FADEIN              "Aparecer"
 #define TR_FADEOUT             "Ocultar"
 #define TR_DEFAULT             "(default)"
-#define TR_CHECKTRIMS          "\006Check\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS        "Check FM Trims"
+#else
+  #define TR_CHECKTRIMS        "\006Check\012Trims"
+#endif
 #define OFS_CHECKTRIMS         (9*FW)
 #define TR_SWASHTYPE           "Ciclico Tipo"
 #define TR_COLLECTIVE          "Coletivo"

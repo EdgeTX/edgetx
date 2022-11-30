@@ -358,7 +358,11 @@
 #define TR_FADEIN                      "Langs. Ein"
 #define TR_FADEOUT                     "Langs. Aus"
 #define TR_DEFAULT                     "(Normal)"
-#define TR_CHECKTRIMS                  CENTER"\006Check\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Check FM Trims"
+#else
+  #define TR_CHECKTRIMS                CENTER"\006Check\012Trims"
+#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   TR("Typ Taumelsch", "Typ  Taumelscheibe")
 #define TR_COLLECTIVE                  TR("Kollekt. Pitch", "Kollekt. Pitch Quelle")
