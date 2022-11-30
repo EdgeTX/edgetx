@@ -467,7 +467,7 @@ static int luaModelGetFlightMode(lua_State * L)
     lua_pushstring(L, "trimsValues");
     lua_newtable(L);
     for (uint8_t i = 0; i < NUM_TRIMS; i++) {
-      lua_pushinteger(L, i);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, fm->trim[i].value);
       lua_settable(L, -3);
     }
@@ -475,7 +475,7 @@ static int luaModelGetFlightMode(lua_State * L)
     lua_pushstring(L, "trimsModes");
     lua_newtable(L);
     for (uint8_t i = 0; i < NUM_TRIMS; i++) {
-      lua_pushinteger(L, i);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, fm->trim[i].mode);
       lua_settable(L, -3);
     }
@@ -526,17 +526,23 @@ static int luaModelSetFlightMode(lua_State * L)
     }
     else if (!strcmp(key, "trimsValues")) {
       luaL_checktype(L, -1, LUA_TTABLE);
-      uint8_t idx = 0;
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1), idx++) {
+      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
+        if (idx < 0 || idx >= NUM_TRIMS) continue;
         int16_t val = luaL_checkinteger(L, -1);
+        if (g_model.extendedTrims)
+          val = limit<int16_t>(val, TRIM_EXTENDED_MIN, TRIM_EXTENDED_MAX);
+        else
+          val = limit<int16_t>(val, TRIM_MIN, TRIM_MAX);
         if (idx < NUM_TRIMS)
-          fm->trim[idx].value = (val & 0x3FF);
+          fm->trim[idx].value = val;
       }
     }
     else if (!strcmp(key, "trimsModes")) {
       luaL_checktype(L, -1, LUA_TTABLE);
-      uint8_t idx = 0;
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1), idx++) {
+      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
+        if (idx < 0 || idx >= NUM_TRIMS) continue;
         uint16_t val = luaL_checkinteger(L, -1);
         if (idx < NUM_TRIMS)
           fm->trim[idx].mode = (val & 0x1F);
@@ -1087,7 +1093,7 @@ static int luaModelGetCurve(lua_State *L)
     lua_newtable(L);
     int8_t * point = curveAddress(idx);
     for (int i=0; i < CurveHeader.points + 5; i++) {
-      lua_pushinteger(L, i);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, *point++);
       lua_settable(L, -3);
     }
@@ -1095,15 +1101,15 @@ static int luaModelGetCurve(lua_State *L)
     if (CurveHeader.type == CURVE_TYPE_CUSTOM) {
       lua_pushstring(L, "x");
       lua_newtable(L);
-      lua_pushinteger(L, 0);
+      lua_pushinteger(L, 1);
       lua_pushinteger(L, -100);
       lua_settable(L, -3);
       for (int i=0; i < CurveHeader.points + 3; i++) {
-        lua_pushinteger(L, i+1);
+        lua_pushinteger(L, i + 2);
         lua_pushinteger(L, *point++);
         lua_settable(L, -3);
       }
-      lua_pushinteger(L, CurveHeader.points + 4);
+      lua_pushinteger(L, CurveHeader.points + 5);
       lua_pushinteger(L, 100);
       lua_settable(L, -3);
       lua_settable(L, -3);
@@ -1198,7 +1204,7 @@ static int luaModelSetCurve(lua_State *L)
       bool isX = !strcmp(key, "x");
 
       for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-        int idx = luaL_checkinteger(L, -2) - 1;
+        int idx = luaL_checkinteger(L, -2) - 1; // key is integer
         if (idx < 0 || idx > MAX_POINTS_PER_CURVE) {
           lua_pushinteger(L, 4);
           return 1;

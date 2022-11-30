@@ -1187,7 +1187,7 @@ static int luaGhostTelemetryPop(lua_State * L)
     lua_newtable(L);
     for (uint8_t i=0; i<length-2; i++) {
       luaInputTelemetryFifo->pop(data);
-      lua_pushinteger(L, i+1);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, data);
       lua_settable(L, -3);
     }
@@ -2587,7 +2587,7 @@ static int luaSources(lua_State * L)
 static int luaGetOutputValue(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+  if (idx < MAX_OUTPUT_CHANNELS) {
     lua_pushinteger(L, channelOutputs[idx]);
   } else {
     lua_pushinteger(L, 0);
