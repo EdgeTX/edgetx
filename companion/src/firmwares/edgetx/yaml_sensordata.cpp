@@ -47,7 +47,7 @@ Node convert<SensorData>::encode(const SensorData& rhs)
   Node cfg;
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
     node["id1"]["id"] = rhs.id;
-    node["subid"] = rhs.subid;
+    node["subId"] = rhs.subid;
 
     unsigned int instance = rhs.instance;
     if (instance != 0) {
@@ -122,7 +122,7 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
     id1["id"] >> rhs.id;
     id1["persistentValue"] >> rhs.persistentValue;
   }
-  node["subid"] >> rhs.subid;
+  node["subId"] >> rhs.subid;
   if (node["id2"]) {
     Node id2 = node["id2"];
     id2["instance"] >> rhs.instance;
