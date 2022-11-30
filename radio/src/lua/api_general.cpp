@@ -2595,6 +2595,24 @@ static int luaGetOutputValue(lua_State * L)
   return 1;
 }
 
+/*luadoc
+@function getTrainerStatus()
+
+@retval value current output value (number).
+ 0 - Not Connected
+ 1 - Connected
+ 2 - Disconnected
+ 3 - Reconnected
+
+@status current Introduced in 2.9.0
+*/
+static int luaGetTrainerStatus(lua_State * L)
+{
+  extern uint8_t trainerStatus;
+  lua_pushinteger(L, trainerStatus);
+  return 1;
+}
+
 const luaL_Reg opentxLib[] = {
   { "getTime", luaGetTime },
   { "getDateTime", luaGetDateTime },
@@ -2609,6 +2627,7 @@ const luaL_Reg opentxLib[] = {
   { "getValue", luaGetValue },
   { "getOutputValue", luaGetOutputValue },
   { "getSourceValue", luaGetSourceValue },
+  { "getTrainerStatus", luaGetTrainerStatus },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },
