@@ -2604,7 +2604,7 @@ static int luaGetOutputValue(lua_State * L)
  2 - Disconnected
  3 - Reconnected
 
-@status current Introduced in 2.8.0
+@status current Introduced in 2.9.0
 */
 static int luaGetTrainerStatus(lua_State * L)
 {
