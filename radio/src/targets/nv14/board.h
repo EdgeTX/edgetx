@@ -232,8 +232,11 @@ enum EnumSwitches
 };
 
 #define STORAGE_NUM_SWITCHES  NUM_SWITCHES
+#if (PCBREV == EL18)
+#define DEFAULT_SWITCH_CONFIG (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_3POS << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
+#else
 #define DEFAULT_SWITCH_CONFIG (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_3POS << 10) + (SWITCH_TOGGLE << 8) + (SWITCH_2POS << 6) + (SWITCH_TOGGLE << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
-
+#endif
 enum EnumSwitchesPositions
 {
   SW_SA0,
@@ -473,9 +476,16 @@ bool isBacklightEnabled();
 #if !defined(SIMU)
 void usbJoystickUpdate();
 #endif
-#define USB_NAME                        "FlySky NV14"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
+
+#if (PCBREV == EL18)
+#define USB_NAME                        "Flysky EL18"
+#define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                     'E', 'L', '1', '8', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#else
+#define USB_NAME                        "Flysky NV14"
+#define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                     'N', 'V', '1', '4', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#endif
 
 #if defined(__cplusplus) && !defined(SIMU)
 }
