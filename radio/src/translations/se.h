@@ -161,7 +161,7 @@
 #endif
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                  "Åsidosätt "
+  #define TR_SF_SAFETY                  "Lås "
 #elif defined(OVERRIDE_CHANNEL_FUNCTION)
   #define TR_SF_SAFETY                  "Lås "
 #else
