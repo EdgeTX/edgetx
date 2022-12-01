@@ -365,10 +365,11 @@
 #define TR_FADEOUT                     "フェードアウト"
 #define TR_DEFAULT                     "(デフォルト)"
 #if defined(COLORLCD)
-  #define TR_CHECKTRIMS                "チェック トリム"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "現在の飛行モードのトリムをチェック"
 #else
-  #define TR_CHECKTRIMS                CENTER "\006チェック\012トリム"
-#endif
+  #define TR_CHECKTRIMS                "\006チェック\012トリム"
+#endif#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "スワッシュタイプ"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch ソース")
