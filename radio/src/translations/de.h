@@ -342,16 +342,16 @@
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
 #define TR_DISPLAY_TRIMS               TR("Trimmanzeige", "Trimmwerte anzeigen")
 #define TR_TTRACE                      TR("Gasquelle", INDENT "Gas-Timerquelle")
-#define TR_TTRIM 	       	           TR("Gastrim", INDENT "Gas-Leerlauftrim")
+#define TR_TTRIM 	       	             TR("Gastrim", INDENT "Gas-Leerlauftrim")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("MittePieps", "Mittelstell. -Pieps")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob. Funkt.", "Globale Funkt verw.")
-#define TR_PROTOCOL          		   TR("Protok.", "Protokoll")
-#define TR_PPMFRAME          	  	   INDENT "PPM-Frame"
+#define TR_PROTOCOL          		       TR("Protok.", "Protokoll")
+#define TR_PPMFRAME          	  	     INDENT "PPM-Frame"
 #define TR_REFRESHRATE             	   TR(INDENT "Refresh", INDENT "Refresh Rate")
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Ausg. ist VBAT: ", INDENT "Warnung: Ausg.pegel ist VBAT: ")
 #define TR_WARN_5VOLTS                 "Warnung: Ausgangspegel ist 5 Volt"
-#define TR_MS                 		   "ms"
+#define TR_MS                 		     "ms"
 #define TR_FREQUENCY                   INDENT "Frequenz"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
 #define TR_TRIMS                       "Trimmer"
@@ -359,9 +359,9 @@
 #define TR_FADEOUT                     "Langs. Aus"
 #define TR_DEFAULT                     "(Normal)"
 #if defined(COLORLCD)
-  #define TR_CHECKTRIMS                "Check FM Trims"
+  #define TR_CHECKTRIMS                "Prüfe Flugphasen-Trimmung"
 #else
-  #define TR_CHECKTRIMS                CENTER"\006Check\012Trims"
+  #define TR_CHECKTRIMS                CENTER"\006Prüfe\012Trimmung"
 #endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   TR("Typ Taumelsch", "Typ  Taumelscheibe")
