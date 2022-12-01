@@ -353,9 +353,9 @@
 #define TR_FADEOUT                     "渐出"
 #define TR_DEFAULT                     "(默认)"
 #if defined(COLORLCD)
-  #define TR_CHECKTRIMS "检查当前飞行模式微调"
+  #define TR_CHECKTRIMS                "检查当前飞行模式微调"
 #else
-  #define TR_CHECKTRIMS "\006检查\012微调"
+  #define TR_CHECKTRIMS                "\006检查\012微调"
 #endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "斜盘类型"
