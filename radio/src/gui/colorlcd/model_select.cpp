@@ -409,28 +409,32 @@ void ModelsPageBody::selectModel(ModelCell *model)
   }
 }
 
-void ModelsPageBody::duplicateModel(ModelCell* model)
+void ModelsPageBody::duplicateModel(ModelCell *model)
 {
-  storageFlushCurrentModel();
-  storageCheck(true);
+  new ConfirmDialog(
+      parent, STR_DUPLICATE_MODEL,
+      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+        storageFlushCurrentModel();
+        storageCheck(true);
 
-  char duplicatedFilename[LEN_MODEL_FILENAME + 1];
-  memcpy(duplicatedFilename, model->modelFilename,
-         sizeof(duplicatedFilename));
-  if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
-                        MODELS_PATH)) {
-    sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
-               MODELS_PATH);
-    // Make a new model which is a copy of the selected one, set the same
-    // labels
-    auto new_model = modelslist.addModel(duplicatedFilename, true, model);
-    for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
-      modelslabels.addLabelToModel(lbl, new_model);
-    }
-    update();
-  } else {
-    TRACE("ModelsListError: Invalid File");
-  }
+        char duplicatedFilename[LEN_MODEL_FILENAME + 1];
+        memcpy(duplicatedFilename, model->modelFilename,
+               sizeof(duplicatedFilename));
+        if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+                              MODELS_PATH)) {
+          sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+                     MODELS_PATH);
+          // Make a new model which is a copy of the selected one, set the same
+          // labels
+          auto new_model = modelslist.addModel(duplicatedFilename, true, model);
+          for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
+            modelslabels.addLabelToModel(lbl, new_model);
+          }
+          update();
+        } else {
+          TRACE("ModelsListError: Invalid File");
+        }
+      });
 }
 
 void ModelsPageBody::deleteModel(ModelCell *model)
