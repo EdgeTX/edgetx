@@ -355,7 +355,7 @@
 #define TR_FADEOUT             "Zanik   "
 #define TR_DEFAULT             "(Bazowa) "
 #if defined(COLORLCD)
-  #define TR_CHECKTRIMS        "Spr Trymy"
+  #define TR_CHECKTRIMS        "Sprawdź trymy"
 #else
   #define TR_CHECKTRIMS        CENTER "\006Spr  \012Trymy"
 #endif
