@@ -358,9 +358,9 @@
 #define TR_FADEOUT                     "Tone ud"
 #define TR_DEFAULT                     "(standard)"
 #if defined(COLORLCD)
-  #define TR_CHECKTRIMS                "Check trim"
+  #define TR_CHECKTRIMS                "Kontroller FT trim"
 #else
-  #define TR_CHECKTRIMS                CENTER "\006Check\012trim"
+  #define TR_CHECKTRIMS                CENTER "\006Kontroller\012trim"
 #endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "Swash Type"
