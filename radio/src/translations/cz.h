@@ -376,8 +376,9 @@
   #define TR_CHECKTRIMS                "Kontrolovat trimy"
 #else
   #define TR_CHECKTRIMS                "\011Kont.\010Trimy"
-#endif#define OFS_CHECKTRIMS                 (9*FW)
-define TR_SWASHTYPE                   "Typ cykliky"
+#endif
+#define OFS_CHECKTRIMS                 (9*FW)
+#define TR_SWASHTYPE                   "Typ cykliky"
 #define TR_COLLECTIVE                  "Kolektiv"
 #define TR_AILERON                     "Boční cyklika"
 #define TR_ELEVATOR                    TR3("Podélná cykl.", "Podélná cykl.", "Podélná cyklika")
