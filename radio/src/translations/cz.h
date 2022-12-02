@@ -375,7 +375,7 @@
 #if defined(COLORLCD)
   #define TR_CHECKTRIMS                "Kontrolovat trimy"
 #else
-  #define TR_CHECKTRIMS                "\011Kont.\010Trimy"
+  #define TR_CHECKTRIMS                "\006Kont.\012Trimy"
 #endif
 #define OFS_CHECKTRIMS                 (9*FW)
 #define TR_SWASHTYPE                   "Typ cykliky"
