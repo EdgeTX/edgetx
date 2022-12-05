@@ -106,11 +106,13 @@ void MainView6POS::paint(BitmapBuffer * dc)
 void MainView6POS::checkEvents()
 {
   Window::checkEvents();
+#if NUM_XPOTS > 0 // prevent compiler warning
   int16_t newValue = 1 + (potsPos[idx] & 0x0f);
   if (value != newValue) {
     value = newValue;
     invalidate();
   }
+#endif
 }
 
 MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :

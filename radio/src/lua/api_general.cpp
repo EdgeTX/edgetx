@@ -2587,7 +2587,7 @@ static int luaSources(lua_State * L)
 static int luaGetOutputValue(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx < MAX_OUTPUT_CHANNELS) {
+  if (idx < MAX_OUTPUT_CHANNELS) {           // mixsrc_t is unsigned, no need to check for <0
     lua_pushinteger(L, channelOutputs[idx]);
   } else {
     lua_pushinteger(L, 0);

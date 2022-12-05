@@ -136,7 +136,9 @@ void menuRadioSetup(event_t event)
   }
 #endif
 
+#if defined(PXX2)
   uint8_t old_editMode = s_editMode;
+#endif
 
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, HEADER_LINE+ITEM_RADIO_SETUP_MAX, {
     HEADER_LINE_COLUMNS CASE_RTCLOCK(2) CASE_RTCLOCK(2) CASE_BATTGRAPH(1)

@@ -72,7 +72,7 @@ static wchar_t _utf8_lut[] = {
 #if !defined(NO_UTF8_LUT)
 static unsigned char lookup_utf8_mapping(wchar_t w)
 {
-  for (int i=0; i < DIM(_utf8_lut); i++) {
+  for (uint32_t i=0; i < DIM(_utf8_lut); i++) {
     if (w == _utf8_lut[i])
       return 0x95 + (uint8_t)i; // TODO: use constant
   }
