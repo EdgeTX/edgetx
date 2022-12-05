@@ -357,7 +357,11 @@
 #define TR_FADEIN                      "Tone ind"
 #define TR_FADEOUT                     "Tone ud"
 #define TR_DEFAULT                     "(standard)"
-#define TR_CHECKTRIMS                  CENTER "\006Check\012trim"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Kontroller FT trim"
+#else
+  #define TR_CHECKTRIMS                CENTER "\006Kontroller\012trim"
+#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "Swash Type"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch kilde")

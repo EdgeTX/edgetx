@@ -324,7 +324,7 @@ void ModelFlightModesPage::build(FormWindow * window)
     new FlightModeBtn(fm_box, i);
   }
 
-  new TextButton(window, rect_t{}, "Check FM Trims", [&]() -> uint8_t {
+  new TextButton(window, rect_t{}, STR_CHECKTRIMS, [&]() -> uint8_t {
     if (trimsCheckTimer)
       trimsCheckTimer = 0;
     else

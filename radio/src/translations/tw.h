@@ -352,7 +352,11 @@
 #define TR_FADEIN                      "漸入"
 #define TR_FADEOUT                     "漸出"
 #define TR_DEFAULT                     "(默認)"
-#define TR_CHECKTRIMS                  "\006Check\012trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "檢查當前飛行模式微調"
+#else
+  #define TR_CHECKTRIMS                "\006檢查\012微調"
+#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "斜盤類型"
 #define TR_COLLECTIVE                  TR("螺距源", "螺距混控源")

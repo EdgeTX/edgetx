@@ -354,7 +354,11 @@
 #define TR_FADEIN              "Pojawia"
 #define TR_FADEOUT             "Zanik   "
 #define TR_DEFAULT             "(Bazowa) "
-#define TR_CHECKTRIMS          CENTER "\006Spr  \012Trymy"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS        "Sprawdź trymy"
+#else
+  #define TR_CHECKTRIMS        CENTER "\006Spr  \012Trymy"
+#endif
 #define OFS_CHECKTRIMS         CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE           "Typ tarczy"
 #define TR_COLLECTIVE          TR("Kolektyw", "Źródło Kolektywu")
