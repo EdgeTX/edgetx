@@ -125,7 +125,7 @@ void CurveDataEdit::paint(BitmapBuffer* dc)
 void CurveEdit::SetCurrentSource(uint32_t source)
 {
   CurveEdit::currentSource = source;
-  if (source) 
+  if (source)
     lockSource = true;
   else
     lockSource = false;
