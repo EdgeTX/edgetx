@@ -21,6 +21,7 @@
 
 #include "repomodels.h"
 #include "appdata.h"
+#include "helpers.h"
 
 #include <QStandardItem>
 #include <QJsonDocument>
@@ -52,7 +53,7 @@ ReleasesItemModel::ReleasesItemModel() :
   m_releaseChannel(-1),
   m_refreshRequired(true)
 {
-  setSortRole(UpdatesItemModel::IMDR_Date);
+  setSortRole(UpdatesItemModel::IMDR_SortOrder);
 }
 
 void ReleasesItemModel::setReleaseChannel(const int channel)
@@ -136,6 +137,18 @@ void ReleasesItemModel::parseJsonObject(const QJsonObject & obj)
   }
 
   setDynamicItemData(item);
+
+  SemanticVersion sv;
+
+  if (tag.toLower() == m_nightlyName)
+    sv.fromString("255.255.255");
+  else
+    sv.fromString(tag);
+
+  if (sv.isValid())
+    item->setData(sv.toInt(), UpdatesItemModel::IMDR_SortOrder);
+  else
+    item->setData(item->data(IMDR_Date).toInt(), UpdatesItemModel::IMDR_SortOrder);
 
   appendRow(item);
 }
