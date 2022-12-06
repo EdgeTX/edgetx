@@ -127,6 +127,8 @@ void CurveEdit::SetCurrentSource(uint32_t source)
   CurveEdit::currentSource = source;
   if (source) 
     lockSource = true;
+  else
+    lockSource = false;
 }
 
 mixsrc_t CurveEdit::currentSource = 0;
@@ -143,7 +145,8 @@ CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
     index(index),
     current(0)
 {
-  TRACE("CurveEdit::currentSource=%d", CurveEdit::currentSource);
+  TRACE("CurveEdit::currentSource=%d\tCurveEdit::lockSource=%d",
+        CurveEdit::currentSource, CurveEdit::lockSource);
   updatePreview();
 }
 
