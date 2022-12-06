@@ -157,7 +157,7 @@ bool RadioData::deleteLabel(int index)
 
 bool RadioData::renameLabel(QString from, QString to)
 {
-  bool success = true;  
+  bool success = true;
   QString csvFrom = escapeCSV(from);
   QString csvTo = escapeCSV(to);
   int lengthdiff = csvTo.size() - csvFrom.size();
@@ -218,7 +218,7 @@ void RadioData::swapLabel(int indFrom, int indTo)
 
 bool RadioData::addLabelToModel(int index, QString label)
 {
-  if (index >= models.size()) return false;
+  if ((unsigned int)index >= models.size()) return false;
   label = escapeCSV(label);
 
   char *modelLabelCsv = models[index].labels;
@@ -237,7 +237,7 @@ bool RadioData::addLabelToModel(int index, QString label)
 
 bool RadioData::removeLabelFromModel(int index, QString label)
 {
-  if (index >= models.size()) return false;
+  if ((unsigned int)index >= models.size()) return false;
 
   QStringList lbls = fromCSV(QString::fromUtf8(models[index].labels));
   if (lbls.indexOf(label) >= 0) {
