@@ -325,6 +325,8 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
   grid.setLabelWidth(66);
   window->padAll(0);
 
+  CurveEdit::SetCurrentSource(0);
+
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
 
     CurveHeader &curve = g_model.curves[index];
