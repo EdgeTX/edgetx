@@ -51,17 +51,15 @@ class LogicalSwitchDisplayFooter : public Window
     LogicalSwitchData* cs = lswAddress(index);
 
     LcdFlags textColor = COLOR_THEME_PRIMARY2;
-    
-    
-    
+
     //LS friendly name
     const char* chrs = cs->custName;
-    if(strlen(chrs) > 0){
+    if (strlen(chrs) > 0) {
       dc->drawText(15, 1, cs->custName, textColor);
-    }else{
+    } else {
       dc->drawTextAtIndex(5, 1, STR_VCSWFUNC, cs->func, textColor);
     }
-    
+
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
 
