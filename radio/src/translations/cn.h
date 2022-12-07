@@ -83,11 +83,13 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "定时"
   #define TR_CSWSTICKY                 "粘滞"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "范围"
   #define TR_CSWSTAY                   "边沿"
 #else
   #define TR_CSWTIMER                  "定时"
   #define TR_CSWSTICKY                 "粘滞"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "范围"
   #define TR_CSWSTAY                   "边沿"
 #endif
