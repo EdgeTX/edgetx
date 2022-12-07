@@ -434,30 +434,3 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
   if (port_nr >= MAX_AUX_SERIAL) return nullptr;
   return serialPorts[port_nr];
 }
-
-void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_ResetBits(GPIOx, Pinx);
-#else
-  GPIO_SetBits(GPIOx, Pinx);
-#endif
-}
-
-void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_SetBits(GPIOx, Pinx);
-#else
-  GPIO_ResetBits(GPIOx, Pinx);
-#endif
-}
-
-uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  return !GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#else
-  return GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#endif
-}
