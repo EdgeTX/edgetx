@@ -1066,6 +1066,12 @@
 #define TR_MAIN_VIEW_X                 "メインビュー X"
 #define TR_PANEL1_BACKGROUND           "パネル1 背景"
 #define TR_PANEL2_BACKGROUND           "パネル2 背景"
+#define TR_WIDGET_GAUGE                "ゲージ"
+#define TR_WIDGET_MODELBMP             "モデル"
+#define TR_WIDGET_OUTPUTS              "出力"
+#define TR_WIDGET_TEXT                 "テキスト"
+#define TR_WIDGET_TIMER                "タイマー"
+#define TR_WIDGET_VALUE                "値"
 
 // About screen
 #define TR_ABOUTUS                     TR(" 概要 ", "概要")
@@ -1122,6 +1128,7 @@
 #define TR_DELETE_ALL_SENSORS          "すべて削除"
 #define TR_CONFIRMDELETE               "本当に " LCDW_128_480_LINEBREAK "すべて削除しますか？"
 #define TR_SELECT_WIDGET               "ウィジェット選択"
+#define TR_WIDGET_FULLSCREEN           "フルスクリーン"
 #define TR_REMOVE_WIDGET               "ウィジェット削除"
 #define TR_WIDGET_SETTINGS             "ウィジェット設定"
 #define TR_REMOVE_SCREEN               "スクリーン削除"
