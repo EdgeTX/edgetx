@@ -36,6 +36,8 @@ class GeneralSetupPanel : public GeneralPanel
     GeneralSetupPanel(QWidget *parent, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~GeneralSetupPanel();
 
+    virtual void update();
+
   private slots:
     void on_splashScreenChkB_stateChanged(int);
     void on_splashScreenDuration_currentIndexChanged(int index);

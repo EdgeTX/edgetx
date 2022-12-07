@@ -275,6 +275,10 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
   }
 
+  QRegExp rx(CHAR_FOR_NAMES_REGEX);
+  ui->registrationId->setValidator(new QRegExpValidator(rx, this));
+  ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
+
   setValues();
 
   lock = false;
@@ -322,15 +326,7 @@ ui(new Ui::GeneralSetup)
     ui->vBatMaxDSB->hide();
   }
 
-  if (IS_ACCESS_RADIO(firmware->getBoard(), firmware->getId())) {
-    QRegExp rx(CHAR_FOR_NAMES_REGEX);
-    ui->registrationId->setValidator(new QRegExpValidator(rx, this));
-    ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
-  }
-  else {
-    ui->label_registrationId->hide();
-    ui->registrationId->hide();
-  }
+  update();
 
   disableMouseScrolling();
 }
@@ -470,8 +466,7 @@ void GeneralSetupPanel::setValues()
   ui->pwrOnDelay->setValue(2 - generalSettings.pwrOnSpeed);
   ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
 
-  if (IS_ACCESS_RADIO(firmware->getBoard(), firmware->getId()))
-    ui->registrationId->setText(generalSettings.registrationId);
+  ui->registrationId->setText(generalSettings.registrationId);
 }
 
 void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
@@ -799,4 +794,20 @@ void GeneralSetupPanel::stickReverseEdited()
 {
   generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) | ((int)ui->stickReverse2->isChecked()<<1) | ((int)ui->stickReverse3->isChecked()<<2) | ((int)ui->stickReverse4->isChecked()<<3);
   emit modified();
+}
+
+void GeneralSetupPanel::update()
+{
+  lock = true;
+
+  if (IS_ACCESS_RADIO(firmware->getBoard(), firmware->getId()) || generalSettings.internalModule == MODULE_TYPE_ISRM_PXX2) {
+    ui->label_registrationId->show();
+    ui->registrationId->show();
+  }
+  else {
+    ui->label_registrationId->hide();
+    ui->registrationId->hide();
+  }
+
+  lock = false;
 }
