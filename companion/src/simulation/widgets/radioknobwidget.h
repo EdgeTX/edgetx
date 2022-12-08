@@ -100,7 +100,7 @@ class RadioKnobWidget : public RadioWidget
         void setValue(int value)
         {
           if (m_stepSize > 1) {
-            value = value / m_stepSize * m_stepSize;
+            value = ((value + m_stepSize / 2) / m_stepSize) * m_stepSize;
           }
           QDial::setValue(value);
         }
