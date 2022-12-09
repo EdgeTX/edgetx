@@ -148,6 +148,9 @@ void GeneralSettings::init()
     trainer.mix[i].weight = 100;
   }
 
+  ttsLanguage[0] = 'e';
+  ttsLanguage[1] = 'n';
+
   templateSetup = g.profile[g.sessionId()].channelOrder();
   stickMode = g.profile[g.sessionId()].defaultMode();
 
