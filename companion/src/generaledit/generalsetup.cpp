@@ -326,8 +326,6 @@ ui(new Ui::GeneralSetup)
     ui->vBatMaxDSB->hide();
   }
 
-  update();
-
   disableMouseScrolling();
 }
 
@@ -794,20 +792,4 @@ void GeneralSetupPanel::stickReverseEdited()
 {
   generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) | ((int)ui->stickReverse2->isChecked()<<1) | ((int)ui->stickReverse3->isChecked()<<2) | ((int)ui->stickReverse4->isChecked()<<3);
   emit modified();
-}
-
-void GeneralSetupPanel::update()
-{
-  lock = true;
-
-  if (IS_ACCESS_RADIO(firmware->getBoard(), firmware->getId()) || generalSettings.internalModule == MODULE_TYPE_ISRM_PXX2) {
-    ui->label_registrationId->show();
-    ui->registrationId->show();
-  }
-  else {
-    ui->label_registrationId->hide();
-    ui->registrationId->hide();
-  }
-
-  lock = false;
 }
