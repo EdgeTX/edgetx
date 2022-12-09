@@ -27,6 +27,9 @@
 #include <QDial>
 #include <QMouseEvent>
 #include <QToolTip>
+#ifdef __APPLE__
+#include <QStyleFactory>
+#endif
 #include <math.h>
 
 class RadioKnobWidget : public RadioWidget
@@ -72,6 +75,11 @@ class RadioKnobWidget : public RadioWidget
         explicit KnobWidget(Board::PotType type, QWidget * parent = 0):
           QDial(parent)
         {
+#ifdef __APPLE__
+          // Set style for dial to show dot instead of arrow pointer for selected position
+          setStyle(QStyleFactory::create("fusion"));
+#endif
+
           m_toolTip = tr("<p>Value (input): <b>%1</b></p>");
 
           setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
