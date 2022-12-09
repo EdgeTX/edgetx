@@ -112,7 +112,7 @@ class TimerWidget : public Widget
       }
       // name
       if (ZLEN(timerData.name) > 0) {  // user name exist
-        dc->drawText(2, 0, timerData.name, FONT(XS) | COLOR_THEME_PRIMARY2);
+        dc->drawSizedText(2, 0, timerData.name, LEN_TIMER_NAME, FONT(XS) | COLOR_THEME_PRIMARY2);
       } else {  // user name not exist "TMRn"
         drawStringWithIndex(dc, 2, 0, "TMR", index + 1,
                             FONT(XS) | COLOR_THEME_PRIMARY2);
