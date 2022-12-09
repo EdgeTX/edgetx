@@ -35,8 +35,8 @@ STATIC_LZ4_BITMAP(mask_textline_fm);
 #if LCD_W > LCD_H // Landscape
 static const lv_coord_t col_dsc[] = {
   LV_GRID_FR(1),   // weigth
-  LV_GRID_FR(1),   // source
-  LV_GRID_FR(4),   // opts
+  LV_GRID_FR(2),   // source
+  LV_GRID_FR(3),   // opts
   FM_CANVAS_WIDTH, // flight modes
   LV_GRID_TEMPLATE_LAST
 };
