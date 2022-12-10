@@ -733,9 +733,6 @@
      </item>
      <item row="20" column="1">
       <widget class="QLineEdit" name="registrationId">
-       <property name="inputMask">
-        <string>nnnnnnNN</string>
-       </property>
        <property name="maxLength">
         <number>8</number>
        </property>
@@ -1046,7 +1043,7 @@
       </layout>
      </item>
      <item row="20" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_registrationId">
        <property name="text">
         <string>Owner Registration ID</string>
        </property>

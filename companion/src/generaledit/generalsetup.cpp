@@ -275,6 +275,10 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
   }
 
+  QRegExp rx(CHAR_FOR_NAMES_REGEX);
+  ui->registrationId->setValidator(new QRegExpValidator(rx, this));
+  ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
+
   setValues();
 
   lock = false;
@@ -460,7 +464,6 @@ void GeneralSetupPanel::setValues()
   ui->pwrOnDelay->setValue(2 - generalSettings.pwrOnSpeed);
   ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
 
-    // TODO: only if ACCESS available??
   ui->registrationId->setText(generalSettings.registrationId);
 }
 
@@ -781,10 +784,7 @@ void GeneralSetupPanel::on_blAlarm_ChkB_stateChanged()
 
 void GeneralSetupPanel::on_registrationId_editingFinished()
 {
-  //copy ownerID back to generalSettings.registrationId
-  QByteArray array = ui->registrationId->text().toLocal8Bit();
-  strncpy(generalSettings.registrationId, array, 8);
-  generalSettings.registrationId[8] = '\0';
+  strncpy(generalSettings.registrationId, ui->registrationId->text().toLatin1(), REGISTRATION_ID_LEN);
   emit modified();
 }
 
