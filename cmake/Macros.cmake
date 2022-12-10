@@ -59,9 +59,9 @@ function(AddCompilerFlags output)
     set(ARGS ${ARGS} -I${dir})
   endforeach()
 
-  # prevent some warnings
+  # Add hotfix for arm64
   set(ARGS ${ARGS} -Wno-asm-operand-widths -Wno-pragma-once-outside-header)
-  
+
   set(${output} ${${output}} ${ARGS} PARENT_SCOPE)
 endfunction()
 
