@@ -108,7 +108,11 @@ class RadioKnobWidget : public RadioWidget
         void setValue(int value)
         {
           if (m_stepSize > 1) {
-            value = value / m_stepSize * m_stepSize;
+            value = ((value + m_stepSize / 2) / m_stepSize) * m_stepSize;
+            // Fix values to account for lack of precision from using integer step size
+            // This makes the values more symmetrical around the center point
+            // Note: this is specific to the TX16 6 position switch which is currently the only use case here
+            if (value > 1024) value += 3;
           }
           QDial::setValue(value);
         }
