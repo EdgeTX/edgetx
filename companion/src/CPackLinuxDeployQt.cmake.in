@@ -13,5 +13,5 @@ endif()
 
 message("exe_list_cmd = ${exe_list_cmd}")
 set(desktop_file ${APP_DIR}@CMAKE_INSTALL_PREFIX@/share/applications/@COMPANION_NAME@.desktop)
-execute_process(COMMAND env QMAKE=@QT_QMAKE_EXECUTABLE@ @LINUXDEPLOY_EXECUTABLE@ ${desktop_file} -appimage ${exe_list_cmd}
+execute_process(COMMAND env QMAKE=@QT_QMAKE_EXECUTABLE@ @LINUXDEPLOY_EXECUTABLE@ ${desktop_file} -unsupported-allow-new-glibc -appimage ${exe_list_cmd}
                 WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
