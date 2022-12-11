@@ -82,6 +82,28 @@ bool SdcardFormat::deleteFile(const QString & filename)
   return true;
 }
 
+// Check if the connected radio has more models than the currently loaded set.
+bool SdcardFormat::radioHasExtraModels(const RadioData & radioData)
+{
+  RadioData tmpRadioData;
+  load(tmpRadioData);
+  return tmpRadioData.models.size() > radioData.models.size();
+}
+
+// Delete extra models from radio
+void SdcardFormat::deleteExtraRadioModels(const RadioData & radioData)
+{
+  RadioData tmpRadioData;
+  load(tmpRadioData);
+  if (tmpRadioData.models.size() > radioData.models.size()) {
+    for (int i = radioData.models.size() + 1; i <= tmpRadioData.models.size(); i += 1) {
+      char filename[32];
+      sprintf(filename, "MODELS/model%d.yml", i);
+      deleteFile(filename);
+    }
+  }
+}
+
 bool SdcardStorageFactory::probe(const QString & path)
 {
   return QDir(path).exists();

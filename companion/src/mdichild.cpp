@@ -1269,6 +1269,19 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
     return false;
   }
 
+  if (storage.radioHasExtraModels(radioData)) {
+    QMessageBox msgbox;
+    msgbox.setText(tr("Radio has extra models that are not in the model list just saved."));
+    msgbox.setInformativeText(tr("Do you want to delete ALL extra models from the radio?"));
+    msgbox.setIcon(QMessageBox::Icon::Question);
+    msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgbox.setDefaultButton(QMessageBox::No);
+
+    if (msgbox.exec() == QMessageBox::Yes) {
+      storage.deleteExtraRadioModels(radioData);
+    }
+  }
+
   if (setCurrent) {
     setCurrentFile(filename);
   }

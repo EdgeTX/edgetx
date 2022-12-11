@@ -35,14 +35,16 @@ class SdcardFormat : public LabelsStorageFormat
     {
     }
 
-    virtual QString name() { return "sdcard"; }
-    virtual bool write(const RadioData & radioData);
+    virtual QString name() override { return "sdcard"; }
+    virtual bool write(const RadioData & radioData) override;
+    virtual bool radioHasExtraModels(const RadioData & radioData) override;
+    virtual void deleteExtraRadioModels(const RadioData & radioData) override;
 
   protected:
-    virtual bool loadFile(QByteArray & fileData, const QString & fileName);
-    virtual bool writeFile(const QByteArray & fileData, const QString & fileName);
-    virtual bool getFileList(std::list<std::string>& filelist);
-    virtual bool deleteFile(const QString & fileName);
+    virtual bool loadFile(QByteArray & fileData, const QString & fileName) override;
+    virtual bool writeFile(const QByteArray & fileData, const QString & fileName) override;
+    virtual bool getFileList(std::list<std::string>& filelist) override;
+    virtual bool deleteFile(const QString & fileName) override;
 };
 
 class SdcardStorageFactory : public DefaultStorageFactory<SdcardFormat>

@@ -58,6 +58,8 @@ class StorageFormat
     virtual bool load(RadioData & radioData) = 0;
     virtual bool write(const RadioData & radioData) = 0;
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) { return false; }
+    virtual bool radioHasExtraModels(const RadioData & radioData) { return false; }
+    virtual void deleteExtraRadioModels(const RadioData & radioData) { }
 
     QString error() {
       return _error;
@@ -159,6 +161,8 @@ class Storage : public StorageFormat
     virtual bool load(RadioData & radioData);
     virtual bool write(const RadioData & radioData);
     virtual bool writeModel(const RadioData & radioData, const int modelIndex);
+    virtual bool radioHasExtraModels(const RadioData & radioData);
+    virtual void deleteExtraRadioModels(const RadioData & radioData);
 };
 
 void registerStorageFactories();
