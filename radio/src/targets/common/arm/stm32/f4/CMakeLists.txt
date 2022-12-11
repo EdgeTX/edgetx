@@ -13,9 +13,14 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rtc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_exti.c
     # HAL drivers
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pwr.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pwr_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rcc.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c_ex.c
     )
@@ -48,7 +53,6 @@ set(STM32_STDPERIPH_SRC
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_syscfg.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_spi.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rtc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
