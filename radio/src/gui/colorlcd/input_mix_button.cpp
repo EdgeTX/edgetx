@@ -45,9 +45,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else // Portrait
 static const lv_coord_t col_dsc[] = {
-  LV_GRID_FR(1),   // weigth
-  LV_GRID_FR(1),   // source
-  LV_GRID_FR(2),   // opts
+  LV_GRID_FR(13),   // weight
+  LV_GRID_FR(21),   // source
+  LV_GRID_FR(32),   // opts
   LV_GRID_TEMPLATE_LAST
 };
 
