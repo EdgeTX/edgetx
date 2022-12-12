@@ -201,7 +201,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     telemetrySetMirrorCb(ctx, sendByte);
     break;
 
-#if defined(CLI)
+#if defined(CLI) && !defined(SIMU)
   case UART_MODE_CLI:
     cliSetSerialDriver(ctx, drv);
     break;

@@ -155,10 +155,14 @@ const char * nchar2string(const char * string, int size)
   return _stringResult;
 }
 
+extern bool _eeprom_write_simu_delay;
+
 int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
   simuInit();
+
+  _eeprom_write_simu_delay = false;
   startEepromThread(nullptr);
 #if defined(EEPROM_SIZE)
   eeprom = (uint8_t *)malloc(EEPROM_SIZE);
