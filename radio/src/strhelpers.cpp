@@ -625,7 +625,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 
       if (g_model.scriptsData[qr.quot].name[0] != '\0') {
         // instance Name is not empty : dest = InstanceName/OutputName
-        snprintf(pos, dest_len, "%.*s/%.*s", sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name,
+        snprintf(pos, dest_len, "%.*s/%.*s", (int)sizeof(g_model.scriptsData[qr.quot].name), g_model.scriptsData[qr.quot].name,
                  (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name), scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
       } else {
         // instance Name is empty : dest = n-ScriptFileName/OutputName

@@ -13,8 +13,6 @@ SimulatedUIWidgetX9LITE::SimulatedUIWidgetX9LITE(SimulatorInterface *simulator, 
 
   // add actions in order of appearance on the help menu
 
-  QPoint ctr(70, 91);
-
   act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(80, 20, 40, 35), "X9LITE/left_menu.png", act));
 

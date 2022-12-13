@@ -720,6 +720,9 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
       break;
+      
+    default:
+      break;
   }
 }
 

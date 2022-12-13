@@ -34,9 +34,9 @@ class YamlFormat : public StorageFormat
     {
     }
 
-    virtual QString name() { return "yml"; }
-    virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData) { return false; }
+    virtual QString name() override { return "yml"; }
+    virtual bool load(RadioData & radioData) override;
+    virtual bool write(const RadioData & radioData) override { return false; }
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) override;
 
   protected:

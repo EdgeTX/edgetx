@@ -178,6 +178,9 @@ void ThemeFile::deSerialize()
             info[INFO_LENGTH] = '\0';
           }
         } break;
+        
+        default:
+          break;
       }
     }
 
