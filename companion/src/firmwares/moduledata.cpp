@@ -43,7 +43,8 @@ void ModuleData::convert(RadioDataConversionState & cstate)
       if ((PulsesProtocol) protocol != PULSES_OFF)
         evt = RadioDataConversionState::EVT_INV;
     }
-    else if (!fw->isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {
+    else if (!isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {  //  TODO: replace with call to ModuleData::isProtocolAvailable
+    //else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, cstate.toGS)) {
       evt = RadioDataConversionState::EVT_INV;
     }
   }
@@ -56,6 +57,135 @@ void ModuleData::convert(RadioDataConversionState & cstate)
     cstate.setInvalid(oldData);
     clear();
   }
+}
+
+//  moved from OpenTxFirmware EdgeTX v2.9
+//  only called by ModuleData::convert
+//  TODO: merge with ModuleData::isProtocolAvailable as share much of the same logic
+//        however they differ but why? Suspect have diverged as existence of both functions not known to devs
+//  static
+bool ModuleData::isAvailable(PulsesProtocol proto, int port)
+{
+  Firmware *fw = getCurrentFirmware();
+  Board::Type board = fw->getBoard();
+
+  QString id = fw->getId();
+
+  if (IS_HORUS_OR_TARANIS(board)) {
+    switch (port) {
+      case 0:
+        switch (proto) {
+          case PULSES_OFF:
+            return true;
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_LR12:
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+          case PULSES_PXX_XJT_D8:
+            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+          case PULSES_ACCESS_ISRM:
+          case PULSES_ACCST_ISRM_D16:
+            return IS_ACCESS_RADIO(board, id);
+          case PULSES_MULTIMODULE:
+            return fw->getCapability(HasIntModuleMulti);
+          case PULSES_CROSSFIRE:
+            return fw->getCapability(HasIntModuleCRSF) || fw->getCapability(HasIntModuleELRS);
+          case PULSES_AFHDS3:
+            return fw->getCapability(HasIntModuleFlySky);
+          default:
+            return false;
+        }
+
+      case 1:
+        switch (proto) {
+          case PULSES_OFF:
+          case PULSES_PPM:
+            return true;
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+          case PULSES_CROSSFIRE:
+          case PULSES_AFHDS3:
+          case PULSES_GHOST:
+            return true;
+          case PULSES_ACCESS_R9M:
+            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+          case PULSES_PXX_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE_PRO:
+          case PULSES_XJT_LITE_X16:
+          case PULSES_XJT_LITE_D8:
+          case PULSES_XJT_LITE_LR12:
+            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
+          default:
+            return false;
+        }
+
+      case -1:
+        switch (proto) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+
+      default:
+        return false;
+    }
+  }
+  else if (IS_SKY9X(board)) {
+    switch (port) {
+      case 0:
+        switch (proto) {
+          case PULSES_PPM:
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      case 1:
+        switch (proto) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      default:
+        return false;
+    }
+  }
+  else {
+    switch (proto) {
+      case PULSES_PPM:
+      case PULSES_DSMX:
+      case PULSES_LP45:
+      case PULSES_DSM2:
+        // case PULSES_PXX_DJT:     // Unavailable for now
+      case PULSES_PPM16:
+      case PULSES_PPMSIM:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  return false; //  to avoid compiler warning
 }
 
 bool ModuleData::isPxx2Module() const
@@ -378,8 +508,9 @@ AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
   return mdl;
 }
 
+//  TODO: merge with ModuleData::isAvailable noting the functions have diverged!!!
 //  static
-bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & settings)
+bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & generalSettings)
 {
   if (protocol == PULSES_OFF)
     return true;
@@ -388,7 +519,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   Board::Type board = fw->getBoard();
 
   if (moduleidx == 0)
-    return (int)settings.internalModule == getTypeFromProtocol(protocol);
+    return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
 
   QString id = fw->getId();
 
@@ -415,7 +546,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
           case PULSES_LEMON_DSMP:
             return true;
           case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+            return IS_ACCESS_RADIO(board, id) || generalSettings.serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_EXT_MODULE;
           case PULSES_PXX_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE_PRO:
@@ -515,5 +646,5 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  p
   }
 
   mdl->loadItemList();
-  return mdl;  
+  return mdl;
 }
