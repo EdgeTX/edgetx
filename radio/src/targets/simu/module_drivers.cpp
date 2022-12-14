@@ -80,7 +80,8 @@ const etx_serial_driver_t IntmoduleSerialDriver = {
     .setBaudrateCb = nullptr,
 };
 
-const etx_serial_driver_t ExtmoduleSerialDriver = {
+#if defined(EXTMODULE_USART)
+static const etx_serial_driver_t _extmoduleSerialDriver = {
     .init = init,
     .deinit = deinit,
     .sendByte = sendByte,
@@ -92,3 +93,21 @@ const etx_serial_driver_t ExtmoduleSerialDriver = {
     .setReceiveCb = nullptr,
     .setBaudrateCb = nullptr,
 };
+
+constexpr const etx_serial_driver_t* _ext_default_drv = &_extmoduleSerialDriver;
+#else
+constexpr const etx_serial_driver_t* _ext_default_drv = nullptr;
+#endif
+
+const etx_serial_driver_t* _ext_drv = _ext_default_drv;
+
+void extmoduleSetSerialPort(const etx_serial_driver_t* drv)
+{
+    if (drv) _ext_drv = drv;
+    else _ext_drv = _ext_default_drv;
+}
+
+const etx_serial_driver_t* extmoduleGetSerialPort()
+{
+  return _ext_drv;
+}

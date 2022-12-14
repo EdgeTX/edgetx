@@ -20,38 +20,60 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "stm32_usart_driver.h"
 #include "extmodule_serial_driver.h"
+
 #include "board.h"
 
 #if defined(EXTMODULE_USART)
-#include "stm32_usart_driver.h"
-#include "fifo.h"
 
-typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
-static RxFifo extmoduleFifo;
+struct RxFifo {
+  uint8_t* buf;
+  uint16_t size;
+  uint16_t widx;
+  uint16_t ridx;
+};
 
-struct ExtmoduleCtx
-{
-  RxFifo* rxFifo;
+struct ExtmoduleCtx {
+  RxFifo rxFifo;
   const stm32_usart_t* usart;
 };
 
-static etx_serial_callbacks_t extmodule_driver = {
+static etx_serial_callbacks_t extmodule_callbacks = {
   nullptr, nullptr, nullptr
 };
 
-void extmoduleFifoReceive(uint8_t data)
+static void _fifo_clear(const stm32_usart_t* usart, RxFifo& fifo)
 {
-  extmoduleFifo.push(data);
+  if (usart->rxDMA) {
+    auto dma_len = LL_DMA_GetDataLength(usart->rxDMA, usart->rxDMA_Stream);
+    fifo.ridx = fifo.size - dma_len;
+  } else {
+    fifo.widx = fifo.ridx = 0;
+  }
 }
 
-static const etx_serial_init extmoduleSerialParams = {
-  .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
-};
+static int _fifo_get_byte(const stm32_usart_t* usart, RxFifo& fifo, uint8_t* data)
+{
+  if (usart->rxDMA) {
+    auto DMAx = usart->rxDMA;
+    auto stream = usart->rxDMA_Stream;
+
+    // DMA stream enabled?
+    if (!LL_DMA_IsEnabledStream(DMAx, stream)) return 0;
+
+    // Anything to read?
+    auto dma_len = LL_DMA_GetDataLength(DMAx, stream);
+    if (fifo.size - dma_len == fifo.ridx) return 0;
+  } else {
+    if (fifo.ridx == fifo.widx) return 0;
+  }
+
+  *data = fifo.buf[fifo.ridx];
+  fifo.ridx = (fifo.ridx + 1) & (fifo.size - 1);
+
+  return 1;
+}
 
 static const LL_GPIO_InitTypeDef extmoduleUSART_PinDef = {
   .Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN,
@@ -71,96 +93,118 @@ static const stm32_usart_t extmoduleUSART = {
   .txDMA = EXTMODULE_USART_TX_DMA,
   .txDMA_Stream = EXTMODULE_USART_TX_DMA_STREAM_LL,
   .txDMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
-  .rxDMA = nullptr,
-  .rxDMA_Stream = 0,
-  .rxDMA_Channel = 0,
+  .rxDMA = EXTMODULE_USART_TX_DMA,
+  .rxDMA_Stream = EXTMODULE_USART_RX_DMA_STREAM_LL,
+  .rxDMA_Channel = EXTMODULE_USART_RX_DMA_CHANNEL,
 };
 
-static const ExtmoduleCtx extmoduleCtx = {
-  .rxFifo = &extmoduleFifo,
+static uint8_t _rx_buffer[INTMODULE_FIFO_SIZE] __DMA;
+
+static ExtmoduleCtx extmoduleCtx = {
+  .rxFifo = { _rx_buffer, sizeof(_rx_buffer), 0, 0 },
   .usart = &extmoduleUSART,
 };
 
-static void* extmoduleSerialStart(const etx_serial_init* params)
+static void* extmoduleSerialInit(const etx_serial_init* params)
 {
   if (!params) return nullptr;
     
-  extmodule_driver.on_receive = extmoduleFifoReceive;
-  extmodule_driver.on_error = nullptr;
+  extmodule_callbacks.on_receive = nullptr;
+  extmodule_callbacks.on_error = nullptr;
 
   // UART config
-  stm32_usart_init(&extmoduleUSART, params);
-  extmoduleCtx.rxFifo->clear();
+  auto usart = extmoduleCtx.usart;
+  stm32_usart_init(usart, params);
+
+  auto& fifo = extmoduleCtx.rxFifo;
+  if (params->rx_enable && usart->rxDMA) {
+    stm32_usart_init_rx_dma(usart, fifo.buf, fifo.size);
+  }
+  _fifo_clear(usart, fifo);
 
   return (void*)&extmoduleCtx;
 }
 
-void extmoduleInvertedSerialStart(uint32_t baudrate)
+void extmoduleSerialStop(void* ctx)
 {
-  EXTERNAL_MODULE_ON();
-  etx_serial_init params(extmoduleSerialParams);
-  params.baudrate = baudrate;
-  extmoduleSerialStart(&params);
-}
-
-void extmoduleSerialStop(void*)
-{
-  stm32_usart_deinit(&extmoduleUSART);
+  auto modCtx = (ExtmoduleCtx*)ctx;
+  stm32_usart_deinit(modCtx->usart);
 
   // reset callbacks
-  extmodule_driver.on_receive = nullptr;
-  extmodule_driver.on_error = nullptr;
+  extmodule_callbacks.on_receive = nullptr;
+  extmodule_callbacks.on_error = nullptr;
 }
 
-static void extmoduleSendByte(void* ctx, uint8_t byte)
+static void extmoduleSerialSendByte(void* ctx, uint8_t byte)
 {
   auto modCtx = (ExtmoduleCtx*)ctx;
   stm32_usart_send_byte(modCtx->usart, byte);
 }
 
-static void extmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
+static void extmoduleSerialSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 {
   auto modCtx = (ExtmoduleCtx*)ctx;
   if (size == 0) return;
   stm32_usart_send_buffer(modCtx->usart, data, size);
 }
 
-static void extmoduleWaitForTxCompleted(void* ctx)
+static void extmoduleSerialWaitForTxCompleted(void* ctx)
 {
   auto modCtx = (ExtmoduleCtx*)ctx;
   stm32_usart_wait_for_tx_dma(modCtx->usart);
 }
 
-static int extmoduleGetByte(void* ctx, uint8_t* data)
+static int extmoduleSerialGetByte(void* ctx, uint8_t* data)
 {
   auto modCtx = (ExtmoduleCtx*)ctx;
-  if (!modCtx->rxFifo) return -1;
-  return modCtx->rxFifo->pop(*data);
+  return _fifo_get_byte(modCtx->usart, modCtx->rxFifo, data);
 }
 
-static void extmoduleClearRxBuffer(void* ctx)
+static void extmoduleSerialClearRxBuffer(void* ctx)
 {
   auto modCtx = (ExtmoduleCtx*)ctx;
-  if (!modCtx->rxFifo) return;
-  modCtx->rxFifo->clear();
+  _fifo_clear(modCtx->usart, modCtx->rxFifo);
 }
 
-const etx_serial_driver_t ExtmoduleSerialDriver = {
-  .init = extmoduleSerialStart,
+static const etx_serial_driver_t extmoduleSerialDriver = {
+  .init = extmoduleSerialInit,
   .deinit = extmoduleSerialStop,
-  .sendByte = extmoduleSendByte,
-  .sendBuffer = extmoduleSendBuffer,
-  .waitForTxCompleted = extmoduleWaitForTxCompleted,
-  .getByte = extmoduleGetByte,
-  .clearRxBuffer = extmoduleClearRxBuffer,
+  .sendByte = extmoduleSerialSendByte,
+  .sendBuffer = extmoduleSerialSendBuffer,
+  .waitForTxCompleted = extmoduleSerialWaitForTxCompleted,
+  .getByte = extmoduleSerialGetByte,
+  .clearRxBuffer = extmoduleSerialClearRxBuffer,
   .getBaudrate = nullptr,
   .setReceiveCb = nullptr,
   .setBaudrateCb = nullptr,
 };
 
+constexpr const etx_serial_driver_t* _default_driver = &extmoduleSerialDriver;
+
+// IRQ based RX/TX: probably obsolete now
 extern "C" void EXTMODULE_USART_IRQHandler(void)
 {
-  stm32_usart_isr(&extmoduleUSART, &extmodule_driver);
+  stm32_usart_isr(extmoduleCtx.usart, &extmodule_callbacks);
 }
 
+#else
+
+constexpr const etx_serial_driver_t* _default_driver = nullptr;
+
 #endif // defined(EXTMODULE_USART)
+
+const etx_serial_driver_t* _extmodule_driver = _default_driver;
+
+void extmoduleSetSerialPort(const etx_serial_driver_t* drv)
+{
+  if (drv) {
+    _extmodule_driver = drv;
+  } else {
+    _extmodule_driver = _default_driver;
+  }
+}
+
+const etx_serial_driver_t* extmoduleGetSerialPort()
+{
+  return _extmodule_driver;
+}

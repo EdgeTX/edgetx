@@ -358,23 +358,26 @@ static void* sbus_trainer_ctx = nullptr;
 
 void init_trainer_module_sbus()
 {
-  sbus_trainer_ctx = ExtmoduleSerialDriver.init(&sbusTrainerParams);
+  auto serial_driver = extmoduleGetSerialPort();
+  sbus_trainer_ctx = serial_driver->init(&sbusTrainerParams);
 }
 
 void stop_trainer_module_sbus()
 {
+  auto serial_driver = extmoduleGetSerialPort();
   auto ctx = sbus_trainer_ctx;
   if (ctx) {
     sbus_trainer_ctx = nullptr;
-    ExtmoduleSerialDriver.deinit(ctx);
+    serial_driver->deinit(ctx);
   }
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
 {
+  auto serial_driver = extmoduleGetSerialPort();
   auto ctx = sbus_trainer_ctx;
   if (ctx) {
-    return ExtmoduleSerialDriver.getByte(ctx, data);
+    return serial_driver->getByte(ctx, data);
   }
 
   return 0;

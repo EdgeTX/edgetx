@@ -19,8 +19,51 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "stm32_usart_driver.h"
 #include <string.h>
+
+// WARNING:
+//
+// NVIC_GetEnableIRQ is stolen from "${THIRDPARTY_DIR}/CMSIS/Include/core_cm4.h".
+//
+// Until we can include the new CMSIS everywhere, this
+// needs to be defined here, as the old CMSIS does not define it.
+//
+// The new CMSIS can be used when StdPeriph is gone, as it mandates
+// the old version located in "${STM32LIB_DIR}/CMSIS/Include"
+//
+static inline uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
+{
+  if ((int32_t)(IRQn) >= 0) {
+    return ((uint32_t)(((NVIC->ISER[(((uint32_t)IRQn) >> 5UL)] &
+                         (1UL << (((uint32_t)IRQn) & 0x1FUL))) != 0UL)
+                           ? 1UL
+                           : 0UL));
+  } else {
+    return (0U);
+  }
+}
+
+static void _enable_usart_irq(const stm32_usart_t* usart)
+{
+  NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
+  NVIC_EnableIRQ(usart->IRQn);
+}
+
+void stm32_usart_enable_tx_irq(const stm32_usart_t* usart)
+{
+  if (LL_USART_IsEnabledDMAReq_TX(usart->USARTx)) {
+    stm32_usart_wait_for_tx_dma(usart);
+    LL_USART_DisableDMAReq_TX(usart->USARTx);
+  }
+
+  if (!NVIC_GetEnableIRQ(usart->IRQn)) {
+    _enable_usart_irq(usart);
+  }
+  
+  LL_USART_EnableIT_TXE(usart->USARTx);
+}
 
 static void enable_usart_clock(USART_TypeDef* USARTx)
 {
@@ -60,6 +103,7 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART7);
   }
 #endif
+
 }
 
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, void* buffer, uint32_t length)
@@ -103,9 +147,7 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 
     // Enable IRQ based RX
     LL_USART_EnableIT_RXNE(usart->USARTx);
-
-    NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
-    NVIC_EnableIRQ(usart->IRQn);
+    _enable_usart_irq(usart);
   }
 }
 
@@ -172,8 +214,7 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   }
 
   if (!usart->txDMA || (params->rx_enable && !usart->rxDMA)) {
-    NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
-    NVIC_EnableIRQ(usart->IRQn);
+    _enable_usart_irq(usart);
   }
 }
 

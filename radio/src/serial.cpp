@@ -41,6 +41,10 @@
   #include "telemetry/crossfire.h"
 #endif
 
+#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+  #include "extmodule_serial_driver.h"
+#endif
+
 #define PRINTF_BUFFER_SIZE    128
 
 static void (*dbg_serial_putc)(void*, uint8_t) = nullptr;
@@ -212,11 +216,19 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     gpsSetSerialDriver(ctx, drv);
     break;
 #endif
+
 #if defined(SPACEMOUSE)
   case UART_MODE_SPACEMOUSE:
     spacemouseSetSerialDriver(ctx, drv);
     break;
 #endif
+
+#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+  case UART_MODE_EXT_MODULE:
+    extmoduleSetSerialPort(drv);
+    break;
+#endif
+    
 #endif
   }
 }
@@ -279,6 +291,12 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.rx_enable = true;
     break;
 #endif
+
+#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+  case UART_MODE_EXT_MODULE:
+    params.rx_enable = true;
+    break;
+#endif
 #endif
   }
 }
@@ -330,10 +348,10 @@ void serialInit(uint8_t port_nr, int mode)
 
   if (state->port) {
     auto drv = state->port->uart;
-    if (drv && drv->deinit) {
+    if (drv && drv->deinit && state->usart_ctx) {
       drv->deinit(state->usart_ctx);
     }
-    if (state->mode != 0) {
+    if (state->mode != UART_MODE_NONE) {
       // Clear callbacks
       serialSetCallBacks(state->mode, nullptr, nullptr);
     }
@@ -356,11 +374,12 @@ void serialInit(uint8_t port_nr, int mode)
     serialSetPowerState(port_nr);
 #endif
 
-  if (params.baudrate != 0) {
-    state->mode = mode;
+  state->mode = mode;
+
+  if (mode != UART_MODE_NONE) {
     state->port = port;
 
-    if (port) {
+    if (port && params.baudrate != 0) {
       if (port->uart && port->uart->init)
         state->usart_ctx = port->uart->init(&params);
     }

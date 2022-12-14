@@ -295,7 +295,10 @@ static const etx_serial_init pxx1ExtSerialInit = {
 
 static void* pxx1InitExternal(uint8_t module)
 {
-  void* uart_ctx = ExtmoduleSerialDriver.init(&pxx1ExtSerialInit);
+  auto drv = extmoduleGetSerialPort();
+  if (!drv) return nullptr;
+
+  void* uart_ctx = drv->init(&pxx1ExtSerialInit);
 
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, EXTMODULE_PXX1_SERIAL_PERIOD);
   EXTERNAL_MODULE_ON();
@@ -307,7 +310,9 @@ static void pxx1DeInitExternal(void* context)
 {
   EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  ExtmoduleSerialDriver.deinit(context);
+
+  auto drv = extmoduleGetSerialPort();
+  if (drv) drv->deinit(context);
 }
 
 static void pxx1SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
@@ -323,8 +328,11 @@ static void pxx1SetupPulsesExternal(void* context, int16_t* channels, uint8_t nC
 
 static void pxx1SendPulsesExternal(void* context)
 {
-  ExtmoduleSerialDriver.sendBuffer(context, extmodulePulsesData.pxx_uart.getData(),
-                                   extmodulePulsesData.pxx_uart.getSize());
+  auto drv = extmoduleGetSerialPort();
+  if (!drv) return;
+
+  drv->sendBuffer(context, extmodulePulsesData.pxx_uart.getData(),
+                  extmodulePulsesData.pxx_uart.getSize());
 }
 
 const etx_module_driver_t Pxx1ExternalSerialDriver = {

@@ -434,10 +434,14 @@
   #define AUX_SERIAL_USART                    USART3
   #define AUX_SERIAL_USART_IRQHandler         USART3_IRQHandler
   #define AUX_SERIAL_USART_IRQn               USART3_IRQn
+  #define AUX_SERIAL_DMA_TX                   DMA1
+  #define AUX_SERIAL_DMA_Stream_TX            DMA1_Stream3
+  #define AUX_SERIAL_DMA_Stream_TX_LL         LL_DMA_STREAM_3
+  #define AUX_SERIAL_DMA_Channel_TX           LL_DMA_CHANNEL_4
   #define AUX_SERIAL_DMA_RX                   DMA1
   #define AUX_SERIAL_DMA_Stream_RX            DMA1_Stream1
   #define AUX_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
-  #define AUX_SERIAL_DMA_Channel_RX           DMA_Channel_4
+  #define AUX_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_4
   #if defined(RADIO_TX16S)
     #define AUX_SERIAL_PWR_GPIO                 GPIOA
     #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
@@ -876,9 +880,9 @@
   #define EXTMODULE_USART_TX_DMA_CHANNEL   LL_DMA_CHANNEL_4
   #define EXTMODULE_USART_TX_DMA_STREAM    DMA1_Stream3
   #define EXTMODULE_USART_TX_DMA_STREAM_LL LL_DMA_STREAM_3
-  #define EXTMODULE_USART_TX_DMA_FLAG_TC   DMA_FLAG_TCIF3
   #define EXTMODULE_USART_RX_DMA_CHANNEL   LL_DMA_CHANNEL_4
   #define EXTMODULE_USART_RX_DMA_STREAM    DMA1_Stream1
+  #define EXTMODULE_USART_RX_DMA_STREAM_LL LL_DMA_STREAM_1
 #elif defined(PCBX10) || PCBREV >= 13
   #define EXTMODULE_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA2)
   #define EXTMODULE_TX_GPIO                GPIOA

@@ -812,6 +812,7 @@ static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_
 
 
 #include "hal/module_driver.h"
+#include "extmodule_serial_driver.h"
 
 const etx_module_driver_t Pxx2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
@@ -822,9 +823,6 @@ const etx_module_driver_t Pxx2InternalDriver = {
   .getByte = pxx2GetByte,
   .processData = pxx2ProcessData,
 };
-
-#if defined(EXTMODULE_USART)
-#include "extmodule_serial_driver.h"
 
 static void* pxx2InitExternal(uint8_t module, uint32_t baudrate)
 {
@@ -837,9 +835,10 @@ static void* pxx2InitExternal(uint8_t module, uint32_t baudrate)
   telemetryProtocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
 
   auto state = &pxx2State[module];
-  state->init(module, &extmodulePulsesData.pxx2, &ExtmoduleSerialDriver,
-              ExtmoduleSerialDriver.init(&params));
-
+  auto drv = extmoduleGetSerialPort();
+  if (!drv) return nullptr;
+  
+  state->init(module, &extmodulePulsesData.pxx2, drv, drv->init(&params));
   return state;
 }
 
@@ -855,9 +854,11 @@ static void* pxx2InitExtHighSpeed(uint8_t module)
 
 static void pxx2DeInitExternal(void* context)
 {
+  auto state = (PXX2State*)context;
+  if (state) state->deinit();
+
   EXTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  ExtmoduleSerialDriver.deinit(context);
   telemetryProtocol = 0xFF;
 }
 
@@ -897,4 +898,3 @@ const etx_module_driver_t Pxx2LowSpeedExternalDriver = {
   .getByte = pxx2GetByte,
   .processData = pxx2ProcessData,
 };
-#endif

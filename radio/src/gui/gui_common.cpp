@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(PXX2)
+  #include "extmodule_serial_driver.h"
+#endif
+
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
 {
@@ -431,6 +435,15 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+#if !defined(AUX_SERIAL_DMA_TX) || defined(EXTMODULE_USART)
+  if (mode == UART_MODE_EXT_MODULE)
+    return false;
+#else // defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+  // UART_MODE_EXT_MODULE is only supported on AUX1, as AUX2 has no TX DMA
+  if (mode == UART_MODE_EXT_MODULE && port_nr != SP_AUX1)
+    return false;
+#endif
+  
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
@@ -802,6 +815,7 @@ bool isInternalModuleAvailable(int moduleType)
 }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 bool isExternalModuleAvailable(int moduleType)
 {
 
@@ -834,11 +848,17 @@ bool isExternalModuleAvailable(int moduleType)
     return false; // doesn't exist for now
 
 
-#if !defined(PXX2) || !defined(EXTMODULE_USART)
-  if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 || moduleType == MODULE_TYPE_R9M_PXX2 || moduleType == MODULE_TYPE_R9M_LITE_PXX2 || moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
+  if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 ||
+      moduleType == MODULE_TYPE_R9M_PXX2 ||
+      moduleType == MODULE_TYPE_R9M_LITE_PXX2 ||
+      moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
+
+#if defined(PXX2)
+    return extmoduleGetSerialPort() != nullptr;
+#else
     return false;
-  }
 #endif
+  }
 
 #if !defined(CROSSFIRE)
   if (moduleType == MODULE_TYPE_CROSSFIRE)
@@ -885,6 +905,14 @@ bool isExternalModuleAvailable(int moduleType)
 
   return true;
 }
+
+#else // !defined(HARDWARE_EXTERNAL_MODULE)
+
+bool isExternalModuleAvailable(int moduleType)
+{
+  return false;
+}
+#endif
 
 bool isRfProtocolAvailable(int protocol)
 {
