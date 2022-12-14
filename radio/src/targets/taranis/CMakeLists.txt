@@ -574,7 +574,6 @@ set(FIRMWARE_TARGET_SRC
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp
-  telemetry_driver.cpp
   )
 
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
@@ -588,6 +587,7 @@ set(FIRMWARE_SRC
   hal/adc_driver.cpp
   targets/common/arm/loadboot.cpp
   targets/common/arm/stm32/stm32_hal_adc.cpp
+  targets/common/arm/stm32/telemetry_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp

@@ -32,7 +32,7 @@
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined (PCBNV14)
 #include "dmafifo.h"
 
 DMAFifo<TELEMETRY_FIFO_SIZE> telemetryDMAFifo __DMA (TELEMETRY_DMA_Stream_RX);
@@ -120,7 +120,7 @@ void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
   }
   USART_Init(TELEMETRY_USART, &USART_InitStructure);
 
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   telemetryFifoMode = mode;
   
   DMA_Cmd(TELEMETRY_DMA_Stream_RX, DISABLE);
@@ -213,6 +213,7 @@ void telemetryPortInvertedInit(uint32_t baudrate)
     case 115200:
       bitLength = 17;
       probeTimeFromStartBit = 23; //because pin is not probed immediately
+//      probeTimeFromStartBit = 25; // TODO: Tarnis used 25, how to merge?
       break;
     case 57600:
       bitLength = 35; //34 was used before - I prefer to use use 35 because of lower error
@@ -322,6 +323,11 @@ void sportSendByte(uint8_t byte)
   USART_SendData(TELEMETRY_USART, byte);
 }
 
+void sportStopSendByteLoop()
+{
+  DMA_Cmd(TELEMETRY_DMA_Stream_TX, DISABLE);
+  DMA_DeInit(TELEMETRY_DMA_Stream_TX);
+}
 void sportSendByteLoop(uint8_t byte)
 {
   telemetryPortSetDirectionOutput();
@@ -375,6 +381,7 @@ void sportSendBuffer(const uint8_t * buffer, uint32_t count)
   DMA_Cmd(TELEMETRY_DMA_Stream_TX, ENABLE);
   USART_DMACmd(TELEMETRY_USART, USART_DMAReq_Tx, ENABLE);
   DMA_ITConfig(TELEMETRY_DMA_Stream_TX, DMA_IT_TC, ENABLE);
+//  USART_ClearITPendingBit(TELEMETRY_USART, USART_IT_TC);  // TODO: This requires?  Only appear in tarnis driver
 
   // enable interrupt and set it's priority
   NVIC_EnableIRQ(TELEMETRY_DMA_TX_Stream_IRQ) ;
@@ -444,7 +451,7 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
 bool sportGetByte(uint8_t * byte)
 {
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)
     return telemetryNoDMAFifo.pop(*byte);
   else
@@ -456,7 +463,7 @@ bool sportGetByte(uint8_t * byte)
 
 void telemetryClearFifo()
 {
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   telemetryDMAFifo.clear();
 #endif
 
