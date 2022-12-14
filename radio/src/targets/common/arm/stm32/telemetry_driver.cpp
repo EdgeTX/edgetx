@@ -48,17 +48,19 @@ static void telemetryInitDirPin()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_Pin   = TELEMETRY_DIR_GPIO_PIN;
   GPIO_Init(TELEMETRY_DIR_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+  TELEMETRY_DIR_INPUT();
 }
 
-void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
 {
   if (baudrate == 0) {
     USART_DeInit(TELEMETRY_USART);
     return;
   }
   //deinit inverted mode
+#if !defined(PCBNV14)
   telemetryPortInvertedInit(0);
+#endif
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = TELEMETRY_DMA_TX_Stream_IRQ;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -81,6 +83,21 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 
   telemetryInitDirPin();
 
+#if defined(PCBNV14)
+  GPIO_InitStructure.GPIO_Pin = TELEMETRY_TX_INV_GPIO_PIN | TELEMETRY_RX_INV_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_Init(TELEMETRY_INV_GPIO, &GPIO_InitStructure);
+
+  if (noinv != 0) {
+    TELEMETRY_TX_NORM();
+    TELEMETRY_RX_NORM();
+  } else {
+    TELEMETRY_TX_INV();
+    TELEMETRY_RX_INV();
+  }
+#endif
   USART_DeInit(TELEMETRY_USART);
 
   USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
@@ -153,6 +170,10 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 #endif
 }
 
+void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+{
+  telemetryPortInitCommon(baudrate, mode, 0);
+}
 // soft serial vars
 static uint8_t rxBitCount;
 static uint8_t rxByte;
@@ -160,6 +181,7 @@ static uint8_t rxByte;
 static uint16_t bitLength;
 static uint16_t probeTimeFromStartBit;
 
+#if !defined(PCBNV14)
 static void do_telemetry_exti()
 {
   if (rxBitCount == 0) {
@@ -171,9 +193,13 @@ static void do_telemetry_exti()
     EXTI->IMR &= ~EXTI_IMR_MR6;
   }
 }
+#endif
 
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
+#if defined(PCBNV14)
+  telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
+#else
   if (baudrate == 0) {
 
     stm32_exti_disable(TELEMETRY_EXTI_LINE);
@@ -227,8 +253,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
 
   // Configure EXTI for raising edge (start bit)
   stm32_exti_enable(TELEMETRY_EXTI_LINE, TELEMETRY_EXTI_TRIGGER, do_telemetry_exti);
+#endif // defined(PCBNV14)
 }
 
+#if !defined(PCBNV14)
 void telemetryPortInvertedRxBit()
 {
   if (rxBitCount < 8) {
@@ -256,6 +284,7 @@ void telemetryPortInvertedRxBit()
     EXTI->IMR |= EXTI_IMR_MR6;
   }
 }
+#endif
 
 void telemetryPortSetDirectionOutput()
 {
@@ -264,7 +293,7 @@ void telemetryPortSetDirectionOutput()
     TELEMETRY_USART->BRR = BRR_400K;
   }
 #endif
-  GPIO_SetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+  TELEMETRY_DIR_OUTPUT();
   TELEMETRY_USART->CR1 &= ~USART_CR1_RE;                  // turn off receiver
 }
 
@@ -281,7 +310,7 @@ void telemetryPortSetDirectionInput()
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
-  GPIO_ResetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+  TELEMETRY_DIR_INPUT();
   TELEMETRY_USART->CR1 |= USART_CR1_RE;                   // turn on receiver
 }
 
@@ -404,11 +433,13 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
   }
 }
 
+#if !defined(PCBNV14)
 extern "C" void TELEMETRY_TIMER_IRQHandler()
 {
   TELEMETRY_TIMER->SR &= ~TIM_SR_UIF;
   telemetryPortInvertedRxBit();
 }
+#endif
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
 bool sportGetByte(uint8_t * byte)

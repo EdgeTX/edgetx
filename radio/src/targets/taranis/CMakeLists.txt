@@ -574,6 +574,7 @@ set(FIRMWARE_TARGET_SRC
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp
+  telemetry_driver.cpp
   )
 
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)

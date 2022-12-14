@@ -285,6 +285,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/intmodule_serial_driver.cpp
   targets/common/arm/stm32/extmodule_driver.cpp
+  targets/common/arm/stm32/telemetry_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
