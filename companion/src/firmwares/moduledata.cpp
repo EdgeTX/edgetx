@@ -546,7 +546,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
           case PULSES_LEMON_DSMP:
             return true;
           case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id) || generalSettings.serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_EXT_MODULE;
+            return (IS_ACCESS_RADIO(board, id) ||
+                   generalSettings.serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_EXT_MODULE);
           case PULSES_PXX_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE_PRO:
