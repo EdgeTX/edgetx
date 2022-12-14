@@ -66,13 +66,8 @@ void RadioWidget::setValue(const int & value)
   if (value != m_value || m_valueReset) {
     m_value = value;
     m_valueReset = false;
-    // This 'emit valueChanged()' call can trigger another call into this function if the value is altered.
-    // This can happen with the TX16 6 Position switch control.
     emit valueChanged(value);
-    // If actual value was changed by the 'emit valueChanged()' call above, then 
-    // skip the 'valueChange' signal that would send the original value. We have already sent the signal with the updated value.
-    if (value == getValue())
-        emit valueChange(m_type, m_index, value);
+    emit valueChange(m_type, m_index, value);
   }
 }
 
