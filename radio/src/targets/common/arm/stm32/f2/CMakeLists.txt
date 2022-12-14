@@ -14,7 +14,6 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_dma.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rcc.c
-    ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rtc.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_exti.c
     # HAL drivers
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal.c
