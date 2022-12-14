@@ -29,7 +29,7 @@
 #include <algorithm>
 
 static const lv_coord_t col_dsc[] = {
-  lv_coord_t(LV_DPI_DEF * 0.65), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST,
+  lv_coord_t(LV_DPI_DEF * 0.55), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST,
 };
 
 static const lv_coord_t row_dsc[] = {
