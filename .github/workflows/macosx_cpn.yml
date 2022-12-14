@@ -68,7 +68,7 @@ jobs:
           setup-python: 'false'
 
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pip Pillow lz4
+        run: python3 -m pip install --upgrade pip Pillow lz4 clang
 
       - name: Install dfu-util
         run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
