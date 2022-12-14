@@ -1521,7 +1521,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char *warn_buf,
 
       // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2
       // (-2 for the ",")
-      if ((warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
+      if ((int)(warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
         if (warn_buf[0] != 0) curr = strAppend(curr, ", ");
         if (modelName[0] == 0) {
           size_t len = min<size_t>(strlen(modelFilename), LEN_MODEL_NAME);
