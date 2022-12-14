@@ -334,7 +334,7 @@ FRESULT f_open (FIL * fil, const TCHAR *name, BYTE flag)
     fil->obj.objsize = tmp.st_size;
     fil->fptr = 0;
   }
-  fil->obj.fs = (FATFS*)fopen(realPath.c_str(), (flag & FA_WRITE) ? ((flag & FA_CREATE_ALWAYS) ? "wb+" : "ab+") : "rb+");
+  fil->obj.fs = (FATFS*)fopen(realPath.c_str(), (flag & FA_WRITE) ? ((flag & FA_CREATE_ALWAYS) ? "wb+" : "ab+") : "rb");
   fil->fptr = 0;
   if (fil->obj.fs) {
     TRACE_SIMPGMSPACE("f_open(%s, %x) = %p (FIL %p)", path.c_str(), flag, fil->obj.fs, fil);
