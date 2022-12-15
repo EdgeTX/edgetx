@@ -197,6 +197,14 @@ void MainWindow::displayWarnings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+#ifdef __APPLE__
+  // If simulator is running ignore this Quit event (simulator will still be closed)
+  // - prevents app crash on exit
+  if (isSimulatorRunning()) {
+    event->ignore();
+    return;
+  }
+#endif
   g.mainWinGeo(saveGeometry());
   g.mainWinState(saveState());
   g.tabbedMdi(actTabbedWindows->isChecked());

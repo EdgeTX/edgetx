@@ -324,6 +324,12 @@ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsign
   field = (field & ~fieldmask) | (value << (numbits * index + offset));
 }
 
+#ifdef __APPLE__
+// Flag when simulator is running
+static bool simulatorRunning = false;
+bool isSimulatorRunning() { return simulatorRunning; }
+#endif
+
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
   QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
@@ -347,6 +353,9 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
   dialog->setAttribute(Qt::WA_DeleteOnClose);
 
   QObject::connect(dialog, &SimulatorMainWindow::destroyed, [simuData] (void) {
+#ifdef __APPLE__
+    simulatorRunning = false;
+#endif
     // TODO simuData and Horus tmp directory is deleted on simulator close OR we could use it to get back data from the simulation
     delete simuData;
   });
@@ -359,6 +368,9 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     dialog->deleteLater();
   }
    else if (dialog->setRadioData(simuData)) {
+#ifdef __APPLE__
+    simulatorRunning = true;
+#endif
     dialog->show();
   }
   else {
