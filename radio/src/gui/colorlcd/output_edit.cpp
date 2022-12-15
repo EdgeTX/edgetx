@@ -66,8 +66,6 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
   title += "\n";
   title += getSourceString(MIXSRC_CH1 + channel);
 
-  chanZero = calcRESXto100(ex_chans[channel]);
-
   auto form = new FormWindow(&body, rect_t{});
   auto form_obj = form->getLvObj();
   lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
@@ -82,7 +80,13 @@ void OutputEditWindow::checkEvents()
   if (value != newValue) {
     value = newValue;
 
-    int chanVal = calcRESXto100(ex_chans[channel]);
+    LimitData *output = limitAddress(channel);
+    int center = output->max + output->min + output->offset;
+    int chanZero = calcRESXto100(center);
+    if(output->revert)
+      chanZero = -chanZero;
+
+                 int chanVal = calcRESXto100(ex_chans[channel]);
     minText->setBackgroudOpacity(chanVal < chanZero - 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
     minText->setFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD));
     minText->invalidate();
@@ -162,12 +166,7 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Direction
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_DEFAULT(output->revert),
-               [output, this](uint8_t newValue) {
-                 if (newValue != output->revert) chanZero = -chanZero;
-                 output->revert = newValue;
-                 SET_DIRTY();
-               });
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(output->revert));
 
   // Curve
   new StaticText(line, rect_t{}, TR_CURVE, 0, COLOR_THEME_PRIMARY1);

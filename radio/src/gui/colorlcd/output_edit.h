@@ -36,7 +36,7 @@ class OutputEditWindow : public Page
  protected:
   uint8_t channel;
   int value = 0;
-  int chanZero = 0;
+
   StaticText *minText;
   GVarNumberEdit* minEdit;
   StaticText *maxText;
