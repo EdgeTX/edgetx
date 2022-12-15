@@ -48,14 +48,32 @@ class DateTimeWindow : public FormGroup {
     {
       FormGroup::checkEvents();
 
-      if (get_tmr10ms() - lastRefresh > 100) {
-        seconds->setValue(seconds->getValue());
+      if (get_tmr10ms() - lastRefresh >= 10) {
+        struct gtm newTS;
         lastRefresh = get_tmr10ms();
+
+        gettime(&newTS);
+        if(newTS.tm_sec == lastSecond)
+          return;
+
+        lastSecond = newTS.tm_sec;
+        year->update();
+        month->update();
+        day->update();
+        hour->update();
+        minutes->update();
+        seconds->update();
       }
     }
 
   protected:
     tmr10ms_t lastRefresh = 0;
+    int8_t lastSecond;
+    NumberEdit* year = nullptr;
+    NumberEdit* month = nullptr;
+    NumberEdit* day = nullptr;
+    NumberEdit* hour = nullptr;
+    NumberEdit* minutes = nullptr;
     NumberEdit* seconds = nullptr;
 
     void build()
@@ -66,7 +84,7 @@ class DateTimeWindow : public FormGroup {
       auto line = newLine(&grid);
       // Date
       new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
-      auto year = new NumberEdit(line, rect_t{}, 2018, 2100,
+      year = new NumberEdit(line, rect_t{}, 2018, 2100,
                      [=]() -> int32_t {
                        struct gtm t;
                        gettime(&t);
@@ -79,7 +97,7 @@ class DateTimeWindow : public FormGroup {
                        SET_LOAD_DATETIME(&t);
                      });
       lv_obj_set_style_grid_cell_x_align(year->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      auto month = new NumberEdit(line, rect_t{}, 1, 12,
+      month = new NumberEdit(line, rect_t{}, 1, 12,
                                   [=]() -> int32_t {
                                     struct gtm t;
                                     gettime(&t);
@@ -102,7 +120,7 @@ class DateTimeWindow : public FormGroup {
       static const pm_uint8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
       dlim += *(&dmon[t.tm_mon]);*/
       int8_t dlim = 31;
-      auto day = new NumberEdit(line, rect_t{}, 1, dlim,
+      day = new NumberEdit(line, rect_t{}, 1, dlim,
                                 [=]() -> int32_t {
                                   struct gtm t;
                                   gettime(&t);
@@ -122,7 +140,7 @@ class DateTimeWindow : public FormGroup {
 
       // Time
       new StaticText(line, rect_t{}, STR_TIME, 0, COLOR_THEME_PRIMARY1);
-      auto hour = new NumberEdit(line, rect_t{}, 0, 24,
+      hour = new NumberEdit(line, rect_t{}, 0, 24,
                                  [=]() -> int32_t {
                                    struct gtm t;
                                    gettime(&t);
@@ -142,7 +160,7 @@ class DateTimeWindow : public FormGroup {
       });
       lv_obj_set_style_grid_cell_x_align(hour->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      auto minutes = new NumberEdit(line, rect_t{}, 0, 59,
+       minutes = new NumberEdit(line, rect_t{}, 0, 59,
                                     [=]() -> int32_t {
                                       struct gtm t;
                                       gettime(&t);
