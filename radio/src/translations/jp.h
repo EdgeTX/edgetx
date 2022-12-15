@@ -32,7 +32,7 @@
 
 #define TR_OFFON                       "OFF","ON"
 #define TR_MMMINV                      "---","リバース"
-#define TR_VBEEPMODE                   "消音","アラームのみ","キーなし","すべて"
+#define TR_VBEEPMODE                   "消音","アラームのみ","キー音なし","すべて"
 #define TR_VBLMODE                     "OFF","クリック時",TR("Ctrl","操作時"),"両方","ON"
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
@@ -282,18 +282,6 @@
 #define TR_TEXT_SIZE                   "標準","極小","小","中","2倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (中央)","= (全体)"
 #define TR_TIMER_DIR                   TR("Remain", "残り時間表示"), TR("Elaps.", "経過時間表示")
-
-#if defined(COLORLCD)
-  #define INDENT
-  #define LEN_INDENT                   3
-  #define INDENT_WIDTH                 12
-  #define BREAKSPACE                   "\036"
-#else
-  #define INDENT                       "\001"
-  #define LEN_INDENT                   1
-  #define INDENT_WIDTH                 (FW/2)
-  #define BREAKSPACE                   " "
-#endif
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -629,9 +617,9 @@
 #define TR_LONGITUDE                   "経度"
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "GPS座標形式")
 #define TR_VARIO                       TR("Vario", "バリオメーター")
-#define TR_PITCH_AT_ZERO               "ピッチゼロ"
-#define TR_PITCH_AT_MAX                "ピッチ最大"
-#define TR_REPEAT_AT_ZERO              "繰り返しゼロ"
+#define TR_PITCH_AT_ZERO               "ゼロ ピッチ"
+#define TR_PITCH_AT_MAX                "最大 ピッチ"
+#define TR_REPEAT_AT_ZERO              "ゼロ リピート"
 #define TR_SHUTDOWN                    "シャットダウン中"
 #define TR_SAVE_MODEL                  "モデル設定を保存中"
 #define TR_BATT_CALIB                  TR("Batt. calib", "バッテリー\nキャリブレーション")
@@ -697,10 +685,10 @@
 #define TR_POWER                       "出力"
 #define TR_NO_TX_OPTIONS               "送信オプションなし"
 #define TR_RTC_BATT                    "内蔵電池"
-#define TR_POWER_METER_EXT             "出力メーター (外部)"
-#define TR_POWER_METER_INT             "出力メーター (内部)"
-#define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム (外部)"
-#define TR_SPECTRUM_ANALYSER_INT       "スペクトラム (内部)"
+#define TR_POWER_METER_EXT             "出力メーター\n(外部)"
+#define TR_POWER_METER_INT             "出力メーター\n(内部)"
+#define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム\n(外部)"
+#define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
@@ -1355,14 +1343,14 @@
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "送信機\n設定"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "スクリーン\n設定"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nテレメトリー"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nテレメトリ"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX\nについて"
 // End Main menu
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "英語"
-#define TR_VOICE_CHINESE                "中国語 簡体"
+#define TR_VOICE_CHINESE                "中文-普通"
 #define TR_VOICE_CZECH                  "チェコ語"
 #define TR_VOICE_DANISH                 "デンマーク語"
 #define TR_VOICE_DEUTSCH                "ドイツ語"
@@ -1376,4 +1364,4 @@
 #define TR_VOICE_RUSSIAN                "ロシア語"
 #define TR_VOICE_SLOVAK                 "スロバキア語"
 #define TR_VOICE_SWEDISH                "スウェーデン語"
-#define TR_VOICE_TAIWANESE              "中国語 繁体"
+#define TR_VOICE_TAIWANESE              "中文-台湾"
