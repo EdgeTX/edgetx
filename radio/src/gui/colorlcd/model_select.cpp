@@ -176,6 +176,8 @@ class ButtonHolder : public FormWindow
         _buttons[1].sortState = 0;
         _buttons[1].button->setBitmap(_buttons[1].states[1]);
         break;
+      default:
+        break;
     }
   }
 

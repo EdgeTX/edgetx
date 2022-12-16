@@ -33,8 +33,6 @@ SimulatedUIWidgetX9D2019::SimulatedUIWidgetX9D2019(SimulatorInterface *simulator
 
   // add actions in order of appearance on the help menu
 
-  QPoint ctr(70, 100);
-
   act = new RadioUiAction(0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
   addRadioWidget(ui->leftbuttons->addArea(QRect(25, 40, 80, 35), "X9D2019/left_menu.png", act));
 

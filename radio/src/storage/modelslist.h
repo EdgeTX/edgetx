@@ -258,7 +258,7 @@ class ModelsList : public ModelsVector
   bool isModelIdUnique(uint8_t moduleIdx, char *warn_buf, size_t warn_buf_len);
   uint8_t findNextUnusedModelId(uint8_t moduleIdx);
 
-  typedef struct {
+  typedef struct _filedat {
     std::string name;
     char hash[FILE_HASH_LENGTH + 1];
     bool curmodel = false;
