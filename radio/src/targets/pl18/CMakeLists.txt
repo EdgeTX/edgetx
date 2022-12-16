@@ -88,8 +88,7 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
-# disable for now as it crashes on radio
-#set(AFHDS3 ON)
+set(AFHDS3 ON)
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
