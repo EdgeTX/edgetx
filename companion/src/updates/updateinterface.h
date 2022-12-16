@@ -239,7 +239,7 @@ class UpdateInterface : public QWidget
 
     bool downloadSuccess;
 
-    static QString semanticVersion(QString version);
+    static QStringList versionToStringList(QString version);
 
     void initAppSettings();
     bool setRunFolders();

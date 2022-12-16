@@ -49,6 +49,7 @@ class UpdatesItemModel : public QStandardItemModel
     enum ItemModelDataRoles {
       IMDR_Id = Qt::UserRole,
       IMDR_Date,
+      IMDR_SortOrder,
       IMDR_Tag,
       IMDR_Prerelease,
       IMDR_Content,

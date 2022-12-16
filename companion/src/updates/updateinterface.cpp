@@ -317,7 +317,7 @@ QString UpdateInterface::downloadDataTypeToString(DownloadDataType val)
 }
 
 //  static
-QString UpdateInterface::semanticVersion(QString version)
+QStringList UpdateInterface::versionToStringList(QString version)
 {
   QStringList strl = version.split(".");
 
@@ -325,7 +325,7 @@ QString UpdateInterface::semanticVersion(QString version)
     strl.append("0");
   }
 
-  return strl.join(".");
+  return strl;
 }
 
 void UpdateInterface::reportProgress(const QString & text, const int type)
@@ -493,10 +493,10 @@ const bool UpdateInterface::isUpdateAvailable()
 
 const bool UpdateInterface::isLatestVersion(const QString & installed, const QString & latest)
 {
-  QStringList a = semanticVersion(installed).split(".");
-  QStringList b = semanticVersion(latest).split(".");
+  QStringList a = versionToStringList(installed);
+  QStringList b = versionToStringList(latest);
 
-  // not equal comparision used to force update if client upgraded and the release is subsequently withdrawn or subscribed to nightlies
+  // not equal comparision used as version identifiers are inconsistent eg release vs nightly vs older
   for (int i = 0; i < 4; i++) {
     if (a.at(i) != b.at(i)) {
       return false;

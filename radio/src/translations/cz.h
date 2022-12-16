@@ -1359,7 +1359,7 @@
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení\rádia"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení\nrádia"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Nastavení\nobrazovky"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\ntelemetrie"
 #define TR_MAIN_MENU_STATISTICS         "Statistiky"
