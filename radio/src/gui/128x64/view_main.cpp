@@ -32,7 +32,7 @@ struct {
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)
-  #define LBOX_CENTERX  (LCD_W/4 + 14)
+  #define LBOX_CENTERX  (LCD_W/4 + 13)
   #define RBOX_CENTERX  (3*LCD_W/4 - 13)
 #else
   #define LBOX_CENTERX  (LCD_W/4 + 10)

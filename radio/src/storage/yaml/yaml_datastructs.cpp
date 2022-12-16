@@ -42,6 +42,8 @@
   #include "yaml_datastructs_tx12.cpp"
  #elif defined(RADIO_TX12MK2)
   #include "yaml_datastructs_tx12mk2.cpp"
+#elif defined(RADIO_BOXER)
+  #include "yaml_datastructs_boxer.cpp"
  #elif defined(RADIO_ZORRO)
   #include "yaml_datastructs_zorro.cpp"
  #elif defined(RADIO_T8)

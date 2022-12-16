@@ -430,7 +430,7 @@ int getRawSwitchIdx(char sw)
   if (sw < 'A' || sw > 'Z')
     return -1;
 
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2) && !defined(RADIO_BOXER)
   if (sw >= 'H')
     return sw - 'H' + 5;
 #if defined(RADIO_T12)
@@ -448,7 +448,7 @@ int getRawSwitchIdx(char sw)
 
 char getRawSwitchFromIdx(int idx)
 {
-#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_TX12MK2) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
+#if defined(PCBX7) && !defined(RADIO_TX12) && !defined(RADIO_TX12MK2) && !defined(RADIO_BOXER) && !defined(RADIO_ZORRO) && !defined(RADIO_TPRO)
     if (idx >= 5)
       return 'H' + idx - 5;
     else if (idx == 4)
@@ -459,7 +459,7 @@ char getRawSwitchFromIdx(int idx)
   #endif
     else
       return 'A' + idx;
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     if (idx < 6)
         return 'A' + idx;
     else
