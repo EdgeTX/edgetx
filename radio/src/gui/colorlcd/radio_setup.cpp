@@ -48,27 +48,41 @@ class DateTimeWindow : public FormGroup {
     {
       FormGroup::checkEvents();
 
-      if (get_tmr10ms() - lastRefresh >= 10) {
-        struct gtm newTS;
+      if (seconds && (get_tmr10ms() - lastRefresh >= 10)) {
         lastRefresh = get_tmr10ms();
 
-        gettime(&newTS);
-        if(newTS.tm_sec == lastSecond)
-          return;
-
-        lastSecond = newTS.tm_sec;
-        year->update();
-        month->update();
-        day->update();
-        hour->update();
-        minutes->update();
-        seconds->update();
+        gettime(&m_tm);
+        if (m_tm.tm_year != m_last_tm.tm_year) {
+          m_last_tm.tm_year = m_tm.tm_year;
+          year->update();
+        }
+        if (m_tm.tm_mon != m_last_tm.tm_mon) {
+          m_last_tm.tm_mon = m_tm.tm_mon;
+          month->update();
+        }
+        if (m_tm.tm_mday != m_last_tm.tm_mday) {
+          m_last_tm.tm_mday = m_tm.tm_mday;
+          day->update();
+        }
+        if (m_tm.tm_hour != m_last_tm.tm_hour) {
+          m_last_tm.tm_hour = m_tm.tm_hour;
+          hour->update();
+        }
+        if (m_tm.tm_min != m_last_tm.tm_min) {
+          m_last_tm.tm_min = m_tm.tm_min;
+          minutes->update();
+        }
+        if (m_tm.tm_sec != m_last_tm.tm_sec) {
+          m_last_tm.tm_sec = m_tm.tm_sec;
+          seconds->update();
+        }
       }
     }
 
   protected:
+    struct gtm m_tm;
+    struct gtm m_last_tm;
     tmr10ms_t lastRefresh = 0;
-    int8_t lastSecond;
     NumberEdit* year = nullptr;
     NumberEdit* month = nullptr;
     NumberEdit* day = nullptr;
@@ -76,123 +90,121 @@ class DateTimeWindow : public FormGroup {
     NumberEdit* minutes = nullptr;
     NumberEdit* seconds = nullptr;
 
+    int8_t daysInMonth()
+    {
+      static const int8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+      int16_t year = TM_YEAR_BASE + m_tm.tm_year;
+      int8_t days_in_month = dmon[m_tm.tm_mon];
+      if ((m_tm.tm_mon == 1) && (((year % 4 == 0) && (year % 100 != 0)) || (year%400==0)))
+        days_in_month += 1;
+      return days_in_month;
+    }
+
+    void setDaysInMonth()
+    {
+        if (day) {
+            day->setMax(daysInMonth());
+            if (m_tm.tm_mday > day->getMax()) {
+                // Update stored day value if > actual days in month
+                // Will be written to RTC via SET_LOAD_DATETIME call after returning
+                // UI will update on next iteration of checkEvents
+                m_tm.tm_mday = day->getMax();
+            }
+        }
+    }
+
     void build()
     {
       setFlexLayout();
       FlexGridLayout grid(col_four_dsc, row_dsc, 2);
 
-      auto line = newLine(&grid);
+      gettime(&m_tm);
+      memcpy(&m_last_tm, &m_tm, sizeof(m_tm));
+
       // Date
+      auto line = newLine(&grid);
       new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
       year = new NumberEdit(line, rect_t{}, 2018, 2100,
                      [=]() -> int32_t {
-                       struct gtm t;
-                       gettime(&t);
-                       return TM_YEAR_BASE + t.tm_year;
+                       return TM_YEAR_BASE + m_tm.tm_year;
                      },
                      [=](int32_t newValue) {
-                       struct gtm t;
-                       gettime(&t);
-                       t.tm_year = newValue - TM_YEAR_BASE;
-                       SET_LOAD_DATETIME(&t);
+                       m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
+                       setDaysInMonth();
+                       SET_LOAD_DATETIME(&m_tm);
                      });
       lv_obj_set_style_grid_cell_x_align(year->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
       month = new NumberEdit(line, rect_t{}, 1, 12,
-                                  [=]() -> int32_t {
-                                    struct gtm t;
-                                    gettime(&t);
-                                    return 1 + t.tm_mon;
-                                  },
-                                  [=](int32_t newValue) {
-                                    struct gtm t;
-                                    gettime(&t);
-                                    t.tm_mon = newValue - 1;
-                                    SET_LOAD_DATETIME(&t);
-                                  });
+                     [=]() -> int32_t {
+                       return 1 + m_tm.tm_mon;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
+                       setDaysInMonth();
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       month->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0);
       });
       lv_obj_set_style_grid_cell_x_align(month->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      /* TODO dynamic max instead of 31 ...
-      int16_t year = TM_YEAR_BASE + t.tm_year;
-      int8_t dlim = (((((year%4==0) && (year%100!=0)) || (year%400==0)) && (t.tm_mon==1)) ? 1 : 0);
-      static const pm_uint8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-      dlim += *(&dmon[t.tm_mon]);*/
-      int8_t dlim = 31;
-      day = new NumberEdit(line, rect_t{}, 1, dlim,
-                                [=]() -> int32_t {
-                                  struct gtm t;
-                                  gettime(&t);
-                                  return t.tm_mday;
-                                },
-                                [=](int32_t newValue) {
-                                  struct gtm t;
-                                  gettime(&t);
-                                  t.tm_mday = newValue;
-                                  SET_LOAD_DATETIME(&t);
-                                });
+      day = new NumberEdit(line, rect_t{}, 1, daysInMonth(),
+                     [=]() -> int32_t {
+                       return m_tm.tm_mday;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_mday = m_tm.tm_mday = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       day->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(day->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      line = newLine(&grid);
 
       // Time
+      line = newLine(&grid);
       new StaticText(line, rect_t{}, STR_TIME, 0, COLOR_THEME_PRIMARY1);
-      hour = new NumberEdit(line, rect_t{}, 0, 24,
-                                 [=]() -> int32_t {
-                                   struct gtm t;
-                                   gettime(&t);
-                                   return t.tm_hour;
-                                 },
-                                 [=](int32_t newValue) {
-                                   struct gtm t;
-                                   gettime(&t);
-                                   t.tm_hour = newValue;
-                                   SET_LOAD_DATETIME(&t);
-                                 });
+      hour = new NumberEdit(line, rect_t{}, 0, 23,
+                     [=]() -> int32_t {
+                       return m_tm.tm_hour;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_hour = m_tm.tm_hour = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       hour->setDisplayHandler([](int32_t value) {
-        static char s[50];
-        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
-        return std::string(s);
-        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+        return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(hour->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-       minutes = new NumberEdit(line, rect_t{}, 0, 59,
-                                    [=]() -> int32_t {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      return t.tm_min;
-                                    },
-                                    [=](int32_t newValue) {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      t.tm_min = newValue;
-                                      SET_LOAD_DATETIME(&t);
-                                    });
+      minutes = new NumberEdit(line, rect_t{}, 0, 59,
+                     [=]() -> int32_t {
+                       return m_tm.tm_min;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_min = m_tm.tm_min = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       minutes->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(minutes->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
       seconds = new NumberEdit(line, rect_t{}, 0, 59,
-                                    [=]() -> int32_t {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      return t.tm_sec;
-                                    },
-                                    [=](int32_t newValue) {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      t.tm_sec = newValue;
-                                      SET_LOAD_DATETIME(&t);
-                                    });
+                     [=]() -> int32_t {
+                       return m_tm.tm_sec;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_sec = m_tm.tm_sec = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       seconds->setDisplayHandler([](int value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(seconds->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+      // Spacer
       line = newLine(&grid);
     }
 };
