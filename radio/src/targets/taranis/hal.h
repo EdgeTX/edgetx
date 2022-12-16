@@ -1339,11 +1339,12 @@
   #define HARDWARE_POT3                 // 6 POS
   #define ADC_GPIO_PIN_POT3             GPIO_Pin_5  // PA.05
   #define ADC_CHANNEL_POT3              ADC_Channel_5
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
 #else
   #define ADC_CHANNEL_POT3              0
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2)
 #endif
   #define ADC_GPIO_PIN_BATT             GPIO_Pin_0  // PC.00
-  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
   #define ADC_GPIOB_PINS                ADC_GPIO_PIN_POT1
   #define ADC_GPIOC_PINS                ADC_GPIO_PIN_BATT
   #define ADC_CHANNEL_POT1              ADC_Channel_8
