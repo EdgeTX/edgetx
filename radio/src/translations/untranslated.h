@@ -101,7 +101,7 @@
 #define TR_MODULE_R9M_LITE             "R9MLite"
 
 #define TR_EXTERNAL_MODULE_PROTOCOLS \
-  "OFF",                             \
+    TR_OFF,                          \
     "PPM",                           \
     "XJT",                           \
     "ISRM",                          \
