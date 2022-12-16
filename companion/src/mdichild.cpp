@@ -1269,6 +1269,9 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
     return false;
   }
 
+  // Check for extra models on radio after saving - asks user if they want to delete any extras
+  storage.deleteExtraRadioModels(radioData);
+
   if (setCurrent) {
     setCurrentFile(filename);
   }

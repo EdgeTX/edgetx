@@ -75,15 +75,19 @@ QString RadioData::getNextModelFilename()
   bool found = true;
   while (found) {
     sprintf(filename, "model%d.%s", ++index, hasSDCard ? "yml" : "bin");
-    found = false;
-    for (unsigned int i=0; i<models.size(); i++) {
-      if (strcmp(filename, models[i].filename) == 0) {
-        found = true;
-        break;
-      }
-    }
+    found = hasModelWithFilename(filename);
   }
   return filename;
+}
+
+bool RadioData::hasModelWithFilename(const char * filename) const
+{
+  for (unsigned int i=0; i<models.size(); i++) {
+    if (strcmp(filename, models[i].filename) == 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void RadioData::convert(RadioDataConversionState & cstate)

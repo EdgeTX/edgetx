@@ -40,6 +40,7 @@ class RadioData {
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();
     QString getNextModelFilename();
+    bool hasModelWithFilename(const char * filename) const;
 
     // leave here until all calls repointed
     static QString getElementName(const QString & prefix, unsigned int index, const char * name = 0, bool padding = false)

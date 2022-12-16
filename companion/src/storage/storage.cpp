@@ -135,6 +135,19 @@ bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
   return ret;
 }
 
+// Delete extra models from radio
+void Storage::deleteExtraRadioModels(const RadioData & radioData)
+{
+  foreach(StorageFactory * factory, registeredStorageFactories) {
+    if (factory->probe(filename)) {
+      StorageFormat * format = factory->instance(filename);
+      format->deleteExtraRadioModels(radioData);
+      delete format;
+      break;
+    }
+  }
+}
+
 bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmwareFilename)
 {
   FirmwareInterface firmware(firmwareFilename);

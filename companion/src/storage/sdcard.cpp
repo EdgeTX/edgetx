@@ -21,6 +21,7 @@
 #include "sdcard.h"
 #include <QFile>
 #include <QDir>
+#include <QMessageBox>
 
 bool SdcardFormat::write(const RadioData & radioData)
 {
@@ -62,7 +63,13 @@ bool SdcardFormat::getFileList(std::list<std::string>& filelist)
   QDir dir(filename);
   if (!dir.cd("MODELS")) return false;
 
+  dir.setSorting(QDir::NoSort);  // will sort manually with std::sort
   QStringList ql = dir.entryList();
+
+  QCollator collator;
+  collator.setNumericMode(true);
+  std::sort(ql.begin(), ql.end(), collator);
+
   for (const auto& str : ql) {
     filelist.push_back("MODELS/" + str.toStdString());
   }
@@ -80,6 +87,32 @@ bool SdcardFormat::deleteFile(const QString & filename)
 
   qDebug() << "File" << path << "deleted";
   return true;
+}
+
+// Delete extra models from radio
+void SdcardFormat::deleteExtraRadioModels(const RadioData & radioData)
+{
+  // Re-load data from radio
+  RadioData tmpRadioData;
+  load(tmpRadioData);
+  // Check if there are extra models on the radio
+  if (tmpRadioData.models.size() > radioData.models.size()) {
+    QMessageBox msgbox;
+    msgbox.setText(tr("Radio has extra models that are not in the model list just saved."));
+    msgbox.setInformativeText(tr("Do you want to delete ALL extra models from the radio?"));
+    msgbox.setIcon(QMessageBox::Icon::Question);
+    msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgbox.setDefaultButton(QMessageBox::No);
+
+    if (msgbox.exec() == QMessageBox::Yes) {
+      for (int i = 0; i < tmpRadioData.models.size(); i += 1) {
+        if (!radioData.hasModelWithFilename(tmpRadioData.models[i].filename)) {
+          QString modelFilename = QString("MODELS/%1").arg(tmpRadioData.models[i].filename);
+          deleteFile(modelFilename);
+        }
+      }
+    }
+  }
 }
 
 bool SdcardStorageFactory::probe(const QString & path)
