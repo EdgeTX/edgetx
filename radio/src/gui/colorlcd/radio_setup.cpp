@@ -119,7 +119,7 @@ class DateTimeWindow : public FormGroup {
       FlexGridLayout grid(col_four_dsc, row_dsc, 2);
 
       gettime(&m_tm);
-      memcpy(&m_last_tm, &m_tm, sizeof(m_tm));
+      m_last_tm = m_tm;
 
       // Date
       auto line = newLine(&grid);
