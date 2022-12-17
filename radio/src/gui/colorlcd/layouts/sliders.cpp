@@ -88,18 +88,18 @@ void MainView6POS::paint(BitmapBuffer * dc)
 {
 #if NUM_XPOTS > 0 // prevent compiler warning
   // The ticks
-  int delta = (width() - TRIM_SQUARE_SIZE) / (XPOTS_MULTIPOS_COUNT - 1);
-  coord_t x = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= XPOTS_MULTIPOS_COUNT; i++) {
+  int delta = (TRIM_SQUARE_SIZE / 2 + 1);
+  coord_t x = 2 + (TRIM_SQUARE_SIZE / 2);
+  for (uint8_t i = 0; i < XPOTS_MULTIPOS_COUNT; i++) {
     dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
     x += delta;
   }
 
   // The square
   value = 1 + (potsPos[idx] & 0x0f);
-  x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
+  x = 2 + (value - 1) * delta;
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
-  dc->drawNumber(x + 1, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
+  dc->drawNumber(x + 4, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
 #endif
 }
 
