@@ -297,13 +297,19 @@ void CurveEdit::onEvent(event_t event)
   }
 }
 
+
 void CurveEdit::checkEvents()
 {
   if (!lockSource) {
     int16_t val = getMovedSource(MIXSRC_FIRST_INPUT);
-    if (val) {
-      CurveEdit::currentSource = val + 1 - MIXSRC_FIRST_INPUT;
-      TRACE("source=%d", CurveEdit::currentSource);
+    if (val > 0) {
+      if (val > NUM_STICKS + NUM_POTS + NUM_SLIDERS)
+        CurveEdit::currentSource = val + 1 - MIXSRC_FIRST_INPUT;
+      else {
+        CurveEdit::currentSource = expoAddress(val - 1)->srcRaw;
+        TRACE("Detected source=%d", val);
+      }
+      TRACE("Applied source=%d", CurveEdit::currentSource);
     }
   }
   FormField::checkEvents();
