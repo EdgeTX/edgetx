@@ -119,6 +119,9 @@ do
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;

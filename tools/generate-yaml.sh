@@ -50,6 +50,9 @@ do
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
