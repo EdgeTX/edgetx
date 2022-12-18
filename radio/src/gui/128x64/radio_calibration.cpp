@@ -146,7 +146,17 @@ void menuCommonCalib(event_t event)
             }
           }
           else {
+#if defined(RADIO_BOXER)
+            // load 6pos calib with factory data if 6 pos was not manually calibrated
+            constexpr int16_t factoryValues[]= {0x5,0xd,0x16,0x1f,0x28};
+            StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT3];
+            calib->count = 5;
+            for (int j=0; j<calib->count ; j++) {
+              calib->steps[j] = factoryValues[j];
+            }
+#else
             g_eeGeneral.potsConfig &= ~(0x03<<(2*idx));
+#endif
           }
         }
       }
