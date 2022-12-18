@@ -312,7 +312,13 @@ bool ViewMain::enableWidgetSelect(bool enable)
   widget_select = enable;
 
   lv_obj_t* tile = lv_tileview_get_tile_act(tile_view);
+  if(!tile)
+    return true;
+
   auto cont_obj = lv_obj_get_child(tile, 0);
+  if(!cont_obj)
+    return true;
+
   auto cont = (WidgetsContainer*)lv_obj_get_user_data(cont_obj);
 
   for (uint32_t i = 0; i < cont->getZonesCount(); i++) {
