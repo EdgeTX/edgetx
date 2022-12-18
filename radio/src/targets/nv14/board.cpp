@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
  
+#include "stm32_hal_adc.h"
+
 #include "board.h"
 #include "globals.h"
 #include "sdcard.h"
@@ -28,7 +30,6 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/trainer_driver.h"
-#include "stm32_hal_adc.h"
 
 #include "timers_driver.h"
 
