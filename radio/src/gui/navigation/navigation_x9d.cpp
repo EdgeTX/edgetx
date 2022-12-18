@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 vertpos_t menuVerticalOffset;
 vertpos_t menuVerticalPosition;

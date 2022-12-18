@@ -234,6 +234,7 @@ uint32_t s_anaFilt[NUM_ANALOGS];
 
 uint16_t anaIn(uint8_t chan)
 {
+  if (chan >= NUM_ANALOGS) return 0;
   return ANA_FILT(chan);
 }
 

@@ -20,9 +20,12 @@
  */
 
 #include "hal/adc_driver.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "switches.h"
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
@@ -320,14 +323,29 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #elif TIMERS == 3
 #define TIMERS_ROWS                       TIMER_ROWS(0), TIMER_ROWS(1), TIMER_ROWS(2)
 #endif
+
 #if defined(PCBX9E)
-  #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > 8 ? TITLE_ROW : HIDDEN_ROW), uint8_t(getSwitchWarningsCount() > 16 ? TITLE_ROW : HIDDEN_ROW)
-  #define POT_WARN_ROWS                  uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(NUM_POTS+NUM_SLIDERS) : 0), uint8_t(g_model.potsWarnMode ? TITLE_ROW : HIDDEN_ROW)
-  #define TOPLCD_ROWS                     0,
+
+#define SW_WARN_ROWS                                                  \
+  uint8_t(NAVIGATION_LINE_BY_LINE | (getSwitchWarningsCount() - 1)),  \
+      uint8_t(getSwitchWarningsCount() > 8 ? TITLE_ROW : HIDDEN_ROW), \
+      uint8_t(getSwitchWarningsCount() > 16 ? TITLE_ROW : HIDDEN_ROW)
+
+#define POT_WARN_ROWS                                                   \
+  uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE | (MAX_POTS) : 0), \
+      uint8_t(g_model.potsWarnMode ? TITLE_ROW : HIDDEN_ROW)
+
+#define TOPLCD_ROWS 0,
+
 #else
-  #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount())
-  #define POT_WARN_ROWS                  uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE|(NUM_POTS+NUM_SLIDERS) : 0)
-  #define TOPLCD_ROWS
+
+#define SW_WARN_ROWS uint8_t(NAVIGATION_LINE_BY_LINE | getSwitchWarningsCount())
+
+#define POT_WARN_ROWS \
+  uint8_t(g_model.potsWarnMode ? NAVIGATION_LINE_BY_LINE | (MAX_POTS) : 0)
+
+#define TOPLCD_ROWS
+
 #endif
 
 #define IF_PXX2_MODULE(module, xxx)          (isModulePXX2(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
@@ -417,7 +435,7 @@ void menuModelSetup(event_t event)
       SW_WARN_ROWS, // Switch warning
       POT_WARN_ROWS, // Pot warning
 
-    NAVIGATION_LINE_BY_LINE | (NUM_STICKS+NUM_POTS+NUM_SLIDERS-1), // Center beeps
+    NAVIGATION_LINE_BY_LINE | (NUM_STICKS+MAX_POTS-1), // Center beeps
 
     0, // Global functions
 
@@ -661,7 +679,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              NUM_POTS + NUM_SLIDERS + MAX_OUTPUT_CHANNELS,
+              MAX_POTS + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -836,8 +854,11 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          for (int i=0; i<NUM_POTS+NUM_SLIDERS; ++i) {
-            if (i<NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(POT1+i)) {
+          uint8_t max_pots = adcGetMaxPots();
+          for (int i = 0; i < max_pots; ++i) {
+
+            if (!IS_POT_SLIDER_AVAILABLE(i)) {
+              // skip non configured pot
               if (attr && (menuHorizontalPosition==i+1)) REPEAT_LAST_CURSOR_MOVE();
             }
             else {
@@ -848,13 +869,12 @@ void menuModelSetup(event_t event)
               }
 #endif
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
-              if ((!attr || menuHorizontalPosition >= 0) && (g_model.potsWarnEnabled & (1 << i))) {
+              if ((!attr || menuHorizontalPosition >= 0) &&
+                  (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
 
-              // skip "---" (+1) and source symbol (+2)
-              const char* source = STR_VSRCRAW[NUM_STICKS + 1 + i] + 2;
-              lcdDrawSizedText(x, y, source, UINT8_MAX, flags);
+              lcdDrawText(x, y, getPotName(i), flags);
               x = lcdNextPos+3;
             }
           }
@@ -868,17 +888,21 @@ void menuModelSetup(event_t event)
         }
         break;
 
-      case ITEM_MODEL_SETUP_BEEP_CENTER:
-      {
+      case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        coord_t x = MODEL_SETUP_2ND_COLUMN;
-        for (int i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-          if (i>=POT1 && i<POT1+NUM_XPOTS && !IS_POT_SLIDER_AVAILABLE(i)) {
+        uint8_t input_max = adcGetMaxSticks() + adcGetMaxPots();
+        for (int i = 0; i < input_max; i++) {
+          coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
+          if ( i >= adcGetMaxSticks() && IS_POT_MULTIPOS(i - adcGetMaxSticks()) ) {
             if (attr && menuHorizontalPosition == i) REPEAT_LAST_CURSOR_MOVE();
             continue;
           }
-          lcdDrawTextAtIndex(x, y, STR_RETA123, i, ((menuHorizontalPosition==i) && attr) ? BLINK|INVERS : (((g_model.beepANACenter & ((BeepANACenter)1<<i)) || (attr && CURSOR_ON_LINE())) ? INVERS : 0 ) );
-          x += FW;
+          LcdFlags flags = 0;
+          if ((menuHorizontalPosition == i) && attr)
+            flags = BLINK | INVERS;
+          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+            flags = INVERS;
+          lcdDrawTextAtIndex(x, y, STR_RETA123, i, flags);
         }
         if (attr && CURSOR_ON_CELL) {
           if (event==EVT_KEY_BREAK(KEY_ENTER)) {

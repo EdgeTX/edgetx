@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 #include "hal/trainer_driver.h"
+#include "hal/adc_driver.h"
+#include "switches.h"
 
 #define BIGSIZE       MIDSIZE
 #define LBOX_CENTERX  (BOX_WIDTH/2 + 16)
@@ -164,26 +166,43 @@ void displayTrims(uint8_t phase)
   }
 }
 
+// Pots & sliders
+// X9E: only sliders (1 to 4)
+// Other: POT1, POT2, SLIDERS1 and SLIDER2
+//
+static const coord_t _pot_slots[] = {
+  3, LCD_H / 2 + 1,         // SLIDER1 (x,y)
+  LCD_W - 5, LCD_H / 2 + 1, // SLIDER2 (x,y)
+  3, 1,                     // SLIDER3 (x,y)
+  LCD_W - 5, 1,             // SLIDER4 (x,y)
+};
+
 void drawSliders()
 {
-  for (uint8_t i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  uint8_t slot_idx = 0;
+
+  for (uint8_t i = 0; i < adcGetMaxPots(); i++) {
+
+    // TODO: move this into board implementation
 #if defined(PCBX9E)
-    if (i < SLIDER1)
-      continue;  // TODO change and display more values
-    coord_t x = ((i==SLIDER1 || i==SLIDER3) ? 3 : LCD_W-5);
-    int8_t y = (i<SLIDER3 ? LCD_H/2+1 : 1);
+    // Only sliders
+    if (!IS_SLIDER(i)) continue;
 #else
-    if (i == POT3)
-      continue;
-    coord_t x = ((i==POT1 || i==SLIDER1) ? 3 : LCD_W-5);
-    int8_t y = (i>=SLIDER1 ? LCD_H/2+1 : 1);
+    // Skip POT3
+    if (i == 2) continue;
 #endif
-    lcdDrawSolidVerticalLine(x, y, LCD_H/2-2);
-    lcdDrawSolidVerticalLine(x+1, y, LCD_H/2-2);
+    
+    coord_t x = _pot_slots[slot_idx++];
+    coord_t y = _pot_slots[slot_idx++];
+
+    lcdDrawSolidVerticalLine(x, y, LCD_H / 2 - 2);
+    lcdDrawSolidVerticalLine(x + 1, y, LCD_H / 2 - 2);
+
+    // calculate once per loop
     y += LCD_H / 2 - 4;
-    y -= ((calibratedAnalogs[i]+RESX)*(LCD_H/2-4)/(RESX*2));  // calculate once per loop
-    lcdDrawSolidVerticalLine(x-1, y, 2);
-    lcdDrawSolidVerticalLine(x+2, y, 2);
+    y -= ((calibratedAnalogs[i] + RESX) * (LCD_H / 2 - 4) / (RESX * 2));
+    lcdDrawSolidVerticalLine(x - 1, y, 2);
+    lcdDrawSolidVerticalLine(x + 2, y, 2);
   }
 }
 

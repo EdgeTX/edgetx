@@ -176,9 +176,9 @@ int switchLookupIdx(char c)
       idx = 2; // SWx
   }
 
-  for (unsigned idx = 0; idx < switchGetMaxSwitches(); idx++) {
-    const char *name = switchGetName(idx);
-    if (name[idx] == c) return idx;
+  for (unsigned i = 0; i < switchGetMaxSwitches(); i++) {
+    const char *name = switchGetName(i);
+    if (name[idx] == c) return i;
   }
 
   return -1;
@@ -191,9 +191,9 @@ int switchLookupIdx(const char* name, size_t len)
   uint8_t idx = 1; // Sx
   if (len > 2) idx = 2; // SWx
 
-  for (unsigned idx = 0; idx < switchGetMaxSwitches(); idx++) {
-    const char *sw_name = switchGetName(idx);
-    if (sw_name[2] == name[2]) return idx;
+  for (unsigned i = 0; i < switchGetMaxSwitches(); i++) {
+    const char *sw_name = switchGetName(i);
+    if (sw_name[idx] == name[idx]) return i;
   }
 
   return -1;  
