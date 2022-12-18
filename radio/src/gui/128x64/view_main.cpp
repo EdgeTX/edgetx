@@ -21,7 +21,7 @@
 
 #include "opentx.h"
 #include "hal/adc_driver.h"
-
+#include "switches.h"
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)

@@ -37,6 +37,7 @@
   #include "opentx.h"
   #include "hal/switch_driver.h"
   #include "hal/adc_driver.h"
+  #include "switches.h"
 #endif
 
 pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;

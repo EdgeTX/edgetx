@@ -411,7 +411,7 @@ void referenceModelAudioFiles()
       }
 
       // Switches Audio Files <switchname>-[up|mid|down].wav
-      for (int i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
+      for (unsigned i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
         getSwitchAudioFile(path, i);
         // TRACE("referenceModelAudioFiles(): searching for %s in %s (%d)", path, fno.fname, i);
         if (!strcasecmp(filename, fno.fname)) {
