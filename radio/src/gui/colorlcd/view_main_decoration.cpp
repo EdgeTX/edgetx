@@ -63,6 +63,9 @@ ViewMainDecoration::ViewMainDecoration(Window* parent) :
   w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
   w_br = create_layout_box(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
 
+  // Ensure flight mode and 6POS switch UI are centered
+  lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
   createTrims(w_ml, w_mr, w_bl, w_br);
   createFlightMode(w_bc);
   createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
