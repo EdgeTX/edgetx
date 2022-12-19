@@ -56,7 +56,7 @@ extern const char * nchar2string(const char * string, int size);
 
 inline void SYSTEM_RESET()
 {
-#if !defined(MODELSLIST)
+#if !defined(STORAGE_MODELSLIST)
   memset(modelHeaders, 0, sizeof(modelHeaders));
 #endif
   generalDefault();
