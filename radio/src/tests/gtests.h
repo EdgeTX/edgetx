@@ -29,11 +29,16 @@
 #define SWAP_DEFINED
 #include "opentx.h"
 #include "model_init.h"
+#include "switches.h"
+#include "hal/switch_driver.h"
 
 #define CHANNEL_MAX (1024*256)
 
 extern int32_t lastAct;
-extern uint16_t anaInValues[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+// from hal/adc_driver.cpp
+extern void anaResetFiltered();
+extern void anaSetFiltered(uint8_t chan, uint16_t val);
 
 void doMixerCalculations();
 
@@ -51,12 +56,12 @@ extern const char * nchar2string(const char * string, int size);
 
 inline void SYSTEM_RESET()
 {
-#if defined(EEPROM)
+#if !defined(MODELSLIST)
   memset(modelHeaders, 0, sizeof(modelHeaders));
 #endif
   generalDefault();
   g_eeGeneral.templateSetup = 0;
-  for (int i=0; i<NUM_SWITCHES; i++) {
+  for (int i=0; i<switchGetMaxSwitches(); i++) {
     simuSetSwitch(i, -1);
   }
 }
@@ -64,7 +69,7 @@ inline void SYSTEM_RESET()
 inline void MODEL_RESET()
 {
   memset(&g_model, 0, sizeof(g_model));
-  memset(&anaInValues, 0, sizeof(anaInValues));
+  anaResetFiltered();
   extern uint8_t s_mixer_first_run_done;
   s_mixer_first_run_done = false;
   evalMixes(1);  // this is needed to reset fp_act

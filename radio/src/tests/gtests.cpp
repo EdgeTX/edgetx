@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <memory>
 #include "gtests.h"
+#include "hal/adc_driver.h"
 
 using ::testing::TestEventListener;
 using ::testing::EmptyTestEventListener;
@@ -121,18 +122,10 @@ class TersePrinter : public EmptyTestEventListener  {
 }  // anonymous namespace
 
 int32_t lastAct = 0;
-uint16_t anaInValues[NUM_STICKS+NUM_POTS+NUM_SLIDERS] = { 0 };
-uint16_t anaIn(uint8_t chan)
-{
-  if (chan < NUM_STICKS+NUM_POTS+NUM_SLIDERS)
-    return anaInValues[chan];
-  else
-    return 0;
-}
 
-uint16_t getAnalogValue(uint8_t index)
+uint16_t simu_get_analog(uint8_t idx)
 {
-  return anaIn(index);
+  return 0;
 }
 
 static char _stringResult[200];
@@ -155,18 +148,14 @@ const char * nchar2string(const char * string, int size)
   return _stringResult;
 }
 
-extern bool _eeprom_write_simu_delay;
+extern const etx_hal_adc_driver_t simu_adc_driver;
 
 int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
   simuInit();
+  adcInit(&simu_adc_driver);
 
-  _eeprom_write_simu_delay = false;
-  startEepromThread(nullptr);
-#if defined(EEPROM_SIZE)
-  eeprom = (uint8_t *)malloc(EEPROM_SIZE);
-#endif
 #if !defined(COLORLCD)
   menuLevel = 0;
 #endif

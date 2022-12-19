@@ -238,6 +238,16 @@ uint16_t anaIn(uint8_t chan)
   return ANA_FILT(chan);
 }
 
+void anaSetFiltered(uint8_t chan, uint16_t val)
+{
+  s_anaFilt[chan] = val * (JITTER_ALPHA * ANALOG_MULTIPLIER);
+}
+
+void anaResetFiltered()
+{
+  memset(s_anaFilt, 0, sizeof(s_anaFilt));
+}
+
 #if defined(JITTER_MEASURE)
 JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
 JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
