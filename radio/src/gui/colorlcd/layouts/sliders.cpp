@@ -89,7 +89,6 @@ void MainView6POS::paint(BitmapBuffer * dc)
 #if NUM_XPOTS > 0 // prevent compiler warning
   coord_t x = MULTIPOS_W_SPACING/4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
-    //dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
     dc->drawNumber(x+TRIM_SQUARE_SIZE/4, 0, value+1, FONT(XS) | COLOR_THEME_SECONDARY1);
     x += MULTIPOS_W_SPACING;
   }
@@ -98,7 +97,7 @@ void MainView6POS::paint(BitmapBuffer * dc)
   value = (potsPos[idx] & 0x0f);
   x = MULTIPOS_W_SPACING/4+MULTIPOS_W_SPACING*value;
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
-  dc->drawNumber(x+MULTIPOS_W_SPACING/4, 0, value+1, FONT(XS) | COLOR_THEME_PRIMARY2);
+  dc->drawNumber(x+MULTIPOS_W_SPACING/4, -2, value+1, FONT(BOLD) | COLOR_THEME_PRIMARY2);
 #endif
 }
 

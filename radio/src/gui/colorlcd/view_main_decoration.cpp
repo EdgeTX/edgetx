@@ -63,7 +63,6 @@ ViewMainDecoration::ViewMainDecoration(Window* parent) :
   w_br = create_layout_box(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
 
   w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
-  //lv_obj_set_style_flex_cross_place(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
   lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   createTrims(w_ml, w_mr, w_bl, w_br);
