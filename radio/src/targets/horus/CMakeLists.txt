@@ -317,6 +317,3 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
   )
-
-
-

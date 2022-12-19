@@ -10,6 +10,11 @@ MAX_POTS = 4
 MAX_SLIDERS = 4
 MAX_EXTS = 4
 
+import sys
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 class Switch:
 
     TYPE_2POS = '2POS'
@@ -57,6 +62,14 @@ class ADCInput:
         self.pin = pin
         self.channel = channel
 
+class SPI_ADCInput:
+
+    def __init__(self, name, adc_input_type, channel):
+        self.name = name
+        self.type = adc_input_type
+        self.adc = 'SPI'
+        self.channel = channel
+        
 def prune_dict(d):
     # ret = {}
     # for k, v in d.items():
@@ -71,6 +84,8 @@ class DictEncoder(json.JSONEncoder):
         if isinstance(obj, Switch):
             return prune_dict(obj.__dict__)
         if isinstance(obj, ADCInput):
+            return prune_dict(obj.__dict__)
+        if isinstance(obj, SPI_ADCInput):
             return prune_dict(obj.__dict__)
         if isinstance(obj, ADC):
             return prune_dict(obj.__dict__)
@@ -287,11 +302,13 @@ class ADCInputParser:
 
         adcs = []
 
+        adc_spi = self.hw_defs.get('ADC_SPI')
+        if adc_spi:
+            #eprint('## Found SPI ADC')
+            adcs.append(ADC('SPI', adc_spi))
+        
         adc_main = self._parse_adc('MAIN', 'ADC_MAIN', 'ADC')
-        if adc_main is None:
-            # SPI ADC not yet supported (X12S only?)
-            return []
-        else:
+        if adc_main:
             adcs.append(adc_main)
 
         self.ext_list = None
@@ -308,6 +325,13 @@ class ADCInputParser:
         pin = None
         d = 1 # non-inverted
 
+        # search for SPI input first
+        spi_def = f'ADC_SPI_{suffix}'
+        if spi_def in self.hw_defs:
+            #eprint('## Found SPI ADC Input:', spi_def)
+            channel = self.hw_defs[spi_def]
+            return SPI_ADCInput(name, input_type, channel)
+        
         if name != 'RTC_BAT':
             pin_def = f'ADC_GPIO_PIN_{suffix}'
             pin = self.hw_defs[pin_def]
@@ -340,14 +364,14 @@ class ADCInputParser:
         self.inputs = []
 
         for adc_input in self.ADC_INPUTS:
-            try:
-                input_type = adc_input['type']
-                for i in adc_input['range']:
-                    name = adc_input['name'].format(i)
-                    suffix = adc_input['suffix'].format(i)
+            input_type = adc_input['type']
+            for i in adc_input['range']:
+                name = adc_input['name'].format(i)
+                suffix = adc_input['suffix'].format(i)
+                try:
                     self._add_input(self._parse_input_type(input_type, name, suffix))
-            except KeyError:
-                pass
+                except KeyError:
+                    pass
 
         try:
             self._add_input(self._parse_input_type('BATT', 'VBAT', 'BATT'))
@@ -409,6 +433,9 @@ def build_adc_gpio_port_index(adc_inputs):
     gpios = {}
     for adc_input in adc_inputs['inputs']:
 
+        if adc_input['adc'] == 'SPI':
+            continue
+        
         gpio = adc_input['gpio']
         if gpio is None:
             i = i + 1

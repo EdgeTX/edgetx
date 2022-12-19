@@ -289,6 +289,19 @@
   #define ADC_SPI_PinSource_MISO        GPIO_PinSource5
   #define ADC_SPI_PinSource_MOSI        GPIO_PinSource6
 
+  #define ADC_SPI_STICK_LH              0
+  #define ADC_SPI_STICK_LV              1
+  #define ADC_SPI_STICK_RV              2
+  #define ADC_SPI_STICK_RH              3
+  #define ADC_SPI_POT1                  4
+  #define ADC_SPI_POT2                  5
+  #define ADC_SPI_POT3                  6
+  #define ADC_SPI_SLIDER1               7
+  #define ADC_SPI_SLIDER2               8
+  #define ADC_SPI_BATT                  9
+  #define ADC_SPI_SLIDER3               10
+  #define ADC_SPI_SLIDER4               11
+
   #define ADC_MAIN                      ADC3
   #define ADC_GPIO_PIN_MOUSE1           GPIO_Pin_8 // PF.08 ADC3_IN6 J5 MOUSE_X
   #define ADC_GPIO_PIN_MOUSE2           GPIO_Pin_9 // PF.09 ADC3_IN7 J6 MOUSE_Y

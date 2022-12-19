@@ -29,7 +29,7 @@ static const uint8_t _ADC_{{ adc.name }}_channels[] = {
 {% endfor %}
 static const stm32_adc_t _ADC_adc[] = {
 {% set ns = namespace(start_offs=0) %}
-{% for adc in adc_inputs.adcs %}
+{% for adc in adc_inputs.adcs | selectattr('name', '!=', 'SPI') %}
   {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel') %}
   {% set input_count = inputs | list | count %}
   {
