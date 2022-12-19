@@ -66,12 +66,6 @@ bool adcRead()
     disableVBatBridge();
   }
 
-#if NUM_PWMSTICKS > 0
-  if (STICKS_PWM_ENABLED()) {
-    sticksPwmRead(adcValues);
-  }
-#endif
-
   return true;
 }
 

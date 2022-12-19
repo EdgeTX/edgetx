@@ -419,11 +419,7 @@ enum Analogs {
 #endif
 
 #if defined(STICKS_PWM)
-  #define NUM_PWMSTICKS                 4
   #define STICKS_PWM_ENABLED()          (!hardwareOptions.sticksPwmDisabled)
-  void sticksPwmInit();
-  void sticksPwmRead(uint16_t * values);
-  extern volatile uint32_t pwm_interrupt_count; // TODO => reusable buffer (boot section)
 #else
   #define STICKS_PWM_ENABLED()          false
 #endif

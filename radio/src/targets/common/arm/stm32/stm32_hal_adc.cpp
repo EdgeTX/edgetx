@@ -306,14 +306,6 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     adc++; n_ADC--;
   }
 
-  //TODO: move VBat & PWM sticks somewhere else.
-
-#if NUM_PWMSTICKS > 0
-  if (STICKS_PWM_ENABLED()) {
-    sticksPwmInit();
-  }
-#endif
-
   return true;
 }
 

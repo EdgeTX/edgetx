@@ -20,9 +20,9 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
 
-volatile uint32_t pwm_interrupt_count = 0;
-volatile uint16_t timer_capture_values[NUM_PWMSTICKS];
+volatile static uint32_t pwm_interrupt_count = 0;
 
 void sticksPwmInit()
 {
@@ -50,6 +50,28 @@ void sticksPwmInit()
 
   NVIC_EnableIRQ(PWM_IRQn);
   NVIC_SetPriority(PWM_IRQn, 10);
+}
+
+void sticksPwmDeInit()
+{
+  NVIC_DisableIRQ(PWM_IRQn);
+  PWM_TIMER->CR1 &= ~TIM_CR1_CEN; // Stop timer
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_StructInit(&GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = PWM_GPIOA_PINS;
+  GPIO_Init(PWM_GPIO, &GPIO_InitStructure);
+}
+
+void sticksPwmDetect()
+{
+  sticksPwmInit();
+  delay_ms(20);
+  if (pwm_interrupt_count < 32) {
+    hardwareOptions.sticksPwmDisabled = true;
+    sticksPwmDeInit();
+  }
 }
 
 inline uint32_t TIM_GetCapture_Stick(uint8_t n)
@@ -91,19 +113,43 @@ inline uint32_t diff_with_16bits_overflow(uint32_t a, uint32_t b)
     return b + 0xffff - a;
 }
 
+#if !defined(STICK_PWM_CHANNEL_0)
+  #define STICK_PWM_CHANNEL_0 0
+#endif
+
+#if !defined(STICK_PWM_CHANNEL_1)
+  #define STICK_PWM_CHANNEL_1 1
+#endif
+
+#if !defined(STICK_PWM_CHANNEL_2)
+  #define STICK_PWM_CHANNEL_2 2
+#endif
+
+#if !defined(STICK_PWM_CHANNEL_3)
+  #define STICK_PWM_CHANNEL_3 3
+#endif
+
+static const uint8_t _channel_map[] = {
+  STICK_PWM_CHANNEL_0,
+  STICK_PWM_CHANNEL_1,
+  STICK_PWM_CHANNEL_2,
+  STICK_PWM_CHANNEL_3,
+};
+
 extern "C" void PWM_IRQHandler(void)
 {
-  static uint8_t  timer_capture_states[NUM_PWMSTICKS];
-  static uint32_t timer_capture_rising_time[NUM_PWMSTICKS];
+  static uint8_t  timer_capture_states[MAX_STICKS];
+  static uint32_t timer_capture_rising_time[MAX_STICKS];
 
-  for (uint8_t i=0; i<NUM_PWMSTICKS; i++) {
+  for (uint8_t i=0; i<MAX_STICKS; i++) {
     if (PWM_TIMER->SR & (TIM_DIER_CC1IE << i)) {
       uint32_t capture = TIM_GetCapture_Stick(i);
-      pwm_interrupt_count++; // overflow may happen but we only use this to detect PWM / ADC on radio startup
+      // overflow may happen but we only use this to detect PWM / ADC on radio startup
+      pwm_interrupt_count++; 
       if (timer_capture_states[i] != 0) {
         uint32_t value = diff_with_16bits_overflow(timer_capture_rising_time[i], capture);
         if (value < 10000) {
-          timer_capture_values[i] = (uint16_t) value;
+          adcValues[_channel_map[i]] = (uint16_t) value;
         }
         TIM_SetPolarityRising(i);
         timer_capture_states[i] = 0;
@@ -117,21 +163,3 @@ extern "C" void PWM_IRQHandler(void)
     }
   }
 }
-
-#if defined(STICK_CHANNEL_CHANGE)
-void sticksPwmRead(uint16_t * values)
-{
-  values[0] = timer_capture_values[STICK_PWM_CHANNEL_0];
-  values[1] = timer_capture_values[STICK_PWM_CHANNEL_1];
-  values[2] = timer_capture_values[STICK_PWM_CHANNEL_2];
-  values[3] = timer_capture_values[STICK_PWM_CHANNEL_3];
-}
-#else
-void sticksPwmRead(uint16_t * values)
-{
-  values[0] = timer_capture_values[0];
-  values[1] = timer_capture_values[1];
-  values[2] = timer_capture_values[3];
-  values[3] = timer_capture_values[2];
-}
-#endif

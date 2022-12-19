@@ -184,12 +184,8 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(STICKS_PWM)
+  sticksPwmDetect();
 #endif
 
   globalData.flyskygimbals = false;

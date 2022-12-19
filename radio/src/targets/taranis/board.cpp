@@ -221,16 +221,13 @@ void boardInit()
 
   delaysInit();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(PWM_STICKS)
+  sticksPwmDetect();
 #endif
 
   if (!adcInit(&_adc_driver))
-      TRACE("adcInit failed");
+    TRACE("adcInit failed");
+
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();

@@ -284,7 +284,6 @@ bool getTrimsAsButtons();
 #define NUM_POTS                        2
 #define NUM_XPOTS                       0 // NUM_POTS
 #define NUM_SLIDERS                     0
-#define NUM_PWMSTICKS                   0
 #define NUM_MOUSE_ANALOGS               0
 #define STORAGE_NUM_POTS                5
 #define STORAGE_NUM_SLIDERS             0
