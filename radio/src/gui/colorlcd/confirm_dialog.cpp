@@ -34,6 +34,8 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
   auto msg = new StaticText(form, rect_t{}, message);
   msg->padAll(lv_dpx(16));
 
+  lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+
   auto box = new FormGroup(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
