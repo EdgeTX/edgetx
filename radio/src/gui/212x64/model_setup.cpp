@@ -862,12 +862,10 @@ void menuModelSetup(event_t event)
               if (attr && (menuHorizontalPosition==i+1)) REPEAT_LAST_CURSOR_MOVE();
             }
             else {
-#if defined(PCBX9E)
-              if (i == NUM_XPOTS) {
+              if (max_pots > 5 && i == 3) {
                 y += FH;
                 x = MODEL_SETUP_2ND_COLUMN;
               }
-#endif
               LcdFlags flags = ((menuHorizontalPosition==i+1) && attr) ? BLINK : 0;
               if ((!attr || menuHorizontalPosition >= 0) &&
                   (g_model.potsWarnEnabled & (1 << i))) {
