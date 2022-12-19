@@ -76,6 +76,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Radiomaster TX12 Mark II";
     case BOARD_RADIOMASTER_ZORRO:
       return "EdgeTX for Radiomaster Zorro";
+    case BOARD_RADIOMASTER_BOXER:
+      return "EdgeTX for Radiomaster Boxer";
     case BOARD_RADIOMASTER_T8:
       return "EdgeTX for Radiomaster T8";
     case BOARD_TARANIS_X9D:
@@ -366,6 +368,9 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   }
   else if (IS_RADIOMASTER_ZORRO(board)) {
     variant |= RADIOMASTER_ZORRO_VARIANT;
+  }
+  else if (IS_RADIOMASTER_BOXER(board)) {
+    variant |= RADIOMASTER_BOXER_VARIANT;
   }
   else if (IS_RADIOMASTER_T8(board)) {
     variant |= RADIOMASTER_T8_VARIANT;
@@ -764,7 +769,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_FAMILY_T16(board);
     case HasVCPSerialMode:
       return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board);
+             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
     case HasAntennaChoice:
@@ -784,17 +789,20 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board));
+              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) || 
+              IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
       return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
               IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
-              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs"));
+              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) || 
+              IS_RADIOMASTER_BOXER(board);
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
     case HasIntModuleELRS:
-      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) || IS_IFLIGHT_COMMANDO8(board);
+      return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board);
     case HasIntModuleFlySky:
       return id.contains("afhds3") || IS_FLYSKY_NV14(board);
     default:
@@ -1096,6 +1104,11 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_RADIOMASTER_ZORRO(board)) {
     if (variant != RADIOMASTER_ZORRO_VARIANT) {
+      variantError = true;
+    }
+  }
+  else if (IS_RADIOMASTER_BOXER(board)) {
+    if (variant != RADIOMASTER_BOXER_VARIANT) {
       variantError = true;
     }
   }
@@ -1468,6 +1481,16 @@ void registerOpenTxFirmwares()
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
   firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+
+  /* Radiomaster Boxer board */
+  firmware = new OpenTxFirmware(FIRMWAREID("boxer"), QCoreApplication::translate("Firmware", "Radiomaster Boxer"), Board::BOARD_RADIOMASTER_BOXER);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
