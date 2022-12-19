@@ -300,17 +300,11 @@ class ModelButton : public Button
 
     if (modelCell == modelslist.getCurrentModel()) {
       dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
-      LcdFlags textColor;
       dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-
-      textColor = COLOR_THEME_SECONDARY1;
-
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        textColor | CENTERED);
     }
+    dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
+                      COLOR_THEME_SECONDARY1 | CENTERED);
 
     if (!hasFocus()) {
       dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
@@ -366,7 +360,6 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
   padRow(MODEL_CELL_PADDING);
-  update();
 }
 
 void ModelsPageBody::selectModel(ModelCell *model)
@@ -508,22 +501,55 @@ void ModelsPageBody::update(int selected)
     models = modelslabels.getAllModels();
   }
 
+  // Used to work out which button to set focus to.
+  // Priority -
+  //     previously selected model
+  //     current active model
+  //     first model in the list
+  ModelButton* firstButton = nullptr;
+  ModelButton* focusedButton = nullptr;
+  ModelButton* currentButton = nullptr;
+
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model);
 
-    // Long Press Handler for Models
+    if (!firstButton)
+      firstButton = button;
+    if (model == focusedModel)
+      focusedButton = button;
+    if (model == modelslist.getCurrentModel())
+      currentButton = button;
+
+    // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
+      focusedModel = model;
+      if (button->hasFocus()) {
+        selectModel(model);
+      }
+      return 0;
+    });
+
+    // Long Press Handler for Models
+    button->setLongPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(this);
       menu->setTitle(model->modelName);
       menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
       menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
+      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
+      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       if (model != modelslist.getCurrentModel()) {
         menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
       }
-      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
-      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
+  }
+
+  if (!focusedButton)
+    focusedButton = (currentButton) ? currentButton : firstButton;
+
+  if (focusedButton) {
+    lv_group_focus_obj(focusedButton->getLvObj());
+    focusedModel = focusedButton->getModelCell();
   }
 }
 

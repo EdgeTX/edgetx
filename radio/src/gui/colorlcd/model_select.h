@@ -61,6 +61,7 @@ class ModelsPageBody : public FormWindow
   bool refresh = false;
   std::string selectedLabel;
   LabelsVector selectedLabels;
+  ModelCell *focusedModel = nullptr;
   std::function<void()> refreshLabels = nullptr;
 
   void selectModel(ModelCell* model);
