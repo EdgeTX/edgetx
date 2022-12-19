@@ -240,10 +240,8 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       setAnalogValue(index, value);
       break;
     case INPUT_SRC_KNOB :
-      setAnalogValue(index + NUM_STICKS, value);
-      break;
     case INPUT_SRC_SLIDER :
-      setAnalogValue(index + NUM_STICKS + NUM_POTS, value);
+      setAnalogValue(index + MAX_STICKS, value);
       break;
     case INPUT_SRC_TXVIN :
       setAnalogValue(Analogs::TX_VOLTAGE, voltageToAdc(value));
