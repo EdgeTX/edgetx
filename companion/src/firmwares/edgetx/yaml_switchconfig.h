@@ -46,7 +46,7 @@ struct YamlNameConfig {
   }
 };
 
-typedef YamlNameConfig<CPN_MAX_SWITCHES, YamlStickLookup> YamlStickConfig;
+typedef YamlNameConfig<CPN_MAX_STICKS, YamlStickLookup> YamlStickConfig;
 
 template <unsigned int N, class name_lookup, const YamlLookupTable& cfg_lut>
 struct YamlKnobConfig : public YamlNameConfig<N, name_lookup> {
