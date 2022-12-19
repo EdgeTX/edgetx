@@ -66,6 +66,8 @@ class ColorEditorPopup : public Dialog
     Dialog(parent, std::string(), rect_t{}),
       _setValue(std::move(_setValue))
   {
+    lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+
     setCloseWhenClickOutside(true);
     auto form = &content->form;
 
