@@ -371,18 +371,21 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 
 void ModelsPageBody::selectModel(ModelCell *model)
 {
-  bool modelConnected =
-      TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
-  if (modelConnected) {
-    AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-    if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
-          tmr10ms_t startTime = getTicks();
-          while (!TELEMETRY_STREAMING()) {
-            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
-          }
-          return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
-        })) {
-      return;  // stop if connected but not confirmed
+  // Don't need to check connection to receiver if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    bool modelConnected =
+        TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
+    if (modelConnected) {
+      AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+      if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
+            tmr10ms_t startTime = getTicks();
+            while (!TELEMETRY_STREAMING()) {
+              if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+            }
+            return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+          })) {
+        return;  // stop if connected but not confirmed
+      }
     }
   }
 
@@ -390,17 +393,20 @@ void ModelsPageBody::selectModel(ModelCell *model)
   auto w = Layer::back();
   if (w) w->onCancel();
 
-  // store changes (if any) and load selected model
-  storageFlushCurrentModel();
-  storageCheck(true);
-  memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
-         LEN_MODEL_FILENAME);
+  // Skip reloading model if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    // store changes (if any) and load selected model
+    storageFlushCurrentModel();
+    storageCheck(true);
+    memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+           LEN_MODEL_FILENAME);
 
-  loadModel(g_eeGeneral.currModelFilename, true);
-  modelslist.setCurrentModel(model);
+    loadModel(g_eeGeneral.currModelFilename, true);
+    modelslist.setCurrentModel(model);
 
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
+    storageDirty(EE_GENERAL);
+    storageCheck(true);
+  }
 }
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
@@ -509,9 +515,7 @@ void ModelsPageBody::update(int selected)
     button->setPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(this);
       menu->setTitle(model->modelName);
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
-      }
+      menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
       menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
       if (model != modelslist.getCurrentModel()) {
         menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
