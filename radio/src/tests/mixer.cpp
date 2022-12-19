@@ -565,7 +565,7 @@ TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 
 TEST_F(MixerTest, SlowOnPhase)
 {
-  g_model.flightModeData[1].swtch = TR(SWSRC_THR, SWSRC_SA0);
+  g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH;
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
@@ -661,7 +661,7 @@ TEST_F(MixerTest, SlowOnMultiply)
   g_model.mixData[1].mltpx = MLTPX_MUL;
   g_model.mixData[1].srcRaw = MIXSRC_MAX;
   g_model.mixData[1].weight = 100;
-  g_model.mixData[1].swtch = TR(SWSRC_THR, SWSRC_SA0);
+  g_model.mixData[1].swtch = SWSRC_FIRST_SWITCH;
   g_model.mixData[1].speedUp = 50;
   g_model.mixData[1].speedDown = 50;
 
@@ -791,7 +791,7 @@ TEST_F(MixerTest, flightModeTransition)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = TR(SWSRC_ID2, SWSRC_SA2);
+  g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 2;
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
   g_model.flightModeData[1].fadeIn = 100;
@@ -817,7 +817,7 @@ TEST_F(MixerTest, flightModeOverflow)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.flightModeData[1].swtch = TR(SWSRC_ID2, SWSRC_SA2);
+  g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 2;
   g_model.flightModeData[0].fadeIn = 100;
   g_model.flightModeData[0].fadeOut = 100;
   g_model.mixData[0].destCh = 0;
