@@ -31,7 +31,7 @@ enum {
   ADC_INPUT_EXT,
   ADC_INPUT_SWITCH,
   ADC_INPUT_BATT,
-  ADC_INPUT_MOUSE,
+  ADC_INPUT_AXIS,
 };
 
 struct stm32_adc_input_t {
