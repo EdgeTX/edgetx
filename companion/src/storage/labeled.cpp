@@ -312,25 +312,21 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
 
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
-  //  B&W radios do not use the models.yml file and scan the MODELS folder for modelxx.yml files
-  //  models have been deleted or reordered in Companion so delete all old modelxx.yml and just in case models.yml files
-  //  from radio MODELS folder before writing new modelxx.yml files
-  if (!hasLabels) {
-    // fetch "MODELS/modelXX.yml"
-    std::list<std::string> filelist;
-    if (!getFileList(filelist)) {
-      setError(tr("Cannot list files"));
-      return false;
-    }
+  // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
+  // fetch "MODELS/modelXX.yml"
+  std::list<std::string> filelist;
+  if (!getFileList(filelist)) {
+    setError(tr("Cannot list files"));
+    return false;
+  }
 
-    const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
-    for(const auto& f : filelist) {
-      std::smatch match;
-      if (std::regex_match(f, match, yml_regex)) {
-        if (match.size() == 3) {
-          if (!deleteFile(QString(f.c_str()))) {
-            return false;
-          }
+  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
+  for(const auto& f : filelist) {
+    std::smatch match;
+    if (std::regex_match(f, match, yml_regex)) {
+      if (match.size() == 3) {
+        if (!deleteFile(QString(f.c_str()))) {
+          return false;
         }
       }
     }
