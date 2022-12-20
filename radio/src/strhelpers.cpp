@@ -537,7 +537,7 @@ const char* getStickName(uint8_t idx)
   if (analogHasCustomStickName(idx))
     return analogGetCustomStickName(idx);
 
-  return adcGetStickName(idx);
+  return analogGetCanonicalStickName(idx);
 }
 
 const char* getPotName(uint8_t idx)

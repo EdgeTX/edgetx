@@ -212,6 +212,9 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       return yaml_str2uint(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
     }
 
+    auto stick_idx = analogLookupStickIdx(val, val_len);
+    if (stick_idx >= 0) return stick_idx + MIXSRC_FIRST_STICK;
+
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
 
@@ -230,8 +233,11 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 {
     const char* str = nullptr;
 
-    if (val >= MIXSRC_FIRST_INPUT
-        && val <= MIXSRC_LAST_INPUT) {
+    if (val == MIXSRC_NONE) {
+
+      return wf(opaque, "NONE", 4);
+
+    } else if (val <= MIXSRC_LAST_INPUT) {
 
         if (!wf(opaque, "I", 1))
             return false;
@@ -239,8 +245,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = yaml_unsigned2str(val - MIXSRC_FIRST_INPUT);
     }
 #if defined(LUA_INPUTS)
-    else if (val >= MIXSRC_FIRST_LUA
-             && val <= MIXSRC_LAST_LUA) {
+    else if (val <= MIXSRC_LAST_LUA) {
       
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
@@ -256,6 +261,12 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = closing_parenthesis;
     }
 #endif
+    else if (val <= MIXSRC_LAST_STICK) {
+        str = analogGetCanonicalStickName(val - MIXSRC_FIRST_STICK);
+    }
+    else if (val <= MIXSRC_LAST_POT) {
+        str = analogGetCanonicalPotName(val - MIXSRC_FIRST_POT);
+    }
     else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
 
@@ -659,7 +670,7 @@ static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  const char* str = analogGetCanonicalPotName(idx);
+  const char* str = analogGetCustomPotName(idx);
   if (!wf(opaque, "\"", 1)) return false;
   if (!wf(opaque, str, strlen(str))) return false;
   return wf(opaque, "\"", 1);
@@ -670,6 +681,7 @@ static const struct YamlIdStr enum_PotConfig[] = {
     {  POT_WITH_DETENT, "with_detent" },
     {  POT_MULTIPOS_SWITCH, "multipos_switch" },
     {  POT_WITHOUT_DETENT, "without_detent" },
+    {  POT_SLIDER_WITH_DETENT, "slider" },
     {  0, NULL }
 };
 

@@ -312,7 +312,7 @@ void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode)
 {
   lcdDrawText(INDENT_WIDTH, y, STR_CHAR_STICK, 0);
-  lcdDrawText(lcdNextPos, y, adcGetStickName(idx), 0);
+  lcdDrawText(lcdNextPos, y, analogGetCanonicalStickName(idx), 0);
 
   if (analogHasCustomStickName(idx) || (flags && s_editMode > 0))
     editName(x, y, (char*)analogGetCustomStickName(idx), LEN_ANA_NAME, event,

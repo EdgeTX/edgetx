@@ -49,7 +49,7 @@ HWSticks::HWSticks(Window* parent) : FormGroup(parent, rect_t{})
 
   for (int i = 0; i < adcGetMaxSticks(); i++) {
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, adcGetStickName(i), 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, analogGetCanonicalStickName(i), 0, COLOR_THEME_PRIMARY1);
     new HWInputEdit(line, (char*)analogGetCustomStickName(i), LEN_ANA_NAME);
   }
 
@@ -70,6 +70,8 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
   setFlexLayout();
 
   for (int i = 0; i < adcGetMaxPots(); i++) {
+    // TODO: check initialised ADC inputs instead!
+
     // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
 #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;

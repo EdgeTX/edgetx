@@ -26,7 +26,7 @@
 #include "hal/adc_driver.h"
 
 static char _stickNames[MAX_STICKS][LEN_ANA_NAME + 1] = { 0 };
-static char _potNames[MAX_STICKS][LEN_ANA_NAME + 1] = { 0 };
+static char _potNames[MAX_POTS][LEN_ANA_NAME + 1] = { 0 };
 
 void analogSetCustomStickName(uint8_t idx, const char* str, size_t len)
 {
@@ -42,6 +42,25 @@ const char* analogGetCustomStickName(uint8_t idx)
 bool analogHasCustomStickName(uint8_t idx)
 {
   return *analogGetCustomStickName(idx) != 0;
+}
+
+static const char* _stick_names[] = {
+  "Rud", "Ele", "Thr", "Ail",
+};
+
+int analogLookupStickIdx(const char* name, size_t len)
+{
+  for (uint8_t i = 0; i < DIM(_stick_names); i++) {
+    if (!strncmp(_stick_names[i], name, len)) return i;
+  }
+
+  return -1;
+}
+
+const char* analogGetCanonicalStickName(uint8_t idx)
+{
+  if (idx >= DIM(_stick_names)) return "";
+  return _stick_names[idx];
 }
 
 void analogSetCustomPotName(uint8_t idx, const char* str, size_t len)

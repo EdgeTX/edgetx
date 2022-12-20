@@ -28,6 +28,9 @@ void analogSetCustomStickName(uint8_t idx, const char* str, size_t len);
 const char* analogGetCustomStickName(uint8_t idx);
 bool analogHasCustomStickName(uint8_t idx);
 
+int analogLookupStickIdx(const char* name, size_t len);
+const char* analogGetCanonicalStickName(uint8_t idx);
+
 void analogSetCustomPotName(uint8_t idx, const char* str, size_t len);
 const char* analogGetCustomPotName(uint8_t idx);
 bool analogHasCustomPotName(uint8_t idx);
