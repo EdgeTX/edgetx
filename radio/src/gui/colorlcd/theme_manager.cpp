@@ -345,6 +345,7 @@ void ThemePersistance::scanThemeFolder(char *fullPath)
   FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) return;
 
+  f_close(&file);
   TRACE("scanForThemes: found file %s", fullPath);
   themes.emplace_back(new ThemeFile(fullPath));
 }
