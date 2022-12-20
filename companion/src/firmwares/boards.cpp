@@ -420,6 +420,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 1;
       else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
         return 0;
+      else if (IS_RADIOMASTER_BOXER(board))
+        return 3;
       else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board))
         return 2;
       else if (IS_TARANIS_X9E(board))
@@ -624,16 +626,16 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {tr("TltX").toStdString(), "TILT_X"},
                               {tr("TltY").toStdString(), "TILT_Y"},
                           });
+  } else if (IS_RADIOMASTER_BOXER(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("S1").toStdString(), "S1"},
+                              {tr("S2").toStdString(), "S2"},
+                              {tr("S3").toStdString(), "S3"},
+                          });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
                               {tr("S1").toStdString(), "POT1"},
                               {tr("S2").toStdString(), "POT2"},
-                          });
-  } else if (IS_RADIOMASTER_BOXER(board)) {
-    tbl.insert(tbl.end(), {
-                              {"S1", "S1"},
-                              {"S2", "S2"},
-                              {"6P", "6POS"},
                           });
   } else if (IS_TARANIS_X9(board)) {
     tbl.insert(tbl.end(), {

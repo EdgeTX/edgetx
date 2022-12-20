@@ -306,7 +306,6 @@ inline bool IS_RADIOMASTER_BOXER(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_BOXER;
 }
 
-
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
