@@ -316,17 +316,20 @@ class ModelButton : public Button
   const char *modelFilename() { return modelCell->modelFilename; }
   ModelCell *getModelCell() const { return modelCell; }
 
+  void setFocused() {
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_group_focus_obj(lvobj);
+    }
+  }
+
  protected:
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
 
   void onClicked() override {
-    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
-      lv_group_focus_obj(lvobj);
-    } else {
-      Button::onClicked();
-    }
+    setFocused();
+    Button::onClicked();
   }
 };
 
@@ -522,9 +525,10 @@ void ModelsPageBody::update(int selected)
 
     // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      focusedModel = model;
-      if (button->hasFocus()) {
+      if (model == focusedModel) {
         selectModel(model);
+      } else {
+        focusedModel = model;
       }
       return 0;
     });
@@ -548,7 +552,7 @@ void ModelsPageBody::update(int selected)
     focusedButton = (currentButton) ? currentButton : firstButton;
 
   if (focusedButton) {
-    lv_group_focus_obj(focusedButton->getLvObj());
+    focusedButton->setFocused();
     focusedModel = focusedButton->getModelCell();
   }
 }
