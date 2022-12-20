@@ -19,6 +19,42 @@
  * GNU General Public License for more details.
  */
 
+#define TESTPORTAUX2CTS
+
+#if defined(TESTPORTAUX2CTS)
+  #if !defined(SIMU)
+    #include "opentx.h"
+
+    #define TESTPORT_INIT testPortInit();
+    #define TESTPORT_HIGH GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+    #define TESTPORT_LOW  GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+
+    void testPortInit() {
+      static bool testPortInitialized = false;
+
+      if(!testPortInitialized) {
+        GPIO_InitTypeDef GPIO_InitStructure;
+        GPIO_InitStructure.GPIO_Pin = BT_EN_GPIO_PIN;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+        GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+        GPIO_Init(BT_EN_GPIO, &GPIO_InitStructure);
+
+        testPortInitialized = true;
+      }
+      
+      //TESTPORT_INIT   // nur um zu sehen, ob der Compiler/Linker meckert
+      //TESTPORT_HIGH   // nur um zu sehen, ob der Compiler/Linker meckert
+      //TESTPORT_LOW    // nur um zu sehen, ob der Compiler/Linker meckert
+    }
+  #else
+    #define TESTPORT_INIT
+    #define TESTPORT_HIGH
+    #define TESTPORT_LOW
+  #endif
+#endif
+
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "timers_driver.h"
@@ -66,21 +102,45 @@ bool isForcePowerOffRequested()
   return false;
 }
 
+extern uint16_t _divider;
+extern bool _isSyncedModuleInternal;  
+
 void sendSynchronousPulses(uint8_t runMask)
 {
+TESTPORT_INIT
+
+static uint16_t syncCounter = 0;
+
+syncCounter++;
+
 #if defined(HARDWARE_INTERNAL_MODULE)
-  if (runMask & (1 << INTERNAL_MODULE)) {
-    if (setupPulsesInternalModule())
+  if(setupPulsesInternalModule()) {
+    if(_isSyncedModuleInternal) {
+      TESTPORT_HIGH
       intmoduleSendNextFrame();
+      TESTPORT_LOW
+    } else {
+      if((syncCounter % _divider) == 0) {
+        TESTPORT_HIGH
+        intmoduleSendNextFrame();
+        TESTPORT_LOW
+      }
+    }
   }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  if (runMask & (1 << EXTERNAL_MODULE)) {
-    if (setupPulsesExternalModule())
+  if(setupPulsesExternalModule()) {
+    if(!_isSyncedModuleInternal) {
       extmoduleSendNextFrame();
+    } else {
+      if((syncCounter % _divider) == 0)
+        extmoduleSendNextFrame();
+    }
   }
 #endif
+
+TESTPORT_LOW
 }
 
 constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
@@ -181,7 +241,6 @@ TASK_FUNCTION(mixerTask)
     }
   }
 }
-
 
 #define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
 

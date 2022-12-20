@@ -61,24 +61,59 @@ struct MixerSchedule {
 
 static MixerSchedule mixerSchedules[NUM_MODULES];
 
+uint16_t _divider;
+bool _isSyncedModuleInternal;  
+
 uint16_t getMixerSchedulerPeriod()
 {
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (mixerSchedules[INTERNAL_MODULE].period) {
-    return mixerSchedules[INTERNAL_MODULE].period;
+  uint16_t _periodInternal = 0;
+  uint16_t _periodExternal = 0;
+
+  #if defined(HARDWARE_INTERNAL_MODULE)
+    _periodInternal = mixerSchedules[INTERNAL_MODULE].period;
+  #endif
+
+  #if defined(HARDWARE_EXTERNAL_MODULE)
+    _periodExternal = mixerSchedules[EXTERNAL_MODULE].period;
+  #endif
+
+  // no internal/external module and Joystick conntected
+  #if defined(STM32) && !defined(SIMU)
+    if(_periodInternal != 0 && _periodExternal != 0 && 
+       (getSelectedUsbMode() == USB_JOYSTICK_MODE)) {
+      return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+    }
+  #endif
+
+  //Both modules present and selected
+  if(_periodInternal != 0 && _periodExternal != 0) {
+    if(_periodExternal > _periodInternal) {
+      _isSyncedModuleInternal = true;
+      _divider = _periodExternal/_periodInternal + 1;
+      return _periodInternal;
+    } else {
+      _isSyncedModuleInternal = false;
+      _divider = _periodInternal/_periodExternal + 1;
+      return _periodExternal;
+    }
   }
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (mixerSchedules[EXTERNAL_MODULE].period) {
-    return mixerSchedules[EXTERNAL_MODULE].period;
+
+  // internal module only
+  if(_periodInternal) {
+    _isSyncedModuleInternal = true;
+    _divider = 1;
+    return _periodInternal;
   }
-#endif
-#if defined(STM32) && !defined(SIMU)
-  if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-    return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+
+  // external module only
+  if(_periodExternal) {
+    _isSyncedModuleInternal = false;
+    _divider = 1;
+    return _periodExternal;
   }
-#endif
-  return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+
+  // no module or Joystick active
+  return MIXER_SCHEDULER_DEFAULT_PERIOD_US; 
 }
 
 void mixerSchedulerInit()
