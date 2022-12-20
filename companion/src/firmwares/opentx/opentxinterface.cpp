@@ -369,9 +369,6 @@ int OpenTxEepromInterface::save(uint8_t * eeprom, const RadioData & radioData, u
   else if (IS_RADIOMASTER_ZORRO(board)) {
     variant |= RADIOMASTER_ZORRO_VARIANT;
   }
-  else if (IS_RADIOMASTER_BOXER(board)) {
-    variant |= RADIOMASTER_BOXER_VARIANT;
-  }
   else if (IS_RADIOMASTER_T8(board)) {
     variant |= RADIOMASTER_T8_VARIANT;
   }
@@ -1104,11 +1101,6 @@ bool OpenTxEepromInterface::checkVariant(unsigned int version, unsigned int vari
   }
   else if (IS_RADIOMASTER_ZORRO(board)) {
     if (variant != RADIOMASTER_ZORRO_VARIANT) {
-      variantError = true;
-    }
-  }
-  else if (IS_RADIOMASTER_BOXER(board)) {
-    if (variant != RADIOMASTER_BOXER_VARIANT) {
       variantError = true;
     }
   }

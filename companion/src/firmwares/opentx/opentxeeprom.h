@@ -44,7 +44,6 @@
 #define BETAFPV_LR3PRO_VARIANT         0x4007
 #define RADIOMASTER_TX12_MK2_VARIANT   0x4008
 #define IFLIGHT_COMMANDO8_VARIANT      0x4009
-#define RADIOMASTER_BOXER_VARIANT      0x4010
 
 class OpenTxGeneralData: public TransformedField {
   public:
