@@ -102,14 +102,14 @@ function(AddHardwareDefTarget output)
     set(HW_DEF_ARGS ${HW_DEF_ARGS} ${flag})
   endforeach()
 
-  set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -E -dM ${HW_DEF_SRC})
+  set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
   set(GEN_HW_DEFS ${GEN_HW_DEFS} | sed "'/^#define _/d'" | sort)
 
   set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_hw_def.py)
   set(GEN_JSON ${GEN_JSON} -i defines -)
 
   add_custom_command(OUTPUT ${output}
-    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} | jq . > ${output}
+    COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
     DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/generate_hw_def.py
     )
 

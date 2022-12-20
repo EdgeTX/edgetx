@@ -405,7 +405,7 @@ def parse_defines(filename):
     switches = parse_switches(hw_defs, adc_parser)
     out_defs["switches"] = switches
 
-    print(json.dumps(out_defs, cls=DictEncoder))
+    print(json.dumps(out_defs, cls=DictEncoder, indent=2))
 
 #
 # These methods are used on JSON structure, not on the object collections
