@@ -75,7 +75,7 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
 #endif
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, adcGetPotName(i), 0,
+    new StaticText(line, rect_t{}, analogGetCanonicalPotName(i), 0,
                    COLOR_THEME_PRIMARY1);
 
     auto box = new FormGroup(line, rect_t{});
@@ -88,11 +88,12 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
     new Choice(
         box, rect_t{}, STR_POTTYPES, POT_NONE, POT_SLIDER_WITH_DETENT,
         [=]() -> int {
-          return bfGet<uint32_t>(g_eeGeneral.potsConfig, 2 * i, 2);
+          return bfGet<uint32_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
+                                 POT_CFG_BITS);
         },
         [=](int newValue) {
-          g_eeGeneral.potsConfig =
-              bfSet<uint32_t>(g_eeGeneral.potsConfig, newValue, 2 * i, 2);
+          g_eeGeneral.potsConfig = bfSet<uint32_t>(
+              g_eeGeneral.potsConfig, newValue, POT_CFG_BITS * i, POT_CFG_BITS);
           SET_DIRTY();
         });
   }

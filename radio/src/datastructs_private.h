@@ -562,8 +562,8 @@ static_assert(sizeof(swconfig_t) >= (MAX_SWITCHES * 2 + 7) / 8,
 static_assert(sizeof(swarnstate_t) >= (MAX_SWITCHES * 2 + 7) / 8,
               "MAX_SWITCHES must fit swarnstate_t");
 
-// pot config: 3 bits per pot
-static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 3) + 1,
+// pot config: 4 bits per pot
+static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 4) + 1,
               "MAX_POTS must fit potconfig_t");
 
 // pot warning enabled: 1 bit per pot
@@ -877,7 +877,7 @@ PACK(struct RadioData {
   NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
 
   CUST_ARRAY(sticksConfig, struct_stickConfig, stick_name_valid);
-  potconfig_t potsConfig ARRAY(3,struct_potConfig,nullptr);
+  potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
   swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
 
   EXTRA_GENERAL_FIELDS

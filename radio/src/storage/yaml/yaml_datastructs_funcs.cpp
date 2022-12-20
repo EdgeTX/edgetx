@@ -675,7 +675,7 @@ static const struct YamlIdStr enum_PotConfig[] = {
 
 static const struct YamlNode struct_potConfig[] = {
     YAML_IDX_CUST( "pot", pot_read, pot_write ),
-    YAML_ENUM( "type", 2, enum_PotConfig),
+    YAML_ENUM( "type", POT_CFG_BITS, enum_PotConfig),
     YAML_CUSTOM( "name", pot_name_read, pot_name_write),
     YAML_END
 };

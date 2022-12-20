@@ -360,7 +360,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
   YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
   YAML_ARRAY("sticksConfig", 0, 4, struct_stickConfig, stick_name_valid),
-  YAML_ARRAY("potsConfig", 3, 10, struct_potConfig, nullptr),
+  YAML_ARRAY("potsConfig", 4, 8, struct_potConfig, nullptr),
   YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_PADDING( 8 ),

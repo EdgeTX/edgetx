@@ -38,7 +38,7 @@ typedef uint16_t source_t;
 typedef uint64_t swconfig_t;
 typedef uint64_t swarnstate_t;
 
-// pot config: 3 bits per pot
+// pot config: 4 bits per pot
 typedef uint32_t potconfig_t;
 
 // pot warning enabled: 1 bit per pot
