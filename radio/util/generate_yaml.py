@@ -267,8 +267,8 @@ def parse_union(ast, node):
             return old_st
 
     for c in node.get_children():
-        parse_field(st,c)
-
+        if c.kind == CursorKind.FIELD_DECL:
+            parse_field(st,c)
 
     ann = get_annotations(node)
     if len(ann) > 0:
@@ -383,10 +383,11 @@ def parse_field(ast,node):
 
     ann = get_annotations(node)
     if len(ann) > 0:
+        is_cust = False
+        is_enum = False
         for a in ann:
             if a['type'] == 'enum':
-                if not hasattr(f,'f_read'):
-                    f.type = 'enum'
+                is_enum = True
                 enum_name = 'enum_' + a['val']
                 f.var_type = enum_name
                 if not RootAST.has_enum(enum_name):
@@ -397,8 +398,10 @@ def parse_field(ast,node):
                 f.name = a['val']
             elif a['type'] == 'read':
                 f.f_read = a['val']
+                is_cust = True
             elif a['type'] == 'write':
                 f.f_write = a['val']
+                is_cust = True
             elif a['type'] == 'array':
                 array_attrs = a['val'].split('|')
                 elmt_size = int(array_attrs[0])
@@ -409,8 +412,13 @@ def parse_field(ast,node):
             elif a['type'] == 'skip':
                 f.skip = True
 
+        if is_enum and not is_cust:
+            f.type = 'enum'
+
     if len(f.name) == 0:
-        print_error("in '{}', field of type '{}' does not have a name".format(ast.name,f.var_type))
+        print_error("in '{}', field of type '{}' does not have a name"
+                    .format(ast.name,f.var_type))
+        return
 
     ast.append(f)
 
