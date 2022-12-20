@@ -83,7 +83,12 @@ class OutputLineButton : public ListLineButton
   {
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (OutputLineButton*)lv_obj_get_user_data(target);
-    if (line && !line->init) line->delayed_init(e);
+    if (line) {
+      if (!line->init)
+        line->delayed_init(e);
+      else
+        line->refresh();
+    }
   }
   
   void delayed_init(lv_event_t* e)
