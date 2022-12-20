@@ -122,6 +122,11 @@ namespace Helpers
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx);
 
+#ifdef __APPLE__
+// Flag when simulator is running
+bool isSimulatorRunning();
+#endif
+
 // Format a pixmap to fit on the current firmware
 QPixmap makePixMap(const QImage & image);
 
