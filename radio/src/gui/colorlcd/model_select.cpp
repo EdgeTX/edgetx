@@ -240,9 +240,11 @@ class ButtonHolder : public FormWindow
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
+  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
       Button(parent, rect), modelCell(modelCell)
   {
+    m_setSelected = std::move(setSelected);
+
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
@@ -310,6 +312,7 @@ class ModelButton : public Button
       dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
     } else {
       dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
+      if (m_setSelected) m_setSelected();
     }
   }
 
@@ -326,6 +329,7 @@ class ModelButton : public Button
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
+  std::function<void()> m_setSelected = nullptr;
 
   void onClicked() override {
     setFocused();
@@ -514,7 +518,9 @@ void ModelsPageBody::update(int selected)
   ModelButton* currentButton = nullptr;
 
   for (auto &model : models) {
-    auto button = new ModelButton(this, rect_t{}, model);
+    auto button = new ModelButton(this, rect_t{}, model, [=]() {
+      focusedModel = model;
+    });
 
     if (!firstButton)
       firstButton = button;
@@ -525,11 +531,8 @@ void ModelsPageBody::update(int selected)
 
     // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      if (model == focusedModel) {
-        selectModel(model);
-      } else {
-        focusedModel = model;
-      }
+      selectModel(model);
+      focusedModel = model;
       return 0;
     });
 
