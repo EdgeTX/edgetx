@@ -58,6 +58,12 @@ uint16_t getMixerSchedulerPeriod();
 // Trigger mixer from an ISR
 void mixerSchedulerISRTrigger();
 
+// fetch the mixer schedule divider
+uint16_t getMixerSchedulerDivider();
+
+// check if internal or extern module is synced
+bool isSyncedModuleInternal();
+
 // Fetch the real scheduling period internal module
 uint16_t getRealMixerSchedulerPeriodInternal();
 
@@ -79,6 +85,8 @@ uint16_t getRealMixerSchedulerPeriodExternal();
 #define getMixerSchedulerPeriod() (MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 #define getRealMixerSchedulerPeriodInternal() (7000)
 #define getRealMixerSchedulerPeriodExternal() (2000)
+#define getMixerSchedulerDivider() (1)
+#define isSyncedModuleInternal() (true)
 #define mixerSchedulerISRTrigger()
 
 #endif

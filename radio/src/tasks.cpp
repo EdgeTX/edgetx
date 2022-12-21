@@ -66,9 +66,6 @@ bool isForcePowerOffRequested()
   return false;
 }
 
-extern uint16_t _divider;
-extern bool _isSyncedModuleInternal;  
-
 void sendSynchronousPulses(uint8_t runMask)
 {
 static uint16_t syncCounter = 0;
@@ -77,10 +74,10 @@ syncCounter++;
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   if(setupPulsesInternalModule()) {
-    if(_isSyncedModuleInternal) {
+    if(isSyncedModuleInternal()) {
       intmoduleSendNextFrame();
     } else {
-      if((syncCounter % _divider) == 0) {
+      if((syncCounter % getMixerSchedulerDivider()) == 0) {
         intmoduleSendNextFrame();
       }
     }
@@ -89,10 +86,10 @@ syncCounter++;
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if(setupPulsesExternalModule()) {
-    if(!_isSyncedModuleInternal) {
+    if(!isSyncedModuleInternal()) {
       extmoduleSendNextFrame();
     } else {
-      if((syncCounter % _divider) == 0)
+      if((syncCounter % getMixerSchedulerDivider()) == 0)
         extmoduleSendNextFrame();
     }
   }

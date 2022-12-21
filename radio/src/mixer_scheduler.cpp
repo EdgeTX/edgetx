@@ -22,11 +22,6 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
-uint16_t _divider = 1;
-bool _isSyncedModuleInternal = true; 
-uint16_t _periodInternal = 0;
-uint16_t _periodExternal = 0;
-
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
 #if !defined(SIMU)
@@ -65,6 +60,11 @@ struct MixerSchedule {
 };
 
 static MixerSchedule mixerSchedules[NUM_MODULES]; 
+
+static uint16_t _divider = 1;
+static bool _isSyncedModuleInternal = true; 
+static uint16_t _periodInternal = 0;
+static uint16_t _periodExternal = 0;
 
 uint16_t getMixerSchedulerPeriod()
 {
@@ -131,6 +131,14 @@ uint16_t getRealMixerSchedulerPeriodExternal() {
   } else {
     return _periodInternal*_divider;
   }
+}
+
+uint16_t getMixerSchedulerDivider() {
+  return _divider;
+}
+
+bool isSyncedModuleInternal(){
+  return _isSyncedModuleInternal;
 }
 
 void mixerSchedulerInit()
