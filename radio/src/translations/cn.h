@@ -763,7 +763,7 @@
 #define TR_SAMPLE_MODES                "标准","OneBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT        "快速选择模型"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "选择一个模板文件夹:"

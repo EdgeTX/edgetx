@@ -760,7 +760,7 @@
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER "Wybierz folder szablonu"

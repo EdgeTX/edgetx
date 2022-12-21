@@ -781,7 +781,7 @@
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT        "Rychlý výběr modelu"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "VYBRAT SLOŽKU SE ŠABLONOU:"

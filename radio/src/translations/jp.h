@@ -763,7 +763,7 @@
 #define TR_SAMPLE_MODES                "標準","OneBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "テンプレートフォルダを選択:"

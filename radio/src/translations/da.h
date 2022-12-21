@@ -768,7 +768,7 @@
 #define TR_SAMPLE_MODES                "Normal","EnBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "VÆLG EN SKABELON MAPPE:"

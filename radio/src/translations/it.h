@@ -764,7 +764,7 @@
 #define TR_SAMPLE_MODES        "Normale","OneBit"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+  #define TR_MODEL_QUICK_SELECT "Selezione veloce modello"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER "SELEZIONA CARTELLA TEMPLATE:"
