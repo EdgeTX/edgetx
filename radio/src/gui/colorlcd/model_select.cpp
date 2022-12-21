@@ -546,22 +546,22 @@ void ModelsPageBody::update(int selected)
 
     // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      if (g_eeGeneral.modelQuickSelect) {
-        if (model == focusedModel)
+      if (model == focusedModel) {
+        if (g_eeGeneral.modelQuickSelect)
           selectModel(model);
         else
-          focusedModel = model;
+          openMenu();
       } else {
         focusedModel = model;
-        openMenu();
       }
       return 0;
     });
 
     // Long Press Handler for Models
     button->setLongPressHandler([=]() -> uint8_t {
-      focusedModel = model;
-      openMenu();
+      if (model == focusedModel) {
+        openMenu();
+      }
       return 0;
     });
   }
