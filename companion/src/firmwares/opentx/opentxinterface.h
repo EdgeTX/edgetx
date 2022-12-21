@@ -96,17 +96,22 @@ class OpenTxFirmware: public Firmware
     OpenTxFirmware(const QString & id, const QString & name, const Board::Type board):
       Firmware(id, name, board)
     {
+      //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
       addLanguage("en");
+      addLanguage("cn");
       addLanguage("cz");
       addLanguage("da");
       addLanguage("de");
       addLanguage("es");
       addLanguage("fr");
+      addLanguage("hu");
       addLanguage("it");
       addLanguage("nl");
       addLanguage("pl");
       addLanguage("pt");
+      addLanguage("ru");
       addLanguage("se");
+      addLanguage("sk");
     }
 
     virtual Firmware * getFirmwareVariant(const QString & id);

@@ -33,29 +33,29 @@
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-osx"
   #define OS_INSTALLER_EXTN        "*.dmg"
-  #define OS_INSTALL_QUESTION      tr("Would you like to open the disk image to install the new version of Companion?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to open the disk image to install the new version of Companion?")
 #elif defined(_WIN64)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-win64"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to launch the Companion installer?")
 #elif defined(_WIN32)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-win32"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to launch the Companion installer?")
 #elif defined(__linux__) || defined(__linux)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-linux"
   #define OS_INSTALLER_EXTN        "*.AppImage"
 #else
-  #define OS_INSTALL_MSG           tr("No install process support for your operating system")
+  #define OS_INSTALL_MSG           QCoreApplication::translate("UpdateCompanion", "No install process support for your operating system")
 #endif
 
 UpdateCompanion::UpdateCompanion(QWidget * parent) :
   UpdateInterface(parent)
 {
-  init(CID_Companion, tr("Companion"), QString(GH_REPOS_EDGETX).append("/edgetx"), "nightly");
+  init(CID_Companion, QCoreApplication::translate("UpdateCompanion", "Companion"), QString(GH_REPOS_EDGETX).append("/edgetx"), "nightly");
 }
 
 void UpdateCompanion::initAssetSettings()

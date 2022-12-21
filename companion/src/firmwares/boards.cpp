@@ -571,75 +571,85 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
   StringTagMappingTable tbl;
 
   if (getBoardCapability(board, Board::Sticks)) {
-    tbl.insert(tbl.end(), {"Rud", "Ele", "Thr", "Ail"});
+    tbl.insert(tbl.end(), {
+                              {tr("Rud").toStdString(), "Rud"},
+                              {tr("Ele").toStdString(), "Ele"},
+                              {tr("Thr").toStdString(), "Thr"},
+                              {tr("Ail").toStdString(), "Ail"},
+                          });
   }
 
   if (IS_SKY9X(board)) {
-    tbl.insert(tbl.end(), {"P1", "P2", "P3"});
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "P1"},
+                              {tr("P2").toStdString(), "P2"},
+                              {tr("P3").toStdString(), "P3"},
+                          });
   } else if (IS_TARANIS_X9LITE(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "POT1"},
+                              {tr("S1").toStdString(), "S1"},
+                              {tr("POT1").toStdString(), "POT1"},
                           });
   } else if (IS_TARANIS_X9E(board)) {
     tbl.insert(tbl.end(), {
-                              {"F1", "POT1"},
-                              {"F2", "POT2"},
-                              {"F3", "POT3"},
-                              {"F4", "POT4"},
-                              {"S1", "SLIDER1"},
-                              {"S2", "SLIDER2"},
-                              {"LS", "SLIDER3"},
-                              {"RS", "SLIDER4"},
+                              {tr("F1").toStdString(), "POT1"},
+                              {tr("F2").toStdString(), "POT2"},
+                              {tr("F3").toStdString(), "POT3"},
+                              {tr("F4").toStdString(), "POT4"},
+                              {tr("S1").toStdString(), "SLIDER1"},
+                              {tr("S2").toStdString(), "SLIDER2"},
+                              {tr("LS").toStdString(), "SLIDER3"},
+                              {tr("RS").toStdString(), "SLIDER4"},
                           });
   } else if (IS_TARANIS_XLITES(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "POT1"},
-                              {"S2", "POT2"},
-                              {"TltX", "TILT_X"},
-                              {"TltY", "TILT_Y"},
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
+                              {tr("TltX").toStdString(), "TILT_X"},
+                              {tr("TltY").toStdString(), "TILT_Y"},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "POT1"},
-                              {"S2", "POT2"},
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
                           });
   } else if (IS_TARANIS_X9(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "POT1"},
-                              {"S2", "POT2"},
-                              {"S3", "POT3"},
-                              {"LS", "SLIDER1"},
-                              {"RS", "SLIDER2"},
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
+                              {tr("S3").toStdString(), "POT3"},
+                              {tr("LS").toStdString(), "SLIDER1"},
+                              {tr("RS").toStdString(), "SLIDER2"},
                           });
   } else if (IS_HORUS_X12S(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "S1"},
-                              {"6P", "6POS"},
-                              {"S2", "S2"},
-                              {"L1", "S3"},
-                              {"L2", "S4"},
-                              {"LS", "LS"},
-                              {"RS", "RS"},
-                              {"JSx", "MOUSE1"},
-                              {"JSy", "MOUSE2"},
-                              {"TltX", "TILT_X"},
-                              {"TltY", "TILT_Y"},
+                              {tr("S1").toStdString(), "S1"},
+                              {tr("6P").toStdString(), "6POS"},
+                              {tr("S2").toStdString(), "S2"},
+                              {tr("L1").toStdString(), "S3"},
+                              {tr("L2").toStdString(), "S4"},
+                              {tr("LS").toStdString(), "LS"},
+                              {tr("RS").toStdString(), "RS"},
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("TltX").toStdString(), "TILT_X"},
+                              {tr("TltY").toStdString(), "TILT_Y"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
-                              {"S1", "S1"},
-                              {"6P", "6POS"},
-                              {"S2", "S2"},
-                              {"EX1", "EXT1"},
-                              {"EX2", "EXT2"},
-                              {"EX3", "EXT3"},
-                              {"EX4", "EXT4"},
-                              {"LS", "LS"},
-                              {"RS", "RS"},
-                              {"JSx", "MOUSE1"},
-                              {"JSy", "MOUSE2"},
-                              {"TltX", "TILT_X"},
-                              {"TltY", "TILT_Y"},
+                              {tr("S1").toStdString(), "S1"},
+                              {tr("6P").toStdString(), "6POS"},
+                              {tr("S2").toStdString(), "S2"},
+                              {tr("EX1").toStdString(), "EXT1"},
+                              {tr("EX2").toStdString(), "EXT2"},
+                              {tr("EX3").toStdString(), "EXT3"},
+                              {tr("EX4").toStdString(), "EXT4"},
+                              {tr("LS").toStdString(), "LS"},
+                              {tr("RS").toStdString(), "RS"},
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("TltX").toStdString(), "TILT_X"},
+                              {tr("TltY").toStdString(), "TILT_Y"},
                           });
   }
 
