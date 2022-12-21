@@ -22,6 +22,11 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+uint16_t _divider = 1;
+bool _isSyncedModuleInternal = true; 
+uint16_t _periodInternal = 0;
+uint16_t _periodExternal = 0;
+
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
 #if !defined(SIMU)
@@ -59,15 +64,12 @@ struct MixerSchedule {
   volatile uint16_t period;
 };
 
-static MixerSchedule mixerSchedules[NUM_MODULES];
-
-uint16_t _divider;
-bool _isSyncedModuleInternal;  
+static MixerSchedule mixerSchedules[NUM_MODULES]; 
 
 uint16_t getMixerSchedulerPeriod()
 {
-  uint16_t _periodInternal = 0;
-  uint16_t _periodExternal = 0;
+  _periodInternal = 0;
+  _periodExternal = 0;
 
   #if defined(HARDWARE_INTERNAL_MODULE)
     _periodInternal = mixerSchedules[INTERNAL_MODULE].period;
@@ -114,6 +116,21 @@ uint16_t getMixerSchedulerPeriod()
 
   // no module or Joystick active
   return MIXER_SCHEDULER_DEFAULT_PERIOD_US; 
+}
+
+uint16_t getRealMixerSchedulerPeriodInternal() {
+  if(_isSyncedModuleInternal)
+    return _periodInternal;
+  else
+    return _periodExternal*_divider;
+}
+
+uint16_t getRealMixerSchedulerPeriodExternal() {
+  if(!_isSyncedModuleInternal) {
+    return _periodExternal;
+  } else {
+    return _periodInternal*_divider;
+  }
 }
 
 void mixerSchedulerInit()

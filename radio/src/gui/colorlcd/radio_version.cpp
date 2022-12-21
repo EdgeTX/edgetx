@@ -184,7 +184,7 @@ class VersionDialog : public Dialog
     if (isModuleCrossfire(module)) {
       char statusText[64];
 
-      auto hz = 1000000 / getMixerSchedulerPeriod();
+      auto hz = 1000000 / getRealMixerSchedulerPeriodExternal();
       snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
@@ -207,9 +207,13 @@ class VersionDialog : public Dialog
 #if defined(MULTIMODULE)
     // MPM is able to provide status
     if (isModuleMultimodule(module)) {
+      char MPMstatus[32];
       char statusText[64];
-
-      getMultiModuleStatus(module).getStatusString(statusText);
+   
+      auto hz = 1000000 / getRealMixerSchedulerPeriodInternal();
+      getMultiModuleStatus(module).getStatusString(MPMstatus);
+      
+      snprintf(statusText, 64, "%s %d Hz", MPMstatus, hz);
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
