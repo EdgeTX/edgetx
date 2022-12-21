@@ -129,23 +129,31 @@ class ColorEditorPopup : public Dialog
     
     hbox = new FormGroup(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-    lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_SPACE_BETWEEN);
+    lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_SPACE_BETWEEN);
     lv_obj_set_flex_grow(hbox->getLvObj(), 1);
 
     auto cancelBtn = new TextButton(hbox, rect_t{}, STR_CANCEL, [=]() -> int8_t {
       this->deleteLater();
       return 0;
     });
-    cancelBtn->padAll(lv_dpx(12));
+    cancelBtn->padTop(lv_dpx(12));
+    cancelBtn->padBottom(lv_dpx(12));
+    lv_obj_set_flex_grow(cancelBtn->getLvObj(), 1);
 
     auto okBtn = new TextButton(hbox, rect_t{}, STR_SAVE, [=]() -> int8_t {
       if (_setValue) _setValue(m_color);
       this->deleteLater();
       return 0;
     });
-    okBtn->padAll(lv_dpx(12));
+    okBtn->padTop(lv_dpx(12));
+    okBtn->padBottom(lv_dpx(12));
+    lv_obj_set_flex_grow(okBtn->getLvObj(), 1);
 
+#if LCD_W > LCD_H
     content->setWidth(LCD_W * 0.9);
+#else
+    content->setWidth(LCD_W * 0.8);
+#endif
     content->updateSize();
   }
 };
