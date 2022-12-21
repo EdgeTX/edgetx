@@ -64,6 +64,7 @@ class ModelsPageBody : public FormWindow
   ModelCell *focusedModel = nullptr;
   std::function<void()> refreshLabels = nullptr;
 
+  void openMenu();
   void selectModel(ModelCell* model);
   void duplicateModel(ModelCell* model);
   void deleteModel(ModelCell* model);

@@ -780,6 +780,10 @@
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "VYBRAT SLOŽKU SE ŠABLONOU:"
 #define TR_SELECT_TEMPLATE             "VYBRAT ŠABLONU MODELU:"
 #define TR_NO_TEMPLATES                "Žádná šablona modelu v této složce nebyla nalezena"

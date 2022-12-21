@@ -803,6 +803,10 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER       "VÄLJ EN MALLKATALOG:"
 #define TR_SELECT_TEMPLATE              "VÄLJ EN MODELLMALL:"
 #define TR_NO_TEMPLATES                 "Ingen modellmall finns i denna katalog"

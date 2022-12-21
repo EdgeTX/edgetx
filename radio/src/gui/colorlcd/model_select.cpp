@@ -497,6 +497,21 @@ void ModelsPageBody::editLabels(ModelCell* model)
   }
 }
 
+void ModelsPageBody::openMenu()
+{
+  Menu *menu = new Menu(this);
+  menu->setTitle(focusedModel->modelName);
+  if (g_eeGeneral.modelQuickSelect || focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
+  }
+  menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
+  menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(focusedModel); });
+  menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel);}); 
+  if (focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
+  }
+}
+
 void ModelsPageBody::update(int selected)
 {
   clear();
@@ -531,22 +546,22 @@ void ModelsPageBody::update(int selected)
 
     // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      selectModel(model);
-      focusedModel = model;
+      if (g_eeGeneral.modelQuickSelect) {
+        if (model == focusedModel)
+          selectModel(model);
+        else
+          focusedModel = model;
+      } else {
+        focusedModel = model;
+        openMenu();
+      }
       return 0;
     });
 
     // Long Press Handler for Models
     button->setLongPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(this);
-      menu->setTitle(model->modelName);
-      menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
-      menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
-      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
-      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
-      }
+      focusedModel = model;
+      openMenu();
       return 0;
     });
   }

@@ -769,7 +769,7 @@ PACK(struct TrainerData {
     NOBACKUP(char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME] SKIP); \
     NOBACKUP(char anaNames[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP); \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
-    NOBACKUP(uint8_t spare5:1 SKIP); \
+    NOBACKUP(uint8_t modelQuickSelect:1); \
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
 #else
