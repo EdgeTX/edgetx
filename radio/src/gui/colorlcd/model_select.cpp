@@ -525,12 +525,11 @@ void ModelsPageBody::update(int selected)
 
   // Used to work out which button to set focus to.
   // Priority -
-  //     previously selected model
   //     current active model
+  //     previously selected model
   //     first model in the list
   ModelButton* firstButton = nullptr;
   ModelButton* focusedButton = nullptr;
-  ModelButton* currentButton = nullptr;
 
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model, [=]() {
@@ -539,10 +538,10 @@ void ModelsPageBody::update(int selected)
 
     if (!firstButton)
       firstButton = button;
-    if (model == focusedModel)
-      focusedButton = button;
     if (model == modelslist.getCurrentModel())
-      currentButton = button;
+      focusedButton = button;
+    if (model == focusedModel && !focusedButton)
+      focusedButton = button;
 
     // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
@@ -567,7 +566,7 @@ void ModelsPageBody::update(int selected)
   }
 
   if (!focusedButton)
-    focusedButton = (currentButton) ? currentButton : firstButton;
+    focusedButton = firstButton;
 
   if (focusedButton) {
     focusedButton->setFocused();
