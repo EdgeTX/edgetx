@@ -74,7 +74,7 @@ syncCounter++;
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   if(setupPulsesInternalModule()) {
-    if(isSyncedModuleInternal()) {
+    if(getMixerSchedulerSyncedModule() == INTERNAL_MODULE) {
       intmoduleSendNextFrame();
     } else {
       if((syncCounter % getMixerSchedulerDivider()) == 0) {
@@ -86,7 +86,7 @@ syncCounter++;
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if(setupPulsesExternalModule()) {
-    if(!isSyncedModuleInternal()) {
+    if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE) {
       extmoduleSendNextFrame();
     } else {
       if((syncCounter % getMixerSchedulerDivider()) == 0)

@@ -118,27 +118,31 @@ uint16_t getMixerSchedulerPeriod()
   return MIXER_SCHEDULER_DEFAULT_PERIOD_US; 
 }
 
-uint16_t getRealMixerSchedulerPeriodInternal() {
-  if(_isSyncedModuleInternal)
-    return _periodInternal;
-  else
-    return _periodExternal*_divider;
-}
-
-uint16_t getRealMixerSchedulerPeriodExternal() {
-  if(!_isSyncedModuleInternal) {
-    return _periodExternal;
-  } else {
-    return _periodInternal*_divider;
+uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx) {
+  if(moduleIdx == INTERNAL_MODULE) { 
+    if(_isSyncedModuleInternal)
+      return _periodInternal;
+    else
+      return _periodExternal*_divider;
   }
+
+  if(moduleIdx == EXTERNAL_MODULE) {
+    if(!_isSyncedModuleInternal)
+      return _periodExternal;
+    else
+      return _periodInternal*_divider;
+  }
+
+  //unknown moduleIDX
+  return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
 }
 
 uint16_t getMixerSchedulerDivider() {
   return _divider;
 }
 
-bool isSyncedModuleInternal(){
-  return _isSyncedModuleInternal;
+uint8_t getMixerSchedulerSyncedModule() {
+  return _isSyncedModuleInternal ? INTERNAL_MODULE : EXTERNAL_MODULE;
 }
 
 void mixerSchedulerInit()
