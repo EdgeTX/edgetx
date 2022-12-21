@@ -143,7 +143,14 @@ extern const char* STR_VSWASHTYPE[];
 
 extern const char* STR_VKEYS[];
 extern const char* STR_VSWITCHES[];
-extern const char* STR_VSRCRAW[];
+#if defined(IMU)
+extern const char* STR_IMU_VSRCRAW[];
+#endif
+#if defined(PCBHORUS)
+extern const char* STR_SM_VSRCRAW[];
+#endif
+extern const char* STR_CYC_VSRCRAW[];
+extern const char* STR_TRIMS_VSRCRAW[];
 
 extern const char* STR_ROTARY_ENC_OPT[];
 

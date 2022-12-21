@@ -1413,7 +1413,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       break;
     default:
       if (value > 0 && value < NUM_STICKS + 1) {
-        str = yaml_output_enum(value - 1 + MIXSRC_FIRST_STICK, enum_MixSources);
+        str = analogGetCanonicalStickName(value - 1);
         if (str && !wf(opaque, str, strlen(str))) return false;
       }
     }

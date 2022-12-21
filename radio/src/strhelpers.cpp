@@ -621,10 +621,33 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     }
     strncpy(pos, name, dest_len - 1);
     pos[dest_len - 1] = '\0';
+
+  }
+#if defined(PCBHORUS)
+  else if (idx <= MIXSRC_MOUSE2) {
+    // TODO
+  }
+#endif
+#if defined(IMU)
+  else if (idx <= MIXSRC_TILT_Y) {
+    idx -= MIXSRC_TILT_X;
+    getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
+  }
+#endif
+#if defined(PCBHORUS)
+  else if (idx <= MIXSRC_LAST_SPACEMOUSE) {
+    idx -= MIXSRC_FIRST_SPACEMOUSE;
+    getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
+  }
+#endif
+  else if (idx == MIXSRC_MAX) {
+    copyToTerminated(dest, "MAX");
+  } else if (idx <= MIXSRC_LAST_HELI) {
+    idx -= MIXSRC_FIRST_HELI;
+    getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_TRIM) {
-    // TODO: trim strings
-    // idx -= MIXSRC_Rud;
-    // getStringAtIndex(dest, STR_VSRCRAW, idx + 1);
+    idx -= MIXSRC_FIRST_TRIM;
+    getStringAtIndex(dest, STR_TRIMS_VSRCRAW, idx);
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     char* pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);

@@ -620,16 +620,13 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
 
 void drawStickName(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
-  // Skip "---": idx + 1
-  // Skip source symbol: + 2
-  const char* stickName = STR_VSRCRAW[idx + 1] + 2;
-  lcdDrawSizedText(x, y, stickName, UINT8_MAX, att);
+  lcdDrawSizedText(x, y, getStickName(idx), UINT8_MAX, att);
 }
 
 void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
 {
   if (idx == MIXSRC_NONE) {
-    lcdDrawTextAtIndex(x, y, STR_VSRCRAW, 0, att); // TODO macro
+    lcdDrawText(x, y, STR_EMPTY, att);
   }
   else if (idx <= MIXSRC_LAST_INPUT) {
     lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);

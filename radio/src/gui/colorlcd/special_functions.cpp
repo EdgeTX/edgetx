@@ -518,7 +518,7 @@ class SpecialFunctionButton : public Button
         else if (value == NUM_STICKS + 1)
           text = std::string(STR_CHANS);
         else
-          text = TEXT_AT_INDEX(STR_VSRCRAW, value);
+          text = getStickName(value - 1);
         dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
         break;
       }

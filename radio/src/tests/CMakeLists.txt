@@ -40,7 +40,9 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   endif()
 
 
-  file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp)
+  file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
+    CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
+
   set(TEST_SRC_FILES ${TEST_SRC_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/location.h
     ${SIMU_SRC}

@@ -92,7 +92,7 @@ void SwitchWarnDialog::checkEvents()
       if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) { continue; }
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-          warn_txt += STR_VSRCRAW[POT1 + i + 1];
+          warn_txt += getPotName(i);
         }
       }
     }

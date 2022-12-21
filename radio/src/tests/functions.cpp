@@ -27,9 +27,13 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
   // test the size of swtch member
   g_model.customFn[0].swtch = SWSRC_LAST;
-  EXPECT_EQ(g_model.customFn[0].swtch, SWSRC_LAST) << "CustomFunctionData.swtch member is too small to hold all possible values";
+  EXPECT_EQ(g_model.customFn[0].swtch, SWSRC_LAST)
+      << "CustomFunctionData.swtch member is too small to hold all possible "
+         "values";
   g_model.customFn[0].swtch = -SWSRC_LAST;
-  EXPECT_EQ(g_model.customFn[0].swtch, -SWSRC_LAST) << "CustomFunctionData.swtch member is too small to hold all possible values";
+  EXPECT_EQ(g_model.customFn[0].swtch, -SWSRC_LAST)
+      << "CustomFunctionData.swtch member is too small to hold all possible "
+         "values";
 }
 
 #if defined(PCBFRSKY)
