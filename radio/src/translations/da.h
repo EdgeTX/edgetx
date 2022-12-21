@@ -163,7 +163,7 @@
 #endif
 
 #define TR_SF_SCREENSHOT               "Skærm klip"
-#define TR_SF_RACING_MODE              "RacingMode"
+#define TR_SF_RACING_MODE              "Ræs tilstand"
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
 #define TR_SF_RESERVE                  "[reserve]"
@@ -173,9 +173,9 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Ur 1","Ur 2","Ur 3"
+  #define TR_FSW_RESET_TIMERS          "Tidstag 1","Tidstag 2","Tidstag 3"
 #else
-  #define TR_FSW_RESET_TIMERS          "Ur1","Ur2","Ur3"
+  #define TR_FSW_RESET_TIMERS          "Tid1","Tid2","Tid3"
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM
@@ -334,7 +334,7 @@
 #define TR_EXPONAME                    TR("Navn", "Line navn")
 #define TR_BITMAP                      "Model billede"
 #define TR_NO_PICTURE                  "Ingen billede"
-#define TR_TIMER                       TR("Ur", "Ur ")
+#define TR_TIMER                       TR("Tid", "Tid ")
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
@@ -506,7 +506,7 @@
 #define TR_HEARTBEAT_LABEL             "Hjerte puls"
 #define TR_LUA_SCRIPTS_LABEL           "Lua script"
 #define TR_FREE_MEM_LABEL              "Fri mem"
-#define TR_TIMER_LABEL                 "Ur"
+#define TR_TIMER_LABEL                 "Tid"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Batteri"
 #define TR_SESSION                     "Session"
@@ -583,7 +583,7 @@
 #define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ka.", INDENT "Bind til kanal")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "Deaktiver Ch. map")
 #define TR_DISABLE_TELEM               TR("No Telem", "Deaktiver telemetri")
-#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Autodetect", INDENT "Autodetect format")
+#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Automatisk", INDENT "Automatisk format")
 #define TR_MULTI_LOWPOWER              TR(INDENT "Lav strøm", INDENT "Lav strøm tilstand")
 #define TR_MULTI_LNA_DISABLE           INDENT "LNA deaktiver"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
@@ -880,9 +880,9 @@
 #define TR_DELETE                      "Slet"
 #define TR_INSERT                      "Indsæt"
 #define TR_RESET_FLIGHT                "Nulstil flyvning"
-#define TR_RESET_TIMER1                "Nulstil ur 1"
-#define TR_RESET_TIMER2                "Nulstil ur 2"
-#define TR_RESET_TIMER3                "Nulstil ur 3"
+#define TR_RESET_TIMER1                "Nulstil tidstag 1"
+#define TR_RESET_TIMER2                "Nulstil tidstag 2"
+#define TR_RESET_TIMER3                "Nulstil tidstag 3"
 #define TR_RESET_TELEMETRY             "Nulstil telemetri"
 #define TR_STATISTICS                  "Statistik"
 #define TR_ABOUT_US                    "Om"
@@ -1055,7 +1055,7 @@
 #define TR_SLIDERS                     "Skydere"
 #define TR_FLIGHT_MODE                 "Flyve tilstand"
 #define TR_INVALID_FILE                "Ugyldig fil"
-#define TR_TIMER_SOURCE                "Ur kilde"
+#define TR_TIMER_SOURCE                "Tidstagning kilde"
 #define TR_SIZE                        "Størrelse"
 #define TR_SHADOW                      "Skygge"
 #define TR_TEXT                        "Tekst"
@@ -1063,12 +1063,12 @@
 #define TR_MAIN_VIEW_X                 "Hoved visning X"
 #define TR_PANEL1_BACKGROUND           "Panel1 baggrund"
 #define TR_PANEL2_BACKGROUND           "Panel2 baggrund"
-#define TR_WIDGET_GAUGE                "Gauge"
-#define TR_WIDGET_MODELBMP             "Models"
-#define TR_WIDGET_OUTPUTS              "Outputs"
-#define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Ur"
-#define TR_WIDGET_VALUE                "Value"
+#define TR_WIDGET_GAUGE                "Måling"
+#define TR_WIDGET_MODELBMP             "Modeller"
+#define TR_WIDGET_OUTPUTS              "Udgange"
+#define TR_WIDGET_TEXT                 "Tekst"
+#define TR_WIDGET_TIMER                "Tider"
+#define TR_WIDGET_VALUE                "Værdi"
 
 // About screen
 #define TR_ABOUTUS                     TR(" OM ", "OM")
@@ -1079,9 +1079,9 @@
 #define TR_CHR_HOUR                    't'
 #define TR_CHR_INPUT                   'K'   // Values between A-I will work
 
-#define TR_BEEP_VOLUME                 "Bip volumne"
-#define TR_WAV_VOLUME                  "Wav volumne"
-#define TR_BG_VOLUME                   TR("Bg volumne", "Baggrund volumne")
+#define TR_BEEP_VOLUME                 "Bip volume"
+#define TR_WAV_VOLUME                  "Wav volume"
+#define TR_BG_VOLUME                   TR("Bg volume", "Baggrund volume")
 
 #define TR_TOP_BAR                     "Top bjælke"
 #define TR_FLASH_ERASE                 "Flash slettes..."
@@ -1146,7 +1146,7 @@
 #define TR_BAR2_COLOR                  "Anden bjælke bar farve"
 #define TR_BAR1_COLOR                  "Hoved bjælke farve"
 #define TR_TEXT_COLOR                  "Tekst farve"
-#define TR_TEXT_VIEWER                 "Tekst Viewer"
+#define TR_TEXT_VIEWER                 "Tekst visning"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Indgange"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua script"
 #define TR_MENU_STICKS                 STR_CHAR_STICK "Pinde"
