@@ -77,8 +77,8 @@ PACK(struct MixData {
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t spare:1 SKIP;
-  int32_t  offset:14 CUST(in_read_weight,in_write_weight);
-  int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  offset:13 CUST(in_read_weight,in_write_weight);
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
   uint8_t  delayUp;
@@ -98,10 +98,9 @@ PACK(struct ExpoData {
   uint16_t srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRaw,w_mixSrcRaw);
   int16_t  carryTrim:6;
   uint32_t chn:5;
-  int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
-  int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
   int8_t   offset CUST(in_read_weight,in_write_weight);
   CurveRef curve;
@@ -132,9 +131,9 @@ PACK(struct LogicalSwitchData {
   CUST_ATTR(def,r_logicSw,w_logicSw);
   int32_t  v1:10 SKIP;
   int32_t  v3:10 SKIP;
-  int32_t  andsw:9 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
+  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
   uint32_t andswtype:1 SKIP;  // TODO rename to xswtchType (AND / OR)
-  uint32_t spare:2 SKIP; // anything else needed?
+  uint32_t spare:1 SKIP; // anything else needed?
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
@@ -152,8 +151,8 @@ PACK(struct LogicalSwitchData {
 #endif
 
 PACK(struct CustomFunctionData {
-  int16_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:7 ENUM(Functions);
+  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
@@ -192,8 +191,9 @@ PACK(struct trim_t {
 PACK(struct FlightModeData {
   trim_t trim[NUM_TRIMS];
   NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
-  int16_t swtch:9 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc); // swtch of phase[0] is not used
-  int16_t spare:7 SKIP;
+  // swtch of phase[0] is not used
+  int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
+  int16_t spare:6 SKIP;
   uint8_t fadeIn;
   uint8_t fadeOut;
   gvar_t gvars[MAX_GVARS] FUNC(gvar_is_active);
