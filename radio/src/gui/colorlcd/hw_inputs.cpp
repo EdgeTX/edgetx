@@ -90,11 +90,11 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
     new Choice(
         box, rect_t{}, STR_POTTYPES, POT_NONE, POT_SLIDER_WITH_DETENT,
         [=]() -> int {
-          return bfGet<uint32_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
+          return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
                                  POT_CFG_BITS);
         },
         [=](int newValue) {
-          g_eeGeneral.potsConfig = bfSet<uint32_t>(
+          g_eeGeneral.potsConfig = bfSet<potconfig_t>(
               g_eeGeneral.potsConfig, newValue, POT_CFG_BITS * i, POT_CFG_BITS);
           SET_DIRTY();
         });

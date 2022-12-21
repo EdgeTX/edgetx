@@ -38,10 +38,18 @@ typedef uint16_t source_t;
 typedef uint64_t swconfig_t;
 typedef uint64_t swarnstate_t;
 
-// pot config: 4 bits per pot
-typedef uint32_t potconfig_t;
+#if defined(COLORLCD)
+  // pot config: 4 bits per pot
+  typedef uint64_t potconfig_t;
 
-// pot warning enabled: 1 bit per pot
-typedef uint8_t potwarnen_t;
+  // pot warning enabled: 1 bit per pot
+  typedef uint16_t potwarnen_t;
+#else
+  // pot config: 4 bits per pot
+  typedef uint32_t potconfig_t;
+
+  // pot warning enabled: 1 bit per pot
+  typedef uint8_t potwarnen_t;
+#endif
 
 #endif // _OPENTX_TYPES_H_

@@ -379,7 +379,13 @@ enum PotsWarnMode {
 
 // Maximum number analog inputs by type
 #define MAX_STICKS        4
-#define MAX_POTS          8
+
+#if defined(COLORLCD)
+  #define MAX_POTS        16
+#else
+  #define MAX_POTS        8
+#endif
+
 // TODO: add non-pots (joystick axes, etc)
 #define MAX_ANALOG_INPUTS (MAX_STICKS + MAX_POTS)
 #define MAX_SWITCHES      20
@@ -586,6 +592,7 @@ enum MixSources {
   MIXSRC_LAST_LUA SKIP = MIXSRC_FIRST_LUA + (MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS) - 1,
 #endif
 
+  // Semantic sticks
   MIXSRC_FIRST_STICK SKIP,
   // MIXSRC_Rud = MIXSRC_FIRST_STICK,      LUA_EXPORT("rud", "Rudder")
   // MIXSRC_Ele,                           LUA_EXPORT("ele", "Elevator")
