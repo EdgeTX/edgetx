@@ -21,6 +21,7 @@
 #ifndef _FIRMWAREINTERFACE_H_
 #define _FIRMWAREINTERFACE_H_
 
+#include <QtCore>
 #include <QString>
 #include <QImage>
 #include <QByteArray>
@@ -41,6 +42,8 @@
 
 class FirmwareInterface
 {
+  Q_DECLARE_TR_FUNCTIONS("FirmwareInterface")
+
   public:
     FirmwareInterface(const QString & filename, QDialog* parentDialog = nullptr);
     inline QString getDate() { return date; }
