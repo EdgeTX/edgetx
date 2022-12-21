@@ -761,6 +761,7 @@
 #define TR_BAUDRATE                    "ボーレート"
 #define TR_SAMPLE_MODE                 "サンプルモード"
 #define TR_SAMPLE_MODES                "標準","OneBit"
+#define TR_LOADING                     "Loading..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
