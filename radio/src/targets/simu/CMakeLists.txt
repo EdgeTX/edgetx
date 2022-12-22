@@ -16,6 +16,7 @@ set(SIMU_DRIVERS
   backlight_driver.cpp
   gyro_driver.cpp
   bt_driver.cpp
+  mixer_scheduler_driver.cpp
   )
 
 
