@@ -236,6 +236,15 @@ void ViewMain::updateTopbarVisibility()
   }
 }
 
+// Update screens after theme loaded / changed
+void ViewMain::updateFromTheme()
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (customScreens[i])
+      customScreens[i]->updateFromTheme();
+  }
+}
+
 void ViewMain::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)

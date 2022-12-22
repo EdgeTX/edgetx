@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #include "theme_manager.h"
+#include "view_main.h"
 
 #define MAX_FILES 9
 ThemePersistance themePersistance;
@@ -327,6 +328,12 @@ void ThemeFile::applyTheme()
   applyColors();
   applyBackground();
   OpenTxTheme::instance()->update(false);
+
+  // Update views with new theme
+  // Currently, on startup, active theme is loaded after ViewMain is created so ViewMain instance is defined
+  // In case this changes, we call getInstance() here to avoid creating ViewMain
+  if (ViewMain::getInstance())
+    ViewMain::getInstance()->updateFromTheme();
 }
 
 // avoid leaking memory
