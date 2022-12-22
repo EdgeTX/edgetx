@@ -48,8 +48,6 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 #endif
 }
 
-#if !defined(SIMU)
-
 // Global trigger flag
 
 // Mixer schedule
@@ -57,96 +55,82 @@ struct MixerSchedule {
 
   // period in us
   volatile uint16_t period;
+  volatile uint16_t divider;
 };
 
 static MixerSchedule mixerSchedules[NUM_MODULES]; 
+static volatile uint8_t _syncedModule;
 
-static uint16_t _divider = 1;
-static bool _isSyncedModuleInternal = true; 
-static uint16_t _periodInternal = 0;
-static uint16_t _periodExternal = 0;
-
+// Called from ISR
 uint16_t getMixerSchedulerPeriod()
 {
-  _periodInternal = 0;
-  _periodExternal = 0;
+  uint8_t synced_module = 0;
+  uint8_t synced_modules = 0;
+  uint16_t sync_period = mixerSchedules[synced_module].period;
 
-  #if defined(HARDWARE_INTERNAL_MODULE)
-    _periodInternal = mixerSchedules[INTERNAL_MODULE].period;
-  #endif
+  // Compute minimum period & synced modules
+  for(uint8_t i = 0; i < NUM_MODULES; i++) {
+    auto& sched = mixerSchedules[i];
+    if (sched.period > 0) {
+      synced_modules++;
+      if (sched.period < sync_period) {
+        synced_module = i;
+        sync_period = sched.period;
+      }
+    }
+  }
 
-  #if defined(HARDWARE_EXTERNAL_MODULE)
-    _periodExternal = mixerSchedules[EXTERNAL_MODULE].period;
-  #endif
+  // Compute dividers
+  for(uint8_t i = 0; i < NUM_MODULES; i++) {
+    auto& sched = mixerSchedules[i];
+    sched.divider = sched.period / sync_period + 1;
+  }
 
-  // no internal/external module and Joystick conntected
-  #if defined(STM32) && !defined(SIMU)
-    if(_periodInternal != 0 && _periodExternal != 0 && 
-       (getSelectedUsbMode() == USB_JOYSTICK_MODE)) {
+  _syncedModule = synced_module;
+  
+  // No active module
+  if (synced_modules == 0) {
+
+#if defined(STM32) && !defined(SIMU)
+    // no internal/external module and Joystick conntected
+    if(getSelectedUsbMode() == USB_JOYSTICK_MODE) {
       return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
     }
-  #endif
+#endif
 
-  //Both modules present and selected
-  if(_periodInternal != 0 && _periodExternal != 0) {
-    if(_periodExternal > _periodInternal) {
-      _isSyncedModuleInternal = true;
-      _divider = _periodExternal/_periodInternal + 1;
-      return _periodInternal;
-    } else {
-      _isSyncedModuleInternal = false;
-      _divider = _periodInternal/_periodExternal + 1;
-      return _periodExternal;
-    }
+    return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
   }
 
-  // internal module only
-  if(_periodInternal) {
-    _isSyncedModuleInternal = true;
-    _divider = 1;
-    return _periodInternal;
-  }
-
-  // external module only
-  if(_periodExternal) {
-    _isSyncedModuleInternal = false;
-    _divider = 1;
-    return _periodExternal;
-  }
-
-  // no module or Joystick active
-  return MIXER_SCHEDULER_DEFAULT_PERIOD_US; 
+  // Some module(s) active
+  return sync_period; 
 }
 
-uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx) {
-  if(moduleIdx == INTERNAL_MODULE) { 
-    if(_isSyncedModuleInternal)
-      return _periodInternal;
-    else
-      return _periodExternal*_divider;
+uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx)
+{
+  // unknown moduleIDX
+  if (moduleIdx >= NUM_MODULES) {
+    return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
   }
 
-  if(moduleIdx == EXTERNAL_MODULE) {
-    if(!_isSyncedModuleInternal)
-      return _periodExternal;
-    else
-      return _periodInternal*_divider;
+  if (_syncedModule == moduleIdx) {
+    return mixerSchedules[moduleIdx].period;
   }
 
-  //unknown moduleIDX
-  return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+  return mixerSchedules[_syncedModule].period
+    * mixerSchedules[moduleIdx].divider;
 }
 
-uint16_t getMixerSchedulerDivider() {
-  return _divider;
+uint16_t getMixerSchedulerDivider(uint8_t moduleIdx) {
+  return mixerSchedules[moduleIdx].divider;
 }
 
 uint8_t getMixerSchedulerSyncedModule() {
-  return _isSyncedModuleInternal ? INTERNAL_MODULE : EXTERNAL_MODULE;
+  return _syncedModule;
 }
 
 void mixerSchedulerInit()
 {
+  _syncedModule = 0;
   memset(mixerSchedules, 0, sizeof(mixerSchedules));
 }
 
@@ -161,6 +145,8 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
 
   mixerSchedules[moduleIdx].period = periodUs;
 }
+
+#if !defined(SIMU)
 
 void mixerSchedulerISRTrigger()
 {

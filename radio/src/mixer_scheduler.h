@@ -29,8 +29,6 @@
 #define MIN_REFRESH_RATE       850 /* us */
 #define MAX_REFRESH_RATE     50000 /* us */
 
-#if !defined(SIMU)
-
 // Call once to initialize the mixer scheduler
 void mixerSchedulerInit();
 
@@ -55,11 +53,8 @@ void mixerSchedulerDisableTrigger();
 // Fetch the current scheduling period
 uint16_t getMixerSchedulerPeriod();
 
-// Trigger mixer from an ISR
-void mixerSchedulerISRTrigger();
-
 // fetch the mixer schedule divider
-uint16_t getMixerSchedulerDivider();
+uint16_t getMixerSchedulerDivider(uint8_t moduleIdx);
 
 // Fetch the module index of the module responsible for synchro
 uint8_t getMixerSchedulerSyncedModule();
@@ -67,24 +62,14 @@ uint8_t getMixerSchedulerSyncedModule();
 // Fetch the realscheduling period of a given module
 uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx);
 
+#if !defined(SIMU)
+
+// Trigger mixer from an ISR
+void mixerSchedulerISRTrigger();
+
 #else
 
-#define mixerSchedulerInit()
-#define mixerSchedulerStart()
-#define mixerSchedulerStop()
-#define mixerSchedulerResetTimer()
-#define mixerSchedulerSetPeriod(m,p) ((void)(p))
-#define mixerSchedulerClearTrigger()
-
-#define mixerSchedulerEnableTrigger()
-#define mixerSchedulerDisableTrigger()
-
-#define getMixerSchedulerPeriod() (MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 #define mixerSchedulerISRTrigger()
-
-#define getMixerSchedulerDivider() (1)
-#define getMixerSchedulerSyncedModule() (INTERNAL_MODULE)
-#define getMixerSchedulerRealPeriod(X) (MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 
 #endif
 

@@ -77,7 +77,7 @@ syncCounter++;
     if(getMixerSchedulerSyncedModule() == INTERNAL_MODULE) {
       intmoduleSendNextFrame();
     } else {
-      if((syncCounter % getMixerSchedulerDivider()) == 0) {
+      if((syncCounter % getMixerSchedulerDivider(INTERNAL_MODULE)) == 0) {
         intmoduleSendNextFrame();
       }
     }
@@ -89,7 +89,7 @@ syncCounter++;
     if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE) {
       extmoduleSendNextFrame();
     } else {
-      if((syncCounter % getMixerSchedulerDivider()) == 0)
+      if((syncCounter % getMixerSchedulerDivider(EXTERNAL_MODULE)) == 0)
         extmoduleSendNextFrame();
     }
   }
