@@ -802,7 +802,7 @@
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
-#define TR_LOADING                     "Loading..."
+#define TR_LOADING                      "Laddar..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
