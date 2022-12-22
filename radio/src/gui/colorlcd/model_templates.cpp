@@ -86,7 +86,6 @@ SelectTemplate::SelectTemplate(TemplatePage* tp)
     // read all entries
     for (;;) {
       res = f_readdir(&dir, &fno);
-      firstTime = false;
       if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
       if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
@@ -203,7 +202,6 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
     // read all entries
     for (;;) {
       res = f_readdir(&dir, &fno);
-      firstTime = false;
       if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
       if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
