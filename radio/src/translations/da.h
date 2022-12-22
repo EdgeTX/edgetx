@@ -767,6 +767,10 @@
 #define TR_SAMPLE_MODE                 "Måle tilstand"
 #define TR_SAMPLE_MODES                "Normal","EnBit"
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "VÆLG EN SKABELON MAPPE:"
 #define TR_SELECT_TEMPLATE             "VÆLG EN SKABELON til MODEL:"
 #define TR_NO_TEMPLATES                "Ingen model skabeloner fundet i mappe"

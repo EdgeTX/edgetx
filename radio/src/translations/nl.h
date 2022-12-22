@@ -767,6 +767,11 @@
 #define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
+
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Model quick select"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER "Select a template folder"
 #define TR_SELECT_TEMPLATE     "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES        "No model templates were found in this folder"

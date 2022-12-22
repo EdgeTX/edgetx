@@ -765,4 +765,10 @@ void RadioSetupPage::build(FormWindow * window)
            std::string(
                &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
+  grid.setColSpan(1);
+
+  // Model quick select
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
 }

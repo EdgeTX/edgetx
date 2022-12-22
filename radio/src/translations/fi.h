@@ -789,6 +789,10 @@
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Mallin pikavalinta"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "SELECT A TEMPLATE FOLDER:"
 #define TR_SELECT_TEMPLATE             "SELECT A MODEL TEMPLATE:"
 #define TR_NO_TEMPLATES                "No model templates were found in this folder"

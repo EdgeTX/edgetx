@@ -471,6 +471,13 @@ void GeneralSetupPanel::setValues()
   ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
 
   ui->registrationId->setText(generalSettings.registrationId);
+
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+  } else {
+    ui->label_modelQuickSelect->hide();
+    ui->modelQuickSelect_CB->hide();
+  }
 }
 
 void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
@@ -797,5 +804,11 @@ void GeneralSetupPanel::on_registrationId_editingFinished()
 void GeneralSetupPanel::stickReverseEdited()
 {
   generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) | ((int)ui->stickReverse2->isChecked()<<1) | ((int)ui->stickReverse3->isChecked()<<2) | ((int)ui->stickReverse4->isChecked()<<3);
+  emit modified();
+}
+
+void GeneralSetupPanel::on_modelQuickSelect_CB_stateChanged(int)
+{
+  generalSettings.modelQuickSelect = ui->modelQuickSelect_CB->isChecked();
   emit modified();
 }

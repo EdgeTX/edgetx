@@ -434,7 +434,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 192 ),
   YAML_PADDING( 216 ),
   YAML_STRING("currModelFilename", 17),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "blOffBright", 7 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("themeName", 8),
