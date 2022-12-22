@@ -761,7 +761,7 @@
 #define TR_MAXBAUDRATE                 "Max Baud"
 #define TR_SAMPLE_MODE                 "Abtastmodus"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
-#define TR_LOADING                     "Loading..."
+#define TR_LOADING                     "Wird geladen..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
