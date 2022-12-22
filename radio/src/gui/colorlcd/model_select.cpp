@@ -386,6 +386,10 @@ void ModelsPageBody::selectModel(ModelCell *model)
     }
   }
 
+  // Exit to main view
+  auto w = Layer::back();
+  if (w) w->onCancel();
+
   // store changes (if any) and load selected model
   storageFlushCurrentModel();
   storageCheck(true);
@@ -397,10 +401,6 @@ void ModelsPageBody::selectModel(ModelCell *model)
 
   storageDirty(EE_GENERAL);
   storageCheck(true);
-
-  // Exit to main view
-  auto w = Layer::back();
-  if (w) w->onCancel();
 }
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
