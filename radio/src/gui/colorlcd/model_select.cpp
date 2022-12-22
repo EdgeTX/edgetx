@@ -371,10 +371,6 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 
 void ModelsPageBody::selectModel(ModelCell *model)
 {
-  // Exit to main view
-  auto w = Layer::back();
-  if (w) w->onCancel();
-
   bool modelConnected =
       TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
   if (modelConnected) {
@@ -389,6 +385,10 @@ void ModelsPageBody::selectModel(ModelCell *model)
       return;  // stop if connected but not confirmed
     }
   }
+
+  // Exit to main view
+  auto w = Layer::back();
+  if (w) w->onCancel();
 
   // store changes (if any) and load selected model
   storageFlushCurrentModel();
