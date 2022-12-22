@@ -87,19 +87,17 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
 void MainView6POS::paint(BitmapBuffer * dc)
 {
 #if NUM_XPOTS > 0 // prevent compiler warning
-  // The ticks
-  int delta = (width() - TRIM_SQUARE_SIZE) / (XPOTS_MULTIPOS_COUNT - 1);
-  coord_t x = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= XPOTS_MULTIPOS_COUNT; i++) {
-    dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
-    x += delta;
+  coord_t x = MULTIPOS_W_SPACING/4;
+  for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
+    dc->drawNumber(x+TRIM_SQUARE_SIZE/4, 0, value+1, FONT(XS) | COLOR_THEME_SECONDARY1);
+    x += MULTIPOS_W_SPACING;
   }
 
   // The square
-  value = 1 + (potsPos[idx] & 0x0f);
-  x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
+  value = (potsPos[idx] & 0x0f);
+  x = MULTIPOS_W_SPACING/4+MULTIPOS_W_SPACING*value;
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
-  dc->drawNumber(x + 1, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
+  dc->drawNumber(x+MULTIPOS_W_SPACING/4, -2, value+1, FONT(BOLD) | COLOR_THEME_PRIMARY2);
 #endif
 }
 

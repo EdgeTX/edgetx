@@ -32,7 +32,8 @@ constexpr uint8_t SLIDER_TICKS_COUNT = 40;
 constexpr coord_t HMARGIN = 5;
 constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_TICKS_COUNT * 4 + TRIM_SQUARE_SIZE;
 constexpr coord_t MULTIPOS_H = 18;
-constexpr coord_t MULTIPOS_W = 50;
+constexpr coord_t MULTIPOS_W_SPACING = 12;
+constexpr coord_t MULTIPOS_W = (6+1)*MULTIPOS_W_SPACING;
 constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_TICKS_COUNT * 4 + TRIM_SQUARE_SIZE;
 
 class MainViewSlider : public Window
