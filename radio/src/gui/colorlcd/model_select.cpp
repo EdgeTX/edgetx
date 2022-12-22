@@ -238,9 +238,11 @@ class ButtonHolder : public FormWindow
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
+  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
       Button(parent, rect), modelCell(modelCell)
   {
+    m_setSelected = std::move(setSelected);
+
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
@@ -298,39 +300,38 @@ class ModelButton : public Button
 
     if (modelCell == modelslist.getCurrentModel()) {
       dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
-      LcdFlags textColor;
       dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-
-      textColor = COLOR_THEME_SECONDARY1;
-
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        textColor | CENTERED);
     }
+    dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
+                      COLOR_THEME_SECONDARY1 | CENTERED);
 
     if (!hasFocus()) {
       dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
     } else {
       dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
+      if (m_setSelected) m_setSelected();
     }
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
   ModelCell *getModelCell() const { return modelCell; }
 
+  void setFocused() {
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_group_focus_obj(lvobj);
+    }
+  }
+
  protected:
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
+  std::function<void()> m_setSelected = nullptr;
 
   void onClicked() override {
-    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
-      lv_group_focus_obj(lvobj);
-    } else {
-      Button::onClicked();
-    }
+    setFocused();
+    Button::onClicked();
   }
 };
 
@@ -364,23 +365,25 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
   padRow(MODEL_CELL_PADDING);
-  update();
 }
 
 void ModelsPageBody::selectModel(ModelCell *model)
 {
-  bool modelConnected =
-      TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
-  if (modelConnected) {
-    AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-    if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
-          tmr10ms_t startTime = getTicks();
-          while (!TELEMETRY_STREAMING()) {
-            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
-          }
-          return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
-        })) {
-      return;  // stop if connected but not confirmed
+  // Don't need to check connection to receiver if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    bool modelConnected =
+        TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
+    if (modelConnected) {
+      AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+      if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
+            tmr10ms_t startTime = getTicks();
+            while (!TELEMETRY_STREAMING()) {
+              if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+            }
+            return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+          })) {
+        return;  // stop if connected but not confirmed
+      }
     }
   }
 
@@ -388,17 +391,20 @@ void ModelsPageBody::selectModel(ModelCell *model)
   auto w = Layer::back();
   if (w) w->onCancel();
 
-  // store changes (if any) and load selected model
-  storageFlushCurrentModel();
-  storageCheck(true);
-  memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
-         LEN_MODEL_FILENAME);
+  // Skip reloading model if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    // store changes (if any) and load selected model
+    storageFlushCurrentModel();
+    storageCheck(true);
+    memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+           LEN_MODEL_FILENAME);
 
-  loadModel(g_eeGeneral.currModelFilename, true);
-  modelslist.setCurrentModel(model);
+    loadModel(g_eeGeneral.currModelFilename, true);
+    modelslist.setCurrentModel(model);
 
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
+    storageDirty(EE_GENERAL);
+    storageCheck(true);
+  }
 }
 
 void ModelsPageBody::duplicateModel(ModelCell *model)
@@ -500,7 +506,22 @@ void ModelsPageBody::editLabels(ModelCell* model)
   }
 }
 
-void ModelsPageBody::update(int selected)
+void ModelsPageBody::openMenu()
+{
+  Menu *menu = new Menu(this);
+  menu->setTitle(focusedModel->modelName);
+  if (g_eeGeneral.modelQuickSelect || focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
+  }
+  menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
+  menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(focusedModel); });
+  menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel);}); 
+  if (focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
+  }
+}
+
+void ModelsPageBody::update()
 {
   clear();
 
@@ -511,24 +532,54 @@ void ModelsPageBody::update(int selected)
     models = modelslabels.getAllModels();
   }
 
-  for (auto &model : models) {
-    auto button = new ModelButton(this, rect_t{}, model);
+  // Used to work out which button to set focus to.
+  // Priority -
+  //     current active model
+  //     previously selected model
+  //     first model in the list
+  ModelButton* firstButton = nullptr;
+  ModelButton* focusedButton = nullptr;
 
-    // Long Press Handler for Models
+  for (auto &model : models) {
+    auto button = new ModelButton(this, rect_t{}, model, [=]() {
+      focusedModel = model;
+    });
+
+    if (!firstButton)
+      firstButton = button;
+    if (model == modelslist.getCurrentModel())
+      focusedButton = button;
+    if (model == focusedModel && !focusedButton)
+      focusedButton = button;
+
+    // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(this);
-      menu->setTitle(model->modelName);
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
+      if (model == focusedModel) {
+        if (g_eeGeneral.modelQuickSelect)
+          selectModel(model);
+        else
+          openMenu();
+      } else {
+        focusedModel = model;
       }
-      menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
-      }
-      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
-      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
+
+    // Long Press Handler for Models
+    button->setLongPressHandler([=]() -> uint8_t {
+      if (model == focusedModel) {
+        openMenu();
+      }
+      return 0;
+    });
+  }
+
+  if (!focusedButton)
+    focusedButton = firstButton;
+
+  if (focusedButton) {
+    focusedButton->setFocused();
+    focusedModel = focusedButton->getModelCell();
   }
 }
 
@@ -589,8 +640,8 @@ class LabelDialog : public Dialog
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 {
-  buildBody(&body);
   buildHead(&header);
+  buildBody(&body);
 
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();

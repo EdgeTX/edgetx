@@ -213,6 +213,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
+  if (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasColorLcd)) {
+    node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
+  }
 
   Node serialPort;
   for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
@@ -408,6 +411,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
+  node["modelQuickSelect"] >> rhs.modelQuickSelect;
 
   //  depreciated v2.7 replaced by serialPort
   if (node["auxSerialMode"]) {

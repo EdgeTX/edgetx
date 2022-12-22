@@ -771,6 +771,10 @@
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "読み込み中..."
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "テンプレートフォルダを選択:"
 #define TR_SELECT_TEMPLATE             "モデルテンプレートを選択:"
 #define TR_NO_TEMPLATES                "このフォルダにモデルテンプレートは見つかりませんでした"

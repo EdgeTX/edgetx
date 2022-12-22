@@ -777,6 +777,10 @@
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "Načítání..."
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "Rychlý výběr modelu"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "VYBRAT SLOŽKU SE ŠABLONOU:"
 #define TR_SELECT_TEMPLATE             "VYBRAT ŠABLONU MODELU:"
 #define TR_NO_TEMPLATES                "Žádná šablona modelu v této složce nebyla nalezena"

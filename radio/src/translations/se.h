@@ -800,6 +800,10 @@
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER       "VÄLJ EN MALLKATALOG:"
 #define TR_SELECT_TEMPLATE              "VÄLJ EN MODELLMALL:"
 #define TR_NO_TEMPLATES                 "Ingen modellmall finns i denna katalog"

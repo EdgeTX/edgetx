@@ -255,6 +255,7 @@ class GeneralSettings {
     bool serialPower[SP_COUNT];
     int antennaMode;
     unsigned int backlightColor;
+    bool modelQuickSelect;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
     char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
     unsigned int switchConfig[CPN_MAX_SWITCHES];

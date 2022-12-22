@@ -810,7 +810,7 @@
        </property>
       </widget>
      </item>
-     <item row="22" column="0">
+     <item row="23" column="0">
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -1154,6 +1154,23 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="21" column="1">
       <widget class="QComboBox" name="rotEncMode_CB"/>
+     </item>
+     <item row="22" column="0">
+      <widget class="QLabel" name="label_modelQuickSelect">
+       <property name="text">
+        <string>Model quick select</string>
+       </property>
+      </widget>
+     </item>
+     <item row="22" column="1">
+      <widget class="QCheckBox" name="modelQuickSelect_CB">
+       <property name="toolTip">
+        <string>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

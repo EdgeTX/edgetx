@@ -759,6 +759,10 @@
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "Wird geladen..."
 
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER      "WÄHLE VORLAGENVERZEICHNIS:"
 #define TR_SELECT_TEMPLATE             "WÄHLE MODELLVORLAGE:"
 #define TR_NO_TEMPLATES                "Es wurden keine Modellvorlagen in diesem Verzeichnis gefunden"
