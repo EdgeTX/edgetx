@@ -512,7 +512,7 @@ void ModelsPageBody::openMenu()
   }
 }
 
-void ModelsPageBody::update(int selected)
+void ModelsPageBody::update()
 {
   clear();
 
@@ -631,8 +631,8 @@ class LabelDialog : public Dialog
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 {
-  buildBody(&body);
   buildHead(&header);
+  buildBody(&body);
 
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();

@@ -37,12 +37,13 @@ class ModelsPageBody : public FormWindow
  public:
   ModelsPageBody(Window *parent, const rect_t &rect);
 
+  void update();
+
   void setLabels(LabelsVector labels)
   {
     selectedLabels = labels;
     update();
   }
-  void update(int selected = -1);
 
   inline void setSortOrder(ModelsSortBy sortOrder)
   {
