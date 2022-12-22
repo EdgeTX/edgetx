@@ -371,6 +371,10 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 
 void ModelsPageBody::selectModel(ModelCell *model)
 {
+  // Exit to main view
+  auto w = Layer::back();
+  if (w) w->onCancel();
+
   bool modelConnected =
       TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
   if (modelConnected) {
@@ -397,10 +401,6 @@ void ModelsPageBody::selectModel(ModelCell *model)
 
   storageDirty(EE_GENERAL);
   storageCheck(true);
-
-  // Exit to main view
-  auto w = Layer::back();
-  if (w) w->onCancel();
 }
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
