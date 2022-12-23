@@ -303,7 +303,8 @@ void CurveEdit::checkEvents()
   if (!lockSource) {
     int16_t val = getMovedSource(MIXSRC_FIRST_INPUT);
     if (val > 0) {
-      if (val > NUM_STICKS + NUM_POTS + NUM_SLIDERS)
+      // TODO: this code seems odd
+      if (val > MAX_STICKS + MAX_POTS)
         CurveEdit::currentSource = val + 1 - MIXSRC_FIRST_INPUT;
       else {
         CurveEdit::currentSource = expoAddress(val - 1)->srcRaw;
