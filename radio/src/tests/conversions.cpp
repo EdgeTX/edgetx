@@ -20,23 +20,12 @@
  */
 
 #include "gtests.h"
-#include "storage/conversions/conversions.h"
 #include "location.h"
 
-#if defined(EEPROM) || defined(EEPROM_RLC)
-#include <storage/eeprom_common.h>
-#endif
+#if 0
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
-#endif
-
-#if defined(EEPROM_SIZE)
-void loadEEPROMFile(const char * filename)
-{
-  FILE * f = fopen(filename, "rb");
-  assert(fread(eeprom, 1, EEPROM_SIZE, f) == EEPROM_SIZE);
-}
 #endif
 
 #if defined(PCBX9DP)
@@ -544,3 +533,4 @@ TEST(Conversions, ConversionTX16SFrom25)
 }
 #endif
 
+#endif

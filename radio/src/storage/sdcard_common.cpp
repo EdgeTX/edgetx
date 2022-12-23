@@ -23,7 +23,6 @@
 #include "storage.h"
 #include "sdcard_common.h"
 #include "modelslist.h"
-#include "conversions/conversions.h"
 #include "model_init.h"
 
 void getModelPath(char * path, const char * filename, const char* pathName)
