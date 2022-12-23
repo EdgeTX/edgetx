@@ -46,6 +46,8 @@ class ViewMain: public Window
       return _instance;
     }
 
+    static ViewMain* getInstance() { return _instance; }
+
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
@@ -59,6 +61,9 @@ class ViewMain: public Window
     void disableTopbar();
     void updateTopbarVisibility();
     bool enableWidgetSelect(bool enable);
+    
+    // Update after theme loaded / changed
+    void updateFromTheme();
 
     // Get the available space in the middle of the screen
     // (without topbar)

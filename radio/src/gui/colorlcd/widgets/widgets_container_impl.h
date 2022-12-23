@@ -141,6 +141,7 @@ class WidgetsContainerImpl : public WidgetsContainer
   }
 
   void adjustLayout() override {}
+  void updateFromTheme() override {};
 
  protected:
   PersistentData* persistentData;
