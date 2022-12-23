@@ -88,6 +88,7 @@ class WidgetsContainer: public Window
     virtual void removeWidget(unsigned int index) = 0;
     virtual void adjustLayout() = 0;
     virtual void updateZones() = 0;
+    virtual void updateFromTheme() = 0;
 };
 
 
