@@ -84,25 +84,22 @@ SelectTemplate::SelectTemplate(TemplatePage* tp)
 
   if (res == FR_OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
+      res = f_readdir(&dir, &fno);
       if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
       if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
         continue;
-      if (fno.fname[0] == '.')
-        continue;
-      if (!(fno.fattrib & AM_DIR)) {
-        const char *ext = getFileExtension(fno.fname);
-        if(ext && !strcasecmp(ext, YAML_EXT)) {
-          int len = ext - fno.fname;
-          if (len < FF_MAX_LFN) {
-            char name[FF_MAX_LFN] = { 0 };
-            strncpy(name, fno.fname, len);
-            files.push_back(name);
-          }
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;   /* Ignore folders, hidden and system files */
+      if (fno.fname[0] == '.') continue;                    /* Ignore UNIX hidden files */
+
+      const char *ext = getFileExtension(fno.fname);
+      if(ext && !strcasecmp(ext, YAML_EXT)) {
+        int len = ext - fno.fname;
+        if (len < FF_MAX_LFN) {
+          char name[FF_MAX_LFN] = { 0 };
+          strncpy(name, fno.fname, len);
+          files.push_back(name);
         }
       }
     }
@@ -203,16 +200,14 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
 
   if (res == FR_OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
+      res = f_readdir(&dir, &fno);
       if (res != FR_OK || fno.fname[0] == 0)
         break; // Break on error or end of dir
       if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
         continue;
-      if (fno.fname[0] == '.')
-        continue;
+      if (fno.fattrib & (AM_HID|AM_SYS)) continue;  /* Ignore hidden and system files */
+      if (fno.fname[0] == '.') continue;            /* Ignore UNIX hidden files */
       if (fno.fattrib & AM_DIR)
         directories.push_back((char*)fno.fname);
     }
