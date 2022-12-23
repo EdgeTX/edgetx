@@ -409,7 +409,7 @@ elseif(WIN32)
   # SSL dlls (used by QtNetwork)
   file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
   # try 64-bit
-  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1-x86.dll HINTS
+  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1.dll HINTS
     "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
     "C:/OpenSSL/" "C:/OpenSSL-Win32/"
     "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
@@ -420,7 +420,7 @@ elseif(WIN32)
   )
   if (SSL_LIB_DIR)
     install(FILES "${SSL_LIB_DIR}/libssl-1_1-x64.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x86.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x86.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
+    install(FILES "${SSL_LIB_DIR}/libssl-1_1.dll" "${SSL_LIB_DIR}/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
   else()
     message(WARNING "Installer: SSL libs not found, set SSL_LIB_DIR manually.")
   endif()
