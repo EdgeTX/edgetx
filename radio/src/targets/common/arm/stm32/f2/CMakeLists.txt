@@ -16,7 +16,11 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_exti.c
     # HAL drivers
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal_pwr.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal_pwr_ex.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_rcc.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal_rtc.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_i2c.c
     )
 
@@ -49,7 +53,6 @@ add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_syscfg.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_spi.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dma.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rtc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_pwr.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_adc.c

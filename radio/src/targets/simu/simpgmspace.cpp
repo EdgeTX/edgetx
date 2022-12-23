@@ -614,33 +614,6 @@ ITStatus EXTI_GetITStatus(uint32_t EXTI_Line) { return RESET; }
 void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct) { }
 void EXTI_ClearITPendingBit(uint32_t EXTI_Line) { }
 
-// RTC fake functions
-ErrorStatus RTC_Init(RTC_InitTypeDef* RTC_InitStruct) { return SUCCESS; }
-void RTC_TimeStructInit(RTC_TimeTypeDef* RTC_TimeStruct) { }
-void RTC_DateStructInit(RTC_DateTypeDef* RTC_DateStruct) { }
-ErrorStatus RTC_WaitForSynchro(void) { return SUCCESS; }
-ErrorStatus RTC_SetTime(uint32_t RTC_Format, RTC_TimeTypeDef* RTC_TimeStruct) { return SUCCESS; }
-ErrorStatus RTC_SetDate(uint32_t RTC_Format, RTC_DateTypeDef* RTC_DateStruct) { return SUCCESS; }
-void RTC_GetTime(uint32_t RTC_Format, RTC_TimeTypeDef * RTC_TimeStruct)
-{
-  time_t tme;
-  time(&tme);
-  struct tm * timeinfo = localtime(&tme);
-  RTC_TimeStruct->RTC_Hours = timeinfo->tm_hour;
-  RTC_TimeStruct->RTC_Minutes = timeinfo->tm_min;
-  RTC_TimeStruct->RTC_Seconds = timeinfo->tm_sec;
-}
-
-void RTC_GetDate(uint32_t RTC_Format, RTC_DateTypeDef * RTC_DateStruct)
-{
-  time_t tme;
-  time(&tme);
-  struct tm * timeinfo = localtime(&tme);
-  RTC_DateStruct->RTC_Year = timeinfo->tm_year - 100; // STM32 year is two decimals only (so base is currently 2000), tm is based on number of years since 1900
-  RTC_DateStruct->RTC_Month = timeinfo->tm_mon + 1;
-  RTC_DateStruct->RTC_Date = timeinfo->tm_mday;
-}
-
 void unlockFlash()
 {
 }
