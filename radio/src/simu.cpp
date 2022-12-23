@@ -656,16 +656,6 @@ int main(int argc, char ** argv)
   return application.run();
 }
 
-int8_t adcGetVBAT()
-{
-  return MAX_STICKS + adcGetMaxPots();
-}
-
-int8_t adcGetVRTC()
-{
-  return -1;
-}
-
 uint16_t simu_get_analog(uint8_t idx)
 {
   auto max_analogs = MAX_STICKS + adcGetMaxPots();

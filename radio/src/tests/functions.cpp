@@ -39,7 +39,7 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 #if defined(PCBFRSKY)
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
-  g_model.customFn[0].swtch = SWSRC_SA0;
+  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
   g_model.customFn[0].func = FUNC_RESET;
   g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
   g_model.customFn[0].active = true;
@@ -67,7 +67,7 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
 {
   simuSetSwitch(0, 0);    // SA-
 
-  g_model.customFn[0].swtch = SWSRC_SA0;
+  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
   g_model.customFn[0].func = FUNC_ADJUST_GVAR;
   g_model.customFn[0].all.mode = FUNC_ADJUST_GVAR_INCDEC;
   g_model.customFn[0].all.param = 0; // GV1

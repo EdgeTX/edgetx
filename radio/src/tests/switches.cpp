@@ -39,7 +39,7 @@ TEST(getSwitch, OldTypeStickyCSW)
   MODEL_RESET();
   MIXER_RESET();
 
-  setLogicalSwitch(0, LS_FUNC_AND, SWSRC_SA0, SWSRC_NONE);
+  setLogicalSwitch(0, LS_FUNC_AND, SWSRC_FIRST_SWITCH, SWSRC_NONE);
   setLogicalSwitch(1, LS_FUNC_OR, SWSRC_SW1, SWSRC_SW2);
 
   simuSetSwitch(0, 0);
@@ -134,6 +134,10 @@ TEST(evalLogicalSwitches, playFile)
 #endif
 
 #if defined(PCBTARANIS) && NUM_SWITCHES >= 8 && !defined(PCBX7)
+
+#define SWSRC_SA2 (SWSRC_FIRST_SWITCH + 2)
+#define SWSRC_SF2 (SWSRC_FIRST_SWITCH + 5 * 3 + 2)
+
 TEST(getSwitch, edgeInstant)
 {
   MODEL_RESET();

@@ -47,6 +47,16 @@ const etx_hal_adc_driver_t simu_adc_driver = {
   .wait_completion = nullptr,
 };
 
+int8_t adcGetVBAT()
+{
+  return MAX_STICKS + DIM(_pot_inputs);
+}
+
+int8_t adcGetVRTC()
+{
+  return -1;
+}
+
 const char* adcGetStickName(uint8_t idx)
 {
   if (idx >= DIM(_stick_inputs)) return "";
