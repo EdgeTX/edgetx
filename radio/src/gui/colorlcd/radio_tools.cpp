@@ -111,9 +111,8 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
       strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {

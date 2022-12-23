@@ -86,8 +86,8 @@ static int scan_files(std::list<std::string>& files,
       break; // Break on error or end of dir
     // if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
     //   continue;
-    if (fno.fname[0] == '.' && fno.fname[1] != '.')
-      continue; // Ignore hidden files under UNIX, but not ..
+    if (fno.fattrib & (AM_HID|AM_SYS)) continue;     /* Ignore hidden and system files */
+    if (fno.fname[0] == '.' && fno.fname[1] != '.') continue; // Ignore hidden files under UNIX, but not ..
 
     if (fno.fattrib & AM_DIR) {
       directories.push_back((char*)fno.fname);
