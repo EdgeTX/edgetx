@@ -132,8 +132,9 @@ void mixerSchedulerInit()
 {
   _syncedModule = 0;
   
-  // set default divider (for simu as sync not active)
+  // set default divider and period (for simu as sync not active)
   for(uint8_t i = 0; i < NUM_MODULES; i++) {
+    mixerSchedules[i].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
     mixerSchedules[i].divider = 1;
   }
 }
