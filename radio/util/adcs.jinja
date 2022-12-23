@@ -20,15 +20,14 @@ static const stm32_adc_input_t _ADC_inputs[] = {
 {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) %}
 static const uint8_t _ADC_{{ adc.name }}_channels[] = {
   {% for input in inputs %}
-    {% if input.channel %}
-    {{ adc_index[input.name] }},
+    {% if input.channel is defined %}
+    {{ adc_index[input.name] }}, // {{ input.name }}
     {% endif %}
   {% endfor %}
 };
 
 {% endfor %}
 static const stm32_adc_t _ADC_adc[] = {
-{% set ns = namespace(start_offs=0) %}
 {% for adc in adc_inputs.adcs | selectattr('name', '!=', 'SPI') %}
   {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel') %}
   {% set input_count = inputs | list | count %}
@@ -42,7 +41,18 @@ static const stm32_adc_t _ADC_adc[] = {
     {{ input_count }},
     {{ adc.sample_time if adc.sample_time else '0' }}
   },
-  {% set ns.start_offs = ns.start_offs + input_count %}
+{% endfor %}
+};
+
+static const stm32_spi_adc_t _ADC_spi[] = {
+{% for adc in adc_inputs.adcs | selectattr('name', '==', 'SPI') %}
+  {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel') %}
+  {% set input_count = inputs | list | count %}
+  {
+    {{ adc.adc }},
+    _ADC_{{ adc.name }}_channels,
+    {{ input_count }}
+  },
 {% endfor %}
 };
 
@@ -83,4 +93,3 @@ static const char* _pot_inputs[] = {
     {% endif %}  
   {% endfor %}
 };
-

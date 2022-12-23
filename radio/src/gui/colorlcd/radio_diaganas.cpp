@@ -239,9 +239,9 @@ class AnaFilteredDevViewWindow: public Window {
                          (int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256,
                          RIGHT | COLOR_THEME_PRIMARY1);
           stats[i].write(getAnalogValue(i));
-          extern uint32_t s_anaFilt[NUM_ANALOGS];
+
           dc->drawNumber(
-              x + VALUE_X_OFFSET, y, s_anaFilt[i] / JITTER_ALPHA,
+              x + VALUE_X_OFFSET, y, anaIn_diag(i),
               RIGHT | COLOR_THEME_PRIMARY1);  // use integrated filter
           dc->drawNumber(
               dc->drawText(x + DEV_X_OFFSET, y, " +/- ", COLOR_THEME_PRIMARY1),

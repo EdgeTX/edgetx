@@ -34,7 +34,7 @@ extern uint16_t simu_get_analog(uint8_t idx);
 static bool simu_start_conversion()
 {
   for (int i=0; i<MAX_ANALOG_INPUTS; i++)
-    adcValues[i] = simu_get_analog(i);
+    setAnalogValue(i, simu_get_analog(i));
 
   return true;
 }

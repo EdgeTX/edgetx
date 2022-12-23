@@ -489,7 +489,7 @@ static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
     }
 
     // finally copy the values into their final destination
-    copy_adc_values(adcValues, dma_buffer, adc, inputs);
+    copy_adc_values(getAnalogValues(), dma_buffer, adc, inputs);
 
     if (seq_len == LL_ADC_REG_SEQ_SCAN_DISABLE) {
       // single conversion
@@ -509,6 +509,8 @@ static void adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
 void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
                                    const stm32_adc_input_t* inputs, uint8_t n_inputs)
 {
+  uint16_t* adcValues = getAnalogValues();
+
   while(++_adc_run <= OVERSAMPLING) {
     adc_wait_completion(ADCs, n_ADC, inputs);
 

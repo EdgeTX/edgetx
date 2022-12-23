@@ -74,7 +74,7 @@ void SwitchWarnDialog::checkEvents()
 
   std::string warn_txt;
   swarnstate_t states = g_model.switchWarningState;
-  for (int i = 0; i < NUM_SWITCHES; ++i) {
+  for (int i = 0; i < MAX_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
       if (states & mask) {
@@ -88,8 +88,8 @@ void SwitchWarnDialog::checkEvents()
 
   if (g_model.potsWarnMode) {
     if (!warn_txt.empty()) { warn_txt += '\n'; }
-    for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) { continue; }
+    for (int i = 0; i < MAX_POTS; i++) {
+      if (!IS_POT_SLIDER_AVAILABLE(i)) { continue; }
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           warn_txt += getPotName(i);

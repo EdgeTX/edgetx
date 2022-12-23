@@ -30,6 +30,7 @@
 #include "layouts/trims.h"
 
 #include "board.h"
+#include "hal/adc_driver.h"
 
 static Window* create_layout_box(Window* parent, lv_align_t align,
                                  lv_flex_flow_t flow)
@@ -131,64 +132,65 @@ rect_t ViewMainDecoration::getMainZone() const
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
   // TODO: make dynamic
-  Window* sl = new MainViewHorizontalSlider(bl, CALIBRATED_POT1);
+  //uint8_t pot_idx = 0;
+  Window* sl = new MainViewHorizontalSlider(bl, 0);
   sl->updateSize();
-  sliders[SLIDERS_POT1] = sl;
+  sliders[0] = sl;
 
-#if !defined(HARDWARE_POT3)
-  bc = br;
-#endif
-  
-  if (IS_POT_MULTIPOS(POT2)) {
+  if (!IS_POT_AVAILABLE(2)) {
+    bc = br;
+  }
+
+  if (IS_POT_MULTIPOS(1)) {
     sl = new MainView6POS(bc, 1);
     sl->updateSize();
-    sliders[SLIDERS_POT2] = sl;
+    sliders[1] = sl;
   }
-  else if (IS_POT_AVAILABLE(POT2)) {
-    sl = new MainViewHorizontalSlider(bc, CALIBRATED_POT2);
+  else if (IS_POT_AVAILABLE(1)) {
+    sl = new MainViewHorizontalSlider(bc, 1);
     sl->updateSize();
-    sliders[SLIDERS_POT2] = sl;
+    sliders[1] = sl;
   }
 
-#if defined(HARDWARE_POT3)
-  sl = new MainViewHorizontalSlider(br, CALIBRATED_POT3);
-  sl->updateSize();
-  sliders[SLIDERS_POT3] = sl;
-#endif
-
-#if NUM_SLIDERS > 0
-  // create containers for the sliders, so that they are at the borders of the display
-  // on top of each other, when there are two sliders to display per side
-  auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
-  leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
-
-  auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
-  rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
-
-  auto vertSlLeft1 = new MainViewVerticalSlider(leftPots, CALIBRATED_SLIDER_REAR_LEFT);
-  sliders[SLIDERS_REAR_LEFT] = vertSlLeft1;
-
-  auto vertSlRight1 = new MainViewVerticalSlider(rightPots, CALIBRATED_SLIDER_REAR_RIGHT);
-  sliders[SLIDERS_REAR_RIGHT] = vertSlRight1;
-
-#if defined(HARDWARE_EXT1) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-    sl = new MainViewVerticalSlider(leftPots, CALIBRATED_POT_EXT1);
+  if (IS_POT_AVAILABLE(2)) {
+    sl = new MainViewHorizontalSlider(br, 2);
     sl->updateSize();
-    sliders[SLIDERS_EXT1] = sl;
+    sliders[2] = sl;
   }
-#endif
 
-#if defined(HARDWARE_EXT2) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-    sl = new MainViewVerticalSlider(rightPots, CALIBRATED_POT_EXT2);
-    sl->updateSize();
-    sliders[SLIDERS_EXT2] = sl;
+  if (adcGetMaxPots() > 3) {
+    // create containers for the sliders, so that they are at the borders of the display
+    // on top of each other, when there are two sliders to display per side
+    auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
+    leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+
+    auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
+    rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+
+    if (IS_POT_AVAILABLE(3)) {
+      sl = new MainViewVerticalSlider(leftPots, 3);
+      sl->updateSize();
+      sliders[3] = sl;
+    }
+
+    if (IS_POT_AVAILABLE(4)) {
+      sl = new MainViewVerticalSlider(rightPots, 4);
+      sl->updateSize();
+      sliders[4] = sl;
+    }
+
+    if (IS_POT_AVAILABLE(5)) {
+      sl = new MainViewVerticalSlider(leftPots, 5);
+      sl->updateSize();
+      sliders[5] = sl;
+    }
+
+    if (IS_POT_AVAILABLE(6)) {
+      sl = new MainViewVerticalSlider(rightPots, 6);
+      sl->updateSize();
+      sliders[6] = sl;
+    }
   }
-#endif
-  vertSlLeft1->updateSize();
-  vertSlRight1->updateSize();
-#endif // NUM_SLIDERS > 0
 }
 
 void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)

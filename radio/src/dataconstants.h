@@ -394,121 +394,7 @@ enum SwitchSources {
   SWSRC_NONE = 0,
 
   SWSRC_FIRST_SWITCH SKIP,
-
-#if defined(STORAGE_SWITCH_A)
-  SWSRC_SA0 = SWSRC_FIRST_SWITCH,
-  SWSRC_SA1,
-  SWSRC_SA2,
-#endif
-
-#if defined(STORAGE_SWITCH_B)
-  SWSRC_SB0,
-  SWSRC_SB1,
-  SWSRC_SB2,
-#endif
-
-#if defined(STORAGE_SWITCH_C)
-  SWSRC_SC0,
-  SWSRC_SC1,
-  SWSRC_SC2,
-#endif
-
-#if defined(STORAGE_SWITCH_D)
-  SWSRC_SD0,
-  SWSRC_SD1,
-  SWSRC_SD2,
-#endif
-
-#if defined(FUNCTION_SWITCHES) && defined(RADIO_TPRO)
-  SWSRC_FIRST_FUNCTION_SWITCH SKIP,
-  SWSRC_SE0 = SWSRC_FIRST_FUNCTION_SWITCH,
-  SWSRC_SE1,
-  SWSRC_SE2,
-#elif defined(STORAGE_SWITCH_E)
-  SWSRC_SE0,
-  SWSRC_SE1,
-  SWSRC_SE2,
-#endif
-
-#if defined(STORAGE_SWITCH_F)
-  SWSRC_SF0,
-  SWSRC_SF1,
-  SWSRC_SF2,
-#endif
-
-#if defined(STORAGE_SWITCH_G)
-  SWSRC_SG0,
-  SWSRC_SG1,
-  SWSRC_SG2,
-#endif
-
-#if defined(STORAGE_SWITCH_H)
-  SWSRC_SH0,
-  SWSRC_SH1,
-  SWSRC_SH2,
-#endif
-
-#if defined(STORAGE_SWITCH_I)
-  SWSRC_SI0,
-  SWSRC_SI1,
-  SWSRC_SI2,
-#endif
-
-#if defined(STORAGE_SWITCH_J)
-  SWSRC_SJ0,
-  SWSRC_SJ1,
-  SWSRC_SJ2,
-#endif
-
-#if defined(STORAGE_SWITCH_K)
-  SWSRC_SK0,
-  SWSRC_SK1,
-  SWSRC_SK2,
-#endif
-
-#if defined(STORAGE_SWITCH_L)
-  SWSRC_SL0,
-  SWSRC_SL1,
-  SWSRC_SL2,
-#endif
-
-#if defined(STORAGE_SWITCH_M)
-  SWSRC_SM0,
-  SWSRC_SM1,
-  SWSRC_SM2,
-#endif
-
-#if defined(STORAGE_SWITCH_N)
-  SWSRC_SN0,
-  SWSRC_SN1,
-  SWSRC_SN2,
-#endif
-
-#if defined(STORAGE_SWITCH_O)
-  SWSRC_SO0,
-  SWSRC_SO1,
-  SWSRC_SO2,
-#endif
-
-#if defined(STORAGE_SWITCH_P)
-  SWSRC_SP0,
-  SWSRC_SP1,
-  SWSRC_SP2,
-#endif
-
-#if defined(STORAGE_SWITCH_Q)
-  SWSRC_SQ0,
-  SWSRC_SQ1,
-  SWSRC_SQ2,
-#endif
-
-#if defined(STORAGE_SWITCH_R)
-  SWSRC_SR0,
-  SWSRC_SR1,
-  SWSRC_SR2,
-#endif
-
-  SWSRC_LAST_SWITCH SKIP = SWSRC_FIRST_SWITCH + STORAGE_NUM_SWITCHES_POSITIONS - 1,
+  SWSRC_LAST_SWITCH SKIP = SWSRC_FIRST_SWITCH + (MAX_SWITCHES * 3) - 1,
 
   SWSRC_FIRST_MULTIPOS_SWITCH SKIP,
   SWSRC_LAST_MULTIPOS_SWITCH SKIP = SWSRC_FIRST_MULTIPOS_SWITCH + (MAX_POTS * XPOTS_MULTIPOS_COUNT) - 1,
@@ -650,6 +536,9 @@ enum MixSources {
 #if defined(PCBHORUS)
   MIXSRC_MOUSE1,                        LUA_EXPORT("jsx", "Joystick X")
   MIXSRC_MOUSE2,                        LUA_EXPORT("jsy", "Joystick Y")
+  MIXSRC_LAST_ANALOG SKIP = MIXSRC_MOUSE2,
+#else
+  MIXSRC_LAST_ANALOG SKIP = MIXSRC_LAST_POT,
 #endif
 
 #if defined(IMU)
@@ -690,7 +579,7 @@ enum MixSources {
   //#endif
 
   MIXSRC_FIRST_SWITCH SKIP,
-  MIXSRC_LAST_SWITCH SKIP = MIXSRC_FIRST_SWITCH + STORAGE_NUM_SWITCHES - 1,
+  MIXSRC_LAST_SWITCH SKIP = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,
 // #if defined(HARDWARE_SWITCH_A)
 //   MIXSRC_SA = MIXSRC_FIRST_SWITCH,  LUA_EXPORT("sa", "Switch A")
 //   MIXSRC_SB,                        LUA_EXPORT("sb", "Switch B")
@@ -764,9 +653,6 @@ enum MixSources {
   MIXSRC_LAST_TELEM SKIP = MIXSRC_FIRST_TELEM + 3 * MAX_TELEMETRY_SENSORS - 1,
 };
 
-#if defined(__cplusplus)
-static_assert(MIXSRC_FIRST_LOGICAL_SWITCH == MIXSRC_FIRST_SWITCH + STORAGE_NUM_SWITCHES, "Wrong switches definition in MIXSRC list");
-#endif
 
 // #define MIXSRC_FIRST                (MIXSRC_NONE + 1)
 #define MIXSRC_LAST                 MIXSRC_LAST_CH

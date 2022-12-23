@@ -21,7 +21,10 @@
 
 #include "opentx.h"
 #include "ff.h"
+
 #include "switches.h"
+#include "hal/switch_driver.h"
+#include "hal/adc_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -241,7 +244,7 @@ void writeHeader()
     f_putc(',', &g_oLogFile);
   }
 
-  for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       char s[LEN_SWITCH_NAME + 2];
       char * temp;
@@ -353,16 +356,17 @@ void logsWrite()
       }
 
       for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-        // TODO: if enabled
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
+        if (i < adcGetMaxSticks() || (i >= MAX_STICKS && IS_POT_AVAILABLE(i)))
+          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
       }
 
-      for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
       }
-      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32),
+               getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
         f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us

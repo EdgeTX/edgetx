@@ -259,9 +259,9 @@ bool isSourceAvailableInCustomSwitches(int source)
 bool isSourceAvailableInInputs(int source)
 {
   if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
-    return IS_POT_SLIDER_AVAILABLE(POT1+source - MIXSRC_FIRST_POT);
+    return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
 
-#if defined(PCBX10)
+#if defined(PCBHORUS) && !defined(PCBX12S)
   if (source >= MIXSRC_MOUSE1 && source <= MIXSRC_MOUSE2)
     return false;
 #endif

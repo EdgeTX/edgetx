@@ -308,6 +308,7 @@
   #define ADC_GPIO_MOUSE                GPIOF
   #define ADC_CHANNEL_MOUSE1            6
   #define ADC_CHANNEL_MOUSE2            7
+  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_MOUSE1 | ADC_GPIO_PIN_MOUSE2)
   #define ADC_EXT                       ADC1
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN16

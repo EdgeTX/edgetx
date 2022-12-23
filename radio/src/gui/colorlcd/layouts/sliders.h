@@ -48,7 +48,7 @@ class MainViewSlider : public Window
     void checkEvents() override
     {
       Window::checkEvents();
-      int16_t newValue = calibratedAnalogs[idx];
+      int16_t newValue = calibratedAnalogs[MAX_STICKS + idx];
       if (value != newValue) {
         value = newValue;
         invalidate();

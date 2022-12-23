@@ -133,8 +133,10 @@ void applyDefaultTemplate()
   loadDefaultLayout();
 
   // enable switch warnings
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-    g_model.switchWarningState |= (1 << (3*i));
+  for (int i = 0; i < MAX_SWITCHES; i++) {
+    if (SWITCH_EXISTS(i)) {
+      g_model.switchWarningState |= (1 << (3 * i));
+    }
   }
 #endif
 

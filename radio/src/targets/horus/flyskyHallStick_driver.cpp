@@ -24,6 +24,7 @@
 
 #include "fifo.h"
 #include "dmafifo.h"
+#include "hal/adc_driver.h"
 
 DMAFifo<HALLSTICK_BUFF_SIZE> hallDMAFifo __DMA (FLYSKY_HALL_DMA_Stream_RX);
 Fifo<uint8_t, HALLSTICK_BUFF_SIZE> hallStickTxFifo;
@@ -363,6 +364,7 @@ void flysky_hall_stick_loop(void)
           if (HallProtocol.hallID.hall_Id.packetID ==
               FLYSKY_HALL_RESP_TYPE_VALUES) {
             int16_t *p_values = (int16_t*)HallProtocol.data;
+            uint16_t* adcValues = getAnalogValues();
             for (uint8_t i = 0; i < 4; i++) {
               adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }

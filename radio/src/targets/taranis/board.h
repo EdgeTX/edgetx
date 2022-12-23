@@ -448,8 +448,6 @@ extern HardwareOptions hardwareOptions;
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
 
-extern uint16_t adcValues[NUM_ANALOGS];
-
 // Battery driver
 #if defined(PCBX9E)
   // NI-MH 9.6V

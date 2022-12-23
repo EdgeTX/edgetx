@@ -141,6 +141,8 @@ extern "C" void PWM_IRQHandler(void)
   static uint8_t  timer_capture_states[MAX_STICKS];
   static uint32_t timer_capture_rising_time[MAX_STICKS];
 
+  auto adcValues = getAnalogValues();
+
   for (uint8_t i=0; i<MAX_STICKS; i++) {
     if (PWM_TIMER->SR & (TIM_DIER_CC1IE << i)) {
       uint32_t capture = TIM_GetCapture_Stick(i);

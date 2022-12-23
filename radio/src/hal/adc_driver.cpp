@@ -28,7 +28,7 @@
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 
-uint16_t adcValues[NUM_ANALOGS] __DMA;
+static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
@@ -200,7 +200,10 @@ void adcCalibStore()
 uint16_t getRTCBatteryVoltage()
 {
   // anaIn() outputs value divided by (1 << ANALOG_SCALE)
-  return (anaIn(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / (2048 >> ANALOG_SCALE);
+  auto vRTC = adcGetVRTC();
+  if (vRTC < 0) return 0;
+
+  return (anaIn(vRTC) * ADC_VREF_PREC2) / (2048 >> ANALOG_SCALE);
 }
 
 uint16_t getAnalogValue(uint8_t index)
@@ -217,8 +220,19 @@ uint16_t getAnalogValue(uint8_t index)
   return adcValues[index];
 }
 
+void setAnalogValue(uint8_t index, uint16_t value)
+{
+  if (index >= MAX_ANALOG_INPUTS) return;
+  adcValues[index] = value;
+}
+
+uint16_t* getAnalogValues()
+{
+  return adcValues;
+}
+
 // used by diaganas
-uint32_t s_anaFilt[NUM_ANALOGS];
+uint32_t s_anaFilt[MAX_ANALOG_INPUTS];
 
 #define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
 #define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
@@ -228,8 +242,14 @@ uint32_t s_anaFilt[NUM_ANALOGS];
 
 uint16_t anaIn(uint8_t chan)
 {
-  if (chan >= NUM_ANALOGS) return 0;
+  if (chan >= MAX_ANALOG_INPUTS) return 0;
   return ANA_FILT(chan);
+}
+
+uint32_t anaIn_diag(uint8_t chan)
+{
+  if (chan >= MAX_ANALOG_INPUTS) return 0;
+  return s_anaFilt[chan] / JITTER_ALPHA;
 }
 
 void anaSetFiltered(uint8_t chan, uint16_t val)
@@ -243,16 +263,20 @@ void anaResetFiltered()
 }
 
 #if defined(JITTER_MEASURE)
-JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
-JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
+JitterMeter<uint16_t> rawJitter[MAX_ANALOG_INPUTS];
+JitterMeter<uint16_t> avgJitter[MAX_ANALOG_INPUTS];
 tmr10ms_t jitterResetTime = 0;
 #endif
 
 uint16_t getBatteryVoltage()
 {
   // using filtered ADC value on purpose
-  int32_t instant_vbat = anaIn(TX_VOLTAGE);
+  auto vBAT = adcGetVBAT();
+  if (vBAT < 0) return 0;
 
+  int32_t instant_vbat = anaIn(vBAT);
+
+  // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
 #if defined(BATT_SCALE)
   instant_vbat =
       (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
@@ -272,7 +296,7 @@ void getADC()
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
     // reset jitter measurement every second
-    for (uint32_t x=0; x<NUM_ANALOGS; x++) {
+    for (uint32_t x = 0; x < MAX_ANALOGS; x++) {
       rawJitter[x].reset();
       avgJitter[x].reset();
     }
@@ -285,8 +309,11 @@ void getADC()
       TRACE("adcRead failed");
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
-  for (uint8_t x=0; x<NUM_ANALOGS; x++) {
+  uint8_t max_analogs = MAX_STICKS + adcGetMaxPots();
+  for (uint8_t x = 0; x < max_analogs; x++) {
 
+    if (x >= adcGetMaxSticks() && x < MAX_STICKS) continue;
+    
     uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
     // Jitter filter:

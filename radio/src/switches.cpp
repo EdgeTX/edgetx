@@ -20,6 +20,7 @@
  */
 
 #include "hal/switch_driver.h"
+#include "hal/adc_driver.h"
 
 #include "opentx.h"
 #include "switches.h"
@@ -59,7 +60,7 @@ CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
 #define LS_LAST_VALUE(fm, idx) lswFm[fm].lsw[idx].lastValue
 
-tmr10ms_t switchesMidposStart[NUM_SWITCHES];
+tmr10ms_t switchesMidposStart[MAX_SWITCHES];
 uint64_t  switchesPos = 0;
 
 static_assert(sizeof(uint64_t) * 8 >= ((MAX_SWITCHES - 1) / 2) + 1,
@@ -635,7 +636,7 @@ swsrc_t getMovedSwitch()
   swsrc_t result = 0;
 
   // Switches
-  for (int i = 0; i < NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES; i++) {
+  for (int i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x07 << (i * 3));
       uint8_t prev = (switches_states & mask) >> (i * 3);
@@ -690,7 +691,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   getMovedSwitch();
 
   bool warn = false;
-  for (int i = 0; i < NUM_SWITCHES; i++) {
+  for (int i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       swarnstate_t mask = ((swarnstate_t)0x07 << (i * 3));
       if ((states & mask) && !((states & mask) == (switches_states & mask))) {
@@ -702,7 +703,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   if (g_model.potsWarnMode) {
     evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
-    for (int  i = 0; i < MAX_POTS; i++) {
+    for (int  i = 0; i < adcGetMaxPots(); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&
           (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {

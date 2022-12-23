@@ -656,13 +656,25 @@ int main(int argc, char ** argv)
   return application.run();
 }
 
+int8_t adcGetVBAT()
+{
+  return MAX_STICKS + adcGetMaxPots();
+}
+
+int8_t adcGetVRTC()
+{
+  return -1;
+}
+
 uint16_t simu_get_analog(uint8_t idx)
 {
+  auto max_analogs = MAX_STICKS + adcGetMaxPots();
+
   if (idx < MAX_STICKS)
     return opentxSim->sliders[idx]->getValue();
-  else if (idx < MAX_STICKS + adcGetMaxPots())
+  else if (idx < max_analogs)
     return opentxSim->knobs[idx - MAX_STICKS]->getValue();
-  else if (idx == TX_RTC_VOLTAGE)
+  else if (idx == max_analogs)
     return 800; // 2.34V
   else
     return 0;

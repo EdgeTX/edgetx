@@ -320,7 +320,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i <= MIXSRC_LAST_POT + NUM_MOUSE_ANALOGS) {
+  else if (i <= MIXSRC_LAST_ANALOG) {
     return calibratedAnalogs[i - MIXSRC_FIRST_STICK];
   }
 

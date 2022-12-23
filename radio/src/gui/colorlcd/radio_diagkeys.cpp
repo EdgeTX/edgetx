@@ -95,7 +95,7 @@ class RadioKeyDiagsWindow : public Window
       }      
 #endif
       // SWITCHES
-      for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
+      for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
         if (SWITCH_EXISTS(i)) {
           coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);

@@ -85,13 +85,14 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
   // The two sticks
 
   //TODO: dynamic placing
-  new StickCalibrationWindow(window,
-                             {window->width() / 3, window->height() / 2, 0, 0},
-                             STICK1, STICK2);
+  new StickCalibrationWindow(
+      window, {window->width() / 3, window->height() / 2, 0, 0}, 0, 1);
 
-  new StickCalibrationWindow(window,
-                             {(2 * window->width()) / 3, window->height() / 2, 0, 0},
-                             STICK4, STICK3);
+  if (adcGetMaxSticks() > 2) {
+      new StickCalibrationWindow(
+          window, {(2 * window->width()) / 3, window->height() / 2, 0, 0}, 3,
+          2);
+  }
 
   std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window));
   deco->setTrimsVisible(false);

@@ -42,6 +42,8 @@ bool     adcRead();
 uint16_t getBatteryVoltage();
 uint16_t getRTCBatteryVoltage();
 uint16_t getAnalogValue(uint8_t index);
+void setAnalogValue(uint8_t index, uint16_t value);
+uint16_t* getAnalogValues();
 
 // Run calibration steps
 void adcCalibMinMax();
@@ -57,6 +59,7 @@ extern JitterMeter<uint16_t> avgJitter[MAX_ANALOG_INPUTS];
 
 void getADC();
 uint16_t anaIn(uint8_t chan);
+uint32_t anaIn_diag(uint8_t chan);
 uint16_t getBatteryVoltage();
 
 // Warning:
@@ -68,6 +71,8 @@ void disableVBatBridge();
 bool isVBatBridgeEnabled();
 
 // To be implemented by the target driver
+int8_t adcGetVRTC();
+int8_t adcGetVBAT();
 const char* adcGetStickName(uint8_t idx);
 const char* adcGetPotName(uint8_t idx);
 uint8_t adcGetMaxSticks();

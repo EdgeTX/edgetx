@@ -73,9 +73,10 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
     // TODO: check initialised ADC inputs instead!
 
     // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
-#if !defined(SIMU) && defined(RADIO_FAMILY_T16)
-    if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
-#endif
+    // TODO!
+// #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
+//     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
+// #endif
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, analogGetCanonicalPotName(i), 0,
                    COLOR_THEME_PRIMARY1);

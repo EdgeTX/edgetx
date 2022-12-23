@@ -202,62 +202,6 @@ enum VirtualKeys {
   VKEY_DEFAULT,
 };
 
-enum LUATouchEvent {
-  TOUCH_DOWN = 1,
-  TOUCH_UP,
-  TOUCH_SLIDE_UP,
-  TOUCH_SLIDE_DOWN,
-  TOUCH_SLIDE_LEFT,
-  TOUCH_SLIDE_RIGHT,
-};
-
-enum EnumSwitches
-{
-  SW_SA,
-  SW_SB,
-  SW_SC,
-  SW_SD,
-  SW_SE,
-  SW_SF,
-  SW_SG,
-  SW_SH,
-  NUM_SWITCHES
-};
-
-#define STORAGE_NUM_SWITCHES  NUM_SWITCHES
-#define DEFAULT_SWITCH_CONFIG (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_3POS << 10) + (SWITCH_TOGGLE << 8) + (SWITCH_2POS << 6) + (SWITCH_TOGGLE << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0);
-
-enum EnumSwitchesPositions
-{
-  SW_SA0,
-  SW_SA1,
-  SW_SA2,
-  SW_SB0,
-  SW_SB1,
-  SW_SB2,
-  SW_SC0,
-  SW_SC1,
-  SW_SC2,
-  SW_SD0,
-  SW_SD1,
-  SW_SD2,
-  SW_SE0,
-  SW_SE1,
-  SW_SE2,
-  SW_SF0,
-  SW_SF1,
-  SW_SF2,
-  SW_SG0,
-  SW_SG1,
-  SW_SG2,
-  SW_SH0,
-  SW_SH1,
-  SW_SH2,
-  NUM_SWITCHES_POSITIONS
-};
-
-#define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
-
 #if !defined(NUM_FUNCTIONS_SWITCHES)
 #define NUM_FUNCTIONS_SWITCHES        0
 #endif
@@ -280,67 +224,9 @@ bool getTrimsAsButtons();
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
 
-// ADC driver
-#define NUM_POTS                        2
-#define NUM_XPOTS                       0 // NUM_POTS
-#define NUM_SLIDERS                     0
-#define NUM_MOUSE_ANALOGS               0
-#define STORAGE_NUM_POTS                5
-#define STORAGE_NUM_SLIDERS             0
-#define STORAGE_NUM_MOUSE_ANALOGS       0
-
-enum Analogs {
-  STICK1,
-  STICK2,
-  STICK3,
-  STICK4,
-  POT_FIRST,
-  POT1 = POT_FIRST,
-  POT2,
-  POT_LAST = POT2,
-  SWITCH_FIRST,
-  SWA = SWITCH_FIRST,
-  SWB,
-  SWC,
-  SWD,
-  SWE,
-  SWF,
-  SWG,
-  SWH,
-  SUB_ANALOG_POS = SWH,
-  SWITCH_END = SWH,
-  TX_VOLTAGE,
-  TX_RTC_VOLTAGE,
-  NUM_ANALOGS
-};
-
-#define SLIDER_FIRST  0
-#define SLIDER_LAST  -1
-
 #define DEFAULT_STICK_DEADZONE          2
 
 #define DEFAULT_POTS_CONFIG (POT_WITHOUT_DETENT << 0) + (POT_WITHOUT_DETENT << 2) // 2 pots without detent
-
-enum CalibratedAnalogs {
-  CALIBRATED_STICK1,
-  CALIBRATED_STICK2,
-  CALIBRATED_STICK3,
-  CALIBRATED_STICK4,
-  CALIBRATED_POT1,
-  CALIBRATED_POT2,
-  CALIBRATED_SWA,
-  CALIBRATED_SWB,
-  CALIBRATED_SWC,
-  CALIBRATED_SWD,
-  CALIBRATED_SWE,
-  CALIBRATED_SWF,
-  CALIBRATED_SWG,
-  CALIBRATED_SWH,
-  NUM_CALIBRATED_ANALOGS
-};
-
-extern uint16_t adcValues[NUM_ANALOGS];
-
 
 #define BATTERY_WARN                  36 // 3.6V
 #define BATTERY_MIN                   35 // 3.5V

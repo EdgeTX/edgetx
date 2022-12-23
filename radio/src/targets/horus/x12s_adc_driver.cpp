@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_adc.h"
+#include "adc_driver.h"
 #include "x12s_adc_driver.h"
 
 #include "opentx.h"
@@ -41,6 +41,7 @@
 #define SPI_L1                         11
 #define RESETCMD                       0x4000
 #define MANUAL_MODE                    0x1000 // manual mode channel 0
+#define MANUAL_MODE_CHANNEL(x)         (MANUAL_MODE | ((x) << 7))
 
 uint16_t SPIx_ReadWriteByte(uint16_t value)
 {
@@ -111,40 +112,25 @@ static bool x12s_adc_init()
   // we're going to do it ourselves
   stm32_hal_adc_disable_oversampling();
 
+  // TODO: fetch internal ADC channel mapping
+
   // init onboard ADC
   return _adc_driver.init();
 }
 
-const uint16_t adcCommands[MOUSE1+2] =
-{
-  MANUAL_MODE | (SPI_STICK1 << 7),
-  MANUAL_MODE | (SPI_STICK2 << 7),
-  MANUAL_MODE | (SPI_STICK3 << 7),
-  MANUAL_MODE | (SPI_STICK4 << 7),
-  MANUAL_MODE | (SPI_S1 << 7),
-  MANUAL_MODE | (SPI_6POS << 7),
-  MANUAL_MODE | (SPI_S2 << 7),
-  MANUAL_MODE | (SPI_L1 << 7),
-  MANUAL_MODE | (SPI_L2 << 7),
-  MANUAL_MODE | (SPI_LS << 7),
-  MANUAL_MODE | (SPI_RS << 7),
-  MANUAL_MODE | (SPI_TX_VOLTAGE << 7),
-  MANUAL_MODE | (0 << 7),     // small joystick left/right
-  MANUAL_MODE | (0 << 7)      // small joystick up/down
-};
-
-void adcReadSPIDummy()
+static void adcReadSPIDummy()
 {
   // A dummy command to get things started
   // (because the sampled data is lagging behind for two command cycles)
   ADC_CS_LOW();
   delay_01us(1);
-  SPIx_ReadWriteByte(adcCommands[0]);
+  SPIx_ReadWriteByte(MANUAL_MODE_CHANNEL(0));
   ADC_CS_HIGH();
   delay_01us(1);
 }
 
-uint32_t adcReadNextSPIChannel(uint8_t index)
+static uint32_t adcReadNextSPIChannel(uint8_t index, const stm32_adc_input_t* inputs,
+                                      const uint8_t* chan, uint8_t nconv)
 {
   uint32_t result = 0;
 
@@ -163,14 +149,20 @@ uint32_t adcReadNextSPIChannel(uint8_t index)
   for (uint8_t i = 0; i < 4; i++) {
     ADC_CS_LOW();
     delay_01us(1);
+
     // command is changed to the next index for the last two readings
     // (because the sampled data is lagging behind for two command cycles)
-    uint16_t val = (0x0fff & SPIx_ReadWriteByte(adcCommands[(i>1) ? index+1 : index]));
+    uint8_t chan_idx = (i > 1 ? index + 1 : index) % nconv;
+    auto spi_chan = inputs[chan_idx].ADC_Channel;
+    
+    uint16_t val = (0x0fff & SPIx_ReadWriteByte(MANUAL_MODE_CHANNEL(spi_chan)));
+
 #if defined(JITTER_MEASURE)
     if (JITTER_MEASURE_ACTIVE()) {
       rawJitter[index].measure(val);
     }
 #endif
+
     ADC_CS_HIGH();
     delay_01us(1);
     result += val;
@@ -192,17 +184,29 @@ bool x12s_adc_start_read()
 
 void x12s_adc_wait_completion()
 {
-  uint16_t temp[NUM_ANALOGS-MOUSE1] = { 0 };
+  auto spi_adc = adc_spi_get();
+  auto spi_channels = spi_adc->n_channels;
+  auto chans = spi_adc->channels;
+  auto inputs = adc_get_inputs();
+  
+  auto all_channels = adc_get_n_inputs();
+  auto adc_channels = all_channels - spi_channels;
+  
   uint8_t noInternalReads = 0;
+  uint8_t adc_idx[adc_channels] = { 11, 12, 14 }; // TODO
+  uint16_t temp[adc_channels] = { 0 };
 
+  // Fetch buffer from generic ADC driver
+  auto adcValues = getAnalogValues();
+  
   // At this point, the first conversion has been started
   // in x12s_adc_start_read()
-  
+
   // for each SPI channel
-  for (uint32_t index=0; index<MOUSE1; index++) {
+  for (uint32_t i = 0; i < spi_channels; i++) {
     
     // read SPI channel
-    adcValues[index] = adcReadNextSPIChannel(index);
+    adcValues[chans[i]] = adcReadNextSPIChannel(i, inputs, chans, spi_channels);
 
     // check if not enough internal ADC samples
     // or one just finished (TC cleared on new sample started)
@@ -211,10 +215,11 @@ void x12s_adc_wait_completion()
       _adc_driver.wait_completion();
 
       // for each internal ADC channel
-      for (uint8_t x=0; x<NUM_ANALOGS-MOUSE1; x++) {
+      for (uint8_t x = 0; x < adc_channels; x++) {
 
         // do the averaging math
-        temp[x] += adcValues[MOUSE1+x];
+        // TODO: fetch proper index! (-> from inputs?) (11, 12, 14)
+        temp[x] += adcValues[adc_idx[x]];
       }
 
       // restart internal ADC if not yet done
@@ -230,8 +235,8 @@ void x12s_adc_wait_completion()
   }
 #endif
 
-  for (uint8_t x=0; x<NUM_ANALOGS-MOUSE1; x++) {
-    adcValues[MOUSE1+x] = temp[x] >> 2;
+  for (uint8_t x = 0; x < adc_channels; x++) {
+    adcValues[adc_idx[x]] = temp[x] >> 2;
   }
 }
 
