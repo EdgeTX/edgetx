@@ -131,7 +131,11 @@ uint8_t getMixerSchedulerSyncedModule() {
 void mixerSchedulerInit()
 {
   _syncedModule = 0;
-  memset(mixerSchedules, 0, sizeof(mixerSchedules));
+  
+  // set default divider (for simu as sync not active)
+  for(uint8_t i = 0; i < NUM_MODULES; i++) {
+    mixerSchedules[i].divider = 1;
+  }
 }
 
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
