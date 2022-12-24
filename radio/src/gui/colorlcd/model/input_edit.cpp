@@ -23,74 +23,23 @@
 
 #include "curve_param.h"
 #include "curveedit.h"
-#include "gvar_numberedit.h"
-#include "source_numberedit.h"
-#include "input_source.h"
 #include "edgetx.h"
-#include "etx_lv_theme.h"
-#include "switchchoice.h"
 #include "fm_matrix.h"
+#include "input_source.h"
+#include "source_numberedit.h"
+#include "switchchoice.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
-class InputEditAdvanced : public Page
-{
- public:
-  InputEditAdvanced(InputEditWindow* parent, uint8_t input_n, uint8_t index) : Page(ICON_MODEL_INPUTS)
-  {
-    std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
-    header->setTitle(STR_MENUINPUTS);
-    header->setTitle2(title2);
-
-    FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-    body->setFlexLayout();
-
-    ExpoData* input = expoAddress(index);
-
-    // Side
-    auto line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_SIDE);
-    new Choice(
-        line, rect_t{}, STR_VCURVEFUNC, 1, 3,
-        [=]() -> int16_t { return 4 - input->mode; },
-        [=](int16_t newValue) {
-          input->mode = 4 - newValue;
-          parent->previewUpdate();
-          SET_DIRTY();
-        });
-
-    // Trim
-    line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_TRIM);
-    const auto trimLast = TRIM_OFF + keysGetMaxTrims() - 1;
-    auto c = new Choice(line, rect_t{}, -TRIM_OFF, trimLast,
-                        GET_VALUE(-input->trimSource),
-                        SET_VALUE(input->trimSource, -newValue));
-
-    uint16_t srcRaw = input->srcRaw;
-    c->setAvailableHandler([=](int value) {
-      return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
-    });
-    c->setTextHandler([=](int value) -> std::string {
-      return getTrimSourceLabel(srcRaw, -value);
-    });
-
-    // Flight modes
-    if (modelFMEnabled()) {
-      line = body->newLine(grid);
-      new StaticText(line, rect_t{}, STR_FLMODE);
-      new FMMatrix<ExpoData>(line, rect_t{}, input);
-    }
-  }
-};
+extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
 
 InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
     Page(ICON_MODEL_INPUTS), input(input), index(index)
 {
+  ExpoData* inputData = expoAddress(index);
+
+  body->padAll(PAD_ZERO);
+
   header->setTitle(STR_MENUINPUTS);
   headerSwitchName = header->setTitle2("");
 
@@ -100,40 +49,76 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
 
   setTitle();
 
+  // Outer grid form
+  auto form = new Window(body, rect_t{});
+  form->padAll(PAD_ZERO);
+
 #if PORTRAIT
-  body->padAll(PAD_ZERO);
-
-  auto box = new Window(body, rect_t{0, 0, body->width(), body->height() - INPUT_EDIT_CURVE_HEIGHT - PAD_TINY * 2});
-  auto box_obj = box->getLvObj();
-  etx_scrollbar(box_obj);
-  box->padAll(PAD_SMALL);
-
-  auto form = new Window(box, rect_t{});
-  buildBody(form);
-
-  preview = new Curve(
-      body, rect_t{(LCD_W - INPUT_EDIT_CURVE_WIDTH) / 2, body->height() - INPUT_EDIT_CURVE_HEIGHT - PAD_TINY, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
-      [=](int x) -> int {
-        ExpoData* line = expoAddress(index);
-        int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
-        return anas[line->chn];
-      },
-      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
-#else
-  body->padAll(PAD_SMALL);
-  buildBody(body);
-
-  preview = new Curve(
-      this, rect_t{LCD_W - INPUT_EDIT_CURVE_WIDTH - PAD_LARGE, EdgeTxStyles::MENU_HEADER_HEIGHT + PAD_TINY, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
-      [=](int x) -> int {
-        ExpoData* line = expoAddress(index);
-        int16_t anas[MAX_INPUTS] = {0};
-        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
-        return anas[line->chn];
-      },
-      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+#else  // landscape
+  form->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
 #endif
+
+  Window* box;
+
+#if LANDSCAPE  // landscape (preview on left)
+  // Preview grid box - force width and height
+  box = new Window(form,
+                   rect_t{0, 0, INPUT_EDIT_CURVE_WIDTH + PAD_OUTLINE * 2, body->height()});
+  box->padAll(PAD_ZERO);
+
+  // Add preview and buttons
+  buildPreview(box, inputData);
+#endif
+
+  // Inner box for main controls - force width and height
+#if PORTRAIT
+  box = new Window(form, rect_t{0, 0, body->width(),
+                                body->height() - INPUT_EDIT_CURVE_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 - PAD_OUTLINE * 2 - PAD_SMALL});
+#else
+  box = new Window(form, rect_t{0, 0, 
+                                body->width() - INPUT_EDIT_CURVE_WIDTH - PAD_OUTLINE * 2 - PAD_SMALL,
+                                body->height()});
+#endif
+  box->padAll(PAD_ZERO);
+  etx_scrollbar(box->getLvObj());
+
+  // Add main controls
+  buildBody(box, inputData);
+
+#if PORTRAIT  // portrait (preview below)
+  // Preview grid box - force width and height
+  box = new Window(form,
+                   rect_t{0, 0, body->width(),
+                          INPUT_EDIT_CURVE_HEIGHT + EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 2});
+  box->padAll(PAD_ZERO);
+
+  // Add preview and buttons
+  buildPreview(box, inputData);
+#endif
+}
+
+int16_t InputEditWindow::getExpo(ExpoData* ed, int16_t val)
+{
+  int32_t v = 0;
+  if (EXPO_VALID(ed)) {
+    v = val;
+    if (EXPO_MODE_ENABLE(ed, v)) {
+      //========== CURVE=================
+      if (ed->curve.value) {
+        v = applyCurve(v, ed->curve);
+      }
+
+      //========== WEIGHT ===============
+      int32_t weight = getSourceNumFieldValue(ed->weight, -100, 100);
+      v = divRoundClosest((int32_t)v * weight, 1000);
+
+      //========== OFFSET ===============
+      int32_t offset = getSourceNumFieldValue(ed->offset, -100, 100);
+      if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
+    }
+  }
+  return v;
 }
 
 void InputEditWindow::setTitle()
@@ -141,91 +126,181 @@ void InputEditWindow::setTitle()
   headerSwitchName->setText(getSourceString(MIXSRC_FIRST_INPUT + input));
 }
 
-void InputEditWindow::buildBody(Window* form)
+#if LANDSCAPE && NARROW_LAYOUT
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+void InputEditWindow::buildBody(Window* box, ExpoData* inputData)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+  auto form = new Window(box, rect_t{});
+  form->padAll(PAD_TINY);
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  ExpoData* input = expoAddress(index);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   // Input Name
   auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_INPUTNAME);
-  new ModelTextEdit(line, rect_t{}, g_model.inputNames[input->chn],
-                    LEN_INPUT_NAME,
-                    [=]() {
-                      setTitle();
-                    });
+  new ModelTextEdit(line, {0, 0, LCD_W * 3 / 10 - PAD_LARGE, 0},
+                    g_model.inputNames[inputData->chn], LEN_INPUT_NAME,
+                    [=]() { setTitle(); });
 
   // Line Name
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_EXPONAME);
-  new ModelTextEdit(line, rect_t{}, input->name, LEN_EXPOMIX_NAME);
+  new ModelTextEdit(line, {0, 0, LCD_W * 3 / 10 - PAD_LARGE, 0}, inputData->name,
+                    LEN_EXPOMIX_NAME);
 
   // Source
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SOURCE);
-  auto src = new InputSource(line, input);
-  lv_obj_set_style_grid_cell_x_align(src->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-
-  // Weight
-  line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_WEIGHT);
-  auto gvar =
-      new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
-                           [=](int32_t newValue) {
-                             input->weight = newValue;
-                             updatePreview = true;
-                             SET_DIRTY();
-                           }, MIXSRC_FIRST);
-  gvar->setSuffix("%");
-
-  // Offset
-  line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new SourceNumberEdit(line, -100, 100,
-                              GET_DEFAULT(input->offset), [=](int32_t newValue) {
-                                input->offset = newValue;
-                                updatePreview = true;
-                                SET_DIRTY();
-                              }, MIXSRC_FIRST);
-  gvar->setSuffix("%");
+  new InputSource(line, inputData);
 
   // Switch
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_DEFAULT(input->swtch),
-                   [=](int newValue) {
-                     input->swtch = newValue;
-                     updatePreview = true;
-                     SET_DIRTY();
-                   });
+                   GET_SET_DEFAULT(inputData->swtch));
+
+  // Weight
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_WEIGHT);
+  auto gvar = new SourceNumberEdit(
+      line, -100, 100, GET_DEFAULT(inputData->weight),
+      [=](int32_t newValue) {
+        inputData->weight = newValue;
+        updatePreview = true;
+        SET_DIRTY();
+      },
+      MIXSRC_FIRST);
+  gvar->setSuffix("%");
+
+  // Offset
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_OFFSET);
+  gvar = new SourceNumberEdit(
+      line, -100, 100, GET_DEFAULT(inputData->offset),
+      [=](int32_t newValue) {
+        inputData->offset = newValue;
+        updatePreview = true;
+        SET_DIRTY();
+      },
+      MIXSRC_FIRST);
+  gvar->setSuffix("%");
 
   // Curve
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
-  auto param =
-      new CurveParam(line, rect_t{}, &input->curve,
-        [=](int32_t newValue) {
-          input->curve.value = newValue;
-          updatePreview = true;
-          SET_DIRTY();
-        }, MIXSRC_FIRST, input->srcRaw,
-        [=]() {
-          updatePreview = true;
-        });
-  lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
-                                     0);
-
-  line = form->newLine(grid);
-  line->padAll(PAD_LARGE);
-  auto btn =
-      new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-        new InputEditAdvanced(this, this->input, index);
-        return 0;
+  new CurveParam(
+      line, rect_t{}, &inputData->curve,
+      [=](int32_t newValue) {
+        inputData->curve.value = newValue;
+        updatePreview = true;
+        SET_DIRTY();
+      },
+      MIXSRC_FIRST, inputData->srcRaw,
+      [=]() {
+        updatePreview = true;
       });
-  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
+
+  // Trim
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TRIM);
+  const auto trimLast = TRIM_OFF + keysGetMaxTrims() - 1;
+  auto c = new Choice(line, rect_t{}, -TRIM_OFF, trimLast,
+                      GET_VALUE(-inputData->trimSource),
+                      SET_VALUE(inputData->trimSource, -newValue));
+  c->setAvailableHandler([=](int value) {
+    return value != TRIM_ON || inputData->srcRaw <= MIXSRC_LAST_STICK;
+  });
+  c->setTextHandler([=](int value) -> std::string {
+    return getTrimSourceLabel(inputData->srcRaw, -value);
+  });
+
+  // Flight modes
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_FLMODE);
+  new FMMatrix<ExpoData>(line, rect_t{}, inputData, 3);
+
+#if LANDSCAPE
+  line->padBottom(PAD_LARGE);
+#endif
+}
+
+void InputEditWindow::buildPreview(Window* box, ExpoData* inputData)
+{
+  lv_coord_t xo = (box->width() - INPUT_EDIT_CURVE_WIDTH) / 2;
+  lv_coord_t yo = (box->height() - (INPUT_EDIT_CURVE_HEIGHT + EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 2)) / 2;
+
+  static bool showActive = true;
+  auto aBtn = new TextButton(box, rect_t{xo, yo, INPUT_EDIT_CURVE_WIDTH, 0},
+                             STR_SHOW_ACTIVE);
+  aBtn->padAll(PAD_ZERO);
+  aBtn->check(showActive);
+  aBtn->setPressHandler([=]() {
+    showActive = !showActive;
+    updatePreview = true;
+    return showActive;
+  });
+
+  preview = new Curve(
+      box, rect_t{xo, yo + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
+      [=](int x) -> int {
+        if (showActive) {
+          int16_t anas[MAX_INPUTS] = {0};
+          applyExpos(anas, e_perout_mode_inactive_flight_mode,
+                     inputData->srcRaw, x);
+          return anas[inputData->chn];
+        } else {
+          return getExpo(inputData, x);
+        }
+      },
+      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+
+  auto sBtn1 = new TextButton(box,
+                              rect_t{xo, yo + INPUT_EDIT_CURVE_HEIGHT + PAD_OUTLINE * 2 + EdgeTxStyles::UI_ELEMENT_HEIGHT,
+                                     INPUT_EDIT_CURVE_WIDTH / 2 - PAD_OUTLINE, 0},
+                              STR_VCURVEFUNC[2]);
+
+  auto sBtn2 = new TextButton(box,
+                              rect_t{xo + INPUT_EDIT_CURVE_WIDTH / 2 + PAD_OUTLINE,
+                                     yo + INPUT_EDIT_CURVE_HEIGHT + PAD_OUTLINE + 2 + EdgeTxStyles::UI_ELEMENT_HEIGHT,
+                                     INPUT_EDIT_CURVE_WIDTH / 2 - PAD_OUTLINE, 0},
+                              STR_VCURVEFUNC[1]);
+
+  sBtn1->setPressHandler([=]() {
+    if (sBtn1->checked()) {
+      inputData->mode = inputData->mode & (~1);
+      if ((inputData->mode & 3) == 0) inputData->mode = inputData->mode | 2;
+    } else {
+      inputData->mode = inputData->mode | 1;
+    }
+    SET_DIRTY();
+    updatePreview = true;
+    sBtn2->check(inputData->mode & 2);
+    return (inputData->mode & 1) != 0;
+  });
+
+  sBtn2->setPressHandler([=]() {
+    if (sBtn2->checked()) {
+      inputData->mode = inputData->mode & (~2);
+      if ((inputData->mode & 3) == 0) inputData->mode = inputData->mode | 1;
+    } else {
+      inputData->mode = inputData->mode | 2;
+    }
+    SET_DIRTY();
+    updatePreview = true;
+    sBtn1->check(inputData->mode & 1);
+    return (inputData->mode & 2) != 0;
+  });
+
+  sBtn1->check(inputData->mode & 1);
+  sBtn2->check(inputData->mode & 2);
 }
 
 void InputEditWindow::checkEvents()
