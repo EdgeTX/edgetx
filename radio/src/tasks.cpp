@@ -68,31 +68,37 @@ bool isForcePowerOffRequested()
 
 void sendSynchronousPulses()
 {
-static uint16_t syncCounter = 0;
-
-syncCounter++;
-
 #if defined(HARDWARE_INTERNAL_MODULE)
-  if(setupPulsesInternalModule()) {
-    if(getMixerSchedulerSyncedModule() == INTERNAL_MODULE) {
+  if(getMixerSchedulerSyncedModule() == INTERNAL_MODULE)
+    if(setupPulsesInternalModule())
       intmoduleSendNextFrame();
-    } else {
-      if((syncCounter % getMixerSchedulerDivider(INTERNAL_MODULE)) == 0) {
-        intmoduleSendNextFrame();
-      }
-    }
-  }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  if(setupPulsesExternalModule()) {
-    if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE) {
+  if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE)
+    if(setupPulsesExternalModule())
       extmoduleSendNextFrame();
-    } else {
-      if((syncCounter % getMixerSchedulerDivider(EXTERNAL_MODULE)) == 0)
-        extmoduleSendNextFrame();
-    }
-  }
+#endif
+}
+
+void sendAsynchronousPulses()
+{
+  static uint16_t syncCounter = 0;
+
+  syncCounter++;
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+  if(getMixerSchedulerSyncedModule() != INTERNAL_MODULE) 
+    if((syncCounter % getMixerSchedulerDivider(INTERNAL_MODULE)) == 0) 
+      if(setupPulsesInternalModule()) 
+      intmoduleSendNextFrame(); 
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if(getMixerSchedulerSyncedModule() != EXTERNAL_MODULE) 
+    if((syncCounter % getMixerSchedulerDivider(EXTERNAL_MODULE)) == 0) 
+      if(setupPulsesExternalModule()) 
+      extmoduleSendNextFrame(); 
 #endif
 }
 
@@ -123,6 +129,10 @@ void execMixerFrequentActions()
 #endif
 }
 
+//
+// mixer tasks runs at double the (synced) frequency
+// workload distributed over two cycles, see cycleEven
+//
 TASK_FUNCTION(mixerTask)
 {
   static bool cycleEven = true;
@@ -170,11 +180,17 @@ TASK_FUNCTION(mixerTask)
       DEBUG_TIMER_START(debugTimerMixer);
       RTOS_LOCK_MUTEX(mixerMutex);
 
+      // 1st half of processing
       if(cycleEven) {
         doMixerCalculations();
         sendSynchronousPulses();
-        cycleEven = false;
-      } else {
+      } 
+      
+      // send pulses for slave model (depends on divider)
+      sendAsynchronousPulses();
+
+      // second half of processing
+      if(!cycleEven) {
         doMixerPeriodicUpdates();
 
         #if defined(STM32) && !defined(SIMU)
@@ -182,8 +198,10 @@ TASK_FUNCTION(mixerTask)
             usbJoystickUpdate();
           }
         #endif
-        cycleEven = true;
       }
+
+      // switch to next half of processing
+      cycleEven = !cycleEven;
 
       RTOS_UNLOCK_MUTEX(mixerMutex);
       DEBUG_TIMER_STOP(debugTimerMixer);
@@ -200,6 +218,7 @@ TASK_FUNCTION(mixerTask)
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
     } else {
+       // make sure processing starts at even cylce again after pulses resume
        cycleEven = true;
     }
   }

@@ -69,23 +69,27 @@ uint16_t getMixerSchedulerPeriod()
   uint16_t sync_period = mixerSchedules[synced_module].period;
 
   // Compute minimum period & synced modules
-  for(uint8_t i = 0; i < NUM_MODULES; i++) {
-    auto& sched = mixerSchedules[i];
+  for(uint8_t module = 0; module < NUM_MODULES; module++) {
+    auto& sched = mixerSchedules[module];
     if (sched.period > 0) {
       synced_modules++;
       if (sched.period < sync_period) {
-        synced_module = i;
+        synced_module = module;
         sync_period = sched.period;
       }
     }
   }
 
-  sync_period = (sync_period / DOUBLE) + 1;     // round up instead of down
+  // adjust sync_period due to mixer task running at doubled frequency
+  sync_period = sync_period / DOUBLE;
 
   // Compute dividers
-  for(uint8_t i = 0; i < NUM_MODULES; i++) {
-    auto& sched = mixerSchedules[i];
-    sched.divider = sched.period / sync_period + 1;
+  for(uint8_t module = 0; module < NUM_MODULES; module++) {
+    auto& sched = mixerSchedules[module];
+    if(module == synced_module)
+      sched.divider = DOUBLE;
+    else
+      sched.divider = sched.period / sync_period + 1;
   }
 
   _syncedModule = synced_module;
@@ -132,7 +136,7 @@ void mixerSchedulerInit()
   
   // set default divider and period (for simu as sync not active)
   for(uint8_t i = 0; i < NUM_MODULES; i++) {
-    mixerSchedules[i].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US / DOUBLE;
+    mixerSchedules[i].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
     mixerSchedules[i].divider = DOUBLE;
   }
 }
