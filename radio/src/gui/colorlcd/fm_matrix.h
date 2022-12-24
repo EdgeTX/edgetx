@@ -29,7 +29,7 @@ struct MixData;
 template<class T>
 struct FMMatrix : public ButtonMatrix {
   T* input;
-  FMMatrix(Window* parent, const rect_t& rect, T* input);
+  FMMatrix(Window* parent, const rect_t& rect, T* input, uint8_t columns = 0);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
