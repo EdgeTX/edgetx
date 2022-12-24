@@ -29,6 +29,8 @@
 #define MIN_REFRESH_RATE       850 /* us */
 #define MAX_REFRESH_RATE     50000 /* us */
 
+#define DOUBLE 2
+
 // Call once to initialize the mixer scheduler
 void mixerSchedulerInit();
 

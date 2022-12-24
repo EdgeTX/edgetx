@@ -66,7 +66,7 @@ bool isForcePowerOffRequested()
   return false;
 }
 
-void sendSynchronousPulses(uint8_t runMask)
+void sendSynchronousPulses()
 {
 static uint16_t syncCounter = 0;
 
@@ -125,6 +125,8 @@ void execMixerFrequentActions()
 
 TASK_FUNCTION(mixerTask)
 {
+  static bool cycleEven = true;
+
   s_pulses_paused = true;
 
   mixerSchedulerInit();
@@ -168,20 +170,26 @@ TASK_FUNCTION(mixerTask)
       DEBUG_TIMER_START(debugTimerMixer);
       RTOS_LOCK_MUTEX(mixerMutex);
 
-      doMixerCalculations();
-      sendSynchronousPulses((1 << INTERNAL_MODULE) | (1 << EXTERNAL_MODULE));
-      doMixerPeriodicUpdates();
+      if(cycleEven) {
+        doMixerCalculations();
+        sendSynchronousPulses();
+        cycleEven = false;
+      } else {
+        doMixerPeriodicUpdates();
 
-      DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
-      DEBUG_TIMER_SAMPLE(debugTimerMixerIterval);
+        #if defined(STM32) && !defined(SIMU)
+          if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+            usbJoystickUpdate();
+          }
+        #endif
+        cycleEven = true;
+      }
+
       RTOS_UNLOCK_MUTEX(mixerMutex);
       DEBUG_TIMER_STOP(debugTimerMixer);
 
-#if defined(STM32) && !defined(SIMU)
-      if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-        usbJoystickUpdate();
-      }
-#endif
+      DEBUG_TIMER_START(debugTimerMixerCalcToUsage);      // where is it stopped?
+      DEBUG_TIMER_SAMPLE(debugTimerMixerIterval);         // where read?
 
       if (heartbeat == HEART_WDT_CHECK) {
         WDG_RESET();
@@ -191,6 +199,8 @@ TASK_FUNCTION(mixerTask)
       t0 = getTmr2MHz() - t0;
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
+    } else {
+       cycleEven = true;
     }
   }
 }

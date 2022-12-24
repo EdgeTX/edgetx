@@ -179,6 +179,7 @@ class VersionDialog : public Dialog
     name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
     lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
+/*
 #if defined(CROSSFIRE)
     // CRSF is able to provide status
     if (isModuleCrossfire(module)) {
@@ -186,6 +187,20 @@ class VersionDialog : public Dialog
 
       auto hz = 1000000 / getMixerSchedulerRealPeriod(module);
       snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
+      status->setText(statusText);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+#endif
+*/
+#if defined(CROSSFIRE)
+    // CRSF is able to provide status
+    if (isModuleCrossfire(module)) {
+      char statusText[64];
+
+      auto period = getMixerSchedulerRealPeriod(module);
+      auto divider = getMixerSchedulerDivider(module);
+      snprintf(statusText, 64, "p:%d d:%d f:%d", period, divider, 1000000/period);
+
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
@@ -204,6 +219,7 @@ class VersionDialog : public Dialog
     }
 #endif
 
+/*
 #if defined(MULTIMODULE)
     // MPM is able to provide status
     if (isModuleMultimodule(module)) {
@@ -218,6 +234,23 @@ class VersionDialog : public Dialog
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
 #endif
+*/
+#if defined(MULTIMODULE)
+    // MPM is able to provide status
+    if (isModuleMultimodule(module)) {
+      char statusText[64];
+   
+      auto period = getMixerSchedulerRealPeriod(module);
+      auto divider = getMixerSchedulerDivider(module);
+      snprintf(statusText, 64, "p:%d d:%d f:%d", period, divider, 1000000/period);
+
+      status->setText(statusText);
+      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+#endif
+
+
+
 
 #if defined(PXX2)
     // PXX2 modules are able to provide status

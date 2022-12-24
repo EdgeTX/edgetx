@@ -80,6 +80,8 @@ uint16_t getMixerSchedulerPeriod()
     }
   }
 
+  sync_period = (sync_period / DOUBLE) + 1;     // round up instead of down
+
   // Compute dividers
   for(uint8_t i = 0; i < NUM_MODULES; i++) {
     auto& sched = mixerSchedules[i];
@@ -94,11 +96,11 @@ uint16_t getMixerSchedulerPeriod()
 #if defined(STM32) && !defined(SIMU)
     // no internal/external module and Joystick conntected
     if(getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-      return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+      return MIXER_SCHEDULER_JOYSTICK_PERIOD_US / DOUBLE;
     }
 #endif
 
-    return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+    return MIXER_SCHEDULER_DEFAULT_PERIOD_US / DOUBLE;
   }
 
   // Some module(s) active
@@ -112,11 +114,7 @@ uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx)
     return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
   }
 
-  if (_syncedModule == moduleIdx) {
-    return mixerSchedules[moduleIdx].period;
-  }
-
-  return mixerSchedules[_syncedModule].period
+  return (mixerSchedules[_syncedModule].period / DOUBLE)
     * mixerSchedules[moduleIdx].divider;
 }
 
@@ -134,8 +132,8 @@ void mixerSchedulerInit()
   
   // set default divider and period (for simu as sync not active)
   for(uint8_t i = 0; i < NUM_MODULES; i++) {
-    mixerSchedules[i].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
-    mixerSchedules[i].divider = 1;
+    mixerSchedules[i].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US / DOUBLE;
+    mixerSchedules[i].divider = DOUBLE;
   }
 }
 
