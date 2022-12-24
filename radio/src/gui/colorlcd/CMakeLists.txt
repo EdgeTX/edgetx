@@ -68,7 +68,6 @@ set(GUI_SRC
   curveedit.cpp
   fm_matrix.cpp
   gvar_numberedit.cpp
-  input_edit_adv.cpp
   input_edit.cpp
   input_source.cpp
   mixer_edit_adv.cpp
