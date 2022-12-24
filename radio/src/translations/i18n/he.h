@@ -852,6 +852,7 @@
 #define TR_EDIT_COLOR                  "עריכת צבע"
 #define TR_NO_THEME_IMAGE              "תמונת ערכת נושא"
 #define TR_BACKLIGHT_TIMER             "זמן אי פעילות"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "בחירת מודל מהירה"
 #define TR_LABELS_SELECT             "Label select"

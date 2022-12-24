@@ -848,6 +848,7 @@
 #define TR_EDIT_COLOR                  "Upravit barvu"
 #define TR_NO_THEME_IMAGE              "Náhled motivu nedostupný"
 #define TR_BACKLIGHT_TIMER             "Čas zhasnutí displeje"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #define TR_MODEL_QUICK_SELECT        "Rychlý výběr modelu"
 #define TR_LABELS_SELECT             "Label select"

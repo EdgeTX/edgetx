@@ -84,7 +84,7 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
 {
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
+  lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
   new SourceChoice(
       this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST, GET_DEFAULT(input->srcRaw),
