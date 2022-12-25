@@ -40,7 +40,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av","+=",":="
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos flipp","2 pos","3 pos"

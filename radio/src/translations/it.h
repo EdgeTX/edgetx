@@ -40,7 +40,7 @@
 #define TR_TRNMODE             "OFF","+=",":="
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
 #define TR_SWTYPES             "Disab.","Toggle","2POS","3POS"
 #define TR_POTTYPES            "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro")
 #define TR_SLIDERTYPES         "Disab.","Slider"
@@ -1131,7 +1131,7 @@
 #define TR_DELETE_ALL_SENSORS  "Elimina tutti i sensori"
 #define TR_CONFIRMDELETE       "Confermi " LCDW_128_480_LINEBREAK "eliminazione?"
 #define TR_SELECT_WIDGET       "Seleziona widget"
-#define TR_WIDGET_FULLSCREEN           "Full screen"
+#define TR_WIDGET_FULLSCREEN   "Schermo intero"
 #define TR_REMOVE_WIDGET       "Rimuovi widget"
 #define TR_WIDGET_SETTINGS     "Settaggio widget"
 #define TR_REMOVE_SCREEN       "Rimuovi schermo"
