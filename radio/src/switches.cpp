@@ -551,24 +551,30 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     result = latencyToggleSwitch;
   }
 #endif
-  else if (cs_idx <= (SWSRC_LAST_SWITCH - 3 * NUM_FUNCTIONS_SWITCHES)) {
-    if (flags & GETSWITCH_MIDPOS_DELAY)
-      result = SWITCH_POSITION(cs_idx-SWSRC_FIRST_SWITCH);
-    else
-      result = switchState(cs_idx - SWSRC_FIRST_SWITCH);
-  }
-#if defined(FUNCTION_SWITCHES)
   else if (cs_idx <= SWSRC_LAST_SWITCH) {
-    div_t qr = div(cs_idx - SWSRC_FIRST_FUNCTION_SWITCH, 3);
-    auto value = getFSLogicalState(qr.quot);
-    result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
-  }
+    cs_idx -= SWSRC_FIRST_SWITCH;
+    auto max_reg_pos = switchGetMaxSwitches() * 3;
+    if (cs_idx < max_reg_pos) {
+      if (flags & GETSWITCH_MIDPOS_DELAY)
+        result = SWITCH_POSITION(cs_idx);
+      else
+        result = switchState(cs_idx);
+    }
+#if defined(FUNCTION_SWITCHES)
+    else if (cs_idx - max_reg_pos < switchGetMaxFctSwitches() * 3) {
+      cs_idx -= max_reg_pos;
+      div_t qr = div(cs_idx, 3);
+      auto value = getFSLogicalState(qr.quot);
+      result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
+    }
 #endif
-#if NUM_XPOTS > 0
+    else {
+      result = false;
+    }
+  }
   else if (cs_idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
-    result = POT_POSITION(cs_idx-SWSRC_FIRST_MULTIPOS_SWITCH);
+    result = POT_POSITION(cs_idx - SWSRC_FIRST_MULTIPOS_SWITCH);
   }
-#endif
   else if (cs_idx <= SWSRC_LAST_TRIM) {
     uint8_t idx = cs_idx - SWSRC_FIRST_TRIM;
     idx = (CONVERT_MODE_TRIMS(idx/2) << 1) + (idx & 1);
@@ -593,7 +599,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
 #else
     result = false;
 #endif
-   }
+  }
   else {
     cs_idx -= SWSRC_FIRST_LOGICAL_SWITCH;
     result = lswFm[mixerCurrentFlightMode].lsw[cs_idx].state;
@@ -636,6 +642,7 @@ swsrc_t getMovedSwitch()
   swsrc_t result = 0;
 
   // Switches
+  auto max_reg_switches = switchGetMaxSwitches();
   for (int i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x07 << (i * 3));
@@ -650,13 +657,13 @@ swsrc_t getMovedSwitch()
   }
 
 #if defined(FUNCTION_SWITCHES)
-  for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
+  for (int i = 0; i < switchGetMaxFctSwitches(); i++) {
     if (FSWITCH_CONFIG(i) != SWITCH_NONE) {
       auto prev = (uint8_t )(bfSingleBitGet(fsswitches_states, i) >> (i));
       uint8_t next = getFSLogicalState(i);
       if (prev != next) {
         fsswitches_states = (fsswitches_states & ~(1 << i)) | (next << i);
-        result = SWSRC_FIRST_FUNCTION_SWITCH + i*3 + (next ? 2 : 0);
+        result = (max_reg_switches + i) * 3 + (next ? 2 : 0);
       }
     }
   }
@@ -670,7 +677,7 @@ swsrc_t getMovedSwitch()
         uint8_t prev = potsPos[i] & 0x0F;
         uint8_t next = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
         if (prev != next) {
-          result = MAX_SWITCHES * 3 + i * XPOTS_MULTIPOS_COUNT + next + 1;
+          result = SWSRC_FIRST_MULTIPOS_SWITCH + i * XPOTS_MULTIPOS_COUNT + next;
         }
       }
     }
