@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "simulcd.h"
 #include "switches.h"
+#include "hal/adc_driver.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -35,7 +36,7 @@
 
 #define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
 
-int16_t g_anas[Analogs::NUM_ANALOGS];
+int16_t g_anas[MAX_ANALOG_INPUTS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
 #if defined(HARDWARE_TOUCH)
@@ -243,9 +244,10 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
     case INPUT_SRC_SLIDER :
       setAnalogValue(index + MAX_STICKS, value);
       break;
-    case INPUT_SRC_TXVIN :
-      setAnalogValue(Analogs::TX_VOLTAGE, voltageToAdc(value));
-      break;
+    case INPUT_SRC_TXVIN : {
+      auto idx = adcGetVBAT();
+      if (idx >= 0) setAnalogValue(idx, voltageToAdc(value));
+    } break;
     case INPUT_SRC_SWITCH :
       setSwitch(index, (int8_t)value);
       break;
