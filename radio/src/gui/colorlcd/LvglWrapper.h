@@ -27,6 +27,8 @@
 
 void initLvglTheme();
 
+uint32_t makeLvColor32(uint32_t colorFlags);
+std::string makeRecolor(std::string value, uint32_t colorFlags);
 lv_color_t makeLvColor(uint32_t colorFlags);
 
 typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
