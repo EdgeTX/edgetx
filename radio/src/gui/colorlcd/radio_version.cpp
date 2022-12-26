@@ -258,8 +258,14 @@ class VersionDialog : public Dialog
       char tmp[20];
       
       // PXX2 module name
-      name->setText(getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
-                                      .information.modelID));
+      //name->setText(getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
+      //                                .information.modelID));
+
+      char statusText[64];
+      auto period = getMixerSchedulerRealPeriod(module);
+      auto divider = getMixerSchedulerDivider(module);
+      snprintf(statusText, 64, "pxx2 p:%d d:%d f:%d", period, divider, 1000000/period);
+      name->setText(statusText);
 
       // PXX2 module status
       std::string mod_ver;

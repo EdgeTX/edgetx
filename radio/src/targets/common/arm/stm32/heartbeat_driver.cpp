@@ -21,6 +21,7 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_exti_driver.h"
+#include "opentx.h"
 #include "mixer_scheduler.h"
 #include "board.h"
 #include "debug.h"
@@ -33,6 +34,7 @@
 #include "FreeRTOSConfig.h"
 
 volatile HeartbeatCapture heartbeatCapture;
+volatile static uint16_t lastTimeStamp = 0;
 
 static void trigger_intmodule_heartbeat()
 {
@@ -41,8 +43,18 @@ static void trigger_intmodule_heartbeat()
   heartbeatCapture.count++;
 #endif
 
-  mixerSchedulerResetTimer();
-  mixerSchedulerISRTrigger();
+  //mixerSchedulerResetTimer();
+  //mixerSchedulerISRTrigger();
+
+  uint16_t newRefreshRate = (heartbeatCapture.timestamp - lastTimeStamp)/2;
+  int16_t newInputLag = 0;
+
+  lastTimeStamp = heartbeatCapture.timestamp;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+  
+  status.update(newRefreshRate, newInputLag);
+  status.lastUpdate = get_tmr10ms();
 }
 
 void init_intmodule_heartbeat()

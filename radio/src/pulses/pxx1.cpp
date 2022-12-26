@@ -263,6 +263,14 @@ static void pxx1SetupPulsesInternal(void* context, int16_t* channels, uint8_t nC
   // TODO:
   (void)channels;
   (void)nChannels;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
+  if (status.isValid()) {
+    mixerSchedulerSetPeriod(INTERNAL_MODULE, status.getAdjustedRefreshRate());
+  } else {
+    mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
+  }
+
   intmodulePulsesData.pxx_uart.setupFrame(INTERNAL_MODULE);
 }
 
@@ -322,6 +330,13 @@ static void pxx1SetupPulsesExternal(void* context, int16_t* channels, uint8_t nC
   // TODO:
   (void)channels;
   (void)nChannels;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(EXTERNAL_MODULE);
+  if (status.isValid()) {
+    mixerSchedulerSetPeriod(EXTERNAL_MODULE, status.getAdjustedRefreshRate());
+  } else {
+    mixerSchedulerSetPeriod(EXTERNAL_MODULE, EXTMODULE_PXX1_SERIAL_PERIOD);
+  }
 
   extmodulePulsesData.pxx_uart.setupFrame(EXTERNAL_MODULE);
 }

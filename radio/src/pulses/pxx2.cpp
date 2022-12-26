@@ -734,7 +734,12 @@ static void pxx2SetupPulsesInternal(void* context, int16_t* channels, uint8_t nC
       moduleState[module].mode == MODULE_MODE_POWER_METER) {
     mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
   } else {
-    mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+    ModuleSyncStatus& status = getModuleSyncStatus(module);
+    if (status.isValid()) {
+      mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
+    } else {
+      mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+    }
   }
 }
 
@@ -867,6 +872,14 @@ static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nC
   auto state = (PXX2State*)context;
   auto pulses = state->pulses;
   auto module = state->module;
+
+  ModuleSyncStatus& status = getModuleSyncStatus(module);
+  if (status.isValid()) {
+    mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
+  } else {
+    mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+  }
+
   pulses->setupFrame(module, channels, nChannels);
 }
 
