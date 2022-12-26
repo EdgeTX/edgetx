@@ -171,7 +171,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           lcd->drawText(20, MESSAGE_TOP,
                         LV_SYMBOL_CLOSE TR_BL_DIR_MISSING, BL_FOREGROUND);
         } else {
-          lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE TR_BL_NV14_DIR_EMPTY,
+          lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE TR_BL_DIR_EMPTY,
                         BL_FOREGROUND);
         }
       } else if (st == ST_FLASH_CHECK) {
