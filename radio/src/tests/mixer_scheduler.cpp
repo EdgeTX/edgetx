@@ -24,26 +24,42 @@
 
 TEST(MixerScheduler, MultiModules)
 {
+  // Init: both modules at 250Hz (4000us = MIXER_SCHEDULER_DEFAULT_PERIOD_US)
   mixerSchedulerInit();
+                        
+  EXPECT_EQ(getMixerSchedulerPeriod(), MIXER_SCHEDULER_DEFAULT_PERIOD_US/DOUBLE);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE, 2));
+  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE, 2));
 
-  EXPECT_EQ(getMixerSchedulerPeriod(), MIXER_SCHEDULER_DEFAULT_PERIOD_US);
-
+  // internal module 143Hz
+  // external module 500Hz
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 7000);
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 2000);
 
-  EXPECT_EQ(getMixerSchedulerPeriod(), 2000);
+  EXPECT_EQ(getMixerSchedulerPeriod(), 2000/DOUBLE);
   EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 8000);
   EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 2000);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE, 8));
+  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE, 2));
 
+  // internal module 143Hz
+  // external module 333Hz
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 3003);
 
-  EXPECT_EQ(getMixerSchedulerPeriod(), 3003);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 9009);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 3003);
+  EXPECT_EQ(getMixerSchedulerPeriod(), 3003/DOUBLE);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 7505);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 3002);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE, 5));
+  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE, 2));
 
+
+  // internal module 143Hz
+  // external module 100Hz
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 10000);
 
-  EXPECT_EQ(getMixerSchedulerPeriod(), 7000);
+  EXPECT_EQ(getMixerSchedulerPeriod(), 7000/DOUBLE);
   EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 7000);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 14000);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 10500);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE, 2));
+  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE, 3));
 }
