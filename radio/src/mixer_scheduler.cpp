@@ -92,7 +92,7 @@ uint16_t getMixerSchedulerPeriod()
       sched.divider = sched.period / sync_period;
 
       // round up if period is not a multiple of sync_period
-      if(sched.divider % sync_period)    
+      if(sched.period % sync_period)    
         sched.divider++;
     }
   }
