@@ -88,8 +88,13 @@ uint16_t getMixerSchedulerPeriod()
     auto& sched = mixerSchedules[module];
     if(module == synced_module)
       sched.divider = DOUBLE;
-    else
-      sched.divider = sched.period / sync_period + 1;
+    else {
+      sched.divider = sched.period / sync_period;
+
+      // round up if period is not a multiple of sync_period
+      if(sched.divider % sync_period)    
+        sched.divider++;
+    }
   }
 
   _syncedModule = synced_module;
