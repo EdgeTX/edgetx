@@ -758,6 +758,7 @@
 #define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
+#define TR_LOADING             "Ładowanie..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"

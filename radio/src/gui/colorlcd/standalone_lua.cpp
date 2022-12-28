@@ -56,6 +56,8 @@ StandaloneLuaWindow::StandaloneLuaWindow() :
     lcdBuffer(BMP_RGB565, LCD_W, LCD_H),
     popup({50, 73, LCD_W - 100, LCD_H - 146})
 {
+  lcdBuffer.clear();
+  lcdBuffer.drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING, FONT(L)|COLOR_THEME_PRIMARY2|CENTERED);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 

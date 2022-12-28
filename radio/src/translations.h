@@ -724,6 +724,7 @@ extern const char STR_MODULES_RX_VERSION[];
 extern const char STR_LEFT_STICK[];
 extern const char STR_SHOW_MIXER_MONITORS[];
 extern const char STR_MODEL_QUICK_SELECT[];
+extern const char STR_LOADING[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
