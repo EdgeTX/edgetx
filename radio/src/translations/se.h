@@ -40,7 +40,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av","+=",":="
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                      "Ingen", "2 pos flipp","2 pos","3 pos"
@@ -386,7 +386,7 @@
   #define TR_CHECKTRIMS                 "Kolla FL-trimmar"
 #else
   #define TR_CHECKTRIMS                 CENTER "\006Kolla\012trimmar"
-#endif 
+#endif
 #define OFS_CHECKTRIMS                  CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                    "Swashtyp"
 #define TR_COLLECTIVE                   "Kollektiv"
@@ -802,6 +802,7 @@
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
+#define TR_LOADING                      "Laddar..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"

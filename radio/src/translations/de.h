@@ -39,7 +39,7 @@
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
 #define TR_TRNMODE                     "AUS","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
 #define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste")
 #define TR_SLIDERTYPES                 "Keine","Schieber"
@@ -760,8 +760,8 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_MAXBAUDRATE                 "Max Baud"
 #define TR_SAMPLE_MODE                 "Abtastmodus"
-
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+#define TR_LOADING                     "Wird geladen..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
@@ -836,8 +836,8 @@
 #define TR_WRITING                     "Schreibe..."
 #define TR_CONFIRM_FORMAT              "Formatieren bestätigen?"
 #define TR_INTERNALRF                  "Internes HF-Modul"
-#define TR_INTERNAL_MODULE             TR("Int. module","Internal module")
-#define TR_EXTERNAL_MODULE             TR("Ext. module","External module")
+#define TR_INTERNAL_MODULE             TR("Int. Modul", "Internes Modul")
+#define TR_EXTERNAL_MODULE             TR("Ext. Modul", "Externes Modul")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade nötig"
 #define TR_TELEMETRY_DISABLED          "Deaktiv. Telem."  //more chars doesn't fit on QX7
 #define TR_MORE_OPTIONS_AVAILABLE      "mehr Optionen verfügbar"
@@ -888,7 +888,7 @@
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Speicher (SD)"
 #define TR_USB_SERIAL                  "USB Seriell (VCP)"
-#define TR_SETUP_SCREENS               "Setup Hautbildschirme"
+#define TR_SETUP_SCREENS               "Setup Hauptbildschirme"
 #define TR_MONITOR_SCREENS             "Monitore Mischer Kanal Logik"
 #define TR_AND_SWITCH                  "UND Schalt" // UND mit weiterem Schaltern
 #define TR_SF                          "SF" // Spezial Funktionen
@@ -1130,7 +1130,7 @@
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"
 #define TR_CONFIRMDELETE               "Wirklich alle " LCDW_128_480_LINEBREAK "löschen ?"
 #define TR_SELECT_WIDGET               "Widget auswählen"  // grafisches Element
-#define TR_WIDGET_FULLSCREEN           "Full screen"
+#define TR_WIDGET_FULLSCREEN           "Vollbild"
 #define TR_REMOVE_WIDGET               "Widget löschen"
 #define TR_WIDGET_SETTINGS             "Widget einstellen"
 #define TR_REMOVE_SCREEN               "Seite löschen"

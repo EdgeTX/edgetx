@@ -38,7 +38,7 @@
 #define TR_VBLMODE             TR("Wył","Wyłącz"),TR("Przy","Przycisk"),TR("Drąż","Drązki"),"Oba",TR("Zał","Włącz")
 #define TR_TRNMODE             "Wył","+=",":="
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
-#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
 #define TR_POTTYPES             TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr")
 #define TR_SLIDERTYPES         "Brak","Suwak"
@@ -758,6 +758,7 @@
 #define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
+#define TR_LOADING             "Ładowanie..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
@@ -832,8 +833,8 @@
 #define TR_WRITING                     "Zapis...  "
 #define TR_CONFIRM_FORMAT              "Zatwierdź Format?"
 #define TR_INTERNALRF                  "Wewn.Moduł RF"
-#define TR_INTERNAL_MODULE             TR("Int. module","Internal module")
-#define TR_EXTERNAL_MODULE             TR("Ext. module","External module")
+#define TR_INTERNAL_MODULE             TR("Moduł wewn.", "Moduł wewnętrzny")
+#define TR_EXTERNAL_MODULE             TR("Moduł zewn.", "Moduł zewnętrzny")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade required"
 #define TR_TELEMETRY_DISABLED          "Telem. disabled"
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"

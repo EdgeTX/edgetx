@@ -40,7 +40,7 @@
 #define TR_VBLMODE                     "OFF",TR("Btns","Touches"),TR("Ctrl","Controles"),"Tous","ON"
 #define TR_TRNMODE                     "OFF","+=",":="
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "OFF","Recopie Telem","Télémétrie In","Ecolage SBUS","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse"
+#define TR_AUX_SERIAL_MODES            "OFF","Recopie Telem","Télémétrie In","Ecolage SBUS","Bluetooth","LUA","CLI","GPS","Debug","SpaceMouse","Module externe"
 #define TR_SWTYPES                     "Rien","Levier","2-POS","3-POS"
 #define TR_POTTYPES                    "Rien",TR("Pot av. ctr","Pot avec centre"),TR("Multipos","Inter multi-pos""Potentiomètre"),TR("Pot","Potentiomètre")
 #define TR_SLIDERTYPES                 "Rien","Slider"
@@ -782,6 +782,7 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal""OneBit"
+#define TR_LOADING                     "Loading..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"
