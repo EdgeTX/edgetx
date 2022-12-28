@@ -54,8 +54,8 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 struct MixerSchedule {
 
   // period in us
-  volatile uint16_t period;
-  volatile uint16_t divider;
+  volatile uint16_t period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+  volatile uint16_t divider = DOUBLE;
 };
 
 static MixerSchedule mixerSchedules[NUM_MODULES]; 
@@ -89,11 +89,15 @@ uint16_t getMixerSchedulerPeriod()
     if(module == synced_module)
       sched.divider = DOUBLE;
     else {
-      sched.divider = sched.period / sync_period;
+      if(sched.period == 0)
+        sched.divider = DOUBLE;
+      else {
+        sched.divider = sched.period / sync_period;
 
-      // round up if period is not a multiple of sync_period
-      if(sched.period % sync_period)    
-        sched.divider++;
+        //round up if period is not a multiple of sync_period
+        if(sched.period % sync_period)    
+          sched.divider++;
+      }
     }
   }
 
