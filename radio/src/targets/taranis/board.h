@@ -833,31 +833,6 @@ void hapticOff();
 
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
 
-// BT driver
-#define BLUETOOTH_BOOTLOADER_BAUDRATE   230400
-#define BLUETOOTH_DEFAULT_BAUDRATE      115200
-#if defined(PCBX9E)
-#define BLUETOOTH_FACTORY_BAUDRATE      9600
-#else
-#define BLUETOOTH_FACTORY_BAUDRATE      57600
-#endif
-#define BT_TX_FIFO_SIZE    64
-#define BT_RX_FIFO_SIZE    256
-void bluetoothInit(uint32_t baudrate, bool enable);
-void bluetoothWriteWakeup();
-uint8_t bluetoothIsWriting();
-void bluetoothDisable();
-#if defined(PCBX9LITES) || defined(PCBX7ACCESS)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#elif defined(PCBX9LITE)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (false)
-#elif defined(BLUETOOTH_PROBE) && !defined(SIMU)
-  extern volatile uint8_t btChipPresent;
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (btChipPresent)
-#else
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#endif
-
 // USB Charger
 #if defined(USB_CHARGER)
 void usbChargerInit();
@@ -970,7 +945,7 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
   #define BATTERY_DIVIDER 39500
 #else
   #define BATTERY_DIVIDER 26214
-#endif 
+#endif
 
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
   #define VOLTAGE_DROP 45

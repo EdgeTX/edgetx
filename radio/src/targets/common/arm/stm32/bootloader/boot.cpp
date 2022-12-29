@@ -83,7 +83,7 @@ void interrupt10ms()
 #if defined(DEBUG)
   g_tmr10ms++;
 #endif
-  
+
   uint8_t index = 0;
   uint32_t in = readKeys();
 
@@ -267,7 +267,7 @@ void bootloaderInitApp()
 #endif
 
   delaysInit(); // needed for lcdInit()
-  
+
 #if defined(DEBUG)
   initSerialPorts();
 #endif
@@ -275,11 +275,6 @@ void bootloaderInitApp()
   __enable_irq();
 
   TRACE("\nBootloader started :)");
-
-#if defined(BLUETOOTH)
-  // we shutdown the bluetooth module now to be sure it will be detected on firmware start
-  bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
-#endif
 
 #if defined(EEPROM) && defined(EEPROM_RLC)
   eepromInit();

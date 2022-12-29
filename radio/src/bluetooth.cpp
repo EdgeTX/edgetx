@@ -33,15 +33,8 @@
 extern FIL g_bluetoothFile;
 #endif
 
-#if defined(PCBX9E)
-#define BLUETOOTH_COMMAND_NAME         "TTM:REN-"
-#define BLUETOOTH_ANSWER_NAME          "TTM:REN"
-#define BLUETOOTH_COMMAND_BAUD_115200  "TTM:BPS-115200"
-#else
 #define BLUETOOTH_COMMAND_NAME         "AT+NAME"
 #define BLUETOOTH_ANSWER_NAME          "OK+"
-#define BLUETOOTH_COMMAND_BAUD_115200  "AT+BAUD115200"
-#endif
 
 #if defined(_MSC_VER)
   #define SWAP32(val)      (_byteswap_ulong(val))
@@ -49,69 +42,67 @@ extern FIL g_bluetoothFile;
   #define SWAP32(val)      (__builtin_bswap32(val))
 #endif
 
-extern Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
-extern Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
-
 Bluetooth bluetooth;
+const etx_serial_driver_t* btSerialDrv = nullptr;
+void* btSerialCtx = nullptr;
+
+void bluetoothEnable(bool enable)
+{
+#if defined(BT_EN_GPIO)
+if(enable)
+  GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+else
+  GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+#endif
+}
+
+void bluetoothSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
+{
+  btSerialCtx = ctx;
+  btSerialDrv = drv;
+}
 
 void Bluetooth::write(const uint8_t * data, uint8_t length)
 {
-  if (btTxFifo.hasSpace(length)) {
-    BLUETOOTH_TRACE_VERBOSE("BT>");
-    for (int i = 0; i < length; i++) {
-      BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
-      btTxFifo.push(data[i]);
-    }
-    BLUETOOTH_TRACE_VERBOSE(CRLF);
-  }
-  else {
-    BLUETOOTH_TRACE("[BT] TX fifo full!" CRLF);
-  }
+  if (!btSerialDrv) return;
+  auto _sendByte = btSerialDrv->sendByte;
+  if (!_sendByte) return;
 
-  bluetoothWriteWakeup();
+  for (int i = 0; i < length; i++) {
+      BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
+      _sendByte(btSerialCtx, data[i]);
+  }
 }
 
 void Bluetooth::writeString(const char * str)
 {
+  if (!btSerialDrv) return;
+  auto _sendByte = btSerialDrv->sendByte;
+  if (!_sendByte) return;
+
   BLUETOOTH_TRACE("BT> %s" CRLF, str);
   while (*str != 0) {
-    btTxFifo.push(*str++);
+    _sendByte(btSerialCtx, *str++);
   }
-  btTxFifo.push('\r');
-  btTxFifo.push('\n');
-  bluetoothWriteWakeup();
+  _sendByte(btSerialCtx, '\r');
+  _sendByte(btSerialCtx, '\n');
 }
 
 char * Bluetooth::readline(bool error_reset)
 {
+  if (!btSerialDrv) return nullptr;
+
+  auto _getByte = btSerialDrv->getByte;
+  if (!_getByte) return nullptr;
+
   uint8_t byte;
 
   while (true) {
-    if (!btRxFifo.pop(byte)) {
-#if defined(PCBX9E)
-      // X9E BT module can get unresponsive
-      BLUETOOTH_TRACE("NO RESPONSE FROM BT MODULE" CRLF);
-#endif
+    if (!_getByte(btSerialCtx, &byte)) {
       return nullptr;
     }
 
     BLUETOOTH_TRACE_VERBOSE("%02X ", byte);
-
-#if 0
-    if (error_reset && byte == 'R' && bufferIndex == 4 && memcmp(buffer, "ERRO", 4)) {
-#if defined(PCBX9E)  // X9E enter BT reset loop if following code is implemented
-      BLUETOOTH_TRACE("BT Error..." CRLF);
-#else
-      BLUETOOTH_TRACE("BT Reset..." CRLF);
-      bufferIndex = 0;
-      bluetoothDisable();
-      state = BLUETOOTH_STATE_OFF;
-      wakeupTime = get_tmr10ms() + 100; /* 1s */
-#endif
-      return nullptr;
-    }
-    else
-#endif
 
     if (byte == '\n') {
       if (bufferIndex > 2 && buffer[bufferIndex-1] == '\r') {
@@ -119,14 +110,10 @@ char * Bluetooth::readline(bool error_reset)
         bufferIndex = 0;
         BLUETOOTH_TRACE("BT< %s" CRLF, buffer);
         if (error_reset && !strcmp((char *)buffer, "ERROR")) {
-#if defined(PCBX9E) // X9E enter BT reset loop if following code is implemented
-          BLUETOOTH_TRACE("BT Error..." CRLF);
-#else
           BLUETOOTH_TRACE("BT Reset..." CRLF);
-          bluetoothDisable();
+          bluetoothEnable(false);
           state = BLUETOOTH_STATE_OFF;
           wakeupTime = get_tmr10ms() + 100; /* 1s */
-#endif
           return nullptr;
         }
         else {
@@ -165,7 +152,7 @@ void Bluetooth::appendTrainerByte(uint8_t data)
     buffer[bufferIndex++] = data;
     // we check for "DisConnected", but the first byte could be altered (if received in state STATE_DATA_XOR)
     if (data == '\n') {
-      if (bufferIndex >= 13) {      
+      if (bufferIndex >= 13) {
         if (!strncmp((char *)&buffer[bufferIndex-13], "isConnected", 11)) {
           BLUETOOTH_TRACE("BT< DisConnected" CRLF);
           state = BLUETOOTH_STATE_DISCONNECTED;
@@ -217,7 +204,7 @@ void Bluetooth::processTrainerByte(uint8_t data)
           bufferIndex = 0;
           dataState = STATE_DATA_IN_FRAME;
           break;
-        default:  
+        default:
           // Illegal situation, start looking for a new START_STOP byte
           dataState = STATE_DATA_START;
           break;
@@ -324,10 +311,14 @@ void Bluetooth::forwardTelemetry(const uint8_t * packet)
 
 void Bluetooth::receiveTrainer()
 {
+  if (!btSerialDrv) return;
+  auto _getByte = btSerialDrv->getByte;
+  if (!_getByte) return;
+
   uint8_t byte;
 
   while (true) {
-    if (!btRxFifo.pop(byte)) {
+    if (!_getByte(btSerialCtx, &byte)) {
       return;
     }
 
@@ -345,73 +336,13 @@ void Bluetooth::receiveTrainer()
   }
 }
 
-#if defined(PCBX9E)
-void Bluetooth::wakeup(void)
-{
-#if !defined(SIMU)
-  if (!g_eeGeneral.bluetoothMode) {
-    if (state != BLUETOOTH_INIT) {
-      bluetoothDisable();
-      state = BLUETOOTH_INIT;
-    }
-  }
-  else {
-    static tmr10ms_t waitEnd = 0;
-    if (state != BLUETOOTH_STATE_IDLE) {
-      if (state == BLUETOOTH_INIT) {
-        bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
-        char command[32];
-        char * cur = strAppend(command, BLUETOOTH_COMMAND_NAME);
-        uint8_t len = ZLEN(g_eeGeneral.bluetoothName);
-        if (len > 0) {
-          for (int i = 0; i < len; i++) {
-            *cur++ = char2lower(g_eeGeneral.bluetoothName[i]);
-          }
-          *cur = '\0';
-        }
-        else {
-          cur = strAppend(cur, FLAVOUR);
-        }
-        writeString(command);
-        state = BLUETOOTH_WAIT_TTM;
-        waitEnd = get_tmr10ms() + 25; // 250ms
-      }
-      else if (state == BLUETOOTH_WAIT_TTM) {
-        if (get_tmr10ms() > waitEnd) {
-          char * line = readline();
-          if (strncmp(line, "OK+", 3)) {
-            state = BLUETOOTH_STATE_IDLE;
-          }
-          else {
-            bluetoothInit(BLUETOOTH_FACTORY_BAUDRATE, true);
-            writeString("TTM:BPS-115200");
-            state = BLUETOOTH_WAIT_BAUDRATE_CHANGE;
-            waitEnd = get_tmr10ms() + 250; // 2.5s
-          }
-        }
-      }
-      else if (state == BLUETOOTH_WAIT_BAUDRATE_CHANGE) {
-        if (get_tmr10ms() > waitEnd) {
-          state = BLUETOOTH_INIT;
-        }
-      }
-    }
-    else if (IS_BLUETOOTH_TRAINER()){
-      state = BLUETOOTH_STATE_CONNECTED;
-      bluetoothWriteWakeup();
-      sendTrainer();
-    }
-  }
-#endif
-}
-#else // PCBX9E
 void Bluetooth::wakeup()
 {
   if (state != BLUETOOTH_STATE_OFF) {
-    bluetoothWriteWakeup();
-    if (bluetoothIsWriting()) {
-      return;
-    }
+    //bluetoothWriteWakeup();
+    //if (bluetoothIsWriting()) {
+    //  return;
+   // }
   }
 
   tmr10ms_t now = get_tmr10ms();
@@ -421,19 +352,14 @@ void Bluetooth::wakeup()
 
   wakeupTime = now + 5; /* 50ms default */
 
-  if (state == BLUETOOTH_STATE_FLASH_FIRMWARE) {
-    return;
-  }
-
   if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF || (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER && !IS_BLUETOOTH_TRAINER())) {
     if (state != BLUETOOTH_STATE_OFF) {
-      bluetoothDisable();
+      bluetoothEnable(false);
       state = BLUETOOTH_STATE_OFF;
     }
     wakeupTime = now + 10; /* 100ms */
   }
   else if (state == BLUETOOTH_STATE_OFF) {
-    bluetoothInit(BLUETOOTH_FACTORY_BAUDRATE, true);
     state = BLUETOOTH_STATE_FACTORY_BAUDRATE_INIT;
   }
 
@@ -443,7 +369,6 @@ void Bluetooth::wakeup()
     wakeupTime = now + 10; /* 100ms */
   }
   else if (state == BLUETOOTH_STATE_BAUDRATE_SENT) {
-    bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
     state = BLUETOOTH_STATE_BAUDRATE_INIT;
     readline(false);
     wakeupTime = now + 10; /* 100ms */
@@ -547,314 +472,4 @@ void Bluetooth::wakeup()
       wakeupTime = now + 200; /* 2s */
     }
   }
-}
-#endif
-
-uint8_t Bluetooth::bootloaderChecksum(uint8_t command, const uint8_t * data, uint8_t size)
-{
-  uint8_t sum = command;
-  for (uint8_t i = 0; i < size; i++) {
-    sum += data[i];
-  }
-  return sum;
-}
-
-uint8_t Bluetooth::read(uint8_t * data, uint8_t size, uint32_t timeout)
-{
-  watchdogSuspend(timeout / 10);
-
-  uint8_t len = 0;
-  while (len < size) {
-    uint32_t elapsed = 0;
-    uint8_t byte;
-    while (!btRxFifo.pop(byte)) {
-      if (elapsed++ >= timeout) {
-        return len;
-      }
-      RTOS_WAIT_MS(1);
-    }
-    data[len++] = byte;
-  }
-  return len;
-}
-
-#define BLUETOOTH_ACK   0xCC
-#define BLUETOOTH_NACK  0x33
-
-const char * Bluetooth::bootloaderWaitCommandResponse(uint32_t timeout)
-{
-  uint8_t response[2];
-  if (read(response, sizeof(response), timeout) != sizeof(response)) {
-    return "Bluetooth timeout";
-  }
-
-  if (response[0] != 0x00) {
-    return "Bluetooth error";
-  }
-
-  if (response[1] == BLUETOOTH_ACK || response[1] == BLUETOOTH_NACK) {
-    return nullptr;
-  }
-
-  return "Bluetooth error";
-}
-
-const char * Bluetooth::bootloaderWaitResponseData(uint8_t *data, uint8_t size)
-{
-  uint8_t header[2];
-  if (read(header, 2) != 2) {
-    return "Bluetooth timeout";
-  }
-
-  uint8_t len = header[0] - 2;
-  uint8_t checksum = header[1];
-
-  if (len > size) {
-    return "Bluetooth error";
-  }
-
-  if (read(data, len) != len) {
-    return "Bluetooth timeout";
-  }
-
-  if (bootloaderChecksum(0, data, len) != checksum) {
-    return "Bluetooth CRC error";
-  }
-
-  return nullptr;
-}
-
-const char * Bluetooth::bootloaderSetAutoBaud()
-{
-  uint8_t packet[2] = {
-    0x55,
-    0x55
-  };
-  write(packet, sizeof(packet));
-  return bootloaderWaitCommandResponse();
-}
-
-void Bluetooth::bootloaderSendCommand(uint8_t command, const void *data, uint8_t size)
-{
-  uint8_t packet[3] = {
-    uint8_t(3 + size),
-    bootloaderChecksum(command, (uint8_t *) data, size),
-    command
-  };
-  write(packet, sizeof(packet));
-  if (size > 0) {
-    write((uint8_t *)data, size);
-  }
-}
-
-void Bluetooth::bootloaderSendCommandResponse(uint8_t response)
-{
-  uint8_t packet[2] = {
-    0x00,
-    response
-  };
-  write(packet, sizeof(packet));
-}
-
-enum {
-  CMD_DOWNLOAD = 0x21,
-  CMD_GET_STATUS = 0x23,
-  CMD_SEND_DATA = 0x24,
-  CMD_SECTOR_ERASE = 0x26,
-  CMD_GET_CHIP_ID = 0x28,
-};
-
-enum {
-  CMD_RET_SUCCESS = 0x40,
-};
-
-constexpr uint32_t CC26XX_BOOTLOADER_SIZE = 0x00001000;
-constexpr uint32_t CC26XX_FIRMWARE_BASE = CC26XX_BOOTLOADER_SIZE;
-
-constexpr uint32_t CC26XX_PAGE_ERASE_SIZE = 0x1000;
-constexpr uint32_t CC26XX_MAX_BYTES_PER_TRANSFER = 252;
-
-const char * Bluetooth::bootloaderSendData(const uint8_t * data, uint8_t size)
-{
-  bootloaderSendCommand(CMD_SEND_DATA, data, size);
-  return bootloaderWaitCommandResponse();
-}
-
-const char * Bluetooth::bootloaderReadStatus(uint8_t &status)
-{
-  bootloaderSendCommand(CMD_GET_STATUS);
-  const char * result = bootloaderWaitCommandResponse();
-  if (result)
-    return result;
-  result = bootloaderWaitResponseData(&status, 1);
-  bootloaderSendCommandResponse(result == nullptr ? BLUETOOTH_ACK : BLUETOOTH_NACK);
-  return result;
-}
-
-const char * Bluetooth::bootloaderCheckStatus()
-{
-  uint8_t status;
-  const char * result = bootloaderReadStatus(status);
-  if (result)
-    return result;
-  if (status != CMD_RET_SUCCESS)
-    return "Wrong status";
-  return nullptr;
-}
-
-const char * Bluetooth::bootloaderEraseFlash(uint32_t start, uint32_t size)
-{
-  uint32_t address = start;
-  uint32_t end = start + size;
-  while (address < end) {
-    uint32_t addressBigEndian = SWAP32(address);
-    bootloaderSendCommand(CMD_SECTOR_ERASE, &addressBigEndian, sizeof(addressBigEndian));
-    const char * result = bootloaderWaitCommandResponse();
-    if (result)
-      return result;
-    result = bootloaderCheckStatus();
-    if (result)
-      return result;
-    address += CC26XX_PAGE_ERASE_SIZE;
-  }
-  return nullptr;
-}
-
-const char * Bluetooth::bootloaderStartWriteFlash(uint32_t start, uint32_t size)
-{
-  uint32_t cmdArgs[2] = {
-    SWAP32(start),
-    SWAP32(size),
-  };
-  bootloaderSendCommand(CMD_DOWNLOAD, cmdArgs, sizeof(cmdArgs));
-  const char * result = bootloaderWaitCommandResponse();
-  if (result)
-    return result;
-  result = bootloaderCheckStatus();
-  if (result)
-    return result;
-  return result;
-}
-
-const char * Bluetooth::bootloaderWriteFlash(const uint8_t * data, uint32_t size)
-{
-  while (size > 0) {
-    uint32_t len = min<uint32_t>(size, CC26XX_MAX_BYTES_PER_TRANSFER);
-    const char * result = bootloaderSendData(data, len);
-    if (result)
-      return result;
-    result = bootloaderCheckStatus();
-    if (result)
-      return result;
-    data += len;
-    size -= len;
-  }
-  return nullptr;
-}
-
-const char * Bluetooth::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
-{
-  const char * result;
-  FIL file;
-  uint8_t buffer[CC26XX_MAX_BYTES_PER_TRANSFER * 4];
-  UINT count;
-
-  // Dummy command
-  bootloaderSendCommand(0);
-  result = bootloaderWaitCommandResponse(0);
-  if (result)
-    result = bootloaderSetAutoBaud();
-  if (result)
-    return result;
-
-  // Get chip ID
-  bootloaderSendCommand(CMD_GET_CHIP_ID);
-  result = bootloaderWaitCommandResponse();
-  if (result)
-    return result;
-  uint8_t id[4];
-  result = bootloaderWaitResponseData(id, 4);
-  bootloaderSendCommandResponse(result == nullptr ? BLUETOOTH_ACK : BLUETOOTH_NACK);
-
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
-  }
-
-  FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *)buffer;
-  if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
-    f_close(&file);
-    return "Format error";
-  }
-
-  progressHandler(getBasename(filename), STR_FLASH_ERASE, 0, 0);
-
-  result = bootloaderEraseFlash(CC26XX_FIRMWARE_BASE, information->size);
-  if (result) {
-    f_close(&file);
-    return result;
-  }
-
-  uint32_t size = information->size;
-  progressHandler(getBasename(filename), STR_FLASH_WRITE, 0, size);
-
-  result = bootloaderStartWriteFlash(CC26XX_FIRMWARE_BASE, size);
-  if (result)
-    return result;
-
-  uint32_t done = 0;
-  while (1) {
-    progressHandler(getBasename(filename), STR_FLASH_WRITE, done, size);
-    if (f_read(&file, buffer, min<uint32_t>(sizeof(buffer), size - done), &count) != FR_OK) {
-      f_close(&file);
-      return "Error reading file";
-    }
-    result = bootloaderWriteFlash(buffer, count);
-    if (result)
-      return result;
-    done += count;
-    if (done >= size) {
-      f_close(&file);
-      return nullptr;
-    }
-  }
-}
-
-const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler progressHandler)
-{
-  progressHandler(getBasename(filename), STR_MODULE_RESET, 0, 0);
-
-  state = BLUETOOTH_STATE_FLASH_FIRMWARE;
-
-  pausePulses();
-
-  bluetoothInit(BLUETOOTH_BOOTLOADER_BAUDRATE, true); // normal mode
-  watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
-
-  bluetoothInit(BLUETOOTH_BOOTLOADER_BAUDRATE, false); // bootloader mode
-  watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
-
-  const char * result = doFlashFirmware(filename, progressHandler);
-
-  AUDIO_PLAY(AU_SPECIAL_SOUND_BEEP1 );
-  BACKLIGHT_ENABLE();
-
-  if (result) {
-    POPUP_WARNING(STR_FIRMWARE_UPDATE_ERROR, result);
-  }
-  else {
-    POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
-  }
-
-  progressHandler(getBasename(filename), STR_MODULE_RESET, 0, 0);
-
-  /* wait 1s off */
-  watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
-
-  state = BLUETOOTH_STATE_OFF;
-  resumePulses();
-
-  return result;
 }

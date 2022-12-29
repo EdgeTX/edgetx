@@ -77,7 +77,7 @@ static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
 {
   int gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
-  
+
   if ((val_len == 4)
       && (val[0] == '-')
       && (val[1] == 'G')
@@ -146,7 +146,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       if (!val_len) return MIXSRC_NONE;
       val++; val_len--;
-      
+
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_LUA +
              script * MAX_SCRIPT_OUTPUTS;
@@ -168,7 +168,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_TRAINER;
-      
+
     } else if (val_len > 3 &&
                val[0] == 'c' &&
                val[1] == 'h' &&
@@ -177,7 +177,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
-      
+
     } else if (val_len > 3 &&
                val[0] == 'g' &&
                val[1] == 'v' &&
@@ -239,7 +239,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 #if defined(LUA_INPUTS)
     else if (val >= MIXSRC_FIRST_LUA
              && val <= MIXSRC_LAST_LUA) {
-      
+
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
 
@@ -486,7 +486,7 @@ static uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
 
   if (sensor->type == TELEM_TYPE_CALCULATED)
     return 2; // formula
-  
+
   return 1; // instance
 }
 
@@ -509,7 +509,7 @@ static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
       return 0; // custom
     }
   }
-  
+
   return 5;
 }
 
@@ -524,7 +524,7 @@ static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
   if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
     return -1;
   }
-  
+
   return (uint32_t)yaml_str2int(val, val_len);
 }
 
@@ -830,7 +830,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
              && val[0] == 'F'
              && val[1] == 'M'
              && (val[2] >= '0' && val[2] <= '9')) {
-        
+
         ival = SWSRC_FIRST_FLIGHT_MODE + (val[2] - '0');
     }
     else if (val_len >= 2
@@ -893,7 +893,7 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
         str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
         return wf(opaque,str, strlen(str));
     }
-    
+
     str = yaml_output_enum(sval, enum_SwitchSources);
     return wf(opaque, str, strlen(str));
 }
@@ -1152,10 +1152,10 @@ static void r_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
   }
 
   if (!type) return;
-  
+
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
-  
+
   data -= sizeof(TelemetryScreenData) * idx + 1;
   *data = (*data & ~(0x03 << (2 * idx))) | (type << (2 * idx));
 }
@@ -1208,8 +1208,8 @@ static bool w_tele_sensor(const YamlNode* node, uint32_t val,
   if (!val) {
     return wf(opaque, "none", 4);
   }
-  
-  const char* str = yaml_unsigned2str(val-1);  
+
+  const char* str = yaml_unsigned2str(val-1);
   return wf(opaque, str, strlen(str));
 }
 
@@ -1272,7 +1272,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // value
     CFN_PARAM(cfn) = yaml_str2int_ref(val, val_len);
   }
-  
+
   // find "," and cut val_len
   const char* sep = (const char *)memchr(val, ',', val_len);
   uint8_t l_sep = sep ? sep - val : val_len;
@@ -1332,7 +1332,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
     }
     break;
-      
+
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
@@ -1398,7 +1398,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
 #if defined(COLORLCD)
   case FUNC_SET_SCREEN:
-#endif  
+#endif
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
@@ -1538,7 +1538,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     }
     if (!wf(opaque, str, strlen(str))) return false;
     break;
-      
+
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
@@ -1590,7 +1590,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // output CFN_GVAR_MODE
     str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;    
+    if (!wf(opaque,",",1)) return false;
 
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
@@ -1666,7 +1666,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
   switch(lswFamily(ls->func)) {
-  
+
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
     ls->v1 = r_swtchSrc(nullptr, val, l_sep);
@@ -1693,7 +1693,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
       ls->v3 = t - ls->v2;
     }
     break;
-    
+
   case LS_FAMILY_COMP:
     ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
@@ -1701,7 +1701,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     ls->v2 = r_mixSrcRaw(nullptr, val, val_len);
     break;
-    
+
   case LS_FAMILY_TIMER:
     ls->v1 = timerValue2lsw(yaml_str2uint(val, l_sep));
     val += l_sep; val_len -= l_sep;
@@ -1709,7 +1709,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
     ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
     break;
-    
+
   default:
     ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
@@ -1735,7 +1735,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   const char* str = nullptr;
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
   switch(lswFamily(ls->func)) {
-  
+
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
     if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
@@ -1758,13 +1758,13 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
     }
     break;
-    
+
   case LS_FAMILY_COMP:
     if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     if (!w_mixSrcRaw(nullptr, ls->v2, wf, opaque)) return false;
     break;
-    
+
   case LS_FAMILY_TIMER:
     str = yaml_unsigned2str(lswTimerValue(ls->v1));
     if (!wf(opaque,str,strlen(str))) return false;
@@ -1772,7 +1772,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_unsigned2str(lswTimerValue(ls->v2));
     if (!wf(opaque,str,strlen(str))) return false;
     break;
-    
+
   default:
     if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
@@ -1883,7 +1883,7 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     md->subType = yaml_parse_enum(enum_DSM2_Subtypes, val, val_len);
   } else {
     md->subType = yaml_str2uint(val, val_len);
-  }  
+  }
 }
 
 static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1939,7 +1939,7 @@ static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t v
 bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
   // offset 8
-  int32_t sval = yaml_to_signed(val, node->size) + 8;  
+  int32_t sval = yaml_to_signed(val, node->size) + 8;
   const char* str = yaml_signed2str(sval);
   return wf(opaque,str,strlen(str));
 }
@@ -1987,6 +1987,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_TELEMETRY_MIRROR, "TELEMETRY_MIRROR"  },
   {  UART_MODE_TELEMETRY, "TELEMETRY_IN"  },
   {  UART_MODE_SBUS_TRAINER, "SBUS_TRAINER"  },
+  {  UART_MODE_BLUETOOTH, "BLUETOOTH"  },
   {  UART_MODE_LUA, "LUA"  },
   {  UART_MODE_CLI, "CLI"  },
   {  UART_MODE_GPS, "GPS"  },
@@ -2040,7 +2041,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
 
   auto m = yaml_parse_enum(_old_enum_UartModes, val, val_len);
   if (!m) return;
-  
+
   auto serialPort = reinterpret_cast<uint32_t*>(data);
   *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
                 (m << port_nr * SERIAL_CONF_BITS_PER_PORT);

@@ -338,6 +338,7 @@ elseif(PCB STREQUAL X9LITE)
   set(LUA_EXPORT lua_export_x9lite)
   set(FLAVOUR x9lite)
   add_definitions(-DBOARD_NAME="x9lite")
+  add_definitions(-DRADIO_X9LITE)
   add_definitions(-DPCBX9LITE -DPCBX9 -DSOFTWARE_VOLUME -DHARDWARE_POWER_MANAGEMENT_UNIT)
   add_definitions(-DEEPROM_VARIANT=0x0800)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -501,16 +502,16 @@ if(USB_CHARGER)
 endif()
 
 if(BLUETOOTH)
+  set(AUX_SERIAL YES) # Bluetooth is now an Aux_Serial
   add_definitions(-DBLUETOOTH)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp)
   set(SRC
     ${SRC}
     bluetooth.cpp)
   if(NOT PCB STREQUAL X9E)
     # Bluetooth on X9E is compatible with almost nothing
     add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
+  else()
+    set(AUX2_SERIAL YES) # X9E uses Aux2 Serial
   endif()
 endif()
 

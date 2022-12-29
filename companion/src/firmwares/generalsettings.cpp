@@ -496,6 +496,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("Telemetry In");
     case AUX_SERIAL_SBUS_TRAINER:
       return tr("SBUS Trainer");
+    case AUX_SERIAL_BLUETOOTH:
+      return tr("Bluetooth");
     case AUX_SERIAL_LUA:
       return tr("LUA");
     case AUX_SERIAL_CLI:

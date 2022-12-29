@@ -81,7 +81,7 @@ extern "C" void dbgSerialPrintf(const char * format, ...)
 
   // no need to do anything if we don't have an output
   if (!dbg_serial_putc) return;
-  
+
   va_start(arglist, format);
   vsnprintf(tmp, PRINTF_BUFFER_SIZE, format, arglist);
   tmp[PRINTF_BUFFER_SIZE] = '\0';
@@ -157,7 +157,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       getByte = drv->getByte;
       setRxCb = drv->setReceiveCb;
     }
-  }  
+  }
 
   // prevent compiler warnings
   (void)sendByte;
@@ -223,12 +223,18 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
+#if defined(BLUETOOTH)
+  case UART_MODE_BLUETOOTH:
+    bluetoothSetSerialDriver(ctx, drv);
+    break;
+#endif
+
 #if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
   case UART_MODE_EXT_MODULE:
     extmoduleSetSerialPort(drv);
     break;
 #endif
-    
+
 #endif
   }
 }
@@ -288,6 +294,13 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 #if defined(SPACEMOUSE)
   case UART_MODE_SPACEMOUSE:
     params.baudrate = SPACEMOUSE_BAUDRATE;
+    params.rx_enable = true;
+    break;
+#endif
+
+#if defined(BLUETOOTH)
+  case UART_MODE_BLUETOOTH:
+    params.baudrate = BLUETOOTH_BAUDRATE;
     params.rx_enable = true;
     break;
 #endif
@@ -392,7 +405,7 @@ void serialInit(uint8_t port_nr, int mode)
 void initSerialPorts()
 {
   memset(serialPortStates, 0, sizeof(serialPortStates));
-  
+
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
