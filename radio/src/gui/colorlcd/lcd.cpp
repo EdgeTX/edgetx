@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
 #include "lcd.h"
+#include "bitmapbuffer.h"
 #include <lvgl/lvgl.h>
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -244,6 +246,11 @@ static void _draw_buf_flush(lv_disp_t* disp)
     else
       draw_buf->buf_act = draw_buf->buf1;
   }
+}
+
+void lcdClear()
+{
+  lcd->clear();
 }
 
 void lcdRefresh()

@@ -22,7 +22,7 @@
 #ifndef __LCD_DRIVER_H__
 #define __LCD_DRIVER_H__
 
-#include "board.h"
+//#include "stm32_hal_ll.h"
 
 #define HBP  ( 24 ) // TODO use names from FlySky
 #define VBP  ( 10 )
@@ -35,39 +35,39 @@
 
 
 #define PORT_LCD_CS         ( GPIOE )
-#define LCD_CS_PIN          ( GPIO_Pin_4 )
+#define LCD_CS_PIN          ( LL_GPIO_PIN_4 )
 #define PIN_LCD_CS          ( 4 )
 
 #define PORT_LCD_CLK        ( GPIOE )
-#define LCD_CLK_PIN         ( GPIO_Pin_2 )
+#define LCD_CLK_PIN         ( LL_GPIO_PIN_2 )
 #define PIN_LCD_CLK         ( 2 )
 
 #define PORT_LCD_MOSI       ( GPIOE )
-#define LCD_MOSI_PIN        ( GPIO_Pin_6 )
+#define LCD_MOSI_PIN        ( LL_GPIO_PIN_6 )
 #define PIN_LCD_MOSI        ( 6 )
 
 #define PORT_LCD_MISO       ( GPIOE )
-#define LCD_MISO_PIN        ( GPIO_Pin_5 )
+#define LCD_MISO_PIN        ( LL_GPIO_PIN_5 )
 #define PIN_LCD_MISO        ( 5 )
 
 #define PORT_LCD_DE         ( GPIOK )
-#define LCD_DE_PIN          ( GPIO_Pin_7 )
+#define LCD_DE_PIN          ( LL_GPIO_PIN_7 )
 #define PIN_LCD_DE          ( 7 )
 
 #define PORT_LCD_RESET      ( GPIOG )
-#define LCD_RESET_PIN       ( GPIO_Pin_9 )
+#define LCD_RESET_PIN       ( LL_GPIO_PIN_9 )
 #define PIN_LCD_RESET       ( 9 )
 
 #define PORT_LCD_HSYNC      ( GPIOI )
-#define LCD_HSYNC_PIN       ( GPIO_Pin_12 )
+#define LCD_HSYNC_PIN       ( LL_GPIO_PIN_12 )
 #define PIN_LCD_HSYNC       ( 12 )
 
 #define PORT_LCD_VSYNC      ( GPIOI )
-#define LCD_VSYNC_PIN       ( GPIO_Pin_13 )
+#define LCD_VSYNC_PIN       ( LL_GPIO_PIN_13 )
 #define PIN_LCD_VSYNC       ( 13 )
 
 #define PORT_LCD_DOTCLK     ( GPIOG )
-#define LCD_DOTCLK_PIN      ( GPIO_Pin_7 )
+#define LCD_DOTCLK_PIN      ( LL_GPIO_PIN_7 )
 #define PIN_LCD_DOTCLK      ( 7 )
 
 #define SUPPORTED_LCD_CNT   ( 5 )
@@ -89,35 +89,35 @@ extern lcdSpiInitFucPtr lcdInitFunction;
 extern lcdSpiInitFucPtr lcdOffFunction;
 extern lcdSpiInitFucPtr lcdOnFunction;
 
-#define SET_IO_INPUT( PORT, PIN )            GPIO_SetDirection( PORT, PIN, 1 )
-#define SET_IO_OUTPUT( PORT, PIN )           GPIO_SetDirection( PORT, PIN, 0 )
+#define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
+#define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
 
-#define LCD_NRST_HIGH()               GPIO_WriteBit(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN, Bit_SET)
-#define LCD_NRST_LOW()                GPIO_WriteBit(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN, Bit_RESET)
+#define LCD_NRST_HIGH()               LL_GPIO_SetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
+#define LCD_NRST_LOW()                LL_GPIO_ResetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
 
-#define LCD_CS_HIGH()                 GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN, Bit_SET)
-#define LCD_CS_LOW()                  GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN, Bit_RESET)
+#define LCD_CS_HIGH()                 LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN)
+#define LCD_CS_LOW()                  LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN)
 
-#define LCD_SCK_HIGH()                GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN, Bit_SET)
-#define LCD_SCK_LOW()                 GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN, Bit_RESET)
+#define LCD_SCK_HIGH()                LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)
+#define LCD_SCK_LOW()                 LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)
 
-#define LCD_MOSI_HIGH()               GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN, Bit_SET)
-#define LCD_MOSI_LOW()                GPIO_WriteBit(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN, Bit_RESET)
+#define LCD_MOSI_HIGH()               LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
+#define LCD_MOSI_LOW()                LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
 
-#define SET_LCD_CS()                  GPIO_WriteBit(PORT_LCD_CS, LCD_CS_PIN, Bit_SET)
-#define CLR_LCD_CS()                  GPIO_WriteBit(PORT_LCD_CS, LCD_CS_PIN, Bit_RESET)
+#define SET_LCD_CS()                  LL_GPIO_SetOutputPin(PORT_LCD_CS, LCD_CS_PIN)
+#define CLR_LCD_CS()                  LL_GPIO_ResetOutputPin(PORT_LCD_CS, LCD_CS_PIN)
 #define SET_LCD_CS_OUTPUT()           SET_IO_OUTPUT( PORT_LCD_CS, PIN_LCD_CS )
 
-#define SET_LCD_CLK()                 GPIO_WriteBit( PORT_LCD_CLK, LCD_CLK_PIN, Bit_SET )
-#define CLR_LCD_CLK()                 GPIO_WriteBit( PORT_LCD_CLK, LCD_CLK_PIN, Bit_RESET )
+#define SET_LCD_CLK()                 LL_GPIO_SetOutputPin(PORT_LCD_CLK, LCD_CLK_PIN )
+#define CLR_LCD_CLK()                 LL_GPIO_ResetOutputPin( PORT_LCD_CLK, LCD_CLK_PIN )
 #define SET_LCD_CLK_OUTPUT()          SET_IO_OUTPUT( PORT_LCD_CLK, PIN_LCD_CLK )
 
-#define SET_LCD_DATA()                GPIO_WriteBit( PORT_LCD_MOSI, LCD_MOSI_PIN, Bit_SET )
-#define CLR_LCD_DATA()                GPIO_WriteBit( PORT_LCD_MOSI, LCD_MOSI_PIN, Bit_RESET )
+#define SET_LCD_DATA()                LL_GPIO_SetOutputPin( PORT_LCD_MOSI, LCD_MOSI_PIN )
+#define CLR_LCD_DATA()                LL_GPIO_ResetOutputPin( PORT_LCD_MOSI, LCD_MOSI_PIN )
 #define SET_LCD_DATA_INPUT()          SET_IO_INPUT( PORT_LCD_MOSI, PIN_LCD_MOSI )
 #define SET_LCD_DATA_OUTPUT()         SET_IO_OUTPUT( PORT_LCD_MOSI, PIN_LCD_MOSI )
 
-#define READ_LCD_DATA_PIN()           GPIO_ReadInputDataBit(PORT_LCD_MOSI, LCD_MOSI_PIN)
+#define READ_LCD_DATA_PIN()           ((LL_GPIO_ReadInputPort(PORT_LCD_MOSI) &  LCD_MOSI_PIN) != 0)
 
 
 

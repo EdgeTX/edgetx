@@ -196,6 +196,9 @@ void boardInit()
 #endif
 
   ledBlue();
+#if !defined(LCD_VERTICAL_INVERT)
+  lcdSetInitalFrameBuffer(lcdFront->getData());
+#endif
 }
 #endif
 
