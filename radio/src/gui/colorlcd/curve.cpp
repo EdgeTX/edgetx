@@ -200,7 +200,11 @@ void Curve::drawSelected(BitmapBuffer * dc)
   coord_t x = getPointX(valueX);
   coord_t y = getPointY(valueY);
 
-  dc->drawFilledCircle(x, y, 8, COLOR_THEME_EDIT);
+  dc->drawSolidHorizontalLine(x - 5, y - 7, 11, COLOR_THEME_EDIT);
+  dc->drawSolidHorizontalLine(x - 6, y - 6, 13, COLOR_THEME_EDIT);
+  dc->drawSolidFilledRect(x - 7, y - 5, 15, 11, COLOR_THEME_EDIT);
+  dc->drawSolidHorizontalLine(x - 6, y + 6, 13, COLOR_THEME_EDIT);
+  dc->drawSolidHorizontalLine(x - 5, y + 7, 11, COLOR_THEME_EDIT);
 }
 
 void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
