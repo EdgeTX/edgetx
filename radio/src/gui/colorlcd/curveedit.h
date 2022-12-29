@@ -25,7 +25,33 @@
 #include "form.h"
 #include "curve.h"
 
-class NumberEdit;
+class CurveEdit;
+class FormGridLayout;
+class StaticText;
+class TextButton;
+
+class CurveDataEdit : public Window
+{
+  friend class CurveEdit;
+
+  public:
+    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
+
+    void setCurveEdit(CurveEdit* _curveEdit);
+
+    void update();
+
+  protected:
+    uint8_t index;
+    CurveEdit * curveEdit;
+    StaticText* pointText;
+    TextButton* decX1;
+    TextButton* incX1;
+    TextButton* decX5;
+    TextButton* incX5;
+
+    void setPointText();
+};
 
 class CurveEdit: public FormField
 {
@@ -46,6 +72,19 @@ class CurveEdit: public FormField
     void updatePreview();
 
     void checkEvents(void) override;
+
+    uint8_t getCurrent() const { return current; }
+    uint8_t getCurvePointsCount() const;
+    int8_t getX() const;
+    int8_t getY() const;
+    bool isCustomCurve() const;
+    bool isEditableX() const;
+
+    void selectPoint(int8_t chg);
+    void up(int8_t amt);
+    void down(int8_t amt);
+    void right(int8_t amt);
+    void left(int8_t amt);
 
    protected:
     Curve preview;

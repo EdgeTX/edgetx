@@ -33,85 +33,30 @@ CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_AUTO);
 }
 
-#if LCD_W > LCD_H
-  #define   NUM_BTN_WIDTH   39
-#else
-  #define   NUM_BTN_WIDTH   48
-#endif
-
-void CurveDataEdit::curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
+void CurveDataEdit::setCurveEdit(CurveEdit* _curveEdit)
 {
-  static const lv_coord_t col_dsc[] = {11, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-  static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+  curveEdit = _curveEdit;
+  update();
+}
 
-  FormBuilder form(parent, 4, col_dsc, row_dsc);
+#define BTN_H   36
 
-  auto line = form.newLine();
-
-  new StaticText(line, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
-  
-  // Point number
-  for (int i = 0; i < count; i++) {
-    new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
-  }
-
-  line = form.newLine();
-
-  new StaticText(line, rect_t{}, "X", 0, CENTERED|COLOR_THEME_PRIMARY1);
-
-  int8_t* points = curveAddress(index);
-
-  // x value
-  if (isCustom) {
-    int i = 0;
-    int c = count;
-    if (start == 0) {
-      new StaticText(line, rect_t{}, "-100", 0, CENTERED | COLOR_THEME_SECONDARY1);
-      i += 1;
-    }
-    if ((start + count) == curvePointsCount) {
-      c -= 1;
-    }
-    // Adjustable points for custom curves
-    for (; i < c; i++) {
-      new NumberEdit(
-          line, rect_t{ 0, 0, NUM_BTN_WIDTH, 0 },
-          points[curvePointsCount + i + start - 2],
-          points[curvePointsCount + i + start],
-          GET_VALUE(points[curvePointsCount + i + start - 1]),
-          [=](int32_t newValue) {
-            points[curvePointsCount + i + start - 1] = newValue;
-            SET_DIRTY();
-            curveEdit->updatePreview();
-          },
-          0, RIGHT);
-    }
-    if ((start + count) == curvePointsCount) {
-      new StaticText(line, rect_t{}, "100", 0, CENTERED | COLOR_THEME_SECONDARY1);
-    }
+void CurveDataEdit::setPointText()
+{
+  int n = curveEdit->getCurrent();
+  char buf[32];
+  sprintf(buf, "#%d X:%d Y:%d", n+1, curveEdit->getX(), curveEdit->getY());
+  pointText->setText(buf);
+  if (curveEdit->isEditableX()) {
+    lv_obj_clear_state(incX1->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_clear_state(decX1->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_clear_state(incX5->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_clear_state(decX5->getLvObj(), LV_STATE_DISABLED);
   } else {
-    for (uint8_t i = 0; i < count; i++) {
-      new StaticText(line, rect_t{},
-                     std::to_string(-100 + (200 * (i + start)) / (curvePointsCount - 1)),
-                     0, CENTERED | COLOR_THEME_SECONDARY1);
-    }
-  }
-
-  line = form.newLine();
-
-  new StaticText(line, rect_t{}, "Y", 0, CENTERED|COLOR_THEME_PRIMARY1);
-
-  // y value
-  for (uint8_t i = 0; i < count; i++) {
-    new NumberEdit(
-        line, rect_t{ 0, 0, NUM_BTN_WIDTH, 0 },
-        -100, 100, GET_VALUE(points[i+start]),
-        [=](int32_t newValue) {
-          points[i+start] = newValue;
-          SET_DIRTY();
-          curveEdit->updatePreview();
-        },
-        0, RIGHT);
+    lv_obj_add_state(incX1->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_add_state(decX1->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_add_state(incX5->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_add_state(decX5->getLvObj(), LV_STATE_DISABLED);
   }
 }
 
@@ -119,18 +64,86 @@ void CurveDataEdit::update()
 {
   clear();
 
-  FormBuilder form(this);
-  form.form()->padBottom(4);
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  CurveHeader & curve = g_model.curves[index];
-  uint8_t curvePointsCount = 5 + curve.points;
+  FormBuilder form(this, 4, col_dsc, row_dsc);
 
-  for (int i = 0; i < curvePointsCount; i += 6) {
-    int count = 6;
-    if (i + count > curvePointsCount) count = curvePointsCount - i;
-    auto line = form.newLine();
-    curvePointsRow(line, i, count, curvePointsCount, curve.type == CURVE_TYPE_CUSTOM);
-  }
+  auto line = form.newLine(4);
+  line->padTop(4);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Prev", [=]() {
+    curveEdit->selectPoint(-1);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 0, 1);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y+1", [=]() {
+    curveEdit->up(1);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 1, 1);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y+5", [=]() {
+    curveEdit->up(5);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 2, 1);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Next", [=]() {
+    curveEdit->selectPoint(1);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 3, 1);
+
+  line = form.newLine(4);
+
+  decX1 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X-1", [=]() {
+    curveEdit->left(1);
+    setPointText();
+    return 0;
+  });
+  form.cell(decX1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+  pointText = new StaticText(line, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
+  form.cell(pointText, LV_GRID_ALIGN_CENTER, 1, 2);
+
+  incX1 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X+1", [=]() {
+    curveEdit->right(1);
+    setPointText();
+    return 0;
+  });
+  form.cell(incX1, LV_GRID_ALIGN_CENTER, 3, 1);
+
+  line = form.newLine(4);
+
+  decX5 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X-5", [=]() {
+    curveEdit->left(5);
+    setPointText();
+    return 0;
+  });
+  form.cell(decX5, LV_GRID_ALIGN_CENTER, 0, 1);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y-1", [=]() {
+    curveEdit->down(1);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 1, 1);
+
+  form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y-5", [=]() {
+    curveEdit->down(5);
+    setPointText();
+    return 0;
+  })), LV_GRID_ALIGN_CENTER, 2, 1);
+
+  incX5 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X+5", [=]() {
+    curveEdit->right(5);
+    setPointText();
+    return 0;
+  });
+  form.cell(incX5, LV_GRID_ALIGN_CENTER, 3, 1);
+
+  setPointText();
 }
 
 void CurveEdit::SetCurrentSource(uint32_t source)
@@ -152,7 +165,8 @@ CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
         [=](int x) -> int { return applyCustomCurve(x, index); },
         [=]()->int {
           return getValue(CurveEdit::currentSource);
-        }),
+        },
+        [=]()->int { return getPoint(index, current).x; }),
     index(index),
     current(0)
 {
@@ -163,18 +177,156 @@ CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
 
 void CurveEdit::updatePreview()
 {
+  // Reset current if # of points changed
+  selectPoint(0);
+
   preview.clearPoints();
-  CurveHeader & curve = g_model.curves[index];
-  for (uint8_t i = 0; i < 5 + curve.points; i++) {
+  for (uint8_t i = 0; i < getCurvePointsCount(); i++) {
     preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
   }
   invalidate();
+}
+
+void CurveEdit::selectPoint(int8_t chg)
+{
+  int8_t n = (int8_t)current + chg;
+  int8_t max= getCurvePointsCount() - 1;
+  if (n < 0)
+    n = max;
+  else if (n > max)
+    n = (chg) ? 0 : max;
+  if (current != n) {
+    current = n;
+    if (chg)
+      updatePreview();
+  }
+}
+
+void CurveEdit::up(int8_t amt)
+{
+  int8_t & point = curveAddress(index)[current];
+  int8_t n = min<int8_t>(100, point + amt);
+  if (n != point) {
+    point = n;
+    storageDirty(EE_MODEL);
+    updatePreview();
+  }
+}
+
+void CurveEdit::down(int8_t amt)
+{
+  int8_t & point = curveAddress(index)[current];
+  int8_t n = max<int8_t>(-100, point - amt);
+  if (n != point) {
+    point = n;
+    storageDirty(EE_MODEL);
+    updatePreview();
+  }
+}
+
+void CurveEdit::right(int8_t amt)
+{
+  if (isEditableX()) {
+    CurveHeader & curve = g_model.curves[index];
+    int8_t * point = &curveAddress(index)[5 + curve.points + current - 1];
+    int8_t xmax = (current == (curve.points - 2) ? +100 : point[1]);
+    int8_t n = min<int8_t>(*point + amt, xmax-1);
+    if (n != *point) {
+      *point = n;
+      storageDirty(EE_MODEL);
+      updatePreview();
+    }
+  }
+}
+
+void CurveEdit::left(int8_t amt)
+{
+  if (isEditableX()) {
+    CurveHeader & curve = g_model.curves[index];
+    int8_t * point = &curveAddress(index)[5 + curve.points + current - 1];
+    int8_t xmin = (current == 1 ? -100 : point[-1]);
+    int8_t n = max<int8_t>(xmin+1, *point - amt);
+    if (n != *point) {
+      *point = n;
+      storageDirty(EE_MODEL);
+      updatePreview();
+    }
+  }
+}
+
+bool CurveEdit::isCustomCurve() const
+{
+  return g_model.curves[index].type == CURVE_TYPE_CUSTOM;
+}
+
+bool CurveEdit::isEditableX() const
+{
+  return isCustomCurve() && (current > 0) &&  (current < getCurvePointsCount() - 1);
+}
+
+uint8_t CurveEdit::getCurvePointsCount() const
+{
+  return g_model.curves[index].points + 5;
+}
+
+int8_t CurveEdit::getX() const
+{
+  int n = getCurvePointsCount() - 1;
+  if (isCustomCurve()) {
+    if (current == 0) return -100;
+    if (current == n) return 100;
+    return curveAddress(index)[current + n];
+  }
+  return -100 + (200 * current) / n;
+}
+
+int8_t CurveEdit::getY() const
+{
+  return curveAddress(index)[current];
+}
+
+void CurveEdit::onEvent(event_t event)
+{
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+
+  switch (event) {
+#if defined(HARDWARE_TOUCH)
+    case EVT_VIRTUAL_KEY_LEFT:
+      left(1);
+      break;
+
+    case EVT_VIRTUAL_KEY_RIGHT:
+      right(1);
+      break;
+
+    case EVT_VIRTUAL_KEY_UP:
+      up(1);
+      break;
+
+    case EVT_VIRTUAL_KEY_DOWN:
+      down(1);
+      break;
+
+    case EVT_VIRTUAL_KEY_PREVIOUS:
+      selectPoint(-1);
+      break;
+
+    case EVT_VIRTUAL_KEY_NEXT:
+      selectPoint(1);
+      break;
+#endif
+
+    default:
+      FormField::onEvent(event);
+      break;
+  }
 }
 
 void CurveEdit::checkEvents()
 {
   if (!lockSource) {
     int16_t val = getMovedSource(MIXSRC_FIRST_INPUT);
+
     if (val > 0) {
       // TODO: this code seems odd
       if (val > MAX_STICKS + MAX_POTS)

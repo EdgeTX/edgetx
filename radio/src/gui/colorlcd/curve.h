@@ -48,7 +48,13 @@ class CurveRenderer
 class Curve: public Window
 {
   public:
-    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr);
+    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr, std::function<int()> selected=nullptr):
+      Window(parent, rect, OPAQUE),
+      function(std::move(function)),
+      position(std::move(position)),
+      selected(std::move(selected))
+    {
+    }
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -72,10 +78,12 @@ class Curve: public Window
     int lastPos = 0;
     std::function<int(int)> function;
     std::function<int()> position;
+    std::function<int()> selected;
     std::list<CurvePoint> points;
     void drawBackground(BitmapBuffer * dc);
     void drawCurve(BitmapBuffer * dc);
     void drawPosition(BitmapBuffer * dc);
+    void drawSelected(BitmapBuffer * dc);
     void drawPoint(BitmapBuffer * dc, const CurvePoint & point);
     coord_t getPointX(int x) const;
     coord_t getPointY(int y) const;

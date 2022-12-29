@@ -192,6 +192,17 @@ void Curve::drawPosition(BitmapBuffer * dc)
   dc->drawText(11, 10, coords, FONT(XS) | COLOR_THEME_PRIMARY1);
 }
 
+void Curve::drawSelected(BitmapBuffer * dc)
+{
+  int valueX = selected();
+  int valueY = function(valueX);
+
+  coord_t x = getPointX(valueX);
+  coord_t y = getPointY(valueY);
+
+  dc->drawFilledCircle(x, y, 8, COLOR_THEME_EDIT);
+}
+
 void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
 {
   coord_t x = getPointX(point.coords.x);
@@ -214,8 +225,11 @@ void Curve::paint(BitmapBuffer * dc)
   dw = width() - dx * 2;
   dh = height() - dy * 2;
 
-  base.paint(dc, dx-2);
-
+  drawBackground(dc);
+  drawCurve(dc);
+  if (selected) {
+    drawSelected(dc);
+  }
   for (auto point: points) {
     drawPoint(dc, point);
   }
@@ -246,6 +260,4 @@ void Curve::checkEvents()
       invalidate();
     }
   }
-
-  Window::checkEvents();
 }
