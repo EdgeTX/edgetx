@@ -29,7 +29,8 @@ void clearInputs()
 
 void setDefaultInputs()
 {
-  for (int i = 0; i < adcGetMaxSticks(); i++) {
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_STICK);
+  for (int i = 0; i < max_sticks; i++) {
     uint8_t stick_index = channelOrder(i + 1) - 1;
     ExpoData *expo = expoAddress(i);
     expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
@@ -50,7 +51,8 @@ void clearMixes()
 
 void setDefaultMixes()
 {
-  for (int i=0; i<NUM_STICKS; i++) {
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_STICK);
+  for (int i = 0; i < max_sticks; i++) {
     MixData * mix = mixAddress(i);
     mix->destCh = i;
     mix->weight = 100;

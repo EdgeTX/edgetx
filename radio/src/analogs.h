@@ -24,16 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void analogSetCustomStickName(uint8_t idx, const char* str, size_t len);
-const char* analogGetCustomStickName(uint8_t idx);
-bool analogHasCustomStickName(uint8_t idx);
+void analogSetCustomName(uint8_t type, uint8_t idx, const char* str, size_t len);
+const char* analogGetCustomName(uint8_t type, uint8_t idx);
+bool analogHasCustomName(uint8_t type, uint8_t idx);
 
-int analogLookupStickIdx(const char* name, size_t len);
-const char* analogGetCanonicalStickName(uint8_t idx);
-
-void analogSetCustomPotName(uint8_t idx, const char* str, size_t len);
-const char* analogGetCustomPotName(uint8_t idx);
-bool analogHasCustomPotName(uint8_t idx);
-
-int analogLookupPotIdx(const char* name, size_t len);
-const char* analogGetCanonicalPotName(uint8_t idx);
+int analogLookupIdx(uint8_t type, const char* name, size_t len);
+const char* analogGetCanonicalName(uint8_t type, uint8_t idx);

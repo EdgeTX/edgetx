@@ -118,6 +118,9 @@ void simuInit()
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
+
+  // Init ADC driver callback
+  adcInit(&simu_adc_driver);
 }
 
 bool keysStates[NUM_KEYS] = { false };
@@ -206,9 +209,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   // Init LCD callbacks
   lcdInit();
 
-  // Init ADC driver callback
-  adcInit(&simu_adc_driver);
-  
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
 #else

@@ -125,25 +125,27 @@ OpenTxSim::OpenTxSim(FXApp* a):
         break;
       default:;
     }
-    sliders[i]->setRange(-1024, 1024);
-    sliders[i]->setTickDelta(7);
-    sliders[i]->setValue(0);
+    sliders[i]->setTickDelta(14);
+    sliders[i]->setRange(0, 4095);
+    sliders[i]->setValue(2047);
   }
 
-  for (int i = 0; i < MAX_POTS; i++) {
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  memset(knobs, 0, sizeof(knobs));
+  
+  for (int i = 0; i < max_pots; i++) {
     knobs[i]= new FXKnob(hf11, nullptr, 0, KNOB_TICKS|LAYOUT_LEFT);
-    knobs[i]->setValue(0);
+    knobs[i]->setRange(0, 4095);
+    knobs[i]->setValue(2047);
 
 #if defined(PCBHORUS)
     if (i == 1) {  // 6-pos switch
-      knobs[i]->setRange(0, 2048);
-      knobs[i]->setIncrement(2048 / 5);
-      knobs[i]->setTickDelta(2048 / 5);
+      knobs[i]->setIncrement(4095 / 5);
+      knobs[i]->setTickDelta(4095 / 5);
+      knobs[i]->setValue(0);
       continue;
     }
 #endif
-
-    knobs[i]->setRange(-1024, 1024);
   }
 
   bmf = new FXImageFrame(this, bmp);
@@ -622,6 +624,8 @@ int main(int argc, char ** argv)
   // so that persistent settings are now available.
   application.init(argc, argv);
 
+  simuInit();
+
   // This creates the main window. We pass in the title to be displayed
   // above the window, and possibly some icons for when its iconified.
   // The decorations determine stuff like the borders, close buttons,
@@ -642,8 +646,6 @@ int main(int argc, char ** argv)
 
   printf("Model size = %d\n", (int)sizeof(g_model));
 
-  simuInit();
-
 #if defined(EEPROM) || defined(EEPROM_RLC)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
@@ -658,16 +660,28 @@ int main(int argc, char ** argv)
 
 uint16_t simu_get_analog(uint8_t idx)
 {
-  auto max_analogs = MAX_STICKS + adcGetMaxPots();
-
-  if (idx < MAX_STICKS)
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_STICK);
+  if (idx < max_sticks)
     return opentxSim->sliders[idx]->getValue();
-  else if (idx < max_analogs)
-    return opentxSim->knobs[idx - MAX_STICKS]->getValue();
-  else if (idx == max_analogs)
-    return 800; // 2.34V
-  else
-    return 0;
+
+  idx -= max_sticks;
+
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  if (idx < max_pots)
+    return opentxSim->knobs[idx]->getValue();
+
+  idx -= max_pots;
+
+  auto max_axes = adcGetMaxInputs(ADC_INPUT_AXIS);
+  if (idx < max_axes) return 0;
+
+  idx -= max_axes;
+
+  // VBAT
+  if (idx == 0) return 800; // 2.34V
+
+  // probably RTC_BAT
+  return 0;
 }
 
 void createBitmap(int index, uint16_t *data, int x, int y, int w, int h)

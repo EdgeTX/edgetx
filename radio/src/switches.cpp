@@ -304,11 +304,15 @@ void getSwitchesPosition(bool startup)
   
   switchesPos = newPos;
 
-  for (int i=0; i<MAX_POTS; i++) {
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto offset = adcGetInputOffset(ADC_INPUT_POT);
+
+  for (int i = 0; i < max_pots; i++) {
     if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[MAX_STICKS + i];
+      auto analog_idx = offset + i;
+      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[analog_idx];
       if (IS_MULTIPOS_CALIBRATED(calib)) {
-        uint8_t pos = anaIn(MAX_STICKS + i) / (2 * RESX / calib->count);
+        uint8_t pos = anaIn(analog_idx) / (2 * RESX / calib->count);
         uint8_t previousPos = potsPos[i] >> 4;
         uint8_t previousStoredPos = potsPos[i] & 0x0F;
         if (startup) {
@@ -323,7 +327,7 @@ void getSwitchesPosition(bool startup)
           potsLastposStart[i] = 0;
           potsPos[i] = (pos << 4) | pos;
           if (previousStoredPos != pos) {
-            PLAY_SWITCH_MOVED(SWSRC_LAST_SWITCH+i*XPOTS_MULTIPOS_COUNT+pos);
+            PLAY_SWITCH_MOVED(SWSRC_LAST_SWITCH + i * XPOTS_MULTIPOS_COUNT + pos);
           }
         }
       }
@@ -710,7 +714,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   if (g_model.potsWarnMode) {
     evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
-    for (int  i = 0; i < adcGetMaxPots(); i++) {
+    for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_POT); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&
           (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {

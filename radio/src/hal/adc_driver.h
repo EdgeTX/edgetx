@@ -29,10 +29,28 @@
 #define ANALOG_SCALE            1
 #define JITTER_ALPHA            (1<<JITTER_FILTER_STRENGTH)
 
+enum {
+  ADC_INPUT_STICK=0,
+  ADC_INPUT_POT,
+  ADC_INPUT_AXIS,
+  ADC_INPUT_VBAT,
+  ADC_INPUT_RTC_BAT,
+  ADC_INPUT_ALL,
+};
+
+struct etx_hal_adc_inputs_t {
+  uint8_t      n_inputs;
+  uint8_t      offset;
+  const char** names;
+};
+
 struct etx_hal_adc_driver_t {
+
+  const etx_hal_adc_inputs_t* inputs; // ADC_INPUT_ALL + 1;
+  
   bool (*init)();
   bool (*start_conversion)();
-  void (*wait_completion)();  
+  void (*wait_completion)();
 };
 
 bool adcInit(const etx_hal_adc_driver_t* driver);
@@ -70,10 +88,16 @@ void enableVBatBridge();
 void disableVBatBridge();
 bool isVBatBridgeEnabled();
 
+uint8_t adcGetMaxInputs(uint8_t type);
+uint8_t adcGetInputOffset(uint8_t type);
+
+uint16_t adcGetInputValue(uint8_t type, uint8_t idx);
+const char* adcGetInputName(uint8_t type, uint8_t idx);
+
 // To be implemented by the target driver
-int8_t adcGetVRTC();
-int8_t adcGetVBAT();
-const char* adcGetStickName(uint8_t idx);
-const char* adcGetPotName(uint8_t idx);
-uint8_t adcGetMaxSticks();
-uint8_t adcGetMaxPots();
+// int8_t adcGetVRTC();
+// int8_t adcGetVBAT();
+// const char* adcGetStickName(uint8_t idx);
+// const char* adcGetPotName(uint8_t idx);
+// uint8_t adcGetMaxSticks();
+// uint8_t adcGetMaxPots();

@@ -55,7 +55,8 @@ void RadioTrainerPage::build(FormWindow * form)
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   form->setFlexLayout();
 
-  for (uint8_t i = 0; i < adcGetMaxSticks(); i++) {
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_STICK);
+  for (uint8_t i = 0; i < max_sticks; i++) {
     uint8_t chan = channelOrder(i + 1);
     TrainerMix* td = &g_eeGeneral.trainer.mix[chan - 1];
 
@@ -86,7 +87,7 @@ void RadioTrainerPage::build(FormWindow * form)
     FlexGridLayout grid4(col4_dsc, row_dsc, 2);
     auto line = form->newLine(&grid4);
     
-    for (uint8_t i = 0; i < NUM_STICKS; i++) {
+    for (uint8_t i = 0; i < max_sticks; i++) {
       new DynamicNumber<int16_t>(line, rect_t{},
           [=]() { return (ppmInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
           CENTERED | PPM_PRECISION | COLOR_THEME_PRIMARY1);

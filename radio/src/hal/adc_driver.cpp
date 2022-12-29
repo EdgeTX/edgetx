@@ -27,6 +27,7 @@
 
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
+const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
 static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
 
@@ -35,6 +36,7 @@ bool adcInit(const etx_hal_adc_driver_t* driver)
   // If there is an init function, it MUST succeed
   if (driver && (!driver->init || driver->init())) {
     _hal_adc_driver = driver;
+    _hal_adc_inputs = driver->inputs;
     return true;
   }
 
@@ -200,10 +202,10 @@ void adcCalibStore()
 uint16_t getRTCBatteryVoltage()
 {
   // anaIn() outputs value divided by (1 << ANALOG_SCALE)
-  auto vRTC = adcGetVRTC();
-  if (vRTC < 0) return 0;
+  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return 0;
 
-  return (anaIn(vRTC) * ADC_VREF_PREC2) / (2048 >> ANALOG_SCALE);
+  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
+         (2048 >> ANALOG_SCALE);
 }
 
 uint16_t getAnalogValue(uint8_t index)
@@ -271,10 +273,8 @@ tmr10ms_t jitterResetTime = 0;
 uint16_t getBatteryVoltage()
 {
   // using filtered ADC value on purpose
-  auto vBAT = adcGetVBAT();
-  if (vBAT < 0) return 0;
-
-  int32_t instant_vbat = anaIn(vBAT);
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
 
   // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
 #if defined(BATT_SCALE)
@@ -293,10 +293,12 @@ uint16_t getBatteryVoltage()
 
 void getADC()
 {
+  uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
+
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
     // reset jitter measurement every second
-    for (uint32_t x = 0; x < MAX_ANALOGS; x++) {
+    for (uint32_t x = 0; x < max_analogs; x++) {
       rawJitter[x].reset();
       avgJitter[x].reset();
     }
@@ -309,11 +311,11 @@ void getADC()
       TRACE("adcRead failed");
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
-  uint8_t max_analogs = MAX_STICKS + adcGetMaxPots();
+  // TODO: jitter filter should probably still be applied
+  //       to VBAT and RTC_BAT, no matter what is configured
+  //
   for (uint8_t x = 0; x < max_analogs; x++) {
 
-    if (x >= adcGetMaxSticks() && x < MAX_STICKS) continue;
-    
     uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
     // Jitter filter:
@@ -396,3 +398,35 @@ void getADC()
   }
 }
 
+uint8_t adcGetMaxInputs(uint8_t type)
+{
+  if (type > ADC_INPUT_ALL) return 0;
+  return _hal_adc_inputs[type].n_inputs;
+}
+
+uint8_t adcGetInputOffset(uint8_t type)
+{
+  if (type > ADC_INPUT_ALL) return 0;
+  return _hal_adc_inputs[type].offset;
+}
+
+uint16_t adcGetInputValue(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL) return 0;
+
+  const auto& inputs = _hal_adc_inputs[type];
+  auto n_inputs = inputs.n_inputs;
+  auto offset = inputs.offset;
+  if (!n_inputs || idx >= n_inputs) return 0;
+
+  return getAnalogValue(offset + idx);
+}
+
+const char* adcGetInputName(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL ||
+      idx >= _hal_adc_inputs[type].n_inputs)
+    return "";
+
+  return _hal_adc_inputs[type].names[idx];
+}

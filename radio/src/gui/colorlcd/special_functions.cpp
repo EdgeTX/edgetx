@@ -127,17 +127,16 @@ class SpecialFunctionEditPage : public Page
 
       case FUNC_TRAINER: {
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        auto choice =
-            new Choice(line, rect_t{}, 0,
-                       adcGetMaxSticks() + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
+        auto max_sticks = adcGetMaxInputs(ADC_INPUT_STICK);
+        auto choice = new Choice(line, rect_t{}, 0, max_sticks + 1,
+                                 GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
             return std::string(STR_STICKS);
-          else if (value == NUM_STICKS + 1)
+          else if (value == MAX_STICKS + 1)
             return std::string(STR_CHANS);
-          else
-            return std::string(getStickName(value));
-          ;
+
+          return std::string(getStickName(value));
         });
         line = specialFunctionOneWindow->newLine(&grid);
         break;

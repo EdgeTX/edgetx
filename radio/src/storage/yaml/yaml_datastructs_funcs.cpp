@@ -29,6 +29,7 @@
 #include "stamp.h"
 
 #include "hal/switch_driver.h"
+#include "hal/adc_driver.h"
 
 //
 // WARNING:
@@ -136,6 +137,7 @@ extern const struct YamlIdStr enum_MixSources[];
 //
 static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_len)
 {
+    // TODO: parse switch name as well
     if (val_len > 0 && val[0] == 'I') {
         return yaml_str2uint(val+1, val_len-1) + MIXSRC_FIRST_INPUT;
     } else if (val_len > 4 &&
@@ -214,8 +216,11 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       return yaml_str2uint(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
     }
 
-    auto stick_idx = analogLookupStickIdx(val, val_len);
+    auto stick_idx = analogLookupIdx(ADC_INPUT_STICK, val, val_len);
     if (stick_idx >= 0) return stick_idx + MIXSRC_FIRST_STICK;
+
+    auto pot_idx = analogLookupIdx(ADC_INPUT_POT, val, val_len);
+    if (pot_idx >= 0) return pot_idx + MIXSRC_FIRST_POT;
 
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
@@ -264,10 +269,10 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     }
 #endif
     else if (val <= MIXSRC_LAST_STICK) {
-        str = analogGetCanonicalStickName(val - MIXSRC_FIRST_STICK);
+        str = analogGetCanonicalName(ADC_INPUT_STICK, val - MIXSRC_FIRST_STICK);
     }
     else if (val <= MIXSRC_LAST_POT) {
-        str = analogGetCanonicalPotName(val - MIXSRC_FIRST_POT);
+        str = analogGetCanonicalName(ADC_INPUT_POT, val - MIXSRC_FIRST_POT);
     }
     else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
@@ -554,33 +559,44 @@ static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
-static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
+static void _read_analog_name(uint8_t type, void* user, uint8_t* data,
+                              uint32_t bitoffs, const char* val,
+                              uint8_t val_len)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
-  if (idx >= MAX_STICKS) return;
+  analogSetCustomName(type, idx, val, val_len);
+}
 
-  analogSetCustomStickName(idx, val, val_len);
+static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
+                               uint32_t bitoffs, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  const char* name = analogGetCustomName(ADC_INPUT_STICK, idx);
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, name, strlen(name))) return false;
+  return wf(opaque, "\"", 1);
+}
+
+static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  _read_analog_name(ADC_INPUT_STICK, user, data, bitoffs, val, val_len);
 }
 
 static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
                          yaml_writer_func wf, void* opaque)
 {
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  const char* name = analogGetCustomStickName(idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, name, strlen(name))) return false;
-  return wf(opaque, "\"", 1);
+  return _write_analog_name(ADC_INPUT_STICK, user, data, bitoffs, wf, opaque);
 }
 
 static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
-  return analogHasCustomStickName(idx);
+  return analogHasCustomName(ADC_INPUT_STICK, idx);
 }
 
 static const struct YamlNode struct_stickConfig[] = {
@@ -646,7 +662,7 @@ static const struct YamlNode struct_switchConfig[] = {
 static uint32_t pot_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
-  return analogLookupPotIdx(val, val_len);
+  return analogLookupIdx(ADC_INPUT_POT, val, val_len);
 }
 
 static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
@@ -654,28 +670,20 @@ static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str = analogGetCanonicalPotName(idx);
+  const char* str = analogGetCanonicalName(ADC_INPUT_POT, idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static void pot_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                           const char* val, uint8_t val_len)
 {
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-  analogSetCustomPotName(idx, val, val_len);
+  _read_analog_name(ADC_INPUT_POT, user, data, bitoffs, val, val_len);
 }
 
 static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
                            yaml_writer_func wf, void* opaque)
 {
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  const char* str = analogGetCustomPotName(idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strlen(str))) return false;
-  return wf(opaque, "\"", 1);
+  return _write_analog_name(ADC_INPUT_POT, user, data, bitoffs, wf, opaque);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -1414,8 +1422,8 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, "chans", 5)) return false;
       break;
     default:
-      if (value > 0 && value < NUM_STICKS + 1) {
-        str = analogGetCanonicalStickName(value - 1);
+      if (value > 0 && value <= MAX_STICKS) {
+        str = analogGetCanonicalName(ADC_INPUT_STICK, value - 1);
         if (str && !wf(opaque, str, strlen(str))) return false;
       }
     }

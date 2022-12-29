@@ -41,7 +41,19 @@ static bool simu_start_conversion()
 
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
+static const char* _vbat[] = { "VBAT" };
+
+static const etx_hal_adc_inputs_t _simu_adc_inputs[] = {
+  { DIM(_stick_inputs), 0, _stick_inputs }, // ADC_INPUT_STICK
+  { DIM(_pot_inputs), DIM(_stick_inputs), _pot_inputs },
+  { 0, 0, nullptr },
+  { 1, DIM(_stick_inputs) + DIM(_pot_inputs), _vbat },
+  { 0, 0, nullptr },
+  { DIM(_stick_inputs) + DIM(_pot_inputs) + 1, 0, nullptr },
+};
+
 const etx_hal_adc_driver_t simu_adc_driver = {
+  .inputs = _simu_adc_inputs,
   .init = nullptr,
   .start_conversion = simu_start_conversion,
   .wait_completion = nullptr,

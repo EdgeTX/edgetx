@@ -532,20 +532,22 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
+const char* getAnalogName(uint8_t type, uint8_t idx)
+{
+  if (analogHasCustomName(type, idx))
+    return analogGetCustomName(type, idx);
+
+  return analogGetCanonicalName(type, idx);
+}
+
 const char* getStickName(uint8_t idx)
 {
-  if (analogHasCustomStickName(idx))
-    return analogGetCustomStickName(idx);
-
-  return analogGetCanonicalStickName(idx);
+  return getAnalogName(ADC_INPUT_STICK, idx);
 }
 
 const char* getPotName(uint8_t idx)
 {
-  if (analogHasCustomPotName(idx))
-    return analogGetCustomPotName(idx);
-
-  return adcGetPotName(idx);
+  return getAnalogName(ADC_INPUT_POT, idx);
 }
 
 // this should be declared in header, but it used so much foreign symbols that

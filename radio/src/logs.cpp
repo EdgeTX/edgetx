@@ -22,9 +22,10 @@
 #include "opentx.h"
 #include "ff.h"
 
+#include "analogs.h"
 #include "switches.h"
-#include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -227,20 +228,18 @@ void writeHeader()
     }
   }
 
-  for (mixsrc_t i = MIXSRC_FIRST_STICK; i <= MIXSRC_LAST_POT; i++) {
-    const char * p = getSourceString(i);
-    if (!p) continue;
+  auto n_inputs = adcGetMaxInputs(ADC_INPUT_STICK);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    const char* p = analogGetCanonicalName(ADC_INPUT_STICK, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
+    f_putc(',', &g_oLogFile);
+  }
 
-    // skip symbol
-    if (IS_UTF8(*p))
-      p += UTF8_WIDTH(*p);
-
-    size_t len = strlen(p);
-    for (uint8_t j=0; j<len; ++j) {
-      if (!*p) break;
-      f_putc(*p, &g_oLogFile);
-      ++p;
-    }
+  n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    if (!IS_POT_AVAILABLE(i)) continue;
+    const char* p = analogGetCanonicalName(ADC_INPUT_POT, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
     f_putc(',', &g_oLogFile);
   }
 
@@ -355,9 +354,19 @@ void logsWrite()
         }
       }
 
-      for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-        if (i < adcGetMaxSticks() || (i >= MAX_STICKS && IS_POT_AVAILABLE(i)))
-          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
+      auto n_inputs = adcGetMaxInputs(ADC_INPUT_STICK);
+      auto offset = adcGetInputOffset(ADC_INPUT_STICK);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+      }
+
+      n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+      offset = adcGetInputOffset(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        if (IS_POT_AVAILABLE(i))
+          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
       }
 
       for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
