@@ -79,13 +79,13 @@ void CurveDataEdit::update()
   })), LV_GRID_ALIGN_CENTER, 0, 1);
 
   form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y+1", [=]() {
-    curveEdit->up(1);
+    curveEdit->setY(1);
     setPointText();
     return 0;
   })), LV_GRID_ALIGN_CENTER, 1, 1);
 
   form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y+5", [=]() {
-    curveEdit->up(5);
+    curveEdit->setY(5);
     setPointText();
     return 0;
   })), LV_GRID_ALIGN_CENTER, 2, 1);
@@ -99,7 +99,7 @@ void CurveDataEdit::update()
   line = form.newLine(4);
 
   decX1 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X-1", [=]() {
-    curveEdit->left(1);
+    curveEdit->setX(-1);
     setPointText();
     return 0;
   });
@@ -109,7 +109,7 @@ void CurveDataEdit::update()
   form.cell(pointText, LV_GRID_ALIGN_CENTER, 1, 2);
 
   incX1 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X+1", [=]() {
-    curveEdit->right(1);
+    curveEdit->setX(1);
     setPointText();
     return 0;
   });
@@ -118,26 +118,26 @@ void CurveDataEdit::update()
   line = form.newLine(4);
 
   decX5 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X-5", [=]() {
-    curveEdit->left(5);
+    curveEdit->setX(-5);
     setPointText();
     return 0;
   });
   form.cell(decX5, LV_GRID_ALIGN_CENTER, 0, 1);
 
   form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y-1", [=]() {
-    curveEdit->down(1);
+    curveEdit->setY(-1);
     setPointText();
     return 0;
   })), LV_GRID_ALIGN_CENTER, 1, 1);
 
   form.cell((new TextButton(line, rect_t{0, 0, 50, BTN_H}, "Y-5", [=]() {
-    curveEdit->down(5);
+    curveEdit->setY(-5);
     setPointText();
     return 0;
   })), LV_GRID_ALIGN_CENTER, 2, 1);
 
   incX5 = new TextButton(line, rect_t{0, 0, 50, BTN_H}, "X+5", [=]() {
-    curveEdit->right(5);
+    curveEdit->setX(5);
     setPointText();
     return 0;
   });
@@ -202,10 +202,10 @@ void CurveEdit::selectPoint(int8_t chg)
   }
 }
 
-void CurveEdit::up(int8_t amt)
+void CurveEdit::setY(int8_t chg)
 {
   int8_t & point = curveAddress(index)[current];
-  int8_t n = min<int8_t>(100, point + amt);
+  int8_t n = max<int8_t>(-100, min<int8_t>(100, point + chg));
   if (n != point) {
     point = n;
     storageDirty(EE_MODEL);
@@ -213,39 +213,14 @@ void CurveEdit::up(int8_t amt)
   }
 }
 
-void CurveEdit::down(int8_t amt)
-{
-  int8_t & point = curveAddress(index)[current];
-  int8_t n = max<int8_t>(-100, point - amt);
-  if (n != point) {
-    point = n;
-    storageDirty(EE_MODEL);
-    updatePreview();
-  }
-}
-
-void CurveEdit::right(int8_t amt)
+void CurveEdit::setX(int8_t chg)
 {
   if (isEditableX()) {
-    CurveHeader & curve = g_model.curves[index];
-    int8_t * point = &curveAddress(index)[5 + curve.points + current - 1];
-    int8_t xmax = (current == (curve.points - 2) ? +100 : point[1]);
-    int8_t n = min<int8_t>(*point + amt, xmax-1);
-    if (n != *point) {
-      *point = n;
-      storageDirty(EE_MODEL);
-      updatePreview();
-    }
-  }
-}
-
-void CurveEdit::left(int8_t amt)
-{
-  if (isEditableX()) {
-    CurveHeader & curve = g_model.curves[index];
-    int8_t * point = &curveAddress(index)[5 + curve.points + current - 1];
+    uint8_t pMax = getCurvePointsCount() - 1;
+    int8_t * point = &curveAddress(index)[pMax + current];
     int8_t xmin = (current == 1 ? -100 : point[-1]);
-    int8_t n = max<int8_t>(xmin+1, *point - amt);
+    int8_t xmax = (current == pMax - 1 ? 100 : point[1]);
+    int8_t n = max<int8_t>(min<int8_t>(*point + chg, xmax-1), xmin+1);
     if (n != *point) {
       *point = n;
       storageDirty(EE_MODEL);
@@ -271,13 +246,13 @@ uint8_t CurveEdit::getCurvePointsCount() const
 
 int8_t CurveEdit::getX() const
 {
-  int n = getCurvePointsCount() - 1;
+  int pMax = getCurvePointsCount() - 1;
   if (isCustomCurve()) {
     if (current == 0) return -100;
-    if (current == n) return 100;
-    return curveAddress(index)[current + n];
+    if (current == pMax) return 100;
+    return curveAddress(index)[current + pMax];
   }
-  return -100 + (200 * current) / n;
+  return -100 + (200 * current) / pMax;
 }
 
 int8_t CurveEdit::getY() const
@@ -292,19 +267,19 @@ void CurveEdit::onEvent(event_t event)
   switch (event) {
 #if defined(HARDWARE_TOUCH)
     case EVT_VIRTUAL_KEY_LEFT:
-      left(1);
+      setX(-1);
       break;
 
     case EVT_VIRTUAL_KEY_RIGHT:
-      right(1);
+      setX(1);
       break;
 
     case EVT_VIRTUAL_KEY_UP:
-      up(1);
+      setY(1);
       break;
 
     case EVT_VIRTUAL_KEY_DOWN:
-      down(1);
+      setY(-1);
       break;
 
     case EVT_VIRTUAL_KEY_PREVIOUS:

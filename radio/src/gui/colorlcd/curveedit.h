@@ -81,10 +81,8 @@ class CurveEdit: public FormField
     bool isEditableX() const;
 
     void selectPoint(int8_t chg);
-    void up(int8_t amt);
-    void down(int8_t amt);
-    void right(int8_t amt);
-    void left(int8_t amt);
+    void setX(int8_t chg);
+    void setY(int8_t chg);
 
    protected:
     Curve preview;
