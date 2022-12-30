@@ -534,8 +534,8 @@ enum MixSources {
   MIXSRC_LAST_POT SKIP = MIXSRC_FIRST_POT + MAX_POTS - 1,
 
   MIXSRC_FIRST_AXIS SKIP,
-  MIXSRC_MOUSE1 = MIXSRC_FIRST_AXIS,    LUA_EXPORT("jsx", "Joystick X")
-  MIXSRC_MOUSE2,                        LUA_EXPORT("jsy", "Joystick Y")
+  MIXSRC_MOUSE1 SKIP = MIXSRC_FIRST_AXIS,    LUA_EXPORT("jsx", "Joystick X")
+  MIXSRC_MOUSE2 SKIP,                        LUA_EXPORT("jsy", "Joystick Y")
   MIXSRC_LAST_AXIS SKIP = MIXSRC_MOUSE2,
 
 #if defined(IMU)

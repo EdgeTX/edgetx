@@ -34,33 +34,17 @@
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBX7)
- #if defined(RADIO_T12)
-  #include "yaml_datastructs_t12.cpp"
- #elif defined(RADIO_TLITE)
-  #include "yaml_datastructs_tlite.cpp"
- #elif defined(RADIO_TX12)
-  #include "yaml_datastructs_tx12.cpp"
- #elif defined(RADIO_TX12MK2)
-  #include "yaml_datastructs_tx12mk2.cpp"
-#elif defined(RADIO_BOXER)
-  #include "yaml_datastructs_boxer.cpp"
- #elif defined(RADIO_ZORRO)
-  #include "yaml_datastructs_zorro.cpp"
- #elif defined(RADIO_T8)
-  #include "yaml_datastructs_t8.cpp"
- #elif defined(RADIO_TPRO)
+ #if defined(RADIO_TPRO)
   #include "yaml_datastructs_tpro.cpp"
- #elif defined(RADIO_LR3PRO)
-  #include "yaml_datastructs_lr3pro.cpp"
  #else
-  #include "yaml_datastructs_x7.cpp"
+  #include "yaml_datastructs_128x64.cpp"
  #endif
 #elif defined(PCBX9LITE) && !defined(PCBX9LITES)
  #include "yaml_datastructs_x9lite.cpp"
 #elif defined(PCBX9LITES)
- #include "yaml_datastructs_x9lites.cpp"
+ #include "yaml_datastructs_128x64.cpp"
 #elif defined(PCBXLITE) && !defined(PCBXLITES)
- #include "yaml_datastructs_xlite.cpp"
+ #include "yaml_datastructs_128x64.cpp"
 #elif defined(PCBXLITES)
  #include "yaml_datastructs_xlites.cpp"
 #elif defined(PCBX9E)

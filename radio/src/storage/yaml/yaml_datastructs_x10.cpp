@@ -111,8 +111,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-  {  MIXSRC_MOUSE1, "MOUSE1"  },
-  {  MIXSRC_MOUSE2, "MOUSE2"  },
   {  MIXSRC_TILT_X, "TILT_X"  },
   {  MIXSRC_TILT_Y, "TILT_Y"  },
   {  MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"  },
@@ -177,8 +175,6 @@ const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_TrimT5Up, "TrimT5Up"  },
   {  SWSRC_TrimT6Down, "TrimT6Down"  },
   {  SWSRC_TrimT6Up, "TrimT6Up"  },
-  {  SWSRC_SW1, "SW1"  },
-  {  SWSRC_SW2, "SW2"  },
   {  SWSRC_ON, "ON"  },
   {  SWSRC_ONE, "ONE"  },
   {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },

@@ -154,8 +154,6 @@ const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_TrimThrUp, "TrimThrUp"  },
   {  SWSRC_TrimAilLeft, "TrimAilLeft"  },
   {  SWSRC_TrimAilRight, "TrimAilRight"  },
-  {  SWSRC_SW1, "SW1"  },
-  {  SWSRC_SW2, "SW2"  },
   {  SWSRC_ON, "ON"  },
   {  SWSRC_ONE, "ONE"  },
   {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
