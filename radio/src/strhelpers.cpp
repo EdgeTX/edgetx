@@ -470,7 +470,7 @@ const char* getSwitchPositionSymbol(uint8_t pos)
 char *getSwitchPositionName(char *dest, swsrc_t idx)
 {
   if (idx == SWSRC_NONE) {
-    return getStringAtIndex(dest, STR_VSWITCHES, 0);
+    return strcpy(dest, STR_EMPTY);
   } else if (idx == SWSRC_OFF) {
     return getStringAtIndex(dest, STR_OFFON, 0);
   }
