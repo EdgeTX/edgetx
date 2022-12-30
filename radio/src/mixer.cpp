@@ -484,10 +484,10 @@ void evalInputs(uint8_t mode)
   }
 #endif
 
-  auto max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
+  auto max_calib_analogs = adcGetInputOffset(ADC_INPUT_VBAT);
   auto pots_offset = adcGetInputOffset(ADC_INPUT_POT);
   
-  for (uint8_t i = 0; i < max_analogs; i++) {
+  for (uint8_t i = 0; i < max_calib_analogs; i++) {
     // normalization [0..2048] -> [-1024..1024]
     int16_t v = anaIn(i);
     uint8_t ch = (i < pots_offset ? CONVERT_MODE(i) : i);
