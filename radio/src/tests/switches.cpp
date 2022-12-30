@@ -81,8 +81,8 @@ TEST(getSwitch, inputWithTrim)
   setModelDefaults();
   MIXER_RESET();
 
-  // g_model.logicalSw[0] = { LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0 };
   setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0);
+  anaSetFiltered(0, 0);
 
   evalMixes(1);
   evalLogicalSwitches();

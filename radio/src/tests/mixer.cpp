@@ -531,6 +531,8 @@ TEST_F(MixerTest, RecursiveAddChannel)
   g_model.mixData[2].destCh = 1;
   g_model.mixData[2].srcRaw = MIXSRC_FIRST_STICK;
   g_model.mixData[2].weight = 100;
+
+  anaSetFiltered(0, 0);
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], CHANNEL_MAX/2);
   EXPECT_EQ(chans[1], 0);
@@ -829,13 +831,16 @@ TEST_F(TrimsTest, throttleTrimWithCrossTrims)
 {
   g_model.thrTrim = 1;
   g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
+
   ExpoData *expo = expoAddress(THR_STICK);
   expo->carryTrim = TRIM_ELE;
+
   expo = expoAddress(ELE_STICK);
   expo->carryTrim = TRIM_THR;
 
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
+  anaSetFiltered(ELE_STICK,  0);
   setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[2], 1024);
@@ -911,6 +916,7 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
 
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
+  anaSetFiltered(ELE_STICK,  0);
   setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[2], -1024);

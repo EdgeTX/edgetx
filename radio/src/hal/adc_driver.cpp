@@ -256,6 +256,7 @@ uint32_t anaIn_diag(uint8_t chan)
 
 void anaSetFiltered(uint8_t chan, uint16_t val)
 {
+  val += RESX;
   s_anaFilt[chan] = val * (JITTER_ALPHA * ANALOG_MULTIPLIER);
 }
 
