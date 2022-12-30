@@ -30,7 +30,7 @@ struct hw_switch_def {
   SwitchHwType type;
 };
 
-#include "hw_switches.inc"
+#include "hal_switches.inc"
 
 int8_t switchesStates[n_total_switches] = { -1 };
 

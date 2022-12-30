@@ -26,7 +26,7 @@
 #include "definitions.h"
 
 // generated switch structs
-#include "hw_switches.inc"
+#include "stm32_switches.inc"
 
 #include <stdlib.h>
 

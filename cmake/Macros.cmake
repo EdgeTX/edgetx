@@ -105,34 +105,34 @@ function(AddHardwareDefTarget output)
   set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
   set(GEN_HW_DEFS ${GEN_HW_DEFS} | sed "'/^#define _/d'" | sort)
 
-  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_hw_def.py)
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
   set(GEN_JSON ${GEN_JSON} -i defines -)
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/generate_hw_def.py
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
     )
 
   add_custom_command(OUTPUT ${output}.h
     COMMAND ${GEN_HW_DEFS} > ${output}.h
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/generate_hw_def.py
+    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
     )
 endfunction()
 
 function(AddHWGenTarget input template output)
 
   # Script
-  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_hw_def.py)
+  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
 
   # Inputs
   set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
-  set(TEMPLATE ${RADIO_DIRECTORY}/util/${template}.jinja)
+  set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
 
   # Command
   set(GEN_JSON ${GEN_JSON} -t ${TEMPLATE} ${INPUT_JSON})
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_JSON} > ${output}
-    DEPENDS ${INPUT_JSON} ${RADIO_DIRECTORY}/util/${template}.jinja
+    DEPENDS ${INPUT_JSON} ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja
     )
 endfunction()

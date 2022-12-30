@@ -49,10 +49,8 @@ class ADCInput:
 
     TYPE_STICK  = 'STICK'
     TYPE_POT    = 'POT'
-    TYPE_EXT    = 'EXT'
-    TYPE_SLIDER = 'SLIDER'
     TYPE_SWITCH = 'SWITCH'
-    TYPE_BATT   = 'BATT'
+    # TYPE_BATT   = 'BATT'
 
     def __init__(self, name, adc_input_type, adc, gpio, pin, channel):
         self.name = name
@@ -212,16 +210,16 @@ class ADCInputParser:
             'name': 'P{}',
         },
         {
+            'range': range(1, MAX_SLIDERS + 1),
+            'type': ADCInput.TYPE_POT,
+            'suffix': 'SLIDER{}',
+            'name': 'SL{}',
+        },
+        {
             'range': range(1, MAX_EXTS + 1),
             'type': ADCInput.TYPE_POT,
             'suffix': 'EXT{}',
             'name': 'EXT{}',
-        },
-        {
-            'range': range(1, MAX_SLIDERS + 1),
-            'type': ADCInput.TYPE_SLIDER,
-            'suffix': 'SLIDER{}',
-            'name': 'SL{}',
         },
         {
             'range': range(1, 2 + 1),
@@ -352,7 +350,7 @@ class ADCInputParser:
 
     def _add_input(self, adc_input):
         if adc_input is not None:
-            if adc_input.type != 'BATT':
+            if adc_input.type != 'VBAT' and adc_input.type != 'RTC_BAT':
                 d = self.dirs[len(self.inputs)]
                 if d < 0:
                     adc_input.inverted = True
@@ -374,12 +372,12 @@ class ADCInputParser:
                     pass
 
         try:
-            self._add_input(self._parse_input_type('BATT', 'VBAT', 'BATT'))
+            self._add_input(self._parse_input_type('VBAT', 'VBAT', 'BATT'))
         except KeyError:
             pass
 
         try:
-            self._add_input(self._parse_input_type('BATT', 'RTC_BAT', 'RTC_BAT'))
+            self._add_input(self._parse_input_type('RTC_BAT', 'RTC_BAT', 'RTC_BAT'))
         except KeyError:
             pass
 

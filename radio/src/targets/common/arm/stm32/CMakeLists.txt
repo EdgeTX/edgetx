@@ -47,15 +47,17 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
-AddHWGenTarget(${HW_DESC_JSON} switches hw_switches.inc)
-AddHWGenTarget(${HW_DESC_JSON} adcs hw_adc_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_switches stm32_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_adc_inputs stm32_adc_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
 
 # enable generating JSON definition separately for debugging
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC}
-  ${CMAKE_CURRENT_BINARY_DIR}/hw_switches.inc
-  ${CMAKE_CURRENT_BINARY_DIR}/hw_adc_inputs.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32_switches.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32_adc_inputs.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
   ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 

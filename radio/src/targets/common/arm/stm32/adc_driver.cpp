@@ -22,7 +22,9 @@
 #include "adc_driver.h"
 #include "board_common.h"
 
-#include "hw_adc_inputs.inc"
+#include "stm32_adc_inputs.inc"
+#include "hal_adc_inputs.inc"
+
 #include "definitions.h"
 #include <string.h>
 
@@ -66,6 +68,7 @@ static void adc_wait_completion()
 }
 
 const etx_hal_adc_driver_t _adc_driver = {
+  _hal_inputs,
   adc_init,
   adc_start_read,
   adc_wait_completion

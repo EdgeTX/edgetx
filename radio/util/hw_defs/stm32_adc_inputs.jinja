@@ -78,18 +78,3 @@ static const stm32_adc_gpio_t _ADC_GPIOs[] = {
   { {{ adc_gpio }}, _ADC_{{ adc_gpio }}_pins, {{ adc_inputs|count }} },
 {% endfor %}
 };
-
-{% set stick_inputs = adc_inputs.inputs | selectattr('type', '==', 'STICK') %}
-static const char* _stick_inputs[] = {
-  {% for input in stick_inputs %}
-    "{{ input.name }}",
-  {% endfor %}
-};
-
-static const char* _pot_inputs[] = {
-  {% for input in adc_inputs.inputs %}
-    {% if input.type == 'POT' or input.type == 'SLIDER' %}
-    "{{ input.name }}",
-    {% endif %}  
-  {% endfor %}
-};
