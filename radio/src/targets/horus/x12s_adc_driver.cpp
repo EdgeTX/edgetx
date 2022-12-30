@@ -241,6 +241,7 @@ void x12s_adc_wait_completion()
 }
 
 const etx_hal_adc_driver_t x12s_adc_driver = {
+  _adc_driver.inputs,
   x12s_adc_init,
   x12s_adc_start_read,
   x12s_adc_wait_completion
