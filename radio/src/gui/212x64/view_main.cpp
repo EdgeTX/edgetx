@@ -180,8 +180,10 @@ static const coord_t _pot_slots[] = {
 void drawSliders()
 {
   uint8_t slot_idx = 0;
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_POT);
 
-  for (uint8_t i = 0; i < adcGetMaxPots(); i++) {
+  for (uint8_t i = 0; i < max_pots; i++) {
 
     // TODO: move this into board implementation
 #if defined(PCBX9E)
@@ -200,7 +202,7 @@ void drawSliders()
 
     // calculate once per loop
     y += LCD_H / 2 - 4;
-    y -= ((calibratedAnalogs[i] + RESX) * (LCD_H / 2 - 4) / (RESX * 2));
+    y -= ((calibratedAnalogs[offset + i] + RESX) * (LCD_H / 2 - 4) / (RESX * 2));
     lcdDrawSolidVerticalLine(x - 1, y, 2);
     lcdDrawSolidVerticalLine(x + 2, y, 2);
   }

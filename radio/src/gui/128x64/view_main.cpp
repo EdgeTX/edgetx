@@ -77,11 +77,13 @@ void drawExternalAntennaAndRSSI()
 void drawPotsBars()
 {
   // Optimization by Mike Blandford
-  uint8_t max_pots = adcGetMaxPots();
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_POT);
+
   for (uint8_t x = LCD_W / 2 - (max_pots - 1) * 5 / 2, i = 0; i < max_pots; x += 5, i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
       // calculate once per loop
-      auto v = calibratedAnalogs[MAX_STICKS + i] + RESX;
+      auto v = calibratedAnalogs[offset + i] + RESX;
       uint8_t len = (v * BAR_HEIGHT / (RESX * 2)) + 1l;
       V_BAR(x, LCD_H - 8, len);
     }

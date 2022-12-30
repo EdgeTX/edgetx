@@ -74,6 +74,7 @@ const etx_hal_adc_driver_t _adc_driver = {
   adc_wait_completion
 };
 
+// Exports for SPI ADC driver
 uint8_t adc_get_n_inputs() { return n_inputs; }
 const stm32_adc_input_t* adc_get_inputs() { return _ADC_inputs; }
 
@@ -83,27 +84,3 @@ const stm32_spi_adc_t* adc_spi_get()
   return nullptr;
 }
 
-int8_t adcGetVRTC() { return _vrtc_input; }
-int8_t adcGetVBAT() { return _vbat_input; }
-
-const char* adcGetStickName(uint8_t idx)
-{
-  if (idx >= DIM(_stick_inputs)) return "";
-  return _stick_inputs[idx];
-}
-
-const char* adcGetPotName(uint8_t idx)
-{
-  if (idx >= DIM(_pot_inputs)) return "";
-  return _pot_inputs[idx];
-}
-
-uint8_t adcGetMaxSticks()
-{
-  return DIM(_stick_inputs);
-}
-
-uint8_t adcGetMaxPots()
-{
-  return DIM(_pot_inputs);
-}

@@ -24,15 +24,6 @@
 #include "stm32_hal_ll.h"
 #include "hal/adc_driver.h"
 
-enum {
-  ADC_INPUT_STICK=0,
-  ADC_INPUT_POT,
-  ADC_INPUT_SLIDER,
-  ADC_INPUT_EXT,
-  ADC_INPUT_SWITCH,
-  ADC_INPUT_BATT,
-  ADC_INPUT_AXIS,
-};
 
 struct stm32_adc_input_t {
   const char*   name;

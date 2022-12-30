@@ -242,12 +242,14 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       break;
     case INPUT_SRC_KNOB :
     case INPUT_SRC_SLIDER :
-      setAnalogValue(index + MAX_STICKS, value);
+      setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
       break;
-    case INPUT_SRC_TXVIN : {
-      auto idx = adcGetVBAT();
-      if (idx >= 0) setAnalogValue(idx, voltageToAdc(value));
-    } break;
+    case INPUT_SRC_TXVIN :
+      if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
+        auto idx = adcGetInputOffset(ADC_INPUT_VBAT);
+        setAnalogValue(idx, voltageToAdc(value));
+      }
+      break;
     case INPUT_SRC_SWITCH :
       setSwitch(index, (int8_t)value);
       break;

@@ -47,35 +47,3 @@ const etx_hal_adc_driver_t simu_adc_driver = {
   .start_conversion = simu_start_conversion,
   .wait_completion = nullptr,
 };
-
-int8_t adcGetVBAT()
-{
-  return MAX_STICKS + DIM(_pot_inputs);
-}
-
-int8_t adcGetVRTC()
-{
-  return -1;
-}
-
-const char* adcGetStickName(uint8_t idx)
-{
-  if (idx >= DIM(_stick_inputs)) return "";
-  return _stick_inputs[idx];
-}
-
-const char* adcGetPotName(uint8_t idx)
-{
-  if (idx >= DIM(_pot_inputs)) return "";
-  return _pot_inputs[idx];
-}
-
-uint8_t adcGetMaxSticks()
-{
-  return DIM(_stick_inputs);
-}
-
-uint8_t adcGetMaxPots()
-{
-  return DIM(_pot_inputs);
-}

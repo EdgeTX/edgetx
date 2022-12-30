@@ -485,7 +485,6 @@ void evalInputs(uint8_t mode)
 #endif
 
   auto max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
   auto pots_offset = adcGetInputOffset(ADC_INPUT_POT);
   
   for (uint8_t i = 0; i < max_analogs; i++) {

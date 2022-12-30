@@ -647,7 +647,7 @@ swsrc_t getMovedSwitch()
 
   // Switches
   auto max_reg_switches = switchGetMaxSwitches();
-  for (int i = 0; i < switchGetMaxSwitches(); i++) {
+  for (uint8_t i = 0; i < max_reg_switches; i++) {
     if (SWITCH_EXISTS(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x07 << (i * 3));
       uint8_t prev = (switches_states & mask) >> (i * 3);
@@ -661,7 +661,8 @@ swsrc_t getMovedSwitch()
   }
 
 #if defined(FUNCTION_SWITCHES)
-  for (int i = 0; i < switchGetMaxFctSwitches(); i++) {
+  auto max_fct_switches = switchGetMaxFctSwitches();
+  for (uint8_t i = 0; i < max_fct_switches; i++) {
     if (FSWITCH_CONFIG(i) != SWITCH_NONE) {
       auto prev = (uint8_t )(bfSingleBitGet(fsswitches_states, i) >> (i));
       uint8_t next = getFSLogicalState(i);

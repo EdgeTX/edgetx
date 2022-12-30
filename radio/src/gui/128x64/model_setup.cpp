@@ -262,7 +262,7 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS ((g_model.potsWarnMode) ? adcGetMaxPots() : (uint8_t)0)
+#define POT_WARN_ROWS ((g_model.potsWarnMode) ? adcGetMaxInputs(ADC_INPUT_POT) : (uint8_t)0)
 #define TIMER_ROWS(x)                                                  \
   1, 0, (uint8_t)((g_model.timers[x].start) ? 2 : 1), 0, 0,            \
       g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
@@ -467,7 +467,7 @@ void menuModelSetup(event_t event)
       0, // Custom position for throttle warning value
       WARN_ROWS
 
-    uint8_t(adcGetMaxSticks() + adcGetMaxPots() - 1), // Center beeps
+    uint8_t(adcGetMaxInputs(ADC_INPUT_STICK) + adcGetMaxInputs(ADC_INPUT_POT) - 1), // Center beeps
     0, // Global functions
 
     0, // ADC Jitter filter
@@ -750,7 +750,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              adcGetMaxPots() + MAX_OUTPUT_CHANNELS,
+              adcGetMaxInputs(ADC_INPUT_POT) + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -924,7 +924,7 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          uint8_t max_pots = adcGetMaxPots();
+          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
           for (int i = 0; i < max_pots; ++i) {
 
             if (!IS_POT_SLIDER_AVAILABLE(i)) {
@@ -947,7 +947,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        uint8_t input_max = adcGetMaxSticks() + adcGetMaxPots();
+        uint8_t input_max = adcGetMaxInputs(ADC_INPUT_STICK) + adcGetMaxInputs(ADC_INPUT_POT);
         for (uint8_t i = 0; i < input_max; i++) {
           coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
           LcdFlags flags = 0;
