@@ -228,6 +228,16 @@ class ADCInputParser:
             'name': MouseName(),
         },
         {
+            'type': 'VBAT',
+            'name': 'VBAT',
+            'suffix': 'BATT',
+        },
+        {
+            'type': 'RTC_BAT',
+            'name': 'RTC_BAT',
+            'suffix': 'RTC_BAT',
+        },
+        {
             'range': AZ_seq(),
             'type': ADCInput.TYPE_SWITCH,
             'suffix': 'SW{}',
@@ -363,23 +373,24 @@ class ADCInputParser:
 
         for adc_input in self.ADC_INPUTS:
             input_type = adc_input['type']
-            for i in adc_input['range']:
-                name = adc_input['name'].format(i)
-                suffix = adc_input['suffix'].format(i)
+            input_range = adc_input.get('range')
+
+            if input_range is not None:
+                for i in input_range:
+                    name = adc_input['name'].format(i)
+                    suffix = adc_input['suffix'].format(i)
+                    try:
+                        self._add_input(self._parse_input_type(input_type, name, suffix))
+                    except KeyError:
+                        pass
+            else:
+                # type, name, suffix
+                name = adc_input['name']
+                suffix = adc_input['suffix']
                 try:
                     self._add_input(self._parse_input_type(input_type, name, suffix))
                 except KeyError:
                     pass
-
-        try:
-            self._add_input(self._parse_input_type('VBAT', 'VBAT', 'BATT'))
-        except KeyError:
-            pass
-
-        try:
-            self._add_input(self._parse_input_type('RTC_BAT', 'RTC_BAT', 'RTC_BAT'))
-        except KeyError:
-            pass
 
         return { 'adcs': self.adcs, 'inputs': self.inputs }
 

@@ -7,7 +7,7 @@ static const stm32_adc_input_t _ADC_inputs[] = {
 {% for input in adc_inputs.inputs %}
   {
     "{{ input.name }}",
-    ADC_INPUT_{{ input.type }},
+    // ADC_INPUT_{{ input.type }},
     {{ input.gpio if input.gpio else 'nullptr' }},
     {{ input.pin if input.gpio else '0' }},
     {{ input.channel if input.channel else '0' }},
