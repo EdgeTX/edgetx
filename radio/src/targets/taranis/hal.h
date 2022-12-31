@@ -433,7 +433,7 @@
   #define SWITCHES_GPIO_REG_A_H         GPIOE
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_A_L         GPIOE
-  #define SWITCHES_GPIO_PIN_A_L         GPIO_Pin_0     // PE.00
+  #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_0  // PE.00
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO)
   #define STORAGE_SWITCH_A
   #define HARDWARE_SWITCH_A
@@ -1376,10 +1376,9 @@
 #if defined(RADIO_BOXER)
   #define HARDWARE_POT3                 // 6 POS
   #define ADC_GPIO_PIN_POT3             GPIO_Pin_5  // PA.05
-  #define ADC_CHANNEL_POT3              ADC_Channel_5
+  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_5
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
 #else
-  #define ADC_CHANNEL_POT3              0
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2)
 #endif
   #define ADC_GPIOB_PINS                ADC_GPIO_PIN_POT1
