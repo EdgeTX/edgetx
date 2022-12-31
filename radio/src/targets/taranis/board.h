@@ -31,7 +31,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)  || defined(RADIO_ZORRO)
   #define  NAVIGATION_X7_TX12
 #endif
 
@@ -273,7 +273,7 @@ enum EnumSwitches
 };
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define IS_3POS(x)                      ((x) != SW_SA && (x) != SW_SD)
-#elif defined(RADIO_ZORRO)
+#elif defined(RADIO_BOXER) || defined(RADIO_ZORRO)
   #define IS_3POS(x)                      ((x) == SW_SB || (x) == SW_SC)
 #else
   #define IS_3POS(x)                      ((x) != SW_SF && (x) != SW_SH)
@@ -404,6 +404,11 @@ enum EnumSwitchesPositions
   #define STORAGE_NUM_SWITCHES          8
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_3POS << 10) + (SWITCH_3POS << 8) + (SWITCH_TOGGLE << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_TOGGLE << 0)
   #define DEFAULT_POTS_CONFIG           (POT_WITH_DETENT << 0) + (POT_WITH_DETENT << 2);
+#elif defined(RADIO_BOXER)
+  #define NUM_SWITCHES                  6
+  #define STORAGE_NUM_SWITCHES          8
+  #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_2POS << 0)
+  #define DEFAULT_POTS_CONFIG           (POT_WITH_DETENT << 0) + (POT_WITH_DETENT << 2) + (POT_MULTIPOS_SWITCH << 4);
 #elif defined(RADIO_ZORRO)
   #define NUM_SWITCHES                  8
   #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
@@ -485,6 +490,10 @@ enum Analogs {
   POT1 = POT_FIRST,
 #if defined(PCBX9LITE)
   POT_LAST = POT1,
+#elif defined(RADIO_BOXER)
+  POT2,
+  POT3,
+  POT_LAST = POT3,
 #elif defined(PCBXLITE) || defined(PCBX7)
   POT2,
   POT_LAST = POT2,
@@ -520,6 +529,11 @@ enum Analogs {
   #define NUM_POTS                      0
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              2
+  #define STORAGE_NUM_SLIDERS           0
+#elif defined(RADIO_BOXER)
+  #define NUM_POTS                      3 // S1 + S2 + 6POS
+  #define NUM_SLIDERS                   0
+  #define STORAGE_NUM_POTS              3
   #define STORAGE_NUM_SLIDERS           0
 #elif defined(PCBXLITE) || defined(PCBX7)
   #define NUM_POTS                      2
@@ -698,6 +712,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster TX12"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '2', ' '  /* 8 Bytes */
+#elif defined(RADIO_BOXER)
+  #define USB_NAME                     "Radiomaster Boxer"
+  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'R', 'M', ' ', 'B', 'o', 'x', 'e', 'r'  /* 8 Bytes */
 #elif defined(RADIO_ZORRO)
   #define USB_NAME                     "Radiomaster Zorro"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
@@ -890,7 +908,7 @@ void fsLedOn(uint8_t);
 #define IS_LCD_RESET_NEEDED()           true
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define LCD_CONTRAST_DEFAULT          20
 #elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
   #define LCD_CONTRAST_DEFAULT          25
@@ -964,7 +982,7 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
   #define BATTERY_DIVIDER 22830
 #elif defined (RADIO_T8) || defined(RADIO_COMMANDO8)
   #define BATTERY_DIVIDER 50000
-#elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
 #elif defined (RADIO_LR3PRO)
   #define BATTERY_DIVIDER 39500
@@ -972,7 +990,7 @@ extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
   #define BATTERY_DIVIDER 26214
 #endif 
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define VOLTAGE_DROP 45
 #else
   #define VOLTAGE_DROP 20

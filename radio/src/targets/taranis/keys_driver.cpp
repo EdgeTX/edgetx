@@ -184,7 +184,7 @@ uint32_t switchState(uint8_t index)
 
   switch (index) {
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
     ADD_2POS_CASE(A);
     ADD_3POS_CASE(B, 1);
     ADD_3POS_CASE(C, 2);
@@ -230,6 +230,10 @@ uint32_t switchState(uint8_t index)
     ADD_2POS_CASE(D);
     ADD_3POS_CASE(E, 4);
     ADD_3POS_CASE(F, 5);
+#elif defined(RADIO_BOXER)
+    ADD_2POS_CASE(D);
+    ADD_2POS_CASE(E);
+    ADD_2POS_CASE(F);
 #elif defined(RADIO_TX12) || defined(RADIO_ZORRO)
     ADD_2POS_CASE(D);
     ADD_3POS_CASE(E, 4);
