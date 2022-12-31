@@ -789,7 +789,7 @@
 #define TR_RENAME_FILE                  "Byt namn"
 #define TR_ASSIGN_BITMAP                "Tilldela ikon"
 #define TR_ASSIGN_SPLASH                "Startbild"
-#define TR_EXECUTE_FILE                 "Utför"
+#define TR_EXECUTE_FILE                 "Exekvera"
 #define TR_REMOVED                      " raderad"
 #define TR_SD_INFO                      "Information"
 #define TR_SD_FORMAT                    "Formatera"
