@@ -25,58 +25,7 @@
 #include "form.h"
 #include "curve.h"
 
-class CurveEdit;
-class FormGridLayout;
-class StaticText;
-class TextButton;
-class FormBuilder;
-
-class CurveDataEdit : public Window
-{
-  friend class CurveEdit;
-
-  public:
-    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
-    ~CurveDataEdit();
-
-    void setCurveEdit(CurveEdit* _curveEdit);
-
-    void build();
-    void buildSettings();
-    void buildList();
-    void buildEdit();
-    void update();
-
-    void showEdit(uint8_t point);
-    void hideEdit();
-
-    void onEvent(event_t event) override;
-
-  protected:
-    uint8_t index;
-    FormBuilder* form = nullptr;
-    CurveEdit * curveEdit;
-    StaticText* pointNText;
-    StaticText* pointXText;
-    StaticText* pointYText;
-    TextButton* pointButtons[17];
-    TextButton* decX1;
-    TextButton* incX1;
-    TextButton* decX2;
-    TextButton* incX2;
-    Window* editWindow = nullptr;
-    Window* mainWindow = nullptr;
-    Window* pointsWindow = nullptr;
-    bool isEditing;
-    bool symmetry;
-
-    void setX(int8_t chg);
-    void setY(int8_t chg);
-    void symmetryAdjust();
-
-    void setPointText();
-    void setPointsListText(uint8_t n);
-};
+class CurveDataEdit;
 
 class CurveEdit: public FormField
 {
@@ -123,27 +72,6 @@ class CurveEdit: public FormField
     bool showEdit;
     static mixsrc_t currentSource;
     static bool lockSource;
-};
-
-class CurveDataEdit : public Window
-{
-  public:
-    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
-
-    void setCurveEdit(CurveEdit* _curveEdit)
-    {
-      curveEdit = _curveEdit;
-      update();
-    }
-
-    void update();
-
-  protected:
-    uint8_t index;
-    CurveEdit * curveEdit;
-    NumberEdit* numEditX[16];
-
-    void curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
 };
 
 class CurveEditWindow : public Page

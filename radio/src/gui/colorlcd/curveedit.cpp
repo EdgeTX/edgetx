@@ -25,6 +25,51 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+class CurveDataEdit : public Window
+{
+  public:
+    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
+    ~CurveDataEdit();
+
+    void setCurveEdit(CurveEdit* _curveEdit);
+
+    void build();
+    void buildSettings();
+    void buildList();
+    void buildEdit();
+    void update();
+
+    void showEdit(uint8_t point);
+    void hideEdit();
+
+    void onEvent(event_t event) override;
+
+  protected:
+    uint8_t index;
+    FormBuilder* form = nullptr;
+    CurveEdit * curveEdit;
+    StaticText* pointNText;
+    StaticText* pointXText;
+    StaticText* pointYText;
+    TextButton* pointButtons[17];
+    TextButton* decX1;
+    TextButton* incX1;
+    TextButton* decX2;
+    TextButton* incX2;
+    Window* editWindow = nullptr;
+    Window* mainWindow = nullptr;
+    Window* pointsWindow = nullptr;
+    bool isEditing;
+    bool symmetry;
+
+    void setX(int8_t chg);
+    void setY(int8_t chg);
+    void symmetryAdjust();
+
+    void setPointText();
+    void setPointsListText(uint8_t n);
+};
+
 CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index) :
   Window(parent, rect),
   index(index)
@@ -608,9 +653,10 @@ void CurveEdit::checkEvents()
   FormField::checkEvents();
 }
 
+
 CurveEditWindow::CurveEditWindow(uint8_t index):
-  Page(ICON_MODEL_CURVES),
-  index(index)
+      Page(ICON_MODEL_CURVES),
+      index(index)
 {
   buildBody(&body);
   buildHeader(&header);
@@ -626,22 +672,12 @@ void CurveEditWindow::buildHeader(Window * window)
 
 void CurveEditWindow::buildBody(FormWindow * window)
 {
-  CurveHeader & curve = g_model.curves[index];
-  int8_t * points = curveAddress(index);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->padAll(0);
-  form->setFlexLayout();
-
-  FlexGridLayout grid(default_col_dsc, default_row_dsc, 0);
-  
-  auto line = form->newLine(&grid);
-  line->padAll(0);
-  lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+  FormBuilder form(window, 0);
+  auto line = form.newLine();
 
 #if LCD_H > LCD_W // portrait
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
-  coord_t curveWidth = window->width() - 88;
+  coord_t curveWidth = window->width() - 94;
   coord_t boxWidth = window->width();
   coord_t boxHeight = window->height() - curveWidth;
 #else
@@ -651,100 +687,13 @@ void CurveEditWindow::buildBody(FormWindow * window)
   coord_t boxHeight = window->height();
 #endif
 
-  auto box = new Window(line, rect_t{});
-  box->setWidth(boxWidth);
-  box->setHeight(boxHeight);
-  box->padAll(0);
-
-  static const lv_coord_t controls_col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(8), LV_GRID_FR(5), LV_GRID_TEMPLATE_LAST};
-
-  form = new FormWindow(box, rect_t{});
-  form->padAll(0);
-  form->setFlexLayout();
-
-  FlexGridLayout iGrid(controls_col_dsc, default_row_dsc, 0);
-  
-  auto iLine = form->newLine(&iGrid);
-  iLine->padAll(4);
-  iLine->padBottom(0);
-  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
-
-  // Name
-  new StaticText(iLine, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
-  new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name));
-
-  // Smooth
-  auto smooth = new TextButton(iLine, rect_t{0, 0, 70, 0}, STR_SMOOTH, [=]() {
-    g_model.curves[index].smooth = !g_model.curves[index].smooth;
-    curveEdit->updatePreview();
-    return g_model.curves[index].smooth;
-  });
-  smooth->check(g_model.curves[index].smooth);
-  
-  iLine = form->newLine(&iGrid);
-  iLine->padAll(4);
-  iLine->padBottom(0);
-  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
-
-  // Type
-  new StaticText(iLine, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(iLine, rect_t{0, 0, 100, 0}, STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
-             [=](int32_t newValue) {
-                 CurveHeader &curve = g_model.curves[index];
-                 if (newValue != curve.type) {
-                   for (int i = 1; i < 4 + curve.points; i++) {
-                     points[i] = calcRESXto100(applyCustomCurve(calc100toRESX(-100 + i * 200 / (4 + curve.points)), index));
-                   }
-                   if (moveCurve(index, newValue == CURVE_TYPE_CUSTOM ? 3 + curve.points : -3 - curve.points)) {
-                     if (newValue == CURVE_TYPE_CUSTOM) {
-                       resetCustomCurveX(points, 5 + curve.points);
-                     }
-                     curve.type = newValue;
-                   }
-                   SET_DIRTY();
-                   curveEdit->updatePreview();
-                   if (curveDataEdit) {
-                     curveDataEdit->update();
-                   }
-                 }
-             });
-
-  // Points count
-  auto edit = new NumberEdit(iLine, rect_t{0, 0, 70, 0}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
-                             [=](int32_t newValue) {
-                                 newValue -= 5;
-                                 CurveHeader &curve = g_model.curves[index];
-                                 int newPoints[MAX_POINTS_PER_CURVE];
-                                 newPoints[0] = points[0];
-                                 newPoints[4 + newValue] = points[4 + curve.points];
-                                 for (int i = 1; i < 4 + newValue; i++)
-                                   newPoints[i] = calcRESXto100(applyCustomCurve(-RESX + (i * 2 * RESX) / (4 + newValue), index));
-                                 if (moveCurve(index, (newValue - curve.points) * (curve.type == CURVE_TYPE_CUSTOM ? 2 : 1))) {
-                                   for (int i = 0; i < 5 + newValue; i++) {
-                                     points[i] = newPoints[i];
-                                     if (curve.type == CURVE_TYPE_CUSTOM && i != 0 && i != 4 + newValue)
-                                       points[5 + newValue + i - 1] = -100 + (i * 200) / (4 + newValue);
-                                   }
-                                   curve.points = newValue;
-                                   SET_DIRTY();
-                                   curveEdit->updatePreview();
-                                   if (curveDataEdit) {
-                                     curveDataEdit->update();
-                                   }
-                                 }
-                             });
-  edit->setSuffix(STR_PTS);
-  edit->setDefault(5);
-
-  iLine = form->newLine(&iGrid);
-  iLine->padAll(0);
-  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
-
-  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 72 }, index);
-
-  // Curve editor
-  lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+  // Curve editor preview
+  lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
   curveEdit = new CurveEdit(line, { 0, 0, curveWidth, curveWidth }, index);
-  
+
+  auto box = form.newBox(boxWidth, boxHeight, 0);
+
+  curveDataEdit = new CurveDataEdit(box, rect_t{0, 0, boxWidth, boxHeight}, index);
+
   curveDataEdit->setCurveEdit(curveEdit);
 }

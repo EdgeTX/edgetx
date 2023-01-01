@@ -50,10 +50,6 @@ Curve::Curve(Window * parent, const rect_t & rect, std::function<int(int)> funct
       position(std::move(position)),
       selected(std::move(selected))
 {
-  dx = 6;
-  dy = 6;
-  dw = width() - 12;
-  dh = height() - 12;
 }
 
 void Curve::drawBackground(BitmapBuffer * dc)
@@ -178,13 +174,12 @@ void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
 
 void Curve::paint(BitmapBuffer * dc)
 {
-  // Adjust border - if drawing points leave more space to prevent clipping of end points.
-  if (points.size() > 0) {
-    dx = 4;
-    dy = 4;
+  if (selected) {
+    dx = 6;
+    dy = 6;
   } else {
-    dx = 2;
-    dy = 2;
+    dx = 3;
+    dy = 3;
   }
   dw = width() - dx * 2;
   dh = height() - dy * 2;
