@@ -1129,6 +1129,8 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tener premuto [R TRIM] per scrivere"
   #define TR_BL_EXIT_KEY              " [L TRIM] per uscire"
+  #define TR_BL_ENABLE                "Attivo"
+  #define TR_BL_DISABLE               "Disabilitato"
 #endif
 
 // About screen
