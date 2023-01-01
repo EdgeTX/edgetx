@@ -29,6 +29,7 @@ class CurveEdit;
 class FormGridLayout;
 class StaticText;
 class TextButton;
+class FormBuilder;
 
 class CurveDataEdit : public Window
 {
@@ -36,21 +37,45 @@ class CurveDataEdit : public Window
 
   public:
     CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
+    ~CurveDataEdit();
 
     void setCurveEdit(CurveEdit* _curveEdit);
 
+    void build();
+    void buildSettings();
+    void buildList();
+    void buildEdit();
     void update();
+
+    void showEdit(uint8_t point);
+    void hideEdit();
+
+    void onEvent(event_t event) override;
 
   protected:
     uint8_t index;
+    FormBuilder* form = nullptr;
     CurveEdit * curveEdit;
-    StaticText* pointText;
+    StaticText* pointNText;
+    StaticText* pointXText;
+    StaticText* pointYText;
+    TextButton* pointButtons[17];
     TextButton* decX1;
     TextButton* incX1;
-    TextButton* decX5;
-    TextButton* incX5;
+    TextButton* decX2;
+    TextButton* incX2;
+    Window* editWindow = nullptr;
+    Window* mainWindow = nullptr;
+    Window* pointsWindow = nullptr;
+    bool isEditing;
+    bool symmetry;
+
+    void setX(int8_t chg);
+    void setY(int8_t chg);
+    void symmetryAdjust();
 
     void setPointText();
+    void setPointsListText(uint8_t n);
 };
 
 class CurveEdit: public FormField
@@ -73,21 +98,29 @@ class CurveEdit: public FormField
 
     void checkEvents(void) override;
 
+    void showCurrent(bool state) { showEdit = state; }
+
     uint8_t getCurrent() const { return current; }
     uint8_t getCurvePointsCount() const;
-    int8_t getX() const;
-    int8_t getY() const;
+    int8_t getX(uint8_t n) const;
+    int8_t getX() const { return getX(current); }
+    int8_t getY(uint8_t n) const;
+    int8_t getY() const { return getY(current); }
     bool isCustomCurve() const;
     bool isEditableX() const;
 
+    bool setCurrent(uint8_t n);
     void selectPoint(int8_t chg);
     void setX(int8_t chg);
     void setY(int8_t chg);
+    void setX(uint8_t n, int8_t value);
+    void setY(uint8_t n, int8_t value);
 
    protected:
     Curve preview;
     uint8_t index;
     uint8_t current;
+    bool showEdit;
     static mixsrc_t currentSource;
     static bool lockSource;
 };

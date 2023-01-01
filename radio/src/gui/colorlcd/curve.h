@@ -48,13 +48,7 @@ class CurveRenderer
 class Curve: public Window
 {
   public:
-    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr, std::function<int()> selected=nullptr):
-      Window(parent, rect, OPAQUE),
-      function(std::move(function)),
-      position(std::move(position)),
-      selected(std::move(selected))
-    {
-    }
+    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr, std::function<int()> selected=nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override

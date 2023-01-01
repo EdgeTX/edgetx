@@ -88,11 +88,11 @@ public:
     return m_line;
   }
 
-  Window* newBox(coord_t w = 0, coord_t h = 0)
+  Window* newBox(coord_t w = 0, coord_t h = 0, coord_t padding = 4)
   {
     auto box = new Window(m_line, rect_t{});
-    box->padLeft(lv_dpx(4));
-    box->padRight(lv_dpx(4));
+    box->padLeft(lv_dpx(padding));
+    box->padRight(lv_dpx(padding));
     if (w)
       box->setWidth(w);
     if (h)
