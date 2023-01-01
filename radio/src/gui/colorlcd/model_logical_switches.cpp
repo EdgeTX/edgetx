@@ -162,7 +162,7 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](int32_t value) {
-          return std::to_string(lswTimerValue(value));
+          return formatNumberAsString(lswTimerValue(value), PREC1);
         });
         grid.nextLine();
       }
