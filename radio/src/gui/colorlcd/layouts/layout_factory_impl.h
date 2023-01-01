@@ -105,8 +105,18 @@ class Layout: public LayoutBase
     const LayoutFactory * factory  = nullptr;
     std::unique_ptr<ViewMainDecoration> decoration;
 
+    enum DecorationSettings {
+        DECORATION_NONE       = 0x00,
+        DECORATION_TOPBAR     = 0x01,
+        DECORATION_SLIDERS    = 0x02,
+        DECORATION_TRIMS      = 0x04,
+        DECORATION_FLIGHTMODE = 0x08,
+        DECORATION_MIRRORED   = 0x10,
+        DECORATION_UNKNOWN    = 0xFF
+    };
+
     // Decoration settings bitmask to detect updates
-    uint8_t  decorationSettings = 255;
+    uint8_t  decorationSettings = DECORATION_UNKNOWN;
 
     // Last time we refreshed the window
     uint32_t lastRefresh = 0;
