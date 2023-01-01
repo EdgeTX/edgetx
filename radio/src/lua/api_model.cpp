@@ -26,10 +26,14 @@
 #include "../timers.h"
 #include "model_init.h"
 #include "gvars.h"
+#include "switches.h"
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
 #endif
+
+// Check limits on values read from Lua
+#define LIMIT(x, x_min, x_max) if(x < x_min) x = x_min; else if(x > x_max) x = x_max;
 
 /*luadoc
 @function model.getInfo()
@@ -325,6 +329,7 @@ static int luaModelSetTimer(lua_State *L)
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "mode")) {
         timer.mode = luaL_checkinteger(L, -1);
+				LIMIT(timer.mode, 0, TMRMODE_MAX)
       }
       else if (!strcmp(key, "start")) {
         timer.start = luaL_checkinteger(L, -1);
@@ -334,12 +339,14 @@ static int luaModelSetTimer(lua_State *L)
       }
       else if (!strcmp(key, "countdownBeep")) {
         timer.countdownBeep = luaL_checkinteger(L, -1);
+				LIMIT(timer.countdownBeep, 0, 3)
       }
       else if (!strcmp(key, "minuteBeep")) {
         timer.minuteBeep = lua_toboolean(L, -1);
       }
       else if (!strcmp(key, "persistent")) {
         timer.persistent = luaL_checkinteger(L, -1);
+				LIMIT(timer.persistent, 0, 2)
       }
       else if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
@@ -517,12 +524,15 @@ static int luaModelSetFlightMode(lua_State * L)
     }
     else if (!strcmp(key, "switch")) {
       fm->swtch = luaL_checkinteger(L, -1);
+			LIMIT(fm->swtch, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES)
     }
     else if (!strcmp(key, "fadeIn")) {
       fm->fadeIn = luaL_checkinteger(L, -1);
+			LIMIT(fm->fadeIn, 0, DELAY_MAX)
     }
     else if (!strcmp(key, "fadeOut")) {
       fm->fadeOut = luaL_checkinteger(L, -1);
+			LIMIT(fm->fadeOut, 0, DELAY_MAX)
     }
     else if (!strcmp(key, "trimsValues")) {
       luaL_checktype(L, -1, LUA_TTABLE);
@@ -1019,34 +1029,68 @@ static int luaModelSetLogicalSwitch(lua_State *L)
 {
   unsigned int idx = luaL_checkunsigned(L, 1);
   if (idx < MAX_LOGICAL_SWITCHES) {
-    LogicalSwitchData * sw = lswAddress(idx);
-    memclear(sw, sizeof(LogicalSwitchData));
+		// First, read data into a local struct
+    LogicalSwitchData sw;
+		memclear(&sw, sizeof(LogicalSwitchData));
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "func")) {
-        sw->func = luaL_checkinteger(L, -1);
+        sw.func = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v1")) {
-        sw->v1 = luaL_checkinteger(L, -1);
+        sw.v1 = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v2")) {
-        sw->v2 = luaL_checkinteger(L, -1);
+        sw.v2 = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "v3")) {
-        sw->v3 = luaL_checkinteger(L, -1);
+        sw.v3 = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "and")) {
-        sw->andsw = luaL_checkinteger(L, -1);
+        sw.andsw = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "delay")) {
-        sw->delay = luaL_checkinteger(L, -1);
+        sw.delay = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "duration")) {
-        sw->duration = luaL_checkinteger(L, -1);
+        sw.duration = luaL_checkinteger(L, -1);
       }
     }
+		
+		// Second, validate data in the local struct
+		if(sw.func <= 0 || sw.func > LS_FUNC_MAX) {
+			memclear(&sw, sizeof(LogicalSwitchData));
+		}
+		else
+		{
+			unsigned int cstate = lswFamily(sw.func);
+
+			if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+				LIMIT(sw.v1, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES)
+				LIMIT(sw.v2, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES)
+				LIMIT(sw.v3, -1, 100)
+			}
+			else if (cstate == LS_FAMILY_EDGE) {
+				LIMIT(sw.v1, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES)
+				LIMIT(sw.v2, -129, 122)
+				LIMIT(sw.v3, -1, 222 - sw.v2)
+			}
+			else if (cstate == LS_FAMILY_TIMER) {
+				LIMIT(sw.v1, -128, 122)
+				LIMIT(sw.v2, -128, 122)
+				LIMIT(sw.v3, -1, 100)
+			}
+			else {
+				LIMIT(sw.v1, 0, MIXSRC_LAST_TELEM)
+				LIMIT(sw.v2, 0, MIXSRC_LAST_TELEM)
+				LIMIT(sw.v3, -1, 100)
+			}
+		}
+		
+		// Third, copy validated data from local struct to the LS
+		*lswAddress(idx) = sw;
     storageDirty(EE_MODEL);
   }
 
@@ -1470,42 +1514,50 @@ that parameter remains unchanged.
 
 @status current Introduced in 2.0.0
 */
+
 static int luaModelSetOutput(lua_State *L)
 {
   unsigned int idx = luaL_checkunsigned(L, 1);
   if (idx < MAX_OUTPUT_CHANNELS) {
-    LimitData * limit = limitAddress(idx);
-    memclear(limit, sizeof(LimitData));
+		int lim = (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX);
+    LimitData limit;
+		memclear(&limit, sizeof(LimitData));
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
       if (!strcmp(key, "name")) {
         const char * name = luaL_checkstring(L, -1);
-        strncpy(limit->name, name, sizeof(limit->name));
+        strncpy(limit.name, name, sizeof(limit.name));
       }
       else if (!strcmp(key, "min")) {
-        limit->min = luaL_checkinteger(L, -1)+1000;
+        limit.min = luaL_checkinteger(L, -1) + LIMIT_STD_MAX;
+				LIMIT(limit.min, -lim + LIMIT_STD_MAX, LIMIT_STD_MAX)
       }
       else if (!strcmp(key, "max")) {
-        limit->max = luaL_checkinteger(L, -1)-1000;
+        limit.max = luaL_checkinteger(L, -1) - LIMIT_STD_MAX;
+				LIMIT(limit.max,  -LIMIT_STD_MAX, lim - LIMIT_STD_MAX)
       }
       else if (!strcmp(key, "offset")) {
-        limit->offset = luaL_checkinteger(L, -1);
+        limit.offset = luaL_checkinteger(L, -1);
+				LIMIT(limit.offset, -LIMIT_STD_MAX, LIMIT_STD_MAX)
       }
       else if (!strcmp(key, "ppmCenter")) {
-        limit->ppmCenter = luaL_checkinteger(L, -1);
+        limit.ppmCenter = luaL_checkinteger(L, -1) - PPM_CENTER;
+				LIMIT(limit.ppmCenter,  -PPM_CENTER_MAX, PPM_CENTER_MAX)
       }
       else if (!strcmp(key, "symetrical")) {
-        limit->symetrical = luaL_checkinteger(L, -1);
+        limit.symetrical = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "revert")) {
-        limit->revert = luaL_checkinteger(L, -1);
+        limit.revert = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curve")) {
-        limit->curve = luaL_checkinteger(L, -1) + 1;
+        limit.curve = luaL_checkinteger(L, -1) + 1;
+				LIMIT(limit.curve, -MAX_CURVES + 1, MAX_CURVES + 1)
       }
     }
+		*limitAddress(idx) = limit;
     storageDirty(EE_MODEL);
   }
 
