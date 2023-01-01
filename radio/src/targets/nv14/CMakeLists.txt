@@ -48,7 +48,6 @@ set(DEFAULT_INTERNAL_MODULE FLYSKY CACHE STRING "Default internal module")
 set(BITMAPS_TARGET nv14_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
-set(LUA_EXPORT lua_export_nv14)
 set(TOUCH_DRIVER touch_driver.cpp)
 set(HARDWARE_TOUCH YES)
 

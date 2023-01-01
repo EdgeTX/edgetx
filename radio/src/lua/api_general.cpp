@@ -34,54 +34,6 @@
   #include "standalone_lua.h"
 #endif
 
-#if defined(PCBX12S)
-  #include "lua/lua_exports_x12s.inc"   // this line must be after lua headers
-#elif defined(RADIO_FAMILY_T16)
-  #include "lua/lua_exports_t16.inc"
-#elif defined(PCBX10)
-  #include "lua/lua_exports_x10.inc"
-#elif defined(PCBX9E)
-  #include "lua/lua_exports_x9e.inc"
-#elif defined(RADIO_X7ACCESS)
-  #include "lua/lua_exports_x7access.inc"
-#elif defined(RADIO_X7)
-  #include "lua/lua_exports_x7.inc"
-#elif defined(RADIO_T12)
-  #include "lua/lua_exports_t12.inc"
-#elif defined(RADIO_TLITE)
-  #include "lua/lua_exports_tlite.inc"
-#elif defined(RADIO_TPRO)
-  #include "lua/lua_exports_tpro.inc"
-#elif defined(RADIO_TX12)
-  #include "lua/lua_exports_tx12.inc"
-#elif defined(RADIO_TX12MK2)
-  #include "lua/lua_exports_tx12mk2.inc"
-#elif defined(RADIO_LR3PRO)
-  #include "lua/lua_exports_lr3pro.inc"
-#elif defined(RADIO_BOXER)
-  #include "lua/lua_exports_boxer.inc"
-#elif defined(RADIO_ZORRO)
-  #include "lua/lua_exports_zorro.inc"
-#elif defined(RADIO_T8)
-  #include "lua/lua_exports_t8.inc"
-#elif defined(RADIO_COMMANDO8)
-  #include "lua/lua_exports_commando8.inc"
-#elif defined(PCBX9LITES)
-  #include "lua/lua_exports_x9lites.inc"
-#elif defined(PCBX9LITE)
-  #include "lua/lua_exports_x9lite.inc"
-#elif defined(PCBXLITES)
-  #include "lua/lua_exports_xlites.inc"
-#elif defined(PCBXLITE)
-  #include "lua/lua_exports_xlite.inc"
-#elif defined(RADIO_X9DP2019)
-  #include "lua/lua_exports_x9d+2019.inc"
-#elif defined(PCBTARANIS)
-  #include "lua/lua_exports_x9d.inc"
-#elif defined(PCBNV14)
-  #include "lua/lua_exports_nv14.inc"
-#endif
-
 #include "telemetry/frsky.h"
 
 #if defined(MULTIMODULE)
@@ -398,30 +350,120 @@ void luaGetValueAndPush(lua_State* L, int src)
   }
 }
 
-/**
-  Return field data for a given field name
-*/
-bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
+struct LuaSingleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+};
+
+const LuaSingleField luaSingleFields[] = {
+    {MIXSRC_FIRST_STICK,     "rud", "Rudder"},
+    {MIXSRC_FIRST_STICK + 1, "ele", "Elevator"},
+    {MIXSRC_FIRST_STICK + 2, "thr", "Throttle"},
+    {MIXSRC_FIRST_STICK + 3, "ail", "Aileron"},
+
+    {MIXSRC_MAX, "max", "MAX"},
+
+    {MIXSRC_FIRST_HELI, "cyc1", "Cyclic 1"},
+    {MIXSRC_FIRST_HELI + 1, "cyc2", "Cyclic 2"},
+    {MIXSRC_FIRST_HELI + 2, "cyc3", "Cyclic 3"},
+
+    {MIXSRC_TrimRud, "trim-rud", "Rudder trim"},
+    {MIXSRC_TrimEle, "trim-ele", "Elevator trim"},
+    {MIXSRC_TrimThr, "trim-thr", "Throttle trim"},
+    {MIXSRC_TrimAil, "trim-ail", "Aileron trim"},
+
+#if NUM_TRIMS > 4
+    {MIXSRC_TrimT5, "trim-t5", "Aux trim T5"},
+    {MIXSRC_TrimT6, "trim-t6", "Aux trim T6"},
+#endif
+
+    {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
+    {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
+};
+
+// Legacy input names
+#include "lua_inputs.inc"
+
+// TODO: requires specific implementation
+//
+// {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
+// {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
+// {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
+// {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
+// {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
+// {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+
+// {MIXSRC_SA, "sa", "Switch A"},
+// {MIXSRC_SB, "sb", "Switch B"},
+// {MIXSRC_SC, "sc", "Switch C"},
+// {MIXSRC_SD, "sd", "Switch D"},
+// {MIXSRC_SE, "se", "Switch E"},
+// {MIXSRC_SF, "sf", "Switch F"},
+// {MIXSRC_SG, "sg", "Switch G"},
+// {MIXSRC_SH, "sh", "Switch H"},
+// {MIXSRC_SI, "si", "Switch I"},
+// {MIXSRC_SJ, "sj", "Switch J"},
+
+struct LuaMultipleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+  uint8_t count;
+};
+
+// The list of Lua fields that have a range of values
+const LuaMultipleField luaMultipleFields[] = {
+    {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
+    {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
+    {MIXSRC_FIRST_TRAINER, "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
+    {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
+    {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
+    {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
+    {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
+};
+
+static bool _searchSingleFields(const char* name, LuaField& field,
+                                unsigned int flags,
+                                const LuaSingleField* fields, size_t n_fields)
 {
-  strncpy(field.name, name, sizeof(field.name) - 1);
-  field.name[sizeof(field.name) - 1] = '\0';
-  // TODO better search method (binary lookup)
-  for (unsigned int n=0; n<DIM(luaSingleFields); ++n) {
-    if (!strcmp(name, luaSingleFields[n].name)) {
-      field.id = luaSingleFields[n].id;
+  for (unsigned int n = 0; n < n_fields; ++n) {
+    if (!strcmp(name, fields[n].name)) {
+      field.id = fields[n].id;
       if (flags & FIND_FIELD_DESC) {
-        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc)-1);
-        field.desc[sizeof(field.desc)-1] = '\0';
-      }
-      else {
+        strncpy(field.desc, fields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      } else {
         field.desc[0] = '\0';
       }
       return true;
     }
   }
 
+  return false;
+}
+
+/**
+  Return field data for a given field name
+*/
+bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
+{
+  auto len = strlen(name);
+  strncpy(field.name, name, sizeof(field.name) - 1);
+  field.name[sizeof(field.name) - 1] = '\0';
+
+  // hardware specific inputs
+  if (_searchSingleFields(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
+    return true;
+  
+  // well known single fields
+  if (_searchSingleFields(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
+    return true;
+
+  // TODO: switches...
+  
   // search in multiples
-  unsigned int len = strlen(name);
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
     unsigned int fieldLen = strlen(fieldName);

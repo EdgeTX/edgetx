@@ -67,3 +67,10 @@ add_custom_target(yaml_data
             ${RADIO_DIRECTORY}/src/myeeprom.h
             ${RADIO_DIRECTORY}/util/generate_yaml.py
 )
+
+AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
+set(SRC ${SRC} ${CMAKE_CURRENT_BINARY_DIR}/yaml_inputs.inc)
+
+# helper target for testing purposes
+add_custom_target(yaml_inputs DEPENDS ${HW_DESC_JSON} yaml_inputs.inc)
+

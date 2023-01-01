@@ -25,6 +25,7 @@
 // Warning: this file must be kept in sync with the CMakeLists.txt
 //          in the same directory.
 
+#include "yaml_inputs.inc"
 #include "yaml_datastructs_funcs.cpp"
 
 #if defined(PCBX12S)

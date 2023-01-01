@@ -11,6 +11,7 @@ MAX_SLIDERS = 4
 MAX_EXTS = 4
 
 import sys
+import legacy_names
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -486,7 +487,7 @@ def build_switch_gpio_port_index(switches):
 
     return gpios
 
-def generate_from_template(json_filename, template_filename):
+def generate_from_template(json_filename, template_filename, target):
 
     with open(json_filename) as json_file:
         with open(template_filename) as template_file:
@@ -500,6 +501,8 @@ def generate_from_template(json_filename, template_filename):
             switches = root_obj.get('switches')
             switch_gpios = build_switch_gpio_port_index(switches);
 
+            legacy_inputs = legacy_names.inputs_by_target(target)
+            
             env = jinja2.Environment(
                 lstrip_blocks=True,
                 trim_blocks=True
@@ -511,7 +514,8 @@ def generate_from_template(json_filename, template_filename):
             print(template.render(root_obj,
                                   adc_index=adc_index,
                                   adc_gpios=adc_gpios,
-                                  switch_gpios=switch_gpios))
+                                  switch_gpios=switch_gpios,
+                                  legacy_inputs=legacy_inputs))
 
 if __name__ == "__main__":
 
@@ -519,6 +523,7 @@ if __name__ == "__main__":
     parser.add_argument('filename', metavar='filename', nargs='+')
     parser.add_argument('-i', metavar='input', choices=['json','defines'], default='json')
     parser.add_argument('-t', metavar='template')
+    parser.add_argument('-T', metavar='target')
 
     args = parser.parse_args()
 
@@ -528,4 +533,4 @@ if __name__ == "__main__":
 
     elif args.i == 'json':
         for filename in args.filename:
-            generate_from_template(filename, args.t)
+            generate_from_template(filename, args.t, args.T)

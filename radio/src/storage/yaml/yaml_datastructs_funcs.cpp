@@ -222,6 +222,8 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
     auto pot_idx = analogLookupIdx(ADC_INPUT_POT, val, val_len);
     if (pot_idx >= 0) return pot_idx + MIXSRC_FIRST_POT;
 
+    // TODO: legacy sources
+    
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
 
