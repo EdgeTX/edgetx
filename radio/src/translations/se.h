@@ -798,6 +798,7 @@
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
+#define TR_LOADING                      "Laddar..."
 
 #define TR_SELECT_TEMPLATE_FOLDER       "VÄLJ EN MALLKATALOG:"
 #define TR_SELECT_TEMPLATE              "VÄLJ EN MODELLMALL:"

@@ -769,6 +769,7 @@
 #define TR_BAUDRATE                    "ボーレート"
 #define TR_SAMPLE_MODE                 "サンプルモード"
 #define TR_SAMPLE_MODES                "標準","OneBit"
+#define TR_LOADING                     "読み込み中..."
 
 #define TR_SELECT_TEMPLATE_FOLDER      "テンプレートフォルダを選択:"
 #define TR_SELECT_TEMPLATE             "モデルテンプレートを選択:"

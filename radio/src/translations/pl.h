@@ -754,6 +754,12 @@
 #define TR_BAUDRATE            "Baudrate"
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
+#define TR_LOADING             "Ładowanie..."
+
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
+#endif
+
 #define TR_SELECT_TEMPLATE_FOLDER "Wybierz folder szablonu"
 #define TR_SELECT_TEMPLATE     "WYBIERZ SZABLON MODELU:"
 #define TR_NO_TEMPLATES        "Brak szablonów modeli w tym folderze"

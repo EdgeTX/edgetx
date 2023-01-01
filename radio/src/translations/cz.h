@@ -775,6 +775,7 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+#define TR_LOADING                     "Načítání..."
 
 #define TR_SELECT_TEMPLATE_FOLDER      "VYBRAT SLOŽKU SE ŠABLONOU:"
 #define TR_SELECT_TEMPLATE             "VYBRAT ŠABLONU MODELU:"

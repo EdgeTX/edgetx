@@ -756,8 +756,8 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_MAXBAUDRATE                 "Max Baud"
 #define TR_SAMPLE_MODE                 "Abtastmodus"
-
 #define TR_SAMPLE_MODES                "Normal","OneBit"
+#define TR_LOADING                     "Wird geladen..."
 
 #define TR_SELECT_TEMPLATE_FOLDER      "WÄHLE VORLAGENVERZEICHNIS:"
 #define TR_SELECT_TEMPLATE             "WÄHLE MODELLVORLAGE:"

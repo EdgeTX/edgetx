@@ -762,6 +762,7 @@
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Måle tilstand"
 #define TR_SAMPLE_MODES                "Normal","EnBit"
+#define TR_LOADING                     "Indlæser..."
 
 #define TR_SELECT_TEMPLATE_FOLDER      "VÆLG EN SKABELON MAPPE:"
 #define TR_SELECT_TEMPLATE             "VÆLG EN SKABELON til MODEL:"
