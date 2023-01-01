@@ -1111,9 +1111,6 @@
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Tryk power knap."
     #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
-    #define TR_BL_ENABLE              "Aktiver"
-    #define TR_BL_DISABLE             "Deaktiver"
-
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
@@ -1131,6 +1128,8 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[R TRIM] lang til for at starte"
   #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
+  #define TR_BL_ENABLE                "Aktiver"
+  #define TR_BL_DISABLE               "Deaktiver"
 #endif
 
 // About screen

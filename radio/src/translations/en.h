@@ -1105,8 +1105,6 @@
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
-    #define TR_BL_ENABLE              "Enable"
-    #define TR_BL_DISABLE             "Disable"
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
@@ -1124,6 +1122,8 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #endif
 
 // About screen
