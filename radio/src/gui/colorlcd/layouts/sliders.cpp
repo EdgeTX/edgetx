@@ -104,7 +104,7 @@ void MainView6POS::paint(BitmapBuffer * dc)
 void MainView6POS::checkEvents()
 {
   Window::checkEvents();
-  int16_t newValue = 1 + (potsPos[idx] & 0x0f);
+  int16_t newValue = (potsPos[idx] & 0x0f);
   if (value != newValue) {
     value = newValue;
     invalidate();
