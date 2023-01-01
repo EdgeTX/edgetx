@@ -936,7 +936,6 @@
 #define TR_VALUE                       "Value"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "Unit"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Add new"
@@ -1070,7 +1069,7 @@
 #define TR_WIDGET_TIMER                "Timer"
 #define TR_WIDGET_VALUE                "Value"
 
-// Bootloader common
+// Bootloader common - Ascii only
 #define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB Connected"
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
@@ -1099,23 +1098,25 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #define TR_BL_WRITING_FW            CENTER "\015Writing..."
   #define TR_BL_WRITING_COMPL         CENTER "\007Writing complete"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
+    #define TR_BL_ENABLE              "Enable"
+    #define TR_BL_DISABLE             "Disable"
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - Ascii only
   #define TR_BL_WRITING_FW            "Writing Firmware ..."
   #define TR_BL_WRITING_COMPL         "Writing Completed"
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - Ascii only
   #define TR_BL_WRITING_FW            "Writing Firmware ..."
   #define TR_BL_WRITING_COMPL         "Writing Completed"
   #define TR_BL_RF_USB_ACCESS         "RF USB access"

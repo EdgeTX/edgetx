@@ -1075,7 +1075,7 @@
 #define TR_WIDGET_TIMER                "Tider"
 #define TR_WIDGET_VALUE                "Værdi"
 
-// Bootloader common
+// Bootloader common - Ascii only
 #define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB forbundet"
 #define TR_BL_USB_CONNECTED           "USB forbundet"
 #define TR_BL_USB_PLUGIN              "eller brug USB kabel"
@@ -1104,23 +1104,26 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Genskab EEPROM"
   #define TR_BL_WRITING_FW            CENTER "\015Installerer..."
   #define TR_BL_WRITING_COMPL         CENTER "\007Installation slut"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Tryk power knap."
     #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
+    #define TR_BL_ENABLE              "Aktiver"
+    #define TR_BL_DISABLE             "Deaktiver"
+
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - Ascii only
   #define TR_BL_WRITING_FW            "Installerer firmware ..."
   #define TR_BL_WRITING_COMPL         "Installation slut"
   #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[ENT] lang tid for at starte"
   #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - Ascii only
   #define TR_BL_WRITING_FW            "Installerer firmware ..."
   #define TR_BL_WRITING_COMPL         "Installation slut"
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
