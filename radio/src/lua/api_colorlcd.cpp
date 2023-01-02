@@ -1331,7 +1331,7 @@ static void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t
   if (roll == 0.0f) { // prevent divide by zero
     dc->drawSolidFilledRect(
         xmin, max(ymin, ymin + (ywidth/2 + (coord_t)dy)),
-        xmax - xmin, min(ywidth, ywidth/2 - (coord_t)dy + (dy != 0.0f ? 1 : 0)), flags);
+        xmax - xmin, max(0,min(ywidth, ywidth/2 - (coord_t)dy)), flags);
   }
   else if (fabs(roll) >= 180.0f) {
     dc->drawSolidFilledRect(xmin, ymin, xmax - xmin, min(ywidth, ywidth/2 + (coord_t)fabsf(dy)), flags);
