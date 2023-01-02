@@ -39,12 +39,22 @@ enum ChargeState
   CHARGE_FINISHED
 };
 
-#define READ_UCHARGE_FINISHED_STATE()             GPIO_ReadInputDataBit( UCHARGER_STDBY_GPIO, UCHARGER_STDBY_GPIO_PIN )
-#define READ_UCHARGING_STATE()                    GPIO_ReadInputDataBit( UCHARGER_CHARGE_GPIO, UCHARGER_CHARGE_GPIO_PIN )
+#define IS_UCHARGER_ACTIVE()              GPIO_ReadInputDataBit(UCHARGER_GPIO, UCHARGER_GPIO_PIN)
+#define IS_UCHARGER_CHARGE_END_ACTIVE()   GPIO_ReadInputDataBit(UCHARGER_CHARGE_END_GPIO, UCHARGER_CHARGE_END_GPIO_PIN) 
+#define ENABLE_UCHARGER()                 GPIO_SetBits(UCHARGER_EN_GPIO, UCHARGER_EN_GPIO_PIN)
+#define DISABLE_UCHARGER()                GPIO_ResetBits(UCHARGER_EN_GPIO, UCHARGER_EN_GPIO_PIN)
+
+#define IS_WCHARGER_ACTIVE()              GPIO_ReadInputDataBit(WCHARGER_GPIO, WCHARGER_GPIO_PIN)
+#define IS_WCHARGER_CHARGE_END_ACTIVE()   GPIO_ReadInputDataBit(WCHARGER_CHARGE_END_GPIO, WCHARGER_CHARGE_END_GPIO_PIN) 
+#define ENABLE_WCHARGER()                 GPIO_SetBits(WCHARGER_EN_GPIO, WCHARGER_EN_GPIO_PIN)
+#define DISABLE_WCHARGER()                GPIO_ResetBits(WCHARGER_EN_GPIO, WCHARGER_EN_GPIO_PIN)
+#define WCHARGER_CURRENT_LOW()            GPIO_ResetBits(WCHARGER_I_CONTROL_GPIO, WCHARGER_I_CONTROL_GPIO_PIN)
+#define WCHARGER_CURRENT_HIGH()           GPIO_SetBits(WCHARGER_I_CONTROL_GPIO, WCHARGER_I_CONTROL_GPIO_PIN)
 
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);
 extern uint16_t get_battery_charge_state();
 extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
+extern bool isChargerActive();
 
 #endif

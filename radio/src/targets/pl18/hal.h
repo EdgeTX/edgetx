@@ -195,28 +195,30 @@
 // Chargers (USB and wireless)
 #define CHARGER_RCC_AHB1Periph          ( RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI )
 
-#define UCHARGER_STDBY_GPIO             GPIOB
-#define UCHARGER_STDBY_GPIO_REG         UCHARGER_STDBY_GPIO->IDR
-#define UCHARGER_STDBY_GPIO_PIN         GPIO_Pin_13 // PB.13 input
+#define UCHARGER_GPIO                   GPIOB
+#define UCHARGER_GPIO_PIN               GPIO_Pin_14 // PB.14 input
 
-#define UCHARGER_CHARGE_GPIO            GPIOB
-#define UCHARGER_CHARGE_GPIO_REG        UCHARGER_CHARGE_GPIO->IDR
-#define UCHARGER_CHARGE_GPIO_PIN        GPIO_Pin_14 // PB.14 input
+#define UCHARGER_CHARGE_END_GPIO        GPIOB
+#define UCHARGER_CHARGE_END_GPIO_PIN    GPIO_Pin_13 // PB.13 input
 
 #define UCHARGER_EN_GPIO                GPIOG
 #define UCHARGER_EN_GPIO_PIN            GPIO_Pin_3  // PG.03 output
 
-#define WCHARGER_EN_GPIO                GPIOH
-#define WCHARGER_EN_GPIO_PIN            GPIO_Pin_4  // PH.04 output
+#if defined (WIRELESS_CHARGER)
 
-#define WCHARGER_I_CONTROL_GPIO         GPIOH
-#define WCHARGER_I_CONTROL_GPIO_PIN     GPIO_Pin_13 // PH.13 output
+  #define WCHARGER_GPIO                   GPIOI
+  #define WCHARGER_GPIO_PIN               GPIO_Pin_9  // PI.09 input
 
-#define WCHARGER_STDBY_GPIO             GPIOI
-#define WCHARGER_STDBY_GPIO_PIN         GPIO_Pin_10 // PI.10 input
+  #define WCHARGER_CHARGE_END_GPIO        GPIOI
+  #define WCHARGER_CHARGE_END_GPIO_PIN    GPIO_Pin_10 // PI.10 input
 
-#define WCHARGER_CHARGE_GPIO            GPIOI
-#define WCHARGER_CHARGE_GPIO_PIN        GPIO_Pin_9  // PI.09 input
+  #define WCHARGER_EN_GPIO                GPIOH
+  #define WCHARGER_EN_GPIO_PIN            GPIO_Pin_4  // PH.04 output
+
+  #define WCHARGER_I_CONTROL_GPIO         GPIOH
+  #define WCHARGER_I_CONTROL_GPIO_PIN     GPIO_Pin_13 // PH.13 output
+
+#endif
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 

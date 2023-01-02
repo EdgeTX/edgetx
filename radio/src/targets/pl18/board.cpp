@@ -156,10 +156,8 @@ void boardInit()
     pwrOn();
   } else {
 
-    // prime debounce state...
-    usbPlugged();
-
-    while (usbPlugged()) {
+    while (isChargerActive()) {
+//  while(1) {
       uint32_t now = get_tmr10ms();
       if (pwrPressed()) {
         press_end = now;
@@ -177,7 +175,7 @@ void boardInit()
         }
         press_start = 0;
         handle_battery_charge(press_end_touch);
-        delay_ms(20);
+        delay_ms(10);
         press_end = 0;
       }
     }
@@ -257,5 +255,6 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
 int usbPlugged()
 {
   static PinDebounce debounce;
-  return debounce.debounce(UCHARGER_CHARGE_GPIO, UCHARGER_CHARGE_GPIO_PIN);
+  return debounce.debounce(UCHARGER_GPIO, UCHARGER_GPIO_PIN);
 }
+
