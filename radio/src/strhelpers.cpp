@@ -656,10 +656,11 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     getSwitchName(pos, idx);
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
     // TODO: unnecessary, use the direct way instead
-    getSwitchPositionName(dest, SWSRC_SW1 + idx - MIXSRC_FIRST_LOGICAL_SWITCH);
+    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
+    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH);
   } else if (idx <= MIXSRC_LAST_TRAINER) {
-    strAppendStringWithIndex(dest, STR_PPM_TRAINER,
-                             idx - MIXSRC_FIRST_TRAINER + 1);
+    idx -= MIXSRC_FIRST_TRAINER;
+    strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
     if (g_model.limitData[ch].name[0] != '\0') {
@@ -668,7 +669,8 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
   } else if (idx <= MIXSRC_LAST_GVAR) {
-    strAppendStringWithIndex(dest, STR_GV, idx - MIXSRC_FIRST_GVAR + 1);
+    idx -= MIXSRC_FIRST_GVAR;
+    strAppendStringWithIndex(dest, STR_GV, idx + 1);
   } else if (idx < MIXSRC_FIRST_TIMER) {
     idx -= MIXSRC_TX_VOLTAGE;
 

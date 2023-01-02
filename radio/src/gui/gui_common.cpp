@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "switches.h"
+#include "hal/adc_driver.h"
 
 #if defined(PXX2)
   #include "extmodule_serial_driver.h"
@@ -174,7 +175,7 @@ bool isSourceAvailable(int source)
 #if defined(LUA_MODEL_SCRIPTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
     div_t qr = div(source - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    return (qr.rem<scriptInputsOutputs[qr.quot].outputsCount);
+    return (qr.rem < scriptInputsOutputs[qr.quot].outputsCount);
   }
 #elif defined(LUA_INPUTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA)
@@ -185,10 +186,8 @@ bool isSourceAvailable(int source)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
   }
 
-#if defined(PCBHORUS) && !defined(PCBX12S)
-  if (source >= MIXSRC_MOUSE1 && source <= MIXSRC_MOUSE2)
-    return false;
-#endif
+  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
+    return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
 
 #if defined(PCBHORUS) && !defined(SPACEMOUSE)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
@@ -261,10 +260,8 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
 
-#if defined(PCBHORUS) && !defined(PCBX12S)
-  if (source >= MIXSRC_MOUSE1 && source <= MIXSRC_MOUSE2)
-    return false;
-#endif
+  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
+    return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
 
   if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_MAX)
     return true;

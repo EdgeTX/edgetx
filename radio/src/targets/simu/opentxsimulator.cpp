@@ -559,7 +559,7 @@ void OpenTxSimulator::checkOutputsChanged()
   }
 
   for (i=0; i < MAX_LOGICAL_SWITCHES; i++) {
-    tmpVal = (qint32)GET_SWITCH_BOOL(SWSRC_SW1+i);
+    tmpVal = (qint32)GET_SWITCH_BOOL(SWSRC_FIRST_LOGICAL_SWITCH+i);
     if (lastOutputs.vsw[i] != (bool)tmpVal || m_resetOutputsData) {
       emit virtualSwValueChange(i, tmpVal);
       emit outputValueChange(OUTPUT_SRC_VIRTUAL_SW, i, tmpVal);

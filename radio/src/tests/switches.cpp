@@ -32,6 +32,9 @@ void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16
   g_model.logicalSw[index].andsw = _andsw;
 }
 
+#define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)
+#define SWSRC_SW2 (SWSRC_FIRST_LOGICAL_SWITCH + 1)
+
 #if defined(PCBTARANIS)
 TEST(getSwitch, OldTypeStickyCSW)
 {

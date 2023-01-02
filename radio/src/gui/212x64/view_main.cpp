@@ -587,7 +587,7 @@ void menuMainView(event_t event)
         lcdDrawSolidHorizontalLine(x, y+6, 4);
         lcdDrawSolidHorizontalLine(x, y+7, 4);
       }
-      else if (getSwitch(SWSRC_SW1+sw)) {
+      else if (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+sw)) {
         lcdDrawFilledRect(x, y, 4, 8);
       }
       else {

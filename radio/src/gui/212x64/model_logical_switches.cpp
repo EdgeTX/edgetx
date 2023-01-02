@@ -109,7 +109,7 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    unsigned int sw = SWSRC_SW1+k;
+    unsigned int sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
     drawSwitch(0, y, sw, (getSwitch(sw) ? BOLD : 0) | ((sub==k && CURSOR_ON_LINE()) ? INVERS : 0));
 
     // CSW func

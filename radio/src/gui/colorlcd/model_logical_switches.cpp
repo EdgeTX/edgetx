@@ -88,7 +88,7 @@ class LogicalSwitchEditPage: public Page
           window,
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
            LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-          getSwitchPositionName(SWSRC_SW1 + index), 0, COLOR_THEME_PRIMARY2);
+          getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index), 0, COLOR_THEME_PRIMARY2);
 
       lv_obj_set_style_text_color(headerSwitchName->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
       lv_obj_set_style_text_font(headerSwitchName->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
@@ -384,7 +384,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
 
     if (ls->func == LS_FUNC_NONE) {
       auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSwitchPositionName(SWSRC_SW1 + i));
+                                   getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i));
       button->setPressHandler([=]() {
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
           Menu* menu = new Menu(window);
@@ -403,7 +403,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
       grid.spacer(button->height() + 5);
     } else {
       auto txt = new StaticText(window, grid.getLabelSlot(),
-                                getSwitchPositionName(SWSRC_SW1 + i),
+                                getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i),
                                 BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
 
       auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);

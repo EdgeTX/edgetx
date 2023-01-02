@@ -121,7 +121,7 @@ class ADCInputParser:
 
         ret = []
         dirs = self.hw_defs['ADC_DIRECTION'].strip('{} ').split(',')
-        eprint(dirs)
+        #eprint(dirs)
         for i in dirs:
             ret.append(int(i))
 

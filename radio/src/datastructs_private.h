@@ -803,7 +803,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t spare0:7 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
-  CalibData calib[MAX_ANALOG_INPUTS] NO_IDX;
+  CalibData calib[MAX_CALIB_ANALOG_INPUTS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);

@@ -362,11 +362,21 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_FIRST_STICK + 2, "thr", "Throttle"},
     {MIXSRC_FIRST_STICK + 3, "ail", "Aileron"},
 
-    {MIXSRC_MAX, "max", "MAX"},
+#if defined(IMU)
+    {MIXSRC_TILT_X, "tiltx", "Tilt X"},
+    {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
+#endif
 
-    {MIXSRC_FIRST_HELI, "cyc1", "Cyclic 1"},
-    {MIXSRC_FIRST_HELI + 1, "cyc2", "Cyclic 2"},
-    {MIXSRC_FIRST_HELI + 2, "cyc3", "Cyclic 3"},
+#if defined(PCBHORUS)
+    {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
+    {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
+    {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
+    {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
+    {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
+    {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+#endif
+    
+    {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TrimRud, "trim-rud", "Rudder trim"},
     {MIXSRC_TrimEle, "trim-ele", "Elevator trim"},
@@ -383,27 +393,8 @@ const LuaSingleField luaSingleFields[] = {
 };
 
 // Legacy input names
+// TODO: move to some HAL/driver functions
 #include "lua_inputs.inc"
-
-// TODO: requires specific implementation
-//
-// {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
-// {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
-// {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
-// {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
-// {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
-// {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
-
-// {MIXSRC_SA, "sa", "Switch A"},
-// {MIXSRC_SB, "sb", "Switch B"},
-// {MIXSRC_SC, "sc", "Switch C"},
-// {MIXSRC_SD, "sd", "Switch D"},
-// {MIXSRC_SE, "se", "Switch E"},
-// {MIXSRC_SF, "sf", "Switch F"},
-// {MIXSRC_SG, "sg", "Switch G"},
-// {MIXSRC_SH, "sh", "Switch H"},
-// {MIXSRC_SI, "si", "Switch I"},
-// {MIXSRC_SJ, "sj", "Switch J"},
 
 struct LuaMultipleField {
   uint16_t id;
@@ -422,6 +413,7 @@ const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
     {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
     {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
+    {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
 };
 
 static bool _searchSingleFields(const char* name, LuaField& field,
@@ -461,7 +453,21 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   if (_searchSingleFields(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
-  // TODO: switches...
+  // check switches from 'sa' to 'sz'
+  if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
+    auto c = name[1] - 'a' + 'A';
+    auto sw_idx = switchLookupIdx(c);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc)-1, "Switch %c", c);
+        field.desc[sizeof(field.desc)-1] = '\0';
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
   
   // search in multiples
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {

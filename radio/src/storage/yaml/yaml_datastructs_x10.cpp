@@ -303,7 +303,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 7 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
-  YAML_ARRAY("calib", 48, 20, struct_CalibData, NULL),
+  YAML_ARRAY("calib", 48, 22, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "vBatWarn", 8 ),
   YAML_SIGNED( "txVoltageCalibration", 8 ),

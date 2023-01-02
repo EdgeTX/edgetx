@@ -637,7 +637,7 @@ void menuMainView(event_t event)
         uint8_t y = LCD_H - 20;
         for (uint8_t line = 0; line < 2; line++) {
           for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch(SWSRC_SW1 + index) ? 10 : 1;
+            int8_t len = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index) ? 10 : 1;
             uint8_t x = (16 + 3 * column);
             lcdDrawSolidVerticalLine(x - 1, y - len, len);
             lcdDrawSolidVerticalLine(x, y - len, len);
