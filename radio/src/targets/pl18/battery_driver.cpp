@@ -32,130 +32,332 @@
 #define BATTERY_H_INNER (BATTERY_H - 2*BATTERY_BORDER)
 #define BATTERY_TOP_INNER (BATTERY_TOP + BATTERY_BORDER)
 
-void battery_charge_init()
+#define UCHARGER_SAMPLING_CNT              10
+#define UCHARGER_CHARGING_SAMPLING_CNT     10
+#define WCHARGER_SAMPLING_CNT              30
+#define WCHARGER_CHARGING_SAMPLING_CNT     10
+#define WCHARGER_LOW_CURRENT_DELAY_CNT   6000
+#define WCHARGER_HIGH_CURRENT_DELAY_CNT 24000
+
+typedef struct
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_STDBY_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(UCHARGER_STDBY_GPIO, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_CHARGE_GPIO_PIN;
-  GPIO_Init(UCHARGER_CHARGE_GPIO, &GPIO_InitStructure);
+  bool hasCharger : 1;
+  bool isChargeEnd : 1;
+  bool isChargerDetectionReady : 1;
+  bool isChargingDetectionReady : 1;
+  bool isHighCurrent : 1;
+  uint8_t chargerSamplingCount;
+  uint8_t chargingSamplingCount;
+  uint8_t chargeEndSamplingCount;
+} STRUCT_BATTERY_CHARGER;
 
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_EN_GPIO_PIN;
-  GPIO_Init(UCHARGER_EN_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(UCHARGER_EN_GPIO, UCHARGER_EN_GPIO_PIN);
+STRUCT_BATTERY_CHARGER uCharger; // USB charger
+#if defined(WIRELESS_CHARGER)
+STRUCT_BATTERY_CHARGER wCharger; // Wireless charger
+uint16_t wirelessLowCurrentDelay = 0;
+uint16_t wirelessHighCurrentDelay = 0;
+#endif
+char buffer[1024];
 
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_STDBY_GPIO_PIN;
-  GPIO_Init(WCHARGER_STDBY_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_CHARGE_GPIO_PIN;
-  GPIO_Init(WCHARGER_CHARGE_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_EN_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(WCHARGER_EN_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(WCHARGER_EN_GPIO, WCHARGER_EN_GPIO_PIN);
-
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_I_CONTROL_GPIO_PIN;
-  GPIO_Init(WCHARGER_I_CONTROL_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(WCHARGER_I_CONTROL_GPIO, WCHARGER_I_CONTROL_GPIO_PIN);
+void chargerDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargerPinActive, uint8_t samplingCountThreshold)
+{
+  if ((charger->hasCharger && chargerPinActive) || (!charger->hasCharger && !chargerPinActive))
+  {
+    charger->chargerSamplingCount = 0;
+  }
+  else
+  {
+    charger->chargerSamplingCount++;
+    if (charger->chargerSamplingCount >= samplingCountThreshold)
+    {
+      charger->chargerSamplingCount = 0;
+      charger->hasCharger = !charger->hasCharger;
+      charger->isChargerDetectionReady = true;
+    }
+  }
 }
 
-#define CHARGE_SAMPLES 10
+void resetChargeEndDetection(STRUCT_BATTERY_CHARGER* charger)
+{
+  charger->isChargeEnd = false;
+  charger->isChargingDetectionReady = false;
+  charger->chargingSamplingCount = 0;
+  charger->isHighCurrent = false;
+}
+
+void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinActive, uint8_t samplingCountThreshold)
+{
+  if (charger->isChargeEnd)
+  {
+    if (chargeEndPinActive)
+    {
+      charger->chargingSamplingCount = 0;
+      if (charger->isChargingDetectionReady)
+      {
+        charger->chargeEndSamplingCount = 0;
+      }
+      else
+      {
+        charger->chargeEndSamplingCount++;
+        if (charger->chargeEndSamplingCount >= samplingCountThreshold)
+        {
+          charger->chargeEndSamplingCount = 0;
+          charger->isChargingDetectionReady = true;
+        }
+      }
+    }
+    else
+    {
+      charger->chargeEndSamplingCount = 0;
+      charger->chargingSamplingCount++;
+      if (charger->chargingSamplingCount >= samplingCountThreshold)
+      {
+        charger->chargingSamplingCount = 0;
+        charger->isChargeEnd = false;
+        charger->isChargingDetectionReady = true;
+      }
+    }
+  }
+  else
+  {
+    if (!chargeEndPinActive)
+    {
+      charger->chargeEndSamplingCount = 0;
+      if (charger->isChargingDetectionReady)
+      {
+        charger->chargingSamplingCount = 0;
+      }
+      else
+      {
+        charger->chargingSamplingCount++;
+        if (charger->chargingSamplingCount >= samplingCountThreshold)
+        {
+          charger->chargingSamplingCount = 0;
+          charger->isChargingDetectionReady = true;
+        }
+      }
+    }
+    else
+    {
+      charger->chargingSamplingCount = 0;
+      charger->chargeEndSamplingCount++;
+      if (charger->chargeEndSamplingCount >= samplingCountThreshold)
+      {
+        charger->chargeEndSamplingCount = 0;
+        charger->isChargeEnd = true;
+        charger->isChargingDetectionReady = true;
+      }
+    }
+  }
+}
 
 uint16_t get_battery_charge_state()
 {
-  static uint16_t chargeSamples[CHARGE_SAMPLES] = {0};
-  static uint16_t chargeSampleIndex = 0;
-  uint16_t chargeState = CHARGE_UNKNOWN;
-  int maxSamples = CHARGE_SAMPLES;
-#if !defined(SIMU)
-  bool isFinished = READ_UCHARGE_FINISHED_STATE();
-  bool isCharging = READ_UCHARGING_STATE();
-  //maxSamples = boardState == BOARD_POWER_OFF ? CHARGE_SAMPLES/2 : CHARGE_SAMPLES;
-  if(chargeSampleIndex >= maxSamples) chargeSampleIndex = 0;
-  uint16_t currentChargeState = isFinished ? CHARGE_FINISHED : isCharging ? CHARGE_STARTED : CHARGE_NONE;
-  chargeSamples[chargeSampleIndex++] = currentChargeState;
-  //TRACE("CHARGE sample %d value %d", chargeSampleIndex -1, currentChargeState);
-#endif
-    uint8_t temp1 = 0, temp2 = 0, temp3 = 0;
-   for(int index = 0; index < maxSamples; index++) {
-    if(chargeSamples[index] == CHARGE_FINISHED)
-    {
-        temp1++;
-    }
-    else if(chargeSamples[index] == CHARGE_STARTED)
-    {
-        temp2++;
-    }
-    else
-    {
-        temp3++;
-    }
+  uint16_t state = CHARGE_UNKNOWN;
 
-    if(temp1>=temp2&& temp1>temp3)
+  chargerDetection(&uCharger, IS_UCHARGER_ACTIVE(), UCHARGER_SAMPLING_CNT);
+  if (uCharger.isChargerDetectionReady)
+  {
+    if (uCharger.hasCharger)  // USB charger can be detected properly no matter it is enabled or not
     {
-        chargeState = CHARGE_FINISHED;
-    }
-    else if(temp2>=temp1&& temp2>temp3)
-    {
-        chargeState = CHARGE_STARTED;
-    }
-    else
-    {
-        chargeState = CHARGE_NONE;
-    }
-  }
-  return chargeState;
-}
-
-void drawChargingInfo(uint16_t chargeState){
-	static int progress = 0;
-	const char* text = chargeState == CHARGE_STARTED ? STR_BATTERYCHARGING : STR_BATTERYFULL;
-    int h = 0;
-    LcdFlags color = 0;
-    if(CHARGE_STARTED == chargeState)
-    {
-        if(progress >= 100)
+      ENABLE_UCHARGER();
+      chargeEndDetection(&uCharger, IS_UCHARGER_CHARGE_END_ACTIVE(), UCHARGER_CHARGING_SAMPLING_CNT);
+      if (uCharger.isChargingDetectionReady)
+      {
+        if (uCharger.isChargeEnd)
         {
-            progress = 0;
+          state = CHARGE_FINISHED;
         }
         else
         {
-            progress+=25;
+          state = CHARGE_STARTED;
         }
-        text = STR_BATTERYCHARGING;
-        h = ((BATTERY_H_INNER * progress) / 100);
-        color = COLOR_THEME_EDIT;
-    }
-    else if(CHARGE_FINISHED == chargeState)
-    {
-        text = STR_BATTERYFULL;
-        h = BATTERY_H_INNER;
-        color = COLOR_THEME_EDIT;
+      }
     }
     else
     {
-        text = STR_BATTERYNONE;
-        h = BATTERY_H_INNER;
-        color = COLOR_THEME_PRIMARY1;
+      resetChargeEndDetection(&uCharger);
+
+      // Disable USB charger if it is not present, so that wireless charger can be detected properly
+      DISABLE_UCHARGER();
     }
+  }
 
-    BACKLIGHT_ENABLE();
-    lcd->drawSizedText(LCD_W/2, LCD_H-50, text, strlen(text), CENTERED|COLOR_THEME_PRIMARY2);
+#if defined(WIRELESS_CHARGER)
+  chargerDetection(&wCharger, IS_WCHARGER_ACTIVE(), WCHARGER_SAMPLING_CNT);
+  if (wCharger.isChargerDetectionReady)
+  {
+    if (wCharger.hasCharger)  // Wireless charger can only be detected when USB charger is disabled
+    {
+      chargeEndDetection(&wCharger, IS_WCHARGER_CHARGE_END_ACTIVE(), WCHARGER_CHARGING_SAMPLING_CNT);
+      if (wCharger.isChargingDetectionReady)
+      {
+        if (wCharger.isChargeEnd)
+        {
+          state = CHARGE_FINISHED;
+        }
+        else
+        {
+          state = CHARGE_STARTED;
+        }
+      }
 
-    lcd->drawFilledRect((LCD_W - BATTERY_W)/2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
-    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
+      // Charge current control
+      wirelessLowCurrentDelay = 0;
+      if (wirelessHighCurrentDelay >= WCHARGER_HIGH_CURRENT_DELAY_CNT)
+      {
+        wCharger.isHighCurrent = true;
+        WCHARGER_CURRENT_HIGH();
+      }
+      else
+      {
+        wirelessHighCurrentDelay++;
+      }
+    }
+    else
+    {
+      resetChargeEndDetection(&wCharger);
 
-    lcd->drawFilledRect((LCD_W - BATTERY_W_INNER)/2, BATTERY_TOP_INNER + BATTERY_H_INNER - h , BATTERY_W_INNER, h, SOLID, color);
-    lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W)/2, BATTERY_TOP-BATTERY_CONNECTOR_H , BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
+      // Charge current control
+      wirelessHighCurrentDelay = 0;
+      if (wirelessLowCurrentDelay >= WCHARGER_LOW_CURRENT_DELAY_CNT)
+      {
+        wCharger.isHighCurrent = false;
+        WCHARGER_CURRENT_LOW();
+      }
+      else
+      {
+        wirelessLowCurrentDelay++;
+      }
+    }
+  }
+
+#endif
+
+  return state;
+}
+
+bool isChargerActive()
+{
+#if defined(WIRELESS_CHARGER)
+  if (uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady)
+  {
+    return uCharger.hasCharger || wCharger.hasCharger;
+  }
+#else
+  if (uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady)
+  {
+    return uCharger.hasCharger || wCharger.hasCharger;
+  }
+  if (uCharger.isChargerDetectionReady)
+  {
+    return uCharger.hasCharger;
+  }
+#endif
+  else
+  {
+    return true;
+  }
+}
+
+void battery_charge_init()
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  // Input pins
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+  // USB charger status pins
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_GPIO_PIN;
+  GPIO_Init(UCHARGER_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_CHARGE_END_GPIO_PIN;
+  GPIO_Init(UCHARGER_CHARGE_END_GPIO, &GPIO_InitStructure);
+
+#if defined(WIRELESS_CHARGER)
+  // Wireless charger status pins
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_GPIO_PIN;
+  GPIO_Init(WCHARGER_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_CHARGE_END_GPIO_PIN;
+  GPIO_Init(WCHARGER_CHARGE_END_GPIO, &GPIO_InitStructure);
+#endif
+
+  // Output pins
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+
+  // USB charger control pins
+  GPIO_InitStructure.GPIO_Pin = UCHARGER_EN_GPIO_PIN;
+  GPIO_Init(UCHARGER_EN_GPIO, &GPIO_InitStructure);
+
+  // USB charger state init
+  ENABLE_UCHARGER();
+  uCharger.hasCharger = !IS_UCHARGER_ACTIVE();  // Init for sampling count works
+  uCharger.isChargerDetectionReady = false;
+  resetChargeEndDetection(&uCharger);
+
+#if defined(WIRELESS_CHARGER)
+  // Wireless charger control pins
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_EN_GPIO_PIN;
+  GPIO_Init(WCHARGER_EN_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = WCHARGER_I_CONTROL_GPIO_PIN;
+  GPIO_Init(WCHARGER_I_CONTROL_GPIO, &GPIO_InitStructure);
+
+  // Wireless charger state init
+  ENABLE_WCHARGER();
+  WCHARGER_CURRENT_LOW();
+  wCharger.hasCharger = !IS_WCHARGER_ACTIVE();  // Init for sampling count works
+  wCharger.isChargerDetectionReady = false;
+  resetChargeEndDetection(&wCharger);
+
+#endif
+}
+
+void drawChargingInfo(uint16_t chargeState) {
+  static int progress = 0;
+  const char* text = chargeState == CHARGE_STARTED ? STR_BATTERYCHARGING : STR_BATTERYFULL;
+  int h = 0;
+  LcdFlags color = 0;
+  if (CHARGE_STARTED == chargeState)
+  {
+    if (progress >= 100)
+    {
+      progress = 0;
+    }
+    else
+    {
+      progress += 25;
+    }
+    text = STR_BATTERYCHARGING;
+    h = ((BATTERY_H_INNER * progress) / 100);
+    color = COLOR_THEME_EDIT;
+  }
+  else if (CHARGE_FINISHED == chargeState)
+  {
+    text = STR_BATTERYFULL;
+    h = BATTERY_H_INNER;
+    color = COLOR_THEME_EDIT;
+  }
+  else
+  {
+    text = STR_BATTERYNONE;
+    h = BATTERY_H_INNER;
+    color = COLOR_THEME_PRIMARY1;
+  }
+
+  BACKLIGHT_ENABLE();
+  lcd->drawSizedText(LCD_W / 2, LCD_H - 50, text, strlen(text), CENTERED | COLOR_THEME_PRIMARY2);
+
+  lcd->drawFilledRect((LCD_W - BATTERY_W) / 2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
+  lcd->drawFilledRect((LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
+
+  lcd->drawFilledRect((LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER + BATTERY_H_INNER - h, BATTERY_W_INNER, h, SOLID, color);
+  lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W) / 2, BATTERY_TOP - BATTERY_CONNECTOR_H, BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
 #define CHARGE_INFO_DURATION 500
 void TouchInit();
+
 //this method should be called by timer interrupt or by GPIO interrupt
 void handle_battery_charge(uint32_t last_press_time)
 {
@@ -167,21 +369,22 @@ void handle_battery_charge(uint32_t last_press_time)
 
   uint32_t now = get_tmr10ms();
   uint16_t chargeState = get_battery_charge_state();
-  if(chargeState != CHARGE_UNKNOWN) {
+  if (chargeState != CHARGE_UNKNOWN) {
 
-    if(lastState != chargeState) {
+    if (lastState != chargeState) {
       //avoid positive check when none and unknown
-      if(lastState + chargeState > 1) {
+      if (lastState + chargeState > 1) {
         //charge state changed - last state known
         info_until = now + (CHARGE_INFO_DURATION);
       }
     }
     //power buttons pressed
-    else if(now - last_press_time < POWER_ON_DELAY) {
+    else if (now - last_press_time < POWER_ON_DELAY) {
       info_until = now + CHARGE_INFO_DURATION;
     }
     lastState = chargeState;
   }
+
 
   if(now > info_until) {
     info_until = 0;
@@ -193,24 +396,42 @@ void handle_battery_charge(uint32_t last_press_time)
     return;
   }
 
-  if(updateTime == 0 || ((get_tmr10ms() - updateTime) >= 50))
+
+  if (updateTime == 0 || ((get_tmr10ms() - updateTime) >= 50))
   {
-      if(!lcdInited) {
-        backlightInit();
-        lcdInit();
-        lcdInitDisplayDriver();
-        lcdInited = true;
-        TouchInit();
-      }
-      else {
-        lcdOn();
-      }
-      updateTime = get_tmr10ms();
-      lcdInitDirectDrawing();
-      lcd->clear();
-      drawChargingInfo(chargeState);
-      lcdRefresh();
-   }
+    if (!lcdInited) {
+      backlightInit();
+      lcdInit();
+      lcdInitDisplayDriver();
+      lcdInited = true;
+      TouchInit();
+    }
+    else {
+      lcdOn();
+    }
+    updateTime = get_tmr10ms();
+    lcdInitDirectDrawing();
+    lcd->clear();
+    drawChargingInfo(chargeState);
+
+
+/*    sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
+    lcd->drawSizedText(100, 10, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+    
+    sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
+    lcd->drawSizedText(100, 40, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+
+    sprintf(buffer, "%d,%d,%d,%d,%d", wCharger.isChargerDetectionReady, wCharger.hasCharger, IS_WCHARGER_ACTIVE(), wCharger.chargerSamplingCount, wCharger.isHighCurrent);
+    lcd->drawSizedText(100, 70, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+    
+    sprintf(buffer, "%d,%d,%d,%d,%d,", wCharger.isChargingDetectionReady, wCharger.isChargeEnd, IS_WCHARGER_CHARGE_END_ACTIVE(), wCharger.chargingSamplingCount, wCharger.chargeEndSamplingCount);
+    lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+
+    sprintf(buffer, "%d", isChargerActive());
+    lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);*/
+
+    lcdRefresh();
+  }
 #endif
 }
 
