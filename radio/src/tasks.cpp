@@ -35,16 +35,6 @@ RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 RTOS_MUTEX_HANDLE audioMutex;
 RTOS_MUTEX_HANDLE mixerMutex;
 
-void stackPaint()
-{
-  menusStack.paint();
-  mixerStack.paint();
-  audioStack.paint();
-#if defined(CLI) && !defined(SIMU)
-  cliStack.paint();
-#endif
-}
-
 volatile uint16_t timeForcePowerOffPressed = 0;
 
 bool isForcePowerOffRequested()
@@ -266,7 +256,7 @@ void tasksStart()
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 
-#if defined(CLI) && !defined(SIMU)
+#if defined(CLI)&& !defined(SIMU)
   cliStart();
 #endif
 

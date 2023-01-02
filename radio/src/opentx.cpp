@@ -1867,10 +1867,6 @@ int main()
 
   boardInit();
 
-#if !defined(SIMU)
-  stackPaint();
-#endif
-
 #if defined(PCBHORUS)
   if (!IS_FIRMWARE_COMPATIBLE_WITH_BOARD()) {
     runFatalErrorScreen(STR_WRONG_PCBREV);
