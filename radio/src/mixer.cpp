@@ -337,7 +337,9 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     }
     return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_POT)];
   }
-  else if (i <= MIXSRC_FIRST_AXIS) {
+
+#if MAX_AXIS > 0
+  else if (i <= MIXSRC_LAST_AXIS) {
     i -= MIXSRC_FIRST_AXIS;
     if (i >= adcGetMaxInputs(ADC_INPUT_AXIS)) {
       if (valid != nullptr) *valid = false;
@@ -345,6 +347,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     }
     return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_AXIS)];
   }
+#endif
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {

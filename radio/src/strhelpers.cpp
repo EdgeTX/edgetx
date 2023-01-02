@@ -625,9 +625,12 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     pos[dest_len - 1] = '\0';
 
   }
-#if defined(PCBHORUS)
-  else if (idx <= MIXSRC_MOUSE2) {
-    // TODO
+#if MAX_AXIS > 0
+  else if (idx <= MIXSRC_LAST_AXIS) {
+    idx -= MIXSRC_LAST_AXIS;
+    auto name = adcGetInputName(ADC_INPUT_AXIS, idx);
+    strncpy(dest, name, dest_len - 1);
+    dest[dest_len - 1] = '\0';
   }
 #endif
 #if defined(IMU)

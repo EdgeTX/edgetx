@@ -186,8 +186,10 @@ bool isSourceAvailable(int source)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
   }
 
+#if MAX_AXIS > 0
   if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
     return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
+#endif
 
 #if defined(PCBHORUS) && !defined(SPACEMOUSE)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
@@ -260,8 +262,10 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
 
+#if MAX_AXIS > 0
   if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
     return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
+#endif
 
   if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_MAX)
     return true;
