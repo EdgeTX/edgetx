@@ -1452,6 +1452,8 @@
   #define ADC_DIRECTION {-1,1,-1,1,  -1,-1,  1,  1}
 #elif defined(RADIO_TX12MK2)
   #define ADC_DIRECTION {-1,1,-1,1,  1,-1}
+#elif defined(RADIO_BOXER)
+  #define ADC_DIRECTION {1,-1,1,-1, -1,-1, 1}
 #elif defined(RADIO_ZORRO)
   #define ADC_DIRECTION {-1, 1, 1, -1, -1, 1, 1, 1}
 #elif defined(RADIO_TPRO)
