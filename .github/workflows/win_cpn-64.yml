@@ -93,7 +93,7 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          export QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x64/bin \
+          export QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x64 \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
