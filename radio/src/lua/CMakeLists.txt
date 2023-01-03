@@ -56,7 +56,6 @@ set(LUA_SRC
   lstate.c
   lstring.c
   ltable.c
-  lrotable.c
   ltm.c
   lundump.c
   lvm.c

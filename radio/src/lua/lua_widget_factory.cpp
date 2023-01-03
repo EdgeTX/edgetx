@@ -23,7 +23,6 @@
 #include "lua_widget.h"
 
 #include "lua_api.h"
-#include "api_colorlcd.h"
 
 #define MAX_INSTRUCTIONS       (20000/100)
 

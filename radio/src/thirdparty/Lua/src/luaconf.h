@@ -15,7 +15,8 @@
 #define USE_FATFS
 #endif
 
-#define LUA_ANSI			// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+#define LUA_ANSI
 
 /*
 ** ==================================================================
@@ -398,8 +399,8 @@
 ** ===================================================================
 */
 
-#define LUA_NUMBER_DOUBLE
-#define LUA_NUMBER	double
+#define LUA_NUMBER_FLOAT
+#define LUA_NUMBER	float
 
 /*
 @@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
@@ -414,8 +415,8 @@
 @@ lua_number2str converts a number to a string.
 @@ LUAI_MAXNUMBER2STR is maximum size of previous conversion.
 */
-#define LUA_NUMBER_SCAN		"%lf"
-#define LUA_NUMBER_FMT		"%.14g"
+#define LUA_NUMBER_SCAN		"%f"
+#define LUA_NUMBER_FMT		"%.7g"
 #define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 
@@ -434,10 +435,10 @@
 ** systems, you can leave 'lua_strx2number' undefined and Lua will
 ** provide its own implementation.
 */
-#define lua_str2number(s,p)	strtod((s), (p))
+#define lua_str2number(s,p)	strtof((s), (p))
 
 #if defined(LUA_USE_STRTODHEX)
-#define lua_strx2number(s,p)	strtod((s), (p))
+#define lua_strx2number(s,p)	lua_str2number(s,p)
 #endif
 
 
@@ -559,7 +560,5 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
-
-#define LUA_MAX_ROTABLE_NAME      32
 
 #endif

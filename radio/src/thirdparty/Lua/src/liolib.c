@@ -4,7 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-
 /*
 ** POSIX idiosyncrasy!
 ** This definition must come before the inclusion of 'stdio.h'; it
@@ -14,14 +13,13 @@
 #define _FILE_OFFSET_BITS 64
 #endif
 
-
+#define liolib_c
+#define LUA_LIB
 
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-#define liolib_c
 
 #include "lua.h"
 
@@ -649,84 +647,25 @@ static int io_seek (lua_State *L) {
 /*
 ** functions for 'io' library
 */
-const luaL_Reg iolib[] = {
-  {"close", io_close},
-  // {"flush", io_flush},
-  // {"input", io_input},
-  // {"lines", io_lines},
-  {"seek", io_seek},
-  {"open", io_open},
-  // {"output", io_output},
-  // {"popen", io_popen},
-  {"read", io_read},
-  // {"tmpfile", io_tmpfile},
-  // {"type", io_type},
-  {"write", io_write},
-  {NULL, NULL}
-};
+LROT_BEGIN(iolib, NULL, 0)
+  LROT_FUNCENTRY( close, io_close )
+  LROT_FUNCENTRY( seek, io_seek )
+  LROT_FUNCENTRY( open, io_open )
+  LROT_FUNCENTRY( read, io_read )
+  LROT_FUNCENTRY( write, io_write )
+LROT_END(iolib, NULL, 0)
 
 /*
 ** methods for file handles
+**
+** we define only garbage collector to close any leftover open files
 */
-static const luaL_Reg flib[] = {
-  // {"close", io_close},
-  // {"flush", f_flush},
-  // {"lines", f_lines},
-  // {"read", io_read},
-  // {"seek", f_seek},
-  // {"setvbuf", f_setvbuf},
-  // {"write", f_write},
-  {"__gc", f_gc},     // we define only garbage collector to close any leftover open files
-  // {"__tostring", f_tostring},
-  {NULL, NULL}
-};
+LROT_BEGIN(file_handle, NULL, LROT_MASK_GC)
+  LROT_FUNCENTRY( __gc, f_gc )
+LROT_END(file_handle, NULL, LROT_MASK_GC)
 
-static void createmeta (lua_State *L) {
-  luaL_newmetatable(L, LUA_FILEHANDLE);  /* create metatable for file handles */
-  lua_pushvalue(L, -1);  /* push metatable */
-  lua_setfield(L, -2, "__index");  /* metatable.__index = metatable */
-  luaL_setfuncs(L, flib, 0);  /* add file methods to new metatable */
-  lua_pop(L, 1);  /* pop new metatable */
-}
-
-#if !defined(USE_FATFS)
-/*
-** function to (not) close the standard files stdin, stdout, and stderr
-*/
-static int io_noclose (lua_State *L) {
-  LStream *p = tolstream(L);
-  p->closef = &io_noclose;  /* keep file opened */
-  lua_pushnil(L);
-  lua_pushliteral(L, "cannot close standard file");
-  return 2;
-}
-
-
-static void createstdfile (lua_State *L, FILE *f, const char *k,
-                           const char *fname) {
-  LStream *p = newprefile(L);
-  p->f = f;
-  p->closef = &io_noclose;
-  if (k != NULL) {
-    lua_pushvalue(L, -1);
-    lua_setfield(L, LUA_REGISTRYINDEX, k);  /* add file to registry */
-  }
-  lua_setfield(L, -2, fname);  /* add file to module */
-}
-
-#endif
 
 LUAMOD_API int luaopen_io (lua_State *L) {
-  // luaL_newlib(L, iolib);  /* new module */
-   createmeta(L);
-  /* create (and set) default files */
-  // createstdfile(L, stdin, IO_INPUT, "stdin");
-  // createstdfile(L, stdout, IO_OUTPUT, "stdout");
-  // createstdfile(L, stderr, NULL, "stderr");
-  // return 1;
+  luaL_rometatable( L, LUA_FILEHANDLE,  LROT_TABLEREF(file_handle));
   return 0;
 }
-
-#if defined(USE_FATFS)
-  #undef FILE
-#endif

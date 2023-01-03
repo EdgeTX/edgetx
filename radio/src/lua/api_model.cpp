@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
+
 #include <ctype.h>
 #include <stdio.h>
 #include "opentx.h"
@@ -1722,45 +1724,44 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
-const luaL_Reg modelLib[] = {
-  { "getInfo", luaModelGetInfo },
-  { "setInfo", luaModelSetInfo },
-  { "getModule", luaModelGetModule },
-  { "setModule", luaModelSetModule },
-  { "getTimer", luaModelGetTimer },
-  { "setTimer", luaModelSetTimer },
-  { "resetTimer", luaModelResetTimer },
-  { "deleteFlightModes", luaModelDeleteFlightModes },
-  { "getFlightMode", luaModelGetFlightMode },
-  { "setFlightMode", luaModelSetFlightMode },
-  { "getInputsCount", luaModelGetInputsCount },
-  { "getInput", luaModelGetInput },
-  { "insertInput", luaModelInsertInput },
-  { "deleteInput", luaModelDeleteInput },
-  { "deleteInputs", luaModelDeleteInputs },
-  { "defaultInputs", luaModelDefaultInputs },
-  { "getMixesCount", luaModelGetMixesCount },
-  { "getMix", luaModelGetMix },
-  { "insertMix", luaModelInsertMix },
-  { "deleteMix", luaModelDeleteMix },
-  { "deleteMixes", luaModelDeleteMixes },
-  { "getLogicalSwitch", luaModelGetLogicalSwitch },
-  { "setLogicalSwitch", luaModelSetLogicalSwitch },
-  { "getCustomFunction", luaModelGetCustomFunction },
-  { "setCustomFunction", luaModelSetCustomFunction },
-  { "getCurve", luaModelGetCurve },
-  { "setCurve", luaModelSetCurve },
-  { "getOutput", luaModelGetOutput },
-  { "setOutput", luaModelSetOutput },
+LROT_BEGIN(modellib, NULL, 0)
+  LROT_FUNCENTRY( getInfo, luaModelGetInfo )
+  LROT_FUNCENTRY( setInfo, luaModelSetInfo )
+  LROT_FUNCENTRY( getModule, luaModelGetModule )
+  LROT_FUNCENTRY( setModule, luaModelSetModule )
+  LROT_FUNCENTRY( getTimer, luaModelGetTimer )
+  LROT_FUNCENTRY( setTimer, luaModelSetTimer )
+  LROT_FUNCENTRY( resetTimer, luaModelResetTimer )
+  LROT_FUNCENTRY( deleteFlightModes, luaModelDeleteFlightModes )
+  LROT_FUNCENTRY( getFlightMode, luaModelGetFlightMode )
+  LROT_FUNCENTRY( setFlightMode, luaModelSetFlightMode )
+  LROT_FUNCENTRY( getInputsCount, luaModelGetInputsCount )
+  LROT_FUNCENTRY( getInput, luaModelGetInput )
+  LROT_FUNCENTRY( insertInput, luaModelInsertInput )
+  LROT_FUNCENTRY( deleteInput, luaModelDeleteInput )
+  LROT_FUNCENTRY( deleteInputs, luaModelDeleteInputs )
+  LROT_FUNCENTRY( defaultInputs, luaModelDefaultInputs )
+  LROT_FUNCENTRY( getMixesCount, luaModelGetMixesCount )
+  LROT_FUNCENTRY( getMix, luaModelGetMix )
+  LROT_FUNCENTRY( insertMix, luaModelInsertMix )
+  LROT_FUNCENTRY( deleteMix, luaModelDeleteMix )
+  LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
+  LROT_FUNCENTRY( getLogicalSwitch, luaModelGetLogicalSwitch )
+  LROT_FUNCENTRY( setLogicalSwitch, luaModelSetLogicalSwitch )
+  LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )
+  LROT_FUNCENTRY( setCustomFunction, luaModelSetCustomFunction )
+  LROT_FUNCENTRY( getCurve, luaModelGetCurve )
+  LROT_FUNCENTRY( setCurve, luaModelSetCurve )
+  LROT_FUNCENTRY( getOutput, luaModelGetOutput )
+  LROT_FUNCENTRY( setOutput, luaModelSetOutput )
 #if defined (GVARS)
-  { "getGlobalVariable", luaModelGetGlobalVariable },
-  { "setGlobalVariable", luaModelSetGlobalVariable },
+  LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
+  LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )
 #endif
-  { "getSensor", luaModelGetSensor },
-  { "resetSensor", luaModelResetSensor },
+  LROT_FUNCENTRY( getSensor, luaModelGetSensor )
+  LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
 #if defined(HELI)
-  { "getSwashRing", luaModelGetSwashRing },
-  { "setSwashRing", luaModelSetSwashRing },
+  LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
+  LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
-  { nullptr, nullptr }  /* sentinel */
-};
+LROT_END(modellib, NULL, 0)

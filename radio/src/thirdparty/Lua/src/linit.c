@@ -14,72 +14,109 @@
 
 
 #define linit_c
+#define LUA_LIB
 
 #include "lua.h"
-
 #include "lualib.h"
 #include "lauxlib.h"
 
-#include "lrotable.h"
+#include "lstring.h"
+#include "ltable.h"
+#include "lstate.h"
+#include "lgc.h"
 
-/*
-** these libs are loaded by lua.c and are readily available to any Lua
-** program
-*/
-static const luaL_Reg loadedlibs[] = {
-  // {"_G", luaopen_base},
-#if defined(COLORLCD)
-  {LUA_LOADLIBNAME, luaopen_package},
-#endif
-  // {LUA_COLIBNAME, luaopen_coroutine},
-  // {LUA_TABLIBNAME, luaopen_table},
-  {LUA_IOLIBNAME, luaopen_io},
-  // {LUA_OSLIBNAME, luaopen_os},
-  // {LUA_STRLIBNAME, luaopen_string},
-  // {LUA_BITLIBNAME, luaopen_bit32},
-  // {LUA_MATHLIBNAME, luaopen_math},
-  // {LUA_DBLIBNAME, luaopen_debug},
-  {NULL, NULL}
+#include "lua/api_filesystem.h"
+#include "lua/api_colorlcd.h"
+
+extern LROT_TABLE(iolib);
+extern LROT_TABLE(strlib);
+extern LROT_TABLE(mathlib);
+extern LROT_TABLE(bitlib);
+
+extern LROT_TABLE(etxlib);
+extern LROT_TABLE(etxcst);
+extern LROT_TABLE(etxstr);
+extern LROT_TABLE(etxdir);
+
+extern LROT_TABLE(lcdlib);
+extern LROT_TABLE(modellib);
+extern LROT_TABLE(bitmaplib);
+
+/* _G __index -> rotables __index -> _index_hook_fct */
+extern LROT_TABLE(rotables_meta);
+extern LROT_TABLE(base_func);
+
+static const ROTable* _global_symbols[] = {
+  LROT_TABLEREF(base_func),
+  LROT_TABLEREF(etxlib),
+  LROT_TABLEREF(etxdir),
+  LROT_TABLEREF(etxcst),
+  LROT_TABLEREF(etxstr),
+  NULL,
 };
 
-/* The read-only tables are defined here */
-const luaR_table lua_rotable[] =
+static int _index_hook_fct(lua_State * L)
 {
-  {"__opentx", opentxLib, opentxConstants, edgetxStrings},
-  {"lcd", lcdLib, NULL, NULL},
-  {"model", modelLib, NULL, NULL},
-  {"__baselib", baselib, NULL, NULL},
-  {LUA_IOLIBNAME, iolib, NULL, NULL},
-  {LUA_STRLIBNAME, strlib, NULL, NULL},
-  {LUA_MATHLIBNAME, mathlib, mathlib_vals, NULL},
-  {LUA_BITLIBNAME, bitlib, NULL, NULL},
-#if defined(COLORLCD)
-  {LUA_TABLIBNAME, tab_funcs, NULL, NULL},
-#endif
-  {NULL, NULL, NULL, NULL}
-};
+  const ROTable** t = _global_symbols;
+  const TValue* res = luaO_nilobject;
+  TString* key;
 
-/*
-** these libs are preloaded and must be required before used
-*/
-static const luaL_Reg preloadedlibs[] = {
-  {NULL, NULL}
-};
+  lua_lock(L);
+  key = rawtsvalue(L->top - 1);
+  for(; *t; t++) {
+    res = luaH_getstr((Table*)*t, key);
+    if (!ttisnil(res)) break;
+  }
+
+  if (ttislightuserdata(res)) {
+    /* strings are encoded as light user data */
+    setsvalue2s(L, L->top - 1, luaS_new(L, pvalue(res)));
+  } else {
+    setobj2s(L, L->top - 1, res);
+  }
+  lua_unlock(L);
+
+  return 1;
+}
+
+/* rotables is inserted in luaopen_base */
+LROT_BEGIN(rotables_meta, NULL, LROT_MASK_INDEX)
+  LROT_FUNCENTRY( __index, _index_hook_fct )
+LROT_END(rotables_meta, NULL, LROT_MASK_INDEX)
+
+LROT_BEGIN(rotables, LROT_TABLEREF(rotables_meta), 0)
+  LROT_TABENTRY( _G, base_func)
+  LROT_TABENTRY( io, iolib )
+  LROT_TABENTRY( string, strlib )
+  LROT_TABENTRY( math, mathlib )
+  LROT_TABENTRY( bit, bitlib )
+  LROT_TABENTRY( lcd, lcdlib )
+  LROT_TABENTRY( model, modellib )
+  LROT_TABENTRY( bitmap, bitmaplib )
+  LROT_TABENTRY( Bitmap, bitmaplib ) /* TODO: obsolete after 2.9 */
+  LROT_TABENTRY( ROM, rotables )
+LROT_END(rotables, LROT_TABLEREF(rotables_meta), 0)
+
+LROT_BEGIN(lua_libs, NULL, 0)
+  LROT_FUNCENTRY( _G,        luaopen_base )
+  LROT_FUNCENTRY( io,        luaopen_io )
+  LROT_FUNCENTRY( dir,       luaopen_etxdir )
+  LROT_FUNCENTRY( bitmap_mt, luaopen_bitmap )
+#if defined(LUA_ENABLE_LOADLIB)
+  LROT_FUNCENTRY( package, luaopen_package )
+#endif
+#if defined(LUA_ENABLE_STRLIB_MT)
+  LROT_FUNCENTRY( string, luaopen_string )
+#endif
+LROT_END(lua_libs, NULL, 0)
 
 
 LUALIB_API void luaL_openlibs (lua_State *L) {
-  const luaL_Reg *lib;
-  /* call open functions from 'loadedlibs' and set results to global table */
-  for (lib = loadedlibs; lib->func; lib++) {
-    luaL_requiref(L, lib->name, lib->func, 1);
-    lua_pop(L, 1);  /* remove lib */
+  const ROTable_entry *p = LROT_TABLEREF(lua_libs)->entry;
+  /* Now do lua opens */
+  for ( ; p->key; p++) {
+    if (ttislcf(&p->value) && fvalue(&p->value))
+      luaL_requiref(L, p->key, fvalue(&p->value), 1);
   }
-  /* add open functions from 'preloadedlibs' into 'package.preload' table */
-  luaL_getsubtable(L, LUA_REGISTRYINDEX, "_PRELOAD");
-  for (lib = preloadedlibs; lib->func; lib++) {
-    lua_pushcfunction(L, lib->func);
-    lua_setfield(L, -2, lib->name);
-  }
-  lua_pop(L, 1);  /* remove _PRELOAD table */
 }
 
