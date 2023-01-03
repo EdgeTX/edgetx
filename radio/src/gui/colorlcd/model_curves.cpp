@@ -114,7 +114,8 @@ void ModelCurvesPage::pushEditCurve(int index)
 
 void ModelCurvesPage::rebuild(FormWindow * window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
+
   window->clear();
   build(window);
 
@@ -194,7 +195,7 @@ void ModelCurvesPage::build(FormWindow * window)
       int8_t * points = curveAddress(index);
 
       // Curve drawing
-      auto * button = new CurveButton(line, rect_t{}, index);
+      auto button = new CurveButton(line, rect_t{}, index);
       button->setPressHandler([=]() -> uint8_t {
           Menu * menu = new Menu(window);
           menu->addLine(STR_EDIT, [=]() {
