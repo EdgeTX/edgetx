@@ -146,6 +146,8 @@ void Curve::drawPosition(BitmapBuffer * dc)
   dc->drawText(11, 10, coords, FONT(XS) | COLOR_THEME_PRIMARY1);
 }
 
+DEFINE_LZ4_BITMAP(LBM_DOT);
+
 void Curve::drawSelected(BitmapBuffer * dc)
 {
   int valueX = selected();
@@ -155,11 +157,7 @@ void Curve::drawSelected(BitmapBuffer * dc)
     coord_t x = getPointX(valueX);
     coord_t y = getPointY(valueY);
 
-    dc->drawSolidHorizontalLine(x - 5, y - 7, 11, COLOR_THEME_EDIT);
-    dc->drawSolidHorizontalLine(x - 6, y - 6, 13, COLOR_THEME_EDIT);
-    dc->drawSolidFilledRect(x - 7, y - 5, 15, 11, COLOR_THEME_EDIT);
-    dc->drawSolidHorizontalLine(x - 6, y + 6, 13, COLOR_THEME_EDIT);
-   dc->drawSolidHorizontalLine(x - 5, y + 7, 11, COLOR_THEME_EDIT);
+    dc->drawBitmapPattern(x - 6, y - 6, LBM_DOT, COLOR_THEME_EDIT);
   }
 }
 
@@ -186,14 +184,14 @@ void Curve::paint(BitmapBuffer * dc)
 
   drawBackground(dc);
   drawCurve(dc);
-  if (selected) {
-    drawSelected(dc);
-  }
   for (auto point: points) {
     drawPoint(dc, point);
   }
   if (position) {
     drawPosition(dc);
+  }
+  if (selected) {
+    drawSelected(dc);
   }
 }
 
