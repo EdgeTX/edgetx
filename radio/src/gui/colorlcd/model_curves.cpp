@@ -25,8 +25,17 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+#define PREVIEW_PAD 9
+#define TITLE_H     20
+#define INFO_H      27
 #define CURVE_BTN_W 142
-#define CURVE_BTH_H 180
+#define CURVE_BTH_H CURVE_BTN_W + TITLE_H + INFO_H - PREVIEW_PAD
+
+#if LCD_W > LCD_H
+  #define   PER_ROW     3
+#else
+  #define   PER_ROW     2
+#endif
 
 DEFINE_LZ4_BITMAP(LBM_DOT);
 
@@ -39,7 +48,7 @@ class CurveButton : public Button {
       padAll(0);
       setWidth(CURVE_BTN_W);
       setHeight(CURVE_BTH_H);
-      preview = new CurveRenderer({9, 29, CURVE_BTN_W - 18, CURVE_BTN_W - 18},
+      preview = new CurveRenderer({PREVIEW_PAD, PREVIEW_PAD+TITLE_H, CURVE_BTN_W - PREVIEW_PAD*2, CURVE_BTN_W - PREVIEW_PAD*2},
                                   [=](int x) -> int {
                                     return applyCustomCurve(x, index);
                                   });
@@ -47,22 +56,31 @@ class CurveButton : public Button {
 
     void paint(BitmapBuffer * dc) override
     {
+      char buf[32];
       LcdFlags bg_color = hasFocus() ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY2;
       LcdFlags txt_color = hasFocus() ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+
+      // Title bar background
       dc->drawSolidFilledRect(8, 0, CURVE_BTN_W - 16, 8, bg_color);
-      dc->drawSolidFilledRect(0, 8, CURVE_BTN_W, 14, bg_color);
+      dc->drawSolidFilledRect(0, 8, CURVE_BTN_W, TITLE_H-6, bg_color);
       dc->drawBitmapPattern(0, 0, LBM_DOT, bg_color);
       dc->drawBitmapPattern(CURVE_BTN_W-13, 0, LBM_DOT, bg_color);
 
-      dc->drawText(CURVE_BTN_W / 2, 1, getCurveString(1 + index), txt_color|CENTERED|FONT(BOLD));
+      // Title
+      char *s = strAppendStringWithIndex(buf, STR_CV, index + 1);
+      if (g_model.curves[index].name[0]) {
+        s = strAppend(s, ":");
+        strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
+      }
+
+      dc->drawText(CURVE_BTN_W / 2, 1, buf, txt_color|CENTERED|FONT(BOLD));
 
       preview->paint(dc);
 
       // curve characteristics
-      char buf[32];
       CurveHeader &curve = g_model.curves[index];
       snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points, STR_PTS);
-      dc->drawText(CURVE_BTN_W / 2, CURVE_BTH_H - 26, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
+      dc->drawText(CURVE_BTN_W / 2, CURVE_BTH_H - INFO_H + 1, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
     }
 
     void select(bool selected) {
@@ -105,12 +123,6 @@ void ModelCurvesPage::pushEditCurve(int index)
   
   new CurveEditWindow(index);
 }
-
-#if LCD_W > LCD_H
-  #define   PER_ROW     3
-#else
-  #define   PER_ROW     2
-#endif
 
 void ModelCurvesPage::rebuild(FormWindow * window)
 {
