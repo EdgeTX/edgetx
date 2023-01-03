@@ -79,7 +79,7 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          export QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x86 \
+          QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x86 \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
