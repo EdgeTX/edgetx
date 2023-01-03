@@ -346,7 +346,14 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-set(OPENSSL_ROOT_DIR "$ENV{QT_TOOLS_OPENSSL_ROOT_PATH}")
+# OpenSSL
+# environment variable set in github workflows and build-edgetx Dockerfile
+if (DEFINED ENV{QT_TOOLS_OPENSSL_ROOT_PATH})
+  set(OPENSSL_ROOT_DIR "$ENV{QT_TOOLS_OPENSSL_ROOT_PATH}")
+else()
+  message(STATUS "Environment variable QT_TOOLS_OPENSSL_ROOT_PATH not defined. Performing default OpenSSL library search.")
+endif()
+
 find_package(OpenSSL)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -371,6 +378,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/scalable/apps RENAME companion${C9X_NAME_SUFFIX}.svg)
   install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-taranis.rules)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
+
+  if (OPENSSL_FOUND)
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    # install only files Qt networking requires
+    install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "engines*" EXCLUDE PATTERN "pkg*" EXCLUDE PATTERN "*.so*")
+  endif()
+
   # Linux specific code
   set(OperatingSystem "Linux")
   # Shortcut target
@@ -409,9 +423,15 @@ elseif(WIN32)
     message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
   endif()
 
-  # OpendSSL dlls
   if (OPENSSL_FOUND)
-    install(DIRECTORY ${OPENSSL_SSL_LIBRARY}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "*.dll")
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+    if (EXISTS "${OPENSSL_BIN_DIR}")
+      # install only files Qt networking requires
+      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "*.dll")
+    else()
+  	  message(STATUS "Installer: OpenSSL bin directory not found, dlls not bundled.")
+    endif()
   endif()
 endif() # WIN32 install
 
