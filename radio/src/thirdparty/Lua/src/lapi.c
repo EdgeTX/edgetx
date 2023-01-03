@@ -261,7 +261,7 @@ LUA_API const char *lua_typename (lua_State *L, int t) {
 
 LUA_API int lua_iscfunction (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
-  return (ttislcf(o) || ttislightfunction(o) || (ttisCclosure(o)));
+  return (ttislcf(o) || (ttisCclosure(o)));
 }
 
 
@@ -418,7 +418,7 @@ LUA_API size_t lua_rawlen (lua_State *L, int idx) {
 
 LUA_API lua_CFunction lua_tocfunction (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
-  if (ttislcf(o)) return lcfvalue(o);
+  if (ttislcf(o)) return fvalue(o);
   else if (ttisCclosure(o))
     return clCvalue(o)->f;
   else return NULL;  /* not a C function */
@@ -447,13 +447,12 @@ LUA_API const void *lua_topointer (lua_State *L, int idx) {
     case LUA_TTABLE: return hvalue(o);
     case LUA_TLCL: return clLvalue(o);
     case LUA_TCCL: return clCvalue(o);
-    case LUA_TLCF: return cast(void *, cast(size_t, lcfvalue(o)));
+    case LUA_TLCF: return cast(void *, cast(size_t, fvalue(o)));
     case LUA_TTHREAD: return thvalue(o);
     case LUA_TUSERDATA:
     case LUA_TLIGHTUSERDATA:
       return lua_touserdata(L, idx);
     case LUA_TROTABLE:
-    case LUA_TLIGHTFUNCTION:
       return pvalue(o);
     default: return NULL;
   }
@@ -558,7 +557,7 @@ LUA_API const char *lua_pushfstring (lua_State *L, const char *fmt, ...) {
 LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
   lua_lock(L);
   if (n == 0) {
-    setlcfvalue(L->top, fn);
+    setfvalue(L->top, fn);
   }
   else {
     Closure *cl;
@@ -598,13 +597,6 @@ LUA_API void lua_pushrotable (lua_State *L, void *p) {
   lua_unlock(L);
 }
 
-LUA_API void lua_pushlightfunction(lua_State *L, void *p) {
-  lua_lock(L);
-  setlfvalue(L->top, p);
-  api_incr_top(L);
-  lua_unlock(L);
-}
-
 LUA_API int lua_pushthread (lua_State *L) {
   lua_lock(L);
   setthvalue(L, L->top, L);
@@ -619,24 +611,14 @@ LUA_API int lua_pushthread (lua_State *L) {
 
 
 LUA_API void lua_getglobal (lua_State *L, const char *var) {
-  TValue value;
-  luaR_result found;
-  TRACE_LUA_INTERNALS("lua_getglobal() '%s'", var);
   Table *reg = hvalue(&G(L)->l_registry);
   const TValue *gt;  /* global table */
   lua_lock(L);
-
-  found = luaR_findglobal(L, var, &value);
-  if (found && ttislightfunction(&value)) {
-    setsvalue2s(L, L->top++, luaS_new(L, var));
-    setlfvalue(L->top - 1, lfvalue(&value))
-  }
-  else {
+  setsvalue2s(L, L->top++, luaS_new(L, var));
+  if (!luaR_findglobal(L, var, L->top - 1)) {
     gt = luaH_getint(reg, LUA_RIDX_GLOBALS);
-    setsvalue2s(L, L->top++, luaS_new(L, var));
     luaV_gettable(L, gt, L->top - 1, L->top - 1);
   }
-
   lua_unlock(L);
 }
 

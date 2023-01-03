@@ -134,7 +134,6 @@ typedef union Value Value;
 #define ttisboolean(o)		checktag((o), LUA_TBOOLEAN)
 #define ttislightuserdata(o)	checktag((o), LUA_TLIGHTUSERDATA)
 #define ttisrotable(o)          checktag((o), LUA_TROTABLE)
-#define ttislightfunction(o)    checktag((o), LUA_TLIGHTFUNCTION)
 #define ttisstring(o)		checktype((o), LUA_TSTRING)
 #define ttisshrstring(o)	checktag((o), ctb(LUA_TSHRSTR))
 #define ttislngstring(o)	checktag((o), ctb(LUA_TLNGSTR))
@@ -155,7 +154,6 @@ typedef union Value Value;
 #define gcvalue(o)	check_exp(iscollectable(o), val_(o).gc)
 #define pvalue(o)	check_exp(ttislightuserdata(o), val_(o).p)
 #define rvalue(o)       check_exp(ttisrotable(o), val_(o).p)
-#define lfvalue(o)      check_exp(ttislightfunction(o), val_(o).p)
 #define rawtsvalue(o)	check_exp(ttisstring(o), &val_(o).gc->ts)
 #define tsvalue(o)	(&rawtsvalue(o)->tsv)
 #define rawuvalue(o)	check_exp(ttisuserdata(o), &val_(o).gc->u)
@@ -163,7 +161,7 @@ typedef union Value Value;
 #define clvalue(o)	check_exp(ttisclosure(o), &val_(o).gc->cl)
 #define clLvalue(o)	check_exp(ttisLclosure(o), &val_(o).gc->cl.l)
 #define clCvalue(o)	check_exp(ttisCclosure(o), &val_(o).gc->cl.c)
-#define lcfvalue(o)	check_exp(ttislcf(o), val_(o).f)
+#define fvalue(o)	check_exp(ttislcf(o), val_(o).f)
 #define hvalue(o)	check_exp(ttistable(o), &val_(o).gc->h)
 #define bvalue(o)	check_exp(ttisboolean(o), val_(o).b)
 #define thvalue(o)	check_exp(ttisthread(o), &val_(o).gc->th)
@@ -192,7 +190,7 @@ typedef union Value Value;
 
 #define setnilvalue(obj) settt_(obj, LUA_TNIL)
 
-#define setlcfvalue(obj,x) \
+#define setfvalue(obj,x) \
   { TValue *io=(obj); val_(io).f=(x); settt_(io, LUA_TLCF); }
 
 #define setpvalue(obj,x) \
@@ -200,9 +198,6 @@ typedef union Value Value;
 
 #define setrvalue(obj,x) \
   { TValue *io=(obj); val_(io).p=(x); settt_(io, LUA_TROTABLE); }
-
-#define setlfvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, LUA_TLIGHTFUNCTION); }
 
 #define setbvalue(obj,x) \
   { TValue *io=(obj); val_(io).b=(x); settt_(io, LUA_TBOOLEAN); }

@@ -113,7 +113,7 @@ static Node *mainposition (const Table *t, const TValue *key) {
     case LUA_TLIGHTUSERDATA:
       return hashpointer(t, pvalue(key));
     case LUA_TLCF:
-      return hashpointer(t, lcfvalue(key));
+      return hashpointer(t, fvalue(key));
     default:
       return hashpointer(t, gcvalue(key));
   }
@@ -209,10 +209,6 @@ static int computesizes (int nums[], int *narray) {
     }
     if (a == *narray) break;  /* all elements already counted */
   }
-  if (n - *narray > 1024)
-    *narray += 1024;
-  else
-    *narray = n;
   lua_assert(*narray/2 <= na && na <= *narray);
   return na;
 }
@@ -306,7 +302,6 @@ void luaH_resize (lua_State *L, Table *t, int nasize, int nhsize) {
   int i;
   int oldasize = t->sizearray;
   int oldhsize = t->lsizenode;
-  TRACE_LUA_INTERNALS_WITH_LINEINFO(L, "luaH_resize table %p %d(%d) %d(%d)", t, nasize, oldasize, nhsize, twoto(oldhsize));
   Node *nold = t->node;  /* save old hash ... */
   if (nasize > oldasize)  /* array part must grow? */
     setarrayvector(L, t, nasize);
