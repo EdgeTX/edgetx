@@ -256,7 +256,7 @@ void tasksStart()
   RTOS_CREATE_MUTEX(audioMutex);
   RTOS_CREATE_MUTEX(mixerMutex);
 
-#if defined(CLI)&& !defined(SIMU)
+#if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 
