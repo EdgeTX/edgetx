@@ -23,7 +23,6 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
-#include "lrotable.h"
 #include "ltm.h"
 #include "lundump.h"
 #include "lvm.h"
@@ -407,10 +406,11 @@ LUA_API const char *lua_tolstring (lua_State *L, int idx, size_t *len) {
 
 LUA_API size_t lua_rawlen (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
-  switch (ttypenv(o)) {
-    case LUA_TSTRING: return tsvalue(o)->len;
+  switch (ttype(o)) {
+    case LUA_TSHRSTR:
+    case LUA_TLNGSTR: return tsvalue(o)->len;
     case LUA_TUSERDATA: return uvalue(o)->len;
-    case LUA_TTABLE: return luaH_getn(hvalue(o));
+    case LUA_TTBLRAM: return luaH_getn(hvalue(o));
     default: return 0;
   }
 }
@@ -444,7 +444,8 @@ LUA_API lua_State *lua_tothread (lua_State *L, int idx) {
 LUA_API const void *lua_topointer (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
   switch (ttype(o)) {
-    case LUA_TTABLE: return hvalue(o);
+    case LUA_TTBLRAM:
+    case LUA_TTBLROF: return hvalue(o);
     case LUA_TLCL: return clLvalue(o);
     case LUA_TCCL: return clCvalue(o);
     case LUA_TLCF: return cast(void *, cast(size_t, fvalue(o)));
@@ -452,8 +453,6 @@ LUA_API const void *lua_topointer (lua_State *L, int idx) {
     case LUA_TUSERDATA:
     case LUA_TLIGHTUSERDATA:
       return lua_touserdata(L, idx);
-    case LUA_TROTABLE:
-      return pvalue(o);
     default: return NULL;
   }
 }
@@ -575,6 +574,7 @@ LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
   lua_unlock(L);
 }
 
+
 LUA_API void lua_pushboolean (lua_State *L, int b) {
   lua_lock(L);
   setbvalue(L->top, (b != 0));  /* ensure that true is 1 */
@@ -590,12 +590,6 @@ LUA_API void lua_pushlightuserdata (lua_State *L, void *p) {
   lua_unlock(L);
 }
 
-LUA_API void lua_pushrotable (lua_State *L, void *p) {
-  lua_lock(L);
-  setrvalue(L->top, p);
-  api_incr_top(L);
-  lua_unlock(L);
-}
 
 LUA_API int lua_pushthread (lua_State *L) {
   lua_lock(L);
@@ -604,6 +598,15 @@ LUA_API int lua_pushthread (lua_State *L) {
   lua_unlock(L);
   return (G(L)->mainthread == L);
 }
+
+
+LUA_API void lua_pushrotable (lua_State *L, const ROTable *t) {
+  lua_lock(L);
+  sethvalue(L, L->top, cast(Table *, t));
+  api_incr_top(L);
+  lua_unlock(L);
+}
+
 
 /*
 ** get functions (Lua -> stack)
@@ -614,11 +617,9 @@ LUA_API void lua_getglobal (lua_State *L, const char *var) {
   Table *reg = hvalue(&G(L)->l_registry);
   const TValue *gt;  /* global table */
   lua_lock(L);
+  gt = luaH_getint(reg, LUA_RIDX_GLOBALS);
   setsvalue2s(L, L->top++, luaS_new(L, var));
-  if (!luaR_findglobal(L, var, L->top - 1)) {
-    gt = luaH_getint(reg, LUA_RIDX_GLOBALS);
-    luaV_gettable(L, gt, L->top - 1, L->top - 1);
-  }
+  luaV_gettable(L, gt, L->top - 1, L->top - 1);
   lua_unlock(L);
 }
 
@@ -779,7 +780,7 @@ LUA_API void lua_rawset (lua_State *L, int idx) {
   lua_lock(L);
   api_checknelems(L, 2);
   t = index2addr(L, idx);
-  api_check(L, ttistable(t), "table expected");
+  api_check(L, ttisrwtable(t), "RW table expected");
   setobj2t(L, luaH_set(L, hvalue(t), L->top-2), L->top-1);
   invalidateTMcache(hvalue(t));
   luaC_barrierback(L, gcvalue(t), L->top-1);
@@ -793,7 +794,7 @@ LUA_API void lua_rawseti (lua_State *L, int idx, int n) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = index2addr(L, idx);
-  api_check(L, ttistable(t), "table expected");
+  api_check(L, ttisrwtable(t), "RW table expected");
   luaH_setint(L, hvalue(t), n, L->top - 1);
   luaC_barrierback(L, gcvalue(t), L->top-1);
   L->top--;
@@ -807,7 +808,7 @@ LUA_API void lua_rawsetp (lua_State *L, int idx, const void *p) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = index2addr(L, idx);
-  api_check(L, ttistable(t), "table expected");
+  api_check(L, ttisrwtable(t), "RW table expected");
   setpvalue(&k, cast(void *, p));
   setobj2t(L, luaH_set(L, hvalue(t), &k), L->top - 1);
   luaC_barrierback(L, gcvalue(t), L->top - 1);
@@ -828,14 +829,17 @@ LUA_API int lua_setmetatable (lua_State *L, int objindex) {
     api_check(L, ttistable(L->top - 1), "table expected");
     mt = hvalue(L->top - 1);
   }
-  switch (ttypenv(obj)) {
-    case LUA_TTABLE: {
+  switch (ttype(obj)) {
+    case LUA_TTBLRAM: {
       hvalue(obj)->metatable = mt;
       if (mt) {
         luaC_objbarrierback(L, gcvalue(obj), mt);
         luaC_checkfinalizer(L, gcvalue(obj), mt);
       }
       break;
+    }
+    case LUA_TTBLROF: {
+      luai_apicheck(L, "RW table expected");
     }
     case LUA_TUSERDATA: {
       uvalue(obj)->metatable = mt;

@@ -55,6 +55,9 @@
 #define LUA_TSHRSTR	(LUA_TSTRING | (0 << 4))  /* short strings */
 #define LUA_TLNGSTR	(LUA_TSTRING | (1 << 4))  /* long strings */
 
+/* Variant tags for tables */
+#define LUA_TTBLRAM	(LUA_TTABLE | (0 << 4))   /* RAM based Table */
+#define LUA_TTBLROF	(LUA_TTABLE | (1 << 4))   /* RO Flash based ROTable */
 
 /* Bit mark for collectable types */
 #define BIT_ISCOLLECTABLE	(1 << 6)
@@ -133,11 +136,12 @@ typedef union Value Value;
 #define ttisnil(o)		checktag((o), LUA_TNIL)
 #define ttisboolean(o)		checktag((o), LUA_TBOOLEAN)
 #define ttislightuserdata(o)	checktag((o), LUA_TLIGHTUSERDATA)
-#define ttisrotable(o)          checktag((o), LUA_TROTABLE)
 #define ttisstring(o)		checktype((o), LUA_TSTRING)
 #define ttisshrstring(o)	checktag((o), ctb(LUA_TSHRSTR))
 #define ttislngstring(o)	checktag((o), ctb(LUA_TLNGSTR))
-#define ttistable(o)		checktag((o), ctb(LUA_TTABLE))
+#define ttistable(o)		checktype((o), LUA_TTABLE)
+#define ttisrwtable(o)		checktag((o), ctb(LUA_TTBLRAM))
+#define ttisrotable(o)		checktag((o), ctb(LUA_TTBLROF))
 #define ttisfunction(o)		checktype(o, LUA_TFUNCTION)
 #define ttisclosure(o)		((rttype(o) & 0x1F) == LUA_TFUNCTION)
 #define ttisCclosure(o)		checktag((o), ctb(LUA_TCCL))
@@ -163,6 +167,8 @@ typedef union Value Value;
 #define clCvalue(o)	check_exp(ttisCclosure(o), &val_(o).gc->cl.c)
 #define fvalue(o)	check_exp(ttislcf(o), val_(o).f)
 #define hvalue(o)	check_exp(ttistable(o), &val_(o).gc->h)
+#define rwhvalue(o)	check_exp(ttisrwtable(o), gco2rwt(&val_(o).gc))
+#define rohvalue(o)	check_exp(ttisrotable(o), gco2rot(val_(o).gc))
 #define bvalue(o)	check_exp(ttisboolean(o), val_(o).b)
 #define thvalue(o)	check_exp(ttisthread(o), &val_(o).gc->th)
 /* a dead value may get the 'gc' field, but cannot access its contents */
@@ -195,9 +201,6 @@ typedef union Value Value;
 
 #define setpvalue(obj,x) \
   { TValue *io=(obj); val_(io).p=(x); settt_(io, LUA_TLIGHTUSERDATA); }
-
-#define setrvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, LUA_TROTABLE); }
 
 #define setbvalue(obj,x) \
   { TValue *io=(obj); val_(io).b=(x); settt_(io, LUA_TBOOLEAN); }
@@ -233,8 +236,8 @@ typedef union Value Value;
     checkliveness(G(L),io); }
 
 #define sethvalue(L,obj,x) \
-  { TValue *io=(obj); \
-    val_(io).gc=cast(GCObject *, (x)); settt_(io, ctb(LUA_TTABLE)); \
+  { TValue *io=(obj); Table *x_ = (x); \
+    val_(io).gc=cast(GCObject *, (x)); settt_(io, ctb(x_->tt)); \
     checkliveness(G(L),io); }
 
 #define setdeadvalue(obj)	settt_(obj, LUA_TDEADKEY)
@@ -543,6 +546,20 @@ typedef union Closure {
 
 
 /*
+** Common Table fields for both table versions (like CommonHeader in
+** macro form, to be included in table structure definitions).
+**
+** Note that the sethvalue() macro works much like the setsvalue()
+** macro and handles the abstracted type. the hvalue(o) macro can be
+** used to access CommonTable fields, but the rwhvalue(o) and
+** rohvalue(o) value variants must be used if accessing variant-specfic
+** fields
+*/
+
+#define CommonTable CommonHeader; \
+                    lu_byte flags; lu_byte lsizenode; struct Table *metatable;
+
+/*
 ** Tables
 */
 
@@ -562,17 +579,29 @@ typedef struct Node {
 
 
 typedef struct Table {
-  CommonHeader;
-  lu_byte flags;  /* 1<<p means tagmethod(p) is not present */
-  lu_byte lsizenode;  /* log2 of size of `node' array */
-  struct Table *metatable;
+  /* flags & 1<<p means tagmethod(p) is not present */
+  /* lsizenode = log2 of size of `node' array */
+  CommonTable;
+  int sizearray;  /* size of `array' array */
   TValue *array;  /* array part */
   Node *node;
   Node *lastfree;  /* any free position is before this position */
   GCObject *gclist;
-  int sizearray;  /* size of `array' array */
 } Table;
 
+typedef struct ROTable_entry {
+  const char *key;
+  const TValue value;
+} ROTable_entry;
+
+typedef struct ROTable {
+ /* next always has the value (GCObject *)((size_t) 1); */
+ /* flags & 1<<p means tagmethod(p) is not present */
+ /* lsizenode is the number of ROTable entries */
+ /* Like TStrings, the ROTable_entry vector follows the ROTable */
+  CommonTable;
+  const ROTable_entry *entry;
+} ROTable;
 
 
 /*

@@ -19,12 +19,23 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
+
 #include <cctype>
 #include <cstdio>
+
 #include "opentx.h"
 #include "libopenui.h"
 #include "widget.h"
+
+#include "lua_api.h"
 #include "api_colorlcd.h"
+
+#define BITMAP_METATABLE "BITMAP*"
+
+constexpr coord_t INVERT_BOX_MARGIN = 2;
+constexpr int8_t text_horizontal_offset[7] {-2,-1,-2,-2,-2,-2,-2};
+constexpr int8_t text_vertical_offset[7] {0,0,0,0,0,-1,7};
 
 BitmapBuffer* luaLcdBuffer  = nullptr;
 Widget* runningFS = nullptr;
@@ -499,8 +510,6 @@ static int luaLcdDrawSource(lua_State *L)
   return 0;
 }
 
-#define LUA_BITMAPHANDLE          "BITMAP*"
-
 /*luadoc
 @function Bitmap.open(name)
 
@@ -547,7 +556,7 @@ static int luaOpenBitmap(lua_State *L)
     TRACE("luaOpenBitmap: %p (%u)", *b, size);
   }
 
-  luaL_getmetatable(L, LUA_BITMAPHANDLE);
+  luaL_getmetatable(L, BITMAP_METATABLE);
   lua_setmetatable(L, -2);
 
   return 1;
@@ -555,7 +564,7 @@ static int luaOpenBitmap(lua_State *L)
 
 static BitmapBuffer * checkBitmap(lua_State * L, int index)
 {
-  BitmapBuffer ** b = (BitmapBuffer **)luaL_checkudata(L, index, LUA_BITMAPHANDLE);
+  BitmapBuffer ** b = (BitmapBuffer **)luaL_checkudata(L, index, BITMAP_METATABLE);
   return *b;
 }
 
@@ -633,7 +642,7 @@ static int luaBitmapResize(lua_State * L)
     TRACE("luaResizeBitmap: %p (%u)", *n, size);
   }
 
-  luaL_getmetatable(L, LUA_BITMAPHANDLE);
+  luaL_getmetatable(L, BITMAP_METATABLE);
   lua_setmetatable(L, -2);
 
   return 1;
@@ -683,23 +692,6 @@ static int luaDestroyBitmap(lua_State * L)
   return 0;
 }
 
-const luaL_Reg bitmapFuncs[] = {
-  { "open", luaOpenBitmap },
-  { "getSize", luaGetBitmapSize },
-  { "resize", luaBitmapResize },
-  { "toMask", luaBitmapTo8bitMask },
-  { "__gc", luaDestroyBitmap },
-  { NULL, NULL }
-};
-
-void registerBitmapClass(lua_State * L)
-{
-  luaL_newmetatable(L, LUA_BITMAPHANDLE);
-  luaL_setfuncs(L, bitmapFuncs, 0);
-  lua_pushvalue(L, -1);
-  lua_setfield(L, -2, "__index");
-  lua_setglobal(L, "Bitmap");
-}
 
 /*luadoc
 @function lcd.drawBitmap(bitmap, x, y [, scale])
@@ -1427,39 +1419,56 @@ static int luaLcdExitFullScreen(lua_State *L)
   return 0;
 }
 
-const luaL_Reg lcdLib[] = {
-  { "refresh", luaLcdRefresh },
-  { "clear", luaLcdClear },
-  { "resetBacklightTimeout", luaLcdResetBacklightTimeout },
-  { "drawPoint", luaLcdDrawPoint },
-  { "drawLine", luaLcdDrawLine },
-  { "drawRectangle", luaLcdDrawRectangle },
-  { "drawFilledRectangle", luaLcdDrawFilledRectangle },
-  { "invertRect", luaLcdInvertRect },
-  { "drawText", luaLcdDrawText },
-  { "drawTextLines", luaLcdDrawTextLines },
-  { "sizeText", luaLcdSizeText },
-  { "drawTimer", luaLcdDrawTimer },
-  { "drawNumber", luaLcdDrawNumber },
-  { "drawChannel", luaLcdDrawChannel },
-  { "drawSwitch", luaLcdDrawSwitch },
-  { "drawSource", luaLcdDrawSource },
-  { "drawGauge", luaLcdDrawGauge },
-  { "drawBitmap", luaLcdDrawBitmap },
-  { "drawBitmapPattern", luaLcdDrawBitmapPattern },
-  { "drawBitmapPatternPie", luaLcdDrawBitmapPatternPie },
-  { "setColor", luaLcdSetColor },
-  { "getColor", luaLcdGetColor },
-  { "RGB", luaRGB },
-  { "drawCircle", luaLcdDrawCircle },
-  { "drawFilledCircle", luaLcdDrawFilledCircle },
-  { "drawTriangle", luaLcdDrawTriangle },
-  { "drawFilledTriangle", luaLcdDrawFilledTriangle },
-  { "drawArc", luaLcdDrawArc },
-  { "drawPie", luaLcdDrawPie },
-  { "drawAnnulus", luaLcdDrawAnnulus },
-  { "drawLineWithClipping", luaLcdDrawLineWithClipping },
-  { "drawHudRectangle", luaLcdDrawHudRectangle },
-  { "exitFullScreen", luaLcdExitFullScreen },
-  { NULL, NULL }  /* sentinel */
-};
+LROT_BEGIN(lcdlib, NULL, 0)
+  LROT_FUNCENTRY( refresh, luaLcdRefresh )
+  LROT_FUNCENTRY( clear, luaLcdClear )
+  LROT_FUNCENTRY( resetBacklightTimeout, luaLcdResetBacklightTimeout )
+  LROT_FUNCENTRY( drawPoint, luaLcdDrawPoint )
+  LROT_FUNCENTRY( drawLine, luaLcdDrawLine )
+  LROT_FUNCENTRY( drawRectangle, luaLcdDrawRectangle )
+  LROT_FUNCENTRY( drawFilledRectangle, luaLcdDrawFilledRectangle )
+  LROT_FUNCENTRY( invertRect, luaLcdInvertRect )
+  LROT_FUNCENTRY( drawText, luaLcdDrawText )
+  LROT_FUNCENTRY( drawTextLines, luaLcdDrawTextLines )
+  LROT_FUNCENTRY( sizeText, luaLcdSizeText )
+  LROT_FUNCENTRY( drawTimer, luaLcdDrawTimer )
+  LROT_FUNCENTRY( drawNumber, luaLcdDrawNumber )
+  LROT_FUNCENTRY( drawChannel, luaLcdDrawChannel )
+  LROT_FUNCENTRY( drawSwitch, luaLcdDrawSwitch )
+  LROT_FUNCENTRY( drawSource, luaLcdDrawSource )
+  LROT_FUNCENTRY( drawGauge, luaLcdDrawGauge )
+  LROT_FUNCENTRY( drawBitmap, luaLcdDrawBitmap )
+  LROT_FUNCENTRY( drawBitmapPattern, luaLcdDrawBitmapPattern )
+  LROT_FUNCENTRY( drawBitmapPatternPie, luaLcdDrawBitmapPatternPie )
+  LROT_FUNCENTRY( setColor, luaLcdSetColor )
+  LROT_FUNCENTRY( getColor, luaLcdGetColor )
+  LROT_FUNCENTRY( RGB, luaRGB )
+  LROT_FUNCENTRY( drawCircle, luaLcdDrawCircle )
+  LROT_FUNCENTRY( drawFilledCircle, luaLcdDrawFilledCircle )
+  LROT_FUNCENTRY( drawTriangle, luaLcdDrawTriangle )
+  LROT_FUNCENTRY( drawFilledTriangle, luaLcdDrawFilledTriangle )
+  LROT_FUNCENTRY( drawArc, luaLcdDrawArc )
+  LROT_FUNCENTRY( drawPie, luaLcdDrawPie )
+  LROT_FUNCENTRY( drawAnnulus, luaLcdDrawAnnulus )
+  LROT_FUNCENTRY( drawLineWithClipping, luaLcdDrawLineWithClipping )
+  LROT_FUNCENTRY( drawHudRectangle, luaLcdDrawHudRectangle )
+  LROT_FUNCENTRY( exitFullScreen, luaLcdExitFullScreen )
+LROT_END(lcdlib, NULL, 0)
+
+LROT_BEGIN(bitmap_mt, NULL, LROT_MASK_GC)
+  LROT_FUNCENTRY( __gc, luaDestroyBitmap )
+  LROT_FUNCENTRY( getSize, luaGetBitmapSize )
+  LROT_FUNCENTRY( resize, luaBitmapResize )
+  LROT_FUNCENTRY( toMask, luaBitmapTo8bitMask )
+LROT_END(bitmap_mt, NULL, LROT_MASK_GC)
+
+LROT_BEGIN(bitmaplib, NULL, 0)
+  LROT_FUNCENTRY( open, luaOpenBitmap )
+LROT_END(bitmaplib, NULL, 0)
+
+extern "C" {
+  LUALIB_API int luaopen_bitmap(lua_State * L) {
+    luaL_rometatable( L, BITMAP_METATABLE,  LROT_TABLEREF(bitmap_mt));
+    return 0;
+  }
+}

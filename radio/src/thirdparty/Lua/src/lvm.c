@@ -25,7 +25,7 @@
 #include "ltable.h"
 #include "ltm.h"
 #include "lvm.h"
-#include "lrotable.h"
+
 
 
 /* limit for table tag-method chains (to avoid loops) */
@@ -106,27 +106,9 @@ static void callTM (lua_State *L, const TValue *f, const TValue *p1,
   }
 }
 
-static void lua_getcstr(char *dest, const TString *src, size_t maxsize) {
-  if (src->tsv.len+1 > maxsize)
-    dest[0] = '\0';
-  else {
-    memcpy(dest, getstr(src), src->tsv.len);
-    dest[src->tsv.len] = '\0';
-  }
-}
 
 void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
   int loop;
-  if (ttisrotable(t)) {
-    setnilvalue(val);
-    if (ttisstring(key)) {
-      char keyname[LUA_MAX_ROTABLE_NAME + 1];
-      lua_getcstr(keyname, rawtsvalue(key), LUA_MAX_ROTABLE_NAME);
-      TRACE_LUA_INTERNALS("luaV_gettable(%s)", keyname);
-      luaR_findentry(L, rvalue(t), keyname, val);
-    }
-    return;
-  }
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;
     if (ttistable(t)) {  /* `t' is a table? */
@@ -139,9 +121,8 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       }
       /* else will try the tag method */
     }
-    else if (ttisnil(tm = luaT_gettmbyobj(L, t, TM_INDEX))) {
+    else if (ttisnil(tm = luaT_gettmbyobj(L, t, TM_INDEX)))
       luaG_typeerror(L, t, "index");
-    }
     if (ttisfunction(tm)) {
       callTM(L, tm, t, key, val, 1);
       return;
@@ -225,24 +206,22 @@ static int call_orderTM (lua_State *L, const TValue *p1, const TValue *p2,
 }
 
 
+/*
+** Compare two strings 'ls' x 'rs', returning an integer smaller-equal-
+** -larger than zero if 'ls' is smaller-equal-larger than 'rs'.
+** Stripped down version for NodeMCU without locales support
+*/
 static int l_strcmp (const TString *ls, const TString *rs) {
   const char *l = getstr(ls);
-  size_t ll = ls->tsv.len;
   const char *r = getstr(rs);
-  size_t lr = rs->tsv.len;
-  for (;;) {
-    int temp = strcoll(l, r);
-    if (temp != 0) return temp;
-    else {  /* strings are equal up to a `\0' */
-      size_t len = strlen(l);  /* index of first `\0' in both strings */
-      if (len == lr)  /* r is finished? */
-        return (len == ll) ? 0 : 1;
-      else if (len == ll)  /* l is finished? */
-        return -1;  /* l is smaller than r (because r is not finished) */
-      /* both strings longer than `len'; go on comparing (after the `\0') */
-      len++;
-      l += len; ll -= len; r += len; lr -= len;
-    }
+  if (l == r) {
+    return 0;
+  } else {
+    size_t ll = ls->tsv.len;
+    size_t lr = rs->tsv.len;
+    size_t lm = ll<lr ? ll : lr;
+    int    s  = memcmp(l, r, lm);
+    return s ? s : (lr == lm ? (ll == lm ? 0 : 1) : -1);
   }
 }
 
@@ -283,9 +262,7 @@ int luaV_equalobj_ (lua_State *L, const TValue *t1, const TValue *t2) {
     case LUA_TNIL: return 1;
     case LUA_TNUMBER: return luai_numeq(nvalue(t1), nvalue(t2));
     case LUA_TBOOLEAN: return bvalue(t1) == bvalue(t2);  /* true must be 1 !! */
-    case LUA_TLIGHTUSERDATA:
-    case LUA_TROTABLE:
-      return pvalue(t1) == pvalue(t2);
+    case LUA_TLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
     case LUA_TLCF: return fvalue(t1) == fvalue(t2);
     case LUA_TSHRSTR: return eqshrstr(rawtsvalue(t1), rawtsvalue(t2));
     case LUA_TLNGSTR: return luaS_eqlngstr(rawtsvalue(t1), rawtsvalue(t2));
@@ -295,7 +272,8 @@ int luaV_equalobj_ (lua_State *L, const TValue *t1, const TValue *t2) {
       tm = get_equalTM(L, uvalue(t1)->metatable, uvalue(t2)->metatable, TM_EQ);
       break;  /* will try TM */
     }
-    case LUA_TTABLE: {
+    case LUA_TTBLRAM:
+    case LUA_TTBLROF: {
       if (hvalue(t1) == hvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = get_equalTM(L, hvalue(t1)->metatable, hvalue(t2)->metatable, TM_EQ);
@@ -619,21 +597,11 @@ void luaV_execute (lua_State *L) {
       case OP_GETTABUP:
       {
         int b = GETARG_B(i);
-        if (ttisstring(RKC(i))) {
-          char keyname[LUA_MAX_ROTABLE_NAME + 1];
-          lua_getcstr(keyname, rawtsvalue(RKC(i)), LUA_MAX_ROTABLE_NAME);
-          TRACE_LUA_INTERNALS("luaV_execute(OP_GETTABUP, %s)", keyname);
-          if (luaR_findglobal(L, keyname, ra)) {
-            break;
-          }
-        }
-        TRACE_LUA_INTERNALS("luaV_execute(OP_GETTABUP, %d) OLD WAY", b);
         Protect(luaV_gettable(L, cl->upvals[b]->v, RKC(i), ra));
       }
       break;
 
       case OP_GETTABLE:
-        /* First try to look for a rotable with this name */
         Protect(luaV_gettable(L, RB(i), RKC(i), ra));
         break;
 

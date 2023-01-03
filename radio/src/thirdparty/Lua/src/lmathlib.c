@@ -4,18 +4,16 @@
 ** See Copyright Notice in lua.h
 */
 
+#define lmathlib_c
+#define LUA_LIB
 
 #include <stdlib.h>
 #include <math.h>
-
-#define lmathlib_c
 
 #include "lua.h"
 
 #include "lauxlib.h"
 #include "lualib.h"
-
-#include "lrotable.h"
 
 #undef PI
 #define PI	((lua_Number)(3.1415926535897932384626433832795))
@@ -97,7 +95,7 @@ static int math_fmod (lua_State *L) {
 
 static int math_modf (lua_State *L) {
   lua_Number ip;
-  lua_Number fp = l_mathop(modf)(luaL_checknumber(L, 1), &ip);
+  lua_Number fp = l_mathop(modff)(luaL_checknumber(L, 1), &ip);
   lua_pushnumber(L, ip);
   lua_pushnumber(L, fp);
   return 2;
@@ -229,45 +227,42 @@ static int math_randomseed (lua_State *L) {
   return 0;
 }
 
-const luaL_Reg mathlib[] = {
-  {"abs",   math_abs},
-  {"acos",  math_acos},
-  {"asin",  math_asin},
-  {"atan2", math_atan2},
-  {"atan",  math_atan},
-  {"ceil",  math_ceil},
-  {"cosh",  math_cosh},
-  {"cos",   math_cos},
-  {"deg",   math_deg},
-  {"exp",   math_exp},
-  {"floor", math_floor},
-  {"fmod",  math_fmod},
-  {"frexp", math_frexp},
-  {"ldexp", math_ldexp},
-#if defined(LUA_COMPAT_LOG10)
-  {"log10", math_log10},
-#endif
-  {"log",   math_log},
-  {"max",   math_max},
-  {"min",   math_min},
-  {"modf",   math_modf},
-  {"pow",   math_pow},
-  {"rad",   math_rad},
-  {"random",     math_random},
-  {"randomseed", math_randomseed},
-  {"sinh",   math_sinh},
-  {"sin",   math_sin},
-  {"sqrt",  math_sqrt},
-  {"tanh",   math_tanh},
-  {"tan",   math_tan},
-  {NULL, NULL}
-};
 
-const luaR_value_entry mathlib_vals[] = {
-  {"pi",   PI},
-  {"huge", HUGE_VAL},
-  {NULL, 0}
-};
+LROT_BEGIN(mathlib, NULL, 0)
+  LROT_FUNCENTRY( abs,   math_abs)
+  LROT_FUNCENTRY( acos,  math_acos)
+  LROT_FUNCENTRY( asin,  math_asin)
+  LROT_FUNCENTRY( atan2, math_atan2)
+  LROT_FUNCENTRY( atan,  math_atan)
+  LROT_FUNCENTRY( ceil,  math_ceil)
+  LROT_FUNCENTRY( cosh,  math_cosh)
+  LROT_FUNCENTRY( cos,   math_cos)
+  LROT_FUNCENTRY( deg,   math_deg)
+  LROT_FUNCENTRY( exp,   math_exp)
+  LROT_FUNCENTRY( floor, math_floor)
+  LROT_FUNCENTRY( fmod,  math_fmod)
+  LROT_FUNCENTRY( frexp, math_frexp)
+  LROT_FUNCENTRY( ldexp, math_ldexp)
+#if defined(LUA_COMPAT_LOG10)
+  LROT_FUNCENTRY( log10, math_log10)
+#endif
+  LROT_FUNCENTRY( log,   math_log)
+  LROT_FUNCENTRY( max,   math_max)
+  LROT_FUNCENTRY( min,   math_min)
+  LROT_FUNCENTRY( modf,  math_modf)
+  LROT_FUNCENTRY( pow,   math_pow)
+  LROT_FUNCENTRY( rad,   math_rad)
+  LROT_FUNCENTRY( random, math_random)
+  LROT_FUNCENTRY( randomseed, math_randomseed)
+  LROT_FUNCENTRY( sinh,  math_sinh)
+  LROT_FUNCENTRY( sin,   math_sin)
+  LROT_FUNCENTRY( sqrt,  math_sqrt)
+  LROT_FUNCENTRY( tanh,  math_tanh)
+  LROT_FUNCENTRY( tan,   math_tan)
+  LROT_NUMENTRY( pi, PI)
+  LROT_NUMENTRY( huge,(lua_Number)HUGE_VAL)
+LROT_END(mathlib, NULL, 0)
+
 
 /*
 ** Open math library

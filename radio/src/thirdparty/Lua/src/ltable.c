@@ -165,9 +165,15 @@ static int findindex (lua_State *L, Table *t, StkId key) {
   }
 }
 
+static void rotable_next(lua_State *L, ROTable *t, TValue *key, TValue *val);
 
 int luaH_next (lua_State *L, Table *t, StkId key) {
-  int i = findindex(L, t, key);  /* find original element */
+  int i;
+  if (isrotable(t)) {
+    rotable_next(L, (ROTable *) t, key, key+1);
+    return ttisnil(key) ? 0 : 1;
+  }
+  i = findindex(L, t, key);  /* find original element */
   for (i++; i < t->sizearray; i++) {  /* try first array part */
     if (!ttisnil(&t->array[i])) {  /* a non-nil value? */
       setnvalue(key, cast_num(i+1));
@@ -401,6 +407,7 @@ static Node *getfreepos (Table *t) {
 */
 TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
   Node *mp;
+  if(!isrwtable(t)) luaG_runerror(L, "table is Readonly");
   if (ttisnil(key)) luaG_runerror(L, "table index is nil");
   else if (ttisnumber(key) && luai_numisnan(L, nvalue(key)))
     luaG_runerror(L, "table index is NaN");
@@ -441,6 +448,8 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
 ** search function for integers
 */
 const TValue *luaH_getint (Table *t, int key) {
+  if (isrotable(t))
+    return luaO_nilobject;
   /* (1 <= key && key <= t->sizearray) */
   if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
     return &t->array[key-1];
@@ -460,8 +469,14 @@ const TValue *luaH_getint (Table *t, int key) {
 /*
 ** search function for short strings
 */
+
+static const TValue* rotable_findentry(ROTable *rotable, TString *key, unsigned *ppos);
+
 const TValue *luaH_getstr (Table *t, TString *key) {
-  Node *n = hashstr(t, key);
+  Node *n;
+  if (isrotable(t))
+    return rotable_findentry((ROTable*) t, key, NULL);
+  n = hashstr(t, key);
   lua_assert(key->tsv.tt == LUA_TSHRSTR);
   do {  /* check whether `key' is somewhere in the chain */
     if (ttisshrstring(gkey(n)) && eqshrstr(rawtsvalue(gkey(n)), key))
@@ -488,7 +503,9 @@ const TValue *luaH_get (Table *t, const TValue *key) {
       /* else go through */
     }
     default: {
-      Node *n = mainposition(t, key);
+      Node *n;
+      if (isrotable(t)) return luaO_nilobject;
+      n = mainposition(t, key);
       do {  /* check whether `key' is somewhere in the chain */
         if (luaV_rawequalobj(gkey(n), key))
           return gval(n);  /* that's it */
@@ -505,7 +522,10 @@ const TValue *luaH_get (Table *t, const TValue *key) {
 ** barrier and invalidate the TM cache.
 */
 TValue *luaH_set (lua_State *L, Table *t, const TValue *key) {
-  const TValue *p = luaH_get(t, key);
+  const TValue *p;
+  if (isrotable(t))
+    luaG_runerror(L, "table is readonly");
+  p = luaH_get(t, key);
   if (p != luaO_nilobject)
     return cast(TValue *, p);
   else return luaH_newkey(L, t, key);
@@ -513,7 +533,10 @@ TValue *luaH_set (lua_State *L, Table *t, const TValue *key) {
 
 
 void luaH_setint (lua_State *L, Table *t, int key, TValue *value) {
-  const TValue *p = luaH_getint(t, key);
+  const TValue *p;
+  if (isrotable(t))
+    luaG_runerror(L, "table is readonly");
+  p = luaH_getint(t, key);
   TValue *cell;
   if (p != luaO_nilobject)
     cell = cast(TValue *, p);
@@ -572,6 +595,134 @@ int luaH_getn (Table *t) {
   else return unbound_search(t, j);
 }
 
+int luaH_isdummy (const Node *n) { return isdummy(n); }
+
+
+/*
+** All keyed ROTable access passes through rotable_findentry().  ROTables
+** are simply a list of <key><TValue value> pairs.
+**
+** The global KeyCache is used to avoid a relatively expensive Flash memory
+** vector scan.  A simple hash on the key's TString addr and the ROTable
+** addr selects the cache line.  The line's slots are then scanned for a
+** hit.
+**
+** Unlike the standard hash which uses a prime line count therefore requires
+** the use of modulus operation which is expensive on an IoT processor
+** without H/W divide.  This hash is power of 2 based which might not be quite
+** so uniform but can be calculated without using H/W-based instructions.
+**
+** If a match is found and the table addresses match, then this entry is
+** probed first. In practice the hit-rate here is over 99% so the code
+** rarely fails back to doing the linear scan in ROM.
+** Note that this hash does a couple of prime multiples and a modulus 2^X
+** with is all evaluated in H/W, and adequately randomizes the lookup.
+*/
+#define HASH(a,b) ((((29*(size_t)(a)) ^ (37*((b)->tsv.hash)))>>4)&(KEYCACHE_N-1))
+#define NDX_SHFT 24
+#define ADDR_MASK (((size_t) 1<<24)-1)
+
+/*
+ * Find a string key entry in a rotable and return it.
+ */
+static const TValue* rotable_findentry(ROTable *t, TString *key, unsigned *ppos) {
+  const ROTable_entry *e = cast(const ROTable_entry *, t->entry);
+  const int tl = t->lsizenode;
+  const char *strkey = getstr(key);
+  const int hash = HASH(t, key);
+  KeyCache *cl = luaE_getcache(hash);
+  int i, j = 1, l;
+
+  if (!e || key->tsv.tt != LUA_TSHRSTR)
+    return luaO_nilobject;
+
+  l = key->tsv.len;
+  /* scan the ROTable key cache and return if hit found */
+  for (i = 0; i < KEYCACHE_M; i++) {
+    lu_int32 cl_ndx = cl[i] >> NDX_SHFT;
+    if ((((size_t)t - cl[i]) & ADDR_MASK) == 0 && cl_ndx < tl &&
+        strcmp(e[cl_ndx].key, strkey) == 0) {
+      if (ppos)
+        *ppos = cl_ndx;
+      return &e[cl_ndx].value;
+    }
+  }
+ /*
+  * In practice most table scans are from a table miss due to the key cache
+  * short-circuiting almost all table hits. ROTable keys can be unsorted
+  * because of legacy compatibility, so the search must use a sequential
+  * equality match.
+  *
+  * The masked name4 comparison is a safe 4-byte comparison for all supported
+  * NodeMCU hosts and targets; It generate fast efficient access that avoids
+  * unaligned exceptions and costly strcmp() except for a last hit validation.
+  * However, this is ENDIAN SENSITIVE which is validate during initialisation.
+  *
+  * The majority of search misses are for metavalues (keys starting with __),
+  * so all metavalues if any must be at the front of each entry list.
+  */
+  lu_int32 name4 = *(lu_int32 *)strkey;
+  lu_int32 mask4 = l > 2 ? (~0u) : (~0u)>>((3-l)*8);
+  lua_assert(*(int*)"abcd" == 0x64636261);
+#define eq4(s)   (((*(lu_int32 *)s ^ name4) & mask4) == 0)
+#define ismeta(s) ((*(lu_int32 *)s & 0xffff) == *(lu_int32 *)"__\0")
+
+  if (ismeta(&name4)) {
+    for(i = 0; i < tl && ismeta(e[i].key); i++) {
+      if (eq4(e[i].key) && !strcmp(e[i].key, strkey)) {
+        j = 0; break;
+      }
+    }
+  } else {
+    for(i = 0; i < tl; i++) {
+      if (eq4(e[i].key) && !strcmp(e[i].key, strkey)) {
+        j = 0; break;
+      }
+    }
+  }
+  if (j)
+    return luaO_nilobject;
+  if (ppos)
+    *ppos = i;
+  /* In the case of a hit, update the lookaside cache */
+  for (j = KEYCACHE_M-1; j>0; j--)
+    cl[j] = cl[j-1];
+  cl[0] = ((size_t)t & ADDR_MASK) + ((lu_int32)i << NDX_SHFT);
+  return &e[i].value;
+}
+
+
+static void rotable_next_helper(lua_State *L, ROTable *t, int pos,
+                             TValue *key, TValue *val) {
+  const ROTable_entry *e = cast(const ROTable_entry *, t->entry);
+  if (pos < t->lsizenode) {
+    /* Found an entry */
+    setsvalue(L, key, luaS_new(L, e[pos].key));
+    setobj2s(L, val, &e[pos].value);
+  } else {
+    setnilvalue(key);
+    setnilvalue(val);
+  }
+}
+
+
+/* next (used for iteration) */
+static void rotable_next(lua_State *L, ROTable *t, TValue *key, TValue *val) {
+  unsigned keypos = t->lsizenode;
+
+  /* Special case: if key is nil, return the first element of the rotable */
+  if (ttisnil(key))
+    rotable_next_helper(L, t, 0, key, val);
+  else if (ttisstring(key)) {
+    /* Find the previous key again */
+    if (ttisstring(key)) {
+      rotable_findentry(t, rawtsvalue(key), &keypos);
+    }
+    /* Advance to next key */
+    rotable_next_helper(L, t, ++keypos, key, val);
+  }
+}
+
 
 
 #if defined(LUA_DEBUG)
@@ -579,7 +730,5 @@ int luaH_getn (Table *t) {
 Node *luaH_mainposition (const Table *t, const TValue *key) {
   return mainposition(t, key);
 }
-
-int luaH_isdummy (Node *n) { return isdummy(n); }
 
 #endif
