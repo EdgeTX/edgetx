@@ -15,7 +15,7 @@ static luaR_result luaR_findfunctionkey(const luaL_Reg* pf, const char * key, TV
     if (!pf->name)
       break;
     if (!strcmp(pf->name, key)) {
-      setlfvalue(found, pf->func);
+      setfvalue(found, pf->func);
       return 1;
     }
     pf++;

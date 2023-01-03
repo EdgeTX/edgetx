@@ -142,7 +142,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
     else if (ttisnil(tm = luaT_gettmbyobj(L, t, TM_INDEX))) {
       luaG_typeerror(L, t, "index");
     }
-    if (ttisfunction(tm) || ttislightfunction(tm)) {
+    if (ttisfunction(tm)) {
       callTM(L, tm, t, key, val, 1);
       return;
     }
@@ -285,9 +285,8 @@ int luaV_equalobj_ (lua_State *L, const TValue *t1, const TValue *t2) {
     case LUA_TBOOLEAN: return bvalue(t1) == bvalue(t2);  /* true must be 1 !! */
     case LUA_TLIGHTUSERDATA:
     case LUA_TROTABLE:
-    case LUA_TLIGHTFUNCTION:
       return pvalue(t1) == pvalue(t2);
-    case LUA_TLCF: return lcfvalue(t1) == lcfvalue(t2);
+    case LUA_TLCF: return fvalue(t1) == fvalue(t2);
     case LUA_TSHRSTR: return eqshrstr(rawtsvalue(t1), rawtsvalue(t2));
     case LUA_TLNGSTR: return luaS_eqlngstr(rawtsvalue(t1), rawtsvalue(t2));
     case LUA_TUSERDATA: {
