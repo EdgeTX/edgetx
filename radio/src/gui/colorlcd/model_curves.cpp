@@ -119,10 +119,10 @@ void ModelCurvesPage::rebuild(FormWindow * window)
   build(window);
 
   if (focusButton) {
-    lv_obj_scroll_to_y(window->getLvObj(), (focusIndex / PER_ROW) * (CURVE_BTH_H + 8), LV_ANIM_OFF);
-  } else {
-    lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+    scroll_y = (focusIndex / PER_ROW) * (CURVE_BTH_H + 8);
   }
+
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelCurvesPage::editCurve(FormWindow * window, uint8_t curve)
