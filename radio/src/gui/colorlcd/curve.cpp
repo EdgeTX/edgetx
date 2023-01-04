@@ -42,6 +42,7 @@ IMPL_LZ4_BITMAP(LBM_CURVE_POINT);
 IMPL_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
 IMPL_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);
 
+// Base curve rendering class to 'paint' the background and curve.
 CurveRenderer::CurveRenderer(const rect_t & rect, std::function<int(int)> function):
                              rect(rect),
                              function(std::move(function))
@@ -201,6 +202,7 @@ void Curve::drawPoint(BitmapBuffer * dc, const CurvePoint & point)
 
 void Curve::paint(BitmapBuffer * dc)
 {
+  // Adjust border - if drawing points leave more space to prevent clipping of end points.
   if (points.size() > 0) {
     dx = 4;
     dy = 4;
@@ -235,6 +237,7 @@ void Curve::clearPoints()
 
 void Curve::checkEvents()
 {
+  // Redraw if crosshair position has changed
   if (position) {
     int pos = position();
     if (pos != lastPos) {
