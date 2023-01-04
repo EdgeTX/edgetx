@@ -46,9 +46,7 @@ class CurveButton : public Button {
       index(index)
     {
       padAll(0);
-      setWidth(CURVE_BTN_W);
-      setHeight(CURVE_BTH_H);
-      preview = new CurveRenderer({PREVIEW_PAD, PREVIEW_PAD+TITLE_H, CURVE_BTN_W - PREVIEW_PAD*2, CURVE_BTN_W - PREVIEW_PAD*2},
+      preview = new CurveRenderer({PREVIEW_PAD, PREVIEW_PAD+TITLE_H, width() - PREVIEW_PAD*2, width() - PREVIEW_PAD*2},
                                   [=](int x) -> int {
                                     return applyCustomCurve(x, index);
                                   });
@@ -60,11 +58,13 @@ class CurveButton : public Button {
       LcdFlags bg_color = hasFocus() ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY2;
       LcdFlags txt_color = hasFocus() ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
 
+      int w = width();
+
       // Title bar background
-      dc->drawSolidFilledRect(8, 0, CURVE_BTN_W - 16, 8, bg_color);
-      dc->drawSolidFilledRect(0, 8, CURVE_BTN_W, TITLE_H-6, bg_color);
+      dc->drawSolidFilledRect(8, 0, w - 16, 8, bg_color);
+      dc->drawSolidFilledRect(0, 8, w, TITLE_H-6, bg_color);
       dc->drawBitmapPattern(0, 0, LBM_DOT, bg_color);
-      dc->drawBitmapPattern(CURVE_BTN_W-13, 0, LBM_DOT, bg_color);
+      dc->drawBitmapPattern(w - 13, 0, LBM_DOT, bg_color);
 
       // Title
       char *s = strAppendStringWithIndex(buf, STR_CV, index + 1);
@@ -73,14 +73,15 @@ class CurveButton : public Button {
         strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
       }
 
-      dc->drawText(CURVE_BTN_W / 2, 1, buf, txt_color|CENTERED|FONT(BOLD));
+      dc->drawText(w / 2, 1, buf, txt_color|CENTERED|FONT(BOLD));
 
+      // Curve preview
       preview->paint(dc);
 
-      // curve characteristics
+      // Curve characteristics
       CurveHeader &curve = g_model.curves[index];
       snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points, STR_PTS);
-      dc->drawText(CURVE_BTN_W / 2, CURVE_BTH_H - INFO_H + 1, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
+      dc->drawText(w / 2, height() - INFO_H + 1, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
     }
 
     void select(bool selected) {
@@ -188,8 +189,6 @@ void ModelCurvesPage::build(FormWindow * window)
   
   FormWindow::Line* line;
 
-  CurveEdit::SetCurrentSource(0);
-
   focusButton = nullptr;
 
   uint8_t curveIndex = 0;
@@ -207,7 +206,7 @@ void ModelCurvesPage::build(FormWindow * window)
       int8_t * points = curveAddress(index);
 
       // Curve drawing
-      auto button = new CurveButton(line, rect_t{}, index);
+      auto button = new CurveButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, index);
       button->setPressHandler([=]() -> uint8_t {
           Menu * menu = new Menu(window);
           menu->addLine(STR_EDIT, [=]() {
