@@ -1189,7 +1189,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         else if (lua_isstring(lsScripts, -1)) {
           char nextScript[FF_MAX_LFN+1];
           const char* luaFile = lua_tostring(lsScripts, -1);
-          strncpy(nextScript, lua_tostring(lsScripts, -1), FF_MAX_LFN);
+          strncpy(nextScript, luaFile, FF_MAX_LFN);
           nextScript[FF_MAX_LFN] = '\0';
           luaExec(nextScript);
           return scriptWasRun;

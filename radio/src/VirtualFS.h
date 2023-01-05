@@ -191,7 +191,9 @@ enum class VfsType { UNKOWN, DIR, FILE };
 enum class VfsFileType {
   UNKNOWN
   ,ROOT
+#if defined (USE_FATFS)
   ,FAT
+#endif
 #if defined(USE_LITTLEFS)
   ,LFS
 #endif
@@ -280,7 +282,9 @@ private:
 #if defined(USE_LITTLEFS)
     lfs_info lfsInfo = {0};
 #endif
+#if defined (USE_FATFS)
     FILINFO fatInfo;
+#endif
   };
 
   const char* name = nullptr;
@@ -312,9 +316,11 @@ private:
       lfs* handle;
     } lfs;
 #endif
+#if defined (USE_FATFS)
     struct {
       DIR dir;
     } fat;
+#endif
   };
 
   size_t readIdx = 0;
@@ -358,9 +364,11 @@ private:
       lfs* handle = nullptr;
     } lfs;
 #endif
+#if defined (USE_FATFS)
     struct {
       FIL file = {0};
     } fat;
+#endif
   };
 
 };
