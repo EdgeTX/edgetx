@@ -118,13 +118,13 @@ TEST(evalLogicalSwitches, playFile)
   sdAvailableLogicalSwitchAudioFiles.setBit(INDEX_LOGICAL_SWITCH_AUDIO_FILE(31,AUDIO_EVENT_ON));
 
   isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (0 << 16) + AUDIO_EVENT_OFF, filename);
-  EXPECT_EQ(strcmp(filename, "/SOUNDS/en/" MODELNAME "/L1-off.wav"), 0);
+  EXPECT_EQ(strcmp(filename, "/DEFAULT/SOUNDS/en/" MODELNAME "/L1-off.wav"), 0);
   isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (0 << 16) + AUDIO_EVENT_ON, filename);
-  EXPECT_EQ(strcmp(filename, "/SOUNDS/en/" MODELNAME "/L1-on.wav"), 0);
+  EXPECT_EQ(strcmp(filename, "/DEFAULT/SOUNDS/en/" MODELNAME "/L1-on.wav"), 0);
   isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (31 << 16) + AUDIO_EVENT_OFF, filename);
-  EXPECT_EQ(strcmp(filename, "/SOUNDS/en/" MODELNAME "/L32-off.wav"), 0);
+  EXPECT_EQ(strcmp(filename, "/DEFAULT/SOUNDS/en/" MODELNAME "/L32-off.wav"), 0);
   isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (31 << 16) + AUDIO_EVENT_ON, filename);
-  EXPECT_EQ(strcmp(filename, "/SOUNDS/en/" MODELNAME "/L32-on.wav"), 0);
+  EXPECT_EQ(strcmp(filename, "/DEFAULT/SOUNDS/en/" MODELNAME "/L32-on.wav"), 0);
 
   EXPECT_EQ(isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (31 << 16) + AUDIO_EVENT_ON, filename), true);
   EXPECT_EQ(isAudioFileReferenced((LOGICAL_SWITCH_AUDIO_CATEGORY << 24) + (32 << 16) + AUDIO_EVENT_ON, filename), false);

@@ -24,7 +24,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <memory>
+
 #include "gtests.h"
+#include "location.h"
 
 using ::testing::TestEventListener;
 using ::testing::EmptyTestEventListener;
@@ -161,7 +163,8 @@ int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
   simuInit();
-
+  simuFatfsSetPaths(TESTS_PATH, TESTS_PATH);
+                    
   _eeprom_write_simu_delay = false;
   startEepromThread(nullptr);
 #if defined(EEPROM_SIZE)

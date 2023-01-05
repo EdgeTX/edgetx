@@ -32,6 +32,10 @@
 #include "location.h"
 #include "targets/simu/simulcd.h"
 
+#if !defined(ROOT_PATH)
+  #define ROOT_PATH "/DEFAULT"
+#endif
+
 void doPaint(QPainter & p)
 {
   QRgb rgb = qRgb(161, 161, 161);
@@ -324,7 +328,7 @@ TEST(Lcd, BMPWrapping)
 {
   lcdClear();
   uint8_t bitmap[2+40*40/2];
-  lcdLoadBitmap(bitmap, TESTS_PATH "/plane.bmp", 40, 40);
+  lcdLoadBitmap(bitmap, ROOT_PATH "/plane.bmp", 40, 40);
   lcdDrawBitmap(200, 0, bitmap);
   lcdDrawBitmap(200, 60, bitmap);
   lcdDrawBitmap(240, 60, bitmap);     // x too big
@@ -393,31 +397,31 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   // Test proper BMP files, they should display correctly
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(7, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_7x32.bmp", 7, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/4b_7x32.bmp", 7, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(10, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(6, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_6x32.bmp", 6, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/1b_6x32.bmp", 6, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(20, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(31, 31));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_31x31.bmp", 31, 31) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/4b_31x31.bmp", 31, 31) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(30, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(39, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_39x32.bmp", 39, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/1b_39x32.bmp", 39, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(70, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(20, 20));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_20x20.bmp", 20, 20) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/4b_20x20.bmp", 20, 20) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(120, 2, bitmap.buffer());
   }
@@ -431,7 +435,7 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(10, 10));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), ROOT_PATH "/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
     bitmap.leakCheck();
   }
 }
