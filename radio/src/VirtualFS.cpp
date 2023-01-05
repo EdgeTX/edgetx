@@ -246,6 +246,7 @@ const char* VfsFileInfo::getName() const
 #if defined(USE_LITTLEFS)
   case VfsFileType::LFS:  return lfsInfo.name;
 #endif
+  default: break;
   }
   return "";
 };
@@ -261,6 +262,7 @@ size_t VfsFileInfo::getSize() const
 #if defined(USE_LITTLEFS)
   case VfsFileType::LFS:  return lfsInfo.size;
 #endif
+  default: break;
   }
   return 0;
 }
@@ -288,6 +290,7 @@ VfsType VfsFileInfo::getType() const
     else
       return VfsType::FILE;
 #endif
+  default: break;
   }
   return VfsType::UNKOWN;
 };
@@ -308,6 +311,7 @@ VfsFileAttributes VfsFileInfo::getAttrib()
       return VfsFileAttributes::DIR;
     return VfsFileAttributes::NONE;
 #endif
+  default: break;
   }
   return VfsFileAttributes::NONE;
 }
@@ -325,6 +329,7 @@ int VfsFileInfo::getDate(){
   case VfsFileType::LFS:
     return 0;
 #endif
+  default: break;
   }
   return 0;
 }
@@ -343,6 +348,7 @@ int VfsFileInfo::getTime()
   case VfsFileType::LFS:
     return 0;
 #endif
+  default: break;
   }
   return 0;
 }
@@ -417,6 +423,7 @@ VfsError VfsDir::read(VfsFileInfo& info)
       return convertResult((lfs_error)res);
     }
 #endif
+  default: break;
   }
   return VfsError::INVAL;
 }
@@ -439,6 +446,7 @@ VfsError VfsDir::close()
     ret = convertResult((lfs_error)lfs_dir_close(lfs.handle, &lfs.dir));
     break;
 #endif
+  default: break;
   }
   clear();
   return ret;
@@ -467,6 +475,7 @@ VfsError VfsDir::rewind()
       return convertResult((lfs_error)res);
     }
 #endif
+  default: break;
   }
   return VfsError::INVAL;
 }
@@ -495,6 +504,7 @@ VfsError VfsFile::close()
     ret = convertResult((lfs_error)lfs_file_close(lfs.handle, &lfs.file));
     break;
 #endif
+  default: break;
   }
 
   clear();
@@ -519,6 +529,7 @@ int VfsFile::size()
       return res;
     }
 #endif
+  default: break;
   }
 
   return -1;
@@ -551,6 +562,7 @@ VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
       break;
     }
 #endif
+  default: break;
   }
 
   return VfsError::INVAL;
@@ -584,6 +596,7 @@ char* VfsFile::gets(char* buf, size_t maxLen)
       return nc ? buf : 0;   /* When no data read due to EOF or error, return with error. */
     }
 #endif
+  default: break;
   }
 
   return 0;
@@ -617,6 +630,7 @@ VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
       break;
     }
 #endif
+  default: break;
   }
 
   return VfsError::INVAL;
@@ -754,6 +768,7 @@ int VfsFile::fprintf(const char* str, ...)
 
          return putc_flush(&pb);
 #endif
+  default: break;
   }
 #endif
   }
@@ -780,6 +795,7 @@ size_t VfsFile::tell()
           return ret;
       }
   #endif
+  default: break;
     }
 
     return (size_t)VfsError::INVAL;
@@ -804,6 +820,7 @@ VfsError VfsFile::lseek(size_t offset)
         return VfsError::OK;
     }
 #endif
+  default: break;
   }
 
   return VfsError::INVAL;
@@ -821,6 +838,7 @@ int VfsFile::eof()
   case VfsFileType::LFS:
     return lfs_file_tell(lfs.handle, &lfs.file) == lfs_file_size(lfs.handle, &lfs.file);
 #endif
+  default: break;
   }
 
   return 0;
@@ -1208,6 +1226,7 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
   case VfsDir::DIR_FAT:
     return convertResult(f_opendir(&dir.fat.dir, dirPath.c_str()));
 #endif
+  default: break;
   }
 
   return VfsError::INVAL;
@@ -1258,9 +1277,10 @@ VfsError VirtualFS::makeDirectory(const std::string& path)
         return convertResult(res);
       }
     }
-break;
+  break;
   }
 #endif
+  default: break;
   }
   return VfsError::INVAL;
 }
@@ -1413,6 +1433,7 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
     fileInfo.type = VfsFileType::LFS;
     return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), fileInfo.lfsInfo));
 #endif
+  default: break;
   }
   return VfsError::INVAL;
 }
@@ -1435,6 +1456,7 @@ VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
   case VfsDir::DIR_LFS:
     return VfsError::OK;
 #endif
+  default: break;
   }
   return VfsError::INVAL;
 }
@@ -1471,6 +1493,7 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
     break;
   }
 #endif
+  default: break;
   }
 
   return ret;
@@ -1525,6 +1548,7 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
       }
     }
 #endif
+  default: break;
   }
 
   return false;

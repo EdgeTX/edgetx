@@ -188,7 +188,14 @@ extern uint8_t logDelay100ms; // this does not belong here, this is just the way
 class VirtualFS;
 
 enum class VfsType { UNKOWN, DIR, FILE };
-enum class VfsFileType { UNKNOWN, ROOT, FAT, LFS };
+enum class VfsFileType {
+  UNKNOWN
+  ,ROOT
+  ,FAT
+#if defined(USE_LITTLEFS)
+  ,LFS
+#endif
+};
 
 enum class VfsError {
     OK          = 0,    // No error
