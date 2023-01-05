@@ -111,11 +111,12 @@ static int remap_vfs_errors(VfsError e)
 
 #define FILE_HANDLE_OFFSET (0x20)
 
-#pragma unused
+#if 0
 static int remap_handle(int fh)
 {
   return fh - FILE_HANDLE_OFFSET;
 }
+#endif
 
 static int set_errno(int errval)
 {
@@ -139,7 +140,7 @@ static int convertOpenMode(VfsOpenFlags &vfsFlags, const char* mode)
   }
 
   bool update = false;
-  bool binary = false;
+  bool binary __attribute__((unused)) = false;
   if(modeLen>1)
   {
     if(mode[1] == '+')

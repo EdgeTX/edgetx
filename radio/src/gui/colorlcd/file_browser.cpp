@@ -151,7 +151,7 @@ static int scan_files(std::list<std::string>& files,
     auto attribs = fno.getAttrib();
 
     // Ignore hidden files
-    if ((fno.getAttrib() & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
+    if ((attribs & (VfsFileAttributes::HID | VfsFileAttributes::SYS))
         != VfsFileAttributes::NONE)
       continue;
 

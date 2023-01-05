@@ -358,7 +358,9 @@ void VfsFileInfo::clear() {
 #if defined(USE_LITTLEFS)
   lfsInfo = {0};
 #endif
+#if defined (USE_FATFS)
   fatInfo = {0};
+#endif
   name = nullptr;
 }
 
@@ -370,7 +372,9 @@ void VfsDir::clear()
   lfs.dir = {0};
   lfs.handle = nullptr;
 #endif
+#if defined (USE_FATFS)
   fat.dir = {0};
+#endif
 
   readIdx = 0;
 }
@@ -486,7 +490,9 @@ void VfsFile::clear() {
   lfs.file = {0};
   lfs.handle = nullptr;
 #endif
+#if defined (USE_FATFS)
   fat.file = {0};
+#endif
 }
 
 VfsError VfsFile::close()
@@ -1024,8 +1030,10 @@ bool VirtualFS::defaultStorageAvailable()
 #if (DEFAULT_STORAGE == INTERNAL)
 #if defined (USE_LITTLEFS)
     return lfsMounted
-#else // USE_LITTLEFS
+#elif defined (USE_FATFS)
     return spiFatFs.fs_type != 0;
+#else
+#error at least one file system must be enabled
 #endif // USE_LITTLEFS
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
     return sdFatFs.fs_type != 0;
@@ -1106,11 +1114,13 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 #if defined (USE_LITTLEFS)
     path = path.substr(8);
     return VfsDir::DIR_LFS;
-#else // USE_LITTLEFS
+#elif defined (USE_FATFS)
     path = "1:" + path.substr(8);
     if(path == "1:")
       path = "1:/";
     return VfsDir::DIR_FAT;
+#else
+#error no supported filesystem selected
 #endif // USE_LITTLEFS
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
     path = path.substr(8);
