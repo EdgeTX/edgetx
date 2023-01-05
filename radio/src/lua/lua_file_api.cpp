@@ -44,7 +44,7 @@ struct open_files_t
   int handle = -1;
   int pos = 0;
   int flags = 0;
-  VfsFile vfs_file;
+  VfsFile* vfs_file = nullptr;
 };
 
 static open_files_t open_files[MAX_OPEN_FILES];
@@ -111,6 +111,7 @@ static int remap_vfs_errors(VfsError e)
 
 #define FILE_HANDLE_OFFSET (0x20)
 
+#pragma unused
 static int remap_handle(int fh)
 {
   return fh - FILE_HANDLE_OFFSET;
@@ -213,7 +214,7 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
     return ret;
 
   std::string n = normalizeLuaPath(name);
-  VfsError res = VirtualFS::instance().openFile(file->vfs_file, n, vfsFlags);
+  VfsError res = VirtualFS::instance().openFile(*file->vfs_file, n, vfsFlags);
   if(res == VfsError::OK)
   {
     set_errno(0);
@@ -234,12 +235,17 @@ open_files_t* lua_fopen(const char* name, const char *mode)
   }
 
   int slot = findslot(-1);
-
-  int res = _lua_fopen(&open_files[slot], name, mode);
-  if(res == 0)
+  if(slot < MAX_OPEN_FILES)
   {
-    set_errno(0);
-    return &open_files[slot];
+    open_files[slot].vfs_file = new VfsFile();
+	int res = _lua_fopen(&open_files[slot], name, mode);
+	if(res == 0)
+	{
+      set_errno(0);
+      return &open_files[slot];
+    }
+  } else {
+	  set_errno(ENFILE);
   }
 
   open_files[slot].handle = -1;
@@ -250,7 +256,9 @@ open_files_t* lua_fopen(const char* name, const char *mode)
 
 int lua_fclose(open_files_t* file)
 {
-  file->vfs_file.close();
+  file->vfs_file->close();
+  delete file->vfs_file;
+  file->vfs_file = nullptr;
   file->handle = -1;
   file->pos = 0;
   file->flags = 0;
@@ -259,7 +267,7 @@ int lua_fclose(open_files_t* file)
 
 open_files_t *lua_freopen(const char *pathname, const char *mode, open_files_t *stream)
 {
-  stream->vfs_file.close();
+  stream->vfs_file->close();
   stream->pos = 0;
   stream->flags = 0;
   int res = _lua_fopen(stream, pathname, mode);
@@ -272,7 +280,7 @@ open_files_t *lua_freopen(const char *pathname, const char *mode, open_files_t *
 
 int lua_feof(open_files_t *stream)
 {
-  return stream->vfs_file.eof();
+  return stream->vfs_file->eof();
 }
 
 int lua_fseek(open_files_t *stream, long offset, int whence)
@@ -281,13 +289,13 @@ int lua_fseek(open_files_t *stream, long offset, int whence)
   switch(whence)
   {
   case SEEK_SET:
-    err = remap_vfs_errors(stream->vfs_file.lseek(offset));
+    err = remap_vfs_errors(stream->vfs_file->lseek(offset));
     break;
   case SEEK_CUR:
-    err = remap_vfs_errors(stream->vfs_file.lseek(stream->vfs_file.tell() + offset));
+    err = remap_vfs_errors(stream->vfs_file->lseek(stream->vfs_file->tell() + offset));
     break;
   case SEEK_END:
-    err = remap_vfs_errors(stream->vfs_file.lseek(stream->vfs_file.size() - offset));
+    err = remap_vfs_errors(stream->vfs_file->lseek(stream->vfs_file->size() - offset));
     break;
   default:
     err = EINVAL;
@@ -307,7 +315,7 @@ size_t lua_fread(void *ptr, size_t size, size_t nmemb, open_files_t *stream)
   size_t count = size*nmemb;
   size_t readSize = 0;
 
-  stream->vfs_file.read(ptr, count, readSize);
+  stream->vfs_file->read(ptr, count, readSize);
   return readSize/size;
 }
 
@@ -317,21 +325,21 @@ size_t lua_fwrite(const void *ptr, size_t size, size_t nmemb,
   size_t count = size*nmemb;
   size_t writtenSize = 0;
 #if !defined(BOOT)
-  stream->vfs_file.write(ptr, count, writtenSize);
+  stream->vfs_file->write(ptr, count, writtenSize);
 #endif
   return writtenSize/size;
 }
 
 char *lua_fgets(char *s, int size, open_files_t *stream)
 {
-  return stream->vfs_file.gets(s, size);
+  return stream->vfs_file->gets(s, size);
 }
 
 char lua_fgetc(open_files_t *stream)
 {
   char c;
   size_t result;
-  if (stream->vfs_file.read(&c, 1, result) == VfsError::OK && result == 1)
+  if (stream->vfs_file->read(&c, 1, result) == VfsError::OK && result == 1)
     return c;
   else
     return -1;
@@ -340,7 +348,7 @@ char lua_fgetc(open_files_t *stream)
 int lua_fputs(const char *s, open_files_t *stream)
 {
 #if !defined(BOOT)
-  stream->vfs_file.puts(s);
+  stream->vfs_file->puts(s);
 #endif
   return strlen(s);
 }
