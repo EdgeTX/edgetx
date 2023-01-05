@@ -70,7 +70,7 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   filename += 'x' + std::to_string(LCD_H);
   filename += ".png";
 
-  std::string fullpath = TESTS_PATH "/" + filename;
+  std::string fullpath = ROOT_PATH "/" + filename;
   
   std::unique_ptr<BitmapBuffer> testPict(BitmapBuffer::loadBitmap(fullpath.c_str()));
   if (!testPict || testPict->width() != LCD_W || testPict->height() != LCD_H) {
@@ -254,7 +254,7 @@ TEST(Lcd_colorlcd, bitmap)
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
-  std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap(TESTS_PATH "/opentx.png"));
+  std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap(ROOT_PATH "/opentx.png"));
   dc.drawBitmap(  0,   0, bmp.get());
   dc.drawBitmap(320,   0, bmp.get());
   dc.drawBitmap(  0, 150, bmp.get());
@@ -269,7 +269,7 @@ TEST(Lcd_colorlcd, masks)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
+  BitmapBuffer* mask = BitmapBuffer::loadMask(ROOT_PATH "/mask_menu_radio.png");
   for (int i=0; i<LCD_W; i += mask->width()) {
     for (int j=0; j<LCD_H; j += mask->height()) {
       dc.drawMask(i, j, mask, COLOR2FLAGS(BLACK));

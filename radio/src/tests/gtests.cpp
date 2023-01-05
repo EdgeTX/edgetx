@@ -24,8 +24,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <memory>
+
 #include "gtests.h"
 #include "hal/adc_driver.h"
+#include "location.h"
 
 using ::testing::TestEventListener;
 using ::testing::EmptyTestEventListener;
@@ -156,6 +158,8 @@ int main(int argc, char **argv)
   simuInit();
   adcInit(&simu_adc_driver);
 
+  simuFatfsSetPaths(TESTS_PATH, TESTS_PATH);
+                    
 #if !defined(COLORLCD)
   menuLevel = 0;
 #endif
