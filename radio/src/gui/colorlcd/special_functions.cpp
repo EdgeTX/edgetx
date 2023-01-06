@@ -494,10 +494,8 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_VOLUME:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
-        break;
-
       case FUNC_BACKLIGHT:
+      case FUNC_PLAY_VALUE:
         drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
@@ -522,10 +520,6 @@ class SpecialFunctionButton : public Button
         dc->drawTextAtIndex(col1, line2, _failsafe_module, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
 
-      case FUNC_PLAY_VALUE:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
-        break;
-
       case FUNC_HAPTIC:
         dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
         break;
@@ -540,22 +534,22 @@ class SpecialFunctionButton : public Button
 
       case FUNC_ADJUST_GVAR:
         switch(CFN_GVAR_MODE(cfn)) {
-        case FUNC_ADJUST_GVAR_CONSTANT:
-          dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
-          break;
-        case FUNC_ADJUST_GVAR_SOURCE:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
-          break;
-        case FUNC_ADJUST_GVAR_GVAR:
-          drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_SECONDARY1);
-          break;
-        case FUNC_ADJUST_GVAR_INCDEC: {
-          int16_t value = CFN_PARAM(cfn);
-          std::string text(value >= 0 ? "+= " : "-= ");
-          text += std::to_string(abs(value));
-          dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
-          break;
-        }
+          case FUNC_ADJUST_GVAR_CONSTANT:
+            dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+            break;
+          case FUNC_ADJUST_GVAR_SOURCE:
+            drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+            break;
+          case FUNC_ADJUST_GVAR_GVAR:
+            drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_SECONDARY1);
+            break;
+          case FUNC_ADJUST_GVAR_INCDEC: {
+            int16_t value = CFN_PARAM(cfn);
+            std::string text(value >= 0 ? "+= " : "-= ");
+            text += std::to_string(abs(value));
+            dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
+            break;
+          }
         }
     }
     if (HAS_ENABLE_PARAM(func)) {
