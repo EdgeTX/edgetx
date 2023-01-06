@@ -245,10 +245,6 @@ bool isChargerActive()
     return uCharger.hasCharger || wCharger.hasCharger;
   }
 #else
-  if (uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady)
-  {
-    return uCharger.hasCharger || wCharger.hasCharger;
-  }
   if (uCharger.isChargerDetectionReady)
   {
     return uCharger.hasCharger;
