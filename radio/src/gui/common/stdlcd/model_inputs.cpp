@@ -181,8 +181,8 @@ void displayExpoLine(coord_t y, ExpoData * ed)
 {
   drawSource(EXPO_LINE_SRC_POS, y, ed->srcRaw, 0);
 
-  if (ed->carryTrim != TRIM_ON) {
-    lcdDrawChar(EXPO_LINE_TRIM_POS, y, ed->carryTrim > 0 ? '-' : STR_RETA123[-ed->carryTrim][0]);
+  if (ed->trimSource != TRIM_ON) {
+    lcdDrawChar(EXPO_LINE_TRIM_POS, y, ed->trimSource > 0 ? '-' : STR_RETA123[-ed->trimSource][0]);
   }
 
   if (!ed->flightModes || ((ed->curve.value || ed->swtch) && ((get_tmr10ms() / 200) & 1)))
