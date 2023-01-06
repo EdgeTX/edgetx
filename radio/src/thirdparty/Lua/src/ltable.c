@@ -215,6 +215,7 @@ static int computesizes (int nums[], int *narray) {
     }
     if (a == *narray) break;  /* all elements already counted */
   }
+  *narray = n;
   lua_assert(*narray/2 <= na && na <= *narray);
   return na;
 }
