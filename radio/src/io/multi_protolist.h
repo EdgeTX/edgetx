@@ -69,7 +69,7 @@ class MultiRfProtocols
     bool parse(const uint8_t* data, uint8_t len);
 
     // array of strings
-    void fillSubProtoList(const char** str, int n);
+    void fillSubProtoList(const char *const *str, int n);
 
     // fixed length strings concatenated
     void fillSubProtoList(const char* str, int n, int len);
