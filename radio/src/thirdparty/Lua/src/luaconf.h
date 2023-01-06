@@ -424,7 +424,7 @@
 /*
 @@ l_mathop allows the addition of an 'l' or 'f' to all math operations
 */
-#define l_mathop(x)		(x)
+#define l_mathop(x)		(x##f)
 
 
 /*
