@@ -28,7 +28,7 @@
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
 class SpecialFunctionEditPage : public Page
@@ -91,6 +91,18 @@ class SpecialFunctionEditPage : public Page
     lv_obj_set_style_text_font(headerSF->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
   }
 
+  void addSourceChoice(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmax)
+  {
+    new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
+    new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+  }
+
+  NumberEdit* addNumberEdit(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmin, int16_t vmax)
+  {
+    new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
+    return new NumberEdit(line, rect_t{}, vmin, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+  }
+
   void updateSpecialFunctionOneWindow()
   {
     specialFunctionOneWindow->clear();
@@ -110,13 +122,10 @@ class SpecialFunctionEditPage : public Page
                        GET_SET_VALUE_WITH_OFFSET(CFN_CH_INDEX(cfn), 1));
         line = specialFunctionOneWindow->newLine(&grid);
 
-        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         int limit = (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT);
-        new NumberEdit(line, rect_t{}, -limit, limit,
-                       GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        addNumberEdit(line, STR_VALUE, cfn, -limit, limit);
         break;
-    }
+      }
 
       case FUNC_TRAINER: {
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
@@ -132,7 +141,6 @@ class SpecialFunctionEditPage : public Page
             return TEXT_AT_INDEX(STR_VSRCRAW, value);
           ;
         });
-        line = specialFunctionOneWindow->newLine(&grid);
         break;
       }
 
@@ -153,22 +161,15 @@ class SpecialFunctionEditPage : public Page
                       .label,
                   TELEM_LABEL_LEN);
           });
-          line = specialFunctionOneWindow->newLine(&grid);
         }
         break;
 
       case FUNC_VOLUME:
-        new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(line, rect_t{}, 0,
-                         MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        addSourceChoice(line, STR_VOLUME, cfn, MIXSRC_LAST_CH);
         break;
 
       case FUNC_BACKLIGHT:
-        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(line, rect_t{}, 0,
-                         MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        addSourceChoice(line, STR_VALUE, cfn, MIXSRC_LAST_CH);
         break;
 
       case FUNC_PLAY_SOUND:
@@ -177,7 +178,6 @@ class SpecialFunctionEditPage : public Page
                    STR_FUNCSOUNDS, 0,
                    AU_SPECIAL_SOUND_LAST - AU_SPECIAL_SOUND_FIRST - 1,
                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_PLAY_TRACK:
@@ -199,7 +199,6 @@ class SpecialFunctionEditPage : public Page
               LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension
-        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_SET_TIMER: {
@@ -215,7 +214,6 @@ class SpecialFunctionEditPage : public Page
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new TimeEdit(line, rect_t{}, 0,
                      9 * 60 * 60 - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
         break;
       }
 
@@ -224,28 +222,18 @@ class SpecialFunctionEditPage : public Page
         new Choice(line, rect_t{},
                    "\004Int.Ext.", 0, NUM_MODULES - 1,
                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_PLAY_VALUE:
-        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(line, rect_t{}, 0,
-                         MIXSRC_LAST_TELEM, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        addSourceChoice(line, STR_VOLUME, cfn, MIXSRC_LAST_TELEM);
         break;
 
       case FUNC_HAPTIC:
-        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(line, rect_t{}, 0, 3,
-                       GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        addNumberEdit(line, STR_VALUE, cfn, 0, 3);
         break;
 
       case FUNC_LOGS: {
-        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        auto edit =
-            new NumberEdit(line, rect_t{}, 0,
-                           255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+        auto edit = addNumberEdit(line, STR_VALUE, cfn, 0, 255);
         edit->setDisplayHandler(
             [=](int32_t value) {
               return formatNumberAsString(CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
@@ -254,15 +242,9 @@ class SpecialFunctionEditPage : public Page
       }
 
       case FUNC_SET_SCREEN:
-        new StaticText(line, rect_t{}, STR_VALUE,
-                       0, COLOR_THEME_PRIMARY1);
         CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
-        CFN_PARAM(cfn) = (int16_t)min(
-            CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
-        new NumberEdit(line, rect_t{}, 1,
-                       ViewMain::instance()->getMainViewsCount(),
-                       GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        line = specialFunctionOneWindow->newLine(&grid);
+        CFN_PARAM(cfn) = (int16_t)min(CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
+        addNumberEdit(line, STR_VALUE, cfn, 1, ViewMain::instance()->getMainViewsCount());
         break;
         
       case FUNC_ADJUST_GVAR: {
@@ -305,18 +287,13 @@ class SpecialFunctionEditPage : public Page
 
         switch (CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT: {
-            new StaticText(line, rect_t{}, STR_CONSTANT, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
-            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
-                           val_max);
-            new NumberEdit(line, rect_t{},
-                           val_min, val_max, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
+            addNumberEdit(line, STR_CONSTANT, cfn, val_min, val_max);
             break;
           }
           case FUNC_ADJUST_GVAR_SOURCE:
-            new StaticText(line, rect_t{}, STR_MIXSOURCE, 0, COLOR_THEME_PRIMARY1);
-            new SourceChoice(line, rect_t{},
-                             0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            addSourceChoice(line, STR_MIXSOURCE, cfn, MIXSRC_LAST_CH);
             break;
           case FUNC_ADJUST_GVAR_GVAR: {
             new StaticText(line, rect_t{}, STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
@@ -332,12 +309,10 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_INCDEC: {
-            new StaticText(line, rect_t{}, STR_INCDEC, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
             getGVarIncDecRange(val_min, val_max);
-            auto numedit = new NumberEdit(line, rect_t{}, val_min, val_max,
-                                          GET_SET_DEFAULT(CFN_PARAM(cfn)));
+            auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);
             numedit->setDisplayHandler(
                 [](int value) {
                   return formatNumberAsString(abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
@@ -345,16 +320,16 @@ class SpecialFunctionEditPage : public Page
             break;
           }
         }
-        line = specialFunctionOneWindow->newLine(&grid);
       }
     }
 
     if (HAS_ENABLE_PARAM(func)) {
+      line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{},
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
-      line = specialFunctionOneWindow->newLine(&grid);
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
+      line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
@@ -371,7 +346,6 @@ class SpecialFunctionEditPage : public Page
               return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
             }
           });
-      line = specialFunctionOneWindow->newLine(&grid);
     }
   }
 
@@ -432,7 +406,8 @@ class SpecialFunctionEditPage : public Page
 
 static constexpr coord_t line1 = FIELD_PADDING_TOP;
 static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
-static constexpr coord_t col1 = 20;
+static constexpr coord_t col0w = 56;
+static constexpr coord_t col1 = 10 + col0w;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1 + 20;
 
@@ -443,18 +418,10 @@ static const char* _failsafe_module[] = {
 class SpecialFunctionButton : public Button
 {
  public:
-  SpecialFunctionButton(FormWindow *parent, const rect_t &rect,
+  SpecialFunctionButton(Window *parent, const rect_t &rect,
                         CustomFunctionData *functions, uint8_t index) :
       Button(parent, rect), functions(functions), index(index)
   {
-    const CustomFunctionData *cfn = &functions[index];
-    uint8_t func = CFN_FUNC(cfn);
-    if (!cfn->isEmpty() &&
-        (HAS_ENABLE_PARAM(func) || HAS_REPEAT_PARAM(func) ||
-         (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC ||
-          func == FUNC_PLAY_SCRIPT))) {
-      setHeight(line2 + PAGE_LINE_HEIGHT);
-    }
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -606,10 +573,19 @@ class SpecialFunctionButton : public Button
 
   void paint(BitmapBuffer *dc) override
   {
-    if (active)
+    char s[] = "SFxx";
+    if (functions == g_eeGeneral.customFn) s[0] = 'G';
+    strAppendUnsigned(&s[2], index+1);
+
+    if (active) {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-    else
+      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_FOCUS);
+      dc->drawText(8, 12, s, COLOR_THEME_PRIMARY2);
+    } else {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
+      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_SECONDARY2);
+      dc->drawText(8, 12, s, COLOR_THEME_PRIMARY1);
+    }
 
     paintSpecialFunctionLine(dc);
 
@@ -653,46 +629,31 @@ void SpecialFunctionsPage::editSpecialFunction(FormWindow *window,
 
 void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(66);
-  window->padAll(0);
+#if LCD_W > LCD_H
+  #define PER_ROW 6
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+#else
+  #define PER_ROW 4
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+#endif
 
-  // Window::clearFocus();
+  window->setFlexLayout();
+  FlexGridLayout grid(l_col_dsc, row_dsc, 2);
+  window->padAll(4);
 
-  char s[] = "SFxx";
-  if (functions == g_eeGeneral.customFn) s[0] = 'G';
+  FormGroup::Line* line;
 
   for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData *cfn = &functions[i];
-    strAppendUnsigned(&s[2], i+1);
 
     Button *button;
-    if (cfn->swtch == 0) {
-      button = new TextButton(window, grid.getLabelSlot(), s);
-      button->setPressHandler([=]() {
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
-          Menu *menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() { editSpecialFunction(window, i); });
-          menu->addLine(STR_PASTE, [=]() {
-            *cfn = clipboard.data.cfn;
-            SET_DIRTY();
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-              LUA_LOAD_MODEL_SCRIPTS();
-            rebuild(window, i);
-          });
-        } else {
-          editSpecialFunction(window, i);
-        }
-        return 0;
-      });
-      grid.spacer(button->height() + 5);
-    } else {
-      auto txt = new StaticText(window, grid.getLabelSlot(), s, BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+    if (cfn->swtch != 0) {
+      line = window->newLine(&grid);
 
-      button = new SpecialFunctionButton(window, grid.getFieldSlot(), functions, i);
+      button = new SpecialFunctionButton(line, rect_t{0, 0, window->width() - 12, 45}, functions, i);
       button->setPressHandler([=]() {
-        button->bringToTop();
         Menu *menu = new Menu(window);
         menu->addLine(STR_EDIT, [=]() { editSpecialFunction(window, i); });
         menu->addLine(STR_COPY, [=]() {
@@ -745,33 +706,48 @@ void SpecialFunctionsPage::build(FormWindow *window, int8_t focusIndex)
         }
         return 0;
       });
-      button->setFocusHandler([=](bool focus) {
-        if (focus) {
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        } else {
-          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-        }
-        txt->invalidate();
-      });
 
-      // if (focusIndex == i) {
-      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      //   txt->invalidate();
-      // }
-
-      txt->setHeight(button->height());
-      grid.spacer(button->height() + 5);
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
     }
-
-    // if (focusIndex == i) {  // fix focus #303
-    //   button->setFocus(SET_FOCUS_DEFAULT);
-    // }
   }
 
-  grid.nextLine();
+  char s[] = "SFxx";
+  if (functions == g_eeGeneral.customFn) s[0] = 'G';
 
-  //  window->setLastField();
+  uint8_t scol = 0;
+
+  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
+    CustomFunctionData *cfn = &functions[i];
+    strAppendUnsigned(&s[2], i+1);
+
+    Button *button;
+    if (cfn->swtch == 0) {
+      if (scol == 0) {
+        line = window->newLine(&grid);
+        lv_obj_set_style_pad_column(line->getLvObj(), 4, LV_PART_MAIN);
+      }
+
+      button = new TextButton(line, rect_t{}, s);
+      button->setPressHandler([=]() {
+        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
+          Menu *menu = new Menu(window);
+          menu->addLine(STR_EDIT, [=]() { editSpecialFunction(window, i); });
+          menu->addLine(STR_PASTE, [=]() {
+            *cfn = clipboard.data.cfn;
+            SET_DIRTY();
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              LUA_LOAD_MODEL_SCRIPTS();
+            rebuild(window, i);
+          });
+        } else {
+          editSpecialFunction(window, i);
+        }
+        return 0;
+      });
+
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH, scol, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      scol = (scol + 1) % PER_ROW;
+    }
+  }
 }
