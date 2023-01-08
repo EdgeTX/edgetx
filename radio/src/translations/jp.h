@@ -422,7 +422,7 @@
 #define TR_CONTRAST                    "コントラスト"
 #define TR_ALARMS_LABEL                "アラーム"
 #define TR_BATTERY_RANGE               TR("Batt. range", "バッテリー表示範囲")
-#define TR_BATTERYCHARGING             "変更中..."
+#define TR_BATTERYCHARGING             "充電中..."
 #define TR_BATTERYFULL                 "フル充電"
 #define TR_BATTERYNONE                 "バッテリー空!!"
 #define TR_BATTERYWARNING              "バッテリー低値"
@@ -434,8 +434,8 @@
 #define TR_USB_STILL_CONNECTED         "USBが接続されたままです"
 #define TR_MODEL_SHUTDOWN              "シャットダウンしますか？"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"
-#define TR_THROTTLE_LABEL              "スロットル"
-#define TR_THROTTLE_START              "スロットルスタート"
+#define TR_THROTTLE_LABEL              "Throttle"
+#define TR_THROTTLE_START              "Throttle Start"
 #define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "リバース")
 #define TR_MINUTEBEEP                  TR("Minute", "分単位コール")
 #define TR_BEEPCOUNTDOWN               INDENT "カウントダウン"
@@ -451,7 +451,7 @@
 #define TR_SPLASHSCREEN                "起動イメージ"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
 #define TR_PWR_OFF_DELAY               "電源OFF遅延"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "スロットル状態")
+#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle状態")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "カスタム位置？")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "位置 %")
 #define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "スイッチ位置")
@@ -495,16 +495,16 @@
 #define TR_NODATA                      CENTER "データなし"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
-#define TR_TMIXMAXMS                   "Tmix最大値"
+#define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
 #define TR_INT_GPS_LABEL               "内蔵GPS"
-#define TR_HEARTBEAT_LABEL             "ハートビート"
-#define TR_LUA_SCRIPTS_LABEL           "LUAスクリプト"
-#define TR_FREE_MEM_LABEL              "空きメモリ"
-#define TR_TIMER_LABEL                 "タイマー"
-#define TR_THROTTLE_PERCENT_LABEL      "スロットル %"
-#define TR_BATT_LABEL                  "バッテリー"
-#define TR_SESSION                     "セッション"
+#define TR_HEARTBEAT_LABEL             "Heartbeat"
+#define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
+#define TR_FREE_MEM_LABEL              "Free mem"
+#define TR_TIMER_LABEL                 "Timer"
+#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
+#define TR_BATT_LABEL                  "Battery"
+#define TR_SESSION                     "Session"
 #define TR_MENUTORESET                 TR_ENTER " リセット"
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
@@ -513,7 +513,7 @@
 #define TR_MIX                         "ミキサー"
 #define TR_EEPROMLOWMEM                "EEPROMメモリ低"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "任意のキーを押してスキップします"
-#define TR_THROTTLE_NOT_IDLE           "スロットルがアイドル値ではありません"
+#define TR_THROTTLE_NOT_IDLE           "Throttleがアイドル値ではありません"
 #define TR_ALARMSDISABLED              "アラーム無効"
 #define TR_PRESSANYKEY                 TR("\010Press any Key", "任意のキーを押してください")
 #define TR_BADEEPROMDATA               "EEPROMデータが不良です"
@@ -700,7 +700,7 @@
 #define TR_EEPROM_CONVERTING           "EEPROM変換"
 #define TR_SDCARD_CONVERSION_REQUIRE   "SDカードの変換が必要です"
 #define TR_CONVERTING                  "変換: "
-#define TR_THROTTLE_UPPERCASE          "スロットル"
+#define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "アラーム"
 #define TR_SWITCHWARN                  TR("スイッチ", "コントロール")
 #define TR_FAILSAFEWARN                "フェイルセーフ"
@@ -715,7 +715,7 @@
 #define TR_PCBREV_ERROR                "PCBエラー"
 #define TR_NO_FAILSAFE                 "フェイルセーフが設定されていません"
 #define TR_KEYSTUCK                    "キー不良"
-#define TR_INVERT_THR                  TR("Invert thr?", "スロットルがリバース？")
+#define TR_INVERT_THR                  TR("Invert thr?", "Throttleリバース？")
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "輝度"
