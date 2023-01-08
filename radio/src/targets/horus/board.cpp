@@ -236,11 +236,13 @@ void boardInit()
   sportUpdateInit();
 #endif
 
-  ledBlue();
+  ledRed();
 
 #if defined(RTCLOCK) && !defined(COPROCESSOR)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+
+  ledBlue();
 }
 
 void boardOff()
@@ -276,8 +278,8 @@ void boardOff()
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
   pwrOff();
-  
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -291,7 +293,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
