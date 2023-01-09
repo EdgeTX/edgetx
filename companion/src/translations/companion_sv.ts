@@ -7844,6 +7844,10 @@ p, li { white-space: pre-wrap; }
         <source>2 W</source>
         <translation></translation>
     </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
 </context>
 <context>
     <name>ModulePanel</name>
