@@ -7848,6 +7848,130 @@ p, li { white-space: pre-wrap; }
         <source>OFF</source>
         <translation>AV</translation>
     </message>
+    <message>
+        <source>PPM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CTP1009</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LP45</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSM2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSMX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPM16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPMsim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky DJT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Crossfire</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Multi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>SBUS output at VBat</source>
+        <translation>SBUS utdata på VBat</translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS ISRM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCST ISRM D16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M 2019</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AFHDS3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ghost</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lemon-Rx DSMP</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>ModulePanel</name>
