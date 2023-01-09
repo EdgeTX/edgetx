@@ -32,10 +32,12 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   initBtnMap(3, MAX_FLIGHT_MODES);
 #endif
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    setText(i, std::to_string(i).c_str());
-  }
   update();
+
+  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+    lv_btnmatrix_set_btn_ctrl(lvobj, i, LV_BTNMATRIX_CTRL_RECOLOR);
+    setTextWithColor(i);
+  }
 
 #if LCD_W > LCD_H
   // hide last element
@@ -58,10 +60,17 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
 }
 
 template<class T>
+void FMMatrix<T>::setTextWithColor(uint8_t btn_id)
+{
+  setText(btn_id, makeRecolor(std::to_string(btn_id), isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+}
+
+template<class T>
 void FMMatrix<T>::onPress(uint8_t btn_id)
 {
   if (btn_id >= MAX_FLIGHT_MODES) return;
   BFBIT_FLIP(input->flightModes, bfBit<uint32_t>(btn_id));
+  setTextWithColor(btn_id);
   storageDirty(EE_MODEL);
 }
 

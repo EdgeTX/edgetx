@@ -93,11 +93,11 @@ void Layout::adjustLayout()
 {
   // Check if deco setting are still up-to-date
   uint8_t checkSettings =
-    (hasTopbar() ? 1 << 0 : 0) |
-    (hasSliders() ? 1 << 1 : 0) |
-    (hasTrims() ? 1 << 2 : 0) |
-    (hasFlightMode() ? 1 << 3 : 0) |
-    (isMirrored() ? 1 << 4 : 0);
+    (hasTopbar() ? DECORATION_TOPBAR : 0) |
+    (hasSliders() ? DECORATION_SLIDERS : 0) |
+    (hasTrims() ? DECORATION_TRIMS : 0) |
+    (hasFlightMode() ? DECORATION_FLIGHTMODE : 0) |
+    (isMirrored() ? DECORATION_MIRRORED : 0);
 
   if (checkSettings == decorationSettings) {
     // everything ok, exit!
@@ -119,7 +119,7 @@ void Layout::adjustLayout()
 rect_t Layout::getMainZone() const
 {
   rect_t zone = decoration->getMainZone();
-  if (decorationSettings & 0x7) {
+  if (decorationSettings & (DECORATION_SLIDERS|DECORATION_TRIMS|DECORATION_FLIGHTMODE)) {
     // some decoration activated
     zone.x += MAIN_ZONE_BORDER;
     zone.y += MAIN_ZONE_BORDER;
