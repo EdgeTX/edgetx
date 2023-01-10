@@ -24,8 +24,6 @@
 
 #include "tabsgroup.h"
 
-class CurveButton;
-
 class ModelCurvesPage: public PageTab {
   public:
     ModelCurvesPage();
@@ -35,7 +33,6 @@ class ModelCurvesPage: public PageTab {
 
   protected:
     uint8_t focusIndex = -1;
-    CurveButton* focusButton = nullptr;
 
     void rebuild(FormWindow * window);
     void editCurve(FormWindow * window, uint8_t curve);

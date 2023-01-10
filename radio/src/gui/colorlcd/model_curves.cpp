@@ -84,13 +84,6 @@ class CurveButton : public Button {
       dc->drawText(w / 2, height() - INFO_H + 1, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
     }
 
-    void select(bool selected) {
-      if (selected)
-        lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
-      else
-        lv_obj_clear_state(lvobj, LV_STATE_FOCUSED);
-    }
-
   protected:
     uint8_t index;
     CurveRenderer* preview;
@@ -127,16 +120,8 @@ void ModelCurvesPage::pushEditCurve(int index)
 
 void ModelCurvesPage::rebuild(FormWindow * window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
-
   window->clear();
   build(window);
-
-  if (focusButton) {
-    scroll_y = (focusIndex / PER_ROW) * (CURVE_BTH_H + 8);
-  }
-
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelCurvesPage::editCurve(FormWindow * window, uint8_t curve)
@@ -189,7 +174,7 @@ void ModelCurvesPage::build(FormWindow * window)
   
   FormWindow::Line* line;
 
-  focusButton = nullptr;
+  bool hasFocusButton = false;
 
   uint8_t curveIndex = 0;
   uint8_t firstCurveIndex;
@@ -226,13 +211,8 @@ void ModelCurvesPage::build(FormWindow * window)
           return 0;
       });
       button->setFocusHandler([=](bool hasFocus) {
-          if (focusButton) {
-            focusButton->select(false);
-          }
-          if (hasFocus) {
-            focusIndex = index;
-            focusButton = button;
-          }
+        if (hasFocus)
+          focusIndex = index;
       });
 
       if (!firstCurveButton) {
@@ -241,10 +221,8 @@ void ModelCurvesPage::build(FormWindow * window)
       }
 
       if (index == focusIndex) {
-        focusButton = button;
-        focusButton->select(true);
-      } else {
-        button->select(false);
+        hasFocusButton = true;
+        lv_group_focus_obj(button->getLvObj());
       }
 
       lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
@@ -253,10 +231,8 @@ void ModelCurvesPage::build(FormWindow * window)
     }
   }
 
-  if (!focusButton && firstCurveButton) {
-    focusIndex = firstCurveIndex;
-    focusButton = firstCurveButton;
-    focusButton->select(true);
+  if (!hasFocusButton && firstCurveButton) {
+    lv_group_focus_obj(firstCurveButton->getLvObj());
   }
 
   if (curveIndex < MAX_CURVES) {
