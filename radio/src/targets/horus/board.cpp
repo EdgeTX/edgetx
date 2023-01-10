@@ -236,9 +236,8 @@ void boardInit()
   sportUpdateInit();
 #endif
 
-  ledRed();
-
 #if defined(RTCLOCK) && !defined(COPROCESSOR)
+  ledRed();
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
