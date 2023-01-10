@@ -30,15 +30,16 @@ class SpecialFunctionsPage: public PageTab {
   public:
     SpecialFunctionsPage(CustomFunctionData * functions);
 
-    void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+    void build(FormWindow * window) override;
 
   protected:
+    int8_t focusIndex = -1;
+    bool isRebuilding = false;
+    Button* firstActiveButton = nullptr;
+    Button* firstInactiveButton = nullptr;
     CustomFunctionData * functions;
-    void build(FormWindow * window, int8_t focusSpecialFunctionIndex);
-    void rebuild(FormWindow * window, int8_t focusSpecialFunctionIndex);
+
+    void rebuild(FormWindow * window);
     void editSpecialFunction(FormWindow * window, uint8_t index);
 };
 
