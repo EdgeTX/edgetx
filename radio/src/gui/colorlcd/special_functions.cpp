@@ -609,10 +609,14 @@ SpecialFunctionsPage::SpecialFunctionsPage(CustomFunctionData *functions) :
 
 void SpecialFunctionsPage::rebuild(FormWindow *window)
 {
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+
   isRebuilding = true;
   window->clear();
   isRebuilding = false;
   build(window);
+
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void SpecialFunctionsPage::editSpecialFunction(FormWindow *window,
@@ -647,97 +651,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
   firstActiveButton = nullptr;
   firstInactiveButton = nullptr;
   bool hasFocusButton = false;
-
-  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
-    CustomFunctionData *cfn = &functions[i];
-
-    if (cfn->swtch != 0) {
-      line = form->newLine(&grid);
-
-      auto button = new SpecialFunctionButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, functions, i);
-
-      if (firstActiveButton == nullptr)
-        firstActiveButton = button;
-
-      if (focusIndex == i) {
-        hasFocusButton = true;
-        lv_group_focus_obj(button->getLvObj());
-      }
-
-      button->setFocusHandler([=](bool hasFocus) {
-        if (hasFocus && !isRebuilding)
-          focusIndex = i;
-      });
-
-      button->setPressHandler([=]() {
-        Menu *menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() {
-          editSpecialFunction(window, i);
-         });
-        menu->addLine(STR_COPY, [=]() {
-          clipboard.type = CLIPBOARD_TYPE_CUSTOM_FUNCTION;
-          clipboard.data.cfn = *cfn;
-        });
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
-          menu->addLine(STR_PASTE, [=]() {
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-              LUA_LOAD_MODEL_SCRIPTS();
-            *cfn = clipboard.data.cfn;
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-              LUA_LOAD_MODEL_SCRIPTS();
-            SET_DIRTY();
-            focusIndex = i;
-            rebuild(window);
-          });
-        }
-        if (functions[MAX_SPECIAL_FUNCTIONS - 1].isEmpty()) {
-          menu->addLine(STR_INSERT, [=]() {
-            memmove(
-                cfn + 1, cfn,
-                (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
-            memset(cfn, 0, sizeof(CustomFunctionData));
-            SET_DIRTY();
-            focusIndex = i;
-            rebuild(window);
-          });
-        }
-        menu->addLine(STR_CLEAR, [=]() {
-          if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-            LUA_LOAD_MODEL_SCRIPTS();
-          memset(cfn, 0, sizeof(CustomFunctionData));
-          SET_DIRTY();
-          focusIndex = i;
-          rebuild(window);
-        });
-        for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
-          if (!functions[j].isEmpty()) {
-            menu->addLine(STR_DELETE, [=]() {
-              if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-                LUA_LOAD_MODEL_SCRIPTS();
-              memmove(
-                  cfn, cfn + 1,
-                  (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
-              memset(&functions[MAX_SPECIAL_FUNCTIONS - 1], 0,
-                     sizeof(CustomFunctionData));
-              SET_DIRTY();
-              focusIndex = i;
-              rebuild(window);
-            });
-            break;
-          }
-        }
-        return 0;
-      });
-
-      button->setLongPressHandler([=]() -> uint8_t {
-        if (firstInactiveButton)
-          lv_group_focus_obj(firstInactiveButton->getLvObj());
-        return 0;
-      });
-
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
-    }
-  }
+  Button* button;
 
   char s[] = "SFxx";
   if (functions == g_eeGeneral.customFn) s[0] = 'G';
@@ -748,46 +662,34 @@ void SpecialFunctionsPage::build(FormWindow *window)
     CustomFunctionData *cfn = &functions[i];
     strAppendUnsigned(&s[2], i+1);
 
-    if (cfn->swtch == 0) {
+    bool isActive = (cfn->swtch != 0);
+
+    if (isActive) {
+      line = form->newLine(&grid);
+      scol = 0;
+
+      button = new SpecialFunctionButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, functions, i);
+
+      if (firstActiveButton == nullptr)
+        firstActiveButton = button;
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (firstInactiveButton)
+          lv_group_focus_obj(firstInactiveButton->getLvObj());
+        return 0;
+      });
+
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
+    } else {
       if (scol == 0) {
         line = form->newLine(&grid);
         lv_obj_set_style_pad_column(line->getLvObj(), 4, LV_PART_MAIN);
       }
 
-      auto button = new TextButton(line, rect_t{0, 0, 0, SF_BUTTON_H}, s);
+      button = new TextButton(line, rect_t{0, 0, 0, SF_BUTTON_H}, s);
 
       if (firstInactiveButton == nullptr)
         firstInactiveButton = button;
-
-      if (focusIndex == i) {
-        hasFocusButton = true;
-        lv_group_focus_obj(button->getLvObj());
-      }
-
-      button->setFocusHandler([=](bool hasFocus) {
-        if (hasFocus && !isRebuilding)
-          focusIndex = i;
-      });
-
-      button->setPressHandler([=]() {
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
-          Menu *menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() {
-           editSpecialFunction(window, i);
-          });
-          menu->addLine(STR_PASTE, [=]() {
-            *cfn = clipboard.data.cfn;
-            SET_DIRTY();
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
-              LUA_LOAD_MODEL_SCRIPTS();
-            focusIndex = i;
-            rebuild(window);
-          });
-        } else {
-          editSpecialFunction(window, i);
-        }
-        return 0;
-      });
 
       button->setLongPressHandler([=]() -> uint8_t {
         if (firstActiveButton)
@@ -796,9 +698,86 @@ void SpecialFunctionsPage::build(FormWindow *window)
       });
 
       lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH, scol, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
       scol = (scol + 1) % PER_ROW;
     }
+
+    if (focusIndex == i) {
+      hasFocusButton = true;
+      lv_group_focus_obj(button->getLvObj());
+    }
+
+    button->setFocusHandler([=](bool hasFocus) {
+      if (hasFocus && !isRebuilding)
+        focusIndex = i;
+    });
+
+    button->setPressHandler([=]() {
+      Menu *menu = new Menu(window);
+      menu->addLine(STR_EDIT, [=]() {
+        editSpecialFunction(window, i);
+       });
+      if (isActive) {
+        menu->addLine(STR_COPY, [=]() {
+          clipboard.type = CLIPBOARD_TYPE_CUSTOM_FUNCTION;
+          clipboard.data.cfn = *cfn;
+        });
+      }
+      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
+        menu->addLine(STR_PASTE, [=]() {
+          if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+            LUA_LOAD_MODEL_SCRIPTS();
+          *cfn = clipboard.data.cfn;
+          if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+            LUA_LOAD_MODEL_SCRIPTS();
+          SET_DIRTY();
+          rebuild(window);
+        });
+      }
+      if (functions[MAX_SPECIAL_FUNCTIONS - 1].isEmpty()) {
+        for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
+          if (!functions[j].isEmpty()) {
+            menu->addLine(STR_INSERT, [=]() {
+              memmove(
+                  cfn + 1, cfn,
+                  (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
+              memset(cfn, 0, sizeof(CustomFunctionData));
+              SET_DIRTY();
+              focusIndex = i + 1;
+              rebuild(window);
+            });
+            break;
+          }
+        }
+      }
+      if (isActive) {
+        menu->addLine(STR_CLEAR, [=]() {
+          if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+            LUA_LOAD_MODEL_SCRIPTS();
+          memset(cfn, 0, sizeof(CustomFunctionData));
+          SET_DIRTY();
+          focusIndex = i;
+          rebuild(window);
+        });
+      }
+      for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
+        if (!functions[j].isEmpty()) {
+          menu->addLine(STR_DELETE, [=]() {
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              LUA_LOAD_MODEL_SCRIPTS();
+            memmove(
+                cfn, cfn + 1,
+                (MAX_SPECIAL_FUNCTIONS - i - 1) * sizeof(CustomFunctionData));
+            memset(&functions[MAX_SPECIAL_FUNCTIONS - 1], 0,
+                   sizeof(CustomFunctionData));
+            SET_DIRTY();
+            focusIndex = i;
+            rebuild(window);
+          });
+          break;
+        }
+      }
+      return 0;
+    });
   }
 
   if (!hasFocusButton)
