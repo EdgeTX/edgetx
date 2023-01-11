@@ -652,6 +652,9 @@ void SpecialFunctionsPage::build(FormWindow *window)
   bool hasFocusButton = false;
   Button* button;
 
+  if (!isRebuilding)
+    focusIndex = -1;
+
   char s[] = "SFxx";
   if (functions == g_eeGeneral.customFn) s[0] = 'G';
 
