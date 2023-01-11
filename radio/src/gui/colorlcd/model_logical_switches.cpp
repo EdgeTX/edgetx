@@ -364,10 +364,13 @@ void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
 {
   auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
 
+  // When window.clear() is called the last button on screen is given focus (???)
+  // This causes the page to jump to the end when rebuilt.
+  // Set flag to bypass the button focus handler and reset focusIndex when rebuilding
   isRebuilding = true;
   window->clear();
-  isRebuilding = false;
   build(window);
+  isRebuilding = false;
 
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
@@ -406,8 +409,9 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
   bool hasFocusButton = false;
   Button* button;
 
+  // Reset focusIndex after switching tabs
   if (!isRebuilding)
-    focusIndex = -1;
+    focusIndex = prevFocusIndex;
 
   uint8_t scol = 0;
 
@@ -484,8 +488,10 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
     }
 
     button->setFocusHandler([=](bool hasFocus) {
-      if (hasFocus && !isRebuilding)
+      if (hasFocus && !isRebuilding) {
+        prevFocusIndex = focusIndex;
         focusIndex = i;
+      }
     });
   }
 
