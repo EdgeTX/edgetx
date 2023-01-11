@@ -406,6 +406,9 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
   bool hasFocusButton = false;
   Button* button;
 
+  if (!isRebuilding)
+    focusIndex = -1;
+
   uint8_t scol = 0;
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
