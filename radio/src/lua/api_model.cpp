@@ -578,7 +578,7 @@ Return input data for given input and line number
  * 'trimSource' (number) a positive number representing trim source
  * 'flightModes' (number) bit-mask of active flight modes
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11
+@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1
 */
 static int luaModelGetInput(lua_State *L)
 {
@@ -597,7 +597,6 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtableinteger(L, "switch", expo->swtch);
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", expo->curve.value);
-    lua_pushtableinteger(L, "carryTrim", expo->trimSource);
     lua_pushtableinteger(L, "trimSource", - expo->trimSource);
     lua_pushtableinteger(L, "flightModes", expo->flightModes);
   }
@@ -618,7 +617,7 @@ Insert an Input at specified line
 
 @param value (table) input data, see model.getInput()
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10
+@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, broken carryTrim replaced by trimSource in EdgeTX 2.8.1
 */
 static int luaModelInsertInput(lua_State *L)
 {
@@ -666,9 +665,6 @@ static int luaModelInsertInput(lua_State *L)
       }
       else if (!strcmp(key, "curveValue")) {
         expo->curve.value = luaL_checkinteger(L, -1);
-      }
-      else if (!strcmp(key, "carryTrim")) { // deprecated, remove in 2024
-        expo->trimSource = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "trimSource")) {
         expo->trimSource = - luaL_checkinteger(L, -1);
