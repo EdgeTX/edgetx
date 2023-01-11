@@ -28,14 +28,15 @@ class ModelLogicalSwitchesPage: public PageTab {
 public:
     ModelLogicalSwitchesPage();
 
-    virtual void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+    virtual void build(FormWindow * window) override;
 
 protected:
-    void build(FormWindow * window, int8_t focusIndex);
-    void rebuild(FormWindow * window, int8_t focusIndex);
+    int8_t focusIndex = -1;
+    bool isRebuilding = false;
+    Button* firstActiveButton = nullptr;
+    Button* firstInactiveButton = nullptr;
+
+    void rebuild(FormWindow * window);
     void editLogicalSwitch(FormWindow * window, uint8_t lsIndex);
 };
 

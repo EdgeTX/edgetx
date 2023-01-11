@@ -26,20 +26,12 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchData * ls, LcdFlags flags = 0)
-{
-  coord_t lcdNextPos = 0;
-  lcdNextPos = dc->drawText(x, y, "[", flags);
-  lcdNextPos = dc->drawNumber(lcdNextPos+2, y, lswTimerValue(ls->v2), LEFT | PREC1 | flags);
-  lcdNextPos = dc->drawText(lcdNextPos, y, ":", flags);
-  if (ls->v3 < 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "<<", flags);
-  else if (ls->v3 == 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "--", flags);
-  else
-    lcdNextPos = dc->drawNumber(lcdNextPos+3, y, lswTimerValue(ls->v2+ls->v3), LEFT | PREC1 | flags);
-  dc->drawText(lcdNextPos, y, "]", flags);
-}
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc2[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
 
 class LogicalSwitchEditPage: public Page
 {
@@ -93,31 +85,35 @@ class LogicalSwitchEditPage: public Page
 
     void updateLogicalSwitchOneWindow()
     {
-      FormGridLayout grid;
       logicalSwitchOneWindow->clear();
+      logicalSwitchOneWindow->setFlexLayout();
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
 
       LogicalSwitchData * cs = lswAddress(index);
       uint8_t cstate = lswFamily(cs->func);
 
-      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
+      auto line = logicalSwitchOneWindow->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_V1, 0, COLOR_THEME_PRIMARY1);
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
+      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
+        auto choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
+
+        line = logicalSwitchOneWindow->newLine(&grid);
+        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
+        choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
+        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
       }
       else if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
+        auto choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
 
-        auto edit1 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 0), -129, 122, GET_DEFAULT(cs->v2));
-        auto edit2 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 1), -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
+        FlexGridLayout grid2(col_dsc2, row_dsc, 2);
+        line = logicalSwitchOneWindow->newLine(&grid2);
+        auto edit1 = new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2));
+        auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
+        lv_obj_set_grid_cell(edit1->getLvObj(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+        lv_obj_set_grid_cell(edit2->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
         edit1->setSetValueHandler([=](int32_t newValue) {
           cs->v2 = newValue;
           SET_DIRTY();
@@ -136,35 +132,29 @@ class LogicalSwitchEditPage: public Page
             return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
           }
         });
-        grid.nextLine();
       }
       else if (cstate == LS_FAMILY_COMP) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
-        grid.nextLine();
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
-        grid.nextLine();
+        line = logicalSwitchOneWindow->newLine(&grid);
+        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
       }
       else if (cstate == LS_FAMILY_TIMER) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
+        auto timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1);
         });
-        grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
+        line = logicalSwitchOneWindow->newLine(&grid);
+        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
+        timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1);
         });
-        grid.nextLine();
       }
       else {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
                          [=](int32_t newValue) {
                            cs->v1 = newValue;
                            if (v2Edit != nullptr)
@@ -177,12 +167,12 @@ class LogicalSwitchEditPage: public Page
                            }
                            SET_DIRTY();
                          });
-        grid.nextLine();
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
+        line = logicalSwitchOneWindow->newLine(&grid);
+        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(),
+        v2Edit = new NumberEdit(line, rect_t{},
                                 v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
@@ -190,43 +180,44 @@ class LogicalSwitchEditPage: public Page
           std::string txt = getSourceCustomValueString(cs->v1, value, 0);
           return txt;
         });
-        grid.nextLine();
       }
 
       // AND switch
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
-      auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
+      line = logicalSwitchOneWindow->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
+      auto choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
       choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-      grid.nextLine();
 
       // Duration
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DURATION, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DURATION, GET_SET_DEFAULT(cs->duration), 0, PREC1);
+      line = logicalSwitchOneWindow->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_DURATION, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(line, rect_t{}, 0, MAX_LS_DURATION, GET_SET_DEFAULT(cs->duration), 0, PREC1);
       edit->setZeroText("---");
-      grid.nextLine();
 
       // Delay
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DELAY, 0, COLOR_THEME_PRIMARY1);
+      line = logicalSwitchOneWindow->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_DELAY, 0, COLOR_THEME_PRIMARY1);
       if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getFieldSlot(), STR_NA, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_NA, 0, COLOR_THEME_PRIMARY1);
       }
       else {
-        auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DELAY, GET_SET_DEFAULT(cs->delay), 0, PREC1);
+        auto edit = new NumberEdit(line, rect_t{}, 0, MAX_LS_DELAY, GET_SET_DEFAULT(cs->delay), 0, PREC1);
         edit->setZeroText("---");
       }
-      grid.nextLine();
     }
 
     void buildBody(FormWindow * window)
     {
-      FormGridLayout grid;
-      grid.spacer(PAGE_PADDING);
+      window->setFlexLayout();
+      FlexGridLayout grid(col_dsc, row_dsc, 2);
+      lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
       LogicalSwitchData * cs = lswAddress(index);
 
       // LS Func
-      new StaticText(window, grid.getLabelSlot(), STR_FUNC, 0, COLOR_THEME_PRIMARY1);
-      auto functionChoice = new Choice(window, grid.getFieldSlot(), STR_VCSWFUNC, 0, LS_FUNC_MAX, GET_DEFAULT(cs->func));
+      auto line = window->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
+      auto functionChoice = new Choice(line, rect_t{}, STR_VCSWFUNC, 0, LS_FUNC_MAX, GET_DEFAULT(cs->func));
       functionChoice->setSetValueHandler([=](int32_t newValue) {
           cs->func = newValue;
           if (lswFamily(cs->func) == LS_FAMILY_TIMER) {
@@ -244,30 +235,40 @@ class LogicalSwitchEditPage: public Page
           updateLogicalSwitchOneWindow();
       });
       functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
-      grid.nextLine();
 
-      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }// , FORM_FORWARD_FOCUS
-                                             );
+      logicalSwitchOneWindow = new FormWindow(window, rect_t{});
       updateLogicalSwitchOneWindow();
-      grid.addWindow(logicalSwitchOneWindow);
     }
 };
 
 static constexpr coord_t line1 = FIELD_PADDING_TOP;
 static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
-static constexpr coord_t col1 = 20;
+static constexpr coord_t col0w = 56;
+static constexpr coord_t col1 = 10 + col0w;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1;
+
+void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchData * ls, LcdFlags flags = 0)
+{
+  coord_t lcdNextPos = 0;
+  lcdNextPos = dc->drawText(x, y, "[", flags);
+  lcdNextPos = dc->drawNumber(lcdNextPos+2, y, lswTimerValue(ls->v2), LEFT | PREC1 | flags);
+  lcdNextPos = dc->drawText(lcdNextPos, y, ":", flags);
+  if (ls->v3 < 0)
+    lcdNextPos = dc->drawText(lcdNextPos+3, y, "<<", flags);
+  else if (ls->v3 == 0)
+    lcdNextPos = dc->drawText(lcdNextPos+3, y, "--", flags);
+  else
+    lcdNextPos = dc->drawNumber(lcdNextPos+3, y, lswTimerValue(ls->v2+ls->v3), LEFT | PREC1 | flags);
+  dc->drawText(lcdNextPos, y, "]", flags);
+}
 
 class LogicalSwitchButton : public Button
 {
  public:
-  LogicalSwitchButton(FormGroup* parent, const rect_t& rect, int lsIndex) :
+  LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
       Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1), lsIndex(lsIndex), active(isActive())
   {
-    LogicalSwitchData* ls = lswAddress(lsIndex);
-    if (ls->andsw != SWSRC_NONE || ls->duration != 0 || ls->delay != 0)
-      setHeight(height() + 20);
   }
 
   bool isActive() const
@@ -328,10 +329,15 @@ class LogicalSwitchButton : public Button
 
   void paint(BitmapBuffer* dc) override
   {
-    if (active)
+    if (active) {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-    else
+      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_FOCUS);
+      dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_PRIMARY2);
+    } else {
       dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
+      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_SECONDARY2);
+      dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_PRIMARY1);
+    }
 
     paintLogicalSwitchLine(dc);
 
@@ -347,16 +353,22 @@ class LogicalSwitchButton : public Button
   bool active;
 };
 
+#define LS_BUTTON_H 45
+
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
   PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
 {
 }
 
-void ModelLogicalSwitchesPage::rebuild(FormWindow * window, int8_t focusIndex)
+void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
 {
   auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
+
+  isRebuilding = true;
   window->clear();
-  build(window, focusIndex);
+  isRebuilding = false;
+  build(window);
+
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
@@ -364,84 +376,121 @@ void ModelLogicalSwitchesPage::editLogicalSwitch(FormWindow * window, uint8_t ls
 {
   Window * lsWindow = new LogicalSwitchEditPage(lsIndex);
   lsWindow->setCloseHandler([=]() {
-    rebuild(window, lsIndex);
+    rebuild(window);
   });
 }
 
-void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
+void ModelLogicalSwitchesPage::build(FormWindow* window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(66);
-  window->padAll(0);
+#if LCD_W > LCD_H
+  #define PER_ROW 6
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+#else
+  #define PER_ROW 4
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+#endif
+
+  window->padAll(4);
+
+  auto form = new FormWindow(window, rect_t{});
+  form->setFlexLayout();
+  form->padAll(0);
+
+  FlexGridLayout grid(l_col_dsc, row_dsc, 2);
+
+  FormWindow::Line* line;
+  firstActiveButton = nullptr;
+  firstInactiveButton = nullptr;
+  bool hasFocusButton = false;
+  Button* button;
+
+  uint8_t scol = 0;
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData* ls = lswAddress(i);
 
-    if (ls->func == LS_FUNC_NONE) {
-      auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSwitchPositionName(SWSRC_SW1 + i));
-      button->setPressHandler([=]() {
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
-          Menu* menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
-          menu->addLine(STR_PASTE, [=]() {
-            *ls = clipboard.data.csw;
-            storageDirty(EE_MODEL);
-            rebuild(window, i);
-          });
-        } else {
-          editLogicalSwitch(window, i);
-        }
+    bool isActive = (ls->func != LS_FUNC_NONE);
+
+    if (!isActive) {
+      if (scol == 0) {
+        line = form->newLine(&grid);
+        lv_obj_set_style_pad_column(line->getLvObj(), 4, LV_PART_MAIN);
+      }
+
+      button = new TextButton(line, rect_t{0, 0, 0, LS_BUTTON_H}, getSwitchPositionName(SWSRC_SW1 + i));
+
+      if (firstInactiveButton == nullptr)
+        firstInactiveButton = button;
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (firstActiveButton)
+          lv_group_focus_obj(firstActiveButton->getLvObj());
         return 0;
       });
-      
-      grid.spacer(button->height() + 5);
+
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH, scol, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      scol = (scol + 1) % PER_ROW;
     } else {
-      auto txt = new StaticText(window, grid.getLabelSlot(),
-                                getSwitchPositionName(SWSRC_SW1 + i),
-                                BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+      line = form->newLine(&grid);
+      scol = 0;
 
-      auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);
-      button->setPressHandler([=]() {
-        Menu* menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
-        if (ls->func)
-          menu->addLine(STR_COPY, [=]() {
-            clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
-            clipboard.data.csw = *ls;
-          });
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
-          menu->addLine(STR_PASTE, [=]() {
-            *ls = clipboard.data.csw;
-            storageDirty(EE_MODEL);
-            rebuild(window, i);
-          });
-        if (ls->func || ls->v1 || ls->v2 || ls->delay || ls->duration ||
-            ls->andsw)
-          menu->addLine(STR_CLEAR, [=]() {
-            memset(ls, 0, sizeof(LogicalSwitchData));
-            storageDirty(EE_MODEL);
-            rebuild(window, i);
-          });
+      button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
+
+      if (firstActiveButton == nullptr)
+        firstActiveButton = button;
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (firstInactiveButton)
+          lv_group_focus_obj(firstInactiveButton->getLvObj());
         return 0;
       });
-      button->setFocusHandler([=](bool focus) {
-        if (focus) {
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        } else {
-          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-        }
-        txt->invalidate();
-      });
 
-      txt->setHeight(button->height());
-      grid.spacer(button->height() + 5);
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
     }
+
+    button->setPressHandler([=]() {
+      Menu* menu = new Menu(window);
+      menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
+      if (isActive) {
+        menu->addLine(STR_COPY, [=]() {
+          clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
+          clipboard.data.csw = *ls;
+        });
+      }
+      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
+        menu->addLine(STR_PASTE, [=]() {
+          *ls = clipboard.data.csw;
+          storageDirty(EE_MODEL);
+          rebuild(window);
+        });
+      if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration || ls->andsw) {
+        menu->addLine(STR_CLEAR, [=]() {
+          memset(ls, 0, sizeof(LogicalSwitchData));
+          storageDirty(EE_MODEL);
+          rebuild(window);
+        });
+      }
+      return 0;
+    });
+
+    if (focusIndex == i) {
+      hasFocusButton = true;
+      lv_group_focus_obj(button->getLvObj());
+    }
+
+    button->setFocusHandler([=](bool hasFocus) {
+      if (hasFocus && !isRebuilding)
+        focusIndex = i;
+    });
   }
 
-  grid.nextLine();
-
+  if (!hasFocusButton)
+  {
+    if (firstActiveButton)
+      lv_group_focus_obj(firstActiveButton->getLvObj());
+    else if (firstInactiveButton)
+      lv_group_focus_obj(firstInactiveButton->getLvObj());
+  }
 }
