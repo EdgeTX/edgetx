@@ -34,6 +34,7 @@ class SpecialFunctionsPage: public PageTab {
 
   protected:
     int8_t focusIndex = -1;
+    int8_t prevFocusIndex = -1;
     bool isRebuilding = false;
     Button* firstActiveButton = nullptr;
     Button* firstInactiveButton = nullptr;

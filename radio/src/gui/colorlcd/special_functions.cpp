@@ -610,10 +610,13 @@ void SpecialFunctionsPage::rebuild(FormWindow *window)
 {
   auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
 
+  // When window.clear() is called the last button on screen is given focus (???)
+  // This causes the page to jump to the end when rebuilt.
+  // Set flag to bypass the button focus handler and reset focusIndex when rebuilding
   isRebuilding = true;
   window->clear();
-  isRebuilding = false;
   build(window);
+  isRebuilding = false;
 
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
@@ -621,7 +624,7 @@ void SpecialFunctionsPage::rebuild(FormWindow *window)
 void SpecialFunctionsPage::editSpecialFunction(FormWindow *window,
                                                uint8_t index)
 {
-  focusIndex = index;
+  // focusIndex = index;
   auto editPage = new SpecialFunctionEditPage(functions, index);
   editPage->setCloseHandler([=]() { rebuild(window); });
 }
@@ -652,8 +655,9 @@ void SpecialFunctionsPage::build(FormWindow *window)
   bool hasFocusButton = false;
   Button* button;
 
+  // Reset focusIndex after switching tabs
   if (!isRebuilding)
-    focusIndex = -1;
+    focusIndex = prevFocusIndex;
 
   char s[] = "SFxx";
   if (functions == g_eeGeneral.customFn) s[0] = 'G';
@@ -709,8 +713,10 @@ void SpecialFunctionsPage::build(FormWindow *window)
     }
 
     button->setFocusHandler([=](bool hasFocus) {
-      if (hasFocus && !isRebuilding)
+      if (hasFocus && !isRebuilding) {
+        prevFocusIndex = focusIndex;
         focusIndex = i;
+      }
     });
 
     button->setPressHandler([=]() {
@@ -757,7 +763,6 @@ void SpecialFunctionsPage::build(FormWindow *window)
             LUA_LOAD_MODEL_SCRIPTS();
           memset(cfn, 0, sizeof(CustomFunctionData));
           SET_DIRTY();
-          focusIndex = i;
           rebuild(window);
         });
       }
@@ -772,7 +777,6 @@ void SpecialFunctionsPage::build(FormWindow *window)
             memset(&functions[MAX_SPECIAL_FUNCTIONS - 1], 0,
                    sizeof(CustomFunctionData));
             SET_DIRTY();
-            focusIndex = i;
             rebuild(window);
           });
           break;
