@@ -49,7 +49,7 @@ class SpecialFunctionEditPage : public Page
  protected:
   CustomFunctionData *functions;
   uint8_t index;
-  FormGroup *specialFunctionOneWindow = nullptr;
+  FormWindow *specialFunctionOneWindow = nullptr;
   StaticText *headerSF = nullptr;
   bool active = false;
 
@@ -368,7 +368,6 @@ class SpecialFunctionEditPage : public Page
                   ? isSwitchAvailable(value, ModelCustomFunctionsContext)
                   : isSwitchAvailable(value, GeneralCustomFunctionsContext));
     });
-    line = window->newLine(&grid);
 
     // Patch function in case not available
     if (!isAssignableFunctionAvailable(CFN_FUNC(cfn), functions)) {
@@ -383,6 +382,7 @@ class SpecialFunctionEditPage : public Page
     }
     
     // Function
+    line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
         new Choice(line, rect_t{}, STR_VFSWFUNC,
@@ -397,9 +397,8 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setAvailableHandler([=](int value) {
       return isAssignableFunctionAvailable(value, functions);
     });
-    line = window->newLine(&grid);
 
-    specialFunctionOneWindow = new FormGroup(window, rect_t{});
+    specialFunctionOneWindow = new FormWindow(window, rect_t{});
     updateSpecialFunctionOneWindow();
   }
 };
