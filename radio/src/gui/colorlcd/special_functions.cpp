@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "view_main.h"
+#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 
@@ -419,7 +420,7 @@ class SpecialFunctionButton : public Button
  public:
   SpecialFunctionButton(Window *parent, const rect_t &rect,
                         CustomFunctionData *functions, uint8_t index) :
-      Button(parent, rect), functions(functions), index(index)
+      Button(parent, rect, nullptr, 0, 0, input_mix_line_create), functions(functions), index(index)
   {
   }
 
@@ -441,13 +442,20 @@ class SpecialFunctionButton : public Button
   {
     Button::checkEvents();
     if (active != isActive()) {
-      invalidate();
       active = !active;
+      check(active);
+      invalidate();
     }
   }
 
-  void paintSpecialFunctionLine(BitmapBuffer *dc)
+  // TODO: convert to use grid and lvgl objects (see model_outputs.cpp)
+  void paint(BitmapBuffer *dc) override
   {
+    char s[] = "SFxx";
+    if (functions == g_eeGeneral.customFn) s[0] = 'G';
+    strAppendUnsigned(&s[2], index+1);
+    dc->drawText(8, 12, s, COLOR_THEME_SECONDARY1);
+
     const CustomFunctionData *cfn = &functions[index];
     if (functions[index].func == FUNC_OVERRIDE_CHANNEL &&
         functions != g_model.customFn) {
@@ -562,31 +570,6 @@ class SpecialFunctionButton : public Button
         dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "s");
       }
     }
-  }
-
-  void paint(BitmapBuffer *dc) override
-  {
-    char s[] = "SFxx";
-    if (functions == g_eeGeneral.customFn) s[0] = 'G';
-    strAppendUnsigned(&s[2], index+1);
-
-    if (active) {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_FOCUS);
-      dc->drawText(8, 12, s, COLOR_THEME_PRIMARY2);
-    } else {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_SECONDARY2);
-      dc->drawText(8, 12, s, COLOR_THEME_PRIMARY1);
-    }
-
-    paintSpecialFunctionLine(dc);
-
-    // The bounding rect
-    if (hasFocus())
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-    else
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 
  protected:
