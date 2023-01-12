@@ -38,7 +38,6 @@ protected:
     Button* firstInactiveButton = nullptr;
 
     void rebuild(FormWindow * window);
-    void editLogicalSwitch(FormWindow * window, uint8_t lsIndex);
 };
 
 #endif //_MODEL_LOGICAL_SWITCHES_H

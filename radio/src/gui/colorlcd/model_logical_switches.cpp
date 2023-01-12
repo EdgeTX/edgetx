@@ -252,27 +252,51 @@ class LogicalSwitchEditPage: public Page
     }
 };
 
-static constexpr coord_t line1 = FIELD_PADDING_TOP;
-static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
-static constexpr coord_t col0w = 56;
-static constexpr coord_t col1 = 10 + col0w;
-static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
-static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1;
+void getsEdgeDelayParam(char* s, LogicalSwitchData * ls)
+{
+  strcpy(s, "[");
+  BitmapBuffer::formatNumberAsString(s+1, 6, lswTimerValue(ls->v2), PREC1);
+  strcat(s, ":");
+  if (ls->v3 < 0)
+    strcat(s, "<<");
+  else if (ls->v3 == 0)
+    strcat(s, "--");
+  else
+    BitmapBuffer::formatNumberAsString(s+strlen(s), 6, lswTimerValue(ls->v2+ls->v3), PREC1);
+  strcat(s, "]");
+}
 
 void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchData * ls, LcdFlags flags = 0)
 {
-  coord_t lcdNextPos = 0;
-  lcdNextPos = dc->drawText(x, y, "[", flags);
-  lcdNextPos = dc->drawNumber(lcdNextPos+2, y, lswTimerValue(ls->v2), LEFT | PREC1 | flags);
-  lcdNextPos = dc->drawText(lcdNextPos, y, ":", flags);
-  if (ls->v3 < 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "<<", flags);
-  else if (ls->v3 == 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "--", flags);
-  else
-    lcdNextPos = dc->drawNumber(lcdNextPos+3, y, lswTimerValue(ls->v2+ls->v3), LEFT | PREC1 | flags);
-  dc->drawText(lcdNextPos, y, "]", flags);
+  char s[20];
+  getsEdgeDelayParam(s, ls);
+  dc->drawText(x, y, s, flags);
 }
+
+#if LCD_W > LCD_H // Landscape
+
+#define TXT_ALIGN   LV_GRID_ALIGN_CENTER
+
+static const lv_coord_t b_col_dsc[] = {
+  43, 49, 88, 93, 87, 34, 34,
+  LV_GRID_TEMPLATE_LAST
+};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#else // Portrait
+
+#define TXT_ALIGN   LV_GRID_ALIGN_START
+
+static const lv_coord_t b_col_dsc[] = {
+  43, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+  LV_GRID_TEMPLATE_LAST
+};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+#endif
 
 class LogicalSwitchButton : public Button
 {
@@ -280,7 +304,87 @@ class LogicalSwitchButton : public Button
   LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
       Button(parent, rect, nullptr, 0, 0, input_mix_line_create), lsIndex(lsIndex), active(isActive())
   {
+#if LCD_H > LCD_W
+    padTop(0);
+#endif
+    padLeft(4);
+    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
+    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
+    lv_obj_set_style_pad_row(lvobj, 0, 0);
+    lv_obj_set_style_pad_column(lvobj, 4, 0);
+
     check(active);
+
+    lv_obj_update_layout(parent->getLvObj());
+    if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
+
+    lv_obj_add_event_cb(lvobj, LogicalSwitchButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  }
+
+  static void on_draw(lv_event_t * e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (LogicalSwitchButton*)lv_obj_get_user_data(target);
+    if (line) {
+      if (!line->init)
+        line->delayed_init(e);
+      else
+        line->refresh();
+    }
+  }
+  
+  void delayed_init(lv_event_t* e)
+  {
+    uint8_t col = 0, row = 0;
+
+    LogicalSwitchData* ls = lswAddress(lsIndex);
+    uint8_t lsFamily = lswFamily(ls->func);
+
+    lsName = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsName, LV_TEXT_ALIGN_LEFT, 0);
+#if LCD_W > LCD_H
+    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_START, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+#else
+    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_START, col++, 1, LV_GRID_ALIGN_CENTER, row, 2);
+#endif
+
+    lsFunc = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsFunc, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_START, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    lsV1 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV1, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV1, TXT_ALIGN, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    lsV2 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV2, TXT_ALIGN, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+#if LCD_H > LCD_W
+    col = 1;
+    row = 1;
+#endif
+
+    lsAnd = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsAnd, TXT_ALIGN, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    lsDuration = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsDuration, TXT_ALIGN, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    lsDelay = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsDelay, TXT_ALIGN, col++, 1, LV_GRID_ALIGN_CENTER, row, 1);
+
+    init = true;
+    refresh();
+    lv_obj_update_layout(lvobj);
+
+    if(e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    }
   }
 
   bool isActive() const
@@ -298,56 +402,94 @@ class LogicalSwitchButton : public Button
     check(active);
   }
 
-  // TODO: convert to use grid and lvgl objects (see model_outputs.cpp)
-  void paint(BitmapBuffer* dc) override
+  void refresh()
   {
-    dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_SECONDARY1);
+    char s[20];
 
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
-    // CSW func
-    dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
+    lv_label_set_text(lsName, getSwitchPositionName(SWSRC_SW1 + lsIndex));
+    lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
-    // CSW params
-    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_EDGE) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      putsEdgeDelayParam(dc, col3, line1, ls, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_COMP) {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSource(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_TIMER) {
-      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
-      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
-    } else {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSourceCustomValue(dc, col3, line1, ls->v1,
-          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), COLOR_THEME_SECONDARY1);
+    // CSW params - V1
+    switch (lsFamily) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+      case LS_FAMILY_EDGE:
+        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        break;
+      case LS_FAMILY_TIMER:
+        BitmapBuffer::formatNumberAsString(s, 6, lswTimerValue(ls->v1), PREC1);
+        lv_label_set_text(lsV1, s);
+        break;
+      case LS_FAMILY_COMP:
+      default:
+        lv_label_set_text(lsV1, getSourceString(ls->v1));
+        break;
+    }
+
+    // CSW params - V2
+    switch (lsFamily) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        break;
+      case LS_FAMILY_EDGE:
+        getsEdgeDelayParam(s, ls);
+        lv_label_set_text(lsV2, s);
+        break;
+      case LS_FAMILY_TIMER:
+        BitmapBuffer::formatNumberAsString(s, 6, lswTimerValue(ls->v2), PREC1);
+        lv_label_set_text(lsV2, s);
+        break;
+      case LS_FAMILY_COMP:
+        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        break;
+      default:
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0));
+        break;
     }
 
     // AND switch
-    drawSwitch(dc, col1, line2, ls->andsw, COLOR_THEME_SECONDARY1);
+    lv_label_set_text(lsAnd, getSwitchPositionName(ls->andsw));
 
     // CSW duration
     if (ls->duration > 0) {
-      dc->drawNumber(col2, line2, ls->duration, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
+      BitmapBuffer::formatNumberAsString(s, 6, ls->duration, PREC1);
+    } else {
+      s[0] = 0;
     }
+    lv_label_set_text(lsDuration, s);
 
     // CSW delay
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-      dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
+      BitmapBuffer::formatNumberAsString(s, 6, ls->delay, PREC1);
+    } else {
+      s[0] = 0;
     }
+    lv_label_set_text(lsDelay, s);
   }
 
  protected:
+  bool init = false;
   uint8_t lsIndex;
   bool active;
+
+  lv_obj_t* lsName = nullptr;
+  lv_obj_t* lsFunc = nullptr;
+  lv_obj_t* lsV1 = nullptr;
+  lv_obj_t* lsV2 = nullptr;
+  lv_obj_t* lsAnd = nullptr;
+  lv_obj_t* lsDuration = nullptr;
+  lv_obj_t* lsDelay = nullptr;
 };
 
+#if LCD_W > LCD_H
+#define LS_BUTTON_H 34
+#else
 #define LS_BUTTON_H 45
+#endif
 
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
   PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
@@ -356,8 +498,6 @@ ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
 
 void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
-
   // When window.clear() is called the last button on screen is given focus (???)
   // This causes the page to jump to the end when rebuilt.
   // Set flag to bypass the button focus handler and reset focusIndex when rebuilding
@@ -366,15 +506,8 @@ void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
   build(window);
   isRebuilding = false;
 
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj()) + (window->height() - LS_BUTTON_H - 4) / 2;
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
-}
-
-void ModelLogicalSwitchesPage::editLogicalSwitch(FormWindow * window, uint8_t lsIndex)
-{
-  Window * lsWindow = new LogicalSwitchEditPage(lsIndex);
-  lsWindow->setCloseHandler([=]() {
-    rebuild(window);
-  });
 }
 
 void ModelLogicalSwitchesPage::build(FormWindow* window)
@@ -453,7 +586,15 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
 
     button->setPressHandler([=]() {
       Menu* menu = new Menu(window);
-      menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
+      menu->addLine(STR_EDIT, [=]() {
+        Window * lsWindow = new LogicalSwitchEditPage(i);
+        lsWindow->setCloseHandler([=]() {
+          if (isActive)
+            lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+          else
+            rebuild(window);
+        });
+      });
       if (isActive) {
         menu->addLine(STR_COPY, [=]() {
           clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
