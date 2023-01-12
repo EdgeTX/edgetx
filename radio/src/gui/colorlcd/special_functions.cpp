@@ -591,8 +591,6 @@ SpecialFunctionsPage::SpecialFunctionsPage(CustomFunctionData *functions) :
 
 void SpecialFunctionsPage::rebuild(FormWindow *window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
-
   // When window.clear() is called the last button on screen is given focus (???)
   // This causes the page to jump to the end when rebuilt.
   // Set flag to bypass the button focus handler and reset focusIndex when rebuilding
@@ -601,6 +599,7 @@ void SpecialFunctionsPage::rebuild(FormWindow *window)
   build(window);
   isRebuilding = false;
 
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj()) + (window->height() - SF_BUTTON_H - 4) / 2;
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
