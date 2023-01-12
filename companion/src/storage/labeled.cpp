@@ -312,7 +312,6 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
 
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
-  // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
   // fetch "MODELS/modelXX.yml"
   std::list<std::string> filelist;
   if (!getFileList(filelist)) {
@@ -320,12 +319,14 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
     return false;
   }
 
+  // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
   const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
   for(const auto& f : filelist) {
     std::smatch match;
     if (std::regex_match(f, match, yml_regex)) {
       if (match.size() == 3) {
         if (!deleteFile(QString(f.c_str()))) {
+          setError(tr("Error deleting files"));
           return false;
         }
       }
