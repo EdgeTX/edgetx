@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "switches.h"
+#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -277,8 +278,9 @@ class LogicalSwitchButton : public Button
 {
  public:
   LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
-      Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1), lsIndex(lsIndex), active(isActive())
+      Button(parent, rect, nullptr, 0, 0, input_mix_line_create), lsIndex(lsIndex), active(isActive())
   {
+    check(active);
   }
 
   bool isActive() const
@@ -288,16 +290,19 @@ class LogicalSwitchButton : public Button
 
   void checkEvents() override
   {
-    if (active != isActive()) {
-      invalidate();
-      active = !active;
-    }
-
     Button::checkEvents();
+    if (active != isActive()) {
+      active = !active;
+      invalidate();
+    }
+    check(active);
   }
 
-  void paintLogicalSwitchLine(BitmapBuffer* dc)
+  // TODO: convert to use grid and lvgl objects (see model_outputs.cpp)
+  void paint(BitmapBuffer* dc) override
   {
+    dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_SECONDARY1);
+
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
@@ -335,27 +340,6 @@ class LogicalSwitchButton : public Button
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
       dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
     }
-  }
-
-  void paint(BitmapBuffer* dc) override
-  {
-    if (active) {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_FOCUS);
-      dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_PRIMARY2);
-    } else {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-      dc->drawSolidFilledRect(0, 0, col0w, rect.h, COLOR_THEME_SECONDARY2);
-      dc->drawText(8, 12, getSwitchPositionName(SWSRC_SW1 + lsIndex), COLOR_THEME_PRIMARY1);
-    }
-
-    paintLogicalSwitchLine(dc);
-
-    // The bounding rect
-    if (hasFocus())
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-    else
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 
  protected:
