@@ -443,9 +443,9 @@ class SpecialFunctionButton : public Button
     Button::checkEvents();
     if (active != isActive()) {
       active = !active;
-      check(active);
       invalidate();
     }
+    check(active);
   }
 
   // TODO: convert to use grid and lvgl objects (see model_outputs.cpp)
