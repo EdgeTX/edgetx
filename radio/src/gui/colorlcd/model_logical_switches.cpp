@@ -85,107 +85,117 @@ class LogicalSwitchEditPage: public Page
 
     void updateLogicalSwitchOneWindow()
     {
+      SwitchChoice* choice;
+      NumberEdit* timer;
+      
       logicalSwitchOneWindow->clear();
       logicalSwitchOneWindow->setFlexLayout();
       FlexGridLayout grid(col_dsc, row_dsc, 2);
+      FlexGridLayout grid2(col_dsc2, row_dsc, 2);
 
       LogicalSwitchData * cs = lswAddress(index);
       uint8_t cstate = lswFamily(cs->func);
 
+      // V1
       auto line = logicalSwitchOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_V1, 0, COLOR_THEME_PRIMARY1);
-
-      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
-        auto choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-
-        line = logicalSwitchOneWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
-        choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+      switch (cstate) {
+        case LS_FAMILY_BOOL:
+        case LS_FAMILY_STICKY:
+        case LS_FAMILY_EDGE:
+          choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
+          choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+          break;
+        case LS_FAMILY_COMP:
+          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
+          break;
+        case LS_FAMILY_TIMER:
+          timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1));
+          timer->setDisplayHandler([](int32_t value) {
+            return formatNumberAsString(lswTimerValue(value), PREC1);
+          });
+          break;
+        default:
+          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
+                           [=](int32_t newValue) {
+                             cs->v1 = newValue;
+                             if (v2Edit != nullptr)
+                             {
+                               int16_t v2_min = 0, v2_max = 0;
+                               getMixSrcRange(cs->v1, v2_min, v2_max);
+                               v2Edit->setMin(v2_min);
+                               v2Edit->setMax(v2_max);
+                               v2Edit->setValue(cs->v2);
+                             }
+                             SET_DIRTY();
+                           });
+          break;
       }
-      else if (cstate == LS_FAMILY_EDGE) {
-        auto choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
-        FlexGridLayout grid2(col_dsc2, row_dsc, 2);
+      // V2
+      if (cstate == LS_FAMILY_EDGE) {
         line = logicalSwitchOneWindow->newLine(&grid2);
-        auto edit1 = new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2));
-        auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
-        lv_obj_set_grid_cell(edit1->getLvObj(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-        lv_obj_set_grid_cell(edit2->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-        edit1->setSetValueHandler([=](int32_t newValue) {
-          cs->v2 = newValue;
-          SET_DIRTY();
-          edit2->setMax(222 - cs->v2);
-          edit2->setValue(cs->v3);
-        });
-        edit1->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
-        });
-        edit2->setDisplayHandler([cs](int32_t value) {
-          if (value < 0)
-            return std::string("<<");
-          else if (value == 0)
-            return std::string("--");
-          else {
-            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
+      } else {
+        line = logicalSwitchOneWindow->newLine(&grid);
+      }
+      new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
+      switch (cstate) {
+        case LS_FAMILY_BOOL:
+        case LS_FAMILY_STICKY:
+          choice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
+          choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+          break;
+        case LS_FAMILY_EDGE:
+          {
+            auto edit1 = new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2));
+            auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
+            edit1->setSetValueHandler([=](int32_t newValue) {
+              cs->v2 = newValue;
+              SET_DIRTY();
+              edit2->setMax(222 - cs->v2);
+              edit2->setValue(cs->v3);
+            });
+            edit1->setDisplayHandler([](int32_t value) {
+              return formatNumberAsString(lswTimerValue(value), PREC1);
+            });
+            edit2->setDisplayHandler([cs](int32_t value) {
+              if (value < 0)
+                return std::string("<<");
+              else if (value == 0)
+                return std::string("--");
+              else {
+                return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
+              }
+            });
           }
-        });
-      }
-      else if (cstate == LS_FAMILY_COMP) {
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
+          break;
+        case LS_FAMILY_COMP:
+          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
+          break;
+        case LS_FAMILY_TIMER:
+          timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2));
+          timer->setDisplayHandler([](int32_t value) {
+            return formatNumberAsString(lswTimerValue(value), PREC1);
+          });
+          break;
+        default:
+          int16_t v2_min = 0, v2_max = 0;
+          getMixSrcRange(cs->v1, v2_min, v2_max);
+          v2Edit = new NumberEdit(line, rect_t{},
+                                  v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
 
-        line = logicalSwitchOneWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
-      }
-      else if (cstate == LS_FAMILY_TIMER) {
-        auto timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1));
-        timer->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
-        });
-
-        line = logicalSwitchOneWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
-        timer = new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2));
-        timer->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
-        });
-      }
-      else {
-        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
-                         [=](int32_t newValue) {
-                           cs->v1 = newValue;
-                           if (v2Edit != nullptr)
-                           {
-                             int16_t v2_min = 0, v2_max = 0;
-                             getMixSrcRange(cs->v1, v2_min, v2_max);
-                             v2Edit->setMin(v2_min);
-                             v2Edit->setMax(v2_max);
-                             v2Edit->setValue(cs->v2);
-                           }
-                           SET_DIRTY();
-                         });
-
-        line = logicalSwitchOneWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
-        int16_t v2_min = 0, v2_max = 0;
-        getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(line, rect_t{},
-                                v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
-
-        v2Edit->setDisplayHandler([=](int value) -> std::string {
-          if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
-          std::string txt = getSourceCustomValueString(cs->v1, value, 0);
-          return txt;
-        });
+          v2Edit->setDisplayHandler([=](int value) -> std::string {
+            if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+            std::string txt = getSourceCustomValueString(cs->v1, value, 0);
+            return txt;
+          });
+          break;
       }
 
       // AND switch
       line = logicalSwitchOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
-      auto choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
+      choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
       choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
       // Duration
