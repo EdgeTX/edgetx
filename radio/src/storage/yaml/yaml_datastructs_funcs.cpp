@@ -1647,7 +1647,7 @@ static delayval_t timerValue2lsw(uint32_t t)
 {
   if (t < 20) {
     return t - 129;
-  } else if (600) {
+  } else if (t < 600) {
     return t / 5 - 113;
   } else {
     return t / 10 - 53;
@@ -1708,6 +1708,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     if (!val_len || val[0] != ',') return;
     val++; val_len--;
     ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
+  fprintf(stderr,">>>>> TIMER %s %d %d\n", val,ls->v1,ls->v2);
     break;
     
   default:
