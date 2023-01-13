@@ -31,7 +31,7 @@
 Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryNoDMAFifo;
 uint32_t telemetryErrors = 0;
 
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined (PCBNV14)
 DMAFifo<TELEMETRY_FIFO_SIZE> telemetryDMAFifo __DMA (TELEMETRY_DMA_Stream_RX);
 uint8_t telemetryFifoMode;
 #endif
@@ -45,17 +45,19 @@ static void telemetryInitDirPin()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_Pin   = TELEMETRY_DIR_GPIO_PIN;
   GPIO_Init(TELEMETRY_DIR_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+  TELEMETRY_DIR_INPUT();
 }
 
-void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
 {
   if (baudrate == 0) {
     USART_DeInit(TELEMETRY_USART);
     return;
   }
   //deinit inverted mode
+#if !defined(PCBNV14)
   telemetryPortInvertedInit(0);
+#endif
   NVIC_InitTypeDef NVIC_InitStructure;
   NVIC_InitStructure.NVIC_IRQChannel = TELEMETRY_DMA_TX_Stream_IRQ;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -77,6 +79,22 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   GPIO_Init(TELEMETRY_GPIO, &GPIO_InitStructure);
 
   telemetryInitDirPin();
+
+#if defined(PCBNV14)
+  GPIO_InitStructure.GPIO_Pin = TELEMETRY_TX_INV_GPIO_PIN | TELEMETRY_RX_INV_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_Init(TELEMETRY_INV_GPIO, &GPIO_InitStructure);
+
+  if (noinv != 0) {
+    TELEMETRY_TX_NORM();
+    TELEMETRY_RX_NORM();
+  } else {
+    TELEMETRY_TX_INV();
+    TELEMETRY_RX_INV();
+  }
+#endif
 
   USART_DeInit(TELEMETRY_USART);
 
@@ -100,7 +118,7 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   }
   USART_Init(TELEMETRY_USART, &USART_InitStructure);
 
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   telemetryFifoMode = mode;
   
   DMA_Cmd(TELEMETRY_DMA_Stream_RX, DISABLE);
@@ -150,6 +168,11 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 #endif
 }
 
+void telemetryPortInit(uint32_t baudrate, uint8_t mode)
+{
+  telemetryPortInitCommon(baudrate, mode, 0);
+}
+
 // soft serial vars
 static uint8_t rxBitCount;
 static uint8_t rxByte;
@@ -159,6 +182,9 @@ static uint16_t probeTimeFromStartBit;
 
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
+#if defined(PCBNV14)
+  telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
+#else
   if (baudrate == 0) {
     NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
     NVIC_DisableIRQ(TELEMETRY_TIMER_IRQn);
@@ -179,6 +205,7 @@ void telemetryPortInvertedInit(uint32_t baudrate)
     case 115200:
       bitLength = 17;
       probeTimeFromStartBit = 23; //because pin is not probed immediately
+//      probeTimeFromStartBit = 25; // TODO: Tarnis used 25, how to merge?
       break;
     case 57600:
       bitLength = 35; //34 was used before - I prefer to use use 35 because of lower error
@@ -228,8 +255,10 @@ void telemetryPortInvertedInit(uint32_t baudrate)
 
   NVIC_SetPriority(TELEMETRY_EXTI_IRQn, 0);
   NVIC_EnableIRQ(TELEMETRY_EXTI_IRQn);
+#endif // defined(PCBNV14)
 }
 
+#if !defined(PCBNV14)
 void telemetryPortInvertedRxBit()
 {
   if (rxBitCount < 8) {
@@ -257,6 +286,7 @@ void telemetryPortInvertedRxBit()
     EXTI->IMR |= EXTI_IMR_MR6;
   }
 }
+#endif
 
 void telemetryPortSetDirectionOutput()
 {
@@ -265,7 +295,7 @@ void telemetryPortSetDirectionOutput()
     TELEMETRY_USART->BRR = BRR_400K;
   }
 #endif
-  TELEMETRY_DIR_GPIO->BSRRL = TELEMETRY_DIR_GPIO_PIN;     // output enable
+  TELEMETRY_DIR_OUTPUT();
   TELEMETRY_USART->CR1 &= ~USART_CR1_RE;                  // turn off receiver
 }
 
@@ -282,7 +312,7 @@ void telemetryPortSetDirectionInput()
     TELEMETRY_USART->BRR = BRR_115K;
   }
 #endif
-  TELEMETRY_DIR_GPIO->BSRRH = TELEMETRY_DIR_GPIO_PIN;     // output disable
+  TELEMETRY_DIR_INPUT();
   TELEMETRY_USART->CR1 |= USART_CR1_RE;                   // turn on receiver
 }
 
@@ -292,6 +322,12 @@ void sportSendByte(uint8_t byte)
 
   while (!(TELEMETRY_USART->SR & USART_SR_TXE));
   USART_SendData(TELEMETRY_USART, byte);
+}
+
+void sportStopSendByteLoop()
+{
+  DMA_Cmd(TELEMETRY_DMA_Stream_TX, DISABLE);
+  DMA_DeInit(TELEMETRY_DMA_Stream_TX);
 }
 
 void sportSendByteLoop(uint8_t byte)
@@ -347,6 +383,7 @@ void sportSendBuffer(const uint8_t * buffer, uint32_t count)
   DMA_Cmd(TELEMETRY_DMA_Stream_TX, ENABLE);
   USART_DMACmd(TELEMETRY_USART, USART_DMAReq_Tx, ENABLE);
   DMA_ITConfig(TELEMETRY_DMA_Stream_TX, DMA_IT_TC, ENABLE);
+  USART_ClearITPendingBit(TELEMETRY_USART, USART_IT_TC);
 
   // enable interrupt and set it's priority
   NVIC_EnableIRQ(TELEMETRY_DMA_TX_Stream_IRQ) ;
@@ -405,6 +442,7 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
   }
 }
 
+#if !defined(PCBNV14)
 extern "C" void TELEMETRY_EXTI_IRQHandler(void)
 {
   if (EXTI_GetITStatus(TELEMETRY_EXTI_LINE) != RESET) {
@@ -427,11 +465,12 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
   TELEMETRY_TIMER->SR &= ~TIM_SR_UIF;
   telemetryPortInvertedRxBit();
 }
+#endif
 
 // TODO we should have telemetry in an higher layer, functions above should move to a sport_driver.cpp
 bool sportGetByte(uint8_t * byte)
 {
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   if (telemetryFifoMode & TELEMETRY_SERIAL_WITHOUT_DMA)
     return telemetryNoDMAFifo.pop(*byte);
   else
@@ -443,7 +482,7 @@ bool sportGetByte(uint8_t * byte)
 
 void telemetryClearFifo()
 {
-#if defined(PCBX12S)
+#if defined(PCBX12S) || defined(PCBNV14)
   telemetryDMAFifo.clear();
 #endif
 
