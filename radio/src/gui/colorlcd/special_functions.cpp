@@ -495,12 +495,14 @@ class SpecialFunctionButton : public Button
     lv_obj_set_style_text_align(sfRepeat, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL+1, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
-    sfEnable = (new TextButton(this, rect_t{0, 0, 17, 17}, ""))->getLvObj();
+    sfEnable = lv_obj_create(lvobj);
+    lv_obj_set_size(sfEnable, 16, 16);
     lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_CLICK_FOCUSABLE|LV_OBJ_FLAG_CHECKABLE);
-    lv_obj_set_style_border_width(sfEnable, 1, 0);
+    lv_obj_set_style_border_width(sfEnable, 2, 0);
     lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_SECONDARY1), 0);
     lv_obj_set_style_border_opa(sfEnable, LV_OPA_100, 0);
+    lv_obj_set_style_bg_color(sfEnable, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(sfEnable, LV_OPA_100, 0);
     lv_obj_set_grid_cell(sfEnable, LV_GRID_ALIGN_CENTER, FUNC_COL+2, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     init = true;
