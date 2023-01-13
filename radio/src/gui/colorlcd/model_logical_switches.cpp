@@ -502,9 +502,6 @@ void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
   window->clear();
   build(window);
   isRebuilding = false;
-
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj()) + (window->height() - LS_BUTTON_H - 4) / 2;
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelLogicalSwitchesPage::build(FormWindow* window)
