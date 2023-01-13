@@ -136,8 +136,9 @@ struct FrameTransport
   uint8_t crc;
   // uint8_t timeout;
   uint8_t esc_state;
+  uint8_t frameAddress;
 
-  void init(ByteTransport::Type t, void* buffer);
+  void init(ByteTransport::Type t, void* buffer, uint8_t frameAddress);
   void clear();
 
   void sendByte(uint8_t b);
@@ -187,7 +188,7 @@ class Transport
   bool handleReply(uint8_t* buffer, uint8_t len);
   
  public:
-  void init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv);
+  void init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv, uint8_t frameAddress);
   void deinit();
 
   void clear();

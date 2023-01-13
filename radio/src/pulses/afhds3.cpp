@@ -129,6 +129,13 @@ enum CHANNELS_DATA_MODE
   FAIL_SAFE = 0x02,
 };
 
+enum DeviceAddress
+{
+  TRANSMITTER = 0x01,
+  IRM301 = 0x05,
+  FRM303 = 0x04,  
+};
+
 PACK(struct ChannelsData {
   uint8_t mode;
   uint8_t channelsNumber;
@@ -192,7 +199,7 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-    void init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv);
+    void init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv, uint8_t address);
     void deinit() { trsp.deinit(); }
 
     /**
@@ -482,15 +489,15 @@ void ProtoState::setupFrame()
   }
 }
 
-void ProtoState::init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv)
+void ProtoState::init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv, uint8_t address)
 {
   module_index = moduleIndex;
 
   // TODO: move bit/byte transport to serial driver
   if (drv) {
-    trsp.init(ByteTransport::Serial, buffer, drv);
+    trsp.init(ByteTransport::Serial, buffer, drv, address);
   } else {
-    trsp.init(ByteTransport::Pulses, buffer, nullptr);
+    trsp.init(ByteTransport::Pulses, buffer, nullptr, 0);
   }
 
   //clear local vars because it is member of union
@@ -865,6 +872,12 @@ static void* initExternal(uint8_t module)
 {
 #if defined(AFHDS3_EXT_UART)
   const etx_serial_driver_t* drv = &ExtmoduleSerialDriver;
+
+#if defined(PCBNV14)
+  EXTMODULE_TX_NORMAL();
+  EXTMODULE_RX_NORMAL();
+#endif  
+
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */;
 #else
   const etx_serial_driver_t* drv = nullptr;
@@ -874,8 +887,11 @@ static void* initExternal(uint8_t module)
   telemetryPortSetDirectionInput();
 #endif
   
+  //Address used in transmitted frames - it constrains of target address and source address, ext module is FRM303
+  uint8_t address = DeviceAddress::TRANSMITTER | (DeviceAddress::FRM303 << 4);  
   auto p_state = &protoState[module];
-  p_state->init(module, &extmodulePulsesData.afhds3, drv);
+  p_state->init(module, &extmodulePulsesData.afhds3, drv, address);
+  telemetryProtocol = PROTOCOL_TELEMETRY_AFHDS3;
 
   mixerSchedulerSetPeriod(module, period);
   EXTERNAL_MODULE_ON();
@@ -886,6 +902,11 @@ static void* initExternal(uint8_t module)
 static void deinitExternal(void* context)
 {
   EXTERNAL_MODULE_OFF();
+#if defined(PCBNV14)
+  EXTMODULE_TX_INVERTED();
+  EXTMODULE_RX_INVERTED();
+#endif
+  telemetryProtocol = 0xFF;  
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
 
   auto p_state = (ProtoState*)context;
@@ -907,13 +928,19 @@ static void setupPulses(void* context, int16_t* channels, uint8_t nChannels)
   p_state->setupFrame();
 }
 
+static int getByteExternal(void* context, uint8_t* data)
+{
+  auto p_state = (ProtoState*)context;
+  return p_state->getTelemetryByte(data);
+}
+
 etx_module_driver_t externalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS3,
   .init = initExternal,
   .deinit = deinitExternal,
   .setupPulses = setupPulses,
   .sendPulses = sendPulses,
-  .getByte = nullptr, // TODO
+  .getByte = getByteExternal,
   .processData = processTelemetryData,
 };
 
@@ -921,8 +948,10 @@ etx_module_driver_t externalDriver = {
 
 static void* initInternal(uint8_t module)
 {
+  //Address used in transmitted frames - it constrains of target address and source address, int module is IRM301
+  uint8_t address = DeviceAddress::TRANSMITTER | (DeviceAddress::IRM301 << 4);
   auto p_state = &protoState[module];
-  p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver);
+  p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver, address);
 
   telemetryProtocol = PROTOCOL_TELEMETRY_AFHDS3;
   mixerSchedulerSetPeriod(module, AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */);
