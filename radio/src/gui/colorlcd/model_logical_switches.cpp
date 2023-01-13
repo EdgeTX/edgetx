@@ -504,6 +504,37 @@ void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
   isRebuilding = false;
 }
 
+void ModelLogicalSwitchesPage::newLS(FormWindow * window, bool pasteLS)
+{
+  Menu* menu = new Menu(Layer::back());
+  menu->setTitle(TR_MENU_LOGICAL_SWITCHES);
+
+  // search for unused switches
+  for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
+    LogicalSwitchData* ls = lswAddress(i);
+    if (ls->func == LS_FUNC_NONE) {
+      std::string ch_name(getSwitchPositionName(SWSRC_SW1 + i));
+      menu->addLineBuffered(ch_name.c_str(), [=]() {
+        if (pasteLS) {
+          *ls = clipboard.data.csw;
+          storageDirty(EE_MODEL);
+          focusIndex = i;
+          rebuild(window);
+        } else {
+          Window * lsWindow = new LogicalSwitchEditPage(i);
+          lsWindow->setCloseHandler([=]() {
+            if (ls->func != LS_FUNC_NONE) {
+              focusIndex = i;
+              rebuild(window);
+            }
+          });
+        }
+      });
+    }
+  }
+  menu->updateLines();
+}
+
 void ModelLogicalSwitchesPage::build(FormWindow* window)
 {
 #if LCD_W > LCD_H
@@ -525,9 +556,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
   FlexGridLayout grid(l_col_dsc, row_dsc, 2);
 
   FormWindow::Line* line;
-  firstActiveButton = nullptr;
-  firstInactiveButton = nullptr;
-  bool hasFocusButton = false;
+  bool hasEmptySwitch = false;
   Button* button;
 
   // Reset focusIndex after switching tabs
@@ -541,94 +570,83 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
 
     bool isActive = (ls->func != LS_FUNC_NONE);
 
-    if (!isActive) {
-      if (scol == 0) {
-        line = form->newLine(&grid);
-        lv_obj_set_style_pad_column(line->getLvObj(), 4, LV_PART_MAIN);
-      }
-
-      button = new TextButton(line, rect_t{0, 0, 0, LS_BUTTON_H}, getSwitchPositionName(SWSRC_SW1 + i));
-
-      if (firstInactiveButton == nullptr)
-        firstInactiveButton = button;
-
-      button->setLongPressHandler([=]() -> uint8_t {
-        if (firstActiveButton)
-          lv_group_focus_obj(firstActiveButton->getLvObj());
-        return 0;
-      });
-
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH, scol, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-      scol = (scol + 1) % PER_ROW;
-    } else {
+    if (isActive) {
       line = form->newLine(&grid);
       scol = 0;
 
       button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
 
-      if (firstActiveButton == nullptr)
-        firstActiveButton = button;
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
 
-      button->setLongPressHandler([=]() -> uint8_t {
-        if (firstInactiveButton)
-          lv_group_focus_obj(firstInactiveButton->getLvObj());
+      button->setPressHandler([=]() {
+        Menu* menu = new Menu(window);
+        menu->addLine(STR_EDIT, [=]() {
+          Window * lsWindow = new LogicalSwitchEditPage(i);
+          lsWindow->setCloseHandler([=]() {
+            if (isActive)
+              lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+            else
+              rebuild(window);
+          });
+        });
+        if (isActive) {
+          menu->addLine(STR_COPY, [=]() {
+            clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
+            clipboard.data.csw = *ls;
+          });
+        }
+        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
+          menu->addLine(STR_PASTE, [=]() {
+            *ls = clipboard.data.csw;
+            storageDirty(EE_MODEL);
+            rebuild(window);
+          });
+        if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration || ls->andsw) {
+          menu->addLine(STR_CLEAR, [=]() {
+            memset(ls, 0, sizeof(LogicalSwitchData));
+            storageDirty(EE_MODEL);
+            rebuild(window);
+          });
+        }
         return 0;
       });
 
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW, LV_GRID_ALIGN_CENTER, 0, 1);
-    }
-
-    button->setPressHandler([=]() {
-      Menu* menu = new Menu(window);
-      menu->addLine(STR_EDIT, [=]() {
-        Window * lsWindow = new LogicalSwitchEditPage(i);
-        lsWindow->setCloseHandler([=]() {
-          if (isActive)
-            lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-          else
-            rebuild(window);
-        });
-      });
-      if (isActive) {
-        menu->addLine(STR_COPY, [=]() {
-          clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
-          clipboard.data.csw = *ls;
-        });
+      if (focusIndex == i) {
+        lv_group_focus_obj(button->getLvObj());
       }
-      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
+
+      button->setFocusHandler([=](bool hasFocus) {
+        if (hasFocus && !isRebuilding) {
+          prevFocusIndex = focusIndex;
+          focusIndex = i;
+        }
+      });
+    } else {
+      hasEmptySwitch = true;
+    }
+  }
+
+  if (hasEmptySwitch) {
+    line = form->newLine(&grid);
+    button = new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
+      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
+        Menu* menu = new Menu(window);
+        menu->addLine(STR_NEW, [=]() {
+          newLS(window, false);
+        });
         menu->addLine(STR_PASTE, [=]() {
-          *ls = clipboard.data.csw;
-          storageDirty(EE_MODEL);
-          rebuild(window);
+          newLS(window, true);
         });
-      if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration || ls->andsw) {
-        menu->addLine(STR_CLEAR, [=]() {
-          memset(ls, 0, sizeof(LogicalSwitchData));
-          storageDirty(EE_MODEL);
-          rebuild(window);
-        });
+      } else {
+        newLS(window, false);
       }
       return 0;
     });
 
-    if (focusIndex == i) {
-      hasFocusButton = true;
-      lv_group_focus_obj(button->getLvObj());
-    }
-
     button->setFocusHandler([=](bool hasFocus) {
       if (hasFocus && !isRebuilding) {
         prevFocusIndex = focusIndex;
-        focusIndex = i;
       }
     });
-  }
-
-  if (!hasFocusButton)
-  {
-    if (firstActiveButton)
-      lv_group_focus_obj(firstActiveButton->getLvObj());
-    else if (firstInactiveButton)
-      lv_group_focus_obj(firstInactiveButton->getLvObj());
   }
 }

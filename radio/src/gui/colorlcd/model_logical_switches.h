@@ -38,6 +38,7 @@ protected:
     Button* firstInactiveButton = nullptr;
 
     void rebuild(FormWindow * window);
+    void newLS(FormWindow * window, bool pasteLS);
 };
 
 #endif //_MODEL_LOGICAL_SWITCHES_H
