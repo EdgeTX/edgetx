@@ -316,7 +316,7 @@ class SpecialFunctionEditPage : public Page
             auto numedit = addNumberEdit(line, STR_INCDEC, cfn, val_min, val_max);
             numedit->setDisplayHandler(
                 [](int value) {
-                  return formatNumberAsString(abs(value), 0, 0, value >= 0 ? "+=" : "--", nullptr);
+                  return formatNumberAsString(abs(value), 0, 0, value >= 0 ? "+=" : "-=", nullptr);
                 });
             break;
           }
@@ -404,15 +404,40 @@ class SpecialFunctionEditPage : public Page
   }
 };
 
-static constexpr coord_t line1 = FIELD_PADDING_TOP;
-static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
-static constexpr coord_t col0w = 56;
-static constexpr coord_t col1 = 10 + col0w;
-static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
-static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1 + 20;
+#if LCD_W > LCD_H
+
+static const lv_coord_t b_col_dsc[] = {
+  43, 70, LV_GRID_FR(1), 40, 30,
+  LV_GRID_TEMPLATE_LAST
+};
+
+static const lv_coord_t b_row_dsc[] = {
+  LV_GRID_CONTENT,
+  LV_GRID_TEMPLATE_LAST};
+
+#define NM_ROW_CNT  1
+#define FUNC_COL    2
+#define FUNC_ROW    0
+
+#else
+
+static const lv_coord_t b_col_dsc[] = {
+  40, LV_GRID_FR(1), 34, 24,
+  LV_GRID_TEMPLATE_LAST
+};
+
+static const lv_coord_t b_row_dsc[] = {
+  LV_GRID_CONTENT, LV_GRID_CONTENT,
+  LV_GRID_TEMPLATE_LAST};
+
+#define NM_ROW_CNT  2
+#define FUNC_COL    1
+#define FUNC_ROW    1
+
+#endif
 
 static const char* _failsafe_module[] = {
-  "Ext.", "Int.",
+  "Int.", "Ext.",
 };
 
 class SpecialFunctionButton : public Button
@@ -422,11 +447,70 @@ class SpecialFunctionButton : public Button
                         CustomFunctionData *functions, uint8_t index) :
       Button(parent, rect, nullptr, 0, 0, input_mix_line_create), functions(functions), index(index)
   {
+#if LCD_H > LCD_W
+    padTop(0);
+#endif
+    padLeft(4);
+    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
+    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
+    lv_obj_set_style_pad_row(lvobj, 0, 0);
+    lv_obj_set_style_pad_column(lvobj, 4, 0);
+
+    check(isActive());
+
+    lv_obj_add_event_cb(lvobj, SpecialFunctionButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SpecialFunctionButton"; }
 #endif
+
+  static void on_draw(lv_event_t * e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (SpecialFunctionButton*)lv_obj_get_user_data(target);
+    if (line) {
+      if (!line->init)
+        line->delayed_init(e);
+      else
+        line->refresh();
+    }
+  }
+  
+  void delayed_init(lv_event_t* e)
+  {
+    sfName = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(sfName, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(sfName, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+
+    sfSwitch = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(sfSwitch, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(sfSwitch, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+    sfFunc = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(sfFunc, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(sfFunc, LV_GRID_ALIGN_START, FUNC_COL, 1, LV_GRID_ALIGN_CENTER, FUNC_ROW, 1);
+
+    sfRepeat = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(sfRepeat, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL+1, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+
+    sfEnable = (new TextButton(this, rect_t{0, 0, 17, 17}, ""))->getLvObj();
+    lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_CLICK_FOCUSABLE|LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_style_border_width(sfEnable, 1, 0);
+    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_style_border_opa(sfEnable, LV_OPA_100, 0);
+    lv_obj_set_grid_cell(sfEnable, LV_GRID_ALIGN_CENTER, FUNC_COL+2, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+
+    init = true;
+    refresh();
+
+    if(e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    }
+  }
 
   bool isActive() const
   {
@@ -441,144 +525,165 @@ class SpecialFunctionButton : public Button
   void checkEvents() override
   {
     Button::checkEvents();
-    if (active != isActive()) {
-      active = !active;
-      invalidate();
-    }
-    check(active);
+    check(isActive());
   }
 
-  // TODO: convert to use grid and lvgl objects (see model_outputs.cpp)
-  void paint(BitmapBuffer *dc) override
+  void refresh()
   {
-    char s[] = "SFxx";
-    if (functions == g_eeGeneral.customFn) s[0] = 'G';
-    strAppendUnsigned(&s[2], index+1);
-    dc->drawText(8, 12, s, COLOR_THEME_SECONDARY1);
-
+    if (!init) return;
     const CustomFunctionData *cfn = &functions[index];
+    // TODO: Is this necessary?
     if (functions[index].func == FUNC_OVERRIDE_CHANNEL &&
         functions != g_model.customFn) {
       functions[index].func = FUNC_OVERRIDE_CHANNEL + 1;
     }
     uint8_t func = CFN_FUNC(cfn);
 
-    drawSwitch(dc, col1, line1, CFN_SWITCH(cfn), COLOR_THEME_SECONDARY1);
-    if (cfn->isEmpty()) return;
+    char s[32] = "SFxx";
+    if (functions == g_eeGeneral.customFn) s[0] = 'G';
+    strAppendUnsigned(&s[2], index+1);
 
-    dc->drawTextAtIndex(col2, line1, STR_VFSWFUNC, func, COLOR_THEME_SECONDARY1);
-    int16_t val_min = 0;
-    int16_t val_max = 255;
+    lv_label_set_text(sfName, s);
+    lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
+
+    strcpy(s, STR_VFSWFUNC[func]);
+    strcat(s, " - ");
 
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        drawChn(dc, col1, line2, CFN_CH_INDEX(cfn) + 1, COLOR_THEME_SECONDARY1);
-        getMixSrcRange(MIXSRC_FIRST_CH, val_min, val_max);
-        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        strcat(s, getSourceString(MIXSRC_CH1 + CFN_CH_INDEX(cfn)));
+        strcat(s, " = ");
+        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
         break;
 
       case FUNC_TRAINER: {
-        std::string text;
         int16_t value = CFN_CH_INDEX(cfn);
         if (value == 0)
-          text = std::string(STR_STICKS);
+          strcat(s, STR_STICKS);
         else if (value == NUM_STICKS + 1)
-          text = std::string(STR_CHANS);
+          strcat(s, STR_CHANS);
         else
-          text = TEXT_AT_INDEX(STR_VSRCRAW, value);
-        dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
+          strcat(s, STR_VSRCRAW[value]);
         break;
       }
+
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-          dc->drawTextAtIndex(col1, line2, STR_VFSWRESET, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+          strcat(s, STR_VFSWRESET[CFN_PARAM(cfn)]);
         } else {
-          TelemetrySensor *sensor =
-              &g_model.telemetrySensors[CFN_PARAM(cfn) -
-                                        FUNC_RESET_PARAM_FIRST_TELEM];
-          dc->drawSizedText(col1, line2, sensor->label, TELEM_LABEL_LEN, COLOR_THEME_SECONDARY1);
+          TelemetrySensor *sensor = &g_model.telemetrySensors[CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM];
+          strAppend(s+strlen(s), sensor->label, TELEM_LABEL_LEN);
         }
         break;
 
       case FUNC_VOLUME:
       case FUNC_BACKLIGHT:
       case FUNC_PLAY_VALUE:
-        drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        strcat(s, getSourceString(CFN_PARAM(cfn)));
         break;
 
       case FUNC_PLAY_SOUND:
-        dc->drawTextAtIndex(col1, line2, STR_FUNCSOUNDS, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        strcat(s, STR_FUNCSOUNDS[CFN_PARAM(cfn)]);
         break;
 
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
-        if (ZEXIST(cfn->play.name))
-          dc->drawSizedText(col1, line2, cfn->play.name, sizeof(cfn->play.name), COLOR_THEME_SECONDARY1);
-        else
-          dc->drawTextAtIndex(col1, line2, STR_VCSWFUNC, 0, COLOR_THEME_SECONDARY1);
+        if (ZEXIST(cfn->play.name)) {
+          strAppend(s+strlen(s), cfn->play.name, LEN_FUNCTION_NAME);
+        } else {
+          strcat(s, STR_VCSWFUNC[0]);
+        }
         break;
 
       case FUNC_SET_TIMER:
-        drawStringWithIndex(dc, col1, line2, STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, COLOR_THEME_SECONDARY1);
+        sprintf(s+strlen(s), "%s%d = %s", STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
         break;
 
       case FUNC_SET_FAILSAFE:
-        dc->drawTextAtIndex(col1, line2, _failsafe_module, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        strcat(s, _failsafe_module[CFN_PARAM(cfn)]);
         break;
 
       case FUNC_HAPTIC:
-        dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+      case FUNC_SET_SCREEN:
+        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
         break;
 
       case FUNC_LOGS:
-        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1 | PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
-        break;
-
-      case FUNC_SET_SCREEN:
-        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
         break;
 
       case FUNC_ADJUST_GVAR:
+        strcat(s, getSourceString(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR));
         switch(CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT:
-            dc->drawNumber(col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+            strcat(s, " = ");
+            BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
             break;
           case FUNC_ADJUST_GVAR_SOURCE:
-            drawSource(dc, col1, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+            strcat(s, " = ");
+            strcat(s, getSourceString(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR:
-            drawSource(dc, col1, line2, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, COLOR_THEME_SECONDARY1);
+            strcat(s, " = ");
+            strcat(s, getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
             break;
           case FUNC_ADJUST_GVAR_INCDEC: {
             int16_t value = CFN_PARAM(cfn);
-            std::string text(value >= 0 ? "+= " : "-= ");
-            text += std::to_string(abs(value));
-            dc->drawText(col1, line2, text.c_str(), COLOR_THEME_SECONDARY1);
+            sprintf(s+strlen(s), " %s= %d", (value >= 0) ? "+" : "-", abs(value));
             break;
           }
         }
+        break;
+        
+      default:
+        strcpy(s, STR_VFSWFUNC[func]);
+        break;
     }
+
+    lv_label_set_text(sfFunc, s);
+
+    lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
+    s[0] = 0;
+
     if (HAS_ENABLE_PARAM(func)) {
-      theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col3, line2);
+      if (CFN_ACTIVE(cfn))
+        lv_obj_add_state(sfEnable, LV_STATE_CHECKED);
+      else
+        lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
+      lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     } else if (HAS_REPEAT_PARAM(func)) {
+      strcpy(s, "(");
       if (CFN_PLAY_REPEAT(cfn) == 0) {
-        dc->drawText(col3, line2, "1x", COLOR_THEME_SECONDARY1);
+        strcat(s, "1x");
       } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-        dc->drawText(col3, line2, "!1x", COLOR_THEME_SECONDARY1);
+        strcat(s, "!1x");
       } else {
-        dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "s");
+        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
       }
+      strcat(s, ")");
     }
+
+    lv_label_set_text(sfRepeat, s);
   }
 
  protected:
+  bool init = false;
   CustomFunctionData *functions;
   uint8_t index;
-  bool active = false;
+
+  lv_obj_t* sfName = nullptr;
+  lv_obj_t* sfSwitch = nullptr;
+  lv_obj_t* sfFunc = nullptr;
+  lv_obj_t* sfRepeat = nullptr;
+  lv_obj_t* sfEnable = nullptr;
 };
 
+#if LCD_W > LCD_H
+#define SF_BUTTON_H 36
+#else
 #define SF_BUTTON_H 45
+#endif
 
 SpecialFunctionsPage::SpecialFunctionsPage(CustomFunctionData *functions) :
     PageTab(functions == g_model.customFn ? STR_MENUCUSTOMFUNC
@@ -598,14 +703,6 @@ void SpecialFunctionsPage::rebuild(FormWindow *window)
   window->clear();
   build(window);
   isRebuilding = false;
-}
-
-void SpecialFunctionsPage::editSpecialFunction(FormWindow *window,
-                                               uint8_t index)
-{
-  // focusIndex = index;
-  auto editPage = new SpecialFunctionEditPage(functions, index);
-  editPage->setCloseHandler([=]() { rebuild(window); });
 }
 
 void SpecialFunctionsPage::build(FormWindow *window)
@@ -701,8 +798,14 @@ void SpecialFunctionsPage::build(FormWindow *window)
     button->setPressHandler([=]() {
       Menu *menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
-        editSpecialFunction(window, i);
-       });
+        auto editPage = new SpecialFunctionEditPage(functions, i);
+        editPage->setCloseHandler([=]() {
+          if (isActive)
+            lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+          else
+            rebuild(window);
+        });
+      });
       if (isActive) {
         menu->addLine(STR_COPY, [=]() {
           clipboard.type = CLIPBOARD_TYPE_CUSTOM_FUNCTION;

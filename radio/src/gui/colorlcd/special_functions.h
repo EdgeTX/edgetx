@@ -41,7 +41,6 @@ class SpecialFunctionsPage: public PageTab {
     CustomFunctionData * functions;
 
     void rebuild(FormWindow * window);
-    void editSpecialFunction(FormWindow * window, uint8_t index);
 };
 
 #endif //_SPECIAL_FUNCTIONS_H
