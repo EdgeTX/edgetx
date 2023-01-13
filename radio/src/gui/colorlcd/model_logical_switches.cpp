@@ -302,7 +302,7 @@ class LogicalSwitchButton : public Button
 {
  public:
   LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
-      Button(parent, rect, nullptr, 0, 0, input_mix_line_create), lsIndex(lsIndex), active(isActive())
+      Button(parent, rect, nullptr, 0, 0, input_mix_line_create), lsIndex(lsIndex)
   {
 #if LCD_H > LCD_W
     padTop(0);
@@ -313,7 +313,7 @@ class LogicalSwitchButton : public Button
     lv_obj_set_style_pad_row(lvobj, 0, 0);
     lv_obj_set_style_pad_column(lvobj, 4, 0);
 
-    check(active);
+    check(isActive());
 
     lv_obj_update_layout(parent->getLvObj());
     if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
@@ -395,15 +395,13 @@ class LogicalSwitchButton : public Button
   void checkEvents() override
   {
     Button::checkEvents();
-    if (active != isActive()) {
-      active = !active;
-      invalidate();
-    }
-    check(active);
+    check(isActive());
   }
 
   void refresh()
   {
+    if (!init) return;
+    
     char s[20];
 
     LogicalSwitchData* ls = lswAddress(lsIndex);
@@ -474,7 +472,6 @@ class LogicalSwitchButton : public Button
  protected:
   bool init = false;
   uint8_t lsIndex;
-  bool active;
 
   lv_obj_t* lsName = nullptr;
   lv_obj_t* lsFunc = nullptr;
