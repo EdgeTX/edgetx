@@ -563,8 +563,6 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
   if (!isRebuilding)
     focusIndex = prevFocusIndex;
 
-  uint8_t scol = 0;
-
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData* ls = lswAddress(i);
 
@@ -572,7 +570,6 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
 
     if (isActive) {
       line = form->newLine(&grid);
-      scol = 0;
 
       button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
 
