@@ -42,6 +42,6 @@ class UartMultiPulses: public DataBuffer<uint8_t, 64>
 };
 
 extern etx_serial_init multiSerialInitParams;
-extern const etx_module_driver_t MultiInternalDriver;
+extern const etx_proto_driver_t MultiInternalDriver;
 
 #endif

@@ -57,12 +57,8 @@
   #include "flysky_ibus.h"
 #endif
 
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
-
 uint8_t telemetryStreaming = 0;
-uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
+uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
 uint8_t telemetryRxBufferCount = 0;
 
 uint8_t telemetryState = TELEMETRY_INIT;
@@ -94,27 +90,30 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
   return telemetryRxBufferCount;
 }
 
-static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
-static void* _telemetryGetByteCtx = nullptr;
+// TODO: move to module port driver
+//
+// static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
+// static void* _telemetryGetByteCtx = nullptr;
 
-void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
-{
-  _telemetryGetByte = nullptr;
-  _telemetryGetByteCtx = ctx;
-  _telemetryGetByte = fct;
-}
+// void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+// {
+//   _telemetryGetByte = nullptr;
+//   _telemetryGetByteCtx = ctx;
+//   _telemetryGetByte = fct;
+// }
 
-static bool telemetryGetByte(uint8_t* data)
-{
-  auto _getByte = _telemetryGetByte;
-  auto _ctx = _telemetryGetByteCtx;
+// static bool telemetryGetByte(uint8_t* data)
+// {
+//   auto _getByte = _telemetryGetByte;
+//   auto _ctx = _telemetryGetByteCtx;
 
-  if (_getByte) {
-    return _getByte(_ctx, data);
-  }
+//   if (_getByte) {
+//     return _getByte(_ctx, data);
+//   }
 
-  return sportGetByte(data);
-}
+//   // return sportGetByte(data);
+//   return false;
+// }
 
 static void (*telemetryMirrorSendByte)(void*, uint8_t) = nullptr;
 static void* telemetryMirrorSendByteCtx = nullptr;
@@ -175,55 +174,58 @@ void telemetryStop()
 }
 #endif
 
-void processTelemetryData(uint8_t data)
-{
-// TODO: move these to new interface
-#if defined(GHOST)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
-    processGhostTelemetryData(data);
-    return;
-  }
-#endif
+// TODO: move these to new module API
+// void processTelemetryData(uint8_t data)
+// {
 
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
-      telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
-    processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
-                                 telemetryRxBufferCount);
-    return;
-  }
+// #if defined(GHOST)
+//   if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
+//     processGhostTelemetryData(data);
+//     return;
+//   }
+// #endif
 
-// TODO: move these to new interface
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-    processMultiTelemetryData(data, EXTERNAL_MODULE);
-    return;
-  }
-#endif
+//   if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
+//       telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
+//     processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
+//                                  telemetryRxBufferCount);
+//     return;
+//   }
 
-#if defined(PXX1)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||
-      telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D ||
-      telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    processFrskyTelemetryData(data);
-  }
-#endif
-}
+// // TODO: move these to new interface
+// #if defined(MULTIMODULE)
+//   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
+//     processMultiTelemetryData(data, EXTERNAL_MODULE);
+//     return;
+//   }
+// #endif
+
+// #if defined(PXX1)
+//   if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||
+//       telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D ||
+//       telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
+//     processFrskyTelemetryData(data);
+//   }
+// #endif
+// }
 
 inline bool isBadAntennaDetected()
 {
   if (!isRasValueValid())
     return false;
 
-  if (telemetryData.swrInternal.isFresh() && telemetryData.swrInternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
+  if (telemetryData.swrInternal.isFresh() &&
+      telemetryData.swrInternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
     return true;
 
-  if (telemetryData.swrExternal.isFresh() && telemetryData.swrExternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
+  if (telemetryData.swrExternal.isFresh() &&
+      telemetryData.swrExternal.value() > FRSKY_BAD_ANTENNA_THRESHOLD)
     return true;
 
   return false;
 }
 
-static inline bool pollTelemetry(uint8_t module, const etx_module_driver_t* drv, void* ctx)
+static inline bool pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
 {
   if (!drv || !drv->getByte || !drv->processData) return false;
 
@@ -243,18 +245,18 @@ static inline bool pollTelemetry(uint8_t module, const etx_module_driver_t* drv,
   return true;
 }
 
-static inline void pollExtTelemetryLegacy()
-{
-  uint8_t data;
-  if (telemetryGetByte(&data)) {
-    LOG_TELEMETRY_WRITE_START();
-    do {
-      telemetryMirrorSend(data);
-      processTelemetryData(data);
-      LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (telemetryGetByte(&data));
-  }  
-}
+// static inline void pollExtTelemetryLegacy()
+// {
+//   uint8_t data;
+//   if (telemetryGetByte(&data)) {
+//     LOG_TELEMETRY_WRITE_START();
+//     do {
+//       telemetryMirrorSend(data);
+//       processTelemetryData(data);
+//       LOG_TELEMETRY_WRITE_BYTE(data);
+//     } while (telemetryGetByte(&data));
+//   }  
+// }
 
 // TODO: this needs to be rewritten completely
 //   - telemetry polling needs to happen for each enabled module
@@ -265,32 +267,33 @@ void telemetryWakeup()
   if (int_drv) pollTelemetry(INTERNAL_MODULE, int_drv, getIntModuleCtx());
 #endif
 
-  bool disable_legacy_polling = false;
+  // bool disable_legacy_polling = false;
 #if defined(HARDWARE_EXTERNAL_MODULE)
   auto ext_drv = getExtModuleDriver();
   if (ext_drv) {
-    if (pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx())) {
-      // skip legacy telemetry polling in case external module
-      // driver defines telemetry methods (getByte & processData)
-      disable_legacy_polling = true;
-    }
+    pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx());
+    // if (pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx())) {
+    //   // skip legacy telemetry polling in case external module
+    //   // driver defines telemetry methods (getByte & processData)
+    //   disable_legacy_polling = true;
+    // }
   }
 #endif
 
-  if (!disable_legacy_polling) {
-    // TODO: needs to be moved to protocol/module init
-    //       as-is, it implies only ONE telemetry protocol
-    //       enabled at the same time
-    uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+  // if (!disable_legacy_polling) {
+  //   // TODO: needs to be moved to protocol/module init
+  //   //       as-is, it implies only ONE telemetry protocol
+  //   //       enabled at the same time
+  //   uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
 
-    if (telemetryProtocol != requiredTelemetryProtocol) {
-      telemetryInit(requiredTelemetryProtocol);
-    }
+  //   if (telemetryProtocol != requiredTelemetryProtocol) {
+  //     telemetryInit(requiredTelemetryProtocol);
+  //   }
 
-    // Poll external / S.PORT telemetry
-    // TODO: how to switch this OFF ???
-    pollExtTelemetryLegacy();
-  }
+  //   // Poll external / S.PORT telemetry
+  //   // TODO: how to switch this OFF ???
+  //   pollExtTelemetryLegacy();
+  // }
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];
@@ -419,49 +422,49 @@ void telemetryInit(uint8_t protocol)
 {
   telemetryProtocol = protocol;
 
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D) {
-    telemetryPortInit(FRSKY_D_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-  }
-#if defined(MULTIMODULE)
-  else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-    // The DIY Multi module always speaks 100000 baud regardless of the
-    // telemetry protocol in use
-    telemetryPortInit(MULTIMODULE_BAUDRATE, TELEMETRY_SERIAL_8E2);
-#if defined(LUA)
-    outputTelemetryBuffer.reset();
-#endif
-    telemetryPortSetDirectionInput();
-  } else if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
-    // Spektrum's own small race RX (SPM4648) uses 125000 8N1, use the same
-    // since there is no real standard
-    telemetryPortInit(125000, TELEMETRY_SERIAL_DEFAULT);
-  }
-#endif
+//   if (protocol == PROTOCOL_TELEMETRY_FRSKY_D) {
+//     telemetryPortInit(FRSKY_D_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
+//   }
+// #if defined(MULTIMODULE)
+//   else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
+//     // The DIY Multi module always speaks 100000 baud regardless of the
+//     // telemetry protocol in use
+//     telemetryPortInit(MULTIMODULE_BAUDRATE, TELEMETRY_SERIAL_8E2);
+// #if defined(LUA)
+//     outputTelemetryBuffer.reset();
+// #endif
+//     telemetryPortSetDirectionInput();
+//   } else if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
+//     // Spektrum's own small race RX (SPM4648) uses 125000 8N1, use the same
+//     // since there is no real standard
+//     telemetryPortInit(125000, TELEMETRY_SERIAL_DEFAULT);
+//   }
+// #endif
 
-#if defined(GHOST)
-  else if (protocol == PROTOCOL_TELEMETRY_GHOST) {
-    telemetryPortInit(GHOST_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-#if defined(LUA)
-    outputTelemetryBuffer.reset();
-#endif
-    telemetryPortSetDirectionOutput();
-  }
-#endif
+// #if defined(GHOST)
+//   else if (protocol == PROTOCOL_TELEMETRY_GHOST) {
+//     telemetryPortInit(GHOST_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
+// #if defined(LUA)
+//     outputTelemetryBuffer.reset();
+// #endif
+//     telemetryPortSetDirectionOutput();
+//   }
+// #endif
 
-#if defined(AUX_SERIAL)
-  else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
-  }
-#endif
-  else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
-    // soft serial
-    telemetryPortInvertedInit(115200);
-  } else {
-    telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
-#if defined(LUA)
-    outputTelemetryBuffer.reset();
-#endif
-  }
+// #if defined(AUX_SERIAL)
+//   else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
+//     telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
+//   }
+// #endif
+//   else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
+//     // soft serial
+//     telemetryPortInvertedInit(115200);
+//   } else {
+//     telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
+// #if defined(LUA)
+//     outputTelemetryBuffer.reset();
+// #endif
+//   }
 }
 
 #if defined(LOG_TELEMETRY) && !defined(SIMU)

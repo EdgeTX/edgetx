@@ -22,10 +22,7 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
+#include "hal/module_port.h"
 
 #include "crossfire.h"
 #include "telemetry/crossfire.h"
@@ -120,59 +117,33 @@ static bool _checkFrameCRC(uint8_t* rxBuffer)
   return (crc == rxBuffer[len+1]);
 }
 
-struct CrossfireState {
-  uint8_t                    module;
-  CrossfirePulsesData*       data;
-  const etx_serial_driver_t* uart_drv;
-  void*                      uart_ctx;
-  uint8_t                    endpoint;
-
-  void init(uint8_t _module, CrossfirePulsesData* _data,
-            const etx_serial_driver_t* _drv, void* _ctx, uint8_t _endpoint)
-  {
-    module = _module;
-    data = _data;
-    uart_drv = _drv;
-    uart_ctx = _ctx;
-    endpoint = _endpoint;
-  }
-  
-  void deinit() { uart_drv->deinit(uart_ctx); }
-};
-
-static CrossfireState crossfireState[NUM_MODULES];
-
-static void crossfireSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void crossfireSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
-  auto state = (CrossfireState*)context;
-  crossfireSetupMixerScheduler(state->module);
-  setupPulsesCrossfire(state->module, state->data, state->endpoint, channels, nChannels);
+  auto mod_st = (etx_module_state_t*)ctx;
+
+  uint8_t module = modulePortGetModule(mod_st);
+  crossfireSetupMixerScheduler(module);
+
+  auto data = (CrossfirePulsesData*)mod_st->user_data;
+  uint8_t endpoint = (module == EXTERNAL_MODULE) ? TELEMETRY_ENDPOINT_SPORT : 0;
+  setupPulsesCrossfire(module, data, endpoint, channels, nChannels);
 }
 
-static void crossfireSendPulses(void* context)
+static void crossfireSendPulses(void* ctx)
 {
-  auto state = (CrossfireState*)context;
-  auto data = state->data;
-
-  if (state->uart_drv) {
-    auto drv = state->uart_drv;
-    auto ctx = state->uart_ctx;
-    drv->sendBuffer(ctx, data->pulses, data->length);
-  } else {
-    sportSendBuffer(data->pulses, data->length);
-  }
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto data = (CrossfirePulsesData*)mod_st->user_data;
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+  drv->sendBuffer(drv_ctx, data->pulses, data->length);
 }
 
-static int crossfireGetByte(void* context, uint8_t* data)
+static int crossfireGetByte(void* ctx, uint8_t* data)
 {
-  auto state = (CrossfireState*)context;
-  if (state->uart_drv) {
-    auto drv = state->uart_drv;
-    auto ctx = state->uart_ctx;
-    return drv->getByte(ctx, data);
-  } else {
-    return sportGetByte(data);
-  }
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto drv_ctx = modulePortGetCtx(mod_st->rx);
+  return drv->getByte(drv_ctx, data);
 }
 
 static bool _lenIsSane(uint8_t len)
@@ -210,7 +181,7 @@ static void _seekStart(uint8_t* buffer, uint8_t* len)
   *len = 0;
 }
 
-static void crossfireProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
+static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   if (*len == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
     TRACE("[XF] address 0x%02X error", data);
@@ -233,7 +204,6 @@ static void crossfireProcessData(void* context, uint8_t data, uint8_t* buffer, u
 
   // rxBuffer[1] holds the packet length-2, check if the whole packet was received
   while (*len > 4 && (buffer[1]+2) == *len) {
-    // TODO: module in context?
     if (_checkFrameCRC(buffer)) {
 #if defined(BLUETOOTH)
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
@@ -241,8 +211,8 @@ static void crossfireProcessData(void* context, uint8_t data, uint8_t* buffer, u
         bluetooth.write(buffer, *len);
       }
 #endif
-      auto state = (CrossfireState*)context;
-      processCrossfireTelemetryFrame(state->module);
+      auto mod_st = (etx_module_state_t*)ctx;
+      processCrossfireTelemetryFrame(modulePortGetModule(mod_st));
       *len = 0;
     }
     else {
@@ -252,8 +222,7 @@ static void crossfireProcessData(void* context, uint8_t data, uint8_t* buffer, u
   }
 }
 
-#if defined(INTERNAL_MODULE_CRSF)
-static const etx_serial_init intmoduleCrossfireInitParams = {
+static const etx_serial_init crsfSerialParams = {
   .baudrate = 0,
   .parity = ETX_Parity_None,
   .stop_bits = ETX_StopBits_One,
@@ -261,73 +230,60 @@ static const etx_serial_init intmoduleCrossfireInitParams = {
   .rx_enable = true,
 };
 
-static void* crossfireInitInternal(uint8_t module)
+static void* crossfireInit(uint8_t module)
 {
-  // serial port setup
-  etx_serial_init params(intmoduleCrossfireInitParams);
-  params.baudrate = INT_CROSSFIRE_BAUDRATE;
-  INTERNAL_MODULE_ON();
+  etx_module_state_t* mod_st = nullptr;
+  etx_serial_init params(crsfSerialParams);
 
-  auto state = &crossfireState[module];
-  state->init(module, &intmodulePulsesData.crossfire,
-              &IntmoduleSerialDriver, IntmoduleSerialDriver.init(&params), 0);
+  if (module == INTERNAL_MODULE) {
 
-  return state;
+    params.baudrate = INT_CROSSFIRE_BAUDRATE;
+    INTERNAL_MODULE_ON();
+
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st->user_data = (void*)&intmodulePulsesData.crossfire;
+  }
+
+  if (module == EXTERNAL_MODULE) {
+
+    params.baudrate = EXT_CROSSFIRE_BAUDRATE;
+    EXTERNAL_MODULE_ON();
+
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT,
+                                  ETX_MOD_DIR_TX_RX, &params);
+
+    mod_st->user_data = (void*)&extmodulePulsesData.crossfire;
+  }
+
+  if (mod_st) {
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+  }
+
+  return (void*)mod_st;
 }
 
-static void crossfireDeInitInternal(void* context)
+static void crossfireDeInit(void* ctx)
 {
-  INTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
 
-  auto state = (CrossfireState*)context;
-  state->deinit();
-}
+  if (module == INTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
+  }
 
-const etx_module_driver_t CrossfireInternalDriver = {
-  .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
-  .init = crossfireInitInternal,
-  .deinit = crossfireDeInitInternal,
-  .setupPulses = crossfireSetupPulses,
-  .sendPulses = crossfireSendPulses,
-  .getByte = crossfireGetByte,
-  .processData = crossfireProcessData,
-};
-#endif
-
-static void* crossfireInitExternal(uint8_t module)
-{
-  // telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
-  telemetryProtocol = PROTOCOL_TELEMETRY_CROSSFIRE;
-  telemetryPortInit(EXT_CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-#if defined(LUA)
-  outputTelemetryBuffer.reset();
-#endif
-  telemetryPortSetDirectionOutput();
-
-  mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
-  EXTERNAL_MODULE_ON();
+  if (module == EXTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
+  }
   
-  auto state = &crossfireState[module];
-  state->init(module, &extmodulePulsesData.crossfire, nullptr, nullptr,
-              TELEMETRY_ENDPOINT_SPORT);
-  
-  return state;
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
 }
 
-static void crossfireDeInitExternal(void* context)
-{
-  (void)context;
-  telemetryProtocol = 0xFF;
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-}
-
-const etx_module_driver_t CrossfireExternalDriver = {
+const etx_proto_driver_t CrossfireDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
-  .init = crossfireInitExternal,
-  .deinit = crossfireDeInitExternal,
+  .init = crossfireInit,
+  .deinit = crossfireDeInit,
   .setupPulses = crossfireSetupPulses,
   .sendPulses = crossfireSendPulses,
   .getByte = crossfireGetByte,

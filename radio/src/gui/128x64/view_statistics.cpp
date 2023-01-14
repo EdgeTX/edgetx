@@ -228,9 +228,9 @@ void menuStatisticsDebug2(event_t event)
   title(STR_MENUDEBUG);
 
   switch(event) {
-    case EVT_KEY_FIRST(KEY_ENTER):
-      telemetryErrors  = 0;
-      break;
+    // case EVT_KEY_FIRST(KEY_ENTER):
+    //   telemetryErrors  = 0;
+    //   break;
 
     case EVT_KEY_FIRST(KEY_UP):
 #if defined(KEYS_GPIO_REG_PAGEDN)
@@ -258,8 +258,8 @@ void menuStatisticsDebug2(event_t event)
 
   uint8_t y = FH + 1;
 
-  lcdDrawTextAlignedLeft(y, "Tlm RX Err");
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, telemetryErrors, RIGHT);
+  // lcdDrawTextAlignedLeft(y, "Tlm RX Err");
+  // lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, telemetryErrors, RIGHT);
   y += FH;
 
 #if defined(BLUETOOTH)

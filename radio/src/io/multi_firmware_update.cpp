@@ -21,6 +21,10 @@
 
 #if !defined(DISABLE_MULTI_UPDATE)
 
+#include "hal.h"
+#include "hal/module_port.h"
+#include "extmodule_driver.h"
+
 #include <stdio.h>
 #include "opentx.h"
 #include "multi_firmware_update.h"
@@ -39,12 +43,6 @@
 #if defined(MULTI_PROTOLIST)
   #include "io/multi_protolist.h"
 #endif
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
-
-#include "extmodule_driver.h"
 
 #define UPDATE_MULTI_EXT_BIN ".bin"
 
@@ -74,8 +72,6 @@ class MultiFirmwareUpdateDriver
     void leaveProgMode(bool inverted);
 };
 
-#if defined(INTERNAL_MODULE_MULTI)
-
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
   .parity = ETX_Parity_None,
@@ -84,12 +80,16 @@ static const etx_serial_init serialInitParams = {
   .rx_enable = true,
 };
 
+#if defined(INTERNAL_MODULE_MULTI)
+
 class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
 {
   public:
     MultiInternalUpdateDriver() {}
 
   protected:
+    etx_module_state_t* mod_st = nullptr;
+    const etx_serial_driver_t* uart_drv = nullptr;
     void* uart_ctx = nullptr;
   
     void moduleOn() const override
@@ -101,29 +101,37 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
     {
       etx_serial_init params(serialInitParams);
       params.baudrate = 57600;
-      uart_ctx = IntmoduleSerialDriver.init(&params);
+
+      // TODO: error handling
+      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_INTERNAL_UART,
+                                    ETX_MOD_DIR_TX_RX, &params);
+
+      uart_drv = modulePortGetSerialDrv(mod_st->tx);
+      uart_ctx = modulePortGetCtx(mod_st->tx);
     }
 
     bool getByte(uint8_t & byte) const override
     {
-      return IntmoduleSerialDriver.getByte(uart_ctx, &byte) > 0;
+      return uart_drv->getByte(uart_ctx, &byte) > 0;
     }
 
     void sendByte(uint8_t byte) const override
     {
-      IntmoduleSerialDriver.sendByte(uart_ctx, byte);
+      uart_drv->sendByte(uart_ctx, byte);
     }
 
     void clear() const override
     {
-      IntmoduleSerialDriver.clearRxBuffer(uart_ctx);
+      uart_drv->clearRxBuffer(uart_ctx);
     }
 
     void deinit(bool inverted) override
     {
-      IntmoduleSerialDriver.deinit(uart_ctx);
       clear();
+      modulePortDeInit(mod_st);
       uart_ctx = nullptr;
+      uart_drv = nullptr;
+      mod_st = nullptr;
     }
 };
 #endif
@@ -144,33 +152,35 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
     {
       extmoduleInitTxPin();
 
-      if (inverted)
-        telemetryPortInvertedInit(57600);
-      else
-        telemetryPortInit(57600, TELEMETRY_SERIAL_WITHOUT_DMA);
+      // if (inverted)
+      //   telemetryPortInvertedInit(57600);
+      // else
+      //   telemetryPortInit(57600, TELEMETRY_SERIAL_WITHOUT_DMA);
     }
 
     bool getByte(uint8_t & byte) const override
     {
-      return sportGetByte(&byte);
+      // return sportGetByte(&byte);
+      return false;
     }
 
     void sendByte(uint8_t byte) const override
     {
+      // TODO: non-inverted??? seems we don't need it.
       extmoduleSendInvertedByte(byte);
     }
 
     void clear() const override
     {
-      telemetryClearFifo();
+      // telemetryClearFifo();
     }
 
     void deinit(bool inverted) override
     {
-      if (inverted)
-        telemetryPortInvertedInit(0);
-      else
-        telemetryPortInit(0, 0);
+      // if (inverted)
+      //   telemetryPortInvertedInit(0);
+      // else
+      //   telemetryPortInit(0, 0);
 
       clear();
     }
@@ -183,6 +193,10 @@ class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
     MultiExtSportUpdateDriver(): MultiFirmwareUpdateDriver() {}
 
   protected:
+    etx_module_state_t* mod_st = nullptr;
+    const etx_serial_driver_t* uart_drv = nullptr;
+    void* uart_ctx = nullptr;
+
     void moduleOn() const override
     {
       EXTERNAL_MODULE_ON();
@@ -190,29 +204,40 @@ class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) override
     {
-      telemetryPortInit(57600, TELEMETRY_SERIAL_WITHOUT_DMA);
+      etx_serial_init params(serialInitParams);
+      params.baudrate = 57600;
+
+      // TODO: error handling
+      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT,
+                                    ETX_MOD_DIR_TX_RX, &params);
+
+      uart_drv = mod_st->tx.port->drv.serial;
+      uart_ctx = mod_st->tx.ctx;
     }
 
     bool getByte(uint8_t & byte) const override
     {
-      return sportGetByte(&byte);
+      return uart_drv->getByte(uart_ctx, &byte) > 0;
     }
 
     void sendByte(uint8_t byte) const override
     {
-      sportSendByte(byte);
-      telemetryPortSetDirectionInput();
+      uart_drv->sendByte(uart_ctx, byte);
+      uart_drv->enableRx(uart_ctx);
     }
 
     void clear() const override
     {
-      telemetryClearFifo();
+      uart_drv->clearRxBuffer(uart_ctx);
     }
 
     void deinit(bool inverted) override
     {
-      telemetryPortInit(0, 0);
       clear();
+      modulePortDeInit(mod_st);
+      uart_ctx = nullptr;
+      uart_drv = nullptr;
+      mod_st = nullptr;
     }
 };
 
@@ -390,7 +415,7 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
   const char * result = nullptr;
   moduleOn();
 
-  bool inverted = true; //false; // true
+  bool inverted = true;
   init(inverted);
 
   /* wait 500ms for power on */

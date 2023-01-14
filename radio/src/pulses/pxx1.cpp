@@ -23,6 +23,7 @@
 #include "pulses/pxx1.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
+#include "hal/module_port.h"
 
 template <class PxxTransport>
 void Pxx1Pulses<PxxTransport>::addFlag1(uint8_t module, uint8_t sendFailsafe)
@@ -222,125 +223,203 @@ template class Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport> >;
 template class Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport> >;
 template class Pxx1Pulses<UartPxx1Transport>;
 
-#if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_PXX1)
-#include "intmodule_serial_driver.h"
-
-static const etx_serial_init pxx1SerialInit = {
-  .baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE,
+static const etx_serial_init pxx1SerialCfg = {
+  .baudrate = 0,
   .parity = ETX_Parity_None,
   .stop_bits = ETX_StopBits_One,
   .word_length = ETX_WordLength_8,
   .rx_enable = false,
 };
 
-static void* pxx1InitInternal(uint8_t module)
+static const etx_timer_config_t pxx1TimerCfg = {
+  .type = ETX_PWM,
+  .polarity = 0,
+  .cmp_val = 9 * 2, // 9us
+};
+
+static void* pxx1Init(uint8_t module)
 {
-  void* uart_ctx = IntmoduleSerialDriver.init(&pxx1SerialInit);
+  etx_module_state_t* mod_st = nullptr;
+
+#if defined(INTERNAL_MODULE_PXX1)
+  if (module == INTERNAL_MODULE) {
+
+#if defined(INTMODULE_USART)
+    etx_serial_init txCfg(pxx1SerialCfg);
+    txCfg.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+                                  ETX_MOD_DIR_TX, &txCfg);
+#else
+    mod_st = modulePortInitTimer(module, ETX_MOD_PORT_INTERNAL_TIMER, &pxx1TimerCfg);
+#endif
 
 #if defined(INTMODULE_HEARTBEAT)
-  init_intmodule_heartbeat();
+    init_intmodule_heartbeat();
 #endif
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
-  INTERNAL_MODULE_ON();
+    mixerSchedulerSetPeriod(module, INTMODULE_PXX1_SERIAL_PERIOD);
+    INTERNAL_MODULE_ON();
+  }
+#endif
 
-  return uart_ctx;
+  if (module == EXTERNAL_MODULE) {
+
+    // Init driver (timer / serial) based on module type
+    uint8_t type = g_model.moduleData[module].type;
+    switch(type) {
+
+    case MODULE_TYPE_R9M_LITE_PXX1: {
+      etx_serial_init txCfg(pxx1SerialCfg);
+      txCfg.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
+      txCfg.rx_enable = false;
+
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
+                                    ETX_MOD_DIR_TX, &txCfg);
+      if (!mod_st) return nullptr;
+
+      mixerSchedulerSetPeriod(module, EXTMODULE_PXX1_SERIAL_PERIOD);
+    } break;
+
+    case MODULE_TYPE_XJT_PXX1:
+    case MODULE_TYPE_R9M_PXX1: {
+      mod_st = modulePortInitTimer(module, ETX_MOD_PORT_EXTERNAL_TIMER, &pxx1TimerCfg);
+      if (!mod_st) return nullptr;
+      
+      mixerSchedulerSetPeriod(module, PXX_PULSES_PERIOD);
+    } break;
+
+    default:
+      // unknown module: bail out!
+      return nullptr;
+    }
+
+    EXTERNAL_MODULE_ON();
+  }
+
+  if (!mod_st) return nullptr;
+  
+  // Init telemetry RX
+  etx_serial_init rxCfg(pxx1SerialCfg);
+  rxCfg.baudrate = FRSKY_SPORT_BAUDRATE;
+  rxCfg.rx_enable = true;
+  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, ETX_MOD_DIR_RX, &rxCfg);
+  
+  return mod_st;
 }
 
-static void pxx1DeInitInternal(void* context)
+static void pxx1DeInit(void* ctx)
 {
-  INTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+#if defined(INTERNAL_MODULE_PXX1)
+  if (module == INTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
 #if defined(INTMODULE_HEARTBEAT)
-  stop_intmodule_heartbeat();
+    stop_intmodule_heartbeat();
 #endif
-  IntmoduleSerialDriver.deinit(context);
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
+  }
+  
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
 }
 
-static void pxx1SetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
+static void pxx1SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
-  (void)context;
-
   // TODO:
   (void)channels;
   (void)nChannels;
-  intmodulePulsesData.pxx_uart.setupFrame(INTERNAL_MODULE);
-}
 
-static void pxx1SendPulsesInternal(void* context)
-{
-  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.pxx_uart.getData(),
-                                   intmodulePulsesData.pxx_uart.getSize());
-}
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
 
-const etx_module_driver_t Pxx1InternalSerialDriver = {
-  .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
-  .init = pxx1InitInternal,
-  .deinit = pxx1DeInitInternal,
-  .setupPulses = pxx1SetupPulsesInternal,
-  .sendPulses = pxx1SendPulsesInternal,
-};
-
+#if defined(INTERNAL_MODULE_PXX1)
+  if (module == INTERNAL_MODULE) {
+#if defined(INTMODULE_USART)
+    intmodulePulsesData.pxx_uart.setupFrame(module);
+#else
+    intmodulePulsesData.pxx.setupFrame(module);
+#endif
+    return;
+  }
 #endif
 
-#if defined(EXTMODULE_USART) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
-#include "extmodule_serial_driver.h"
-
-static const etx_serial_init pxx1ExtSerialInit = {
-  .baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = false,
-};
-
-static void* pxx1InitExternal(uint8_t module)
-{
-  auto drv = extmoduleGetSerialPort();
-  if (!drv) return nullptr;
-
-  void* uart_ctx = drv->init(&pxx1ExtSerialInit);
-
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, EXTMODULE_PXX1_SERIAL_PERIOD);
-  EXTERNAL_MODULE_ON();
-
-  return uart_ctx;
+  if (module == EXTERNAL_MODULE) {
+    if (modulePortGetType(mod_st->tx) == ETX_MOD_TYPE_SERIAL) {
+      extmodulePulsesData.pxx_uart.setupFrame(module);
+    } else {
+      extmodulePulsesData.pxx.setupFrame(module);
+    }
+  }
 }
 
-static void pxx1DeInitExternal(void* context)
+static int pxx1GetByte(void* ctx, uint8_t* data)
 {
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+  auto mod_st = (etx_module_state_t*)ctx;
 
-  auto drv = extmoduleGetSerialPort();
-  if (drv) drv->deinit(context);
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto drv_ctx = modulePortGetCtx(mod_st->rx);
+
+  return drv->getByte(drv_ctx, data);
 }
 
-static void pxx1SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
+static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  (void)context;
+  (void)ctx;
+  (void)buffer;
+  (void)len;
 
-  // TODO:
-  (void)channels;
-  (void)nChannels;
-
-  extmodulePulsesData.pxx_uart.setupFrame(EXTERNAL_MODULE);
+  // TODO: should use different buffers depending on module
+  processFrskyTelemetryData(data);
 }
 
-static void pxx1SendPulsesExternal(void* context)
+static void pxx1SendPulses(void* ctx)
 {
-  auto drv = extmoduleGetSerialPort();
-  if (!drv) return;
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
 
-  drv->sendBuffer(context, extmodulePulsesData.pxx_uart.getData(),
-                  extmodulePulsesData.pxx_uart.getSize());
-}
-
-const etx_module_driver_t Pxx1ExternalSerialDriver = {
-  .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
-  .init = pxx1InitExternal,
-  .deinit = pxx1DeInitExternal,
-  .setupPulses = pxx1SetupPulsesExternal,
-  .sendPulses = pxx1SendPulsesExternal,
-};
-
+#if defined(INTERNAL_MODULE_PXX1)
+  if (module == INTERNAL_MODULE) {
+    auto drv_ctx = modulePortGetCtx(mod_st->tx);
+#if defined(INTMODULE_USART)
+    auto drv = modulePortGetSerialDrv(mod_st->tx);
+    drv->sendBuffer(drv_ctx, intmodulePulsesData.pxx_uart.getData(),
+                    intmodulePulsesData.pxx_uart.getSize());
+#else
+    auto drv = modulePortGetTimerDrv(mod_st->tx);
+    drv->send(drv_ctx, &pxx1TimerCfg,
+              intmodulePulsesData.pxx.getData(),
+              intmodulePulsesData.pxx.getSize());
 #endif
+    return;
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    auto drv_ctx = modulePortGetCtx(mod_st->tx);
+    if (modulePortGetType(mod_st->tx) == ETX_MOD_TYPE_SERIAL) {
+      auto drv = modulePortGetSerialDrv(mod_st->tx);
+      drv->sendBuffer(drv_ctx, extmodulePulsesData.pxx_uart.getData(),
+                      extmodulePulsesData.pxx_uart.getSize());
+    } else {
+      auto drv = modulePortGetTimerDrv(mod_st->tx);
+      drv->send(drv_ctx, &pxx1TimerCfg,
+                extmodulePulsesData.pxx.getData(),
+                extmodulePulsesData.pxx.getSize());
+    }
+  }
+}
+
+const etx_proto_driver_t Pxx1Driver = {
+  .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
+  .init = pxx1Init,
+  .deinit = pxx1DeInit,
+  .setupPulses = pxx1SetupPulses,
+  .sendPulses = pxx1SendPulses,
+  .getByte = pxx1GetByte,
+  .processData = pxx1ProcessData,
+};

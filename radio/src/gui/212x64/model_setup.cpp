@@ -1110,17 +1110,17 @@ void menuModelSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, STR_STATUS);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
-        lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
-        lcdDrawText(lcdNextPos + 1, y, "Err", attr);
-        if (attr) {
-          s_editMode = 0;
-          if (event == EVT_KEY_LONG(KEY_ENTER)) {
-            START_NO_HIGHLIGHT();
-            telemetryErrors = 0;
-            AUDIO_WARNING1();
-            killEvents(event);
-          }
-        }
+        // lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
+        // lcdDrawText(lcdNextPos + 1, y, "Err", attr);
+        // if (attr) {
+        //   s_editMode = 0;
+        //   if (event == EVT_KEY_LONG(KEY_ENTER)) {
+        //     START_NO_HIGHLIGHT();
+        //     telemetryErrors = 0;
+        //     AUDIO_WARNING1();
+        //     killEvents(event);
+        //   }
+        // }
         break;
 #endif
 

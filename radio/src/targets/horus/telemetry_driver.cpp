@@ -393,8 +393,11 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
 #if defined(LUA)
       if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT) {
         static uint8_t prevdata;
-        if (prevdata == 0x7E && outputTelemetryBuffer.size > 0 && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && data == outputTelemetryBuffer.sport.physicalId) {
-          sportSendBuffer(outputTelemetryBuffer.data + 1, outputTelemetryBuffer.size - 1);
+        if (prevdata == 0x7E && outputTelemetryBuffer.size > 0 &&
+            outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT &&
+            data == outputTelemetryBuffer.sport.physicalId) {
+          sportSendBuffer(outputTelemetryBuffer.data + 1,
+                          outputTelemetryBuffer.size - 1);
         }
         prevdata = data;
       }

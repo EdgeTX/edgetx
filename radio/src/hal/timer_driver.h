@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -22,8 +22,20 @@
 #pragma once
 
 #include <stdint.h>
-#include "hal/serial_driver.h"
 
-#define INTMODULE_USART_IRQ_PRIORITY 6
+enum PulseGenerationType {
+  ETX_PWM=0,
+  ETX_TOGGLE
+};
 
-extern const etx_serial_driver_t IntmoduleSerialDriver;
+typedef struct {
+  uint8_t  type;
+  uint8_t  polarity;
+  uint16_t cmp_val;
+} etx_timer_config_t;
+
+typedef struct {
+  void* (*init)(void* hw_def, const etx_timer_config_t* cfg);
+  void (*deinit)(void* ctx);
+  void (*send)(void* ctx, const etx_timer_config_t* cfg, const void* pulses, uint16_t length);
+} etx_timer_driver_t;

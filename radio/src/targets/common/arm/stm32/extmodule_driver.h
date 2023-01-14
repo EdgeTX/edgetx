@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#include "stm32_pulse_driver.h"
+
 void extmoduleStop();
 void extmodulePpmStart(uint16_t ppm_delay, bool polarity);
 
@@ -43,3 +45,5 @@ void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length,
 // Bitbang serial
 void extmoduleInitTxPin();
 void extmoduleSendInvertedByte(uint8_t byte);
+
+extern const stm32_pulse_timer_t extmoduleTimer;

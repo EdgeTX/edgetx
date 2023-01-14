@@ -25,7 +25,8 @@
 
 #include "board.h"
 
-#if defined(EXTMODULE_USART)
+#if 0
+//#if defined(EXTMODULE_USART)
 
 struct RxFifo {
   uint8_t* buf;
@@ -194,17 +195,23 @@ constexpr const etx_serial_driver_t* _default_driver = nullptr;
 #endif // defined(EXTMODULE_USART)
 
 const etx_serial_driver_t* _extmodule_driver = _default_driver;
+void* _extmodule_hw_def = nullptr; // TODO
 
-void extmoduleSetSerialPort(const etx_serial_driver_t* drv)
+void extmoduleSetSerialPort(const etx_serial_driver_t* drv, void* hw_def)
 {
   if (drv) {
     _extmodule_driver = drv;
+    _extmodule_hw_def = hw_def;
   } else {
     _extmodule_driver = _default_driver;
+    _extmodule_hw_def = nullptr;
   }
 }
 
-const etx_serial_driver_t* extmoduleGetSerialPort()
+bool extmoduleGetSerialPort(const etx_serial_driver_t*& drv, void*& hw_def)
 {
-  return _extmodule_driver;
+  drv    = _extmodule_driver;
+  hw_def = _extmodule_hw_def;
+
+  return _extmodule_driver != nullptr;
 }

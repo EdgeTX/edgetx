@@ -754,16 +754,16 @@ uint8_t isBacklightEnabled();
 void debugPutc(const char c);
 
 // Telemetry driver
-void telemetryPortInit(uint32_t baudrate, uint8_t mode);
-void telemetryPortSetDirectionInput();
-void telemetryPortSetDirectionOutput();
-void sportSendByte(uint8_t byte);
-void sportSendByteLoop(uint8_t byte);
-void sportStopSendByteLoop();
-void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool sportGetByte(uint8_t * byte);
-void telemetryClearFifo();
-extern uint32_t telemetryErrors;
+// void telemetryPortInit(uint32_t baudrate, uint8_t mode);
+// void telemetryPortSetDirectionInput();
+// void telemetryPortSetDirectionOutput();
+// void sportSendByte(uint8_t byte);
+// void sportSendByteLoop(uint8_t byte);
+// void sportStopSendByteLoop();
+// void sportSendBuffer(const uint8_t * buffer, uint32_t count);
+// bool sportGetByte(uint8_t * byte);
+// void telemetryClearFifo();
+// extern uint32_t telemetryErrors;
 
 // soft-serial
 void telemetryPortInvertedInit(uint32_t baudrate);

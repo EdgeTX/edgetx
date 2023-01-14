@@ -25,12 +25,12 @@
 void processFrskyTelemetryData(uint8_t data)
 {
   if (pushFrskyTelemetryData(data)) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      sportProcessTelemetryPacket(telemetryRxBuffer);
-    }
-    else {
-      frskyDProcessPacket(telemetryRxBuffer);
-    }
+    // if (IS_FRSKY_SPORT_PROTOCOL()) {
+    sportProcessTelemetryPacket(telemetryRxBuffer);
+    // }
+    // else {
+    //   frskyDProcessPacket(telemetryRxBuffer);
+    // }
   }
 }
 
@@ -41,10 +41,10 @@ bool pushFrskyTelemetryData(uint8_t data)
   switch (dataState) {
     case STATE_DATA_START:
       if (data == START_STOP) {
-        if (IS_FRSKY_SPORT_PROTOCOL()) {
-          dataState = STATE_DATA_IN_FRAME ;
-          telemetryRxBufferCount = 0;
-        }
+        // if (IS_FRSKY_SPORT_PROTOCOL()) {
+        dataState = STATE_DATA_IN_FRAME ;
+        telemetryRxBufferCount = 0;
+        // }
       }
       else {
         if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
@@ -59,15 +59,15 @@ bool pushFrskyTelemetryData(uint8_t data)
         dataState = STATE_DATA_XOR; // XOR next byte
       }
       else if (data == START_STOP) {
-        if (IS_FRSKY_SPORT_PROTOCOL()) {
-          dataState = STATE_DATA_IN_FRAME ;
-          telemetryRxBufferCount = 0;
-        }
-        else {
-          // end of frame detected
-          dataState = STATE_DATA_IDLE;
-          return true;
-        }
+        // if (IS_FRSKY_SPORT_PROTOCOL()) {
+        dataState = STATE_DATA_IN_FRAME ;
+        telemetryRxBufferCount = 0;
+        // }
+        // else {
+        //   // end of frame detected
+        //   dataState = STATE_DATA_IDLE;
+        //   return true;
+        // }
         break;
       }
       else if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
@@ -91,7 +91,7 @@ bool pushFrskyTelemetryData(uint8_t data)
 
   } // switch
 
-  if (IS_FRSKY_SPORT_PROTOCOL() && telemetryRxBufferCount >= FRSKY_SPORT_PACKET_SIZE) {
+  if (/*IS_FRSKY_SPORT_PROTOCOL() &&*/ telemetryRxBufferCount >= FRSKY_SPORT_PACKET_SIZE) {
     // end of frame detected
     dataState = STATE_DATA_IDLE;
     return true;

@@ -232,14 +232,14 @@ void menuStatisticsDebug2(event_t event)
       chainMenu(menuMainView);
       break;
 
-    case EVT_KEY_LONG(KEY_ENTER):
-      telemetryErrors = 0;
-      break;
+    // case EVT_KEY_LONG(KEY_ENTER):
+    //   telemetryErrors = 0;
+    //   break;
   }
 
   // UART statistics
-  lcdDrawTextAlignedLeft(MENU_DEBUG_ROW1, "Tlm RX Err");
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, MENU_DEBUG_ROW1, telemetryErrors, RIGHT);
+  // lcdDrawTextAlignedLeft(MENU_DEBUG_ROW1, "Tlm RX Err");
+  // lcdDrawNumber(MENU_DEBUG_COL1_OFS, MENU_DEBUG_ROW1, telemetryErrors, RIGHT);
 
 
   lcdDrawText(LCD_W/2, 7*FH+1, STR_MENUTORESET, CENTERED);

@@ -909,7 +909,7 @@ static void setupPulses(void* context, int16_t* channels, uint8_t nChannels)
   p_state->setupFrame();
 }
 
-etx_module_driver_t externalDriver = {
+etx_proto_driver_t externalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS3,
   .init = initExternal,
   .deinit = deinitExternal,
@@ -949,7 +949,7 @@ static int getByteInternal(void* context, uint8_t* data)
   return p_state->getTelemetryByte(data);
 }
 
-etx_module_driver_t internalDriver = {
+etx_proto_driver_t internalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS3,
   .init = initInternal,
   .deinit = deinitInternal,

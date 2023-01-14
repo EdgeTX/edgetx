@@ -20,13 +20,12 @@
  */
 
 #include "extmodule_driver.h"
-#include "stm32_pulse_driver.h"
 
 #include "hal.h"
 #include "board.h"
 #include "timers_driver.h"
 
-static const stm32_pulse_timer_t extmoduleTimer = {
+const stm32_pulse_timer_t extmoduleTimer = {
   .GPIOx = EXTMODULE_TX_GPIO,
   .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
   .GPIO_Alternate = EXTMODULE_TIMER_TX_GPIO_AF,

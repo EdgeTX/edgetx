@@ -52,7 +52,7 @@ static void sendDSM(uint8_t moduleIdx);
 #endif
 
 #if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_MULTI)
-#include "intmodule_serial_driver.h"
+#include "hal/module_port.h"
 
 etx_serial_init multiSerialInitParams = {
     .baudrate = MULTIMODULE_BAUDRATE,
@@ -219,13 +219,17 @@ void setupPulsesMultiExternalModule()
 }
 
 #if defined(INTERNAL_MODULE_MULTI)
+
 static void* multiInit(uint8_t module)
 {
   (void)module;
   
   // serial port setup
   intmodulePulsesData.multi.initFrame();
-  void* uart_ctx = IntmoduleSerialDriver.init(&multiSerialInitParams);
+
+  // TODO: error handling
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+                                     ETX_MOD_DIR_TX_RX, &multiSerialInitParams);
 
   // mixer setup
   mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
@@ -241,14 +245,16 @@ static void* multiInit(uint8_t module)
   TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
 #endif
 
-  return uart_ctx;
+  return mod_st;
 }
 
-static void multiDeInit(void* context)
+static void multiDeInit(void* ctx)
 {
   INTERNAL_MODULE_OFF();
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-  IntmoduleSerialDriver.deinit(context);
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  modulePortDeInit(mod_st);
 }
 
 static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
@@ -262,15 +268,23 @@ static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels
   setupPulsesMulti(INTERNAL_MODULE);
 }
 
-static void multiSendPulses(void* context)
+static void multiSendPulses(void* ctx)
 {
-  IntmoduleSerialDriver.sendBuffer(context, intmodulePulsesData.multi.getData(),
-                                   intmodulePulsesData.multi.getSize());
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto drv = mod_st->tx.port->drv.serial;
+  auto drv_ctx = mod_st->tx.ctx;
+
+  drv->sendBuffer(drv_ctx, intmodulePulsesData.multi.getData(),
+                  intmodulePulsesData.multi.getSize());
 }
 
-static int multiGetByte(void* context, uint8_t* data)
+static int multiGetByte(void* ctx, uint8_t* data)
 {
-  return IntmoduleSerialDriver.getByte(context, data);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto drv = mod_st->rx.port->drv.serial;
+  auto drv_ctx = mod_st->rx.ctx;
+
+  return drv->getByte(drv_ctx, data);
 }
 
 static void multiProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
@@ -280,7 +294,7 @@ static void multiProcessData(void* context, uint8_t data, uint8_t* buffer, uint8
 
 #include "hal/module_driver.h"
 
-const etx_module_driver_t MultiInternalDriver = {
+const etx_proto_driver_t MultiInternalDriver = {
   .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
   .init = multiInit,
   .deinit = multiDeInit,

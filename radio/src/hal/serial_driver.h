@@ -58,7 +58,7 @@ struct etx_serial_callbacks_t {
 typedef struct {
 
   // Init serial communication
-  void* (*init)(const etx_serial_init* params);
+  void* (*init)(void* hw_def, const etx_serial_init* params);
 
   // De-Init serial communication
   void (*deinit)(void* ctx);
@@ -72,6 +72,9 @@ typedef struct {
   // Wait for last send operation to complete
   void (*waitForTxCompleted)(void* ctx);
 
+  // 2-wire half-duplex
+  void (*enableRx)(void* ctx);
+  
   // Fetch byte from internal buffer
   int (*getByte)(void* ctx, uint8_t* data);
 

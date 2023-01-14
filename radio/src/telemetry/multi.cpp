@@ -470,10 +470,13 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
 #if defined(LUA)
     case FrskySportPolling:
-      if (len >= 1 && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && data[0] == outputTelemetryBuffer.sport.physicalId) {
-        TRACE("MP Sending sport data out.");
-        sportSendBuffer(outputTelemetryBuffer.data, outputTelemetryBuffer.size);
-      }
+      // TODO
+      // if (len >= 1 &&
+      //     outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT &&
+      //     data[0] == outputTelemetryBuffer.sport.physicalId) {
+      //   TRACE("MP Sending sport data out.");
+      //   sportSendBuffer(outputTelemetryBuffer.data, outputTelemetryBuffer.size);
+      // }
       break;
 #endif
     case SpectrumScannerPacket:

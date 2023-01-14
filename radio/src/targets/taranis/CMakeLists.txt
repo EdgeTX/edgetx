@@ -473,9 +473,9 @@ if(INTERNAL_MODULE_SERIAL)
   if(PXX_FREQUENCY STREQUAL HIGH)
     add_definitions(-DPXX_FREQUENCY_HIGH)
   endif()
+
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
-    targets/common/arm/stm32/intmodule_serial_driver.cpp
     targets/common/arm/stm32/stm32_usart_driver.cpp
     )
 
@@ -583,6 +583,7 @@ set(FIRMWARE_TARGET_SRC
   ${LED_DRIVER}
   ${LCD_DRIVER}
   board.cpp
+  module_ports.cpp
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp

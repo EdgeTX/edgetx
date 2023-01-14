@@ -354,28 +354,34 @@ const etx_serial_init sbusTrainerParams = {
 #if defined(EXTMODULE_USART)
 #include "extmodule_serial_driver.h"
 
+static const etx_serial_driver_t* sbus_trainer_drv = nullptr;
 static void* sbus_trainer_ctx = nullptr;
 
 void init_trainer_module_sbus()
 {
-  auto serial_driver = extmoduleGetSerialPort();
-  sbus_trainer_ctx = serial_driver->init(&sbusTrainerParams);
+  void* hw_def;
+  if (extmoduleGetSerialPort(sbus_trainer_drv, hw_def)) {
+    sbus_trainer_ctx = sbus_trainer_drv->init(hw_def, &sbusTrainerParams);
+  }
 }
 
 void stop_trainer_module_sbus()
 {
-  auto serial_driver = extmoduleGetSerialPort();
   auto ctx = sbus_trainer_ctx;
+  auto drv = sbus_trainer_drv;
+
   if (ctx) {
     sbus_trainer_ctx = nullptr;
-    serial_driver->deinit(ctx);
+    sbus_trainer_drv = nullptr;
+    drv->deinit(ctx);
   }
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
 {
-  auto serial_driver = extmoduleGetSerialPort();
   auto ctx = sbus_trainer_ctx;
+  auto serial_driver = sbus_trainer_drv;
+
   if (ctx) {
     return serial_driver->getByte(ctx, data);
   }

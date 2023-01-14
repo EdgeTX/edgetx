@@ -97,7 +97,7 @@ static void afhds2ProcessData(void*, uint8_t data, uint8_t* buffer, uint8_t* len
   processInternalFlySkyTelemetryData(data, buffer, len);
 }
 
-const etx_module_driver_t Afhds2InternalDriver = {
+const etx_proto_driver_t Afhds2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS2A,
   .init = afhds2Init,
   .deinit = afhds2DeInit,

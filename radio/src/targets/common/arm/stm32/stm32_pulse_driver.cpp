@@ -20,6 +20,8 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_dma.h"
+
 #include "definitions.h"
 
 static void enable_tim_clock(TIM_TypeDef* TIMx)
@@ -275,28 +277,10 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   LL_TIM_EnableCounter(tim->TIMx);
 }
 
-static bool check_and_clean_dma_tc_flag(const stm32_pulse_timer_t* tim)
-{
-  switch(tim->DMA_Stream) {
-  case LL_DMA_STREAM_1:
-    if (!LL_DMA_IsActiveFlag_TC1(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC1(tim->DMAx);
-    break;
-  case LL_DMA_STREAM_5:
-    if (!LL_DMA_IsActiveFlag_TC5(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC5(tim->DMAx);
-    break;
-  case LL_DMA_STREAM_7:
-    if (!LL_DMA_IsActiveFlag_TC7(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC7(tim->DMAx);
-    break;
-  }
-  return true;
-}
-
 void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
 {
-  if (!check_and_clean_dma_tc_flag(tim)) return;
+  if (!stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream))
+    return;
 
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);

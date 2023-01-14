@@ -44,6 +44,6 @@ struct FlySkySerialPulsesData {
 
 
 extern const etx_serial_init afhds2SerialInitParams;
-extern const etx_module_driver_t Afhds2InternalDriver;
+extern const etx_proto_driver_t Afhds2InternalDriver;
 
 #endif /* PULSES_AFHDS2_H_ */

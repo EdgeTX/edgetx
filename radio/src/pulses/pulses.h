@@ -184,9 +184,7 @@ union InternalModulePulsesData {
 
 union ExternalModulePulsesData {
 #if defined(PXX1)
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
   UartPxx1Pulses pxx_uart;
-#endif
   PwmPxx1Pulses pxx;
 #endif
 
@@ -233,14 +231,14 @@ extern TrainerPulsesData trainerPulsesData;
 bool setupPulsesInternalModule();
 void stopPulsesInternalModule();
 void intmoduleSendNextFrame();
-const etx_module_driver_t* getIntModuleDriver();
+const etx_proto_driver_t* getIntModuleDriver();
 void* getIntModuleCtx();
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool setupPulsesExternalModule();
 void stopPulsesExternalModule();
 void extmoduleSendNextFrame();
-const etx_module_driver_t* getExtModuleDriver();
+const etx_proto_driver_t* getExtModuleDriver();
 void* getExtModuleCtx();
 #endif
 void restartModule(uint8_t idx);

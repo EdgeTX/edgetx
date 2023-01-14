@@ -402,27 +402,3 @@ void initJackDetect(void)
   GPIO_Init(JACK_DETECT_GPIO, &GPIO_InitStructure);
 }
 #endif
-
-#if defined(AUX_SERIAL)
-const etx_serial_port_t auxSerialPort = {
-  "AUX1",
-  &AuxSerialDriver,
-  nullptr
-};
-#define AUX_SERIAL_PORT &auxSerialPort
-#else
-#define AUX_SERIAL_PORT nullptr
-#endif
-
-#define AUX2_SERIAL_PORT nullptr
-
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
-  AUX_SERIAL_PORT,
-  AUX2_SERIAL_PORT,
-};
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return serialPorts[port_nr];
-}

@@ -25,6 +25,8 @@
 #include "dataconstants.h"
 #include "definitions.h"
 
+#include "hal/module_port.h"
+
 enum FrskyFirmwareProductFamily {
   FIRMWARE_FAMILY_INTERNAL_MODULE,
   FIRMWARE_FAMILY_EXTERNAL_MODULE,
@@ -133,6 +135,9 @@ class FrskyDeviceFirmwareUpdate {
     uint32_t address = 0;
     ModuleIndex module;
     uint8_t frame[12];
+
+    etx_module_state_t* mod_st = nullptr;
+    const etx_serial_driver_t* uart_drv = nullptr;
     void* uart_ctx = nullptr;
 
     void startFrame(uint8_t command);
@@ -162,6 +167,10 @@ class FrskyChipFirmwareUpdate {
     const char * flashFirmware(const char * filename, ProgressHandler progressHandler, bool wait = true);
 
   protected:
+    etx_module_state_t* mod_st = nullptr;
+    const etx_serial_driver_t* uart_drv = nullptr;
+    void* uart_ctx = nullptr;
+
     uint8_t crc;
 
     void sendByte(uint8_t byte, bool crc = true);

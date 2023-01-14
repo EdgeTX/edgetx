@@ -43,7 +43,7 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_DSMP
 };
 
-struct etx_module_driver_t {
+struct etx_proto_driver_t {
 
     // Protocol implemented by this module driver
     ChannelsProtocols protocol;

@@ -29,7 +29,6 @@
 #include "timers_driver.h"
 
 #if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
 
 const etx_serial_init pxx2SerialInitParams = {
     .baudrate = PXX2_HIGHSPEED_BAUDRATE,
@@ -38,7 +37,10 @@ const etx_serial_init pxx2SerialInitParams = {
     .word_length = ETX_WordLength_8,
     .rx_enable = true,
 };
+
 #endif
+
+#include "hal/module_port.h"
 
 bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
 {
@@ -670,94 +672,139 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
   resumePulses();
 }
 
-struct PXX2State {
-  uint8_t                    module;
-  Pxx2Pulses*                pulses;
-  const etx_serial_driver_t* uart_drv;
-  void*                      uart_ctx;
 
-  void init(uint8_t _module, Pxx2Pulses* _pulses, const etx_serial_driver_t* _drv, void* _ctx)
-  {
-    module = _module;
-    pulses = _pulses;
-    uart_drv = _drv;
-    uart_ctx = _ctx;
+static void* pxx2Init(uint8_t module)
+{
+  etx_module_state_t* mod_st = nullptr;
+  etx_serial_init params(pxx2SerialInitParams);
+
+#if defined(INTERNAL_MODULE_PXX2)
+  if (module == INTERNAL_MODULE) {
+#if defined(INTMODULE_HEARTBEAT)
+    // use backup trigger (1 ms later)
+    init_intmodule_heartbeat();
+#endif
+    mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+    INTERNAL_MODULE_ON();
+
+    resetAccessAuthenticationCount();
+
+    params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+                                  ETX_MOD_DIR_TX_RX, &params);
+
+    mod_st->user_data = (void*)&intmodulePulsesData.pxx2;
   }
-  
-  void deinit() { uart_drv->deinit(uart_ctx); }
-};
-
-static PXX2State pxx2State[NUM_MODULES];
-
-static void* pxx2InitInternal(uint8_t module)
-{
-#if defined(INTMODULE_HEARTBEAT)
-  // use backup trigger (1 ms later)
-  init_intmodule_heartbeat();
 #endif
-  mixerSchedulerSetPeriod(module, PXX2_PERIOD);
-  INTERNAL_MODULE_ON();
 
-  resetAccessAuthenticationCount();
+  if (module == EXTERNAL_MODULE) {
 
-  auto state = &pxx2State[module];
-  state->init(module, &intmodulePulsesData.pxx2, &IntmoduleSerialDriver,
-              IntmoduleSerialDriver.init(&pxx2SerialInitParams));
+    uint8_t type = g_model.moduleData[module].type;
+    switch(type) {
 
-  return state;
+    case MODULE_TYPE_R9M_LITE_PXX2:
+      params.baudrate = PXX2_LOWSPEED_BAUDRATE;
+      break;
+
+    case MODULE_TYPE_ISRM_PXX2:
+    case MODULE_TYPE_R9M_PXX2:
+    case MODULE_TYPE_XJT_LITE_PXX2:
+    case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+      params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
+      break;
+
+    default:
+      return nullptr;
+    }
+
+    mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
+    EXTERNAL_MODULE_ON();
+
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
+                                  ETX_MOD_DIR_TX_RX, &params);
+
+    mod_st->user_data = (void*)&extmodulePulsesData.pxx2;
+  }
+
+  return mod_st;
 }
 
-static void pxx2DeInitInternal(void* context)
+static void pxx2DeInit(void* ctx)
 {
-  auto state = (PXX2State*)context;
-  state->deinit();
+  auto mod_st = (etx_module_state_t*)ctx;
+  uint8_t module = modulePortGetModule(mod_st);
 
-  INTERNAL_MODULE_OFF();
+#if defined(INTERNAL_MODULE_PXX2)
+  if (module == INTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
 #if defined(INTMODULE_HEARTBEAT)
-  stop_intmodule_heartbeat();
+    stop_intmodule_heartbeat();
 #endif
-  mixerSchedulerSetPeriod(state->module, 0);
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
+  }
+
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
 }
 
+#if defined(INTERNAL_MODULE_PXX2)
 // TODO: move this to Pxx2Pulses
 static bool pxx2InternalSendNextFrame = true;
+#endif
 
-static void pxx2SetupPulsesInternal(void* context, int16_t* channels, uint8_t nChannels)
+static void pxx2SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
-  auto state = (PXX2State*)context;
+  auto mod_st = (etx_module_state_t*)ctx;
 
-  auto pulses = state->pulses;
-  auto module = state->module;
-  pxx2InternalSendNextFrame = pulses->setupFrame(module, channels, nChannels);
+  auto pulses = (Pxx2Pulses*)mod_st->user_data;
+  auto module = modulePortGetModule(mod_st);
 
-  if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
-      moduleState[module].mode == MODULE_MODE_POWER_METER) {
-    mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
-  } else {
-    mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+#if defined(INTERNAL_MODULE_PXX2)
+  if (module == INTERNAL_MODULE) {
+    pxx2InternalSendNextFrame = pulses->setupFrame(module, channels, nChannels);
+
+    if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
+        moduleState[module].mode == MODULE_MODE_POWER_METER) {
+      mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
+    } else {
+      mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+    }
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    pulses->setupFrame(module, channels, nChannels);
   }
 }
 
-static void pxx2SendPulsesInternal(void* context)
+static void pxx2SendPulses(void* ctx)
 {
-  if (pxx2InternalSendNextFrame) {
-    auto state = (PXX2State*)context;
-    auto drv = state->uart_drv;
-    auto ctx = state->uart_ctx;
-    auto pulses = state->pulses;
-    drv->sendBuffer(ctx, pulses->getData(), pulses->getSize());
-  }
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+  auto pulses = (Pxx2Pulses*)mod_st->user_data;
+
+  if (module == INTERNAL_MODULE && !pxx2InternalSendNextFrame)
+    return;
+
+  drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
 }
 
-static int pxx2GetByte(void* context, uint8_t* data)
+static int pxx2GetByte(void* ctx, uint8_t* data)
 {
-  auto state = (PXX2State*)context;
-  auto drv = state->uart_drv;
-  auto ctx = state->uart_ctx;
-  return drv->getByte(ctx, data);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto drv_ctx = modulePortGetCtx(mod_st->rx);
+  return drv->getByte(drv_ctx, data);
 }
 
-static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
+static void pxx2ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   if (*len == 0 && data != START_STOP) {
     return;
@@ -802,99 +849,23 @@ static void pxx2ProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_
     return;
   }
 
-  auto state = (PXX2State*)context;
-  auto module = state->module;
-  auto drv = state->uart_drv;
-  auto ctx = state->uart_ctx;
-  processPXX2Frame(module, frame, drv, ctx);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto drv_ctx = modulePortGetCtx(mod_st->rx);
+  processPXX2Frame(module, frame, drv, drv_ctx);
   *len = 0;
 }
 
-
 #include "hal/module_driver.h"
-#include "extmodule_serial_driver.h"
+// #include "extmodule_serial_driver.h"
 
-const etx_module_driver_t Pxx2InternalDriver = {
+const etx_proto_driver_t Pxx2Driver = {
   .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
-  .init = pxx2InitInternal,
-  .deinit = pxx2DeInitInternal,
-  .setupPulses = pxx2SetupPulsesInternal,
-  .sendPulses = pxx2SendPulsesInternal,
-  .getByte = pxx2GetByte,
-  .processData = pxx2ProcessData,
-};
-
-static void* pxx2InitExternal(uint8_t module, uint32_t baudrate)
-{
-  etx_serial_init params(pxx2SerialInitParams);
-  params.baudrate = baudrate;
-
-  mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
-  EXTERNAL_MODULE_ON();
-
-  telemetryProtocol = PROTOCOL_TELEMETRY_FRSKY_SPORT;
-
-  auto state = &pxx2State[module];
-  auto drv = extmoduleGetSerialPort();
-  if (!drv) return nullptr;
-  
-  state->init(module, &extmodulePulsesData.pxx2, drv, drv->init(&params));
-  return state;
-}
-
-static void* pxx2InitExtLowSpeed(uint8_t module)
-{
-  return pxx2InitExternal(module, PXX2_LOWSPEED_BAUDRATE);
-}
-
-static void* pxx2InitExtHighSpeed(uint8_t module)
-{
-  return pxx2InitExternal(module, PXX2_HIGHSPEED_BAUDRATE);
-}
-
-static void pxx2DeInitExternal(void* context)
-{
-  auto state = (PXX2State*)context;
-  if (state) state->deinit();
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
-  telemetryProtocol = 0xFF;
-}
-
-static void pxx2SetupPulsesExternal(void* context, int16_t* channels, uint8_t nChannels)
-{
-  auto state = (PXX2State*)context;
-  auto pulses = state->pulses;
-  auto module = state->module;
-  pulses->setupFrame(module, channels, nChannels);
-}
-
-static void pxx2SendPulsesExternal(void* context)
-{
-  auto state = (PXX2State*)context;
-  auto drv = state->uart_drv;
-  auto ctx = state->uart_ctx;
-  auto pulses = state->pulses;
-  drv->sendBuffer(ctx, pulses->getData(), pulses->getSize());
-}
-
-const etx_module_driver_t Pxx2ExternalDriver = {
-  .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
-  .init = pxx2InitExtHighSpeed,
-  .deinit = pxx2DeInitExternal,
-  .setupPulses = pxx2SetupPulsesExternal,
-  .sendPulses = pxx2SendPulsesExternal,
-  .getByte = pxx2GetByte,
-  .processData = pxx2ProcessData,
-};
-
-const etx_module_driver_t Pxx2LowSpeedExternalDriver = {
-  .protocol = PROTOCOL_CHANNELS_PXX2_LOWSPEED,
-  .init = pxx2InitExtLowSpeed,
-  .deinit = pxx2DeInitExternal,
-  .setupPulses = pxx2SetupPulsesExternal,
-  .sendPulses = pxx2SendPulsesExternal,
+  .init = pxx2Init,
+  .deinit = pxx2DeInit,
+  .setupPulses = pxx2SetupPulses,
+  .sendPulses = pxx2SendPulses,
   .getByte = pxx2GetByte,
   .processData = pxx2ProcessData,
 };

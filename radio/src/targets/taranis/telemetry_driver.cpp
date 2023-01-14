@@ -309,7 +309,12 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
   if (DMA_GetITStatus(TELEMETRY_DMA_Stream_TX, TELEMETRY_DMA_TX_FLAG_TC)) {
     DMA_ClearITPendingBit(TELEMETRY_DMA_Stream_TX, TELEMETRY_DMA_TX_FLAG_TC);
 
-    // clear TC flag before enabling interrupt
+    // clear TC flag before enabling interrupt:
+    //  -> TC flag will be re-triggered once the last byte which has
+    //     just been transfered from DMA to USART will be transmitted,
+    //     thus triggering TELEMETRY_USART_IRQHandler(), which will
+    //     switch from output to input mode.
+    //
     TELEMETRY_USART->SR &= ~USART_SR_TC;
     TELEMETRY_USART->CR1 |= USART_CR1_TCIE;
 
@@ -342,10 +347,14 @@ extern "C" void TELEMETRY_USART_IRQHandler(void)
     else {
       telemetryFifo.push(data);
 #if defined(LUA)
+      // detect S.PORT sensor polling from module
       if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT) {
         static uint8_t prevdata;
-        if (prevdata == 0x7E && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && data == outputTelemetryBuffer.sport.physicalId) {
-          sportSendBuffer(outputTelemetryBuffer.data + 1, outputTelemetryBuffer.size - 1);
+        if (prevdata == 0x7E &&
+            outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT &&
+            data == outputTelemetryBuffer.sport.physicalId) {
+          sportSendBuffer(outputTelemetryBuffer.data + 1,
+                          outputTelemetryBuffer.size - 1);
         }
         prevdata = data;
       }

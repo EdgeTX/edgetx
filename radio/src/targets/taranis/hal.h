@@ -1929,9 +1929,11 @@
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS)
   #define TELEMETRY_DIR_OUTPUT()          LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
   #define TELEMETRY_DIR_INPUT()           LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
+  #define TELEMETRY_SET_INPUT           1
 #else
   #define TELEMETRY_DIR_OUTPUT()          LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
   #define TELEMETRY_DIR_INPUT()           LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
+  #define TELEMETRY_SET_INPUT           0
 #endif
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
@@ -1940,7 +1942,8 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
@@ -1958,6 +1961,7 @@
 #endif
 
 #define TELEMETRY_TIMER                 TIM11
+#define TELEMETRY_TIMER_PRESCALER       ()
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 

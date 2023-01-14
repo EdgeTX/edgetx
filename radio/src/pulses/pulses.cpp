@@ -19,21 +19,17 @@
  * GNU General Public License for more details.
  */
 
+#include "hal.h"
+
+#include "extmodule_serial_driver.h"
+#include "extmodule_driver.h"
+
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#else
-#include "intmodule_pulses_driver.h"
-#endif
-
-#include "extmodule_serial_driver.h"
-#include "extmodule_driver.h"
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"
@@ -275,6 +271,7 @@ uint8_t getRequiredProtocol(uint8_t module)
           PROTOCOL_CHANNELS_DSM2_LP45 + g_model.moduleData[module].subType,
           PROTOCOL_CHANNELS_DSM2_DSMX);
       // The module is set to OFF during one second before BIND start
+      // TODO: move this to DSM2 driver...
       {
         static tmr10ms_t bindStartTime = 0;
         if (moduleState[module].mode == MODULE_MODE_BIND) {
@@ -338,9 +335,9 @@ uint8_t getRequiredProtocol(uint8_t module)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 static void* internalModuleContext = nullptr;
-static const etx_module_driver_t* internalModuleDriver = nullptr;
+static const etx_proto_driver_t* internalModuleDriver = nullptr;
 
-const etx_module_driver_t* getIntModuleDriver()
+const etx_proto_driver_t* getIntModuleDriver()
 {
   return internalModuleDriver;
 }
@@ -357,32 +354,21 @@ static void enablePulsesInternalModule(uint8_t protocol)
     internalModuleDriver->deinit(internalModuleContext);
     internalModuleContext = nullptr;
     internalModuleDriver = nullptr;
-  } else {
-    intmoduleStop();
   }
 
   switch (protocol) {
-#if defined(INTERNAL_MODULE_PXX1) && !defined(INTMODULE_USART)
+#if defined(INTERNAL_MODULE_PXX1)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
-      intmodulePxx1PulsesStart();
-#if defined(INTMODULE_HEARTBEAT)
-      init_intmodule_heartbeat();
-#endif
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, INTMODULE_PXX1_SERIAL_PERIOD);
-      break;
-#endif
-
-#if defined(INTERNAL_MODULE_PXX1) && defined(INTMODULE_USART)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      internalModuleContext = Pxx1InternalSerialDriver.init(INTERNAL_MODULE);
-      internalModuleDriver = &Pxx1InternalSerialDriver;
+      internalModuleContext = Pxx1Driver.init(INTERNAL_MODULE);
+      internalModuleDriver = &Pxx1Driver;
       break;
 #endif
 
 #if defined(INTERNAL_MODULE_PXX2)
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-      internalModuleContext = Pxx2InternalDriver.init(INTERNAL_MODULE);
-      internalModuleDriver = &Pxx2InternalDriver;
+      internalModuleContext = Pxx2Driver.init(INTERNAL_MODULE);
+      internalModuleDriver = &Pxx2Driver;
       break;
 #endif
 
@@ -395,17 +381,17 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(INTERNAL_MODULE_CRSF) && defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      internalModuleContext = CrossfireInternalDriver.init(INTERNAL_MODULE);
-      internalModuleDriver = &CrossfireInternalDriver;
+      internalModuleContext = CrossfireDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &CrossfireDriver;
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_PPM)
-    case PROTOCOL_CHANNELS_PPM:
-      intmodulePpmStart();
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, PPM_PERIOD(INTERNAL_MODULE));
-      break;
-#endif
+// #if defined(INTERNAL_MODULE_PPM)
+//     case PROTOCOL_CHANNELS_PPM:
+//       intmodulePpmStart();
+//       mixerSchedulerSetPeriod(INTERNAL_MODULE, PPM_PERIOD(INTERNAL_MODULE));
+//       break;
+// #endif
 
 #if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
@@ -440,22 +426,17 @@ bool setupPulsesInternalModule(uint8_t protocol)
     return true;
   }
 
-  switch (protocol) {
-#if defined(HARDWARE_INTERNAL_MODULE) && defined(PXX1) && !defined(INTMODULE_USART)
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-      intmodulePulsesData.pxx.setupFrame(INTERNAL_MODULE);
-      return true;
-#endif
+//   switch (protocol) {
+// #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
+//     case PROTOCOL_CHANNELS_PPM:
+//       setupPulsesPPMInternalModule();
+//       return true;
+// #endif
 
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-    case PROTOCOL_CHANNELS_PPM:
-      setupPulsesPPMInternalModule();
-      return true;
-#endif
-
-    default:
-      return false;
-  }
+//     default:
+//       return false;
+//   }
+  return false;
 }
 
 void stopPulsesInternalModule()
@@ -463,14 +444,13 @@ void stopPulsesInternalModule()
   auto& proto = moduleState[INTERNAL_MODULE].protocol;
   if (proto != PROTOCOL_CHANNELS_UNINITIALIZED &&
       proto != PROTOCOL_CHANNELS_NONE) {
+
     if (internalModuleDriver) {
       internalModuleDriver->deinit(internalModuleContext);
       internalModuleDriver = nullptr;
       internalModuleContext = nullptr;
-    } else {
-      mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-      intmoduleStop();
     }
+
     proto = PROTOCOL_CHANNELS_NONE;
   }
 }
@@ -482,23 +462,15 @@ void intmoduleSendNextFrame()
     return;
   }
 
-  switch (moduleState[INTERNAL_MODULE].protocol) {
-
-#if defined(INTERNAL_MODULE_PPM)
-    case PROTOCOL_CHANNELS_PPM:
-      intmoduleSendNextFramePPM(
-          intmodulePulsesData.ppm.pulses,
-          intmodulePulsesData.ppm.ptr - intmodulePulsesData.ppm.pulses);
-      break;
-#endif
-
-#if defined(PXX1) && !defined(INTMODULE_USART)
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-      intmoduleSendNextFramePxx1(intmodulePulsesData.pxx.getData(),
-                                 intmodulePulsesData.pxx.getSize());
-      break;
-#endif
-  }
+//   switch (moduleState[INTERNAL_MODULE].protocol) {
+// #if defined(INTERNAL_MODULE_PPM)
+//     case PROTOCOL_CHANNELS_PPM:
+//       intmoduleSendNextFramePPM(
+//           intmodulePulsesData.ppm.pulses,
+//           intmodulePulsesData.ppm.ptr - intmodulePulsesData.ppm.pulses);
+//       break;
+// #endif
+//   }
 }
 
 bool setupPulsesInternalModule()
@@ -520,9 +492,9 @@ bool setupPulsesInternalModule()
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 static void* externalModuleContext = nullptr;
-static const etx_module_driver_t* externalModuleDriver = nullptr;
+static const etx_proto_driver_t* externalModuleDriver = nullptr;
 
-const etx_module_driver_t* getExtModuleDriver()
+const etx_proto_driver_t* getExtModuleDriver()
 {
   return externalModuleDriver;
 }
@@ -546,15 +518,9 @@ void enablePulsesExternalModule(uint8_t protocol)
   switch (protocol) {
 #if defined(PXX1)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
-      extmodulePxx1PulsesStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, PXX_PULSES_PERIOD);
-      break;
-#endif
-
-#if defined(PXX1) && defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      externalModuleContext = Pxx1ExternalSerialDriver.init(EXTERNAL_MODULE);
-      externalModuleDriver = &Pxx1ExternalSerialDriver;
+      externalModuleContext = Pxx1Driver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &Pxx1Driver;
       break;
 #endif
 
@@ -569,8 +535,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      externalModuleContext = CrossfireExternalDriver.init(EXTERNAL_MODULE);
-      externalModuleDriver = &CrossfireExternalDriver;
+      externalModuleContext = CrossfireDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &CrossfireDriver;
       break;
 #endif
 
@@ -582,14 +548,10 @@ void enablePulsesExternalModule(uint8_t protocol)
 #endif
 
 #if defined(PXX2)
-    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-      externalModuleContext = Pxx2ExternalDriver.init(EXTERNAL_MODULE);
-      externalModuleDriver = &Pxx2ExternalDriver;
-      break;
-
     case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
-      externalModuleContext = Pxx2LowSpeedExternalDriver.init(EXTERNAL_MODULE);
-      externalModuleDriver = &Pxx2LowSpeedExternalDriver;
+    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
+      externalModuleContext = Pxx2Driver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &Pxx2Driver;
       break;
 #endif
 
@@ -653,12 +615,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
   }
   
   switch (protocol) {
-
-#if defined(PXX1)
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-      extmodulePulsesData.pxx.setupFrame(EXTERNAL_MODULE);
-      return true;
-#endif
 
 #if defined(SBUS)
     case PROTOCOL_CHANNELS_SBUS:
@@ -728,13 +684,6 @@ void extmoduleSendNextFrame()
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
       break;
 
-#if defined(PXX1)
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-      extmoduleSendNextFramePxx1(extmodulePulsesData.pxx.getData(),
-                                 extmodulePulsesData.pxx.getSize());
-      break;
-#endif
-
 #if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_SBUS:
       extmoduleSendNextFrameSoftSerial(
@@ -761,8 +710,8 @@ void extmoduleSendNextFrame()
 
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:
-      sportSendBuffer(extmodulePulsesData.ghost.pulses,
-                      extmodulePulsesData.ghost.length);
+      // sportSendBuffer(extmodulePulsesData.ghost.pulses,
+      //                 extmodulePulsesData.ghost.length);
       break;
 #endif
   }

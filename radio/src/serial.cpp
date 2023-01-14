@@ -227,7 +227,8 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #endif
 
   case UART_MODE_TELEMETRY:
-    telemetrySetGetByte(ctx, getByte);
+    // telemetrySetGetByte(ctx, getByte);
+
     // TODO: setRxCb (see MODE_LUA)
     //       de we really need telemetry
     //       input over USB VCP?
@@ -412,8 +413,10 @@ void serialInit(uint8_t port_nr, int mode)
     state->port = port;
 
     if (port && params.baudrate != 0) {
-      if (port->uart && port->uart->init)
-        state->usart_ctx = port->uart->init(&params);
+      if (port->uart && port->uart->init) {
+        auto hw_def = port->hw_def;
+        state->usart_ctx = port->uart->init(hw_def, &params);
+      }
     }
 
     // Update callbacks once the port is setup

@@ -576,10 +576,6 @@ class Pxx2OtaUpdate {
     const char * nextStep(uint8_t step, const char * rxName, uint32_t address, const uint8_t * buffer);
 };
 
-extern const etx_serial_init pxx2SerialInitParams;
-
-extern const etx_module_driver_t Pxx2InternalDriver;
-extern const etx_module_driver_t Pxx2ExternalDriver;
-extern const etx_module_driver_t Pxx2LowSpeedExternalDriver;
+extern const etx_proto_driver_t Pxx2Driver;
 
 #endif

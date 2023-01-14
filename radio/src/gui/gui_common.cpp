@@ -854,7 +854,8 @@ bool isExternalModuleAvailable(int moduleType)
       moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
 
 #if defined(PXX2)
-    return extmoduleGetSerialPort() != nullptr;
+    const etx_serial_driver_t* drv; void* hw_def;
+    return extmoduleGetSerialPort(drv, hw_def);
 #else
     return false;
 #endif

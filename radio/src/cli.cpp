@@ -25,6 +25,7 @@
 #include "opentx.h"
 #include "diskio.h"
 #include "timers_driver.h"
+#include "hal/module_port.h"
 
 #include "cli.h"
 
@@ -33,10 +34,6 @@
 #include <new>
 #include <stdarg.h>
 
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -1037,11 +1034,15 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-static void *spInternalModuleCTX = nullptr;
+static etx_module_state_t *spInternalModuleState = nullptr;
+
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
+  auto drv = modulePortGetSerialDrv(spInternalModuleState->tx);
+  auto ctx = modulePortGetCtx(spInternalModuleState->tx);
+
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
@@ -1114,13 +1115,15 @@ int cliSerialPassthrough(const char **argv)
       etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
 
-      void* uart_ctx = IntmoduleSerialDriver.init(&params);
-      spInternalModuleCTX = uart_ctx;
+      spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_INTERNAL_UART,
+                                                   ETX_MOD_DIR_TX_RX, &params);
+
+      auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
+      auto ctx = modulePortGetCtx(spInternalModuleState->rx);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
-
 
       // loop until cable disconnected
       while (cdcConnected) {
@@ -1129,15 +1132,14 @@ int cliSerialPassthrough(const char **argv)
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
           baudrate = cli_br;
 
-          etx_serial_init params(spIntmoduleSerialInitParams);
-          params.baudrate = baudrate;
-
           // re-configure serial port
-          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+          params.baudrate = baudrate;
+          modulePortInitSerial(port_n, ETX_MOD_PORT_INTERNAL_UART,
+                               ETX_MOD_DIR_TX_RX, &params);
         }
 
         uint8_t data;
-        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
+        if (drv->getByte(ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1154,10 +1156,10 @@ int cliSerialPassthrough(const char **argv)
 
       // restore callsbacks
       cliReceiveCallBack = backupCB;
-      spInternalModuleCTX = nullptr;
 
       // and stop module
-      IntmoduleSerialDriver.deinit(uart_ctx);
+      modulePortDeInit(spInternalModuleState);
+      spInternalModuleState = nullptr;
 
       // power off the module and wait for a bit
       INTERNAL_MODULE_OFF();

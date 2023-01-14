@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,7 +21,29 @@
 
 #pragma once
 
-#include "stm32_pulse_driver.h"
+#include <stdint.h>
+#include "stm32_hal_ll.h"
 
-// used in module_ports.cpp
-extern const stm32_pulse_timer_t intmoduleTimer;
+inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
+{
+  switch(DMA_Stream) {
+  case LL_DMA_STREAM_1:
+    if (!LL_DMA_IsActiveFlag_TC1(DMAx)) return false;
+    LL_DMA_ClearFlag_TC1(DMAx);
+    break;
+  case LL_DMA_STREAM_5:
+    if (!LL_DMA_IsActiveFlag_TC5(DMAx)) return false;
+    LL_DMA_ClearFlag_TC5(DMAx);
+    break;
+  case LL_DMA_STREAM_6:
+    if (!LL_DMA_IsActiveFlag_TC6(DMAx)) return false;
+    LL_DMA_ClearFlag_TC6(DMAx);
+    break;
+  case LL_DMA_STREAM_7:
+    if (!LL_DMA_IsActiveFlag_TC7(DMAx)) return false;
+    LL_DMA_ClearFlag_TC7(DMAx);
+    break;
+  }
+
+  return true;
+}

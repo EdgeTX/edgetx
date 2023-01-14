@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "stm32_pulse_driver.h"
+#include "hal/timer_driver.h"
 
-// used in module_ports.cpp
-extern const stm32_pulse_timer_t intmoduleTimer;
+extern const etx_timer_driver_t STM32ModuleTimerDriver;

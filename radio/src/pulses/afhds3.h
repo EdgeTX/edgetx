@@ -70,10 +70,10 @@ typedef PulsesData ExtmoduleData;
 typedef SerialData IntmoduleData;
 #endif
 
-extern etx_module_driver_t externalDriver;
+extern etx_proto_driver_t externalDriver;
 
 #if defined(INTERNAL_MODULE_AFHDS3)
-extern etx_module_driver_t internalDriver;
+extern etx_proto_driver_t internalDriver;
 #endif
 
 void getStatusString(uint8_t module, char* buffer);

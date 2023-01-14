@@ -19,13 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_pulse_driver.h"
+#include "intmodule_pulses_driver.h"
 
 #include "hal.h"
 #include "board.h"
 #include "timers_driver.h"
 
-static const stm32_pulse_timer_t intmoduleTimer = {
+#if defined(INTMODULE_TIMER)
+
+const stm32_pulse_timer_t intmoduleTimer = {
   .GPIOx = INTMODULE_TX_GPIO,
   .GPIO_Pin = INTMODULE_TX_GPIO_PIN,
   .GPIO_Alternate = INTMODULE_TX_GPIO_AF,
@@ -65,26 +67,8 @@ extern "C" void INTMODULE_TIMER_IRQHandler()
   stm32_pulse_tim_update_isr(&intmoduleTimer);
 }
 
-void intmoduleStop()
-{
-  INTERNAL_MODULE_OFF();
-  stm32_pulse_deinit(&intmoduleTimer);
-}
 
-#if defined(PXX1)
-void intmodulePxx1PulsesStart()
-{
-  INTERNAL_MODULE_ON();
-  stm32_pulse_init(&intmoduleTimer);
-  stm32_pulse_config_output(&intmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
-}
 
-void intmoduleSendNextFramePxx1(const uint16_t* data, uint8_t size)
-{
-  if (!stm32_pulse_if_not_running_disable(&intmoduleTimer)) return;
 
-  // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&intmoduleTimer, data, size, LL_TIM_OCMODE_PWM1,
-                            9 * 2);
-}
-#endif
+
+#endif // INTMODULE_TIMER

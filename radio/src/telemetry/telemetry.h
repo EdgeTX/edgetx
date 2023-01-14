@@ -175,6 +175,7 @@ inline uint8_t modelTelemetryProtocol()
   }
 #endif
 
+  // TODO: PPM driver should support setting up a telemetry parser callback
   if (!sportUsed && isModulePPM(EXTERNAL_MODULE)) {
     return g_model.telemetryProtocol;
   }

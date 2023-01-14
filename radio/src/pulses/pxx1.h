@@ -167,12 +167,6 @@ typedef Pxx1Pulses<UartPxx1Transport> UartPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<PwmPxxBitTransport>> PwmPxx1Pulses;
 typedef Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport>> SerialPxx1Pulses;
 
-#if defined(INTMODULE_USART)
-extern const etx_module_driver_t Pxx1InternalSerialDriver;
-#endif
-
-#if defined(EXTMODULE_USART)
-extern const etx_module_driver_t Pxx1ExternalSerialDriver;
-#endif
+extern const etx_proto_driver_t Pxx1Driver;
 
 #endif
