@@ -138,12 +138,13 @@
 
 #define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
 
-#define TR_MULTI_PROTOCOLS             "FlySky","Hubsan","FrSky","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX","SLT","CX10","CG023", \
-        "Bayang","ESky","MT99XX","MJXq","Shenqi","FY326","Futaba","J6 Pro","FQ777","Assan","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
+#define TR_MULTI_PROTOCOLS             "FlySky","Hubsan","FrSkyD","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX","SLT","CX10","CG023", \
+        "Bayang","FrSkyX","ESky","MT99XX","MJXq","Shenqi","FY326","Futaba","J6 Pro","FQ777","Assan","FrSkyV","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
         "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFly","Bugs","BugMini","Traxxas","NCC1701","E01X", \
         "V911S","GD00X","V761","KF606","Redpine","Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX816","BayanRX","Pelikan","Tiger", \
         "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSkyL","Skyartc","ESky-v2","DSM RX","JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc", \
-        "OMP","M-Link","Wfly 2","E016Hv2","E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg","Xerall","MT99XX2"
+        "OMP","M-Link","Wfly 2","E016Hv2","E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg","Xerall","MT99XX2", \
+        "Kyosho2"
 
 #define TR_MULTI_POWER                 "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
 #define TR_MULTI_WBUS_MODE             "WBUS","PPM"
