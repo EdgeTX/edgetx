@@ -1708,7 +1708,6 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     if (!val_len || val[0] != ',') return;
     val++; val_len--;
     ls->v2 = timerValue2lsw(yaml_str2uint(val, val_len));
-  fprintf(stderr,">>>>> TIMER %s %d %d\n", val,ls->v1,ls->v2);
     break;
     
   default:
