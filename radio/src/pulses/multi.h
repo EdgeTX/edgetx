@@ -26,9 +26,6 @@
 #include "hal/serial_driver.h"
 #include "hal/module_driver.h"
 
-void convertEtxProtocolToMulti(int *protocol, int *subprotocol);
-void convertMultiProtocolToEtx(int *protocol, int *subprotocol);
-
 class UartMultiPulses: public DataBuffer<uint8_t, 64>
 {
   public:

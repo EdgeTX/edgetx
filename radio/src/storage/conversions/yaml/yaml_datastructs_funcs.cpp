@@ -1147,6 +1147,63 @@ const struct YamlIdStr enum_DSM2_Subtypes[] = {
 
 #define r_modSubtype nullptr
 
+#define MODULE_SUBTYPE_MULTI_FRSKY 2
+
+enum MMRFrskySubtypes {
+  MM_RF_FRSKY_SUBTYPE_D16,
+  MM_RF_FRSKY_SUBTYPE_D8,
+  MM_RF_FRSKY_SUBTYPE_D16_8CH,
+  MM_RF_FRSKY_SUBTYPE_V8,
+  MM_RF_FRSKY_SUBTYPE_D16_LBT,
+  MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH,
+  MM_RF_FRSKY_SUBTYPE_D8_CLONED,
+  MM_RF_FRSKY_SUBTYPE_D16_CLONED
+};
+
+void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
+{
+  // Special treatment for the FrSky entry...
+  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
+    if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
+      //D8
+      *protocol = 3;
+      *subprotocol = 0;
+    } 
+    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
+      //D8
+      *protocol = 3;
+      *subprotocol = 1;
+    } 
+    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
+      //V8
+      *protocol = 25;
+      *subprotocol = 0;
+    } 
+    else {
+      *protocol = 15;
+      if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
+        *subprotocol = 1;
+      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16)
+        *subprotocol = 0; // D16
+      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT)
+        *subprotocol = 2;
+      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH)
+        *subprotocol = 3;
+      else
+        *subprotocol = 4; // D16_CLONED
+    }
+  }
+  else {
+    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
+    // all protos > frskyx are therefore also off by one
+    if (*protocol >= 15)
+      *protocol += 1;
+    // 25 is again a FrSky *protocol (FrskyV) so shift again
+    if (*protocol >= 25)
+      *protocol += 1;
+  }
+}
+
 bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
                   yaml_writer_func wf, void* opaque)
 {

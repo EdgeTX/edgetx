@@ -1074,57 +1074,6 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable)
 }
 #if defined(MULTIMODULE)
 
-// This maps OpenTX multi type with Pascal's Multi type
-uint8_t multiConvertOtxToMulti(uint8_t moduleIdx, uint8_t type)
-{
-
-  // 15  for Multimodule is FrskyX or D16 which we map as a subprotocol of 3 (FrSky)
-  // all protos > frskyx are therefore also off by one
-  if (type >= 15)
-    type = type + 1;
-
-  // 25 is again a FrSky protocol (FrskyV) so shift again
-  if (type >= 25)
-    type = type + 1;
-
-  if (type == MODULE_SUBTYPE_MULTI_FRSKY) {
-    int subtype = g_model.moduleData[moduleIdx].subType;
-    if (subtype == MM_RF_FRSKY_SUBTYPE_D8 || subtype == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
-      //D8
-      type = 3;
-    }
-    else if (subtype == MM_RF_FRSKY_SUBTYPE_V8) {
-      //V8
-      type = 25;
-    }
-    else {
-      type = 15;
-    }
-  }
-  return type;
-}
-
-// This maps multi type to OpenTX number, type ONLY (no subtype)
-int convertMultiToOtx(int type)
-{
-  if  (type == 3) //FrSkyD
-    return MODULE_SUBTYPE_MULTI_FRSKY;
-
-  if  (type == 15) //FrSkyX
-    return MODULE_SUBTYPE_MULTI_FRSKY;
-
-  if  (type == 25) //FrSkyV
-    return MODULE_SUBTYPE_MULTI_FRSKY;
-
-  if (type > 25)
-    type = type - 1;
-
-  if (type > 15)
-    type = type - 1;
-
-  return type - 1; //Multi list starts at 1
-}
-
 // Third row is number of subtypes -1 (max valid subtype)
 #define NO_SUBTYPE  nullptr
 
@@ -1138,7 +1087,8 @@ int convertMultiToOtx(int type)
 
 const char* const STR_SUBTYPE_FLYSKY[] =     {"Std","V9x9","V6x6","V912","CX20"};
 const char* const STR_SUBTYPE_HUBSAN[] =     {"H107","H301","H501"};
-const char* const STR_SUBTYPE_FRSKY[] =      {"D16","D8","D16 8ch","V8","LBT(EU)","LBT 8ch","D8Cloned","D16Cloned"};
+const char* const STR_SUBTYPE_FRSKYD[] =     {"D8","Cloned"};
+const char* const STR_SUBTYPE_FRSKYX[] =     {"D16","D16 8ch","LBT(EU)","LBT 8ch","Cloned", "Cloned 8ch"};
 const char* const STR_SUBTYPE_HISKY[] =      {"Std","HK310"};
 const char* const STR_SUBTYPE_V2X2[] =       {"Std","JXD506","MR101"};
 const char* const STR_SUBTYPE_DSM[] =        {"2 1F","2 2F","X 1F","X 2F","Auto","R 1F"};
@@ -1183,13 +1133,13 @@ const char* const STR_SUBTYPE_FX816[] =      {"P38"};
 const char* const STR_SUBTYPE_PELIKAN[] =    {"Pro","Lite","SCX24"};
 const char* const STR_SUBTYPE_XK[] =         {"X450","X420"};
 const char* const STR_SUBTYPE_XN297DUMP[] =  {"250K","1M","2M","AUTO","NRF","CC2500"};
-const char* const STR_SUBTYPE_FRSKYX2[] =    {"D16","D16 8ch","LBT(EU)","LBT 8ch","Cloned","Clone8ch"};
 const char* const STR_SUBTYPE_FRSKYR9[] =    {"915MHz","868MHz","915 8ch","868 8ch","FCC","---","FCC 8ch"};
 const char* const STR_SUBTYPE_PROPEL[] =     {"74-Z"};
 const char* const STR_SUBTYPE_FRSKYL[] =     {"LR12","LR12 6ch"};
 const char* const STR_SUBTYPE_ESKY150V2[] =  {"150 V2"};
 const char* const STR_SUBTYPE_JJRC345[] =    {"Std","SkyTmbr"};
 const char* const STR_SUBTYPE_KYOSHO[] =     {"FHSS","Hype"};
+const char* const STR_SUBTYPE_KYOSHO2[] =    {"KT-17"};
 const char* const STR_SUBTYPE_RLINK[] =      {"Surface","Air","DumboRC"};
 const char* const STR_SUBTYPE_ELRS[] =       {"N/A WIP"};
 const char* const STR_SUBTYPE_REALACC[] =    {"R11"};
@@ -1220,7 +1170,7 @@ const mm_protocol_definition multi_protocols[] = {
 // Protocol as defined in pulses\modules_constants.h, number of sub_protocols - 1, Failsafe supported, Disable channel mapping supported, Subtype string, Option type
   {MODULE_SUBTYPE_MULTI_FLYSKY,     4, false, true,   STR_SUBTYPE_FLYSKY,    nullptr},
   {MODULE_SUBTYPE_MULTI_HUBSAN,     2, false, false,  STR_SUBTYPE_HUBSAN,    STR_MULTI_VIDFREQ},
-  {MODULE_SUBTYPE_MULTI_FRSKY,      7, false, false,  STR_SUBTYPE_FRSKY,     STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYD,     2, false, false,  STR_SUBTYPE_FRSKYD,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HISKY,      1, true,  true,   STR_SUBTYPE_HISKY,     nullptr},
   {MODULE_SUBTYPE_MULTI_V2X2,       2, false, false,  STR_SUBTYPE_V2X2,      nullptr},
   {MODULE_SUBTYPE_MULTI_DSM2,       5, false, true,   STR_SUBTYPE_DSM,       STR_MULTI_MAX_THROW},
@@ -1232,12 +1182,14 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_CX10,       6, false, false,  STR_SUBTYPE_CX10,      nullptr},
   {MODULE_SUBTYPE_MULTI_CG023,      1, false, false,  STR_SUBTYPE_CG023,     nullptr},
   {MODULE_SUBTYPE_MULTI_BAYANG,     5, false, false,  STR_SUBTYPE_BAYANG,    STR_MULTI_TELEMETRY},
+  {MODULE_SUBTYPE_MULTI_FRSKYX,     6, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_ESky,       1, false, true,   STR_SUBTYPE_ESky,      nullptr},
   {MODULE_SUBTYPE_MULTI_MT99XX,     7, false, false,  STR_SUBTYPE_MT99,      nullptr},
   {MODULE_SUBTYPE_MULTI_MJXQ,       6, false, false,  STR_SUBTYPE_MJXQ,      nullptr},
   {MODULE_SUBTYPE_MULTI_FY326,      1, false, false,  STR_SUBTYPE_FY326,     nullptr},
   {MODULE_SUBTYPE_MULTI_FUTABA,     0, true,  true,   STR_SUBTYPE_FUTABA,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_J6PRO,      0, false, true,   NO_SUBTYPE,            nullptr},
+  {MODULE_SUBTYPE_MULTI_FRSKYV,     0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HONTAI,     3, false, false,  STR_SUBTYPE_HONTAI,    nullptr},
   {MODULE_SUBTYPE_MULTI_OLRS,       0, false, false,  NO_SUBTYPE,            STR_RF_POWER},
   {MODULE_SUBTYPE_MULTI_FS_AFHDS2A, 5, true,  true,   STR_SUBTYPE_AFHDS2A,   STR_MULTI_SERVOFREQ},
@@ -1267,7 +1219,7 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_PELIKAN,    2, false, true,   STR_SUBTYPE_PELIKAN,   nullptr},
   {MODULE_SUBTYPE_MULTI_XK,         1, false, false,  STR_SUBTYPE_XK,        STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_XN297DUMP,  5, false, false,  STR_SUBTYPE_XN297DUMP, STR_MULTI_RFCHAN},
-  {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX2,   STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_FRSKY_R9,   6, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
   {MODULE_SUBTYPE_MULTI_PROPEL,     0, false, false,  STR_SUBTYPE_PROPEL,    nullptr},
   {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_MULTI_RFTUNE},
@@ -1286,6 +1238,7 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_LOLI,       0, true,  false,  NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false, false,  STR_SUBTYPE_MOULDKG,   STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_MT99XX2,    0, false, false,  STR_SUBTYPE_MT992,     nullptr},
+  {MODULE_SUBTYPE_MULTI_KYOSHO2,    0, false, false,  STR_SUBTYPE_KYOSHO2,   nullptr},
   {MM_RF_CUSTOM_SELECTED,           7, true,  true,   NO_SUBTYPE,            STR_MULTI_OPTION},
 
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)

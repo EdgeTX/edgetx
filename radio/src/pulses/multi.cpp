@@ -317,94 +317,6 @@ void sendChannels(uint8_t moduleIdx)
   }
 }
 
-void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
-{
-  if (*protocol == 3 && *subprotocol == 0) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
-    return;
-  }
-
-  if (*protocol == 3 && *subprotocol == 1) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
-    return;
-  }
-
-  if (*protocol == 25) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
-    return;
-  }
-
-  if (*protocol == 15) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-
-    if (*subprotocol == 0)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16;
-    else if (*subprotocol == 1)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_8CH;
-    else if (*subprotocol == 2)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT;
-    else if (*subprotocol == 3)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH;
-    else if (*subprotocol == 4)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_CLONED;
-
-    return;
-  }
-
-  if (*protocol >= 25)
-    *protocol -= 1;
-
-  if (*protocol >= 16)
-    *protocol -= 1;
-}
-
-void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
-{
-  // Special treatment for the FrSky entry...
-  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
-    if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
-      //D8
-      *protocol = 3;
-      *subprotocol = 0;
-    } 
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
-      //D8
-      *protocol = 3;
-      *subprotocol = 1;
-    } 
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
-      //V8
-      *protocol = 25;
-      *subprotocol = 0;
-    } 
-    else {
-      *protocol = 15;
-      if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
-        *subprotocol = 1;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16)
-        *subprotocol = 0; // D16
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT)
-        *subprotocol = 2;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH)
-        *subprotocol = 3;
-      else
-        *subprotocol = 4; // D16_CLONED
-    }
-  }
-  else {
-    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
-    // all protos > frskyx are therefore also off by one
-    if (*protocol >= 15)
-      *protocol += 1;
-    // 25 is again a FrSky *protocol (FrskyV) so shift again
-    if (*protocol >= 25)
-      *protocol += 1;
-  }
-}
-
 void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
 {// byte 1+2, protocol information
 
@@ -454,9 +366,6 @@ void sendFrameProtocolHeader(uint8_t moduleIdx, bool failsafe)
       optionValue |= 0x40; // 11ms servo refresh
     optionValue |= sentModuleChannels(moduleIdx); //add number of channels
   }
-
-  // Special treatment for the FrSky entry...
-  convertEtxProtocolToMulti(&type, &subtype);
 
   // Set the highest bit of option byte in AFHDS2A protocol to instruct MULTI to passthrough telemetry bytes instead
   // of sending Frsky D telemetry
