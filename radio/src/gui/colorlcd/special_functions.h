@@ -36,11 +36,12 @@ class SpecialFunctionsPage: public PageTab {
     int8_t focusIndex = -1;
     int8_t prevFocusIndex = -1;
     bool isRebuilding = false;
-    Button* firstActiveButton = nullptr;
-    Button* firstInactiveButton = nullptr;
     CustomFunctionData * functions;
 
     void rebuild(FormWindow * window);
+    void newSF(FormWindow* window, bool pasteSF);
+    void editSpecialFunction(FormWindow * window, uint8_t index, Button* button);
+    void pasteSpecialFunction(FormWindow * window, uint8_t index, Button* button);
 };
 
 #endif //_SPECIAL_FUNCTIONS_H
