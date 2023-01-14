@@ -433,7 +433,7 @@ void lcdInit()
 extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
-  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_ICR_CLIF);
+  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   _frame_addr_reloaded = 1;
 }
 
