@@ -507,7 +507,7 @@ void ModelLogicalSwitchesPage::rebuild(FormWindow * window)
 void ModelLogicalSwitchesPage::newLS(FormWindow * window, bool pasteLS)
 {
   Menu* menu = new Menu(Layer::back());
-  menu->setTitle(TR_MENU_LOGICAL_SWITCHES);
+  menu->setTitle(STR_MENU_LOGICAL_SWITCHES);
 
   // search for unused switches
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
