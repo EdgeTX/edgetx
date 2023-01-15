@@ -535,6 +535,21 @@ void ModelLogicalSwitchesPage::newLS(FormWindow * window, bool pasteLS)
   menu->updateLines();
 }
 
+void ModelLogicalSwitchesPage::plusPopup(FormWindow * window)
+{
+  if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
+    Menu* menu = new Menu(window);
+    menu->addLine(STR_NEW, [=]() {
+      newLS(window, false);
+    });
+    menu->addLine(STR_PASTE, [=]() {
+      newLS(window, true);
+    });
+  } else {
+    newLS(window, false);
+  }
+}
+
 void ModelLogicalSwitchesPage::build(FormWindow* window)
 {
 #if LCD_W > LCD_H
@@ -612,6 +627,14 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
         lv_group_focus_obj(button->getLvObj());
       }
 
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (addButton) {
+          lv_group_focus_obj(addButton->getLvObj());
+          plusPopup(window);
+        }
+        return 0;
+      });
+
       button->setFocusHandler([=](bool hasFocus) {
         if (hasFocus && !isRebuilding) {
           prevFocusIndex = focusIndex;
@@ -625,25 +648,24 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
 
   if (hasEmptySwitch) {
     line = form->newLine(&grid);
-    button = new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
-      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
-        Menu* menu = new Menu(window);
-        menu->addLine(STR_NEW, [=]() {
-          newLS(window, false);
-        });
-        menu->addLine(STR_PASTE, [=]() {
-          newLS(window, true);
-        });
-      } else {
-        newLS(window, false);
-      }
+    addButton = new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
+      plusPopup(window);
       return 0;
     });
 
-    button->setFocusHandler([=](bool hasFocus) {
+    addButton->setLongPressHandler([=]() -> uint8_t {
+      plusPopup(window);
+      return 0;
+    });
+
+    addButton->setFocusHandler([=](bool hasFocus) {
       if (hasFocus && !isRebuilding) {
         prevFocusIndex = focusIndex;
       }
     });
+  }
+  else
+  {
+    addButton = nullptr;
   }
 }
