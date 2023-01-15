@@ -929,3 +929,25 @@ bool SemanticVersion::fromInt(const unsigned int val)
   version.preReleaseNumber = Helpers::getBitmappedValue(val, 0, 4);
   return isValid();
 }
+
+StatusDialog::StatusDialog(QWidget * parent, const QString title, QString msgtext, const int width) :
+  QDialog(parent)
+{
+  setWindowTitle(title);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  msg = new QLabel(this);
+  msg->setFixedWidth(width);
+  msg->setContentsMargins(50, 50, 50, 50);
+  update(msgtext);
+  layout->addWidget(msg);
+  show();
+}
+
+StatusDialog::~StatusDialog()
+{
+}
+
+void StatusDialog::update(QString text)
+{
+  msg->setText(text);
+}

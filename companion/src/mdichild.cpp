@@ -1402,7 +1402,7 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings()  // write to Tx
+void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
@@ -1412,7 +1412,7 @@ void MdiChild::writeSettings()  // write to Tx
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     msgbox.setDefaultButton(QMessageBox::Abort);
 
-    QCheckBox *cb = new QCheckBox(tr("Don't show this message again"));
+    QCheckBox *cb = new QCheckBox(tr("Do not show this message again"));
     msgbox.setCheckBox(cb);
     connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
 
@@ -1430,12 +1430,15 @@ void MdiChild::writeSettings()  // write to Tx
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
       return;
     }
+
     if (saveFile(radioPath, false)) {
-      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Saved models and settings to radio"));
+      status->hide();
+      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
     }
     else {
       qDebug() << "MdiChild::writeEeprom(): saveFile error";
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error saving models and settings to radio!"));
+      status->hide();
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
     }
   }
   else {
