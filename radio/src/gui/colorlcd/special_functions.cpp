@@ -393,7 +393,7 @@ class SpecialFunctionEditPage : public Page
       CFN_ACTIVE(cfn) = true;
 
       // Switch
-      auto line = window->newLine(&grid);
+    auto line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
