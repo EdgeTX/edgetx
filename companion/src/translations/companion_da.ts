@@ -1371,6 +1371,18 @@ Har du en sikkerhedskopi, kan du også hente indstillinger derfra.</translation>
         <source>&lt;p&gt;The radio type in the selected profile does not exist. Using the default type instead.&lt;/p&gt; &lt;p&gt;&lt;b&gt;Please update your profile settings!&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;Type af sender i valgt profil mangler. Bruger standard indstillinger.&lt;/p&gt; &lt;p&gt;&lt;b&gt;Opdater venligst dine profil indstillinger!&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>EdgeTX Companion</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Welcome to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;As the first step, please configure the initial Radio Profile by selecting your Radio Type, Menu Language, and Build Options.&lt;/p&gt;&lt;p&gt;You may also want to take this time to review the other available options in the displayed Settings dialog.&lt;/p&gt;&lt;p&gt;After saving your settings, we recommend you download the latest firmware for your radio by using the &lt;i&gt;File -&amp;gt; Download&lt;/i&gt; menu option.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for latest news, updates and documentation. Thank you for choosing EdgeTX!&lt;/p&gt;- The EdgeTX Team.</source>
+        <translation>&lt;p&gt;&lt;b&gt;Velkommen til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Din første opgave er at konfigurere din første radio profil, ved at vælge radio type, menu sprog og release tilvalg.&lt;/p&gt;&lt;p&gt;Du bør oogså bruge tid på at undeersøge de andre tilvalg under indstillinger.&lt;/p&gt;&lt;p&gt;Efter du har gemt dine indstilllinger, anbefaler vi at du henter den nyeste firmware til din radio ved at anvende &lt;i&gt;Hent/Send -&amp;gt; Hent radio firmware&lt;/i&gt; menu punkt.&lt;/p&gt;&lt;p&gt;Besøg også &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk). Tak for at dit valg af EdgeTX!&lt;/p&gt;- EdgeTX Team.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The EdgeTX Team.</source>
+        <translation>&lt;p&gt;&lt;b&gt;Tak for at du opgraderer til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en major release som tilføjer og ændrer mange ting, så læs omhyggeligt release beskrivelse for at kende ændringer, og gennemgå omhyggeligt at hver af dine modeller fungerer som forventet.&lt;/p&gt;&lt;p&gt;Besøg venligst &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk).&lt;/p&gt;- EdgeTX Team.</translation>
+    </message>
 </context>
 <context>
     <name>CompareDialog</name>
@@ -8581,6 +8593,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>100mW - 16CH (no telemetry)</source>
         <translation>100mW - 16KA (ingen telemetri)</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>FRA</translation>
     </message>
 </context>
 <context>
