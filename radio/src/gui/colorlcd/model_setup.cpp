@@ -282,56 +282,53 @@ void ModelSetupPage::build(FormWindow * window)
   new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
              GET_SET_DEFAULT(g_model.jitterFilter));
 
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+  auto oform = new FormGroup(window, rect_t{});
+  oform->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(PAGE_PADDING));
+  oform->padAll(PAGE_PADDING);
+
   // Modules
-  auto form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
+  auto form = new FormGroup(oform, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
+  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
   Window* btn = new IntmoduleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   btn = new ExtmoduleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   btn = new TrainerModuleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   // Timer buttons
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
+  form = new FormGroup(oform, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
+  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
-  btn = new SubScreenButton(form, TR_TIMER "1",
-                            []() { new TimerWindow(0); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  btn = new SubScreenButton(form, TR_TIMER "1", []() { new TimerWindow(0); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  btn = new SubScreenButton(form, TR_TIMER "2",
-                            []() { new TimerWindow(1); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  btn = new SubScreenButton(form, TR_TIMER "2", []() { new TimerWindow(1); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  btn = new SubScreenButton(form, TR_TIMER "3",
-                            []() { new TimerWindow(2); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  btn = new SubScreenButton(form, TR_TIMER "3", []() { new TimerWindow(2); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
+  form = new FormGroup(oform, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
+  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
+  btn = new SubScreenButton(form, STR_PREFLIGHT, []() { new PreflightChecks(); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  btn = new SubScreenButton(form, STR_PREFLIGHT,
-                            []() { new PreflightChecks(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  btn = new SubScreenButton(form, STR_TRIMS, []() { new TrimsSetup(); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  btn = new SubScreenButton(form, STR_TRIMS,
-                            []() { new TrimsSetup(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  btn = new SubScreenButton(form, STR_THROTTLE_LABEL,
-                            []() { new ThrottleParams(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  btn = new SubScreenButton(form, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 }
 
 #define MAX_SUBSCREEN_BTNS 9
