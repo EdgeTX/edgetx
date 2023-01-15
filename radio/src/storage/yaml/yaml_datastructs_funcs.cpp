@@ -1622,13 +1622,20 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         CFN_ACTIVE(cfn) = 1;
       }
     }
-  } else if (HAS_REPEAT_PARAM(func)) {
-    if (func == FUNC_PLAY_SCRIPT) {
-      if (val_len == 2 && val[0] == '1' && val[1] == 'x')
-        CFN_PLAY_REPEAT(cfn) = 1;
-      else
-        CFN_PLAY_REPEAT(cfn) = 0;
-    } else if (val_len == 2
+  } else {
+    return;
+  }
+
+  if (HAS_REPEAT_PARAM(func)) {
+    // eat_comma unconditionally
+    val += l_sep;
+    val_len -= l_sep;
+    if (val_len == 0 || val[0] != ',')
+      return;
+    val++;
+    val_len--;
+
+    if (val_len == 2
         && val[0] == '1'
         && val[1] == 'x') {
       CFN_PLAY_REPEAT(cfn) = 0;
@@ -1765,36 +1772,34 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   default:
-    add_comma = false;
     break;
   }
 
-  if (HAS_ENABLE_PARAM(func)) {
     if (add_comma) {
       // ","
       if (!wf(opaque,",",1)) return false;
     }
+
     // "0/1"
     if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
-  } else if (HAS_REPEAT_PARAM(func)) {
-    if (add_comma) {
-      // ","
-      if (!wf(opaque,",",1)) return false;
-    }
-    if (func == FUNC_PLAY_SCRIPT) {
-      if (!wf(opaque,(CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x",2)) return false;
-    } else if (CFN_PLAY_REPEAT(cfn) == 0) {
-      // "1x"
-      if (!wf(opaque,"1x",2)) return false;
-    } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-      // "!1x"
-      if (!wf(opaque,"!1x",3)) return false;
-    } else {
-      // repeat time in seconds
-      str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
-      if (!wf(opaque, str, strlen(str))) return false;
-    }
+    if (HAS_REPEAT_PARAM(func)) {
+      if (add_comma) {
+        // ","
+        if (!wf(opaque,",",1)) return false;
+      }
+      if (CFN_PLAY_REPEAT(cfn) == 0) {
+        // "1x"
+        if (!wf(opaque,"1x",2)) return false;
+      } else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
+        // "!1x"
+        if (!wf(opaque,"!1x",3)) return false;
+      } else {
+        // repeat time in seconds
+        str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
+        if (!wf(opaque, str, strlen(str))) return false;
+      }
   }
+
   if (!wf(opaque, "\"", 1)) return false;
   return true;
 }

@@ -328,12 +328,8 @@ class SpecialFunctionEditPage : public Page
       }
     }
 
-    if (HAS_ENABLE_PARAM(func)) {
-      line = specialFunctionOneWindow->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{},
-                   GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
-    } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
+
+    if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
@@ -360,6 +356,11 @@ class SpecialFunctionEditPage : public Page
             });
       }
     }
+
+    line = specialFunctionOneWindow->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
+    new CheckBox(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
+
   }
 
   void buildBody(FormWindow *window)
@@ -374,6 +375,10 @@ class SpecialFunctionEditPage : public Page
     FlexGridLayout grid(col_dsc, row_dsc, 2);
 
     CustomFunctionData *cfn = &functions[index];
+
+    // Set new function to "enabled" by default
+    if (!CFN_SWITCH(cfn)) 
+      CFN_ACTIVE(cfn) = true;
 
     // Switch
     auto line = form->newLine(&grid);
@@ -411,6 +416,7 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
+      CFN_ACTIVE(cfn) = 1;
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });
@@ -515,10 +521,9 @@ class SpecialFunctionButton : public Button
     lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL+1, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     sfEnable = lv_obj_create(lvobj);
-    lv_obj_set_size(sfEnable, 22, 22);
-    lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_style_border_width(sfEnable, 3, 0);
-    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_PRIMARY2), 0);
+    lv_obj_set_size(sfEnable, 16, 16);
+    lv_obj_set_style_border_width(sfEnable, 2, 0);
+    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_SECONDARY1), 0);
     lv_obj_set_style_border_opa(sfEnable, LV_OPA_100, 0);
     lv_obj_set_style_bg_color(sfEnable, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_CHECKED);
     lv_obj_set_style_bg_opa(sfEnable, LV_OPA_100, 0);
@@ -665,16 +670,14 @@ class SpecialFunctionButton : public Button
 
     lv_label_set_text(sfFunc, s);
 
-    lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     s[0] = 0;
 
-    if (HAS_ENABLE_PARAM(func)) {
-      if (CFN_ACTIVE(cfn))
-        lv_obj_add_state(sfEnable, LV_STATE_CHECKED);
-      else
-        lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
-      lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
-    } else if (HAS_REPEAT_PARAM(func)) {
+    if (CFN_ACTIVE(cfn))
+      lv_obj_add_state(sfEnable, LV_STATE_CHECKED);
+    else
+      lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
+
+    if (HAS_REPEAT_PARAM(func)) {
       if (func == FUNC_PLAY_SCRIPT) {
         sprintf(s, "(%s)", (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x");
       } else {

@@ -1,0 +1,7 @@
+[submodule "thirdparty/stb"]
+	path = thirdparty/stb
+	url = https://github.com/nothings/stb.git
+[submodule "thirdparty/lvgl"]
+	path = thirdparty/lvgl
+	url = https://github.com/EdgeTX/lvgl.git
+	branch = release/v8.2
