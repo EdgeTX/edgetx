@@ -762,6 +762,21 @@ void SpecialFunctionsPage::editSpecialFunction(FormWindow * window, uint8_t inde
   });
 }
 
+void SpecialFunctionsPage::plusPopup(FormWindow * window)
+{
+  if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
+    Menu* menu = new Menu(window);
+    menu->addLine(STR_NEW, [=]() {
+      newSF(window, false);
+    });
+    menu->addLine(STR_PASTE, [=]() {
+      newSF(window, true);
+    });
+  } else {
+    newSF(window, false);
+  }
+}
+
 void SpecialFunctionsPage::build(FormWindow *window)
 {
 #if LCD_W > LCD_H
@@ -874,6 +889,14 @@ void SpecialFunctionsPage::build(FormWindow *window)
         }
         return 0;
       });
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (addButton) {
+          lv_group_focus_obj(addButton->getLvObj());
+          plusPopup(window);
+        }
+        return 0;
+      });
     } else {
       hasEmptyFunction = true;
     }
@@ -882,22 +905,17 @@ void SpecialFunctionsPage::build(FormWindow *window)
   if (hasEmptyFunction)
   {
     line = form->newLine(&grid);
-    button = new TextButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
-      if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
-        Menu* menu = new Menu(window);
-        menu->addLine(STR_NEW, [=]() {
-          newSF(window, false);
-        });
-        menu->addLine(STR_PASTE, [=]() {
-          newSF(window, true);
-        });
-      } else {
-        newSF(window, false);
-      }
+    addButton = new TextButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
+      plusPopup(window);
       return 0;
     });
 
-    button->setFocusHandler([=](bool hasFocus) {
+    addButton->setLongPressHandler([=]() -> uint8_t {
+      plusPopup(window);
+      return 0;
+    });
+
+    addButton->setFocusHandler([=](bool hasFocus) {
       if (hasFocus && !isRebuilding) {
         prevFocusIndex = focusIndex;
       }
