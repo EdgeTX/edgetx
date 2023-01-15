@@ -217,15 +217,15 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     break;
   }
 
-  if (fnHasEnable(rhs.func)) {
-    if (add_comma) {
-      def += ",";
-    }
-    def += std::to_string((int)rhs.enabled);
-  } else if(fnHasRepeat(rhs.func)) {
-    if (add_comma) {
-      def += ",";
-    }
+  if (add_comma) {
+    def += ",";
+  }
+
+  def += std::to_string((int)rhs.enabled);
+
+  if(fnHasRepeat(rhs.func)) {
+    def += ",";
+
     if (rhs.func == FuncPlayScript) {
       def += ((rhs.repeatParam == 0) ? "On" : "1x");
     } else if (rhs.repeatParam == 0) {
@@ -370,11 +370,14 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     def.ignore();
   }
 
-  if (fnHasEnable(rhs.func)) {
-    int en = 0;
-    def >> en;
-    rhs.enabled = en;
-  } else if(fnHasRepeat(rhs.func)) {
+  int en = 0;
+  def >> en;
+  rhs.enabled = en;
+
+  if(fnHasRepeat(rhs.func)) {
+    if (def.peek() == ',') {
+    def.ignore();
+    }
     std::string repeat;
     getline(def, repeat);
     if (rhs.func == FuncPlayScript) {
