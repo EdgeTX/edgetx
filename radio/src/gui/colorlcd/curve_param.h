@@ -33,6 +33,7 @@ class CurveParam : public Window
 {
   // Curve
   CurveRef* ref;
+  std::function<void(int32_t)> setRefValue;
 
   // Controls
   GVarNumberEdit* value_edit;
@@ -46,5 +47,6 @@ class CurveParam : public Window
   static void LongPressHandler(void* data);
 
  public:
-  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref);
+  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
+             std::function<void(int32_t)> setRefValue);
 };

@@ -26,100 +26,150 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index, CurveEdit * curveEdit) :
-  FormGroup(parent, rect, FORM_FORWARD_FOCUS),
-  index(index),
-  curveEdit(curveEdit)
+static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index) :
+  Window(parent, rect, FORM_FORWARD_FOCUS),
+  index(index)
 {
-  update();
+}
+
+#if LCD_W > LCD_H
+  #define   NUM_BTN_WIDTH   44
+#else
+  #define   NUM_BTN_WIDTH   48
+#endif
+
+void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
+{
+  static const lv_coord_t points_col_dsc[] = {11, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+
+  auto form = new FormWindow(parent, rect_t{});
+  form->padAll(0);
+  form->setFlexLayout();
+
+  FlexGridLayout grid(points_col_dsc, default_row_dsc, 4);
+  
+  auto line = form->newLine(&grid);
+  line->padAll(0);
+  line->padLeft(4);
+  line->padRight(4);
+  lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  new StaticText(line, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
+  
+  // Point number
+  for (int i = 0; i < count; i++) {
+    auto txt = new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
+  }
+
+  line = form->newLine(&grid);
+  line->padAll(2);
+  line->padLeft(4);
+  line->padRight(4);
+  lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  new StaticText(line, rect_t{}, "X", 0, CENTERED|COLOR_THEME_PRIMARY1);
+
+  int8_t* points = curveAddress(index);
+
+  // x value
+  if (isCustom) {
+    uint8_t i = 0;
+    uint8_t c = count;
+    if (start == 0) {
+      new StaticText(line, rect_t{}, "-100", 0, CENTERED | COLOR_THEME_SECONDARY1);
+      i += 1;
+    }
+    if ((start + count) == curvePointsCount) {
+      c -= 1;
+    }
+    // Adjustable points for custom curves
+    for (; i < c; i++) {
+      uint8_t px = i + start - 1;
+      numEditX[px] = new NumberEdit(
+          line, rect_t{ 0, 0, NUM_BTN_WIDTH, 0 },
+          (px == 0) ? -100 : points[curvePointsCount + px - 1],
+          (px == curvePointsCount - 3) ? 100 : points[curvePointsCount + px + 1],
+          GET_VALUE(points[curvePointsCount + px]),
+          [=](int32_t newValue) {
+            points[curvePointsCount + px] =  newValue;
+            if (px > 0) {
+              numEditX[px-1]->setMax(newValue);
+            }
+            if (px < curvePointsCount - 3) {
+              numEditX[px+1]->setMin(newValue);
+            }
+            SET_DIRTY();
+            curveEdit->updatePreview();
+          },
+          0, RIGHT);
+          lv_obj_set_grid_cell(numEditX[px]->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    }
+    if ((start + count) == curvePointsCount) {
+      new StaticText(line, rect_t{}, "100", 0, CENTERED | COLOR_THEME_SECONDARY1);
+    }
+  } else {
+    for (uint8_t i = 0; i < count; i++) {
+      new StaticText(line, rect_t{},
+                     std::to_string(-100 + (200 * (i + start)) / (curvePointsCount - 1)),
+                     0, CENTERED | COLOR_THEME_SECONDARY1);
+    }
+  }
+
+  line = form->newLine(&grid);
+  line->padAll(2);
+  line->padLeft(4);
+  line->padRight(4);
+  lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  new StaticText(line, rect_t{}, "Y", 0, CENTERED|COLOR_THEME_PRIMARY1);
+
+  // y value
+  for (uint8_t i = 0; i < count; i++) {
+    auto numedit = new NumberEdit(
+        line, rect_t{ 0, 0, NUM_BTN_WIDTH, 0 },
+        -100, 100, GET_VALUE(points[i+start]),
+        [=](int32_t newValue) {
+          points[i+start] = newValue;
+          SET_DIRTY();
+          curveEdit->updatePreview();
+        },
+        0, RIGHT);
+    lv_obj_set_grid_cell(numedit->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  }
 }
 
 void CurveDataEdit::update()
 {
   clear();
 
-  FormGridLayout grid;
-  grid.setLabelWidth(0);
-  grid.setMarginRight(parent->width() - rect.w + 5);
+  memset(numEditX, 0, sizeof(numEditX));
 
-  coord_t boxWidth = rect.w / 5;
-  coord_t boxHeight = PAGE_LINE_HEIGHT;
+  auto form = new FormWindow(this, rect_t{});
+  form->padAll(0);
+  form->padBottom(4);
+  form->setFlexLayout();
+
+  FlexGridLayout grid(default_col_dsc, default_row_dsc, 4);
 
   CurveHeader & curve = g_model.curves[index];
   uint8_t curvePointsCount = 5 + curve.points;
 
-  // Point number
-  for (int i = 0; i < curvePointsCount; i++) {
-    auto txt = new StaticText(
-        this,
-        {i * boxWidth + PAGE_PADDING, 10, boxWidth - PAGE_PADDING, boxHeight},
-        std::to_string(i + 1) + " ", 0, RIGHT | COLOR_THEME_SECONDARY1);
-    txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
+  for (int i = 0; i < curvePointsCount; i += 5) {
+    int count = 5;
+    if (i + count > curvePointsCount) count = curvePointsCount - i;
+    auto line = form->newLine(&grid);
+    line->padAll(0);
+    lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+    curvePointsRow(line, i, count, curvePointsCount, curve.type == CURVE_TYPE_CUSTOM);
   }
-  grid.spacer(boxHeight + 10 + PAGE_PADDING);
-
-  // x value
-  if (curve.type == CURVE_TYPE_CUSTOM) {
-    // Adjustable points for custom curves
-    for (int i = 0; i < curvePointsCount; i++) {
-      int8_t* points = curveAddress(index);
-      auto pointEdit = new NumberEdit(
-          this,
-          {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth),
-           grid.getWindowHeight(), coord_t(boxWidth - PAGE_LINE_SPACING),
-           boxHeight},
-          i <= 1 ? -100 : points[curvePointsCount + i - 2],
-          i >= curvePointsCount - 2 ? 100 : points[curvePointsCount + i],
-          GET_VALUE(i == 0 ? -100
-                    : i == curvePointsCount - 1
-                        ? 100
-                        : points[curvePointsCount + i - 1]),
-          [=](int32_t newValue) {
-            if (i == 0 || i == curvePointsCount - 1) return;
-            points[curvePointsCount + i - 1] = newValue;
-            SET_DIRTY();
-            curveEdit->updatePreview();
-          },
-          0, RIGHT);
-
-      if (i == 0 || i == curvePointsCount - 1) {
-        pointEdit->disable();
-      }
-    }
-  } else {
-    for (uint8_t i = 0; i < curvePointsCount; i++) {
-      new StaticText(this, {i * boxWidth, grid.getWindowHeight(), boxWidth, boxHeight},
-                     std::to_string(-100 + 200 * i / (5 + curve.points - 1)), 0,
-                     RIGHT | COLOR_THEME_SECONDARY1);
-    }
-  }
-  grid.spacer(boxHeight + PAGE_PADDING);
-
-  // y value
-  for (uint8_t i = 0; i < curvePointsCount; i++) {
-    int8_t* points = curveAddress(index);
-    new NumberEdit(
-        this,
-        {coord_t(PAGE_LINE_SPACING + 1 + i * boxWidth),
-         grid.getWindowHeight(),
-         coord_t(boxWidth - PAGE_LINE_SPACING),
-         boxHeight},
-        -100, 100, GET_VALUE(points[i]),
-        [=](int32_t newValue) {
-          points[i] = newValue;
-          SET_DIRTY();
-          curveEdit->updatePreview();
-        },
-        0, RIGHT);
-  }
-
 }
 
 void CurveDataEdit::paint(BitmapBuffer* dc)
 {
   dc->clear(COLOR_THEME_SECONDARY3);
-  // dc->drawSolidHorizontalLine(0, rect.h / 3, getInnerWidth(), 0);
-  // dc->drawSolidHorizontalLine(0, 2 * rect.h / 3, getInnerWidth(), 0);
 }
 
 void CurveEdit::SetCurrentSource(uint32_t source)
@@ -297,7 +347,6 @@ void CurveEdit::onEvent(event_t event)
   }
 }
 
-
 void CurveEdit::checkEvents()
 {
   if (!lockSource) {
@@ -313,4 +362,152 @@ void CurveEdit::checkEvents()
     }
   }
   FormField::checkEvents();
+}
+
+CurveEditWindow::CurveEditWindow(uint8_t index):
+  Page(ICON_MODEL_CURVES),
+  index(index)
+{
+  buildBody(&body);
+  buildHeader(&header);
+}
+
+void CurveEditWindow::buildHeader(Window * window)
+{
+  new StaticText(window,
+                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
+                  PAGE_LINE_HEIGHT},
+                 STR_MENUCURVE, 0, COLOR_THEME_PRIMARY2);
+  char s[16];
+  strAppendStringWithIndex(s, STR_CV, index + 1);
+  new StaticText(window,
+                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                  LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                 s, 0, COLOR_THEME_PRIMARY2);
+}
+
+void CurveEditWindow::buildBody(FormWindow * window)
+{
+  CurveHeader & curve = g_model.curves[index];
+  int8_t * points = curveAddress(index);
+
+  auto form = new FormWindow(window, rect_t{});
+  form->padAll(0);
+  form->setFlexLayout();
+
+  FlexGridLayout grid(default_col_dsc, default_row_dsc, 0);
+  
+  auto line = form->newLine(&grid);
+  line->padAll(0);
+  lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+#if LCD_H > LCD_W // portrait
+  lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
+  coord_t curveWidth = window->width() - 88;
+  coord_t boxWidth = window->width();
+  coord_t boxHeight = window->height() - curveWidth;
+#else
+  lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_ROW);
+  coord_t curveWidth = window->height() - 2 * PAGE_PADDING;
+  coord_t boxWidth = window->width() - curveWidth;
+  coord_t boxHeight = window->height();
+#endif
+
+  auto box = new Window(line, rect_t{});
+  box->setWidth(boxWidth);
+  box->setHeight(boxHeight);
+  box->padAll(0);
+
+  static const lv_coord_t controls_col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(8), LV_GRID_FR(5), LV_GRID_TEMPLATE_LAST};
+
+  form = new FormWindow(box, rect_t{});
+  form->padAll(0);
+  form->setFlexLayout();
+
+  FlexGridLayout iGrid(controls_col_dsc, default_row_dsc, 0);
+  
+  auto iLine = form->newLine(&iGrid);
+  iLine->padAll(4);
+  iLine->padBottom(0);
+  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  // Name
+  new StaticText(iLine, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+  new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name));
+
+  // Smooth
+  auto smooth = new TextButton(iLine, rect_t{}, STR_SMOOTH, [=]() {
+    g_model.curves[index].smooth = !g_model.curves[index].smooth;
+    curveEdit->updatePreview();
+    return g_model.curves[index].smooth;
+  });
+  smooth->check(g_model.curves[index].smooth);
+  smooth->padAll(2);
+  smooth->setHeight(26);
+  
+  iLine = form->newLine(&iGrid);
+  iLine->padAll(4);
+  iLine->padBottom(0);
+  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  // Type
+  new StaticText(iLine, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(iLine, rect_t{0, 0, 100, 0}, STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
+             [=](int32_t newValue) {
+                 CurveHeader &curve = g_model.curves[index];
+                 if (newValue != curve.type) {
+                   for (int i = 1; i < 4 + curve.points; i++) {
+                     points[i] = calcRESXto100(applyCustomCurve(calc100toRESX(-100 + i * 200 / (4 + curve.points)), index));
+                   }
+                   if (moveCurve(index, newValue == CURVE_TYPE_CUSTOM ? 3 + curve.points : -3 - curve.points)) {
+                     if (newValue == CURVE_TYPE_CUSTOM) {
+                       resetCustomCurveX(points, 5 + curve.points);
+                     }
+                     curve.type = newValue;
+                   }
+                   SET_DIRTY();
+                   curveEdit->updatePreview();
+                   if (curveDataEdit) {
+                     curveDataEdit->update();
+                   }
+                 }
+             });
+
+  // Points count
+  auto edit = new NumberEdit(iLine, rect_t{}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
+                             [=](int32_t newValue) {
+                                 newValue -= 5;
+                                 CurveHeader &curve = g_model.curves[index];
+                                 int newPoints[MAX_POINTS_PER_CURVE];
+                                 newPoints[0] = points[0];
+                                 newPoints[4 + newValue] = points[4 + curve.points];
+                                 for (int i = 1; i < 4 + newValue; i++)
+                                   newPoints[i] = calcRESXto100(applyCustomCurve(-RESX + (i * 2 * RESX) / (4 + newValue), index));
+                                 if (moveCurve(index, (newValue - curve.points) * (curve.type == CURVE_TYPE_CUSTOM ? 2 : 1))) {
+                                   for (int i = 0; i < 5 + newValue; i++) {
+                                     points[i] = newPoints[i];
+                                     if (curve.type == CURVE_TYPE_CUSTOM && i != 0 && i != 4 + newValue)
+                                       points[5 + newValue + i - 1] = -100 + (i * 200) / (4 + newValue);
+                                   }
+                                   curve.points = newValue;
+                                   SET_DIRTY();
+                                   curveEdit->updatePreview();
+                                   if (curveDataEdit) {
+                                     curveDataEdit->update();
+                                   }
+                                 }
+                             });
+  edit->setSuffix(STR_PTS);
+
+  iLine = form->newLine(&iGrid);
+  iLine->padAll(0);
+  lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+
+  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 67 }, index);
+
+  // Curve editor
+  lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+  curveEdit = new CurveEdit(line, { 0, 0, curveWidth, curveWidth }, index);
+  
+  curveDataEdit->setCurveEdit(curveEdit);
 }
