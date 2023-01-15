@@ -247,6 +247,13 @@ void TabsGroup::checkEvents()
   if (currentTab) {
     currentTab->checkEvents();
   }
+
+  static uint32_t lastRefresh = 0;
+  uint32_t now = RTOS_GET_MS();
+  if (now - lastRefresh >= 5000) {
+    lastRefresh = now;
+    header.invalidate();
+  }
 }
 
 void TabsGroup::onEvent(event_t event)
