@@ -395,9 +395,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   g_model.limitData[1].offset = 0;
   g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->carryTrim = TRIM_ELE;
+  expo->trimSource = TRIM_ELE;
   expo = expoAddress(ELE_STICK);
-  expo->carryTrim = TRIM_THR;
+  expo->trimSource = TRIM_THR;
 
   anaInValues[THR_STICK] = 0;
   setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 100);
@@ -422,9 +422,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
   g_model.thrTrim = 1;
   g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->carryTrim = TRIM_ELE;
+  expo->trimSource = TRIM_ELE;
   expo = expoAddress(ELE_STICK);
-  expo->carryTrim = TRIM_THR;
+  expo->trimSource = TRIM_THR;
 
   anaInValues[THR_STICK] = -1024;  // Min stick
   setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 100);
@@ -834,9 +834,9 @@ TEST_F(TrimsTest, throttleTrimWithCrossTrims)
   g_model.thrTrim = 1;
   g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->carryTrim = TRIM_ELE;
+  expo->trimSource = TRIM_ELE;
   expo = expoAddress(ELE_STICK);
-  expo->carryTrim = TRIM_THR;
+  expo->trimSource = TRIM_THR;
 
   // stick max + trim max
   anaInValues[THR_STICK] = +1024;
@@ -909,9 +909,9 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
   g_model.thrTrim = 1;
   g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->carryTrim = TRIM_ELE;
+  expo->trimSource = TRIM_ELE;
   expo = expoAddress(ELE_STICK);
-  expo->carryTrim = TRIM_THR;
+  expo->trimSource = TRIM_THR;
 
   // stick max + trim max
   anaInValues[THR_STICK] = +1024;

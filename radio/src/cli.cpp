@@ -47,7 +47,7 @@
 #define CLI_PRINT_BUFFER_SIZE 128
 
 RTOS_TASK_HANDLE cliTaskId;
-RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
+RTOS_DEFINE_STACK(cliTaskId, cliStack, CLI_STACK_SIZE);
 
 static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
 static StaticStreamBuffer_t cliRxBufferStatic;
@@ -843,7 +843,7 @@ int cliTrace(const char ** argv)
 
 int cliStackInfo(const char ** argv)
 {
-  cliSerialPrint("[MAIN] %d available / %d bytes", stackAvailable()*4, stackSize()*4);
+  cliSerialPrint("[MAIN] %d available / %d bytes", mainStackAvailable()*4, stackSize()*4);
   cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
   cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
   cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());

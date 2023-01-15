@@ -1151,7 +1151,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The EdgeTX Team.</source>
-        <translation>&lt;p&gt;&lt;b&gt;Tak for at du opgraderer til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en major release som tilføjer og ændrer mange ting, så læs omhyggeligt release beskrivelse for at kende ændringer, og gennemgå omhyggeligt at hver af dine modeller fungerer som forventet.&lt;/p&gt;&lt;p&gt;Besæh venligst &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk).&lt;/p&gt;- EdgeTX Team.</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Tak for at du opgraderer til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en major release som tilføjer og ændrer mange ting, så læs omhyggeligt release beskrivelse for at kende ændringer, og gennemgå omhyggeligt at hver af dine modeller fungerer som forventet.&lt;/p&gt;&lt;p&gt;Besøg venligst &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk).&lt;/p&gt;- EdgeTX Team.</translation>
     </message>
 </context>
 <context>
@@ -7730,6 +7730,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>2 W</source>
         <translation>2 W</translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>FRA</translation>
     </message>
 </context>
 <context>
