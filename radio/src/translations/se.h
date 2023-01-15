@@ -356,7 +356,7 @@
 #define TR_PHASENAME                    "Lägesnamn"
 #define TR_MIXNAME                      TR("Mixer","Mixernamn")
 #define TR_INPUTNAME                    TR("Input","Inputnamn")
-#define TR_EXPONAME                     TR("Expo","Exponamn")
+#define TR_EXPONAME                     TR("Namn","Radnamn")
 #define TR_NO_PICTURE                   "Ingen bild"
 #define TR_BITMAP                       "Modellikon"
 #define TR_TIMER                        TR("Timer","Timer ")
