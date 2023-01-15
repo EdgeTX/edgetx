@@ -110,6 +110,7 @@ void GPIO_SetDirection( GPIO_TypeDef *GPIOx, unsigned char Pin, unsigned char Is
 }
 static void LCD_AF_GPIOConfig(void) {
   LL_GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_StructInit(&GPIO_InitStructure);
   /*
    -----------------------------------------------------------------------------
    LCD_CLK <-> PG.07 | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00
@@ -147,6 +148,7 @@ static void LCD_AF_GPIOConfig(void) {
 
 static void lcdSpiConfig(void) {
   LL_GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_StructInit(&GPIO_InitStructure);
 
   GPIO_InitStructure.Pin        = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
   GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;

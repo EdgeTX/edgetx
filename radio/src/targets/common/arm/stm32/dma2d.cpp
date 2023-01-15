@@ -40,13 +40,11 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  LL_DMA2D_StructInit(&DMA2D_InitStruct);
+
   DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M;
   DMA2D_InitStruct.ColorMode = LL_DMA2D_OUTPUT_MODE_RGB565;
   DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_InitStruct.OutputGreen = 0;
-  DMA2D_InitStruct.OutputBlue = 0;
-  DMA2D_InitStruct.OutputRed = 0;
-  DMA2D_InitStruct.OutputAlpha = 0;
   DMA2D_InitStruct.LineOffset = destw - w;
   DMA2D_InitStruct.NbrOfLines = h;
   DMA2D_InitStruct.NbrOfPixelsPerLines = w;
@@ -71,13 +69,11 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  LL_DMA2D_StructInit(&DMA2D_InitStruct);
+
   DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_BLEND;
   DMA2D_InitStruct.ColorMode = LL_DMA2D_OUTPUT_MODE_RGB565;
   DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_InitStruct.OutputGreen = 0;
-  DMA2D_InitStruct.OutputBlue = 0;
-  DMA2D_InitStruct.OutputRed = 0;
-  DMA2D_InitStruct.OutputAlpha = 0;
   DMA2D_InitStruct.LineOffset = destw - w;
   DMA2D_InitStruct.NbrOfLines = h;
   DMA2D_InitStruct.NbrOfPixelsPerLines = w;
@@ -109,13 +105,11 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  LL_DMA2D_StructInit(&DMA2D_InitStruct);
+
   DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_BLEND;
   DMA2D_InitStruct.ColorMode = LL_DMA2D_OUTPUT_MODE_RGB565;
   DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_InitStruct.OutputGreen = 0;
-  DMA2D_InitStruct.OutputBlue = 0;
-  DMA2D_InitStruct.OutputRed = 0;
-  DMA2D_InitStruct.OutputAlpha = 0;
   DMA2D_InitStruct.LineOffset = destw - w;
   DMA2D_InitStruct.NbrOfLines = h;
   DMA2D_InitStruct.NbrOfPixelsPerLines = w;
@@ -147,14 +141,11 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  LL_DMA2D_StructInit(&DMA2D_InitStruct);
+
   DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_PFC;
   DMA2D_InitStruct.ColorMode = format;
   DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest);
-  DMA2D_InitStruct.OutputGreen = 0;
-  DMA2D_InitStruct.OutputBlue = 0;
-  DMA2D_InitStruct.OutputRed = 0;
-  DMA2D_InitStruct.OutputAlpha = 0;
-  DMA2D_InitStruct.LineOffset = 0;
   DMA2D_InitStruct.NbrOfLines = h;
   DMA2D_InitStruct.NbrOfPixelsPerLines = w;
   LL_DMA2D_Init(DMA2D, &DMA2D_InitStruct);

@@ -198,6 +198,7 @@ inline void LCD_NRST_HIGH()
 static void LCD_AF_GPIOConfig()
 {
   LL_GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_StructInit(&GPIO_InitStructure);
 
       /* GPIOs Configuration */
       /*
@@ -243,6 +244,8 @@ static void LCD_AF_GPIOConfig()
 static void LCD_NRSTConfig(void)
 {
   LL_GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_StructInit(&GPIO_InitStructure);
+
   GPIO_InitStructure.Pin        = LCD_GPIO_PIN_NRST;
   GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
