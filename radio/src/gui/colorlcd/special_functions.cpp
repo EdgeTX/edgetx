@@ -352,13 +352,8 @@ class SpecialFunctionEditPage : public Page
         line = specialFunctionOneWindow->newLine(&grid);
       }
     }
-
-    if (HAS_ENABLE_PARAM(func)) {
-      new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
-                   GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
-      line = specialFunctionOneWindow->newLine(&grid);
-    } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
+ 
+    if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
@@ -377,6 +372,12 @@ class SpecialFunctionEditPage : public Page
           });
       line = specialFunctionOneWindow->newLine(&grid);
     }
+
+    {
+      new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
+      line = specialFunctionOneWindow->newLine(&grid);
+    }
   }
 
   void buildBody(FormWindow *window)
@@ -387,8 +388,12 @@ class SpecialFunctionEditPage : public Page
 
     CustomFunctionData *cfn = &functions[index];
 
-    // Switch
-    auto line = window->newLine(&grid);
+    // Set new function to "enabled" by default
+    if (!CFN_SWITCH(cfn))
+      CFN_ACTIVE(cfn) = true;
+
+      // Switch
+      auto line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
@@ -419,8 +424,10 @@ class SpecialFunctionEditPage : public Page
                    0, FUNC_MAX - 1,
                    GET_DEFAULT(CFN_FUNC(cfn)));
     functionChoice->setSetValueHandler([=](int32_t newValue) {
+      int enableState = CFN_ACTIVE(cfn);
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
+      CFN_ACTIVE(cfn) = enableState;
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });
@@ -439,6 +446,8 @@ static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
 static constexpr coord_t col1 = 20;
 static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
 static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1 + 20;
+// Special location used only for "enabled" check-box
+static constexpr coord_t col4 = (LCD_W - 100);
 
 static const char* _failsafe_module[] = {
   "Ext.", "Int.",
@@ -595,9 +604,10 @@ class SpecialFunctionButton : public Button
         }
         }
     }
-    if (HAS_ENABLE_PARAM(func)) {
-      theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col3, line2);
-    } else if (HAS_REPEAT_PARAM(func)) {
+    
+    theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col4, line2);
+     
+    if (HAS_REPEAT_PARAM(func)) {
       if (CFN_PLAY_REPEAT(cfn) == 0) {
         dc->drawText(col3, line2, "1x", COLOR_THEME_SECONDARY1);
       } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
@@ -610,11 +620,16 @@ class SpecialFunctionButton : public Button
 
   void paint(BitmapBuffer *dc) override
   {
-    if (active)
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-    else
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
+    const CustomFunctionData *cfn = &functions[index];
 
+    if(CFN_ACTIVE(cfn)) {
+      if (active)
+        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
+      else
+        dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
+    } else {
+      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_SECONDARY3);
+    }
     paintSpecialFunctionLine(dc);
 
     // The bounding rect
