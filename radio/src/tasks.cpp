@@ -24,26 +24,16 @@
 #include "timers_driver.h"
 
 RTOS_TASK_HANDLE menusTaskId;
-RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
+RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
 RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
+RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
-RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
+RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;
 RTOS_MUTEX_HANDLE mixerMutex;
-
-void stackPaint()
-{
-  menusStack.paint();
-  mixerStack.paint();
-  audioStack.paint();
-#if defined(CLI) && !defined(SIMU)
-  cliStack.paint();
-#endif
-}
 
 volatile uint16_t timeForcePowerOffPressed = 0;
 
