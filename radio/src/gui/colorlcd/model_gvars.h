@@ -33,14 +33,19 @@ class GVarButton: public Button
 
   protected:
     void checkEvents() override;
-    void paint(BitmapBuffer * dc) override;
 
   protected:
-    void drawFlightMode(BitmapBuffer * dc, coord_t x, coord_t y, int fm, LcdFlags attr);
     uint8_t gvarIdx;
     int lines;
     int32_t gvarSum = 0; // used for invalidation
     uint8_t currentFlightMode = 0; // used for invalidation
+    StaticText* labels[MAX_FLIGHT_MODES];
+    StaticText* valueTexts[MAX_FLIGHT_MODES];
+    gvar_t values[MAX_FLIGHT_MODES];
+
+    void build();
+    void updateValueText(uint8_t flightMode);
+
 };
 
 class ModelGVarsPage: public PageTab

@@ -143,8 +143,8 @@ InputSource::InputSource(Window* parent, ExpoData* input) :
 
 void InputSource::update()
 {
-  if (input->srcRaw > MIXSRC_Ail && input->carryTrim == TRIM_ON) {
-    input->carryTrim = TRIM_OFF;
+  if (input->srcRaw > MIXSRC_Ail && input->trimSource == TRIM_ON) {
+    input->trimSource = TRIM_OFF;
   }
 
   if (!sensor_form) return;

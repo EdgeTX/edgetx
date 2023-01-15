@@ -33,12 +33,7 @@ class Curve: public Window
   friend class CurveEdit;
 
   public:
-    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr):
-      Window(parent, rect, OPAQUE),
-      function(std::move(function)),
-      position(std::move(position))
-    {
-    }
+    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -47,19 +42,7 @@ class Curve: public Window
     }
 #endif
 
-    void checkEvents() override
-    {
-      // will always force a full window refresh
-      if (position) {
-        // int pos = position();
-        // if (pos != lastPos) {
-        //   lastPos = pos;
-          invalidate();
-        // }
-      }
-
-      Window::checkEvents();
-    }
+    void checkEvents() override;
 
     void addPoint(const point_t & point, LcdFlags flags);
 
@@ -68,7 +51,9 @@ class Curve: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
-    // int lastPos = 0;
+    // Drawing rectangle position & size
+    uint8_t dx, dy, dw, dh;
+    int lastPos = 0;
     std::function<int(int)> function;
     std::function<int()> position;
     std::list<CurvePoint> points;

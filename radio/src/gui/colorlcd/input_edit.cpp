@@ -116,13 +116,25 @@ void InputEditWindow::buildBody(FormWindow* form)
   // Weight
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
-  auto gvar = new GVarNumberEdit(line, rect_t{}, -100, 100, GET_SET_DEFAULT(input->weight));
+  auto gvar = new GVarNumberEdit(line, rect_t{}, -100, 100,
+                                 GET_DEFAULT(input->weight),
+                                 [=](int32_t newValue) {
+                                   input->weight = newValue;
+                                   preview->invalidate();
+                                   SET_DIRTY();
+                                 });
   gvar->setSuffix("%");
 
   // Offset
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
-  gvar = new GVarNumberEdit(line, rect_t{}, -100, 100, GET_SET_DEFAULT(input->offset));
+  gvar = new GVarNumberEdit(line, rect_t{}, -100, 100,
+                            GET_DEFAULT(input->offset),
+                            [=](int32_t newValue) {
+                              input->offset = newValue;
+                              preview->invalidate();
+                              SET_DIRTY();
+                            });
   gvar->setSuffix("%");
 
   // Switch
@@ -134,7 +146,12 @@ void InputEditWindow::buildBody(FormWindow* form)
   // Curve
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CURVE, 0, COLOR_THEME_PRIMARY1);
-  auto param = new CurveParam(line, rect_t{}, &input->curve);
+  auto param = new CurveParam(line, rect_t{}, &input->curve,
+                              [=](int32_t newValue) {
+                                input->curve.value = newValue;
+                                preview->invalidate();
+                                SET_DIRTY();
+                              });
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
   line = form->newLine();

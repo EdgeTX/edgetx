@@ -46,8 +46,9 @@ void CurveParam::value_changed(lv_event_t* e)
   param->update();
 }
 
-CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref) :
-    Window(parent, rect), ref(ref)
+CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
+                       std::function<void(int32_t)> setRefValue) :
+    Window(parent, rect), ref(ref), setRefValue(setRefValue)
 {
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
   lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
@@ -66,17 +67,16 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref) :
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  value_edit = new GVarNumberEdit(this, rect_t{}, -100, 100,
-                                  GET_SET_DEFAULT(ref->value));
+  value_edit = new GVarNumberEdit(this, rect_t{}, -100, 100, GET_DEFAULT(ref->value), setRefValue);
   value_edit->setSuffix("%");
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
-                           GET_SET_DEFAULT(ref->value));
+                           GET_DEFAULT(ref->value), setRefValue);
 
   // CURVE_REF_CUSTOM
   cust_choice = new ChoiceEx(this, rect_t{}, -MAX_CURVES, MAX_CURVES,
-                             GET_SET_DEFAULT(ref->value));
+                             GET_DEFAULT(ref->value), setRefValue);
   cust_choice->setTextHandler([](int value) { return getCurveString(value); });
   cust_choice->set_lv_LongPressHandler(LongPressHandler, &(ref->value));
 

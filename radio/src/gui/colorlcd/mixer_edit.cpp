@@ -136,7 +136,7 @@ void MixEditWindow::buildBody(FormWindow* form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE, 0, COLOR_THEME_PRIMARY1);
-  new CurveParam(line, rect_t{}, &mix->curve);
+  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value));
 
   line = form->newLine();
   lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);
