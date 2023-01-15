@@ -921,4 +921,8 @@ void SpecialFunctionsPage::build(FormWindow *window)
       }
     });
   }
+  else
+  {
+    addButton = nullptr;
+  }
 }
