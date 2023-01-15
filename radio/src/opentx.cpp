@@ -1480,7 +1480,7 @@ void instantTrim()
         if (!EXPO_VALID(expo))
           break; // end of list
         if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
-          if (expo->carryTrim < 0) {
+          if (expo->trimSource < 0) {
             // only default trims will be taken into account
             addTrim = false;
             break;
