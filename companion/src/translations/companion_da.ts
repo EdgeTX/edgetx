@@ -1151,7 +1151,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The EdgeTX Team.</source>
-        <translation>&lt;p&gt;&lt;b&gt;Tak for at du opgraderer til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en major release som tilføjer og ændrer mange ting, så læs omhyggeligt release beskrivelse for at kende ændringer, og gennemgå omhyggeligt at hver af dine modeller fungerer som forventet.&lt;/p&gt;&lt;p&gt;Besæh venligst &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk).&lt;/p&gt;- EdgeTX Team.</translation>
+        <translation>&lt;p&gt;&lt;b&gt;Tak for at du opgraderer til EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Dette er en major release som tilføjer og ændrer mange ting, så læs omhyggeligt release beskrivelse for at kende ændringer, og gennemgå omhyggeligt at hver af dine modeller fungerer som forventet.&lt;/p&gt;&lt;p&gt;Besøg venligst &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for at læse release beskrivelse og andre dokumenter (engelsk).&lt;/p&gt;- EdgeTX Team.</translation>
     </message>
 </context>
 <context>
@@ -1505,7 +1505,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>Vario</source>
-        <translation>Vario</translation>
+        <translation>Variometer</translation>
     </message>
     <message>
         <source>Play Track</source>
@@ -3991,7 +3991,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Vario pitch at zero</source>
-        <translation>Vario tone ved nulpunkt</translation>
+        <translation>Variometer tone ved nulpunkt</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -4121,7 +4121,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Vario pitch at max</source>
-        <translation>Vario tone ved max højde</translation>
+        <translation>Variometer tone ved max højde</translation>
     </message>
     <message>
         <source>If this value is not 0, any keypress will turn on the backlight and turn it off after the specified number of seconds.</source>
@@ -4141,7 +4141,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Vario repeat at zero</source>
-        <translation>Gentagende vario-ton ved nul</translation>
+        <translation>Gentagende variometer tone ved nul</translation>
     </message>
     <message>
         <source>Backlight  Auto OFF after</source>
@@ -4309,7 +4309,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Vario volume</source>
-        <translation>Lydstyrke vario</translation>
+        <translation>Lydstyrke variometer</translation>
     </message>
     <message>
         <source>Background volume</source>
@@ -7731,6 +7731,10 @@ p, li { white-space: pre-wrap; }
         <source>2 W</source>
         <translation>2 W</translation>
     </message>
+    <message>
+        <source>OFF</source>
+        <translation>FRA</translation>
+    </message>
 </context>
 <context>
     <name>ModulePanel</name>
@@ -7995,27 +7999,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Vario source</source>
-        <translation>Vario kilde</translation>
+        <translation>Variometer kilde</translation>
     </message>
     <message>
         <source>Vario limits &gt;</source>
-        <translation>Vario grænser &gt;</translation>
+        <translation>Variometer grænser &gt;</translation>
     </message>
     <message>
         <source>Sink max</source>
-        <translation>Max nedstigning</translation>
+        <translation>Max synke/ned</translation>
     </message>
     <message>
         <source>Sink min</source>
-        <translation>Min nedstigning</translation>
+        <translation>Min synke/ned</translation>
     </message>
     <message>
         <source>Climb min</source>
-        <translation>Min stigning</translation>
+        <translation>Min stige/op</translation>
     </message>
     <message>
         <source>Climb max</source>
-        <translation>Max stigning</translation>
+        <translation>Max stige/op</translation>
     </message>
     <message>
         <source>Center silent</source>
@@ -10300,27 +10304,27 @@ For mange fejl - afbryder.</translation>
     </message>
     <message>
         <source>Sink Max</source>
-        <translation>Max synke</translation>
+        <translation>Max synke/ned</translation>
     </message>
     <message>
         <source>Climb Max</source>
-        <translation>Max stigning</translation>
+        <translation>Max stige/op</translation>
     </message>
     <message>
         <source>Sink Min</source>
-        <translation>Min synke</translation>
+        <translation>Min synke/ned</translation>
     </message>
     <message>
         <source>Climb Min</source>
-        <translation>Min stigning</translation>
+        <translation>Min stige/op</translation>
     </message>
     <message>
         <source>Vario source</source>
-        <translation>Vario kilde</translation>
+        <translation>Variometer kilde</translation>
     </message>
     <message>
         <source>Vario limits</source>
-        <translation>Vario grænser</translation>
+        <translation>Variometer grænser</translation>
     </message>
     <message>
         <source>Altimetry</source>

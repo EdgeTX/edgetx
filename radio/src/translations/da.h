@@ -119,11 +119,11 @@
 #endif
 
 #if defined(VOICE)
-  #define TR_PLAY_TRACK                "Spil spor"
+  #define TR_PLAY_TRACK                TR("Afspil lyd", "Afspil lydfil")
   #define TR_PLAY_BOTH                 "Spil begge"
   #define TR_PLAY_VALUE                TR("Spil Vær","Spil Værdi")
 #else
-  #define TR_PLAY_TRACK                "[Spil spo]"
+  #define TR_PLAY_TRACK                "[Spil lyd]"
   #define TR_PLAY_BOTH                 "[Spil beg]"
   #define TR_PLAY_VALUE                "[Spil vær]"
 #endif
@@ -154,10 +154,8 @@
   #define TR_SF_TEST
 #endif
 
-#if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                 "Overskr."
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Overs."
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+  #define TR_SF_SAFETY                 TR("Overs.", "Overskriv")
 #else
   #define TR_SF_SAFETY                 "---"
 #endif
@@ -168,7 +166,7 @@
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
 #define TR_SF_RESERVE                  "[reserve]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Træner","Inst. Trim","Nulstil","Sæt",TR_ADJUST_GVAR,"Volume","SetFejlsikr","AfstandCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Baggrundslys",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Træner","Inst. Trim","Nulstil","Sæt",TR_ADJUST_GVAR,"Lydstyrke","SetFejlsikr","AfstandCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Baggrundslys",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
@@ -408,8 +406,10 @@
 #define TR_GV                          TR("G", "GV")
 #endif
 #define TR_ACHANNEL                    "En\004kanal"
-#define TR_RANGE                       INDENT "Rækkevid"
-#define TR_CENTER                      INDENT "Centrer"
+
+#define TR_RANGE                       TR(INDENT "Max ned/op", INDENT "Max synke/stige")
+#define TR_CENTER                      TR(INDENT "Min ned/op", INDENT "Min synke/stige")
+
 #define TR_BAR                         "Bjælke"
 #define TR_ALARM                       "Alarm"
 #define TR_USRDATA                     TR("UsrData", "User data")
@@ -721,7 +721,7 @@
 #define TR_NO_FAILSAFE                 "Fejlsikring ikke defineret"
 #define TR_KEYSTUCK                    "Tast hænger"
 #define TR_INVERT_THR                  TR("Omvendt gas?", "Omvendt (INV) gas?")
-#define TR_VOLUME                      "Volumne"
+#define TR_VOLUME                      "Lydstyrke"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Skarphed"
 #define TR_CPU_TEMP                    "CPU temp."
@@ -919,7 +919,7 @@
 #define TR_SHARE                       "Del"
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Registrer")
-#define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevid"))
+#define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
 #define TR_RECEIVER_OPTIONS            TR("MODT. TILVALG", "MODTAGER TILVALG")
 #define TR_DEL_BUTTON                  BUTTON(TR("Sle", "Sletter"))
 #define TR_RESET_BTN                   BUTTON("Nulstil")
@@ -944,7 +944,7 @@
 #define TR_TOPLCDTIMER                 "Top LCD ur"
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
-#define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevid")
+#define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevidde")
 #define TR_RXFREQUENCY                 TR("Rx Frekvens", "Rx Servo Frekvens")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNE"
 #if defined(PCBX12S)
@@ -1083,9 +1083,9 @@
 #define TR_CHR_HOUR                    't'
 #define TR_CHR_INPUT                   'K'   // Values between A-I will work
 
-#define TR_BEEP_VOLUME                 "Bip volume"
-#define TR_WAV_VOLUME                  "Wav volume"
-#define TR_BG_VOLUME                   TR("Bg volume", "Baggrund volume")
+#define TR_BEEP_VOLUME                 "Bip lydstyrke"
+#define TR_WAV_VOLUME                  "Wav lydstyrke"
+#define TR_BG_VOLUME                   TR("Bg lydsty.", "Baggrund lydstyrke")
 
 #define TR_TOP_BAR                     "Top bjælke"
 #define TR_FLASH_ERASE                 "Flash slettes..."
@@ -1112,7 +1112,7 @@
 #define TR_OPTIONS                     "Tilvalg"
 #define TR_FIRMWARE_OPTIONS            "Firmware tilvalg"
 
-#define TR_ALTSENSOR                   "Alt sensor"
+#define TR_ALTSENSOR                   "Højde sensor"
 #define TR_CELLSENSOR                  "Cell sensor"
 #define TR_GPSSENSOR                   "GPS sensor"
 #define TR_CURRENTSENSOR               "Sensor"
