@@ -123,10 +123,9 @@ class LogicalSwitchEditPage: public Page
         auto edit2 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 1), -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
         edit1->setSetValueHandler([=](int32_t newValue) {
           cs->v2 = newValue;
-          cs->v3 = min<uint8_t>(cs->v3, 222 - cs->v2);
           SET_DIRTY();
           edit2->setMax(222 - cs->v2);
-          edit2->invalidate();
+          edit2->setValue(cs->v3);
         });
         edit1->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1);
