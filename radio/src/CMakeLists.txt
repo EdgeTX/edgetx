@@ -58,6 +58,7 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
+option(FWDRIVE "Attach also firmware drive with USB" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -446,6 +447,10 @@ else()
   set(DEFAULT_TEMPLATE_SETUP 0 CACHE STRING "")
 endif()
 add_definitions(-DDEFAULT_TEMPLATE_SETUP=${DEFAULT_TEMPLATE_SETUP})
+
+if(FWDRIVE)
+  add_definitions(-DFWDRIVE)
+endif()
 
 set(SRC
   ${SRC}
