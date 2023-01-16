@@ -27,6 +27,10 @@
 #include "keys.h"
 #include "debug.h"
 
+#if defined(DEBUG_SEGGER_RTT)
+  #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
+#endif
+
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
 #else
@@ -83,7 +87,7 @@ void interrupt10ms()
 #if defined(DEBUG)
   g_tmr10ms++;
 #endif
-  
+
   uint8_t index = 0;
   uint32_t in = readKeys();
 
@@ -228,6 +232,10 @@ void bootloaderInitApp()
   boardBootloaderInit();
 #endif
 
+#if defined(DEBUG_SEGGER_RTT)
+  SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+#endif
+
   pwrInit();
   keysInit();
 
@@ -267,7 +275,7 @@ void bootloaderInitApp()
 #endif
 
   delaysInit(); // needed for lcdInit()
-  
+
 #if defined(DEBUG)
   initSerialPorts();
 #endif

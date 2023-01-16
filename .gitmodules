@@ -11,3 +11,6 @@
 	path = radio/src/thirdparty/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
 	shallow = true
+[submodule "radio/src/thirdparty/Segger_RTT"]
+	path = radio/src/thirdparty/Segger_RTT
+	url = https://github.com/adfernandes/segger-rtt.git

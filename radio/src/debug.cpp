@@ -139,7 +139,7 @@ void dumpTraceBuffer()
     " notd",  // INT_OTG_FS_RX_NOT_DEVICE,
 #endif // #if defined(DEBUG_USB_INTERRUPTS)
   };
-#elif defined(PCBTARANIS) 
+#elif defined(PCBTARANIS)
   const char * const interruptNames[INT_LAST] = {
     "Tick ",   // INT_TICK,
     "5ms  ",   // INT_5MS,
@@ -201,7 +201,7 @@ void DebugTimer::stop()
   else {
     last *= 10000ul; //adjust unit to 1us
   }
-  evalStats(); 
+  evalStats();
 }
 
 DebugTimer debugTimers[DEBUG_TIMERS_COUNT];
