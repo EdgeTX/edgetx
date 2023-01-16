@@ -35,6 +35,7 @@
 constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
 constexpr char FIM_THRSOURCE[]   {"Throttle Source"};
 constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
+constexpr char FIM_ANTENNAMODE[] {"Antenna Mode"};
 
 TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
                        QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
@@ -258,27 +259,34 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
     ui->trainerMode->hide();
   }
 
-  if (panelFilteredItemModels && moduleIdx >= 0) {
-    int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
-    ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
+  if (panelFilteredItemModels) {
+    if (moduleIdx >= 0) {
+      int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
+      ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
 
-    if (ui->protocol->findData(module.protocol) < 0) {
-      QString msg = tr("Warning: The internal module protocol <b>%1</b> is incompatible with the hardware internal module <b>%2</b> and has been set to <b>OFF</b>!");
-      msg = msg.arg(module.protocolToString(module.protocol)).arg(ModuleData::typeToString(generalSettings.internalModule));
+      if (ui->protocol->findData(module.protocol) < 0) {
+        QString msg = tr("Warning: The internal module protocol <b>%1</b> is incompatible with the hardware internal module <b>%2</b> and has been set to <b>OFF</b>!");
+        msg = msg.arg(module.protocolToString(module.protocol)).arg(ModuleData::typeToString(generalSettings.internalModule));
 
-      QMessageBox *msgBox = new QMessageBox(this);
-      msgBox->setIcon( QMessageBox::Warning );
-      msgBox->setText(msg);
-      msgBox->addButton( "Ok", QMessageBox::AcceptRole );
-      msgBox->setWindowFlag(Qt::WindowStaysOnTopHint);
-      msgBox->setAttribute(Qt::WA_DeleteOnClose); // delete pointer after close
-      msgBox->setModal(false);
-      msgBox->show();
+        QMessageBox *msgBox = new QMessageBox(this);
+        msgBox->setIcon( QMessageBox::Warning );
+        msgBox->setText(msg);
+        msgBox->addButton( "Ok", QMessageBox::AcceptRole );
+        msgBox->setWindowFlag(Qt::WindowStaysOnTopHint);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose); // delete pointer after close
+        msgBox->setModal(false);
+        msgBox->show();
 
-      module.clear();
+        module.clear();
+      }
+
+      ui->protocol->setField(module.protocol, this);
     }
 
-    ui->protocol->setField(module.protocol, this);
+    if (moduleIdx == 0) {
+      int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::antennaModeItemModel(true)), FIM_ANTENNAMODE);
+      ui->antennaMode->setModel(panelFilteredItemModels->getItemModel(id));
+    }
   }
 
   for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
@@ -565,15 +573,12 @@ void ModulePanel::update()
   ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLength));
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
-  // Antenna mode on Horus and XLite
   if (mask & MASK_ANTENNA) {
+    if (module.pxx.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+      module.pxx.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
+    ui->antennaMode->setField(module.pxx.antennaMode, this);
     ui->antennaLabel->show();
     ui->antennaMode->show();
-    ui->antennaMode->clear();
-    ui->antennaMode->addItem(tr("Ask"), -1);
-    ui->antennaMode->addItem(tr("Internal"), 0);
-    ui->antennaMode->addItem(IS_HORUS_X12S(board) ? tr("Internal + External") : tr("External"), 1);
-    ui->antennaMode->setField(module.pxx.antennaMode, this);
   }
   else {
     ui->antennaLabel->hide();

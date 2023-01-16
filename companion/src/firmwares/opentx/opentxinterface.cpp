@@ -767,8 +767,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
-    case HasAntennaChoice:
-      return ((IS_FAMILY_HORUS_OR_T16(board) && board != Board::BOARD_X10_EXPRESS) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board))) ? true : false;
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board);
     case HasTelemetryBaudrate:
