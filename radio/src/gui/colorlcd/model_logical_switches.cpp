@@ -279,7 +279,7 @@ void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchDa
 #define TXT_ALIGN   LV_GRID_ALIGN_CENTER
 
 static const lv_coord_t b_col_dsc[] = {
-  39, LV_GRID_FR(1), 71, 44, 44,
+  32, LV_GRID_FR(1), 71, 44, 44,
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -296,7 +296,7 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
 #define TXT_ALIGN   LV_GRID_ALIGN_START
 
 static const lv_coord_t b_col_dsc[] = {
-  39, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+  32, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -410,13 +410,13 @@ class LogicalSwitchButton : public Button
         strcat(s, getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_STICKY:
-        sprintf(s, "%s - %s = %s,", STR_VCSWFUNC[ls->func], STR_OFFON[1], getSwitchPositionName(ls->v1));
+        sprintf(s, "%s - %s=%s,", STR_VCSWFUNC[ls->func], STR_OFFON[1], getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_EDGE:
         sprintf(s, "%s - %s", STR_VCSWFUNC[ls->func], getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_TIMER:
-        sprintf(s, "%s - %s = %s", STR_VCSWFUNC[ls->func], STR_OFFON[1], formatNumberAsString(lswTimerValue(ls->v1), PREC1, 0, nullptr, "s,").c_str());
+        sprintf(s, "%s - %s=%s", STR_VCSWFUNC[ls->func], STR_OFFON[1], formatNumberAsString(lswTimerValue(ls->v1), PREC1, 0, nullptr, "s,").c_str());
         break;
       case LS_FAMILY_OFS:
         if (ls->func >= LS_FUNC_APOS)
@@ -467,7 +467,7 @@ class LogicalSwitchButton : public Button
         strcat(s, getSwitchPositionName(ls->v2));
         break;
       case LS_FAMILY_STICKY:
-        strcat(s, "OFF = ");
+        strcat(s, "OFF=");
         strcat(s, getSwitchPositionName(ls->v2));
         break;
       case LS_FAMILY_EDGE:
@@ -475,7 +475,7 @@ class LogicalSwitchButton : public Button
         break;
       case LS_FAMILY_TIMER:
         strcat(s, STR_OFFON[0]);
-        strcat(s, " = ");
+        strcat(s, "=");
         strcat(s, formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s").c_str());
         break;
       case LS_FAMILY_COMP:
