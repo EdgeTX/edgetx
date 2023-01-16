@@ -553,9 +553,7 @@ class SpecialFunctionButton : public Button
 
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        strcat(s, getSourceString(MIXSRC_CH1 + CFN_CH_INDEX(cfn)));
-        strcat(s, " = ");
-        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
+        sprintf(s+strlen(s), "%s = %s", getSourceString(MIXSRC_CH1 + CFN_CH_INDEX(cfn)), formatNumberAsString(CFN_PARAM(cfn)).c_str());
         break;
 
       case FUNC_TRAINER: {
@@ -608,27 +606,24 @@ class SpecialFunctionButton : public Button
 
       case FUNC_HAPTIC:
       case FUNC_SET_SCREEN:
-        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
+        strcat(s, formatNumberAsString(CFN_PARAM(cfn)).c_str());
         break;
 
       case FUNC_LOGS:
-        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
+        strcat(s, formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s").c_str());
         break;
 
       case FUNC_ADJUST_GVAR:
         strcat(s, getSourceString(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR));
         switch(CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT:
-            strcat(s, " = ");
-            BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PARAM(cfn));
+            sprintf(s+strlen(s), " = %s", formatNumberAsString(CFN_PARAM(cfn)).c_str());
             break;
           case FUNC_ADJUST_GVAR_SOURCE:
-            strcat(s, " = ");
-            strcat(s, getSourceString(CFN_PARAM(cfn)));
+            sprintf(s+strlen(s), " = %s", getSourceString(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR:
-            strcat(s, " = ");
-            strcat(s, getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
+            sprintf(s+strlen(s), " = %s", getSourceString(CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR));
             break;
           case FUNC_ADJUST_GVAR_INCDEC: {
             int16_t value = CFN_PARAM(cfn);
@@ -655,15 +650,11 @@ class SpecialFunctionButton : public Button
         lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
       lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     } else if (HAS_REPEAT_PARAM(func)) {
-      strcpy(s, "(");
-      if (CFN_PLAY_REPEAT(cfn) == 0) {
-        strcat(s, "1x");
-      } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-        strcat(s, "!1x");
-      } else {
-        BitmapBuffer::formatNumberAsString(s+strlen(s), 6, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
-      }
-      strcat(s, ")");
+      sprintf(s, "(%s)",
+        (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
+        (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) ? "!1x" :
+        formatNumberAsString(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s").c_str()
+      );
     }
 
     lv_label_set_text(sfRepeat, s);
