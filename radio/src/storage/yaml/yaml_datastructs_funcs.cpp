@@ -1463,16 +1463,17 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
   }
 
-  if (HAS_ENABLE_PARAM(func)) {
-    // "0/1"
-    if (val_len > 0) {
-      if (val[0] == '0') {
-        CFN_ACTIVE(cfn) = 0;
-      } else if (val[0] == '1') {
-        CFN_ACTIVE(cfn) = 1;
-      }
+
+  // "0/1"
+  if (val_len > 0) {
+    if (val[0] == '0') {
+      CFN_ACTIVE(cfn) = 0;
+    } else if (val[0] == '1') {
+      CFN_ACTIVE(cfn) = 1;
     }
-  } else if (HAS_REPEAT_PARAM(func)) {
+  }
+  
+  if (HAS_REPEAT_PARAM(func)) {
     if (val_len == 2
         && val[0] == '1'
         && val[1] == 'x') {
@@ -1481,7 +1482,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         && val[0] == '!'
         && val[1] == '1'
         && val[2] == 'x') {
-      CFN_PLAY_REPEAT(cfn) = CFN_PLAY_REPEAT_NOSTART;
+      CFN_PLAY_REPEAT(cfn) = (int8_t)CFN_PLAY_REPEAT_NOSTART;
     } else {
       // repeat time in seconds
       CFN_PLAY_REPEAT(cfn) = yaml_str2uint(val,val_len) / CFN_PLAY_REPEAT_MUL;
@@ -1613,14 +1614,15 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
   }
 
-  if (HAS_ENABLE_PARAM(func)) {
-    if (add_comma) {
-      // ","
-      if (!wf(opaque,",",1)) return false;
-    }
-    // "0/1"
-    if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
-  } else if (HAS_REPEAT_PARAM(func)) {
+
+  if (add_comma) {
+    // ","
+    if (!wf(opaque,",",1)) return false;
+  }
+  // "0/1"
+  if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
+
+  if (HAS_REPEAT_PARAM(func)) {
     if (add_comma) {
       // ","
       if (!wf(opaque,",",1)) return false;
@@ -1628,7 +1630,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;
-    } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+    } else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
       // "!1x"
       if (!wf(opaque,"!1x",3)) return false;
     } else {

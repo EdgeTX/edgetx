@@ -352,30 +352,59 @@ class SpecialFunctionEditPage : public Page
         line = specialFunctionOneWindow->newLine(&grid);
       }
     }
- 
+
     if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
-      new StaticText(line, rect_t{}, STR_REPEAT,
-                     0, COLOR_THEME_PRIMARY1);
+      new StaticText(line, rect_t{}, STR_REPEAT, 0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
-          line, rect_t{}, -1,
-          60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
-          SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
-      repeat->setDisplayHandler(
-          [](int32_t value) {
-            if (value == 0)
-              return std::string("1x");
-            else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
-              return std::string("!1x");
-            else {
-              return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
+          line, rect_t{}, -1, 60 / CFN_PLAY_REPEAT_MUL,
+          [=]() -> int {
+            int8_t val = int8_t(uint8_t(CFN_PLAY_REPEAT(cfn)) & int8_t(~CFN_ENABLE_MASK));
+            TRACE("Get: %d", val);
+            if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART ||
+                int8_t(CFN_PLAY_REPEAT(cfn)) == int8_t(CFN_PLAY_REPEAT_NOSTART & (~CFN_ENABLE_MASK)))
+              val = CFN_PLAY_REPEAT_NOSTART;
+
+            TRACE("Get 2: %d\t%d", val, int8_t(CFN_PLAY_REPEAT(cfn)));
+            return int(val);
+          },
+          [=](int value) {
+            if(CFN_ACTIVE(cfn) & CFN_ENABLE_MASK) {
+              CFN_ACTIVE(cfn) = value | CFN_ENABLE_MASK;
+            } else {
+              CFN_ACTIVE(cfn) = value & ~CFN_ENABLE_MASK;
             }
+            TRACE("Set %d\t%d", value, int8_t(CFN_ACTIVE(cfn)));
           });
+      // GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
+      // SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+      repeat->setDisplayHandler([=](int32_t value) {
+        if (value == 0)
+          return std::string("1x");
+        else if (value == CFN_PLAY_REPEAT_NOSTART ||
+                 CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART & (~CFN_ENABLE_MASK))
+          return std::string("!1x");
+        else {
+          return formatNumberAsString(
+              (value & ~CFN_ENABLE_MASK) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr,
+              "s");
+        }
+      });
       line = specialFunctionOneWindow->newLine(&grid);
     }
 
     {
       new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
+      new CheckBox(
+          line, rect_t{},  // GET_SET_DEFAULT(CFN_ACTIVE(cfn))
+          [=]() -> uint8_t {
+            return (CFN_ACTIVE(cfn) & int8_t(CFN_ENABLE_MASK)) ? 1 : 0;
+          },
+          [=](uint8_t value) {
+            if(value)
+              CFN_ACTIVE(cfn) |= uint8_t(CFN_ENABLE_MASK);
+            else
+              CFN_ACTIVE(cfn) &= uint8_t(~CFN_ENABLE_MASK);
+          });
       line = specialFunctionOneWindow->newLine(&grid);
     }
   }
@@ -390,7 +419,7 @@ class SpecialFunctionEditPage : public Page
 
     // Set new function to "enabled" by default
     if (!CFN_SWITCH(cfn))
-      CFN_ACTIVE(cfn) = true;
+      CFN_ACTIVE(cfn) |= 0x40;
 
       // Switch
     auto line = window->newLine(&grid);
@@ -605,12 +634,14 @@ class SpecialFunctionButton : public Button
         }
     }
     
-    theme->drawCheckBox(dc, CFN_ACTIVE(cfn), col4, line2);
+    theme->drawCheckBox(dc, CFN_ACTIVE(cfn) & CFN_ENABLE_MASK, col4, line2);
      
     if (HAS_REPEAT_PARAM(func)) {
       if (CFN_PLAY_REPEAT(cfn) == 0) {
         dc->drawText(col3, line2, "1x", COLOR_THEME_SECONDARY1);
-      } else if (CFN_PLAY_REPEAT(cfn) == int8_t(CFN_PLAY_REPEAT_NOSTART)) {
+      } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART ||
+                 CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART &
+                     (~CFN_ENABLE_MASK)) {
         dc->drawText(col3, line2, "!1x", COLOR_THEME_SECONDARY1);
       } else {
         dc->drawNumber(col3 + 12, line2, CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "s");
@@ -622,7 +653,7 @@ class SpecialFunctionButton : public Button
   {
     const CustomFunctionData *cfn = &functions[index];
 
-    if(CFN_ACTIVE(cfn)) {
+    if (CFN_ACTIVE(cfn) & CFN_ENABLE_MASK) {
       if (active)
         dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
       else

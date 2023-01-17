@@ -21,14 +21,17 @@
 
 #include "opentx.h"
 
-#define MODEL_SPECIAL_FUNC_1ST_COLUMN          (0)
-#define MODEL_SPECIAL_FUNC_2ND_COLUMN          (4*FW-1)
-#define MODEL_SPECIAL_FUNC_3RD_COLUMN          (15*FW-3)
-#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (20*FW)
+#define MODEL_SPECIAL_FUNC_1ST_COLUMN           (0)
+#define MODEL_SPECIAL_FUNC_2ND_COLUMN           (4*FW-1)
+#define MODEL_SPECIAL_FUNC_3RD_COLUMN           (15*FW-3)
 #if defined(GRAPHICS)
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF  (20*FW)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN         (19 * FW - 3)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (19 * FW - 3)
+  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (20 * FW + 1)
 #else
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF  (18*FW+2)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
+  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (18 * FW + 3)
 #endif
 
 #if defined(SDCARD)
@@ -179,7 +182,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
-    for (uint8_t j=0; j<5; j++) {
+    for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
       uint8_t active = (attr && s_editMode > 0);
       switch (j) {
@@ -427,26 +430,27 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         }
 
         case 4:
-          if (HAS_ENABLE_PARAM(func)) {
-            drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
-            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
-          }
-          else if (HAS_REPEAT_PARAM(func)) {
+          if (HAS_REPEAT_PARAM(func)) {
             if (CFN_PLAY_REPEAT(cfn) == 0) {
               lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF+3, y, '-', attr);
             }
-            else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+            else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF+1, y, "!-", attr);
             }
             else {
               lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, RIGHT | attr);
             }
-            if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
+            if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==(int8_t)CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
           }
           else if (attr) {
             REPEAT_LAST_CURSOR_MOVE();
           }
           break;
+        
+        case 5:
+            drawCheckBox(MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
+            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);      
+            break;
       }
     }
 #if defined(NAVIGATION_X7)
@@ -465,7 +469,7 @@ void menuModelSpecialFunctions(event_t event)
     menuHorizontalPosition = 0;
   }
 #endif
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
 
   menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
 

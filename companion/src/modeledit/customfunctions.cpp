@@ -199,11 +199,13 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     repeatLayout->addWidget(fswtchRepeat[i], i + 1);
     connect(fswtchRepeat[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
 
+    QHBoxLayout *enableLayout = new QHBoxLayout();
+    tableLayout->addLayout(i, 5, enableLayout);
     fswtchEnable[i] = new QCheckBox(this);
     fswtchEnable[i]->setProperty("index", i);
     fswtchEnable[i]->setText(tr("ON"));
     fswtchEnable[i]->setFixedWidth(200);
-    repeatLayout->addWidget(fswtchEnable[i], i + 1);
+    enableLayout->addWidget(fswtchEnable[i], i + 1);
     connect(fswtchEnable[i], SIGNAL(stateChanged(int)), this, SLOT(customFunctionEdited()));
   }
 
@@ -347,7 +349,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   }
 
   if (!cfn.isEmpty()) {
-    widgetsMask |= CUSTOM_FUNCTION_SHOW_FUNC;
+    widgetsMask |= CUSTOM_FUNCTION_SHOW_FUNC | CUSTOM_FUNCTION_ENABLE;
 
     if (func >= FuncOverrideCH1 && func <= FuncOverrideCH32) {
       if (model) {
@@ -533,7 +535,8 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       fswtchParam[i]->setDecimals(0);
       fswtchParam[i]->setSingleStep(1);
       fswtchParam[i]->setValue(cfn.param);
-      if (func <= FuncInstantTrim) {
+      //if (func <= FuncInstantTrim) 
+      {
         widgetsMask |= CUSTOM_FUNCTION_ENABLE;
       }
     }

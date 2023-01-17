@@ -24,7 +24,7 @@
 #define MODEL_SPECIAL_FUNC_1ST_COLUMN          (4*FW+2)
 #define MODEL_SPECIAL_FUNC_2ND_COLUMN          (8*FW+2)
 #define MODEL_SPECIAL_FUNC_3RD_COLUMN          (21*FW)
-#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (33*FW-3)
+#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (31*FW-3)
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF    (34*FW-3)
 
 void onCustomFunctionsFileSelectionMenu(const char * result)
@@ -141,8 +141,9 @@ enum CustomFunctionsItems {
   ITEM_CUSTOM_FUNCTIONS_PARAM1,
   ITEM_CUSTOM_FUNCTIONS_PARAM2,
   ITEM_CUSTOM_FUNCTIONS_REPEAT,
+  ITEM_CUSTOM_FUNCTIONS_ENABLE,
   ITEM_CUSTOM_FUNCTIONS_COUNT,
-  ITEM_CUSTOM_FUNCTIONS_LAST = ITEM_CUSTOM_FUNCTIONS_COUNT-1
+  ITEM_CUSTOM_FUNCTIONS_LAST = ITEM_CUSTOM_FUNCTIONS_COUNT - 1
 };
 
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
@@ -177,7 +178,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
-    for (uint8_t j=0; j<5; j++) {
+    for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
       uint8_t active = (attr && s_editMode>0);
       switch (j) {
@@ -405,15 +406,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         }
 
         case ITEM_CUSTOM_FUNCTIONS_REPEAT:
-          if (HAS_ENABLE_PARAM(func)) {
-            drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
-            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
-          }
-          else if (HAS_REPEAT_PARAM(func)) {
+          if (HAS_REPEAT_PARAM(func)) {
             if (CFN_PLAY_REPEAT(cfn) == 0) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
             }
-            else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+            else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
               lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN-1, y, '!', attr);
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
             }
@@ -421,11 +418,19 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, attr|RIGHT);
               lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, 's', attr);
             }
-            if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
+            if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==(int8_t)CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
           }
           else if (attr) {
             REPEAT_LAST_CURSOR_MOVE();
           }
+          break;
+
+        case ITEM_CUSTOM_FUNCTIONS_ENABLE:
+          drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn),
+                       attr);
+          if (active)
+            CFN_ACTIVE(cfn) =
+                checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
           break;
       }
     }
@@ -434,6 +439,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
 void menuModelSpecialFunctions(event_t event)
 {
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
   return menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
 }
