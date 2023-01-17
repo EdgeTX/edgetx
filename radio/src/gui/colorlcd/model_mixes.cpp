@@ -64,15 +64,6 @@ uint8_t getMixesCount()
   return count;
 }
 
-bool reachMixesLimit()
-{
-  if (getMixesCount() >= MAX_MIXERS) {
-    POPUP_WARNING(STR_NOFREEMIXER);
-    return true;
-  }
-  return false;
-}
-
 void insertMix(uint8_t idx, uint8_t channel)
 {
   pauseMixerCalculations();
@@ -310,6 +301,15 @@ ModelMixesPage::ModelMixesPage() :
 {
   setTitle(STR_MIXES);
   setIcon(ICON_MODEL_MIXER);
+}
+
+bool ModelMixesPage::reachMixesLimit()
+{
+  if (getMixesCount() >= MAX_MIXERS) {
+    new MessageDialog(form, STR_WARNING, STR_NOFREEMIXER);
+    return true;
+  }
+  return false;
 }
 
 InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)

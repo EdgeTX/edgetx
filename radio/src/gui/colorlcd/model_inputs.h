@@ -59,4 +59,6 @@ class ModelInputsPage : public PageTab
   void pasteInput(uint8_t dst_idx, uint8_t input);
   void pasteInputBefore(uint8_t dst_idx);
   void pasteInputAfter(uint8_t dst_idx);
+
+  bool reachExposLimit();
 };
