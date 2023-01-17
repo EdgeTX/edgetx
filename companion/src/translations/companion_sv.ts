@@ -5248,6 +5248,10 @@ att fungera. Detta går inte att ändra från radion.
         <source>Cannot list files</source>
         <translation>Kan inte lista filer</translation>
     </message>
+    <message>
+        <source>Error deleting files</source>
+        <translation>Fel vid radering av filer</translation>
+    </message>
 </context>
 <context>
     <name>LimitData</name>
@@ -6527,6 +6531,10 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Show Labels Actions Toolbar</source>
         <translation>Visa verktygsfältet för etiketter</translation>
+    </message>
+    <message>
+        <source>Invalid file extension!</source>
+        <translation>Ogiltigt filsuffix!</translation>
     </message>
 </context>
 <context>
