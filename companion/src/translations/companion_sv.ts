@@ -1433,7 +1433,7 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Editing curve %1: %2</source>
-        <translation>Redigerar kurva %1: %2</translation>
+        <translation>Redigera kurva %1: %2</translation>
     </message>
 </context>
 <context>
