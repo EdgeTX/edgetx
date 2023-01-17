@@ -1574,7 +1574,7 @@ static delayval_t timerValue2lsw(uint32_t t)
 {
   if (t < 20) {
     return t - 129;
-  } else if (600) {
+  } else if (t < 600) {
     return t / 5 - 113;
   } else {
     return t / 10 - 53;
