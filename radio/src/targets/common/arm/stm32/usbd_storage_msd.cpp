@@ -111,7 +111,7 @@ int8_t STORAGE_Write (uint8_t lun,
 
 int8_t STORAGE_GetMaxLun (void);
 
-const USBD_STORAGE_cb_TypeDef USBD_MICRO_SDIO_fops =    // modified my OpenTX
+const USBD_STORAGE_cb_TypeDef USBD_MICRO_SDIO_fops =
 {
   STORAGE_Init,
   STORAGE_GetCapacity,
@@ -123,7 +123,7 @@ const USBD_STORAGE_cb_TypeDef USBD_MICRO_SDIO_fops =    // modified my OpenTX
   (int8_t *)STORAGE_Inquirydata,
 };
 
-const USBD_STORAGE_cb_TypeDef  * const USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops;    // modified my OpenTX
+const USBD_STORAGE_cb_TypeDef  * const USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops;
 
 #if defined(__cplusplus) && !defined(SIMU)
 }
