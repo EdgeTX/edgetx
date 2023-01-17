@@ -184,6 +184,7 @@ class LogicalSwitchEditPage: public Page
           getMixSrcRange(cs->v1, v2_min, v2_max);
           v2Edit = new NumberEdit(line, rect_t{},
                                   v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
+          lv_obj_set_width(v2Edit->getLvObj(), LV_SIZE_CONTENT);
 
           v2Edit->setDisplayHandler([=](int value) -> std::string {
             if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
