@@ -1250,12 +1250,20 @@ bool MdiChild::saveAs(bool isNew)
 {
   forceNewFilename();
   QFileInfo fi(curFile);
-  QString filter(ETX_FILES_FILTER % YML_FILES_FILTER);
+  QString filter(ETX_FILES_FILTER);
+  QString fileName;
 
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
-  if (fileName.isEmpty())
-    return false;
-  g.eepromDir( QFileInfo(fileName).dir().absolutePath() );
+  do
+  {
+    fileName = QFileDialog::getSaveFileName(this, tr("Save As"), g.eepromDir() + "/" + fi.fileName(), filter);
+    if (fileName.isEmpty())
+      return false;
+    if (QFileInfo(fileName).suffix().toLower() != "etx")
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Invalid file extension!"));
+  }
+  while (QFileInfo(fileName).suffix().toLower() != "etx");
+
+  g.eepromDir(QFileInfo(fileName).dir().absolutePath());
 
   return saveFile(fileName, true);
 }
@@ -1707,13 +1715,19 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
     const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
     qDebug() << path;
 
-    QString filename = QFileDialog::getSaveFileName(this, tr("Export model"), path, YML_FILES_FILTER);
+    QString filename;
 
-    if (filename.isEmpty())
-      return false;
+    do
+    {
+      filename = QFileDialog::getSaveFileName(this, tr("Export model"), path, YML_FILES_FILTER);
 
-    if (QFileInfo(filename).suffix() != "yml")
-      return false;
+      if (filename.isEmpty())
+        return false;
+
+      if (QFileInfo(filename).suffix().toLower() != "yml")
+        QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Invalid file extension!"));
+    }
+    while (QFileInfo(filename).suffix().toLower() != "yml");
 
     Storage storage(filename);
 

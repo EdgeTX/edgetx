@@ -105,7 +105,7 @@ void MainView6POS::checkEvents()
 {
   Window::checkEvents();
 #if NUM_XPOTS > 0 // prevent compiler warning
-  int16_t newValue = 1 + (potsPos[idx] & 0x0f);
+  int16_t newValue = (potsPos[idx] & 0x0f);
   if (value != newValue) {
     value = newValue;
     invalidate();

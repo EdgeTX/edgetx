@@ -113,6 +113,9 @@ do
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;

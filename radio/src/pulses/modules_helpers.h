@@ -108,7 +108,7 @@ extern uint32_t NV14internalModuleFwVersion;
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
 // Keep the order of the fields that the so that the size stays small
 struct mm_options_strings {
-  static const char* options[];
+  static const char* const options[];
 };
 
 const uint8_t getMaxMultiOptions();
@@ -118,7 +118,7 @@ struct mm_protocol_definition {
   uint8_t maxSubtype;
   bool failsafe;
   bool disable_ch_mapping;
-  const char** subTypeString;
+  const char* const* subTypeString;
   const char* optionsstr;
 };
 

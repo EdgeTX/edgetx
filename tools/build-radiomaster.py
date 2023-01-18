@@ -49,6 +49,16 @@ boards = {
         "PCBREV": "ZORRO",
         "DEFAULT_MODE": "2",
     },
+    "BOXER_1": {
+        "PCB": "X7",
+        "PCBREV": "BOXER",
+        "DEFAULT_MODE": "1",
+    },
+    "BOXER_2": {
+        "PCB": "X7",
+        "PCBREV": "BOXER",
+        "DEFAULT_MODE": "2",
+    },
     "T8_1": {
         "PCB": "X7",
         "PCBREV": "T8",

@@ -77,6 +77,7 @@ struct SwitchWarnMatrix : public ButtonMatrix {
   SwitchWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextWithColor(uint8_t btn_id);
 private:
   uint8_t sw_idx[NUM_SWITCHES];
 };
@@ -85,6 +86,7 @@ struct PotWarnMatrix : public ButtonMatrix {
   PotWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextWithColor(uint8_t btn_id);
 private:
   uint8_t pot_idx[NUM_POTS + NUM_SLIDERS];
 };
@@ -93,6 +95,7 @@ struct CenterBeepsMatrix : public ButtonMatrix {
   CenterBeepsMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextWithColor(uint8_t btn_id);
 private:
   uint8_t ana_idx[NUM_STICKS + NUM_POTS + NUM_SLIDERS];
 };
@@ -175,16 +178,16 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
   }
 
   initBtnMap(4, btn_cnt);
+  update();
 
   uint8_t btn_id = 0;
   for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
-      std::string txt = switchWarninglabel(i);
-      setText(btn_id, txt.c_str());
+      lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
+      setTextWithColor(i);
       btn_id++;
     }
   }
-  update();
   
   lv_obj_set_width(lvobj, LV_DPI_DEF * 2);
 
@@ -203,6 +206,11 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
   lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
+void SwitchWarnMatrix::setTextWithColor(uint8_t btn_id)
+{
+  setText(btn_id, makeRecolor(switchWarninglabel(sw_idx[btn_id]), isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+}
+
 void SwitchWarnMatrix::onPress(uint8_t btn_id)
 {
   if (btn_id >= NUM_SWITCHES) return;
@@ -219,8 +227,7 @@ void SwitchWarnMatrix::onPress(uint8_t btn_id)
   SET_DIRTY();
 
   // TODO: save state in object
-  std::string txt = switchWarninglabel(sw);
-  setText(btn_id, txt.c_str());
+  setTextWithColor(sw);
 }
 
 bool SwitchWarnMatrix::isActive(uint8_t btn_id)
@@ -249,21 +256,23 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   }
 
   initBtnMap(3, btn_cnt);
+  update();
 
   uint8_t btn_id = 0;
   for (uint16_t i = POT_FIRST; i <= POT_LAST; i++) {
     if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      setText(btn_id, STR_VSRCRAW[i + 1]);
+      lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
+      setTextWithColor(btn_id);
       btn_id++;
     }
   }
   for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
     if (IS_SLIDER(i)) {
-      setText(btn_id, STR_VSRCRAW[i + 1]);
+      lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
+      setTextWithColor(btn_id);
       btn_id++;
     }
   }
-  update();
 
   lv_obj_set_width(lvobj, (LV_DPI_DEF * 3) / 2);
   
@@ -282,6 +291,11 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
+void PotWarnMatrix::setTextWithColor(uint8_t btn_id)
+{
+  setText(btn_id, makeRecolor(STR_VSRCRAW[pot_idx[btn_id] + POT_FIRST + 1], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+}
+
 void PotWarnMatrix::onPress(uint8_t btn_id)
 {
   if (btn_id >= NUM_POTS + NUM_SLIDERS) return;
@@ -292,6 +306,7 @@ void PotWarnMatrix::onPress(uint8_t btn_id)
       (g_model.potsWarnEnabled & (1 << pot))) {
     SAVE_POT_POSITION(pot);
   }
+  setTextWithColor(btn_id);
   SET_DIRTY();
 }
 
@@ -315,15 +330,16 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   }
 
   initBtnMap(4, btn_cnt);
+  update();
 
   uint8_t btn_id = 0;
   for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
     if (i < NUM_STICKS || (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) {
-      setText(btn_id, STR_RETA123[i]);
+      lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
+      setTextWithColor(btn_id);
       btn_id++;
     }
   }
-  update();
 
   lv_obj_set_width(lvobj, (3 * LV_DPI_DEF) / 2);
   
@@ -342,11 +358,17 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
+void CenterBeepsMatrix::setTextWithColor(uint8_t btn_id)
+{
+  setText(btn_id, makeRecolor(STR_RETA123[ana_idx[btn_id]], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+}
+
 void CenterBeepsMatrix::onPress(uint8_t btn_id)
 {
   if (btn_id >= NUM_STICKS + NUM_POTS + NUM_SLIDERS) return;
   uint8_t i = ana_idx[btn_id];
   BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
+  setTextWithColor(btn_id);
   SET_DIRTY();  
 }
 

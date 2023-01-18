@@ -123,10 +123,9 @@ class LogicalSwitchEditPage: public Page
         auto edit2 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 1), -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
         edit1->setSetValueHandler([=](int32_t newValue) {
           cs->v2 = newValue;
-          cs->v3 = min<uint8_t>(cs->v3, 222 - cs->v2);
           SET_DIRTY();
           edit2->setMax(222 - cs->v2);
-          edit2->invalidate();
+          edit2->setValue(cs->v3);
         });
         edit1->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1);
@@ -162,7 +161,7 @@ class LogicalSwitchEditPage: public Page
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
         timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
         timer->setDisplayHandler([](int32_t value) {
-          return std::to_string(lswTimerValue(value));
+          return formatNumberAsString(lswTimerValue(value), PREC1);
         });
         grid.nextLine();
       }

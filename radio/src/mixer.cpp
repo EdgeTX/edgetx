@@ -189,9 +189,9 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
         if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
 
         //========== TRIMS ================
-        if (ed->carryTrim < TRIM_ON)
-          virtualInputsTrims[cur_chn] = -ed->carryTrim - 1;
-        else if (ed->carryTrim == TRIM_ON && ed->srcRaw >= MIXSRC_Rud && ed->srcRaw <= MIXSRC_Ail)
+        if (ed->trimSource < TRIM_ON)
+          virtualInputsTrims[cur_chn] = -ed->trimSource - 1;
+        else if (ed->trimSource == TRIM_ON && ed->srcRaw >= MIXSRC_Rud && ed->srcRaw <= MIXSRC_Ail)
           virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_Rud;
         else
           virtualInputsTrims[cur_chn] = -1;

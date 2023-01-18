@@ -761,6 +761,7 @@
 #define TR_BAUDRATE                    "波特率"
 #define TR_SAMPLE_MODE                 "采样模式"
 #define TR_SAMPLE_MODES                "标准","OneBit"
+#define TR_LOADING                     "加载中..."
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速选择模型"

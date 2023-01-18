@@ -75,8 +75,8 @@ void intmoduleStop()
 void intmodulePxx1PulsesStart()
 {
   INTERNAL_MODULE_ON();
-  stm32_pulse_config_output(&intmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
   stm32_pulse_init(&intmoduleTimer);
+  stm32_pulse_config_output(&intmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
 }
 
 void intmoduleSendNextFramePxx1(const uint16_t* data, uint8_t size)

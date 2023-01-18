@@ -761,6 +761,11 @@
 #define TR_BAUDRATE                    "波特率"
 #define TR_SAMPLE_MODE                 "採樣模式"
 #define TR_SAMPLE_MODES                "標準","OneBit"
+#define TR_LOADING                     "加載中..."
+
+#if defined(COLORLCD)
+  #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
+#endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "選擇一個樣板檔案夾:"
 #define TR_SELECT_TEMPLATE             "選擇一個樣板:"
