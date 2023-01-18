@@ -135,9 +135,10 @@ void Widget::setFullscreen(bool enable)
   // Enter Fullscreen Mode
   else {
 
-    // Set window opaque (inhibits redraw from windows bellow)
+    // Set window opaque (inhibits redraw from windows below)
     setWindowFlags(getWindowFlags() | OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+    updateZoneRect(parent->getRect());
     setRect(parent->getRect());
     fullscreen = true;
 

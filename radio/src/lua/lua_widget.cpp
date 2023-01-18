@@ -196,9 +196,10 @@ void LuaEventHandler::removeHandler(Window* w)
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaWidgetDataRef) :
+                     int luaWidgetDataRef,int zoneRectDataRef) :
     Widget(factory, parent, rect, persistentData),
     luaWidgetDataRef(luaWidgetDataRef),
+    zoneRectDataRef(zoneRectDataRef),
     errorMessage(nullptr)
 {
 }
@@ -206,6 +207,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 LuaWidget::~LuaWidget()
 {
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
 
@@ -285,6 +287,27 @@ void LuaWidget::update()
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
     setErrorMessage("update()");
+  }
+}
+
+void LuaWidget::updateZoneRect(rect_t rect)
+{
+  if (lsWidgets)
+  {
+    // Update widget zone with current size and position
+
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+
+    lua_pushinteger(lsWidgets, rect.w);
+    lua_setfield(lsWidgets, -2, "w");
+    lua_pushinteger(lsWidgets, rect.h);
+    lua_setfield(lsWidgets, -2, "h");
+    lua_pushinteger(lsWidgets, rect.x);
+    lua_setfield(lsWidgets, -2, "xabs");
+    lua_pushinteger(lsWidgets, rect.y);
+    lua_setfield(lsWidgets, -2, "yabs");
+
+    lua_pop(lsWidgets, 1);
   }
 }
 

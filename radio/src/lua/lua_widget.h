@@ -60,6 +60,7 @@ class LuaWidget : public Widget, public LuaEventHandler
   friend class LuaWidgetFactory;
 
   int luaWidgetDataRef;
+  int zoneRectDataRef;
   char* errorMessage;
   bool refreshed = false;
 
@@ -73,9 +74,12 @@ class LuaWidget : public Widget, public LuaEventHandler
     
   void setErrorMessage(const char* funcName);
 
+  // Update 'zone' data
+  void updateZoneRect(rect_t rect) override;
+
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int luaWidgetDataRef);
+            WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef);
   ~LuaWidget() override;
 
 #if defined(DEBUG_WINDOWS)
