@@ -374,10 +374,7 @@ CurveEditWindow::CurveEditWindow(uint8_t index):
 
 void CurveEditWindow::buildHeader(Window * window)
 {
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_MENUCURVE, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_MENUCURVE);
   char s[16];
   strAppendStringWithIndex(s, STR_CV, index + 1);
   new StaticText(window,
