@@ -23,5 +23,5 @@
 
 #include "hal/module_driver.h"
 
-extern etx_module_driver_t CrossfireInternalDriver;
-extern etx_module_driver_t CrossfireExternalDriver;
+extern const etx_module_driver_t CrossfireInternalDriver;
+extern const etx_module_driver_t CrossfireExternalDriver;

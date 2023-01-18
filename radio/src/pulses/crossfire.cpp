@@ -27,6 +27,7 @@
 #include "intmodule_serial_driver.h"
 #endif
 
+#include "crossfire.h"
 #include "telemetry/crossfire.h"
 
 #define CROSSFIRE_CH_BITS           11
@@ -283,7 +284,7 @@ static void crossfireDeInitInternal(void* context)
   state->deinit();
 }
 
-etx_module_driver_t CrossfireInternalDriver = {
+const etx_module_driver_t CrossfireInternalDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
   .init = crossfireInitInternal,
   .deinit = crossfireDeInitInternal,
@@ -323,7 +324,7 @@ static void crossfireDeInitExternal(void* context)
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
 }
 
-etx_module_driver_t CrossfireExternalDriver = {
+const etx_module_driver_t CrossfireExternalDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
   .init = crossfireInitExternal,
   .deinit = crossfireDeInitExternal,
