@@ -79,7 +79,7 @@ inline T sgn(T a)
 }
 
 // TODO duplicated code
-inline std::string TEXT_AT_INDEX(const char** val, uint8_t idx)
+inline std::string TEXT_AT_INDEX(const char *const *val, uint8_t idx)
 {
   return std::string(val[idx]);
 }

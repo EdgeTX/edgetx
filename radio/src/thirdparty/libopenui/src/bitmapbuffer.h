@@ -338,7 +338,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       return drawSizedText(x, y, s, strlen(s), flags);
     }
 
-    coord_t drawTextAtIndex(coord_t x, coord_t y, const char** s, uint8_t idx, LcdFlags flags = 0)
+    coord_t drawTextAtIndex(coord_t x, coord_t y, const char *const *s, uint8_t idx, LcdFlags flags = 0)
     {
       return drawText(x, y, s[idx], flags);
     }
