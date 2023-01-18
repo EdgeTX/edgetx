@@ -36,11 +36,10 @@ class Pxx1CrcMixin {
 
     void addToCrc(uint8_t byte)
     {
-      crc = (crc << 8) ^ (crc16tab_1189[((crc >> 8) ^ byte) & 0xFF]);
+      crc = (crc << 8) ^ (crc16tab[CRC_1189][((crc >> 8) ^ byte) & 0xFF]);
     }
 
     uint16_t crc;
-    static const uint16_t CRCTable[];
 };
 
 template <class BitTransport>
