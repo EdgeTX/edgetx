@@ -110,11 +110,11 @@ void DynamicNumber<int32_t>::updateText()
     const char* p = prefix ? prefix : "";
     const char* s = suffix ? suffix : "";
     if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%02" PRId32 "%s", p,
-                            value / 100, value % 100, s);
+      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%02" PRIu32 "%s", p,
+                            value / 100, (uint32_t)abs(value % 100), s);
     } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%01" PRId32 "%s", p,
-                            value / 10, value % 10, s);
+      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%01" PRIu32 "%s", p,
+                            value / 10, (uint32_t)abs(value % 10), s);
     } else {
       lv_label_set_text_fmt(lvobj, "%s%" PRId32 "%s", p, value, s);
     }
@@ -146,11 +146,11 @@ void DynamicNumber<int16_t>::updateText()
     const char* p = prefix ? prefix : "";
     const char* s = suffix ? suffix : "";
     if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%02" PRId16 "%s", p,
-                            (int16_t)(value / 100), (int16_t)(value % 100), s);
+      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%02" PRIu16 "%s", p,
+                            (int16_t)(value / 100), (uint16_t)abs(value % 100), s);
     } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%01" PRId16 "%s", p,
-                            (int16_t)(value / 10), (int16_t)(value % 10), s);
+      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%01" PRIu16 "%s", p,
+                            (int16_t)(value / 10), (uint16_t)abs(value % 10), s);
     } else {
       lv_label_set_text_fmt(lvobj, "%s%" PRId16 "%s", p, value, s);
     }
