@@ -140,7 +140,7 @@ void MultiRfProtocols::RfProto::fillSubProtoList(const char* str, int n, int len
   }
 }
 
-void MultiRfProtocols::RfProto::fillSubProtoList(const char** str, int n)
+void MultiRfProtocols::RfProto::fillSubProtoList(const char *const *str, int n)
 {
   subProtos.reserve(n);
 
