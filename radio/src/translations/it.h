@@ -948,6 +948,7 @@
 #define TR_TELEMETRY_TYPE      "Tipo Telemetria"
 #define TR_TELEMETRY_SENSORS   "Sensori"
 #define TR_VALUE               "Valore"
+#define TR_PERIOD              "Period"
 #define TR_REPEAT                      "Ripeti"
 #define TR_ENABLE                      "Attivo"
 #define TR_TOPLCDTIMER         "Timer LCD Sup."

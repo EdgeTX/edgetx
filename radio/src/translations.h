@@ -1057,6 +1057,7 @@ extern const char STR_DISABLE_ALARM[];
 extern const char STR_TELEMETRY_TYPE[];
 extern const char STR_TELEMETRY_SENSORS[];
 extern const char STR_VALUE[];
+extern const char STR_PERIOD[];
 extern const char STR_REPEAT[];
 extern const char STR_ENABLE[];
 extern const char STR_TOPLCDTIMER[];

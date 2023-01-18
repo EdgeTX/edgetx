@@ -234,7 +234,16 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_LOGS: {
+<<<<<<< HEAD
         auto edit = addNumberEdit(line, STR_VALUE, cfn, 0, 255);
+=======
+        new StaticText(line, rect_t{}, STR_PERIOD, 0, COLOR_THEME_PRIMARY1);
+
+        auto edit = new NumberEdit(line, rect_t{}, 
+                                   SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX,
+                                   GET_SET_DEFAULT(CFN_PARAM(cfn)));
+        edit->setDefault(SD_LOGS_PERIOD_DEFAULT);   // set default period for DEF button
+>>>>>>> 6412bdf78 (fixes https://github.com/EdgeTX/edgetx/issues/2965)
         edit->setDisplayHandler(
             [=](int32_t value) {
               return formatNumberAsString(CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
@@ -392,6 +401,11 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
+
+      if(CFN_FUNC(cfn) == FUNC_LOGS) {              // set default period for newly created SF
+        CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;                     
+      }
+
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });
