@@ -76,6 +76,7 @@ class LuaWidget : public Widget, public LuaEventHandler
 
   // Update 'zone' data
   void updateZoneRect(rect_t rect) override;
+  bool updateTable(const char* idx, int val);
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,

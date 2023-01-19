@@ -290,6 +290,31 @@ void LuaWidget::update()
   }
 }
 
+// Update table on top of Lua stack - set entry with name 'idx' to value 'val'
+// Return true if value has changed
+bool LuaWidget::updateTable(const char* idx, int val)
+{
+  bool update = false;
+
+  // Check existing value (or invalid value)
+  lua_getfield(lsWidgets, -1, idx);
+  if (lua_isnumber(lsWidgets, -1)) {
+    int v = lua_tointeger(lsWidgets, -1);
+    update = (v != val);
+  } else {
+    // Force table update
+    update = true;
+  }
+  lua_pop(lsWidgets, 1);
+
+  if (update) {
+    lua_pushinteger(lsWidgets, val);
+    lua_setfield(lsWidgets, -2, idx);
+  }
+
+  return update;
+}
+
 void LuaWidget::updateZoneRect(rect_t rect)
 {
   if (lsWidgets)
@@ -298,16 +323,17 @@ void LuaWidget::updateZoneRect(rect_t rect)
 
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
 
-    lua_pushinteger(lsWidgets, rect.w);
-    lua_setfield(lsWidgets, -2, "w");
-    lua_pushinteger(lsWidgets, rect.h);
-    lua_setfield(lsWidgets, -2, "h");
-    lua_pushinteger(lsWidgets, rect.x);
-    lua_setfield(lsWidgets, -2, "xabs");
-    lua_pushinteger(lsWidgets, rect.y);
-    lua_setfield(lsWidgets, -2, "yabs");
+    bool changed = false;
+
+    if (updateTable("w", rect.w)) changed = true;
+    if (updateTable("h", rect.h)) changed = true;
+    if (updateTable("xabs", rect.x)) changed = true;
+    if (updateTable("yabs", rect.y)) changed = true;
 
     lua_pop(lsWidgets, 1);
+
+    if (changed)
+      update();
   }
 }
 
