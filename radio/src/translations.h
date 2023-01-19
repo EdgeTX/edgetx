@@ -742,6 +742,8 @@ extern const char STR_LEFT_STICK[];
 extern const char STR_SHOW_MIXER_MONITORS[];
 extern const char STR_MODEL_QUICK_SELECT[];
 extern const char STR_LOADING[];
+extern const char STR_DELETE_THEME[];
+extern const char STR_SAVE_THEME[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];

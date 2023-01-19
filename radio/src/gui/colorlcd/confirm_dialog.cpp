@@ -26,9 +26,11 @@
 
 ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
                              const char* message,
-                             std::function<void(void)> confirmHandler) :
+                             std::function<void(void)> confirmHandler,
+                             std::function<void(void)> cancelHandler) :
     Dialog(parent, title, rect_t{}),
-    confirmHandler(std::move(confirmHandler))
+    confirmHandler(std::move(confirmHandler)),
+    cancelHandler(std::move(cancelHandler))
 {
   auto form = &content->form;
   auto msg = new StaticText(form, rect_t{}, message);
@@ -44,6 +46,8 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
   
   auto btn = new TextButton(box, rect_t{}, STR_NO, [=]() -> int8_t {
     this->deleteLater();
+    if (cancelHandler)
+      cancelHandler();
     return 0;
   });
   lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
