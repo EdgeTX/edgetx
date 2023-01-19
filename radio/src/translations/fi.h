@@ -975,6 +975,7 @@
 #define TR_TELEMETRY_SENSORS           "Sensors"
 #define TR_VALUE                       "Value"
 #define TR_PERIOD                      "Period"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"

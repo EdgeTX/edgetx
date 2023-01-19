@@ -948,6 +948,7 @@
 #define TR_TELEMETRY_SENSORS           "センサー"
 #define TR_VALUE                       "値"
 #define TR_PERIOD                      "Period"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"
