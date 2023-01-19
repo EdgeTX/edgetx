@@ -46,6 +46,8 @@ class SwitchWarnDialog : public FullScreenDialog
   StaticText*  warn_label;
 
   bool warningInactive();
+  
+  void init() override;
 };
 
 #endif
