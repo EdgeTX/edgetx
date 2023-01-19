@@ -346,6 +346,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   else {
     fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(cfn.swtch.toValue()));
     fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(cfn.func));
+    fswtchEnable[i]->setChecked(cfn.enabled);
   }
 
   if (!cfn.isEmpty()) {
@@ -549,10 +550,6 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   fswtchParamT[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_SOURCE_PARAM);
   fswtchParamArmT[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_FILE_PARAM);
   fswtchEnable[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_ENABLE);
-  if (widgetsMask & CUSTOM_FUNCTION_ENABLE)
-    fswtchEnable[i]->setChecked(cfn.enabled);
-  else
-    fswtchEnable[i]->setChecked(false);
   fswtchRepeat[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_REPEAT);
   fswtchGVmode[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_GV_MODE);
   playBT[i]->setVisible(widgetsMask & CUSTOM_FUNCTION_PLAY);

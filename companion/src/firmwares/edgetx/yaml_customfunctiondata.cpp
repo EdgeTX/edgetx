@@ -216,15 +216,15 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     break;
   }
 
-
   if (add_comma) {
     def += ",";
   }
+
   def += std::to_string((int)rhs.enabled);
+
   if(fnHasRepeat(rhs.func)) {
-    if (add_comma) {
-      def += ",";
-    }
+    def += ",";
+    
     if (rhs.repeatParam == 0) {
       def += "1x";
     } else if (rhs.repeatParam == -1) {
@@ -367,12 +367,14 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     def.ignore();
   }
 
-
   int en = 0;
   def >> en;
   rhs.enabled = en;
 
   if(fnHasRepeat(rhs.func)) {
+    if (def.peek() == ',') {
+    def.ignore();
+    }
     std::string repeat;
     getline(def, repeat);
     if (repeat == "1x") {

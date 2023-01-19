@@ -1463,17 +1463,24 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
   }
 
-
   // "0/1"
   if (val_len > 0) {
     if (val[0] == '0') {
-      CFN_ACTIVE(cfn) = 0;
+    CFN_ACTIVE(cfn) = 0;
     } else if (val[0] == '1') {
-      CFN_ACTIVE(cfn) = 1;
+    CFN_ACTIVE(cfn) = 1;
     }
+    val += l_sep;
+    val_len -= l_sep;
+
+    if (val_len == 0 || val[0] != ',') return;
+
+    val++; val_len--;
+//    val++; val_len--;
   }
-  
+
   if (HAS_REPEAT_PARAM(func)) {
+    TRACE("REPEAT: %c%c%c", val[0],val[1], val[2]);
     if (val_len == 2
         && val[0] == '1'
         && val[1] == 'x') {
@@ -1488,6 +1495,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PLAY_REPEAT(cfn) = yaml_str2uint(val,val_len) / CFN_PLAY_REPEAT_MUL;
     }
   }
+
 }
 
 static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1614,13 +1622,13 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
   }
 
-
   if (add_comma) {
-    // ","
-    if (!wf(opaque,",",1)) return false;
+  // ","
+  if (!wf(opaque, ",", 1)) return false;
   }
+
   // "0/1"
-  if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
+  if (!wf(opaque, CFN_ACTIVE(cfn) ? "1" : "0", 1)) return false;
 
   if (HAS_REPEAT_PARAM(func)) {
     if (add_comma) {
@@ -1638,7 +1646,10 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
       if (!wf(opaque, str, strlen(str))) return false;
     }
+    // ","
+    if (!wf(opaque, ",", 1)) return false;
   }
+
   if (!wf(opaque, "\"", 1)) return false;
   return true;
 }
