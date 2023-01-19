@@ -965,7 +965,7 @@
 #define TR_TELEMETRY_TYPE              TR("Typ", "Typ telemetrie")
 #define TR_TELEMETRY_SENSORS           "Senzory"
 #define TR_VALUE                       "Hodnota"
-#define TR_PERIOD                      "Period"
+#define TR_PERIOD                      "Perioda"
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Opakovat"
 #define TR_ENABLE                      "Povoleno"

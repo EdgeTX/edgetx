@@ -738,7 +738,7 @@
 #define TR_CAPAWARNING                 INDENT "Capacity low"
 #define TR_TEMPWARNING                 INDENT "Overheat"
 #define TR_TTL_WARNING                 "Warning: use 3.3V logic levels"
-#define TR_FUNC                        "Func"
+#define TR_FUNC                        "Function"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Duration"
