@@ -250,7 +250,7 @@ class SpecialFunctionEditPage : public Page
 >>>>>>> 6412bdf78 (fixes https://github.com/EdgeTX/edgetx/issues/2965)
         edit->setDisplayHandler(
             [=](int32_t value) {
-              return formatNumberAsString(CFN_PARAM(cfn), PREC1, sizeof(CFN_PARAM(cfn)), nullptr, "s");
+              return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
             });
         break;
       }
@@ -628,7 +628,15 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_LOGS:
+<<<<<<< HEAD
         strcat(s, formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s").c_str());
+=======
+        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1 | PREC1, 0, nullptr, "s");
+        break;
+
+      case FUNC_SET_SCREEN:
+        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
+>>>>>>> 613b93f20 (fixed problem with too many leading zeros for intervals less than 1s.)
         break;
 
       case FUNC_ADJUST_GVAR:
