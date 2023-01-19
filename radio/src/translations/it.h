@@ -775,8 +775,8 @@
 #define TR_SAMPLE_MODE         "Modo Semplice"
 #define TR_SAMPLE_MODES        "Normale","OneBit"
 #define TR_LOADING             "Caricamento..."
-#define TR_DELETE_THEME                "Delete Theme?"
-#define TR_SAVE_THEME                  "Save Theme?"
+#define TR_DELETE_THEME        "Cancello Tema?"
+#define TR_SAVE_THEME          "Salvo Tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Selezione veloce modello"
