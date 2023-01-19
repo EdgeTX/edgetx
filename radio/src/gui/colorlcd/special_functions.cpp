@@ -235,9 +235,13 @@ class SpecialFunctionEditPage : public Page
 
       case FUNC_LOGS: {
 <<<<<<< HEAD
+<<<<<<< HEAD
         auto edit = addNumberEdit(line, STR_VALUE, cfn, 0, 255);
 =======
         new StaticText(line, rect_t{}, STR_PERIOD, 0, COLOR_THEME_PRIMARY1);
+=======
+        new StaticText(line, rect_t{}, STR_INTERVAL, 0, COLOR_THEME_PRIMARY1);
+>>>>>>> 2c1f25410 (changed Period to Interval)
 
         auto edit = new NumberEdit(line, rect_t{}, 
                                    SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX,

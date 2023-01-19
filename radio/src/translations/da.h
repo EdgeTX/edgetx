@@ -953,7 +953,8 @@
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetri type")
 #define TR_TELEMETRY_SENSORS           "Sensorer"
 #define TR_VALUE                       "Værdi"
-#define TR_PERIOD                      "Period"
+#define TR_PERIOD                      "Periode"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Gentag"
 #define TR_ENABLE                      "Aktiver"
 #define TR_TOPLCDTIMER                 "Top LCD ur"
