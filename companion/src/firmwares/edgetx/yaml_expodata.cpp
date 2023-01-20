@@ -38,7 +38,7 @@ Node convert<ExpoData>::encode(const ExpoData& rhs)
   node["weight"] = YamlWriteMixWeight(rhs.weight);
   node["offset"] = rhs.offset;  // YamlWriteMixWeight
   node["curve"] = rhs.curve;
-  node["carryTrim"] = rhs.carryTrim;
+  node["trimSource"] = rhs.carryTrim; // temporary for 2.8.1
   node["name"] = rhs.name;
   return node;
 }
@@ -60,7 +60,11 @@ bool convert<ExpoData>::decode(const Node& node, ExpoData& rhs)
     rhs.offset = YamlReadMixWeight(node["offset"]);
   }
   node["curve"] >> rhs.curve;
+if (node["trimSource"]) { // 2.9 - change bugged carryTrim to trimSource
+  node["trimSource"] >> rhs.carryTrim;
+} else {
   node["carryTrim"] >> rhs.carryTrim;
+}
   node["name"] >> rhs.name;
   return true;
 }
