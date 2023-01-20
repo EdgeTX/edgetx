@@ -31,10 +31,17 @@
 
 #define TR_MIN_PLURAL2  2
 #define TR_MAX_PLURAL2  2
-#define BREAKSPACE                      " "
-#define TR_MINUTE_SINGULAR              BREAKSPACE "分鐘"
-#define TR_MINUTE_PLURAL1               BREAKSPACE "分鐘"
-#define TR_MINUTE_PLURAL2               BREAKSPACE "分鐘"
+// For this number of minute in the last decimal place singular form is used in
+// plural
+#define TR_USE_VARIABLE_PLURAL 1
+#define TR_USE_SINGULAR_IN_PLURAL 1
+#define TR_USE_PLURAL2_SPECIAL_CASE 0
+// If the number of minutes is above this value PLURAL2 is used
+#define TR_USE_PLURAL2 INT_MAX
+
+#define TR_MINUTE_SINGULAR              "分鐘"
+#define TR_MINUTE_PLURAL1               "分鐘"
+#define TR_MINUTE_PLURAL2               "分鐘"
 
 #define TR_OFFON                        "禁用","開啟"
 #define TR_MMMINV                       "---","反"

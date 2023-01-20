@@ -115,6 +115,7 @@
 
 constexpr int g_max_plural2 = TR_MAX_PLURAL2;
 constexpr int g_min_plural2 = TR_MIN_PLURAL2;
+constexpr int g_use_variable_plural = TR_USE_VARIABLE_PLURAL;
 constexpr int g_use_singular_in_plural = TR_USE_SINGULAR_IN_PLURAL;
 constexpr int g_use_plural2_special_case = TR_USE_PLURAL2_SPECIAL_CASE;
 constexpr int g_use_plural2 = TR_USE_PLURAL2;

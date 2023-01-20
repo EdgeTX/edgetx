@@ -437,22 +437,24 @@ class AlarmsPage : public Page {
 
       edit->setDisplayHandler([=](int value) -> std::string {
         std::string suffix(STR_MINUTE_PLURAL2);
-        if (value == 1)
+        if (value == 1) {
           suffix = std::string(STR_MINUTE_SINGULAR);
-        else if (value < g_use_plural2) {
+        } else if (g_use_variable_plural && value < g_use_plural2) {
           const int secondDecimal = (value / 10) % 10;
           if (secondDecimal != 1) {
             const int firstDecimal = value % 10;
             if (firstDecimal) {
               if (firstDecimal < g_min_plural2 &&
-                  firstDecimal == g_use_singular_in_plural)
+                  firstDecimal == g_use_singular_in_plural) {
                 suffix = std::string(STR_MINUTE_SINGULAR);
-              else if (firstDecimal <= g_max_plural2 &&
-                       firstDecimal != g_use_plural2_special_case)
+              } else if (firstDecimal <= g_max_plural2 &&
+                         firstDecimal != g_use_plural2_special_case) {
                 suffix = std::string(STR_MINUTE_PLURAL1);
+              }
             }
           }
         }
+        suffix = " " + suffix;
         return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
       });
       line = body.newLine(&grid);
