@@ -135,6 +135,11 @@ void ViewMainMenu::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
+void ViewMainMenu::onClicked()
+{
+  deleteLater();
+}
+
 void ViewMainMenu::onCancel()
 {
   deleteLater();
