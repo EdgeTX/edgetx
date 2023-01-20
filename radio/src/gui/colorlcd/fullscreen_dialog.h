@@ -66,8 +66,7 @@ class FullScreenDialog : public Window
       closeCondition = std::move(handler);
     }
 
-    void runForever();
-    void runForeverNoPwrCheck();
+    void runForever(bool checkPwr = true);
 
   protected:
     uint8_t type;
