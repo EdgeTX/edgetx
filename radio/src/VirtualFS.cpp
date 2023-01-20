@@ -53,112 +53,10 @@ VfsFile g_bluetoothFile = {};
 #endif
 #endif
 
-#if defined(SPI_FLASH) && !defined(USE_LITTLEFS)
+#if defined(SPI_FLASH)
 static FATFS spiFatFs __DMA;
 #endif
 
-#if defined(USE_LITTLEFS)
-size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
-size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
-uint16_t flashSpiGetPageSize();
-uint16_t flashSpiGetSectorSize();
-uint16_t flashSpiGetSectorCount();
-
-int flashSpiErase(size_t address);
-int flashSpiBlockErase(size_t address);
-void flashSpiEraseAll();
-
-void flashSpiSync();
-
-
-extern "C"
-{
-
-#ifdef LFS_THREADSAFE
-// Lock the underlying block device. Negative error codes
-// are propogated to the user.
-int (*lock)(const struct lfs_config *c);
-
-// Unlock the underlying block device. Negative error codes
-// are propogated to the user.
-int (*unlock)(const struct lfs_config *c);
-#endif
-
-int flashRead(const struct lfs_config *c, lfs_block_t block,
-        lfs_off_t off, void *buffer, lfs_size_t size)
-{
-  flashSpiRead((block * c->block_size) + off, (uint8_t*)buffer, size);
-  return LFS_ERR_OK;
-}
-
-int flashWrite(const struct lfs_config *c, lfs_block_t block,
-        lfs_off_t off, const void *buffer, lfs_size_t size)
-{
-  flashSpiWrite((block * c->block_size) + off, (uint8_t*)buffer, size);
-  return LFS_ERR_OK;
-}
-
-int flashErase(const struct lfs_config *c, lfs_block_t block)
-{
-    flashSpiErase(block * c->block_size);
-    return LFS_ERR_OK;
-}
-
-int flashSync(const struct lfs_config *c)
-{
-  flashSpiSync();
-  return LFS_ERR_OK;
-}
-}
-
-static VfsError convertResult(lfs_error err)
-{
-  switch(err)
-  {
-  case LFS_ERR_OK:          return VfsError::OK;
-  case LFS_ERR_IO:          return VfsError::IO;
-  case LFS_ERR_CORRUPT:     return VfsError::CORRUPT;
-  case LFS_ERR_NOENT:       return VfsError::NOENT;
-  case LFS_ERR_EXIST:       return VfsError::EXIST;
-  case LFS_ERR_NOTDIR:      return VfsError::NOTDIR;
-  case LFS_ERR_ISDIR:       return VfsError::ISDIR;
-  case LFS_ERR_NOTEMPTY:    return VfsError::NOTEMPTY;
-  case LFS_ERR_BADF:        return VfsError::BADF;
-  case LFS_ERR_FBIG:        return VfsError::FBIG;
-  case LFS_ERR_INVAL:       return VfsError::INVAL;
-  case LFS_ERR_NOSPC:       return VfsError::NOSPC;
-  case LFS_ERR_NOMEM:       return VfsError::NOMEM;
-  case LFS_ERR_NOATTR:      return VfsError::NOATTR;
-  case LFS_ERR_NAMETOOLONG: return VfsError::NAMETOOLONG;
-  }
-  return VfsError::INVAL;
-}
-
-static int convertOpenFlagsToLfs(VfsOpenFlags flags)
-{
-  int lfsFlags = 0;
-
-  if((flags & VfsOpenFlags::READ) != VfsOpenFlags::NONE && (flags & VfsOpenFlags::WRITE) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_RDWR;
-  else if ((flags & VfsOpenFlags::READ) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_RDONLY;
-  else if ((flags & VfsOpenFlags::WRITE) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_WRONLY;
-
-  if((flags & VfsOpenFlags::CREATE_NEW) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_CREAT | LFS_O_EXCL;
-  else if ((flags & VfsOpenFlags::CREATE_ALWAYS) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_CREAT | LFS_O_TRUNC;
-  else if((flags & VfsOpenFlags::OPEN_ALWAYS) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_CREAT;
-  else if((flags & VfsOpenFlags::OPEN_APPEND) != VfsOpenFlags::NONE)
-    lfsFlags |= LFS_O_CREAT | LFS_O_APPEND;
-
-  return lfsFlags;
-}
-#endif
-
-#if defined (USE_FATFS)
 static VfsError convertResult(FRESULT err)
 {
   switch(err)
@@ -191,7 +89,6 @@ static int convertOpenFlagsToFat(VfsOpenFlags flags)
 {
   return (int)flags;
 }
-#endif
 
 VfsOpenFlags operator|(VfsOpenFlags lhs,VfsOpenFlags rhs)
 {
@@ -240,12 +137,7 @@ const char* VfsFileInfo::getName() const
   switch(type)
   {
   case VfsFileType::ROOT: return name;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:  return(name != nullptr)?name:fatInfo.fname;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:  return lfsInfo.name;
-#endif
   default: break;
   }
   return "";
@@ -256,12 +148,7 @@ size_t VfsFileInfo::getSize() const
   switch(type)
   {
   case VfsFileType::ROOT: return 0;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:  return fatInfo.fsize;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:  return lfsInfo.size;
-#endif
   default: break;
   }
   return 0;
@@ -273,7 +160,6 @@ VfsType VfsFileInfo::getType() const
   {
   case VfsFileType::ROOT:
     return VfsType::DIR;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     if (name != nullptr)
       return VfsType::DIR;
@@ -281,15 +167,6 @@ VfsType VfsFileInfo::getType() const
       return VfsType::DIR;
     else
       return VfsType::FILE;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:
-
-    if(lfsInfo.type == LFS_TYPE_DIR)
-      return VfsType::DIR;
-    else
-      return VfsType::FILE;
-#endif
   default: break;
   }
   return VfsType::UNKOWN;
@@ -301,16 +178,8 @@ VfsFileAttributes VfsFileInfo::getAttrib()
   {
   case VfsFileType::ROOT:
     return VfsFileAttributes::DIR;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return (VfsFileAttributes)fatInfo.fattrib;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:
-    if(lfsInfo.type == LFS_TYPE_DIR)
-      return VfsFileAttributes::DIR;
-    return VfsFileAttributes::NONE;
-#endif
   default: break;
   }
   return VfsFileAttributes::NONE;
@@ -321,14 +190,8 @@ int VfsFileInfo::getDate(){
   {
   case VfsFileType::ROOT:
     return 0;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return fatInfo.fdate;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:
-    return 0;
-#endif
   default: break;
   }
   return 0;
@@ -340,14 +203,8 @@ int VfsFileInfo::getTime()
   {
   case VfsFileType::ROOT:
     return 0;
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return fatInfo.ftime;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:
-    return 0;
-#endif
   default: break;
   }
   return 0;
@@ -355,12 +212,7 @@ int VfsFileInfo::getTime()
 
 void VfsFileInfo::clear() {
   type = VfsFileType::UNKNOWN;
-#if defined(USE_LITTLEFS)
-  lfsInfo = {0};
-#endif
-#if defined (USE_FATFS)
   fatInfo = {0};
-#endif
   name = nullptr;
 }
 
@@ -368,13 +220,7 @@ void VfsFileInfo::clear() {
 void VfsDir::clear()
 {
   type = DIR_UNKNOWN;
-#if defined(USE_LITTLEFS)
-  lfs.dir = {0};
-  lfs.handle = nullptr;
-#endif
-#if defined (USE_FATFS)
   fat.dir = {0};
-#endif
 
   readIdx = 0;
 }
@@ -403,7 +249,6 @@ VfsError VfsDir::read(VfsFileInfo& info)
 #endif // SDCARD
     readIdx++;
     return VfsError::OK;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     info.type = VfsFileType::FAT;
@@ -416,17 +261,6 @@ VfsError VfsDir::read(VfsFileInfo& info)
     VfsError ret = convertResult(f_readdir(&fat.dir, &info.fatInfo));
     return ret;
   }
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    {
-      info.type = VfsFileType::LFS;
-      int res = lfs_dir_read(lfs.handle, &lfs.dir, &info.lfsInfo);
-      if(res >= 0)
-        return VfsError::OK;
-      return convertResult((lfs_error)res);
-    }
-#endif
   default: break;
   }
   return VfsError::INVAL;
@@ -440,16 +274,9 @@ VfsError VfsDir::close()
   case VfsDir::DIR_ROOT:
     ret = VfsError::OK;
     break;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     ret = convertResult(f_closedir(&fat.dir));
     break;
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    ret = convertResult((lfs_error)lfs_dir_close(lfs.handle, &lfs.dir));
-    break;
-#endif
   default: break;
   }
   clear();
@@ -463,22 +290,10 @@ VfsError VfsDir::rewind()
   {
   case VfsDir::DIR_ROOT:
     return VfsError::OK;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     return convertResult(f_readdir(&fat.dir, nullptr));
   }
-#endif
-#if defined(USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    {
-      info.type = VfsFileType::LFS;
-      int res = lfs_dir_read(lfs.handle, &lfs.dir, nullptr);
-      if(res >= 0)
-        return VfsError::OK;
-      return convertResult((lfs_error)res);
-    }
-#endif
   default: break;
   }
   return VfsError::INVAL;
@@ -486,13 +301,7 @@ VfsError VfsDir::rewind()
 
 void VfsFile::clear() {
   type = VfsFileType::UNKNOWN;
-#if defined(USE_LITTLEFS)
-  lfs.file = {0};
-  lfs.handle = nullptr;
-#endif
-#if defined (USE_FATFS)
   fat.file = {0};
-#endif
 }
 
 VfsError VfsFile::close()
@@ -500,16 +309,9 @@ VfsError VfsFile::close()
   VfsError ret = VfsError::INVAL;
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     ret = convertResult(f_close(&fat.file));
     break;
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    ret = convertResult((lfs_error)lfs_file_close(lfs.handle, &lfs.file));
-    break;
-#endif
   default: break;
   }
 
@@ -521,20 +323,9 @@ int VfsFile::size()
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_size(&fat.file);
     break;
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    {
-      int res = lfs_file_size(lfs.handle, &lfs.file);
-      if(res < 0)
-        return (int)convertResult((lfs_error)res);
-      return res;
-    }
-#endif
   default: break;
   }
 
@@ -545,29 +336,12 @@ VfsError VfsFile::read(void* buf, size_t size, size_t& readSize)
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT: {
     UINT rd = 0;
     VfsError res = convertResult(f_read(&fat.file, buf, size, &rd));
     readSize = rd;
     return res;
   }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_read(lfs.handle, &lfs.file, buf, size);
-      if(ret >= 0)
-      {
-        readSize = ret;
-        return VfsError::OK;
-      } else {
-        readSize = 0;
-        return convertResult((lfs_error)ret);
-      }
-      break;
-    }
-#endif
   default: break;
   }
 
@@ -578,30 +352,8 @@ char* VfsFile::gets(char* buf, size_t maxLen)
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_gets(buf, maxLen, &fat.file);
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    {
-      size_t nc = 0;
-      char* p = buf;
-      char s[4];
-      size_t rc;
-      char dc;
-      maxLen -= 1;   /* Make a room for the terminator */
-      while (nc < maxLen) {
-          read(s, 1, rc);
-          if (rc != 1) break;
-          dc = s[0];
-          *p++ = dc; nc++;
-          if (dc == '\n') break;
-      }
-      *p = 0;     /* Terminate the string */
-      return nc ? buf : 0;   /* When no data read due to EOF or error, return with error. */
-    }
-#endif
   default: break;
   }
 
@@ -613,29 +365,12 @@ VfsError VfsFile::write(const void* buf, size_t size, size_t& written)
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT: {
     UINT wrt = 0;
     VfsError res = convertResult(f_write(&fat.file, buf, size, &wrt));
     written = wrt;
     return res;
   }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_write(lfs.handle, &lfs.file, buf, size);
-      if(ret >= 0)
-      {
-        written = ret;
-        return VfsError::OK;
-      } else {
-        written = 0;
-        return convertResult((lfs_error)ret);
-      }
-      break;
-    }
-#endif
   default: break;
   }
 
@@ -672,108 +407,7 @@ int VfsFile::fprintf(const char* str, ...)
 #if defined(USE_LITTLEFS)
   case VfsFileType::LFS:
   {
-#if 0
-      va_list arp;
-         putbuff pb;
-         BYTE f, r;
-         UINT i, j, w;
-         DWORD v;
-         TCHAR c, d, str[32], *p;
 
-
-         putc_init(&pb, fp);
-
-         va_start(arp, fmt);
-
-         for (;;) {
-             c = *fmt++;
-             if (c == 0) break;          /* End of string */
-             if (c != '%') {             /* Non escape character */
-                 putc_bfd(&pb, c);
-                 continue;
-             }
-             w = f = 0;
-             c = *fmt++;
-             if (c == '0') {             /* Flag: '0' padding */
-                 f = 1; c = *fmt++;
-             } else {
-                 if (c == '-') {         /* Flag: left justified */
-                     f = 2; c = *fmt++;
-                 }
-             }
-             if (c == '*') {             /* Minimum width by argument */
-                 w = va_arg(arp, int);
-                 c = *fmt++;
-             } else {
-                 while (IsDigit(c)) {    /* Minimum width */
-                     w = w * 10 + c - '0';
-                     c = *fmt++;
-                 }
-             }
-             if (c == 'l' || c == 'L') { /* Type prefix: Size is long int */
-                 f |= 4; c = *fmt++;
-             }
-             if (c == 0) break;
-             d = c;
-             if (IsLower(d)) d -= 0x20;
-             switch (d) {                /* Atgument type is... */
-             case 'S' :                  /* String */
-                 p = va_arg(arp, TCHAR*);
-                 for (j = 0; p[j]; j++) ;
-                 if (!(f & 2)) {                     /* Right padded */
-                     while (j++ < w) putc_bfd(&pb, ' ') ;
-                 }
-                 while (*p) putc_bfd(&pb, *p++) ;        /* String body */
-                 while (j++ < w) putc_bfd(&pb, ' ') ;    /* Left padded */
-                 continue;
-
-             case 'C' :                  /* Character */
-                 putc_bfd(&pb, (TCHAR)va_arg(arp, int)); continue;
-
-             case 'B' :                  /* Unsigned binary */
-                 r = 2; break;
-
-             case 'O' :                  /* Unsigned octal */
-                 r = 8; break;
-
-             case 'D' :                  /* Signed decimal */
-             case 'U' :                  /* Unsigned decimal */
-                 r = 10; break;
-
-             case 'X' :                  /* Unsigned hexdecimal */
-                 r = 16; break;
-
-             default:                    /* Unknown type (pass-through) */
-                 putc_bfd(&pb, c); continue;
-             }
-
-             /* Get an argument and put it in numeral */
-             v = (f & 4) ? (DWORD)va_arg(arp, long) : ((d == 'D') ? (DWORD)(long)va_arg(arp, int) : (DWORD)va_arg(arp, unsigned int));
-             if (d == 'D' && (v & 0x80000000)) {
-                 v = 0 - v;
-                 f |= 8;
-             }
-             i = 0;
-             do {
-                 d = (TCHAR)(v % r); v /= r;
-                 if (d > 9) d += (c == 'x') ? 0x27 : 0x07;
-                 str[i++] = d + '0';
-             } while (v && i < sizeof str / sizeof *str);
-             if (f & 8) str[i++] = '-';
-             j = i; d = (f & 1) ? '0' : ' ';
-             if (!(f & 2)) {
-                 while (j++ < w) putc_bfd(&pb, d);   /* Right pad */
-             }
-             do {
-                 putc_bfd(&pb, str[--i]);            /* Number body */
-             } while (i);
-             while (j++ < w) putc_bfd(&pb, d);       /* Left pad */
-         }
-
-         va_end(arp);
-
-         return putc_flush(&pb);
-#endif
   default: break;
   }
 #endif
@@ -785,47 +419,23 @@ int VfsFile::fprintf(const char* str, ...)
 
 size_t VfsFile::tell()
 {
-    switch(type)
-    {
-#if defined (USE_FATFS)
-    case VfsFileType::FAT:
-      return f_tell(&fat.file);
-  #endif
-  #if defined (USE_LITTLEFS)
-    case VfsFileType::LFS:
-      {
-        int ret = lfs_file_tell(lfs.handle, &lfs.file);
-        if(ret < 0)
-          return (size_t)convertResult((lfs_error)ret);
-        else
-          return ret;
-      }
-  #endif
+  switch(type)
+  {
+  case VfsFileType::FAT:
+    return f_tell(&fat.file);
   default: break;
-    }
+  }
 
-    return (size_t)VfsError::INVAL;
+  return (size_t)VfsError::INVAL;
 }
 
 VfsError VfsFile::lseek(size_t offset)
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return convertResult(f_lseek(&fat.file, offset));
     break;
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    {
-      int ret = lfs_file_seek(lfs.handle, &lfs.file, offset, LFS_SEEK_SET);
-      if(ret < 0)
-        return convertResult((lfs_error)ret);
-      else
-        return VfsError::OK;
-    }
-#endif
   default: break;
   }
 
@@ -836,14 +446,8 @@ int VfsFile::eof()
 {
   switch(type)
   {
-#if defined (USE_FATFS)
   case VfsFileType::FAT:
     return f_eof(&fat.file);
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsFileType::LFS:
-    return lfs_file_tell(lfs.handle, &lfs.file) == lfs_file_size(lfs.handle, &lfs.file);
-#endif
   default: break;
   }
 
@@ -863,24 +467,8 @@ const char * VirtualFS::getBasename(const char * path)
 VirtualFS::VirtualFS()
 {
 #if defined (SPI_FLASH)
-#if defined (USE_LITTLEFS)
-  // configuration of the filesystem is provided by this struct
-  lfsCfg.read  = flashRead;
-  lfsCfg.prog  = flashWrite;
-  lfsCfg.erase = flashErase;
-  lfsCfg.sync  = flashSync;
 
-  // block device configuration
-  lfsCfg.read_size = 256;
-  lfsCfg.prog_size = flashSpiGetPageSize();
-  lfsCfg.block_size = flashSpiGetSectorSize();
-  lfsCfg.block_count = flashSpiGetSectorCount();
-  lfsCfg.block_cycles = 500;
-  lfsCfg.cache_size = flashSpiGetPageSize();
-  lfsCfg.lookahead_size = 256;
-#else
   spiFatFs = {0};
-#endif // USE_LITTLEFS
 #endif // SPI_FLASH
 #if defined (SDCARD)
   sdFatFs = {0};
@@ -892,11 +480,7 @@ VirtualFS::VirtualFS()
 VirtualFS::~VirtualFS()
 {
 #if defined (SPI_FLASH)
-#if defined (USE_LITTLEFS)
-  lfs_unmount(&lfs);
-#else // USE_LITTLEFS
   f_unmount("1:");
-#endif // USE_LITTLEFS
 #endif // SPI_FLASH
 }
 
@@ -911,11 +495,7 @@ void VirtualFS::stop()
 #endif
 
 #if defined (SPI_FLASH)
-#if defined (USE_LITTLEFS)
-  lfs_unmount(&lfs);
-#else // USE_LITTLEFS
   f_unmount("1:");
-#endif // USE_LITTLEFS
 #endif // SPI_FLASH
 }
 void VirtualFS::restart()
@@ -925,25 +505,6 @@ void VirtualFS::restart()
   mountSd();
 #endif
 #if defined (SPI_FLASH)
-#if defined(USE_LITTLEFS)
-  //  flashSpiEraseAll();
-  lfsMounted = true;
-  int err = lfs_mount(&lfs, &lfsCfg);
-  if(err) {
-      flashSpiEraseAll();
-      err = lfs_format(&lfs, &lfsCfg);
-      if(err == LFS_ERR_OK)
-        err = lfs_mount(&lfs, &lfsCfg);
-      if(err != LFS_ERR_OK)
-      {
-        lfsMounted = false;
-#if !defined(BOOT)
-        POPUP_WARNING(STR_SDCARD_ERROR);
-#endif
-      }
-  }
-  lfsCfg.context = this;
-#else // USE_LITTLEFS
 #if !defined(BOOT)
   diskCache[1].clear();
 #endif
@@ -987,7 +548,6 @@ void VirtualFS::restart()
     }
 #endif
   }
-#endif // USE_LITLEFS
 #endif // SPI_FLASH
 #if !defined(BOOT)
   checkAndCreateDirectory("/DEFAULT/RADIO");
@@ -1028,13 +588,7 @@ bool VirtualFS::defaultStorageAvailable()
   return true;
 #endif
 #if (DEFAULT_STORAGE == INTERNAL)
-#if defined (USE_LITTLEFS)
-    return lfsMounted
-#elif defined (USE_FATFS)
-    return spiFatFs.fs_type != 0;
-#else
-#error at least one file system must be enabled
-#endif // USE_LITTLEFS
+  return spiFatFs.fs_type != 0;
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
     return sdFatFs.fs_type != 0;
 #endif
@@ -1044,14 +598,7 @@ bool VirtualFS::defaultStorageAvailable()
 bool VirtualFS::format()
 {
 // TODO format
-#if defined (USE_LITTLEFS)
-
-  flashSpiEraseAll();
-  lfs_format(&lfs, &lfsCfg);
-  return true;
-#else
   return false;
-#endif
 //  BYTE work[FF_MAX_SS];
 //  FRESULT res = f_mkfs("", FM_FAT32, 0, work, sizeof(work));
 //  switch(res) {
@@ -1090,17 +637,12 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 #if defined (SPI_FLASH)
   } else if(path.substr(0, 9) == "/INTERNAL")
   {
-#if defined (USE_LITTLEFS)
-      path = path.substr(6);
-    return VfsDir::DIR_LFS;
-#else // USE_LITTLEFS
     path = "1:" + path.substr(9);
     if(path == "1:")
       path = "1:/";
     else if (path == "")
       path = "/";
     return VfsDir::DIR_FAT;
-#endif // USE_LITTLEFS
 #endif  // SPI_FLASH
 #if defined (SDCARD)
   } else if(path.substr(0, 7) == "/SDCARD") {
@@ -1111,17 +653,10 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
 #endif
   } else if(path.substr(0, 8) == "/DEFAULT") {
 #if (DEFAULT_STORAGE == INTERNAL)
-#if defined (USE_LITTLEFS)
-    path = path.substr(8);
-    return VfsDir::DIR_LFS;
-#elif defined (USE_FATFS)
     path = "1:" + path.substr(8);
     if(path == "1:")
       path = "1:/";
     return VfsDir::DIR_FAT;
-#else
-#error no supported filesystem selected
-#endif // USE_LITTLEFS
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
     path = path.substr(8);
     return VfsDir::DIR_FAT;
@@ -1173,7 +708,7 @@ void VirtualFS::normalizePath(std::string& path)
     path = "/";
 }
 #if !defined(BOOT)
-VfsError VirtualFS::unlink(const std::string& path)
+VfsError VirtualFS::unlink(const char* path)
 {
   std::string p = path;
   normalizePath(p);
@@ -1183,22 +718,18 @@ VfsError VirtualFS::unlink(const std::string& path)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_unlink(p.c_str()));
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    return convertResult((lfs_error)lfs_remove(&lfs, p.c_str()));
-#endif
   }
 
   return VfsError::INVAL;
 }
 #endif
-VfsError VirtualFS::changeDirectory(const std::string& path)
+VfsError VirtualFS::changeDirectory(const char* path)
 {
-  if(path.length() == 0)
+  if(path == nullptr)
+    return VfsError::INVAL;
+  if(strlen(path) == 0)
     return VfsError::INVAL;
 
   std::string newWorkDir = path;
@@ -1227,22 +758,15 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::OK;
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-      dir.lfs.handle = &lfs;
-    return convertResult((lfs_error)lfs_dir_open(&lfs, &dir.lfs.dir, dirPath.c_str()));
-#endif
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_opendir(&dir.fat.dir, dirPath.c_str()));
-#endif
   default: break;
   }
 
   return VfsError::INVAL;
 }
 #if !defined(BOOT)
-VfsError VirtualFS::makeDirectory(const std::string& path)
+VfsError VirtualFS::makeDirectory(const char* path)
 {
   std::string normPath(path);
   normalizePath(normPath);
@@ -1253,7 +777,6 @@ VfsError VirtualFS::makeDirectory(const std::string& path)
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
     break;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     DIR dir;
@@ -1269,27 +792,6 @@ VfsError VirtualFS::makeDirectory(const std::string& path)
     }
     break;
   }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-  {
-    lfs_dir_t dir;
-    lfs_error res = (lfs_error)lfs_dir_open(&lfs, &dir, normPath.c_str());
-    if(res == LFS_ERR_OK)
-    {
-      lfs_dir_close(&lfs, &dir);
-      return VfsError::OK;
-    } else {
-      if(res == LFS_ERR_NOENT)
-        res = (lfs_error)lfs_mkdir(&lfs, normPath.c_str());
-      if(res != LFS_ERR_OK)
-      {
-        return convertResult(res);
-      }
-    }
-  break;
-  }
-#endif
   default: break;
   }
   return VfsError::INVAL;
@@ -1311,14 +813,8 @@ VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
     {
     case VfsDir::DIR_ROOT:
       return VfsError::INVAL;
-#if defined (USE_FATFS)
     case VfsDir::DIR_FAT:
       return convertResult(f_rename(oldP.c_str(), newP.c_str()));
-#endif
-#if defined (USE_LITTLEFS)
-    case VfsDir::DIR_LFS:
-      return convertResult((lfs_error)lfs_rename(&lfs, oldP.c_str(), newP.c_str()));
-#endif
     }
   } else {
     VfsError err = copyFile(oldPath, newPath);
@@ -1329,7 +825,7 @@ VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
   return VfsError::INVAL;
 }
 
-VfsError VirtualFS::copyFile(const std::string& source, const std::string& destination)
+VfsError VirtualFS::copyFile(const char* source, const char* destination)
 {
   VfsFile src;
   VfsFile dest;
@@ -1371,14 +867,14 @@ cleanup:
   return err;
 }
 
-VfsError VirtualFS::copyFile(const std::string& srcFile, const std::string& srcDir,
-           const std::string& destDir, const std::string& destFile)
+VfsError VirtualFS::copyFile(const char* srcFile, const char* srcDir,
+           const char* destDir, const char* destFile)
 {
-  return copyFile(srcDir +"/" + srcFile, destDir + "/" + destFile);
+  return copyFile((std::string(srcDir) +"/" + srcFile).c_str(), (std::string(destDir) + "/" + destFile).c_str());
 }
 
 // Will overwrite if destination exists
-const char * VirtualFS::moveFile(const std::string& srcPath, const std::string& destPath)
+const char * VirtualFS::moveFile(const char* srcPath, const char* destPath)
 {
 
   auto res = copyFile(srcPath, destPath);
@@ -1394,7 +890,7 @@ const char * VirtualFS::moveFile(const std::string& srcPath, const std::string& 
 }
 
 // Will overwrite if destination exists
-const char * VirtualFS::moveFile(const std::string& srcFilename, const std::string& srcDir, const std::string& destFilename, const std::string& destDir)
+const char * VirtualFS::moveFile(const char* srcFilename, const char* srcDir, const char* destFilename, const char* destDir)
 {
   auto res = copyFile(srcFilename, srcDir, destFilename, destDir);
   if(res != VfsError::OK) {
@@ -1402,9 +898,9 @@ const char * VirtualFS::moveFile(const std::string& srcFilename, const std::stri
   }
 
   char srcPath[2*CLIPBOARD_PATH_LEN+1] = { 0 };
-  char * tmp = strAppend(srcPath, srcDir.c_str(), CLIPBOARD_PATH_LEN);
+  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
   *tmp++ = '/';
-  strAppend(tmp, srcFilename.c_str(), CLIPBOARD_PATH_LEN);
+  strAppend(tmp, srcFilename, CLIPBOARD_PATH_LEN);
   res = unlink(srcPath);
   if(res != VfsError::OK) {
     return STORAGE_ERROR(res);
@@ -1423,8 +919,14 @@ uint32_t sdGetNoSectors()
 }
 
 #endif
-VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
+VfsError VirtualFS::fstat(const char* path, VfsFileInfo& fileInfo)
 {
+  if(path == nullptr)
+    return VfsError::INVAL;
+
+  if(path[0] == 0)
+    return VfsError::INVAL;
+
   std::string normPath(path);
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
@@ -1433,23 +935,22 @@ VfsError VirtualFS::fstat(const std::string& path, VfsFileInfo& fileInfo)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     fileInfo.type = VfsFileType::FAT;
     return convertResult(f_stat(normPath.c_str(), &fileInfo.fatInfo));
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    fileInfo.type = VfsFileType::LFS;
-    return convertResult((lfs_error)lfs_stat(&lfs, normPath.c_str(), fileInfo.lfsInfo));
-#endif
   default: break;
   }
   return VfsError::INVAL;
 }
 #if !defined(BOOT)
-VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
+VfsError VirtualFS::utime(const char* path, const VfsFileInfo& fileInfo)
 {
+  if(path == nullptr)
+    return VfsError::INVAL;
+
+  if(path[0] == 0)
+    return VfsError::INVAL;
+
   std::string normPath(path);
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
@@ -1458,21 +959,21 @@ VfsError VirtualFS::utime(const std::string& path, const VfsFileInfo& fileInfo)
   {
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     return convertResult(f_utime(normPath.c_str(), &fileInfo.fatInfo));
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    return VfsError::OK;
-#endif
   default: break;
   }
   return VfsError::INVAL;
 }
 #endif
-VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags)
+VfsError VirtualFS::openFile(VfsFile& file, const char* path, VfsOpenFlags flags)
 {
+  if(path == nullptr)
+    return VfsError::INVAL;
+
+  if(path[0] == 0)
+    return VfsError::INVAL;
+
   file.clear();
   std::string normPath(path);
   normalizePath(normPath);
@@ -1484,7 +985,6 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
     break;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
   {
     file.type = VfsFileType::FAT;
@@ -1492,17 +992,6 @@ VfsError VirtualFS::openFile(VfsFile& file, const std::string& path, VfsOpenFlag
                                convertOpenFlagsToFat(flags)));
     break;
   }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-  {
-    file.type = VfsFileType::LFS;
-    file.lfs.handle = &lfs;
-    ret = convertResult((lfs_error)lfs_file_open(&lfs, &file.lfs.file, normPath.c_str(),
-                                                 convertOpenFlagsToLfs(flags)));
-    break;
-  }
-#endif
   default: break;
   }
 
@@ -1532,7 +1021,6 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
   case VfsDir::DIR_ROOT:
     return false;
     break;
-#if defined (USE_FATFS)
   case VfsDir::DIR_FAT:
     {
       if (exclDir) {
@@ -1541,23 +1029,6 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
       }
       return f_stat(p.c_str(), nullptr) == FR_OK;
     }
-#endif
-#if defined (USE_LITTLEFS)
-  case VfsDir::DIR_LFS:
-    {
-      lfs_file_t file;
-      int res = lfs_file_open(&lfs, &file, p.c_str(), LFS_O_RDONLY);
-      if(res != LFS_ERR_OK)
-      {
-        if(res == LFS_ERR_ISDIR)
-          return(!exclDir);
-        return false;
-      } else {
-        lfs_file_close(&lfs, &file);
-        return true;
-      }
-    }
-#endif
   default: break;
   }
 

@@ -215,7 +215,7 @@ static int _lua_fopen(open_files_t* file, const char* name, const char *mode)
     return ret;
 
   std::string n = normalizeLuaPath(name);
-  VfsError res = VirtualFS::instance().openFile(*file->vfs_file, n, vfsFlags);
+  VfsError res = VirtualFS::instance().openFile(*file->vfs_file, n.c_str(), vfsFlags);
   if(res == VfsError::OK)
   {
     set_errno(0);

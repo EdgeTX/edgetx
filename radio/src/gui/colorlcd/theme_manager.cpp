@@ -47,7 +47,7 @@ ThemeFile::ThemeFile(std::string themePath) :
     int n = 0;
     while (n < MAX_FILES) {
       auto baseFileName(path.substr(0, found + 1) + (n != 0 ? "screenshot" + std::to_string(n) : "logo") + ".png");
-      VfsError result = VirtualFS::instance().openFile(file, baseFileName, VfsOpenFlags::OPEN_EXISTING);
+      VfsError result = VirtualFS::instance().openFile(file, baseFileName.c_str(), VfsOpenFlags::OPEN_EXISTING);
       if (result == VfsError::OK) {
         _imageFileNames.emplace_back(baseFileName);
         file.close();
@@ -83,7 +83,7 @@ std::vector<std::string> ThemeFile::getThemeImageFileNames()
 void ThemeFile::serialize()
 {
   VfsFile file;
-  VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
+  VfsError result = VirtualFS::instance().openFile(file, path.c_str(), VfsOpenFlags::CREATE_ALWAYS | VfsOpenFlags::WRITE);
   if (result == VfsError::OK) {
     file.fprintf("---\n");
     file.fprintf("summary:\n");
@@ -112,7 +112,7 @@ void ThemeFile::deSerialize()
   ScanState scanState = none;
 
   VfsFile file;
-  VfsError result = VirtualFS::instance().openFile(file, path, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  VfsError result = VirtualFS::instance().openFile(file, path.c_str(), VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   if (result != VfsError::OK) return;
 
   int lineNo = 1;

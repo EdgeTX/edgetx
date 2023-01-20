@@ -23,14 +23,8 @@
 
 #include <string>
 
-#if defined (SPI_FLASH)
-#if defined (USE_LITTLEFS)
-#include "littlefs_v2.4.1/lfs.h"
-#else
 #include "tjftl/tjftl.h"
 #include "FatFs/ff.h"
-#endif
-#endif
 #if defined (SDCARD)
 #include "sdcard.h"
 #endif
@@ -191,12 +185,7 @@ enum class VfsType { UNKOWN, DIR, FILE };
 enum class VfsFileType {
   UNKNOWN
   ,ROOT
-#if defined (USE_FATFS)
   ,FAT
-#endif
-#if defined(USE_LITTLEFS)
-  ,LFS
-#endif
 };
 
 enum class VfsError {
@@ -279,12 +268,7 @@ private:
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
-#if defined(USE_LITTLEFS)
-    lfs_info lfsInfo = {0};
-#endif
-#if defined (USE_FATFS)
     FILINFO fatInfo;
-#endif
   };
 
   const char* name = nullptr;
@@ -310,17 +294,9 @@ private:
 
   DirType type = DIR_UNKNOWN;
   union {
-#if defined(USE_LITTLEFS)
-    struct {
-      lfs_dir_t dir;
-      lfs* handle;
-    } lfs;
-#endif
-#if defined (USE_FATFS)
     struct {
       DIR dir;
     } fat;
-#endif
   };
 
   size_t readIdx = 0;
@@ -358,17 +334,9 @@ private:
 
   VfsFileType type = VfsFileType::UNKNOWN;
   union {
-#if defined(USE_LITTLEFS)
-    struct {
-      lfs_file file = {0};
-      lfs* handle = nullptr;
-    } lfs;
-#endif
-#if defined (USE_FATFS)
     struct {
       FIL file = {0};
     } fat;
-#endif
   };
 
 };
@@ -415,24 +383,24 @@ public:
 #endif
   const std::string& getCurWorkDir() const { return curWorkDir;}
 #if !defined(BOOT)
-  VfsError unlink(const std::string& path);
+  VfsError unlink(const char* path);
 #endif // !BOOT
-  VfsError changeDirectory(const std::string& path);
+  VfsError changeDirectory(const char* path);
   VfsError openDirectory(VfsDir& dir, const char * path);
-  VfsError makeDirectory(const std::string& path);
+  VfsError makeDirectory(const char* path);
 
-  VfsError fstat(const std::string& path, VfsFileInfo& fileInfo);
-  VfsError utime(const std::string& path, const VfsFileInfo& fileInfo);
-  VfsError openFile(VfsFile& file, const std::string& path, VfsOpenFlags flags);
+  VfsError fstat(const char* path, VfsFileInfo& fileInfo);
+  VfsError utime(const char* path, const VfsFileInfo& fileInfo);
+  VfsError openFile(VfsFile& file, const char* path, VfsOpenFlags flags);
 
 #if !defined(BOOT)
   VfsError rename(const char* oldPath, const char* newPath);
-  VfsError copyFile(const std::string& source, const std::string& destination);
-  VfsError copyFile(const std::string& srcFile, const std::string& srcDir,
-             const std::string& destDir, const std::string& destFile);
-  const char * moveFile(const std::string& source, const std::string& destination);
-  const char * moveFile(const std::string& srcFile, const std::string& srcDir,
-                          const std::string& destDir, const std::string& destFile);
+  VfsError copyFile(const char* source, const char* destination);
+  VfsError copyFile(const char* srcFile, const char* srcDir,
+             const char* destDir, const char* destFile);
+  const char * moveFile(const char* source, const char* destination);
+  const char * moveFile(const char* srcFile, const char* srcDir,
+                          const char* destDir, const char* destFile);
 #endif // !BOOT
 
   bool sdCardMounted();
@@ -450,12 +418,6 @@ public:
 private:
   static VirtualFS* _instance;
 
-
-#if defined(USE_LITTLEFS)
-  lfs_config lfsCfg = {0};
-  lfs_t lfs = {0};
-  bool lfsMounted = false;
-#endif
 
   std::string curWorkDir = "/";
 

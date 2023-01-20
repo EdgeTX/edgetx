@@ -51,7 +51,7 @@ void ViewTextWindow::buildBody(Window *window)
   }
 
   VirtualFS &vfs = VirtualFS::instance();
-  auto res = vfs.fstat(fullPath, info);
+  auto res = vfs.fstat(fullPath.c_str(), info);
   if (res == VfsError::OK) {
     int fsize = int(info.getSize());
     fileLength = int(fsize);
@@ -98,7 +98,7 @@ VfsError ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
   char escape_chars[4];
   int escape = 0;
 
-  auto res = vfs.openFile(file, fullPath, VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
+  auto res = vfs.openFile(file, fullPath.c_str(), VfsOpenFlags::OPEN_EXISTING | VfsOpenFlags::READ);
   if (res == VfsError::OK) {
     res = file.lseek(offset);
     if (res == VfsError::OK) {
