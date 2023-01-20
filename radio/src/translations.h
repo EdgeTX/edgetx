@@ -22,6 +22,7 @@
 #ifndef _TRANSLATIONS_H_
 #define _TRANSLATIONS_H_
 
+#include <limits.h>
 #include "opentx_types.h"
 #include "translations/untranslated.h"
 
@@ -111,6 +112,16 @@
 #else
  #define LCDW_128_480_LINEBREAK        "\036"
 #endif
+
+constexpr int g_max_plural2 = TR_MAX_PLURAL2;
+constexpr int g_min_plural2 = TR_MIN_PLURAL2;
+constexpr int g_use_singular_in_plural = TR_USE_SINGULAR_IN_PLURAL;
+constexpr int g_use_plural2_special_case = TR_USE_PLURAL2_SPECIAL_CASE;
+constexpr int g_use_plural2 = TR_USE_PLURAL2;
+
+extern const char STR_MINUTE_SINGULAR[];
+extern const char STR_MINUTE_PLURAL1[];
+extern const char STR_MINUTE_PLURAL2[];
 
 extern const char* const STR_OFFON[];
 extern const char* const STR_MMMINV[];
