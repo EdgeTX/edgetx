@@ -574,7 +574,8 @@
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
 #define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
 #define TR_RADIO_DATA_RECOVERED         TR3("Anv. backupradiodata","Anv. backupradioinställningar","Radioinställningar återställda från backup")
-#define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
+#define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga#define TR_DELETE_THEME "Radera tema?"
+#define TR_SAVE_THEME "Spara tema?" radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
 #define TR_EEPROMFORMATTING             "Minnet formateras"
 #define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
 #define TR_EEPROMOVERFLOW               "Minnesfel"
@@ -816,6 +817,8 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
+#define TR_DELETE_THEME                 "Radera tema?"
+#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
