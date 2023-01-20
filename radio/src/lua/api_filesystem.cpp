@@ -133,7 +133,7 @@ int luaFstat(lua_State* L)
   VfsFileInfo info;
   std::string p = normalizeLuaPath(path);
 
-  res = vfs.fstat(p, info);
+  res = vfs.fstat(p.c_str(), info);
   if (res != VfsError::OK) {
     printf("luaFstat cannot open %s\n", path);
     return 0;

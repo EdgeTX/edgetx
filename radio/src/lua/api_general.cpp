@@ -1998,7 +1998,7 @@ static int luaChdir(lua_State * L)
     dir = directory;
   }
 
-  VirtualFS::instance().changeDirectory(dir);
+  VirtualFS::instance().changeDirectory(dir.c_str());
   return 0;
 }
 
