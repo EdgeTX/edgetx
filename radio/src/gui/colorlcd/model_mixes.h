@@ -53,4 +53,6 @@ class ModelMixesPage : public ModelInputsPage
   void pasteMixAfter(uint8_t dst_idx);
 
   void enableMonitors(bool enabled);
+
+  bool reachMixesLimit();
 };

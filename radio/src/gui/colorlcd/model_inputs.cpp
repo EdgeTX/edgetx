@@ -47,15 +47,6 @@ uint8_t getExposCount()
   return count;
 }
 
-bool reachExposLimit()
-{
-  if (getExposCount() >= MAX_EXPOS) {
-    POPUP_WARNING(STR_NOFREEEXPO);
-    return true;
-  }
-  return false;
-}
-
 // TODO: these functions need to be added to the generic API
 //       used by all radios, and be removed from UI code
 //
@@ -179,6 +170,15 @@ ModelInputsPage::ModelInputsPage():
     // reset clipboard
     _copyMode = 0;
   });
+}
+
+bool ModelInputsPage::reachExposLimit()
+{
+  if (getExposCount() >= MAX_EXPOS) {
+    new MessageDialog(form, STR_WARNING, STR_NOFREEEXPO);
+    return true;
+  }
+  return false;
 }
 
 InputMixGroup* ModelInputsPage::getGroupBySrc(mixsrc_t src)

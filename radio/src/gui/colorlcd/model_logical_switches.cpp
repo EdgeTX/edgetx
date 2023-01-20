@@ -80,10 +80,7 @@ class LogicalSwitchEditPage: public Page
 
     void buildHeader(Window * window)
     {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_MENULOGICALSWITCHES);
       headerSwitchName = new StaticText(
           window,
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
@@ -123,10 +120,9 @@ class LogicalSwitchEditPage: public Page
         auto edit2 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 1), -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
         edit1->setSetValueHandler([=](int32_t newValue) {
           cs->v2 = newValue;
-          cs->v3 = min<uint8_t>(cs->v3, 222 - cs->v2);
           SET_DIRTY();
           edit2->setMax(222 - cs->v2);
-          edit2->invalidate();
+          edit2->setValue(cs->v3);
         });
         edit1->setDisplayHandler([](int32_t value) {
           return formatNumberAsString(lswTimerValue(value), PREC1);

@@ -181,11 +181,7 @@ class SensorEditWindow : public Page {
 
     void buildHeader(Window * window)
     {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_SENSOR + std::to_string(index + 1), 0,
-                     COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_SENSOR + std::to_string(index + 1));
 
       new SensorLiveValue(window,
           {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,

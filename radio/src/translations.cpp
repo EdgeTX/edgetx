@@ -25,7 +25,7 @@
   #define CENTER
 #endif
 
-#define ISTR(x) const char* STR_##x[] = { TR_##x }
+#define ISTR(x) const char* const STR_##x[] = { TR_##x }
 
 #if defined(COLORLCD)
 ISTR(FONT_SIZES);
@@ -120,6 +120,10 @@ ISTR(BLUETOOTH_MODES);
 ISTR(TEXT_SIZE);
 ISTR(SUBTRIMMODES);
 ISTR(PWR_OFF_DELAYS);
+
+const char STR_MINUTE_SINGULAR[] = TR_MINUTE_SINGULAR;
+const char STR_MINUTE_PLURAL1[] = TR_MINUTE_PLURAL1;
+const char STR_MINUTE_PLURAL2[] = TR_MINUTE_PLURAL2;
 
 const char STR_POPUPS_ENTER_EXIT[] = TR_POPUPS_ENTER_EXIT;
 const char STR_OK[] = TR_OK;
@@ -784,8 +788,8 @@ const char STR_SPORT_UPDATE_POWER_MODE[] = TR_SPORT_UPDATE_POWER_MODE;
 const char STR_TOUCH_PANEL[]  = TR_TOUCH_PANEL;
 const char STR_FILE_SIZE[] = TR_FILE_SIZE;
 const char STR_FILE_OPEN[] = TR_FILE_OPEN;
-const char* STR_TIMER_MODES[] = TR_TIMER_MODES;
-const char* STR_MONTHS[] = TR_MONTHS;
+const char* const STR_TIMER_MODES[] = TR_TIMER_MODES;
+const char* const STR_MONTHS[] = TR_MONTHS;
 const char STR_LIMITS_HEADERS_DIRECTION[] = TR_LIMITS_HEADERS_DIRECTION;
 
 #if defined(COLORLCD)
