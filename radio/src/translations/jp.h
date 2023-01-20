@@ -739,7 +739,7 @@
 #define TR_CAPAWARNING                 INDENT "電流が低すぎます"
 #define TR_TEMPWARNING                 INDENT "オーバーヒートです"
 #define TR_TTL_WARNING                 "警告: 論理値3.3Vを使用します"
-#define TR_FUNC                        "機能"
+#define TR_FUNC                        TR("機能", "ファンクション")
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持続時間"
@@ -947,8 +947,8 @@
 #define TR_TELEMETRY_TYPE              TR("Type", "テレメトリータイプ")
 #define TR_TELEMETRY_SENSORS           "センサー"
 #define TR_VALUE                       "値"
-#define TR_PERIOD                      "Period"
-#define TR_INTERVAL                    "Interval"
+#define TR_PERIOD                      "ピリオド"
+#define TR_INTERVAL                    "インターバル"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"

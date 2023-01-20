@@ -740,7 +740,7 @@
 #define TR_CAPAWARNING         INDENT "Capacità Bassa"
 #define TR_TEMPWARNING         INDENT "Temp. Alta"
 #define TR_TTL_WARNING         "Attenzione: usa livelli logici 3.3V"
-#define TR_FUNC                "Funz"
+#define TR_FUNC                "Funzione"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
 #define TR_DURATION            "Durata"

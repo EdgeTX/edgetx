@@ -758,7 +758,7 @@
 #define TR_CAPAWARNING                 INDENT "Nízká kapacita"
 #define TR_TEMPWARNING                 INDENT "Přehřátí"
 #define TR_TTL_WARNING                 "Varování: používat 3.3V hodnoty"
-#define TR_FUNC                        "Fce."
+#define TR_FUNC                        "Funkce"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Trvání"

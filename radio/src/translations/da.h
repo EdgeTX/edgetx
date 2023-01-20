@@ -745,7 +745,7 @@
 #define TR_CAPAWARNING                 INDENT "Kapacitet lav"
 #define TR_TEMPWARNING                 INDENT "For varm"
 #define TR_TTL_WARNING                 "Advarsel: brug 3.3V logisk niveau"
-#define TR_FUNC                        "Funk"
+#define TR_FUNC                        "Funktion"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Varighed"

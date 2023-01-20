@@ -736,7 +736,7 @@
 #define TR_CAPAWARNING         INDENT "Mała pojemność"
 #define TR_TEMPWARNING         INDENT "Przegrzanie"
 #define TR_TTL_WARNING         "Uwaga: use 3.3V logic levels"
-#define TR_FUNC                "Funkc"
+#define TR_FUNC                "Funkcja"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
 #define TR_DURATION            "Czas trwania"
