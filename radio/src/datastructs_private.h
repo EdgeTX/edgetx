@@ -96,6 +96,7 @@ PACK(struct ExpoData {
   uint16_t mode:2;
   uint16_t scale:14;
   uint16_t srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRaw,w_mixSrcRaw);
+  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
   int16_t  trimSource:6;
   uint32_t chn:5;
   int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
