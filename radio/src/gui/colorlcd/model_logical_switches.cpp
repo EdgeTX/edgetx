@@ -280,7 +280,7 @@ void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchDa
 #define TXT_ALIGN   LV_GRID_ALIGN_CENTER
 
 static const lv_coord_t b_col_dsc[] = {
-  32, LV_GRID_FR(1), 71, 44, 44,
+  36, 50, 88, 92, 88, 40, 40,
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -288,16 +288,15 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
 #define NM_ROW_CNT      1
-#define FUNC_COL_CNT    1
 #define ANDSW_ROW       0
-#define ANDSW_COL       2
+#define ANDSW_COL       4
 
 #else // Portrait
 
 #define TXT_ALIGN   LV_GRID_ALIGN_START
 
 static const lv_coord_t b_col_dsc[] = {
-  32, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+  36, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -306,7 +305,6 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
 #define NM_ROW_CNT      2
-#define FUNC_COL_CNT    3
 #define ANDSW_ROW       1
 #define ANDSW_COL       1
 
@@ -321,7 +319,8 @@ class LogicalSwitchButton : public Button
 #if LCD_H > LCD_W
     padTop(0);
 #endif
-    padLeft(4);
+    padLeft(3);
+    padRight(3);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
@@ -351,23 +350,31 @@ class LogicalSwitchButton : public Button
   {
     lsName = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsName, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     lsFunc = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsFunc, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_START, 1, FUNC_COL_CNT, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+    lsV1 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV1, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+    lsV2 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
     lsAnd = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_grid_cell(lsAnd, TXT_ALIGN, ANDSW_COL, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
     lsDuration = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_grid_cell(lsDuration, TXT_ALIGN, ANDSW_COL+1, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL+1, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
     lsDelay = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_grid_cell(lsDelay, TXT_ALIGN, ANDSW_COL+2, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL+2, 1, LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
     init = true;
     refresh();
@@ -392,72 +399,28 @@ class LogicalSwitchButton : public Button
 
   void refresh()
   {
-    static const char* ops[] = {
-      " =", " ~", " >", " <", "", " >", " <"
-    };
-
     if (!init) return;
     
-    char s[80] = "";
+    char s[20];
 
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
     lv_label_set_text(lsName, getSwitchPositionName(SWSRC_SW1 + lsIndex));
+    lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
-        strcat(s, getSwitchPositionName(ls->v1));
-        break;
       case LS_FAMILY_STICKY:
-        sprintf(s, "%s - %s=%s,", STR_VCSWFUNC[ls->func], STR_OFFON[1], getSwitchPositionName(ls->v1));
-        break;
       case LS_FAMILY_EDGE:
-        sprintf(s, "%s - %s", STR_VCSWFUNC[ls->func], getSwitchPositionName(ls->v1));
+        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_TIMER:
-        sprintf(s, "%s - %s=%s", STR_VCSWFUNC[ls->func], STR_OFFON[1], formatNumberAsString(lswTimerValue(ls->v1), PREC1, 0, nullptr, "s,").c_str());
-        break;
-      case LS_FAMILY_OFS:
-        if (ls->func >= LS_FUNC_APOS)
-          strcat(s, "|");
-        strcat(s, getSourceString(ls->v1));
-        if (ls->func >= LS_FUNC_APOS)
-          strcat(s, "|");
-        break;
-      case LS_FAMILY_DIFF:
-        if (ls->func == LS_FUNC_ADIFFEGREATER)
-          strcat(s, "|");
-        strcat(s, STR_CHAR_DELTA);
-        strcat(s, getSourceString(ls->v1));
-        if (ls->func == LS_FUNC_ADIFFEGREATER)
-          strcat(s, "|");
+        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1), PREC1, 0, nullptr, "s").c_str());
         break;
       default:
-        strcat(s, getSourceString(ls->v1));
-        break;
-    }
-
-    // Function
-    switch (lsFamily) {
-      case LS_FAMILY_BOOL:
-        strcat(s, " ");
-        strcat(s, STR_VCSWFUNC[ls->func]);
-        break;
-      case LS_FAMILY_OFS:
-        strcat(s, ops[ls->func - LS_FUNC_VEQUAL]);
-        break;
-      case LS_FAMILY_DIFF:
-        strcat(s, " ≥");
-        break;
-      case LS_FAMILY_COMP:
-        if (ls->func == LS_FUNC_EQUAL)
-          strcat(s, ops[0]);
-        else
-          strcat(s, ops[ls->func - LS_FUNC_GREATER + 2]);
-        break;
-      default:
+        lv_label_set_text(lsV1, getSourceString(ls->v1));
         break;
     }
 
@@ -465,30 +428,23 @@ class LogicalSwitchButton : public Button
     strcat(s, " ");
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
-        strcat(s, getSwitchPositionName(ls->v2));
-        break;
       case LS_FAMILY_STICKY:
-        strcat(s, "OFF=");
-        strcat(s, getSwitchPositionName(ls->v2));
+        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
         break;
       case LS_FAMILY_EDGE:
-        getsEdgeDelayParam(s+strlen(s), ls);
+        getsEdgeDelayParam(s, ls);
+        lv_label_set_text(lsV2, s);
         break;
       case LS_FAMILY_TIMER:
-        strcat(s, STR_OFFON[0]);
-        strcat(s, "=");
-        strcat(s, formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s").c_str());
+        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s").c_str());
         break;
       case LS_FAMILY_COMP:
-        strcat(s, getSourceString(ls->v2));
+        lv_label_set_text(lsV2, getSourceString(ls->v2));
         break;
       default:
-        strcat(s, getSourceCustomValueString(ls->v1, (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0));
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0));
         break;
     }
-
-    // CSW function & parameters
-    lv_label_set_text(lsFunc, s);
 
     // AND switch
     lv_label_set_text(lsAnd, getSwitchPositionName(ls->andsw));
@@ -514,6 +470,8 @@ class LogicalSwitchButton : public Button
 
   lv_obj_t* lsName = nullptr;
   lv_obj_t* lsFunc = nullptr;
+  lv_obj_t* lsV1 = nullptr;
+  lv_obj_t* lsV2 = nullptr;
   lv_obj_t* lsAnd = nullptr;
   lv_obj_t* lsDuration = nullptr;
   lv_obj_t* lsDelay = nullptr;
