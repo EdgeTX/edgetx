@@ -204,7 +204,7 @@ static void run_ui_manually()
   MainWindow::instance()->run(false);
 }
 
-void FullScreenDialog::runForever()
+void FullScreenDialog::runForever(bool checkPwr)
 {
   running = true;
 
@@ -215,29 +215,20 @@ void FullScreenDialog::runForever()
   while (running) {
     resetBacklightTimeout();
 
-    auto check = pwrCheck();
-    if (check == e_power_off) {
-      boardOff();
+    if (checkPwr) {
+      auto check = pwrCheck();
+      if (check == e_power_off) {
+        boardOff();
 #if defined(SIMU)
-      return;
+        return;
 #endif
+      } else if (check == e_power_press) {
+        WDG_RESET();
+        RTOS_WAIT_MS(1);
+        continue;
+      }
     }
-    else if (check == e_power_press) {
-      WDG_RESET();
-      RTOS_WAIT_MS(1);
-      continue;
-    }
-    run_ui_manually();
-  }
 
-  deleteLater();
-}
-
-void FullScreenDialog::runForeverNoPwrCheck()
-{
-  running = true;
-  while (running) {
-    resetBacklightTimeout();
     run_ui_manually();
   }
 
@@ -274,11 +265,7 @@ bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
     });
   }
 
-  if (checkPwr) {
-    dialog->runForever();
-  } else {
-    dialog->runForeverNoPwrCheck();
-  }
+  dialog->runForever(checkPwr);
 
   return confirmed;
 }
