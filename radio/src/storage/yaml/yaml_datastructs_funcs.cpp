@@ -1470,32 +1470,26 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     } else if (val[0] == '1') {
     CFN_ACTIVE(cfn) = 1;
     }
-    val += l_sep;
-    val_len -= l_sep;
-
-    if (val_len == 0 || val[0] != ',') return;
-
-    val++; val_len--;
-//    val++; val_len--;
-  }
+  } else return;
 
   if (HAS_REPEAT_PARAM(func)) {
-    TRACE("REPEAT: %c%c%c", val[0],val[1], val[2]);
-    if (val_len == 2
-        && val[0] == '1'
-        && val[1] == 'x') {
-      CFN_PLAY_REPEAT(cfn) = 0;
-    } else if (val_len == 3
-        && val[0] == '!'
-        && val[1] == '1'
-        && val[2] == 'x') {
-      CFN_PLAY_REPEAT(cfn) = (int8_t)CFN_PLAY_REPEAT_NOSTART;
+    // eat_comma unconditionally
+    val += l_sep;
+    val_len -= l_sep;
+    if (val_len == 0 || val[0] != ',') return;
+    val++;
+    val_len--;
+
+    if (val_len == 2 && val[0] == '1' && val[1] == 'x') {
+    CFN_PLAY_REPEAT(cfn) = 0;
+    } else if (val_len == 3 && val[0] == '!' && val[1] == '1' &&
+               val[2] == 'x') {
+    CFN_PLAY_REPEAT(cfn) = (int8_t)CFN_PLAY_REPEAT_NOSTART;
     } else {
-      // repeat time in seconds
-      CFN_PLAY_REPEAT(cfn) = yaml_str2uint(val,val_len) / CFN_PLAY_REPEAT_MUL;
+    // repeat time in seconds
+    CFN_PLAY_REPEAT(cfn) = yaml_str2uint(val, val_len) / CFN_PLAY_REPEAT_MUL;
     }
   }
-
 }
 
 static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1618,7 +1612,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   default:
-    add_comma = false;
+    //add_comma = false;
     break;
   }
 
@@ -1631,10 +1625,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   if (!wf(opaque, CFN_ACTIVE(cfn) ? "1" : "0", 1)) return false;
 
   if (HAS_REPEAT_PARAM(func)) {
-    if (add_comma) {
-      // ","
-      if (!wf(opaque,",",1)) return false;
-    }
+    if (!wf(opaque,",",1)) return false;
     if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;
@@ -1646,8 +1637,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
       if (!wf(opaque, str, strlen(str))) return false;
     }
-    // ","
-    if (!wf(opaque, ",", 1)) return false;
   }
 
   if (!wf(opaque, "\"", 1)) return false;
