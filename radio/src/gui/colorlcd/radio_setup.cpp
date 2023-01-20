@@ -439,7 +439,7 @@ class AlarmsPage : public Page {
         std::string suffix(STR_MINUTE_PLURAL2);
         if (value == 1) {
           suffix = std::string(STR_MINUTE_SINGULAR);
-        } else if (g_use_variable_plural && value < g_use_plural2) {
+        } else if (value < g_use_plural2) {
           const int secondDecimal = (value / 10) % 10;
           if (secondDecimal != 1) {
             const int firstDecimal = value % 10;
