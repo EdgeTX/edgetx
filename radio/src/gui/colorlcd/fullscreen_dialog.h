@@ -57,7 +57,6 @@ class FullScreenDialog : public Window
     void paint(BitmapBuffer * dc) override;
 
     void onEvent(event_t event) override;
-    void onClicked() override;
     void onCancel() override;
 
     void deleteLater(bool detach = true, bool trash = true) override;
