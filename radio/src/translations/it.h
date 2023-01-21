@@ -1062,31 +1062,35 @@
 #define TR_GVAR_HEADERS_FM7           "Valore su FM7"
 #define TR_GVAR_HEADERS_FM8           "Valore su FM8"
 
-// Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS    { "Tipo o funzione di confronto", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva da abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima TRUE affinché l'interruttore si accenda" }
+#define TR_LSW_DESCRIPTIONS           { "Tipo o funzione di confronto", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva da abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima TRUE affinché l'interruttore si accenda" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "Primo canale"
-#define TR_FILL_BACKGROUND             "Riempi lo sfondo?"
-#define TR_BG_COLOR                    "Colore sfondo"
-#define TR_SLIDERS_TRIMS               "Sliders+Trims"
-#define TR_SLIDERS                     "Sliders"
-#define TR_FLIGHT_MODE                 "Modo di volo"
-#define TR_INVALID_FILE                "File invalido"
-#define TR_TIMER_SOURCE                "Sorgente timer"
-#define TR_SIZE                        "Dimensione"
-#define TR_SHADOW                      "Ombra"
-#define TR_TEXT                        "Testo"
-#define TR_COLOR                       "Colore"
-#define TR_MAIN_VIEW_X                 "Vista principale X"
-#define TR_PANEL1_BACKGROUND           "Sfondo Panello 1"
-#define TR_PANEL2_BACKGROUND           "Sfondo Panello 2"
-#define TR_WIDGET_GAUGE                "Indicatore"
-#define TR_WIDGET_MODELBMP             "Immagine e nome modello"
-#define TR_WIDGET_OUTPUTS              "Uscite"
-#define TR_WIDGET_TEXT                 "Testo"
-#define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Valore"
+#if defined(COLORLCD)
+ // Horus layouts and widgets
+ #define TR_FIRST_CHANNEL              "Primo canale"
+ #define TR_FILL_BACKGROUND            "Riempi lo sfondo?"
+ #define TR_BG_COLOR                   "Colore sfondo"
+ #define TR_SLIDERS_TRIMS              "Sliders+Trims"
+ #define TR_SLIDERS                    "Sliders"
+ #define TR_FLIGHT_MODE                "Modo di volo"
+ #define TR_INVALID_FILE               "File invalido"
+ #define TR_TIMER_SOURCE               "Sorgente timer"
+ #define TR_SIZE                       "Dimensione"
+ #define TR_SHADOW                     "Ombra"
+ #define TR_ALIGN_LABEL                "Allineare il cartellino"
+ #define TR_ALIGN_VALUE                "Allineare il valore"
+ #define TR_ALIGN_OPTS                 { "Sinistra", "Mezzo", "Destra" }
+ #define TR_TEXT                       "Testo"
+ #define TR_COLOR                      "Colore"
+ #define TR_MAIN_VIEW_X                "Vista principale X"
+ #define TR_PANEL1_BACKGROUND          "Sfondo Panello 1"
+ #define TR_PANEL2_BACKGROUND          "Sfondo Panello 2"
+ #define TR_WIDGET_GAUGE               "Indicatore"
+ #define TR_WIDGET_MODELBMP            "Immagine e nome modello"
+ #define TR_WIDGET_OUTPUTS             "Uscite"
+ #define TR_WIDGET_TEXT                "Testo"
+ #define TR_WIDGET_TIMER               "Timer"
+ #define TR_WIDGET_VALUE               "Valore"
+#endif
 
 // About screen
 #define TR_ABOUTUS             TR(" INFO ", "INFO SU")

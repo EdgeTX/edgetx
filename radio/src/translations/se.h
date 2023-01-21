@@ -1109,33 +1109,37 @@
 #define TR_GVAR_HEADERS_FM6             "Värde för FL6"
 #define TR_GVAR_HEADERS_FM7             "Värde för FL7"
 #define TR_GVAR_HEADERS_FM8             "Värde för FL8"
-//#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
+//#define TR_CHECK_FM_TRIMS             "Kolla FL-trimmar"
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL                "Första kanal"
-#define TR_FILL_BACKGROUND              "Fyll bakgrund?"
-#define TR_BG_COLOR                     "Bakgrundsfärg"
-#define TR_SLIDERS_TRIMS                "Reglage+Trimmar"
-#define TR_SLIDERS                      "Reglage"
-#define TR_FLIGHT_MODE                  "Flygläge"
-#define TR_INVALID_FILE                 "Ogiltig fil"
-#define TR_TIMER_SOURCE                 "Timerkälla"
-#define TR_SIZE                         "Storlek"
-#define TR_SHADOW                       "Skugga"
-#define TR_TEXT                         "Text"
-#define TR_COLOR                        "Färg"
-#define TR_MAIN_VIEW_X                  "Huvudvy X"
-#define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
-#define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
-#define TR_WIDGET_GAUGE                 "Mätare"
-#define TR_WIDGET_MODELBMP              "Modellinfo"
-#define TR_WIDGET_OUTPUTS               "Output"
-#define TR_WIDGET_TEXT                  "Text"
-#define TR_WIDGET_TIMER                 "Timer"
-#define TR_WIDGET_VALUE                 "Värde"
+#if defined(COLORLCD)
+ // Horus layouts and widgets
+ #define TR_FIRST_CHANNEL               "Första kanal"
+ #define TR_FILL_BACKGROUND             "Fyll bakgrund?"
+ #define TR_BG_COLOR                    "Bakgrundsfärg"
+ #define TR_SLIDERS_TRIMS               "Reglage+Trimmar"
+ #define TR_SLIDERS                     "Reglage"
+ #define TR_FLIGHT_MODE                 "Flygläge"
+ #define TR_INVALID_FILE                "Ogiltig fil"
+ #define TR_TIMER_SOURCE                "Timerkälla"
+ #define TR_SIZE                        "Storlek"
+ #define TR_SHADOW                      "Skugga"
+ #define TR_ALIGN_LABEL                 "Justera märka"
+ #define TR_ALIGN_VALUE                 "Justera värde"
+ #define TR_ALIGN_OPTS                  { "Vänster", "Mitten", "Höger" }
+ #define TR_TEXT                        "Text"
+ #define TR_COLOR                       "Färg"
+ #define TR_MAIN_VIEW_X                 "Huvudvy X"
+ #define TR_PANEL1_BACKGROUND           "Panel 1 bakgrund"
+ #define TR_PANEL2_BACKGROUND           "Panel 2 bakgrund"
+ #define TR_WIDGET_GAUGE                "Mätare"
+ #define TR_WIDGET_MODELBMP             "Modellinfo"
+ #define TR_WIDGET_OUTPUTS              "Output"
+ #define TR_WIDGET_TEXT                 "Text"
+ #define TR_WIDGET_TIMER                "Timer"
+ #define TR_WIDGET_VALUE                "Värde"
+#endif
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"

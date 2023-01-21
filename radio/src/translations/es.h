@@ -1062,31 +1062,35 @@
 #define TR_GVAR_HEADERS_FM7           "Valor en FM7"
 #define TR_GVAR_HEADERS_FM8           "Valor en FM8"
 
-// Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS    { "Tipo de comparación o función", "Primera variable", "Segunda variable o constante", "Segunda variable o constante", "Condición adicional para activar línea", "Duración mínima de switch lógico", "Duración mínima TRUE para activar switch lógico" }
+#define TR_LSW_DESCRIPTIONS           { "Tipo de comparación o función", "Primera variable", "Segunda variable o constante", "Segunda variable o constante", "Condición adicional para activar línea", "Duración mínima de switch lógico", "Duración mínima TRUE para activar switch lógico" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL              "Primer canal"
-#define TR_FILL_BACKGROUND            "Rellenar fondo"
-#define TR_BG_COLOR                   "Color BG"
-#define TR_SLIDERS_TRIMS              "Sliders+Trims"
-#define TR_SLIDERS                    "Sliders"
-#define TR_FLIGHT_MODE                "Modo de vuelo"
-#define TR_INVALID_FILE               "Fichero no valido"
-#define TR_TIMER_SOURCE               "Entrada timer"
-#define TR_SIZE                       "Tamaño"
-#define TR_SHADOW                     "Sombra"
-#define TR_TEXT                       "Texto"
-#define TR_COLOR                      "Color"
-#define TR_MAIN_VIEW_X                "Vista principal X"
-#define TR_PANEL1_BACKGROUND          "Fondo panel1"
-#define TR_PANEL2_BACKGROUND          "Fondo panel2"
-#define TR_WIDGET_GAUGE                "Gauge"
-#define TR_WIDGET_MODELBMP             "Models"
-#define TR_WIDGET_OUTPUTS              "Outputs"
-#define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Value"
+#if defined(COLORLCD)
+ // Horus layouts and widgets
+ #define TR_FIRST_CHANNEL              "Primer canal"
+ #define TR_FILL_BACKGROUND            "Rellenar fondo"
+ #define TR_BG_COLOR                   "Color BG"
+ #define TR_SLIDERS_TRIMS              "Sliders+Trims"
+ #define TR_SLIDERS                    "Sliders"
+ #define TR_FLIGHT_MODE                "Modo de vuelo"
+ #define TR_INVALID_FILE               "Fichero no valido"
+ #define TR_TIMER_SOURCE               "Entrada timer"
+ #define TR_SIZE                       "Tamaño"
+ #define TR_SHADOW                     "Sombra"
+ #define TR_ALIGN_LABEL                "Alinear marbete"
+ #define TR_ALIGN_VALUE                "Alinear valor"
+ #define TR_ALIGN_OPTS                 { "Lzquierdo", "Centro", "Derecho" }
+ #define TR_TEXT                       "Texto"
+ #define TR_COLOR                      "Color"
+ #define TR_MAIN_VIEW_X                "Vista principal X"
+ #define TR_PANEL1_BACKGROUND          "Fondo panel1"
+ #define TR_PANEL2_BACKGROUND          "Fondo panel2"
+ #define TR_WIDGET_GAUGE               "Gauge"
+ #define TR_WIDGET_MODELBMP            "Models"
+ #define TR_WIDGET_OUTPUTS             "Outputs"
+ #define TR_WIDGET_TEXT                "Text"
+ #define TR_WIDGET_TIMER               "Timer"
+ #define TR_WIDGET_VALUE               "Value"
+#endif
 
 // Taranis About screen
 #define TR_ABOUTUS             "Nosotros"

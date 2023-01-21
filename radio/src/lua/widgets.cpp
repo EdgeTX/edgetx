@@ -170,7 +170,8 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
               option->deflt.signedValue = lua_tointeger(lsWidgets, -1);
               // TRACE("default signed = %d", option->deflt.signedValue);
             } else if (option->type == ZoneOption::Source ||
-                       option->type == ZoneOption::TextSize) {
+                       option->type == ZoneOption::TextSize ||
+                       option->type == ZoneOption::Align) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);

@@ -2809,6 +2809,7 @@ const luaR_value_entry opentxConstants[] = {
   { "STRING", ZoneOption::String },
   { "TIMER", ZoneOption::Timer },
   { "TEXT_SIZE", ZoneOption::TextSize },
+  { "ALIGNMENT", ZoneOption::Align },
   { "MENU_HEADER_HEIGHT", COLOR2FLAGS(MENU_HEADER_HEIGHT) },
 
   // Colors gui/colorlcd/colors.h
