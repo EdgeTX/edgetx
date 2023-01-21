@@ -181,14 +181,14 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) {
     switch (adjustMode) {
       case FUNC_ADJUST_GVAR_CONSTANT:
-        return gvarAdjustModeToString(adjustMode) + QString(" %1").arg(param);
+        return QString("%1").arg(param);
       case FUNC_ADJUST_GVAR_SOURCE:
       case FUNC_ADJUST_GVAR_GVAR:
         return RawSource(param).toString();
       case FUNC_ADJUST_GVAR_INCDEC:
         const float val = param * model->gvarData[func - FuncAdjustGV1].multiplierGet();
         const QString unit = model->gvarData[func - FuncAdjustGV1].unitToString();
-        return gvarAdjustModeToString(adjustMode) + QString(": %1%2").arg(val).arg(unit);
+        return QString("%1= %2%3").arg(val < 0 ? "-" : "+").arg(abs(val)).arg(unit);
     }
   }
 
