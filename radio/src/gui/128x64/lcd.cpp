@@ -22,6 +22,7 @@
 #include <limits.h>
 #include <memory.h>
 
+#include "edgetx_assert.h"
 #include "lcd.h"
 #include "thirdparty/libopenui/src/bitfield.h"
 #include "gui/common/stdlcd/fonts.h"

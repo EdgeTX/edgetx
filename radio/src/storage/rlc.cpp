@@ -20,7 +20,7 @@
  */
 
 #include <inttypes.h>
-#include <assert.h>
+#include "edgetx_assert.h"
 #include "debug.h"
 
 #include "rlc.h"

@@ -22,13 +22,12 @@
 #include <limits.h>
 #include <memory.h>
 
+#include "edgetx_assert.h"
 #include "lcd.h"
 #include "common/stdlcd/fonts.h"
 #include "common/stdlcd/utf8.h"
 
-#if !defined(SIMU)
-  #define assert(x)
-#else
+#if defined(SIMU)
   #include <assert.h>
 #endif
 

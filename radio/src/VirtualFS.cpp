@@ -29,6 +29,7 @@
 #if !defined(BOOT)
 #include "opentx.h"
 #endif
+#include "edgetx_assert.h"
 #include "VirtualFS.h"
 #include "board.h"
 #include "audio.h"
@@ -55,6 +56,11 @@ VfsFile g_bluetoothFile = {};
 
 #if defined(SPI_FLASH)
 static FATFS spiFatFs __DMA;
+#endif
+
+
+#if !defined(CLIPBOARD_PATH_LEN)
+#define CLIPBOARD_PATH_LEN 32
 #endif
 
 static VfsError convertResult(FRESULT err)
@@ -629,36 +635,50 @@ bool VirtualFS::format()
 }
 #endif
 
-VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
+VfsDir::DirType VirtualFS::getDirTypeAndPath(char* path)
 {
-  if(path == "/")
+  char tmpPath[2 * CLIPBOARD_PATH_LEN+1] = { 0 };
+  char* tmp = &tmpPath[0];
+  size_t pLen = strlen(path);
+
+  if(strcmp(PATH_SEPARATOR, path) == 0)
   {
     return VfsDir::DIR_ROOT;
 #if defined (SPI_FLASH)
-  } else if(path.substr(0, 9) == "/INTERNAL")
+  } else if(strncmp("/INTERNAL", path, 9) == 0)
   {
-    path = "1:" + path.substr(9);
-    if(path == "1:")
-      path = "1:/";
-    else if (path == "")
-      path = "/";
+    tmp = strAppend(tmpPath, "1:", 2);
+    if(pLen > 9)
+      strAppend(tmp, path+9, pLen-9);
+    else
+      *tmp = '/';
+    strcpy(path, tmpPath);
     return VfsDir::DIR_FAT;
 #endif  // SPI_FLASH
 #if defined (SDCARD)
-  } else if(path.substr(0, 7) == "/SDCARD") {
-    path = path.substr(7);
-    if (path == "")
-      path = "/";
+  } else if(strncmp("/SDCARD", path, 7) == 0) {
+    if(pLen > 7)
+      strAppend(tmp, path+7, pLen-7);
+    else
+      *tmp = '/';
+    strcpy(path, tmpPath);
     return VfsDir::DIR_FAT;
 #endif
-  } else if(path.substr(0, 8) == "/DEFAULT") {
+  } else if(strncmp("/DEFAULT", path, 8) == 0) {
 #if (DEFAULT_STORAGE == INTERNAL)
-    path = "1:" + path.substr(8);
-    if(path == "1:")
-      path = "1:/";
+    tmp = strAppend(tmpPath, "1:", 2);
+    if(pLen > 8)
+      strAppend(tmp, path+8, pLen-8);
+    else
+      *tmp = '/';
+    strcpy(path, tmpPath);
     return VfsDir::DIR_FAT;
 #elif (DEFAULT_STORAGE == SDCARD) // DEFAULT_STORAGE
-    path = path.substr(8);
+    if(pLen > 8)
+      strAppend(tmp, path+8, pLen-8);
+    else
+      *tmp = '/';
+    strcpy(path, tmpPath);
     return VfsDir::DIR_FAT;
 #else  // DEFAULT_STORAGE
   #error No valid default storage selectd
@@ -667,50 +687,67 @@ VfsDir::DirType VirtualFS::getDirTypeAndPath(std::string& path)
   return VfsDir::DIR_UNKNOWN;
 }
 
-void VirtualFS::normalizePath(std::string& path)
+void VirtualFS::normalizePath(char* path)
 {
-  std::vector<std::string> tokens;
-  size_t oldpos = 0;
+  char buf[2 * CLIPBOARD_PATH_LEN+1];
+  char* wPtr = buf;
 
   if(path[0] != '/')
-    path = curWorkDir + PATH_SEPARATOR + path;
-
-  while (1)
   {
-      size_t newpos = path.find_first_of(PATH_SEPARATOR, oldpos);
-      if(newpos == std::string::npos)
-      {
-        std::string elem = path.substr(oldpos);
-        if(elem == "..")
-          tokens.pop_back();
-        else if (elem == ".")
-          ;
-        else
-          tokens.push_back(path.substr(oldpos));
-        break;
-      }
-      tokens.push_back(path.substr(oldpos,newpos-oldpos));
-      oldpos=newpos+1;
+    wPtr = strAppend(wPtr, curWorkDir.c_str(), curWorkDir.length());
+    *wPtr++ = PATH_SEPARATOR[0];
   }
 
-  if(tokens.empty())
-    return;
+  wPtr = strAppend(wPtr, path, std::min(strlen(path), sizeof(buf) - (wPtr - buf)));
+  buf[sizeof(buf)-1] = '\0';
+  char* tokens[20];
+  size_t tokenCount = 0;
 
-  path = "";
-  for(auto token: tokens)
+  char* cur = strtok(buf, "/" );
+  while(cur)
   {
-    if(token.length() == 0)
+    char* old = cur;
+    cur = strtok(nullptr, "/");
+    if(old[0] == 0)
       continue;
-    path += PATH_SEPARATOR;
-    path += token;
+    if(strcmp("..", old) == 0)
+    {
+      if(tokenCount > 0)
+        tokenCount--;
+      continue;
+    }
+    if(strcmp(".", old) == 0)
+      continue;
+
+    tokens[tokenCount++] = old;
+    if(tokenCount >= sizeof(tokens))
+      break;
   }
-  if(path.length() == 0)
-    path = "/";
+
+  wPtr = path;
+  for(size_t i = 0; i < tokenCount; i++)
+  {
+    *wPtr++ = PATH_SEPARATOR[0];
+    wPtr = strAppend(wPtr, tokens[i], strlen(tokens[i]));
+  }
+  *wPtr = '\0';
+  if(path[0] == '\0')
+  {
+    path[0] = PATH_SEPARATOR[0];
+    path[1] = '\0';
+  }
 }
+
 #if !defined(BOOT)
 VfsError VirtualFS::unlink(const char* path)
 {
-  std::string p = path;
+  if(path == nullptr)
+    return VfsError::INVAL;
+
+  char p[CLIPBOARD_PATH_LEN + 1];
+  strncpy(p, path, sizeof(p));
+  p[sizeof(p)-1] = '\0';
+
   normalizePath(p);
   VfsDir::DirType type = getDirTypeAndPath(p);
 
@@ -719,22 +756,22 @@ VfsError VirtualFS::unlink(const char* path)
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
   case VfsDir::DIR_FAT:
-    return convertResult(f_unlink(p.c_str()));
+    return convertResult(f_unlink(p));
   }
 
   return VfsError::INVAL;
 }
 #endif
+
 VfsError VirtualFS::changeDirectory(const char* path)
 {
-  if(path == nullptr)
-    return VfsError::INVAL;
-  if(strlen(path) == 0)
-    return VfsError::INVAL;
+  assert(path != nullptr);
 
-  std::string newWorkDir = path;
-  normalizePath(newWorkDir);
-  curWorkDir = newWorkDir;
+  char p[CLIPBOARD_PATH_LEN + 1];
+  strncpy(p, path, sizeof(p));
+  p[sizeof(p)-1] = '\0';
+  normalizePath(p);
+  curWorkDir = p;
 
   return VfsError::OK;
 }
@@ -742,13 +779,11 @@ VfsError VirtualFS::changeDirectory(const char* path)
 VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
 {
   dir.clear();
-  if(path == nullptr)
-    return VfsError::INVAL;
+  assert(path != nullptr);
 
-  if(path[0] == 0)
-    return VfsError::INVAL;
-
-  std::string dirPath(path);
+  char dirPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(dirPath, path, sizeof(dirPath));
+  dirPath[sizeof(dirPath)-1] = '\0';
 
   normalizePath(dirPath);
 
@@ -759,7 +794,7 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
   case VfsDir::DIR_ROOT:
     return VfsError::OK;
   case VfsDir::DIR_FAT:
-    return convertResult(f_opendir(&dir.fat.dir, dirPath.c_str()));
+    return convertResult(f_opendir(&dir.fat.dir, dirPath));
   default: break;
   }
 
@@ -768,7 +803,12 @@ VfsError VirtualFS::openDirectory(VfsDir& dir, const char * path)
 #if !defined(BOOT)
 VfsError VirtualFS::makeDirectory(const char* path)
 {
-  std::string normPath(path);
+  assert(path != nullptr);
+
+  char normPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(normPath, path, sizeof(normPath));
+  normPath[sizeof(normPath)-1] = '\0';
+
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
@@ -780,13 +820,13 @@ VfsError VirtualFS::makeDirectory(const char* path)
   case VfsDir::DIR_FAT:
   {
     DIR dir;
-    FRESULT result = f_opendir(&dir, normPath.c_str());
+    FRESULT result = f_opendir(&dir, normPath);
     if (result == FR_OK) {
       f_closedir(&dir);
       return VfsError::OK;
     } else {
       if (result == FR_NO_PATH)
-        result = f_mkdir(normPath.c_str());
+        result = f_mkdir(normPath);
       if (result != FR_OK)
         return convertResult(result);
     }
@@ -798,8 +838,15 @@ VfsError VirtualFS::makeDirectory(const char* path)
 }
 VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
 {
-  std::string oldP = oldPath;
-  std::string newP = newPath;
+  assert(oldPath != nullptr);
+  assert(newPath != nullptr);
+
+  char oldP[CLIPBOARD_PATH_LEN + 1];
+  strncpy(oldP, oldPath, sizeof(oldP));
+  oldP[sizeof(oldP)-1] = '\0';
+  char newP[CLIPBOARD_PATH_LEN + 1];
+  strncpy(newP, newPath, sizeof(newP));
+  newP[sizeof(newP)-1] = '\0';
 
   normalizePath(oldP);
   normalizePath(newP);
@@ -814,7 +861,7 @@ VfsError VirtualFS::rename(const char* oldPath, const char* newPath)
     case VfsDir::DIR_ROOT:
       return VfsError::INVAL;
     case VfsDir::DIR_FAT:
-      return convertResult(f_rename(oldP.c_str(), newP.c_str()));
+      return convertResult(f_rename(oldP, newP));
     }
   } else {
     VfsError err = copyFile(oldPath, newPath);
@@ -870,12 +917,29 @@ cleanup:
 VfsError VirtualFS::copyFile(const char* srcFile, const char* srcDir,
            const char* destDir, const char* destFile)
 {
-  return copyFile((std::string(srcDir) +"/" + srcFile).c_str(), (std::string(destDir) + "/" + destFile).c_str());
+  assert(srcFile != nullptr);
+  assert(srcDir != nullptr);
+  assert(destFile != nullptr);
+  assert(destDir != nullptr);
+
+  char srcPath[2*CLIPBOARD_PATH_LEN+1] = {0};
+  char * tmp = strAppend(srcPath, srcDir, CLIPBOARD_PATH_LEN);
+  *tmp++ = '/';
+  strAppend(tmp, srcFile, CLIPBOARD_PATH_LEN);
+
+  char destPath[2*CLIPBOARD_PATH_LEN+1] = {0};
+  tmp = strAppend(destPath, destDir, CLIPBOARD_PATH_LEN);
+  *tmp++ = '/';
+  strAppend(tmp, destFile, CLIPBOARD_PATH_LEN);
+
+  return copyFile(srcPath, destPath);
 }
 
 // Will overwrite if destination exists
 const char * VirtualFS::moveFile(const char* srcPath, const char* destPath)
 {
+  assert(srcPath != nullptr);
+  assert(destPath != nullptr);
 
   auto res = copyFile(srcPath, destPath);
   if(res != VfsError::OK) {
@@ -921,13 +985,12 @@ uint32_t sdGetNoSectors()
 #endif
 VfsError VirtualFS::fstat(const char* path, VfsFileInfo& fileInfo)
 {
-  if(path == nullptr)
-    return VfsError::INVAL;
+  assert(path != nullptr);
 
-  if(path[0] == 0)
-    return VfsError::INVAL;
+  char normPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(normPath, path, sizeof(normPath));
+  normPath[sizeof(normPath)-1] = '\0';
 
-  std::string normPath(path);
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
@@ -937,7 +1000,7 @@ VfsError VirtualFS::fstat(const char* path, VfsFileInfo& fileInfo)
     return VfsError::INVAL;
   case VfsDir::DIR_FAT:
     fileInfo.type = VfsFileType::FAT;
-    return convertResult(f_stat(normPath.c_str(), &fileInfo.fatInfo));
+    return convertResult(f_stat(normPath, &fileInfo.fatInfo));
   default: break;
   }
   return VfsError::INVAL;
@@ -945,13 +1008,12 @@ VfsError VirtualFS::fstat(const char* path, VfsFileInfo& fileInfo)
 #if !defined(BOOT)
 VfsError VirtualFS::utime(const char* path, const VfsFileInfo& fileInfo)
 {
-  if(path == nullptr)
-    return VfsError::INVAL;
+  assert(path != nullptr);
 
-  if(path[0] == 0)
-    return VfsError::INVAL;
+  char normPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(normPath, path, sizeof(normPath));
+  normPath[sizeof(normPath)-1] = '\0';
 
-  std::string normPath(path);
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
@@ -960,7 +1022,7 @@ VfsError VirtualFS::utime(const char* path, const VfsFileInfo& fileInfo)
   case VfsDir::DIR_ROOT:
     return VfsError::INVAL;
   case VfsDir::DIR_FAT:
-    return convertResult(f_utime(normPath.c_str(), &fileInfo.fatInfo));
+    return convertResult(f_utime(normPath, &fileInfo.fatInfo));
   default: break;
   }
   return VfsError::INVAL;
@@ -968,14 +1030,12 @@ VfsError VirtualFS::utime(const char* path, const VfsFileInfo& fileInfo)
 #endif
 VfsError VirtualFS::openFile(VfsFile& file, const char* path, VfsOpenFlags flags)
 {
-  if(path == nullptr)
-    return VfsError::INVAL;
-
-  if(path[0] == 0)
-    return VfsError::INVAL;
+  assert(path != nullptr);
 
   file.clear();
-  std::string normPath(path);
+  char normPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(normPath, path, sizeof(normPath));
+  normPath[sizeof(normPath)-1] = '\0';
   normalizePath(normPath);
   VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
@@ -988,8 +1048,7 @@ VfsError VirtualFS::openFile(VfsFile& file, const char* path, VfsOpenFlags flags
   case VfsDir::DIR_FAT:
   {
     file.type = VfsFileType::FAT;
-    ret = convertResult(f_open(&file.fat.file, normPath.c_str(),
-                               convertOpenFlagsToFat(flags)));
+    ret = convertResult(f_open(&file.fat.file, normPath, convertOpenFlagsToFat(flags)));
     break;
   }
   default: break;
@@ -1013,8 +1072,13 @@ const char* VirtualFS::checkAndCreateDirectory(const char * path)
 
 bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
 {
-  std::string p = path;
-  VfsDir::DirType dirType = getDirTypeAndPath(p);
+  assert(path != nullptr);
+
+  char normPath[CLIPBOARD_PATH_LEN + 1];
+  strncpy(normPath, path, sizeof(normPath));
+  normPath[sizeof(normPath)-1] = '\0';
+
+  VfsDir::DirType dirType = getDirTypeAndPath(normPath);
 
   switch(dirType)
   {
@@ -1025,9 +1089,9 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
     {
       if (exclDir) {
         FILINFO fno;
-        return (f_stat(p.c_str(), &fno) == FR_OK && !(fno.fattrib & AM_DIR));
+        return (f_stat(normPath, &fno) == FR_OK && !(fno.fattrib & AM_DIR));
       }
-      return f_stat(p.c_str(), nullptr) == FR_OK;
+      return f_stat(normPath, nullptr) == FR_OK;
     }
   default: break;
   }
@@ -1037,6 +1101,8 @@ bool VirtualFS::isFileAvailable(const char * path, bool exclDir)
 
 const char * VirtualFS::getFileExtension(const char * filename, uint8_t size, uint8_t extMaxLen, uint8_t * fnlen, uint8_t * extlen)
 {
+  assert(filename != nullptr);
+
   int len = size;
   if (!size) {
     len = strlen(filename);
@@ -1072,6 +1138,9 @@ const char * VirtualFS::getFileExtension(const char * filename, uint8_t size, ui
 */
 bool VirtualFS::isFileExtensionMatching(const char * extension, const char * pattern, char * match)
 {
+  assert(extension != nullptr);
+  assert(pattern != nullptr);
+
   const char *ext;
   uint8_t extlen, fnlen;
   int plen;

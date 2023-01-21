@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "edgetx_assert.h"
 
 MenuHandlerFunc menuHandlers[5];
 event_t menuEvent = 0;
