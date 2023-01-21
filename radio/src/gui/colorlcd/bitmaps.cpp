@@ -197,6 +197,21 @@ static const uint8_t mask_theme_view4[] = {
 static const uint8_t mask_theme_view5[] = {
 #include "mask_theme_view5.lbm"
 };
+static const uint8_t mask_theme_view6[] = {
+#include "mask_theme_view6.lbm"
+};
+static const uint8_t mask_theme_view7[] = {
+#include "mask_theme_view7.lbm"
+};
+static const uint8_t mask_theme_view8[] = {
+#include "mask_theme_view8.lbm"
+};
+static const uint8_t mask_theme_view9[] = {
+#include "mask_theme_view9.lbm"
+};
+static const uint8_t mask_theme_view10[] = {
+#include "mask_theme_view10.lbm"
+};
 static const uint8_t stick_pointer[] = {
 #include "alpha_stick_pointer.lbm"
 };
@@ -337,6 +352,11 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_THEME_VIEW3, mask_theme_view3},
     {ICON_THEME_VIEW4, mask_theme_view4},
     {ICON_THEME_VIEW5, mask_theme_view5},
+    {ICON_THEME_VIEW6, mask_theme_view6},
+    {ICON_THEME_VIEW7, mask_theme_view7},
+    {ICON_THEME_VIEW8, mask_theme_view8},
+    {ICON_THEME_VIEW9, mask_theme_view9},
+    {ICON_THEME_VIEW10, mask_theme_view10},
     {ICON_THEME_ADD_VIEW, mask_theme_add_view},
     {ICON_STATS, mask_menu_stats},
     {ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph},

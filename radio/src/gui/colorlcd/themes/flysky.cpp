@@ -150,6 +150,11 @@ class FlyskyTheme: public OpenTxTheme
       loadMenuIcon(ICON_THEME_VIEW3, "mask_theme_view3.png");
       loadMenuIcon(ICON_THEME_VIEW4, "mask_theme_view4.png");
       loadMenuIcon(ICON_THEME_VIEW5, "mask_theme_view5.png");
+      loadMenuIcon(ICON_THEME_VIEW6, "mask_theme_view6.png");
+      loadMenuIcon(ICON_THEME_VIEW7, "mask_theme_view7.png");
+      loadMenuIcon(ICON_THEME_VIEW8, "mask_theme_view8.png");
+      loadMenuIcon(ICON_THEME_VIEW9, "mask_theme_view9.png");
+      loadMenuIcon(ICON_THEME_VIEW10, "mask_theme_view10.png");
       loadMenuIcon(ICON_THEME_ADD_VIEW, "mask_theme_add_view.png");
       loadMenuIcon(ICON_MONITOR, "mask_monitor.png");
       loadMenuIcon(ICON_MONITOR_CHANNELS1, "mask_monitor_channels1.png");
