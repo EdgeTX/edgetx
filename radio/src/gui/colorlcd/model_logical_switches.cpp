@@ -268,13 +268,6 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData * ls)
   );
 }
 
-void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchData * ls, LcdFlags flags = 0)
-{
-  char s[20];
-  getsEdgeDelayParam(s, ls);
-  dc->drawText(x, y, s, flags);
-}
-
 #if LCD_W > LCD_H // Landscape
 
 #define TXT_ALIGN   LV_GRID_ALIGN_CENTER
