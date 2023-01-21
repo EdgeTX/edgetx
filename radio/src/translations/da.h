@@ -780,8 +780,8 @@
 #define TR_SAMPLE_MODE                 "Måle tilstand"
 #define TR_SAMPLE_MODES                "Normal","EnBit"
 #define TR_LOADING                     "Indlæser..."
-#define TR_DELETE_THEME                "Delete Theme?"
-#define TR_SAVE_THEME                  "Save Theme?"
+#define TR_DELETE_THEME                "Slet tema?"
+#define TR_SAVE_THEME                  "Gem tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
