@@ -202,7 +202,7 @@ QString CustomFunctionData::enabledToString() const
   if (!enabled) {
     return tr("DISABLED");
   }
-  return "ENABLED";
+  return "";
 }
 
 //  static
