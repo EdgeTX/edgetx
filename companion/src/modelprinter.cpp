@@ -634,9 +634,10 @@ QString ModelPrinter::printCustomFunctionLine(int idx, bool gfunc)
     return result;
 
   result += cf.swtch.toString(getCurrentBoard(), &generalSettings) + " - ";
-  result += cf.funcToString(&model) + " (";
-  result += cf.paramToString(&model) + ")";
-  if (!cf.repeatToString().isEmpty())
+  result += cf.funcToString(&model);
+  if (cf.isParamAvailable())
+    result += " (" + cf.paramToString(&model) + ")";
+  if (cf.isRepeatParamAvailable())
     result += " " + cf.repeatToString();
   if (!cf.enabledToString().isEmpty())
     result += " " + cf.enabledToString();

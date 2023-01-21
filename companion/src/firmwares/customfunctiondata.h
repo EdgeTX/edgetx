@@ -117,6 +117,8 @@ class CustomFunctionData {
     QString playSoundToString() const;
     QString harpicToString() const;
     QString gvarAdjustModeToString() const;
+    bool isRepeatParamAvailable() const;
+    bool isParamAvailable() const;
 
     static QString nameToString(const int index, const bool globalContext = false);
     static QString funcToString(const AssignFunc func, const ModelData * model = nullptr);

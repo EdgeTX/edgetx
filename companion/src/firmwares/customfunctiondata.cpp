@@ -132,8 +132,11 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
 
 QString CustomFunctionData::paramToString(const ModelData * model) const
 {
+  if (!isParamAvailable())
+    return "";
+
   QStringList qs;
-  if (func <= FuncInstantTrim) {
+  if ((func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) || func == FuncSetScreen) {
     return QString("%1").arg(param);
   }
   else if (func == FuncLogs) {
@@ -148,11 +151,24 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncReset) {
     return resetToString(param, model);
   }
+  else if (func >= FuncSetTimer1 && func <= FuncSetTimerLast) {
+    div_t qrM = div(abs(param), 60);
+    div_t qrH = div(qrM.quot, 60);
+
+    QString val = QString("%1").arg(qrH.rem, 2, 10, QChar('0'));
+
+    if (qrH.quot > 0)
+      val.prepend(QString("%1:").arg(qrH.quot));
+
+    val.append(QString(":%1").arg(qrM.rem, 2, 10, QChar('0')));
+
+    if (param < 0)
+      val.prepend("-");
+
+    return val;
+  }
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
-  }
-  else if (func ==FuncSetScreen) {
-    return QString("%1").arg(param);
   }
   else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
     if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
@@ -162,7 +178,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
       return paramarm;
     }
   }
-  else if (func >= FuncAdjustGV1 && func < FuncCount) {
+  else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) {
     switch (adjustMode) {
       case FUNC_ADJUST_GVAR_CONSTANT:
         return gvarAdjustModeToString(adjustMode) + QString(" %1").arg(param);
@@ -175,6 +191,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
         return gvarAdjustModeToString(adjustMode) + QString(": %1%2").arg(val).arg(unit);
     }
   }
+
   return "";
 }
 
@@ -408,4 +425,44 @@ AbstractStaticItemModel * CustomFunctionData::gvarAdjustModeItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+bool CustomFunctionData::isParamAvailable() const
+{
+  //  not available list
+  const QList<AssignFunc> funcList = {
+    FuncTrainer,
+    FuncTrainerRUD,
+    FuncTrainerELE,
+    FuncTrainerTHR,
+    FuncTrainerAIL,
+    FuncTrainerChannels,
+    FuncInstantTrim,
+    FuncVario,
+    FuncScreenshot,
+    FuncBackgroundMusicPause,
+    FuncSetFailsafe,
+    FuncRangeCheckInternalModule,
+    FuncRangeCheckExternalModule,
+    FuncBindInternalModule,
+    FuncBindExternalModule,
+    FuncRacingMode,
+    FuncDisableTouch
+  };
+
+  return funcList.contains(func) ? false : true;
+}
+
+bool CustomFunctionData::isRepeatParamAvailable() const
+{
+  const QList<AssignFunc> funcList = {
+    FuncPlaySound,
+    FuncPlayHaptic,
+    FuncPlayValue,
+    FuncPlayPrompt,
+    FuncPlayBoth,
+    FuncSetScreen
+  };
+
+  return funcList.contains(func) ? true : false;
 }
