@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "edgetx_assert.h"
 #include "opentx.h"
 #include "timers.h"
 #include "switches.h"

@@ -421,9 +421,9 @@ private:
 
   std::string curWorkDir = "/";
 
-  void normalizePath(std::string &path);
+  void normalizePath(char* path);
 
-  VfsDir::DirType getDirTypeAndPath(std::string& path);
+  VfsDir::DirType getDirTypeAndPath(char* path);
 
   void startLogs();
   void stopLogs();
