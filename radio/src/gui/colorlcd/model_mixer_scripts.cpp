@@ -37,8 +37,18 @@ static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
 // Edit grid
+#if LCD_W > LCD_H
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                       LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(4),
+                                      LV_GRID_TEMPLATE_LAST};
+#endif
+
+// Line button grid
+static const lv_coord_t b_col_dsc[] = {40, 84, 84, LV_GRID_FR(1),
+                                       LV_GRID_TEMPLATE_LAST
+};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
@@ -158,13 +168,6 @@ class ScriptEditWindow : public Page {
     }
 };
 
-static const lv_coord_t b_col_dsc[] = {40, LV_GRID_FR(3), LV_GRID_FR(3), LV_GRID_FR(6),
-                                       LV_GRID_TEMPLATE_LAST
-};
-
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT,
-                                       LV_GRID_TEMPLATE_LAST};
-
 class ScriptLineButton : public Button
 {
  public:
@@ -177,10 +180,13 @@ class ScriptLineButton : public Button
       runtimeData(runtimeData),
       index(index)
   {
+#if LCD_H > LCD_W
+  padTop(5);
+#endif
     padLeft(3);
     padRight(3);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
-    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
+    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
     lv_obj_set_style_pad_column(lvobj, 4, 0);
 
