@@ -48,8 +48,8 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
+if(SDL2_FOUND)
+  include_directories(${SDL2_INCLUDE_DIRS})
   add_definitions(-DJOYSTICKS)
 endif()
 
@@ -175,7 +175,7 @@ target_link_libraries(common
   Qt5::Xml
   Qt5::Widgets
   ${PTHREAD_LIBRARY}
-  ${SDL_LIBRARY}
+  ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
   )
 
@@ -400,12 +400,12 @@ elseif(WIN32)
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
 
-  # SDL dll
-  if(SDL_FOUND AND EXISTS "${SDL_LIBRARY_PATH}/SDL.dll")
-    set(SDL_DIR ${SDL_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL_DIR}/SDL.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL_FOUND)
-    message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
+  # SDL2 dll
+  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
+    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
+    install(FILES ${SDL2_DIR}/SDL.dll DESTINATION ${INSTALL_DESTINATION})
+  elseif(SDL2_FOUND)
+    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
   endif()
 
   # SSL dlls (used by QtNetwork)

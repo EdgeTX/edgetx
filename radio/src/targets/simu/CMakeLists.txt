@@ -19,8 +19,8 @@ set(SIMU_DRIVERS
   )
 
 
-if(SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
+if(SDL2_FOUND)
+  include_directories(${SDL2_INCLUDE_DIRS})
   add_definitions(-DJOYSTICKS)
 endif()
 
@@ -76,7 +76,7 @@ if(Qt5Widgets_FOUND)
 
   target_compile_options(${SIMULATOR_TARGET} PRIVATE ${SIMU_SRC_OPTIONS})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})
-  target_link_libraries(${SIMULATOR_TARGET} ${SDL_LIBRARY} Qt5::Core)
+  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt5::Core)
 
   # Remove debug symbols on release builds
   if(NOT CLANG)
@@ -162,7 +162,7 @@ if(FOX_FOUND)
     ${RADIO_SRC_DIR}/simu.cpp)
 
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
-  target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL_LIBRARY})
+  target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL2_LIBRARIES})
   target_compile_options(simu PRIVATE -DSIMU)
 endif()
 

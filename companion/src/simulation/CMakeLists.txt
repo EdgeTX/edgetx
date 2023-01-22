@@ -93,7 +93,7 @@ set(simulation_HDRS
   widgets/virtualjoystickwidget.h
 )
 
-if(SDL_FOUND)
+if(SDL2_FOUND)
   set(simulation_SRCS
     ${simulation_SRCS}
     joystick.cpp
