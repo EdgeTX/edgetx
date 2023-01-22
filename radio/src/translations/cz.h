@@ -1088,7 +1088,7 @@
  #define TR_SLIDERS_TRIMS              "Slidery+Trimy"
  #define TR_SLIDERS                    "Slidery"
  #define TR_FLIGHT_MODE                "Letový režim"
- #define TR_INVALID_FILE               "Neplatní soubor"
+ #define TR_INVALID_FILE               "Neplatný soubor"
  #define TR_TIMER_SOURCE               "Časovač zdroj"
  #define TR_SIZE                       "Velikost"
  #define TR_SHADOW                     "Stíny"
