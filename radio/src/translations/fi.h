@@ -1073,13 +1073,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
 #define TR_INVERTED                    "Inverted"
 
-#define TR_LSW_HEADERS_FUNCTION        "Function"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "AND Switch"
-#define TR_LSW_HEADERS_DURATION        "Duration"
-#define TR_LSW_HEADERS_DELAY           "Delay"
-
 #define TR_GVAR_HEADERS_NAME           "Name"
 #define TR_GVAR_HEADERS_FM0            "Value on FM0"
 #define TR_GVAR_HEADERS_FM1            "Value on FM1"

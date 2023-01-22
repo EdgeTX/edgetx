@@ -1063,13 +1063,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Symetrické"
 #define TR_INVERTED                    "Invertováno"
 
-#define TR_LSW_HEADERS_FUNCTION        "Funkce"
-#define TR_LSW_HEADERS_V1              "Hodnota 1"
-#define TR_LSW_HEADERS_V2              "Hodnota 2"
-#define TR_LSW_HEADERS_ANDSW           "AND Spínač"
-#define TR_LSW_HEADERS_DURATION        "Trvání"
-#define TR_LSW_HEADERS_DELAY           "Zpoždění"
-
 #define TR_GVAR_HEADERS_NAME           "Název"
 #define TR_GVAR_HEADERS_FM0            "Hodnota v režimu LR0"
 #define TR_GVAR_HEADERS_FM1            "Hodnota v režimu LR1"

@@ -1047,13 +1047,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Simmetria"
 #define TR_INVERTED                    "Inverted"
 
-#define TR_LSW_HEADERS_FUNCTION        "Funzione"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "Inter. AND"
-#define TR_LSW_HEADERS_DURATION        "Durata"
-#define TR_LSW_HEADERS_DELAY           "Ritardo"
-
 #define TR_GVAR_HEADERS_NAME          "Nome"
 #define TR_GVAR_HEADERS_FM0           "Valore su FM0"
 #define TR_GVAR_HEADERS_FM1           "Valore su FM1"

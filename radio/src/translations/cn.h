@@ -1041,13 +1041,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "微调模式"
 #define TR_INVERTED                    "反向"
 
-#define TR_LSW_HEADERS_FUNCTION        "功能"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "与开关"
-#define TR_LSW_HEADERS_DURATION        "持续时间"
-#define TR_LSW_HEADERS_DELAY           "延时"
-
 #define TR_GVAR_HEADERS_NAME           "名称"
 #define TR_GVAR_HEADERS_FM0            "FM0值"
 #define TR_GVAR_HEADERS_FM1            "FM1值"

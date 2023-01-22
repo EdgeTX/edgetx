@@ -1041,13 +1041,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "サブトリムモード"
 #define TR_INVERTED     "リバース"
 
-#define TR_LSW_HEADERS_FUNCTION        "ファンクション"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "スイッチ付"
-#define TR_LSW_HEADERS_DURATION        "持続時間"
-#define TR_LSW_HEADERS_DELAY           "遅延"
-
 #define TR_GVAR_HEADERS_NAME           "名称"
 #define TR_GVAR_HEADERS_FM0            "FM0 値"
 #define TR_GVAR_HEADERS_FM1            "FM1 値"

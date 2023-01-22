@@ -1047,13 +1047,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim tilstand"
 #define TR_INVERTED                    "Invers"
 
-#define TR_LSW_HEADERS_FUNCTION        "Funktion"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "OG kontakt"
-#define TR_LSW_HEADERS_DURATION        "Varighed"
-#define TR_LSW_HEADERS_DELAY           "Forsinkelse"
-
 #define TR_GVAR_HEADERS_NAME           "Navn"
 #define TR_GVAR_HEADERS_FM0            "Værdi ved FT0"
 #define TR_GVAR_HEADERS_FM1            "Værdi ved FT1"

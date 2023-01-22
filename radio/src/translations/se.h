@@ -1095,13 +1095,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE   "Subtrim-läge"
 #define TR_INVERTED                     "Inverterad"
 
-#define TR_LSW_HEADERS_FUNCTION         "Funktion"
-#define TR_LSW_HEADERS_V1               "V1"
-#define TR_LSW_HEADERS_V2               "V2"
-#define TR_LSW_HEADERS_ANDSW            "AND-brytare"
-#define TR_LSW_HEADERS_DURATION         "Tidslängd"
-#define TR_LSW_HEADERS_DELAY            "Fördröj"
-
 #define TR_GVAR_HEADERS_NAME            "Namn"
 #define TR_GVAR_HEADERS_FM0             "Värde för FL0"
 #define TR_GVAR_HEADERS_FM1             "Värde för FL1"
