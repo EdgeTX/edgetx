@@ -102,6 +102,3 @@ void Page::onEvent(event_t event)
 {
   // block event bubbling
 }
-
-const lv_coord_t FormBuilder::default_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-const lv_coord_t FormBuilder::default_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};

@@ -25,11 +25,13 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
 class CurveDataEdit : public Window
 {
   public:
     CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
-    ~CurveDataEdit();
 
     void setCurveEdit(CurveEdit* _curveEdit);
 
@@ -46,7 +48,7 @@ class CurveDataEdit : public Window
 
   protected:
     uint8_t index;
-    FormBuilder* form = nullptr;
+    FormWindow* form = nullptr;
     CurveEdit * curveEdit;
     StaticText* pointNText;
     StaticText* pointXText;
@@ -76,15 +78,6 @@ CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index
 {
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
   lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_AUTO);
-}
-
-CurveDataEdit::~CurveDataEdit()
-{
-  if (form)
-  {
-    delete form;
-    form = nullptr;
-  }
 }
 
 void CurveDataEdit::setCurveEdit(CurveEdit* _curveEdit)
@@ -176,8 +169,14 @@ void CurveDataEdit::onEvent(event_t event)
 
 void CurveDataEdit::build()
 {
-  form = new FormBuilder(this);
-  mainWindow = form->newLine();
+  form = new FormWindow(this, rect_t{});
+  form->padAll(0);
+  form->setFlexLayout();
+  
+  FlexGridLayout grid(col_dsc, row_dsc, 4);
+
+  mainWindow = form->newLine(&grid);
+  mainWindow->padAll(0);
   lv_obj_set_flex_flow(mainWindow->getLvObj(), LV_FLEX_FLOW_COLUMN);
 
   buildSettings();
@@ -199,7 +198,9 @@ void CurveDataEdit::buildSettings()
   CurveHeader & curve = g_model.curves[index];
   int8_t * points = curveAddress(index);
 
-  auto box = form->newBox(width(), LINE_H * 2);
+  auto box = new Window(mainWindow, rect_t{0, 0, width(), LINE_H * 2});
+  box->padLeft(4);
+  box->padRight(4);
 
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(8), LV_GRID_FR(5), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LINE_H, LINE_H, LV_GRID_TEMPLATE_LAST};
@@ -207,8 +208,8 @@ void CurveDataEdit::buildSettings()
   lv_obj_set_grid_dsc_array(box->getLvObj(), col_dsc, row_dsc);
 
   // Name
-  form->cell((new StaticText(box, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1)), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-  form->cell((new ModelTextEdit(box, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name))), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell((new StaticText(box, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1))->getLvObj(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell((new ModelTextEdit(box, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name)))->getLvObj(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   // Smooth
   auto smooth = new TextButton(box, rect_t{}, STR_SMOOTH, [=]() {
@@ -219,11 +220,11 @@ void CurveDataEdit::buildSettings()
   smooth->check(g_model.curves[index].smooth);
   smooth->padAll(2);
   smooth->setHeight(26);
-  form->cell(smooth, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(smooth->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   // Type
-  form->cell((new StaticText(box, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1)), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
-  form->cell((new Choice(box, rect_t{0, 0, 100, 0}, STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
+  lv_obj_set_grid_cell((new StaticText(box, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1))->getLvObj(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  lv_obj_set_grid_cell((new Choice(box, rect_t{0, 0, 100, 0}, STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
              [=](int32_t newValue) {
                  CurveHeader &curve = g_model.curves[index];
                  if (newValue != curve.type) {
@@ -240,7 +241,7 @@ void CurveDataEdit::buildSettings()
                    curveEdit->updatePreview();
                    update();
                  }
-             })), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+             }))->getLvObj(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
   // Points count
   auto edit = new NumberEdit(box, rect_t{}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
@@ -265,7 +266,7 @@ void CurveDataEdit::buildSettings()
                                  }
                              });
   edit->setSuffix(STR_PTS);
-  form->cell(edit, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  lv_obj_set_grid_cell(edit->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 }
 
 void CurveDataEdit::buildList()
@@ -279,7 +280,9 @@ void CurveDataEdit::buildList()
   }
   else
   {
-    pointsWindow = form->newBox(width(), height() - LINE_H * 2 - 4);
+    pointsWindow = new Window(mainWindow, rect_t{0, 0, width(), height() - LINE_H * 2 - 4});
+    pointsWindow->padLeft(4);
+    pointsWindow->padRight(4);
     pointsWindow->padBottom(PAGE_PADDING);
 
     lv_obj_set_grid_dsc_array(pointsWindow->getLvObj(), col_dsc, row_dsc);
@@ -299,9 +302,9 @@ void CurveDataEdit::buildList()
       showEdit(i);
       return 0;
     });
-    form->cell(pointButtons[i], LV_GRID_ALIGN_STRETCH, i % LINE_BTNS, 1, LV_GRID_ALIGN_CENTER, i / LINE_BTNS, 1);
+    lv_obj_set_grid_cell(pointButtons[i]->getLvObj(), LV_GRID_ALIGN_STRETCH, i % LINE_BTNS, 1, LV_GRID_ALIGN_CENTER, i / LINE_BTNS, 1);
     sprintf(buf,"%d", i+1);
-    form->cell((new StaticText(pointsWindow, rect_t{}, buf, 0, FONT(XS))), LV_GRID_ALIGN_START, i % LINE_BTNS, 1, LV_GRID_ALIGN_START, i / LINE_BTNS, 1);
+    lv_obj_set_grid_cell((new StaticText(pointsWindow, rect_t{}, buf, 0, FONT(XS)))->getLvObj(), LV_GRID_ALIGN_START, i % LINE_BTNS, 1, LV_GRID_ALIGN_START, i / LINE_BTNS, 1);
   }
 }
 
@@ -323,91 +326,91 @@ void CurveDataEdit::buildEdit()
     setX(-10);
     return 0;
   });
-  form->cell(decX2, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(decX2->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   decX1 = new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "-1", [=]() {
     setX(-1);
     return 0;
   });
-  form->cell(decX1, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(decX1->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   pointXText = new StaticText(editWindow, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
-  form->cell(pointXText, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(pointXText->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   incX1 = new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+1", [=]() {
     setX(1);
     return 0;
   });
-  form->cell(incX1, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(incX1->getLvObj(), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   incX2 = new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+10", [=]() {
     setX(10);
     return 0;
   });
-  form->cell(incX2, LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(incX2->getLvObj(), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "-10", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "-10", [=]() {
     setY(-10);
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "-1", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "-1", [=]() {
     setY(-1);
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
   pointYText = new StaticText(editWindow, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
-  form->cell(pointYText, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  lv_obj_set_grid_cell(pointYText->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+1", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+1", [=]() {
     setY(1);
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+10", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "+10", [=]() {
     setY(10);
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "|<", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "|<", [=]() {
     curveEdit->setCurrent(0);
     curveEdit->updatePreview();
     symmetryAdjust();
     setPointText();
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "<", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, "<", [=]() {
     curveEdit->selectPoint(-1);
     symmetryAdjust();
     setPointText();
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
   pointNText = new StaticText(editWindow, rect_t{}, "", CENTERED|COLOR_THEME_PRIMARY1);
-  form->cell(pointNText, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+  lv_obj_set_grid_cell(pointNText->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, ">", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, ">", [=]() {
     curveEdit->selectPoint(1);
     symmetryAdjust();
     setPointText();
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
-  form->cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, ">|", [=]() {
+  lv_obj_set_grid_cell((new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, ">|", [=]() {
     curveEdit->setCurrent(curveEdit->getCurvePointsCount() - 1);
     curveEdit->updatePreview();
     symmetryAdjust();
     setPointText();
     return 0;
-  })), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+  }))->getLvObj(), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
   auto btn = new TextButton(editWindow, rect_t{0, 0, BTN_W*2, BTN_H}, "Symmetry", [=]() {
     symmetry = !symmetry;
     symmetryAdjust();
     return symmetry;
   });
-  form->cell(btn, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_END, 3, 1);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_END, 3, 1);
   btn->check(symmetry);
 
   btn = new TextButton(editWindow, rect_t{0, 0, BTN_W*2, BTN_H}, "Mirror", [=]() {
@@ -417,13 +420,13 @@ void CurveDataEdit::buildEdit()
     }
     return 0;
   });
-  form->cell(btn, LV_GRID_ALIGN_CENTER, 2, 2, LV_GRID_ALIGN_END, 3, 1);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 2, LV_GRID_ALIGN_END, 3, 1);
 
   btn = new TextButton(editWindow, rect_t{0, 0, BTN_W, BTN_H}, STR_EXIT, [=]() {
     hideEdit();
     return 0;
   });
-  form->cell(btn, LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_END, 3, 1);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 4, 1, LV_GRID_ALIGN_END, 3, 1);
 }
 
 void CurveDataEdit::symmetryAdjust()
@@ -672,8 +675,14 @@ void CurveEditWindow::buildHeader(Window * window)
 
 void CurveEditWindow::buildBody(FormWindow * window)
 {
-  FormBuilder form(window, 0);
-  auto line = form.newLine();
+  auto form = new FormWindow(window, rect_t{});
+  form->padAll(0);
+  form->setFlexLayout();
+  
+  FlexGridLayout grid(col_dsc, row_dsc, 0);
+
+  auto line = form->newLine(&grid);
+  line->padAll(0);
 
 #if LCD_H > LCD_W // portrait
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
@@ -691,7 +700,8 @@ void CurveEditWindow::buildBody(FormWindow * window)
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
   curveEdit = new CurveEdit(line, { 0, 0, curveWidth, curveWidth }, index);
 
-  auto box = form.newBox(boxWidth, boxHeight, 0);
+  auto box = new Window(line, rect_t{0, 0, boxWidth, boxHeight});
+  box->padAll(0);
 
   curveDataEdit = new CurveDataEdit(box, rect_t{0, 0, boxWidth, boxHeight}, index);
 
