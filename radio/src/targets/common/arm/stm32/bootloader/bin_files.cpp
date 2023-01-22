@@ -46,10 +46,7 @@ void sdInit(void)
 
 FRESULT openBinDir(MemoryType mt)
 {
-    FRESULT fr = f_chdir(getBinaryPath(mt));
-    if (fr != FR_OK) return fr;
-    
-    return f_opendir(&dir, ".");
+    return f_opendir(&dir, getBinaryPath(mt));
 }
 
 static FRESULT findNextBinFile(FILINFO* fno)

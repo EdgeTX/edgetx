@@ -32,7 +32,7 @@
 #include "../../common/arm/stm32/bootloader/bin_files.h"
 
 extern MemoryType memoryType;
-
+static FATFS sdFatFs __DMA = {0};
 void bootloaderInitScreen()
 {
   lcdInit();
@@ -40,6 +40,7 @@ void bootloaderInitScreen()
 
   backlightInit();
   backlightFullOn();
+  f_mount(&sdFatFs, "", 1);
 }
 
 static void bootloaderDrawMsg(unsigned int x, const char *str, uint8_t line, bool inverted)
