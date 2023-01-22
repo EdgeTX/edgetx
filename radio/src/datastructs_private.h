@@ -172,8 +172,8 @@ PACK(struct CustomFunctionData {
       NOBACKUP(CFN_SPARE_TYPE val2);
     }) clear);
   }) NAME(fp) SKIP;
-  int8_t repeat:7 SKIP;
-  uint8_t active:1 SKIP;
+  uint8_t active : 1 SKIP;
+  uint8_t active SKIP;
 
   bool isEmpty() const
   {
