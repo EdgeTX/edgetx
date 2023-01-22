@@ -75,6 +75,16 @@ enum ZoneOptionValueEnum {
   ZOV_LAST = ZOV_Color
 };
 
+enum ZoneOptionAlign
+{
+  ALIGN_LEFT,
+  ALIGN_CENTER,
+  ALIGN_RIGHT,
+
+  // this one MUST be last
+  ALIGN_COUNT
+};
+
 struct ZoneOption
 {
   enum Type {
@@ -86,7 +96,8 @@ struct ZoneOption
     TextSize,
     Timer,
     Switch,
-    Color
+    Color,
+    Align
   };
 
   const char * name;
