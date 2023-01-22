@@ -289,7 +289,7 @@
   #define TR_ROTARY_ENC_OPT            "Normal","Inverterad","V-I H-N","V-I H-A"
 #endif
 
-#define TR_ON_ONE_SWITCHES              "PÅ","Ett"
+#define TR_ON_ONE_SWITCHES              "På","Ett"
 
 #if defined(IMU)
   #define TR_IMU_VSRCRAW                "TltX","TltY",
@@ -369,7 +369,7 @@
 #define TR_PHASENAME                    "Lägesnamn"
 #define TR_MIXNAME                      TR("Mixer","Mixernamn")
 #define TR_INPUTNAME                    TR("Input","Inputnamn")
-#define TR_EXPONAME                     TR("Namn","Radnamn")
+#define TR_EXPONAME                     TR("Expo","Exponamn")
 #define TR_NO_PICTURE                   "Ingen bild"
 #define TR_BITMAP                       "Modellikon"
 #define TR_TIMER                        TR("Timer","Timer ")
@@ -391,6 +391,7 @@
 #define TR_MS                           "ms"
 #define TR_FREQUENCY                    INDENT "Frekvens"
 #define TR_SWITCH                       "Brytare"
+#define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"
@@ -574,8 +575,7 @@
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
 #define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
 #define TR_RADIO_DATA_RECOVERED         TR3("Anv. backupradiodata","Anv. backupradioinställningar","Radioinställningar återställda från backup")
-#define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga#define TR_DELETE_THEME "Radera tema?"
-#define TR_SAVE_THEME "Spara tema?" radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
+#define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
 #define TR_EEPROMFORMATTING             "Minnet formateras"
 #define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
 #define TR_EEPROMOVERFLOW               "Minnesfel"
@@ -803,7 +803,7 @@
 #define TR_RENAME_FILE                  "Byt namn"
 #define TR_ASSIGN_BITMAP                "Tilldela ikon"
 #define TR_ASSIGN_SPLASH                "Startbild"
-#define TR_EXECUTE_FILE                 "Exekvera"
+#define TR_EXECUTE_FILE                 "Utför"
 #define TR_REMOVED                      " raderad"
 #define TR_SD_INFO                      "Information"
 #define TR_SD_FORMAT                    "Formatera"
@@ -817,8 +817,6 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
-#define TR_DELETE_THEME                 "Radera tema?"
-#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
@@ -997,6 +995,8 @@
 #define TR_TELEMETRY_TYPE               "Telemetrityp"
 #define TR_TELEMETRY_SENSORS            "Sensorer"
 #define TR_VALUE                        "Värde"
+#define TR_PERIOD                       "Period"
+#define TR_INTERVAL                     "Intervall"
 #define TR_REPEAT                       "Upprepa"
 #define TR_ENABLE                       "Aktivera"
 #define TR_TOPLCDTIMER                  "Översta LCD timer"
@@ -1095,13 +1095,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE   "Subtrim-läge"
 #define TR_INVERTED                     "Inverterad"
 
-#define TR_LSW_HEADERS_FUNCTION         "Funktion"
-#define TR_LSW_HEADERS_V1               "V1"
-#define TR_LSW_HEADERS_V2               "V2"
-#define TR_LSW_HEADERS_ANDSW            "AND-brytare"
-#define TR_LSW_HEADERS_DURATION         "Tidslängd"
-#define TR_LSW_HEADERS_DELAY            "Fördröj"
-
 #define TR_GVAR_HEADERS_NAME            "Namn"
 #define TR_GVAR_HEADERS_FM0             "Värde för FL0"
 #define TR_GVAR_HEADERS_FM1             "Värde för FL1"
@@ -1112,10 +1105,10 @@
 #define TR_GVAR_HEADERS_FM6             "Värde för FL6"
 #define TR_GVAR_HEADERS_FM7             "Värde för FL7"
 #define TR_GVAR_HEADERS_FM8             "Värde för FL8"
-//#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
+#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
 
 // Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS             { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS             { "Typ av jämförelse eller funktion", "Första variabel", "Andra variabel eller konstant", "Ytterligare villkor för att brytaren ska aktiveras", "Minsta tid som logiska brytaren är på", "Minsta tid brytaren måste var sann för att den ska aktiveras" }
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL                "Första kanal"
