@@ -410,13 +410,7 @@ int VfsFile::fprintf(const char* str, ...)
       return ret;
   }
 #endif
-#if defined(USE_LITTLEFS)
-  case VfsFileType::LFS:
-  {
-
   default: break;
-  }
-#endif
   }
 
   return (int)VfsError::INVAL;

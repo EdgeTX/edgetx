@@ -83,7 +83,11 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 #define FILE_COPY_PREFIX "cp_"
 
 #define PATH_SEPARATOR      "/"
+#if defined(BOOT)
+#define ROOT_PATH           PATH_SEPARATOR
+#else
 #define ROOT_PATH           PATH_SEPARATOR "DEFAULT" PATH_SEPARATOR
+#endif
 #define SDCARD_PATH         PATH_SEPARATOR "SDCARD" PATH_SEPARATOR
 #define INTERNAL_ST_PATH    PATH_SEPARATOR "INTERNAL" PATH_SEPARATOR
 #define MODELS_PATH         ROOT_PATH "MODELS"      // no trailing slash = important
@@ -98,7 +102,6 @@ constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the do
 #define SOUNDS_PATH_LNG_OFS (sizeof(SOUNDS_PATH)-3)
 #define SYSTEM_SUBDIR       "SYSTEM"
 #define BITMAPS_PATH        ROOT_PATH "IMAGES"
-#define FIRMWARES_PATH      ROOT_PATH "FIRMWARE"
 #define FIRMWARES_PATH      ROOT_PATH "FIRMWARE"
 #define AUTOUPDATE_FILENAME FIRMWARES_PATH PATH_SEPARATOR "autoupdate.frsk"
 #define EEPROMS_PATH        ROOT_PATH "EEPROM"
@@ -288,7 +291,7 @@ private:
   friend class VirtualFS;
   VfsDir(const VfsDir&);
 
-  enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT, DIR_LFS};
+  enum DirType {DIR_UNKNOWN, DIR_ROOT, DIR_FAT};
 
   void clear();
 
