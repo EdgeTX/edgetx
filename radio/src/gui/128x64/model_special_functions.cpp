@@ -32,6 +32,10 @@
 #endif
 
 #if defined(SDCARD)
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+
 void onCustomFunctionsFileSelectionMenu(const char * result)
 {
   int  sub = menuVerticalPosition - HEADER_LINE;
@@ -352,13 +356,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #if defined(SDCARD)
           else if (func == FUNC_LOGS) {
-            if (val_displayed) {
-              lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
-              lcdDrawChar(lcdLastRightPos, y, 's');
+            val_min = SD_LOGS_PERIOD_MIN; 
+            val_max = SD_LOGS_PERIOD_MAX;
+
+            if (!val_displayed) {
+              val_displayed = CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;
             }
-            else {
-              lcdDrawMMM(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, attr);
-            }
+
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
+            lcdDrawChar(lcdLastRightPos, y, 's');
           }
 #endif
 #if defined(GVARS)
