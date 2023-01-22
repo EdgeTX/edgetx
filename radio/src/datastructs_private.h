@@ -173,7 +173,7 @@ PACK(struct CustomFunctionData {
     }) clear);
   }) NAME(fp) SKIP;
   uint8_t active : 1 SKIP;
-  uint8_t active SKIP;
+  int8_t repeat:7 SKIP;
 
   bool isEmpty() const
   {
