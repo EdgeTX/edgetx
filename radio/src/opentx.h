@@ -22,9 +22,9 @@
 #pragma once
 
 #include <stdlib.h>
+#include "debounce.h"
 #include "definitions.h"
 #include "opentx_types.h"
-#include "debounce.h"
 #include "opentx_helpers.h"
 #include "touch.h"
 

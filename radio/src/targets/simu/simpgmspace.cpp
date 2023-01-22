@@ -21,6 +21,10 @@
 
 #define SIMPGMSPC_USE_QT    0
 
+#if defined(SIMU_AUDIO)
+  #include <SDL.h>
+#endif
+
 #include "opentx.h"
 #include "simulcd.h"
 
@@ -31,10 +35,6 @@
 #if !defined (_MSC_VER) || defined (__GNUC__)
   #include <chrono>
   #include <sys/time.h>
-#endif
-
-#if defined(SIMU_AUDIO)
-  #include <SDL.h>
 #endif
 
 int g_snapshot_idx = 0;

@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if defined(SIMU_AUDIO)
+  #include <SDL.h>
+  #undef main
+#endif
+
 #include "fx.h"
 #include "FXExpression.h"
 #include "FXPNGImage.h"
@@ -28,11 +33,6 @@
 #include <time.h>
 #include <ctype.h>
 #include "targets/simu/simulcd.h"
-
-#if defined(SIMU_AUDIO)
-  #include <SDL.h>
-  #undef main
-#endif
 
 #if LCD_W > 212
   #define LCD_ZOOM 1
@@ -94,7 +94,7 @@ FXDEFMAP(OpenTxSim) OpenTxSimMap[] = {
 FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
 
 OpenTxSim::OpenTxSim(FXApp* a):
-  FXMainWindow(a, "OpenTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
+  FXMainWindow(a, "EdgeTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
 {
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 

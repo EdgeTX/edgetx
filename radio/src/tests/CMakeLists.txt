@@ -34,7 +34,7 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
     target_link_libraries(gtests-radio-lib PRIVATE ${WIN_LINK_LIBRARIES})
   endif(WIN32)
 
-  if(SDL_FOUND AND SIMU_AUDIO)
+  if(SDL2_FOUND AND SIMU_AUDIO)
     target_include_directories(gtests-radio-lib PUBLIC ${SDL_INCLUDE_DIR})
     target_link_libraries(gtests-radio-lib PRIVATE ${SDL_LIBRARY})
   endif()
