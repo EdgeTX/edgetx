@@ -34,8 +34,8 @@
 
 //#define DEBUG 1
 #if DEBUG
-#define TJ_MSG(...) do { printf("TJFTL: "); printf(__VA_ARGS__); } while(0)
-#define TJ_CHECK(x, msg) do { if (!(x)) { printf("TJFTL: check fail: " #x " (%s:%d): %s\n", __FILE__, __LINE__, msg); abort(); }} while (0)
+#define TJ_MSG(...) do { TRACE("TJFTL: "); TRACE(__VA_ARGS__); } while(0)
+#define TJ_CHECK(x, msg) do { if (!(x)) { TRACE("TJFTL: check fail: " #x " (%s:%d): %s\n", __FILE__, __LINE__, msg); abort(); }} while (0)
 #else
 #define TJ_MSG(...)
 #define TJ_CHECK(x, msg)
