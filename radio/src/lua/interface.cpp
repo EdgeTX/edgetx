@@ -374,13 +374,14 @@ static void luaDumpState(lua_State * L, const char * filename, const VfsFileInfo
 {
   VfsFile D;
   VirtualFS& vfs = VirtualFS::instance();
-  if (vfs.openFile(D, filename, VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS) == VfsError::OK) {
+  std::string path = normalizeLuaPath(filename);
+  if (vfs.openFile(D, path.c_str(), VfsOpenFlags::WRITE | VfsOpenFlags::CREATE_ALWAYS) == VfsError::OK) {
     lua_lock(L);
     luaU_dump(L, getproto(L->top - 1), luaDumpWriter, &D, stripDebug);
     lua_unlock(L);
     if (D.close() == VfsError::OK) {
       if (finfo != nullptr)
-        vfs.utime(filename, *finfo);  // set the file mod time
+        vfs.utime(path.c_str(), *finfo);  // set the file mod time
       TRACE("luaDumpState(%s): Saved bytecode to file.", filename);
     }
   } else
