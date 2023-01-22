@@ -24,6 +24,14 @@
 #include <stdint.h>
 #include "stm32_hal_ll.h"
 
+struct stm32_pulse_timer_t;
+typedef bool (*stm32_pulse_dma_tc_fct)(void*);
+
+struct stm32_pulse_dma_tc_cb_t {
+  stm32_pulse_dma_tc_fct cb;
+  void* ctx;
+};
+
 struct stm32_pulse_timer_t {
 
   GPIO_TypeDef*              GPIOx;
@@ -31,7 +39,7 @@ struct stm32_pulse_timer_t {
   uint32_t                   GPIO_Alternate;
 
   TIM_TypeDef*               TIMx;
-  uint16_t                   TIM_Prescaler;
+  uint32_t                   TIM_Freq;
   uint32_t                   TIM_Channel;
   IRQn_Type                  TIM_IRQn;
 
@@ -39,9 +47,10 @@ struct stm32_pulse_timer_t {
   uint32_t                   DMA_Stream;
   uint32_t                   DMA_Channel;
   IRQn_Type                  DMA_IRQn;
+  stm32_pulse_dma_tc_cb_t*   DMA_TC_CallbackPtr;
 };
 
-void stm32_pulse_init(const stm32_pulse_timer_t* tim);
+void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
 
 void stm32_pulse_config_input(const stm32_pulse_timer_t* tim);

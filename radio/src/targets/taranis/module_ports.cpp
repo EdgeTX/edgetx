@@ -64,9 +64,9 @@ static const stm32_usart_t auxUSART = {
 DEFINE_STM32_SERIAL_PORT(Aux, auxUSART, AUX_SERIAL_RX_BUFFER, AUX_SERIAL_TX_BUFFER);
 
 const etx_serial_port_t auxSerialPort = {
-  "AUX1",
-  &STM32SerialDriver, // TODO
-  nullptr, // TODO
+  .name = "AUX1",
+  .uart = &STM32SerialDriver,
+  .hw_def = REF_STM32_SERIAL_PORT(Aux),
   nullptr
 };
 #define AUX_SERIAL_PORT &auxSerialPort
@@ -172,6 +172,8 @@ DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0)
 
 #endif
 
+DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
+
 #define TELEMETRY_USART_IRQ_PRIORITY 6
 #define TELEMETRY_DMA_IRQ_PRIORITY   7
 
@@ -210,35 +212,35 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 
 DEFINE_STM32_SERIAL_PORT(SportModule, sportUSART, TELEMETRY_FIFO_SIZE, 0);
 
-static const stm32_softserial_port sportSoftRX = {
-  .GPIOx = TELEMETRY_GPIO,
-  .GPIO_Pin = TELEMETRY_RX_GPIO_PIN,
-  .TIMx = TELEMETRY_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(PERI2_FREQUENCY * TIMER_MULT_APB2, 2000000),
-  .TIM_IRQn = TELEMETRY_TIMER_IRQn,
-  .EXTI_Port = TELEMETRY_EXTI_PORT,
-  .EXTI_SysLine = TELEMETRY_EXTI_SYS_LINE,
-  .EXTI_Line = TELEMETRY_EXTI_LINE,
-  // re-use S.PORT serial RX buffer
-  .buffer = { SportModule_RXBuffer, TELEMETRY_FIFO_SIZE },
-};
+// static const stm32_softserial_port sportSoftRX = {
+//   .GPIOx = TELEMETRY_GPIO,
+//   .GPIO_Pin = TELEMETRY_RX_GPIO_PIN,
+//   .TIMx = TELEMETRY_TIMER,
+//   .TIM_Freq = PERI2_FREQUENCY * TIMER_MULT_APB2,
+//   .TIM_IRQn = TELEMETRY_TIMER_IRQn,
+//   .EXTI_Port = TELEMETRY_EXTI_PORT,
+//   .EXTI_SysLine = TELEMETRY_EXTI_SYS_LINE,
+//   .EXTI_Line = TELEMETRY_EXTI_LINE,
+//   // re-use S.PORT serial RX buffer
+//   .buffer = { SportModule_RXBuffer, TELEMETRY_FIFO_SIZE },
+// };
 
-extern "C" void TELEMETRY_TIMER_IRQHandler()
-{
-  stm32_softserial_timer_isr(&sportSoftRX);
-}
+// extern "C" void TELEMETRY_TIMER_IRQHandler()
+// {
+//   stm32_softserial_timer_isr(&sportSoftRX);
+// }
 
-static const stm32_softserial_port ppmSoftTX = {
-  .GPIOx = EXTMODULE_TX_GPIO,
-  .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
-  .TIMx = nullptr,
-  .TIM_Prescaler = 0,
-  .TIM_IRQn = (IRQn_Type)0,
-  .EXTI_Port = 0,
-  .EXTI_SysLine = 0,
-  .EXTI_Line = 0,
-  .buffer = { nullptr, 0 },
-};
+// static const stm32_softserial_port ppmSoftTX = {
+//   .GPIOx = EXTMODULE_TX_GPIO,
+//   .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
+//   .TIMx = nullptr,
+//   .TIM_Freq = 0,
+//   .TIM_IRQn = (IRQn_Type)0,
+//   .EXTI_Port = 0,
+//   .EXTI_SysLine = 0,
+//   .EXTI_Line = 0,
+//   .buffer = { nullptr, 0 },
+// };
 
 BEGIN_MODULE_PORTS()
 #if defined(INTMODULE_USART)
@@ -281,18 +283,19 @@ BEGIN_MODULE_PORTS()
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
-  {
-    .port = ETX_MOD_PORT_SPORT_INV,
-    .type = ETX_MOD_TYPE_SERIAL,
-    .dir_flags = ETX_MOD_DIR_RX,
-    .drv = { .serial = &STM32SoftSerialDriver },
-    .hw_def = (void*)&sportSoftRX,
-  },
+  // {
+  //   .port = ETX_MOD_PORT_SPORT_INV,
+  //   .type = ETX_MOD_TYPE_SERIAL,
+  //   .dir_flags = ETX_MOD_DIR_RX,
+  //   .drv = { .serial = &STM32SoftSerialDriver },
+  //   .hw_def = (void*)&sportSoftRX,
+  // },
   {
     .port = ETX_MOD_PORT_EXTERNAL_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .serial = &STM32SoftSerialDriver },
-    .hw_def = (void*)&ppmSoftTX,
+    .drv = { .serial = &STM32SoftSerialTxDriver },
+    // .hw_def = (void*)&ppmSoftTX,
+    .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
   },
 END_MODULE_PORTS()

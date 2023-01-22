@@ -143,7 +143,7 @@ static void _init_trainer_capture(const stm32_pulse_timer_t* tim)
   _trainer_timer = tim;
   _trainer_timer_isr = trainer_in_isr;
 
-  stm32_pulse_init(tim);
+  stm32_pulse_init(tim, 0);
   stm32_pulse_config_input(tim);
 
   switch (tim->TIM_Channel) {
@@ -171,13 +171,14 @@ static const stm32_pulse_timer_t trainerOutputTimer = {
   .GPIO_Pin = TRAINER_OUT_GPIO_PIN,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(TRAINER_TIMER_FREQ, 2000000),
+  .TIM_Freq = TRAINER_TIMER_FREQ,
   .TIM_Channel = TRAINER_OUT_TIMER_Channel,
   .TIM_IRQn = TRAINER_TIMER_IRQn,
   .DMAx = nullptr,
   .DMA_Stream = 0,
   .DMA_Channel = 0,
   .DMA_IRQn = (IRQn_Type)0,
+  .DMA_TC_CallbackPtr = nullptr,
 };
 
 static void trainerSendNextFrame()
@@ -228,7 +229,7 @@ void init_trainer_ppm()
   _trainer_timer = &trainerOutputTimer;
   _trainer_timer_isr = trainer_out_isr;
 
-  stm32_pulse_init(&trainerOutputTimer);
+  stm32_pulse_init(&trainerOutputTimer, 0);
   stm32_pulse_config_output(&trainerOutputTimer, GET_TRAINER_PPM_POLARITY(),
                             LL_TIM_OCMODE_PWM1, GET_TRAINER_PPM_DELAY() * 2);
 
@@ -248,13 +249,14 @@ static const stm32_pulse_timer_t trainerInputTimer = {
   .GPIO_Pin = TRAINER_IN_GPIO_PIN,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(TRAINER_TIMER_FREQ, 2000000),
+  .TIM_Freq = TRAINER_TIMER_FREQ,
   .TIM_Channel = TRAINER_IN_TIMER_Channel,
   .TIM_IRQn = TRAINER_TIMER_IRQn,
   .DMAx = nullptr,
   .DMA_Stream = 0,
   .DMA_Channel = 0,
   .DMA_IRQn = (IRQn_Type)0,
+  .DMA_TC_CallbackPtr = nullptr,
 };
 
 void init_trainer_capture()
@@ -309,13 +311,14 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
   .GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN,
   .GPIO_Alternate = TRAINER_MODULE_CPPM_GPIO_AF,
   .TIMx = TRAINER_MODULE_CPPM_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(TRAINER_MODULE_CPPM_FREQ, 2000000),
+  .TIM_Freq = TRAINER_MODULE_CPPM_FREQ,
   .TIM_Channel = TRAINER_MODULE_CPPM_TIMER_Channel,
   .TIM_IRQn = TRAINER_MODULE_CPPM_TIMER_IRQn,
   .DMAx = nullptr,
   .DMA_Stream = 0,
   .DMA_Channel = 0,
   .DMA_IRQn = (IRQn_Type)0,
+  .DMA_TC_CallbackPtr = nullptr,
 };
 
 void init_trainer_module_cppm()

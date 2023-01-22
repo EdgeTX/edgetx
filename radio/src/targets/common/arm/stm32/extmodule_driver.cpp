@@ -25,18 +25,21 @@
 #include "board.h"
 #include "timers_driver.h"
 
+static stm32_pulse_dma_tc_cb_t _ext_timer_DMA_TC_Callback;
+
 const stm32_pulse_timer_t extmoduleTimer = {
   .GPIOx = EXTMODULE_TX_GPIO,
   .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
   .GPIO_Alternate = EXTMODULE_TIMER_TX_GPIO_AF,
   .TIMx = EXTMODULE_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(EXTMODULE_TIMER_FREQ, 2000000),
+  .TIM_Freq = EXTMODULE_TIMER_FREQ,
   .TIM_Channel = EXTMODULE_TIMER_Channel,
   .TIM_IRQn = EXTMODULE_TIMER_IRQn,
   .DMAx = EXTMODULE_TIMER_DMA,
   .DMA_Stream = EXTMODULE_TIMER_DMA_STREAM_LL,
   .DMA_Channel = EXTMODULE_TIMER_DMA_CHANNEL,
   .DMA_IRQn = EXTMODULE_TIMER_DMA_STREAM_IRQn,
+  .DMA_TC_CallbackPtr = &_ext_timer_DMA_TC_Callback,
 };
 
 // Make sure the timer channel is supported
@@ -88,7 +91,7 @@ static void config_ppm_output(uint16_t ppm_delay, bool polarity)
 void extmodulePpmStart(uint16_t ppm_delay, bool polarity)
 {
   EXTERNAL_MODULE_ON();
-  stm32_pulse_init(&extmoduleTimer);
+  stm32_pulse_init(&extmoduleTimer, 0);
   config_ppm_output(ppm_delay, polarity);
 }
 
@@ -111,7 +114,7 @@ void extmodulePxx1PulsesStart()
 {
   EXTERNAL_MODULE_ON();
   stm32_pulse_config_output(&extmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
-  stm32_pulse_init(&extmoduleTimer);
+  stm32_pulse_init(&extmoduleTimer, 0);
 }
 
 void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
@@ -128,7 +131,7 @@ void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 void extmoduleSerialStart()
 {
   EXTERNAL_MODULE_ON();
-  stm32_pulse_init(&extmoduleTimer);
+  stm32_pulse_init(&extmoduleTimer, 0);
   stm32_pulse_config_output(&extmoduleTimer, true, LL_TIM_OCMODE_TOGGLE, 0);
 }
 

@@ -32,13 +32,14 @@ const stm32_pulse_timer_t intmoduleTimer = {
   .GPIO_Pin = INTMODULE_TX_GPIO_PIN,
   .GPIO_Alternate = INTMODULE_TX_GPIO_AF,
   .TIMx = INTMODULE_TIMER,
-  .TIM_Prescaler = __LL_TIM_CALC_PSC(INTMODULE_TIMER_FREQ, 2000000),
+  .TIM_Freq = INTMODULE_TIMER_FREQ,
   .TIM_Channel = INTMODULE_TIMER_Channel,
   .TIM_IRQn = INTMODULE_TIMER_IRQn,
   .DMAx = INTMODULE_TIMER_DMA,
   .DMA_Stream = INTMODULE_TIMER_DMA_STREAM,
   .DMA_Channel = INTMODULE_TIMER_DMA_CHANNEL,
   .DMA_IRQn = INTMODULE_TIMER_DMA_STREAM_IRQn,
+  .DMA_TC_CallbackPtr = nullptr,
 };
 
 // Make sure the timer channel is supported

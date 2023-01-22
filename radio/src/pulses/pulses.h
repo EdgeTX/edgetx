@@ -192,10 +192,14 @@ union ExternalModulePulsesData {
   Pxx2Pulses pxx2;
 #endif
 
-#if defined(DSM2) || defined(MULTIMODULE) || defined(SBUS)
+#if defined(DSM2) || defined(SBUS)
   Dsm2PulsesData dsm2;
 #endif
 
+#if defined(MULTIMODULE)
+  UartMultiPulses multi;
+#endif
+  
 #if defined(AFHDS3)
   afhds3::ExtmoduleData afhds3;
 #endif

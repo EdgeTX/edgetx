@@ -20,8 +20,6 @@
  */
 
 #include "stm32_serial_driver.h"
-// #include "stm32_hal_ll.h"
-// #include "stm32_usart_driver.h"
 #include <string.h>
 
 // Serial buffer state

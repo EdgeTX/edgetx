@@ -19,6 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "dsm2.h"
+#include "hal/module_port.h"
+#include "mixer_scheduler.h"
+
 #include "opentx.h"
 
 #define DSM2_SEND_BIND                     (1 << 7)
@@ -31,60 +35,11 @@
 #define DSMX_BIT             0x08
 #define BAD_DATA             0x47
 
-#define BITLEN_DSM2          (8*2) //125000 Baud => 8uS per bit
+#define DSM2_BITRATE         125000
 
-static void reset_dsm2_buffer()
-{
-  extmodulePulsesData.dsm2.index = 0;
-  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
-}
-
-static void _send_1(uint8_t v)
-{
-  *extmodulePulsesData.dsm2.ptr++ = v - 1;
-  extmodulePulsesData.dsm2.index += 1;
-}
-
-static void _sendByte(uint8_t b, uint8_t bit_len) // max 10 changes 0 10 10 10 10 1
-{
-  bool    lev = 0;
-  uint8_t len = bit_len; // max val: 9*16 < 256
-  for (uint8_t i=0; i<=8; i++) { // 8Bits + Stop=1
-    bool nlev = b & 1; // lsb first
-    if (lev == nlev) {
-      len += bit_len;
-    }
-    else {
-      _send_1(len);
-      len  = bit_len;
-      lev  = nlev;
-    }
-    b = (b>>1) | 0x80; // shift in stop bit
-  }
-  _send_1(len); // stop bit (len is already bit_len)
-}
-
-static void sendByteDsm2(uint8_t b)
-{
-  _sendByte(b, BITLEN_DSM2);
-}
-
-void putDsm2Flush()
-{
-  if (extmodulePulsesData.dsm2.index & 1)
-    *extmodulePulsesData.dsm2.ptr++ = 255;
-  else
-    *(extmodulePulsesData.dsm2.ptr - 1) = 255;
-}
-
-// This is the data stream to send, prepare after 19.5 mS
-// Send after 22.5 mS
-
-void setupPulsesDSM2()
+static void setupPulsesDSM2(UartMultiPulses* uart)
 {
   uint8_t dsmDat[14];
-
-  reset_dsm2_buffer();
 
   switch (moduleState[EXTERNAL_MODULE].protocol) {
     case PROTOCOL_CHANNELS_DSM2_LP45:
@@ -116,24 +71,16 @@ void setupPulsesDSM2()
   }
 
   for (int i=0; i<14; i++) {
-    sendByteDsm2(dsmDat[i]);
+    uart->sendByte(dsmDat[i]);
   }
-
-  putDsm2Flush();
 }
 
-#define BITLEN_DSMP (17)
+#define DSMP_BITRATE 115200
 
-static void sendByteDSMP(uint8_t b)
-{
-  _sendByte(b, BITLEN_DSMP);
-}
 
-void setupPulsesLemonDSMP()
+static void setupPulsesLemonDSMP(UartMultiPulses* uart)
 {
   static uint8_t pass = 0;
-
-  reset_dsm2_buffer();
 
   const auto& md = g_model.moduleData[EXTERNAL_MODULE];
 
@@ -144,8 +91,8 @@ void setupPulsesLemonDSMP()
   // Force setup packet in Bind mode.
   auto module_mode = getModuleMode(EXTERNAL_MODULE);
 
-  sendByteDSMP( 0xAA );
-  sendByteDSMP( pass );
+  uart->sendByte( 0xAA );
+  uart->sendByte( pass );
 
   // Setup packet
   if (pass == 0) {
@@ -154,17 +101,17 @@ void setupPulsesLemonDSMP()
       flags = DSM2_SEND_BIND | (1 << 6 /* AUTO */);
       channels = 12;
     }
-    sendByteDSMP( flags );
+    uart->sendByte( flags );
 
     uint8_t pwr = 7;
     if (module_mode == MODULE_MODE_RANGECHECK) {
       pwr = 4;
     }
-    sendByteDSMP( pwr );    
-    sendByteDSMP( channels );
+    uart->sendByte( pwr );    
+    uart->sendByte( channels );
 
     // Model number
-    sendByteDSMP( 1 );
+    uart->sendByte( 1 );
 
     // Send only 1 single Setup packet
     pass = 1;
@@ -192,19 +139,17 @@ void setupPulsesLemonDSMP()
           pulse = limit(0, ((value*13)>>5)+512, 1023) | (current_channel << 10);
         }
 
-        sendByteDSMP( pulse >> 8 );
-        sendByteDSMP( pulse & 0xFF );
+        uart->sendByte( pulse >> 8 );
+        uart->sendByte( pulse & 0xFF );
       } else {
         // Outside of announced number of channels:
         // -> send invalid value
-        sendByteDSMP( 0xFF );
-        sendByteDSMP( 0xFF );
+        uart->sendByte( 0xFF );
+        uart->sendByte( 0xFF );
       }
       current_channel++;
     }
   }
-
-  putDsm2Flush();
 
   if (++pass > 2) pass = 1;
   if (channels < 8) pass = 1;
@@ -219,3 +164,112 @@ void setupPulsesLemonDSMP()
     moduleState[EXTERNAL_MODULE].counter = 100;
   }
 }
+
+etx_serial_init dsmUartParams = {
+    .baudrate = 0,
+    .parity = ETX_Parity_None,
+    .stop_bits = ETX_StopBits_One,
+    .word_length = ETX_WordLength_8,
+    .rx_enable = false,
+};
+
+static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
+{
+  // only external module supported
+  if (module == INTERNAL_MODULE) return nullptr;
+
+  etx_serial_init params(dsmUartParams);
+  params.baudrate = baudrate;
+
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
+                                     ETX_MOD_DIR_TX, &params);
+
+  extmodulePulsesData.multi.initFrame();
+  mod_st->user_data = (void*)&extmodulePulsesData.multi;
+
+  // TODO: check telemetry init...
+
+  EXTERNAL_MODULE_ON();
+  mixerSchedulerSetPeriod(module, period);
+
+  return (void*)mod_st;
+}
+
+static void* dsm2Init(uint8_t module)
+{
+  return dsmInit(module, DSM2_BITRATE, DSM2_PERIOD);
+}
+
+static void* dsmpInit(uint8_t module)
+{
+  return dsmInit(module, DSMP_BITRATE, 11 * 1000 /* 11ms in us */);
+}
+
+
+static void dsmDeInit(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  EXTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
+}
+
+static void dsm2SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  pulses->initFrame();
+
+  setupPulsesDSM2(pulses);
+}
+
+static void dsmpSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  pulses->initFrame();
+
+  setupPulsesLemonDSMP(pulses);
+}
+
+static void dsmSendPulses(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto drv = mod_st->tx.port->drv.serial;
+  auto drv_ctx = mod_st->tx.ctx;
+
+  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
+}
+
+// TODO: check telemetry init...
+const etx_proto_driver_t DSM2Driver = {
+  .protocol = PROTOCOL_CHANNELS_DSM2_LP45,
+  .init = dsm2Init,
+  .deinit = dsmDeInit,
+  .setupPulses = dsm2SetupPulses,
+  .sendPulses = dsmSendPulses,
+  .getByte = nullptr,
+  .processData = nullptr,
+};
+
+// TODO: check telemetry init...
+const etx_proto_driver_t DSMPDriver = {
+  .protocol = PROTOCOL_CHANNELS_DSMP,
+  .init = dsmpInit,
+  .deinit = dsmDeInit,
+  .setupPulses = dsmpSetupPulses,
+  .sendPulses = dsmSendPulses,
+  .getByte = nullptr,
+  .processData = nullptr,
+};

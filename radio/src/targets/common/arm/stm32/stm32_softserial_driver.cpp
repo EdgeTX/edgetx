@@ -20,6 +20,13 @@
  */
 
 #include "stm32_softserial_driver.h"
+#include <string.h>
+
+// constant bitlen, timer frequency is computed
+// to reach the required baudrate
+#define BITLEN 16
+
+#if 0
 #include "stm32_exti_driver.h"
 
 // getTmr2MHz()
@@ -273,16 +280,196 @@ static void stm32_softserial_clear_rx_buffer(void* ctx)
   rxWidx = 0;
   rxRidx = 0;
 }
+#endif
 
-const etx_serial_driver_t STM32SoftSerialDriver = {
+static inline void _set_level(stm32_softserial_tx_state* st, uint8_t v)
+{
+  *st->pulse_ptr++ = v - 1;
+}
+
+// TODO:
+// - support for different word len / stop bit(s) / parity config
+// - now: only 8N1 and 8E2
+//
+// max 11 changes 0 10 10 10 10 P 1
+static void _conv_byte_8e2(stm32_softserial_tx_state* st, uint8_t b)
+{
+  bool lev = 0;
+  uint8_t parity = 1;
+
+  uint8_t len = BITLEN;               // max val: 10*16 < 256
+  for (uint8_t i = 0; i <= 9; i++) {  // 8Bits + 1Parity
+
+    bool nlev = b & 1;                // lsb first
+    parity = parity ^ (uint8_t)nlev;
+
+    if (lev == nlev) {
+      len += BITLEN;
+    } else {
+      _set_level(st, len);
+      len = BITLEN;
+      lev = nlev;
+    }
+
+    b = (b >> 1) | 0x80;         // shift in ones for stop bit and parity
+    if (i == 7) b = b ^ parity;  // lowest bit is one from previous line
+  }
+
+  // enlarge the last bit to be two stop bits long
+  _set_level(st, len + BITLEN);
+}
+
+static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
+{
+  bool lev = 0;
+  uint8_t len = BITLEN;               // max val: 10*16 < 256
+  for (uint8_t i = 0; i <= 8; i++) {  // 8Bits
+
+    bool nlev = b & 1;                // lsb first
+    if (lev == nlev) {
+      len += BITLEN;
+    } else {
+      _set_level(st, len);
+      len = BITLEN;
+      lev = nlev;
+    }
+
+    b = (b >> 1) | 0x80;         // shift in ones for stop bit
+  }
+
+  // enlarge the last bit to be two stop bits long
+  _set_level(st, len + BITLEN);
+}
+
+// stm32_pulse_timer_t based TX implementation
+static void* stm32_softserial_init(void* hw_def, const etx_serial_init* params)
+{
+  auto port = (const stm32_softserial_tx_port*)hw_def;
+  if (params->baudrate == 0) return nullptr;
+
+  // Init state
+  auto st = port->st;
+  memset(port->st, 0, sizeof(stm32_softserial_tx_state));
+
+  if (params->word_length == ETX_WordLength_9 &&
+      params->stop_bits == ETX_StopBits_Two &&
+      params->parity == ETX_Parity_Even) {
+    st->conv_byte = _conv_byte_8e2;
+  } else if (params->word_length == ETX_WordLength_8 &&
+             params->stop_bits == ETX_StopBits_One &&
+             params->parity == ETX_Parity_None) {
+    st->conv_byte = _conv_byte_8n1;
+  } else {
+    // unsupported mode!
+    return nullptr;
+  }
+
+  // Use a variable timer frequency to keep bitlen constant (16)
+  auto tim = port->tim;
+  uint32_t freq = params->baudrate * 16;
+  stm32_pulse_init(tim, freq);
+
+  // TODO: polarity?
+  stm32_pulse_config_output(tim, true, LL_TIM_OCMODE_TOGGLE, 0);
+
+  return hw_def;
+}
+
+static void stm32_softserial_deinit(void* ctx)
+{
+  auto port = (const stm32_softserial_tx_port*)ctx;
+  stm32_pulse_deinit(port->tim);
+}
+
+static void stm32_softserial_send_byte(void* ctx, uint8_t byte)
+{
+  // TODO
+}
+
+static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
+{
+  // st->pulse_index = 0;
+  st->pulse_ptr = st->pulse_buffer;
+
+  uint8_t size = st->serial_size < STM32_SOFTSERIAL_BUFFERED_PULSES
+                     ? st->serial_size
+                     : STM32_SOFTSERIAL_BUFFERED_PULSES;
+
+  for (uint8_t i = 0; i < size; i++) {
+    st->conv_byte(st, *st->serial_data++);
+  }
+  st->serial_size -= size;
+
+  uint16_t length = st->pulse_ptr - st->pulse_buffer;
+  if (st->serial_size == 0) {
+    // 
+    // insert an additional period in case the number of transitions
+    // is odd, as we need an even number of toggles to return
+    // to the idle polarity at the end of the pulse train.
+    //
+    if (length & 1) {
+      *st->pulse_ptr++ = 255;
+      length++;
+    } else {
+      *(st->pulse_ptr - 1) = 255;
+    }
+  }
+
+  return length;
+}
+
+static bool stm32_softserial_dma_tc_isr(void* ctx)
+{
+  auto port = (const stm32_softserial_tx_port*)ctx;
+  auto tim = port->tim;
+  auto st = port->st;
+
+  if (!st->serial_size)
+    return false;
+
+  uint16_t length = _fill_pulses(st);
+  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, length);
+  LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
+
+  return true;
+}
+
+static void stm32_softserial_send_buffer(void* ctx, const uint8_t* data, uint8_t size)
+{
+  auto port = (const stm32_softserial_tx_port*)ctx;
+  auto timer = port->tim;
+  if (!stm32_pulse_if_not_running_disable(timer))
+    return;
+
+  // transform serial payload into timer pulses/length
+  auto st = port->st;
+  st->serial_data = data;
+  st->serial_size = size;
+
+  uint16_t length = _fill_pulses(st);
+
+  if (st->serial_size > 0 && timer->DMA_TC_CallbackPtr) {
+    auto closure = timer->DMA_TC_CallbackPtr;
+    closure->cb = stm32_softserial_dma_tc_isr;
+    closure->ctx = ctx;
+  }
+  
+  // Start DMA request and re-enable timer
+  const void* pulses = st->pulse_buffer;
+
+  stm32_pulse_set_polarity(timer, true/*polarity*/);
+  stm32_pulse_start_dma_req(timer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
+}
+
+const etx_serial_driver_t STM32SoftSerialTxDriver = {
   .init = stm32_softserial_init,
   .deinit = stm32_softserial_deinit,
   .sendByte = stm32_softserial_send_byte,
-  .sendBuffer = nullptr,
-  .waitForTxCompleted = nullptr,
-  .enableRx = nullptr,
-  .getByte = stm32_softserial_get_byte,
-  .clearRxBuffer = stm32_softserial_clear_rx_buffer,
+  .sendBuffer = stm32_softserial_send_buffer,
+  .waitForTxCompleted = nullptr, // TODO
+  .enableRx = nullptr, // TODO: combine with EXTI / Timer implementation? (S.PORT INV RX)
+  .getByte = nullptr,
+  .clearRxBuffer = nullptr, // TODO: same as enableRx
   .getBaudrate = nullptr,
   .setReceiveCb = nullptr,
   .setBaudrateCb = nullptr,

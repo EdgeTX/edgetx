@@ -30,6 +30,11 @@
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
+#include "pulses/dsm2.h"
+
+#if defined(SBUS)
+#include "pulses/sbus.h"
+#endif
 
 #if defined(CROSSFIRE)
 #include "pulses/crossfire.h"
@@ -374,8 +379,8 @@ static void enablePulsesInternalModule(uint8_t protocol)
 
 #if defined(INTERNAL_MODULE_MULTI) && defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      internalModuleContext = MultiInternalDriver.init(INTERNAL_MODULE);
-      internalModuleDriver = &MultiInternalDriver;
+      internalModuleContext = MultiDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &MultiDriver;
       break;
 #endif
 
@@ -528,8 +533,8 @@ void enablePulsesExternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, DSM2_PERIOD);
+      externalModuleContext = DSM2Driver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &DSM2Driver;
       break;
 #endif
 
@@ -557,20 +562,22 @@ void enablePulsesExternalModule(uint8_t protocol)
 
 #if defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
-      getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
-      getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
-#if defined(MULTI_PROTOLIST)
-      MultiRfProtocols::instance(EXTERNAL_MODULE)->triggerScan();
-#endif
+      externalModuleContext = MultiDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &MultiDriver;
+//       extmoduleSerialStart();
+//       mixerSchedulerSetPeriod(EXTERNAL_MODULE, MULTIMODULE_PERIOD);
+//       getMultiModuleStatus(EXTERNAL_MODULE).failsafeChecked = false;
+//       getMultiModuleStatus(EXTERNAL_MODULE).flags = 0;
+// #if defined(MULTI_PROTOLIST)
+//       MultiRfProtocols::instance(EXTERNAL_MODULE)->triggerScan();
+// #endif
       break;
 #endif
 
 #if defined(SBUS)
     case PROTOCOL_CHANNELS_SBUS:
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, SBUS_PERIOD);
+      externalModuleContext = SBusDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &SBusDriver;
       break;
 #endif
 
@@ -591,8 +598,8 @@ void enablePulsesExternalModule(uint8_t protocol)
 #endif
 
     case PROTOCOL_CHANNELS_DSMP:
-      extmoduleSerialStart();
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, 11 * 1000 /* 11ms in us */);
+      externalModuleContext = DSMPDriver.init(EXTERNAL_MODULE);
+      externalModuleDriver = &DSMPDriver;
       break;
       
     default:
@@ -616,22 +623,6 @@ bool setupPulsesExternalModule(uint8_t protocol)
   
   switch (protocol) {
 
-#if defined(SBUS)
-    case PROTOCOL_CHANNELS_SBUS:
-      setupPulsesSbus();
-      // SBUS_PERIOD is not a constant! It can be set from UI
-      mixerSchedulerSetPeriod(EXTERNAL_MODULE, SBUS_PERIOD);
-      return true;
-#endif
-
-#if defined(DSM2)
-    case PROTOCOL_CHANNELS_DSM2_LP45:
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
-    case PROTOCOL_CHANNELS_DSM2_DSMX:
-      setupPulsesDSM2();
-      return true;
-#endif
-
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:
     {
@@ -645,21 +636,17 @@ bool setupPulsesExternalModule(uint8_t protocol)
     }
 #endif
 
-#if defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-      setupPulsesMultiExternalModule();
-      return true;
-#endif
+// #if defined(MULTIMODULE)
+//     case PROTOCOL_CHANNELS_MULTIMODULE:
+//       setupPulsesMultiExternalModule();
+//       return true;
+// #endif
 
 #if defined(PPM)
     case PROTOCOL_CHANNELS_PPM:
       setupPulsesPPMExternalModule();
       return true;
 #endif
-
-    case PROTOCOL_CHANNELS_DSMP:
-      setupPulsesLemonDSMP();
-      return true;
 
     default:
       return false;
@@ -682,30 +669,6 @@ void extmoduleSendNextFrame()
           GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
           GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
       mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
-      break;
-
-#if defined(SBUS) || defined(DSM2) || defined(MULTIMODULE)
-    case PROTOCOL_CHANNELS_SBUS:
-      extmoduleSendNextFrameSoftSerial(
-          extmodulePulsesData.dsm2.pulses,
-          extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
-          GET_SBUS_POLARITY(EXTERNAL_MODULE));
-      break;
-
-    case PROTOCOL_CHANNELS_DSM2_LP45:
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
-    case PROTOCOL_CHANNELS_DSM2_DSMX:
-    case PROTOCOL_CHANNELS_MULTIMODULE:
-      extmoduleSendNextFrameSoftSerial(
-          extmodulePulsesData.dsm2.pulses,
-          extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses);
-      break;
-#endif
-    case PROTOCOL_CHANNELS_DSMP:
-      extmoduleSendNextFrameSoftSerial(
-          extmodulePulsesData.dsm2.pulses,
-          extmodulePulsesData.dsm2.ptr - extmodulePulsesData.dsm2.pulses,
-          true);
       break;
 
 #if defined(GHOST)

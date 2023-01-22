@@ -51,7 +51,6 @@ static void sendConfig(uint8_t moduleIdx);
 static void sendDSM(uint8_t moduleIdx);
 #endif
 
-#if defined(INTMODULE_USART) && defined(INTERNAL_MODULE_MULTI)
 #include "hal/module_port.h"
 
 etx_serial_init multiSerialInitParams = {
@@ -61,7 +60,6 @@ etx_serial_init multiSerialInitParams = {
     .word_length = ETX_WordLength_9,
     .rx_enable = true,
 };
-#endif
 
 static void sendMulti(uint8_t moduleIdx, uint8_t b)
 {
@@ -71,7 +69,7 @@ static void sendMulti(uint8_t moduleIdx, uint8_t b)
   }
   else
 #endif
-    sendByteSbus(b);
+    extmodulePulsesData.multi.sendByte(b);
 }
 
 static void updateMultiSync(uint8_t module)
@@ -209,63 +207,90 @@ void setupPulsesMulti(uint8_t moduleIdx)
   }
 }
 
-void setupPulsesMultiExternalModule()
-{
-  extmodulePulsesData.dsm2.index = 0;
-  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
-
-  setupPulsesMulti(EXTERNAL_MODULE);
-  putDsm2Flush();
-}
-
-#if defined(INTERNAL_MODULE_MULTI)
-
 static void* multiInit(uint8_t module)
 {
-  (void)module;
-  
-  // serial port setup
-  intmodulePulsesData.multi.initFrame();
+  etx_module_state_t* mod_st = nullptr;
 
-  // TODO: error handling
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                     ETX_MOD_DIR_TX_RX, &multiSerialInitParams);
+#if defined(INTERNAL_MODULE_MULTI)
+  if (module == INTERNAL_MODULE) {
+    // serial port setup
+    // TODO: error handling
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+                                  ETX_MOD_DIR_TX_RX, &multiSerialInitParams);
 
-  // mixer setup
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, MULTIMODULE_PERIOD);
-  INTERNAL_MODULE_ON();
+    intmodulePulsesData.multi.initFrame();
+    mod_st->user_data = (void*)&intmodulePulsesData.multi;
 
-  // reset status
-  getMultiModuleStatus(INTERNAL_MODULE).failsafeChecked = false;
-  getMultiModuleStatus(INTERNAL_MODULE).flags = 0;
+    INTERNAL_MODULE_ON();
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    // serial port setup
+    // TODO: error handling
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
+                                  ETX_MOD_DIR_TX, &multiSerialInitParams);
+
+    // Init S.PORT RX channel
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT,
+                         ETX_MOD_DIR_RX, &multiSerialInitParams);
+    
+    extmodulePulsesData.multi.initFrame();
+    mod_st->user_data = (void*)&extmodulePulsesData.multi;
+
+    EXTERNAL_MODULE_ON();
+  }
+
+  if (mod_st) {
+    // mixer setup
+    mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+
+    // reset status
+    getMultiModuleStatus(module).failsafeChecked = false;
+    getMultiModuleStatus(module).flags = 0;
 
 #if defined(MULTI_PROTOLIST)
-  TRACE("enablePulsesInternalModule(): trigger scan");
-  MultiRfProtocols::instance(INTERNAL_MODULE)->triggerScan();
-  TRACE("counter = %d", moduleState[INTERNAL_MODULE].counter);
+    TRACE("enablePulsesInternalModule(): trigger scan");
+    MultiRfProtocols::instance(module)->triggerScan();
+    // TRACE("counter = %d", moduleState[module].counter);
 #endif
+  }
 
   return mod_st;
 }
 
 static void multiDeInit(void* ctx)
 {
-  INTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-
   auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+#if defined(INTERNAL_MODULE_MULTI)
+  if (module == INTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
+  }
+#endif
+
+  if (module == EXTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
+  }
+  
+  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 
-static void multiSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void multiSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
-  (void)context;
   // TODO:
   (void)channels;
   (void)nChannels;
-  
-  intmodulePulsesData.multi.initFrame();
-  setupPulsesMulti(INTERNAL_MODULE);
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  pulses->initFrame();
+
+  setupPulsesMulti(module);
 }
 
 static void multiSendPulses(void* ctx)
@@ -274,8 +299,8 @@ static void multiSendPulses(void* ctx)
   auto drv = mod_st->tx.port->drv.serial;
   auto drv_ctx = mod_st->tx.ctx;
 
-  drv->sendBuffer(drv_ctx, intmodulePulsesData.multi.getData(),
-                  intmodulePulsesData.multi.getSize());
+  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
 }
 
 static int multiGetByte(void* ctx, uint8_t* data)
@@ -287,14 +312,17 @@ static int multiGetByte(void* ctx, uint8_t* data)
   return drv->getByte(drv_ctx, data);
 }
 
-static void multiProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
+static void multiProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  processMultiTelemetryData(data, INTERNAL_MODULE);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  processMultiTelemetryData(data, module);
 }
 
 #include "hal/module_driver.h"
 
-const etx_proto_driver_t MultiInternalDriver = {
+const etx_proto_driver_t MultiDriver = {
   .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
   .init = multiInit,
   .deinit = multiDeInit,
@@ -303,7 +331,6 @@ const etx_proto_driver_t MultiInternalDriver = {
   .getByte = multiGetByte,
   .processData = multiProcessData,
 };
-#endif
 
 void sendChannels(uint8_t moduleIdx)
 {

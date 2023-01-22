@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,23 +21,6 @@
 
 #pragma once
 
-#include "pulses_common.h"
-#include "hal/serial_driver.h"
 #include "hal/module_driver.h"
 
-class UartMultiPulses: public DataBuffer<uint8_t, 64>
-{
-  public:
-    void initFrame()
-    {
-      initBuffer();
-    }
-
-    void sendByte(uint8_t b)
-    {
-      if (getSize() < 64)
-         *ptr++ = b;
-    }
-};
-
-extern const etx_proto_driver_t MultiDriver;
+extern const etx_proto_driver_t SBusDriver;

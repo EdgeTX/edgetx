@@ -24,6 +24,16 @@
 
 #include "definitions.h"
 
+#include <string.h>
+
+  // 0.5uS (2Mhz)
+#define STM32_DEFAULT_TIMER_FREQ       2000000
+#define STM32_DEFAULT_TIMER_AUTORELOAD   65535
+
+// TODO:
+// - DMA IRQ prio configurable (now 7)
+// - Timer IRQ prio configurable (now 7)
+
 static void enable_tim_clock(TIM_TypeDef* TIMx)
 {
   if (TIMx == TIM1) {
@@ -39,8 +49,12 @@ static void enable_tim_clock(TIM_TypeDef* TIMx)
   }
 }
 
-void stm32_pulse_init(const stm32_pulse_timer_t* tim)
+void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
 {
+  if (tim->DMA_TC_CallbackPtr) {
+    memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
+  }
+  
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Pin = tim->GPIO_Pin;
@@ -51,9 +65,12 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim)
   LL_TIM_InitTypeDef timInit;
   LL_TIM_StructInit(&timInit);
 
-  // 0.5uS (2Mhz)
-  timInit.Prescaler = tim->TIM_Prescaler;
-  timInit.Autoreload = 65535;
+  if (!freq) {
+    freq = STM32_DEFAULT_TIMER_FREQ;
+  }
+  
+  timInit.Prescaler = __LL_TIM_CALC_PSC(tim->TIM_Freq, freq);
+  timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
 
   enable_tim_clock(tim->TIMx);
   LL_TIM_Init(tim->TIMx, &timInit);
@@ -95,6 +112,11 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   if (tim->DMAx) {
     LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
   }
+
+  if (tim->DMA_TC_CallbackPtr) {
+    memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
+  }
+
   LL_TIM_DeInit(tim->TIMx);
   disable_tim_clock(tim->TIMx);
 
@@ -282,6 +304,13 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
   if (!stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream))
     return;
 
+  if (tim->DMA_TC_CallbackPtr) {
+    auto closure = tim->DMA_TC_CallbackPtr;
+    if (closure->cb && closure->cb(closure->ctx)) {
+      return;
+    }
+  }
+  
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 

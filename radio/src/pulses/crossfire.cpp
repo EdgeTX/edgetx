@@ -235,6 +235,7 @@ static void* crossfireInit(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(crsfSerialParams);
 
+#if defined(INTERNAL_MODULE_CRSF)
   if (module == INTERNAL_MODULE) {
 
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
@@ -244,6 +245,7 @@ static void* crossfireInit(uint8_t module)
                                   ETX_MOD_DIR_TX_RX, &params);
     mod_st->user_data = (void*)&intmodulePulsesData.crossfire;
   }
+#endif
 
   if (module == EXTERNAL_MODULE) {
 
@@ -268,9 +270,11 @@ static void crossfireDeInit(void* ctx)
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
 
+#if defined(INTERNAL_MODULE_CRSF)
   if (module == INTERNAL_MODULE) {
     INTERNAL_MODULE_OFF();
   }
+#endif
 
   if (module == EXTERNAL_MODULE) {
     EXTERNAL_MODULE_OFF();
