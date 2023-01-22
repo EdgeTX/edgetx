@@ -362,6 +362,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Częstotl."
 #define TR_SWITCH              "Przełą"
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
 #define TR_FADEIN              "Pojawia"
 #define TR_FADEOUT             "Zanik   "

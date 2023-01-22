@@ -360,6 +360,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "频率"
 #define TR_SWITCH                      "开关"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微调"
 #define TR_FADEIN                      "渐入"
 #define TR_FADEOUT                     "渐出"

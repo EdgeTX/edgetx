@@ -52,6 +52,8 @@ class SpecialFunctionEditPage : public Page
   uint8_t index;
   FormWindow *specialFunctionOneWindow = nullptr;
   StaticText *headerSF = nullptr;
+  StaticText *sfSwitchText = nullptr;
+
   bool active = false;
 
   bool isActive() const
@@ -113,6 +115,8 @@ class SpecialFunctionEditPage : public Page
 
     CustomFunctionData *cfn = &functions[index];
     uint8_t func = CFN_FUNC(cfn);
+
+    sfSwitchText->setText(STR_SWITCH);
 
     // Func param
     switch (func) {
@@ -236,18 +240,28 @@ class SpecialFunctionEditPage : public Page
       case FUNC_LOGS: {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         auto edit = addNumberEdit(line, STR_VALUE, cfn, 0, 255);
 =======
         new StaticText(line, rect_t{}, STR_PERIOD, 0, COLOR_THEME_PRIMARY1);
 =======
+=======
+        sfSwitchText->setText(STR_SF_SWITCH);             // change Switch to Trigger
+
+>>>>>>> cd1d73fa0 (implemented TR_SF_SWITCH and logic to change between TR_SWITCH and TR_SF_SWITCH)
         new StaticText(line, rect_t{}, STR_INTERVAL, 0, COLOR_THEME_PRIMARY1);
 >>>>>>> 2c1f25410 (changed Period to Interval)
 
+        CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;          // set default value
         auto edit = new NumberEdit(line, rect_t{}, 
                                    SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX,
                                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
+<<<<<<< HEAD
         edit->setDefault(SD_LOGS_PERIOD_DEFAULT);   // set default period for DEF button
 >>>>>>> 6412bdf78 (fixes https://github.com/EdgeTX/edgetx/issues/2965)
+=======
+        edit->setDefault(SD_LOGS_PERIOD_DEFAULT);         // set default period for DEF button
+>>>>>>> cd1d73fa0 (implemented TR_SF_SWITCH and logic to change between TR_SWITCH and TR_SF_SWITCH)
         edit->setDisplayHandler(
             [=](int32_t value) {
               return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
@@ -373,7 +387,7 @@ class SpecialFunctionEditPage : public Page
 
     // Switch
     auto line = window->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
+    sfSwitchText = new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
                          GET_SET_DEFAULT(CFN_SWITCH(cfn)));
@@ -405,11 +419,6 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
-
-      if(CFN_FUNC(cfn) == FUNC_LOGS) {              // set default period for newly created SF
-        CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;                     
-      }
-
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });

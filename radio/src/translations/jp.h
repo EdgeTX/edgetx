@@ -360,6 +360,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "周波数"
 #define TR_SWITCH                      "スイッチ"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"
 #define TR_FADEOUT                     "フェードアウト"

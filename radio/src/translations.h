@@ -280,6 +280,7 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
+extern const char STR_SF_SWITCH[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
 extern const char STR_FADEIN[];

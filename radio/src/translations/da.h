@@ -364,6 +364,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Frekvens"
 #define TR_SWITCH                      "Kontakt"
+#define TR_SF_SWITCH                   "Udløser"
 #define TR_TRIMS                       "Trim"
 #define TR_FADEIN                      "Tone ind"
 #define TR_FADEOUT                     "Tone ud"

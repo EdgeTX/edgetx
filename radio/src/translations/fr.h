@@ -383,6 +383,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Fréquence"
 #define TR_SWITCH                      TR("Inter", "Interrupteur")
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Fondu ON"
 #define TR_FADEOUT                     "Fondu OFF"

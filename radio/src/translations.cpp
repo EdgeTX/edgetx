@@ -153,6 +153,7 @@ const char STR_PPMFRAME[] = TR_PPMFRAME;
 const char STR_REFRESHRATE[] = TR_REFRESHRATE;
 const char STR_MS[] = TR_MS;
 const char STR_SWITCH[] = TR_SWITCH;
+const char STR_SF_SWITCH[] = TR_SF_SWITCH;
 const char STR_TRIMS[] = TR_TRIMS;
 const char STR_MIRROR[]  = TR_MIRROR;
 const char STR_FADEIN[] = TR_FADEIN;

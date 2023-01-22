@@ -381,6 +381,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Frekvence"
 #define TR_SWITCH                      "Spínač"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimy"
 #define TR_FADEIN                      "Přechod Zap"
 #define TR_FADEOUT                     "Přechod Vyp"

@@ -365,6 +365,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Frequency"
 #define TR_SWITCH              "Chave"
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Aparecer"
 #define TR_FADEOUT             "Ocultar"

@@ -391,6 +391,7 @@
 #define TR_MS                           "ms"
 #define TR_FREQUENCY                    INDENT "Frekvens"
 #define TR_SWITCH                       "Brytare"
+#define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"

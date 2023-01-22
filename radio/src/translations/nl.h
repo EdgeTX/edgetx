@@ -364,6 +364,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequency"
 #define TR_SWITCH              TR("Schak.", "Schakelaar")
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Fade in"
 #define TR_FADEOUT             "Fade out"
