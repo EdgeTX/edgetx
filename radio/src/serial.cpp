@@ -45,6 +45,10 @@
   #include "extmodule_serial_driver.h"
 #endif
 
+#if defined(DEBUG_SEGGER_RTT)
+  #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
+#endif
+
 #define PRINTF_BUFFER_SIZE    128
 
 static void (*dbg_serial_putc)(void*, uint8_t) = nullptr;
@@ -67,6 +71,33 @@ void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
   dbg_serial_putc = cb;
 }
 
+#if defined(DEBUG_SEGGER_RTT)
+
+extern "C" void dbgSerialPutc(char c)
+{
+  SEGGER_RTT_Write(0, (const void *)&c, 1);
+}
+
+extern "C" void dbgSerialPrintf(const char * format, ...)
+{
+  va_list arglist;
+  char tmp[PRINTF_BUFFER_SIZE+1];
+
+  // no need to do anything if we don't have an output
+  if (!dbg_serial_putc) return;
+
+  va_start(arglist, format);
+  vsnprintf(tmp, PRINTF_BUFFER_SIZE, format, arglist);
+  tmp[PRINTF_BUFFER_SIZE] = '\0';
+  va_end(arglist);
+
+  const char *t = tmp;
+  while (*t && dbg_serial_putc) {
+    SEGGER_RTT_Write(0, (const void *)t++, 1);
+  }
+}
+#else
+
 extern "C" void dbgSerialPutc(char c)
 {
   auto _putc = dbg_serial_putc;
@@ -81,7 +112,7 @@ extern "C" void dbgSerialPrintf(const char * format, ...)
 
   // no need to do anything if we don't have an output
   if (!dbg_serial_putc) return;
-  
+
   va_start(arglist, format);
   vsnprintf(tmp, PRINTF_BUFFER_SIZE, format, arglist);
   tmp[PRINTF_BUFFER_SIZE] = '\0';
@@ -92,6 +123,7 @@ extern "C" void dbgSerialPrintf(const char * format, ...)
     dbg_serial_putc(dbg_serial_ctx, *t++);
   }
 }
+#endif
 
 extern "C" void dbgSerialCrlf()
 {
@@ -157,7 +189,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       getByte = drv->getByte;
       setRxCb = drv->setReceiveCb;
     }
-  }  
+  }
 
   // prevent compiler warnings
   (void)sendByte;
@@ -228,7 +260,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     extmoduleSetSerialPort(drv);
     break;
 #endif
-    
+
 #endif
   }
 }
@@ -392,7 +424,7 @@ void serialInit(uint8_t port_nr, int mode)
 void initSerialPorts()
 {
   memset(serialPortStates, 0, sizeof(serialPortStates));
-  
+
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
