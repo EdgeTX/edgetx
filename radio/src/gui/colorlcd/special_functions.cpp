@@ -53,7 +53,6 @@ class SpecialFunctionEditPage : public Page
   FormWindow *specialFunctionOneWindow = nullptr;
   StaticText *headerSF = nullptr;
   StaticText *sfSwitchText = nullptr;
-
   bool active = false;
 
   bool isActive() const
@@ -238,30 +237,12 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_LOGS: {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        auto edit = addNumberEdit(line, STR_VALUE, cfn, 0, 255);
-=======
-        new StaticText(line, rect_t{}, STR_PERIOD, 0, COLOR_THEME_PRIMARY1);
-=======
-=======
         sfSwitchText->setText(STR_SF_SWITCH);             // change Switch to Trigger
 
->>>>>>> cd1d73fa0 (implemented TR_SF_SWITCH and logic to change between TR_SWITCH and TR_SF_SWITCH)
-        new StaticText(line, rect_t{}, STR_INTERVAL, 0, COLOR_THEME_PRIMARY1);
->>>>>>> 2c1f25410 (changed Period to Interval)
-
         CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;          // set default value
-        auto edit = new NumberEdit(line, rect_t{}, 
-                                   SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX,
-                                   GET_SET_DEFAULT(CFN_PARAM(cfn)));
-<<<<<<< HEAD
-        edit->setDefault(SD_LOGS_PERIOD_DEFAULT);   // set default period for DEF button
->>>>>>> 6412bdf78 (fixes https://github.com/EdgeTX/edgetx/issues/2965)
-=======
+
+        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX);
         edit->setDefault(SD_LOGS_PERIOD_DEFAULT);         // set default period for DEF button
->>>>>>> cd1d73fa0 (implemented TR_SF_SWITCH and logic to change between TR_SWITCH and TR_SF_SWITCH)
         edit->setDisplayHandler(
             [=](int32_t value) {
               return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
@@ -637,15 +618,7 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_LOGS:
-<<<<<<< HEAD
         strcat(s, formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s").c_str());
-=======
-        dc->drawNumber(col3, line1, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1 | PREC1, 0, nullptr, "s");
-        break;
-
-      case FUNC_SET_SCREEN:
-        dc->drawNumber(col2, line2, CFN_PARAM(cfn), COLOR_THEME_SECONDARY1);
->>>>>>> 613b93f20 (fixed problem with too many leading zeros for intervals less than 1s.)
         break;
 
       case FUNC_ADJUST_GVAR:
