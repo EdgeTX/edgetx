@@ -238,7 +238,8 @@ PACK(struct TimerData {
   uint32_t persistent:2;
   int32_t  countdownStart:2;
   uint8_t  showElapsed:1; 
-  uint8_t  spare:7 SKIP;
+  uint8_t  extraHaptic:1;
+  uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
 });
 

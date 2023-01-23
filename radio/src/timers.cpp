@@ -166,9 +166,9 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
             if (g_model.timers[i].countdownBeep && g_model.timers[i].start) {
               AUDIO_TIMER_COUNTDOWN(i, newTimerVal);
             }
-            if (g_model.timers[i].minuteBeep && (newTimerVal % 60) == 0) {
-              tmrval_t announceVal = newTimerVal;
-              if (showElapsed) announceVal = timerStart - newTimerVal;
+            tmrval_t announceVal = newTimerVal;
+            if (showElapsed) announceVal = timerStart - newTimerVal;
+            if (g_model.timers[i].minuteBeep && (announceVal % 60) == 0) {
               AUDIO_TIMER_MINUTE(announceVal);
               // TRACE("Timer[%d] %d minute announcement", i, newTimerVal/60);
             }

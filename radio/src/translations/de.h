@@ -68,7 +68,7 @@
 #define TR_MULTI_CUSTOM                "Benutzer"
 #define TR_VTRIMINC                    TR("Expo","Exponentiell"),TR("ExFein","Extrafein"),"Fein","Mittel","Grob"
 #define TR_VDISPLAYTRIMS               "Nein","Kurz","Ja"  // Trimmwerte Keine, kurze Anzeigen, Ja
-#define TR_VBEEPCOUNTDOWN              "Kein","Pieps","Stimme","Haptik"
+#define TR_VBEEPCOUNTDOWN              "Kein", "Pieps", "Stimme", "Haptik", TR2_2("P & H","Pieps & Haptik"), TR2_2("St & H","Stimme & Haptik")
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Ton","Ruhe"
 #define TR_CURVE_TYPES                 "Nur Y","X und Y" // "Standard","Custom"

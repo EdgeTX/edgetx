@@ -70,7 +70,7 @@
 #define TR_MULTI_CUSTOM                "Tilpasset"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Ekstra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS               "Nej","Ændre","Ja"
-#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Vibration"
+#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Vibration",TR2_2("B & V","Bips & Vibration"),TR2_2("St & Vib","Stemme & Vibration")
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"

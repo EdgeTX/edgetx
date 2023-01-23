@@ -64,7 +64,7 @@
 #define TR_MULTI_CUSTOM                "自定義"
 #define TR_VTRIMINC                     "指數","很小","較小","中等","較大"
 #define TR_VDISPLAYTRIMS                "不顯示","改變時","始終顯示"
-#define TR_VBEEPCOUNTDOWN               "靜音","蜂鳴","語音","震動"
+#define TR_VBEEPCOUNTDOWN               "靜音","蜂鳴","語音","震動","Beeps & Haptic","Voice & Haptic"
 #define TR_COUNTDOWNVALUES              "5秒","10秒","20秒","30秒"
 #define TR_VVARIOCENTER                 "音調","靜音"
 #define TR_CURVE_TYPES                  "標準","自定義"

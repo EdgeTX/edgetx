@@ -294,6 +294,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
     lua_pushtableinteger(L, "switch", timer.swtch);
     lua_pushtableinteger(L, "countdownStart", timer.countdownStart);
+    lua_pushtableinteger(L, "extraHaptic", timer.extraHaptic);
   }
   else {
     lua_pushnil(L);
@@ -349,12 +350,15 @@ static int luaModelSetTimer(lua_State *L)
       }
       else if (!strcmp(key, "showElapsed")) {
         timer.showElapsed = lua_toboolean(L, -1);
-      }
+      } 
       else if (!strcmp(key, "switch")) {
         timer.swtch = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "countdownStart")) {
         timer.countdownStart = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "extraHaptic")) {
+        timer.extraHaptic = lua_tointeger(L, -1);
       }
     }
     storageDirty(EE_MODEL);

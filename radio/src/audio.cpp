@@ -996,32 +996,36 @@ void audioTrimPress(int value)
 void audioTimerCountdown(uint8_t timer, int value)
 {
   if (g_model.timers[timer].countdownBeep == COUNTDOWN_VOICE) {
+    int announceValue = value;
+    if (g_model.timers[timer].showElapsed) {
+      announceValue = g_model.timers[timer].start - value;
+    }
     if (value >= 0 && value <= TIMER_COUNTDOWN_START(timer)) {
-      playNumber(value, 0, 0, 0);
+      if (announceValue > 60 && !(announceValue % 2) && (announceValue % 30) &&
+          (announceValue % 30))
+        playNumber(announceValue / 60, 0, 0, 0);
+      if (announceValue < 60 ||
+          (announceValue > 60 && !(announceValue % 2) && (announceValue % 60)))
+        playNumber(announceValue % 60, 0, 0, 0);
+    } else if ((!(announceValue % 30) || !(announceValue % 20)) && value < 31) {
+      playDuration(announceValue, 0, 0);
     }
-    else if (value == 30 || value == 20) {
-      playDuration(value, 0, 0);
-    }
-  }
-  else if (g_model.timers[timer].countdownBeep == COUNTDOWN_BEEPS) {
+  } else if (g_model.timers[timer].countdownBeep == COUNTDOWN_BEEPS) {
     if (value == 0) {
       audioQueue.playTone(BEEP_DEFAULT_FREQ + 150, 300, 20, PLAY_NOW);
-    }
-    else if (value > 0 && value <= TIMER_COUNTDOWN_START(timer)) {
+    } else if (value > 0 && value <= TIMER_COUNTDOWN_START(timer)) {
       audioQueue.playTone(BEEP_DEFAULT_FREQ + 150, 100, 20, PLAY_NOW);
-    }
-    else if (value == 30) {
+    } else if (value == 30) {
       audioQueue.playTone(BEEP_DEFAULT_FREQ + 150, 120, 20, PLAY_REPEAT(2));
-    }
-    else if (value == 20) {
+    } else if (value == 20) {
       audioQueue.playTone(BEEP_DEFAULT_FREQ + 150, 120, 20, PLAY_REPEAT(1));
-    }
-    else if (value == 10) {
+    } else if (value == 10) {
       audioQueue.playTone(BEEP_DEFAULT_FREQ + 150, 120, 20, PLAY_NOW);
     }
   }
 #if defined(HAPTIC)
-  else if (g_model.timers[timer].countdownBeep == COUNTDOWN_HAPTIC) {
+  if ( (g_model.timers[timer].countdownBeep == COUNTDOWN_HAPTIC) ||
+       (g_model.timers[timer].extraHaptic) ) {
     if (value == 0) {
       haptic.play(15, 3, PLAY_NOW);
     }

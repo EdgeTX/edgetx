@@ -499,7 +499,8 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_UNSIGNED( "persistent", 2 ),
   YAML_SIGNED( "countdownStart", 2 ),
   YAML_UNSIGNED( "showElapsed", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "extraHaptic", 1 ),
+  YAML_PADDING( 6 ),
   YAML_STRING("name", 8),
   YAML_END
 };

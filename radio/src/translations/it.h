@@ -67,7 +67,7 @@
 #define TR_MULTI_CUSTOM        "Person."
 #define TR_VTRIMINC            "Exp","ExFine","Fine","Medio","Ampio "
 #define TR_VDISPLAYTRIMS       "No","Cambio","Si"
-#define TR_VBEEPCOUNTDOWN      "Niente","Suoni","Voce","Vibra"
+#define TR_VBEEPCOUNTDOWN      "Niente", "Suoni", "Voce", "Vibra", TR2_2("S & V","Suoni & Vibra"),TR2_2("V & V","Voce & Vibra")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tono","Silenz."
 #define TR_CURVE_TYPES         "Fisso","Modific."

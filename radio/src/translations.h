@@ -97,6 +97,12 @@
 
 #define TR(x, y) TR2(x, y) // for compatibility
 
+#if LCD_W <= 212 && !defined(COLORLCD)
+  #define TR2_2(x, y) x
+#else
+  #define TR2_2(x, y) TR2(x, y)
+#endif
+
 #if defined(COLORLCD)
   #define BUTTON(x) x
   #define INDENT
