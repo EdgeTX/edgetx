@@ -360,6 +360,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "頻率"
 #define TR_SWITCH                      "開關"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微調"
 #define TR_FADEIN                      "漸入"
 #define TR_FADEOUT                     "漸出"
@@ -947,6 +948,8 @@
 #define TR_TELEMETRY_TYPE              TR("類型", "回傳類型")
 #define TR_TELEMETRY_SENSORS           "傳感器"
 #define TR_VALUE                       "數值"
+#define TR_PERIOD                      "Period"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "循環"
 #define TR_ENABLE                      "啟用"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
@@ -1037,13 +1040,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM中點"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "微調模式"
 #define TR_INVERTED                    "反向"
-
-#define TR_LSW_HEADERS_FUNCTION        "功能"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "與開關"
-#define TR_LSW_HEADERS_DURATION        "持續時間"
-#define TR_LSW_HEADERS_DELAY           "延時"
 
 #define TR_GVAR_HEADERS_NAME           "名稱"
 #define TR_GVAR_HEADERS_FM0            "FM0值"
