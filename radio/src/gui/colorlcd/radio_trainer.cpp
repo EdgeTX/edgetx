@@ -54,6 +54,10 @@ void RadioTrainerPage::build(FormWindow * form)
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   form->setFlexLayout();
   form->padAll(4);
+#if LCD_W > LCD_H
+  form->padLeft(8);
+  form->padRight(8);
+#endif
 
   for (uint8_t i = 0; i < NUM_STICKS; i++) {
     uint8_t chan = channelOrder(i + 1);
