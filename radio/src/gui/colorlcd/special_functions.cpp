@@ -226,7 +226,7 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_PLAY_VALUE:
-        addSourceChoice(line, STR_VOLUME, cfn, MIXSRC_LAST_TELEM);
+        addSourceChoice(line, STR_VALUE, cfn, MIXSRC_LAST_TELEM);
         break;
 
       case FUNC_HAPTIC:
