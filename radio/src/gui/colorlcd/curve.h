@@ -28,10 +28,25 @@ struct CurvePoint {
   LcdFlags flags;
 };
 
+class CurveRenderer
+{
+  public:
+    CurveRenderer(const rect_t & rect, std::function<int(int)> function);
+
+    void paint(BitmapBuffer * dc, uint8_t ofst = 0);
+
+  protected:
+    // Drawing rectangle position & size
+    uint8_t dx, dy, dw, dh;
+    rect_t rect;
+    std::function<int(int)> function;
+    void drawBackground(BitmapBuffer * dc);
+    void drawCurve(BitmapBuffer * dc);
+    coord_t getPointY(int y) const;
+};
+
 class Curve: public Window
 {
-  friend class CurveEdit;
-
   public:
     Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr);
 
@@ -51,6 +66,7 @@ class Curve: public Window
     void paint(BitmapBuffer * dc) override;
 
   protected:
+    CurveRenderer base;
     // Drawing rectangle position & size
     uint8_t dx, dy, dw, dh;
     int lastPos = 0;

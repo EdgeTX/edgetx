@@ -205,14 +205,7 @@ void CurveEdit::updatePreview()
   preview.clearPoints();
   CurveHeader & curve = g_model.curves[index];
   for (uint8_t i = 0; i < 5 + curve.points; i++) {
-    if (hasFocus() && current == i) {
-      preview.position = [=] () -> int {
-        return getPoint(index, i).x;
-      };
-    }
-    else {
-      preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
-    }
+    preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
   }
   invalidate();
 }
@@ -249,7 +242,8 @@ void CurveEdit::updatePreview()
 
 void CurveEdit::next()
 {
-  if (current++ == preview.points.size()) {
+  CurveHeader & curve = g_model.curves[index];
+  if (current++ == 5 + curve.points - 1) {
     current = 0;
   }
   updatePreview();
@@ -257,8 +251,9 @@ void CurveEdit::next()
 
 void CurveEdit::previous()
 {
+  CurveHeader & curve = g_model.curves[index];
   if (current-- == 0) {
-    current = preview.points.size();
+    current = 5 + curve.points - 1;
   }
   updatePreview();
 }

@@ -29,15 +29,14 @@ class ModelCurvesPage: public PageTab {
     ModelCurvesPage();
     static void pushEditCurve(int index);
 
-    virtual void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+    virtual void build(FormWindow * window) override;
 
   protected:
-    void build(FormWindow * window, int8_t focusIndex);
-    void rebuild(FormWindow * window, int8_t focusIndex);
+    uint8_t focusIndex = -1;
+
+    void rebuild(FormWindow * window);
     void editCurve(FormWindow * window, uint8_t curve);
+    void presetMenu(FormWindow * window, uint8_t index);
 };
 
 #endif // _MODEL_CURVES_H_
