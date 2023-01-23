@@ -111,3 +111,10 @@ void setupPulsesPPMExternalModule()
 {
   setupPulsesPPMModule(EXTERNAL_MODULE);
 }
+
+// extmoduleSendNextFramePpm(extmodulePulsesData.ppm.pulses,
+//                           extmodulePulsesData.ppm.ptr -
+//                               extmodulePulsesData.ppm.pulses,
+//                           GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
+//                           GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
+// mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));

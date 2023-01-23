@@ -27,7 +27,7 @@
 extern const etx_module_port_t _module_ports[];
 extern const uint8_t _n_module_ports;
 
-static etx_module_state_t _module_states[NUM_MODULES];
+static etx_module_state_t _module_states[MAX_MODULES];
 
 // extmoduleGetSerialPort
 #include "extmodule_serial_driver.h"

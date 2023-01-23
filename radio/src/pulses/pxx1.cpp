@@ -328,7 +328,7 @@ static void pxx1DeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void pxx1SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void pxx1SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -339,20 +339,41 @@ static void pxx1SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
 #if defined(INTERNAL_MODULE_PXX1)
   if (module == INTERNAL_MODULE) {
+    auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
 #if defined(INTMODULE_USART)
     intmodulePulsesData.pxx_uart.setupFrame(module);
+
+    auto drv = modulePortGetSerialDrv(mod_st->tx);
+    drv->sendBuffer(drv_ctx, intmodulePulsesData.pxx_uart.getData(),
+                    intmodulePulsesData.pxx_uart.getSize());
 #else
     intmodulePulsesData.pxx.setupFrame(module);
+
+    auto drv = modulePortGetTimerDrv(mod_st->tx);
+    drv->send(drv_ctx, &pxx1TimerCfg,
+              intmodulePulsesData.pxx.getData(),
+              intmodulePulsesData.pxx.getSize());
 #endif
     return;
   }
 #endif
 
   if (module == EXTERNAL_MODULE) {
+    auto drv_ctx = modulePortGetCtx(mod_st->tx);
     if (modulePortGetType(mod_st->tx) == ETX_MOD_TYPE_SERIAL) {
       extmodulePulsesData.pxx_uart.setupFrame(module);
+
+      auto drv = modulePortGetSerialDrv(mod_st->tx);
+      drv->sendBuffer(drv_ctx, extmodulePulsesData.pxx_uart.getData(),
+                      extmodulePulsesData.pxx_uart.getSize());
     } else {
       extmodulePulsesData.pxx.setupFrame(module);
+
+      auto drv = modulePortGetTimerDrv(mod_st->tx);
+      drv->send(drv_ctx, &pxx1TimerCfg,
+                extmodulePulsesData.pxx.getData(),
+                extmodulePulsesData.pxx.getSize());
     }
   }
 }
@@ -377,48 +398,10 @@ static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
   processFrskyTelemetryData(data);
 }
 
-static void pxx1SendPulses(void* ctx)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-#if defined(INTERNAL_MODULE_PXX1)
-  if (module == INTERNAL_MODULE) {
-    auto drv_ctx = modulePortGetCtx(mod_st->tx);
-#if defined(INTMODULE_USART)
-    auto drv = modulePortGetSerialDrv(mod_st->tx);
-    drv->sendBuffer(drv_ctx, intmodulePulsesData.pxx_uart.getData(),
-                    intmodulePulsesData.pxx_uart.getSize());
-#else
-    auto drv = modulePortGetTimerDrv(mod_st->tx);
-    drv->send(drv_ctx, &pxx1TimerCfg,
-              intmodulePulsesData.pxx.getData(),
-              intmodulePulsesData.pxx.getSize());
-#endif
-    return;
-  }
-#endif
-
-  if (module == EXTERNAL_MODULE) {
-    auto drv_ctx = modulePortGetCtx(mod_st->tx);
-    if (modulePortGetType(mod_st->tx) == ETX_MOD_TYPE_SERIAL) {
-      auto drv = modulePortGetSerialDrv(mod_st->tx);
-      drv->sendBuffer(drv_ctx, extmodulePulsesData.pxx_uart.getData(),
-                      extmodulePulsesData.pxx_uart.getSize());
-    } else {
-      auto drv = modulePortGetTimerDrv(mod_st->tx);
-      drv->send(drv_ctx, &pxx1TimerCfg,
-                extmodulePulsesData.pxx.getData(),
-                extmodulePulsesData.pxx.getSize());
-    }
-  }
-}
-
 const etx_proto_driver_t Pxx1Driver = {
   .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
   .init = pxx1Init,
   .deinit = pxx1DeInit,
-  .setupPulses = pxx1SetupPulses,
   .sendPulses = pxx1SendPulses,
   .getByte = pxx1GetByte,
   .processData = pxx1ProcessData,

@@ -58,19 +58,11 @@ bool isForcePowerOffRequested()
 
 void sendSynchronousPulses(uint8_t runMask)
 {
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (runMask & (1 << INTERNAL_MODULE)) {
-    if (setupPulsesInternalModule())
-      intmoduleSendNextFrame();
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    if (runMask & (1 << i)) {
+      pulsesSendNextFrame(i);
+    }
   }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (runMask & (1 << EXTERNAL_MODULE)) {
-    if (setupPulsesExternalModule())
-      extmoduleSendNextFrame();
-  }
-#endif
 }
 
 constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;

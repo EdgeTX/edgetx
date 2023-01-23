@@ -117,22 +117,16 @@ static bool _checkFrameCRC(uint8_t* rxBuffer)
   return (crc == rxBuffer[len+1]);
 }
 
-static void crossfireSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void crossfireSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-
-  uint8_t module = modulePortGetModule(mod_st);
+  auto module = modulePortGetModule(mod_st);
   crossfireSetupMixerScheduler(module);
 
   auto data = (CrossfirePulsesData*)mod_st->user_data;
   uint8_t endpoint = (module == EXTERNAL_MODULE) ? TELEMETRY_ENDPOINT_SPORT : 0;
   setupPulsesCrossfire(module, data, endpoint, channels, nChannels);
-}
 
-static void crossfireSendPulses(void* ctx)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto data = (CrossfirePulsesData*)mod_st->user_data;
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
   drv->sendBuffer(drv_ctx, data->pulses, data->length);
@@ -288,7 +282,6 @@ const etx_proto_driver_t CrossfireDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
   .init = crossfireInit,
   .deinit = crossfireDeInit,
-  .setupPulses = crossfireSetupPulses,
   .sendPulses = crossfireSendPulses,
   .getByte = crossfireGetByte,
   .processData = crossfireProcessData,

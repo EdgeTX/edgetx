@@ -136,6 +136,7 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
+// TODO: remove this
 #if defined(PCBFRSKY) || defined(PCBNV14)
   #define NUM_MODULES                  2
 #else
@@ -181,9 +182,13 @@ enum BeeperMode {
 };
 
 enum ModuleIndex {
+#if defined(HARDWARE_INTERNAL_MODULE)
   INTERNAL_MODULE,
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
   EXTERNAL_MODULE,
-  SPORT_MODULE
+#endif
+  MAX_MODULES,
 };
 
 enum TrainerMode {

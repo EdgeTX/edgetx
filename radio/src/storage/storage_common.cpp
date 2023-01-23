@@ -61,13 +61,10 @@ void preModelLoad()
   }
   pauseMixerCalculations();
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  stopPulsesInternalModule();
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  stopPulsesExternalModule();
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    pulsesStopModule(i);
+  }
   RTOS_WAIT_MS(200);
-#endif
 
   stopTrainer();
 

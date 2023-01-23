@@ -192,9 +192,9 @@ union ExternalModulePulsesData {
   Pxx2Pulses pxx2;
 #endif
 
-#if defined(DSM2) || defined(SBUS)
-  Dsm2PulsesData dsm2;
-#endif
+// #if defined(DSM2) || defined(SBUS)
+//   Dsm2PulsesData dsm2;
+// #endif
 
 #if defined(MULTIMODULE)
   UartMultiPulses multi;
@@ -231,45 +231,57 @@ union TrainerPulsesData {
 
 extern TrainerPulsesData trainerPulsesData;
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-bool setupPulsesInternalModule();
-void stopPulsesInternalModule();
-void intmoduleSendNextFrame();
-const etx_proto_driver_t* getIntModuleDriver();
-void* getIntModuleCtx();
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-bool setupPulsesExternalModule();
-void stopPulsesExternalModule();
-void extmoduleSendNextFrame();
-const etx_proto_driver_t* getExtModuleDriver();
-void* getExtModuleCtx();
-#endif
+struct module_pulse_driver {
+  const etx_proto_driver_t* drv;
+  void* ctx;
+};
+
+module_pulse_driver* pulsesGetModuleDriver(uint8_t module);
+
+// void pulsesEnableModule(uint8_t module, uint8_t protocol);
+void pulsesStopModule(uint8_t module);
+void pulsesSendNextFrame(uint8_t module);
+
+// #if defined(HARDWARE_INTERNAL_MODULE)
+// bool setupPulsesInternalModule();
+// void stopPulsesInternalModule();
+// void intmoduleSendNextFrame();
+// const etx_proto_driver_t* getIntModuleDriver();
+// void* getIntModuleCtx();
+// #endif
+// #if defined(HARDWARE_EXTERNAL_MODULE)
+// bool setupPulsesExternalModule();
+// void stopPulsesExternalModule();
+// void extmoduleSendNextFrame();
+// const etx_proto_driver_t* getExtModuleDriver();
+// void* getExtModuleCtx();
+// #endif
+
 void restartModule(uint8_t idx);
-void setupPulsesDSM2();
-void setupPulsesLemonDSMP();
-void setupPulsesCrossfire(uint8_t idx);
-void setupPulsesGhost();
-void setupPulsesMultiExternalModule();
-void setupPulsesSbus();
-void setupPulsesPPMInternalModule();
-void setupPulsesPPMExternalModule();
+// void setupPulsesDSM2();
+// void setupPulsesLemonDSMP();
+// void setupPulsesCrossfire(uint8_t idx);
+// void setupPulsesGhost();
+// void setupPulsesMultiExternalModule();
+// void setupPulsesSbus();
+// void setupPulsesPPMInternalModule();
+// void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-void putDsm2Flush();
-void sendByteSbus(uint8_t b);
-void intmodulePpmStart();
-void intmodulePxx1PulsesStart();
-void intmodulePxx1SerialStart();
-void extmodulePxx1PulsesStart();
-void extmodulePpmStart();
-void intmoduleStop();
-void extmoduleStop();
+// void putDsm2Flush();
+// void sendByteSbus(uint8_t b);
+// void intmodulePpmStart();
+// void intmodulePxx1PulsesStart();
+// void intmodulePxx1SerialStart();
+// void extmodulePxx1PulsesStart();
+// void extmodulePpmStart();
+// void intmoduleStop();
+// void extmoduleStop();
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 #if defined(AFHDS3)
 uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
-void extramodulePpmStart();
+// void extramodulePpmStart();
 
 void startPulses();
 void stopPulses();

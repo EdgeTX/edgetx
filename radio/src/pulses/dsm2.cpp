@@ -75,8 +75,8 @@ static void setupPulsesDSM2(UartMultiPulses* uart)
   }
 }
 
-#define DSMP_BITRATE 115200
 
+#define DSMP_BITRATE 115200
 
 static void setupPulsesLemonDSMP(UartMultiPulses* uart)
 {
@@ -216,7 +216,14 @@ static void dsmDeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void dsm2SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void _dsm_send(etx_module_state_t* st, UartMultiPulses* pulses)
+{
+  auto drv = modulePortGetSerialDrv(st->tx);
+  auto ctx = modulePortGetCtx(st->tx);
+  drv->sendBuffer(ctx, pulses->getData(), pulses->getSize());
+}
+
+static void dsm2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -224,12 +231,14 @@ static void dsm2SetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto pulses = (UartMultiPulses*)mod_st->user_data;
-  pulses->initFrame();
 
+  pulses->initFrame();
   setupPulsesDSM2(pulses);
+
+  _dsm_send(mod_st, pulses);
 }
 
-static void dsmpSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void dsmpSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -237,19 +246,11 @@ static void dsmpSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto pulses = (UartMultiPulses*)mod_st->user_data;
+
   pulses->initFrame();
-
   setupPulsesLemonDSMP(pulses);
-}
 
-static void dsmSendPulses(void* ctx)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto drv = mod_st->tx.port->drv.serial;
-  auto drv_ctx = mod_st->tx.ctx;
-
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
-  drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
+  _dsm_send(mod_st, pulses);
 }
 
 // TODO: check telemetry init...
@@ -257,8 +258,7 @@ const etx_proto_driver_t DSM2Driver = {
   .protocol = PROTOCOL_CHANNELS_DSM2_LP45,
   .init = dsm2Init,
   .deinit = dsmDeInit,
-  .setupPulses = dsm2SetupPulses,
-  .sendPulses = dsmSendPulses,
+  .sendPulses = dsm2SendPulses,
   .getByte = nullptr,
   .processData = nullptr,
 };
@@ -268,8 +268,7 @@ const etx_proto_driver_t DSMPDriver = {
   .protocol = PROTOCOL_CHANNELS_DSMP,
   .init = dsmpInit,
   .deinit = dsmDeInit,
-  .setupPulses = dsmpSetupPulses,
-  .sendPulses = dsmSendPulses,
+  .sendPulses = dsmpSendPulses,
   .getByte = nullptr,
   .processData = nullptr,
 };

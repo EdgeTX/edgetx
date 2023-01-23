@@ -278,7 +278,7 @@ static void multiDeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void multiSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void multiSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -291,15 +291,9 @@ static void multiSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   pulses->initFrame();
 
   setupPulsesMulti(module);
-}
 
-static void multiSendPulses(void* ctx)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto drv = mod_st->tx.port->drv.serial;
-  auto drv_ctx = mod_st->tx.ctx;
-
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
   drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
 }
 
@@ -326,7 +320,6 @@ const etx_proto_driver_t MultiDriver = {
   .protocol = PROTOCOL_CHANNELS_MULTIMODULE,
   .init = multiInit,
   .deinit = multiDeInit,
-  .setupPulses = multiSetupPulses,
   .sendPulses = multiSendPulses,
   .getByte = multiGetByte,
   .processData = multiProcessData,

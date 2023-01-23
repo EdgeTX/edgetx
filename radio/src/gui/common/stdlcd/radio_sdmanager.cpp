@@ -226,11 +226,12 @@ void onSdManagerMenu(const char * result)
     FrskyDeviceFirmwareUpdate device(EXTERNAL_MODULE);
     device.flashFirmware(lfn, drawProgressScreen);
   }
-  else if (result == STR_FLASH_EXTERNAL_DEVICE) {
-    getSelectionFullPath(lfn);
-    FrskyDeviceFirmwareUpdate device(SPORT_MODULE);
-    device.flashFirmware(lfn, drawProgressScreen);
-  }
+  // TODO: use another module enum as 'ModuleIndex'
+  // else if (result == STR_FLASH_EXTERNAL_DEVICE) {
+  //   getSelectionFullPath(lfn);
+  //   FrskyDeviceFirmwareUpdate device(SPORT_MODULE);
+  //   device.flashFirmware(lfn, drawProgressScreen);
+  // }
 #if defined(MULTIMODULE)
 #if defined(INTERNAL_MODULE_MULTI)
   else if (result == STR_FLASH_INTERNAL_MULTI) {

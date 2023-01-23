@@ -120,6 +120,13 @@ uint8_t createGhostChannelsFrame(uint8_t * frame, int16_t * pulses, bool raw12bi
   return buf - frame;
 }
 
+// ModuleSyncStatus& status = getModuleSyncStatus(EXTERNAL_MODULE);
+// if (status.isValid())
+//   mixerSchedulerSetPeriod(EXTERNAL_MODULE, status.getAdjustedRefreshRate());
+//  else
+//    mixerSchedulerSetPeriod(EXTERNAL_MODULE, GHOST_PERIOD);
+// setupPulsesGhost();
+
 void setupPulsesGhost()
 {
   if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {

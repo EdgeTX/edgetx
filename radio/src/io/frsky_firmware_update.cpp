@@ -497,13 +497,9 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
   pauseMixerCalculations();
   pausePulses();
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  stopPulsesInternalModule();
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  stopPulsesExternalModule();
-#endif
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    pulsesStopModule(i);
+  }
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
   uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();
@@ -770,18 +766,20 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
 
   pausePulses();
 
+  // TODO: stop modules...
+
 #if defined(HARDWARE_INTERNAL_MODULE)
-  uint8_t intPwr = IS_INTERNAL_MODULE_ON();
+  // uint8_t intPwr = IS_INTERNAL_MODULE_ON();
   INTERNAL_MODULE_OFF();
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  uint8_t extPwr = IS_EXTERNAL_MODULE_ON();
+  // uint8_t extPwr = IS_EXTERNAL_MODULE_ON();
   EXTERNAL_MODULE_OFF();
 #endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
-  uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();
+  // uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();
   SPORT_UPDATE_POWER_OFF();
 #endif
 
@@ -816,25 +814,29 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
   watchdogSuspend(1000 /*10s*/);
   RTOS_WAIT_MS(2000);
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (intPwr) {
-    INTERNAL_MODULE_ON();
-    setupPulsesInternalModule();
-  }
-#endif
+  // TODO: check, but this should not be needed
+  //       resumePulses() should cause the pulses
+  //       to restart automatically by next cycle
+  //
+// #if defined(HARDWARE_INTERNAL_MODULE)
+//   if (intPwr) {
+//     INTERNAL_MODULE_ON();
+//     setupPulsesInternalModule();
+//   }
+// #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (extPwr) {
-    EXTERNAL_MODULE_ON();
-    setupPulsesExternalModule();
-  }
-#endif
+// #if defined(HARDWARE_EXTERNAL_MODULE)
+//   if (extPwr) {
+//     EXTERNAL_MODULE_ON();
+//     setupPulsesExternalModule();
+//   }
+// #endif
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  if (spuPwr) {
-    SPORT_UPDATE_POWER_ON();
-  }
-#endif
+// #if defined(SPORT_UPDATE_PWR_GPIO)
+//   if (spuPwr) {
+//     SPORT_UPDATE_POWER_ON();
+//   }
+// #endif
 
   resumePulses();
 

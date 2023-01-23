@@ -122,32 +122,24 @@ static void sbusDeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void sbusSetupPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void sbusSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
   (void)nChannels;
 
   auto mod_st = (etx_module_state_t*)ctx;
-
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
-  pulses->initFrame();
-
-  setupPulsesSbus(pulses);
-}
-
-static void sbusSendPulses(void* ctx)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
-
-  auto drv = mod_st->tx.port->drv.serial;
-  auto drv_ctx = mod_st->tx.ctx;
 
   // TODO: set polarity for next packet sent (can be changed from UI)
   // GET_SBUS_POLARITY(EXTERNAL_MODULE)
 
   auto pulses = (UartMultiPulses*)mod_st->user_data;
+  pulses->initFrame();
+  setupPulsesSbus(pulses);
+
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
   drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
 
   // SBUS_PERIOD is not a constant! It can be set from UI
@@ -158,7 +150,6 @@ const etx_proto_driver_t SBusDriver = {
   .protocol = PROTOCOL_CHANNELS_SBUS,
   .init = sbusInit,
   .deinit = sbusDeInit,
-  .setupPulses = sbusSetupPulses,
   .sendPulses = sbusSendPulses,
   .getByte = nullptr,
   .processData = nullptr,

@@ -128,65 +128,65 @@ void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 #endif
 
 // TODO: polarity?
-void extmoduleSerialStart()
-{
-  EXTERNAL_MODULE_ON();
-  stm32_pulse_init(&extmoduleTimer, 0);
-  stm32_pulse_config_output(&extmoduleTimer, true, LL_TIM_OCMODE_TOGGLE, 0);
-}
+// void extmoduleSerialStart()
+// {
+//   EXTERNAL_MODULE_ON();
+//   stm32_pulse_init(&extmoduleTimer, 0);
+//   stm32_pulse_config_output(&extmoduleTimer, true, LL_TIM_OCMODE_TOGGLE, 0);
+// }
 
-void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)
-{
-  if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
-    return;
+// void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)
+// {
+//   if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))
+//     return;
 
-  // Set polarity
-  stm32_pulse_set_polarity(&extmoduleTimer, polarity);
+//   // Set polarity
+//   stm32_pulse_set_polarity(&extmoduleTimer, polarity);
   
-  // Start DMA request and re-enable timer
-  stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
-}
+//   // Start DMA request and re-enable timer
+//   stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
+// }
 
-void extmoduleInitTxPin()
-{
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = extmoduleTimer.GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(extmoduleTimer.GPIOx, &pinInit);
-}
+// void extmoduleInitTxPin()
+// {
+//   LL_GPIO_InitTypeDef pinInit;
+//   LL_GPIO_StructInit(&pinInit);
+//   pinInit.Pin = extmoduleTimer.GPIO_Pin;
+//   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+//   pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//   pinInit.Pull = LL_GPIO_PULL_UP;
+//   LL_GPIO_Init(extmoduleTimer.GPIOx, &pinInit);
+// }
 
-// Delay based byte sending @ 57600 bps
-void extmoduleSendInvertedByte(uint8_t byte)
-{
-  uint16_t time;
-  uint32_t i;
+// // Delay based byte sending @ 57600 bps
+// void extmoduleSendInvertedByte(uint8_t byte)
+// {
+//   uint16_t time;
+//   uint32_t i;
 
-  __disable_irq();
-  time = getTmr2MHz();
-  LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-  while ((uint16_t) (getTmr2MHz() - time) < 34)	{
-    // wait
-  }
-  time += 34;
-  for (i = 0; i < 8; i++) {
-    if (byte & 1) {
-      LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    }
-    else {
-      LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    }
-    byte >>= 1 ;
-    while ((uint16_t) (getTmr2MHz() - time) < 35) {
-      // wait
-    }
-    time += 35 ;
-  }
-  LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-  __enable_irq();	// No need to wait for the stop bit to complete
-  while ((uint16_t) (getTmr2MHz() - time) < 34) {
-    // wait
-  }
-}
+//   __disable_irq();
+//   time = getTmr2MHz();
+//   LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+//   while ((uint16_t) (getTmr2MHz() - time) < 34)	{
+//     // wait
+//   }
+//   time += 34;
+//   for (i = 0; i < 8; i++) {
+//     if (byte & 1) {
+//       LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+//     }
+//     else {
+//       LL_GPIO_SetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+//     }
+//     byte >>= 1 ;
+//     while ((uint16_t) (getTmr2MHz() - time) < 35) {
+//       // wait
+//     }
+//     time += 35 ;
+//   }
+//   LL_GPIO_ResetOutputPin(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+//   __enable_irq();	// No need to wait for the stop bit to complete
+//   while ((uint16_t) (getTmr2MHz() - time) < 34) {
+//     // wait
+//   }
+// }

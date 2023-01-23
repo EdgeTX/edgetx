@@ -150,7 +150,8 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
 
     void init(bool inverted) override
     {
-      extmoduleInitTxPin();
+      // TODO: replace with new SPORT_INV port
+      // extmoduleInitTxPin();
 
       // if (inverted)
       //   telemetryPortInvertedInit(57600);
@@ -167,7 +168,8 @@ class MultiExternalUpdateDriver: public MultiFirmwareUpdateDriver
     void sendByte(uint8_t byte) const override
     {
       // TODO: non-inverted??? seems we don't need it.
-      extmoduleSendInvertedByte(byte);
+      // TODO: replace with new SPORT_INV port
+      // extmoduleSendInvertedByte(byte);
     }
 
     void clear() const override
@@ -690,16 +692,16 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
-  // reset telemetry protocol
-  telemetryInit(255);
+  // // reset telemetry protocol
+  // telemetryInit(255);
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (intPwr) {
 #if defined(MULTI_PROTOLIST)
     MultiRfProtocols::removeInstance(INTERNAL_MODULE);
 #endif
-    INTERNAL_MODULE_ON();
-    setupPulsesInternalModule();
+    // INTERNAL_MODULE_ON();
+    // setupPulsesInternalModule();
   }
 #endif
 
@@ -708,8 +710,8 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 #if defined(MULTI_PROTOLIST)
     MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
 #endif
-    EXTERNAL_MODULE_ON();
-    setupPulsesExternalModule();
+    // EXTERNAL_MODULE_ON();
+    // setupPulsesExternalModule();
   }
 #endif
 
