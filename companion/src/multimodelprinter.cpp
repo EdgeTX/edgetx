@@ -911,7 +911,7 @@ QString MultiModelPrinter::printGlobalFunctions()
   }
 
   if (idx > -1) {
-    ModelPrinter * modelPrinter = modelPrinterMap.value(idx).second; \
+    ModelPrinter * modelPrinter = modelPrinterMap.value(idx).second;
     const GeneralSettings * generalSettings = modelPrinter->gs();
 
     for (int i = 0; i < firmware->getCapability(GlobalFunctions); i++) {
