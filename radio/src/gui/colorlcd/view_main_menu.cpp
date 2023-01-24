@@ -33,9 +33,11 @@
 #include "select_fab_carousel.h"
 #include "view_text.h"
 
-ViewMainMenu::ViewMainMenu(Window* parent) :
+ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     Window(parent->getFullScreenWindow(), rect_t{})
 {
+  this->closeHandler = std::move(closeHandler);
+
   // Save focus
   Layer::push(this);
 
@@ -131,6 +133,7 @@ void ViewMainMenu::paint(BitmapBuffer* dc)
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
+  if (closeHandler) closeHandler();
   Layer::pop(this);
   Window::deleteLater(detach, trash);
 }

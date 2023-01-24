@@ -29,6 +29,7 @@
 
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
+class ViewMainMenu;
 
 class ViewMain: public Window
 {
@@ -89,6 +90,7 @@ class ViewMain: public Window
     TopbarImpl* topbar = nullptr;
     bool        widget_select = false;
     lv_timer_t* widget_select_timer = nullptr;
+    ViewMainMenu* viewMainMenu = nullptr;
 
     void paint(BitmapBuffer * dc) override;
     void deleteLater(bool detach = true, bool trash = true) override;

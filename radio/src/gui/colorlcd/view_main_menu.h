@@ -26,7 +26,7 @@
 class ViewMainMenu : public Window
 {
  public:
-  ViewMainMenu(Window* parent);
+  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
 
   void onCancel() override;
   void onClicked() override;
@@ -35,4 +35,5 @@ class ViewMainMenu : public Window
 
  protected:
   rect_t carouselRect;
+  std::function<void()> closeHandler = nullptr;
 };
