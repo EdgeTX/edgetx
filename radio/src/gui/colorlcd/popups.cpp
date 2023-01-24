@@ -26,6 +26,11 @@ static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)
 {
   bool running = true;
+
+  // reset input devices to avoid
+  // RELEASED/CLICKED to be called in a loop
+  lv_indev_reset(nullptr, nullptr);
+  
   auto md = new MessageDialog(MainWindow::instance(), title, msg);
   md->setCloseHandler([&]() { running = false; });
   if (info) {
