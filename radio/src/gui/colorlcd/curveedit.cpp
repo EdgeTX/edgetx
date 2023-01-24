@@ -61,7 +61,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
   
   // Point number
   for (int i = 0; i < count; i++) {
-    auto txt = new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
   }
 
   line = form->newLine(&grid);
@@ -106,6 +106,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
           },
           0, RIGHT);
           lv_obj_set_grid_cell(numEditX[px]->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+          lv_textarea_set_align(numEditX[px]->getLvObj(), LV_TEXT_ALIGN_CENTER);
     }
     if ((start + count) == curvePointsCount) {
       new StaticText(line, rect_t{}, "100", 0, CENTERED | COLOR_THEME_SECONDARY1);
@@ -138,6 +139,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
         },
         0, RIGHT);
     lv_obj_set_grid_cell(numedit->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_textarea_set_align(numedit->getLvObj(), LV_TEXT_ALIGN_CENTER);
   }
 }
 
