@@ -240,14 +240,15 @@ void bootloaderInitApp()
   keysInit();
 
 #if defined(SWSERIALPOWER)
-  #if defined(AUX_SERIAL)
-    void set_aux_pwr(uint8_t on);
-    set_aux_pwr(0);
-  #endif
-  #if defined(AUX2_SERIAL)
-    void set_aux2_pwr(uint8_t on);
-    set_aux2_pwr(0);
-  #endif
+  // TODO: replace with proper serial port query...
+  // #if defined(AUX_SERIAL)
+  //   void set_aux_pwr(uint8_t on);
+  //   set_aux_pwr(0);
+  // #endif
+  // #if defined(AUX2_SERIAL)
+  //   void set_aux2_pwr(uint8_t on);
+  //   set_aux2_pwr(0);
+  // #endif
 #endif
 
   // wait a bit for the inputs to stabilize...

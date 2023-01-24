@@ -185,7 +185,8 @@ class VersionDialog : public Dialog
       char statusText[64];
 
       auto hz = 1000000 / getMixerSchedulerPeriod();
-      snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
+      // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
+      snprintf(statusText, 64, "%d Hz", hz);
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }

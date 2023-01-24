@@ -180,6 +180,15 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
   }
 }
 
+
+// TODO: probably needs to be a separate API on the serial driver
+//
+// - USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
+// - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
+// - asymmetric bitrates for half-duplex (GHOST)
+// - ability to switch RX DMA OFF ??? (-> X12S)
+// - callback to be able to reply to FrSky's sensor polling (->outputTelemetryBuffer)
+//
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
   enable_usart_clock(usart->USARTx);

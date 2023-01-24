@@ -23,8 +23,9 @@
 #include "opentx_helpers.h"
 #include "debug.h"
 
-#include "extmodule_driver.h"
 #include "board.h"
+#include "dataconstants.h"
+#include "mixer_scheduler.h"
 
 // timer is 2 MHz
 #if defined(AFHDS3_SLOW)
@@ -60,110 +61,22 @@ enum DeviceAddress
 //Address used in transmitted frames - it constrains of target address and source address
 const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE << 4);
 
-static void _serial_reset(void* buffer)
+void FrameTransport::init(void* buffer)
 {
-  auto data = (SerialData*)buffer;
-  data->ptr = data->pulses;
-}
-
-static void _serial_sendByte(void* buffer, uint8_t b)
-{
-  auto data = (SerialData*)buffer;
-  *(data->ptr++) = b;
-}
-
-static void _serial_flush(void*) {}
-
-uint32_t _serial_getSize(void* buffer)
-{
-  auto data = (SerialData*)buffer;
-  return data->ptr - data->pulses;
-}
-
-static void _pulses_reset(void* buffer)
-{
-  auto data = (PulsesData*)buffer;
-  data->ptr = data->pulses;
-}
-
-static inline void _pulses_send_level(PulsesData* data, uint16_t v)
-{
-  uint32_t size = data->ptr - data->pulses;
-  if (size >= AFHDS_MAX_PULSES_TRANSITIONS) return;
-  *(data->ptr)++ = v;
-}
-
-static void _pulses_sendByte(void* buffer, uint8_t b)
-{
-  auto data = (PulsesData*)buffer;
-  uint32_t size = data->ptr - data->pulses;
-  if (size >= AFHDS_MAX_PULSES_TRANSITIONS) return;
-
-  // use 8n1
-  // parity: If the parity is enabled, then the MSB bit of the data to be
-  // transmitted is changed by the parity bit start is always 0
-  bool level = 0;
-  uint16_t length = BITLEN_AFHDS;     // start bit
-  for (uint8_t i = 0; i <= 8; i++) {  // 8 data bits + Stop=1
-    bool next_level = b & 1;
-    if (level == next_level) {
-      length += BITLEN_AFHDS;
-    } else {
-      _pulses_send_level(data, length);
-      length = BITLEN_AFHDS;
-      level = next_level;
-    }
-    b = (b >> 1) | 0x80;  // shift left to get next bit, fill msb with stop
-                          // bit - needed just once
-  }
-  _pulses_send_level(data, length);  // last bit (stop)
-}
-
-static void _pulses_flush(void* buffer)
-{
-  // TODO: use less, as the new driver can handle it
-  auto data = (PulsesData*)buffer;
-  *data->ptr = 60000;
-}
-
-uint32_t _pulses_getSize(void* buffer)
-{
-  auto data = (PulsesData*)buffer;
-  return data->ptr - data->pulses;
-}
-  
-void ByteTransport::init(Type t)
-{
-  if (t == Serial) {
-    reset = _serial_reset;
-    sendByte = _serial_sendByte;
-    flush = _serial_flush;
-    getSize = _serial_getSize;
-  } else if (t == Pulses) {
-    reset = _pulses_reset;
-    sendByte = _pulses_sendByte;
-    flush = _pulses_flush;
-    getSize = _pulses_getSize;
-  } else {
-    reset = nullptr;
-    sendByte = nullptr;
-    flush = nullptr;
-    getSize = nullptr;
-  }
-}
-
-void FrameTransport::init(ByteTransport::Type t, void* buffer)
-{
-  trsp.init(t);
   trsp_buffer = buffer;
-
   clear();
 }
 
+static void _reset_buffer(void* buffer)
+{
+  auto data = (SerialData*)buffer;
+  data->ptr = data->pulses;
+}
+  
 void FrameTransport::clear()
 {
   // reset send buffer
-  trsp.reset(trsp_buffer);
+  _reset_buffer(trsp_buffer);
 
   // reset parser
   esc_state = 0;
@@ -171,7 +84,8 @@ void FrameTransport::clear()
 
 void FrameTransport::sendByte(uint8_t b)
 {
-  trsp.sendByte(trsp_buffer, b);  
+  auto data = (SerialData*)trsp_buffer;
+  *(data->ptr++) = b;
 }
 
 void FrameTransport::putBytes(uint8_t* data, int length)
@@ -197,7 +111,8 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
                               uint8_t dataLength, uint8_t frameIndex)
 {
   //header
-  trsp.reset(trsp_buffer);
+  _reset_buffer(trsp_buffer);
+
   crc = 0;
   sendByte(START);
 
@@ -213,7 +128,12 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
   uint8_t crcValue = crc ^ 0xff;
   putBytes(&crcValue, 1);
   sendByte(END);
-  trsp.flush(trsp_buffer);
+}
+
+uint32_t FrameTransport::getFrameSize()
+{
+  auto data = (SerialData*)trsp_buffer;
+  return data->ptr - data->pulses;
 }
 
 static bool _checkCRC(const uint8_t* data, uint8_t size)
@@ -319,27 +239,28 @@ static const etx_serial_init _uartParams = {
   .rx_enable = true,
 };
 
-void Transport::init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv)
+void Transport::init(void* buffer, etx_module_state_t* mod_st)
 {
-  trsp.init(t, buffer);
-
-  if (drv) {
-    uart_drv = drv;
-    uart_ctx = drv->init(&_uartParams);
-  } else {
-    uart_drv = nullptr;
-    uart_ctx = nullptr;
-    extmoduleSerialStart();
-  }
+  trsp.init(buffer);
+  this->mod_st = mod_st;
 }
 
 void Transport::deinit()
 {
-  if (uart_drv) {
-    uart_drv->deinit(uart_ctx);
-  } else {
-    extmoduleStop();
+  if (!mod_st) return;
+
+  auto module = modulePortGetModule(mod_st);
+
+  if (module == INTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
   }
+
+  if (module == EXTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
+  }
+
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
 }
 
 void Transport::clear()
@@ -385,11 +306,9 @@ void Transport::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
 
 void Transport::sendBuffer()
 {
-  if (uart_drv) {
-    uart_drv->sendBuffer(uart_ctx, (uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
-  } else {
-    extmoduleSendNextFrameSoftSerial((uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
-  }
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto ctx = modulePortGetCtx(mod_st->tx);
+  drv->sendBuffer(ctx, (uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
 }
 
 bool Transport::processQueue()
@@ -476,11 +395,11 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
 
 int Transport::getTelemetryByte(uint8_t* data)
 {
-  if (uart_drv) {
-    return uart_drv->getByte(uart_ctx, data);
-  } else {
-    return sportGetByte(data);
-  }
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto ctx = modulePortGetCtx(mod_st->rx);
+  if (!drv || !ctx) return 0;
+
+  return drv->getByte(ctx, data);
 }
 
 bool Transport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,

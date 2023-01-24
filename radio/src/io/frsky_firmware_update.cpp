@@ -322,10 +322,12 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     params.baudrate = 38400;
 
     // TODO: handle init error
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL,
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
                                   ETX_MOD_DIR_TX_RX, &params);
-    uart_drv = mod_st->serial.drv;
-    uart_ctx = mod_st->serial.ctx;
+
+    // assume RX port is the same as TX
+    uart_drv = modulePortGetSerialDrv(mod_st->tx);
+    uart_ctx = modulePortGetCtx(mod_st->tx);
 
     GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
@@ -344,8 +346,10 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
 
     // TODO: handle init error
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, ETX_MOD_DIR_TX_RX, &params);
-    uart_drv = mod_st->tx.port->drv.serial;
-    uart_ctx = mod_st->tx.ctx;
+
+    // assume RX port is the same as TX
+    uart_drv = modulePortGetSerialDrv(mod_st->tx);
+    uart_ctx = modulePortGetCtx(mod_st->tx);
   }
   else
 #endif
@@ -354,8 +358,10 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     params.baudrate = 57600;
 
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, ETX_MOD_DIR_TX_RX, &params);
-    uart_drv = mod_st->tx.port->drv.serial;
-    uart_ctx = mod_st->tx.ctx;
+
+    // assume RX port is the same as TX
+    uart_drv = modulePortGetSerialDrv(mod_st->tx);
+    uart_ctx = modulePortGetCtx(mod_st->tx);
   }
 
   if (module == INTERNAL_MODULE)

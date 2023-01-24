@@ -743,7 +743,12 @@ static const etx_serial_driver_t _fake_drv = {
 #else
   #define AUX_SERIAL_PWR nullptr
 #endif
-static const etx_serial_port_t auxSerialPort = {"AUX1", &_fake_drv, AUX_SERIAL_PWR};
+static const etx_serial_port_t auxSerialPort = {
+  "AUX1",
+  &_fake_drv,
+  nullptr,
+  AUX_SERIAL_PWR
+};
 #define AUX_SERIAL_PORT &auxSerialPort
 #else
 #define AUX_SERIAL_PORT nullptr
@@ -756,7 +761,12 @@ static const etx_serial_port_t auxSerialPort = {"AUX1", &_fake_drv, AUX_SERIAL_P
 #else
   #define AUX2_SERIAL_PWR nullptr
 #endif
-static const etx_serial_port_t aux2SerialPort = {"AUX2", &_fake_drv, AUX2_SERIAL_PWR};
+static const etx_serial_port_t aux2SerialPort = {
+  "AUX2",
+  &_fake_drv,
+  nullptr,
+  AUX2_SERIAL_PWR
+};
 #define AUX2_SERIAL_PORT &aux2SerialPort
 #else
 #define AUX2_SERIAL_PORT nullptr

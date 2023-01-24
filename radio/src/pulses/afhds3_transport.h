@@ -24,22 +24,11 @@
 #include "afhds3_module.h"
 #include "definitions.h"
 
-#include "hal/serial_driver.h"
+#include "hal/module_port.h"
 
 namespace afhds3
 {
   
-struct ByteTransport {
-  enum Type { Serial, Pulses };
-
-  void (*reset)(void* buffer);
-  void (*sendByte)(void* buffer, uint8_t b);
-  void (*flush)(void* buffer);
-  uint32_t (*getSize)(void* buffer);
-
-  void init(Type t);
-};
-
 enum FRAME_TYPE: uint8_t
 {
   REQUEST_GET_DATA = 0x01,  //Get data response: ACK + DATA
@@ -130,14 +119,13 @@ struct CommandFifo {
 
 struct FrameTransport
 {
-  ByteTransport trsp;
   void* trsp_buffer;
 
   uint8_t crc;
   // uint8_t timeout;
   uint8_t esc_state;
 
-  void init(ByteTransport::Type t, void* buffer);
+  void init(void* buffer);
   void clear();
 
   void sendByte(uint8_t b);
@@ -146,7 +134,7 @@ struct FrameTransport
   void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
                 uint8_t dataLength, uint8_t frameIndex);
 
-  uint32_t getFrameSize() { return trsp.getSize(trsp_buffer); }
+  uint32_t getFrameSize();
   
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
@@ -161,8 +149,7 @@ class Transport
     IDLE
   };
 
-  const etx_serial_driver_t* uart_drv;
-  void*                      uart_ctx;
+  etx_module_state_t* mod_st;
 
   FrameTransport trsp;
   CommandFifo    fifo;
@@ -187,7 +174,7 @@ class Transport
   bool handleReply(uint8_t* buffer, uint8_t len);
   
  public:
-  void init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv);
+  void init(void* buffer, etx_module_state_t* mod_st);
   void deinit();
 
   void clear();

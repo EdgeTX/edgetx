@@ -176,6 +176,7 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
     getMultiModuleStatus(moduleIdx).getStatusString(statusText);
   }
 #endif
+
 #if defined(AFHDS3)
   if (isModuleAFHDS3(moduleIdx)) {
     afhds3::getStatusString(moduleIdx, statusText);
@@ -444,15 +445,9 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 
 #if defined(INTERNAL_MODULE_AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
-      _init_module(mod, module, &afhds3::internalDriver);
+      _init_module(mod, module, &afhds3::ProtoDriver);
       break;
 #endif
-// #if defined(AFHDS3)
-//     case PROTOCOL_CHANNELS_AFHDS3:
-//       externalModuleContext = afhds3::externalDriver.init(EXTERNAL_MODULE);
-//       externalModuleDriver = &afhds3::externalDriver;
-//       break;
-// #endif
 
 #if defined(DSM2)
     case PROTOCOL_CHANNELS_DSMP:

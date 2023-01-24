@@ -35,10 +35,6 @@
 
 #include <string.h>
 
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-#include "aux_serial_driver.h"
-#endif
-
 #if !defined(PCBX12S)
   #include "stm32_hal_adc.h"
   #define ADC_DRIVER stm32_hal_adc_driver
@@ -305,73 +301,3 @@ bool isBacklightEnabled()
   return boardBacklightOn;
 }
 
-#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
-static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
-{
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(GPIOx, &pinInit);
-
-  if (on) {
-    LL_GPIO_SetOutputPin(GPIOx, pin);
-  } else {
-    LL_GPIO_ResetOutputPin(GPIOx, pin);
-  }
-}
-#endif
-
-#if defined(AUX_SERIAL)
-void set_aux_pwr(uint8_t on)
-{
-#if defined(AUX_SERIAL_PWR_GPIO)
-  _aux_pwr(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN, on);
-#endif
-}
-
-const etx_serial_port_t auxSerialPort = {
-  "AUX1",
-  &AuxSerialDriver,
-  set_aux_pwr,
-};
-#define AUX_SERIAL_PORT &auxSerialPort
-#else
-#define AUX_SERIAL_PORT nullptr
-#endif
-
-#if defined(AUX2_SERIAL)
-void set_aux2_pwr(uint8_t on)
-{
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  _aux_pwr(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN, on);
-#endif
-}
-
-const etx_serial_port_t aux2SerialPort = {
-#if !defined(PCBX12S)
-  "AUX2",
-#else
-  // AUX2 is hardwired to the internal GPS
-  // on the X12S, let's hide the setting
-  nullptr,
-#endif
-  &Aux2SerialDriver,
-  set_aux2_pwr,
-};
-#define AUX2_SERIAL_PORT &aux2SerialPort
-#else
-#define AUX2_SERIAL_PORT nullptr
-#endif // AUX2_SERIAL
-
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
-  AUX_SERIAL_PORT,
-  AUX2_SERIAL_PORT,
-};
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return serialPorts[port_nr];
-}

@@ -41,10 +41,6 @@
   #include "telemetry/crossfire.h"
 #endif
 
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
-  #include "extmodule_serial_driver.h"
-#endif
-
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
 #endif

@@ -255,10 +255,11 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                       [=]() { BootloaderUpdate(fullpath); });
       }
     } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
-      if (HAS_SPORT_UPDATE_CONNECTOR()) {
-        menu->addLine(STR_FLASH_EXTERNAL_DEVICE,
-                      [=]() { FrSkyFirmwareUpdate(fullpath, SPORT_MODULE); });
-      }
+      // TODO
+      // if (HAS_SPORT_UPDATE_CONNECTOR()) {
+      //   menu->addLine(STR_FLASH_EXTERNAL_DEVICE,
+      //                 [=]() { FrSkyFirmwareUpdate(fullpath, SPORT_MODULE); });
+      // }
       menu->addLine(STR_FLASH_INTERNAL_MODULE,
                     [=]() { FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE); });
       menu->addLine(STR_FLASH_EXTERNAL_MODULE,
@@ -279,15 +280,15 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         }
         if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
             information.productFamily == FIRMWARE_FAMILY_SENSOR) {
-          if (HAS_SPORT_UPDATE_CONNECTOR()) {
-            menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-              FrSkyFirmwareUpdate(fullpath, SPORT_MODULE);
-            });
-          } else {
-            menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-              FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
-            });
-          }
+          // if (HAS_SPORT_UPDATE_CONNECTOR()) {
+          //   menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
+          //     FrSkyFirmwareUpdate(fullpath, SPORT_MODULE);
+          //   });
+          // } else {
+          menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+            FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
+          });
+          // }
         }
 #if _NYI_  // Not yet implemented
 #if defined(PXX2)
