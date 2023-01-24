@@ -182,7 +182,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
   void (*setRxCb)(void*, void (*)(uint8_t*, uint32_t)) = nullptr;
 
   const etx_serial_driver_t* drv = nullptr;
-  if (port) {
+  if (port && ctx) {
     drv = port->uart;
     if (drv) {
       sendByte = drv->sendByte;
@@ -256,9 +256,24 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+#if defined(CONFIGURABLE_MODULE_PORT)
   case UART_MODE_EXT_MODULE:
-    extmoduleSetSerialPort(drv);
+    if (port && !ctx) { // de-init
+      etx_module_port_t mod_port;
+      memset(&mod_port, 0, sizeof(mod_port));
+      auto mod_st = modulePortGetState(EXTERNAL_MODULE);
+      if (mod_st && mod_st->tx.hw_def == port->hw_def) {
+        // port is in use, let's stop it
+        pauseMixerCalculations();
+        pausePulses();
+        pulsesStopModule(EXTERNAL_MODULE);
+        modulePortConfigExtra(&mod_port);
+        resumePulses();
+        resumeMixerCalculations();
+      } else {
+        modulePortConfigExtra(&mod_port);
+      }
+    }
     break;
 #endif
 
@@ -325,12 +340,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 #endif
 
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
-  case UART_MODE_EXT_MODULE:
-    params.rx_enable = true;
-    break;
-#endif
-#endif
+#endif // BOOT
   }
 }
 
@@ -386,10 +396,25 @@ void serialInit(uint8_t port_nr, int mode)
     }
     if (state->mode != UART_MODE_NONE) {
       // Clear callbacks
-      serialSetCallBacks(state->mode, nullptr, nullptr);
+      serialSetCallBacks(state->mode, nullptr, state->port);
     }
     memset(state, 0, sizeof(SerialPortState));
   }
+
+#if defined(CONFIGURABLE_MODULE_PORT)
+  if (mode == UART_MODE_EXT_MODULE) {
+    etx_module_port_t mod_port = {
+      .port = ETX_MOD_PORT_EXTERNAL_UART,
+      .type = ETX_MOD_TYPE_SERIAL,
+      .dir_flags = ETX_MOD_DIR_TX_RX,
+      .drv = { .serial = port->uart },
+    };
+    modulePortConfigExtra(&mod_port);
+    state->mode = mode;
+    state->port = port;
+    return;
+  }
+#endif
 
   etx_serial_init params = {
     .baudrate = 0,
@@ -401,27 +426,28 @@ void serialInit(uint8_t port_nr, int mode)
 
   serialSetupPort(mode, params);
 
+  if (mode == UART_MODE_NONE ||
+      !port || params.baudrate == 0 ||
+      !port->uart || !port->uart->init)
+    return;
+  
+  auto hw_def = port->hw_def;
+  state->usart_ctx = port->uart->init(hw_def, &params);
+
+  // init failed
+  if (!state->usart_ctx) return;
+
+  state->mode = mode;
+  state->port = port;
+        
+  // Update callbacks once the port is setup
+  serialSetCallBacks(mode, state->usart_ctx, state->port);
+
 #if defined(SWSERIALPOWER)
   // Set power on/off
   if (port_nr < SP_VCP)
     serialSetPowerState(port_nr);
 #endif
-
-  state->mode = mode;
-
-  if (mode != UART_MODE_NONE) {
-    state->port = port;
-
-    if (port && params.baudrate != 0) {
-      if (port->uart && port->uart->init) {
-        auto hw_def = port->hw_def;
-        state->usart_ctx = port->uart->init(hw_def, &params);
-      }
-    }
-
-    // Update callbacks once the port is setup
-    serialSetCallBacks(mode, state->usart_ctx, state->port);
-  }
 }
 
 void initSerialPorts()

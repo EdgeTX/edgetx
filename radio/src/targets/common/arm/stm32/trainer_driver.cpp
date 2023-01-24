@@ -353,37 +353,33 @@ const etx_serial_init sbusTrainerParams = {
     .rx_enable = true,
 };
 
-// external module has a full-duplex USART
-#if defined(EXTMODULE_USART)
-#include "extmodule_serial_driver.h"
+// external module may have a full-duplex USART
+#if defined(EXTMODULE_USART) || defined(CONFIGURABLE_MODULE_PORT)
 
-static const etx_serial_driver_t* sbus_trainer_drv = nullptr;
-static void* sbus_trainer_ctx = nullptr;
+#include "hal/module_port.h"
+
+static etx_module_state_t* sbus_trainer_mod_st = nullptr;
 
 void init_trainer_module_sbus()
 {
-  void* hw_def;
-  if (extmoduleGetSerialPort(sbus_trainer_drv, hw_def)) {
-    sbus_trainer_ctx = sbus_trainer_drv->init(hw_def, &sbusTrainerParams);
-  }
+  if (sbus_trainer_mod_st) return;
+
+  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_EXTERNAL_UART,
+                                             ETX_MOD_DIR_RX, &sbusTrainerParams);
 }
 
 void stop_trainer_module_sbus()
 {
-  auto ctx = sbus_trainer_ctx;
-  auto drv = sbus_trainer_drv;
-
-  if (ctx) {
-    sbus_trainer_ctx = nullptr;
-    sbus_trainer_drv = nullptr;
-    drv->deinit(ctx);
-  }
+  if (!sbus_trainer_mod_st) return;
+  modulePortDeInit(sbus_trainer_mod_st);
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
 {
-  auto ctx = sbus_trainer_ctx;
-  auto serial_driver = sbus_trainer_drv;
+  if (!sbus_trainer_mod_st) return 0;
+
+  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
+  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
 
   if (ctx) {
     return serial_driver->getByte(ctx, data);

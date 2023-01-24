@@ -717,7 +717,7 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-static void* _fake_drv_init(const etx_serial_init*) { return nullptr; }
+static void* _fake_drv_init(void*, const etx_serial_init*) { return nullptr; }
 static void _fake_drv_fct1(void*) {}
 static void _fake_drv_send_byte(void*, uint8_t) {}
 static void _fake_drv_send_buffer(void*, const uint8_t*, uint8_t) {}

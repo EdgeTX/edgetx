@@ -494,7 +494,6 @@ if(HARDWARE_EXTERNAL_MODULE)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/extmodule_driver.cpp
-    targets/common/arm/stm32/extmodule_serial_driver.cpp
     targets/common/arm/stm32/stm32_usart_driver.cpp
     )
 endif()

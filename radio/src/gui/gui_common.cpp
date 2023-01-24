@@ -20,10 +20,7 @@
  */
 
 #include "opentx.h"
-
-#if defined(PXX2)
-  #include "extmodule_serial_driver.h"
-#endif
+#include "hal/module_port.h"
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
@@ -854,8 +851,7 @@ bool isExternalModuleAvailable(int moduleType)
       moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
 
 #if defined(PXX2)
-    const etx_serial_driver_t* drv; void* hw_def;
-    return extmoduleGetSerialPort(drv, hw_def);
+    return modulePortFind(ETX_MOD_TYPE_SERIAL, ETX_MOD_PORT_EXTERNAL_UART);
 #else
     return false;
 #endif

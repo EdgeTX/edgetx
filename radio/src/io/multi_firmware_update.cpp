@@ -23,7 +23,6 @@
 
 #include "hal.h"
 #include "hal/module_port.h"
-#include "extmodule_driver.h"
 
 #include <stdio.h>
 #include "opentx.h"

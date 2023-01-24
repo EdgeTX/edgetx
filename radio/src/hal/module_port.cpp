@@ -29,13 +29,23 @@ extern const uint8_t _n_module_ports;
 
 static etx_module_state_t _module_states[MAX_MODULES];
 
-// extmoduleGetSerialPort
-#include "extmodule_serial_driver.h"
-
 void modulePortInit()
 {
   memset(_module_states, 0, sizeof(_module_states));
+#if defined(CONFIGURABLE_MODULE_PORT)
+  memset(&_extra_module_port, 0, sizeof(_extra_module_port));
+#endif
 }
+
+#if defined(CONFIGURABLE_MODULE_PORT)
+// supplemental configurable port
+static etx_module_port_t _extra_module_port;
+
+void modulePortConfigExtra(const etx_module_port_t* port)
+{
+  memcpy(&_extra_module_port, port, sizeof(_extra_module_port));
+}
+#endif
 
 static void modulePortClear(etx_module_state_t* st)
 {
@@ -74,7 +84,20 @@ static const etx_module_port_t* _find_port(uint8_t type, uint8_t port)
     ++p; --n_ports;
   }
 
+#if defined(CONFIGURABLE_MODULE_PORT)
+  if (!found_port &&
+      _extra_module_port.type == type &&
+      _extra_module_port.port == port) {
+    found_port = &_extra_module_port;
+  }
+#endif
+
   return found_port;
+}
+
+const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port)
+{
+  return _find_port(type, port);
 }
 
 etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_t dir,

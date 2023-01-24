@@ -21,8 +21,6 @@
 
 #include "hal.h"
 
-#include "extmodule_serial_driver.h"
-#include "extmodule_driver.h"
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
@@ -100,20 +98,22 @@ void stopPulses()
 
 void restartModule(uint8_t idx)
 {
-  if (idx == INTERNAL_MODULE) {
-    if (!IS_INTERNAL_MODULE_ON()) return;
-  } else if (idx == EXTERNAL_MODULE){
-    if (!IS_EXTERNAL_MODULE_ON()) return;
-  } else {
-    return;
-  }
+  // TODO: do we really need this ???
+  // if (idx == INTERNAL_MODULE) {
+  //   if (!IS_INTERNAL_MODULE_ON()) return;
+  // } else if (idx == EXTERNAL_MODULE){
+  //   if (!IS_EXTERNAL_MODULE_ON()) return;
+  // } else {
+  //   return;
+  // }
 
   pauseMixerCalculations();
   pausePulses();
 
   pulsesStopModule(idx);
 
-  RTOS_WAIT_MS(200); // 20ms so that the pulses interrupt will reinit the frame rate
+  // wait for the power output to be drained
+  RTOS_WAIT_MS(200);
 
   resumePulses();
   resumeMixerCalculations();

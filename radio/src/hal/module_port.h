@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include "serial_driver.h"
 #include "timer_driver.h"
+#include "definitions.h"
 
 // Module ports
 //
@@ -119,6 +120,13 @@ typedef struct {
 
 // Init the internal module port data
 void modulePortInit();
+
+#if defined(CONFIGURABLE_MODULE_PORT)
+// Configure an extra port
+void modulePortConfigExtra(const etx_module_port_t* port);
+#endif
+
+const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port);
 
 // Init module port with params (driver & context stored locally)
 etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_t dir,
