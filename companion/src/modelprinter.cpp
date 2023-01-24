@@ -619,31 +619,6 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
   return result;
 }
 
-QString ModelPrinter::printCustomFunctionLine(int idx, bool gfunc)
-{
-  QString result;
-  CustomFunctionData cf;
-  if (gfunc) {
-    if (model.noGlobalFunctions)
-      return result;
-    cf = generalSettings.customFn[idx];
-  }
-  else
-    cf = model.customFn[idx];
-  if (cf.swtch.type == SWITCH_TYPE_NONE)
-    return result;
-
-  result += cf.swtch.toString(getCurrentBoard(), &generalSettings) + " - ";
-  result += cf.funcToString(&model);
-  if (cf.isParamAvailable())
-    result += " (" + cf.paramToString(&model) + ")";
-  if (cf.isRepeatParamAvailable())
-    result += " " + cf.repeatToString();
-  if (!cf.enabledToString().isEmpty())
-    result += " " + cf.enabledToString();
-  return result;
-}
-
 QString ModelPrinter::printCurveName(int idx)
 {
   return model.curves[idx].nameToString(idx).toHtmlEscaped();

@@ -195,22 +195,31 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   return "";
 }
 
-QString CustomFunctionData::repeatToString() const
+QString CustomFunctionData::repeatToString(const bool abbrev) const
 {
-  return repeatToString(repeatParam);
+  return repeatToString(repeatParam, func, abbrev);
 }
 
 //  static
-QString CustomFunctionData::repeatToString(const int value)
+QString CustomFunctionData::repeatToString(const int value, const AssignFunc func, const bool abbrev)
+{
+  if (!isRepeatParamAvailable(func))
+    return "";
+
+  return repeatToString(value, abbrev);
+}
+
+//  static
+QString CustomFunctionData::repeatToString(const int value, const bool abbrev)
 {
   if (value == -1) {
-    return tr("Played once, not during startup");
+    return abbrev ? tr("!1x") : tr("Played once, not during startup");
   }
   else if (value == 0) {
-    return tr("No repeat");
+    return abbrev ? tr("1x") : tr("No repeat");
   }
   else {
-    return tr("Repeat %1s").arg(value);
+    return abbrev ? tr("%1s").arg(value) : tr("Repeat %1s").arg(value);
   }
 }
 
@@ -378,7 +387,7 @@ AbstractStaticItemModel * CustomFunctionData::repeatItemModel()
   mdl->setName("customfunctiondata.repeat");
 
   for (int i = -1; i <= 60; i++) {
-    mdl->appendToItemList(repeatToString(i), i);
+    mdl->appendToItemList(repeatToString(i, false), i);
   }
 
   mdl->loadItemList();
@@ -454,6 +463,12 @@ bool CustomFunctionData::isParamAvailable() const
 }
 
 bool CustomFunctionData::isRepeatParamAvailable() const
+{
+  return isRepeatParamAvailable(func);
+}
+
+//  static
+bool CustomFunctionData::isRepeatParamAvailable(const AssignFunc func)
 {
   const QList<AssignFunc> funcList = {
     FuncPlaySound,

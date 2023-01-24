@@ -112,7 +112,7 @@ class CustomFunctionData {
     bool isEmpty() const;
     QString funcToString(const ModelData * model = nullptr) const;
     QString paramToString(const ModelData * model = nullptr) const;
-    QString repeatToString() const;
+    QString repeatToString(const bool abbrev) const;
     QString enabledToString() const;
     QString playSoundToString() const;
     QString harpicToString() const;
@@ -127,7 +127,9 @@ class CustomFunctionData {
     static QString resetToString(const int value, const ModelData * model = nullptr);
     static int resetParamCount();
     static bool isResetParamAvailable(const int index, const ModelData * model = nullptr);
-    static QString repeatToString(const int value);
+    static QString repeatToString(const int value, const AssignFunc func, const bool abbrev);
+    static QString repeatToString(const int value, const bool abbrev);
+    static bool isRepeatParamAvailable(const AssignFunc func);
     static QStringList playSoundStringList();
     static QString playSoundToString(const int value);
     static QString harpicToString(const int value);
