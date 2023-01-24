@@ -304,8 +304,3 @@ void boardOff()
 
   }
 }
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  return nullptr;
-}

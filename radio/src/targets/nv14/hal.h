@@ -212,6 +212,7 @@
 #define TELEMETRY_TX_REV_GPIO_PIN       GPIO_Pin_7  // PJ.07
 #define TELEMETRY_DIR_GPIO              GPIOJ
 #define TELEMETRY_DIR_GPIO_PIN          GPIO_Pin_13 // PJ.13
+#define TELEMETRY_SET_INPUT             1
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
 #define TELEMETRY_RX_GPIO_PIN           GPIO_Pin_6  // PD.06
@@ -219,7 +220,8 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
