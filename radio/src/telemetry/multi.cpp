@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 #include "opentx.h"
-#include "aux_serial_driver.h"
 
 #include "telemetry.h"
 #include "io/multi_protolist.h"

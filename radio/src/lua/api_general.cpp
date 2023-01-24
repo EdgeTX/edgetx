@@ -25,7 +25,6 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-#include "aux_serial_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

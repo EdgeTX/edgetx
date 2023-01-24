@@ -26,7 +26,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "hal/adc_driver.h"
-#include "aux_serial_driver.h"
+
 #include "hw_intmodule.h"
 #include "hw_extmodule.h"
 #include "hw_serial.h"

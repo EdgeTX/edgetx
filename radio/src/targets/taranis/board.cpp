@@ -34,10 +34,6 @@
   #include "opentx.h"
 #endif
 
-#if defined(AUX_SERIAL)
-#include "aux_serial_driver.h"
-#endif
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

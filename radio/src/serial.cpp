@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aux_serial_driver.h"
 #include "hal/serial_port.h"
 
 #if !defined(BOOT)
