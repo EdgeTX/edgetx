@@ -102,9 +102,12 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 
   if (firmware->getCapability(VirtualInputs)) {
     ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
+    int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
+    flags |= RawSource::TelemGroup;
+    if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd))
+      flags |= RawSource::GVarsGroup;
     id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                           (RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup) | RawSource::TelemGroup),
-                                                     "RawSource");
+                                                     flags), "RawSource");
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
     ui->inputName->setValidator(new QRegExpValidator(rx, this));
