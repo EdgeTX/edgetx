@@ -151,25 +151,6 @@ void FullScreenDialog::onEvent(event_t event)
   }
 }
 
-#if defined(HARDWARE_TOUCH)
-
-bool FullScreenDialog::onTouchStart(coord_t x, coord_t y)
-{
-  touchStarted = RTOS_GET_MS();
-  return false;
-}
-
-bool FullScreenDialog::onTouchEnd(coord_t x, coord_t y)
-{
-  touchEnded = RTOS_GET_MS();
-  if (type == WARNING_TYPE_ALERT)
-    if ((touchEnded - touchStarted) >= 200)
-      closeDialog();
-  return false;
-}
-
-#endif
-
 void FullScreenDialog::onCancel()
 {
   deleteLater();

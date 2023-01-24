@@ -83,14 +83,6 @@ class FullScreenDialog : public Window
     bool loaded = false;
     StaticText* messageLabel;
 
-#if defined(HARDWARE_TOUCH)
-    uint32_t touchStarted;
-    uint32_t touchEnded;
-
-    bool onTouchStart(coord_t x, coord_t y) override;
-    bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
     virtual void init();
 
     static void long_pressed(lv_event_t* e);
