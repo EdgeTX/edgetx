@@ -73,6 +73,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .sendByte = sendByte,
     .sendBuffer = sendBuffer,
     .waitForTxCompleted = waitForTxCompleted,
+    .enableRx = nullptr,
     .getByte = getByte,
     .clearRxBuffer = nullptr,
     .getBaudrate = nullptr,
