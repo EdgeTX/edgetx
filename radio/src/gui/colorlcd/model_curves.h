@@ -33,10 +33,13 @@ class ModelCurvesPage: public PageTab {
 
   protected:
     uint8_t focusIndex = -1;
+    Button* addButton = nullptr;
+    uint8_t addIndex = -1;
 
     void rebuild(FormWindow * window);
     void editCurve(FormWindow * window, uint8_t curve);
     void presetMenu(FormWindow * window, uint8_t index);
+    void plusPopup(FormWindow * window);
 };
 
 #endif // _MODEL_CURVES_H_

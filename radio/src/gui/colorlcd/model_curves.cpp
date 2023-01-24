@@ -158,6 +158,24 @@ void ModelCurvesPage::presetMenu(FormWindow * window, uint8_t index)
   menu->updateLines();
 }
 
+void ModelCurvesPage::plusPopup(FormWindow * window)
+{
+  CurveHeader &curve = g_model.curves[addIndex];
+  int8_t * points = curveAddress(addIndex);
+
+  Menu *menu = new Menu(window);
+  menu->setTitle(STR_NEW);
+  menu->addLine(STR_EDIT, [=]() {
+      focusIndex = addIndex;
+      initPoints(curve, points);
+      editCurve(window, addIndex);
+  });
+  menu->addLine(STR_CURVE_PRESET, [=]() {
+      focusIndex = addIndex;
+      presetMenu(window, addIndex);
+  });
+}
+
 void ModelCurvesPage::build(FormWindow * window)
 {
 #if LCD_W > LCD_H
@@ -194,6 +212,7 @@ void ModelCurvesPage::build(FormWindow * window)
       auto button = new CurveButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, index);
       button->setPressHandler([=]() -> uint8_t {
           Menu * menu = new Menu(window);
+          menu->setTitle(STR_CURVE);
           menu->addLine(STR_EDIT, [=]() {
               editCurve(window, index);
           });
@@ -213,6 +232,14 @@ void ModelCurvesPage::build(FormWindow * window)
       button->setFocusHandler([=](bool hasFocus) {
         if (hasFocus)
           focusIndex = index;
+      });
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (addButton) {
+          lv_group_focus_obj(addButton->getLvObj());
+          plusPopup(window);
+        }
+        return 0;
       });
 
       if (!firstCurveButton) {
@@ -243,24 +270,13 @@ void ModelCurvesPage::build(FormWindow * window)
           lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
         }
 
-        CurveHeader &curve = g_model.curves[n];
-        int8_t * points = curveAddress(n);
-
-        auto button = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, LV_SYMBOL_PLUS, [=]() {
-          Menu *menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() {
-              focusIndex = n;
-              initPoints(curve, points);
-              editCurve(window, n);
-          });
-          menu->addLine(STR_CURVE_PRESET, [=]() {
-              focusIndex = n;
-              presetMenu(window, n);
-          });
+        addIndex = n;
+        addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, LV_SYMBOL_PLUS, [=]() {
+          plusPopup(window);
           return 0;
         });
 
-        lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+        lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
         break;
       }
