@@ -72,6 +72,7 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   GPIO_Init(BT_BCTS_GPIO, &GPIO_InitStructure);
 #endif
 
+#if 0
 #if !defined(BOOT)
   GPIO_PinAFConfig(BT_USART_GPIO, BT_TX_GPIO_PinSource, BT_GPIO_AF);
   GPIO_PinAFConfig(BT_USART_GPIO, BT_RX_GPIO_PinSource, BT_GPIO_AF);
@@ -101,6 +102,7 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   btRxFifo.clear();
   btTxFifo.clear();
 #endif
+#endif
 
   if (enable)
     GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
@@ -112,14 +114,17 @@ void bluetoothInit(uint32_t baudrate, bool enable)
 void bluetoothDisable()
 {
   GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN); // close bluetooth (recent modules will go to bootloader mode)
+#if 0
   USART_ITConfig(BT_USART, USART_IT_RXNE, DISABLE);
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = BT_RX_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_Init(BT_USART_GPIO, &GPIO_InitStructure);
   USART_DeInit(BT_USART);
+#endif
 }
 
+#if 0
 extern "C" void BT_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_BLUETOOTH);
@@ -148,9 +153,11 @@ extern "C" void BT_USART_IRQHandler(void)
     }
   }
 }
+#endif
 
 void bluetoothWriteWakeup()
 {
+#if 0
   if (bluetoothWriteState == BLUETOOTH_WRITE_IDLE) {
     if (!btTxFifo.isEmpty()) {
 #if defined(BT_BRTS_GPIO_PIN)
@@ -171,6 +178,7 @@ void bluetoothWriteWakeup()
     bluetoothWriteState = BLUETOOTH_WRITE_IDLE;
     GPIO_SetBits(BT_BRTS_GPIO, BT_BRTS_GPIO_PIN);
   }
+#endif
 #endif
 }
 
