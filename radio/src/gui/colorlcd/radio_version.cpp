@@ -176,7 +176,7 @@ class VersionDialog : public Dialog
     // initialize to module does not provide status
     // PXX2 will overwrite name
     // CRSF, MPM, NV14 and PXX2 will overwrite status
-    name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
+    name->setText(STR_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
     lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
 #if defined(CROSSFIRE)

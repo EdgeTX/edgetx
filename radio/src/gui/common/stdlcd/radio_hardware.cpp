@@ -532,7 +532,7 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE: {
         g_eeGeneral.internalModule =
             editChoice(HW_SETTINGS_COLUMN2, y, STR_TYPE,
-                       STR_INTERNAL_MODULE_PROTOCOLS,
+                       STR_MODULE_PROTOCOLS,
                        g_eeGeneral.internalModule, MODULE_TYPE_NONE,
                        MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
         if (g_model.moduleData[INTERNAL_MODULE].type !=

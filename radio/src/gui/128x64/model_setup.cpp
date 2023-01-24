@@ -500,9 +500,13 @@ void menuModelSetup(event_t event)
 
   if (event == EVT_ENTRY || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.moduleSetup, sizeof(reusableBuffer.moduleSetup));
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
     reusableBuffer.moduleSetup.r9mPower = g_model.moduleData[EXTERNAL_MODULE].pxx.power;
     reusableBuffer.moduleSetup.previousType = g_model.moduleData[EXTERNAL_MODULE].type;
     reusableBuffer.moduleSetup.newType = g_model.moduleData[EXTERNAL_MODULE].type;
+#endif
+
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
     reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
 #endif
@@ -1004,10 +1008,11 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
         lcdDrawTextAtIndex(
             MODEL_SETUP_2ND_COLUMN, y,
-            moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS
-                                         : STR_INTERNAL_MODULE_PROTOCOLS,
-            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType
-                                         : g_model.moduleData[moduleIdx].type,
+            STR_MODULE_PROTOCOLS,
+#if defined(HARDWARE_EXTERNAL_MODULE)
+            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType :
+#endif
+            g_model.moduleData[moduleIdx].type,
             menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS,
@@ -1031,6 +1036,7 @@ void menuModelSetup(event_t event)
               lcdNextPos + 3, y, STR_CRSF_BAUDRATE,
               CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0);
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
         if (attr && menuHorizontalPosition == 0 &&
             moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
@@ -1048,6 +1054,7 @@ void menuModelSetup(event_t event)
                 reusableBuffer.moduleSetup.newType;
           }
         }
+#endif
         if (attr) {
           if (s_editMode > 0) {
             switch (menuHorizontalPosition) {

@@ -573,12 +573,16 @@ const char * Pxx2OtaUpdate::nextStep(uint8_t step, const char * rxName, uint32_t
   destination->address = address;
 
   for (uint8_t retry = 0;; retry++) {
+#if defined(HARDWARE_EXTERNAL_MODULE)
     if (module == EXTERNAL_MODULE) {
       extmodulePulsesData.pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
     }
-    else if (module == INTERNAL_MODULE) {
+#endif
+#if defined(HARDWARE_INTERNAL_MODULE)
+    if (module == INTERNAL_MODULE) {
       intmodulePulsesData.pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
     }
+#endif
     if (waitStep(step + 1, 20)) {
       return nullptr;
     }
@@ -694,6 +698,7 @@ static void* pxx2Init(uint8_t module)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
 
     uint8_t type = g_model.moduleData[module].type;
@@ -722,6 +727,7 @@ static void* pxx2Init(uint8_t module)
 
     mod_st->user_data = (void*)&extmodulePulsesData.pxx2;
   }
+#endif
 
   return mod_st;
 }
@@ -740,9 +746,11 @@ static void pxx2DeInit(void* ctx)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     EXTERNAL_MODULE_OFF();
   }
+#endif
 
   mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
@@ -780,10 +788,12 @@ static void pxx2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     pulses->setupFrame(module, channels, nChannels);
     _send_frame(mod_st);
   }
+#endif
 }
 
 static int pxx2GetByte(void* ctx, uint8_t* data)

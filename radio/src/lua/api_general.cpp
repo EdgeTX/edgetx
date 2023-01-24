@@ -966,7 +966,7 @@ static int luaSportTelemetryPush(lua_State * L)
       packet.dataId = dataId;
       packet.value = luaL_checkunsigned(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
-#if defined(PXX2)
+#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
       uint8_t destination = (IS_INTERNAL_MODULE_ON() ? INTERNAL_MODULE : EXTERNAL_MODULE);
       outputTelemetryBuffer.setDestination(isModulePXX2(destination) ? (destination << 2) : TELEMETRY_ENDPOINT_SPORT);
 #else

@@ -617,6 +617,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     }
     f_lseek(&file, 0);
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
     if (module == EXTERNAL_MODULE) {
       if (!firmwareFile.isMultiExternalFirmware()) {
         f_close(&file);
@@ -624,20 +625,26 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
         return false;
       }
     }
-    else {
+#endif
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+    if (module == INTERNAL_MODULE) {
       if (!firmwareFile.isMultiInternalFirmware()) {
         f_close(&file);
         POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MULTI_SPEC);
         return false;
       }
     }
+#endif
   }
 
   std::unique_ptr<MultiFirmwareUpdateDriver> driver;
+
 #if defined(INTERNAL_MODULE_MULTI)
   if (type == MULTI_TYPE_MULTIMODULE && module == INTERNAL_MODULE)
     driver.reset(new MultiInternalUpdateDriver());
 #endif
+
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (type == MULTI_TYPE_MULTIMODULE && module == EXTERNAL_MODULE)
     driver.reset(new MultiExternalUpdateDriver());

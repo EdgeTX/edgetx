@@ -519,7 +519,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
           packet[0] & 0x3F, packet[2]);
 
     storageDirty(EE_MODEL);
-    restartModule(EXTERNAL_MODULE);
+    restartModule(module);
     
   } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
              g_model.moduleData[module].multi.rfProtocol ==

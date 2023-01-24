@@ -225,6 +225,7 @@ static void* multiInit(uint8_t module)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     // serial port setup
     // TODO: error handling
@@ -240,6 +241,7 @@ static void* multiInit(uint8_t module)
 
     EXTERNAL_MODULE_ON();
   }
+#endif
 
   if (mod_st) {
     // mixer setup
@@ -270,9 +272,11 @@ static void multiDeInit(void* ctx)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     EXTERNAL_MODULE_OFF();
   }
+#endif
   
   mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);

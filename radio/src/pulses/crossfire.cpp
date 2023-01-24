@@ -106,7 +106,7 @@ static void crossfireSetupMixerScheduler(uint8_t module)
   if (status.isValid()) {
     mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
   } else {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
   }
 }
 
@@ -124,7 +124,10 @@ static void crossfireSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   crossfireSetupMixerScheduler(module);
 
   auto data = (CrossfirePulsesData*)mod_st->user_data;
-  uint8_t endpoint = (module == EXTERNAL_MODULE) ? TELEMETRY_ENDPOINT_SPORT : 0;
+  uint8_t endpoint = 0;  
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
+#endif
   setupPulsesCrossfire(module, data, endpoint, channels, nChannels);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
@@ -241,6 +244,7 @@ static void* crossfireInit(uint8_t module)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
 
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
@@ -251,9 +255,10 @@ static void* crossfireInit(uint8_t module)
 
     mod_st->user_data = (void*)&extmodulePulsesData.crossfire;
   }
+#endif
 
   if (mod_st) {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
   }
 
   return (void*)mod_st;
@@ -270,9 +275,11 @@ static void crossfireDeInit(void* ctx)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     EXTERNAL_MODULE_OFF();
   }
+#endif
   
   mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);

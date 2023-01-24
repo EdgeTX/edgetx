@@ -23,6 +23,8 @@
 #include "telemetry/ghost.h"
 #include "telemetry/ghost_menu.h"
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
+
 uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {
   uint8_t * buf = frame;
@@ -149,3 +151,5 @@ void setupPulsesGhost()
     moduleState[EXTERNAL_MODULE].counter = GHST_FRAME_CHANNEL;
   }
 }
+
+#endif

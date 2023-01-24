@@ -675,15 +675,17 @@ void doSplash()
 #if defined(MULTIMODULE)
 void checkMultiLowPower()
 {
-  if (isModuleMultimodule(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].multi.lowPowerMode) {
-    ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
-    return;
+  bool low_power_warning = false;
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    if (isModuleMultimodule(i) &&
+        g_model.moduleData[i].multi.lowPowerMode) {
+      low_power_warning = true;
+    }
   }
-#if defined(INTERNAL_MODULE_MULTI)
-  if (isModuleMultimodule(INTERNAL_MODULE) && g_model.moduleData[INTERNAL_MODULE].multi.lowPowerMode) {
+
+  if (low_power_warning) {
     ALERT("MULTI", STR_WARN_MULTI_LOWPOWER, AU_ERROR);
   }
-#endif
 }
 #endif
 

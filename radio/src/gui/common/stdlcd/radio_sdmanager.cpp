@@ -220,12 +220,14 @@ void onSdManagerMenu(const char * result)
     FrskyDeviceFirmwareUpdate device(INTERNAL_MODULE);
     device.flashFirmware(lfn, drawProgressScreen);
   }
+#if defined(HARDWARE_EXTERNAL_MODULE)
   else if (result == STR_FLASH_EXTERNAL_MODULE) {
     // needed on X-Lite (as the R9M needs 2S while the external device flashing port only provides 5V)
     getSelectionFullPath(lfn);
     FrskyDeviceFirmwareUpdate device(EXTERNAL_MODULE);
     device.flashFirmware(lfn, drawProgressScreen);
   }
+#endif
   // TODO: use another module enum as 'ModuleIndex'
   // else if (result == STR_FLASH_EXTERNAL_DEVICE) {
   //   getSelectionFullPath(lfn);
@@ -240,6 +242,7 @@ void onSdManagerMenu(const char * result)
     device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
   else if (result == STR_FLASH_EXTERNAL_MULTI) {
     getSelectionFullPath(lfn);
     MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
@@ -250,6 +253,7 @@ void onSdManagerMenu(const char * result)
     MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_ELRS);
     device.flashFirmware(lfn, drawProgressScreen);
   }
+#endif
 #endif
 #if defined(BLUETOOTH)
   else if (result == STR_FLASH_BLUETOOTH_MODULE) {
@@ -264,7 +268,7 @@ void onSdManagerMenu(const char * result)
     device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
-#if defined(PXX2)
+#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
   else if (result == STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA || result == STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA) {
     memclear(&reusableBuffer.sdManager.otaUpdateInformation, sizeof(OtaUpdateInformation));
     getSelectionFullPath(reusableBuffer.sdManager.otaUpdateInformation.filename);
@@ -455,7 +459,7 @@ void menuRadioSdManager(event_t _event)
                 else
                   POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MODULE);
               }
-#if defined(PXX2)
+#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
               if (information.productFamily == FIRMWARE_FAMILY_RECEIVER) {
                 if (isReceiverOTAEnabledFromModule(INTERNAL_MODULE, information.productId))
                   POPUP_MENU_ADD_ITEM(STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA);

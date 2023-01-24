@@ -364,12 +364,17 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     uart_ctx = modulePortGetCtx(mod_st->tx);
   }
 
+#if defined(HARDWARE_INTERNAL_MODULE)
   if (module == INTERNAL_MODULE)
     INTERNAL_MODULE_ON();
-  else if (module == EXTERNAL_MODULE)
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE)
     EXTERNAL_MODULE_ON();
-  else
-    SPORT_UPDATE_POWER_ON();
+#endif
+  // TODO
+  // else SPORT_UPDATE_POWER_ON();
 
   result = uploadFileNormal(filename, &file, progressHandler);
   f_close(&file);

@@ -56,12 +56,10 @@ bool isForcePowerOffRequested()
   return false;
 }
 
-void sendSynchronousPulses(uint8_t runMask)
+void sendSynchronousPulses()
 {
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    if (runMask & (1 << i)) {
-      pulsesSendNextFrame(i);
-    }
+    pulsesSendNextFrame(i);
   }
 }
 
@@ -138,7 +136,7 @@ TASK_FUNCTION(mixerTask)
       RTOS_LOCK_MUTEX(mixerMutex);
 
       doMixerCalculations();
-      sendSynchronousPulses((1 << INTERNAL_MODULE) | (1 << EXTERNAL_MODULE));
+      sendSynchronousPulses();
       doMixerPeriodicUpdates();
 
       DEBUG_TIMER_START(debugTimerMixerCalcToUsage);

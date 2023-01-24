@@ -46,7 +46,7 @@ inline int getChannelValue(uint8_t port, int channel)
   return channelOutputs[ch] + 2 * PPM_CH_CENTER(ch) - 2 * PPM_CENTER;
 }
 
-void setupPulsesSbus(UartMultiPulses* uart)
+void setupPulsesSbus(uint8_t module, UartMultiPulses* uart)
 {
   // extmodulePulsesData.dsm2.index = 0;
   // extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
@@ -59,7 +59,7 @@ void setupPulsesSbus(UartMultiPulses* uart)
 
   // byte 1-22, channels 0..2047, limits not really clear (B
   for (int i=0; i<SBUS_NORMAL_CHANS; i++) {
-    int value = getChannelValue(EXTERNAL_MODULE, i);
+    int value = getChannelValue(module, i);
 
     value =  value*8/10 + SBUS_CHAN_CENTER;
     bits |= limit(0, value, 2047) << bitsavailable;
@@ -73,9 +73,9 @@ void setupPulsesSbus(UartMultiPulses* uart)
 
   // flags
   uint8_t flags=0;
-  if (getChannelValue(EXTERNAL_MODULE, 16) > 0)
+  if (getChannelValue(module, 16) > 0)
     flags |= SBUS_FLAG_CHANNEL_17;
-  if (getChannelValue(EXTERNAL_MODULE, 17) > 0)
+  if (getChannelValue(module, 17) > 0)
     flags |= SBUS_FLAG_CHANNEL_18;
 
   uart->sendByte(flags);
@@ -97,8 +97,10 @@ etx_serial_init sbusUartParams = {
 
 static void* sbusInit(uint8_t module)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   // only external module supported
   if (module == INTERNAL_MODULE) return nullptr;
+#endif
 
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
                                      ETX_MOD_DIR_TX, &sbusUartParams);
@@ -107,7 +109,7 @@ static void* sbusInit(uint8_t module)
   mod_st->user_data = (void*)&extmodulePulsesData.multi;
 
   EXTERNAL_MODULE_ON();
-  mixerSchedulerSetPeriod(module, SBUS_PERIOD);
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
 
   return (void*)mod_st;
 }
@@ -136,14 +138,14 @@ static void sbusSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
   auto pulses = (UartMultiPulses*)mod_st->user_data;
   pulses->initFrame();
-  setupPulsesSbus(pulses);
+  setupPulsesSbus(module, pulses);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
   drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
 
   // SBUS_PERIOD is not a constant! It can be set from UI
-  mixerSchedulerSetPeriod(module, SBUS_PERIOD);
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
 }
 
 const etx_proto_driver_t SBusDriver = {

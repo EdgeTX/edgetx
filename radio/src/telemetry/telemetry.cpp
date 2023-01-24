@@ -314,14 +314,20 @@ void telemetryWakeup()
       if (TELEMETRY_STREAMING()) {
         if (telemetryState == TELEMETRY_KO) {
           AUDIO_TELEMETRY_BACK();
+
 #if defined(CROSSFIRE)
           // TODO: move to crossfire code
+#if defined(HARDWARE_EXTERNAL_MODULE)
           if (isModuleCrossfire(EXTERNAL_MODULE)) {
             moduleState[EXTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
           }
+#endif
+
+#if defined(HARDWARE_INTERNAL_MODULE)
           if (isModuleCrossfire(INTERNAL_MODULE)) {
             moduleState[INTERNAL_MODULE].counter = CRSF_FRAME_MODELID;
           }
+#endif
 #endif
         }
         telemetryState = TELEMETRY_OK;

@@ -64,10 +64,12 @@ void Pxx1Pulses<PxxTransport>::addExtraFlags(uint8_t module)
       extraFlags |= (1 << 6);
   }
 
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(HARDWARE_INTERNAL_MODULE)
   // Disable S.PORT if internal module is active
   if (module == EXTERNAL_MODULE && isSportLineUsedByInternalModule()) {
     extraFlags |= (1 << 5);
   }
+#endif
 
   PxxTransport::addByte(extraFlags);
 }
@@ -261,6 +263,7 @@ static void* pxx1Init(uint8_t module)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
 
     // Init driver (timer / serial) based on module type
@@ -294,6 +297,7 @@ static void* pxx1Init(uint8_t module)
 
     EXTERNAL_MODULE_ON();
   }
+#endif
 
   if (!mod_st) return nullptr;
   
@@ -320,9 +324,11 @@ static void pxx1DeInit(void* ctx)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     EXTERNAL_MODULE_OFF();
   }
+#endif
   
   mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
@@ -359,6 +365,7 @@ static void pxx1SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     auto drv_ctx = modulePortGetCtx(mod_st->tx);
     if (modulePortGetType(mod_st->tx) == ETX_MOD_TYPE_SERIAL) {
@@ -376,6 +383,7 @@ static void pxx1SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
                 extmodulePulsesData.pxx.getSize());
     }
   }
+#endif
 }
 
 static int pxx1GetByte(void* ctx, uint8_t* data)

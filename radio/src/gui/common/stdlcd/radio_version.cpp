@@ -95,8 +95,9 @@ void drawPXX2FullVersion(coord_t x, coord_t y, PXX2Version hwVersion, PXX2Versio
 void menuRadioModulesVersion(event_t event)
 {
   if (menuEvent) {
-    moduleState[INTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
-    moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+    for (uint8_t i = 0; i < MAX_MODULES; i++) {
+      moduleState[i].mode = MODULE_MODE_NORMAL;
+    }
     return;
   }
 
@@ -107,13 +108,18 @@ void menuRadioModulesVersion(event_t event)
   }
 
   if (event == EVT_ENTRY || get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
+
+#if defined(HARDWARE_INTERNAL_MODULE)
     if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
       moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
+#endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
     if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
       moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
+#endif
 
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 1000 /* 10s*/;
   }
@@ -123,18 +129,30 @@ void menuRadioModulesVersion(event_t event)
   for (uint8_t module=0; module<NUM_MODULES; module++) {
     // Label
     if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
+#if defined(HARDWARE_INTERNAL_MODULE)
       if (module == INTERNAL_MODULE)
         lcdDrawTextAlignedLeft(y, STR_INTERNAL_MODULE);
-      else if (module == EXTERNAL_MODULE)
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+      if (module == EXTERNAL_MODULE)
         lcdDrawTextAlignedLeft(y, STR_EXTERNAL_MODULE);
+#endif
     }
     y += FH;
 
     // Module model
     if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
       lcdDrawText(INDENT_WIDTH, y, STR_MODULE);
-      if ((module == INTERNAL_MODULE && !IS_INTERNAL_MODULE_ON()) ||
-          (module == EXTERNAL_MODULE && !IS_EXTERNAL_MODULE_ON())) {
+      bool module_off = true;
+#if defined(HARDWARE_INTERNAL_MODULE)
+      if (module == INTERNAL_MODULE && IS_INTERNAL_MODULE_ON())
+        module_off = false;
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+      if (module == EXTERNAL_MODULE && IS_EXTERNAL_MODULE_ON())
+        module_off = false;
+#endif
+      if (module_off) {
         lcdDrawText(COLUMN2_X, y, STR_OFF);
         y += FH;
         continue;

@@ -133,7 +133,7 @@ extern uint8_t telemetryProtocol;
 
 inline const char* getRssiLabel()
 {
-#if defined(MULTIMODULE)
+#if defined(MULTIMODULE) && defined(EXTERNAL_MODULE)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
       (g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
            MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
@@ -142,17 +142,20 @@ inline const char* getRssiLabel()
     return "RQly";
   }
 #endif
+
 #if defined(GHOST)
   if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
     return "RQly";
   }
 #endif
+
 #if defined (PCBNV14)
   extern uint32_t NV14internalModuleFwVersion;
   if ( (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) 
         && (NV14internalModuleFwVersion >=  0x1000E) )
     return "Sgnl";
 #endif
+
   return "RSSI";
 }
 
@@ -161,6 +164,7 @@ inline const char* getRssiLabel()
 //
 inline uint8_t modelTelemetryProtocol()
 {
+#if defined(HARDWARE_EXTERNAL_MODULE)
   bool sportUsed = isSportLineUsedByInternalModule();
 
 #if defined(CROSSFIRE)
@@ -192,17 +196,19 @@ inline uint8_t modelTelemetryProtocol()
   }
 #endif
 
+  if (isModuleDSMP(EXTERNAL_MODULE)) {
+    return PROTOCOL_TELEMETRY_DSMP;
+  }
+  
+#endif // HARDWARE_EXTERNAL_MODULE
+
   // TODO: Check if that is really necessary...
-#if defined(AFHDS2)
+#if defined(AFHDS2) && defined(HARDWARE_INTERNAL_MODULE)
   if (isModuleAFHDS2A(INTERNAL_MODULE)) {
     return PROTOCOL_TELEMETRY_FLYSKY_NV14;
   }
 #endif
 
-  if (isModuleDSMP(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_DSMP;
-  }
-  
   // default choice
   return PROTOCOL_TELEMETRY_FRSKY_SPORT;
 }

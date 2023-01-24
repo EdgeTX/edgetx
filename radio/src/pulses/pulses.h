@@ -130,8 +130,8 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 #define SBUS_MAX_PERIOD              325 /*Overflows uint16_t if set higher*/
 #define SBUS_DEF_PERIOD              225
 #define SBUS_STEPSIZE                5   /* SBUS Step Size 0.5ms */
-#define SBUS_PERIOD_HALF_US          ((g_model.moduleData[EXTERNAL_MODULE].sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD) * 200) /*half us*/
-#define SBUS_PERIOD                  (SBUS_PERIOD_HALF_US / 2) /*us*/
+#define SBUS_PERIOD_HALF_US(m)       ((g_model.moduleData[m].sbus.refreshRate * SBUS_STEPSIZE + SBUS_DEF_PERIOD) * 200) /*half us*/
+#define SBUS_PERIOD(m)               (SBUS_PERIOD_HALF_US(m) / 2) /*us*/
 #define MULTIMODULE_BAUDRATE         100000
 #define MULTIMODULE_PERIOD           7000 /*us*/
 

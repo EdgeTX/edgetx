@@ -47,7 +47,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
   auto internalModule = new Choice(
-      box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
+      box, rect_t{}, STR_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
       MODULE_TYPE_COUNT - 1, GET_DEFAULT(g_eeGeneral.internalModule),
       [=](int type) { return setModuleType(type); });
 

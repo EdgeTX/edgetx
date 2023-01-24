@@ -37,11 +37,11 @@
 
 #define DSM2_BITRATE         125000
 
-static void setupPulsesDSM2(UartMultiPulses* uart)
+static void setupPulsesDSM2(uint8_t module, UartMultiPulses* uart)
 {
   uint8_t dsmDat[14];
 
-  switch (moduleState[EXTERNAL_MODULE].protocol) {
+  switch (moduleState[module].protocol) {
     case PROTOCOL_CHANNELS_DSM2_LP45:
       dsmDat[0] = 0x00;
       break;
@@ -53,17 +53,17 @@ static void setupPulsesDSM2(UartMultiPulses* uart)
       break;
   }
 
-  if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_BIND) {
+  if (moduleState[module].mode == MODULE_MODE_BIND) {
     dsmDat[0] |= DSM2_SEND_BIND;
   }
-  else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
+  else if (moduleState[module].mode == MODULE_MODE_RANGECHECK) {
     dsmDat[0] |= DSM2_SEND_RANGECHECK;
   }
 
-  dsmDat[1] = g_model.header.modelId[EXTERNAL_MODULE]; // DSM2 Header second byte for model match
+  dsmDat[1] = g_model.header.modelId[module]; // DSM2 Header second byte for model match
 
   for (int i=0; i<DSM2_CHANS; i++) {
-    int channel = g_model.moduleData[EXTERNAL_MODULE].channelsStart+i;
+    int channel = g_model.moduleData[module].channelsStart+i;
     int value = channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
     uint16_t pulse = limit(0, ((value*13)>>5)+512, 1023);
     dsmDat[2+2*i] = (i<<2) | ((pulse>>8)&0x03);
@@ -78,18 +78,18 @@ static void setupPulsesDSM2(UartMultiPulses* uart)
 
 #define DSMP_BITRATE 115200
 
-static void setupPulsesLemonDSMP(UartMultiPulses* uart)
+static void setupPulsesLemonDSMP(uint8_t module, UartMultiPulses* uart)
 {
   static uint8_t pass = 0;
 
-  const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  const auto& md = g_model.moduleData[module];
 
   uint8_t start_channel = md.channelsStart;
   auto channels = md.getChannelsCount();
   auto flags = md.dsmp.flags & 0x3F;
 
   // Force setup packet in Bind mode.
-  auto module_mode = getModuleMode(EXTERNAL_MODULE);
+  auto module_mode = getModuleMode(module);
 
   uart->sendByte( 0xAA );
   uart->sendByte( pass );
@@ -158,10 +158,10 @@ static void setupPulsesLemonDSMP(UartMultiPulses* uart)
     // bind packet is setup
     pass = 0;
   }
-  else if (--moduleState[EXTERNAL_MODULE].counter == 0) {
+  else if (--moduleState[module].counter == 0) {
     // every 100th packet is setup
     pass = 0;
-    moduleState[EXTERNAL_MODULE].counter = 100;
+    moduleState[module].counter = 100;
   }
 }
 
@@ -230,10 +230,11 @@ static void dsm2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   (void)nChannels;
 
   auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
   auto pulses = (UartMultiPulses*)mod_st->user_data;
 
   pulses->initFrame();
-  setupPulsesDSM2(pulses);
+  setupPulsesDSM2(module, pulses);
 
   _dsm_send(mod_st, pulses);
 }
@@ -245,10 +246,11 @@ static void dsmpSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   (void)nChannels;
 
   auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
   auto pulses = (UartMultiPulses*)mod_st->user_data;
 
   pulses->initFrame();
-  setupPulsesLemonDSMP(pulses);
+  setupPulsesLemonDSMP(module, pulses);
 
   _dsm_send(mod_st, pulses);
 }

@@ -71,17 +71,22 @@ extern uint32_t NV14internalModuleFwVersion;
    (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_DSM_RX))
 
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(HARDWARE_EXTERNAL_MODULE)
 #define IS_FRSKY_SPORT_PROTOCOL()                                      \
   (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||              \
    (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&             \
     (IS_D16_MULTI(INTERNAL_MODULE) || IS_D16_MULTI(EXTERNAL_MODULE) || \
      IS_R9_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#else
+#elif defined(HARDWARE_EXTERNAL_MODULE)
 #define IS_FRSKY_SPORT_PROTOCOL()                          \
   (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
    (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
     (IS_D16_MULTI(EXTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
+#elif defined(HARDWARE_INTERNAL_MODULE)
+#define IS_FRSKY_SPORT_PROTOCOL()                          \
+  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
+   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
+    (IS_D16_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(INTERNAL_MODULE))))
 #endif
 
 #else
@@ -726,6 +731,7 @@ inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
     return false;
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_LITE_PXX1) {
     if (isModuleR9M_LBT(EXTERNAL_MODULE))
       return g_model.moduleData[EXTERNAL_MODULE].pxx.power < R9M_LITE_LBT_POWER_100_16CH_NOTELEM;
@@ -739,6 +745,7 @@ inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
     else
       return true;
   }
+#endif
 
   return true;
 }

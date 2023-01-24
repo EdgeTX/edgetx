@@ -161,11 +161,15 @@ void menuRadioTools(event_t event)
   if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER))
     addRadioModuleTool(index++, STR_POWER_METER_INT, menuRadioPowerMeter, INTERNAL_MODULE);
 #endif
+
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE)
     addRadioModuleTool(index++, STR_SPECTRUM_ANALYSER_INT, menuRadioSpectrumAnalyser, INTERNAL_MODULE);
 #endif
-#if defined(PXX2) || defined(MULTIMODULE)
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+
+#if (defined(PXX2) || defined(MULTIMODULE))
   if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER) || isModuleMultimodule(EXTERNAL_MODULE))
     addRadioModuleTool(index++, STR_SPECTRUM_ANALYSER_EXT, menuRadioSpectrumAnalyser, EXTERNAL_MODULE);
 #endif
@@ -177,6 +181,8 @@ void menuRadioTools(event_t event)
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE))
     addRadioModuleTool(index++, "Ghost Menu", menuGhostModuleConfig, EXTERNAL_MODULE);
+#endif
+
 #endif
 
   if (index == 0) {

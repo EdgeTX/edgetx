@@ -82,15 +82,21 @@ void setupPulsesPPMTrainer()
 static void setupPulsesPPMModule(uint8_t module)
 {
   PpmPulsesData<pulse_duration_t>* data = nullptr;
+
 #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
   if (module == INTERNAL_MODULE) {
     data = &intmodulePulsesData.ppm;
-  } else
+  }
 #endif
-  {
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) {
     data = &extmodulePulsesData.ppm;
   }
+#endif
 
+  if (!data) return;
+  
   setupPulsesPPM(&extmodulePulsesData.ppm,
                  g_model.moduleData[module].channelsStart,
                  g_model.moduleData[module].channelsCount);
@@ -107,10 +113,12 @@ void setupPulsesPPMInternalModule()
 }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 void setupPulsesPPMExternalModule()
 {
   setupPulsesPPMModule(EXTERNAL_MODULE);
 }
+#endif
 
 // extmoduleSendNextFramePpm(extmodulePulsesData.ppm.pulses,
 //                           extmodulePulsesData.ppm.ptr -

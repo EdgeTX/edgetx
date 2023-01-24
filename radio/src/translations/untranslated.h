@@ -103,7 +103,7 @@
 
 #define TR_MODULE_R9M_LITE             "R9MLite"
 
-#define TR_EXTERNAL_MODULE_PROTOCOLS \
+#define TR_MODULE_PROTOCOLS          \
     TR_OFF,                          \
     "PPM",                           \
     "XJT",                           \
@@ -121,8 +121,6 @@
     "XJT Lite",                      \
     "FLYSKY",                        \
     TR("Lemon DSMP","LemonRx DSMP")
-
-#define TR_INTERNAL_MODULE_PROTOCOLS   TR_EXTERNAL_MODULE_PROTOCOLS
 
 #define TR_FLYSKY_PROTOCOLS            "AFHDS3","AFHDS2A"
 #define TR_XJT_ACCST_RF_PROTOCOLS      "D16","D8","LR12"

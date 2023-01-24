@@ -220,6 +220,7 @@ extern const stm32_pulse_timer_t intmoduleTimer;
 #include "module_timer_driver.h"
 #include "extmodule_driver.h"
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 #if defined(EXTMODULE_USART)
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
@@ -252,6 +253,7 @@ DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0)
 #endif
 
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
+#endif
 
 #define TELEMETRY_USART_IRQ_PRIORITY 6
 #define TELEMETRY_DMA_IRQ_PRIORITY   7
@@ -339,6 +341,7 @@ BEGIN_MODULE_PORTS()
     .hw_def = (void*)&intmoduleTimer,
   },
 #endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
   {
     .port = ETX_MOD_PORT_EXTERNAL_TIMER,
     .type = ETX_MOD_TYPE_TIMER,
@@ -346,6 +349,7 @@ BEGIN_MODULE_PORTS()
     .drv = { .timer = &STM32ModuleTimerDriver },
     .hw_def = (void*)&extmoduleTimer,
   },
+#endif
 #if defined(EXTMODULE_USART)
   {
     .port = ETX_MOD_PORT_EXTERNAL_UART,
@@ -369,6 +373,7 @@ BEGIN_MODULE_PORTS()
   //   .drv = { .serial = &STM32SoftSerialDriver },
   //   .hw_def = (void*)&sportSoftRX,
   // },
+#if defined(HARDWARE_EXTERNAL_MODULE)
   {
     .port = ETX_MOD_PORT_EXTERNAL_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
@@ -377,4 +382,5 @@ BEGIN_MODULE_PORTS()
     // .hw_def = (void*)&ppmSoftTX,
     .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
   },
+#endif
 END_MODULE_PORTS()
