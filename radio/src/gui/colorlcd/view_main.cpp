@@ -260,13 +260,18 @@ void ViewMain::onEvent(event_t event)
       new ModelLabelsWindow();
       break;
 
-    // TODO:
-    // - use BREAK instead
-    // - use LONG for "Tools" page
-    //
-    case EVT_KEY_FIRST(KEY_RADIO):
+    case EVT_KEY_BREAK(KEY_RADIO):
       if (viewMainMenu) viewMainMenu->onCancel();
       new RadioMenu();
+      break;
+
+    case EVT_KEY_LONG(KEY_RADIO):
+      {
+        killEvents(KEY_RADIO);
+        // Radio setup
+        auto m = new RadioMenu();
+        m->setCurrentTab(2);
+      }
       break;
 
     case EVT_KEY_FIRST(KEY_TELEM):
