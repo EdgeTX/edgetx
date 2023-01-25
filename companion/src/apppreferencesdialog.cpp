@@ -78,6 +78,7 @@ void AppPreferencesDialog::accept()
   g.showSplash(ui->showSplash->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
   g.simuSW(ui->simuSW->isChecked());
+  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
   g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
@@ -237,6 +238,7 @@ void AppPreferencesDialog::initSettings()
   }
 
   ui->simuSW->setChecked(g.simuSW());
+  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
   ui->cboNewModelAction->addItems(AppData::newModelActionsList());
   ui->cboNewModelAction->setCurrentIndex(g.newModelAction());

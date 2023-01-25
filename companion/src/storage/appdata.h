@@ -687,6 +687,7 @@ class AppData: public CompStoreObj
     PROPERTY(int, backLight,       0)
     PROPERTY(int, simuLastProfId, -1)
     PROPERTY(bool, simuSW,      true)
+    PROPERTY(bool, disableJoystickWarning, false)
 
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)
