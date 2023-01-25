@@ -23,22 +23,20 @@
 #include "switches.h"
 
 SwitchWarnDialog::SwitchWarnDialog() :
-    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN)
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "", STR_PRESS_ANY_KEY_TO_SKIP)
 {
   last_bad_switches = 0xff;
   bad_pots = 0;
   last_bad_pots = 0x0;
   setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
+}
 
-  warn_label = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-
-  lv_obj_t* obj = warn_label->getLvObj();
-  lv_label_set_long_mode(obj, LV_LABEL_LONG_DOT);
-
-  warn_label->setLeft(ALERT_MESSAGE_LEFT);
-  warn_label->setWidth(LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING);
-  warn_label->setTop(ALERT_MESSAGE_TOP);
-  warn_label->setHeight(LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING);
+void SwitchWarnDialog::init()
+{
+  if (!loaded) {
+    FullScreenDialog::init();
+    lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  }
 }
 
 bool SwitchWarnDialog::warningInactive()
@@ -98,5 +96,5 @@ void SwitchWarnDialog::checkEvents()
     }
   }
 
-  warn_label->setText(warn_txt);
+  messageLabel->setText(warn_txt);
 }
