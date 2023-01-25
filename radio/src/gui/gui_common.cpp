@@ -300,6 +300,9 @@ bool isSourceAvailableInInputs(int source)
     return isTelemetryFieldAvailable(qr.quot) && isTelemetryFieldComparisonAvailable(qr.quot);
   }
 
+  if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
+    return true;
+
   return false;
 }
 
@@ -400,7 +403,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
     return false;
 #endif
-  
+
   if (mode == UART_MODE_NONE)
     return true;
 
@@ -440,7 +443,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   if (mode == UART_MODE_EXT_MODULE && port_nr != SP_AUX1)
     return false;
 #endif
-  
+
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
@@ -452,7 +455,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
       (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
     return false;
 #endif
-  
+
   auto p = hasSerialMode(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
@@ -733,7 +736,7 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
       if (moduleBay == INTERNAL_MODULE)
         return false;
 #endif
-      
+
     default:
       return true;
   }
@@ -776,7 +779,7 @@ bool isInternalModuleSupported(int moduleType)
 bool isInternalModuleAvailable(int moduleType)
 {
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(EXTERNAL_MODULE)) 
+  if (!isModuleNone(EXTERNAL_MODULE))
     return false;
 #endif
 
@@ -821,7 +824,7 @@ bool isExternalModuleAvailable(int moduleType)
 {
 
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
-  if (!isModuleNone(INTERNAL_MODULE)) 
+  if (!isModuleNone(INTERNAL_MODULE))
     return false;
 #endif
 
@@ -1035,7 +1038,7 @@ bool isTrainerModeAvailable(int mode)
 #endif
 
 #if !defined(MULTIMODULE) || !defined(HARDWARE_INTERNAL_MODULE) || !defined(HARDWARE_EXTERNAL_MODULE)
-  if (mode == TRAINER_MODE_MULTI) 
+  if (mode == TRAINER_MODE_MULTI)
     return false;
 #else
   if (mode == TRAINER_MODE_MULTI &&
