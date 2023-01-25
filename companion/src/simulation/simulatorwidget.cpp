@@ -884,7 +884,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     if (stick < ttlKnobs)
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
     else
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
   }
 
 #endif
