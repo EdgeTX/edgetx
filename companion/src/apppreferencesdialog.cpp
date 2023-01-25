@@ -94,9 +94,11 @@ void AppPreferencesDialog::accept()
   g.appLogsDir(ui->appLogsDir->text());
   g.runAppInstaller(ui->chkPromptInstall->isChecked());
 
-  if (ui->joystickChkB ->isChecked() && ui->joystickCB->isEnabled()) {
+  if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
-    g.jsCtrl(ui->joystickCB ->currentIndex());
+    // Don't overwrite selected joystick if not connected. Avoid surprising the user.
+    if (ui->joystickCB->isEnabled())
+      g.jsCtrl(ui->joystickCB ->currentIndex());
   }
   else {
     g.jsSupport(false);

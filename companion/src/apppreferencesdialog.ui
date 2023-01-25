@@ -45,7 +45,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="profileTab">
       <attribute name="title">
@@ -481,7 +481,6 @@ Mode 4:
          </property>
          <property name="font">
           <font>
-           <family>Ubuntu</family>
            <weight>75</weight>
            <bold>true</bold>
           </font>
