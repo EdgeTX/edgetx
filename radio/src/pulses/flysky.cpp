@@ -121,6 +121,12 @@ static uint32_t rfRxCount = 0;
 static uint8_t lastState = STATE_IDLE;
 static uint32_t set_loop_cnt = 0;
 
+static uint8_t _flysky_state;
+static uint8_t _flysky_frame_index;
+static uint8_t _flysky_crc;
+static uint8_t _flysky_timeout;
+static uint8_t _esc_state;
+
 uint32_t NV14internalModuleFwVersion = 0;
 
 static rf_info_t rf_info = {
@@ -153,7 +159,7 @@ uint8_t emptyRxID[] = {0, 0, 0, 0};
 void setFlyskyState(uint8_t state);
 void onFlySkyBindReceiver();
 void onFlySkyModuleSetPower(bool isPowerOn);
-void afhds2Command(uint8_t type, uint8_t cmd);
+void afhds2Command(uint8_t*& p_buf, uint8_t type, uint8_t cmd);
 void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer);
 // void usbDownloadTransmit(uint8_t *buffer, uint32_t size);
 
@@ -244,92 +250,96 @@ void onFlySkyModuleSetPower(bool isPowerOn)
   }
 }
 
-void setFlyskyState(uint8_t state) { intmodulePulsesData.flysky.state = state; }
+void setFlyskyState(uint8_t state)
+{
+  _flysky_state = state;
+}
 
 void onFlySkyUsbDownloadStart(uint8_t fw_state) { rf_info.fw_state = fw_state; }
 
 void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer)
 {
-  lastState = intmodulePulsesData.flysky.state;
+  lastState = _flysky_state;
   setFlyskyState(isRfTransfer ? STATE_GET_RF_VERSION_INFO
                               : STATE_GET_RX_VERSION_INFO);
 }
 
 inline void initFlySkyArray()
 {
-  intmodulePulsesData.flysky.ptr = intmodulePulsesData.flysky.pulses;
-  intmodulePulsesData.flysky.crc = 0;
+  // TODO
+  // intmodulePulsesData.flysky.ptr = intmodulePulsesData.flysky.pulses;
+  _flysky_crc = 0;
 }
 
-inline void putFlySkyByte(uint8_t byte)
+inline void putFlySkyByte(uint8_t*& p_buf, uint8_t byte)
 {
   if (END == byte) {
-    *intmodulePulsesData.flysky.ptr++ = ESC;
-    *intmodulePulsesData.flysky.ptr++ = ESC_END;
+    *p_buf++ = ESC;
+    *p_buf++ = ESC_END;
   } else if (ESC == byte) {
-    *intmodulePulsesData.flysky.ptr++ = ESC;
-    *intmodulePulsesData.flysky.ptr++ = ESC_ESC;
+    *p_buf++ = ESC;
+    *p_buf++ = ESC_ESC;
   } else {
-    *intmodulePulsesData.flysky.ptr++ = byte;
+    *p_buf++ = byte;
   }
 }
 
-inline void putFlySkyFrameByte(uint8_t byte)
+inline void putFlySkyFrameByte(uint8_t*& p_buf, uint8_t byte)
 {
-  intmodulePulsesData.flysky.crc += byte;
-  putFlySkyByte(byte);
+  _flysky_crc += byte;
+  putFlySkyByte(p_buf, byte);
 }
 
-inline void putFlySkyFrameCmd(uint8_t type, uint8_t cmd)
+inline void putFlySkyFrameCmd(uint8_t*& p_buf, uint8_t type, uint8_t cmd)
 {
-  intmodulePulsesData.flysky.crc += type + cmd;
-  putFlySkyByte(type);
-  putFlySkyByte(cmd);
+  _flysky_crc += type + cmd;
+  putFlySkyByte(p_buf, type);
+  putFlySkyByte(p_buf, cmd);
 }
 
-inline void putFlySkyFrameBytes(uint8_t* data, int length)
+inline void putFlySkyFrameBytes(uint8_t*& p_buf, uint8_t* data, int length)
 {
   for (int i = 0; i < length; i++) {
-    intmodulePulsesData.flysky.crc += data[i];
-    putFlySkyByte(data[i]);
+    _flysky_crc += data[i];
+    putFlySkyByte(p_buf, data[i]);
   }
 }
 
-inline void putFlySkyFrameHeader()
+inline void putFlySkyFrameHeader(uint8_t*& p_buf)
 {
-  initFlySkyArray();
-  *intmodulePulsesData.flysky.ptr++ = END;
-  putFlySkyFrameByte(intmodulePulsesData.flysky.frame_index);
+  // initFlySkyArray();
+  *p_buf++ = END;
+  putFlySkyFrameByte(p_buf, _flysky_frame_index);
 }
 
-inline void putFlySkyFrameFooter()
+inline void putFlySkyFrameFooter(uint8_t*& p_buf)
 {
-  if (++intmodulePulsesData.flysky.frame_index == 0) {
-    intmodulePulsesData.flysky.frame_index = 1;
+  if (++_flysky_frame_index == 0) {
+    _flysky_frame_index = 1;
   }
-  putFlySkyByte(intmodulePulsesData.flysky.crc ^ 0xff);
-  *intmodulePulsesData.flysky.ptr++ = END;
+  putFlySkyByte(p_buf, _flysky_crc ^ 0xff);
+  *p_buf++ = END;
 }
 
-void afhds2Command(uint8_t type, uint8_t cmd)
+void afhds2Command(uint8_t*& p_buf, uint8_t type, uint8_t cmd)
 {
-  putFlySkyFrameHeader();
-  putFlySkyFrameCmd(type, cmd);
-  putFlySkyFrameFooter();
+  putFlySkyFrameHeader(p_buf);
+  putFlySkyFrameCmd(p_buf, type, cmd);
+  putFlySkyFrameFooter(p_buf);
 }
 
-inline void putFlySkySendChannelData()
+inline void putFlySkySendChannelData(uint8_t*& p_buf)
 {
   uint16_t pulseValue = 0;
   uint8_t channels_start = g_model.moduleData[INTERNAL_MODULE].channelsStart;
   uint8_t channels_last =
       channels_start + 8 + g_model.moduleData[INTERNAL_MODULE].channelsCount;
-  putFlySkyFrameCmd(FRAME_TYPE_REQUEST_NACK, CMD_SEND_CHANNEL_DATA);
+  putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_NACK, CMD_SEND_CHANNEL_DATA);
 
   if (moduleState[INTERNAL_MODULE].counter-- == 0) {
     moduleState[INTERNAL_MODULE].counter = FAILSAVE_SEND_COUNTER_MAX;
-    putFlySkyFrameByte(FLYSKY_CHANNEL_DATA_FAILSAFE);
-    putFlySkyFrameByte(channels_last - channels_start);
+    putFlySkyFrameByte(p_buf, FLYSKY_CHANNEL_DATA_FAILSAFE);
+    putFlySkyFrameByte(p_buf, channels_last - channels_start);
     for (uint8_t channel = channels_start; channel < channels_last; channel++) {
       if (g_model.moduleData[INTERNAL_MODULE].failsafeMode == FAILSAFE_CUSTOM) {
         int16_t failsafeValue = g_model.failsafeChannels[channel];
@@ -345,28 +355,28 @@ inline void putFlySkySendChannelData()
         pulseValue =
             limit<uint16_t>(0, 988 + ((failsafeValue + 1024) / 2), 0xfff);
       }
-      putFlySkyFrameByte(pulseValue & 0xff);
-      putFlySkyFrameByte(pulseValue >> 8);
+      putFlySkyFrameByte(p_buf, pulseValue & 0xff);
+      putFlySkyFrameByte(p_buf, pulseValue >> 8);
     }
     if (DEBUG_RF_FRAME_PRINT & RF_FRAME_ONLY) {
       TRACE("------FAILSAFE------");
     }
   } else {
-    putFlySkyFrameByte(FLYSKY_CHANNEL_DATA_NORMAL);
-    putFlySkyFrameByte(channels_last - channels_start);
+    putFlySkyFrameByte(p_buf, FLYSKY_CHANNEL_DATA_NORMAL);
+    putFlySkyFrameByte(p_buf, channels_last - channels_start);
     for (uint8_t channel = channels_start; channel < channels_last; channel++) {
       int channelValue =
           channelOutputs[channel] + 2 * PPM_CH_CENTER(channel) - 2 * PPM_CENTER;
       pulseValue = limit<uint16_t>(0, 988 + ((channelValue + 1024) / 2), 0xfff);
-      putFlySkyFrameByte(pulseValue & 0xff);
-      putFlySkyFrameByte(pulseValue >> 8);
+      putFlySkyFrameByte(p_buf, pulseValue & 0xff);
+      putFlySkyFrameByte(p_buf, pulseValue >> 8);
     }
   }
 }
 
-void putFlySkyUpdateFirmwareStart(uint8_t cmd)
+void putFlySkyUpdateFirmwareStart(uint8_t*& p_buf, uint8_t cmd)
 {
-  putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, cmd);
+  putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, cmd);
 }
 
 bool checkFlySkyFrameCrc(const uint8_t* ptr, uint8_t size)
@@ -419,17 +429,17 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
 
   if ((moduleState[INTERNAL_MODULE].mode != MODULE_MODE_BIND) &&
       (resp->frame_type == FRAME_TYPE_ANSWER) &&
-      ((intmodulePulsesData.flysky.frame_index - 1) != resp->frame_number)) {
+      ((_flysky_frame_index - 1) != resp->frame_number)) {
     return;
   } else if (resp->frame_type == FRAME_TYPE_REQUEST_ACK) {
-    intmodulePulsesData.flysky.frame_index = resp->frame_number;
+    _flysky_frame_index = resp->frame_number;
   }
 
   debugFrame(&resp->command_id, dataLen - 2);
   switch (resp->command_id) {
     default:
       if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_NORMAL &&
-          intmodulePulsesData.flysky.state >= STATE_IDLE) {
+          _flysky_state >= STATE_IDLE) {
         setFlyskyState(STATE_SEND_CHANNELS);
         if (DEBUG_RF_FRAME_PRINT & RF_FRAME_ONLY)
           TRACE("State back to channel data");
@@ -467,12 +477,12 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
     }
     case CMD_RF_GET_CONFIG:
       setFlyskyState(STATE_GET_RECEIVER_CONFIG);
-      intmodulePulsesData.flysky.timeout = FLYSKY_MODULE_TIMEOUT;
+      _flysky_timeout = FLYSKY_MODULE_TIMEOUT;
       break;
     case CMD_RX_SENSOR_DATA:
       flySkyNv14ProcessTelemetryPacket(&resp->value, dataLen - 3);
       if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_NORMAL &&
-          intmodulePulsesData.flysky.state >= STATE_IDLE) {
+          _flysky_state >= STATE_IDLE) {
         setFlyskyState(STATE_SEND_CHANNELS);
       }
       break;
@@ -510,7 +520,7 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
       break;
     }
     case CMD_GET_VERSION_INFO: {
-      if (intmodulePulsesData.flysky.state == STATE_GET_FW_VERSION_INIT) {
+      if (_flysky_state == STATE_GET_FW_VERSION_INIT) {
         memcpy(&NV14internalModuleFwVersion, &resp->value + 1,
                sizeof(NV14internalModuleFwVersion));
         setFlyskyState(STATE_SET_RECEIVER_ID);
@@ -569,10 +579,10 @@ void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* 
     *len = 0;
   } else {
     if (byte == ESC) {
-      intmodulePulsesData.flysky.esc_state = 1;
+      _esc_state = 1;
     } else {
-      if (intmodulePulsesData.flysky.esc_state) {
-        intmodulePulsesData.flysky.esc_state = 0;
+      if (_esc_state) {
+        _esc_state = 0;
         if (byte == ESC_END)
           byte = END;
         else if (byte == ESC_ESC)
@@ -590,10 +600,10 @@ void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* 
 void resetPulsesAFHDS2()
 {
   NV14internalModuleFwVersion = 0;
-  intmodulePulsesData.flysky.frame_index = 1;
+  _flysky_frame_index = 1;
   setFlyskyState(STATE_SET_TX_POWER);
-  intmodulePulsesData.flysky.timeout = 0;
-  intmodulePulsesData.flysky.esc_state = 0;
+  _flysky_timeout = 0;
+  _esc_state = 0;
   uint16_t rx_freq = gRomData.rx_freq[0];
   rx_freq += (gRomData.rx_freq[1] * 256);
   if (50 > rx_freq || 400 < rx_freq) {
@@ -601,41 +611,43 @@ void resetPulsesAFHDS2()
   }
 }
 
-void setupPulsesAFHDS2()
+void setupPulsesAFHDS2(uint8_t*& p_buf)
 {
-  putFlySkyFrameHeader();
-  if (intmodulePulsesData.flysky.state == STATE_DISCONNECT) {
+  auto buffer_start = p_buf;
+
+  putFlySkyFrameHeader(p_buf);
+  if (_flysky_state == STATE_DISCONNECT) {
     TRACE("STATE_DISCONNECT");
-    putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RECEIVER_ID);
-    putFlySkyFrameBytes(emptyRxID, 4);
-  } else if (intmodulePulsesData.flysky.state < STATE_SEND_CHANNELS) {
-    if (++intmodulePulsesData.flysky.timeout >=
+    putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RECEIVER_ID);
+    putFlySkyFrameBytes(p_buf, emptyRxID, 4);
+  } else if (_flysky_state < STATE_SEND_CHANNELS) {
+    if (++_flysky_timeout >=
         FLYSKY_MODULE_TIMEOUT / FLYSKY_PERIOD) {
-      intmodulePulsesData.flysky.timeout = 0;
-      switch (intmodulePulsesData.flysky.state) {
+      _flysky_timeout = 0;
+      switch (_flysky_state) {
         case STATE_INIT: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_RF_INIT);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_RF_INIT);
         } break;
         case STATE_BIND: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_BIND);
-          putFlySkyFrameByte(rf_info.bind_power);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_BIND);
+          putFlySkyFrameByte(p_buf, rf_info.bind_power);
           uint32_t txID =
               0;  // internal module firmware does not allow changing TX id
-          putFlySkyFrameBytes((uint8_t*)(&txID), 4);
+          putFlySkyFrameBytes(p_buf, (uint8_t*)(&txID), 4);
         } break;
         case STATE_SET_RECEIVER_ID: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RECEIVER_ID);
-          putFlySkyFrameBytes(gRomData.rx_id, 4);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RECEIVER_ID);
+          putFlySkyFrameBytes(p_buf, gRomData.rx_id, 4);
         } break;
         case STATE_GET_RECEIVER_CONFIG: {
-          putFlySkyFrameCmd(FRAME_TYPE_ANSWER, CMD_RF_GET_CONFIG);
-          putFlySkyFrameByte(AfhdsPwmMode);   // 00:PWM, 01:PPM
-          putFlySkyFrameByte(AfhdsIbusMode);  // 00:I-BUS, 01:S-BUS
-          putFlySkyFrameByte(
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_ANSWER, CMD_RF_GET_CONFIG);
+          putFlySkyFrameByte(p_buf, AfhdsPwmMode);   // 00:PWM, 01:PPM
+          putFlySkyFrameByte(p_buf, AfhdsIbusMode);  // 00:I-BUS, 01:S-BUS
+          putFlySkyFrameByte(p_buf,
               gRomData.rx_freq[0] < 50
                   ? 50
                   : gRomData.rx_freq[0]);  // receiver servo freq bit[7:0]
-          putFlySkyFrameByte(
+          putFlySkyFrameByte(p_buf,
               gRomData.rx_freq[1]);  // receiver servo freq bit[15:8]
           setFlyskyState(STATE_INIT);
         } break;
@@ -644,12 +656,12 @@ void setupPulsesAFHDS2()
               moduleState[INTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK ? 0
               : gRomData.rfPower                                          ? 170
                                                                           : 90;
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_TX_POWER);
-          putFlySkyFrameByte(power);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_TX_POWER);
+          putFlySkyFrameByte(p_buf, power);
         } break;
         case STATE_SET_RANGE_TEST: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_TEST_RANGE);
-          putFlySkyFrameByte(moduleState[INTERNAL_MODULE].mode ==
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_TEST_RANGE);
+          putFlySkyFrameByte(p_buf, moduleState[INTERNAL_MODULE].mode ==
                              MODULE_MODE_RANGECHECK);
         } break;
         case STATE_RANGE_TEST_RUNNING: {
@@ -659,39 +671,39 @@ void setupPulsesAFHDS2()
           }
         } break;
         case STATE_SET_RX_PWM_PPM: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_PWM_PPM);
-          putFlySkyFrameByte(AfhdsPwmMode);  // 00:PWM, 01:PPM
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_PWM_PPM);
+          putFlySkyFrameByte(p_buf, AfhdsPwmMode);  // 00:PWM, 01:PPM
         } break;
         case STATE_SET_RX_IBUS_SBUS: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_IBUS_SBUS);
-          putFlySkyFrameByte(AfhdsIbusMode);  // 0x00:I-BUS, 0x01:S-BUS
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_IBUS_SBUS);
+          putFlySkyFrameByte(p_buf, AfhdsIbusMode);  // 0x00:I-BUS, 0x01:S-BUS
         } break;
         case STATE_SET_RX_FREQUENCY: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_SERVO_FREQ);
-          putFlySkyFrameBytes(gRomData.rx_freq, 2);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RX_SERVO_FREQ);
+          putFlySkyFrameBytes(p_buf, gRomData.rx_freq, 2);
         } break;
         case STATE_UPDATE_RF_PROTOCOL: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_SET_RF_PROTOCOL);
-          putFlySkyFrameByte(
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_SET_RF_PROTOCOL);
+          putFlySkyFrameByte(p_buf,
               rf_info.protocol);  // 0x00:AFHDS1 0x01:AFHDS2 0x02:AFHDS2A
         } break;
         case STATE_UPDATE_RX_FIRMWARE: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_UPDATE_RX_FIRMWARE);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_UPDATE_RX_FIRMWARE);
         } break;
         case STATE_UPDATE_RF_FIRMWARE: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_UPDATE_RF_FIRMWARE);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_UPDATE_RF_FIRMWARE);
         } break;
         case STATE_GET_RX_VERSION_INFO: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_GET_VERSION_INFO);
-          putFlySkyFrameByte(FLYSKY_RX_FIRMWARE);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_GET_VERSION_INFO);
+          putFlySkyFrameByte(p_buf, FLYSKY_RX_FIRMWARE);
         } break;
         case STATE_GET_FW_VERSION_INIT:
         case STATE_GET_RF_VERSION_INFO: {
-          putFlySkyFrameCmd(FRAME_TYPE_REQUEST_ACK, CMD_GET_VERSION_INFO);
-          putFlySkyFrameByte(FLYSKY_RF_FIRMWARE);
+          putFlySkyFrameCmd(p_buf, FRAME_TYPE_REQUEST_ACK, CMD_GET_VERSION_INFO);
+          putFlySkyFrameByte(p_buf, FLYSKY_RF_FIRMWARE);
         } break;
         case STATE_IDLE:
-          initFlySkyArray();
+          initFlySkyArray(); // TODO
           break;
         default:
           setFlyskyState(STATE_INIT);
@@ -702,28 +714,27 @@ void setupPulsesAFHDS2()
           return;
       }
     } else {
-      initFlySkyArray();
+      initFlySkyArray(); // TODO
       return;
     }
   } else {
     if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_BIND)
       moduleState[INTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
-    putFlySkySendChannelData();
+    putFlySkySendChannelData(p_buf);
   }
 
-  putFlySkyFrameFooter();
+  putFlySkyFrameFooter(p_buf);
 
-  if (intmodulePulsesData.flysky.state < STATE_SEND_CHANNELS) {
-    // uint8_t size = intmodulePulsesData.flysky.ptr -
-    // intmodulePulsesData.flysky.pulses;
-    // debugFrame(intmodulePulsesData.flysky.pulses, size);
+  if (_flysky_state < STATE_SEND_CHANNELS) {
+    // uint8_t size = p_buf - buffer_start;
+    // debugFrame(buffer_start, size);
   }
   if ((DEBUG_RF_FRAME_PRINT & TX_FRAME_ONLY)) {
     /* print each command, except channel data by interval */
-    uint8_t* data = intmodulePulsesData.flysky.pulses;
+    uint8_t* data = buffer_start;
     if (data[3] != CMD_SEND_CHANNEL_DATA || (set_loop_cnt++ % 100 == 0)) {
-      uint8_t size = intmodulePulsesData.flysky.ptr - data;
-      TRACE_NOCRLF("TX(State%0d)%0dB:", intmodulePulsesData.flysky.state, size);
+      uint8_t size = p_buf - data;
+      TRACE_NOCRLF("TX(State%0d)%0dB:", _flysky_state, size);
       for (int idx = 0; idx < size; idx++) {
         TRACE_NOCRLF(" %02X", data[idx]);
       }

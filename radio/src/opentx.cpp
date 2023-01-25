@@ -1849,15 +1849,6 @@ int main()
   NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 #endif
 
-  TRACE("reusableBuffer: modelSel=%d, moduleSetup=%d, calib=%d, sdManager=%d, hardwareAndSettings=%d, spectrumAnalyser=%d, usb=%d",
-        sizeof(reusableBuffer.modelsel),
-        sizeof(reusableBuffer.moduleSetup),
-        sizeof(reusableBuffer.calib),
-        sizeof(reusableBuffer.sdManager),
-        sizeof(reusableBuffer.hardwareAndSettings),
-        sizeof(reusableBuffer.spectrumAnalyser),
-        sizeof(reusableBuffer.MSC_BOT_Data));
-
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's
   // important to disable it before commencing with system initialisation (or
   // we could put a bunch more WDG_RESET()s in. But I don't like that approach

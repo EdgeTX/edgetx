@@ -29,6 +29,7 @@
   #include "mixer_scheduler.h"
 #endif
 
+#if defined(PXX2)
 char *getVersion(char *str, PXX2Version version)
 {
   if (version.major == 0xFF && version.minor == 0x0F &&
@@ -40,6 +41,7 @@ char *getVersion(char *str, PXX2Version version)
     return str;
   }
 }
+#endif
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -70,6 +72,7 @@ class VersionDialog : public Dialog
   VersionDialog(Window *parent) :
     Dialog(parent, STR_MODULES_RX_VERSION, rect_t{ 0, 0, 200, 100 })
   {
+#if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
              sizeof(reusableBuffer.hardwareAndSettings.modules));
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
@@ -86,6 +89,7 @@ class VersionDialog : public Dialog
           &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
+#endif
 
     setCloseWhenClickOutside(true);
 
@@ -293,6 +297,7 @@ class VersionDialog : public Dialog
 #endif
   }
 
+#if defined(PXX2)
   void checkEvents() override
   {
     if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
@@ -312,6 +317,7 @@ class VersionDialog : public Dialog
     update();
     Dialog::checkEvents();
   }
+#endif
 };
 
 RadioVersionPage::RadioVersionPage():

@@ -30,6 +30,10 @@
 #include "pulses/flysky.h"
 #include "pulses/dsm2.h"
 
+#if defined(PXX1)
+#include "pulses/pxx1.h"
+#endif
+
 #if defined(SBUS)
 #include "pulses/sbus.h"
 #endif
@@ -55,18 +59,28 @@
 #include "pulses/afhds3.h"
 #endif
 
-// TODO: init this array somewhere...
 static module_pulse_driver _module_drivers[MAX_MODULES];
+static module_pulse_buffer _module_buffers[MAX_MODULES] __DMA;
+
+void pulsesInit()
+{
+  memset(_module_drivers, 0, sizeof(_module_drivers));
+}
 
 module_pulse_driver* pulsesGetModuleDriver(uint8_t module)
 {
   return &(_module_drivers[module]);
 }
 
+uint8_t* pulsesGetModuleBuffer(uint8_t module)
+{
+  return _module_buffers[module]._buffer;
+}
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
-InternalModulePulsesData intmodulePulsesData __DMA;
-ExternalModulePulsesData extmodulePulsesData __DMA;
+// InternalModulePulsesData intmodulePulsesData __DMA;
+// ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
 
 void startPulses()
@@ -119,6 +133,7 @@ void restartModule(uint8_t idx)
   resumeMixerCalculations();
 }
 
+#if defined(PXX2)
 // use only for PXX
 void ModuleState::startBind(BindInformation* destination,
                             ModuleCallback bindCallback)
@@ -166,6 +181,7 @@ void ModuleState::writeReceiverSettings(ReceiverSettings* source)
   receiverSettings->timeout = 0;
   mode = MODULE_MODE_RECEIVER_SETTINGS;
 }
+#endif
 
 void getModuleStatusString(uint8_t moduleIdx, char * statusText)
 {
@@ -496,7 +512,8 @@ void pulsesSendNextFrame(uint8_t module)
 
     auto drv = mod->drv;
     auto ctx = mod->ctx;
-    drv->sendPulses(ctx, channels, nChannels);
+    auto buffer = _module_buffers[module]._buffer;
+    drv->sendPulses(ctx, buffer, channels, nChannels);
   }
 }
 

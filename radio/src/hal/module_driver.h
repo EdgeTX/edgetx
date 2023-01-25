@@ -55,10 +55,10 @@ struct etx_proto_driver_t {
     // uint16_t (*get_default_period)(uint8_t module);
 
     // De-Init module communication
-    void (*deinit)(void* context);
+    void (*deinit)(void* ctx);
 
     // Send the next pulse frame
-    void (*sendPulses)(void* context, int16_t* channels, uint8_t nChannels);
+    void (*sendPulses)(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels);
 
     // Fetch telemetry byte
     int (*getByte)(void* context, uint8_t* data);

@@ -38,7 +38,12 @@
 
 #define SBUS_CHAN_CENTER            992
 
-inline int getChannelValue(uint8_t port, int channel)
+static inline void sendByte(uint8_t*& p_buf, uint8_t b)
+{
+  *p_buf++ = b;
+}
+
+static inline int getChannelValue(uint8_t port, int channel)
 {
   int ch = g_model.moduleData[port].channelsStart + channel;
   // We will ignore 17 and 18th if that brings us over the limit
@@ -46,13 +51,13 @@ inline int getChannelValue(uint8_t port, int channel)
   return channelOutputs[ch] + 2 * PPM_CH_CENTER(ch) - 2 * PPM_CENTER;
 }
 
-void setupPulsesSbus(uint8_t module, UartMultiPulses* uart)
+static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 {
   // extmodulePulsesData.dsm2.index = 0;
   // extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
 
   // Sync Byte
-  uart->sendByte(SBUS_FRAME_BEGIN_BYTE);
+  sendByte(p_buf, SBUS_FRAME_BEGIN_BYTE);
 
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
@@ -65,7 +70,7 @@ void setupPulsesSbus(uint8_t module, UartMultiPulses* uart)
     bits |= limit(0, value, 2047) << bitsavailable;
     bitsavailable += SBUS_CHAN_BITS;
     while (bitsavailable >= 8) {
-      uart->sendByte((uint8_t) (bits & 0xff));
+      sendByte(p_buf, (uint8_t) (bits & 0xff));
       bits >>= 8;
       bitsavailable -= 8;
     }
@@ -78,10 +83,10 @@ void setupPulsesSbus(uint8_t module, UartMultiPulses* uart)
   if (getChannelValue(module, 17) > 0)
     flags |= SBUS_FLAG_CHANNEL_18;
 
-  uart->sendByte(flags);
+  sendByte(p_buf, flags);
 
   // last byte, always 0x0
-  uart->sendByte(0x00);
+  sendByte(p_buf, 0x00);
 }
 
 
@@ -105,9 +110,6 @@ static void* sbusInit(uint8_t module)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
                                      ETX_MOD_DIR_TX, &sbusUartParams);
 
-  extmodulePulsesData.multi.initFrame();
-  mod_st->user_data = (void*)&extmodulePulsesData.multi;
-
   EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
 
@@ -124,7 +126,7 @@ static void sbusDeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void sbusSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -136,13 +138,12 @@ static void sbusSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
   // TODO: set polarity for next packet sent (can be changed from UI)
   // GET_SBUS_POLARITY(EXTERNAL_MODULE)
 
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
-  pulses->initFrame();
-  setupPulsesSbus(module, pulses);
+  auto p_data = buffer;
+  setupPulsesSbus(module, p_data);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
-  drv->sendBuffer(drv_ctx, pulses->getData(), pulses->getSize());
+  drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 
   // SBUS_PERIOD is not a constant! It can be set from UI
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));

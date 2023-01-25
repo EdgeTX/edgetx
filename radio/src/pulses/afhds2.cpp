@@ -64,7 +64,7 @@ static void afhds2DeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void afhds2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void afhds2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -78,15 +78,14 @@ static void afhds2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
                                       ? status.getAdjustedRefreshRate()
                                       : AFHDS2_PERIOD);
   status.invalidate();
-  setupPulsesAFHDS2();
 
-  uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
-  uint16_t size = intmodulePulsesData.flysky.ptr - data;
+  auto p_data = buffer;
+  setupPulsesAFHDS2(p_data);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
 
-  drv->sendBuffer(drv_ctx, data, size);
+  drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 }
 
 static int afhds2GetByte(void* ctx, uint8_t* data)

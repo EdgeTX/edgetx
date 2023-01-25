@@ -107,10 +107,6 @@ etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_
 
   const etx_module_port_t* found_port = _find_port(ETX_MOD_TYPE_SERIAL, port);
   if (!found_port) return nullptr;
-
-  // TODO: serial port as external module
-  // if ((moduleIdx != EXTERNAL_MODULE) || (port != ETX_MOD_PORT_EXTERNAL_UART) ||
-  //     !extmoduleGetSerialPort(drv, hw_def))
   
   auto state = &(_module_states[moduleIdx]);
 

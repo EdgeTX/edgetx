@@ -56,6 +56,7 @@ void RadioToolsPage::build(FormWindow * window)
 
 void RadioToolsPage::checkEvents()
 {
+#if defined(PXX2)
   bool refresh = false;
 
   for (uint8_t module = 0; module < NUM_MODULES; module++) {
@@ -68,6 +69,7 @@ void RadioToolsPage::checkEvents()
   if (refresh) {
     rebuild(window);
   }
+#endif
 
   PageTab::checkEvents();
 }

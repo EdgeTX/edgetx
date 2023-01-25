@@ -21,12 +21,14 @@
 
 #include <stdio.h>
 #include "opentx.h"
-#include "pulses/pxx2.h"
 #include "io/frsky_firmware_update.h"
 #include "libopenui/src/libopenui_file.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 #include "timers_driver.h"
+
+#include "pxx2.h"
+#include "pxx2_transport.h"
 
 #if defined(INTMODULE_USART)
 
@@ -438,11 +440,11 @@ void Pxx2Pulses::setupShareMode(uint8_t module)
 }
 
 // TODO: move up
-static void _send_frame(etx_module_state_t* mod_st);
+static void _send_frame(etx_module_state_t* mod_st, uint8_t* buffer, uint32_t len);
 
 void Pxx2Pulses::sendOtaUpdate(uint8_t module, const char * rxName, uint32_t address, const char * data)
 {
-  initFrame();
+  // initFrame();
 
   addFrameType(PXX2_TYPE_C_OTA, PXX2_TYPE_ID_OTA);
 
@@ -464,16 +466,11 @@ void Pxx2Pulses::sendOtaUpdate(uint8_t module, const char * rxName, uint32_t add
   }
 
   endFrame();
-
-  // send the frame immediately
-  auto mod = pulsesGetModuleDriver(module);
-  auto mod_st = (etx_module_state_t*)mod->ctx;
-  _send_frame(mod_st);
 }
 
 void Pxx2Pulses::setupAuthenticationFrame(uint8_t module, uint8_t mode, const uint8_t * outputMessage)
 {
-  initFrame();
+  // initFrame();
 
   addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_AUTHENTICATION);
 
@@ -497,7 +494,7 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
     return false;
   }
 
-  initFrame();
+  // initFrame();
 
   switch (moduleState[module].mode) {
     case MODULE_MODE_GET_HARDWARE_INFO:
@@ -573,16 +570,15 @@ const char * Pxx2OtaUpdate::nextStep(uint8_t step, const char * rxName, uint32_t
   destination->address = address;
 
   for (uint8_t retry = 0;; retry++) {
-#if defined(HARDWARE_EXTERNAL_MODULE)
-    if (module == EXTERNAL_MODULE) {
-      extmodulePulsesData.pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
-    }
-#endif
-#if defined(HARDWARE_INTERNAL_MODULE)
-    if (module == INTERNAL_MODULE) {
-      intmodulePulsesData.pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
-    }
-#endif
+    uint8_t* module_buffer = pulsesGetModuleBuffer(module);
+    Pxx2Pulses pxx2(module_buffer);
+    pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
+
+    // send the frame immediately
+    auto mod = pulsesGetModuleDriver(module);
+    auto mod_st = (etx_module_state_t*)mod->ctx;
+    _send_frame(mod_st, module_buffer, pxx2.getSize());
+
     if (waitStep(step + 1, 20)) {
       return nullptr;
     }
@@ -693,8 +689,6 @@ static void* pxx2Init(uint8_t module)
     params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
                                   ETX_MOD_DIR_TX_RX, &params);
-
-    mod_st->user_data = (void*)&intmodulePulsesData.pxx2;
   }
 #endif
 
@@ -724,8 +718,6 @@ static void* pxx2Init(uint8_t module)
 
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
                                   ETX_MOD_DIR_TX_RX, &params);
-
-    mod_st->user_data = (void*)&extmodulePulsesData.pxx2;
   }
 #endif
 
@@ -756,25 +748,22 @@ static void pxx2DeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void _send_frame(etx_module_state_t* mod_st)
+static void _send_frame(etx_module_state_t* mod_st, uint8_t* buffer, uint32_t len)
 {
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto ctx = modulePortGetCtx(mod_st->tx);
-  auto pulses = (Pxx2Pulses*)mod_st->user_data;
-
-  drv->sendBuffer(ctx, pulses->getData(), pulses->getSize());
+  drv->sendBuffer(ctx, buffer, len);
 }
 
-static void pxx2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void pxx2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-
-  auto pulses = (Pxx2Pulses*)mod_st->user_data;
   auto module = modulePortGetModule(mod_st);
 
 #if defined(INTERNAL_MODULE_PXX2)  
   if (module == INTERNAL_MODULE) {
-    bool should_send = pulses->setupFrame(module, channels, nChannels);
+    Pxx2Pulses pxx2(buffer);
+    bool should_send = pxx2.setupFrame(module, channels, nChannels);
 
     if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
         moduleState[module].mode == MODULE_MODE_POWER_METER) {
@@ -784,14 +773,15 @@ static void pxx2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
     }
 
     if (!should_send) return;
-    _send_frame(mod_st);
+    _send_frame(mod_st, buffer, pxx2.getSize());
   }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
-    pulses->setupFrame(module, channels, nChannels);
-    _send_frame(mod_st);
+    Pxx2Pulses pxx2(buffer);
+    pxx2.setupFrame(module, channels, nChannels);
+    _send_frame(mod_st, buffer, pxx2.getSize());
   }
 #endif
 }

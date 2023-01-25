@@ -37,7 +37,12 @@
 
 #define DSM2_BITRATE         125000
 
-static void setupPulsesDSM2(uint8_t module, UartMultiPulses* uart)
+static inline void sendByte(uint8_t*& p_buf, uint8_t b)
+{
+  *p_buf++ = b;
+}
+
+static void setupPulsesDSM2(uint8_t module, uint8_t*& p_buf)
 {
   uint8_t dsmDat[14];
 
@@ -71,14 +76,14 @@ static void setupPulsesDSM2(uint8_t module, UartMultiPulses* uart)
   }
 
   for (int i=0; i<14; i++) {
-    uart->sendByte(dsmDat[i]);
+    sendByte(p_buf, dsmDat[i]);
   }
 }
 
 
 #define DSMP_BITRATE 115200
 
-static void setupPulsesLemonDSMP(uint8_t module, UartMultiPulses* uart)
+static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 {
   static uint8_t pass = 0;
 
@@ -91,8 +96,8 @@ static void setupPulsesLemonDSMP(uint8_t module, UartMultiPulses* uart)
   // Force setup packet in Bind mode.
   auto module_mode = getModuleMode(module);
 
-  uart->sendByte( 0xAA );
-  uart->sendByte( pass );
+  sendByte(p_buf, 0xAA);
+  sendByte(p_buf, pass);
 
   // Setup packet
   if (pass == 0) {
@@ -101,17 +106,17 @@ static void setupPulsesLemonDSMP(uint8_t module, UartMultiPulses* uart)
       flags = DSM2_SEND_BIND | (1 << 6 /* AUTO */);
       channels = 12;
     }
-    uart->sendByte( flags );
+    sendByte(p_buf, flags);
 
     uint8_t pwr = 7;
     if (module_mode == MODULE_MODE_RANGECHECK) {
       pwr = 4;
     }
-    uart->sendByte( pwr );    
-    uart->sendByte( channels );
+    sendByte(p_buf, pwr);
+    sendByte(p_buf, channels );
 
     // Model number
-    uart->sendByte( 1 );
+    sendByte(p_buf,  1);
 
     // Send only 1 single Setup packet
     pass = 1;
@@ -139,13 +144,13 @@ static void setupPulsesLemonDSMP(uint8_t module, UartMultiPulses* uart)
           pulse = limit(0, ((value*13)>>5)+512, 1023) | (current_channel << 10);
         }
 
-        uart->sendByte( pulse >> 8 );
-        uart->sendByte( pulse & 0xFF );
+        sendByte(p_buf, pulse >> 8);
+        sendByte(p_buf, pulse & 0xFF);
       } else {
         // Outside of announced number of channels:
         // -> send invalid value
-        uart->sendByte( 0xFF );
-        uart->sendByte( 0xFF );
+        sendByte(p_buf, 0xFF);
+        sendByte(p_buf, 0xFF);
       }
       current_channel++;
     }
@@ -184,9 +189,6 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
                                      ETX_MOD_DIR_TX, &params);
 
-  extmodulePulsesData.multi.initFrame();
-  mod_st->user_data = (void*)&extmodulePulsesData.multi;
-
   // TODO: check telemetry init...
 
   EXTERNAL_MODULE_ON();
@@ -216,14 +218,14 @@ static void dsmDeInit(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void _dsm_send(etx_module_state_t* st, UartMultiPulses* pulses)
+static void _dsm_send(etx_module_state_t* st, uint8_t* buffer, uint32_t len)
 {
   auto drv = modulePortGetSerialDrv(st->tx);
   auto ctx = modulePortGetCtx(st->tx);
-  drv->sendBuffer(ctx, pulses->getData(), pulses->getSize());
+  drv->sendBuffer(ctx, buffer, len);
 }
 
-static void dsm2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void dsm2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -231,15 +233,13 @@ static void dsm2SendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
 
-  pulses->initFrame();
-  setupPulsesDSM2(module, pulses);
-
-  _dsm_send(mod_st, pulses);
+  auto p_data = buffer;
+  setupPulsesDSM2(module, p_data);
+  _dsm_send(mod_st, p_data, p_data - buffer);
 }
 
-static void dsmpSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   // TODO:
   (void)channels;
@@ -247,12 +247,10 @@ static void dsmpSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
-  auto pulses = (UartMultiPulses*)mod_st->user_data;
 
-  pulses->initFrame();
-  setupPulsesLemonDSMP(module, pulses);
-
-  _dsm_send(mod_st, pulses);
+  auto p_data = buffer;
+  setupPulsesLemonDSMP(module, p_data);
+  _dsm_send(mod_st, p_data, p_data - buffer);
 }
 
 // TODO: check telemetry init...

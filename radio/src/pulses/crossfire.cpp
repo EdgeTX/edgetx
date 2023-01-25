@@ -76,26 +76,25 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   return buf - frame;
 }
 
-static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
+static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
 {
 #if defined(LUA)
   if (outputTelemetryBuffer.destination == endpoint) {
-    memcpy(p_data->pulses, outputTelemetryBuffer.data,
-           outputTelemetryBuffer.size);
-    p_data->length = outputTelemetryBuffer.size;
+    auto len = outputTelemetryBuffer.size;
+    memcpy(p_buf, outputTelemetryBuffer.data, len);
     outputTelemetryBuffer.reset();
+    p_buf += len;
   } else
 #endif
   {
-    if (moduleState[idx].counter == CRSF_FRAME_MODELID) {
-      p_data->length = createCrossfireModelIDFrame(idx, p_data->pulses);
-      moduleState[idx].counter = CRSF_FRAME_MODELID_SENT;
+    if (moduleState[module].counter == CRSF_FRAME_MODELID) {
+      p_buf += createCrossfireModelIDFrame(module, p_buf);
+      moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else {
-      p_data->length = createCrossfireChannelsFrame(
-          p_data->pulses,
-          channels /*TODO: nChannels*/);
+      /* TODO: nChannels */
+      p_buf += createCrossfireChannelsFrame(p_buf, channels);
     }
   }
 }
@@ -117,22 +116,22 @@ static bool _checkFrameCRC(uint8_t* rxBuffer)
   return (crc == rxBuffer[len+1]);
 }
 
-static void crossfireSendPulses(void* ctx, int16_t* channels, uint8_t nChannels)
+static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
   crossfireSetupMixerScheduler(module);
 
-  auto data = (CrossfirePulsesData*)mod_st->user_data;
   uint8_t endpoint = 0;  
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
 #endif
-  setupPulsesCrossfire(module, data, endpoint, channels, nChannels);
+  auto p_buf = buffer;
+  setupPulsesCrossfire(module, p_buf, endpoint, channels, nChannels);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
-  drv->sendBuffer(drv_ctx, data->pulses, data->length);
+  drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
 static int crossfireGetByte(void* ctx, uint8_t* data)
@@ -240,7 +239,6 @@ static void* crossfireInit(uint8_t module)
 
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
                                   ETX_MOD_DIR_TX_RX, &params);
-    mod_st->user_data = (void*)&intmodulePulsesData.crossfire;
   }
 #endif
 
@@ -252,8 +250,6 @@ static void* crossfireInit(uint8_t module)
 
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT,
                                   ETX_MOD_DIR_TX_RX, &params);
-
-    mod_st->user_data = (void*)&extmodulePulsesData.crossfire;
   }
 #endif
 

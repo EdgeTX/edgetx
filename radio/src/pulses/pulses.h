@@ -25,15 +25,12 @@
 #include "definitions.h"
 #include "dataconstants.h"
 #include "pulses_common.h"
-#include "pxx1.h"
-#include "pxx2.h"
-#include "multi.h"
-#include "afhds2.h"
-#include "afhds3_module.h"
 #include "modules_helpers.h"
-#include "ff.h"
 #include "hal/module_driver.h"
 
+#if defined(PXX2)
+#include "pxx2.h"
+#endif
 
 #if defined(DSM2)
   #define IS_DSM2_PROTOCOL(protocol)         (protocol>=PROTOCOL_CHANNELS_DSM2_LP45 && protocol<=PROTOCOL_CHANNELS_DSM2_DSMX)
@@ -73,6 +70,7 @@ PACK(struct ModuleState {
   uint8_t spare:3;
   uint16_t counter;
 
+#if defined(PXX2)
   // PXX specific items
   union
   {
@@ -90,6 +88,7 @@ PACK(struct ModuleState {
   void writeModuleSettings(ModuleSettings * source);
   void readReceiverSettings(ReceiverSettings * destination);
   void writeReceiverSettings(ReceiverSettings * source);
+#endif
 });
 
 extern ModuleState moduleState[NUM_MODULES];
@@ -136,94 +135,7 @@ typedef Dsm2TimerPulsesData Dsm2PulsesData;
 #define MULTIMODULE_PERIOD           7000 /*us*/
 
 #define CROSSFIRE_FRAME_MAXLEN         64
-PACK(struct CrossfirePulsesData {
-  uint8_t pulses[CROSSFIRE_FRAME_MAXLEN];
-  uint8_t length;
-});
-
 #define GHOST_FRAME_MAXLEN             16
-PACK(struct GhostPulsesData {
-  uint8_t pulses[GHOST_FRAME_MAXLEN];
-  uint8_t length;
-});
-
-union InternalModulePulsesData {
-#if defined(INTERNAL_MODULE_PXX1)
-#if defined(INTMODULE_USART)
-  UartPxx1Pulses pxx_uart;
-#else
-  PwmPxx1Pulses pxx;
-#endif
-#endif
-
-#if defined(INTERNAL_MODULE_PXX2)
-  Pxx2Pulses pxx2;
-#endif
-
-#if defined(INTERNAL_MODULE_AFHDS2A)
-  FlySkySerialPulsesData flysky;
-#endif
-
-#if defined(INTERNAL_MODULE_MULTI)
-  UartMultiPulses multi;
-#endif
-
-#if defined(INTERNAL_MODULE_CRSF)
-  CrossfirePulsesData crossfire;
-#endif
-
-#if defined(INTERNAL_MODULE_AFHDS3)
-  afhds3::IntmoduleData afhds3;
-#endif
-
-#if defined(INTERNAL_MODULE_PPM)
-  PpmPulsesData<pulse_duration_t> ppm;
-#endif
-
-} __ALIGNED(4);
-
-union ExternalModulePulsesData {
-#if defined(PXX1)
-  UartPxx1Pulses pxx_uart;
-  PwmPxx1Pulses pxx;
-#endif
-
-#if defined(PXX2)
-  Pxx2Pulses pxx2;
-#endif
-
-// #if defined(DSM2) || defined(SBUS)
-//   Dsm2PulsesData dsm2;
-// #endif
-
-#if defined(MULTIMODULE)
-  UartMultiPulses multi;
-#endif
-  
-#if defined(AFHDS3)
-  afhds3::ExtmoduleData afhds3;
-#endif
-
-  PpmPulsesData<pulse_duration_t> ppm;
-
-#if defined(CROSSFIRE)
-  CrossfirePulsesData crossfire;
-#endif
-
-#if defined(GHOST)
-  GhostPulsesData ghost;
-#endif
-} __ALIGNED(4);
-
-/* The __ALIGNED keyword is required to align the struct inside the modulePulsesData below,
- * which is also defined to be __DMA  (which includes __ALIGNED) aligned.
- * Arrays in C/C++ are always defined to be *contiguously*. The first byte of the second element is therefore always
- * sizeof(ModulePulsesData). __ALIGNED is required for sizeof(ModulePulsesData) to be a multiple of the alignment.
- */
-
-
-extern InternalModulePulsesData intmodulePulsesData;
-extern ExternalModulePulsesData extmodulePulsesData;
 
 union TrainerPulsesData {
   PpmPulsesData<trainer_pulse_duration_t> ppm;
@@ -231,57 +143,37 @@ union TrainerPulsesData {
 
 extern TrainerPulsesData trainerPulsesData;
 
+#if !defined(AFHDS3)
+  #define MODULE_BUFFER_SIZE 64
+#else
+  #define MODULE_BUFFER_SIZE 128
+#endif
+
+struct module_pulse_buffer {
+  uint8_t _buffer[MODULE_BUFFER_SIZE];
+};
+
 struct module_pulse_driver {
+  module_pulse_buffer buffer;
   const etx_proto_driver_t* drv;
   void* ctx;
 };
 
 module_pulse_driver* pulsesGetModuleDriver(uint8_t module);
+uint8_t* pulsesGetModuleBuffer(uint8_t module);
 
-// void pulsesEnableModule(uint8_t module, uint8_t protocol);
 void pulsesStopModule(uint8_t module);
 void pulsesSendNextFrame(uint8_t module);
 
-// #if defined(HARDWARE_INTERNAL_MODULE)
-// bool setupPulsesInternalModule();
-// void stopPulsesInternalModule();
-// void intmoduleSendNextFrame();
-// const etx_proto_driver_t* getIntModuleDriver();
-// void* getIntModuleCtx();
-// #endif
-// #if defined(HARDWARE_EXTERNAL_MODULE)
-// bool setupPulsesExternalModule();
-// void stopPulsesExternalModule();
-// void extmoduleSendNextFrame();
-// const etx_proto_driver_t* getExtModuleDriver();
-// void* getExtModuleCtx();
-// #endif
-
 void restartModule(uint8_t idx);
-// void setupPulsesDSM2();
-// void setupPulsesLemonDSMP();
-// void setupPulsesCrossfire(uint8_t idx);
-// void setupPulsesGhost();
-// void setupPulsesMultiExternalModule();
-// void setupPulsesSbus();
-// void setupPulsesPPMInternalModule();
-// void setupPulsesPPMExternalModule();
 void setupPulsesPPMTrainer();
-// void putDsm2Flush();
-// void sendByteSbus(uint8_t b);
-// void intmodulePpmStart();
-// void intmodulePxx1PulsesStart();
-// void intmodulePxx1SerialStart();
-// void extmodulePxx1PulsesStart();
-// void extmodulePpmStart();
-// void intmoduleStop();
-// void extmoduleStop();
+
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
+
 #if defined(AFHDS3)
 uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
-// void extramodulePpmStart();
 
 void startPulses();
 void stopPulses();

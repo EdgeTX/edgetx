@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "telemetry/ghost.h"
 #include "telemetry/ghost_menu.h"
+#include "hal/module_port.h"
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 
@@ -129,27 +130,29 @@ uint8_t createGhostChannelsFrame(uint8_t * frame, int16_t * pulses, bool raw12bi
 //    mixerSchedulerSetPeriod(EXTERNAL_MODULE, GHOST_PERIOD);
 // setupPulsesGhost();
 
-void setupPulsesGhost()
+void sendPulsesGhost(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
 
-    auto &module = g_model.moduleData[EXTERNAL_MODULE];
-    auto *p_data = &extmodulePulsesData.ghost;
+  const auto& mod_cfg = g_model.moduleData[module].ghost;
+  auto p_data = buffer;
 
-    #if defined(LUA)
-    if (outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT) {
-      memcpy(p_data->pulses, outputTelemetryBuffer.data, outputTelemetryBuffer.size);
-      p_data->length = outputTelemetryBuffer.size;
-      outputTelemetryBuffer.reset();
-    } else
-    #endif
-    if (moduleState[EXTERNAL_MODULE].counter == GHST_MENU_CONTROL) {
-        p_data->length = createGhostMenuControlFrame(p_data->pulses, &channelOutputs[module.channelsStart]);
+#if defined(LUA)
+  if (outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT) {
+    auto len = outputTelemetryBuffer.size;
+    memcpy(p_data, outputTelemetryBuffer.data, len);
+    outputTelemetryBuffer.reset();
+    p_data += len;
+  } else
+#endif
+    if (moduleState[module].counter == GHST_MENU_CONTROL) {
+      p_data += createGhostMenuControlFrame(p_data, channels);
     } else {
-        p_data->length = createGhostChannelsFrame(p_data->pulses, &channelOutputs[module.channelsStart], module.ghost.raw12bits);
+      p_data += createGhostChannelsFrame(p_data, channels, mod_cfg.raw12bits);
     }
-    moduleState[EXTERNAL_MODULE].counter = GHST_FRAME_CHANNEL;
-  }
+
+  moduleState[module].counter = GHST_FRAME_CHANNEL;
 }
 
 #endif

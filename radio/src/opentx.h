@@ -941,8 +941,10 @@ union ReusableBuffer
     int8_t antennaMode;
     uint8_t previousType;
     uint8_t newType;
+#if defined(PXX2)
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
+#endif
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -973,8 +975,10 @@ union ReusableBuffer
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+#if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
+#endif
   } sdManager;
 #endif
 
@@ -983,10 +987,14 @@ union ReusableBuffer
     char id[27];
   } version;
 
+#if defined(PXX2)
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
+#endif
 
   struct {
+#if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
+#endif
     char msg[64];
 #if !defined(COLORLCD)
     uint8_t linesCount;
@@ -1060,7 +1068,9 @@ union ReusableBuffer
   } modelFailsafe;
 
   struct {
+#if defined(PXX2)
     ModuleInformation internalModule;
+#endif
   } viewMain;
 
   // Data for the USB mass storage driver. If USB mass storage runs no menu is not allowed to be displayed

@@ -888,7 +888,7 @@ static void* initModule(uint8_t module)
   if (!mod_st) return nullptr;
   
   auto p_state = &protoState[module];
-  p_state->init(module, &extmodulePulsesData.afhds3, mod_st);
+  p_state->init(module, pulsesGetModuleBuffer(module), mod_st);
 
   mixerSchedulerSetPeriod(module, period);
 
@@ -901,8 +901,9 @@ static void deinitModule(void* context)
   p_state->deinit();
 }
 
-static void sendPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void sendPulses(void* context, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
+  (void)buffer;
   (void)channels;
   (void)nChannels;
 

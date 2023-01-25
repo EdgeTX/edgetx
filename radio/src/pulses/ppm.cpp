@@ -27,8 +27,7 @@
 #define PPM_SAFE_MARGIN 3000 // 3ms
 
 template <class T>
-uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
-                        int8_t channelsCount)
+uint16_t setupPulsesPPM(T*& data, uint8_t channelsStart, int8_t channelsCount)
 {
   uint16_t total = 0;
   int16_t PPM_range = g_model.extendedLimits ?
@@ -40,16 +39,13 @@ uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
   // The pulse ISR is 2mhz that's why everything is multiplied by 2
 
   uint8_t firstCh = channelsStart;
-  uint8_t lastCh =
-      min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
-
-  ppmPulsesData->ptr = ppmPulsesData->pulses;
+  uint8_t lastCh = min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
 
   for (uint32_t i = firstCh; i < lastCh; i++) {
     int16_t v =
         limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) +
         2 * PPM_CH_CENTER(i);
-    *ppmPulsesData->ptr++ = v;
+    *data++ = v;
     total += v;
   }
 
@@ -58,8 +54,9 @@ uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
 
 void setupPulsesPPMTrainer()
 {
+  auto p_data = trainerPulsesData.ppm.pulses;
   uint16_t total = setupPulsesPPM<trainer_pulse_duration_t>(
-      &trainerPulsesData.ppm, g_model.trainerData.channelsStart,
+      p_data, g_model.trainerData.channelsStart,
       g_model.trainerData.channelsCount);
 
   uint32_t rest = PPM_TRAINER_PERIOD_HALF_US();
@@ -72,51 +69,55 @@ void setupPulsesPPMTrainer()
   if (rest >= USHRT_MAX - 1)
     rest = USHRT_MAX - 1;
     
-  *trainerPulsesData.ppm.ptr++ = (uint16_t)rest;
+  *p_data++ = (uint16_t)rest;
 
   // stop mark so that IRQ-based sending
   // knows when to stop
-  *trainerPulsesData.ppm.ptr = 0;
+  *p_data = 0;
+
+  trainerPulsesData.ppm.ptr = p_data;
 }
 
-static void setupPulsesPPMModule(uint8_t module)
+static void setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
 {
-  PpmPulsesData<pulse_duration_t>* data = nullptr;
+//   PpmPulsesData<pulse_duration_t>* data = nullptr;
 
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-  if (module == INTERNAL_MODULE) {
-    data = &intmodulePulsesData.ppm;
-  }
-#endif
+// #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
+//   if (module == INTERNAL_MODULE) {
+//     data = &intmodulePulsesData.ppm;
+//   }
+// #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    data = &extmodulePulsesData.ppm;
-  }
-#endif
+// #if defined(HARDWARE_EXTERNAL_MODULE)
+//   if (module == EXTERNAL_MODULE) {
+//     data = &extmodulePulsesData.ppm;
+//   }
+// #endif
 
-  if (!data) return;
+//   if (!data) return;
   
-  setupPulsesPPM(&extmodulePulsesData.ppm,
+  setupPulsesPPM(data,
                  g_model.moduleData[module].channelsStart,
                  g_model.moduleData[module].channelsCount);
 
   // Set the final period to 1ms after which the
   // PPM will be switched OFF
-  *data->ptr++ = PPM_SAFE_MARGIN * 2;
+  *data++ = PPM_SAFE_MARGIN * 2;
 }
 
 #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
 void setupPulsesPPMInternalModule()
 {
-  setupPulsesPPMModule(INTERNAL_MODULE);
+  // TODO
+  // setupPulsesPPMModule(INTERNAL_MODULE);
 }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 void setupPulsesPPMExternalModule()
 {
-  setupPulsesPPMModule(EXTERNAL_MODULE);
+  // TODO
+  // setupPulsesPPMModule(EXTERNAL_MODULE);
 }
 #endif
 

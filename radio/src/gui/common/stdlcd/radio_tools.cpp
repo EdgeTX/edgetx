@@ -170,7 +170,16 @@ void menuRadioTools(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
 
 #if (defined(PXX2) || defined(MULTIMODULE))
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER) || isModuleMultimodule(EXTERNAL_MODULE))
+  bool has_spectrum_analyser = false;
+#if defined(PXX2)
+  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER))
+    has_spectrum_analyser = true;
+#endif
+#if defined(MULTIMODULE)
+  if (isModuleMultimodule(EXTERNAL_MODULE))
+    has_spectrum_analyser = true;
+#endif
+  if (has_spectrum_analyser)
     addRadioModuleTool(index++, STR_SPECTRUM_ANALYSER_EXT, menuRadioSpectrumAnalyser, EXTERNAL_MODULE);
 #endif
 #if defined(PXX2)

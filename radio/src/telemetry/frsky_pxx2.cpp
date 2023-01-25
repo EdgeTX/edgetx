@@ -21,9 +21,14 @@
 
 #include "opentx.h"
 
+#if defined(PXX2)
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
+
+#include "pulses/pxx2.h"
+#include "pulses/pxx2_transport.h"
 
 static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE, "");
 
@@ -250,9 +255,10 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 
     moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
 
-    Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
-    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);
-    drv->sendBuffer(ctx, pxx2.getData(), pxx2.getSize());
+    uint8_t* module_buffer = pulsesGetModuleBuffer(module);
+    Pxx2Pulses pxx2(module_buffer);
+    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);    
+    drv->sendBuffer(ctx, module_buffer, pxx2.getSize());
 
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the
     // end of the mixing process
@@ -413,3 +419,4 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame,
   }
 }
 
+#endif
