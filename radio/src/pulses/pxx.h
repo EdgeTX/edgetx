@@ -22,6 +22,7 @@
 #ifndef _PULSES_PXX_H_
 #define _PULSES_PXX_H_
 
+#include "hal.h"
 #include "pulses_common.h"
 
 #define PXX_SEND_BIND                      0x01

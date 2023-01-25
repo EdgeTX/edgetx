@@ -55,9 +55,7 @@ static void sendDSM(uint8_t*& p_buf, uint8_t module);
 
 etx_serial_init multiSerialInitParams = {
     .baudrate = MULTIMODULE_BAUDRATE,
-    .parity = ETX_Parity_Even,
-    .stop_bits = ETX_StopBits_Two,
-    .word_length = ETX_WordLength_9,
+    .encoding = ETX_Encoding_8E2,
     .rx_enable = true,
 };
 

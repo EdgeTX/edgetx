@@ -214,43 +214,31 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   LL_USART_StructInit(&usartInit);
 
   usartInit.BaudRate = params->baudrate;
+  usartInit.Parity = LL_USART_PARITY_NONE;
+  usartInit.DataWidth = LL_USART_DATAWIDTH_8B;
 
-  uint32_t parity = LL_USART_PARITY_NONE;
-  switch(params->parity){
-  case ETX_Parity_None:
-      parity = LL_USART_PARITY_NONE;
-      break;
-  case ETX_Parity_Even:
-      parity = LL_USART_PARITY_EVEN;
-      break;
-  case ETX_Parity_Odd:
-      parity = LL_USART_PARITY_ODD;
-      break;
-  }
-  usartInit.Parity = parity;
+  switch(params->encoding){
 
-  uint16_t stop_bits = LL_USART_STOPBITS_1;
-  switch(params->stop_bits) {
-  case ETX_StopBits_One:
-      stop_bits = LL_USART_STOPBITS_1;
-      break;
-  case ETX_StopBits_OneAndHalf:
-      stop_bits = LL_USART_STOPBITS_1_5;
-      break;
-  case ETX_StopBits_Two:
-      stop_bits = LL_USART_STOPBITS_2;
-      break;
-  }
-  usartInit.StopBits = stop_bits;
+  case ETX_Encoding_8E2:
+    usartInit.Parity = LL_USART_PARITY_EVEN;
+    usartInit.StopBits = LL_USART_STOPBITS_2;
+    usartInit.DataWidth = LL_USART_DATAWIDTH_9B;
+    break;
 
-  if (params->word_length == ETX_WordLength_9) {
-      usartInit.DataWidth = LL_USART_DATAWIDTH_9B;
-  } else {
-      usartInit.DataWidth = LL_USART_DATAWIDTH_8B;
+  case ETX_Encoding_8N1:
+    break;
+
+  default:
+    // TODO: return some error
+    return;
   }
 
   usartInit.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  usartInit.TransferDirection = LL_USART_DIRECTION_TX_RX;
+
+  if (params->rx_enable)
+    usartInit.TransferDirection = LL_USART_DIRECTION_TX_RX;
+  else
+    usartInit.TransferDirection = LL_USART_DIRECTION_TX;
 
   LL_USART_Init(usart->USARTx, &usartInit);
   LL_USART_Enable(usart->USARTx);

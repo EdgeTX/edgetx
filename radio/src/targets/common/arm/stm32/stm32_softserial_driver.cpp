@@ -317,6 +317,9 @@ static void _conv_byte_8e2(stm32_softserial_tx_state* st, uint8_t b)
 
   // enlarge the last bit to be two stop bits long
   _set_level(st, len + BITLEN);
+
+  // update size
+  --st->serial_size;
 }
 
 static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
@@ -337,40 +340,86 @@ static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
     b = (b >> 1) | 0x80;         // shift in ones for stop bit
   }
 
-  // enlarge the last bit to be two stop bits long
-  _set_level(st, len + BITLEN);
+  // write the last bit
+  _set_level(st, len);
+
+  // update size
+  --st->serial_size;
+}
+
+
+// PXX1 PWM is encoded as a PWM signal
+// with a fixed ON phase of 9us and a variable OFF phase
+// depending on whether the bit is SET or RESET.
+//
+#define PXX1_FREQ      1000000 /* 1 MHz */
+#define PXX1_PWM_ON    9  /* 9us */
+#define PXX1_BIT_ZERO  16 /* 0 = 16us */
+#define PXX1_BIT_ONE   24 /* 1 = 24us */
+
+static void _conv_byte_pxx1(stm32_softserial_tx_state* st, uint8_t b)
+{
+  uint32_t bits = st->serial_size < 8 ? st->serial_size : 8;
+
+  for (uint8_t i = 0; i < bits; i++) {
+    // MSB first
+    if (b & 0x80)
+      _set_level(st, PXX1_BIT_ONE);
+    else
+      _set_level(st, PXX1_BIT_ZERO);
+
+    // next bit
+    b <<= 1;
+  }
+
+  st->serial_size -= bits;
 }
 
 // stm32_pulse_timer_t based TX implementation
 static void* stm32_softserial_init(void* hw_def, const etx_serial_init* params)
 {
   auto port = (const stm32_softserial_tx_port*)hw_def;
-  if (params->baudrate == 0) return nullptr;
 
   // Init state
   auto st = port->st;
   memset(port->st, 0, sizeof(stm32_softserial_tx_state));
 
-  if (params->word_length == ETX_WordLength_9 &&
-      params->stop_bits == ETX_StopBits_Two &&
-      params->parity == ETX_Parity_Even) {
-    st->conv_byte = _conv_byte_8e2;
-  } else if (params->word_length == ETX_WordLength_8 &&
-             params->stop_bits == ETX_StopBits_One &&
-             params->parity == ETX_Parity_None) {
+  uint32_t freq = params->baudrate * 16;
+  bool polarity = true;
+  uint32_t ocmode = LL_TIM_OCMODE_TOGGLE;
+  uint32_t cmp_val = 0;
+
+  switch(params->encoding) {
+
+  case ETX_Encoding_8N1:
     st->conv_byte = _conv_byte_8n1;
-  } else {
-    // unsupported mode!
+    break;
+
+  case ETX_Encoding_8E2:
+    st->conv_byte = _conv_byte_8e2;
+    break;
+
+  case ETX_Encoding_PXX1_PWM:
+    st->conv_byte = _conv_byte_pxx1;
+    freq = PXX1_FREQ;
+    polarity = false;
+    ocmode = LL_TIM_OCMODE_PWM1;
+    cmp_val = PXX1_PWM_ON;
+    break;
+
+  default:
     return nullptr;
   }
 
+  // prevent dividing by 0 in stm32_pulse_init()
+  if (freq == 0) return nullptr;
+
   // Use a variable timer frequency to keep bitlen constant (16)
   auto tim = port->tim;
-  uint32_t freq = params->baudrate * 16;
   stm32_pulse_init(tim, freq);
 
   // TODO: polarity?
-  stm32_pulse_config_output(tim, true, LL_TIM_OCMODE_TOGGLE, 0);
+  stm32_pulse_config_output(tim, polarity, ocmode, cmp_val);
 
   return hw_def;
 }
@@ -388,17 +437,24 @@ static void stm32_softserial_send_byte(void* ctx, uint8_t byte)
 
 static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
 {
-  // st->pulse_index = 0;
   st->pulse_ptr = st->pulse_buffer;
+  bool is_pxx1 = (st->conv_byte == _conv_byte_pxx1);
 
-  uint8_t size = st->serial_size < STM32_SOFTSERIAL_BUFFERED_PULSES
-                     ? st->serial_size
-                     : STM32_SOFTSERIAL_BUFFERED_PULSES;
+  uint32_t size = st->serial_size;
+
+  // PXX1 uses a # bits rather than bytes
+  if (is_pxx1) {
+    // 
+    size = (size + 7) / 8;
+    if (size > STM32_SOFTSERIAL_MAX_PULSES_TRANSITIONS / 8) // 12
+      size = STM32_SOFTSERIAL_MAX_PULSES_TRANSITIONS / 8;   // 12
+  } else if (size > STM32_SOFTSERIAL_BUFFERED_PULSES) {
+    size = STM32_SOFTSERIAL_BUFFERED_PULSES;
+  }
 
   for (uint8_t i = 0; i < size; i++) {
     st->conv_byte(st, *st->serial_data++);
   }
-  st->serial_size -= size;
 
   uint16_t length = st->pulse_ptr - st->pulse_buffer;
   if (st->serial_size == 0) {
@@ -407,7 +463,7 @@ static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
     // is odd, as we need an even number of toggles to return
     // to the idle polarity at the end of the pulse train.
     //
-    if (length & 1) {
+    if ((length & 1) && !is_pxx1) {
       *st->pulse_ptr++ = 255;
       length++;
     } else {
@@ -434,7 +490,7 @@ static bool stm32_softserial_dma_tc_isr(void* ctx)
   return true;
 }
 
-static void stm32_softserial_send_buffer(void* ctx, const uint8_t* data, uint8_t size)
+static void stm32_softserial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
   auto port = (const stm32_softserial_tx_port*)ctx;
   auto timer = port->tim;
@@ -446,7 +502,7 @@ static void stm32_softserial_send_buffer(void* ctx, const uint8_t* data, uint8_t
   st->serial_data = data;
   st->serial_size = size;
 
-  uint16_t length = _fill_pulses(st);
+  auto length = _fill_pulses(st);
 
   if (st->serial_size > 0 && timer->DMA_TC_CallbackPtr) {
     auto closure = timer->DMA_TC_CallbackPtr;
@@ -457,8 +513,20 @@ static void stm32_softserial_send_buffer(void* ctx, const uint8_t* data, uint8_t
   // Start DMA request and re-enable timer
   const void* pulses = st->pulse_buffer;
 
-  stm32_pulse_set_polarity(timer, true/*polarity*/);
-  stm32_pulse_start_dma_req(timer, pulses, length, LL_TIM_OCMODE_TOGGLE, 0);
+  // TODO: save polarity and encoding
+  bool polarity = true;
+  uint32_t ocmode = LL_TIM_OCMODE_TOGGLE;
+  uint32_t cmp_val = 0;
+
+  // dirty hack...
+  if (st->conv_byte == _conv_byte_pxx1) {
+    polarity = false;
+    ocmode = LL_TIM_OCMODE_PWM1;
+    cmp_val = PXX1_PWM_ON;
+  }
+
+  stm32_pulse_set_polarity(timer, polarity);
+  stm32_pulse_start_dma_req(timer, pulses, length, ocmode, cmp_val);
 }
 
 const etx_serial_driver_t STM32SoftSerialTxDriver = {

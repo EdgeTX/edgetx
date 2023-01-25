@@ -220,9 +220,7 @@ static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8
 
 static const etx_serial_init crsfSerialParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
+  .encoding = ETX_Encoding_8N1,
   .rx_enable = true,
 };
 

@@ -73,7 +73,7 @@ struct stm32_softserial_tx_state {
 #endif
 
   const uint8_t*           serial_data;
-  uint8_t                  serial_size;
+  uint32_t                 serial_size;
 };
 
 struct stm32_softserial_tx_port {

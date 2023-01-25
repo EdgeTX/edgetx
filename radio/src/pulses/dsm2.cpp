@@ -172,9 +172,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
 etx_serial_init dsmUartParams = {
     .baudrate = 0,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
+    .encoding = ETX_Encoding_8N1,
     .rx_enable = false,
 };
 
@@ -236,7 +234,7 @@ static void dsm2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 
   auto p_data = buffer;
   setupPulsesDSM2(module, p_data);
-  _dsm_send(mod_st, p_data, p_data - buffer);
+  _dsm_send(mod_st, buffer, p_data - buffer);
 }
 
 static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
@@ -250,7 +248,7 @@ static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 
   auto p_data = buffer;
   setupPulsesLemonDSMP(module, p_data);
-  _dsm_send(mod_st, p_data, p_data - buffer);
+  _dsm_send(mod_st, buffer, p_data - buffer);
 }
 
 // TODO: check telemetry init...

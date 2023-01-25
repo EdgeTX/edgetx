@@ -217,7 +217,8 @@ void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module)
     }
   } else {
     if (moduleState[module].counter == 0) {
-      sendFailsafe = (g_model.moduleData[module].failsafeMode != FAILSAFE_NOT_SET && g_model.moduleData[module].failsafeMode != FAILSAFE_RECEIVER);
+      sendFailsafe = (g_model.moduleData[module].failsafeMode != FAILSAFE_NOT_SET &&
+                      g_model.moduleData[module].failsafeMode != FAILSAFE_RECEIVER);
     }
   }
 
@@ -228,14 +229,12 @@ void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module)
   }
 }
 
-template class Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport> >;
+template class Pxx1Pulses<StandardPxx1Transport>;
 template class Pxx1Pulses<UartPxx1Transport>;
 
 static const etx_serial_init pxx1SerialCfg = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
+  .encoding = ETX_Encoding_8N1,
   .rx_enable = false,
 };
 
@@ -259,7 +258,7 @@ static void* pxx1Init(uint8_t module)
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
                                   ETX_MOD_DIR_TX, &txCfg);
 #else
-    txCfg.baudrate = 125000; // TODO: define
+    txCfg.encoding = ETX_Encoding_PXX1_PWM;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_SOFT_INV,
                                   ETX_MOD_DIR_TX, &txCfg);
 #endif
@@ -293,8 +292,8 @@ static void* pxx1Init(uint8_t module)
 
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1: {
-      txCfg.baudrate = 125000;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
+      txCfg.encoding = ETX_Encoding_PXX1_PWM;
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
                                     ETX_MOD_DIR_TX, &txCfg);
       if (!mod_st) return nullptr;
       
@@ -361,7 +360,7 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 #if defined(INTMODULE_USART)
     UartPxx1Pulses frame(buffer);
 #else
-    SerialPxx1Pulses frame(buffer);
+    PwmPxx1Pulses frame(buffer);
 #endif
     frame.setupFrame(module);
 
@@ -386,7 +385,7 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1: {
       // soft-serial
-      SerialPxx1Pulses frame(buffer);
+      PwmPxx1Pulses frame(buffer);
       frame.setupFrame(module);
       frame_size = frame.getSize();
     } break;

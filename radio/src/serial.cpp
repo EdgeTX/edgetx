@@ -308,9 +308,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 
   case UART_MODE_SBUS_TRAINER:
     params.baudrate = SBUS_BAUDRATE;
-    params.word_length = ETX_WordLength_9;
-    params.parity = ETX_Parity_Even;
-    params.stop_bits = ETX_StopBits_Two;
+    params.encoding = ETX_Encoding_8E2,
     params.rx_enable = true;
     break;
 
@@ -413,9 +411,7 @@ void serialInit(uint8_t port_nr, int mode)
 
   etx_serial_init params = {
     .baudrate = 0,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
+    .encoding = ETX_Encoding_8N1,
     .rx_enable = false,
   };
 

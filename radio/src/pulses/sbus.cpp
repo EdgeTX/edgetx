@@ -94,9 +94,7 @@ static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 
 etx_serial_init sbusUartParams = {
     .baudrate = SBUS_BAUDRATE,
-    .parity = ETX_Parity_Even,
-    .stop_bits = ETX_StopBits_Two,
-    .word_length = ETX_WordLength_9,
+    .encoding = ETX_Encoding_8E2,
     .rx_enable = false,
 };
 

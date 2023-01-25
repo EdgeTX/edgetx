@@ -347,9 +347,7 @@ extern "C" void TRAINER_MODULE_CPPM_TIMER_IRQHandler()
 
 const etx_serial_init sbusTrainerParams = {
     .baudrate = SBUS_BAUDRATE,
-    .parity = ETX_Parity_Even,
-    .stop_bits = ETX_StopBits_Two,
-    .word_length = ETX_WordLength_9,
+    .encoding = ETX_Encoding_8E2,
     .rx_enable = true,
 };
 

@@ -32,9 +32,7 @@
 
 const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
+    .encoding = ETX_Encoding_8N1,
     .rx_enable = true,
 };
 

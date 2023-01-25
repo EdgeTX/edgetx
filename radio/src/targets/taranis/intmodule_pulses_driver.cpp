@@ -27,6 +27,8 @@
 
 #if defined(INTMODULE_TIMER)
 
+static stm32_pulse_dma_tc_cb_t _int_timer_DMA_TC_Callback;
+
 const stm32_pulse_timer_t intmoduleTimer = {
   .GPIOx = INTMODULE_TX_GPIO,
   .GPIO_Pin = INTMODULE_TX_GPIO_PIN,
@@ -39,7 +41,7 @@ const stm32_pulse_timer_t intmoduleTimer = {
   .DMA_Stream = INTMODULE_TIMER_DMA_STREAM,
   .DMA_Channel = INTMODULE_TIMER_DMA_CHANNEL,
   .DMA_IRQn = INTMODULE_TIMER_DMA_STREAM_IRQn,
-  .DMA_TC_CallbackPtr = nullptr,
+  .DMA_TC_CallbackPtr = &_int_timer_DMA_TC_Callback,
 };
 
 // Make sure the timer channel is supported

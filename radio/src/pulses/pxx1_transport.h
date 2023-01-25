@@ -39,24 +39,65 @@ class Pxx1CrcMixin {
     uint16_t crc;
 };
 
-// Simulate legacy PWM over a serial transport @ 125kb/s
-class SerialPxxBitTransport {
+class StandardPxx1Transport: public Pxx1CrcMixin {
   protected:
     const uint8_t* buffer;
     uint8_t* ptr;
     uint8_t byte = 0;
     uint8_t bits_count = 0;
+    uint8_t ones_count = 0;
 
-    SerialPxxBitTransport(uint8_t* buffer)
+    StandardPxx1Transport(uint8_t* buffer)
       : buffer(buffer), ptr(buffer)
     {
     }
-  
-    void addSerialBit(uint8_t bit)
+
+    void addByte(uint8_t b)
     {
-      byte >>= 1;
+      Pxx1CrcMixin::addToCrc(b);
+      addByteWithoutCrc(b);
+    };
+
+    void addRawByte(uint8_t b)
+    {
+      for (uint8_t i = 0; i < 8; i++) {
+        // MSB first
+        if (b & 0x80) addPart(1);
+        else addPart(0);
+        b <<= 1;
+      }
+    }
+
+    void addByteWithoutCrc(uint8_t b)
+    {
+      for (uint8_t i = 0; i < 8; i++) {
+        // MSB first
+        addBit(b & 0x80);
+        b <<= 1;
+      }
+    }
+
+    void addBit(uint8_t bit)
+    {
+      if (bit) {
+        addPart(1);
+        if (++ones_count == 5) {
+          ones_count = 0;
+          addPart(0); // Stuff a 0 bit in
+        }
+      }
+      else {
+        addPart(0);
+        ones_count = 0;
+      }
+    }
+
+    void addPart(uint8_t bit)
+    {
+      // MSB first
+      byte <<= 1;
       if (bit & 1) {
-        byte |= 0x80;
+        byte |= 1;
       }
       if (++bits_count >= 8) {
         *ptr++ = byte;
@@ -64,78 +105,20 @@ class SerialPxxBitTransport {
       }
     }
 
-    // 8uS/bit 01 = 0, 001 = 1
-    void addPart(uint8_t value)
-    {
-      addSerialBit(0);
-      if (value) {
-        addSerialBit(0);
-      }
-      addSerialBit(1);
-    }
-
     void addTail()
     {
-      while (bits_count != 0) {
-        addSerialBit(1);
-      }
+      if (bits_count > 0)
+        *ptr++ = byte << (8 - bits_count);
     }
 
   public:
     uint32_t getSize()
     {
-      return ptr - buffer;
-    }
-};
+      uint32_t size = (ptr - buffer) * 8;
+      if (bits_count > 0)
+        size -= (8 - bits_count);
 
-template <class BitTransport>
-class StandardPxx1Transport: public BitTransport, public Pxx1CrcMixin {
-  protected:
-    uint8_t ones_count = 0;
-
-    StandardPxx1Transport(uint8_t* buffer)
-      : BitTransport(buffer)
-    {
-    }
-
-    void addByte(uint8_t byte)
-    {
-      Pxx1CrcMixin::addToCrc(byte);
-      addByteWithoutCrc(byte);
-    };
-
-    void addRawByte(uint8_t byte)
-    {
-      for (uint8_t i = 0; i < 8; i++) {
-        if (byte & 0x80)
-          BitTransport::addPart(1);
-        else
-          BitTransport::addPart(0);
-        byte <<= 1;
-      }
-    }
-
-    void addByteWithoutCrc(uint8_t byte)
-    {
-      for (uint8_t i = 0; i < 8; i++) {
-        addBit(byte & 0x80);
-        byte <<= 1;
-      }
-    }
-
-    void addBit(uint8_t bit)
-    {
-      if (bit) {
-        BitTransport::addPart(1);
-        if (++ones_count == 5) {
-          ones_count = 0;
-          BitTransport::addPart(0); // Stuff a 0 bit in
-        }
-      }
-      else {
-        BitTransport::addPart(0);
-        ones_count = 0;
-      }
+      return size;
     }
 };
 
@@ -219,4 +202,4 @@ class Pxx1Pulses: public PxxTransport
 };
 
 typedef Pxx1Pulses<UartPxx1Transport> UartPxx1Pulses;
-typedef Pxx1Pulses<StandardPxx1Transport<SerialPxxBitTransport>> SerialPxx1Pulses;
+typedef Pxx1Pulses<StandardPxx1Transport> PwmPxx1Pulses;

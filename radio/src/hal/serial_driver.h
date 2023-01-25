@@ -23,28 +23,16 @@
 
 #include <stdint.h>
 
-enum SerialParity {
-    ETX_Parity_None,
-    ETX_Parity_Even,
-    ETX_Parity_Odd,
-};
 
-enum SerialStopBits {
-    ETX_StopBits_One,
-    ETX_StopBits_OneAndHalf,
-    ETX_StopBits_Two,
-};
-
-enum SerialWordLength {
-  ETX_WordLength_8,
-  ETX_WordLength_9,
+enum SerialEncoding {
+  ETX_Encoding_8N1,
+  ETX_Encoding_8E2,
+  ETX_Encoding_PXX1_PWM,
 };
 
 typedef struct {
   uint32_t baudrate;    // = 0;
-  uint8_t parity;       // = ETX_Parity_None;
-  uint8_t stop_bits;    // = ETX_StopBits_One;
-  uint8_t word_length;  // = ETX_WordLength_8;
+  uint8_t encoding;     // = ETX_Encoding_8N1;
   uint8_t rx_enable;    // = false;
 
 } etx_serial_init;
@@ -67,7 +55,7 @@ typedef struct {
   void (*sendByte)(void* ctx, uint8_t byte);
 
   // Send a buffer
-  void (*sendBuffer)(void* ctx, const uint8_t* data, uint8_t size);
+  void (*sendBuffer)(void* ctx, const uint8_t* data, uint32_t size);
 
   // Wait for last send operation to complete
   void (*waitForTxCompleted)(void* ctx);

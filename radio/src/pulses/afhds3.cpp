@@ -848,9 +848,7 @@ void applyModelConfig(uint8_t module)
 
 static const etx_serial_init _uartParams = {
   .baudrate = 0, //AFHDS3_UART_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
+  .encoding = ETX_Encoding_8N1,
   .rx_enable = true,
 };
 

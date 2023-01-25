@@ -214,6 +214,7 @@ DEFINE_STM32_SERIAL_PORT(InternalModule, intmoduleUSART, INTMODULE_FIFO_SIZE, 0)
 #include "timers_driver.h"
 
 extern const stm32_pulse_timer_t intmoduleTimer;
+DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
 #endif
 
@@ -334,11 +335,11 @@ BEGIN_MODULE_PORTS()
   },
 #else // INTMODULE_USART
   {
-    .port = ETX_MOD_PORT_INTERNAL_TIMER,
-    .type = ETX_MOD_TYPE_TIMER,
+    .port = ETX_MOD_PORT_INTERNAL_SOFT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .timer = &STM32ModuleTimerDriver },
-    .hw_def = (void*)&intmoduleTimer,
+    .drv = { .serial = &STM32SoftSerialTxDriver },
+    .hw_def = REF_STM32_SOFTSERIAL_PORT(InternalModule),
   },
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)

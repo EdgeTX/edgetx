@@ -289,7 +289,7 @@ static void stm32_serial_send_byte(void* ctx, uint8_t c)
   }
 }
 
-static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint8_t size)
+static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
   auto st = (stm32_serial_state*)ctx;
   if (!st) return;

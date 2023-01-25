@@ -1049,9 +1049,7 @@ static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 
 static const etx_serial_init spIntmoduleSerialInitParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
+  .parity = ETX_Encoding_8N1,
   .rx_enable = true,
 };
 

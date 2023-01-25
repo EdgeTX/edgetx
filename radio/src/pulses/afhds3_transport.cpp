@@ -231,14 +231,6 @@ void CommandFifo::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
   }
 }
 
-static const etx_serial_init _uartParams = {
-  .baudrate = AFHDS3_UART_BAUDRATE,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
-};
-
 void Transport::init(void* buffer, etx_module_state_t* mod_st)
 {
   trsp.init(buffer);
