@@ -21,6 +21,10 @@
 
 #include <climits>
 
+#include "ppm.h"
+#include "hal/module_port.h"
+#include "mixer_scheduler.h"
+
 #include "opentx.h"
 
 // Minimum space after the last PPM pulse in us
@@ -78,24 +82,9 @@ void setupPulsesPPMTrainer()
   trainerPulsesData.ppm.ptr = p_data;
 }
 
-static void setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
+static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
 {
-//   PpmPulsesData<pulse_duration_t>* data = nullptr;
-
-// #if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-//   if (module == INTERNAL_MODULE) {
-//     data = &intmodulePulsesData.ppm;
-//   }
-// #endif
-
-// #if defined(HARDWARE_EXTERNAL_MODULE)
-//   if (module == EXTERNAL_MODULE) {
-//     data = &extmodulePulsesData.ppm;
-//   }
-// #endif
-
-//   if (!data) return;
-  
+  auto start = data;
   setupPulsesPPM(data,
                  g_model.moduleData[module].channelsStart,
                  g_model.moduleData[module].channelsCount);
@@ -103,23 +92,9 @@ static void setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
   // Set the final period to 1ms after which the
   // PPM will be switched OFF
   *data++ = PPM_SAFE_MARGIN * 2;
-}
 
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-void setupPulsesPPMInternalModule()
-{
-  // TODO
-  // setupPulsesPPMModule(INTERNAL_MODULE);
+  return data - start;
 }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-void setupPulsesPPMExternalModule()
-{
-  // TODO
-  // setupPulsesPPMModule(EXTERNAL_MODULE);
-}
-#endif
 
 // extmoduleSendNextFramePpm(extmodulePulsesData.ppm.pulses,
 //                           extmodulePulsesData.ppm.ptr -
@@ -127,3 +102,70 @@ void setupPulsesPPMExternalModule()
 //                           GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
 //                           GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
 // mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
+
+static void* ppmInit(uint8_t module)
+{
+#if defined(HARDWARE_INTERNAL_MODULE)
+  // only external module supported
+  if (module == INTERNAL_MODULE) return nullptr;
+#endif
+
+  etx_timer_config_t cfg = {
+    .type = ETX_PWM,
+    .polarity = GET_MODULE_PPM_POLARITY(module),
+    .cmp_val = (uint16_t)GET_MODULE_PPM_DELAY(module) * 2,
+  };
+
+  auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_EXTERNAL_TIMER, &cfg);
+
+  EXTERNAL_MODULE_ON();
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+
+  return (void*)mod_st;  
+}
+
+static void ppmDeInit(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  EXTERNAL_MODULE_OFF();
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
+}
+
+static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  pulse_duration_t* pulses = (pulse_duration_t*)buffer;
+  auto length = setupPulsesPPMModule(module, pulses);
+
+  auto drv = modulePortGetTimerDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
+  etx_timer_config_t cfg = {
+    .type = ETX_PWM,
+    .polarity = GET_MODULE_PPM_POLARITY(module),
+    .cmp_val = (uint16_t)GET_MODULE_PPM_DELAY(module) * 2,
+  };
+
+  drv->send(drv_ctx, &cfg, buffer, length);
+
+  // PPM_PERIOD is not a constant! It can be set from UI
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+}
+
+const etx_proto_driver_t PpmDriver = {
+  .protocol = PROTOCOL_CHANNELS_PPM,
+  .init = ppmInit,
+  .deinit = ppmDeInit,
+  .sendPulses = ppmSendPulses,
+  .getByte = nullptr,
+  .processData = nullptr,
+};

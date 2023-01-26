@@ -30,6 +30,10 @@
 #include "pulses/flysky.h"
 #include "pulses/dsm2.h"
 
+#if defined(PPM)
+#include "pulses/ppm.h"
+#endif
+
 #if defined(PXX1)
 #include "pulses/pxx1.h"
 #endif
@@ -438,20 +442,11 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
-// #if defined(PPM)
-//     case PROTOCOL_CHANNELS_PPM:
-//       extmodulePpmStart(
-//           GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
-//           GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
-//       mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
-//       break;
-// #endif
-// #if defined(INTERNAL_MODULE_PPM)
-//     case PROTOCOL_CHANNELS_PPM:
-//       intmodulePpmStart();
-//       mixerSchedulerSetPeriod(INTERNAL_MODULE, PPM_PERIOD(INTERNAL_MODULE));
-//       break;
-// #endif
+#if defined(PPM)
+  case PROTOCOL_CHANNELS_PPM:
+      _init_module(mod, module, &PpmDriver);
+      break;
+#endif
 
 #if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:

@@ -70,8 +70,4 @@ extern "C" void INTMODULE_TIMER_IRQHandler()
   stm32_pulse_tim_update_isr(&intmoduleTimer);
 }
 
-
-
-
-
 #endif // INTMODULE_TIMER

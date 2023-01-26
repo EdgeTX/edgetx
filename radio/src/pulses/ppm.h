@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "hal/module_driver.h"
 
-#include "stm32_pulse_driver.h"
-
-extern const stm32_pulse_timer_t extmoduleTimer;
+extern const etx_proto_driver_t PpmDriver;
