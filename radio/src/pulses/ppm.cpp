@@ -110,10 +110,11 @@ static void* ppmInit(uint8_t module)
   if (module == INTERNAL_MODULE) return nullptr;
 #endif
 
+  auto delay = GET_MODULE_PPM_DELAY(module) * 2;
   etx_timer_config_t cfg = {
     .type = ETX_PWM,
     .polarity = GET_MODULE_PPM_POLARITY(module),
-    .cmp_val = (uint16_t)GET_MODULE_PPM_DELAY(module) * 2,
+    .cmp_val = (uint16_t)delay,
   };
 
   auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_EXTERNAL_TIMER, &cfg);
@@ -149,10 +150,11 @@ static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t
   auto drv = modulePortGetTimerDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
 
+  auto delay = GET_MODULE_PPM_DELAY(module) * 2;
   etx_timer_config_t cfg = {
     .type = ETX_PWM,
     .polarity = GET_MODULE_PPM_POLARITY(module),
-    .cmp_val = (uint16_t)GET_MODULE_PPM_DELAY(module) * 2,
+    .cmp_val = (uint16_t)delay,
   };
 
   drv->send(drv_ctx, &cfg, buffer, length);

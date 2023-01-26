@@ -53,7 +53,6 @@ volatile uint32_t rotencDt = 0;
 
 // TODO: remove all STM32 defs
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
 ADC_Common_TypeDef adc;
 RTC_TypeDef rtc;
 
@@ -569,51 +568,6 @@ void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
 
-// GPIO fake functions
-void GPIO_PinAFConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_PinSource, uint8_t GPIO_AF) { }
-
-// PWR fake functions
-void PWR_BackupAccessCmd(FunctionalState NewState) { }
-void PWR_BackupRegulatorCmd(FunctionalState NewState) { }
-
-// USART fake functions
-void USART_DeInit(USART_TypeDef* ) { }
-void USART_Init(USART_TypeDef* USARTx, USART_InitTypeDef* USART_InitStruct) { }
-void USART_Cmd(USART_TypeDef* USARTx, FunctionalState NewState) { }
-void USART_ClearITPendingBit(USART_TypeDef*, unsigned short) { }
-void USART_SendData(USART_TypeDef* USARTx, uint16_t Data) { }
-uint16_t USART_ReceiveData(USART_TypeDef*) { return 0; }
-void USART_DMACmd(USART_TypeDef* USARTx, uint16_t USART_DMAReq, FunctionalState NewState) { }
-void USART_ITConfig(USART_TypeDef* USARTx, uint16_t USART_IT, FunctionalState NewState) { }
-FlagStatus USART_GetFlagStatus(USART_TypeDef* USARTx, uint16_t USART_FLAG) { return SET; }
-
-// TIM fake functions
-void TIM_DMAConfig(TIM_TypeDef* TIMx, uint16_t TIM_DMABase, uint16_t TIM_DMABurstLength) { }
-void TIM_DMACmd(TIM_TypeDef* TIMx, uint16_t TIM_DMASource, FunctionalState NewState) { }
-void TIM_CtrlPWMOutputs(TIM_TypeDef* TIMx, FunctionalState NewState) { }
-
-// SPI fake functions
-void SPI_I2S_DeInit(SPI_TypeDef* SPIx) { }
-void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState NewState) { }
-
-// RCC fake functions
-void RCC_RTCCLKConfig(uint32_t RCC_RTCCLKSource) { }
-void RCC_APB1PeriphClockCmd(uint32_t RCC_APB1Periph, FunctionalState NewState) { }
-void RCC_RTCCLKCmd(FunctionalState NewState) { }
-void RCC_PLLI2SConfig(uint32_t PLLI2SN, uint32_t PLLI2SR) { }
-void RCC_PLLI2SCmd(FunctionalState NewState) { }
-void RCC_I2SCLKConfig(uint32_t RCC_I2SCLKSource) { }
-void RCC_LSEConfig(uint8_t RCC_LSE) { }
-void RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks) { };
-FlagStatus RCC_GetFlagStatus(uint8_t RCC_FLAG) { return SET; }
-
-// EXTI fake functions
-void SYSCFG_EXTILineConfig(uint8_t EXTI_PortSourceGPIOx, uint8_t EXTI_PinSourcex) { }
-void EXTI_StructInit(EXTI_InitTypeDef* EXTI_InitStruct) { }
-ITStatus EXTI_GetITStatus(uint32_t EXTI_Line) { return RESET; }
-void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct) { }
-void EXTI_ClearITPendingBit(uint32_t EXTI_Line) { }
-
 void unlockFlash()
 {
 }
@@ -717,10 +671,10 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-static void* _fake_drv_init(void*, const etx_serial_init*) { return nullptr; }
+static void* _fake_drv_init(void*, const etx_serial_init*) { return (void*)1; }
 static void _fake_drv_fct1(void*) {}
 static void _fake_drv_send_byte(void*, uint8_t) {}
-static void _fake_drv_send_buffer(void*, const uint8_t*, uint8_t) {}
+static void _fake_drv_send_buffer(void*, const uint8_t*, uint32_t) {}
 static int _fake_drv_get_byte(void*, uint8_t*) { return 0; }
 static const etx_serial_driver_t _fake_drv = {
   .init = _fake_drv_init,

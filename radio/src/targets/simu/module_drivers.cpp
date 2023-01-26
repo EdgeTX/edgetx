@@ -63,7 +63,7 @@ void stop_intmodule_heartbeat() {}
 static void* init(void*, const etx_serial_init*) { return (void*)1; }
 static void deinit(void*) {}
 static void sendByte(void*, uint8_t) {}
-static void sendBuffer(void*, const uint8_t*, uint8_t) {}
+static void sendBuffer(void*, const uint8_t*, uint32_t) {}
 static void waitForTxCompleted(void*) {}
 static int getByte(void*,uint8_t*) { return -1; }
 
