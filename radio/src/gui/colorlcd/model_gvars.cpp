@@ -121,6 +121,8 @@ void GVarButton::updateValueText(uint8_t flightMode)
 
   if (value > GVAR_MAX) {
     uint8_t fm = value - GVAR_MAX - 1;
+    if (fm >= flightMode)
+      fm += 1;
     char label[16] = {};
     getFlightModeString(label, fm + 1);
 
