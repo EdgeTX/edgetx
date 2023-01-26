@@ -50,7 +50,7 @@
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Stumm","Alarm","NoKey","Alle"
 #define TR_VBLMODE                     "AUS","Taste","Stks","Beide","EIN"
-#define TR_TRNMODE                     "AUS","+=",":="
+#define TR_TRNMODE                     "AUS","Addiere","Ersetze"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"

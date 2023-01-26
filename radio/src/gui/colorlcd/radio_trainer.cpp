@@ -31,12 +31,12 @@ RadioTrainerPage::RadioTrainerPage():
 }
 
 #if LCD_W > LCD_H
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(13), LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
                                      LV_GRID_TEMPLATE_LAST};
                                      
 #define MULT_COL_CNT    3
 #else
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15), LV_GRID_FR(9), LV_GRID_FR(9),
                                      LV_GRID_TEMPLATE_LAST};
 #define MULT_COL_CNT    2
 #endif
@@ -97,6 +97,11 @@ void RadioTrainerPage::build(FormWindow * form)
       [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
   lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, MULT_COL_CNT, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
+#if LCD_H > LCD_W
+  line = form->newLine(&grid);
+  line->padTop(10);
+#endif
+
   // Trainer calibration
   auto btn = new TextButton(line, rect_t{0, 0, 0, 30}, std::string(STR_CAL), [=]() -> uint8_t {
     memcpy(g_eeGeneral.trainer.calib, ppmInput,
@@ -104,6 +109,5 @@ void RadioTrainerPage::build(FormWindow * form)
     SET_DIRTY();
     return 0;
   });
-  lv_obj_set_style_min_width(btn->getLvObj(), 3*LV_DPI_DEF/5, 0);
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_END, MULT_COL_CNT+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, MULT_COL_CNT+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 }
