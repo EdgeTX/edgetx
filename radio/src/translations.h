@@ -129,6 +129,9 @@ extern const char STR_MINUTE_SINGULAR[];
 extern const char STR_MINUTE_PLURAL1[];
 extern const char STR_MINUTE_PLURAL2[];
 
+extern const char CHR_HOUR;
+extern const char CHR_INPUT;
+
 extern const char* const STR_OFFON[];
 extern const char* const STR_MMMINV[];
 extern const char* const STR_VBEEPMODE[];
@@ -279,7 +282,6 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
-extern const char STR_SF_SWITCH[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
 extern const char STR_FADEIN[];
@@ -461,7 +463,7 @@ extern const char STR_MENULOGICALSWITCHES[];
 extern const char STR_MENUCUSTOMFUNC[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
 extern const char STR_MENUTELEMETRY[];
-extern const char STR_MENUTEMPLATES[];
+//extern const char STR_MENUTEMPLATES[];
 extern const char STR_MENUSTAT[];
 extern const char STR_MENUDEBUG[];
 extern const char * const STR_MONITOR_CHANNELS[];
@@ -897,14 +899,12 @@ extern const char STR_EXPONAME[];
 
 #define TR_LIMITS_HEADERS { HINT(TR_LIMITS_HEADERS_NAME), HINT(TR_LIMITS_HEADERS_SUBTRIM), HINT(TR_LIMITS_HEADERS_MIN), HINT(TR_LIMITS_HEADERS_MAX), HINT(TR_LIMITS_HEADERS_DIRECTION), HINT(TR_LIMITS_HEADERS_CURVE), HINT(TR_LIMITS_HEADERS_PPMCENTER), HINT(TR_LIMITS_HEADERS_SUBTRIMMODE) }
 #define TR_LSW_HEADERS    { HINT(TR_FUNC), HINT(TR_V1), HINT(TR_V2), HINT(TR_V2), HINT(TR_AND_SWITCH), HINT(TR_DURATION), HINT(TR_DELAY) }
-#define TR_GVAR_HEADERS   { HINT(TR_GVAR_HEADERS_FM0), HINT(TR_GVAR_HEADERS_FM1), HINT(TR_GVAR_HEADERS_FM2), HINT(TR_GVAR_HEADERS_FM3), HINT(TR_GVAR_HEADERS_FM4), HINT(TR_GVAR_HEADERS_FM5), HINT(TR_GVAR_HEADERS_FM6), HINT(TR_GVAR_HEADERS_FM7), HINT(TR_GVAR_HEADERS_FM8) }
 
 #if LCD_W >= 212
   extern const char * const STR_PHASES_HEADERS[];
   extern const char * const STR_LIMITS_HEADERS[];
   extern const char * const STR_LSW_HEADERS[];
   extern const char * const STR_LSW_DESCRIPTIONS[];
-  extern const char * const STR_GVAR_HEADERS[];
 #endif
 
 extern const char STR_TRAINER[];
@@ -1160,9 +1160,6 @@ extern const char STR_MAIN_MENU_STATISTICS[];
 extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
 
 #endif
-
-#define CHR_HOUR   TR_CHR_HOUR
-#define CHR_INPUT  TR_CHR_INPUT
 
 #endif // _TRANSLATIONS_H_
 

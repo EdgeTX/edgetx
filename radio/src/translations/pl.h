@@ -128,11 +128,9 @@
 
 #if defined(VOICE)
   #define TR_PLAY_TRACK        "GrajŚcieżk"
-  #define TR_PLAY_BOTH         "Graj Oba"
   #define TR_PLAY_VALUE        TR("Graj Wart","GrajWartoś")
 #else
   #define TR_PLAY_TRACK        "[Graj Ści]"
-  #define TR_PLAY_BOTH         "[Graj Oba]"
   #define TR_PLAY_VALUE        "[Graj War]"
 #endif
 
@@ -203,14 +201,6 @@
 #define TR_VTELEMSCREENTYPE    "Brak","Liczb","Paski","Skrypt"
 #define TR_GPSFORMAT           "DMS","NMEA"
 
-#define TR_TEMPLATE_CLEAR_MIXES        "Usuń Miksy"
-#define TR_TEMPLATE_SIMPLE_4CH         "Prosty. 4kn"
-#define TR_TEMPLATE_STICKY_TCUT        "Przełą-T-Cut"
-#define TR_TEMPLATE_VTAIL              "V-Tail"
-#define TR_TEMPLATE_DELTA              "Elevon\\Delta "
-#define TR_TEMPLATE_ECCPM              "eCCPM"
-#define TR_TEMPLATE_HELI               "Ustaw Heli"
-#define TR_TEMPLATE_SERVO_TEST         "Test serwa"
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
@@ -360,7 +350,6 @@
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Uwaga: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Uwaga: output level is 5 volts"
 #define TR_MS                  "ms"
-#define TR_FREQUENCY                   INDENT "Częstotl."
 #define TR_SWITCH              "Przełą"
 #define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
@@ -378,9 +367,6 @@
 #define TR_AILERON             TR("Lateral cyc.", "Lateral cyc. source")
 #define TR_ELEVATOR            TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING           "Tarcza    "
-#define TR_ELEDIRECTION        TR("Ster Wysokośc","Dług. Kierunku cyklu")
-#define TR_AILDIRECTION        TR("Kierunek Lotk","Lateral cyc. direction")
-#define TR_COLDIRECTION        TR("PIT Direction","Coll. pitch direction")
 #define TR_MODE                "Tryb"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK        "Lewy"
@@ -392,9 +378,7 @@
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"
 #define TR_SOURCE               "Źródło"
 #define TR_WEIGHT              "Waga "
-#define TR_EXPO                TR("Expo", "Exponential")
 #define TR_SIDE                "Strona"
-#define TR_DIFFERENTIAL        "Różnic"
 #define TR_OFFSET              "Ofset "
 #define TR_TRIM                "Trym"
 #define TR_DREX                "DRex"
@@ -417,12 +401,9 @@
 #else
 #define TR_GV                  TR("G", "ZG")
 #endif
-#define TR_ACHANNEL            "A\004Kanał"
 #define TR_RANGE               INDENT "Zakres"
 #define TR_CENTER              INDENT "Środek"
-#define TR_BAR                 "Pas"
 #define TR_ALARM               "Alarm"
-#define TR_USRDATA             TR("Dane Użytk.", "Dane użytkownika")
 #define TR_BLADES              "Łopaty śmigla"
 #define TR_SCREEN              "Ekran "
 #define TR_SOUND_LABEL         "Dźwięk"
@@ -487,7 +468,6 @@
 #define TR_CAL                 "Kal."
 #define TR_CALIBRATION                 "Kalibracja"
 #define TR_VTRIM               "Trym - +"
-#define TR_BG                  "BG:"
 #define TR_CALIB_DONE          "Kalibracja zakończona"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART       "Press [Enter] to start"
@@ -502,10 +482,8 @@
   #define TR_SETMIDPOINT       TR(CENTER "\002Cenruj drążki/potencj",CENTER "\010Ustaw drązki/potencj na środku")
   #define TR_MOVESTICKSPOTS    "Poruszaj drążkami/pot"
 #endif
-#define TR_RXBATT              "Rx Batt:"
 #define TR_TXnRX               "Tx:\0Rx:"
 #define OFS_RX                 4
-#define TR_ACCEL               "Acc:"
 #define TR_NODATA              CENTER "Brak Danych"
 #define TR_US                         "us"
 #define TR_HZ                         "Hz"
@@ -524,7 +502,6 @@
 #define TR_CH                  "KN"
 #define TR_MODEL               "MODEL"
 #define TR_FM                  "FL"
-#define TR_MIX                 "MIX"
 #define TR_EEPROMLOWMEM        "Mało pamięci EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Wciśnij guzik->ignoruj"
 #define TR_THROTTLE_NOT_IDLE     "Gaz nie na zerze"
@@ -538,7 +515,6 @@
 #define TR_STORAGE_FORMAT      "Storage Preparation"
 #define TR_EEPROMOVERFLOW      "Przeładowany EEPROM"
 #define TR_RADIO_SETUP      "USTAWIENIA RADIA"
-#define TR_MENUDATEANDTIME     "DATA I CZAS"
 #define TR_MENUTRAINER         "TRENER"
 #define TR_MENUSPECIALFUNCS    "FUNKCJE GLOBALNE"
 #define TR_MENUVERSION         "WERSJA"
@@ -570,7 +546,6 @@
 #define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"
 #define TR_MENUCUSTOMSCRIPTS   "WŁASNE SKRYPTY"
 #define TR_MENUTELEMETRY       "TELEMETRIA"
-#define TR_MENUTEMPLATES       "SZABLONY"
 #define TR_MENUSTAT            "STAT"
 #define TR_MENUDEBUG           "DEBUG"
 #define TR_MONITOR_CHANNELS1   "MONITOR KANAŁÓW 1/8"
@@ -619,23 +594,15 @@
 #define TR_MULTI_SERVOFREQ     TR("Servo rate", "Servo update rate")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
 #define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
-#define TR_SYNCMENU            "[Synch]"
-#define TR_LIMIT               INDENT "Limit"
-#define TR_MINRSSI             "Min Rssi"
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
-#define TR_LATITUDE            "Szer. geo."
-#define TR_LONGITUDE           "Dł.   geo."
 #define TR_GPS_COORDS_FORMAT            TR("Koord.GPS","Typ koordynat GPS")
 #define TR_VARIO               TR("Wario","Wariometr")
 #define TR_PITCH_AT_ZERO       "Ton przy Zerze"
 #define TR_PITCH_AT_MAX        "Ton przy Max"
 #define TR_REPEAT_AT_ZERO      "Powtórz przy Zerze"
-#define TR_SHUTDOWN            "Wyłączanie..."
-#define TR_SAVE_MODEL           "Zapisz ustwienia modelu"
 #define TR_BATT_CALIB          "Kalib:Baterii"
 #define TR_CURRENT_CALIB       " +=\006Kalibracja prądu"
 #define TR_VOLTAGE             TR (INDENT"Napięcie",INDENT"Źródło Napięcia")
-#define TR_CURRENT             TR (INDENT"Prąd",INDENT"Źródło Prądu")
 #define TR_SELECT_MODEL        "Wybór modelu"
 #define TR_MODELS              "Modele"
 #define TR_SELECT_MODE         "Wybierz tryb"
@@ -722,10 +689,8 @@
 #define TR_BATTERY                     "BATTERY"
 #define TR_WRONG_PCBREV        "Wrong PCB detected"
 #define TR_EMERGENCY_MODE      "EMERGENCY MODE"
-#define TR_PCBREV_ERROR        "Błąd PCB"
 #define TR_NO_FAILSAFE         "Brak Failsafe"
 #define TR_KEYSTUCK            "Blokada klucza"
-#define TR_INVERT_THR          TR("Odw.Gaz?","Odwróć gaz?")
 #define TR_VOLUME              "Głośność"
 #define TR_LCD                 "LCD"
 #define TR_BRIGHTNESS          "Jasność"
@@ -859,7 +824,6 @@
 #define TR_FAILSAFESET         "USTAWIENIE FAILSAFE"
 #define TR_REG_ID                      "Reg. ID"
 #define TR_OWNER_ID                    "Owner ID"
-#define TR_PINMAPSET                   "PINMAP"
 #define TR_HOLD                "Hold"
 #define TR_HOLD_UPPERCASE              "HOLD"
 #define TR_NONE                "Nic"
@@ -928,7 +892,6 @@
 #define TR_REGISTER                    TR("Reg", "Register")
 #define TR_MODULE_RANGE        TR("[Zas]","Zasięg")
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
-#define TR_DEL_BUTTON                  BUTTON(TR("Del", "Delete"))
 #define TR_RESET_BTN           "[Reset]"
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
@@ -978,8 +941,6 @@
 #define TR_RSSIALARM_WARN             TR("RSSI","TELEMETRY RSSI")
 #define TR_NO_RSSIALARM                TR(INDENT "Alarms disabled", INDENT "Telemetry alarms disabled")
 #define TR_DISABLE_ALARM               TR(INDENT "Disable alarms", INDENT "Disable telemetry alarms")
-#define TR_ENABLE_POPUP        "Aktywuj Popup"
-#define TR_DISABLE_POPUP       "Wyłącz Popup"
 #define TR_POPUP               "Popup"
 #define TR_MIN                 "Min"
 #define TR_MAX                 "Max"
@@ -1000,10 +961,8 @@
 #define TR_GLOBALVAR           "Zm.Global."
 #define TR_MIXSOURCE           "Źródło Miks."
 #define TR_CONSTANT            "Stała   "
-#define TR_PERSISTENT_MAH      TR(INDENT "Zap. mAh", INDENT "Zapisz mAh")
 #define TR_PREFLIGHT           "Lista Ostrzeżeń"
 #define TR_CHECKLIST           TR(INDENT "Czeklista",INDENT "Pokaż Listę Ostrzeżeń")
-#define TR_FAS_OFFSET          TR(INDENT "FAS Ofs", INDENT "FAS Offset")
 #define TR_AUX_SERIAL_MODE     "Port szreg."
 #define TR_AUX2_SERIAL_MODE    "Port szreg. 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Zasil.portu"
@@ -1044,16 +1003,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Tryb subtrim"
 #define TR_INVERTED                    "Inverted"
 
-#define TR_GVAR_HEADERS_NAME          "Nazwa"
-#define TR_GVAR_HEADERS_FM0           "Wartość w FM0"
-#define TR_GVAR_HEADERS_FM1           "Wartość w FM1"
-#define TR_GVAR_HEADERS_FM2           "Wartość w FM2"
-#define TR_GVAR_HEADERS_FM3           "Wartość w FM3"
-#define TR_GVAR_HEADERS_FM4           "Wartość w FM4"
-#define TR_GVAR_HEADERS_FM5           "Wartość w FM5"
-#define TR_GVAR_HEADERS_FM6           "Wartość w FM6"
-#define TR_GVAR_HEADERS_FM7           "Wartość w FM7"
-#define TR_GVAR_HEADERS_FM8           "Wartość w FM8"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS    { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
@@ -1084,9 +1033,6 @@
 // About screen
 #define TR_ABOUTUS             TR("   O   ", "  O  ")
 
-#define TR_CHR_SHORT           'k'
-#define TR_CHR_LONG            'd'
-#define TR_CHR_TOGGLE          't'
 #define TR_CHR_HOUR            'h'
 #define TR_CHR_INPUT           'I'   // Values between A-I will work
 
@@ -1108,8 +1054,6 @@
 #define TR_VIEW_CHANNELS       "Pokaż Kanały"
 #define TR_VIEW_NOTES          "Pokaż Notki"
 #define TR_MODEL_SELECT        "Model Select"
-#define TR_MODS_FORBIDDEN      "Modyfikacje zabronione!"
-#define TR_UNLOCKED            "Odblokowane"
 #define TR_ID                  "ID"
 #define TR_PRECISION           "Precyzja "
 #define TR_RATIO               "Współcz."
@@ -1127,8 +1071,6 @@
 #define TR_ONLYPOSITIVE        "Dodatni"
 #define TR_FILTER              "Filtr"
 #define TR_TELEMETRYFULL       "Wszyskie miejsca zajęte!"
-#define TR_SERVOS_OK           "Serwa OK"
-#define TR_SERVOS_KO           "Serwa KO"
 //TODO: translation
 #define TR_INVERTED_SERIAL     INDENT "Odwróć"
 #define TR_IGNORE_INSTANCE     INDENT "Ignoruj przypadek"

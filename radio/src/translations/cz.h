@@ -56,7 +56,6 @@
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
 #define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr")
 #define TR_SLIDERTYPES                 "Žádný","Slider"
-#define TR_VLCD                        "Normal","Optrex"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"
@@ -133,11 +132,9 @@
 
 #if defined(VOICE)
   #define TR_PLAY_TRACK              TR3("\221\222Stopa", "\221\222Stopa", "Přehrát wav")
-  #define TR_PLAY_BOTH                 "\221\222Pár stop"
   #define TR_PLAY_VALUE                TR3("\221\222Hlásit ", "\221\222Hlásit ", "Hlásit stav")
 #else
   #define TR_PLAY_TRACK                "[\221\222Stopa]"
-  #define TR_PLAY_BOTH                 "[\221\222Pár]"
   #define TR_PLAY_VALUE                "[\221\222Hlásit]"
 #endif
 
@@ -192,22 +189,12 @@
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"Vše",TR_FSW_RESET_TELEM
 #define TR_FUNCSOUNDS                  TR("Píp1","Pípnutí1"),TR("Píp2","Pípnutí2"),TR("Píp3","Pípnutí3"),TR("Var1","Varování1"),TR("Var2","Varování2"),TR("Chee","Cheep"),TR("Rata", "Ratata"),"Tick",TR("Sirn","Siréna"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
-#define TR_TELEM_RESERVE               TR("[--]", "[---]")
-#define TR_TELEM_TIME                  TR("Čas", "H:M")
-#define TR_RAS                         "SWR"
-#define TR_RX_BATT                     TR("BtRx", "BatRx")
-#define TR_A3_A4                       "A3","A4"
-#define TR_A3_A4_MIN                   "A3-","A4-",
 
-#define TR_ASPD_MAX                    TR("ASp+", "ASpd+")
 
 #if LCD_W >= 212
-  #define TR_TELEM_RSSI_RX             "RSSI"
 #else
-  #define TR_TELEM_RSSI_RX             "Rx"
 #endif
 
-#define TR_TELEM_TIMERS                "Čas1","Čas2","Čas3"
 
 #define LENGTH_UNIT_IMP                "ft"
 #define SPEED_UNIT_IMP                 "mph"
@@ -223,14 +210,6 @@
 #define TR_VTELEMSCREENTYPE            "Nic","Hodnota","Ukazatel","Skript"
 #define TR_GPSFORMAT                   "DMS","NMEA"
 
-#define TR_TEMPLATE_CLEAR_MIXES        "Smazat mixy "
-#define TR_TEMPLATE_SIMPLE_4CH         "Zákl. 4kanál"
-#define TR_TEMPLATE_STICKY_TCUT        "Sticky-T-Cut"
-#define TR_TEMPLATE_VTAIL              "V-Tail"
-#define TR_TEMPLATE_DELTA              "Elevon\\Delta"
-#define TR_TEMPLATE_ECCPM              "eCCPM"
-#define TR_TEMPLATE_HELI               "Heli nastavení"
-#define TR_TEMPLATE_SERVO_TEST         "Servo test"
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
@@ -379,7 +358,6 @@
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Výstup VBAT: ", INDENT "Varování: výstupní hodnota VBAT: ")
 #define TR_WARN_5VOLTS                 "Varování: výstupní úroveň je 5 voltů"
 #define TR_MS                          "ms"
-#define TR_FREQUENCY                   INDENT "Frekvence"
 #define TR_SWITCH                      "Spínač"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimy"
@@ -397,9 +375,6 @@
 #define TR_AILERON                     "Boční cyklika"
 #define TR_ELEVATOR                    TR3("Podélná cykl.", "Podélná cykl.", "Podélná cyklika")
 #define TR_SWASHRING                   "Cyklika"
-#define TR_ELEDIRECTION                "Směr:Výškovka"
-#define TR_AILDIRECTION                "\012Křidélka"
-#define TR_COLDIRECTION                "\012Kolektiv"
 #define TR_MODE                        "Mód"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Vlevo"
@@ -411,9 +386,7 @@
 #define TR_NOFREEMIXER                 "Není volný mix!"
 #define TR_SOURCE                      "Zdroj"
 #define TR_WEIGHT                      "Váha"
-#define TR_EXPO                        "Expo"
 #define TR_SIDE                        "Strana"
-#define TR_DIFFERENTIAL                "Dif.výchylek"
 #define TR_OFFSET                      "Ofset"
 #define TR_TRIM                        "Trim"
 #define TR_DREX                        "DR/Expo"
@@ -436,12 +409,9 @@
 #else
 #define TR_GV                          TR("G", "GP")
 #endif
-#define TR_ACHANNEL                    "A\004Kanál"
 #define TR_RANGE                       INDENT"Rozsah"
 #define TR_CENTER                      INDENT "Střed"
-#define TR_BAR                         "Ukazatel"
 #define TR_ALARM                       "Alarm"
-#define TR_USRDATA                     TR("UživData", "Uživ. data")
 #define TR_BLADES                      TR("ListyVrt", "Listy vrtule")
 #define TR_SCREEN                      "Panel "
 #define TR_SOUND_LABEL                 "Zvuk"
@@ -507,7 +477,6 @@
 #define TR_CAL                         "Kal."
 #define TR_CALIBRATION                 "Kalibrace"
 #define TR_VTRIM                       "Trim - +"
-#define TR_BG                          "Poz:"
 #define TR_CALIB_DONE                  "Kalibrace dokončena"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Stiskem [ENTER] začneme"
@@ -522,14 +491,11 @@
   #define TR_SETMIDPOINT               CENTER "\004Nastav páky na střed"
   #define TR_MOVESTICKSPOTS            TR(CENTER "\006Hýbej pákami/poty", "\014Hýbej pákami i potenciometry")
 #endif
-#define TR_RXBATT                      "Rx Bat.:"
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
-#define TR_ACCEL                       "Acc:"
 #define TR_NODATA                      CENTER "ŽÁDNÁ DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
-#define TR_TMR1LATMINUS                "Tmr1Lat min\037\124us"
 
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
@@ -547,7 +513,6 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
 #define TR_FM                          "LR"
-#define TR_MIX                         "MIX"
 #define TR_EEPROMLOWMEM                "Dochází EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       TR("\003Klávesa >>> přeskočit", "Klávesa >>> přeskočit")
 #define TR_THROTTLE_NOT_IDLE           TR("\003Páka plynu je pohnutá", "Páka plynu není na nule")
@@ -561,7 +526,6 @@
 #define TR_STORAGE_FORMAT              "Příprava úložiště"
 #define TR_EEPROMOVERFLOW              "Přetekla EEPROM"
 #define TR_RADIO_SETUP                 "NASTAVENÍ RÁDIA"
-#define TR_MENUDATEANDTIME             "DATUM A ČAS"
 #define TR_MENUTRAINER                 "TRENÉR"
 #define TR_MENUSPECIALFUNCS            "GLOBÁLNÍ FUNKCE"
 #define TR_MENUVERSION                 "VERZE"
@@ -593,7 +557,6 @@
 #define TR_MENUCUSTOMFUNC              "SPECIÁLNÍ FUNKCE"
 #define TR_MENUCUSTOMSCRIPTS           "SKRIPTY LUA"
 #define TR_MENUTELEMETRY               "TELEMETRIE"
-#define TR_MENUTEMPLATES               "ŠABLONY"
 #define TR_MENUSTAT                    "STATISTIKA"
 #define TR_MENUDEBUG                   "DIAG"
 #define TR_MONITOR_CHANNELS1           "MONITOR KANÁLŮ 1/8"
@@ -642,22 +605,14 @@
 #define TR_MULTI_SERVOFREQ             TR(INDENT "Frekv. serva", INDENT "Obnovovací frekvence serva")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Povolit max. throw")
 #define TR_MULTI_RFCHAN                TR("RF Kanál", "Vybrat RF kanál")
-#define TR_SYNCMENU                    "[Sync]"
-#define TR_LIMIT                       INDENT"Limit"
-#define TR_MINRSSI                     "Min RSSI"
-#define TR_LATITUDE                    "Zem. šířka"
-#define TR_LONGITUDE                   "Zem. délka"
 #define TR_GPS_COORDS_FORMAT           "GPS souřadnice"
 #define TR_VARIO                       "Vario"
 #define TR_PITCH_AT_ZERO               "Tón na nule"
 #define TR_PITCH_AT_MAX                "Tón na maximu"
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakování na nule")
-#define TR_SHUTDOWN                    "Vypínání.."
-#define TR_SAVE_MODEL                  "Ukládám nastavení modelu"
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     INDENT"Napětí"
-#define TR_CURRENT                     INDENT"Proud"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
@@ -744,10 +699,8 @@
 #define TR_BATTERY                     "BATERIE"
 #define TR_WRONG_PCBREV                "Jiná verze PCB/firmware"
 #define TR_EMERGENCY_MODE              "NOUZOVÝ REŽIM"
-#define TR_PCBREV_ERROR                "Chyba PCB"
 #define TR_NO_FAILSAFE                 "Failsafe není nastaveno"
 #define TR_KEYSTUCK                    "Zaseklá klávesa"
-#define TR_INVERT_THR                  "Invertovat plyn?"
 #define TR_VOLUME                      "Hlasitost"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Jas"
@@ -881,7 +834,6 @@
 #define TR_FAILSAFESET                 "NASTAVENÍ FAILSAFE"
 #define TR_REG_ID                      TR("Reg. ID", "Registrační ID")
 #define TR_OWNER_ID                    "ID vlastníka"
-#define TR_PINMAPSET                   "PINMAP"
 #define TR_HOLD                        "Držet"
 #define TR_HOLD_UPPERCASE              "DRŽET"
 #define TR_NONE                        "Nic"
@@ -950,7 +902,6 @@
 #define TR_REGISTER                    TR("Reg", "Registrovat")
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
-#define TR_DEL_BUTTON                  BUTTON(TR("Smaž", "Smazat"))
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
@@ -999,8 +950,6 @@
 #define TR_RSSIALARM_WARN              TR("RSSI","RSSI TELEMETRIE")
 #define TR_NO_RSSIALARM                TR(INDENT "Vypnuté alarmy", INDENT "Alarmy telemetrie vypnuty")
 #define TR_DISABLE_ALARM               TR(INDENT "Vypnout alarmy", INDENT "Vypnout alarmy telemetrie")
-#define TR_ENABLE_POPUP                "Povolit vyskakovací okno"
-#define TR_DISABLE_POPUP               "Zakázat vyskakovací okno"
 #define TR_POPUP                       "Vyskočit"
 #define TR_MIN                         "Min"
 #define TR_MAX                         "Max"
@@ -1021,10 +970,8 @@
 #define TR_GLOBALVAR                   "Glob. proměnná"
 #define TR_MIXSOURCE                   "Zdroje mixeru"
 #define TR_CONSTANT                    "Konstanta"
-#define TR_PERSISTENT_MAH              TR(INDENT "Ulož mAh", INDENT "Ukládat mAh")
 #define TR_PREFLIGHT                   "Předletová kontrola"
 #define TR_CHECKLIST                   TR(INDENT "Poznámky", INDENT "Zobrazit poznámky")
-#define TR_FAS_OFFSET                  TR(INDENT "FAS Ofs", INDENT "FAS Ofset")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Výkon portu"
@@ -1065,16 +1012,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Symetrické"
 #define TR_INVERTED                    "Invertováno"
 
-#define TR_GVAR_HEADERS_NAME           "Název"
-#define TR_GVAR_HEADERS_FM0            "Hodnota v režimu LR0"
-#define TR_GVAR_HEADERS_FM1            "Hodnota v režimu LR1"
-#define TR_GVAR_HEADERS_FM2            "Hodnota v režimu LR2"
-#define TR_GVAR_HEADERS_FM3            "Hodnota v režimu LR3"
-#define TR_GVAR_HEADERS_FM4            "Hodnota v režimu LR4"
-#define TR_GVAR_HEADERS_FM5            "Hodnota v režimu LR5"
-#define TR_GVAR_HEADERS_FM6            "Hodnota v režimu LR6"
-#define TR_GVAR_HEADERS_FM7            "Hodnota v režimu LR7"
-#define TR_GVAR_HEADERS_FM8            "Hodnota v režimu LR8"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci" }
@@ -1105,9 +1042,6 @@
 // Taranis About screen
 #define TR_ABOUTUS                     "O nás"
 
-#define TR_CHR_SHORT                   's'
-#define TR_CHR_LONG                    'l'
-#define TR_CHR_TOGGLE                  't'
 #define TR_CHR_HOUR                    'h'
 #define TR_CHR_INPUT                   'I'              // Values between A-I will work
 
@@ -1129,8 +1063,6 @@
 #define TR_VIEW_CHANNELS               "Zobrazit kanály"
 #define TR_VIEW_NOTES                  "Zobrazit poznámky"
 #define TR_MODEL_SELECT                "Zvolit model"
-#define TR_MODS_FORBIDDEN              "Změny nejsou povoleny!"
-#define TR_UNLOCKED                    "Odemčeno"
 #define TR_ID                          "ID"
 #define TR_PRECISION                   "Přesnost"
 #define TR_RATIO                       "Koeficient"
@@ -1148,8 +1080,6 @@
 #define TR_ONLYPOSITIVE                "Jen kladné"
 #define TR_FILTER                      "Filtr"
 #define TR_TELEMETRYFULL               "Všechny sloty jsou plné!"
-#define TR_SERVOS_OK                   "Serva OK"
-#define TR_SERVOS_KO                   "Serva KO"
 #define TR_INVERTED_SERIAL             INDENT "Invert"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Chybné ID", INDENT "Ignoruj chyby ID")
 #define TR_DISCOVER_SENSORS            "Detekovat nové senzory"

@@ -124,6 +124,9 @@ const char STR_MINUTE_SINGULAR[] = TR_MINUTE_SINGULAR;
 const char STR_MINUTE_PLURAL1[] = TR_MINUTE_PLURAL1;
 const char STR_MINUTE_PLURAL2[] = TR_MINUTE_PLURAL2;
 
+const char CHR_HOUR = TR_CHR_HOUR;
+const char CHR_INPUT = TR_CHR_INPUT;
+
 const char STR_POPUPS_ENTER_EXIT[] = TR_POPUPS_ENTER_EXIT;
 const char STR_OK[] = TR_OK;
 const char STR_FREE[] = TR_FREE;
@@ -875,7 +878,6 @@ const char * const STR_PHASES_HEADERS[] = TR_PHASES_HEADERS;
 const char * const STR_LIMITS_HEADERS[] = TR_LIMITS_HEADERS;
 const char * const STR_LSW_HEADERS[] = TR_LSW_HEADERS;
 const char * const STR_LSW_DESCRIPTIONS[] = TR_LSW_DESCRIPTIONS;
-const char * const STR_GVAR_HEADERS[] = TR_GVAR_HEADERS;
 #endif
 
 #if defined(BLUETOOTH)
