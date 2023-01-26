@@ -567,30 +567,10 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   form->padAll(0);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-
-  // RSSI
-  auto line = form->newLine(&grid);
-  new Subtitle(line, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
-
-  line = form->newLine(&grid);
-  line->padLeft(10);
-  new StaticText(line, rect_t{}, STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
-
-  line = form->newLine(&grid);
-  line->padLeft(10);
-  new StaticText(line, rect_t{}, STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
-
-  line = form->newLine(&grid);
-  line->padLeft(10);
-  new StaticText(line, rect_t{}, STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
-
   FlexGridLayout grid2(col_dsc2, row_dsc, 2);
 
   // Sensors
-  line = form->newLine(&grid2);
+  auto line = form->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
   auto subttl = new Subtitle(line, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
@@ -711,6 +691,25 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
+
+  // RSSI
+  line = form->newLine(&grid);
+  new Subtitle(line, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
+
+  line = form->newLine(&grid);
+  line->padLeft(10);
+  new StaticText(line, rect_t{}, STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
+
+  line = form->newLine(&grid);
+  line->padLeft(10);
+  new StaticText(line, rect_t{}, STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
+
+  line = form->newLine(&grid);
+  line->padLeft(10);
+  new StaticText(line, rect_t{}, STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
   line = form->newLine(&grid);
