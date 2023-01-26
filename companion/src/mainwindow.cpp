@@ -530,8 +530,12 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
+
   if (activeMdiChild())
-    activeMdiChild()->writeSettings();
+    activeMdiChild()->writeSettings(status);
+
+  delete status;
 }
 
 void MainWindow::readSettings()

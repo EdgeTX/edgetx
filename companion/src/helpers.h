@@ -29,6 +29,7 @@
 #include <QTime>
 #include <QElapsedTimer>
 #include <QStandardItemModel>
+#include <QDialog>
 
 extern const QColor colors[CPN_MAX_CURVES];
 
@@ -310,4 +311,18 @@ class SemanticVersion
     inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
     inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
 
+};
+
+class StatusDialog: public QDialog
+{
+    Q_OBJECT
+
+  public:
+    StatusDialog(QWidget * parent = nullptr, const QString title = "", QString msgtext = "", const int width = 200);
+    virtual ~StatusDialog();
+
+    void update(QString text);
+
+  private:
+    QLabel *msg;
 };
