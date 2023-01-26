@@ -1123,8 +1123,8 @@
 #define TR_AUTH_FAILURE        "Fallimento Auth"
 #define TR_RACING_MODE         "Modo Racing"
 
-#undef  STR_GPSDATETIME
-#define STR_GPSDATETIME       "Data"
+#undef  STR_SENSOR_GPSDATETIME
+#define STR_SENSOR_GPSDATETIME          "Data"
 
 // The following content is Untranslated)
 

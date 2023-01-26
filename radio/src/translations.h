@@ -463,7 +463,6 @@ extern const char STR_MENULOGICALSWITCHES[];
 extern const char STR_MENUCUSTOMFUNC[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
 extern const char STR_MENUTELEMETRY[];
-//extern const char STR_MENUTEMPLATES[];
 extern const char STR_MENUSTAT[];
 extern const char STR_MENUDEBUG[];
 extern const char * const STR_MONITOR_CHANNELS[];

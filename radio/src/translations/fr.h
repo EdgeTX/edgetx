@@ -1136,8 +1136,8 @@
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
 
-#undef  STR_BATT
-#define STR_BATT                      "BtRx"
+#undef  STR_SENSOR_BATT
+#define STR_SENSOR_BATT                 "BtRx"
 
 // The following content is Untranslated)
 
