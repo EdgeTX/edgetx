@@ -1749,9 +1749,6 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
-    // TODO: remove that crappy translation and use the MPM
-    //       data as-is (no FrSky special casing)
-
     // read "[type],[subtype]"
     const char* sep = (const char *)memchr(val, ',', val_len);
     uint8_t l_sep = sep ? sep - val : val_len;
@@ -1763,7 +1760,6 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     int subtype = yaml_str2uint(val, val_len);
 
     // convert to ETX format and write to vars
-    convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
       md->multi.rfProtocol = type - 1;
       md->subType = subtype;
@@ -1797,11 +1793,8 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Use type/subType by the book (see MPM documentation)
-    // TODO: remove that crappy translation and use the MPM
-    //       data as-is (no FrSky special casing)
     int type = md->multi.rfProtocol + 1;
     int subtype = val;
-    convertEtxProtocolToMulti(&type, &subtype);
 
     // output "[type],[subtype]"
     str = yaml_unsigned2str(type);

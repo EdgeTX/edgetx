@@ -89,39 +89,26 @@ bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
   uint8_t subProtoNr = 0;
   uint8_t subProtoLen = 0;
 
-  // special case handling for Frsky protos
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    const mm_protocol_definition* def = getMultiProtocolDefinition(proto);
-    if (!def) return false;
+  // proto label string
+  while (*s && len--) s++;
+  if (*s || !len) return false;
+  label = (const char*)data;
+  s++;
+  len--;
 
-    label = "Frsky";
-    flags = 0x20;
+  // flags, subProtoNr, subProto label max length
+  if (len < 2) return false;
+  flags = (uint8_t) * (s++);
+  //TRACE("flags: 0x%02X", flags);
 
-    fillSubProtoList(def->subTypeString, def->maxSubtype + 1);
-    return true;
+  subProtoNr = (uint8_t) * (s++);
+  len -= 2;
 
-  } else {
-    // proto label string
-    while (*s && len--) s++;
-    if (*s || !len) return false;
-    label = (const char*)data;
-    s++;
-    len--;
+  if (!len) return true;
+  subProtoLen = (uint8_t) * (s++);
+  len--;
 
-    // flags, subProtoNr, subProto label max length
-    if (len < 2) return false;
-    flags = (uint8_t) * (s++);
-    //TRACE("flags: 0x%02X", flags);
-
-    subProtoNr = (uint8_t) * (s++);
-    len -= 2;
-
-    if (!len) return true;
-    subProtoLen = (uint8_t) * (s++);
-    len--;
-
-    if (len < subProtoNr * subProtoLen) return false;
-  }
+  if (len < subProtoNr * subProtoLen) return false;
 
   fillSubProtoList(s, subProtoNr, subProtoLen);
   return true;
@@ -296,29 +283,15 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
             //TRACE("Proto = %d; label = '%s'", replyProtoId,
             //      (const char*)packet);
 
-            int proto = convertMultiToOtx(replyProtoId);
+            int proto = replyProtoId - 1;
             if (proto != MODULE_SUBTYPE_MULTI_CONFIG &&
                 proto != MODULE_SUBTYPE_MULTI_SCANNER) {
-              bool insertProto = true;
-              if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-                auto it = std::find_if(protoList.begin(), protoList.end(),
-                                       [=](const RfProto& p) {
-                                         return p.proto == (const int)proto;
-                                       });
-                if (it != protoList.end()) {
-                  // FRSKY proto already added
-                  insertProto = false;
-                }
-              }
-
-              if (insertProto) {
-                RfProto rfProto(proto);
-                if (rfProto.parse(packet, len)) {
-                  proto2idx[proto] = protoList.size();
-                  protoList.emplace_back(rfProto);
-                } else {
-                  TRACE("Error parsing proto [%d]", proto);
-                }
+              RfProto rfProto(proto);
+              if (rfProto.parse(packet, len)) {
+                proto2idx[proto] = protoList.size();
+                protoList.emplace_back(rfProto);
+              } else {
+                TRACE("Error parsing proto [%d]", proto);
               }
             } else {
               // do not count excluded protocols

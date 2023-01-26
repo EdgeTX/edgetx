@@ -1194,16 +1194,9 @@ void menuModelSetup(event_t event)
           if (status.isValid()) {
             int8_t direction = checkIncDec(event, 0, -1, 1);
             if (direction == -1) {
-              if (multiRfProto == MODULE_SUBTYPE_MULTI_FRSKY)
-                multiRfProto = MODULE_SUBTYPE_MULTI_FRSKYX_RX;
-              else
-                multiRfProto = convertMultiToOtx(status.protocolPrev);
-            }
-            if (direction == 1) {
-              if (multiRfProto == MODULE_SUBTYPE_MULTI_FRSKY)
-                multiRfProto = MODULE_SUBTYPE_MULTI_FRSKYX2;
-              else
-                multiRfProto = convertMultiToOtx(status.protocolNext);
+              multiRfProto = status.protocolPrev;
+            } else if (direction == 1) {
+              multiRfProto = status.protocolNext;
             }
           }
           else {
