@@ -22,11 +22,19 @@
 #include "opentx.h"
 #include "model_gvars.h"
 #include "libopenui.h"
+#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 #define TEXT_LEFT_MARGIN 2
-#define GVAR_NAME_SIZE 45
+#define GVAR_NAME_SIZE  44
+#if LCD_W > LCD_H
+#define GVAR_VAL_SIZE   45
+#define GVAR_TTL_OFST   6
+#else
+#define GVAR_VAL_SIZE   50
+#define GVAR_TTL_OFST   24
+#endif
 
 static const lv_coord_t btn_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
@@ -34,7 +42,7 @@ static const lv_coord_t btn_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
 GVarButton::GVarButton(FormGroup * parent, const rect_t &rect, uint8_t gvar) :
-  Button(parent, rect, nullptr, 0, 0, lv_btn_create),
+  Button(parent, rect, nullptr, 0, 0, input_mix_line_create),
   gvarIdx(gvar)
 {
   setHeight(LV_SIZE_CONTENT);
@@ -51,8 +59,8 @@ void GVarButton::checkEvents()
     uint8_t lastFM = currentFlightMode;
     currentFlightMode = newFM;
 
-    labels[lastFM]->setFont(FONT(STD));
-    labels[currentFlightMode]->setFont(FONT(BOLD));
+    labels[lastFM]->setBackgroundColor(COLOR_THEME_PRIMARY2);
+    labels[currentFlightMode]->setBackgroundColor(COLOR_THEME_SECONDARY3);
     updateValueText(lastFM);
     updateValueText(currentFlightMode);
   }
@@ -69,11 +77,11 @@ void GVarButton::build()
 {
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
   lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
 
-  auto t = new StaticText(this, rect_t{}, getGVarString(gvarIdx), 0, COLOR_THEME_PRIMARY1);
-  t->setWidth(GVAR_NAME_SIZE);
+  auto t = new StaticText(this, rect_t{0, 0, GVAR_NAME_SIZE, PAGE_LINE_HEIGHT}, getGVarString(gvarIdx), 0, COLOR_THEME_SECONDARY1);
+  t->padLeft(1);
+  t->padTop(GVAR_TTL_OFST);
+
   Window* container = new Window(this, rect_t{});
   lv_obj_set_style_pad_all(container->getLvObj(), 0, LV_PART_MAIN);
   lv_obj_set_style_flex_grow(container->getLvObj(), 2, LV_PART_MAIN);
@@ -82,32 +90,35 @@ void GVarButton::build()
 
   for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
     Window* fmCont = new Window(container, rect_t{});
+    fmCont->padAll(0);
 
-    lv_obj_set_width(fmCont->getLvObj(), GVAR_NAME_SIZE);
-    lv_obj_set_height(fmCont->getLvObj(), PAGE_LINE_HEIGHT*2);
-    lv_obj_set_style_pad_hor(fmCont->getLvObj(), 3, LV_PART_MAIN);
+    lv_obj_set_width(fmCont->getLvObj(), GVAR_VAL_SIZE);
+    lv_obj_set_height(fmCont->getLvObj(), PAGE_LINE_HEIGHT*2-6);
+    lv_obj_set_flex_flow(fmCont->getLvObj(), LV_FLEX_FLOW_COLUMN);
 
     char label[16] = {};
     getFlightModeString(label, flightMode + 1);
-    lv_obj_set_flex_flow(fmCont->getLvObj(), LV_FLEX_FLOW_COLUMN);
 
-    labels[flightMode] = new StaticText(fmCont, rect_t{}, label, 0, COLOR_THEME_PRIMARY1|CENTERED);
-    labels[flightMode]->setHeight(PAGE_LINE_HEIGHT);
-    labels[flightMode]->setWidth(GVAR_NAME_SIZE);
+    labels[flightMode] = new StaticText(fmCont, rect_t{}, label, 0, COLOR_THEME_SECONDARY1|CENTERED);
+    labels[flightMode]->setHeight(PAGE_LINE_HEIGHT-6);
+    labels[flightMode]->setWidth(GVAR_VAL_SIZE);
+    labels[flightMode]->setFont(FONT(XS));
+    labels[flightMode]->setBackgroundColor(COLOR_THEME_PRIMARY2);
+    labels[flightMode]->setBackgroudOpacity(LV_OPA_COVER);
 
-    valueTexts[flightMode]  = new StaticText(fmCont, rect_t{}, "", 0, COLOR_THEME_PRIMARY1|CENTERED);
+    valueTexts[flightMode]  = new StaticText(fmCont, rect_t{}, "", 0, COLOR_THEME_SECONDARY1|CENTERED);
     StaticText* valText = valueTexts[flightMode];
     if (flightMode == currentFlightMode)
     {
-      labels[flightMode]->setFont(FONT(BOLD));
-      valText->setFont(FONT(BOLD));
+      labels[flightMode]->setBackgroundColor(COLOR_THEME_SECONDARY3);
     }
 
     lv_obj_set_style_flex_track_place(valText->getLvObj(), LV_FLEX_ALIGN_END, LV_PART_MAIN);
-    valText->setWidth(GVAR_NAME_SIZE);
+    valText->setWidth(GVAR_VAL_SIZE);
     valText->setBackgroundColor(COLOR_THEME_PRIMARY2);
     valText->setBackgroudOpacity(LV_OPA_COVER);
     valText->setHeight(PAGE_LINE_HEIGHT);
+    valText->setFont(FONT(STD));
 
     updateValueText(flightMode);
   }
@@ -127,11 +138,6 @@ void GVarButton::updateValueText(uint8_t flightMode)
     getFlightModeString(label, fm + 1);
 
     lv_label_set_text(field->getLvObj(), label);
-
-    if(flightMode == currentFlightMode)
-      field->setFont(FONT(BOLD));
-    else
-      field->setFont(FONT(STD));
   } else {
     uint8_t unit = g_model.gvars[gvarIdx].unit;
     const char * suffix = (unit == 1) ? "%": "";
@@ -147,19 +153,13 @@ void GVarButton::updateValueText(uint8_t flightMode)
         field->setFont(FONT(XS));
       } else if (value <= -100) {
         field->setFont(FONT(STD));
-      } else {
-        if(flightMode == currentFlightMode)
-          field->setFont(FONT(BOLD));
-        else
-          field->setFont(FONT(STD));
       }
-    } else {
-      if(value > -1000 && flightMode == currentFlightMode)
-        field->setFont(FONT(BOLD));
-      else
-        field->setFont(FONT(STD));
     }
   }
+  if(flightMode == currentFlightMode)
+    field->setBackgroundColor(COLOR_THEME_SECONDARY3);
+  else
+    field->setBackgroundColor(COLOR_THEME_PRIMARY2);
 }
 
 void GVarRenderer::paint(BitmapBuffer * dc)
@@ -417,7 +417,7 @@ void ModelGVarsPage::rebuild(FormWindow * window)
 
 void ModelGVarsPage::build(FormWindow * window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 1);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
     Button * button = new GVarButton(window, rect_t{}, index);
