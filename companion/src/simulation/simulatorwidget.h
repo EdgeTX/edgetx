@@ -21,6 +21,7 @@
 #ifndef _SIMULATORWIDGET_H_
 #define _SIMULATORWIDGET_H_
 
+#include "appdata.h"
 #include "constants.h"
 #include "helpers.h"
 #include "radiodata.h"
@@ -110,6 +111,7 @@ class SimulatorWidget : public QWidget
     void onSimulatorError(const QString & error);
     void onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value);
     void onjoystickAxisValueChanged(int axis, int value);
+    void onjoystickButtonValueChanged(int button, bool state);
 
     void setRadioProfileId(int value);
     void setupRadioWidgets();
@@ -145,6 +147,7 @@ class SimulatorWidget : public QWidget
 
 #ifdef JOYSTICKS
     Joystick * joystick = nullptr;
+    int switchDirection[MAX_JSBUTTONS];
 #endif
 };
 

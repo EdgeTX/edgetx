@@ -63,6 +63,9 @@ bool Joystick::open(int stick)
     numHats = SDL_JoystickNumHats(joystick);
     numTrackballs = SDL_JoystickNumBalls(joystick);
     joystickTimer.start(eventTimeout);
+    for (int i = 0; i < numButtons; i += 1) {
+      buttons[i] = -1;
+    }
     return true;
   }
   else {
@@ -99,12 +102,12 @@ void Joystick::processEvents()
         axes[i] = moved;
         axisRepeatTimers[i].restart();
       }
-      else if (autoRepeat && moved != 0) {
-        if ( axisRepeatTimers[i].elapsed() >= autoRepeatDelay ) {
-          emit axisValueChanged(i, moved);
-          axes[i] = moved;
-        }
-      }
+//       else if (autoRepeat && moved != 0) {
+//         if ( axisRepeatTimers[i].elapsed() >= autoRepeatDelay ) {
+//           emit axisValueChanged(i, moved);
+//           axes[i] = moved;
+//         }
+//       }
       else {
         axisRepeatTimers[i].restart();
       }
@@ -120,12 +123,12 @@ void Joystick::processEvents()
       buttons[i] = changed;
       buttonRepeatTimers[i].restart();
     }
-    else if (autoRepeat && changed != 0) {
-      if (buttonRepeatTimers[i].elapsed() >= autoRepeatDelay) {
-        emit buttonValueChanged(i, (bool) changed);
-        buttons[i] = changed;
-      }
-    }
+//     else if (autoRepeat && changed != 0) {
+//       if (buttonRepeatTimers[i].elapsed() >= autoRepeatDelay) {
+//         emit buttonValueChanged(i, (bool) changed);
+//         buttons[i] = changed;
+//       }
+//     }
     else {
       buttonRepeatTimers[i].restart();
     }

@@ -256,6 +256,16 @@ bool JStickData::existsOnDisk()
   return (m_settings.value(settingsPath() % stick_axe_key(), -1).toInt() > -1);
 }
 
+JButtonData::JButtonData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool JButtonData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % button_idx_key(), -1).toInt() > -1);
+}
+
 
 // ** Profile class********************
 
@@ -399,6 +409,8 @@ AppData::AppData() :
   // Configure the joysticks
   for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].setIndex(i);
+  for (int i = 0; i < MAX_JSBUTTONS; i++)
+    jsButton[i].setIndex(i);
 
   // Configure the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
@@ -438,6 +450,8 @@ void AppData::initAll()
   // Initialize the joysticks
   for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].init();
+  for (int i = 0; i < MAX_JSBUTTONS; i++)
+    jsButton[i].init();
   // Initialize the updatess
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
@@ -455,6 +469,8 @@ void AppData::resetAllSettings()
     profile[i].resetAll();
   for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].resetAll();
+  for (int i = 0; i < MAX_JSBUTTONS; i++)
+    jsButton[i].resetAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
@@ -471,6 +487,8 @@ void AppData::storeAllSettings()
     profile[i].storeAll();
   for (int i = 0; i < MAX_JOYSTICKS; i++)
     joystick[i].storeAll();
+  for (int i = 0; i < MAX_JSBUTTONS; i++)
+    jsButton[i].storeAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)

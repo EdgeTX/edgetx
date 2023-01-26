@@ -60,6 +60,7 @@
 
 #define MAX_PROFILES 20
 #define MAX_JOYSTICKS 8
+#define MAX_JSBUTTONS 24
 #define MAX_COMPONENTS 10
 #define MAX_COMPONENT_ASSETS 5
 
@@ -347,6 +348,26 @@ class JStickData: public CompStoreObj
     int index;
 };
 
+class JButtonData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit JButtonData();
+    void setIndex(int idx) { index = idx; }
+    inline QString propertyGroup() const override { return QStringLiteral("JsButton"); }
+    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+
+  private:
+    PROPERTY(int, button_idx, -1)
+    PROPERTY(int, button_inv, 0)
+
+    int index;
+};
+
 
 //! \brief Profile class stores properties related to each Radio Profile.
 //! \todo TODO: Remove or refactor stored radio settings system (#4583)
@@ -593,6 +614,7 @@ class AppData: public CompStoreObj
 
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JOYSTICKS];
+    JButtonData jsButton[MAX_JSBUTTONS];
     FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
 

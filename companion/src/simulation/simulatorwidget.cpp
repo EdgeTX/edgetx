@@ -21,7 +21,6 @@
 #include "simulatorwidget.h"
 #include "ui_simulatorwidget.h"
 
-#include "appdata.h"
 #include "appdebugmessagehandler.h"
 #include "radiofaderwidget.h"
 #include "radiokeywidget.h"
@@ -619,7 +618,6 @@ void SimulatorWidget::setupRadioWidgets()
     RadioKnobWidget * pot = new RadioKnobWidget(Board::PotType(radioSettings.potConfig[i]), wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
-
     m_radioWidgets.append(pot);
   }
 
@@ -684,6 +682,7 @@ void SimulatorWidget::setupJoysticks()
         joystick->deadzones[j] = 0;
       }
       connect(joystick, &Joystick::axisValueChanged, this, &SimulatorWidget::onjoystickAxisValueChanged);
+      connect(joystick, &Joystick::buttonValueChanged, this, &SimulatorWidget::onjoystickButtonValueChanged);
       if (vJoyLeft)
         connect(this, &SimulatorWidget::stickValueChange, vJoyLeft, &VirtualJoystickWidget::setStickAxisValue);
       if (vJoyRight)
@@ -891,5 +890,44 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
   }
 
+#endif
+}
+
+void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
+{
+#ifdef JOYSTICKS
+
+  if (!joystick || button >= MAX_JSBUTTONS)
+    return;
+
+  int btn = g.jsButton[button].button_idx();
+
+  if (g.jsButton[button].button_inv())
+    state = !state;
+
+  int swtch = btn & JS_BUTTON_SWITCH_MASK;
+
+  if (btn & JS_BUTTON_6POS) {
+    // 6POS switch
+    static int v6pos[6] = { 0, 409, 818, 1230, 1639, 2048 };
+    if (state) {
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, swtch, v6pos[(btn >> JS_BUTTON_6POS_IDX_SHFT) & 0xF]);
+    }
+  } else if (btn & JS_BUTTON_3POS_DN) {
+    // 3POS Down
+    if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : 0);
+      switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+    }
+  } else if (btn & JS_BUTTON_3POS_UP) {
+    // 3POS Up
+    if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? -1 : 0);
+      switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+    }
+  } else if (btn & JS_BUTTON_TOGGLE) {
+    // Toggle or momentary
+    emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : - 1);
+  }
 #endif
 }
