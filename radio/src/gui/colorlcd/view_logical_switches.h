@@ -29,13 +29,13 @@ class LogicalSwitchDisplayFooter;
 
 class LogicalSwitchesViewPage : public PageTab
 {
-  public:
-    LogicalSwitchesViewPage() :
+ public:
+  LogicalSwitchesViewPage() :
       PageTab(STR_MONITOR_SWITCHES, ICON_MONITOR_LOGICAL_SWITCHES)
-    {
-    }
+  {
+  }
 
-  protected:
-    void build(FormWindow * window) override;
-    LogicalSwitchDisplayFooter * footer = nullptr;
+ protected:
+  void build(FormWindow* window) override;
+  LogicalSwitchDisplayFooter* footer = nullptr;
 };

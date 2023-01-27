@@ -22,35 +22,41 @@
 #include "opentx.h"
 #include "view_logical_switches.h"
 
-#if LCD_W > LCD_H // Landscape
 
-#define BTN_MATRIX_COL  8
-#define BTN_HEIGHT      20
-#define FOOTER_HEIGHT   20
-#define DURSW_ROW       0
-#define DURSW_COL       3
+#if LCD_W > LCD_H  // Landscape
+
+#define BTN_MATRIX_COL 8
+#define BTN_HEIGHT 20
+#define FOOTER_HEIGHT 20
+#define DURSW_ROW 0
+#define DURSW_COL 3
 
 // Switch grid
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+
+// Footer grid
+static const lv_coord_t f_col_dsc[] = {
+    60, LV_GRID_FR(1),        LV_GRID_FR(1), LV_GRID_FR(1), 50,
+    50, LV_GRID_TEMPLATE_LAST};
+
+#else  // Portrait
+
+#define BTN_MATRIX_COL 4
+#define BTN_HEIGHT 21
+#define FOOTER_HEIGHT 40
+#define DURSW_ROW 1
+#define DURSW_COL 2
+
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
 // Footer grid
-static const lv_coord_t f_col_dsc[] = {60, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), 50, 50,
-                                       LV_GRID_TEMPLATE_LAST};
-
-#else // Portrait
-
-#define BTN_MATRIX_COL  4
-#define BTN_HEIGHT      21
-#define FOOTER_HEIGHT   40
-#define DURSW_ROW       1
-#define DURSW_COL       2
-
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-
-// Footer grid
-static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                       LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
 
 #endif
@@ -58,7 +64,7 @@ static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-void getsEdgeDelayParam(char* s, LogicalSwitchData * ls);
+void getsEdgeDelayParam(char* s, LogicalSwitchData* ls);
 
 class LogicalSwitchDisplayFooter : public Window
 {
@@ -78,32 +84,39 @@ class LogicalSwitchDisplayFooter : public Window
 
     lsFunc = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsFunc, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_set_style_text_color(lsFunc, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsV1 = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsV1, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 1, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_set_style_text_color(lsV1, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsV2 = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_set_style_text_color(lsV2, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsAnd = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, 3, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_set_style_text_color(lsAnd, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsDuration = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, DURSW_COL, 1, LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
-    lv_obj_set_style_text_color(lsDuration, makeLvColor(COLOR_THEME_PRIMARY2), 0);
+    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, DURSW_COL, 1,
+                         LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
+    lv_obj_set_style_text_color(lsDuration, makeLvColor(COLOR_THEME_PRIMARY2),
+                                0);
 
     lsDelay = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, DURSW_COL+1, 1, LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
+    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, DURSW_COL + 1, 1,
+                         LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
     lv_obj_set_style_text_color(lsDelay, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lv_obj_update_layout(parent->getLvObj());
@@ -128,7 +141,9 @@ class LogicalSwitchDisplayFooter : public Window
         lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1), PREC1, 0, nullptr, "s").c_str());
+        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
+                                                     PREC1, 0, nullptr, "s")
+                                    .c_str());
         break;
       default:
         lv_label_set_text(lsV1, getSourceString(ls->v1));
@@ -147,13 +162,20 @@ class LogicalSwitchDisplayFooter : public Window
         lv_label_set_text(lsV2, s);
         break;
       case LS_FAMILY_TIMER:
-        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s").c_str());
+        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2),
+                                                     PREC1, 0, nullptr, "s")
+                                    .c_str());
         break;
       case LS_FAMILY_COMP:
         lv_label_set_text(lsV2, getSourceString(ls->v2));
         break;
       default:
-        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), 0));
+        lv_label_set_text(
+            lsV2,
+            getSourceCustomValueString(
+                ls->v1,
+                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
+                0));
         break;
     }
 
@@ -162,14 +184,18 @@ class LogicalSwitchDisplayFooter : public Window
 
     // CSW duration
     if (ls->duration > 0) {
-      lv_label_set_text(lsDuration, formatNumberAsString(ls->duration, PREC1, 0, nullptr, "s").c_str());
+      lv_label_set_text(
+          lsDuration,
+          formatNumberAsString(ls->duration, PREC1, 0, nullptr, "s").c_str());
     } else {
       lv_label_set_text(lsDuration, "");
     }
 
     // CSW delay
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-      lv_label_set_text(lsDelay, formatNumberAsString(ls->delay, PREC1, 0, nullptr, "s").c_str());
+      lv_label_set_text(
+          lsDelay,
+          formatNumberAsString(ls->delay, PREC1, 0, nullptr, "s").c_str());
     } else {
       lv_label_set_text(lsDelay, "");
     }
@@ -193,34 +219,34 @@ class LogicalSwitchDisplayFooter : public Window
 
 class LogicalSwitchDisplayButton : public TextButton
 {
-  public:
-   LogicalSwitchDisplayButton(Window* parent, const rect_t& rect,
-                              std::string text, unsigned index) :
-       TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
-   {
-   }
+ public:
+  LogicalSwitchDisplayButton(Window* parent, const rect_t& rect,
+                             std::string text, unsigned index) :
+      TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
+  {
+  }
 
-   void checkEvents() override
-   {
-     bool newvalue = getSwitch(SWSRC_SW1 + index);
-     if (value != newvalue) {
-       if (newvalue) {
-         lv_obj_add_state(lvobj, LV_STATE_CHECKED);
-       } else {
-         lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
-       }
-       value = newvalue;
-       invalidate();
-     }
-     Button::checkEvents();
-   }
+  void checkEvents() override
+  {
+    bool newvalue = getSwitch(SWSRC_SW1 + index);
+    if (value != newvalue) {
+      if (newvalue) {
+        lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+      } else {
+        lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+      }
+      value = newvalue;
+      invalidate();
+    }
+    Button::checkEvents();
+  }
 
-  protected:
-    unsigned index = 0;
-    bool value = false;
+ protected:
+  unsigned index = 0;
+  bool value = false;
 };
 
-void LogicalSwitchesViewPage::build(FormWindow * window)
+void LogicalSwitchesViewPage::build(FormWindow* window)
 {
   window->padAll(0);
 
@@ -233,7 +259,9 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
   FormWindow::Line* line;
 
   // Footer
-  footer = new LogicalSwitchDisplayFooter(window, {0, window->height() - FOOTER_HEIGHT, window->width(), FOOTER_HEIGHT});
+  footer = new LogicalSwitchDisplayFooter(
+      window,
+      {0, window->height() - FOOTER_HEIGHT, window->width(), FOOTER_HEIGHT});
 
   // LSW table
   std::string lsString("L64");
@@ -251,8 +279,10 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
     strAppendSigned(&lsString[1], i + 1, 2);
 
     if (isActive) {
-      auto button = new LogicalSwitchDisplayButton(line, rect_t{0, 0, 0, BTN_HEIGHT}, lsString, i);
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH, i % BTN_MATRIX_COL, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      auto button = new LogicalSwitchDisplayButton(
+          line, rect_t{0, 0, 0, BTN_HEIGHT}, lsString, i);
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH,
+                           i % BTN_MATRIX_COL, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
       button->setFocusHandler([=](bool focus) {
         if (focus) {
@@ -266,7 +296,8 @@ void LogicalSwitchesViewPage::build(FormWindow * window)
       lv_obj_set_height(lbl, BTN_HEIGHT);
       lv_obj_set_style_text_color(lbl, makeLvColor(COLOR_THEME_DISABLED), 0);
       lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_STRETCH, i % BTN_MATRIX_COL, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_STRETCH, i % BTN_MATRIX_COL, 1,
+                           LV_GRID_ALIGN_CENTER, 0, 1);
       lv_label_set_text(lbl, lsString.c_str());
     }
   }

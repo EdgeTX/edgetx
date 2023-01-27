@@ -24,21 +24,22 @@
 
 #include "tabsgroup.h"
 
-class ModelLogicalSwitchesPage: public PageTab {
-public:
-    ModelLogicalSwitchesPage();
+class ModelLogicalSwitchesPage : public PageTab
+{
+ public:
+  ModelLogicalSwitchesPage();
 
-    virtual void build(FormWindow * window) override;
+  virtual void build(FormWindow* window) override;
 
-protected:
-    int8_t focusIndex = -1;
-    int8_t prevFocusIndex = -1;
-    bool isRebuilding = false;
-    Button* addButton = nullptr;
+ protected:
+  int8_t focusIndex = -1;
+  int8_t prevFocusIndex = -1;
+  bool isRebuilding = false;
+  Button* addButton = nullptr;
 
-    void rebuild(FormWindow * window);
-    void newLS(FormWindow * window, bool pasteLS);
-    void plusPopup(FormWindow * window);
+  void rebuild(FormWindow* window);
+  void newLS(FormWindow* window, bool pasteLS);
+  void plusPopup(FormWindow* window);
 };
 
-#endif //_MODEL_LOGICAL_SWITCHES_H
+#endif  //_MODEL_LOGICAL_SWITCHES_H
