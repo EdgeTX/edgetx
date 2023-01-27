@@ -115,8 +115,6 @@ class SpecialFunctionEditPage : public Page
     CustomFunctionData *cfn = &functions[index];
     uint8_t func = CFN_FUNC(cfn);
 
-    sfSwitchText->setText(STR_SWITCH);
-
     // Func param
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL: {
@@ -237,8 +235,6 @@ class SpecialFunctionEditPage : public Page
         break;
 
       case FUNC_LOGS: {
-        sfSwitchText->setText(STR_SF_SWITCH);             // change Switch to Trigger
-
         CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;          // set default value
 
         auto edit = addNumberEdit(line, STR_INTERVAL, cfn, SD_LOGS_PERIOD_MIN, SD_LOGS_PERIOD_MAX);
@@ -368,7 +364,7 @@ class SpecialFunctionEditPage : public Page
 
     // Switch
     auto line = window->newLine(&grid);
-    sfSwitchText = new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
+    sfSwitchText = new StaticText(line, rect_t{}, STR_SF_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
                          GET_SET_DEFAULT(CFN_SWITCH(cfn)));
