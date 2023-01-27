@@ -62,3 +62,9 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
   content->setWidth(LCD_W * 0.8);
   content->updateSize();
 }
+
+void ConfirmDialog::onCancel()
+{
+  deleteLater();
+  if (cancelHandler) cancelHandler();
+}

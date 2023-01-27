@@ -34,6 +34,8 @@ class ConfirmDialog : public Dialog
  protected:
   std::function<void(void)> confirmHandler;
   std::function<void(void)> cancelHandler;
+
+  void onCancel() override;
 };
 
 #endif  // _CONFIRM_DIALOG_H_
