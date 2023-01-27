@@ -135,6 +135,7 @@ void ModelCurvesPage::editCurve(FormWindow * window, uint8_t curve)
 void ModelCurvesPage::presetMenu(FormWindow * window, uint8_t index)
 {
   Menu *menu = new Menu(window);
+  menu->setTitle(STR_CURVE_PRESET);
   for (int angle = -45; angle <= 45; angle += 15) {
     char label[16];
     strAppend(strAppendSigned(label, angle), "°");
@@ -158,22 +159,38 @@ void ModelCurvesPage::presetMenu(FormWindow * window, uint8_t index)
   menu->updateLines();
 }
 
+void ModelCurvesPage::newCV(FormWindow *window, bool presetCV)
+{
+  Menu *menu = new Menu(Layer::back());
+  menu->setTitle(STR_CURVE);
+  char s[6] = "CVxx";
+
+  // search for unused slot
+  for (uint8_t i = 0; i < MAX_CURVES; i += 1) {
+    if (!isCurveUsed(i)) {
+        strAppendUnsigned(&s[2], i + 1);
+        menu->addLineBuffered(s, [=]() {
+          focusIndex = i;
+          if (presetCV) {
+            presetMenu(window, i);
+          } else {
+            CurveHeader &curve = g_model.curves[i];
+            int8_t *points = curveAddress(i);
+            initPoints(curve, points);
+            editCurve(window, i);
+          }
+        });
+    }
+  }
+  menu->updateLines();
+}
+
 void ModelCurvesPage::plusPopup(FormWindow * window)
 {
-  CurveHeader &curve = g_model.curves[addIndex];
-  int8_t * points = curveAddress(addIndex);
-
   Menu *menu = new Menu(window);
   menu->setTitle(STR_NEW);
-  menu->addLine(STR_EDIT, [=]() {
-      focusIndex = addIndex;
-      initPoints(curve, points);
-      editCurve(window, addIndex);
-  });
-  menu->addLine(STR_CURVE_PRESET, [=]() {
-      focusIndex = addIndex;
-      presetMenu(window, addIndex);
-  });
+  menu->addLine(STR_EDIT, [=]() { newCV(window, false); });
+  menu->addLine(STR_CURVE_PRESET, [=]() { newCV(window, true); });
 }
 
 void ModelCurvesPage::build(FormWindow * window)
@@ -263,23 +280,19 @@ void ModelCurvesPage::build(FormWindow * window)
   }
 
   if (curveIndex < MAX_CURVES) {
-    for (uint8_t n = 0; n < MAX_CURVES; n += 1) {
-      if (!isCurveUsed(n)) {
-        if ((curveIndex % PER_ROW) == 0) {
-          line = form->newLine(&grid);
-          lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
-        }
-
-        addIndex = n;
-        addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, LV_SYMBOL_PLUS, [=]() {
-          plusPopup(window);
-          return 0;
-        });
-
-        lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-        break;
-      }
+    if ((curveIndex % PER_ROW) == 0) {
+      line = form->newLine(&grid);
+      lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
+                            LV_GRID_ALIGN_SPACE_BETWEEN);
     }
+
+    addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H},
+                               LV_SYMBOL_PLUS, [=]() {
+                                 plusPopup(window);
+                                 return 0;
+                               });
+
+    lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER,
+                         curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
   }
 }
