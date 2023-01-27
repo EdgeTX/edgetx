@@ -282,7 +282,7 @@ void DebugViewPage::build(FormWindow *window)
 #if LCD_H > LCD_W
   line->padLeft(10);
 #else
-  new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);      // Filler
+  grid.nextCell();
 #endif
 
   // lUA memory data
