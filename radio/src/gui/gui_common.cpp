@@ -1170,7 +1170,7 @@ const mm_protocol_definition multi_protocols[] = {
 // Protocol as defined in pulses\modules_constants.h, number of sub_protocols - 1, Failsafe supported, Disable channel mapping supported, Subtype string, Option type
   {MODULE_SUBTYPE_MULTI_FLYSKY,     4, false, true,   STR_SUBTYPE_FLYSKY,    nullptr},
   {MODULE_SUBTYPE_MULTI_HUBSAN,     2, false, false,  STR_SUBTYPE_HUBSAN,    STR_MULTI_VIDFREQ},
-  {MODULE_SUBTYPE_MULTI_FRSKYD,     2, false, false,  STR_SUBTYPE_FRSKYD,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYD,     1, false, false,  STR_SUBTYPE_FRSKYD,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HISKY,      1, true,  true,   STR_SUBTYPE_HISKY,     nullptr},
   {MODULE_SUBTYPE_MULTI_V2X2,       2, false, false,  STR_SUBTYPE_V2X2,      nullptr},
   {MODULE_SUBTYPE_MULTI_DSM2,       5, false, true,   STR_SUBTYPE_DSM,       STR_MULTI_MAX_THROW},
@@ -1182,7 +1182,7 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_CX10,       6, false, false,  STR_SUBTYPE_CX10,      nullptr},
   {MODULE_SUBTYPE_MULTI_CG023,      1, false, false,  STR_SUBTYPE_CG023,     nullptr},
   {MODULE_SUBTYPE_MULTI_BAYANG,     5, false, false,  STR_SUBTYPE_BAYANG,    STR_MULTI_TELEMETRY},
-  {MODULE_SUBTYPE_MULTI_FRSKYX,     6, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYX,     5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_ESky,       1, false, true,   STR_SUBTYPE_ESky,      nullptr},
   {MODULE_SUBTYPE_MULTI_MT99XX,     7, false, false,  STR_SUBTYPE_MT99,      nullptr},
   {MODULE_SUBTYPE_MULTI_MJXQ,       6, false, false,  STR_SUBTYPE_MJXQ,      nullptr},
