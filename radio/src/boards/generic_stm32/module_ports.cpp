@@ -294,6 +294,7 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 
 DEFINE_STM32_SERIAL_PORT(SportModule, sportUSART, TELEMETRY_FIFO_SIZE, 0);
 
+#if defined(TELEMETRY_TIMER)
 static const stm32_softserial_rx_port sportSoftRX = {
   .GPIOx = TELEMETRY_GPIO,
   .GPIO_Pin = TELEMETRY_RX_GPIO_PIN,
@@ -314,6 +315,7 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
 {
   stm32_softserial_rx_timer_isr(&sportSoftRX);
 }
+#endif
 
 
 BEGIN_MODULE_PORTS()
@@ -359,6 +361,7 @@ BEGIN_MODULE_PORTS()
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
+#if defined(TELEMETRY_TIMER)
   {
     .port = ETX_MOD_PORT_SPORT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
@@ -366,6 +369,7 @@ BEGIN_MODULE_PORTS()
     .drv = { .serial = &STM32SoftSerialRxDriver },
     .hw_def = (void*)&sportSoftRX,
   },
+#endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
   {
     .port = ETX_MOD_PORT_EXTERNAL_SOFT_INV,

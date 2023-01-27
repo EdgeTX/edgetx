@@ -270,7 +270,7 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
   processSpektrumTelemetryData(module, data, buffer, *len);
 }
 
-// TODO: check telemetry init...
+// No telemetry
 const etx_proto_driver_t DSM2Driver = {
   .protocol = PROTOCOL_CHANNELS_DSM2_LP45,
   .init = dsm2Init,
@@ -280,7 +280,6 @@ const etx_proto_driver_t DSM2Driver = {
   .processData = nullptr,
 };
 
-// TODO: check telemetry init...
 const etx_proto_driver_t DSMPDriver = {
   .protocol = PROTOCOL_CHANNELS_DSMP,
   .init = dsmpInit,
