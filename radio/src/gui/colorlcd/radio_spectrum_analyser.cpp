@@ -93,6 +93,7 @@ class SpectrumFooterWindow: public FormWindow
                                     SET_VALUE(reusableBuffer.spectrumAnalyser.track, newValue * 1000000));
       tracker->setSuffix("MHz");
       tracker->setPrefix("T: ");
+      tracker->setDefault(reusableBuffer.spectrumAnalyser.freqDefault);
     }
 };
 
