@@ -41,23 +41,20 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
 
   auto box = new FormGroup(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
-
-  auto box_obj = box->getLvObj();
-  lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
 
   auto btn = new TextButton(box, rect_t{}, STR_NO, [=]() -> int8_t {
-    this->deleteLater();
-    if (cancelHandler) cancelHandler();
+    onCancel();
     return 0;
   });
-  lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
+  btn->setWidth(LV_DPI_DEF);
 
   btn = new TextButton(box, rect_t{}, STR_YES, [=]() -> int8_t {
     this->deleteLater();
     this->confirmHandler();
     return 0;
   });
-  lv_obj_set_width(btn->getLvObj(), LV_DPI_DEF);
+  btn->setWidth(LV_DPI_DEF);
 
   content->setWidth(LCD_W * 0.8);
   content->updateSize();

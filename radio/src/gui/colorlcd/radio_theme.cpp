@@ -293,7 +293,7 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    bool canCancel() override
     {
       if (_dirty) {
         new ConfirmDialog(
@@ -302,15 +302,14 @@ class ThemeEditPage : public Page
               if (saveHandler != nullptr) {
                 saveHandler(_theme);
               }
-              Page::deleteLater(detach, trash);
+              deleteLater();
             },
             [=]() {
-              Page::deleteLater(detach, trash);
-            }
-            );
-      } else {
-        Page::deleteLater(detach, trash);
+              deleteLater();
+            });
+        return false;
       }
+      return true;
     }
 
     void editColorPage()
@@ -333,10 +332,7 @@ class ThemeEditPage : public Page
       }
 
       // page title
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_EDIT_THEME, 0, COLOR_THEME_PRIMARY2 | flags);
+      header.setTitle(STR_EDIT_THEME);
       _themeName = new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
