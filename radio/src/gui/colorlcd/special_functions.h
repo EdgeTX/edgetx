@@ -22,6 +22,10 @@
 #ifndef _SPECIAL_FUNCTIONS_H
 #define _SPECIAL_FUNCTIONS_H
 
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+
 #include "tabsgroup.h"
 
 struct CustomFunctionData;

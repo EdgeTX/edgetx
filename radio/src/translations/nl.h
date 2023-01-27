@@ -364,6 +364,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequency"
 #define TR_SWITCH              TR("Schak.", "Schakelaar")
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Fade in"
 #define TR_FADEOUT             "Fade out"
@@ -951,6 +952,8 @@
 #define TR_TELEMETRY_TYPE      TR("Type", "Telemetrietype")
 #define TR_TELEMETRY_SENSORS   "Sensoren"
 #define TR_VALUE               "Waarde"
+#define TR_PERIOD              "Period"
+#define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
@@ -1052,13 +1055,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM-Midden"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Funktie"
-#define TR_LSW_HEADERS_V1              "Var1"
-#define TR_LSW_HEADERS_V2              "Var2"
-#define TR_LSW_HEADERS_ANDSW           "EN-Schakelaar"
-#define TR_LSW_HEADERS_DURATION        "Duur"
-#define TR_LSW_HEADERS_DELAY           "Vertraging"
 
 #define TR_GVAR_HEADERS_NAME          "Name"
 #define TR_GVAR_HEADERS_FM0           "Waarde bij FM0"

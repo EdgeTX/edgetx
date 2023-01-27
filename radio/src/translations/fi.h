@@ -389,6 +389,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Frequency"
 #define TR_SWITCH                      "Switch"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Fade In"
 #define TR_FADEOUT                     "Fade Out"
@@ -974,6 +975,8 @@
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetry Type")
 #define TR_TELEMETRY_SENSORS           "Sensors"
 #define TR_VALUE                       "Value"
+#define TR_PERIOD                      "Period"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
@@ -1069,13 +1072,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Function"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "AND Switch"
-#define TR_LSW_HEADERS_DURATION        "Duration"
-#define TR_LSW_HEADERS_DELAY           "Delay"
 
 #define TR_GVAR_HEADERS_NAME           "Name"
 #define TR_GVAR_HEADERS_FM0            "Value on FM0"

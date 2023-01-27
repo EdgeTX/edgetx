@@ -360,6 +360,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "周波数"
 #define TR_SWITCH                      "スイッチ"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"
 #define TR_FADEOUT                     "フェードアウト"
@@ -739,7 +740,7 @@
 #define TR_CAPAWARNING                 INDENT "電流が低すぎます"
 #define TR_TEMPWARNING                 INDENT "オーバーヒートです"
 #define TR_TTL_WARNING                 "警告: 論理値3.3Vを使用します"
-#define TR_FUNC                        "機能"
+#define TR_FUNC                        TR("機能", "ファンクション")
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持続時間"
@@ -947,6 +948,8 @@
 #define TR_TELEMETRY_TYPE              TR("Type", "テレメトリータイプ")
 #define TR_TELEMETRY_SENSORS           "センサー"
 #define TR_VALUE                       "値"
+#define TR_PERIOD                      "ピリオド"
+#define TR_INTERVAL                    "インターバル"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"
@@ -1037,13 +1040,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPMセンター"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "サブトリムモード"
 #define TR_INVERTED     "リバース"
-
-#define TR_LSW_HEADERS_FUNCTION        "ファンクション"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "スイッチ付"
-#define TR_LSW_HEADERS_DURATION        "持続時間"
-#define TR_LSW_HEADERS_DELAY           "遅延"
 
 #define TR_GVAR_HEADERS_NAME           "名称"
 #define TR_GVAR_HEADERS_FM0            "FM0 値"
