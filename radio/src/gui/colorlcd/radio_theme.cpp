@@ -493,7 +493,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   });
 
-  // you cant delete the default theme or the currently active theme
+  // you can't delete the default theme or the currently active theme
   if (listBox->getSelected() != 0 && listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_DELETE, [=] () {
       new ConfirmDialog(

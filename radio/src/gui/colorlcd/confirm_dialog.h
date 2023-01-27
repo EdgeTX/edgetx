@@ -36,4 +36,4 @@ class ConfirmDialog : public Dialog
   std::function<void(void)> cancelHandler;
 };
 
-#endif // _CONFIRM_DIALOG_H_
+#endif  // _CONFIRM_DIALOG_H_
