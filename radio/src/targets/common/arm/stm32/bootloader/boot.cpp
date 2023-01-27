@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+  #include "stm32_serial_driver.h"
+#endif
+
 #include "board.h"
 #include "boot.h"
 #include "bin_files.h"

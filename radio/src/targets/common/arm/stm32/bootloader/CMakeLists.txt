@@ -35,6 +35,8 @@ set(BOOTLOADER_SRC
   ../usb_driver.cpp
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
+  ../stm32_serial_driver.cpp
+  ../stm32_usart_driver.cpp
   init.c
   boot.cpp
   bin_files.cpp

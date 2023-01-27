@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
+#include "bluetooth_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -49,37 +50,35 @@ extern FIL g_bluetoothFile;
   #define SWAP32(val)      (__builtin_bswap32(val))
 #endif
 
-extern Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
-extern Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
+// extern Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
+// extern Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
 
 Bluetooth bluetooth;
 
 void Bluetooth::write(const uint8_t * data, uint8_t length)
 {
-  if (btTxFifo.hasSpace(length)) {
-    BLUETOOTH_TRACE_VERBOSE("BT>");
-    for (int i = 0; i < length; i++) {
-      BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
-      btTxFifo.push(data[i]);
-    }
-    BLUETOOTH_TRACE_VERBOSE(CRLF);
+  // if (btTxFifo.hasSpace(length)) {
+  BLUETOOTH_TRACE_VERBOSE("BT>");
+  for (int i = 0; i < length; i++) {
+    BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
   }
-  else {
-    BLUETOOTH_TRACE("[BT] TX fifo full!" CRLF);
-  }
+  BLUETOOTH_TRACE_VERBOSE(CRLF);
+  bluetoothWrite(data, length);
+  // }
+  // else {
+  //   BLUETOOTH_TRACE("[BT] TX fifo full!" CRLF);
+  // }
 
-  bluetoothWriteWakeup();
+  // bluetoothWriteWakeup();
 }
+
+static const char _bt_crlf[] = "\r\n";
 
 void Bluetooth::writeString(const char * str)
 {
   BLUETOOTH_TRACE("BT> %s" CRLF, str);
-  while (*str != 0) {
-    btTxFifo.push(*str++);
-  }
-  btTxFifo.push('\r');
-  btTxFifo.push('\n');
-  bluetoothWriteWakeup();
+  bluetoothWrite(str, strlen(str));
+  bluetoothWrite(_bt_crlf, sizeof(_bt_crlf) - 1);
 }
 
 char * Bluetooth::readline(bool error_reset)
@@ -87,7 +86,7 @@ char * Bluetooth::readline(bool error_reset)
   uint8_t byte;
 
   while (true) {
-    if (!btRxFifo.pop(byte)) {
+    if (!bluetoothRead(&byte)) {
 #if defined(PCBX9E)
       // X9E BT module can get unresponsive
       BLUETOOTH_TRACE("NO RESPONSE FROM BT MODULE" CRLF);
@@ -327,7 +326,7 @@ void Bluetooth::receiveTrainer()
   uint8_t byte;
 
   while (true) {
-    if (!btRxFifo.pop(byte)) {
+    if (!bluetoothRead(&byte)) {
       return;
     }
 
@@ -398,7 +397,6 @@ void Bluetooth::wakeup(void)
     }
     else if (IS_BLUETOOTH_TRAINER()){
       state = BLUETOOTH_STATE_CONNECTED;
-      bluetoothWriteWakeup();
       sendTrainer();
     }
   }
@@ -408,7 +406,6 @@ void Bluetooth::wakeup(void)
 void Bluetooth::wakeup()
 {
   if (state != BLUETOOTH_STATE_OFF) {
-    bluetoothWriteWakeup();
     if (bluetoothIsWriting()) {
       return;
     }
@@ -425,7 +422,10 @@ void Bluetooth::wakeup()
     return;
   }
 
-  if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF || (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER && !IS_BLUETOOTH_TRAINER())) {
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF ||
+      (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
+       !IS_BLUETOOTH_TRAINER())) {
+
     if (state != BLUETOOTH_STATE_OFF) {
       bluetoothDisable();
       state = BLUETOOTH_STATE_OFF;
@@ -567,7 +567,7 @@ uint8_t Bluetooth::read(uint8_t * data, uint8_t size, uint32_t timeout)
   while (len < size) {
     uint32_t elapsed = 0;
     uint8_t byte;
-    while (!btRxFifo.pop(byte)) {
+    while (!bluetoothRead(&byte)) {
       if (elapsed++ >= timeout) {
         return len;
       }

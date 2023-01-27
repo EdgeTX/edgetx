@@ -221,7 +221,7 @@ static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8
 static const etx_serial_init crsfSerialParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = true,
+  .direction = ETX_Dir_TX_RX,
 };
 
 static void* crossfireInit(uint8_t module)
@@ -235,8 +235,7 @@ static void* crossfireInit(uint8_t module)
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
     INTERNAL_MODULE_ON();
 
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
   }
 #endif
 
@@ -246,8 +245,7 @@ static void* crossfireInit(uint8_t module)
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
     EXTERNAL_MODULE_ON();
 
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
   }
 #endif
 

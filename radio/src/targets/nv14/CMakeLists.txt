@@ -139,7 +139,6 @@ set(FIRMWARE_TARGET_SRC
   audio_spi_driver.cpp
   backlight_driver.cpp
   extmodule_helper.cpp
-  ../horus/flyskyHallStick_driver.cpp
   )
 
 set(FIRMWARE_SRC
@@ -155,6 +154,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
+  targets/common/arm/stm32/flysky_gimbal_driver.cpp
   )
 
 # Make malloc() thread-safe

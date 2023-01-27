@@ -33,7 +33,7 @@
 const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
-    .rx_enable = true,
+    .direction = ETX_Dir_TX_RX,
 };
 
 static void* afhds2Init(uint8_t module)
@@ -43,7 +43,7 @@ static void* afhds2Init(uint8_t module)
   // serial port setup
   resetPulsesAFHDS2();
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                     ETX_MOD_DIR_TX_RX, &afhds2SerialInitParams);
+                                     &afhds2SerialInitParams);
 
   // mixer setup
   mixerSchedulerSetPeriod(module, AFHDS2_PERIOD);

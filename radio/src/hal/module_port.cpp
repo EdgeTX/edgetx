@@ -100,7 +100,7 @@ const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port)
   return _find_port(type, port);
 }
 
-etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_t dir,
+etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port,
                                          const etx_serial_init* params)
 {
   if (moduleIdx >= NUM_MODULES) return nullptr;
@@ -110,15 +110,15 @@ etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_
   
   auto state = &(_module_states[moduleIdx]);
 
-  const uint8_t duplex = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX;
-  dir &= duplex;
+  const uint8_t duplex = ETX_Dir_TX_RX;
+  uint8_t dir = params->direction & duplex;
 
   if (dir == duplex) {
     _init_serial_driver(&state->tx, found_port, params);
     state->rx = state->tx;
-  } else if (dir == ETX_MOD_DIR_TX) {
+  } else if (dir == ETX_Dir_TX) {
     _init_serial_driver(&state->tx, found_port, params);
-  } else if (dir == ETX_MOD_DIR_RX) {
+  } else if (dir == ETX_Dir_RX) {
     _init_serial_driver(&state->rx, found_port, params);
   }
 

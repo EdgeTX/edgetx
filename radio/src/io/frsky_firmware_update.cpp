@@ -281,7 +281,7 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = true,
+  .direction = ETX_Dir_TX_RX
 };
 
 const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
@@ -320,8 +320,7 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     params.baudrate = 38400;
 
     // TODO: handle init error
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
 
     // assume RX port is the same as TX
     uart_drv = modulePortGetSerialDrv(mod_st->tx);
@@ -343,7 +342,7 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     params.baudrate = 57600;
 
     // TODO: handle init error
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
 
     // assume RX port is the same as TX
     uart_drv = modulePortGetSerialDrv(mod_st->tx);
@@ -355,7 +354,7 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     etx_serial_init params(serialInitParams);
     params.baudrate = 57600;
 
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
 
     // assume RX port is the same as TX
     uart_drv = modulePortGetSerialDrv(mod_st->tx);
@@ -801,9 +800,7 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
   etx_serial_init params(serialInitParams);
   params.baudrate = FRSKY_SPORT_BAUDRATE;
     
-  auto mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT,
-                                     ETX_MOD_DIR_TX_RX, &params);
-
+  auto mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params);
   uart_drv = modulePortGetSerialDrv(mod_st->tx);
   uart_ctx = modulePortGetCtx(mod_st->tx);
 

@@ -192,7 +192,7 @@ if(HARDWARE_EXTERNAL_ACCESS_MOD)
 endif()
 
 if(PCB STREQUAL X10)
-  set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
+  set(FLYSKY_HALL_STICKS_DRIVER targets/common/arm/stm32/flysky_gimbal_driver.cpp)
 endif()
 
 if(IMU_LSM6DS33)
@@ -262,7 +262,6 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
-  ${FLYSKY_HALL_STICKS_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
@@ -285,6 +284,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
+  ${FLYSKY_HALL_STICKS_DRIVER}
   )
 
 if(BOOTLOADER)

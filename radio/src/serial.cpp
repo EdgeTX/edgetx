@@ -302,34 +302,34 @@ static void serialSetupPort(int mode, etx_serial_init& params)
   case UART_MODE_TELEMETRY:
     if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
       params.baudrate = FRSKY_D_BAUDRATE;
-      params.rx_enable = true;
+      params.direction = ETX_Dir_RX;
     }
     break;
 
   case UART_MODE_SBUS_TRAINER:
     params.baudrate = SBUS_BAUDRATE;
     params.encoding = ETX_Encoding_8E2,
-    params.rx_enable = true;
+    params.direction = ETX_Dir_RX;
     break;
 
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
 #if defined(INTERNAL_GPS)
   case UART_MODE_GPS:
     params.baudrate = GPS_USART_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
 #if defined(SPACEMOUSE)
   case UART_MODE_SPACEMOUSE:
     params.baudrate = SPACEMOUSE_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
@@ -412,7 +412,7 @@ void serialInit(uint8_t port_nr, int mode)
   etx_serial_init params = {
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
-    .rx_enable = false,
+    .direction = ETX_Dir_TX,
   };
 
   serialSetupPort(mode, params);

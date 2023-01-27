@@ -235,7 +235,7 @@ template class Pxx1Pulses<UartPxx1Transport>;
 static const etx_serial_init pxx1SerialCfg = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = false,
+  .direction = ETX_Dir_TX,
 };
 
 static const etx_timer_config_t pxx1TimerCfg = {
@@ -247,20 +247,17 @@ static const etx_timer_config_t pxx1TimerCfg = {
 static void* pxx1Init(uint8_t module)
 {
   etx_module_state_t* mod_st = nullptr;
+  etx_serial_init txCfg(pxx1SerialCfg);
 
 #if defined(INTERNAL_MODULE_PXX1)
   if (module == INTERNAL_MODULE) {
 
-    etx_serial_init txCfg(pxx1SerialCfg);
-
 #if defined(INTMODULE_USART)
     txCfg.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX, &txCfg);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &txCfg);
 #else
     txCfg.encoding = ETX_Encoding_PXX1_PWM;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_SOFT_INV,
-                                  ETX_MOD_DIR_TX, &txCfg);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_SOFT_INV, &txCfg);
 #endif
 
     if (!mod_st) return nullptr;
@@ -277,14 +274,12 @@ static void* pxx1Init(uint8_t module)
   if (module == EXTERNAL_MODULE) {
 
     // Init driver (timer / serial) based on module type
-    etx_serial_init txCfg(pxx1SerialCfg);
     uint8_t type = g_model.moduleData[module].type;
     switch(type) {
 
     case MODULE_TYPE_R9M_LITE_PXX1: {
       txCfg.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
-                                    ETX_MOD_DIR_TX, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &txCfg);
       if (!mod_st) return nullptr;
 
       mixerSchedulerSetPeriod(module, EXTMODULE_PXX1_SERIAL_PERIOD);
@@ -293,8 +288,7 @@ static void* pxx1Init(uint8_t module)
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1: {
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
-                                    ETX_MOD_DIR_TX, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &txCfg);
       if (!mod_st) return nullptr;
       
       mixerSchedulerSetPeriod(module, PXX_PULSES_PERIOD);
@@ -312,10 +306,10 @@ static void* pxx1Init(uint8_t module)
   // Init telemetry RX
   etx_serial_init rxCfg(pxx1SerialCfg);
   rxCfg.baudrate = FRSKY_SPORT_BAUDRATE;
-  rxCfg.rx_enable = true;
+  rxCfg.direction = ETX_Dir_RX;
 
   // TODO: handle init errors properly
-  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, ETX_MOD_DIR_RX, &rxCfg);
+  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg);
   
   return mod_st;
 }

@@ -19,112 +19,108 @@
  * GNU General Public License for more details.
  */
 
+#include "bluetooth_driver.h"
+#include "stm32_hal_ll.h"
+
 #include "board.h"
 #include "debug.h"
 
 #if !defined(BOOT)
 
-#include "fifo.h"
+#include "stm32_serial_driver.h"
 
-Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
-Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
+static const LL_GPIO_InitTypeDef btUSART_PinDef = {
+  .Pin = BT_TX_GPIO_PIN | BT_RX_GPIO_PIN,
+  .Mode = LL_GPIO_MODE_ALTERNATE,
+  .Speed = LL_GPIO_SPEED_FREQ_LOW,
+  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
+  .Pull = LL_GPIO_PULL_UP,
+  .Alternate = BT_GPIO_AF,
+};
+
+#define BT_USART_IRQ_PRIORITY 6
+
+static const stm32_usart_t btUSART = {
+  .USARTx = BT_USART,
+  .GPIOx = BT_USART_GPIO,
+  .pinInit = &btUSART_PinDef,
+  .IRQn = BT_USART_IRQn,
+  .IRQ_Prio = BT_USART_IRQ_PRIORITY,
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+  .rxDMA = nullptr,
+  .rxDMA_Stream = 0,
+  .rxDMA_Channel = 0,
+};
+
+DEFINE_STM32_SERIAL_PORT(BTModule, btUSART, BT_RX_FIFO_SIZE, BT_TX_FIFO_SIZE);
 
 #if defined(BLUETOOTH_PROBE)
 volatile uint8_t btChipPresent = 0;
 #endif
 
-enum BluetoothWriteState
-{
-  BLUETOOTH_WRITE_IDLE,
-#if defined(BT_BRTS_GPIO_PIN)
-  BLUETOOTH_WRITE_INIT,
-#endif
-  BLUETOOTH_WRITING,
-#if defined(BT_BRTS_GPIO_PIN)
-  BLUETOOTH_WRITE_DONE
-#else
-  BLUETOOTH_WRITE_DONE = BLUETOOTH_WRITE_IDLE
-#endif
-};
-
-volatile uint8_t bluetoothWriteState = BLUETOOTH_WRITE_IDLE;
+// const etx_serial_driver_t* _bt_usart_drv = nullptr;
+void* _bt_usart_ctx = nullptr;
 #endif
 
 void bluetoothInit(uint32_t baudrate, bool enable)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BT_EN_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(BT_EN_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
 
-#if defined(BT_BRTS_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = BT_BRTS_GPIO_PIN;
-  GPIO_Init(BT_BRTS_GPIO, &GPIO_InitStructure);
-  GPIO_SetBits(BT_BRTS_GPIO, BT_BRTS_GPIO_PIN);
-#endif
+  pinInit.Pin = BT_EN_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull = LL_GPIO_PULL_NO;
 
-#if defined(BT_BCTS_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = BT_BCTS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_Init(BT_BCTS_GPIO, &GPIO_InitStructure);
-#endif
+  LL_GPIO_Init(BT_EN_GPIO, &pinInit);
 
-#if 0
 #if !defined(BOOT)
-  GPIO_PinAFConfig(BT_USART_GPIO, BT_TX_GPIO_PinSource, BT_GPIO_AF);
-  GPIO_PinAFConfig(BT_USART_GPIO, BT_RX_GPIO_PinSource, BT_GPIO_AF);
+  etx_serial_init cfg = {
+    .baudrate = baudrate,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_TX_RX,
+  };
 
-  GPIO_InitStructure.GPIO_Pin = BT_TX_GPIO_PIN | BT_RX_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(BT_USART_GPIO, &GPIO_InitStructure);
-
-  USART_DeInit(BT_USART);
-  USART_InitTypeDef USART_InitStructure;
-  USART_InitStructure.USART_BaudRate = baudrate;
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
-  USART_Init(BT_USART, &USART_InitStructure);
-  USART_Cmd(BT_USART, ENABLE);
-
-  USART_ITConfig(BT_USART, USART_IT_RXNE, ENABLE);
-  NVIC_SetPriority(BT_USART_IRQn, 6);
-  NVIC_EnableIRQ(BT_USART_IRQn);
-
-  bluetoothWriteState = BLUETOOTH_WRITE_IDLE;
-
-  btRxFifo.clear();
-  btTxFifo.clear();
-#endif
+  if (!_bt_usart_ctx) {
+    auto hw_def = REF_STM32_SERIAL_PORT(BTModule);
+    _bt_usart_ctx = STM32SerialDriver.init(hw_def, &cfg);
+  } else {
+    STM32SerialDriver.setBaudrate(_bt_usart_ctx, baudrate);
+  }
 #endif
 
-  if (enable)
-    GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
-  else
-    GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN);
+  if (enable) {
+    LL_GPIO_ResetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
+  } else {
+    LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
+  }
 }
 
 #if !defined(BOOT)
 void bluetoothDisable()
 {
-  GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN); // close bluetooth (recent modules will go to bootloader mode)
-#if 0
-  USART_ITConfig(BT_USART, USART_IT_RXNE, DISABLE);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BT_RX_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_Init(BT_USART_GPIO, &GPIO_InitStructure);
-  USART_DeInit(BT_USART);
-#endif
+  // close bluetooth (recent modules will go to bootloader mode)
+  LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
+  if (_bt_usart_ctx) {
+    STM32SerialDriver.deinit(_bt_usart_ctx);
+  }
 }
 
-#if 0
+// @Cliff
+// ISR is handled by the serial driver,
+// however, it is unclear at this point
+// how the detection should be implemented.
+// Maybe setting a temporary callback on
+// the interface, or trying to pull some data.
+//
+// Also, it is quite unclear why we would need
+// to disable sending when the TX buffer is exahausted.
+// The serial driver does take care of that but does not
+// set any particular piece of state that could be queried
+// to deduct the state of this TX buffer.
+#if _OBSOLETE_
 extern "C" void BT_USART_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_BLUETOOTH);
@@ -149,41 +145,30 @@ extern "C" void BT_USART_IRQHandler(void)
     }
     else {
       USART_ITConfig(BT_USART, USART_IT_TXE, DISABLE);
+      // => BLUETOOTH_WRITE_IDLE
       bluetoothWriteState = BLUETOOTH_WRITE_DONE;
     }
   }
 }
 #endif
 
-void bluetoothWriteWakeup()
+void bluetoothWrite(const void* buffer, uint32_t len)
 {
-#if 0
-  if (bluetoothWriteState == BLUETOOTH_WRITE_IDLE) {
-    if (!btTxFifo.isEmpty()) {
-#if defined(BT_BRTS_GPIO_PIN)
-      bluetoothWriteState = BLUETOOTH_WRITE_INIT;
-      GPIO_ResetBits(BT_BRTS_GPIO, BT_BRTS_GPIO_PIN);
-#else
-      bluetoothWriteState = BLUETOOTH_WRITING;
-      USART_ITConfig(BT_USART, USART_IT_TXE, ENABLE);
-#endif
-    }
-  }
-#if defined(BT_BRTS_GPIO_PIN)
-  else if (bluetoothWriteState == BLUETOOTH_WRITE_INIT) {
-    bluetoothWriteState = BLUETOOTH_WRITING;
-    USART_ITConfig(BT_USART, USART_IT_TXE, ENABLE);
-  }
-  else if (bluetoothWriteState == BLUETOOTH_WRITE_DONE) {
-    bluetoothWriteState = BLUETOOTH_WRITE_IDLE;
-    GPIO_SetBits(BT_BRTS_GPIO, BT_BRTS_GPIO_PIN);
-  }
-#endif
-#endif
+  if (!_bt_usart_ctx) return;
+  STM32SerialDriver.sendBuffer(_bt_usart_ctx, (const uint8_t*)buffer, len);
+}
+
+int bluetoothRead(uint8_t* data)
+{
+  if (!_bt_usart_ctx) return 0;
+  return STM32SerialDriver.getByte(_bt_usart_ctx, data);
 }
 
 uint8_t bluetoothIsWriting(void)
 {
-  return bluetoothWriteState != BLUETOOTH_WRITE_IDLE;
+  if (!_bt_usart_ctx)
+    return false;
+  
+  return STM32SerialDriver.txCompleted(_bt_usart_ctx);
 }
 #endif // !BOOT

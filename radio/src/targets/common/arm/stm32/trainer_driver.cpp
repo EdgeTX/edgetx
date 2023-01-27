@@ -348,7 +348,7 @@ extern "C" void TRAINER_MODULE_CPPM_TIMER_IRQHandler()
 const etx_serial_init sbusTrainerParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
-    .rx_enable = true,
+    .direction = ETX_Dir_RX,
 };
 
 // external module may have a full-duplex USART
@@ -363,7 +363,7 @@ void init_trainer_module_sbus()
   if (sbus_trainer_mod_st) return;
 
   sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_EXTERNAL_UART,
-                                             ETX_MOD_DIR_RX, &sbusTrainerParams);
+                                             &sbusTrainerParams);
 }
 
 void stop_trainer_module_sbus()

@@ -2520,20 +2520,20 @@
 #if defined(PCBX9E)
   #define STORAGE_BLUETOOTH
   #define BT_USART                     USART6
-  #define BT_GPIO_AF                   GPIO_AF_USART6
+  #define BT_GPIO_AF                   LL_GPIO_AF_8
   #define BT_USART_IRQn                USART6_IRQn
   #define BT_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG)
   #define BT_RCC_APB1Periph            0
   #define BT_RCC_APB2Periph            RCC_APB2Periph_USART6
   #define BT_USART_GPIO                GPIOG
-  #define BT_TX_GPIO_PIN               GPIO_Pin_14 // PG.14
-  #define BT_RX_GPIO_PIN               GPIO_Pin_9  // PG.09
+  #define BT_TX_GPIO_PIN               LL_GPIO_PIN_14 // PG.14
+  #define BT_RX_GPIO_PIN               LL_GPIO_PIN_9  // PG.09
   #define BT_EN_GPIO                   GPIOD
-  #define BT_EN_GPIO_PIN               GPIO_Pin_11 // PD.11
-  #define BT_BRTS_GPIO                 GPIOE
-  #define BT_BRTS_GPIO_PIN             GPIO_Pin_12 // PE.12
-  #define BT_BCTS_GPIO                 GPIOG
-  #define BT_BCTS_GPIO_PIN             GPIO_Pin_6  // PG.06
+  #define BT_EN_GPIO_PIN               LL_GPIO_PIN_11 // PD.11
+  // #define BT_BRTS_GPIO                 GPIOE
+  // #define BT_BRTS_GPIO_PIN             GPIO_Pin_12 // PE.12
+  // #define BT_BCTS_GPIO                 GPIOG
+  // #define BT_BCTS_GPIO_PIN             GPIO_Pin_6  // PG.06
   #define BT_TX_GPIO_PinSource         GPIO_PinSource14
   #define BT_RX_GPIO_PinSource         GPIO_PinSource9
   #define BT_USART_IRQHandler          USART6_IRQHandler
@@ -2544,26 +2544,26 @@
   #if defined(PCBX9DP)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOB
-    #define BT_EN_GPIO_PIN              GPIO_Pin_2  // PB.02
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_2  // PB.02
   #elif defined(PCBXLITE)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOE) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOE
-    #define BT_EN_GPIO_PIN              GPIO_Pin_15 // PE.15
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_15 // PE.15
   #elif defined(PCBX9LITES)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOD
-    #define BT_EN_GPIO_PIN              GPIO_Pin_14 // PD.14
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_14 // PD.14
   #else
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOE) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOE
-    #define BT_EN_GPIO_PIN              GPIO_Pin_12 // PE.12
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_12 // PE.12
   #endif
   #define BT_USART_GPIO                 GPIOB
-  #define BT_TX_GPIO_PIN                GPIO_Pin_10 // PB.10
-  #define BT_RX_GPIO_PIN                GPIO_Pin_11 // PB.11
+  #define BT_TX_GPIO_PIN                LL_GPIO_PIN_10 // PB.10
+  #define BT_RX_GPIO_PIN                LL_GPIO_PIN_11 // PB.11
   #define BT_TX_GPIO_PinSource          GPIO_PinSource10
   #define BT_RX_GPIO_PinSource          GPIO_PinSource11
-  #define BT_GPIO_AF                    GPIO_AF_USART3
+  #define BT_GPIO_AF                    LL_GPIO_AF_7
   #define BT_USART                      USART3
   #define BT_USART_IRQHandler           USART3_IRQHandler
   #define BT_USART_IRQn                 USART3_IRQn

@@ -130,7 +130,7 @@ void modulePortConfigExtra(const etx_module_port_t* port);
 const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port);
 
 // Init module port with params (driver & context stored locally)
-etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port, uint8_t dir,
+etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port,
                                          const etx_serial_init* params);
 
 // Init module port with params (driver & context stored locally)

@@ -173,7 +173,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 etx_serial_init dsmUartParams = {
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
-    .rx_enable = false,
+    .direction = ETX_Dir_TX,
 };
 
 static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
@@ -183,9 +183,7 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
 
   etx_serial_init params(dsmUartParams);
   params.baudrate = baudrate;
-
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
-                                     ETX_MOD_DIR_TX, &params);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &params);
 
   // TODO: check telemetry init...
 

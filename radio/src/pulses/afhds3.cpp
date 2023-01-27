@@ -849,7 +849,7 @@ void applyModelConfig(uint8_t module)
 static const etx_serial_init _uartParams = {
   .baudrate = 0, //AFHDS3_UART_BAUDRATE,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = true,
+  .direction = ETX_Dir_TX_RX,
 };
 
 static void* initModule(uint8_t module)
@@ -860,24 +860,22 @@ static void* initModule(uint8_t module)
 
   if (module == INTERNAL_MODULE) {
     params.baudrate = AFHDS3_UART_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
 
     if (mod_st) INTERNAL_MODULE_ON();
   }
 
   if (module == EXTERNAL_MODULE) {
     params.baudrate = AFHDS3_UART_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &params);
 
     if (!mod_st) {
       // fall-back to soft-serial
       params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
+      params.direction = ETX_Dir_RX;
       period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
-
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
-                                    ETX_MOD_DIR_TX, &params);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &params);
+      // TODO: telemetry RX ???
     }
 
     if (mod_st) EXTERNAL_MODULE_ON();

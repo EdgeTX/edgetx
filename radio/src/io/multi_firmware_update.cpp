@@ -74,7 +74,7 @@ class MultiFirmwareUpdateDriver
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = true,
+  .direction = ETX_Dir_TX_RX
 };
 
 #if defined(INTERNAL_MODULE_MULTI)
@@ -100,9 +100,7 @@ class MultiInternalUpdateDriver: public MultiFirmwareUpdateDriver
       params.baudrate = 57600;
 
       // TODO: error handling
-      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_INTERNAL_UART,
-                                    ETX_MOD_DIR_TX_RX, &params);
-
+      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_INTERNAL_UART, &params);
       uart_drv = modulePortGetSerialDrv(mod_st->tx);
       uart_ctx = modulePortGetCtx(mod_st->tx);
     }
@@ -207,11 +205,9 @@ class MultiExtSportUpdateDriver: public MultiFirmwareUpdateDriver
       params.baudrate = 57600;
 
       // TODO: error handling
-      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT,
-                                    ETX_MOD_DIR_TX_RX, &params);
-
-      uart_drv = mod_st->tx.port->drv.serial;
-      uart_ctx = mod_st->tx.ctx;
+      mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params);
+      uart_drv = modulePortGetSerialDrv(mod_st->tx);
+      uart_ctx = modulePortGetCtx(mod_st->tx);
     }
 
     bool getByte(uint8_t & byte) const override

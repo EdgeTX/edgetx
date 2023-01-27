@@ -1050,7 +1050,7 @@ static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 static const etx_serial_init spIntmoduleSerialInitParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .rx_enable = true,
+  .direction = ETX_Dir_TX_RX,
 };
 
 // TODO: use proper method instead
@@ -1114,7 +1114,7 @@ int cliSerialPassthrough(const char **argv)
       params.baudrate = baudrate;
 
       spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_INTERNAL_UART,
-                                                   ETX_MOD_DIR_TX_RX, &params);
+                                                    &params);
 
       auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
       auto ctx = modulePortGetCtx(spInternalModuleState->rx);
@@ -1129,11 +1129,7 @@ int cliSerialPassthrough(const char **argv)
         uint32_t cli_br = cliGetBaudRate();
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
           baudrate = cli_br;
-
-          // re-configure serial port
-          params.baudrate = baudrate;
-          modulePortInitSerial(port_n, ETX_MOD_PORT_INTERNAL_UART,
-                               ETX_MOD_DIR_TX_RX, &params);
+          drv->setBaudrate(ctx, baudrate);
         }
 
         uint8_t data;

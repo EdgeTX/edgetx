@@ -28,6 +28,7 @@
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "stm32_hal_adc.h"
+#include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "bitmapbuffer.h"
@@ -43,8 +44,6 @@ extern "C" {
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
-
-extern void flysky_hall_stick_init( void );
 
 HardwareOptions hardwareOptions;
 
@@ -177,10 +176,9 @@ void boardInit()
   init_trainer();
   extModuleInit();
   battery_charge_init();
-  globalData.flyskygimbals = true;
-  flysky_hall_stick_init();
+  globalData.flyskygimbals = flysky_gimbal_init();
   init2MhzTimer();
-  init1msTimer();
+  init5msTimer();
   TouchInit();
   usbInit();
 

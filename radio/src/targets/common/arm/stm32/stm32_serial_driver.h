@@ -24,6 +24,9 @@
 #include "stm32_usart_driver.h"
 #include "hal/serial_driver.h"
 
+// __DMA
+#include "definitions.h"
+
 // Serial buffer to be defined in boards
 struct stm32_serial_buffer {
   uint8_t* buffer;

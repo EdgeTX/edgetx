@@ -144,9 +144,9 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(USART2);
 #endif
 
-// #if defined (USART3)
-//   DEFINE_USART_IRQ(USART3);
-// #endif
+#if defined (USART3)
+  DEFINE_USART_IRQ(USART3);
+#endif
 
 #if defined (UART4)
   DEFINE_USART_IRQ(UART4);
@@ -230,12 +230,14 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
   stm32_usart_init(usart, params);
   st->sp = sp; // TODO: only iff init() is sucessful
 
-  // prepare for send_byte()
-  if (sp->tx_buffer.length > 0) {
-    st->callbacks.on_send = _on_send_fifo;
+  if (params->direction & ETX_Dir_TX) {
+    // prepare for send_byte()
+    if (sp->tx_buffer.length > 0) {
+      st->callbacks.on_send = _on_send_fifo;
+    }
   }
 
-  if (params->rx_enable) {
+  if (params->direction & ETX_Dir_RX) {
 
     auto rx_buf = sp->rx_buffer.buffer;
     auto buf_len = sp->rx_buffer.length;
@@ -318,6 +320,14 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   }
 }
 
+static uint8_t stm32_serial_tx_completed(void* ctx)
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return 1;
+
+  return stm32_usart_tx_completed(st->sp->usart);
+}
+
 static void stm32_wait_tx_completed(void* ctx)
 {
   // TODO
@@ -383,16 +393,50 @@ static void stm32_serial_clear_rx_buffer(void* ctx)
   }
 }
 
+static uint32_t stm32_serial_get_baudrate(void* ctx)
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return 0;
+
+  auto sp = st->sp;
+  auto usart = sp->usart;
+  return stm32_usart_get_baudrate(usart);
+}
+
+static void stm32_serial_set_baudrate(void* ctx, uint32_t baudrate)
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return;
+  
+  auto sp = st->sp;
+  auto usart = sp->usart;
+  stm32_usart_set_baudrate(usart, baudrate);
+}
+
+static void stm32_serial_set_idle_cb(void* ctx, void (*on_idle)())
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return;
+
+  st->callbacks.on_idle = on_idle;
+
+  uint32_t enabled = (on_idle != nullptr);
+  stm32_usart_set_idle_irq(st->sp->usart, enabled);
+}
+
 const etx_serial_driver_t STM32SerialDriver = {
   .init = stm32_serial_init,
   .deinit = stm32_serial_deinit,
   .sendByte = stm32_serial_send_byte,
   .sendBuffer = stm32_serial_send_buffer,
+  .txCompleted = stm32_serial_tx_completed,
   .waitForTxCompleted = stm32_wait_tx_completed,
   .enableRx = stm32_enable_rx,
   .getByte = stm32_serial_get_byte,
   .clearRxBuffer = stm32_serial_clear_rx_buffer,
-  .getBaudrate = nullptr,
+  .getBaudrate = stm32_serial_get_baudrate,
+  .setBaudrate = stm32_serial_set_baudrate,
   .setReceiveCb = nullptr, // TODO
+  .setIdleCb = stm32_serial_set_idle_cb,
   .setBaudrateCb = nullptr,
 };

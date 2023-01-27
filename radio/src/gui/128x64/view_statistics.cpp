@@ -21,6 +21,10 @@
 
 #include "opentx.h"
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+#endif
+
 #define STATS_1ST_COLUMN               1
 #define STATS_2ND_COLUMN               7*FW+FW/2
 #define STATS_3RD_COLUMN               14*FW+FW/2

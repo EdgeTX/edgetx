@@ -53,7 +53,6 @@ set(STM32_STDPERIPH_SRC
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_spi.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_pwr.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_adc.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_flash.c
 )

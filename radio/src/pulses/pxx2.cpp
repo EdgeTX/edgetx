@@ -30,15 +30,11 @@
 #include "pxx2.h"
 #include "pxx2_transport.h"
 
-#if defined(INTMODULE_USART)
-
-const etx_serial_init pxx2SerialInitParams = {
+static const etx_serial_init pxx2SerialInitParams = {
     .baudrate = PXX2_HIGHSPEED_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
-    .rx_enable = true,
+    .direction = ETX_Dir_TX_RX,
 };
-
-#endif
 
 #include "hal/module_port.h"
 
@@ -685,8 +681,7 @@ static void* pxx2Init(uint8_t module)
     resetAccessAuthenticationCount();
 
     params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
   }
 #endif
 
@@ -714,8 +709,7 @@ static void* pxx2Init(uint8_t module)
     mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
     EXTERNAL_MODULE_ON();
 
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &params);
   }
 #endif
 

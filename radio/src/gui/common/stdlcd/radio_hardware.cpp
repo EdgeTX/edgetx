@@ -26,6 +26,10 @@
   #include "telemetry/crossfire.h"
 #endif
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+#endif
+
 #if defined(PCBTARANIS)
 enum {
   ITEM_RADIO_HARDWARE_LABEL_STICKS,

@@ -56,7 +56,7 @@ static void sendDSM(uint8_t*& p_buf, uint8_t module);
 etx_serial_init multiSerialInitParams = {
     .baudrate = MULTIMODULE_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
-    .rx_enable = true,
+    .direction = ETX_Dir_TX,
 };
 
 static inline void sendMulti(uint8_t*& p_buf, uint8_t b)
@@ -202,13 +202,14 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
 static void* multiInit(uint8_t module)
 {
   etx_module_state_t* mod_st = nullptr;
+  etx_serial_init cfg(multiSerialInitParams);
 
 #if defined(INTERNAL_MODULE_MULTI)
   if (module == INTERNAL_MODULE) {
     // serial port setup
     // TODO: error handling
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
-                                  ETX_MOD_DIR_TX_RX, &multiSerialInitParams);
+    cfg.direction = ETX_Dir_TX_RX;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &cfg);
 
     INTERNAL_MODULE_ON();
   }
@@ -218,12 +219,12 @@ static void* multiInit(uint8_t module)
   if (module == EXTERNAL_MODULE) {
     // serial port setup
     // TODO: error handling
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV,
-                                  ETX_MOD_DIR_TX, &multiSerialInitParams);
+    cfg.direction = ETX_Dir_TX;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &cfg);
 
     // Init S.PORT RX channel
-    modulePortInitSerial(module, ETX_MOD_PORT_SPORT,
-                         ETX_MOD_DIR_RX, &multiSerialInitParams);
+    cfg.direction = ETX_Dir_RX;
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &cfg);
     
     EXTERNAL_MODULE_ON();
   }

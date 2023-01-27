@@ -381,26 +381,19 @@
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-#define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_0  // PA.00
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_1  // PA.01
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource0
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource1
-#define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_UART4
+#define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
+#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
+#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
+#define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
 
 #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
 #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
 
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-#define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
-#define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
-#define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
-#define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
-#define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
-
-#define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
-#define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+#define FLYSKY_HALL_SERIAL_DMA                   DMA1
+#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+#define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
 // Internal Module
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)

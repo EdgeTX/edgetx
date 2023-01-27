@@ -94,6 +94,15 @@ void stm32_usart_enable_tx_irq(const stm32_usart_t* usart)
   LL_USART_EnableIT_TXE(usart->USARTx);
 }
 
+void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled)
+{
+  if (enabled) {
+    LL_USART_EnableIT_IDLE(usart->USARTx);
+  } else {
+    LL_USART_DisableIT_IDLE(usart->USARTx);
+  }
+}
+
 static void enable_usart_clock(USART_TypeDef* USARTx)
 {
   if (USARTx == USART1) {
@@ -206,7 +215,7 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     dirPinInit.Mode = LL_GPIO_MODE_OUTPUT;
     LL_GPIO_Init(usart->dir_GPIOx, &dirPinInit);
 
-    if (params->rx_enable)
+    if (params->direction & ETX_Dir_RX)
       _half_duplex_input(usart);
   }
   
@@ -235,31 +244,36 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
   usartInit.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
 
-  if (params->rx_enable)
-    usartInit.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  else
-    usartInit.TransferDirection = LL_USART_DIRECTION_TX;
+  usartInit.TransferDirection = LL_USART_DIRECTION_NONE;
+
+  if (params->direction & ETX_Dir_RX)
+    usartInit.TransferDirection |= LL_USART_DIRECTION_RX;
+
+  if (params->direction & ETX_Dir_TX)
+    usartInit.TransferDirection |= LL_USART_DIRECTION_TX;
 
   LL_USART_Init(usart->USARTx, &usartInit);
   LL_USART_Enable(usart->USARTx);
 
-  // Enable TX DMA request
-  if (usart->txDMA) {
-    LL_USART_EnableDMAReq_TX(usart->USARTx);
+  if (params->direction & ETX_Dir_TX) {
+    // Enable TX DMA request
+    if (usart->txDMA) {
+      LL_USART_EnableDMAReq_TX(usart->USARTx);
 
-    // 2-wire half-duplex: setup TX DMA IRQ
-    if (usart->dir_GPIOx && (int32_t)(usart->txDMA_IRQn) >= 0) {
-      _enable_tx_dma_irq(usart);
+      // 2-wire half-duplex: setup TX DMA IRQ
+      if (usart->dir_GPIOx && (int32_t)(usart->txDMA_IRQn) >= 0) {
+        _enable_tx_dma_irq(usart);
+      }
     }
   }
 
-  // Enable RX IRQ
-  if (params->rx_enable) {
+  if (params->direction & ETX_Dir_RX) {
     // IRQ based RX
     LL_USART_EnableIT_RXNE(usart->USARTx);
   }
 
-  if (!usart->txDMA || (params->rx_enable && !usart->rxDMA)) {
+  if (((params->direction & ETX_Dir_TX) && !usart->txDMA) ||
+      LL_USART_IsEnabledIT_RXNE(usart->USARTx)) {
     _enable_usart_irq(usart);
   }
 }
@@ -332,6 +346,20 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
   }
 }
 
+uint8_t stm32_usart_tx_completed(const stm32_usart_t* usart)
+{
+  if (LL_USART_IsEnabledDMAReq_TX(usart->USARTx)) {
+    // TX DMA is configured, let's check if the stream is currently enabled
+    if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream) ||
+        !LL_USART_IsActiveFlag_TXE(usart->USARTx))
+      return 0;
+  } else if (LL_USART_IsEnabledIT_TXE(usart->USARTx)) {
+    return 0;
+  }
+
+  return LL_USART_IsActiveFlag_TXE(usart->USARTx);
+}
+
 void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
 {
   // TODO: check if everything is properly initialised, this seems to block when
@@ -340,23 +368,23 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
 
     switch(usart->txDMA_Stream) {
     case LL_DMA_STREAM_1:
-      while (LL_DMA_IsActiveFlag_TC1(usart->txDMA));
+      while (!LL_DMA_IsActiveFlag_TC1(usart->txDMA));
       LL_DMA_ClearFlag_TC1(usart->txDMA);
       break;
     case LL_DMA_STREAM_3:
-      while (LL_DMA_IsActiveFlag_TC3(usart->txDMA));
+      while (!LL_DMA_IsActiveFlag_TC3(usart->txDMA));
       LL_DMA_ClearFlag_TC3(usart->txDMA);
       break;
     case LL_DMA_STREAM_5:
-      while (LL_DMA_IsActiveFlag_TC5(usart->txDMA));
+      while (!LL_DMA_IsActiveFlag_TC5(usart->txDMA));
       LL_DMA_ClearFlag_TC5(usart->txDMA);
       break;
     case LL_DMA_STREAM_6:
-      while (LL_DMA_IsActiveFlag_TC6(usart->txDMA));
+      while (!LL_DMA_IsActiveFlag_TC6(usart->txDMA));
       LL_DMA_ClearFlag_TC6(usart->txDMA);
       break;
     case LL_DMA_STREAM_7:
-      while (LL_DMA_IsActiveFlag_TC7(usart->txDMA));
+      while (!LL_DMA_IsActiveFlag_TC7(usart->txDMA));
       LL_DMA_ClearFlag_TC7(usart->txDMA);
       break;
     }
@@ -368,12 +396,83 @@ void stm32_usart_enable_rx(const stm32_usart_t* usart)
   _half_duplex_input(usart);
 }
 
+static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
+{
+  uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;
+  LL_RCC_ClocksTypeDef rcc_clocks;
+
+  LL_RCC_GetSystemClocksFreq(&rcc_clocks);
+  if (USARTx == USART1) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  } else if (USARTx == USART2) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#if defined(USART3)
+  else if (USARTx == USART3) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* USART3 */
+#if defined(USART6)
+  else if (USARTx == USART6) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* USART6 */
+#if defined(UART4)
+  else if (USARTx == UART4) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART4 */
+#if defined(UART5)
+  else if (USARTx == UART5) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART5 */
+#if defined(UART7)
+  else if (USARTx == UART7) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART7 */
+#if defined(UART8)
+  else if (USARTx == UART8) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART8 */
+#if defined(UART9)
+  else if (USARTx == UART9) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* UART9 */
+#if defined(UART10)
+  else if (USARTx == UART10) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* UART10 */
+
+  return periphclk;
+}
+
+uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart)
+{
+  auto periphclk = _get_usart_periph_clock(usart->USARTx);
+  return LL_USART_GetBaudRate(usart->USARTx, periphclk, LL_USART_OVERSAMPLING_16);
+}
+
+void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
+{
+  auto periphclk = _get_usart_periph_clock(usart->USARTx);
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_OVERSAMPLING_16, baudrate);
+}
+
 #define USART_FLAG_ERRORS \
   (LL_USART_SR_ORE | LL_USART_SR_NE | LL_USART_SR_FE | LL_USART_SR_PE)
 
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
 {
   uint32_t status = LL_USART_ReadReg(usart->USARTx, SR);
+
+  // cache these first, as RXNE might clear SR
+  uint32_t idle = (status & LL_USART_SR_IDLE);
+  uint32_t txe = (status & LL_USART_SR_TXE);
 
   // TC is only enabled with 2-wire half-duplex when TX DMA was in use
   if (LL_USART_IsEnabledIT_TC(usart->USARTx) && (status & LL_USART_SR_TC)) {
@@ -414,7 +513,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   }
 
   // IRQ based send: TXE IRQ is enabled only during transfer
-  if (LL_USART_IsEnabledIT_TXE(usart->USARTx) && (status & LL_USART_SR_TXE)) {
+  if (LL_USART_IsEnabledIT_TXE(usart->USARTx) && txe) {
 
     uint8_t data;
     if (cb->on_send && cb->on_send(&data)) {
@@ -422,6 +521,12 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
     } else {
       LL_USART_DisableIT_TXE(usart->USARTx);
     }
+  }
+
+  if (LL_USART_IsEnabledIT_IDLE(usart->USARTx) && idle) {
+    // SR clear sequence
+    status = LL_USART_ReadReg(usart->USARTx, DR);
+    if (cb->on_idle) cb->on_idle();
   }
 }
 

@@ -34,6 +34,10 @@
   #include "opentx.h"
 #endif
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -226,7 +230,7 @@ void boardInit()
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();
-  init1msTimer();
+  init5msTimer();
   __enable_irq();
   usbInit();
 
