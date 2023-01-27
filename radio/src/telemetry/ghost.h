@@ -105,10 +105,6 @@ enum GhstVtxBand
   GHST_VTX_BAND_COUNT
 };
 
-void processGhostTelemetryData(uint8_t data);
-void ghostSetDefault(int index, uint8_t id, uint8_t subId);
-uint8_t getGhostModuleAddr();
-
 #if SPORT_MAX_BAUDRATE < 400000
 // For radios which can't support telemetry at high rates, offer baud rate choices
 // (modified vs. unmodified radios)
@@ -164,4 +160,9 @@ enum GhostFrames
   GHST_FRAME_CHANNEL,
   GHST_MENU_CONTROL
 };
+
+uint8_t getGhostModuleAddr();
+
+void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length);
+void ghostSetDefault(int index, uint8_t id, uint8_t subId);
 

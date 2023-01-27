@@ -201,7 +201,7 @@ static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8
   // rxBuffer[1] holds the packet length-2, check if the whole packet was received
   while (*len > 4 && (buffer[1]+2) == *len) {
     if (_checkFrameCRC(buffer)) {
-#if defined(BLUETOOTH)
+#if defined(BLUETOOTH) // TODO: generic telemetry mirror to BT
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
           bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
         bluetooth.write(buffer, *len);

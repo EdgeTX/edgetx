@@ -47,7 +47,7 @@
 #endif
 
 #if defined(GHOST)
-#include "telemetry/ghost.h"
+#include "pulses/ghost.h"
 #endif
 
 #if defined(MULTIMODULE)
@@ -437,8 +437,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:
-      // EXTERNAL_MODULE_ON();
-      // mixerSchedulerSetPeriod(EXTERNAL_MODULE, GHOST_PERIOD);
+      _init_module(mod, module, &GhostDriver);
       break;
 #endif
 

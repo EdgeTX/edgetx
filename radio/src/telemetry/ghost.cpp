@@ -91,9 +91,13 @@ const GhostSensor ghostSensors[] = {
   {0x00,                     NULL,                  UNIT_RAW,               0},
 };
 
-uint8_t getGhostModuleAddr() {
+uint8_t getGhostModuleAddr()
+{
 #if SPORT_MAX_BAUDRATE < 400000
-  return g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate == GHST_TELEMETRY_RATE_400K ? GHST_ADDR_MODULE_SYM : GHST_ADDR_MODULE_ASYM;
+  return g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate ==
+                 GHST_TELEMETRY_RATE_400K
+             ? GHST_ADDR_MODULE_SYM
+             : GHST_ADDR_MODULE_ASYM;
 #else
   return GHST_ADDR_MODULE_SYM;
 #endif
@@ -131,76 +135,78 @@ void processGhostTelemetryValueString(const GhostSensor * sensor, const char * s
   }
 }
 
-bool checkGhostTelemetryFrameCRC()
+static bool checkGhostTelemetryFrameCRC(const uint8_t* frame, uint32_t len)
 {
-  uint8_t len = telemetryRxBuffer[1];
-  uint8_t crc = crc8(&telemetryRxBuffer[2], len - 1);
-  return (crc == telemetryRxBuffer[len + 1]);
+  uint8_t crc = crc8(frame, len - 1);
+  return (crc == frame[len - 1]);
 }
 
 // hifirst
-uint16_t getTelemetryValue_u16(uint8_t index)
+static uint16_t _get_u16(const uint8_t* frame, uint8_t offset)
 {
-  return (telemetryRxBuffer[index] << 8) | telemetryRxBuffer[index + 1];
+  return (frame[offset] << 8) | frame[offset + 1];
 }
 
 // lofirst
-uint16_t getTelemetryValue_u16le(uint8_t index)
+static uint16_t _get_u16le(const uint8_t* frame, uint8_t offset)
 {
-  return (telemetryRxBuffer[index + 1] << 8) | telemetryRxBuffer[index];
+  return (frame[offset + 1] << 8) | frame[offset];
 }
 
 // hifirst
-uint32_t getTelemetryValue_s32(uint8_t index)
+static uint32_t _get_s32(const uint8_t* frame, uint8_t offset)
 {
   uint32_t val = 0;
   for (int i = 0; i < 4; ++i)
-    val <<= 8, val |= telemetryRxBuffer[index + i];
+    val <<= 8, val |= frame[offset + i];
   return val;
 }
 
 // lofirst
-uint32_t getTelemetryValue_s32le(uint8_t index)
+static uint32_t _get_s32le(const uint8_t* frame, uint8_t offset)
 {
   uint32_t val = 0;
   for (int i = 0; i < 4; ++i)
-    val <<= 8, val |= telemetryRxBuffer[index + 3 - i];
+    val <<= 8, val |= frame[offset + 3 - i];
   return val;
 }
 
-void processGhostTelemetryFrame()
+void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length)
 {
-  if (!checkGhostTelemetryFrameCRC()) {
+  uint8_t frame_len = buffer[1];
+  auto frame = buffer + 2;
+  if (!checkGhostTelemetryFrameCRC(frame, frame_len)) {
     TRACE("[GS] CRC error");
     return;
   }
 
-  uint8_t id = telemetryRxBuffer[2];
+  uint8_t id = frame[0];
   switch(id) {
     case GHST_DL_OPENTX_SYNC:
     {
-      uint32_t update_interval = getTelemetryValue_s32(3);
-      int32_t  offset = getTelemetryValue_s32(7);
+      uint32_t update_interval = _get_s32(frame, 1);
+      int32_t  offset = _get_s32(frame, 5);
 
       // values are in units of 100ns
       update_interval /= 10;
       offset /= 10;
 
-      // TODO
-      getModuleSyncStatus(1/*EXTERNAL_MODULE*/).update(update_interval, offset);
+      getModuleSyncStatus(module).update(update_interval, offset);
     }
     break;
 
     case GHST_DL_LINK_STAT:
     {
 #if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY && bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(telemetryRxBuffer, telemetryRxBufferCount);
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(buffer, length);
       }
 #endif
-      uint8_t rssiVal = min<uint8_t>(telemetryRxBuffer[3], 120); // RSSI is a negative value, but sent as a positive integer.
-      uint8_t lqVal = min<uint8_t>(telemetryRxBuffer[4], 100);
-      uint8_t snrVal = min<uint8_t>(telemetryRxBuffer[5], 100);
+      // RSSI is a negative value, but sent as a positive integer.
+      uint8_t rssiVal = min<uint8_t>(frame[1], 120);
+      uint8_t lqVal = min<uint8_t>(frame[2], 100);
+      uint8_t snrVal = min<uint8_t>(frame[3], 100);
 
       processGhostTelemetryValue(GHOST_ID_RX_RSSI, - rssiVal);
       processGhostTelemetryValue(GHOST_ID_RX_LQ, lqVal);
@@ -216,10 +222,10 @@ void processGhostTelemetryFrame()
         telemetryStreaming = 0;
       }
 
-      processGhostTelemetryValue(GHOST_ID_TX_POWER, getTelemetryValue_u16(6));
-      processGhostTelemetryValue(GHOST_ID_FRAME_RATE, getTelemetryValue_u16(8));
-      processGhostTelemetryValue(GHOST_ID_TOTAL_LATENCY, getTelemetryValue_u16(10));
-      uint8_t rfModeEnum = min<uint8_t>(telemetryRxBuffer[12], GHST_RF_PROFILE_MAX);
+      processGhostTelemetryValue(GHOST_ID_TX_POWER, _get_u16(frame, 4));
+      processGhostTelemetryValue(GHOST_ID_FRAME_RATE, _get_u16(frame, 6));
+      processGhostTelemetryValue(GHOST_ID_TOTAL_LATENCY, _get_u16(frame, 8));
+      uint8_t rfModeEnum = min<uint8_t>(frame[10], GHST_RF_PROFILE_MAX);
 
       // RF mode string, one char at a time
       const GhostSensor * sensor = getGhostSensor(GHOST_ID_RF_MODE);
@@ -231,18 +237,19 @@ void processGhostTelemetryFrame()
     case GHST_DL_VTX_STAT:
     {
 #if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY && bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(telemetryRxBuffer, telemetryRxBufferCount);
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(buffer, length);
       }
 #endif
-      uint8_t vtxBandEnum = min<uint8_t>(telemetryRxBuffer[8], GHST_VTX_BAND_MAX);
+      uint8_t vtxBandEnum = min<uint8_t>(frame[6], GHST_VTX_BAND_MAX);
 
       const GhostSensor * sensor = getGhostSensor(GHOST_ID_VTX_BAND);
       const char * vtxBandString = ghstVtxBandName[vtxBandEnum];
 
-      processGhostTelemetryValue(GHOST_ID_VTX_FREQ, getTelemetryValue_u16(4));
-      processGhostTelemetryValue(GHOST_ID_VTX_POWER, getTelemetryValue_u16(6));
-      processGhostTelemetryValue(GHOST_ID_VTX_CHAN, min<uint8_t>(telemetryRxBuffer[9], 8));
+      processGhostTelemetryValue(GHOST_ID_VTX_FREQ, _get_u16(frame, 2));
+      processGhostTelemetryValue(GHOST_ID_VTX_POWER, _get_u16(frame, 4));
+      processGhostTelemetryValue(GHOST_ID_VTX_CHAN, min<uint8_t>(frame[7], 8));
       processGhostTelemetryValueString(sensor, vtxBandString);
       break;
     }
@@ -251,7 +258,7 @@ void processGhostTelemetryFrame()
     {
       GhostMenuFrame * packet;
       GhostMenuData * lineData;
-      packet = (GhostMenuFrame * ) telemetryRxBuffer;
+      packet = (GhostMenuFrame * )buffer;
       lineData = (GhostMenuData *) &reusableBuffer.ghostMenu.line[packet->lineIndex];
       lineData->splitLine = 0;
       reusableBuffer.ghostMenu.menuStatus = packet->menuStatus;
@@ -271,39 +278,42 @@ void processGhostTelemetryFrame()
 
     case GHST_DL_PACK_STAT: {
 #if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY && bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(telemetryRxBuffer, telemetryRxBufferCount);
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(buffer, length);
       }
 #endif
-      processGhostTelemetryValue(GHOST_ID_PACK_VOLTS, getTelemetryValue_u16le(3));
-      processGhostTelemetryValue(GHOST_ID_PACK_AMPS, getTelemetryValue_u16le(5));
-      processGhostTelemetryValue(GHOST_ID_PACK_MAH, getTelemetryValue_u16le(7) * 10);
+      processGhostTelemetryValue(GHOST_ID_PACK_VOLTS, _get_u16le(frame, 1));
+      processGhostTelemetryValue(GHOST_ID_PACK_AMPS, _get_u16le(frame, 3));
+      processGhostTelemetryValue(GHOST_ID_PACK_MAH, _get_u16le(frame, 5) * 10);
       break;
     }
 
     case GHST_DL_GPS_PRIMARY: {
 #if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY && bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(telemetryRxBuffer, telemetryRxBufferCount);
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(buffer, length);
       }
 #endif
-      processGhostTelemetryValue(GHOST_ID_GPS_LAT, ((int32_t)getTelemetryValue_s32le(3)) / 10);  
-      processGhostTelemetryValue(GHOST_ID_GPS_LONG, ((int32_t)getTelemetryValue_s32le(7)) / 10);
-      processGhostTelemetryValue(GHOST_ID_GPS_ALT, (int16_t)getTelemetryValue_u16le(11));  
+      processGhostTelemetryValue(GHOST_ID_GPS_LAT, ((int32_t)_get_s32le(frame, 1)) / 10);  
+      processGhostTelemetryValue(GHOST_ID_GPS_LONG, ((int32_t)_get_s32le(frame, 5)) / 10);
+      processGhostTelemetryValue(GHOST_ID_GPS_ALT, (int16_t)_get_u16le(frame, 9));
       break; 
     }
 
     case GHST_DL_GPS_SECONDARY: {
 #if defined(BLUETOOTH)
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY && bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(telemetryRxBuffer, telemetryRxBufferCount);
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(buffer, length);
       }
 #endif
-      processGhostTelemetryValue(GHOST_ID_GPS_HDG, getTelemetryValue_u16le(5) / 10);   
+      processGhostTelemetryValue(GHOST_ID_GPS_HDG, _get_u16le(frame, 3) / 10);   
 
       // ground speed is passed via GHST as cm/s, converted to km/h for OpenTx
-      processGhostTelemetryValue(GHOST_ID_GPS_GSPD, (getTelemetryValue_u16le(3) * 36 + 50) / 100);   
-      processGhostTelemetryValue(GHOST_ID_GPS_SATS, telemetryRxBuffer[7]);   
+      processGhostTelemetryValue(GHOST_ID_GPS_GSPD, (_get_u16le(frame, 1) * 36 + 50) / 100);
+      processGhostTelemetryValue(GHOST_ID_GPS_SATS, frame[5]);
       break; 
     }
     case GHST_DL_MAGBARO: {
@@ -312,41 +322,16 @@ void processGhostTelemetryFrame()
     }
 #if defined(LUA)
     default:
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(telemetryRxBufferCount-2) ) {
-        for (uint8_t i=1; i<telemetryRxBufferCount-1; i++) {
-          // destination address and CRC are skipped
-          luaInputTelemetryFifo->push(telemetryRxBuffer[i]);
+      // destination address and CRC are skipped
+      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(length - 2) ) {
+        for (uint8_t i = 1; i < length - 1; i++) {
+          luaInputTelemetryFifo->push(buffer[i]);
         }
       }
       break;
 #endif
   }
 }
-
-void processGhostTelemetryData(uint8_t data)
-{
-  if (telemetryRxBufferCount == 0 && data != GHST_ADDR_RADIO) {
-    TRACE("[GH] address 0x%02X error", data);
-    return;
-  }
-
-  if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-    telemetryRxBuffer[telemetryRxBufferCount++] = data;
-  }
-  else {
-    TRACE("[GH] array size %d error", telemetryRxBufferCount);
-    telemetryRxBufferCount = 0;
-  }
-
-  if (telemetryRxBufferCount > 4) {
-    uint8_t length = telemetryRxBuffer[1];
-    if (length + 2 == telemetryRxBufferCount) {
-      processGhostTelemetryFrame();
-      telemetryRxBufferCount = 0;
-    }
-  }
-}
-
 
 void ghostSetDefault(int index, uint8_t id, uint8_t subId)
 {
