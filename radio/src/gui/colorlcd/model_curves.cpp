@@ -159,27 +159,27 @@ void ModelCurvesPage::presetMenu(FormWindow * window, uint8_t index)
   menu->updateLines();
 }
 
-void ModelCurvesPage::newCV(FormWindow * window, bool presetCV)
+void ModelCurvesPage::newCV(FormWindow *window, bool presetCV)
 {
-  Menu* menu = new Menu(Layer::back());
+  Menu *menu = new Menu(Layer::back());
   menu->setTitle(STR_CURVE);
   char s[6] = "CVxx";
 
-  // search for unused switches
+  // search for unused slot
   for (uint8_t i = 0; i < MAX_CURVES; i += 1) {
     if (!isCurveUsed(i)) {
-      strAppendUnsigned(&s[2], i+1);
-      menu->addLineBuffered(s, [=]() {
-        focusIndex = i;
-        if (presetCV) {
-          presetMenu(window, i);
-        } else {
-          CurveHeader &curve = g_model.curves[i];
-          int8_t * points = curveAddress(i);
-          initPoints(curve, points);
-          editCurve(window, i);
-        }
-      });
+        strAppendUnsigned(&s[2], i + 1);
+        menu->addLineBuffered(s, [=]() {
+          focusIndex = i;
+          if (presetCV) {
+            presetMenu(window, i);
+          } else {
+            CurveHeader &curve = g_model.curves[i];
+            int8_t *points = curveAddress(i);
+            initPoints(curve, points);
+            editCurve(window, i);
+          }
+        });
     }
   }
   menu->updateLines();
@@ -282,14 +282,17 @@ void ModelCurvesPage::build(FormWindow * window)
   if (curveIndex < MAX_CURVES) {
     if ((curveIndex % PER_ROW) == 0) {
       line = form->newLine(&grid);
-      lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+      lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
+                            LV_GRID_ALIGN_SPACE_BETWEEN);
     }
 
-    addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, LV_SYMBOL_PLUS, [=]() {
-      plusPopup(window);
-      return 0;
-    });
+    addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H},
+                               LV_SYMBOL_PLUS, [=]() {
+                                 plusPopup(window);
+                                 return 0;
+                               });
 
-    lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER,
+                         curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
   }
 }
