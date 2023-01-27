@@ -24,29 +24,6 @@
 #include "tabsgroup.h"
 #include "page.h"
 #include "window.h"
-#include "numberedit.h"
-
-class GVarButton: public Button
-{
-  public:
-    GVarButton(FormGroup * parent, const rect_t & rect, uint8_t gvar);
-
-  protected:
-    void checkEvents() override;
-
-  protected:
-    uint8_t gvarIdx;
-    int lines;
-    int32_t gvarSum = 0; // used for invalidation
-    uint8_t currentFlightMode = 0; // used for invalidation
-    StaticText* labels[MAX_FLIGHT_MODES];
-    StaticText* valueTexts[MAX_FLIGHT_MODES];
-    gvar_t values[MAX_FLIGHT_MODES];
-
-    void build();
-    void updateValueText(uint8_t flightMode);
-
-};
 
 class ModelGVarsPage: public PageTab
 {
@@ -59,51 +36,4 @@ class ModelGVarsPage: public PageTab
   protected:
     void build(FormWindow * window) override;
     void rebuild(FormWindow * window);
-};
-
-class GVarRenderer: public Window
-{
-  friend class GVarEditWindow;
-
-  public:
-    GVarRenderer(Window * window, rect_t rect, uint8_t gvarIndex) :
-      Window(window, rect),
-      index(gvarIndex)
-    {
-    }
-
-  protected:
-    void paint(BitmapBuffer * dc) override;
-    void checkEvents() override;
-    bool isUpdated();
-
-  protected:
-    uint8_t index;
-    gvar_t lastGVar = 0;
-    uint8_t lastFlightMode = 0;
-    bool updated = false;
-};
-
-
-class GVarEditWindow: public Page
-{
-  public:
-    explicit GVarEditWindow(uint8_t gvarIndex) :
-      Page(ICON_MODEL_GVARS),
-      index(gvarIndex)
-    {
-      buildHeader(&header);
-      buildBody(&body);
-    }
-
-  protected:
-    uint8_t index;
-    NumberEdit * min = nullptr;
-    NumberEdit * max = nullptr;
-    NumberEdit * values[MAX_FLIGHT_MODES] = {};
-    GVarRenderer * gVarInHeader = nullptr;
-    void buildHeader(Window * window);
-    void buildBody(FormWindow * window);
-    void setProperties(int onlyForFlightMode = -1);
-    void checkEvents() override;
 };
