@@ -52,7 +52,6 @@ class SpecialFunctionEditPage : public Page
   uint8_t index;
   FormWindow *specialFunctionOneWindow = nullptr;
   StaticText *headerSF = nullptr;
-  StaticText *sfSwitchText = nullptr;
   bool active = false;
 
   bool isActive() const
@@ -364,7 +363,7 @@ class SpecialFunctionEditPage : public Page
 
     // Switch
     auto line = window->newLine(&grid);
-    sfSwitchText = new StaticText(line, rect_t{}, STR_SF_SWITCH, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_SF_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
                          GET_SET_DEFAULT(CFN_SWITCH(cfn)));
