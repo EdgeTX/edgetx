@@ -50,26 +50,16 @@ extern FIL g_bluetoothFile;
   #define SWAP32(val)      (__builtin_bswap32(val))
 #endif
 
-// extern Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
-// extern Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
-
 Bluetooth bluetooth;
 
 void Bluetooth::write(const uint8_t * data, uint8_t length)
 {
-  // if (btTxFifo.hasSpace(length)) {
   BLUETOOTH_TRACE_VERBOSE("BT>");
   for (int i = 0; i < length; i++) {
     BLUETOOTH_TRACE_VERBOSE(" %02X", data[i]);
   }
   BLUETOOTH_TRACE_VERBOSE(CRLF);
   bluetoothWrite(data, length);
-  // }
-  // else {
-  //   BLUETOOTH_TRACE("[BT] TX fifo full!" CRLF);
-  // }
-
-  // bluetoothWriteWakeup();
 }
 
 static const char _bt_crlf[] = "\r\n";

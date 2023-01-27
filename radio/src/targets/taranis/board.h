@@ -938,17 +938,10 @@ void setTopBatteryValue(uint32_t volts);
 
 #define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-
 #if defined(CROSSFIRE)
 #define TELEMETRY_FIFO_SIZE             128
 #else
 #define TELEMETRY_FIFO_SIZE             64
-#endif
-
-extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 #endif
 
 #define INTMODULE_FIFO_SIZE            128

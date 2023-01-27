@@ -42,6 +42,11 @@ struct stm32_softserial_rx_port {
   uint32_t      EXTI_SysLine;
   uint32_t      EXTI_Line;
 
+  // Input/output direction pin
+  GPIO_TypeDef* dir_GPIOx;
+  uint32_t      dir_Pin;
+  uint32_t      dir_Input;
+
   const stm32_serial_buffer buffer;
 };
 

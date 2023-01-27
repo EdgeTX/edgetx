@@ -303,6 +303,9 @@ static const stm32_softserial_rx_port sportSoftRX = {
   .EXTI_Port = TELEMETRY_EXTI_PORT,
   .EXTI_SysLine = TELEMETRY_EXTI_SYS_LINE,
   .EXTI_Line = TELEMETRY_EXTI_LINE,
+  .dir_GPIOx = TELEMETRY_DIR_GPIO,
+  .dir_Pin = TELEMETRY_DIR_GPIO_PIN,
+  .dir_Input = TELEMETRY_SET_INPUT,
   // re-use S.PORT serial RX buffer
   .buffer = { SportModule_RXBuffer, TELEMETRY_FIFO_SIZE },
 };

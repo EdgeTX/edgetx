@@ -387,7 +387,7 @@ int trainerModuleSbusGetByte(uint8_t* data)
 }
 
 #elif defined(TRAINER_MODULE_SBUS_USART)
-#include "stm32_usart_driver.h"
+#include "stm32_serial_driver.h"
 
 static const LL_GPIO_InitTypeDef sbus_trainer_USART_PinDef = {
   .Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
@@ -412,23 +412,25 @@ static const stm32_usart_t sbus_trainer_USART = {
   .rxDMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL,
 };
 
-static DMAFifo<32> sbus_trainer_fifo __DMA (TRAINER_MODULE_SBUS_DMA_STREAM);
+DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
+
+static void* _sbus_trainer_ctx = nullptr;
 
 void init_trainer_module_sbus()
 {
-  stm32_usart_init(&sbus_trainer_USART, &sbusTrainerParams);
-  stm32_usart_init_rx_dma(&sbus_trainer_USART, sbus_trainer_fifo.buffer(),
-                          sbus_trainer_fifo.size());
+  _sbus_trainer_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SbusTrainer),
+                                             &sbusTrainerParams);
 }
 
 void stop_trainer_module_sbus()
 {
-  stm32_usart_deinit(&sbus_trainer_USART);
+  STM32SerialDriver.deinit(_sbus_trainer_ctx);
+  _sbus_trainer_ctx = nullptr;
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
 {
-  return sbus_trainer_fifo.pop(*data);
+  return STM32SerialDriver.getByte(_sbus_trainer_ctx, data);
 }
 
 #else

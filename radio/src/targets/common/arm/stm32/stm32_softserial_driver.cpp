@@ -80,22 +80,31 @@ static void _softserial_init_rx(const stm32_softserial_rx_port* port,
   // TODO: enable_tim_clock(port->TIMx);
   LL_TIM_Init(port->TIMx, &timInit);
 
+  LL_TIM_ClearFlag_UPDATE(port->TIMx);
+  LL_TIM_EnableIT_UPDATE(port->TIMx);
+
   NVIC_SetPriority(port->TIM_IRQn, 0);
   NVIC_EnableIRQ(port->TIM_IRQn);
 
-  // TODO: init TELEMETRY_RX_GPIO_PIN (should be done the user)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
+
+  if (port->dir_GPIOx) {
+    pinInit.Pin = port->dir_Pin;
+    pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+    LL_GPIO_Init(port->dir_GPIOx, &pinInit);
+    if (!port->dir_Input) {
+      LL_GPIO_ResetOutputPin(port->dir_GPIOx, port->dir_Pin);
+    } else {
+      LL_GPIO_SetOutputPin(port->dir_GPIOx, port->dir_Pin);
+    }
+  }
 
   pinInit.Pin = port->GPIO_Pin;
   pinInit.Mode = LL_GPIO_MODE_INPUT;
   pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   pinInit.Pull = LL_GPIO_PULL_DOWN;
-
   LL_GPIO_Init(port->GPIOx, &pinInit);
-
-  // TODO: telemetryInitDirPin();
-  // -> should be done outside this driver!
 
   // Connect EXTI line to TELEMETRY RX pin
   LL_SYSCFG_SetEXTISource(port->EXTI_Port, port->EXTI_SysLine);
@@ -158,7 +167,7 @@ static int stm32_softserial_rx_get_byte(void* ctx, uint8_t* data)
   if (rxWidx == rxRidx) return 0;
 
   *data = rxBuffer[rxRidx];
-  rxRidx = (rxWidx + 1) & (rxBufLen - 1);
+  rxRidx = (rxRidx + 1) & (rxBufLen - 1);
   
   return 1;
 }
