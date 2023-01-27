@@ -22,20 +22,21 @@
 #include "stm32_serial_driver.h"
 #include "stm32_pulse_driver.h"
 
-#if 0
-// Single direction soft-serial (either RX or TX)
+//
+// RX soft-serial
+//
+// Warning: only a single instance can be
+//          used at the same time.
 //
 // etx_serial_driver.init() shall be passed
 // this struct cast as (void*)
 //
-struct stm32_softserial_port {
+struct stm32_softserial_rx_port {
 
   GPIO_TypeDef* GPIOx;
   uint32_t      GPIO_Pin;
-
-  // only required for RX
   TIM_TypeDef*  TIMx;
-  uint16_t      TIM_Prescaler;
+  uint32_t      TIM_Freq;
   IRQn_Type     TIM_IRQn;
   uint32_t      EXTI_Port;
   uint32_t      EXTI_SysLine;
@@ -44,8 +45,13 @@ struct stm32_softserial_port {
   const stm32_serial_buffer buffer;
 };
 
-void stm32_softserial_timer_isr(const stm32_softserial_port* port);
-#endif
+void stm32_softserial_rx_timer_isr(const stm32_softserial_rx_port* port);
+
+extern const etx_serial_driver_t STM32SoftSerialRxDriver;
+
+//
+// TX soft-serial
+//
 
 #define STM32_SOFTSERIAL_BUFFERED_PULSES 8
 
@@ -76,6 +82,9 @@ struct stm32_softserial_tx_state {
   uint32_t                 serial_size;
 };
 
+// etx_serial_driver.init() shall be passed
+// this struct cast as (void*)
+//
 struct stm32_softserial_tx_port {
   const stm32_pulse_timer_t* tim;
   stm32_softserial_tx_state* st;

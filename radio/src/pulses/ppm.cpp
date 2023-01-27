@@ -96,13 +96,6 @@ static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
   return data - start;
 }
 
-// extmoduleSendNextFramePpm(extmodulePulsesData.ppm.pulses,
-//                           extmodulePulsesData.ppm.ptr -
-//                               extmodulePulsesData.ppm.pulses,
-//                           GET_MODULE_PPM_DELAY(EXTERNAL_MODULE),
-//                           GET_MODULE_PPM_POLARITY(EXTERNAL_MODULE));
-// mixerSchedulerSetPeriod(EXTERNAL_MODULE, PPM_PERIOD(EXTERNAL_MODULE));
-
 static void* ppmInit(uint8_t module)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)

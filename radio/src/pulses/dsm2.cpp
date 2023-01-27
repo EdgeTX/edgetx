@@ -186,6 +186,8 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &params);
 
   // TODO: check telemetry init...
+  params.direction = ETX_Dir_RX;
+  modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
 
   EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, period);

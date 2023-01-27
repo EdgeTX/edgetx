@@ -294,35 +294,24 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 
 DEFINE_STM32_SERIAL_PORT(SportModule, sportUSART, TELEMETRY_FIFO_SIZE, 0);
 
-// static const stm32_softserial_port sportSoftRX = {
-//   .GPIOx = TELEMETRY_GPIO,
-//   .GPIO_Pin = TELEMETRY_RX_GPIO_PIN,
-//   .TIMx = TELEMETRY_TIMER,
-//   .TIM_Freq = PERI2_FREQUENCY * TIMER_MULT_APB2,
-//   .TIM_IRQn = TELEMETRY_TIMER_IRQn,
-//   .EXTI_Port = TELEMETRY_EXTI_PORT,
-//   .EXTI_SysLine = TELEMETRY_EXTI_SYS_LINE,
-//   .EXTI_Line = TELEMETRY_EXTI_LINE,
-//   // re-use S.PORT serial RX buffer
-//   .buffer = { SportModule_RXBuffer, TELEMETRY_FIFO_SIZE },
-// };
+static const stm32_softserial_rx_port sportSoftRX = {
+  .GPIOx = TELEMETRY_GPIO,
+  .GPIO_Pin = TELEMETRY_RX_GPIO_PIN,
+  .TIMx = TELEMETRY_TIMER,
+  .TIM_Freq = PERI2_FREQUENCY * TIMER_MULT_APB2,
+  .TIM_IRQn = TELEMETRY_TIMER_IRQn,
+  .EXTI_Port = TELEMETRY_EXTI_PORT,
+  .EXTI_SysLine = TELEMETRY_EXTI_SYS_LINE,
+  .EXTI_Line = TELEMETRY_EXTI_LINE,
+  // re-use S.PORT serial RX buffer
+  .buffer = { SportModule_RXBuffer, TELEMETRY_FIFO_SIZE },
+};
 
-// extern "C" void TELEMETRY_TIMER_IRQHandler()
-// {
-//   stm32_softserial_timer_isr(&sportSoftRX);
-// }
+extern "C" void TELEMETRY_TIMER_IRQHandler()
+{
+  stm32_softserial_rx_timer_isr(&sportSoftRX);
+}
 
-// static const stm32_softserial_port ppmSoftTX = {
-//   .GPIOx = EXTMODULE_TX_GPIO,
-//   .GPIO_Pin = EXTMODULE_TX_GPIO_PIN,
-//   .TIMx = nullptr,
-//   .TIM_Freq = 0,
-//   .TIM_IRQn = (IRQn_Type)0,
-//   .EXTI_Port = 0,
-//   .EXTI_SysLine = 0,
-//   .EXTI_Line = 0,
-//   .buffer = { nullptr, 0 },
-// };
 
 BEGIN_MODULE_PORTS()
 #if defined(INTMODULE_USART)
@@ -367,20 +356,19 @@ BEGIN_MODULE_PORTS()
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
-  // {
-  //   .port = ETX_MOD_PORT_SPORT_INV,
-  //   .type = ETX_MOD_TYPE_SERIAL,
-  //   .dir_flags = ETX_MOD_DIR_RX,
-  //   .drv = { .serial = &STM32SoftSerialDriver },
-  //   .hw_def = (void*)&sportSoftRX,
-  // },
+  {
+    .port = ETX_MOD_PORT_SPORT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .serial = &STM32SoftSerialRxDriver },
+    .hw_def = (void*)&sportSoftRX,
+  },
 #if defined(HARDWARE_EXTERNAL_MODULE)
   {
     .port = ETX_MOD_PORT_EXTERNAL_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .serial = &STM32SoftSerialTxDriver },
-    // .hw_def = (void*)&ppmSoftTX,
     .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
   },
 #endif
