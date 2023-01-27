@@ -108,7 +108,7 @@ class SensorValueLabel : public StaticText {
 
       // Draw a 'fresh' marker
       if (telemetryItem.isFresh())
-        dc->drawFilledCircle(5, 5, 4, COLOR_THEME_SECONDARY1);
+        dc->drawFilledCircle(5, 10, 4, COLOR_THEME_SECONDARY1);
     }
 
   protected:
@@ -580,14 +580,14 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   line = form->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
-  new StaticText(line, rect_t{}, "", 0, FONT(XS) | COLOR_THEME_PRIMARY1);         // Filler
+  grid2.nextCell();
 #endif
 
   // Sensors columns titles
   uint8_t sensorsCount = getTelemetrySensorsCount();
   if (sensorsCount > 0) {
     new StaticText(line, rect_t{}, STR_NAME, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    new StaticText(line, rect_t{}, "", 0, FONT(XS) | COLOR_THEME_PRIMARY1);         // Filler
+    grid2.nextCell();
     new StaticText(line, rect_t{}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
       new StaticText(line, rect_t{}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
