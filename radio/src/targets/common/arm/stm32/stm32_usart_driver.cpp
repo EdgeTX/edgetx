@@ -98,8 +98,11 @@ void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled)
 {
   if (enabled) {
     LL_USART_EnableIT_IDLE(usart->USARTx);
+    _enable_usart_irq(usart);
   } else {
     LL_USART_DisableIT_IDLE(usart->USARTx);
+    // TODO: check whether or not we should disable
+    // the IRQ all together
   }
 }
 
