@@ -1133,7 +1133,7 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 
 #if !defined(COLORLCD)
 
-const char* _tele_screen_type_lookup[] = {
+const char* const _tele_screen_type_lookup[] = {
   "NONE",
   "VALUES",
   "BARS",
@@ -1236,21 +1236,21 @@ static bool w_flightModes(const YamlNode* node, uint32_t val,
   return true;
 }
 
-static const char* _func_reset_param_lookup[] = {
+static const char* const _func_reset_param_lookup[] = {
   "Tmr1","Tmr2","Tmr3","All","Tele"
 };
 
-static const char* _func_failsafe_lookup[] = {
+static const char* const _func_failsafe_lookup[] = {
   "Int","Ext"
 };
 
-static const char* _func_sound_lookup[] = {
+static const char* const _func_sound_lookup[] = {
   "Bp1","Bp2","Bp3","Wrn1","Wrn2",
   "Chee","Rata","Tick","Sirn","Ring",
   "SciF","Robt","Chrp","Tada","Crck","Alrm"
 };
 
-static const char* _adjust_gvar_mode_lookup[] = {
+static const char* const _adjust_gvar_mode_lookup[] = {
   "Cst", "Src", "GVar", "IncDec"
 };
 
