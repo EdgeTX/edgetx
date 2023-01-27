@@ -52,14 +52,14 @@
   short tapCount = 0;
 #endif
 
-class OpenTxSim: public FXMainWindow
+class EdgeTxSim: public FXMainWindow
 {
-  FXDECLARE(OpenTxSim)
+  FXDECLARE(EdgeTxSim)
 
   public:
-    OpenTxSim(){};
-    OpenTxSim(FXApp* a);
-    ~OpenTxSim();
+    EdgeTxSim(){};
+    EdgeTxSim(FXApp* a);
+    ~EdgeTxSim();
     void updateKeysAndSwitches(bool start=false);
     long onKeypress(FXObject*, FXSelector, void*);
     long onMouseDown(FXObject*,FXSelector,void*);
@@ -82,19 +82,19 @@ class OpenTxSim: public FXMainWindow
 };
 
 // Message Map
-FXDEFMAP(OpenTxSim) OpenTxSimMap[] = {
+FXDEFMAP(EdgeTxSim) EdgeTxSimMap[] = {
   // Message_Type   _______ID____Message_Handler_______
-  FXMAPFUNC(SEL_TIMEOUT,   2,    OpenTxSim::onTimeout),
-  FXMAPFUNC(SEL_KEYPRESS,  0,    OpenTxSim::onKeypress),
-  FXMAPFUNC(SEL_LEFTBUTTONPRESS, 0, OpenTxSim::onMouseDown),
-  FXMAPFUNC(SEL_LEFTBUTTONRELEASE, 0, OpenTxSim::onMouseUp),
-  FXMAPFUNC(SEL_MOTION,    0,    OpenTxSim::onMouseMove),
+  FXMAPFUNC(SEL_TIMEOUT,   2,    EdgeTxSim::onTimeout),
+  FXMAPFUNC(SEL_KEYPRESS,  0,    EdgeTxSim::onKeypress),
+  FXMAPFUNC(SEL_LEFTBUTTONPRESS, 0, EdgeTxSim::onMouseDown),
+  FXMAPFUNC(SEL_LEFTBUTTONRELEASE, 0, EdgeTxSim::onMouseUp),
+  FXMAPFUNC(SEL_MOTION,    0,    EdgeTxSim::onMouseMove),
 };
 
-FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
+FXIMPLEMENT(EdgeTxSim, FXMainWindow, EdgeTxSimMap, ARRAYNUMBER(EdgeTxSimMap))
 
-OpenTxSim::OpenTxSim(FXApp* a):
-  FXMainWindow(a, "OpenTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
+EdgeTxSim::EdgeTxSim(FXApp* a):
+  FXMainWindow(a, "EdgeTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
 {
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
@@ -153,9 +153,9 @@ OpenTxSim::OpenTxSim(FXApp* a):
   getApp()->addTimeout(this, 2, 100);
 }
 
-OpenTxSim::~OpenTxSim()
+EdgeTxSim::~EdgeTxSim()
 {
-  TRACE("OpenTxSim::~OpenTxSim()");
+  TRACE("EdgeTxSim::~EdgeTxSim()");
 
   simuStop();
   stopAudioThread();
@@ -181,7 +181,7 @@ OpenTxSim::~OpenTxSim()
 #endif
 }
 
-void OpenTxSim::createBitmap(int index, uint16_t *data, int x, int y, int w, int h)
+void EdgeTxSim::createBitmap(int index, uint16_t *data, int x, int y, int w, int h)
 {
   FXPNGImage snapshot(getApp(), nullptr, IMAGE_OWNED, w, h);
 
@@ -206,7 +206,7 @@ void OpenTxSim::createBitmap(int index, uint16_t *data, int x, int y, int w, int
   }
 }
 
-void OpenTxSim::makeSnapshot(const FXDrawable* drawable)
+void EdgeTxSim::makeSnapshot(const FXDrawable* drawable)
 {
   // Construct and create an FXImage object
   FXPNGImage snapshot(getApp(), nullptr, 0, drawable->getWidth(), drawable->getHeight());
@@ -243,12 +243,12 @@ void OpenTxSim::makeSnapshot(const FXDrawable* drawable)
   }
 }
 
-void OpenTxSim::doEvents()
+void EdgeTxSim::doEvents()
 {
   getApp()->runOneEvent(false);
 }
 
-long OpenTxSim::onKeypress(FXObject *, FXSelector, void * v)
+long EdgeTxSim::onKeypress(FXObject *, FXSelector, void * v)
 {
   auto * evt = (FXEvent *)v;
 
@@ -261,7 +261,7 @@ long OpenTxSim::onKeypress(FXObject *, FXSelector, void * v)
   return 0;
 }
 
-long OpenTxSim::onMouseDown(FXObject *, FXSelector, void * v)
+long EdgeTxSim::onMouseDown(FXObject *, FXSelector, void * v)
 {
   FXEvent * evt = (FXEvent *)v;
   UNUSED(evt);
@@ -282,7 +282,7 @@ long OpenTxSim::onMouseDown(FXObject *, FXSelector, void * v)
   return 0;
 }
 
-long OpenTxSim::onMouseUp(FXObject*,FXSelector,void*v)
+long EdgeTxSim::onMouseUp(FXObject*,FXSelector,void*v)
 {
   FXEvent * evt = (FXEvent *)v;
   UNUSED(evt);
@@ -314,7 +314,7 @@ long OpenTxSim::onMouseUp(FXObject*,FXSelector,void*v)
   return 0;
 }
 
-long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
+long EdgeTxSim::onMouseMove(FXObject*,FXSelector,void*v)
 {
   FXEvent * evt = (FXEvent *)v;
   UNUSED(evt);
@@ -337,7 +337,7 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
   return 0;
 }
 
-void OpenTxSim::updateKeysAndSwitches(bool start)
+void EdgeTxSim::updateKeysAndSwitches(bool start)
 {
   static int keys[] = {
 #if defined(PCBNV14)
@@ -468,7 +468,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
 
 extern volatile uint32_t rotencDt;
 
-long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
+long EdgeTxSim::onTimeout(FXObject*, FXSelector, void*)
 {
   if (hasFocus()) {
 
@@ -515,7 +515,7 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
   #define BL_COLOR FXRGB(150, 200, 152)
 #endif
 
-void OpenTxSim::setPixel(int x, int y, FXColor color)
+void EdgeTxSim::setPixel(int x, int y, FXColor color)
 {
 #if LCD_ZOOM > 1
   for (int i=0; i<LCD_ZOOM; ++i) {
@@ -531,7 +531,7 @@ void OpenTxSim::setPixel(int x, int y, FXColor color)
 // from lcd driver
 void lcdFlushed();
 
-void OpenTxSim::refreshDisplay()
+void EdgeTxSim::refreshDisplay()
 {
   static bool lightEnabled = (bool)isBacklightEnabled();
 
@@ -594,13 +594,13 @@ void OpenTxSim::refreshDisplay()
   }
 }
 
-OpenTxSim * opentxSim;
+EdgeTxSim * edgetxSim;
 
 void doFxEvents()
 {
   //puts("doFxEvents");
-  opentxSim->getApp()->runOneEvent(false);
-  opentxSim->refreshDisplay();
+  edgetxSim->getApp()->runOneEvent(false);
+  edgetxSim->refreshDisplay();
 }
 
 int main(int argc, char ** argv)
@@ -612,7 +612,7 @@ int main(int argc, char ** argv)
   // We pass the "name" of the application, and its "vendor", the name
   // and vendor are used to search the registry database (which stores
   // persistent information e.g. fonts and colors).
-  FXApp application("OpenTX Simu", "OpenTX");
+  FXApp application("EdgeTX Simu", "EdgeTX");
 
   // Here we initialize the application.  We pass the command line arguments
   // because FOX may sometimes need to filter out some of the arguments.
@@ -626,15 +626,15 @@ int main(int argc, char ** argv)
   // drag handles, and so on the Window Manager is supposed to give this
   // window.
   //FXMainWindow *main=new FXMainWindow(&application, "Hello", nullptr, nullptr, DECOR_ALL);
-  opentxSim = new OpenTxSim(&application);
+  edgetxSim = new EdgeTxSim(&application);
   application.create();
 
   // Pretty self-explanatory:- this shows the window, and places it in the
   // middle of the screen.
 #ifndef __APPLE__
-  opentxSim->show(PLACEMENT_SCREEN);
+  edgetxSim->show(PLACEMENT_SCREEN);
 #else
-  opentxSim->show(); // Otherwise the main window gets centred across my two monitors, split down the middle.
+  edgetxSim->show(); // Otherwise the main window gets centred across my two monitors, split down the middle.
 #endif
 
 
@@ -657,9 +657,9 @@ int main(int argc, char ** argv)
 uint16_t anaIn(uint8_t chan)
 {
   if (chan < NUM_STICKS)
-    return opentxSim->sliders[chan]->getValue();
+    return edgetxSim->sliders[chan]->getValue();
   else if (chan < NUM_STICKS + NUM_POTS + NUM_SLIDERS)
-    return opentxSim->knobs[chan - NUM_STICKS]->getValue();
+    return edgetxSim->knobs[chan - NUM_STICKS]->getValue();
 #if defined(PCBTARANIS)
   else if (chan == TX_RTC_VOLTAGE)
     return 800; // 2.34V
@@ -675,5 +675,5 @@ uint16_t getAnalogValue(uint8_t index)
 
 void createBitmap(int index, uint16_t *data, int x, int y, int w, int h)
 {
-  opentxSim->createBitmap(index, data, x, y, w, h);
+  edgetxSim->createBitmap(index, data, x, y, w, h);
 }
