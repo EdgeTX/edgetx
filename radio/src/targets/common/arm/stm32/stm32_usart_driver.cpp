@@ -101,8 +101,9 @@ void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled)
     _enable_usart_irq(usart);
   } else {
     LL_USART_DisableIT_IDLE(usart->USARTx);
-    // TODO: check whether or not we should disable
-    // the IRQ all together
+    // Let's assume the port will be disabled soon
+    // and we don't need to figure out whether or
+    // not the IRQ needs to be disabled
   }
 }
 
@@ -198,8 +199,10 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 // - USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
 // - asymmetric bitrates for half-duplex (GHOST)
-// - ability to switch RX DMA OFF ??? (-> X12S)
-// - callback to be able to reply to FrSky's sensor polling (->outputTelemetryBuffer)
+//
+// - ??? ability to switch RX DMA OFF ??? (-> X12S)
+// - callback to be able to reply to FrSky's sensor polling
+//   (->outputTelemetryBuffer) probably best to use the IDLE IRQ
 //
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
@@ -217,9 +220,6 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     dirPinInit.Pin = usart->dir_Pin;
     dirPinInit.Mode = LL_GPIO_MODE_OUTPUT;
     LL_GPIO_Init(usart->dir_GPIOx, &dirPinInit);
-
-    if (params->direction & ETX_Dir_RX)
-      _half_duplex_input(usart);
   }
   
   LL_USART_InitTypeDef usartInit;
@@ -273,6 +273,10 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   if (params->direction & ETX_Dir_RX) {
     // IRQ based RX
     LL_USART_EnableIT_RXNE(usart->USARTx);
+
+    // half-duplex: start in input mode
+    if (usart->dir_GPIOx)
+      _half_duplex_input(usart);
   }
 
   if (((params->direction & ETX_Dir_TX) && !usart->txDMA) ||
