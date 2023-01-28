@@ -99,6 +99,9 @@ OpenTxSim::OpenTxSim(FXApp* a):
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
 #if defined(SIMU_AUDIO)
+  #if defined(_WIN32) || defined(_WIN64)
+  SDL_AudioInit("DirectSound");
+  #endif
   SDL_Init(SDL_INIT_AUDIO);
 #endif
 

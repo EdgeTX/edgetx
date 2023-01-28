@@ -221,6 +221,9 @@ int main(int argc, char *argv[])
   #endif
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
+    #if defined(_WIN32) || defined(_WIN64)
+    SDL_AudioInit("DirectSound");
+    #endif
   #endif
   if (SDL_Init(sdlFlags) < 0) {
     fprintf(stderr, "ERROR: couldn't initialize SDL: %s\n", SDL_GetError());
