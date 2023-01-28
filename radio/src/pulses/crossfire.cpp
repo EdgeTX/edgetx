@@ -134,14 +134,6 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static int crossfireGetByte(void* ctx, uint8_t* data)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto drv_ctx = modulePortGetCtx(mod_st->rx);
-  return drv->getByte(drv_ctx, data);
-}
-
 static bool _lenIsSane(uint8_t len)
 {
   // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
@@ -282,6 +274,5 @@ const etx_proto_driver_t CrossfireDriver = {
   .init = crossfireInit,
   .deinit = crossfireDeInit,
   .sendPulses = crossfireSendPulses,
-  .getByte = crossfireGetByte,
   .processData = crossfireProcessData,
 };

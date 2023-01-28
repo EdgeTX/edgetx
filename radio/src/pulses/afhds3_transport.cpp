@@ -237,24 +237,6 @@ void Transport::init(void* buffer, etx_module_state_t* mod_st)
   this->mod_st = mod_st;
 }
 
-void Transport::deinit()
-{
-  if (!mod_st) return;
-
-  auto module = modulePortGetModule(mod_st);
-
-  if (module == INTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-
-  if (module == EXTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
-  }
-
-  mixerSchedulerSetPeriod(module, 0);
-  modulePortDeInit(mod_st);
-}
-
 void Transport::clear()
 {
   // reset frame
@@ -383,15 +365,6 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
   }
 
   return false;
-}
-
-int Transport::getTelemetryByte(uint8_t* data)
-{
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto ctx = modulePortGetCtx(mod_st->rx);
-  if (!drv || !ctx) return 0;
-
-  return drv->getByte(ctx, data);
 }
 
 bool Transport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,

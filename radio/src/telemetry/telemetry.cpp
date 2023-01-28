@@ -25,6 +25,7 @@
 #include "pulses/flysky.h"
 #include "mixer_scheduler.h"
 #include "io/multi_protolist.h"
+#include "hal/module_port.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -226,19 +227,26 @@ inline bool isBadAntennaDetected()
 
 static inline bool pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
 {
-  if (!drv || !drv->getByte || !drv->processData) return false;
+  if (!drv || !drv->processData) return false;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
+  auto serial_ctx = modulePortGetCtx(mod_st->rx);
+
+  if (!serial_drv  || !serial_ctx || !serial_drv->getByte)
+    return false;
 
   uint8_t* rxBuffer = getTelemetryRxBuffer(module);
   uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
 
   uint8_t data;
-  if (drv->getByte(ctx, &data) > 0) {
+  if (serial_drv->getByte(serial_ctx, &data) > 0) {
     LOG_TELEMETRY_WRITE_START();
     do {
       telemetryMirrorSend(data);
       drv->processData(ctx, data, rxBuffer, &rxBufferCount);
       LOG_TELEMETRY_WRITE_BYTE(data);
-    } while (drv->getByte(ctx, &data) > 0);
+    } while (serial_drv->getByte(serial_ctx, &data) > 0);
   }
 
   return true;

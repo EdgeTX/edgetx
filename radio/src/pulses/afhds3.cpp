@@ -184,7 +184,6 @@ class ProtoState
     * @param resetFrameCount flag if current frame count should be reseted
     */
     void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st);
-    void deinit() { trsp.deinit(); }
 
     /**
      * Fills DMA buffers with frame to be send depending on actual state
@@ -195,11 +194,6 @@ class ProtoState
      * Sends prepared buffers
      */
     void sendFrame() { trsp.sendBuffer(); }
-
-    /**
-     * Fetch telemetry byte
-     */
-    int getTelemetryByte(uint8_t* data) { return trsp.getTelemetryByte(data); }
 
     /**
     * Gets actual module status into provided buffer
@@ -885,33 +879,40 @@ static void* initModule(uint8_t module)
   
   auto p_state = &protoState[module];
   p_state->init(module, pulsesGetModuleBuffer(module), mod_st);
+  mod_st->user_data = (void*)p_state;
 
   mixerSchedulerSetPeriod(module, period);
 
-  return p_state;
+  return mod_st;
 }
 
-static void deinitModule(void* context)
+static void deinitModule(void* ctx)
 {
-  auto p_state = (ProtoState*)context;
-  p_state->deinit();
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  if (module == INTERNAL_MODULE) {
+    EXTERNAL_MODULE_OFF();
+  }
+
+  if (module == EXTERNAL_MODULE) {
+    INTERNAL_MODULE_OFF();
+  }
+
+  mixerSchedulerSetPeriod(module, 0);
+  modulePortDeInit(mod_st);
 }
 
-static void sendPulses(void* context, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+static void sendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
   (void)buffer;
   (void)channels;
   (void)nChannels;
 
-  auto p_state = (ProtoState*)context;
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto p_state = (ProtoState*)mod_st->user_data;
   p_state->setupFrame();
   p_state->sendFrame();
-}
-
-static int getByte(void* context, uint8_t* data)
-{
-  auto p_state = (ProtoState*)context;
-  return p_state->getTelemetryByte(data);
 }
 
 etx_proto_driver_t ProtoDriver = {
@@ -919,7 +920,6 @@ etx_proto_driver_t ProtoDriver = {
   .init = initModule,
   .deinit = deinitModule,
   .sendPulses = sendPulses,
-  .getByte = getByte,
   .processData = processTelemetryData,
 };
 

@@ -175,7 +175,6 @@ class Transport
   
  public:
   void init(void* buffer, etx_module_state_t* mod_st);
-  void deinit();
 
   void clear();
   
@@ -199,8 +198,6 @@ class Transport
    * @return true if something was just sent
    */
   bool processQueue();
-
-  int getTelemetryByte(uint8_t* data);
 
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);

@@ -204,14 +204,6 @@ static void ghostSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8
   drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 }
 
-static int ghostGetByte(void* ctx, uint8_t* data)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto drv_ctx = modulePortGetCtx(mod_st->rx);
-  return drv->getByte(drv_ctx, data);
-}
-
 static void ghostProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   if (*len == 0 && data != GHST_ADDR_RADIO) {
@@ -243,7 +235,6 @@ const etx_proto_driver_t GhostDriver = {
   .init = ghostInit,
   .deinit = ghostDeInit,
   .sendPulses = ghostSendPulses,
-  .getByte = ghostGetByte,
   .processData = ghostProcessData,
 };
 

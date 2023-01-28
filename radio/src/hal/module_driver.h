@@ -60,9 +60,6 @@ struct etx_proto_driver_t {
     // Send the next pulse frame
     void (*sendPulses)(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels);
 
-    // Fetch telemetry byte
-    int (*getByte)(void* context, uint8_t* data);
-
     // Process input data byte (telemetry)
     void (*processData)(void* context, uint8_t data, uint8_t* buffer, uint8_t* len);
 };

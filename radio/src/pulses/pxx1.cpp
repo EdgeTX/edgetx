@@ -397,16 +397,6 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 #endif
 }
 
-static int pxx1GetByte(void* ctx, uint8_t* data)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto drv_ctx = modulePortGetCtx(mod_st->rx);
-
-  return drv->getByte(drv_ctx, data);
-}
-
 static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   (void)ctx;
@@ -422,6 +412,5 @@ const etx_proto_driver_t Pxx1Driver = {
   .init = pxx1Init,
   .deinit = pxx1DeInit,
   .sendPulses = pxx1SendPulses,
-  .getByte = pxx1GetByte,
   .processData = pxx1ProcessData,
 };

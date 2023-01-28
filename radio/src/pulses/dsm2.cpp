@@ -252,16 +252,6 @@ static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   _dsm_send(mod_st, buffer, p_data - buffer);
 }
 
-static int dsmpGetByte(void* ctx, uint8_t* data)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto drv_ctx = modulePortGetCtx(mod_st->rx);
-
-  return drv->getByte(drv_ctx, data);
-}
-
 static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   auto mod_st = (etx_module_state_t*)ctx;
@@ -276,7 +266,6 @@ const etx_proto_driver_t DSM2Driver = {
   .init = dsm2Init,
   .deinit = dsmDeInit,
   .sendPulses = dsm2SendPulses,
-  .getByte = nullptr,
   .processData = nullptr,
 };
 
@@ -285,6 +274,5 @@ const etx_proto_driver_t DSMPDriver = {
   .init = dsmpInit,
   .deinit = dsmDeInit,
   .sendPulses = dsmpSendPulses,
-  .getByte = dsmpGetByte,
   .processData = dsmpProcessData,
 };

@@ -286,15 +286,6 @@ static void multiSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8
   drv->sendBuffer(drv_ctx, buffer, data - buffer);
 }
 
-static int multiGetByte(void* ctx, uint8_t* data)
-{
-  auto mod_st = (etx_module_state_t*)ctx;
-  auto drv = mod_st->rx.port->drv.serial;
-  auto drv_ctx = mod_st->rx.ctx;
-
-  return drv->getByte(drv_ctx, data);
-}
-
 static void multiProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
   auto mod_st = (etx_module_state_t*)ctx;
@@ -310,7 +301,6 @@ const etx_proto_driver_t MultiDriver = {
   .init = multiInit,
   .deinit = multiDeInit,
   .sendPulses = multiSendPulses,
-  .getByte = multiGetByte,
   .processData = multiProcessData,
 };
 

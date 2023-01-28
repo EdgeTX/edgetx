@@ -151,6 +151,5 @@ const etx_proto_driver_t SBusDriver = {
   .init = sbusInit,
   .deinit = sbusDeInit,
   .sendPulses = sbusSendPulses,
-  .getByte = nullptr,
   .processData = nullptr,
 };

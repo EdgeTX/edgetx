@@ -161,6 +161,5 @@ const etx_proto_driver_t PpmDriver = {
   .init = ppmInit,
   .deinit = ppmDeInit,
   .sendPulses = ppmSendPulses,
-  .getByte = nullptr,
   .processData = nullptr,
 };
