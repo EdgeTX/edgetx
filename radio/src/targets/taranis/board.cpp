@@ -24,6 +24,7 @@
 #include "rtc.h"
 
 #include "hal/adc_driver.h"
+#include "hal/module_port.h"
 #include "stm32_hal_adc.h"
 
 #include "../common/arm/stm32/timers_driver.h"
@@ -59,9 +60,21 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if defined(SPORT_UPDATE_PWR_GPIO) && !defined(BOOT)
 void sportUpdateInit()
 {
+#if defined(SPORT_UPDATE_PWR_GPIO)
+#if defined(RADIO_X7)
+  // QX7 has a external S.PORT connector
+  // with switchable power from revision 40 on
+  if (hardwareOptions.pcbrev == PCBREV_X7_40) {
+    extern etx_module_t _sport_module;
+    extern void _sport_set_pwr(uint8_t);
+    _sport_module.set_pwr = _sport_set_pwr;
+  } else {
+    return;
+  }
+#endif
+  
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -69,24 +82,13 @@ void sportUpdateInit()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
+#endif
 }
 
-void sportUpdatePowerOn()
-{
-  GPIO_SPORT_UPDATE_PWR_GPIO_ON(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerOff()
-{
-  GPIO_SPORT_UPDATE_PWR_GPIO_OFF(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
+#if !defined(BOOT)
 void sportUpdatePowerInit()
 {
-  if (g_eeGeneral.sportUpdatePower == 1)
-    sportUpdatePowerOn();
-  else
-    sportUpdatePowerOff();
+  modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
 }
 #endif
 
@@ -154,12 +156,14 @@ void boardInit()
   }
 #endif
 
+  // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
-
-#if defined(AUTOUPDATE)
-  telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
-  sportSendByteLoop(0x7E);
-#endif
+  sportUpdateInit();
+  
+// #if defined(AUTOUPDATE)
+//   telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
+//   sportSendByteLoop(0x7E);
+// #endif
 
 #if defined(STATUS_LEDS)
   ledInit();
@@ -263,10 +267,6 @@ void boardInit()
 #if defined(USB_CHARGER)
   usbChargerInit();
 #endif
-
-  if (HAS_SPORT_UPDATE_CONNECTOR()) {
-    sportUpdateInit();
-  }
 
 #if defined(JACK_DETECT_GPIO)
   initJackDetect();

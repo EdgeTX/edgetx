@@ -22,6 +22,7 @@
 #include "hal.h"
 #include "hal/serial_driver.h"
 #include "hal/module_port.h"
+#include "dataconstants.h"
 
 void intmoduleStop() {}
 void intmoduleFifoError() {}
@@ -100,10 +101,11 @@ const etx_timer_driver_t _fakeTimerDriver = {
   .send = module_timer_send,
 };
 
-BEGIN_MODULE_PORTS()
+#if defined(HARDWARE_INTERNAL_MODULE)
+const etx_module_port_t _internal_ports[] = {
 #if defined(INTMODULE_USART)
   {
-    .port = ETX_MOD_PORT_INTERNAL_UART,
+    .port = ETX_MOD_PORT_UART,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
     .drv = { .serial = &_fakeSerialDriver },
@@ -111,21 +113,29 @@ BEGIN_MODULE_PORTS()
   },
 #else // INTMODULE_USART
   {
-    .port = ETX_MOD_PORT_INTERNAL_TIMER,
-    .type = ETX_MOD_TYPE_TIMER,
+    .port = ETX_MOD_PORT_SOFT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .timer = &_fakeTimerDriver },
     .hw_def = nullptr,
   },
 #endif
+#if defined(INTERNAL_MODULE_PXX1)
   {
-    .port = ETX_MOD_PORT_EXTERNAL_TIMER,
-    .type = ETX_MOD_TYPE_TIMER,
-    .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .timer = &_fakeTimerDriver },
+    .port = ETX_MOD_PORT_SPORT,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
+    .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
+#endif
+};
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+const etx_module_port_t _external_ports[] = {
 #if defined(EXTMODULE_USART)
+  // TX on PPM, RX on HEARTBEAT
   {
     .port = ETX_MOD_PORT_EXTERNAL_UART,
     .type = ETX_MOD_TYPE_SERIAL,
@@ -134,4 +144,59 @@ BEGIN_MODULE_PORTS()
     .hw_def = nullptr,
   },
 #endif
-END_MODULE_PORTS()
+  // TX on PPM
+  {
+    .port = ETX_MOD_PORT_EXTERNAL_TIMER,
+    .type = ETX_MOD_TYPE_TIMER,
+    .dir_flags = ETX_MOD_DIR_TX,
+    .drv = { .timer = &_fakeTimerDriver },
+    .hw_def = nullptr,
+  },
+  // TX/RX half-duplex on S.PORT
+  {
+    .port = ETX_MOD_PORT_SPORT,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
+    .drv = { .serial = &_fakeSerialDriver },
+    .hw_def = nullptr,
+  },
+  // TX inverted DMA pulse train on S.PORT
+  {
+    .port = ETX_MOD_PORT_SOFT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX,
+    .drv = { .serial = &_fakeSerialDriver },
+    .hw_def = nullptr,
+  },
+#if defined(TELEMETRY_TIMER)
+  // RX soft-serial sampled bit-by-bit via timer IRQ on S.PORT
+  {
+    .port = ETX_MOD_PORT_SPORT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .serial = &_fakeSerialDriver },
+    .hw_def = nullptr,
+  },
+#endif
+};
+#endif
+
+
+BEGIN_MODULES()
+#if defined(HARDWARE_INTERNAL_MODULE)
+  {
+    .ports = _internal_ports,
+    .set_pwr = nullptr,
+    .module = INTERNAL_MODULE,
+    .n_ports = DIM(_internal_ports),
+  },
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  {
+    .ports = _external_ports,
+    .set_pwr = nullptr,
+    .module = EXTERNAL_MODULE,
+    .n_ports = DIM(_external_ports),
+  },
+#endif
+END_MODULES()

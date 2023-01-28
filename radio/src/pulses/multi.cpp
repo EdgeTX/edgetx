@@ -209,9 +209,7 @@ static void* multiInit(uint8_t module)
     // serial port setup
     // TODO: error handling
     cfg.direction = ETX_Dir_TX_RX;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &cfg);
-
-    INTERNAL_MODULE_ON();
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg);
   }
 #endif
 
@@ -220,13 +218,11 @@ static void* multiInit(uint8_t module)
     // serial port setup
     // TODO: error handling
     cfg.direction = ETX_Dir_TX;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &cfg);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &cfg);
 
     // Init S.PORT RX channel
     cfg.direction = ETX_Dir_RX;
     modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &cfg);
-    
-    EXTERNAL_MODULE_ON();
   }
 #endif
 
@@ -241,7 +237,6 @@ static void* multiInit(uint8_t module)
 #if defined(MULTI_PROTOLIST)
     TRACE("enablePulsesInternalModule(): trigger scan");
     MultiRfProtocols::instance(module)->triggerScan();
-    // TRACE("counter = %d", moduleState[module].counter);
 #endif
   }
 
@@ -251,21 +246,6 @@ static void* multiInit(uint8_t module)
 static void multiDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-#if defined(INTERNAL_MODULE_MULTI)
-  if (module == INTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
-  }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-#endif
-  
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

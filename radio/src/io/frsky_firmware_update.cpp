@@ -108,36 +108,25 @@ void FrskyDeviceFirmwareUpdate::processFrame(const uint8_t * frame)
   }
 }
 
-#if defined(PCBHORUS)
 bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint32_t timeout)
 {
   watchdogSuspend(timeout);
 
-  switch (module) {
-    case INTERNAL_MODULE:
-    {
-      uint32_t elapsed = 0;
-      uint8_t index = 0;
-      while (index < count && elapsed < timeout) {
-        if (uart_drv->getByte(uart_ctx, &(buffer[index]))) {
-          ++index;
-        }
-        else {
-          RTOS_WAIT_MS(1);
-          if (++elapsed == timeout)
-            return false;
-        }
-      }
-      break;
+  uint32_t elapsed = 0;
+  uint8_t index = 0;
+  while (index < count && elapsed < timeout) {
+    if (uart_drv->getByte(uart_ctx, &(buffer[index]))) {
+      ++index;
     }
-
-    default:
-      break;
+    else {
+      RTOS_WAIT_MS(1);
+      if (++elapsed == timeout)
+        return false;
+    }
   }
 
   return true;
 }
-#endif
 
 const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
 {
@@ -296,6 +285,22 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     return STR_NEEDS_FILE;
   }
 
+  // Start with checking if we have a firmware description:
+  // this mainly covers "newer" modules (ISRM, ACCESS based)
+
+  // default to S.PORT update...
+  uint8_t port = ETX_MOD_PORT_SPORT;
+  void (*set_pwr)(uint8_t) = nullptr;
+  void (*set_bootcmd)(uint8_t) = nullptr;
+
+  // TODO: what about S.PORT update power control? (RX?)
+  auto mod_desc = modulePortGetModuleDescription(module);
+  set_pwr = mod_desc->set_pwr;
+
+  // ... and 57600 bps
+  etx_serial_init cfg(serialInitParams);
+  cfg.baudrate = 57600;
+  
   const char *ext = getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     auto ret =
@@ -303,82 +308,74 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
     if (ret != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
       f_close(&file);
       return STR_DEVICE_FILE_ERROR;
+    }    
+
+    // probably some ISRM or ACCESS module...
+    // TODO: what are we supposed to start with the firmware header file?
+    if ((information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE &&
+         module != INTERNAL_MODULE) ||
+        (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE &&
+         module != EXTERNAL_MODULE)) {
+
+      return STR_DEVICE_FILE_WRONG_SIG;
     }
-  } else {
-#if defined(PCBHORUS)
-    information.productId = FIRMWARE_ID_MODULE_XJT;
-#endif
+
+    if (information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE ||
+        information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE) {
+      port = ETX_MOD_PORT_UART;      
+    }
+
+  } else if (module == INTERNAL_MODULE) {
+    // For the older modules we need some guess work:
+    //
+    // - X12S / X10 IXJT = use TX + RX @ 38400 bauds with BOOTCMD pin
+    //   -> internal USART + boot pin
+    //
+    // - X9D / X9D+ / X9E / XLite IXJT = use S.PORT @ 57600 bauds
+    //   -> no internal USART OR no boot pin (XLite has an internal USART)
+
+    // X12S / X10 iXJT: TX + RX @ 38400 bauds with BOOTCMD pin inverted
+    if (mod_desc->set_bootcmd) {
+      cfg.baudrate = 38400;
+      port = ETX_MOD_PORT_UART;
+      set_bootcmd = mod_desc->set_bootcmd;
+    } else {
+      // keep the above defaults (S.PORT @ 57600 bps)
+    }
   }
 
-#if defined(PCBHORUS)
-  if (module == INTERNAL_MODULE &&
-      information.productId == FIRMWARE_ID_MODULE_XJT) {
-    INTERNAL_MODULE_ON();
-    RTOS_WAIT_MS(1);
+  // SPORT_MODULE is only defined for power control
+  // but has not ports declared on it.
+  //
+  uint8_t serial_module = module != SPORT_MODULE ? module : EXTERNAL_MODULE;
 
-    etx_serial_init params(serialInitParams);
-    params.baudrate = 38400;
+  mod_st = modulePortInitSerial(serial_module, port, &cfg);
+  if (mod_st) return "Communication port error";
 
-    // TODO: handle init error
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
+  // assume RX port is the same as TX
+  uart_drv = modulePortGetSerialDrv(mod_st->tx);
+  uart_ctx = modulePortGetCtx(mod_st->tx);
 
-    // assume RX port is the same as TX
-    uart_drv = modulePortGetSerialDrv(mod_st->tx);
-    uart_ctx = modulePortGetCtx(mod_st->tx);
+  if (set_bootcmd) set_bootcmd(true);
+  if (set_pwr) set_pwr(true);
 
-    GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  // wait a bit for PWR to settle
+  RTOS_WAIT_MS(1);
+
+  // Special update method for X12S / X10 iXJT
+  if (module == INTERNAL_MODULE && port == ETX_MOD_PORT_UART && set_bootcmd != nullptr) {
     result = uploadFileToHorusXJT(filename, &file, progressHandler);
-    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-
-    f_close(&file);
-    return result;
-  }
-#endif
-
-#if defined(INTERNAL_MODULE_PXX2)
-  if ((module == INTERNAL_MODULE) &&
-      (g_eeGeneral.internalModule = MODULE_TYPE_ISRM_PXX2)) {
-    etx_serial_init params(serialInitParams);
-    params.baudrate = 57600;
-
-    // TODO: handle init error
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
-
-    // assume RX port is the same as TX
-    uart_drv = modulePortGetSerialDrv(mod_st->tx);
-    uart_ctx = modulePortGetCtx(mod_st->tx);
-  }
-  else
-#endif
-  {
-    etx_serial_init params(serialInitParams);
-    params.baudrate = 57600;
-
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
-
-    // assume RX port is the same as TX
-    uart_drv = modulePortGetSerialDrv(mod_st->tx);
-    uart_ctx = modulePortGetCtx(mod_st->tx);
+  } else {
+    result = uploadFileNormal(filename, &file, progressHandler);
   }
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (module == INTERNAL_MODULE)
-    INTERNAL_MODULE_ON();
-#endif
+  if (set_pwr) set_pwr(false);
+  if (set_bootcmd) set_bootcmd(false);
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE)
-    EXTERNAL_MODULE_ON();
-#endif
-  // TODO
-  // else SPORT_UPDATE_POWER_ON();
-
-  result = uploadFileNormal(filename, &file, progressHandler);
-  f_close(&file);
+  modulePortDeInit(mod_st);
   return result;
 }
 
-#if defined(PCBHORUS)
 const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
     const char *filename, FIL *file, ProgressHandler progressHandler)
 {
@@ -436,9 +433,9 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
     index++;
   }
 }
-#endif
 
-const char * FrskyDeviceFirmwareUpdate::uploadFileNormal(const char * filename, FIL * file, ProgressHandler progressHandler)
+const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
+    const char *filename, FIL *file, ProgressHandler progressHandler)
 {
   uint32_t buffer[1024 / sizeof(uint32_t)];
   UINT count;
@@ -500,19 +497,19 @@ const char * FrskyDeviceFirmwareUpdate::endTransfer()
   return nullptr;
 }
 
-const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
+const char *FrskyDeviceFirmwareUpdate::flashFirmware(
+    const char *filename, ProgressHandler progressHandler)
 {
   pauseMixerCalculations();
   pausePulses();
 
+  // This switches module power OFF
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
     pulsesStopModule(i);
   }
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();
-  SPORT_UPDATE_POWER_OFF();
-#endif
+  // switch S.PORT power OFF if supported
+  modulePortSetPower(SPORT_MODULE, false);
 
   progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
@@ -531,33 +528,21 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
-#if defined(INTMODULE_USART)
-  if (mod_st) {
-    // If the UART is not deactivated, the module
-    // will not properly reset
-    modulePortDeInit(mod_st);
-  }
-#endif
-  
-#if defined(HARDWARE_INTERNAL_MODULE)
-  INTERNAL_MODULE_OFF();
-#endif
-  EXTERNAL_MODULE_OFF();
-  SPORT_UPDATE_POWER_OFF();
-
   /* wait 2s off */
   watchdogSuspend(500 /*5s*/);
   RTOS_WAIT_MS(2000);
-  uart_drv->clearRxBuffer(uart_ctx);
 
   resumePulses();
   resumeMixerCalculations();
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  if (spuPwr) {
-    SPORT_UPDATE_POWER_ON();
-  }
-#endif
+// TODO: S.PORT power control
+//       -> where is it actually turned ON normally?
+//
+// #if defined(SPORT_UPDATE_PWR_GPIO)
+//   if (spuPwr) {
+//     SPORT_UPDATE_POWER_ON();
+//   }
+// #endif
 
   state = SPORT_IDLE;
   return result;
@@ -772,24 +757,16 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
 {
   progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
+  pauseMixerCalculations();
   pausePulses();
 
-  // TODO: stop modules...
+  // This switches module power OFF
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    pulsesStopModule(i);
+  }
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  // uint8_t intPwr = IS_INTERNAL_MODULE_ON();
-  INTERNAL_MODULE_OFF();
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  // uint8_t extPwr = IS_EXTERNAL_MODULE_ON();
-  EXTERNAL_MODULE_OFF();
-#endif
-
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  // uint8_t spuPwr = IS_SPORT_UPDATE_POWER_ON();
-  SPORT_UPDATE_POWER_OFF();
-#endif
+  // switch S.PORT power OFF if supported
+  modulePortSetPower(SPORT_MODULE, false);
 
   if (wait) {
     /* wait 2s off */
@@ -800,7 +777,7 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
   etx_serial_init params(serialInitParams);
   params.baudrate = FRSKY_SPORT_BAUDRATE;
     
-  auto mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params);
+  auto mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params);
   uart_drv = modulePortGetSerialDrv(mod_st->tx);
   uart_ctx = modulePortGetCtx(mod_st->tx);
 
@@ -820,31 +797,8 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
   watchdogSuspend(1000 /*10s*/);
   RTOS_WAIT_MS(2000);
 
-  // TODO: check, but this should not be needed
-  //       resumePulses() should cause the pulses
-  //       to restart automatically by next cycle
-  //
-// #if defined(HARDWARE_INTERNAL_MODULE)
-//   if (intPwr) {
-//     INTERNAL_MODULE_ON();
-//     setupPulsesInternalModule();
-//   }
-// #endif
-
-// #if defined(HARDWARE_EXTERNAL_MODULE)
-//   if (extPwr) {
-//     EXTERNAL_MODULE_ON();
-//     setupPulsesExternalModule();
-//   }
-// #endif
-
-// #if defined(SPORT_UPDATE_PWR_GPIO)
-//   if (spuPwr) {
-//     SPORT_UPDATE_POWER_ON();
-//   }
-// #endif
-
   resumePulses();
+  resumeMixerCalculations();
 
   return result;
 }

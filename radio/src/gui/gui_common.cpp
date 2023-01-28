@@ -855,7 +855,7 @@ bool isExternalModuleAvailable(int moduleType)
       moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
 
 #if defined(PXX2)
-    return modulePortFind(ETX_MOD_TYPE_SERIAL, ETX_MOD_PORT_EXTERNAL_UART);
+    return modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL, ETX_MOD_PORT_UART);
 #else
     return false;
 #endif

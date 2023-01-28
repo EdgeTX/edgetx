@@ -171,7 +171,6 @@
 // S.Port update connector
 #define SPORT_MAX_BAUDRATE              400000
 #define SPORT_UPDATE_RCC_AHB1Periph     0
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
 // Led
 // #define STATUS_LEDS

@@ -20,12 +20,12 @@
  */
 
 #include "module_port.h"
-#include "dataconstants.h" // NUM_MODULES
+#include "dataconstants.h" // MAX_MODULES
 
 #include <string.h>
 
-extern const etx_module_port_t _module_ports[];
-extern const uint8_t _n_module_ports;
+extern const etx_module_t* const _modules[];
+extern const uint8_t _n_modules;
 
 static etx_module_state_t _module_states[MAX_MODULES];
 
@@ -34,6 +34,7 @@ void modulePortInit()
   memset(_module_states, 0, sizeof(_module_states));
 #if defined(CONFIGURABLE_MODULE_PORT)
   memset(&_extra_module_port, 0, sizeof(_extra_module_port));
+  _extra_module_port.type = 0xFF; // some invalid type
 #endif
 }
 
@@ -68,10 +69,13 @@ static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* 
   d->port = port;
 }
 
-static const etx_module_port_t* _find_port(uint8_t type, uint8_t port)
+static const etx_module_port_t* _find_port(uint8_t module, uint8_t type, uint8_t port)
 {
-  uint8_t n_ports = _n_module_ports;
-  const etx_module_port_t* p = _module_ports;
+  if (module >= MAX_MODULES || module >= _n_modules || !_modules[module])
+    return nullptr;
+
+  uint8_t n_ports = _modules[module]->n_ports;
+  const etx_module_port_t* p = _modules[module]->ports;
   const etx_module_port_t* found_port = nullptr;
 
   while(n_ports > 0) {
@@ -86,6 +90,7 @@ static const etx_module_port_t* _find_port(uint8_t type, uint8_t port)
 
 #if defined(CONFIGURABLE_MODULE_PORT)
   if (!found_port &&
+      module == EXTERNAL_MODULE &&
       _extra_module_port.type == type &&
       _extra_module_port.port == port) {
     found_port = &_extra_module_port;
@@ -95,20 +100,32 @@ static const etx_module_port_t* _find_port(uint8_t type, uint8_t port)
   return found_port;
 }
 
-const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port)
+const etx_module_t* modulePortGetModuleDescription(uint8_t module)
 {
-  return _find_port(type, port);
+  if (module >= _n_modules) return nullptr;
+  return _modules[module];
 }
 
-etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port,
+const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type, uint8_t port)
+{
+  return _find_port(module, type, port);
+}
+
+void modulePortSetPower(uint8_t module, uint8_t enabled)
+{
+  if (module >= _n_modules) return;
+  auto mod = _modules[module];
+  if (mod && mod->set_pwr) mod->set_pwr(enabled);
+}
+
+etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
                                          const etx_serial_init* params)
 {
-  if (moduleIdx >= NUM_MODULES) return nullptr;
-
-  const etx_module_port_t* found_port = _find_port(ETX_MOD_TYPE_SERIAL, port);
+  // TODO: match capabilities (1. USART -> 2. SOFT-SERIAL)
+  const etx_module_port_t* found_port = _find_port(module, ETX_MOD_TYPE_SERIAL, port);
   if (!found_port) return nullptr;
-  
-  auto state = &(_module_states[moduleIdx]);
+
+  auto state = &(_module_states[module]);
 
   const uint8_t duplex = ETX_Dir_TX_RX;
   uint8_t dir = params->direction & duplex;
@@ -125,15 +142,13 @@ etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port,
   return state;
 }
 
-etx_module_state_t* modulePortInitTimer(uint8_t moduleIdx, uint8_t port,
+etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
                                         const etx_timer_config_t* cfg)
 {
-  if (moduleIdx >= NUM_MODULES) return nullptr;
-  
-  const etx_module_port_t* found_port = _find_port(ETX_MOD_TYPE_TIMER, port);
+  const etx_module_port_t* found_port = _find_port(module, ETX_MOD_TYPE_TIMER, port);
   if (!found_port) return nullptr;
 
-  auto state = &(_module_states[moduleIdx]);
+  auto state = &(_module_states[module]);
   _init_timer_driver(&state->tx, found_port, cfg);
 
   return state;
@@ -166,10 +181,10 @@ void modulePortDeInit(etx_module_state_t* st)
   modulePortClear(st);
 }
 
-etx_module_state_t* modulePortGetState(uint8_t moduleIdx)
+etx_module_state_t* modulePortGetState(uint8_t module)
 {
-  if (moduleIdx >= NUM_MODULES) return nullptr;
-  return &(_module_states[moduleIdx]);
+  if (module >= MAX_MODULES) return nullptr;
+  return &(_module_states[module]);
 }
 
 uint8_t modulePortGetModule(etx_module_state_t* st)

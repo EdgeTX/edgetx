@@ -62,12 +62,9 @@
 #define MAX_OPEN_MODULE_PORTS 3
 
 enum ModulePort : uint8_t {
-  ETX_MOD_PORT_INTERNAL_UART,
-  ETX_MOD_PORT_INTERNAL_TIMER,
-  ETX_MOD_PORT_INTERNAL_SOFT_INV,
-  ETX_MOD_PORT_EXTERNAL_UART,
-  ETX_MOD_PORT_EXTERNAL_TIMER,
-  ETX_MOD_PORT_EXTERNAL_SOFT_INV,
+  ETX_MOD_PORT_UART,
+  ETX_MOD_PORT_TIMER,
+  ETX_MOD_PORT_SOFT_INV,
   ETX_MOD_PORT_SPORT,
   ETX_MOD_PORT_SPORT_INV,
   ETX_MOD_PORT_MAX
@@ -97,13 +94,20 @@ typedef struct {
 
 } etx_module_port_t;
 
-#define BEGIN_MODULE_PORTS()                                            \
-  extern const etx_module_port_t _module_ports[];                       \
-  const etx_module_port_t _module_ports[] = {
+typedef struct {
+  const etx_module_port_t* const ports;
+  void (*set_pwr)(uint8_t on);
+  void (*set_bootcmd)(uint8_t on);
+  const uint8_t n_ports;
+} etx_module_t;
 
-#define END_MODULE_PORTS() };                           \
-  extern const uint8_t _n_module_ports;                 \
-  const uint8_t _n_module_ports = DIM(_module_ports);
+#define BEGIN_MODULES()                                 \
+  extern const etx_module_t* const _modules[];          \
+  const etx_module_t* const _modules[] = {
+
+#define END_MODULES() };                        \
+  extern const uint8_t _n_modules;              \
+  const uint8_t _n_modules = DIM(_modules);
 
 typedef struct {
   const etx_module_port_t* port;
@@ -127,21 +131,24 @@ void modulePortInit();
 void modulePortConfigExtra(const etx_module_port_t* port);
 #endif
 
-const etx_module_port_t* modulePortFind(uint8_t type, uint8_t port);
+const etx_module_t* modulePortGetModuleDescription(uint8_t module);
+const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type, uint8_t port);
+
+void modulePortSetPower(uint8_t module, uint8_t enabled);
 
 // Init module port with params (driver & context stored locally)
-etx_module_state_t* modulePortInitSerial(uint8_t moduleIdx, uint8_t port,
+etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
                                          const etx_serial_init* params);
 
 // Init module port with params (driver & context stored locally)
-etx_module_state_t* modulePortInitTimer(uint8_t moduleIdx, uint8_t port,
+etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
                                         const etx_timer_config_t* cfg);
 
 // De-init port and clear data
 void modulePortDeInit(etx_module_state_t* st);
 
 // Once initialized, retrieve module serial driver and context
-etx_module_state_t* modulePortGetState(uint8_t moduleIdx);
+etx_module_state_t* modulePortGetState(uint8_t module);
 
 uint8_t modulePortGetModule(etx_module_state_t* st);
 

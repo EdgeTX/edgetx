@@ -182,13 +182,15 @@ enum BeeperMode {
 };
 
 enum ModuleIndex {
-#if defined(HARDWARE_INTERNAL_MODULE)
   INTERNAL_MODULE,
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
   EXTERNAL_MODULE,
-#endif
+  // end of "normal" modules
+  
   MAX_MODULES,
+
+  // only used for power control
+  // and firmware updates
+  SPORT_MODULE = MAX_MODULES
 };
 
 enum TrainerMode {

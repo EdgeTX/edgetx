@@ -26,147 +26,6 @@
 #include "board.h"
 #include "dataconstants.h"
 
-
-#define AUX_SERIAL_TX_BUFFER 512
-#if defined(SDRAM)
-  #define AUX_SERIAL_RX_BUFFER 512
-#else
-  #define AUX_SERIAL_RX_BUFFER 32
-#endif
-
-#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
-static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
-{
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(GPIOx, &pinInit);
-
-  if (on) {
-    LL_GPIO_SetOutputPin(GPIOx, pin);
-  } else {
-    LL_GPIO_ResetOutputPin(GPIOx, pin);
-  }
-}
-#endif
-
-#if defined(AUX_SERIAL)
-
-static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
-  .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = AUX_SERIAL_GPIO_AF_LL,
-};
-
-#if !defined(AUX_SERIAL_DMA_TX)
-  #define AUX_SERIAL_DMA_TX                   nullptr
-  #define AUX_SERIAL_DMA_Stream_TX            nullptr
-  #define AUX_SERIAL_DMA_Stream_TX_LL         0
-  #define AUX_SERIAL_DMA_Channel_TX           0
-#endif
-
-static const stm32_usart_t auxUSART = {
-  .USARTx = AUX_SERIAL_USART,
-  .GPIOx = AUX_SERIAL_GPIO,
-  .pinInit = &auxUSARTPinInit,
-  .IRQn = AUX_SERIAL_USART_IRQn,
-  .IRQ_Prio = 7, // TODO: define constant
-  .txDMA = AUX_SERIAL_DMA_TX,
-  .txDMA_Stream = AUX_SERIAL_DMA_Stream_TX_LL,
-  .txDMA_Channel = AUX_SERIAL_DMA_Channel_TX,
-  .rxDMA = AUX_SERIAL_DMA_RX,
-  .rxDMA_Stream = AUX_SERIAL_DMA_Stream_RX_LL,
-  .rxDMA_Channel = AUX_SERIAL_DMA_Channel_RX,
-};
-
-DEFINE_STM32_SERIAL_PORT(Aux, auxUSART, AUX_SERIAL_RX_BUFFER, AUX_SERIAL_TX_BUFFER);
-
-#if defined(AUX_SERIAL_PWR_GPIO)
-void set_aux_pwr(uint8_t on)
-{
-  _aux_pwr(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN, on);
-}
-#define AUX_PWR_FCT set_aux_pwr
-#else
-#define AUX_PWR_FCT nullptr
-#endif
-
-const etx_serial_port_t auxSerialPort = {
-  .name = "AUX1",
-  .uart = &STM32SerialDriver,
-  .hw_def = REF_STM32_SERIAL_PORT(Aux),
-  AUX_PWR_FCT
-};
-#define AUX_SERIAL_PORT &auxSerialPort
-#else
-#define AUX_SERIAL_PORT nullptr
-#endif
-
-#if defined(AUX2_SERIAL)
-
-static const LL_GPIO_InitTypeDef aux2USARTPinInit = {
-  .Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = AUX2_SERIAL_GPIO_AF_LL,
-};
-
-static const stm32_usart_t aux2USART = {
-  .USARTx = AUX2_SERIAL_USART,
-  .GPIOx = AUX2_SERIAL_GPIO,
-  .pinInit = &aux2USARTPinInit,
-  .IRQn = AUX2_SERIAL_USART_IRQn,
-  .IRQ_Prio = 7, // TODO: define constant
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
-  .rxDMA = AUX2_SERIAL_DMA_RX,
-  .rxDMA_Stream = AUX2_SERIAL_DMA_Stream_RX_LL,
-  .rxDMA_Channel = AUX2_SERIAL_DMA_Channel_RX,
-};
-
-DEFINE_STM32_SERIAL_PORT(Aux2, aux2USART, AUX_SERIAL_RX_BUFFER, AUX_SERIAL_TX_BUFFER);
-
-#if defined(AUX2_SERIAL_PWR_GPIO)
-void set_aux2_pwr(uint8_t on)
-{
-  _aux_pwr(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN, on);
-}
-#define AUX2_PWR_FCT set_aux2_pwr
-#else
-#define AUX2_PWR_FCT nullptr
-#endif
-
-const etx_serial_port_t aux2SerialPort = {
-  .name = "AUX2",
-  .uart = &STM32SerialDriver,
-  .hw_def = REF_STM32_SERIAL_PORT(Aux2),
-  AUX2_PWR_FCT
-};
-#define AUX2_SERIAL_PORT &aux2SerialPort
-#else
-#define AUX2_SERIAL_PORT nullptr
-#endif
-
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
-  AUX_SERIAL_PORT,
-  AUX2_SERIAL_PORT,
-};
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return serialPorts[port_nr];
-}
-
-
 #if defined(INTMODULE_USART)
 
 #define INTMODULE_USART_IRQ_PRIORITY 6
@@ -317,11 +176,37 @@ extern "C" void TELEMETRY_TIMER_IRQHandler()
 }
 #endif
 
+#if defined(HARDWARE_INTERNAL_MODULE)
 
-BEGIN_MODULE_PORTS()
+static void _internal_module_set_pwr(uint8_t enable)
+{
+  if (enable) {
+    INTERNAL_MODULE_ON();
+  } else {
+    INTERNAL_MODULE_OFF();
+  }
+}
+
+#if defined(INTMODULE_BOOTCMD_GPIO)
+static void _internal_module_set_bootcmd(uint8_t enable)
+{
+  // If default state is SET, invert the logic
+  if (INTMODULE_BOOTCMD_DEFAULT) {
+    enable = !enable;
+  }
+
+  if (enable) {
+    LL_GPIO_SetOutputPin(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  } else {
+    LL_GPIO_ResetOutputPin(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+  }
+}
+#endif
+
+static const etx_module_port_t _internal_ports[] = {
 #if defined(INTMODULE_USART)
   {
-    .port = ETX_MOD_PORT_INTERNAL_UART,
+    .port = ETX_MOD_PORT_UART,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
     .drv = { .serial = &STM32SerialDriver },
@@ -329,31 +214,75 @@ BEGIN_MODULE_PORTS()
   },
 #else // INTMODULE_USART
   {
-    .port = ETX_MOD_PORT_INTERNAL_SOFT_INV,
+    .port = ETX_MOD_PORT_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .serial = &STM32SoftSerialTxDriver },
     .hw_def = REF_STM32_SOFTSERIAL_PORT(InternalModule),
   },
 #endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(INTERNAL_MODULE_PXX1)
   {
-    .port = ETX_MOD_PORT_EXTERNAL_TIMER,
-    .type = ETX_MOD_TYPE_TIMER,
-    .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .timer = &STM32ModuleTimerDriver },
-    .hw_def = (void*)&extmoduleTimer,
+    .port = ETX_MOD_PORT_SPORT,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
+    .drv = { .serial = &STM32SerialDriver },
+    .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
 #endif
+};
+
+static const etx_module_t _internal_module = {
+  .ports = _internal_ports,
+  .set_pwr = _internal_module_set_pwr,
+#if defined(INTMODULE_BOOTCMD_GPIO)
+  .set_bootcmd = _internal_module_set_bootcmd,
+#else
+  .set_bootcmd = nullptr,
+#endif
+  .n_ports = DIM(_internal_ports),
+};
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+
+static void _external_module_set_pwr(uint8_t enable)
+{
+  if (enable) {
+    EXTERNAL_MODULE_ON();
+  } else {
+    EXTERNAL_MODULE_OFF();
+  }
+}
+
+static const etx_module_port_t _external_ports[] = {
 #if defined(EXTMODULE_USART)
+  // TX on PPM, RX on HEARTBEAT
   {
-    .port = ETX_MOD_PORT_EXTERNAL_UART,
+    .port = ETX_MOD_PORT_UART,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(ExternalModule),
   },
 #endif
+  // Timer output on PPM
+  {
+    .port = ETX_MOD_PORT_TIMER,
+    .type = ETX_MOD_TYPE_TIMER,
+    .dir_flags = ETX_MOD_DIR_TX,
+    .drv = { .timer = &STM32ModuleTimerDriver },
+    .hw_def = (void*)&extmoduleTimer,
+  },
+  // TX inverted DMA pulse train on PPM
+  {
+    .port = ETX_MOD_PORT_SOFT_INV,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX,
+    .drv = { .serial = &STM32SoftSerialTxDriver },
+    .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
+  },
+  // TX/RX half-duplex on S.PORT
   {
     .port = ETX_MOD_PORT_SPORT,
     .type = ETX_MOD_TYPE_SERIAL,
@@ -362,6 +291,7 @@ BEGIN_MODULE_PORTS()
     .hw_def = REF_STM32_SERIAL_PORT(SportModule),
   },
 #if defined(TELEMETRY_TIMER)
+  // RX soft-serial sampled bit-by-bit via timer IRQ on S.PORT
   {
     .port = ETX_MOD_PORT_SPORT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
@@ -370,13 +300,61 @@ BEGIN_MODULE_PORTS()
     .hw_def = (void*)&sportSoftRX,
   },
 #endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  {
-    .port = ETX_MOD_PORT_EXTERNAL_SOFT_INV,
-    .type = ETX_MOD_TYPE_SERIAL,
-    .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .serial = &STM32SoftSerialTxDriver },
-    .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
-  },
+};
+
+static const etx_module_t _external_module = {
+  .ports = _external_ports,
+  .set_pwr = _external_module_set_pwr,
+  .set_bootcmd = nullptr,
+  .n_ports = DIM(_external_ports),
+};
 #endif
-END_MODULE_PORTS()
+
+#if defined(SPORT_UPDATE_PWR_GPIO)
+
+// Not declared 'static' to be accessible
+// from board.cpp
+void _sport_set_pwr(uint8_t enabled)
+{
+  if (enabled) {
+    LL_GPIO_SetOutputPin(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
+  } else {
+    LL_GPIO_ResetOutputPin(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
+  }
+}
+
+#if defined(RADIO_X7)
+// set_pwr is set at runtime once
+// the PCB has been identified
+etx_module_t _sport_module = {
+  .ports = nullptr,
+  .set_pwr = nullptr,
+  .set_bootcmd = nullptr,
+  .n_ports = 0,
+};
+#else
+const etx_module_t _sport_module = {
+  .ports = nullptr,
+  .set_pwr = _sport_set_pwr,
+  .set_bootcmd = nullptr,
+  .n_ports = 0,
+};
+#endif // RADIO_X7
+
+#endif // SPORT_UPDATE_PWR_GPIO
+
+BEGIN_MODULES()
+#if defined(HARDWARE_INTERNAL_MODULE)
+  &_internal_module,
+#else
+  nullptr,
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  &_external_module,
+#else
+  nullptr,
+#endif
+#if defined(SPORT_UPDATE_PWR_GPIO)
+  &_sport_module,
+#endif
+END_MODULES()

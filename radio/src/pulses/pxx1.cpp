@@ -238,39 +238,30 @@ static const etx_serial_init pxx1SerialCfg = {
   .direction = ETX_Dir_TX,
 };
 
-static const etx_timer_config_t pxx1TimerCfg = {
-  .type = ETX_PWM,
-  .polarity = 0,
-  .cmp_val = 9 * 2, // 9us
-};
-
 static void* pxx1Init(uint8_t module)
 {
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init txCfg(pxx1SerialCfg);
 
-#if defined(INTERNAL_MODULE_PXX1)
   if (module == INTERNAL_MODULE) {
 
-#if defined(INTMODULE_USART)
     txCfg.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &txCfg);
-#else
-    txCfg.encoding = ETX_Encoding_PXX1_PWM;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_SOFT_INV, &txCfg);
-#endif
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
+
+    if (!mod_st) {
+      txCfg.encoding = ETX_Encoding_PXX1_PWM;
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
+    }
 
     if (!mod_st) return nullptr;
-    
+
+    // TODO: move heartbeat init to some target specific code...
 #if defined(INTMODULE_HEARTBEAT)
     init_intmodule_heartbeat();
 #endif
     mixerSchedulerSetPeriod(module, INTMODULE_PXX1_SERIAL_PERIOD);
-    INTERNAL_MODULE_ON();
   }
-#endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
 
     // Init driver (timer / serial) based on module type
@@ -279,7 +270,7 @@ static void* pxx1Init(uint8_t module)
 
     case MODULE_TYPE_R9M_LITE_PXX1: {
       txCfg.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
       if (!mod_st) return nullptr;
 
       mixerSchedulerSetPeriod(module, EXTMODULE_PXX1_SERIAL_PERIOD);
@@ -288,7 +279,7 @@ static void* pxx1Init(uint8_t module)
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1: {
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
       if (!mod_st) return nullptr;
       
       mixerSchedulerSetPeriod(module, PXX_PULSES_PERIOD);
@@ -298,10 +289,7 @@ static void* pxx1Init(uint8_t module)
       // unknown module: bail out!
       return nullptr;
     }
-
-    EXTERNAL_MODULE_ON();
   }
-#endif
 
   // Init telemetry RX
   etx_serial_init rxCfg(pxx1SerialCfg);
@@ -321,20 +309,12 @@ static void pxx1DeInit(void* ctx)
 
 #if defined(INTERNAL_MODULE_PXX1)
   if (module == INTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
 #if defined(INTMODULE_HEARTBEAT)
     stop_intmodule_heartbeat();
 #endif
   }
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-#endif
-  
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 
@@ -351,6 +331,7 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   if (module == INTERNAL_MODULE) {
     auto drv_ctx = modulePortGetCtx(mod_st->tx);
 
+    // TODO: detect hard vs. soft serial
 #if defined(INTMODULE_USART)
     UartPxx1Pulses frame(buffer);
 #else

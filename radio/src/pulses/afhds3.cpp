@@ -852,27 +852,16 @@ static void* initModule(uint8_t module)
   etx_serial_init params(_uartParams);
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000;
 
-  if (module == INTERNAL_MODULE) {
-    params.baudrate = AFHDS3_UART_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
+  params.baudrate = AFHDS3_UART_BAUDRATE;
+  mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
 
-    if (mod_st) INTERNAL_MODULE_ON();
-  }
-
-  if (module == EXTERNAL_MODULE) {
-    params.baudrate = AFHDS3_UART_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &params);
-
-    if (!mod_st) {
-      // fall-back to soft-serial
-      params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
-      params.direction = ETX_Dir_RX;
-      period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &params);
-      // TODO: telemetry RX ???
-    }
-
-    if (mod_st) EXTERNAL_MODULE_ON();
+  if (module == EXTERNAL_MODULE && !mod_st) {
+    // fall-back to soft-serial
+    params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
+    params.direction = ETX_Dir_RX;
+    period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
+    // TODO: telemetry RX ???
   }
 
   if (!mod_st) return nullptr;
@@ -889,17 +878,6 @@ static void* initModule(uint8_t module)
 static void deinitModule(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-  if (module == INTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-
-  if (module == EXTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
-  }
-
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

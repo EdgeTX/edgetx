@@ -116,8 +116,6 @@ struct rf_info_t {
   uint8_t fw_state;
 };
 
-// static STRUCT_HALL rxBuffer = {0};
-static uint32_t rfRxCount = 0;
 static uint8_t lastState = STATE_IDLE;
 static uint32_t set_loop_cnt = 0;
 
@@ -160,10 +158,6 @@ void setFlyskyState(uint8_t state);
 void onFlySkyBindReceiver();
 void onFlySkyModuleSetPower(bool isPowerOn);
 void afhds2Command(uint8_t*& p_buf, uint8_t type, uint8_t cmd);
-void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer);
-// void usbDownloadTransmit(uint8_t *buffer, uint32_t size);
-
-// extern uint32_t NV14internalModuleFwVersion;
 
 #define END 0xC0
 #define ESC 0xDB
@@ -196,78 +190,13 @@ enum FlySkyModuleCommandID {
   CMD_LAST
 };
 
-bool isFlySkyUsbDownload(void) { return rf_info.fw_state != 0; }
-
-// void usbSetFrameTransmit(uint8_t packetID, uint8_t *dataBuf, uint32_t nBytes)
-// {
-//     // send to host via usb
-//     uint8_t *pt = (uint8_t*)&rxBuffer;
-//    // rxBuffer.head = HALL_PROTOLO_HEAD;
-//     rxBuffer.hallID.hall_Id.packetID = packetID;//0x08;
-//     rxBuffer.hallID.hall_Id.senderID = 0x03;
-//     rxBuffer.hallID.hall_Id.receiverID = 0x02;
-
-//     if ( packetID == 0x08 ) {
-//       uint8_t fwVerision[40];
-//       for(uint32_t idx = 40; idx > 0; idx--)
-//       {
-//           if ( idx <= nBytes ) {
-//               fwVerision[idx-1] = dataBuf[idx-1];
-//           }
-//           else fwVerision[idx-1] = 0;
-//       }
-//       dataBuf = fwVerision;
-//       nBytes = 40;
-//     }
-
-//     rxBuffer.length = nBytes;
-
-//     TRACE_NOCRLF("\r\nToUSB: 55 %02X %02X ", rxBuffer.hallID.ID, nBytes);
-//     for ( uint32_t idx = 0; idx < nBytes; idx++ )
-//     {
-//         rxBuffer.data[idx] = dataBuf[idx];
-//         TRACE_NOCRLF("%02X ", rxBuffer.data[idx]);
-//     }
-// #if !defined(SIMU)
-//     uint16_t checkSum = calc_crc16(pt, rxBuffer.length+3);
-//     TRACE(" CRC:%04X;", checkSum);
-
-//     pt[rxBuffer.length + 3] = checkSum & 0xFF;
-//     pt[rxBuffer.length + 4] = checkSum >> 8;
-
-//     usbDownloadTransmit(pt, rxBuffer.length + 5);
-// #endif
-// }
-
-void onFlySkyModuleSetPower(bool isPowerOn)
-{
-  if (isPowerOn) {
-    INTERNAL_MODULE_ON();
-    resetPulsesAFHDS2();
-  } else {
-    moduleState[INTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
-    INTERNAL_MODULE_OFF();
-  }
-}
-
 void setFlyskyState(uint8_t state)
 {
   _flysky_state = state;
 }
 
-void onFlySkyUsbDownloadStart(uint8_t fw_state) { rf_info.fw_state = fw_state; }
-
-void onFlySkyGetVersionInfoStart(uint8_t isRfTransfer)
+inline void initFlySkyCRC()
 {
-  lastState = _flysky_state;
-  setFlyskyState(isRfTransfer ? STATE_GET_RF_VERSION_INFO
-                              : STATE_GET_RX_VERSION_INFO);
-}
-
-inline void initFlySkyArray()
-{
-  // TODO
-  // intmodulePulsesData.flysky.ptr = intmodulePulsesData.flysky.pulses;
   _flysky_crc = 0;
 }
 
@@ -307,7 +236,7 @@ inline void putFlySkyFrameBytes(uint8_t*& p_buf, uint8_t* data, int length)
 
 inline void putFlySkyFrameHeader(uint8_t*& p_buf)
 {
-  // initFlySkyArray();
+  initFlySkyCRC();
   *p_buf++ = END;
   putFlySkyFrameByte(p_buf, _flysky_frame_index);
 }
@@ -541,39 +470,8 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
   }
 }
 
-bool isrxBufferMsgOK(void)
-{
-  bool isMsgOK = (0 != rfRxCount);
-  rfRxCount = 0;
-  return isMsgOK && isFlySkyUsbDownload();
-}
-
 void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
 {
-  // #if !defined(SIMU)
-  //   parseFlyskyData(&rxBuffer, byte);
-  // #endif
-  // if (rxBuffer.valid) {
-  //   rfRxCount++;
-  //   rxBuffer.valid = 0;
-  //   uint8_t *pt = (uint8_t*)&rxBuffer;
-  //   //rxBuffer.head = HALL_PROTOLO_HEAD;
-  //   pt[rxBuffer.length + 3] = rxBuffer.checkSum & 0xFF;
-  //   pt[rxBuffer.length + 4] = rxBuffer.checkSum >> 8;
-
-  //   if((DEBUG_RF_FRAME_PRINT & RF_FRAME_ONLY)) {
-  //       TRACE("RF: %02X %02X %02X ...%04X; CRC:%04X", pt[0], pt[1], pt[2],
-  //       rxBuffer.checkSum, calc_crc16(pt, rxBuffer.length+3));
-  //   }
-
-  //   //FW UPDATE done
-  //   if (0x01 == rxBuffer.length && (0x05 == rxBuffer.data[0] || 0x06 ==
-  //   rxBuffer.data[0])) {
-  //       setFlyskyState(STATE_INIT);
-  //       rf_info.fw_state = 0;
-  //   }
-  //   usbDownloadTransmit(pt, rxBuffer.length + 5);
-  // }
   if (byte == END && *len > 0) {
     parseResponse(buffer, *len);
     *len = 0;
@@ -703,18 +601,18 @@ void setupPulsesAFHDS2(uint8_t*& p_buf)
           putFlySkyFrameByte(p_buf, FLYSKY_RF_FIRMWARE);
         } break;
         case STATE_IDLE:
-          initFlySkyArray(); // TODO
+          initFlySkyCRC();
           break;
         default:
           setFlyskyState(STATE_INIT);
-          initFlySkyArray();
+          initFlySkyCRC();
           if ((DEBUG_RF_FRAME_PRINT & TX_FRAME_ONLY)) {
             TRACE("State back to INIT\r\n");
           }
           return;
       }
     } else {
-      initFlySkyArray(); // TODO
+      initFlySkyCRC();
       return;
     }
   } else {

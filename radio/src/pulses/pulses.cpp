@@ -25,6 +25,7 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
+#include "hal/module_port.h"
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
@@ -364,9 +365,9 @@ uint8_t getRequiredProtocol(uint8_t module)
   return protocol;
 }
 
-static void _init_module(module_pulse_driver* mod, uint8_t module,
-                         const etx_proto_driver_t* drv)
+static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
 {
+  auto mod = &(_module_drivers[module]);
   void* ctx = drv->init(module);
 
   // TODO: module init failed somehow, we should handle this better...
@@ -374,16 +375,26 @@ static void _init_module(module_pulse_driver* mod, uint8_t module,
 
   mod->drv = drv;
   mod->ctx = ctx;
+
+  // power ON
+  modulePortSetPower(module, true);
 }
 
-static void _deinit_module(module_pulse_driver* mod)
+static void _deinit_module(uint8_t module)
 {
+  auto mod = &(_module_drivers[module]);
   if (!mod->drv) return;
 
+  // scheduling OFF
+  mixerSchedulerSetPeriod(module, 0);
+  
   // de-init
   auto drv = mod->drv;
   auto ctx = mod->ctx;
   drv->deinit(ctx);
+
+  // power OFF
+  modulePortSetPower(module, false);
 
   // clear
   memset(mod, 0, sizeof(module_pulse_driver));
@@ -391,14 +402,13 @@ static void _deinit_module(module_pulse_driver* mod)
 
 static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 {
-  auto mod = &(_module_drivers[module]);
-  _deinit_module(mod);
+  _deinit_module(module);
 
   switch (protocol) {
 #if defined(PXX1)
     case PROTOCOL_CHANNELS_PXX1_PULSES:
     case PROTOCOL_CHANNELS_PXX1_SERIAL:
-      _init_module(mod, module, &Pxx1Driver);
+      _init_module(module, &Pxx1Driver);
       break;
 #endif
 
@@ -406,62 +416,62 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
     case PROTOCOL_CHANNELS_DSM2_LP45:
     case PROTOCOL_CHANNELS_DSM2_DSM2:
     case PROTOCOL_CHANNELS_DSM2_DSMX:
-      _init_module(mod, module, &DSM2Driver);
+      _init_module(module, &DSM2Driver);
       break;
 #endif
 
 #if defined(SBUS)
     case PROTOCOL_CHANNELS_SBUS:
-      _init_module(mod, module, &SBusDriver);
+      _init_module(module, &SBusDriver);
       break;
 #endif
 
 #if defined(PXX2)
     case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
     case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
-      _init_module(mod, module, &Pxx2Driver);
+      _init_module(module, &Pxx2Driver);
       break;
 #endif
 
 #if defined(MULTIMODULE)
     case PROTOCOL_CHANNELS_MULTIMODULE:
-      _init_module(mod, module, &MultiDriver);
+      _init_module(module, &MultiDriver);
       break;
 #endif
 
 #if defined(CROSSFIRE)
     case PROTOCOL_CHANNELS_CROSSFIRE:
-      _init_module(mod, module, &CrossfireDriver);
+      _init_module(module, &CrossfireDriver);
       break;
 #endif
 
 #if defined(GHOST)
     case PROTOCOL_CHANNELS_GHOST:
-      _init_module(mod, module, &GhostDriver);
+      _init_module(module, &GhostDriver);
       break;
 #endif
 
 #if defined(PPM)
   case PROTOCOL_CHANNELS_PPM:
-      _init_module(mod, module, &PpmDriver);
+      _init_module(module, &PpmDriver);
       break;
 #endif
 
 #if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)
     case PROTOCOL_CHANNELS_AFHDS2A:
-      _init_module(mod, module, &Afhds2InternalDriver);
+      _init_module(module, &Afhds2InternalDriver);
       break;
 #endif
 
 #if defined(INTERNAL_MODULE_AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
-      _init_module(mod, module, &afhds3::ProtoDriver);
+      _init_module(module, &afhds3::ProtoDriver);
       break;
 #endif
 
 #if defined(DSM2)
     case PROTOCOL_CHANNELS_DSMP:
-      _init_module(mod, module, &DSMPDriver);
+      _init_module(module, &DSMPDriver);
       break;
 #endif
 
@@ -474,19 +484,16 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 
 void pulsesStopModule(uint8_t module)
 {
+  if (module >= MAX_MODULES) return;
+  _deinit_module(module);
+
   auto& proto = moduleState[module].protocol;
-  if (proto != PROTOCOL_CHANNELS_UNINITIALIZED &&
-      proto != PROTOCOL_CHANNELS_NONE) {
-
-    auto mod = &(_module_drivers[module]);
-    _deinit_module(mod);
-
-    proto = PROTOCOL_CHANNELS_NONE;
-  }
+  proto = PROTOCOL_CHANNELS_NONE;
 }
 
 void pulsesSendNextFrame(uint8_t module)
 {
+  if (module >= MAX_MODULES) return;
   uint8_t protocol = getRequiredProtocol(module);
 
   heartbeat |= (HEART_TIMER_PULSES << module);

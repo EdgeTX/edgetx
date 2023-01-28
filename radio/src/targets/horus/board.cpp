@@ -24,6 +24,7 @@
 #include "hal/serial_driver.h"
 #include "hal/serial_port.h"
 #include "hal/trainer_driver.h"
+#include "hal/module_port.h"
 
 #include "board.h"
 #include "timers_driver.h"
@@ -60,13 +61,9 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
-
-// g_eeGeneral
-#include "opentx.h"
-
 void sportUpdateInit()
 {
+#if defined(SPORT_UPDATE_PWR_GPIO)
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -74,24 +71,14 @@ void sportUpdateInit()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
+#endif
 }
 
-void sportUpdatePowerOn()
-{
-  GPIO_SetBits(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerOff()
-{
-  GPIO_ResetBits(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
+#if !defined(BOOT)
+#include "opentx.h" // g_eeGeneral
 void sportUpdatePowerInit()
 {
-  if (g_eeGeneral.sportUpdatePower == 1)
-    sportUpdatePowerOn();
-  else
-    sportUpdatePowerOff();
+  modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
 }
 #endif
 
@@ -212,9 +199,7 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
   sportUpdateInit();
-#endif
 
 #if defined(RTCLOCK) && !defined(COPROCESSOR)
   ledRed();

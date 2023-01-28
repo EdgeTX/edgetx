@@ -184,15 +184,13 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
 
   etx_serial_init params(dsmUartParams);
   params.baudrate = baudrate;
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &params);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
 
   // TODO: check telemetry init...
   params.direction = ETX_Dir_RX;
   modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
 
-  EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, period);
-
   return (void*)mod_st;
 }
 
@@ -210,10 +208,6 @@ static void* dsmpInit(uint8_t module)
 static void dsmDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

@@ -1772,6 +1772,11 @@ void opentxInit()
 #endif
 #endif  // #if !defined(EEPROM)
 
+// TODO: move to board on hook (onStorageReady()?)
+// #if defined(SPORT_UPDATE_PWR_GPIO)
+//   SPORT_UPDATE_POWER_INIT();
+// #endif
+  
   initSerialPorts();
 
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
@@ -1783,12 +1788,6 @@ void opentxInit()
   referenceSystemAudioFiles();
   audioQueue.start();
   BACKLIGHT_ENABLE();
-
-
-
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  SPORT_UPDATE_POWER_INIT();
-#endif
 
 #if defined(COLORLCD)
   loadTheme();

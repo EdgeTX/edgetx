@@ -155,8 +155,8 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   // Disable IRQ based RX
   LL_USART_DisableIT_RXNE(usart->USARTx);
 
-  // In case TX DMA is used, disable the ISR completely
-  if (usart->txDMA) {
+  // In case TX DMA is used and IDLE IRQ is not, disable the ISR completely
+  if (usart->txDMA && !LL_USART_IsEnabledIT_IDLE(usart->USARTx)) {
     NVIC_DisableIRQ(usart->IRQn);
   }
 
@@ -198,11 +198,10 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 //
 // - USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
+
+// OBSOLETE:
 // - asymmetric bitrates for half-duplex (GHOST)
-//
 // - ??? ability to switch RX DMA OFF ??? (-> X12S)
-// - callback to be able to reply to FrSky's sensor polling
-//   (->outputTelemetryBuffer) probably best to use the IDLE IRQ
 //
 void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
@@ -403,6 +402,7 @@ void stm32_usart_enable_rx(const stm32_usart_t* usart)
   _half_duplex_input(usart);
 }
 
+// from stm32f4xx_ll_usart.c
 static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
 {
   uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;

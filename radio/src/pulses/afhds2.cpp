@@ -42,12 +42,11 @@ static void* afhds2Init(uint8_t module)
 
   // serial port setup
   resetPulsesAFHDS2();
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART,
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART,
                                      &afhds2SerialInitParams);
 
   // mixer setup
   mixerSchedulerSetPeriod(module, AFHDS2_PERIOD);
-  INTERNAL_MODULE_ON();
 
   return (void*)mod_st;
 }
@@ -55,10 +54,6 @@ static void* afhds2Init(uint8_t module)
 static void afhds2DeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  
-  INTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-
   modulePortDeInit(mod_st);
 }
 

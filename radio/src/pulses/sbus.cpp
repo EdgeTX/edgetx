@@ -105,21 +105,16 @@ static void* sbusInit(uint8_t module)
   if (module == INTERNAL_MODULE) return nullptr;
 #endif
 
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_SOFT_INV, &sbusUartParams);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
+  if (mod_st) return nullptr;
 
-  EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
-
   return (void*)mod_st;
 }
 
 static void sbusDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

@@ -671,17 +671,16 @@ static void* pxx2Init(uint8_t module)
 
 #if defined(INTERNAL_MODULE_PXX2)
   if (module == INTERNAL_MODULE) {
+    params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+    if (!mod_st) return nullptr;
+
 #if defined(INTMODULE_HEARTBEAT)
     // use backup trigger (1 ms later)
     init_intmodule_heartbeat();
 #endif
     mixerSchedulerSetPeriod(module, PXX2_PERIOD);
-    INTERNAL_MODULE_ON();
-
     resetAccessAuthenticationCount();
-
-    params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
   }
 #endif
 
@@ -706,10 +705,10 @@ static void* pxx2Init(uint8_t module)
       return nullptr;
     }
 
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+    if (!mod_st) return nullptr;
+    
     mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
-    EXTERNAL_MODULE_ON();
-
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_EXTERNAL_UART, &params);
   }
 #endif
 
@@ -723,20 +722,12 @@ static void pxx2DeInit(void* ctx)
 
 #if defined(INTERNAL_MODULE_PXX2)
   if (module == INTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
 #if defined(INTMODULE_HEARTBEAT)
     stop_intmodule_heartbeat();
 #endif
   }
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-#endif
-
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

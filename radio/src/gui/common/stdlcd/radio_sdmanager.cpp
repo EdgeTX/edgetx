@@ -228,12 +228,11 @@ void onSdManagerMenu(const char * result)
     device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
-  // TODO: use another module enum as 'ModuleIndex'
-  // else if (result == STR_FLASH_EXTERNAL_DEVICE) {
-  //   getSelectionFullPath(lfn);
-  //   FrskyDeviceFirmwareUpdate device(SPORT_MODULE);
-  //   device.flashFirmware(lfn, drawProgressScreen);
-  // }
+  else if (result == STR_FLASH_EXTERNAL_DEVICE) {
+    getSelectionFullPath(lfn);
+    FrskyDeviceFirmwareUpdate device(SPORT_MODULE);
+    device.flashFirmware(lfn, drawProgressScreen);
+  }
 #if defined(MULTIMODULE)
 #if defined(INTERNAL_MODULE_MULTI)
   else if (result == STR_FLASH_INTERNAL_MULTI) {
@@ -437,24 +436,33 @@ void menuRadioSdManager(event_t _event)
             }
           }
           else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
-            if (HAS_SPORT_UPDATE_CONNECTOR())
+            auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
+            if (mod_desc && mod_desc->set_pwr)
               POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_DEVICE);
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-            POPUP_MENU_ADD_ITEM(STR_FLASH_INTERNAL_MODULE);
-#endif
+
+            if (g_eeGeneral.internalModule == MODULE_TYPE_XJT_PXX1 ||
+                g_eeGeneral.internalModule == MODULE_TYPE_ISRM_PXX2)
+              POPUP_MENU_ADD_ITEM(STR_FLASH_INTERNAL_MODULE);
+
             POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MODULE);
           }
           else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
             FrSkyFirmwareInformation information;
             if (readFrSkyFirmwareInformation(line, information) == nullptr) {
-#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
-              if (information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE)
+
+              if (information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE &&
+                  (g_eeGeneral.internalModule == MODULE_TYPE_XJT_PXX1 ||
+                   g_eeGeneral.internalModule == MODULE_TYPE_ISRM_PXX2))
                 POPUP_MENU_ADD_ITEM(STR_FLASH_INTERNAL_MODULE);
-#endif
+
               if (information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE)
                 POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MODULE);
-              if (information.productFamily == FIRMWARE_FAMILY_RECEIVER || information.productFamily == FIRMWARE_FAMILY_SENSOR) {
-                if (HAS_SPORT_UPDATE_CONNECTOR())
+
+              if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
+                  information.productFamily == FIRMWARE_FAMILY_SENSOR) {
+
+                auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
+                if (mod_desc && mod_desc->set_pwr)
                   POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_DEVICE);
                 else
                   POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MODULE);

@@ -110,21 +110,16 @@ static void* ppmInit(uint8_t module)
     .cmp_val = (uint16_t)delay,
   };
 
-  auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_EXTERNAL_TIMER, &cfg);
+  auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_TIMER, &cfg);
+  if (!mod_st) return nullptr;
 
-  EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
-
   return (void*)mod_st;  
 }
 
 static void ppmDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 

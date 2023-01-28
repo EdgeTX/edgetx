@@ -26,8 +26,6 @@
 #include "hal/module_port.h"
 #include "mixer_scheduler.h"
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-
 static uint8_t getGhostModuleAddr()
 {
 // TODO: check if asymmetric baudrate is really needed
@@ -167,19 +165,13 @@ static void* ghostInit(uint8_t module)
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ghostSerialParams);
   if (!mod_st) return nullptr;
 
-  EXTERNAL_MODULE_ON();
   mixerSchedulerSetPeriod(module, GHOST_PERIOD);
-
   return mod_st;
 }
 
 static void ghostDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 
@@ -260,5 +252,3 @@ const etx_proto_driver_t GhostDriver = {
   .sendPulses = ghostSendPulses,
   .processData = ghostProcessData,
 };
-
-#endif

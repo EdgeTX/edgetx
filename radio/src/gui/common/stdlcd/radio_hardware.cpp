@@ -666,14 +666,15 @@ void menuRadioHardware(event_t event)
           lcdDrawText(lcdNextPos, y, "---");
         break;
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-      case ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER:
-        g_eeGeneral.sportUpdatePower = editChoice(HW_SETTINGS_COLUMN2, y, STR_SPORT_UPDATE_POWER_MODE, STR_SPORT_UPDATE_POWER_MODES, g_eeGeneral.sportUpdatePower, 0, 1, attr, event);
-        if (attr && checkIncDec_Ret) {
-          SPORT_UPDATE_POWER_INIT();
-        }
-        break;
-#endif
+// TODO: this is board specific, do something about it!
+// #if defined(SPORT_UPDATE_PWR_GPIO)
+//       case ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER:
+//         g_eeGeneral.sportUpdatePower = editChoice(HW_SETTINGS_COLUMN2, y, STR_SPORT_UPDATE_POWER_MODE, STR_SPORT_UPDATE_POWER_MODES, g_eeGeneral.sportUpdatePower, 0, 1, attr, event);
+//         if (attr && checkIncDec_Ret) {
+//           SPORT_UPDATE_POWER_INIT();
+//         }
+//         break;
+// #endif
 
       case ITEM_RADIO_HARDWARE_DEBUG:
         lcdDrawTextAlignedLeft(y, STR_DEBUG);

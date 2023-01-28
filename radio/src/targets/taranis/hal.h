@@ -1610,6 +1610,7 @@
   #if defined(PCBXLITES)
     #define INTMODULE_BOOTCMD_GPIO         GPIOC
     #define INTMODULE_BOOTCMD_GPIO_PIN     GPIO_Pin_8  // PC.08
+    #define INTMODULE_BOOTCMD_DEFAULT      1 // SET
     #define INIT_INTMODULE_BOOTCMD_PIN()   GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #endif
 #elif defined(RADIO_X9DP2019)
@@ -1674,6 +1675,7 @@
   #define INTMODULE_RX_DMA_CHANNEL      LL_DMA_CHANNEL_4
   #define INTMODULE_BOOTCMD_GPIO        GPIOB
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_1  // PB.01
+  #define INTMODULE_BOOTCMD_DEFAULT     0 // RESET
   #define INIT_INTMODULE_BOOTCMD_PIN()  GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(RADIO_X7)
   #define INTMODULE_PULSES
@@ -1715,14 +1717,17 @@
   #if defined(RADIO_TLITE)
     #define INTMODULE_BOOTCMD_GPIO          GPIOA
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PA.05
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #elif defined(RADIO_TPRO)
     #define INTMODULE_BOOTCMD_GPIO          GPIOF
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_11  // PF.11
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #elif defined(RADIO_LR3PRO)
     #define INTMODULE_BOOTCMD_GPIO          GPIOB
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PB.05
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #endif
 #elif defined(RADIO_COMMANDO8)
@@ -1741,10 +1746,10 @@
   #define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_7
   #define INTMODULE_USART_IRQn            USART3_IRQn
   #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
-  // DMA1_Stream3 is already used by SDIO
-  #define INTMODULE_DMA                   NULL
-  #define INTMODULE_DMA_CHANNEL           0
-  #define INTMODULE_DMA_STREAM            0
+  // // DMA1_Stream3 is already used by SDIO
+  // #define INTMODULE_DMA                   NULL
+  // #define INTMODULE_DMA_CHANNEL           0
+  // #define INTMODULE_DMA_STREAM            0
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)

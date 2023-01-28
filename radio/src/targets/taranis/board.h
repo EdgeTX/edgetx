@@ -765,38 +765,6 @@ void debugPutc(const char c);
 // void telemetryClearFifo();
 // extern uint32_t telemetryErrors;
 
-// soft-serial
-void telemetryPortInvertedInit(uint32_t baudrate);
-
-// PCBREV driver
-#if defined(PCBX7ACCESS)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  true
-#elif defined(PCBX7)
-  #define IS_PCBREV_40()                (hardwareOptions.pcbrev == PCBREV_X7_40)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  IS_PCBREV_40()
-#elif defined(SPORT_UPDATE_PWR_GPIO)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  true
-#else
-  #define HAS_SPORT_UPDATE_CONNECTOR()  false
-#endif
-
-// Sport update driver
-#if defined(SPORT_UPDATE_PWR_GPIO)
-void sportUpdateInit();
-void sportUpdatePowerOn();
-void sportUpdatePowerOff();
-void sportUpdatePowerInit();
-#define SPORT_UPDATE_POWER_ON()         sportUpdatePowerOn()
-#define SPORT_UPDATE_POWER_OFF()        sportUpdatePowerOff()
-#define SPORT_UPDATE_POWER_INIT()       sportUpdatePowerInit()
-#define IS_SPORT_UPDATE_POWER_ON()      (GPIO_ReadInputDataBit(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN) == Bit_SET)
-#else
-#define sportUpdateInit()
-#define SPORT_UPDATE_POWER_ON()
-#define SPORT_UPDATE_POWER_OFF()
-#define SPORT_UPDATE_POWER_INIT()
-#define IS_SPORT_UPDATE_POWER_ON()      (false)
-#endif
 
 // Audio driver
 void audioInit() ;

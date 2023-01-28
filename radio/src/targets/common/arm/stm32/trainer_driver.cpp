@@ -362,7 +362,7 @@ void init_trainer_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
 
-  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_EXTERNAL_UART,
+  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
                                              &sbusTrainerParams);
 }
 

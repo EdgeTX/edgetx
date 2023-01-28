@@ -225,9 +225,7 @@ static void* crossfireInit(uint8_t module)
   if (module == INTERNAL_MODULE) {
 
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
-    INTERNAL_MODULE_ON();
-
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_INTERNAL_UART, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
   }
 #endif
 
@@ -235,8 +233,6 @@ static void* crossfireInit(uint8_t module)
   if (module == EXTERNAL_MODULE) {
 
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
-    EXTERNAL_MODULE_ON();
-
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
   }
 #endif
@@ -251,21 +247,6 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-#if defined(INTERNAL_MODULE_CRSF)
-  if (module == INTERNAL_MODULE) {
-    INTERNAL_MODULE_OFF();
-  }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    EXTERNAL_MODULE_OFF();
-  }
-#endif
-  
-  mixerSchedulerSetPeriod(module, 0);
   modulePortDeInit(mod_st);
 }
 
