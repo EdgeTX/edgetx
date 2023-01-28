@@ -161,8 +161,6 @@ enum GhostFrames
   GHST_MENU_CONTROL
 };
 
-uint8_t getGhostModuleAddr();
-
 void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length);
 void ghostSetDefault(int index, uint8_t id, uint8_t subId);
 

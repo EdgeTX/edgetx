@@ -1241,18 +1241,20 @@ static int luaGhostTelemetryPush(lua_State * L)
       return 1;
     }
 
-    // Ghost frames are fixed 14B
-    outputTelemetryBuffer.pushByte(getGhostModuleAddr());         // addr (1B)
-    outputTelemetryBuffer.pushByte(12);           // len = payload length(10B) + type(1B) + crc(1B)
+    // Ghost frames are fixed 14B:
+    // address(1B) + len (1B) + type(1B) + payload(10B) + crc(1B)
+    // -> address + len up-front are inserted later
     outputTelemetryBuffer.pushByte(type);         // type (1B)
-    for (int i=0; i<length; i++) {                // data, max 10B
-      lua_rawgeti(L, 2, i+1);
+    int i = 0;
+    for (; i < length; i++) {                     // data, max 10B
+      lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    for (int i=0; i<10-length; i++) {             // fill zeroes to frame size
+    for (; i < 10; i++) {                         // fill zeroes to frame size
       outputTelemetryBuffer.pushByte(0);
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 11 ));  // Start at type, CRC over type (1B) + payload (10B)
+    // CRC over type (1B) + payload (10B)
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data, 11 ));
     outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }

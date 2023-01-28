@@ -28,6 +28,21 @@
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 
+static uint8_t getGhostModuleAddr()
+{
+// TODO: check if asymmetric baudrate is really needed
+//       as it introduces a lot of clutter
+//
+// #if SPORT_MAX_BAUDRATE < 400000
+//   return g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate ==
+//                  GHST_TELEMETRY_RATE_400K
+//              ? GHST_ADDR_MODULE_SYM
+//              : GHST_ADDR_MODULE_ASYM;
+// #else
+  return GHST_ADDR_MODULE_SYM;
+// #endif
+}
+
 static uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {
   uint8_t * buf = frame;
@@ -186,9 +201,17 @@ static void ghostSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8
 #if defined(LUA)
   if (outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT) {
     auto len = outputTelemetryBuffer.size;
-    memcpy(p_data, outputTelemetryBuffer.data, len);
+    auto f_data = outputTelemetryBuffer.data;
+    while (len >= 12) { // type(1B) + payload(10B) + crc(1B)
+      // insert address byte
+      *p_data++ = getGhostModuleAddr();
+      // and length
+      *p_data++ = 12;
+      memcpy(p_data, f_data, 12);
+      p_data += 12; f_data += 12;
+      len -= 12;
+    }
     outputTelemetryBuffer.reset();
-    p_data += len;
   } else
 #endif
   if (moduleState[module].counter == GHST_MENU_CONTROL) {
