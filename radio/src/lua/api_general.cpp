@@ -571,7 +571,7 @@ The list of valid sources is available:
  * `id`   (number) field identifier
  * `name` (string) field name
  * `desc` (string) field description
- * 'unit' (number) unit identifier [Full list](../appendix/units.html)
+ * `unit` (number) unit identifier [Full list](../appendix/units.html)
 
 @retval nil the requested field was not found
 
@@ -1780,7 +1780,7 @@ static int luaDefaultStick(lua_State * L)
 
 @param value fed to the sensor
 
-@param unit unit of the sensor [Full list](../appendix/units.html)
+@param unit unit of the sensor [Full list](../../appendix/units.html)
 
 @param precision the precision of the sensor
  * `0 or not present` no decimal precision.
