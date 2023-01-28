@@ -22,6 +22,9 @@ set(SIMU_DRIVERS
 if(SDL2_FOUND)
   include_directories(${SDL2_INCLUDE_DIRS})
   add_definitions(-DJOYSTICKS)
+  if(TARGET SDL2::SDL2)
+    set(SDL2_LIBRARIES SDL2::SDL2)
+  endif()
 endif()
 
 if(SIMU_LUA_COMPILER)
