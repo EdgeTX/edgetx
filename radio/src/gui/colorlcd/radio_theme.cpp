@@ -500,7 +500,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
   auto menu = new Menu(listBox,false);
 
-  // you cant activate the active theme
+  // you can't activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
       auto idx = listBox->getSelected();
@@ -530,6 +530,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
           setAuthor(&theme);
           nameText->setText(theme.getName());
           listBox->setName(currentTheme, theme.getName());
+          themeColorPreview->setColorList(theme.getColorList());
         }
 
         // if the active theme changed, re-apply it
