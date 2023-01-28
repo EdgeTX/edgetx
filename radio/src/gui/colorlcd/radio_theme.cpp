@@ -368,17 +368,23 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    bool canCancel() override
     {
       if (_dirty) {
-        if (confirmationDialog("Save Theme?", _theme.getName())) {
-          if (saveHandler != nullptr) {
-            saveHandler(_theme);
-          }
-        }
+        new ConfirmDialog(
+            this, STR_SAVE_THEME, _theme.getName(),
+            [=]() {
+              if (saveHandler != nullptr) {
+                saveHandler(_theme);
+              }
+              deleteLater();
+            },
+            [=]() {
+              deleteLater();
+            });
+        return false;
       }
-
-      Page::deleteLater(detach, trash);
+      return true;
     }
 
     void editColorPage()
@@ -401,10 +407,7 @@ class ThemeEditPage : public Page
       }
 
       // page title
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_EDIT_THEME, 0, COLOR_THEME_PRIMARY2 | flags);
+      header.setTitle(STR_EDIT_THEME);
       _themeName = new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
@@ -561,15 +564,17 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   });
 
-  // you cant delete the default theme or the currently active theme
+  // you can't delete the default theme or the currently active theme
   if (listBox->getSelected() != 0 && listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_DELETE, [=] () {
-      if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
-        tp->deleteThemeByIndex(listBox->getSelected());
-        listBox->setNames(tp->getNames());
-        currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
-        listBox->setSelected(currentTheme);
-      }
+      new ConfirmDialog(
+          window, STR_DELETE_THEME,
+          tp->getThemeByIndex(listBox->getSelected())->getName(), [=] {
+            tp->deleteThemeByIndex(listBox->getSelected());
+            listBox->setNames(tp->getNames());
+            currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
+            listBox->setSelected(currentTheme);
+          });
     });
   }
 }

@@ -775,6 +775,8 @@
 #define TR_SAMPLE_MODE                 "サンプルモード"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "読み込み中..."
+#define TR_DELETE_THEME                "テーマを削除しますか？"
+#define TR_SAVE_THEME                  "テーマを保存しますか？"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
