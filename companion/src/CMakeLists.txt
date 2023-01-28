@@ -406,7 +406,7 @@ elseif(WIN32)
   # SDL2 dll
   if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
     set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL2_DIR}/SDL.dll DESTINATION ${INSTALL_DESTINATION})
+    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
   elseif(SDL2_FOUND)
     message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
   endif()
