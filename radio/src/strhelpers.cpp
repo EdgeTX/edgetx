@@ -913,7 +913,8 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
   if ((flags & NO_UNIT) || unit == UNIT_RAW)
     return formatNumberAsString(val, flags & (~NO_UNIT));
 
-  return formatNumberAsString(val, flags & (~NO_UNIT), 0, nullptr, STR_VTELEMUNIT[unit]);
+  return formatNumberAsString(val, flags & (~NO_UNIT), 0, nullptr,
+                              STR_VTELEMUNIT[unit]);
 }
 
 std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
@@ -922,7 +923,8 @@ std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
   if (prec > 0) {
     flags |= (prec == 1 ? PREC1 : PREC2);
   }
-  return getValueWithUnit(value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
+  return getValueWithUnit(
+      value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
 }
 
 #endif // defined(LIBOPENUI)

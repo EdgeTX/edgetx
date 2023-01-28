@@ -21,19 +21,16 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "page.h"
+#include "tabsgroup.h"
 #include "window.h"
 
-class ModelGVarsPage: public PageTab
+class ModelGVarsPage : public PageTab
 {
-  public:
-    ModelGVarsPage():
-      PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS)
-    {
-    }
+ public:
+  ModelGVarsPage() : PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS) {}
 
-  protected:
-    void build(FormWindow * window) override;
-    void rebuild(FormWindow * window);
+ protected:
+  void build(FormWindow* window) override;
+  void rebuild(FormWindow* window);
 };
