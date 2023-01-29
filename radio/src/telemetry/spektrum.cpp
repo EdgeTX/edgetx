@@ -365,6 +365,29 @@ void processSpektrumPacket(const uint8_t *packet)
 #endif
     return; // Not a sensor
   }
+
+#if defined(LUA)
+    // Generic way for LUA Script to request ANY Specktrum Telemety Raw Data
+    // this can be used for TextGen or any other telemetry message
+
+    if (Multi_Buffer && Multi_Buffer[3]==i2cAddress && Multi_Buffer[4]==0 && 
+        memcmp(Multi_Buffer, "STR", 3) == 0) {
+      // Multi_Buffer[0..2]=="STR" -> Lua script is running
+      // Multi_Buffer[3]==i2C Addr -> I2C address of data requested in Lua script
+      // Multi_Buffer[4]== Write Semaphore -> 0=Can Write Data. > 0, data not yet consumed
+      // Multi_Buffer[5..20]=15 bytes of RX to TX data (any other data after i2c address)
+
+      // Concurrency note: only going to write if Multi_Buffer[4]==0, that means that the
+      // Lua script is ready for more data. Whithout this "semaphore", the lua script was getting messages
+      // with mix of the old and new data. 
+
+      memcpy(&Multi_Buffer[5], &packet[3], 16); // Store the received RX answer in the buffer
+      Multi_Buffer[4]=i2cAddress; // Tell lua script data is ready
+    }
+#endif
+
+
+
   //SmartBat Hack
   if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
     i2cAddress = i2cAddress + (packet[4] >> 4); // use type to create virtual I2CAddresses
@@ -372,7 +395,10 @@ void processSpektrumPacket(const uint8_t *packet)
 
   uint8_t instance = packet[3];
 
-  if (i2cAddress == I2C_TEXTGEN) {
+ if (i2cAddress == I2C_TEXTGEN) {
+    /* FArzu: This don't seem to work at all.. The sensors was always 0.
+    TextGen now can be acceced via the new "Spectrum Telemetry Raw" LUA method
+
     uint8_t lineNumber = packet[4];
 
     uint16_t pseudoId = (i2cAddress << 8 | lineNumber);
@@ -383,9 +409,9 @@ void processSpektrumPacket(const uint8_t *packet)
     }
     // Set a sential \0 just for safety since we have the space there
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, '\0', UNIT_TEXT, 13);
+    */
 
-
-    return;
+    return;  // Not a sensor
   }
 
   bool handled = false;
