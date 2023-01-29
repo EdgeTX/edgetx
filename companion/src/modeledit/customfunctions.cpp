@@ -203,7 +203,6 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     tableLayout->addLayout(i, 5, enableLayout);
     fswtchEnable[i] = new QCheckBox(this);
     fswtchEnable[i]->setProperty("index", i);
-    fswtchEnable[i]->setText(tr("ON"));
     fswtchEnable[i]->setFixedWidth(200);
     enableLayout->addWidget(fswtchEnable[i], i + 1);
     connect(fswtchEnable[i], SIGNAL(stateChanged(int)), this, SLOT(customFunctionEdited()));
@@ -326,6 +325,7 @@ void CustomFunctionsPanel::functionEdited()
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
+    functions[index].enabled = true;
     refreshCustomFunction(index);
     emit modified();
     lock = false;
