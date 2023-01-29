@@ -926,7 +926,6 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
-#define TR_RXFREQUENCY         TR("Rx Freqency", "Rx Servo Frequency")
 #define TR_ANTENNACONFIRM1     "ANTENA EXT."
 #if defined(PCBX12S)
 #define TR_ANTENNA_MODES       "Interna","Preguntar","Por modelo","Interno + Externo"

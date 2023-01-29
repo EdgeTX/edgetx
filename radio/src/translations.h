@@ -167,14 +167,9 @@ extern const char* const STR_VSRCRAW[];
 
 extern const char* const STR_ROTARY_ENC_OPT[];
 
-#if defined(TRANSLATIONS_CZ)
-extern const char* const STR_INPUTNAMES[];
-#endif
-
 extern const char* const STR_VTMRMODES[];
 extern const char* const STR_VPERSISTENT[];
 
-extern const char* const STR_VLCD[];
 extern const char* const STR_VUNITSSYSTEM[];
 extern const char* const STR_VBEEPCOUNTDOWN[];
 extern const char* const STR_COUNTDOWNVALUES[];
@@ -927,8 +922,6 @@ extern const char STR_BINDING_1_8_TELEM_OFF[];
 extern const char STR_BINDING_9_16_TELEM_ON[];
 extern const char STR_BINDING_9_16_TELEM_OFF[];
 extern const char STR_CHANNELRANGE[];
-extern const char STR_RXFREQUENCY[];
-extern const char STR_ANTENNASELECTION[];
 extern const char STR_ANTENNACONFIRM1[];
 extern const char STR_ANTENNACONFIRM2[];
 extern const char* const STR_ANTENNA_MODES[];
@@ -1071,48 +1064,6 @@ extern const char STR_MODULE_RANGE[];
 extern const char STR_RECEIVER_OPTIONS[];
 
 extern const char STR_ABOUTUS[];
-extern const char STR_ABOUT_OPENTX_1[];
-extern const char STR_ABOUT_OPENTX_2[];
-extern const char STR_ABOUT_OPENTX_3[];
-extern const char STR_ABOUT_OPENTX_4[];
-extern const char STR_ABOUT_OPENTX_5[];
-
-extern const char STR_ABOUT_BERTRAND_1[];
-extern const char STR_ABOUT_BERTRAND_2[];
-extern const char STR_ABOUT_BERTRAND_3[];
-
-extern const char STR_ABOUT_MIKE_1[];
-extern const char STR_ABOUT_MIKE_2[];
-extern const char STR_ABOUT_MIKE_3[];
-extern const char STR_ABOUT_MIKE_4[];
-
-extern const char STR_ABOUT_ROMOLO_1[];
-extern const char STR_ABOUT_ROMOLO_2[];
-extern const char STR_ABOUT_ROMOLO_3[];
-
-extern const char STR_ABOUT_ANDRE_1[];
-extern const char STR_ABOUT_ANDRE_2[];
-extern const char STR_ABOUT_ANDRE_3[];
-
-extern const char STR_ABOUT_ROB_1[];
-extern const char STR_ABOUT_ROB_2[];
-
-extern const char STR_ABOUT_MARTIN_1[];
-extern const char STR_ABOUT_MARTIN_2[];
-
-extern const char STR_ABOUT_KJELL_1[];
-extern const char STR_ABOUT_KJELL_2[];
-extern const char STR_ABOUT_KJELL_3[];
-extern const char STR_ABOUT_KJELL_4[];
-
-extern const char STR_ABOUT_HARDWARE_1[];
-extern const char STR_ABOUT_HARDWARE_2[];
-extern const char STR_ABOUT_HARDWARE_3[];
-
-extern const char STR_ABOUT_PARENTS_1[];
-extern const char STR_ABOUT_PARENTS_2[];
-extern const char STR_ABOUT_PARENTS_3[];
-extern const char STR_ABOUT_PARENTS_4[];
 
 extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];

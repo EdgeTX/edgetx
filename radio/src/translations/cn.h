@@ -921,7 +921,6 @@
 #define TR_UNIT                        "单位"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "添加新传感器..."
 #define TR_CHANNELRANGE                TR(INDENT "通道范围", INDENT "通道范围")
-#define TR_RXFREQUENCY                 TR("接收机频率", "接收机端口输出频率")
 #define TR_ANTENNACONFIRM1             "外置天线"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "内置天线","询问","基于模型","外置天线"

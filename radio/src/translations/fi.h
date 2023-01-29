@@ -211,7 +211,7 @@
 
 #define TR_VTELEMSCREENTYPE            "Nums","Bars"
 #define TR_GPSFORMAT                   "HMS","NMEA"
-#define LEN2_VTEMPLATES                12
+
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 #define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Rud",STR_CHAR_STICK "Ele",STR_CHAR_STICK "Thr",STR_CHAR_STICK "Ail"
 
@@ -937,7 +937,6 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
-#define TR_RXFREQUENCY                 TR("Rx Freqency", "Rx Servo Frequency")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #if defined(PCBX12S)
 #define TR_ANTENNA_MODES               "Internal","Ask","Per model","Internal + External"

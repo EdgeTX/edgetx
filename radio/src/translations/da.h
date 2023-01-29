@@ -927,7 +927,6 @@
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
 #define TR_CHANNELRANGE                TR(INDENT "Kan. rækkev", INDENT "Kanal rækkevidde")
-#define TR_RXFREQUENCY                 TR("Rx Frekvens", "Rx Servo Frekvens")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNE"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Intern","Spørg","Per model","Intern + Ekstern"

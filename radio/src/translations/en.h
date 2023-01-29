@@ -920,7 +920,6 @@
 #define TR_UNIT                        "Unit"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Add new"
 #define TR_CHANNELRANGE                TR(INDENT "Ch. Range", INDENT "Channel Range")
-#define TR_RXFREQUENCY                 TR("Rx Freqency", "Rx Servo Frequency")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Internal","Ask","Per model","Internal + External"

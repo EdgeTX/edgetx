@@ -204,8 +204,6 @@
 #define TR_VTELEMSCREENTYPE            "None","Werte","Balken","Script"
 #define TR_GPSFORMAT                   "GMS","NMEA"  // Koordinatenanzeige
 
-#define LEN2_VTEMPLATES                15  // max String Länge für Menü (original=13)
-
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
 #define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Sei",STR_CHAR_STICK "Höh",STR_CHAR_STICK "Gas",STR_CHAR_STICK "Que"
