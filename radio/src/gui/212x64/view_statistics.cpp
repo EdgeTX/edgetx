@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "tasks.h"
 
 #define STATS_1ST_COLUMN               FW/2
 #define STATS_2ND_COLUMN               12*FW+FW/2
@@ -112,7 +113,7 @@ void menuStatisticsDebug(event_t event)
     warningResult = 0;
     // do a user requested watchdog test
     TRACE("Performing watchdog test");
-    pausePulses();
+    pulsesStop();
   }
 #endif
 

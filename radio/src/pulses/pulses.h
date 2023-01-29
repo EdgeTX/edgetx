@@ -59,8 +59,6 @@
 #define IS_AFHDS3_PROTOCOL(protocol)         (0)
 #endif
 
-extern uint8_t s_pulses_paused;
-
 typedef void (* ModuleCallback)();
 
 PACK(struct ModuleState {
@@ -164,6 +162,7 @@ uint8_t* pulsesGetModuleBuffer(uint8_t module);
 
 void pulsesStopModule(uint8_t module);
 void pulsesSendNextFrame(uint8_t module);
+void pulsesSendChannels();
 
 void restartModule(uint8_t idx);
 void setupPulsesPPMTrainer();
@@ -175,23 +174,9 @@ void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
 
-void startPulses();
-void stopPulses();
-
-inline bool pulsesStarted()
-{
-  return moduleState[0].protocol != PROTOCOL_CHANNELS_UNINITIALIZED;
-}
-
-inline void pausePulses()
-{
-  s_pulses_paused = true;
-}
-
-inline void resumePulses()
-{
-  s_pulses_paused = false;
-}
+void pulsesInit();
+void pulsesStart();
+void pulsesStop();
 
 inline void SEND_FAILSAFE_NOW(uint8_t idx)
 {

@@ -569,12 +569,6 @@ void checkAlarm();
 void checkAll();
 
 void getADC();
-static inline void GET_ADC_IF_MIXER_NOT_RUNNING()
-{
-  if (s_pulses_paused) {
-    getADC();
-  }
-}
 
 #include "sbus.h"
 
@@ -582,23 +576,6 @@ void resetBacklightTimeout();
 void checkBacklight();
 
 uint16_t isqrt32(uint32_t n);
-
-#if defined(BOOT)
-#define pauseMixerCalculations()
-#define resumeMixerCalculations()
-#else
-#include "tasks.h"
-extern RTOS_MUTEX_HANDLE mixerMutex;
-inline void pauseMixerCalculations()
-{
-  RTOS_LOCK_MUTEX(mixerMutex);
-}
-
-inline void resumeMixerCalculations()
-{
-  RTOS_UNLOCK_MUTEX(mixerMutex);
-}
-#endif
 
 void setDefaultOwnerId();
 void generalDefault();

@@ -154,7 +154,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   if (simu_running)
     return;
 
-  stopPulses();
 #if !defined(COLORLCD)
   menuLevel = 0;
 #endif
@@ -231,6 +230,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   }
 #endif
 }
+
+extern RTOS_TASK_HANDLE mixerTaskId;
+extern RTOS_TASK_HANDLE menusTaskId;
 
 void simuStop()
 {

@@ -60,7 +60,6 @@ void stop_trainer_module_sbus() {}
 void init_intmodule_heartbeat() {}
 void stop_intmodule_heartbeat() {}
 
-#if defined(INTMODULE_USART) ||  defined(EXTMODULE_USART)
 static void* init(void*, const etx_serial_init*) { return (void*)1; }
 static void deinit(void*) {}
 static void sendByte(void*, uint8_t) {}
@@ -84,7 +83,6 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .setIdleCb = nullptr,
     .setBaudrateCb = nullptr,
 };
-#endif
 
 static void* module_timer_init(void* hw_def, const etx_timer_config_t* cfg)
 { return (void*)1; }
@@ -130,6 +128,23 @@ const etx_module_port_t _internal_ports[] = {
   },
 #endif
 };
+
+static const etx_module_t _internal_module = {
+  .ports = _internal_ports,
+  .set_pwr = nullptr,
+  .set_bootcmd = nullptr,
+  .n_ports = DIM(_internal_ports),
+};
+#endif
+
+#if defined(SPORT_UPDATE_PWR_GPIO)
+void _sport_set_pwr(uint8_t) {}
+const etx_module_t _sport_module = {
+  .ports = nullptr,
+  .set_pwr = _sport_set_pwr,
+  .set_bootcmd = nullptr,
+  .n_ports = 0,
+};
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
@@ -137,27 +152,19 @@ const etx_module_port_t _external_ports[] = {
 #if defined(EXTMODULE_USART)
   // TX on PPM, RX on HEARTBEAT
   {
-    .port = ETX_MOD_PORT_EXTERNAL_UART,
+    .port = ETX_MOD_PORT_UART,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
     .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
 #endif
-  // TX on PPM
+  // Timer output on PPM
   {
-    .port = ETX_MOD_PORT_EXTERNAL_TIMER,
+    .port = ETX_MOD_PORT_TIMER,
     .type = ETX_MOD_TYPE_TIMER,
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .timer = &_fakeTimerDriver },
-    .hw_def = nullptr,
-  },
-  // TX/RX half-duplex on S.PORT
-  {
-    .port = ETX_MOD_PORT_SPORT,
-    .type = ETX_MOD_TYPE_SERIAL,
-    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
-    .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
   // TX inverted DMA pulse train on S.PORT
@@ -165,6 +172,14 @@ const etx_module_port_t _external_ports[] = {
     .port = ETX_MOD_PORT_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
+    .drv = { .serial = &_fakeSerialDriver },
+    .hw_def = nullptr,
+  },
+  // TX/RX half-duplex on S.PORT
+  {
+    .port = ETX_MOD_PORT_SPORT,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
     .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
@@ -179,24 +194,28 @@ const etx_module_port_t _external_ports[] = {
   },
 #endif
 };
+
+static const etx_module_t _external_module = {
+  .ports = _external_ports,
+  .set_pwr = nullptr,
+  .set_bootcmd = nullptr,
+  .n_ports = DIM(_external_ports),
+};
 #endif
 
 
 BEGIN_MODULES()
 #if defined(HARDWARE_INTERNAL_MODULE)
-  {
-    .ports = _internal_ports,
-    .set_pwr = nullptr,
-    .module = INTERNAL_MODULE,
-    .n_ports = DIM(_internal_ports),
-  },
+  &_internal_module,
+#else
+  nullptr,
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  {
-    .ports = _external_ports,
-    .set_pwr = nullptr,
-    .module = EXTERNAL_MODULE,
-    .n_ports = DIM(_external_ports),
-  },
+  &_external_module,
+#else
+  nullptr,
+#endif
+#if defined(SPORT_UPDATE_PWR_GPIO)
+  &_sport_module,
 #endif
 END_MODULES()

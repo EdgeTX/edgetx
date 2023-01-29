@@ -20,148 +20,18 @@
  */
 
 #include "opentx.h"
-#include "mixer_scheduler.h"
 #include "timers_driver.h"
+
+#include "tasks.h"
+#include "tasks/mixer_task.h"
 
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
-
-RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
 RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;
-RTOS_MUTEX_HANDLE mixerMutex;
-
-volatile uint16_t timeForcePowerOffPressed = 0;
-
-bool isForcePowerOffRequested()
-{
-  if (pwrOffPressed()) {
-    if (timeForcePowerOffPressed == 0) {
-      timeForcePowerOffPressed = get_tmr10ms();
-    }
-    else {
-      uint16_t delay = (uint16_t)get_tmr10ms() - timeForcePowerOffPressed;
-      if (delay > 1000/*10s*/) {
-        return true;
-      }
-    }
-  }
-  else {
-    resetForcePowerOffRequest();
-  }
-  return false;
-}
-
-void sendSynchronousPulses()
-{
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    pulsesSendNextFrame(i);
-  }
-}
-
-constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
-constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
-
-void execMixerFrequentActions()
-{
-#if defined(SBUS_TRAINER)
-  // SBUS trainer
-  processSbusInput();
-#endif
-
-#if defined(IMU)
-  gyro.wakeup();
-#endif
-
-#if defined(BLUETOOTH)
-  bluetooth.wakeup();
-#endif
-
-#if defined(SIMU)
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
-#endif
-}
-
-TASK_FUNCTION(mixerTask)
-{
-  s_pulses_paused = true;
-
-  mixerSchedulerInit();
-  mixerSchedulerStart();
-
-  while (true) {
-    int timeout = 0;
-    for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
-
-      // run periodicals before waiting for the trigger
-      // to keep the delay short
-      execMixerFrequentActions();
-
-      // mixer flag triggered?
-      if (!mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD)) {
-        break;
-      }
-    }
-
-#if defined(DEBUG_MIXER_SCHEDULER)
-    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-#endif
-
-    // re-enable trigger
-    mixerSchedulerEnableTrigger();
-
-#if defined(SIMU)
-    if (pwrCheck() == e_power_off) {
-      TASK_RETURN();
-    }
-#else
-    if (isForcePowerOffRequested()) {
-      boardOff();
-    }
-#endif
-
-    if (!s_pulses_paused) {
-      uint16_t t0 = getTmr2MHz();
-
-      DEBUG_TIMER_START(debugTimerMixer);
-      RTOS_LOCK_MUTEX(mixerMutex);
-
-      doMixerCalculations();
-      sendSynchronousPulses();
-      doMixerPeriodicUpdates();
-
-      DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
-      DEBUG_TIMER_SAMPLE(debugTimerMixerIterval);
-      RTOS_UNLOCK_MUTEX(mixerMutex);
-      DEBUG_TIMER_STOP(debugTimerMixer);
-
-#if defined(STM32) && !defined(SIMU)
-      if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-        usbJoystickUpdate();
-      }
-#endif
-
-      if (heartbeat == HEART_WDT_CHECK) {
-        WDG_RESET();
-        heartbeat = 0;
-      }
-
-      t0 = getTmr2MHz() - t0;
-      if (t0 > maxMixerDuration)
-        maxMixerDuration = t0;
-    }
-  }
-}
-
 
 #define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
 
@@ -244,14 +114,13 @@ TASK_FUNCTION(menusTask)
 void tasksStart()
 {
   RTOS_CREATE_MUTEX(audioMutex);
-  RTOS_CREATE_MUTEX(mixerMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
-                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  mixerTaskInit();
+
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);
 

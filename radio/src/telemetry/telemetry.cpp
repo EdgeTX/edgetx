@@ -142,11 +142,10 @@ static StaticTimer_t telemetryTimerBuffer;
 static void telemetryTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
+
+  DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+  telemetryWakeup();
+  DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
 }
 
 void telemetryStart()
@@ -173,41 +172,6 @@ void telemetryStop()
   }
 }
 #endif
-
-// TODO: move these to new module API
-// void processTelemetryData(uint8_t data)
-// {
-
-// #if defined(GHOST)
-//   if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
-//     processGhostTelemetryData(data);
-//     return;
-//   }
-// #endif
-
-//   if (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM ||
-//       telemetryProtocol == PROTOCOL_TELEMETRY_DSMP) {
-//     processSpektrumTelemetryData(EXTERNAL_MODULE, data, telemetryRxBuffer,
-//                                  telemetryRxBufferCount);
-//     return;
-//   }
-
-// // TODO: move these to new interface
-// #if defined(MULTIMODULE)
-//   if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-//     processMultiTelemetryData(data, EXTERNAL_MODULE);
-//     return;
-//   }
-// #endif
-
-// #if defined(PXX1)
-//   if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||
-//       telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D ||
-//       telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-//     processFrskyTelemetryData(data);
-//   }
-// #endif
-// }
 
 inline bool isBadAntennaDetected()
 {

@@ -56,21 +56,13 @@ void preModelLoad()
   logsClose();
 #endif
 
-  if (pulsesStarted()) {
-    pausePulses();
-  }
-  pauseMixerCalculations();
-
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    pulsesStopModule(i);
-  }
-  RTOS_WAIT_MS(200);
-
+  pulsesStop();
   stopTrainer();
-
 #if defined(COLORLCD)
   deleteCustomScreens();
 #endif
+
+  RTOS_WAIT_MS(200);
 }
 
 void postRadioSettingsLoad()
@@ -135,16 +127,13 @@ void postModelLoad(bool alarms)
 
   loadCurves();
 
-  resumeMixerCalculations();
-  if (pulsesStarted()) {
 #if defined(GUI)
-    if (alarms) {
-      checkAll();
-      PLAY_MODEL_NAME();
-    }
-#endif
-    resumePulses();
+  if (alarms) {
+    checkAll();
+    PLAY_MODEL_NAME();
   }
+#endif
+  pulsesStart();
 
 #if defined(SDCARD)
   referenceModelAudioFiles();

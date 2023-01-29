@@ -27,16 +27,14 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_UNINITIALIZED,
   PROTOCOL_CHANNELS_NONE,
   PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PXX1_PULSES,
-  PROTOCOL_CHANNELS_PXX1_SERIAL,
+  PROTOCOL_CHANNELS_PXX1,
   PROTOCOL_CHANNELS_DSM2_LP45,
   PROTOCOL_CHANNELS_DSM2_DSM2,
   PROTOCOL_CHANNELS_DSM2_DSMX,
   PROTOCOL_CHANNELS_CROSSFIRE,
   PROTOCOL_CHANNELS_MULTIMODULE,
   PROTOCOL_CHANNELS_SBUS,
-  PROTOCOL_CHANNELS_PXX2_LOWSPEED,
-  PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
+  PROTOCOL_CHANNELS_PXX2,
   PROTOCOL_CHANNELS_AFHDS2A,
   PROTOCOL_CHANNELS_AFHDS3,
   PROTOCOL_CHANNELS_GHOST,
@@ -50,9 +48,6 @@ struct etx_proto_driver_t {
     
     // Init module communication
     void* (*init)(uint8_t module);
-
-    // // Default pulse period in microseconds
-    // uint16_t (*get_default_period)(uint8_t module);
 
     // De-Init module communication
     void (*deinit)(void* ctx);

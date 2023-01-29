@@ -24,6 +24,7 @@
 #include "frsky_firmware_update.h"
 #include "debug.h"
 #include "timers_driver.h"
+#include "tasks/mixer_task.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -500,13 +501,7 @@ const char * FrskyDeviceFirmwareUpdate::endTransfer()
 const char *FrskyDeviceFirmwareUpdate::flashFirmware(
     const char *filename, ProgressHandler progressHandler)
 {
-  pauseMixerCalculations();
-  pausePulses();
-
-  // This switches module power OFF
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    pulsesStopModule(i);
-  }
+  pulsesStop();
 
   // switch S.PORT power OFF if supported
   modulePortSetPower(SPORT_MODULE, false);
@@ -532,8 +527,7 @@ const char *FrskyDeviceFirmwareUpdate::flashFirmware(
   watchdogSuspend(500 /*5s*/);
   RTOS_WAIT_MS(2000);
 
-  resumePulses();
-  resumeMixerCalculations();
+  pulsesStart();
 
 // TODO: S.PORT power control
 //       -> where is it actually turned ON normally?
@@ -757,13 +751,7 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
 {
   progressHandler(getBasename(filename), STR_DEVICE_RESET, 0, 0);
 
-  pauseMixerCalculations();
-  pausePulses();
-
-  // This switches module power OFF
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    pulsesStopModule(i);
-  }
+  pulsesStop();
 
   // switch S.PORT power OFF if supported
   modulePortSetPower(SPORT_MODULE, false);
@@ -797,8 +785,7 @@ const char *FrskyChipFirmwareUpdate::flashFirmware(
   watchdogSuspend(1000 /*10s*/);
   RTOS_WAIT_MS(2000);
 
-  resumePulses();
-  resumeMixerCalculations();
+  pulsesStart();
 
   return result;
 }

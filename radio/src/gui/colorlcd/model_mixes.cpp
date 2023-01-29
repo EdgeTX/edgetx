@@ -31,6 +31,8 @@
 #include "input_mix_button.h"
 #include "mixer_edit.h"
 
+#include "tasks/mixer_task.h"
+
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
 #define PASTE_AFTER     -1
@@ -66,7 +68,7 @@ uint8_t getMixesCount()
 
 void insertMix(uint8_t idx, uint8_t channel)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData *mix = mixAddress(idx);
   memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(mix, sizeof(MixData));
@@ -80,17 +82,17 @@ void insertMix(uint8_t idx, uint8_t channel)
     }
   }
   mix->weight = 100;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void deleteMix(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -106,7 +108,7 @@ void insertMix(uint8_t idx)
 
 void copyMix(uint8_t source, uint8_t dest, int8_t ch)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData sourceMix;
   memcpy(&sourceMix, mixAddress(source), sizeof(MixData));
   MixData *mix = mixAddress(dest);
@@ -114,7 +116,7 @@ void copyMix(uint8_t source, uint8_t dest, int8_t ch)
   memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
   memcpy(mix, &sourceMix, sizeof(MixData));
   mix->destCh = ch;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -153,9 +155,9 @@ bool swapMixes(uint8_t &idx, uint8_t up)
     return true;
   }
 
-  pauseMixerCalculations();
+  mixerTaskStop();
   memswap(x, y, sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
 
   idx = tgt_idx;
   return true;

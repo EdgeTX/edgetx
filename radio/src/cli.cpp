@@ -27,6 +27,9 @@
 #include "timers_driver.h"
 #include "hal/module_port.h"
 
+#include "tasks.h"
+#include "tasks/mixer_task.h"
+
 #include "cli.h"
 
 #include <ctype.h>
@@ -578,7 +581,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -604,7 +607,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -711,7 +714,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -746,7 +749,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -903,7 +906,7 @@ int cliReboot(const char ** argv)
 #if !defined(SIMU)
   if (!strcmp(argv[1], "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
-    pausePulses();
+    pulsesStop();
   }
   else {
     NVIC_SystemReset();
@@ -1023,10 +1026,10 @@ int cliSet(const char **argv)
 
     if (level) {
       cliSerialPrint("%s: pulses start", argv[0]);
-      startPulses();
+      pulsesStart();
     } else {
       cliSerialPrint("%s: pulses stop", argv[0]);
-      stopPulses();
+      pulsesStop();
     }
   }
 
@@ -1099,7 +1102,7 @@ int cliSerialPassthrough(const char **argv)
     
     //  stop pulses
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
 
     // suspend RTOS scheduler
     vTaskSuspendAll();
@@ -1165,7 +1168,7 @@ int cliSerialPassthrough(const char **argv)
     //  - external module (S.PORT?)
 
     watchdogSuspend(200/*2s*/);
-    startPulses();
+    pulsesStart();
 
     // suspend RTOS scheduler
     xTaskResumeAll();
@@ -1545,7 +1548,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   uint32_t startMs = RTOS_GET_MS();
@@ -1560,7 +1563,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -1583,7 +1586,7 @@ int cliResetGT911(const char** argv)
 
     // stop pulses & suspend RTOS scheduler
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
     vTaskSuspendAll();
 
     // reset touch controller
@@ -1594,7 +1597,7 @@ int cliResetGT911(const char** argv)
     cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
 
     // restart pulses & RTOS scheduler
-    startPulses();
+    pulsesStart();
     xTaskResumeAll();
 
     return 0;
@@ -1715,7 +1718,7 @@ void cliTask(void * pdata)
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
 
-    if (s_pulses_paused) {
+    if (!mixerTaskRunning()) {
       WDG_RESET();
     }
 

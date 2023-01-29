@@ -47,19 +47,11 @@
 #endif
 
 
-extern RTOS_MUTEX_HANDLE mixerMutex;
-
-extern RTOS_TASK_HANDLE menusTaskId;
 extern TaskStack<MENUS_STACK_SIZE> menusStack;
-
-extern RTOS_TASK_HANDLE mixerTaskId;
 extern TaskStack<MIXER_STACK_SIZE> mixerStack;
-
-extern RTOS_TASK_HANDLE audioTaskId;
 extern TaskStack<AUDIO_STACK_SIZE> audioStack;
 
 #if defined(CLI)
-extern RTOS_TASK_HANDLE cliTaskId;
 extern TaskStack<CLI_STACK_SIZE> cliStack;
 #endif
 

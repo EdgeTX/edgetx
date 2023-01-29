@@ -19,13 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "hal.h"
-
-
+// #include "hal.h"
 #include "opentx.h"
+
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 #include "hal/module_port.h"
+#include "tasks/mixer_task.h"
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
@@ -82,62 +82,36 @@ uint8_t* pulsesGetModuleBuffer(uint8_t module)
   return _module_buffers[module]._buffer;
 }
 
-uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
-// InternalModulePulsesData intmodulePulsesData __DMA;
-// ExternalModulePulsesData extmodulePulsesData __DMA;
 TrainerPulsesData trainerPulsesData __DMA;
 
-void startPulses()
+void pulsesStart()
 {
   telemetryStart();
-  s_pulses_paused = false;
-
-// #if defined(HARDWARE_INTERNAL_MODULE)
-//   setupPulsesInternalModule();
-// #endif
-
-// #if defined(HARDWARE_EXTERNAL_MODULE)
-//   setupPulsesExternalModule();
-// #endif
-
-// #if defined(HARDWARE_EXTRA_MODULE)
-//   extramodulePpmStart();
-// #endif
+  mixerTaskStart();
 }
 
-void stopPulses()
+void pulsesStop()
 {
   telemetryStop();
-  s_pulses_paused = true;
+  mixerTaskStop();
 
-  for (uint8_t i = 0; i < NUM_MODULES; i++)
-    moduleState[i].protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+  for (uint8_t i = 0; i < MAX_MODULES; i++)
+    pulsesStopModule(i);
 }
 
-void restartModule(uint8_t idx)
+void restartModule(uint8_t module)
 {
-  // TODO: do we really need this ???
-  // if (idx == INTERNAL_MODULE) {
-  //   if (!IS_INTERNAL_MODULE_ON()) return;
-  // } else if (idx == EXTERNAL_MODULE){
-  //   if (!IS_EXTERNAL_MODULE_ON()) return;
-  // } else {
-  //   return;
-  // }
-
-  pauseMixerCalculations();
-  pausePulses();
-
-  pulsesStopModule(idx);
+  mixerTaskStop();
 
   // wait for the power output to be drained
+  pulsesStopModule(module);
   RTOS_WAIT_MS(200);
 
-  resumePulses();
-  resumeMixerCalculations();
+  mixerTaskStart();
 }
 
+// TODO: this should be moved to PXX2 territory!
 #if defined(PXX2)
 // use only for PXX
 void ModuleState::startBind(BindInformation* destination,
@@ -244,6 +218,9 @@ uint8_t getModuleType(uint8_t module)
   return MODULE_TYPE_NONE;
 }
 
+// TODO: replace with some mapping between
+//       module type and protocol driver.
+//
 uint8_t getRequiredProtocol(uint8_t module)
 {
   uint8_t protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
@@ -254,36 +231,17 @@ uint8_t getRequiredProtocol(uint8_t module)
       break;
 
     case MODULE_TYPE_XJT_PXX1:
-#if defined(INTMODULE_USART)
-      if (module == INTERNAL_MODULE) {
-        protocol = PROTOCOL_CHANNELS_PXX1_SERIAL;
-        break;
-      }
-#endif
-      protocol = PROTOCOL_CHANNELS_PXX1_PULSES;
-      break;
-
     case MODULE_TYPE_R9M_PXX1:
-      protocol = PROTOCOL_CHANNELS_PXX1_PULSES;
-      break;
-
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
     case MODULE_TYPE_R9M_LITE_PXX1:
-      protocol = PROTOCOL_CHANNELS_PXX1_SERIAL;
+      protocol = PROTOCOL_CHANNELS_PXX1;
       break;
-
-    case MODULE_TYPE_R9M_LITE_PXX2:
-      protocol = PROTOCOL_CHANNELS_PXX2_LOWSPEED;
-      break;
-#endif
 
     case MODULE_TYPE_ISRM_PXX2:
     case MODULE_TYPE_R9M_PXX2:
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
+    case MODULE_TYPE_R9M_LITE_PXX2:
     case MODULE_TYPE_XJT_LITE_PXX2:
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-#endif
-      protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED;
+      protocol = PROTOCOL_CHANNELS_PXX2;
       break;
 
     case MODULE_TYPE_SBUS:
@@ -351,17 +309,6 @@ uint8_t getRequiredProtocol(uint8_t module)
       break;
   }
 
-  if (s_pulses_paused) {
-    protocol = PROTOCOL_CHANNELS_NONE;
-  }
-
-#if 0
-  // will need an EEPROM conversion
-  if (moduleState[module].mode == MODULE_OFF) {
-    protocol = PROTOCOL_CHANNELS_NONE;
-  }
-#endif
-
   return protocol;
 }
 
@@ -406,8 +353,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 
   switch (protocol) {
 #if defined(PXX1)
-    case PROTOCOL_CHANNELS_PXX1_PULSES:
-    case PROTOCOL_CHANNELS_PXX1_SERIAL:
+    case PROTOCOL_CHANNELS_PXX1:
       _init_module(module, &Pxx1Driver);
       break;
 #endif
@@ -427,8 +373,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 #endif
 
 #if defined(PXX2)
-    case PROTOCOL_CHANNELS_PXX2_LOWSPEED:
-    case PROTOCOL_CHANNELS_PXX2_HIGHSPEED:
+    case PROTOCOL_CHANNELS_PXX2:
       _init_module(module, &Pxx2Driver);
       break;
 #endif
@@ -476,8 +421,6 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 #endif
 
     default:
-      // module stopped, use default mixer period
-      mixerSchedulerSetPeriod(module, 0);
       break;
   }
 }
@@ -495,8 +438,6 @@ void pulsesSendNextFrame(uint8_t module)
 {
   if (module >= MAX_MODULES) return;
   uint8_t protocol = getRequiredProtocol(module);
-
-  heartbeat |= (HEART_TIMER_PULSES << module);
 
   if (moduleState[module].protocol != protocol) {
     // TODO: error checking!
@@ -518,6 +459,14 @@ void pulsesSendNextFrame(uint8_t module)
   }
 }
 
+void pulsesSendChannels()
+{
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
+    pulsesSendNextFrame(i);
+  }
+}
+
+// set the failsafe channel values to the current output values
 void setCustomFailsafe(uint8_t moduleIndex)
 {
   if (moduleIndex < NUM_MODULES) {

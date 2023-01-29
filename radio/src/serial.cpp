@@ -259,12 +259,12 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       auto mod_st = modulePortGetState(EXTERNAL_MODULE);
       if (mod_st && mod_st->tx.hw_def == port->hw_def) {
         // port is in use, let's stop it
-        pauseMixerCalculations();
+        mixerTaskStop();
         pausePulses();
         pulsesStopModule(EXTERNAL_MODULE);
         modulePortConfigExtra(&mod_port);
         resumePulses();
-        resumeMixerCalculations();
+        mixerTaskStart();
       } else {
         modulePortConfigExtra(&mod_port);
       }

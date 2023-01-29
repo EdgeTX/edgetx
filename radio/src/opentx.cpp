@@ -24,6 +24,9 @@
 #include "hal/adc_driver.h"
 #include "timers_driver.h"
 
+#include "tasks.h"
+#include "tasks/mixer_task.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   // #include "shutdown_animation.h"
@@ -690,7 +693,7 @@ void checkMultiLowPower()
 
 static void checkRTCBattery()
 {
-  GET_ADC_IF_MIXER_NOT_RUNNING();
+  if (!mixerTaskRunning()) getADC();
   if (getRTCBatteryVoltage() < 200) {
     ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
   }
@@ -816,7 +819,7 @@ bool isThrottleWarningAlertNeeded()
   // no other information available at the moment, and good enough to my option (otherwise too much exceptions...)
   uint8_t thrchn = ((g_model.thrTraceSrc==0) || (g_model.thrTraceSrc>NUM_POTS+NUM_SLIDERS)) ? THR_STICK : g_model.thrTraceSrc+NUM_STICKS-1;
 
-  GET_ADC_IF_MIXER_NOT_RUNNING();
+  if (!mixerTaskRunning()) getADC();
   evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
 
   int16_t v = calibratedAnalogs[thrchn];
@@ -1089,8 +1092,7 @@ uint16_t sessionTimer;
 uint16_t s_timeCumThr;    // THR in 1/16 sec
 uint16_t s_timeCum16ThrP; // THR% in 1/16 sec
 
-uint8_t  trimsCheckTimer = 0;
-
+uint8_t trimsCheckTimer = 0;
 uint8_t trimsDisplayTimer = 0;
 uint8_t trimsDisplayMask = 0;
 
@@ -1128,194 +1130,6 @@ void flightReset(uint8_t check)
   if (check) {
     checkAll();
   }
-}
-
-#if defined(THRTRACE)
-uint8_t  s_traceBuf[MAXTRACE];
-uint16_t s_traceWr;
-uint8_t  s_cnt_10s;
-uint16_t s_cnt_samples_thr_10s;
-uint16_t s_sum_samples_thr_10s;
-#endif
-
-void evalTrims()
-{
-  uint8_t phase = mixerCurrentFlightMode;
-  for (uint8_t i=0; i<NUM_TRIMS; i++) {
-    // do trim -> throttle trim if applicable
-    int16_t trim = getTrimValue(phase, i);
-    if (trimsCheckTimer > 0) {
-      trim = 0;
-    }
-
-    trims[i] = trim*2;
-  }
-}
-
-uint8_t s_mixer_first_run_done = false;
-
-void doMixerCalculations()
-{
-  static tmr10ms_t lastTMR = 0;
-
-  tmr10ms_t tmr10ms = get_tmr10ms();
-
-#if defined(DEBUG_LATENCY_MIXER_RF) || defined(DEBUG_LATENCY_RF_ONLY)
-  static tmr10ms_t lastLatencyToggle = 0;
-  if (tmr10ms - lastLatencyToggle >= 10) {
-    lastLatencyToggle = tmr10ms;
-    toggleLatencySwitch();
-  }
-#endif
-
-  uint8_t tick10ms = (tmr10ms >= lastTMR ? tmr10ms - lastTMR : 1);
-  // handle tick10ms overrun
-  // correct overflow handling costs a lot of code; happens only each 11 min;
-  // therefore forget the exact calculation and use only 1 instead; good compromise
-  lastTMR = tmr10ms;
-
-  DEBUG_TIMER_START(debugTimerGetAdc);
-  getADC();
-  DEBUG_TIMER_STOP(debugTimerGetAdc);
-
-  DEBUG_TIMER_START(debugTimerGetSwitches);
-  getSwitchesPosition(!s_mixer_first_run_done);
-  DEBUG_TIMER_STOP(debugTimerGetSwitches);
-
-
-
-  DEBUG_TIMER_START(debugTimerEvalMixes);
-  evalMixes(tick10ms);
-  DEBUG_TIMER_STOP(debugTimerEvalMixes);
-}
-
-void doMixerPeriodicUpdates()
-{
-  static tmr10ms_t lastTMR = 0;
-
-  tmr10ms_t tmr10ms = get_tmr10ms();
-
-  uint8_t tick10ms = (tmr10ms >= lastTMR ? tmr10ms - lastTMR : 1);
-  // handle tick10ms overrun
-  // correct overflow handling costs a lot of code; happens only each 11 min;
-  // therefore forget the exact calculation and use only 1 instead; good compromise
-  lastTMR = tmr10ms;
-
-  DEBUG_TIMER_START(debugTimerMixes10ms);
-  if (tick10ms) {
-    /* Throttle trace */
-    int16_t val;
-
-    if (g_model.thrTraceSrc > NUM_POTS+NUM_SLIDERS) {
-      uint8_t ch = g_model.thrTraceSrc-NUM_POTS-NUM_SLIDERS-1;
-      val = channelOutputs[ch];
-
-      LimitData * lim = limitAddress(ch);
-      int16_t gModelMax = LIMIT_MAX_RESX(lim);
-      int16_t gModelMin = LIMIT_MIN_RESX(lim);
-
-      if (lim->revert)
-        val = -val + gModelMax;
-      else
-        val = val - gModelMin;
-
-#if defined(PPM_LIMITS_SYMETRICAL)
-      if (lim->symetrical) {
-        val -= calc1000toRESX(lim->offset);
-      }
-#endif
-
-      gModelMax -= gModelMin; // we compare difference between Max and Mix for recaling needed; Max and Min are shifted to 0 by default
-      // usually max is 1024 min is -1024 --> max-min = 2048 full range
-
-      if (gModelMax != 0 && gModelMax != 2048)
-        val = (int32_t) (val << 11) / (gModelMax); // rescaling only needed if Min, Max differs
-
-      if (val < 0)
-        val=0;  // prevent val be negative, which would corrupt throttle trace and timers; could occur if safetyswitch is smaller than limits
-    }
-    else {
-      val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? THR_STICK : g_model.thrTraceSrc+NUM_STICKS-1];
-    }
-
-    val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
-
-    evalTimers(val, tick10ms);
-
-    static uint8_t  s_cnt_100ms;
-    static uint8_t  s_cnt_1s;
-    static uint8_t  s_cnt_samples_thr_1s;
-    static uint16_t s_sum_samples_thr_1s;
-
-    s_cnt_samples_thr_1s++;
-    s_sum_samples_thr_1s+=val;
-
-    if ((s_cnt_100ms += tick10ms) >= 10) { // 0.1sec
-      s_cnt_100ms -= 10;
-      s_cnt_1s += 1;
-
-      logicalSwitchesTimerTick();
-      checkTrainerSignalWarning();
-
-      if (s_cnt_1s >= 10) { // 1sec
-        s_cnt_1s -= 10;
-        sessionTimer += 1;
-        inactivity.counter++;
-        if ((((uint8_t)inactivity.counter) & 0x07) == 0x01 && g_eeGeneral.inactivityTimer && inactivity.counter > ((uint16_t)g_eeGeneral.inactivityTimer * 60))
-          AUDIO_INACTIVITY();
-
-#if defined(AUDIO)
-        if (mixWarning & 1) if ((sessionTimer&0x03)==0) AUDIO_MIX_WARNING(1);
-        if (mixWarning & 2) if ((sessionTimer&0x03)==1) AUDIO_MIX_WARNING(2);
-        if (mixWarning & 4) if ((sessionTimer&0x03)==2) AUDIO_MIX_WARNING(3);
-#endif
-
-        val = s_sum_samples_thr_1s / s_cnt_samples_thr_1s;
-        s_timeCum16ThrP += (val>>3);  // s_timeCum16ThrP would overrun if we would store throttle value with higher accuracy; therefore stay with 16 steps
-        if (val)
-          s_timeCumThr += 1;
-        s_sum_samples_thr_1s >>= 2;  // correct better accuracy now, because trace graph can show this information; in case thrtrace is not active, the compile should remove this
-
-#if defined(THRTRACE)
-        // throttle trace is done every 10 seconds; Tracebuffer is adjusted to screen size.
-        // in case buffer runs out, it wraps around
-        // resolution for y axis is only 32, therefore no higher value makes sense
-        s_cnt_samples_thr_10s += s_cnt_samples_thr_1s;
-        s_sum_samples_thr_10s += s_sum_samples_thr_1s;
-
-        if (++s_cnt_10s >= 10) { // 10s
-          s_cnt_10s -= 10;
-          val = s_sum_samples_thr_10s / s_cnt_samples_thr_10s;
-          s_sum_samples_thr_10s = 0;
-          s_cnt_samples_thr_10s = 0;
-          s_traceBuf[s_traceWr % MAXTRACE] = val;
-          s_traceWr++;
-        }
-#endif
-
-        s_cnt_samples_thr_1s = 0;
-        s_sum_samples_thr_1s = 0;
-      }
-    }
-
-#if defined(PXX) || defined(DSM2)
-    static uint8_t countRangecheck = 0;
-    for (uint8_t i = 0; i < NUM_MODULES; ++i) {
-      if (isModuleBeeping(i)) {
-        if (++countRangecheck >= 250) {
-          countRangecheck = 0;
-          AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
-        }
-      }
-    }
-#endif
-
-    checkTrims();
-  }
-
-  DEBUG_TIMER_STOP(debugTimerMixes10ms);
-
-  s_mixer_first_run_done = true;
 }
 
 #if !defined(OPENTX_START_DEFAULT_ARGS)
@@ -1373,12 +1187,13 @@ void opentxClose(uint8_t shutdown)
   watchdogSuspend(2000/*20s*/);
 
   if (shutdown) {
-    pausePulses();   // stop mixer task to disable trims processing while in shutdown
+    pulsesStop();
     AUDIO_BYE();
-    // TODO needed? telemetryEnd();
+
 #if defined(LUA)
     luaClose(&lsScripts);
 #endif
+
 #if defined(HAPTIC)
     hapticOff();
 #endif
@@ -1510,7 +1325,7 @@ void instantTrim()
 
 void copySticksToOffset(uint8_t ch)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   int32_t zero = (int32_t)channelOutputs[ch];
 
   evalFlightModeMixes(e_perout_mode_nosticks+e_perout_mode_notrainer, 0);
@@ -1523,7 +1338,8 @@ void copySticksToOffset(uint8_t ch)
   }
   zero = (zero*256000 - val*lim) / (1024*256-val);
   ld->offset = (ld->revert ? -zero : zero);
-  resumeMixerCalculations();
+
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -1531,7 +1347,7 @@ void copyTrimsToOffset(uint8_t ch)
 {
   int16_t zero;
 
-  pauseMixerCalculations();
+  mixerTaskStop();
 
   evalFlightModeMixes(e_perout_mode_noinput, 0); // do output loop - zero input sticks and trims
   zero = applyLimits(ch, chans[ch]);
@@ -1545,7 +1361,7 @@ void copyTrimsToOffset(uint8_t ch)
   v += (output * 125) / 128;
   g_model.limitData[ch].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
 
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -1556,7 +1372,7 @@ void copyMinMaxToOutputs(uint8_t ch)
   int16_t max = ld->max;
   int16_t center = ld->ppmCenter;
 
-  pauseMixerCalculations();
+  mixerTaskStop();
 
   for (uint8_t chan = 0; chan < MAX_OUTPUT_CHANNELS; chan++) {
     ld = limitAddress(chan);
@@ -1565,7 +1381,7 @@ void copyMinMaxToOutputs(uint8_t ch)
     ld->ppmCenter = center;
   }
 
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -1610,7 +1426,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 {
   int16_t zeros[MAX_OUTPUT_CHANNELS];
 
-  pauseMixerCalculations();
+  mixerTaskStop();
 
   evalFlightModeMixes(e_perout_mode_noinput, 0); // do output loop - zero input sticks and trims
 
@@ -1643,7 +1459,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
     }
   }
 
-  resumeMixerCalculations();
+  mixerTaskStart();
 
   storageDirty(EE_MODEL);
   AUDIO_WARNING2();
@@ -1823,7 +1639,8 @@ void opentxInit()
 
   resetBacklightTimeout();
 
-  startPulses();
+  pulsesInit();
+  pulsesStart();
 
   WDG_ENABLE(WDG_DURATION);
 }

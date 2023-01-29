@@ -815,7 +815,7 @@ const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler pro
 
   state = BLUETOOTH_STATE_FLASH_FIRMWARE;
 
-  pausePulses();
+  pulsesStop();
 
   bluetoothInit(BLUETOOTH_BOOTLOADER_BAUDRATE, true); // normal mode
   watchdogSuspend(500 /*5s*/);
@@ -844,7 +844,7 @@ const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler pro
   RTOS_WAIT_MS(1000);
 
   state = BLUETOOTH_STATE_OFF;
-  resumePulses();
+  pulsesStart();
 
   return result;
 }

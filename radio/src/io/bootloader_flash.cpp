@@ -50,7 +50,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
   uint8_t buffer[1024];
   UINT count;
 
-  pausePulses();
+  pulsesStop();
 
   f_open(&file, filename, FA_READ);
 
@@ -110,5 +110,5 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 
   f_close(&file);
 
-  resumePulses();
+  pulsesStart();
 }

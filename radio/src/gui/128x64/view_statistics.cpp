@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "tasks.h"
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"

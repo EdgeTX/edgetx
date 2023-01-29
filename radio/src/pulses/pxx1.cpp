@@ -389,7 +389,7 @@ static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
 }
 
 const etx_proto_driver_t Pxx1Driver = {
-  .protocol = PROTOCOL_CHANNELS_PXX1_SERIAL,
+  .protocol = PROTOCOL_CHANNELS_PXX1,
   .init = pxx1Init,
   .deinit = pxx1DeInit,
   .sendPulses = pxx1SendPulses,

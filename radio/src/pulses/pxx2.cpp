@@ -436,10 +436,9 @@ void Pxx2Pulses::setupShareMode(uint8_t module)
 // TODO: move up
 static void _send_frame(etx_module_state_t* mod_st, uint8_t* buffer, uint32_t len);
 
-void Pxx2Pulses::sendOtaUpdate(uint8_t module, const char * rxName, uint32_t address, const char * data)
+void Pxx2Pulses::sendOtaUpdate(uint8_t module, const char* rxName,
+                               uint32_t address, const char* data)
 {
-  // initFrame();
-
   addFrameType(PXX2_TYPE_C_OTA, PXX2_TYPE_ID_OTA);
 
   if (rxName) {
@@ -556,7 +555,8 @@ bool Pxx2OtaUpdate::waitStep(uint8_t step, uint8_t timeout)
   return true;
 }
 
-const char * Pxx2OtaUpdate::nextStep(uint8_t step, const char * rxName, uint32_t address, const uint8_t * buffer)
+const char* Pxx2OtaUpdate::nextStep(uint8_t step, const char* rxName,
+                                    uint32_t address, const uint8_t* buffer)
 {
   OtaUpdateInformation * destination = moduleState[module].otaUpdateInformation;
 
@@ -582,7 +582,8 @@ const char * Pxx2OtaUpdate::nextStep(uint8_t step, const char * rxName, uint32_t
   }
 }
 
-const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandler progressHandler)
+const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
+                                           ProgressHandler progressHandler)
 {
   FIL file;
   uint8_t buffer[32];
@@ -602,7 +603,8 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
   const char * ext = getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
     FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *) buffer;
-    if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
+    if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK ||
+        count != sizeof(FrSkyFirmwareInformation)) {
       f_close(&file);
       return "Format error";
     }
@@ -638,7 +640,7 @@ const char * Pxx2OtaUpdate::doFlashFirmware(const char * filename, ProgressHandl
 
 void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
-  pausePulses();
+  pulsesStop();
 
   watchdogSuspend(100 /*1s*/);
   RTOS_WAIT_MS(100);
@@ -660,7 +662,7 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
   watchdogSuspend(100);
   RTOS_WAIT_MS(100);
 
-  resumePulses();
+  pulsesStart();
 }
 
 
@@ -826,7 +828,7 @@ static void pxx2ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* l
 // #include "extmodule_serial_driver.h"
 
 const etx_proto_driver_t Pxx2Driver = {
-  .protocol = PROTOCOL_CHANNELS_PXX2_HIGHSPEED,
+  .protocol = PROTOCOL_CHANNELS_PXX2,
   .init = pxx2Init,
   .deinit = pxx2DeInit,
   .sendPulses = pxx2SendPulses,

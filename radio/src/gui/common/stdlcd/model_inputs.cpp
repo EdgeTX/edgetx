@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "tasks/mixer_task.h"
 
 #define _STR_MAX(x)                     "/" #x
 #define STR_MAX(x)                     _STR_MAX(x)
@@ -51,7 +52,7 @@ bool reachExposLimit()
 int8_t s_currCh;
 void insertExpo(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
@@ -65,16 +66,16 @@ void insertExpo(uint8_t idx)
   expo->mode = 3; // pos+neg
   expo->chn = s_currCh - 1;
   expo->weight = 100;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void copyExpo(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -112,9 +113,9 @@ bool swapExpos(uint8_t & idx, uint8_t up)
     return true;
   }
   
-  pauseMixerCalculations();
+  mixerTaskStop();
   memswap(x, y, sizeof(ExpoData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   
   idx = tgt_idx;
   return true;
@@ -122,7 +123,7 @@ bool swapExpos(uint8_t & idx, uint8_t up)
 
 void deleteExpo(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData * expo = expoAddress(idx);
   int input = expo->chn;
   memmove(expo, expo+1, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
@@ -130,7 +131,7 @@ void deleteExpo(uint8_t idx)
   if (!isInputAvailable(input)) {
     memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 

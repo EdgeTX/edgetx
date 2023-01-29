@@ -520,16 +520,13 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 #endif
   }
 
-  pauseMixerCalculations();
-  pausePulses();
+  pulsesStop();
 
-  // This switches module power OFF
-  for (uint8_t i = 0; i < MAX_MODULES; i++) {
-    pulsesStopModule(i);
 #if defined(MULTI_PROTOLIST)
+  for (uint8_t i = 0; i < MAX_MODULES; i++) {
     MultiRfProtocols::removeInstance(i);
-#endif
   }
+#endif
 
   // switch S.PORT power OFF if supported
   modulePortSetPower(SPORT_MODULE, false);
@@ -558,8 +555,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   watchdogSuspend(500 /*5s*/);
   RTOS_WAIT_MS(2000);
 
-  resumePulses();
-  resumeMixerCalculations();
+  pulsesStart();
 
 // TODO: S.PORT power control
 //       -> where is it actually turned ON normally?
