@@ -274,6 +274,8 @@ set(FIRMWARE_SRC
   hal/adc_driver.cpp
   boards/generic_stm32/module_ports.cpp
   boards/generic_stm32/aux_ports.cpp
+  boards/generic_stm32/sport_update.cpp
+  boards/generic_stm32/intmodule_heartbeat.cpp
   targets/common/arm/stm32/stm32_exti_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp

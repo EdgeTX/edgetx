@@ -164,6 +164,12 @@ void pulsesStopModule(uint8_t module);
 void pulsesSendNextFrame(uint8_t module);
 void pulsesSendChannels();
 
+typedef void (*module_init_cb_t)(uint8_t, const etx_proto_driver_t*);
+typedef void (*module_deinit_cb_t)(uint8_t, const etx_proto_driver_t*);
+
+void pulsesSetModuleInitCb(module_init_cb_t cb);
+void pulsesSetModuleDeInitCb(module_deinit_cb_t cb);
+
 void restartModule(uint8_t idx);
 void setupPulsesPPMTrainer();
 

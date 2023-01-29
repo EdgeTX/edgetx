@@ -312,6 +312,19 @@ uint8_t getRequiredProtocol(uint8_t module)
   return protocol;
 }
 
+static module_init_cb_t _on_module_init = nullptr;
+static module_deinit_cb_t _on_module_deinit = nullptr;
+
+void pulsesSetModuleInitCb(module_init_cb_t cb)
+{
+  _on_module_init = cb;
+}
+
+void pulsesSetModuleDeInitCb(module_deinit_cb_t cb)
+{
+  _on_module_deinit = cb;
+}
+
 static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
 {
   auto mod = &(_module_drivers[module]);
@@ -323,6 +336,10 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
   mod->drv = drv;
   mod->ctx = ctx;
 
+  // board specific hook
+  if (_on_module_init)
+    _on_module_init(module, drv);
+  
   // power ON
   modulePortSetPower(module, true);
 }
@@ -334,9 +351,13 @@ static void _deinit_module(uint8_t module)
 
   // scheduling OFF
   mixerSchedulerSetPeriod(module, 0);
+
+  // board specific hook
+  auto drv = mod->drv;
+  if (_on_module_deinit)
+    _on_module_deinit(module, drv);
   
   // de-init
-  auto drv = mod->drv;
   auto ctx = mod->ctx;
   drv->deinit(ctx);
 

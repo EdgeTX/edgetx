@@ -27,6 +27,9 @@
 #include "hal/module_port.h"
 
 #include "board.h"
+#include "boards/generic_stm32/sport_update.h"
+#include "boards/generic_stm32/intmodule_heartbeat.h"
+
 #include "timers_driver.h"
 #include "dataconstants.h"
 #include "opentx_types.h"
@@ -61,26 +64,8 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-void sportUpdateInit()
-{
-#if defined(SPORT_UPDATE_PWR_GPIO)
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
-#endif
-}
-
 #if !defined(BOOT)
-#include "opentx.h" // g_eeGeneral
-void sportUpdatePowerInit()
-{
-  modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
-}
-#endif
+#include "opentx.h"
 
 void boardInit()
 {
@@ -143,6 +128,14 @@ void boardInit()
 #endif
 
   pwrInit();
+  sportUpdateInit();
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+#endif
+
   init_trainer();
   pwrOn();
   delaysInit();
@@ -199,8 +192,6 @@ void boardInit()
   usbChargerInit();
 #endif
 
-  sportUpdateInit();
-
 #if defined(RTCLOCK) && !defined(COPROCESSOR)
   ledRed();
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
@@ -208,6 +199,7 @@ void boardInit()
 
   ledBlue();
 }
+#endif
 
 void boardOff()
 {

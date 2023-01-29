@@ -20,6 +20,9 @@
  */
 
 #include "board.h"
+#include "boards/generic_stm32/sport_update.h"
+#include "boards/generic_stm32/intmodule_heartbeat.h"
+
 #include "debug.h"
 #include "rtc.h"
 
@@ -33,6 +36,9 @@
 
 #if !defined(BOOT)
   #include "opentx.h"
+  #if defined(PXX1)
+    #include "pulses/pxx1.h"
+  #endif
 #endif
 
 #if defined(BLUETOOTH)
@@ -59,38 +65,6 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xAAAA;      // reload
   IWDG->KR = 0xCCCC;      // start
 }
-
-void sportUpdateInit()
-{
-#if defined(SPORT_UPDATE_PWR_GPIO)
-#if defined(RADIO_X7)
-  // QX7 has a external S.PORT connector
-  // with switchable power from revision 40 on
-  if (hardwareOptions.pcbrev == PCBREV_X7_40) {
-    extern etx_module_t _sport_module;
-    extern void _sport_set_pwr(uint8_t);
-    _sport_module.set_pwr = _sport_set_pwr;
-  } else {
-    return;
-  }
-#endif
-  
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
-#endif
-}
-
-#if !defined(BOOT)
-void sportUpdatePowerInit()
-{
-  modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
-}
-#endif
 
 #if !defined(BOOT)
 
@@ -159,6 +133,16 @@ void boardInit()
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
   sportUpdateInit();
+
+#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
+  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
+#endif
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+#endif
   
 // #if defined(AUTOUPDATE)
 //   telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);

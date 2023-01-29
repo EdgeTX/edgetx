@@ -671,22 +671,14 @@ static void* pxx2Init(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(pxx2SerialInitParams);
 
-#if defined(INTERNAL_MODULE_PXX2)
   if (module == INTERNAL_MODULE) {
+
     params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
     if (!mod_st) return nullptr;
-
-#if defined(INTMODULE_HEARTBEAT)
-    // use backup trigger (1 ms later)
-    init_intmodule_heartbeat();
-#endif
-    mixerSchedulerSetPeriod(module, PXX2_PERIOD);
     resetAccessAuthenticationCount();
   }
-#endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
 
     uint8_t type = g_model.moduleData[module].type;
@@ -709,27 +701,15 @@ static void* pxx2Init(uint8_t module)
 
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
     if (!mod_st) return nullptr;
-    
-    mixerSchedulerSetPeriod(module, PXX2_NO_HEARTBEAT_PERIOD);
   }
-#endif
 
+  mixerSchedulerSetPeriod(module, PXX2_DEFAULT_PERIOD);
   return mod_st;
 }
 
 static void pxx2DeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  uint8_t module = modulePortGetModule(mod_st);
-
-#if defined(INTERNAL_MODULE_PXX2)
-  if (module == INTERNAL_MODULE) {
-#if defined(INTMODULE_HEARTBEAT)
-    stop_intmodule_heartbeat();
-#endif
-  }
-#endif
-
   modulePortDeInit(mod_st);
 }
 
@@ -745,30 +725,34 @@ static void pxx2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
 
-#if defined(INTERNAL_MODULE_PXX2)  
   if (module == INTERNAL_MODULE) {
     Pxx2Pulses pxx2(buffer);
     bool should_send = pxx2.setupFrame(module, channels, nChannels);
 
     if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
         moduleState[module].mode == MODULE_MODE_POWER_METER) {
+
+      // backup normal period into 'user_data'
+      if (!mod_st->user_data) {
+        mod_st->user_data = (void*)(uintptr_t)mixerSchedulerGetPeriod(module);
+      }
       mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
-    } else {
-      mixerSchedulerSetPeriod(module, PXX2_PERIOD);
+    } else if (mod_st->user_data) {
+      // restore old scheduling period
+      uintptr_t period = (uintptr_t)mod_st->user_data;
+      mixerSchedulerSetPeriod(module, period);
+      mod_st->user_data = nullptr;
     }
 
     if (!should_send) return;
     _send_frame(mod_st, buffer, pxx2.getSize());
   }
-#endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     Pxx2Pulses pxx2(buffer);
     pxx2.setupFrame(module, channels, nChannels);
     _send_frame(mod_st, buffer, pxx2.getSize());
   }
-#endif
 }
 
 static void pxx2ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)

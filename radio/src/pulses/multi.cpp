@@ -157,9 +157,9 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
     sendChannels(p_buf, module);
 
   // Multi V1.3.X.X -> Send byte 26, Protocol (bits 7 & 6), RX_Num (bits 5 & 4), invert, not used, disable telemetry, disable mapping
-  if ((moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER)
+  if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER
 #if defined(MULTI_PROTOLIST)
-      || (moduleState[module].mode == MODULE_MODE_GET_HARDWARE_INFO)
+      || moduleState[module].mode == MODULE_MODE_GET_HARDWARE_INFO
 #endif
       ) {
     sendMulti(p_buf, invert[module] & 0x08);

@@ -23,7 +23,6 @@
 
 #include "hal/module_driver.h"
 
-// Set the board specific PXX1 baudrate (X-lite only?)
-void pxx1SetInternalBaudrate(uint32_t baudrate);
+void _intmodule_heartbeat_init(uint8_t module, const etx_proto_driver_t* drv);
+void _intmodule_heartbeat_deinit(uint8_t module, const etx_proto_driver_t* drv);
 
-extern const etx_proto_driver_t Pxx1Driver;

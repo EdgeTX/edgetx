@@ -28,6 +28,13 @@
 
 #include "opentx.h"
 
+static uint32_t _pxx1_internal_baudrate = PXX1_DEFAULT_SERIAL_BAUDRATE;
+
+void pxx1SetInternalBaudrate(uint32_t baudrate)
+{
+  _pxx1_internal_baudrate = baudrate;
+}
+
 template <class PxxTransport>
 void Pxx1Pulses<PxxTransport>::addFlag1(uint8_t module, uint8_t sendFailsafe)
 {
@@ -187,15 +194,19 @@ Pxx1Pulses<PxxTransport>::Pxx1Pulses(uint8_t* buffer)
 }
 
 template <class PxxTransport>
-void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module)
+void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module, Pxx1Type type)
 {
   uint8_t sendUpperChannels = 0;
   uint8_t sendFailsafe = 0;
 
-#if defined(PXX_FREQUENCY_HIGH)
-  if (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX1_SERIAL) {
+
+  // Fast serial PXX1 (either X-lite internal or R9M-lite):
+  // - up to 16 channels sent in the same frame
+  //
+  if (type == Pxx1Type::FAST_SERIAL) {
     if (moduleState[module].counter-- == 0) {
-      sendFailsafe = (g_model.moduleData[module].failsafeMode != FAILSAFE_NOT_SET && g_model.moduleData[module].failsafeMode != FAILSAFE_RECEIVER);
+      sendFailsafe = (g_model.moduleData[module].failsafeMode != FAILSAFE_NOT_SET &&
+                      g_model.moduleData[module].failsafeMode != FAILSAFE_RECEIVER);
       moduleState[module].counter = 1000;
     }
     add8ChannelsFrame(module, 0, sendFailsafe);
@@ -204,8 +215,11 @@ void Pxx1Pulses<PxxTransport>::setupFrame(uint8_t module)
     }
     return;
   }
-#endif
 
+  // Slow PXX1:
+  // - if more than 8 channels shall be sent, it happens
+  //   in alternating frames
+  //
   if (moduleState[module].counter & 0x01) {
     // channelsCount is shifted by 8
     sendUpperChannels = g_model.moduleData[module].channelsCount;
@@ -245,7 +259,7 @@ static void* pxx1Init(uint8_t module)
 
   if (module == INTERNAL_MODULE) {
 
-    txCfg.baudrate = INTMODULE_PXX1_SERIAL_BAUDRATE;
+    txCfg.baudrate = _pxx1_internal_baudrate;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
 
     if (!mod_st) {
@@ -254,12 +268,6 @@ static void* pxx1Init(uint8_t module)
     }
 
     if (!mod_st) return nullptr;
-
-    // TODO: move heartbeat init to some target specific code...
-#if defined(INTMODULE_HEARTBEAT)
-    init_intmodule_heartbeat();
-#endif
-    mixerSchedulerSetPeriod(module, INTMODULE_PXX1_SERIAL_PERIOD);
   }
 
   if (module == EXTERNAL_MODULE) {
@@ -272,8 +280,6 @@ static void* pxx1Init(uint8_t module)
       txCfg.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
       mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
       if (!mod_st) return nullptr;
-
-      mixerSchedulerSetPeriod(module, EXTMODULE_PXX1_SERIAL_PERIOD);
     } break;
 
     case MODULE_TYPE_XJT_PXX1:
@@ -281,8 +287,6 @@ static void* pxx1Init(uint8_t module)
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
       mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
       if (!mod_st) return nullptr;
-      
-      mixerSchedulerSetPeriod(module, PXX_PULSES_PERIOD);
     } break;
 
     default:
@@ -298,23 +302,30 @@ static void* pxx1Init(uint8_t module)
 
   // TODO: handle init errors properly
   modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg);
-  
+
+  // Store PXX1 type in 'user_data'
+  if (txCfg.encoding == ETX_Encoding_PXX1_PWM ||
+      txCfg.baudrate == PXX1_DEFAULT_SERIAL_BAUDRATE) {
+
+    // Legacy / slow PXX1
+    mixerSchedulerSetPeriod(module, PXX1_DEFAULT_PERIOD);
+    if (txCfg.encoding == ETX_Encoding_PXX1_PWM) {
+      mod_st->user_data = (void*)Pxx1Type::PWM;
+    } else {
+      mod_st->user_data = (void*)Pxx1Type::SLOW_SERIAL;
+    }
+  } else {
+    // Fast PXX1
+    mixerSchedulerSetPeriod(module, PXX1_FAST_PERIOD);
+    mod_st->user_data = (void*)Pxx1Type::FAST_SERIAL;
+  }
+
   return mod_st;
 }
 
 static void pxx1DeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
-  auto module = modulePortGetModule(mod_st);
-
-#if defined(INTERNAL_MODULE_PXX1)
-  if (module == INTERNAL_MODULE) {
-#if defined(INTMODULE_HEARTBEAT)
-    stop_intmodule_heartbeat();
-#endif
-  }
-#endif
-
   modulePortDeInit(mod_st);
 }
 
@@ -326,56 +337,24 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
+  auto pxx1_type = (Pxx1Type)(uintptr_t)mod_st->user_data;
 
-#if defined(INTERNAL_MODULE_PXX1)
-  if (module == INTERNAL_MODULE) {
-    auto drv_ctx = modulePortGetCtx(mod_st->tx);
-
-    // TODO: detect hard vs. soft serial
-#if defined(INTMODULE_USART)
-    UartPxx1Pulses frame(buffer);
-#else
+  uint32_t frame_len = 0;
+  if (pxx1_type == Pxx1Type::PWM) {
     PwmPxx1Pulses frame(buffer);
-#endif
-    frame.setupFrame(module);
-
-    auto drv = modulePortGetSerialDrv(mod_st->tx);
-    drv->sendBuffer(drv_ctx, buffer, frame.getSize());
+    frame.setupFrame(module, pxx1_type);
+    frame_len = frame.getSize();
+  } else {
+    UartPxx1Pulses frame(buffer);
+    frame.setupFrame(module, pxx1_type);
+    frame_len = frame.getSize();
   }
-#endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (module == EXTERNAL_MODULE) {
-    uint32_t frame_size = 0;
-    uint8_t type = g_model.moduleData[module].type;
-    switch(type) {
+  if (frame_len == 0) return;
 
-    case MODULE_TYPE_R9M_LITE_PXX1: {
-      // hard-serial
-      UartPxx1Pulses frame(buffer);
-      frame.setupFrame(module);
-      frame_size = frame.getSize();
-    } break;
-
-    case MODULE_TYPE_XJT_PXX1:
-    case MODULE_TYPE_R9M_PXX1: {
-      // soft-serial
-      PwmPxx1Pulses frame(buffer);
-      frame.setupFrame(module);
-      frame_size = frame.getSize();
-    } break;
-
-    default:
-      return;
-    }
-
-    if (!frame_size) return;
-    
-    auto drv_ctx = modulePortGetCtx(mod_st->tx);
-    auto drv = modulePortGetSerialDrv(mod_st->tx);
-    drv->sendBuffer(drv_ctx, buffer, frame_size);
-  }
-#endif
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+  drv->sendBuffer(drv_ctx, buffer, frame_len);
 }
 
 static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)

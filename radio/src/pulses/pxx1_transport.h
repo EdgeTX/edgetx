@@ -175,12 +175,19 @@ class UartPxx1Transport: public Pxx1CrcMixin {
     }
 };
 
+
+enum class Pxx1Type : uintptr_t {
+  PWM,
+  SLOW_SERIAL,
+  FAST_SERIAL,
+};
+
 template <class PxxTransport>
 class Pxx1Pulses: public PxxTransport
 {
   public:
     Pxx1Pulses(uint8_t* buffer);
-    void setupFrame(uint8_t port);
+    void setupFrame(uint8_t module, Pxx1Type type);
 
   protected:
     void addHead()

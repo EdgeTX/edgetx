@@ -19,11 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+// init S.PORT power pin
+void sportUpdateInit();
 
-#include "hal/module_driver.h"
-
-// Set the board specific PXX1 baudrate (X-lite only?)
-void pxx1SetInternalBaudrate(uint32_t baudrate);
-
-extern const etx_proto_driver_t Pxx1Driver;
+// Set S.PORT power ON/OFF on start as configured
+void sportUpdatePowerInit();

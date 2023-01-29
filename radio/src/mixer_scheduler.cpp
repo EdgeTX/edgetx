@@ -99,6 +99,11 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   mixerSchedules[moduleIdx].period = periodUs;
 }
 
+uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
+{
+  return mixerSchedules[moduleIdx].period;
+}
+
 void mixerSchedulerISRTrigger()
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
