@@ -32,6 +32,73 @@
 
 static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE, "");
 
+static const char * const PXX2ModulesNames[] = {
+  "---",
+  "XJT",
+  "ISRM",
+  "ISRM-PRO",
+  "ISRM-S",
+  "R9M",
+  "R9MLite",
+  "R9MLite-PRO",
+  "ISRM-N",
+  "ISRM-S-X9",
+  "ISRM-S-X10E",
+  "XJT Lite",
+  "ISRM-S-X10S",
+  "ISRM-X9LiteS"
+};
+
+const char * getPXX2ModuleName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ModulesNames))
+    return PXX2ModulesNames[modelId];
+  else
+    return PXX2ModulesNames[0];
+}
+
+static const char * const PXX2ReceiversNames[] = {
+  "---",
+  "X8R",
+  "RX8R",
+  "RX8R-PRO",
+  "RX6R",
+  "RX4R",
+  "G-RX8",
+  "G-RX6",
+  "X6R",
+  "X4R",
+  "X4R-SB",
+  "XSR",
+  "XSR-M",
+  "RXSR",
+  "S6R",
+  "S8R",
+  "XM",
+  "XM+",
+  "XMR",
+  "R9",
+  "R9-SLIM",
+  "R9-SLIM+",
+  "R9-MINI",
+  "R9-MM",
+  "R9-STAB", // R9-STAB has OTA
+  "R9-MINI-OTA", // this one has OTA (different bootloader)
+  "R9-MM-OTA", // this one has OTA (different bootloader)
+  "R9-SLIM+-OTA", // this one has OTA (different bootloader)
+  "Archer-X", // this one has OTA (internal module)
+  "R9MX", // this one has OTA
+  "R9SX", // this one has OTA
+};
+
+const char * getPXX2ReceiverName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ReceiversNames))
+    return PXX2ReceiversNames[modelId];
+  else
+    return PXX2ReceiversNames[0];
+}
+
 static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_GET_HARDWARE_INFO) {

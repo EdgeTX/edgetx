@@ -92,6 +92,9 @@ void onSdFormatConfirm(const char * result)
 }
 
 #if defined(PXX2)
+
+#include "pulses/pxx2_ota.h"
+
 void onUpdateConfirmation(const char * result)
 {
   if (result == STR_OK) {
@@ -108,26 +111,19 @@ void onUpdateStateChanged()
 {
   if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
     uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
-    if (modelId > 0 && modelId < DIM(PXX2ReceiversNames)) {
-      if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA)) {
-        POPUP_CONFIRMATION(getPXX2ReceiverName(modelId), onUpdateConfirmation);
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
-        tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
-        SET_WARNING_INFO(reusableBuffer.sdManager.otaReceiverVersion, tmp - reusableBuffer.sdManager.otaReceiverVersion, 0);
-      }
-      else {
-        POPUP_WARNING(STR_OTA_UPDATE_ERROR);
-        SET_WARNING_INFO(STR_UNSUPPORTED_RX, sizeof(TR_UNSUPPORTED_RX) - 1, 0);
-        moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL;
-      }
+    if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA)) {
+      POPUP_CONFIRMATION(getPXX2ReceiverName(modelId), onUpdateConfirmation);
+      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+      tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
+      *tmp++ = '.';
+      tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
+      *tmp++ = '.';
+      tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
+      SET_WARNING_INFO(reusableBuffer.sdManager.otaReceiverVersion, tmp - reusableBuffer.sdManager.otaReceiverVersion, 0);
     }
     else {
       POPUP_WARNING(STR_OTA_UPDATE_ERROR);
-      SET_WARNING_INFO(STR_UNKNOWN_RX, sizeof(TR_UNKNOWN_RX) - 1, 0);
+      SET_WARNING_INFO(STR_UNSUPPORTED_RX, sizeof(TR_UNSUPPORTED_RX) - 1, 0);
       moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL;
     }
   }

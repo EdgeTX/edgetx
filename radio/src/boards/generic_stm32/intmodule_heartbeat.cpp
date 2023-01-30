@@ -34,8 +34,7 @@
 #endif
 
 #if defined(PXX2)
-  // #include "pulses/pxx2.h"
-  extern const etx_proto_driver_t Pxx2Driver;
+  #include "pulses/pxx2.h"
   #define isPxx2Driver(drv) (drv == &Pxx2Driver)
 #else
   #define isPxx2Driver(drv) (false)

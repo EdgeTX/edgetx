@@ -30,6 +30,7 @@
 
 #if defined(PXX2)
 #include "pxx2.h"
+#include "pxx2_ota.h"
 #endif
 
 #if defined(DSM2)

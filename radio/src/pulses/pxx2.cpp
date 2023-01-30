@@ -38,6 +38,100 @@ static const etx_serial_init pxx2SerialInitParams = {
 
 #include "hal/module_port.h"
 
+/* Module options order:
+ * - External antenna (0x01)
+ * - Power (0x02)
+ * - Spektrum analyser (0x04)
+ * - Power meter (0x08)
+ */
+static const uint8_t PXX2ModuleOptions[] = {
+#if defined(SIMU)
+  0b11111111, // None = display all options on SIMU
+#else
+  0b00000000, // None = no option available on unknown modules
+#endif
+  0b00000001, // XJT
+  0b00000001, // ISRM
+  0b00001101, // ISRM-PRO
+  0b00000101, // ISRM-S
+  0b00000010, // R9M
+  0b00000010, // R9MLite
+  0b00000110, // R9MLite-PRO
+  0b00000100, // ISRM-N
+  0b00000100, // ISRM-S-X9
+  0b00000101, // ISRM-S-X10E
+  0b00000001, // XJT_LITE
+  0b00000101, // ISRM-S-X10S
+  0b00000100, // ISRM-X9LITES
+};
+
+uint8_t getPXX2ModuleOptions(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ModuleOptions))
+    return PXX2ModuleOptions[modelId];
+  else
+    return PXX2ModuleOptions[0];
+}
+
+bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option)
+{
+  return getPXX2ModuleOptions(modelId) & (1 << option);
+}
+
+/* Receiver options order:
+ * - OTA (0x01)
+ */
+static const uint8_t PXX2ReceiverOptions[] = {
+#if defined(SIMU)
+  0b11111111, // None = display all options on SIMU
+#else
+  0b00000000, // None = display all options on SIMU
+#endif
+  0b11111110, // X8R
+  0b11111110, // RX8R
+  0b11111110, // RX8R-PRO
+  0b11111111, // RX6R
+  0b11111111, // RX4R
+  0b11111111, // G-RX8
+  0b11111111, // G-RX6
+  0b11111110, // X6R
+  0b11111110, // X4R
+  0b11111110, // X4R-SB
+  0b11111110, // XSR
+  0b11111110, // XSR-M
+  0b11111111, // RXSR
+  0b11111110, // S6R
+  0b11111110, // S8R
+  0b11111110, // XM
+  0b11111110, // XM+
+  0b11111110, // XMR
+  0b11111110, // R9
+  0b11111110, // R9-SLIM
+  0b11111110, // R9-SLIM+
+  0b11111110, // R9-MINI
+  0b11111110, // R9-MM
+  0b11111111, // R9-STAB+OTA
+  0b11111111, // R9-MINI+OTA
+  0b11111111, // R9-MM+OTA
+  0b11111111, // R9-SLIM+OTA
+  0b11111111, // ARCHER-X
+  0b11111111, // R9MX
+  0b11111111, // R9SX
+};
+
+uint8_t getPXX2ReceiverOptions(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ReceiverOptions))
+    return PXX2ReceiverOptions[modelId];
+  else
+    return PXX2ReceiverOptions[0];
+}
+
+bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option)
+{
+  return getPXX2ReceiverOptions(modelId) & (1 << option);
+}
+
 bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
 {
   uint8_t modelId = info.modelID;
@@ -536,135 +630,6 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
 
   return true;
 }
-
-bool Pxx2OtaUpdate::waitStep(uint8_t step, uint8_t timeout)
-{
-  OtaUpdateInformation * destination = moduleState[module].otaUpdateInformation;
-  uint8_t elapsed = 0;
-
-  watchdogSuspend(100 /*1s*/);
-
-  while (step != destination->step) {
-    if (elapsed++ > timeout) {
-      return false;
-    }
-    RTOS_WAIT_MS(1);
-    telemetryWakeup();
-  }
-
-  return true;
-}
-
-const char* Pxx2OtaUpdate::nextStep(uint8_t step, const char* rxName,
-                                    uint32_t address, const uint8_t* buffer)
-{
-  OtaUpdateInformation * destination = moduleState[module].otaUpdateInformation;
-
-  destination->step = step;
-  destination->address = address;
-
-  for (uint8_t retry = 0;; retry++) {
-    uint8_t* module_buffer = pulsesGetModuleBuffer(module);
-    Pxx2Pulses pxx2(module_buffer);
-    pxx2.sendOtaUpdate(module, rxName, address, (const char *) buffer);
-
-    // send the frame immediately
-    auto mod = pulsesGetModuleDriver(module);
-    auto mod_st = (etx_module_state_t*)mod->ctx;
-    _send_frame(mod_st, module_buffer, pxx2.getSize());
-
-    if (waitStep(step + 1, 20)) {
-      return nullptr;
-    }
-    else if (retry == 100) {
-      return "Transfer failed";
-    }
-  }
-}
-
-const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
-                                           ProgressHandler progressHandler)
-{
-  FIL file;
-  uint8_t buffer[32];
-  UINT count;
-  const char * result;
-
-  result = nextStep(OTA_UPDATE_START, rxName, 0, nullptr);
-  if (result) {
-    return result;
-  }
-
-  if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Open file failed";
-  }
-
-  uint32_t size;
-  const char * ext = getFileExtension(filename);
-  if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
-    FrSkyFirmwareInformation * information = (FrSkyFirmwareInformation *) buffer;
-    if (f_read(&file, buffer, sizeof(FrSkyFirmwareInformation), &count) != FR_OK ||
-        count != sizeof(FrSkyFirmwareInformation)) {
-      f_close(&file);
-      return "Format error";
-    }
-    size = information->size;
-  }
-  else {
-    size = f_size(&file);
-  }
-
-  uint32_t done = 0;
-  while (1) {
-    progressHandler(getBasename(filename), STR_OTA_UPDATE, done, size);
-    if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
-      f_close(&file);
-      return "Read file failed";
-    }
-
-    result = nextStep(OTA_UPDATE_TRANSFER, nullptr, done, buffer);
-    if (result) {
-      return result;
-    }
-
-    if (count < sizeof(buffer)) {
-      f_close(&file);
-      break;
-    }
-
-    done += count;
-  }
-
-  return nextStep(OTA_UPDATE_EOF, nullptr, done, nullptr);
-}
-
-void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
-{
-  pulsesStop();
-
-  watchdogSuspend(100 /*1s*/);
-  RTOS_WAIT_MS(100);
-
-  moduleState[module].mode = MODULE_MODE_OTA_UPDATE;
-  const char * result = doFlashFirmware(filename, progressHandler);
-  moduleState[module].mode = MODULE_MODE_NORMAL;
-
-  AUDIO_PLAY(AU_SPECIAL_SOUND_BEEP1 );
-  BACKLIGHT_ENABLE();
-
-  if (result) {
-    POPUP_WARNING(STR_FIRMWARE_UPDATE_ERROR, result);
-  }
-  else {
-    POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
-  }
-
-  watchdogSuspend(100);
-  RTOS_WAIT_MS(100);
-
-  pulsesStart();
-}
-
 
 static void* pxx2Init(uint8_t module)
 {

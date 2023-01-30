@@ -204,6 +204,7 @@ if(PXX2)
   set(PULSES_SRC
     ${PULSES_SRC}
     pxx2.cpp
+    pxx2_ota.cpp
     )
 endif()
 
