@@ -71,5 +71,6 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart);
 void stm32_usart_enable_rx(const stm32_usart_t* usart);
 uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart);
 void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate);
+void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option);
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb);
 void stm32_usart_tx_dma_isr(const stm32_usart_t* usart);

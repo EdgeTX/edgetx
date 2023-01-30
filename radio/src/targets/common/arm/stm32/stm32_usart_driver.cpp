@@ -193,10 +193,23 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
   }
 }
 
+static uint32_t _get_pin_speed(uint32_t baudrate)
+{
+  // 1 Mbps and above
+  if (baudrate >= 1000000) {
+    return LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  }
+  // 400kbps and above
+  else if (baudrate >= 400000) {
+    return LL_GPIO_SPEED_FREQ_HIGH;
+  }
+
+  // under 400kbps
+  return LL_GPIO_SPEED_FREQ_LOW;
+}
 
 // TODO: probably needs to be a separate API on the serial driver
 //
-// - USART_OverSampling8Cmd(TELEMETRY_USART, baudrate <= 400000 ? DISABLE : ENABLE);
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
 
 // OBSOLETE:
@@ -209,7 +222,10 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   LL_USART_DeInit(usart->USARTx);
 
   // TODO: enable GPIO clock
-  LL_GPIO_Init(usart->GPIOx, (LL_GPIO_InitTypeDef*)usart->pinInit);
+  LL_GPIO_InitTypeDef pinInit;
+  memcpy(&pinInit, usart->pinInit, sizeof(pinInit));
+  pinInit.Speed = _get_pin_speed(params->baudrate);
+  LL_GPIO_Init(usart->GPIOx, &pinInit);
 
   // Enable 2-wire half-duplex
   if (usart->dir_GPIOx) {
@@ -461,13 +477,44 @@ static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
 uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
-  return LL_USART_GetBaudRate(usart->USARTx, periphclk, LL_USART_OVERSAMPLING_16);
+  auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
+  return LL_USART_GetBaudRate(usart->USARTx, periphclk, oversampling);
 }
 
 void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
-  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_OVERSAMPLING_16, baudrate);
+  auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, oversampling, baudrate);
+
+  // update pin speed accordingly (must be done one-by-one)
+  uint32_t pin_speed = _get_pin_speed(baudrate);
+  uint32_t pindef = usart->pinInit->Pin;
+
+  // loop borrowed from LL_GPIO_init()
+  uint32_t pinpos = POSITION_VAL(pindef);
+  uint32_t currentpin = 0;
+  while ((pindef >> pinpos) != 0) {
+    currentpin = pindef & (1 << pinpos);
+    if (currentpin) LL_GPIO_SetPinSpeed(usart->GPIOx, currentpin, pin_speed);
+    pinpos++;
+  }
+}
+
+void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
+{
+  switch(option) {
+  case ETX_HWOption_OVER8: {
+    // BRR depends on oversampling as well, so we must
+    // re-compute the baudrate as well.
+    auto baudrate = stm32_usart_get_baudrate(usart);
+    LL_USART_SetOverSampling(usart->USARTx, LL_USART_OVERSAMPLING_8);
+    stm32_usart_set_baudrate(usart, baudrate);
+  } break;
+  case ETX_HWOption_ONEBIT:
+    LL_USART_EnableOneBitSamp(usart->USARTx);
+    break;
+  }
 }
 
 #define USART_FLAG_ERRORS \

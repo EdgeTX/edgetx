@@ -21,6 +21,7 @@
 
 #include "module_port.h"
 #include "dataconstants.h" // MAX_MODULES
+#include "myeeprom.h"      // g_eeGeneral
 
 #include <string.h>
 
@@ -59,6 +60,18 @@ static void _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
   auto drv = port->drv.serial;
   d->ctx = drv->init(port->hw_def, params);
   d->port = port;
+
+  // S.PORT specific HW settings
+  if (port->port == ETX_MOD_PORT_SPORT && params->baudrate >= 400000) {
+
+    // enable over-sampling by 8
+    if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_OVER8);
+
+    // one-bit
+    if (g_eeGeneral.uartSampleMode == UART_SAMPLE_MODE_ONEBIT) {
+      if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_ONEBIT);
+    }
+  }
 }
 
 static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* port,

@@ -26,27 +26,9 @@
 #include "timer_driver.h"
 #include "definitions.h"
 
+//
 // Module ports
 //
-// - internal module:
-//   - timer based ("pulses") (w/ telemetry on S.PORT)
-//   - serial based (some pxx1) (W/ telemetry on S.PORT)
-//   - bidir serial (pxx2, crsf, multi)
-//
-// - external module:
-//   - TX on PPM pin + RX on S.PORT (PXX1, MPM, DSM)
-//   - TX on PPM pin + RX on HEARTBEAT (UART / soft-serial)
-//
-//   - RX/TX on half-duplex S.PORT
-//
-// More generic:
-// - TX:
-//   - timer based (PXX1 pulses, PPM)
-//   - serial based (UART or soft-serial)
-
-// TODOs:
-// - handle power on/off
-// - mixer scheduler off on de-init?
 
 // flags
 #define ETX_MOD_DIR_TX      (1 << 0)
@@ -57,9 +39,6 @@
 #define ETX_MOD_TYPE_NONE   0
 #define ETX_MOD_TYPE_TIMER  (1 << 0)
 #define ETX_MOD_TYPE_SERIAL (1 << 1)
-
-// this corresponds to internal + external + S.PORT
-#define MAX_OPEN_MODULE_PORTS 3
 
 enum ModulePort : uint8_t {
   ETX_MOD_PORT_UART,

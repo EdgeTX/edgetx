@@ -79,6 +79,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .clearRxBuffer = nullptr,
     .getBaudrate = nullptr,
     .setBaudrate = nullptr,
+    .setHWOption = nullptr,
     .setReceiveCb = nullptr,
     .setIdleCb = nullptr,
     .setBaudrateCb = nullptr,

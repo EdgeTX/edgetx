@@ -413,6 +413,16 @@ static void stm32_serial_set_baudrate(void* ctx, uint32_t baudrate)
   stm32_usart_set_baudrate(usart, baudrate);
 }
 
+static void stm32_serial_hw_option(void* ctx, uint32_t option)
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return;
+
+  auto sp = st->sp;
+  auto usart = sp->usart;
+  stm32_usart_set_hw_option(usart, option);
+}
+
 static void stm32_serial_set_idle_cb(void* ctx, void (*on_idle)())
 {
   auto st = (stm32_serial_state*)ctx;
@@ -436,6 +446,7 @@ const etx_serial_driver_t STM32SerialDriver = {
   .clearRxBuffer = stm32_serial_clear_rx_buffer,
   .getBaudrate = stm32_serial_get_baudrate,
   .setBaudrate = stm32_serial_set_baudrate,
+  .setHWOption = stm32_serial_hw_option,
   .setReceiveCb = nullptr, // TODO
   .setIdleCb = stm32_serial_set_idle_cb,
   .setBaudrateCb = nullptr,

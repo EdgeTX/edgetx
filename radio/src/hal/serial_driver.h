@@ -44,11 +44,17 @@ typedef struct {
 
 } etx_serial_init;
 
+// TODO: move somewhere else
 struct etx_serial_callbacks_t {
   uint8_t (*on_send)(uint8_t* data);
   void (*on_receive)(uint8_t data);
   void (*on_idle)();
   void (*on_error)();
+};
+
+enum SerialHWOption {
+  ETX_HWOption_OVER8,  // oversampling by 8
+  ETX_HWOption_ONEBIT, // one-bit sampling
 };
 
 typedef struct {
@@ -85,6 +91,9 @@ typedef struct {
 
   // Set baudrate
   void (*setBaudrate)(void*, uint32_t baudrate);
+
+  // Set a HW specific option (SerialHWOption; possibly unsupported by the driver)
+  void (*setHWOption)(void*, uint32_t option);
   
   // Callbacks
   void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t*, uint32_t));

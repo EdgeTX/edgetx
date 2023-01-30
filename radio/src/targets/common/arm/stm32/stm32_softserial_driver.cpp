@@ -477,11 +477,15 @@ const etx_serial_driver_t STM32SoftSerialTxDriver = {
   .deinit = stm32_softserial_tx_deinit,
   .sendByte = stm32_softserial_tx_send_byte,
   .sendBuffer = stm32_softserial_tx_send_buffer,
-  .waitForTxCompleted = nullptr, // TODO
+  .txCompleted = nullptr,
+  .waitForTxCompleted = nullptr,
   .enableRx = nullptr, // TODO: combine with EXTI / Timer implementation? (S.PORT INV RX)
   .getByte = nullptr,
   .clearRxBuffer = nullptr, // TODO: same as enableRx
   .getBaudrate = nullptr,
+  .setBaudrate = nullptr,
+  .setHWOption = nullptr,
   .setReceiveCb = nullptr,
+  .setIdleCb = nullptr,
   .setBaudrateCb = nullptr,
 };
