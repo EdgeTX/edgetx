@@ -357,11 +357,10 @@ static int stm32_serial_get_byte(void* ctx, uint8_t* data)
 
   uint32_t widx;
   auto usart = sp->usart;
-  if (usart->rxDMA) {
+  if (LL_USART_IsEnabledDMAReq_RX(usart->USARTx)) {
     auto dma = usart->rxDMA;
     auto stream = usart->rxDMA_Stream;
-    if (!LL_DMA_IsEnabledStream(dma, stream)) return 0;
-    widx = LL_DMA_GetDataLength(dma, stream);
+    widx = buf_len - LL_DMA_GetDataLength(dma, stream);
   } else {
     widx = buf_st.widx;
   }
