@@ -775,8 +775,8 @@
 #define TR_SAMPLE_MODE                 "採樣模式"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "加載中..."
-#define TR_DELETE_THEME                "Delete Theme?"
-#define TR_SAVE_THEME                  "Save Theme?"
+#define TR_DELETE_THEME                "刪除主題?"
+#define TR_SAVE_THEME                  "保存主題?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
