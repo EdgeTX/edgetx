@@ -79,7 +79,8 @@ class MultiFirmwareUpdateDriver
 static const etx_serial_init serialInitParams = {
   .baudrate = 57600,
   .encoding = ETX_Encoding_8N1,
-  .direction = ETX_Dir_TX_RX
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 bool MultiFirmwareUpdateDriver::init()

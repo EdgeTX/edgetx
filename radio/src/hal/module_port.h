@@ -69,7 +69,12 @@ typedef struct {
     const etx_serial_driver_t *serial;
   } drv;
 
+  // this is specific to the driver above
   void* hw_def;
+
+  // inverter support: only works on the following ports
+  // - ETX_MOD_PORT_UART / ETX_MOD_PORT_SPORT
+  void (*set_inverted)(uint8_t enable);
 
 } etx_module_port_t;
 
@@ -111,7 +116,9 @@ void modulePortConfigExtra(const etx_module_port_t* port);
 #endif
 
 const etx_module_t* modulePortGetModuleDescription(uint8_t module);
-const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type, uint8_t port);
+
+const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type,
+                                        uint8_t port, uint8_t polarity);
 
 void modulePortSetPower(uint8_t module, uint8_t enabled);
 

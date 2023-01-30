@@ -20,7 +20,7 @@
  */
 
 #include "board.h"
-#include "boards/generic_stm32/sport_update.h"
+#include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 
 #include "debug.h"
@@ -132,7 +132,7 @@ void boardInit()
 
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
-  sportUpdateInit();
+  boardInitModulePorts();
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
   pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);

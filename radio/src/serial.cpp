@@ -413,6 +413,7 @@ void serialInit(uint8_t port_nr, int mode)
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Normal,
   };
 
   serialSetupPort(mode, params);

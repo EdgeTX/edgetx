@@ -250,6 +250,7 @@ static const etx_serial_init pxx1SerialCfg = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
   .direction = ETX_Dir_TX,
+  .polarity = ETX_Pol_Normal,
 };
 
 static void* pxx1Init(uint8_t module)
@@ -263,6 +264,8 @@ static void* pxx1Init(uint8_t module)
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
 
     if (!mod_st) {
+      // assume that radios that don't have an internal UART
+      // will have a module that uses legacy PXX1 (PWM)
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
       mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
     }

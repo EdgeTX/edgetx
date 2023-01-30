@@ -214,6 +214,7 @@ static const etx_serial_init crsfSerialParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
   .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 static void* crossfireInit(uint8_t module)

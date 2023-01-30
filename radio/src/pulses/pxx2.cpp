@@ -34,6 +34,7 @@ static const etx_serial_init pxx2SerialInitParams = {
     .baudrate = PXX2_HIGHSPEED_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX_RX,
+    .polarity = ETX_Pol_Normal,
 };
 
 #include "hal/module_port.h"

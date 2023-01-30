@@ -171,24 +171,30 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
   }
 }
 
-etx_serial_init dsmUartParams = {
+const etx_serial_init dsmUartParams = {
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Inverted,
 };
 
-static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
+static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period, bool telemetry)
 {
   // only external module supported
   if (module == INTERNAL_MODULE) return nullptr;
 
   etx_serial_init params(dsmUartParams);
   params.baudrate = baudrate;
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+  if (!mod_st) {
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
+    if (!mod_st) return nullptr;
+  }
 
-  // TODO: check telemetry init...
-  params.direction = ETX_Dir_RX;
-  modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
+  if (telemetry) {
+    params.direction = ETX_Dir_RX;
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
+  }
 
   mixerSchedulerSetPeriod(module, period);
   return (void*)mod_st;
@@ -196,12 +202,12 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period)
 
 static void* dsm2Init(uint8_t module)
 {
-  return dsmInit(module, DSM2_BITRATE, DSM2_PERIOD);
+  return dsmInit(module, DSM2_BITRATE, DSM2_PERIOD, false);
 }
 
 static void* dsmpInit(uint8_t module)
 {
-  return dsmInit(module, DSMP_BITRATE, 11 * 1000 /* 11ms in us */);
+  return dsmInit(module, DSMP_BITRATE, 11 * 1000 /* 11ms in us */, true);
 }
 
 

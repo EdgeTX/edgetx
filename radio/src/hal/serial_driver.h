@@ -37,11 +37,16 @@ enum SerialDirection {
   ETX_Dir_TX_RX = 3,
 };
 
+enum SerialPolarity {
+  ETX_Pol_Normal,
+  ETX_Pol_Inverted,
+};
+
 typedef struct {
   uint32_t baudrate;    // = 0;
   uint8_t encoding;     // = ETX_Encoding_8N1;
   uint8_t direction;    // = ETX_Dir_None;
-
+  uint8_t polarity;     // = ETX_Pol_Normal;
 } etx_serial_init;
 
 // TODO: move somewhere else
@@ -92,6 +97,9 @@ typedef struct {
   // Set baudrate
   void (*setBaudrate)(void*, uint32_t baudrate);
 
+  // Configure inverter
+  void (*setPolarity)(void*, uint8_t polarity);
+  
   // Set a HW specific option (SerialHWOption; possibly unsupported by the driver)
   void (*setHWOption)(void*, uint32_t option);
   

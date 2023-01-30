@@ -28,19 +28,10 @@
 
 #include <string.h>
 
-static const LL_GPIO_InitTypeDef fsUSART_PinDef = {
-  .Pin = FLYSKY_HALL_SERIAL_RX_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = FLYSKY_HALL_SERIAL_GPIO_AF,
-};
-
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
   .GPIOx = FLYSKY_HALL_SERIAL_GPIO,
-  .pinInit = &fsUSART_PinDef,
+  .GPIO_Pin = FLYSKY_HALL_SERIAL_RX_GPIO_PIN,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 6,
   .txDMA = nullptr,
@@ -179,6 +170,7 @@ bool flysky_gimbal_init()
     .baudrate = FLYSKY_HALL_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
   };
 
   _fs_gimbal_detected = false;

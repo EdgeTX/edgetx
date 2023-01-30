@@ -57,6 +57,7 @@ etx_serial_init multiSerialInitParams = {
     .baudrate = MULTIMODULE_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Normal,
 };
 
 static inline void sendMulti(uint8_t*& p_buf, uint8_t b)
@@ -216,9 +217,16 @@ static void* multiInit(uint8_t module)
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
     // serial port setup
-    // TODO: error handling
     cfg.direction = ETX_Dir_TX;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &cfg);
+    cfg.polarity = ETX_Pol_Inverted;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg);
+
+    if (!mod_st) {
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &cfg);
+    }
+
+    // no TX port: bail out
+    if (!mod_st) return nullptr;
 
     // Init S.PORT RX channel
     cfg.direction = ETX_Dir_RX;
@@ -226,19 +234,19 @@ static void* multiInit(uint8_t module)
   }
 #endif
 
-  if (mod_st) {
-    // mixer setup
-    mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
+  if (!mod_st) return nullptr;
+  
+  // mixer setup
+  mixerSchedulerSetPeriod(module, MULTIMODULE_PERIOD);
 
-    // reset status
-    getMultiModuleStatus(module).failsafeChecked = false;
-    getMultiModuleStatus(module).flags = 0;
+  // reset status
+  getMultiModuleStatus(module).failsafeChecked = false;
+  getMultiModuleStatus(module).flags = 0;
 
 #if defined(MULTI_PROTOLIST)
-    TRACE("enablePulsesInternalModule(): trigger scan");
-    MultiRfProtocols::instance(module)->triggerScan();
+  TRACE("enablePulsesInternalModule(): trigger scan");
+  MultiRfProtocols::instance(module)->triggerScan();
 #endif
-  }
 
   return mod_st;
 }

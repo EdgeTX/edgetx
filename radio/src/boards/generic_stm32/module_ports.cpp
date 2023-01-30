@@ -23,6 +23,7 @@
 #include "stm32_serial_driver.h"
 #include "stm32_softserial_driver.h"
 
+#include "module_ports.h"
 #include "board.h"
 #include "dataconstants.h"
 
@@ -30,19 +31,10 @@
 
 #define INTMODULE_USART_IRQ_PRIORITY 6
 
-static const LL_GPIO_InitTypeDef intmoduleUSART_PinDef = {
-  .Pin = INTMODULE_TX_GPIO_PIN | INTMODULE_RX_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = INTMODULE_GPIO_AF,
-};
-
 static const stm32_usart_t intmoduleUSART = {
   .USARTx = INTMODULE_USART,
   .GPIOx = INTMODULE_GPIO,
-  .pinInit = &intmoduleUSART_PinDef,
+  .GPIO_Pin = INTMODULE_TX_GPIO_PIN | INTMODULE_RX_GPIO_PIN,
   .IRQn = INTMODULE_USART_IRQn,
   .IRQ_Prio = INTMODULE_USART_IRQ_PRIORITY,
 #if defined(INTMODULE_DMA)
@@ -85,19 +77,40 @@ DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
-static const LL_GPIO_InitTypeDef extmoduleUSART_PinDef = {
-  .Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = INTMODULE_GPIO_AF,
-};
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+static void _extmod_init_inverter()
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pin = EXTMODULE_TX_INVERT_GPIO_PIN;
+  LL_GPIO_Init(EXTMODULE_TX_INVERT_GPIO, &pinInit);
+
+  pinInit.Pin = EXTMODULE_RX_INVERT_GPIO_PIN;
+  LL_GPIO_Init(EXTMODULE_RX_INVERT_GPIO, &pinInit);
+}
+
+static void _extmod_set_inverted(uint8_t enable)
+{
+  if (enable) {
+    LL_GPIO_SetOutputPin(EXTMODULE_TX_INVERT_GPIO,
+                         EXTMODULE_TX_INVERT_GPIO_PIN);
+    LL_GPIO_SetOutputPin(EXTMODULE_RX_INVERT_GPIO,
+                         EXTMODULE_RX_INVERT_GPIO_PIN);
+  } else {
+    LL_GPIO_ResetOutputPin(EXTMODULE_TX_INVERT_GPIO,
+                           EXTMODULE_TX_INVERT_GPIO_PIN);
+    LL_GPIO_ResetOutputPin(EXTMODULE_RX_INVERT_GPIO,
+                           EXTMODULE_RX_INVERT_GPIO_PIN);
+  }
+}
+#endif
 
 static const stm32_usart_t extmoduleUSART = {
   .USARTx = EXTMODULE_USART,
   .GPIOx = EXTMODULE_TX_GPIO,
-  .pinInit = &extmoduleUSART_PinDef,
+  .GPIO_Pin = EXTMODULE_TX_GPIO_PIN | EXTMODULE_RX_GPIO_PIN,
   .IRQn = EXTMODULE_USART_IRQn,
   .IRQ_Prio = EXTMODULE_USART_IRQ_PRIORITY,
   .txDMA = EXTMODULE_USART_TX_DMA,
@@ -106,6 +119,9 @@ static const stm32_usart_t extmoduleUSART = {
   .rxDMA = EXTMODULE_USART_TX_DMA,
   .rxDMA_Stream = EXTMODULE_USART_RX_DMA_STREAM_LL,
   .rxDMA_Channel = EXTMODULE_USART_RX_DMA_CHANNEL,
+  .set_input = nullptr,
+  .txDMA_IRQn = (IRQn_Type)0,
+  .txDMA_IRQ_Prio = 0,
 };
 
 DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0);
@@ -118,19 +134,49 @@ DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
 #define TELEMETRY_USART_IRQ_PRIORITY 6
 #define TELEMETRY_DMA_IRQ_PRIORITY   7
 
-static const LL_GPIO_InitTypeDef sportUSART_PinDef = {
-  .Pin = TELEMETRY_TX_GPIO_PIN | TELEMETRY_RX_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = TELEMETRY_GPIO_AF,
-};
+static void _set_sport_input(uint8_t enable)
+{
+  if (TELEMETRY_SET_INPUT) {
+    if (enable) {
+      LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+    } else {
+      LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+    }
+  } else {
+    if (enable) {
+      LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+    } else {
+      LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
+    }
+  }
+}
+
+#if defined(TELEMETRY_REV_GPIO)
+static void _sport_init_inverter()
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Pin = TELEMETRY_TX_REV_GPIO_PIN | TELEMETRY_RX_REV_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  LL_GPIO_Init(TELEMETRY_REV_GPIO, &pinInit);
+}
+
+static void _sport_set_inverted(uint8_t enable)
+{
+  uint32_t pins = TELEMETRY_TX_REV_GPIO_PIN | TELEMETRY_RX_REV_GPIO_PIN;
+  if (enable) {
+    LL_GPIO_SetOutputPin(TELEMETRY_REV_GPIO, pins);
+  } else {
+    LL_GPIO_ResetOutputPin(TELEMETRY_REV_GPIO, pins);
+  }
+}
+#endif
 
 static const stm32_usart_t sportUSART = {
   .USARTx = TELEMETRY_USART,
   .GPIOx = TELEMETRY_GPIO,
-  .pinInit = &sportUSART_PinDef,
+  .GPIO_Pin = TELEMETRY_TX_GPIO_PIN | TELEMETRY_RX_GPIO_PIN,
   .IRQn = TELEMETRY_USART_IRQn,
   .IRQ_Prio = TELEMETRY_USART_IRQ_PRIORITY,
   .txDMA = TELEMETRY_DMA,
@@ -139,9 +185,7 @@ static const stm32_usart_t sportUSART = {
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
-  .dir_GPIOx = TELEMETRY_DIR_GPIO,
-  .dir_Pin = TELEMETRY_DIR_GPIO_PIN,
-  .dir_Input = TELEMETRY_SET_INPUT,
+  .set_input = _set_sport_input,
   .txDMA_IRQn = TELEMETRY_DMA_TX_Stream_IRQ,
   .txDMA_IRQ_Prio = TELEMETRY_DMA_IRQ_PRIORITY,
 };
@@ -152,6 +196,16 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 }
 
 DEFINE_STM32_SERIAL_PORT(SportModule, sportUSART, TELEMETRY_FIFO_SIZE, 0);
+
+static void _sport_direction_init()
+{
+  LL_GPIO_InitTypeDef dirPinInit;
+  LL_GPIO_StructInit(&dirPinInit);
+
+  dirPinInit.Pin = TELEMETRY_DIR_GPIO_PIN;
+  dirPinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  LL_GPIO_Init(TELEMETRY_DIR_GPIO, &dirPinInit);  
+}
 
 #if defined(TELEMETRY_TIMER)
 static const stm32_softserial_rx_port sportSoftRX = {
@@ -264,6 +318,11 @@ static const etx_module_port_t _external_ports[] = {
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(ExternalModule),
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+    .set_inverted = _extmod_set_inverted,
+#else
+    .set_inverted = nullptr,
+#endif
   },
 #endif
   // Timer output on PPM
@@ -289,6 +348,11 @@ static const etx_module_port_t _external_ports[] = {
     .dir_flags = ETX_MOD_DIR_TX | ETX_MOD_DIR_RX,
     .drv = { .serial = &STM32SerialDriver },
     .hw_def = REF_STM32_SERIAL_PORT(SportModule),
+#if defined(TELEMETRY_REV_GPIO)
+    .set_inverted = _sport_set_inverted,
+#else
+    .set_inverted = nullptr,
+#endif
   },
 #if defined(TELEMETRY_TIMER)
   // RX soft-serial sampled bit-by-bit via timer IRQ on S.PORT
@@ -311,6 +375,7 @@ static const etx_module_t _external_module = {
 #endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
+#include "sport_update.h"
 
 // Not declared 'static' to be accessible
 // from board.cpp
@@ -342,6 +407,21 @@ const etx_module_t _sport_module = {
 #endif // RADIO_X7
 
 #endif // SPORT_UPDATE_PWR_GPIO
+
+void boardInitModulePorts()
+{
+  _sport_direction_init();
+#if defined(SPORT_UPDATE_PWR_GPIO)
+  sportUpdateInit();
+#endif
+
+#if defined(TELEMETRY_REV_GPIO)
+  _sport_init_inverter();
+#endif
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+  _extmod_init_inverter();
+#endif  
+}
 
 BEGIN_MODULES()
 #if defined(HARDWARE_INTERNAL_MODULE)

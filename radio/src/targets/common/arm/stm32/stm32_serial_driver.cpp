@@ -446,6 +446,7 @@ const etx_serial_driver_t STM32SerialDriver = {
   .clearRxBuffer = stm32_serial_clear_rx_buffer,
   .getBaudrate = stm32_serial_get_baudrate,
   .setBaudrate = stm32_serial_set_baudrate,
+  .setPolarity = nullptr,
   .setHWOption = stm32_serial_hw_option,
   .setReceiveCb = nullptr, // TODO
   .setIdleCb = stm32_serial_set_idle_cb,

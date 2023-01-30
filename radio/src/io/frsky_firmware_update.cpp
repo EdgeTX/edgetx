@@ -271,7 +271,8 @@ const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 static const etx_serial_init serialInitParams = {
   .baudrate = 0,
   .encoding = ETX_Encoding_8N1,
-  .direction = ETX_Dir_TX_RX
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(

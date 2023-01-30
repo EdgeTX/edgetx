@@ -844,6 +844,7 @@ static const etx_serial_init _uartParams = {
   .baudrate = 0, //AFHDS3_UART_BAUDRATE,
   .encoding = ETX_Encoding_8N1,
   .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 static void* initModule(uint8_t module)
@@ -853,10 +854,12 @@ static void* initModule(uint8_t module)
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000;
 
   params.baudrate = AFHDS3_UART_BAUDRATE;
+  params.polarity =
+    module == INTERNAL_MODULE ? ETX_Pol_Normal : ETX_Pol_Inverted;
   mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
 
   if (module == EXTERNAL_MODULE && !mod_st) {
-    // fall-back to soft-serial
+    // soft-serial fallback
     params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
     params.direction = ETX_Dir_RX;
     period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;

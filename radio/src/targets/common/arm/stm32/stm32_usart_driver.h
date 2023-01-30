@@ -25,16 +25,14 @@
 #include "hal/serial_driver.h"
 #include "stm32_hal_ll.h"
 
-// TODOs for half-duplex (S.PORT):
-// - TX-DMA IRQ handler (required to switch to input once buffer sent)
-// - direction pin (+init)
+typedef void (*pin_setter_t)(uint8_t enable);
 
 struct stm32_usart_t {
 
     // USART defs
     USART_TypeDef*             USARTx;
     GPIO_TypeDef*              GPIOx;
-    const LL_GPIO_InitTypeDef* pinInit;
+    uint32_t                   GPIO_Pin;
 
     // USART IRQ
     IRQn_Type                  IRQn;
@@ -51,9 +49,7 @@ struct stm32_usart_t {
     uint32_t                   rxDMA_Channel;
 
     // 2-wire Half-duplex settings (uses direction pin)
-    GPIO_TypeDef*              dir_GPIOx;
-    uint32_t                   dir_Pin;
-    uint32_t                   dir_Input;
+    pin_setter_t               set_input;
     IRQn_Type                  txDMA_IRQn;
     uint8_t                    txDMA_IRQ_Prio;
 };

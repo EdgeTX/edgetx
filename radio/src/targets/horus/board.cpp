@@ -27,7 +27,7 @@
 #include "hal/module_port.h"
 
 #include "board.h"
-#include "boards/generic_stm32/sport_update.h"
+#include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 
 #include "timers_driver.h"
@@ -128,7 +128,7 @@ void boardInit()
 #endif
 
   pwrInit();
-  sportUpdateInit();
+  boardInitModulePorts();
 
 #if defined(INTMODULE_HEARTBEAT) &&                                     \
   (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))

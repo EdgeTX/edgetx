@@ -29,21 +29,12 @@
 
 #include "stm32_serial_driver.h"
 
-static const LL_GPIO_InitTypeDef btUSART_PinDef = {
-  .Pin = BT_TX_GPIO_PIN | BT_RX_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = BT_GPIO_AF,
-};
-
 #define BT_USART_IRQ_PRIORITY 6
 
 static const stm32_usart_t btUSART = {
   .USARTx = BT_USART,
   .GPIOx = BT_USART_GPIO,
-  .pinInit = &btUSART_PinDef,
+  .GPIO_Pin = BT_TX_GPIO_PIN | BT_RX_GPIO_PIN,
   .IRQn = BT_USART_IRQn,
   .IRQ_Prio = BT_USART_IRQ_PRIORITY,
   .txDMA = nullptr,
@@ -81,6 +72,7 @@ void bluetoothInit(uint32_t baudrate, bool enable)
     .baudrate = baudrate,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX_RX,
+    .polarity = ETX_Pol_Normal,
   };
 
   if (!_bt_usart_ctx) {

@@ -349,6 +349,7 @@ const etx_serial_init sbusTrainerParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
 };
 
 // external module may have a full-duplex USART
@@ -389,19 +390,10 @@ int trainerModuleSbusGetByte(uint8_t* data)
 #elif defined(TRAINER_MODULE_SBUS_USART)
 #include "stm32_serial_driver.h"
 
-static const LL_GPIO_InitTypeDef sbus_trainer_USART_PinDef = {
-  .Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = TRAINER_MODULE_SBUS_GPIO_AF,
-};
-
 static const stm32_usart_t sbus_trainer_USART = {
   .USARTx = TRAINER_MODULE_SBUS_USART,
   .GPIOx = TRAINER_MODULE_SBUS_GPIO,
-  .pinInit = &sbus_trainer_USART_PinDef,
+  .GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
   .IRQn = (IRQn_Type)-1,
   .IRQ_Prio = 0,
   .txDMA = nullptr,

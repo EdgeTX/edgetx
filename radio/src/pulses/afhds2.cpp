@@ -34,6 +34,7 @@ const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX_RX,
+    .polarity = ETX_Pol_Normal,
 };
 
 static void* afhds2Init(uint8_t module)

@@ -52,15 +52,6 @@ static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
 
 #if defined(AUX_SERIAL)
 
-static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
-  .Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = AUX_SERIAL_GPIO_AF_LL,
-};
-
 #if !defined(AUX_SERIAL_DMA_TX)
   #define AUX_SERIAL_DMA_TX                   nullptr
   #define AUX_SERIAL_DMA_Stream_TX            nullptr
@@ -71,7 +62,7 @@ static const LL_GPIO_InitTypeDef auxUSARTPinInit = {
 static const stm32_usart_t auxUSART = {
   .USARTx = AUX_SERIAL_USART,
   .GPIOx = AUX_SERIAL_GPIO,
-  .pinInit = &auxUSARTPinInit,
+  .GPIO_Pin = AUX_SERIAL_GPIO_PIN_TX | AUX_SERIAL_GPIO_PIN_RX,
   .IRQn = AUX_SERIAL_USART_IRQn,
   .IRQ_Prio = 7, // TODO: define constant
   .txDMA = AUX_SERIAL_DMA_TX,
@@ -107,19 +98,10 @@ const etx_serial_port_t auxSerialPort = {
 
 #if defined(AUX2_SERIAL)
 
-static const LL_GPIO_InitTypeDef aux2USARTPinInit = {
-  .Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
-  .Mode = LL_GPIO_MODE_ALTERNATE,
-  .Speed = LL_GPIO_SPEED_FREQ_LOW,
-  .OutputType = LL_GPIO_OUTPUT_PUSHPULL,
-  .Pull = LL_GPIO_PULL_UP,
-  .Alternate = AUX2_SERIAL_GPIO_AF_LL,
-};
-
 static const stm32_usart_t aux2USART = {
   .USARTx = AUX2_SERIAL_USART,
   .GPIOx = AUX2_SERIAL_GPIO,
-  .pinInit = &aux2USARTPinInit,
+  .GPIO_Pin = AUX2_SERIAL_GPIO_PIN_TX | AUX2_SERIAL_GPIO_PIN_RX,
   .IRQn = AUX2_SERIAL_USART_IRQn,
   .IRQ_Prio = 7, // TODO: define constant
   .txDMA = nullptr,

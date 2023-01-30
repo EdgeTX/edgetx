@@ -60,22 +60,16 @@ static void _enable_tx_dma_irq(const stm32_usart_t* usart)
 
 static inline void _half_duplex_input(const stm32_usart_t* usart)
 {
-  if (usart->dir_GPIOx) {
-
-    if (!usart->dir_Input) LL_GPIO_ResetOutputPin(usart->dir_GPIOx, usart->dir_Pin);
-    else LL_GPIO_SetOutputPin(usart->dir_GPIOx, usart->dir_Pin);
-
+  if (usart->set_input) {
+    usart->set_input(true);
     LL_USART_EnableDirectionRx(usart->USARTx);
   }
 }
 
 static inline void _half_duplex_output(const stm32_usart_t* usart)
 {
-  if (usart->dir_GPIOx) {
-
-    if (usart->dir_Input) LL_GPIO_ResetOutputPin(usart->dir_GPIOx, usart->dir_Pin);
-    else LL_GPIO_SetOutputPin(usart->dir_GPIOx, usart->dir_Pin);
-
+  if (usart->set_input) {
+    usart->set_input(false);
     LL_USART_DisableDirectionRx(usart->USARTx);
   }
 }
@@ -148,6 +142,30 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
 
 }
 
+static uint32_t _get_pin_speed(uint32_t baudrate)
+{
+  // 1 Mbps and above
+  if (baudrate >= 1000000) {
+    return LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  }
+  // 400kbps and above
+  else if (baudrate >= 400000) {
+    return LL_GPIO_SPEED_FREQ_HIGH;
+  }
+
+  // under 400kbps
+  return LL_GPIO_SPEED_FREQ_LOW;
+}
+
+static uint32_t _get_usart_af(USART_TypeDef* USARTx)
+{
+  if (USARTx == USART1 || USARTx == USART2 || USARTx == USART3) {
+    return LL_GPIO_AF_7;
+  } else {
+    return LL_GPIO_AF_8;
+  }
+}
+
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uint32_t length)
 {
   if (!usart->rxDMA) return;
@@ -193,21 +211,6 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
   }
 }
 
-static uint32_t _get_pin_speed(uint32_t baudrate)
-{
-  // 1 Mbps and above
-  if (baudrate >= 1000000) {
-    return LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  }
-  // 400kbps and above
-  else if (baudrate >= 400000) {
-    return LL_GPIO_SPEED_FREQ_HIGH;
-  }
-
-  // under 400kbps
-  return LL_GPIO_SPEED_FREQ_LOW;
-}
-
 // TODO: probably needs to be a separate API on the serial driver
 //
 // - USART_OneBitMethodCmd(TELEMETRY_USART, ENABLE);
@@ -223,19 +226,15 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
   // TODO: enable GPIO clock
   LL_GPIO_InitTypeDef pinInit;
-  memcpy(&pinInit, usart->pinInit, sizeof(pinInit));
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Pin = usart->GPIO_Pin;
+  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.Speed = _get_pin_speed(params->baudrate);
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  pinInit.Alternate = _get_usart_af(usart->USARTx);
   LL_GPIO_Init(usart->GPIOx, &pinInit);
-
-  // Enable 2-wire half-duplex
-  if (usart->dir_GPIOx) {
-    LL_GPIO_InitTypeDef dirPinInit;
-    LL_GPIO_StructInit(&dirPinInit);
-
-    dirPinInit.Pin = usart->dir_Pin;
-    dirPinInit.Mode = LL_GPIO_MODE_OUTPUT;
-    LL_GPIO_Init(usart->dir_GPIOx, &dirPinInit);
-  }
   
   LL_USART_InitTypeDef usartInit;
   LL_USART_StructInit(&usartInit);
@@ -279,7 +278,7 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
       LL_USART_EnableDMAReq_TX(usart->USARTx);
 
       // 2-wire half-duplex: setup TX DMA IRQ
-      if (usart->dir_GPIOx && (int32_t)(usart->txDMA_IRQn) >= 0) {
+      if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
         _enable_tx_dma_irq(usart);
       }
     }
@@ -290,7 +289,7 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     LL_USART_EnableIT_RXNE(usart->USARTx);
 
     // half-duplex: start in input mode
-    if (usart->dir_GPIOx)
+    if (usart->set_input)
       _half_duplex_input(usart);
   }
 
@@ -317,7 +316,8 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
 
   // Reconfigure pin as output
   LL_GPIO_InitTypeDef pinInit;
-  memcpy(&pinInit, usart->pinInit, sizeof(LL_GPIO_InitTypeDef));
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin = usart->GPIO_Pin;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   pinInit.Pull = LL_GPIO_PULL_NO;
   pinInit.Alternate = LL_GPIO_AF_0;
@@ -354,7 +354,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
-    if (usart->dir_GPIOx && (int32_t)(usart->txDMA_IRQn) >= 0) {
+    if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
@@ -489,7 +489,7 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 
   // update pin speed accordingly (must be done one-by-one)
   uint32_t pin_speed = _get_pin_speed(baudrate);
-  uint32_t pindef = usart->pinInit->Pin;
+  uint32_t pindef = usart->GPIO_Pin;
 
   // loop borrowed from LL_GPIO_init()
   uint32_t pinpos = POSITION_VAL(pindef);

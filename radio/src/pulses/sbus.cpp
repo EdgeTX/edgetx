@@ -92,10 +92,11 @@ static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 
 #define SBUS_BAUDRATE 100000
 
-etx_serial_init sbusUartParams = {
+const etx_serial_init sbusUartParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Inverted,
 };
 
 static void* sbusInit(uint8_t module)
@@ -105,8 +106,11 @@ static void* sbusInit(uint8_t module)
   if (module == INTERNAL_MODULE) return nullptr;
 #endif
 
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
-  if (mod_st) return nullptr;
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams);
+  if (!mod_st) {
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
+    if (!mod_st) return nullptr;
+  }
 
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
   return (void*)mod_st;
