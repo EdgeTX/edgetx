@@ -973,17 +973,9 @@ int cliSet(const char **argv)
     }
     if (!strcmp(argv[3], "power")) {
       if (!strcmp("on", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_ON();
-        } else {
-          EXTERNAL_MODULE_ON();
-        }
+        modulePortSetPower(module, true);
       } else if (!strcmp("off", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_OFF();
-        } else {
-          EXTERNAL_MODULE_OFF();
-        }
+        modulePortSetPower(module, false);
       } else {
         cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
@@ -1160,7 +1152,7 @@ int cliSerialPassthrough(const char **argv)
       spInternalModuleState = nullptr;
 
       // power off the module and wait for a bit
-      INTERNAL_MODULE_OFF();
+      modulePortSetPower(port_n, false);
       delay_ms(200);
     }
 #endif

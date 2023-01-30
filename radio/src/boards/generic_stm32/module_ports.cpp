@@ -78,6 +78,23 @@ DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
 #if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+static void _extmod_set_inverted(uint8_t enable)
+{
+  // In EdgeTX the external module is normally always
+  // inverted, so invert the logic here
+  if (!enable) {
+    LL_GPIO_SetOutputPin(EXTMODULE_TX_INVERT_GPIO,
+                         EXTMODULE_TX_INVERT_GPIO_PIN);
+    LL_GPIO_SetOutputPin(EXTMODULE_RX_INVERT_GPIO,
+                         EXTMODULE_RX_INVERT_GPIO_PIN);
+  } else {
+    LL_GPIO_ResetOutputPin(EXTMODULE_TX_INVERT_GPIO,
+                           EXTMODULE_TX_INVERT_GPIO_PIN);
+    LL_GPIO_ResetOutputPin(EXTMODULE_RX_INVERT_GPIO,
+                           EXTMODULE_RX_INVERT_GPIO_PIN);
+  }
+}
+
 static void _extmod_init_inverter()
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -89,21 +106,11 @@ static void _extmod_init_inverter()
 
   pinInit.Pin = EXTMODULE_RX_INVERT_GPIO_PIN;
   LL_GPIO_Init(EXTMODULE_RX_INVERT_GPIO, &pinInit);
-}
 
-static void _extmod_set_inverted(uint8_t enable)
-{
-  if (enable) {
-    LL_GPIO_SetOutputPin(EXTMODULE_TX_INVERT_GPIO,
-                         EXTMODULE_TX_INVERT_GPIO_PIN);
-    LL_GPIO_SetOutputPin(EXTMODULE_RX_INVERT_GPIO,
-                         EXTMODULE_RX_INVERT_GPIO_PIN);
-  } else {
-    LL_GPIO_ResetOutputPin(EXTMODULE_TX_INVERT_GPIO,
-                           EXTMODULE_TX_INVERT_GPIO_PIN);
-    LL_GPIO_ResetOutputPin(EXTMODULE_RX_INVERT_GPIO,
-                           EXTMODULE_RX_INVERT_GPIO_PIN);
-  }
+  // this sets the output to idle-low as is
+  // the default in EdgeTX on external module
+  // (historically, most radios work this way)
+  _extmod_set_inverted(false);
 }
 #endif
 
@@ -304,8 +311,18 @@ static void _external_module_set_pwr(uint8_t enable)
 {
   if (enable) {
     EXTERNAL_MODULE_ON();
+#if defined(PCBNV14)
+    if (hardwareOptions.pcbrev == PCBREV_NV14) {
+      LL_GPIO_ResetOutputPin(EXTMODULE_PWR_FIX_GPIO, EXTMODULE_PWR_FIX_GPIO_PIN);
+    }
+#endif
   } else {
     EXTERNAL_MODULE_OFF();
+#if defined(PCBNV14)
+    if (hardwareOptions.pcbrev == PCBREV_NV14) {
+      LL_GPIO_SetOutputPin(EXTMODULE_PWR_FIX_GPIO, EXTMODULE_PWR_FIX_GPIO_PIN);
+    }
+#endif
   }
 }
 
@@ -421,6 +438,22 @@ void boardInitModulePorts()
 #if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
   _extmod_init_inverter();
 #endif  
+
+#if defined(PCBNV14)
+  if (hardwareOptions.pcbrev == PCBREV_NV14) {
+    LL_GPIO_InitTypeDef pinInit;
+    LL_GPIO_StructInit(&pinInit);
+    pinInit.Pin = EXTMODULE_PWR_FIX_GPIO_PIN;
+    pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+
+    // pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
+    // for additional transistor to ensuring module is completely disabled
+    pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+
+    LL_GPIO_SetOutputPin(EXTMODULE_PWR_FIX_GPIO, EXTMODULE_PWR_FIX_GPIO_PIN);
+    LL_GPIO_Init(EXTMODULE_PWR_FIX_GPIO, &pinInit);
+  }
+#endif
 }
 
 BEGIN_MODULES()

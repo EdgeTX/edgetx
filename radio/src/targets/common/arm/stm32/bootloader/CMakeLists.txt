@@ -91,13 +91,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       )
   endif()
 
-  if(PCB STREQUAL NV14)
-    set(BOOTLOADER_SRC
-      ${BOOTLOADER_SRC}
-      ../../../../../targets/${TARGET_DIR}/extmodule_helper.cpp
-      )
-  endif()
-
   if(DEBUG)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}

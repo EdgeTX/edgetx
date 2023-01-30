@@ -138,7 +138,6 @@ set(FIRMWARE_TARGET_SRC
   battery_driver.cpp
   audio_spi_driver.cpp
   backlight_driver.cpp
-  extmodule_helper.cpp
   )
 
 set(FIRMWARE_SRC

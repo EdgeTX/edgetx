@@ -27,6 +27,7 @@
 #include "libopenui.h"
 #include "lua/lua_api.h"
 #include "standalone_lua.h"
+#include "hal/module_port.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -44,7 +45,7 @@ void RadioToolsPage::build(FormWindow * window)
 
 #if defined(PXX2)
   for (uint8_t module = 0; module < NUM_MODULES; module++) {
-    if (isModulePXX2(module) && (module == INTERNAL_MODULE ? IS_INTERNAL_MODULE_ON() : IS_EXTERNAL_MODULE_ON())) {
+    if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
       waiting |= (1 << module);
       moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
     }

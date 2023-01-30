@@ -165,11 +165,6 @@ void SDRAM_Init();
 #define EXTERNAL_MODULE_ON()    GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTERNAL_MODULE_OFF()   GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 
-#define IS_INTERNAL_MODULE_ON()                                         \
-  (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#define IS_EXTERNAL_MODULE_ON() \
-  (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
-
 #if !defined(PXX2)
   #define IS_PXX2_INTERNAL_ENABLED()            (false)
   #define IS_PXX1_INTERNAL_ENABLED()            (true)

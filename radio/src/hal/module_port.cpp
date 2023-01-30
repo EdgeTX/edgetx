@@ -29,10 +29,13 @@ extern const etx_module_t* const _modules[];
 extern const uint8_t _n_modules;
 
 static etx_module_state_t _module_states[MAX_MODULES];
+static uint8_t _module_power;
 
 void modulePortInit()
 {
   memset(_module_states, 0, sizeof(_module_states));
+  _module_power = 0;
+
 #if defined(CONFIGURABLE_MODULE_PORT)
   memset(&_extra_module_port, 0, sizeof(_extra_module_port));
   _extra_module_port.type = 0xFF; // some invalid type
@@ -136,11 +139,24 @@ const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type,
   return _find_port(module, type, port, polarity);
 }
 
-void modulePortSetPower(uint8_t module, uint8_t enabled)
+void modulePortSetPower(uint8_t module, uint8_t enable)
 {
   if (module >= _n_modules) return;
   auto mod = _modules[module];
-  if (mod && mod->set_pwr) mod->set_pwr(enabled);
+  if (mod && mod->set_pwr) {
+    mod->set_pwr(enable);
+    if (enable) {
+      _module_power |= (1 << module);
+    } else {
+      _module_power &= ~(1 << module);
+    }
+  }
+}
+
+bool modulePortPowered(uint8_t module)
+{
+  if (module >= _n_modules) return false;
+  return _module_power & (1 << module);
 }
 
 etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,

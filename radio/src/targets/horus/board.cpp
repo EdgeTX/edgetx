@@ -19,16 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
-#include "hal/adc_driver.h"
-#include "hal/serial_driver.h"
-#include "hal/serial_port.h"
-#include "hal/trainer_driver.h"
-#include "hal/module_port.h"
-
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
+
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
 
 #include "timers_driver.h"
 #include "dataconstants.h"

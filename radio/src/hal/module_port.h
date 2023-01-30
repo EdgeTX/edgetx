@@ -122,6 +122,8 @@ const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type,
 
 void modulePortSetPower(uint8_t module, uint8_t enabled);
 
+bool modulePortPowered(uint8_t module);
+
 // Init module port with params (driver & context stored locally)
 etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
                                          const etx_serial_init* params);

@@ -24,6 +24,7 @@
 #include "options.h"
 #include "libopenui.h"
 #include "fw_version.h"
+#include "hal/module_port.h"
 
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
@@ -78,13 +79,13 @@ class VersionDialog : public Dialog
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
 
     // Query modules
-    if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+    if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
       moduleState[INTERNAL_MODULE].readModuleInformation(
           &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 
-    if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+    if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
       moduleState[EXTERNAL_MODULE].readModuleInformation(
           &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
@@ -302,12 +303,12 @@ class VersionDialog : public Dialog
   {
     if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
       // Query modules
-      if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+      if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
         moduleState[INTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
-      if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+      if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
         moduleState[EXTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);

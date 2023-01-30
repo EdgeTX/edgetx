@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 #include "options.h"
+#include "hal/module_port.h"
+
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
 #endif
@@ -110,13 +112,13 @@ void menuRadioModulesVersion(event_t event)
   if (event == EVT_ENTRY || get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-    if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+    if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
       moduleState[INTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-    if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+    if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
       moduleState[EXTERNAL_MODULE].readModuleInformation(&reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE], PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 #endif
@@ -145,11 +147,11 @@ void menuRadioModulesVersion(event_t event)
       lcdDrawText(INDENT_WIDTH, y, STR_MODULE);
       bool module_off = true;
 #if defined(HARDWARE_INTERNAL_MODULE)
-      if (module == INTERNAL_MODULE && IS_INTERNAL_MODULE_ON())
+      if (module == INTERNAL_MODULE && modulePortPowered(INTERNAL_MODULE))
         module_off = false;
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
-      if (module == EXTERNAL_MODULE && IS_EXTERNAL_MODULE_ON())
+      if (module == EXTERNAL_MODULE && modulePortPowered(EXTERNAL_MODULE))
         module_off = false;
 #endif
       if (module_off) {

@@ -109,12 +109,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
 #define EXTERNAL_MODULE_OFF()           EXTERNAL_MODULE_PWR_OFF()
 
-#if defined(RADIO_T12)
-#define IS_INTERNAL_MODULE_ON()         false
-#else
-#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#endif
-
 // Trainer driver
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 

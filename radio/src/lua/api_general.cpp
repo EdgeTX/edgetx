@@ -25,6 +25,7 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
+#include "hal/module_port.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -966,8 +967,12 @@ static int luaSportTelemetryPush(lua_State * L)
       packet.value = luaL_checkunsigned(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
 #if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
-      uint8_t destination = (IS_INTERNAL_MODULE_ON() ? INTERNAL_MODULE : EXTERNAL_MODULE);
-      outputTelemetryBuffer.setDestination(isModulePXX2(destination) ? (destination << 2) : TELEMETRY_ENDPOINT_SPORT);
+      uint8_t destination =
+          (modulePortPowered(INTERNAL_MODULE) ? INTERNAL_MODULE
+                                              : EXTERNAL_MODULE);
+      outputTelemetryBuffer.setDestination(isModulePXX2(destination)
+                                               ? (destination << 2)
+                                               : TELEMETRY_ENDPOINT_SPORT);
 #else
       outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
 #endif
