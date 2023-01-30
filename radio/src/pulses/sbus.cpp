@@ -106,11 +106,12 @@ static void* sbusInit(uint8_t module)
   if (module == INTERNAL_MODULE) return nullptr;
 #endif
 
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams);
-  if (!mod_st) {
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
-    if (!mod_st) return nullptr;
-  }
+  // auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams);
+  // TODO: check if inverter is there, or mandate it somehow...
+  // if (!mod_st) {
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
+  if (!mod_st) return nullptr;
+  // }
 
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
   return (void*)mod_st;

@@ -159,6 +159,16 @@ static void _set_sport_input(uint8_t enable)
 }
 
 #if defined(TELEMETRY_REV_GPIO)
+static void _sport_set_inverted(uint8_t enable)
+{
+  uint32_t pins = TELEMETRY_TX_REV_GPIO_PIN | TELEMETRY_RX_REV_GPIO_PIN;
+  if (!enable) {
+    LL_GPIO_SetOutputPin(TELEMETRY_REV_GPIO, pins);
+  } else {
+    LL_GPIO_ResetOutputPin(TELEMETRY_REV_GPIO, pins);
+  }
+}
+
 static void _sport_init_inverter()
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -167,16 +177,7 @@ static void _sport_init_inverter()
   pinInit.Pin = TELEMETRY_TX_REV_GPIO_PIN | TELEMETRY_RX_REV_GPIO_PIN;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   LL_GPIO_Init(TELEMETRY_REV_GPIO, &pinInit);
-}
-
-static void _sport_set_inverted(uint8_t enable)
-{
-  uint32_t pins = TELEMETRY_TX_REV_GPIO_PIN | TELEMETRY_RX_REV_GPIO_PIN;
-  if (enable) {
-    LL_GPIO_SetOutputPin(TELEMETRY_REV_GPIO, pins);
-  } else {
-    LL_GPIO_ResetOutputPin(TELEMETRY_REV_GPIO, pins);
-  }
+  _sport_set_inverted(false);
 }
 #endif
 
@@ -349,6 +350,11 @@ static const etx_module_port_t _external_ports[] = {
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .timer = &STM32ModuleTimerDriver },
     .hw_def = (void*)&extmoduleTimer,
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+    .set_inverted = _extmod_set_inverted,
+#else
+    .set_inverted = nullptr,
+#endif
   },
   // TX inverted DMA pulse train on PPM
   {
@@ -357,6 +363,11 @@ static const etx_module_port_t _external_ports[] = {
     .dir_flags = ETX_MOD_DIR_TX,
     .drv = { .serial = &STM32SoftSerialTxDriver },
     .hw_def = REF_STM32_SOFTSERIAL_PORT(ExternalModule),
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+    .set_inverted = _extmod_set_inverted,
+#else
+    .set_inverted = nullptr,
+#endif
   },
   // TX/RX half-duplex on S.PORT
   {

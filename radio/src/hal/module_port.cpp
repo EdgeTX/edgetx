@@ -75,6 +75,11 @@ static void _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
       if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_ONEBIT);
     }
   }
+
+  // setup polarity
+  if (port->set_inverted) {
+    port->set_inverted(params->polarity == ETX_Pol_Inverted);
+  }
 }
 
 static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* port,
@@ -83,6 +88,11 @@ static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* 
   auto drv = port->drv.timer;
   d->ctx = drv->init(port->hw_def, cfg);
   d->port = port;
+
+  // setup polarity
+  if (port->set_inverted) {
+    port->set_inverted(false);
+  }
 }
 
 static const etx_module_port_t* _find_port(uint8_t module, uint8_t type,
