@@ -167,7 +167,7 @@ TASK_FUNCTION(mixerTask)
     }
 #endif
 
-    if (!_mixer_running) {
+    if (_mixer_running) {
 
       uint16_t t0 = getTmr2MHz();
 
