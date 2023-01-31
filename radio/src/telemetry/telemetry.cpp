@@ -216,14 +216,20 @@ static inline bool pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, 
   return true;
 }
 
+// This can only be changed when the mixer is not
+// running as the priority of the timer task is
+// lower.
+volatile uint8_t _telemetryIsPolling = false;
+
 void telemetryWakeup()
 {
+  _telemetryIsPolling = true;
   for (uint8_t i = 0; i < MAX_MODULES; i++) {
     auto mod = pulsesGetModuleDriver(i);
     if (!mod) continue;
-
     pollTelemetry(i, mod->drv, mod->ctx);
   }
+  _telemetryIsPolling = false;
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];

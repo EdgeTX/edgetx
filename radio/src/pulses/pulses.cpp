@@ -446,9 +446,17 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
   }
 }
 
+extern volatile uint8_t _telemetryIsPolling;
+
 void pulsesStopModule(uint8_t module)
 {
   if (module >= MAX_MODULES) return;
+
+  while(_telemetryIsPolling) {
+    // In case the telemetry timer is currently polling the port,
+    // we give the timer task a chance to run and finish the polling.
+    RTOS_WAIT_MS(1);
+  }
   _deinit_module(module);
 
   auto& proto = moduleState[module].protocol;
@@ -462,6 +470,13 @@ void pulsesSendNextFrame(uint8_t module)
 
   if (moduleState[module].protocol != protocol) {
     // TODO: error checking!
+
+    if (_telemetryIsPolling) {
+      // In case the telemetry timer is currently polling the port,
+      // we just yield in the hope it will be different next time.
+      return;
+    }
+
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
     return; // really??? why not start right now?
