@@ -1639,9 +1639,7 @@ void opentxInit()
 
   resetBacklightTimeout();
 
-  pulsesInit();
   pulsesStart();
-
   WDG_ENABLE(WDG_DURATION);
 }
 
@@ -1674,6 +1672,7 @@ int main()
 #endif
 
   boardInit();
+  pulsesInit();
 
 #if defined(PCBHORUS)
   if (!IS_FIRMWARE_COMPATIBLE_WITH_BOARD()) {
