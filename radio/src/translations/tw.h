@@ -912,8 +912,8 @@
 #define TR_TELEMETRY_TYPE              TR("類型", "回傳類型")
 #define TR_TELEMETRY_SENSORS           "傳感器"
 #define TR_VALUE                       "數值"
-#define TR_PERIOD                      "Period"
-#define TR_INTERVAL                    "Interval"
+#define TR_PERIOD                      "週期"
+#define TR_INTERVAL                    "間隔"
 #define TR_REPEAT                      "循環"
 #define TR_ENABLE                      "啟用"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
