@@ -187,13 +187,17 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period, bool t
   params.baudrate = baudrate;
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
   if (!mod_st) {
+    // inverted soft-serial fallback
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
     if (!mod_st) return nullptr;
   }
 
   if (telemetry) {
     params.direction = ETX_Dir_RX;
-    modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
+    if (!modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params)) {
+      // inverted soft-serial fallback
+      modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
+    }
   }
 
   mixerSchedulerSetPeriod(module, period);
