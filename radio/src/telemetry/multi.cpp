@@ -599,12 +599,9 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
 
   uint16_t &lastRxTS = getMultiTelemetryLastRxTS(module);
-  uint16_t nowMs = (uint16_t)RTOS_GET_MS();
-  if (nowMs - lastRxTS > 15)
-    setMultiTelemetryBufferState(module, NoProtocolDetected);
-  lastRxTS = nowMs;
   
-  // debugPrintf("State: %d, byte received %02X, buflen: %d\r\n", getMultiTelemetryBufferState(module), data, rxBufferCount);
+  // debugPrintf("State: %d, byte received %02X, buflen: %d\r\n",
+  //             getMultiTelemetryBufferState(module), data, rxBufferCount);
   
   switch (getMultiTelemetryBufferState(module)) {
     case NoProtocolDetected:

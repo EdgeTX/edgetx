@@ -230,6 +230,7 @@ static void* multiInit(uint8_t module)
 
     // Init S.PORT RX channel
     cfg.direction = ETX_Dir_RX;
+    cfg.polarity = ETX_Pol_Normal;
     modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &cfg);
   }
 #endif
