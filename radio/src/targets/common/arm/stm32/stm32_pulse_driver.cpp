@@ -182,6 +182,12 @@ void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
   LL_TIM_OC_SetPolarity(tim->TIMx, tim->TIM_Channel, ll_polarity);  
 }
 
+bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim)
+{
+  return LL_TIM_OC_GetPolarity(tim->TIMx, tim->TIM_Channel) ==
+         LL_TIM_OCPOLARITY_HIGH;
+}
+
 // return true if stopped, false otherwise
 bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim)
 {

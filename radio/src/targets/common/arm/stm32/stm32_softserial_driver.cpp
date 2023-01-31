@@ -327,8 +327,8 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
   auto st = port->st;
   memset(port->st, 0, sizeof(stm32_softserial_tx_state));
 
+  bool polarity = params->polarity == ETX_Pol_Normal;
   uint32_t freq = params->baudrate * 16;
-  bool polarity = true;
   uint32_t ocmode = LL_TIM_OCMODE_TOGGLE;
   uint32_t cmp_val = 0;
 
@@ -360,8 +360,6 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
   // Use a variable timer frequency to keep bitlen constant (16)
   auto tim = port->tim;
   stm32_pulse_init(tim, freq);
-
-  // TODO: polarity?
   stm32_pulse_config_output(tim, polarity, ocmode, cmp_val);
 
   return hw_def;
@@ -456,20 +454,25 @@ static void stm32_softserial_tx_send_buffer(void* ctx, const uint8_t* data, uint
   // Start DMA request and re-enable timer
   const void* pulses = st->pulse_buffer;
 
-  // TODO: save polarity and encoding
-  bool polarity = true;
+  // TODO: save encoding
   uint32_t ocmode = LL_TIM_OCMODE_TOGGLE;
   uint32_t cmp_val = 0;
 
   // dirty hack...
   if (st->conv_byte == _conv_byte_pxx1) {
-    polarity = false;
     ocmode = LL_TIM_OCMODE_PWM1;
     cmp_val = PXX1_PWM_ON;
   }
 
-  stm32_pulse_set_polarity(timer, polarity);
   stm32_pulse_start_dma_req(timer, pulses, length, ocmode, cmp_val);
+}
+
+void stm32_softserial_set_polarity(void* ctx, uint8_t polarity)
+{
+  auto port = (const stm32_softserial_tx_port*)ctx;
+  auto timer = port->tim;
+
+  stm32_pulse_set_polarity(timer, polarity);
 }
 
 const etx_serial_driver_t STM32SoftSerialTxDriver = {
@@ -484,6 +487,7 @@ const etx_serial_driver_t STM32SoftSerialTxDriver = {
   .clearRxBuffer = nullptr, // TODO: same as enableRx
   .getBaudrate = nullptr,
   .setBaudrate = nullptr,
+  .setPolarity = stm32_softserial_set_polarity,
   .setHWOption = nullptr,
   .setReceiveCb = nullptr,
   .setIdleCb = nullptr,

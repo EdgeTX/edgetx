@@ -96,7 +96,7 @@ const etx_serial_init sbusUartParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,
-    .polarity = ETX_Pol_Inverted,
+    .polarity = ETX_Pol_Normal,
 };
 
 static void* sbusInit(uint8_t module)
@@ -109,6 +109,7 @@ static void* sbusInit(uint8_t module)
   // auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams);
   // TODO: check if inverter is there, or mandate it somehow...
   // if (!mod_st) {
+  // -> SOFT_INV has 'setPolarity'
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
   if (!mod_st) return nullptr;
   // }
@@ -132,14 +133,14 @@ static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
 
-  // TODO: set polarity for next packet sent (can be changed from UI)
-  // GET_SBUS_POLARITY(EXTERNAL_MODULE)
-
   auto p_data = buffer;
   setupPulsesSbus(module, p_data);
 
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
+  // TODO: check if the port has an inverter and use it instead 
+  drv->setPolarity(drv_ctx, GET_SBUS_POLARITY(module));
   drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 
   // SBUS_PERIOD is not a constant! It can be set from UI
