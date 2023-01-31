@@ -64,3 +64,13 @@ void mixerTaskExit();
 //              a combination of running and exit flags.
 //
 bool mixerTaskRunning();
+
+//
+// Lock / unlock functions: use with care!
+//
+void mixerTaskLock();
+void mixerTaskUnlock();
+
+// returns true if the lock could be acquired
+bool mixerTaskTryLock();
+

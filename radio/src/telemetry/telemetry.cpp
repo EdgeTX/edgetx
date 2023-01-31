@@ -189,16 +189,16 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-static inline bool pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
+static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
 {
-  if (!drv || !drv->processData) return false;
+  if (!drv || !drv->processData) return;
 
   auto mod_st = (etx_module_state_t*)ctx;
   auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
   auto serial_ctx = modulePortGetCtx(mod_st->rx);
 
   if (!serial_drv  || !serial_ctx || !serial_drv->getByte)
-    return false;
+    return;
 
   uint8_t* rxBuffer = getTelemetryRxBuffer(module);
   uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
@@ -212,8 +212,6 @@ static inline bool pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, 
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (serial_drv->getByte(serial_ctx, &data) > 0);
   }
-
-  return true;
 }
 
 // This can only be changed when the mixer is not

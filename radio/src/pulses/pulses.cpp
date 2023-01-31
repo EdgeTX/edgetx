@@ -111,6 +111,42 @@ void restartModule(uint8_t module)
   mixerTaskStart();
 }
 
+#if !defined(SIMU)
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
+
+static void _setup_async_module_restart(void* p1, uint32_t p2)
+{
+  if (!mixerTaskTryLock()) {
+    // In case the mixer cannot be locked, try again later
+    // and make the same function pending again.
+    PendedFunction_t cb = _setup_async_module_restart;
+    xTimerPendFunctionCall(cb, p1, p2, 0/* do not wait */);
+    return;
+  }
+
+  uint8_t module = (uint8_t)(uintptr_t)p1;
+  moduleState[module].forced_off = 1;
+
+  uint32_t timeout = p2;
+  moduleState[module].counter = timeout;
+
+  mixerTaskUnlock();
+}
+#endif
+
+// return true if the request could be posted to the timer queue
+bool restartModuleAsync(uint8_t module, uint8_t cnt_delay)
+{
+#if !defined(SIMU)
+  PendedFunction_t cb = _setup_async_module_restart;
+  return xTimerPendFunctionCall(cb, (void*)(uintptr_t)module, cnt_delay,
+                                0/* do not wait */) == pdPASS;
+#else
+  return true;
+#endif
+}
+
 // TODO: this should be moved to PXX2 territory!
 #if defined(PXX2)
 // use only for PXX
@@ -331,7 +367,10 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
   void* ctx = drv->init(module);
 
   // TODO: module init failed somehow, we should handle this better...
-  if (!ctx) return;
+  if (!ctx) {
+    TRACE("Module #%d init failed", module);
+    return;
+  }
 
   mod->drv = drv;
   mod->ctx = ctx;
@@ -342,6 +381,7 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
   
   // power ON
   modulePortSetPower(module, true);
+  TRACE("Module #%d init succeeded", module);
 }
 
 static void _deinit_module(uint8_t module)
@@ -366,6 +406,7 @@ static void _deinit_module(uint8_t module)
 
   // clear
   memset(mod, 0, sizeof(module_pulse_driver));
+  TRACE("Module #%d de-init succeeded", module);
 }
 
 static void pulsesEnableModule(uint8_t module, uint8_t protocol)
@@ -446,6 +487,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
   }
 }
 
+// TODO: declare a function in telemetry
 extern volatile uint8_t _telemetryIsPolling;
 
 void pulsesStopModule(uint8_t module)
@@ -463,12 +505,28 @@ void pulsesStopModule(uint8_t module)
   proto = PROTOCOL_CHANNELS_NONE;
 }
 
+static bool _handle_async_restart(uint8_t module)
+{
+  if (moduleState[module].forced_off) {
+    if (--moduleState[module].counter > 0) {
+      _deinit_module(module);
+      moduleState[module].protocol = PROTOCOL_CHANNELS_NONE;
+      return true;
+    } else {
+      moduleState[module].forced_off = 0;
+    }
+  }
+  return false;
+}
+
 void pulsesSendNextFrame(uint8_t module)
 {
   if (module >= MAX_MODULES) return;
+
   uint8_t protocol = getRequiredProtocol(module);
 
-  if (moduleState[module].protocol != protocol) {
+  if (moduleState[module].protocol != protocol ||
+      moduleState[module].forced_off) {
     // TODO: error checking!
 
     if (_telemetryIsPolling) {
@@ -477,9 +535,12 @@ void pulsesSendNextFrame(uint8_t module)
       return;
     }
 
+    if (_handle_async_restart(module))
+      return;
+    
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
-    return; // really??? why not start right now?
+    return;
   }
 
   auto mod = &(_module_drivers[module]);

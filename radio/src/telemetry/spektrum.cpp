@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 #include "spektrum.h"
+#include "hal/module_port.h"
+#include "tasks/mixer_task.h"
 
 /*
  * Documentation of the Spektrum protocol is available under
@@ -519,7 +521,9 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
           packet[0] & 0x3F, packet[2]);
 
     storageDirty(EE_MODEL);
-    restartModule(module);
+
+    moduleState[module].mode = MODULE_MODE_NORMAL;
+    restartModuleAsync(module, 50); // ~200ms
     
   } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
              g_model.moduleData[module].multi.rfProtocol ==

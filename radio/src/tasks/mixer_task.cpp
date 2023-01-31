@@ -38,12 +38,18 @@ static RTOS_MUTEX_HANDLE mixerMutex;
 static bool _mixer_running = false;
 static bool _mixer_exit = false;
 
-static void mixerTaskLock()
+void mixerTaskLock()
 {
   RTOS_LOCK_MUTEX(mixerMutex);
 }
 
-static void mixerTaskUnlock()
+// returns true if the lock could be acquired
+bool mixerTaskTryLock()
+{
+  return RTOS_TRYLOCK_MUTEX(mixerMutex);
+}
+
+void mixerTaskUnlock()
 {
   RTOS_UNLOCK_MUTEX(mixerMutex);
 }
@@ -51,7 +57,6 @@ static void mixerTaskUnlock()
 void mixerTaskInit()
 {
   RTOS_CREATE_MUTEX(mixerMutex);
-
   RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
                    MIXER_STACK_SIZE, MIXER_TASK_PRIO);
 }

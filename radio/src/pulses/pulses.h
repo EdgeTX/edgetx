@@ -65,7 +65,7 @@ typedef void (* ModuleCallback)();
 PACK(struct ModuleState {
   uint8_t protocol;
   uint8_t mode:4;
-  uint8_t paused:1;
+  uint8_t forced_off:1;
   uint8_t spare:3;
   uint16_t counter;
 
@@ -171,7 +171,9 @@ typedef void (*module_deinit_cb_t)(uint8_t, const etx_proto_driver_t*);
 void pulsesSetModuleInitCb(module_init_cb_t cb);
 void pulsesSetModuleDeInitCb(module_deinit_cb_t cb);
 
-void restartModule(uint8_t idx);
+void restartModule(uint8_t module);
+bool restartModuleAsync(uint8_t module, uint8_t cnt_delay);
+
 void setupPulsesPPMTrainer();
 
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
