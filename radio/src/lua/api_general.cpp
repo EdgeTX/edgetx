@@ -1124,10 +1124,10 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaCrossfireTelemetryPush(lua_State * L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE);
+  bool external = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
   bool internal = (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
 
-  if (!internal && !sport) {
+  if (!internal && !external) {
     lua_pushnil(L);
     return 1;
   }
@@ -1222,9 +1222,8 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaGhostTelemetryPush(lua_State * L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST);
-
-  if (!sport) {
+  bool extmod = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_GHOST);
+  if (!extmod) {
     lua_pushnil(L);
     return 1;
   }
