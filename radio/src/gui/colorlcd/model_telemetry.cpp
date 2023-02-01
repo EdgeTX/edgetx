@@ -770,14 +770,6 @@ std::string getDate(TelemetryItem & telemetryItem)
     formatNumberAsString(telemetryItem.datetime.sec, LEADING0|LEFT, 2);
 }
 
-std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
-{
-  if ((flags & NO_UNIT) || unit == UNIT_RAW)
-    return formatNumberAsString(val, flags & (~NO_UNIT));
-
-  return formatNumberAsString(val, flags & (~NO_UNIT), 0, nullptr, TEXT_AT_INDEX(STR_VTELEMUNIT, unit).c_str());
-}
-
 std::string getGPSCoord(int32_t value, const char * direction, bool seconds=true)
 {
   char s[32] = {};
