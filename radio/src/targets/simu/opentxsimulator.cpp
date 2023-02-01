@@ -396,7 +396,9 @@ void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
 void OpenTxSimulator::sendTelemetry(const QByteArray data)
 {
   //ETXS_DBG << data;
-  sportProcessTelemetryPacket((uint8_t *)data.constData());
+  sportProcessTelemetryPacket(INTERNAL_MODULE,
+                              (uint8_t *)data.constData(),
+                              data.count());
 }
 
 uint8_t OpenTxSimulator::getSensorInstance(uint16_t id, uint8_t defaultValue)

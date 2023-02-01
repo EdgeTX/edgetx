@@ -43,6 +43,10 @@ extern uint32_t NV14internalModuleFwVersion;
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
+#define IS_NATIVE_FRSKY_PROTOCOL(module)                                \
+  ((moduleState[module].protocol == PROTOCOL_CHANNELS_PXX1) ||          \
+   (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX2))
+
 #if defined (MULTIMODULE)
 #define IS_D16_MULTI(module)                                            \
   ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
@@ -71,36 +75,14 @@ extern uint32_t NV14internalModuleFwVersion;
    (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_DSM_RX))
 
-#if defined(HARDWARE_INTERNAL_MODULE) && defined(HARDWARE_EXTERNAL_MODULE)
-#define IS_FRSKY_SPORT_PROTOCOL()                                      \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||              \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&             \
-    (IS_D16_MULTI(INTERNAL_MODULE) || IS_D16_MULTI(EXTERNAL_MODULE) || \
-     IS_R9_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#elif defined(HARDWARE_EXTERNAL_MODULE)
-#define IS_FRSKY_SPORT_PROTOCOL()                          \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
-    (IS_D16_MULTI(EXTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#elif defined(HARDWARE_INTERNAL_MODULE)
-#define IS_FRSKY_SPORT_PROTOCOL()                          \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
-    (IS_D16_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(INTERNAL_MODULE))))
-#endif
-
 #else
   #define IS_D16_MULTI(module)           false
   #define IS_R9_MULTI(module)            false
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
   #define IS_DSM_MULTI(module)           false
-  #define IS_FRSKY_SPORT_PROTOCOL()      (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT)
   #define IS_RX_MULTI(module)            false
 #endif
-
-#define IS_SPEKTRUM_PROTOCOL()           (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM)
-
 
 #if defined(MULTIMODULE)
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about

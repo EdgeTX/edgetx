@@ -284,14 +284,8 @@ static void processResetFrame(uint8_t module, const uint8_t * frame)
 
 static void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
-  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
-    telemetryMirrorSend(frame[i]);
-  }
-  
-  uint8_t origin = (module << 2) + (frame[3] & 0x03);
-  if (origin != TELEMETRY_ENDPOINT_SPORT) {
-    sportProcessTelemetryPacketWithoutCrc(origin, &frame[4]);
-  }
+  uint8_t origin = frame[3] & 0x03;
+  sportProcessTelemetryPacketWithoutCrc(module, origin, &frame[4]);
 }
 
 #if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)

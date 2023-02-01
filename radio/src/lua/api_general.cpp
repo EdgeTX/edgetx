@@ -915,10 +915,20 @@ When called without parameters, it will only return the status of the output buf
 @status current Introduced in 2.2.0, retval nil added in 2.3.4
 */
 
+static bool _supports_sport(uint8_t module)
+{
+  return IS_NATIVE_FRSKY_PROTOCOL(module) ||
+    (isModuleMultimodule(module) &&
+     (IS_D16_MULTI(module) || IS_R9_MULTI(module)));
+}
+
 static int luaSportTelemetryPush(lua_State * L)
 {
+  bool extmod = _supports_sport(EXTERNAL_MODULE);
+  bool intmod = _supports_sport(INTERNAL_MODULE);
+  
   // dirty hack until 2 simultanous protocols are supported
-  if (isModuleCrossfire(INTERNAL_MODULE) || !IS_FRSKY_SPORT_PROTOCOL()) {
+  if (!extmod && !intmod) {
     lua_pushnil(L);
     return 1;
   }
@@ -967,12 +977,10 @@ static int luaSportTelemetryPush(lua_State * L)
       packet.value = luaL_checkunsigned(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
 #if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
-      uint8_t destination =
-          (modulePortPowered(INTERNAL_MODULE) ? INTERNAL_MODULE
-                                              : EXTERNAL_MODULE);
+      uint8_t destination = (intmod ? INTERNAL_MODULE : EXTERNAL_MODULE);
       outputTelemetryBuffer.setDestination(isModulePXX2(destination)
-                                               ? (destination << 2)
-                                               : TELEMETRY_ENDPOINT_SPORT);
+                                           ? (destination << 2)
+                                           : TELEMETRY_ENDPOINT_SPORT);
 #else
       outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
 #endif

@@ -236,14 +236,6 @@ const char * FrskyDeviceFirmwareUpdate::sendPowerOn()
       return nullptr;
   }
 
-  // if (telemetryProtocol != PROTOCOL_TELEMETRY_FRSKY_SPORT) { // TODO
-  //   return STR_DEVICE_NO_RESPONSE;
-  // }
-
-  // if (!IS_FRSKY_SPORT_PROTOCOL()) { // TODO
-  //   return STR_DEVICE_NO_RESPONSE;
-  // }
-
   return STR_DEVICE_NO_RESPONSE;
 }
 

@@ -362,12 +362,10 @@ static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 
 static void pxx1ProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  (void)ctx;
-  (void)buffer;
-  (void)len;
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
 
-  // TODO: should use different buffers depending on module
-  processFrskyTelemetryData(data);
+  processFrskySportTelemetryData(module, data, buffer, *len);
 }
 
 const etx_proto_driver_t Pxx1Driver = {

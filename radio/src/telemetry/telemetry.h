@@ -76,9 +76,6 @@ void telemetryMirrorSend(uint8_t data);
 void telemetryWakeup();
 void telemetryReset();
 
-extern uint8_t telemetryProtocol;
-void telemetryInit(uint8_t protocol);
-
 void telemetryInterrupt10ms();
 
 void telemetryStart();
@@ -129,34 +126,9 @@ void frskyDSetDefault(int index, uint16_t id);
 #define IS_DISTANCE_UNIT(unit)         ((unit) == UNIT_METERS || (unit) == UNIT_FEET)
 #define IS_SPEED_UNIT(unit)            ((unit) >= UNIT_KTS && (unit) <= UNIT_MPH)
 
-extern uint8_t telemetryProtocol;
-
 inline const char* getRssiLabel()
 {
-#if defined(MULTIMODULE) && defined(EXTERNAL_MODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
-      (g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
-           MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-       g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
-           MODULE_SUBTYPE_MULTI_HOTT)) {
-    return "RQly";
-  }
-#endif
-
-#if defined(GHOST)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
-    return "RQly";
-  }
-#endif
-
-#if defined (PCBNV14)
-  extern uint32_t NV14internalModuleFwVersion;
-  if ( (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) 
-        && (NV14internalModuleFwVersion >=  0x1000E) )
-    return "Sgnl";
-#endif
-
-  return "RSSI";
+  return "Rx-Stats";
 }
 
 // TODO: this should handle only the external S.PORT line

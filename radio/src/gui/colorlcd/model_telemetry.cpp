@@ -589,7 +589,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     new StaticText(line, rect_t{}, STR_NAME, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     grid2.nextCell();
     new StaticText(line, rect_t{}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
+    if (!g_model.ignoreSensorIds) {
       new StaticText(line, rect_t{}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     }
   }
@@ -820,51 +820,6 @@ std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags)
   }
   else if (telemetrySensor.unit == UNIT_GPS) {
     return getGPSSensorValue(telemetryItem, flags);
-  }
-  else if (telemetrySensor.unit == UNIT_BITFIELD) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID && telemetrySensor.id <= RBOX_STATE_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            return std::string("OK");
-          }
-          else {
-            for (uint8_t i=0; i<16; i++) {
-              if (value & (1 << i)) {
-                char s[] = "CH__ KO";
-                strAppendUnsigned(&s[2], i+1, 2);
-                return std::string(s);
-              }
-            }
-          }
-        }
-        else {
-          if (value == 0) {
-            return std::string("Rx OK");
-          }
-          else {
-            static const char * const RXS_STATUS[] = {
-              "Rx1 Ovl",
-              "Rx2 Ovl",
-              "SBUS Ovl",
-              "Rx1 FS",
-              "Rx1 LF",
-              "Rx2 FS",
-              "Rx2 LF",
-              "Rx1 Lost",
-              "Rx2 Lost",
-              "Rx1 NS",
-              "Rx2 NS",
-            };
-            for (uint8_t i=0; i<DIM(RXS_STATUS); i++) {
-              if (value & (1<<i)) {
-                return std::string(RXS_STATUS[i]);
-              }
-            }
-          }
-        }
-      }
-    }
   }
   else if (telemetrySensor.unit == UNIT_TEXT) {
     return std::string(telemetryItem.text);

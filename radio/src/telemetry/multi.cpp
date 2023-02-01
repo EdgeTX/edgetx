@@ -426,14 +426,14 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case FrSkyHubTelemetry:
       if (len >= 4)
-        frskyDProcessPacket(data);
+        frskyDProcessPacket(module, data, len);
       else
         TRACE("[MP] Received Frsky HUB telemetry len %d < 4", len);
       break;
 
     case FrSkySportTelemetry:
       if (len >= 4) {
-        if (sportProcessTelemetryPacket(data) && len >= 8) {
+        if (sportProcessTelemetryPacket(module, data, len) && len >= 8) {
           uint8_t primId = data[1];
           uint16_t dataId = *((uint16_t *)(data+2));
           if (primId == DATA_FRAME && dataId == RSSI_ID) {
@@ -621,7 +621,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
 
     case FrskyTelemetryFallback:
       setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
-      processFrskyTelemetryData(data);
+      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
       break;
 
     case FrskyTelemetryFallbackFirstByte:
@@ -629,7 +629,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         setMultiTelemetryBufferState(module, MultiStatusOrFrskyData);
       }
       else {
-        processFrskyTelemetryData(data);
+        processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
         if (data != 0x7e)
           setMultiTelemetryBufferState(module, FrskyTelemetryFallbackNextBytes);
       }
@@ -637,7 +637,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
       break;
 
     case FrskyTelemetryFallbackNextBytes:
-      processFrskyTelemetryData(data);
+      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
       if (data == 0x7e) {
         // end of packet or start of new packet
         setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);

@@ -174,9 +174,12 @@ void menuModelTelemetry(event_t event)
     switch (k) {
       case ITEM_TELEMETRY_PROTOCOL_TYPE:
         lcdDrawTextAlignedLeft(y, STR_TELEMETRY_TYPE);
-        lcdDrawTextAtIndex(TELEM_COL2, y, STR_TELEMETRY_PROTOCOLS, g_model.telemetryProtocol, attr);
+        lcdDrawTextAtIndex(TELEM_COL2, y, STR_TELEMETRY_PROTOCOLS,
+                           g_model.telemetryProtocol, attr);
         if (attr) {
-          g_model.telemetryProtocol = checkIncDec(event, g_model.telemetryProtocol, PROTOCOL_TELEMETRY_FIRST, PROTOCOL_TELEMETRY_LAST, EE_MODEL, isTelemetryProtocolAvailable);
+          g_model.telemetryProtocol = checkIncDec(
+              event, g_model.telemetryProtocol, PROTOCOL_TELEMETRY_FIRST,
+              PROTOCOL_TELEMETRY_LAST, EE_MODEL, isTelemetryProtocolAvailable);
         }
         break;
 
