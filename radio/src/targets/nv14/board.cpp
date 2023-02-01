@@ -181,7 +181,7 @@ void boardInit()
   flysky_hall_stick_init();
   init2MhzTimer();
   init1msTimer();
-  TouchInit();
+  TouchEventInit();
   usbInit();
 
   uint32_t press_start = 0;
@@ -206,7 +206,7 @@ void boardInit()
       } else {
         uint32_t press_end_touch = press_end;
         if (touchPanelEventOccured()) {
-          touchPanelRead();
+          CleanTouchPanelEvent();
           press_end_touch = get_tmr10ms();
         }
         press_start = 0;

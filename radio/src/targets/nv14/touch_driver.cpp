@@ -141,51 +141,12 @@ static int _enable_gpio_clock(GPIO_TypeDef *GPIOx)
 void I2C_Init()
 {
   stm32_i2c_deinit(TOUCH_I2C_BUS);
-
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_SYSCFG_CLK_ENABLE();
-
   __HAL_RCC_I2C1_CLK_ENABLE();
   __HAL_RCC_I2C1_CLK_DISABLE();
 
   I2C_FreeBus();
-
   stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE);
-  
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  _enable_gpio_clock(TOUCH_RST_GPIO);
-  _enable_gpio_clock(TOUCH_INT_GPIO);
-
-  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
-
-  //ext interupt
-  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_INPUT;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
-
-  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
-
-  LL_EXTI_InitTypeDef extiInit;
-  LL_EXTI_StructInit(&extiInit);
-
-  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
-  extiInit.Mode = LL_EXTI_MODE_IT;
-  extiInit.Trigger = LL_EXTI_TRIGGER_FALLING;
-  extiInit.LineCommand = ENABLE;
-  LL_EXTI_Init(&extiInit);
-
-  NVIC_SetPriority(TOUCH_INT_EXTI_IRQn, 8);
-  NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
 }
 
 #define I2C_TIMEOUT_MAX 5 // 5 ms
@@ -495,7 +456,47 @@ void detectTouchController()
   }
 }
 
-void TouchInit(void)
+void TouchEventInit( void )
+{
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  LL_GPIO_InitTypeDef gpioInit;
+  LL_GPIO_StructInit(&gpioInit);
+
+  _enable_gpio_clock(TOUCH_RST_GPIO);
+  _enable_gpio_clock(TOUCH_INT_GPIO);
+
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
+  //ext interupt
+  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_INPUT;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
+
+  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
+
+  LL_EXTI_InitTypeDef extiInit;
+  LL_EXTI_StructInit(&extiInit);
+
+  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
+  extiInit.Mode = LL_EXTI_MODE_IT;
+  extiInit.Trigger = LL_EXTI_TRIGGER_FALLING;
+  extiInit.LineCommand = ENABLE;
+  LL_EXTI_Init(&extiInit);
+
+  NVIC_SetPriority(TOUCH_INT_EXTI_IRQn, 8);
+  NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
+
+  TouchReset();
+}
+
+void touchPanelInit(void)
 {
   I2C_Init();
   TouchReset();
@@ -566,6 +567,11 @@ extern "C" void TOUCH_INT_EXTI_IRQHandler(void)
 bool touchPanelEventOccured()
 {
   return touchEventOccured;
+}
+
+void CleanTouchPanelEvent( void )
+{
+  touchEventOccured=0;
 }
 
 TouchState touchPanelRead()

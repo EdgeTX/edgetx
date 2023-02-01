@@ -357,8 +357,9 @@ typedef struct
 #define LCD_WIDTH                         ( 320 )
 #define LCD_HEIGHT                        ( 480 )
 
-extern void TouchInit( void );
-extern void TouchDriver( void );
+extern void touchPanelInit( void );
+extern void TouchEventInit( void );
+extern void CleanTouchPanelEvent( void );
 
 
 #ifdef __cplusplus
