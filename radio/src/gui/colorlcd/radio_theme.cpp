@@ -21,112 +21,98 @@
 #include "radio_theme.h"
 #include <algorithm>
 
-#include "bitmapbuffer.h"
 #include "libopenui.h"
 #include "opentx.h"
 #include "file_preview.h"
 #include "theme_manager.h"
 #include "view_main.h"
-#include "widget_settings.h"
-#include "sliders.h"
 #include "color_list.h"
-#include "color_editor.h"
 #include "listbox.h"
 #include "preview_window.h"
 
-#if (LCD_W > LCD_H)
-  #define COLOR_PREVIEW_WIDTH 18
-  #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
-  #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
-  #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
-  #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 14)
-  #define TOP_LIST_OFFSET 4
-  #define LEFT_LIST_OFFSET 3
+constexpr int COLOR_PREVIEW_SIZE = 18;
+
+#if LCD_W > LCD_H
+  constexpr int LIST_WIDTH =          ((LCD_W - 12) / 2 - COLOR_PREVIEW_SIZE);
+  constexpr int COLOR_LIST_WIDTH =    ((LCD_W * 3)/10);
 #else
-  #define COLOR_PREVIEW_WIDTH LCD_W
-  #define COLOR_PREVIEW_HEIGHT  18
-  #define LEFT_LIST_WIDTH LCD_W - 6
-  #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
-  #define COLOR_LIST_WIDTH LCD_W - 6
-  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 24)
-  #define TOP_LIST_OFFSET 4
-  #define LEFT_LIST_OFFSET 3
+  constexpr int LIST_HEIGHT =         (LCD_H / 2 - 38);
+  constexpr int COLOR_LIST_HEIGHT =   (LCD_H / 2 - 24);
 #endif
 
-#define MARGIN_WIDTH 5
-
-#if (LCD_W > LCD_H)
-constexpr int BUTTON_HEIGHT = 30;
+#if LCD_W > LCD_H
 constexpr int BUTTON_WIDTH  = 75;
 constexpr rect_t detailsDialogRect = {30, 30, LCD_W - 60, LCD_H - 60};
-constexpr int labelWidth = 150;
 
-constexpr int COLOR_BOX_LEFT = 5;
 constexpr int COLOR_BOX_WIDTH = 45;
-constexpr int COLOR_BOX_HEIGHT = 27;
 #else
-constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 65;
 constexpr rect_t detailsDialogRect = {10, 50, LCD_W - 20, 220};
-constexpr int labelWidth = 120;
 
-constexpr int COLOR_BOX_LEFT = 3;
 constexpr int COLOR_BOX_WIDTH = 55;
-constexpr int COLOR_BOX_HEIGHT = 32;
-
-constexpr int COLOR_BUTTON_WIDTH = COLOR_BOX_WIDTH;
-constexpr int COLOR_BUTTON_HEIGHT = 20;
 #endif
+
+constexpr int BUTTON_HEIGHT = 30;
+constexpr int COLOR_BOX_HEIGHT = 30;
 
 constexpr int BOX_MARGIN = 2;
 constexpr int MAX_BOX_WIDTH = 15;
 
 
-class ThemeColorPreview : public FormField
+class ThemeColorPreview : public FormWindow
 {
   public:
     ThemeColorPreview(Window *parent, const rect_t &rect, std::vector<ColorEntry> colorList) :
-      FormField(parent, rect, NO_FOCUS),
+      FormWindow(parent, rect, NO_FOCUS),
       colorList(colorList)
     {
-      setBoxWidth();
+      padAll(0);
+#if LCD_W > LCD_H
+      setFlexLayout(LV_FLEX_FLOW_COLUMN, BOX_MARGIN);
+#else
+      setFlexLayout(LV_FLEX_FLOW_ROW, BOX_MARGIN);
+#endif
+      build();
     }
-    ~ThemeColorPreview()
+
+    void build()
     {
+      clear();
+      setBoxWidth();
+      int size = (boxWidth + BOX_MARGIN) * colorList.size() - BOX_MARGIN;
+#if LCD_W > LCD_H
+      padTop((height() - size) / 2);
+#else
+      padLeft((width() - size) / 2);
+#endif
+      for (auto color: colorList) {
+        auto c = lv_obj_create(lvobj);
+        lv_obj_set_size(c, boxWidth, boxWidth);
+        lv_obj_set_style_border_width(c, 1, 0);
+        lv_obj_set_style_border_color(c, makeLvColor(COLOR2FLAGS(BLACK)), 0);
+        lv_obj_set_style_border_opa(c, LV_OPA_100, 0);
+        lv_obj_set_style_bg_color(c, makeLvColor(COLOR2FLAGS(color.colorValue)), 0);
+        lv_obj_set_style_bg_opa(c, LV_OPA_100, 0);
+      }
     }
 
     void setColorList(std::vector<ColorEntry> colorList)
     {
-      this->colorList.assign(colorList.begin(), colorList.end());
-      setBoxWidth();
-      invalidate();
-    }
-
-    void paint(BitmapBuffer *dc) override
-    {
-      int totalNessessarySpace = colorList.size() * (boxWidth + 2);
-      int axis = rect.w > rect.h ? rect.w : rect.h;
-      axis = (axis - totalNessessarySpace) / 2;
-      for (auto color: colorList) {
-        if (rect.w > rect.h) {  
-          dc->drawSolidFilledRect(axis, 0, boxWidth, boxWidth, COLOR2FLAGS(color.colorValue));
-          dc->drawSolidRect(axis, 0, boxWidth, boxWidth, 1, COLOR2FLAGS(BLACK));
-        } else {
-          dc->drawSolidFilledRect(0, axis, boxWidth, boxWidth, COLOR2FLAGS(color.colorValue));
-          dc->drawSolidRect(0, axis, boxWidth, boxWidth, 1, COLOR2FLAGS(BLACK));
-        }
-        axis += boxWidth + BOX_MARGIN;
-      }
+      this->colorList = colorList;
+      build();
     }
 
   protected:
     std::vector<ColorEntry> colorList;
     int boxWidth = MAX_BOX_WIDTH;
+
     void setBoxWidth()
     {
-      auto winSize = rect.w > rect.h ? rect.w : rect.h;
-      boxWidth = winSize / (colorList.size() + BOX_MARGIN);
+#if LCD_W > LCD_H
+      boxWidth = (height() - (colorList.size() - 1) * BOX_MARGIN) / colorList.size();
+#else
+      boxWidth = (width() - (colorList.size() - 1) * BOX_MARGIN) / colorList.size();
+#endif
       boxWidth = min(boxWidth, MAX_BOX_WIDTH);
     }
 };
@@ -198,161 +184,166 @@ class ThemeDetailsDialog: public Dialog
     std::function<void(ThemeFile theme)> saveHandler = nullptr;
 };
 
-class ColorSquare : public FormField
+class ColorSquare : public Window
 {
   public:
-    ColorSquare(Window *window, const rect_t &rect, uint32_t color, WindowFlags windowFlags = 0)
-      : FormField(window, rect, windowFlags | NO_FOCUS),
+    ColorSquare(Window *window, const rect_t &rect, uint32_t color, WindowFlags windowFlags = 0) :
+      Window(window, rect, windowFlags | NO_FOCUS),
       _color(color)
     {
-    }
-
-    void paint (BitmapBuffer *dc) override
-    {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR2FLAGS(_color));
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR2FLAGS(BLACK));
+      swatch = lv_obj_create(lvobj);
+      lv_obj_set_size(swatch, width(), height());
+      lv_obj_set_style_border_width(swatch, 1, 0);
+      lv_obj_set_style_border_color(swatch, makeLvColor(COLOR2FLAGS(BLACK)), 0);
+      lv_obj_set_style_border_opa(swatch, LV_OPA_100, 0);
+      lv_obj_set_style_bg_color(swatch, makeLvColor(COLOR2FLAGS(_color)), 0);
+      lv_obj_set_style_bg_opa(swatch, LV_OPA_100, 0);
     }
 
     void setColorToEdit(uint32_t colorEntry)
     {
       _color = colorEntry;
-
-      invalidate();
+      lv_obj_set_style_bg_color(swatch, makeLvColor(COLOR2FLAGS(_color)), 0);
     }
 
   protected:
     uint32_t _color;
+    lv_obj_t *swatch;
 };
-
-void setHexStr(StaticText* hexBox, uint32_t rgb)
-{
-  auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
-  char hexstr[8];
-  snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
-           (uint16_t)r, (uint16_t)g, (uint16_t)b);
-  hexBox->setText(hexstr);
-}
 
 class ColorEditPage : public Page
 {
-public:
-  ColorEditPage(ThemeFile theme, LcdColorIndex indexOfColor, 
-                std::function<void (uint32_t rgb)> setValue = nullptr) :
-    Page(ICON_RADIO_EDIT_THEME),
-    _setValue(std::move(setValue)),
-    _indexOfColor(indexOfColor),
-    _theme(theme)
-  {
-    buildBody(&body); 
-    buildHead(&header);
-  }
-
-  void setActiveColorBar(int activeTab)
-  {
-    if (activeTab >= 0 && _activeTab <= (int)_tabs.size()) {
-      _activeTab = activeTab;
-      for (auto i = 0; i < (int) _tabs.size(); i++)
-        _tabs[i]->check(i == _activeTab);
-      _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
-    }
-  }
-
-protected:
-  std::function<void (uint32_t rgb)> _setValue;
-  LcdColorIndex _indexOfColor;
-  ThemeFile  _theme;
-  TextButton *_cancelButton;
-  ColorEditor *_colorEditor;
-  PreviewWindow *_previewWindow = nullptr;
-  std::vector<Button *> _tabs;
-  int _activeTab = 0;
-  ColorSquare *_colorSquare = nullptr;
-  StaticText *_hexBox = nullptr;
-
-  void buildBody(FormWindow* window)
-  {
-    rect_t r;
-
-    // hexBox
-    r = { COLOR_BOX_LEFT + COLOR_BOX_WIDTH + 5, TOP_LIST_OFFSET, 90, 30 };
-    _hexBox = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
-    setHexStr(_hexBox, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
-
-    if (LCD_W > LCD_H)
-      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
-    else
-      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, LCD_H / 2 - COLOR_BOX_HEIGHT - 20 };
-
-    _colorEditor = new ColorEditor(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
-      [=](uint32_t rgb) {
-        _theme.setColor(_indexOfColor, rgb);
-        if (_colorSquare != nullptr) {
-          _colorSquare->setColorToEdit(rgb);
-        }
-        if (_previewWindow != nullptr) {
-          _previewWindow->setColorList(_theme.getColorList());
-        }
-        if (_hexBox != nullptr) {
-          setHexStr(_hexBox, rgb);
-        }
-        if (_setValue != nullptr)
-          _setValue(rgb);
-      });
-    _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
-    _activeTab = 1;
-
-    r = { COLOR_BOX_LEFT, 4, COLOR_BOX_WIDTH, COLOR_BOX_HEIGHT };
-    _colorSquare = new ColorSquare(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
-
-    r = LCD_W > LCD_H ?
-          rect_t { 
-            COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
-            TOP_LIST_OFFSET, 
-            LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
-            COLOR_LIST_HEIGHT } :
-          rect_t { 
-            LEFT_LIST_OFFSET, 
-            TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
-            LEFT_LIST_WIDTH, 
-            COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
-          };
-    _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
-  }
-
-  void buildHead(PageHeader* window)
-  {
-    LcdFlags flags = 0;
-    if (LCD_W < LCD_H) {
-      flags = FONT(XS);
+  public:
+    ColorEditPage(ThemeFile theme, LcdColorIndex indexOfColor, 
+                  std::function<void (uint32_t rgb)> setValue = nullptr) :
+      Page(ICON_RADIO_EDIT_THEME),
+      _setValue(std::move(setValue)),
+      _indexOfColor(indexOfColor),
+      _theme(theme)
+    {
+      buildBody(&body); 
+      buildHead(&header);
     }
 
-    // page title
-    new StaticText(window,
-      { PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-       PAGE_LINE_HEIGHT },
-      "Edit Color", 0, COLOR_THEME_PRIMARY2 | flags);
-    new StaticText(window,
-      { PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT },
-      ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2 | flags);
+    void setActiveColorBar(int activeTab)
+    {
+      if (activeTab >= 0 && _activeTab <= (int)_tabs.size()) {
+        _activeTab = activeTab;
+        for (auto i = 0; i < (int) _tabs.size(); i++)
+          _tabs[i]->check(i == _activeTab);
+        _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
+      }
+    }
 
-    // page tabs
-    rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-    _tabs.emplace_back(
-      new TextButton(window, r, "RGB",
-        [=] () {
-          setActiveColorBar(0);
-          return 1;
-        }));
-    r.x += (BUTTON_WIDTH + 5);
-    _tabs.emplace_back(
-      new TextButton(window, r, "HSV", 
-        [=] () {
-          setActiveColorBar(1);
-          return 1;
-        }));
-    _tabs[1]->check(true);
-  }
+  protected:
+    std::function<void (uint32_t rgb)> _setValue;
+    LcdColorIndex _indexOfColor;
+    ThemeFile  _theme;
+    TextButton *_cancelButton;
+    ColorEditor *_colorEditor;
+    PreviewWindow *_previewWindow = nullptr;
+    std::vector<Button *> _tabs;
+    int _activeTab = 0;
+    ColorSquare *_colorSquare = nullptr;
+    StaticText *_hexBox = nullptr;
+
+    void setHexStr(uint32_t rgb)
+    {
+      if (_hexBox) {
+        auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
+        char hexstr[8];
+        snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
+                 (uint16_t)r, (uint16_t)g, (uint16_t)b);
+        _hexBox->setText(hexstr);
+      }
+    }
+
+    void buildBody(FormWindow* window)
+    {
+      window->padAll(4);
+      FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});
+      form->padAll(0);
+#if LCD_W > LCD_H
+      form->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+      rect_t r = {0, 0, COLOR_LIST_WIDTH, form->height()};
+#else
+      form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      rect_t r = {0, 0, form->width(), COLOR_LIST_HEIGHT};
+#endif
+
+      FormWindow *colForm = new FormWindow(form, r);
+      colForm->padAll(0);
+      colForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      colForm->setWidth(r.w);
+
+#if LCD_W > LCD_H
+      r.w = form->width() - COLOR_LIST_WIDTH - 4;
+#else
+      r.h = form->height() - COLOR_LIST_HEIGHT - 4;
+#endif
+      _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
+
+      r.w = colForm->width();
+      r.h = COLOR_BOX_HEIGHT;
+
+      FormWindow *colBoxForm = new FormWindow(colForm, r);
+      colBoxForm->padAll(0);
+      colBoxForm->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+
+      r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
+
+      _colorEditor = new ColorEditor(colForm, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
+        [=](uint32_t rgb) {
+          _theme.setColor(_indexOfColor, rgb);
+          if (_colorSquare != nullptr) {
+            _colorSquare->setColorToEdit(rgb);
+          }
+          if (_previewWindow != nullptr) {
+            _previewWindow->setColorList(_theme.getColorList());
+          }
+          setHexStr(rgb);
+          if (_setValue != nullptr)
+            _setValue(rgb);
+        });
+      _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
+      _activeTab = 1;
+
+      r.w = COLOR_BOX_WIDTH;
+      r.h = COLOR_BOX_HEIGHT;
+      _colorSquare = new ColorSquare(colBoxForm, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
+
+      // hexBox
+      r.w = 90;
+      _hexBox = new StaticText(colBoxForm, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
+      setHexStr(_theme.getColorEntryByIndex(_indexOfColor)->colorValue);
+    }
+
+    void buildHead(PageHeader* window)
+    {
+      // page title
+      header.setTitle(STR_EDIT_COLOR);
+      new StaticText(window,
+        { PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+         LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT },
+        ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2);
+
+      // page tabs
+      rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
+      _tabs.emplace_back(
+        new TextButton(window, r, "RGB",
+          [=] () {
+            setActiveColorBar(0);
+            return 1;
+          }));
+      r.x += (BUTTON_WIDTH + 5);
+      _tabs.emplace_back(
+        new TextButton(window, r, "HSV", 
+          [=] () {
+            setActiveColorBar(1);
+            return 1;
+          }));
+      _tabs[1]->check(true);
+    }
 };
 
 class ThemeEditPage : public Page
@@ -368,7 +359,7 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-    bool canCancel() override
+    void onCancel() override
     {
       if (_dirty) {
         new ConfirmDialog(
@@ -382,9 +373,17 @@ class ThemeEditPage : public Page
             [=]() {
               deleteLater();
             });
-        return false;
+      } else {
+        deleteLater();
       }
-      return true;
+    }
+
+    void checkEvents() override
+    {
+      if (!started && _themeName) {
+        started = true;
+        _themeName->setText(_theme.getName());
+      }
     }
 
     void editColorPage()
@@ -401,21 +400,23 @@ class ThemeEditPage : public Page
 
     void buildHeader(FormGroup *window)
     {
-      LcdFlags flags = 0;
-      if (LCD_W < LCD_H) {
-        flags = FONT(XS);
-      }
+#if LCD_W > LCD_H
+    LcdFlags flags = 0;
+#else
+    LcdFlags flags = FONT(XS);
+#endif
 
       // page title
       header.setTitle(STR_EDIT_THEME);
       _themeName = new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     _theme.getName(), 0, COLOR_THEME_PRIMARY2 | flags);
+                     "", 0, COLOR_THEME_PRIMARY2 | flags);
+      lv_label_set_long_mode(_themeName->getLvObj(), LV_LABEL_LONG_DOT);
 
       // save and cancel
       rect_t r = {LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-      _detailButton = new TextButton(window, r, STR_DETAILS, [=] () {
+      new TextButton(window, r, STR_DETAILS, [=] () {
         new ThemeDetailsDialog(page, _theme, [=] (ThemeFile t) {
           _theme.setAuthor(t.getAuthor());
           _theme.setInfo(t.getInfo());
@@ -431,53 +432,60 @@ class ThemeEditPage : public Page
 
     void buildBody(FormGroup *window)
     {
-      rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
-      _cList = new ColorList(window, r, _theme.getColorList());
+      window->padAll(4);
+      FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});
+      form->padAll(0);
+#if LCD_W > LCD_H
+      form->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+      rect_t r = {0, 0, COLOR_LIST_WIDTH, form->height()};
+#else
+      form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      rect_t r = {0, 0, form->width(), COLOR_LIST_HEIGHT};
+#endif
+
+      _cList = new ColorList(form, r, _theme.getColorList());
       _cList->setLongPressHandler([=] () { editColorPage(); });
       _cList->setPressHandler([=] () { editColorPage(); });
 
-      if (LCD_W > LCD_H) {
-        r = { 
-          COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
-          TOP_LIST_OFFSET, 
-          LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
-          COLOR_LIST_HEIGHT 
-        };
-      } else {
-        r = { 
-          LEFT_LIST_OFFSET, 
-          TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
-          LEFT_LIST_WIDTH, 
-          COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
-        };
-      }
-      _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
+#if LCD_W > LCD_H
+      r.w = form->width() - COLOR_LIST_WIDTH - 4;
+#else
+      r.h = form->height() - COLOR_LIST_HEIGHT - 4;
+#endif
+      _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
     }
 
   protected:
     bool _dirty = false;
+    bool started = false;
     ThemeFile _theme;
     Page *page;
     std::function<void(ThemeFile &theme)> saveHandler = nullptr;
     PreviewWindow *_previewWindow = nullptr;
     ColorList *_cList = nullptr;
     StaticText *_themeName = nullptr;
-    TextButton *_saveButton;
-    TextButton *_detailButton;
 };
 
 ThemeSetupPage::ThemeSetupPage() : PageTab(STR_THEME_EDITOR, ICON_RADIO_EDIT_THEME) {}
-ThemeSetupPage::~ThemeSetupPage()
-{
-}
+
 void ThemeSetupPage::setAuthor(ThemeFile *theme)
 {
-  char author[256];
-  strcpy(author, "By: ");
-  strcat(author, theme->getAuthor());
+  char author[256] = "";
+  if (theme && (strlen(theme->getAuthor()) > 0)) {
+    strcpy(author, "By: ");
+    strcat(author, theme->getAuthor());
+  }
   authorText->setText(author);
 }
 
+void ThemeSetupPage::setName(ThemeFile *theme)
+{
+  if (theme && (strlen(theme->getName()) > 0)) {
+    nameText->setText(theme->getName());
+  } else {
+    nameText->setText("");
+  }
+}
 
 bool isTopWindow(Window *window)
 {
@@ -493,7 +501,15 @@ void ThemeSetupPage::checkEvents()
 {
   PageTab::checkEvents();
 
-  fileCarosell->pause(!isTopWindow(pageWindow));
+  if (fileCarosell)
+    fileCarosell->pause(!isTopWindow(pageWindow));
+
+  if (!started && nameText && authorText) {
+    auto theme = ThemePersistance::instance()->getCurrentTheme();
+    started = true;
+    setName(theme);
+    setAuthor(theme);
+  }
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
@@ -528,7 +544,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         // were changed, update the UI
         if (themeIdx == currentTheme) {
           setAuthor(&theme);
-          nameText->setText(theme.getName());
+          setName(&theme);
           listBox->setName(currentTheme, theme.getName());
           themeColorPreview->setColorList(theme.getColorList());
         }
@@ -586,7 +602,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   }
 }
 
-void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp)
+void ThemeSetupPage::setupListbox(Window *window, rect_t r, ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
   listBox->setAutoEdit(true);
@@ -601,7 +617,7 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
         if (!theme) return;
         themeColorPreview->setColorList(theme->getColorList());
         setAuthor(theme);
-        nameText->setText(theme->getName());
+        setName(theme);
         fileCarosell->setFileNames(theme->getThemeImageFileNames());
       }
       currentTheme = value;
@@ -610,8 +626,14 @@ void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance
 
 void ThemeSetupPage::build(FormWindow *window)
 {
-  window->padAll(0);
+  window->padAll(4);
   pageWindow = window;
+
+#if LCD_W > LCD_H
+  window->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
+#else
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
+#endif
 
   auto tp = ThemePersistance::instance();
   auto theme = tp->getCurrentTheme();
@@ -622,48 +644,50 @@ void ThemeSetupPage::build(FormWindow *window)
   fileCarosell = nullptr;
   nameText = nullptr;
   authorText = nullptr;
-  
+
   // create listbox and setup menus
-  rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
+#if LCD_W > LCD_H
+  rect_t r = { 0, 0, LIST_WIDTH, window->height() - 8};
+#else
+  rect_t r = { 0, 0, window->width() - 8, LIST_HEIGHT };
+#endif
   setupListbox(window, r, tp);
 
-  rect_t colorPreviewRect;
-  if (LCD_W > LCD_H) {
-    r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET;
-    r.w = LCD_W - r.x;
-    colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
-  } else {
-    r.y += LEFT_LIST_HEIGHT + 4;
-    r.x = 0;
-    r.w = LCD_W;
-    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 6, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
-  }
+#if LCD_W > LCD_H
+  r.w = COLOR_PREVIEW_SIZE;
+#else
+  r.h = COLOR_PREVIEW_SIZE;
+#endif
 
   // setup ThemeColorPreview()
   auto colorList = theme != nullptr ? theme->getColorList() : std::vector<ColorEntry>();
-  themeColorPreview = new ThemeColorPreview(window, colorPreviewRect, colorList);
-  
+  themeColorPreview = new ThemeColorPreview(window, r, colorList);
+  themeColorPreview->setWidth(r.w);
+
+#if LCD_W > LCD_H
+  r.w = window->width() - LIST_WIDTH - COLOR_PREVIEW_SIZE - 12;
+  r.h = window->height() - 8;
+#else
+  r.w = window->width() - 8;
+  r.h = window->height() - LIST_HEIGHT - COLOR_PREVIEW_SIZE - 12;
+#endif
+
+  auto rw = new FormWindow(window, r);
+  rw->padAll(0);
+  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
+  rw->setWidth(r.w);
+
+  r.h -= 46;
+
   // setup FileCarosell()
-  if (LCD_W > LCD_H) {
-    r.w -= COLOR_PREVIEW_WIDTH;
-    r.h = 130;
-    r.x += COLOR_PREVIEW_WIDTH;
-  } else {
-    r.y += COLOR_PREVIEW_HEIGHT;
-    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
-  }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
-  fileCarosell = new FileCarosell(window, r, fileNames);
+  fileCarosell = new FileCarosell(rw, r, fileNames);
+
+  r.h = 20;
 
   // author and name of theme on right side of screen
-  r.x += 7;
-  r.y += 135;
-  r.h = 20;
-  nameText = new StaticText(window, r, theme != nullptr ? theme->getName() : "", 0, 
-                            COLOR_THEME_PRIMARY1);
-  if (theme != nullptr && strlen(theme->getAuthor())) {
-    r.y += 20;
-    authorText = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1);
-    setAuthor(theme);
-  }
+  nameText = new StaticText(rw, r, "", 0, COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(nameText->getLvObj(), LV_LABEL_LONG_DOT);
+  authorText = new StaticText(rw, r, "", 0, COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(authorText->getLvObj(), LV_LABEL_LONG_DOT);
 }

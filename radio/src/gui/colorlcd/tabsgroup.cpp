@@ -145,6 +145,8 @@ TabsGroup::TabsGroup(uint8_t icon):
   body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
 {
   Layer::push(this);
+
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
 }
 
 TabsGroup::~TabsGroup()
@@ -290,11 +292,6 @@ void TabsGroup::onClicked()
 void TabsGroup::onCancel()
 {
   deleteLater();
-}
-
-void TabsGroup::paint(BitmapBuffer * dc)
-{
-  dc->clear(COLOR_THEME_SECONDARY3);
 }
 
 #if defined(HARDWARE_TOUCH)

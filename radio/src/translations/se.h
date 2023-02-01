@@ -763,6 +763,7 @@
 #define TR_LOADING                      "Laddar..."
 #define TR_DELETE_THEME                 "Radera tema?"
 #define TR_SAVE_THEME                   "Spara tema?"
+#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"

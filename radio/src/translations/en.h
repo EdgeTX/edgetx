@@ -741,6 +741,7 @@
 #define TR_LOADING                     "Loading..."
 #define TR_DELETE_THEME                "Delete Theme?"
 #define TR_SAVE_THEME                  "Save Theme?"
+#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"

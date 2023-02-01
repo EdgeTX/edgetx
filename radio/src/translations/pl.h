@@ -739,6 +739,7 @@
 #define TR_LOADING             "Ładowanie..."
 #define TR_DELETE_THEME        "Usunąć motyw?"
 #define TR_SAVE_THEME          "Zapisać motyw?"
+#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"

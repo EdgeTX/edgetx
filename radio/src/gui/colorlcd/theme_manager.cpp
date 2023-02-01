@@ -66,9 +66,9 @@ ThemeFile& ThemeFile::operator= (const ThemeFile& theme)
     return *this;
 
   path = theme.path;
-  strncpy(name, theme.name, NAME_LENGTH);
-  strncpy(author, theme.author, AUTHOR_LENGTH);
-  strncpy(info, theme.info, INFO_LENGTH);
+  strAppend(name, theme.name, NAME_LENGTH);
+  strAppend(author, theme.author, AUTHOR_LENGTH);
+  strAppend(info, theme.info, INFO_LENGTH);
   colorList.assign(theme.colorList.begin(), theme.colorList.end());
   _imageFileNames.assign(theme._imageFileNames.begin(), theme._imageFileNames.end());
 
@@ -149,9 +149,8 @@ void ThemeFile::deSerialize()
       char *plvalue;
       char *prvalue;
 
-      strncpy(lvalue, line, min((int)(ptr - line), 63));
-      lvalue[ptr - line] = '\0';
-      strncpy(rvalue, ptr + 1, 63);
+      strAppend(lvalue, line, min((int)(ptr - line), 63));
+      strAppend(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
       prvalue = trim(rvalue);
 
@@ -169,14 +168,11 @@ void ThemeFile::deSerialize()
 
         case summary: {
           if (strcmp(plvalue, "name") == 0) {
-            strncpy(name, prvalue, NAME_LENGTH);
-            name[NAME_LENGTH] = '\0';
+            strAppend(name, prvalue, NAME_LENGTH);
           } else if (strcmp(plvalue, "author") == 0) {
-            strncpy(author, prvalue, AUTHOR_LENGTH);
-            author[AUTHOR_LENGTH] = '\0';
+            strAppend(author, prvalue, AUTHOR_LENGTH);
           } else if (strcmp(plvalue, "info") == 0) {
-            strncpy(info, prvalue, INFO_LENGTH);
-            info[INFO_LENGTH] = '\0';
+            strAppend(info, prvalue, INFO_LENGTH);
           }
         } break;
         
@@ -366,8 +362,7 @@ void ThemePersistance::scanForThemes()
 
   char fullPath[FF_MAX_LFN + 1];
 
-  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
-  fullPath[FF_MAX_LFN] = '\0';
+  strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
 
   TRACE("opening directory: %s", fullPath);
   FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
@@ -384,9 +379,9 @@ void ThemePersistance::scanForThemes()
       if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
       if (fno.fattrib & AM_DIR) {
         char themePath[FF_MAX_LFN + 1];
-        strncpy(themePath, fullPath, FF_MAX_LFN);
-        strncat(themePath, "/", FF_MAX_LFN);
-        strncat(themePath, fno.fname, FF_MAX_LFN);
+        char *s = strAppend(themePath, fullPath, FF_MAX_LFN);
+        s = strAppend(s, "/", FF_MAX_LFN - (s - themePath));
+        strAppend(s, fno.fname, FF_MAX_LFN - (s - themePath));
         scanThemeFolder(themePath);
       }
     }
@@ -439,8 +434,8 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   if (index > 0 && index < (int) themes.size()) {
     ThemeFile* theme = themes[index];
     
-    char newFile[FF_MAX_LFN + 1];
-    strncpy(newFile, theme->getPath().c_str(), FF_MAX_LFN);
+    char newFile[FF_MAX_LFN + 10];
+    strAppend(newFile, theme->getPath().c_str(), FF_MAX_LFN);
     strcat(newFile, ".deleted");
 
     // for now we are just renaming the file so we don't find it
@@ -459,15 +454,14 @@ bool ThemePersistance::deleteThemeByIndex(int index)
 bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
 {
   char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
-  fullPath[FF_MAX_LFN] = '\0';
-  strncat(fullPath, "/", FF_MAX_LFN);
-  strncat(fullPath, name.c_str(), FF_MAX_LFN);
+  char *s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
+  s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
+  s = strAppend(s, name.c_str(), FF_MAX_LFN - (s - fullPath));
 
   FRESULT result = f_mkdir(fullPath);
   if (result != FR_OK) return false;
-  strncat(fullPath, "/", FF_MAX_LFN);
-  strncat(fullPath, "theme.yml", FF_MAX_LFN);
+  s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
+  strAppend(s, "theme.yml", FF_MAX_LFN - (s - fullPath));
   theme.setPath(fullPath);
   theme.serialize();
   return true;
@@ -522,8 +516,8 @@ class DefaultEdgeTxTheme : public ThemeFile
       auto instance = OpenTxTheme::instance();
       char fileName[FF_MAX_LFN + 1];
       fileName[FF_MAX_LFN] = '\0';
-      strncpy(fileName, THEMES_PATH, FF_MAX_LFN);
-      strcat(fileName, "/EdgeTX/background.png");
+      char *s = strAppend(fileName, THEMES_PATH, FF_MAX_LFN);
+      strAppend(s, "/EdgeTX/background.png", FF_MAX_LFN - (s - fileName));
       instance->setBackgroundImageFileName(fileName);
     }
 
