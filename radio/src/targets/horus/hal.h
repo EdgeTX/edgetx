@@ -463,7 +463,7 @@
   #define AUX2_SERIAL_GPIO_RX_PinSource        GPIO_PinSource1
   #define AUX2_SERIAL_DMA_RX                   DMA1
   #define AUX2_SERIAL_DMA_Stream_RX            DMA1_Stream2
-  #define AUX2_SERIAL_DMA_Channel_RX           DMA_Channel_4
+  #define AUX2_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_4
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_2
 #else
   #define AUX2_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_DMA2)
@@ -479,7 +479,7 @@
   #define AUX2_SERIAL_GPIO_PinSource_RX        GPIO_PinSource9
   #define AUX2_SERIAL_DMA_RX                   DMA2
   #define AUX2_SERIAL_DMA_Stream_RX            DMA2_Stream1 // or DMA2_Stream2
-  #define AUX2_SERIAL_DMA_Channel_RX           DMA_Channel_5
+  #define AUX2_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_5
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
   #define AUX2_SERIAL_PWR_GPIO                 GPIOB
   #define AUX2_SERIAL_PWR_GPIO_PIN             GPIO_Pin_0  // PB.00
@@ -505,10 +505,10 @@
 #define TELEMETRY_DMA                   DMA1
 #if defined(PCBX12S)
   #define TELEMETRY_DMA_Stream_RX       LL_DMA_STREAM_5
-  #define TELEMETRY_DMA_Channel_RX      DMA_Channel_4
+  #define TELEMETRY_DMA_Channel_RX      LL_DMA_CHANNEL_4
 #endif
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
-#define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
+#define TELEMETRY_DMA_Channel_TX        LL_DMA_CHANNEL_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
