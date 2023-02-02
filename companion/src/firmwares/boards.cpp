@@ -628,9 +628,9 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                           });
   } else if (IS_RADIOMASTER_BOXER(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "S1"},
-                              {tr("S2").toStdString(), "S2"},
-                              {tr("S3").toStdString(), "S3"},
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
+                              {tr("S3").toStdString(), "POT3"},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
     tbl.insert(tbl.end(), {
