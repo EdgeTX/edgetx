@@ -50,16 +50,6 @@ enum AfhdsSpecialChars {
                    // ESC_ESC  must be used
 };
 
-enum DeviceAddress
-{
-  TRANSMITTER = 0x01,
-  // MODULE = 0x03,
-  MODULE = 0x05,
-};
-
-//Address used in transmitted frames - it constrains of target address and source address
-const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE << 4);
-
 static void _serial_reset(void* buffer)
 {
   auto data = (SerialData*)buffer;
@@ -152,8 +142,9 @@ void ByteTransport::init(Type t)
   }
 }
 
-void FrameTransport::init(ByteTransport::Type t, void* buffer)
+void FrameTransport::init(ByteTransport::Type t, void* buffer, uint8_t address)
 {
+  frameAddress = address;
   trsp.init(t);
   trsp_buffer = buffer;
 
@@ -201,7 +192,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
   crc = 0;
   sendByte(START);
 
-  uint8_t buffer[] = {FrameAddress, frameIndex, frameType, command};
+  uint8_t buffer[] = {frameAddress, frameIndex, frameType, command};
   putBytes(buffer, 4);
 
   //payload
@@ -319,9 +310,10 @@ static const etx_serial_init _uartParams = {
   .rx_enable = true,
 };
 
-void Transport::init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv)
+void Transport::init(ByteTransport::Type t, void* buffer,
+                     const etx_serial_driver_t* drv, uint8_t frameAddress)
 {
-  trsp.init(t, buffer);
+  trsp.init(t, buffer, frameAddress);
 
   if (drv) {
     uart_drv = drv;
