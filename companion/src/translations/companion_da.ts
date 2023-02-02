@@ -129,13 +129,6 @@
     </message>
 </context>
 <context>
-    <name>AppMessages</name>
-    <message>
-        <source>Show this message again at next startup?</source>
-        <translation>Vis denne meddelelse ved næste programstart?</translation>
-    </message>
-</context>
-<context>
     <name>AppPreferencesDialog</name>
     <message>
         <source>Edit Settings</source>
@@ -798,6 +791,102 @@ Mode 4:
     <message>
         <source>Ail</source>
         <translation>Kræ</translation>
+    </message>
+    <message>
+        <source>P1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>P2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>P3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>POT1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>RS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>TltX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>TltY</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>6P</source>
+        <translation>6P</translation>
+    </message>
+    <message>
+        <source>L1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>L2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>JSx</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>JSy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX4</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1712,7 +1801,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <name>CustomFunctionsPanel</name>
     <message>
         <source>Switch</source>
-        <translation>Kontakt</translation>
+        <translation>Udløser</translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -1720,7 +1809,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation>Effekt</translation>
+        <translation>Handling</translation>
     </message>
     <message>
         <source>SF%1</source>
@@ -1852,7 +1941,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>Option #%1</source>
-        <translation>Alternativ #%1</translation>
+        <translation>Tilvalg #%1</translation>
     </message>
     <message>
         <source>Layout:</source>
@@ -2942,13 +3031,6 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
 </context>
 <context>
-    <name>FirmwareInterface</name>
-    <message>
-        <source>Compressed image size exceeds reserved space.</source>
-        <translation>Komprimeret firmware overskrider reserveret plads.</translation>
-    </message>
-</context>
-<context>
     <name>FlapsPage</name>
     <message>
         <source>No</source>
@@ -2975,7 +3057,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <name>FlashEEpromDialog</name>
     <message>
         <source>Write Models and Settings to Radio</source>
-        <translation>Skriv modeller og indstillinger til radio</translation>
+        <translation>Send modeller og indstillinger til radio</translation>
     </message>
     <message>
         <source>Load...</source>
@@ -3892,7 +3974,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>External</source>
-        <translation type="unfinished">Extern</translation>
+        <translation>Ekstern</translation>
     </message>
 </context>
 <context>
@@ -4297,7 +4379,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Haptic Strength</source>
-        <translation>Vibrations styrke</translation>
+        <translation>Vibration styrke</translation>
     </message>
     <message>
         <source>Beep volume</source>
@@ -4584,10 +4666,6 @@ Tilstand 4:
         <translation>Forsinkelse ved sluk af radio</translation>
     </message>
     <message>
-        <source>nnnnnnNN</source>
-        <translation>nnnnnnNN</translation>
-    </message>
-    <message>
         <source>Keys Backlight</source>
         <translation>Baggrundslys på taster</translation>
     </message>
@@ -4604,6 +4682,14 @@ Acceptable values are 3v..12v</source>
 Dette er grænseværdien, hvor batteri advarsel lyder.
 
 Værdier mellem 5 og 12 volt accepteres</translation>
+    </message>
+    <message>
+        <source>Model quick select</source>
+        <translation>Vælg model</translation>
+    </message>
+    <message>
+        <source>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</source>
+        <translation>Vælg, hvis du ønsker hurtigt at skifte model på Model fane (længe tryk sender dig til model edit menu).</translation>
     </message>
 </context>
 <context>
@@ -4731,6 +4817,10 @@ Er du sikker?</translation>
     <message>
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation>Lodret invers, vandret alternativ</translation>
+    </message>
+    <message>
+        <source>Chinese</source>
+        <translation>Kinesisk</translation>
     </message>
 </context>
 <context>
@@ -5144,6 +5234,10 @@ Er du sikker?</translation>
         <source>Cannot list files</source>
         <translation>Kan ikke liste filer</translation>
     </message>
+    <message>
+        <source>Error deleting files</source>
+        <translation>Fejl ved sletning af filer</translation>
+    </message>
 </context>
 <context>
     <name>LimitData</name>
@@ -5259,7 +5353,7 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>L</source>
-        <translation>LK</translation>
+        <translation>LF</translation>
     </message>
     <message>
         <source>LSW</source>
@@ -5270,11 +5364,11 @@ Er du sikker?</translation>
     <name>LogicalSwitchesPanel</name>
     <message>
         <source>V1</source>
-        <translation>V1</translation>
+        <translation>Værdi 1</translation>
     </message>
     <message>
         <source>V2</source>
-        <translation>V2</translation>
+        <translation>Værdi 2</translation>
     </message>
     <message>
         <source>Function</source>
@@ -5306,11 +5400,11 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Delete Logical Switch. Are you sure?</source>
-        <translation>Slet logisk kontakt. Er du sikker?</translation>
+        <translation>Slet logisk funktion. Er du sikker?</translation>
     </message>
     <message>
         <source>Cut Logical Switch. Are you sure?</source>
-        <translation>Klip ud logisk kontakt. Er du sikker?</translation>
+        <translation>Klip ud logisk funktion. Er du sikker?</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5350,11 +5444,11 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Clear Logical Switch. Are you sure?</source>
-        <translation>Nulstil logisk kontakt. Er du sikker?</translation>
+        <translation>Nulstil logisk funktion. Er du sikker?</translation>
     </message>
     <message>
         <source>Clear all Logical Switches. Are you sure?</source>
-        <translation>Nulstil alle logisk kontakter. Er du sikker?</translation>
+        <translation>Nulstil alle logiske funktioner. Er du sikker?</translation>
     </message>
 </context>
 <context>
@@ -6063,6 +6157,14 @@ Vil du fortsætte?</translation>
         <source>Write Models and Settings To Radio</source>
         <translation>Send modeller og indstillinger til radio</translation>
     </message>
+    <message>
+        <source>Writing models and settings to radio</source>
+        <translation>Sender modeller og indstillinger til radio</translation>
+    </message>
+    <message>
+        <source>In progress...</source>
+        <translation>Arbejder</translation>
+    </message>
 </context>
 <context>
     <name>MdiChild</name>
@@ -6308,18 +6410,6 @@ Vil du gemme ændringer?</translation>
         <translation>Ønsker du at fortsætte?</translation>
     </message>
     <message>
-        <source>Don&apos;t show this message again</source>
-        <translation>Vis ikke denne meddelelse igen</translation>
-    </message>
-    <message>
-        <source>Saved models and settings to radio</source>
-        <translation>Modeller og indstillinger er gemt i radioen</translation>
-    </message>
-    <message>
-        <source>Error saving models and settings to radio!</source>
-        <translation>Fejl ved gemning af modeller og indstillinger i radioen!</translation>
-    </message>
-    <message>
         <source>Select a model template file</source>
         <translation>Vælg en model template</translation>
     </message>
@@ -6422,6 +6512,22 @@ Vil du gemme ændringer?</translation>
     <message>
         <source>Show Labels Actions Toolbar</source>
         <translation>Vis værktøjer for labels</translation>
+    </message>
+    <message>
+        <source>Invalid file extension!</source>
+        <translation>Ugyldig fil efternavn</translation>
+    </message>
+    <message>
+        <source>Do not show this message again</source>
+        <translation>Vis ikke denne meddelelse igen</translation>
+    </message>
+    <message>
+        <source>Models and settings written to radio</source>
+        <translation>Modeller og indstillinger sendt til radio</translation>
+    </message>
+    <message>
+        <source>Error writing models and settings to radio!</source>
+        <translation>Fejl ved send modeller og indstillinger til radio</translation>
     </message>
 </context>
 <context>
@@ -6975,7 +7081,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Logical Switches</source>
-        <translation>Logiske kontakter</translation>
+        <translation>Logiske funktioner</translation>
     </message>
     <message>
         <source>Curves</source>
@@ -7178,7 +7284,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Receiver</source>
-        <translation>Modtagere</translation>
+        <translation>Modtager</translation>
     </message>
     <message>
         <source>Radio protocol</source>
@@ -7190,7 +7296,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Option value</source>
-        <translation>Optionel værdi</translation>
+        <translation>Tilvalg</translation>
     </message>
     <message>
         <source>Sub Type</source>
@@ -7382,7 +7488,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Bars</source>
-        <translation>Bjælker</translation>
+        <translation>Bjælke</translation>
     </message>
     <message>
         <source>Script</source>
@@ -7560,7 +7666,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Option value</source>
-        <translation>Tilvalgs værdi</translation>
+        <translation>Tilvalg</translation>
     </message>
     <message>
         <source>Low Power</source>
@@ -7643,6 +7749,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source> Hz</source>
         <translation> Hz</translation>
+    </message>
+    <message>
+        <source>Option check</source>
+        <translation>Tilvalg kontrol</translation>
+    </message>
+    <message>
+        <source>Option combo</source>
+        <translation>Tilvalg combo</translation>
     </message>
 </context>
 <context>
@@ -7734,6 +7848,130 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>OFF</source>
         <translation>FRA</translation>
+    </message>
+    <message>
+        <source>PPM</source>
+        <translation>PPM</translation>
+    </message>
+    <message>
+        <source>Silverlit A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CTP1009</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LP45</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSM2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSMX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPM16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPMsim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky DJT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Crossfire</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Multi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>SBUS output at VBat</source>
+        <translation>SBUS via VBat</translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS ISRM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCST ISRM D16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M 2019</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AFHDS3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ghost</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lemon-Rx DSMP</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -7831,11 +8069,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>L%1</source>
-        <translation>LK%1</translation>
+        <translation>LF%1</translation>
     </message>
     <message>
         <source>Logical Switches</source>
-        <translation>Logiske kontakter</translation>
+        <translation>Logiske funktioner</translation>
     </message>
     <message>
         <source>SF%1</source>
@@ -8156,6 +8394,10 @@ p, li { white-space: pre-wrap; }
         <source>RF Channel Number</source>
         <translation>RF kanal nummer</translation>
     </message>
+    <message>
+        <source>Servo update rate</source>
+        <translation>Servo opdaterings frekvens</translation>
+    </message>
 </context>
 <context>
     <name>MultirotorPage</name>
@@ -8321,6 +8563,14 @@ p, li { white-space: pre-wrap; }
         <source>&lt;p&gt;Importing JumperTX data into OpenTX 2.3 is &lt;b&gt;not supported and dangerous.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;It is unfortunately not possible for us to differentiate JumperTX data from legitimate FrSky X10 data, but &lt;b&gt;You should only continue here if the file you opened comes from a real FrSky X10.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Do you really want to continue?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Import af JumperTX data til EdgeTX &lt;b&gt;understøttes ikke og kan være meget risikofyldt.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Det er desværre ikke muligt at adskille JumperTX data fra rigtige FrSky X10 data, og &lt;b&gt;du bør kun fortsætte hvis du er sikker på at filen kommer fra en ægte FrSky X10&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Vil du virkelig fortsætte?&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>Compressed image size exceeds reserved space.</source>
+        <translation>Komprimeret firmware overskrider reserveret plads.</translation>
+    </message>
+    <message>
+        <source>Show this message again at next startup?</source>
+        <translation>Vis denne meddelelse ved næste programstart?</translation>
+    </message>
 </context>
 <context>
     <name>RadioData</name>
@@ -8397,7 +8647,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Action</source>
-        <translation>Effekt</translation>
+        <translation>Funktion</translation>
     </message>
     <message>
         <source>New</source>
@@ -8471,7 +8721,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Logical Switches</source>
-        <translation>Logiske kontakter</translation>
+        <translation>Logiske funktioner</translation>
     </message>
     <message>
         <source>Global Variables</source>
@@ -8647,19 +8897,19 @@ x</translation>
     </message>
     <message>
         <source>Reserved1</source>
-        <translation type="unfinished"></translation>
+        <translation>Reserveret 1</translation>
     </message>
     <message>
         <source>Reserved2</source>
-        <translation type="unfinished"></translation>
+        <translation>Reserveret 2</translation>
     </message>
     <message>
         <source>Reserved3</source>
-        <translation type="unfinished"></translation>
+        <translation>Reserveret 3</translation>
     </message>
     <message>
         <source>Reserved4</source>
-        <translation type="unfinished"></translation>
+        <translation>Reserveret 4</translation>
     </message>
     <message>
         <source>SW%1</source>
@@ -11133,6 +11383,14 @@ hh:mm:ss</translation>
         <comment>as in Timer</comment>
         <translation>TID</translation>
     </message>
+    <message>
+        <source>Beeps and Haptic</source>
+        <translation>Bip og vibration</translation>
+    </message>
+    <message>
+        <source>Voice and Haptic</source>
+        <translation>Stemme og vibration</translation>
+    </message>
 </context>
 <context>
     <name>TimerEdit</name>
@@ -11241,6 +11499,18 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     <message>
         <source>Images (*.AppImage)</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Would you like to open the disk image to install the new version of Companion?</source>
+        <translation>Ønsker du at installere ny version af Companion?</translation>
+    </message>
+    <message>
+        <source>Would you like to launch the Companion installer?</source>
+        <translation>Ønsker du at starte Companion installation?</translation>
+    </message>
+    <message>
+        <source>No install process support for your operating system</source>
+        <translation>Der er ikke en installations proces til dit operativ system</translation>
     </message>
 </context>
 <context>
