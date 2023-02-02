@@ -134,17 +134,14 @@ bool adcRead()
   uint16_t temp[NUM_ANALOGS] = { 0 };
 
   uint8_t first_analog_adc;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        first_analog_adc = FIRST_ANALOG_ADC_FS;
-    } else
-    {
-        first_analog_adc = FIRST_ANALOG_ADC;
-    }
-#else
-    first_analog_adc = FIRST_ANALOG_ADC;
-#endif
+
+  if (globalData.flyskygimbals)
+  {
+      first_analog_adc = FIRST_ANALOG_ADC_FS;
+  } else
+  {
+      first_analog_adc = FIRST_ANALOG_ADC;
+  }
 
 
   for (int i=0; i<4; i++) {
@@ -267,7 +264,6 @@ void getADC()
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
     if (globalData.flyskygimbals)
     {
         if (x < 4) {
@@ -277,7 +273,6 @@ void getADC()
         }
     }
     else
-#endif
     {
         v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
     }

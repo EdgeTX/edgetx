@@ -54,6 +54,10 @@ extern "C" {
 }
 #endif
 
+extern void flysky_hall_stick_check_init(void);
+extern void flysky_hall_stick_init(void);
+extern void flysky_hall_stick_loop( void );
+
 HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
@@ -212,6 +216,27 @@ void boardInit()
     hardwareOptions.sticksPwmDisabled = true;
   }
 #endif
+
+  globalData.flyskygimbals = false;
+#if defined(RADIO_BOXER)
+  flysky_hall_stick_check_init();
+
+  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
+  for (uint8_t ui8 = 0; ui8 < 70; ui8++)
+  {
+      flysky_hall_stick_loop();
+      delay_ms(1);
+      if (globalData.flyskygimbals)
+      {
+          break;
+      }
+  }
+#endif
+
+  if (globalData.flyskygimbals)
+  {
+      flysky_hall_stick_init();
+  }
 
   if (!adcInit(&stm32_hal_adc_driver))
       TRACE("adcInit failed");
