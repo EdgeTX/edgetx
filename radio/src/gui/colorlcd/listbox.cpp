@@ -83,12 +83,7 @@ void ListBase::setAutoEdit(bool enable)
 
 void ListBase::setName(uint16_t idx, const std::string& name)
 {
-  std::string s = name;
-  // Truncate string to fit without running under the 'selected' tick symbol
-  // Todo: find a better way to do this 
-  while (getTextWidth(s.c_str(), 0, FONT(STD)) > (rect.w - 40))
-    s.pop_back();
-  lv_table_set_cell_value(lvobj, idx, 0, s.c_str());
+  lv_table_set_cell_value(lvobj, idx, 0, name.c_str());  
 }
 
 void ListBase::setNames(const std::vector<std::string>& names)
