@@ -29,7 +29,7 @@
 #define BTN_HEIGHT 20
 #define FOOTER_HEIGHT 20
 #define DURSW_ROW 0
-#define DURSW_COL 3
+#define DURSW_COL 4
 
 // Switch grid
 static const lv_coord_t col_dsc[] = {
@@ -39,7 +39,7 @@ static const lv_coord_t col_dsc[] = {
 
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {
-    60, LV_GRID_FR(1),        LV_GRID_FR(1), LV_GRID_FR(1), 50,
+    60, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), 50,
     50, LV_GRID_TEMPLATE_LAST};
 
 #else  // Portrait
