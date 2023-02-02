@@ -310,7 +310,8 @@ static const etx_serial_init _uartParams = {
   .rx_enable = true,
 };
 
-void Transport::init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv, uint8_t frameAddress)
+void Transport::init(ByteTransport::Type t, void* buffer,
+                     const etx_serial_driver_t* drv, uint8_t frameAddress)
 {
   trsp.init(t, buffer, frameAddress);
 

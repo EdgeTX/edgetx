@@ -117,23 +117,20 @@ enum MODULE_MODE_E {
   MODULE_MODE_UNKNOWN = 0xFF
 };
 
-enum CMD_RESULT
-{
+enum CMD_RESULT {
   FAILURE = 0x01,
   SUCCESS = 0x02,
 };
 
-enum CHANNELS_DATA_MODE
-{
+enum CHANNELS_DATA_MODE {
   CHANNELS = 0x01,
   FAIL_SAFE = 0x02,
 };
 
-enum DeviceAddress
-{
+enum DeviceAddress {
   TRANSMITTER = 0x01,
   IRM301 = 0x05,
-  FRM303 = 0x04,  
+  FRM303 = 0x04,
 };
 
 PACK(struct ChannelsData {
@@ -199,7 +196,8 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-    void init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv, uint8_t address);
+    void init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv,
+              uint8_t address);
     void deinit() { trsp.deinit(); }
 
     /**
@@ -228,7 +226,7 @@ class ProtoState
     */
     void stop();
 
-    Config_u* getConfig() { return &cfg; } 
+    Config_u* getConfig() { return &cfg; }
 
     void applyConfigFromModel();
 
@@ -238,7 +236,8 @@ class ProtoState
 
   private:
     //friendship declaration - use for passing telemetry
-    friend void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len);
+    friend void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer,
+                                     uint8_t* len);
 
     void processTelemetryData(uint8_t data, uint8_t* buffer, uint8_t* len);
 
@@ -301,7 +300,7 @@ class ProtoState
      */
     ModuleVersion version;
 };
-  
+
 static const char* const moduleStateText[] =
 {
   "Not ready",
@@ -423,7 +422,7 @@ void ProtoState::setupFrame()
       if (this->state != ModuleState::STATE_STANDBY) {
         auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
         trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
-        return;        
+        return;
       } else {
         modelIDSet = true;
         modelID = g_model.header.modelId[module_index];
@@ -440,13 +439,13 @@ void ProtoState::setupFrame()
       trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
-    
+
     if (this->state == ModuleState::STATE_STANDBY) {
       cmdCount = 0;
       requestInfoAndRun(true);
       return;
     }
-    
+
     // exit bind
     if (this->state == STATE_BINDING) {
       TRACE("AFHDS3 [EXIT BIND]");
@@ -489,7 +488,8 @@ void ProtoState::setupFrame()
   }
 }
 
-void ProtoState::init(uint8_t moduleIndex, void* buffer, const etx_serial_driver_t* drv, uint8_t address)
+void ProtoState::init(uint8_t moduleIndex, void* buffer,
+                      const etx_serial_driver_t* drv, uint8_t address)
 {
   module_index = moduleIndex;
 
@@ -876,7 +876,7 @@ static void* initExternal(uint8_t module)
 #if defined(PCBNV14)
   EXTMODULE_TX_NORMAL();
   EXTMODULE_RX_NORMAL();
-#endif  
+#endif
 
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */;
 #else
@@ -886,9 +886,10 @@ static void* initExternal(uint8_t module)
   telemetryPortInvertedInit(AFHDS3_SOFTSERIAL_BAUDRATE);
   telemetryPortSetDirectionInput();
 #endif
-  
-  //Address used in transmitted frames - it constrains of target address and source address, ext module is FRM303
-  uint8_t address = DeviceAddress::TRANSMITTER | (DeviceAddress::FRM303 << 4);  
+
+  // Address used in transmitted frames - it constrains of target address and
+  // source address, ext module is FRM303
+  uint8_t address = DeviceAddress::TRANSMITTER | (DeviceAddress::FRM303 << 4);
   auto p_state = &protoState[module];
   p_state->init(module, &extmodulePulsesData.afhds3, drv, address);
   telemetryProtocol = PROTOCOL_TELEMETRY_AFHDS3;
@@ -906,7 +907,7 @@ static void deinitExternal(void* context)
   EXTMODULE_TX_INVERTED();
   EXTMODULE_RX_INVERTED();
 #endif
-  telemetryProtocol = 0xFF;  
+  telemetryProtocol = 0xFF;
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
 
   auto p_state = (ProtoState*)context;
@@ -948,7 +949,8 @@ etx_module_driver_t externalDriver = {
 
 static void* initInternal(uint8_t module)
 {
-  //Address used in transmitted frames - it constrains of target address and source address, int module is IRM301
+  // Address used in transmitted frames - it constrains of target address and
+  // source address, int module is IRM301
   uint8_t address = DeviceAddress::TRANSMITTER | (DeviceAddress::IRM301 << 4);
   auto p_state = &protoState[module];
   p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver, address);
