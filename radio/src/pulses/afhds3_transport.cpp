@@ -63,20 +63,14 @@ const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE
 
 void FrameTransport::init(void* buffer)
 {
-  trsp_buffer = buffer;
+  trsp_buffer = (uint8_t*)buffer;
   clear();
 }
 
-static void _reset_buffer(void* buffer)
-{
-  auto data = (SerialData*)buffer;
-  data->ptr = data->pulses;
-}
-  
 void FrameTransport::clear()
 {
   // reset send buffer
-  _reset_buffer(trsp_buffer);
+  data_ptr = trsp_buffer;
 
   // reset parser
   esc_state = 0;
@@ -84,8 +78,7 @@ void FrameTransport::clear()
 
 void FrameTransport::sendByte(uint8_t b)
 {
-  auto data = (SerialData*)trsp_buffer;
-  *(data->ptr++) = b;
+  *(data_ptr++) = b;
 }
 
 void FrameTransport::putBytes(uint8_t* data, int length)
@@ -111,7 +104,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
                               uint8_t dataLength, uint8_t frameIndex)
 {
   //header
-  _reset_buffer(trsp_buffer);
+  data_ptr = trsp_buffer;
 
   crc = 0;
   sendByte(START);
@@ -132,8 +125,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
 
 uint32_t FrameTransport::getFrameSize()
 {
-  auto data = (SerialData*)trsp_buffer;
-  return data->ptr - data->pulses;
+  return data_ptr - trsp_buffer;
 }
 
 static bool _checkCRC(const uint8_t* data, uint8_t size)

@@ -119,7 +119,8 @@ struct CommandFifo {
 
 struct FrameTransport
 {
-  void* trsp_buffer;
+  uint8_t* trsp_buffer;
+  uint8_t* data_ptr;
 
   uint8_t crc;
   // uint8_t timeout;

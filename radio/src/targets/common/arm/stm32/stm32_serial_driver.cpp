@@ -156,6 +156,10 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(USART6);
 #endif
 
+#if defined (UART7)
+  DEFINE_USART_IRQ(UART7);
+#endif
+
 static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 {
 #if defined (USART1)
@@ -172,6 +176,9 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #endif
 #if defined (USART6)
   if (usart->USARTx == USART6) return &_serial_states[_STM32_USART6];
+#endif
+#if defined (UART7)
+  if (usart->USARTx == UART7) return &_serial_states[_STM32_UART7];
 #endif
 
   return nullptr;

@@ -315,7 +315,8 @@ void getStatusString(uint8_t module, char* buffer)
 //friends function that can access telemetry parsing method
 void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
 {
-  auto p_state = (ProtoState*)ctx;
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto p_state = (ProtoState*)mod_st->user_data;
   p_state->processTelemetryData(data, buffer, len);
 }
 
