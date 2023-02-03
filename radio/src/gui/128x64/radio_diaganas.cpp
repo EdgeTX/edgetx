@@ -22,12 +22,16 @@
 #include "opentx.h"
 #include "../../hal/adc_driver.h"
 
+#if defined(RADIO_BOXER)
+ #include "../../targets/common/arm/stm32/flyskyHallStick_driver.h"
+#endif
+
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
 
 void menuRadioDiagAnalogs(event_t event)
 {
     static int8_t entryCount = 0;
-    static uint16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+    static int16_t lastShownAnalogValue[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
 
     enum ANAVIEWS{
        ANAVIEW_FIRST,
@@ -106,7 +110,15 @@ void menuRadioDiagAnalogs(event_t event)
     switch (viewpage) {
       case (ANAVIEW_RAWLOWFPS):
         if (entryCount == 0) {
-          lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+#if defined(RADIO_BOXER)
+            if (globalData.flyskygimbals)
+            {
+              lastShownAnalogValue[i] = hall_raw_values[i];
+            } else
+#endif
+            {
+              lastShownAnalogValue[i] = getAnalogValue(i); // Update value
+            }
         }
         lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i],
                       LEADING0|LEFT, 4);
