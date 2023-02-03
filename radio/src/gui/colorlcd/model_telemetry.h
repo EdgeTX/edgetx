@@ -36,9 +36,10 @@ class ModelTelemetryPage: public PageTab {
     void checkEvents() override;
 
   protected:
-    FormWindow * window = nullptr;
-    void editSensor(FormWindow * window, uint8_t index);
     int lastKnownIndex = 0;
+    FormWindow * window = nullptr;
+
+    void editSensor(FormWindow * window, uint8_t index);
     void build(FormWindow * window, int8_t focusSensorIndex=-1);
     void rebuild(FormWindow * window, int8_t focusSensorIndex=-1);
 };
