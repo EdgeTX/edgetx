@@ -193,7 +193,7 @@ if(HARDWARE_EXTERNAL_ACCESS_MOD)
 endif()
 
 if(PCB STREQUAL X10)
-  set(FLYSKY_HALL_STICKS_DRIVER targets/common/arm/stm32/flysky_gimbal_driver.cpp)
+  set(FLYSKY_HALL_STICKS_DRIVER ../common/arm/stm32/flyskyHallStick_driver.cpp)
 endif()
 
 if(IMU_LSM6DS33)
