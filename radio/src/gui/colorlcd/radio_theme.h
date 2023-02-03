@@ -45,4 +45,5 @@ class ThemeSetupPage: public PageTab {
     void displayThemeMenu(Window *window, ThemePersistance *tp);
     void setAuthor(ThemeFile *theme);
     void setName(ThemeFile *theme);
+    void setSelected(ThemePersistance *tp);
 };

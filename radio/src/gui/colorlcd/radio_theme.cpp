@@ -608,25 +608,33 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   }
 }
 
+void ThemeSetupPage::setSelected(ThemePersistance *tp)
+{
+  auto value = listBox->getSelected();
+  if (themeColorPreview && authorText && nameText && fileCarosell) {
+    ThemeFile *theme = tp->getThemeByIndex(value);
+    if (theme) {
+      themeColorPreview->setColorList(theme->getColorList());
+      setAuthor(theme);
+      setName(theme);
+      fileCarosell->setFileNames(theme->getThemeImageFileNames());
+    }
+  currentTheme = value;
+  }
+}
+
 void ThemeSetupPage::setupListbox(Window *window, rect_t r, ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
   listBox->setAutoEdit(true);
   listBox->setSelected(currentTheme);
   listBox->setActiveItem(tp->getThemeIndex());
-  listBox->setTitle(STR_THEME + std::string("s")); // TODO: fix this!
-  listBox->setLongPressHandler([=] () { displayThemeMenu(window, tp); });
+  listBox->setLongPressHandler([=] () {
+      setSelected(tp);
+      displayThemeMenu(window, tp);
+    });
   listBox->setPressHandler([=] () {
-      auto value = listBox->getSelected();
-      if (themeColorPreview && authorText && nameText && fileCarosell) {
-        ThemeFile *theme = tp->getThemeByIndex(value);
-        if (!theme) return;
-        themeColorPreview->setColorList(theme->getColorList());
-        setAuthor(theme);
-        setName(theme);
-        fileCarosell->setFileNames(theme->getThemeImageFileNames());
-      }
-      currentTheme = value;
+      setSelected(tp);
     });
 }
 
