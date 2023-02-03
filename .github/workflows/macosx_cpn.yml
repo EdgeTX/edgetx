@@ -89,19 +89,8 @@ jobs:
           ./configure &&
           make install
 
-      - name: Install libsdl
-        run:   wget https://www.libsdl.org/release/SDL-1.2.15.tar.gz &&
-          tar xfv SDL-1.2.15.tar.gz &&
-          export MACOSX_DEPLOYMENT_TARGET=10.9 &&
-          cd SDL-1.2.15 &&
-          wget 'https://bugzilla-attachments.libsdl.org/attachment.cgi?id=1320' -O patch1 &&
-          wget 'https://bugzilla-attachments.libsdl.org/attachment.cgi?id=1324' -O patch2 &&
-          wget 'https://hg.libsdl.org/SDL/raw-rev/91ad7b43317a' -O patch3 &&
-          patch -p1 < patch1 &&
-          patch -p1 < patch2 &&
-          patch -p1 < patch3 &&
-          ./configure --without-x &&
-          make install
+      - name: Install SDL2
+        run:  brew install SDL2
 
       - name: Build
         working-directory: ${{github.workspace}}
