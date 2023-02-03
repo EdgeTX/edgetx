@@ -29,7 +29,7 @@
 // #endif
 
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-  #include "flysky_gimbal_driver.h"
+#include "../../targets/common/arm/stm32/flyskyHallStick_driver.h"
 #endif
 
 #define STATSDEPTH 8 // ideally a value of power of 2

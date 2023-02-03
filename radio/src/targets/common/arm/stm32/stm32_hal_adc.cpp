@@ -168,7 +168,7 @@ static uint8_t ADC_MAIN_get_nconv()
   else
 #endif
   {
-      return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
+    return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
   }
 }
 
