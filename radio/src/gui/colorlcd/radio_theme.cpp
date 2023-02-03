@@ -288,7 +288,7 @@ class ColorEditPage : public Page
 
       FormWindow *colBoxForm = new FormWindow(colForm, r);
       colBoxForm->padAll(0);
-      colBoxForm->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+      colBoxForm->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
 
       r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
 
@@ -313,7 +313,7 @@ class ColorEditPage : public Page
       _colorSquare = new ColorSquare(colBoxForm, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
 
       // hexBox
-      r.w = 90;
+      r.w = 95;
       _hexBox = new StaticText(colBoxForm, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
       setHexStr(_theme.getColorEntryByIndex(_indexOfColor)->colorValue);
     }
