@@ -214,10 +214,10 @@ class ColorSquare : public Window
 class ColorEditPage : public Page
 {
   public:
-    ColorEditPage(ThemeFile theme, LcdColorIndex indexOfColor, 
-                  std::function<void (uint32_t rgb)> setValue = nullptr) :
+    ColorEditPage(ThemeFile *theme, LcdColorIndex indexOfColor, 
+                  std::function<void ()> updateHandler = nullptr) :
       Page(ICON_RADIO_EDIT_THEME),
-      _setValue(std::move(setValue)),
+      _updateHandler(std::move(updateHandler)),
       _indexOfColor(indexOfColor),
       _theme(theme)
     {
@@ -236,9 +236,9 @@ class ColorEditPage : public Page
     }
 
   protected:
-    std::function<void (uint32_t rgb)> _setValue;
+    std::function<void ()> _updateHandler;
     LcdColorIndex _indexOfColor;
-    ThemeFile  _theme;
+    ThemeFile *_theme;
     TextButton *_cancelButton;
     ColorEditor *_colorEditor;
     PreviewWindow *_previewWindow = nullptr;
@@ -246,6 +246,13 @@ class ColorEditPage : public Page
     int _activeTab = 0;
     ColorSquare *_colorSquare = nullptr;
     StaticText *_hexBox = nullptr;
+
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      if (_updateHandler != nullptr)
+        _updateHandler();
+      Page::deleteLater(detach, trash);
+    }
 
     void setHexStr(uint32_t rgb)
     {
@@ -281,7 +288,7 @@ class ColorEditPage : public Page
 #else
       r.h = form->height() - COLOR_LIST_HEIGHT - 4;
 #endif
-      _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
+      _previewWindow = new PreviewWindow(form, r, _theme->getColorList());
 
       r.w = colForm->width();
       r.h = COLOR_BOX_HEIGHT;
@@ -292,30 +299,28 @@ class ColorEditPage : public Page
 
       r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
 
-      _colorEditor = new ColorEditor(colForm, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
+      _colorEditor = new ColorEditor(colForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue,
         [=](uint32_t rgb) {
-          _theme.setColor(_indexOfColor, rgb);
+          _theme->setColor(_indexOfColor, rgb);
           if (_colorSquare != nullptr) {
             _colorSquare->setColorToEdit(rgb);
           }
           if (_previewWindow != nullptr) {
-            _previewWindow->setColorList(_theme.getColorList());
+            _previewWindow->setColorList(_theme->getColorList());
           }
           setHexStr(rgb);
-          if (_setValue != nullptr)
-            _setValue(rgb);
         });
       _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
       _activeTab = 1;
 
       r.w = COLOR_BOX_WIDTH;
       r.h = COLOR_BOX_HEIGHT;
-      _colorSquare = new ColorSquare(colBoxForm, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
+      _colorSquare = new ColorSquare(colBoxForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue);
 
       // hexBox
       r.w = 95;
       _hexBox = new StaticText(colBoxForm, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
-      setHexStr(_theme.getColorEntryByIndex(_indexOfColor)->colorValue);
+      setHexStr(_theme->getColorEntryByIndex(_indexOfColor)->colorValue);
     }
 
     void buildHead(PageHeader* window)
@@ -349,9 +354,9 @@ class ColorEditPage : public Page
 class ThemeEditPage : public Page
 {
   public:
-    explicit ThemeEditPage(ThemeFile theme, std::function<void (ThemeFile &theme)> saveHandler = nullptr) :
+    explicit ThemeEditPage(ThemeFile *theme, std::function<void (ThemeFile &theme)> saveHandler = nullptr) :
       Page(ICON_RADIO_EDIT_THEME),
-      _theme(theme),
+      _theme(*theme),
       page(this),
       saveHandler(std::move(saveHandler))
     {
@@ -389,13 +394,12 @@ class ThemeEditPage : public Page
     void editColorPage()
     {
       auto colorEntry = _cList->getSelectedColor();
-      new ColorEditPage(_theme, colorEntry.colorNumber, 
-      [=] (uint32_t color) {
-        _dirty = true;
-        _theme.setColor(colorEntry.colorNumber, color);
-        _cList->setColorList(_theme.getColorList());
-        _previewWindow->setColorList(_theme.getColorList());
-      });
+      new ColorEditPage(&_theme, colorEntry.colorNumber, 
+          [=] () {
+            _dirty = true;
+            _cList->setColorList(_theme.getColorList());
+            _previewWindow->setColorList(_theme.getColorList());
+          });
     }
 
     void buildHeader(FormGroup *window)
@@ -525,6 +529,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       nameText->setTextFlags(COLOR_THEME_PRIMARY1);
       authorText->setTextFlags(COLOR_THEME_PRIMARY1);
       listBox->setActiveItem(idx);
+      TabsGroup::refreshTheme();
     });
   }
 
@@ -537,8 +542,11 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       auto theme = tp->getThemeByIndex(themeIdx);
       if (theme == nullptr) return;
 
-      new ThemeEditPage(*theme, [=](ThemeFile &theme) {
-        theme.serialize();
+      new ThemeEditPage(theme, [=](ThemeFile &editedTheme) {
+        // update cached theme data
+        *theme = editedTheme;
+
+        theme->serialize();
         
         // if the theme info currently displayed
         // were changed, update the UI
@@ -550,12 +558,10 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         }
 
         // if the active theme changed, re-apply it
-        if (themeIdx == tp->getThemeIndex()) theme.applyTheme();
-
-        // update cached theme data
-        auto tp_theme = tp->getThemeByIndex(themeIdx);
-        if (!tp_theme) return;
-        *tp_theme = theme;
+        if (themeIdx == tp->getThemeIndex()) {
+          theme->applyTheme();
+          TabsGroup::refreshTheme();
+        }
       });
     });
   }

@@ -139,6 +139,8 @@ static constexpr rect_t _get_body_rect()
   return { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT };
 }
 
+TabsGroup* TabsGroup::activeTabsGroup = nullptr;
+
 TabsGroup::TabsGroup(uint8_t icon):
   Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
@@ -147,13 +149,24 @@ TabsGroup::TabsGroup(uint8_t icon):
   Layer::push(this);
 
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+
+  activeTabsGroup = this;
 }
 
 TabsGroup::~TabsGroup()
 {
+  if (activeTabsGroup == this)
+    activeTabsGroup = nullptr;
+
   for (auto tab: tabs) {
     delete tab;
   }
+}
+
+void TabsGroup::refreshTheme()
+{
+  if (activeTabsGroup)
+    lv_obj_set_style_bg_color(activeTabsGroup->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
 }
 
 void TabsGroup::deleteLater(bool detach, bool trash)

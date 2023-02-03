@@ -217,12 +217,14 @@ class TabsGroup: public Window
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
+    static void refreshTheme();
 
    protected:
     TabsGroupHeader header;
     FormWindow body;
     std::vector<PageTab *> tabs;
     PageTab * currentTab = nullptr;
+    static TabsGroup* activeTabsGroup;
 
     void setVisibleTab(PageTab * tab);
 };
