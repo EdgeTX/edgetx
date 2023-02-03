@@ -2409,7 +2409,7 @@
 #define SD_SPI                          SPI2
 #define SD_SPI_BaudRatePrescaler        SPI_BaudRatePrescaler_4 // 10.5<20MHZ, make sure < 20MHZ
 
-#if !defined(BOOT) && !defined(RADIO_BOXER)
+#if !defined(BOOT)
   #define SD_USE_DMA                    // Enable the DMA for SD
   #define SD_DMA_Stream_SPI_RX          DMA1_Stream3
   #define SD_DMA_Stream_SPI_TX          DMA1_Stream4
@@ -2527,13 +2527,13 @@
   #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
   #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
   #define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
-  #define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
+  //#define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
   #define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
-  #define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
-  #define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
+  //#define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
+  //#define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
 
   #define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
-  #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+  //#define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 
 
 /*  #define FLYSKY_HALL_SERIAL_USART                 USART3

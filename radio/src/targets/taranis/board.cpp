@@ -85,6 +85,9 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
+#if defined(RADIO_BOXER)
+                         FLYSKY_HALL_RCC_AHB1Periph |
+#endif
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -101,6 +104,9 @@ void boardInit()
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          ADC_RCC_APB1Periph |
+#if defined(RADIO_BOXER)
+                         FLYSKY_HALL_RCC_APB1Periph |
+#endif
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
