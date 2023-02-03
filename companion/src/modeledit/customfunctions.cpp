@@ -507,10 +507,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
           cfn.param = (uint8_t)fswtchParamT[i]->currentIndex();
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
-      }
-      else if (func == FuncSetScreen) {
-        if (modified)
-          cfn.param = (uint8_t)fswtchParam[i]->value();
+      } else if (func == FuncSetScreen) {
         fswtchParam[i]->setDecimals(0);
         fswtchParam[i]->setMinimum(1);
         if(model)
@@ -518,6 +515,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         else
           fswtchParam[i]->setMaximum(1);
         fswtchParam[i]->setSingleStep(1);
+        cfn.param = fswtchParam[i]->value();
         fswtchParam[i]->setValue(cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
