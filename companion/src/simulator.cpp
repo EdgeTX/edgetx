@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
     #if defined(_WIN32) || defined(_WIN64)
-    SDL_AudioInit("DirectSound");
+    putenv("SDL_AUDIODRIVER=directsound");
     #endif
   #endif
   if (SDL_Init(sdlFlags) < 0) {

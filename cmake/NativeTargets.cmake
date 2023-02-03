@@ -8,13 +8,11 @@ option(DISABLE_COMPANION "Disable building companion and simulators" OFF)
 # endif()
 
 # libfox
-if(NOT WIN32)
-  find_package(Fox QUIET)  # QUIET not working on WIN32?
-  if (FOX_FOUND)
-    message(STATUS "Foxlib found at ${FOX_LIBRARY}")
-  else() # if(NOT WIN32)
-    message("Libfox not found, simu target will not be available")
-  endif()
+find_package(Fox QUIET)  # QUIET not working on WIN32?
+if (FOX_FOUND)
+  message(STATUS "Foxlib found at ${FOX_LIBRARY}")
+else()
+  message("Libfox not found, simu target will not be available")
 endif()
 
 if(NOT DISABLE_COMPANION)

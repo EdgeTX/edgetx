@@ -100,7 +100,7 @@ OpenTxSim::OpenTxSim(FXApp* a):
 
 #if defined(SIMU_AUDIO)
   #if defined(_WIN32) || defined(_WIN64)
-  SDL_AudioInit("DirectSound");
+  putenv("SDL_AUDIODRIVER=directsound");
   #endif
   SDL_Init(SDL_INIT_AUDIO);
 #endif
