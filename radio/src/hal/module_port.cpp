@@ -111,14 +111,14 @@ static const etx_module_port_t* _find_port(uint8_t module, uint8_t type,
 
       // skip the port if polarity does not match
       // and cannot be set
-      if (polarity == ETX_Pol_Inverted &&
-          !p->set_inverted &&
-          port != ETX_MOD_PORT_SOFT_INV &&
-          port != ETX_MOD_PORT_SPORT_INV)
-        continue;
+      if (polarity != ETX_Pol_Inverted ||
+          p->set_inverted ||
+          port == ETX_MOD_PORT_SOFT_INV ||
+          port == ETX_MOD_PORT_SPORT_INV) {
 
-      found_port = p;
-      break;
+        found_port = p;
+        break;
+      }
     }
 
     ++p; --n_ports;
