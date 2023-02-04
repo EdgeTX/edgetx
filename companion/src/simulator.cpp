@@ -269,9 +269,9 @@ int main(int argc, char *argv[])
   #endif
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
-    #if defined(_WIN32) || defined(_WIN64)
-    putenv("SDL_AUDIODRIVER=directsound");
-    #endif
+  #endif
+  #if defined(_WIN32) || defined(_WIN64)
+  putenv("SDL_AUDIODRIVER=directsound");
   #endif
   if (SDL_Init(sdlFlags) < 0) {
     showMessage(QApplication::translate("SimulatorMain", "WARNING: couldn't initialize SDL:\n%1").arg(SDL_GetError()), QMessageBox::Warning);
