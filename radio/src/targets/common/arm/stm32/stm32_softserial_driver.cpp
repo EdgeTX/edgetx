@@ -372,9 +372,20 @@ static void stm32_softserial_tx_deinit(void* ctx)
   stm32_pulse_deinit(port->tim);
 }
 
+static void stm32_softserial_tx_wait(void* ctx)
+{
+  auto port = (const stm32_softserial_tx_port*)ctx;
+  auto timer = port->tim;
+
+  stm32_pulse_wait_for_completed(timer);
+}
+
+static void stm32_softserial_tx_send_buffer(void* ctx, const uint8_t* data, uint32_t size);
+
 static void stm32_softserial_tx_send_byte(void* ctx, uint8_t byte)
 {
-  // TODO
+  stm32_softserial_tx_send_buffer(ctx, &byte, 1);
+  stm32_softserial_tx_wait(ctx);
 }
 
 static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
@@ -482,7 +493,7 @@ const etx_serial_driver_t STM32SoftSerialTxDriver = {
   .sendByte = stm32_softserial_tx_send_byte,
   .sendBuffer = stm32_softserial_tx_send_buffer,
   .txCompleted = nullptr,
-  .waitForTxCompleted = nullptr,
+  .waitForTxCompleted = stm32_softserial_tx_wait,
   .enableRx = nullptr, // TODO: combine with EXTI / Timer implementation? (S.PORT INV RX)
   .getByte = nullptr,
   .clearRxBuffer = nullptr, // TODO: same as enableRx

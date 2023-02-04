@@ -234,6 +234,15 @@ static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
   LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
 }
 
+void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)
+{
+  uint32_t channel = tim->TIM_Channel;
+  if (channel == LL_TIM_CHANNEL_CH1N)
+    channel = LL_TIM_CHANNEL_CH1;
+
+  while(LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
+}
+
 static void force_start_level(const stm32_pulse_timer_t* tim)
 {
   uint32_t channel = tim->TIM_Channel;

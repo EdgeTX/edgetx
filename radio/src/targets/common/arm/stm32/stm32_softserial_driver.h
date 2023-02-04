@@ -84,7 +84,7 @@ struct stm32_softserial_tx_state {
 #endif
 
   const uint8_t*           serial_data;
-  uint32_t                 serial_size;
+  volatile uint32_t        serial_size;
 };
 
 // etx_serial_driver.init() shall be passed
