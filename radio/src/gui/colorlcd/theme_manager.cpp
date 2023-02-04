@@ -47,10 +47,8 @@ ThemeFile::ThemeFile(std::string themePath) :
     int n = 0;
     while (n < MAX_FILES) {
       auto baseFileName(path.substr(0, found + 1) + (n != 0 ? "screenshot" + std::to_string(n) : "logo") + ".png");
-      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
-      if (result == FR_OK) {
+      if (isFileAvailable(baseFileName.c_str(), true)) {
         _imageFileNames.emplace_back(baseFileName);
-        f_close(&file);
       } else {
         break;
       }
@@ -297,6 +295,7 @@ void ThemeFile::applyBackground()
   auto instance = OpenTxTheme::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
+  fprintf(stderr,">>>>>> applyBackground %s\n", backgroundImageFileName.c_str());
   if (pos != std::string::npos) {
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
@@ -343,14 +342,11 @@ void ThemePersistance::clearThemes()
 
 void ThemePersistance::scanThemeFolder(char *fullPath)
 {
-  FIL file;
   strncat(fullPath, "/theme.yml", FF_MAX_LFN);
-  FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) return;
-
-  f_close(&file);
-  TRACE("scanForThemes: found file %s", fullPath);
-  themes.emplace_back(new ThemeFile(fullPath));
+  if (isFileAvailable(fullPath, true)) {
+    TRACE("scanForThemes: found file %s", fullPath);
+    themes.emplace_back(new ThemeFile(fullPath));
+  }
 }
 
 void ThemePersistance::scanForThemes()
@@ -411,15 +407,23 @@ void ThemePersistance::loadDefaultTheme()
     line[len] = '\0';
 
     int index = 0;
+    bool found = false;
     for (auto theme : themes) {
       if (theme->getPath() == std::string(line)) {
-        applyTheme(index);
-        setThemeIndex(index);
+        found = true;
+        break;
       }
-
       index++;
     }
+
+    // Force default if no match for last selected theme
+    if (!found)
+      index = 0;
+
+    applyTheme(index);
+    setThemeIndex(index);
   }
+
   f_close(&file);
 }
 
@@ -467,13 +471,6 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
   return true;
 }
 
-void ThemePersistance::deleteDefaultTheme()
-{
-  FIL file;
-  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
-  if (status == FR_OK) f_close(&file);
-}
-
 void ThemePersistance::setDefaultTheme(int index)
 {
   FIL file;
@@ -483,7 +480,8 @@ void ThemePersistance::setDefaultTheme(int index)
     if (status != FR_OK) return;
 
     currentTheme = index;
-    f_printf(&file, theme->getPath().c_str());
+    if (index > 0)
+      f_printf(&file, theme->getPath().c_str());
     f_close(&file);
   }
 }
@@ -491,7 +489,7 @@ void ThemePersistance::setDefaultTheme(int index)
 class DefaultEdgeTxTheme : public ThemeFile
 {
   public:
-    DefaultEdgeTxTheme() : ThemeFile("")
+    DefaultEdgeTxTheme() : ThemeFile(THEMES_PATH"/EdgeTX/")
     {
       setName("EdgeTX Default");
       setAuthor("EdgeTX Team");
@@ -509,23 +507,6 @@ class DefaultEdgeTxTheme : public ThemeFile
       colorList.emplace_back(ColorEntry { COLOR_THEME_ACTIVE_INDEX, RGB(255, 222, 0) });
       colorList.emplace_back(ColorEntry { COLOR_THEME_WARNING_INDEX, RGB(224, 0, 0) });
       colorList.emplace_back(ColorEntry { COLOR_THEME_DISABLED_INDEX, RGB(140, 140, 140) });
-    }
-
-    void applyBackground() override
-    {
-      auto instance = OpenTxTheme::instance();
-      char fileName[FF_MAX_LFN + 1];
-      fileName[FF_MAX_LFN] = '\0';
-      char *s = strAppend(fileName, THEMES_PATH, FF_MAX_LFN);
-      strAppend(s, "/EdgeTX/background.png", FF_MAX_LFN - (s - fileName));
-      instance->setBackgroundImageFileName(fileName);
-    }
-
-    std::vector<std::string> getThemeImageFileNames() override
-    {
-      std::vector<std::string> fileNames;
-      fileNames.emplace_back("/THEMES/EdgeTX/EdgeTX.png");
-      return fileNames;
     }
 };
 

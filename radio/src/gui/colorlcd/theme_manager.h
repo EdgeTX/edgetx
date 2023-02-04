@@ -147,7 +147,6 @@ class ThemePersistance
 
     void loadDefaultTheme();
     void setDefaultTheme(int index);
-    void deleteDefaultTheme();
     static char **getColorNames();
     bool deleteThemeByIndex(int index);
     bool createNewTheme(std::string name, ThemeFile &theme);
