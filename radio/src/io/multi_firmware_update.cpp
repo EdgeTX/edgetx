@@ -55,6 +55,7 @@ class MultiFirmwareUpdateDriver
   bool init();
   bool getByte(uint8_t& byte) const;
   void sendByte(uint8_t byte) const;
+  void sendBuffer(uint8_t* buffer, uint16_t size) const;
   void clear() const;
   void deinit();
 
@@ -119,6 +120,16 @@ void MultiFirmwareUpdateDriver::sendByte(uint8_t byte) const
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto ctx = modulePortGetCtx(mod_st->tx);
   drv->sendByte(ctx, byte);
+}
+
+void MultiFirmwareUpdateDriver::sendBuffer(uint8_t* buffer, uint16_t size) const
+{
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto ctx = modulePortGetCtx(mod_st->tx);
+
+  drv->waitForTxCompleted(ctx);
+  drv->sendBuffer(ctx, buffer, size);
+  drv->waitForTxCompleted(ctx);
 }
 
 void MultiFirmwareUpdateDriver::clear() const
@@ -212,7 +223,6 @@ const char * MultiFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) 
   // Read signature
   sendByte(STK_READ_SIGN);
   sendByte(CRC_EOP);
-  clear();
 
   if (!checkRxByte(STK_INSYNC))
     return STR_DEVICE_NO_RESPONSE;
@@ -255,9 +265,7 @@ const char * MultiFirmwareUpdateDriver::progPage(uint8_t * buffer, uint16_t size
   // flash/eeprom flag
   sendByte(0);
 
-  for (uint16_t i = 0; i < size; i++) {
-    sendByte(buffer[i]);
-  }
+  sendBuffer(buffer, size);
 
   sendByte(CRC_EOP);
 

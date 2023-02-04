@@ -298,6 +298,8 @@ static void stm32_serial_send_byte(void* ctx, uint8_t c)
   }
 }
 
+#define IS_CCM_RAM(addr) (((uint32_t)(addr) & (uint32_t)0xFFF00000) == 0x10000000)
+
 static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
   auto st = (stm32_serial_state*)ctx;
@@ -306,7 +308,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   // try TX DMA first
   auto sp = st->sp;
   auto usart = sp->usart;
-  if (usart->txDMA) {
+  if (usart->txDMA && !IS_CCM_RAM(data)) {
     stm32_usart_send_buffer(usart, data, size);
     return;
   }
@@ -337,8 +339,10 @@ static uint8_t stm32_serial_tx_completed(void* ctx)
 
 static void stm32_wait_tx_completed(void* ctx)
 {
-  // TODO
-  (void)ctx;
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return;
+
+  while(!stm32_usart_tx_completed(st->sp->usart));
 }
 
 static void stm32_enable_rx(void* ctx)
