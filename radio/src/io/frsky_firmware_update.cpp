@@ -344,7 +344,7 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
   uint8_t serial_module = module != SPORT_MODULE ? module : EXTERNAL_MODULE;
 
   mod_st = modulePortInitSerial(serial_module, port, &cfg);
-  if (mod_st) return "Communication port error";
+  if (!mod_st) return "Communication port error";
 
   // assume RX port is the same as TX
   uart_drv = modulePortGetSerialDrv(mod_st->tx);
