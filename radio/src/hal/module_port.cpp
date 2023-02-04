@@ -183,8 +183,16 @@ etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
   uint8_t dir = params->direction & duplex;
 
   if (dir == duplex) {
-    _init_serial_driver(&state->tx, found_port, params);
-    state->rx = state->tx;
+
+    // init RX first, in case TX was already done previously
+    _init_serial_driver(&state->rx, found_port, params);
+
+    // do not overwrite TX state if it has already been set:
+    // -> support using S.PORT in bidir mode
+    if (!state->tx.port) {
+      state->tx.port = state->rx.port;
+      state->tx.ctx = state->rx.ctx;
+    }
   } else if (dir == ETX_Dir_TX) {
     _init_serial_driver(&state->tx, found_port, params);
   } else if (dir == ETX_Dir_RX) {
