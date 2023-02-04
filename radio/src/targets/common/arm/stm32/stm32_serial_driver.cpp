@@ -208,8 +208,8 @@ static inline bool _fifo_full(stm32_buffer_state* buf_st, uint32_t length)
 static inline void _fifo_push(uint8_t c, stm32_buffer_state* buf_st,
                               uint32_t length, uint8_t* buf)
 {
-  buf_st->widx = (buf_st->widx + 1) & (length - 1);
   buf[buf_st->widx] = c;
+  buf_st->widx = (buf_st->widx + 1) & (length - 1);
 }
 
 static void _on_rx_fifo(uint8_t data)
