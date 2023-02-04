@@ -253,6 +253,30 @@ static const etx_serial_init pxx1SerialCfg = {
   .polarity = ETX_Pol_Normal,
 };
 
+static const etx_serial_driver_t* _sport_drv;
+static void* _sport_ctx;
+
+static void pxx1SportSensorPolling()
+{
+  if (outputTelemetryBuffer.destination != TELEMETRY_ENDPOINT_SPORT)
+    return;
+
+  // Match sensor polling from the module
+  // -> detect <0x7E [Physical ID]> as the last sequence
+  uint8_t b;
+  if (_sport_drv->getLastByte(_sport_ctx, 2, &b) <= 0 || b != START_STOP)
+    return;
+  if (_sport_drv->getLastByte(_sport_ctx, 1, &b) <= 0 ||
+      b != outputTelemetryBuffer.sport.physicalId)
+    return;
+
+  _sport_drv->sendBuffer(_sport_ctx,
+                         outputTelemetryBuffer.data + 1,
+                         outputTelemetryBuffer.size - 1);
+
+  outputTelemetryBuffer.reset();
+}
+
 static void* pxx1Init(uint8_t module)
 {
   etx_module_state_t* mod_st = nullptr;
@@ -301,10 +325,18 @@ static void* pxx1Init(uint8_t module)
   // Init telemetry RX
   etx_serial_init rxCfg(pxx1SerialCfg);
   rxCfg.baudrate = FRSKY_SPORT_BAUDRATE;
-  rxCfg.direction = ETX_Dir_RX;
+  rxCfg.direction = ETX_Dir_TX_RX;
 
   // TODO: handle init errors properly
-  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg);
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg) != nullptr) {
+    auto drv = modulePortGetSerialDrv(mod_st->rx);
+    auto ctx = modulePortGetCtx(mod_st->rx);
+    if (drv && ctx && drv->setIdleCb) {
+      _sport_drv = drv;
+      _sport_ctx = ctx;
+      drv->setIdleCb(ctx, pxx1SportSensorPolling);
+    }
+  }
 
   // Store PXX1 type in 'user_data'
   if (txCfg.encoding == ETX_Encoding_PXX1_PWM ||
