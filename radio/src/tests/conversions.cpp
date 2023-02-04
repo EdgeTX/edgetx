@@ -436,6 +436,9 @@ TEST(Conversions, ConversionX12SFrom23)
 #if defined(RADIO_TX16S)
 TEST(Conversions, ConversionTX16SFrom25)
 {
+  #define MODULE_SUBTYPE_MULTI_FRSKY 2
+  #define MM_RF_FRSKY_SUBTYPE_D8_CLONED 1
+
   simuFatfsSetPaths(TESTS_BUILD_PATH "/model_25_tx16s/", TESTS_BUILD_PATH "/model_25_tx16s/");
 
   convertRadioData_219_to_220("/RADIO/radio.bin");
