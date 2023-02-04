@@ -56,7 +56,7 @@ void FullScreenDialog::init()
     std::string t;
     if (type == WARNING_TYPE_ALERT) {
 #if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
-      t = STR_WARNING + "\n" + title;
+      t = std::string(STR_WARNING) + "\n" + title;
 #else
       t = title + "\n" + STR_WARNING;
 #endif
