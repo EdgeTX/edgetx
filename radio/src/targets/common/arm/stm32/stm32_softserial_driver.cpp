@@ -218,6 +218,7 @@ const etx_serial_driver_t STM32SoftSerialRxDriver = {
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
   .getByte = stm32_softserial_rx_get_byte,
+  .getLastByte = nullptr,
   .clearRxBuffer = stm32_softserial_rx_clear_rx_buffer,
   .getBaudrate = nullptr,
   .setReceiveCb = nullptr,

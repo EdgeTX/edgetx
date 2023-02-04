@@ -381,6 +381,38 @@ static int stm32_serial_get_byte(void* ctx, uint8_t* data)
   return 1;
 }
 
+static int stm32_serial_get_last_byte(void* ctx, uint32_t idx, uint8_t* data)
+{
+  auto st = (stm32_serial_state*)ctx;
+  if (!st) return -1;
+
+  auto sp = st->sp;
+  const auto& rx_buf = sp->rx_buffer;
+  auto buf_len = rx_buf.length;
+  if (!buf_len) return -1;
+  
+  auto buf = rx_buf.buffer;
+  auto& buf_st = st->rx_buf;
+
+  uint32_t widx;
+  auto usart = sp->usart;
+  if (LL_USART_IsEnabledDMAReq_RX(usart->USARTx)) {
+    auto dma = usart->rxDMA;
+    auto stream = usart->rxDMA_Stream;
+    widx = buf_len - LL_DMA_GetDataLength(dma, stream);
+  } else {
+    widx = buf_st.widx;
+  }
+
+  // Please note that we do not check the read cursor
+  // so that this function might return data that
+  // has already been read
+  uint32_t ridx = (buf_len + widx - idx) & (buf_len - 1);
+  *data = buf[ridx];
+
+  return 1;
+}
+
 static void stm32_serial_clear_rx_buffer(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
@@ -449,6 +481,7 @@ const etx_serial_driver_t STM32SerialDriver = {
   .waitForTxCompleted = stm32_wait_tx_completed,
   .enableRx = stm32_enable_rx,
   .getByte = stm32_serial_get_byte,
+  .getLastByte = stm32_serial_get_last_byte,
   .clearRxBuffer = stm32_serial_clear_rx_buffer,
   .getBaudrate = stm32_serial_get_baudrate,
   .setBaudrate = stm32_serial_set_baudrate,

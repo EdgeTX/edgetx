@@ -85,9 +85,12 @@ typedef struct {
   // 2-wire half-duplex
   void (*enableRx)(void* ctx);
   
-  // Fetch byte from internal buffer
+  // Fetch next available byte from internal buffer
   int (*getByte)(void* ctx, uint8_t* data);
 
+  // Fetch a byte by its index from the end of the buffer
+  int (*getLastByte)(void* ctx, uint32_t idx, uint8_t* data);
+  
   // Clear internal buffer
   void (*clearRxBuffer)(void* ctx);
 

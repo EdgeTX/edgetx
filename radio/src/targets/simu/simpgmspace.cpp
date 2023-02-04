@@ -687,6 +687,7 @@ static const etx_serial_driver_t _fake_drv = {
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
   .getByte = _fake_drv_get_byte,
+  .getLastByte = nullptr,
   .clearRxBuffer = nullptr,
   .getBaudrate = nullptr,
   .setBaudrate = nullptr,
