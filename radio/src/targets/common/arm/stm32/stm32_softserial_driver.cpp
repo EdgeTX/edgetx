@@ -158,8 +158,8 @@ static inline bool _rx_fifo_full()
 
 static inline void _rx_fifo_push(uint8_t c)
 {
-  rxWidx = (rxWidx + 1) & (rxBufLen - 1);
   rxBuffer[rxWidx] = c;
+  rxWidx = (rxWidx + 1) & (rxBufLen - 1);
 }
 
 static int stm32_softserial_rx_get_byte(void* ctx, uint8_t* data)
