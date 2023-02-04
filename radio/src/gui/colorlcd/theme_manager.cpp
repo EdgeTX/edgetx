@@ -295,7 +295,6 @@ void ThemeFile::applyBackground()
   auto instance = OpenTxTheme::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
-  fprintf(stderr,">>>>>> applyBackground %s\n", backgroundImageFileName.c_str());
   if (pos != std::string::npos) {
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
