@@ -187,9 +187,7 @@ class SensorButton : public Button {
       lv_obj_set_grid_cell(v->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
-      if (IS_SPEKTRUM_PROTOCOL()) {
-        sprintf(s, "%x", sensor->id);
-      } else if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
+      if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
         sprintf(s, "%d", sensor->instance);
       }
 
