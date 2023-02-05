@@ -1259,6 +1259,10 @@ void printAudioVars()
 
 #include "hal/switch_driver.h"
 
+#if defined(DISK_CACHE)
+#include "disk_cache.h"
+#endif
+
 int cliDisplay(const char ** argv)
 {
   long long int address = 0;

@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
 #define SIMPGMSPC_USE_QT    0
 
 #if defined(SIMU_AUDIO)
@@ -64,8 +65,6 @@ rotenc_t rotaryEncoderGetRawValue() { return rotencValue; }
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
-
-FATFS g_FATFS_Obj;
 
 uint64_t simuTimerMicros(void)
 {
@@ -587,6 +586,12 @@ void rtcGetTime(struct gtm * t)
 void rtcSetTime(const struct gtm * t)
 {
 }
+
+#if defined(PCBTARANIS)
+void sdPoll10ms() {}
+#endif
+
+uint32_t SD_GetCardType() { return 0; }
 
 #if defined(USB_SERIAL)
 const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };

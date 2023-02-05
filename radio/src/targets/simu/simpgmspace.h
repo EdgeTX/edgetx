@@ -80,17 +80,6 @@ void simuMain();
   #define SIMU_USE_SDCARD
 #endif
 
-#if defined(SIMU_DISKIO)
-  uint32_t sdMounted();
-  #define sdPoll10ms()
-  void sdInit(void);
-  void sdDone(void);
-#else
-  #define sdPoll10ms()
-  uint32_t sdMounted(void);
-  #define sdMounted()      (true)
-#endif
-
 #if defined(SIMU_USE_SDCARD)
   void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
 #else

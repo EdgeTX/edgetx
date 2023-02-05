@@ -22,29 +22,11 @@
 #ifndef _DISK_CACHE_H_
 #define _DISK_CACHE_H_
 
-#include "diskio.h"
+#include "FatFs/diskio.h"
 
 // tunable parameters
 #define DISK_CACHE_BLOCKS_NUM      32   // no cache blocks
 #define DISK_CACHE_BLOCK_SECTORS   16   // no sectors
-
-#define DISK_CACHE_BLOCK_SIZE   (DISK_CACHE_BLOCK_SECTORS * BLOCK_SIZE)
-
-class DiskCacheBlock
-{
-public:
-  DiskCacheBlock();
-  bool read(BYTE* buff, DWORD sector, UINT count);
-  DRESULT fill(BYTE drv, BYTE* buff, DWORD sector, UINT count);
-  void free(DWORD sector, UINT count);
-  void free();
-  bool empty() const;
-
-private:
-  uint8_t data[DISK_CACHE_BLOCK_SIZE];
-  DWORD startSector;
-  DWORD endSector;
-};
 
 struct DiskCacheStats
 {
@@ -53,15 +35,20 @@ struct DiskCacheStats
   uint32_t noWrites;
 };
 
+class DiskCacheBlock;
+
 class DiskCache
 {
   public:
     DiskCache();
+
+    void clear();
+
     DRESULT read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
     DRESULT write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
+
     const DiskCacheStats & getStats() const;
     int getHitRate() const;
-    void clear();
 
   private:
     DiskCacheStats stats;

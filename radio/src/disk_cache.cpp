@@ -19,21 +19,47 @@
  * GNU General Public License for more details.
  */
 
+#include "disk_cache.h"
+#include "sdcard.h"
+
 #include <string.h>
-#include "opentx.h"
 
 #if defined(SIMU) && !defined(SIMU_DISKIO)
   #define __disk_read(...)    (RES_OK)
   #define __disk_write(...)   (RES_OK)
 #endif
 
-#if 0     // set to 1 to enable traces
+#if 0  // set to 1 to enable traces
+  #include "debug.h"
   #define TRACE_DISK_CACHE(...)   TRACE(__VA_ARGS__)
 #else
   #define TRACE_DISK_CACHE(...)
 #endif
 
+#if FF_MAX_SS != FF_MIN_SS
+#error "Variable sector size is not supported"
+#endif
+
+#define BLOCK_SIZE FF_MAX_SS
+#define DISK_CACHE_BLOCK_SIZE (DISK_CACHE_BLOCK_SECTORS * BLOCK_SIZE)
+
 DiskCache diskCache;
+
+class DiskCacheBlock
+{
+public:
+  DiskCacheBlock();
+  bool read(BYTE* buff, DWORD sector, UINT count);
+  DRESULT fill(BYTE drv, BYTE* buff, DWORD sector, UINT count);
+  void free(DWORD sector, UINT count);
+  void free();
+  bool empty() const;
+
+private:
+  uint8_t data[DISK_CACHE_BLOCK_SIZE];
+  DWORD startSector;
+  DWORD endSector;
+};
 
 DiskCacheBlock::DiskCacheBlock():
   startSector(0),
@@ -97,7 +123,7 @@ void DiskCache::clear()
   stats.noHits = 0;
   stats.noMisses = 0;
   stats.noWrites = 0;
-  for (int n=0; n<DISK_CACHE_BLOCKS_NUM; ++n) {
+  for (int n = 0; n < DISK_CACHE_BLOCKS_NUM; ++n) {
     blocks[n].free();
   }
 }
@@ -117,12 +143,12 @@ DRESULT DiskCache::read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
   }
   
   // if block + cache block size is beyond the end of the disk, then read it directly without using cache
-  if (sector+DISK_CACHE_BLOCK_SECTORS >= sdGetNoSectors()) {
+  if (sector + DISK_CACHE_BLOCK_SECTORS >= sdGetNoSectors()) {
     TRACE_DISK_CACHE("\t\t cache would be beyond end of disk %u (%u)", (uint32_t)sector, sdGetNoSectors());
     return __disk_read(drv, buff, sector, count);
   }
 
-  for (int n=0; n<DISK_CACHE_BLOCKS_NUM; ++n) {
+  for (int n = 0; n < DISK_CACHE_BLOCKS_NUM; ++n) {
     if (blocks[n].read(buff, sector, count)) {
       ++stats.noHits;
       return RES_OK;
@@ -132,7 +158,7 @@ DRESULT DiskCache::read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
   ++stats.noMisses;
 
   // find free block
-  for (int n=0; n<DISK_CACHE_BLOCKS_NUM; ++n) {
+  for (int n = 0; n < DISK_CACHE_BLOCKS_NUM; ++n) {
     if (blocks[n].empty()) {
       TRACE_DISK_CACHE("\t\t using free block");
       return blocks[n].fill(drv, buff, sector, count);
@@ -151,7 +177,7 @@ DRESULT DiskCache::read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 DRESULT DiskCache::write(BYTE drv, const BYTE* buff, DWORD sector, UINT count)
 {
   ++stats.noWrites;
-  for(int n=0; n < DISK_CACHE_BLOCKS_NUM; ++n) {
+  for(int n = 0; n < DISK_CACHE_BLOCKS_NUM; ++n) {
     blocks[n].free(sector, count);
   }
   return __disk_write(drv, buff, sector, count);  

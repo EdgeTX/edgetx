@@ -25,43 +25,24 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
-#include "diskio.h"
-#include "debug.h"
-#include "targets/common/arm/stm32/sdio_sd.h"
+#include "stm32_hal.h"
+#include "sdio_sd.h"
+
+#include "FatFs/diskio.h"
 
 #include <string.h>
+#include "debug.h"
 
-/*-----------------------------------------------------------------------*/
-/* Lock / unlock functions                                               */
-/*-----------------------------------------------------------------------*/
-#if !defined(BOOT)
-static RTOS_MUTEX_HANDLE ioMutex;
-uint32_t ioMutexReq = 0, ioMutexRel = 0;
-int ff_cre_syncobj (BYTE vol, FF_SYNC_t * mutex)
-{
-  *mutex = ioMutex;
-  return 1;
-}
-
-int ff_req_grant (FF_SYNC_t mutex)
-{
-  ioMutexReq += 1;
-  RTOS_LOCK_MUTEX(mutex);
-  return 1;
-}
-
-void ff_rel_grant (FF_SYNC_t mutex)
-{
-  ioMutexRel += 1;
-  RTOS_UNLOCK_MUTEX(mutex);
-}
-
-int ff_del_syncobj (FF_SYNC_t mutex)
-{
-  return 1;
-}
+#if FF_MAX_SS != FF_MIN_SS
+#error "Variable sector size is not supported"
 #endif
 
+#define BLOCK_SIZE FF_MAX_SS
+#define SD_TIMEOUT 300 /* 300ms */
+
+// Disk status
+extern volatile uint32_t WriteStatus;
+extern volatile uint32_t ReadStatus;
 
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
@@ -87,11 +68,11 @@ DSTATUS disk_initialize (
   }
 
   TRACE("SD card info:");
-  TRACE("sectors: %u", (uint32_t)(SDCardInfo.CardCapacity / 512));
-  TRACE("type: %u", (uint32_t)(SDCardInfo.CardType));
-  TRACE("EraseGrSize: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrSize));
-  TRACE("EraseGrMul: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrMul));
-  TRACE("ManufacturerID: %u", (uint32_t)(SDCardInfo.SD_cid.ManufacturerID));
+  TRACE("type: %u", (uint32_t)(SD_GetCardType()));
+  TRACE("class: %u", (uint32_t)(SD_GetCardClass()));
+  TRACE("sectors: %u", (uint32_t)(SD_GetSectorCount()));
+  TRACE("sector size: %u", (uint32_t)(SD_GetSectorSize()));
+  TRACE("block size: %u", (uint32_t)(SD_GetBlockSize()));
 
   return(stat);
 }
@@ -122,39 +103,52 @@ uint32_t sdReadRetries = 0;
 /* Read Sector(s)                                                        */
 
 
+// Please note:
+//   this functions assumes that buff is properly aligned
+//   and in the right RAM segment for DMA
+//
 DRESULT disk_read_dma(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 {
-  // this functions assumes that buff is properly aligned and in the right RAM segment for DMA
-  DRESULT res;
-  SD_Error Status;
-  SDTransferState State;
-  for (int retry=0; retry<3; retry++) {
-    res = RES_OK;
-    if (count == 1) {
-      Status = SD_ReadBlock(buff, sector, BLOCK_SIZE); // 4GB Compliant
+  DRESULT res = RES_ERROR;
+
+  for (int retry = 0; retry < 3; retry++) {
+
+    ReadStatus = 0;
+    SD_Error Status = SD_ReadBlocks(buff, sector, BLOCK_SIZE, count);
+    if (Status != SD_OK) {
+      TRACE("SD ReadBlocks=%d, s:%u c: %u", Status, sector, (uint32_t)count);
+      ++sdReadRetries;
+      continue;
     }
-    else {
-      Status = SD_ReadMultiBlocks(buff, sector, BLOCK_SIZE, count); // 4GB Compliant
+
+    // Wait that the reading process is completed or a timeout occurs
+    uint32_t timeout = HAL_GetTick();
+    while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
+
+    if (ReadStatus == 0) {
+      TRACE("SD read timeout, s:%u c:%u", sector, (uint32_t)count);
+      ++sdReadRetries;
+      continue;
     }
-    if (Status == SD_OK) {
-      Status = SD_WaitReadOperation(200*count); // Check if the Transfer is finished
-      while ((State = SD_GetStatus()) == SD_TRANSFER_BUSY); // BUSY, OK (DONE), ERROR (FAIL)
-      if (State == SD_TRANSFER_ERROR)  {
-        TRACE("State=SD_TRANSFER_ERROR, c: %u", sector, (uint32_t)count);
-        res = RES_ERROR;
+      
+    ReadStatus = 0;
+    timeout = HAL_GetTick();
+
+    while((HAL_GetTick() - timeout) < SD_TIMEOUT) {
+      if (SD_GetStatus() == SD_TRANSFER_OK) {
+	res = RES_OK;
+	break;
       }
-      else if (Status != SD_OK) {
-        TRACE("Status(WaitRead)=%d, s:%u c: %u", Status, sector, (uint32_t)count);
-        res = RES_ERROR;
-      }
     }
-    else {
-      TRACE("Status(ReadBlock)=%d, s:%u c: %u", Status, sector, (uint32_t)count);
-      res = RES_ERROR;
+
+    if (res == RES_OK) {
+      // exit retry loop
+      break;
     }
-    if (res == RES_OK) break;
-    sdReadRetries += 1;
+
+    TRACE("SD getstatus timeout, s:%u c:%u", sector, (uint32_t)count);
   }
+
   return res;
 }
 
@@ -172,6 +166,10 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
     return RES_NOTRDY;
   }
 
+  if (SD_CheckStatusWithTimeout(SD_TIMEOUT) < 0) {
+    return RES_ERROR;
+  }
+  
   DRESULT res = RES_OK;
   if (count == 0) return res;
 
@@ -197,6 +195,7 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
       buff += BLOCK_SIZE;
     }
   }
+
   return res;
 }
 
@@ -211,13 +210,16 @@ DRESULT __disk_write(
   UINT count                      /* Number of sectors to write (1..255) */
 )
 {
-  SD_Error Status;
   DRESULT res = RES_OK;
 
   // TRACE("disk_write %d %p %10d %d", drv, buff, sector, count);
 
   if (SD_Detect() != SD_PRESENT)
-    return(RES_NOTRDY);
+    return RES_NOTRDY;
+
+  if (SD_CheckStatusWithTimeout(SD_TIMEOUT) < 0) {
+    return RES_ERROR;
+  }
 
   if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
     //TRACE("disk_write bad alignment (%p)", buff);
@@ -234,30 +236,37 @@ DRESULT __disk_write(
     return(res);
   }
 
-  if (count == 1) {
-    Status = SD_WriteBlock((uint8_t *)buff, sector, BLOCK_SIZE); // 4GB Compliant
+  SD_Error Status = SD_WriteBlocks((uint8_t *)buff, sector, BLOCK_SIZE, count);
+  if (Status != SD_OK) {
+    TRACE("SD WriteBlocks=%d, s:%u c: %u", Status, sector, (uint32_t)count);
+    return RES_ERROR;
   }
-  else {
-    Status = SD_WriteMultiBlocks((uint8_t *)buff, sector, BLOCK_SIZE, count); // 4GB Compliant
+
+  // Wait that the reading process is completed or a timeout occurs
+  uint32_t timeout = HAL_GetTick();
+  while((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
+
+  if (WriteStatus == 0) {
+    TRACE("SD write timeout, s:%u c:%u", sector, (uint32_t)count);
+    return RES_ERROR;
   }
 
-  if (Status == SD_OK) {
-    SDTransferState State;
+  WriteStatus = 0;
+  res = RES_ERROR;
+  timeout = HAL_GetTick();
 
-    Status = SD_WaitWriteOperation(500*count); // Check if the Transfer is finished
-
-    while((State = SD_GetStatus()) == SD_TRANSFER_BUSY); // BUSY, OK (DONE), ERROR (FAIL)
-
-    if ((State == SD_TRANSFER_ERROR) || (Status != SD_OK)) {
-      TRACE("__disk_write() err, st:%d,%d, s:%u c: %u", Status, State, sector, (uint32_t)count);
-      res = RES_ERROR;
+  while((HAL_GetTick() - timeout) < SD_TIMEOUT) {
+    if (SD_GetStatus() == SD_TRANSFER_OK) {
+      res = RES_OK;
+      break;
     }
   }
-  else {
+
+  if (res != RES_OK) {
+    TRACE("SD getstatus timeout, s:%u c: %u", sector, (uint32_t)count);
     res = RES_ERROR;
   }
 
-  // TRACE("result=%d", res);
   return res;
 }
 #endif /* _READONLY */
@@ -272,6 +281,7 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
+  uint32_t tmp;
 
   if (drv) return RES_PARERR;
 
@@ -279,24 +289,44 @@ DRESULT disk_ioctl (
 
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
-      // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
-      *(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
+      tmp = SD_GetSectorCount();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
     case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-      *(WORD*)buff = BLOCK_SIZE;   // force sector size. SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
+      tmp = SD_GetSectorSize();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(WORD*)buff = tmp;
       res = RES_OK;
       break;
 
     case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
-      // TODO verify that this is the correct value
-      *(DWORD*)buff = (uint32_t)SDCardInfo.SD_csd.EraseGrSize * (uint32_t)SDCardInfo.SD_csd.EraseGrMul;
+      tmp = SD_GetBlockSize() / BLOCK_SIZE;
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
     case CTRL_SYNC:
-      while (SD_GetStatus() == SD_TRANSFER_BUSY); /* Complete pending write process (needed at _FS_READONLY == 0) */
+      /* Complete pending write process (needed at _FS_READONLY == 0) */
+      while (SD_GetStatus() == SD_TRANSFER_BUSY);
       res = RES_OK;
       break;
 
@@ -307,102 +337,4 @@ DRESULT disk_ioctl (
   }
 
   return res;
-}
-
-// TODO everything here should not be in the driver layer ...
-
-bool _g_FATFS_init = false;
-FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
-
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
-
-#if defined(LOG_BLUETOOTH)
-FIL g_bluetoothFile = {};
-#endif
-
-#if defined(BOOT)
-void sdInit(void)
-{
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    f_chdir("/");
-  }
-}
-#else
-
-#include "audio.h"
-#include "sdcard.h"
-#include "disk_cache.h"
-
-void sdInit()
-{
-  TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
-  sdMount();
-}
-
-void sdMount()
-{
-  TRACE("sdMount");
-  
-  diskCache.clear();
-  
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
-    _g_FATFS_init = true;
-    sdGetFreeSectors();
-
-#if defined(LOG_TELEMETRY)
-    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_telemetryFile) > 0) {
-      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
-    }
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_bluetoothFile) > 0) {
-      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
-    }
-#endif
-  }
-  else {
-    TRACE("f_mount() failed");
-  }
-}
-
-void sdDone()
-{
-  TRACE("sdDone");
-  
-  if (sdMounted()) {
-    audioQueue.stopSD();
-
-#if defined(LOG_TELEMETRY)
-    f_close(&g_telemetryFile);
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_close(&g_bluetoothFile);
-#endif
-
-    f_mount(nullptr, "", 0); // unmount SD
-  }
-}
-#endif
-
-uint32_t sdMounted()
-{
-  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
-}
-
-uint32_t sdIsHC()
-{
-  return true; // TODO (CardType & CT_BLOCK);
-}
-
-uint32_t sdGetSpeed()
-{
-  return 330000;
 }

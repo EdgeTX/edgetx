@@ -197,7 +197,7 @@ void per10ms()
   if (mixWarning & 4) if(((g_tmr10ms&0xFF)==128) || ((g_tmr10ms&0xFF)==136) || ((g_tmr10ms&0xFF)==144)) AUDIO_MIX_WARNING(3);
 #endif
 
-#if defined(SDCARD)
+#if defined(SDCARD) && defined(PCBTARANIS)
   sdPoll10ms();
 #endif
 
@@ -645,8 +645,9 @@ static void checkRTCBattery()
 }
 
 void checkSDfreeStorage() {
-  if(IS_SDCARD_FULL())
+  if(sdIsFull()) {
     ALERT(STR_SD_CARD, STR_SDCARD_FULL, AU_ERROR);
+  }
 }
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)

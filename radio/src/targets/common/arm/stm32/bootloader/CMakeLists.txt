@@ -25,7 +25,6 @@ set(BOOTLOADER_SRC
   ../../../../../${FATFS_DIR}/ffunicode.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
-  ../../../../../targets/${TARGET_DIR}/diskio.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
@@ -42,6 +41,7 @@ set(BOOTLOADER_SRC
   ../stm32_serial_driver.cpp
   ../stm32_usart_driver.cpp
   ../stm32_gpio_driver.cpp
+  ../stm32_dma.cpp
   init.c
   boot.cpp
   bin_files.cpp
@@ -77,7 +77,8 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
-    ../../../../../targets/common/arm/stm32/sdio_sd.c
+    ../../../../../targets/common/arm/stm32/sdio_sd.cpp
+    ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
@@ -119,6 +120,7 @@ else()
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../targets/${TARGET_DIR}/eeprom_driver.cpp
+    ../../../../../targets/${TARGET_DIR}/diskio.cpp
     )
   remove_definitions(-DDEBUG)
 endif()

@@ -246,9 +246,6 @@ enum RotaryEncoderMode {
 #define CASE_JACK_DETECT(x)
 #endif
 
-#if defined(DISK_CACHE)
-  #include "disk_cache.h"
-#endif
 
 #include "debug.h"
 
@@ -1050,10 +1047,6 @@ inline uint8_t GET_TXBATT_BARS(uint8_t barsMax)
 inline bool IS_TXBATT_WARNING()
 {
   return g_vbat100mV <= g_eeGeneral.vBatWarn;
-}
-
-inline bool IS_SDCARD_FULL() {
-  return sdGetFreeSectors() < ((50 *1024*1024) / BLOCK_SIZE); // 50MB safety margin
 }
 
 enum TelemetryViews {

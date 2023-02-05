@@ -28,6 +28,13 @@
 
 #include <string.h>
 
+
+#if FF_MAX_SS != FF_MIN_SS
+#error "Variable sector size is not supported"
+#endif
+
+#define BLOCK_SIZE FF_MAX_SS
+
 #if !defined(BOOT)
   #include "timers_driver.h"
   #define WATCHDOG_SUSPEND(x) watchdogSuspend(x)

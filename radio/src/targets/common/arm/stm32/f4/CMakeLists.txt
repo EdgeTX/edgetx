@@ -15,6 +15,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_exti.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_sdmmc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_adc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_spi.c
     # HAL drivers
@@ -25,6 +26,8 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c_ex.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_sd.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_dma.c
     )
 
   target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
@@ -64,7 +67,6 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_ltdc.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
-    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
     )
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
