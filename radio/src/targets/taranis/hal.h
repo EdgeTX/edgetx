@@ -1710,10 +1710,9 @@
   // #define INTMODULE_DMA                   NULL
   // #define INTMODULE_DMA_CHANNEL           0
   // #define INTMODULE_DMA_STREAM            0
-  // TODO: RX DMA seems to be buggy together with passthrough
-  // #define INTMODULE_RX_DMA                DMA1
-  // #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
-  // #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
   #if defined(RADIO_TLITE)
     #define INTMODULE_BOOTCMD_GPIO          GPIOA
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PA.05
