@@ -1831,6 +1831,13 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
   yaml_put_bits(data, i, bitoffs, 1);
 }
 
+static void r_carryTrim(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  int32_t i = yaml_str2int(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 6);
+}
+
 static void r_rotEncDirection(void* user, uint8_t* data, uint32_t bitoffs,
                            const char* val, uint8_t val_len)
 {

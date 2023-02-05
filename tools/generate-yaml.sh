@@ -9,7 +9,7 @@ if [[ -n ${GCC_ARM} ]] ; then
   export PATH=${GCC_ARM}:$PATH
 fi
 
-: ${FLAVOR:="t12;t8;tlite;tpro;lr3pro;tx12;tx12mk2;zorro;tx16s;x12s;nv14;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
+: ${FLAVOR:="t12;t8;tlite;tpro;lr3pro;tx12;tx12mk2;boxer;zorro;tx16s;x12s;nv14;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DYAML_STORAGE=YES "}
