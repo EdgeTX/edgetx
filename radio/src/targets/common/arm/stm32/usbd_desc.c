@@ -58,7 +58,7 @@
 #define USBD_VID_PID_CODES                  0x1209    // https://pid.codes
 
 #define USBD_LANGID_STRING                  0x409
-#define USBD_MANUFACTURER_STRING            "OpenTX"
+#define USBD_MANUFACTURER_STRING            "EdgeTX"
 #define USBD_SERIALNUMBER_FS_STRING         "00000000001B"
 
 #if defined(BOOT)

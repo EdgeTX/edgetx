@@ -44,6 +44,7 @@ option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
+option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
@@ -58,6 +59,7 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
+option(FWDRIVE "Attach also firmware drive with USB" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -365,6 +367,11 @@ if(TRACE_LUA_INTERNALS)
   add_definitions(-DTRACE_LUA_INTERNALS_ENABLED)
 endif()
 
+if(DEBUG_SEGGER_RTT)
+    add_definitions(-DDEBUG_SEGGER_RTT)
+    set(SRC ${SRC} ${THIRDPARTY_DIR}/Segger_RTT/RTT/SEGGER_RTT.c)
+endif()
+
 if(DEBUG_WINDOWS)
   add_definitions(-DDEBUG_WINDOWS)
 endif()
@@ -447,6 +454,10 @@ else()
 endif()
 add_definitions(-DDEFAULT_TEMPLATE_SETUP=${DEFAULT_TEMPLATE_SETUP})
 
+if(FWDRIVE)
+  add_definitions(-DFWDRIVE)
+endif()
+
 set(SRC
   ${SRC}
   opentx.cpp
@@ -520,7 +531,7 @@ if(NATIVE_BUILD)
   target_compile_options(radiolib_native PUBLIC -DSIMU)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
-  
+
   add_subdirectory(targets/simu)
   add_subdirectory(tests)
 endif()

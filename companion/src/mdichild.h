@@ -34,6 +34,7 @@
 #include <QListWidget>
 
 class QToolBar;
+class StatusDialog;
 
 namespace Ui {
 class MdiChild;
@@ -95,7 +96,7 @@ class MdiChild : public QWidget
     bool saveAs(bool isNew=false);
     bool saveFile(const QString & fileName, bool setCurrent=true);
     void closeFile(bool force = false);
-    void writeSettings();
+    void writeSettings(StatusDialog * status);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 

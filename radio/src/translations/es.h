@@ -65,7 +65,7 @@
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Exponencial"),TR("ExFino","Extra fino")"Fino","Medio","Grueso"
 #define TR_VDISPLAYTRIMS       "No","Cambiar","Si"
-#define TR_VBEEPCOUNTDOWN      "Silencio","Beeps","Voz","Haptic"
+#define TR_VBEEPCOUNTDOWN      "Silencio", "Beeps", "Voz", "Haptic", TR2_2("B & H","Beeps & Haptic"),TR2_2("V & H", "Voz & Haptic")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tono","Silencio"
 #define TR_CURVE_TYPES         "Normal","Custom"
@@ -361,6 +361,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequencia"
 #define TR_SWITCH              TR("Interr.", "Interruptor")
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Inicio"
 #define TR_FADEOUT             "Final"
@@ -774,6 +775,8 @@
 #define TR_SAMPLE_MODE         "Modo de muestra"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 #define TR_LOADING                     "Loading..."
+#define TR_DELETE_THEME                "Delete Theme?"
+#define TR_SAVE_THEME                  "Save Theme?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"
@@ -947,6 +950,8 @@
 #define TR_TELEMETRY_TYPE      TR("Tipo", "Tipo telemetría")
 #define TR_TELEMETRY_SENSORS   "Sensores"
 #define TR_VALUE               "Valor"
+#define TR_PERIOD              "Period"
+#define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER         "Timer LCD superior"
@@ -1043,13 +1048,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "Centrado PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Simétrica"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Función"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "Interrup. AND"
-#define TR_LSW_HEADERS_DURATION        "Duración"
-#define TR_LSW_HEADERS_DELAY           "Retardo"
 
 #define TR_GVAR_HEADERS_NAME          "Nombre"
 #define TR_GVAR_HEADERS_FM0           "Valor en FM0"

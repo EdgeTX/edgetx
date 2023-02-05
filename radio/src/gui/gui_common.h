@@ -145,8 +145,6 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
 void drawSourceCustomValue(coord_t x, coord_t y, source_t channel, int32_t val, LcdFlags flags=0);
 void drawSourceValue(coord_t x, coord_t y, source_t channel, LcdFlags flags=0);
 
-int convertMultiToOtx(int type);
-
 // model_setup Defines that are used in all uis in the same way
 #define IF_INTERNAL_MODULE_ON(x)                  (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
 #define IF_MODULE_ON(moduleIndex, x)              (IS_MODULE_ENABLED(moduleIndex) ? (uint8_t)(x) : HIDDEN_ROW)
@@ -285,10 +283,6 @@ inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
   int proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    return true;
-  }
 
   if (status.isValid()) {
     TRACE("(%d) status.protocolSubNbr = %d", proto, status.protocolSubNbr);

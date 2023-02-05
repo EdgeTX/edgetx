@@ -153,6 +153,7 @@ const char STR_PPMFRAME[] = TR_PPMFRAME;
 const char STR_REFRESHRATE[] = TR_REFRESHRATE;
 const char STR_MS[] = TR_MS;
 const char STR_SWITCH[] = TR_SWITCH;
+const char STR_SF_SWITCH[] = TR_SF_SWITCH;
 const char STR_TRIMS[] = TR_TRIMS;
 const char STR_MIRROR[]  = TR_MIRROR;
 const char STR_FADEIN[] = TR_FADEIN;
@@ -673,6 +674,8 @@ const char STR_DISABLE_ALARM[] = TR_DISABLE_ALARM;
 const char STR_TELEMETRY_TYPE[] = TR_TELEMETRY_TYPE;
 const char STR_TELEMETRY_SENSORS[] = TR_TELEMETRY_SENSORS;
 const char STR_VALUE[] = TR_VALUE;
+const char STR_PERIOD[] = TR_PERIOD;
+const char STR_INTERVAL[] = TR_INTERVAL;
 const char STR_REPEAT[] = TR_REPEAT;
 const char STR_ENABLE[] = TR_ENABLE;
 const char STR_TOPLCDTIMER[] = TR_TOPLCDTIMER;
@@ -820,6 +823,8 @@ const char STR_LEFT_STICK[] = TR_LEFT_STICK;
 const char STR_SHOW_MIXER_MONITORS[] = TR_SHOW_MIXER_MONITORS;
 const char STR_MODEL_QUICK_SELECT[] = TR_MODEL_QUICK_SELECT;
 const char STR_LOADING[] = TR_LOADING;
+const char STR_DELETE_THEME[] = TR_DELETE_THEME;
+const char STR_SAVE_THEME[] = TR_SAVE_THEME;
 #endif
 
 #if !defined(COLORLCD)

@@ -70,7 +70,7 @@
 #define TR_MULTI_CUSTOM                "Tilpasset"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Ekstra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS               "Nej","Ændre","Ja"
-#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Vibration"
+#define TR_VBEEPCOUNTDOWN              "Stille","Bip","Stemme","Vibration",TR2_2("B & V","Bips & Vibration"),TR2_2("St & Vib","Stemme & Vibration")
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"
@@ -364,6 +364,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "Frekvens"
 #define TR_SWITCH                      "Kontakt"
+#define TR_SF_SWITCH                   "Udløser"
 #define TR_TRIMS                       "Trim"
 #define TR_FADEIN                      "Tone ind"
 #define TR_FADEOUT                     "Tone ud"
@@ -568,8 +569,8 @@
   #define TR_MENULIMITS                "UDGANGE"
 #define TR_MENUCURVES                  "KURVER"
 #define TR_MENUCURVE                   "KURVE"
-#define TR_MENULOGICALSWITCH           "LOGISK KONTAKT"
-#define TR_MENULOGICALSWITCHES         "LOGISKE KONTAKTER"
+#define TR_MENULOGICALSWITCH           "LOGISK FUNKTION"
+#define TR_MENULOGICALSWITCHES         "LOGISKE FUNKTIONER"
 #define TR_MENUCUSTOMFUNC              "SPECIALFUNKTIONER"
 #define TR_MENUCUSTOMSCRIPTS           "TILPASSET SCRIPT"
 #define TR_MENUTELEMETRY               "TELEMETRI"
@@ -580,7 +581,7 @@
 #define TR_MONITOR_CHANNELS2           "KANAL MONITOR 9-16"
 #define TR_MONITOR_CHANNELS3           "KANAL MONITOR 17-24"
 #define TR_MONITOR_CHANNELS4           "KANAL MONITOR 25-32"
-#define TR_MONITOR_SWITCHES            "LOGISK KONTAKT MONITOR"
+#define TR_MONITOR_SWITCHES            "LOGISK FUNKTION MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Udgange"
 #define TR_MONITOR_MIXER_DESC          "Mix"
 #define TR_RECEIVER_NUM                TR("RxNr", "Rx modtager Nr.")
@@ -649,7 +650,7 @@
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
 #define TR_FAVORITE_LABEL              "Favoritter"
-#define TR_MODELS_MOVED                "Unused models moved to"
+#define TR_MODELS_MOVED                "Ubrugte modeller flyttet til"
 #define TR_NEW_MODEL                   "Ny model"
 #define TR_INVALID_MODEL               "Ingen billede"
 #define TR_EDIT_LABELS                 "Ret type"
@@ -745,9 +746,9 @@
 #define TR_CAPAWARNING                 INDENT "Kapacitet lav"
 #define TR_TEMPWARNING                 INDENT "For varm"
 #define TR_TTL_WARNING                 "Advarsel: brug 3.3V logisk niveau"
-#define TR_FUNC                        "Funk"
-#define TR_V1                          "V1"
-#define TR_V2                          "V2"
+#define TR_FUNC                        "Funktion"
+#define TR_V1                          TR("V1", "Værdi 1")
+#define TR_V2                          TR("V2", "Værdi 2")
 #define TR_DURATION                    "Varighed"
 #define TR_DELAY                       "Forsinkelse"
 #define TR_SD_CARD                     "SD CARD"
@@ -780,6 +781,8 @@
 #define TR_SAMPLE_MODE                 "Måle tilstand"
 #define TR_SAMPLE_MODES                "Normal","EnBit"
 #define TR_LOADING                     "Indlæser..."
+#define TR_DELETE_THEME                "Slet tema?"
+#define TR_SAVE_THEME                  "Gem tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
@@ -953,6 +956,8 @@
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetri type")
 #define TR_TELEMETRY_SENSORS           "Sensorer"
 #define TR_VALUE                       "Værdi"
+#define TR_PERIOD                      "Periode"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Gentag"
 #define TR_ENABLE                      "Aktiver"
 #define TR_TOPLCDTIMER                 "Top LCD ur"
@@ -997,7 +1002,7 @@
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopi min/max ->alle",  "Kopier min/max/center til alle udgange")
 #define TR_COPY_TRIMS_TO_OFS           TR("Kopi trim->subtrim", "Kopier trim til subtrim")
 #define TR_INCDEC                      "Øg/sænk"
-#define TR_GLOBALVAR                   "Global var"
+#define TR_GLOBALVAR                   TR("Global var", "Global variabel")
 #define TR_MIXSOURCE                   "Mix kilde"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PERSISTENT_MAH              TR(INDENT "Varig mAh", INDENT "Varig mAh")
@@ -1044,13 +1049,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim tilstand"
 #define TR_INVERTED                    "Invers"
 
-#define TR_LSW_HEADERS_FUNCTION        "Funktion"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "OG kontakt"
-#define TR_LSW_HEADERS_DURATION        "Varighed"
-#define TR_LSW_HEADERS_DELAY           "Forsinkelse"
-
 #define TR_GVAR_HEADERS_NAME           "Navn"
 #define TR_GVAR_HEADERS_FM0            "Værdi ved FT0"
 #define TR_GVAR_HEADERS_FM1            "Værdi ved FT1"
@@ -1063,7 +1061,7 @@
 #define TR_GVAR_HEADERS_FM8            "Værdi ved FT8"
 
 // Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk kontakt", "Minimum SAND varighed for betingelse bliver sand" }
+#define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk funktion", "Minimum SAND varighed for betingelse bliver sand" }
 
 // Horus layouts and widgets
 #define TR_FIRST_CHANNEL               "Første kanal"
@@ -1173,7 +1171,7 @@
 #define TR_MENU_HELI                   STR_CHAR_CYC "Cyklisk"
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "Trim"
 #define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Kontakter"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Logiske kontakter"
+#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Logiske funktioner"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Træner"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Kanaler"
 #define TR_MENU_GVARS                  STR_CHAR_SLIDER "Globale Var"

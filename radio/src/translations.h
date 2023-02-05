@@ -97,6 +97,12 @@
 
 #define TR(x, y) TR2(x, y) // for compatibility
 
+#if LCD_W <= 212 && !defined(COLORLCD)
+  #define TR2_2(x, y) x
+#else
+  #define TR2_2(x, y) TR2(x, y)
+#endif
+
 #if defined(COLORLCD)
   #define BUTTON(x) x
   #define INDENT
@@ -274,6 +280,7 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
+extern const char STR_SF_SWITCH[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
 extern const char STR_FADEIN[];
@@ -736,6 +743,8 @@ extern const char STR_LEFT_STICK[];
 extern const char STR_SHOW_MIXER_MONITORS[];
 extern const char STR_MODEL_QUICK_SELECT[];
 extern const char STR_LOADING[];
+extern const char STR_DELETE_THEME[];
+extern const char STR_SAVE_THEME[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
@@ -888,7 +897,7 @@ extern const char STR_EXPONAME[];
 #endif
 
 #define TR_LIMITS_HEADERS { HINT(TR_LIMITS_HEADERS_NAME), HINT(TR_LIMITS_HEADERS_SUBTRIM), HINT(TR_LIMITS_HEADERS_MIN), HINT(TR_LIMITS_HEADERS_MAX), HINT(TR_LIMITS_HEADERS_DIRECTION), HINT(TR_LIMITS_HEADERS_CURVE), HINT(TR_LIMITS_HEADERS_PPMCENTER), HINT(TR_LIMITS_HEADERS_SUBTRIMMODE) }
-#define TR_LSW_HEADERS    { HINT(TR_LSW_HEADERS_FUNCTION), HINT(TR_LSW_HEADERS_V1), HINT(TR_LSW_HEADERS_V2), HINT(TR_LSW_HEADERS_V2), HINT(TR_LSW_HEADERS_ANDSW), HINT(TR_LSW_HEADERS_DURATION), HINT(TR_LSW_HEADERS_DELAY) }
+#define TR_LSW_HEADERS    { HINT(TR_FUNC), HINT(TR_V1), HINT(TR_V2), HINT(TR_V2), HINT(TR_AND_SWITCH), HINT(TR_DURATION), HINT(TR_DELAY) }
 #define TR_GVAR_HEADERS   { HINT(TR_GVAR_HEADERS_FM0), HINT(TR_GVAR_HEADERS_FM1), HINT(TR_GVAR_HEADERS_FM2), HINT(TR_GVAR_HEADERS_FM3), HINT(TR_GVAR_HEADERS_FM4), HINT(TR_GVAR_HEADERS_FM5), HINT(TR_GVAR_HEADERS_FM6), HINT(TR_GVAR_HEADERS_FM7), HINT(TR_GVAR_HEADERS_FM8) }
 
 #if LCD_W >= 212
@@ -1051,6 +1060,8 @@ extern const char STR_DISABLE_ALARM[];
 extern const char STR_TELEMETRY_TYPE[];
 extern const char STR_TELEMETRY_SENSORS[];
 extern const char STR_VALUE[];
+extern const char STR_PERIOD[];
+extern const char STR_INTERVAL[];
 extern const char STR_REPEAT[];
 extern const char STR_ENABLE[];
 extern const char STR_TOPLCDTIMER[];

@@ -74,7 +74,7 @@
 #define TR_MULTI_CUSTOM                 "Anpassad"
 #define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS                "Nej","Ändring","Ja"
-#define TR_VBEEPCOUNTDOWN               "Tyst","Pip","Röst","Vibrera"
+#define TR_VBEEPCOUNTDOWN               "Tyst", "Pip", "Röst", "Vibrera", TR2_2("P & Vib","Pips & Vibrera"),TR2_2("R & Vib","Röst & Vibrera")
 #define TR_VVARIOCENTER                 "Pip","Tyst"
 #define TR_CURVE_TYPES                  "Normal","Anpassad"
 
@@ -817,6 +817,8 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
+#define TR_DELETE_THEME                 "Radera tema?"
+#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"

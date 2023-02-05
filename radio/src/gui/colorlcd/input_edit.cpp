@@ -70,7 +70,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
   lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
   buildBody(form);
 
-  preview = new Curve(&body, rect_t{},
+  preview = new Curve(&body, rect_t{0, 0, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
@@ -78,9 +78,6 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
-
-  preview->setWidth(INPUT_EDIT_CURVE_WIDTH);
-  preview->setHeight(INPUT_EDIT_CURVE_HEIGHT);
 
   CurveEdit::SetCurrentSource(expoAddress(index)->srcRaw);
 }

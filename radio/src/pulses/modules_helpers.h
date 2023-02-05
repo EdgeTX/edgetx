@@ -44,16 +44,9 @@ extern uint32_t NV14internalModuleFwVersion;
 #define GHOST_CHANNELS_COUNT            16
 
 #if defined (MULTIMODULE)
-#define IS_D16_MULTI(module)                                                   \
-  (((g_model.moduleData[module].multi.rfProtocol ==                          \
-     MODULE_SUBTYPE_MULTI_FRSKY) &&                                            \
-    (g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16 ||          \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_8CH ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH ||  \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_CLONED)) || \
-   (g_model.moduleData[module].multi.rfProtocol ==                           \
-    MODULE_SUBTYPE_MULTI_FRSKYX2))
+#define IS_D16_MULTI(module)                                            \
+  ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
+   (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2))
 
 #define IS_R9_MULTI(module)                         \
   (g_model.moduleData[module].multi.rfProtocol == \
@@ -127,20 +120,19 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
 inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    return 7;
-  }
 
   uint8_t max_pdef = 0;
+  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition *pdef = getMultiProtocolDefinition(proto);
   if (pdef) {
     max_pdef = pdef->maxSubtype;
   }
+
   uint8_t max_status = 0;
   if (status.isValid()) {
     max_status = (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
   }
+
   return max(max_status, max_pdef);
 }
 

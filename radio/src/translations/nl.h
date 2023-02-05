@@ -66,7 +66,7 @@
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Exponentieel"),TR("ExFijn","Extra Fijn"),"Fijn","Medium","Grof"
 #define TR_VDISPLAYTRIMS       "Nee","Kort","Ja"
-#define TR_VBEEPCOUNTDOWN      "Stilte","Beeps","Spraak","Tril"
+#define TR_VBEEPCOUNTDOWN      "Stilte","Beeps","Spraak","Tril",TR2_2("B & T","Beeps & Tril"),TR2_2("Spr & Tr","Spraak & Tril")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tonen","Stilte"
 #define TR_CURVE_TYPES         "Standaard","Custom"
@@ -364,6 +364,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequency"
 #define TR_SWITCH              TR("Schak.", "Schakelaar")
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Fade in"
 #define TR_FADEOUT             "Fade out"
@@ -779,6 +780,8 @@
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal""OneBit"
 #define TR_LOADING                     "Loading..."
+#define TR_DELETE_THEME                "Delete Theme?"
+#define TR_SAVE_THEME                  "Save Theme?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"
@@ -951,6 +954,8 @@
 #define TR_TELEMETRY_TYPE      TR("Type", "Telemetrietype")
 #define TR_TELEMETRY_SENSORS   "Sensoren"
 #define TR_VALUE               "Waarde"
+#define TR_PERIOD              "Period"
+#define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
@@ -1052,13 +1057,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM-Midden"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Funktie"
-#define TR_LSW_HEADERS_V1              "Var1"
-#define TR_LSW_HEADERS_V2              "Var2"
-#define TR_LSW_HEADERS_ANDSW           "EN-Schakelaar"
-#define TR_LSW_HEADERS_DURATION        "Duur"
-#define TR_LSW_HEADERS_DELAY           "Vertraging"
 
 #define TR_GVAR_HEADERS_NAME          "Name"
 #define TR_GVAR_HEADERS_FM0           "Waarde bij FM0"

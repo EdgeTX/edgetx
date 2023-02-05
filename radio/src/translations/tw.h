@@ -64,7 +64,7 @@
 #define TR_MULTI_CUSTOM                "自定義"
 #define TR_VTRIMINC                     "指數","很小","較小","中等","較大"
 #define TR_VDISPLAYTRIMS                "不顯示","改變時","始終顯示"
-#define TR_VBEEPCOUNTDOWN               "靜音","蜂鳴","語音","震動"
+#define TR_VBEEPCOUNTDOWN               "靜音","蜂鳴","語音","震動","Beeps & Haptic","Voice & Haptic"
 #define TR_COUNTDOWNVALUES              "5秒","10秒","20秒","30秒"
 #define TR_VVARIOCENTER                 "音調","靜音"
 #define TR_CURVE_TYPES                  "標準","自定義"
@@ -360,6 +360,7 @@
 #define TR_MS                          "ms"
 #define TR_FREQUENCY                   INDENT "頻率"
 #define TR_SWITCH                      "開關"
+#define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微調"
 #define TR_FADEIN                      "漸入"
 #define TR_FADEOUT                     "漸出"
@@ -774,6 +775,8 @@
 #define TR_SAMPLE_MODE                 "採樣模式"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "加載中..."
+#define TR_DELETE_THEME                "刪除主題?"
+#define TR_SAVE_THEME                  "保存主題?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
@@ -947,6 +950,8 @@
 #define TR_TELEMETRY_TYPE              TR("類型", "回傳類型")
 #define TR_TELEMETRY_SENSORS           "傳感器"
 #define TR_VALUE                       "數值"
+#define TR_PERIOD                      "Period"
+#define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "循環"
 #define TR_ENABLE                      "啟用"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
@@ -1037,13 +1042,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM中點"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "微調模式"
 #define TR_INVERTED                    "反向"
-
-#define TR_LSW_HEADERS_FUNCTION        "功能"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "與開關"
-#define TR_LSW_HEADERS_DURATION        "持續時間"
-#define TR_LSW_HEADERS_DELAY           "延時"
 
 #define TR_GVAR_HEADERS_NAME           "名稱"
 #define TR_GVAR_HEADERS_FM0            "FM0值"

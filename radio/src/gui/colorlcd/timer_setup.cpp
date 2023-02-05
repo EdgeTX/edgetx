@@ -117,8 +117,28 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
-  new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
-             COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
+  new Choice(
+      box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1,
+      [=]() -> int {
+        int value = p_timer->countdownBeep;
+        if (p_timer->extraHaptic) {
+          value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        }
+        return (value);
+      },
+      [=](int value) {
+        if (value > COUNTDOWN_NON_HAPTIC_LAST + 1) {
+          p_timer->extraHaptic = 1;
+          p_timer->countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        } else {
+          p_timer->extraHaptic = 0;
+          p_timer->countdownBeep = value;
+        }
+        SET_DIRTY();
+        TRACE("value=%d\tcountdownBeep = %d\textraHaptic = %d", value,
+              p_timer->countdownBeep, p_timer->extraHaptic);
+      });
+
   new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
              GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
 

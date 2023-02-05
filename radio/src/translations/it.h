@@ -67,7 +67,7 @@
 #define TR_MULTI_CUSTOM        "Person."
 #define TR_VTRIMINC            "Exp","ExFine","Fine","Medio","Ampio "
 #define TR_VDISPLAYTRIMS       "No","Cambio","Si"
-#define TR_VBEEPCOUNTDOWN      "Niente","Suoni","Voce","Vibra"
+#define TR_VBEEPCOUNTDOWN      "Niente", "Suoni", "Voce", "Vibra", TR2_2("S & V","Suoni & Vibra"),TR2_2("V & V","Voce & Vibra")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tono","Silenz."
 #define TR_CURVE_TYPES         "Fisso","Modific."
@@ -367,6 +367,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequenza"
 #define TR_SWITCH              "Inter."
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Diss.In"
 #define TR_FADEOUT             "Diss.Out"
@@ -740,7 +741,7 @@
 #define TR_CAPAWARNING         INDENT "Capacità Bassa"
 #define TR_TEMPWARNING         INDENT "Temp. Alta"
 #define TR_TTL_WARNING         "Attenzione: usa livelli logici 3.3V"
-#define TR_FUNC                "Funz"
+#define TR_FUNC                "Funzione"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
 #define TR_DURATION            "Durata"
@@ -775,6 +776,8 @@
 #define TR_SAMPLE_MODE         "Modo Semplice"
 #define TR_SAMPLE_MODES        "Normale","OneBit"
 #define TR_LOADING             "Caricamento..."
+#define TR_DELETE_THEME        "Cancello Tema?"
+#define TR_SAVE_THEME          "Salvo Tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Selezione veloce modello"
@@ -948,6 +951,8 @@
 #define TR_TELEMETRY_TYPE      "Tipo Telemetria"
 #define TR_TELEMETRY_SENSORS   "Sensori"
 #define TR_VALUE               "Valore"
+#define TR_PERIOD              "Periodo"
+#define TR_INTERVAL            "Intervallo"
 #define TR_REPEAT                      "Ripeti"
 #define TR_ENABLE                      "Attivo"
 #define TR_TOPLCDTIMER         "Timer LCD Sup."
@@ -1043,13 +1048,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "Centro PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Simmetria"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Funzione"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "Inter. AND"
-#define TR_LSW_HEADERS_DURATION        "Durata"
-#define TR_LSW_HEADERS_DELAY           "Ritardo"
 
 #define TR_GVAR_HEADERS_NAME          "Nome"
 #define TR_GVAR_HEADERS_FM0           "Valore su FM0"

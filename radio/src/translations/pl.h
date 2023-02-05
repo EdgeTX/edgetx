@@ -65,7 +65,7 @@
 #define TR_MULTI_CUSTOM        "Custom"
 #define TR_VTRIMINC            TR("Expo","Expotencja"),TR("B.Dokł","B.Dokładny"),TR("Dokł.","Dokładny"),"Średni",TR("Zgrubn","Zgrubny")
 #define TR_VDISPLAYTRIMS       "Nie","Zmień","Tak"
-#define TR_VBEEPCOUNTDOWN      "Cichy","Pik","Dźwięk","Wibrac"
+#define TR_VBEEPCOUNTDOWN      "Cichy","Pik","Dźwięk","Wibrac",TR2_2("P & W","Pik & Wibrac"),TR2_2("Dzw & Wbr","Dźwięk & Wibrac")
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Ton","Cicho"
 #define TR_CURVE_TYPES         "Standard","Własny"
@@ -362,6 +362,7 @@
 #define TR_MS                  "ms"
 #define TR_FREQUENCY                   INDENT "Częstotl."
 #define TR_SWITCH              "Przełą"
+#define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
 #define TR_FADEIN              "Pojawia"
 #define TR_FADEOUT             "Zanik   "
@@ -736,7 +737,7 @@
 #define TR_CAPAWARNING         INDENT "Mała pojemność"
 #define TR_TEMPWARNING         INDENT "Przegrzanie"
 #define TR_TTL_WARNING         "Uwaga: use 3.3V logic levels"
-#define TR_FUNC                "Funkc"
+#define TR_FUNC                "Funkcja"
 #define TR_V1                  "V1"
 #define TR_V2                  "V2"
 #define TR_DURATION            "Czas trwania"
@@ -771,6 +772,8 @@
 #define TR_SAMPLE_MODE         "Sample Mode"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 #define TR_LOADING             "Ładowanie..."
+#define TR_DELETE_THEME        "Usunąć motyw?"
+#define TR_SAVE_THEME          "Zapisać motyw?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
@@ -943,6 +946,8 @@
 #define TR_TELEMETRY_TYPE      TR("Typ ", "Typ telemetrii")
 #define TR_TELEMETRY_SENSORS   "Czujniki"
 #define TR_VALUE               "Wartość"
+#define TR_PERIOD              "Okres"
+#define TR_INTERVAL            "Interwał"
 #define TR_REPEAT              "Powtórz"
 #define TR_ENABLE              "Włącz"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
@@ -1038,13 +1043,6 @@
 #define TR_LIMITS_HEADERS_PPMCENTER    "Środek PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Tryb subtrim"
 #define TR_INVERTED                    "Inverted"
-
-#define TR_LSW_HEADERS_FUNCTION        "Funkcja"
-#define TR_LSW_HEADERS_V1              "V1"
-#define TR_LSW_HEADERS_V2              "V2"
-#define TR_LSW_HEADERS_ANDSW           "Przeł. AND"
-#define TR_LSW_HEADERS_DURATION        "CzasTrwa"
-#define TR_LSW_HEADERS_DELAY           "Opóźn"
 
 #define TR_GVAR_HEADERS_NAME          "Nazwa"
 #define TR_GVAR_HEADERS_FM0           "Wartość w FM0"
