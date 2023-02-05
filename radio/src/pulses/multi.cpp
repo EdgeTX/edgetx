@@ -222,6 +222,7 @@ static void* multiInit(uint8_t module)
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg);
 
     if (!mod_st) {
+      cfg.polarity = ETX_Pol_Normal;
       mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &cfg);
     }
 
