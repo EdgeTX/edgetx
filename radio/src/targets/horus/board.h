@@ -48,7 +48,6 @@ PACK(typedef struct {
 extern HardwareOptions hardwareOptions;
 
 #if !defined(LUA_EXPORT_GENERATION)
-  #include "stm32f4xx_sdio.h"
   #include "stm32f4xx_dma2d.h"
   #include "stm32f4xx_ltdc.h"
   #include "stm32f4xx_fmc.h"

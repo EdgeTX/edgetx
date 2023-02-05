@@ -23,11 +23,8 @@
 #ifndef _SDIO_SD_H_
 #define _SDIO_SD_H_
 
-#include "board.h"
-
-#ifdef __cplusplus
- extern "C" {
-#endif
+#include <stdint.h>
+//#include "board.h"
 
 /* Includes ------------------------------------------------------------------*/
 typedef enum
@@ -94,7 +91,7 @@ typedef enum
 } SDTransferState;
 
 
-
+#if 0
 /**
   * @brief  Card Specific Data: CSD Register
   */
@@ -168,7 +165,7 @@ typedef struct
   uint16_t RCA;
   uint8_t CardType;
 } SD_CardInfo;
-
+#endif
 /**
   * @brief  SD detection on its memory slot
   */
@@ -188,11 +185,7 @@ SDTransferState SD_GetTransferState(void);
 SD_Error SD_WaitReadOperation(uint32_t timeout);
 SD_Error SD_WaitWriteOperation(uint32_t timeout);
 
-#ifdef __cplusplus
-}
-#endif
-
-extern SD_CardInfo SDCardInfo;
+//extern SD_CardInfo SDCardInfo;
 
 #endif // _SDIO_SD_H_
 

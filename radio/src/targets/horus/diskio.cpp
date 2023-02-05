@@ -85,14 +85,14 @@ DSTATUS disk_initialize (
     TRACE("SD_Init() failed: %d", res);
     stat |= STA_NOINIT;
   }
-
+#if 0
   TRACE("SD card info:");
   TRACE("sectors: %u", (uint32_t)(SDCardInfo.CardCapacity / 512));
   TRACE("type: %u", (uint32_t)(SDCardInfo.CardType));
   TRACE("EraseGrSize: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrSize));
   TRACE("EraseGrMul: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrMul));
   TRACE("ManufacturerID: %u", (uint32_t)(SDCardInfo.SD_cid.ManufacturerID));
-
+#endif
   return(stat);
 }
 

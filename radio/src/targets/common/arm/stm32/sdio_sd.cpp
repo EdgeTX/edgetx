@@ -18,10 +18,13 @@
  * GNU General Public License for more details.
  */
 
-#include "sdio_sd.h"
+#include "stm32_hal_ll.h"
+#include "stm32_hal.h"
+//#include "board.h"
 #include "debug.h"
+#include "sdio_sd.h"
 
-#define SDIO_STATIC_FLAGS               ((uint32_t)0x000005FF)
+//#define SDIO_STATIC_FLAGS               ((uint32_t)0x000005FF)
 #define SDIO_CMD0TIMEOUT                ((uint32_t)0x00010000)
 
 #define SD_OCR_ADDR_OUT_OF_RANGE        ((uint32_t)0x80000000)
@@ -38,7 +41,7 @@
 #define SD_OCR_GENERAL_UNKNOWN_ERROR    ((uint32_t)0x00080000)
 #define SD_OCR_STREAM_READ_UNDERRUN     ((uint32_t)0x00040000)
 #define SD_OCR_STREAM_WRITE_OVERRUN     ((uint32_t)0x00020000)
-#define SD_OCR_CID_CSD_OVERWRIETE       ((uint32_t)0x00010000)
+//#define SD_OCR_CID_CSD_OVERWRIETE       ((uint32_t)0x00010000)
 #define SD_OCR_WP_ERASE_SKIP            ((uint32_t)0x00008000)
 #define SD_OCR_CARD_ECC_DISABLED        ((uint32_t)0x00004000)
 #define SD_OCR_ERASE_RESET              ((uint32_t)0x00002000)
@@ -167,7 +170,7 @@ static uint32_t CSD_Tab[4], CID_Tab[4], RCA = 0;
 __IO uint8_t StopCondition = 0;
 __IO SD_Error TransferError = SD_OK;
 __IO uint8_t TransferEnd = 0, DMAEndOfTransfer = 0;
-SD_CardInfo SDCardInfo;
+//SD_CardInfo SDCardInfo;
 
 SDIO_InitTypeDef SDIO_InitStructure;
 SDIO_CmdInitTypeDef SDIO_CmdInitStructure;
@@ -185,39 +188,36 @@ static SD_Error FindSCR(uint16_t rca, uint32_t *pscr);
 SD_Error SD_PowerON(void);
 SDCardState SD_GetState(void);
 SD_Error SD_InitializeCards(void);
-SD_Error SD_GetCardInfo(SD_CardInfo *cardinfo);
+//SD_Error SD_GetCardInfo(SD_CardInfo *cardinfo);
 SD_Error SD_EnableWideBusOperation(uint32_t WideMode);
 SD_Error SD_SelectDeselect(uint32_t addr);
 SD_Error SD_StopTransfer(void);
 SD_Error SD_SendStatus(uint32_t *pcardstatus);
 
+SD_HandleTypeDef sdio;
+
 void SD_LowLevel_Init(void)
 {
-  GPIO_InitTypeDef  GPIO_InitStructure;
-
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_SDIO);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_SDIO);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SDIO);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_SDIO);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_SDIO);
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource2, GPIO_AF_SDIO);
+  LL_GPIO_InitTypeDef  GPIO_InitStructure;
+  LL_GPIO_StructInit(&GPIO_InitStructure);
 
   /* Configure PC.08, PC.09, PC.10, PC.11 pins: D0, D1, D2, D3 pins */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
+  GPIO_InitStructure.Alternate = LL_GPIO_AF_12; // SDIO
+  LL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
   /* Configure PD.02 CMD line */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_2;
+  LL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 
   /* Configure PC.12 pin: CLK pin */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_12;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
   /* Enable the SDIO APB2 Clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SDIO, ENABLE);
@@ -234,7 +234,7 @@ void SD_LowLevel_Init(void)
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
   NVIC_Init(&NVIC_InitStructure);
 }
-
+#if 0
 void SD_LowLevel_DMA_TxConfig(uint32_t * BufferSRC, uint32_t BufferSize)
 {
   DMA_InitTypeDef SDDMA_InitStructure;
@@ -305,7 +305,7 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
   /* DMA2 Stream3 or Stream6 enable */
   DMA_Cmd(SD_SDIO_DMA_STREAM, ENABLE);
 }
-
+#endif
 SD_Error SD_Init(void)
 {
   __IO SD_Error errorstatus = SD_OK;
@@ -313,7 +313,16 @@ SD_Error SD_Init(void)
   /* SDIO Peripheral Low Level Init */
   SD_LowLevel_Init();
 
-  SDIO_DeInit();
+  /*!< Configure the SDIO peripheral */
+  /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
+  /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
+  sdio.Instance = SDIO;
+  sdio.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
+  sdio.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
+  sdio.Init.BusWide = SDIO_BUS_WIDE_4B;
+  sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+  sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
+  HAL_SD_DeInit(&sdio);
 
   errorstatus = SD_PowerON();
   if (errorstatus != SD_OK) {
@@ -332,13 +341,8 @@ SD_Error SD_Init(void)
   /*!< Configure the SDIO peripheral */
   /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
   /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
-  SDIO_InitStructure.SDIO_ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
-  SDIO_InitStructure.SDIO_ClockEdge = SDIO_ClockEdge_Rising;
-  SDIO_InitStructure.SDIO_ClockBypass = SDIO_ClockBypass_Disable;
-  SDIO_InitStructure.SDIO_ClockPowerSave = SDIO_ClockPowerSave_Disable;
-  SDIO_InitStructure.SDIO_BusWide = SDIO_BusWide_1b;
-  SDIO_InitStructure.SDIO_HardwareFlowControl = SDIO_HardwareFlowControl_Disable;
-  SDIO_Init(&SDIO_InitStructure);
+  HAL_SD_Init(&sdio);
+
 
   /*----------------- Read CSD/CID MSD registers ------------------*/
   errorstatus = SD_GetCardInfo(&SDCardInfo);
@@ -354,6 +358,7 @@ SD_Error SD_Init(void)
 
   return errorstatus;
 }
+#if 0
 
 /**
   * @brief  Gets the cuurent sd card data transfer status.
@@ -2021,5 +2026,5 @@ void SD_SDIO_DMA_IRQHANDLER(void)
   DEBUG_INTERRUPT(INT_SDIO_DMA);
   SD_ProcessDMAIRQ();
 }
-
+#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
