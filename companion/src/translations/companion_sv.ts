@@ -757,7 +757,7 @@ Mode 4:
     </message>
     <message>
         <source>2 Positions Toggle</source>
-        <translation>2-lägen momentan</translation>
+        <translation>2 lägen momentan</translation>
     </message>
     <message>
         <source>2 Positions</source>
@@ -801,63 +801,63 @@ Mode 4:
     </message>
     <message>
         <source>P1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>P2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>P3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>S1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>POT1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F4</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>S2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LS</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RS</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TltX</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>TltY</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>S3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>6P</source>
@@ -865,35 +865,35 @@ Mode 4:
     </message>
     <message>
         <source>L1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>L2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>JSx</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>JSy</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>EX1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>EX2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>EX3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>EX4</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1433,7 +1433,7 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>Editing curve %1: %2</source>
-        <translation>Redigera kurva %1: %2</translation>
+        <translation>Redigerar kurva %1: %2</translation>
     </message>
 </context>
 <context>
@@ -6172,6 +6172,14 @@ Vill du fortsätta?</translation>
         <source>Checking for updates...</source>
         <translation>Kollar efter uppdateringar...</translation>
     </message>
+    <message>
+        <source>Writing models and settings to radio</source>
+        <translation>Skriver modeller och inställningar till radion</translation>
+    </message>
+    <message>
+        <source>In progress...</source>
+        <translation>Pågående...</translation>
+    </message>
 </context>
 <context>
     <name>MdiChild</name>
@@ -6418,15 +6426,15 @@ Vill du spara ändringarna?</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation>Visa inte detta meddelande igen</translation>
+        <translation type="vanished">Visa inte detta meddelande igen</translation>
     </message>
     <message>
         <source>Saved models and settings to radio</source>
-        <translation>Modeller och inställningar har sparats till radion</translation>
+        <translation type="vanished">Modeller och inställningar har sparats till radion</translation>
     </message>
     <message>
         <source>Error saving models and settings to radio!</source>
-        <translation>Fel uppstod när modeller och inställningar sparades till radion!</translation>
+        <translation type="vanished">Fel uppstod när modeller och inställningar sparades till radion!</translation>
     </message>
     <message>
         <source>Select a model template file</source>
@@ -6535,6 +6543,18 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Invalid file extension!</source>
         <translation>Ogiltigt filsuffix!</translation>
+    </message>
+    <message>
+        <source>Do not show this message again</source>
+        <translation>Visa inte detta meddelande igen</translation>
+    </message>
+    <message>
+        <source>Models and settings written to radio</source>
+        <translation>Modeller och inställningar skrivna till radion</translation>
+    </message>
+    <message>
+        <source>Error writing models and settings to radio!</source>
+        <translation>Fel vid skrivning av modeller och inställningar till radion!</translation>
     </message>
 </context>
 <context>
@@ -7934,7 +7954,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>SBUS output at VBat</source>
-        <translation>SBUS utdata på VBat</translation>
+        <translation></translation>
     </message>
     <message>
         <source>FrSky ACCESS ISRM</source>
@@ -8403,7 +8423,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Servo update rate</source>
-        <translation>Servouppdateringshastighet</translation>
+        <translation>Servouppdateringsfrekvens</translation>
     </message>
 </context>
 <context>
@@ -8576,7 +8596,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show this message again at next startup?</source>
-        <translation>Visa detta meddelande igen vid nästa programstart?</translation>
+        <translation>Visa detta meddelande vid nästa programstart?</translation>
     </message>
 </context>
 <context>
@@ -11078,7 +11098,7 @@ Tidsstämpel</translation>
     </message>
     <message>
         <source>VSpd</source>
-        <translation>Vert.hast.</translation>
+        <translation></translation>
     </message>
     <message>
         <source>m/s</source>
@@ -11393,6 +11413,14 @@ hh:mm:ss</translation>
     <message>
         <source>Show Remaining</source>
         <translation>Visa återstående</translation>
+    </message>
+    <message>
+        <source>Beeps and Haptic</source>
+        <translation>Pip och vibration</translation>
+    </message>
+    <message>
+        <source>Voice and Haptic</source>
+        <translation>Ljud och vibration</translation>
     </message>
 </context>
 <context>
