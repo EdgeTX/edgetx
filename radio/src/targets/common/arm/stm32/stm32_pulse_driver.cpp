@@ -168,7 +168,6 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
     LL_TIM_EnableAllOutputs(tim->TIMx);
   }
 
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
 }
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
@@ -240,7 +239,8 @@ void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)
   if (channel == LL_TIM_CHANNEL_CH1N)
     channel = LL_TIM_CHANNEL_CH1;
 
-  while(LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
+  while(LL_TIM_IsEnabledCounter(tim->TIMx) &&
+        LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
 }
 
 static void force_start_level(const stm32_pulse_timer_t* tim)
@@ -298,19 +298,24 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
 
-  // Enable DMA
-  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
-  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_SetCounter(tim->TIMx, 0);
+  // Reset counter close to overflow
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
+  } else {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
+  }
+
+  // only on PWM (preloads the first period)
+  if (ocmode == LL_TIM_OCMODE_PWM1)
+    LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+  
+  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
-  // Trigger update to effect the first DMA transation
+  // Trigger update to effect the first DMA transaction
   // and thus load ARR with the first duration
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
 
   // start timer
-  force_start_level(tim);
   LL_TIM_EnableCounter(tim->TIMx);
 }
 
@@ -329,6 +334,7 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 
+  // PWM mode with compare value = 0 then OCxRef is held at ‘0’
   set_compare_reg(tim, 0);
   set_oc_mode(tim, LL_TIM_OCMODE_PWM1);
 }
@@ -343,6 +349,7 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
 
   // Halt pulses by forcing to inactive level
   set_oc_mode(tim, LL_TIM_OCMODE_FORCED_INACTIVE);
+  LL_TIM_DisableCounter(tim->TIMx);
 }
 
 // input mode

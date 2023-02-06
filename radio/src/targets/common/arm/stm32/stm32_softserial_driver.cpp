@@ -427,29 +427,6 @@ static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
   if (st->pulse_inc == 2) length >>= 1;
 #endif
 
-  if (st->serial_size == 0) {
-    // 
-    // insert an additional period in case the number of transitions
-    // is odd, as we need an even number of toggles to return
-    // to the idle polarity at the end of the pulse train.
-    //
-    if ((length & 1) && !is_pxx1) {
-      *st->pulse_ptr = 255;
-#if defined(STM32_SUPPORT_32BIT_TIMERS)
-      st->pulse_ptr += st->pulse_inc;
-#else
-      st->pulse_ptr++;
-#endif
-      length++;
-    } else {
-#if defined(STM32_SUPPORT_32BIT_TIMERS)
-      *(st->pulse_ptr - st->pulse_inc) = 255;
-#else
-      *(st->pulse_ptr - 1) = 255;
-#endif
-    }
-  }
-
   return length;
 }
 
