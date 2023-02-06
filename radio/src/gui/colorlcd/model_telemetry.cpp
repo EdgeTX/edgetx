@@ -43,7 +43,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(14), LV_GRID_FR(6),
 static const lv_coord_t col_dsc2[] = {LV_GRID_FR(3), LV_GRID_FR(3), 8, LV_GRID_FR(8), 
                                      LV_GRID_TEMPLATE_LAST};
 #else                                     
-static const lv_coord_t col_dsc2[] = {28, 56, 8, LV_GRID_FR(1), 32,
+static const lv_coord_t col_dsc2[] = {28, 56, 8, LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 static const lv_coord_t col_dsc3[] = {LCD_W - 12,
@@ -58,6 +58,11 @@ static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1
 static const lv_coord_t col_dsc5[] = {LV_GRID_FR(5), LV_GRID_FR(4), LV_GRID_FR(4), LV_GRID_FR(4),
                                      LV_GRID_TEMPLATE_LAST};
 
+static const lv_coord_t row_dsc_b_id[] = {7, LV_GRID_CONTENT,
+                                          LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t row_dsc_b[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
 // Edit grid variants
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
@@ -67,11 +72,7 @@ static const lv_coord_t e_col_dsc2[] = {LV_GRID_FR(4), LV_GRID_FR(3), LV_GRID_FR
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t row_dsc_b_id[] = {7, LV_GRID_CONTENT,
-                                       LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t row_dsc_b[] = {LV_GRID_CONTENT,
-                                       LV_GRID_TEMPLATE_LAST};
 
 // Sensor value label that updates current value display
 class SensorValueLabel : public StaticText {
@@ -103,7 +104,7 @@ class SensorValueLabel : public StaticText {
         }
 
 #if LCD_H > LCD_W
-        if (s.size() >= 20) {
+        if (s.size() >= 30) {
           setFont(FONT(XS));
         } else {
           setFont(FONT(STD));
@@ -210,15 +211,13 @@ class SensorButton : public Button {
       if (showSensorId) {
         TelemetrySensor *sensor = &g_model.telemetrySensors[index];
         if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
-          sprintf(s, "ID: %d", sensor->instance);
-        } else {
-          sprintf(s, "");
+          sprintf(s, "  ID: %d", sensor->instance);
         }
 
         lbl = lv_label_create(lvobj);
         lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
         lv_obj_set_style_text_font(lbl, getFont(FONT(XXS)), 0);
-        lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 0, 1);
+        lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
 
         lv_label_set_text(lbl, s);
       }
@@ -575,11 +574,9 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
   });
 }
 
-#if LCD_W > LCD_H
-#define B_HEIGHT    32
-#else
-#define B_HEIGHT    44
-#endif
+#define B_HEIGHT    25
+
+#define ID_HEIGHT 7
 
 void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
@@ -621,9 +618,9 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   int buttonHight;
 
   if (showSensorId && !g_model.ignoreSensorIds)
-    buttonHight = 32;
+    buttonHight = B_HEIGHT + ID_HEIGHT;
   else
-    buttonHight = 25;
+    buttonHight = B_HEIGHT;
 
   for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
     if (g_model.telemetrySensors[idx].isAvailable()) {
@@ -853,9 +850,9 @@ std::string getGPSCoord(int32_t value, const char * direction, bool seconds=true
 std::string getGPSSensorValue(TelemetryItem & telemetryItem, LcdFlags flags)
 {
   if (flags & RIGHT)
-    return getGPSCoord(telemetryItem.gps.longitude, "EW", true) + " " + getGPSCoord(telemetryItem.gps.latitude, "NS", true);
+    return getGPSCoord(telemetryItem.gps.longitude, "EW", true) + "  " + getGPSCoord(telemetryItem.gps.latitude, "NS", true);
 
-  return getGPSCoord(telemetryItem.gps.latitude, "NS", true) + " " + getGPSCoord(telemetryItem.gps.longitude, "EW", true);
+  return getGPSCoord(telemetryItem.gps.latitude, "NS", true) + "  " + getGPSCoord(telemetryItem.gps.longitude, "EW", true);
 }
 
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags)
