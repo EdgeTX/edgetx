@@ -424,10 +424,9 @@ class SpecialFunctionEditPage : public Page
                    0, FUNC_MAX - 1,
                    GET_DEFAULT(CFN_FUNC(cfn)));
     functionChoice->setSetValueHandler([=](int32_t newValue) {
-      int enableState = CFN_ACTIVE(cfn);
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
-      CFN_ACTIVE(cfn) = enableState;
+      CFN_ACTIVE(cfn) = 1;
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });
