@@ -228,7 +228,12 @@ const etx_serial_driver_t STM32SoftSerialRxDriver = {
 
 static inline void _set_level(stm32_softserial_tx_state* st, uint8_t v)
 {
-  *st->pulse_ptr++ = v - 1;
+  *st->pulse_ptr = v - 1;
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+  st->pulse_ptr += st->pulse_inc;
+#else
+  ++st->pulse_ptr;
+#endif
 }
 
 // TODO:
@@ -363,6 +368,14 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
   stm32_pulse_init(tim, freq);
   stm32_pulse_config_output(tim, polarity, ocmode, cmp_val);
 
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    st->pulse_inc = 2;
+  } else {
+    st->pulse_inc = 1;
+  }
+#endif
+
   return hw_def;
 }
 
@@ -390,7 +403,7 @@ static void stm32_softserial_tx_send_byte(void* ctx, uint8_t byte)
 
 static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
 {
-  st->pulse_ptr = st->pulse_buffer;
+  st->pulse_ptr = (uint16_t*)st->pulse_buffer;
   bool is_pxx1 = (st->conv_byte == _conv_byte_pxx1);
 
   uint32_t size = st->serial_size;
@@ -409,7 +422,11 @@ static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
     st->conv_byte(st, *st->serial_data++);
   }
 
-  uint16_t length = st->pulse_ptr - st->pulse_buffer;
+  uint16_t length = st->pulse_ptr - (uint16_t*)st->pulse_buffer;
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+  if (st->pulse_inc == 2) length >>= 1;
+#endif
+
   if (st->serial_size == 0) {
     // 
     // insert an additional period in case the number of transitions
@@ -417,10 +434,19 @@ static uint16_t _fill_pulses(stm32_softserial_tx_state* st)
     // to the idle polarity at the end of the pulse train.
     //
     if ((length & 1) && !is_pxx1) {
-      *st->pulse_ptr++ = 255;
+      *st->pulse_ptr = 255;
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+      st->pulse_ptr += st->pulse_inc;
+#else
+      st->pulse_ptr++;
+#endif
       length++;
     } else {
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+      *(st->pulse_ptr - st->pulse_inc) = 255;
+#else
       *(st->pulse_ptr - 1) = 255;
+#endif
     }
   }
 
