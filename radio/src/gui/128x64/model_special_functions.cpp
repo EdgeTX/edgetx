@@ -207,6 +207,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) {
               CFN_FUNC(cfn) = checkIncDec(event, CFN_FUNC(cfn), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailable);
               if (checkIncDec_Ret) CFN_RESET(cfn);
+              CFN_ACTIVE(cfn) = 1;  // Enable if function is being changed
             }
           }
           else {
