@@ -28,7 +28,7 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 > [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
 
-> [Installation Guide](https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide)
+> [Installation Guide](https://edgetx.gitbook.io/edgetx-user-manual/edgetx-how-to/update-from-opentx-to-edgetx)
 
 > [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
 
