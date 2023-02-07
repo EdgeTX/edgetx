@@ -327,10 +327,17 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
 
 void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
 {
-  _half_duplex_output(usart);
-  
   // TODO: split into 2 steps to avoid blocking on send
   while (!LL_USART_IsActiveFlag_TXE(usart->USARTx));
+
+  if (usart->set_input) {
+    _half_duplex_output(usart);
+
+    // switch back to input after TC
+    LL_USART_ClearFlag_TC(usart->USARTx);
+    LL_USART_EnableIT_TC(usart->USARTx);
+  }
+
   LL_USART_TransmitData8(usart->USARTx, byte);
 }
 
