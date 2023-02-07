@@ -93,10 +93,23 @@ bool MultiFirmwareUpdateDriver::init()
     // TX on PPM (inverted softserial)
     etx_serial_init params(serialInitParams);
     params.direction = ETX_Dir_TX;
-    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SOFT_INV, &params);
+    params.polarity = ETX_Pol_Inverted;
+    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART, &params);
+    if (!mod_st) {
+      params.polarity = ETX_Pol_Normal;
+      mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SOFT_INV, &params);
+      if (!mod_st) return false;
+    }
     // RX on S.PORT (inverted softserial)
     params.direction = ETX_Dir_RX;
-    modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT_INV, &params);
+    params.polarity = ETX_Pol_Inverted;
+    if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params)) {
+      params.polarity = ETX_Pol_Normal;
+      if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT_INV, &params)) {
+        modulePortDeInit(mod_st);
+        return false;
+      }
+    }
   } else if (type == MULTI_TYPE_ELRS && module == EXTERNAL_MODULE) {
     // half-duplex on S.PORT USART
     mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &serialInitParams);
