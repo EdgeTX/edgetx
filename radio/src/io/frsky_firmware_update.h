@@ -149,6 +149,7 @@ class FrskyDeviceFirmwareUpdate {
     const uint8_t * readFrame(uint32_t timeout);
     bool waitState(State state, uint32_t timeout);
     void processFrame(const uint8_t * frame);
+    void sendDataTransfer(uint32_t* buffer);
 
     const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
     const char * sendPowerOn();

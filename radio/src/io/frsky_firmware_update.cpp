@@ -144,6 +144,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
     while (uart_drv->getByte(uart_ctx, &byte) == 0) {
       RTOS_WAIT_MS(1);
       if (elapsed++ >= timeout) {
+        TRACE("timeout in frame (len=%d)",len);
         return nullptr;
       }
     }
@@ -428,6 +429,16 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
   }
 }
 
+void FrskyDeviceFirmwareUpdate::sendDataTransfer(uint32_t* buffer)
+{
+  startFrame(PRIM_DATA_WORD);
+  uint32_t offset = (address & 1023) >> 2; // 32 bit word offset into buffer
+  *((uint32_t *)(frame + 2)) = buffer[offset];
+  frame[6] = address & 0x000000FF;
+  state = SPORT_DATA_TRANSFER;
+  sendFrame();
+}
+
 const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
     const char *filename, FIL *file, ProgressHandler progressHandler)
 {
@@ -449,6 +460,8 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
   startFrame(PRIM_CMD_DOWNLOAD);
   sendFrame();
 
+  uint8_t retries = 0;
+
   while (true) {
     if (f_read(file, buffer, 1024, &count) != FR_OK) {
         return STR_DEVICE_FILE_ERROR;
@@ -456,16 +469,19 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
 
     count >>= 2;
 
-    for (uint32_t i=0; i<count; i++) {
-      if (!waitState(SPORT_DATA_REQ, 2000)) {
+    for (uint32_t i = 0; i < count; i++) {
+
+      if (waitState(SPORT_DATA_REQ, 80)) {
+        retries = 4; // reset retries
+      } else if (retries > 0){
+        --retries;
+        TRACE("retrying last transfer (address=0x%04X)", address);
+      } else {
         return STR_DEVICE_DATA_REFUSED;
       }
-      startFrame(PRIM_DATA_WORD);
-      uint32_t offset = (address & 1023) >> 2; // 32 bit word offset into buffer
-      *((uint32_t *)(frame + 2)) = buffer[offset];
-      frame[6] = address & 0x000000FF;
-      state = SPORT_DATA_TRANSFER,
-      sendFrame();
+
+      sendDataTransfer(buffer);
+
       if (i == 0) {
         progressHandler(getBasename(filename), STR_WRITING, file->fptr, file->obj.objsize);
       }
