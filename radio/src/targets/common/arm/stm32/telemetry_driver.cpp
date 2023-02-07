@@ -48,7 +48,7 @@ static void telemetryInitDirPin()
   TELEMETRY_DIR_INPUT();
 }
 
-void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
+void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, bool noInv = false)
 {
   if (baudrate == 0) {
     USART_DeInit(TELEMETRY_USART);
@@ -87,7 +87,7 @@ void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(TELEMETRY_INV_GPIO, &GPIO_InitStructure);
 
-  if (noinv != 0) {
+  if (noInv) {
     TELEMETRY_TX_NORM();
     TELEMETRY_RX_NORM();
   } else {
@@ -170,7 +170,7 @@ void telemetryPortInitCommon(uint32_t baudrate, uint8_t mode, uint8_t noinv = 0)
 
 void telemetryPortInit(uint32_t baudrate, uint8_t mode)
 {
-  telemetryPortInitCommon(baudrate, mode, 0);
+  telemetryPortInitCommon(baudrate, mode, false);
 }
 
 // soft serial vars
@@ -183,7 +183,7 @@ static uint16_t probeTimeFromStartBit;
 void telemetryPortInvertedInit(uint32_t baudrate)
 {
 #if defined(PCBNV14)
-  telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, 1);
+  telemetryPortInitCommon(baudrate, TELEMETRY_SERIAL_DEFAULT, true);
 #else
   if (baudrate == 0) {
     NVIC_DisableIRQ(TELEMETRY_EXTI_IRQn);
