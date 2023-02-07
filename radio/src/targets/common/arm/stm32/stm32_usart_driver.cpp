@@ -599,8 +599,4 @@ void stm32_usart_tx_dma_isr(const stm32_usart_t* usart)
   //
   LL_USART_ClearFlag_TC(USARTx);
   LL_USART_EnableIT_TC(USARTx);
-
-  // if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT) {
-  //   outputTelemetryBuffer.reset();
-  // }
 }

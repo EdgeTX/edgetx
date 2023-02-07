@@ -516,10 +516,7 @@ const char *FrskyDeviceFirmwareUpdate::flashFirmware(
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
-  /* wait 2s off */
-  watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(2000);
-
+  watchdogSuspend(50 /*500ms*/);
   pulsesStart();
 
 // TODO: S.PORT power control
