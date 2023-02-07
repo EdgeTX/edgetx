@@ -104,7 +104,7 @@ class SensorValueLabel : public StaticText {
         }
 
 #if LCD_H > LCD_W
-        if (s.size() >= 30) {
+        if (s.size() > 28) {
           setFont(FONT(XS));
         } else {
           setFont(FONT(STD));
@@ -597,7 +597,14 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   auto subttl = new Subtitle(line, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
 
 #if LCD_H > LCD_W
-  lv_obj_set_grid_cell(subttl->getLvObj(), LV_GRID_ALIGN_START, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(subttl->getLvObj(), LV_GRID_ALIGN_START, 0, 2,
+                       LV_GRID_ALIGN_CENTER, 0, 1);
+#endif
+
+  auto idButton = new TextButton(line, rect_t{}, "Show sensorID");
+  lv_obj_set_grid_cell(idButton->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 2,
+                       LV_GRID_ALIGN_CENTER, 0, 1);
+#if LCD_H > LCD_W
   line = form->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
