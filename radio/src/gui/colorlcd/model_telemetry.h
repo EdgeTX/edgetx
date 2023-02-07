@@ -24,6 +24,10 @@
 
 #include "tabsgroup.h"
 
+#define B_HEIGHT 25
+
+#define ID_HEIGHT 7
+
 class ModelTelemetryPage: public PageTab {
   public:
     ModelTelemetryPage();
@@ -39,7 +43,9 @@ class ModelTelemetryPage: public PageTab {
     int lastKnownIndex = 0;
     uint8_t showSensorId = 0;
     bool refreshDisplay = false;
-    FormWindow * window = nullptr;
+    int _buttonHight = B_HEIGHT;
+    int _scrollOffset = 0;
+    FormWindow* window = nullptr;
 
     void editSensor(FormWindow * window, uint8_t index);
     void build(FormWindow * window, int8_t focusSensorIndex=-1);

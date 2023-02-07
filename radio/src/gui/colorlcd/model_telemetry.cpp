@@ -557,11 +557,12 @@ void ModelTelemetryPage::checkEvents()
 
 void ModelTelemetryPage::rebuild(FormWindow * window, int8_t focusSensorIndex)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
   window->clear();
   build(window, focusSensorIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  lv_obj_scroll_to_y(window->getLvObj(), scroll_y + _scrollOffset, LV_ANIM_OFF);
   lastKnownIndex = availableTelemetryIndex();
+  _scrollOffset = 0;
 }
 
 
@@ -570,13 +571,11 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
   lastKnownIndex = -1;
   Window * editWindow = new SensorEditWindow(index);
   editWindow->setCloseHandler([=]() {
+    _scrollOffset = 0;
     rebuild(window, index);
   });
 }
 
-#define B_HEIGHT    25
-
-#define ID_HEIGHT 7
 
 void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
@@ -615,18 +614,21 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 
   FlexGridLayout grid3(col_dsc3, row_dsc, 2);
  
-  int buttonHight;
+  int prevButtonHeight = _buttonHight;
+  _scrollOffset = 0;
 
   if (showSensorId && !g_model.ignoreSensorIds)
-    buttonHight = B_HEIGHT + ID_HEIGHT;
+    _buttonHight = B_HEIGHT + ID_HEIGHT;
   else
-    buttonHight = B_HEIGHT;
-
-  for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
+    _buttonHight = B_HEIGHT;
+    
+  for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++)
+  {
     if (g_model.telemetrySensors[idx].isAvailable()) {
       line = form->newLine(&grid3);
+      _scrollOffset += (_buttonHight - prevButtonHeight);
       auto button =
-          new SensorButton(line, rect_t{0, 0, LCD_W - 12, buttonHight}, idx,
+          new SensorButton(line, rect_t{0, 0, LCD_W - 12, _buttonHight}, idx,
                            showSensorId && !g_model.ignoreSensorIds);
 
       button->setPressHandler([=]() -> uint8_t {
