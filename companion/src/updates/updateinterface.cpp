@@ -406,7 +406,7 @@ void UpdateInterface::setFlavourLanguage()
 
   if (currVariant.size() > 1) {
     params->fwFlavour = currVariant.at(1);
-    // Companion registered firmware identifies (refer opentxinterface.cpp) do not always match the EdgeTX repo fw.json file
+    // Companion registered firmware identities (refer opentxinterface.cpp) do not always match the EdgeTX repo fw.json file
     const QMap<QString, QString> map = {
                                          { "x7access",   "x7-access"  },
                                          { "x9d+",       "x9dp"       },
