@@ -1464,6 +1464,9 @@ LROT_END(bitmap_mt, NULL, LROT_MASK_GC)
 
 LROT_BEGIN(bitmaplib, NULL, 0)
   LROT_FUNCENTRY( open, luaOpenBitmap )
+  LROT_FUNCENTRY( getSize, luaGetBitmapSize )
+  LROT_FUNCENTRY( resize, luaBitmapResize )
+  LROT_FUNCENTRY( toMask, luaBitmapTo8bitMask )
 LROT_END(bitmaplib, NULL, 0)
 
 extern "C" {
