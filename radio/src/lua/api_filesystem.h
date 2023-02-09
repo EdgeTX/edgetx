@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#define DIR_METATABLE "directory metatable"
+#include "definitions.h"
 
-void registerDirIter(lua_State* L);
-int luaDir(lua_State* L);
-int luaFstat(lua_State* L);
+#define DIR_METATABLE "DIR*"
+
+EXTERN_C(LUALIB_API int luaopen_etxdir(lua_State* L));
