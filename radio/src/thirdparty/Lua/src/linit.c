@@ -42,6 +42,10 @@ extern LROT_TABLE(lcdlib);
 extern LROT_TABLE(modellib);
 extern LROT_TABLE(bitmaplib);
 
+#if defined(COLORLCD)
+extern LROT_TABLE(tablib);
+#endif
+
 /* _G __index -> rotables __index -> _index_hook_fct */
 extern LROT_TABLE(rotables_meta);
 extern LROT_TABLE(base_func);
@@ -94,6 +98,9 @@ LROT_BEGIN(rotables, LROT_TABLEREF(rotables_meta), 0)
   LROT_TABENTRY( model, modellib )
   LROT_TABENTRY( bitmap, bitmaplib )
   LROT_TABENTRY( Bitmap, bitmaplib ) /* TODO: obsolete after 2.9 */
+#if defined(COLORLCD)
+  LROT_TABENTRY( table, tablib )
+#endif
   LROT_TABENTRY( ROM, rotables )
 LROT_END(rotables, LROT_TABLEREF(rotables_meta), 0)
 
@@ -103,10 +110,10 @@ LROT_BEGIN(lua_libs, NULL, 0)
   LROT_FUNCENTRY( dir,       luaopen_etxdir )
   LROT_FUNCENTRY( bitmap_mt, luaopen_bitmap )
 #if defined(LUA_ENABLE_LOADLIB)
-  LROT_FUNCENTRY( package, luaopen_package )
+  LROT_FUNCENTRY( package,   luaopen_package )
 #endif
 #if defined(LUA_ENABLE_STRLIB_MT)
-  LROT_FUNCENTRY( string, luaopen_string )
+  LROT_FUNCENTRY( string,    luaopen_string )
 #endif
 LROT_END(lua_libs, NULL, 0)
 
