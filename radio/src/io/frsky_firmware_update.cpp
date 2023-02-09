@@ -554,8 +554,6 @@ const char * FrskyChipFirmwareUpdate::waitAnswer(uint8_t & status)
 {
   watchdogSuspend(CHIP_FIRMWARE_UPDATE_TIMEOUT);
 
-  uart_drv->enableRx(uart_ctx);
-
   uint8_t buffer[12];
   for (uint8_t i = 0; i < sizeof(buffer); i++) {
     uint32_t retry = 0;
