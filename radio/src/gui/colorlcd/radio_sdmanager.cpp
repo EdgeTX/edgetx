@@ -326,14 +326,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
           });
         }
 #endif
-#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
-        if (information.productFamily ==
-            FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
-          menu->addLine(STR_FLASH_POWER_MANAGEMENT_UNIT, [=]() {
-            FrSkyFirmwareUpdate(fullpath, STR_FLASH_POWER_MANAGEMENT_UNIT);
-          });
-        }
-#endif
 #endif  // _NYI_
       }
     }

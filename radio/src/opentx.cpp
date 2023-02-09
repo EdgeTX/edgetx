@@ -1544,13 +1544,6 @@ void opentxInit()
             f_unlink(AUTOUPDATE_FILENAME);
         }
 #endif
-#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
-        if (information.productFamily == FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT) {
-          FrskyChipFirmwareUpdate device;
-          if (device.flashFirmware(AUTOUPDATE_FILENAME, false) == nullptr)
-            f_unlink(AUTOUPDATE_FILENAME);
-        }
-#endif
       }
     }
 #endif

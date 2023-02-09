@@ -256,13 +256,6 @@ void onSdManagerMenu(const char * result)
     bluetooth.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
-#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
-  else if (result == STR_FLASH_POWER_MANAGEMENT_UNIT) {
-    getSelectionFullPath(lfn);
-    FrskyChipFirmwareUpdate device;
-    device.flashFirmware(lfn, drawProgressScreen);
-  }
-#endif
 #if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
   else if (result == STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA || result == STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA) {
     memclear(&reusableBuffer.sdManager.otaUpdateInformation, sizeof(OtaUpdateInformation));
@@ -478,10 +471,6 @@ void menuRadioSdManager(event_t _event)
 #if defined(BLUETOOTH)
               if (information.productFamily == FIRMWARE_FAMILY_BLUETOOTH_CHIP)
                 POPUP_MENU_ADD_ITEM(STR_FLASH_BLUETOOTH_MODULE);
-#endif
-#if defined(HARDWARE_POWER_MANAGEMENT_UNIT)
-              if (information.productFamily == FIRMWARE_FAMILY_POWER_MANAGEMENT_UNIT)
-                POPUP_MENU_ADD_ITEM(STR_FLASH_POWER_MANAGEMENT_UNIT);
 #endif
             }
           }

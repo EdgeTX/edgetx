@@ -159,28 +159,4 @@ class FrskyDeviceFirmwareUpdate {
     const char * endTransfer();
 };
 
-class FrskyChipFirmwareUpdate {
-  public:
-    FrskyChipFirmwareUpdate()
-    {
-    }
-
-    const char * flashFirmware(const char * filename, ProgressHandler progressHandler, bool wait = true);
-
-  protected:
-    etx_module_state_t* mod_st = nullptr;
-    const etx_serial_driver_t* uart_drv = nullptr;
-    void* uart_ctx = nullptr;
-
-    uint8_t crc;
-
-    void sendByte(uint8_t byte, bool crc = true);
-    const char * waitAnswer(uint8_t & status);
-    const char * startBootloader();
-    const char * sendUpgradeCommand(char command, uint32_t packetsCount);
-    const char * sendUpgradeData(uint32_t index, uint8_t * data);
-
-    const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
-};
-
 #endif // _FRSKY_FIRMWARE_UPDATE_H_
