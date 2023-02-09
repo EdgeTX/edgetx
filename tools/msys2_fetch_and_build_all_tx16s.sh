@@ -141,5 +141,9 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi
 
-echo "Finished. You can find the ${RADIO_TYPE} firmware in ~/edgetx/${SOURCE_DIR}/build-output/arm-none-eabi"
-echo "and Companion installer packet in ~/edgetx/${SOURCE_DIR}/build-output/native/companion"
+echo "Finished."
+echo ""
+echo "firmware (${RADIO_TYPE}): ~/edgetx/${SOURCE_DIR}/build-output/arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin"
+echo "Companion installer: ~/edgetx/${SOURCE_DIR}/build-output/native/companion/companion-windows-x.x.x.exe"
+echo "Companion          : ~/edgetx/${SOURCE_DIR}/build-output/native/Release/companion.exe"
+echo "Simulator          : ~/edgetx/${SOURCE_DIR}/build-output/native/Release/simulator.exe"
