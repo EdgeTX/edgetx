@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,15 +19,23 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include <stdint.h>
 
-#include "hal/serial_driver.h"
+enum PulseGenerationType {
+  ETX_PWM=0,
+  ETX_TOGGLE
+};
 
-#if defined(AUX_SERIAL)
-extern const etx_serial_driver_t AuxSerialDriver;
-#endif
+typedef struct {
+  uint8_t  type;
+  uint8_t  polarity;
+  uint16_t cmp_val;
+} etx_timer_config_t;
 
-#if defined(AUX2_SERIAL)
-extern const etx_serial_driver_t Aux2SerialDriver;
-#endif
-
+typedef struct {
+  void* (*init)(void* hw_def, const etx_timer_config_t* cfg);
+  void (*deinit)(void* ctx);
+  void (*send)(void* ctx, const etx_timer_config_t* cfg, const void* pulses, uint16_t length);
+} etx_timer_driver_t;

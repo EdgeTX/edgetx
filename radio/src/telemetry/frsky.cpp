@@ -20,35 +20,23 @@
  */
 
 #include "opentx.h"
-#include "aux_serial_driver.h"
 
-void processFrskyTelemetryData(uint8_t data)
-{
-  if (pushFrskyTelemetryData(data)) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      sportProcessTelemetryPacket(telemetryRxBuffer);
-    }
-    else {
-      frskyDProcessPacket(telemetryRxBuffer);
-    }
-  }
-}
-
-bool pushFrskyTelemetryData(uint8_t data)
+static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
+                                          uint8_t* buffer, uint8_t& len)
 {
   static uint8_t dataState = STATE_DATA_IDLE;
 
   switch (dataState) {
     case STATE_DATA_START:
       if (data == START_STOP) {
-        if (IS_FRSKY_SPORT_PROTOCOL()) {
+        if (is_sport) {
           dataState = STATE_DATA_IN_FRAME ;
-          telemetryRxBufferCount = 0;
+          len = 0;
         }
       }
       else {
-        if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-          telemetryRxBuffer[telemetryRxBufferCount++] = data;
+        if (len < TELEMETRY_RX_PACKET_SIZE) {
+          buffer[len++] = data;
         }
         dataState = STATE_DATA_IN_FRAME;
       }
@@ -59,39 +47,38 @@ bool pushFrskyTelemetryData(uint8_t data)
         dataState = STATE_DATA_XOR; // XOR next byte
       }
       else if (data == START_STOP) {
-        if (IS_FRSKY_SPORT_PROTOCOL()) {
+        if (is_sport) {
           dataState = STATE_DATA_IN_FRAME ;
-          telemetryRxBufferCount = 0;
-        }
-        else {
+          len = 0;
+        } else {
           // end of frame detected
           dataState = STATE_DATA_IDLE;
           return true;
         }
         break;
       }
-      else if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-        telemetryRxBuffer[telemetryRxBufferCount++] = data;
+      else if (len < TELEMETRY_RX_PACKET_SIZE) {
+        buffer[len++] = data;
       }
       break;
 
     case STATE_DATA_XOR:
-      if (telemetryRxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-        telemetryRxBuffer[telemetryRxBufferCount++] = data ^ STUFF_MASK;
+      if (len < TELEMETRY_RX_PACKET_SIZE) {
+        buffer[len++] = data ^ STUFF_MASK;
       }
       dataState = STATE_DATA_IN_FRAME;
       break;
 
     case STATE_DATA_IDLE:
       if (data == START_STOP) {
-        telemetryRxBufferCount = 0;
+        len = 0;
         dataState = STATE_DATA_START;
       }
       break;
 
   } // switch
 
-  if (IS_FRSKY_SPORT_PROTOCOL() && telemetryRxBufferCount >= FRSKY_SPORT_PACKET_SIZE) {
+  if (is_sport && len >= FRSKY_SPORT_PACKET_SIZE) {
     // end of frame detected
     dataState = STATE_DATA_IDLE;
     return true;
@@ -100,4 +87,16 @@ bool pushFrskyTelemetryData(uint8_t data)
   return false;
 }
 
+void processFrskyDTelemetryData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t& len)
+{
+  if (pushFrskyTelemetryData(false, data, buffer, len)) {
+    frskyDProcessPacket(module, buffer, len);
+  }
+}
 
+void processFrskySportTelemetryData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t& len)
+{
+  if (pushFrskyTelemetryData(true, data, buffer, len)) {
+    sportProcessTelemetryPacket(module, buffer, len);
+  }
+}

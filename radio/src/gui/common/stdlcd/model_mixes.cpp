@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "tasks/mixer_task.h"
 
 #define _STR_MAX(x)                     "/" #x
 #define STR_MAX(x)                     _STR_MAX(x)
@@ -49,17 +50,17 @@ bool reachMixesLimit()
 
 void deleteMix(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix, mix+1, (MAX_MIXERS-(idx+1))*sizeof(MixData));
   memclear(&g_model.mixData[MAX_MIXERS-1], sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void insertMix(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix+1, mix, (MAX_MIXERS-(idx+1))*sizeof(MixData));
   memclear(mix, sizeof(MixData));
@@ -72,16 +73,16 @@ void insertMix(uint8_t idx)
     }
   }
   mix->weight = 100;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void copyMix(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix+1, mix, (MAX_MIXERS-(idx+1))*sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -120,9 +121,9 @@ bool swapMixes(uint8_t & idx, uint8_t up)
     return true;
   }
 
-  pauseMixerCalculations();
+  mixerTaskStop();
   memswap(x, y, sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
 
   idx = tgt_idx;
   return true;

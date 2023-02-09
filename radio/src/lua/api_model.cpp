@@ -31,6 +31,10 @@
 #include <storage/sdcard_yaml.h>
 #endif
 
+#if defined(MULTIMODULE)
+#include "pulses/multi.h"
+#endif
+
 /*luadoc
 @function model.getInfo()
 

@@ -24,6 +24,9 @@
 #include "opentx.h"
 #include "draw_functions.h"
 
+#include "tasks.h"
+#include "tasks/mixer_task.h"
+
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};

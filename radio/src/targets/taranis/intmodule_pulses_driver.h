@@ -21,14 +21,7 @@
 
 #pragma once
 
-#if defined(PXX1)
-void intmodulePxx1PulsesStart();
-void intmoduleSendNextFramePxx1(const uint16_t* data, uint8_t size);
-#endif
+#include "stm32_pulse_driver.h"
 
-#if defined(INTERNAL_MODULE_PPM)
-void intmodulePpmStart();
-void intmoduleSendNextFramePPM(const uint8_t* data, uint8_t size);
-#endif
-
-void intmoduleStop();
+// used in module_ports.cpp
+extern const stm32_pulse_timer_t intmoduleTimer;

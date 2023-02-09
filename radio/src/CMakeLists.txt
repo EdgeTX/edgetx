@@ -472,6 +472,8 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
+  hal/module_port.cpp
+  tasks/mixer_task.cpp
   )
 
 if(GUI)

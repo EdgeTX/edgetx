@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aux_serial_driver.h"
 #include "hal/serial_port.h"
 
 #if !defined(BOOT)
@@ -39,10 +38,6 @@
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
-#endif
-
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
-  #include "extmodule_serial_driver.h"
 #endif
 
 #if defined(DEBUG_SEGGER_RTT)
@@ -182,7 +177,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
   void (*setRxCb)(void*, void (*)(uint8_t*, uint32_t)) = nullptr;
 
   const etx_serial_driver_t* drv = nullptr;
-  if (port) {
+  if (port && ctx) {
     drv = port->uart;
     if (drv) {
       sendByte = drv->sendByte;
@@ -227,7 +222,8 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #endif
 
   case UART_MODE_TELEMETRY:
-    telemetrySetGetByte(ctx, getByte);
+    // telemetrySetGetByte(ctx, getByte);
+
     // TODO: setRxCb (see MODE_LUA)
     //       de we really need telemetry
     //       input over USB VCP?
@@ -255,9 +251,24 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
+#if defined(CONFIGURABLE_MODULE_PORT)
   case UART_MODE_EXT_MODULE:
-    extmoduleSetSerialPort(drv);
+    if (port && !ctx) { // de-init
+      etx_module_port_t mod_port;
+      memset(&mod_port, 0, sizeof(mod_port));
+      auto mod_st = modulePortGetState(EXTERNAL_MODULE);
+      if (mod_st && mod_st->tx.hw_def == port->hw_def) {
+        // port is in use, let's stop it
+        mixerTaskStop();
+        pausePulses();
+        pulsesStopModule(EXTERNAL_MODULE);
+        modulePortConfigExtra(&mod_port);
+        resumePulses();
+        mixerTaskStart();
+      } else {
+        modulePortConfigExtra(&mod_port);
+      }
+    }
     break;
 #endif
 
@@ -291,45 +302,38 @@ static void serialSetupPort(int mode, etx_serial_init& params)
   case UART_MODE_TELEMETRY:
     if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
       params.baudrate = FRSKY_D_BAUDRATE;
-      params.rx_enable = true;
+      params.direction = ETX_Dir_RX;
     }
     break;
 
   case UART_MODE_SBUS_TRAINER:
     params.baudrate = SBUS_BAUDRATE;
-    params.word_length = ETX_WordLength_9;
-    params.parity = ETX_Parity_Even;
-    params.stop_bits = ETX_StopBits_Two;
-    params.rx_enable = true;
+    params.encoding = ETX_Encoding_8E2,
+    params.direction = ETX_Dir_RX;
     break;
 
 #if defined(LUA)
   case UART_MODE_LUA:
     params.baudrate = LUA_DEFAULT_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
 #if defined(INTERNAL_GPS)
   case UART_MODE_GPS:
     params.baudrate = GPS_USART_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
 #if defined(SPACEMOUSE)
   case UART_MODE_SPACEMOUSE:
     params.baudrate = SPACEMOUSE_BAUDRATE;
-    params.rx_enable = true;
+    params.direction = ETX_Dir_TX_RX;
     break;
 #endif
 
-#if defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
-  case UART_MODE_EXT_MODULE:
-    params.rx_enable = true;
-    break;
-#endif
-#endif
+#endif // BOOT
   }
 }
 
@@ -385,40 +389,57 @@ void serialInit(uint8_t port_nr, int mode)
     }
     if (state->mode != UART_MODE_NONE) {
       // Clear callbacks
-      serialSetCallBacks(state->mode, nullptr, nullptr);
+      serialSetCallBacks(state->mode, nullptr, state->port);
     }
     memset(state, 0, sizeof(SerialPortState));
   }
 
+#if defined(CONFIGURABLE_MODULE_PORT)
+  if (mode == UART_MODE_EXT_MODULE) {
+    etx_module_port_t mod_port = {
+      .port = ETX_MOD_PORT_EXTERNAL_UART,
+      .type = ETX_MOD_TYPE_SERIAL,
+      .dir_flags = ETX_MOD_DIR_TX_RX,
+      .drv = { .serial = port->uart },
+    };
+    modulePortConfigExtra(&mod_port);
+    state->mode = mode;
+    state->port = port;
+    return;
+  }
+#endif
+
   etx_serial_init params = {
     .baudrate = 0,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
-    .rx_enable = false,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Normal,
   };
 
   serialSetupPort(mode, params);
+
+  if (mode == UART_MODE_NONE ||
+      !port || params.baudrate == 0 ||
+      !port->uart || !port->uart->init)
+    return;
+  
+  auto hw_def = port->hw_def;
+  state->usart_ctx = port->uart->init(hw_def, &params);
+
+  // init failed
+  if (!state->usart_ctx) return;
+
+  state->mode = mode;
+  state->port = port;
+        
+  // Update callbacks once the port is setup
+  serialSetCallBacks(mode, state->usart_ctx, state->port);
 
 #if defined(SWSERIALPOWER)
   // Set power on/off
   if (port_nr < SP_VCP)
     serialSetPowerState(port_nr);
 #endif
-
-  state->mode = mode;
-
-  if (mode != UART_MODE_NONE) {
-    state->port = port;
-
-    if (port && params.baudrate != 0) {
-      if (port->uart && port->uart->init)
-        state->usart_ctx = port->uart->init(&params);
-    }
-
-    // Update callbacks once the port is setup
-    serialSetCallBacks(mode, state->usart_ctx, state->port);
-  }
 }
 
 void initSerialPorts()

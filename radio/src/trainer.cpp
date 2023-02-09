@@ -22,7 +22,6 @@
 #include "opentx.h"
 #include "hal/trainer_driver.h"
 #include "heartbeat_driver.h"
-#include "aux_serial_driver.h"
 
 int16_t ppmInput[MAX_TRAINER_CHANNELS];
 uint8_t ppmInputValidityTimer;

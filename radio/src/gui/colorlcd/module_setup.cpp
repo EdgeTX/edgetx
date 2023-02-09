@@ -751,7 +751,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
-  auto moduleChoice = new Choice(box, rect_t{}, STR_INTERNAL_MODULE_PROTOCOLS,
+  auto moduleChoice = new Choice(box, rect_t{}, STR_MODULE_PROTOCOLS,
                                  MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
                                  GET_DEFAULT(md->type));
 

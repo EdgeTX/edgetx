@@ -34,13 +34,15 @@ static tmr10ms_t lastLogTime = 0;
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
+#include "tasks/mixer_task.h"
+
 static TimerHandle_t loggingTimer = nullptr;
 static StaticTimer_t loggingTimerBuffer;
 
 static void loggingTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
-  if (!s_pulses_paused) {
+  if (!mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerLoggingWakeup);
     logsWrite();
     DEBUG_TIMER_STOP(debugTimerLoggingWakeup);

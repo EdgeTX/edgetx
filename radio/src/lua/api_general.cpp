@@ -25,7 +25,7 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-#include "aux_serial_driver.h"
+#include "hal/module_port.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -915,10 +915,20 @@ When called without parameters, it will only return the status of the output buf
 @status current Introduced in 2.2.0, retval nil added in 2.3.4
 */
 
+static bool _supports_sport(uint8_t module)
+{
+  return IS_NATIVE_FRSKY_PROTOCOL(module) ||
+    (isModuleMultimodule(module) &&
+     (IS_D16_MULTI(module) || IS_R9_MULTI(module)));
+}
+
 static int luaSportTelemetryPush(lua_State * L)
 {
+  bool extmod = _supports_sport(EXTERNAL_MODULE);
+  bool intmod = _supports_sport(INTERNAL_MODULE);
+  
   // dirty hack until 2 simultanous protocols are supported
-  if (isModuleCrossfire(INTERNAL_MODULE) || !IS_FRSKY_SPORT_PROTOCOL()) {
+  if (!extmod && !intmod) {
     lua_pushnil(L);
     return 1;
   }
@@ -966,9 +976,11 @@ static int luaSportTelemetryPush(lua_State * L)
       packet.dataId = dataId;
       packet.value = luaL_checkunsigned(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
-#if defined(PXX2)
-      uint8_t destination = (IS_INTERNAL_MODULE_ON() ? INTERNAL_MODULE : EXTERNAL_MODULE);
-      outputTelemetryBuffer.setDestination(isModulePXX2(destination) ? (destination << 2) : TELEMETRY_ENDPOINT_SPORT);
+#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
+      uint8_t destination = (intmod ? INTERNAL_MODULE : EXTERNAL_MODULE);
+      outputTelemetryBuffer.setDestination(isModulePXX2(destination)
+                                           ? (destination << 2)
+                                           : TELEMETRY_ENDPOINT_SPORT);
 #else
       outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
 #endif
@@ -1120,10 +1132,10 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaCrossfireTelemetryPush(lua_State * L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE);
+  bool external = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
   bool internal = (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
 
-  if (!internal && !sport) {
+  if (!internal && !external) {
     lua_pushnil(L);
     return 1;
   }
@@ -1218,9 +1230,8 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaGhostTelemetryPush(lua_State * L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST);
-
-  if (!sport) {
+  bool extmod = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_GHOST);
+  if (!extmod) {
     lua_pushnil(L);
     return 1;
   }
@@ -1242,18 +1253,20 @@ static int luaGhostTelemetryPush(lua_State * L)
       return 1;
     }
 
-    // Ghost frames are fixed 14B
-    outputTelemetryBuffer.pushByte(getGhostModuleAddr());         // addr (1B)
-    outputTelemetryBuffer.pushByte(12);           // len = payload length(10B) + type(1B) + crc(1B)
+    // Ghost frames are fixed 14B:
+    // address(1B) + len (1B) + type(1B) + payload(10B) + crc(1B)
+    // -> address + len up-front are inserted later
     outputTelemetryBuffer.pushByte(type);         // type (1B)
-    for (int i=0; i<length; i++) {                // data, max 10B
-      lua_rawgeti(L, 2, i+1);
+    int i = 0;
+    for (; i < length; i++) {                     // data, max 10B
+      lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    for (int i=0; i<10-length; i++) {             // fill zeroes to frame size
+    for (; i < 10; i++) {                         // fill zeroes to frame size
       outputTelemetryBuffer.pushByte(0);
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 11 ));  // Start at type, CRC over type (1B) + payload (10B)
+    // CRC over type (1B) + payload (10B)
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data, 11 ));
     outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }

@@ -22,7 +22,6 @@
 #include "crossfire.h"
 
 #include "opentx.h"
-#include "aux_serial_driver.h"
 
 const CrossfireSensor crossfireSensors[] = {
   {LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DB,                0},
@@ -62,19 +61,19 @@ const CrossfireSensor crossfireSensors[] = {
 const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
 {
   if (id == LINK_ID)
-    return crossfireSensors[RX_RSSI1_INDEX+subId];
+    return crossfireSensors[RX_RSSI1_INDEX + subId];
   else if (id == LINK_RX_ID)
-    return crossfireSensors[RX_RSSI_PERC_INDEX+subId];
+    return crossfireSensors[RX_RSSI_PERC_INDEX + subId];
   else if (id == LINK_TX_ID)
-    return crossfireSensors[TX_RSSI_PERC_INDEX+subId];
+    return crossfireSensors[TX_RSSI_PERC_INDEX + subId];
   else if (id == BATTERY_ID)
-    return crossfireSensors[BATT_VOLTAGE_INDEX+subId];
+    return crossfireSensors[BATT_VOLTAGE_INDEX + subId];
   else if (id == GPS_ID)
-    return crossfireSensors[GPS_LATITUDE_INDEX+subId];
+    return crossfireSensors[GPS_LATITUDE_INDEX + subId];
   else if (id == CF_VARIO_ID)
     return crossfireSensors[VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
-    return crossfireSensors[ATTITUDE_PITCH_INDEX+subId];
+    return crossfireSensors[ATTITUDE_PITCH_INDEX + subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)

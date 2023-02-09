@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "hal/serial_driver.h"
+#include "hal/module_driver.h"
 
-#define INTMODULE_USART_IRQ_PRIORITY 6
-
-extern const etx_serial_driver_t IntmoduleSerialDriver;
+extern const etx_proto_driver_t PpmDriver;

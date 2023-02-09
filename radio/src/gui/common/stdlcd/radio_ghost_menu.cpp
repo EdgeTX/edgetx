@@ -21,9 +21,9 @@
 
 #include "opentx.h"
 
-#if defined(GHOST)
-  #include "telemetry/ghost.h"
-#endif
+#if defined(GHOST) && defined(HARDWARE_EXTERNAL_MODULE)
+
+#include "telemetry/ghost.h"
 
 void menuGhostModuleConfig(event_t event)
 {
@@ -126,3 +126,5 @@ void menuGhostModuleConfig(event_t event)
     }
   }
 }
+
+#endif

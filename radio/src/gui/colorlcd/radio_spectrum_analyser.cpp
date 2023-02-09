@@ -281,15 +281,21 @@ void RadioSpectrumAnalyser::start()
 
 void RadioSpectrumAnalyser::stop()
 {
+#if defined(PXX2)
   if (isModulePXX2(moduleIdx)) {
     moduleState[moduleIdx].readModuleInformation(
         &reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID,
         PXX2_HW_INFO_TX_ID);
-  } else if (isModuleMultimodule(moduleIdx)) {
+  }
+#endif
+
+#if defined(MULTIMODULE)
+  if (isModuleMultimodule(moduleIdx)) {
     moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
     if (reusableBuffer.spectrumAnalyser.moduleOFF)
       setModuleType(INTERNAL_MODULE, MODULE_TYPE_NONE);
   }
+#endif
   /* wait 1s to resume normal operation before leaving */
   //  watchdogSuspend(1000);
   //  RTOS_WAIT_MS(1000);

@@ -23,23 +23,6 @@
 
 #include <stdint.h>
 
-void extmoduleStop();
-void extmodulePpmStart(uint16_t ppm_delay, bool polarity);
+#include "stm32_pulse_driver.h"
 
-#if defined(PXX1)
-void extmodulePxx1PulsesStart();
-void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length);
-#endif
-
-// Soft serial on PPM pin
-void extmoduleSerialStart();
-
-void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
-                               uint16_t ppm_delay, bool polarity);
-
-void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length,
-                                      bool polarity = true);
-
-// Bitbang serial
-void extmoduleInitTxPin();
-void extmoduleSendInvertedByte(uint8_t byte);
+extern const stm32_pulse_timer_t extmoduleTimer;

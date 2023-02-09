@@ -21,15 +21,9 @@
 
 #include "fifo.h"
 
-#define BT_TX_FIFO_SIZE 64
-#define BT_RX_FIFO_SIZE 256
-
-Fifo<uint8_t, BT_TX_FIFO_SIZE> btTxFifo;
-Fifo<uint8_t, BT_RX_FIFO_SIZE> btRxFifo;
-
 void bluetoothInit(unsigned int, bool) {}
+void bluetoothWrite(const void*, uint32_t) {}
+int bluetoothRead(uint8_t*) { return 0; }
 void bluetoothDisable() {}
-
-void bluetoothWriteWakeup() {}
 bool bluetoothIsWriting() { return false; }
 

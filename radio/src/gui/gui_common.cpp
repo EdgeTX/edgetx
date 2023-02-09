@@ -20,10 +20,7 @@
  */
 
 #include "opentx.h"
-
-#if defined(PXX2)
-  #include "extmodule_serial_driver.h"
-#endif
+#include "hal/module_port.h"
 
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 uint8_t switchToMix(uint8_t source)
@@ -726,12 +723,16 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
       // External XJT has a physical switch to disable S.PORT
     case MODULE_TYPE_R9M_PXX1:
       // R9M telemetry is disabled by pulses (pxx1.cpp)
+#if defined(HARDWARE_EXTERNAL_MODULE)
       if (moduleBay == EXTERNAL_MODULE)
         return false;
+#endif
 
     case MODULE_TYPE_CROSSFIRE:
+#if defined(HARDWARE_INTERNAL_MODULE)
       if (moduleBay == INTERNAL_MODULE)
         return false;
+#endif
       
     default:
       return true;
@@ -785,7 +786,7 @@ bool isInternalModuleAvailable(int moduleType)
   if (g_eeGeneral.internalModule != moduleType)
     return false;
 
-#if defined(INTERNAL_MODULE_PXX1)
+#if defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
   if ((moduleType == MODULE_TYPE_XJT_PXX1) &&
       isModuleUsingSport(EXTERNAL_MODULE,
                          g_model.moduleData[EXTERNAL_MODULE].type)) {
@@ -793,7 +794,7 @@ bool isInternalModuleAvailable(int moduleType)
   }
 #endif
 
-#if defined(INTERNAL_MODULE_PXX2)
+#if defined(INTERNAL_MODULE_PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
   if ((moduleType == MODULE_TYPE_ISRM_PXX2) &&
       areModulesConflicting(moduleType,
                             g_model.moduleData[EXTERNAL_MODULE].type)) {
@@ -854,7 +855,8 @@ bool isExternalModuleAvailable(int moduleType)
       moduleType == MODULE_TYPE_R9M_LITE_PRO_PXX2) {
 
 #if defined(PXX2)
-    return extmoduleGetSerialPort() != nullptr;
+    return modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                          ETX_MOD_PORT_UART, ETX_Pol_Normal);
 #else
     return false;
 #endif
@@ -916,22 +918,25 @@ bool isExternalModuleAvailable(int moduleType)
 
 bool isRfProtocolAvailable(int protocol)
 {
-#if defined(CROSSFIRE)
+#if defined(CROSSFIRE) && defined(HARDWARE_EXTERNAL_MODULE)
   if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_CROSSFIRE) {
     return false;
   }
 #endif
-#if defined(GHOST)
+
+#if defined(GHOST) && defined(HARDWARE_EXTERNAL_MODULE)
   if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_GHOST) {
     return false;
   }
 #endif
+
 #if !defined(MODULE_PROTOCOL_D8)
   if (protocol == MODULE_SUBTYPE_PXX1_ACCST_D8) {
     return false;
   }
 #endif
-#if defined(PCBTARANIS) || defined(PCBHORUS)
+
+#if (defined(PCBTARANIS) || defined(PCBHORUS)) && defined(HARDWARE_EXTERNAL_MODULE)
   if (protocol != MODULE_SUBTYPE_PXX1_OFF && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_PXX1) {
     return false;
   }
@@ -1029,7 +1034,7 @@ bool isTrainerModeAvailable(int mode)
     return false;
 #endif
 
-#if !defined(MULTIMODULE)
+#if !defined(MULTIMODULE) || !defined(HARDWARE_INTERNAL_MODULE) || !defined(HARDWARE_EXTERNAL_MODULE)
   if (mode == TRAINER_MODE_MULTI) 
     return false;
 #else

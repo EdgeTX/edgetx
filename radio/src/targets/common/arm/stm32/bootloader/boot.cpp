@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+  #include "stm32_serial_driver.h"
+#endif
+
 #include "board.h"
 #include "boot.h"
 #include "bin_files.h"
@@ -240,14 +245,15 @@ void bootloaderInitApp()
   keysInit();
 
 #if defined(SWSERIALPOWER)
-  #if defined(AUX_SERIAL)
-    void set_aux_pwr(uint8_t on);
-    set_aux_pwr(0);
-  #endif
-  #if defined(AUX2_SERIAL)
-    void set_aux2_pwr(uint8_t on);
-    set_aux2_pwr(0);
-  #endif
+  // TODO: replace with proper serial port query...
+  // #if defined(AUX_SERIAL)
+  //   void set_aux_pwr(uint8_t on);
+  //   set_aux_pwr(0);
+  // #endif
+  // #if defined(AUX2_SERIAL)
+  //   void set_aux2_pwr(uint8_t on);
+  //   set_aux2_pwr(0);
+  // #endif
 #endif
 
   // wait a bit for the inputs to stabilize...
