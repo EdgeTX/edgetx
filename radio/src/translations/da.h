@@ -916,9 +916,9 @@
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
 #define TR_ANADIAGS_CALIB              "Kalibreret analog"
-#define TR_ANADIAGS_FILTRAWDEV         "Filteret rå analog med deviation"
+#define TR_ANADIAGS_FILTRAWDEV         "Filteret rå analog med afvigelser"
 #define TR_ANADIAGS_UNFILTRAW          "Ufilteret rå analog"
-#define TR_ANADIAGS_MINMAX             "Min., max. and range"
+#define TR_ANADIAGS_MINMAX             "Min., max. og interval"
 #define TR_ANADIAGS_MOVE               "Flyt analoge til deres yderpunkter!"
 #define TR_SPEAKER                     INDENT "Højttaler"
 #define TR_BUZZER                      INDENT "Biper"
@@ -937,7 +937,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Registrer")
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
-#define TR_RECEIVER_OPTIONS            TR("MODT. TILVALG", "MODTAGER TILVALG")
+#define TR_RECEIVER_OPTIONS            TR("MODT. VALG", "MODTAGER VALG")
 #define TR_DEL_BUTTON                  BUTTON(TR("Sle", "Sletter"))
 #define TR_RESET_BTN                   BUTTON("Nulstil")
 #define TR_DEBUG                       "Fejlfind"

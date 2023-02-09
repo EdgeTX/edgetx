@@ -5483,15 +5483,15 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Fly sessions</source>
-        <translation>Flygninger</translation>
+        <translation>Flyvninger</translation>
     </message>
     <message>
         <source>Telemetry logs</source>
-        <translation>Telemetri logge</translation>
+        <translation>Telemetri log</translation>
     </message>
     <message>
         <source>Time (hh:mm:ss)</source>
-        <translation>Tid (hh:m:ss)</translation>
+        <translation>Tid (tt:mm:ss)</translation>
     </message>
     <message>
         <source>Plot Title Change</source>
@@ -11113,7 +11113,7 @@ Tidstempel</translation>
         <source>dd-MM-yyyy
 hh:mm:ss</source>
         <translation>dd-MM-åååå
-hh:mm:ss</translation>
+tt:mm:ss</translation>
     </message>
     <message>
         <source>Date</source>
