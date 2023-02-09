@@ -315,9 +315,9 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
       return STR_DEVICE_FILE_WRONG_SIG;
     }
 
-    if (information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE ||
-        information.productFamily == FIRMWARE_FAMILY_EXTERNAL_MODULE) {
-      port = ETX_MOD_PORT_UART;      
+    if (information.productFamily == FIRMWARE_FAMILY_INTERNAL_MODULE &&
+        information.productId == FIRMWARE_ID_MODULE_ISRM) {
+      port = ETX_MOD_PORT_UART;
     }
 
   } else if (module == INTERNAL_MODULE) {
