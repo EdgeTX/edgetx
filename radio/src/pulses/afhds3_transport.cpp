@@ -51,18 +51,9 @@ enum AfhdsSpecialChars {
                    // ESC_ESC  must be used
 };
 
-enum DeviceAddress
+void FrameTransport::init(void* buffer, uint8_t fAddr)
 {
-  TRANSMITTER = 0x01,
-  // MODULE = 0x03,
-  MODULE = 0x05,
-};
-
-//Address used in transmitted frames - it constrains of target address and source address
-const uint8_t FrameAddress = DeviceAddress::TRANSMITTER | (DeviceAddress::MODULE << 4);
-
-void FrameTransport::init(void* buffer)
-{
+  frameAddress = fAddr;
   trsp_buffer = (uint8_t*)buffer;
   clear();
 }
@@ -109,7 +100,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
   crc = 0;
   sendByte(START);
 
-  uint8_t buffer[] = {FrameAddress, frameIndex, frameType, command};
+  uint8_t buffer[] = {frameAddress, frameIndex, frameType, command};
   putBytes(buffer, 4);
 
   //payload
@@ -223,9 +214,9 @@ void CommandFifo::enqueue(COMMAND command, FRAME_TYPE frameType, bool useData,
   }
 }
 
-void Transport::init(void* buffer, etx_module_state_t* mod_st)
+void Transport::init(void* buffer, etx_module_state_t* mod_st, uint8_t fAddr)
 {
-  trsp.init(buffer);
+  trsp.init(buffer, fAddr);
   this->mod_st = mod_st;
 }
 

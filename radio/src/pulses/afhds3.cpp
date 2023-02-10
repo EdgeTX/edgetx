@@ -147,6 +147,13 @@ enum MODULE_POWER_SOURCE
   EXTERNAL = 0x02,
 };
 
+enum DeviceAddress
+{
+  TRANSMITTER = 0x01,
+  FRM303 = 0x04,
+  IRM301 = 0x05,
+};
+
 PACK(struct ModuleVersion
 {
   uint32_t productNumber;
@@ -183,7 +190,7 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-    void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st);
+    void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st, uint8_t fAddr);
 
     /**
      * Fills DMA buffers with frame to be send depending on actual state
@@ -468,10 +475,10 @@ void ProtoState::setupFrame()
   }
 }
 
-void ProtoState::init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st)
+void ProtoState::init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st, uint8_t fAddr)
 {
   module_index = moduleIndex;
-  trsp.init(buffer, mod_st);
+  trsp.init(buffer, mod_st, fAddr);
 
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
@@ -853,6 +860,7 @@ static void* initModule(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(_uartParams);
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000;
+  uint8_t fAddr = (module == INTERNAL_MODULE ? DeviceAddress::IRM301 : DeviceAddress::FRM303) << 4 | DeviceAddress::TRANSMITTER;
 
   params.baudrate = AFHDS3_UART_BAUDRATE;
   params.polarity =
@@ -871,7 +879,7 @@ static void* initModule(uint8_t module)
   if (!mod_st) return nullptr;
   
   auto p_state = &protoState[module];
-  p_state->init(module, pulsesGetModuleBuffer(module), mod_st);
+  p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
 
   mixerSchedulerSetPeriod(module, period);

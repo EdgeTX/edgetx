@@ -123,10 +123,11 @@ struct FrameTransport
   uint8_t* data_ptr;
 
   uint8_t crc;
+  uint8_t frameAddress;
   // uint8_t timeout;
   uint8_t esc_state;
 
-  void init(void* buffer);
+  void init(void* buffer, uint8_t fAddr);
   void clear();
 
   void sendByte(uint8_t b);
@@ -175,7 +176,7 @@ class Transport
   bool handleReply(uint8_t* buffer, uint8_t len);
   
  public:
-  void init(void* buffer, etx_module_state_t* mod_st);
+  void init(void* buffer, etx_module_state_t* mod_st, uint8_t fAddr);
 
   void clear();
   
