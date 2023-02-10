@@ -21,12 +21,12 @@
 
 #include <ctype.h>
 #include <stdio.h>
+
 #include "opentx.h"
-#include "bin_allocator.h"
 #include "lua_api.h"
+
 #include "widget.h"
 #include "libopenui_file.h"
-#include "api_colorlcd.h"
 #include "view_main.h"
 
 #include "lua_widget.h"
@@ -35,13 +35,6 @@
 #define MAX_INSTRUCTIONS       (20000/100)
 #define LUA_WARNING_INFO_LEN    64
 
-// #if defined(HARDWARE_TOUCH)
-// #include "touch.h"
-// #define EVT_TOUCH_SWIPE_LOCK     4
-// #define EVT_TOUCH_SWIPE_SPEED   60
-// #define EVT_TOUCH_SWIPE_TIMEOUT 50
-// #endif
-
 lua_State * lsWidgets = NULL;
 
 extern int custom_lua_atpanic(lua_State *L);
@@ -49,8 +42,7 @@ extern int custom_lua_atpanic(lua_State *L);
 #define LUA_WIDGET_FILENAME "/main.lua"
 #define LUA_FULLPATH_MAXLEN                  \
   (LEN_FILE_PATH_MAX + LEN_SCRIPT_FILENAME + \
-   LEN_FILE_EXTENSION_MAX)  // max length (example:
-                            // /SCRIPTS/THEMES/mytheme.lua)
+   LEN_FILE_EXTENSION_MAX)
 
 static void luaHook(lua_State *L, lua_Debug *ar)
 {

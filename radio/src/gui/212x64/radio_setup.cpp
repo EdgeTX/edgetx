@@ -22,6 +22,7 @@
 #define LANGUAGE_PACKS_DEFINITION
 
 #include "opentx.h"
+#include "tasks/mixer_task.h"
 
 const unsigned char sticks[]  = {
 #include "sticks.lbm"
@@ -623,10 +624,10 @@ void menuRadioSetup(event_t event)
           CHECK_INCDEC_GENVAR(event, reusableBuffer.generalSettings.stickMode, 0, 3);
         }
         else if (reusableBuffer.generalSettings.stickMode != g_eeGeneral.stickMode) {
-          pausePulses();
+          mixerTaskStop();
           g_eeGeneral.stickMode = reusableBuffer.generalSettings.stickMode;
           checkThrottleStick();
-          resumePulses();
+          mixerTaskStart();
           waitKeysReleased();
         }
         break;

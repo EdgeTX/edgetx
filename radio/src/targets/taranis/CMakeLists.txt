@@ -473,11 +473,6 @@ if(INTERNAL_MODULE_SERIAL)
   if(PXX_FREQUENCY STREQUAL HIGH)
     add_definitions(-DPXX_FREQUENCY_HIGH)
   endif()
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/stm32/intmodule_serial_driver.cpp
-    targets/common/arm/stm32/stm32_usart_driver.cpp
-    )
 
 else()
 
@@ -494,8 +489,6 @@ if(HARDWARE_EXTERNAL_MODULE)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/extmodule_driver.cpp
-    targets/common/arm/stm32/extmodule_serial_driver.cpp
-    targets/common/arm/stm32/stm32_usart_driver.cpp
     )
 endif()
 
@@ -598,6 +591,10 @@ set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
   targets/common/arm/loadboot.cpp
+  boards/generic_stm32/module_ports.cpp
+  boards/generic_stm32/aux_ports.cpp
+  boards/generic_stm32/sport_update.cpp
+  boards/generic_stm32/intmodule_heartbeat.cpp
   targets/common/arm/stm32/stm32_hal_adc.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
@@ -606,6 +603,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/stm32_exti_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   )
 

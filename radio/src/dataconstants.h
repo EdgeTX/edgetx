@@ -136,6 +136,7 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
+// TODO: remove this
 #if defined(PCBFRSKY) || defined(PCBNV14)
   #define NUM_MODULES                  2
 #else
@@ -183,7 +184,13 @@ enum BeeperMode {
 enum ModuleIndex {
   INTERNAL_MODULE,
   EXTERNAL_MODULE,
-  SPORT_MODULE
+  // end of "normal" modules
+  
+  MAX_MODULES,
+
+  // only used for power control
+  // and firmware updates
+  SPORT_MODULE = MAX_MODULES
 };
 
 enum TrainerMode {
@@ -215,18 +222,21 @@ enum SerialPort {
 #define PILOTPOS_MIN_HDOP 500
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  #define IS_INTERNAL_MODULE_ENABLED() (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)
+#define IS_INTERNAL_MODULE_ENABLED() \
+  (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)
 #else
-  #define IS_INTERNAL_MODULE_ENABLED() (false)
+#define IS_INTERNAL_MODULE_ENABLED() (false)
 #endif
 
-#define IS_EXTERNAL_MODULE_ENABLED() (g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE)
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-  #define IS_MODULE_ENABLED(moduleIdx)         (moduleIdx==INTERNAL_MODULE ? IS_INTERNAL_MODULE_ENABLED() : moduleIdx==EXTERNAL_MODULE ? IS_EXTERNAL_MODULE_ENABLED() : false)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+#define IS_EXTERNAL_MODULE_ENABLED() \
+  (g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE)
 #else
-  #define IS_MODULE_ENABLED(moduleIdx)         (moduleIdx==EXTERNAL_MODULE ? IS_EXTERNAL_MODULE_ENABLED() : false)
+#define IS_EXTERNAL_MODULE_ENABLED() false
 #endif
+
+#define IS_MODULE_ENABLED(moduleIdx)                            \
+  (g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE)
 
 enum UartModes {
   UART_MODE_NONE,

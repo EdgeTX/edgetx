@@ -23,7 +23,7 @@
 
 #define INTMODULE_USART_AFHDS2_BAUDRATE 921600
 
-void setupPulsesAFHDS2();
+void setupPulsesAFHDS2(uint8_t*& p_buf);
 void resetPulsesAFHDS2();
 
 void processInternalFlySkyTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len);

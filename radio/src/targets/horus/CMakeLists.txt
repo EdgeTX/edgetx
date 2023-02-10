@@ -172,6 +172,7 @@ add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DHARDWARE_TRAINER_JACK)
+add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 set(SDRAM ON)
 
@@ -192,7 +193,7 @@ if(HARDWARE_EXTERNAL_ACCESS_MOD)
 endif()
 
 if(PCB STREQUAL X10)
-  set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
+  set(FLYSKY_HALL_STICKS_DRIVER targets/common/arm/stm32/flysky_gimbal_driver.cpp)
 endif()
 
 if(IMU_LSM6DS33)
@@ -262,7 +263,6 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
-  ${FLYSKY_HALL_STICKS_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
@@ -273,19 +273,22 @@ set(FIRMWARE_TARGET_SRC
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
+  boards/generic_stm32/module_ports.cpp
+  boards/generic_stm32/aux_ports.cpp
+  boards/generic_stm32/sport_update.cpp
+  boards/generic_stm32/intmodule_heartbeat.cpp
   targets/common/arm/stm32/stm32_exti_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/intmodule_serial_driver.cpp
   targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
+  ${FLYSKY_HALL_STICKS_DRIVER}
   )
 
 if(BOOTLOADER)

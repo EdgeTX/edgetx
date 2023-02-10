@@ -54,7 +54,7 @@ void MultiRfProtocols::timerCb(TimerHandle_t xTimer)
 }
 #endif
 
-MultiRfProtocols* MultiRfProtocols::_instance[NUM_MODULES] = {};
+MultiRfProtocols* MultiRfProtocols::_instance[MAX_MODULES] = {};
 
 // MPM telemetry packet format type = MultiProtoDef (0x11)
 //

@@ -21,8 +21,6 @@
 
 #include "opentx.h"
 
-extern void flysky_hall_stick_loop( void );
-
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
 {
@@ -32,10 +30,10 @@ void init2MhzTimer()
   TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
 }
 
-// Start TIMER at 1000Hz
-void init1msTimer()
+// Start TIMER at 200Hz
+void init5msTimer()
 {
-  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
+  INTERRUPT_xMS_TIMER->ARR = 4999; // 5mS in uS
   INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
   INTERRUPT_xMS_TIMER->CCER = 0;
   INTERRUPT_xMS_TIMER->CCMR1 = 0;
@@ -46,7 +44,7 @@ void init1msTimer()
   NVIC_SetPriority(INTERRUPT_xMS_IRQn, 4);
 }
 
-void stop1msTimer()
+void stop5msTimer()
 {
   INTERRUPT_xMS_TIMER->CR1 = 0; // stop timer
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
@@ -59,33 +57,20 @@ void watchdogSuspend(uint32_t timeout)
   watchdogTimeout = timeout;
 }
 
-void interrupt1ms()
+static void interrupt5ms()
 {
   static uint8_t pre_scale; // Used to get 10 Hz counter
-
   ++pre_scale;
 
-  // 1 ms loop
-#if not defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-  if (globalData.flyskygimbals)
-  {
-    flysky_hall_stick_loop();
-  }
-#endif
-
   // 5ms loop
-  if (pre_scale == 5 || pre_scale == 10) {
 #if defined(HAPTIC)
-    DEBUG_TIMER_START(debugTimerHaptic);
-    HAPTIC_HEARTBEAT();
-    DEBUG_TIMER_STOP(debugTimerHaptic);
+  DEBUG_TIMER_START(debugTimerHaptic);
+  HAPTIC_HEARTBEAT();
+  DEBUG_TIMER_STOP(debugTimerHaptic);
 #endif
-  }
   
   // 10ms loop
-  if (pre_scale == 10) {
-    pre_scale = 0;
-
+  if (pre_scale & 1) {
     if (watchdogTimeout) {
       watchdogTimeout -= 1;
       WDG_RESET();  // Retrigger hardware watchdog
@@ -101,6 +86,6 @@ void interrupt1ms()
 extern "C" void INTERRUPT_xMS_IRQHandler()
 {
   INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt1ms();
-  DEBUG_INTERRUPT(INT_1MS);
+  interrupt5ms();
+  DEBUG_INTERRUPT(INT_5MS);
 }

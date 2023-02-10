@@ -34,7 +34,7 @@
 typedef void (*stm32_exti_handler_t)();
 
 // Set callback and enable IRQ
-void stm32_exti_enable(uint32_t line, uint32_t trigger, stm32_exti_handler_t cb);
+void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb);
 
 // Reset callback and disable IRQ if no more handlers
 void stm32_exti_disable(uint32_t line);

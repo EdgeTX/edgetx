@@ -82,7 +82,7 @@ static bool _has_handler(stm32_exti_handler_t* _handlers, uint8_t len)
   return false;
 }
 
-void stm32_exti_enable(uint32_t line, uint32_t trigger, stm32_exti_handler_t cb)
+void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
 {
   if (line > LL_EXTI_LINE_15) return;
 

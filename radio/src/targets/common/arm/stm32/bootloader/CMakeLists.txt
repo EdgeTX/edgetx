@@ -35,6 +35,8 @@ set(BOOTLOADER_SRC
   ../usb_driver.cpp
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
+  ../stm32_serial_driver.cpp
+  ../stm32_usart_driver.cpp
   init.c
   boot.cpp
   bin_files.cpp
@@ -89,18 +91,12 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       )
   endif()
 
-  if(PCB STREQUAL NV14)
-    set(BOOTLOADER_SRC
-      ${BOOTLOADER_SRC}
-      ../../../../../targets/${TARGET_DIR}/extmodule_helper.cpp
-      )
-  endif()
-
   if(DEBUG)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
       ../../../../../serial.cpp
-      ../../../../../targets/common/arm/stm32/aux_serial_driver.cpp
+      ../../../../../boards/generic_stm32/aux_ports.cpp
+      ../../../../../targets/common/arm/stm32/stm32_serial_driver.cpp
       ../../../../../targets/common/arm/stm32/stm32_usart_driver.cpp
       )
   endif()

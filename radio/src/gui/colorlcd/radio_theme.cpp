@@ -500,7 +500,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
   auto menu = new Menu(listBox,false);
 
-  // you cant activate the active theme
+  // you can't activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
       auto idx = listBox->getSelected();
@@ -512,7 +512,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   }
 
-  // you cant edit the default theme
+  // you can't edit the default theme
   if (listBox->getSelected() != 0) {
     menu->addLine(STR_EDIT, [=]() {
       auto themeIdx = listBox->getSelected();
@@ -530,6 +530,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
           setAuthor(&theme);
           nameText->setText(theme.getName());
           listBox->setName(currentTheme, theme.getName());
+          themeColorPreview->setColorList(theme.getColorList());
         }
 
         // if the active theme changed, re-apply it
@@ -546,14 +547,20 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   menu->addLine(STR_DUPLICATE, [=] () {
     ThemeFile newTheme;
 
-    new ThemeDetailsDialog(window, newTheme, [=] (ThemeFile theme) {
+    new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
         char name[NAME_LENGTH + 20];
         strncpy(name, theme.getName(), NAME_LENGTH + 19);
         removeAllWhiteSpace(name);
-        // use the current themes color list to make the new theme
-        auto curTheme = tp->getCurrentTheme();
-        for (auto color : curTheme->getColorList())
+
+        // use the selected themes color list to make the new theme
+        auto themeIdx = listBox->getSelected();
+        if (themeIdx < 0) return;
+
+        auto selTheme = tp->getThemeByIndex(themeIdx);
+        if (selTheme == nullptr) return;
+
+        for (auto color : selTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
         tp->createNewTheme(name, theme);

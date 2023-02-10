@@ -23,6 +23,8 @@
 #include "timers.h"
 #include "switches.h"
 
+uint8_t s_mixer_first_run_done = false;
+
 int8_t  virtualInputsTrims[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
 int16_t trims[NUM_TRIMS] = {0};
@@ -33,7 +35,6 @@ int32_t act   [MAX_MIXERS] = {0};
 SwOn    swOn  [MAX_MIXERS]; // TODO better name later...
 
 uint8_t mixWarning;
-
 
 int16_t calibratedAnalogs[NUM_CALIBRATED_ANALOGS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
@@ -455,6 +456,20 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 }
 
+void evalTrims()
+{
+  uint8_t phase = mixerCurrentFlightMode;
+  for (uint8_t i=0; i<NUM_TRIMS; i++) {
+    // do trim -> throttle trim if applicable
+    int16_t trim = getTrimValue(phase, i);
+    if (trimsCheckTimer > 0) {
+      trim = 0;
+    }
+
+    trims[i] = trim*2;
+  }
+}
+
 void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
@@ -524,7 +539,8 @@ void evalInputs(uint8_t mode)
     if (mode == e_perout_mode_normal) {
       if (tmp==0 || (tmp==1 && (bpanaCenter & mask))) {
         anaCenter |= mask;
-        if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) && s_mixer_first_run_done && !menuCalibrationState) {
+        if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) &&
+            s_mixer_first_run_done && !menuCalibrationState) {
           if (!IS_POT(i) || IS_POT_SLIDER_AVAILABLE(i)) {
             AUDIO_POT_MIDDLE(i);
           }
@@ -625,6 +641,7 @@ int getSourceTrimValue(int source, int stickValue=0)
 }
 
 uint8_t mixerCurrentFlightMode;
+
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
@@ -1091,4 +1108,141 @@ void evalMixes(uint8_t tick10ms)
       }
     }
   }
+}
+
+#if defined(THRTRACE)
+uint8_t  s_traceBuf[MAXTRACE];
+uint16_t s_traceWr;
+uint8_t  s_cnt_10s;
+uint16_t s_cnt_samples_thr_10s;
+uint16_t s_sum_samples_thr_10s;
+#endif
+
+void doMixerPeriodicUpdates()
+{
+  static tmr10ms_t lastTMR = 0;
+
+  tmr10ms_t tmr10ms = get_tmr10ms();
+
+  uint8_t tick10ms = (tmr10ms >= lastTMR ? tmr10ms - lastTMR : 1);
+  // handle tick10ms overrun
+  // correct overflow handling costs a lot of code; happens only each 11 min;
+  // therefore forget the exact calculation and use only 1 instead; good compromise
+  lastTMR = tmr10ms;
+
+  DEBUG_TIMER_START(debugTimerMixes10ms);
+  if (tick10ms) {
+    /* Throttle trace */
+    int16_t val;
+
+    if (g_model.thrTraceSrc > NUM_POTS+NUM_SLIDERS) {
+      uint8_t ch = g_model.thrTraceSrc-NUM_POTS-NUM_SLIDERS-1;
+      val = channelOutputs[ch];
+
+      LimitData * lim = limitAddress(ch);
+      int16_t gModelMax = LIMIT_MAX_RESX(lim);
+      int16_t gModelMin = LIMIT_MIN_RESX(lim);
+
+      if (lim->revert)
+        val = -val + gModelMax;
+      else
+        val = val - gModelMin;
+
+#if defined(PPM_LIMITS_SYMETRICAL)
+      if (lim->symetrical) {
+        val -= calc1000toRESX(lim->offset);
+      }
+#endif
+
+      gModelMax -= gModelMin; // we compare difference between Max and Mix for recaling needed; Max and Min are shifted to 0 by default
+      // usually max is 1024 min is -1024 --> max-min = 2048 full range
+
+      if (gModelMax != 0 && gModelMax != 2048)
+        val = (int32_t) (val << 11) / (gModelMax); // rescaling only needed if Min, Max differs
+
+      if (val < 0)
+        val=0;  // prevent val be negative, which would corrupt throttle trace and timers; could occur if safetyswitch is smaller than limits
+    }
+    else {
+      val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? THR_STICK : g_model.thrTraceSrc+NUM_STICKS-1];
+    }
+
+    val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
+
+    evalTimers(val, tick10ms);
+
+    static uint8_t  s_cnt_100ms;
+    static uint8_t  s_cnt_1s;
+    static uint8_t  s_cnt_samples_thr_1s;
+    static uint16_t s_sum_samples_thr_1s;
+
+    s_cnt_samples_thr_1s++;
+    s_sum_samples_thr_1s+=val;
+
+    if ((s_cnt_100ms += tick10ms) >= 10) { // 0.1sec
+      s_cnt_100ms -= 10;
+      s_cnt_1s += 1;
+
+      logicalSwitchesTimerTick();
+      checkTrainerSignalWarning();
+
+      if (s_cnt_1s >= 10) { // 1sec
+        s_cnt_1s -= 10;
+        sessionTimer += 1;
+        inactivity.counter++;
+        if ((((uint8_t)inactivity.counter) & 0x07) == 0x01 && g_eeGeneral.inactivityTimer && inactivity.counter > ((uint16_t)g_eeGeneral.inactivityTimer * 60))
+          AUDIO_INACTIVITY();
+
+#if defined(AUDIO)
+        if (mixWarning & 1) if ((sessionTimer&0x03)==0) AUDIO_MIX_WARNING(1);
+        if (mixWarning & 2) if ((sessionTimer&0x03)==1) AUDIO_MIX_WARNING(2);
+        if (mixWarning & 4) if ((sessionTimer&0x03)==2) AUDIO_MIX_WARNING(3);
+#endif
+
+        val = s_sum_samples_thr_1s / s_cnt_samples_thr_1s;
+        s_timeCum16ThrP += (val>>3);  // s_timeCum16ThrP would overrun if we would store throttle value with higher accuracy; therefore stay with 16 steps
+        if (val)
+          s_timeCumThr += 1;
+        s_sum_samples_thr_1s >>= 2;  // correct better accuracy now, because trace graph can show this information; in case thrtrace is not active, the compile should remove this
+
+#if defined(THRTRACE)
+        // throttle trace is done every 10 seconds; Tracebuffer is adjusted to screen size.
+        // in case buffer runs out, it wraps around
+        // resolution for y axis is only 32, therefore no higher value makes sense
+        s_cnt_samples_thr_10s += s_cnt_samples_thr_1s;
+        s_sum_samples_thr_10s += s_sum_samples_thr_1s;
+
+        if (++s_cnt_10s >= 10) { // 10s
+          s_cnt_10s -= 10;
+          val = s_sum_samples_thr_10s / s_cnt_samples_thr_10s;
+          s_sum_samples_thr_10s = 0;
+          s_cnt_samples_thr_10s = 0;
+          s_traceBuf[s_traceWr % MAXTRACE] = val;
+          s_traceWr++;
+        }
+#endif
+
+        s_cnt_samples_thr_1s = 0;
+        s_sum_samples_thr_1s = 0;
+      }
+    }
+
+#if defined(PXX) || defined(DSM2)
+    static uint8_t countRangecheck = 0;
+    for (uint8_t i = 0; i < NUM_MODULES; ++i) {
+      if (isModuleBeeping(i)) {
+        if (++countRangecheck >= 250) {
+          countRangecheck = 0;
+          AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
+        }
+      }
+    }
+#endif
+
+    checkTrims();
+  }
+
+  DEBUG_TIMER_STOP(debugTimerMixes10ms);
+
+  s_mixer_first_run_done = true;
 }

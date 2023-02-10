@@ -25,6 +25,8 @@
 #include "opentx.h"
 #include "libopenui.h"
 
+#include "tasks/mixer_task.h"
+
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -777,11 +779,11 @@ void RadioSetupPage::build(FormWindow * window)
   grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
-                        pausePulses();
+                        mixerTaskStop();
                         g_eeGeneral.stickMode = newValue;
                         SET_DIRTY();
                         checkThrottleStick();
-                        resumePulses();
+                        mixerTaskStart();
                       });
   choice->setTextHandler([](uint8_t value) {
     return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +

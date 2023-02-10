@@ -21,13 +21,4 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "hal/serial_driver.h"
-
-#define EXTMODULE_USART_IRQ_PRIORITY 6
-
-// Use an alternative USART as external module
-void extmoduleSetSerialPort(const etx_serial_driver_t* port);
-
-// Return the serial driver to be used as external module
-const etx_serial_driver_t* extmoduleGetSerialPort();
+void boardInitModulePorts();

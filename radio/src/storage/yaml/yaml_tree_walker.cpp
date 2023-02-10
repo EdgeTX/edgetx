@@ -634,9 +634,14 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             }
                 
             new_elmt = false;
-            for(int i=1; i < getLevel(); i++)
-                if (!wf(opaque, "   ", 3))
-                    return false;
+
+            if (attr->type != YDT_PADDING &&
+                (attr->type != YDT_CUSTOM || attr->u._cust_attr.write)) {
+
+                for(int i=1; i < getLevel(); i++)
+                    if (!wf(opaque, "   ", 3))
+                        return false;
+            }
             
             if (!yaml_output_attr(this, data, getBitOffset(), attr, wf, opaque))
                 return false; // TODO: error handling???

@@ -54,7 +54,6 @@ add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_spi.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dma.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_pwr.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_usart.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_adc.c
   )
 
