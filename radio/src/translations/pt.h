@@ -266,7 +266,7 @@
 #define TR_RESERVE_VSRCRAW   "[--]"
 #define TR_EXTRA_VSRCRAW     "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
-#define TR_VTMRMODES                   "OFF","ABS","MTs","MT%","MTt"
+#define TR_VTMRMODES                   "OFF","ABS","Strt","MTs","MT%","MTt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
 #define TR_VTRAINER_MASTER_JACK        "Master/Jack"
 #define TR_VTRAINER_SLAVE_JACK         "Slave/Jack"
