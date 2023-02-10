@@ -1363,11 +1363,11 @@
   #define ADC_GPIO_PIN_POT2             GPIO_Pin_6  // PA.06
   #define ADC_GPIO_PIN_BATT             GPIO_Pin_0  // PC.00
 #if defined(RADIO_BOXER)
-  #define ADC_GPIOA_PINS_FS            (GPIO_Pin_2 | GPIO_Pin_3)
   #define HARDWARE_POT3                 // 6 POS
   #define ADC_GPIO_PIN_POT3             GPIO_Pin_5  // PA.05
   #define ADC_CHANNEL_POT3              ADC_Channel_5
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
+  #define ADC_GPIOA_PINS_FS             (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
 #else
   #define ADC_CHANNEL_POT3              0
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2)
