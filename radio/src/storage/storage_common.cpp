@@ -100,6 +100,8 @@ static void sortMixerLines()
   // simple bubble sort
   unsigned passes = 0;
   unsigned swaps;
+  MixData tmp;
+  
   do {
     swaps = 0;
     for (int i = 0; i < MAX_MIXERS - 1; i++) {
@@ -110,7 +112,9 @@ static void sortMixerLines()
         if (is_memclear(b, sizeof(MixData)))
           break;
 
-        memswap(a, b, sizeof(MixData));
+        memcpy(&tmp, a, sizeof(MixData));
+        memcpy(a, b, sizeof(MixData));
+        memcpy(b, &tmp, sizeof(MixData));
         ++swaps;
       }
     }
