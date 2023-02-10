@@ -99,7 +99,16 @@ void menuCommonCalib(event_t event)
         reusableBuffer.calib.loVals[i] = 15000;
         reusableBuffer.calib.hiVals[i] = -15000;
 #if defined(PCBTARANIS)
-        reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
+#if defined(RADIO_BOXER)
+        if (globalData.flyskygimbals)
+        {
+          reusableBuffer.calib.midVals[i] = anaIn(i);
+        }
+        else
+#endif
+        {
+          reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
+        }
         if (i<NUM_XPOTS) {
           reusableBuffer.calib.xpotsCalib[i].stepsCount = 0;
           reusableBuffer.calib.xpotsCalib[i].lastCount = 0;
