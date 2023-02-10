@@ -230,6 +230,7 @@ class ModelData {
     int linkedFlightModeValueToIndex(const int phaseIdx, const int val, const int maxOwnValue);
 
     void clearMixes();
+    void sortMixes();
     void clearInputs();
 
     int getChannelsMax(bool forceExtendedLimits=false) const;
@@ -363,6 +364,5 @@ class ModelData {
       if (value != swtch.toValue())
         value = swtch.toValue();
     }
-    void sortMixes();
     void updateResetParam(CustomFunctionData * cfd);
 };
