@@ -23,7 +23,7 @@
 #include "../../hal/adc_driver.h"
 
 #if defined(RADIO_BOXER)
- #include "../../targets/common/arm/stm32/flyskyHallStick_driver.h"
+ #include "flysky_gimbal_driver.h"
 #endif
 
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */

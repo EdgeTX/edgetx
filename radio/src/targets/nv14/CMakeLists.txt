@@ -140,8 +140,6 @@ set(FIRMWARE_TARGET_SRC
   battery_driver.cpp
   audio_spi_driver.cpp
   backlight_driver.cpp
-  extmodule_helper.cpp
-  ../common/arm/stm32/flyskyHallStick_driver.cpp
   )
 
 set(FIRMWARE_SRC
