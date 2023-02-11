@@ -129,13 +129,6 @@
     </message>
 </context>
 <context>
-    <name>AppMessages</name>
-    <message>
-        <source>Show this message again at next startup?</source>
-        <translation type="vanished">Visa detta meddelande vid nästa programstart?</translation>
-    </message>
-</context>
-<context>
     <name>AppPreferencesDialog</name>
     <message>
         <source>Edit Settings</source>
@@ -861,7 +854,7 @@ Mode 4:
     </message>
     <message>
         <source>6P</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>L1</source>
@@ -3036,12 +3029,9 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <source>iFlight Commando8</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>FirmwareInterface</name>
     <message>
-        <source>Compressed image size exceeds reserved space.</source>
-        <translation type="vanished">Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
+        <source>Radiomaster Boxer</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5378,11 +5368,11 @@ att fungera. Detta går inte att ändra från radion.
     <name>LogicalSwitchesPanel</name>
     <message>
         <source>V1</source>
-        <translation></translation>
+        <translation>Värde 1</translation>
     </message>
     <message>
         <source>V2</source>
-        <translation></translation>
+        <translation>Värde 2</translation>
     </message>
     <message>
         <source>Function</source>
@@ -5390,7 +5380,7 @@ att fungera. Detta går inte att ändra från radion.
     </message>
     <message>
         <source>AND Switch</source>
-        <translation>OCH-brytare</translation>
+        <translation>AND-brytare</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -11094,7 +11084,7 @@ Tidsstämpel</translation>
     </message>
     <message>
         <source>Alt</source>
-        <translation>Höj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>VSpd</source>
@@ -11158,11 +11148,11 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>GAlt</source>
-        <translation>GHöj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Volts</source>
-        <translation>volt</translation>
+        <translation>Volt</translation>
     </message>
     <message>
         <source>Cels</source>
@@ -11230,7 +11220,7 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>Run/Stop</source>
-        <translation>Kör/Stopp</translation>
+        <translation>Kör/Stoppa</translation>
     </message>
     <message>
         <source>Load Telemetry Values</source>
