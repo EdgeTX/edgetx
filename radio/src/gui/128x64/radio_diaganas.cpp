@@ -111,7 +111,7 @@ void menuRadioDiagAnalogs(event_t event)
       case (ANAVIEW_RAWLOWFPS):
         if (entryCount == 0) {
 #if defined(RADIO_BOXER)
-            if (globalData.flyskygimbals)
+            if (globalData.flyskygimbals && i < FIRST_ANALOG_ADC_FS)
             {
               lastShownAnalogValue[i] = hall_raw_values[i];
             } else
