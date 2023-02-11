@@ -319,7 +319,7 @@ SD_Error SD_Init(void)
   sdio.Instance = SDIO;
   sdio.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-  sdio.Init.BusWide = SDIO_BUS_WIDE_4B;
+  sdio.Init.BusWide = SDIO_BUS_WIDE_1B;
   sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
   sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
   HAL_SD_DeInit(&sdio);
@@ -343,7 +343,8 @@ SD_Error SD_Init(void)
   /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
   HAL_SD_Init(&sdio);
 
-
+  HAL_SD_CardInfoTypeDef cardInfo;
+  HAL_StatusTypeDef es = HAL_SD_GetCardInfo(&sdio, &cardInfo);
   /*----------------- Read CSD/CID MSD registers ------------------*/
   errorstatus = SD_GetCardInfo(&SDCardInfo);
 
