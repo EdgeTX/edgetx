@@ -148,6 +148,9 @@ void boardBootloaderInit()
   hardwareOptions.pcbrev = boardGetPcbRev();
 }
 
+// SysTick enable function from ARM_CM4F FreeRTOS port
+extern "C" void vPortSetupTimerInterrupt(void);
+
 void boardInit()
 {
 #if defined(SEMIHOSTING)
@@ -186,9 +189,14 @@ void boardInit()
   globalData.flyskygimbals = flysky_gimbal_init();
   init2MhzTimer();
   init5msTimer();
-  TouchInit();
   usbInit();
 
+  // We need to enable SysTick IRQ here
+  // as the I2C HAL code relies on it
+  // to compute delays
+  vPortSetupTimerInterrupt();
+  TouchInit();
+  
   uint32_t press_start = 0;
   uint32_t press_end = 0;
 
