@@ -4,6 +4,7 @@
 ## how to build TX16S firmware, Companion, Simulator, radio simulator
 ## library and how to create an installation package.
 ## Let it run as normal user in MSYS2 MinGW 64-bit console (blue icon).
+## this script is working on any branch from 2.8 (icluded)
 
 # -----------------------------------------------------------------------------
 export BRANCH_NAME="main"  # main|2.8|2.9|...
@@ -11,11 +12,17 @@ export RADIO_TYPE="TX16S"  # TX16S|X10|X10EXPRESS|X12S|XLITE|XLITES|X9LITE|X9LIT
 PAUSEAFTEREACHLINE="false" # true|false
 # -----------------------------------------------------------------------------
 
+export PROJ_DIR="${HOME}/edgetx"
+export SOURCE_DIR="${HOME}/edgetx/edgetx_${BRANCH_NAME}"
+export BUILD_OUTPUT_DIR="${SOURCE_DIR}/build-output-${RADIO_TYPE}"
 
-
-export SOURCE_DIR="edgetx_${BRANCH_NAME}"
+echo "RADIO_TYPE: ${RADIO_TYPE}"
+echo "BRANCH_NAME: ${BRANCH_NAME}"
+echo "SOURCE_DIR: ${SOURCE_DIR}"
+echo "BUILD_OUTPUT_DIR: ${BUILD_OUTPUT_DIR}"
 
 function log() {
+    echo ""
     echo "=== [INFO] $*"
 }
 function fail() {
@@ -43,15 +50,14 @@ done
 
 STEP=1
 echo "=== Step $((STEP++)): Creating a directory for EdgeTX ==="
-mkdir -p ~/edgetx && cd ~/edgetx
-check_command $? "mkdir -p ~/edgetx && cd ~/edgetx"
+mkdir -p ${PROJ_DIR} && cd ${PROJ_DIR}
+check_command $? "mkdir -p ${PROJ_DIR} && cd ${PROJ_DIR}"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-
-if [ ! -d "${SOURCE_DIR}" ]; then
+if [[ ! -d "${SOURCE_DIR}" ]]; then
   echo "=== Step $((STEP++)): Fetching EdgeTX source tree (${BRANCH_NAME} branch) from GitHub ==="
   git clone --recursive -b ${BRANCH_NAME} https://github.com/EdgeTX/edgetx.git ${SOURCE_DIR}
   check_command $? "git clone --recursive -b ${BRANCH_NAME} https://github.com/EdgeTX/edgetx.git ${SOURCE_DIR}"
@@ -64,6 +70,8 @@ else
   check_command $? "git checkout ${BRANCH_NAME}"
   git pull
   check_command $? "git pull"
+  git submodule update --init --recursive
+  check_command $? "git submodule update --init --recursive"
 fi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
@@ -71,8 +79,9 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Creating build output directory ==="
-mkdir -p build-output && cd build-output
-check_command $? "mkdir -p build-output && cd build-output"
+[[ -d ${BUILD_OUTPUT_DIR} ]] && rm -rf ${BUILD_OUTPUT_DIR}
+mkdir -p ${BUILD_OUTPUT_DIR} && cd ${BUILD_OUTPUT_DIR}
+check_command $? "mkdir -p ${BUILD_OUTPUT_DIR} && cd ${BUILD_OUTPUT_DIR}"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
@@ -143,7 +152,7 @@ fi
 
 echo "Finished."
 echo ""
-echo "firmware (${RADIO_TYPE}): ~/edgetx/${SOURCE_DIR}/build-output/arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin"
-echo "Companion installer: ~/edgetx/${SOURCE_DIR}/build-output/native/companion/companion-windows-x.x.x.exe"
-echo "Companion          : ~/edgetx/${SOURCE_DIR}/build-output/native/Release/companion.exe"
-echo "Simulator          : ~/edgetx/${SOURCE_DIR}/build-output/native/Release/simulator.exe"
+echo "firmware (${RADIO_TYPE}): ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin"
+echo "Companion installer: ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/companion/companion-windows-x.x.x.exe"
+echo "Companion          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/companion.exe"
+echo "Simulator          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/simulator.exe"
