@@ -302,7 +302,6 @@ set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   keys_driver.cpp
   diskio.cpp
-  telemetry_driver.cpp
 )
 
 set(PULSES_SRC

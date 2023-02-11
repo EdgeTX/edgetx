@@ -625,6 +625,7 @@ set(FIRMWARE_TARGET_SRC
   volume_i2c.cpp
   eeprom_driver.cpp
   backlight_driver.cpp
+  telemetry_driver.cpp
   trainer_driver.cpp
   )
 
