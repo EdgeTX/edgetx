@@ -2511,46 +2511,22 @@
 #endif
 
 #if defined(RADIO_BOXER)
-// Flysky Hall Stick
-#define FLYSKY_HALL_SERIAL_USART                 UART4
-#define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-#define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
-#define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
-
-#define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-#define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
-
-#define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
-#define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-#define FLYSKY_HALL_SERIAL_DMA                   DMA1
-#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-#define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
-
-/*  #define FLYSKY_HALL_SERIAL_USART                 USART3
-  #define FLYSKY_HALL_SERIAL_GPIO                  GPIOB
-  #define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
-  #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_10  // PB.10
-  #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_11  // PA.11
-  #define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource10
-  #define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource11
-  #define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_USART3
+  // Flysky Hall Stick
+  #define FLYSKY_HALL_SERIAL_USART                 UART4
+  #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
+  #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
+  #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
+  #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
+  #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
 
   #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-  #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_USART3
+  #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
 
-  #define FLYSKY_HALL_SERIAL_USART_IRQHandler      USART3_IRQHandler
-  #define FLYSKY_HALL_SERIAL_USART_IRQn            USART3_IRQn
-  #define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream1_IRQn
-  #define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-  #define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream1
-  #define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream3
-  #define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF3
-
-  #define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream1_IRQHandler
-  #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream3_IRQHandler
-*/
+  #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
+  #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
+  #define FLYSKY_HALL_SERIAL_DMA                   DMA1
+  #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+  #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #endif
 
 // Top LCD on X9E
