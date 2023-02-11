@@ -48,3 +48,5 @@ static inline tmr10ms_t get_tmr10ms()
 {
   return g_tmr10ms;
 }
+
+uint32_t timersGetMsTick();
