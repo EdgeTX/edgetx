@@ -218,7 +218,7 @@ void boardInit()
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();
-  init5msTimer();
+  init1msTimer();
   __enable_irq();
   usbInit();
 

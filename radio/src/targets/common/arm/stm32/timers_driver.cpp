@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 
+static volatile uint32_t msTickCount; // Used to get 10 Hz counter
+
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
 {
@@ -31,9 +33,11 @@ void init2MhzTimer()
 }
 
 // Start TIMER at 200Hz
-void init5msTimer()
+void init1msTimer()
 {
-  INTERRUPT_xMS_TIMER->ARR = 4999; // 5mS in uS
+  msTickCount = 0;
+
+  INTERRUPT_xMS_TIMER->ARR = 999; // 5mS in uS
   INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
   INTERRUPT_xMS_TIMER->CCER = 0;
   INTERRUPT_xMS_TIMER->CCMR1 = 0;
@@ -44,10 +48,15 @@ void init5msTimer()
   NVIC_SetPriority(INTERRUPT_xMS_IRQn, 4);
 }
 
-void stop5msTimer()
+void stop1msTimer()
 {
   INTERRUPT_xMS_TIMER->CR1 = 0; // stop timer
   NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
+}
+
+uint32_t timersGetMsTick()
+{
+  return msTickCount;
 }
 
 static uint32_t watchdogTimeout = 0;
@@ -57,20 +66,27 @@ void watchdogSuspend(uint32_t timeout)
   watchdogTimeout = timeout;
 }
 
-static void interrupt5ms()
+static void interrupt1ms()
 {
-  static uint8_t pre_scale; // Used to get 10 Hz counter
+  static uint8_t pre_scale = 0;
+
   ++pre_scale;
+  ++msTickCount;
+
 
   // 5ms loop
 #if defined(HAPTIC)
-  DEBUG_TIMER_START(debugTimerHaptic);
-  HAPTIC_HEARTBEAT();
-  DEBUG_TIMER_STOP(debugTimerHaptic);
+  if(pre_scale == 5 || pre_scale == 10)
+  {
+    DEBUG_TIMER_START(debugTimerHaptic);
+    HAPTIC_HEARTBEAT();
+    DEBUG_TIMER_STOP(debugTimerHaptic);
+  }
 #endif
   
   // 10ms loop
-  if (pre_scale & 1) {
+  if (pre_scale == 10) {
+    pre_scale = 0;
     if (watchdogTimeout) {
       watchdogTimeout -= 1;
       WDG_RESET();  // Retrigger hardware watchdog
@@ -86,6 +102,6 @@ static void interrupt5ms()
 extern "C" void INTERRUPT_xMS_IRQHandler()
 {
   INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt5ms();
+  interrupt1ms();
   DEBUG_INTERRUPT(INT_5MS);
 }
