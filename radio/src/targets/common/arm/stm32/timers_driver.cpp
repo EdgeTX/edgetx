@@ -21,7 +21,7 @@
 
 #include "opentx.h"
 
-static volatile uint32_t msTickCount; // Used to get 10 Hz counter
+static volatile uint32_t msTickCount; // Used to get 1 kHz counter
 
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
@@ -32,7 +32,7 @@ void init2MhzTimer()
   TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
 }
 
-// Start TIMER at 200Hz
+// Start TIMER at 1000Hz
 void init1msTimer()
 {
   msTickCount = 0;
@@ -75,14 +75,13 @@ static void interrupt1ms()
 
 
   // 5ms loop
+  if(pre_scale == 5 || pre_scale == 10) {
 #if defined(HAPTIC)
-  if(pre_scale == 5 || pre_scale == 10)
-  {
     DEBUG_TIMER_START(debugTimerHaptic);
     HAPTIC_HEARTBEAT();
     DEBUG_TIMER_STOP(debugTimerHaptic);
-  }
 #endif
+  }
   
   // 10ms loop
   if (pre_scale == 10) {
