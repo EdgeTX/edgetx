@@ -298,6 +298,9 @@ static int i2c_pins_init(const _i2c_defs* def)
 
   if (def->set_pwr) {
     def->set_pwr(true);
+    // Add some delay to leave enought time
+    // for devices to boot before querying them
+    HAL_Delay(20);
   }
   
   return 0;
