@@ -46,7 +46,7 @@ const CrossfireSensor crossfireSensors[] = {
   {GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LATITUDE,      0},
   {GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LONGITUDE,     0},
   {GPS_ID,         2, STR_SENSOR_GSPD,          UNIT_KMH,               1},
-  {GPS_ID,         3, STR_SENSOR_HDG,           UNIT_DEGREE,            3},
+  {GPS_ID,         3, STR_SENSOR_HDG,           UNIT_DEGREE,            2},
   {GPS_ID,         4, STR_SENSOR_ALT,           UNIT_METERS,            0},
   {GPS_ID,         5, STR_SENSOR_SATELLITES,    UNIT_RAW,               0},
   {ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3},
