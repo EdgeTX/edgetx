@@ -1179,6 +1179,8 @@
 #define TR_EDIT_THEME                   "ÄNDRA TEMA"
 #define TR_DETAILS                      "Detaljer"
 #define TR_THEME_EDITOR                 "TEMAN"
+#define TR_SAVE_THEME                   "Spara tema"
+#define TR_DELETE_THEME                 "Radera tema"
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
