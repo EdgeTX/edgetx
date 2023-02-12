@@ -551,10 +551,10 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         // if the theme info currently displayed
         // were changed, update the UI
         if (themeIdx == currentTheme) {
-          setAuthor(&theme);
-          setName(&theme);
-          listBox->setName(currentTheme, theme.getName());
-          themeColorPreview->setColorList(theme.getColorList());
+          setAuthor(theme);
+          setName(theme);
+          listBox->setName(currentTheme, theme->getName());
+          themeColorPreview->setColorList(theme->getColorList());
         }
 
         // if the active theme changed, re-apply it
