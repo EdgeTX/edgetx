@@ -284,7 +284,7 @@
 #define TR_RESERVE_VSRCRAW              "[--]"
 #define TR_EXTRA_VSRCRAW                "Batt","Tid","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
-#define TR_VTMRMODES                    "Av","På","GAs","GA%","GAt"
+#define TR_VTMRMODES                    "Av","På","Strt","GAs","GA%","GAt"
 #define TR_VTRAINER_MASTER_OFF          "AV"
 #define TR_VTRAINER_MASTER_JACK         "Lärare/Uttag"
 #define TR_VTRAINER_SLAVE_JACK          "Elev/Uttag"
@@ -1180,7 +1180,7 @@
 #define TR_DETAILS                      "Detaljer"
 #define TR_THEME_EDITOR                 "TEMAN"
 #define TR_SAVE_THEME                   "Spara tema"
-#define TR_DELETE_THEME                 "Radera tema"
+#define TR_DELETE_THEME		  "Radera tema"
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
