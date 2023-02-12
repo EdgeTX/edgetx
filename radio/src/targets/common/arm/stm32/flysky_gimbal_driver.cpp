@@ -22,6 +22,7 @@
 #include "flysky_gimbal_driver.h"
 #include "stm32_serial_driver.h"
 #include "delays_driver.h"
+#include "timers_driver.h"
 
 #include "hal.h"
 #include "crc.h"
@@ -49,10 +50,91 @@ static STRUCT_HALL HallProtocol = { 0 };
 signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
 unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
+// Resampling variables
+signed short hallRawSampleValues[FLYSKY_HALL_CHANNEL_COUNT]; // current sample
+signed short hallRawLastSampleValues[FLYSKY_HALL_CHANNEL_COUNT]; // last sample
+uint32_t rawSampleTime = 0;
+uint32_t rawLastSampleTime = 0;
+bool lastGetTimeValid = false;
+uint16_t lastGetTime = 0;
+
 static void* _fs_usart_ctx = nullptr;
 
 uint16_t get_flysky_hall_adc_value(uint8_t ch)
 {
+ if (ch == 0)
+  {
+    // Resampling calculation
+    uint32_t time = getTmr2MHz();
+    uint16_t interpolateThreshold;    
+
+    if (!lastGetTimeValid)
+    {
+      // No lastGetTime information
+      lastGetTime = time;
+      lastGetTimeValid = true;
+
+      // No resampling
+      for ( uint8_t channel = 0; channel < 4; channel++ )
+      {
+        hall_raw_values[channel] = hallRawSampleValues[channel];
+      }
+    }
+    else
+    {
+      if (time < lastGetTime)
+      {
+        interpolateThreshold = ((65536 - lastGetTime) + time) >> 1;
+      }
+      else
+      {
+        interpolateThreshold = (time - lastGetTime) >> 1;
+      }
+      lastGetTime = time;
+
+      while (time < rawSampleTime)
+      {
+        time += 65536;
+      }
+      if (time - rawSampleTime < interpolateThreshold)
+      {
+        // Linear interpolation
+        int32_t timeDiff1 = time - rawLastSampleTime;
+        int32_t timeDiff2 = rawSampleTime - rawLastSampleTime;
+        for ( uint8_t channel = 0; channel < 4; channel++ )
+        {
+          int32_t value = hallRawSampleValues[channel];
+          value -= hallRawLastSampleValues[channel];
+          value *= timeDiff1;
+          value /= timeDiff2;
+          value += hallRawLastSampleValues[channel];
+          hall_raw_values[channel] = value;
+        }
+      }
+      else
+      {
+        // Linear extrapolation
+        int32_t timeDiff1 = time - rawLastSampleTime;
+        int32_t timeDiff2 = rawLastSampleTime - rawLastSampleTime;
+        for ( uint8_t channel = 0; channel < 4; channel++ )
+        {
+          int32_t value = hallRawSampleValues[channel];
+          value -= hallRawLastSampleValues[channel];
+          value *= timeDiff1;
+          value /= timeDiff2;
+          value += hallRawSampleValues[channel];
+          hall_raw_values[channel] = value;
+        }
+      }
+    }
+
+    for ( uint8_t channel = 0; channel < 4; channel++ )
+    {
+      hall_adc_values[channel] = FLYSKY_OFFSET_VALUE + hall_raw_values[channel];
+    }
+  }
+
+
   if (ch >= FLYSKY_HALL_CHANNEL_COUNT) {
     return 0;
   }
@@ -146,11 +228,23 @@ static void flysky_gimbal_loop()
             {
             case TRANSFER_DIR_TXMCU:
                 if(HallProtocol.hallID.hall_Id.packetID == FLYSKY_HALL_RESP_TYPE_VALUES) {
-                  memcpy(hall_raw_values, HallProtocol.data, sizeof(hall_raw_values));
-                  for ( uint8_t channel = 0; channel < 4; channel++ )
+                  memcpy(hallRawLastSampleValues, hallRawSampleValues, sizeof(hallRawSampleValues));
+                  memcpy(hallRawSampleValues, HallProtocol.data, sizeof(hallRawSampleValues));
+                  rawLastSampleTime = rawSampleTime;
+                  rawSampleTime = getTmr2MHz();
+                  if (rawSampleTime < rawLastSampleTime)
+                  {
+                    rawSampleTime += 65536;
+                  }
+                  if (rawLastSampleTime >= 65536)
+                  {
+                    rawSampleTime -= 65536;
+                    rawLastSampleTime -= 65536;
+                  }
+/*                  for ( uint8_t channel = 0; channel < 4; channel++ )
                   {
                     hall_adc_values[channel] = FLYSKY_OFFSET_VALUE + hall_raw_values[channel];
-                  }
+                  }*/
                 }
                 break;
             }
