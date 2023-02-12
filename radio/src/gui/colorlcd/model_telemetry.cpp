@@ -30,6 +30,12 @@
 
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
 
+#if (LCD_H > LCD_W) || defined(TRANSLATIONS_CZ)
+#define TWOCOLBUTTONS   1
+#else
+#define TWOCOLBUTTONS   0
+#endif
+
 // Overview grid variants
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(14), LV_GRID_FR(6),
                                      LV_GRID_TEMPLATE_LAST};
@@ -42,11 +48,11 @@ static const lv_coord_t col_dsc2[] = {28, 56, 8, LV_GRID_FR(1), 32,
 #endif
 static const lv_coord_t col_dsc3[] = {LCD_W - 12,
                                      LV_GRID_TEMPLATE_LAST};
-#if LCD_W > LCD_H
-static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+#if TWOCOLBUTTONS
+static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 #else
-static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 static const lv_coord_t col_dsc5[] = {LV_GRID_FR(5), LV_GRID_FR(4), LV_GRID_FR(4), LV_GRID_FR(4),
@@ -663,7 +669,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   if (sensorsCount > 0) {
-#if LCD_H > LCD_W
+#if TWOCOLBUTTONS
     line = form->newLine(&grid4);
 #endif
     // Delete all sensors button
@@ -676,7 +682,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
                        });
                        return 0;
                    });
-#if LCD_H > LCD_W
+#if TWOCOLBUTTONS
     b->setWidth((LCD_W - 16) / 2);
     lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 #else
