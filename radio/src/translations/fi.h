@@ -49,7 +49,7 @@
 #define TR_MMMINV                      "---","KÄÄ"
 #define TR_VBEEPMODE                   "Äänet","Hälyt","EiNap","Kaikk"
 #define TR_VBLMODE                     "OFF","Keys",TR("Ctrl","Controls"),"Both","ON"
-#define TR_TRNMODE                     "OFF","+=",":="
+#define TR_TRNMODE                     "OFF","Lisää","Korvaa"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"

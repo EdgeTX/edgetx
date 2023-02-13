@@ -47,7 +47,7 @@
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Stille","Alarm","NoKey","Alle"
 #define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
-#define TR_TRNMODE                     "FRA","+=",":="
+#define TR_TRNMODE                     "FRA","Læg til","Erstat"
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 

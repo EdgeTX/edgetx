@@ -50,7 +50,7 @@
 #define TR_VBEEPMODE                   "Tichý",TR("Alarm","Jen Alarm"),TR("BezKl","Bez kláves"),"Vše"
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VBLMODE                     TR("Vyp","Vypnuto"),TR("Kláv.","Klávesy"),"Páky","Vše",TR("Zap","Zapnuto")
-#define TR_TRNMODE                     "X","+=",":="
+#define TR_TRNMODE                     "X","Sečíst","Zaměnit"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"

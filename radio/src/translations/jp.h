@@ -46,7 +46,7 @@
 #define TR_MMMINV                      "---","リバース"
 #define TR_VBEEPMODE                   "消音","アラームのみ","キー音なし","すべて"
 #define TR_VBLMODE                     "OFF","クリック時",TR("Ctrl","操作時"),"両方","ON"
-#define TR_TRNMODE                     "OFF","+=",":="
+#define TR_TRNMODE                     "OFF","加算","置換"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
