@@ -20,9 +20,9 @@
  */
 
 #include "stm32_hal.h"
-#include "rtos.h"
+#include "timers_driver.h"
 
 extern "C" uint32_t HAL_GetTick(void)
 {
-    return RTOS_GET_MS();
+    return timersGetMsTick();
 }
