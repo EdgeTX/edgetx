@@ -406,7 +406,17 @@ void UpdateInterface::setFlavourLanguage()
 
   if (currVariant.size() > 1) {
     params->fwFlavour = currVariant.at(1);
-    params->fwFlavour = params->fwFlavour.replace('+', 'p');
+    // Companion registered firmware identities (refer opentxinterface.cpp) do not always match the EdgeTX repo fw.json file
+    const QMap<QString, QString> map = {
+                                         { "x7access",   "x7-access"  },
+                                         { "x9d+",       "x9dp"       },
+                                         { "x9d+2019",   "x9dp2019"   },
+                                         { "x9ehall",    "x9e-hall"   },
+                                         { "x10express", "x10-access" }
+                                        };
+    QString repofw = map[params->fwFlavour];
+    if (!repofw.isEmpty())
+      params->fwFlavour = repofw;
   }
 
   params->language = "";
