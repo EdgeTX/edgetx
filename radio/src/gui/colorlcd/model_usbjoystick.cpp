@@ -193,12 +193,7 @@ USBChannelButtonSel::USBChannelButtonSel(Window* parent, const rect_t& rect, uin
       _btns[cch->btn_num] = 1;
     }
     else {
-      uint8_t last = cch->btn_num + cch->switch_npos;
-      if (cch->switch_npos < 3) last -= 1;
-      if(last >= USBJ_BUTTON_SIZE) {
-        last = USBJ_BUTTON_SIZE-1;
-      }
-
+      uint8_t last = cch->lastBtnNum();
       for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] = 1;
     }
   }
@@ -227,12 +222,7 @@ void USBChannelButtonSel::updateState()
     _btns[cch->btn_num] |= 2;
   }
   else {
-    uint8_t last = cch->btn_num + cch->switch_npos;
-    if (cch->switch_npos < 3) last -= 1;
-    if(last >= USBJ_BUTTON_SIZE) {
-      last = USBJ_BUTTON_SIZE-1;
-    }
-
+    uint8_t last = cch->lastBtnNum();
     for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] |= 2;
   }
 }
@@ -440,11 +430,7 @@ void USBChannelLineButton::paint(BitmapBuffer *dc)
       dc->drawNumber(col, line1, cch->btn_num, warn);
     }
     else {
-      uint8_t last = cch->btn_num + cch->switch_npos;
-      if (cch->switch_npos < 3) last -= 1;
-      if(last >= USBJ_BUTTON_SIZE) {
-        last = USBJ_BUTTON_SIZE-1;
-      }
+      uint8_t last = cch->lastBtnNum();
       snprintf(str, 20, "%u..%u", cch->btn_num, last);
       LcdFlags warn = COLOR_THEME_SECONDARY1;
       if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;

@@ -29,6 +29,9 @@
 #include "opentx_types.h"
 #include "globals.h"
 #include "serial.h"
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -629,14 +632,25 @@ PACK(struct PartialModel {
  */
 
 PACK(struct USBJoystickChData {
-  uint8_t mode:4 ENUM(USBJoystickCh);
+  uint8_t mode:2 ENUM(USBJoystickCh);
   uint8_t axis:4 ENUM(USBJoystickAxis);
-  uint8_t sim:4 ENUM(USBJoystickSim);
-  uint8_t btn_mode:4 ENUM(USBJoystickBtnMode);
-  uint8_t btn_num;
+  uint8_t sim:2 ENUM(USBJoystickSim);
+  uint8_t btn_mode:2 ENUM(USBJoystickBtnMode);
+  uint8_t btn_num:6;
   uint8_t inversion:1;
   uint8_t switch_npos:3;
   NOBACKUP(uint8_t paddingBits:4 SKIP);
+
+#if defined(USBJ_EX)
+  uint8_t lastBtnNum() {
+    uint8_t last = btn_num + switch_npos;
+    if (switch_npos < 3) last -= 1;
+    if(last >= USBJ_BUTTON_SIZE) {
+      last = USBJ_BUTTON_SIZE - 1;
+    }
+    return last;
+  }
+#endif
 });
 
 PACK(struct ModelData {

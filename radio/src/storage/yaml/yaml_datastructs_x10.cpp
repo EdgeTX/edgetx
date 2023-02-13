@@ -1042,11 +1042,11 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_IDX,
-  YAML_ENUM("mode", 4, enum_USBJoystickCh),
+  YAML_ENUM("mode", 2, enum_USBJoystickCh),
   YAML_ENUM("axis", 4, enum_USBJoystickAxis),
-  YAML_ENUM("sim", 4, enum_USBJoystickSim),
-  YAML_ENUM("btn_mode", 4, enum_USBJoystickBtnMode),
-  YAML_UNSIGNED( "btn_num", 8 ),
+  YAML_ENUM("sim", 2, enum_USBJoystickSim),
+  YAML_ENUM("btn_mode", 2, enum_USBJoystickBtnMode),
+  YAML_UNSIGNED( "btn_num", 6 ),
   YAML_UNSIGNED( "inversion", 1 ),
   YAML_UNSIGNED( "switch_npos", 3 ),
   YAML_PADDING( 4 ),
@@ -1108,7 +1108,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),
-  YAML_ARRAY("usbJoystickCh", 32, 32, struct_USBJoystickChData, NULL),
+  YAML_ARRAY("usbJoystickCh", 24, 32, struct_USBJoystickChData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>554</width>
-    <height>1250</height>
+    <height>1338</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,266 +31,10 @@
       </property>
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="28" column="1">
-         <widget class="QSlider" name="Ch_29">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>28</number>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="2">
-         <widget class="QCheckBox" name="ChInv_14">
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_9">
           <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>13</number>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="2">
-         <widget class="QCheckBox" name="ChInv_19">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>18</number>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="2">
-         <widget class="QCheckBox" name="ChInv_20">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>19</number>
-          </property>
-         </widget>
-        </item>
-        <item row="20" column="2">
-         <widget class="QCheckBox" name="ChInv_21">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="23" column="2">
-         <widget class="QCheckBox" name="ChInv_24">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>23</number>
-          </property>
-         </widget>
-        </item>
-        <item row="26" column="0">
-         <widget class="QLabel" name="label_27">
-          <property name="text">
-           <string>Btn19</string>
-          </property>
-         </widget>
-        </item>
-        <item row="24" column="2">
-         <widget class="QCheckBox" name="ChInv_25">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>24</number>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Btn7</string>
-          </property>
-         </widget>
-        </item>
-        <item row="22" column="0">
-         <widget class="QLabel" name="label_23">
-          <property name="text">
-           <string>Btn15</string>
-          </property>
-         </widget>
-        </item>
-        <item row="29" column="0">
-         <widget class="QLabel" name="label_30">
-          <property name="text">
-           <string>Btn22</string>
-          </property>
-         </widget>
-        </item>
-        <item row="27" column="0">
-         <widget class="QLabel" name="label_28">
-          <property name="text">
-           <string>Btn20</string>
-          </property>
-         </widget>
-        </item>
-        <item row="24" column="0">
-         <widget class="QLabel" name="label_25">
-          <property name="text">
-           <string>Btn17</string>
-          </property>
-         </widget>
-        </item>
-        <item row="25" column="0">
-         <widget class="QLabel" name="label_26">
-          <property name="text">
-           <string>Btn18</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="0">
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Btn10</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="1">
-         <widget class="QSlider" name="Ch_16">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>15</number>
-          </property>
-         </widget>
-        </item>
-        <item row="30" column="0">
-         <widget class="QLabel" name="label_31">
-          <property name="text">
-           <string>Btn23</string>
-          </property>
-         </widget>
-        </item>
-        <item row="29" column="2">
-         <widget class="QCheckBox" name="ChInv_30">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>29</number>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="2">
-         <widget class="QCheckBox" name="ChInv_12">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>11</number>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_4">
-          <property name="channel" stdset="0">
-           <number>11</number>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="1">
-         <widget class="QSlider" name="Ch_14">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>13</number>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="2">
-         <widget class="QCheckBox" name="ChInv_16">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>15</number>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="2">
-         <widget class="QCheckBox" name="ChInv_18">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>17</number>
-          </property>
-         </widget>
-        </item>
-        <item row="25" column="1">
-         <widget class="QSlider" name="Ch_26">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>25</number>
-          </property>
-         </widget>
-        </item>
-        <item row="30" column="2">
-         <widget class="QCheckBox" name="ChInv_31">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>30</number>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_6">
-          <property name="channel" stdset="0">
-           <number>13</number>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_8">
-          <property name="channel" stdset="0">
-           <number>15</number>
-          </property>
-         </widget>
-        </item>
-        <item row="31" column="2">
-         <widget class="QCheckBox" name="ChInv_32">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>31</number>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_9">
-          <property name="channel" stdset="0">
-           <number>16</number>
+           <string>Ch9</string>
           </property>
          </widget>
         </item>
@@ -304,74 +48,33 @@
           </property>
          </widget>
         </item>
-        <item row="17" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_10">
-          <property name="channel" stdset="0">
-           <number>17</number>
-          </property>
-         </widget>
-        </item>
-        <item row="26" column="2">
-         <widget class="QCheckBox" name="ChInv_27">
+        <item row="21" column="2">
+         <widget class="QCheckBox" name="ChInv_22">
           <property name="text">
            <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>26</number>
+           <number>21</number>
           </property>
          </widget>
         </item>
-        <item row="10" column="1">
-         <widget class="QSlider" name="Ch_11">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="25" column="2">
+         <widget class="QCheckBox" name="ChInv_26">
+          <property name="text">
+           <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>10</number>
+           <number>25</number>
           </property>
          </widget>
         </item>
-        <item row="13" column="0">
-         <widget class="QLabel" name="label_14">
+        <item row="20" column="2">
+         <widget class="QCheckBox" name="ChInv_21">
           <property name="text">
-           <string>Btn6</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="1">
-         <widget class="QSlider" name="Ch_12">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>11</number>
-          </property>
-         </widget>
-        </item>
-        <item row="23" column="0">
-         <widget class="QLabel" name="label_24">
-          <property name="text">
-           <string>Btn16</string>
-          </property>
-         </widget>
-        </item>
-        <item row="31" column="0">
-         <widget class="QLabel" name="label_32">
-          <property name="text">
-           <string>Btn24</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="0">
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Btn9</string>
+           <number>20</number>
           </property>
          </widget>
         </item>
@@ -388,74 +91,91 @@
           </property>
          </widget>
         </item>
-        <item row="20" column="0">
-         <widget class="QLabel" name="label_21">
+        <item row="15" column="2">
+         <widget class="QCheckBox" name="ChInv_16">
           <property name="text">
-           <string>Btn13</string>
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>15</number>
           </property>
          </widget>
         </item>
-        <item row="19" column="1">
-         <widget class="QSlider" name="Ch_20">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>19</number>
+        <item row="24" column="0">
+         <widget class="QLabel" name="label_25">
+          <property name="text">
+           <string>Btn15</string>
           </property>
          </widget>
         </item>
-        <item row="18" column="1">
-         <widget class="QSlider" name="Ch_19">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="26" column="2">
+         <widget class="QCheckBox" name="ChInv_27">
+          <property name="text">
+           <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>18</number>
+           <number>26</number>
           </property>
          </widget>
         </item>
-        <item row="29" column="1">
-         <widget class="QSlider" name="Ch_30">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>29</number>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="1">
-         <widget class="QSlider" name="Ch_17">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>16</number>
+        <item row="31" column="0">
+         <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>Btn22</string>
           </property>
          </widget>
         </item>
         <item row="28" column="0">
          <widget class="QLabel" name="label_29">
           <property name="text">
-           <string>Btn21</string>
+           <string>Btn19</string>
           </property>
          </widget>
         </item>
-        <item row="14" column="1">
-         <widget class="QSlider" name="Ch_15">
+        <item row="26" column="0">
+         <widget class="QLabel" name="label_27">
+          <property name="text">
+           <string>Btn17</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Btn7</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Ch10</string>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="0">
+         <widget class="QLabel" name="label_30">
+          <property name="text">
+           <string>Btn20</string>
+          </property>
+         </widget>
+        </item>
+        <item row="27" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>Btn18</string>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Btn10</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="1">
+         <widget class="QSlider" name="Ch_18">
           <property name="maximum">
            <number>1</number>
           </property>
@@ -463,7 +183,299 @@
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="channel" stdset="0">
-           <number>14</number>
+           <number>17</number>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_8">
+          <property name="channel" stdset="0">
+           <number>17</number>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="2">
+         <widget class="QCheckBox" name="ChInv_20">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>19</number>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="2">
+         <widget class="QCheckBox" name="ChInv_33">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="2">
+         <widget class="QCheckBox" name="ChInv_18">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>17</number>
+          </property>
+         </widget>
+        </item>
+        <item row="27" column="1">
+         <widget class="QSlider" name="Ch_28">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>27</number>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_6">
+          <property name="channel" stdset="0">
+           <number>15</number>
+          </property>
+         </widget>
+        </item>
+        <item row="18" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_9">
+          <property name="channel" stdset="0">
+           <number>18</number>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="2">
+         <widget class="QCheckBox" name="ChInv_34">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>33</number>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="2">
+         <widget class="QCheckBox" name="ChInv_25">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_10">
+          <property name="channel" stdset="0">
+           <number>19</number>
+          </property>
+         </widget>
+        </item>
+        <item row="28" column="2">
+         <widget class="QCheckBox" name="ChInv_29">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>28</number>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="1">
+         <widget class="QSlider" name="Ch_13">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>12</number>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="1">
+         <widget class="QSlider" name="Ch_16">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>15</number>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_4">
+          <property name="channel" stdset="0">
+           <number>13</number>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="2">
+         <widget class="QCheckBox" name="ChInv_14">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>13</number>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0">
+         <widget class="QLabel" name="label_33">
+          <property name="text">
+           <string>Btn23</string>
+          </property>
+         </widget>
+        </item>
+        <item row="31" column="2">
+         <widget class="QCheckBox" name="ChInv_32">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>31</number>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_15">
+          <property name="channel" stdset="0">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_16">
+          <property name="channel" stdset="0">
+           <number>25</number>
+          </property>
+         </widget>
+        </item>
+        <item row="26" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_17">
+          <property name="channel" stdset="0">
+           <number>26</number>
+          </property>
+         </widget>
+        </item>
+        <item row="27" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_18">
+          <property name="channel" stdset="0">
+           <number>27</number>
+          </property>
+         </widget>
+        </item>
+        <item row="28" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_19">
+          <property name="channel" stdset="0">
+           <number>28</number>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_20">
+          <property name="channel" stdset="0">
+           <number>29</number>
+          </property>
+         </widget>
+        </item>
+        <item row="30" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_21">
+          <property name="channel" stdset="0">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item row="31" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_22">
+          <property name="channel" stdset="0">
+           <number>31</number>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_23">
+          <property name="channel" stdset="0">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_24">
+          <property name="channel" stdset="0">
+           <number>33</number>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>Btn6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QSlider" name="Ch_14">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>13</number>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="0">
+         <widget class="QLabel" name="label_26">
+          <property name="text">
+           <string>Btn16</string>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0">
+         <widget class="QLabel" name="label_34">
+          <property name="text">
+           <string>Btn24</string>
+          </property>
+         </widget>
+        </item>
+        <item row="18" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>Btn9</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="1">
+         <widget class="QSlider" name="Ch_33">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="0">
+         <widget class="QLabel" name="label_23">
+          <property name="text">
+           <string>Btn13</string>
           </property>
          </widget>
         </item>
@@ -480,13 +492,16 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="2">
-         <widget class="QCheckBox" name="ChInv_15">
-          <property name="text">
-           <string/>
+        <item row="20" column="1">
+         <widget class="QSlider" name="Ch_21">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
           <property name="channel" stdset="0">
-           <number>14</number>
+           <number>20</number>
           </property>
          </widget>
         </item>
@@ -503,8 +518,8 @@
           </property>
          </widget>
         </item>
-        <item row="24" column="1">
-         <widget class="QSlider" name="Ch_25">
+        <item row="18" column="1">
+         <widget class="QSlider" name="Ch_19">
           <property name="maximum">
            <number>1</number>
           </property>
@@ -512,12 +527,19 @@
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="channel" stdset="0">
-           <number>24</number>
+           <number>18</number>
           </property>
          </widget>
         </item>
-        <item row="22" column="1">
-         <widget class="QSlider" name="Ch_23">
+        <item row="30" column="0">
+         <widget class="QLabel" name="label_31">
+          <property name="text">
+           <string>Btn21</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="1">
+         <widget class="QSlider" name="Ch_17">
           <property name="maximum">
            <number>1</number>
           </property>
@@ -525,7 +547,7 @@
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="channel" stdset="0">
-           <number>22</number>
+           <number>16</number>
           </property>
          </widget>
         </item>
@@ -539,6 +561,68 @@
           </property>
           <property name="channel" stdset="0">
            <number>23</number>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="2">
+         <widget class="QCheckBox" name="ChInv_17">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>16</number>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="1">
+         <widget class="QSlider" name="Ch_34">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>33</number>
+          </property>
+         </widget>
+        </item>
+        <item row="26" column="1">
+         <widget class="QSlider" name="Ch_27">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>26</number>
+          </property>
+         </widget>
+        </item>
+        <item row="24" column="1">
+         <widget class="QSlider" name="Ch_25">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="1">
+         <widget class="QSlider" name="Ch_26">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>25</number>
           </property>
          </widget>
         </item>
@@ -793,7 +877,7 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="label_1">
           <property name="text">
            <string>Ch1</string>
           </property>
@@ -1006,15 +1090,15 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_9">
+        <item row="10" column="0">
+         <widget class="QLabel" name="label_11">
           <property name="text">
            <string>Btn1</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QSlider" name="Ch_9">
+        <item row="10" column="1">
+         <widget class="QSlider" name="Ch_11">
           <property name="maximum">
            <number>1</number>
           </property>
@@ -1022,68 +1106,7 @@
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="channel" stdset="0">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="2">
-         <widget class="QCheckBox" name="ChInv_9">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_1">
-          <property name="channel" stdset="0">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Btn2</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QSlider" name="Ch_10">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>9</number>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="2">
-         <widget class="QCheckBox" name="ChInv_10">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>9</number>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_2">
-          <property name="channel" stdset="0">
-           <number>9</number>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Btn3</string>
+           <number>10</number>
           </property>
          </widget>
         </item>
@@ -1098,45 +1121,53 @@
          </widget>
         </item>
         <item row="10" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_3">
+         <widget class="QComboBox" name="jsbtnmapCB_1">
           <property name="channel" stdset="0">
            <number>10</number>
           </property>
          </widget>
         </item>
-        <item row="21" column="2">
-         <widget class="QCheckBox" name="ChInv_22">
+        <item row="11" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Btn2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QSlider" name="Ch_12">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>11</number>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2">
+         <widget class="QCheckBox" name="ChInv_12">
           <property name="text">
            <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>21</number>
+           <number>11</number>
           </property>
          </widget>
         </item>
-        <item row="12" column="1">
-         <widget class="QSlider" name="Ch_13">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
+        <item row="11" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_2">
           <property name="channel" stdset="0">
-           <number>12</number>
+           <number>11</number>
           </property>
          </widget>
         </item>
-        <item row="27" column="1">
-         <widget class="QSlider" name="Ch_28">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>27</number>
+        <item row="12" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Btn3</string>
           </property>
          </widget>
         </item>
@@ -1150,107 +1181,56 @@
           </property>
          </widget>
         </item>
-        <item row="25" column="2">
-         <widget class="QCheckBox" name="ChInv_26">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>25</number>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="2">
-         <widget class="QCheckBox" name="ChInv_17">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="channel" stdset="0">
-           <number>16</number>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_7">
-          <property name="channel" stdset="0">
-           <number>14</number>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>Btn4</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="1">
-         <widget class="QSlider" name="Ch_18">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>17</number>
-          </property>
-         </widget>
-        </item>
-        <item row="20" column="1">
-         <widget class="QSlider" name="Ch_21">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="26" column="1">
-         <widget class="QSlider" name="Ch_27">
-          <property name="maximum">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="channel" stdset="0">
-           <number>26</number>
-          </property>
-         </widget>
-        </item>
         <item row="12" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_5">
+         <widget class="QComboBox" name="jsbtnmapCB_3">
           <property name="channel" stdset="0">
            <number>12</number>
           </property>
          </widget>
         </item>
-        <item row="15" column="0">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>Btn8</string>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="0">
-         <widget class="QLabel" name="label_19">
-          <property name="text">
-           <string>Btn11</string>
-          </property>
-         </widget>
-        </item>
-        <item row="28" column="2">
-         <widget class="QCheckBox" name="ChInv_29">
+        <item row="23" column="2">
+         <widget class="QCheckBox" name="ChInv_24">
           <property name="text">
            <string/>
           </property>
           <property name="channel" stdset="0">
-           <number>28</number>
+           <number>23</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="1">
+         <widget class="QSlider" name="Ch_15">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>14</number>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="1">
+         <widget class="QSlider" name="Ch_30">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>29</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="2">
+         <widget class="QCheckBox" name="ChInv_15">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>14</number>
           </property>
          </widget>
         </item>
@@ -1264,122 +1244,216 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
-         <widget class="QLabel" name="label_13">
+        <item row="18" column="2">
+         <widget class="QCheckBox" name="ChInv_19">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>18</number>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_7">
+          <property name="channel" stdset="0">
+           <number>16</number>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Btn4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="1">
+         <widget class="QSlider" name="Ch_20">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>19</number>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="1">
+         <widget class="QSlider" name="Ch_23">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>22</number>
+          </property>
+         </widget>
+        </item>
+        <item row="28" column="1">
+         <widget class="QSlider" name="Ch_29">
+          <property name="maximum">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="channel" stdset="0">
+           <number>28</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="3">
+         <widget class="QComboBox" name="jsbtnmapCB_5">
+          <property name="channel" stdset="0">
+           <number>14</number>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Btn8</string>
+          </property>
+         </widget>
+        </item>
+        <item row="20" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>Btn11</string>
+          </property>
+         </widget>
+        </item>
+        <item row="30" column="2">
+         <widget class="QCheckBox" name="ChInv_31">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="2">
+         <widget class="QCheckBox" name="ChInv_30">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="channel" stdset="0">
+           <number>29</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="0">
+         <widget class="QLabel" name="label_15">
           <property name="text">
            <string>Btn5</string>
+          </property>
+         </widget>
+        </item>
+        <item row="23" column="0">
+         <widget class="QLabel" name="label_24">
+          <property name="text">
+           <string>Btn14</string>
           </property>
          </widget>
         </item>
         <item row="21" column="0">
          <widget class="QLabel" name="label_22">
           <property name="text">
-           <string>Btn14</string>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
            <string>Btn12</string>
           </property>
          </widget>
         </item>
-        <item row="18" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_11">
-          <property name="channel" stdset="0">
-           <number>18</number>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_12">
-          <property name="channel" stdset="0">
-           <number>19</number>
-          </property>
-         </widget>
-        </item>
         <item row="20" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_13">
+         <widget class="QComboBox" name="jsbtnmapCB_11">
           <property name="channel" stdset="0">
            <number>20</number>
           </property>
          </widget>
         </item>
         <item row="21" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_14">
+         <widget class="QComboBox" name="jsbtnmapCB_12">
           <property name="channel" stdset="0">
            <number>21</number>
           </property>
          </widget>
         </item>
         <item row="22" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_15">
+         <widget class="QComboBox" name="jsbtnmapCB_13">
           <property name="channel" stdset="0">
            <number>22</number>
           </property>
          </widget>
         </item>
         <item row="23" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_16">
+         <widget class="QComboBox" name="jsbtnmapCB_14">
           <property name="channel" stdset="0">
            <number>23</number>
           </property>
          </widget>
         </item>
-        <item row="24" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_17">
+        <item row="8" column="1">
+         <widget class="QSlider" name="Ch_9">
+          <property name="minimum">
+           <number>-32767</number>
+          </property>
+          <property name="maximum">
+           <number>32676</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
           <property name="channel" stdset="0">
-           <number>24</number>
+           <number>8</number>
           </property>
          </widget>
         </item>
-        <item row="25" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_18">
+        <item row="9" column="1">
+         <widget class="QSlider" name="Ch_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
           <property name="channel" stdset="0">
-           <number>25</number>
+           <number>9</number>
           </property>
          </widget>
         </item>
-        <item row="26" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_19">
+        <item row="8" column="2">
+         <widget class="QCheckBox" name="ChInv_9">
+          <property name="text">
+           <string/>
+          </property>
           <property name="channel" stdset="0">
-           <number>26</number>
+           <number>8</number>
           </property>
          </widget>
         </item>
-        <item row="27" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_20">
+        <item row="9" column="2">
+         <widget class="QCheckBox" name="ChInv_10">
+          <property name="text">
+           <string/>
+          </property>
           <property name="channel" stdset="0">
-           <number>27</number>
+           <number>9</number>
           </property>
          </widget>
         </item>
-        <item row="28" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_21">
+        <item row="8" column="3">
+         <widget class="QComboBox" name="jsmapCB_9">
           <property name="channel" stdset="0">
-           <number>28</number>
+           <number>8</number>
           </property>
          </widget>
         </item>
-        <item row="29" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_22">
+        <item row="9" column="3">
+         <widget class="QComboBox" name="jsmapCB_10">
           <property name="channel" stdset="0">
-           <number>29</number>
-          </property>
-         </widget>
-        </item>
-        <item row="30" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_23">
-          <property name="channel" stdset="0">
-           <number>30</number>
-          </property>
-         </widget>
-        </item>
-        <item row="31" column="3">
-         <widget class="QComboBox" name="jsbtnmapCB_24">
-          <property name="channel" stdset="0">
-           <number>31</number>
+           <number>9</number>
           </property>
          </widget>
         </item>

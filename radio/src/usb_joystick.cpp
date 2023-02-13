@@ -725,8 +725,7 @@ int isUSBBtnNumCollision(uint8_t chIdx)
 
   // collision check
   uint8_t cfirst = cch->btn_num;
-  uint8_t clast = cch->btn_num + cch->switch_npos;
-  if(clast >= USBJ_BUTTON_SIZE) clast = USBJ_BUTTON_SIZE-1;
+  uint8_t clast = cch->lastBtnNum();
   for (int i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
     if (i == chIdx) continue;
 
@@ -735,8 +734,7 @@ int isUSBBtnNumCollision(uint8_t chIdx)
     if (och->mode != USBJOYS_CH_BUTTON) continue;
 
     uint8_t ofirst = och->btn_num;
-    uint8_t olast = och->btn_num + och->switch_npos;
-    if(olast >= USBJ_BUTTON_SIZE) olast = USBJ_BUTTON_SIZE-1;
+    uint8_t olast = och->lastBtnNum();
 
     // overlap
     if ((cfirst <= olast) && (ofirst <= clast)) return true;
