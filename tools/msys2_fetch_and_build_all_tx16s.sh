@@ -4,22 +4,118 @@
 ## how to build TX16S firmware, Companion, Simulator, radio simulator
 ## library and how to create an installation package.
 ## Let it run as normal user in MSYS2 MinGW 64-bit console (blue icon).
-## this script is working on any branch from 2.8 (icluded)
+##
+## Note: This script works properly only for branches stemming from EdgeTX v2.8 or newer
 
 # -----------------------------------------------------------------------------
 export BRANCH_NAME="main"  # main|2.8|2.9|...
-export RADIO_TYPE="TX16S"  # TX16S|X10|X10EXPRESS|X12S|XLITE|XLITES|X9LITE|X9LITES|X9D|X9D+|X9D+2019|X9E|X7|X7ACCESS|T16|T18||T12|TX12|COMMANDO8
+export RADIO_TYPE="tx16s"  # x9lite|x9lites|x7|x7-access|t12|tx12|tx12mk2|boxer|t8|zorro|tlite|tpro|lr3pro|xlite|xlites|x9d|x9dp|x9dp2019|x9e|x9e-hall|x10|x10-access|x12s|t16|t18|tx16s|nv14|commando8|
+
+export BUILD_OPTIONS=""
+
+echo "Building ${fw_name}"
+case $RADIO_TYPE in
+    x9lite)
+        BUILD_OPTIONS+="-DPCB=X9LITE"
+        ;;
+    x9lites)
+        BUILD_OPTIONS+="-DPCB=X9LITES"
+        ;;
+    x7)
+        BUILD_OPTIONS+="-DPCB=X7"
+        ;;
+    x7-access)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+        ;;
+    t12)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
+        ;;
+    tx12)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
+        ;;
+    tx12mk2)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+        ;;
+    boxer)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+        ;;
+    t8)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+        ;;
+    zorro)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+        ;;
+    tlite)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
+        ;;
+    tpro)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+        ;;
+    lr3pro)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+        ;;
+    xlite)
+        BUILD_OPTIONS+="-DPCB=XLITE"
+        ;;
+    xlites)
+        BUILD_OPTIONS+="-DPCB=XLITES"
+        ;;
+    x9d)
+        BUILD_OPTIONS+="-DPCB=X9D"
+        ;;
+    x9dp)
+        BUILD_OPTIONS+="-DPCB=X9D+"
+        ;;
+    x9dp2019)
+        BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
+        ;;
+    x9e)
+        BUILD_OPTIONS+="-DPCB=X9E"
+        ;;
+    x9e-hall)
+        BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
+        ;;
+    x10)
+        BUILD_OPTIONS+="-DPCB=X10"
+        ;;
+    x10-access)
+        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
+        ;;
+    x12s)
+        BUILD_OPTIONS+="-DPCB=X12S"
+        ;;
+    t16)
+        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
+        ;;
+    t18)
+        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
+        ;;
+    tx16s)
+        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
+        ;;
+    nv14)
+        BUILD_OPTIONS+="-DPCB=NV14"
+        ;;
+    commando8)
+        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+        ;;
+    *)
+        echo "Unknown target: $RADIO_TYPE"
+        exit 1
+        ;;
+esac
+
+
+
+
+
+
 PAUSEAFTEREACHLINE="false" # true|false
 # -----------------------------------------------------------------------------
 
 export PROJ_DIR="${HOME}/edgetx"
 export SOURCE_DIR="${HOME}/edgetx/edgetx_${BRANCH_NAME}"
 export BUILD_OUTPUT_DIR="${SOURCE_DIR}/build-output-${RADIO_TYPE}"
-
-echo "RADIO_TYPE: ${RADIO_TYPE}"
-echo "BRANCH_NAME: ${BRANCH_NAME}"
-echo "SOURCE_DIR: ${SOURCE_DIR}"
-echo "BUILD_OUTPUT_DIR: ${BUILD_OUTPUT_DIR}"
 
 function log() {
     echo ""
@@ -39,6 +135,12 @@ function check_command() {
         return 0
     fi
 }
+
+echo "RADIO_TYPE: ${RADIO_TYPE}"
+echo "BRANCH_NAME: ${BRANCH_NAME}"
+echo "SOURCE_DIR: ${SOURCE_DIR}"
+echo "BUILD_OUTPUT_DIR: ${BUILD_OUTPUT_DIR}"
+echo "BUILD_OPTIONS: ${BUILD_OPTIONS}"
 
 # Parse argument(s)
 for arg in "$@"
@@ -88,8 +190,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Running CMake for ${RADIO_TYPE} as an example ==="
-cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ -DPCB=X10 -DPCBREV=${RADIO_TYPE} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../
-check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ -DPCB=X10 -DPCBREV=${RADIO_TYPE} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../"
+cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../
+check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
