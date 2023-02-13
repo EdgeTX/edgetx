@@ -21,41 +21,25 @@
 
 #pragma once
 
-#include "hal/serial_port.h"
-#include "definitions.h"
+#include "page.h"
 
-#include <stdbool.h>
-#include <stdint.h>
+class FormGroup;
+class USBChannelLineButton;
 
-// USB driver
-enum usbMode {
-  USB_UNSELECTED_MODE,
-  USB_JOYSTICK_MODE,
-  USB_MASS_STORAGE_MODE,
-  USB_SERIAL_MODE,
-#if defined(USB_SERIAL)
-  USB_MAX_MODE=USB_SERIAL_MODE
-#else
-  USB_MAX_MODE=USB_MASS_STORAGE_MODE
-#endif
+class ModelUSBJoystickPage : public Page
+{
+public:
+  ModelUSBJoystickPage();
+
+protected:
+  void update();
+  void editChannel(uint8_t channel, USBChannelLineButton* btn);
+
+protected:
+  Window* _IfModeLabel;
+  Window* _IfMode;
+  Window* _CircCoutoutLabel;
+  Window* _CircCoutout;
+  TextButton* _ApplyBtn;
+  Window* _ChannelsGroup;
 };
-
-// Control line state bits
-#define CTRL_LINE_STATE_DTR (1 << 0)
-#define CTRL_LINE_STATE_RTS (1 << 1)
-
-int  usbPlugged();
-void usbInit();
-void usbStart();
-void usbStop();
-#if defined(USBJ_EX)
-void usbJoystickRestart();
-#endif
-bool usbStarted();
-
-EXTERN_C(int getSelectedUsbMode());
-void setSelectedUsbMode(int mode);
-
-EXTERN_C(uint32_t usbSerialFreeSpace());
-
-extern const etx_serial_port_t UsbSerialPort;

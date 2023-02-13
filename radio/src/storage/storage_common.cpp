@@ -22,6 +22,10 @@
 #include "opentx.h"
 #include "timers_driver.h"
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"
   #if defined(MULTI_PROTOLIST)
@@ -214,6 +218,10 @@ void selectModel(uint8_t idx)
   g_eeGeneral.currModel = idx;
   storageDirty(EE_GENERAL);
   loadModel(idx);
+
+#if defined(USBJ_EX) && defined(STM32) && !defined(SIMU)
+  onUSBJoystickModelChanged();
+#endif
 }
 
 uint8_t findEmptyModel(uint8_t id, bool down)

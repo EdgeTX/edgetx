@@ -22,6 +22,10 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 #if !defined(EEPROM)
 #include "storage/sdcard_common.h"
 #include "storage/modelslist.h"
@@ -192,6 +196,15 @@ enum MenuModelSetupItems {
   #endif
   ITEM_MODEL_SETUP_TRAINER_CHANNELS,
   ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS,
+#endif
+
+#if defined(USBJ_EX)
+  ITEM_MODEL_SETUP_USBJOYSTICK_LABEL,
+  ITEM_MODEL_SETUP_USBJOYSTICK_MODE,
+  ITEM_MODEL_SETUP_USBJOYSTICK_IF_MODE,
+  ITEM_MODEL_SETUP_USBJOYSTICK_CIRC_CUTOUT,
+  ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON,
+  ITEM_MODEL_SETUP_USBJOYSTICK_APPLY,
 #endif
   ITEM_MODEL_SETUP_LINES_COUNT
 };
@@ -443,6 +456,25 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     NUM_SWITCHES - 1, /* Switch warning */
 #endif
 
+#if defined(USBJ_EX)
+inline uint8_t USB_JOYSTICK_EXTROW()
+{
+  return (usbJoystickExtMode() ? (uint8_t)0 : HIDDEN_ROW);
+}
+
+inline uint8_t USB_JOYSTICK_APPLYROW()
+{
+  if(!usbJoystickExtMode()) return HIDDEN_ROW;
+  if(usbJoystickSettingsChanged()) return (uint8_t)0;
+  return READONLY_ROW;
+}
+
+#define USB_JOYSTICK_ROWS                LABEL(USBJoystick), (uint8_t)0, USB_JOYSTICK_EXTROW(), \
+                                         USB_JOYSTICK_EXTROW(), USB_JOYSTICK_EXTROW(), USB_JOYSTICK_APPLYROW()
+#else
+#define USB_JOYSTICK_ROWS
+#endif
+
 #if defined(FUNCTION_SWITCHES)
 static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
 #endif
@@ -491,7 +523,9 @@ void menuModelSetup(event_t event)
 
     EXTRA_MODULE_ROWS
 
-    TRAINER_ROWS
+    TRAINER_ROWS,
+
+    USB_JOYSTICK_ROWS
   });
 
   MENU_CHECK(menuTabModel, MENU_MODEL_SETUP, HEADER_LINE + ITEM_MODEL_SETUP_LINES_COUNT);
@@ -2050,6 +2084,39 @@ void menuModelSetup(event_t event)
               CHECK_INCDEC_MODELVAR_ZERO(event, g_model.moduleData[1].ppmPulsePol, 1);
               break;
           }
+        }
+        break;
+#endif
+
+#if defined(USBJ_EX)
+      case ITEM_MODEL_SETUP_USBJOYSTICK_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_LABEL);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_MODE:
+        g_model.usbJoystickExtMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_EXTMODE, STR_VUSBJOYSTICK_EXTMODE, g_model.usbJoystickExtMode, 0, 1, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_IF_MODE:
+        g_model.usbJoystickIfMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_IF_MODE, STR_VUSBJOYSTICK_IF_MODE, g_model.usbJoystickIfMode, 0, USBJOYS_LAST, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_CIRC_CUTOUT:
+        g_model.usbJoystickCircularCut = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_CIRC_COUTOUT, STR_VUSBJOYSTICK_CIRC_COUTOUT, g_model.usbJoystickCircularCut, 0, 2, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
+        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
+        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+          pushMenu(menuModelUSBJoystick);
+        }
+        break;
+
+      case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
+        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
+        if (attr && !READ_ONLY() && event == EVT_KEY_FIRST(KEY_ENTER)) {
+          killEvents(event);
+          onUSBJoystickModelChanged();
         }
         break;
 #endif

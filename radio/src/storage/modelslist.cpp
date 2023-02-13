@@ -35,6 +35,10 @@ using std::list;
 
 #endif
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 #include <cstring>
 
 #include "datastructs.h"
@@ -1330,6 +1334,10 @@ void ModelsList::setCurrentModel(ModelCell *cell)
   gettime(&t);
   cell->lastOpened = gmktime(&t);
   modelslabels.setDirty();
+
+#if defined(USBJ_EX) && defined(STM32) && !defined(SIMU)
+  onUSBJoystickModelChanged();
+#endif
 }
 
 /**

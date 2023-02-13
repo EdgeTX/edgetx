@@ -690,6 +690,7 @@ ExpoData * expoAddress(uint8_t idx);
 MixData * mixAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
+USBJoystickChData * usbJChAddress(uint8_t idx);
 
 void applyDefaultTemplate();
 void instantTrim();

@@ -222,3 +222,8 @@ add_gui_src(lvgl_widgets/input_mix_group.c)
 if(HARDWARE_TOUCH)
   add_gui_src(keyboard_curve.cpp)
 endif()
+
+if(USBJ_EX)
+  add_gui_src(model_usbjoystick.cpp)
+endif()
+
