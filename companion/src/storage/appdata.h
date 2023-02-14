@@ -472,7 +472,7 @@ class ComponentData: public CompStoreObj
     };
     Q_ENUM(ReleaseChannel)
 
-    void clearRelease();
+    void releaseClear();
     static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
 
     inline ReleaseChannel boundedReleaseChannel() const {

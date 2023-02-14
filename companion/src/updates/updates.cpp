@@ -20,7 +20,7 @@
  */
 
 #include "updates.h"
-#include "updateinterface.h"
+#include "updatefactories.h"
 #include "updatesdialog.h"
 #include "progressdialog.h"
 #include "progresswidget.h"
@@ -94,8 +94,9 @@ void Updates::autoUpdates(bool interactive)
 
   while (it.hasNext()) {
     it.next();
-    factories->setRunUpdate(it.value());
-    factories->updateRelease(it.value());
+    UpdateInterface *iface = factories->instance(it.value());
+    iface->setRunUpdate();
+    iface->releaseUpdate();
   }
 
   runUpdate();

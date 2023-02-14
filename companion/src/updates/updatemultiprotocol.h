@@ -35,6 +35,5 @@ class UpdateMultiProtocol : public UpdateInterface
     virtual ~UpdateMultiProtocol() {}
 
   protected:
-    virtual void initAssetSettings() override;
-
+    virtual void assetSettingsInit() override;
 };

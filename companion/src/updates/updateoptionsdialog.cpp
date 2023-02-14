@@ -30,29 +30,28 @@
 #include <QVBoxLayout>
 #include <QTimer>
 
-UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * factories, const int idx, const bool isRun) :
+UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateInterface * iface, const int idx, const bool isRun) :
   QDialog(parent),
   ui(new Ui::UpdateOptionsDialog),
-  factories(factories),
+  iface(iface),
+  params(iface->params()),
   idx(idx),
   isRun(isRun)
 {
   ui->setupUi(this);
 
   if (!isRun)
-    factories->resetEnvironment(idx);
+    iface->resetEnvironment();
 
-  params = factories->getParams(idx);
+  setWindowTitle(tr("%1 %2").arg(iface->name()).arg(tr("Options")));
 
-  setWindowTitle(tr("%1 %2").arg(factories->name(idx)).arg(tr("Options")));
+  ui->txtreleaseCurrent->setText(iface->releaseCurrent());
 
-  ui->txtCurrentRelease->setText(factories->currentRelease(idx));
-
-  connect(ui->btnClearRelease, &QPushButton::clicked, [=]() {
+  connect(ui->btnReleaseClear, &QPushButton::clicked, [=]() {
     if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear current release information. Are you sure?"),
                              QMessageBox::Yes |QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
-      factories->clearRelease(idx);
-      ui->txtCurrentRelease->setText(factories->currentRelease(idx));
+      iface->releaseClear();
+      ui->txtreleaseCurrent->setText(iface->releaseCurrent());
       emit changed(idx);
 
     }
@@ -251,7 +250,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateFactories * fac
     }
 
     if (!isRun)
-      factories->saveAssetSettings(idx);
+      iface->assetSettingsSave();
 
     QDialog::accept();
   });

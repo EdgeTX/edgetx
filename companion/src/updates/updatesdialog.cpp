@@ -166,13 +166,15 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     const int i = it.value();
     const QString name = it.key();
 
+    UpdateInterface *iface = factories->instance(i);
+
     row++;
     col = 0;
 
     msg->setText(tr("Retrieving latest release information for %1").arg(name));
     chkUpdate[i] = new QCheckBox();
     chkUpdate[i]->setProperty("index", i);
-    chkUpdate[i]->setChecked(!factories->isLatestRelease(i));
+    chkUpdate[i]->setChecked(!iface->isReleaseLatest());
     grid->addWidget(chkUpdate[i], row, col++);
     grid->setAlignment(chkUpdate[i], Qt::AlignHCenter);
 
@@ -184,26 +186,26 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     cboRelChannel[i]->setCurrentIndex(g.component[i].releaseChannel());
     grid->addWidget(cboRelChannel[i], row, col++);
 
-    lblCurrentRel[i] = new QLabel(factories->currentRelease(i));
+    lblCurrentRel[i] = new QLabel(iface->releaseCurrent());
     grid->addWidget(lblCurrentRel[i], row, col++);
 
     cboUpdateRel[i] = new QComboBox();
-    cboUpdateRel[i]->addItems(factories->releases(i));
+    cboUpdateRel[i]->addItems(iface->releaseList());
     grid->addWidget(cboUpdateRel[i], row, col++);
 
     connect(cboRelChannel[i], QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (const int index) {
-      factories->setReleaseChannel(i, index);
+      iface->setReleaseChannel(index);
       cboUpdateRel[i]->clear();
-      cboUpdateRel[i]->addItems(factories->releases(i));
+      cboUpdateRel[i]->addItems(iface->releaseList());
     });
 
     btnOptions[i] = new QPushButton(tr("Options"));
     connect(btnOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, true);
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, iface, i, true);
       connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
-        chkUpdate[i]->setChecked(!factories->isLatestRelease(i));
-        lblCurrentRel[i]->setText(factories->currentRelease(i));
-        cboUpdateRel[i]->setCurrentText(factories->updateRelease(i));
+        chkUpdate[i]->setChecked(!iface->isReleaseLatest());
+        lblCurrentRel[i]->setText(iface->releaseCurrent());
+        cboUpdateRel[i]->setCurrentText(iface->releaseUpdate());
       });
       dlg->exec();
       dlg->deleteLater();
@@ -272,8 +274,8 @@ void UpdatesDialog::accept()
 
     if (chkUpdate[i]->isChecked()) {
       cnt++;
-      UpdateParameters *params = factories->getParams(i);
-      params->updateRelease = cboUpdateRel[i]->currentText();
+      UpdateParameters *params = factories->instance(i)->params();
+      params->releaseUpdate = cboUpdateRel[i]->currentText();
       params->flags |= UpdateInterface::UPDFLG_Update;
       params->downloadDir = ui->leDownloadDir->text();
       params->decompressDirUseDwnld = ui->chkDecompressDirUseDwnld->isChecked();
@@ -315,6 +317,6 @@ void UpdatesDialog::saveAsDefaults()
     it.next();
     const int i = it.value();
     g.component[i].releaseChannel((ComponentData::ReleaseChannel)cboRelChannel[i]->currentIndex());
-    factories->saveAssetSettings(i);
+    factories->instance(i)->assetSettingsSave();
   }
 }

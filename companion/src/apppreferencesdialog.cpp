@@ -29,7 +29,7 @@
 #endif
 #include "moduledata.h"
 #include "compounditemmodels.h"
-#include "updates/updateinterface.h"
+#include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
 
 #include <QAbstractItemModel>
@@ -458,7 +458,7 @@ void AppPreferencesDialog::initSettings()
 
     btnComponentOptions[i] = new QPushButton(tr("Options"));
     connect(btnComponentOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, false);
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories->instance(i), i, false);
       dlg->exec();
       dlg->deleteLater();
     });
