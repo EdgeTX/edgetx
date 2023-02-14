@@ -139,7 +139,7 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
   QGridLayout *grid = new QGridLayout();
 
-  QLabel *h1 = new QLabel();
+  QCheckBox *h1 = new QCheckBox();
   grid->addWidget(h1, row, col++);
 
   QLabel *h2 = new QLabel(tr("Name"));
@@ -220,6 +220,14 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
   }
 
   ui->grpComponents->setLayout(grid);
+
+  connect(h1, &QCheckBox::clicked, [=] (bool checked) {
+    QMapIterator<QString, int> it(sortedCompList);
+    while (it.hasNext()) {
+      it.next();
+      chkUpdate[it.value()]->setChecked(checked);
+    }
+  });
 
   QPushButton *btnSaveAsDefaults = new QPushButton(tr("Save as Defaults"));
   ui->buttonBox->addButton(btnSaveAsDefaults, QDialogButtonBox::ActionRole);
