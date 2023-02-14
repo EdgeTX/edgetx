@@ -51,7 +51,7 @@
 #define TR_VBEEPMODE                    "Tyst","Alarm","Ej knapp","Alla"
 #define TR_COUNTDOWNVALUES              "5s","10s","20s","30s"
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
-#define TR_TRNMODE                      "Av","+=",":="
+#define TR_TRNMODE                      "Av","Addera","Ersätt"
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
@@ -344,8 +344,8 @@
 #define TR_NAME                         "Namn"
 #define TR_MODELNAME                    "Modellnamn"
 #define TR_PHASENAME                    "Lägesnamn"
-#define TR_MIXNAME                      TR("Mixer","Mixernamn")
-#define TR_INPUTNAME                    TR("Input","Inputnamn")
+#define TR_MIXNAME                      TR("Namn","Mixernamn")
+#define TR_INPUTNAME                    TR("Namn","Inputnamn")
 #define TR_EXPONAME                     TR("Expo","Exponamn")
 #define TR_NO_PICTURE                   "Ingen bild"
 #define TR_BITMAP                       "Modellikon"
@@ -761,6 +761,8 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
+#define TR_DELETE_THEME                 "Radera tema?"
+#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
@@ -1179,8 +1181,6 @@
 #define TR_EDIT_THEME                   "ÄNDRA TEMA"
 #define TR_DETAILS                      "Detaljer"
 #define TR_THEME_EDITOR                 "TEMAN"
-#define TR_SAVE_THEME                   "Spara tema"
-#define TR_DELETE_THEME		  "Radera tema"
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
