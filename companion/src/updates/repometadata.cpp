@@ -58,7 +58,7 @@ const int RepoMetaData::flags() const
 
 int RepoMetaData::getSetId()
 {
-  return setId(m_filteredItemModel->id(0));
+  return getSetId(0);
 }
 
 int RepoMetaData::getSetId(const int row)

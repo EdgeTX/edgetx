@@ -72,7 +72,7 @@ class ReleasesFilteredItemModel: public RepoFilteredItemModel, public ReleasesIt
     friend class RepoReleases;
 
     const int channelLatestId() const;
-    void setReleaseChannel(const int channel);
+    void setChannel(const int channel);
     const QString version(const int id) const;
 };
 
@@ -90,7 +90,7 @@ class RepoReleases : public QObject, public RepoMetaData
     virtual bool retrieveMetaDataOne(const int id) { return false; } // not implemented
 
     int channelLatestId();
-    void setReleaseChannel(const int channel);
+    void setChannel(const int channel);
     const QString version() const;
 
   signals:

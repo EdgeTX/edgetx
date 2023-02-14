@@ -195,8 +195,13 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
 
     connect(cboRelChannel[i], QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (const int index) {
       iface->setReleaseChannel(index);
+      chkUpdate[i]->setChecked(!iface->isReleaseLatest());
       cboUpdateRel[i]->clear();
       cboUpdateRel[i]->addItems(iface->releaseList());
+    });
+
+    connect(cboUpdateRel[i], QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (const int index) {
+      chkUpdate[i]->setChecked(cboUpdateRel[i]->currentText() != lblCurrentRel[i]->text());
     });
 
     btnOptions[i] = new QPushButton(tr("Options"));

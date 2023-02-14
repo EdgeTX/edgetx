@@ -853,7 +853,7 @@ void UpdateInterface::setParamFolders()
 void UpdateInterface::setReleaseChannel(const int channel)
 {
   m_params->releaseChannel = channel;
-  m_repo->releases()->setReleaseChannel(channel);
+  m_repo->releases()->setChannel(channel);
 }
 
 void UpdateInterface::setReleaseId(QString name)

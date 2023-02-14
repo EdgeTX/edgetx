@@ -136,7 +136,7 @@ const int ReleasesFilteredItemModel::channelLatestId() const
   return rowCount() > 0 ? id(0) : 0;
 }
 
-void ReleasesFilteredItemModel::setReleaseChannel(const int channel)
+void ReleasesFilteredItemModel::setChannel(const int channel)
 {
   int flags = 0;
 
@@ -207,9 +207,10 @@ int RepoReleases::setId(const int id)
   return this->id();
 }
 
-void RepoReleases::setReleaseChannel(const int channel)
+void RepoReleases::setChannel(const int channel)
 {
-  m_filteredItemModel->setReleaseChannel(channel);
+  m_filteredItemModel->setChannel(channel);
+  getSetId();
 }
 
 const QString RepoReleases::version() const
