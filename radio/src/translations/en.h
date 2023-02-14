@@ -1239,7 +1239,7 @@
 #define TR_USBJOYSTICK_IF_MODE         TR("If. mode","Interface mode")
 #define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAxis"
 #define TR_USBJOYSTICK_CH_MODE         "Mode"
-#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim"
+#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim","Swtch"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE      "Button Mode"
 #define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta"

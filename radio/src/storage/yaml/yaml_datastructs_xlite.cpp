@@ -265,32 +265,6 @@ const struct YamlIdStr enum_USBJoystickCh[] = {
   {  USBJOYS_CH_SIM, "CH_SIM"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_USBJoystickAxis[] = {
-  {  USBJOYS_AXIS_X, "AXIS_X"  },
-  {  USBJOYS_AXIS_Y, "AXIS_Y"  },
-  {  USBJOYS_AXIS_Z, "AXIS_Z"  },
-  {  USBJOYS_AXIS_RX, "AXIS_RX"  },
-  {  USBJOYS_AXIS_RY, "AXIS_RY"  },
-  {  USBJOYS_AXIS_RZ, "AXIS_RZ"  },
-  {  USBJOYS_AXIS_SLIDER, "AXIS_SLIDER"  },
-  {  USBJOYS_AXIS_DIAL, "AXIS_DIAL"  },
-  {  USBJOYS_AXIS_WHEEL, "AXIS_WHEEL"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_USBJoystickSim[] = {
-  {  USBJOYS_SIM_AILERON, "SIM_AILERON"  },
-  {  USBJOYS_SIM_ELEVATOR, "SIM_ELEVATOR"  },
-  {  USBJOYS_SIM_RUDDER, "SIM_RUDDER"  },
-  {  USBJOYS_SIM_THROTTLE, "SIM_THROTTLE"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_USBJoystickBtnMode[] = {
-  {  USBJOYS_BTN_MODE_NORMAL, "BTN_MODE_NORMAL"  },
-  {  USBJOYS_BTN_MODE_ON_PULSE, "BTN_MODE_ON_PULSE"  },
-  {  USBJOYS_BTN_MODE_SW_EMU, "BTN_MODE_SW_EMU"  },
-  {  USBJOYS_BTN_MODE_DELTA, "BTN_MODE_DELTA"  },
-  {  0, NULL  }
-};
 
 //
 // Structs last
@@ -972,14 +946,11 @@ static const struct YamlNode struct_TelemetryScreenData[] = {
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_IDX,
-  YAML_ENUM("mode", 2, enum_USBJoystickCh),
-  YAML_ENUM("axis", 4, enum_USBJoystickAxis),
-  YAML_ENUM("sim", 2, enum_USBJoystickSim),
-  YAML_ENUM("btn_mode", 2, enum_USBJoystickBtnMode),
-  YAML_UNSIGNED( "btn_num", 6 ),
+  YAML_ENUM("mode", 3, enum_USBJoystickCh),
   YAML_UNSIGNED( "inversion", 1 ),
+  YAML_UNSIGNED( "param", 4 ),
+  YAML_UNSIGNED( "btn_num", 5 ),
   YAML_UNSIGNED( "switch_npos", 3 ),
-  YAML_PADDING( 4 ),
   YAML_END
 };
 static const struct YamlNode struct_ModelData[] = {
@@ -1038,7 +1009,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),
-  YAML_ARRAY("usbJoystickCh", 24, 32, struct_USBJoystickChData, NULL),
+  YAML_ARRAY("usbJoystickCh", 16, 26, struct_USBJoystickChData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

@@ -174,7 +174,7 @@ USBChannelButtonSel::USBChannelButtonSel(Window* parent, const rect_t& rect, uin
 {
   initBtnMap(USBCH_BTNMX_COL, USBJ_BUTTON_SIZE);
   char snum[5];
-  for (uint8_t btn = 0; btn < MAX_OUTPUT_CHANNELS; btn++) {
+  for (uint8_t btn = 0; btn < USBJ_BUTTON_SIZE; btn++) {
     snprintf(snum, 5, "%u", btn);
     setText(btn, snum);
   }
@@ -183,16 +183,11 @@ USBChannelButtonSel::USBChannelButtonSel(Window* parent, const rect_t& rect, uin
   lv_obj_add_event_cb(lvobj, btnsel_event_cb, LV_EVENT_DRAW_PART_BEGIN, this);
 
   memset(_btns, 0, USBJ_BUTTON_SIZE);
-  for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
+  for (uint8_t ch = 0; ch < USBJ_BUTTON_SIZE; ch++) {
     if(ch == channel) continue;
     USBJoystickChData * cch = usbJChAddress(ch);
 
-    if(cch->mode != USBJOYS_CH_BUTTON) continue;
-
-    if (cch->switch_npos == 0) {
-      _btns[cch->btn_num] = 1;
-    }
-    else {
+    if(cch->mode == USBJOYS_CH_BUTTON) {
       uint8_t last = cch->lastBtnNum();
       for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] = 1;
     }
@@ -218,13 +213,8 @@ void USBChannelButtonSel::updateState()
   USBJoystickChData * cch = usbJChAddress(channel);
 
   for(uint8_t i = 0; i < USBJ_BUTTON_SIZE; i++) _btns[i] &= 1;
-  if (cch->switch_npos == 0) {
-    _btns[cch->btn_num] |= 2;
-  }
-  else {
-    uint8_t last = cch->lastBtnNum();
-    for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] |= 2;
-  }
+  uint8_t last = cch->lastBtnNum();
+  for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] |= 2;
 }
 
 class USBChannelEditWindow : public Page
@@ -299,12 +289,12 @@ void USBChannelEditWindow::buildBody(FormWindow* form)
   _BtnModeLine = form->newLine(&grid);
   new StaticText(_BtnModeLine, rect_t{}, STR_USBJOYSTICK_CH_BTNMODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(_BtnModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_BTNMODE, 0, USBJOYS_BTN_MODE_LAST,
-                             GET_DEFAULT(cch->btn_mode),
+                             GET_DEFAULT(cch->param),
                              [=](int32_t newValue)
                              {
-                                cch->btn_mode = newValue;
-                                if(cch->btn_mode == USBJOYS_BTN_MODE_SW_EMU) _BtnPosChoice->setValue(0);
-                                else if(cch->btn_mode == USBJOYS_BTN_MODE_DELTA) _BtnPosChoice->setValue(1);
+                                cch->param = newValue;
+                                if(cch->param == USBJOYS_BTN_MODE_SW_EMU) _BtnPosChoice->setValue(0);
+                                else if(cch->param == USBJOYS_BTN_MODE_DELTA) _BtnPosChoice->setValue(1);
                                 SET_DIRTY();
                                 this->update();
                              });
@@ -315,12 +305,12 @@ void USBChannelEditWindow::buildBody(FormWindow* form)
   _AxisModeLine = form->newLine(&grid);
   new StaticText(_AxisModeLine, rect_t{}, STR_USBJOYSTICK_CH_AXIS, 0, COLOR_THEME_PRIMARY1);
   new Choice(_AxisModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_AXIS, 0, USBJOYS_AXIS_LAST,
-                             GET_DEFAULT(cch->axis), SET_VALUE_WUPDATE(cch->axis));
+                             GET_DEFAULT(cch->param), SET_VALUE_WUPDATE(cch->param));
 
   _SimModeLine = form->newLine(&grid);
   new StaticText(_SimModeLine, rect_t{}, STR_USBJOYSTICK_CH_SIM, 0, COLOR_THEME_PRIMARY1);
   new Choice(_SimModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_SIM, 0, USBJOYS_SIM_LAST,
-                             GET_DEFAULT(cch->sim), SET_VALUE_WUPDATE(cch->sim));
+                             GET_DEFAULT(cch->param), SET_VALUE_WUPDATE(cch->param));
 
   _BtnNumLine = form->newLine(&grid);
   new StaticText(_BtnNumLine, rect_t{}, STR_USBJOYSTICK_CH_BTNNUM, 0, COLOR_THEME_PRIMARY1);
@@ -339,7 +329,7 @@ void USBChannelEditWindow::buildBody(FormWindow* form)
 #define USBCH_LINES 5
 void USBChannelEditWindow::update()
 {
-  const uint8_t hiding[USBJOYS_CH_LAST + 1][USBCH_LINES] = {{ 0, 0, 0, 0, 0 }, { 1, 0, 0, 1, 1 }, { 0, 1, 0, 0, 0 }, { 0, 0, 1, 0, 0 }};
+  const uint8_t hiding[USBJOYS_CH_LAST + 1][USBCH_LINES] = {{ 0, 0, 0, 0, 0 }, { 1, 0, 0, 1, 1 }, { 0, 1, 0, 0, 0 }, { 0, 0, 1, 0, 0 }, { 1, 0, 0, 1, 1 }};
   Window* lines[USBCH_LINES] = { _BtnModeLine, _AxisModeLine, _SimModeLine, _BtnNumLine, _BtnNumSel };
 
   USBJoystickChData * cch = usbJChAddress(channel);
@@ -350,7 +340,7 @@ void USBChannelEditWindow::update()
     else lv_obj_add_flag(lines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   }
 
-  if(_BtnPosChoice) _BtnPosChoice->enable((cch->btn_mode != USBJOYS_BTN_MODE_SW_EMU) && (cch->btn_mode != USBJOYS_BTN_MODE_DELTA));
+  if(_BtnPosChoice) _BtnPosChoice->enable((cch->param != USBJOYS_BTN_MODE_SW_EMU) && (cch->param != USBJOYS_BTN_MODE_DELTA));
 
   if(collisionText) {
     collisionText->setText("");
@@ -421,34 +411,35 @@ void USBChannelLineButton::paint(BitmapBuffer *dc)
     col += colstep;
     dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_SWPOS, cch->switch_npos, COLOR_THEME_SECONDARY1);
     col += colstep;
-    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_BTNMODE, cch->btn_mode, COLOR_THEME_SECONDARY1);
+    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_BTNMODE, cch->param, COLOR_THEME_SECONDARY1);
 
-    if (cch->switch_npos == 0) {
-      col += colstep;
-      LcdFlags warn = COLOR_THEME_SECONDARY1;
-      if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
-      dc->drawNumber(col, line1, cch->btn_num, warn);
-    }
-    else {
-      uint8_t last = cch->lastBtnNum();
+    uint8_t last = cch->lastBtnNum();
+    if (last > cch->btn_num)
       snprintf(str, 20, "%u..%u", cch->btn_num, last);
-      LcdFlags warn = COLOR_THEME_SECONDARY1;
-      if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
-      col += colstep;
-      dc->drawText(col, line1, str, warn);
-    }
+    else
+      snprintf(str, 20, "%u", cch->btn_num);
+    LcdFlags warn = COLOR_THEME_SECONDARY1;
+    if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
+    col += colstep;
+    dc->drawText(col, line1, str, warn);
   }
   else if (cch->mode == USBJOYS_CH_AXIS) {
     LcdFlags warn = COLOR_THEME_SECONDARY1;
     if (isUSBAxisCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
     col += colstep;
-    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_AXIS, cch->axis, warn);
+    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_AXIS, cch->param, warn);
   }
   else if (cch->mode == USBJOYS_CH_SIM) {
     LcdFlags warn = COLOR_THEME_SECONDARY1;
     if (isUSBSimCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
     col += colstep;
-    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_SIM, cch->sim, warn);
+    dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_SIM, cch->param, warn);
+  }
+  else if (cch->mode == USBJOYS_CH_SWITCH) {
+    LcdFlags warn = COLOR_THEME_SECONDARY1;
+    if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
+    col += colstep;
+    dc->drawTextAtIndex(col, line1, STR_SWTYPES, cch->param, warn);
   }
 }
 
@@ -484,7 +475,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() :
   _ChannelsGroup = btngrp;
   btngrp->setFlexLayout();
   btngrp->padRow(lv_dpx(4));
-  for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
+  for (uint8_t ch = 0; ch < USBJ_MAX_JOYSTICK_CHANNELS; ch++) {
 
     // Channel settings
     auto btn = new USBChannelLineButton(btngrp, ch);

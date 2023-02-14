@@ -188,7 +188,7 @@ void onUSBJoystickMenu(const char *result)
 
 void menuModelUSBJoystick(event_t event)
 {
-  check_submenu_simple(event, MAX_OUTPUT_CHANNELS - HEADER_LINE);
+  check_submenu_simple(event, USBJ_MAX_JOYSTICK_CHANNELS - HEADER_LINE);
   title(STR_USBJOYSTICK_LABEL);
 
   if (s_editMode > 0) s_editMode = 0;
