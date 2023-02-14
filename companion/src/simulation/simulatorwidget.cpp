@@ -884,10 +884,14 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   }
   else {
     stick -= ttlSticks;
-    if (stick < ttlKnobs)
+    if (stick < ttlKnobs) {
+      GeneralSettings radioSettings = GeneralSettings();
+      if (Board::PotType(radioSettings.potConfig[stick]) == Board::POT_MULTIPOS_SWITCH)
+        stickval += 1024;
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
-    else
+    } else {
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
+    }
   }
 
 #endif

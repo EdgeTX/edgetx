@@ -642,6 +642,7 @@ PACK(struct USBJoystickChData {
   NOBACKUP(uint8_t paddingBits:4 SKIP);
 
 #if defined(USBJ_EX)
+  NOBACKUP(
   uint8_t lastBtnNum() {
     uint8_t last = btn_num + switch_npos;
     if (switch_npos < 3) last -= 1;
@@ -649,7 +650,7 @@ PACK(struct USBJoystickChData {
       last = USBJ_BUTTON_SIZE - 1;
     }
     return last;
-  }
+  });
 #endif
 });
 
