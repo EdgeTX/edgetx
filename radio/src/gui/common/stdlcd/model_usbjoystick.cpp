@@ -75,7 +75,7 @@ void menuModelUSBJoystickOne(event_t event)
             (cch->mode != USBJOYS_CH_NONE) ? (uint8_t)0 : (uint8_t)HIDDEN_ROW,
             (cch->mode != USBJOYS_CH_NONE) ? (uint8_t)0 : (uint8_t)HIDDEN_ROW,
             (cch->mode == USBJOYS_CH_BUTTON) ?
-              (((cch->btn_mode == USBJOYS_BTN_MODE_SW_EMU) || (cch->btn_mode == USBJOYS_BTN_MODE_DELTA)) ? (uint8_t)READONLY_ROW : (uint8_t)0)
+              (((cch->param == USBJOYS_BTN_MODE_SW_EMU) || (cch->param == USBJOYS_BTN_MODE_DELTA)) ? (uint8_t)READONLY_ROW : (uint8_t)0)
               : (uint8_t)HIDDEN_ROW,
             (cch->mode == USBJOYS_CH_BUTTON) ? (uint8_t)0 : (uint8_t)HIDDEN_ROW });
 
@@ -106,24 +106,24 @@ void menuModelUSBJoystickOne(event_t event)
 
       case USBJ_FIELD_SUBMODE:
         if(cch->mode == USBJOYS_CH_BUTTON) {
-          cch->btn_mode = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_BTNMODE, STR_VUSBJOYSTICK_CH_BTNMODE, cch->btn_mode, 0, USBJOYS_BTN_MODE_LAST, attr, event);
-          if(cch->btn_mode == USBJOYS_BTN_MODE_SW_EMU) cch->switch_npos = 0;
-          else if(cch->btn_mode == USBJOYS_BTN_MODE_DELTA) cch->switch_npos = 1;
+          cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_BTNMODE, STR_VUSBJOYSTICK_CH_BTNMODE, cch->param, 0, USBJOYS_BTN_MODE_LAST, attr, event);
+          if(cch->param == USBJOYS_BTN_MODE_SW_EMU) cch->switch_npos = 0;
+          else if(cch->param == USBJOYS_BTN_MODE_DELTA) cch->switch_npos = 1;
         }
         else if(cch->mode == USBJOYS_CH_AXIS) {
-          cch->axis = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_AXIS, STR_VUSBJOYSTICK_CH_AXIS, cch->axis, 0, USBJOYS_AXIS_LAST, attr, event);
+          cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_AXIS, STR_VUSBJOYSTICK_CH_AXIS, cch->param, 0, USBJOYS_AXIS_LAST, attr, event);
         }
         else if(cch->mode == USBJOYS_CH_SIM) {
-          cch->sim = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_SIM, STR_VUSBJOYSTICK_CH_SIM, cch->sim, 0, USBJOYS_SIM_LAST, attr, event);
+          cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_SIM, STR_VUSBJOYSTICK_CH_SIM, cch->param, 0, USBJOYS_SIM_LAST, attr, event);
         }
         break;
 
       case USBJ_FIELD_BTNPOS:
-        if(cch->btn_mode == USBJOYS_BTN_MODE_SW_EMU) {
+        if(cch->param == USBJOYS_BTN_MODE_SW_EMU) {
           lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_SWPOS);
           lcdDrawText(USBJ_ONE_2ND_COLUMN, y, STR_VUSBJOYSTICK_CH_SWPOS[0], attr);
         }
-        else if(cch->btn_mode == USBJOYS_BTN_MODE_DELTA) {
+        else if(cch->param == USBJOYS_BTN_MODE_DELTA) {
           lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_SWPOS);
           lcdDrawText(USBJ_ONE_2ND_COLUMN, y, STR_VUSBJOYSTICK_CH_SWPOS[1], attr);
         }
@@ -231,7 +231,7 @@ void menuModelUSBJoystick(event_t event)
     lcdDrawTextAtIndex(MODE_POS, y, STR_VUSBJOYSTICK_CH_MODE_S, cch->mode, 0);
     if (cch->mode == USBJOYS_CH_BUTTON) {
       lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_SWPOS, cch->switch_npos, 0);
-      lcdDrawTextAtIndex(BTNMODE_POS, y, STR_VUSBJOYSTICK_CH_BTNMODE_S, cch->btn_mode, 0);
+      lcdDrawTextAtIndex(BTNMODE_POS, y, STR_VUSBJOYSTICK_CH_BTNMODE_S, cch->param, 0);
 
       if (cch->switch_npos == 0) {
         LcdFlags warn = 0;
@@ -252,12 +252,12 @@ void menuModelUSBJoystick(event_t event)
     else if (cch->mode == USBJOYS_CH_AXIS) {
       LcdFlags warn = 0;
       if (isUSBAxisCollision(k)) warn = INVERS;
-      lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_AXIS, cch->axis, warn);
+      lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_AXIS, cch->param, warn);
     }
     else if (cch->mode == USBJOYS_CH_SIM) {
       LcdFlags warn = 0;
       if (isUSBSimCollision(k)) warn = INVERS;
-      lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_SIM, cch->sim, warn);
+      lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_SIM, cch->param, warn);
     }
   }
 
