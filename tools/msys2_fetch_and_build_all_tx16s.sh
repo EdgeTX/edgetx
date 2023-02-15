@@ -9,7 +9,7 @@
 
 # -----------------------------------------------------------------------------
 export BRANCH_NAME="main"  # main|2.8|2.9|...
-export RADIO_TYPE="tx16s"  # x9lite|x9lites|x7|x7-access|t12|tx12|tx12mk2|boxer|t8|zorro|tlite|tpro|lr3pro|xlite|xlites|x9d|x9dp|x9dp2019|x9e|x9e-hall|x10|x10-access|x12s|t16|t18|tx16s|nv14|commando8|
+export RADIO_TYPE="tx16s"  # tx16s|x10|x10-access|x12s|x9d|x9dp|x9lite|x9lites|x7|x7-access|t12|tx12|tx12mk2|boxer|t8|zorro|tlite|tpro|lr3pro|xlite|xlites|x9dp2019|x9e|x9e-hall|t16|t18|nv14|commando8|
 
 export BUILD_OPTIONS="-DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US"
 
@@ -250,8 +250,8 @@ fi
 echo "Done. \n\n"
 echo "RADIO_TYPE=${RADIO_TYPE}"
 echo ""
-echo "firmware (${RADIO_TYPE}): ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${RADIO_TYPE}_release.bin"
-echo "Companion installer: ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/companion/companion-windows-x.x.x.exe"
-echo "Companion          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/companion.exe"
-echo "Simulator          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/simulator.exe"
-echo "Simulator library  : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/libedgetx-${RADIO_TYPE}-simulator.dll"
+echo "firmware (${RADIO_TYPE}): ${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${RADIO_TYPE}_release.bin"
+echo "Companion installer: ${BUILD_OUTPUT_DIR}/native/companion/companion-windows-x.x.x.exe"
+echo "Companion          : ${BUILD_OUTPUT_DIR}/native/Release/companion.exe"
+echo "Simulator          : ${BUILD_OUTPUT_DIR}/native/Release/simulator.exe"
+echo "Simulator library  : ${BUILD_OUTPUT_DIR}/native/Release/libedgetx-${RADIO_TYPE}-simulator.dll"
