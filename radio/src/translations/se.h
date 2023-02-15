@@ -344,8 +344,8 @@
 #define TR_NAME                         "Namn"
 #define TR_MODELNAME                    "Modellnamn"
 #define TR_PHASENAME                    "Lägesnamn"
-#define TR_MIXNAME                      TR("Mixer","Mixernamn")
-#define TR_INPUTNAME                    TR("Input","Inputnamn")
+#define TR_MIXNAME                      TR("Namn","Mixernamn")
+#define TR_INPUTNAME                    TR("Namn","Inputnamn")
 #define TR_EXPONAME                     TR("Expo","Exponamn")
 #define TR_NO_PICTURE                   "Ingen bild"
 #define TR_BITMAP                       "Modellikon"
@@ -761,6 +761,8 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
+#define TR_DELETE_THEME                 "Radera tema?"
+#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
