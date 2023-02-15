@@ -329,7 +329,7 @@ void USBChannelEditWindow::buildBody(FormWindow* form)
 #define USBCH_LINES 5
 void USBChannelEditWindow::update()
 {
-  const uint8_t hiding[USBJOYS_CH_LAST + 1][USBCH_LINES] = {{ 0, 0, 0, 0, 0 }, { 1, 0, 0, 1, 1 }, { 0, 1, 0, 0, 0 }, { 0, 0, 1, 0, 0 }, { 1, 0, 0, 1, 1 }};
+  const uint8_t hiding[USBJOYS_CH_LAST + 1][USBCH_LINES] = {{ 0, 0, 0, 0, 0 }, { 1, 0, 0, 1, 1 }, { 0, 1, 0, 0, 0 }, { 0, 0, 1, 0, 0 }};
   Window* lines[USBCH_LINES] = { _BtnModeLine, _AxisModeLine, _SimModeLine, _BtnNumLine, _BtnNumSel };
 
   USBJoystickChData * cch = usbJChAddress(channel);
@@ -434,12 +434,6 @@ void USBChannelLineButton::paint(BitmapBuffer *dc)
     if (isUSBSimCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
     col += colstep;
     dc->drawTextAtIndex(col, line1, STR_VUSBJOYSTICK_CH_SIM, cch->param, warn);
-  }
-  else if (cch->mode == USBJOYS_CH_SWITCH) {
-    LcdFlags warn = COLOR_THEME_SECONDARY1;
-    if (isUSBBtnNumCollision(index)) warn = FONT(BOLD) | COLOR_THEME_WARNING;
-    col += colstep;
-    dc->drawTextAtIndex(col, line1, STR_SWTYPES, cch->param, warn);
   }
 }
 

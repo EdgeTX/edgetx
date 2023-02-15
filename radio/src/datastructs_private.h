@@ -638,14 +638,20 @@ PACK(struct USBJoystickChData {
 
 #if defined(USBJ_EX)
   NOBACKUP(
-  uint8_t lastBtnNum() {
-    uint8_t last = btn_num + switch_npos;
-    if (mode == USBJOYS_CH_SWITCH) last -= 2;
-    if (last >= USBJ_BUTTON_SIZE) {
-      last = USBJ_BUTTON_SIZE - 1;
+    uint8_t lastBtnNumNoCLip() {
+      uint8_t last = btn_num + switch_npos;
+      // Use one less joystick button for 2POS and 3POS switches for Companion mode
+      if ((param == USBJOYS_BTN_MODE_COMPANION) && (switch_npos > 0) && (switch_npos < 3)) last -= 1;
+      return last;
     }
-    return last;
-  });
+    uint8_t lastBtnNum() {
+      uint8_t last = lastBtnNumNoCLip();
+      if (last >= USBJ_BUTTON_SIZE) {
+        last = USBJ_BUTTON_SIZE - 1;
+      }
+      return last;
+    }
+  );
 #endif
 });
 

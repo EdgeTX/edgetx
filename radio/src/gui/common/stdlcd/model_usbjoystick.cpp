@@ -134,19 +134,17 @@ void menuModelUSBJoystickOne(event_t event)
 
       case USBJ_FIELD_BTNNUM:
         lcdDrawTextAlignedLeft(y, TR_USBJOYSTICK_CH_BTNNUM);
-        if (cch->switch_npos == 0) {
-          lcdDrawNumber(USBJ_ONE_2ND_COLUMN, y, cch->btn_num, attr);
+        uint8_t last = cch->lastBtnNumNoCLip();
+        uint8_t limited = 0;
+        if(last >= USBJ_BUTTON_SIZE) {
+          limited = 1;
+          last = USBJ_BUTTON_SIZE-1;
         }
-        else {
-          uint8_t last = cch->btn_num + cch->switch_npos;
-          uint8_t limited = 0;
-          if(last >= USBJ_BUTTON_SIZE) {
-            limited = 1;
-            last = USBJ_BUTTON_SIZE-1;
-          }
+        if (last > cch->btn_num)
           snprintf(str, 20, "%u..%u%c", cch->btn_num, last, limited ? '!' : ' ');
-          lcdDrawText(USBJ_ONE_2ND_COLUMN, y, str, attr);
-        }
+        else
+          snprintf(str, 20, "%u%c", cch->btn_num, limited ? '!' : ' ');
+        lcdDrawText(USBJ_ONE_2ND_COLUMN, y, str, attr);
         if (attr) {
           CHECK_INCDEC_MODELVAR(event, cch->btn_num, 0, USBJ_BUTTON_SIZE);
         }
@@ -233,21 +231,14 @@ void menuModelUSBJoystick(event_t event)
       lcdDrawTextAtIndex(SUBMODE_POS, y, STR_VUSBJOYSTICK_CH_SWPOS, cch->switch_npos, 0);
       lcdDrawTextAtIndex(BTNMODE_POS, y, STR_VUSBJOYSTICK_CH_BTNMODE_S, cch->param, 0);
 
-      if (cch->switch_npos == 0) {
-        LcdFlags warn = 0;
-        if (isUSBBtnNumCollision(k)) warn = INVERS;
-        lcdDrawNumber(BTNNUM_POS, y, cch->btn_num, RIGHT|warn);
-      }
-      else {
-        uint8_t last = cch->btn_num + cch->switch_npos;
-        if(last >= USBJ_BUTTON_SIZE) {
-          last = USBJ_BUTTON_SIZE-1;
-        }
+      uint8_t last = cch->lastBtnNum();
+      if (last > cch->btn_num)
         sprintf(str, "%u..%u", cch->btn_num, last);
-        LcdFlags warn = 0;
-        if (isUSBBtnNumCollision(k)) warn = INVERS;
-        lcdDrawText(BTNNUM_POS, y, str, RIGHT|warn);
-      }
+      else
+        sprintf(str, "%u", cch->btn_num);
+      LcdFlags warn = 0;
+      if (isUSBBtnNumCollision(k)) warn = INVERS;
+      lcdDrawText(BTNNUM_POS, y, str, RIGHT|warn);
     }
     else if (cch->mode == USBJOYS_CH_AXIS) {
       LcdFlags warn = 0;
