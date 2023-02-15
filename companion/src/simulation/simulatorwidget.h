@@ -147,7 +147,7 @@ class SimulatorWidget : public QWidget
 
 #ifdef JOYSTICKS
     Joystick * joystick = nullptr;
-    int switchDirection[MAX_JSBUTTONS];
+    int switchDirection[MAX_JS_BUTTONS];
 #endif
 };
 

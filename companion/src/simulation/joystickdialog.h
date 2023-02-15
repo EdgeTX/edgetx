@@ -33,8 +33,6 @@ enum JSButtonFlag {
     JS_BUTTON_TOGGLE = 0x1000,
     JS_BUTTON_3POS_UP = 0x2000,
     JS_BUTTON_3POS_DN = 0x4000,
-    JS_BUTTON_6POS = 0x8000,
-    JS_BUTTON_6POS_IDX_SHFT = 8,
     JS_BUTTON_TYPE_MASK = 0xF000,
     JS_BUTTON_SWITCH_MASK = 0xF
 };
@@ -54,10 +52,10 @@ class joystickDialog : public QDialog
 
   private:
     Ui::joystickDialog *ui;
-    int jscal[MAX_JOYSTICKS][3];
-    QCheckBox * invert[MAX_JOYSTICKS + MAX_JSBUTTONS];
-    QComboBox * sticks[MAX_JOYSTICKS + MAX_JSBUTTONS];
-    QSlider * sliders[MAX_JOYSTICKS + MAX_JSBUTTONS];
+    int jscal[MAX_JS_AXES][3];
+    QCheckBox * invert[MAX_JS_AXES + MAX_JS_BUTTONS];
+    QComboBox * sticks[MAX_JS_AXES + MAX_JS_BUTTONS];
+    QSlider * sliders[MAX_JS_AXES + MAX_JS_BUTTONS];
     int step;
     int numAxes;
     bool started;

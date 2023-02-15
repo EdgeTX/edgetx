@@ -676,7 +676,7 @@ void SimulatorWidget::setupJoysticks()
       joystick->close();
 
     if (joystick && joystick->open(g.jsCtrl())) {
-      int numAxes = std::min(joystick->numAxes, MAX_JOYSTICKS);
+      int numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
       for (int j=0; j<numAxes; j++) {
         joystick->sensitivities[j] = 0;
         joystick->deadzones[j] = 0;
@@ -857,7 +857,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   static const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
   static const int valueRange = 1024;
 
-  if (!joystick || axis >= MAX_JOYSTICKS)
+  if (!joystick || axis >= MAX_JS_AXES)
     return;
 
   int dlta;
@@ -901,7 +901,7 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
 {
 #ifdef JOYSTICKS
 
-  if (!joystick || button >= MAX_JSBUTTONS)
+  if (!joystick || button >= MAX_JS_BUTTONS)
     return;
 
   int btn = g.jsButton[button].button_idx();
@@ -911,13 +911,7 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
 
   int swtch = btn & JS_BUTTON_SWITCH_MASK;
 
-  if (btn & JS_BUTTON_6POS) {
-    // 6POS switch
-    static int v6pos[6] = { 0, 409, 818, 1230, 1639, 2048 };
-    if (state) {
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, swtch, v6pos[(btn >> JS_BUTTON_6POS_IDX_SHFT) & 0xF]);
-    }
-  } else if (btn & JS_BUTTON_3POS_DN) {
+  if (btn & JS_BUTTON_3POS_DN) {
     // 3POS Down
     if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : 0);

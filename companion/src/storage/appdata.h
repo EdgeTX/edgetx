@@ -59,8 +59,8 @@
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
 #define MAX_PROFILES 20
-#define MAX_JOYSTICKS 10
-#define MAX_JSBUTTONS 24
+#define MAX_JS_AXES 15
+#define MAX_JS_BUTTONS 32
 #define MAX_COMPONENTS 10
 #define MAX_COMPONENT_ASSETS 5
 
@@ -613,8 +613,8 @@ class AppData: public CompStoreObj
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
     Profile    profile[MAX_PROFILES];
-    JStickData joystick[MAX_JOYSTICKS];
-    JButtonData jsButton[MAX_JSBUTTONS];
+    JStickData joystick[MAX_JS_AXES];
+    JButtonData jsButton[MAX_JS_BUTTONS];
     FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
 

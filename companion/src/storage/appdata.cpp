@@ -407,9 +407,9 @@ AppData::AppData() :
     profile[i].setIndex(i);
 
   // Configure the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].setIndex(i);
-  for (int i = 0; i < MAX_JSBUTTONS; i++)
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].setIndex(i);
 
   // Configure the updates
@@ -448,9 +448,9 @@ void AppData::initAll()
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].init();
   // Initialize the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].init();
-  for (int i = 0; i < MAX_JSBUTTONS; i++)
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].init();
   // Initialize the updatess
   for (int i = 0; i < MAX_COMPONENTS; i++) {
@@ -467,9 +467,9 @@ void AppData::resetAllSettings()
   fwRev.resetAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].resetAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].resetAll();
-  for (int i = 0; i < MAX_JSBUTTONS; i++)
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].resetAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
@@ -485,9 +485,9 @@ void AppData::storeAllSettings()
   storeAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].storeAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].storeAll();
-  for (int i = 0; i < MAX_JSBUTTONS; i++)
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].storeAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
