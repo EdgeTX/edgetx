@@ -11,104 +11,99 @@
 export BRANCH_NAME="main"  # main|2.8|2.9|...
 export RADIO_TYPE="tx16s"  # x9lite|x9lites|x7|x7-access|t12|tx12|tx12mk2|boxer|t8|zorro|tlite|tpro|lr3pro|xlite|xlites|x9d|x9dp|x9dp2019|x9e|x9e-hall|x10|x10-access|x12s|t16|t18|tx16s|nv14|commando8|
 
-export BUILD_OPTIONS=""
+export BUILD_OPTIONS="-DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US"
 
 echo "Building ${fw_name}"
 case $RADIO_TYPE in
     x9lite)
-        BUILD_OPTIONS+="-DPCB=X9LITE"
+        BUILD_OPTIONS+=" -DPCB=X9LITE"
         ;;
     x9lites)
-        BUILD_OPTIONS+="-DPCB=X9LITES"
+        BUILD_OPTIONS+=" -DPCB=X9LITES"
         ;;
     x7)
-        BUILD_OPTIONS+="-DPCB=X7"
+        BUILD_OPTIONS+=" -DPCB=X7"
         ;;
     x7-access)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
         ;;
     t12)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
         ;;
     tx12)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=TX12"
         ;;
     tx12mk2)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=TX12MK2"
         ;;
     boxer)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=BOXER"
         ;;
     t8)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=T8"
         ;;
     zorro)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=ZORRO"
         ;;
     tlite)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=TLITE"
         ;;
     tpro)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=TPRO"
         ;;
     lr3pro)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=LR3PRO"
         ;;
     xlite)
-        BUILD_OPTIONS+="-DPCB=XLITE"
+        BUILD_OPTIONS+=" -DPCB=XLITE"
         ;;
     xlites)
-        BUILD_OPTIONS+="-DPCB=XLITES"
+        BUILD_OPTIONS+=" -DPCB=XLITES"
         ;;
     x9d)
-        BUILD_OPTIONS+="-DPCB=X9D"
+        BUILD_OPTIONS+=" -DPCB=X9D"
         ;;
     x9dp)
-        BUILD_OPTIONS+="-DPCB=X9D+"
+        BUILD_OPTIONS+=" -DPCB=X9D+"
         ;;
     x9dp2019)
-        BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
+        BUILD_OPTIONS+=" -DPCB=X9D+ -DPCBREV=2019"
         ;;
     x9e)
-        BUILD_OPTIONS+="-DPCB=X9E"
+        BUILD_OPTIONS+=" -DPCB=X9E"
         ;;
     x9e-hall)
-        BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
+        BUILD_OPTIONS+=" -DPCB=X9E -DSTICKS=HORUS"
         ;;
     x10)
-        BUILD_OPTIONS+="-DPCB=X10"
+        BUILD_OPTIONS+=" -DPCB=X10"
         ;;
     x10-access)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
+        BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
         ;;
     x12s)
-        BUILD_OPTIONS+="-DPCB=X12S"
+        BUILD_OPTIONS+=" -DPCB=X12S"
         ;;
     t16)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
+        BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
         ;;
     t18)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
+        BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=T18"
         ;;
     tx16s)
-        BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
+        BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=TX16S"
         ;;
     nv14)
-        BUILD_OPTIONS+="-DPCB=NV14"
+        BUILD_OPTIONS+=" -DPCB=NV14"
         ;;
     commando8)
-        BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=COMMANDO8"
         ;;
     *)
         echo "Unknown target: $RADIO_TYPE"
         exit 1
         ;;
 esac
-
-
-
-
-
 
 PAUSEAFTEREACHLINE="false" # true|false
 # -----------------------------------------------------------------------------
@@ -190,8 +185,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Running CMake for ${RADIO_TYPE} as an example ==="
-cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../
-check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US -DHELI=NO -DLUA=YES -DCMAKE_BUILD_TYPE=Release ../"
+cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../
+check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
@@ -214,8 +209,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Renaming firmware binary ==="
-mv arm-none-eabi/firmware.bin arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin
-check_command $? "mv arm-none-eabi/firmware.bin arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin"
+mv arm-none-eabi/firmware.bin arm-none-eabi/fw_${RADIO_TYPE}_release.bin
+check_command $? "mv arm-none-eabi/firmware.bin arm-none-eabi/fw_${RADIO_TYPE}_release.bin"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
@@ -252,9 +247,11 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi
 
-echo "Finished."
+echo "Done. \n\n"
+echo "RADIO_TYPE=${RADIO_TYPE}"
 echo ""
-echo "firmware (${RADIO_TYPE}): ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${SOURCE_DIR}_${RADIO_TYPE}_lua-ppmus-mode2_release.bin"
+echo "firmware (${RADIO_TYPE}): ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${RADIO_TYPE}_release.bin"
 echo "Companion installer: ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/companion/companion-windows-x.x.x.exe"
 echo "Companion          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/companion.exe"
 echo "Simulator          : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/simulator.exe"
+echo "Simulator library  : ${SOURCE_DIR}/${BUILD_OUTPUT_DIR}/native/Release/libedgetx-${RADIO_TYPE}-simulator.dll"
