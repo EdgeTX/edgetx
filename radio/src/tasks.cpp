@@ -114,6 +114,10 @@ TASK_FUNCTION(mixerTask)
 {
   s_pulses_paused = true;
 
+#if defined(IMU)
+  gyroInit();
+#endif
+
   mixerSchedulerInit();
   mixerSchedulerStart();
 
@@ -206,10 +210,6 @@ TASK_FUNCTION(menusTask)
   touchPanelInit();
 #endif
 
-#if defined(IMU)
-  gyroInit();
-#endif
-  
   opentxInit();
 
 #if defined(PWR_BUTTON_PRESS)
