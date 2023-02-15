@@ -562,7 +562,7 @@ struct RFAlarms {
   int critical = 0;
 
   RFAlarms() {}
-  
+
   RFAlarms(const RSSIAlarmData& rhs)
     : warning(rhs.warning), critical(rhs.critical)
   {}
@@ -1190,6 +1190,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
         sd.index += 2;
     }
   }
+
+  // perform integrity checks and fix-ups
+
+  rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
 
   return true;
 }
