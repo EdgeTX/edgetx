@@ -131,13 +131,16 @@ static const char * attemptLoad(const char *filename, ChecksumResult* checksum_s
   return readYamlFile(filename, YamlTreeWalker::get_parser_calls(), &tree, checksum_status);
 }
 
-const char * loadRadioSettingsYaml()
+const char * loadRadioSettingsYaml(bool checks)
 {
     // YAML reader
     TRACE("YAML radio settings reader");
 
     ChecksumResult checksum_status;
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
+
+    if(!checks)
+      return p;
 
     if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
       // Read failed or checksum check failed
@@ -182,7 +185,7 @@ const char * loadRadioSettings()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
-    const char* error = loadRadioSettingsYaml();
+    const char* error = loadRadioSettingsYaml(true);
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
@@ -598,5 +601,5 @@ const char * restoreModel(uint8_t idx, char *model_name)
 bool storageReadRadioSettings(bool checks)
 {
   if (!sdMounted()) sdInit();
-  return loadRadioSettingsYaml() == nullptr;
+  return loadRadioSettingsYaml(checks) == nullptr;
 }
