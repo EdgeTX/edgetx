@@ -96,7 +96,7 @@ static void eepromWaitEepromStandbyState(void)
   */
 static bool I2C_EE_ReadBlock(uint8_t* pBuffer, uint16_t ReadAddr, uint16_t NumByteToRead)
 {
-  if (stm32_i2c_read(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS, ReadAddr, 1,
+  if (stm32_i2c_read(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS, ReadAddr, 2,
                      pBuffer, NumByteToRead, 100) < 0) {
     return false;
   }
@@ -122,7 +122,7 @@ void eepromReadBlock(uint8_t * buffer, size_t address, size_t size)
   */
 static bool I2C_EE_PageWrite(uint8_t * pBuffer, uint16_t WriteAddr, uint8_t NumByteToWrite)
 {
-  if (stm32_i2c_write(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS, WriteAddr, 1,
+  if (stm32_i2c_write(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS, WriteAddr, 2,
                       pBuffer, NumByteToWrite, 100) < 0) {
     return false;
   }
