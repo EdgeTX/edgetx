@@ -70,13 +70,6 @@ jobs:
       - name: Install dependencies
         run: python3 -m pip install --upgrade pip Pillow lz4 clang
 
-      - name: Install dfu-util
-        run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
-          tar xfv dfu-util-0.9.tar.gz &&
-          cd dfu-util-0.9 &&
-          ./configure &&
-          make install
-
       - name: Install libusb
         run:   wget https://github.com/libusb/libusb/releases/download/v1.0.20/libusb-1.0.20.tar.bz2 &&
           export MACOSX_DEPLOYMENT_TARGET=10.9 &&
@@ -85,6 +78,13 @@ jobs:
           ./configure &&
           make install &&
           cd ..
+
+      - name: Install dfu-util
+        run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
+          tar xfv dfu-util-0.9.tar.gz &&
+          cd dfu-util-0.9 &&
+          ./configure &&
+          make install
 
       - name: Install libsdl
         run:   wget https://www.libsdl.org/release/SDL-1.2.15.tar.gz &&
