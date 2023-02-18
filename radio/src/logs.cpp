@@ -42,10 +42,11 @@ static StaticTimer_t loggingTimerBuffer;
 static void loggingTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
-
-  DEBUG_TIMER_START(debugTimerLoggingWakeup);
-  logsWrite();
-  DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
+  if (mixerTaskRunning()) {
+    DEBUG_TIMER_START(debugTimerLoggingWakeup);
+    logsWrite();
+    DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
+  }
 }
 
 void loggingTimerStart()
