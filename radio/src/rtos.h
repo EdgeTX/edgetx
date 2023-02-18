@@ -70,6 +70,11 @@ extern "C++" {
       pthread_mutex_lock(&mutex);
   }
 
+  static inline bool RTOS_TRYLOCK_MUTEX(pthread_mutex_t &mutex)
+  {
+      return pthread_mutex_trylock(&mutex) == 0;
+  }
+
   static inline void RTOS_UNLOCK_MUTEX(pthread_mutex_t &mutex)
   {
       pthread_mutex_unlock(&mutex);
@@ -204,12 +209,13 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define RTOS_CREATE_MUTEX(handle) _RTOS_CREATE_MUTEX(&handle)
 
-  static inline void _RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
+  static inline bool _RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE* h, TickType_t xTickToWait)
   {
-    xSemaphoreTake(h->rtos_handle, portMAX_DELAY);
+    return xSemaphoreTake(h->rtos_handle, xTickToWait) == pdTRUE;
   }
 
-  #define RTOS_LOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle)
+  #define RTOS_LOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle, portMAX_DELAY)
+  #define RTOS_TRYLOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle, (TickType_t)0)
 
   static inline void _RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
   {

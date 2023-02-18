@@ -44,6 +44,7 @@ option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
+option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
@@ -58,6 +59,7 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
+option(FWDRIVE "Attach also firmware drive with USB" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -105,7 +107,6 @@ endif()
 
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
-add_subdirectory(lua)
 
 if(NOT PCB STREQUAL 9XRPRO)
   option(DBLKEYS "Double Keys" ON)
@@ -175,78 +176,7 @@ if(RTC_BACKUP_RAM)
 endif()
 
 if(LUA)
-  add_definitions(-DLUA)
-  if(LUA_COMPILER)
-    add_definitions(-DLUA_COMPILER)
-  endif()
-  if(LUA_ALLOCATOR_TRACER AND DEBUG)
-    add_definitions(-DLUA_ALLOCATOR_TRACER)
-  endif()
-  if(NOT "${LUA_SCRIPT_LOAD_MODE}" STREQUAL "")
-    add_definitions(-DLUA_SCRIPT_LOAD_MODE="${LUA_SCRIPT_LOAD_MODE}")
-  endif()
-  include_directories(${LUA_DIR})
-  set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${LUA_EXPORT})
-  if(LUA_MIXER)
-    add_definitions(-DLUA_MODEL_SCRIPTS)
-  endif()
-
-  # TODO: LUA CMAKE
-  set(SRC ${SRC}
-    lua/interface.cpp
-    lua/api_general.cpp
-    lua/api_model.cpp
-    lua/api_filesystem.cpp
-    lua/lua_event.cpp
-  )
-
-  if(GUI_DIR STREQUAL colorlcd)
-    set(SRC ${SRC} lua/api_colorlcd.cpp lua/widgets.cpp)
-  else()
-    set(SRC ${SRC} lua/api_stdlcd.cpp)
-  endif()
-
-  set(LUA_SRC
-    lapi.c
-    lcode.c
-    lctype.c
-    ldebug.c
-    ldo.c
-    ldump.c
-    lfunc.c
-    lgc.c
-    llex.c
-    lmem.c
-    lobject.c
-    lopcodes.c
-    lparser.c
-    lstate.c
-    lstring.c
-    ltable.c
-    lrotable.c
-    ltm.c
-    lundump.c
-    lvm.c
-    lzio.c
-    linit.c
-    lbaselib.c
-    lmathlib.c
-    lbitlib.c
-    loadlib.c
-    lauxlib.c
-    ltablib.c
-    lcorolib.c
-    liolib.c
-    lstrlib.c
-  )
-
-  foreach(FILE ${LUA_SRC})
-    set(SRC ${SRC} ${LUA_DIR}/${FILE})
-  endforeach()
-  if(MSVC)
-    # silence lots of warnings regarding "insecure" use of functions (sprintf, strcpy, etc) from Lua code
-    set(WARNING_FLAGS "${WARNING_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
-  endif()
+  include(lua/CMakeLists.txt)
 endif()
 
 if (LUA_MIXER AND NOT LUA)
@@ -365,6 +295,11 @@ if(TRACE_LUA_INTERNALS)
   add_definitions(-DTRACE_LUA_INTERNALS_ENABLED)
 endif()
 
+if(DEBUG_SEGGER_RTT)
+    add_definitions(-DDEBUG_SEGGER_RTT)
+    set(SRC ${SRC} ${THIRDPARTY_DIR}/Segger_RTT/RTT/SEGGER_RTT.c)
+endif()
+
 if(DEBUG_WINDOWS)
   add_definitions(-DDEBUG_WINDOWS)
 endif()
@@ -447,6 +382,10 @@ else()
 endif()
 add_definitions(-DDEFAULT_TEMPLATE_SETUP=${DEFAULT_TEMPLATE_SETUP})
 
+if(FWDRIVE)
+  add_definitions(-DFWDRIVE)
+endif()
+
 set(SRC
   ${SRC}
   opentx.cpp
@@ -461,6 +400,8 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
+  hal/module_port.cpp
+  tasks/mixer_task.cpp
   )
 
 if(GUI)
@@ -520,7 +461,7 @@ if(NATIVE_BUILD)
   target_compile_options(radiolib_native PUBLIC -DSIMU)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
-  
+
   add_subdirectory(targets/simu)
   add_subdirectory(tests)
 endif()

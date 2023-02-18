@@ -530,8 +530,12 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
+
   if (activeMdiChild())
-    activeMdiChild()->writeSettings();
+    activeMdiChild()->writeSettings(status);
+
+  delete status;
 }
 
 void MainWindow::readSettings()
@@ -664,7 +668,7 @@ void MainWindow::about()
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("File new <a href='%1'>Issue or Request</a>").arg("https://github.com/EdgeTX/edgetx/issues/new/choose"));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright") + QString(" &copy; 2022 EdgeTX<br/>"));
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2023 EdgeTX<br/>"));
   // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
 
   QMessageBox msgBox(this);

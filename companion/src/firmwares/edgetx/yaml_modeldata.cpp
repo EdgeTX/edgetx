@@ -274,17 +274,27 @@ namespace YAML
 {
 Node convert<TimerData>::encode(const TimerData& rhs)
 {
+  unsigned int countdownBeep = rhs.countdownBeep;
+  unsigned int extraHaptic = rhs.extraHaptic;
+  if (countdownBeep > TimerData::COUNTDOWNBEEP_VOICE + 1) {
+    extraHaptic = 1;
+    countdownBeep -= TimerData::COUNTDOWNBEEP_VOICE + 1;
+  }
+  else {
+    extraHaptic = 0;
+  }
   Node node;
   node["swtch"] = rhs.swtch;
   node["mode"] = timerModeLut << rhs.mode;
   node["name"] = rhs.name;
   node["minuteBeep"] = (int)rhs.minuteBeep;
-  node["countdownBeep"] = rhs.countdownBeep;
+  node["countdownBeep"] = countdownBeep;
   node["start"] = rhs.val;
   node["persistent"] = rhs.persistent;
   node["countdownStart"] = rhs.countdownStart;
   node["value"] = rhs.pvalue;
   node["showElapsed"] = rhs.showElapsed;
+  node["extraHaptic"] = extraHaptic;
   return node;
 }
 
@@ -300,6 +310,11 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   node["countdownStart"] >> rhs.countdownStart;
   node["value"] >> rhs.pvalue;
   node["showElapsed"] >> rhs.showElapsed;
+  node["extraHaptic"] >> rhs.extraHaptic;
+
+  if (rhs.extraHaptic)
+    rhs.countdownBeep += TimerData::COUNTDOWNBEEP_VOICE + 1;
+
   return true;
 }
 
@@ -562,7 +577,7 @@ struct RFAlarms {
   int critical = 0;
 
   RFAlarms() {}
-  
+
   RFAlarms(const RSSIAlarmData& rhs)
     : warning(rhs.warning), critical(rhs.critical)
   {}
@@ -1190,6 +1205,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
         sd.index += 2;
     }
   }
+
+  // perform integrity checks and fix-ups
+
+  rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
 
   return true;
 }

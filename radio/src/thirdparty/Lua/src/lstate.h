@@ -105,10 +105,16 @@ typedef struct CallInfo {
 
 #define isLua(ci)	((ci)->callstatus & CIST_LUA)
 
+/*
+** KeyCache used for resolution of ROTable entries and Cstrings
+*/
+typedef lu_int32 KeyCache;
+typedef KeyCache KeyCacheLine[KEYCACHE_M];
 
 /*
 ** `global state', shared by all threads of this state
 */
+
 typedef struct global_State {
   lua_Alloc frealloc;  /* function to reallocate memory */
   void *ud;         /* auxiliary data to `frealloc' */
@@ -145,6 +151,7 @@ typedef struct global_State {
   TString *memerrmsg;  /* memory-error message */
   TString *tmname[TM_N];  /* array with tag-method names */
   struct Table *mt[LUA_NUMTAGS];  /* metatables for basic types */
+  KeyCacheLine *cache;  /* cache for strings in API */
 } global_State;
 
 
@@ -188,6 +195,7 @@ union GCObject {
   union Udata u;
   union Closure cl;
   struct Table h;
+  struct ROTable roh;
   struct Proto p;
   struct UpVal uv;
   struct lua_State th;  /* thread */
@@ -206,7 +214,10 @@ union GCObject {
 #define gco2ccl(o)	check_exp((o)->gch.tt == LUA_TCCL, &((o)->cl.c))
 #define gco2cl(o)  \
 	check_exp(novariant((o)->gch.tt) == LUA_TFUNCTION, &((o)->cl))
-#define gco2t(o)	check_exp((o)->gch.tt == LUA_TTABLE, &((o)->h))
+#define gco2t(o)  \
+        check_exp(novariant((o)->gch.tt) == LUA_TTABLE, &((o)->h))
+#define gco2rwt(o)      check_exp((o)->gch.tt == LUA_TTBLRAM, &((o)->h))
+#define gco2rot(o)      check_exp((o)->gch.tt == LUA_TTBLROF, &((o)->roh))
 #define gco2p(o)	check_exp((o)->gch.tt == LUA_TPROTO, &((o)->p))
 #define gco2uv(o)	check_exp((o)->gch.tt == LUA_TUPVAL, &((o)->uv))
 #define gco2th(o)	check_exp((o)->gch.tt == LUA_TTHREAD, &((o)->th))
@@ -222,7 +233,7 @@ LUAI_FUNC void luaE_setdebt (global_State *g, l_mem debt);
 LUAI_FUNC void luaE_freethread (lua_State *L, lua_State *L1);
 LUAI_FUNC CallInfo *luaE_extendCI (lua_State *L);
 LUAI_FUNC void luaE_freeCI (lua_State *L);
-
+LUAI_FUNC KeyCache *luaE_getcache (int cl);
 
 #endif
 

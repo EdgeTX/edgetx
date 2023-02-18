@@ -15,7 +15,8 @@
 #define USE_FATFS
 #endif
 
-#define LUA_ANSI			// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+#define LUA_ANSI
 
 /*
 ** ==================================================================
@@ -559,7 +560,5 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
-
-#define LUA_MAX_ROTABLE_NAME      32
 
 #endif

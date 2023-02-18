@@ -29,6 +29,7 @@
 #include "input_mix_group.h"
 #include "input_mix_button.h"
 
+#include "tasks/mixer_task.h"
 #include <algorithm>
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -52,7 +53,7 @@ uint8_t getExposCount()
 //
 void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
   ExpoData *expo = expoAddress(dest);
@@ -60,13 +61,13 @@ void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
   memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
   memcpy(expo, &sourceExpo, sizeof(ExpoData));
   expo->chn = input;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void deleteExpo(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData * expo = expoAddress(idx);
   int input = expo->chn;
   memmove(expo, expo+1, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
@@ -74,7 +75,7 @@ void deleteExpo(uint8_t idx)
   if (!isInputAvailable(input)) {
     memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -85,7 +86,7 @@ int8_t s_copySrcRow;
 
 void insertExpo(uint8_t idx, uint8_t input)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   ExpoData * expo = expoAddress(idx);
   memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
@@ -94,7 +95,7 @@ void insertExpo(uint8_t idx, uint8_t input)
   expo->mode = 3; // pos+neg
   expo->chn = input;
   expo->weight = 100;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 

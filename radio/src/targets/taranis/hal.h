@@ -1610,6 +1610,7 @@
   #if defined(PCBXLITES)
     #define INTMODULE_BOOTCMD_GPIO         GPIOC
     #define INTMODULE_BOOTCMD_GPIO_PIN     GPIO_Pin_8  // PC.08
+    #define INTMODULE_BOOTCMD_DEFAULT      1 // SET
     #define INIT_INTMODULE_BOOTCMD_PIN()   GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #endif
 #elif defined(RADIO_X9DP2019)
@@ -1674,6 +1675,7 @@
   #define INTMODULE_RX_DMA_CHANNEL      LL_DMA_CHANNEL_4
   #define INTMODULE_BOOTCMD_GPIO        GPIOB
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_1  // PB.01
+  #define INTMODULE_BOOTCMD_DEFAULT     0 // RESET
   #define INIT_INTMODULE_BOOTCMD_PIN()  GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(RADIO_X7)
   #define INTMODULE_PULSES
@@ -1708,21 +1710,23 @@
   // #define INTMODULE_DMA                   NULL
   // #define INTMODULE_DMA_CHANNEL           0
   // #define INTMODULE_DMA_STREAM            0
-  // TODO: RX DMA seems to be buggy together with passthrough
-  // #define INTMODULE_RX_DMA                DMA1
-  // #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
-  // #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
   #if defined(RADIO_TLITE)
     #define INTMODULE_BOOTCMD_GPIO          GPIOA
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PA.05
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #elif defined(RADIO_TPRO)
     #define INTMODULE_BOOTCMD_GPIO          GPIOF
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_11  // PF.11
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #elif defined(RADIO_LR3PRO)
     #define INTMODULE_BOOTCMD_GPIO          GPIOB
     #define INTMODULE_BOOTCMD_GPIO_PIN      GPIO_Pin_5  // PB.05
+    #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
     #define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
   #endif
 #elif defined(RADIO_COMMANDO8)
@@ -1741,10 +1745,10 @@
   #define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_7
   #define INTMODULE_USART_IRQn            USART3_IRQn
   #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
-  // DMA1_Stream3 is already used by SDIO
-  #define INTMODULE_DMA                   NULL
-  #define INTMODULE_DMA_CHANNEL           0
-  #define INTMODULE_DMA_STREAM            0
+  // // DMA1_Stream3 is already used by SDIO
+  // #define INTMODULE_DMA                   NULL
+  // #define INTMODULE_DMA_CHANNEL           0
+  // #define INTMODULE_DMA_STREAM            0
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
@@ -1929,9 +1933,11 @@
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS)
   #define TELEMETRY_DIR_OUTPUT()          LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
   #define TELEMETRY_DIR_INPUT()           LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
+  #define TELEMETRY_SET_INPUT           1
 #else
   #define TELEMETRY_DIR_OUTPUT()          LL_GPIO_SetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
   #define TELEMETRY_DIR_INPUT()           LL_GPIO_ResetOutputPin(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN)
+  #define TELEMETRY_SET_INPUT           0
 #endif
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
@@ -1940,7 +1946,8 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
@@ -1958,6 +1965,7 @@
 #endif
 
 #define TELEMETRY_TIMER                 TIM11
+#define TELEMETRY_TIMER_PRESCALER       ()
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 
@@ -2516,20 +2524,20 @@
 #if defined(PCBX9E)
   #define STORAGE_BLUETOOTH
   #define BT_USART                     USART6
-  #define BT_GPIO_AF                   GPIO_AF_USART6
+  #define BT_GPIO_AF                   LL_GPIO_AF_8
   #define BT_USART_IRQn                USART6_IRQn
   #define BT_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG)
   #define BT_RCC_APB1Periph            0
   #define BT_RCC_APB2Periph            RCC_APB2Periph_USART6
   #define BT_USART_GPIO                GPIOG
-  #define BT_TX_GPIO_PIN               GPIO_Pin_14 // PG.14
-  #define BT_RX_GPIO_PIN               GPIO_Pin_9  // PG.09
+  #define BT_TX_GPIO_PIN               LL_GPIO_PIN_14 // PG.14
+  #define BT_RX_GPIO_PIN               LL_GPIO_PIN_9  // PG.09
   #define BT_EN_GPIO                   GPIOD
-  #define BT_EN_GPIO_PIN               GPIO_Pin_11 // PD.11
-  #define BT_BRTS_GPIO                 GPIOE
-  #define BT_BRTS_GPIO_PIN             GPIO_Pin_12 // PE.12
-  #define BT_BCTS_GPIO                 GPIOG
-  #define BT_BCTS_GPIO_PIN             GPIO_Pin_6  // PG.06
+  #define BT_EN_GPIO_PIN               LL_GPIO_PIN_11 // PD.11
+  // #define BT_BRTS_GPIO                 GPIOE
+  // #define BT_BRTS_GPIO_PIN             GPIO_Pin_12 // PE.12
+  // #define BT_BCTS_GPIO                 GPIOG
+  // #define BT_BCTS_GPIO_PIN             GPIO_Pin_6  // PG.06
   #define BT_TX_GPIO_PinSource         GPIO_PinSource14
   #define BT_RX_GPIO_PinSource         GPIO_PinSource9
   #define BT_USART_IRQHandler          USART6_IRQHandler
@@ -2540,26 +2548,26 @@
   #if defined(PCBX9DP)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOB
-    #define BT_EN_GPIO_PIN              GPIO_Pin_2  // PB.02
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_2  // PB.02
   #elif defined(PCBXLITE)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOE) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOE
-    #define BT_EN_GPIO_PIN              GPIO_Pin_15 // PE.15
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_15 // PE.15
   #elif defined(PCBX9LITES)
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOD
-    #define BT_EN_GPIO_PIN              GPIO_Pin_14 // PD.14
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_14 // PD.14
   #else
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOE) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOE
-    #define BT_EN_GPIO_PIN              GPIO_Pin_12 // PE.12
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_12 // PE.12
   #endif
   #define BT_USART_GPIO                 GPIOB
-  #define BT_TX_GPIO_PIN                GPIO_Pin_10 // PB.10
-  #define BT_RX_GPIO_PIN                GPIO_Pin_11 // PB.11
+  #define BT_TX_GPIO_PIN                LL_GPIO_PIN_10 // PB.10
+  #define BT_RX_GPIO_PIN                LL_GPIO_PIN_11 // PB.11
   #define BT_TX_GPIO_PinSource          GPIO_PinSource10
   #define BT_RX_GPIO_PinSource          GPIO_PinSource11
-  #define BT_GPIO_AF                    GPIO_AF_USART3
+  #define BT_GPIO_AF                    LL_GPIO_AF_7
   #define BT_USART                      USART3
   #define BT_USART_IRQHandler           USART3_IRQHandler
   #define BT_USART_IRQn                 USART3_IRQn

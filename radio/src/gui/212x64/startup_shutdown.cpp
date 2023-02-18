@@ -25,9 +25,6 @@
 #define ANIMATIONS_BITMAP_WIDTH       60
 #define ANIMATIONS_BITMAP_HEIGHT      60
 
-const unsigned char bmp_startup[] = {
-#include "startup.lbm"
-};
 
 const unsigned char bmp_lock[] = {
 #include "lock.lbm"
@@ -54,7 +51,7 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
   if (index == 0)
     lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_lock, 0, ANIMATIONS_BITMAP_WIDTH);
   else
-    lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_startup, (index - 1) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
+    lcdDrawRleBitmap((LCD_W - ANIMATIONS_BITMAP_WIDTH) / 2, (LCD_H - ANIMATIONS_BITMAP_HEIGHT) / 2, bmp_shutdown, (index - 1) * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
 
   lcdRefresh();
 }

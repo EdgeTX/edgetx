@@ -116,6 +116,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_ZORRO:
       radioUiWidget = new SimulatedUIWidgetZorro(simulator, this);
       break;
+    case Board::BOARD_RADIOMASTER_BOXER:
+      radioUiWidget = new SimulatedUIWidgetBoxer(simulator, this);
+      break;
     case Board::BOARD_RADIOMASTER_T8:
       radioUiWidget = new SimulatedUIWidgetT8(simulator, this);
       break;
@@ -884,7 +887,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     if (stick < ttlKnobs)
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
     else
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
   }
 
 #endif

@@ -37,7 +37,7 @@
  * TIM7 = 2MHz counter
  *
  *
- * TIM14 = 5ms counter
+ * TIM14 = 1ms counter
  */
 
 /* DMA Allocation:
@@ -171,7 +171,6 @@
 // S.Port update connector
 #define SPORT_MAX_BAUDRATE              400000
 #define SPORT_UPDATE_RCC_AHB1Periph     0
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
 // Led
 // #define STATUS_LEDS
@@ -212,6 +211,7 @@
 #define TELEMETRY_TX_REV_GPIO_PIN       GPIO_Pin_7  // PJ.07
 #define TELEMETRY_DIR_GPIO              GPIOJ
 #define TELEMETRY_DIR_GPIO_PIN          GPIO_Pin_13 // PJ.13
+#define TELEMETRY_SET_INPUT             1
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
 #define TELEMETRY_RX_GPIO_PIN           GPIO_Pin_6  // PD.06
@@ -219,11 +219,14 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
+// #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
+// #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 #define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
 #define TELEMETRY_USART_IRQn            USART2_IRQn
 
@@ -379,26 +382,19 @@
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-#define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_0  // PA.00
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_1  // PA.01
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource0
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource1
-#define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_UART4
+#define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
+#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
+#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
+#define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
 
 #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
 #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
 
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-#define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
-#define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
-#define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
-#define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
-#define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
-
-#define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
-#define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+#define FLYSKY_HALL_SERIAL_DMA                   DMA1
+#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+#define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
 // Internal Module
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)

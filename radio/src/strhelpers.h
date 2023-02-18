@@ -152,4 +152,7 @@ int strncasecmp(char (&s1)[L1], const char *const s2)
   return strncasecmp(s1, s2, L1);
 }
 
+std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
+std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
+
 #endif  // _STRHELPERS_H_

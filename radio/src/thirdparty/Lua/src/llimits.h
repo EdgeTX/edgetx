@@ -145,6 +145,17 @@ typedef lu_int32 Instruction;
 #endif
 
 
+/*
+** Size of cache for strings in the API. 'N' is the number of
+** sets (better be a prime) and "M" is the size of each set (M == 1
+** makes a direct cache.)
+*/
+#if !defined(KEYCACHE_N)
+#define KEYCACHE_N	    32
+#define KEYCACHE_M		4
+#endif
+
+
 /* minimum size for string buffer */
 #if !defined(LUA_MINBUFFER)
 #define LUA_MINBUFFER	32

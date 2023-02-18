@@ -58,6 +58,8 @@ class Page : public Window
   void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
+  virtual bool canCancel() { return true; }
+
  protected:
   PageHeader header;
   FormWindow body;

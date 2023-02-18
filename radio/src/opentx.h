@@ -569,12 +569,6 @@ void checkAlarm();
 void checkAll();
 
 void getADC();
-static inline void GET_ADC_IF_MIXER_NOT_RUNNING()
-{
-  if (s_pulses_paused) {
-    getADC();
-  }
-}
 
 #include "sbus.h"
 
@@ -582,23 +576,6 @@ void resetBacklightTimeout();
 void checkBacklight();
 
 uint16_t isqrt32(uint32_t n);
-
-#if defined(BOOT)
-#define pauseMixerCalculations()
-#define resumeMixerCalculations()
-#else
-#include "tasks.h"
-extern RTOS_MUTEX_HANDLE mixerMutex;
-inline void pauseMixerCalculations()
-{
-  RTOS_LOCK_MUTEX(mixerMutex);
-}
-
-inline void resumeMixerCalculations()
-{
-  RTOS_UNLOCK_MUTEX(mixerMutex);
-}
-#endif
 
 void setDefaultOwnerId();
 void generalDefault();
@@ -892,7 +869,7 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 // Green is preferred "ready to use" color for these radios
 #if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
     defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
-    defined(RADIO_ZORRO)
+    defined(RADIO_ZORRO) || defined(RADIO_BOXER)
 #define LED_ERROR_END() ledGreen()
 #define LED_BIND() ledBlue()
 #else
@@ -941,8 +918,10 @@ union ReusableBuffer
     int8_t antennaMode;
     uint8_t previousType;
     uint8_t newType;
+#if defined(PXX2)
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
+#endif
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -973,8 +952,10 @@ union ReusableBuffer
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+#if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
+#endif
   } sdManager;
 #endif
 
@@ -983,10 +964,14 @@ union ReusableBuffer
     char id[27];
   } version;
 
+#if defined(PXX2)
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
+#endif
 
   struct {
+#if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
+#endif
     char msg[64];
 #if !defined(COLORLCD)
     uint8_t linesCount;
@@ -1060,7 +1045,9 @@ union ReusableBuffer
   } modelFailsafe;
 
   struct {
+#if defined(PXX2)
     ModuleInformation internalModule;
+#endif
   } viewMain;
 
   // Data for the USB mass storage driver. If USB mass storage runs no menu is not allowed to be displayed

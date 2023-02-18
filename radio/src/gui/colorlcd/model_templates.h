@@ -22,18 +22,13 @@
 #pragma once
 
 #include <functional>
-#include "opentx.h"
 
-constexpr size_t LEN_INFO_TEXT = 300;
-constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
-constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+#include "opentx.h"
 
 class TemplatePage : public Page
 {
-  public:
-
-  TemplatePage() : Page(ICON_MODEL_SELECT)
-  { }
+ public:
+  TemplatePage();
 
   void updateInfo();
 
@@ -45,37 +40,24 @@ class TemplatePage : public Page
   std::string getName() const { return "TemplatePage"; }
 #endif
 
-  protected:
+ protected:
+  FormWindow* listWindow = nullptr;
+  lv_obj_t* infoLabel = nullptr;
 
-  static char path[LEN_PATH + 1];
-  char buffer[LEN_BUFFER + 1];
-  char infoText[LEN_INFO_TEXT + 1] = { 0 };
-  unsigned int count = 0;
+  static constexpr size_t LEN_INFO_TEXT = 300;
+  static constexpr size_t LEN_PATH =
+      sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
+  static constexpr size_t LEN_BUFFER =
+      sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+
+  char buffer[LEN_BUFFER + 1] = "";
+  char infoText[LEN_INFO_TEXT + 1] = "";
   static std::function<void(void)> update;
-
-  void paint(BitmapBuffer *dc) override;
-};
-
-class TemplateButton : public TextButton
-{
-  public:
-  TemplateButton(FormGroup* parent, const rect_t& rect, std::string name, std::function<uint8_t(void)> pressHandler = nullptr)
-  : TextButton(parent, rect, name, pressHandler)
-  { }
-};
-
-class SelectTemplate : public TemplatePage
-{
-  public:
-  SelectTemplate(TemplatePage* tp);
-
-  protected:
-  TemplatePage* templateFolderPage;
 };
 
 class SelectTemplateFolder : public TemplatePage
 {
-  public:
+ public:
   SelectTemplateFolder(std::function<void(void)> update);
   ~SelectTemplateFolder();
 };

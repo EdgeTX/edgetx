@@ -376,7 +376,8 @@ void drawGPSSensorValue(BitmapBuffer * dc, coord_t x, coord_t y, TelemetryItem &
   drawGPSPosition(dc, x, y, telemetryItem.gps.longitude, telemetryItem.gps.latitude, flags);
 }
 
-void drawSensorCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags)
+void drawSensorCustomValue(BitmapBuffer* dc, coord_t x, coord_t y,
+                           uint8_t sensor, int32_t value, LcdFlags flags)
 {
   if (sensor >= MAX_TELEMETRY_SENSORS) {
     // Lua luaLcdDrawChannel() can call us with a bad value
@@ -392,64 +393,18 @@ void drawSensorCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t sens
   else if (telemetrySensor.unit == UNIT_GPS) {
     drawGPSSensorValue(dc, x, y, telemetryItem, flags);
   }
-  else if (telemetrySensor.unit == UNIT_BITFIELD) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID && telemetrySensor.id <= RBOX_STATE_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            dc->drawText(x, y, "OK", flags);
-          }
-          else {
-            for (uint8_t i=0; i<16; i++) {
-              if (value & (1 << i)) {
-                char s[] = "CH__ KO";
-                strAppendUnsigned(&s[2], i+1, 2);
-                dc->drawText(x, flags & FONT(XL) ? y+1 : y, s, flags & ~FONT(XL));
-                break;
-              }
-            }
-          }
-        }
-        else {
-          if (value == 0) {
-            dc->drawText(x, flags & FONT(XL) ? y+1 : y, "Rx OK", flags & ~FONT(XL));
-          }
-          else {
-            static const char * const RXS_STATUS[] = {
-              "Rx1 Ovl",
-              "Rx2 Ovl",
-              "SBUS Ovl",
-              "Rx1 FS",
-              "Rx1 LF",
-              "Rx2 FS",
-              "Rx2 LF",
-              "Rx1 Lost",
-              "Rx2 Lost",
-              "Rx1 NS",
-              "Rx2 NS",
-            };
-            for (uint8_t i=0; i<DIM(RXS_STATUS); i++) {
-              if (value & (1<<i)) {
-                dc->drawText(x, flags & FONT(XL) ? y+1 : y, RXS_STATUS[i], flags & ~FONT(XL));
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   else if (telemetrySensor.unit == UNIT_TEXT) {
-    dc->drawSizedText(x, flags & FONT(XL) ? y+1 : y, telemetryItem.text, sizeof(telemetryItem.text), flags & ~FONT(XL));
-  }
-  else {
+    dc->drawSizedText(x, flags & FONT(XL) ? y + 1 : y, telemetryItem.text,
+                      sizeof(telemetryItem.text), flags & ~FONT(XL));
+  } else {
     if (telemetrySensor.prec > 0) {
       flags |= (telemetrySensor.prec==1 ? PREC1 : PREC2);
     }
-    drawValueWithUnit(dc, x, y, value, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, flags);
+    drawValueWithUnit(dc, x, y, value,
+        telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit,
+        flags);
   }
 }
-
 
 void drawTimer(BitmapBuffer * dc, coord_t x, coord_t y, int32_t tme, LcdFlags flags)
 {

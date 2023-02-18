@@ -204,6 +204,7 @@ if(PXX2)
   set(PULSES_SRC
     ${PULSES_SRC}
     pxx2.cpp
+    pxx2_ota.cpp
     )
 endif()
 
@@ -302,7 +303,7 @@ set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   keys_driver.cpp
   diskio.cpp
-  telemetry_driver.cpp
+  # telemetry_driver.cpp
 )
 
 set(PULSES_SRC

@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
+
 #include <ctype.h>
 #include <stdio.h>
 #include "opentx.h"
@@ -29,6 +31,10 @@
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
+#endif
+
+#if defined(MULTIMODULE)
+#include "pulses/multi.h"
 #endif
 
 /*luadoc
@@ -173,7 +179,6 @@ static int luaModelGetModule(lua_State *L)
     if (module.type == MODULE_TYPE_MULTIMODULE) {
       int protocol = g_model.moduleData[idx].multi.rfProtocol + 1;
       int subprotocol = g_model.moduleData[idx].subType;
-      convertEtxProtocolToMulti(&protocol, &subprotocol); // Special treatment for the FrSky entry...
       lua_pushtableinteger(L, "protocol", protocol);
       lua_pushtableinteger(L, "subProtocol", subprotocol);
       if (getMultiModuleStatus(idx).isValid()) {
@@ -246,8 +251,7 @@ static int luaModelSetModule(lua_State *L)
 #endif
     }
 #if defined(MULTIMODULE)
-    if (protocol > 0 && subprotocol >= 0) {  // Both are needed to compute etx protocol
-      convertMultiProtocolToEtx(&protocol, &subprotocol);
+    if (protocol > 0 && subprotocol >= 0) {
       g_model.moduleData[idx].multi.rfProtocol = protocol - 1;
       g_model.moduleData[idx].subType = subprotocol;
     }
@@ -294,6 +298,7 @@ static int luaModelGetTimer(lua_State *L)
     lua_pushtableboolean(L, "showElapsed", timer.showElapsed);
     lua_pushtableinteger(L, "switch", timer.swtch);
     lua_pushtableinteger(L, "countdownStart", timer.countdownStart);
+    lua_pushtableinteger(L, "extraHaptic", timer.extraHaptic);
   }
   else {
     lua_pushnil(L);
@@ -349,12 +354,15 @@ static int luaModelSetTimer(lua_State *L)
       }
       else if (!strcmp(key, "showElapsed")) {
         timer.showElapsed = lua_toboolean(L, -1);
-      }
+      } 
       else if (!strcmp(key, "switch")) {
         timer.swtch = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "countdownStart")) {
         timer.countdownStart = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "extraHaptic")) {
+        timer.extraHaptic = lua_tointeger(L, -1);
       }
     }
     storageDirty(EE_MODEL);
@@ -1731,45 +1739,44 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
-const luaL_Reg modelLib[] = {
-  { "getInfo", luaModelGetInfo },
-  { "setInfo", luaModelSetInfo },
-  { "getModule", luaModelGetModule },
-  { "setModule", luaModelSetModule },
-  { "getTimer", luaModelGetTimer },
-  { "setTimer", luaModelSetTimer },
-  { "resetTimer", luaModelResetTimer },
-  { "deleteFlightModes", luaModelDeleteFlightModes },
-  { "getFlightMode", luaModelGetFlightMode },
-  { "setFlightMode", luaModelSetFlightMode },
-  { "getInputsCount", luaModelGetInputsCount },
-  { "getInput", luaModelGetInput },
-  { "insertInput", luaModelInsertInput },
-  { "deleteInput", luaModelDeleteInput },
-  { "deleteInputs", luaModelDeleteInputs },
-  { "defaultInputs", luaModelDefaultInputs },
-  { "getMixesCount", luaModelGetMixesCount },
-  { "getMix", luaModelGetMix },
-  { "insertMix", luaModelInsertMix },
-  { "deleteMix", luaModelDeleteMix },
-  { "deleteMixes", luaModelDeleteMixes },
-  { "getLogicalSwitch", luaModelGetLogicalSwitch },
-  { "setLogicalSwitch", luaModelSetLogicalSwitch },
-  { "getCustomFunction", luaModelGetCustomFunction },
-  { "setCustomFunction", luaModelSetCustomFunction },
-  { "getCurve", luaModelGetCurve },
-  { "setCurve", luaModelSetCurve },
-  { "getOutput", luaModelGetOutput },
-  { "setOutput", luaModelSetOutput },
+LROT_BEGIN(modellib, NULL, 0)
+  LROT_FUNCENTRY( getInfo, luaModelGetInfo )
+  LROT_FUNCENTRY( setInfo, luaModelSetInfo )
+  LROT_FUNCENTRY( getModule, luaModelGetModule )
+  LROT_FUNCENTRY( setModule, luaModelSetModule )
+  LROT_FUNCENTRY( getTimer, luaModelGetTimer )
+  LROT_FUNCENTRY( setTimer, luaModelSetTimer )
+  LROT_FUNCENTRY( resetTimer, luaModelResetTimer )
+  LROT_FUNCENTRY( deleteFlightModes, luaModelDeleteFlightModes )
+  LROT_FUNCENTRY( getFlightMode, luaModelGetFlightMode )
+  LROT_FUNCENTRY( setFlightMode, luaModelSetFlightMode )
+  LROT_FUNCENTRY( getInputsCount, luaModelGetInputsCount )
+  LROT_FUNCENTRY( getInput, luaModelGetInput )
+  LROT_FUNCENTRY( insertInput, luaModelInsertInput )
+  LROT_FUNCENTRY( deleteInput, luaModelDeleteInput )
+  LROT_FUNCENTRY( deleteInputs, luaModelDeleteInputs )
+  LROT_FUNCENTRY( defaultInputs, luaModelDefaultInputs )
+  LROT_FUNCENTRY( getMixesCount, luaModelGetMixesCount )
+  LROT_FUNCENTRY( getMix, luaModelGetMix )
+  LROT_FUNCENTRY( insertMix, luaModelInsertMix )
+  LROT_FUNCENTRY( deleteMix, luaModelDeleteMix )
+  LROT_FUNCENTRY( deleteMixes, luaModelDeleteMixes )
+  LROT_FUNCENTRY( getLogicalSwitch, luaModelGetLogicalSwitch )
+  LROT_FUNCENTRY( setLogicalSwitch, luaModelSetLogicalSwitch )
+  LROT_FUNCENTRY( getCustomFunction, luaModelGetCustomFunction )
+  LROT_FUNCENTRY( setCustomFunction, luaModelSetCustomFunction )
+  LROT_FUNCENTRY( getCurve, luaModelGetCurve )
+  LROT_FUNCENTRY( setCurve, luaModelSetCurve )
+  LROT_FUNCENTRY( getOutput, luaModelGetOutput )
+  LROT_FUNCENTRY( setOutput, luaModelSetOutput )
 #if defined (GVARS)
-  { "getGlobalVariable", luaModelGetGlobalVariable },
-  { "setGlobalVariable", luaModelSetGlobalVariable },
+  LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
+  LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )
 #endif
-  { "getSensor", luaModelGetSensor },
-  { "resetSensor", luaModelResetSensor },
+  LROT_FUNCENTRY( getSensor, luaModelGetSensor )
+  LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
 #if defined(HELI)
-  { "getSwashRing", luaModelGetSwashRing },
-  { "setSwashRing", luaModelSetSwashRing },
+  LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
+  LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
-  { nullptr, nullptr }  /* sentinel */
-};
+LROT_END(modellib, NULL, 0)

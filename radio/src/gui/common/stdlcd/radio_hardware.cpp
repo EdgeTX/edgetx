@@ -21,10 +21,13 @@
 
 #include <opentx.h>
 #include "hal/adc_driver.h"
-#include "aux_serial_driver.h"
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
+#endif
+
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
 #endif
 
 #if defined(PCBTARANIS)
@@ -532,7 +535,7 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE: {
         g_eeGeneral.internalModule =
             editChoice(HW_SETTINGS_COLUMN2, y, STR_TYPE,
-                       STR_INTERNAL_MODULE_PROTOCOLS,
+                       STR_MODULE_PROTOCOLS,
                        g_eeGeneral.internalModule, MODULE_TYPE_NONE,
                        MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
         if (g_model.moduleData[INTERNAL_MODULE].type !=
@@ -663,14 +666,15 @@ void menuRadioHardware(event_t event)
           lcdDrawText(lcdNextPos, y, "---");
         break;
 
-#if defined(SPORT_UPDATE_PWR_GPIO)
-      case ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER:
-        g_eeGeneral.sportUpdatePower = editChoice(HW_SETTINGS_COLUMN2, y, STR_SPORT_UPDATE_POWER_MODE, STR_SPORT_UPDATE_POWER_MODES, g_eeGeneral.sportUpdatePower, 0, 1, attr, event);
-        if (attr && checkIncDec_Ret) {
-          SPORT_UPDATE_POWER_INIT();
-        }
-        break;
-#endif
+// TODO: this is board specific, do something about it!
+// #if defined(SPORT_UPDATE_PWR_GPIO)
+//       case ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER:
+//         g_eeGeneral.sportUpdatePower = editChoice(HW_SETTINGS_COLUMN2, y, STR_SPORT_UPDATE_POWER_MODE, STR_SPORT_UPDATE_POWER_MODES, g_eeGeneral.sportUpdatePower, 0, 1, attr, event);
+//         if (attr && checkIncDec_Ret) {
+//           SPORT_UPDATE_POWER_INIT();
+//         }
+//         break;
+// #endif
 
       case ITEM_RADIO_HARDWARE_DEBUG:
         lcdDrawTextAlignedLeft(y, STR_DEBUG);

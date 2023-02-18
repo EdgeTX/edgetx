@@ -31,7 +31,7 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
 #if defined(HARDWARE_TOUCH)
   new Button(this, { 0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT },
              [=]() -> uint8_t {
-               parent->deleteLater();
+               parent->onCancel();
                return 0;
              }, NO_FOCUS | FORM_NO_BORDER);
 #endif
@@ -76,7 +76,8 @@ void Page::paint(BitmapBuffer * dc)
 
 void Page::onCancel()
 {
-  deleteLater();
+  if (canCancel())
+    deleteLater();
 }
 
 void Page::onClicked()

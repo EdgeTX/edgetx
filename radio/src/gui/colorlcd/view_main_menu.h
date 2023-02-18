@@ -26,27 +26,14 @@
 class ViewMainMenu : public Window
 {
  public:
-  ViewMainMenu(Window* parent);
+  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
 
   void onCancel() override;
+  void onClicked() override;
   void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
-#if defined(HARDWARE_TOUCH)
-  bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override { return true; }
-  bool onTouchEnd(coord_t x, coord_t y) override
-  {
-    deleteLater();
-    return true;
-  }
-  bool onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY,
-                    coord_t slideX, coord_t slideY) override
-  {
-    Window::onTouchSlide(x, y, startX, startY, slideX, slideY);
-    return true;
-  }
-#endif
-
  protected:
   rect_t carouselRect;
+  std::function<void()> closeHandler = nullptr;
 };

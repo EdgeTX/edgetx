@@ -129,13 +129,6 @@
     </message>
 </context>
 <context>
-    <name>AppMessages</name>
-    <message>
-        <source>Show this message again at next startup?</source>
-        <translation>Visa detta meddelande vid nästa programstart?</translation>
-    </message>
-</context>
-<context>
     <name>AppPreferencesDialog</name>
     <message>
         <source>Edit Settings</source>
@@ -757,7 +750,7 @@ Mode 4:
     </message>
     <message>
         <source>2 Positions Toggle</source>
-        <translation>2-lägen momentan</translation>
+        <translation>2 lägen momentan</translation>
     </message>
     <message>
         <source>2 Positions</source>
@@ -782,6 +775,118 @@ Mode 4:
     <message>
         <source>Slider with detent</source>
         <translation>Reglage med mittklick</translation>
+    </message>
+    <message>
+        <source>Rud</source>
+        <translation>Rod</translation>
+    </message>
+    <message>
+        <source>Ele</source>
+        <translation>Hjd</translation>
+    </message>
+    <message>
+        <source>Thr</source>
+        <translation>Gas</translation>
+    </message>
+    <message>
+        <source>Ail</source>
+        <translation>Ske</translation>
+    </message>
+    <message>
+        <source>P1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>P2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>P3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>POT1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TltX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TltY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>6P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JSx</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JSy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EX1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EX2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EX3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EX4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2924,12 +3029,9 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <source>iFlight Commando8</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>FirmwareInterface</name>
     <message>
-        <source>Compressed image size exceeds reserved space.</source>
-        <translation>Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
+        <source>Radiomaster Boxer</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4564,10 +4666,6 @@ Mode 4:
         <translation>Fördröjning vid avstängning</translation>
     </message>
     <message>
-        <source>nnnnnnNN</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>This is the switch selectrion for turning on the backlight (if installed).
 
 </source>
@@ -4588,6 +4686,14 @@ Acceptable values are 3v..12v</source>
 Detta är det gränsvärde vid vilket batterivarningen ljuder.
 
 Acceptabla värden är 3 - 12 volt</translation>
+    </message>
+    <message>
+        <source>Model quick select</source>
+        <translation>Snabbval av modell</translation>
+    </message>
+    <message>
+        <source>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</source>
+        <translation>Aktivera detta för att snabbt byta modell på modellvalssidan. Ett långt knapptryck kan sedan användas för att öppna modellredigeringsmenyn.</translation>
     </message>
 </context>
 <context>
@@ -4715,6 +4821,10 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation>Vertikal inverterad, Horisontell alternativ</translation>
+    </message>
+    <message>
+        <source>Chinese</source>
+        <translation>Kinesiska</translation>
     </message>
 </context>
 <context>
@@ -5128,6 +5238,10 @@ att fungera. Detta går inte att ändra från radion.
         <source>Cannot list files</source>
         <translation>Kan inte lista filer</translation>
     </message>
+    <message>
+        <source>Error deleting files</source>
+        <translation>Fel vid radering av filer</translation>
+    </message>
 </context>
 <context>
     <name>LimitData</name>
@@ -5254,11 +5368,11 @@ att fungera. Detta går inte att ändra från radion.
     <name>LogicalSwitchesPanel</name>
     <message>
         <source>V1</source>
-        <translation></translation>
+        <translation>Värde 1</translation>
     </message>
     <message>
         <source>V2</source>
-        <translation></translation>
+        <translation>Värde 2</translation>
     </message>
     <message>
         <source>Function</source>
@@ -5266,7 +5380,7 @@ att fungera. Detta går inte att ändra från radion.
     </message>
     <message>
         <source>AND Switch</source>
-        <translation>OCH-brytare</translation>
+        <translation>AND-brytare</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -6048,6 +6162,14 @@ Vill du fortsätta?</translation>
         <source>Checking for updates...</source>
         <translation>Kollar efter uppdateringar...</translation>
     </message>
+    <message>
+        <source>Writing models and settings to radio</source>
+        <translation>Skriver modeller och inställningar till radion</translation>
+    </message>
+    <message>
+        <source>In progress...</source>
+        <translation>Pågående...</translation>
+    </message>
 </context>
 <context>
     <name>MdiChild</name>
@@ -6294,15 +6416,15 @@ Vill du spara ändringarna?</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation>Visa inte detta meddelande igen</translation>
+        <translation type="vanished">Visa inte detta meddelande igen</translation>
     </message>
     <message>
         <source>Saved models and settings to radio</source>
-        <translation>Modeller och inställningar har sparats till radion</translation>
+        <translation type="vanished">Modeller och inställningar har sparats till radion</translation>
     </message>
     <message>
         <source>Error saving models and settings to radio!</source>
-        <translation>Fel uppstod när modeller och inställningar sparades till radion!</translation>
+        <translation type="vanished">Fel uppstod när modeller och inställningar sparades till radion!</translation>
     </message>
     <message>
         <source>Select a model template file</source>
@@ -6407,6 +6529,22 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Show Labels Actions Toolbar</source>
         <translation>Visa verktygsfältet för etiketter</translation>
+    </message>
+    <message>
+        <source>Invalid file extension!</source>
+        <translation>Ogiltigt filsuffix!</translation>
+    </message>
+    <message>
+        <source>Do not show this message again</source>
+        <translation>Visa inte detta meddelande igen</translation>
+    </message>
+    <message>
+        <source>Models and settings written to radio</source>
+        <translation>Modeller och inställningar skrivna till radion</translation>
+    </message>
+    <message>
+        <source>Error writing models and settings to radio!</source>
+        <translation>Fel vid skrivning av modeller och inställningar till radion!</translation>
     </message>
 </context>
 <context>
@@ -7629,6 +7767,14 @@ p, li { white-space: pre-wrap; }
         <source>Raw 12 bits</source>
         <translation>Rå 12 bits</translation>
     </message>
+    <message>
+        <source>Option check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Option combo</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ModuleData</name>
@@ -7714,6 +7860,134 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>2 W</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>PPM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CTP1009</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LP45</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSM2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSMX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPM16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPMsim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky DJT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Crossfire</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Multi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>SBUS output at VBat</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS ISRM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCST ISRM D16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M 2019</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AFHDS3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ghost</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lemon-Rx DSMP</source>
         <translation></translation>
     </message>
 </context>
@@ -8086,6 +8360,10 @@ p, li { white-space: pre-wrap; }
         <source>Always On</source>
         <translation>Alltid på</translation>
     </message>
+    <message>
+        <source>Multi sensors</source>
+        <translation>Multisensorer</translation>
+    </message>
 </context>
 <context>
     <name>Multiprotocols</name>
@@ -8132,6 +8410,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>RF Channel Number</source>
         <translation>RF kanalnummer</translation>
+    </message>
+    <message>
+        <source>Servo update rate</source>
+        <translation>Servouppdateringsfrekvens</translation>
     </message>
 </context>
 <context>
@@ -8297,6 +8579,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&lt;p&gt;Importing JumperTX data into OpenTX 2.3 is &lt;b&gt;not supported and dangerous.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;It is unfortunately not possible for us to differentiate JumperTX data from legitimate FrSky X10 data, but &lt;b&gt;You should only continue here if the file you opened comes from a real FrSky X10.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Do you really want to continue?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Import av JumperTX data till OpenTX 2.3 är &lt;b&gt;stödjs inte kan vara mycket riskfyllt.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Det är tyvärr inte möjligt att skilja JumperTX-data från riktiga FrSky X10-data, och &lt;b&gt;du bör endast fortsätta här om  filen du öppnat kommer från en äkta FrSky X10&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Vill du verkligen fortsätta?&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Compressed image size exceeds reserved space.</source>
+        <translation>Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
+    </message>
+    <message>
+        <source>Show this message again at next startup?</source>
+        <translation>Visa detta meddelande vid nästa programstart?</translation>
     </message>
 </context>
 <context>
@@ -10794,11 +11084,11 @@ Tidsstämpel</translation>
     </message>
     <message>
         <source>Alt</source>
-        <translation>Höj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>VSpd</source>
-        <translation>Vert.hast.</translation>
+        <translation></translation>
     </message>
     <message>
         <source>m/s</source>
@@ -10858,11 +11148,11 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>GAlt</source>
-        <translation>GHöj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Volts</source>
-        <translation>volt</translation>
+        <translation>Volt</translation>
     </message>
     <message>
         <source>Cels</source>
@@ -10930,7 +11220,7 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>Run/Stop</source>
-        <translation>Kör/Stopp</translation>
+        <translation>Kör/Stoppa</translation>
     </message>
     <message>
         <source>Load Telemetry Values</source>
@@ -11114,6 +11404,14 @@ hh:mm:ss</translation>
         <source>Show Remaining</source>
         <translation>Visa återstående</translation>
     </message>
+    <message>
+        <source>Beeps and Haptic</source>
+        <translation>Pip och vibration</translation>
+    </message>
+    <message>
+        <source>Voice and Haptic</source>
+        <translation>Ljud och vibration</translation>
+    </message>
 </context>
 <context>
     <name>TimerEdit</name>
@@ -11222,6 +11520,18 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     <message>
         <source>Images (*.AppImage)</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Would you like to open the disk image to install the new version of Companion?</source>
+        <translation>Vill du öppna diskavbildningen för att installera den nya versionen av Companion?</translation>
+    </message>
+    <message>
+        <source>Would you like to launch the Companion installer?</source>
+        <translation>Vill du starta installationsprogrammet för Companion?</translation>
+    </message>
+    <message>
+        <source>No install process support for your operating system</source>
+        <translation>Uppdatering stöds ej för ditt operativsystem</translation>
     </message>
 </context>
 <context>

@@ -143,14 +143,6 @@ void menuModelTelemetry(event_t event)
         lcdDrawText(TELEM_COL2, y, "---", 0); // TODO shortcut
       }
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
-#if defined(MULTIMODULE)
-      if (IS_SPEKTRUM_PROTOCOL()) {
-        // Spektrum does not (yet?) really support multiple sensor of the same type. But a lot of
-        // different sensor display the same information (e.g. voltage, capacity). Show the id
-        // of the sensor in the overview to ease figuring out what sensors belong together
-        lcdDrawHexNumber(TELEM_COL3, y, sensor->id, LEFT);
-      } else
-#endif
       if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
         lcdDrawNumber(TELEM_COL3, y, sensor->instance, LEFT);
       }
@@ -183,7 +175,7 @@ void menuModelTelemetry(event_t event)
       case ITEM_TELEMETRY_SENSORS_LABEL:
         lcdDrawTextAlignedLeft(y, STR_TELEMETRY_SENSORS);
         lcdDrawText(TELEM_COL2, y, STR_VALUE, 0);
-        if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
+        if (!g_model.ignoreSensorIds /*&& !IS_SPEKTRUM_PROTOCOL()*/) {
           lcdDrawText(TELEM_COL3, y, STR_ID, 0);
         }
         break;
