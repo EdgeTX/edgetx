@@ -102,7 +102,7 @@ void menuCommonCalib(event_t event)
         reusableBuffer.calib.loVals[i] = 15000;
         reusableBuffer.calib.hiVals[i] = -15000;
 #if defined(PCBTARANIS)
- #if defined(RADIO_BOXER)
+ #if defined(FLYSKY_GIMBAL)
         if (globalData.flyskygimbals && (i < FIRST_ANALOG_ADC_FS) )
         {
           reusableBuffer.calib.midVals[i] = anaIn(i);

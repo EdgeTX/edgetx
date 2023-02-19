@@ -135,7 +135,7 @@ bool adcRead()
 
   uint8_t first_analog_adc;
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
     if (globalData.flyskygimbals)
     {
         first_analog_adc = FIRST_ANALOG_ADC_FS;
@@ -267,7 +267,7 @@ void getADC()
 
   for (uint8_t x=0; x<NUM_ANALOGS; x++) {
     uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14) || defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
     if (globalData.flyskygimbals)
     {
         if (x < 4) {

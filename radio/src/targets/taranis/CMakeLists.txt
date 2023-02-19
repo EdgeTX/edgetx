@@ -242,7 +242,7 @@ elseif(PCB STREQUAL X7)
     set(PXX2 ON)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
     set(CLI ON CACHE BOOL "Enable CLI")
-    set(FLYSKY_HALL_STICKS_DRIVER ../common/arm/stm32/flysky_gimbal_driver.cpp)
+    set(FLYSKY_GIMBAL ON)
   elseif(PCBREV STREQUAL ZORRO)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
@@ -576,7 +576,6 @@ set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LED_DRIVER}
   ${LCD_DRIVER}
-  ${FLYSKY_HALL_STICKS_DRIVER}
   board.cpp
   volume_i2c.cpp
   eeprom_driver.cpp

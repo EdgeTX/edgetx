@@ -66,7 +66,7 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
 
   for (int i = 0; i < NUM_POTS; i++) {
     // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
-#if !defined(SIMU) && defined(RADIO_FAMILY_T16)
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
 #endif
     auto line = newLine(&grid);

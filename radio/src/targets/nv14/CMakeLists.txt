@@ -60,6 +60,7 @@ set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 
 set(HARDWARE_TOUCH ON)
+set(FLYSKY_GIMBAL ON)
 
 add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
@@ -156,7 +157,6 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
-  targets/common/arm/stm32/flysky_gimbal_driver.cpp
   )
 
 # Make malloc() thread-safe

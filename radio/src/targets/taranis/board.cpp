@@ -54,7 +54,7 @@ extern "C" {
 }
 #endif
 
-#if defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
 
@@ -85,7 +85,7 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-#if defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
                          FLYSKY_HALL_RCC_AHB1Periph |
 #endif
                          SD_RCC_AHB1Periph |
@@ -104,7 +104,7 @@ void boardInit()
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          ADC_RCC_APB1Periph |
-#if defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
                          FLYSKY_HALL_RCC_APB1Periph |
 #endif
                          BACKLIGHT_RCC_APB1Periph |
@@ -223,7 +223,7 @@ void boardInit()
   }
 #endif
 
-#if defined(RADIO_BOXER)
+#if defined(FLYSKY_GIMBAL)
   globalData.flyskygimbals = flysky_gimbal_init();
 #else
   globalData.flyskygimbals = false;
