@@ -28,6 +28,10 @@
 
 #include <string.h>
 
+
+//TODO: remove
+#define BLOCK_SIZE 512
+
 #if !defined(BOOT)
   #include "timers_driver.h"
   #define WATCHDOG_SUSPEND(x) watchdogSuspend(x)
