@@ -100,7 +100,6 @@ enum {
 #endif
 
 // SD driver
-#define BLOCK_SIZE                     512 /* Block Size in Bytes */
 #if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t sdIsHC();
 uint32_t sdGetSpeed();

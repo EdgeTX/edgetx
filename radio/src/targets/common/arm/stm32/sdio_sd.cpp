@@ -220,7 +220,7 @@ void SD_LowLevel_Init(void)
   LL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
   /* Enable the SDIO APB2 Clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SDIO, ENABLE);
+  __HAL_RCC_SDIO_CLK_ENABLE();
 
   // SDIO Interrupt ENABLE
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -324,38 +324,18 @@ SD_Error SD_Init(void)
   sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
   HAL_SD_DeInit(&sdio);
 
-  errorstatus = SD_PowerON();
+  HAL_SD_Init(&sdio);
+
+  errorstatus = HAL_SD_InitCard(&sdio);
   if (errorstatus != SD_OK) {
     TRACE("SD_PowerON() status=%d", errorstatus);
     /*!< CMD Response TimeOut (wait for CMDSENT flag) */
     return errorstatus;
   }
 
-  errorstatus = SD_InitializeCards();
-  if (errorstatus != SD_OK) {
-    TRACE("SD_InitializeCards() status=%d", errorstatus);
-    /*!< CMD Response TimeOut (wait for CMDSENT flag) */
-    return errorstatus;
-  }
-
-  /*!< Configure the SDIO peripheral */
-  /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
-  /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
-  HAL_SD_Init(&sdio);
-
   HAL_SD_CardInfoTypeDef cardInfo;
   HAL_StatusTypeDef es = HAL_SD_GetCardInfo(&sdio, &cardInfo);
-  /*----------------- Read CSD/CID MSD registers ------------------*/
-  errorstatus = SD_GetCardInfo(&SDCardInfo);
-
-  if (errorstatus == SD_OK) {
-    /*----------------- Select Card --------------------------------*/
-    errorstatus = SD_SelectDeselect((uint32_t) (SDCardInfo.RCA << 16));
-  }
-
-  if (errorstatus == SD_OK) {
-    errorstatus = SD_EnableWideBusOperation(SDIO_BusWide_4b);
-  }
+  HAL_SD_ConfigWideBusOperation(&sdio, SDIO_BUS_WIDE_4B);
 
   return errorstatus;
 }

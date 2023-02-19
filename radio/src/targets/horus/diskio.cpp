@@ -31,6 +31,9 @@
 
 #include <string.h>
 
+// TODO: move to a better suited file
+#define BLOCK_SIZE                     512 /* Block Size in Bytes */
+
 /*-----------------------------------------------------------------------*/
 /* Lock / unlock functions                                               */
 /*-----------------------------------------------------------------------*/
@@ -280,7 +283,9 @@ DRESULT disk_ioctl (
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
-      *(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
+
+      //*(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
+      *(DWORD*)buff = 1000;
       res = RES_OK;
       break;
 
@@ -291,7 +296,8 @@ DRESULT disk_ioctl (
 
     case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
       // TODO verify that this is the correct value
-      *(DWORD*)buff = (uint32_t)SDCardInfo.SD_csd.EraseGrSize * (uint32_t)SDCardInfo.SD_csd.EraseGrMul;
+      //*(DWORD*)buff = (uint32_t)SDCardInfo.SD_csd.EraseGrSize * (uint32_t)SDCardInfo.SD_csd.EraseGrMul;
+      *(DWORD*)buff = 512;
       res = RES_OK;
       break;
 
