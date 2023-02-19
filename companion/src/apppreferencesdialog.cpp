@@ -273,7 +273,7 @@ void AppPreferencesDialog::initSettings()
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
     joystickNames << tr("No joysticks found");
-    joystick = new Joystick(0,false,0,0);
+    joystick = new Joystick(0,0,false,0);
     ui->joystickcalButton->setDisabled(true);
     ui->joystickCB->setDisabled(true);
 
@@ -591,7 +591,7 @@ void AppPreferencesDialog::on_joystickChkB_clicked() {
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
     joystickNames << tr("No joysticks found");
-    joystick = new Joystick(0,false,0,0);
+    joystick = new Joystick(0,0,false,0);
     ui->joystickcalButton->setDisabled(true);
     ui->joystickCB->setDisabled(true);
 

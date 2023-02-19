@@ -671,7 +671,7 @@ void SimulatorWidget::setupJoysticks()
 
   if (g.jsSupport() && g.jsCtrl() > -1) {
     if (!joystick)
-      joystick = new Joystick(this);
+      joystick = new Joystick(this, SDL_JOYSTICK_DEFAULT_EVENT_TIMEOUT, false, SDL_JOYSTICK_DEFAULT_AUTOREPEAT_DELAY);
     else
       joystick->close();
 
@@ -855,6 +855,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   static const int ttlSticks = 4;
   static const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
   static const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  static const int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
   static const int valueRange = 1024;
 
   if (!joystick || axis >= MAX_JS_AXES)
@@ -863,7 +864,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   int dlta;
   int stick = g.joystick[axis].stick_axe();
 
-  if (stick < 0 || stick >= ttlSticks + ttlKnobs + ttlFaders)
+  if (stick < 0 || stick >= ttlSticks + ttlKnobs + ttlFaders + ttlTrims)
     return;
 
   int stickval = valueRange * (value - g.joystick[axis].stick_med());
@@ -890,7 +891,12 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
         stickval += 1024;
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
     } else {
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
+      stick -= ttlKnobs;
+      if (stick < ttlFaders) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+      } else {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_TRIM, stick - ttlFaders, stickval / 8);
+      }
     }
   }
 

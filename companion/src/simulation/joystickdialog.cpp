@@ -204,7 +204,7 @@ bool joystickDialog::loadJoysticks(int stick)
 
   ui->joystickCB->clear();
   joystickNames << tr("No joysticks found");
-  joystick = new Joystick(0, false, 0, 0);
+  joystick = new Joystick(0, 0, false, 0);
   if ( joystick ) {
     if ( joystick->joystickNames.count() > 0 ) {
       joystickNames = joystick->joystickNames;
@@ -232,7 +232,7 @@ void joystickDialog::joystickOpen(int stick)
     numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
     for (int j=0; j<numAxes; j++) {
       joystick->sensitivities[j] = 0;
-      joystick->deadzones[j]=20;
+      joystick->deadzones[j] = 20;
     }
   }
   else {
