@@ -68,8 +68,8 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
       QLabel *l = new QLabel(s);
       grid->addWidget(l, row, 0, 1, 1);
       QSlider *s = new QSlider(Qt::Horizontal);
-      s->setMinimum(-32767);
-      s->setMaximum(32767);
+      s->setMinimum(0);
+      s->setMaximum(1);
       sliders[row] = s;
       grid->addWidget(s, row, 1, 1, 1);
       QCheckBox *c = new QCheckBox("");
@@ -188,12 +188,11 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
     if (radioSettings.switchConfig[i] != Board::SWITCH_NOT_AVAILABLE) {
       swcfg = Board::SwitchType(radioSettings.switchConfig[i]);
       wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
+      cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_UP);
       if (swcfg == Board::SWITCH_3POS) {
-        cb->addItem(wname + " Up", i | JS_BUTTON_3POS_UP);
-        cb->addItem(wname + " Down", i | JS_BUTTON_3POS_DN);
-      } else {
-        cb->addItem(wname, i | JS_BUTTON_TOGGLE);
+        cb->addItem(wname + CPN_STR_SW_INDICATOR_NEUT, i | JS_BUTTON_MID);
       }
+      cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_DN);
     }
   }
 }

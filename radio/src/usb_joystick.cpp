@@ -559,16 +559,6 @@ void usbStateUpdate()
     else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
       btnval = (value >> 6);
     }
-    else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
-      if (swpos == 1 || swpos == 2) {
-        btnval = (value > 1024);
-      } else if (swpos == 3) {
-        btnval = (value < 1024) ? 1 : (value > 1024) ? 2 : 0;
-      } else {
-        btnval = static_cast<uint16_t>(value) / (2048 / swpos);
-        if (btnval >= swpos) btnval = swpos - 1;
-      }
-    }
 
     // Channel Output value changed
     if ((_usbLastChannelOutput[chix] == 0xffff) || (_usbLastChannelOutput[chix] != btnval)) {
@@ -605,15 +595,6 @@ void usbStateUpdate()
           _usbChannelTimer[chix] = g_usbTmr10ms;
         }
       }
-      else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
-        if (swpos == 1 || swpos == 2) {
-          setBtnBits(_usbJoystickCh[chix].btn_num, btnval, 1);
-        } else if (swpos == 3) {
-          setBtnBits(_usbJoystickCh[chix].btn_num, btnval, 2);
-        } else {
-          setBtnBits(_usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
-        }
-      }
 
       _usbLastChannelOutput[chix] = btnval;
     }
@@ -629,7 +610,6 @@ void usbStateUpdate()
         setBtnBits(_usbJoystickCh[chix].btn_num, 0, 2);
       }
     }
-
   }
   
   memcpy(_hidReport + button_ix, _buttonState, (USBJ_BUTTON_SIZE >> 3));

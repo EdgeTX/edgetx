@@ -909,23 +909,11 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
   if (g.jsButton[button].button_inv())
     state = !state;
 
-  int swtch = btn & JS_BUTTON_SWITCH_MASK;
+  if (state) {
+    int swtch = btn & JS_BUTTON_SWITCH_MASK;
+    int posn = ((btn & JS_BUTTON_STATE_MASK) >> JS_BUTTON_STATE_SHIFT) - 1;
 
-  if (btn & JS_BUTTON_3POS_DN) {
-    // 3POS Down
-    if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : 0);
-      switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
-    }
-  } else if (btn & JS_BUTTON_3POS_UP) {
-    // 3POS Up
-    if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? -1 : 0);
-      switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
-    }
-  } else if (btn & JS_BUTTON_TOGGLE) {
-    // Toggle or momentary
-    emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : - 1);
+    emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, posn);
   }
 #endif
 }
