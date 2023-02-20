@@ -89,7 +89,7 @@ class SimulatorWidget : public QWidget
     void stickValueChange(int axis, int value);
     void stickModeChange(const unsigned mode);
     void widgetValueChange(const RadioWidget::RadioWidgetType type, const int index, const int value);
-    void widgetValueAdjust(const RadioWidget::RadioWidgetType type, const int index, const int offset);
+    void widgetValueAdjust(const RadioWidget::RadioWidgetType type, const int index, const int offset, const bool state);
     void widgetStateChange(const RadioWidget::RadioWidgetState & state);
     void inputValueChange(int type, quint8 index, qint16 value);
     void simulatorSetData(const QByteArray & data);

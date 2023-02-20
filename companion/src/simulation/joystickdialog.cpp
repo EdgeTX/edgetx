@@ -72,9 +72,9 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
       s->setMaximum(1);
       sliders[row] = s;
       grid->addWidget(s, row, 1, 1, 1);
-      QCheckBox *c = new QCheckBox("");
-      invert[row] = c;
-      grid->addWidget(c, row, 2, 1, 1);
+//       QCheckBox *c = new QCheckBox("");
+//       invert[row] = c;
+//       grid->addWidget(c, row, 2, 1, 1);
       QComboBox *d = new QComboBox();
       populateButtonCombo(d);
       sticks[row] = d;
@@ -96,7 +96,7 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
 
   for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
     if (g.jsButton[i].existsOnDisk()) {
-      invert[i+MAX_JS_AXES]->setChecked(g.jsButton[i].button_inv());
+//       invert[i+MAX_JS_AXES]->setChecked(g.jsButton[i].button_inv());
       sticks[i+MAX_JS_AXES]->setCurrentIndex(sticks[i+MAX_JS_AXES]->findData(g.jsButton[i].button_idx()));
     }
   }
@@ -171,6 +171,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   Board::Type m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
+  int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
   int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
 
@@ -191,7 +192,12 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
     }
   }
 
-  for (i = 0; i < ttlTrims; ++i) {
+  for (i = ttlSticks-1; i >= 0; i -= 1) {
+    wname = "T" + QString::number(4-i);
+    cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i + ttlSwitches | JS_BUTTON_3POS_UP);
+    cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i + ttlSwitches | JS_BUTTON_3POS_DN);
+  }
+  for (i = ttlSticks; i < ttlTrims; ++i) {
     wname = "T" + QString::number(i+1);
     cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i + ttlSwitches | JS_BUTTON_3POS_UP);
     cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i + ttlSwitches | JS_BUTTON_3POS_DN);
@@ -273,7 +279,7 @@ void joystickDialog::onjoystickButtonValueChanged(int button, bool state)
     return;
 
   sliders[button + MAX_JS_AXES]->setValue(state);
-  sliders[button + MAX_JS_AXES]->setInvertedAppearance(invert[button + MAX_JS_AXES]->isChecked());
+//   sliders[button + MAX_JS_AXES]->setInvertedAppearance(invert[button + MAX_JS_AXES]->isChecked());
 }
 
 void joystickDialog::loadStep()
@@ -380,7 +386,7 @@ void joystickDialog::on_okButton_clicked()
     }
     else {
       g.jsButton[i].button_idx(btn);
-      g.jsButton[i].button_inv(invert[i+MAX_JS_AXES]->isChecked() );
+//       g.jsButton[i].button_inv(invert[i+MAX_JS_AXES]->isChecked() );
       qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->objectName() << "stick:" << i << "idx:" << btn;
     }
   }

@@ -684,10 +684,16 @@ void SimulatorWidget::setupJoysticks()
       }
       connect(joystick, &Joystick::axisValueChanged, this, &SimulatorWidget::onjoystickAxisValueChanged);
       connect(joystick, &Joystick::buttonValueChanged, this, &SimulatorWidget::onjoystickButtonValueChanged);
-      if (vJoyLeft)
+      if (vJoyLeft) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyLeft, &VirtualJoystickWidget::setStickAxisValue);
-      if (vJoyRight)
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->verticalTrim(), &RadioWidget::chgValueQual);
+      }
+      if (vJoyRight) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyRight, &VirtualJoystickWidget::setStickAxisValue);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->verticalTrim(), &RadioWidget::chgValueQual);
+      }
       joysticksEnabled = true;
     }
     else {
@@ -800,6 +806,8 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value)
 {
+if (type == RadioWidget::RADIO_WIDGET_TRIM)
+    fprintf(stderr,">>>>>> onRadioWidgetValueChange1 %d %d %d\n", type, index, value);
   //qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
@@ -846,6 +854,8 @@ void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetTyp
     default :
       return;
   }
+if (type == RadioWidget::RADIO_WIDGET_TRIM)
+    fprintf(stderr,">>>>>> onRadioWidgetValueChange2 %d %d %d %d\n", type, index, value, inpType);
 
   emit inputValueChange(inpType, index, value);
 }
@@ -932,12 +942,12 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
       // Toggle or momentary
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : - 1);
     }
-  } else if (state) {
+  } else {
     // Trim
     swtch -= ttlSwitches;
-    int offset = (btn & JS_BUTTON_3POS_DN) ? 1 : -1;
+    int offset = (btn & JS_BUTTON_3POS_DN) ? -1 : 1;
     fprintf(stderr,">>>>>> TRIM %d %d\n",swtch,offset);
-    emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset);
+    emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
   }
 #endif
 }
