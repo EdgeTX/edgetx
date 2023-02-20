@@ -171,7 +171,6 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   Board::Type m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
-  int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
   int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
 
@@ -192,15 +191,15 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
     }
   }
 
-  for (i = ttlSticks-1; i >= 0; i -= 1) {
-    wname = "T" + QString::number(4-i);
-    cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i + ttlSwitches | JS_BUTTON_3POS_UP);
-    cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i + ttlSwitches | JS_BUTTON_3POS_DN);
-  }
-  for (i = ttlSticks; i < ttlTrims; ++i) {
-    wname = "T" + QString::number(i+1);
-    cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i + ttlSwitches | JS_BUTTON_3POS_UP);
-    cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i + ttlSwitches | JS_BUTTON_3POS_DN);
+  for (i = 0; i < ttlTrims; i += 1) {
+    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, i).toString(nullptr, &radioSettings);
+    if ((i == 0) || (i == 3)) {
+      cb->addItem(wname + " Left", i + ttlSwitches | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Right", i + ttlSwitches | JS_BUTTON_3POS_UP);
+    } else {
+      cb->addItem(wname + " Down", i + ttlSwitches | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Up", i + ttlSwitches | JS_BUTTON_3POS_UP);
+    }
   }
 }
 
