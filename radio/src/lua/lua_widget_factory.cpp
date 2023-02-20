@@ -70,6 +70,7 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunction);
 
+  // Make 'zone' table for 'create' call
   lua_newtable(lsWidgets);
   l_pushtableint("x", 0);
   l_pushtableint("y", 0);
@@ -77,6 +78,11 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   l_pushtableint("h", rect.h);
   l_pushtableint("xabs", rect.x);
   l_pushtableint("yabs", rect.y);
+
+  // Store the zone data in registry for later updates
+  int zoneRectDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+  // Push stored zone for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
 
   lua_newtable(lsWidgets);
   int i = 0;
@@ -100,7 +106,7 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
 
   bool err = lua_pcall(lsWidgets, 2, 1, 0);
   int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-  LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData);
+  LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData, zoneRectDataRef);
   if (err) lw->setErrorMessage("create()");
   return lw;
 }
