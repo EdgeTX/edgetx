@@ -139,7 +139,6 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
   int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
-  int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
 
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);
@@ -162,12 +161,6 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
       cb->addItem(wname, i + ttlSticks + ttlKnobs);
     }
   }
-
-  char s[4] = "Tx";
-  for (i = 0; i < ttlTrims; ++i) {
-    s[1] = i + '1';
-    cb->addItem(s, i + ttlSticks + ttlKnobs + ttlFaders);
-  }
 }
 
 void joystickDialog::populateButtonCombo(QComboBox * cb)
@@ -179,6 +172,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   GeneralSettings radioSettings = GeneralSettings();
 
   int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
+  int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
 
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);
@@ -188,12 +182,19 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
     if (radioSettings.switchConfig[i] != Board::SWITCH_NOT_AVAILABLE) {
       swcfg = Board::SwitchType(radioSettings.switchConfig[i]);
       wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
-      cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_UP);
       if (swcfg == Board::SWITCH_3POS) {
-        cb->addItem(wname + CPN_STR_SW_INDICATOR_NEUT, i | JS_BUTTON_MID);
+        cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_3POS_UP);
+        cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_3POS_DN);
+      } else {
+        cb->addItem(wname, i | JS_BUTTON_TOGGLE);
       }
-      cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_DN);
     }
+  }
+
+  for (i = 0; i < ttlTrims; ++i) {
+    wname = "T" + QString::number(i+1);
+    cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i + ttlSwitches | JS_BUTTON_3POS_UP);
+    cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i + ttlSwitches | JS_BUTTON_3POS_DN);
   }
 }
 

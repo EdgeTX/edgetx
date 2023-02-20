@@ -77,6 +77,15 @@ void RadioWidget::setValueQual(const RadioWidget::RadioWidgetType & type, const 
     setValue(value);
 }
 
+void RadioWidget::chgValueQual(const RadioWidget::RadioWidgetType & type, const int & index, const int offset)
+{
+  if (type == m_type && index == m_index) {
+    int value = m_value + offset;
+fprintf(stderr,">>>>>> chgValueQual %d %d %d %d %d %d %d\n", type, m_type, index, m_index, m_value, offset, value);
+    setValue(value);
+  }
+}
+
 void RadioWidget::setFlags(const quint16 & flags)
 {
   if (flags != m_flags) {
