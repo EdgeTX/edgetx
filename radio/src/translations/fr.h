@@ -1023,31 +1023,35 @@
 #define TR_INVERTED                    "Inverted"
 
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "Type de comparaison ou fonction", "Première variable", "Seconde variable ou constante", "Seconde variable ou constante", "Condition supplémentaire pour activer la ligne", "Durée minimale d'activation de l'inter logique", "Durée min de la condition avant l'activation de l'inter" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "First channel"
-#define TR_FILL_BACKGROUND             "Fill background?"
-#define TR_BG_COLOR                    "BG Color"
-#define TR_SLIDERS_TRIMS               "Sliders+Trims"
-#define TR_SLIDERS                     "Sliders"
-#define TR_FLIGHT_MODE                 "Flight mode"
-#define TR_INVALID_FILE                "Invalid File"
-#define TR_TIMER_SOURCE                "Timer source"
-#define TR_SIZE                        "Size"
-#define TR_SHADOW                      "Shadow"
-#define TR_TEXT                        "Text"
-#define TR_COLOR                       "Color"
-#define TR_MAIN_VIEW_X                 "Main view X"
-#define TR_PANEL1_BACKGROUND           "Panel1 background"
-#define TR_PANEL2_BACKGROUND           "Panel2 background"
-#define TR_WIDGET_GAUGE                "Gauge"
-#define TR_WIDGET_MODELBMP             "Models"
-#define TR_WIDGET_OUTPUTS              "Outputs"
-#define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Value"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "First channel"
+  #define TR_FILL_BACKGROUND           "Fill background?"
+  #define TR_BG_COLOR                  "BG Color"
+  #define TR_SLIDERS_TRIMS             "Sliders+Trims"
+  #define TR_SLIDERS                   "Sliders"
+  #define TR_FLIGHT_MODE               "Flight mode"
+  #define TR_INVALID_FILE              "Invalid File"
+  #define TR_TIMER_SOURCE              "Timer source"
+  #define TR_SIZE                      "Size"
+  #define TR_SHADOW                    "Shadow"
+  #define TR_ALIGN_LABEL               "Aligner le label"
+  #define TR_ALIGN_VALUE               "Aligner la valeur"
+  #define TR_ALIGN_OPTS                { "Gauche", "Centre", "Droite" }
+  #define TR_TEXT                      "Text"
+  #define TR_COLOR                     "Color"
+  #define TR_MAIN_VIEW_X               "Main view X"
+  #define TR_PANEL1_BACKGROUND         "Panel1 background"
+  #define TR_PANEL2_BACKGROUND         "Panel2 background"
+  #define TR_WIDGET_GAUGE              "Gauge"
+  #define TR_WIDGET_MODELBMP           "Models"
+  #define TR_WIDGET_OUTPUTS            "Outputs"
+  #define TR_WIDGET_TEXT               "Text"
+  #define TR_WIDGET_TIMER              "Timer"
+  #define TR_WIDGET_VALUE              "Value"
+#endif
 
 // Taranis About screen
 #define TR_ABOUTUS                     TR(" A PROPOS ", "A PROPOS")

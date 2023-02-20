@@ -1008,31 +1008,35 @@
 #define TR_INVERTED                    "Invers"
 
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk funktion", "Minimum SAND varighed for betingelse bliver sand" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "Første kanal"
-#define TR_FILL_BACKGROUND             "Udfyld baggrund?"
-#define TR_BG_COLOR                    "BG farve"
-#define TR_SLIDERS_TRIMS               "Skyder+Trim"
-#define TR_SLIDERS                     "Skydere"
-#define TR_FLIGHT_MODE                 "Flyve tilstand"
-#define TR_INVALID_FILE                "Ugyldig fil"
-#define TR_TIMER_SOURCE                "Tidstagning kilde"
-#define TR_SIZE                        "Størrelse"
-#define TR_SHADOW                      "Skygge"
-#define TR_TEXT                        "Tekst"
-#define TR_COLOR                       "Farve"
-#define TR_MAIN_VIEW_X                 "Hoved visning X"
-#define TR_PANEL1_BACKGROUND           "Panel1 baggrund"
-#define TR_PANEL2_BACKGROUND           "Panel2 baggrund"
-#define TR_WIDGET_GAUGE                "Måling"
-#define TR_WIDGET_MODELBMP             "Modeller"
-#define TR_WIDGET_OUTPUTS              "Udgange"
-#define TR_WIDGET_TEXT                 "Tekst"
-#define TR_WIDGET_TIMER                "Tider"
-#define TR_WIDGET_VALUE                "Værdi"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "Første kanal"
+  #define TR_FILL_BACKGROUND           "Udfyld baggrund?"
+  #define TR_BG_COLOR                  "BG farve"
+  #define TR_SLIDERS_TRIMS             "Skyder+Trim"
+  #define TR_SLIDERS                   "Skydere"
+  #define TR_FLIGHT_MODE               "Flyve tilstand"
+  #define TR_INVALID_FILE              "Ugyldig fil"
+  #define TR_TIMER_SOURCE              "Tidstagning kilde"
+  #define TR_SIZE                      "Størrelse"
+  #define TR_SHADOW                    "Skygge"
+  #define TR_ALIGN_LABEL               "Justere navn"
+  #define TR_ALIGN_VALUE               "Justere værdi"
+  #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
+  #define TR_TEXT                      "Tekst"
+  #define TR_COLOR                     "Farve"
+  #define TR_MAIN_VIEW_X               "Hoved visning X"
+  #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"
+  #define TR_PANEL2_BACKGROUND         "Panel2 baggrund"
+  #define TR_WIDGET_GAUGE              "Måling"
+  #define TR_WIDGET_MODELBMP           "Modeller"
+  #define TR_WIDGET_OUTPUTS            "Udgange"
+  #define TR_WIDGET_TEXT               "Tekst"
+  #define TR_WIDGET_TIMER              "Tider"
+  #define TR_WIDGET_VALUE              "Værdi"
+#endif
 
 // About screen
 #define TR_ABOUTUS                     TR(" OM ", "OM")

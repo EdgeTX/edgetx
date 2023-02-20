@@ -1000,34 +1000,38 @@
 #define TR_LIMITS_HEADERS_CURVE        "カーブ"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPMセンター"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "サブトリムモード"
-#define TR_INVERTED     "リバース"
+#define TR_INVERTED                    "リバース"
 
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "比較タイプまたは機能", "第1変数", "第2変数または定数", "第2変数または定数", "回線が有効となる追加条件", "論理スイッチの最小ON時間", "スイッチONになるまでの最小TRUE時間" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "第1チャンネル"
-#define TR_FILL_BACKGROUND             "背景を塗り潰しますか？"
-#define TR_BG_COLOR                    "背景カラー"
-#define TR_SLIDERS_TRIMS               "スライダー＋トリム"
-#define TR_SLIDERS                     "スライダー"
-#define TR_FLIGHT_MODE                 "飛行モード"
-#define TR_INVALID_FILE                "無効なファイル"
-#define TR_TIMER_SOURCE                "タイマーソース"
-#define TR_SIZE                        "サイズ"
-#define TR_SHADOW                      "影"
-#define TR_TEXT                        "テキスト"
-#define TR_COLOR                       "カラー"
-#define TR_MAIN_VIEW_X                 "メインビュー X"
-#define TR_PANEL1_BACKGROUND           "パネル1 背景"
-#define TR_PANEL2_BACKGROUND           "パネル2 背景"
-#define TR_WIDGET_GAUGE                "ゲージ"
-#define TR_WIDGET_MODELBMP             "モデル"
-#define TR_WIDGET_OUTPUTS              "出力"
-#define TR_WIDGET_TEXT                 "テキスト"
-#define TR_WIDGET_TIMER                "タイマー"
-#define TR_WIDGET_VALUE                "値"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "第1チャンネル"
+  #define TR_FILL_BACKGROUND           "背景を塗り潰しますか？"
+  #define TR_BG_COLOR                  "背景カラー"
+  #define TR_SLIDERS_TRIMS             "スライダー＋トリム"
+  #define TR_SLIDERS                   "スライダー"
+  #define TR_FLIGHT_MODE               "飛行モード"
+  #define TR_INVALID_FILE              "無効なファイル"
+  #define TR_TIMER_SOURCE              "タイマーソース"
+  #define TR_SIZE                      "サイズ"
+  #define TR_SHADOW                    "影"
+  #define TR_ALIGN_LABEL               "ラベルを揃える"
+  #define TR_ALIGN_VALUE               "値を揃える"
+  #define TR_ALIGN_OPTS                { "左", "中央", "右" }
+  #define TR_TEXT                      "テキスト"
+  #define TR_COLOR                     "カラー"
+  #define TR_MAIN_VIEW_X               "メインビュー X"
+  #define TR_PANEL1_BACKGROUND         "パネル1 背景"
+  #define TR_PANEL2_BACKGROUND         "パネル2 背景"
+  #define TR_WIDGET_GAUGE              "ゲージ"
+  #define TR_WIDGET_MODELBMP           "モデル"
+  #define TR_WIDGET_OUTPUTS            "出力"
+  #define TR_WIDGET_TEXT               "テキスト"
+  #define TR_WIDGET_TIMER              "タイマー"
+  #define TR_WIDGET_VALUE              "値"
+#endif
 
 // About screen
 #define TR_ABOUTUS                     TR(" 概要 ", "概要")

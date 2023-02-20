@@ -1006,31 +1006,35 @@
 #define TR_INVERTED                    "Invertováno"
 
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "První kanál"
-#define TR_FILL_BACKGROUND             "Vyplnit pozadí?"
-#define TR_BG_COLOR                    "Barva pozadí"
-#define TR_SLIDERS_TRIMS               "Slidery+Trimy"
-#define TR_SLIDERS                     "Slidery"
-#define TR_FLIGHT_MODE                 "Letový režim"
-#define TR_INVALID_FILE                "Neplatní soubor"
-#define TR_TIMER_SOURCE                "Časovač zdroj"
-#define TR_SIZE                        "Velikost"
-#define TR_SHADOW                      "Stíny"
-#define TR_TEXT                        "Text"
-#define TR_COLOR                       "Barva"
-#define TR_MAIN_VIEW_X                 "Hlavní pohled X"
-#define TR_PANEL1_BACKGROUND           "Panel1 pozadí"
-#define TR_PANEL2_BACKGROUND           "Panel2 pozadí"
-#define TR_WIDGET_GAUGE                "Měřidlo"
-#define TR_WIDGET_MODELBMP             "Model info"
-#define TR_WIDGET_OUTPUTS              "Výstupy"
-#define TR_WIDGET_TEXT                 "Text"
-#define TR_WIDGET_TIMER                "Časovač"
-#define TR_WIDGET_VALUE                "Hodnota"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "První kanál"
+  #define TR_FILL_BACKGROUND           "Vyplnit pozadí?"
+  #define TR_BG_COLOR                  "Barva pozadí"
+  #define TR_SLIDERS_TRIMS             "Slidery+Trimy"
+  #define TR_SLIDERS                   "Slidery"
+  #define TR_FLIGHT_MODE               "Letový režim"
+  #define TR_INVALID_FILE              "Neplatný soubor"
+  #define TR_TIMER_SOURCE              "Časovač zdroj"
+  #define TR_SIZE                      "Velikost"
+  #define TR_SHADOW                    "Stíny"
+  #define TR_ALIGN_LABEL               "Zarovnat název"
+  #define TR_ALIGN_VALUE               "Zarovnat hodnotu"
+  #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
+  #define TR_TEXT                      "Text"
+  #define TR_COLOR                     "Barva"
+  #define TR_MAIN_VIEW_X               "Hlavní pohled X"
+  #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
+  #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
+  #define TR_WIDGET_GAUGE              "Měřidlo"
+  #define TR_WIDGET_MODELBMP           "Model info"
+  #define TR_WIDGET_OUTPUTS            "Výstupy"
+  #define TR_WIDGET_TEXT               "Text"
+  #define TR_WIDGET_TIMER              "Časovač"
+  #define TR_WIDGET_VALUE              "Hodnota"
+#endif
 
 // Taranis About screen
 #define TR_ABOUTUS                     "O nás"

@@ -1004,31 +1004,35 @@
 #define TR_INVERTED                    "Inverted"
 
 
-// Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS    { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "Pierwszy kanał"
-#define TR_FILL_BACKGROUND             "Wypełnić tło?"
-#define TR_BG_COLOR                    "BG Color"
-#define TR_SLIDERS_TRIMS               "Sliders+Trims"
-#define TR_SLIDERS                     "Sliders"
-#define TR_FLIGHT_MODE                 "Flight mode"
-#define TR_INVALID_FILE                "Invalid File"
-#define TR_TIMER_SOURCE                "Timer source"
-#define TR_SIZE                        "Rozmiar"
-#define TR_SHADOW                      "Cień"
-#define TR_TEXT                        "Tekst"
-#define TR_COLOR                       "Kolor"
-#define TR_MAIN_VIEW_X                 "Main view X"
-#define TR_PANEL1_BACKGROUND           "Panel1 tło"
-#define TR_PANEL2_BACKGROUND           "Panel2 tło"
-#define TR_WIDGET_GAUGE                "Wskaźnik"
-#define TR_WIDGET_MODELBMP             "Modele"
-#define TR_WIDGET_OUTPUTS              "Wyjścia"
-#define TR_WIDGET_TEXT                 "Tekst"
-#define TR_WIDGET_TIMER                "Timer"
-#define TR_WIDGET_VALUE                "Wartość"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "Pierwszy kanał"
+  #define TR_FILL_BACKGROUND           "Wypełnić tło?"
+  #define TR_BG_COLOR                  "BG Color"
+  #define TR_SLIDERS_TRIMS             "Sliders+Trims"
+  #define TR_SLIDERS                   "Sliders"
+  #define TR_FLIGHT_MODE               "Flight mode"
+  #define TR_INVALID_FILE              "Invalid File"
+  #define TR_TIMER_SOURCE              "Timer source"
+  #define TR_SIZE                      "Rozmiar"
+  #define TR_SHADOW                    "Cień"
+  #define TR_ALIGN_LABEL               "Wyrównaj przywieszka"
+  #define TR_ALIGN_VALUE               "Wyrównać wartość"
+  #define TR_ALIGN_OPTS                { "Lewy", "Centrum", "Prawe" }
+  #define TR_TEXT                      "Tekst"
+  #define TR_COLOR                     "Kolor"
+  #define TR_MAIN_VIEW_X               "Main view X"
+  #define TR_PANEL1_BACKGROUND         "Panel1 tło"
+  #define TR_PANEL2_BACKGROUND         "Panel2 tło"
+  #define TR_WIDGET_GAUGE              "Wskaźnik"
+  #define TR_WIDGET_MODELBMP           "Modele"
+  #define TR_WIDGET_OUTPUTS            "Wyjścia"
+  #define TR_WIDGET_TEXT               "Tekst"
+  #define TR_WIDGET_TIMER              "Timer"
+  #define TR_WIDGET_VALUE              "Wartość"
+#endif
 
 // About screen
 #define TR_ABOUTUS             TR("   O   ", "  O  ")
