@@ -34,7 +34,7 @@ class UpdateParameters : public QObject
       UFT_Startswith,
       UFT_Endswith,
       UFT_Contains,
-      UFT_Expression,
+      UFT_Pattern,
     };
 
     static QStringList updateFilterTypeList();

@@ -63,7 +63,7 @@ QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, 
       pattern.append("$");
       break;
     case UFT_Contains:
-    case UFT_Expression:
+    case UFT_Pattern:
       break;
     default:
       pattern = "";
@@ -75,7 +75,7 @@ QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, 
 //  static
 QStringList UpdateParameters::updateFilterTypeList()
 {
-  return { tr("None"), tr("Exact"), tr("Startswith"), tr("Endswith"), tr("Contains"), tr("Expression") };
+  return { tr("None"), tr("Exact"), tr("Startswith"), tr("Endswith"), tr("Contains"), tr("Pattern") };
 }
 
 //  static

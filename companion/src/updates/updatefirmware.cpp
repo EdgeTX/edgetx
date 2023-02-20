@@ -44,7 +44,7 @@ void UpdateFirmware::assetSettingsInit()
   cad.filter("edgetx-firmware");
   cad.maxExpected(1);
   cad.destSubDir("FIRMWARE");
-  cad.copyFilterType(UpdateParameters::UFT_Expression);
+  cad.copyFilterType(UpdateParameters::UFT_Pattern);
   cad.copyFilter("^%FWFLAVOUR%-.*\\.bin$");
 
   qDebug() << "Asset settings initialised";

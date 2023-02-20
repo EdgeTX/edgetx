@@ -49,7 +49,7 @@ void UpdateMultiProtocol::assetSettingsInit()
   cad.desc("binaries");
   cad.processes(UPDFLG_Common_Asset &~ UPDFLG_Decompress);
   cad.flags(cad.processes() | UPDFLG_CopyFiles);
-  cad.filterType(UpdateParameters::UFT_Expression);
+  cad.filterType(UpdateParameters::UFT_Pattern);
   cad.filter("^mm-stm-serial-.*\\.bin$");
   cad.destSubDir("FIRMWARE");
   }
