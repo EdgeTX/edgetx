@@ -45,7 +45,8 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
     while (choices->str) {
 
         // we have a match!
-        if (!strncmp(val, choices->str, val_len))
+        if( strncmp(val, choices->str, val_len) == 0
+          && strlen(choices->str) == val_len)
             break;
 
         choices++;
