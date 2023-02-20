@@ -63,7 +63,7 @@ static int dir_iter(lua_State* L)
   for fname in dir(".") do
     print(fname)
   end
-
+```
 */
 int luaDir(lua_State* L)
 {
@@ -116,7 +116,7 @@ int luaDir(lua_State* L)
     size = info.size
     time = info.time
   end
-
+```
 @status current Introduced in 2.5.0
 
 */
@@ -166,7 +166,7 @@ int luaFstat(lua_State* L)
   else
      -- failed to delete file
   end
-
+```
 */
 int luaDelete(lua_State* L)
 {
