@@ -1001,31 +1001,35 @@
 #define TR_INVERTED                    "反向"
 
 
-// Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS            { "比較類型或功能", "第一個變量", "第二個變量或常量", "第二個變量或常量", "啟用本行的附加條件", "邏輯開關持續時間", "邏輯開關延時開啟" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL               "起始通道"
-#define TR_FILL_BACKGROUND             "是否填充背景?"
-#define TR_BG_COLOR                    "背景顏色"
-#define TR_SLIDERS_TRIMS               "滑塊和微調"
-#define TR_SLIDERS                     "滑塊"
-#define TR_FLIGHT_MODE                 "飛行模式"
-#define TR_INVALID_FILE                "無效的文件"
-#define TR_TIMER_SOURCE                "計時器選擇"
-#define TR_SIZE                        "尺寸"
-#define TR_SHADOW                      "陰影"
-#define TR_TEXT                        "文本"
-#define TR_COLOR                       "顏色"
-#define TR_MAIN_VIEW_X                 "Main view X"
-#define TR_PANEL1_BACKGROUND           "面板1背景"
-#define TR_PANEL2_BACKGROUND           "面板2背景"
-#define TR_WIDGET_GAUGE                "行程"
-#define TR_WIDGET_MODELBMP             "模型信息"
-#define TR_WIDGET_OUTPUTS              "輸出"
-#define TR_WIDGET_TEXT                 "文本"
-#define TR_WIDGET_TIMER                "計時器"
-#define TR_WIDGET_VALUE                "數值"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL             "起始通道"
+  #define TR_FILL_BACKGROUND           "是否填充背景?"
+  #define TR_BG_COLOR                  "背景顏色"
+  #define TR_SLIDERS_TRIMS             "滑塊和微調"
+  #define TR_SLIDERS                   "滑塊"
+  #define TR_FLIGHT_MODE               "飛行模式"
+  #define TR_INVALID_FILE              "無效的文件"
+  #define TR_TIMER_SOURCE              "計時器選擇"
+  #define TR_SIZE                      "尺寸"
+  #define TR_SHADOW                    "陰影"
+  #define TR_ALIGN_LABEL               "对齐名称"
+  #define TR_ALIGN_VALUE               "对齐值"
+  #define TR_ALIGN_OPTS                { "左", "中", "右" }
+  #define TR_TEXT                      "文本"
+  #define TR_COLOR                     "顏色"
+  #define TR_MAIN_VIEW_X               "Main view X"
+  #define TR_PANEL1_BACKGROUND         "面板1背景"
+  #define TR_PANEL2_BACKGROUND         "面板2背景"
+  #define TR_WIDGET_GAUGE              "行程"
+  #define TR_WIDGET_MODELBMP           "模型信息"
+  #define TR_WIDGET_OUTPUTS            "輸出"
+  #define TR_WIDGET_TEXT               "文本"
+  #define TR_WIDGET_TIMER              "計時器"
+  #define TR_WIDGET_VALUE              "數值"
+#endif
 
 // About screen
 #define TR_ABOUTUS                     TR(" 關於 ", "關於")
