@@ -117,7 +117,7 @@ const etx_module_port_t _internal_ports[] = {
     .port = ETX_MOD_PORT_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .timer = &_fakeTimerDriver },
+    .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
 #endif

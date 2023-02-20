@@ -37,7 +37,7 @@
  * TIM7 = 2MHz counter
  *
  *
- * TIM14 = 5ms counter
+ * TIM14 = 1ms counter
  */
 
 /* DMA Allocation:

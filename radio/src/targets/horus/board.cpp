@@ -168,7 +168,7 @@ void boardInit()
     TRACE("adcInit failed");
 
   init2MhzTimer();
-  init5msTimer();
+  init1msTimer();
 
   usbInit();
   hapticInit();

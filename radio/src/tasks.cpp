@@ -56,10 +56,6 @@ TASK_FUNCTION(menusTask)
   touchPanelInit();
 #endif
 
-#if defined(IMU)
-  gyroInit();
-#endif
-  
   opentxInit();
 
 #if defined(PWR_BUTTON_PRESS)

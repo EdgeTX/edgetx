@@ -51,7 +51,7 @@
 #define TR_VBEEPMODE                    "Tyst","Alarm","Ej knapp","Alla"
 #define TR_COUNTDOWNVALUES              "5s","10s","20s","30s"
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
-#define TR_TRNMODE                      "Av","+=",":="
+#define TR_TRNMODE                      "Av","Addera","Ersätt"
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
@@ -284,7 +284,7 @@
 #define TR_RESERVE_VSRCRAW              "[--]"
 #define TR_EXTRA_VSRCRAW                "Batt","Tid","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
 
-#define TR_VTMRMODES                    "Av","På","GAs","GA%","GAt"
+#define TR_VTMRMODES                    "Av","På","Strt","GAs","GA%","GAt"
 #define TR_VTRAINER_MASTER_OFF          "AV"
 #define TR_VTRAINER_MASTER_JACK         "Lärare/Uttag"
 #define TR_VTRAINER_SLAVE_JACK          "Elev/Uttag"
@@ -344,8 +344,8 @@
 #define TR_NAME                         "Namn"
 #define TR_MODELNAME                    "Modellnamn"
 #define TR_PHASENAME                    "Lägesnamn"
-#define TR_MIXNAME                      TR("Mixer","Mixernamn")
-#define TR_INPUTNAME                    TR("Input","Inputnamn")
+#define TR_MIXNAME                      TR("Namn","Mixernamn")
+#define TR_INPUTNAME                    TR("Namn","Inputnamn")
 #define TR_EXPONAME                     TR("Expo","Exponamn")
 #define TR_NO_PICTURE                   "Ingen bild"
 #define TR_BITMAP                       "Modellikon"
@@ -761,6 +761,8 @@
 #define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
+#define TR_DELETE_THEME                 "Radera tema?"
+#define TR_SAVE_THEME                   "Spara tema?"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
@@ -1038,28 +1040,33 @@
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Jämförelsetyp eller funktion", "Första variabeln", "Andra variabeln eller konstant", "Andra variabeln eller konstant", "Ytterligare villkor för att raden ska aktiveras", "Minsta tid PÅ för den logiska brytaren", "Minsta varaktighet för SANT för att brytaren ska slås PÅ" }
 
-// Horus layouts and widgets
-#define TR_FIRST_CHANNEL                "Första kanal"
-#define TR_FILL_BACKGROUND              "Fyll bakgrund?"
-#define TR_BG_COLOR                     "Bakgrundsfärg"
-#define TR_SLIDERS_TRIMS                "Reglage+Trimmar"
-#define TR_SLIDERS                      "Reglage"
-#define TR_FLIGHT_MODE                  "Flygläge"
-#define TR_INVALID_FILE                 "Ogiltig fil"
-#define TR_TIMER_SOURCE                 "Timerkälla"
-#define TR_SIZE                         "Storlek"
-#define TR_SHADOW                       "Skugga"
-#define TR_TEXT                         "Text"
-#define TR_COLOR                        "Färg"
-#define TR_MAIN_VIEW_X                  "Huvudvy X"
-#define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
-#define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
-#define TR_WIDGET_GAUGE                 "Mätare"
-#define TR_WIDGET_MODELBMP              "Modellinfo"
-#define TR_WIDGET_OUTPUTS               "Output"
-#define TR_WIDGET_TEXT                  "Text"
-#define TR_WIDGET_TIMER                 "Timer"
-#define TR_WIDGET_VALUE                 "Värde"
+#if defined(COLORLCD)
+  // Horus layouts and widgets
+  #define TR_FIRST_CHANNEL              "Första kanal"
+  #define TR_FILL_BACKGROUND            "Fyll bakgrund?"
+  #define TR_BG_COLOR                   "Bakgrundsfärg"
+  #define TR_SLIDERS_TRIMS              "Reglage+Trimmar"
+  #define TR_SLIDERS                    "Reglage"
+  #define TR_FLIGHT_MODE                "Flygläge"
+  #define TR_INVALID_FILE               "Ogiltig fil"
+  #define TR_TIMER_SOURCE               "Timerkälla"
+  #define TR_SIZE                       "Storlek"
+  #define TR_SHADOW                     "Skugga"
+  #define TR_ALIGN_LABEL                "Justera märka"
+  #define TR_ALIGN_VALUE                "Justera värde"
+  #define TR_ALIGN_OPTS                 { "Vänster", "Mitten", "Höger" }
+  #define TR_TEXT                       "Text"
+  #define TR_COLOR                      "Färg"
+  #define TR_MAIN_VIEW_X                "Huvudvy X"
+  #define TR_PANEL1_BACKGROUND          "Panel 1 bakgrund"
+  #define TR_PANEL2_BACKGROUND          "Panel 2 bakgrund"
+  #define TR_WIDGET_GAUGE               "Mätare"
+  #define TR_WIDGET_MODELBMP            "Modellinfo"
+  #define TR_WIDGET_OUTPUTS             "Output"
+  #define TR_WIDGET_TEXT                "Text"
+  #define TR_WIDGET_TIMER               "Timer"
+  #define TR_WIDGET_VALUE               "Värde"
+#endif
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"

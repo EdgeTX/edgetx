@@ -752,6 +752,10 @@
   #define I2C_B2_SCL_GPIO_PIN             LL_GPIO_PIN_10  // PB.10
   #define I2C_B2_SDA_GPIO_PIN             LL_GPIO_PIN_11  // PB.11
   #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4    // I2C2
+ #if defined(RADIO_TX16S)
+   #define I2C_B2_PWR_GPIO                GPIOA
+   #define I2C_B2_PWR_GPIO_PIN            LL_GPIO_PIN_15  // PA.15
+ #endif
 #endif
 
 #if defined(IMU)

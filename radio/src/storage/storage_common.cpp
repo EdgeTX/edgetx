@@ -95,6 +95,37 @@ void postRadioSettingsLoad()
 #endif
 }
 
+static void sortMixerLines()
+{
+  // simple bubble sort
+  unsigned passes = 0;
+  unsigned swaps;
+  MixData tmp;
+  
+  do {
+    swaps = 0;
+    for (int i = 0; i < MAX_MIXERS - 1; i++) {
+      auto a = mixAddress(i);
+      auto b = mixAddress(i + 1);
+
+      if (b->destCh < a->destCh) {
+        if (is_memclear(b, sizeof(MixData)))
+          break;
+
+        memcpy(&tmp, a, sizeof(MixData));
+        memcpy(a, b, sizeof(MixData));
+        memcpy(b, &tmp, sizeof(MixData));
+        ++swaps;
+      }
+    }
+    ++passes;
+  } while(swaps > 0);
+
+  if (passes > 1) {
+    storageDirty(EE_MODEL);
+  }
+}
+
 void postModelLoad(bool alarms)
 {
 #if defined(PXX2)
@@ -126,6 +157,7 @@ void postModelLoad(bool alarms)
   }
 
   loadCurves();
+  sortMixerLines();
 
 #if defined(GUI)
   if (alarms) {

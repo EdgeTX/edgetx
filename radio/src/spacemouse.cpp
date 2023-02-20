@@ -63,7 +63,7 @@ static StaticTimer_t spacemouseTimerBuffer;
 
 static void spacemouseTimerCb(TimerHandle_t xTimer)
 {
-  if (!mixerTaskRunning()) {
+  if (mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerSpacemouseWakeup);
     spacemousePoll();
     spacemouseWakeup();

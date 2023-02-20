@@ -153,7 +153,7 @@ void boardInit()
   ledInit();
 #if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
     defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
-    defined(RADIO_ZORRO)
+    defined(RADIO_ZORRO) || defined(RADIO_BOXER)
   ledBlue();
 #else
   ledGreen();
@@ -218,7 +218,7 @@ void boardInit()
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();
-  init5msTimer();
+  init1msTimer();
   __enable_irq();
   usbInit();
 

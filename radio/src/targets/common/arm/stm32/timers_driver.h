@@ -31,8 +31,8 @@ uint16_t getTmr2MHz();
 #include "hal.h"
 
 void init2MhzTimer();
-void init5msTimer();
-void stop5msTimer();
+void init1msTimer();
+void stop1msTimer();
 
 static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
 
@@ -48,3 +48,5 @@ static inline tmr10ms_t get_tmr10ms()
 {
   return g_tmr10ms;
 }
+
+uint32_t timersGetMsTick();

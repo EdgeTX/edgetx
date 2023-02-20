@@ -234,6 +234,17 @@
     <file>images/simulator/Zorro/right-mdl.png</file>
     <file>images/simulator/Zorro/bottom.png</file>
     <file>images/simulator/Zorro/top.png</file>
+    <file>images/simulator/Boxer/bottom.png</file>
+    <file>images/simulator/Boxer/left.png</file>
+    <file>images/simulator/Boxer/left-sys.png</file>
+    <file>images/simulator/Boxer/left-pageup.png</file>
+    <file>images/simulator/Boxer/left-pagedn.png</file>
+    <file>images/simulator/Boxer/left-rtn.png</file>
+    <file>images/simulator/Boxer/left-tele.png</file>
+    <file>images/simulator/Boxer/right.png</file>
+    <file>images/simulator/Boxer/right-mdl.png</file>
+    <file>images/simulator/Boxer/right-ent.png</file>
+    <file>images/simulator/Boxer/top.png</file>
     <file>images/simulator/T8/left.png</file>
     <file>images/simulator/T8/left-pageup.png</file>
     <file>images/simulator/T8/left-pagedn.png</file>

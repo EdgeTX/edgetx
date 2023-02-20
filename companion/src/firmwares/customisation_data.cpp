@@ -89,6 +89,7 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
   case ZoneOption::Timer:
   case ZoneOption::Switch:
   case ZoneOption::TextSize:
+  case ZoneOption::Align:
   default:
     return ZOV_Unsigned;
   }

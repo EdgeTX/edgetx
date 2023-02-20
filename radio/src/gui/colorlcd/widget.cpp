@@ -98,10 +98,6 @@ void Widget::onCancel()
 
 void Widget::update()
 {
-  auto container = dynamic_cast<WidgetsContainer*>(parent);
-  if (container) {
-    container->updateZones();
-  }
 }
 
 void Widget::setFullscreen(bool enable)
@@ -113,7 +109,10 @@ void Widget::setFullscreen(bool enable)
   if (!enable) {
 
     // Reset all zones in container
-    Widget::update();
+    auto container = dynamic_cast<WidgetsContainer*>(parent);
+    if (container)
+      container->updateZones();
+
     setWindowFlags(getWindowFlags() & ~OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
@@ -135,9 +134,10 @@ void Widget::setFullscreen(bool enable)
   // Enter Fullscreen Mode
   else {
 
-    // Set window opaque (inhibits redraw from windows bellow)
+    // Set window opaque (inhibits redraw from windows below)
     setWindowFlags(getWindowFlags() | OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+    updateZoneRect(parent->getRect());
     setRect(parent->getRect());
     fullscreen = true;
 

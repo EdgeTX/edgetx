@@ -133,6 +133,10 @@ void execMixerFrequentActions()
 
 TASK_FUNCTION(mixerTask)
 {
+#if defined(IMU)
+  gyroInit();
+#endif
+
   mixerSchedulerInit();
   mixerSchedulerStart();
 
