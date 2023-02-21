@@ -302,7 +302,7 @@ static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
 // depending on whether the bit is SET or RESET.
 //
 #define PXX1_FREQ      1000000 /* 1 MHz */
-#define PXX1_PWM_ON    9  /* 9us */
+#define PXX1_PWM_ON    8  /* 8us */
 #define PXX1_BIT_ZERO  16 /* 0 = 16us */
 #define PXX1_BIT_ONE   24 /* 1 = 24us */
 
