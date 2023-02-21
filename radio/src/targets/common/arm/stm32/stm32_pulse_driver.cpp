@@ -105,8 +105,6 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
   if (IS_TIM_BREAK_INSTANCE(tim->TIMx)) {
     LL_TIM_EnableAllOutputs(tim->TIMx);
   }
-
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
 }
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
@@ -210,19 +208,21 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
 
-  // Enable DMA
-  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
-  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_SetCounter(tim->TIMx, 0);
+  // Reset counter close to overflow
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
+  } else {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
+  }
+
+  // only on PWM (preloads the first period)
+  if (ocmode == LL_TIM_OCMODE_PWM1)
+    LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+  
+  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
-  // Trigger update to effect the first DMA transation
-  // and thus load ARR with the first duration
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
-
   // start timer
-  force_start_level(tim);
   LL_TIM_EnableCounter(tim->TIMx);
 }
 
@@ -266,4 +266,5 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
 
   // Halt pulses by forcing to inactive level
   set_oc_mode(tim, LL_TIM_OCMODE_FORCED_INACTIVE);
+  LL_TIM_DisableCounter(tim->TIMx);
 }
