@@ -806,8 +806,6 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value)
 {
-if (type == RadioWidget::RADIO_WIDGET_TRIM)
-    fprintf(stderr,">>>>>> onRadioWidgetValueChange1 %d %d %d\n", type, index, value);
   //qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
@@ -854,8 +852,6 @@ if (type == RadioWidget::RADIO_WIDGET_TRIM)
     default :
       return;
   }
-if (type == RadioWidget::RADIO_WIDGET_TRIM)
-    fprintf(stderr,">>>>>> onRadioWidgetValueChange2 %d %d %d %d\n", type, index, value, inpType);
 
   emit inputValueChange(inpType, index, value);
 }
@@ -946,7 +942,6 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
     // Trim
     swtch -= ttlSwitches;
     int offset = (btn & JS_BUTTON_3POS_DN) ? -1 : 1;
-    fprintf(stderr,">>>>>> TRIM %d %d\n",swtch,offset);
     emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
   }
 #endif

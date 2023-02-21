@@ -90,6 +90,19 @@ enum TrainerMode {
 #define INPUT_NAME_LEN 4
 #define CPN_MAX_BITMAP_LEN 14
 
+#define CPN_USBJ_MAX_JOYSTICK_CHANNELS 26
+
+class USBJoystickChData {
+  public:
+    USBJoystickChData() { clear(); }
+    unsigned int mode;
+    unsigned int inversion;
+    unsigned int param;
+    unsigned int btn_num;
+    unsigned int switch_npos;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
+};
+
 class ModelData {
   Q_DECLARE_TR_FUNCTIONS(ModelData)
 
@@ -200,6 +213,12 @@ class ModelData {
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
     char functionSwitchNames[CPN_MAX_FUNCTION_SWITCHES][HARDWARE_NAME_LEN + 1];
+
+    // Custom USB joytsick mapping
+    unsigned int usbJoystickExtMode;
+    unsigned int usbJoystickIfMode;
+    unsigned int usbJoystickCircularCut;
+    USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
     void clear();
     bool isEmpty() const;
