@@ -1263,8 +1263,8 @@
 #define TR_VUSBJOYSTICK_CH_MODE         "Ingen","Knap","Akse","Sim"
 #define TR_VUSBJOYSTICK_CH_MODE_S       "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE       "Knap tilstand"
-#define TR_VUSBJOYSTICK_CH_BTNMODE      "Normal","Puls","SWEmu","Delta"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S    TR("Norm","Normal"),TR("Puls","Puls"),TR("SWEm","SWEmul"),TR("Delt","Delta")
+#define TR_VUSBJOYSTICK_CH_BTNMODE      "Normal","Pulse","SWEmu","Delta","Companion"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S    TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
 #define TR_USBJOYSTICK_CH_SWPOS         "Positioner"
 #define TR_VUSBJOYSTICK_CH_SWPOS        "Skub","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
 #define TR_USBJOYSTICK_CH_AXIS          "Akse"
