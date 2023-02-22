@@ -36,7 +36,8 @@
 
 #if LCD_W > LCD_H
 
-#define GRIDCOLS    10
+#define GRIDCOLS 10
+#define TSI2CEventsCol 5
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
                                      LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
@@ -44,7 +45,8 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(
 
 #else
 
-#define GRIDCOLS    5
+#define GRIDCOLS 5
+#define TSI2CEventsCol 0
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
                                      LV_GRID_TEMPLATE_LAST};
@@ -179,14 +181,11 @@ class AnaCalibratedViewWindow: public AnaViewWindow {
 
 #if LCD_H > LCD_W
       line = newLine(grid);
+#endif
       lbl2 = new StaticText(line, rect_t{}, "TSI2CEvents: " + std::to_string(touchGT911hiccups), COLOR_THEME_PRIMARY1);
-      lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5, LV_GRID_ALIGN_CENTER, 0, 1);
-#else
-      lbl2 = new StaticText(line, rect_t{}, "TSI2CEvents: " + std::to_string(touchGT911hiccups), COLOR_THEME_PRIMARY1);
-      lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 5, 5, LV_GRID_ALIGN_CENTER, 0, 1);
+      lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, TSI2CEventsCol, 5, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-#endif
-#endif
+#endif // defined(HARDWARE_TOUCH)
     }
 
 #if defined(HARDWARE_TOUCH)
