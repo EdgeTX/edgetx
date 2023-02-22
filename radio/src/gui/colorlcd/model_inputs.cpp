@@ -445,14 +445,6 @@ void ModelInputsPage::build(FormWindow *window)
   auto form_obj = form->getLvObj();
   lv_obj_set_width(form_obj, lv_pct(100));
 
-  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
-    uint8_t input, index;
-    if (getFreeInput(input, index)) insertInput(input, index);
-    return 0;
-  });
-  auto btn_obj = btn->getLvObj();
-  lv_obj_set_width(btn_obj, lv_pct(100));
-
   groups.clear();
   lines.clear();
 
@@ -479,5 +471,13 @@ void ModelInputsPage::build(FormWindow *window)
       break;
     }
   }
+
+  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+    uint8_t input, index;
+    if (getFreeInput(input, index)) insertInput(input, index);
+    return 0;
+  });
+  auto btn_obj = btn->getLvObj();
+  lv_obj_set_width(btn_obj, lv_pct(100));
 }
 
