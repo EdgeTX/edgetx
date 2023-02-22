@@ -56,8 +56,7 @@ jobs:
                                 mingw-w64-i686-libraqm \
                                 mingw-w64-i686-SDL \
                                 mingw-w64-i686-clang \
-                                mingw-w64-i686-nsis \
-                                mingw-w64-i686-openssl
+                                mingw-w64-i686-nsis
           python -m pip install clang
 
       - name: Install Qt
@@ -67,6 +66,7 @@ jobs:
           cache-key-prefix: 'install-qt-action-win32'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
+          tools: 'tools_openssl_x86'
 
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -79,6 +79,7 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
+          QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x86 \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
