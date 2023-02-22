@@ -615,21 +615,21 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 
   FlexGridLayout grid3(col_dsc3, row_dsc, 2);
  
-  int prevButtonHeight = _buttonHight;
+  int prevButtonHeight = _buttonHeight;
   _scrollOffset = 0;
 
   if (showSensorId && !g_model.ignoreSensorIds)
-    _buttonHight = B_HEIGHT + ID_HEIGHT;
+    _buttonHeight = B_HEIGHT + ID_HEIGHT;
   else
-    _buttonHight = B_HEIGHT;
+    _buttonHeight = B_HEIGHT;
     
   for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++)
   {
     if (g_model.telemetrySensors[idx].isAvailable()) {
       line = form->newLine(&grid3);
-      _scrollOffset += (_buttonHight - prevButtonHeight);
+      _scrollOffset += (_buttonHeight - prevButtonHeight);
       auto button =
-          new SensorButton(line, rect_t{0, 0, LCD_W - 12, _buttonHight}, idx,
+          new SensorButton(line, rect_t{0, 0, LCD_W - 12, _buttonHeight}, idx,
                            showSensorId && !g_model.ignoreSensorIds);
 
       button->setPressHandler([=]() -> uint8_t {

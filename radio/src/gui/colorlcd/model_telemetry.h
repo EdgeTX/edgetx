@@ -43,7 +43,7 @@ class ModelTelemetryPage: public PageTab {
     int lastKnownIndex = 0;
     uint8_t showSensorId = 0;
     bool refreshDisplay = false;
-    int _buttonHight = B_HEIGHT;
+    int _buttonHeight = B_HEIGHT;
     int _scrollOffset = 0;
     FormWindow* window = nullptr;
 
