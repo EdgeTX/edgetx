@@ -5,10 +5,10 @@
 ## library and how to create an installation package.
 ## Let it run as normal user in MSYS2 MinGW 64-bit console (blue icon).
 ##
-## Note: This script works properly only for branches stemming from EdgeTX v2.8 or newer
+## Note: This script works presently properly only for branches stemming from EdgeTX main development (v2.9 or newer)
 
 # -----------------------------------------------------------------------------
-export BRANCH_NAME="main"  # main|2.8|2.9|...
+export BRANCH_NAME="main"  # main|2.9|...
 export RADIO_TYPE="tx16s"  # tx16s|x10|x10-access|x12s|x9d|x9dp|x9lite|x9lites|x7|x7-access|t12|tx12|tx12mk2|boxer|t8|zorro|tlite|tpro|lr3pro|xlite|xlites|x9dp2019|x9e|x9e-hall|t16|t18|nv14|commando8|
 
 export BUILD_OPTIONS="-DDEFAULT_MODE=2 -DGVARS=YES -DPPM_UNIT=US"
