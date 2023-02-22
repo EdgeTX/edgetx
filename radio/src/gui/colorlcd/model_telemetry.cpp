@@ -717,10 +717,10 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 #endif
   }
 
-  // Show sensor ID button
+  // Show sensor ID checkbox
   line = form->newLine(&grid);
   line->padLeft(10);
-  new StaticText(line, rect_t{}, "Show sensor ID", 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_SHOW_SENSOR_ID, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_DEFAULT(showSensorId), [=](uint8_t val) {
     if (showSensorId != val) {
       refreshDisplay = true;
@@ -728,7 +728,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     showSensorId = val;
   });
 
-  // Ignore instance button
+  // Ignore instance checkbox
   line = form->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);

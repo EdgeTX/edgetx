@@ -1079,6 +1079,7 @@
 #define TR_DISCOVER_SENSORS            "新規検索"
 #define TR_STOP_DISCOVER_SENSORS       "停止"
 #define TR_DELETE_ALL_SENSORS          "すべて削除"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE               "本当に " LCDW_128_480_LINEBREAK "すべて削除しますか？"
 #define TR_SELECT_WIDGET               "ウィジェット選択"
 #define TR_WIDGET_FULLSCREEN           "フルスクリーン"

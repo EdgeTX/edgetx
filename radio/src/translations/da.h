@@ -1084,6 +1084,7 @@
 #define TR_DISCOVER_SENSORS            "Søg efter nye"
 #define TR_STOP_DISCOVER_SENSORS       "Stop"
 #define TR_DELETE_ALL_SENSORS          "Slet alle"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE               "Virkeligt " LCDW_128_480_LINEBREAK "slet alle ?"
 #define TR_SELECT_WIDGET               "Vælg widget"
 #define TR_WIDGET_FULLSCREEN           "Fuld skærm"

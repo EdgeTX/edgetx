@@ -1115,6 +1115,7 @@
 #define TR_DISCOVER_SENSORS             "Sök nya"
 #define TR_STOP_DISCOVER_SENSORS        "Avbryt sökning"
 #define TR_DELETE_ALL_SENSORS           "Ta bort alla sensorer"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE                "Ta bort alla?"
 #define TR_SELECT_WIDGET                "Välj widget"
 #define TR_REMOVE_WIDGET                "Ta bort widget"

@@ -976,6 +976,7 @@ extern const char STR_IGNORE_INSTANCE[];
 extern const char STR_DISCOVER_SENSORS[];
 extern const char STR_STOP_DISCOVER_SENSORS[];
 extern const char STR_DELETE_ALL_SENSORS[];
+extern const char STR_SHOW_SENSOR_ID[];
 extern const char STR_CONFIRMDELETE[];
 extern const char STR_SELECT_WIDGET[];
 extern const char STR_REMOVE_WIDGET[];

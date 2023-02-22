@@ -1082,6 +1082,7 @@
 #define TR_DISCOVER_SENSORS            "Detekovat nové senzory"
 #define TR_STOP_DISCOVER_SENSORS       "Zastavit autodetekci"
 #define TR_DELETE_ALL_SENSORS          "Odebrat všechny senzory"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE               "Opravdu " LCDW_128_480_LINEBREAK "odstranit vše?"
 #define TR_SELECT_WIDGET               "Zvolit widget"
 #define TR_WIDGET_FULLSCREEN           "Celá obrazovka"

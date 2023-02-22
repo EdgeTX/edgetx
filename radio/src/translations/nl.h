@@ -1093,6 +1093,7 @@
 #define TR_DISCOVER_SENSORS    "Ontdek nieuwe sensors"
 #define TR_STOP_DISCOVER_SENSORS "Stop ontdekking"
 #define TR_DELETE_ALL_SENSORS  "Wis alle sensors"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE       "Echt alles wissen?"
 #define TR_SELECT_WIDGET       "Widget kiezen"
 #define TR_WIDGET_FULLSCREEN           "Full screen"

@@ -1086,6 +1086,7 @@
 #define TR_DISCOVER_SENSORS    "Cerca nuovi sensori"
 #define TR_STOP_DISCOVER_SENSORS "Ferma ricerca"
 #define TR_DELETE_ALL_SENSORS  "Elimina tutti i sensori"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE       "Confermi " LCDW_128_480_LINEBREAK "eliminazione?"
 #define TR_SELECT_WIDGET       "Seleziona widget"
 #define TR_WIDGET_FULLSCREEN   "Schermo intero"

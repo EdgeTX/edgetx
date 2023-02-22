@@ -1081,6 +1081,7 @@
 #define TR_DISCOVER_SENSORS    "Znajdź nowe czujniki"
 #define TR_STOP_DISCOVER_SENSORS "Szukanie STOP "
 #define TR_DELETE_ALL_SENSORS  "Usuń czujniki     "
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE       "Usunąć wszystkie?"
 #define TR_SELECT_WIDGET       "Wybierz widżet"
 #define TR_WIDGET_FULLSCREEN   "Pełny ekran"

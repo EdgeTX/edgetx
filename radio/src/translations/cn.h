@@ -1078,6 +1078,7 @@
 #define TR_DISCOVER_SENSORS            "扫描新的回传项目"
 #define TR_STOP_DISCOVER_SENSORS       "停止扫描"
 #define TR_DELETE_ALL_SENSORS          "删除所有回传项目"
+#define TR_SHOW_SENSOR_ID              "Show sensor ID"
 #define TR_CONFIRMDELETE               "真的 " LCDW_128_480_LINEBREAK "要删除全部吗 ?"
 #define TR_SELECT_WIDGET               "选择小部件"
 #define TR_WIDGET_FULLSCREEN           "全屏"
