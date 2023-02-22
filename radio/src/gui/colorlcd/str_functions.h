@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #pragma once
+#include <cstdint>
 #include <wctype.h>
 #include <string>
 #include <iostream>
