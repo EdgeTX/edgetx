@@ -32,8 +32,8 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
 #if LCD_W > LCD_H
-static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                         LV_GRID_FR(3), LV_GRID_FR(3),
                                          LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 4
 #else
@@ -46,14 +46,15 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 #if LCD_W > LCD_H
 #define CV_SCALE 3
+#define DBG_B_WIDTH (LCD_W - 20) / 4
 #else
 #define CV_SCALE 4
+#define DBG_B_WIDTH (LCD_W - 20) / 3
 #endif
 #define CV_WIDTH MAXTRACE
 #define CV_HEIGHT (CV_SCALE * 32 + 5)
 
-#define DBG_B_WIDTH (LCD_W - 20) / 4
-#define DBG_B_HEIGHT 24
+#define DBG_B_HEIGHT 20
 
 template <class T>
 class DebugInfoNumber : public Window
@@ -240,30 +241,29 @@ void DebugViewPage::build(FormWindow* window)
   FlexGridLayout grid(dbg_col_dsc, row_dsc, 0);
 
   auto line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Mixer data
   new StaticText(line, rect_t{}, STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      PREC2 | COLOR_THEME_PRIMARY1, nullptr, "ms");
+      PREC2 | COLOR_THEME_PRIMARY1, nullptr, " msec");
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Free mem
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<int32_t>(
-      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1,
-      nullptr, "b");
+      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1, 
+      nullptr, " bytes");
 
 #if defined(LUA)
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // LUA timing data
-  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0,
-                 COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0, COLOR_THEME_PRIMARY1);
 #if LCD_H > LCD_W
   line = form->newLine(&grid);
   line->padAll(4);
@@ -271,13 +271,13 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, "[Dur] ", "ms");
+      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, "Duration(ms): ", nullptr);
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, "[Int] ", "ms");
+      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, "Internal(ms): ", nullptr);
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(0);
 #if LCD_H > LCD_W
   line->padLeft(10);
 #else
@@ -287,20 +287,17 @@ void DebugViewPage::build(FormWindow* window)
   // lUA memory data
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
-      "[S] ", nullptr);
+      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1, "Script(B): ", nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
-      "[W] ", nullptr);
+      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1, "Widget(B): ", nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, "[B] ",
-      nullptr);
+      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, "Extra(B): ", nullptr);
 #endif
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Stacks data
   new StaticText(line, rect_t{}, STR_FREE_STACK, 0, COLOR_THEME_PRIMARY1);
@@ -311,15 +308,15 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1, "[Menu] ",
+      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1, "Menu: ",
       nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1, "[Mix] ",
+      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1, "Mix: ",
       nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1, "[Audio] ",
+      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1, "Audio: ",
       nullptr);
 
 #if defined(DEBUG_LATENCY)
