@@ -927,7 +927,6 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
                         const char* val, uint8_t val_len)
 {
   data += (bitoffs >> 3UL);
-  swarnstate_t& swtchWarn = *(swarnstate_t*)data;
 
   // Read from string like 'AdBuC-':
   //
@@ -938,12 +937,13 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   //
   // -> switches not in the list shall not be checked
   //
-  swtchWarn = 0;
+  swarnstate_t swtchWarn = 0;
+
   while (val_len--) {
     signed swtch = getRawSwitchIdx(*(val++));
     if (swtch < 0) break;
 
-    unsigned state = 0;
+    swarnstate_t state = 0;
     switch (*(val++)) {
       case 'u':
         state = 1;
@@ -962,13 +962,17 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
     // 3 bits per switch
     swtchWarn |= (state << (3 * swtch));
   }
+  memcpy(data, &swtchWarn, sizeof(swtchWarn));
+
 }
 
 static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
                         yaml_writer_func wf, void* opaque)
 {
   data += (bitoffs >> 3UL);
-  swarnstate_t states = *(swarnstate_t*)data;
+
+  swarnstate_t states;
+  memcpy(&states, data, sizeof(states));
 
   for (int i = 0; i < NUM_SWITCHES; i++) {
     // TODO: SWITCH_EXISTS() uses the g_eeGeneral stucture, which might not be
