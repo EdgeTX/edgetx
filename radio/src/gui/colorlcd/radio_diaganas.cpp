@@ -36,11 +36,15 @@
 
 #if LCD_W > LCD_H
 
+#define GRIDCOLS    10
+
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
                                      LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
                                      LV_GRID_TEMPLATE_LAST};
 
 #else
+
+#define GRIDCOLS    5
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
                                      LV_GRID_TEMPLATE_LAST};
@@ -49,51 +53,111 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-class AnaCalibratedViewWindow: public FormWindow {
+class AnaViewWindow: public FormWindow {
   public:
-    AnaCalibratedViewWindow(Window * parent, const rect_t & rect):
-      FormWindow(parent, rect)
+    AnaViewWindow(Window * parent):
+      FormWindow(parent, {0, 0, parent->width(), parent->height()})
     {
+      parent->padAll(0);
       padAll(4);
       padLeft(10);
       padRight(10);
       setFlexLayout();
-      FlexGridLayout grid(col_dsc, row_dsc, 0);
 
+      grid = new FlexGridLayout(col_dsc, row_dsc, 0);
+      line = newLine(grid);
+    }
+    
+    virtual void build()
+    {
       char s[10];
-      auto line = newLine(&grid);
 
       for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+#if LCD_W > LCD_H
+        if ((i & 1) == 0)
+          line = newLine(grid);
+#else
+        line = newLine(grid);
+#endif
+
         lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
+
         sprintf(s, "%02d :", i + 1);
         new StaticText(line, rect_t{}, s, COLOR_THEME_PRIMARY1);
+
         auto lbl = new DynamicText(line, rect_t{}, [=]() {
           return std::to_string((int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256);
         }, COLOR_THEME_PRIMARY1);
         lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
+
         lbl = new DynamicText(line, rect_t{}, [=]() {
-#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-          if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-            return std::to_string(hall_raw_values[i]);
-          else
-            return std::to_string((int16_t)anaIn(i));
-#else
-          return std::to_string((int16_t)anaIn(i));
-#endif
+          return std::to_string((int16_t)column3(i));
         }, COLOR_THEME_PRIMARY1);
         lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        grid.nextCell();
-        grid.nextCell();
+
+        if (column4size() > 0) {
+          lbl = new DynamicText(line, rect_t{}, [=]() {
+            return std::string(column4prefix()) + std::to_string((int16_t)column4(i));
+          }, COLOR_THEME_PRIMARY1);
+          lv_obj_set_style_text_align(lbl->getLvObj(), (column4size() == 2) ? LV_TEXT_ALIGN_LEFT : LV_TEXT_ALIGN_RIGHT, 0);
 #if LCD_W > LCD_H
-        if ((i & 1) == 1)
-          line = newLine(&grid);
+          lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 3 + (i & 1) * 5, column4size(), LV_GRID_ALIGN_CENTER, 0, 1);
 #else
-        line = newLine(&grid);
+          lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 3, column4size(), LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
+        } else {
+          grid->nextCell();
+        }
+        
+        if (column5size() > 0) {
+          lbl = new DynamicText(line, rect_t{}, [=]() {
+            return std::to_string((int16_t)column5(i));
+          }, COLOR_THEME_PRIMARY1);
+          lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_LEFT, 0);
+        } else {
+          grid->nextCell();
+        }
       }
+    }
+
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      if (grid){
+        delete grid;
+        grid = nullptr;
+      }
+    }
+    
+    void checkEvents() override
+    {
+      Window::checkEvents();
+    }
+
+  protected:
+    FlexGridLayout* grid = nullptr;
+    FormWindow::Line* line = nullptr;
+
+    virtual int16_t column3(int i) { return 0; }
+    virtual int16_t column4(int i) { return 0; }
+    virtual int column4size() { return 0; }
+    virtual const char* column4prefix() { return ""; }
+    virtual int16_t column5(int i) { return 0; }
+    virtual int column5size() { return 0; }
+};
+
+class AnaCalibratedViewWindow: public AnaViewWindow {
+  public:
+    AnaCalibratedViewWindow(Window * parent):
+      AnaViewWindow(parent)
+    {
+    }
+    
+    void build() override
+    {
+      AnaViewWindow::build();
 
 #if defined(HARDWARE_TOUCH)
-      line = newLine(&grid);
+      line = newLine(grid);
 #if LCD_H > LCD_W
       line->padTop(20);
 #else
@@ -109,12 +173,12 @@ class AnaCalibratedViewWindow: public FormWindow {
       lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5, LV_GRID_ALIGN_CENTER, 0, 1);
 
 #if !defined(SIMU) && !defined(PCBNV14)
-      line = newLine(&grid);
+      line = newLine(grid);
       auto lbl2 = new StaticText(line, rect_t{}, std::string("Touch GT911 FW ver: ") + std::to_string(touchGT911fwver), COLOR_THEME_PRIMARY1);
       lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5, LV_GRID_ALIGN_CENTER, 0, 1);
 
 #if LCD_H > LCD_W
-      line = newLine(&grid);
+      line = newLine(grid);
       lbl2 = new StaticText(line, rect_t{}, "TSI2CEvents: " + std::to_string(touchGT911hiccups), COLOR_THEME_PRIMARY1);
       lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5, LV_GRID_ALIGN_CENTER, 0, 1);
 #else
@@ -125,16 +189,14 @@ class AnaCalibratedViewWindow: public FormWindow {
 #endif
     }
 
+#if defined(HARDWARE_TOUCH)
     void checkEvents() override
     {
-      Window::checkEvents();
-#if defined(HARDWARE_TOUCH)
+      AnaViewWindow::checkEvents();
       // will always force a full monitor window refresh
       invalidate();
-#endif
     }
 
-#if defined(HARDWARE_TOUCH)
     void paint(BitmapBuffer * dc) override
     {
       TouchState rawTouchState = getInternalTouchState();
@@ -146,9 +208,20 @@ class AnaCalibratedViewWindow: public FormWindow {
 #endif
 
   protected:
+    int16_t column3(int i) override
+    {
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
+      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
+        return hall_raw_values[i];
+      else
+        return anaIn(i);
+#else
+      return anaIn(i);
+#endif
+    }
 };
 
-class AnaFilteredDevViewWindow: public FormWindow {
+class AnaFilteredDevViewWindow: public AnaViewWindow {
   protected:
     class Stats {
       protected:
@@ -231,62 +304,38 @@ class AnaFilteredDevViewWindow: public FormWindow {
 
     Stats stats[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
 
-  public:
-    AnaFilteredDevViewWindow(Window * parent, const rect_t & rect):
-      FormWindow(parent, rect)
+    int16_t column3(int i) override
     {
-      padAll(4);
-      padLeft(10);
-      padRight(10);
-      setFlexLayout();
-      FlexGridLayout grid(col_dsc, row_dsc, 0);
-
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++)
-        stats[i].clear();
-
       extern uint32_t s_anaFilt[NUM_ANALOGS];
 
-      char s[10];
-      auto line = newLine(&grid);
-
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-        lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
-        sprintf(s, "%02d :", i + 1);
-        new StaticText(line, rect_t{}, s, COLOR_THEME_PRIMARY1);
-        auto lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256);
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
 #if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-          if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-            return std::to_string(hall_raw_values[i]);
-          else
-            return std::to_string((int16_t)s_anaFilt[i]/JITTER_ALPHA);
+      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
+        return hall_raw_values[i];
+      else
+        return s_anaFilt[i]/JITTER_ALPHA;
 #else
 #if !defined(SIMU)
-          return std::to_string((int16_t)s_anaFilt[i]/JITTER_ALPHA);
+      return s_anaFilt[i]/JITTER_ALPHA;
 #else
-          return std::to_string((int16_t)anaIn(i));
+      return anaIn(i);
 #endif
 #endif
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::string("+/- ") + std::to_string(stats[i].maxDev());
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_LEFT, 0);
-#if LCD_W > LCD_H
-        lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 3 + (i & 1) * 5, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-        grid.nextCell();
-        if ((i & 1) == 1)
-          line = newLine(&grid);
-#else
-        lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-        grid.nextCell();
-        line = newLine(&grid);
-#endif
-      }
+    }
+
+    const char* column4prefix() override { return "+/- "; }
+    int column4size() override { return 2; }
+
+    int16_t column4(int i) override
+    {
+      return stats[i].maxDev();
+    }
+
+  public:
+    AnaFilteredDevViewWindow(Window * parent):
+      AnaViewWindow(parent)
+    {
+      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++)
+        stats[i].clear();
     }
 
     void checkEvents() override
@@ -301,56 +350,32 @@ class AnaFilteredDevViewWindow: public FormWindow {
         stats[i].write(getAnalogValue(i));
 #endif
       }
-      Window::checkEvents();
+      AnaViewWindow::checkEvents();
     }
 };
 
-class AnaUnfilteredRawViewWindow: public FormWindow {
+class AnaUnfilteredRawViewWindow: public AnaViewWindow {
   public:
-    AnaUnfilteredRawViewWindow(Window * parent, const rect_t & rect):
-      FormWindow(parent, rect)
+    AnaUnfilteredRawViewWindow(Window * parent):
+      AnaViewWindow(parent)
     {
-      padAll(4);
-      padLeft(10);
-      padRight(10);
-      setFlexLayout();
-      FlexGridLayout grid(col_dsc, row_dsc, 0);
+    }
 
-      char s[10];
-      auto line = newLine(&grid);
-
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-        lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
-        sprintf(s, "%02d :", i + 1);
-        new StaticText(line, rect_t{}, s, COLOR_THEME_PRIMARY1);
-        auto lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256);
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
+  protected:
+    int16_t column3(int i) override
+    {
 #if !defined(SIMU) && defined(FLYSKY_GIMBAL)
-          if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
-            return std::to_string(hall_raw_values[i]);
-          else
-            return std::to_string((int16_t)getAnalogValue(i));
+      if (globalData.flyskygimbals && (i < FLYSKY_HALL_CHANNEL_COUNT))
+        return hall_raw_values[i];
+      else
+        return getAnalogValue(i);
 #else
-          return std::to_string((int16_t)getAnalogValue(i));
+      return getAnalogValue(i);
 #endif
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        grid.nextCell();
-        grid.nextCell();
-#if LCD_W > LCD_H
-        if ((i & 1) == 1)
-          line = newLine(&grid);
-#else
-        line = newLine(&grid);
-#endif
-      }
     }
 };
 
-class AnaMinMaxViewWindow: public FormWindow {
+class AnaMinMaxViewWindow: public AnaViewWindow {
   protected:
     class MinMax {
       protected:
@@ -397,51 +422,40 @@ class AnaMinMaxViewWindow: public FormWindow {
 
     MinMax minmax[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
 
-  public:
-    AnaMinMaxViewWindow(Window * parent, const rect_t & rect):
-      FormWindow(parent, rect)
+    int16_t column3(int i) override
     {
-      padAll(4);
-      padLeft(10);
-      padRight(10);
-      setFlexLayout();
-      FlexGridLayout grid(col_dsc, row_dsc, 0);
+      return minmax[i].MinVal();
+    }
 
+    int column4size() override { return 1; }
+
+    int16_t column4(int i) override
+    {
+      return minmax[i].MaxVal();
+    }
+
+    int column5size() override { return 1; }
+
+    int16_t column5(int i) override
+    {
+      return minmax[i].Range();
+    }
+
+  public:
+    AnaMinMaxViewWindow(Window * parent):
+      AnaViewWindow(parent)
+    {
       for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++)
         minmax[i].clear();
-
-      char s[10];
-      auto line = newLine(&grid);
+    }
+    
+    void build() override
+    {
+      line = newLine(grid);
       auto ttl = new StaticText(line, rect_t{}, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
-      lv_obj_set_grid_cell(ttl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 6, LV_GRID_ALIGN_CENTER, 0, 1);
+      lv_obj_set_grid_cell(ttl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, GRIDCOLS, LV_GRID_ALIGN_CENTER, 0, 1);
 
-      for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-#if LCD_W > LCD_H
-        if ((i & 1) == 0)
-          line = newLine(&grid);
-#else
-        line = newLine(&grid);
-#endif
-        lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
-        sprintf(s, "%02d :", i + 1);
-        new StaticText(line, rect_t{}, s, COLOR_THEME_PRIMARY1);
-        auto lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)calibratedAnalogs[CONVERT_MODE(i)] * 25 / 256);
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)minmax[i].MinVal());
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)minmax[i].MaxVal());
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_RIGHT, 0);
-        lbl = new DynamicText(line, rect_t{}, [=]() {
-          return std::to_string((int16_t)minmax[i].Range());
-        }, COLOR_THEME_PRIMARY1);
-        lv_obj_set_style_text_align(lbl->getLvObj(), LV_TEXT_ALIGN_LEFT, 0);
-      }
+      AnaViewWindow::build();
     }
 
     void checkEvents() override
@@ -456,7 +470,7 @@ class AnaMinMaxViewWindow: public FormWindow {
         minmax[i].write(getAnalogValue(i));
 #endif
       }
-      Window::checkEvents();
+      AnaViewWindow::checkEvents();
     }
 };
 
@@ -467,8 +481,7 @@ class AnaCalibratedViewPage : public PageTab
 
  protected:
   void build(FormWindow* window) override {
-    window->padAll(0);
-    new AnaCalibratedViewWindow(window, {0, 0, window->width(), window->height()});
+    (new AnaCalibratedViewWindow(window))->build();
   }
 };
 
@@ -479,8 +492,7 @@ class AnaFilteredDevViewPage : public PageTab
 
  protected:
   void build(FormWindow* window) override {
-    window->padAll(0);
-    new AnaFilteredDevViewWindow(window, {0, 0, window->width(), window->height()});
+    (new AnaFilteredDevViewWindow(window))->build();
   }
 };
 
@@ -491,8 +503,7 @@ class AnaUnfilteredRawViewPage : public PageTab
 
  protected:
   void build(FormWindow* window) override {
-    window->padAll(0);
-    new AnaUnfilteredRawViewWindow(window, {0, 0, window->width(), window->height()});
+    (new AnaUnfilteredRawViewWindow(window))->build();
   }
 };
 
@@ -503,8 +514,7 @@ class AnaMinMaxViewPage : public PageTab
 
  protected:
   void build(FormWindow* window) override {
-    window->padAll(0);
-    new AnaMinMaxViewWindow(window, {0, 0, window->width(), window->height()});
+    (new AnaMinMaxViewWindow(window))->build();
   }
 };
 
