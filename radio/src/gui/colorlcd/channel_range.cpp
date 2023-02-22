@@ -68,7 +68,8 @@ void ChannelRange::updateEnd()
   chEnd->setMax(max_ch);
   chEnd->setDefault(max_ch);
 
-  chEnd->update();
+  // Force value to fit between new min and max
+  chEnd->setValue(chEnd->getValue());
 }
 
 void ChannelRange::updateStart()
