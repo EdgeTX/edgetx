@@ -569,9 +569,9 @@ void ModelsPageBody::update()
 
     // Long Press Handler for Models
     button->setLongPressHandler([=]() -> uint8_t {
-      if (model == focusedModel) {
-        openMenu();
-      }
+      button->setFocused();
+      focusedModel = model;
+      openMenu();
       return 0;
     });
   }
