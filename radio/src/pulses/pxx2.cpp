@@ -403,6 +403,8 @@ void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, u
       uint8_t flag1 = 0;
       if (reusableBuffer.hardwareAndSettings.receiverSettings.telemetryDisabled)
         flag1 |= PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED;
+      if (reusableBuffer.hardwareAndSettings.receiverSettings.sbus24ch)
+        flag1 |= PXX2_RX_SETTINGS_FLAG1_SBUS_24CH;
       if (reusableBuffer.hardwareAndSettings.receiverSettings.pwmRate)
         flag1 |= PXX2_RX_SETTINGS_FLAG1_FASTPWM;
       if (reusableBuffer.hardwareAndSettings.receiverSettings.fport)
@@ -416,6 +418,10 @@ void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, u
       Pxx2Transport::addByte(flag1);
       uint8_t outputsCount = min<uint8_t>(24, reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount);
       for (int i = 0; i < outputsCount; i++) {
+        // Replaces channel:
+        // (1 << 5) SBUS in  (0x20)
+        // (1 << 6) S.PORT   (0x40)
+        // (1 << 7) SBUS out (0x80)
         Pxx2Transport::addByte(min<uint8_t>(23, reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[i]));
       }
     }

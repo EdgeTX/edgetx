@@ -217,6 +217,9 @@ static void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
   if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT2)
     destination->fport2 = 1;
 
+  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_SBUS_24CH)
+    destination->sbus24ch = 1;
+  
   uint8_t outputsCount = min<uint8_t>(16, frame[0] - 4);
   destination->outputsCount = outputsCount;
   for (uint8_t pin = 0; pin < outputsCount; pin++) {
