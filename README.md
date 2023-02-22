@@ -1,4 +1,5 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/releases/latest)
+[![GitHub all releases](https://img.shields.io/github/downloads/EdgeTX/edgetx/total)](https://github.com/EdgeTX/edgetx/releases)
 [![GitHub license](https://img.shields.io/github/license/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/blob/main/LICENSE)
 [![Commit Tests](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml/badge.svg)](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/edgetx/edgetx/tree/main)
