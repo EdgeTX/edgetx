@@ -599,12 +599,6 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 #if LCD_H > LCD_W
   lv_obj_set_grid_cell(subttl->getLvObj(), LV_GRID_ALIGN_START, 0, 2,
                        LV_GRID_ALIGN_CENTER, 0, 1);
-#endif
-
-  auto idButton = new TextButton(line, rect_t{}, "Show sensorID");
-  lv_obj_set_grid_cell(idButton->getLvObj(), LV_GRID_ALIGN_CENTER, 2, 2,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
-#if LCD_H > LCD_W
   line = form->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
@@ -671,17 +665,6 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     }
   }
 
-  // Show sensor ID button
-  line = form->newLine(&grid);
-  line->padLeft(10);
-  new StaticText(line, rect_t{}, "Show sensor ID", 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_DEFAULT(showSensorId), [=](uint8_t val) {
-    if (showSensorId != val) {
-      refreshDisplay = true;
-    }
-    showSensorId = val;
-  });
-
   FlexGridLayout grid4(col_dsc4, row_dsc, 4);
 
   // Autodiscover button
@@ -733,6 +716,17 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
   }
+
+  // Show sensor ID button
+  line = form->newLine(&grid);
+  line->padLeft(10);
+  new StaticText(line, rect_t{}, "Show sensor ID", 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_DEFAULT(showSensorId), [=](uint8_t val) {
+    if (showSensorId != val) {
+      refreshDisplay = true;
+    }
+    showSensorId = val;
+  });
 
   // Ignore instance button
   line = form->newLine(&grid);
