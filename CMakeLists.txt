@@ -136,7 +136,7 @@ if(NATIVE_BUILD)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
-  set(IGNORE "${SDL_LIBRARY_PATH}")
+  set(IGNORE "${SDL2_LIBRARY_PATH}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})

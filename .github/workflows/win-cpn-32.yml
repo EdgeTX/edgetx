@@ -54,7 +54,7 @@ jobs:
                                 mingw-w64-i686-openjpeg2 \
                                 mingw-w64-i686-libimagequant \
                                 mingw-w64-i686-libraqm \
-                                mingw-w64-i686-SDL \
+                                mingw-w64-i686-SDL2 \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis
           python -m pip install clang
