@@ -252,10 +252,7 @@ class SoundPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                      STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_SOUND_LABEL);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
@@ -321,10 +318,7 @@ class VarioPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                      STR_VARIO, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_VARIO);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
@@ -376,10 +370,7 @@ class HapticPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_HAPTIC_LABEL);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
@@ -416,10 +407,7 @@ class AlarmsPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_ALARMS_LABEL);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
@@ -491,10 +479,7 @@ class BacklightPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_BACKLIGHT_LABEL);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_three_dsc, row_dsc, 2);
@@ -614,10 +599,7 @@ class GpsPage : public Page {
 
     void build()
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_GPS, 0, COLOR_THEME_PRIMARY2);
+      header.setTitle(STR_GPS);
 
       body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);

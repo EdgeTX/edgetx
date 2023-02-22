@@ -327,10 +327,10 @@ class ColorEditPage : public Page
     {
       // page title
       header.setTitle(STR_EDIT_COLOR);
-      new StaticText(window,
-        { PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-         LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT },
-        ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2);
+      auto t2 = header.setTitle2(ThemePersistance::getColorNames()[(int)_indexOfColor]);
+#if LCD_H > LCD_W
+      t2->setFont(FONT(XS));
+#endif
 
       // page tabs
       rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
@@ -404,19 +404,12 @@ class ThemeEditPage : public Page
 
     void buildHeader(FormGroup *window)
     {
-#if LCD_W > LCD_H
-    LcdFlags flags = 0;
-#else
-    LcdFlags flags = FONT(XS);
-#endif
-
       // page title
       header.setTitle(STR_EDIT_THEME);
-      _themeName = new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     "", 0, COLOR_THEME_PRIMARY2 | flags);
-      lv_label_set_long_mode(_themeName->getLvObj(), LV_LABEL_LONG_DOT);
+      _themeName = header.setTitle2(_theme.getName());
+#if LCD_H > LCD_W
+      _themeName->setFont(FONT(XS));
+#endif
 
       // save and cancel
       rect_t r = {LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };

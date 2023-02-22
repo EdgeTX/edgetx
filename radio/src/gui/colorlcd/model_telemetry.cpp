@@ -261,11 +261,7 @@ class SensorEditWindow : public Page {
     {
       header.setTitle(STR_SENSOR + std::to_string(index + 1));
 
-      headerValue = new StaticText(
-          window,
-          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-          "", 0, COLOR_THEME_PRIMARY2);
+      headerValue = header.setTitle2("");
 
       lv_obj_set_style_text_color(headerValue->getLvObj(), makeLvColor(COLOR_THEME_WARNING), LV_STATE_USER_1);
     }

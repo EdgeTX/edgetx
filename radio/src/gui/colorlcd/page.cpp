@@ -35,9 +35,22 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
                return 0;
              }, NO_FOCUS | FORM_NO_BORDER);
 #endif
-  title = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY2);
-  title->setTop(PAGE_TITLE_TOP);
-  title->setLeft(PAGE_TITLE_LEFT);
+  title = new StaticText(this,
+                         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
+                          LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                         "", 0, COLOR_THEME_PRIMARY2);
+}
+
+StaticText* PageHeader::setTitle2(std::string txt)
+{
+  if (title2 == nullptr) {
+    title2 = new StaticText(this, 
+                            {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
+                             LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                             "", 0, COLOR_THEME_PRIMARY2);
+  }
+  title2->setText(std::move(txt));
+  return title2;
 }
 
 void PageHeader::paint(BitmapBuffer * dc)

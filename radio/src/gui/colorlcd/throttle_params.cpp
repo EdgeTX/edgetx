@@ -55,10 +55,7 @@ static void setThrottleTrimSource(int16_t src)
 
 ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
 {
-  new StaticText(&header,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_THROTTLE_LABEL);
 
   body.setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
