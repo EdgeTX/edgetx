@@ -4,7 +4,7 @@ Miniz is a lossless, high performance data compression library in a single sourc
 
 ## Usage
 
-Please use the files from the [releases page](https://github.com/richgel999/miniz/releases) in your projects. Do not use the git checkout directly! The different source and header files are [amalgamated](https://www.sqlite.org/amalgamation.html) into one `miniz.c`/`miniz.h` pair in a build step (`amalgamate.sh`). Include `miniz.c` and `miniz.h` in your project to use Miniz.
+Releases are available at the [releases page](https://github.com/richgel999/miniz/releases) as a pair of `miniz.c`/`miniz.h` files which can be simply added to a project. To create this file pair the different source and header files are [amalgamated](https://www.sqlite.org/amalgamation.html) during build. Alternatively use as cmake or meson module (or build system of your choice).
 
 ## Features
 
@@ -17,6 +17,18 @@ Please use the files from the [releases page](https://github.com/richgel999/mini
 * Easy to use. The low-level compressor (tdefl) and decompressor (tinfl) have simple state structs which can be saved/restored as needed with simple memcpy's. The low-level codec API's don't use the heap in any way.
 * Entire inflater (including optional zlib header parsing and Adler-32 checking) is implemented in a single function as a coroutine, which is separately available in a small (~550 line) source file: miniz_tinfl.c
 * A fairly complete (but totally optional) set of .ZIP archive manipulation and extraction API's. The archive functionality is intended to solve common problems encountered in embedded, mobile, or game development situations. (The archive API's are purposely just powerful enough to write an entire archiver given a bit of additional higher-level logic.)
+
+## Building miniz - Using vcpkg
+
+You can download and install miniz using the [vcpkg](https://github.com/Microsoft/vcpkg) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    ./vcpkg install miniz
+
+The miniz port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 ## Known Problems
 
