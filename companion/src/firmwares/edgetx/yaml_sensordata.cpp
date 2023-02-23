@@ -125,8 +125,16 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
   node["subId"] >> rhs.subid;
   if (node["id2"]) {
     Node id2 = node["id2"];
-    id2["instance"] >> rhs.instance;
-    id2["formula"] >> sensorFormula >> rhs.formula;
+    if (id2["frskyInstance"]) {
+      unsigned int physID;
+      unsigned int rxIndex;
+      id2["frskyInstance"]["physID"] >> physID;
+      id2["frskyInstance"]["rxIndex"] >> rxIndex;
+      rhs.instance = (rxIndex << 5) | physID;
+    } else {
+      id2["instance"] >> rhs.instance;
+      id2["formula"] >> sensorFormula >> rhs.formula;
+    }
   }
 
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
