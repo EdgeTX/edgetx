@@ -21,7 +21,6 @@
 #include "labeled.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
-#include "miniz.c"    //  Can only be included once!
 
 #include <regex>
 
@@ -280,7 +279,7 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 
     if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
                                   model.filename, sizeof(model.filename))) {
-      radioData.generalSettings.currModelIndex = modelIdx;      
+      radioData.generalSettings.currModelIndex = modelIdx;
     }
 
     model.used = true;
