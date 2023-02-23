@@ -59,7 +59,7 @@ LogsDialog::LogsDialog(QWidget *parent) :
   pen.setWidthF(1.0);
 
   // create and prepare a plot title layout element
-  QCPPlotTitle *title = new QCPPlotTitle(ui->customPlot);
+  QCPTextElement *title = new QCPTextElement(ui->customPlot);
   title->setText(tr("Telemetry logs"));
 
   // add it to the main plot layout
@@ -69,11 +69,14 @@ LogsDialog::LogsDialog(QWidget *parent) :
   ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
 
   axisRect = ui->customPlot->axisRect();
-  axisRect->axis(QCPAxis::atBottom)->setLabel(tr("Time (hh:mm:ss)"));
-  axisRect->axis(QCPAxis::atBottom)->setTickLabelType(QCPAxis::ltDateTime);
-  axisRect->axis(QCPAxis::atBottom)->setDateTimeFormat("hh:mm:ss");
+
+  // configure bottom axis to show time instead of number:
+  QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+  timeTicker->setTimeFormat("hh:mm:ss");
+  axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
-  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60*60*2).toTime_t(), now.toTime_t());
+  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toTime_t(), now.toTime_t());
+
   axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
   axisRect->addAxis(QCPAxis::atLeft);
   axisRect->addAxis(QCPAxis::atRight);
@@ -112,7 +115,7 @@ LogsDialog::LogsDialog(QWidget *parent) :
   connect(axisRect->axis(QCPAxis::atLeft), SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChangeRanges(QCPRange)));
 
   // connect some interaction slots:
-  connect(ui->customPlot, SIGNAL(titleDoubleClick(QMouseEvent*, QCPPlotTitle*)), this, SLOT(titleDoubleClick(QMouseEvent*, QCPPlotTitle*)));
+  connect(title, SIGNAL(doubleClicked(QMouseEvent*)), this, SLOT(titleDoubleClicked(QMouseEvent*)));
   connect(ui->customPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*,QCPAxis::SelectablePart)));
   connect(ui->customPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
   connect(ui->FieldsTW, SIGNAL(itemSelectionChanged()), this, SLOT(plotLogs()));
@@ -126,14 +129,17 @@ LogsDialog::~LogsDialog()
   delete ui;
 }
 
-void LogsDialog::titleDoubleClick(QMouseEvent *evt, QCPPlotTitle *title)
+void LogsDialog::titleDoubleClicked(QMouseEvent *evt)
 {
   // Set the plot title by double clicking on it
-  bool ok;
-  QString newTitle = QInputDialog::getText(this, tr("Plot Title Change"), tr("New plot title:"), QLineEdit::Normal, title->text(), &ok);
-  if (ok) {
-    title->setText(newTitle);
-    ui->customPlot->replot();
+  QCPTextElement *title = qobject_cast<QCPTextElement*>(sender());
+  if (title) {
+    bool ok;
+    QString newTitle = QInputDialog::getText(this, tr("Plot Title Change"), tr("New plot title:"), QLineEdit::Normal, title->text(), &ok);
+    if (ok) {
+      title->setText(newTitle);
+      ui->customPlot->replot();
+    }
   }
 }
 
@@ -231,7 +237,7 @@ void LogsDialog::selectionChanged()
     if (item == NULL) item = rightLegend->itemWithPlottable(graph);
     if (item->selected() || graph->selected()) {
       item->setSelected(true);
-      graph->setSelected(true);
+      graph->setSelection(QCPDataSelection(QCPDataRange()));
     }
   }
 }
@@ -1126,7 +1132,6 @@ void LogsDialog::addMaxAltitudeMarker(const coords_t & c, QCPGraph * graph) {
 
   // add max altitude marker
   tracerMaxAlt = new QCPItemTracer(ui->customPlot);
-  ui->customPlot->addItem(tracerMaxAlt);
   tracerMaxAlt->setGraph(graph);
   tracerMaxAlt->setInterpolating(true);
   tracerMaxAlt->setStyle(QCPItemTracer::tsSquare);
@@ -1153,7 +1158,6 @@ void LogsDialog::countNumberOfThrows(const coords_t & c, QCPGraph * graph)
 
 void LogsDialog::addCursor(QCPItemTracer ** cursor, QCPGraph * graph, const QColor & color) {
   QCPItemTracer * c = new QCPItemTracer(ui->customPlot);
-  ui->customPlot->addItem(c);
   c->setGraph(graph);
   c->setInterpolating(false);
   c->setStyle(QCPItemTracer::tsCrosshair);
@@ -1168,7 +1172,6 @@ void LogsDialog::addCursor(QCPItemTracer ** cursor, QCPGraph * graph, const QCol
 
 void LogsDialog::addCursorLine(QCPItemStraightLine ** line, QCPGraph * graph, const QColor & color) {
   QCPItemStraightLine * l = new QCPItemStraightLine(ui->customPlot);
-  ui->customPlot->addItem(l);
   l->point1->setParentAnchor(cursorA->position);
   l->point2->setParentAnchor(cursorB->position);
   QPen pen(color);
