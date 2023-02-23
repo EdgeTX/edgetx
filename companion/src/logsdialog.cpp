@@ -106,22 +106,21 @@ LogsDialog::LogsDialog(QWidget *parent) :
   ui->SaveSession_PB->setEnabled(false);
 
   // connect slot that ties some axis selections together (especially opposite axes):
-  connect(ui->customPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
+  connect(ui->customPlot, &QCustomPlot::selectionChangedByUser, this, &LogsDialog::selectionChanged);
   // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-  connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
-  connect(ui->customPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+  connect(ui->customPlot, &QCustomPlot::mousePress, this, &LogsDialog::mousePress);
+  connect(ui->customPlot, &QCustomPlot::mouseWheel, this, &LogsDialog::mouseWheel);
 
   // make left axes transfer its range to right axes:
-  connect(axisRect->axis(QCPAxis::atLeft), SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChangeRanges(QCPRange)));
-
+  connect(axisRect->axis(QCPAxis::atLeft), static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, &LogsDialog::yAxisChangeRanges);
   // connect some interaction slots:
-  connect(title, SIGNAL(doubleClicked(QMouseEvent*)), this, SLOT(titleDoubleClicked(QMouseEvent*)));
-  connect(ui->customPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*,QCPAxis::SelectablePart)));
-  connect(ui->customPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
-  connect(ui->FieldsTW, SIGNAL(itemSelectionChanged()), this, SLOT(plotLogs()));
-  connect(ui->logTable, SIGNAL(itemSelectionChanged()), this, SLOT(plotLogs()));
-  connect(ui->Reset_PB, SIGNAL(clicked()), this, SLOT(plotLogs()));
-  connect(ui->SaveSession_PB, SIGNAL(clicked()), this, SLOT(saveSession()));
+  connect(title, &QCPTextElement::doubleClicked, this, &LogsDialog::titleDoubleClicked);
+  connect(ui->customPlot, &QCustomPlot::axisDoubleClick, this, &LogsDialog::axisLabelDoubleClick);
+  connect(ui->customPlot, &QCustomPlot::legendDoubleClick, this, &LogsDialog::legendDoubleClick);
+  connect(ui->FieldsTW, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
+  connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
+  connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
+  connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
 }
 
 LogsDialog::~LogsDialog()
