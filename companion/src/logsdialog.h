@@ -77,10 +77,10 @@ private slots:
   void mouseWheel();
   void removeAllGraphs();
   void plotLogs();
-  void on_fileOpen_BT_clicked();
+  void fileOpen();
   void saveSession();
-  void on_sessions_CB_currentIndexChanged(int index);
-  void on_mapsButton_clicked();
+  void sessionsCurrentIndexChanged(int index);
+  void mapsButtonClicked();
   void yAxisChangeRanges(QCPRange range);
 
 private:

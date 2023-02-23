@@ -121,6 +121,9 @@ LogsDialog::LogsDialog(QWidget *parent) :
   connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
   connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
   connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
+  connect(ui->fileOpen_PB, &QPushButton::clicked, this, &LogsDialog::fileOpen);
+  connect(ui->mapsButton, &QPushButton::clicked, this, &LogsDialog::mapsButtonClicked);
+  connect(ui->sessions_CB, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &LogsDialog::sessionsCurrentIndexChanged);
 }
 
 LogsDialog::~LogsDialog()
@@ -436,7 +439,7 @@ void LogsDialog::exportToGoogleEarth()
   QProcess::startDetached(gePath, parameters);
 }
 
-void LogsDialog::on_mapsButton_clicked()
+void LogsDialog::mapsButtonClicked()
 {
   ui->FieldsTW->setDisabled(true);
   ui->logTable->setDisabled(true);
@@ -570,7 +573,7 @@ void LogsDialog::removeAllGraphs()
   ui->labelCursors->setText("");
 }
 
-void LogsDialog::on_fileOpen_BT_clicked()
+void LogsDialog::fileOpen()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Select your log file"), g.logDir());
   if (!fileName.isEmpty()) {
@@ -781,7 +784,7 @@ void LogsDialog::setFlightSessions()
   }
 }
 
-void LogsDialog::on_sessions_CB_currentIndexChanged(int index)
+void LogsDialog::sessionsCurrentIndexChanged(int index)
 {
   if (plotLock) return;
   plotLock = true;
