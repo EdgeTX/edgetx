@@ -123,7 +123,7 @@ void execMixerFrequentActions()
 #endif
 
 #if defined(SIMU)
-  if (!_mixer_running) {
+  if (_mixer_running) {
     DEBUG_TIMER_START(debugTimerTelemetryWakeup);
     telemetryWakeup();
     DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
