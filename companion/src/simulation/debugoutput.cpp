@@ -21,10 +21,10 @@
 #include "debugoutput.h"
 #include "ui_debugoutput.h"
 
-#include "appdebugmessagehandler.h"
 #include "appdata.h"
 #include "filteredtextbuffer.h"
 
+#include <AppDebugMessageHandler>
 #include <QElapsedTimer>
 #include <QMessageBox>
 #include <QRegularExpression>

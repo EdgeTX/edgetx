@@ -22,7 +22,6 @@
 #include "ui_simulatorwidget.h"
 
 #include "appdata.h"
-#include "appdebugmessagehandler.h"
 #include "radiofaderwidget.h"
 #include "radiokeywidget.h"
 #include "radioknobwidget.h"
@@ -38,6 +37,7 @@
 #include "joystickdialog.h"
 #endif
 
+#include <AppDebugMessageHandler>
 #include <QFile>
 #include <QMessageBox>
 #include <iostream>

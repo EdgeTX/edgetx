@@ -29,9 +29,9 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QMouseEvent>
+#include <AppDebugMessageHandler>
 
 #include "appdata.h"
-#include "appdebugmessagehandler.h"
 
 #define LCD_WIDGET_REFRESH_PERIOD    16  // [ms] 16 = 62.5fps
 
