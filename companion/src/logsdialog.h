@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LOGSDIALOG_H_
-#define _LOGSDIALOG_H_
+#pragma once
 
 #include <QtCore>
 #include <QDialog>
@@ -119,5 +118,3 @@ private:
 
 
 };
-
-#endif // _LOGSDIALOG_H_
