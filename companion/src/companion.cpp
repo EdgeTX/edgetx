@@ -29,7 +29,8 @@
   #undef main
 #endif
 
-#include "appdebugmessagehandler.h"
+#include <AppDebugMessageHandler>
+
 #include "customdebug.h"
 #include "mainwindow.h"
 #include "version.h"
