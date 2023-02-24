@@ -41,7 +41,7 @@
 
 /**
 	\class ExportableTableView
-	\version 1.0.0
+	\version 1.0.1
 
 	\brief The ExportableTableView class provides a regular QTableView but with features to export the data
 	as plain text or HTML.
@@ -54,8 +54,10 @@
 	The export functions can also be accessed programmatically via \c toPlainText(), \c toHtml(),
 	and \c saveToFile().
 
-	The overall HTML template can be customized by setting \c setHtmlTemplate().  The data itself is always
-	formatted as a basic HTML table and then inserted into the template at the \c %1 placeholder.
+	The style sheet for the generated page can be set with \c setHtmlStyle().  The overall HTML
+	template can be customized with \c setHtmlTemplate().  The data itself is always
+	formatted as a basic HTML table and then inserted into the template at the \c %2 placeholder.
+
 	HTML version tries to preserve many data role attributes of the model items:
 
 	\li \c Qt::FontRole
@@ -72,28 +74,76 @@ class ExportableTableView : public QTableView
 	Q_OBJECT
 
 	public:
+		/*!
+			 \brief ExportableTableView
+			 \param parent
+		 */
 		ExportableTableView(QWidget *parent = Q_NULLPTR);
 
+		/*! \brief Get the default style sheet used for HTML export. */
+		static QString getDefaultHtmlStyle();
+		/*! \brief Get the default overall template used for HTML export. */
 		static QString getDefaultHtmlTemplate();
+		/*!
+			\brief Set the style sheet for HTML export. This goes between the \c "<style></style>" tags of the page.
+			\param value  The CSS code.
+		 */
+		void setHtmlStyle(const QString &value);
+		/*!
+			\brief Set the overall template for HTML export. The template must have two placeholders: \c %1 for the style and \c %2 for the table.
+			\param value  The HTML code.
+		 */
 		void setHtmlTemplate(const QString &value);
 
+		/*!
+			\brief Saves data from the passed model indices to a text string.
+			\param indexList  A list of indices to export.
+			\param delim  The delimiter to use. Can be multiple characters (eg. \c ", ") Default is a single TAB.
+			\return \e QString with the formatted text. If the data has column headings, these are on the first line.
+		 */
 		QString toPlainText(const QModelIndexList &indexList, const QString &delim = "\t") const;
+
+		/*!
+			\brief Saves data from the passed model indices to an HTML-formatted string.
+			\param indexList  A list of indices to export.
+			\return \e QString with the formatted HTML. If the data has column headings, these are included as table headings.
+		 */
 		QString toHtml(const QModelIndexList &indexList) const;
+
+		/*!
+			Saves data from the passed model indices to a file in text or HTML format. The file extension determines
+			the format/text delimiter: \e \.html for HTML, \e \.tab for TAB, \e \.csv for CSV, and anything else
+			is pipe-delimited.
+
+			\param indexList  A list of indices to export.
+			\param fileName  An optional file name (with path). If none is passed then a file chooser dialog is presented.
+			\return true on success, false on failure (no file selected or write error)
+		 */
 		bool saveToFile(const QModelIndexList &indexList, const QString &fileName = QString());
+
+		/*! \brief Return a list of selected cells. If none are selected then it first selects the whole table. */
+		QModelIndexList getSelectedOrAll();
 
 		QSize sizeHint() const Q_DECL_OVERRIDE;
 
 	public slots:
+		/*!
+			\brief Copies currently selected cell(s) to the clipboard as plain text.
+			\param delim  The delimiter to use. Can be multiple characters (eg. ", ") Default is a single TAB.
+		 */
 		void copyText(const QString &delim = QString("\t"));
+		/*! \brief Copies currently selected cell(s) to the clipboard as HTML (with MIME content-type \e "text/html"). */
 		void copyHtml();
+		/*! \brief Designed for \e QAction connections, it calls \c copyText() or \c copyHtml() based on delimiter specified in \c sender()->property\("delim"\) (use "html" as \p delim for HTML format). */
 		void copy();
+		/*! \brief Saves currently selected cell(s) to a file of the user's choice and format. */
 		void save();
-		QModelIndexList getSelectedOrAll();
 
 	protected:
 		void onCustomContextMenuRequested(const QPoint &pos);
 
 		QString m_htmlTemplate;
+		QString m_htmlStyle;
 };
 
 #endif // EXPORTABLETABLEVIEW_H

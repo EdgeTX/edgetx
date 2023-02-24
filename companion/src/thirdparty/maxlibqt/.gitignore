@@ -1,0 +1,13 @@
+*.user
+*.vcproj
+*.vcxproj*
+*.sln
+.*project
+.settings
+.idea
+build*/
+cmake-build-*/
+*.qmlc
+docs/
+*.tmp
+*.bak

@@ -1,5 +1,6 @@
 /*
 	ExportableTableView
+	https://github.com/mpaperno/maxLibQt
 
 	COPYRIGHT: (c)2017 Maxim Paperno; All Right Reserved.
 	Contact: http://www.WorldDesign.com/contact
@@ -29,6 +30,7 @@
 ExportableTableView::ExportableTableView(QWidget *parent) : QTableView(parent)
 {
 	setContextMenuPolicy(Qt::CustomContextMenu);
+	setHtmlStyle(getDefaultHtmlStyle());
 	setHtmlTemplate(getDefaultHtmlTemplate());
 
 	QAction * selAll = new QAction(tr("Select All"), this);
@@ -40,7 +42,7 @@ ExportableTableView::ExportableTableView(QWidget *parent) : QTableView(parent)
 	cpyTab->setProperty("delim", "\t");
 	addAction(cpyTab);
 
-	QAction * cpyCsv = new QAction(tr("Copy selection as cooma-delimited text (CSV)"), this);
+	QAction * cpyCsv = new QAction(tr("Copy selection as comma-delimited text (CSV)"), this);
 	cpyCsv->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
 	cpyCsv->setProperty("delim", ", ");
 	addAction(cpyCsv);
@@ -51,6 +53,7 @@ ExportableTableView::ExportableTableView(QWidget *parent) : QTableView(parent)
 	addAction(cpyPipe);
 
 	QAction * cpyHtml = new QAction(tr("Copy selection as HTML"), this);
+	cpyCsv->setShortcut(Qt::CTRL + Qt::ALT + Qt::SHIFT + Qt::Key_C);
 	cpyHtml->setProperty("delim", "html");
 	addAction(cpyHtml);
 
@@ -67,15 +70,26 @@ ExportableTableView::ExportableTableView(QWidget *parent) : QTableView(parent)
 	connect(this, &QTableView::customContextMenuRequested, this, &ExportableTableView::onCustomContextMenuRequested);
 }
 
+QString ExportableTableView::getDefaultHtmlStyle()
+{
+	return "th, td {font-family: sans-serif; padding: 3px 15px 3px 3px;} " \
+	       "th {text-align: left;}";
+}
+
 QString ExportableTableView::getDefaultHtmlTemplate()
 {
 	return "<!DOCTYPE html>\n<html>\n<head><meta charset='utf-8'/><style>" \
-	       "th, td {font-family: sans-serif; padding: 3px 15px 3px 3px;}" \
+	         "%1" \
 	       "</style></head>\n<body>\n" \
 	       "<table border=0 cellspacing=2>\n" \
-	       "%1" \
+	         "%2" \
 	       "</table>\n" \
 	       "</body></html>";
+}
+
+void ExportableTableView::setHtmlStyle(const QString &value)
+{
+	m_htmlStyle = value;
 }
 
 void ExportableTableView::setHtmlTemplate(const QString &value)
@@ -133,7 +147,7 @@ QString ExportableTableView::toHtml(const QModelIndexList &indexList) const
 		}
 
 		if (firstRow)
-			header.append(QString("<th align='left'>%1</th>\n").arg(model()->headerData(idx.column(), Qt::Horizontal).toString()));
+			header.append(QString("<th>%1</th>\n").arg(model()->headerData(idx.column(), Qt::Horizontal).toString()));
 
 		row.append("<td style='color: %2; background-color: %3; %4' align='%5' valign='%6' %7>%1</td>\n");  // cell template
 		row = row.arg(idx.data(Qt::DisplayRole).toString()).arg(fg).arg(bg).arg(fnt);
@@ -151,7 +165,7 @@ QString ExportableTableView::toHtml(const QModelIndexList &indexList) const
 	ret = QString("<tbody>\n%1</tbody>\n").arg(ret);
 	if (!header.isEmpty())
 		ret.prepend(QString("<thead>\n<tr>\n%1</tr>\n</thead>\n").arg(header));
-	ret = m_htmlTemplate.arg(ret);
+	ret = m_htmlTemplate.arg(m_htmlStyle).arg(ret);
 
 	return ret;
 }

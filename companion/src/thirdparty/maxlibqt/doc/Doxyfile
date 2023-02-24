@@ -1,0 +1,237 @@
+# Doxyfile 1.8.15
+
+PROJECT_NAME           = maxLibQt
+PROJECT_BRIEF          =
+PROJECT_LOGO           = logo_64.png
+ABBREVIATE_BRIEF       = "The $name class" \
+                         "The $name widget" \
+                         "The $name file" \
+                         is \
+                         provides \
+                         specifies \
+                         contains \
+                         represents \
+                         a \
+                         an \
+                         the
+
+ALWAYS_DETAILED_SEC    = YES
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+TAB_SIZE               = 2
+ALIASES                = "default{1}=\n<b>Default</b> value is \c \1.\n" \
+                         "reimp{1}=Reimplemented from \c \1." \
+                         "reimp=Reimplemented from superclass." \
+                         default= \
+                         "pacc=\par Access functions:^^" \
+                         "psig=\par Notifier signal:^^" \
+                         "intern=\par<b>Internal use only.</b>" 
+EXTENSION_MAPPING      = qml=C++
+DISTRIBUTE_GROUP_DOC   = YES
+INLINE_SIMPLE_STRUCTS  = YES
+
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = NO
+FORCE_LOCAL_INCLUDES   = YES
+SORT_BRIEF_DOCS        = YES
+SORT_MEMBERS_CTORS_1ST = YES
+SORT_GROUP_NAMES       = YES
+SORT_BY_SCOPE_NAME     = YES
+SHOW_USED_FILES        = NO
+LAYOUT_FILE            = DoxygenLayout.xml
+
+#---------------------------------------------------------------------------
+# Configuration options related to warning and progress messages
+#---------------------------------------------------------------------------
+
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+
+#---------------------------------------------------------------------------
+# Configuration options related to the input files
+#---------------------------------------------------------------------------
+
+INPUT                  = ../src
+RECURSIVE              = YES
+
+FILE_PATTERNS          = *.c \
+                         *.cc \
+                         *.cxx \
+                         *.cpp \
+                         *.c++ \
+                         *.java \
+                         *.ii \
+                         *.ixx \
+                         *.ipp \
+                         *.i++ \
+                         *.inl \
+                         *.idl \
+                         *.ddl \
+                         *.odl \
+                         *.h \
+                         *.hh \
+                         *.hxx \
+                         *.hpp \
+                         *.h++ \
+                         *.cs \
+                         *.d \
+                         *.php \
+                         *.php4 \
+                         *.php5 \
+                         *.phtml \
+                         *.inc \
+                         *.m \
+                         *.markdown \
+                         *.md \
+                         *.mm \
+                         *.dox \
+                         *.py \
+                         *.f90 \
+                         *.f \
+                         *.for \
+                         *.tcl \
+                         *.vhd \
+                         *.vhdl \
+                         *.ucf \
+                         *.qsf \
+                         *.as \
+                         *.js \
+                         *.txt \
+                         *.qml
+
+EXCLUDE                =
+EXCLUDE_PATTERNS       = */.git/* \
+                         */cmake/* \
+                         */CMakeFiles/* \
+                         CMakeLists.txt \
+                         CMakeCache.txt \
+                         */doc?/* \
+                         moc_*.* \
+                         _*.* \
+                         *-?Copy*.* \
+                         */*test* \
+                         *_p.cpp \
+                         *_p.h
+EXCLUDE_SYMBOLS        = iterator const_iterator
+
+EXAMPLE_PATH           = ../examples
+EXAMPLE_PATTERNS       = *.h *.cpp
+EXAMPLE_RECURSIVE      = YES
+
+FILTER_PATTERNS        = *.qml=doxyqml
+
+USE_MDFILE_AS_MAINPAGE = README.md
+
+#---------------------------------------------------------------------------
+# Configuration options related to source browsing
+#---------------------------------------------------------------------------
+
+SOURCE_BROWSER         = YES
+
+#---------------------------------------------------------------------------
+# Configuration options related to the alphabetical class index
+#---------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------
+# Configuration options related to the HTML output
+#---------------------------------------------------------------------------
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_HEADER            =
+HTML_FOOTER            =
+HTML_STYLESHEET        =
+HTML_EXTRA_STYLESHEET  = customdoxygen.css
+HTML_COLORSTYLE_HUE    = 235
+HTML_COLORSTYLE_SAT    = 19
+HTML_COLORSTYLE_GAMMA  = 185
+HTML_TIMESTAMP         = YES
+HTML_DYNAMIC_SECTIONS  = YES
+
+GENERATE_TREEVIEW      = YES
+ENUM_VALUES_PER_LINE   = 1
+TREEVIEW_WIDTH         = 300
+EXT_LINKS_IN_WINDOW    = YES
+
+GENERATE_QHP           = NO
+QCH_FILE               = ../maxLibQt.qch
+QHP_NAMESPACE          = us.paperno.maxLibQt
+QHP_VIRTUAL_FOLDER     = doc
+QHP_CUST_FILTER_NAME   = maxLibQt
+QHP_CUST_FILTER_ATTRS  = maxLibQt
+QHP_SECT_FILTER_ATTRS  = maxLibQt
+QHG_LOCATION           =
+
+#---------------------------------------------------------------------------
+# Configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+
+GENERATE_LATEX         = NO
+
+#---------------------------------------------------------------------------
+# Configuration options related to the preprocessor
+#---------------------------------------------------------------------------
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+PREDEFINED = DOXYGEN_SHOULD_INCLUDE_THIS \
+        \
+        Q_WS_X11= \
+        Q_WS_WIN= \
+        Q_WS_MAC= \
+        Q_WS_QWS= \
+        Q_WS_MAEMO_5= \
+        Q_OS_LINUX= \
+        Q_OS_UNIX= \
+        Q_OS_WIN= \
+        Q_OS_MAC= \
+        Q_OS_MACX= \
+        Q_OS_DARWIN= \
+        Q_OS_FREEBSD= \
+        Q_OS_NETBSD= \
+        Q_OS_OPENBSD= \
+        Q_OS_BSD4= \
+        Q_OS_SOLARIS= \
+        Q_OS_IRIX= \
+        \
+        Q_SLOTS="slots" \
+        Q_SIGNALS="signals" \
+        Q_DECL_CONSTEXPR= \
+        Q_DECL_RELAXED_CONSTEXPR= \
+        Q_DECL_OVERRIDE="override" \
+        Q_DECL_FINAL="final" \
+        Q_DECL_EQ_DEFAULT="= default" \
+        Q_DECL_EQ_DELETE="= delete" \
+        Q_DECL_NOEXCEPT= \
+        Q_DECL_DEPRECATED= \
+        Q_DECL_UNUSED_MEMBER= \
+        Q_DECL_VARIABLE_DEPRECATED= \
+        Q_DECL_EXPORT= \
+        Q_DECL_IMPORT= \
+        Q_DECL_HIDDEN= \
+        Q_DECL_NULLPTR="nullptr" \
+        Q_REQUIRED_RESULT= \
+        Q_SCRIPTABLE= \
+        Q_INVOKABLE= 
+
+#---------------------------------------------------------------------------
+# Configuration options related to external references
+#---------------------------------------------------------------------------
+
+TAGFILES               = tagfiles/qt.tags=https://doc.qt.io/qt-5/
+PERL_PATH              = perl
+
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+
+CLASS_DIAGRAMS         = NO

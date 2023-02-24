@@ -1,0 +1,4 @@
+module maxLibQt.controls
+
+MLDoubleSpinBox     1.0 MLDoubleSpinBox.qml
+MLHexSpinBox        1.0 MLHexSpinBox.qml
