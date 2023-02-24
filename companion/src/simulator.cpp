@@ -29,8 +29,9 @@
   #undef main
 #endif
 
+#include <AppDebugMessageHandler>
+
 #include "appdata.h"
-#include "appdebugmessagehandler.h"
 #include "constants.h"
 #include "customdebug.h"
 #include "eeprominterface.h"
