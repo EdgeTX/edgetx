@@ -1,0 +1,11 @@
+# Doxyfile 1.8.13
+
+@INCLUDE = @DOC_DIR@/Doxyfile
+
+OUTPUT_DIRECTORY       = @DOC_OUTPUT_DIR@
+
+QUIET                  = YES
+WARNINGS               = NO
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = NO
+HTML_TIMESTAMP         = NO

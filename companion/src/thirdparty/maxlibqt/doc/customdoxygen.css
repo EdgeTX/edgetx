@@ -1,0 +1,49 @@
+
+#projectlogo img
+{
+	max-height: 56px
+}
+
+
+#projectname
+{
+	/*font: bold 280% Tahoma, Arial,sans-serif;*/
+	/*margin: 0px;*/
+	padding: 2px 2px 0px 10px;
+	font-variant: small-caps;
+}
+
+
+a.el {
+	color: #009b00;
+	font-weight: normal;
+}
+
+a.el:visited {
+	color: #007800;
+	font-weight: normal;
+}
+
+.navpath li.navelem a {
+	font-weight: bold
+}
+
+.memtitle {
+	font-size: 1.3em;
+}
+
+div.fragment {
+	padding: 5px;
+}
+
+div.line {
+	padding: 2px 0;
+	text-indent: 0;
+}
+
+
+h2.memtitle { display: none; }
+div.memproto { border-top-left-radius: 4px; }
+table.memname tr { display: inline-table; }
+table.memname td { padding: 1px 0; }
+td.memname { font-size: larger; }
