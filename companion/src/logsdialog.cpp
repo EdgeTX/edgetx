@@ -59,7 +59,7 @@ LogsDialog::LogsDialog(QWidget *parent) :
   pen.setWidthF(1.0);
 
   // create and prepare a plot title layout element
-  QCPPlotTitle *title = new QCPPlotTitle(ui->customPlot);
+  QCPTextElement *title = new QCPTextElement(ui->customPlot);
   title->setText(tr("Telemetry logs"));
 
   // add it to the main plot layout
@@ -69,11 +69,14 @@ LogsDialog::LogsDialog(QWidget *parent) :
   ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
 
   axisRect = ui->customPlot->axisRect();
-  axisRect->axis(QCPAxis::atBottom)->setLabel(tr("Time (hh:mm:ss)"));
-  axisRect->axis(QCPAxis::atBottom)->setTickLabelType(QCPAxis::ltDateTime);
-  axisRect->axis(QCPAxis::atBottom)->setDateTimeFormat("hh:mm:ss");
+
+  // configure bottom axis to show time instead of number:
+  QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+  timeTicker->setTimeFormat("hh:mm:ss");
+  axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
-  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60*60*2).toTime_t(), now.toTime_t());
+  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toTime_t(), now.toTime_t());
+
   axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
   axisRect->addAxis(QCPAxis::atLeft);
   axisRect->addAxis(QCPAxis::atRight);
@@ -103,22 +106,24 @@ LogsDialog::LogsDialog(QWidget *parent) :
   ui->SaveSession_PB->setEnabled(false);
 
   // connect slot that ties some axis selections together (especially opposite axes):
-  connect(ui->customPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
+  connect(ui->customPlot, &QCustomPlot::selectionChangedByUser, this, &LogsDialog::selectionChanged);
   // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-  connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
-  connect(ui->customPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+  connect(ui->customPlot, &QCustomPlot::mousePress, this, &LogsDialog::mousePress);
+  connect(ui->customPlot, &QCustomPlot::mouseWheel, this, &LogsDialog::mouseWheel);
 
   // make left axes transfer its range to right axes:
-  connect(axisRect->axis(QCPAxis::atLeft), SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChangeRanges(QCPRange)));
-
+  connect(axisRect->axis(QCPAxis::atLeft), static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, &LogsDialog::yAxisChangeRanges);
   // connect some interaction slots:
-  connect(ui->customPlot, SIGNAL(titleDoubleClick(QMouseEvent*, QCPPlotTitle*)), this, SLOT(titleDoubleClick(QMouseEvent*, QCPPlotTitle*)));
-  connect(ui->customPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisLabelDoubleClick(QCPAxis*,QCPAxis::SelectablePart)));
-  connect(ui->customPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
-  connect(ui->FieldsTW, SIGNAL(itemSelectionChanged()), this, SLOT(plotLogs()));
-  connect(ui->logTable, SIGNAL(itemSelectionChanged()), this, SLOT(plotLogs()));
-  connect(ui->Reset_PB, SIGNAL(clicked()), this, SLOT(plotLogs()));
-  connect(ui->SaveSession_PB, SIGNAL(clicked()), this, SLOT(saveSession()));
+  connect(title, &QCPTextElement::doubleClicked, this, &LogsDialog::titleDoubleClicked);
+  connect(ui->customPlot, &QCustomPlot::axisDoubleClick, this, &LogsDialog::axisLabelDoubleClick);
+  connect(ui->customPlot, &QCustomPlot::legendDoubleClick, this, &LogsDialog::legendDoubleClick);
+  connect(ui->FieldsTW, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
+  connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
+  connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
+  connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
+  connect(ui->fileOpen_PB, &QPushButton::clicked, this, &LogsDialog::fileOpen);
+  connect(ui->mapsButton, &QPushButton::clicked, this, &LogsDialog::mapsButtonClicked);
+  connect(ui->sessions_CB, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &LogsDialog::sessionsCurrentIndexChanged);
 }
 
 LogsDialog::~LogsDialog()
@@ -126,14 +131,17 @@ LogsDialog::~LogsDialog()
   delete ui;
 }
 
-void LogsDialog::titleDoubleClick(QMouseEvent *evt, QCPPlotTitle *title)
+void LogsDialog::titleDoubleClicked(QMouseEvent *evt)
 {
   // Set the plot title by double clicking on it
-  bool ok;
-  QString newTitle = QInputDialog::getText(this, tr("Plot Title Change"), tr("New plot title:"), QLineEdit::Normal, title->text(), &ok);
-  if (ok) {
-    title->setText(newTitle);
-    ui->customPlot->replot();
+  QCPTextElement *title = qobject_cast<QCPTextElement*>(sender());
+  if (title) {
+    bool ok;
+    QString newTitle = QInputDialog::getText(this, tr("Plot Title Change"), tr("New plot title:"), QLineEdit::Normal, title->text(), &ok);
+    if (ok) {
+      title->setText(newTitle);
+      ui->customPlot->replot();
+    }
   }
 }
 
@@ -231,7 +239,7 @@ void LogsDialog::selectionChanged()
     if (item == NULL) item = rightLegend->itemWithPlottable(graph);
     if (item->selected() || graph->selected()) {
       item->setSelected(true);
-      graph->setSelected(true);
+      graph->setSelection(QCPDataSelection(QCPDataRange()));
     }
   }
 }
@@ -431,7 +439,7 @@ void LogsDialog::exportToGoogleEarth()
   QProcess::startDetached(gePath, parameters);
 }
 
-void LogsDialog::on_mapsButton_clicked()
+void LogsDialog::mapsButtonClicked()
 {
   ui->FieldsTW->setDisabled(true);
   ui->logTable->setDisabled(true);
@@ -565,7 +573,7 @@ void LogsDialog::removeAllGraphs()
   ui->labelCursors->setText("");
 }
 
-void LogsDialog::on_fileOpen_BT_clicked()
+void LogsDialog::fileOpen()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Select your log file"), g.logDir());
   if (!fileName.isEmpty()) {
@@ -776,7 +784,7 @@ void LogsDialog::setFlightSessions()
   }
 }
 
-void LogsDialog::on_sessions_CB_currentIndexChanged(int index)
+void LogsDialog::sessionsCurrentIndexChanged(int index)
 {
   if (plotLock) return;
   plotLock = true;
@@ -1126,7 +1134,6 @@ void LogsDialog::addMaxAltitudeMarker(const coords_t & c, QCPGraph * graph) {
 
   // add max altitude marker
   tracerMaxAlt = new QCPItemTracer(ui->customPlot);
-  ui->customPlot->addItem(tracerMaxAlt);
   tracerMaxAlt->setGraph(graph);
   tracerMaxAlt->setInterpolating(true);
   tracerMaxAlt->setStyle(QCPItemTracer::tsSquare);
@@ -1153,7 +1160,6 @@ void LogsDialog::countNumberOfThrows(const coords_t & c, QCPGraph * graph)
 
 void LogsDialog::addCursor(QCPItemTracer ** cursor, QCPGraph * graph, const QColor & color) {
   QCPItemTracer * c = new QCPItemTracer(ui->customPlot);
-  ui->customPlot->addItem(c);
   c->setGraph(graph);
   c->setInterpolating(false);
   c->setStyle(QCPItemTracer::tsCrosshair);
@@ -1168,7 +1174,6 @@ void LogsDialog::addCursor(QCPItemTracer ** cursor, QCPGraph * graph, const QCol
 
 void LogsDialog::addCursorLine(QCPItemStraightLine ** line, QCPGraph * graph, const QColor & color) {
   QCPItemStraightLine * l = new QCPItemStraightLine(ui->customPlot);
-  ui->customPlot->addItem(l);
   l->point1->setParentAnchor(cursorA->position);
   l->point2->setParentAnchor(cursorB->position);
   QPen pen(color);
