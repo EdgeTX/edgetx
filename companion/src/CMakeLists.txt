@@ -89,6 +89,7 @@ include_directories(
   ${COMPANION_SRC_DIRECTORY}/shared
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
+  ${COMPANION_SRC_DIRECTORY}/thirdparty/maxlibqt/src/core
   ${COMPANION_SRC_DIRECTORY}/thirdparty/maxlibqt/src/widgets
   ${COMPANION_SRC_DIRECTORY}/storage
 )
@@ -143,7 +144,6 @@ endif()
 ############# Common lib ###############
 
 set(common_SRCS
-  appdebugmessagehandler.cpp
   customdebug.cpp
   helpers.cpp
   translations.cpp
@@ -152,7 +152,6 @@ set(common_SRCS
   )
 
 set(common_MOC_HDRS
-  appdebugmessagehandler.h
   helpers.h
   modeledit/node.h
   )
