@@ -170,9 +170,11 @@ qt5_add_resources(common_RCC ${common_RESOURCES})
 add_library(common ${common_SRCS} ${common_RCC})
 
 target_link_libraries(common
+  datamodels
   firmwares
-  storage
+  shared
   simulation
+  storage
   maxLibQt
   Qt5::Core
   Qt5::Xml
@@ -188,15 +190,15 @@ set(CPN_COMMON_LIB common)
 
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
-add_subdirectory(shared)
-add_subdirectory(modeledit)
 add_subdirectory(generaledit)
+add_subdirectory(modeledit)
+add_subdirectory(shared)
 add_subdirectory(simulation)
 add_subdirectory(storage)
-add_subdirectory(thirdparty/qcustomplot)
+add_subdirectory(updates)
 add_subdirectory(thirdparty/maxlibqt/src)
 add_subdirectory(thirdparty/miniz)
-add_subdirectory(updates)
+add_subdirectory(thirdparty/qcustomplot)
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "Enable parse tools" FORCE)
@@ -206,96 +208,65 @@ add_subdirectory(thirdparty/yaml-cpp)
 
 ############# Companion ###############
 
+set(companion_NAMES
+  apppreferencesdialog
+  burnconfigdialog
+  comparedialog
+  customizesplashdialog
+  flasheepromdialog
+  flashfirmwaredialog
+  helpers_html
+  labels
+  logsdialog
+  mainwindow
+  mdichild
+  modelprinter
+  modelslist
+  multimodelprinter
+  printdialog
+  process_copy
+  process_flash
+  process_sync
+  profilechooser
+  progressdialog
+  progresswidget
+  radiointerface
+  radionotfound
+  splashlibrarydialog
+  styleeditdialog
+  wizarddata
+  wizarddialog
+  dialogs/filesyncdialog
+  )
+
+foreach(name ${companion_NAMES})
+  set(companion_SRCS
+    ${companion_SRCS}
+    ${name}.cpp
+  )
+
+  set(companion_HDRS
+    ${companion_HDRS}
+    ${name}.h
+  )
+endforeach()
+
 set(companion_SRCS
-  helpers_html.cpp
-  mdichild.cpp
-  modelslist.cpp
-  labels.cpp
-  apppreferencesdialog.cpp
-  burnconfigdialog.cpp
-  multimodelprinter.cpp
-  comparedialog.cpp
-  customizesplashdialog.cpp
-  radiointerface.cpp
-  progresswidget.cpp
-  progressdialog.cpp
-  process_copy.cpp
-  process_flash.cpp
-  process_sync.cpp
-  flashfirmwaredialog.cpp
-  flasheepromdialog.cpp
-  printdialog.cpp
-  modelprinter.cpp
-  logsdialog.cpp
-  splashlibrarydialog.cpp
-  mainwindow.cpp
+  ${companion_SRCS}
   companion.cpp
-  radionotfound.cpp
-  wizarddata.cpp
-  wizarddialog.cpp
-  styleeditdialog.cpp
-  dialogs/filesyncdialog.cpp         # TODO move to own lib with other dialogs
-  profilechooser.cpp
-  )
+)
 
-set(companion_MOC_HDRS
-  apppreferencesdialog.h
-  burnconfigdialog.h
-  comparedialog.h
-  printdialog.h
-  logsdialog.h
-  customizesplashdialog.h
-  splashlibrarydialog.h
+set(companion_HDRS
+  ${companion_HDRS}
   splashlabel.h
-  progresswidget.h
-  progressdialog.h
-  process_copy.h
-  process_flash.h
-  process_sync.h
-  flashfirmwaredialog.h
-  flasheepromdialog.h
-  mdichild.h
-  mainwindow.h
-  radionotfound.h
-  wizarddialog.h
-  modelprinter.h
-  multimodelprinter.h
-  modelslist.h
-  labels.h
-  styleeditdialog.h
-  helpers_html.h
-  dialogs/filesyncdialog.h
-  profilechooser.h
-  )
-
-set(companion_UIS
-  mdichild.ui
-  comparedialog.ui
-  logsdialog.ui
-  apppreferencesdialog.ui
-  burnconfigdialog.ui
-  printdialog.ui
-  htmldialog.ui
-  customizesplashdialog.ui
-  splashlibrarydialog.ui
-  progresswidget.ui
-  progressdialog.ui
-  flashfirmwaredialog.ui
-  flasheepromdialog.ui
-  radionotfound.ui
-  styleeditdialog.ui
-  profilechooser.ui
-  )
+)
 
 if(WIN32)
   set(icon_RC images/winicons/icon.rc)
 endif()
 
-qt5_wrap_ui(companion_SRCS ${companion_UIS})
-qt5_wrap_cpp(companion_SRCS ${companion_MOC_HDRS})
-
-add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${icon_RC})
-target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot miniz shared updates ${CPN_COMMON_LIB})
+add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${companion_HDRS} ${icon_RC})
+target_link_libraries(${COMPANION_NAME} PRIVATE ${CPN_COMMON_LIB} generaledit modeledit qcustomplot miniz updates)
 
 PrintTargetReport("${COMPANION_NAME}")
 

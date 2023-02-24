@@ -1,8 +1,7 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-set(shared_NAMES
-  genericpanel
-  verticalscrollarea
+project(shared)
+
+set(${PROJECT_NAME}_NAMES
   autobitsetcheckbox
   autocheckbox
   autocombobox
@@ -16,27 +15,39 @@ set(shared_NAMES
   autotimeedit
   curveimagewidget
   curvedialog
+  genericpanel
+  verticalscrollarea
 )
 
-set(shared_UIS
-  curvedialog.ui
+AddHeadersSources()
+
+# AUTOMOC does not detect so manually process
+qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_HDRS}
 )
-
-foreach(name ${shared_NAMES})
-  set(shared_SRCS ${shared_SRCS} ${name}.cpp)
-  set(shared_HDRS ${shared_HDRS} ${name}.h)
-endforeach()
-
-qt5_wrap_ui(shared_SRCS ${shared_UIS})
-qt5_wrap_cpp(shared_SRCS ${shared_HDRS})
 
 # add after moc generation to stop warnings
-set(shared_SRCS ${shared_SRCS}
+set(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_SRCS}
   autowidget.h
   autowidget.cpp
   curveimage.h
   curveimage.cpp
 )
 
-add_library(shared ${shared_SRCS})
-target_link_libraries(shared PRIVATE datamodels Qt5::Widgets ${CPN_COMMON_LIB})
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_SRCS}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
+)

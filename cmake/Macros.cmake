@@ -80,7 +80,7 @@ function(GenerateDatacopy source output)
 
   set(GEN_DATACOPY_CMD
     ${PYTHON_EXECUTABLE} ${GEN_DATACOPY} ${GEN_DATACOPY_ARGS})
-  
+
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
@@ -88,3 +88,19 @@ function(GenerateDatacopy source output)
     )
 
 endfunction()
+
+macro(AddHeadersSources)
+  foreach(name
+    ${${PROJECT_NAME}_NAMES})
+
+    set(${PROJECT_NAME}_SRCS
+      ${${PROJECT_NAME}_SRCS}
+      ${name}.cpp
+    )
+
+    set(${PROJECT_NAME}_HDRS
+      ${${PROJECT_NAME}_HDRS}
+      ${name}.h
+    )
+  endforeach()
+endmacro()

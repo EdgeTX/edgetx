@@ -1,6 +1,7 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-set(storage_NAMES
+project(storage)
+
+set(${PROJECT_NAME}_NAMES
   hexinterface
   mountlist
   rlefile
@@ -19,22 +20,30 @@ set(storage_NAMES
   minizinterface
 )
 
-set(storage_SRCS
-)
+AddHeadersSources()
 
-set(storage_HDRS
-)
-
-set(storage_MOC_HDRS
+# AUTOMOC does not detect so manually process
+set(${PROJECT_NAME}_MOC
   appdata.h
 )
 
-foreach(name ${storage_NAMES})
-  set(storage_SRCS ${storage_SRCS} ${name}.cpp)
-  set(storage_HDRS ${storage_HDRS} ${name}.h)
-endforeach()
+qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_MOC}
+)
 
-qt5_wrap_cpp(storage_SRCS ${storage_MOC_HDRS})
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_HDRS}
+  ${${PROJECT_NAME}_SRCS}
+)
 
-add_library(storage ${storage_SRCS} ${storage_HDRS})
-target_link_libraries(storage PRIVATE miniz ${CPN_COMMON_LIB})
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+    miniz
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)

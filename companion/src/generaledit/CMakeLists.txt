@@ -1,33 +1,31 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-set(generaledit_NAMES
+project(generaledit)
+
+set(${PROJECT_NAME}_NAMES
+  calibration
   generaledit
   generalsetup
+  hardware
+  trainer
 )
 
-set(generaledit_SRCS
-  calibration.cpp
-  hardware.cpp
-  trainer.cpp
+AddHeadersSources()
+
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_HDRS}
+  ${${PROJECT_NAME}_SRCS}
 )
 
-set(generaledit_HDRS
-  calibration.h
-  hardware.h
-  trainer.h
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+    Qt5::Multimedia
 )
 
-set(generaledit_UIS
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
 )
-
-foreach(name ${generaledit_NAMES})
-  set(generaledit_SRCS ${generaledit_SRCS} ${name}.cpp)
-  set(generaledit_HDRS ${generaledit_HDRS} ${name}.h)
-  set(generaledit_UIS  ${generaledit_UIS}  ${name}.ui)
-endforeach()
-
-qt5_wrap_ui(generaledit_SRCS ${generaledit_UIS})
-qt5_wrap_cpp(generaledit_SRCS ${generaledit_HDRS})
-
-add_library(generaledit ${generaledit_SRCS})
-target_link_libraries(generaledit PRIVATE datamodels ${CPN_COMMON_LIB} Qt5::Multimedia)
