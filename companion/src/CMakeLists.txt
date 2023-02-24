@@ -92,6 +92,7 @@ include_directories(
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
   ${COMPANION_SRC_DIRECTORY}/thirdparty/miniz
+  ${COMPANION_SRC_DIRECTORY}/thirdparty/maxlibqt/src/widgets
   ${COMPANION_SRC_DIRECTORY}/storage
 )
 
@@ -173,7 +174,7 @@ target_link_libraries(common
   firmwares
   storage
   simulation
-  maxLibQtWidgets
+  maxLibQt
   Qt5::Core
   Qt5::Xml
   Qt5::Widgets
@@ -194,7 +195,7 @@ add_subdirectory(generaledit)
 add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
-add_subdirectory(thirdparty/maxlibqt/src/widgets)
+add_subdirectory(thirdparty/maxlibqt/src)
 add_subdirectory(thirdparty/miniz)
 add_subdirectory(updates)
 
