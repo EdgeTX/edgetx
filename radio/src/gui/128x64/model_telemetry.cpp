@@ -61,10 +61,10 @@ enum MenuModelTelemetryFrskyItems {
   #define VARIO_ROWS
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(HARDWARE_EXTERNAL_MODULE)
   #define TELEMETRY_TYPE_ROW           (!IS_INTERNAL_MODULE_ENABLED() && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_PPM) ? (uint8_t)0 : HIDDEN_ROW
 #else
-  #define TELEMETRY_TYPE_ROW           (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_PPM) ? (uint8_t)0 : HIDDEN_ROW
+  #define TELEMETRY_TYPE_ROW           HIDDEN_ROW
 #endif
 
   #define TELEMETRY_TYPE_ROWS          TELEMETRY_TYPE_ROW,
@@ -174,9 +174,12 @@ void menuModelTelemetry(event_t event)
     switch (k) {
       case ITEM_TELEMETRY_PROTOCOL_TYPE:
         lcdDrawTextAlignedLeft(y, STR_TELEMETRY_TYPE);
-        lcdDrawTextAtIndex(TELEM_COL2, y, STR_TELEMETRY_PROTOCOLS, g_model.telemetryProtocol, attr);
+        lcdDrawTextAtIndex(TELEM_COL2, y, STR_TELEMETRY_PROTOCOLS,
+                           g_model.telemetryProtocol, attr);
         if (attr) {
-          g_model.telemetryProtocol = checkIncDec(event, g_model.telemetryProtocol, PROTOCOL_TELEMETRY_FIRST, PROTOCOL_TELEMETRY_LAST, EE_MODEL, isTelemetryProtocolAvailable);
+          g_model.telemetryProtocol = checkIncDec(
+              event, g_model.telemetryProtocol, PROTOCOL_TELEMETRY_FIRST,
+              PROTOCOL_TELEMETRY_LAST, EE_MODEL, isTelemetryProtocolAvailable);
         }
         break;
 

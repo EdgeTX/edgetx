@@ -22,6 +22,10 @@
 #ifndef _SPECIAL_FUNCTIONS_H
 #define _SPECIAL_FUNCTIONS_H
 
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+
 #include "tabsgroup.h"
 
 struct CustomFunctionData;
@@ -30,16 +34,20 @@ class SpecialFunctionsPage: public PageTab {
   public:
     SpecialFunctionsPage(CustomFunctionData * functions);
 
-    void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+    void build(FormWindow * window) override;
 
   protected:
+    int8_t focusIndex = -1;
+    int8_t prevFocusIndex = -1;
+    bool isRebuilding = false;
     CustomFunctionData * functions;
-    void build(FormWindow * window, int8_t focusSpecialFunctionIndex);
-    void rebuild(FormWindow * window, int8_t focusSpecialFunctionIndex);
-    void editSpecialFunction(FormWindow * window, uint8_t index);
+    Button* addButton = nullptr;
+
+    void rebuild(FormWindow * window);
+    void newSF(FormWindow* window, bool pasteSF);
+    void editSpecialFunction(FormWindow * window, uint8_t index, Button* button);
+    void pasteSpecialFunction(FormWindow * window, uint8_t index, Button* button);
+    void plusPopup(FormWindow * window);
 };
 
 #endif //_SPECIAL_FUNCTIONS_H

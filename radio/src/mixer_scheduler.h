@@ -46,6 +46,9 @@ void mixerSchedulerResetTimer();
 // Set the scheduling period for a given module
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs);
 
+// Get the scheduling period for a given module
+uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx);
+
 // Enable the timer trigger
 void mixerSchedulerEnableTrigger();
 
@@ -65,6 +68,7 @@ void mixerSchedulerISRTrigger();
 #define mixerSchedulerStop()
 #define mixerSchedulerResetTimer()
 #define mixerSchedulerSetPeriod(m,p) ((void)(p))
+#define mixerSchedulerGetPeriod(m) ((uint16_t)MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 #define mixerSchedulerClearTrigger()
 
 #define mixerSchedulerEnableTrigger()

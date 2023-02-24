@@ -136,6 +136,7 @@ class WidgetsContainerImpl : public WidgetsContainer
       if (widgets[i]) {
         auto zone = getZone(i);
         widgets[i]->setRect(zone);
+        widgets[i]->updateZoneRect(zone);
       }
     }
   }

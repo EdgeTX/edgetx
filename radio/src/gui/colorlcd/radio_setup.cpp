@@ -25,6 +25,8 @@
 #include "opentx.h"
 #include "libopenui.h"
 
+#include "tasks/mixer_task.h"
+
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -434,18 +436,43 @@ class AlarmsPage : public Page {
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
       lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      edit->setSuffix("minutes");
+
+      edit->setDisplayHandler([=](int value) -> std::string {
+        std::string suffix(STR_MINUTE_PLURAL2);
+        if (value == 1) {
+          suffix = std::string(STR_MINUTE_SINGULAR);
+        } else if (value < g_use_plural2) {
+          const int secondDecimal = (value / 10) % 10;
+          if (secondDecimal != 1) {
+            const int firstDecimal = value % 10;
+            if (firstDecimal) {
+              if (firstDecimal < g_min_plural2 &&
+                  firstDecimal == g_use_singular_in_plural) {
+                suffix = std::string(STR_MINUTE_SINGULAR);
+              } else if (firstDecimal <= g_max_plural2 &&
+                         firstDecimal != g_use_plural2_special_case) {
+                suffix = std::string(STR_MINUTE_PLURAL1);
+              }
+            }
+          }
+        }
+        suffix = " " + suffix;
+        return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
+      });
       line = body.newLine(&grid);
+
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      new CheckBox(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
       line = body.newLine(&grid);
 
       // RSSI shutdown alarm
-      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
+      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0,
+                     COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
       line = body.newLine(&grid);
-
     }
 };
 
@@ -752,11 +779,11 @@ void RadioSetupPage::build(FormWindow * window)
   grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
-                        pausePulses();
+                        mixerTaskStop();
                         g_eeGeneral.stickMode = newValue;
                         SET_DIRTY();
                         checkThrottleStick();
-                        resumePulses();
+                        mixerTaskStart();
                       });
   choice->setTextHandler([](uint8_t value) {
     return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +

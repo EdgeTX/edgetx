@@ -322,7 +322,10 @@ void ModelOutputsPage::build(FormWindow *window)
 
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-    // btn->refresh();
+#if LCD_W > LCD_H
+    // Initial scroll height is incorrect without this??? (Issue #3186)
+    btn->setHeight(35);
+#endif
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {

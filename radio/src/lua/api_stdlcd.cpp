@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
+
 #include <cctype>
 #include <cstdio>
 #include "opentx.h"
@@ -620,26 +622,34 @@ static int luaLcdDrawCombobox(lua_State *L)
   return 0;
 }
 
-const luaL_Reg lcdLib[] = {
-  { "refresh", luaLcdRefresh },
-  { "clear", luaLcdClear },
-  { "resetBacklightTimeout", luaLcdResetBacklightTimeout },
-  { "drawPoint", luaLcdDrawPoint },
-  { "drawLine", luaLcdDrawLine },
-  { "drawRectangle", luaLcdDrawRectangle },
-  { "drawFilledRectangle", luaLcdDrawFilledRectangle },
-  { "drawText", luaLcdDrawText },
-  { "drawTimer", luaLcdDrawTimer },
-  { "drawNumber", luaLcdDrawNumber },
-  { "drawChannel", luaLcdDrawChannel },
-  { "drawSwitch", luaLcdDrawSwitch },
-  { "drawSource", luaLcdDrawSource },
-  { "drawGauge", luaLcdDrawGauge },
-  { "getLastPos", luaLcdGetLastPos },
-  { "getLastRightPos", luaLcdGetLastPos },
-  { "getLastLeftPos", luaLcdGetLeftPos },
-  { "drawPixmap", luaLcdDrawPixmap },
-  { "drawScreenTitle", luaLcdDrawScreenTitle },
-  { "drawCombobox", luaLcdDrawCombobox },
-  { NULL, NULL }  /* sentinel */
-};
+LROT_BEGIN(lcdlib, NULL, 0)
+  LROT_FUNCENTRY( refresh, luaLcdRefresh )
+  LROT_FUNCENTRY( clear, luaLcdClear )
+  LROT_FUNCENTRY( resetBacklightTimeout, luaLcdResetBacklightTimeout )
+  LROT_FUNCENTRY( drawPoint, luaLcdDrawPoint )
+  LROT_FUNCENTRY( drawLine, luaLcdDrawLine )
+  LROT_FUNCENTRY( drawRectangle, luaLcdDrawRectangle )
+  LROT_FUNCENTRY( drawFilledRectangle, luaLcdDrawFilledRectangle )
+  LROT_FUNCENTRY( drawText, luaLcdDrawText )
+  LROT_FUNCENTRY( drawTimer, luaLcdDrawTimer )
+  LROT_FUNCENTRY( drawNumber, luaLcdDrawNumber )
+  LROT_FUNCENTRY( drawChannel, luaLcdDrawChannel )
+  LROT_FUNCENTRY( drawSwitch, luaLcdDrawSwitch )
+  LROT_FUNCENTRY( drawSource, luaLcdDrawSource )
+  LROT_FUNCENTRY( drawGauge, luaLcdDrawGauge )
+  LROT_FUNCENTRY( getLastPos, luaLcdGetLastPos )
+  LROT_FUNCENTRY( getLastRightPos, luaLcdGetLastPos )
+  LROT_FUNCENTRY( getLastLeftPos, luaLcdGetLeftPos )
+  LROT_FUNCENTRY( drawPixmap, luaLcdDrawPixmap )
+  LROT_FUNCENTRY( drawScreenTitle, luaLcdDrawScreenTitle )
+  LROT_FUNCENTRY( drawCombobox, luaLcdDrawCombobox )
+LROT_END(lcdlib, NULL, 0)
+
+LROT_BEGIN(bitmaplib, NULL, 0)
+LROT_END(bitmaplib, NULL, 0)
+
+extern "C" {
+  LUALIB_API int luaopen_bitmap(lua_State * L) {
+    return 0;
+  }
+}

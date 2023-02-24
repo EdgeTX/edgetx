@@ -109,12 +109,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
 #define EXTERNAL_MODULE_OFF()           EXTERNAL_MODULE_PWR_OFF()
 
-#if defined(RADIO_T12)
-#define IS_INTERNAL_MODULE_ON()         false
-#else
-#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#endif
-
 // Trainer driver
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
@@ -754,49 +748,17 @@ uint8_t isBacklightEnabled();
 void debugPutc(const char c);
 
 // Telemetry driver
-void telemetryPortInit(uint32_t baudrate, uint8_t mode);
-void telemetryPortSetDirectionInput();
-void telemetryPortSetDirectionOutput();
-void sportSendByte(uint8_t byte);
-void sportSendByteLoop(uint8_t byte);
-void sportStopSendByteLoop();
-void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool sportGetByte(uint8_t * byte);
-void telemetryClearFifo();
-extern uint32_t telemetryErrors;
+// void telemetryPortInit(uint32_t baudrate, uint8_t mode);
+// void telemetryPortSetDirectionInput();
+// void telemetryPortSetDirectionOutput();
+// void sportSendByte(uint8_t byte);
+// void sportSendByteLoop(uint8_t byte);
+// void sportStopSendByteLoop();
+// void sportSendBuffer(const uint8_t * buffer, uint32_t count);
+// bool sportGetByte(uint8_t * byte);
+// void telemetryClearFifo();
+// extern uint32_t telemetryErrors;
 
-// soft-serial
-void telemetryPortInvertedInit(uint32_t baudrate);
-
-// PCBREV driver
-#if defined(PCBX7ACCESS)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  true
-#elif defined(PCBX7)
-  #define IS_PCBREV_40()                (hardwareOptions.pcbrev == PCBREV_X7_40)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  IS_PCBREV_40()
-#elif defined(SPORT_UPDATE_PWR_GPIO)
-  #define HAS_SPORT_UPDATE_CONNECTOR()  true
-#else
-  #define HAS_SPORT_UPDATE_CONNECTOR()  false
-#endif
-
-// Sport update driver
-#if defined(SPORT_UPDATE_PWR_GPIO)
-void sportUpdateInit();
-void sportUpdatePowerOn();
-void sportUpdatePowerOff();
-void sportUpdatePowerInit();
-#define SPORT_UPDATE_POWER_ON()         sportUpdatePowerOn()
-#define SPORT_UPDATE_POWER_OFF()        sportUpdatePowerOff()
-#define SPORT_UPDATE_POWER_INIT()       sportUpdatePowerInit()
-#define IS_SPORT_UPDATE_POWER_ON()      (GPIO_ReadInputDataBit(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN) == Bit_SET)
-#else
-#define sportUpdateInit()
-#define SPORT_UPDATE_POWER_ON()
-#define SPORT_UPDATE_POWER_OFF()
-#define SPORT_UPDATE_POWER_INIT()
-#define IS_SPORT_UPDATE_POWER_ON()      (false)
-#endif
 
 // Audio driver
 void audioInit() ;
@@ -850,31 +812,6 @@ void hapticOff();
 #define LUA_DEFAULT_BAUDRATE            115200
 
 const etx_serial_port_t* auxSerialGetPort(int port_nr);
-
-// BT driver
-#define BLUETOOTH_BOOTLOADER_BAUDRATE   230400
-#define BLUETOOTH_DEFAULT_BAUDRATE      115200
-#if defined(PCBX9E)
-#define BLUETOOTH_FACTORY_BAUDRATE      9600
-#else
-#define BLUETOOTH_FACTORY_BAUDRATE      57600
-#endif
-#define BT_TX_FIFO_SIZE    64
-#define BT_RX_FIFO_SIZE    256
-void bluetoothInit(uint32_t baudrate, bool enable);
-void bluetoothWriteWakeup();
-uint8_t bluetoothIsWriting();
-void bluetoothDisable();
-#if defined(PCBX9LITES) || defined(PCBX7ACCESS)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#elif defined(PCBX9LITE)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (false)
-#elif defined(BLUETOOTH_PROBE) && !defined(SIMU)
-  extern volatile uint8_t btChipPresent;
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (btChipPresent)
-#else
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#endif
 
 // USB Charger
 #if defined(USB_CHARGER)
@@ -963,17 +900,10 @@ void setTopBatteryValue(uint32_t volts);
 
 #define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-
 #if defined(CROSSFIRE)
 #define TELEMETRY_FIFO_SIZE             128
 #else
 #define TELEMETRY_FIFO_SIZE             64
-#endif
-
-extern Fifo<uint8_t, TELEMETRY_FIFO_SIZE> telemetryFifo;
 #endif
 
 #define INTMODULE_FIFO_SIZE            128

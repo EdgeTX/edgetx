@@ -20,7 +20,19 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_dma.h"
+
 #include "definitions.h"
+
+#include <string.h>
+
+  // 0.5uS (2Mhz)
+#define STM32_DEFAULT_TIMER_FREQ       2000000
+#define STM32_DEFAULT_TIMER_AUTORELOAD   65535
+
+// TODO:
+// - DMA IRQ prio configurable (now 7)
+// - Timer IRQ prio configurable (now 7)
 
 static void enable_tim_clock(TIM_TypeDef* TIMx)
 {
@@ -37,8 +49,12 @@ static void enable_tim_clock(TIM_TypeDef* TIMx)
   }
 }
 
-void stm32_pulse_init(const stm32_pulse_timer_t* tim)
+void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
 {
+  if (tim->DMA_TC_CallbackPtr) {
+    memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
+  }
+  
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Pin = tim->GPIO_Pin;
@@ -49,9 +65,12 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim)
   LL_TIM_InitTypeDef timInit;
   LL_TIM_StructInit(&timInit);
 
-  // 0.5uS (2Mhz)
-  timInit.Prescaler = tim->TIM_Prescaler;
-  timInit.Autoreload = 65535;
+  if (!freq) {
+    freq = STM32_DEFAULT_TIMER_FREQ;
+  }
+  
+  timInit.Prescaler = __LL_TIM_CALC_PSC(tim->TIM_Freq, freq);
+  timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
 
   enable_tim_clock(tim->TIMx);
   LL_TIM_Init(tim->TIMx, &timInit);
@@ -93,6 +112,11 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   if (tim->DMAx) {
     LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
   }
+
+  if (tim->DMA_TC_CallbackPtr) {
+    memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
+  }
+
   LL_TIM_DeInit(tim->TIMx);
   disable_tim_clock(tim->TIMx);
 
@@ -144,7 +168,6 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
     LL_TIM_EnableAllOutputs(tim->TIMx);
   }
 
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
 }
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
@@ -156,6 +179,12 @@ void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
     ll_polarity = LL_TIM_OCPOLARITY_LOW;
   }
   LL_TIM_OC_SetPolarity(tim->TIMx, tim->TIM_Channel, ll_polarity);  
+}
+
+bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim)
+{
+  return LL_TIM_OC_GetPolarity(tim->TIMx, tim->TIM_Channel) ==
+         LL_TIM_OCPOLARITY_HIGH;
 }
 
 // return true if stopped, false otherwise
@@ -202,6 +231,16 @@ static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
     channel = LL_TIM_CHANNEL_CH1;
 
   LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
+}
+
+void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)
+{
+  uint32_t channel = tim->TIM_Channel;
+  if (channel == LL_TIM_CHANNEL_CH1N)
+    channel = LL_TIM_CHANNEL_CH1;
+
+  while(LL_TIM_IsEnabledCounter(tim->TIMx) &&
+        LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
 }
 
 static void force_start_level(const stm32_pulse_timer_t* tim)
@@ -259,48 +298,43 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
 
-  // Enable DMA
-  LL_TIM_ClearFlag_UPDATE(tim->TIMx);
-  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_SetCounter(tim->TIMx, 0);
+  // Reset counter close to overflow
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
+  } else {
+    LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
+  }
+
+  // only on PWM (preloads the first period)
+  if (ocmode == LL_TIM_OCMODE_PWM1)
+    LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+  
+  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
-  // Trigger update to effect the first DMA transation
+  // Trigger update to effect the first DMA transaction
   // and thus load ARR with the first duration
-  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
-  LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
 
   // start timer
-  force_start_level(tim);
   LL_TIM_EnableCounter(tim->TIMx);
-}
-
-static bool check_and_clean_dma_tc_flag(const stm32_pulse_timer_t* tim)
-{
-  switch(tim->DMA_Stream) {
-  case LL_DMA_STREAM_1:
-    if (!LL_DMA_IsActiveFlag_TC1(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC1(tim->DMAx);
-    break;
-  case LL_DMA_STREAM_5:
-    if (!LL_DMA_IsActiveFlag_TC5(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC5(tim->DMAx);
-    break;
-  case LL_DMA_STREAM_7:
-    if (!LL_DMA_IsActiveFlag_TC7(tim->DMAx)) return false;
-    LL_DMA_ClearFlag_TC7(tim->DMAx);
-    break;
-  }
-  return true;
 }
 
 void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
 {
-  if (!check_and_clean_dma_tc_flag(tim)) return;
+  if (!stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream))
+    return;
 
+  if (tim->DMA_TC_CallbackPtr) {
+    auto closure = tim->DMA_TC_CallbackPtr;
+    if (closure->cb && closure->cb(closure->ctx)) {
+      return;
+    }
+  }
+  
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 
+  // PWM mode with compare value = 0 then OCxRef is held at ‘0’
   set_compare_reg(tim, 0);
   set_oc_mode(tim, LL_TIM_OCMODE_PWM1);
 }
@@ -315,6 +349,7 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim)
 
   // Halt pulses by forcing to inactive level
   set_oc_mode(tim, LL_TIM_OCMODE_FORCED_INACTIVE);
+  LL_TIM_DisableCounter(tim->TIMx);
 }
 
 // input mode

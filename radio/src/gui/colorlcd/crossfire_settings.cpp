@@ -61,8 +61,9 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   new StaticText(line, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
   new DynamicText(line, rect_t{}, [=] {
     char msg[64] = "";
-    sprintf(msg, "%d Hz %" PRIu32 " Err", 1000000 / getMixerSchedulerPeriod(),
-            telemetryErrors);
+    // sprintf(msg, "%d Hz %" PRIu32 " Err", 1000000 / getMixerSchedulerPeriod(),
+    //         telemetryErrors);
+    sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
 }

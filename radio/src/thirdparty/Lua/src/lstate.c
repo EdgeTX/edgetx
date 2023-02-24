@@ -218,6 +218,8 @@ static void preinit_state (lua_State *L, global_State *g) {
 }
 
 
+static lua_State *L0 = NULL;
+
 static void close_state (lua_State *L) {
   global_State *g = G(L);
   luaF_close(L, L->stack);  /* close all upvalues for this thread */
@@ -225,6 +227,10 @@ static void close_state (lua_State *L) {
   luaM_freearray(L, G(L)->strt.hash, G(L)->strt.size);
   luaZ_freebuffer(L, &g->buff);
   freestack(L);
+  if (L == L0) {
+    (*g->frealloc)(g->ud, g->cache, KEYCACHE_N * sizeof(KeyCacheLine), 0);
+    L0 = NULL;  /* so reopening state initialises properly */
+  }
   lua_assert(gettotalbytes(g) == sizeof(LG));
   (*g->frealloc)(g->ud, fromstate(L), sizeof(LG), 0);  /* free main block */
 }
@@ -258,6 +264,9 @@ void luaE_freethread (lua_State *L, lua_State *L1) {
   luaM_free(L, l);
 }
 
+LUAI_FUNC KeyCache *luaE_getcache (int lineno) {
+  return &G(L0)->cache[lineno][0];
+}
 
 LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
@@ -300,6 +309,18 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcpause = LUAI_GCPAUSE;
   g->gcmajorinc = LUAI_GCMAJOR;
   g->gcstepmul = LUAI_GCMUL;
+#ifdef LUA_ENABLE_TEST
+  if (L0) { /* This is a second state */
+    g->cache=G(L0)->cache;
+  } else {
+#endif
+  L0 = L;
+  g->cache = cast(KeyCacheLine *,
+                 (*f)(ud, NULL, 0, KEYCACHE_N * sizeof(KeyCacheLine)));
+  memset(g->cache, 0, KEYCACHE_N * sizeof(KeyCacheLine));
+#ifdef LUA_ENABLE_TEST
+  }
+#endif
   for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
     /* memory allocation error: free partial state */

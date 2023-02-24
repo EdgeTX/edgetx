@@ -61,7 +61,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
   
   // Point number
   for (int i = 0; i < count; i++) {
-    auto txt = new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, std::to_string(i + start + 1), 0, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
   }
 
   line = form->newLine(&grid);
@@ -106,6 +106,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
           },
           0, RIGHT);
           lv_obj_set_grid_cell(numEditX[px]->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+          lv_textarea_set_align(numEditX[px]->getLvObj(), LV_TEXT_ALIGN_CENTER);
     }
     if ((start + count) == curvePointsCount) {
       new StaticText(line, rect_t{}, "100", 0, CENTERED | COLOR_THEME_SECONDARY1);
@@ -138,6 +139,7 @@ void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count
         },
         0, RIGHT);
     lv_obj_set_grid_cell(numedit->getLvObj(), LV_GRID_ALIGN_CENTER, i+1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_textarea_set_align(numedit->getLvObj(), LV_TEXT_ALIGN_CENTER);
   }
 }
 
@@ -205,14 +207,7 @@ void CurveEdit::updatePreview()
   preview.clearPoints();
   CurveHeader & curve = g_model.curves[index];
   for (uint8_t i = 0; i < 5 + curve.points; i++) {
-    if (hasFocus() && current == i) {
-      preview.position = [=] () -> int {
-        return getPoint(index, i).x;
-      };
-    }
-    else {
-      preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
-    }
+    preview.addPoint(getPoint(index, i), COLOR_THEME_SECONDARY1);
   }
   invalidate();
 }
@@ -249,7 +244,8 @@ void CurveEdit::updatePreview()
 
 void CurveEdit::next()
 {
-  if (current++ == preview.points.size()) {
+  CurveHeader & curve = g_model.curves[index];
+  if (current++ == 5 + curve.points - 1) {
     current = 0;
   }
   updatePreview();
@@ -257,8 +253,9 @@ void CurveEdit::next()
 
 void CurveEdit::previous()
 {
+  CurveHeader & curve = g_model.curves[index];
   if (current-- == 0) {
-    current = preview.points.size();
+    current = 5 + curve.points - 1;
   }
   updatePreview();
 }
@@ -374,10 +371,7 @@ CurveEditWindow::CurveEditWindow(uint8_t index):
 
 void CurveEditWindow::buildHeader(Window * window)
 {
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_MENUCURVE, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_MENUCURVE);
   char s[16];
   strAppendStringWithIndex(s, STR_CV, index + 1);
   new StaticText(window,

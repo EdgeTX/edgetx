@@ -25,6 +25,10 @@
 #include "opentx.h"
 #include "diskio.h"
 #include "timers_driver.h"
+#include "hal/module_port.h"
+
+#include "tasks.h"
+#include "tasks/mixer_task.h"
 
 #include "cli.h"
 
@@ -33,10 +37,6 @@
 #include <new>
 #include <stdarg.h>
 
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -581,7 +581,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -607,7 +607,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -714,7 +714,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -749,7 +749,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -906,7 +906,7 @@ int cliReboot(const char ** argv)
 #if !defined(SIMU)
   if (!strcmp(argv[1], "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
-    pausePulses();
+    pulsesStop();
   }
   else {
     NVIC_SystemReset();
@@ -973,17 +973,9 @@ int cliSet(const char **argv)
     }
     if (!strcmp(argv[3], "power")) {
       if (!strcmp("on", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_ON();
-        } else {
-          EXTERNAL_MODULE_ON();
-        }
+        modulePortSetPower(module, true);
       } else if (!strcmp("off", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_OFF();
-        } else {
-          EXTERNAL_MODULE_OFF();
-        }
+        modulePortSetPower(module, false);
       } else {
         cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
@@ -1026,10 +1018,10 @@ int cliSet(const char **argv)
 
     if (level) {
       cliSerialPrint("%s: pulses start", argv[0]);
-      startPulses();
+      pulsesStart();
     } else {
       cliSerialPrint("%s: pulses stop", argv[0]);
-      stopPulses();
+      pulsesStop();
     }
   }
 
@@ -1037,21 +1029,24 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-static void *spInternalModuleCTX = nullptr;
+static etx_module_state_t *spInternalModuleState = nullptr;
+
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
+  auto drv = modulePortGetSerialDrv(spInternalModuleState->tx);
+  auto ctx = modulePortGetCtx(spInternalModuleState->tx);
+
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
 
 static const etx_serial_init spIntmoduleSerialInitParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 // TODO: use proper method instead
@@ -1100,7 +1095,7 @@ int cliSerialPassthrough(const char **argv)
     
     //  stop pulses
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
 
     // suspend RTOS scheduler
     vTaskSuspendAll();
@@ -1114,13 +1109,15 @@ int cliSerialPassthrough(const char **argv)
       etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
 
-      void* uart_ctx = IntmoduleSerialDriver.init(&params);
-      spInternalModuleCTX = uart_ctx;
+      spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_UART,
+                                                    &params);
+
+      auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
+      auto ctx = modulePortGetCtx(spInternalModuleState->rx);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
-
 
       // loop until cable disconnected
       while (cdcConnected) {
@@ -1128,16 +1125,11 @@ int cliSerialPassthrough(const char **argv)
         uint32_t cli_br = cliGetBaudRate();
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
           baudrate = cli_br;
-
-          etx_serial_init params(spIntmoduleSerialInitParams);
-          params.baudrate = baudrate;
-
-          // re-configure serial port
-          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+          drv->setBaudrate(ctx, baudrate);
         }
 
         uint8_t data;
-        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
+        if (drv->getByte(ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1154,13 +1146,13 @@ int cliSerialPassthrough(const char **argv)
 
       // restore callsbacks
       cliReceiveCallBack = backupCB;
-      spInternalModuleCTX = nullptr;
 
       // and stop module
-      IntmoduleSerialDriver.deinit(uart_ctx);
+      modulePortDeInit(spInternalModuleState);
+      spInternalModuleState = nullptr;
 
       // power off the module and wait for a bit
-      INTERNAL_MODULE_OFF();
+      modulePortSetPower(port_n, false);
       delay_ms(200);
     }
 #endif
@@ -1169,7 +1161,7 @@ int cliSerialPassthrough(const char **argv)
     //  - external module (S.PORT?)
 
     watchdogSuspend(200/*2s*/);
-    startPulses();
+    pulsesStart();
 
     // suspend RTOS scheduler
     xTaskResumeAll();
@@ -1549,7 +1541,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   uint32_t startMs = RTOS_GET_MS();
@@ -1564,7 +1556,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -1587,7 +1579,7 @@ int cliResetGT911(const char** argv)
 
     // stop pulses & suspend RTOS scheduler
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
     vTaskSuspendAll();
 
     // reset touch controller
@@ -1598,7 +1590,7 @@ int cliResetGT911(const char** argv)
     cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
 
     // restart pulses & RTOS scheduler
-    startPulses();
+    pulsesStart();
     xTaskResumeAll();
 
     return 0;
@@ -1719,7 +1711,7 @@ void cliTask(void * pdata)
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
 
-    if (s_pulses_paused) {
+    if (!mixerTaskRunning()) {
       WDG_RESET();
     }
 

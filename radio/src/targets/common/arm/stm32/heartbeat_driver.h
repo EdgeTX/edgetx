@@ -32,5 +32,4 @@ struct HeartbeatCapture {
 extern volatile HeartbeatCapture heartbeatCapture;
 
 void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
 void stop_intmodule_heartbeat();

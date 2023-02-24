@@ -32,6 +32,8 @@ enum DialogType {
   WARNING_TYPE_INFO
 };
 
+class StaticText;
+
 class FullScreenDialog : public Window
 {
   public:
@@ -54,7 +56,7 @@ class FullScreenDialog : public Window
 
     void paint(BitmapBuffer * dc) override;
 
-    void onClicked() override;
+    void onEvent(event_t event) override;
     void onCancel() override;
 
     void deleteLater(bool detach = true, bool trash = true) override;
@@ -66,8 +68,9 @@ class FullScreenDialog : public Window
       closeCondition = std::move(handler);
     }
 
-    void runForever();
-    void runForeverNoPwrCheck();
+    void runForever(bool checkPwr = true);
+
+    void closeDialog();
 
   protected:
     uint8_t type;
@@ -77,6 +80,10 @@ class FullScreenDialog : public Window
     bool running = false;
     std::function<bool(void)> closeCondition;
     std::function<void(void)> confirmHandler;
+    bool loaded = false;
+    StaticText* messageLabel;
+
+    virtual void init();
 
     static void long_pressed(lv_event_t* e);
 };

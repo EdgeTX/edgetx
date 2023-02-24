@@ -20,14 +20,18 @@
  */
  
 #include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
+
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
 
-#include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
 #include "stm32_hal_adc.h"
+#include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "bitmapbuffer.h"
@@ -43,8 +47,6 @@ extern "C" {
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
-
-extern void flysky_hall_stick_init( void );
 
 HardwareOptions hardwareOptions;
 
@@ -169,16 +171,19 @@ void boardInit()
   serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
 
-  TRACE("\nNV14 board started :)");
+  TRACE("\n%s board started :)",
+        hardwareOptions.pcbrev == PCBREV_NV14 ?
+        "NV14" : "EL18");
+
   delay_ms(10);
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
   pwrInit();
+  boardInitModulePorts();
+
   init_trainer();
-  extModuleInit();
   battery_charge_init();
-  globalData.flyskygimbals = true;
-  flysky_hall_stick_init();
+  globalData.flyskygimbals = flysky_gimbal_init();
   init2MhzTimer();
   init1msTimer();
   TouchInit();
@@ -303,9 +308,4 @@ void boardOff()
   while (1) {
 
   }
-}
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  return nullptr;
 }

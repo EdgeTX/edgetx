@@ -4,14 +4,14 @@
 ** See Copyright Notice in lua.h
 */
 
+#define lstrlib_c
+#define LUA_LIB
 
 #include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-#define lstrlib_c
 
 #include "lua.h"
 
@@ -975,44 +975,32 @@ static int str_format (lua_State *L) {
 
 /* }====================================================== */
 
-
-const luaL_Reg strlib[] = {
-  {"byte", str_byte},
-  {"char", str_char},
-  {"dump", str_dump},
-  {"find", str_find},
-  {"format", str_format},
-  {"gmatch", gmatch},
-  {"gsub", str_gsub},
-  {"len", str_len},
-  {"lower", str_lower},
-  {"match", str_match},
-  {"rep", str_rep},
-  {"reverse", str_reverse},
-  {"sub", str_sub},
-  {"upper", str_upper},
-  {NULL, NULL}
-};
-
-#if 0
-static void createmetatable (lua_State *L) {
-  lua_createtable(L, 0, 1);  /* table to be metatable for strings */
-  lua_pushliteral(L, "");  /* dummy string */
-  lua_pushvalue(L, -2);  /* copy table */
-  lua_setmetatable(L, -2);  /* set table as metatable for strings */
-  lua_pop(L, 1);  /* pop dummy string */
-  lua_pushvalue(L, -2);  /* get string library */
-  lua_setfield(L, -2, "__index");  /* metatable.__index = string */
-  lua_pop(L, 1);  /* pop metatable */
-}
+LROT_BEGIN(strlib, NULL, LROT_MASK_INDEX)
+  LROT_TABENTRY( __index, strlib )
+  LROT_FUNCENTRY( byte, str_byte )
+  LROT_FUNCENTRY( char, str_char )
+  LROT_FUNCENTRY( dump, str_dump )
+  LROT_FUNCENTRY( find, str_find )
+  LROT_FUNCENTRY( format, str_format )
+  LROT_FUNCENTRY( gmatch, gmatch )
+  LROT_FUNCENTRY( gsub, str_gsub )
+  LROT_FUNCENTRY( len, str_len )
+  LROT_FUNCENTRY( lower, str_lower )
+  LROT_FUNCENTRY( match, str_match )
+  LROT_FUNCENTRY( rep, str_rep )
+  LROT_FUNCENTRY( reverse, str_reverse )
+  LROT_FUNCENTRY( sub, str_sub )
+  LROT_FUNCENTRY( upper, str_upper )
+LROT_END(strlib, NULL, LROT_MASK_INDEX)
 
 
 /*
 ** Open string library
 */
 LUAMOD_API int luaopen_string (lua_State *L) {
-  luaL_newlib(L, strlib);
-  createmetatable(L);
-  return 1;
+  lua_pushliteral(L, "");  /* dummy string */
+  lua_pushrotable(L, LROT_TABLEREF(strlib));
+  lua_setmetatable(L, -2);  /* set table as metatable for strings */
+  lua_pop(L, 1);  /* pop dummy string */
+  return 0;
 }
-#endif

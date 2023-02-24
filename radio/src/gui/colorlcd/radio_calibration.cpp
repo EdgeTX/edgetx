@@ -67,10 +67,7 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial):
 
 void RadioCalibrationPage::buildHeader(Window * window)
 {
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_MENUCALIBRATION, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_MENUCALIBRATION);
 
   text = new StaticText(window,
                         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,

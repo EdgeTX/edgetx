@@ -107,7 +107,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
       case ZoneOption::File:
         break;
 
-      case ZoneOption::TextSize: {
+      case ZoneOption::TextSize:
         new Choice(
             line, rect_t{}, STR_FONT_SIZES, 0, FONTS_COUNT - 1,
             [=]() -> int {  // getValue
@@ -119,7 +119,20 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
               SET_DIRTY();
             });
         break;
-      }
+
+      case ZoneOption::Align:
+        new Choice(
+            line, rect_t{}, STR_ALIGN_OPTS, 0, ALIGN_COUNT - 1,
+            [=]() -> int {  // getValue
+              return (int)widget->getOptionValue(optIdx)->unsignedValue;
+            },
+            [=](int newValue) {  // setValue
+              widget->getOptionValue(optIdx)->unsignedValue =
+                  (uint32_t)newValue;
+              SET_DIRTY();
+            });
+        break;
+
       case ZoneOption::Timer:  // Unsigned
       {
         auto tmChoice = new Choice(

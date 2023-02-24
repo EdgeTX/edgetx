@@ -250,23 +250,32 @@ void ViewMain::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   switch (event) {
     case EVT_KEY_BREAK(KEY_MODEL):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ModelMenu();
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
       killEvents(KEY_MODEL);
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ModelLabelsWindow();
       break;
 
-    // TODO:
-    // - use BREAK instead
-    // - use LONG for "Tools" page
-    //
-    case EVT_KEY_FIRST(KEY_RADIO):
+    case EVT_KEY_BREAK(KEY_RADIO):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new RadioMenu();
       break;
 
+    case EVT_KEY_LONG(KEY_RADIO):
+      {
+        killEvents(KEY_RADIO);
+        // Radio setup
+        auto m = new RadioMenu();
+        m->setCurrentTab(2);
+      }
+      break;
+
     case EVT_KEY_FIRST(KEY_TELEM):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ScreenMenu();
       break;
 
@@ -275,7 +284,10 @@ void ViewMain::onEvent(event_t event)
 #else
     case EVT_KEY_BREAK(KEY_PGDN):
 #endif
-      if (!widget_select) nextMainView();
+      if (!widget_select) {
+        if (viewMainMenu) viewMainMenu->onCancel();
+        nextMainView();
+      }
       break;
 
 //TODO: these need to go away!
@@ -286,7 +298,10 @@ void ViewMain::onEvent(event_t event)
     case EVT_KEY_LONG(KEY_PGDN):
 #endif
       killEvents(event);
-      if (!widget_select) previousMainView();
+      if (!widget_select) {
+        if (viewMainMenu) viewMainMenu->onCancel();
+        previousMainView();
+      }
       break;
   }
 #endif
@@ -362,7 +377,9 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  new ViewMainMenu(this);
+  viewMainMenu = new ViewMainMenu(this, [=]() {
+    viewMainMenu = nullptr;
+  });
 }
 
 void ViewMain::paint(BitmapBuffer * dc)

@@ -43,17 +43,14 @@ extern uint32_t NV14internalModuleFwVersion;
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
+#define IS_NATIVE_FRSKY_PROTOCOL(module)                                \
+  ((moduleState[module].protocol == PROTOCOL_CHANNELS_PXX1) ||          \
+   (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX2))
+
 #if defined (MULTIMODULE)
-#define IS_D16_MULTI(module)                                                   \
-  (((g_model.moduleData[module].multi.rfProtocol ==                          \
-     MODULE_SUBTYPE_MULTI_FRSKY) &&                                            \
-    (g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16 ||          \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_8CH ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH ||  \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_CLONED)) || \
-   (g_model.moduleData[module].multi.rfProtocol ==                           \
-    MODULE_SUBTYPE_MULTI_FRSKYX2))
+#define IS_D16_MULTI(module)                                            \
+  ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
+   (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2))
 
 #define IS_R9_MULTI(module)                         \
   (g_model.moduleData[module].multi.rfProtocol == \
@@ -78,31 +75,14 @@ extern uint32_t NV14internalModuleFwVersion;
    (g_model.moduleData[module].multi.rfProtocol == \
     MODULE_SUBTYPE_MULTI_DSM_RX))
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-#define IS_FRSKY_SPORT_PROTOCOL()                                      \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||              \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&             \
-    (IS_D16_MULTI(INTERNAL_MODULE) || IS_D16_MULTI(EXTERNAL_MODULE) || \
-     IS_R9_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#else
-#define IS_FRSKY_SPORT_PROTOCOL()                          \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
-    (IS_D16_MULTI(EXTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#endif
-
 #else
   #define IS_D16_MULTI(module)           false
   #define IS_R9_MULTI(module)            false
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
   #define IS_DSM_MULTI(module)           false
-  #define IS_FRSKY_SPORT_PROTOCOL()      (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT)
   #define IS_RX_MULTI(module)            false
 #endif
-
-#define IS_SPEKTRUM_PROTOCOL()           (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM)
-
 
 #if defined(MULTIMODULE)
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
@@ -127,20 +107,19 @@ const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
 inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    return 7;
-  }
 
   uint8_t max_pdef = 0;
+  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition *pdef = getMultiProtocolDefinition(proto);
   if (pdef) {
     max_pdef = pdef->maxSubtype;
   }
+
   uint8_t max_status = 0;
   if (status.isValid()) {
     max_status = (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
   }
+
   return max(max_status, max_pdef);
 }
 
@@ -734,6 +713,7 @@ inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
     return false;
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_LITE_PXX1) {
     if (isModuleR9M_LBT(EXTERNAL_MODULE))
       return g_model.moduleData[EXTERNAL_MODULE].pxx.power < R9M_LITE_LBT_POWER_100_16CH_NOTELEM;
@@ -747,6 +727,7 @@ inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
     else
       return true;
   }
+#endif
 
   return true;
 }

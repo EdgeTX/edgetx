@@ -110,6 +110,10 @@ QString TimerData::countdownBeepToString(const int value)
       return tr("Voice");
     case COUNTDOWNBEEP_HAPTIC:
       return tr("Haptic");
+    case COUNTDOWNBEEP_BEEPS_AND_HAPTIC:
+      return tr("Beeps and Haptic");
+    case COUNTDOWNBEEP_VOICE_AND_HAPTIC:
+      return tr("Voice and Haptic");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

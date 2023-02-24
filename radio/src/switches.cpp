@@ -22,6 +22,8 @@
 #include "opentx.h"
 #include "switches.h"
 
+#include "tasks/mixer_task.h"
+
 #define CS_LAST_VALUE_INIT -32768
 
 #if defined(COLORLCD)
@@ -704,7 +706,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
   swarnstate_t states = g_model.switchWarningState;
 
-  GET_ADC_IF_MIXER_NOT_RUNNING();
+  if (!mixerTaskRunning()) getADC();
   getMovedSwitch();
 
   bool warn = false;

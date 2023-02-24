@@ -770,61 +770,20 @@ char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
 {
   if (sensor >= MAX_TELEMETRY_SENSORS) { return dest; }
 
-  // TelemetryItem & telemetryItem = telemetryItems[sensor];
   TelemetrySensor & telemetrySensor = g_model.telemetrySensors[sensor];
 
   size_t len = L - 1;
+  // TODO: display TEXT sensors?
   if (telemetrySensor.unit == UNIT_DATETIME ||
       telemetrySensor.unit == UNIT_GPS || telemetrySensor.unit == UNIT_TEXT) {
     strAppend(dest, "N/A", len);
     return dest;
   }
 
-  if (telemetrySensor.unit == UNIT_BITFIELD) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID &&
-          telemetrySensor.id <= RBOX_STATE_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (val == 0) {
-            strAppend(dest, "OK", len);
-            return dest;
-          }
-          for (uint8_t i = 0; i < 16; i++) {
-            if (val & (1 << i)) {
-              if (len < 8) return dest;
-              auto pos = strAppend(dest, "CH", len);
-              len -= 2;
-              pos = strAppendUnsigned(pos, i + 1, 2);
-              len -= 2;
-              strAppend(pos, " KO", len);
-              return dest;
-            }
-          }
-        } else {
-          if (val == 0) {
-            strAppend(dest, "Rx OK", len);
-            return dest;
-          }
-          
-          static const char *const RXS_STATUS[] = {
-            "Rx1 Ovl", "Rx2 Ovl",  "SBUS Ovl", "Rx1 FS", "Rx1 LF", "Rx2 FS",
-            "Rx2 LF",  "Rx1 Lost", "Rx2 Lost", "Rx1 NS", "Rx2 NS",
-          };
-          for (uint8_t i = 0; i < DIM(RXS_STATUS); i++) {
-            if (val & (1 << i)) {
-              strAppend(dest, RXS_STATUS[i], len);
-              return dest;
-            }
-          }
-        }
-      }
-    }
-  } else {
-    if (telemetrySensor.prec > 0) {
-      flags |= (telemetrySensor.prec == 1 ? PREC1 : PREC2);
-    }
-    getValueWithUnit(dest, len, val, telemetrySensor.unit, flags);
+  if (telemetrySensor.prec > 0) {
+    flags |= (telemetrySensor.prec == 1 ? PREC1 : PREC2);
   }
+  getValueWithUnit(dest, len, val, telemetrySensor.unit, flags);
 
   return dest;
 }
@@ -906,6 +865,25 @@ std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
 char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags)
 {
   return getSourceCustomValueString(tmpHelpersString, source, val, flags);
+}
+
+std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags)
+{
+  if ((flags & NO_UNIT) || unit == UNIT_RAW)
+    return formatNumberAsString(val, flags & (~NO_UNIT));
+
+  return formatNumberAsString(val, flags & (~NO_UNIT), 0, nullptr,
+                              STR_VTELEMUNIT[unit]);
+}
+
+std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags)
+{
+  uint8_t prec = g_model.gvars[gvar].prec;
+  if (prec > 0) {
+    flags |= (prec == 1 ? PREC1 : PREC2);
+  }
+  return getValueWithUnit(
+      value, g_model.gvars[gvar].unit ? UNIT_PERCENT : UNIT_RAW, flags);
 }
 
 #endif // defined(LIBOPENUI)

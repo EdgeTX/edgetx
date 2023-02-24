@@ -22,12 +22,11 @@
 #ifndef _PULSES_PXX2_H_
 #define _PULSES_PXX2_H_
 
-#include "fifo.h"
-#include "popups.h"
 #include "pxx.h"
-
-#include "hal/serial_driver.h"
 #include "hal/module_driver.h"
+
+#include "dataconstants.h"
+#include "opentx_types.h"
 
 #define PXX2_TYPE_C_MODULE                  0x01
   #define PXX2_TYPE_ID_REGISTER             0x01
@@ -67,11 +66,7 @@
 
 #define PXX2_HW_INFO_TX_ID                         0xFF
 
-#if defined(COLORLCD)
-  #define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
-#else
-  #define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
-#endif
+#define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
 
 #define PXX2_AUTH_REFUSED_FLAG          0xA5
 
@@ -92,30 +87,7 @@ enum PXX2ModuleModelID {
   PXX2_MODULE_ISRM_X9LITES,
 };
 
-static const char * const PXX2ModulesNames[] = {
-  "---",
-  "XJT",
-  "ISRM",
-  "ISRM-PRO",
-  "ISRM-S",
-  "R9M",
-  "R9MLite",
-  "R9MLite-PRO",
-  "ISRM-N",
-  "ISRM-S-X9",
-  "ISRM-S-X10E",
-  "XJT Lite",
-  "ISRM-S-X10S",
-  "ISRM-X9LiteS"
-};
-
-inline const char * getPXX2ModuleName(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ModulesNames))
-    return PXX2ModulesNames[modelId];
-  else
-    return PXX2ModulesNames[0];
-}
+const char * getPXX2ModuleName(uint8_t modelId);
 
 enum {
   MODULE_OPTION_EXTERNAL_ANTENNA,
@@ -124,149 +96,21 @@ enum {
   MODULE_OPTION_POWER_METER,
 };
 
-/* Module options order:
- * - External antenna (0x01)
- * - Power (0x02)
- * - Spektrum analyser (0x04)
- * - Power meter (0x08)
- */
-static const uint8_t PXX2ModuleOptions[] = {
-#if defined(SIMU)
-  0b11111111, // None = display all options on SIMU
-#else
-  0b00000000, // None = no option available on unknown modules
-#endif
-  0b00000001, // XJT
-  0b00000001, // ISRM
-  0b00001101, // ISRM-PRO
-  0b00000101, // ISRM-S
-  0b00000010, // R9M
-  0b00000010, // R9MLite
-  0b00000110, // R9MLite-PRO
-  0b00000100, // ISRM-N
-  0b00000100, // ISRM-S-X9
-  0b00000101, // ISRM-S-X10E
-  0b00000001, // XJT_LITE
-  0b00000101, // ISRM-S-X10S
-  0b00000100, // ISRM-X9LITES
-};
-
-inline uint8_t getPXX2ModuleOptions(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ModuleOptions))
-    return PXX2ModuleOptions[modelId];
-  else
-    return PXX2ModuleOptions[0];
-}
-
-inline bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option)
-{
-  return getPXX2ModuleOptions(modelId) & (1 << option);
-}
+uint8_t getPXX2ModuleOptions(uint8_t modelId);
+bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option);
 
 enum ModuleCapabilities {
   MODULE_CAPABILITY_COUNT
 };
 
-static const char * const PXX2ReceiversNames[] = {
-  "---",
-  "X8R",
-  "RX8R",
-  "RX8R-PRO",
-  "RX6R",
-  "RX4R",
-  "G-RX8",
-  "G-RX6",
-  "X6R",
-  "X4R",
-  "X4R-SB",
-  "XSR",
-  "XSR-M",
-  "RXSR",
-  "S6R",
-  "S8R",
-  "XM",
-  "XM+",
-  "XMR",
-  "R9",
-  "R9-SLIM",
-  "R9-SLIM+",
-  "R9-MINI",
-  "R9-MM",
-  "R9-STAB", // R9-STAB has OTA
-  "R9-MINI-OTA", // this one has OTA (different bootloader)
-  "R9-MM-OTA", // this one has OTA (different bootloader)
-  "R9-SLIM+-OTA", // this one has OTA (different bootloader)
-  "Archer-X", // this one has OTA (internal module)
-  "R9MX", // this one has OTA
-  "R9SX", // this one has OTA
-};
-
-inline const char * getPXX2ReceiverName(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ReceiversNames))
-    return PXX2ReceiversNames[modelId];
-  else
-    return PXX2ReceiversNames[0];
-}
+const char * getPXX2ReceiverName(uint8_t modelId);
 
 enum {
   RECEIVER_OPTION_OTA,
 };
 
-/* Receiver options order:
- * - OTA (0x01)
- */
-static const uint8_t PXX2ReceiverOptions[] = {
-#if defined(SIMU)
-  0b11111111, // None = display all options on SIMU
-#else
-  0b00000000, // None = display all options on SIMU
-#endif
-  0b11111110, // X8R
-  0b11111110, // RX8R
-  0b11111110, // RX8R-PRO
-  0b11111111, // RX6R
-  0b11111111, // RX4R
-  0b11111111, // G-RX8
-  0b11111111, // G-RX6
-  0b11111110, // X6R
-  0b11111110, // X4R
-  0b11111110, // X4R-SB
-  0b11111110, // XSR
-  0b11111110, // XSR-M
-  0b11111111, // RXSR
-  0b11111110, // S6R
-  0b11111110, // S8R
-  0b11111110, // XM
-  0b11111110, // XM+
-  0b11111110, // XMR
-  0b11111110, // R9
-  0b11111110, // R9-SLIM
-  0b11111110, // R9-SLIM+
-  0b11111110, // R9-MINI
-  0b11111110, // R9-MM
-  0b11111111, // R9-STAB+OTA
-  0b11111111, // R9-MINI+OTA
-  0b11111111, // R9-MM+OTA
-  0b11111111, // R9-SLIM+OTA
-  0b11111111, // ARCHER-X
-  0b11111111, // R9MX
-  0b11111111, // R9SX
-};
-
-inline uint8_t getPXX2ReceiverOptions(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ReceiverOptions))
-    return PXX2ReceiverOptions[modelId];
-  else
-    return PXX2ReceiverOptions[0];
-}
-
-inline bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option)
-{
-  return getPXX2ReceiverOptions(modelId) & (1 << option);
-}
+uint8_t getPXX2ReceiverOptions(uint8_t modelId);
+bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option);
 
 enum ReceiverCapabilities {
   RECEIVER_CAPABILITY_FPORT,
@@ -403,15 +247,8 @@ class BindInformation {
     PXX2HardwareInformation receiverInformation;
 };
 
-class OtaUpdateInformation: public BindInformation {
-  public:
-    char filename[FF_MAX_LFN + 1];
-    uint32_t address;
-    uint32_t module;
-};
-
 struct PXX2HardwareAndSettings {
-  ModuleInformation modules[NUM_MODULES];
+  ModuleInformation modules[MAX_MODULES];
   uint32_t updateTime;
   ModuleSettings moduleSettings;
   ReceiverSettings receiverSettings;  // when dealing with receiver settings, we
@@ -423,163 +260,6 @@ PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
 PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
 
-class Pxx2CrcMixin {
-  protected:
-    void initCrc()
-    {
-      crc = 0xFFFF;
-    }
-
-    void addToCrc(uint8_t byte)
-    {
-      crc -= byte;
-    }
-
-    uint16_t crc;
-};
-
-class Pxx2Transport: public DataBuffer<uint8_t, 64>, public Pxx2CrcMixin {
-  protected:
-    void addWord(uint32_t word)
-    {
-      addByte(word);
-      addByte(word >> 8);
-      addByte(word >> 16);
-      addByte(word >> 24);
-    }
-
-    void addByte(uint8_t byte)
-    {
-      Pxx2CrcMixin::addToCrc(byte);
-      addByteWithoutCrc(byte);
-    };
-
-    void addByteWithoutCrc(uint8_t byte)
-    {
-      *ptr++ = byte;
-    }
-};
-
-class Pxx2Pulses: public Pxx2Transport {
-  friend class Pxx2OtaUpdate;
-
-  public:
-    bool setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-    void setupAuthenticationFrame(uint8_t module, uint8_t mode, const uint8_t * outputMessage);
-
-  protected:
-    void setupHardwareInfoFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
-    void setupRegisterFrame(uint8_t module);
-
-    void setupBindFrame(uint8_t module);
-
-    void setupAccstBindFrame(uint8_t module);
-
-    void setupAccessBindFrame(uint8_t module);
-
-    void setupResetFrame(uint8_t module);
-
-    void setupShareMode(uint8_t module);
-
-    void setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
-    void setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
-    void setupChannelsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
-    void setupTelemetryFrame(uint8_t module);
-
-    void setupSpectrumAnalyser(uint8_t module);
-
-    void setupPowerMeter(uint8_t module);
-
-    void sendOtaUpdate(uint8_t module, const char * rxName, uint32_t address, const char * data);
-
-    void addHead()
-    {
-      // send 7E, do not CRC
-      Pxx2Transport::addByteWithoutCrc(0x7E);
-
-      // reserve 1 byte for LEN
-      Pxx2Transport::addByteWithoutCrc(0x00);
-    }
-
-    void addFrameType(uint8_t type_c, uint8_t type_id)
-    {
-      // TYPE_C + TYPE_ID
-      Pxx2Transport::addByte(type_c);
-      Pxx2Transport::addByte(type_id);
-    }
-
-    uint8_t addFlag0(uint8_t module);
-
-    void addFlag1(uint8_t module);
-
-    void addPulsesValues(uint16_t low, uint16_t high);
-
-    void addChannels(uint8_t module, int16_t* channels, uint8_t nChannels);
-
-    void addFailsafe(uint8_t module);
-
-    void addCrc()
-    {
-      Pxx2Transport::addByteWithoutCrc(Pxx2CrcMixin::crc >> 8);
-      Pxx2Transport::addByteWithoutCrc(Pxx2CrcMixin::crc);
-    }
-
-    void initFrame()
-    {
-      // init the CRC counter
-      initCrc();
-
-      // reset the frame pointer
-      Pxx2Transport::initBuffer();
-
-      // add the frame head
-      addHead();
-    }
-
-    void endFrame()
-    {
-      uint8_t size = getSize() - 2;
-
-      if (size > 0) {
-        // update the frame LEN = frame length minus the 2 first bytes
-        data[1] = getSize() - 2;
-
-        // now add the CRC
-        addCrc();
-      }
-      else {
-        Pxx2Transport::initBuffer();
-      }
-    }
-};
-
-class Pxx2OtaUpdate {
-  public:
-    Pxx2OtaUpdate(uint8_t module, const char * rxName):
-      module(module),
-      rxName(rxName)
-    {
-    }
-
-    void flashFirmware(const char * filename, ProgressHandler progressHandler);
-
-  protected:
-    uint8_t module;
-    const char * rxName;
-
-    const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
-    bool waitStep(uint8_t step, uint8_t timeout);
-    const char * nextStep(uint8_t step, const char * rxName, uint32_t address, const uint8_t * buffer);
-};
-
-extern const etx_serial_init pxx2SerialInitParams;
-
-extern const etx_module_driver_t Pxx2InternalDriver;
-extern const etx_module_driver_t Pxx2ExternalDriver;
-extern const etx_module_driver_t Pxx2LowSpeedExternalDriver;
+extern const etx_proto_driver_t Pxx2Driver;
 
 #endif

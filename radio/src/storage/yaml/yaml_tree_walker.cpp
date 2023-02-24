@@ -45,7 +45,8 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
     while (choices->str) {
 
         // we have a match!
-        if (!strncmp(val, choices->str, val_len))
+        if( strncmp(val, choices->str, val_len) == 0
+          && strlen(choices->str) == val_len)
             break;
 
         choices++;
@@ -634,9 +635,14 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             }
                 
             new_elmt = false;
-            for(int i=1; i < getLevel(); i++)
-                if (!wf(opaque, "   ", 3))
-                    return false;
+
+            if (attr->type != YDT_PADDING &&
+                (attr->type != YDT_CUSTOM || attr->u._cust_attr.write)) {
+
+                for(int i=1; i < getLevel(); i++)
+                    if (!wf(opaque, "   ", 3))
+                        return false;
+            }
             
             if (!yaml_output_attr(this, data, getBitOffset(), attr, wf, opaque))
                 return false; // TODO: error handling???

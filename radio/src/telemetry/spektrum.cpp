@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 #include "spektrum.h"
+#include "hal/module_port.h"
+#include "tasks/mixer_task.h"
 
 /*
  * Documentation of the Spektrum protocol is available under
@@ -168,15 +170,15 @@ const SpektrumSensor spektrumSensors[] = {
   {0x1b,             4,  int16,     STR_SENSOR_YAW,               UNIT_DEGREE,                 1},
 
   // {0x20, esc},  Smart ESC telemetry
-  {I2C_ESC,          0,  uint16,    STR_ESC_RPM,           UNIT_RPMS,                   0},
-  {I2C_ESC,          2,  uint16,    STR_ESC_VIN,           UNIT_VOLTS,                  2},
-  {I2C_ESC,          4,  uint16,    STR_ESC_TFET,          UNIT_CELSIUS,                1},
-  {I2C_ESC,          6,  uint16,    STR_ESC_CUR,           UNIT_MAH,                    1},
-  {I2C_ESC,          8,  uint16,    STR_ESC_TBEC,          UNIT_CELSIUS,                1},
-  {I2C_ESC,          10, uint8,     STR_ESC_BCUR,          UNIT_AMPS,                   1},
-  {I2C_ESC,          11, uint8,     STR_ESC_VBEC,          UNIT_VOLTS,                  2},
-  {I2C_ESC,          12, uint8,     STR_ESC_THR,           UNIT_PERCENT,                1},
-  {I2C_ESC,          13, uint8,     STR_ESC_POUT,          UNIT_PERCENT,                1},
+  {I2C_ESC,          0,  uint16,    STR_SENSOR_ESC_RPM,           UNIT_RPMS,                   0},
+  {I2C_ESC,          2,  uint16,    STR_SENSOR_ESC_VIN,           UNIT_VOLTS,                  2},
+  {I2C_ESC,          4,  uint16,    STR_SENSOR_ESC_TFET,          UNIT_CELSIUS,                1},
+  {I2C_ESC,          6,  uint16,    STR_SENSOR_ESC_CUR,           UNIT_MAH,                    1},
+  {I2C_ESC,          8,  uint16,    STR_SENSOR_ESC_TBEC,          UNIT_CELSIUS,                1},
+  {I2C_ESC,          10, uint8,     STR_SENSOR_ESC_BCUR,          UNIT_AMPS,                   1},
+  {I2C_ESC,          11, uint8,     STR_SENSOR_ESC_VBEC,          UNIT_VOLTS,                  2},
+  {I2C_ESC,          12, uint8,     STR_SENSOR_ESC_THR,           UNIT_PERCENT,                1},
+  {I2C_ESC,          13, uint8,     STR_SENSOR_ESC_POUT,          UNIT_PERCENT,                1},
 
   // Dual Cell monitor (0x34)
   {0x34,             0,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,                   1},
@@ -205,44 +207,44 @@ const SpektrumSensor spektrumSensors[] = {
 
   // Smartbat
   //{I2C_SMART_BAT_REALTIME,        1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0},  // disabled because sensor is a duplicate of cells sensors ones
-  {I2C_SMART_BAT_REALTIME,        2,  uint32le,  STR_SMART_BAT_BCUR,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        6,  uint16le,  STR_SMART_BAT_BCAP,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        8,  uint16le,  STR_SMART_BAT_MIN_CEL, UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_REALTIME,        10,  uint16le, STR_SMART_BAT_MAX_CEL, UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_REALTIME,        2,  uint32le,  STR_SENSOR_SMART_BAT_BCUR,    UNIT_MAH,                 0},
+  {I2C_SMART_BAT_REALTIME,        6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,                 0},
+  {I2C_SMART_BAT_REALTIME,        8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_REALTIME,        10,  uint16le, STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,               2},
   //{I2C_SMART_BAT_REALTIME,          12,  uint16le,  "RFU[2]", UNIT_RAW,                 0},   // disabled to save sensors slots
 
-  {I2C_SMART_BAT_CELLS_1_6,       1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_1_6,       2,  uint16le,  STR_CL01,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       4,  uint16le,  STR_CL02,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       6,  uint16le,  STR_CL03,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       8,  uint16le,  STR_CL04,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       10,  uint16le,  STR_CL05,            UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       12, uint16le,  STR_CL06,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_1_6,       2,  uint16le,  STR_SENSOR_CL01,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       4,  uint16le,  STR_SENSOR_CL02,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       6,  uint16le,  STR_SENSOR_CL03,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       8,  uint16le,  STR_SENSOR_CL04,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       10,  uint16le, STR_SENSOR_CL05,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,       12, uint16le,  STR_SENSOR_CL06,             UNIT_VOLTS,               2},
 
-  {I2C_SMART_BAT_CELLS_7_12,      1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_7_12,      2,  uint16le,  STR_CL07,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      4,  uint16le,  STR_CL08,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      6,  uint16le,  STR_CL09,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      8,  uint16le,  STR_CL10,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      10,  uint16le,  STR_CL11,            UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      12, uint16le,  STR_CL12,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_7_12,      2,  uint16le,  STR_SENSOR_CL07,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      4,  uint16le,  STR_SENSOR_CL08,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      6,  uint16le,  STR_SENSOR_CL09,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      8,  uint16le,  STR_SENSOR_CL10,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      10,  uint16le, STR_SENSOR_CL11,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,      12, uint16le,  STR_SENSOR_CL12,             UNIT_VOLTS,               2},
 
-  {I2C_SMART_BAT_CELLS_13_18,     1,  int8,      STR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_13_18,     2,  uint16le,  STR_CL13,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     4,  uint16le,  STR_CL14,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     6,  uint16le,  STR_CL15,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     8,  uint16le,  STR_CL16,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     10, uint16le,  STR_CL17,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     12, uint16le,  STR_CL18,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
+  {I2C_SMART_BAT_CELLS_13_18,     2,  uint16le,  STR_SENSOR_CL13,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     4,  uint16le,  STR_SENSOR_CL14,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     6,  uint16le,  STR_SENSOR_CL15,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     8,  uint16le,  STR_SENSOR_CL16,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     10, uint16le,  STR_SENSOR_CL17,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,     12, uint16le,  STR_SENSOR_CL18,             UNIT_VOLTS,               2},
 
   //{I2C_SMART_BAT_ID,              1,  uint8,  "chemistery",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_ID,              2,  uint8,  "number of cells",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_ID,              3,  uint8,  "manufacturer code",  UNIT_RAW, 0},   // disabled to save sensors slots
-  {I2C_SMART_BAT_ID,              4,  uint16le,  STR_SMART_BAT_CYCLES,  UNIT_RAW,                 0},
+  {I2C_SMART_BAT_ID,              4,  uint16le,  STR_SENSOR_SMART_BAT_CYCLES,  UNIT_RAW,                 0},
   //{I2C_SMART_BAT_ID,              6,  uint8,  "uniqueID[8]",  UNIT_RAW, 0},   // disabled to save sensors slots
 
   //{I2C_SMART_BAT_LIMITS,          1,  uint8,  "rfu",  UNIT_RAW, 0},   // disabled to save sensors slots
-  {I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SMART_BAT_CAPACITY,UNIT_MAH,                 0},
+  {I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SENSOR_SMART_BAT_CAPACITY,UNIT_MAH,                 0},
   //{I2C_SMART_BAT_LIMITS,          4,  uint16le,  "dischargeCurrentRating",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_LIMITS,          6,  uint16le,  "overDischarge_mV",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_LIMITS,          8,  uint16le,  "zeroCapacity_mV",  UNIT_RAW, 0},   // disabled to save sensors slots
@@ -365,6 +367,29 @@ void processSpektrumPacket(const uint8_t *packet)
 #endif
     return; // Not a sensor
   }
+
+#if defined(LUA)
+    // Generic way for LUA Script to request ANY Specktrum Telemety Raw Data
+    // this can be used for TextGen or any other telemetry message
+
+    if (Multi_Buffer && Multi_Buffer[3]==i2cAddress && Multi_Buffer[4]==0 && 
+        memcmp(Multi_Buffer, "STR", 3) == 0) {
+      // Multi_Buffer[0..2]=="STR" -> Lua script is running
+      // Multi_Buffer[3]==i2C Addr -> I2C address of data requested in Lua script
+      // Multi_Buffer[4]== Write Semaphore -> 0=Can Write Data. > 0, data not yet consumed
+      // Multi_Buffer[5..20]=15 bytes of RX to TX data (any other data after i2c address)
+
+      // Concurrency note: only going to write if Multi_Buffer[4]==0, that means that the
+      // Lua script is ready for more data. Whithout this "semaphore", the lua script was getting messages
+      // with mix of the old and new data. 
+
+      memcpy(&Multi_Buffer[5], &packet[3], 16); // Store the received RX answer in the buffer
+      Multi_Buffer[4]=i2cAddress; // Tell lua script data is ready
+    }
+#endif
+
+
+
   //SmartBat Hack
   if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
     i2cAddress = i2cAddress + (packet[4] >> 4); // use type to create virtual I2CAddresses
@@ -372,7 +397,10 @@ void processSpektrumPacket(const uint8_t *packet)
 
   uint8_t instance = packet[3];
 
-  if (i2cAddress == I2C_TEXTGEN) {
+ if (i2cAddress == I2C_TEXTGEN) {
+    /* FArzu: This don't seem to work at all.. The sensors was always 0.
+    TextGen now can be acceced via the new "Spectrum Telemetry Raw" LUA method
+
     uint8_t lineNumber = packet[4];
 
     uint16_t pseudoId = (i2cAddress << 8 | lineNumber);
@@ -383,9 +411,9 @@ void processSpektrumPacket(const uint8_t *packet)
     }
     // Set a sential \0 just for safety since we have the space there
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, '\0', UNIT_TEXT, 13);
+    */
 
-
-    return;
+    return;  // Not a sensor
   }
 
   bool handled = false;
@@ -519,7 +547,9 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
           packet[0] & 0x3F, packet[2]);
 
     storageDirty(EE_MODEL);
-    restartModule(EXTERNAL_MODULE);
+
+    moduleState[module].mode = MODULE_MODE_NORMAL;
+    restartModuleAsync(module, 50); // ~200ms
     
   } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
              g_model.moduleData[module].multi.rfProtocol ==

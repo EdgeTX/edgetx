@@ -178,7 +178,7 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\companion.exe"
   Delete "$INSTDIR\simulator.exe"
   Delete "$INSTDIR\*edgetx-*-simulator.dll"
-  Delete "$INSTDIR\SDL.dll"
+  Delete "$INSTDIR\SDL2.dll"
   ; MSVC-specific libs
   Delete "$INSTDIR\msvcp140.dll"
   Delete "$INSTDIR\vcruntime140.dll"

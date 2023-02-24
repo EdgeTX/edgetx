@@ -387,10 +387,8 @@
   #define SPORT_UPDATE_RCC_AHB1Periph   RCC_AHB1Periph_GPIOH
   #define SPORT_UPDATE_PWR_GPIO         GPIOH
   #define SPORT_UPDATE_PWR_GPIO_PIN     GPIO_Pin_13  // PH.13
-  #define HAS_SPORT_UPDATE_CONNECTOR()  true
 #else
   #define SPORT_UPDATE_RCC_AHB1Periph   0
-  #define HAS_SPORT_UPDATE_CONNECTOR()  false
 #endif
 
 // PCBREV
@@ -465,7 +463,7 @@
   #define AUX2_SERIAL_GPIO_RX_PinSource        GPIO_PinSource1
   #define AUX2_SERIAL_DMA_RX                   DMA1
   #define AUX2_SERIAL_DMA_Stream_RX            DMA1_Stream2
-  #define AUX2_SERIAL_DMA_Channel_RX           DMA_Channel_4
+  #define AUX2_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_4
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_2
 #else
   #define AUX2_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_DMA2)
@@ -481,7 +479,7 @@
   #define AUX2_SERIAL_GPIO_PinSource_RX        GPIO_PinSource9
   #define AUX2_SERIAL_DMA_RX                   DMA2
   #define AUX2_SERIAL_DMA_Stream_RX            DMA2_Stream1 // or DMA2_Stream2
-  #define AUX2_SERIAL_DMA_Channel_RX           DMA_Channel_5
+  #define AUX2_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_5
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_1
   #define AUX2_SERIAL_PWR_GPIO                 GPIOB
   #define AUX2_SERIAL_PWR_GPIO_PIN             GPIO_Pin_0  // PB.00
@@ -496,6 +494,7 @@
 #define TELEMETRY_RCC_APB2Periph        RCC_APB2Periph_TIM11
 #define TELEMETRY_DIR_GPIO              GPIOD
 #define TELEMETRY_DIR_GPIO_PIN          GPIO_Pin_4  // PD.04
+#define TELEMETRY_SET_INPUT             0
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
 #define TELEMETRY_RX_GPIO_PIN           GPIO_Pin_6  // PD.06
@@ -503,12 +502,13 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
+#define TELEMETRY_DMA                   DMA1
 #if defined(PCBX12S)
-  #define TELEMETRY_DMA_Stream_RX       DMA1_Stream5
-  #define TELEMETRY_DMA_Channel_RX      DMA_Channel_4
+  #define TELEMETRY_DMA_Stream_RX       LL_DMA_STREAM_5
+  #define TELEMETRY_DMA_Channel_RX      LL_DMA_CHANNEL_4
 #endif
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
-#define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
+#define TELEMETRY_DMA_Channel_TX        LL_DMA_CHANNEL_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
@@ -752,6 +752,10 @@
   #define I2C_B2_SCL_GPIO_PIN             LL_GPIO_PIN_10  // PB.10
   #define I2C_B2_SDA_GPIO_PIN             LL_GPIO_PIN_11  // PB.11
   #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4    // I2C2
+ #if defined(RADIO_TX16S)
+   #define I2C_B2_PWR_GPIO                GPIOA
+   #define I2C_B2_PWR_GPIO_PIN            LL_GPIO_PIN_15  // PA.15
+ #endif
 #endif
 
 #if defined(IMU)
@@ -792,26 +796,20 @@
   // FlySky Hall Sticks
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-  #define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
-  #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_0  // PA.00
-  #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_1  // PA.01
-  #define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource0
-  #define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource1
-  #define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_UART4
+  #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
+  #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
+  #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
+  #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
 
   #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
   #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
 
   #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
   #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-  #define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
-  #define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
-  #define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
-  #define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
-  #define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
+  #define FLYSKY_HALL_SERIAL_DMA                   DMA1
+  #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+  #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
-  #define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
-  #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 #endif
 
 // Internal PXX1 Module:
@@ -844,7 +842,8 @@
   #define INTMODULE_BOOTCMD_GPIO        GPIOI
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_9  // PI.09
 #endif
-#define INIT_INTMODULE_BOOTCMD_PIN() GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
+#define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
+#define INIT_INTMODULE_BOOTCMD_PIN()    GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
 
 // External Module
 #define EXTMODULE_PWR_GPIO                 GPIOB
@@ -1000,13 +999,11 @@
 #if defined(BLUETOOTH)
 #define BT_RCC_APB2Periph               RCC_APB2Periph_USART6
 #define BT_USART                        USART6
-#define BT_GPIO_AF                      GPIO_AF_USART6
+#define BT_GPIO_AF                      LL_GPIO_AF_8
 #define BT_USART_IRQn                   USART6_IRQn
 #define BT_USART_GPIO                   GPIOG
-#define BT_TX_GPIO_PIN                  GPIO_Pin_14 // PG.14
-#define BT_RX_GPIO_PIN                  GPIO_Pin_9  // PG.09
-#define BT_TX_GPIO_PinSource            GPIO_PinSource14
-#define BT_RX_GPIO_PinSource            GPIO_PinSource9
+#define BT_TX_GPIO_PIN                  LL_GPIO_PIN_14 // PG.14
+#define BT_RX_GPIO_PIN                  LL_GPIO_PIN_9  // PG.09
 #define BT_USART_IRQHandler             USART6_IRQHandler
 #else
 #define BT_RCC_APB2Periph               0
@@ -1015,20 +1012,20 @@
   #if PCBREV >= 13
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOG)
     #define BT_EN_GPIO                  GPIOI
-    #define BT_EN_GPIO_PIN              GPIO_Pin_10 // PI.10
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_10 // PI.10
   #else
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOG)
     #define BT_EN_GPIO                  GPIOA
-    #define BT_EN_GPIO_PIN              GPIO_Pin_6 // PA.06
+    #define BT_EN_GPIO_PIN              LL_GPIO_PIN_6 // PA.06
   #endif
-  #define BT_BRTS_GPIO                  GPIOG
-  #define BT_BRTS_GPIO_PIN              GPIO_Pin_10 // PG.10
-  #define BT_BCTS_GPIO                  GPIOG
-  #define BT_BCTS_GPIO_PIN              GPIO_Pin_11 // PG.11
+  // #define BT_BRTS_GPIO                  GPIOG
+  // #define BT_BRTS_GPIO_PIN              GPIO_Pin_10 // PG.10
+  // #define BT_BCTS_GPIO                  GPIOG
+  // #define BT_BCTS_GPIO_PIN              GPIO_Pin_11 // PG.11
 #elif defined(PCBX10)
   #define BT_RCC_AHB1Periph             RCC_AHB1Periph_GPIOG
   #define BT_EN_GPIO                    GPIOG
-  #define BT_EN_GPIO_PIN                GPIO_Pin_10 // PG.10
+  #define BT_EN_GPIO_PIN                LL_GPIO_PIN_10 // PG.10
 #endif
 
 #endif // _HAL_H_

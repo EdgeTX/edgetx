@@ -59,7 +59,7 @@
 #if (LCD_W > LCD_H)
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 75;
-constexpr rect_t detailsDialogRect = {50, 50, 400, 170};
+constexpr rect_t detailsDialogRect = {30, 30, LCD_W - 60, LCD_H - 60};
 constexpr int labelWidth = 150;
 
 constexpr int COLOR_BOX_LEFT = 5;
@@ -68,7 +68,7 @@ constexpr int COLOR_BOX_HEIGHT = 27;
 #else
 constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 65;
-constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 340};
+constexpr rect_t detailsDialogRect = {10, 50, LCD_W - 20, 220};
 constexpr int labelWidth = 120;
 
 constexpr int COLOR_BOX_LEFT = 3;
@@ -79,7 +79,65 @@ constexpr int COLOR_BUTTON_WIDTH = COLOR_BOX_WIDTH;
 constexpr int COLOR_BUTTON_HEIGHT = 20;
 #endif
 
+constexpr int BOX_MARGIN = 2;
+constexpr int MAX_BOX_WIDTH = 15;
 
+
+class ThemeColorPreview : public FormField
+{
+  public:
+    ThemeColorPreview(Window *parent, const rect_t &rect, std::vector<ColorEntry> colorList) :
+      FormField(parent, rect, NO_FOCUS),
+      colorList(colorList)
+    {
+      setBoxWidth();
+    }
+    ~ThemeColorPreview()
+    {
+    }
+
+    void setColorList(std::vector<ColorEntry> colorList)
+    {
+      this->colorList.assign(colorList.begin(), colorList.end());
+      setBoxWidth();
+      invalidate();
+    }
+
+    void paint(BitmapBuffer *dc) override
+    {
+      int totalNessessarySpace = colorList.size() * (boxWidth + 2);
+      int axis = rect.w > rect.h ? rect.w : rect.h;
+      axis = (axis - totalNessessarySpace) / 2;
+      for (auto color: colorList) {
+        if (rect.w > rect.h) {  
+          dc->drawSolidFilledRect(axis, 0, boxWidth, boxWidth, COLOR2FLAGS(color.colorValue));
+          dc->drawSolidRect(axis, 0, boxWidth, boxWidth, 1, COLOR2FLAGS(BLACK));
+        } else {
+          dc->drawSolidFilledRect(0, axis, boxWidth, boxWidth, COLOR2FLAGS(color.colorValue));
+          dc->drawSolidRect(0, axis, boxWidth, boxWidth, 1, COLOR2FLAGS(BLACK));
+        }
+        axis += boxWidth + BOX_MARGIN;
+      }
+    }
+
+  protected:
+    std::vector<ColorEntry> colorList;
+    int boxWidth = MAX_BOX_WIDTH;
+    void setBoxWidth()
+    {
+      auto winSize = rect.w > rect.h ? rect.w : rect.h;
+      boxWidth = winSize / (colorList.size() + BOX_MARGIN);
+      boxWidth = min(boxWidth, MAX_BOX_WIDTH);
+    }
+};
+
+
+static const lv_coord_t d_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
+                                       LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                       LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
 
 class ThemeDetailsDialog: public Dialog
 {
@@ -89,33 +147,50 @@ class ThemeDetailsDialog: public Dialog
       theme(theme),
       saveHandler(saveHandler)
     {
-      FormGridLayout grid(detailsDialogRect.w);
-      grid.setLabelWidth(labelWidth);
-      grid.spacer(8);
+      lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+      lv_obj_set_style_bg_opa(content->getLvObj(), LV_OPA_100, LV_PART_MAIN);
+      auto form = new FormWindow(&content->form, rect_t{});
+      form->setFlexLayout();
 
-      new StaticText(&content->form, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new TextEdit(&content->form, grid.getFieldSlot(), this->theme.getName(), NAME_LENGTH);
-      grid.nextLine();
-      new StaticText(&content->form, grid.getLabelSlot(), STR_AUTHOR, 0, COLOR_THEME_PRIMARY1);
-      new TextEdit(&content->form, grid.getFieldSlot(), this->theme.getAuthor(), AUTHOR_LENGTH);
-      grid.nextLine();
-      new StaticText(&content->form, grid.getLineSlot(), STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1);
-      grid.nextLine();
-      new TextEdit(&content->form, grid.getLineSlot(), this->theme.getInfo(), INFO_LENGTH);
-      grid.nextLine();
+      FlexGridLayout grid(d_col_dsc, row_dsc, 2);
 
-      rect_t r = {detailsDialogRect.w - (BUTTON_WIDTH + 5), grid.getWindowHeight() + 5, BUTTON_WIDTH, BUTTON_HEIGHT };
-      new TextButton(&content->form, r, STR_SAVE, [=] () {
+      auto line = form->newLine(&grid);
+
+      new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+      auto te = new TextEdit(line, rect_t{}, this->theme.getName(), NAME_LENGTH);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      line = form->newLine(&grid);
+
+      new StaticText(line, rect_t{}, STR_AUTHOR, 0, COLOR_THEME_PRIMARY1);
+      te = new TextEdit(line, rect_t{}, this->theme.getAuthor(), AUTHOR_LENGTH);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      FlexGridLayout grid2(b_col_dsc, row_dsc, 2);
+
+      line = form->newLine(&grid2);
+
+      new StaticText(line, rect_t{}, STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1);
+      line = form->newLine(&grid2);
+      te = new TextEdit(line, rect_t{}, this->theme.getInfo(), INFO_LENGTH);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      line = form->newLine(&grid2);
+      line->padTop(20);
+
+      auto button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
           saveHandler(this->theme);
         deleteLater();
         return 0;
       });
-      r.x -= (BUTTON_WIDTH + 5);
-      new TextButton(&content->form, r, STR_CANCEL, [=] () {
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_CANCEL, [=] () {
         deleteLater();
         return 0;
       });
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
     }
 
   protected:
@@ -293,17 +368,23 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    bool canCancel() override
     {
       if (_dirty) {
-        if (confirmationDialog("Save Theme?", _theme.getName())) {
-          if (saveHandler != nullptr) {
-            saveHandler(_theme);
-          }
-        }
+        new ConfirmDialog(
+            this, STR_SAVE_THEME, _theme.getName(),
+            [=]() {
+              if (saveHandler != nullptr) {
+                saveHandler(_theme);
+              }
+              deleteLater();
+            },
+            [=]() {
+              deleteLater();
+            });
+        return false;
       }
-
-      Page::deleteLater(detach, trash);
+      return true;
     }
 
     void editColorPage()
@@ -326,10 +407,7 @@ class ThemeEditPage : public Page
       }
 
       // page title
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_EDIT_THEME, 0, COLOR_THEME_PRIMARY2 | flags);
+      header.setTitle(STR_EDIT_THEME);
       _themeName = new StaticText(window,
                      {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
@@ -422,7 +500,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
   auto menu = new Menu(listBox,false);
 
-  // you cant activate the active theme
+  // you can't activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
       auto idx = listBox->getSelected();
@@ -434,7 +512,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   }
 
-  // you cant edit the default theme
+  // you can't edit the default theme
   if (listBox->getSelected() != 0) {
     menu->addLine(STR_EDIT, [=]() {
       auto themeIdx = listBox->getSelected();
@@ -452,6 +530,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
           setAuthor(&theme);
           nameText->setText(theme.getName());
           listBox->setName(currentTheme, theme.getName());
+          themeColorPreview->setColorList(theme.getColorList());
         }
 
         // if the active theme changed, re-apply it
@@ -468,14 +547,20 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   menu->addLine(STR_DUPLICATE, [=] () {
     ThemeFile newTheme;
 
-    new ThemeDetailsDialog(window, newTheme, [=] (ThemeFile theme) {
+    new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
         char name[NAME_LENGTH + 20];
         strncpy(name, theme.getName(), NAME_LENGTH + 19);
         removeAllWhiteSpace(name);
-        // use the current themes color list to make the new theme
-        auto curTheme = tp->getCurrentTheme();
-        for (auto color : curTheme->getColorList())
+
+        // use the selected themes color list to make the new theme
+        auto themeIdx = listBox->getSelected();
+        if (themeIdx < 0) return;
+
+        auto selTheme = tp->getThemeByIndex(themeIdx);
+        if (selTheme == nullptr) return;
+
+        for (auto color : selTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
         tp->createNewTheme(name, theme);
@@ -486,15 +571,17 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   });
 
-  // you cant delete the default theme or the currently active theme
+  // you can't delete the default theme or the currently active theme
   if (listBox->getSelected() != 0 && listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_DELETE, [=] () {
-      if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
-        tp->deleteThemeByIndex(listBox->getSelected());
-        listBox->setNames(tp->getNames());
-        currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
-        listBox->setSelected(currentTheme);
-      }
+      new ConfirmDialog(
+          window, STR_DELETE_THEME,
+          tp->getThemeByIndex(listBox->getSelected())->getName(), [=] {
+            tp->deleteThemeByIndex(listBox->getSelected());
+            listBox->setNames(tp->getNames());
+            currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
+            listBox->setSelected(currentTheme);
+          });
     });
   }
 }

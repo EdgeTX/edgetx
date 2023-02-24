@@ -35,7 +35,6 @@
 #include "api_filesystem.h"
 
 #if defined(LIBOPENUI)
-  #include "api_colorlcd.h"
   #include "libopenui.h"
 #else
   #include "libopenui/src/libopenui_file.h"
@@ -272,14 +271,11 @@ void luaClose(lua_State ** L)
   }
 }
 
+
 void luaRegisterLibraries(lua_State * L)
 {
   luaL_openlibs(L);
-  registerDirIter(L);
-
-#if defined(COLORLCD)
-  registerBitmapClass(L);
-#endif
+  lua_settop(L, 0);
 }
 
 #define GC_REPORT_TRESHOLD    (2*1024)
@@ -779,6 +775,39 @@ void luaError(lua_State * L, uint8_t error)
   displayLuaError(true);
   TRACE_ERROR("%s\n", lua_warning_info);
 }
+
+// static void luaDumpStack (lua_State *L) {
+//   int top=lua_gettop(L);
+//   for (int i=1; i <= top; i++) {
+//     printf("%d\t%s\t", i, luaL_typename(L,i));
+//     switch (lua_type(L, i)) {
+//       case LUA_TNUMBER:
+//         printf("%g\n",lua_tonumber(L,i));
+//         break;
+//       case LUA_TSTRING:
+//         printf("%s\n",lua_tostring(L,i));
+//         break;
+//       case LUA_TBOOLEAN:
+//         printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+//         break;
+//       case LUA_TNIL:
+//         printf("%s\n", "nil");
+//         break;
+//       case LUA_TTABLE: {
+//         lua_pushnil(L);
+//         while(lua_next(L,i)) {
+//           const char* key = lua_tostring(L,-2);
+//           const char* val = lua_tostring(L,-1);
+//           printf("\t%s = %s\n", key, val);
+//           lua_pop(L,1);
+//         }
+//       } break;
+//       default:
+//         printf("%p\n",lua_topointer(L,i));
+//         break;
+//     }
+//   }
+// }
 
 // Register a function from a table on the top of the stack
 static int luaRegisterFunction(const char * key)

@@ -43,26 +43,70 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   Layer::push(this);
-  
-//   // TODO: if 'confirmHandler':
-//   //       -> add a confirm / cancel button
-//   //
-// #if defined(HARDWARE_TOUCH) && 0
-//   new FabButton(this, LCD_W - (FAB_BUTTON_SIZE + PAGE_PADDING),
-//                 LCD_H - (FAB_BUTTON_SIZE + PAGE_PADDING), ICON_NEXT,
-//                 [=]() -> uint8_t {
-//                   deleteLater();
-//                   if (confirmHandler) confirmHandler();
-//                   return 0;
-//                 });
-// #endif
 
   bringToTop();
   lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
 }
 
+void FullScreenDialog::init()
+{
+  if (!loaded) {
+    loaded = true;
+
+    std::string t;
+    if (type == WARNING_TYPE_ALERT) {
+#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
+      t = std::string(STR_WARNING) + "\n" + title;
+#else
+      t = title + "\n" + STR_WARNING;
+#endif
+    } else if (!title.empty()) {
+      t = title;
+    }
+    new StaticText(this, 
+                   rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP, LCD_W - ALERT_TITLE_LEFT - PAGE_PADDING, LCD_H - ALERT_TITLE_TOP - PAGE_PADDING},
+                   t.c_str(), 0, COLOR_THEME_WARNING | FONT(XL));
+
+    messageLabel = new StaticText(this, 
+                   rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING, LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING},
+                   message.c_str(), 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+
+    if (!action.empty()) {
+      auto btn = new TextButton(this, { (LCD_W - 280) / 2, LCD_H - 48, 280, 40 }, action.c_str(),
+                     [=]() {
+                       closeDialog();
+                       return 0;
+                     }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+      lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+      lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
+      lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+    } else {
+      if (type == WARNING_TYPE_CONFIRM) {
+        auto btn = new TextButton(this, { LCD_W / 3 - 50, LCD_H - 48, 100, 40 }, STR_EXIT,
+                       [=]() {
+                         deleteLater();
+                         return 0;
+                       }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+        lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+        lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
+        lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+        btn = new TextButton(this, { LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40 }, STR_OK,
+                       [=]() {
+                         closeDialog();
+                         return 0;
+                       }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+        lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+        lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
+        lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+      }
+    }
+  }
+}
+
 void FullScreenDialog::paint(BitmapBuffer * dc)
 {
+  init();
+
   OpenTxTheme::instance()->drawBackground(dc);
 
   dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
@@ -78,44 +122,13 @@ void FullScreenDialog::paint(BitmapBuffer * dc)
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
                  OpenTxTheme::instance()->error, COLOR_THEME_WARNING);
   }
+}
 
-  if (type == WARNING_TYPE_ALERT) {
-#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || \
-    defined(TRANSLATIONS_CZ)
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, STR_WARNING,
-                 COLOR_THEME_WARNING | FONT(XL));
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
-                 title.c_str(), COLOR_THEME_WARNING | FONT(XL));
-#else
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
-                 COLOR_THEME_WARNING | FONT(XL));
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP + ALERT_TITLE_LINE_HEIGHT,
-                 STR_WARNING, COLOR_THEME_WARNING | FONT(XL));
-#endif
-  } else if (!title.empty()) {
-    dc->drawText(ALERT_TITLE_LEFT, ALERT_TITLE_TOP, title.c_str(),
-                 COLOR_THEME_WARNING | FONT(XL));
-  }
-
-  if (!message.empty()) {
-    dc->drawText(ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, message.c_str(),
-                 FONT(BOLD));
-  }
-
-  if (!action.empty()) {
-    dc->drawText(LCD_W / 2, ALERT_ACTION_TOP, action.c_str(),
-                 CENTERED | FONT(BOLD));
-  } else if (type == WARNING_TYPE_CONFIRM) {
-
-    LcdFlags flags = FONT(BOLD);
-    int w = getTextWidth(STR_OK, 0, flags);
-    
-    dc->drawText(ALERT_MESSAGE_LEFT, ALERT_ACTION_TOP,
-                 STR_OK, flags);
-    
-    dc->drawText(ALERT_MESSAGE_LEFT + w + 20, ALERT_ACTION_TOP,
-                 STR_EXIT, flags);
-  }
+void FullScreenDialog::closeDialog()
+{
+ if (confirmHandler)
+   confirmHandler();
+ deleteLater();
 }
 
 void FullScreenDialog::long_pressed(lv_event_t* e)
@@ -124,15 +137,18 @@ void FullScreenDialog::long_pressed(lv_event_t* e)
   auto fs = (FullScreenDialog*)lv_obj_get_user_data(obj);
 
   if (fs) {
-    fs->onClicked();
+    fs->closeDialog();
     lv_indev_wait_release(lv_indev_get_act());
   }
 }
 
-void FullScreenDialog::onClicked()
+void FullScreenDialog::onEvent(event_t event)
 {
-  if (confirmHandler) confirmHandler();
-  deleteLater();
+  // Buttons other than RTN or ENTER
+  if (type == WARNING_TYPE_ALERT) {
+    closeDialog();
+    killEvents(event);
+  }
 }
 
 void FullScreenDialog::onCancel()
@@ -169,7 +185,7 @@ static void run_ui_manually()
   MainWindow::instance()->run(false);
 }
 
-void FullScreenDialog::runForever()
+void FullScreenDialog::runForever(bool checkPwr)
 {
   running = true;
 
@@ -180,29 +196,20 @@ void FullScreenDialog::runForever()
   while (running) {
     resetBacklightTimeout();
 
-    auto check = pwrCheck();
-    if (check == e_power_off) {
-      boardOff();
+    if (checkPwr) {
+      auto check = pwrCheck();
+      if (check == e_power_off) {
+        boardOff();
 #if defined(SIMU)
-      return;
+        return;
 #endif
+      } else if (check == e_power_press) {
+        WDG_RESET();
+        RTOS_WAIT_MS(1);
+        continue;
+      }
     }
-    else if (check == e_power_press) {
-      WDG_RESET();
-      RTOS_WAIT_MS(1);
-      continue;
-    }
-    run_ui_manually();
-  }
 
-  deleteLater();
-}
-
-void FullScreenDialog::runForeverNoPwrCheck()
-{
-  running = true;
-  while (running) {
-    resetBacklightTimeout();
     run_ui_manually();
   }
 
@@ -239,11 +246,7 @@ bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
     });
   }
 
-  if (checkPwr) {
-    dialog->runForever();
-  } else {
-    dialog->runForeverNoPwrCheck();
-  }
+  dialog->runForever(checkPwr);
 
   return confirmed;
 }

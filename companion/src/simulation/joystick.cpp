@@ -26,7 +26,13 @@ Joystick::Joystick(QObject *parent, int joystickEventTimeout, bool doAutoRepeat,
   if ( SDL_WasInit(SDL_INIT_JOYSTICK) ) {
     int i;
     for (i = 0; i < SDL_NumJoysticks(); i++)
-      joystickNames.append(SDL_JoystickName(i));
+    {
+      SDL_Joystick* joy = SDL_JoystickOpen(i);
+      if(joy == nullptr)
+        continue;
+      joystickNames.append(SDL_JoystickName(joy));
+      SDL_JoystickClose(joy);
+    }
     connect(&joystickTimer, SIGNAL(timeout()), this, SLOT(processEvents()));
   } else {
     fprintf(stderr, "ERROR: couldn't initialize SDL joystick support\n");

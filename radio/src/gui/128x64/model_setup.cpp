@@ -341,16 +341,29 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 {
   TimerData & timer = g_model.timers[timerIdx];
   lcdDrawTextAlignedLeft(y, STR_BEEPCOUNTDOWN);
-  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VBEEPCOUNTDOWN, timer.countdownBeep, (menuHorizontalPosition == 0 ? attr : 0));
+  int value = timer.countdownBeep;
+  if (timer.extraHaptic) value += (COUNTDOWN_VOICE + 1);
+  lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VBEEPCOUNTDOWN, value, (menuHorizontalPosition == 0 ? attr : 0));
   if (timer.countdownBeep != COUNTDOWN_SILENT) {
     lcdDrawNumber(MODEL_SETUP_2ND_COLUMN + 6 * FW, y, TIMER_COUNTDOWN_START(timerIdx), (menuHorizontalPosition == 1 ? attr : 0) | LEFT);
     lcdDrawChar(lcdLastRightPos, y, 's');
   }
   if (attr && s_editMode > 0) {
     switch (menuHorizontalPosition) {
-      case 0:
-        CHECK_INCDEC_MODELVAR(event, timer.countdownBeep, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1);
-        break;
+      case 0: 
+      {
+        value = timer.countdownBeep;
+        if (timer.extraHaptic) value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        CHECK_INCDEC_MODELVAR(event, value, COUNTDOWN_SILENT,
+                              COUNTDOWN_COUNT - 1);
+        if (value > COUNTDOWN_VOICE + 1) {
+          timer.extraHaptic = 1;
+          timer.countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        } else {
+          timer.extraHaptic = 0;
+          timer.countdownBeep = value;
+        }
+      } break;
       case 1:
         timer.countdownStart = -checkIncDecModel(event, -timer.countdownStart, -1, +2);
         break;
@@ -487,9 +500,13 @@ void menuModelSetup(event_t event)
 
   if (event == EVT_ENTRY || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.moduleSetup, sizeof(reusableBuffer.moduleSetup));
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
     reusableBuffer.moduleSetup.r9mPower = g_model.moduleData[EXTERNAL_MODULE].pxx.power;
     reusableBuffer.moduleSetup.previousType = g_model.moduleData[EXTERNAL_MODULE].type;
     reusableBuffer.moduleSetup.newType = g_model.moduleData[EXTERNAL_MODULE].type;
+#endif
+
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
     reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
 #endif
@@ -991,10 +1008,11 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
         lcdDrawTextAtIndex(
             MODEL_SETUP_2ND_COLUMN, y,
-            moduleIdx == EXTERNAL_MODULE ? STR_EXTERNAL_MODULE_PROTOCOLS
-                                         : STR_INTERNAL_MODULE_PROTOCOLS,
-            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType
-                                         : g_model.moduleData[moduleIdx].type,
+            STR_MODULE_PROTOCOLS,
+#if defined(HARDWARE_EXTERNAL_MODULE)
+            moduleIdx == EXTERNAL_MODULE ? reusableBuffer.moduleSetup.newType :
+#endif
+            g_model.moduleData[moduleIdx].type,
             menuHorizontalPosition == 0 ? attr : 0);
         if (isModuleXJT(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS,
@@ -1018,6 +1036,7 @@ void menuModelSetup(event_t event)
               lcdNextPos + 3, y, STR_CRSF_BAUDRATE,
               CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0);
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
         if (attr && menuHorizontalPosition == 0 &&
             moduleIdx == EXTERNAL_MODULE) {
           if (s_editMode > 0) {
@@ -1035,6 +1054,7 @@ void menuModelSetup(event_t event)
                 reusableBuffer.moduleSetup.newType;
           }
         }
+#endif
         if (attr) {
           if (s_editMode > 0) {
             switch (menuHorizontalPosition) {
@@ -1164,17 +1184,17 @@ void menuModelSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, STR_STATUS);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
-        lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
-        lcdDrawText(lcdNextPos + 1, y, "Err", attr);
-        if (attr) {
-          s_editMode = 0;
-          if (event == EVT_KEY_LONG(KEY_ENTER)) {
-            START_NO_HIGHLIGHT();
-            telemetryErrors = 0;
-            AUDIO_WARNING1();
-            killEvents(event);
-          }
-        }
+        // lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
+        // lcdDrawText(lcdNextPos + 1, y, "Err", attr);
+        // if (attr) {
+        //   s_editMode = 0;
+        //   if (event == EVT_KEY_LONG(KEY_ENTER)) {
+        //     START_NO_HIGHLIGHT();
+        //     telemetryErrors = 0;
+        //     AUDIO_WARNING1();
+        //     killEvents(event);
+        //   }
+        // }
         break;
 #endif
 
@@ -1195,16 +1215,9 @@ void menuModelSetup(event_t event)
           if (status.isValid()) {
             int8_t direction = checkIncDec(event, 0, -1, 1);
             if (direction == -1) {
-              if (multiRfProto == MODULE_SUBTYPE_MULTI_FRSKY)
-                multiRfProto = MODULE_SUBTYPE_MULTI_FRSKYX_RX;
-              else
-                multiRfProto = convertMultiToOtx(status.protocolPrev);
-            }
-            if (direction == 1) {
-              if (multiRfProto == MODULE_SUBTYPE_MULTI_FRSKY)
-                multiRfProto = MODULE_SUBTYPE_MULTI_FRSKYX2;
-              else
-                multiRfProto = convertMultiToOtx(status.protocolNext);
+              multiRfProto = status.protocolPrev;
+            } else if (direction == 1) {
+              multiRfProto = status.protocolNext;
             }
           }
           else {

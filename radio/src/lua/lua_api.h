@@ -31,7 +31,6 @@ extern "C" {
   #include <lua.h>
   #include <lauxlib.h>
   #include <lualib.h>
-  #include <lrotable.h>
   #include <lgc.h>
 }
 
@@ -62,7 +61,31 @@ extern lua_State * lsScripts;
 extern bool luaLcdAllowed;
 
 #if defined(COLORLCD)
-extern lua_State * lsWidgets;
+//
+// Obsoleted definitions:
+//  -> please check against libopenui_defines.h for conflicts
+//  -> here we use the 4 most significant bits for our flags (32 bit unsigned)
+//
+// INVERS & BLINK are used in most scripts, let's offer a compatibility mode.
+//
+#undef INVERS
+#undef BLINK
+
+#define INVERS     0x01u
+#define BLINK    0x1000u
+#define RGB_FLAG 0x8000u
+
+extern bool luaLcdAllowed;
+
+class BitmapBuffer;
+extern BitmapBuffer* luaLcdBuffer;
+
+class Widget;
+extern Widget* runningFS;
+
+LcdFlags flagsRGB(LcdFlags flags);
+
+extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
