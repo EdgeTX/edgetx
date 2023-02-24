@@ -46,7 +46,7 @@ void ScrollableMessageBox::setText(const QString &text)
 
 void ScrollableMessageBox::setDetailedText(const QString &details, Qt::TextFormat format)
 {
-	if (format = Qt::AutoText)
+	if (format == Qt::AutoText)
 		m_textEdit->setText(details);
 	else if (format == Qt::RichText)
 		m_textEdit->setHtml(details);
