@@ -1,0 +1,32 @@
+/*! \page LICENSE.txt LICENSE.txt
+\verbatim
+
+maxLibQt C++ code library for the Qt framework.
+
+COPYRIGHT: (c)2017 Maxim Paperno; All Right Reserved.
+Contact: http://www.WorldDesign.com/contact
+
+LICENSE
+
+Unless specified otherwise in the individual component files, 
+the components of this library are licensed under a dual-use system.
+
+Commercial License Usage
+Licensees holding valid commercial licenses may use the components in
+accordance with the terms contained in a written agreement between
+you and the copyright holder.
+
+GNU General Public License Usage
+Alternatively, the components may be used under the terms of the GNU
+General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+A copy of the GNU General Public License is available in the file LICENSE.GPL.txt
+which should be included in this distribution. It is also available at <http://www.gnu.org/licenses/>.
+
+\endverbatim  */

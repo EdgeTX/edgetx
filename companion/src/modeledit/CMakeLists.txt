@@ -1,65 +1,47 @@
-include_directories(
-  ${CMAKE_SOURCE_DIR}
-  ${COMPANION_SRC_DIRECTORY}
-  ${CMAKE_CURRENT_BINARY_DIR}
-)
 
-set(modeledit_NAMES
+project(modeledit)
+
+set(${PROJECT_NAME}_NAMES
+  channels
+  checklistdialog
+  colorcustomscreens
+  curves
+  customfunctions
+  expodialog
+  flightmodes
+  inputs
+  heli
+  logicalswitches
+  mixerdialog
+  mixes
+  mixerslistwidget
   modeledit
   setup
-  heli
   telemetry
-  expodialog
-  mixerdialog
-  checklistdialog
+  telemetry_customscreens
 )
 
-set(modeledit_SRCS
-  flightmodes.cpp
-  inputs.cpp
-  mixes.cpp
-  channels.cpp
-  logicalswitches.cpp
-  customfunctions.cpp
-  mixerslistwidget.cpp
-  # node.cpp  ## node and edge are built in common lib because also used by simulator
-  # edge.cpp  ## commenting them here avoids a "duplicate target" warning eg. from ninja
-  colorcustomscreens.cpp
-  telemetry_customscreens.cpp
-  curves.cpp
+AddHeadersSources()
+
+# AUTOMOC does not detect so manually process
+qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_HDRS}
 )
 
-set(modeledit_HDRS
-  flightmodes.h
-  inputs.h
-  mixes.h
-  channels.h
-  logicalswitches.h
-  customfunctions.h
-  mixerslistwidget.h
-  # node.h
-  colorcustomscreens.h
-  telemetry_customscreens.h
-  curves.h
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_SRCS}
 )
 
-set(modeledit_UIS
-  setup_timer.ui
-  setup_module.ui
-  setup_function_switches.ui
-  flightmode.ui
-  telemetry_customscreen.ui
-  telemetry_sensor.ui
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+    Qt5::Multimedia
 )
 
-foreach(name ${modeledit_NAMES})
-  set(modeledit_SRCS ${modeledit_SRCS} ${name}.cpp)
-  set(modeledit_HDRS ${modeledit_HDRS} ${name}.h)
-  set(modeledit_UIS  ${modeledit_UIS}  ${name}.ui)
-endforeach()
-
-qt5_wrap_ui(modeledit_SRCS ${modeledit_UIS})
-qt5_wrap_cpp(modeledit_SRCS ${modeledit_HDRS})
-
-add_library(modeledit ${modeledit_SRCS})
-target_link_libraries(modeledit PRIVATE datamodels ${CPN_COMMON_LIB} Qt5::Multimedia)
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
+)

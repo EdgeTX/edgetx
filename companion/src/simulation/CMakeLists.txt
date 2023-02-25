@@ -1,128 +1,97 @@
-set(simulation_SRCS
-  debugoutput.cpp
-  filteredtextbuffer.cpp
-  radiooutputswidget.cpp
-  simulateduiwidget.cpp
+
+project(simulation)
+
+set(${PROJECT_NAME}_NAMES
+  debugoutput
+  filteredtextbuffer
+  radiooutputswidget
+  simulateduiwidget
+  simulatorinterface
+  simulatormainwindow
+  simulatorstartupdialog
+  simulatorwidget
+  telemetrysimu
+  trainersimu
+  widgets/lcdwidget
+  widgets/radiowidget
+  widgets/virtualjoystickwidget
+)
+
+AddHeadersSources()
+
+set(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_SRCS}
   simulateduiwidget9X.cpp
-  simulateduiwidgetX9LITE.cpp
   simulateduiwidgetX7.cpp
   simulateduiwidgetX9.cpp
-  simulateduiwidgetXLITE.cpp
-  simulateduiwidgetX9E.cpp
   simulateduiwidgetX9D2019.cpp
+  simulateduiwidgetX9E.cpp
+  simulateduiwidgetX9LITE.cpp
   simulateduiwidgetX10.cpp
   simulateduiwidgetX12.cpp
-  simulateduiwidgetLR3PRO.cpp
+  simulateduiwidgetXLITE.cpp
+  simulateduiwidgetBoxer.cpp
   simulateduiwidgetCommando8.cpp
+  simulateduiwidgetLR3PRO.cpp
   simulateduiwidgetJumperT12.cpp
   simulateduiwidgetJumperTLITE.cpp
   simulateduiwidgetJumperTPRO.cpp
   simulateduiwidgetJumperT16.cpp
   simulateduiwidgetJumperT18.cpp
-  simulateduiwidgetTX12.cpp
-  simulateduiwidgetZorro.cpp
-  simulateduiwidgetBoxer.cpp
-  simulateduiwidgetT8.cpp
-  simulateduiwidgetTX16S.cpp
   simulateduiwidgetNV14.cpp
-  simulatorinterface.cpp
-  simulatormainwindow.cpp
-  simulatorstartupdialog.cpp
-  simulatorwidget.cpp
-  telemetrysimu.cpp
-  trainersimu.cpp
-  widgets/radiowidget.cpp
-  widgets/virtualjoystickwidget.cpp
-  widgets/lcdwidget.cpp
+  simulateduiwidgetT8.cpp
+  simulateduiwidgetTX12.cpp
+  simulateduiwidgetTX16S.cpp
+  simulateduiwidgetZorro.cpp
 )
 
-set(simulation_UIS
-  debugoutput.ui
-  radiooutputswidget.ui
-  simulateduiwidget9X.ui
-  simulateduiwidgetX9LITE.ui
-  simulateduiwidgetX7.ui
-  simulateduiwidgetX9.ui
-  simulateduiwidgetXLITE.ui
-  simulateduiwidgetX9E.ui
-  simulateduiwidgetX9D2019.ui
-  simulateduiwidgetX10.ui
-  simulateduiwidgetX12.ui
-  simulateduiwidgetLR3PRO.ui
-  simulateduiwidgetCommando8.ui
-  simulateduiwidgetJumperT12.ui
-  simulateduiwidgetJumperTLITE.ui
-  simulateduiwidgetJumperTPRO.ui
-  simulateduiwidgetJumperT16.ui
-  simulateduiwidgetJumperT18.ui
-  simulateduiwidgetTX12.ui
-  simulateduiwidgetZorro.ui
-  simulateduiwidgetBoxer.ui
-  simulateduiwidgetT8.ui
-  simulateduiwidgetTX16S.ui
-  simulateduiwidgetNV14.ui
-  simulatormainwindow.ui
-  simulatorstartupdialog.ui
-  simulatorwidget.ui
-  telemetrysimu.ui
-  trainersimu.ui
-)
-
-set(simulation_HDRS
-  debugoutput.h
-  filteredtextbuffer.h
-  radiooutputswidget.h
+set(${PROJECT_NAME}_HDRS
+  ${${PROJECT_NAME}_HDRS}
   radiouiaction.h
-  simulateduiwidget.h
-  # simulator.h
-  simulatorinterface.h
-  simulatormainwindow.h
-  simulatorstartupdialog.h
-  simulatorwidget.h
-  telemetrysimu.h
-  trainersimu.h
   widgets/buttonswidget.h
-  widgets/lcdwidget.h
-  widgets/radiowidget.h
   widgets/radiofaderwidget.h
   widgets/radiokeywidget.h
   widgets/radioknobwidget.h
   widgets/radioswitchwidget.h
   widgets/radiotrimwidget.h
   widgets/sliderwidget.h
-  widgets/virtualjoystickwidget.h
 )
 
 if(SDL2_FOUND)
-  set(simulation_SRCS
-    ${simulation_SRCS}
+  set(${PROJECT_NAME}_SRCS
+    ${${PROJECT_NAME}_SRCS}
     joystick.cpp
     joystickdialog.cpp
   )
 
-  set(simulation_HDRS
-    ${simulation_HDRS}
+  set(${PROJECT_NAME}_HDRS
+    ${${PROJECT_NAME}_HDRS}
     joystick.h
     joystickdialog.h
   )
-
-  set(simulation_UIS
-    ${simulation_UIS}
-    joystickdialog.ui
-  )
 endif()
 
-include_directories(
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}
-  ${COMPANION_SRC_DIRECTORY}
-  ${COMPANION_SRC_DIRECTORY}/simulation
-  ${COMPANION_SRC_DIRECTORY}/simulation/widgets
-  ${RADIO_SRC_DIR}/fonts/std
+# AUTOMOC does not detect so manually process
+qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_HDRS}
 )
 
-qt5_wrap_ui(simulation_SRCS ${simulation_UIS})
-qt5_wrap_cpp(simulation_SRCS ${simulation_HDRS})
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_SRCS}
+)
 
-add_library(simulation ${simulation_SRCS} ${simulation_HDRS})
-target_link_libraries(simulation PRIVATE ${CPN_COMMON_LIB} shared Qt5::Core Qt5::Widgets Qt5::Svg)
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+    Qt5::Svg
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "${CMAKE_CURRENT_LIST_DIR}/widgets"
+    "${RADIO_SRC_DIR}/fonts/std"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
+)
