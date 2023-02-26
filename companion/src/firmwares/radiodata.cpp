@@ -174,7 +174,7 @@ bool RadioData::renameLabel(QString from, QString to)
   }
   if (success) {
     for(auto& model : models) {
-      QStringList modelLabels = QString(model.labels).split(',',QString::SkipEmptyParts);
+      QStringList modelLabels = QString(model.labels).split(',', Qt::SkipEmptyParts);
       int ind = modelLabels.indexOf(csvFrom);
       if (ind != -1) {
         modelLabels.replace(ind, csvTo);
@@ -224,7 +224,7 @@ bool RadioData::addLabelToModel(int index, QString label)
   char *modelLabelCsv = models[index].labels;
   // Make sure it will fit
   if (strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
-    QStringList modelLabels = QString::fromUtf8(modelLabelCsv).split(',',QString::SkipEmptyParts);
+    QStringList modelLabels = QString::fromUtf8(modelLabelCsv).split(',', Qt::SkipEmptyParts);
     if (modelLabels.indexOf(label) == -1) {
       modelLabels.append(label);
       strcpy(models[index].labels, QString(modelLabels.join(',')).toUtf8().data());
@@ -251,7 +251,7 @@ bool RadioData::removeLabelFromModel(int index, QString label)
 void RadioData::addLabelsFromModels()
 {
   for(const auto &model: models) {
-    QStringList labels = QString(model.labels).split(',',QString::SkipEmptyParts);
+    QStringList labels = QString(model.labels).split(',', Qt::SkipEmptyParts);
     foreach(QString label, labels) {
       addLabel(label);
     }
@@ -260,7 +260,7 @@ void RadioData::addLabelsFromModels()
 
 QStringList RadioData::fromCSV(const QString &csv)
 {
-  QStringList lbls = QString(csv).split(',',QString::SkipEmptyParts);
+  QStringList lbls = QString(csv).split(',', Qt::SkipEmptyParts);
   for(QString &label: lbls) {
     label = unEscapeCSV(label);
   }
