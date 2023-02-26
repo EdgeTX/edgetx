@@ -141,7 +141,7 @@ unsigned int Firmware::getVariantNumber()
 {
   unsigned int result = 0;
   const Firmware * base = getFirmwareBase();
-  QStringList options = id.mid(base->getId().length()+1).split("-", QString::SkipEmptyParts);
+  QStringList options = id.mid(base->getId().length()+1).split("-", Qt::SkipEmptyParts);
   foreach(QString option, options) {
     foreach(OptionsGroup group, base->opts) {
       foreach(Option opt, group) {
