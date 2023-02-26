@@ -54,6 +54,10 @@ extern "C" {
 }
 #endif
 
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
+
 HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
@@ -81,6 +85,9 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
+#if defined(FLYSKY_GIMBAL)
+                         FLYSKY_HALL_RCC_AHB1Periph |
+#endif
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -97,6 +104,9 @@ void boardInit()
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          ADC_RCC_APB1Periph |
+#if defined(FLYSKY_GIMBAL)
+                         FLYSKY_HALL_RCC_APB1Periph |
+#endif
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
@@ -211,6 +221,12 @@ void boardInit()
   if (pwm_interrupt_count < 32) {
     hardwareOptions.sticksPwmDisabled = true;
   }
+#endif
+
+#if defined(FLYSKY_GIMBAL)
+  globalData.flyskygimbals = flysky_gimbal_init();
+#else
+  globalData.flyskygimbals = false;
 #endif
 
   if (!adcInit(&stm32_hal_adc_driver))

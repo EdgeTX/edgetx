@@ -63,6 +63,13 @@ if(AUX_SERIAL OR AUX2_SERIAL)
   endif()
 endif()
 
+if(FLYSKY_GIMBAL)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    ../common/arm/stm32/flysky_gimbal_driver.cpp
+  )
+  add_definitions(-DFLYSKY_GIMBAL)
+endif()
+
 if(DEBUG OR CLI OR USB_SERIAL)
   set(STM32USB_SRC ${STM32USB_SRC}
     STM32_USB_Device_Library/Class/cdc/src/usbd_cdc_core.c

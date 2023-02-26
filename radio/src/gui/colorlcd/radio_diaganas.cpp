@@ -64,7 +64,7 @@ class AnaCalibratedViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
         if (globalData.flyskygimbals)
         {
             for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -258,7 +258,7 @@ class AnaFilteredDevViewWindow: public Window {
             ClearStats = false;
         }
 
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
           if (globalData.flyskygimbals)
           {
               for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -337,7 +337,7 @@ class AnaUnfilteredRawViewWindow: public Window {
 
     void paint(BitmapBuffer * dc) override
     {
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
         if (globalData.flyskygimbals)
         {
             for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {
@@ -460,7 +460,7 @@ class AnaMinMaxViewWindow: public Window {
         }
         dc->drawText(10, 1, STR_ANADIAGS_MOVE, COLOR_THEME_PRIMARY1);
 
-#if !defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
           if (globalData.flyskygimbals)
           {
               for (uint8_t i = 0; i < FLYSKY_HALL_CHANNEL_COUNT; i++) {

@@ -35,14 +35,16 @@ static void adc_init_pins()
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 #if defined(ADC_GPIOA_PINS)
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+ #if defined(FLYSKY_GIMBAL)
   if (globalData.flyskygimbals)
   {
       GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS_FS;
   }
   else
-#endif
+ #endif
+  {
       GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
+  }
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 #endif
 
@@ -144,7 +146,7 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
   if (STICKS_PWM_ENABLED())
     return ADC_MAIN_channels + 4;
 #endif
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
   if (globalData.flyskygimbals)
   {
       return ADC_MAIN_channels + FIRST_ANALOG_ADC_FS;
@@ -158,12 +160,16 @@ static const stm32_hal_adc_channel* ADC_MAIN_get_channels()
 
 static uint8_t ADC_MAIN_get_nconv()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-      return NUM_ANALOGS_ADC_FS;
+#if defined(FLYSKY_GIMBAL)
+  if (globalData.flyskygimbals)
+  {
+    return NUM_ANALOGS_ADC_FS;
+  }
   else
 #endif
-      return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
+  {
+    return NUM_ANALOGS_ADC; // based on STICKS_PWM_ENABLED()
+  }
 }
 
 #if defined(ADC_EXT)
@@ -205,7 +211,7 @@ static const stm32_hal_adc_channel* ADC_EXT_get_channels()
 
 static uint16_t* ADC_MAIN_get_dma_buffer()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
     if (globalData.flyskygimbals)
     {
         return &adcValues[FIRST_ANALOG_ADC_FS];
@@ -220,14 +226,16 @@ static uint16_t* ADC_MAIN_get_dma_buffer()
 #if defined(ADC_EXT) && defined(ADC_EXT_DMA_Stream)
 static uint16_t* ADC_EXT_get_dma_buffer()
 {
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)  
+#if defined(FLYSKY_GIMBAL)
     if (globalData.flyskygimbals)
     {
         return adcValues + NUM_ANALOGS_ADC_FS + FIRST_ANALOG_ADC_FS;
     }
     else
 #endif
-      return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
+    {
+        return adcValues + NUM_ANALOGS_ADC + FIRST_ANALOG_ADC;
+    }
 }
 #endif
 

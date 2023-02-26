@@ -27,7 +27,7 @@
 
 void menuCommonCalib(event_t event)
 {
-  for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) { // get low and high vals for sticks and trims
+  for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) { // get low and high values for sticks, pots and sliders
     int16_t vt = anaIn(i);
     reusableBuffer.calib.loVals[i] = min(vt, reusableBuffer.calib.loVals[i]);
     reusableBuffer.calib.hiVals[i] = max(vt, reusableBuffer.calib.hiVals[i]);
@@ -41,12 +41,15 @@ void menuCommonCalib(event_t event)
       if (IS_POT_MULTIPOS(i) && count <= XPOTS_MULTIPOS_COUNT) {
         // use raw analog value for multipos calibraton, anaIn() already has multipos decoded value
         vt = getAnalogValue(i) >> 1;
-        if (reusableBuffer.calib.xpotsCalib[idx].lastCount == 0 || vt < reusableBuffer.calib.xpotsCalib[idx].lastPosition - XPOT_DELTA || vt > reusableBuffer.calib.xpotsCalib[idx].lastPosition + XPOT_DELTA) {
+        if (reusableBuffer.calib.xpotsCalib[idx].lastCount == 0 ||
+                vt < reusableBuffer.calib.xpotsCalib[idx].lastPosition - XPOT_DELTA ||
+                vt > reusableBuffer.calib.xpotsCalib[idx].lastPosition + XPOT_DELTA) {
           reusableBuffer.calib.xpotsCalib[idx].lastPosition = vt;
           reusableBuffer.calib.xpotsCalib[idx].lastCount = 1;
         }
         else {
-          if (reusableBuffer.calib.xpotsCalib[idx].lastCount < 255) reusableBuffer.calib.xpotsCalib[idx].lastCount++;
+          if (reusableBuffer.calib.xpotsCalib[idx].lastCount < 255)
+              reusableBuffer.calib.xpotsCalib[idx].lastCount++;
         }
         if (reusableBuffer.calib.xpotsCalib[idx].lastCount == XPOT_DELAY) {
           int16_t position = reusableBuffer.calib.xpotsCalib[idx].lastPosition;
@@ -99,7 +102,16 @@ void menuCommonCalib(event_t event)
         reusableBuffer.calib.loVals[i] = 15000;
         reusableBuffer.calib.hiVals[i] = -15000;
 #if defined(PCBTARANIS)
-        reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
+ #if defined(FLYSKY_GIMBAL)
+        if (globalData.flyskygimbals && (i < FIRST_ANALOG_ADC_FS) )
+        {
+          reusableBuffer.calib.midVals[i] = anaIn(i);
+        }
+        else
+ #endif
+        {
+          reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
+        }
         if (i<NUM_XPOTS) {
           reusableBuffer.calib.xpotsCalib[i].stepsCount = 0;
           reusableBuffer.calib.xpotsCalib[i].lastCount = 0;
@@ -123,9 +135,6 @@ void menuCommonCalib(event_t event)
           g_eeGeneral.calib[i].spanPos = v - v/STICK_TOLERANCE;
         }
       }
-      break;
-
-    case CALIB_STORE:
 #if defined(PCBTARANIS)
       for (uint8_t i=POT1; i<=POT_LAST; i++) {
         int idx = i - POT1;
@@ -145,18 +154,26 @@ void menuCommonCalib(event_t event)
               calib->steps[j] = (reusableBuffer.calib.xpotsCalib[idx].steps[j+1] + reusableBuffer.calib.xpotsCalib[idx].steps[j]) >> 5;
             }
           }
-          else {
+        }
+      }
+#endif
+      break;
+
+    case CALIB_STORE:
 #if defined(RADIO_BOXER)
-            // load 6pos calib with factory data if 6 pos was not manually calibrated
+      for (uint8_t i=POT1; i<=POT_LAST; i++) {
+        int idx = i - POT1;
+        if (IS_POT_MULTIPOS(i)) {
+          int count = reusableBuffer.calib.xpotsCalib[idx].stepsCount;
+          if (count < XPOTS_MULTIPOS_COUNT)
+          {
+            // load 6-pos calib with factory data if 6-pos was not manually calibrated
             constexpr int16_t factoryValues[]= {0x5,0xd,0x16,0x1f,0x28};
             StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT3];
             calib->count = 5;
             for (int j=0; j<calib->count ; j++) {
               calib->steps[j] = factoryValues[j];
             }
-#else
-            g_eeGeneral.potsConfig &= ~(0x03<<(2*idx));
-#endif
           }
         }
       }

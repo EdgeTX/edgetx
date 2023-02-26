@@ -93,6 +93,7 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
     set(LUA_EXPORT lua_export_t16)
@@ -110,6 +111,7 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     set(LUA_EXPORT lua_export_t16)
@@ -124,6 +126,7 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
+    set(FLYSKY_GIMBAL ON)
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -190,10 +193,6 @@ if(HARDWARE_EXTERNAL_ACCESS_MOD)
   set(PXX2 ON)
   set(AUX_SERIAL OFF)
   add_definitions(-DHARDWARE_EXTERNAL_ACCESS_MOD)
-endif()
-
-if(PCB STREQUAL X10)
-  set(FLYSKY_HALL_STICKS_DRIVER targets/common/arm/stm32/flysky_gimbal_driver.cpp)
 endif()
 
 if(IMU_LSM6DS33)
@@ -288,7 +287,6 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
-  ${FLYSKY_HALL_STICKS_DRIVER}
   )
 
 if(BOOTLOADER)
