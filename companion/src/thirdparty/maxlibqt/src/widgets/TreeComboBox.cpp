@@ -281,7 +281,7 @@ void TreeComboBox::setCurrentIndex(const QModelIndex &index)
 	const QString text = model()->data(index).toString();
 	const QVariant currData = currentData();
 	emit currentIndexChanged(m_rowMap.value(index));
-	emit currentIndexChanged(text);
+	//emit currentIndexChanged(text);   obsolete Qt5.15 - Use currentIndexChanged(int) and get the text from the itemText(int) method
 	emit currentModelIndexChanged(index);
 	if (!isEditable())
 		emit currentTextChanged(text);
@@ -391,9 +391,9 @@ void TreeComboBox::keyboardSearchString(const QString &text)
 void TreeComboBox::wheelEvent(QWheelEvent *event)
 {
 	QModelIndex index = m_view->currentIndex();
-	if (event->delta() > 0)
+	if (event->angleDelta().y() > 0)
 		index = indexAbove(index);
-	else if (event->delta() < 0)
+	else if (event->angleDelta().y() < 0)
 		index = indexBelow(index);
 
 	event->accept();
