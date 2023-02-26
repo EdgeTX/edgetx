@@ -1175,3 +1175,4 @@
 #define TR_VOICE_SLOVAK                 "Slovenština"
 #define TR_VOICE_SWEDISH                "Švédština"
 #define TR_VOICE_TAIWANESE              "Tchajwanština"
+#define TR_VOICE_JAPANESE               "Japonština"
