@@ -92,7 +92,7 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
      }
 
     // determine if we have a model number
-    QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    QStringList parts = line.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
     if (parts.size() == 2) {
       // parse model number
       int modelNumber = parts[0].toInt();
