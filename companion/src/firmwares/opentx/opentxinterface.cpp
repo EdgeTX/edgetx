@@ -192,14 +192,14 @@ bool OpenTxEepromInterface::loadFromByteArray(T & dest, const QByteArray & data)
   uint32_t fourcc = *((uint32_t*)&data.data()[0]);
   if (Boards::getFourCC(board) != fourcc) {
     if (IS_FAMILY_HORUS_OR_T16(board) && fourcc == 0x3178396F) {
-      qDebug() << QString().sprintf("%s: Deprecated fourcc used %x vs %x", getName(), fourcc, Boards::getFourCC(board));
+      qDebug() << QString("%1: Deprecated fourcc used %2 vs %3").arg(getName()).arg(fourcc).arg(Boards::getFourCC(board));
     }
     else {
-      qDebug() << QString().sprintf("%s: Wrong fourcc %x vs %x", getName(), fourcc, Boards::getFourCC(board));
+      qDebug() << QString("%1: Wrong fourcc %2 vs %3").arg(getName()).arg(fourcc).arg(Boards::getFourCC(board));
       return false;
     }
   }
-  qDebug() << QString().sprintf("%s: OK", getName());
+  qDebug() << QString("%1: OK").arg(getName());
   uint8_t version = data[4];
   QByteArray raw = data.right(data.size() - 8);
   return loadFromByteArray<T, M>(dest, raw, version);
@@ -784,14 +784,14 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) || 
+              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_JUMPER_T18(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
       return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
               IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
-              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) || 
+              (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
               IS_RADIOMASTER_BOXER(board);
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
