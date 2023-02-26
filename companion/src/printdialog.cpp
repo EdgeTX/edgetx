@@ -57,7 +57,7 @@ PrintDialog::~PrintDialog()
 void PrintDialog::on_printButton_clicked()
 {
   QPrinter printer;
-  printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+  printer.setPageMargins(QMarginsF(10.0, 10.0, 10.0, 10.0), QPageLayout::Millimeter);
   QPrintDialog *dialog = new QPrintDialog(&printer, this);
   dialog->setWindowTitle(tr("Print Document"));
   if (dialog->exec() != QDialog::Accepted)
@@ -74,7 +74,7 @@ void PrintDialog::on_printFileButton_clicked()
     fn += ".pdf"; // default
   if (fn.endsWith(".pdf", Qt::CaseInsensitive)) {
     QPrinter printer;
-    printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+    printer.setPageMargins(QMarginsF(10.0, 10.0, 10.0, 10.0), QPageLayout::Millimeter);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setColorMode(QPrinter::Color);
     printer.setOutputFileName(fn);
@@ -94,7 +94,7 @@ void PrintDialog::printToFile()
     printfilename += ".pdf"; // default
   if (printfilename.endsWith(".pdf", Qt::CaseInsensitive)) {
     QPrinter printer;
-    printer.setPageMargins(10.0,10.0,10.0,10.0,printer.Millimeter);
+    printer.setPageMargins(QMarginsF(10.0, 10.0, 10.0, 10.0), QPageLayout::Millimeter);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setColorMode(QPrinter::Color);
     printer.setOutputFileName(printfilename);
