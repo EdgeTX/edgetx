@@ -54,7 +54,7 @@ void Side::markSourceButton()
 void Side::copyImage( Side side )
 {
   if ((*source!=UNDEFINED) && (*side.source!=UNDEFINED))
-    imageLabel->setPixmap(*side.imageLabel->pixmap());
+    imageLabel->setPixmap(side.imageLabel->pixmap(Qt::ReturnByValue));
 }
 
 bool Side::displayImage(QString fileName, Source pictSource)
@@ -128,7 +128,7 @@ bool Side::saveImage()
     if (!firmware.hasSplash()) {
       return false;
     }
-    QImage image = imageLabel->pixmap()->toImage().scaled(firmware.getSplashWidth(), firmware.getSplashHeight());
+    QImage image = imageLabel->pixmap(Qt::ReturnByValue).toImage().scaled(firmware.getSplashWidth(), firmware.getSplashHeight());
     if (firmware.setSplash(image) && (firmware.save(*saveToFileName) > 0)) {
       g.flashDir( QFileInfo(*saveToFileName).dir().absolutePath() );
     }
@@ -137,7 +137,7 @@ bool Side::saveImage()
     }
   }
   else if (*source == PICT) {
-    QImage image = imageLabel->pixmap()->toImage().scaled(imageLabel->width()/2, imageLabel->height()/2).convertToFormat(QImage::Format_Indexed8);
+    QImage image = imageLabel->pixmap(Qt::ReturnByValue).toImage().scaled(imageLabel->width()/2, imageLabel->height()/2).convertToFormat(QImage::Format_Indexed8);
     if (image.save(*saveToFileName)) {
       g.imagesDir( QFileInfo(*saveToFileName).dir().absolutePath() );
     }
@@ -146,7 +146,7 @@ bool Side::saveImage()
     }
   }
   else if (*source == PROFILE) {
-    QImage image = imageLabel->pixmap()->toImage().scaled(imageLabel->width()/2, imageLabel->height()/2).convertToFormat(QImage::Format_Indexed8);
+    QImage image = imageLabel->pixmap(Qt::ReturnByValue).toImage().scaled(imageLabel->width()/2, imageLabel->height()/2).convertToFormat(QImage::Format_Indexed8);
     if (!image.save(*saveToFileName)) {
       return false;
     }
@@ -280,7 +280,7 @@ void CustomizeSplashDialog::on_leftInvertButton_clicked(){invertButton_clicked(l
 void CustomizeSplashDialog::on_rightInvertButton_clicked(){invertButton_clicked(right);}
 void CustomizeSplashDialog::invertButton_clicked(Side side)
 {
-  QImage image = side.imageLabel->pixmap()->toImage();
+  QImage image = side.imageLabel->pixmap(Qt::ReturnByValue).toImage();
   image.invertPixels();
   side.imageLabel->setPixmap(QPixmap::fromImage(image));
 }
