@@ -1169,3 +1169,4 @@
 #define TR_VOICE_SLOVAK                 "スロバキア-SK"
 #define TR_VOICE_SWEDISH                "スウェーデン-SV"
 #define TR_VOICE_TAIWANESE              "中文-TW"
+#define TR_VOICE_JAPANESE               "日本-JP"

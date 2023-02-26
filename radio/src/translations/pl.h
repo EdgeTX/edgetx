@@ -1174,3 +1174,4 @@
 #define TR_VOICE_SLOVAK                 "Słowacki"
 #define TR_VOICE_SWEDISH                "Szwedzki"
 #define TR_VOICE_TAIWANESE              "Tajwański"
+#define TR_VOICE_JAPANESE               "Japonês"
