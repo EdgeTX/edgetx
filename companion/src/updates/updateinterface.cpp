@@ -774,7 +774,7 @@ void UpdateInterface::download(const DownloadDataType type, const int subtype, c
 
   reply = manager.get(request);
 
-  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), [=] (QNetworkReply::NetworkError code) {
+  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [=] (QNetworkReply::NetworkError code) {
     //  leave it to the finished slot to deal with error condition
     reportProgress(tr("Network error has occurred. Error code: %1").arg(code), QtDebugMsg);
   });
