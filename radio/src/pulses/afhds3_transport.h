@@ -23,25 +23,22 @@
 
 #include "afhds3_module.h"
 #include "definitions.h"
-
 #include "hal/module_port.h"
 
 namespace afhds3
 {
-  
-enum FRAME_TYPE: uint8_t
-{
-  REQUEST_GET_DATA = 0x01,  //Get data response: ACK + DATA
-  REQUEST_SET_EXPECT_DATA = 0x02,  //Set data response: ACK + DATA
-  REQUEST_SET_EXPECT_ACK = 0x03,  //Set data response: ACK
-  REQUEST_SET_NO_RESP = 0x05,  //Set data response: none
-  RESPONSE_DATA = 0x10,  //Response ACK + DATA
-  RESPONSE_ACK = 0x20,  //Response ACK
+
+enum FRAME_TYPE : uint8_t {
+  REQUEST_GET_DATA = 0x01,         // Get data response: ACK + DATA
+  REQUEST_SET_EXPECT_DATA = 0x02,  // Set data response: ACK + DATA
+  REQUEST_SET_EXPECT_ACK = 0x03,   // Set data response: ACK
+  REQUEST_SET_NO_RESP = 0x05,      // Set data response: none
+  RESPONSE_DATA = 0x10,            // Response ACK + DATA
+  RESPONSE_ACK = 0x20,             // Response ACK
   NOT_USED = 0xff
 };
 
-enum COMMAND: uint8_t
-{
+enum COMMAND : uint8_t {
   MODULE_READY = 0x01,
   MODULE_STATE = 0x02,
   MODULE_MODE = 0x03,
@@ -53,13 +50,12 @@ enum COMMAND: uint8_t
   COMMAND_RESULT = 0x0D,
   MODULE_VERSION = 0x20,
   MODEL_ID = 0x2F,
-  VIRTUAL_FAILSAFE = 0x99, // virtual command used to trigger failsafe
+  VIRTUAL_FAILSAFE = 0x99,  // virtual command used to trigger failsafe
   UNDEFINED = 0xFF
 };
 
 // one byte frames for request queue
-struct Frame
-{
+struct Frame {
   enum COMMAND command;
   enum FRAME_TYPE frameType;
   uint8_t payload;
@@ -69,7 +65,7 @@ struct Frame
 };
 
 union AfhdsFrameData;
-  
+
 PACK(struct AfhdsFrame {
   uint8_t startByte;
   uint8_t address;
@@ -117,16 +113,16 @@ struct CommandFifo {
                uint8_t byteContent);
 };
 
-struct FrameTransport
-{
+struct FrameTransport {
   uint8_t* trsp_buffer;
   uint8_t* data_ptr;
 
   uint8_t crc;
+  uint8_t frameAddress;
   // uint8_t timeout;
   uint8_t esc_state;
 
-  void init(void* buffer);
+  void init(void* buffer, uint8_t fAddr);
   void clear();
 
   void sendByte(uint8_t b);
@@ -136,27 +132,23 @@ struct FrameTransport
                 uint8_t dataLength, uint8_t frameIndex);
 
   uint32_t getFrameSize();
-  
+
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
 };
 
 class Transport
 {
-  enum State {
-    UNKNOWN = 0,
-    SENDING_COMMAND,
-    AWAITING_RESPONSE,
-    IDLE
-  };
+  enum State { UNKNOWN = 0, SENDING_COMMAND, AWAITING_RESPONSE, IDLE };
 
   etx_module_state_t* mod_st;
 
   FrameTransport trsp;
-  CommandFifo    fifo;
+  CommandFifo fifo;
 
   /**
-   * Internal operation state one of UNKNOWN, SENDING_COMMAND, AWAITING_RESPONSE, IDLE
+   * Internal operation state one of UNKNOWN, SENDING_COMMAND,
+   * AWAITING_RESPONSE, IDLE
    * Used to avoid sending commands when not allowed to
    */
   State operationState;
@@ -173,12 +165,12 @@ class Transport
   uint16_t repeatCount;
 
   bool handleReply(uint8_t* buffer, uint8_t len);
-  
+
  public:
-  void init(void* buffer, etx_module_state_t* mod_st);
+  void init(void* buffer, etx_module_state_t* mod_st, uint8_t fAddr);
 
   void clear();
-  
+
   void sendFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
                  uint8_t dataLength = 0);
 
@@ -203,4 +195,4 @@ class Transport
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
 };
-};
+};  // namespace afhds3

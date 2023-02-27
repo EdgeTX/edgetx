@@ -73,17 +73,15 @@ static uint8_t _phyMode_channels[] = {
 //   EMPTY_DT,
 // };
 
-//enum used by command response -> translate to ModuleState
-enum MODULE_READY_E
-{
+// enum used by command response -> translate to ModuleState
+enum MODULE_READY_E {
   MODULE_STATUS_UNKNOWN = 0x00,
   MODULE_STATUS_NOT_READY = 0x01,
   MODULE_STATUS_READY = 0x02
 };
 
-enum ModuleState
-{
-  STATE_NOT_READY = 0x00, //virtual
+enum ModuleState {
+  STATE_NOT_READY = 0x00,  // virtual
   STATE_HW_ERROR = 0x01,
   STATE_BINDING = 0x02,
   STATE_SYNC_RUNNING = 0x03,
@@ -94,7 +92,7 @@ enum ModuleState
   STATE_UPDATING_RX = 0x08,
   STATE_UPDATING_RX_FAILED = 0x09,
   STATE_RF_TESTING = 0x0a,
-  STATE_READY = 0x0b,      //virtual
+  STATE_READY = 0x0b,  // virtual
   STATE_HW_TEST = 0xff,
 };
 
@@ -108,14 +106,12 @@ enum MODULE_MODE_E {
   MODULE_MODE_UNKNOWN = 0xFF
 };
 
-enum CMD_RESULT
-{
+enum CMD_RESULT {
   FAILURE = 0x01,
   SUCCESS = 0x02,
 };
 
-enum CHANNELS_DATA_MODE
-{
+enum CHANNELS_DATA_MODE {
   CHANNELS = 0x01,
   FAIL_SAFE = 0x02,
 };
@@ -126,14 +122,12 @@ PACK(struct ChannelsData {
   int16_t data[AFHDS3_MAX_CHANNELS];
 });
 
-union ChannelsData_u
-{
+union ChannelsData_u {
   ChannelsData data;
   uint8_t buffer[sizeof(ChannelsData)];
 };
 
-PACK(struct TelemetryData
-{
+PACK(struct TelemetryData {
   uint8_t sensorType;
   uint8_t length;
   uint8_t type;
@@ -141,14 +135,18 @@ PACK(struct TelemetryData
   uint8_t data[8];
 });
 
-enum MODULE_POWER_SOURCE
-{
+enum MODULE_POWER_SOURCE {
   INTERNAL = 0x01,
   EXTERNAL = 0x02,
 };
 
-PACK(struct ModuleVersion
-{
+enum DeviceAddress {
+  TRANSMITTER = 0x01,
+  FRM303 = 0x04,
+  IRM301 = 0x05,
+};
+
+PACK(struct ModuleVersion {
   uint32_t productNumber;
   uint32_t hardwereVersion;
   uint32_t bootloaderVersion;
@@ -156,15 +154,13 @@ PACK(struct ModuleVersion
   uint32_t rfVersion;
 });
 
-PACK(struct CommandResult_s
-{
+PACK(struct CommandResult_s {
   uint16_t command;
   uint8_t result;
   uint8_t respLen;
 });
 
-union AfhdsFrameData
-{
+union AfhdsFrameData {
   uint8_t value;
   // Config_s Config;
   ChannelsData Channels;
@@ -183,32 +179,33 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-    void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st);
+   void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st,
+             uint8_t fAddr);
 
-    /**
-     * Fills DMA buffers with frame to be send depending on actual state
-     */
-    void setupFrame();
+   /**
+    * Fills DMA buffers with frame to be send depending on actual state
+    */
+   void setupFrame();
 
-    /**
-     * Sends prepared buffers
-     */
-    void sendFrame() { trsp.sendBuffer(); }
+   /**
+    * Sends prepared buffers
+    */
+   void sendFrame() { trsp.sendBuffer(); }
 
-    /**
+   /**
     * Gets actual module status into provided buffer
     * @param statusText target buffer for status
     */
-    void getStatusString(char * statusText) const;
+   void getStatusString(char* statusText) const;
 
-    /**
+   /**
     * Sends stop command to prevent any further module operations
     */
-    void stop();
+   void stop();
 
-    Config_u* getConfig() { return &cfg; } 
+   Config_u* getConfig() { return &cfg; }
 
-    void applyConfigFromModel();
+   void applyConfigFromModel();
 
   protected:
 
@@ -468,10 +465,11 @@ void ProtoState::setupFrame()
   }
 }
 
-void ProtoState::init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st)
+void ProtoState::init(uint8_t moduleIndex, void* buffer,
+                      etx_module_state_t* mod_st, uint8_t fAddr)
 {
   module_index = moduleIndex;
-  trsp.init(buffer, mod_st);
+  trsp.init(buffer, mod_st, fAddr);
 
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
@@ -853,6 +851,10 @@ static void* initModule(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(_uartParams);
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000;
+  uint8_t fAddr = (module == INTERNAL_MODULE ? DeviceAddress::IRM301
+                                             : DeviceAddress::FRM303)
+                      << 4 |
+                  DeviceAddress::TRANSMITTER;
 
   params.baudrate = AFHDS3_UART_BAUDRATE;
   params.polarity =
@@ -871,7 +873,7 @@ static void* initModule(uint8_t module)
   if (!mod_st) return nullptr;
   
   auto p_state = &protoState[module];
-  p_state->init(module, pulsesGetModuleBuffer(module), mod_st);
+  p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
 
   mixerSchedulerSetPeriod(module, period);
@@ -885,7 +887,8 @@ static void deinitModule(void* ctx)
   modulePortDeInit(mod_st);
 }
 
-static void sendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+static void sendPulses(void* ctx, uint8_t* buffer, int16_t* channels,
+                       uint8_t nChannels)
 {
   (void)buffer;
   (void)channels;
@@ -898,13 +901,11 @@ static void sendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nC
 }
 
 etx_proto_driver_t ProtoDriver = {
-  .protocol = PROTOCOL_CHANNELS_AFHDS3,
-  .init = initModule,
-  .deinit = deinitModule,
-  .sendPulses = sendPulses,
-  .processData = processTelemetryData,
+    .protocol = PROTOCOL_CHANNELS_AFHDS3,
+    .init = initModule,
+    .deinit = deinitModule,
+    .sendPulses = sendPulses,
+    .processData = processTelemetryData,
 };
 
-}
-
-
+}  // namespace afhds3
