@@ -110,7 +110,7 @@ void menuRadioDiagAnalogs(event_t event)
     switch (viewpage) {
       case (ANAVIEW_RAWLOWFPS):
         if (entryCount == 0) {
-#if defined(FLYSKY_GIMBAL)
+#if !defined(SIMU) && defined(FLYSKY_GIMBAL)
             if (globalData.flyskygimbals && i < FIRST_ANALOG_ADC_FS)
             {
               lastShownAnalogValue[i] = hall_raw_values[i];
