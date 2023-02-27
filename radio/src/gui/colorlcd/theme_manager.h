@@ -61,12 +61,9 @@ class ThemeFile
         _imageFileNames(theme._imageFileNames)
     {
         path = theme.path;
-        strncpy(name, theme.name, NAME_LENGTH);
-        name[NAME_LENGTH] = '\0';
-        strncpy(author, theme.author, AUTHOR_LENGTH);
-        author[AUTHOR_LENGTH] = '\0';
-        strncpy(info, theme.info, INFO_LENGTH);
-        info[INFO_LENGTH] = '\0';
+        strAppend(name, theme.name, NAME_LENGTH);
+        strAppend(author, theme.author, AUTHOR_LENGTH);
+        strAppend(info, theme.info, INFO_LENGTH);
     }
     virtual ~ThemeFile() {}
 
@@ -101,9 +98,9 @@ class ThemeFile
         return 0;
     }
     
-    void setName(std::string name) { strncpy(this->name, name.c_str(), NAME_LENGTH); }
-    void setAuthor(std::string author) { strncpy(this->author, author.c_str(), AUTHOR_LENGTH); }
-    void setInfo(std::string info) { strncpy(this->info, info.c_str(), INFO_LENGTH); }
+    void setName(std::string name) { strAppend(this->name, name.c_str(), NAME_LENGTH); }
+    void setAuthor(std::string author) { strAppend(this->author, author.c_str(), AUTHOR_LENGTH); }
+    void setInfo(std::string info) { strAppend(this->info, info.c_str(), INFO_LENGTH); }
     void setPath(std::string path) { this->path = path; }
 
     std::vector<ColorEntry>& getColorList() { return colorList; }
@@ -150,7 +147,6 @@ class ThemePersistance
 
     void loadDefaultTheme();
     void setDefaultTheme(int index);
-    void deleteDefaultTheme();
     static char **getColorNames();
     bool deleteThemeByIndex(int index);
     bool createNewTheme(std::string name, ThemeFile &theme);

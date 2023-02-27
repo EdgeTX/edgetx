@@ -293,7 +293,7 @@ class GeneralSettings {
     static FieldRange getTxCurrentCalibration();
     static QString uartSampleModeToString(int value);
 
-    static AbstractStaticItemModel * antennaModeItemModel();
+    static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
     static AbstractStaticItemModel * serialModeItemModel(int port_nr);
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();

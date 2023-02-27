@@ -33,8 +33,12 @@
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - NUM_ANALOGS_ADC)
 #else
   #define FIRST_ANALOG_ADC_FS          4
+ #if defined (RADIO_BOXER)
+  #define NUM_ANALOGS_ADC_FS           5
+ #else
   #define NUM_ANALOGS_ADC_FS           10
   #define NUM_ANALOGS_ADC_EXT          2
+ #endif
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
 #endif

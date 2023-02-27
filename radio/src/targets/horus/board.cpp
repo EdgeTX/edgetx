@@ -43,7 +43,7 @@
   #define ADC_DRIVER x12s_adc_driver
 #endif
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
 
@@ -75,7 +75,7 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          KEYS_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-#if defined(RADIO_FAMILY_T16)
+#if defined(FLYSKY_GIMBAL)
                          FLYSKY_HALL_RCC_AHB1Periph |
 #endif
                          AUX_SERIAL_RCC_AHB1Periph |
@@ -95,7 +95,7 @@ void boardInit()
                          ADC_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(RADIO_FAMILY_T16)
+#if defined(FLYSKY_GIMBAL)
                          FLYSKY_HALL_RCC_APB1Periph |
 #endif
                          TELEMETRY_RCC_APB1Periph |
@@ -158,7 +158,7 @@ void boardInit()
   }
 #endif
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
   globalData.flyskygimbals = flysky_gimbal_init();
 #else
   globalData.flyskygimbals = false;

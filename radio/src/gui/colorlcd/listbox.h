@@ -97,9 +97,6 @@ class ListBase : public TableField
 
 class ListBox : public ListBase
 {
-  std::string title;
-
  public:
   using ListBase::ListBase;
-  inline void setTitle(std::string title) { this->title = title; }
 };

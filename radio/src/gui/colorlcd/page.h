@@ -55,10 +55,7 @@ class Page : public Window
   void onCancel() override;
   void onClicked() override;
 
-  void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
-
-  virtual bool canCancel() { return true; }
 
  protected:
   PageHeader header;
