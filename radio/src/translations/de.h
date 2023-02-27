@@ -1023,6 +1023,63 @@
   #define TR_WIDGET_VALUE              "Wert"
 #endif
 
+// Bootloader common - Ascii only
+#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB verbunden"
+#define TR_BL_USB_CONNECTED           "USB verbunden"
+#define TR_BL_USB_PLUGIN              "Oder schließen Sie ein USB-Kabel"
+#define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "Oder schließen Sie ein USB-Kabel für den SD-Speicher an"
+#define TR_BL_WRITE_FW                "Schreibe Firmware"
+#define TR_BL_FORK                    "Fork:"
+#define TR_BL_VERSION                 "Version:"
+#define TR_BL_RADIO                   "Radio:"
+#define TR_BL_EXIT                    "Beenden"
+#define TR_BL_DIR_MISSING             " Verzeichnis fehlt"
+#define TR_BL_DIR_EMPTY               " Verzeichnis leer"
+
+#if LCD_W >= 480
+  #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmwaredatei"
+#elif LCD_W >= 212
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
+  #define TR_BL_HOLD_ENTER_TO_START    "\012Halte [ENT] gedrückt, um mit dem Schreiben zu beginnen"
+  #define TR_BL_INVALID_FIRMWARE       "\011Keine gültige Firmwaredatei!        "
+  #define TR_BL_INVALID_EEPROM         "\011Keine gültige EEPROM Datei!         "
+#else
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
+  #define TR_BL_HOLD_ENTER_TO_START    "\006Halte [ENT] zum Starten gedrückt"
+  #define TR_BL_INVALID_FIRMWARE       "\004Keine gültige Firmware!        "
+  #define TR_BL_INVALID_EEPROM         "\004Kein gültiges EEPROM!          "
+#endif
+
+#if defined(PCBTARANIS)
+   // Bootloader Taranis specific - Ascii only
+  #define TR_BL_RESTORE_EEPROM        "EEPROM wiederherstellen"
+  #define TR_BL_WRITING_FW            CENTER "\015Schreibe..."
+  #define TR_BL_WRITING_COMPL         CENTER "\007Schreiben abgeschlossen"
+  #if defined(RADIO_COMMANDO8)
+    #define TR_BL_POWER_KEY           "Drücke den Power Knopf."
+    #define TR_BL_FLASH_EXIT          "Verlasse den Flashmodus."
+  #endif
+#elif defined(PCBHORUS)
+   // Bootloader Horus specific - Ascii only
+  #define TR_BL_WRITING_FW            "Schreibe Firmware ..."
+  #define TR_BL_WRITING_COMPL         "Schreiben abgeschlossen"
+  #define TR_BL_SELECT_KEY            "[ENT] um Datei auszuwählen"
+  #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
+  #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
+#elif defined(PCBNV14)
+   // Bootloader NV14 specific - Ascii only
+  #define TR_BL_WRITING_FW            "Schreibe Firmware ..."
+  #define TR_BL_WRITING_COMPL         "Schreiben abgeschlossen"
+  #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
+  #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
+  #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
+  #define TR_BL_FLASH_KEY             "Halte [R TRIM] gedrückt, zum schreiben"
+  #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
+  #define TR_BL_ENABLE                "Aktivieren"
+  #define TR_BL_DISABLE               "Deaktivieren"
+#endif
+
 // Taranis Info Zeile Anzeigen
 #define TR_LIMITS_HEADERS_NAME         "Name"
 #define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"

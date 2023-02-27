@@ -919,6 +919,7 @@
 #define TR_INTERVAL            "Intervallo"
 #define TR_REPEAT                      "Ripeti"
 #define TR_ENABLE                      "Attivo"
+#define TR_DISABLE                     "Disabilitato"
 #define TR_TOPLCDTIMER         "Timer LCD Sup."
 #define TR_UNIT                "Unita"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Aggiungi nuovo sensore"
@@ -1038,6 +1039,63 @@
   #define TR_WIDGET_TEXT               "Testo"
   #define TR_WIDGET_TIMER              "Timer"
   #define TR_WIDGET_VALUE              "Valore"
+#endif
+
+// Bootloader common
+#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB Connessa"
+#define TR_BL_USB_CONNECTED           "USB Connessa"
+#define TR_BL_USB_PLUGIN              "O connetti il cavo USB"
+#define TR_BL_USB_MASS_STORE          "per memoria di massa"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "O connetti il cavo USB per memoria di massa"
+#define TR_BL_WRITE_FW                "Scrivo il Firmware"
+#define TR_BL_FORK                    "Fork:"
+#define TR_BL_VERSION                 "Versione:"
+#define TR_BL_RADIO                   "Radio:"
+#define TR_BL_EXIT                    "Esci"
+#define TR_BL_DIR_MISSING             " Directory non trovata"
+#define TR_BL_DIR_EMPTY               " Directory vuota"
+
+#if LCD_W >= 480
+  #define TR_BL_INVALID_FIRMWARE       "Firmware non valido"
+#elif LCD_W >= 212
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
+  #define TR_BL_HOLD_ENTER_TO_START    "\012Premi [ENT] per iniziare la scrittura"
+  #define TR_BL_INVALID_FIRMWARE       "\011Non è un file Firmware valido!    "
+  #define TR_BL_INVALID_EEPROM         "\011Non è un file EEPROM valido!      "
+#else
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
+  #define TR_BL_HOLD_ENTER_TO_START    "\006Premi [ENT] per partire"
+  #define TR_BL_INVALID_FIRMWARE       "\00Non è un file Firmware valido!"
+  #define TR_BL_INVALID_EEPROM         "\004Non è un file EEPROM valido! "
+#endif
+
+#if defined(PCBTARANIS)
+   // Bootloader Taranis specific
+  #define TR_BL_RESTORE_EEPROM        "Ripristino EEPROM"
+  #define TR_BL_WRITING_FW            CENTER "\015Scrittura..."
+  #define TR_BL_WRITING_COMPL         CENTER "\007Scrittura completata"
+  #if defined(RADIO_COMMANDO8)
+    #define TR_BL_POWER_KEY           "Premi il bottone d'accensione"
+    #define TR_BL_FLASH_EXIT          "Esci dal modo scrittura."
+  #endif
+#elif defined(PCBHORUS)
+   // Bootloader Horus specific
+  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
+  #define TR_BL_WRITING_COMPL         "Scrittura completata"
+  #define TR_BL_SELECT_KEY            "[ENT] per scegliere il file"
+  #define TR_BL_FLASH_KEY             "Tenere premuto [ENT] per scrivere"
+  #define TR_BL_EXIT_KEY              "[RTN] per uscire"
+#elif defined(PCBNV14)
+   // Bootloader NV14 specific
+  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
+  #define TR_BL_WRITING_COMPL         "Scrittura completata"
+  #define TR_BL_RF_USB_ACCESS         "RF USB accessa"
+  #define TR_BL_CURRENT_FW            "Firmware corrente:"
+  #define TR_BL_SELECT_KEY            "[R TRIM] per scegliere il file"
+  #define TR_BL_FLASH_KEY             "Tener premuto [R TRIM] per scrivere"
+  #define TR_BL_EXIT_KEY              " [L TRIM] per uscire"
+  #define TR_BL_ENABLE                "Attivo"
+  #define TR_BL_DISABLE               "Disabilitato"
 #endif
 
 // About screen
