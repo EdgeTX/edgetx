@@ -777,7 +777,7 @@
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
 #define TR_SAMPLE_MODE                 "Sample Mode"
-#define TR_SAMPLE_MODES                "Normal""OneBit"
+#define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "Loading..."
 
 #if defined(COLORLCD)
