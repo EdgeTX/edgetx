@@ -164,6 +164,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
   grid.add(browser);
   grid.nextCell();
+  lv_obj_set_scrollbar_mode(browser->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto obj = browser->getLvObj();
   lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);

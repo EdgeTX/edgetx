@@ -39,6 +39,7 @@ RadioToolsPage::RadioToolsPage():
 void RadioToolsPage::build(FormWindow * window)
 {
   this->window = window;
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
   waiting = 0;
@@ -243,10 +244,15 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
   tools.sort(tool_compare_nocase);
 
-  window->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  window->padRow(lv_dpx(8));
-  
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+  auto form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  form->padAll(lv_dpx(8));
+  form->padRow(lv_dpx(8));
+
   for (const auto& tool : tools) {
-    new ToolButton(window, tool);
+    new ToolButton(form, tool);
   }
 }

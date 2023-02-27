@@ -619,6 +619,7 @@ void ThemeSetupPage::setSelected(ThemePersistance *tp)
 void ThemeSetupPage::setupListbox(Window *window, rect_t r, ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
+  lv_obj_set_scrollbar_mode(listBox->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
   listBox->setAutoEdit(true);
   listBox->setSelected(currentTheme);
   listBox->setActiveItem(tp->getThemeIndex());

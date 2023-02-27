@@ -350,14 +350,19 @@ class SpecialFunctionEditPage : public Page
 
   void buildBody(FormWindow *window)
   {
-    window->setFlexLayout();
+    window->padAll(0);
+    lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+    auto form = new FormWindow(window, rect_t{});
+    form->setFlexLayout();
+    form->padAll(8);
+
     FlexGridLayout grid(col_dsc, row_dsc, 2);
-    lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
     CustomFunctionData *cfn = &functions[index];
 
     // Switch
-    auto line = window->newLine(&grid);
+    auto line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SF_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
@@ -381,7 +386,7 @@ class SpecialFunctionEditPage : public Page
     }
     
     // Function
-    line = window->newLine(&grid);
+    line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
         new Choice(line, rect_t{}, STR_VFSWFUNC,
@@ -397,7 +402,7 @@ class SpecialFunctionEditPage : public Page
       return isAssignableFunctionAvailable(value, functions);
     });
 
-    specialFunctionOneWindow = new FormWindow(window, rect_t{});
+    specialFunctionOneWindow = new FormWindow(form, rect_t{});
     updateSpecialFunctionOneWindow();
   }
 };
@@ -779,6 +784,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
 #endif
 
   window->padAll(4);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormWindow(window, rect_t{});
   form->setFlexLayout();
