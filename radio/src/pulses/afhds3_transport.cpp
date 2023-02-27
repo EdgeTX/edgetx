@@ -91,10 +91,11 @@ void FrameTransport::putBytes(uint8_t* data, int length)
   }  
 }
 
-void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
-                              uint8_t dataLength, uint8_t frameIndex)
+void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType,
+                              uint8_t* data, uint8_t dataLength,
+                              uint8_t frameIndex)
 {
-  //header
+  // header
   data_ptr = trsp_buffer;
 
   crc = 0;
@@ -103,12 +104,12 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* da
   uint8_t buffer[] = {frameAddress, frameIndex, frameType, command};
   putBytes(buffer, 4);
 
-  //payload
+  // payload
   if (dataLength > 0) {
     putBytes(data, dataLength);
   }
 
-  //footer
+  // footer
   uint8_t crcValue = crc ^ 0xff;
   putBytes(&crcValue, 1);
   sendByte(END);
@@ -353,7 +354,8 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
 bool Transport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                                      uint8_t& rxBufferCount, uint8_t maxSize)
 {
-  bool has_frame = trsp.processTelemetryData(byte, rxBuffer, rxBufferCount, maxSize);
+  bool has_frame =
+      trsp.processTelemetryData(byte, rxBuffer, rxBufferCount, maxSize);
   if (has_frame && handleReply(rxBuffer, rxBufferCount)) {
     rxBufferCount = 0;
     return false;
@@ -361,5 +363,4 @@ bool Transport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
 
   return has_frame;
 }
-
-};
+};  // namespace afhds3
