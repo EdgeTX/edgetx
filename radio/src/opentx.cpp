@@ -1515,15 +1515,6 @@ void opentxInit()
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
 
-#if defined(STM32F205xx)
-  // Checks the radio MCU type matches intended firmwware type
-  uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
-
-  if(idcode != 0x411) {
-    runFatalErrorScreen("WRONG MCU");
-  }
-#endif
-
 #if defined(STARTUP_ANIMATION)
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     pwrOn();
