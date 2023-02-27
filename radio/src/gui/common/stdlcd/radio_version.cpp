@@ -45,19 +45,6 @@
 constexpr uint8_t COLUMN2_X = 10 * FW;
 #endif
 
-void drawProcessorType(coord_t x, coord_t y, LcdFlags flags)
-{
-  uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
- 
-  switch(idcode)
-  {
-    case 0x411 : lcdDrawText(x,y,"STM32F205", flags); break;
-    case 0x413 : lcdDrawText(x,y,"STM32F407", flags); break;
-    case 0x450 : lcdDrawText(x,y,"STM32H7xx", flags); break;
-    default : lcdDrawNumber(x,y,idcode, flags);
-  }
-}
-
 void menuRadioFirmwareOptions(event_t event)
 {
   title(STR_MENU_FIRM_OPTIONS);
@@ -283,11 +270,7 @@ void menuRadioVersion(event_t event)
 
   coord_t y = MENU_HEADER_HEIGHT + 2;
   lcdDrawText(FW, y, vers_stamp, SMLSIZE);
-  y += 4 * (FH - 1);
-
-  drawProcessorType(INDENT_WIDTH,y, SMLSIZE);
-
-  y += FH + 2;
+  y += 5 * (FH - 1) + 2;
 
 #if defined(PCBTARANIS)
   lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_FIRMWARE_OPTIONS), menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS ? INVERS : 0);

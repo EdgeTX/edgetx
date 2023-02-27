@@ -140,6 +140,27 @@ static void readKeysAndTrims()
   }
 }
 
+void checkValidMCU(void)
+{
+  // Checks the radio MCU type matches intended firmware type
+  uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
+
+#if defined(STM32F205xx)
+  #define TARGET_IDCODE   0x411
+#elif defined(STM32F407xx)
+  #define TARGET_IDCODE   0x413
+#elif defined(STM32F429xx)
+  #define TARGET_IDCODE   0x419
+#else
+  // Ensure new radio get registered :)
+  #define TARGET_IDCODE   0x0
+#endif
+
+  if(idcode != TARGET_IDCODE) {
+    runFatalErrorScreen("WRONG MCU");
+  }
+}
+
 void per10ms()
 {
   g_tmr10ms++;
@@ -1676,6 +1697,8 @@ int main()
 
   boardInit();
   pulsesInit();
+
+  checkValidMCU();
 
 #if defined(PCBHORUS)
   if (!IS_FIRMWARE_COMPATIBLE_WITH_BOARD()) {
