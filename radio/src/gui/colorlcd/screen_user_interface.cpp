@@ -91,10 +91,15 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
 {
 }
 
-void ScreenUserInterfacePage::build(FormWindow* form)
+void ScreenUserInterfacePage::build(FormWindow* oform)
 {
-  FlexGridLayout grid(line_col_dsc, line_row_dsc);
+  oform->padAll(0);
+  lv_obj_set_scrollbar_mode(oform->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+  auto form = new FormWindow(oform, rect_t{});
   form->setFlexLayout();
+  form->padAll(4);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Top Bar
   auto line = form->newLine(&grid);

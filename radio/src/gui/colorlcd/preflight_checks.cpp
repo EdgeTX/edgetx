@@ -109,7 +109,8 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
+  form->padAll(4);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Display checklist
   auto line = form->newLine(&grid);

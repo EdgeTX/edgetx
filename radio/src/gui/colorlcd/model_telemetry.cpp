@@ -488,6 +488,9 @@ class SensorEditWindow : public Page {
 
     void buildBody(FormWindow * window)
     {
+      window->padAll(0);
+      lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
       // Sensor one
       auto form = new FormWindow(window, rect_t{});
       form->setFlexLayout();
@@ -567,13 +570,14 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
 
 void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
-  window->padAll(4);
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   this->window = window;
 
   auto form = new FormWindow(window, rect_t{});
   form->setFlexLayout();
-  form->padAll(0);
+  form->padAll(4);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   FlexGridLayout grid2(col_dsc2, row_dsc, 2);

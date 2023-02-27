@@ -92,12 +92,6 @@ struct ModelBitmapEdit : public FileChoice {
   }
 };
 
-struct TimerBtnMatrix : public ButtonMatrix {
-  TimerBtnMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id) override;
-  bool isActive(uint8_t btn_id) override;
-};
-
 class SubScreenButton : public Button
 {
   std::string text;
@@ -233,22 +227,27 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 void ModelSetupPage::build(FormWindow * window)
 {
-  window->setFlexLayout();
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+  auto wform = new FormWindow(window, rect_t{});
+  wform->setFlexLayout();
+  wform->padAll(4);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Model name
-  auto line = window->newLine(&grid);
+  auto line = wform->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   new ModelNameEdit(line, rect_t{});
 
   // Model labels
-  line = window->newLine(&grid);
+  line = wform->newLine(&grid);
   new StaticText(line, rect_t{}, STR_LABELS, 0, COLOR_THEME_PRIMARY1);
   auto curmod = modelslist.getCurrentModel();
   labelTextButton =
     new TextButton(line, rect_t{}, modelslabels.getBulletLabelString(curmod ,STR_UNLABELEDMODEL), [=] () {
-       Menu *menu = new Menu(window, true);
+       Menu *menu = new Menu(wform, true);
        menu->setTitle(STR_LABELS);
        for (auto &label: modelslabels.getLabels()) {
          menu->addLineBuffered(label,
@@ -270,18 +269,18 @@ void ModelSetupPage::build(FormWindow * window)
      });
 
   // Bitmap
-  line = window->newLine(&grid);
+  line = wform->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
 
   // Global functions
-  line = window->newLine(&grid);
+  line = wform->newLine(&grid);
   new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.noGlobalFunctions));
 
   // Model ADC jitter filter
-  line = window->newLine(&grid);
+  line = wform->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
              GET_SET_DEFAULT(g_model.jitterFilter));
@@ -289,7 +288,7 @@ void ModelSetupPage::build(FormWindow * window)
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  auto oform = new FormGroup(window, rect_t{});
+  auto oform = new FormGroup(wform, rect_t{});
   oform->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(PAGE_PADDING));
   oform->padAll(PAGE_PADDING);
 
@@ -342,37 +341,4 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-}
-
-#define MAX_SUBSCREEN_BTNS 9
-
-TimerBtnMatrix::TimerBtnMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
-{
-  initBtnMap(3, MAX_TIMERS);
-  setText(0, TR_TIMER "1");
-  setText(1, TR_TIMER "2");
-  setText(2, TR_TIMER "3");
-  update();
-
-  lv_btnmatrix_set_btn_width(lvobj, 3, 2);
-  lv_obj_set_width(lvobj, lv_pct(100));
-  lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
-
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, 0);
-  lv_obj_set_style_pad_all(lvobj, lv_dpx(8), 0);
-
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(8), 0);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(8), 0);
-}
-
-void TimerBtnMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= MAX_TIMERS) return;
-  new TimerWindow((uint8_t)(btn_id));
-}
-
-bool TimerBtnMatrix::isActive(uint8_t btn_id)
-{
-  return false;
 }

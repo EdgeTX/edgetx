@@ -291,20 +291,20 @@ ModelOutputsPage::ModelOutputsPage() :
 
 void ModelOutputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout();
-  window->padRow(lv_dpx(4));
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormGroup(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(16));
-  form->padRow(lv_dpx(8));
-  form->padBottom(lv_dpx(4));
+  form->padAll(lv_dpx(8));
+  form->padRow(lv_dpx(4));
 
   auto form_obj = form->getLvObj();
   lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
 
   new TextButton(form, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     moveTrimsToOffsets();
-    window->invalidate();
+    form->invalidate();
     return 0;
   });
 
@@ -321,7 +321,7 @@ void ModelOutputsPage::build(FormWindow *window)
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 
     // Channel settings
-    auto btn = new OutputLineButton(window, ch);
+    auto btn = new OutputLineButton(form, ch);
 #if LCD_W > LCD_H
     // Initial scroll height is incorrect without this??? (Issue #3186)
     btn->setHeight(35);
@@ -329,7 +329,7 @@ void ModelOutputsPage::build(FormWindow *window)
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(window);
+      Menu *menu = new Menu(form);
       menu->addLine(STR_EDIT, [=]() {
           editOutput(ch, btn);
       });

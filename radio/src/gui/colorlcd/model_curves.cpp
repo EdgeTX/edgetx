@@ -202,8 +202,12 @@ void ModelCurvesPage::build(FormWindow * window)
 #endif
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
   auto form = new FormWindow(window, rect_t{});
   form->setFlexLayout();
+  form->padAll(6);
 
   FlexGridLayout grid(col_dsc, row_dsc);
   

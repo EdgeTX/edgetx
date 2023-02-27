@@ -442,11 +442,12 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
 
 void ModelInputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout();
-  window->padRow(lv_dpx(8));
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
   
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout();
+  form->padAll(lv_dpx(8));
   form->padRow(lv_dpx(4));
 
   auto form_obj = form->getLvObj();

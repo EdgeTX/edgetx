@@ -290,6 +290,7 @@ void ModelMixerScriptsPage::rebuild(FormWindow * window, int8_t focusIdx)
 void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
 {
   window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormWindow(window, rect_t{});
   form->setFlexLayout();

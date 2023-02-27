@@ -216,10 +216,15 @@ ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
 {
 }
 
-void ScreenSetupPage::build(FormWindow * form)
+void ScreenSetupPage::build(FormWindow * oform)
 {
-  FlexGridLayout grid(line_col_dsc, line_row_dsc);
+  oform->padAll(0);
+  lv_obj_set_scrollbar_mode(oform->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+  auto form = new FormWindow(oform, rect_t{});
   form->setFlexLayout();
+  form->padAll(4);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Layout choice...
   auto line = form->newLine(&grid);

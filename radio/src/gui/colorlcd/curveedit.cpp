@@ -33,6 +33,8 @@ CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index
   Window(parent, rect, FORM_FORWARD_FOCUS),
   index(index)
 {
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_AUTO);
 }
 
 #if LCD_W > LCD_H
@@ -167,11 +169,6 @@ void CurveDataEdit::update()
     lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
     curvePointsRow(line, i, count, curvePointsCount, curve.type == CURVE_TYPE_CUSTOM);
   }
-}
-
-void CurveDataEdit::paint(BitmapBuffer* dc)
-{
-  dc->clear(COLOR_THEME_SECONDARY3);
 }
 
 void CurveEdit::SetCurrentSource(uint32_t source)

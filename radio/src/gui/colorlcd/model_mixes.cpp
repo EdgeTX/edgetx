@@ -512,11 +512,12 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 void ModelMixesPage::build(FormWindow * window)
 {
   scroll_win = window->getParent();
-  window->setFlexLayout();
-  window->padRow(lv_dpx(8));
+  window->padAll(0);
+  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   form = new FormGroup(window, rect_t{});
   form->setFlexLayout();
+  form->padAll(lv_dpx(8));
   form->padRow(lv_dpx(4));
 
   auto form_obj = form->getLvObj();
@@ -547,7 +548,7 @@ void ModelMixesPage::build(FormWindow * window)
     }
   }
 
-  auto box = new FormGroup(window, rect_t{});
+  auto box = new FormGroup(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
@@ -560,7 +561,7 @@ void ModelMixesPage::build(FormWindow * window)
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });
 
-  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+  auto btn = new TextButton(form, rect_t{}, LV_SYMBOL_PLUS, [=]() {
     newMix();
     return 0;
   });
