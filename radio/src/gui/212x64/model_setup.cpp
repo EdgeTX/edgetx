@@ -392,8 +392,6 @@ void onBluetoothConnectMenu(const char * result)
 #include "common/stdlcd/model_setup_afhds3.cpp"
 #endif
 
-static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
-
 void menuModelSetup(event_t event)
 {
   horzpos_t l_posHorz = menuHorizontalPosition;
@@ -822,7 +820,7 @@ void menuModelSetup(event_t event)
 #endif
 
         lcdDrawTextAlignedLeft(y, STR_POTWARNING);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, _pots_warn_modes, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_PREFLIGHT_POTSLIDER_CHECK, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
         if (attr && (menuHorizontalPosition == 0)) {
           CHECK_INCDEC_MODELVAR(event, g_model.potsWarnMode, POTS_WARN_OFF, POTS_WARN_AUTO);
           storageDirty(EE_MODEL);
