@@ -742,7 +742,6 @@
 #define TR_LOADING                     "Loading..."
 #define TR_DELETE_THEME                "Delete Theme?"
 #define TR_SAVE_THEME                  "Save Theme?"
-#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"
@@ -918,7 +917,6 @@
 #define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER         "Timer LCD superior"
 #define TR_UNIT                "Unidad"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Añadir sensor..."
@@ -967,6 +965,7 @@
 #define TR_GLOBALVAR           "Var global"
 #define TR_MIXSOURCE           "Entrada mixer"
 #define TR_CONSTANT            "Constante"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
 #define TR_PREFLIGHT           "Chequeos prevuelo"
 #define TR_CHECKLIST           TR(INDENT "Lista verif", INDENT "Lista verificación")
 #define TR_AUX_SERIAL_MODE     "Puerto serie"
@@ -1040,64 +1039,7 @@
   #define TR_WIDGET_VALUE              "Value"
 #endif
 
-// Bootloader common - Ascii only
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB Connected"
-#define TR_BL_USB_CONNECTED           "USB Connected"
-#define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
-#define TR_BL_USB_MASS_STORE          "for mass storage"
-#define TR_BL_USB_PLUGIN_MASS_STORE   "Or plug in a USB cable for mass storage"
-#define TR_BL_WRITE_FW                "Write Firmware"
-#define TR_BL_FORK                    "Fork:"
-#define TR_BL_VERSION                 "Version:"
-#define TR_BL_RADIO                   "Radio:"
-#define TR_BL_EXIT                    "Exit"
-#define TR_BL_DIR_MISSING             " Directory is missing"
-#define TR_BL_DIR_EMPTY               " Directory is empty"
-
-#if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
-#elif LCD_W >= 212
-  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
-  #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
-  #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
-  #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
-#else
-  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-  #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
-  #define TR_BL_INVALID_FIRMWARE       "\004Not a valid firmware!        "
-  #define TR_BL_INVALID_EEPROM         "\004Not a valid EEPROM!          "
-#endif
-
-#if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
-  #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Writing..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Writing complete"
-  #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Press the power button."
-    #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
-  #endif
-#elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Writing Firmware ..."
-  #define TR_BL_WRITING_COMPL         "Writing Completed"
-  #define TR_BL_SELECT_KEY            "[ENT] to select file"
-  #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
-  #define TR_BL_EXIT_KEY              "[RTN] to exit"
-#elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Writing Firmware ..."
-  #define TR_BL_WRITING_COMPL         "Writing Completed"
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_CURRENT_FW            "Current Firmware:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
-  #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
-  #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
-  #define TR_BL_ENABLE                "Enable"
-  #define TR_BL_DISABLE               "Disable"
-#endif
-
-// About screen
+// Taranis About screen
 #define TR_ABOUTUS             "Nosotros"
 
 #define TR_CHR_HOUR   'h'

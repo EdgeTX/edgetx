@@ -739,7 +739,6 @@
 #define TR_LOADING             "Ładowanie..."
 #define TR_DELETE_THEME        "Usunąć motyw?"
 #define TR_SAVE_THEME          "Zapisać motyw?"
-#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
@@ -962,6 +961,7 @@
 #define TR_GLOBALVAR           "Zm.Global."
 #define TR_MIXSOURCE           "Źródło Miks."
 #define TR_CONSTANT            "Stała   "
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
 #define TR_PREFLIGHT           "Lista Ostrzeżeń"
 #define TR_CHECKLIST           TR(INDENT "Czeklista",INDENT "Pokaż Listę Ostrzeżeń")
 #define TR_AUX_SERIAL_MODE     "Port szreg."
@@ -1033,63 +1033,6 @@
   #define TR_WIDGET_TEXT               "Tekst"
   #define TR_WIDGET_TIMER              "Timer"
   #define TR_WIDGET_VALUE              "Wartość"
-#endif
-
-// Bootloader common - Ascii only
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB polaczone"
-#define TR_BL_USB_CONNECTED           "USB polaczone"
-#define TR_BL_USB_PLUGIN              "lub podlacz kabel USB"
-#define TR_BL_USB_MASS_STORE          "dla trybu danych"
-#define TR_BL_USB_PLUGIN_MASS_STORE   "lub podlacz kabel USB dla trybu danych"
-#define TR_BL_WRITE_FW                "Zapis firmware"
-#define TR_BL_FORK                    "Fork:"
-#define TR_BL_VERSION                 "Wersja:"
-#define TR_BL_RADIO                   "Radio:"
-#define TR_BL_EXIT                    "Wyjdz"
-#define TR_BL_DIR_MISSING             " Brak katalogu"
-#define TR_BL_DIR_EMPTY               " Katalog jest pusty"
-
-#if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE       "Nieprawidlowy plik firmware"
-#elif LCD_W >= 212
-  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
-  #define TR_BL_HOLD_ENTER_TO_START    "\012Przytrzymaj [ENT] by zaczac zapis"
-  #define TR_BL_INVALID_FIRMWARE       "\011Nieprawidlowy plik firmware!      "
-  #define TR_BL_INVALID_EEPROM         "\011Nieprawidlowy plik EEPROM!        "
-#else
-  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-  #define TR_BL_HOLD_ENTER_TO_START    "\006Przytrzymaj [ENT] by zaczac"
-  #define TR_BL_INVALID_FIRMWARE       "\004011Nieprawidlowy firmware!   "
-  #define TR_BL_INVALID_EEPROM         "\004011Nieprawidlowy EEPROM!     "
-#endif
-
-#if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
-  #define TR_BL_RESTORE_EEPROM        "Przywroc EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Zapis..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Zapis ukonczony"
-  #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Nacisnij przycisk Power"
-    #define TR_BL_FLASH_EXIT          "Wyjdz z trybu flashowania"
-  #endif
-#elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Zapis firmware ..."
-  #define TR_BL_WRITING_COMPL         "Zapis ukonczony"
-  #define TR_BL_SELECT_KEY            "[ENT] aby wybrac plik"
-  #define TR_BL_FLASH_KEY             "Przytrzymaj [ENT] aby flashowac"
-  #define TR_BL_EXIT_KEY              "[RTN] aby wyjsc"
-#elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Zapis firmware ..."
-  #define TR_BL_WRITING_COMPL         "Zapis ukonczony"
-  #define TR_BL_RF_USB_ACCESS         "Dostep RF USB"
-  #define TR_BL_CURRENT_FW            "Obecny firmware:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] aby wybrac plik"
-  #define TR_BL_FLASH_KEY             "Przytrzymaj [R TRIM] aby flashowac"
-  #define TR_BL_EXIT_KEY              " [L TRIM] aby wyjsc"
-  #define TR_BL_ENABLE                "Włącz"
-  #define TR_BL_DISABLE               "Wyłączać"
 #endif
 
 // About screen
