@@ -834,12 +834,13 @@ extern const LanguagePack ruLanguagePack;
 extern const LanguagePack seLanguagePack;
 extern const LanguagePack skLanguagePack;
 extern const LanguagePack cnLanguagePack;
-// extern const LanguagePack jpLanguagePack;
+extern const LanguagePack jpLanguagePack;
 extern const LanguagePack * const languagePacks[];
 
 #if defined(LANGUAGE_PACKS_DEFINITION)
 const LanguagePack * const languagePacks[] = {
   // alphabetical order
+  &cnLanguagePack,
   &czLanguagePack,
   &daLanguagePack,
   &deLanguagePack,
@@ -848,14 +849,13 @@ const LanguagePack * const languagePacks[] = {
   &frLanguagePack,
   &huLanguagePack,
   &itLanguagePack,
+  &jpLanguagePack,
   &nlLanguagePack,
   &plLanguagePack,
   &ptLanguagePack,
   &ruLanguagePack,
   &seLanguagePack,
   &skLanguagePack,
-  &cnLanguagePack,
-// &jpLanguagePack,
   NULL
 };
 #endif
