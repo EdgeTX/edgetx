@@ -47,14 +47,22 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
     onCancel();
     return 0;
   });
+#if LCD_W > LCD_H
   btn->setWidth(LV_DPI_DEF);
+#else
+  btn->setWidth(LV_DPI_DEF * 3 / 4);
+#endif
 
   btn = new TextButton(box, rect_t{}, STR_YES, [=]() -> int8_t {
     this->deleteLater();
     this->confirmHandler();
     return 0;
   });
+#if LCD_W > LCD_H
   btn->setWidth(LV_DPI_DEF);
+#else
+  btn->setWidth(LV_DPI_DEF * 3 / 4);
+#endif
 
   content->setWidth(LCD_W * 0.8);
   content->updateSize();

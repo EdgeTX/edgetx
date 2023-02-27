@@ -47,10 +47,8 @@ ThemeFile::ThemeFile(std::string themePath) :
     int n = 0;
     while (n < MAX_FILES) {
       auto baseFileName(path.substr(0, found + 1) + (n != 0 ? "screenshot" + std::to_string(n) : "logo") + ".png");
-      FRESULT result = f_open(&file, baseFileName.c_str(), FA_OPEN_EXISTING);
-      if (result == FR_OK) {
+      if (isFileAvailable(baseFileName.c_str(), true)) {
         _imageFileNames.emplace_back(baseFileName);
-        f_close(&file);
       } else {
         break;
       }
@@ -66,9 +64,9 @@ ThemeFile& ThemeFile::operator= (const ThemeFile& theme)
     return *this;
 
   path = theme.path;
-  strncpy(name, theme.name, NAME_LENGTH);
-  strncpy(author, theme.author, AUTHOR_LENGTH);
-  strncpy(info, theme.info, INFO_LENGTH);
+  strAppend(name, theme.name, NAME_LENGTH);
+  strAppend(author, theme.author, AUTHOR_LENGTH);
+  strAppend(info, theme.info, INFO_LENGTH);
   colorList.assign(theme.colorList.begin(), theme.colorList.end());
   _imageFileNames.assign(theme._imageFileNames.begin(), theme._imageFileNames.end());
 
@@ -149,9 +147,8 @@ void ThemeFile::deSerialize()
       char *plvalue;
       char *prvalue;
 
-      strncpy(lvalue, line, min((int)(ptr - line), 63));
-      lvalue[ptr - line] = '\0';
-      strncpy(rvalue, ptr + 1, 63);
+      strAppend(lvalue, line, min((int)(ptr - line), 63));
+      strAppend(rvalue, ptr + 1, 63);
       plvalue = trim(lvalue);
       prvalue = trim(rvalue);
 
@@ -169,14 +166,11 @@ void ThemeFile::deSerialize()
 
         case summary: {
           if (strcmp(plvalue, "name") == 0) {
-            strncpy(name, prvalue, NAME_LENGTH);
-            name[NAME_LENGTH] = '\0';
+            strAppend(name, prvalue, NAME_LENGTH);
           } else if (strcmp(plvalue, "author") == 0) {
-            strncpy(author, prvalue, AUTHOR_LENGTH);
-            author[AUTHOR_LENGTH] = '\0';
+            strAppend(author, prvalue, AUTHOR_LENGTH);
           } else if (strcmp(plvalue, "info") == 0) {
-            strncpy(info, prvalue, INFO_LENGTH);
-            info[INFO_LENGTH] = '\0';
+            strAppend(info, prvalue, INFO_LENGTH);
           }
         } break;
         
@@ -347,14 +341,11 @@ void ThemePersistance::clearThemes()
 
 void ThemePersistance::scanThemeFolder(char *fullPath)
 {
-  FIL file;
   strncat(fullPath, "/theme.yml", FF_MAX_LFN);
-  FRESULT result = f_open(&file, fullPath, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) return;
-
-  f_close(&file);
-  TRACE("scanForThemes: found file %s", fullPath);
-  themes.emplace_back(new ThemeFile(fullPath));
+  if (isFileAvailable(fullPath, true)) {
+    TRACE("scanForThemes: found file %s", fullPath);
+    themes.emplace_back(new ThemeFile(fullPath));
+  }
 }
 
 void ThemePersistance::scanForThemes()
@@ -366,8 +357,7 @@ void ThemePersistance::scanForThemes()
 
   char fullPath[FF_MAX_LFN + 1];
 
-  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
-  fullPath[FF_MAX_LFN] = '\0';
+  strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
 
   TRACE("opening directory: %s", fullPath);
   FRESULT res = f_opendir(&dir, fullPath);  // Open the directory
@@ -384,9 +374,9 @@ void ThemePersistance::scanForThemes()
       if (strlen((const char *)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
       if (fno.fattrib & AM_DIR) {
         char themePath[FF_MAX_LFN + 1];
-        strncpy(themePath, fullPath, FF_MAX_LFN);
-        strncat(themePath, "/", FF_MAX_LFN);
-        strncat(themePath, fno.fname, FF_MAX_LFN);
+        char *s = strAppend(themePath, fullPath, FF_MAX_LFN);
+        s = strAppend(s, "/", FF_MAX_LFN - (s - themePath));
+        strAppend(s, fno.fname, FF_MAX_LFN - (s - themePath));
         scanThemeFolder(themePath);
       }
     }
@@ -416,15 +406,23 @@ void ThemePersistance::loadDefaultTheme()
     line[len] = '\0';
 
     int index = 0;
+    bool found = false;
     for (auto theme : themes) {
       if (theme->getPath() == std::string(line)) {
-        applyTheme(index);
-        setThemeIndex(index);
+        found = true;
+        break;
       }
-
       index++;
     }
+
+    // Force default if no match for last selected theme
+    if (!found)
+      index = 0;
+
+    applyTheme(index);
+    setThemeIndex(index);
   }
+
   f_close(&file);
 }
 
@@ -439,8 +437,8 @@ bool ThemePersistance::deleteThemeByIndex(int index)
   if (index > 0 && index < (int) themes.size()) {
     ThemeFile* theme = themes[index];
     
-    char newFile[FF_MAX_LFN + 1];
-    strncpy(newFile, theme->getPath().c_str(), FF_MAX_LFN);
+    char newFile[FF_MAX_LFN + 10];
+    strAppend(newFile, theme->getPath().c_str(), FF_MAX_LFN);
     strcat(newFile, ".deleted");
 
     // for now we are just renaming the file so we don't find it
@@ -459,25 +457,17 @@ bool ThemePersistance::deleteThemeByIndex(int index)
 bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
 {
   char fullPath[FF_MAX_LFN + 1];
-  strncpy(fullPath, THEMES_PATH, FF_MAX_LFN);
-  fullPath[FF_MAX_LFN] = '\0';
-  strncat(fullPath, "/", FF_MAX_LFN);
-  strncat(fullPath, name.c_str(), FF_MAX_LFN);
+  char *s = strAppend(fullPath, THEMES_PATH, FF_MAX_LFN);
+  s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
+  s = strAppend(s, name.c_str(), FF_MAX_LFN - (s - fullPath));
 
   FRESULT result = f_mkdir(fullPath);
   if (result != FR_OK) return false;
-  strncat(fullPath, "/", FF_MAX_LFN);
-  strncat(fullPath, "theme.yml", FF_MAX_LFN);
+  s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
+  strAppend(s, "theme.yml", FF_MAX_LFN - (s - fullPath));
   theme.setPath(fullPath);
   theme.serialize();
   return true;
-}
-
-void ThemePersistance::deleteDefaultTheme()
-{
-  FIL file;
-  FRESULT status = f_open(&file, SELECTED_THEME_FILE, FA_CREATE_ALWAYS | FA_WRITE);
-  if (status == FR_OK) f_close(&file);
 }
 
 void ThemePersistance::setDefaultTheme(int index)
@@ -489,7 +479,8 @@ void ThemePersistance::setDefaultTheme(int index)
     if (status != FR_OK) return;
 
     currentTheme = index;
-    f_printf(&file, theme->getPath().c_str());
+    if (index > 0)
+      f_printf(&file, theme->getPath().c_str());
     f_close(&file);
   }
 }
@@ -497,7 +488,7 @@ void ThemePersistance::setDefaultTheme(int index)
 class DefaultEdgeTxTheme : public ThemeFile
 {
   public:
-    DefaultEdgeTxTheme() : ThemeFile("")
+    DefaultEdgeTxTheme() : ThemeFile(THEMES_PATH"/EdgeTX/")
     {
       setName("EdgeTX Default");
       setAuthor("EdgeTX Team");
@@ -515,23 +506,6 @@ class DefaultEdgeTxTheme : public ThemeFile
       colorList.emplace_back(ColorEntry { COLOR_THEME_ACTIVE_INDEX, RGB(255, 222, 0) });
       colorList.emplace_back(ColorEntry { COLOR_THEME_WARNING_INDEX, RGB(224, 0, 0) });
       colorList.emplace_back(ColorEntry { COLOR_THEME_DISABLED_INDEX, RGB(140, 140, 140) });
-    }
-
-    void applyBackground() override
-    {
-      auto instance = OpenTxTheme::instance();
-      char fileName[FF_MAX_LFN + 1];
-      fileName[FF_MAX_LFN] = '\0';
-      strncpy(fileName, THEMES_PATH, FF_MAX_LFN);
-      strcat(fileName, "/EdgeTX/background.png");
-      instance->setBackgroundImageFileName(fileName);
-    }
-
-    std::vector<std::string> getThemeImageFileNames() override
-    {
-      std::vector<std::string> fileNames;
-      fileNames.emplace_back("/THEMES/EdgeTX/EdgeTX.png");
-      return fileNames;
     }
 };
 

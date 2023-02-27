@@ -26,7 +26,6 @@ class ThemeColorPreview;
 class ThemeSetupPage: public PageTab {
   public:
     ThemeSetupPage();
-    ~ThemeSetupPage();
 
     void build(FormWindow * window) override;
     void checkEvents() override;
@@ -40,7 +39,11 @@ class ThemeSetupPage: public PageTab {
     StaticText *authorText = nullptr;
     StaticText *nameText = nullptr;
     int currentTheme = 0;
-    void setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp);
+    bool started = false;
+
+    void setupListbox(Window *window, rect_t r, ThemePersistance *tp);
     void displayThemeMenu(Window *window, ThemePersistance *tp);
     void setAuthor(ThemeFile *theme);
+    void setName(ThemeFile *theme);
+    void setSelected(ThemePersistance *tp);
 };

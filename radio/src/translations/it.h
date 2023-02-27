@@ -743,6 +743,7 @@
 #define TR_LOADING             "Caricamento..."
 #define TR_DELETE_THEME        "Cancello Tema?"
 #define TR_SAVE_THEME          "Salvo Tema?"
+#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Selezione veloce modello"

@@ -58,6 +58,8 @@ Page::Page(unsigned icon):
   body(this, _get_body_rect(), FORM_FORWARD_FOCUS)
 {
   Layer::push(this);
+
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
 }
 
 void Page::deleteLater(bool detach, bool trash)
@@ -69,15 +71,9 @@ void Page::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void Page::paint(BitmapBuffer * dc)
-{
-  dc->clear(COLOR_THEME_SECONDARY3);
-}
-
 void Page::onCancel()
 {
-  if (canCancel())
-    deleteLater();
+  deleteLater();
 }
 
 void Page::onClicked()

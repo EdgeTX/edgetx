@@ -213,18 +213,18 @@ class TabsGroup: public Window
     void onClicked() override;
     void onCancel() override;
 
-    void paint(BitmapBuffer * dc) override;
-
 #if defined(HARDWARE_TOUCH)
     bool onTouchEnd(coord_t x, coord_t y) override;
 #endif
 
+    static void refreshTheme();
 
    protected:
     TabsGroupHeader header;
     FormWindow body;
     std::vector<PageTab *> tabs;
     PageTab * currentTab = nullptr;
+    static TabsGroup* activeTabsGroup;
 
     void setVisibleTab(PageTab * tab);
 };
