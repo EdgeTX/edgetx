@@ -28,7 +28,7 @@
 // #include "imu_lsm6ds33.h"
 // #endif
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
 
