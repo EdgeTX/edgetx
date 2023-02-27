@@ -549,13 +549,13 @@ FieldRange GeneralSettings::getTxCurrentCalibration()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::antennaModeItemModel()
+AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_ANTENNAMODE);
 
   for (int i = ANTENNA_MODE_FIRST; i <= ANTENNA_MODE_LAST; i++) {
-    mdl->appendToItemList(antennaModeToString(i), i);
+    mdl->appendToItemList(antennaModeToString(i), i, model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
   }
 
   mdl->loadItemList();

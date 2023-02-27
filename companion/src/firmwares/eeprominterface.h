@@ -162,7 +162,6 @@ enum Capability {
   HasAux2SerialMode,
   HasVCPSerialMode,
   HasBluetooth,
-  HasAntennaChoice,
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
