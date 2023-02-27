@@ -748,6 +748,7 @@
 #define TR_LOADING                     "Indlæser..."
 #define TR_DELETE_THEME                "Slet tema?"
 #define TR_SAVE_THEME                  "Gem tema?"
+#define TR_EDIT_COLOR                  "Edit Color"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
@@ -796,16 +797,16 @@
 #define TR_MIXERS_MONITOR              "MIX MONITOR"
 #define TR_PATH_TOO_LONG               "Sti for lang"
 #define TR_VIEW_TEXT                   "Vis tekst"
-#define TR_FLASH_BOOTLOADER            "Brænde bootloader"
-#define TR_FLASH_DEVICE                TR("Brænde enhed","Brænde enhed")
-#define TR_FLASH_EXTERNAL_DEVICE       TR("Brænde S.Port", "Brænde S.Port enhed")
-#define TR_FLASH_RECEIVER_OTA          "Brænde modtager OTA"
-#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Brænde RX med ext. OTA"
-#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Brænde RX med int. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Brænde FC med ext. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Brænde FC med int. OTA"
-#define TR_FLASH_BLUETOOTH_MODULE      TR("Brænde BT module", "Brænde Bluetooth modul")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT "Brænde pwr mngt unit"
+#define TR_FLASH_BOOTLOADER            "Installer bootloader"
+#define TR_FLASH_DEVICE                TR("Inst. enhed","Installer enhed")
+#define TR_FLASH_EXTERNAL_DEVICE       TR("Inst. S.Port", "Installer S.Port enhed")
+#define TR_FLASH_RECEIVER_OTA          "Installer modtager OTA"
+#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Installer RX via ext. OTA"
+#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Installer RX via int. OTA"
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Installer FC via ext. OTA"
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Installer FC via int. OTA"
+#define TR_FLASH_BLUETOOTH_MODULE      TR("Inst. BT module", "Installer Bluetooth modul")
+#define TR_FLASH_POWER_MANAGEMENT_UNIT "Installer strøm styring"
 #define TR_DEVICE_NO_RESPONSE          TR("Enhed svarer ikke", "Enhed svarer ikke")
 #define TR_DEVICE_FILE_ERROR           TR("Enhed fil prob.", "Enhed fil prob.")
 #define TR_DEVICE_DATA_REFUSED         TR("Enhed data afvist", "Enhed data afvist")
@@ -813,13 +814,13 @@
 #define TR_DEVICE_FILE_REJECTED        TR("Enhed fil afvist", "Enhed fil afvist")
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Enhed file sig.", "Enhed file sig.")
 #define TR_CURRENT_VERSION             TR("Aktuel ver: ", "Aktuel version: ")
-#define TR_FLASH_INTERNAL_MODULE       TR("Brænde int. module", "Brænde intern modul")
-#define TR_FLASH_INTERNAL_MULTI        TR("Brænde int. multi", "Brænde intern multi")
-#define TR_FLASH_EXTERNAL_MODULE       TR("Brænde ext. module", "Brænde ekstern modul")
-#define TR_FLASH_EXTERNAL_MULTI        TR("Brænde ext. multi", "Brænde ekstern multi")
-#define TR_FLASH_EXTERNAL_ELRS         TR("Brænde ext. ELRS", "Brænde ekstern ELRS")
+#define TR_FLASH_INTERNAL_MODULE       TR("Inst. int. module", "Installer intern modul")
+#define TR_FLASH_INTERNAL_MULTI        TR("Inst. int. multi", "Installer intern multi")
+#define TR_FLASH_EXTERNAL_MODULE       TR("Inst. ext. module", "Installer ekstern modul")
+#define TR_FLASH_EXTERNAL_MULTI        TR("Inst. ext. multi", "Installer ekstern multi")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Inst. ext. ELRS", "Installer ekstern ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW opdatering fejl", "Firmware opdaterings fejl")
-#define TR_FIRMWARE_UPDATE_SUCCESS     "Brændning successful"
+#define TR_FIRMWARE_UPDATE_SUCCESS     "Installation successful"
 #define TR_WRITING                     "Skriver..."
 #define TR_CONFIRM_FORMAT              "Bekræft formattering?"
 #define TR_INTERNALRF                  "Intern RF"
@@ -923,6 +924,7 @@
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Gentag"
 #define TR_ENABLE                      "Aktiver"
+#define TR_DISABLE                     "Deaktiver"
 #define TR_TOPLCDTIMER                 "Top LCD ur"
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
@@ -948,7 +950,7 @@
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Min"
 #define TR_MAX                         "Max"
-#define TR_CURVE_PRESET                "Forudindstil..."
+#define TR_CURVE_PRESET                TR ("Forudindstil", "Forudind.")
 #define TR_PRESET                      "Forudindstil"
 #define TR_MIRROR                      "Spejle"
 #define TR_CLEAR                       "Slet"
@@ -956,7 +958,7 @@
 #define TR_RESET_SUBMENU               "Nulstil..."
 #define TR_COUNT                       "Tæller"
 #define TR_PT                          "pt"
-#define TR_PTS                         "pts"
+#define TR_PTS                         " punkter"
 #define TR_SMOOTH                      "Jævn"
 #define TR_COPY_STICKS_TO_OFS          TR("Kopi pind->subtrim", "Kopier pinde til subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopi min/max ->alle",  "Kopier min/max/center til alle udgange")
@@ -1037,6 +1039,63 @@
   #define TR_WIDGET_TEXT               "Tekst"
   #define TR_WIDGET_TIMER              "Tider"
   #define TR_WIDGET_VALUE              "Værdi"
+#endif
+
+// Bootloader common - Ascii only
+#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB forbundet"
+#define TR_BL_USB_CONNECTED           "USB forbundet"
+#define TR_BL_USB_PLUGIN              "eller brug USB kabel"
+#define TR_BL_USB_MASS_STORE          "for USB disk"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "eller brug USB kabel for USB disk"
+#define TR_BL_WRITE_FW                "Installer firmware"
+#define TR_BL_FORK                    "Fork:"
+#define TR_BL_VERSION                 "Version:"
+#define TR_BL_RADIO                   "Radio:"
+#define TR_BL_EXIT                    "Forlad"
+#define TR_BL_DIR_MISSING             " Katalog mangler"
+#define TR_BL_DIR_EMPTY               " Katalog er tomt"
+
+#if LCD_W >= 480
+  #define TR_BL_INVALID_FIRMWARE       "Ikke en installationsfil!"
+#elif LCD_W >= 212
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
+  #define TR_BL_HOLD_ENTER_TO_START    "\012[ENT] for at starte installation"
+  #define TR_BL_INVALID_FIRMWARE       "\011Ikke en installationsfil!         "
+  #define TR_BL_INVALID_EEPROM         "\011Ikke en EEPROM fil!               "
+#else
+  #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
+  #define TR_BL_HOLD_ENTER_TO_START    "\006[ENT] for at starte"
+  #define TR_BL_INVALID_FIRMWARE       "\004Ikke en installationsfil!    "
+  #define TR_BL_INVALID_EEPROM         "\004Ikke en EEPROM fil!          "
+#endif
+
+#if defined(PCBTARANIS)
+   // Bootloader Taranis specific - Ascii only
+  #define TR_BL_RESTORE_EEPROM        "Genskab EEPROM"
+  #define TR_BL_WRITING_FW            CENTER "\015Installerer..."
+  #define TR_BL_WRITING_COMPL         CENTER "\007Installation slut"
+  #if defined(RADIO_COMMANDO8)
+    #define TR_BL_POWER_KEY           "Tryk power knap."
+    #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
+  #endif
+#elif defined(PCBHORUS)
+   // Bootloader Horus specific - Ascii only
+  #define TR_BL_WRITING_FW            "Installerer firmware ..."
+  #define TR_BL_WRITING_COMPL         "Installation slut"
+  #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
+  #define TR_BL_FLASH_KEY             "[ENT] lang tid for at starte"
+  #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
+#elif defined(PCBNV14)
+   // Bootloader NV14 specific - Ascii only
+  #define TR_BL_WRITING_FW            "Installerer firmware ..."
+  #define TR_BL_WRITING_COMPL         "Installation slut"
+  #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
+  #define TR_BL_CURRENT_FW            "Firmware version:"
+  #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
+  #define TR_BL_FLASH_KEY             "[R TRIM] lang til for at starte"
+  #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
+  #define TR_BL_ENABLE                "Aktiver"
+  #define TR_BL_DISABLE               "Deaktiver"
 #endif
 
 // About screen
