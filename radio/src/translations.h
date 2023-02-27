@@ -744,7 +744,6 @@ extern const char STR_MODEL_QUICK_SELECT[];
 extern const char STR_LOADING[];
 extern const char STR_DELETE_THEME[];
 extern const char STR_SAVE_THEME[];
-extern const char STR_EDIT_COLOR[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
@@ -937,6 +936,7 @@ extern const char STR_MODULE_PROTOCOL_EU_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_WARN_LINE2[];
 extern const char STR_SET[];
 extern const char STR_PREFLIGHT[];
+extern const char* const STR_PREFLIGHT_POTSLIDER_CHECK[];
 extern const char STR_CHECKLIST[];
 extern const char STR_VIEW_NOTES[];
 extern const char STR_MODEL_SELECT[];
