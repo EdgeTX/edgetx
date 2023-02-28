@@ -745,6 +745,7 @@ extern const char STR_LOADING[];
 extern const char STR_DELETE_THEME[];
 extern const char STR_SAVE_THEME[];
 extern const char STR_EDIT_COLOR[];
+extern const char STR_NO_THEME_IMAGE[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
