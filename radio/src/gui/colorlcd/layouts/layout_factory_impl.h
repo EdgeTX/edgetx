@@ -197,7 +197,7 @@ class BaseLayoutFactory: public LayoutFactory
     ~BaseLayoutFactory()
     {
       if (bitmap) {
-        delete bitmap;
+        free((void*)bitmap);
         bitmap = nullptr;
       }
     }
