@@ -35,7 +35,7 @@ class MainViewTrim : public Window
     uint8_t idx;
     int value = 0;
     bool showChange = false;
-    int32_t trimMin = 0, trimMax = 0;
+    int trimMin = 0, trimMax = 0;
 
     void setRange();
 
