@@ -21,37 +21,13 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
-#include "lz4_bitmaps.h"
 
-const uint8_t _LBM_LAYOUT_1x3[] = {
-#include "mask_layout1x3.lbm"
-};
-STATIC_LZ4_BITMAP(LBM_LAYOUT_1x3);
-
-const ZoneOption OPTIONS_LAYOUT_1x3[] = {LAYOUT_COMMON_OPTIONS,
-                                         LAYOUT_OPTIONS_END};
-
-class Layout1x3 : public Layout
-{
- public:
-  Layout1x3(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData) :
-      Layout(parent, factory, persistentData)
-  {
-  }
-
-  unsigned int getZonesCount() const override { return 3; }
-
-  rect_t getZone(unsigned int index) const override
-  {
-    rect_t zone = getMainZone();
-
-    zone.h /= 3;
-    zone.y += zone.h * index;
-
-    return zone;
-  }
+static uint8_t zmap[] = {
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_0, LAYOUT_MAP_1THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_0, LAYOUT_MAP_2THIRD, LAYOUT_MAP_FULL, LAYOUT_MAP_1THIRD,
 };
 
-BaseLayoutFactory<Layout1x3> Layout1x3("Layout1x3", "1 x 3", LBM_LAYOUT_1x3,
-                                       OPTIONS_LAYOUT_1x3);
+BaseLayoutFactory<Layout> Layout1x3("Layout1x3", "1 x 3",
+                                    defaultZoneOptions,
+                                    3, zmap);
