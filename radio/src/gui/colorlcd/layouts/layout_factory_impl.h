@@ -161,7 +161,7 @@ class BaseLayoutFactory: public LayoutFactory
       zoneCount(zoneCount),
       zoneMap(zoneMap)
     {
-      this->bitmap = (uint8_t*)malloc(BM_W * BM_H + 2 * sizeof(uint16_t));
+      this->bitmap = (uint8_t*)malloc(align32(BM_W * BM_H + 2 * sizeof(uint16_t) + 4));
 
       uint16_t* hdr = (uint16_t*)this->bitmap;
       hdr[0] = BM_W;
