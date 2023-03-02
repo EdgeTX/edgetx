@@ -962,7 +962,7 @@
 #define TR_GLOBALVAR                   "グローバル変数"
 #define TR_MIXSOURCE                   "ミキサーソース"
 #define TR_CONSTANT                    "変化なし"
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT                   "飛行前チェック"
 #define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "チェックリスト表示")
 #define TR_AUX_SERIAL_MODE             "シリアルポート"
