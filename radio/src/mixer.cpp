@@ -273,16 +273,8 @@ int16_t applyLimits(uint8_t channel, int32_t value)
     value = (int32_t) value * tmp;   //  div by 1024*256 -> output = -1024..1024
 #endif
 
-#ifdef CORRECT_NEGATIVE_SHIFTS
-    int8_t sign = (value<0?1:0);
-    value -= sign;
-    tmp = value>>16;   // that's quite tricky: the shiftright 16 operation is assmbled just with addressmove; just forget the two least significant bytes;
-    tmp >>= 2;   // now one simple shift right for two bytes does the rest
-    tmp += sign;
-#else
-    tmp = value>>16;   // that's quite tricky: the shiftright 16 operation is assmbled just with addressmove; just forget the two least significant bytes;
-    tmp >>= 2;   // now one simple shift right for two bytes does the rest
-#endif
+    // Round away from 0
+    tmp = (value + (value < 0 ? (1<<17)-1 : (1<<17))) >> 18;
 
     ofs += tmp;  // ofs can to added directly because already recalculated,
   }
