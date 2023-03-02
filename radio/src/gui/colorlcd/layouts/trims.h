@@ -44,6 +44,7 @@ class MainViewTrim : public Window
 
     virtual void drawLine(BitmapBuffer * dc) = 0;
     virtual void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) = 0;
+    virtual void drawValue(BitmapBuffer * dc) = 0;
 };
 
 class MainViewHorizontalTrim : public MainViewTrim
@@ -56,6 +57,7 @@ class MainViewHorizontalTrim : public MainViewTrim
     coord_t sx() override;
     void drawLine(BitmapBuffer * dc) override;
     void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) override;
+    void drawValue(BitmapBuffer * dc) override;
 };
 
 class MainViewVerticalTrim : public MainViewTrim
@@ -67,4 +69,5 @@ class MainViewVerticalTrim : public MainViewTrim
     coord_t sy() override;
     void drawLine(BitmapBuffer * dc) override;
     void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) override;
+    void drawValue(BitmapBuffer * dc) override;
 };

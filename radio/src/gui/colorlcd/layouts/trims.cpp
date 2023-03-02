@@ -93,17 +93,17 @@ void MainViewTrim::paint(BitmapBuffer * dc)
                  (value < TRIM_MIN || value > TRIM_MAX)
                      ? COLOR_THEME_ACTIVE /* TODO add a color */
                      : COLOR_THEME_FOCUS);
+  drawMarkerLines(dc, x, y);
 
   // Trim value / small lines on the square
   if ((g_model.displayTrims == DISPLAY_TRIMS_ALWAYS) ||
-      ((g_model.displayTrims == DISPLAY_TRIMS_CHANGE) && (value != 0) && (trimsDisplayTimer > 0) && (trimsDisplayMask & (1 << idx)))) {
-    showChange = true;
-    dc->drawNumber(x + (TRIM_SQUARE_SIZE + 1) / 2, y + 2,
-                   divRoundClosest(value * 100, trimMax),
-                   FONT(XXS) | COLOR_THEME_PRIMARY2 | CENTERED);
+      ((g_model.displayTrims == DISPLAY_TRIMS_CHANGE) && (trimsDisplayTimer > 0) && (trimsDisplayMask & (1 << idx)))) {
+    if (value) {
+      showChange = true;
+      drawValue(dc);
+    }
   } else {
     showChange = false;
-    drawMarkerLines(dc, x, y);
   }
 }
 
@@ -142,6 +142,15 @@ void MainViewHorizontalTrim::drawMarkerLines(BitmapBuffer * dc, coord_t x, coord
   }
 }
 
+void MainViewHorizontalTrim::drawValue(BitmapBuffer * dc)
+{
+  coord_t x = (value < 0) ? HORIZONTAL_SLIDERS_WIDTH * 4 / 5 : HORIZONTAL_SLIDERS_WIDTH / 5;
+  dc->drawSolidFilledRect(x - TRIM_SQUARE_SIZE/2, (TRIM_SQUARE_SIZE-12)/2, TRIM_SQUARE_SIZE, 12, COLOR_THEME_SECONDARY1);
+  dc->drawNumber(x, 2,
+                 divRoundClosest(abs(value) * 100, trimMax),
+                 FONT(XXS) | COLOR_THEME_PRIMARY2 | CENTERED);
+}
+
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
   MainViewTrim(parent, rect_t{}, idx)
 {
@@ -176,4 +185,13 @@ void MainViewVerticalTrim::drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t
   if (value <= 0) {
     dc->drawSolidHorizontalLine(3, y + 10, 9, COLOR_THEME_PRIMARY2);
   }
+}
+
+void MainViewVerticalTrim::drawValue(BitmapBuffer * dc)
+{
+  coord_t y = (value > 0) ? VERTICAL_SLIDERS_HEIGHT * 4 / 5 : VERTICAL_SLIDERS_HEIGHT / 5 - 11;
+  dc->drawSolidFilledRect(0, y, TRIM_SQUARE_SIZE, 11, COLOR_THEME_SECONDARY1);
+  dc->drawNumber(TRIM_SQUARE_SIZE/2, y,
+                 divRoundClosest(abs(value) * 100, trimMax),
+                 FONT(XXS) | COLOR_THEME_PRIMARY2 | CENTERED);
 }
