@@ -961,7 +961,7 @@
 #define TR_GLOBALVAR                   "全局变量"
 #define TR_MIXSOURCE                   "混控源"
 #define TR_CONSTANT                    "固定值"
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT                   "初始位置检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
 #define TR_AUX_SERIAL_MODE             "串口"
