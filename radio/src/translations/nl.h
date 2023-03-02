@@ -969,7 +969,7 @@
 #define TR_GLOBALVAR           "Globale Var"
 #define TR_MIXSOURCE           "Mixer Bron"
 #define TR_CONSTANT            "Constant"
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT           "Preflight Checks"
 #define TR_CHECKLIST           TR(INDENT "Checklist", INDENT "Toon Checklist")
 #define TR_AUX_SERIAL_MODE     "Seriele poort"
