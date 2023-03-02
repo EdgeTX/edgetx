@@ -977,7 +977,7 @@
 #define TR_GLOBALVAR                   "Global Var"
 #define TR_MIXSOURCE                   "Mixer Source"
 #define TR_CONSTANT                    "Constant"
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "On","Off","Auto"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT                   "Preflight Checks"
 #define TR_CHECKLIST                   INDENT "Display Checklist"
 #define TR_AUX_SERIAL_MODE             "Sarjaportti"
