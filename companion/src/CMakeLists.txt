@@ -387,7 +387,8 @@ elseif(WIN32)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
   set(wdqtopts --no-translations --no-opengl-sw --no-system-d3d-compiler --no-angle)
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
+    #set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
+    set(wdqtopts ${wdqtopts} --debug)  # workaround for bug in Qt 5.15 windeployqt.exe
   endif()
   set(wdqtopts ${wdqtopts} -dir "\"${INSTALL_DESTINATION}\"" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPANION_NAME}.exe" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SIMULATOR_NAME}.exe")
   list(JOIN wdqtopts " " wdqtopts)
