@@ -29,7 +29,7 @@ const char s_charTab[] = "_-.,";
 
 char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
 
-char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 9 + 'A' : hex + '0'); }
+char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 10 + 'A' : hex + '0'); }
 
 char zchar2char(int8_t idx)
 {
