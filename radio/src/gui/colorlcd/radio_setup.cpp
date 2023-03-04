@@ -29,11 +29,9 @@
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
-static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(21),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(7), LV_GRID_FR(7), LV_GRID_FR(7),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
@@ -240,23 +238,23 @@ class WindowButtonGroup : public FormGroup
   PageDefs pages;
 };
 
-class SoundPage : public Page {
+class SubPage : public Page
+{
   public:
-  SoundPage() :
-      Page(ICON_RADIO_SETUP)
+    SubPage(MenuIcons icon, const char* title) : Page(icon)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      header.setTitle(STR_SOUND_LABEL);
+      header.setTitle(title);
 
       body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
-      lv_obj_set_style_pad_column(lvobj, 10, 0);
+      body.padAll(8);
+    }
+};
+
+class SoundPage : public SubPage {
+  public:
+    SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
+    {
+      FlexGridLayout grid(col_two_dsc, row_dsc, 3);
 
       auto line = body.newLine(&grid);
 
@@ -306,27 +304,16 @@ class SoundPage : public Page {
 };
 
 #if defined(VARIO)
-class VarioPage : public Page {
+class VarioPage : public SubPage {
   public:
-  VarioPage() :
-      Page(ICON_RADIO_SETUP)
+    VarioPage() : SubPage(ICON_RADIO_SETUP, STR_VARIO)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      header.setTitle(STR_VARIO);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
       // Vario volume
-      new StaticText(line, rect_t{}, TR_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
       new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
       line = body.newLine(&grid);
 
@@ -358,22 +345,11 @@ class VarioPage : public Page {
 #endif
 
 #if defined(HAPTIC)
-class HapticPage : public Page {
+class HapticPage : public SubPage {
   public:
-	HapticPage() :
-      Page(ICON_RADIO_SETUP)
+    HapticPage() : SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      header.setTitle(STR_HAPTIC_LABEL);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
@@ -395,22 +371,11 @@ class HapticPage : public Page {
 };
 #endif
 
-class AlarmsPage : public Page {
+class AlarmsPage : public SubPage {
   public:
-	AlarmsPage() :
-      Page(ICON_RADIO_SETUP)
+    AlarmsPage() : SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      header.setTitle(STR_ALARMS_LABEL);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
       // Battery warning
@@ -464,25 +429,11 @@ class AlarmsPage : public Page {
     }
 };
 
-class BacklightPage : public Page {
+class BacklightPage : public SubPage {
   public:
-	BacklightPage() :
-      Page(ICON_RADIO_SETUP)
+    BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
     {
-      build();
-    }
-
-  protected:
-    FormField* backlightTimeout = nullptr;
-    FormField* backlightOnBright = nullptr;
-    FormField* backlightOffBright = nullptr;
-
-    void build()
-    {
-      header.setTitle(STR_BACKLIGHT_LABEL);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
@@ -500,7 +451,10 @@ class BacklightPage : public Page {
       blMode->setAvailableHandler(
           [=](int newValue) { return newValue != e_backlight_mode_off; });
 
+      line = body.newLine(&grid);
+
       // Delay
+      new StaticText(line, rect_t{}, STR_BACKLIGHT_TIMER, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(line, rect_t{}, 5, 600,
                                  GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
                                  SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
@@ -512,7 +466,6 @@ class BacklightPage : public Page {
 
       // Backlight ON bright
       new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      grid.setColSpan(2);
       backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
@@ -523,12 +476,10 @@ class BacklightPage : public Page {
                    else
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
                  });
-      grid.setColSpan(1);
       line = body.newLine(&grid);
 
       // Backlight OFF bright
       new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      grid.setColSpan(2);
       backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
           [=](int32_t newValue) {
             int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
@@ -537,7 +488,6 @@ class BacklightPage : public Page {
             else
               g_eeGeneral.blOffBright = onBright;
           });
-      grid.setColSpan(1);
       line = body.newLine(&grid);
 
   #if defined(KEYS_BACKLIGHT_GPIO)
@@ -554,6 +504,11 @@ class BacklightPage : public Page {
 
       updateBacklightControls();
     }
+
+  protected:
+    FormField* backlightTimeout = nullptr;
+    FormField* backlightOnBright = nullptr;
+    FormField* backlightOffBright = nullptr;
 
     void updateBacklightControls()
     {
@@ -587,22 +542,11 @@ class BacklightPage : public Page {
     }
 };
 
-class GpsPage : public Page {
+class GpsPage : public SubPage {
   public:
-	GpsPage() :
-      Page(ICON_RADIO_SETUP)
+    GpsPage() : SubPage(ICON_RADIO_SETUP, STR_GPS)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      header.setTitle(STR_GPS);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
       // Timezone
@@ -629,7 +573,7 @@ RadioSetupPage::RadioSetupPage():
 
 void RadioSetupPage::build(FormWindow * window)
 {
-  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   window->setFlexLayout();
 
   // Date & time picker including labels
@@ -718,12 +662,10 @@ void RadioSetupPage::build(FormWindow * window)
   // Switches delay
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
-  grid.setColSpan(2);
   auto edit =
       new NumberEdit(line, rect_t{}, -15, 100 - 15,
                      GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
-  grid.setColSpan(1);
 
   // USB mode
   line = window->newLine(&grid);
@@ -743,7 +685,6 @@ void RadioSetupPage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
-  grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
                       GET_SET_DEFAULT(g_eeGeneral.templateSetup));
   choice->setTextHandler([](uint8_t value) {
@@ -753,12 +694,10 @@ void RadioSetupPage::build(FormWindow * window)
     }
     return s;
   });
-  grid.setColSpan(1);
 
   // Stick mode
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
-  grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
                         mixerTaskStop();
@@ -774,7 +713,6 @@ void RadioSetupPage::build(FormWindow * window)
            std::string(
                &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
-  grid.setColSpan(1);
 
   // Model quick select
   line = window->newLine(&grid);

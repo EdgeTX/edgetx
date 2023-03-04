@@ -742,6 +742,7 @@
 #define TR_SAVE_THEME                  "Theme speichern?"
 #define TR_EDIT_COLOR                  "Farbe bearbeiten"
 #define TR_NO_THEME_IMAGE              "Kein Theme Bild"
+#define TR_BACKLIGHT_TIMER             "Inactivity timeout"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
