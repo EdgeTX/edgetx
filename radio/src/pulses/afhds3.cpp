@@ -36,8 +36,8 @@
 #define FAILSAFE_HOLD 1
 #define FAILSAFE_CUSTOM 2
 
-#define FAILSAFE_KEEP_LAST 0x8000
-
+#define FAILSAFE_HOLD_VALUE         0x8000
+#define FAILSAFE_NOPULSES_VALUE     0x8001
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 
@@ -225,7 +225,7 @@ class ProtoState
 
     void requestInfoAndRun(bool send = false);
 
-    uint8_t setFailSafe(int16_t* target);
+    uint8_t setFailSafe(int16_t* target, uint8_t rfchannelcount=AFHDS3_MAX_CHANNELS);
 
     inline int16_t convert(int channelValue);
 
@@ -276,7 +276,7 @@ class ProtoState
      */
     ModuleVersion version;
 };
-  
+
 static const char* const moduleStateText[] =
 {
   "Not ready",
@@ -399,7 +399,7 @@ void ProtoState::setupFrame()
       if (this->state != ModuleState::STATE_STANDBY) {
         auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
         trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
-        return;        
+        return;
       } else {
         modelIDSet = true;
         modelID = g_model.header.modelId[module_index];
@@ -416,13 +416,13 @@ void ProtoState::setupFrame()
       trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
-    
+
     if (this->state == ModuleState::STATE_STANDBY) {
       cmdCount = 0;
       requestInfoAndRun(true);
       return;
     }
-    
+
     // exit bind
     if (this->state == STATE_BINDING) {
       TRACE("AFHDS3 [EXIT BIND]");
@@ -441,14 +441,24 @@ void ProtoState::setupFrame()
     COMMAND cmd = periodicRequestCommands[cmdIndex++];
 
     if (cmd == COMMAND::VIRTUAL_FAILSAFE) {
-      if (isConnected() && !hasTelemetry()) {
-          TRACE("AFHDS ONE WAY FAILSAFE");
+      Config_u* cfg = this->getConfig();
+      uint8_t len =_phyMode_channels[cfg->v0.PhyMode];
+      if (!hasTelemetry()) {
           uint16_t failSafe[AFHDS3_MAX_CHANNELS + 1] = {
-              ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
-          setFailSafe((int16_t*)(&failSafe[1]));
+          ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
+          setFailSafe((int16_t*)(&failSafe[1]), len);
+          TRACE("AFHDS ONE WAY FAILSAFE");
           trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
                    FRAME_TYPE::REQUEST_SET_NO_RESP, (uint8_t*)failSafe,
                    AFHDS3_MAX_CHANNELS * 2 + 2);
+          return;
+      }
+      else if( isConnected() ){
+          uint8_t data[AFHDS3_MAX_CHANNELS*2 + 3] = { (uint8_t)(RX_CMD_FAILSAFE_VALUE&0xFF), (uint8_t)((RX_CMD_FAILSAFE_VALUE>>8)&0xFF), (uint8_t)(2*len)};
+          int16_t failSafe[18];
+          setFailSafe(&failSafe[0], len);
+          std::memcpy( &data[3], failSafe, len );
+          trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, 2*len+3);
           return;
       }
     } else {
@@ -794,34 +804,37 @@ void ProtoState::applyConfigFromModel()
 
 inline int16_t ProtoState::convert(int channelValue)
 {
-  //pulseValue = limit<uint16_t>(0, 988 + ((channelValue + 1024) / 2), 0xfff);
-  //988 - 750 = 238
-  //238 * 20 = 4760
-  //2250 - 2012 = 238
-  //238 * 20 = 4760
-  // 988   ---- 2012
-  //-10240 ---- 10240
-  //-1024  ---- 1024
-  return ::limit<int16_t>(AFHDS3_FAILSAFE_MIN, channelValue * 10, AFHDS3_FAILSAFE_MAX);
+  return ::limit<int16_t>(AFHDS3_FAILSAFE_MIN, channelValue * 14.65, AFHDS3_FAILSAFE_MAX);
 }
 
-uint8_t ProtoState::setFailSafe(int16_t* target)
+uint8_t ProtoState::setFailSafe(int16_t* target, uint8_t rfchannelsCount )
 {
   int16_t pulseValue = 0;
   uint8_t channels_start = moduleData->channelsStart;
-  uint8_t channels_last = channels_start + 8 + moduleData->channelsCount;
-
-  for (uint8_t channel = channels_start; channel < channels_last; channel++) {
+  uint8_t channelsCount = 8 + moduleData->channelsCount;
+  uint8_t channels_last = channels_start + channelsCount;
+  std::memset(target, 0, 2*rfchannelsCount );
+  for (uint8_t channel = channels_start, i=0; i<rfchannelsCount && channel < channels_last; channel++, i++) {
     if (moduleData->failsafeMode == FAILSAFE_CUSTOM) {
-      pulseValue = convert(g_model.failsafeChannels[channel]);
+      if(FAILSAFE_CHANNEL_HOLD==g_model.failsafeChannels[channel]){
+        pulseValue = FAILSAFE_HOLD_VALUE;
+      }else if(FAILSAFE_CHANNEL_NOPULSE==g_model.failsafeChannels[channel]){
+        pulseValue = FAILSAFE_NOPULSES_VALUE;
+      }
+      else{
+        pulseValue = convert(g_model.failsafeChannels[channel]);
+      }
     }
     else if (moduleData->failsafeMode == FAILSAFE_HOLD) {
-      pulseValue = FAILSAFE_KEEP_LAST;
+      pulseValue = FAILSAFE_HOLD_VALUE;
+    }
+    else if (moduleData->failsafeMode == FAILSAFE_NOPULSES) {
+      pulseValue = FAILSAFE_NOPULSES_VALUE;
     }
     else {
-      pulseValue = convert(::getChannelValue(channel));
+      pulseValue = FAILSAFE_NOPULSES_VALUE;
     }
-    target[channel - channels_start] = pulseValue;
+    target[i] = pulseValue;
   }
   //return max channels because channel count can not be change after bind
   return (uint8_t) (AFHDS3_MAX_CHANNELS);
@@ -871,7 +884,7 @@ static void* initModule(uint8_t module)
   }
 
   if (!mod_st) return nullptr;
-  
+
   auto p_state = &protoState[module];
   p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
