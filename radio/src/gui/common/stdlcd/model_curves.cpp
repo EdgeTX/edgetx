@@ -159,8 +159,8 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
 
 void drawFunction(FnFuncP fn, uint8_t offset)
 {
-  lcdDrawVerticalLine(CURVE_CENTER_X - offset, CURVE_CENTER_Y-CURVE_SIDE_WIDTH, CURVE_SIDE_WIDTH * 2, 0xee);
-  lcdDrawHorizontalLine(CURVE_CENTER_X - CURVE_SIDE_WIDTH - offset, CURVE_CENTER_Y, CURVE_SIDE_WIDTH * 2, 0xee);
+  lcdDrawVerticalLine(CURVE_CENTER_X - offset, CURVE_CENTER_Y-CURVE_SIDE_WIDTH, CURVE_SIDE_WIDTH * 2 + 1, 0xee);
+  lcdDrawHorizontalLine(CURVE_CENTER_X - CURVE_SIDE_WIDTH - offset, CURVE_CENTER_Y, CURVE_SIDE_WIDTH * 2 + 1, 0xbb);
 
   coord_t prev_yv = (coord_t) - 1;
 

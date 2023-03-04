@@ -305,9 +305,10 @@ void lcdDrawChar(coord_t x, coord_t y, uint8_t c)
 uint8_t getTextWidth(const char * s, uint8_t len, LcdFlags flags)
 {
   uint8_t width = 0;
-  for (int i = 0; len == 0 || i < len; ++i) {
+  if (len == 0) len = strlen(s);
+  while (len--) {
 #if !defined(BOOT)
-    unsigned char c = *s;
+    unsigned char c = map_utf8_char(s, len);
 #else
     unsigned char c = *s;
 #endif
@@ -788,10 +789,13 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
   else if (idx < MIXSRC_CH1)
     drawStringWithIndex(x, y, STR_PPM_TRAINER, idx-MIXSRC_FIRST_TRAINER+1, att);
   else if (idx <= MIXSRC_LAST_CH) {
-    drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);
     if (ZEXIST(g_model.limitData[idx-MIXSRC_CH1].name) && (att & STREXPANDED)) {
-      lcdDrawChar(lcdLastRightPos, y, ' ', att|SMLSIZE);
-      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx-MIXSRC_CH1].name, LEN_CHANNEL_NAME, att|SMLSIZE);
+      char s[LEN_CHANNEL_NAME + 3];
+      strcpy(s, STR_CHAR_CHANNEL);
+      strcat(s, g_model.limitData[idx-MIXSRC_CH1].name);
+      lcdDrawSizedText(x, y, s, LEN_CHANNEL_NAME+2, att);
+    } else {
+      drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);
     }
   }
   else if (idx <= MIXSRC_LAST_GVAR) {
