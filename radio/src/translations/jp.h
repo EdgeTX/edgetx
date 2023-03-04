@@ -742,8 +742,8 @@
 #define TR_LOADING                     "読み込み中..."
 #define TR_DELETE_THEME                "テーマを削除しますか？"
 #define TR_SAVE_THEME                  "テーマを保存しますか？"
-#define TR_EDIT_COLOR                  "Edit Color"
-#define TR_NO_THEME_IMAGE              "No theme image"
+#define TR_EDIT_COLOR                  "カラー編集"
+#define TR_NO_THEME_IMAGE              "テーマ画像はありません"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
