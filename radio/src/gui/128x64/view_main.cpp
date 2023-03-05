@@ -38,7 +38,7 @@ struct {
   #define LBOX_CENTERX  (LCD_W/4 + 10)
   #define RBOX_CENTERX  (3*LCD_W/4 - 10)
 #endif
-#define MODELNAME_X   (2*FW-2)
+#define MODELNAME_X   (2*FW-6)
 #define MODELNAME_Y   (0)
 #define PHASE_X       (6*FW-2)
 #define PHASE_Y       (2*FH)
@@ -46,12 +46,12 @@ struct {
 #define VBATT_X       (6*FW-1)
 #define VBATT_Y       (2*FH)
 #define VBATTUNIT_Y   (3*FH)
-#define REBOOT_X      (20*FW-3)
+#define REBOOT_X      (2)
 #define BAR_HEIGHT    (BOX_WIDTH-1l) // don't remove the l here to force 16bits maths on 9X
-#define TRIM_LH_X     (LCD_W*1/4+2)
+#define TRIM_LH_X     (LCD_W*1/4+1)
 #define TRIM_LV_X     3
 #define TRIM_RV_X     (LCD_W-4)
-#define TRIM_RH_X     (LCD_W*3/4-2)
+#define TRIM_RH_X     (LCD_W*3/4-1)
 #define TRIM_LH_NEG   (TRIM_LH_X+1*FW)
 #define TRIM_LH_POS   (TRIM_LH_X-4*FW)
 #define TRIM_RH_NEG   (TRIM_RH_X+1*FW)
@@ -60,6 +60,8 @@ struct {
 #define RSSSI_Y       (31)
 #define RSSI_MAX      105
 #define TRIM_LEN      23
+#define CLOCK_X       (17*FW+4)
+#define CLOCK_Y       1
 
 void drawExternalAntennaAndRSSI()
 {
@@ -184,8 +186,8 @@ void displayTrims(uint8_t phase)
         }
       }
 #else
-      ym = 31;
-      lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2);
+      ym = 36;
+      lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
       if (i != 2 || !g_model.thrTrim) {
         lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
         lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
@@ -223,7 +225,7 @@ void displayTrims(uint8_t phase)
       }
 #else
       ym = 60;
-      lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2);
+      lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
       lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
       lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
 #endif
@@ -745,7 +747,7 @@ void menuMainView(event_t event)
 
     // And ! in case of unexpected shutdown
     if (isAsteriskDisplayed()) {
-      lcdDrawChar(REBOOT_X, 0 * FH, '!', INVERS);
+      lcdDrawChar(REBOOT_X, 1, '!', INVERS|BLINK);
     }
   }
 
@@ -771,6 +773,17 @@ void menuMainView(event_t event)
     // Issue 98
     lcdDrawText(15 * FW, 0, "BIND", 0);
   }
+#if defined(RTCLOCK)
+  else if (view_base != VIEW_CHAN_MONITOR) {
+    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
+  }
+#endif
+#else
+#if defined(RTCLOCK)
+  if (view_base != VIEW_CHAN_MONITOR) {
+    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
+  }
+#endif
 #endif
 }
 
