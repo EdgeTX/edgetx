@@ -745,7 +745,7 @@
 #define TR_SAVE_THEME                  "保存主题?"
 #define TR_EDIT_COLOR                  "编辑颜色"
 #define TR_NO_THEME_IMAGE              "没有预览图"
-#define TR_BACKLIGHT_TIMER             "Inactivity timeout"
+#define TR_BACKLIGHT_TIMER             "持续时间"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速选择模型"
