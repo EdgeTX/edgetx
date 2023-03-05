@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DA">
+<TS version="2.1" language="da">
 <context>
     <name>AileronsPage</name>
     <message>
@@ -1786,7 +1786,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     </message>
     <message>
         <source>Range Check Ext. Module</source>
-        <translation>Kontroller rækkevidde Extern modul</translation>
+        <translation>Kontroller rækkevidde Ekstern modul</translation>
     </message>
     <message>
         <source>Set Main Screen</source>
@@ -1795,6 +1795,18 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <source>Value</source>
         <translation>Værdi</translation>
+    </message>
+    <message>
+        <source>!1x</source>
+        <translation>!1x</translation>
+    </message>
+    <message>
+        <source>1x</source>
+        <translation>1x</translation>
+    </message>
+    <message>
+        <source>%1s</source>
+        <translation>%1s</translation>
     </message>
 </context>
 <context>
@@ -2950,10 +2962,6 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Support hardware mod: R9M ACCESS</source>
-        <translation>Aktiver hardware modul: R9M ACCESS</translation>
-    </message>
-    <message>
         <source>FrSky Horus X10 Express / X10S Express</source>
         <translation></translation>
     </message>
@@ -3027,6 +3035,10 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>iFlight Commando8</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Radiomaster Boxer</source>
         <translation></translation>
     </message>
 </context>
@@ -3910,7 +3922,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Internal + External</source>
-        <translation>Intern + Extern</translation>
+        <translation>Intern + Ekstern</translation>
     </message>
     <message>
         <source>OFF</source>
@@ -3974,7 +3986,11 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>External</source>
-        <translation>Ekstern</translation>
+        <translation>Eksternt</translation>
+    </message>
+    <message>
+        <source>External module</source>
+        <translation>Eksternt modul</translation>
     </message>
 </context>
 <context>
@@ -4873,24 +4889,12 @@ Er du sikker?</translation>
         <translation>Enheds navn:</translation>
     </message>
     <message>
-        <source>Antenna</source>
-        <translation>Antenne</translation>
-    </message>
-    <message>
-        <source>Internal module</source>
-        <translation>Internt modul</translation>
-    </message>
-    <message>
         <source>Sample Mode</source>
         <translation>Registererings tilstand</translation>
     </message>
     <message>
         <source>Serial ports</source>
         <translation>Seriel port</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation>%1</translation>
     </message>
     <message>
         <source>Power</source>
@@ -4915,6 +4919,34 @@ Er du sikker?</translation>
     <message>
         <source>Warning: Changing the Internal module may invalidate the internal module protocol of the models!</source>
         <translation>Advarsel: At ændre det interne modul kan betyde, at den anvendte protokol ødelægges for model!</translation>
+    </message>
+    <message>
+        <source>Internal RF</source>
+        <translation>Internt RF</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Baudrate:</source>
+        <translation>Baud hastighed</translation>
+    </message>
+    <message>
+        <source>Antenna:</source>
+        <translation>Antenne</translation>
+    </message>
+    <message>
+        <source>External RF</source>
+        <translation>Eksternt RF</translation>
+    </message>
+    <message>
+        <source>AUX1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AUX2</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -7392,7 +7424,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Display</source>
-        <translation>Display</translation>
+        <translation>Skærm</translation>
     </message>
     <message>
         <source>Extended</source>
@@ -7775,19 +7807,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Internal Radio System</source>
-        <translation>Internt sende modul / radio</translation>
+        <translation>Intern sender</translation>
     </message>
     <message>
         <source>External Radio Module</source>
-        <translation>Externt sende modul</translation>
+        <translation>Ekstern sender</translation>
     </message>
     <message>
         <source>Extra Radio System</source>
-        <translation>Ekstra radio system</translation>
+        <translation>Ekstra sende system</translation>
     </message>
     <message>
         <source>Radio System</source>
-        <translation>Radiosystem</translation>
+        <translation>Radio system</translation>
     </message>
     <message>
         <source>10mW - 16CH</source>
@@ -7989,22 +8021,6 @@ p, li { white-space: pre-wrap; }
         <translation>Ingen pulsering</translation>
     </message>
     <message>
-        <source>Ask</source>
-        <translation>Sprøg</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation>Intern</translation>
-    </message>
-    <message>
-        <source>Internal + External</source>
-        <translation>Intern + Extern</translation>
-    </message>
-    <message>
-        <source>External</source>
-        <translation>Extern</translation>
-    </message>
-    <message>
         <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
         <translation>Advarsel: Protokol for det interne module &lt;b&gt;%1&lt;/b&gt; er ikke kompatibel med hardware i radio &lt;b&gt;%2&lt;/b&gt; og er ændret til &lt;b&gt;FRA&lt;/b&gt;!</translation>
     </message>
@@ -8117,7 +8133,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Model Image</source>
-        <translation>Model ikon</translation>
+        <translation>Model billede</translation>
     </message>
     <message>
         <source>Throttle</source>
@@ -8305,7 +8321,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Global vars</source>
-        <translation>Globale var</translation>
+        <translation>Global variabel</translation>
     </message>
     <message>
         <source>GF%1</source>
@@ -8346,6 +8362,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Multi sensors</source>
         <translation>Multi sensorer</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Gentag</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiveret</translation>
     </message>
 </context>
 <context>
