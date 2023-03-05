@@ -85,7 +85,7 @@
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
 #endif
-
+#define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Lisää","Kerro","Korvaa"
 #define TR_VMLTPX2                     "+=","*=",":="
