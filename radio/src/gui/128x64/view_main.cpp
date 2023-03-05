@@ -32,13 +32,13 @@ struct {
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)
-  #define LBOX_CENTERX  (LCD_W/4 + 13)
+  #define LBOX_CENTERX  (LCD_W/4 + 12)
   #define RBOX_CENTERX  (3*LCD_W/4 - 13)
 #else
   #define LBOX_CENTERX  (LCD_W/4 + 10)
   #define RBOX_CENTERX  (3*LCD_W/4 - 10)
 #endif
-#define MODELNAME_X   (2*FW-6)
+#define MODELNAME_X   (2*FW-2)
 #define MODELNAME_Y   (0)
 #define PHASE_X       (6*FW-2)
 #define PHASE_Y       (2*FH)
@@ -48,10 +48,11 @@ struct {
 #define VBATTUNIT_Y   (3*FH)
 #define REBOOT_X      (2)
 #define BAR_HEIGHT    (BOX_WIDTH-1l) // don't remove the l here to force 16bits maths on 9X
-#define TRIM_LH_X     (LCD_W*1/4+1)
+#define TRIM_LEN      21
+#define TRIM_LH_X     (TRIM_LEN+4)
 #define TRIM_LV_X     3
 #define TRIM_RV_X     (LCD_W-4)
-#define TRIM_RH_X     (LCD_W*3/4-1)
+#define TRIM_RH_X     (LCD_W-TRIM_LEN-5)
 #define TRIM_LH_NEG   (TRIM_LH_X+1*FW)
 #define TRIM_LH_POS   (TRIM_LH_X-4*FW)
 #define TRIM_RH_NEG   (TRIM_RH_X+1*FW)
@@ -59,9 +60,8 @@ struct {
 #define RSSSI_X       (30)
 #define RSSSI_Y       (31)
 #define RSSI_MAX      105
-#define TRIM_LEN      23
-#define CLOCK_X       (17*FW+4)
-#define CLOCK_Y       1
+#define CLOCK_X       53
+#define CLOCK_Y       57
 
 void drawExternalAntennaAndRSSI()
 {
@@ -86,7 +86,7 @@ void drawExternalAntennaAndRSSI()
 void drawPotsBars()
 {
   // Optimization by Mike Blandford
-  for (uint8_t x = LCD_W / 2 - (NUM_POTS + NUM_SLIDERS - 1) * 5 / 2, i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; x += 5, i++) {
+  for (uint8_t x = LCD_W / 2 - (NUM_POTS + NUM_SLIDERS - 1) * 5 / 2 - 1, i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; x += 5, i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
       uint8_t len = ((calibratedAnalogs[i] + RESX) * BAR_HEIGHT / (RESX * 2)) + 1l;  // calculate once per loop
       V_BAR(x, LCD_H - 8, len);
@@ -186,7 +186,7 @@ void displayTrims(uint8_t phase)
         }
       }
 #else
-      ym = 36;
+      ym = 31;
       lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
       if (i != 2 || !g_model.thrTrim) {
         lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
