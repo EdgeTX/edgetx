@@ -451,22 +451,21 @@ class BacklightPage : public SubPage {
       blMode->setAvailableHandler(
           [=](int newValue) { return newValue != e_backlight_mode_off; });
 
-      line = body.newLine(&grid);
+      backlightTimeout = body.newLine(&grid);
 
       // Delay
-      new StaticText(line, rect_t{}, STR_BACKLIGHT_TIMER, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(line, rect_t{}, 5, 600,
+      new StaticText(backlightTimeout, rect_t{}, STR_BACKLIGHT_TIMER, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(backlightTimeout, rect_t{}, 5, 600,
                                  GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
                                  SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
       edit->setStep(5);
       edit->setSuffix("s");
-      backlightTimeout = edit;
 
-      line = body.newLine(&grid);
+      backlightOnBright = body.newLine(&grid);
 
       // Backlight ON bright
-      new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+      new StaticText(backlightOnBright, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      new Slider(backlightOnBright, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                  },
@@ -476,18 +475,20 @@ class BacklightPage : public SubPage {
                    else
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
                  });
-      line = body.newLine(&grid);
+
+      backlightOffBright = body.newLine(&grid);
 
       // Backlight OFF bright
-      new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
-          [=](int32_t newValue) {
-            int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-            if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
-              g_eeGeneral.blOffBright = newValue;
-            else
-              g_eeGeneral.blOffBright = onBright;
-          });
+      new StaticText(backlightOffBright, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      new Slider(backlightOffBright, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+                 [=](int32_t newValue) {
+                   int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+                   if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+                     g_eeGeneral.blOffBright = newValue;
+                   else
+                     g_eeGeneral.blOffBright = onBright;
+                 });
+
       line = body.newLine(&grid);
 
   #if defined(KEYS_BACKLIGHT_GPIO)
@@ -506,36 +507,36 @@ class BacklightPage : public SubPage {
     }
 
   protected:
-    FormField* backlightTimeout = nullptr;
-    FormField* backlightOnBright = nullptr;
-    FormField* backlightOffBright = nullptr;
+    Window* backlightTimeout = nullptr;
+    Window* backlightOnBright = nullptr;
+    Window* backlightOffBright = nullptr;
 
     void updateBacklightControls()
     {
       switch(g_eeGeneral.backlightMode)
       {
       case e_backlight_mode_off:
-        backlightTimeout->enable(false);
-        backlightOnBright->enable(false);
-        backlightOffBright->enable(true);
+        lv_obj_add_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         break;
       case e_backlight_mode_keys:
       case e_backlight_mode_sticks:
       case e_backlight_mode_all:
       default:
       {
-        backlightTimeout->enable(true);
-        backlightOnBright->enable(true);
-        backlightOffBright->enable(true);
+        lv_obj_clear_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
         if(onBright < g_eeGeneral.blOffBright)
           g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
         break;
       }
       case e_backlight_mode_on:
-        backlightTimeout->enable(false);
-        backlightOnBright->enable(true);
-        backlightOffBright->enable(false);
+        lv_obj_add_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         break;
       }
       resetBacklightTimeout();
