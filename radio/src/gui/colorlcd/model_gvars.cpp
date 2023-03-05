@@ -36,6 +36,7 @@
 #define GVAR_VAL_SIZE 50
 #define GVAR_TTL_OFST 24
 #endif
+static  struct timespec vor, nach;
 
 class GVarButton : public Button
 {
@@ -79,9 +80,42 @@ class GVarButton : public Button
   StaticText* labels[MAX_FLIGHT_MODES];
   StaticText* valueTexts[MAX_FLIGHT_MODES];
   gvar_t values[MAX_FLIGHT_MODES];
+  static lv_style_t fmContStyle;
+  static lv_style_t fmLabelStyle;
+  static lv_style_t fmValueStyle;
+  static bool styleInitDone;
 
   void build()
   {
+    if(!styleInitDone)
+    {
+      styleInitDone=true;
+      lv_style_init(&fmContStyle);
+      lv_style_set_pad_all(&fmContStyle, 0);
+      lv_style_set_width(&fmContStyle, GVAR_VAL_SIZE);
+      lv_style_set_height(&fmContStyle, PAGE_LINE_HEIGHT * 2 - 6);
+      lv_style_set_flex_flow(&fmContStyle, LV_FLEX_FLOW_COLUMN);
+      lv_style_set_layout(&fmContStyle, LV_LAYOUT_FLEX);
+
+
+      lv_style_init(&fmLabelStyle);
+      lv_style_set_height(&fmLabelStyle, PAGE_LINE_HEIGHT - 6);
+      lv_style_set_width(&fmLabelStyle, GVAR_VAL_SIZE);
+      lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
+      lv_style_set_bg_color(&fmLabelStyle, makeLvColor(COLOR_THEME_PRIMARY2));
+      lv_style_set_bg_opa(&fmLabelStyle, LV_OPA_COVER);
+
+
+      lv_style_init(&fmValueStyle);
+      lv_style_set_height(&fmValueStyle, PAGE_LINE_HEIGHT);
+      lv_style_set_width(&fmValueStyle, GVAR_VAL_SIZE);
+      lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
+      lv_style_set_bg_color(&fmValueStyle, makeLvColor(COLOR_THEME_PRIMARY2));
+      lv_style_set_bg_opa(&fmValueStyle, LV_OPA_COVER);
+      lv_style_set_flex_track_place(&fmValueStyle, LV_FLEX_ALIGN_END);
+    }
+
+
     lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
 
@@ -97,24 +131,20 @@ class GVarButton : public Button
     lv_obj_set_height(container->getLvObj(), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(container->getLvObj(), LV_FLEX_FLOW_ROW_WRAP);
 
+    fprintf(stderr, "GV: %s\n", getGVarString(gvarIdx));
     for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-      Window* fmCont = new Window(container, rect_t{});
-      fmCont->padAll(0);
+//      clock_gettime(CLOCK_MONOTONIC, &vor);
 
-      lv_obj_set_width(fmCont->getLvObj(), GVAR_VAL_SIZE);
-      lv_obj_set_height(fmCont->getLvObj(), PAGE_LINE_HEIGHT * 2 - 6);
-      lv_obj_set_flex_flow(fmCont->getLvObj(), LV_FLEX_FLOW_COLUMN);
+      Window* fmCont = new Window(container, rect_t{});
+      lv_obj_add_style(fmCont->getLvObj(), &fmContStyle, LV_PART_MAIN);
 
       char label[16] = {};
       getFlightModeString(label, flightMode + 1);
 
       labels[flightMode] = new StaticText(fmCont, rect_t{}, label, 0,
                                           COLOR_THEME_SECONDARY1 | CENTERED);
-      labels[flightMode]->setHeight(PAGE_LINE_HEIGHT - 6);
-      labels[flightMode]->setWidth(GVAR_VAL_SIZE);
+      lv_obj_add_style(labels[flightMode]->getLvObj(), &fmLabelStyle, LV_PART_MAIN);
       labels[flightMode]->setFont(FONT(XS));
-      labels[flightMode]->setBackgroundColor(COLOR_THEME_PRIMARY2);
-      labels[flightMode]->setBackgroudOpacity(LV_OPA_COVER);
 
       valueTexts[flightMode] = new StaticText(
           fmCont, rect_t{}, "", 0, COLOR_THEME_SECONDARY1 | CENTERED);
@@ -123,16 +153,19 @@ class GVarButton : public Button
         labels[flightMode]->setBackgroundColor(COLOR_THEME_SECONDARY3);
       }
 
-      lv_obj_set_style_flex_track_place(valText->getLvObj(), LV_FLEX_ALIGN_END,
-                                        LV_PART_MAIN);
-      valText->setWidth(GVAR_VAL_SIZE);
-      valText->setBackgroundColor(COLOR_THEME_PRIMARY2);
-      valText->setBackgroudOpacity(LV_OPA_COVER);
-      valText->setHeight(PAGE_LINE_HEIGHT);
-      valText->setFont(FONT(STD));
+//      lv_obj_set_style_flex_track_place(valText->getLvObj(), LV_FLEX_ALIGN_END,
+//                                        LV_PART_MAIN);
 
+
+      lv_obj_enable_style_refresh(false);
       updateValueText(flightMode);
+      lv_obj_enable_style_refresh(true);
+//      lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+      lv_obj_add_style(valText->getLvObj(), &fmValueStyle, LV_PART_MAIN);
+//      clock_gettime(CLOCK_MONOTONIC, &nach);
+//      fprintf(stderr, "%lu\n", (((((uint64_t)nach.tv_sec)*1000000000)+nach.tv_nsec)-((((uint64_t)vor.tv_sec)*1000000000)+vor.tv_nsec))/1000000);
     }
+
   }
 
   void updateValueText(uint8_t flightMode)
@@ -171,6 +204,10 @@ class GVarButton : public Button
       field->setBackgroundColor(COLOR_THEME_PRIMARY2);
   }
 };
+lv_style_t GVarButton::fmContStyle;
+lv_style_t GVarButton::fmLabelStyle;
+lv_style_t GVarButton::fmValueStyle;
+bool GVarButton::styleInitDone = false;
 
 class GVarEditWindow : public Page
 {
@@ -428,7 +465,10 @@ void ModelGVarsPage::build(FormWindow* window)
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
+//    clock_gettime(CLOCK_MONOTONIC, &vor);
     Button* button = new GVarButton(window, rect_t{}, index);
+//    clock_gettime(CLOCK_MONOTONIC, &nach);
+//    fprintf(stderr, "%lu\n", (((((uint64_t)nach.tv_sec)*1000000000)+nach.tv_nsec)-((((uint64_t)vor.tv_sec)*1000000000)+vor.tv_nsec))/1000000);
     button->setPressHandler([=]() {
       Menu* menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
