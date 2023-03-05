@@ -38,7 +38,7 @@ class AbstractStaticItemModel;
 // identiying names of static abstract item models
 constexpr char AIM_GS_ANTENNAMODE[]        {"gs.antennamode"};
 constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
-constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
+constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode"};
 constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
 constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
@@ -142,7 +142,16 @@ class GeneralSettings {
       AUX_SERIAL_GPS,
       AUX_SERIAL_DEBUG,
       AUX_SERIAL_SPACEMOUSE,
+      AUX_SERIAL_EXT_MODULE,
       AUX_SERIAL_COUNT
+    };
+
+    enum AuxSerialModeContext
+    {
+      AUX1Context = 0x01,
+      AUX2Context = 0x02,
+      VCPContext  = 0x04,
+      AllAuxSerialModeContexts = AUX1Context | AUX2Context | VCPContext,
     };
 
     enum TelemetryBaudrate {
@@ -295,7 +304,7 @@ class GeneralSettings {
 
     static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
-    static AbstractStaticItemModel * serialModeItemModel(int port_nr);
+    static AbstractStaticItemModel * serialModeItemModel();
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();

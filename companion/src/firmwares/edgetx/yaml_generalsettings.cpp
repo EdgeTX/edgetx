@@ -84,6 +84,7 @@ const YamlLookupTable uartModeLut = {
   {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },
   {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
   {  GeneralSettings::AUX_SERIAL_SPACEMOUSE, "SPACEMOUSE"  },
+  {  GeneralSettings::AUX_SERIAL_EXT_MODULE, "EXT_MODULE"  },
 };
 
 const YamlLookupTable antennaModeLut = {
