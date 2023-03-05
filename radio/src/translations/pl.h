@@ -962,7 +962,7 @@
 #define TR_GLOBALVAR           "Zm.Global."
 #define TR_MIXSOURCE           "Źródło Miks."
 #define TR_CONSTANT            "Stała   "
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
+#define TR_PREFLIGHT_POTSLIDER_CHECK "WYŁ","ZAŁ","Auto"
 #define TR_PREFLIGHT           "Lista Ostrzeżeń"
 #define TR_CHECKLIST           TR(INDENT "Czeklista",INDENT "Pokaż Listę Ostrzeżeń")
 #define TR_AUX_SERIAL_MODE     "Port szreg."
