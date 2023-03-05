@@ -194,11 +194,7 @@ class GVarEditWindow : public Page
   void buildHeader(Window* window)
   {
     header.setTitle(STR_GLOBAL_VAR);
-    gVarInHeader =
-        new StaticText(window,
-                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                       "", 0, COLOR_THEME_PRIMARY2);
+    gVarInHeader = header.setTitle2("");
   }
 
   void checkEvents()

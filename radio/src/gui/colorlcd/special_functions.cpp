@@ -81,12 +81,7 @@ class SpecialFunctionEditPage : public Page
   void buildHeader(Window *window)
   {
     header.setTitle(functions == g_model.customFn ? STR_MENUCUSTOMFUNC : STR_MENUSPECIALFUNCS);
-    headerSF = new StaticText(
-        window,
-        {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-         LCD_W - PAGE_TITLE_LEFT, 20},
-        (functions == g_model.customFn ? "SF" : "GF") + std::to_string(index+1),
-        0, COLOR_THEME_PRIMARY2);
+    headerSF = header.setTitle2((functions == g_model.customFn ? "SF" : "GF") + std::to_string(index+1));
 
     lv_obj_set_style_text_color(headerSF->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
     lv_obj_set_style_text_font(headerSF->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
