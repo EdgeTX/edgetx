@@ -1,0 +1,12 @@
+set(APP_DIR "@CPACK_PACKAGE_DIRECTORY@/_CPack_Packages/Linux/External/AppImage")
+
+execute_process(COMMAND @CMAKE_MAKE_PROGRAM@ DESTDIR=${APP_DIR} install
+                WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
+
+# make sure Qt plugin finds QML sources so it can deploy the imported files
+execute_process(COMMAND env QML_SOURCES_PATHS=@CMAKE_BINARY_DIR@ @LINUXDEPLOY_APP@ --appdir ${APP_DIR} --plugin qt
+                WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
+
+# this could be combined wih the last plugin but just for future maintenance keep as independent last step
+execute_process(COMMAND @LINUXDEPLOY_APP@ --appdir ${APP_DIR} --output appimage
+                WORKING_DIRECTORY @CMAKE_BINARY_DIR@)

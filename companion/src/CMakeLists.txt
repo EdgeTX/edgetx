@@ -535,37 +535,54 @@ if(APPLE)
 endif(APPLE)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
-  find_program(LINUXDEPLOY_EXECUTABLE linuxdeployqt HINTS "${_qt_bin_dir}")
+  set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
+  set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
+  set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
+  set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
+  set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
+  set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
-  if(NOT LINUXDEPLOY_EXECUTABLE)
-    message(STATUS "linuxdeployqt will be downloaded")
+  if (NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
+    message(STATUS "Downloading linuxdeploy and plugins...")
 
-    set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
-    set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
-    set(LINUXDEPLOY_BUNDLE "${CMAKE_BINARY_DIR}/linuxdeployqt.AppImage")
+    file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
+    file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_QT_URL}/${LINUXDEPLOY_PLUGIN_QT}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_QT}")
 
-    if (NOT EXISTS "${LINUXDEPLOY_EXECUTABLE}")
-      file(DOWNLOAD "${LINUXDEPLOY_URL}" "${LINUXDEPLOY_BUNDLE}")
+    message(STATUS "Downloading linuxdeploy and plugins finished")
+
+    # for security reasons by default AppImages are prohibited from running in Docker containers
+    # so extract Appimage contents and run as normal apps
+
+    file(GLOB linuxdeployfiles ${CMAKE_BINARY_DIR}/linuxdeploy*.AppImage)
+
+    foreach(file ${linuxdeployfiles})
       execute_process(
-        COMMAND chmod +x "${LINUXDEPLOY_BUNDLE}"
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      execute_process(
-        COMMAND "${LINUXDEPLOY_BUNDLE}" --appimage-extract
+        COMMAND chmod +x "${file}"
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-      file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/deployqt")
       execute_process(
-        COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" deployqt
+        COMMAND "${file}" --appimage-extract
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      file(REMOVE "${LINUXDEPLOY_BUNDLE}")
-    endif()
-  endif()
+
+      file(REMOVE "${file}")
+    endforeach()
+
+    file(REMOVE_RECURSE "${LINUXDEPLOY_DIRECTORY}")
+
+    execute_process(
+      COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" "${LINUXDEPLOY_DIRECTORY}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    # test installation
+    execute_process(
+      COMMAND ${LINUXDEPLOY_APP} --list-plugins
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+   endif()
 
   set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
   set(CPACK_GENERATOR "External")
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeployQt.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeploy.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
 endif()
 
