@@ -262,9 +262,9 @@
 #define TR_ROTENC_SWITCHES
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT            "Normal","Inverterad"
+  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad"
 #else
-  #define TR_ROTARY_ENC_OPT            "Normal","Inverterad","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad","V-I H-N","V-I H-A"
 #endif
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
