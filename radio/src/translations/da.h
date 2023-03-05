@@ -750,7 +750,7 @@
 #define TR_SAVE_THEME                  "Gem tema?"
 #define TR_EDIT_COLOR                  "Rediger farve"
 #define TR_NO_THEME_IMAGE              "Ingen billede for tema"
-#define TR_BACKLIGHT_TIMER             "Inactivity timeout"
+#define TR_BACKLIGHT_TIMER             TR2("Inaktivitet", "Ved inaktivitet dæmp efter")
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
