@@ -21,44 +21,14 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
-#include "lz4_bitmaps.h"
 
-const uint8_t _LBM_LAYOUT_2x2[] = {
-#include "mask_layout2x2.lbm"
-};
-STATIC_LZ4_BITMAP(LBM_LAYOUT_2x2);
-
-const ZoneOption OPTIONS_LAYOUT_2x2[] = {
-  LAYOUT_COMMON_OPTIONS,
-  LAYOUT_OPTIONS_END
+static uint8_t zmap[] = {
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
+    LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF,
 };
 
-class Layout2x2 : public Layout
-{
- public:
-  Layout2x2(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData) :
-      Layout(parent, factory, persistentData)
-  {
-  }
-
-  unsigned int getZonesCount() const override { return 4; }
-
-  rect_t getZone(unsigned int index) const override
-  {
-    rect_t zone = getMainZone();
-
-    zone.w /= 2;
-    zone.h /= 2;
-
-    if (index == 1 || index == 3) zone.y += zone.h;
-
-    if ((!isMirrored() && index > 1) || (isMirrored() && index < 2))
-      zone.x += zone.w;
-
-    return zone;
-  }
-};
-
-BaseLayoutFactory<Layout2x2> layout2x2("Layout2x2", "2 x 2", LBM_LAYOUT_2x2,
-                                       OPTIONS_LAYOUT_2x2);
+BaseLayoutFactory<Layout> layout2x2("Layout2x2", "2 x 2",
+                                    defaultZoneOptions,
+                                    4, zmap);

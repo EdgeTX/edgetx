@@ -24,10 +24,12 @@
 #include "layouts/sliders.h"
 #include "view_main.h"
 
-Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData):
+Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData, uint8_t zoneCount, uint8_t* zoneMap):
   LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
   factory(factory),
-  decoration(new ViewMainDecoration(this))
+  decoration(new ViewMainDecoration(this)),
+  zoneCount(zoneCount),
+  zoneMap(zoneMap)
 {
   adjustLayout();
 }
@@ -128,4 +130,24 @@ rect_t Layout::getMainZone() const
   }
   return ViewMain::instance()->getMainZone(zone, hasTopbar());
 }    
+
+rect_t Layout::getZone(unsigned int index) const
+{
+  rect_t z = getMainZone();
+
+  unsigned int i = index * 4;
+
+  coord_t xo = z.w * zoneMap[i] / LAYOUT_MAP_DIV;
+  coord_t yo = z.h * zoneMap[i+1] / LAYOUT_MAP_DIV;
+  coord_t w = z.w * zoneMap[i+2] / LAYOUT_MAP_DIV;
+  coord_t h = z.h * zoneMap[i+3] / LAYOUT_MAP_DIV;
+
+  if (isMirrored())
+    xo = z.w - xo - w;
+
+  return { z.x + xo, z.y + yo, w, h };
+}
+
+const ZoneOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
+                                         LAYOUT_OPTIONS_END};
 
