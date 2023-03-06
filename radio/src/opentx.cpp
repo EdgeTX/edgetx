@@ -273,6 +273,10 @@ void generalDefault()
   g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
+#if defined(LCD_BRIGHTNESS_DEFAULT)
+  g_eeGeneral.backlightBright = LCD_BRIGHTNESS_DEFAULT;
+#endif
+
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif

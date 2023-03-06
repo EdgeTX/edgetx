@@ -259,6 +259,31 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"mt12"},
+        "inputs": {
+            "ST": {
+                "yaml": "ST"
+            },
+            "TH": {
+                "yaml": "TH"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            }
+        }
+    },
+    {
         "targets": {
             "commando8",
             "lr3pro",
