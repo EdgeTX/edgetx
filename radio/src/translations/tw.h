@@ -82,7 +82,7 @@
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
 #endif
-#define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
+#define TR_VCURVETYPE                  "單邊","指數","函數","自定義"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "相加","相乘","替換"
 #define TR_VMLTPX2                     "+=","*=",":="
