@@ -88,7 +88,7 @@
 #else
   #define TR_RETA123                   "S","H","G","K","1","2","3"
 #endif
-#define TR_VCURVETYPE                  "Diff","Expo","Funk","Cstm"
+#define TR_VCURVETYPE                  "Diff","Expo","Funk","Egen"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Læg til","Gange","Erstat"
 #define TR_VMLTPX2                     "+=","*=",":="
