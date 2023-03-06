@@ -37,9 +37,6 @@
 #define GVAR_TTL_OFST 24
 #endif
 
-static  struct timespec vor, nach;
-static  struct timespec vor2, nach2;
-
 class GVarButton : public Button
 {
  public:
@@ -129,9 +126,7 @@ class GVarButton : public Button
     t->padLeft(2);
     t->padTop(GVAR_TTL_OFST);
 
-    fprintf(stderr, ">>>>>> GV: %s\n", getGVarString(gvarIdx));
     for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-      clock_gettime(CLOCK_MONOTONIC, &vor);
 
       fmCont[flightMode] = lv_obj_create(lvobj);
       lv_obj_add_style(fmCont[flightMode], &fmContStyle, LV_PART_MAIN);
@@ -154,9 +149,6 @@ class GVarButton : public Button
       lv_obj_enable_style_refresh(false);
       updateValueText(flightMode);
       lv_obj_enable_style_refresh(true);
-
-      clock_gettime(CLOCK_MONOTONIC, &nach);
-      fprintf(stderr, ">>>>>> %lu\n", (((((uint64_t)nach.tv_sec)*1000000000)+nach.tv_nsec)-((((uint64_t)vor.tv_sec)*1000000000)+vor.tv_nsec)));
     }
 
   }
@@ -455,10 +447,7 @@ void ModelGVarsPage::build(FormWindow* window)
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
-    clock_gettime(CLOCK_MONOTONIC, &vor2);
     Button* button = new GVarButton(window, rect_t{}, index);
-    clock_gettime(CLOCK_MONOTONIC, &nach2);
-    fprintf(stderr, ">>>>>> %lu\n", (((((uint64_t)nach2.tv_sec)*1000000000)+nach2.tv_nsec)-((((uint64_t)vor2.tv_sec)*1000000000)+vor2.tv_nsec)));
     button->setPressHandler([=]() {
       Menu* menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
