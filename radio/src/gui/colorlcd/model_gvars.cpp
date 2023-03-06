@@ -117,8 +117,6 @@ class GVarButton : public Button
 
     lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_column(lvobj, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_row(lvobj, 0, LV_PART_MAIN);
 
     auto t =
         new StaticText(this, rect_t{0, 0, GVAR_NAME_SIZE, PAGE_LINE_HEIGHT},
@@ -126,9 +124,16 @@ class GVarButton : public Button
     t->padLeft(2);
     t->padTop(GVAR_TTL_OFST);
 
+    lv_obj_t* container = lv_obj_create(lvobj);
+    lv_obj_set_flex_flow(container, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_style_flex_grow(container, 2, LV_PART_MAIN);
+    lv_obj_set_style_pad_all(container, 0, LV_PART_MAIN);
+    lv_obj_set_height(container, LV_SIZE_CONTENT);
+    lv_obj_add_flag(container, LV_OBJ_FLAG_EVENT_BUBBLE);
+
     for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
 
-      fmCont[flightMode] = lv_obj_create(lvobj);
+      fmCont[flightMode] = lv_obj_create(container);
       lv_obj_add_style(fmCont[flightMode], &fmContStyle, LV_PART_MAIN);
       lv_obj_set_user_data(fmCont[flightMode], this);
       lv_obj_add_flag(fmCont[flightMode], LV_OBJ_FLAG_EVENT_BUBBLE);
