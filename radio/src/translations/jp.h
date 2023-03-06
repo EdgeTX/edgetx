@@ -744,7 +744,7 @@
 #define TR_SAVE_THEME                  "テーマを保存しますか？"
 #define TR_EDIT_COLOR                  "カラー編集"
 #define TR_NO_THEME_IMAGE              "テーマ画像はありません"
-#define TR_BACKLIGHT_TIMER             "Inactivity timeout"
+#define TR_BACKLIGHT_TIMER             "持続時間"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"

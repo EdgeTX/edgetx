@@ -745,7 +745,7 @@
 #define TR_SAVE_THEME                  "Uložit motiv?"
 #define TR_EDIT_COLOR                  "Upravit barvu"
 #define TR_NO_THEME_IMAGE              "Náhled motivu nedostupný"
-#define TR_BACKLIGHT_TIMER             "Čas zhasnutí"
+#define TR_BACKLIGHT_TIMER             "Čas zhasnutí displeje"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Rychlý výběr modelu"
