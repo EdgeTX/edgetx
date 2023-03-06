@@ -62,23 +62,20 @@ class GVarStyle
         lv_style_set_width(&fmLabelStyle, GVAR_VAL_SIZE);
         lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
         lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
-        lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
         lv_style_set_text_align(&fmLabelStyle, LV_TEXT_ALIGN_CENTER);
 
         lv_style_init(&fmValueStyle);
         lv_style_set_height(&fmValueStyle, PAGE_LINE_HEIGHT);
         lv_style_set_width(&fmValueStyle, GVAR_VAL_SIZE);
         lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
-        lv_style_set_flex_track_place(&fmValueStyle, LV_FLEX_ALIGN_END);
         lv_style_set_text_color(&fmValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
-        lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
         lv_style_set_text_align(&fmValueStyle, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_flex_track_place(&fmValueStyle, LV_FLEX_ALIGN_END);
 
         lv_style_init(&fmNameStyle);
         lv_style_set_width(&fmNameStyle, GVAR_NAME_SIZE);
         lv_style_set_text_font(&fmNameStyle, getFont(FONT(STD)));
         lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
-        lv_style_set_text_font(&fmNameStyle, getFont(FONT(STD)));
         lv_style_set_text_align(&fmNameStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_pad_left(&fmNameStyle, 2);
         lv_style_set_pad_top(&fmNameStyle, GVAR_TTL_OFST);
