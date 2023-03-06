@@ -185,7 +185,7 @@ class GVarEditWindow : public Page
  protected:
   uint8_t index;
   gvar_t lastGVar = 0;
-  uint8_t lastFlightMode = 0;
+  uint8_t lastFlightMode = 255; // Force initial setting of header title
   NumberEdit* min = nullptr;
   NumberEdit* max = nullptr;
   NumberEdit* values[MAX_FLIGHT_MODES] = {};
