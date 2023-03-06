@@ -58,13 +58,10 @@ class GVarButton : public Button
     Button::checkEvents();
     uint8_t newFM = getFlightMode();
     if (currentFlightMode != newFM) {
-      uint8_t lastFM = currentFlightMode;
-      currentFlightMode = newFM;
+      lv_obj_set_style_bg_color(fmCont[newFM], makeLvColor(COLOR_THEME_SECONDARY3), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(fmCont[currentFlightMode], makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
 
-      lv_obj_set_style_bg_color(labels[lastFM], makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
-      lv_obj_set_style_bg_color(labels[currentFlightMode], makeLvColor(COLOR_THEME_SECONDARY3), LV_PART_MAIN);
-      updateValueText(lastFM);
-      updateValueText(currentFlightMode);
+      currentFlightMode = newFM;
     }
     for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
       FlightModeData* fmData = &g_model.flightModeData[flightMode];
@@ -79,7 +76,7 @@ class GVarButton : public Button
   int lines;
   int32_t gvarSum = 0;            // used for invalidation
   uint8_t currentFlightMode = 0;  // used for invalidation
-  lv_obj_t* labels[MAX_FLIGHT_MODES];
+  lv_obj_t* fmCont[MAX_FLIGHT_MODES];
   lv_obj_t* valueTexts[MAX_FLIGHT_MODES];
   gvar_t values[MAX_FLIGHT_MODES];
   static lv_style_t fmContStyle;
@@ -98,14 +95,14 @@ class GVarButton : public Button
       lv_style_set_height(&fmContStyle, PAGE_LINE_HEIGHT * 2 - 6);
       lv_style_set_flex_flow(&fmContStyle, LV_FLEX_FLOW_COLUMN);
       lv_style_set_layout(&fmContStyle, LV_LAYOUT_FLEX);
+      lv_style_set_bg_color(&fmContStyle, makeLvColor(COLOR_THEME_PRIMARY2));
+      lv_style_set_bg_opa(&fmContStyle, LV_OPA_COVER);
 
 
       lv_style_init(&fmLabelStyle);
       lv_style_set_height(&fmLabelStyle, PAGE_LINE_HEIGHT - 6);
       lv_style_set_width(&fmLabelStyle, GVAR_VAL_SIZE);
       lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
-      lv_style_set_bg_color(&fmLabelStyle, makeLvColor(COLOR_THEME_PRIMARY2));
-      lv_style_set_bg_opa(&fmLabelStyle, LV_OPA_COVER);
       lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
       lv_style_set_text_align(&fmLabelStyle, LV_TEXT_ALIGN_CENTER);
@@ -115,48 +112,43 @@ class GVarButton : public Button
       lv_style_set_height(&fmValueStyle, PAGE_LINE_HEIGHT);
       lv_style_set_width(&fmValueStyle, GVAR_VAL_SIZE);
       lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
-      lv_style_set_bg_color(&fmValueStyle, makeLvColor(COLOR_THEME_PRIMARY2));
-      lv_style_set_bg_opa(&fmValueStyle, LV_OPA_COVER);
       lv_style_set_flex_track_place(&fmValueStyle, LV_FLEX_ALIGN_END);
       lv_style_set_text_color(&fmValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
       lv_style_set_text_align(&fmValueStyle, LV_TEXT_ALIGN_CENTER);
     }
 
-
     lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(lvobj, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(lvobj, 0, LV_PART_MAIN);
 
     auto t =
         new StaticText(this, rect_t{0, 0, GVAR_NAME_SIZE, PAGE_LINE_HEIGHT},
                        getGVarString(gvarIdx), 0, COLOR_THEME_SECONDARY1);
-    t->padLeft(1);
+    t->padLeft(2);
     t->padTop(GVAR_TTL_OFST);
-
-    Window* container = new Window(this, rect_t{});
-    lv_obj_set_style_pad_all(container->getLvObj(), 0, LV_PART_MAIN);
-    lv_obj_set_style_flex_grow(container->getLvObj(), 2, LV_PART_MAIN);
-    lv_obj_set_height(container->getLvObj(), LV_SIZE_CONTENT);
-    lv_obj_set_flex_flow(container->getLvObj(), LV_FLEX_FLOW_ROW_WRAP);
 
     fprintf(stderr, ">>>>>> GV: %s\n", getGVarString(gvarIdx));
     for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
       clock_gettime(CLOCK_MONOTONIC, &vor);
 
-      Window* fmCont = new Window(container, rect_t{});
-      lv_obj_add_style(fmCont->getLvObj(), &fmContStyle, LV_PART_MAIN);
+      fmCont[flightMode] = lv_obj_create(lvobj);
+      lv_obj_add_style(fmCont[flightMode], &fmContStyle, LV_PART_MAIN);
+      lv_obj_set_user_data(fmCont[flightMode], this);
+      lv_obj_add_flag(fmCont[flightMode], LV_OBJ_FLAG_EVENT_BUBBLE);
+      if (flightMode == currentFlightMode) {
+        lv_obj_set_style_bg_color(fmCont[flightMode], makeLvColor(COLOR_THEME_SECONDARY3), LV_PART_MAIN);
+      }
 
       char label[16] = {};
       getFlightModeString(label, flightMode + 1);
 
-      labels[flightMode] = lv_label_create(fmCont->getLvObj());
-      lv_label_set_text(labels[flightMode], label);
-      lv_obj_add_style(labels[flightMode], &fmLabelStyle, LV_PART_MAIN);
-      if (flightMode == currentFlightMode) {
-        lv_obj_set_style_bg_color(labels[flightMode], makeLvColor(COLOR_THEME_SECONDARY3), LV_PART_MAIN);
-      }
+      auto lbl = lv_label_create(fmCont[flightMode]);
+      lv_obj_add_style(lbl, &fmLabelStyle, LV_PART_MAIN);
+      lv_label_set_text(lbl, label);
 
-      valueTexts[flightMode] = lv_label_create(fmCont->getLvObj());
+      valueTexts[flightMode] = lv_label_create(fmCont[flightMode]);
       lv_obj_add_style(valueTexts[flightMode], &fmValueStyle, LV_PART_MAIN);
 
       lv_obj_enable_style_refresh(false);
@@ -199,10 +191,6 @@ class GVarButton : public Button
         }
       }
     }
-    if (flightMode == currentFlightMode)
-      lv_obj_set_style_bg_color(field, makeLvColor(COLOR_THEME_SECONDARY3), LV_PART_MAIN);
-    else
-      lv_obj_set_style_bg_color(field, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
   }
 };
 
