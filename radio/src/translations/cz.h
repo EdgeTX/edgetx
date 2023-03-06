@@ -742,7 +742,7 @@
 #define TR_LOADING                     "Načítání..."
 #define TR_DELETE_THEME                "Smazat motiv?"
 #define TR_SAVE_THEME                  "Uložit motiv?"
-#define TR_EDIT_COLOR                  "Změnit barvu"
+#define TR_EDIT_COLOR                  "Upravit barvu"
 #define TR_NO_THEME_IMAGE              "Náhled motivu nedostupný"
 
 #if defined(COLORLCD)
