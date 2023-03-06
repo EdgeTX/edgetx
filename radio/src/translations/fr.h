@@ -84,7 +84,7 @@
 #else
   #define TR_RETA123                   "D","P","G","A","1","2","3"
 #endif
-#define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
+#define TR_VCURVETYPE                  "Diff","Expo","Fonct","Perso."
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      TR("Ajoute","Additionner"),TR("Multipl.","Multiplier"),TR("Remplace","Remplacer")
 #define TR_VMLTPX2                     "+=","*=",":="
