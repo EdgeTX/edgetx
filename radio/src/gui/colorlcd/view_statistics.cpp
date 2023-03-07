@@ -247,7 +247,7 @@ void DebugViewPage::build(FormWindow* window)
   new StaticText(line, rect_t{}, STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      PREC2 | COLOR_THEME_PRIMARY1, nullptr, " msec");
+      PREC2 | COLOR_THEME_PRIMARY1, nullptr, STR_MS);
 
   line = form->newLine(&grid);
   line->padAll(2);
@@ -256,14 +256,15 @@ void DebugViewPage::build(FormWindow* window)
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<int32_t>(
       line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1, 
-      nullptr, " bytes");
+      nullptr, STR_BYTES);
 
 #if defined(LUA)
   line = form->newLine(&grid);
   line->padAll(2);
 
   // LUA timing data
-  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0,
+                 COLOR_THEME_PRIMARY1);
 #if LCD_H > LCD_W
   line = form->newLine(&grid);
   line->padAll(4);
@@ -271,10 +272,10 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, "Duration(ms): ", nullptr);
+      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, STR_DURATION_MS, nullptr);
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, "Internal(ms): ", nullptr);
+      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, STR_INTERVAL_MS, nullptr);
 
   line = form->newLine(&grid);
   line->padAll(0);
@@ -287,13 +288,13 @@ void DebugViewPage::build(FormWindow* window)
   // lUA memory data
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1, "Script(B): ", nullptr);
+      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1, STR_MEM_USED_SCRIPT, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1, "Widget(B): ", nullptr);
+      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1, STR_MEM_USED_WIDGET, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, "Extra(B): ", nullptr);
+      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, STR_MEM_USED_EXTRA, nullptr);
 #endif
 
   line = form->newLine(&grid);
