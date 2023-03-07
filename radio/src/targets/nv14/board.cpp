@@ -200,16 +200,19 @@ void boardInit()
     uint8_t usb_state = usbPlugged();
     usb_state |= usbPlugged();
     while (usb_state) {
+      pwrOn();
       uint32_t now = get_tmr10ms();
       if (pwrPressed()) {
         press_end = now;
         if (press_start == 0) press_start = now;
         if ((now - press_start) > POWER_ON_DELAY) {
-          pwrOn();
           break;
         }
       }  else if(!usbPlugged()){
-          boardOff();
+          delay_ms(20);
+          if(!usbPlugged()){
+            boardOff();
+          }
       } else {
         uint32_t press_end_touch = press_end;
         if (touchPanelEventOccured()) {
