@@ -564,7 +564,9 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
       case PROTOCOL_TELEMETRY_HOTT:
         hottSetDefault(index, id, subId, instance);
         break;
+#endif
 
+#if defined(MULTIMODULE) or defined(PPM)
       case PROTOCOL_TELEMETRY_MLINK:
         mlinkSetDefault(index, id, subId, instance);
         break;

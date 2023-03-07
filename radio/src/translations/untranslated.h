@@ -134,6 +134,7 @@
 #define TR_R9M_FCC_POWER_VALUES        "10mW","100mW","500mW","1W (auto)"
 #define TR_R9M_LBT_POWER_VALUES        "25mW 8CH","25mW 16CH","200mW NoTele","500mW NoTele"
 
+#define TR_PPM_PROTOCOLS               "NOTLM","MLINK"
 #define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
 
 #define TR_MULTI_PROTOCOLS             "FlySky","Hubsan","FrSkyD","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX","SLT","CX10","CG023", \
@@ -187,6 +188,7 @@
 #define STR_SENSOR_ACCX                      "AccX"
 #define STR_SENSOR_ACCY                      "AccY"
 #define STR_SENSOR_ACCZ                      "AccZ"
+#define STR_SENSOR_ACC                       "Acc"
 #define STR_SENSOR_GYROX                     "GYRX"
 #define STR_SENSOR_GYROY                     "GYRY"
 #define STR_SENSOR_GYROZ                     "GYRZ"
@@ -318,6 +320,7 @@
 #define STR_SENSOR_SERVO_VOLTAGE             "SrvV"
 #define STR_SENSOR_SERVO_TEMPERATURE         "SrvT"
 #define STR_SENSOR_SERVO_STATUS              "SrvS"
+#define STR_SENSOR_SPECIAL                   "Spcl"
 
 #define STR_CHAR_RIGHT     "\302\200"
 #define STR_CHAR_LEFT      "\302\201"

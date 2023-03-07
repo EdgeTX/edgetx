@@ -488,6 +488,7 @@ void ModulePanel::update()
         ui->telemetryBaudrate->setField(module.ghost.telemetryBaudrate);
         break;
       case PULSES_PPM:
+      case PULSES_PPM_MLINK:
         mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT;
         if (IS_9XRPRO(board)) {
           mask |= MASK_OPEN_DRAIN;

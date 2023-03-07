@@ -55,6 +55,7 @@ enum ModuleType {
 enum PulsesProtocol {
   PULSES_OFF,
   PULSES_PPM,
+  PULSES_PPM_MLINK,
   PULSES_SILV_A,
   PULSES_SILV_B,
   PULSES_SILV_C,

@@ -1845,6 +1845,12 @@ static const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
   { 0, NULL  }
 };
 
+static const struct YamlIdStr enum_PPM_Subtypes[] = {
+  { 0, "NOTLM" },
+  { 1, "MLINK" },
+  { 0, NULL  }
+};
+
 static const struct YamlIdStr enum_DSM2_Subtypes[] = {
   { 0, "LP45" },
   { 1, "DSM2" },
@@ -1888,6 +1894,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
     md->subType = yaml_parse_enum(enum_DSM2_Subtypes, val, val_len);
+  } else if (md->type == MODULE_TYPE_PPM) {
+    md->subType = yaml_parse_enum(enum_PPM_Subtypes, val, val_len);
   } else {
     md->subType = yaml_str2uint(val, val_len);
   }  
@@ -1925,6 +1933,8 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
     str = yaml_output_enum(md->subType, enum_DSM2_Subtypes);
+  } else if (md->type == MODULE_TYPE_PPM) {
+    str = yaml_output_enum(md->subType, enum_PPM_Subtypes);
   } else {
     str = yaml_unsigned2str(val);
   }
