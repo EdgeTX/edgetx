@@ -262,9 +262,9 @@
 #define TR_ROTENC_SWITCHES
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT            "Normal","Inverterad"
+  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad"
 #else
-  #define TR_ROTARY_ENC_OPT            "Normal","Inverterad","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad","V-I H-N","V-I H-A"
 #endif
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
@@ -996,6 +996,7 @@
 #define TR_GLOBALVAR                    "Globala var"
 #define TR_MIXSOURCE                    "Mixerkälla"
 #define TR_CONSTANT                     "Konstant"
+#define TR_PREFLIGHT_POTSLIDER_CHECK    "Av","På","Auto"
 #define TR_PREFLIGHT                    "Startkontroller"
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
 #define TR_AUX_SERIAL_MODE              "Serieport"

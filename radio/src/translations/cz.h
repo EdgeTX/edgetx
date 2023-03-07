@@ -966,6 +966,7 @@
 #define TR_GLOBALVAR                   "Glob. proměnná"
 #define TR_MIXSOURCE                   "Zdroje mixeru"
 #define TR_CONSTANT                    "Konstanta"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Vyp","Zap","Auto"
 #define TR_PREFLIGHT                   "Předletová kontrola"
 #define TR_CHECKLIST                   TR(INDENT "Poznámky", INDENT "Zobrazit poznámky")
 #define TR_AUX_SERIAL_MODE             "Seriový port"

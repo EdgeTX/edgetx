@@ -975,6 +975,7 @@
 #define TR_GLOBALVAR                   "Var. globale"
 #define TR_MIXSOURCE                   "Source mixeur"
 #define TR_CONSTANT                    "Constante"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT                   "Vérifications avant vol"
 #define TR_CHECKLIST                   TR(INDENT "Notes", INDENT "Afficher notes")
 #define TR_AUX_SERIAL_MODE             "Port série"

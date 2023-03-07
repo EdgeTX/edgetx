@@ -937,6 +937,7 @@ extern const char STR_MODULE_PROTOCOL_FCC_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_EU_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_WARN_LINE2[];
 extern const char STR_SET[];
+extern const char* const STR_PREFLIGHT_POTSLIDER_CHECK[];
 extern const char STR_PREFLIGHT[];
 extern const char STR_CHECKLIST[];
 extern const char STR_VIEW_NOTES[];

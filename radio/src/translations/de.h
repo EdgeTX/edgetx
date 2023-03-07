@@ -964,6 +964,7 @@
 #define TR_GLOBALVAR                   "Global Var"
 #define TR_MIXSOURCE                   "Mixer Quelle"
 #define TR_CONSTANT                    "Konstant"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
