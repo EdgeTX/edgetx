@@ -272,10 +272,12 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, STR_DURATION_MS, nullptr);
+      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, STR_DURATION_MS,
+      nullptr);
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, STR_INTERVAL_MS, nullptr);
+      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, STR_INTERVAL_MS,
+      nullptr);
 
   line = form->newLine(&grid);
   line->padAll(0);
@@ -288,13 +290,16 @@ void DebugViewPage::build(FormWindow* window)
   // lUA memory data
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1, STR_MEM_USED_SCRIPT, nullptr);
+      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
+      STR_MEM_USED_SCRIPT, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1, STR_MEM_USED_WIDGET, nullptr);
+      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
+      STR_MEM_USED_WIDGET, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, STR_MEM_USED_EXTRA, nullptr);
+      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1,
+      STR_MEM_USED_EXTRA, nullptr);
 #endif
 
   line = form->newLine(&grid);
@@ -309,16 +314,16 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1, "Menu: ",
-      nullptr);
+      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_MENU, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1, "Mix: ",
-      nullptr);
+      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_MIX, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1, "Audio: ",
-      nullptr);
+      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_AUDIO, nullptr);
 
 #if defined(DEBUG_LATENCY)
   line = form->newLine(&grid);
@@ -346,15 +351,15 @@ void DebugViewPage::build(FormWindow* window)
 #endif
     new DynamicText(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return std::string(gpsData.fix ? "[Fix] Yes" : "[Fix] No"); },
+        [] { return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO); },
         COLOR_THEME_PRIMARY1);
     new DebugInfoNumber<uint8_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.numSat; }, COLOR_THEME_PRIMARY1, "[Sats] ",
+        [] { return gpsData.numSat; }, COLOR_THEME_PRIMARY1, STR_GPS_SATS,
         nullptr);
     new DebugInfoNumber<uint16_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.hdop; }, COLOR_THEME_PRIMARY1, "[Hdop] ", nullptr);
+        [] { return gpsData.hdop; }, COLOR_THEME_PRIMARY1, STR_GPS_HDOP, nullptr);
   }
 #endif
 
