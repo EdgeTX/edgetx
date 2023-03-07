@@ -748,7 +748,8 @@
 #define TR_LOADING                     "Indlæser..."
 #define TR_DELETE_THEME                "Slet tema?"
 #define TR_SAVE_THEME                  "Gem tema?"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "Rediger farve"
+#define TR_NO_THEME_IMAGE              "Ingen billede for tema"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"

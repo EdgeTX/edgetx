@@ -724,6 +724,7 @@ const char STR_LOADING[] = TR_LOADING;
 const char STR_DELETE_THEME[] = TR_DELETE_THEME;
 const char STR_SAVE_THEME[] = TR_SAVE_THEME;
 const char STR_EDIT_COLOR[] = TR_EDIT_COLOR;
+const char STR_NO_THEME_IMAGE[] = TR_NO_THEME_IMAGE;
 #endif
 
 #if !defined(COLORLCD)

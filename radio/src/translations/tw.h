@@ -741,7 +741,8 @@
 #define TR_LOADING                     "加載中..."
 #define TR_DELETE_THEME                "刪除主題?"
 #define TR_SAVE_THEME                  "保存主題?"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "编辑颜色"
+#define TR_NO_THEME_IMAGE              "没有预览图"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
