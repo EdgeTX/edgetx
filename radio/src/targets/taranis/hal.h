@@ -2794,7 +2794,7 @@
   #define HAPTIC_GPIO_PIN               GPIO_Pin_12
 #endif
 
-#if defined(RADIO_BOXER) || defined(RADIO_T20)
+#if defined(RADIO_BOXER) || defined(RADIO_T20) || defined(RADIO_X9DP2019)
   // Flysky Hall Stick
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
