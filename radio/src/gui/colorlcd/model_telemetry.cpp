@@ -524,8 +524,11 @@ ModelTelemetryPage::ModelTelemetryPage() :
 
 void ModelTelemetryPage::checkEvents()
 {
-  if (lastKnownIndex >= 0 && lastKnownIndex != availableTelemetryIndex()) {
+  int _lastKnownIndex = availableTelemetryIndex();
+
+  if (lastKnownIndex >= 0 && lastKnownIndex != _lastKnownIndex) {
     rebuild(window);
+    lastKnownIndex = _lastKnownIndex;
   }
 
   PageTab::checkEvents();
