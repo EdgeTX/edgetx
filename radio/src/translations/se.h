@@ -1277,4 +1277,3 @@
 #define TR_VOICE_SLOVAK                 "Slovakiska"
 #define TR_VOICE_SWEDISH                "Svenska"
 #define TR_VOICE_TAIWANESE              "Taiwanesiska"
- 
