@@ -608,6 +608,7 @@
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     INDENT"Napětí"
 #define TR_SELECT_MODEL                "Vyber model"
+#define TR_MODEL_MANAGER               "MODEL MANAGER"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
@@ -622,6 +623,7 @@
 #define TR_LABEL                       "Štítek"
 #define TR_LABELS                      "Štítky"
 #define TR_CURRENT_MODEL               "Aktuální"
+#define TR_ACTIVE                      "Active"
 #define TR_NEW                         "Nový"
 #define TR_NEW_LABEL                   "Nový štítek"
 #define TR_RENAME_LABEL                "Přejmenovat štítek"
@@ -1211,6 +1213,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Vybrat\nmodel"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"

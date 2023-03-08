@@ -959,13 +959,12 @@ void ModelLabelsWindow::setTitle()
   auto curModel = modelslist.getCurrentModel();
   auto modelName = curModel != nullptr ? curModel->modelName : STR_NONE;
 
-  std::string titleName = STR_SELECT_MODEL;
-  titleName += "\n";
-  titleName += STR_CURRENT_MODEL;
-  titleName += ": ";
-  titleName += modelName;
+  std::string title2 = STR_ACTIVE;
+  title2 += ": ";
+  title2 += modelName;
 
-  header.setTitle(titleName);
+  header.setTitle(STR_MODEL_MANAGER);
+  header.setTitle2(title2);
 }
 
 //-----------------------------------------------------------------------------

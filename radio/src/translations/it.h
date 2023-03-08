@@ -608,6 +608,7 @@
 #define TR_CURRENT_CALIB       "Calibra corr."
 #define TR_VOLTAGE             TR(INDENT "Voltagg.",INDENT "Voltaggio")
 #define TR_SELECT_MODEL        TR("Scegli mod.", "Scegli Modello")
+#define TR_MODEL_MANAGER               "MODEL MANAGER"
 #define TR_MODELS              "Modelli"
 #define TR_SELECT_MODE         "Seleziona modo"
 #define TR_CREATE_MODEL        "Crea Modello"
@@ -622,6 +623,7 @@
 #define TR_LABEL               "Etichetta"
 #define TR_LABELS              "Etichette"
 #define TR_CURRENT_MODEL       "Corrente"
+#define TR_ACTIVE                      "Active"
 #define TR_NEW                 "Nuovo"
 #define TR_NEW_LABEL           "Nuova Etichetta"
 #define TR_RENAME_LABEL        "Rinomina Etichetta"
@@ -1219,6 +1221,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Seleziona\nModello"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note\nModello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanali"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi\nModello"

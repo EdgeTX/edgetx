@@ -1104,11 +1104,13 @@ extern const char STR_LABELS[];
 extern const char STR_SELECT_MODEL[];
 extern const char STR_NONE[];
 extern const char STR_CURRENT_MODEL[];
+extern const char STR_ACTIVE[];
 extern const char STR_NEW[];
 extern const char STR_NEW_LABEL[];
 extern const char STR_RENAME_LABEL[];
 extern const char STR_DELETE_LABEL[];
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
+extern const char STR_MAIN_MENU_MODEL_MANAGER[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
 extern const char STR_MAIN_MENU_MODEL_SETTINGS[];
@@ -1117,7 +1119,7 @@ extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
 extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
 extern const char STR_MAIN_MENU_STATISTICS[];
 extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
-
+extern const char STR_MODEL_MANAGER[];
 #endif
 
 #endif // _TRANSLATIONS_H_

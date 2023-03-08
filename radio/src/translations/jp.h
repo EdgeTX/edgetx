@@ -607,6 +607,7 @@
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "電圧ソース")
 #define TR_SELECT_MODEL                "モデル選択"
+#define TR_MODEL_MANAGER               "MODEL MANAGER"
 #define TR_MODELS                      "モデル"
 #define TR_SELECT_MODE                 "モード選択"
 #define TR_CREATE_MODEL                "モデル作成"
@@ -621,6 +622,7 @@
 #define TR_LABEL                       "ラベル"
 #define TR_LABELS                      "ラベル"
 #define TR_CURRENT_MODEL               "現在のモデル"
+#define TR_ACTIVE                      "Active"
 #define TR_NEW                         "新規"
 #define TR_NEW_LABEL                   "新規ラベル"
 #define TR_RENAME_LABEL                "ラベル名変更"
@@ -1206,6 +1208,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "モデル\n選択"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES        "モデル\nノート"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "チャンネル\nモニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"

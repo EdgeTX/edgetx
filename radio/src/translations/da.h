@@ -613,6 +613,7 @@
 #define TR_CURRENT_CALIB               "Aktuel kalib"
 #define TR_VOLTAGE                     TR(INDENT "Spænding", INDENT "Spænding kilde")
 #define TR_SELECT_MODEL                "Vælg model"
+#define TR_MODEL_MANAGER               "MODEL MANAGER"
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
@@ -627,6 +628,7 @@
 #define TR_LABEL                       "Type"
 #define TR_LABELS                      "Typer"
 #define TR_CURRENT_MODEL               "Aktuel"
+#define TR_ACTIVE                      "Active"
 #define TR_NEW                         "Ny"
 #define TR_NEW_LABEL                   "Ny type"
 #define TR_RENAME_LABEL                "Omdøb type"
@@ -1224,6 +1226,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Vælg\nModel"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model\nNoter"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nIndstilling"

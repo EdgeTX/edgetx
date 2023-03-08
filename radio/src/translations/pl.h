@@ -604,6 +604,7 @@
 #define TR_CURRENT_CALIB       " +=\006Kalibracja prądu"
 #define TR_VOLTAGE             TR (INDENT"Napięcie",INDENT"Źródło Napięcia")
 #define TR_SELECT_MODEL        "Wybór modelu"
+#define TR_MODEL_MANAGER               "MODEL MANAGER"
 #define TR_MODELS              "Modele"
 #define TR_SELECT_MODE         "Wybierz tryb"
 #define TR_CREATE_MODEL        "Nowy model"
@@ -618,6 +619,7 @@
 #define TR_LABEL               "Etykieta"
 #define TR_LABELS              "Etykiety"
 #define TR_CURRENT_MODEL       "Wybrany"
+#define TR_ACTIVE                      "Active"
 #define TR_NEW                 "Nowy"
 #define TR_NEW_LABEL           "Nowa etyk."
 #define TR_RENAME_LABEL        "Zmień etyk."
@@ -1208,6 +1210,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Wybierz\nmodel"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notatki\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanałów"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia\nmodelu"
