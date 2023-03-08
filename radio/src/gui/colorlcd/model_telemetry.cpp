@@ -259,9 +259,10 @@ class SensorEditWindow : public Page {
 
     void buildHeader(Window * window)
     {
-      header.setTitle(STR_SENSOR + std::to_string(index + 1));
+      std::string title2 = STR_SENSOR + std::to_string(index + 1) + " = " + STR_NA;
+      header.setTitle(STR_MENUTELEMETRY);
 
-      headerValue = header.setTitle2("");
+      headerValue = header.setTitle2(title2);
 
       lv_obj_set_style_text_color(headerValue->getLvObj(), makeLvColor(COLOR_THEME_WARNING), LV_STATE_USER_1);
     }
@@ -280,9 +281,14 @@ class SensorEditWindow : public Page {
         if (telemetryItem.isAvailable()) {
           if (telemetryItem.isOld())
             lv_obj_add_state(headerValue->getLvObj(), LV_STATE_USER_1);
-          headerValue->setText(getSensorCustomValue(index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT));
+          std::string title2 =
+              STR_SENSOR + std::to_string(index + 1) + " = " +
+               getSensorCustomValue(
+                   index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+          headerValue->setText(title2);
         } else {
-          headerValue->setText("---");
+          headerValue->setText(STR_SENSOR + std::to_string(index + 1) + " = " +
+                               STR_NA);
         }
       }
     }
