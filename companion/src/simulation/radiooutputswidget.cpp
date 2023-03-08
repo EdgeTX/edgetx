@@ -230,7 +230,7 @@ void RadioOutputsWidget::setupGVarsDisplay()
   }
   QHash<int, QLabel *> fmMap;
   for (int gv=0; gv < gvars; gv++) {
-    bgrole = ((gv % 2) ? QPalette::Background : QPalette::AlternateBase);
+    bgrole = ((gv % 2) ? QPalette::Window : QPalette::AlternateBase);
     QLabel * label = new QLabel(gvarsWidget);
     label->setText(QString(tr("GV%1")).arg(gv+1));
     label->setAutoFillBackground(true);
@@ -335,7 +335,7 @@ void RadioOutputsWidget::onVirtSwValueChange(quint8 index, qint32 value)
     return;
 
   QLabel * ls = m_logicSwitchMap.value(index);
-  ls->setBackgroundRole(value ? QPalette::Dark : QPalette::Background);
+  ls->setBackgroundRole(value ? QPalette::Dark : QPalette::Window);
   ls->setForegroundRole(value ? QPalette::BrightText : QPalette::WindowText);
   ls->setFrameShadow(value ? QFrame::Sunken : QFrame::Raised);
   QFont font = ls->font();
@@ -381,7 +381,7 @@ void RadioOutputsWidget::onPhaseChanged(qint32 phase, const QString &)
       }
       else {
         fgrole =  QPalette::WindowText;
-        bgrole = ((gv.key() % 2) ? QPalette::Background : QPalette::AlternateBase);
+        bgrole = ((gv.key() % 2) ? QPalette::Window : QPalette::AlternateBase);
         font.setBold(false);
       }
       lbl->setForegroundRole(fgrole);
