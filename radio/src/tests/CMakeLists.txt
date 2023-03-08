@@ -9,7 +9,6 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
-  use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
 
   if(PCB STREQUAL X12S OR PCB STREQUAL X10)
 
@@ -28,7 +27,7 @@ if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
       set(HORUS_MODEL_FILES ${HORUS_MODEL_FILES} ${model_file}_files)
     endforeach()
   endif()
-  
+
   if(WIN32)
     target_include_directories(gtests-radio-lib PUBLIC ${WIN_INCLUDE_DIRS})
     target_link_libraries(gtests-radio-lib PRIVATE ${WIN_LINK_LIBRARIES})
