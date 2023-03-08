@@ -36,10 +36,9 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
     input(input),
     index(index)
 {
-  std::string title(STR_MENUINPUTS);
-  title += "\n";
-  title += getSourceString(MIXSRC_FIRST_INPUT + input);
-  header.setTitle(title);
+  std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input));
+  header.setTitle(STR_MENUINPUTS);
+  header.setTitle2(title2);
 
   auto body_obj = body.getLvObj();
 #if LCD_H > LCD_W // portrait

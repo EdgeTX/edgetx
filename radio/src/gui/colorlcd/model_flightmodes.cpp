@@ -146,9 +146,9 @@ struct FMTrimSettings : public Dialog {
 FlightModeEdit::FlightModeEdit(uint8_t index) :
     Page(ICON_MODEL_FLIGHT_MODES)
 {
-  std::string title = std::string(TR_MENUFLIGHTMODE)
-    + " " + std::to_string(index);
-  header.setTitle(title);
+  std::string title2 = std::string(STR_FM) + std::to_string(index);
+  header.setTitle(STR_MENUFLIGHTMODES);
+  header.setTitle2(title2);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
   auto form = new FormWindow(&body, rect_t{});

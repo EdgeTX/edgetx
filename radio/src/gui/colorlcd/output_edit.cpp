@@ -62,9 +62,9 @@ class OutputEditStatusBar : public Window
 OutputEditWindow::OutputEditWindow(uint8_t channel) :
     Page(ICON_MODEL_OUTPUTS), channel(channel)
 {
-  std::string title(STR_MENULIMITS);
-  title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
+  std::string title2(getSourceString(MIXSRC_CH1 + channel));
+  header.setTitle(STR_MENULIMITS);
+  header.setTitle2(title2);
 
   auto form = new FormWindow(&body, rect_t{});
   auto form_obj = form->getLvObj();

@@ -371,7 +371,7 @@ CurveEditWindow::CurveEditWindow(uint8_t index):
 
 void CurveEditWindow::buildHeader(Window * window)
 {
-  header.setTitle(STR_MENUCURVE);
+  header.setTitle(STR_MENUCURVES);
   char s[16];
   strAppendStringWithIndex(s, STR_CV, index + 1);
   header.setTitle2(s);

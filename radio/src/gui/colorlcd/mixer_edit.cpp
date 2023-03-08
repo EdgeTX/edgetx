@@ -72,10 +72,9 @@ MixEditWindow::MixEditWindow(int8_t channel, uint8_t index) :
 
 void MixEditWindow::buildHeader(Window *window)
 {
-  std::string title(STR_MIXES);
-  title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
-  header.setTitle(title);
+  std::string title2(getSourceString(MIXSRC_CH1 + channel));
+  header.setTitle(STR_MIXES);
+  header.setTitle2(title2);
 
   new MixerEditStatusBar(
       window,
