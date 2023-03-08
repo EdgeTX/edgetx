@@ -18,7 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
- 
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 
@@ -166,7 +166,7 @@ void boardInit()
 
   // detect NV14 vs EL18
   hardwareOptions.pcbrev = boardGetPcbRev();
-  
+
 #if defined(DEBUG)
   serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
@@ -195,19 +195,23 @@ void boardInit()
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
   } else {
-
     // prime debounce state...
-    usbPlugged();
-
-    while (usbPlugged()) {
+    uint8_t usb_state = usbPlugged();
+    usb_state |= usbPlugged();
+    while (usb_state) {
+      pwrOn();
       uint32_t now = get_tmr10ms();
       if (pwrPressed()) {
         press_end = now;
         if (press_start == 0) press_start = now;
         if ((now - press_start) > POWER_ON_DELAY) {
-          pwrOn();
           break;
         }
+      } else if (!usbPlugged()){
+          delay_ms(20);
+          if(!usbPlugged()){
+            boardOff();
+          }
       } else {
         uint32_t press_end_touch = press_end;
         if (touchPanelEventOccured()) {
@@ -235,8 +239,8 @@ void boardInit()
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
- 
-  
+
+
 #if defined(DEBUG)
   DBGMCU_APB1PeriphConfig(
       DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
@@ -249,7 +253,7 @@ void boardInit()
 }
 
 void boardOff()
-{    
+{
   lcdOff();
 
   while (pwrPressed()) {
@@ -289,7 +293,7 @@ void boardOff()
   }
 
 
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -303,7 +307,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
