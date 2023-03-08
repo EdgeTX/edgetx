@@ -221,7 +221,8 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
 
 void RadioSpectrumAnalyser::buildHeader(Window * window)
 {
-  header.setTitle(STR_MENU_SPECTRUM_ANALYSER);
+  header.setTitle(STR_MENUTOOLS);
+  header.setTitle2(STR_MENU_SPECTRUM_ANALYSER);
 }
 
 void RadioSpectrumAnalyser::buildBody(FormWindow * window)
