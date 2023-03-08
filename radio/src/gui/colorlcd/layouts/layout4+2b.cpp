@@ -31,6 +31,6 @@ static uint8_t zmap[] = {
     LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
 };
 
-BaseLayoutFactory<Layout> layout4P2B("Layout4P2B", "4 + 2B",
+BaseLayoutFactory<Layout> layout4P2B("Layout4PB", "4 + 2B",
                                     defaultZoneOptions,
                                     6, zmap);
