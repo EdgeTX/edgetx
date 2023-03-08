@@ -148,6 +148,7 @@ extern const char* const STR_RETA123[];
 extern const char* const STR_TIMER_DIR[];
 
 extern const char* const STR_VBLMODE[];
+extern const char* const STR_VCURVETYPE[];
 extern const char* const STR_VCURVEFUNC[];
 extern const char* const STR_VMLTPX[];
 extern const char* const STR_VMLTPX2[];
