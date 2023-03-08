@@ -300,9 +300,6 @@ QRegularExpression DebugOutput::makeRegEx(const QString & input, bool * isExlusi
   QString output(input);
   QRegularExpression re;
   QRegularExpression::PatternOptions reFlags = QRegularExpression::DontCaptureOption;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-  reFlags |= QRegularExpression::OptimizeOnFirstUsageOption;
-#endif
 
   if (input.left(1) == "!") {
     output.remove(0, 1);
