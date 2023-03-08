@@ -72,7 +72,7 @@ class ButtonsWidget : public QWidget
 
     void onMouseButtonEvent(bool press, QMouseEvent * event)
     {
-      if (!(event->button() & (Qt::LeftButton | Qt::MidButton))) {
+      if (!(event->button() & (Qt::LeftButton | Qt::MiddleButton))) {
         event->ignore();
         return;
       }
