@@ -1,5 +1,5 @@
 # Native toolchain
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
 if(APPLE)
   set(CMAKE_C_FLAGS "-Wno-deprecated-declarations")
