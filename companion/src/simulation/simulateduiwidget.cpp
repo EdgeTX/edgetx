@@ -173,7 +173,7 @@ void SimulatedUIWidget::wheelEvent(QWheelEvent * event)
 
 void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(true);
   else
     event->ignore();
@@ -181,7 +181,7 @@ void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 
 void SimulatedUIWidget::mouseReleaseEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(false);
   else
     event->ignore();
