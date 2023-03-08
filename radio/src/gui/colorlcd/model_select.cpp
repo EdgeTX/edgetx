@@ -516,7 +516,7 @@ void ModelsPageBody::openMenu()
     menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
   }
   menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
-  menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(focusedModel); });
+  menu->addLine(STR_LABEL_MODEL, [=]() { editLabels(focusedModel); });
   menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel);}); 
   if (focusedModel != modelslist.getCurrentModel()) {
     menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });

@@ -617,6 +617,7 @@
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upravit štítek"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                     "Posunout nahoru"
 #define TR_MOVE_DOWN                   "Posunout dolů"
 #define TR_ENTER_LABEL                 "Vložit štítek"

@@ -566,7 +566,6 @@ extern const char STR_FAVORITE_LABEL[];
 extern const char STR_MODELS_MOVED[];
 extern const char STR_NEW_MODEL[];
 extern const char STR_INVALID_MODEL[];
-extern const char STR_EDIT_LABELS[];
 extern const char STR_MOVE_UP[];
 extern const char STR_MOVE_DOWN[];
 extern const char STR_DUPLICATE_MODEL[];
@@ -1094,10 +1093,9 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
-
-
 #if defined(COLORLCD)
-
+extern const char STR_EDIT_LABELS[];
+extern const char STR_LABEL_MODEL[];
 extern const char STR_ENTER_LABEL[];
 extern const char STR_LABEL[];
 extern const char STR_LABELS[];

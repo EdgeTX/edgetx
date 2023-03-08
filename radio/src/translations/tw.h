@@ -615,6 +615,7 @@
 #define TR_NEW_MODEL                   "新建模型"
 #define TR_INVALID_MODEL               "無效模型"
 #define TR_EDIT_LABELS                 "編輯分組"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                     "上移"
 #define TR_MOVE_DOWN                   "下移"
 #define TR_ENTER_LABEL                 "輸入分組名稱"

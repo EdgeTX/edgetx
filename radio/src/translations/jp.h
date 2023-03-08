@@ -616,6 +616,7 @@
 #define TR_NEW_MODEL                   "新規モデル"
 #define TR_INVALID_MODEL               "無効なモデル"
 #define TR_EDIT_LABELS                 "ラベル編集"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                     "上へ移動"
 #define TR_MOVE_DOWN                   "下へ移動"
 #define TR_ENTER_LABEL                 "ラベル適用"

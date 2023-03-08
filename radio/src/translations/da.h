@@ -622,6 +622,7 @@
 #define TR_NEW_MODEL                   "Ny model"
 #define TR_INVALID_MODEL               "Ingen billede"
 #define TR_EDIT_LABELS                 "Ret type"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                     "Ingen billede"
 #define TR_MOVE_DOWN                   "Flyt ned"
 #define TR_ENTER_LABEL                 "Vælg type"

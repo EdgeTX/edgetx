@@ -638,6 +638,7 @@
 #define TR_NEW_MODEL                    "Ny modell"
 #define TR_INVALID_MODEL                "Ogiltig modell"
 #define TR_EDIT_LABELS                  "Redigera etiketter"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                      "Flytta upp"
 #define TR_MOVE_DOWN                    "Flytta ner"
 #define TR_ENTER_LABEL                  "Ange etikett"

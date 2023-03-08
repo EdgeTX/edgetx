@@ -614,6 +614,7 @@
 #define TR_NEW_MODEL                   "Neues Modell"
 #define TR_INVALID_MODEL               "ungültiges Modell"
 #define TR_EDIT_LABELS                 "Label ändern"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP                     "Verschiebe nach oben"
 #define TR_MOVE_DOWN                   "Verschiebe nach unten"
 #define TR_ENTER_LABEL                 "Enter Label"

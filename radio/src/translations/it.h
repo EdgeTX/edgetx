@@ -617,6 +617,7 @@
 #define TR_NEW_MODEL           "Nuovo Modello"
 #define TR_INVALID_MODEL       "Modello invalido"
 #define TR_EDIT_LABELS         "Edita Etichette"
+#define TR_LABEL_MODEL                 "Label model"
 #define TR_MOVE_UP             "Muovi Su"
 #define TR_MOVE_DOWN           "Muovi Giù"
 #define TR_ENTER_LABEL         "Edita Etichetta"
