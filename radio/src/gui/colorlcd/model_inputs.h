@@ -52,6 +52,7 @@ class ModelInputsPage : public PageTab
   virtual InputMixGroup* createGroup(FormGroup* form, mixsrc_t src);
   virtual InputMixButton* createLineButton(InputMixGroup *group, uint8_t index);
 
+  void newInput();
   void editInput(uint8_t input, uint8_t index);
   void insertInput(uint8_t input, uint8_t index);
   void deleteInput(uint8_t index);

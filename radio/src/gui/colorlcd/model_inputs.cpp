@@ -99,25 +99,6 @@ void insertExpo(uint8_t idx, uint8_t input)
   storageDirty(EE_MODEL);
 }
 
-static bool getFreeInput(uint8_t& input, uint8_t& index)
-{
-  uint8_t chn = 0;
-  ExpoData* line = g_model.expoData;
-  for (uint8_t i = 0; i < MAX_EXPOS; i++) {
-    if (!EXPO_VALID(line) || (line->chn > chn)) {
-      if (i >= MAX_EXPOS) break;
-      if (chn >= MAX_INPUTS) break;
-      index = i;
-      input = chn;
-      return true;
-    }
-    chn = line->chn + 1;
-    ++line;
-  }
-
-  return false;
-}
-
 class InputLineButton : public InputMixButton
 {
  public:
@@ -349,6 +330,32 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
   }
 }
 
+void ModelInputsPage::newInput()
+{
+  Menu* menu = new Menu(Layer::back());
+  menu->setTitle(STR_MENU_INPUTS);
+
+  uint8_t chn = 0;
+  ExpoData* line = g_model.expoData;
+
+  // search for unused channels
+  for (uint8_t i = 0; i < MAX_EXPOS; i++) {
+    if (!EXPO_VALID(line) || (line->chn > chn)) {
+      if (chn >= MAX_INPUTS) break;
+      std::string name(getSourceString(chn+1));
+      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, i); });
+    }
+    if (EXPO_VALID(line))
+      chn = line->chn + 1;
+    else
+      chn += 1;
+    ++line;
+  }
+
+  menu->updateLines();
+}
+
+
 void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
   _copyMode = 0;
@@ -473,8 +480,7 @@ void ModelInputsPage::build(FormWindow *window)
   }
 
   auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
-    uint8_t input, index;
-    if (getFreeInput(input, index)) insertInput(input, index);
+    newInput();
     return 0;
   });
   auto btn_obj = btn->getLvObj();
