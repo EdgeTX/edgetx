@@ -37,7 +37,6 @@ class GeneralSetupPanel : public GeneralPanel
     virtual ~GeneralSetupPanel();
 
   private slots:
-    void on_splashScreenChkB_stateChanged(int);
     void on_splashScreenDuration_currentIndexChanged(int index);
     void on_alarmwarnChkB_stateChanged(int);
     void on_rssiPowerOffWarnChkB_stateChanged(int);
