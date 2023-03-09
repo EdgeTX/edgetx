@@ -7,4 +7,4 @@ Icon=@COMPANION_NAME@
 Exec=@COMPANION_NAME@
 Terminal=false
 StartupNotify=false
-Categories=Application;
+Categories=Utility;
