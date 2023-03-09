@@ -246,7 +246,7 @@ QString ModuleData::subTypeToString(int type) const
     "868MHz",
     "915MHz"
   };
-  
+
   static const char * PpmSubTypeStrings[PPM_NUM_SUBTYPES] = {
     "NOTLM",
     "MLINK"
@@ -480,8 +480,7 @@ QString ModuleData::typeToString(int type)
 {
   static const char * strings[] = {
     "OFF",
-    "PPM NOTLM",
-    "PPM MLINK",
+    "PPM",
     "XJT",
     "ISRM",
     "DSM2",
