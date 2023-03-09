@@ -51,7 +51,6 @@
 static const YamlLookupTable protocolLut = {
   {  PULSES_OFF, "TYPE_NONE"  },
   {  PULSES_PPM, "TYPE_PPM"  },
-  {  PULSES_PPM_MLINK, "TYPE_PPM_MLINK" },
   {  PULSES_PXX_XJT_X16, "TYPE_XJT_PXX1"  },
   {  PULSES_ACCESS_ISRM, "TYPE_ISRM_PXX2"  },
   {  PULSES_LP45, "TYPE_DSM2"  },
@@ -219,9 +218,6 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
   if (rhs.protocol >= PULSES_LP45 && rhs.protocol <= PULSES_DSMX) {
       protocol = PULSES_LP45;
       subtype = rhs.protocol - PULSES_LP45;
-  } else if (rhs.protocol >= PULSES_PPM && rhs.protocol <= PULSES_PPM_MLINK) {
-      protocol = PULSES_PPM;
-      subtype = rhs.protocol - PULSES_PPM;
   } else if (rhs.protocol == PULSES_ACCST_ISRM_D16 || rhs.protocol == PULSES_ACCESS_ISRM) {
       protocol = PULSES_ACCESS_ISRM;
       subtype = rhs.protocol - PULSES_ACCESS_ISRM;
@@ -366,6 +362,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
     case PULSES_PXX_R9M:
     case PULSES_PXX_R9M_LITE: {
       subType >> r9mLut >> rhs.subType;
+    } break;
+    case PULSES_PPM: {
+      subType >> ppmLut >> rhs.subType;
     } break;
     case PULSES_LP45: {
       int subProto = 0;

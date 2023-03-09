@@ -99,7 +99,6 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
         switch (proto) {
           case PULSES_OFF:
           case PULSES_PPM:
-          case PULSES_PPM_MLINK:
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_D8:
@@ -174,7 +173,6 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
   else {
     switch (proto) {
       case PULSES_PPM:
-      case PULSES_PPM_MLINK:
       case PULSES_DSMX:
       case PULSES_LP45:
       case PULSES_DSM2:
@@ -248,6 +246,11 @@ QString ModuleData::subTypeToString(int type) const
     "868MHz",
     "915MHz"
   };
+  
+  static const char * PpmSubTypeStrings[PPM_NUM_SUBTYPES] = {
+    "NOTLM",
+    "MLINK"
+  };
 
   if (type < 0)
     type = subType;
@@ -255,6 +258,8 @@ QString ModuleData::subTypeToString(int type) const
   switch (protocol) {
     case PULSES_MULTIMODULE:
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
+    case PULSES_PPM:
+      return CHECK_IN_ARRAY(PpmSubTypeStrings, type); 
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     case PULSES_AFHDS3:
@@ -290,8 +295,7 @@ QString ModuleData::protocolToString(unsigned int protocol)
 {
   static const QString strings[] = {
     tr("OFF"),
-    tr("PPM NO TLM"),
-    tr("PPM MLINK Ext"),
+    tr("PPM"),
     tr("Silverlit A"), tr("Silverlit B"), tr("Silverlit C"),
     tr("CTP1009"),
     tr("LP45"), tr("DSM2"), tr("DSMX"),
@@ -374,7 +378,6 @@ int ModuleData::getMaxChannelCount()
     case PULSES_GHOST:
     case PULSES_SBUS:
     case PULSES_PPM:
-    case PULSES_PPM_MLINK:
       return 16;
     case PULSES_XJT_LITE_LR12:
     case PULSES_PXX_XJT_LR12:
@@ -420,7 +423,6 @@ int ModuleData::getTypeFromProtocol(unsigned int protocol)
 
                           { PULSES_OFF,                 MODULE_TYPE_NONE },
                           { PULSES_PPM,                 MODULE_TYPE_PPM },
-                          { PULSES_PPM_MLINK,           MODULE_TYPE_PPM },
 
                           { PULSES_PXX_XJT_X16,         MODULE_TYPE_XJT_PXX1 },
                           { PULSES_PXX_XJT_D8,          MODULE_TYPE_XJT_PXX1 },
@@ -535,7 +537,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
         switch (protocol) {
           case PULSES_OFF:
           case PULSES_PPM:
-          case PULSES_PPM_MLINK:
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_D8:
@@ -612,7 +613,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   else {
     switch (protocol) {
       case PULSES_PPM:
-      case PULSES_PPM_MLINK:
       case PULSES_DSMX:
       case PULSES_LP45:
       case PULSES_DSM2:

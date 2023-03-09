@@ -55,7 +55,6 @@ enum ModuleType {
 enum PulsesProtocol {
   PULSES_OFF,
   PULSES_PPM,
-  PULSES_PPM_MLINK,
   PULSES_SILV_A,
   PULSES_SILV_B,
   PULSES_SILV_C,
@@ -191,6 +190,8 @@ enum ModuleSubtypeR9M {
   MODULE_SUBTYPE_R9M_AUPLUS,
   MODULE_SUBTYPE_R9M_LAST=MODULE_SUBTYPE_R9M_AUPLUS
 };
+
+#define PPM_NUM_SUBTYPES  2
 
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;
