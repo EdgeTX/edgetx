@@ -175,20 +175,25 @@ const etx_proto_driver_t PpmDriverMLink = {
   .processData = processExternalMLinkSerialData,
 };
 
-static const etx_serial_init ppmMLinkSerialParams = {
+static etx_serial_init ppmMLinkSerialParams = {
   .baudrate = PPM_MSB_BAUDRATE,
   .encoding = ETX_Encoding_8N1,
   .direction = ETX_Dir_RX,
-  .polarity = ETX_Pol_Normal,
+  .polarity = ETX_Pol_Inverted,
 };
 
 static void* ppmMLinkInit(uint8_t module) {
   etx_module_state_t *mod_st = (etx_module_state_t *)ppmInit(module);
   
   if (mod_st) {
-    etx_serial_init params(ppmMLinkSerialParams);
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
-  };
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams);
+    
+    if (!mod_st) {
+      // inverted soft-serial fallback
+      ppmMLinkSerialParams.polarity = ETX_Pol_Normal;
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams);
+    }
+  }
 
   return (void*)mod_st;
 }
