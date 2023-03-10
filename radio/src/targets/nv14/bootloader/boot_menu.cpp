@@ -66,6 +66,8 @@ static bool rfUsbAccess = false;
 void bootloaderInitScreen()
 {
   lcdInitDisplayDriver();
+  backlightInit();
+  backlightEnable(100);
 }
 
 static void bootloaderDrawTitle(const char* text)
