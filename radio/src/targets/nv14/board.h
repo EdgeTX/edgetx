@@ -430,6 +430,7 @@ void lcdOn();
 #define BACKLIGHT_LEVEL_MIN             1
 
 extern bool boardBacklightOn;
+void backlightLowInit( void );
 void backlightInit();
 void backlightEnable(uint8_t dutyCycle);
 void backlightFullOn();
