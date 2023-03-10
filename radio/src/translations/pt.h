@@ -83,7 +83,7 @@
   #define TR_RETA123         "L","P","M","A","1","2","3"
 #endif
 
-
+#define TR_VCURVETYPE        "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC    "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX        "Adicionar","Multipl.","Trocar"
 #define TR_VMLTPX2       "+=","*=",":="
@@ -192,7 +192,7 @@
 #define SPEED_UNIT_METR        "kmh"
 
 #define TR_VUNITSSYSTEM        "Metric",TR("Imper.","Imperial")
-#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT          "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                  (STR_VTELEMUNIT[1])
 #define STR_A                  (STR_VTELEMUNIT[2])
@@ -747,6 +747,7 @@
 #define TR_DELETE_THEME                "Delete Theme?"
 #define TR_SAVE_THEME                  "Save Theme?"
 #define TR_EDIT_COLOR                  "Edit Color"
+#define TR_NO_THEME_IMAGE              "No theme image"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Model quick select"
@@ -970,6 +971,7 @@
 #define TR_GLOBALVAR           "Global Var"
 #define TR_MIXSOURCE           "Mixer Source"
 #define TR_CONSTANT            "Constant"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT           "Preflight Checks"
 #define TR_CHECKLIST           INDENT "Display Checklist"
 #define TR_AUX_SERIAL_MODE     "Serial port"

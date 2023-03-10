@@ -511,6 +511,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("Debug");
     case AUX_SERIAL_SPACEMOUSE:
       return tr("SpaceMouse");
+    case AUX_SERIAL_EXT_MODULE:
+      return tr("External module");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -577,21 +579,27 @@ AbstractStaticItemModel * GeneralSettings::bluetoothModeItemModel()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
+AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(QString(AIM_GS_SERIALMODE).arg(port_nr));
+  mdl->setName(AIM_GS_SERIALMODE);
+
 
   for (int i = 0; i < AUX_SERIAL_COUNT; i++) {
-    if (port_nr == SP_VCP &&
-        (i == AUX_SERIAL_TELE_IN ||
-         i == AUX_SERIAL_SBUS_TRAINER ||
-         i == AUX_SERIAL_GPS ||
-         i == AUX_SERIAL_SPACEMOUSE)) {
-      // These are disabled on VCP
-      continue;
+    int contexts = AllAuxSerialModeContexts;
+
+    if (i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~(AUX2Context | VCPContext);
     }
-    mdl->appendToItemList(serialModeToString(i), i);
+    else if (i == AUX_SERIAL_TELE_IN ||
+             i == AUX_SERIAL_SBUS_TRAINER ||
+             i == AUX_SERIAL_GPS ||
+             i == AUX_SERIAL_SPACEMOUSE ||
+             i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~VCPContext;
+    }
+
+    mdl->appendToItemList(serialModeToString(i), i, true, 0, contexts);
   }
 
   mdl->loadItemList();

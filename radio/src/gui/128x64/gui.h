@@ -43,8 +43,8 @@
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
 
-#define CURVE_SIDE_WIDTH               (LCD_H/2)
-#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-2)
+#define CURVE_SIDE_WIDTH               (LCD_H/2-2)
+#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-3)
 #define CURVE_CENTER_Y                 (LCD_H/2)
 
 #define MIXES_2ND_COLUMN               (12*FW)

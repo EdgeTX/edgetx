@@ -21,29 +21,11 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
-#include "lz4_bitmaps.h"
 
-const uint8_t _LBM_LAYOUT_1x1[] = {
-#include "mask_layout1x1.lbm"
-};
-STATIC_LZ4_BITMAP(LBM_LAYOUT_1x1);
-
-const ZoneOption OPTIONS_LAYOUT_1x1[] = {LAYOUT_COMMON_OPTIONS,
-                                         LAYOUT_OPTIONS_END};
-
-class Layout1x1 : public Layout
-{
- public:
-  Layout1x1(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData) :
-      Layout(parent, factory, persistentData)
-  {
-  }
-
-  unsigned int getZonesCount() const override { return 1; }
-
-  rect_t getZone(unsigned int index) const override { return getMainZone(); }
+static uint8_t zmap[] = {
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
 };
 
-BaseLayoutFactory<Layout1x1> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
-                                       LBM_LAYOUT_1x1, OPTIONS_LAYOUT_1x1);
+BaseLayoutFactory<Layout> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
+                                    defaultZoneOptions,
+                                    1, zmap);

@@ -27,8 +27,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const char* _curve_type[] = {"Diff", "Expo", "Func", "Cstm"};
-
 void CurveParam::LongPressHandler(void* data)
 {
   int8_t* value = (int8_t*)data;
@@ -55,7 +53,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
   lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-  new Choice(this, rect_t{}, _curve_type, 0, CURVE_REF_CUSTOM,
+  new Choice(this, rect_t{}, STR_VCURVETYPE, 0, CURVE_REF_CUSTOM,
              GET_DEFAULT(ref->type), [=](int32_t newValue) {
                ref->type = newValue;
                ref->value = 0;

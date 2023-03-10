@@ -305,9 +305,10 @@ void lcdDrawChar(coord_t x, coord_t y, uint8_t c)
 uint8_t getTextWidth(const char * s, uint8_t len, LcdFlags flags)
 {
   uint8_t width = 0;
-  for (int i = 0; len == 0 || i < len; ++i) {
+  if (len == 0) len = strlen(s);
+  while (len--) {
 #if !defined(BOOT)
-    unsigned char c = *s;
+    unsigned char c = map_utf8_char(s, len);
 #else
     unsigned char c = *s;
 #endif
@@ -625,11 +626,14 @@ void drawTelemetryTopBar()
 {
   drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
   uint8_t att = (IS_TXBATT_WARNING() ? BLINK : 0);
-  putsVBat(14*FW,0,att);
+  putsVBat(10*FW-1,0,att);
   if (g_model.timers[0].mode) {
     att = (timersStates[0].val<0 ? BLINK : 0);
-    drawTimer(17*FW+5*FWNUM+1, 0, timersStates[0].val, att, att);
+    drawTimer(13*FW+2, 0, timersStates[0].val, att, att);
   }
+#if defined(RTCLOCK)
+  drawRtcTime(17*FW+3, 0, LEFT|TIMEBLINK);
+#endif
   lcdInvertLine(0);
 }
 
@@ -788,10 +792,13 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
   else if (idx < MIXSRC_CH1)
     drawStringWithIndex(x, y, STR_PPM_TRAINER, idx-MIXSRC_FIRST_TRAINER+1, att);
   else if (idx <= MIXSRC_LAST_CH) {
-    drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);
     if (ZEXIST(g_model.limitData[idx-MIXSRC_CH1].name) && (att & STREXPANDED)) {
-      lcdDrawChar(lcdLastRightPos, y, ' ', att|SMLSIZE);
-      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx-MIXSRC_CH1].name, LEN_CHANNEL_NAME, att|SMLSIZE);
+      char s[LEN_CHANNEL_NAME + 3];
+      strcpy(s, STR_CHAR_CHANNEL);
+      strcat(s, g_model.limitData[idx-MIXSRC_CH1].name);
+      lcdDrawSizedText(x, y, s, LEN_CHANNEL_NAME+2, att);
+    } else {
+      drawStringWithIndex(x, y, STR_CH, idx-MIXSRC_CH1+1, att);
     }
   }
   else if (idx <= MIXSRC_LAST_GVAR) {

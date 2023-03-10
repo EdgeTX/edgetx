@@ -195,7 +195,6 @@ void boardInit()
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
   } else {
-
     // prime debounce state...
     uint8_t usb_state = usbPlugged();
     usb_state |= usbPlugged();
@@ -208,7 +207,7 @@ void boardInit()
         if ((now - press_start) > POWER_ON_DELAY) {
           break;
         }
-      }  else if(!usbPlugged()){
+      } else if (!usbPlugged()){
           delay_ms(20);
           if(!usbPlugged()){
             boardOff();

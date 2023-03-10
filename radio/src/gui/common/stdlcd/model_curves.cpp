@@ -104,8 +104,6 @@ void menuModelCurvesAll(event_t event)
   }
 }
 
-static const char* _curve_types[] = {"Diff","Expo","Func","Cstm"};
-
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags)
 {
   coord_t x1 = x;
@@ -127,7 +125,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
     flags1 = 0;
   }
 
-  lcdDrawTextAtIndex(x1, y, _curve_types, curve.type, flags1);
+  lcdDrawTextAtIndex(x1, y, STR_VCURVETYPE, curve.type, flags1);
 
   if (active && menuHorizontalPosition==0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, CURVE_REF_CUSTOM);
@@ -159,22 +157,24 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
 
 void drawFunction(FnFuncP fn, uint8_t offset)
 {
-  lcdDrawVerticalLine(CURVE_CENTER_X - offset, CURVE_CENTER_Y-CURVE_SIDE_WIDTH, CURVE_SIDE_WIDTH * 2, 0xee);
-  lcdDrawHorizontalLine(CURVE_CENTER_X - CURVE_SIDE_WIDTH - offset, CURVE_CENTER_Y, CURVE_SIDE_WIDTH * 2, 0xee);
+  lcdDrawVerticalLine(CURVE_CENTER_X - offset, CURVE_CENTER_Y-CURVE_SIDE_WIDTH, CURVE_SIDE_WIDTH * 2 + 1, 0xee);
+  lcdDrawHorizontalLine(CURVE_CENTER_X - CURVE_SIDE_WIDTH - offset, CURVE_CENTER_Y, CURVE_SIDE_WIDTH * 2 + 1, 0xbb);
 
-  coord_t prev_yv = (coord_t) - 1;
+  coord_t prev_yv;
 
   for (int xv = -CURVE_SIDE_WIDTH; xv <= CURVE_SIDE_WIDTH; xv++) {
-    coord_t yv = (LCD_H - 1) - (((uint16_t)RESX + fn(xv * (RESX/CURVE_SIDE_WIDTH))) / 2 * (LCD_H - 1) / RESX);
-    if (prev_yv != (coord_t) - 1) {
-      if (abs((int8_t)yv-prev_yv) <= 1) {
-        lcdDrawPoint(CURVE_CENTER_X + xv - offset - 1, prev_yv, FORCE);
+    coord_t yv = -(fn((xv * RESX) / CURVE_SIDE_WIDTH) * (CURVE_SIDE_WIDTH*2+1) / (RESX*2));
+    if ((xv > -CURVE_SIDE_WIDTH) && (abs((int8_t)yv-prev_yv) > 1)) {
+      int len = 0;
+      if (yv > prev_yv) {
+        len = yv - prev_yv - 1;
+      } else {
+        len = prev_yv - yv - 1;
+        prev_yv = yv;
       }
-      else {
-        uint8_t tmp = (prev_yv < yv ? 0 : 1);
-        lcdDrawSolidVerticalLine(CURVE_CENTER_X + xv - offset - 1, yv + tmp, prev_yv - yv);
-      }
+      lcdDrawSolidVerticalLine(CURVE_CENTER_X + xv - offset + ((xv<0) ? 0 : -1), CURVE_CENTER_Y + prev_yv + 1, len);
     }
+    lcdDrawPoint(CURVE_CENTER_X + xv - offset, CURVE_CENTER_Y + yv, FORCE);
     prev_yv = yv;
   }
 }
@@ -195,8 +195,8 @@ void drawCursor(FnFuncP fn, uint8_t offset)
   y512 = limit(-1024, y512, 1024);
   lcdDrawNumber(CURVE_CENTER_X - FWNUM - offset, 1*FH, calcRESXto1000(y512), RIGHT | PREC1);
 
-  x512 = CURVE_CENTER_X + x512/(RESX / CURVE_SIDE_WIDTH);
-  y512 = (LCD_H - 1) - ((y512 + RESX) / 2) * (LCD_H - 1) / RESX;
+  x512 = CURVE_CENTER_X + (x512 * CURVE_SIDE_WIDTH + (x512 < 0 ? -RESX/2 : RESX/2)) / RESX;
+  y512 = CURVE_CENTER_Y - (y512 * CURVE_SIDE_WIDTH + (y512 < 0 ? -RESX/2 : RESX/2)) / RESX;
   
   lcdDrawSolidVerticalLine(x512 - offset, y512-3, 3 * 2 + 1);
   lcdDrawSolidHorizontalLine(x512 - 3 - offset, y512, 3 * 2 + 1);

@@ -443,7 +443,6 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     NUM_SWITCHES - 1, /* Switch warning */
 #endif
 
-static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
 #if defined(FUNCTION_SWITCHES)
 static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
 #endif
@@ -912,7 +911,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_POTS_WARNING:
         lcdDrawTextAlignedLeft(y, STR_POTWARNING);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, _pots_warn_modes, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_PREFLIGHT_POTSLIDER_CHECK, g_model.potsWarnMode, (menuHorizontalPosition == 0) ? attr : 0);
         if (attr && (menuHorizontalPosition == 0)) {
           CHECK_INCDEC_MODELVAR(event, g_model.potsWarnMode, POTS_WARN_OFF, POTS_WARN_AUTO);
           storageDirty(EE_MODEL);

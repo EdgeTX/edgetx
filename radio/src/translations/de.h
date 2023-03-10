@@ -85,7 +85,7 @@
 #else
   #define TR_RETA123                   "S","H","G","Q","1","2","3"
 #endif
-
+#define TR_VCURVETYPE                  "Diff","Expo","Funk","Ind."
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Addiere","Multipl.","Ersetze"
 #define TR_VMLTPX2                     "+=","*=",":="
@@ -196,7 +196,7 @@
 #define LENGTH_UNIT_METR               "m"
 #define SPEED_UNIT_METR                "kmh"
 #define TR_VUNITSSYSTEM                TR("Metrik","Metrisch"),TR("Imper.","Imperial")
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -740,7 +740,8 @@
 #define TR_LOADING                     "Wird geladen..."
 #define TR_DELETE_THEME                "Theme löschen?"
 #define TR_SAVE_THEME                  "Theme speichern?"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "Farbe bearbeiten"
+#define TR_NO_THEME_IMAGE              "Kein Theme Bild"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
@@ -963,6 +964,7 @@
 #define TR_GLOBALVAR                   "Global Var"
 #define TR_MIXSOURCE                   "Mixer Quelle"
 #define TR_CONSTANT                    "Konstant"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
 #define TR_AUX_SERIAL_MODE             "Serieller Port"

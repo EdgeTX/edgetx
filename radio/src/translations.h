@@ -148,6 +148,7 @@ extern const char* const STR_RETA123[];
 extern const char* const STR_TIMER_DIR[];
 
 extern const char* const STR_VBLMODE[];
+extern const char* const STR_VCURVETYPE[];
 extern const char* const STR_VCURVEFUNC[];
 extern const char* const STR_VMLTPX[];
 extern const char* const STR_VMLTPX2[];
@@ -745,6 +746,7 @@ extern const char STR_LOADING[];
 extern const char STR_DELETE_THEME[];
 extern const char STR_SAVE_THEME[];
 extern const char STR_EDIT_COLOR[];
+extern const char STR_NO_THEME_IMAGE[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
@@ -936,6 +938,7 @@ extern const char STR_MODULE_PROTOCOL_FCC_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_EU_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_WARN_LINE2[];
 extern const char STR_SET[];
+extern const char* const STR_PREFLIGHT_POTSLIDER_CHECK[];
 extern const char STR_PREFLIGHT[];
 extern const char STR_CHECKLIST[];
 extern const char STR_VIEW_NOTES[];

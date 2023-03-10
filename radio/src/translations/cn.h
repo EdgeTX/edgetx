@@ -82,6 +82,7 @@
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
 #endif
+#define TR_VCURVETYPE                  "单边","指数","函数","自定义"
 
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "相加","相乘","替换"
@@ -193,7 +194,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "公制",TR("英制","英制")
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -742,7 +743,8 @@
 #define TR_LOADING                     "加载中..."
 #define TR_DELETE_THEME                "删除主题?"
 #define TR_SAVE_THEME                  "保存主题?"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "编辑颜色"
+#define TR_NO_THEME_IMAGE              "没有预览图"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速选择模型"
@@ -961,6 +963,7 @@
 #define TR_GLOBALVAR                   "全局变量"
 #define TR_MIXSOURCE                   "混控源"
 #define TR_CONSTANT                    "固定值"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "关闭","开启","自动"
 #define TR_PREFLIGHT                   "初始位置检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
 #define TR_AUX_SERIAL_MODE             "串口"

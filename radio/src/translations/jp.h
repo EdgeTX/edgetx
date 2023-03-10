@@ -82,7 +82,7 @@
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
 #endif
-
+#define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "加算","乗算","置換"
 #define TR_VMLTPX2                     "+=","*=",":="
@@ -193,7 +193,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "メートル法","ヤードポンド法"
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","mS","uS","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -742,7 +742,8 @@
 #define TR_LOADING                     "読み込み中..."
 #define TR_DELETE_THEME                "テーマを削除しますか？"
 #define TR_SAVE_THEME                  "テーマを保存しますか？"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "カラー編集"
+#define TR_NO_THEME_IMAGE              "テーマ画像はありません"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
@@ -962,6 +963,7 @@
 #define TR_GLOBALVAR                   "グローバル変数"
 #define TR_MIXSOURCE                   "ミキサーソース"
 #define TR_CONSTANT                    "変化なし"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","自動"
 #define TR_PREFLIGHT                   "飛行前チェック"
 #define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "チェックリスト表示")
 #define TR_AUX_SERIAL_MODE             "シリアルポート"

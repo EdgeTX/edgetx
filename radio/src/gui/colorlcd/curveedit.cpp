@@ -374,10 +374,7 @@ void CurveEditWindow::buildHeader(Window * window)
   header.setTitle(STR_MENUCURVE);
   char s[16];
   strAppendStringWithIndex(s, STR_CV, index + 1);
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                  LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                 s, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle2(s);
 }
 
 void CurveEditWindow::buildBody(FormWindow * window)

@@ -130,7 +130,12 @@ class OpenTxFirmware: public Firmware
 
     virtual QTime getMaxTimerStart();
 
-    virtual bool isAvailable(PulsesProtocol proto, int port=0);
+    //  moved to ModuleData EdgeTX v2.9
+    virtual bool isAvailable(PulsesProtocol proto, int port=0)
+    {
+      qDebug() << "WARNING: Depreciate function called. Always returns false!";
+      return false;
+    }
 
   protected:
 

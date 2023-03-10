@@ -81,10 +81,7 @@ class ScriptEditWindow : public Page {
     void buildHeader(Window * window)
     {
       header.setTitle(STR_MENUCUSTOMSCRIPTS);
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     std::string("LUA") + std::to_string(idx + 1), 0, COLOR_THEME_PRIMARY2);
+      header.setTitle2(std::string("LUA") + std::to_string(idx + 1));
     }
 
     void buildBody(FormWindow * window, bool focusScript = false)

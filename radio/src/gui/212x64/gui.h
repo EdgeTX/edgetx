@@ -41,8 +41,8 @@
 #define MODEL_BITMAP_SIZE              BITMAP_BUFFER_SIZE(MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)
 #define LOAD_MODEL_BITMAP()            loadModelBitmap(g_model.header.bitmap, modelBitmap)
 
-#define CURVE_SIDE_WIDTH               (LCD_H/2)
-#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-2)
+#define CURVE_SIDE_WIDTH               (LCD_H/2-2)
+#define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-3)
 #define CURVE_CENTER_Y                 (LCD_H/2)
 
 #define MIXES_2ND_COLUMN               (18*FW)

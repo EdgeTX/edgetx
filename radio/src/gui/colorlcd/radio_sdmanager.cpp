@@ -55,7 +55,7 @@ class FileNameEditWindow : public Page
 
   void buildHeader(Window *window)
   {
-    new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_RENAME_FILE, 0, COLOR_THEME_PRIMARY2);
+    header.setTitle(STR_RENAME_FILE);
   }
 
   void buildBody(Window *window)

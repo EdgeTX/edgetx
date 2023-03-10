@@ -82,7 +82,7 @@
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
 #endif
-
+#define TR_VCURVETYPE                  "單邊","指數","函數","自定義"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "相加","相乘","替換"
 #define TR_VMLTPX2                     "+=","*=",":="
@@ -741,7 +741,8 @@
 #define TR_LOADING                     "加載中..."
 #define TR_DELETE_THEME                "刪除主題?"
 #define TR_SAVE_THEME                  "保存主題?"
-#define TR_EDIT_COLOR                  "Edit Color"
+#define TR_EDIT_COLOR                  "编辑颜色"
+#define TR_NO_THEME_IMAGE              "没有预览图"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
@@ -960,6 +961,7 @@
 #define TR_GLOBALVAR                   "全局變量"
 #define TR_MIXSOURCE                   "混控源"
 #define TR_CONSTANT                    "固定值"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "關閉","開啟","自動"
 #define TR_PREFLIGHT                   "初始位置檢查"
 #define TR_CHECKLIST                   TR(INDENT "顯示列表", INDENT "顯示列表")
 #define TR_AUX_SERIAL_MODE             "端口"

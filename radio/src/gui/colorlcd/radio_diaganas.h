@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include "font.h"
-#include "opentx.h"
-#include "static.h"
 #include "tabsgroup.h"
 #include "window.h"
 
@@ -31,40 +28,4 @@ class RadioAnalogsDiagsViewPageGroup : public TabsGroup
 {
  public:
   RadioAnalogsDiagsViewPageGroup();
-};
-
-class AnaCalibratedViewPage : public PageTab
-{
- public:
-  AnaCalibratedViewPage() : PageTab(STR_ANADIAGS_CALIB, ICON_STATS_ANALOGS) {}
-
- protected:
-  void build(FormWindow* window) override;
-};
-
-class AnaFilteredDevViewPage : public PageTab
-{
- public:
-  AnaFilteredDevViewPage() : PageTab(STR_ANADIAGS_FILTRAWDEV, ICON_STATS_THROTTLE_GRAPH) {}
-
- protected:
-  void build(FormWindow* window) override;
-};
-
-class AnaUnfilteredRawViewPage : public PageTab
-{
- public:
-  AnaUnfilteredRawViewPage() : PageTab(STR_ANADIAGS_UNFILTRAW, ICON_RADIO_HARDWARE) {}
-
- protected:
-  void build(FormWindow* window) override;
-};
-
-class AnaMinMaxViewPage : public PageTab
-{
- public:
-  AnaMinMaxViewPage() : PageTab(STR_ANADIAGS_MINMAX, ICON_RADIO_CALIBRATION) {}
-
- protected:
-  void build(FormWindow* window) override;
 };

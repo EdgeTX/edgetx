@@ -190,7 +190,8 @@ void MultiModelPrinter::MultiColumns::appendFieldSeparator(const bool sep)
   for (int cc=0; cc < modelPrinterMap.size(); cc++) { \
     ModelPrinter * modelPrinter = modelPrinterMap.value(cc).second; \
     const ModelData * model = modelPrinterMap.value(cc).first; \
-    (void)(model); (void)(modelPrinter); \
+    const GeneralSettings * generalSettings = modelPrinter->gs(); \
+    (void)(model); (void)(modelPrinter); (void)(generalSettings); \
     columns.append(cc, (what)); \
   } \
   columns.endCompare();
@@ -729,6 +730,8 @@ QString MultiModelPrinter::printSpecialFunctions()
   MultiColumns columns(modelPrinterMap.size());
   int count = 0;
   columns.appendSectionTableStart();
+  columns.appendRowHeader(QStringList() << "" << tr("Switch") << tr("Function") << tr("Parameters") << tr("Repeat") << tr("Enabled"));
+
   for (int i=0; i < firmware->getCapability(CustomFunctions); i++) {
     bool sfEmpty = true;
     for (int k=0; k < modelPrinterMap.size(); k++) {
@@ -739,8 +742,12 @@ QString MultiModelPrinter::printSpecialFunctions()
     }
     if (!sfEmpty) {
       count++;
-      columns.appendRowStart(tr("SF%1").arg(i+1), 20);
-      COMPARECELL(modelPrinter->printCustomFunctionLine(i));
+      columns.appendRowStart(tr("SF%1").arg(i + 1), 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings, model) : "", 10);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].funcToString(model) : "", 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].paramToString(model) : "", 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].repeatToString(true) : "", 10);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? DataHelpers::boolToString(model->customFn[i].enabled, DataHelpers::BOOL_FMT_YN) : "", 10);
       columns.appendRowEnd();
     }
   }
@@ -894,6 +901,7 @@ QString MultiModelPrinter::printGlobalFunctions()
   int idx = -1;
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
+  columns.appendRowHeader(QStringList() << "" << tr("Switch") << tr("Function") << tr("Parameters") << tr("Repeat") << tr("Enabled"));
 
   for (int k=0; k < modelPrinterMap.size(); k++) {
     if (!modelPrinterMap.value(k).first->noGlobalFunctions) {
@@ -904,13 +912,18 @@ QString MultiModelPrinter::printGlobalFunctions()
 
   if (idx > -1) {
     ModelPrinter * modelPrinter = modelPrinterMap.value(idx).second;
-    (void)(modelPrinter);
+    const GeneralSettings * generalSettings = modelPrinter->gs();
 
-    for (int i=0; i < firmware->getCapability(GlobalFunctions); i++) {
-      txt = modelPrinter->printCustomFunctionLine(i, true);
-      if (!txt.isEmpty()) {
+    for (int i = 0; i < firmware->getCapability(GlobalFunctions); i++) {
+      if (!generalSettings->customFn[i].isEmpty()) {
         count++;
-        ROWLABELCOMPARECELL(tr("GF%1").arg(i+1), 20, modelPrinter->printCustomFunctionLine(i, true), 80);
+        columns.appendRowStart(tr("GF%1").arg(i + 1), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings), 10);
+        COMPARECELLWIDTH(generalSettings->customFn[i].funcToString(), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].paramToString(), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].repeatToString(true), 10);
+        COMPARECELLWIDTH(DataHelpers::boolToString(generalSettings->customFn[i].enabled, DataHelpers::BOOL_FMT_YN), 10);
+        columns.appendRowEnd();
       }
     }
     columns.appendTableEnd();
@@ -942,8 +955,7 @@ QString MultiModelPrinter::printChecklist()
   return str;
 }
 
-
- QString MultiModelPrinter::printFunctionSwitches()
+QString MultiModelPrinter::printFunctionSwitches()
  {
    QString str;
    MultiColumns columns(modelPrinterMap.size());
