@@ -331,20 +331,28 @@ class SpecialFunctionEditPage : public Page
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
-      auto repeat = new NumberEdit(
-          line, rect_t{}, -1,
-          60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
-          SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
-      repeat->setDisplayHandler(
-          [](int32_t value) {
-            if (value == 0)
-              return std::string("1x");
-            else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
-              return std::string("!1x");
-            else {
-              return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
-            }
-          });
+      if (func == FUNC_PLAY_SCRIPT) {
+        auto repeat = new Choice(line, rect_t{}, 0, 1, 
+                                 GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
+                                 SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+        repeat->setTextHandler([](int32_t value) {
+            // 0 == repeat at 50ms interval for backward compatibility
+            return (value == 0) ? std::string("50ms") : std::string("1x");
+        });
+      } else {
+        auto repeat = new NumberEdit(line, rect_t{}, 0, 60 / CFN_PLAY_REPEAT_MUL,
+                                     GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
+                                     SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+        repeat->setDisplayHandler([](int32_t value) {
+              if (value == 0)
+                return std::string("1x");
+              else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
+                return std::string("!1x");
+              else {
+                return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
+              }
+            });
+      }
     }
   }
 
@@ -653,11 +661,15 @@ class SpecialFunctionButton : public Button
         lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
       lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     } else if (HAS_REPEAT_PARAM(func)) {
-      sprintf(s, "(%s)",
-        (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
-        (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) ? "!1x" :
-        formatNumberAsString(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s").c_str()
-      );
+      if (func == FUNC_PLAY_SCRIPT) {
+        sprintf(s, "(%s)", (CFN_PLAY_REPEAT(cfn) == 0) ? "50ms" : "1x");
+      } else {
+        sprintf(s, "(%s)",
+          (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
+          (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) ? "!1x" :
+          formatNumberAsString(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s").c_str()
+        );
+      }
     }
 
     lv_label_set_text(sfRepeat, s);

@@ -212,6 +212,10 @@ QString CustomFunctionData::repeatToString(const int value, const AssignFunc fun
 //  static
 QString CustomFunctionData::repeatToString(const int value, const bool abbrev)
 {
+  if (func == FuncPlayScript) {
+    return (value == 0) ? tr("50ms") : tr("1x");
+  }
+
   if (value == -1) {
     return abbrev ? tr("!1x") : tr("Played once, not during startup");
   }

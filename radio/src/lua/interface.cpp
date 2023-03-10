@@ -1083,15 +1083,25 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         } else
 #endif
         if (ref <= SCRIPT_GFUNC_LAST) {
+          uint8_t idx;
           CustomFunctionData * fn;
-         
-          if (ref <= SCRIPT_FUNC_LAST)
-            fn = &g_model.customFn[ref - SCRIPT_FUNC_FIRST];
-          else
-            fn = &g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST];
-         
-          if (getSwitch(fn -> swtch)) {
+          CustomFunctionsContext * functionsContext;
+
+          if (ref <= SCRIPT_FUNC_LAST) {
+            idx = ref - SCRIPT_FUNC_FIRST;
+            fn = &g_model.customFn[idx];
+            functionsContext = &modelFunctionsContext;
+          } else {
+            idx = ref - SCRIPT_GFUNC_FIRST;
+            fn = &g_eeGeneral.customFn[idx];
+            functionsContext = &globalFunctionsContext;
+          }
+
+          tmr10ms_t tmr10ms = get_tmr10ms();
+
+          if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
+            functionsContext->lastFunctionTime[idx] = tmr10ms;
           }
           else {
             if (sid.background == LUA_NOREF) continue;
