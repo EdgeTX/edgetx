@@ -212,10 +212,6 @@ QString CustomFunctionData::repeatToString(const int value, const AssignFunc fun
 //  static
 QString CustomFunctionData::repeatToString(const int value, const bool abbrev)
 {
-  if (func == FuncPlayScript) {
-    return (value == 0) ? tr("50ms") : tr("1x");
-  }
-
   if (value == -1) {
     return abbrev ? tr("!1x") : tr("Played once, not during startup");
   }
@@ -393,6 +389,19 @@ AbstractStaticItemModel * CustomFunctionData::repeatItemModel()
   for (int i = -1; i <= 60; i++) {
     mdl->appendToItemList(repeatToString(i, false), i);
   }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("customfunctiondata.repeatLua");
+
+  mdl->appendToItemList("On", 0);
+  mdl->appendToItemList("1x", 1);
 
   mdl->loadItemList();
   return mdl;

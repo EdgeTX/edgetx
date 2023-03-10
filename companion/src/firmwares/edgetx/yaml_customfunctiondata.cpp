@@ -227,7 +227,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
       def += ",";
     }
     if (rhs.func == FuncPlayScript) {
-      def += ((rhs.repeatParam == 0) ? "50ns" : "1x");
+      def += ((rhs.repeatParam == 0) ? "On" : "1x");
     } else if (rhs.repeatParam == 0) {
       def += "1x";
     } else if (rhs.repeatParam == -1) {

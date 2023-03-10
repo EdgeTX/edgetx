@@ -39,6 +39,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   playSoundId = tabModelFactory->registerItemModel(CustomFunctionData::playSoundItemModel());
   harpicId = tabModelFactory->registerItemModel(CustomFunctionData::harpicItemModel());
   repeatId = tabModelFactory->registerItemModel(CustomFunctionData::repeatItemModel());
+  repeatLuaId = tabModelFactory->registerItemModel(CustomFunctionData::repeatLuaItemModel());
   gvarAdjustModeId = tabModelFactory->registerItemModel(CustomFunctionData::gvarAdjustModeItemModel());
 
   tabFilterFactory = new FilteredItemModelFactory();
@@ -193,7 +194,10 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     tableLayout->addLayout(i, 4, repeatLayout);
     fswtchRepeat[i] = new QComboBox(this);
     fswtchRepeat[i]->setProperty("index", i);
-    fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
+    if (functions[i].func == FuncPlayScript)
+      fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
+    else
+      fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
     fswtchRepeat[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     fswtchRepeat[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     repeatLayout->addWidget(fswtchRepeat[i], i + 1);
@@ -324,6 +328,10 @@ void CustomFunctionsPanel::functionEdited()
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
+    if (functions[index].func == FuncPlayScript)
+      fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatLuaId));
+    else
+      fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatId));
     refreshCustomFunction(index);
     emit modified();
     lock = false;
@@ -523,11 +531,13 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       }
     }
     else if (func == FuncPlayScript) {
-      widgetsMask |= CUSTOM_FUNCTION_FILE_PARAM;
+      widgetsMask |= CUSTOM_FUNCTION_FILE_PARAM | CUSTOM_FUNCTION_REPEAT;
       if (modified) {
         Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, 8);
+        cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
       }
       Helpers::populateFileComboBox(fswtchParamArmT[i], scriptsSet, cfn.paramarm);
+      fswtchRepeat[i]->setCurrentIndex(fswtchRepeat[i]->findData(cfn.repeatParam));
     }
     else {
       if (modified)

@@ -416,7 +416,10 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
           }
           else if (HAS_REPEAT_PARAM(func)) {
-            if (CFN_PLAY_REPEAT(cfn) == 0) {
+            if (func == FUNC_PLAY_SCRIPT) {
+              lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x", attr);
+            }
+            else if (CFN_PLAY_REPEAT(cfn) == 0) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
             }
             else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {

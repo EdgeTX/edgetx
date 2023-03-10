@@ -63,7 +63,7 @@
 #if defined(COLORLCD)
 #define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_SET_SCREEN)
 #else
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT )
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT)
 #endif
 
 #define CFN_EMPTY(p)                   (!(p)->swtch)

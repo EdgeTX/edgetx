@@ -337,7 +337,7 @@ class SpecialFunctionEditPage : public Page
                                  SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
         repeat->setTextHandler([](int32_t value) {
             // 0 == repeat at 50ms interval for backward compatibility
-            return (value == 0) ? std::string("50ms") : std::string("1x");
+            return (value == 0) ? std::string("On") : std::string("1x");
         });
       } else {
         auto repeat = new NumberEdit(line, rect_t{}, 0, 60 / CFN_PLAY_REPEAT_MUL,
@@ -662,7 +662,7 @@ class SpecialFunctionButton : public Button
       lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     } else if (HAS_REPEAT_PARAM(func)) {
       if (func == FUNC_PLAY_SCRIPT) {
-        sprintf(s, "(%s)", (CFN_PLAY_REPEAT(cfn) == 0) ? "50ms" : "1x");
+        sprintf(s, "(%s)", (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x");
       } else {
         sprintf(s, "(%s)",
           (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
