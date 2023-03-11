@@ -282,8 +282,6 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
 
 #if LCD_W > LCD_H  // Landscape
 
-#define TXT_ALIGN LV_GRID_ALIGN_CENTER
-
 static const lv_coord_t b_col_dsc[] = {30, 50, 88, 110,
                                        88, 40, 40, LV_GRID_TEMPLATE_LAST};
 
@@ -295,8 +293,6 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define ANDSW_COL 4
 
 #else  // Portrait
-
-#define TXT_ALIGN LV_GRID_ALIGN_START
 
 static const lv_coord_t b_col_dsc[] = {36, 58, 88, 54, 54, LV_GRID_TEMPLATE_LAST};
 
@@ -565,17 +561,7 @@ void ModelLogicalSwitchesPage::plusPopup(FormWindow* window)
 
 void ModelLogicalSwitchesPage::build(FormWindow* window)
 {
-#if LCD_W > LCD_H
-#define PER_ROW 6
-  static const lv_coord_t l_col_dsc[] = {
-      LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),        LV_GRID_FR(1),
-      LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#else
-#define PER_ROW 4
-  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_TEMPLATE_LAST};
-#endif
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
   window->padAll(4);
 
@@ -600,11 +586,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
     if (isActive) {
       line = form->newLine(&grid);
 
-      button = new LogicalSwitchButton(
-          line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
-
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW,
-                           LV_GRID_ALIGN_CENTER, 0, 1);
+      button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
 
       button->setPressHandler([=]() {
         Menu* menu = new Menu(window);
