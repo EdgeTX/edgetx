@@ -243,7 +243,7 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     tab->build(form);
 
     header.setTitle(tab->title.c_str());
-    invalidate();
+    header.invalidate();
 
 #if defined(DEBUG)
     TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
