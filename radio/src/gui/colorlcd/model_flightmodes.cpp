@@ -108,6 +108,8 @@ class FlightModeEdit : public Page
       FlexGridLayout trim_grid(trims_col_dsc, line_row_dsc);
 
       for (int t = 0; t < NUM_TRIMS; t++) {
+        lastTrim[t] = p_fm->trim[t].value;
+
         if ((t % TRIMS_PER_LINE) == 0) {
           line = form->newLine(&trim_grid);
           line->padLeft(10);
@@ -156,11 +158,23 @@ class FlightModeEdit : public Page
       }
     }
 
+    void checkEvents() override
+    {
+      for (int i = 0; i < NUM_TRIMS; i += 1) {
+        const auto& fm = g_model.flightModeData[index];
+        if (lastTrim[i] != fm.trim[i].value) {
+          lastTrim[i] = fm.trim[i].value;
+          tr_value[i]->setValue(lastTrim[i]);
+        }
+      }
+    }
+
   protected:
     uint8_t index;
     Choice* tr_mode[NUM_TRIMS] = {nullptr};
     NumberEdit* tr_value[NUM_TRIMS] = {nullptr};
-    
+    int lastTrim[NUM_TRIMS];
+
     void showControls(int trim, uint8_t mode)
     {
       bool checked = (mode != TRIM_MODE_NONE);
@@ -322,15 +336,22 @@ class FlightModeBtn : public Button
   {
     Button::checkEvents();
     check(isActive());
-    if (!refreshing) {
-        for (int i = 0; i < NUM_TRIMS; i += 1) {
-          const auto& fm = g_model.flightModeData[index];
-          if (lastTrim[i] != fm.trim[i].value) {
-            lastTrim[i] = fm.trim[i].value;
-            refreshTrim();
-            return; 
-          }
+    if (!refreshing && init) {
+      refreshing = true;
+      const auto& fm = g_model.flightModeData[index];
+      for (int t = 0; t < NUM_TRIMS; t += 1) {
+        if (lastTrim[t] != fm.trim[t].value) {
+          lastTrim[t] = fm.trim[t].value;
+
+          uint8_t mode = fm.trim[t].mode;
+          bool checked = (mode != TRIM_MODE_NONE);
+          bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
+
+          if (checked && showValue)
+            lv_label_set_text(fmTrimValue[t], formatNumberAsString(fm.trim[t].value).c_str());
         }
+      }
+      refreshing = false;
     }
   }
 
@@ -357,20 +378,6 @@ class FlightModeBtn : public Button
       lv_label_set_text(fmSwitch, "");
     }
 
-    refreshTrim();
-
-    lv_label_set_text(fmFadeIn, formatNumberAsString(fm.fadeIn, PREC1, 0, nullptr, "s").c_str());
-    lv_label_set_text(fmFadeOut, formatNumberAsString(fm.fadeOut, PREC1, 0, nullptr, "s").c_str());
-  }
-
-  void refreshTrim()
-  {
-    if (!init) return;
-
-    refreshing = true;
-
-    const auto& fm = g_model.flightModeData[index];
-
     for (int i = 0; i < NUM_TRIMS; i += 1) {
       uint8_t mode = fm.trim[i].mode;
       bool checked = (mode != TRIM_MODE_NONE);
@@ -384,7 +391,8 @@ class FlightModeBtn : public Button
         lv_label_set_text(fmTrimValue[i], "");
     }
 
-    refreshing = false;
+    lv_label_set_text(fmFadeIn, formatNumberAsString(fm.fadeIn, PREC1, 0, nullptr, "s").c_str());
+    lv_label_set_text(fmFadeOut, formatNumberAsString(fm.fadeOut, PREC1, 0, nullptr, "s").c_str());
   }
 
  protected:
