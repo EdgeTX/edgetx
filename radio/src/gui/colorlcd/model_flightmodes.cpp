@@ -195,7 +195,7 @@ class FlightModeEdit : public Page
 
 #if LCD_W > LCD_H  // Landscape
 
-static const lv_coord_t b_col_dsc[] = {36, 95, 50, LV_GRID_FR(1), 40, 40,
+static const lv_coord_t b_col_dsc[] = {36, 92, 50, LV_GRID_FR(1), 40, 40,
                                        LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -224,6 +224,104 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
 
 #endif
 
+class FMStyle
+{
+  public:
+    FMStyle() {}
+
+    void init()
+    {
+      if(!styleInitDone)
+      {
+        styleInitDone=true;
+
+        lv_style_init(&fmTrimContStyle);
+        lv_style_set_pad_all(&fmTrimContStyle, 0);
+        lv_style_set_height(&fmTrimContStyle, LV_SIZE_CONTENT);
+        lv_style_set_flex_flow(&fmTrimContStyle, LV_FLEX_FLOW_ROW);
+        lv_style_set_layout(&fmTrimContStyle, LV_LAYOUT_FLEX);
+
+        lv_style_init(&fmTrimStyle);
+        lv_style_set_pad_all(&fmTrimStyle, 0);
+        lv_style_set_width(&fmTrimStyle, TRIM_W);
+        lv_style_set_height(&fmTrimStyle, LV_SIZE_CONTENT);
+        lv_style_set_flex_flow(&fmTrimStyle, LV_FLEX_FLOW_COLUMN);
+        lv_style_set_layout(&fmTrimStyle, LV_LAYOUT_FLEX);
+
+        lv_style_init(&fmLabelStyle);
+        lv_style_set_text_font(&fmLabelStyle, getFont(FONT(STD)));
+        lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&fmLabelStyle, LV_TEXT_ALIGN_LEFT);
+
+        lv_style_init(&fmLabelSmallStyle);
+        lv_style_set_text_font(&fmLabelSmallStyle, getFont(FONT(XS)));
+        lv_style_set_text_color(&fmLabelSmallStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&fmLabelSmallStyle, LV_TEXT_ALIGN_LEFT);
+
+        lv_style_init(&fmTrimModeStyle);
+        lv_style_set_text_font(&fmTrimModeStyle, getFont(FONT(STD)));
+        lv_style_set_text_color(&fmTrimModeStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&fmTrimModeStyle, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_width(&fmTrimModeStyle, TRIM_W);
+        lv_style_set_height(&fmTrimModeStyle, 16);
+
+        lv_style_init(&fmTrimValueStyle);
+        lv_style_set_text_font(&fmTrimValueStyle, getFont(FONT(XS)));
+        lv_style_set_text_color(&fmTrimValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&fmTrimValueStyle, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_width(&fmTrimValueStyle, TRIM_W);
+        lv_style_set_height(&fmTrimValueStyle, 16);
+      }
+    }
+
+    void setTrimContStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmTrimContStyle, LV_PART_MAIN);
+    }
+
+    void setTrimStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmTrimStyle, LV_PART_MAIN);
+    }
+
+    void setLabelSmallStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmLabelSmallStyle, LV_PART_MAIN);
+    }
+
+    void setLabelStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmLabelStyle, LV_PART_MAIN);
+    }
+
+    void setTrimModeStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmTrimModeStyle, LV_PART_MAIN);
+    }
+
+    void setTrimValueStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &fmTrimValueStyle, LV_PART_MAIN);
+    }
+
+  private:
+    lv_style_t fmTrimContStyle;
+    lv_style_t fmTrimStyle;
+    lv_style_t fmLabelStyle;
+    lv_style_t fmLabelSmallStyle;
+    lv_style_t fmTrimModeStyle;
+    lv_style_t fmTrimValueStyle;
+    bool styleInitDone;
+};
+
+static FMStyle fmStyle;
+
 class FlightModeBtn : public Button
 {
  public:
@@ -234,7 +332,7 @@ class FlightModeBtn : public Button
     padTop(0);
     padBottom(0);
     padLeft(3);
-    padRight(3);
+    padRight(6);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
@@ -263,62 +361,57 @@ class FlightModeBtn : public Button
 
   void delayed_init(lv_event_t* e)
   {
+    lv_obj_enable_style_refresh(false);
+
     fmID = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(fmID, LV_TEXT_ALIGN_LEFT, 0);
+    fmStyle.setLabelStyle(fmID);
     lv_obj_set_grid_cell(fmID, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     fmName = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(fmName, LV_TEXT_ALIGN_LEFT, 0);
+    fmStyle.setLabelSmallStyle(fmName);
     lv_obj_set_grid_cell(fmName, LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_font(fmName, getFont(FONT(XS)), 0);
 
     fmSwitch = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(fmSwitch, LV_TEXT_ALIGN_LEFT, 0);
+    fmStyle.setLabelStyle(fmSwitch);
     lv_obj_set_grid_cell(fmSwitch, LV_GRID_ALIGN_STRETCH, 2, SWTCH_COL_CNT,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lv_obj_t* container = lv_obj_create(lvobj);
-    lv_obj_set_flex_flow(container, LV_FLEX_FLOW_ROW);
-    lv_obj_set_style_flex_grow(container, 2, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(container, 0, LV_PART_MAIN);
-    lv_obj_set_height(container, LV_SIZE_CONTENT);
+    fmStyle.setTrimContStyle(container);
     lv_obj_add_flag(container, LV_OBJ_FLAG_EVENT_BUBBLE);
     lv_obj_set_grid_cell(container, LV_GRID_ALIGN_STRETCH, TRIM_COL, TRIM_COL_CNT,
                          LV_GRID_ALIGN_CENTER, TRIM_ROW, 1);
 
     for (int i = 0; i < NUM_TRIMS; i += 1) {
       lv_obj_t* tr_cont = lv_obj_create(container);
-      lv_obj_set_flex_flow(tr_cont, LV_FLEX_FLOW_COLUMN);
-      lv_obj_set_style_pad_all(tr_cont, 0, LV_PART_MAIN);
-      lv_obj_set_height(tr_cont, LV_SIZE_CONTENT);
-      lv_obj_set_width(tr_cont, TRIM_W);
+      fmStyle.setTrimStyle(tr_cont);
       lv_obj_set_user_data(tr_cont, this);
       lv_obj_add_flag(tr_cont, LV_OBJ_FLAG_EVENT_BUBBLE);
 
       fmTrimMode[i] = lv_label_create(tr_cont);
-      lv_obj_set_height(fmTrimMode[i], 16);
-      lv_obj_set_style_text_align(fmTrimMode[i], LV_TEXT_ALIGN_CENTER, 0);
+      fmStyle.setTrimModeStyle(fmTrimMode[i]);
 
       fmTrimValue[i] = lv_label_create(tr_cont);
-      lv_obj_set_style_text_align(fmTrimValue[i], LV_TEXT_ALIGN_CENTER, 0);
-      lv_obj_set_height(fmTrimValue[i], 16);
-      lv_obj_set_style_text_font(fmTrimValue[i], getFont(FONT(XS)), 0);
+      fmStyle.setTrimValueStyle(fmTrimValue[i]);
     }
 
     fmFadeIn = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(fmFadeIn, LV_TEXT_ALIGN_CENTER, 0);
+    fmStyle.setLabelStyle(fmFadeIn);
     lv_obj_set_grid_cell(fmFadeIn, LV_GRID_ALIGN_END, TRIM_COL+1, 1,
                          LV_GRID_ALIGN_CENTER, TRIM_ROW, 1);
 
     fmFadeOut = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(fmFadeOut, LV_TEXT_ALIGN_CENTER, 0);
+    fmStyle.setLabelStyle(fmFadeOut);
     lv_obj_set_grid_cell(fmFadeOut, LV_GRID_ALIGN_END, TRIM_COL+2, 1,
                          LV_GRID_ALIGN_CENTER, TRIM_ROW, 1);
 
     init = true;
     refresh();
+
+    lv_obj_enable_style_refresh(true);
+
     lv_obj_update_layout(lvobj);
 
     if (e) {
