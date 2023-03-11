@@ -31,10 +31,8 @@
 #define GVAR_NAME_SIZE 44
 #if LCD_W > LCD_H
 #define GVAR_VAL_SIZE 45
-#define GVAR_TTL_OFST 6
 #else
 #define GVAR_VAL_SIZE 50
-#define GVAR_TTL_OFST 24
 #endif
 
 class GVarStyle
@@ -84,7 +82,6 @@ class GVarStyle
         lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmNameStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_pad_left(&fmNameStyle, 2);
-        lv_style_set_pad_top(&fmNameStyle, GVAR_TTL_OFST);
       }
     }
 
@@ -174,6 +171,7 @@ class GVarButton : public Button
 
     lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
+    lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
     auto lbl = lv_label_create(lvobj);
     gvarStyle.setNameStyle(lbl);
