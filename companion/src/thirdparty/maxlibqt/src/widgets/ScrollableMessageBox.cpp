@@ -67,7 +67,7 @@ void ScrollableMessageBox::setFontFixedWidth(bool fixed)
 	}
 #ifdef Q_OS_MACOS
 	newFont.setPointSize(13);
-	textEdit->setAttribute(Qt::WA_MacNormalSize);
+	m_textEdit->setAttribute(Qt::WA_MacNormalSize);
 #elif defined Q_OS_WIN
 	newFont.setPointSize(10);
 #endif
