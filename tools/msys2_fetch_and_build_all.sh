@@ -5,7 +5,7 @@
 ## library and how to create an installation package.
 ## Let it run as normal user in MSYS2 MinGW 64-bit console (blue icon).
 ##
-## Note: This script works presently properly only for branches stemming from EdgeTX main development (v2.9 or newer)
+## Note: This script is tested to work properly only for the branch it stems from.
 
 # -----------------------------------------------------------------------------
 export BRANCH_NAME="main"  # main|2.9|...
