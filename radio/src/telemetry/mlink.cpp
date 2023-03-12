@@ -149,7 +149,7 @@ void processMLinkPacket(const uint8_t * packet, bool multi)
     setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, 0, mlinkRssi, UNIT_RAW, 0);
     telemetryData.rssi.set(mlinkRssi);
     if (mlinkRssi > 0) {
-      telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+      telemetryStreaming = 2*TELEMETRY_TIMEOUT10ms;     // extended to 2s due to slow Mlink RSSI update rate
     }
     setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LOSS, 0, 0, packet[7], UNIT_RAW, 0);
   }
