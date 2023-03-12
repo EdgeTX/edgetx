@@ -227,27 +227,22 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 void ModelSetupPage::build(FormWindow * window)
 {
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto wform = new FormWindow(window, rect_t{});
-  wform->setFlexLayout();
-  wform->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Model name
-  auto line = wform->newLine(&grid);
+  auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODELNAME, 0, COLOR_THEME_PRIMARY1);
   new ModelNameEdit(line, rect_t{});
 
   // Model labels
-  line = wform->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_LABELS, 0, COLOR_THEME_PRIMARY1);
   auto curmod = modelslist.getCurrentModel();
   labelTextButton =
     new TextButton(line, rect_t{}, modelslabels.getBulletLabelString(curmod ,STR_UNLABELEDMODEL), [=] () {
-       Menu *menu = new Menu(wform, true);
+       Menu *menu = new Menu(window, true);
        menu->setTitle(STR_LABELS);
        for (auto &label: modelslabels.getLabels()) {
          menu->addLineBuffered(label,
@@ -269,18 +264,18 @@ void ModelSetupPage::build(FormWindow * window)
      });
 
   // Bitmap
-  line = wform->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
 
   // Global functions
-  line = wform->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.noGlobalFunctions));
 
   // Model ADC jitter filter
-  line = wform->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
              GET_SET_DEFAULT(g_model.jitterFilter));
@@ -288,7 +283,7 @@ void ModelSetupPage::build(FormWindow * window)
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  auto oform = new FormGroup(wform, rect_t{});
+  auto oform = new FormGroup(window, rect_t{});
   oform->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(PAGE_PADDING));
   oform->padAll(PAGE_PADDING);
 

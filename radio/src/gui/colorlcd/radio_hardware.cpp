@@ -50,18 +50,14 @@ RadioHardwarePage::RadioHardwarePage():
 
 void RadioHardwarePage::build(FormWindow * window)
 {
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-  form->padAll(8);
 
   // TODO: sub-title?
 
   // Batt meter range - Range 3.0v to 16v
-  auto line = form->newLine(&grid);
+  auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
 
   auto box = new FormGroup(line, rect_t{});
@@ -93,7 +89,7 @@ void RadioHardwarePage::build(FormWindow * window)
   });
 
   // Bat calibration
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal =
       new NumberEdit(line, rect_t{}, -127, 127,
@@ -104,7 +100,7 @@ void RadioHardwarePage::build(FormWindow * window)
   batCal->setWindowFlags(REFRESH_ALWAYS);
 
   // RTC Batt check enable
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
 
   box = new FormGroup(line, rect_t{});
@@ -120,36 +116,36 @@ void RadioHardwarePage::build(FormWindow * window)
   }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
 
   // ADC filter
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new Subtitle(form, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  auto intMod = new InternalModuleWindow(form);
+  new Subtitle(window, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  auto intMod = new InternalModuleWindow(window);
   intMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  new Subtitle(form, rect_t{}, STR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
-  auto extMod = new ExternalModuleWindow(form);
+  new Subtitle(window, rect_t{}, STR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  auto extMod = new ExternalModuleWindow(window);
   extMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)
-  new Subtitle(form, rect_t{}, STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
-  auto bt = new BluetoothConfigWindow(form);
+  new Subtitle(window, rect_t{}, STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
+  auto bt = new BluetoothConfigWindow(window);
   bt->padLeft(lv_dpx(8));
 #endif
 
-  new Subtitle(form, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
-  auto serial = new SerialConfigWindow(form, rect_t{});
+  new Subtitle(window, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
+  auto serial = new SerialConfigWindow(window, rect_t{});
   serial->padLeft(lv_dpx(8));
 
   // Calibration
-  new Subtitle(form, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
 
-  box = new FormGroup(form, rect_t{});
+  box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));
@@ -181,9 +177,9 @@ void RadioHardwarePage::build(FormWindow * window)
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
   
   // Debugs
-  new Subtitle(form, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
 
-  box = new FormGroup(form, rect_t{});
+  box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));

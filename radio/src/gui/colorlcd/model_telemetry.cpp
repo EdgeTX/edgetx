@@ -570,27 +570,23 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
 
 void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 {
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   this->window = window;
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(4);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   FlexGridLayout grid2(col_dsc2, row_dsc, 2);
 
   // Sensors
-  auto line = form->newLine(&grid2);
+  auto line = window->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
   auto subttl = new Subtitle(line, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
 
 #if LCD_H > LCD_W
   lv_obj_set_grid_cell(subttl->getLvObj(), LV_GRID_ALIGN_START, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);
-  line = form->newLine(&grid2);
+  line = window->newLine(&grid2);
   lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
   lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
   grid2.nextCell();
@@ -611,7 +607,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
  
   for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
     if (g_model.telemetrySensors[idx].isAvailable()) {
-      line = form->newLine(&grid3);
+      line = window->newLine(&grid3);
       auto button = new SensorButton(line, rect_t{0, 0, LCD_W-12, 25}, idx);
 
       button->setPressHandler([=]() -> uint8_t {
@@ -650,7 +646,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   FlexGridLayout grid4(col_dsc4, row_dsc, 4);
 
   // Autodiscover button
-  line = form->newLine(&grid4);
+  line = window->newLine(&grid4);
   auto discover = new TextButton(line, rect_t{}, (allowNewSensors) ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS);
   discover->setPressHandler([=]() {
     allowNewSensors = !allowNewSensors;
@@ -679,7 +675,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 
   if (sensorsCount > 0) {
 #if TWOCOLBUTTONS
-    line = form->newLine(&grid4);
+    line = window->newLine(&grid4);
 #endif
     // Delete all sensors button
     b = new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS,
@@ -700,37 +696,37 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   }
 
   // Ignore instance button
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RSSI
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new Subtitle(line, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
 
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
 
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
   new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
 
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new Subtitle(line, rect_t{}, STR_VARIO, 0, COLOR_THEME_PRIMARY1);
 
   FlexGridLayout grid5(col_dsc5, row_dsc, 4);
 
-  line = form->newLine(&grid5);
+  line = window->newLine(&grid5);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
   auto choice = new SourceChoice(line, rect_t{}, MIXSRC_NONE, MIXSRC_LAST_TELEM,
@@ -745,7 +741,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     return qr.rem == 0 && isSensorAvailable(qr.quot + 1);
   });
 
-  line = form->newLine(&grid5);
+  line = window->newLine(&grid5);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_RANGE, 0, COLOR_THEME_PRIMARY1);
 
@@ -755,7 +751,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   auto vMax = new NumberEdit(line, rect_t{}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
   vMax->setAvailableHandler([](int val) { return g_model.varioData.min - 10 < val; });
 
-  line = form->newLine(&grid5);
+  line = window->newLine(&grid5);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CENTER, 0, COLOR_THEME_PRIMARY1);
 

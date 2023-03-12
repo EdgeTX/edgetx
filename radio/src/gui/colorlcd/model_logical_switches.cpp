@@ -563,12 +563,8 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
 {
   static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(4);
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(l_col_dsc, row_dsc, 2);
 
@@ -585,7 +581,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
     bool isActive = (ls->func != LS_FUNC_NONE);
 
     if (isActive) {
-      line = form->newLine(&grid);
+      line = window->newLine(&grid);
 
       button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
 
@@ -648,7 +644,7 @@ void ModelLogicalSwitchesPage::build(FormWindow* window)
   }
 
   if (hasEmptySwitch) {
-    line = form->newLine(&grid);
+    line = window->newLine(&grid);
     addButton =
         new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {

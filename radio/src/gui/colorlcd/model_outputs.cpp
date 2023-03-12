@@ -291,37 +291,33 @@ ModelOutputsPage::ModelOutputsPage() :
 
 void ModelOutputsPage::build(FormWindow *window)
 {
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  auto form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(16));
-  form->padAll(lv_dpx(8));
-  form->padRow(lv_dpx(4));
+  lv_obj_set_style_flex_cross_place(window->getLvObj(), LV_FLEX_ALIGN_START, 0);
 
-  auto form_obj = form->getLvObj();
-  lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
+  auto box = new FormWindow(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  box->padRow(4);
+  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
-  new TextButton(form, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
+  new TextButton(box, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     moveTrimsToOffsets();
-    form->invalidate();
+    window->invalidate();
     return 0;
   });
 
-  auto box = new FormGroup(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  auto box2 = new FormWindow(box, rect_t{});
+  box2->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  box2->setWidth(LV_SIZE_CONTENT);
+  lv_obj_set_style_flex_cross_place(box2->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
-  auto box_obj = box->getLvObj();
-  lv_obj_set_width(box_obj, LV_SIZE_CONTENT);
-  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-  new StaticText(box, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(box, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));  
+  new StaticText(box2, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
+  auto cb = new CheckBox(box2, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 
     // Channel settings
-    auto btn = new OutputLineButton(form, ch);
+    auto btn = new OutputLineButton(window, ch);
 #if LCD_W > LCD_H
     // Initial scroll height is incorrect without this??? (Issue #3186)
     btn->setHeight(35);
@@ -329,7 +325,7 @@ void ModelOutputsPage::build(FormWindow *window)
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(form);
+      Menu *menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {
           editOutput(ch, btn);
       });

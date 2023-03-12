@@ -596,10 +596,10 @@ void RadioSetupPage::build(FormWindow * window)
   window->setFlexLayout();
 
   // Date & time picker including labels
-  new DateTimeWindow(form, rect_t{});
+  new DateTimeWindow(window, rect_t{});
 
   // Sub-pages
-  new WindowButtonGroup(form, rect_t{}, {
+  new WindowButtonGroup(window, rect_t{}, {
       {STR_SOUND_LABEL, []() { new SoundPage(); }},
 #if defined(VARIO)
       {STR_VARIO, []() { new VarioPage(); }},
@@ -616,7 +616,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    auto line = form->newLine(&grid);
+    auto line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
     new Choice(line, rect_t{}, STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
@@ -632,7 +632,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(PXX2)
   // Owner ID
   {
-    auto line = form->newLine(&grid);
+    auto line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(line, rect_t{}, g_eeGeneral.ownerRegistrationID,
                       PXX2_LEN_REGISTRATION_ID);
@@ -640,12 +640,12 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Country code
-  auto line = form->newLine(&grid);
+  auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
 
   // Audio language
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_VOICE_LANGUAGE, 0, COLOR_THEME_PRIMARY1);
   auto choice =
       new Choice(line, rect_t{}, 0, DIM(languagePacks) - 2,
@@ -658,7 +658,7 @@ void RadioSetupPage::build(FormWindow * window)
       [](uint8_t value) { return languagePacks[value]->name; });
 
   // Imperial units
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
 
@@ -679,7 +679,7 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Switches delay
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
   auto edit =
       new NumberEdit(line, rect_t{}, -15, 100 - 15,
@@ -687,13 +687,13 @@ void RadioSetupPage::build(FormWindow * window)
   edit->setSuffix(std::string("0") + STR_MS);
 
   // USB mode
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_USBMODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
              GET_SET_DEFAULT(g_eeGeneral.USBMode));
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_ROTARY_ENC_MODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
              ROTARY_ENCODER_MODE_INVERT_BOTH,
@@ -701,7 +701,7 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // RX channel order
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
   choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
@@ -715,7 +715,7 @@ void RadioSetupPage::build(FormWindow * window)
   });
 
   // Stick mode
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
   choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {

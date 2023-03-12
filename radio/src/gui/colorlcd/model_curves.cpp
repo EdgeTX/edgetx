@@ -202,12 +202,8 @@ void ModelCurvesPage::build(FormWindow * window)
 #endif
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  window->padAll(0);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(6);
+  window->padAll(6);
+  window->setFlexLayout();
 
   FlexGridLayout grid(col_dsc, row_dsc);
   
@@ -222,7 +218,7 @@ void ModelCurvesPage::build(FormWindow * window)
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
     if (isCurveUsed(index)) {
       if ((curveIndex % PER_ROW) == 0) {
-        line = form->newLine(&grid);
+        line = window->newLine(&grid);
         lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
       }
 
@@ -285,7 +281,7 @@ void ModelCurvesPage::build(FormWindow * window)
 
   if (curveIndex < MAX_CURVES) {
     if ((curveIndex % PER_ROW) == 0) {
-      line = form->newLine(&grid);
+      line = window->newLine(&grid);
       lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                             LV_GRID_ALIGN_SPACE_BETWEEN);
     }

@@ -784,11 +784,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
 #endif
 
   window->padAll(4);
-  lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(l_col_dsc, row_dsc, 2);
 
@@ -810,7 +806,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
     bool isActive = (cfn->swtch != 0);
 
     if (isActive) {
-      line = form->newLine(&grid);
+      line = window->newLine(&grid);
 
       button = new SpecialFunctionButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, functions, i);
 
@@ -899,7 +895,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
 
   if (hasEmptyFunction)
   {
-    line = form->newLine(&grid);
+    line = window->newLine(&grid);
     addButton = new TextButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
       plusPopup(window);
       return 0;
