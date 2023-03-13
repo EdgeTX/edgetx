@@ -183,7 +183,7 @@ void ThemeFile::serialize()
 
   auto err = writeFileYaml(path.c_str(), &themeRootNode, (uint8_t*)&yt, 0);
   if (err != nullptr) {
-    ALERT(STR_WARNING, err, nullptr);
+    ALERT(STR_WARNING, err, AU_WARNING1);
   }
 }
 
@@ -203,7 +203,7 @@ void ThemeFile::deSerialize()
       colorList.emplace_back(ColorEntry{(LcdColorIndex)(i+1), yt.colors.colors[i]});
     }
   } else {
-    ALERT(STR_WARNING, err, nullptr);
+    ALERT(STR_WARNING, err, AU_WARNING1);
   }
 }
 
