@@ -270,10 +270,7 @@ void menuRadioVersion(event_t event)
 
   coord_t y = MENU_HEADER_HEIGHT + 2;
   lcdDrawText(FW, y, vers_stamp, SMLSIZE);
-  y += 5 * (FH - 1);
-
-
-  y += 2;
+  y += 5 * (FH - 1) + 2;
 
 #if defined(PCBTARANIS)
   lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_FIRMWARE_OPTIONS), menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS ? INVERS : 0);
