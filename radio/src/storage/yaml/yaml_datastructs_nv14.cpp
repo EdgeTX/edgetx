@@ -458,6 +458,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_PADDING( 1 ),
+  YAML_STRING("selectedTheme", 26),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

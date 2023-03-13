@@ -948,6 +948,10 @@ PACK(struct RadioData {
   NOBACKUP(int8_t imuMax);
   NOBACKUP(int8_t imuOffset);
 #endif
+
+#if defined(COLORLCD)
+  NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA

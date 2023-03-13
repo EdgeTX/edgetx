@@ -33,7 +33,6 @@
 
 #define AUTHOR_LENGTH 50
 #define INFO_LENGTH 255
-#define NAME_LENGTH 26
 
 class ThemePersistance;
 extern ThemePersistance themePersistance;
@@ -79,7 +78,7 @@ class ThemeFile
         return nullptr;
     }
     
-    void setName(std::string name) { strAppend(this->name, name.c_str(), NAME_LENGTH); }
+    void setName(std::string name) { strAppend(this->name, name.c_str(), SELECTED_THEME_NAME_LEN); }
     void setAuthor(std::string author) { strAppend(this->author, author.c_str(), AUTHOR_LENGTH); }
     void setInfo(std::string info) { strAppend(this->info, info.c_str(), INFO_LENGTH); }
     void setPath(std::string path) { this->path = path; }
@@ -92,7 +91,7 @@ class ThemeFile
 
   protected:
     std::string path;
-    char name[NAME_LENGTH + 1];
+    char name[SELECTED_THEME_NAME_LEN + 1];
     char author[AUTHOR_LENGTH + 1];
     char info[INFO_LENGTH + 1];
     std::vector<ColorEntry> colorList;

@@ -101,6 +101,7 @@ constexpr int BLUETOOTH_NAME_LEN      {10};
 constexpr int TTS_LANGUAGE_LEN        {2};
 constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int REGISTRATION_ID_LEN     {8};
+constexpr int SELECTED_THEME_NAME_LEN {26};
 
 class GeneralSettings {
   Q_DECLARE_TR_FUNCTIONS(GeneralSettings)
@@ -282,6 +283,8 @@ class GeneralSettings {
 
     int pwrOnSpeed;
     int pwrOffSpeed;
+
+    char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
 
     bool switchPositionAllowedTaranis(int index) const;
     bool switchSourceAllowedTaranis(int index) const;

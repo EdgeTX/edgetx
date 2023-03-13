@@ -281,6 +281,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] = rhs.uartSampleMode;
 
+  node["selectedTheme"] = rhs.selectedTheme;
+
   return node;
 }
 
@@ -495,6 +497,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
   if (needsConversion)
     rhs.init();
+
+  node["selectedTheme"] >> rhs.selectedTheme;
 
   return true;
 }
