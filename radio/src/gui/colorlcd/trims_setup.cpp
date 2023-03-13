@@ -41,11 +41,12 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_TRIMS);
 
   body.setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  body.padAll(8);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
 
   // Reset trims
   auto line = body.newLine();
-  lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);
+  line->padBottom(4);
   auto btn = new TextButton(line, rect_t{}, STR_RESET_BTN, []() -> uint8_t {
     resetTrims();
     return 0;

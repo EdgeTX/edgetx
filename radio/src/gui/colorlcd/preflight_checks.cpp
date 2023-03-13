@@ -104,9 +104,11 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
   header.setTitle(STR_PREFLIGHT);
 
+  body.padAll(8);
+
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
 
   // Display checklist
   auto line = form->newLine(&grid);
@@ -136,7 +138,9 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   make_conditional(cst_val, cst_tw);
 
   // Switch warnings (TODO: add display switch?)
-  new SwitchWarnMatrix(form, rect_t{});
+  line = form->newLine(&grid);
+  line->padTop(0);
+  new SwitchWarnMatrix(line, rect_t{});
 
   // Pots and sliders warning
 #if NUM_POTS + NUM_SLIDERS
@@ -146,15 +150,19 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
                             GET_SET_DEFAULT(g_model.potsWarnMode));
 #if (NUM_POTS)
   // Pot warnings
-  auto pwm = new PotWarnMatrix(form, rect_t{});
+  line = form->newLine(&grid);
+  line->padTop(0);
+  auto pwm = new PotWarnMatrix(line, rect_t{});
   make_conditional(pwm, pots_wm);
 #endif
 #endif
 
   // Center beeps
   line = form->newLine(&grid);
+  line->padTop(0);
   new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
-  new CenterBeepsMatrix(form, rect_t{});
+  line = form->newLine(&grid);
+  new CenterBeepsMatrix(line, rect_t{});
 }
 
 static std::string switchWarninglabel(swsrc_t index)
@@ -164,6 +172,13 @@ static std::string switchWarninglabel(swsrc_t index)
                        (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
          std::string(getSwitchWarnSymbol(warn_pos));
 }
+
+#if LCD_W > LCD_H
+#define SW_BTNS 8
+#else
+#define SW_BTNS 4
+#endif
+#define SW_BTN_W ((LCD_W-24)/SW_BTNS)
 
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
   ButtonMatrix(parent, r)
@@ -177,7 +192,7 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     }    
   }
 
-  initBtnMap(4, btn_cnt);
+  initBtnMap(SW_BTNS, btn_cnt);
   update();
 
   uint8_t btn_id = 0;
@@ -188,10 +203,10 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
       btn_id++;
     }
   }
-  
-  lv_obj_set_width(lvobj, LV_DPI_DEF * 2);
 
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
+
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
   
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
@@ -255,7 +270,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(3, btn_cnt);
+  initBtnMap(SW_BTNS, btn_cnt);
   update();
 
   uint8_t btn_id = 0;
@@ -274,9 +289,9 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  lv_obj_set_width(lvobj, (LV_DPI_DEF * 3) / 2);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
   
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
@@ -329,7 +344,7 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(4, btn_cnt);
+  initBtnMap(SW_BTNS, btn_cnt);
   update();
 
   uint8_t btn_id = 0;
@@ -341,10 +356,10 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  lv_obj_set_width(lvobj, (3 * LV_DPI_DEF) / 2);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
   
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
-  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 6);
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
+  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
@@ -360,7 +375,10 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
 
 void CenterBeepsMatrix::setTextWithColor(uint8_t btn_id)
 {
-  setText(btn_id, makeRecolor(STR_RETA123[ana_idx[btn_id]], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+  if (btn_id < NUM_STICKS)
+    setText(btn_id, makeRecolor(STR_RETA123[ana_idx[btn_id]], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+  else
+    setText(btn_id, makeRecolor(STR_VSRCRAW[ana_idx[btn_id] + 1], isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
 }
 
 void CenterBeepsMatrix::onPress(uint8_t btn_id)

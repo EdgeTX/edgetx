@@ -58,7 +58,8 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_THROTTLE_LABEL);
 
   body.setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  body.padAll(8);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
 
   // Throttle reversed
   auto line = body.newLine(&grid);

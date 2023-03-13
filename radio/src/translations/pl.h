@@ -741,6 +741,7 @@
 #define TR_SAVE_THEME          "Zapisać motyw?"
 #define TR_EDIT_COLOR                  "Edit Color"
 #define TR_NO_THEME_IMAGE              "No theme image"
+#define TR_BACKLIGHT_TIMER             "Czas bezczynności"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT "Szybki wybór modelu"
