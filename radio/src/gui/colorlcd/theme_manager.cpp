@@ -111,13 +111,19 @@ static const struct YamlNode struct_YAMLThemeColors[] = {
   YAML_END
 };
 
-static const struct YamlNode struct_YAMLTheme[] = {
+// This hack is required to ensure the YAML file written is backward compatible with
+// the old parser. Otherwise older versions of EdgeTX will not load the theme files.
+// TODO: Remove this sometime in the future
+static const struct YamlNode w_struct_YAMLTheme[] = {
+  YAML_STRUCT("---\r\nsummary", (NAME_LENGTH + AUTHOR_LENGTH + INFO_LENGTH + 3) * 8, struct_YAMLThemeSummary, NULL),
+  YAML_STRUCT("colors", (COLOR_COUNT - 2) * 32, struct_YAMLThemeColors, NULL),
+  YAML_END
+};
+static const struct YamlNode r_struct_YAMLTheme[] = {
   YAML_STRUCT("summary", (NAME_LENGTH + AUTHOR_LENGTH + INFO_LENGTH + 3) * 8, struct_YAMLThemeSummary, NULL),
   YAML_STRUCT("colors", (COLOR_COUNT - 2) * 32, struct_YAMLThemeColors, NULL),
   YAML_END
 };
-
-static const struct YamlNode themeRootNode = YAML_ROOT(struct_YAMLTheme);
 
 static const char *colorNames[COLOR_COUNT] = {
     "DEFAULT",    "PRIMARY1",   "PRIMARY2",   "PRIMARY3",
@@ -173,6 +179,7 @@ std::vector<std::string> ThemeFile::getThemeImageFileNames()
 void ThemeFile::serialize()
 {
   struct YAMLTheme yt;
+  struct YamlNode themeRootNode = YAML_ROOT(w_struct_YAMLTheme);
 
   strAppend(yt.summary.name, name, NAME_LENGTH);
   strAppend(yt.summary.author, author, AUTHOR_LENGTH);
@@ -190,6 +197,7 @@ void ThemeFile::serialize()
 void ThemeFile::deSerialize()
 {
   struct YAMLTheme yt;
+  struct YamlNode themeRootNode = YAML_ROOT(r_struct_YAMLTheme);
 
   YamlTreeWalker tree;
   tree.reset(&themeRootNode, (uint8_t*)&yt);
