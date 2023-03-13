@@ -209,8 +209,7 @@ class GeneralSettings {
     bool minuteBeep;
     bool preBeep;
     bool flashBeep;
-    unsigned int splashMode;
-    int splashDuration;
+    int splashMode;
     unsigned int backlightDelay;
     unsigned int templateSetup;  //RETA order according to chout_ar array
     int PPM_Multiplier;

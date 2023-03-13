@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
+    <width>810</width>
     <height>880</height>
    </rect>
   </property>
@@ -1853,31 +1853,6 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="10" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QCheckBox" name="splashScreenChkB">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Show splash screen on startup</string>
-         </property>
-         <property name="whatsThis">
-          <string>Show splash screen on startup</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QComboBox" name="splashScreenDuration">
          <property name="sizePolicy">

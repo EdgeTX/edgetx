@@ -145,9 +145,11 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 {
   Node node;
 
+  auto fw = getCurrentFirmware();
+
   node["semver"] = VERSION;
 
-  std::string board = getCurrentFirmware()->getFlavour().toStdString();
+  std::string board = fw->getFlavour().toStdString();
   node["board"] = board;
 
   YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
@@ -183,7 +185,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["internalModuleBaudrate"] = internalModuleBaudrate.value;
 
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
-  node["splashMode"] = rhs.splashMode;                // TODO: B&W only
+  if (!IS_FAMILY_HORUS_OR_T16(fw->getBoard())) {
+    node["splashMode"] = rhs.splashMode;
+  }
   node["lightAutoOff"] = rhs.backlightDelay;
   node["templateSetup"] = rhs.templateSetup;
   node["hapticLength"] = rhs.hapticLength + 2;
@@ -213,7 +217,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
-  if (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasColorLcd)) {
+  if (Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) {
     node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
   }
 
@@ -379,7 +383,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
   }
 
-  node["splashMode"] >> rhs.splashMode;                // TODO: B&W only
+  if (!IS_FAMILY_HORUS_OR_T16(fw->getBoard())) {
+    node["splashMode"] >> rhs.splashMode;
+  }
   node["lightAutoOff"] >> rhs.backlightDelay;
   node["templateSetup"] >> rhs.templateSetup;
   node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
