@@ -29,10 +29,14 @@
 #include "sdcard.h"
 #include "str_functions.h"
 
+#define COLOR_COUNT 13
+
+#define AUTHOR_LENGTH 50
+#define INFO_LENGTH 255
+#define NAME_LENGTH 26
+
 class ThemePersistance;
 extern ThemePersistance themePersistance;
-
-#define COLOR_COUNT 13
 
 struct ColorEntry
 {
@@ -42,10 +46,6 @@ struct ColorEntry
     bool operator== (const ColorEntry &a) { return this->colorNumber == a.colorNumber; }
 };
 
-
-#define AUTHOR_LENGTH 50
-#define INFO_LENGTH 255
-#define NAME_LENGTH 26
 class ThemeFile
 {
  public:
@@ -55,16 +55,8 @@ class ThemeFile
       info[0] = '\0';
     }
     
-    ThemeFile(std::string themePath);
-    ThemeFile(const ThemeFile &theme) :
-        colorList(theme.colorList),
-        _imageFileNames(theme._imageFileNames)
-    {
-        path = theme.path;
-        strAppend(name, theme.name, NAME_LENGTH);
-        strAppend(author, theme.author, AUTHOR_LENGTH);
-        strAppend(info, theme.info, INFO_LENGTH);
-    }
+    ThemeFile(std::string themePath, bool loadYAML = true);
+
     virtual ~ThemeFile() {}
 
     ThemeFile& operator= (const ThemeFile& theme);
@@ -86,17 +78,6 @@ class ThemeFile
 
         return nullptr;
     }
-
-    uint32_t getColorByName(std::string colorName) {
-
-        auto colorIndex = findColorIndex(colorName.c_str());
-        ColorEntry a = {colorIndex, 0};
-        auto colorEntry = std::find(colorList.begin(), colorList.end(), a);
-        if (colorEntry != colorList.end())
-            return colorEntry->colorValue;
-        
-        return 0;
-    }
     
     void setName(std::string name) { strAppend(this->name, name.c_str(), NAME_LENGTH); }
     void setAuthor(std::string author) { strAppend(this->author, author.c_str(), AUTHOR_LENGTH); }
@@ -105,7 +86,6 @@ class ThemeFile
 
     std::vector<ColorEntry>& getColorList() { return colorList; }
     void setColor(LcdColorIndex colorIndex, uint32_t color);
-    void setColorByIndex(int index, uint32_t color);
 
     virtual std::vector<std::string> getThemeImageFileNames();
     void applyTheme();
@@ -120,17 +100,7 @@ class ThemeFile
     void applyColors();
     virtual void applyBackground();
 
-    enum ScanState
-    {
-        none,
-        summary,
-        colors
-    };
-
     void deSerialize();
-    bool convertRGB(char *pColorRGB, uint32_t &color);
-    LcdColorIndex findColorIndex(const char *name);
-    bool readNextLine(FIL &file, char *line, int maxlen);
 };
 
 

@@ -165,7 +165,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return true;
 }
 
-static void set_attr(void* ctx, char* buf, uint8_t len)
+static void set_attr(void* ctx, char* buf, uint16_t len)
 {
   char value[LABELS_LENGTH + 1];
   if(len > LABELS_LENGTH) {
