@@ -142,6 +142,7 @@ static void readKeysAndTrims()
 
 void checkValidMCU(void)
 {
+#if !defined(SIMU)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
@@ -159,6 +160,7 @@ void checkValidMCU(void)
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
+#endif
 }
 
 void per10ms()
