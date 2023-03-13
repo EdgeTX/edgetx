@@ -110,6 +110,12 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 break;
             }
 
+            if (*c == '\r' || *c == '\n') {
+                saved_state = state;
+                state = ps_CRLF;
+                continue;
+            }
+
             if (indent < getLastIndent()) {
                 // go up as many levels as necessary
                 do {
@@ -140,12 +146,6 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 if (!calls->to_next_elmt(ctx)) {
                     return DONE_PARSING;
                 }
-            }
-
-            if (*c == '\r' || *c == '\n') {
-                saved_state = state;
-                state = ps_CRLF;
-                continue;
             }
 
             state = ps_Attr;
@@ -302,11 +302,12 @@ YamlParser::parse(const char* buffer, unsigned int size)
             break;
                 
         case ps_CRLF:
-            if (*c == '\n') {
-                // reset state at EOL
-                reset();
-            }
-            break;
+            // Skip EOL chars and blank lines
+            while (c < end && (*c == '\r' || *c == '\n'))
+              c += 1;
+            // reset state at EOL
+            reset();
+            continue;
         }
 
         c++;
