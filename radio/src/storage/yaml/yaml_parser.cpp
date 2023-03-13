@@ -302,12 +302,15 @@ YamlParser::parse(const char* buffer, unsigned int size)
             break;
                 
         case ps_CRLF:
-            // Skip EOL chars and blank lines
-            while (c < end && (*c == '\r' || *c == '\n'))
-              c += 1;
-            // reset state at EOL
-            reset();
-            continue;
+            if (*c == '\n') {
+                // Skip blank lines
+                while (c < end && (*c == '\r' || *c == '\n'))
+                  c += 1;
+                // reset state at EOL
+                reset();
+                continue;
+            }
+            break;
         }
 
         c++;
