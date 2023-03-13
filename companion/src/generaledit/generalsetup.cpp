@@ -251,17 +251,11 @@ ui(new Ui::GeneralSetup)
   ui->rssiPowerOffWarnChkB->setChecked(!generalSettings.disableRssiPoweroffAlarm); // Default is zero=checked
 
   if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
-    ui->splashScreenChkB->hide();
     ui->splashScreenDuration->hide();
     ui->splashScreenLabel->hide();
   }
-  if (IS_TARANIS(firmware->getBoard())) {
-    ui->splashScreenChkB->hide();
-    ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashDuration);
-  }
   else {
-    ui->splashScreenDuration->hide();
-    ui->splashScreenChkB->setChecked(!generalSettings.splashMode);
+    ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashMode);
   }
 
   if (!firmware->getCapability(PwrButtonPress)) {
@@ -542,16 +536,9 @@ void GeneralSetupPanel::on_soundModeCB_currentIndexChanged(int index)
   emit modified();
 }
 
-
-void GeneralSetupPanel::on_splashScreenChkB_stateChanged(int )
-{
-  generalSettings.splashMode = ui->splashScreenChkB->isChecked() ? 0 : 1;
-  emit modified();
-}
-
 void GeneralSetupPanel::on_splashScreenDuration_currentIndexChanged(int index)
 {
-  generalSettings.splashDuration = 3-index;
+  generalSettings.splashMode = 3-index;
   emit modified();
 }
 
