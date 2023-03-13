@@ -1689,6 +1689,8 @@ int main()
 #endif
 
   boardInit();
+
+  modulePortInit();
   pulsesInit();
 
   checkValidMCU();

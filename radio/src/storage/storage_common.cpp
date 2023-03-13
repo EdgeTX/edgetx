@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers_driver.h"
+#include "tasks/mixer_task.h"
 
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"
@@ -56,7 +57,10 @@ void preModelLoad()
   logsClose();
 #endif
 
-  pulsesStop();
+  if (mixerTaskStarted()) {
+    pulsesStop();
+  }
+
   stopTrainer();
 #if defined(COLORLCD)
   deleteCustomScreens();
@@ -165,7 +169,13 @@ void postModelLoad(bool alarms)
     PLAY_MODEL_NAME();
   }
 #endif
-  pulsesStart();
+
+  // Mixer should only be restarted
+  // if we are switching between models,
+  // not on first boot (started later on)
+  if (mixerTaskStarted()) {
+    pulsesStart();
+  }
 
 #if defined(SDCARD)
   referenceModelAudioFiles();
