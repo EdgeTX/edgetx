@@ -31,7 +31,8 @@ constexpr const char *RGBSTRING = "RGB(";
 
 ThemePersistance themePersistance;
 
-// read a YAML file - TODO: should this be in sdcard header file?
+// prototype for SD card function to read a YAML file
+// TODO: should this be in sdcard header file?
 enum class ChecksumResult;
 extern const char* readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result);
 
