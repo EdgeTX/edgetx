@@ -157,7 +157,7 @@ void checkValidMCU(void)
 #endif
 
   if(idcode != TARGET_IDCODE) {
-    runFatalErrorScreen("WRONG MCU");
+    runFatalErrorScreen("Wrong MCU");
   }
 }
 
