@@ -248,8 +248,8 @@ QString ModuleData::subTypeToString(int type) const
   };
 
   static const char * PpmSubTypeStrings[PPM_NUM_SUBTYPES] = {
-    "NOTLM",
-    "MLINK"
+    "No Telemetry",
+    "MLink"
   };
 
   if (type < 0)

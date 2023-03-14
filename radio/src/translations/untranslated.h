@@ -134,7 +134,7 @@
 #define TR_R9M_FCC_POWER_VALUES        "10mW","100mW","500mW","1W (auto)"
 #define TR_R9M_LBT_POWER_VALUES        "25mW 8CH","25mW 16CH","200mW NoTele","500mW NoTele"
 
-#define TR_PPM_PROTOCOLS               "NOTLM","MLINK"
+#define TR_PPM_PROTOCOLS               TR("No Telem", "No Telemetry"),"MLink"
 #define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
 
 #define TR_MULTI_PROTOCOLS             "FlySky","Hubsan","FrSkyD","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX","SLT","CX10","CG023", \
