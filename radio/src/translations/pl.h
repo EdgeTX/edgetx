@@ -48,7 +48,7 @@
 #define TR_MMMINV              "---","REV"
 #define TR_VBEEPMODE           "Cichy","Alarm","BezPr","Wsz."
 #define TR_VBLMODE             TR("Wył","Wyłącz"),TR("Przy","Przycisk"),TR("Drąż","Drązki"),"Oba",TR("Zał","Włącz")
-#define TR_TRNMODE             "Wył","Dodaj","Zastąp"
+#define TR_TRNMODE             "Wył",TR("+=","Dodaj"),TR(":=","Zastąp")
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
 #define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
