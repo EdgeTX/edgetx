@@ -540,7 +540,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         *theme = editedTheme;
 
         theme->serialize();
-        
+
         // if the theme info currently displayed
         // were changed, update the UI
         if (themeIdx == currentTheme) {
@@ -552,6 +552,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
         // if the active theme changed, re-apply it
         if (themeIdx == tp->getThemeIndex()) {
+          // Update saved them name in case it was changed.
+          tp->setDefaultTheme(themeIdx);
           theme->applyTheme();
           TabsGroup::refreshTheme();
         }
