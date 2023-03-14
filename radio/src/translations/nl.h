@@ -48,7 +48,7 @@
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           "Stil","Alarm","NoKey","Alles"
 #define TR_VBLMODE             "UIT",TR("Keys","Toetsen"),TR("Stick","Sticks"),"Beide","AAN"
-#define TR_TRNMODE             "UIT","Add","Replace"
+#define TR_TRNMODE             "UIT",TR("+=","Add"),TR(":=","Replace")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"

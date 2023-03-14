@@ -49,7 +49,7 @@
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           TR("Silen","Silente"),TR("Avvis","Avvisi"),TR("Notst","No Tasti"),"Tutti"
 #define TR_VBLMODE             TR("OFF","Spenta"),"Tasti",TR("Stks","Sticks"),"Tutti",TR("ON","Accesa")
-#define TR_TRNMODE             "OFF","Add.","Sost."
+#define TR_TRNMODE             "OFF",TR("+=","Add"),TR(":=","Sost.")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
