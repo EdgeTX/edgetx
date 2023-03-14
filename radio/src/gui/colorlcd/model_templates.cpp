@@ -24,8 +24,6 @@
 #include "standalone_lua.h"
 #include "str_functions.h"
 
-std::function<void(void)> TemplatePage::update = nullptr;
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -96,7 +94,7 @@ void TemplatePage::onEvent(event_t event)
 class SelectTemplate : public TemplatePage
 {
  public:
-  SelectTemplate(TemplatePage* tp, std::string folder) : templateFolderPage(tp)
+  SelectTemplate(SelectTemplateFolder* tp, std::string folder) : templateFolderPage(tp)
   {
     header.setTitle(STR_SELECT_TEMPLATE);
 
@@ -138,26 +136,8 @@ class SelectTemplate : public TemplatePage
         auto tb = new TextButton(
             listWindow, rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2}, name,
             [=]() -> uint8_t {
-              // Read model template
-              loadModelTemplate((name + YAML_EXT).c_str(), path);
-              storageDirty(EE_MODEL);
-              storageCheck(true);
-              // Dismiss template pages
               deleteLater();
-              templateFolderPage->deleteLater();
-#if defined(LUA)
-              // If there is a wizard Lua script, fire it up
-              snprintf(buffer, LEN_BUFFER, "%s/%s%s", path, name.c_str(),
-                       SCRIPT_EXT);
-              if (f_stat(buffer, 0) == FR_OK) {
-                luaExec(buffer);
-                // Need to update() the ModelCategoryPageBody before attaching
-                // StandaloneLuaWindow to not mess up focus
-                update();
-                update = nullptr;
-                StandaloneLuaWindow::instance()->attach();
-              }
-#endif
+              templateFolderPage->doUpdate(folder, name);
               return 0;
             });
         tb->setFocusHandler([=](bool active) {
@@ -183,19 +163,19 @@ class SelectTemplate : public TemplatePage
   }
 
  protected:
-  TemplatePage* templateFolderPage;
+  SelectTemplateFolder* templateFolderPage;
 };
 
-SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
+SelectTemplateFolder::SelectTemplateFolder(std::function<void(std::string folder, std::string)> update)
 {
-  TemplatePage::update = update;
+  this->update = update;
 
   header.setTitle(STR_SELECT_TEMPLATE_FOLDER);
 
   auto tfb = new TextButton(listWindow,
                             rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2},
                             STR_BLANK_MODEL, [=]() -> uint8_t {
-                              deleteLater();
+                              doUpdate("", "");
                               return 0;
                             });
   tfb->setFocusHandler([=](bool active) {
@@ -258,9 +238,4 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
   }
 
   lv_group_focus_obj(tfb->getLvObj());
-}
-
-SelectTemplateFolder::~SelectTemplateFolder()
-{
-  if (update) update();
 }

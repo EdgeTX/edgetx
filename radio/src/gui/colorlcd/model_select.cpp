@@ -707,21 +707,44 @@ void ModelLabelsWindow::newModel()
   storageFlushCurrentModel();
   storageCheck(true);
 
-  // Create a new blank ModelCell and activate it first, createmodel() will modify
-  // the model in memory.
-  auto newCell = modelslist.addModel("", false);
-  modelslist.setCurrentModel(newCell);
+  new SelectTemplateFolder([=](std::string folder, std::string name) {
+    // Create a new blank ModelCell and activate it first, createmodel() will modify
+    // the model in memory.
+    auto newCell = modelslist.addModel("", false);
+    modelslist.setCurrentModel(newCell);
 
-  // Make the new model
-  createModel();
-
-  new SelectTemplateFolder([=]() {
-    // On complete update the current cell's data
-    modelslist.updateCurrentModelCell();
+    // Make the new model
+    createModel();
 
     // Close Window
     auto w = Layer::back();
     if (w) w->onCancel();
+
+    // Check for not 'Blank Model'
+    if (name.size() > 0)
+    {
+      static constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+
+      char path[LEN_BUFFER + 1];
+      snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
+
+      // Read model template
+      loadModelTemplate((name + YAML_EXT).c_str(), path);
+      storageFlushCurrentModel();
+      storageCheck(true);
+
+      // Update the current cell's data
+      modelslist.updateCurrentModelCell();
+
+#if defined(LUA)
+      // If there is a wizard Lua script, fire it up
+      snprintf(path, LEN_BUFFER, "%s/%s%s", path, name.c_str(), SCRIPT_EXT);
+      if (f_stat(path, 0) == FR_OK) {
+        luaExec(path);
+        StandaloneLuaWindow::instance()->attach();
+      }
+#endif
+    }
   });
 }
 
