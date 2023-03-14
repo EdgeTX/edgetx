@@ -468,7 +468,7 @@
 #define TR_TIMEZONE                    "Fuseau horaire"
 #define TR_ADJUST_RTC                  TR("Ajust. RTC", "Ajust. heure auto")
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Ordre voies RX","Ordre des voies préféré")
+#define TR_DEF_CHAN_ORD                TR("Ordre voies RX","Ordre des voies préféré")
 #define TR_STICKS                      "Manches"
 #define TR_POTS                        "Potentiomètres"
 #define TR_SWITCHES                    "Inters"

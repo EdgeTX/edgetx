@@ -461,7 +461,7 @@
 #define TR_TIMEZONE                    "Tids zone"
 #define TR_ADJUST_RTC                  "Juster RTC"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Rx kanal ræk.", "Standard kanal rækkefølge")
+#define TR_DEF_CHAN_ORD                TR("Rx kanal ræk.", "Standard kanal rækkefølge")
 #define TR_STICKS                      "Pinde"
 #define TR_POTS                        "Drejekontakt"
 #define TR_SWITCHES                    "Kontakter"

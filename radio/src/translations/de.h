@@ -460,7 +460,7 @@
 #define TR_TIMEZONE                    TR("Zeitzone", "GPS-Zeitzone +/-Std")
 #define TR_ADJUST_RTC                  TR("GPSzeit setzen", "Uhrzeit per GPS setzen")
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Kanal CH1-4", "Kanalvoreinstellung")
+#define TR_DEF_CHAN_ORD                TR("Kanal CH1-4", "Kanalvoreinstellung")
 #define TR_STICKS                      "Knüppel"
 #define TR_POTS                        "Potis"
 #define TR_SWITCHES                    "Schalter"

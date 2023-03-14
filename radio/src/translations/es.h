@@ -456,7 +456,7 @@
 #define TR_TIMEZONE            TR("Zona horaria", INDENT "Zona horaria")
 #define TR_ADJUST_RTC          TR("Ajustar RTC", "Ajustar RTC")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        TR("Rx Orden canal", "Orden habitual canales")
+#define TR_DEF_CHAN_ORD        TR("Rx Orden canal", "Orden habitual canales")
 #define TR_STICKS              "Sticks"
 #define TR_POTS                "Pots"
 #define TR_SWITCHES            "Switches"

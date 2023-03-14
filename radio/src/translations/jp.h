@@ -455,7 +455,7 @@
 #define TR_TIMEZONE                    "タイムゾーン"
 #define TR_ADJUST_RTC                  "内蔵時計修正"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Rx channel ord", "チャンネルマップ初期値")
+#define TR_DEF_CHAN_ORD                TR("Def chan order", "チャンネルマップ初期値")
 #define TR_STICKS                      "スティック"
 #define TR_POTS                        "ダイヤル"
 #define TR_SWITCHES                    "スイッチ"

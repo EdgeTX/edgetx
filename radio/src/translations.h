@@ -388,7 +388,7 @@ extern const char STR_FLYSKY_TELEMETRY[];
 extern const char STR_PITCH_AT_ZERO[];
 extern const char STR_PITCH_AT_MAX[];
 extern const char STR_REPEAT_AT_ZERO[];
-extern const char STR_RXCHANNELORD[];
+extern const char STR_DEF_CHAN_ORD[];
 extern const char STR_STICKS[];
 extern const char STR_POTS[];
 extern const char STR_SWITCHES[];

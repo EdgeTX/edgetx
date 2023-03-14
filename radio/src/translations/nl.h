@@ -459,7 +459,7 @@
 #define TR_TIMEZONE            TR("Tijdzone", "GPS-Tijdzone +/-Std")
 #define TR_ADJUST_RTC          TR("Klok instellen", "Klok middels GPS instellen")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        TR("Kan.Volgorde", "Kanaalvolgorde")
+#define TR_DEF_CHAN_ORD        TR("Kan.Volgorde", "Kanaalvolgorde")
 #define TR_STICKS              "Sticks"
 #define TR_POTS                "Pots"
 #define TR_SWITCHES            TR("Switches","Schakelaars")

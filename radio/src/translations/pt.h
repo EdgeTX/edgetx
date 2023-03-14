@@ -460,7 +460,7 @@
 #define TR_TIMEZONE            "Time Zone"
 #define TR_ADJUST_RTC          TR("Adjust RTC", "Adjust RTC")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        "Ordem Canal RX"
+#define TR_DEF_CHAN_ORD        "Ordem Canal RX"
 #define TR_STICKS              "Sticks"
 #define TR_POTS                "Pots"
 #define TR_SWITCHES            "Switches"

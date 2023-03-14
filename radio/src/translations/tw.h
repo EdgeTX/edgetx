@@ -454,7 +454,7 @@
 #define TR_TIMEZONE                    "時區"
 #define TR_ADJUST_RTC                  "時鐘設置"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("通道順序", "默認通道順序")
+#define TR_DEF_CHAN_ORD                TR("通道順序", "默認通道順序")
 #define TR_STICKS                      "搖桿"
 #define TR_POTS                        "電位器"
 #define TR_SWITCHES                    "開關"

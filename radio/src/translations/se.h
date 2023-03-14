@@ -476,7 +476,7 @@
 #define TR_TIMEZONE                     "Tidszon"
 #define TR_ADJUST_RTC                   "Justera RTC"
 #define TR_GPS                          "GPS"
-#define TR_RXCHANNELORD                 TR("Kanalordn. Rx","Kanalordning i Rx")
+#define TR_DEF_CHAN_ORD                 TR("Kanalordn. Rx","Kanalordning i Rx")
 #define TR_STICKS                       "Spakar"
 #define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"

@@ -460,7 +460,7 @@
 #define TR_TIMEZONE                    "Časové pásmo"
 #define TR_ADJUST_RTC                  TR3("Čas z GPS", "Použít čas z GPS", "Použít čas z GPS")
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Pořadí kanálů", "Výchozí pořadí kanálů")
+#define TR_DEF_CHAN_ORD                TR("Pořadí kanálů", "Výchozí pořadí kanálů")
 #define TR_STICKS                      "Páky"
 #define TR_POTS                        "Potenciometry"
 #define TR_SWITCHES                    "Spínače"

@@ -457,7 +457,7 @@
 #define TR_TIMEZONE            TR("Strefa czasowa" ,"Strefa czasowa GPS")
 #define TR_ADJUST_RTC          TR("RegulujRTC", "RegulujRTC")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        TR("KolejnKan.RX", "Bazowa kolejność kanałów")
+#define TR_DEF_CHAN_ORD        TR("KolejnKan.RX", "Bazowa kolejność kanałów")
 #define TR_STICKS              "Drążki"
 #define TR_POTS                "Pots"
 #define TR_SWITCHES            "Przełącz"

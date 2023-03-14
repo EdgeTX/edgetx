@@ -462,7 +462,7 @@
 #define TR_TIMEZONE            "Ora locale"
 #define TR_ADJUST_RTC          TR(INDENT "Agg. RTC", "Aggiusta RTC")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        "Ordine CH RX"
+#define TR_DEF_CHAN_ORD        "Ordine CH RX"
 #define TR_STICKS              "Sticks"
 #define TR_POTS                "Pot."
 #define TR_SWITCHES            "Interutt."

@@ -700,9 +700,9 @@ void RadioSetupPage::build(FormWindow * window)
              GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
 #endif
 
-  // RX channel order
+  // Default channel order
   line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0,
+  new StaticText(line, rect_t{}, STR_DEF_CHAN_ORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
   choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
                       GET_SET_DEFAULT(g_eeGeneral.templateSetup));

@@ -640,7 +640,7 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
-        lcdDrawTextAlignedLeft(y, STR_RXCHANNELORD); // RAET->AETR
+        lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
         for (uint8_t i=1; i<=4; i++) {
           putsChnLetter(RADIO_SETUP_2ND_COLUMN - FW + i*FW, y, channelOrder(i), attr);
         }
