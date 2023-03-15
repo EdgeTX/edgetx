@@ -106,12 +106,10 @@ class USBChannelButtonSel : public ButtonMatrix
 {
   public:
     USBChannelButtonSel(Window* parent, const rect_t& rect, uint8_t channel,
-                    std::function<int()> _getValue,
                     std::function<void(int)> _setValue) :
       ButtonMatrix(parent, rect),
-      channel(channel),
-      _getValue(std::move(_getValue)),
-      _setValue(std::move(_setValue))
+      m_channel(channel),
+      m_setValue(std::move(_setValue))
     {
       initBtnMap(USBCH_BTNMX_COL, USBJ_BUTTON_SIZE);
       char snum[5];
@@ -123,43 +121,28 @@ class USBChannelButtonSel : public ButtonMatrix
 
       lv_obj_add_event_cb(lvobj, btnsel_event_cb, LV_EVENT_DRAW_PART_BEGIN, this);
 
-      memset(_btns, 0, USBJ_BUTTON_SIZE);
-      for (uint8_t ch = 0; ch < USBJ_BUTTON_SIZE; ch++) {
-        if(ch == channel) continue;
-        USBJoystickChData * cch = usbJChAddress(ch);
+      memset(m_btns, 0, USBJ_BUTTON_SIZE);
+      for (uint8_t ch = 0; ch < USBJ_MAX_JOYSTICK_CHANNELS; ch++) {
+        if (ch != m_channel) {
+          USBJoystickChData * cch = usbJChAddress(ch);
 
-        if(cch->mode == USBJOYS_CH_BUTTON) {
-          uint8_t last = cch->lastBtnNum();
-          for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] = 1;
+          if (cch->mode == USBJOYS_CH_BUTTON) {
+            uint8_t last = cch->lastBtnNum();
+            for(uint8_t b = cch->btn_num; b <= last; b++) {
+              m_btns[b] = 1;
+            }
+          }
         }
       }
       updateState();
     }
 
-    void setChannel(uint8_t ch)
-    {
-      channel = ch;
-      invalidate();
-    }
-
-    void setSetValueHandler(std::function<void(int)> handler)
-    {
-      _setValue = std::move(handler);
-    }
-
-    void setGetValueHandler(std::function<int()> handler)
-    {
-      _getValue = std::move(handler);
-    }
-
     void setValue(int val)
     {
-      if (_setValue) {
-        _setValue(val);
+      if (m_setValue) {
+        m_setValue(val);
       }
     }
-
-    int getValue() const { return _getValue(); }
 
     void onPress(uint8_t btn_id) override
     {
@@ -171,24 +154,23 @@ class USBChannelButtonSel : public ButtonMatrix
 
     uint8_t getBtnState(uint8_t id)
     {
-      if (id < USBJ_BUTTON_SIZE) return _btns[id];
+      if (id < USBJ_BUTTON_SIZE) return m_btns[id];
       return 0;
     }
 
     void updateState()
     {
-      USBJoystickChData * cch = usbJChAddress(channel);
+      USBJoystickChData * cch = usbJChAddress(m_channel);
 
-      for(uint8_t i = 0; i < USBJ_BUTTON_SIZE; i++) _btns[i] &= 1;
+      for(uint8_t i = 0; i < USBJ_BUTTON_SIZE; i++) m_btns[i] &= 1;
       uint8_t last = cch->lastBtnNum();
-      for(uint8_t b = cch->btn_num; b <= last; b++) _btns[b] |= 2;
+      for(uint8_t b = cch->btn_num; b <= last; b++) m_btns[b] |= 2;
     }
 
   protected:
-    uint8_t channel = 0;
-    std::function<int()> _getValue;
-    std::function<void(int)> _setValue;
-    uint8_t _btns[USBJ_BUTTON_SIZE];
+    uint8_t m_channel = 0;
+    std::function<void(int)> m_setValue;
+    uint8_t m_btns[USBJ_BUTTON_SIZE];
 };
 
 static void btnsel_event_cb(lv_event_t* e)
@@ -298,6 +280,7 @@ class USBChannelEditWindow : public Page
     void buildHeader(Window *window)
     {
       header.setTitle(STR_USBJOYSTICK_LABEL);
+      header.setTitle2(getSourceString(MIXSRC_CH1 + channel));
 
       statusBar = new USBChannelEditStatusBar(
           window,
@@ -364,7 +347,7 @@ class USBChannelEditWindow : public Page
       line = m_btnModeFrame->newLine(&grid);
 #endif
       _BtnNumSel = new USBChannelButtonSel(line, rect_t{},
-                                           channel, GET_DEFAULT(cch->btn_num), SET_VALUE_WUPDATE(cch->btn_num));
+                                           channel, SET_VALUE_WUPDATE(cch->btn_num));
 
       m_axisModeLine = form->newLine(&grid);
       new StaticText(m_axisModeLine, rect_t{}, STR_USBJOYSTICK_CH_AXIS, 0, COLOR_THEME_PRIMARY1);
