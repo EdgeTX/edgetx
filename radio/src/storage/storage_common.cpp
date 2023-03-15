@@ -132,6 +132,19 @@ void postModelLoad(bool alarms)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
   }
+
+  // fix yaml tag receiver: not written in 2.8
+  ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
+  ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
+
+  for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+    if(intModule->pxx2.receiverName[receiverIdx][0])
+        intModule->pxx2.receivers |= (1 << receiverIdx);
+
+    if(extModule->pxx2.receiverName[receiverIdx][0])
+        extModule->pxx2.receivers |= (1 << receiverIdx);
+  }
+  storageDirty(EE_MODEL);
 #endif
 
 #if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)

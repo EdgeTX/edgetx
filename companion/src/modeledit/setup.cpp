@@ -695,6 +695,12 @@ void ModulePanel::update()
   ui->registrationIdLabel->setVisible(mask & MASK_ACCESS);
   ui->registrationId->setVisible(mask & MASK_ACCESS);
 
+  // fix 2.8 not writing yaml tag receiver:
+  for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+    if(module.access.receiverName[receiverIdx][0])
+      module.access.receivers |= (1 << receiverIdx);
+  }
+
   ui->rx1Label->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
   ui->clearRx1->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
   ui->rx1->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 0)));
