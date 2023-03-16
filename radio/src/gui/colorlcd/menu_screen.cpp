@@ -75,9 +75,5 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
     tab = tabIdx;
   }
 
-  auto tabs = getTabs();
-  if (tab >= tabs - 1) {
-    tab = tabs - 2;
-  }
   setCurrentTab(tab);
 }
