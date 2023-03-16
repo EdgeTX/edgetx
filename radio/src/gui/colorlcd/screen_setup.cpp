@@ -138,7 +138,16 @@ void ScreenAddPage::build(FormWindow * window)
 
         auto tab = new ScreenSetupPage(menu, pageIndex, newIdx);
         std::string title(STR_MAIN_VIEW_X);
-        title.back() = newIdx + '1';
+        if (newIdx >= 9)
+        {
+          title[title.size() - 2] = '1';
+          title.back() = (newIdx - 9) + '0';
+        }
+        else
+        {
+          title[title.size() - 2] = newIdx + '1';
+          title.back() = ' ';
+        }
         tab->setTitle(title);
         tab->setIcon(ICON_THEME_VIEW1 + newIdx);
 
