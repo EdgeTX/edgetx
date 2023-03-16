@@ -133,7 +133,7 @@ void postModelLoad(bool alarms)
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
   }
 
-  // fix yaml tag receiver: not written in 2.8
+  // fix colorLCD radios not writing yaml tag receivers
   ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
   ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
 
