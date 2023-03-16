@@ -150,7 +150,7 @@ void ScreenAddPage::build(FormWindow * window)
         menu->addTab(tab);
         menu->setCurrentTab(pageIndex);
 
-        if (menu->getTabs() < MAX_CUSTOM_SCREENS) {
+        if (menu->getTabs() <= MAX_CUSTOM_SCREENS) {
           menu->addTab(new ScreenAddPage(menu, menu->getTabs()));
         }
       }

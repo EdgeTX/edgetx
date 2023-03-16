@@ -54,7 +54,7 @@
   #define DEF_TRAINER_CHANNELS         8
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        60
-  #define MAX_CUSTOM_SCREENS           5
+  #define MAX_CUSTOM_SCREENS           10
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32

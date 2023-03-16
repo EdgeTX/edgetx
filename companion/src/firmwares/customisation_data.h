@@ -30,7 +30,7 @@
 
 */
 
-constexpr int MAX_CUSTOM_SCREENS      {5};
+constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int THEME_NAME_LEN          {8};
 constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int LEN_ZONE_OPTION_STRING  {8};
