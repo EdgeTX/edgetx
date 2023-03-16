@@ -1251,3 +1251,4 @@
 #define TR_VOICE_SLOVAK                 "Slovakisk"
 #define TR_VOICE_SWEDISH                "Svensk"
 #define TR_VOICE_TAIWANESE              "Taiwanesisk"
+#define TR_VOICE_JAPANESE               "Japansk"

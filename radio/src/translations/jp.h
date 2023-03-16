@@ -31,8 +31,7 @@
 
 #define TR_MIN_PLURAL2 2
 #define TR_MAX_PLURAL2 2
-// For this number of minute in the last decimal place singular form is used in
-// plural
+// For this number of minute in the last decimal place singular form is used in plural
 #define TR_USE_SINGULAR_IN_PLURAL 1
 #define TR_USE_PLURAL2_SPECIAL_CASE 0
 // If the number of minutes is above this value PLURAL2 is used
@@ -925,7 +924,6 @@
 #define TR_UNIT                        "ユニット"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "新規追加"
 #define TR_CHANNELRANGE                TR(INDENT "Ch. Range", INDENT "チャンネル範囲")
-#define TR_RXFREQUENCY                 TR("Rx Freqency", "受信サーボ周波数")
 #define TR_ANTENNACONFIRM1             "外部アンテナ"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "内部","確認","モデル毎","内部＋外部"
@@ -1233,3 +1231,4 @@
 #define TR_VOICE_SLOVAK                 "スロバキア-SK"
 #define TR_VOICE_SWEDISH                "スウェーデン-SV"
 #define TR_VOICE_TAIWANESE              "中文-TW"
+#define TR_VOICE_JAPANESE               "日本-JP"

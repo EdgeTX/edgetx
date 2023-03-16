@@ -1234,3 +1234,4 @@
 #define TR_VOICE_SLOVAK               "斯洛伐克語"
 #define TR_VOICE_SWEDISH              "瑞典語"
 #define TR_VOICE_TAIWANESE            "中文-台灣國語"
+#define TR_VOICE_JAPANESE             "日文"
