@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 //#include "board.h"
-
+#define BLOCK_SIZE 512
 /* Includes ------------------------------------------------------------------*/
 typedef enum
 {

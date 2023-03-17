@@ -23,6 +23,8 @@
 #include "hal.h"
 //#include "board.h"
 #include "debug.h"
+#include "delays_driver.h"
+
 #include "sdio_sd.h"
 
 ////#define SDIO_STATIC_FLAGS               ((uint32_t)0x000005FF)
@@ -65,7 +67,7 @@
 //#define SD_SINGLE_BUS_SUPPORT           ((uint32_t)0x00010000)
 //#define SD_CARD_LOCKED                  ((uint32_t)0x02000000)
 //
-//#define SD_DATATIMEOUT                  ((uint32_t)1000000)
+#define SD_DATATIMEOUT                  ((uint32_t)1000000)
 //#define SD_0TO7BITS                     ((uint32_t)0x000000FF)
 //#define SD_8TO15BITS                    ((uint32_t)0x0000FF00)
 //#define SD_16TO23BITS                   ((uint32_t)0x00FF0000)
@@ -110,7 +112,6 @@
 //#define SD_CMD_ERASE_GRP_START                     ((uint8_t)35) /*!< To set the address of the first write block to be erased.
 //                                                                  (For MMC card only spec 3.31) */
 //
-//#define SD_CMD_ERASE_GRP_END                       ((uint8_t)36) /*!< To set the address of the last write block of the
 //                                                                  continuous range to be erased. (For MMC card only spec 3.31) */
 //
 //#define SD_CMD_ERASE                               ((uint8_t)38)
@@ -339,7 +340,7 @@ SD_Error SD_Init(void)
 
   return errorstatus;
 }
-#if 0
+
 
 /**
   * @brief  Gets the cuurent sd card data transfer status.
@@ -351,19 +352,19 @@ SD_Error SD_Init(void)
   */
 SDTransferState SD_GetStatus(void)
 {
-  SDCardState cardstate = SD_GetState();
+  HAL_SD_CardStateTypeDef cardstate = HAL_SD_GetCardState(&sdio);
 
-  if (cardstate == SD_CARD_TRANSFER) {
+  if (cardstate == HAL_SD_CARD_TRANSFER) {
     return SD_TRANSFER_OK;
   }
-  else if (cardstate == SD_CARD_ERROR) {
+  else if (cardstate == HAL_SD_CARD_ERROR) {
     return SD_TRANSFER_ERROR;
   }
   else {
     return SD_TRANSFER_BUSY;
   }
 }
-
+#if 0
 /**
   * @brief  Returns the current card's state.
   * @param  None
@@ -1012,7 +1013,7 @@ OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint1
   return errorstatus;
 #endif
 }
-#if 0
+
 /**
   * @brief  Allows to read blocks from a specified address  in a card.  The Data
   *         transfer can be managed by DMA mode or Polling mode.
@@ -1030,6 +1031,13 @@ OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint1
   */
 OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
+  HAL_StatusTypeDef res = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, NumberOfBlocks);
+  if(res == HAL_OK)
+    return SD_OK;
+
+  return SD_ERROR;
+
+#if 0
   SD_Error errorstatus = SD_OK;
   TransferError = SD_OK;
   TransferEnd = 0;
@@ -1079,11 +1087,11 @@ OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr,
 
   errorstatus = CmdResp1Error(SD_CMD_READ_MULT_BLOCK);
 
-  if (errorstatus != SD_OK) {
     return errorstatus;
   }
 
   return errorstatus;
+#endif
 }
 
 /**
@@ -1096,6 +1104,22 @@ OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr,
   */
 OPTIMIZE("O0") SD_Error SD_WaitReadOperation(uint32_t timeout)
 {
+  HAL_SD_StateTypeDef state = HAL_SD_GetState(&sdio);
+  if(state == HAL_SD_STATE_READY || state == HAL_SD_STATE_TRANSFER)
+    return SD_OK;
+
+  timeout = 100;
+
+  while((HAL_SD_GetState(&sdio) == HAL_SD_STATE_RECEIVING) && (timeout > 0)) {
+    delay_ms(1);
+    timeout--;
+  }
+
+  if(timeout > 0 && HAL_SD_GetState(&sdio) == HAL_SD_STATE_TRANSFER)
+    return SD_OK;
+
+  return SD_ERROR;
+#if 0
   SD_Error errorstatus = SD_OK;
 
   while (!DMAEndOfTransfer && !TransferEnd && (TransferError == SD_OK) && (timeout > 0)) {
@@ -1136,6 +1160,7 @@ OPTIMIZE("O0") SD_Error SD_WaitReadOperation(uint32_t timeout)
   else {
     return errorstatus;
   }
+#endif
 }
 
 /**
@@ -1154,9 +1179,16 @@ OPTIMIZE("O0") SD_Error SD_WaitReadOperation(uint32_t timeout)
   */
 OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize)
 {
+  HAL_StatusTypeDef res = HAL_SD_WriteBlocks(&sdio,  writebuff,  WriteAddr,  1, SD_DATATIMEOUT);
+  if(res == HAL_OK)
+    return SD_OK;
+
+  return SD_ERROR;
+#if 0
   SD_Error errorstatus = SD_OK;
 
-  TransferError = SD_OK;
+  TransferError = SD_OK;e the
+  * GNU General Public License for more details.
   TransferEnd = 0;
   StopCondition = 0;
 
@@ -1208,6 +1240,7 @@ OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, ui
   SDIO_DataConfig(&SDIO_DataInitStructure);
 
   return errorstatus;
+#endif
 }
 
 /**
@@ -1227,6 +1260,11 @@ OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, ui
   */
 OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
+  HAL_StatusTypeDef res = HAL_SD_WriteBlocks_DMA(&sdio, writebuff, WriteAddr, NumberOfBlocks);
+  if(res == HAL_OK)
+    return SD_OK;
+  return SD_ERROR;
+#if 0
   SD_Error errorstatus = SD_OK;
 
   TransferError = SD_OK;
@@ -1312,8 +1350,8 @@ OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAd
   SDIO_DataConfig(&SDIO_DataInitStructure);
 
   return errorstatus;
+#endif
 }
-
 
 /**
   * @brief  This function waits until the SDIO DMA data transfer is finished.
@@ -1325,6 +1363,22 @@ OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAd
   */
 OPTIMIZE("O0") SD_Error SD_WaitWriteOperation(uint32_t timeout)
 {
+  HAL_SD_StateTypeDef state = HAL_SD_GetState(&sdio);
+  if(state == HAL_SD_STATE_READY || state == HAL_SD_STATE_TRANSFER)
+    return SD_OK;
+
+  timeout = 100;
+
+  while((HAL_SD_GetState(&sdio) == HAL_SD_STATE_PROGRAMMING) && (timeout > 0)) {
+    delay_ms(1);
+    timeout--;
+  }
+
+  if(timeout > 0 && HAL_SD_GetState(&sdio) == HAL_SD_STATE_TRANSFER)
+    return SD_OK;
+
+  return SD_ERROR;
+#if 0
   SD_Error errorstatus = SD_OK;
 
   while (!DMAEndOfTransfer && !TransferEnd && (TransferError == SD_OK) && (timeout > 0)) {
@@ -1365,8 +1419,9 @@ OPTIMIZE("O0") SD_Error SD_WaitWriteOperation(uint32_t timeout)
   else {
     return errorstatus;
   }
+#endif
 }
-
+#if 0
 /**
   * @brief  Gets the cuurent data transfer state.
   * @param  None
