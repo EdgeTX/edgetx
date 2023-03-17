@@ -691,7 +691,8 @@ void SimulatorWidget::setupJoysticks()
       joysticksEnabled = true;
     }
     else {
-      QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot open joystick, joystick disabled"));
+      if (!g.disableJoystickWarning())
+        QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot open joystick, joystick disabled"));
     }
   }
   else if (joystick) {
