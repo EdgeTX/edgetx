@@ -46,7 +46,16 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
     if (customScreens[index]) {
       auto tab = new ScreenSetupPage(this, getTabs(), index);
       std::string title(STR_MAIN_VIEW_X);
-      title.back() = index + '1';
+      if (index >= 9)
+      {
+        title[title.size() - 2] = '1';
+        title.back() = (index - 9) + '0';
+      }
+      else
+      {
+        title[title.size() - 2] = index + '1';
+        title.back() = ' ';
+      }
       tab->setTitle(title);
       tab->setIcon(ICON_THEME_VIEW1 + index);
 
@@ -66,9 +75,5 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
     tab = tabIdx;
   }
 
-  auto tabs = getTabs();
-  if (tab >= tabs - 1) {
-    tab = tabs - 2;
-  }
   setCurrentTab(tab);
 }
