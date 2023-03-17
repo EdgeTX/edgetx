@@ -28,8 +28,9 @@
 #define BTN_MATRIX_COL 8
 #define BTN_HEIGHT 20
 #define FOOTER_HEIGHT 20
-#define DURSW_ROW 0
-#define DURSW_COL 4
+#define V2_COL_CNT 1
+#define ANDSW_ROW 0
+#define ANDSW_COL 3
 
 // Switch grid
 static const lv_coord_t col_dsc[] = {
@@ -39,7 +40,7 @@ static const lv_coord_t col_dsc[] = {
 
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {
-    60, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), 50,
+    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50,
     50, LV_GRID_TEMPLATE_LAST};
 
 #else  // Portrait
@@ -47,8 +48,9 @@ static const lv_coord_t f_col_dsc[] = {
 #define BTN_MATRIX_COL 4
 #define BTN_HEIGHT 21
 #define FOOTER_HEIGHT 40
-#define DURSW_ROW 1
-#define DURSW_COL 2
+#define V2_COL_CNT 2
+#define ANDSW_ROW 1
+#define ANDSW_COL 1
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
@@ -96,27 +98,27 @@ class LogicalSwitchDisplayFooter : public Window
 
     lsV2 = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, 1,
+    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, V2_COL_CNT,
                          LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_set_style_text_color(lsV2, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsAnd = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, 3, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
     lv_obj_set_style_text_color(lsAnd, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsDuration = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, DURSW_COL, 1,
-                         LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
+    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 1, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
     lv_obj_set_style_text_color(lsDuration, makeLvColor(COLOR_THEME_PRIMARY2),
                                 0);
 
     lsDelay = lv_label_create(lvobj);
     lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, DURSW_COL + 1, 1,
-                         LV_GRID_ALIGN_CENTER, DURSW_ROW, 1);
+    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 2, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
     lv_obj_set_style_text_color(lsDelay, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lv_obj_update_layout(parent->getLvObj());
