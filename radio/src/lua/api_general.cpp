@@ -1304,12 +1304,12 @@ Return the internal GPS position or nil if no valid hardware found
 @retval table representing the current radio position
  * `lat` (number) internal GPS latitude, positive is North
  * `lon` (number) internal GPS longitude, positive is East
- * 'numsat' (number) current number of sats locked in by the GPS sensor
- * 'fix' (boolean) fix status
- * 'alt' (number) internal GPS altitude in 0.1m
- * 'speed' (number) internal GPSspeed in 0.1m/s
- * 'heading'  (number) internal GPS ground course estimation in degrees * 10
- * 'hdop' (number)  internal GPS horizontal dilution of precision
+ * `numsat` (number) current number of sats locked in by the GPS sensor
+ * `fix` (boolean) fix status
+ * `alt` (number) internal GPS altitude in 0.1m
+ * `speed` (number) internal GPSspeed in 0.1m/s
+ * `heading`  (number) internal GPS ground course estimation in degrees * 10
+ * `hdop` (number)  internal GPS horizontal dilution of precision
 
 @status current Introduced in 2.2.2
 */
@@ -2213,6 +2213,88 @@ static int luaSerialRead(lua_State * L)
   return 1;
 }
 
+#if defined(SWSERIALPOWER) && !defined(SIMU)
+/*luadoc
+@function serialGetPower(port_nr)
+
+@param port_nr: valid values are only 0 and 1 on radios that have SWSERIALPOWER defined
+                0 - first serial port, e.g. on TX16S AUX1
+                1 - second serial port, e.g. on TX16S AUX2
+
+@retval value: true for power enabled, false for power disabled.
+
+@retval nil the serial port power control not available on this radio
+
+@status current Introduced in 2.9.0
+
+*/
+static int luaSerialGetPower(lua_State* L)
+{
+  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
+
+  #if defined(AUX_SERIAL)
+    if (port_nr == SP_AUX1)
+    {
+      bool res = serialGetPower(SP_AUX1);
+      lua_pushboolean(L, res);
+      return 1;
+    }
+  #endif
+  #if defined(AUX2_SERIAL)
+    if (port_nr == SP_AUX2)
+    {
+      bool res = serialGetPower(SP_AUX2);
+      lua_pushboolean(L, res);
+      return 1;
+    }
+  #endif
+  return 0;
+}
+
+/*luadoc
+@function serialSetPower(port_nr, value)
+
+@param port_nr: valid values are only 0 and 1 on radios that have SWSERIALPOWER defined
+                0 - first serial port, e.g. on TX16S AUX1
+                1 - second serial port, e.g. on TX16S AUX2
+
+@param value: 0 - disable power
+              1 - enable power
+
+@retval success: true/false.
+
+@status current Introduced in 2.9.0
+
+*/
+static int luaSerialSetPower(lua_State* L)
+{
+  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
+  uint8_t value = luaL_checkunsigned(L, 2) & 0x3;
+
+  if (value < 2)
+  {
+  #if defined(AUX_SERIAL)
+    if (port_nr == SP_AUX1)
+    {
+      serialSetPower(SP_AUX1, value);
+      lua_pushboolean(L, true);
+      return 1;
+    }
+  #endif
+  #if defined(AUX2_SERIAL)
+    if (port_nr == SP_AUX2)
+    {
+      serialSetPower(SP_AUX2, value);
+      lua_pushboolean(L, true);
+      return 1;
+    }
+  #endif
+  }
+  lua_pushboolean(L, false);
+  return 1;
+}
+#endif
+
 #if defined(COLORLCD)
 static int shmVar[16] = {0};
 
@@ -2694,6 +2776,10 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )
   LROT_FUNCENTRY( serialWrite, luaSerialWrite )
   LROT_FUNCENTRY( serialRead, luaSerialRead )
+#if defined(SWSERIALPOWER) && !defined(SIMU)
+  LROT_FUNCENTRY( serialGetPower, luaSerialGetPower )
+  LROT_FUNCENTRY( serialSetPower, luaSerialSetPower )
+#endif
 #if defined(COLORLCD)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
