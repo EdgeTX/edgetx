@@ -311,6 +311,7 @@ const SpektrumSensor spektrumSensors[] = {
   {0,                0,  int16,     NULL,                   UNIT_RAW,                    0} //sentinel
 };
 
+uint8_t gpsAltHigh=0; // Alt Low and High needs to be combined (in 2 diff packets)
 
 //Helpe function declaed later
 void processAS3XPacket(const uint8_t *packet);
@@ -537,13 +538,10 @@ void processSpektrumPacket(const uint8_t *packet)
         value = value | cellIndex;
       }
 
-      if (sensor->i2caddress == I2C_HIGH_CURRENT && sensor->unit == UNIT_AMPS)
+      if (sensor->i2caddress == I2C_HIGH_CURRENT && sensor->unit == UNIT_AMPS) {
         // Spektrum's documents talks says: Resolution: 300A/2048 = 0.196791 A/tick
         // Note that 300/2048 = 0,1464. DeviationTX also uses the 0.196791 figure
         value = value * 196791 / 100000;
-      else if (sensor->i2caddress == I2C_GPS2 && sensor->unit == UNIT_DATETIME) {
-        // Frsky time is HH:MM:SS:00 bcd encodes while spektrum uses 0HH:MM:SS.S
-        value = (value & 0xfffffff0) << 4;
       }
 
       // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
