@@ -92,6 +92,10 @@
 #define FLITECTRL_FLAGS_IS_AS3X_HEADING   0x04 
 #define FLITECTRL_FLAGS_IS_SAFE_ENVELOPE  0x08 
 
+// 1= Test sensor with captured telementry date
+// See  replaceForTestingPackage(const uint8_t *packet) at the end of this file
+#define TEST_CAPTURED_MESSAGE  0
+
 enum SpektrumDataType : uint8_t {
   int8,
   int16,
@@ -311,12 +315,16 @@ const SpektrumSensor spektrumSensors[] = {
   {0,                0,  int16,     NULL,                   UNIT_RAW,                    0} //sentinel
 };
 
-uint8_t gpsAltHigh=0; // Alt Low and High needs to be combined (in 2 diff packets)
+static uint8_t gpsAltHigh=0; // Alt Low and High needs to be combined (in 2 diff packets)
 
-//Helpe function declaed later
-void processAS3XPacket(const uint8_t *packet);
-void processAlpha6Packet(const uint8_t *packet);
-uint8_t  replaceForTestingPackage(const uint8_t *packet);
+//Helpe function declared later
+static void processAS3XPacket(const uint8_t *packet);
+static void processAlpha6Packet(const uint8_t *packet);
+static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec, struct gtm * tp);
+
+#if TEST_CAPTURED_MESSAGE
+static uint8_t  replaceForTestingPackage(const uint8_t *packet);
+#endif
 
 /*  Farzu: All this BCD conversion are completly wrong!! Don't think that any
            of the JETCAT/TURBINE Sensors ever worked..
@@ -403,7 +411,7 @@ void processSpektrumPacket(const uint8_t *packet)
   // highest bit indicates that TM1100 is in use, ignore it
   uint8_t i2cAddress = (packet[2] & 0x7f);
 
-#if 0
+#if TEST_CAPTURED_MESSAGE
   // Only for Testing when we don't have the sensor, but have the data
   if (i2cAddress==I2C_FLITECTRL) { 
     i2cAddress = replaceForTestingPackage(packet);
@@ -572,11 +580,16 @@ void processSpektrumPacket(const uint8_t *packet)
         uint8_t min  = bcdToInt8(packetData[4]); 
         uint8_t hour = bcdToInt8(packetData[5]); 
 
+        struct gtm td;
+        adjustTimeFromUTC(hour,min,sec, &td);
+
         // Depending on the last byte it SETS:  DATE: HEX (YYMMDD01)   TIME: HEX(HHMMSS00)
-        value = (hour << 24) + (min << 16) + (sec << 8);
+        value = (td.tm_hour << 24) + (td.tm_min << 16) + (td.tm_sec << 8);
         setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_DATETIME, 0);
 
-        //TODO: Get UTC DATE from radio? but the DATE don't have timezone to be able to convert to UTC
+        value = ((td.tm_year+1900-2000) << 24) + ((td.tm_mon+1) << 16) + (td.tm_mday << 8) + 1;
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_DATETIME, 0);
+  
 
         // Get Altitude High since we need to combine it with Alt-Low
         gpsAltHigh = bcdToInt8(packetData[7]);   // Save the high part for later (0-99)
@@ -840,10 +853,23 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   storageDirty(EE_MODEL);
 }
 
+extern  int __offtime(const gtime_t * t, long int offset, struct gtm * tp);
+
+static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec, struct gtm * tp) {
+    // Get current UTC date/time 
+    __offtime(&g_rtcTime, - g_eeGeneral.timezone*3600, tp);  
+
+    tp->tm_hour = hour;
+    tp->tm_min  = min;
+    tp->tm_sec  = sec;
+
+    gtime_t newTime = gmktime(tp);
+    __offtime(&newTime, +g_eeGeneral.timezone*3600, tp); 
+}
 
 // AS3X/SAFE flight Controller
 // Contains Flight Mode, and Gyro Settings
-void processAS3XPacket(const uint8_t *packet) {
+static void processAS3XPacket(const uint8_t *packet) {
   const uint8_t * packetData =  packet + 4; // Skip the header
 
   //uint8_t  state = packetData[1];
@@ -853,7 +879,7 @@ void processAS3XPacket(const uint8_t *packet) {
 
   char     text[50];
 
-  sprintf(text,"%d  ",flightMode+1);
+  sprintf(text,"%d ",flightMode+1);
 
   if (flags & FLITECTRL_FLAGS_IS_AS3X_STAB) { strcat(text,"AS3X"); }
 
@@ -867,7 +893,7 @@ void processAS3XPacket(const uint8_t *packet) {
 
 // Alpha6 flight Controller  (Blade Helis based on AR636)
 // Contains Flight Mode, and Gyro Settings
-void processAlpha6Packet(const uint8_t *packet) {
+static void processAlpha6Packet(const uint8_t *packet) {
   const uint8_t * packetData =  packet + 4; // Skip the header
 
   uint8_t  status = packetData[2] & 0x0F;
@@ -875,7 +901,7 @@ void processAlpha6Packet(const uint8_t *packet) {
 
   char     text[50];
 
-  sprintf(text,"%d  ",flightMode);
+  sprintf(text,"%d ",flightMode);
 
   if (flightMode==0) { strcat(text,"NOR"); } 
   else if (flightMode==1) { strcat(text,"INT"); } 
@@ -887,10 +913,10 @@ void processAlpha6Packet(const uint8_t *packet) {
   setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
 }
 
-#if 0
+#if TEST_CAPTURED_MESSAGE
 // For Testing purposes, replace the package for data captured.
 bool testflag = false;
-uint8_t  replaceForTestingPackage(const uint8_t *packet) {
+static uint8_t  replaceForTestingPackage(const uint8_t *packet) {
     // *********** GPS LOC *********************************
     // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
     //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
@@ -899,9 +925,9 @@ uint8_t  replaceForTestingPackage(const uint8_t *packet) {
 
     // *********** GPS STAT *********************************
     // Example 0x17:          0  1    2  3  4  5    6    7
-    //                17 00 | 25 00 | 00 28 17 17 | 06 | 00    
-    //                Spd:002.5k, TimeUTC:17:18:28.00, Sats: 06, AltH=00
-    const char test17data[] = {0x17,0x00,0x25,0x00,0x00,0x28,0x18,0x17,0x06,0x00};
+    //                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
+    //                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
+    const char test17data[] = {0x17,0x00,0x25,0x00,0x00,0x28,0x18,0x21,0x06,0x00};
 
     if (testflag) { memcpy((char*)packet+2, test16data, 16); }
     else { memcpy((char*)packet+2, test17data, 10); }
