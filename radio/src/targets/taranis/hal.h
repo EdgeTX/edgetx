@@ -223,7 +223,7 @@
   // ROTARY_ENCODER_EXTI_LINE1 IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
+    #define EXTI9_5_IRQ_Priority 0
   #endif
   // ROTARY_ENCODER_EXTI_LINE2 IRQ
   #if !defined(USE_EXTI15_10_IRQ)
@@ -263,7 +263,7 @@
   // ROTARY_ENCODER_EXTI_LINE1 IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
+    #define EXTI9_5_IRQ_Priority 0
   #endif
   // ROTARY_ENCODER_EXTI_LINE2 IRQ
   #if !defined(USE_EXTI15_10_IRQ)
@@ -2062,7 +2062,7 @@
   // INTMODULE_HEARTBEAT_EXTI IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
+    #define EXTI9_5_IRQ_Priority 0
   #endif
 #elif defined(RADIO_X9DP2019)
   #define INTMODULE_HEARTBEAT
@@ -2090,7 +2090,7 @@
   // INTMODULE_HEARTBEAT_EXTI IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
+    #define EXTI9_5_IRQ_Priority 0
   #endif
 #endif
 
