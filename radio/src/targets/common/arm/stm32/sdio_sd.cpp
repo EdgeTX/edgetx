@@ -398,7 +398,7 @@ uint8_t SD_Detect(void)
   __IO uint8_t status = SD_PRESENT;
 
   /*!< Check GPIO to detect SD */
-  if ((LL_GPIO_ReadInputPort(SD_PRESENT_GPIO) & SD_PRESENT_LL_GPIO_PIN) == 0) {
+  if ((LL_GPIO_ReadInputPort(SD_PRESENT_GPIO) & SD_PRESENT_LL_GPIO_PIN) != 0) {
     status = SD_NOT_PRESENT;
   }
 
@@ -950,7 +950,7 @@ OPTIMIZE("O0") SD_Error SD_SelectDeselect(uint32_t addr)
 #endif
 OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
 {
-  HAL_StatusTypeDef sdStatus = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, 1);
+  HAL_StatusTypeDef sdStatus = HAL_SD_ReadBlocks(&sdio, readbuff, ReadAddr, 1, SD_DATA_TIMEOUT);
   if(sdStatus != HAL_OK)
     return SD_ERROR;
 
@@ -1031,7 +1031,7 @@ OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint1
   */
 OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
-  HAL_StatusTypeDef res = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, NumberOfBlocks);
+  HAL_StatusTypeDef res = HAL_SD_ReadBlocks(&sdio, readbuff, ReadAddr, NumberOfBlocks, SD_DATA_TIMEOUT);
   if(res == HAL_OK)
     return SD_OK;
 
@@ -1260,7 +1260,7 @@ OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, ui
   */
 OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
-  HAL_StatusTypeDef res = HAL_SD_WriteBlocks_DMA(&sdio, writebuff, WriteAddr, NumberOfBlocks);
+  HAL_StatusTypeDef res = HAL_SD_WriteBlocks(&sdio, writebuff, WriteAddr, NumberOfBlocks, SD_DATA_TIMEOUT);
   if(res == HAL_OK)
     return SD_OK;
   return SD_ERROR;
