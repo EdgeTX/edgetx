@@ -258,9 +258,13 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
     if (!hasLabels) {
       if (mc.modelIdx >= 0 && mc.modelIdx < (int)radioData.models.size()) {
         modelIdx = mc.modelIdx;
+        if (!radioData.models[modelIdx].isEmpty()) {
+          qDebug() << QString("Warning: file %1 skipped as slot %2 already used").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
+          continue;
+        }
       }
       else {
-        qDebug() << QString("Slot %1 unavailable for file %2").arg(mc.modelIdx + 1).arg(mc.filename.c_str());
+        qDebug() << QString("Warning: file %1 skipped as slot %2 not available").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
         continue;
       }
     }
