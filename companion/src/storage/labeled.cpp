@@ -255,15 +255,22 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
 
+    if (!hasLabels) {
+      if (mc.modelIdx >= 0 && mc.modelIdx < (int)radioData.models.size()) {
+        modelIdx = mc.modelIdx;
+      }
+      else {
+        qDebug() << QString("Slot %1 unavailable for file %2").arg(mc.modelIdx + 1).arg(mc.filename.c_str());
+        continue;
+      }
+    }
+
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
     if (!loadFile(modelBuffer, filename)) {
       setError(tr("Cannot extract ") + filename);
       return false;
     }
-
-    if (!hasLabels)
-      modelIdx = mc.modelIdx;
 
     // Please note:
     //  ModelData() use memset to clear everything to 0
