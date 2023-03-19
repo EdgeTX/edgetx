@@ -343,7 +343,7 @@ bool ComponentData::existsOnDisk()
   return (m_settings.contains(settingsPath() % "name"));
 }
 
-void ComponentData::clearRelease()
+void ComponentData::releaseClear()
 {
   releaseReset();
   releaseIdReset();

@@ -46,7 +46,7 @@
 #include "profilechooser.h"
 #include "constants.h"
 #include "updates/updates.h"
-#include "updates/updateinterface.h"
+#include "updates/updatefactories.h"
 
 #include <QtGui>
 #include <QFileInfo>
