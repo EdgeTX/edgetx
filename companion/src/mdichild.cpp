@@ -865,7 +865,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   bool hasOwnData = modelsListModel->hasOwnMimeData(mimeData);
   move = (move && hasOwnData);
 
-  qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
+  //qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
 
   // Model data
   for (int i=0; i < modelsList.size(); ++i) {
@@ -935,7 +935,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       }
       radioData.addLabelsFromModels();
     }
-    qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
+    //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
 
     ++modelIdx;
   }
