@@ -536,9 +536,8 @@ void MdiChild::initModelsList()
   refresh();
 
   if (firmware->getCapability(Capability::HasModelLabels)) {
-    ui->modelsList->header()->resizeSection(0, ui->modelsList->header()->sectionSize(0) * 2);   // pad out categories and model names
-  } else if (firmware->getCapability(Capability::HasModelLabels)) {
-
+    ui->modelsList->header()->resizeSection(0, ui->modelsList->header()->sectionSize(0) * 1.5); // pad out model names
+    ui->modelsList->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);           // minimise rx #
   } else {
     ui->modelsList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);           // minimise Index
     ui->modelsList->header()->resizeSection(1, ui->modelsList->header()->sectionSize(1) * 1.5); // pad out model names
@@ -570,9 +569,6 @@ void MdiChild::onItemActivated(const QModelIndex index)
       newModel(mIdx);
     else
       openModelEditWindow(mIdx);
-  }
-  else if (modelsListModel->isCategoryType(index)) {
-    ui->modelsList->edit(index);
   }
 }
 
@@ -733,7 +729,7 @@ bool MdiChild::insertModelRows(int atModelIdx, int count)
   return true;
 }
 
-// Finds the first empty slot and inserts the model into it. In case of category-style models, will append to end of list.
+// Finds the first empty slot and inserts the model into it.
 // Return -1 if no slot was found, otherwise new array index.
 //  ModelsListModel::refresh() needs to be called at some point afterwards to sync the data.
 int MdiChild::modelAppend(const ModelData model)
@@ -775,7 +771,6 @@ int MdiChild::newModel(int modelIndex)
   }
   setModified();
   setSelectedModel(modelIndex);
-  //qDebug() << modelIndex << categoryIndex << isNewModel;
 
   if (isNewModel) {
     if (g.newModelAction() == AppData::MODEL_ACT_WIZARD)
@@ -863,7 +858,6 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
 
   bool modified = false;
   int modelIdx = modelsListModel->getModelIndex(row);
-//  int categoryIdx = modelsListModel->getCategoryIndex(row);
   unsigned inserts = 0;
   QVector<int> deletesList;
 
@@ -871,17 +865,16 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   bool hasOwnData = modelsListModel->hasOwnMimeData(mimeData);
   move = (move && hasOwnData);
 
-  //qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx << "; row categoryIdx: " << categoryIdx << "; removeSlots: " << removeModelSlotsWhenDeleting;
+  qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
 
   // Model data
   for (int i=0; i < modelsList.size(); ++i) {
-    int origMdlIdx = hasOwnData ? modelsList.at(i).modelIndex : -1;               // where is the modeul in *our* current array?
+    int origMdlIdx = hasOwnData ? modelsList.at(i).modelIndex : -1;               // where is the model in *our* current array?
     bool doMove = (origMdlIdx > -1 && origMdlIdx < (int)radioData.models.size() && (move || cutModels.contains(origMdlIdx)));  // DnD-moved or clipboard cut
     bool ok = true;
 
     if (modelIdx == -1 || (!insert && modelIdx >= (int)radioData.models.size())) {
-      // This handles pasting onto a category label or pasting past the end
-      // of a category when pasting multiple models.
+      // This handles pasting past the end or when pasting multiple models.
       modelIdx = modelAppend(modelsList[i]);
       if (modelIdx < 0) {
         ok = false;
@@ -895,8 +888,13 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
         ++inserts;
       }
     }
-    else {  // pasting on top of a slot
-      if (!radioData.models[modelIdx].isEmpty() && !deletesList.contains(modelIdx)) {
+    else if (!deletesList.contains(modelIdx)) {
+      // pasting on top of a slot
+      if (radioData.models[modelIdx].isEmpty()) {
+        radioData.models[modelIdx] = modelsList[i];
+        ok = true;
+      }
+      else {
         QMessageBox msgBox;
         msgBox.setWindowTitle(CPN_STR_APP_NAME);
         msgBox.setIcon(QMessageBox::Warning);
@@ -937,7 +935,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       }
       radioData.addLabelsFromModels();
     }
-    //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
+    qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
 
     ++modelIdx;
   }
