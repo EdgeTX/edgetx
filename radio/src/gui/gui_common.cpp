@@ -1163,7 +1163,7 @@ const char* const STR_SUBTYPE_REDPINE[] =    {"Fast","Slow"};
 const char* const STR_SUBTYPE_POTENSIC[] =   {"A20"};
 const char* const STR_SUBTYPE_ZSX[] =        {"280JJRC"};
 const char* const STR_SUBTYPE_HEIGHT[] =     {"5ch","8ch"};
-const char* const STR_SUBTYPE_FRSKYX_RX[] =  {"RX","CloneTX"};
+const char* const STR_SUBTYPE_FRSKYX_RX[] =  {"Multi","CloneTX","EraseTX","CPPM"};
 const char* const STR_SUBTYPE_HOTT[] =       {"Sync","No_Sync"};
 const char* const STR_SUBTYPE_FX816[] =      {"P38"};
 const char* const STR_SUBTYPE_PELIKAN[] =    {"Pro","Lite","SCX24"};
@@ -1249,14 +1249,14 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_POTENSIC,   0, false, false,  STR_SUBTYPE_POTENSIC,  nullptr},
   {MODULE_SUBTYPE_MULTI_ZSX,        0, false, false,  STR_SUBTYPE_ZSX,       nullptr},
   {MODULE_SUBTYPE_MULTI_HEIGHT,     1, false, false,  STR_SUBTYPE_HEIGHT,    nullptr},
-  {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  1, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  3, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HOTT,       1, true,  false,  STR_SUBTYPE_HOTT,      STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_FX816,      0, false, false,  STR_SUBTYPE_FX816,     nullptr},
   {MODULE_SUBTYPE_MULTI_PELIKAN,    2, false, true,   STR_SUBTYPE_PELIKAN,   nullptr},
   {MODULE_SUBTYPE_MULTI_XK,         1, false, false,  STR_SUBTYPE_XK,        STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_XN297DUMP,  5, false, false,  STR_SUBTYPE_XN297DUMP, STR_MULTI_RFCHAN},
   {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_FRSKY_R9,   6, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
+  {MODULE_SUBTYPE_MULTI_FRSKY_R9,   7, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
   {MODULE_SUBTYPE_MULTI_PROPEL,     0, false, false,  STR_SUBTYPE_PROPEL,    nullptr},
   {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_SKYARTEC,   0, false, true,   NO_SUBTYPE,            STR_MULTI_RFTUNE},
