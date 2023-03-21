@@ -29,6 +29,12 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   endif()
 endif()
 
+find_package(Libusb1)
+
+if(LIBUSB1_FOUND)
+  find_package(Dfuutil)
+endif()
+
 # Windows-specific includes and libs shared by sub-projects
 if(WIN32)
   list(APPEND WIN_INCLUDE_DIRS "${RADIO_SRC_DIR}/thirdparty/windows/dirent")

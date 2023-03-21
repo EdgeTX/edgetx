@@ -24,10 +24,6 @@ endif()
 # different versions for different eeproms easier, i.e. without manually renaming
 set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
 
-# On OS X we copy dfu-util to the application bundle. This the path from which we copy
-# the binary (default homebrew path)
-set(DFU_UTIL_PATH "/usr/local/bin/dfu-util")
-
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
   add_definitions(-DDEBUG_STORAGE_IMPORT)
@@ -364,6 +360,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "engines*" EXCLUDE PATTERN "pkg*" EXCLUDE PATTERN "*.so*")
   endif()
 
+  if(LIBUSB1_FOUND)
+    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libusb-1.0.so*")
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    endif()
+  endif()
+
   # Linux specific code
   set(OperatingSystem "Linux")
   # Shortcut target
@@ -377,10 +380,24 @@ elseif(WIN32)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
   # supporting utilities
-  set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
-  foreach(tmpfile ${INSTALL_TEMP_FILES})
-    install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
-  endforeach()
+  if(LIBUSB1_FOUND)
+    if(MINGW)
+      set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
+    endif()
+
+    set(LIBUSB1_LIBRARY_FILE "${LIBUSB1_LIBRARY_DIR}/libusb-1.0.dll")
+
+    if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
+      install(FILES "${LIBUSB1_LIBRARY_FILE}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+  endif()
+
+  # supporting files
+  install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt" DESTINATION ${INSTALL_DESTINATION})
 
   # Qt dlls (using windeployqt)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.

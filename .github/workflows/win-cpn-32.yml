@@ -57,6 +57,7 @@ jobs:
                                 mingw-w64-i686-SDL2 \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis
+                                mingw-w64-i686-dfu-util
           python -m pip install clang jinja2
 
       - name: Install Qt
