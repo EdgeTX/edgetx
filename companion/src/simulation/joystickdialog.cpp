@@ -144,7 +144,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   cb->addItem(tr("Not Assigned"), -1);
 
   for (i=0; i < ttlSticks; ++i) {
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings);
+    wname = Boards::getAxisName(i);
     cb->addItem(wname, i);
   }
 
