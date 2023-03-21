@@ -94,7 +94,6 @@ class RleFile
   unsigned int version;
   uint8_t *eeprom;
   unsigned int eeprom_size;
-  EeFs         *eeFs;
   EeFsArm      *eeFsArm;
   unsigned int eeFsVersion;
   unsigned int eeFsBlockSize;

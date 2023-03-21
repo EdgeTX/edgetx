@@ -560,7 +560,7 @@ const bool UpdateInterface::isReleaseLatest()
 
 const bool UpdateInterface::isSettingsIndexValid() const
 {
-  return m_id > -1 && m_id < MAX_COMPONENTS;
+  return (int)m_id > -1 && (int)m_id < MAX_COMPONENTS;
 }
 
 const bool UpdateInterface::isUpdateAvailable()

@@ -84,10 +84,10 @@ class RepoReleases : public QObject, public RepoMetaData
     explicit RepoReleases(QObject * parent, UpdateStatus * status, UpdateNetwork * network);
     virtual ~RepoReleases() {}
 
-    virtual void init(const QString & repoPath, const QString & nightly, const int resultsPerPage);
-    virtual int setId(const int id) override;
-    virtual bool retrieveMetaDataAll();
-    virtual bool retrieveMetaDataOne(const int id) { return false; } // not implemented
+    void init(const QString & repoPath, const QString & nightly, const int resultsPerPage) override;
+    int setId(const int id) override;
+    bool retrieveMetaDataAll() override;
+    bool retrieveMetaDataOne(const int id) override { return false; } // not implemented
 
     int channelLatestId();
     void setChannel(const int channel);
@@ -100,5 +100,5 @@ class RepoReleases : public QObject, public RepoMetaData
     ReleasesRawItemModel* const m_rawItemModel;
     ReleasesFilteredItemModel* const m_filteredItemModel;
 
-    virtual void dumpItemModel(const QString modelName, const QAbstractItemModel * itemModel) const;
+    void dumpItemModel(const QString modelName, const QAbstractItemModel * itemModel) const override;
 };

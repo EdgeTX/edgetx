@@ -106,7 +106,7 @@ class RepoFilteredItemModel: public QSortFilterProxyModel, public RepoItemModelB
 
     const int count() const { return rowCount(); }
     const QString date(const int id) const;
-    const int flags(const int id) const;
+    const int filterFlags(const int id) const;
     const int id(const int row) const ;
     const int id(const QVariant & value, const Qt::MatchFlags flags = Qt::MatchExactly, const int role = Qt::DisplayRole) const;
     const bool isEmpty() const { return rowCount() == 0; }
