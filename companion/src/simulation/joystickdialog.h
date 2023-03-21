@@ -53,7 +53,7 @@ class joystickDialog : public QDialog
   private:
     Ui::joystickDialog *ui;
     int jscal[MAX_JS_AXES][3];
-    QCheckBox * invert[MAX_JS_AXES + MAX_JS_BUTTONS];
+    QCheckBox * invert[MAX_JS_AXES];
     QComboBox * sticks[MAX_JS_AXES + MAX_JS_BUTTONS];
     QSlider * sliders[MAX_JS_AXES + MAX_JS_BUTTONS];
     int step;

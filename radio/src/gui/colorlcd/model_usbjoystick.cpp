@@ -376,9 +376,6 @@ class USBChannelLineButton : public Button
       lv_obj_set_style_pad_row(lvobj, 0, 0);
       lv_obj_set_style_pad_column(lvobj, 4, 0);
 
-      lv_obj_update_layout(parent->getLvObj());
-      if (lv_obj_is_visible(lvobj)) delayed_init(nullptr);
-
       lv_obj_add_event_cb(lvobj, USBChannelLineButton::on_draw,
                           LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
     }
@@ -493,6 +490,9 @@ class USBChannelLineButton : public Button
         }
         lv_obj_set_style_text_color(m_btns, makeLvColor(warn), 0);
         lv_obj_set_style_text_font(m_btns, getFont(font), 0);
+      } else {
+        lv_label_set_text(m_btn_mode, "");
+        lv_label_set_text(m_btns, "");
       }
     }
 
@@ -553,7 +553,6 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() :
 
     // Channel settings
     auto btn = new USBChannelLineButton(btngrp, ch);
-    // btn->refresh();
 
     USBJoystickChData * cch = usbJChAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
@@ -600,4 +599,3 @@ void ModelUSBJoystickPage::editChannel(uint8_t channel, USBChannelLineButton* bt
   chedit->setCloseHandler(
       [=]() { this->update(); });
 }
-

@@ -45,40 +45,41 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
 
   QGridLayout *grid = findChild<QGridLayout*>("gridLayout");
   int row = 0;
+  int col = 0;
   if (grid) {
     for (i = 0; i < MAX_JS_AXES; i += 1, row += 1) {
+      col = (i & 1) * 4;
       sprintf(s, "Ch%d", i + 1);
       QLabel *l = new QLabel(s);
-      grid->addWidget(l, row, 0, 1, 1);
+      grid->addWidget(l, row/2, col+0, 1, 1);
       QSlider *s = new QSlider(Qt::Horizontal);
       s->setMinimum(-32767);
       s->setMaximum(32767);
       sliders[row] = s;
-      grid->addWidget(s, row, 1, 1, 1);
+      grid->addWidget(s, row/2, col+1, 1, 1);
       QCheckBox *c = new QCheckBox("");
       invert[row] = c;
-      grid->addWidget(c, row, 2, 1, 1);
+      grid->addWidget(c, row/2, col+2, 1, 1);
       QComboBox *d = new QComboBox();
       populateSourceCombo(d);
       sticks[row] = d;
-      grid->addWidget(d, row, 3, 1, 1);
+      grid->addWidget(d, row/2, col+3, 1, 1);
     }
+    if (row & 1) row += 1;
     for (i = 0; i < MAX_JS_BUTTONS; i += 1, row += 1) {
+      col = (i & 1) * 4;
       sprintf(s, "Btn%d", i + 1);
       QLabel *l = new QLabel(s);
-      grid->addWidget(l, row, 0, 1, 1);
+      grid->addWidget(l, row/2, col+0, 1, 1);
       QSlider *s = new QSlider(Qt::Horizontal);
       s->setMinimum(0);
       s->setMaximum(1);
       sliders[row] = s;
-      grid->addWidget(s, row, 1, 1, 1);
-//       QCheckBox *c = new QCheckBox("");
-//       invert[row] = c;
-//       grid->addWidget(c, row, 2, 1, 1);
+      grid->addWidget(s, row/2, col+1, 1, 1);
       QComboBox *d = new QComboBox();
       populateButtonCombo(d);
       sticks[row] = d;
-      grid->addWidget(d, row, 3, 1, 1);
+      grid->addWidget(d, row/2, col+3, 1, 1);
     }
   }
 
@@ -96,7 +97,6 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
 
   for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
     if (g.jsButton[i].existsOnDisk()) {
-//       invert[i+MAX_JS_AXES]->setChecked(g.jsButton[i].button_inv());
       sticks[i+MAX_JS_AXES]->setCurrentIndex(sticks[i+MAX_JS_AXES]->findData(g.jsButton[i].button_idx()));
     }
   }
@@ -278,7 +278,6 @@ void joystickDialog::onjoystickButtonValueChanged(int button, bool state)
     return;
 
   sliders[button + MAX_JS_AXES]->setValue(state);
-//   sliders[button + MAX_JS_AXES]->setInvertedAppearance(invert[button + MAX_JS_AXES]->isChecked());
 }
 
 void joystickDialog::loadStep()
@@ -385,7 +384,6 @@ void joystickDialog::on_okButton_clicked()
     }
     else {
       g.jsButton[i].button_idx(btn);
-//       g.jsButton[i].button_inv(invert[i+MAX_JS_AXES]->isChecked() );
       qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->objectName() << "stick:" << i << "idx:" << btn;
     }
   }

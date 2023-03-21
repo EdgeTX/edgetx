@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>554</width>
-    <height>793</height>
+    <width>709</width>
+    <height>195</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,6 +24,12 @@
     <widget class="QWidget" name="calibrationWidget" native="true">
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>640</width>
+       <height>0</height>
+      </size>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="spacing">
@@ -74,7 +80,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>0</width>
-       <height>20</height>
+       <height>1</height>
       </size>
      </property>
     </spacer>
@@ -122,7 +128,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>198</width>
+         <width>360</width>
          <height>20</height>
         </size>
        </property>
@@ -182,7 +188,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
+       <width>1</width>
        <height>0</height>
       </size>
      </property>
@@ -196,7 +202,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>0</width>
-       <height>20</height>
+       <height>1</height>
       </size>
      </property>
     </spacer>
