@@ -29,6 +29,7 @@
 #include "opentx_types.h"
 #include "globals.h"
 #include "serial.h"
+#include "usb_joystick.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -624,6 +625,36 @@ PACK(struct PartialModel {
   TimerData timers[MAX_TIMERS];
 });
 
+/*
+ * USB Joystick channel structure
+ */
+
+PACK(struct USBJoystickChData {
+  uint8_t mode:3 ENUM(USBJoystickCh);
+  uint8_t inversion:1;
+  uint8_t param:4;
+  uint8_t btn_num:5;
+  uint8_t switch_npos:3;
+
+#if defined(USBJ_EX)
+  NOBACKUP(
+    uint8_t lastBtnNumNoCLip() {
+      uint8_t last = btn_num + switch_npos;
+      // Use one less joystick button for 2POS and 3POS switches for Companion mode
+      if ((param == USBJOYS_BTN_MODE_COMPANION) && (switch_npos > 0) && (switch_npos < 3)) last -= 1;
+      return last;
+    }
+    uint8_t lastBtnNum() {
+      uint8_t last = lastBtnNumNoCLip();
+      if (last >= USBJ_BUTTON_SIZE) {
+        last = USBJ_BUTTON_SIZE - 1;
+      }
+      return last;
+    }
+  );
+#endif
+});
+
 PACK(struct ModelData {
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
@@ -725,6 +756,11 @@ PACK(struct ModelData {
         break;
     }
   }
+
+  uint8_t usbJoystickExtMode:1;
+  uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode);
+  uint8_t usbJoystickCircularCut:4;
+  USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS];
 });
 
 /*

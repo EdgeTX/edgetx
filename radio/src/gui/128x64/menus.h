@@ -131,6 +131,9 @@ void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
 void menuModelTemplates(event_t event);
 void menuModelGVarOne(event_t event);
+#if defined(USBJ_EX)
+void menuModelUSBJoystick(event_t event);
+#endif
 
 static const MenuHandlerFunc menuTabModel[]  = {
   menuModelSelect,

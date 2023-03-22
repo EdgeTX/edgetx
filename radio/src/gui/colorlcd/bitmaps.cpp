@@ -83,6 +83,9 @@ static const uint8_t mask_model_special_functions[] = {
 static const uint8_t mask_model_telemetry[] = {
 #include "mask_model_telemetry.lbm"
 };
+static const uint8_t mask_model_usb[] = {
+#include "mask_model_usb.lbm"
+};
 static const uint8_t mask_menu_model_select[] = {
 #include "mask_menu_model_select.lbm" //TODO: someone may want to make proper icon
 };
@@ -343,6 +346,7 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions},
     {ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts},
     {ICON_MODEL_TELEMETRY, mask_model_telemetry},
+    {ICON_MODEL_USB, mask_model_usb},
     {ICON_MODEL_SELECT, mask_menu_model_select},
     {ICON_MODEL_SELECT_CATEGORY, mask_model_select_category},
     {ICON_THEME, mask_menu_theme},

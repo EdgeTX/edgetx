@@ -116,7 +116,7 @@ qreal Node::getY()
     if(scene())
     {
         QRectF rect = scene()->sceneRect();
-        return 1+((y()-rect.bottom())*2/rect.height());
+        return ((rect.bottom()-y())*2/rect.height())-1;
     }
     return 0;
 }
@@ -126,7 +126,7 @@ void Node::setY(qreal newY)
     if(scene())
     {
         QRectF rect = scene()->sceneRect();
-        QGraphicsObject::setY(rect.top() + (newY+1) * rect.height()/2);
+        QGraphicsObject::setY(rect.top() + (1-newY) * rect.height()/2);
     }
 }
 

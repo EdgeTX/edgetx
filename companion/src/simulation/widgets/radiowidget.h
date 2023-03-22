@@ -88,6 +88,7 @@ class RadioWidget : public QWidget
     virtual void setType(const RadioWidgetType & type);
     virtual void setValue(const int & value);
     virtual void setValueQual(const RadioWidgetType & type, const int & index, const int & value);
+    virtual void chgValueQual(const RadioWidgetType & type, const int & index, const int offset, const bool state) {}
     virtual void setFlags(const quint16 & flags);
     virtual void setShowLabel(const bool show);
     virtual void setLabelText(const QString & labelText, bool showLabel = true);

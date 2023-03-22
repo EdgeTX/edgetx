@@ -61,6 +61,9 @@ class VirtualJoystickWidget : public QWidget
     int getStickScale() const;
     void setStickScale(int stickScale);
 
+    const RadioTrimWidget *horizontalTrim() { return hTrimWidget; } 
+    const RadioTrimWidget *verticalTrim() { return vTrimWidget; } 
+
   public slots:
     void setStickX(qreal x);
     void setStickY(qreal y);

@@ -256,6 +256,16 @@ bool JStickData::existsOnDisk()
   return (m_settings.value(settingsPath() % stick_axe_key(), -1).toInt() > -1);
 }
 
+JButtonData::JButtonData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool JButtonData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % button_idx_key(), -1).toInt() > -1);
+}
+
 
 // ** Profile class********************
 
@@ -397,8 +407,10 @@ AppData::AppData() :
     profile[i].setIndex(i);
 
   // Configure the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].setIndex(i);
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].setIndex(i);
 
   // Configure the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
@@ -436,8 +448,10 @@ void AppData::initAll()
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].init();
   // Initialize the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].init();
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].init();
   // Initialize the updatess
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
@@ -453,8 +467,10 @@ void AppData::resetAllSettings()
   fwRev.resetAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].resetAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].resetAll();
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].resetAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
@@ -469,8 +485,10 @@ void AppData::storeAllSettings()
   storeAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].storeAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].storeAll();
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].storeAll();
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)

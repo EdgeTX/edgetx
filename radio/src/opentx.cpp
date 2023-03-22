@@ -293,6 +293,11 @@ LimitData *limitAddress(uint8_t idx)
   return &g_model.limitData[idx];
 }
 
+USBJoystickChData *usbJChAddress(uint8_t idx)
+{
+  return &g_model.usbJoystickCh[idx];
+}
+
 
 void memswap(void * a, void * b, uint8_t size)
 {

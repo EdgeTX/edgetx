@@ -21,7 +21,6 @@
 #include "simulatorwidget.h"
 #include "ui_simulatorwidget.h"
 
-#include "appdata.h"
 #include "appdebugmessagehandler.h"
 #include "radiofaderwidget.h"
 #include "radiokeywidget.h"
@@ -619,7 +618,6 @@ void SimulatorWidget::setupRadioWidgets()
     RadioKnobWidget * pot = new RadioKnobWidget(Board::PotType(radioSettings.potConfig[i]), wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
-
     m_radioWidgets.append(pot);
   }
 
@@ -661,6 +659,7 @@ void SimulatorWidget::setupRadioWidgets()
   foreach (RadioWidget * rw, m_radioWidgets) {
     connect(rw, &RadioWidget::valueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
     connect(this, &SimulatorWidget::widgetValueChange, rw, &RadioWidget::setValueQual);
+    connect(this, &SimulatorWidget::widgetValueAdjust, rw, &RadioWidget::chgValueQual);
     connect(this, &SimulatorWidget::widgetStateChange, rw, &RadioWidget::setStateData);
   }
 
@@ -673,21 +672,28 @@ void SimulatorWidget::setupJoysticks()
 
   if (g.jsSupport() && g.jsCtrl() > -1) {
     if (!joystick)
-      joystick = new Joystick(this);
+      joystick = new Joystick(this, SDL_JOYSTICK_DEFAULT_EVENT_TIMEOUT, false, SDL_JOYSTICK_DEFAULT_AUTOREPEAT_DELAY);
     else
       joystick->close();
 
     if (joystick && joystick->open(g.jsCtrl())) {
-      int numAxes = std::min(joystick->numAxes, MAX_JOYSTICKS);
+      int numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
       for (int j=0; j<numAxes; j++) {
         joystick->sensitivities[j] = 0;
         joystick->deadzones[j] = 0;
       }
       connect(joystick, &Joystick::axisValueChanged, this, &SimulatorWidget::onjoystickAxisValueChanged);
-      if (vJoyLeft)
+      connect(joystick, &Joystick::buttonValueChanged, this, &SimulatorWidget::onjoystickButtonValueChanged);
+      if (vJoyLeft) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyLeft, &VirtualJoystickWidget::setStickAxisValue);
-      if (vJoyRight)
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->verticalTrim(), &RadioWidget::chgValueQual);
+      }
+      if (vJoyRight) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyRight, &VirtualJoystickWidget::setStickAxisValue);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->verticalTrim(), &RadioWidget::chgValueQual);
+      }
       joysticksEnabled = true;
     }
     else {
@@ -858,7 +864,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   static const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
   static const int valueRange = 1024;
 
-  if (!joystick || axis >= MAX_JOYSTICKS)
+  if (!joystick || axis >= MAX_JS_AXES)
     return;
 
   int dlta;
@@ -885,11 +891,58 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   }
   else {
     stick -= ttlSticks;
-    if (stick < ttlKnobs)
+    if (stick < ttlKnobs) {
+      GeneralSettings radioSettings = GeneralSettings();
+      if (Board::PotType(radioSettings.potConfig[stick]) == Board::POT_MULTIPOS_SWITCH)
+        stickval += 1024;
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
-    else
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick - ttlKnobs, stickval);
+    } else {
+      stick -= ttlKnobs;
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+    }
   }
 
+#endif
+}
+
+void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
+{
+#ifdef JOYSTICKS
+
+  if (!joystick || button >= MAX_JS_BUTTONS)
+    return;
+
+  int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
+
+  int btn = g.jsButton[button].button_idx();
+
+  if (g.jsButton[button].button_inv())
+    state = !state;
+
+  int swtch = btn & JS_BUTTON_SWITCH_MASK;
+ 
+  if (swtch < ttlSwitches) {
+    if (btn & JS_BUTTON_3POS_DN) {
+      // 3POS Down
+      if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : 0);
+        switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+      }
+    } else if (btn & JS_BUTTON_3POS_UP) {
+      // 3POS Up
+      if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? -1 : 0);
+        switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+      }
+    } else if (btn & JS_BUTTON_TOGGLE) {
+      // Toggle or momentary
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : - 1);
+    }
+  } else {
+    // Trim
+    swtch -= ttlSwitches;
+    int offset = (btn & JS_BUTTON_3POS_DN) ? -1 : 1;
+    emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
+  }
 #endif
 }

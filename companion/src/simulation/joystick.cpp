@@ -63,6 +63,9 @@ bool Joystick::open(int stick)
     numHats = SDL_JoystickNumHats(joystick);
     numTrackballs = SDL_JoystickNumBalls(joystick);
     joystickTimer.start(eventTimeout);
+    for (int i = 0; i < numButtons; i += 1) {
+      buttons[i] = -1;
+    }
     return true;
   }
   else {
@@ -109,9 +112,9 @@ void Joystick::processEvents()
         axisRepeatTimers[i].restart();
       }
     }
-    else {
-      emit axisValueChanged(i, 0);
-    }
+//     else {
+//       emit axisValueChanged(i, 0);
+//     }
   }
   for (i = 0; i < numButtons; i++) {
     Uint8 changed = SDL_JoystickGetButton(joystick, i);

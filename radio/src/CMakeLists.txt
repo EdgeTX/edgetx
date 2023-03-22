@@ -61,6 +61,12 @@ option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 
+if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
+  option(USBJ_EX "Enable USB Joystick Extension" OFF)
+else()
+  option(USBJ_EX "Enable USB Joystick Extension" ON)
+endif()
+
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
 set(FIRMWARE_C_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c compiler (note: CMAKE_C_FLAGS_DEBUG is ignored for firmware/bootloader).")
@@ -418,6 +424,14 @@ if(GUI)
   endforeach()
 endif()
 
+
+if(USBJ_EX)
+  add_definitions(-DUSBJ_EX)
+  set(SRC
+    ${SRC}
+    usb_joystick.cpp
+    )
+endif()
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})
 endforeach()

@@ -48,7 +48,9 @@
 #define HID_IN_EP                    0x81
 #define HID_OUT_EP                   0x01
 
+#if !defined(USBJ_EX)
 #define HID_IN_PACKET                19
+#endif
 #define HID_OUT_PACKET               9
 
 #define CDC_IN_EP                    0x81  /* EP1 for data IN */

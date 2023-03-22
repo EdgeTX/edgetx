@@ -65,13 +65,19 @@ class RadioTrimWidget : public RadioWidget
         setValue(value);
     }
 
-    void setValue(const int & value)
+    void setValue(const int & value) override
     {
       if (sender() && qobject_cast<SliderWidget *>(sender())) {
         RadioWidget::setValue(value);
       }
       else if (m_slider) {
         m_slider->setValue(value);
+      }
+    }
+
+    void chgValueQual(const RadioWidgetType & type, const int & index, const int offset, const bool state) override {
+      if (type == m_type && index == m_index) {
+        emit valueChange(m_type, (offset < 0) ? m_btnDecIndex : m_btnIncIndex, state ? RADIO_TRIM_BTN_ON : RADIO_TRIM_BTN_OFF);
       }
     }
 

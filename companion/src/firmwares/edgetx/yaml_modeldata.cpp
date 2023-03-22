@@ -29,6 +29,7 @@
 #include "yaml_customfunctiondata.h"
 #include "yaml_sensordata.h"
 #include "yaml_screendata.h"
+#include "yaml_usbjoystickdata.h"
 
 #include "modeldata.h"
 #include "output_data.h"
@@ -77,6 +78,12 @@ static const YamlLookupTable jitterFilterLut = {
   {  0, "GLOBAL"  },
   {  1, "OFF"  },
   {  2, "ON"  },
+};
+
+static const YamlLookupTable usbJoystickIfModeLut = {
+  {  0, "JOYSTICK"  },
+  {  1, "GAMEPAD"  },
+  {  2, "MULTIAXIS"  },
 };
 
 struct YamlTrim {
@@ -1008,6 +1015,16 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
+  // Custom USB joytsick mapping
+  node["usbJoystickExtMode"] = rhs.usbJoystickExtMode;
+  node["usbJoystickIfMode"] = usbJoystickIfModeLut << rhs.usbJoystickIfMode;
+  node["usbJoystickCircularCut"] = rhs.usbJoystickCircularCut;
+  for (int i = 0; i < CPN_USBJ_MAX_JOYSTICK_CHANNELS; i++) {
+    if (rhs.usbJoystickCh[i].mode > 0) {
+      node["usbJoystickCh"][std::to_string(i)] = rhs.usbJoystickCh[i];
+    }
+  }
+
   return node;
 }
 
@@ -1193,6 +1210,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
   node["switchNames"] >> rhs.functionSwitchNames;
+
+  // Custom USB joytsick mapping
+  node["usbJoystickExtMode"] >> rhs.usbJoystickExtMode;
+  node["usbJoystickIfMode"] >> usbJoystickIfModeLut >> rhs.usbJoystickIfMode;
+  node["usbJoystickCircularCut"] >> rhs.usbJoystickCircularCut;
+  node["usbJoystickCh"] >> rhs.usbJoystickCh;
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 
