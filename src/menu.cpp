@@ -80,6 +80,8 @@ MenuBody::MenuBody(Window * parent, const rect_t & rect):
 {
   // Allow encoder acceleration
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
+  // Add scroll bar if needed
+  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_AUTO);
 
   setColumnCount(1);
   setColumnWidth(0, rect.w);
