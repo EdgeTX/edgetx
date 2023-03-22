@@ -166,7 +166,7 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
     sendMulti(p_buf, invert[module] & 0x08);
   }
   else {
-    sendMulti(p_buf, (uint8_t) (((g_model.moduleData[module].multi.rfProtocol + 3) & 0xC0)
+    sendMulti(p_buf, (uint8_t) (((g_model.moduleData[module].multi.rfProtocol + 1) & 0xC0)
                                 | (g_model.header.modelId[module] & 0x30)
                                 | (invert[module] & 0x08)
                                 //| 0x04 // Future use
