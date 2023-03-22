@@ -629,7 +629,7 @@
 #define TR_CURRENT_CALIB                "Kalib. ström"
 #define TR_VOLTAGE                      INDENT "Volt"
 #define TR_SELECT_MODEL                 "Välj modell"
-#define TR_MODEL_MANAGER                "MODELLHANTERING"
+#define TR_MANAGE_MODELS                "MODELLHANTERING"
 #define TR_MODELS                       "Modeller"
 #define TR_SELECT_MODE                  "Välj läge"
 #define TR_CREATE_MODEL                 "Skapa modell"
@@ -1253,7 +1253,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Hantera\nmodell"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Hantera\nmodell"
 #define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckn."
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal-\nmonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställn."

@@ -605,7 +605,7 @@
 #define TR_CURRENT_CALIB               "Strom abgl."
 #define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
 #define TR_SELECT_MODEL                "Modell auswählen"
-#define TR_MODEL_MANAGER               "MODELL MANAGER"
+#define TR_MANAGE_MODELS               "MODELL MANAGER"
 #define TR_MODELS                      "Modelle"
 #define TR_SELECT_MODE                 "Wähle Mode"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
@@ -1213,7 +1213,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL      "Wähle\nModell"
-#define TR_MAIN_MENU_MODEL_MANAGER     "Modell\nManager"
+#define TR_MAIN_MENU_MANAGE_MODELS     "Modell\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Modell\nNotizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell\nKonfig."

@@ -604,7 +604,7 @@
 #define TR_CURRENT_CALIB       " +=\006Kalibracja prądu"
 #define TR_VOLTAGE             TR (INDENT"Napięcie",INDENT"Źródło Napięcia")
 #define TR_SELECT_MODEL        "Wybór modelu"
-#define TR_MODEL_MANAGER       "MENADŻER MODELI"
+#define TR_MANAGE_MODELS       "MENADŻER MODELI"
 #define TR_MODELS              "Modele"
 #define TR_SELECT_MODE         "Wybierz tryb"
 #define TR_CREATE_MODEL        "Nowy model"
@@ -1211,7 +1211,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Wybierz\nmodel"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Menadżer\nmodeli"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer\nmodeli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notatki\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanałów"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia\nmodelu"

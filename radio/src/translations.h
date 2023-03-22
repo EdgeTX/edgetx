@@ -1108,7 +1108,7 @@ extern const char STR_NEW_LABEL[];
 extern const char STR_RENAME_LABEL[];
 extern const char STR_DELETE_LABEL[];
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
-extern const char STR_MAIN_MENU_MODEL_MANAGER[];
+extern const char STR_MAIN_MENU_MANAGE_MODELS[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
 extern const char STR_MAIN_MENU_MODEL_SETTINGS[];

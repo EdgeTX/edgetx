@@ -619,7 +619,7 @@
 #define TR_CURRENT_CALIB               "Current Calib"
 #define TR_VOLTAGE                     INDENT"Jännite"
 #define TR_SELECT_MODEL                "Select Model"
-#define TR_MODEL_MANAGER               "MODEL MANAGER"
+#define TR_MANAGE_MODELS               "MODEL MANAGER"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create Model"
@@ -1229,7 +1229,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL      "Select\nModel"
-#define TR_MAIN_MENU_MODEL_MANAGER     "Model\nManager"
+#define TR_MAIN_MENU_MANAGE_MODELS     "Model\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Model\nNotes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Channel\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Model\nSettings"

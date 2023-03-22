@@ -606,7 +606,7 @@
 #define TR_CURRENT_CALIB               "電流校準"
 #define TR_VOLTAGE                     TR(INDENT "電壓源", INDENT "電壓來源")
 #define TR_SELECT_MODEL                "選擇模型"
-#define TR_MODEL_MANAGER               "模型管理"
+#define TR_MANAGE_MODELS               "模型管理"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
@@ -1207,7 +1207,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
-#define TR_MAIN_MENU_MODEL_MANAGER    "模型\n管理"
+#define TR_MAIN_MENU_MANAGE_MODELS    "模型\n管理"
 #define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
 #define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"

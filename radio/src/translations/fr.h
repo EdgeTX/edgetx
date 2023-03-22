@@ -616,7 +616,7 @@
 #define TR_CURRENT_CALIB               "Calib. cour"
 #define TR_VOLTAGE                     TR(INDENT "Tension",INDENT "Source tension")
 #define TR_SELECT_MODEL                "Sélect. modèle"
-#define TR_MODEL_MANAGER               "GESTION MODELES"
+#define TR_MANAGE_MODELS               "GESTION MODELES"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Créer modèle"
@@ -1235,7 +1235,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Select\nModel"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Gestion\nModèles"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gestion\nModèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nSettings"

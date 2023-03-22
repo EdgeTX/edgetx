@@ -963,7 +963,7 @@ void ModelLabelsWindow::setTitle()
   title2 += ": ";
   title2 += modelName;
 
-  header.setTitle(STR_MODEL_MANAGER);
+  header.setTitle(STR_MANAGE_MODELS);
   header.setTitle2(title2);
 }
 

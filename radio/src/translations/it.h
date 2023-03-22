@@ -608,7 +608,7 @@
 #define TR_CURRENT_CALIB       "Calibra corr."
 #define TR_VOLTAGE             TR(INDENT "Voltagg.",INDENT "Voltaggio")
 #define TR_SELECT_MODEL        TR("Scegli mod.", "Scegli Modello")
-#define TR_MODEL_MANAGER       "GESTIONE MODELLI"
+#define TR_MANAGE_MODELS       "GESTIONE MODELLI"
 #define TR_MODELS              "Modelli"
 #define TR_SELECT_MODE         "Seleziona modo"
 #define TR_CREATE_MODEL        "Crea Modello"
@@ -1222,7 +1222,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Seleziona\nModello"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Gestione\nModelli"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gestione\nModelli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note\nModello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanali"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi\nModello"
