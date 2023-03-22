@@ -54,6 +54,22 @@ enum COMMAND : uint8_t {
   UNDEFINED = 0xFF
 };
 
+#define RX_CMD_RANGE                    ( 0x7013 )
+#define RX_CMD_FAILSAFE_VALUE           ( 0x6011 )
+#define RX_CMD_FAILSAFE_TIME            ( 0x6012 )
+#define RX_CMD_RSSI_CHANNEL_SETUP       ( 0x602B )
+#define RX_CMD_GET_CAPABILITIES         ( 0x7015 )
+#define RX_CMD_OUT_PWM_PPM_MODE         ( 0x7016 )   //PWM or PPM
+#define RX_CMD_FREQUENCY_V0             ( 0x7017 )
+#define RX_CMD_PORT_TYPE_V1             ( 0x7027 )
+#define RX_CMD_FREQUENCY_V1             ( 0x7028 )
+#define RX_CMD_FREQUENCY_V1_2           ( 0x7028 )
+#define RX_CMD_BUS_TYPE_V0              ( 0x7018 ) //I-BUS/S-BUS
+#define RX_CMD_IBUS_SETUP               ( 0x7019 )
+#define RX_CMD_IBUS_DIRECTION           ( 0x7020 ) //IBUS INPUT or OUTPUT
+#define RX_CMD_BUS_FAILSAFE             ( 0x702A )
+#define RX_CMD_GET_VERSION              ( 0x701F )
+
 // one byte frames for request queue
 struct Frame {
   enum COMMAND command;
