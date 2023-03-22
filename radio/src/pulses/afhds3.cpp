@@ -49,7 +49,7 @@
 #define FAILSAFE_NOPULSES_VALUE     0x8001
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
-
+void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
 void processFlySkySensor(const uint8_t * packet, uint8_t type);
 
 namespace afhds3
@@ -678,37 +678,15 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         if (telemetry[0] == 0x22) {
           telemetry++;
           while (telemetry < rxBuffer + rxBufferCount) {
-            uint8_t length = telemetry[0];
-            uint8_t id = telemetry[1];
-            if (id == 0xFE) {
-              id = 0xF7;  //use new id because format is different
-            }
-            if (length == 0 || telemetry + length > rxBuffer + rxBufferCount) {
+
+            uint8_t len = telemetry[0];
+            if (len < 4 || telemetry + len > rxBuffer + rxBufferCount)
+            {
               break;
             }
-            if (length == 4) {
-              //one byte value fill missing byte
-              uint8_t data[] = { id, telemetry[2], telemetry[3], 0 };
-              ::processFlySkySensor(data, 0xAA);
-            }
-            if (length == 5) {
-              if (id == 0xFA) {
-                telemetry[1] = 0xF8; //remap to afhds3 snr
-              }
-              ::processFlySkySensor(telemetry + 1, 0xAA);
-            }
-            else if (length == 6 && id == FRM302_STATUS) {
-              //convert to ibus
-              uint16_t t = (uint16_t) (((int16_t) telemetry[3] * 10) + 400);
-              uint8_t dataTemp[] = { ++id, telemetry[2], (uint8_t) (t & 0xFF), (uint8_t) (t >> 8) };
-              ::processFlySkySensor(dataTemp, 0xAA);
-              uint8_t dataVoltage[] = { ++id, telemetry[2], telemetry[4], telemetry[5] };
-              ::processFlySkySensor(dataVoltage, 0xAA);
-            }
-            else if (length == 7) {
-              ::processFlySkySensor(telemetry + 1, 0xAC);
-            }
-            telemetry += length;
+            telemetry[0] = 0;
+            ::processFlySkyAFHDS3Sensor( telemetry, len-3 );
+            telemetry += len;
           }
         }
       }
