@@ -53,17 +53,18 @@
 #define SPEKTRUM_TELEMETRY_LENGTH 18
 #define DSM_BIND_PACKET_LENGTH 12
 
-#define I2C_HIGH_CURRENT 0x03
-#define I2C_FLITECTRL 0x05
-#define I2C_FWD_PGM 0x09
-#define I2C_TEXTGEN 0x0c
-#define I2C_GPS_LOC  0x16
-#define I2C_GPS_STAT 0x17
-#define I2C_ESC  0x20
-#define I2C_ALPHA6 0x24
-#define I2C_CELLS 0x3a
+#define I2C_HIGH_CURRENT  0x03
+#define I2C_FLITECTRL     0x05
+#define I2C_FWD_PGM       0x09
+#define I2C_TEXTGEN       0x0c
+#define I2C_GPS_LOC       0x16
+#define I2C_GPS_STAT      0x17
+#define I2C_ESC           0x20
+#define I2C_ALPHA6        0x24
+#define I2C_CELLS         0x3a
 
-// SMART_BAT is using fake I2C adresses compared to official Spektrum address because of subtype used only for this I2C address
+// SMART_BAT is using fake I2C adresses compared to official Spektrum address
+// because of subtype used only for this I2C address
 #define I2C_SMART_BAT_BASE_ADDRESS    0x42
 #define I2C_SMART_BAT_REALTIME        0x42
 #define I2C_SMART_BAT_CELLS_1_6       0x43
@@ -75,16 +76,16 @@
 #define I2C_QOS 0x7f
 
 // GPS flags definitions:
-// Example:  B9 (1100 1001) = IS_NORTH, !IS_EAST, !GREATER_99, IS_FIX_VALID, !DATA_RECEIVED, NEGATIVE_ALT
-#define	GPS_INFO_FLAGS_IS_NORTH						  0x01
-#define	GPS_INFO_FLAGS_IS_EAST						  0x02
-#define	GPS_INFO_FLAGS_LONGITUDE_GREATER_99	0x04	
-#define	GPS_INFO_FLAGS_GPS_FIX_VALID				0x08
-#define	GPS_INFO_FLAGS_GPS_DATA_RECEIVED		0x10
-#define	GPS_INFO_FLAGS_3D_FIX						    0x20
-//#define	GPS_INFO_FLAGS_BIT6??						  0x40
-#define GPS_INFO_FLAGS_NEGATIVE_ALT					0x80
-
+// Example:  B9 (1100 1001) = IS_NORTH, !IS_EAST, !GREATER_99, IS_FIX_VALID,
+//                            !DATA_RECEIVED, NEGATIVE_ALT
+#define GPS_INFO_FLAGS_IS_NORTH               0x01
+#define GPS_INFO_FLAGS_IS_EAST                0x02
+#define GPS_INFO_FLAGS_LONGITUDE_GREATER_99   0x04
+#define GPS_INFO_FLAGS_GPS_FIX_VALID          0x08
+#define GPS_INFO_FLAGS_GPS_DATA_RECEIVED      0x10
+#define GPS_INFO_FLAGS_3D_FIX                 0x20
+// #define	GPS_INFO_FLAGS_BIT6                   0x40 // ??
+#define GPS_INFO_FLAGS_NEGATIVE_ALT           0x80
 
 // FLITECTRL FLAGS
 #define FLITECTRL_FLAGS_IS_AS3X_STAB      0x01
@@ -315,41 +316,28 @@ const SpektrumSensor spektrumSensors[] = {
   {0,                0,  int16,     NULL,                   UNIT_RAW,                    0} //sentinel
 };
 
-static uint8_t gpsAltHigh=0; // Alt Low and High needs to be combined (in 2 diff packets)
+// Alt Low and High needs to be combined (in 2 diff packets)
+static uint8_t gpsAltHigh = 0;
 
-//Helpe function declared later
+// Helper function declared later
 static void processAS3XPacket(const uint8_t *packet);
 static void processAlpha6Packet(const uint8_t *packet);
-static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec, struct gtm * tp);
+static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec,
+                              struct gtm *tp);
 
 #if TEST_CAPTURED_MESSAGE
-static uint8_t  replaceForTestingPackage(const uint8_t *packet);
+static uint8_t replaceForTestingPackage(const uint8_t *packet);
 #endif
 
-/*  Farzu: All this BCD conversion are completly wrong!! Don't think that any
-           of the JETCAT/TURBINE Sensors ever worked..
-
-// The bcd int parameter has wrong endian
-static int32_t bcdToInt16(uint16_t bcd)
-{
-  return (bcd & 0x0f00) + 10 * (bcd & 0xf000) + 100 * (bcd & 0x000f) + 1000 * (bcd & 0x00f0);
-}
-
-// The bcd int parameter has wrong endian
 static int32_t bcdToInt8(uint8_t bcd)
 {
-  return (bcd & 0xf) + 10 * (bcd & 0xf0);
-}
-*/
-
-static int32_t bcdToInt8(uint8_t bcd)
-{
-  return (bcd & 0xf) + 10 * (bcd>>4 & 0xf);
+  return (bcd & 0xf) + 10 * (bcd >> 4 & 0xf);
 }
 
 static int32_t bcdToInt16(uint16_t bcd)
 {
-  return (bcd & 0xf) + 10 * (bcd>>4 & 0xf) + 100 * (bcd>>8 & 0xf) + 1000 * (bcd>>12 & 0xf);
+  return (bcd & 0xf) + 10 * (bcd >> 4 & 0xf) + 100 * (bcd >> 8 & 0xf) +
+         1000 * (bcd >> 12 & 0xf);
 }
 
 static int32_t bcdToInt32(uint32_t bcd)
@@ -407,13 +395,14 @@ bool isSpektrumValidValue(int32_t value, const SpektrumDataType type)
 
 void processSpektrumPacket(const uint8_t *packet)
 {
-  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_RSSI, 0, 0, packet[1], UNIT_RAW, 0);
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_RSSI, 0, 0,
+                    packet[1], UNIT_RAW, 0);
   // highest bit indicates that TM1100 is in use, ignore it
   uint8_t i2cAddress = (packet[2] & 0x7f);
 
 #if TEST_CAPTURED_MESSAGE
   // Only for Testing when we don't have the sensor, but have the data
-  if (i2cAddress==I2C_FLITECTRL) { 
+  if (i2cAddress == I2C_FLITECTRL) {
     i2cAddress = replaceForTestingPackage(packet);
   }
 #endif
@@ -453,43 +442,30 @@ void processSpektrumPacket(const uint8_t *packet)
     }
 #endif
 
-
-
-  //SmartBat Hack
-  if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
-    i2cAddress = i2cAddress + (packet[4] >> 4); // use type to create virtual I2CAddresses
-  }
+    // SmartBat Hack
+    if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
+      // use type to create virtual I2CAddresses
+      i2cAddress = i2cAddress + (packet[4] >> 4);
+    }
 
   uint8_t instance = packet[3];
 
- if (i2cAddress == I2C_TEXTGEN) {
-    /* FArzu: This don't seem to work at all.. The sensors was always 0.
-    TextGen now can be acceced via the new "Spectrum Telemetry Raw" LUA method
-
-    uint8_t lineNumber = packet[4];
-
-    uint16_t pseudoId = (i2cAddress << 8 | lineNumber);
-
-    for (int i=5; i<SPEKTRUM_TELEMETRY_LENGTH; i++)
-    {
-      setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, packet[i], UNIT_TEXT, i-5);
-    }
-    // Set a sential \0 just for safety since we have the space there
-    setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, '\0', UNIT_TEXT, 13);
-    */
+  if (i2cAddress == I2C_TEXTGEN) {
+    // TextGen now accessed via the new "Spectrum Telemetry Raw" LUA method
 
     return;  // Not a sensor
   }
 
-  
-  if (i2cAddress==I2C_FLITECTRL) {  // AS3X + SAFE information: Flight Mode
+  // AS3X + SAFE information: Flight Mode
+  if (i2cAddress == I2C_FLITECTRL) {
     processAS3XPacket(packet);
-    // Continue other processing for backward compatibility with scripts using 05XX sensors
+    // Continue for backward compatibility with scripts using 05XX sensors
   }
 
-  if (i2cAddress==I2C_ALPHA6) {  // Alpha6 Flight Controller (Blade Helis): Flight Mode
+  // Alpha6 Flight Controller (Blade Helis): Flight Mode
+  if (i2cAddress == I2C_ALPHA6) {
     processAlpha6Packet(packet);
-    // Continue other processing for backward compatibility with scripts using 24XX sensors
+    // Continue for backward compatibility with scripts using 24XX sensors
   }
 
   bool handled = false;
@@ -500,17 +476,19 @@ void processSpektrumPacket(const uint8_t *packet)
       handled = true;
 
       // Extract value, skip header
-      int32_t value = spektrumGetValue(packet + 4, sensor->startByte, sensor->dataType);
+      int32_t value =
+          spektrumGetValue(packet + 4, sensor->startByte, sensor->dataType);
 
       if (!isSpektrumValidValue(value, sensor->dataType))
         continue;
 
       // mV to VOLT PREC2 for Smart Batteries
-      if ((i2cAddress >= I2C_SMART_BAT_REALTIME  && i2cAddress <= I2C_SMART_BAT_LIMITS) && sensor->unit == UNIT_VOLTS) {
+      if ((i2cAddress >= I2C_SMART_BAT_REALTIME &&
+           i2cAddress <= I2C_SMART_BAT_LIMITS) &&
+          sensor->unit == UNIT_VOLTS) {
         if (value == -1) {
           continue;  // discard unavailable sensors
-        }
-        else {
+        } else {
           value = value / 10;
         }
       }
@@ -547,8 +525,9 @@ void processSpektrumPacket(const uint8_t *packet)
       }
 
       if (sensor->i2caddress == I2C_HIGH_CURRENT && sensor->unit == UNIT_AMPS) {
-        // Spektrum's documents talks says: Resolution: 300A/2048 = 0.196791 A/tick
-        // Note that 300/2048 = 0,1464. DeviationTX also uses the 0.196791 figure
+        // Spektrum's documents talks says: Resolution: 300A/2048 = 0.196791
+        // A/tick Note that 300/2048 = 0,1464. DeviationTX also uses the
+        // 0.196791 figure
         value = value * 196791 / 100000;
       }
 
@@ -574,27 +553,31 @@ void processSpektrumPacket(const uint8_t *packet)
       //                Spd:002.5k, TimeUTC:17:15:28.00, Sats: 06, AltH=01
 
       if (sensor->i2caddress == I2C_GPS_STAT && sensor->unit == UNIT_DATETIME) {
-        const uint8_t * packetData =  packet + 4; // Skip the header
+        const uint8_t *packetData = packet + 4;  // Skip the header
 
-        uint8_t sec  = bcdToInt8(packetData[3]);
-        uint8_t min  = bcdToInt8(packetData[4]); 
-        uint8_t hour = bcdToInt8(packetData[5]); 
+        uint8_t sec = bcdToInt8(packetData[3]);
+        uint8_t min = bcdToInt8(packetData[4]);
+        uint8_t hour = bcdToInt8(packetData[5]);
 
         struct gtm td;
-        adjustTimeFromUTC(hour,min,sec, &td);
+        adjustTimeFromUTC(hour, min, sec, &td);
 
-        // Depending on the last byte it SETS:  DATE: HEX (YYMMDD01)   TIME: HEX(HHMMSS00)
+        // Depending on the last byte it SETS:  DATE: HEX (YYMMDD01)   TIME:
+        // HEX(HHMMSS00)
         value = (td.tm_hour << 24) + (td.tm_min << 16) + (td.tm_sec << 8);
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_DATETIME, 0);
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                          value, UNIT_DATETIME, 0);
 
-        value = ((td.tm_year+1900-2000) << 24) + ((td.tm_mon+1) << 16) + (td.tm_mday << 8) + 1;
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_DATETIME, 0);
-  
+        value = ((td.tm_year + 1900 - 2000) << 24) + ((td.tm_mon + 1) << 16) +
+                (td.tm_mday << 8) + 1;
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                          value, UNIT_DATETIME, 0);
 
         // Get Altitude High since we need to combine it with Alt-Low
-        gpsAltHigh = bcdToInt8(packetData[7]);   // Save the high part for later (0-99)
+        // Save the high part for later (0-99)
+        gpsAltHigh = bcdToInt8(packetData[7]);
 
-        continue; // setTelemetryValue handled
+        continue;  // setTelemetryValue handled
       }
 
       //*********** GPS LOC *********************************
@@ -602,49 +585,54 @@ void processSpektrumPacket(const uint8_t *packet)
       //                97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
       //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
 
-      if (sensor->i2caddress == I2C_GPS_LOC && sensor->startByte == 0)  { // ALTITUDE LOW (METERS)
-        uint8_t gpsFlags = packet [4 + 13];
+      // ALTITUDE LOW (METERS)
+      if (sensor->i2caddress == I2C_GPS_LOC && sensor->startByte == 0) {
+        uint8_t gpsFlags = packet[4 + 13];
 
-        value = (gpsAltHigh * 1000) + value;  // Format Decimal: HHLLLL, for display will be HHLLL.L 
+        // Format Decimal: HHLLLL, for display will be HHLLL.L
+        value = (gpsAltHigh * 1000) + value;
 
         if (gpsFlags & GPS_INFO_FLAGS_NEGATIVE_ALT) {
           value = -value;
         }
       }
 
-      if (sensor->i2caddress == I2C_GPS_LOC && sensor->unit == UNIT_GPS)  {
-        // Process LAT and LOG together
-        const uint8_t * packetData =  packet + 4; // Skip the header
+      // Process LAT and LOG together
+      if (sensor->i2caddress == I2C_GPS_LOC && sensor->unit == UNIT_GPS) {
+        const uint8_t *packetData = packet + 4;  // Skip the header
 
         uint8_t gpsFlags = packetData[13];
 
         // LATITUDE
-        uint16_t fmin = bcdToInt8(packetData[2]) + (bcdToInt8(packetData[3]) * 100); 
-        uint8_t  min = bcdToInt8(packetData[4]); 
-        uint8_t  deg = bcdToInt8(packetData[5]); 
+        uint16_t fmin =
+            bcdToInt8(packetData[2]) + (bcdToInt8(packetData[3]) * 100);
+        uint8_t min = bcdToInt8(packetData[4]);
+        uint8_t deg = bcdToInt8(packetData[5]);
 
         // formula from code in gps.cpp
         value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
-    
-        if ((gpsFlags & GPS_INFO_FLAGS_IS_NORTH)==0) { // SOUTH, negative
-            value = -value;
+
+        if ((gpsFlags & GPS_INFO_FLAGS_IS_NORTH) == 0) {  // SOUTH, negative
+          value = -value;
         }
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LATITUDE, 0);
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                          value, UNIT_GPS_LATITUDE, 0);
 
         // LONGITUDE
-        fmin = bcdToInt8(packetData[6]) + (bcdToInt8(packetData[7]) * 100); 
-        min  = bcdToInt8(packetData[8]); 
-        deg  = bcdToInt8(packetData[9]); 
+        fmin = bcdToInt8(packetData[6]) + (bcdToInt8(packetData[7]) * 100);
+        min = bcdToInt8(packetData[8]);
+        deg = bcdToInt8(packetData[9]);
 
         // formula from code in gps.cpp
         value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
 
-        if ((gpsFlags & GPS_INFO_FLAGS_IS_EAST) == 0) { // WEST, negative 
-            value = -value;
+        if ((gpsFlags & GPS_INFO_FLAGS_IS_EAST) == 0) {  // WEST, negative
+          value = -value;
         }
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LONGITUDE, 0);
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                          value, UNIT_GPS_LONGITUDE, 0);
 
-        continue; // setTelemetryValue handled
+        continue;  // setTelemetryValue handled
       }
 
       setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
@@ -741,7 +729,8 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
     }
 
     g_model.moduleData[module].channelsCount = channels - 8;
-    g_model.moduleData[module].multi.optionValue &= 0xFD;    // clear the 11ms servo refresh rate flag
+    // clear the 11ms servo refresh rate flag
+    g_model.moduleData[module].multi.optionValue &= 0xFD;
 
     storageDirty(EE_MODEL);
   }
@@ -749,7 +738,8 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
   debugval = packet[7] << 24 | packet[6] << 16 | packet[5] << 8 | packet[4];
 
   /* log the bind packet as telemetry for quick debugging */
-  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_BIND, 0, 0, debugval, UNIT_RAW, 0);
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_BIND, 0, 0,
+                    debugval, UNIT_RAW, 0);
 
   /* Finally stop binding as the rx just told us that it is bound */
   if (getModuleMode(module) == MODULE_MODE_BIND) {
@@ -853,87 +843,111 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   storageDirty(EE_MODEL);
 }
 
-extern  int __offtime(const gtime_t * t, long int offset, struct gtm * tp);
+extern int __offtime(const gtime_t *t, long int offset, struct gtm *tp);
 
-static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec, struct gtm * tp) {
-    // Get current UTC date/time 
-    __offtime(&g_rtcTime, - g_eeGeneral.timezone*3600, tp);  
+static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec,
+                              struct gtm *tp)
+{
+  // Get current UTC date/time
+  __offtime(&g_rtcTime, -g_eeGeneral.timezone * 3600, tp);
 
-    tp->tm_hour = hour;
-    tp->tm_min  = min;
-    tp->tm_sec  = sec;
+  tp->tm_hour = hour;
+  tp->tm_min = min;
+  tp->tm_sec = sec;
 
-    gtime_t newTime = gmktime(tp);
-    __offtime(&newTime, +g_eeGeneral.timezone*3600, tp); 
+  gtime_t newTime = gmktime(tp);
+  __offtime(&newTime, +g_eeGeneral.timezone * 3600, tp);
 }
 
 // AS3X/SAFE flight Controller
 // Contains Flight Mode, and Gyro Settings
-static void processAS3XPacket(const uint8_t *packet) {
-  const uint8_t * packetData =  packet + 4; // Skip the header
+static void processAS3XPacket(const uint8_t *packet)
+{
+    const uint8_t *packetData = packet + 4;  // Skip the header
 
-  //uint8_t  state = packetData[1];
-  uint8_t  flags = packetData[0];
-  //uint8_t  dataPage = packetData[3] & 0x0F;  // 0=Gains, 1=Headings, 2=Angle Limits
-  uint8_t  flightMode = packetData[2] & 0x0F;
+    // uint8_t  state = packetData[1];
+    uint8_t flags = packetData[0];
+    // uint8_t  dataPage = packetData[3] & 0x0F;
+    //  0=Gains, 1=Headings, 2=Angle Limits
+    uint8_t flightMode = packetData[2] & 0x0F;
 
-  char     text[50];
+    char text[50];
 
-  sprintf(text,"%d ",flightMode+1);
+    sprintf(text, "%d ", flightMode + 1);
 
-  if (flags & FLITECTRL_FLAGS_IS_AS3X_STAB) { strcat(text,"AS3X"); }
+    if (flags & FLITECTRL_FLAGS_IS_AS3X_STAB) {
+    strcat(text, "AS3X");
+    }
 
-  // only one should show
-  if (flags & FLITECTRL_FLAGS_IS_ANGLE_DEMAND) { strcat(text," Level"); } 
-  else if (flags & FLITECTRL_FLAGS_IS_SAFE_ENVELOPE) { strcat(text," Envelope"); } 
-  else if (flags & FLITECTRL_FLAGS_IS_AS3X_HEADING) { strcat(text," Heading"); }
+    // only one should show
+    if (flags & FLITECTRL_FLAGS_IS_ANGLE_DEMAND) {
+    strcat(text, " Level");
+    } else if (flags & FLITECTRL_FLAGS_IS_SAFE_ENVELOPE) {
+    strcat(text, " Envelope");
+    } else if (flags & FLITECTRL_FLAGS_IS_AS3X_HEADING) {
+    strcat(text, " Heading");
+    }
 
-  setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
+    setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
 }
 
 // Alpha6 flight Controller  (Blade Helis based on AR636)
 // Contains Flight Mode, and Gyro Settings
-static void processAlpha6Packet(const uint8_t *packet) {
-  const uint8_t * packetData =  packet + 4; // Skip the header
+static void processAlpha6Packet(const uint8_t *packet)
+{
+  const uint8_t *packetData = packet + 4;  // Skip the header
 
-  uint8_t  status = packetData[2] & 0x0F;
-  uint8_t  flightMode = packetData[2]>>4 & 0x0F;
+  uint8_t status = packetData[2] & 0x0F;
+  uint8_t flightMode = packetData[2] >> 4 & 0x0F;
 
-  char     text[50];
+  char text[50];
 
-  sprintf(text,"%d ",flightMode);
+  sprintf(text, "%d ", flightMode);
 
-  if (flightMode==0) { strcat(text,"NOR"); } 
-  else if (flightMode==1) { strcat(text,"INT"); } 
-  else if (flightMode==2) { strcat(text,"ADV"); } 
-  else if (flightMode==5) { strcat(text,"PANIC"); }
+  if (flightMode == 0) {
+    strcat(text, "NOR");
+  } else if (flightMode == 1) {
+    strcat(text, "INT");
+  } else if (flightMode == 2) {
+    strcat(text, "ADV");
+  } else if (flightMode == 5) {
+    strcat(text, "PANIC");
+  }
 
-  if (status==2) { strcat(text," HOLD"); }
+  if (status == 2) {
+    strcat(text, " HOLD");
+  }
 
   setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
 }
 
 #if TEST_CAPTURED_MESSAGE
-// For Testing purposes, replace the package for data captured.
+// For Testing purposes, replace the package for data captured
 bool testflag = false;
-static uint8_t  replaceForTestingPackage(const uint8_t *packet) {
-    // *********** GPS LOC *********************************
-    // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
-    //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
-    //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
-    const char test16data[] = {0x16,0x00,0x97,0x00,0x54,0x71,0x12,0x28,0x40,0x80,0x09,0x82,0x85,0x14,0x13,0xB9};
+static uint8_t replaceForTestingPackage(const uint8_t *packet)
+{
+  // *********** GPS LOC *********************************
+  // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
+  //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
+  //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
+  const char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
+                             0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
 
-    // *********** GPS STAT *********************************
-    // Example 0x17:          0  1    2  3  4  5    6    7
-    //                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
-    //                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
-    const char test17data[] = {0x17,0x00,0x25,0x00,0x00,0x28,0x18,0x21,0x06,0x00};
+  // *********** GPS STAT *********************************
+  // Example 0x17:          0  1    2  3  4  5    6    7
+  //                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
+  //                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
+  const char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
+                             0x28, 0x18, 0x21, 0x06, 0x00};
 
-    if (testflag) { memcpy((char*)packet+2, test16data, 16); }
-    else { memcpy((char*)packet+2, test17data, 10); }
-      
-    testflag = !testflag;
-      
-    return packet[2] & 0x7ff;  
+  if (testflag) {
+    memcpy((char *)packet + 2, test16data, 16);
+  } else {
+    memcpy((char *)packet + 2, test17data, 10);
+  }
+
+  testflag = !testflag;
+
+  return packet[2] & 0x7ff;
 }
-#endif 
+#endif
