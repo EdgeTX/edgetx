@@ -647,14 +647,6 @@ extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
 extern const char STR_BACKUP_PATH[];
 extern const char STR_YAML_EXT[];
-extern const char STR_SELECT_TEMPLATE[];
-extern const char STR_SELECT_TEMPLATE_FOLDER[];
-extern const char STR_NO_TEMPLATES[];
-extern const char STR_SAVE_TEMPLATE[];
-extern const char STR_BLANK_MODEL[];
-extern const char STR_BLANK_MODEL_INFO[];
-extern const char STR_FILE_EXISTS[];
-extern const char STR_ASK_OVERWRITE[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
@@ -1076,6 +1068,16 @@ extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];
 extern const char STR_RACING_MODE[];
 
+#if defined(COLORLCD)
+extern const char STR_SELECT_TEMPLATE[];
+extern const char STR_SELECT_TEMPLATE_FOLDER[];
+extern const char STR_NO_TEMPLATES[];
+extern const char STR_SAVE_TEMPLATE[];
+extern const char STR_BLANK_MODEL[];
+extern const char STR_BLANK_MODEL_INFO[];
+extern const char STR_FILE_EXISTS[];
+extern const char STR_ASK_OVERWRITE[];
+
 extern const char STR_USE_THEME_COLOR[];
 
 extern const char STR_DUPLICATE[];
@@ -1093,7 +1095,6 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
-#if defined(COLORLCD)
 extern const char STR_EDIT_LABELS[];
 extern const char STR_LABEL_MODEL[];
 extern const char STR_ENTER_LABEL[];
