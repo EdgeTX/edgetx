@@ -476,7 +476,7 @@
 #define TR_TIMEZONE                     "Tidszon"
 #define TR_ADJUST_RTC                   "Justera RTC"
 #define TR_GPS                          "GPS"
-#define TR_DEF_CHAN_ORD                 TR("Kanalordn. Rx","Kanalordning i Rx")
+#define TR_DEF_CHAN_ORD                 TR("Kanalordning","Förvald kanalordning")
 #define TR_STICKS                       "Spakar"
 #define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"
@@ -629,7 +629,7 @@
 #define TR_CURRENT_CALIB                "Kalib. ström"
 #define TR_VOLTAGE                      INDENT "Volt"
 #define TR_SELECT_MODEL                 "Välj modell"
-#define TR_MODEL_MANAGER               "MODEL MANAGER"
+#define TR_MODEL_MANAGER                "MODELLHANTERING"
 #define TR_MODELS                       "Modeller"
 #define TR_SELECT_MODE                  "Välj läge"
 #define TR_CREATE_MODEL                 "Skapa modell"
@@ -638,14 +638,14 @@
 #define TR_NEW_MODEL                    "Ny modell"
 #define TR_INVALID_MODEL                "Ogiltig modell"
 #define TR_EDIT_LABELS                  "Redigera etiketter"
-#define TR_LABEL_MODEL                 "Label model"
+#define TR_LABEL_MODEL                  "Sätt modelletikett"
 #define TR_MOVE_UP                      "Flytta upp"
 #define TR_MOVE_DOWN                    "Flytta ner"
 #define TR_ENTER_LABEL                  "Ange etikett"
 #define TR_LABEL                        "Etikett"
 #define TR_LABELS                       "Etiketter"
 #define TR_CURRENT_MODEL                "Nuvarande"
-#define TR_ACTIVE                      "Active"
+#define TR_ACTIVE                       "Aktiv"
 #define TR_NEW                          "Ny"
 #define TR_NEW_LABEL                    "Ny etikett"
 #define TR_RENAME_LABEL                 "Byt namn på etikett"
@@ -1253,7 +1253,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Hantera\nmodell"
 #define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckn."
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal-\nmonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställn."

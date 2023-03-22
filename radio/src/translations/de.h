@@ -460,7 +460,7 @@
 #define TR_TIMEZONE                    TR("Zeitzone", "GPS-Zeitzone +/-Std")
 #define TR_ADJUST_RTC                  TR("GPSzeit setzen", "Uhrzeit per GPS setzen")
 #define TR_GPS                         "GPS"
-#define TR_DEF_CHAN_ORD                TR("Kanal CH1-4", "Kanalvoreinstellung")
+#define TR_DEF_CHAN_ORD                TR("Std.Kanal Folge", "Std. Kanal Reihenfolge")
 #define TR_STICKS                      "Knüppel"
 #define TR_POTS                        "Potis"
 #define TR_SWITCHES                    "Schalter"
@@ -605,7 +605,7 @@
 #define TR_CURRENT_CALIB               "Strom abgl."
 #define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
 #define TR_SELECT_MODEL                "Modell auswählen"
-#define TR_MODEL_MANAGER               "MODEL MANAGER"
+#define TR_MODEL_MANAGER               "MODELL MANAGER"
 #define TR_MODELS                      "Modelle"
 #define TR_SELECT_MODE                 "Wähle Mode"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
@@ -614,14 +614,14 @@
 #define TR_NEW_MODEL                   "Neues Modell"
 #define TR_INVALID_MODEL               "ungültiges Modell"
 #define TR_EDIT_LABELS                 "Label ändern"
-#define TR_LABEL_MODEL                 "Label model"
+#define TR_LABEL_MODEL                 "Label zuordnen"
 #define TR_MOVE_UP                     "Verschiebe nach oben"
 #define TR_MOVE_DOWN                   "Verschiebe nach unten"
 #define TR_ENTER_LABEL                 "Enter Label"
 #define TR_LABEL                       "Label"
 #define TR_LABELS                      "Labels"
 #define TR_CURRENT_MODEL               "aktuell"
-#define TR_ACTIVE                      "Active"
+#define TR_ACTIVE                      "Aktiv"
 #define TR_NEW                         "Neu"
 #define TR_NEW_LABEL                   "Neues Label"
 #define TR_RENAME_LABEL                "Label umbenennen"
@@ -1213,7 +1213,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL      "Wähle\nModell"
-#define TR_MAIN_MENU_MODEL_MANAGER     "Model\nManager"
+#define TR_MAIN_MENU_MODEL_MANAGER     "Modell\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Modell\nNotizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell\nKonfig."

@@ -468,7 +468,7 @@
 #define TR_TIMEZONE                    "Fuseau horaire"
 #define TR_ADJUST_RTC                  TR("Ajust. RTC", "Ajust. heure auto")
 #define TR_GPS                         "GPS"
-#define TR_DEF_CHAN_ORD                TR("Ordre voies RX","Ordre des voies préféré")
+#define TR_DEF_CHAN_ORD                TR("Ordre can. prédéf.", "Ordre canaux prédéfinis")
 #define TR_STICKS                      "Manches"
 #define TR_POTS                        "Potentiomètres"
 #define TR_SWITCHES                    "Inters"
@@ -616,7 +616,7 @@
 #define TR_CURRENT_CALIB               "Calib. cour"
 #define TR_VOLTAGE                     TR(INDENT "Tension",INDENT "Source tension")
 #define TR_SELECT_MODEL                "Sélect. modèle"
-#define TR_MODEL_MANAGER               "MODEL MANAGER"
+#define TR_MODEL_MANAGER               "GESTION MODELES"
 #define TR_MODELS                      "Models"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Créer modèle"
@@ -625,14 +625,14 @@
 #define TR_NEW_MODEL                   "New Model"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
-#define TR_LABEL_MODEL                 "Label model"
+#define TR_LABEL_MODEL                 "Etiquete modèle"
 #define TR_MOVE_UP                     "Move Up"
 #define TR_MOVE_DOWN                   "Move Down"
 #define TR_ENTER_LABEL                 "Enter Label"
 #define TR_LABEL                       "Label"
 #define TR_LABELS                      "Labels"
 #define TR_CURRENT_MODEL               "Current"
-#define TR_ACTIVE                      "Active"
+#define TR_ACTIVE                      "Actif"
 #define TR_NEW                         "New"
 #define TR_NEW_LABEL                   "New Label"
 #define TR_RENAME_LABEL                "Rename Label"
@@ -1235,7 +1235,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Select\nModel"
-#define TR_MAIN_MENU_MODEL_MANAGER      "Model\nManager"
+#define TR_MAIN_MENU_MODEL_MANAGER      "Gestion\nModèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nSettings"
