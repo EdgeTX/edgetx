@@ -1117,7 +1117,7 @@ extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
 extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
 extern const char STR_MAIN_MENU_STATISTICS[];
 extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
-extern const char STR_MODEL_MANAGER[];
+extern const char STR_MANAGE_MODELS[];
 #endif
 
 #endif // _TRANSLATIONS_H_
