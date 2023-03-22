@@ -1101,7 +1101,6 @@ extern const char STR_LABEL[];
 extern const char STR_LABELS[];
 extern const char STR_SELECT_MODEL[];
 extern const char STR_NONE[];
-extern const char STR_CURRENT_MODEL[];
 extern const char STR_ACTIVE[];
 extern const char STR_NEW[];
 extern const char STR_NEW_LABEL[];

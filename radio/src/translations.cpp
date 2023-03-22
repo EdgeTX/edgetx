@@ -932,7 +932,6 @@ const char STR_LABEL_MODEL[] = TR_LABEL_MODEL;
 const char STR_ENTER_LABEL[] = TR_ENTER_LABEL;
 const char STR_LABEL[] = TR_LABEL;
 const char STR_LABELS[] = TR_LABELS;
-const char STR_CURRENT_MODEL[] = TR_CURRENT_MODEL;
 const char STR_ACTIVE[] = TR_ACTIVE;
 const char STR_NEW[] = TR_NEW;
 const char STR_NEW_LABEL[] = TR_NEW_LABEL;
