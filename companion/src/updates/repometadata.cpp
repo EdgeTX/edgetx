@@ -53,7 +53,7 @@ void RepoMetaData::dumpFilteredItemModel() const
 
 const int RepoMetaData::flags() const
 {
-  return m_filteredItemModel->filterFlags(id());
+  return m_filteredItemModel->getFlags(id());
 }
 
 int RepoMetaData::getSetId()
