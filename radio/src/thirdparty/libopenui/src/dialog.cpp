@@ -66,6 +66,8 @@ std::string DialogWindowContent::getName() const
 Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
     ModalWindow(parent), content(new DialogWindowContent(this, rect))
 {
+  lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+  lv_obj_set_style_bg_opa(content->getLvObj(), LV_OPA_100, LV_PART_MAIN);
   bringToTop();
   if (!title.empty()) content->setTitle(std::move(title));
 }
