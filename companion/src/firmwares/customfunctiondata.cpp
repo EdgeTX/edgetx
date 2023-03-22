@@ -400,8 +400,8 @@ AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("customfunctiondata.repeatLua");
 
-  mdl->appendToItemList("On", 0);
-  mdl->appendToItemList("1x", 1);
+  mdl->appendToItemList(tr("On"), 0);
+  mdl->appendToItemList(tr("1x"), 1);
 
   mdl->loadItemList();
   return mdl;
