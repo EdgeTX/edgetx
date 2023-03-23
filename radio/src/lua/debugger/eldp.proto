@@ -77,12 +77,13 @@ message ExecuteDebuggerCommand {
 
 // client to radio
 message SetBreakpoint {
+    enum State {
+        ENABLED = 0;
+        DISALED = 1;
+        NONE = 2; // basically removed
+    }
     Breakpoint breakpoint = 1;
-}
-
-// client to radio
-message UnsetBreakpoint {
-    Breakpoint breakpoint = 1;
+    State state = 2;
 }
 
 // client to radio
