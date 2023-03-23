@@ -419,6 +419,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
               if (rcvrname.IsMap()) {
                 if (rcvrname["val"]) {
                   rcvrname["val"] >> rhs.access.receiverName[i];
+                  rhs.access.receivers |= (1 << i);       // fix colorLCD radios not writing tag receivers
                 }
               }
             }
