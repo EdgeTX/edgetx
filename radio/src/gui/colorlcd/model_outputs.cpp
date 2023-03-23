@@ -38,6 +38,8 @@ STATIC_LZ4_BITMAP(mask_textline_curve);
 
 #if LCD_W > LCD_H // Landscape
 
+#define CH_LINE_H 35
+
 #define CH_BAR_COL     7
 #define CH_BAR_COLSPAN 1
 
@@ -49,6 +51,8 @@ static const lv_coord_t col_dsc[] = {
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else // Portrait
+
+#define CH_LINE_H 50
 
 #define CH_BAR_COL     3
 #define CH_BAR_COLSPAN 3
@@ -156,7 +160,7 @@ class OutputLineButton : public ListLineButton
   OutputLineButton(Window* parent, uint8_t channel) :
       ListLineButton(parent, channel)
   {
-    setHeight(35);
+    setHeight(CH_LINE_H);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
