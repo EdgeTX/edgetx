@@ -14,3 +14,6 @@
 [submodule "radio/src/thirdparty/Segger_RTT"]
 	path = radio/src/thirdparty/Segger_RTT
 	url = https://github.com/adfernandes/segger-rtt.git
+[submodule "radio/src/thirdparty/nanopb"]
+	path = radio/src/thirdparty/nanopb
+	url = https://github.com/nanopb/nanopb.git
