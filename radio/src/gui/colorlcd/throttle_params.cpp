@@ -55,7 +55,8 @@ static void setThrottleTrimSource(int16_t src)
 
 ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_THROTTLE_LABEL);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_THROTTLE_LABEL);
 
   body.setFlexLayout();
   body.padAll(8);

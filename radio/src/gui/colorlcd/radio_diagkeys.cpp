@@ -125,7 +125,8 @@ class RadioKeyDiagsWindow : public Window
 
 void RadioKeyDiagsPage::buildHeader(Window * window)
 {
-  header.setTitle(STR_MENU_RADIO_SWITCHES);
+  header.setTitle(STR_RADIO_SETUP);
+  header.setTitle2(STR_MENU_RADIO_SWITCHES);
 }
 
 void RadioKeyDiagsPage::buildBody(Window * window)

@@ -454,7 +454,7 @@
 #define TR_TIMEZONE                    "タイムゾーン"
 #define TR_ADJUST_RTC                  "内蔵時計修正"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Rx channel ord", "チャンネルマップ初期値")
+#define TR_DEF_CHAN_ORD                TR("Def chan order", "チャンネルマップ初期値")
 #define TR_STICKS                      "スティック"
 #define TR_POTS                        "ダイヤル"
 #define TR_SWITCHES                    "スイッチ"
@@ -606,6 +606,7 @@
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "電圧ソース")
 #define TR_SELECT_MODEL                "モデル選択"
+#define TR_MANAGE_MODELS               "モデル管理"
 #define TR_MODELS                      "モデル"
 #define TR_SELECT_MODE                 "モード選択"
 #define TR_CREATE_MODEL                "モデル作成"
@@ -614,12 +615,14 @@
 #define TR_NEW_MODEL                   "新規モデル"
 #define TR_INVALID_MODEL               "無効なモデル"
 #define TR_EDIT_LABELS                 "ラベル編集"
+#define TR_LABEL_MODEL                 "モデルラベル"
 #define TR_MOVE_UP                     "上へ移動"
 #define TR_MOVE_DOWN                   "下へ移動"
 #define TR_ENTER_LABEL                 "ラベル適用"
 #define TR_LABEL                       "ラベル"
 #define TR_LABELS                      "ラベル"
 #define TR_CURRENT_MODEL               "現在のモデル"
+#define TR_ACTIVE                      "有効"
 #define TR_NEW                         "新規"
 #define TR_NEW_LABEL                   "新規ラベル"
 #define TR_RENAME_LABEL                "ラベル名変更"
@@ -1204,6 +1207,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "モデル\n選択"
+#define TR_MAIN_MENU_MANAGE_MODELS      "モデル\n管理"
 #define TR_MAIN_MENU_MODEL_NOTES        "モデル\nノート"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "チャンネル\nモニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"

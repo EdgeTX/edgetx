@@ -215,7 +215,7 @@ class WindowButtonGroup : public FormGroup
   typedef std::function<void()>           PageFct;
   typedef std::pair<const char*, PageFct> PageDef;
   typedef std::list<PageDef>              PageDefs;
-  
+
   WindowButtonGroup(
       Window* parent, const rect_t& rect, PageDefs pages) :
       FormGroup(parent, rect),
@@ -254,6 +254,9 @@ class SoundPage : public SubPage {
   public:
     SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_SOUND_LABEL);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 3);
 
       auto line = body.newLine(&grid);
@@ -308,6 +311,9 @@ class VarioPage : public SubPage {
   public:
     VarioPage() : SubPage(ICON_RADIO_SETUP, STR_VARIO)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_VARIO);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -349,6 +355,9 @@ class HapticPage : public SubPage {
   public:
     HapticPage() : SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_HAPTIC_LABEL);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -375,6 +384,9 @@ class AlarmsPage : public SubPage {
   public:
     AlarmsPage() : SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_ALARMS_LABEL);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -433,6 +445,9 @@ class BacklightPage : public SubPage {
   public:
     BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_BACKLIGHT_LABEL);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -547,6 +562,9 @@ class GpsPage : public SubPage {
   public:
     GpsPage() : SubPage(ICON_RADIO_SETUP, STR_GPS)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_GPS);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -589,7 +607,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(HAPTIC)
       {STR_HAPTIC_LABEL, []() { new HapticPage(); }},
 #endif
-      {STR_ALARM, []() { new AlarmsPage(); }},
+      {STR_ALARMS_LABEL, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
 });
@@ -610,7 +628,7 @@ void RadioSetupPage::build(FormWindow * window)
                });
   }
 #endif
-  
+
 #if defined(PXX2)
   // Owner ID
   {
@@ -682,9 +700,9 @@ void RadioSetupPage::build(FormWindow * window)
              GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
 #endif
 
-  // RX channel order
+  // Default channel order
   line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0,
+  new StaticText(line, rect_t{}, STR_DEF_CHAN_ORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
   choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
                       GET_SET_DEFAULT(g_eeGeneral.templateSetup));

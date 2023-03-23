@@ -38,7 +38,8 @@ static void resetTrims()
 
 TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_TRIMS);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_TRIMS);
 
   body.setFlexLayout();
   body.padAll(8);

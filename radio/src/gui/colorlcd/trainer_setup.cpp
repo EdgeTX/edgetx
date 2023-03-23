@@ -140,7 +140,8 @@ void TrainerModuleWindow::update()
 
 TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_TRAINER);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_TRAINER);
 
   auto form = new FormGroup(&body, rect_t{});
   form->setFlexLayout();

@@ -96,7 +96,8 @@ class SelectTemplate : public TemplatePage
  public:
   SelectTemplate(SelectTemplateFolder* tp, std::string folder) : templateFolderPage(tp)
   {
-    header.setTitle(STR_SELECT_TEMPLATE);
+    header.setTitle(STR_MANAGE_MODELS);
+    header.setTitle2(STR_NEW_MODEL);
 
     char path[LEN_PATH + 1];
     snprintf(path, LEN_PATH, "%s/%s", TEMPLATES_PATH, folder.c_str());
@@ -170,7 +171,8 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(std::string folder
 {
   this->update = update;
 
-  header.setTitle(STR_SELECT_TEMPLATE_FOLDER);
+  header.setTitle(STR_MANAGE_MODELS);
+  header.setTitle2(STR_NEW_MODEL);
 
   auto tfb = new TextButton(listWindow,
                             rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2},

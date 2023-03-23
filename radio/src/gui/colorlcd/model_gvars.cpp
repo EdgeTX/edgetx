@@ -193,7 +193,7 @@ class GVarEditWindow : public Page
 
   void buildHeader(Window* window)
   {
-    header.setTitle(STR_GLOBAL_VAR);
+    header.setTitle(STR_MENU_GLOBAL_VARS);
     gVarInHeader = header.setTitle2("");
   }
 

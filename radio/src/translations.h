@@ -388,7 +388,7 @@ extern const char STR_FLYSKY_TELEMETRY[];
 extern const char STR_PITCH_AT_ZERO[];
 extern const char STR_PITCH_AT_MAX[];
 extern const char STR_REPEAT_AT_ZERO[];
-extern const char STR_RXCHANNELORD[];
+extern const char STR_DEF_CHAN_ORD[];
 extern const char STR_STICKS[];
 extern const char STR_POTS[];
 extern const char STR_SWITCHES[];
@@ -566,7 +566,6 @@ extern const char STR_FAVORITE_LABEL[];
 extern const char STR_MODELS_MOVED[];
 extern const char STR_NEW_MODEL[];
 extern const char STR_INVALID_MODEL[];
-extern const char STR_EDIT_LABELS[];
 extern const char STR_MOVE_UP[];
 extern const char STR_MOVE_DOWN[];
 extern const char STR_DUPLICATE_MODEL[];
@@ -648,14 +647,6 @@ extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
 extern const char STR_BACKUP_PATH[];
 extern const char STR_YAML_EXT[];
-extern const char STR_SELECT_TEMPLATE[];
-extern const char STR_SELECT_TEMPLATE_FOLDER[];
-extern const char STR_NO_TEMPLATES[];
-extern const char STR_SAVE_TEMPLATE[];
-extern const char STR_BLANK_MODEL[];
-extern const char STR_BLANK_MODEL_INFO[];
-extern const char STR_FILE_EXISTS[];
-extern const char STR_ASK_OVERWRITE[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
@@ -1079,6 +1070,16 @@ extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];
 extern const char STR_RACING_MODE[];
 
+#if defined(COLORLCD)
+extern const char STR_SELECT_TEMPLATE[];
+extern const char STR_SELECT_TEMPLATE_FOLDER[];
+extern const char STR_NO_TEMPLATES[];
+extern const char STR_SAVE_TEMPLATE[];
+extern const char STR_BLANK_MODEL[];
+extern const char STR_BLANK_MODEL_INFO[];
+extern const char STR_FILE_EXISTS[];
+extern const char STR_ASK_OVERWRITE[];
+
 extern const char STR_USE_THEME_COLOR[];
 
 extern const char STR_DUPLICATE[];
@@ -1096,21 +1097,20 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
-
-
-#if defined(COLORLCD)
-
+extern const char STR_EDIT_LABELS[];
+extern const char STR_LABEL_MODEL[];
 extern const char STR_ENTER_LABEL[];
 extern const char STR_LABEL[];
 extern const char STR_LABELS[];
 extern const char STR_SELECT_MODEL[];
 extern const char STR_NONE[];
-extern const char STR_CURRENT_MODEL[];
+extern const char STR_ACTIVE[];
 extern const char STR_NEW[];
 extern const char STR_NEW_LABEL[];
 extern const char STR_RENAME_LABEL[];
 extern const char STR_DELETE_LABEL[];
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
+extern const char STR_MAIN_MENU_MANAGE_MODELS[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
 extern const char STR_MAIN_MENU_MODEL_SETTINGS[];
@@ -1119,7 +1119,7 @@ extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
 extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
 extern const char STR_MAIN_MENU_STATISTICS[];
 extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
-
+extern const char STR_MANAGE_MODELS[];
 #endif
 
 #if defined(USBJ_EX)
