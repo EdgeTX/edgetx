@@ -378,6 +378,7 @@ class FlightModeBtn : public Button
     lv_obj_set_style_flex_grow(container, 2, LV_PART_MAIN);
     lv_obj_set_style_pad_all(container, 0, LV_PART_MAIN);
     lv_obj_set_height(container, LV_SIZE_CONTENT);
+    lv_obj_set_user_data(container, this);
     lv_obj_add_flag(container, LV_OBJ_FLAG_EVENT_BUBBLE);
     lv_obj_set_flex_align(container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
