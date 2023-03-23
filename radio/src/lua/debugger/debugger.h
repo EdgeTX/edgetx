@@ -19,7 +19,4 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LUA_DEBUGGER_H_
-#define _LUA_DEBUGGER_H_
-
-#endif // _LUA_DEBUGGER_H_
+#pragma once
