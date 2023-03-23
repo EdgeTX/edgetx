@@ -273,8 +273,8 @@ class ProtoState
     ModuleState state;
 
     bool modelIDSet;
+    bool modelcfgGet;
     uint8_t modelID;
-
     /**
      * Command count used for counting actual number of commands sent in run mode
      */
@@ -428,9 +428,6 @@ void ProtoState::setupFrame()
         modelID = g_model.header.modelId[module_index];
         trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                        &g_model.header.modelId[module_index], 1);
-
-        // always fetch config after setting model ID
-        trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
         return;
       }
     } else if (modelID != g_model.header.modelId[module_index]) {
@@ -449,10 +446,16 @@ void ProtoState::setupFrame()
     // exit bind
     if (this->state == STATE_BINDING) {
       TRACE("AFHDS3 [EXIT BIND]");
+      modelcfgGet = true;
       auto mode = (uint8_t)MODULE_MODE_E::RUN;
       trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
+  }
+
+  if (modelcfgGet){
+    trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+    return;
   }
 
   if (cmdCount++ >= 150) {
@@ -579,13 +582,12 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         }
         break;
       case COMMAND::MODULE_GET_CONFIG: {
+        modelcfgGet = false;
         size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
         std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
-        // TRACE(
-        //     "AFHDS3 [MODULE_GET_CONFIG] bind power %d run power %d mode %d "
-        //     "pwm/ppm %d ibus/sbus %d",
-        //     cfg.config.bindPower, cfg.config.runPower, cfg.config.telemetry,
-        //     cfg.config.pulseMode, cfg.config.serialMode);
+        moduleData->afhds3.emi = cfg.v0.EMIStandard;
+        moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
+        moduleData->afhds3.phyMode = cfg.v0.PhyMode;
       } break;
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
@@ -608,6 +610,11 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
           setState(ModuleState::STATE_NOT_READY);
         }
         TRACE("AFHDS3 [MODULE_SET_CONFIG], %02X", responseFrame->value);
+        break;
+      case COMMAND::MODEL_ID:
+        if (responseFrame->value == CMD_RESULT::SUCCESS) {
+          modelcfgGet = true;
+        }
         break;
       case COMMAND::TELEMETRY_DATA:
         {
