@@ -38,6 +38,8 @@ STATIC_LZ4_BITMAP(mask_textline_curve);
 
 #if LCD_W > LCD_H // Landscape
 
+#define CH_LINE_H 35
+
 #define CH_BAR_COL     7
 #define CH_BAR_COLSPAN 1
 
@@ -49,6 +51,8 @@ static const lv_coord_t col_dsc[] = {
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else // Portrait
+
+#define CH_LINE_H 50
 
 #define CH_BAR_COL     3
 #define CH_BAR_COLSPAN 3
@@ -156,6 +160,7 @@ class OutputLineButton : public ListLineButton
   OutputLineButton(Window* parent, uint8_t channel) :
       ListLineButton(parent, channel)
   {
+    setHeight(CH_LINE_H);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
@@ -170,9 +175,6 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-
-    lv_obj_update_layout(parent->getLvObj());
-    if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
 
     lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
@@ -322,10 +324,6 @@ void ModelOutputsPage::build(FormWindow *window)
 
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-#if LCD_W > LCD_H
-    // Initial scroll height is incorrect without this??? (Issue #3186)
-    btn->setHeight(35);
-#endif
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
