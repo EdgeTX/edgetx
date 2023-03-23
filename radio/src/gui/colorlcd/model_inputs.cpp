@@ -444,7 +444,8 @@ void ModelInputsPage::build(FormWindow *window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
   
-  form = window;
+  form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
   groups.clear();
   lines.clear();

@@ -515,7 +515,8 @@ void ModelMixesPage::build(FormWindow * window)
 
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  form = window;
+  form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
   groups.clear();
   lines.clear();
@@ -542,7 +543,7 @@ void ModelMixesPage::build(FormWindow * window)
     }
   }
 
-  auto box = new FormGroup(form, rect_t{});
+  auto box = new FormGroup(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
@@ -555,7 +556,7 @@ void ModelMixesPage::build(FormWindow * window)
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });
 
-  auto btn = new TextButton(form, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
     newMix();
     return 0;
   });
