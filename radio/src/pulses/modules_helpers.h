@@ -751,6 +751,7 @@ inline bool isPXX2ReceiverUsed(uint8_t moduleIdx, uint8_t receiverIdx)
 inline void setPXX2ReceiverUsed(uint8_t moduleIdx, uint8_t receiverIdx)
 {
   g_model.moduleData[moduleIdx].pxx2.receivers |= (1 << receiverIdx);
+  storageDirty(EE_MODEL);
 }
 
 inline bool isPXX2ReceiverEmpty(uint8_t moduleIdx, uint8_t receiverIdx)

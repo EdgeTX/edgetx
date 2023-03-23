@@ -38,8 +38,8 @@ static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
       bindInfo.candidateReceiversNames[bindInfo.selectedReceiverIndex];
   memcpy(g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx],
          receiverName, PXX2_LEN_RX_NAME);
-  storageDirty(EE_MODEL);
   bindInfo.step = BIND_OK;
+  setPXX2ReceiverUsed(moduleIdx, receiverIdx);
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
   new MessageDialog(parent, STR_BIND, STR_BIND_OK);
 #else
@@ -163,6 +163,7 @@ void BindWaitDialog::checkEvents()
       deleteLater();
       if (bindInfo.step == BIND_OK) {
         POPUP_INFORMATION(STR_REG_OK);
+        setPXX2ReceiverUsed(moduleIdx, receiverIdx);
       }
       return;
     }
