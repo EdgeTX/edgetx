@@ -57,22 +57,13 @@ message Breakpoint {
 message LuaDebugInfo {
     optional string sourceFile = 1;
     optional int32 line = 2;
-    optional What what = 3;
-    optional string name = 4;
-    optional NameWhat nameWhat = 5;
-    optional bool isTailCall = 6;
-    optional int32 nUps = 7;
-    optional int32 nParams = 8;
-    optional bool isVararg = 9;
-    optional int32 fTransfer = 10;
-    optional int32 nTransfer = 11;
-
     enum What {
         LUA = 0;
         C = 1;
         MAIN = 2;
     }
-
+    optional What what = 3;
+    optional string name = 4;
     enum NameWhat {
         GLOBAL = 0;
         LOCAL = 1;
@@ -80,6 +71,13 @@ message LuaDebugInfo {
         FIELD = 3;
         UPVALUE = 4;
     }
+    optional NameWhat nameWhat = 5;
+    optional bool isTailCall = 6;
+    optional int32 nUps = 7;
+    optional int32 nParams = 8;
+    optional bool isVararg = 9;
+    optional int32 fTransfer = 10;
+    optional int32 nTransfer = 11;
 }
 
 /*
