@@ -41,8 +41,12 @@ static void trigger_intmodule_heartbeat()
   heartbeatCapture.count++;
 #endif
 
-  mixerSchedulerResetTimer();
-  mixerSchedulerISRTrigger();
+  // Generate an timer update event (TIM_EGR_UG) to reload the Prescaler and the repetition 
+  // counter value immediately to avoid making FreeRTOS calls within this ISR:
+  // - fires MIXER_SCHEDULER_TIMER interrupt after returning from this ISR
+  // - MIXER_SCHEDULER_TIMER_IRQHandler(void) takes care of making FreeRTOS calls
+  //   to ensure switching to highest priority task.
+  MIXER_SCHEDULER_TIMER->EGR = TIM_EGR_UG;  
 }
 
 void init_intmodule_heartbeat()
