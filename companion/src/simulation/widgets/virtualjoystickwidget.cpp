@@ -300,7 +300,7 @@ void VirtualJoystickWidget::loadDefaultsForMode(const unsigned mode)
 {
   if (((mode & 1) && stickSide == 'L') || (!(mode & 1) && stickSide == 'R')) {
     setStickConstraint(HOLD_Y, true);
-    setStickY(1.0);
+    setStickY(-1.0);
     onNodeYChanged();
   }
 }
