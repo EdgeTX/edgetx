@@ -196,7 +196,7 @@ const FlySkySensor flySkySensors[] = {
 };
 
 int32_t getALT(uint32_t value);
-inline int setslyskyTelemetryValue( int16_t type, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)
+inline int setFlyskyTelemetryValue( int16_t type, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)
 {
   return setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, type, 0, instance, value, unit, prec );
 }
@@ -283,11 +283,11 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
     if (sensor->unit == UNIT_CELSIUS) value -= 400; // Temperature sensors have 40 degree offset
     else if (sensor->unit == UNIT_VOLTS) value = (int16_t) value; // Voltage types are unsigned 16bit integers
 
-    setslyskyTelemetryValue(type, id, value, sensor->unit, sensor->precision);
+    setFlyskyTelemetryValue(type, id, value, sensor->unit, sensor->precision);
     return;
   }
   //unknown
-  setslyskyTelemetryValue(type, id, value, UNIT_RAW, 0);
+  setFlyskyTelemetryValue(type, id, value, UNIT_RAW, 0);
 }
 
 
@@ -382,7 +382,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
 void processFlySkyPacket(const uint8_t * packet)
 {
   // Set TX RSSI Value, reverse MULTIs scaling
-  setslyskyTelemetryValue(AFHDS2A_ID_TX_RSSI, 0, packet[0], UNIT_RAW, 0);
+  setFlyskyTelemetryValue(AFHDS2A_ID_TX_RSSI, 0, packet[0], UNIT_RAW, 0);
 
   const uint8_t * buffer = packet + 1;
   int sesnor = 0;
@@ -396,7 +396,7 @@ void processFlySkyPacket(const uint8_t * packet)
 void processFlySkyPacketAC(const uint8_t * packet)
 {
   // Set TX RSSI Value, reverse MULTIs scaling
-  setslyskyTelemetryValue(AFHDS2A_ID_TX_RSSI, 0, packet[0], UNIT_RAW, 0);
+  setFlyskyTelemetryValue(AFHDS2A_ID_TX_RSSI, 0, packet[0], UNIT_RAW, 0);
   const uint8_t * buffer = packet + 1;
   while (buffer - packet < 26) //28 + 1(multi TX rssi) - 3(ac header)
   {
