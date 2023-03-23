@@ -297,7 +297,7 @@
 
 #define TR_VFAILSAFE                    "Ej inställt","Lås senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
 #define TR_VSENSORTYPES                 "Anpassad","Beräknad"
-#define TR_VFORMULAS                    "Addera","Medel","Min","Max","Multipl.","Summa","Cell","Förbrukning","Sträcka"
+#define TR_VFORMULAS                    "Addera",TR("Medel","Medelvärde"),TR("Min","Minimum"),TR("Max","Maximum"),TR("Multipl.","Multiplicera"),"Summera","Cell",TR("Förbrukn.","Förbrukning"),"Avstånd"
 #define TR_VPREC                        "0.--","0.0","0.00"
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
@@ -454,7 +454,7 @@
 #define TR_THROTTLEREVERSE              TR("Omv. gas", INDENT "Omvänd gas")
 #define TR_MINUTEBEEP                   "Minutpip"
 #define TR_BEEPCOUNTDOWN                INDENT "Nedräkning"
-#define TR_PERSISTENT                   TR(INDENT "Beständig", INDENT "Beständighet")
+#define TR_PERSISTENT                   INDENT "Beständig"
 #define TR_BACKLIGHT_LABEL              "Belysning"
 #define TR_GHOST_MENU_LABEL             "GHOST MENY"
 #define TR_STATUS                       "Status"
@@ -1044,8 +1044,6 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE   "Subtrim-läge"
 #define TR_INVERTED                     "Inverterad"
 
-//#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
-
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Jämförelsetyp eller funktion", "Första variabeln", "Andra variabeln eller konstant", "Andra variabeln eller konstant", "Ytterligare villkor för att raden ska aktiveras", "Minsta tid PÅ för den logiska brytaren", "Minsta varaktighet för SANT för att brytaren ska slås PÅ" }
 
@@ -1161,7 +1159,7 @@
 #define TR_RATIO                        "Ratio"
 #define TR_FORMULA                      "Formel"
 #define TR_CELLINDEX                    "Cellindex"
-#define TR_LOGS                         "Loggar"
+#define TR_LOGS                         "Logga"
 #define TR_OPTIONS                      "Options"
 #define TR_FIRMWARE_OPTIONS             "Firmwarefunktioner"
 
@@ -1283,28 +1281,28 @@
 #define TR_VOICE_TAIWANESE              "Taiwanesiska"
 #define TR_VOICE_JAPANESE               "Japanska"
 
-#define TR_USBJOYSTICK_LABEL           "USB Joystick"
-#define TR_USBJOYSTICK_EXTMODE         "Mode"
-#define TR_VUSBJOYSTICK_EXTMODE        "Classic","Advanced"
-#define TR_USBJOYSTICK_SETTINGS        "Channel Settings"
-#define TR_USBJOYSTICK_IF_MODE         TR("If. mode","Interface mode")
-#define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAxis"
-#define TR_USBJOYSTICK_CH_MODE         "Mode"
-#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim"
-#define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
-#define TR_USBJOYSTICK_CH_BTNMODE      "Button Mode"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta","Companion"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
-#define TR_USBJOYSTICK_CH_SWPOS        "Positions"
-#define TR_VUSBJOYSTICK_CH_SWPOS       "Push","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
-#define TR_USBJOYSTICK_CH_AXIS         "Axis"
-#define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
-#define TR_USBJOYSTICK_CH_SIM          "Sim axis"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
-#define TR_USBJOYSTICK_CH_INVERSION    "Inversion"
-#define TR_USBJOYSTICK_CH_BTNNUM       "Button no."
-#define TR_USBJOYSTICK_BTN_COLLISION   "!Button no. collision!"
-#define TR_USBJOYSTICK_AXIS_COLLISION  "!Axis collision!"
-#define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
-#define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+#define TR_USBJOYSTICK_LABEL            "USB Joystick"
+#define TR_USBJOYSTICK_EXTMODE          "Läge"
+#define TR_VUSBJOYSTICK_EXTMODE         "Klassisk","Avancerad"
+#define TR_USBJOYSTICK_SETTINGS         "Kanalinställningar"
+#define TR_USBJOYSTICK_IF_MODE          TR("Interface","Typ av interface")
+#define TR_VUSBJOYSTICK_IF_MODE         "Joystick","Gamepad","MultiAxis"
+#define TR_USBJOYSTICK_CH_MODE          "Läge"
+#define TR_VUSBJOYSTICK_CH_MODE         "Inget","Knapp","Axel","Sim"
+#define TR_VUSBJOYSTICK_CH_MODE_S       "-","B","A","S"
+#define TR_USBJOYSTICK_CH_BTNMODE       "Knappläge"
+#define TR_VUSBJOYSTICK_CH_BTNMODE      "Normal","Puls","SWEmu","Delta","Companion"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S    TR("Norm","Normal"),TR("Puls","Puls"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
+#define TR_USBJOYSTICK_CH_SWPOS         "Knapptyp"
+#define TR_VUSBJOYSTICK_CH_SWPOS        "Tryck","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
+#define TR_USBJOYSTICK_CH_AXIS          "Axis"
+#define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Reglage","Vred","Hjul"
+#define TR_USBJOYSTICK_CH_SIM           "Sim.axlar"
+#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas"
+#define TR_USBJOYSTICK_CH_INVERSION     "Invertering"
+#define TR_USBJOYSTICK_CH_BTNNUM        "Knapp nr."
+#define TR_USBJOYSTICK_BTN_COLLISION    "!Knappnr. krockar!"
+#define TR_USBJOYSTICK_AXIS_COLLISION   "!Axlar krockar!"
+#define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Cirk. klipp", "Cirkulärt klipp")
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_USBJOYSTICK_APPLY_CHANGES    "Tillämpa ändringar"
