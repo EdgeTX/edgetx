@@ -99,6 +99,9 @@ void usbStart()
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
       break;
 #endif
+    // TODO: Implement
+    // case USB_LUA_DEBUGGER_MODE:
+    //   break;
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
