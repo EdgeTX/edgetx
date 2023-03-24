@@ -97,12 +97,13 @@ void AppPreferencesDialog::accept()
   if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
     // Don't overwrite selected joystick if not connected. Avoid surprising the user.
-    if (ui->joystickCB->isEnabled())
-      g.jsCtrl(ui->joystickCB ->currentIndex());
+    if (ui->joystickCB->isEnabled()) {
+      profile.jsName(ui->joystickCB->currentText());
+      g.loadNamedJS();
+    }
   }
   else {
     g.jsSupport(false);
-    g.jsCtrl(0);
   }
 
   //  Updates tab
@@ -287,7 +288,8 @@ void AppPreferencesDialog::initSettings()
     }
     ui->joystickCB->clear();
     ui->joystickCB->insertItems(0, joystickNames);
-    ui->joystickCB->setCurrentIndex(g.jsCtrl());
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
+    ui->joystickCB->setCurrentIndex(stick);
   }
   else {
     ui->joystickCB->clear();
@@ -614,8 +616,9 @@ void AppPreferencesDialog::on_joystickChkB_clicked() {
 }
 
 void AppPreferencesDialog::on_joystickcalButton_clicked() {
-   joystickDialog * jd=new joystickDialog(this, ui->joystickCB->currentIndex());
-   jd->exec();
+  g.currentProfile().jsName(ui->joystickCB->currentText());
+  joystickDialog * jd = new joystickDialog(this);
+  jd->exec();
 }
 #endif
 

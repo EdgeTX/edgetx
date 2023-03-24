@@ -25,7 +25,7 @@
 #include "boards.h"
 #include "constants.h"
 
-joystickDialog::joystickDialog(QWidget *parent, int stick) :
+joystickDialog::joystickDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::joystickDialog),
   step(0),
@@ -35,15 +35,51 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
   ui->setupUi(this);
 
   int i;
-  char s[20];
 
   for (i = 0; i < MAX_JS_AXES; i += 1) {
     jscal[i][0] = 32767;
     jscal[i][1] = 0;
-    jscal[i][2] = -32767;
+    jscal[i][2] = -32768;
   }
 
+  ui->backButton->setEnabled(false);
+
+  ui->joystickChkB->setChecked(g.jsSupport());
+
+  if (loadJoysticks()) {
+    joystickSetEnabled(ui->joystickChkB->isChecked());
+    joystickOpen(ui->joystickCB->currentIndex());
+  }
+  else {
+    joystickSetEnabled(false);
+  }
+  loadStep();
+
+  connect(joystick, SIGNAL(axisValueChanged(int, int)), this, SLOT(onjoystickAxisValueChanged(int, int)));
+  connect(joystick, SIGNAL(buttonValueChanged(int, bool)), this, SLOT(onjoystickButtonValueChanged(int, bool)));
+  connect(ui->joystickCB, SIGNAL(currentIndexChanged(int)), this, SLOT(joystickOpen(int)));
+  connect(ui->joystickChkB, SIGNAL(toggled(bool)), this, SLOT(joystickSetEnabled(bool)));
+}
+
+joystickDialog::~joystickDialog()
+{
+  delete ui;
+}
+
+void joystickDialog::loadGrid()
+{
+  int i;
+  char s[20];
+
   QGridLayout *grid = findChild<QGridLayout*>("gridLayout");
+
+  QLayoutItem* item;
+  while ((item = grid->takeAt(0)) != NULL)
+  {
+      delete item->widget();
+      delete item;
+  }
+
   int row = 0;
   int col = 0;
   if (grid) {
@@ -100,32 +136,6 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
       sticks[i+MAX_JS_AXES]->setCurrentIndex(sticks[i+MAX_JS_AXES]->findData(g.jsButton[i].button_idx()));
     }
   }
-
-  ui->backButton->setEnabled(false);
-
-  ui->joystickChkB->setChecked(g.jsSupport() || stick > -1);
-
-  if (stick < 0)
-    stick = g.jsCtrl();
-
-  if (loadJoysticks(stick)) {
-    joystickSetEnabled(ui->joystickChkB->isChecked());
-    joystickOpen(ui->joystickCB->currentIndex());
-  }
-  else {
-    joystickSetEnabled(false);
-  }
-  loadStep();
-
-  connect(joystick, SIGNAL(axisValueChanged(int, int)), this, SLOT(onjoystickAxisValueChanged(int, int)));
-  connect(joystick, SIGNAL(buttonValueChanged(int, bool)), this, SLOT(onjoystickButtonValueChanged(int, bool)));
-  connect(ui->joystickCB, SIGNAL(currentIndexChanged(int)), this, SLOT(joystickOpen(int)));
-  connect(ui->joystickChkB, SIGNAL(toggled(bool)), this, SLOT(joystickSetEnabled(bool)));
-}
-
-joystickDialog::~joystickDialog()
-{
-  delete ui;
 }
 
 void joystickDialog::populateSourceCombo(QComboBox * cb)
@@ -203,7 +213,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   }
 }
 
-bool joystickDialog::loadJoysticks(int stick)
+bool joystickDialog::loadJoysticks()
 {
   QStringList joystickNames;
   bool found = false;
@@ -219,7 +229,8 @@ bool joystickDialog::loadJoysticks(int stick)
     joystick->close();
   }
   ui->joystickCB->insertItems(0, joystickNames);
-  if (found && stick < joystickNames.size()) {
+  if (found) {
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
     ui->joystickCB->setCurrentIndex(stick);
   }
   else if (!found) {
@@ -244,6 +255,10 @@ void joystickDialog::joystickOpen(int stick)
   else {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot open joystick."));
   }
+
+  g.currentProfile().jsName(ui->joystickCB->currentText());
+  g.loadNamedJS();
+  loadGrid();
 }
 
 void joystickDialog::joystickSetEnabled(bool enable)
@@ -290,6 +305,10 @@ void joystickDialog::loadStep()
       break;
     case 1:
       started = true;
+      for (int i=0; i < numAxes; i++) {
+        jscal[i][0] = 0;
+        jscal[i][2] = 0;
+      }
       ui->howtoLabel->setText(tr("Move sticks and pots in every direction making full movement\nPress Next when finished"));
       ui->nextButton->setText(tr("Next"));
       ui->backButton->setDisabled(true);
@@ -345,12 +364,12 @@ void joystickDialog::on_cancelButton_clicked()
 void joystickDialog::on_okButton_clicked()
 {
   g.jsSupport(ui->joystickChkB->isChecked());
-  g.jsCtrl(ui->joystickCB->currentIndex());
+  g.currentProfile().jsName(ui->joystickCB->currentText());
 
   if (joystick)
     joystick->close();
 
-  if (!g.jsSupport() || g.jsCtrl() < 0) {
+  if (!g.jsSupport()) {
     this->accept();
     return;
   }
@@ -373,7 +392,7 @@ void joystickDialog::on_okButton_clicked()
       g.joystick[i].stick_med(jscal[i][1]);
       g.joystick[i].stick_min(jscal[i][0]);
       g.joystick[i].stick_inv(invert[i]->isChecked() );
-      qDebug() << "joystick mapping " << sticks[i]->objectName() << "stick:" << i << "axe:" << stick;
+      qDebug() << "joystick mapping " << sticks[i]->currentText() << "stick:" << i << "axe:" << stick << jscal[i][0] << jscal[i][1] << jscal[i][2];
     }
   }
 
@@ -384,9 +403,11 @@ void joystickDialog::on_okButton_clicked()
     }
     else {
       g.jsButton[i].button_idx(btn);
-      qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->objectName() << "stick:" << i << "idx:" << btn;
+      qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->currentText() << "button:" << i << "idx:" << btn;
     }
   }
+
+  g.saveNamedJS();
 
   this->accept();
 }

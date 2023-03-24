@@ -25,43 +25,40 @@
 #define MAX_HID_REPORTDESC 160
 #define MAX_HID_REPORT 80
 
-uint8_t _hidReportDesc[MAX_HID_REPORTDESC] = { };
+uint8_t* _hidReportDesc = nullptr;
 uint8_t _hidReportDescSize = 0;
-uint8_t _hidReport[MAX_HID_REPORT] = { };
+uint8_t* _hidReport = nullptr;
 uint8_t _hidReportSize = 0;
 
-static uint8_t _buttonState[USBJ_BUTTON_SIZE >> 3] = { };
+struct _usbJSData {
+  uint16_t _usbLastChannelOutput[USBJ_MAX_JOYSTICK_CHANNELS];
+  uint8_t _usbChannelTimerActive[USBJ_MAX_JOYSTICK_CHANNELS];
+  uint8_t _usbChannelTimer[USBJ_MAX_JOYSTICK_CHANNELS];
+  uint8_t _usbJoystickButtonChannels[USBJ_MAX_JOYSTICK_CHANNELS];
+  uint8_t _usbJoystickAxisChannels[USBJ_MAX_JOYSTICK_CHANNELS];
+};
 
-static uint16_t _usbLastChannelOutput[USBJ_MAX_JOYSTICK_CHANNELS] = { };
-static uint8_t _usbChannelTimerActive[USBJ_MAX_JOYSTICK_CHANNELS] = { };
-static uint8_t _usbChannelTimer[USBJ_MAX_JOYSTICK_CHANNELS] = { };
+static struct _usbJSData* _usbJS = nullptr;
+
+static uint8_t _buttonState[(USBJ_BUTTON_SIZE+7) >> 3] = { };
 
 static uint8_t _usbJoystickIfMode = 0;
 static uint8_t _usbJoystickCircularCut = 0;
-static USBJoystickChData _usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS];
 
 #define USBJ_CC_XYZrX   1
 #define USBJ_CC_XYrXrZ  2
 
-static uint8_t _usbJoystickButtonChannels[USBJ_MAX_JOYSTICK_CHANNELS] = { };
 static uint8_t _usbJoystickButtonCount = 0;
-static uint8_t _usbJoystickAxisChannels[USBJ_MAX_JOYSTICK_CHANNELS] = { };
 static uint8_t _usbJoystickAxisCount = 0;
 
 static uint8_t _usbJoystickAxisPairs[3][2] = { };
-
-static const uint8_t _usbJoystickUniqueAxis[USBJOYS_AXIS_LAST + 1] =
-  { 1, 1, 1, 1, 1, 1, 0, 0, 0 };
-
-static const uint8_t _usbJoystickUniqueSims[USBJOYS_SIM_LAST + 1] =
-  { 1, 1, 1, 1 };
 
 /*
   This USB HID endpoint report description defines a device with:
     * 24 digital buttons
     * 8 analog axes with 8bit resolution
 
-  Repot packet described as C struct is:
+  Report packet described as C struct is:
 
   struct {
     uint8_t buttons1; //bit 0 - button 1, bit 1 - button 2, ..., mapped to channels 9-16, on if channel > 0
@@ -109,6 +106,26 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0xc0                           //     END_COLLECTION
 };
 
+static bool isUniqueAxisType(int type) { return type < 6; }
+static bool isUniqueSimType(int type) { return true; }
+
+const uint32_t MOD_ADLER = 65521;
+
+uint32_t adler32(uint8_t *data, size_t len) 
+{
+    uint32_t a = 1, b = 0;
+    size_t index;
+    
+    // Process each byte of the data in order
+    for (index = 0; index < len; ++index)
+    {
+        a = (a + data[index]) % MOD_ADLER;
+        b = (b + a) % MOD_ADLER;
+    }
+    
+    return (b << 16) | a;
+}
+
 int usbJoystickExtMode()
 {
   return g_model.usbJoystickExtMode;
@@ -121,13 +138,19 @@ int usbJoystickActive()
 
 int usbJoystickSettingsChanged()
 {
-  if (!usbJoystickActive()) return false;
+  static uint32_t settingsChecksum = 0;
 
-  if((_usbJoystickIfMode != g_model.usbJoystickIfMode)
-    || (_usbJoystickCircularCut != g_model.usbJoystickCircularCut)) return true;
-  if(memcmp(_usbJoystickCh, g_model.usbJoystickCh, sizeof(g_model.usbJoystickCh)) != 0) return true;
+  if (!usbJoystickActive())
+    return false;
 
-  return false;
+  if ((_usbJoystickIfMode != g_model.usbJoystickIfMode) ||
+      (_usbJoystickCircularCut != g_model.usbJoystickCircularCut))
+    return true;
+
+  uint32_t oldChecksum = settingsChecksum;
+  settingsChecksum = adler32((uint8_t*)&g_model.usbJoystickCh, sizeof(g_model.usbJoystickCh));
+  
+  return oldChecksum != settingsChecksum;
 }
 
 int setupUSBJoystick()
@@ -137,31 +160,42 @@ int setupUSBJoystick()
   static const uint8_t simTypeCodes[USBJOYS_SIM_LAST + 1] =
     { 0xb0, 0xb8, 0xba, 0xbb };
 
-  static uint8_t oldHIDReportDesc[MAX_HID_REPORTDESC] = { };
-  static uint8_t oldHIDReportDescSize = 0;
+  if (_hidReportDesc == nullptr) {
+    _hidReportDesc = (uint8_t*)malloc(MAX_HID_REPORTDESC);
+    if (_hidReportDesc == nullptr)
+      return false;
+  }
 
-  // copy old to compare
-  memcpy(oldHIDReportDesc, _hidReportDesc, MAX_HID_REPORTDESC);
-  oldHIDReportDescSize = _hidReportDescSize;
+  if (_hidReport == nullptr) {
+    _hidReport = (uint8_t*)malloc(MAX_HID_REPORT);
+    if (_hidReport == nullptr)
+      return false;
+  }
+
+  if (_usbJS == nullptr) {
+    _usbJS = (struct _usbJSData*)malloc(sizeof(struct _usbJSData));
+    if (_usbJS == nullptr)
+      return false;
+  }
+
+  // properties to detect change
+  uint8_t oldHIDReportDescSize = _hidReportDescSize;
+  uint32_t oldChecksum = adler32(_hidReportDesc, _hidReportDescSize);
 
   // copy the model snapshot
   _usbJoystickIfMode = g_model.usbJoystickIfMode;
   _usbJoystickCircularCut = g_model.usbJoystickCircularCut;
-  memcpy(_usbJoystickCh, g_model.usbJoystickCh, sizeof(g_model.usbJoystickCh));
 
   // Init data
   memset(_hidReportDesc, 0, MAX_HID_REPORTDESC);
   _hidReportDescSize = 0;
   memset(_hidReport, 0, MAX_HID_REPORT);
   _hidReportSize = 0;
-  memset(_buttonState, 0, (USBJ_BUTTON_SIZE >> 3));
-  memset(_usbLastChannelOutput, 0xff, sizeof(_usbLastChannelOutput));
-  memset(_usbChannelTimer, 0, sizeof(_usbChannelTimer));
-  memset(_usbChannelTimerActive, 0, sizeof(_usbChannelTimerActive));
+  memset(_buttonState, 0, ((USBJ_BUTTON_SIZE+7) >> 3));
+  memset(_usbJS, 0, sizeof(struct _usbJSData));
+  memset(_usbJS->_usbLastChannelOutput, 0xff, sizeof(_usbJS->_usbLastChannelOutput));
 
-  memset(_usbJoystickButtonChannels, 0, USBJ_MAX_JOYSTICK_CHANNELS);
   _usbJoystickButtonCount = 0;
-  memset(_usbJoystickAxisChannels, 0, USBJ_MAX_JOYSTICK_CHANNELS);
   _usbJoystickAxisCount = 0;
   memset(_usbJoystickAxisPairs, 0xff, sizeof(_usbJoystickAxisPairs));
   
@@ -185,24 +219,24 @@ int setupUSBJoystick()
     uint8_t mode = 0;
     uint8_t submode = 0;
     for (uint8_t i = 0; i < USBJ_MAX_JOYSTICK_CHANNELS; i++) {
-      mode = _usbJoystickCh[i].mode;
+      mode = g_model.usbJoystickCh[i].mode;
 
-      if (_usbJoystickCh[i].mode == USBJOYS_CH_BUTTON) {
+      if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_BUTTON) {
         typeCount[mode]++;
       }
-      else if (_usbJoystickCh[i].mode == USBJOYS_CH_AXIS) {
-        submode = _usbJoystickCh[i].param;
+      else if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_AXIS) {
+        submode = g_model.usbJoystickCh[i].param;
         if (submode <= USBJOYS_AXIS_LAST) {
-          if ((_usbJoystickUniqueAxis[submode] == 0) || (axisCount[submode] == 0)) {
+          if (!isUniqueAxisType(submode) || (axisCount[submode] == 0)) {
             axisCount[submode]++;
             typeCount[mode]++;
           }
         }
       }
-      else if (_usbJoystickCh[i].mode == USBJOYS_CH_SIM) {
-        submode = _usbJoystickCh[i].param;
+      else if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_SIM) {
+        submode = g_model.usbJoystickCh[i].param;
         if (submode <= USBJOYS_SIM_LAST) {
-          if ((_usbJoystickUniqueSims[submode] == 0) || (simCount[submode] == 0)) {
+          if (!isUniqueSimType(submode) || (simCount[submode] == 0)) {
             simCount[submode]++;
             typeCount[mode]++;
           }
@@ -221,17 +255,17 @@ int setupUSBJoystick()
     }
     ixcount = 0;
     for (uint8_t i = 0; i < USBJ_MAX_JOYSTICK_CHANNELS; i++) {
-      mode = _usbJoystickCh[i].mode;
+      mode = g_model.usbJoystickCh[i].mode;
 
-      if (_usbJoystickCh[i].mode == USBJOYS_CH_BUTTON) {
-        _usbJoystickButtonChannels[ixcount] = i;
+      if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_BUTTON) {
+        _usbJS->_usbJoystickButtonChannels[ixcount] = i;
         ixcount++;
       }
-      else if (_usbJoystickCh[i].mode == USBJOYS_CH_AXIS) {
-        submode = _usbJoystickCh[i].param;
+      else if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_AXIS) {
+        submode = g_model.usbJoystickCh[i].param;
         if (submode <= USBJOYS_AXIS_LAST) {
-          _usbJoystickAxisChannels[axisIx[submode]] = i;
-          if (_usbJoystickUniqueAxis[submode] == 0) {
+          _usbJS->_usbJoystickAxisChannels[axisIx[submode]] = i;
+          if (!isUniqueAxisType(submode)) {
             axisIx[submode]++;
           }
           // save axis pairs
@@ -253,11 +287,11 @@ int setupUSBJoystick()
           }
         }
       }
-      else if (_usbJoystickCh[i].mode == USBJOYS_CH_SIM) {
-        submode = _usbJoystickCh[i].param;
+      else if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_SIM) {
+        submode = g_model.usbJoystickCh[i].param;
         if (submode <= USBJOYS_SIM_LAST) {
-          _usbJoystickAxisChannels[simIx[submode]] = i;
-          if (_usbJoystickUniqueSims[submode] == 0) {
+          _usbJS->_usbJoystickAxisChannels[simIx[submode]] = i;
+          if (!isUniqueSimType(submode)) {
             simIx[submode]++;
           }
         }
@@ -273,61 +307,17 @@ int setupUSBJoystick()
     // generate report desc
 
     // USAGE_PAGE (Generic Desktop)
-    _hidReportDesc[_hidReportDescSize++] = 0x05;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
+    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, 24);
+    _hidReportDescSize = 24;
 
     // USAGE (Joystick=0x04, Gamepad=0x05,  Multi-axis Controller=0x08)
     uint8_t joystickType = 0x04;
     if (_usbJoystickIfMode == USBJOYS_GAMEPAD) joystickType = 0x05;
     else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
-    _hidReportDesc[_hidReportDescSize++] = 0x09;
-    _hidReportDesc[_hidReportDescSize++] = joystickType;
 
-    // COLLECTION (Application)
-    _hidReportDesc[_hidReportDescSize++] = 0xa1;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // COLLECTION (Physical)
-    _hidReportDesc[_hidReportDescSize++] = 0xa1;
-    _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-    // REPORT_ID (1)
-//    _hidReportDesc[_hidReportDescSize++] = 0x85;
-//    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // button types
-
-    // USAGE_PAGE (Button)
-    _hidReportDesc[_hidReportDescSize++] = 0x05;
-    _hidReportDesc[_hidReportDescSize++] = 0x09;
-
-    // USAGE_MINIMUM (Button 1)
-    _hidReportDesc[_hidReportDescSize++] = 0x19;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // USAGE_MAXIMUM (Button USBJ_BUTTON_SIZE)
-    _hidReportDesc[_hidReportDescSize++] = 0x29;
-    _hidReportDesc[_hidReportDescSize++] = USBJ_BUTTON_SIZE;
-
-    // LOGICAL_MINIMUM (0)
-    _hidReportDesc[_hidReportDescSize++] = 0x15;
-    _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-    // LOGICAL_MAXIMUM (1)
-    _hidReportDesc[_hidReportDescSize++] = 0x25;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // REPORT_COUNT (#)
-    _hidReportDesc[_hidReportDescSize++] = 0x95;
-    _hidReportDesc[_hidReportDescSize++] = USBJ_BUTTON_SIZE;
-
-    // REPORT_SIZE (1)
-    _hidReportDesc[_hidReportDescSize++] = 0x75;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // INPUT (Data,Var,Abs,Preferred)
-    _hidReportDesc[_hidReportDescSize++] = 0x81;
-    _hidReportDesc[_hidReportDescSize++] = 0x02;
+    _hidReportDesc[3] = joystickType;
+    _hidReportDesc[13] = USBJ_BUTTON_SIZE;
+    _hidReportDesc[19] = USBJ_BUTTON_SIZE;
 
     // generic axis types
     if (genAxisCount > 0) {
@@ -344,27 +334,9 @@ int setupUSBJoystick()
         }
       }
 
-      // LOGICAL_MINIMUM (0)
-      _hidReportDesc[_hidReportDescSize++] = 0x16;
-      _hidReportDesc[_hidReportDescSize++] = 0x00;
-      _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-      // LOGICAL_MAXIMUM (2047)
-      _hidReportDesc[_hidReportDescSize++] = 0x26;
-      _hidReportDesc[_hidReportDescSize++] = 0xFF;
-      _hidReportDesc[_hidReportDescSize++] = 0x07;
-
-      // REPORT_SIZE (16)
-      _hidReportDesc[_hidReportDescSize++] = 0x75;
-      _hidReportDesc[_hidReportDescSize++] = 0x10;
-
-      // REPORT_COUNT (#)
-      _hidReportDesc[_hidReportDescSize++] = 0x95;
-      _hidReportDesc[_hidReportDescSize++] = genAxisCount;
-
-      // INPUT (Data,Var,Abs)
-      _hidReportDesc[_hidReportDescSize++] = 0x81;
-      _hidReportDesc[_hidReportDescSize++] = 0x02;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+42, 12);
+      _hidReportDesc[_hidReportDescSize+9] = genAxisCount;
+      _hidReportDescSize += 12;
     }
 
     // sim axis types
@@ -382,27 +354,9 @@ int setupUSBJoystick()
         }
       }
 
-      // LOGICAL_MINIMUM (0)
-      _hidReportDesc[_hidReportDescSize++] = 0x16;
-      _hidReportDesc[_hidReportDescSize++] = 0x00;
-      _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-      // LOGICAL_MAXIMUM (2047)
-      _hidReportDesc[_hidReportDescSize++] = 0x26;
-      _hidReportDesc[_hidReportDescSize++] = 0xFF;
-      _hidReportDesc[_hidReportDescSize++] = 0x07;
-
-      // REPORT_SIZE (16)
-      _hidReportDesc[_hidReportDescSize++] = 0x75;
-      _hidReportDesc[_hidReportDescSize++] = 0x10;
-
-      // REPORT_COUNT (#)
-      _hidReportDesc[_hidReportDescSize++] = 0x95;
-      _hidReportDesc[_hidReportDescSize++] = simAxisCount;
-
-      // INPUT (Data,Var,Abs)
-      _hidReportDesc[_hidReportDescSize++] = 0x81;
-      _hidReportDesc[_hidReportDescSize++] = 0x02;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+42, 12);
+      _hidReportDesc[_hidReportDescSize+9] = simAxisCount;
+      _hidReportDescSize += 12;
     }
 
     // END_COLLECTION
@@ -413,14 +367,13 @@ int setupUSBJoystick()
 
     // end of report desc
 
-    _hidReportSize = (USBJ_BUTTON_SIZE / 8) + (_usbJoystickAxisCount * 2);
+    _hidReportSize = ((USBJ_BUTTON_SIZE+7) / 8) + (_usbJoystickAxisCount * 2);
   }
-  
+
   //compare with the old description
   if (_hidReportDescSize != oldHIDReportDescSize) return true;
-  if (memcmp(_hidReportDesc, oldHIDReportDesc, _hidReportDescSize) != 0) return true;
-  
-  return false;
+  uint32_t newChecksum = adler32(_hidReportDesc, _hidReportDescSize);
+  return oldChecksum != newChecksum;
 }
 
 extern "C" struct usbReport_t usbReportDesc()
@@ -431,6 +384,8 @@ extern "C" struct usbReport_t usbReportDesc()
 
 void usbClassicStateUpdate()
 {
+  if (_hidReport == nullptr) return;
+
   memset(_hidReport, 0, MAX_HID_REPORT);
 
   //buttons
@@ -519,8 +474,10 @@ static int16_t circularCutoutValue(uint8_t chix)
 
 void usbStateUpdate()
 {
+  if (_hidReport == nullptr) return;
+
   const uint8_t button_ix = 0;
-  const uint8_t axis_ix = button_ix + (USBJ_BUTTON_SIZE >> 3);
+  const uint8_t axis_ix = button_ix + ((USBJ_BUTTON_SIZE+7) >> 3);
 
   memset(_hidReport, 0, MAX_HID_REPORT);
 
@@ -532,19 +489,19 @@ void usbStateUpdate()
   uint8_t btnval = 0;
 
   for (uint8_t i = 0; i < _usbJoystickButtonCount; i++) {
-    chix = _usbJoystickButtonChannels[i];
+    chix = _usbJS->_usbJoystickButtonChannels[i];
 
     value = channelOutputs[chix] + 1024;
     if ( value > 2047 ) value = 2047;
     else if ( value < 0 ) value = 0;
 
-    if (_usbJoystickCh[chix].inversion) value = 2047 - value;
+    if (g_model.usbJoystickCh[chix].inversion) value = 2047 - value;
 
-    swpos = _usbJoystickCh[chix].switch_npos + 1;
+    swpos = g_model.usbJoystickCh[chix].switch_npos + 1;
 
     // Quantization of the values
-    if ((_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_NORMAL)
-       || (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE)) {
+    if ((g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_NORMAL)
+       || (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE)) {
 
       if (swpos == 1) {
         btnval = (value > 1024);
@@ -553,13 +510,13 @@ void usbStateUpdate()
         if (btnval >= swpos) btnval = swpos - 1;
       }
     }
-    else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_SW_EMU) {
+    else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_SW_EMU) {
       btnval = (value > 1024);
     }
-    else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
+    else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
       btnval = (value >> 6);
     }
-    else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
+    else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
       if (swpos == 1 || swpos == 2) {
         btnval = (value > 1024);
       } else if (swpos == 3) {
@@ -571,76 +528,76 @@ void usbStateUpdate()
     }
 
     // Channel Output value changed
-    if ((_usbLastChannelOutput[chix] == 0xffff) || (_usbLastChannelOutput[chix] != btnval)) {
+    if ((_usbJS->_usbLastChannelOutput[chix] == 0xffff) || (_usbJS->_usbLastChannelOutput[chix] != btnval)) {
 
-      if ((_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_NORMAL)
-         || (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE)) {
+      if ((g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_NORMAL)
+         || (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE)) {
 
         if (swpos == 1) {
-          setBtnBits(_usbJoystickCh[chix].btn_num, btnval, 1);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 1);
         } else {
-          setBtnBits(_usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
         }
 
         // Timer
-        if(_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE) {
-          _usbChannelTimerActive[chix] = 1;
-          _usbChannelTimer[chix] = g_usbTmr10ms;
+        if(g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE) {
+          _usbJS->_usbChannelTimerActive[chix] = 1;
+          _usbJS->_usbChannelTimer[chix] = g_usbTmr10ms;
         }
       }
-      else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_SW_EMU) {
-        if ((_usbLastChannelOutput[chix] != 0xffff) && (_usbLastChannelOutput[chix] < btnval)) {
-          toggleBtnBit(_usbJoystickCh[chix].btn_num);
+      else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_SW_EMU) {
+        if ((_usbJS->_usbLastChannelOutput[chix] != 0xffff) && (_usbJS->_usbLastChannelOutput[chix] < btnval)) {
+          toggleBtnBit(g_model.usbJoystickCh[chix].btn_num);
         }
       }
-      else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
-        if (_usbLastChannelOutput[chix] != 0xffff) {
-          if (_usbLastChannelOutput[chix] < btnval) {
-            setBtnBits(_usbJoystickCh[chix].btn_num, 2, 2);
+      else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
+        if (_usbJS->_usbLastChannelOutput[chix] != 0xffff) {
+          if (_usbJS->_usbLastChannelOutput[chix] < btnval) {
+            setBtnBits(g_model.usbJoystickCh[chix].btn_num, 2, 2);
           }
-          else if (_usbLastChannelOutput[chix] > btnval) {
-            setBtnBits(_usbJoystickCh[chix].btn_num, 1, 2);
+          else if (_usbJS->_usbLastChannelOutput[chix] > btnval) {
+            setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1, 2);
           }
-          _usbChannelTimerActive[chix] = 1;
-          _usbChannelTimer[chix] = g_usbTmr10ms;
+          _usbJS->_usbChannelTimerActive[chix] = 1;
+          _usbJS->_usbChannelTimer[chix] = g_usbTmr10ms;
         }
       }
-      else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
+      else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
         if (swpos == 1 || swpos == 2) {
-          setBtnBits(_usbJoystickCh[chix].btn_num, btnval, 1);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 1);
         } else if (swpos == 3) {
-          setBtnBits(_usbJoystickCh[chix].btn_num, btnval, 2);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 2);
         } else {
-          setBtnBits(_usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
         }
       }
 
-      _usbLastChannelOutput[chix] = btnval;
+      _usbJS->_usbLastChannelOutput[chix] = btnval;
     }
 
     // Timer check
-    if((_usbChannelTimerActive[chix]) && (((uint8_t)(g_usbTmr10ms - _usbChannelTimer[chix]) >= BTNPUSH_TIME))) {
-      _usbChannelTimerActive[chix] = 0;
+    if((_usbJS->_usbChannelTimerActive[chix]) && (((uint8_t)(g_usbTmr10ms - _usbJS->_usbChannelTimer[chix]) >= BTNPUSH_TIME))) {
+      _usbJS->_usbChannelTimerActive[chix] = 0;
 
-      if(_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE) {
-        setBtnBits(_usbJoystickCh[chix].btn_num, 0, swpos);
+      if(g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE) {
+        setBtnBits(g_model.usbJoystickCh[chix].btn_num, 0, swpos);
       }
-      else if (_usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
-        setBtnBits(_usbJoystickCh[chix].btn_num, 0, 2);
+      else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
+        setBtnBits(g_model.usbJoystickCh[chix].btn_num, 0, 2);
       }
     }
   }
-  
-  memcpy(_hidReport + button_ix, _buttonState, (USBJ_BUTTON_SIZE >> 3));
+
+  memcpy(_hidReport + button_ix, _buttonState, ((USBJ_BUTTON_SIZE+7) >> 3));
 
   for (uint8_t i = 0; i < _usbJoystickAxisCount; i++) {
-    chix = _usbJoystickAxisChannels[i];
+    chix = _usbJS->_usbJoystickAxisChannels[i];
 
     value = circularCutoutValue(chix) + 1024;
     if ( value > 2047 ) value = 2047;
     else if ( value < 0 ) value = 0;
 
-    if (_usbJoystickCh[chix].inversion) value = 2047 - value;
+    if (g_model.usbJoystickCh[chix].inversion) value = 2047 - value;
 
     _hidReport[i*2 + axis_ix] = static_cast<uint8_t>(value & 0xFF);
     _hidReport[i*2 + axis_ix+1] = static_cast<uint8_t>((value >> 8) & 0x07);
@@ -684,7 +641,7 @@ int isUSBAxisCollision(uint8_t chIdx)
   if (cch->mode != USBJOYS_CH_AXIS) return false;
 
   // non-unique axis check
-  if (_usbJoystickUniqueAxis[cch->param] == 0) {
+  if (!isUniqueAxisType(cch->param)) {
     return false;
   }
 
@@ -711,7 +668,7 @@ int isUSBSimCollision(uint8_t chIdx)
   if (cch->mode != USBJOYS_CH_SIM) return false;
 
   // non-unique axis check
-  if (_usbJoystickUniqueSims[cch->param] == 0) {
+  if (!isUniqueSimType(cch->param)) {
     return false;
   }
 

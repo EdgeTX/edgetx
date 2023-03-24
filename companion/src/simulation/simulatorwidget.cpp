@@ -670,13 +670,15 @@ void SimulatorWidget::setupJoysticks()
 #ifdef JOYSTICKS
   bool joysticksEnabled = false;
 
-  if (g.jsSupport() && g.jsCtrl() > -1) {
+  if (g.jsSupport()) {
     if (!joystick)
       joystick = new Joystick(this, SDL_JOYSTICK_DEFAULT_EVENT_TIMEOUT, false, SDL_JOYSTICK_DEFAULT_AUTOREPEAT_DELAY);
     else
       joystick->close();
 
-    if (joystick && joystick->open(g.jsCtrl())) {
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
+
+    if (joystick && joystick->open(stick)) {
       int numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
       for (int j=0; j<numAxes; j++) {
         joystick->sensitivities[j] = 0;
@@ -860,8 +862,8 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 {
 #ifdef JOYSTICKS
   static const int ttlSticks = 4;
-  static const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  static const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
+  const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
   static const int valueRange = 1024;
 
   if (!joystick || axis >= MAX_JS_AXES)
@@ -915,9 +917,6 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
   int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
 
   int btn = g.jsButton[button].button_idx();
-
-  if (g.jsButton[button].button_inv())
-    state = !state;
 
   int swtch = btn & JS_BUTTON_SWITCH_MASK;
  

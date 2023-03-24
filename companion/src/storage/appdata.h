@@ -63,6 +63,7 @@
 #define MAX_JS_BUTTONS 32
 #define MAX_COMPONENTS 10
 #define MAX_COMPONENT_ASSETS 5
+#define MAX_NAMED_JOYSTICKS 10
 
 // It important that these function names are consistent everywhere.
 #define PROP_FSIG_INIT_IMPL         _init()
@@ -337,6 +338,7 @@ class JStickData: public CompStoreObj
     inline QString propertyGroup() const override { return QStringLiteral("JsCalibration"); }
     inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
+    friend class NamedJSData;
 
   private:
     PROPERTY(int, stick_axe, -1)
@@ -348,6 +350,7 @@ class JStickData: public CompStoreObj
     int index;
 };
 
+//! \brief JStickData class stores properties related to each joystick button (button number).
 class JButtonData: public CompStoreObj
 {
   Q_OBJECT
@@ -360,10 +363,82 @@ class JButtonData: public CompStoreObj
     inline QString propertyGroup() const override { return QStringLiteral("JsButton"); }
     inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
+    friend class NamedJSData;
 
   private:
     PROPERTY(int, button_idx, -1)
-    PROPERTY(int, button_inv, 0)
+
+    int index;
+};
+
+//! \brief JStickData class stores properties related to each joystick axis (calibration/assignment/direction).
+class NamedJStickData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJStickData();
+    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/JsCalibration/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+    friend class NamedJSData;
+
+  private:
+    PROPERTY(int, stick_axe, -1)
+    PROPERTY(int, stick_min, -32768)
+    PROPERTY(int, stick_med, 0)
+    PROPERTY(int, stick_max, 32767)
+    PROPERTY(int, stick_inv, 0)
+
+    int namedIdx;
+    int index;
+};
+
+//! \brief JStickData class stores properties related to each joystick button (button number).
+class NamedJButtonData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJButtonData();
+    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/JsButton/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+    friend class NamedJSData;
+
+  private:
+    PROPERTY(int, button_idx, -1)
+
+    int namedIdx;
+    int index;
+};
+
+class NamedJSData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJSData();
+    void setIndex(int idx) { index = idx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData"); }
+    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+
+  public:
+    NamedJStickData joystick[MAX_JS_AXES];
+    NamedJButtonData jsButton[MAX_JS_BUTTONS];
+
+  private:
+    PROPERTYSTRD(jsName, "")
+    PROPERTY(unsigned int, jsLastUsed, 0)
 
     int index;
 };
@@ -431,6 +506,8 @@ class Profile: public CompStoreObj
     PROPERTY4(int, vBatMax,       "VbatMax",        0)
     PROPERTY4(int, txCurrentCalibration, "currentCalib",  0)
     PROPERTY4(int, txVoltageCalibration, "VbatCalib",     0)
+
+    PROPERTYSTRD(jsName, "")
 
     int index;
 
@@ -615,8 +692,12 @@ class AppData: public CompStoreObj
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JS_AXES];
     JButtonData jsButton[MAX_JS_BUTTONS];
+    NamedJSData namedJS[MAX_NAMED_JOYSTICKS];
     FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
+
+    void saveNamedJS();
+    void loadNamedJS();
 
   signals:
     void currentProfileChanged();
@@ -624,6 +705,9 @@ class AppData: public CompStoreObj
   protected:
     inline QString propertyGroup() const override { return QStringLiteral("General"); }
     inline QString settingsPath()  const override { return QString(); }
+
+    void saveNamedJS(int i);
+    void loadNamedJS(int i);
 
   private:
 
@@ -679,7 +763,6 @@ class AppData: public CompStoreObj
     PROPERTY4(int, embedSplashes,         "embedded_splashes",        0)
     PROPERTY4(int, fwServerFails,         "fwserver",                 0)
     PROPERTY4(int, iconSize,              "icon_size",                2)
-    PROPERTY4(int, jsCtrl,                "js_ctrl",                  0)
     PROPERTY4(int, historySize,           "history_size",             10)
     PROPERTY (int, generalEditTab,                                    0)
     PROPERTY (int, theme,                                             1)
