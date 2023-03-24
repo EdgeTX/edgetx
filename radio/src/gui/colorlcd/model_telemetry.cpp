@@ -145,6 +145,8 @@ class SensorButton : public Button {
 
   protected:
     bool init = false;
+    bool hideId = false;
+    lv_obj_t* idLabel = nullptr;
     uint8_t index;
     uint32_t lastRefresh = 0;
 
@@ -170,6 +172,14 @@ class SensorButton : public Button {
     {
       Button::checkEvents();
       check(isActive());
+
+      if (hideId != g_model.ignoreSensorIds) {
+        hideId = g_model.ignoreSensorIds;
+        if (hideId)
+          lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+        else
+          lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+      }
     }
 
     void delayed_init(lv_event_t* e)
@@ -193,15 +203,22 @@ class SensorButton : public Button {
       lv_obj_set_grid_cell(v->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
-      if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
+      if (sensor->type == TELEM_TYPE_CUSTOM) {
         sprintf(s, "%d", sensor->instance);
+      } else {
+        s[0] = 0;
       }
 
-      lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      hideId = g_model.ignoreSensorIds;
 
-      lv_label_set_text(lbl, s);
+      idLabel = lv_label_create(lvobj);
+      lv_obj_set_style_text_align(idLabel, LV_TEXT_ALIGN_LEFT, 0);
+      lv_obj_set_grid_cell(idLabel, LV_GRID_ALIGN_START, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      lv_label_set_text(idLabel, s);
+
+      if (hideId)
+        lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
 
       init = true;
       refresh();
@@ -598,9 +615,9 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
     new StaticText(line, rect_t{}, STR_NAME, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
     grid2.nextCell();
     new StaticText(line, rect_t{}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    if (!g_model.ignoreSensorIds) {
-      new StaticText(line, rect_t{}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    }
+    idLabel = new StaticText(line, rect_t{}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
+    if (g_model.ignoreSensorIds)
+      lv_obj_add_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   }
 
   FlexGridLayout grid3(col_dsc3, row_dsc, 2);
@@ -699,7 +716,14 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
+  new CheckBox(line, rect_t{}, GET_DEFAULT(g_model.ignoreSensorIds),
+               [=](bool newValue) {
+                 g_model.ignoreSensorIds = newValue;
+                 if (newValue)
+                   lv_obj_add_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+                 else
+                   lv_obj_clear_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+               });
 
   // RSSI
   line = window->newLine(&grid);
