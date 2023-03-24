@@ -19,6 +19,13 @@
  * GNU General Public License for more details.
  */
 
+ /*
+  * Terminology:
+  * 
+  * Host = host with the debugger running
+  * Client = developers' computer
+  */
+
 syntax = "proto3";
 
 package edgetx.lua.debugger;
@@ -84,17 +91,17 @@ message LuaDebugInfo {
  * messages
  */
 
-// client to radio
+// client to host
 message ExecuteExpression {
     optional string expression = 1;
 }
 
-// client to radio
+// client to host
 message ExecuteDebuggerCommand {
     optional Command command = 1;
 }
 
-// client to radio
+// client to host
 message SetBreakpoint {
     enum State {
         ENABLED = 0;
@@ -105,20 +112,14 @@ message SetBreakpoint {
     optional State state = 2;
 }
 
-// client to radio
+// client to host
 message StartDebugger {
     optional DebugTarget targetType = 1;
     optional string targetName = 2;
     repeated Breakpoint breakpoints = 3;
 }
 
-// radio to client
-message DebugStatus {
-    optional DebuggerState state = 1;
-    optional Breakpoint stoppedAtBreakpoint = 2;
-}
-
-// client to radio
+// client to host
 message GetBreakpoints {
     // If a filename is present, returned message will only
     // contain breakpoints for that filename. If not, then 
@@ -126,7 +127,13 @@ message GetBreakpoints {
     optional string filename = 1;
 }
 
-// radio to client
+// host to client
+message DebugStatus {
+    optional DebuggerState state = 1;
+    optional Breakpoint stoppedAtBreakpoint = 2;
+}
+
+// host to client
 message Breakpoints {
     optional string filename = 1;
     repeated Breakpoint breakpoints = 2;
