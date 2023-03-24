@@ -216,13 +216,15 @@ ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
 {
 }
 
-void ScreenSetupPage::build(FormWindow * form)
+void ScreenSetupPage::build(FormWindow * window)
 {
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
-  form->setFlexLayout();
 
   // Layout choice...
-  auto line = form->newLine(&grid);
+  auto line = window->newLine(&grid);
   auto label = new StaticText(line, rect_t{}, STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
 
   auto obj = label->getLvObj();
@@ -252,13 +254,13 @@ void ScreenSetupPage::build(FormWindow * form)
   obj = layoutForm->getLvObj();
   lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
 
-  line = form->newLine();
+  line = window->newLine();
   layoutOptions = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
   buildLayoutOptions();
 
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    line = form->newLine();
+    line = window->newLine();
     Window* btn = new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
     obj = btn->getLvObj();
     lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
@@ -287,7 +289,7 @@ void ScreenSetupPage::build(FormWindow * form)
   lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
   lv_group_focus_obj(obj);
 
-  form->updateSize();
+  window->updateSize();
 }
 
 void ScreenSetupPage::clearLayoutOptions()

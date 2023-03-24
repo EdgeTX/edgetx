@@ -79,8 +79,6 @@ class CurveDataEdit : public Window
       update();
     }
 
-    void paint(BitmapBuffer * dc) override;
-
     void update();
 
   protected:

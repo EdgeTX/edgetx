@@ -215,7 +215,7 @@ void ModelInputsPage::removeLine(InputMixButton* l)
   }
 }
 
-InputMixGroup* ModelInputsPage::createGroup(FormGroup* form, mixsrc_t src)
+InputMixGroup* ModelInputsPage::createGroup(FormWindow* form, mixsrc_t src)
 {
   return new InputMixGroup(form, src);
 }
@@ -442,15 +442,10 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
 
 void ModelInputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout();
-  window->padRow(lv_dpx(8));
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
   
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout();
-  form->padRow(lv_dpx(4));
-
-  auto form_obj = form->getLvObj();
-  lv_obj_set_width(form_obj, lv_pct(100));
+  form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
   groups.clear();
   lines.clear();

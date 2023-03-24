@@ -149,6 +149,7 @@ TabsGroup::TabsGroup(uint8_t icon):
   Layer::push(this);
 
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   activeTabsGroup = this;
 }

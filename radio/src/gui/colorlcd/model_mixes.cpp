@@ -323,7 +323,7 @@ InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
   return getGroupBySrc(MIXSRC_CH1 + ch);
 }
 
-InputMixGroup* ModelMixesPage::createGroup(FormGroup* form, mixsrc_t src)
+InputMixGroup* ModelMixesPage::createGroup(FormWindow* form, mixsrc_t src)
 {
   auto group = new InputMixGroup(form, src);
   if (showMonitors) group->enableMixerMonitor(src - MIXSRC_CH1);
@@ -512,15 +512,11 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 void ModelMixesPage::build(FormWindow * window)
 {
   scroll_win = window->getParent();
-  window->setFlexLayout();
-  window->padRow(lv_dpx(8));
 
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout();
-  form->padRow(lv_dpx(4));
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  auto form_obj = form->getLvObj();
-  lv_obj_set_width(form_obj, lv_pct(100));
+  form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
   groups.clear();
   lines.clear();

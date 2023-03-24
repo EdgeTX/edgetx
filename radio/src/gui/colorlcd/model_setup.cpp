@@ -92,12 +92,6 @@ struct ModelBitmapEdit : public FileChoice {
   }
 };
 
-struct TimerBtnMatrix : public ButtonMatrix {
-  TimerBtnMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id) override;
-  bool isActive(uint8_t btn_id) override;
-};
-
 class SubScreenButton : public Button
 {
   std::string text;
@@ -233,7 +227,7 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 void ModelSetupPage::build(FormWindow * window)
 {
-  window->setFlexLayout();
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
@@ -342,37 +336,4 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-}
-
-#define MAX_SUBSCREEN_BTNS 9
-
-TimerBtnMatrix::TimerBtnMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
-{
-  initBtnMap(3, MAX_TIMERS);
-  setText(0, TR_TIMER "1");
-  setText(1, TR_TIMER "2");
-  setText(2, TR_TIMER "3");
-  update();
-
-  lv_btnmatrix_set_btn_width(lvobj, 3, 2);
-  lv_obj_set_width(lvobj, lv_pct(100));
-  lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
-
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, 0);
-  lv_obj_set_style_pad_all(lvobj, lv_dpx(8), 0);
-
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(8), 0);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(8), 0);
-}
-
-void TimerBtnMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= MAX_TIMERS) return;
-  new TimerWindow((uint8_t)(btn_id));
-}
-
-bool TimerBtnMatrix::isActive(uint8_t btn_id)
-{
-  return false;
 }

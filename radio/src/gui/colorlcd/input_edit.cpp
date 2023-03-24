@@ -57,6 +57,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
   auto box = new Window(&body, rect_t{});
   auto box_obj = box->getLvObj();
   lv_obj_set_flex_grow(box_obj, 2);
+  lv_obj_set_scrollbar_mode(box->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
 #if LCD_H > LCD_W // portrait
   box->setWidth(body.width() - 2*lv_dpx(8));
