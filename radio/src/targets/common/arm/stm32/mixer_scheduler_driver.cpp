@@ -30,13 +30,11 @@
 void mixerSchedulerStart()
 {
   MIXER_SCHEDULER_TIMER->CR1 &= ~TIM_CR1_CEN;
-
-  MIXER_SCHEDULER_TIMER->CR1   = TIM_CR1_URS; // do not generate interrupt on soft update
   MIXER_SCHEDULER_TIMER->PSC   = MIXER_SCHEDULER_TIMER_FREQ / 1000000 - 1; // 1uS (1Mhz)
   MIXER_SCHEDULER_TIMER->CCER  = 0;
   MIXER_SCHEDULER_TIMER->CCMR1 = 0;
   MIXER_SCHEDULER_TIMER->ARR   = getMixerSchedulerPeriod() - 1;
-  MIXER_SCHEDULER_TIMER->EGR   = TIM_EGR_UG;   // reset timer
+  MIXER_SCHEDULER_TIMER->CNT   = 0;   // reset counter
 
   NVIC_EnableIRQ(MIXER_SCHEDULER_TIMER_IRQn);
   NVIC_SetPriority(MIXER_SCHEDULER_TIMER_IRQn,
