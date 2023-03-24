@@ -19,4 +19,4 @@
  * GNU General Public License for more details.
  */
 
-#include "debugger.h"
+#include "lua_debugger.h"
