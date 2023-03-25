@@ -332,6 +332,15 @@ class JStickData: public CompStoreObj
   public slots:
     bool existsOnDisk();
 
+  public:
+    void clear() {
+      stick_axe(-1);
+      stick_med(-32768);
+      stick_max(32767);
+      stick_med(0);
+      stick_inv(0);
+    }
+
   protected:
     explicit JStickData();
     void setIndex(int idx) { index = idx; }
@@ -350,12 +359,17 @@ class JStickData: public CompStoreObj
     int index;
 };
 
-//! \brief JStickData class stores properties related to each joystick button (button number).
+//! \brief JButtonData class stores properties related to each joystick button (button number).
 class JButtonData: public CompStoreObj
 {
   Q_OBJECT
   public slots:
     bool existsOnDisk();
+
+  public:
+    void clear() {
+      button_idx(-1);
+    }
 
   protected:
     explicit JButtonData();
@@ -371,7 +385,7 @@ class JButtonData: public CompStoreObj
     int index;
 };
 
-//! \brief JStickData class stores properties related to each joystick axis (calibration/assignment/direction).
+//! \brief NamedJStickData class stores properties related to each joystick axis (calibration/assignment/direction).
 class NamedJStickData: public CompStoreObj
 {
   Q_OBJECT
@@ -397,7 +411,7 @@ class NamedJStickData: public CompStoreObj
     int index;
 };
 
-//! \brief JStickData class stores properties related to each joystick button (button number).
+//! \brief NamedJButtonData class stores properties related to each joystick button (button number).
 class NamedJButtonData: public CompStoreObj
 {
   Q_OBJECT
@@ -696,6 +710,12 @@ class AppData: public CompStoreObj
     FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
 
+    void clearJSData() {
+      for (int i = 0; i < MAX_JS_AXES; i += 1)
+        joystick[i].clear();
+      for (int i = 0; i < MAX_JS_BUTTONS; i += 1)
+        jsButton[i].clear();
+    }
     void saveNamedJS();
     void loadNamedJS();
 

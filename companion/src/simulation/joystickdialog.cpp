@@ -30,6 +30,7 @@ joystickDialog::joystickDialog(QWidget *parent) :
   ui(new Ui::joystickDialog),
   step(0),
   numAxes(0),
+  numButtons(0),
   started(false)
 {
   ui->setupUi(this);
@@ -80,10 +81,14 @@ void joystickDialog::loadGrid()
       delete item;
   }
 
+  memset(sliders, 0, sizeof(sliders));
+  memset(sticks, 0, sizeof(sliders));
+  memset(invert, 0, sizeof(sliders));
+
   int row = 0;
   int col = 0;
   if (grid) {
-    for (i = 0; i < MAX_JS_AXES; i += 1, row += 1) {
+    for (i = 0; i < numAxes; i += 1, row += 1) {
       col = (i & 1) * 4;
       sprintf(s, "Ch%d", i + 1);
       QLabel *l = new QLabel(s);
@@ -102,7 +107,7 @@ void joystickDialog::loadGrid()
       grid->addWidget(d, row/2, col+3, 1, 1);
     }
     if (row & 1) row += 1;
-    for (i = 0; i < MAX_JS_BUTTONS; i += 1, row += 1) {
+    for (i = 0; i < numButtons; i += 1, row += 1) {
       col = (i & 1) * 4;
       sprintf(s, "Btn%d", i + 1);
       QLabel *l = new QLabel(s);
@@ -119,7 +124,7 @@ void joystickDialog::loadGrid()
     }
   }
 
-  for (int i = 0; i < MAX_JS_AXES; ++i) {
+  for (int i = 0; i < numAxes; ++i) {
     if (g.joystick[i].existsOnDisk()) {
       jscal[i][0] = g.joystick[i].stick_min();
       jscal[i][1] = g.joystick[i].stick_med();
@@ -131,9 +136,9 @@ void joystickDialog::loadGrid()
     }
   }
 
-  for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
+  for (int i = 0; i < numButtons; ++i) {
     if (g.jsButton[i].existsOnDisk()) {
-      sticks[i+MAX_JS_AXES]->setCurrentIndex(sticks[i+MAX_JS_AXES]->findData(g.jsButton[i].button_idx()));
+      sticks[i+numAxes]->setCurrentIndex(sticks[i+numAxes]->findData(g.jsButton[i].button_idx()));
     }
   }
 }
@@ -241,12 +246,16 @@ bool joystickDialog::loadJoysticks()
 
 void joystickDialog::joystickOpen(int stick)
 {
+  numAxes = 0;
+  numButtons = 0;
+
   if (stick < 0)
     return;
 
   joystick = new Joystick(this, 1, false, 0);
   if (joystick && joystick->open(stick)) {
     numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
+    numButtons = std::min(joystick->numButtons, MAX_JS_BUTTONS);
     for (int j=0; j<numAxes; j++) {
       joystick->sensitivities[j] = 0;
       joystick->deadzones[j] = 20;
@@ -255,7 +264,7 @@ void joystickDialog::joystickOpen(int stick)
   else {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot open joystick."));
   }
-
+fprintf(stderr,">>>>>> JSO %d %d\n",numAxes,numButtons);
   g.currentProfile().jsName(ui->joystickCB->currentText());
   g.loadNamedJS();
   loadGrid();
@@ -271,7 +280,7 @@ void joystickDialog::joystickSetEnabled(bool enable)
 
 void joystickDialog::onjoystickAxisValueChanged(int axis, int value)
 {
-  if (axis >= MAX_JS_AXES)
+  if (axis >= numAxes)
     return;
 
   if (started) {
@@ -289,10 +298,10 @@ void joystickDialog::onjoystickAxisValueChanged(int axis, int value)
 
 void joystickDialog::onjoystickButtonValueChanged(int button, bool state)
 {
-  if (button >= MAX_JS_BUTTONS)
+  if (button >= numButtons)
     return;
 
-  sliders[button + MAX_JS_AXES]->setValue(state);
+  sliders[button + numAxes]->setValue(state);
 }
 
 void joystickDialog::loadStep()
@@ -381,7 +390,9 @@ void joystickDialog::on_okButton_clicked()
       return;
   }
 
-  for (int i = 0; i < MAX_JS_AXES; ++i) {
+  g.clearJSData();
+
+  for (int i = 0; i < numAxes; ++i) {
     auto stick = sticks[i]->currentData().toInt();
     if (stick < 0) {
       g.joystick[i].stick_axe(-1);
@@ -396,14 +407,14 @@ void joystickDialog::on_okButton_clicked()
     }
   }
 
-  for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
-    auto btn = sticks[i+MAX_JS_AXES]->currentData().toInt();
+  for (int i = 0; i < numButtons; ++i) {
+    auto btn = sticks[i+numAxes]->currentData().toInt();
     if (btn < 0) {
       g.jsButton[i].button_idx(-1);
     }
     else {
       g.jsButton[i].button_idx(btn);
-      qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->currentText() << "button:" << i << "idx:" << btn;
+      qDebug() << "joystick button mapping " << sticks[i+numAxes]->currentText() << "button:" << i << "idx:" << btn;
     }
   }
 

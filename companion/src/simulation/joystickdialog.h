@@ -58,6 +58,7 @@ class joystickDialog : public QDialog
     QSlider * sliders[MAX_JS_AXES + MAX_JS_BUTTONS];
     int step;
     int numAxes;
+    int numButtons;
     bool started;
 
     void loadGrid();

@@ -209,6 +209,7 @@ int setupUSBJoystick()
 
     uint8_t genAxisCount = 0;
     uint8_t simAxisCount = 0;
+    uint8_t buttonCount = 0;
 
     // sort channels by type
     uint8_t typeCount[USBJOYS_CH_LAST + 1] = { };
@@ -222,6 +223,7 @@ int setupUSBJoystick()
       mode = g_model.usbJoystickCh[i].mode;
 
       if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_BUTTON) {
+        buttonCount += g_model.usbJoystickCh[i].btnCount();
         typeCount[mode]++;
       }
       else if (g_model.usbJoystickCh[i].mode == USBJOYS_CH_AXIS) {
@@ -316,7 +318,7 @@ int setupUSBJoystick()
     else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
 
     _hidReportDesc[3] = joystickType;
-    _hidReportDesc[13] = USBJ_BUTTON_SIZE;
+    _hidReportDesc[13] = buttonCount;
     _hidReportDesc[19] = USBJ_BUTTON_SIZE;
 
     // generic axis types
