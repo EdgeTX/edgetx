@@ -185,14 +185,11 @@ static etx_serial_init ppmMLinkSerialParams = {
 static void* ppmMLinkInit(uint8_t module) {
   etx_module_state_t *mod_st = (etx_module_state_t *)ppmInit(module);
   
-  if (mod_st) {
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams);
-    
-    if (!mod_st) {
-      // inverted soft-serial fallback
-      ppmMLinkSerialParams.polarity = ETX_Pol_Normal;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams);
-    }
+  if (!mod_st) 
+    return nullptr;
+
+  if (!modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams)) {
+      modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams);
   }
 
   return (void*)mod_st;
