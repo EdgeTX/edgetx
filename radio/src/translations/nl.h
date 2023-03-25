@@ -1155,6 +1155,7 @@
 //TODO: translation
 #define TR_INVERTED_SERIAL     INDENT "Invert"
 #define TR_IGNORE_INSTANCE     TR(INDENT "Neg. ID ","Negeer ID's")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS    "Ontdek nieuwe sensors"
 #define TR_STOP_DISCOVER_SENSORS "Stop ontdekking"
 #define TR_DELETE_ALL_SENSORS  "Wis alle sensors"

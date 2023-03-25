@@ -811,6 +811,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["trimInc"] = rhs.trimInc;
   node["displayTrims"] = rhs.trimsDisplay;
   node["ignoreSensorIds"] = (int)rhs.frsky.ignoreSensorIds;
+  node["showInstanceIds"] = (int)rhs.showInstanceIds;
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] = (int)rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] = (int)rhs.customThrottleWarningPosition;
@@ -1058,6 +1059,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["trimInc"] >> rhs.trimInc;
   node["displayTrims"] >> rhs.trimsDisplay;
   node["ignoreSensorIds"] >> rhs.frsky.ignoreSensorIds;
+  node["showInstanceIds"] >> rhs.showInstanceIds;
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] >> rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] >> rhs.customThrottleWarningPosition;

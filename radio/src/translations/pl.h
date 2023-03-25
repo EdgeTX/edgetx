@@ -1142,6 +1142,7 @@
 //TODO: translation
 #define TR_INVERTED_SERIAL     INDENT "Odwróć"
 #define TR_IGNORE_INSTANCE     INDENT "Ignoruj przypadek"
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS    "Znajdź nowe czujniki"
 #define TR_STOP_DISCOVER_SENSORS "Szukanie STOP "
 #define TR_DELETE_ALL_SENSORS  "Usuń czujniki     "

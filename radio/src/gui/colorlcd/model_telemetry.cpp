@@ -39,15 +39,6 @@ std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
 // Overview grid variants
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(14), LV_GRID_FR(6),
                                      LV_GRID_TEMPLATE_LAST};
-#if LCD_W > LCD_H
-static const lv_coord_t col_dsc2[] = {LV_GRID_FR(3), LV_GRID_FR(3), 8, LV_GRID_FR(8), LV_GRID_FR(2),
-                                     LV_GRID_TEMPLATE_LAST};
-#else                                     
-static const lv_coord_t col_dsc2[] = {28, 56, 8, LV_GRID_FR(1), 32,
-                                     LV_GRID_TEMPLATE_LAST};
-#endif
-static const lv_coord_t col_dsc3[] = {LCD_W - 12,
-                                     LV_GRID_TEMPLATE_LAST};
 #if TWOCOLBUTTONS
 static const lv_coord_t col_dsc4[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
@@ -67,59 +58,117 @@ static const lv_coord_t e_col_dsc2[] = {LV_GRID_FR(4), LV_GRID_FR(3), LV_GRID_FR
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-// Sensor value label that updates current value display
-class SensorValueLabel : public StaticText {
+#define BTN_H 32
+#define NUM_W 36
+#define NAME_W 56
+
+class TSStyle
+{
   public:
-    SensorValueLabel(Window * parent, const rect_t &rect, uint8_t index) :
-      StaticText(parent, rect, ""),
-      index(index)
+    TSStyle() {}
+
+    void init()
     {
-      padLeft(10);
-    }
+      if (!styleInitDone)
+      {
+        styleInitDone = true;
 
-    void checkEvents() override
-    {
-      uint32_t now = RTOS_GET_MS();
-      TelemetryItem & telemetryItem = telemetryItems[index];
+        lv_style_init(&tsContStyle);
+        lv_style_set_pad_all(&tsContStyle, 0);
+        lv_style_set_width(&tsContStyle, NUM_W);
+        lv_style_set_height(&tsContStyle, BTN_H-4);
 
-      if ((now - lastRefresh >= 200) || telemetryItem.isFresh()) {
-        // update at least every 200ms
-        lastRefresh = now;
+        lv_style_init(&tsNumStyle);
+        lv_style_set_text_font(&tsNumStyle, getFont(FONT(STD)));
+        lv_style_set_text_color(&tsNumStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&tsNumStyle, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_width(&tsNumStyle, NUM_W);
 
-        std::string s;
-        LcdFlags color = COLOR_THEME_SECONDARY1;
+        lv_style_init(&tsNameStyle);
+        lv_style_set_text_font(&tsNameStyle, getFont(FONT(STD)));
+        lv_style_set_text_color(&tsNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&tsNameStyle, LV_TEXT_ALIGN_LEFT);
+        lv_style_set_width(&tsNameStyle, NAME_W);
 
-        if (telemetryItem.isAvailable()) {
-          color = telemetryItem.isOld() ? COLOR_THEME_WARNING : color;
-          s = getSensorCustomValue(index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
-        } else {
-          s = "---";
-        }
+        lv_style_init(&tsFreshStyle);
+        lv_style_set_text_color(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_width(&tsFreshStyle, 8);
+        lv_style_set_height(&tsFreshStyle, 8);
+        lv_style_set_img_recolor(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_img_recolor_opa(&tsFreshStyle, LV_OPA_COVER);
 
-#if LCD_H > LCD_W
-        if (s.size() >= 20) {
-          setFont(FONT(XS));
-        } else {
-          setFont(FONT(STD));
-        }
-#endif
-        lv_obj_set_style_text_color(lvobj, makeLvColor(color), 0);
-        setText(s);
+        lv_style_init(&tsValueStyle);
+        lv_style_set_text_font(&tsValueStyle, getFont(FONT(STD)));
+        lv_style_set_text_color(&tsValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&tsValueStyle, LV_TEXT_ALIGN_LEFT);
+        lv_style_set_width(&tsValueStyle, LV_SIZE_CONTENT);
+
+        lv_style_init(&tsIdStyle);
+        lv_style_set_text_font(&tsIdStyle, getFont(FONT(XXS)));
+        lv_style_set_text_color(&tsIdStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+        lv_style_set_text_align(&tsIdStyle, LV_TEXT_ALIGN_CENTER);
+        lv_style_set_width(&tsIdStyle, NUM_W);
+        lv_style_set_height(&tsIdStyle, 11);
       }
     }
 
-    void paint(BitmapBuffer * dc) override
+    void setContStyle(lv_obj_t* obj)
     {
-      TelemetryItem &telemetryItem = telemetryItems[index];
-
-      // Draw a 'fresh' marker
-      if (telemetryItem.isFresh())
-        dc->drawFilledCircle(5, 10, 4, COLOR_THEME_SECONDARY1);
+      init();
+      lv_obj_add_style(obj, &tsContStyle, LV_PART_MAIN);
     }
 
-  protected:
-    uint8_t index;
-    uint32_t lastRefresh = 0;
+    void setNumStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &tsNumStyle, LV_PART_MAIN);
+    }
+
+    void setNameStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &tsNameStyle, LV_PART_MAIN);
+    }
+
+    void setValueStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &tsValueStyle, LV_PART_MAIN);
+    }
+
+    void setFreshStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &tsFreshStyle, LV_PART_MAIN);
+    }
+
+    void setIdStyle(lv_obj_t* obj)
+    {
+      init();
+      lv_obj_add_style(obj, &tsIdStyle, LV_PART_MAIN);
+    }
+
+  private:
+    lv_style_t tsContStyle;
+    lv_style_t tsNumStyle;
+    lv_style_t tsNameStyle;
+    lv_style_t tsValueStyle;
+    lv_style_t tsIdStyle;
+    lv_style_t tsFreshStyle;
+    bool styleInitDone;
+};
+
+static TSStyle tsStyle;
+
+static uint8_t freshBitmap[] = {
+  0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00,
+  0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
+  0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+  0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
+  0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
+  0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00,
 };
 
 class SensorButton : public Button {
@@ -128,27 +177,29 @@ class SensorButton : public Button {
       Button(parent, rect, nullptr, 0, 0, input_mix_line_create),
       index(index)
     {
-      padAll(0);
-
-      lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
-      lv_obj_set_grid_dsc_array(lvobj, col_dsc2, row_dsc);
-      lv_obj_set_style_pad_row(lvobj, 0, 0);
-      lv_obj_set_style_pad_column(lvobj, 4, 0);
+      padTop(0);
+      padBottom(0);
+      padLeft(3);
+      padRight(3);
+      setHeight(BTN_H);
+      lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
+      lv_obj_set_style_pad_all(lvobj, 0, 0);
+      lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
       check(isActive());
-
-      lv_obj_update_layout(parent->getLvObj());
-      if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
 
       lv_obj_add_event_cb(lvobj, SensorButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
     }
 
   protected:
     bool init = false;
-    bool hideId = false;
+    bool showId = false;
+    lv_obj_t* numLabel = nullptr;
     lv_obj_t* idLabel = nullptr;
-    uint8_t index;
+    lv_obj_t* valLabel = nullptr;
+    lv_obj_t* fresh = nullptr;
     uint32_t lastRefresh = 0;
+    uint8_t index;
 
     static void on_draw(lv_event_t * e)
     {
@@ -164,61 +215,74 @@ class SensorButton : public Button {
   
     bool isActive() const
     {
-       TelemetryItem & telemetryItem = telemetryItems[index];
-       return telemetryItem.isAvailable();
+      return telemetryItems[index].isAvailable();
+    }
+
+    void setNumIdState()
+    {
+      showId = g_model.showInstanceIds;
+      if (showId) {
+        lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_style_text_font(numLabel, getFont(FONT(XS)), 0);
+        lv_obj_set_height(numLabel, 14);
+      } else {
+        lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_style_text_font(numLabel, getFont(FONT(STD)), 0);
+        lv_obj_set_height(numLabel, 22);
+      }
     }
 
     void checkEvents() override
     {
       Button::checkEvents();
       check(isActive());
-
-      if (hideId != g_model.ignoreSensorIds) {
-        hideId = g_model.ignoreSensorIds;
-        if (hideId)
-          lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
-        else
-          lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
-      }
+      refresh();
     }
 
     void delayed_init(lv_event_t* e)
     {
       char s[20];
 
-      auto lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      auto box = lv_obj_create(lvobj);
+      tsStyle.setContStyle(box);
+      lv_obj_set_flex_flow(box, LV_FLEX_FLOW_COLUMN);
+      lv_obj_set_flex_align(box, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-      lv_label_set_text(lbl, std::to_string(index).c_str());
+      numLabel = lv_label_create(box);
+      tsStyle.setNumStyle(numLabel);
 
-      lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      lv_label_set_text(numLabel, std::to_string(index).c_str());
 
-      strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
-      lv_label_set_text(lbl, s);
-
-      auto v = new SensorValueLabel(this, rect_t{}, index);
-      lv_obj_set_grid_cell(v->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+      idLabel = lv_label_create(box);
+      tsStyle.setIdStyle(idLabel);
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
       if (sensor->type == TELEM_TYPE_CUSTOM) {
-        sprintf(s, "%d", sensor->instance);
+        sprintf(s, "ID: %d", sensor->instance);
       } else {
         s[0] = 0;
       }
 
-      hideId = g_model.ignoreSensorIds;
-
-      idLabel = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(idLabel, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(idLabel, LV_GRID_ALIGN_START, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
       lv_label_set_text(idLabel, s);
+      setNumIdState();
 
-      if (hideId)
-        lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+      auto lbl = lv_label_create(lvobj);
+      tsStyle.setNameStyle(lbl);
+
+      strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
+      lv_label_set_text(lbl, s);
+
+      box = lv_obj_create(lvobj);
+      tsStyle.setFreshStyle(box);
+
+      fresh = lv_canvas_create(box);
+      tsStyle.setFreshStyle(fresh);
+      lv_canvas_set_buffer(fresh, freshBitmap, 8, 8, LV_IMG_CF_ALPHA_8BIT);
+      lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
+
+      valLabel = lv_label_create(lvobj);
+      tsStyle.setValueStyle(valLabel);
+      lv_label_set_text(valLabel, "");
 
       init = true;
       refresh();
@@ -232,6 +296,38 @@ class SensorButton : public Button {
 
     void refresh()
     {
+      if (!init) return;
+
+      if (showId != g_model.showInstanceIds)
+        setNumIdState();
+
+      // Draw a 'fresh' marker
+      if (telemetryItems[index].isFresh())
+          lv_obj_clear_flag(fresh, LV_OBJ_FLAG_HIDDEN);
+        else
+          lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
+
+      uint32_t now = RTOS_GET_MS();
+      TelemetryItem & telemetryItem = telemetryItems[index];
+
+      // Update value
+      if ((now - lastRefresh >= 200) || telemetryItem.isFresh()) {
+        // update at least every 200ms
+        lastRefresh = now;
+
+        std::string s;
+        LcdFlags color = COLOR_THEME_SECONDARY1;
+
+        if (telemetryItem.isAvailable()) {
+          color = telemetryItem.isOld() ? COLOR_THEME_WARNING : color;
+          s = getSensorCustomValue(index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT);
+        } else {
+          s = "---";
+        }
+
+        lv_obj_set_style_text_color(valLabel, makeLvColor(color), 0);
+        lv_label_set_text(valLabel, s.c_str());
+      }
     }
 };
 
@@ -562,10 +658,7 @@ void ModelTelemetryPage::checkEvents()
 
 void ModelTelemetryPage::rebuild(FormWindow * window, int8_t focusSensorIndex)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
-  window->clear();
-  build(window, focusSensorIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  buildSensorList(focusSensorIndex);
   lastKnownIndex = availableTelemetryIndex();
 }
 
@@ -579,53 +672,18 @@ void ModelTelemetryPage::editSensor(FormWindow * window, uint8_t index)
   });
 }
 
-#if LCD_W > LCD_H
-#define B_HEIGHT    32
-#else
-#define B_HEIGHT    44
-#endif
-
-void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
+void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
 {
-  window->padAll(4);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+  bool didFocus = false;
+  SensorButton* first = nullptr;
 
-  this->window = window;
+  sensorWindow->clear();
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
-  FlexGridLayout grid2(col_dsc2, row_dsc, 2);
-
-  // Sensors
-  auto line = window->newLine(&grid2);
-  lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
-  lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
-  auto subttl = new Subtitle(line, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
-
-#if LCD_H > LCD_W
-  lv_obj_set_grid_cell(subttl->getLvObj(), LV_GRID_ALIGN_START, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);
-  line = window->newLine(&grid2);
-  lv_obj_set_style_pad_row(line->getLvObj(), 0, 0);
-  lv_obj_set_style_pad_column(line->getLvObj(), 4, 0);
-  grid2.nextCell();
-#endif
-
-  // Sensors columns titles
-  uint8_t sensorsCount = getTelemetrySensorsCount();
-  if (sensorsCount > 0) {
-    new StaticText(line, rect_t{}, STR_NAME, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    grid2.nextCell();
-    new StaticText(line, rect_t{}, STR_VALUE, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    idLabel = new StaticText(line, rect_t{}, STR_ID, 0, FONT(XS) | COLOR_THEME_PRIMARY1);
-    if (g_model.ignoreSensorIds)
-      lv_obj_add_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
-
-  FlexGridLayout grid3(col_dsc3, row_dsc, 2);
- 
   for (uint8_t idx = 0; idx < MAX_TELEMETRY_SENSORS; idx++) {
     if (g_model.telemetrySensors[idx].isAvailable()) {
-      line = window->newLine(&grid3);
-      auto button = new SensorButton(line, rect_t{0, 0, LCD_W-12, 25}, idx);
+      auto button = new SensorButton(sensorWindow, rect_t{}, idx);
+
+      if (!first) first = button;
 
       button->setPressHandler([=]() -> uint8_t {
         Menu * menu = new Menu(window);
@@ -650,21 +708,56 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
         });
         menu->addLine(STR_DELETE, [=]() {
           delTelemetryIndex(idx); // calls setDirty internally
-          rebuild(window);
+          for (uint8_t i = idx + 1; i < MAX_TELEMETRY_SENSORS; i += 1) {
+            if (g_model.telemetrySensors[i].isAvailable()) {
+              rebuild(window, i);
+              return;
+            }
+          }
+          for (uint8_t i = idx - 1; i >= 0; i -= 1) {
+            if (g_model.telemetrySensors[i].isAvailable()) {
+              rebuild(window, i);
+              return;
+            }
+          }
+          rebuild(window,-1);
         });
         return 0;
       });
       if (focusSensorIndex == idx) {
         lv_group_focus_obj(button->getLvObj());
+        didFocus = true;
       }
     }
   }
 
+  if (!didFocus) {
+    if (first)
+      lv_group_focus_obj(first->getLvObj());
+    else
+      lv_group_focus_obj(discover->getLvObj());
+  }
+}
+
+void ModelTelemetryPage::build(FormWindow * window)
+{
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
+  this->window = window;
+
+  // Sensors
+  new Subtitle(window, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
+
+  sensorWindow = new FormWindow(window, rect_t{});
+  sensorWindow->padAll(0);
+  sensorWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+
   FlexGridLayout grid4(col_dsc4, row_dsc, 4);
 
   // Autodiscover button
-  line = window->newLine(&grid4);
-  auto discover = new TextButton(line, rect_t{}, (allowNewSensors) ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS);
+  auto line = window->newLine(&grid4);
+  discover = new TextButton(line, rect_t{}, (allowNewSensors) ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS);
   discover->setPressHandler([=]() {
     allowNewSensors = !allowNewSensors;
     if (allowNewSensors) {
@@ -690,14 +783,15 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
                  });
   lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
+  uint8_t sensorsCount = getTelemetrySensorsCount();
   if (sensorsCount > 0) {
 #if TWOCOLBUTTONS
     line = window->newLine(&grid4);
 #endif
     // Delete all sensors button
     b = new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS,
-                   []() -> uint8_t {
-                       new FullScreenDialog(WARNING_TYPE_CONFIRM, STR_CONFIRMDELETE, "", "", [=]() {
+                   [=]() -> uint8_t {
+                       new ConfirmDialog(window, STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE, [=]() {
                            for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
                              delTelemetryIndex(i);
                            }
@@ -712,22 +806,22 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
 #endif
   }
 
+  FlexGridLayout grid(col_dsc, row_dsc, 2);
+
+  // Show instance IDs button
+  line = window->newLine(&grid);
+  line->padLeft(10);
+  new StaticText(line, rect_t{}, STR_SHOW_INSTANCE_ID, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
+
   // Ignore instance button
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_DEFAULT(g_model.ignoreSensorIds),
-               [=](bool newValue) {
-                 g_model.ignoreSensorIds = newValue;
-                 if (newValue)
-                   lv_obj_add_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-                 else
-                   lv_obj_clear_flag(idLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-               });
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RSSI
-  line = window->newLine(&grid);
-  new Subtitle(line, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
 
   line = window->newLine(&grid);
   line->padLeft(10);
@@ -745,8 +839,7 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
-  line = window->newLine(&grid);
-  new Subtitle(line, rect_t{}, STR_VARIO, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, STR_VARIO, 0, COLOR_THEME_PRIMARY1);
 
   FlexGridLayout grid5(col_dsc5, row_dsc, 4);
 
@@ -786,6 +879,9 @@ void ModelTelemetryPage::build(FormWindow * window, int8_t focusSensorIndex)
   cMax->setAvailableHandler([](int val) { return g_model.varioData.centerMin - 5 < val; });
 
   new Choice(line, rect_t{}, STR_VVARIOCENTER, 0, 1, GET_SET_DEFAULT(g_model.varioData.centerSilent));
+
+  // Don't call this before the 'discover' button has been created
+  buildSensorList(-1);
 }
 
 

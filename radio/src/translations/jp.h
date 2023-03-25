@@ -1139,6 +1139,7 @@
 #define TR_TELEMETRYFULL               TR("All slots full!", "テレメトリー枠はすべて埋まりました!!")
 #define TR_INVERTED_SERIAL             INDENT "リバース"
 #define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "ID識別を無視")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS            "新規検索"
 #define TR_STOP_DISCOVER_SENSORS       "停止"
 #define TR_DELETE_ALL_SENSORS          "すべて削除"

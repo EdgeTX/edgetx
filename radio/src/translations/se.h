@@ -1174,6 +1174,7 @@
 
 #define TR_INVERTED_SERIAL              INDENT "Inverterad"
 #define TR_IGNORE_INSTANCE              TR(INDENT "Ej inst.", INDENT "Ignorera instansfel")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS             "Sök nya"
 #define TR_STOP_DISCOVER_SENSORS        "Avbryt sökning"
 #define TR_DELETE_ALL_SENSORS           "Ta bort alla sensorer"
