@@ -76,7 +76,9 @@ void hapticQueue::heartbeat()
 
 void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
 {
-  tLen = getHapticLength(tLen);
+  if(tLen > 0){
+    tLen = getHapticLength(tLen);
+  }
 
   if ((tFlags & PLAY_NOW) || (!busy() && empty())) {
     if (tLen == 0) {
