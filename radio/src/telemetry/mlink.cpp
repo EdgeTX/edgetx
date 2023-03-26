@@ -228,7 +228,7 @@ void processExternalMLinkSerialData(void* ctx, uint8_t data, uint8_t* buffer, ui
   uint8_t sum = 1;                            // sanity check: checksum
   for (uint8_t i = 0; i < MSB_EXT_MODULE_PACKET_LEN; i++)
     sum += buffer[i];                         // expect sum == 1+0xff = 0x00 for valid packet
-  if (sum) {                                  // adding 1 -> expect 0x00 if checksum ok   
+  if (sum) {                                  // fail packet if sum is not equal to 0x00  
     return;
   }
 
