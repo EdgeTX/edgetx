@@ -51,7 +51,7 @@ void hapticQueue::heartbeat()
     if (intensity < 255) {
       hapticOn(intensity);
     } else {
-    hapticOn(HAPTIC_STRENGTH() * 20);
+      hapticOn(HAPTIC_STRENGTH() * 20);
     }
 #else
     if (hapticTick-- > 0) {
