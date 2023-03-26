@@ -25,8 +25,7 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
     Window(parent, rect, windowFlags, textFlags, lv_label_create),
     text(std::move(txt))
 {
-  lv_label_set_text(lvobj, text.c_str());
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_enable_style_refresh(false);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
   lv_obj_set_style_text_font(lvobj, getFont(textFlags), LV_PART_MAIN);
@@ -43,6 +42,10 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
   }
 
   lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
+  lv_label_set_text(lvobj, text.c_str());
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 #if defined(DEBUG_WINDOWS)
