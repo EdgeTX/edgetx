@@ -1045,3 +1045,50 @@ char *strAppendDate(char *str, bool time)
 
 #if !defined(BOOT)
 #endif
+
+// Manage timezones
+// For backward compatibility timezone is stored as two separate values:
+//   timezone = hour value
+//   timezoneMinutes - minute value / 15
+static int8_t timezoneHours[] = { -12, -11, -10, -9, -9, -8, -7, -6, -5, -4, -3, -3, -2, -1 , 0, 1, 2, 3,  3, 4,  4, 5,  5,  5, 6,  6, 7, 8,  8, 9,  9, 10, 10, 11, 12, 12, 13, 14 };
+static uint8_t timezoneMins[] = {   0,   0,   0, 30,  0,  0,  0,  0,  0,  0, 30,  0,  0,  0,  0, 0, 0, 0, 30, 0, 30, 0, 30, 45, 0, 30, 0, 0, 45, 0, 30,  0, 30,  0,  0, 45,  0,  0 };
+
+uint8_t maxTimezone()
+{
+  return sizeof(timezoneHours) - 1;
+}
+
+std::string timezoneDisplay(int tz)
+{
+  char s[10];
+  sprintf(s,"%d:%02d", timezoneHours[tz], timezoneMins[tz]);
+  return std::string(s);
+}
+
+int timezoneIndex(int8_t tzHour, uint8_t tzMinute)
+{
+  tzMinute = tzMinute * 15;
+  for (int i = 0; i <= maxTimezone(); i += 1) {
+    if (timezoneHours[i] == tzHour && timezoneMins[i] == tzMinute)
+      return i;
+  }
+  return 0;
+}
+
+int8_t timezoneHour(int tz)
+{
+  return timezoneHours[tz];
+}
+
+uint8_t timezoneMinute(int tz)
+{
+  return timezoneMins[tz] / 15;
+}
+
+int timezoneOffsetMinutes(int8_t tzHour, uint8_t tzMinute)
+{
+  tzMinute = tzMinute * 15;
+  if (tzHour < 0)
+    return (tzHour * 3600) - tzMinute;
+  return (tzHour * 3600) + tzMinute;
+}

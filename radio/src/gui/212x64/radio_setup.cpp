@@ -547,9 +547,18 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_TIMEZONE:
-        lcdDrawText(INDENT_WIDTH, y, STR_TIMEZONE);
-        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.timezone, attr|LEFT);
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.timezone, -12, 12);
+        {
+          lcdDrawText(INDENT_WIDTH, y, STR_TIMEZONE);
+          int tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
+          lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, timezoneDisplay(tzIndex).c_str(), attr);
+          if (attr) {
+            tzIndex = checkIncDec(event, tzIndex, 0, maxTimezone(), EE_GENERAL);
+            if (checkIncDec_Ret) {
+              g_eeGeneral.timezone = timezoneHour(tzIndex);
+              g_eeGeneral.timezoneMinutes = timezoneMinute(tzIndex);
+            }
+          }
+        }
         break;
 
       case ITEM_RADIO_SETUP_ADJUST_RTC:

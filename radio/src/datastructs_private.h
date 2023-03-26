@@ -855,7 +855,8 @@ PACK(struct RadioData {
 
   // Real attributes
   NOBACKUP(uint8_t manuallyEdited:1);
-  NOBACKUP(int8_t spare0:7 SKIP);
+  uint8_t timezoneMinutes:2;    // 0 = 0, 1 = 15, 2 = 30, 3 = 45
+  NOBACKUP(int8_t spare0:5 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
   CalibData calib[MAX_CALIB_ANALOG_INPUTS] NO_IDX;

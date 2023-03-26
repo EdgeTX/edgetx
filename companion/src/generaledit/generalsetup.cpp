@@ -21,6 +21,45 @@
 #include "generalsetup.h"
 #include "ui_generalsetup.h"
 
+// Manage timezones
+// For backward compatibility timezone is stored as two separate values:
+//   timezone = hour value
+//   timezoneMinutes - minute value / 15
+static int8_t timezoneHours[] = { -12, -11, -10, -9, -9, -8, -7, -6, -5, -4, -3, -3, -2, -1 , 0, 1, 2, 3,  3, 4,  4, 5,  5,  5, 6,  6, 7, 8,  8, 9,  9, 10, 10, 11, 12, 12, 13, 14 };
+static uint8_t timezoneMins[] = {   0,   0,   0, 30,  0,  0,  0,  0,  0,  0, 30,  0,  0,  0,  0, 0, 0, 0, 30, 0, 30, 0, 30, 45, 0, 30, 0, 0, 45, 0, 30,  0, 30,  0,  0, 45,  0,  0 };
+
+uint8_t maxTimezone()
+{
+  return sizeof(timezoneHours) - 1;
+}
+
+std::string timezoneDisplay(int tz)
+{
+  char s[10];
+  sprintf(s,"%d:%02d", timezoneHours[tz], timezoneMins[tz]);
+  return std::string(s);
+}
+
+int timezoneIndex(int8_t tzHour, uint8_t tzMinute)
+{
+  tzMinute = tzMinute * 15;
+  for (int i = 0; i <= maxTimezone(); i += 1) {
+    if (timezoneHours[i] == tzHour && timezoneMins[i] == tzMinute)
+      return i;
+  }
+  return 0;
+}
+
+int8_t timezoneHour(int tz)
+{
+  return timezoneHours[tz];
+}
+
+uint8_t timezoneMinute(int tz)
+{
+  return timezoneMins[tz] / 15;
+}
+
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
@@ -150,7 +189,8 @@ ui(new Ui::GeneralSetup)
   }
 
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
-  ui->timezoneSB->setValue(generalSettings.timezone);
+
+  populateTimezoneCB();
 
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
     ui->adjustRTC->setChecked(generalSettings.adjustRTC);
@@ -326,6 +366,30 @@ ui(new Ui::GeneralSetup)
 GeneralSetupPanel::~GeneralSetupPanel()
 {
   delete ui;
+}
+
+void GeneralSetupPanel::populateTimezoneCB()
+{
+  QComboBox * b = ui->timezoneCB;
+  b->clear();
+
+  int tzIndex = timezoneIndex(generalSettings.timezone, generalSettings.timezoneMinutes);
+
+  for (int i = 0; i <= maxTimezone(); i += 1) {
+    b->addItem(timezoneDisplay(i).c_str(), 0);
+    if (tzIndex == i) {
+      b->setCurrentIndex(b->count()-1);
+    }
+  }
+}
+
+void GeneralSetupPanel::on_timezoneCB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.timezone = timezoneHour(index);
+    generalSettings.timezoneMinutes = timezoneMinute(index);
+    emit modified();
+  }
 }
 
 void GeneralSetupPanel::populateBacklightCB()
@@ -690,12 +754,6 @@ void GeneralSetupPanel::on_backlightautoSB_editingFinished()
 void GeneralSetupPanel::on_switchesDelay_valueChanged(int)
 {
   generalSettings.switchesDelay = (ui->switchesDelay->value() / 10) - 15;
-  emit modified();
-}
-
-void GeneralSetupPanel::on_timezoneSB_editingFinished()
-{
-  generalSettings.timezone = ui->timezoneSB->value();
   emit modified();
 }
 

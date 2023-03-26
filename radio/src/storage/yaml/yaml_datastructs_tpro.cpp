@@ -263,7 +263,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "timezoneMinutes", 2 ),
+  YAML_PADDING( 5 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 12, struct_CalibData, NULL),

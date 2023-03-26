@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>810</width>
+    <width>858</width>
     <height>880</height>
    </rect>
   </property>
@@ -927,17 +927,7 @@
      <item row="18" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QSpinBox" name="timezoneSB">
-         <property name="minimum">
-          <number>-14</number>
-         </property>
-         <property name="maximum">
-          <number>12</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="timezoneCB"/>
        </item>
        <item>
         <widget class="QCheckBox" name="adjustRTC">

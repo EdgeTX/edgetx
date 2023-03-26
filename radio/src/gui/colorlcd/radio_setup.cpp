@@ -556,10 +556,22 @@ class GpsPage : public SubPage {
     {
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
+      tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
+
       auto line = body.newLine(&grid);
       // Timezone
       new StaticText(line, rect_t{}, STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(line, rect_t{}, -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
+      auto tz = new NumberEdit(line, rect_t{}, 0, maxTimezone(),
+                               GET_DEFAULT(tzIndex),
+                               [=](int newTz) {
+                                 tzIndex = newTz;
+                                 g_eeGeneral.timezone = timezoneHour(newTz);
+                                 g_eeGeneral.timezoneMinutes = timezoneMinute(newTz);
+                                 SET_DIRTY();
+                               });
+      tz->setDisplayHandler([](int32_t tz) {
+        return timezoneDisplay(tz);
+      });
       line = body.newLine(&grid);
 
       // Adjust RTC (from telemetry)
@@ -572,6 +584,9 @@ class GpsPage : public SubPage {
       new Choice(line, rect_t{}, STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
       line = body.newLine(&grid);
     }
+
+  protected:
+    int tzIndex;
 };
 
 class ViewOptionsPage : public Page
