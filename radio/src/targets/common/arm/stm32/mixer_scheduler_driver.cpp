@@ -51,13 +51,6 @@ void mixerSchedulerStop()
   NVIC_DisableIRQ(MIXER_SCHEDULER_TIMER_IRQn);
 }
 
-void mixerSchedulerResetTimer()
-{
-  mixerSchedulerDisableTrigger();
-  MIXER_SCHEDULER_TIMER->CNT = 0;
-  mixerSchedulerEnableTrigger();
-}
-
 void mixerSchedulerEnableTrigger()
 {
   MIXER_SCHEDULER_TIMER->DIER |= TIM_DIER_UIE; // enable interrupt
@@ -66,6 +59,15 @@ void mixerSchedulerEnableTrigger()
 void mixerSchedulerDisableTrigger()
 {
   MIXER_SCHEDULER_TIMER->DIER &= ~TIM_DIER_UIE; // disable interrupt
+}
+
+void mixerSchedulerSoftTrigger() {
+  // Generate a timer update event (TIM_EGR_UG) to reload the Prescaler and the repetition 
+  // counter value immediately to avoid making FreeRTOS calls within this ISR:
+  // - fires MIXER_SCHEDULER_TIMER interrupt after returning from this ISR
+  // - MIXER_SCHEDULER_TIMER_IRQHandler(void) takes care of making FreeRTOS calls
+  //   to ensure switching to highest priority task.
+  MIXER_SCHEDULER_TIMER->EGR = TIM_EGR_UG; 
 }
 
 extern "C" void MIXER_SCHEDULER_TIMER_IRQHandler(void)

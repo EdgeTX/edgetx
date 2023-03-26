@@ -523,8 +523,10 @@
 // TELEMETRY_EXTI IRQ
 #if !defined(USE_EXTI9_5_IRQ)
   #define USE_EXTI9_5_IRQ
-  #define EXTI9_5_IRQ_Priority          TELEMETRY_EXTI_PRIO
 #endif
+// overwrite priority
+#undef EXTI9_5_IRQ_Priority
+#define EXTI9_5_IRQ_Priority            TELEMETRY_EXTI_PRIO
 
 #define TELEMETRY_TIMER                 TIM11
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
