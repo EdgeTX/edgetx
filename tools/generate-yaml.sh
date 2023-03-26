@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Stops on first error, echo on
+# Stops on first error
 set -e
-set -x
 
 # Add GCC_ARM to PATH
 if [[ -n ${GCC_ARM} ]] ; then
@@ -12,7 +11,7 @@ fi
 : ${FLAVOR:="t12;t8;tlite;tpro;lr3pro;tx12;tx12mk2;boxer;zorro;tx16s;x12s;nv14;x7;x9d;x9dp;x9e;x9lite;x9lites;xlite;xlites"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DYAML_STORAGE=YES "}
+: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
@@ -22,6 +21,7 @@ target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 for target_name in $target_names
 do
     BUILD_OPTIONS=${COMMON_OPTIONS}
+    BUILD_OPTIONS+=" $EXTRA_OPTIONS "
 
     echo "Generating YAML structures for ${target_name}"
     case $target_name in
@@ -110,8 +110,8 @@ do
     esac
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make arm-none-eabi-configure
-    make -C arm-none-eabi yaml_data
+    make native-configure
+    make -C native yaml_data
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done
