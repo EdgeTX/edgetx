@@ -111,7 +111,7 @@ void extmoduleSendNextFramePpm(void* pulses, uint16_t length,
 void extmodulePxx1PulsesStart()
 {
   EXTERNAL_MODULE_ON();
-  stm32_pulse_config_output(&extmoduleTimer, false, LL_TIM_OCMODE_PWM1, 9 * 2);
+  stm32_pulse_config_output(&extmoduleTimer, false, LL_TIM_OCMODE_PWM1, 8 * 2);
   stm32_pulse_init(&extmoduleTimer);
 }
 
@@ -121,7 +121,7 @@ void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 
   // Start DMA request and re-enable timer
   stm32_pulse_start_dma_req(&extmoduleTimer, pulses, length, LL_TIM_OCMODE_PWM1,
-                            9 * 2);
+                            8 * 2);
 }
 #endif
 
