@@ -119,17 +119,17 @@ class Window
     void setRect(rect_t value)
     {
       rect = value;
+      lv_obj_enable_style_refresh(false);
       lv_obj_set_pos(lvobj, rect.x, rect.y);
       lv_obj_set_width(lvobj, rect.w);
+      lv_obj_enable_style_refresh(true);
       lv_obj_set_height(lvobj, rect.h);
-      invalidate();
     }
 
     void setWidth(coord_t value)
     {
       rect.w = value;
       lv_obj_set_width(lvobj, rect.w);
-      invalidate();
     }
 
     void setWindowCentered()
@@ -143,21 +143,18 @@ class Window
     {
       rect.h = value;
       if (lvobj != nullptr) lv_obj_set_height(lvobj, rect.h);
-      invalidate();
     }
 
     void setLeft(coord_t x)
     {
       rect.x = x;
       lv_obj_set_pos(lvobj, rect.x, rect.y);
-      invalidate();
     }
 
     void setTop(coord_t y)
     {
       rect.y = y;
       lv_obj_set_pos(lvobj, rect.x, rect.y);
-      invalidate();
     }
 
     coord_t left() const
