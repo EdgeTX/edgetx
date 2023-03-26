@@ -180,6 +180,6 @@ extern std::string timezoneDisplay(int tz);
 extern int timezoneIndex(int8_t tzHour, uint8_t tzMinute);
 extern int8_t timezoneHour(int tz);
 extern uint8_t timezoneMinute(int tz);
-extern int timezoneOffsetMinutes(int8_t tzHour, uint8_t tzMinute);
+extern int timezoneOffsetSeconds(int8_t tzHour, uint8_t tzMinute);
 
 #endif  // _STRHELPERS_H_

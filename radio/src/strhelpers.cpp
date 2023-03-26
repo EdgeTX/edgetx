@@ -1085,10 +1085,11 @@ uint8_t timezoneMinute(int tz)
   return timezoneMins[tz] / 15;
 }
 
-int timezoneOffsetMinutes(int8_t tzHour, uint8_t tzMinute)
+int timezoneOffsetSeconds(int8_t tzHour, uint8_t tzMinute)
 {
-  tzMinute = tzMinute * 15;
+  tzHour = tzHour * 3600;
+  tzMinute = tzMinute * 15 * 60;
   if (tzHour < 0)
-    return (tzHour * 3600) - tzMinute;
-  return (tzHour * 3600) + tzMinute;
+    return tzHour - tzMinute;
+  return tzHour + tzMinute;
 }
