@@ -30,6 +30,10 @@ TASK_FUNCTION(mixerTask);
 // init, create and start the OS task itself
 void mixerTaskInit();
 
+// return true if the mixer has
+// already started at least once since boot
+bool mixerTaskStarted();
+
 // start the main computations
 // and pushing channels out
 //

@@ -35,6 +35,7 @@ static RTOS_MUTEX_HANDLE mixerMutex;
 // The mixer will start in 'paused' mode
 // and start working properly once
 // mixerTaskStart() has been called.
+static bool _mixer_started = false;
 static bool _mixer_running = false;
 static bool _mixer_exit = false;
 
@@ -61,8 +62,14 @@ void mixerTaskInit()
                    MIXER_STACK_SIZE, MIXER_TASK_PRIO);
 }
 
+bool mixerTaskStarted()
+{
+  return _mixer_started;
+}
+
 void mixerTaskStart()
 {
+  _mixer_started = true;
   _mixer_running = true;
 }
 
