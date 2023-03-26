@@ -557,14 +557,15 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
     // Drain RX
     while (status & (LL_USART_SR_RXNE | USART_FLAG_ERRORS)) {
 
-      // This will clear the RXNE bit in USART_DR register
-      uint8_t data = LL_USART_ReadReg(usart->USARTx, DR);
-
       if (status & USART_FLAG_ERRORS) {
         if (cb->on_error)
           cb->on_error();
       }
-      else {
+
+      if (status & LL_USART_SR_RXNE) {
+        // This will clear the RXNE bit in USART_DR register
+        uint8_t data = LL_USART_ReadReg(usart->USARTx, DR);
+
         if (cb->on_receive)
           cb->on_receive(data);
       }
