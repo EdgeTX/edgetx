@@ -28,6 +28,8 @@
 #define TIMER_MULT_APB1                 2
 #define TIMER_MULT_APB2                 2
 
+#define TELEMETRY_EXTI_PRIO             0 // required for soft serial
+
 // Keys
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ)
 #if defined(PCBX12S)
@@ -521,7 +523,7 @@
 // TELEMETRY_EXTI IRQ
 #if !defined(USE_EXTI9_5_IRQ)
   #define USE_EXTI9_5_IRQ
-  #define EXTI9_5_IRQ_Priority 0
+  #define EXTI9_5_IRQ_Priority          TELEMETRY_EXTI_PRIO
 #endif
 
 #define TELEMETRY_TIMER                 TIM11
