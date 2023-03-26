@@ -225,10 +225,8 @@
   // ROTARY_ENCODER_EXTI_LINE1 IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
+    #define EXTI9_5_IRQ_Priority 5
   #endif
-  // overwrite priority
-  #undef EXTI9_5_IRQ_Priority
-  #define EXTI9_5_IRQ_Priority          TELEMETRY_EXTI_PRIO
   // ROTARY_ENCODER_EXTI_LINE2 IRQ
   #if !defined(USE_EXTI15_10_IRQ)
     #define USE_EXTI15_10_IRQ
@@ -267,10 +265,8 @@
   // ROTARY_ENCODER_EXTI_LINE1 IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
+    #define EXTI9_5_IRQ_Priority 5
   #endif
-  // overwrite priority
-  #undef EXTI9_5_IRQ_Priority
-  #define EXTI9_5_IRQ_Priority             TELEMETRY_EXTI_PRIO
   // ROTARY_ENCODER_EXTI_LINE2 IRQ
   #if !defined(USE_EXTI15_10_IRQ)
     #define USE_EXTI15_10_IRQ
@@ -2070,10 +2066,8 @@
   // INTMODULE_HEARTBEAT_EXTI IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
+    #define EXTI9_5_IRQ_Priority 5
   #endif
-  // overwrite priority
-  #undef EXTI9_5_IRQ_Priority
-  #define EXTI9_5_IRQ_Priority                    TELEMETRY_EXTI_PRIO
 #elif defined(RADIO_X9DP2019)
   #define INTMODULE_HEARTBEAT
   #define INTMODULE_HEARTBEAT_RCC_AHB1Periph      RCC_AHB1Periph_GPIOB
@@ -2100,10 +2094,8 @@
   // INTMODULE_HEARTBEAT_EXTI IRQ
   #if !defined(USE_EXTI9_5_IRQ)
     #define USE_EXTI9_5_IRQ
+    #define EXTI9_5_IRQ_Priority 5
   #endif
-  // overwrite priority
-  #undef EXTI9_5_IRQ_Priority
-  #define EXTI9_5_IRQ_Priority                    TELEMETRY_EXTI_PRIO
 #endif
 
 // Trainer / Trainee from the module bay
