@@ -162,6 +162,6 @@ uint8_t bluetoothIsWriting(void)
   if (!_bt_usart_ctx)
     return false;
   
-  return STM32SerialDriver.txCompleted(_bt_usart_ctx);
+  return !STM32SerialDriver.txCompleted(_bt_usart_ctx);
 }
 #endif // !BOOT
