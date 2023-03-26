@@ -26,132 +26,127 @@
   * Client = developers' computer
   */
 
-  syntax = "proto3";
+syntax = "proto3";
 
-  package edgetx.lua.debugger;
-  
-  /*
-   * data types
-   */
-  
-  // This enum will extend in the future with
-  // a release of EdgeTX 3.0
-  enum DebugTarget {
-      SCRIPT = 0;
-  }
-  
-  enum DebuggerState {
-      RUNNING = 0;
-      STOPPED_BREAKPOINT = 1;
-      STOPPED_ERROR = 2;
-  }
-  
-  enum Command {
-      CONTINUE = 0;
-      STEP_INTO = 1;
-      STEP_OVER = 2;
-      PRINT = 3;
-      STOP = 4;
-  }
-  
-  message Breakpoint {
-      optional string file = 1;
-      optional int32 line = 2;
-  }
-  
-  // for more info look at https://www.lua.org/manual/5.4/manual.html#lua_Debug
-  // this message is basically a ripoff of lua_Debug type in Lua C API
-  message LuaDebugInfo {
-      optional string sourceFile = 1;
-      optional int32 line = 2;
-      enum What {
-          LUA = 0;
-          C = 1;
-          MAIN = 2;
-      }
-      optional What what = 3;
-      optional string name = 4;
-      enum NameWhat {
-          GLOBAL = 0;
-          LOCAL = 1;
-          METHOD = 2;
-          FIELD = 3;
-          UPVALUE = 4;
-      }
-      optional NameWhat nameWhat = 5;
-      optional bool isTailCall = 6;
-      optional int32 nUps = 7;
-      optional int32 nParams = 8;
-      optional bool isVararg = 9;
-      optional int32 fTransfer = 10;
-      optional int32 nTransfer = 11;
-  }
-  
-  /*
-   * messages
-   */
-  
-  // All messages are contained in this message, so their type can
-  // be easily identified while decoding them, without using a
-  // brute force approach.
-  message MessageContainer {
-      enum MessageType {
-          EXECUTE_EXPRESSION = 0;
-          EXECUTE_DEBUGGER_COMMAND = 1;
-          SET_BREAKPOINT = 2;
-          START_DEBUGGER = 3;
-          GET_BREAKPOINTS = 4;
-          DEBUG_STATUS = 5;
-          BREAKPOINTS = 6;
-      }
-      MessageType messageType = 1;
-      bytes bytes = 2;
-  }
-  
-  // client to host
-  message ExecuteExpression {
-      optional string expression = 1;
-  }
-  
-  // client to host
-  message ExecuteDebuggerCommand {
-      optional Command command = 1;
-  }
-  
-  // client to host
-  message SetBreakpoint {
-      enum State {
-          ENABLED = 0;
-          DISABLED = 1;
-          NONE = 2; // basically means removed
-      }
-      optional Breakpoint breakpoint = 1;
-      optional State state = 2;
-  }
-  
-  // client to host
-  message StartDebugger {
-      optional DebugTarget targetType = 1;
-      optional string targetName = 2;
-      repeated Breakpoint breakpoints = 3;
-  }
-  
-  // client to host
-  message GetBreakpoints {
-      // If a filename is present, returned message will only
-      // contain breakpoints for that filename. If not, then 
-      // all breakpoints will be returned.
-      optional string filename = 1;
-  }
-  
-  // host to client
-  message DebugStatus {
-      optional DebuggerState state = 1;
-      optional Breakpoint stoppedAtBreakpoint = 2;
-  }
-  
-  // host to client
-  message Breakpoints {
-      optional string filename = 1;
-      repeated Breakpoint breakpoints = 2;
-  }
+package edgetx.lua.debugger;
+
+/*
+ * data types
+ */
+
+// This enum will extend in the future with
+// a release of EdgeTX 3.0
+enum DebugTarget {
+    SCRIPT = 0;
+}
+
+enum DebuggerState {
+    RUNNING = 0;
+    STOPPED_BREAKPOINT = 1;
+    STOPPED_ERROR = 2;
+}
+
+enum Command {
+    CONTINUE = 0;
+    STEP_INTO = 1;
+    STEP_OVER = 2;
+    PRINT = 3;
+    STOP = 4;
+}
+
+message Breakpoint {
+    optional string file = 1;
+    optional int32 line = 2;
+}
+
+// for more info look at https://www.lua.org/manual/5.4/manual.html#lua_Debug
+// this message is basically a ripoff of lua_Debug type in Lua C API
+message LuaDebugInfo {
+    optional string sourceFile = 1;
+    optional int32 line = 2;
+    enum What {
+        LUA = 0;
+        C = 1;
+        MAIN = 2;
+    }
+    optional What what = 3;
+    optional string name = 4;
+    enum NameWhat {
+        GLOBAL = 0;
+        LOCAL = 1;
+        METHOD = 2;
+        FIELD = 3;
+        UPVALUE = 4;
+    }
+    optional NameWhat nameWhat = 5;
+    optional bool isTailCall = 6;
+    optional int32 nUps = 7;
+    optional int32 nParams = 8;
+    optional bool isVararg = 9;
+    optional int32 fTransfer = 10;
+    optional int32 nTransfer = 11;
+}
+
+/*
+ * messages
+ */
+
+message MessageContainer {
+    oneof message {
+        ExecuteExpression executeExpression = 1;
+        ExecuteDebuggerCommand executeDebuggerCommand = 2;
+        SetBreakpoint setBreakpoint = 3;
+        StartDebugger startDebugger = 4;
+        GetBreakpoints getBreakpoints = 5;
+        DebugStatus debugStatus = 6;
+        Breakpoints breakpoints = 7;
+    };
+}
+
+// client to host
+message ExecuteExpression {
+    optional string expression = 1;
+}
+
+// client to host
+message ExecuteDebuggerCommand {
+    optional Command command = 1;
+}
+
+// client to host
+message SetBreakpoint {
+    enum State {
+        ENABLED = 0;
+        DISABLED = 1;
+        NONE = 2; // basically means removed
+    }
+    optional Breakpoint breakpoint = 1;
+    optional State state = 2;
+}
+
+// client to host
+message StartDebugger {
+    optional DebugTarget targetType = 1;
+    optional string targetName = 2;
+    repeated Breakpoint breakpoints = 3;
+}
+
+// client to host
+message GetBreakpoints {
+    // If a filename is present, returned message will only
+    // contain breakpoints for that filename. If not, then 
+    // all breakpoints will be returned.
+    optional string filename = 1;
+}
+
+// host to client
+message DebugStatus {
+    optional DebuggerState state = 1;
+    optional Breakpoint stoppedAtBreakpoint = 2;
+}
+
+// host to client
+message Breakpoints {
+    optional string filename = 1;
+    repeated Breakpoint breakpoints = 2;
+}
