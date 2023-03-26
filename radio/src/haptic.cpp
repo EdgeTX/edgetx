@@ -31,6 +31,8 @@ hapticQueue::hapticQueue()
   t_queueWidx = 0;
 
   hapticTick = 0;
+  
+  intensity = 255;
 }
 
 void hapticQueue::heartbeat()
@@ -41,7 +43,11 @@ void hapticQueue::heartbeat()
   if (buzzTimeLeft > 0) {
     buzzTimeLeft--; // time gets counted down
 #if defined(HAPTIC_PWM)
+    if (intensity < 255) {
+      hapticOn(intensity);
+    } else {
     hapticOn(HAPTIC_STRENGTH() * 20);
+    }
 #else
     if (hapticTick-- > 0) {
       hapticOn();
@@ -73,8 +79,15 @@ void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
   tLen = getHapticLength(tLen);
 
   if ((tFlags & PLAY_NOW) || (!busy() && empty())) {
-    buzzTimeLeft = tLen;
-    buzzPause = tPause;
+    if (tLen == 0) {
+      buzzTimeLeft = 250;
+      intensity = tPause;
+      buzzPause = 100;
+    } else {
+      buzzTimeLeft = tLen;
+      buzzPause = tPause;
+      intensity = 255;
+    }
     t_queueWidx = t_queueRidx;
   }
   else {
