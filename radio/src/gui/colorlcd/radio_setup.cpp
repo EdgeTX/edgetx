@@ -461,6 +461,7 @@ class BacklightPage : public SubPage {
                                [=](int32_t newValue) {
                                  g_eeGeneral.backlightMode = newValue;
                                  updateBacklightControls();
+                                 SET_DIRTY();
                                });
 
       blMode->setAvailableHandler(
@@ -489,6 +490,7 @@ class BacklightPage : public SubPage {
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
                    else
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+                   SET_DIRTY();
                  });
 
       backlightOffBright = body.newLine(&grid);
@@ -502,6 +504,7 @@ class BacklightPage : public SubPage {
                      g_eeGeneral.blOffBright = newValue;
                    else
                      g_eeGeneral.blOffBright = onBright;
+                   SET_DIRTY();
                  });
 
       line = body.newLine(&grid);
@@ -653,6 +656,7 @@ void RadioSetupPage::build(FormWindow * window)
                    currentLanguagePackIdx = newValue;
                    currentLanguagePack = languagePacks[currentLanguagePackIdx];
                    strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+                   SET_DIRTY();
                  });
   choice->setTextHandler(
       [](uint8_t value) { return languagePacks[value]->name; });
