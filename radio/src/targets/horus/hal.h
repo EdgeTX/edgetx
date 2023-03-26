@@ -607,7 +607,7 @@
 #define SD_PRESENT_GPIO_PIN             GPIO_Pin_5  // PC.05
 #define SD_PRESENT_LL_GPIO_PIN          LL_GPIO_PIN_5  // PC.05
 #define SD_SDIO_DMA_STREAM              DMA2_Stream3
-#define SD_SDIO_DMA_CHANNEL             DMA_Channel_4
+#define SD_SDIO_DMA_CHANNEL             DMA_CHANNEL_4
 #define SD_SDIO_DMA_FLAG_FEIF           DMA_FLAG_FEIF3
 #define SD_SDIO_DMA_FLAG_DMEIF          DMA_FLAG_DMEIF3
 #define SD_SDIO_DMA_FLAG_TEIF           DMA_FLAG_TEIF3

@@ -196,7 +196,9 @@
 //SD_Error SD_StopTransfer(void);
 //SD_Error SD_SendStatus(uint32_t *pcardstatus);
 
-SD_HandleTypeDef sdio;
+static SD_HandleTypeDef sdio;
+static DMA_HandleTypeDef sdioTxDma;
+static DMA_HandleTypeDef sdioRxDma;
 
 void SD_LowLevel_Init(void)
 {
@@ -232,9 +234,10 @@ void SD_LowLevel_Init(void)
   NVIC_EnableIRQ(SD_SDIO_DMA_IRQn);
 
 }
-#if 0
+
 void SD_LowLevel_DMA_TxConfig(uint32_t * BufferSRC, uint32_t BufferSize)
 {
+#if 0
   DMA_InitTypeDef SDDMA_InitStructure;
 
   DMA_ClearFlag(SD_SDIO_DMA_STREAM, SD_SDIO_DMA_FLAG_FEIF | SD_SDIO_DMA_FLAG_DMEIF | SD_SDIO_DMA_FLAG_TEIF | SD_SDIO_DMA_FLAG_HTIF | SD_SDIO_DMA_FLAG_TCIF);
@@ -266,11 +269,33 @@ void SD_LowLevel_DMA_TxConfig(uint32_t * BufferSRC, uint32_t BufferSize)
 
   /* DMA2 Stream3  or Stream6 enable */
   DMA_Cmd(SD_SDIO_DMA_STREAM, ENABLE);
+#endif
+  sdioTxDma.Instance = SD_SDIO_DMA_STREAM;
+  sdioTxDma.Init.Channel = SD_SDIO_DMA_CHANNEL;
+//  sdioTxDma.Init.DMA_PeripheralBaseAddr = SD_SDIO_FIFO_ADDRESS;
+//  sdioTxDma.Init.DMA_Memory0BaseAddr = (intptr_t)BufferSRC;
+  sdioTxDma.Init.Direction = DMA_MEMORY_TO_PERIPH;
+//  sdioTxDma.Init.DMA_BufferSize = 1;
+  sdioTxDma.Init.PeriphInc = DMA_PINC_DISABLE;
+  sdioTxDma.Init.MemInc = DMA_MINC_ENABLE;
+  sdioTxDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  sdioTxDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+  sdioTxDma.Init.Mode = DMA_NORMAL;
+  sdioTxDma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+  sdioTxDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+  sdioTxDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+  sdioTxDma.Init.MemBurst = DMA_MBURST_INC4;
+  sdioTxDma.Init.PeriphBurst = DMA_PBURST_INC4;
+
+  HAL_DMA_Init(&sdioTxDma);
+  __HAL_LINKDMA(&sdio, hdmatx, sdioTxDma);
+
 
 }
 
 void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
 {
+#if 0
   DMA_InitTypeDef SDDMA_InitStructure;
 
   DMA_ClearFlag(SD_SDIO_DMA_STREAM, SD_SDIO_DMA_FLAG_FEIF | SD_SDIO_DMA_FLAG_DMEIF | SD_SDIO_DMA_FLAG_TEIF | SD_SDIO_DMA_FLAG_HTIF | SD_SDIO_DMA_FLAG_TCIF);
@@ -302,14 +327,39 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
 
   /* DMA2 Stream3 or Stream6 enable */
   DMA_Cmd(SD_SDIO_DMA_STREAM, ENABLE);
-}
 #endif
+  sdioRxDma.Instance = SD_SDIO_DMA_STREAM;
+  sdioRxDma.Init.Channel = SD_SDIO_DMA_CHANNEL;
+//  sdioRxDma.Init.DMA_PeripheralBaseAddr = SD_SDIO_FIFO_ADDRESS;
+//  sdioRxDma.Init.DMA_Memory0BaseAddr = (intptr_t)BufferSRC;
+  sdioRxDma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+//  sdioRxDma.Init.DMA_BufferSize = 1;
+  sdioRxDma.Init.PeriphInc = DMA_PINC_DISABLE;
+  sdioRxDma.Init.MemInc = DMA_MINC_ENABLE;
+  sdioRxDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  sdioRxDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+  sdioRxDma.Init.Mode = DMA_NORMAL;
+  sdioRxDma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+  sdioRxDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+  sdioRxDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+  sdioRxDma.Init.MemBurst = DMA_MBURST_INC4;
+  sdioRxDma.Init.PeriphBurst = DMA_PBURST_INC4;
+
+  HAL_DMA_Init(&sdioRxDma);
+  __HAL_LINKDMA(&sdio, hdmarx, sdioRxDma);
+
+}
+static bool init = false;
 SD_Error SD_Init(void)
 {
+  if(init) return SD_OK;
+  init = true;
   __IO SD_Error errorstatus = SD_OK;
 
   /* SDIO Peripheral Low Level Init */
   SD_LowLevel_Init();
+  SD_LowLevel_DMA_TxConfig(nullptr, 0);
+  SD_LowLevel_DMA_RxConfig(nullptr, 0);
 
   /*!< Configure the SDIO peripheral */
   /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
@@ -317,15 +367,16 @@ SD_Error SD_Init(void)
   sdio.Instance = SDIO;
   sdio.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
+  sdio.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
   sdio.Init.BusWide = SDIO_BUS_WIDE_1B;
   sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
   sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
   HAL_SD_DeInit(&sdio);
 
-  HAL_SD_Init(&sdio);
+//  HAL_SD_Init(&sdio);
 
-
-  HAL_StatusTypeDef halStatus = HAL_SD_InitCard(&sdio);
+//  HAL_StatusTypeDef halStatus = HAL_SD_InitCard(&sdio);
+  HAL_StatusTypeDef halStatus = HAL_SD_Init(&sdio);
   if (halStatus != HAL_OK) {
     TRACE("SD_PowerON() status=%d", halStatus);
     /*!< CMD Response TimeOut (wait for CMDSENT flag) */
@@ -950,7 +1001,7 @@ OPTIMIZE("O0") SD_Error SD_SelectDeselect(uint32_t addr)
 #endif
 OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
 {
-  HAL_StatusTypeDef sdStatus = HAL_SD_ReadBlocks(&sdio, readbuff, ReadAddr, 1, SD_DATA_TIMEOUT);
+  HAL_StatusTypeDef sdStatus = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, 1);
   if(sdStatus != HAL_OK)
     return SD_ERROR;
 
@@ -1031,7 +1082,7 @@ OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint1
   */
 OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
-  HAL_StatusTypeDef res = HAL_SD_ReadBlocks(&sdio, readbuff, ReadAddr, NumberOfBlocks, SD_DATA_TIMEOUT);
+  HAL_StatusTypeDef res = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, NumberOfBlocks);
   if(res == HAL_OK)
     return SD_OK;
 
@@ -1179,7 +1230,7 @@ OPTIMIZE("O0") SD_Error SD_WaitReadOperation(uint32_t timeout)
   */
 OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize)
 {
-  HAL_StatusTypeDef res = HAL_SD_WriteBlocks(&sdio,  writebuff,  WriteAddr,  1, SD_DATATIMEOUT);
+  HAL_StatusTypeDef res = HAL_SD_WriteBlocks_DMA(&sdio,  writebuff,  WriteAddr,  1);
   if(res == HAL_OK)
     return SD_OK;
 
@@ -1260,7 +1311,7 @@ OPTIMIZE("O0") SD_Error SD_WriteBlock(uint8_t *writebuff, uint32_t WriteAddr, ui
   */
 OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize, uint32_t NumberOfBlocks)
 {
-  HAL_StatusTypeDef res = HAL_SD_WriteBlocks(&sdio, writebuff, WriteAddr, NumberOfBlocks, SD_DATA_TIMEOUT);
+  HAL_StatusTypeDef res = HAL_SD_WriteBlocks_DMA(&sdio, writebuff, WriteAddr, NumberOfBlocks);
   if(res == HAL_OK)
     return SD_OK;
   return SD_ERROR;
