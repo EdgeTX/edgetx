@@ -96,7 +96,7 @@ message MessageContainer {
         ExecuteExpression executeExpression = 1;
         ExecuteDebuggerCommand executeDebuggerCommand = 2;
         SetBreakpoint setBreakpoint = 3;
-        StartDebugger startDebugger = 4;
+        StartDebug startDebug = 4;
         GetBreakpoints getBreakpoints = 5;
         DebugStatus debugStatus = 6;
         Breakpoints breakpoints = 7;
@@ -125,7 +125,7 @@ message SetBreakpoint {
 }
 
 // client to host
-message StartDebugger {
+message StartDebug {
     optional DebugTarget targetType = 1;
     optional string targetName = 2;
     repeated Breakpoint breakpoints = 3;
@@ -149,4 +149,12 @@ message DebugStatus {
 message Breakpoints {
     optional string filename = 1;
     repeated Breakpoint breakpoints = 2;
+}
+
+// client to host
+message SwitchSerialMode {
+    enum Mode {
+        CLI = 0;
+    }
+    optional Mode mode = 1;
 }
