@@ -12665,38 +12665,6 @@ m2560 for v4.1-kort</translation>
         <translation>Indstil joystik</translation>
     </message>
     <message>
-        <source>Ch2</source>
-        <translation>Ka2</translation>
-    </message>
-    <message>
-        <source>Ch1</source>
-        <translation>Ka1</translation>
-    </message>
-    <message>
-        <source>Ch4</source>
-        <translation>Ka4</translation>
-    </message>
-    <message>
-        <source>Ch6</source>
-        <translation>Ka6</translation>
-    </message>
-    <message>
-        <source>Ch3</source>
-        <translation>Ka3</translation>
-    </message>
-    <message>
-        <source>Ch5</source>
-        <translation>Ka5</translation>
-    </message>
-    <message>
-        <source>Ch7</source>
-        <translation>Ka7</translation>
-    </message>
-    <message>
-        <source>Ch8</source>
-        <translation>Ka8</translation>
-    </message>
-    <message>
         <source>Instructions</source>
         <translation>Instruktioner</translation>
     </message>
@@ -12731,14 +12699,6 @@ m2560 for v4.1-kort</translation>
     <message>
         <source>Not Assigned</source>
         <translation>Ikke anvendt</translation>
-    </message>
-    <message>
-        <source> Stick</source>
-        <translation> Pind</translation>
-    </message>
-    <message>
-        <source>Knob/Slider %1</source>
-        <translation>Skyder %1</translation>
     </message>
     <message>
         <source>No joysticks found</source>
