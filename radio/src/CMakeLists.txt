@@ -187,8 +187,8 @@ if(LUA)
   include(lua/CMakeLists.txt)
 endif()
 
-if (LUA_DEBUGGER AND NOT LUA)
-  message(FATAL_ERROR "LUA_DEBUGGER requires LUA!!")
+if (LUA_DEBUGGER AND NOT LUA OR NOT CLI)
+  message(FATAL_ERROR "LUA_DEBUGGER requires LUA and CLI!")
 endif()
 
 if (LUA_DEBUGGER)

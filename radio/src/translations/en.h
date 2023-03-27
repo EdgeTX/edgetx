@@ -870,7 +870,6 @@
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB Storage (SD)"
 #define TR_USB_SERIAL                  "USB Serial (VCP)"
-#define TR_USB_LUA_DEBUGGER            "USB Lua Debugger (VCP)"
 #define TR_SETUP_SCREENS               "Setup screens"
 #define TR_MONITOR_SCREENS             "Monitors"
 #define TR_AND_SWITCH                  "AND switch"

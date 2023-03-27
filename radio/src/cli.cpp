@@ -37,6 +37,9 @@
 #include <new>
 #include <stdarg.h>
 
+#if defined(LUA_DEBUGGER)
+#include "lua/debugger/lua_debugger.h"
+#endif
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -68,6 +71,8 @@ static void* cliSerialDriverCtx = nullptr;
 static uint8_t cliTracesEnabled = false;
 static void (*cliTracesOldCb)(void*, uint8_t);
 static void* cliTracesOldCbCtx;
+
+static bool cliELDPModeEngaged = false;
 
 void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {
@@ -1597,6 +1602,14 @@ int cliResetGT911(const char** argv)
 }
 #endif
 
+#if defined(LUA_DEBUGGER)
+int cliInitELDP(const char** argv) {
+  cliELDPModeEngaged = true;
+  cliSerialPrintf("eldp_init_success");
+  return 0;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1637,6 +1650,9 @@ const CliCommand cliCommands[] = {
 #endif
 #if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
   { "reset_gt911", cliResetGT911, ""},
+#endif
+#if defined(LUA_DEBUGGER)
+  {"init_eldp", cliInitELDP, "Only used from an ELDP client, don't run directly."},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
 };

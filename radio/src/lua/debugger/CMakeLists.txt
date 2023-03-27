@@ -11,6 +11,8 @@ set(LUA_DEBUGGER_SRC
     lua_debugger.c
 )
 
+include_directories(${RADIO_SRC_DIR}/lua/debugger)
+
 foreach(FILE ${LUA_DEBUGGER_SRC})
     set(SRC ${SRC} lua/debugger/${FILE})
 endforeach()
