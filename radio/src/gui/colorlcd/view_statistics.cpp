@@ -244,19 +244,21 @@ void DebugViewPage::build(FormWindow* window)
   line->padAll(2);
 
   // Mixer data
+  static std::string pad_STR_MS = " " + std::string(STR_MS);
   new StaticText(line, rect_t{}, STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      PREC2 | COLOR_THEME_PRIMARY1, nullptr, STR_MS);
+      PREC2 | COLOR_THEME_PRIMARY1, nullptr, pad_STR_MS.c_str());
 
   line = form->newLine(&grid);
   line->padAll(2);
 
   // Free mem
+  static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<int32_t>(
       line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1, 
-      nullptr, STR_BYTES);
+      nullptr, pad_STR_BYTES.c_str());
 
 #if defined(LUA)
   line = form->newLine(&grid);
