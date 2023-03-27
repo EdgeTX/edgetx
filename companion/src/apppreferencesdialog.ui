@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>864</width>
+    <width>865</width>
     <height>673</height>
    </rect>
   </property>
@@ -45,7 +45,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="profileTab">
       <attribute name="title">
@@ -936,7 +936,7 @@ Mode 4:
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Remove empty model slots when deleting models (only applies for radios w/out categories)</string>
+            <string>Remove empty model slots when deleting models (only applies for radios w/out labels)</string>
            </property>
           </widget>
          </item>

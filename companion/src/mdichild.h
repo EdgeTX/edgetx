@@ -53,8 +53,8 @@ class MdiChild : public QWidget
       ACT_GEN_CPY,
       ACT_GEN_PST,
       ACT_GEN_SIM,
-      ACT_ITM_EDT,  // edit model/rename category
-      ACT_ITM_DEL,  // delete model or cat
+      ACT_ITM_EDT,
+      ACT_ITM_DEL,
       ACT_LBL_ADD,
       ACT_LBL_DEL,
       ACT_LBL_MVU,  // Move up
@@ -81,7 +81,6 @@ class MdiChild : public QWidget
 
     QString currentFile() const;
     QString userFriendlyCurrentFile() const;
-    QVector<int> getSelectedCategories() const;
     QVector<int> getSelectedModels() const;
     QList<QAction *> getGeneralActions();
     QList<QAction *> getEditActions();
