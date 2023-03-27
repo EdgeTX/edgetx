@@ -251,7 +251,7 @@ class SensorButton : public Button {
       numLabel = lv_label_create(box);
       tsStyle.setNumStyle(numLabel);
 
-      lv_label_set_text(numLabel, std::to_string(index).c_str());
+      lv_label_set_text(numLabel, std::to_string(index+1).c_str());
 
       idLabel = lv_label_create(box);
       tsStyle.setIdStyle(idLabel);
@@ -367,8 +367,35 @@ class SensorEditWindow : public Page {
   protected:
     uint8_t index;
     uint32_t lastRefresh = 0;
-    FormWindow * sensorParametersWindow = nullptr;
     StaticText * headerValue = nullptr;
+
+    enum ParamTypes {
+      P_FORMULA = 0,
+      P_ID,
+      P_UNIT,
+      P_PREC,
+      P_CELLSENSOR,
+      P_GPSSENSOR,
+      P_CURRENTSENSOR,
+      P_CONSUMPTIONSOURCE,
+      P_CALC0,
+      P_BLADES,
+      P_RATIO,
+      P_CELLINDEX,
+      P_ALTSENSOR,
+      P_CALC1,
+      P_MULT,
+      P_OFFSET,
+      P_CALC2,
+      P_CALC3,
+      P_AUTOOFFSET,
+      P_ONLYPOS,
+      P_FILTER,
+      P_PERSISTENT,
+      P_COUNT,
+    };
+
+    FormWindow::Line* paramLines[P_COUNT] = {};
 
     void buildHeader(Window * window)
     {
@@ -406,197 +433,102 @@ class SensorEditWindow : public Page {
       }
     }
 
-    void updateSensorParametersWindow()
+    void updateSensorParameters()
     {
-      // Sensor variable part
-      sensorParametersWindow->clear();
-      sensorParametersWindow->setFlexLayout();
-      FlexGridLayout grid(e_col_dsc, row_dsc, 2);
-      FlexGridLayout grid2(e_col_dsc2, row_dsc, 2);
-
       TelemetrySensor * sensor = &g_model.telemetrySensors[index];
 
-      FormWindow::Line* line;
+      for (int i = P_FORMULA; i < P_COUNT; i += 1) {
+        lv_obj_add_flag(paramLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      }
 
       if (sensor->type == TELEM_TYPE_CALCULATED) {
         // Formula
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_FORMULA, 0, COLOR_THEME_PRIMARY1);
-        new Choice(line, rect_t{}, STR_VFORMULAS, 0, TELEM_FORMULA_LAST, GET_DEFAULT(sensor->formula),
-                   [=](uint8_t newValue) {
-                       sensor->formula = newValue;
-                       sensor->param = 0;
-                       if (sensor->formula == TELEM_FORMULA_CELL) {
-                         sensor->unit = UNIT_VOLTS;
-                         sensor->prec = 2;
-                       }
-                       else if (sensor->formula == TELEM_FORMULA_DIST) {
-                         sensor->unit = UNIT_DIST;
-                         sensor->prec = 0;
-                       }
-                       else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
-                         sensor->unit = UNIT_MAH;
-                         sensor->prec = 0;
-                       }
-                       SET_DIRTY();
-                       telemetryItems[index].clear();
-                       updateSensorParametersWindow();
-                   });
+        lv_obj_clear_flag(paramLines[P_FORMULA]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
       else {
-        line = sensorParametersWindow->newLine(&grid2);
-        new StaticText(line, rect_t{}, STR_ID, 0, COLOR_THEME_PRIMARY1);
-        auto hex = new NumberEdit(line, rect_t{}, 0, 0xFFFF, GET_SET_DEFAULT(sensor->id));
-        hex->setDisplayHandler([](int32_t value) {
-          std::stringstream stream;
-          stream << std::hex << value;
-          return stream.str();
-        });
-        new NumberEdit(line, rect_t{}, 0, 0xff, GET_SET_DEFAULT(sensor->instance));
+        lv_obj_clear_flag(paramLines[P_ID]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       // Unit
       if ((sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_DIST)) || sensor->isConfigurable()) {
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_UNIT, 0, COLOR_THEME_PRIMARY1);
-        new Choice(line, rect_t{}, STR_VTELEMUNIT, 0, UNIT_MAX, GET_DEFAULT(sensor->unit),
-                   [=](uint8_t newValue) {
-                     sensor->unit = newValue;
-                     if (sensor->unit == UNIT_FAHRENHEIT) {
-                       sensor->prec = 0;
-                     }
-                     SET_DIRTY();
-                     telemetryItems[index].clear();
-                     updateSensorParametersWindow();
-                   });
+        lv_obj_clear_flag(paramLines[P_UNIT]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       // Precision
       if (sensor->isPrecConfigurable() && sensor->unit != UNIT_FAHRENHEIT) {
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
-        new Choice(line, rect_t{}, STR_VPREC, 0, 2, GET_DEFAULT(sensor->prec),
-                   [=](uint8_t newValue) {
-                     sensor->prec = newValue;
-                     SET_DIRTY();
-                     telemetryItems[index].clear();
-                     updateSensorParametersWindow();
-                   });
+        lv_obj_clear_flag(paramLines[P_PREC]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       // Params
       if (sensor->unit < UNIT_FIRST_VIRTUAL) {
-        line = sensorParametersWindow->newLine(&grid);
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            new StaticText(line, rect_t{}, STR_CELLSENSOR, 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, &sensor->cell.source, isCellsSensor);
+            lv_obj_clear_flag(paramLines[P_CELLSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            new StaticText(line, rect_t{}, STR_GPSSENSOR, 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, &sensor->dist.gps, isGPSSensor);
+            lv_obj_clear_flag(paramLines[P_GPSSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
-            new StaticText(line, rect_t{}, STR_CURRENTSENSOR, 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, &sensor->consumption.source, isSensorAvailable);
+            lv_obj_clear_flag(paramLines[P_CURRENTSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else if (sensor->formula == TELEM_FORMULA_TOTALIZE) {
-            new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, &sensor->consumption.source, isSensorAvailable);
+            lv_obj_clear_flag(paramLines[P_CONSUMPTIONSOURCE]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else {
-            new StaticText(line, rect_t{}, STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, (uint8_t *) &sensor->calc.sources[0], isSensorAvailable);
+            lv_obj_clear_flag(paramLines[P_CALC0]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
         }
         else {
           if (sensor->unit == UNIT_RPMS) {
-            new StaticText(line, rect_t{}, STR_BLADES, 0, COLOR_THEME_PRIMARY1);
-            new NumberEdit(line, rect_t{}, 1, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
+            lv_obj_clear_flag(paramLines[P_BLADES]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else {
-            new StaticText(line, rect_t{}, STR_RATIO, 0, COLOR_THEME_PRIMARY1);
-            auto edit = new NumberEdit(line, rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
-            edit->setZeroText("-");
+            lv_obj_clear_flag(paramLines[P_RATIO]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
         }
       }
 
       if (!(sensor->unit == UNIT_GPS || sensor->unit == UNIT_DATETIME || sensor->unit == UNIT_CELLS ||
             (sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_CONSUMPTION || sensor->formula == TELEM_FORMULA_TOTALIZE)))) {
-        line = sensorParametersWindow->newLine(&grid);
         if (sensor->type == TELEM_TYPE_CALCULATED) {
           if (sensor->formula == TELEM_FORMULA_CELL) {
-            new StaticText(line, rect_t{}, STR_CELLINDEX, 0, COLOR_THEME_PRIMARY1);
-            new Choice(line, rect_t{}, STR_VCELLINDEX, TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST, GET_SET_DEFAULT(sensor->cell.index));
+            lv_obj_clear_flag(paramLines[P_CELLINDEX]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else if (sensor->formula == TELEM_FORMULA_DIST) {
-            new StaticText(line, rect_t{}, STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, &sensor->dist.alt, isAltSensor);
+            lv_obj_clear_flag(paramLines[P_ALTSENSOR]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
           else {
-            new StaticText(line, rect_t{}, STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
-            new SensorSourceChoice(line, rect_t{}, (uint8_t *) &sensor->calc.sources[1], isSensorAvailable);
+            lv_obj_clear_flag(paramLines[P_CALC1]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
           }
         }
         else if (sensor->unit == UNIT_RPMS) {
-          new StaticText(line, rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
-          new NumberEdit(line, rect_t{}, 1, 30000, GET_SET_DEFAULT(sensor->custom.offset));
+          lv_obj_clear_flag(paramLines[P_MULT]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         }
         else {
-          new StaticText(line, rect_t{}, STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
-          new NumberEdit(line, rect_t{}, -30000, 30000, GET_SET_DEFAULT(sensor->custom.offset),
-                         0, (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
+          lv_obj_clear_flag(paramLines[P_OFFSET]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         }
       }
 
       if ((sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY)) {
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_SOURCE + std::to_string(3), 0, COLOR_THEME_PRIMARY1);
-        new SensorSourceChoice(line, rect_t{}, (uint8_t *) &sensor->calc.sources[2], isSensorAvailable);
-
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_SOURCE + std::to_string(4), 0, COLOR_THEME_PRIMARY1);
-        new SensorSourceChoice(line, rect_t{}, (uint8_t *) &sensor->calc.sources[3], isSensorAvailable);
+        lv_obj_clear_flag(paramLines[P_CALC2]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(paramLines[P_CALC3]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       // Auto Offset
       if (sensor->unit != UNIT_RPMS && sensor->isConfigurable()) {
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
-        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
+        lv_obj_clear_flag(paramLines[P_AUTOOFFSET]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       if (sensor->isConfigurable()) {
         // Only positive
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);
-        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
-
+        lv_obj_clear_flag(paramLines[P_ONLYPOS]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         // Filter
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_FILTER, 0, COLOR_THEME_PRIMARY1);
-        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(sensor->filter));
+        lv_obj_clear_flag(paramLines[P_FILTER]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
       if (sensor->type == TELEM_TYPE_CALCULATED) {
-        line = sensorParametersWindow->newLine(&grid);
-        new StaticText(line, rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
-        new CheckBox(line, rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
-          sensor->persistent = newValue;
-          if (!sensor->persistent)
-            sensor->persistentValue = 0;
-          SET_DIRTY();
-        });
+        lv_obj_clear_flag(paramLines[P_PERSISTENT]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
-
-      line = sensorParametersWindow->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_LOGS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
-        sensor->logs = newValue;
-        logsClose();
-        SET_DIRTY();
-      });
     }
 
     void buildBody(FormWindow * window)
@@ -610,6 +542,7 @@ class SensorEditWindow : public Page {
       form->padAll(4);
 
       FlexGridLayout grid(e_col_dsc, row_dsc, 2);
+      FlexGridLayout grid2(e_col_dsc2, row_dsc, 2);
 
       TelemetrySensor * sensor = &g_model.telemetrySensors[index];
 
@@ -631,11 +564,155 @@ class SensorEditWindow : public Page {
                      sensor->autoOffset = 0;
                    }
                    SET_DIRTY();
-                   updateSensorParametersWindow();
+                   updateSensorParameters();
                  });
 
-      sensorParametersWindow = new FormWindow(form, rect_t{});
-      updateSensorParametersWindow();
+      // Parameters
+      paramLines[P_FORMULA] = form->newLine(&grid);
+      new StaticText(paramLines[P_FORMULA], rect_t{}, STR_FORMULA, 0, COLOR_THEME_PRIMARY1);
+      new Choice(paramLines[P_FORMULA], rect_t{}, STR_VFORMULAS, 0, TELEM_FORMULA_LAST, GET_DEFAULT(sensor->formula),
+                 [=](uint8_t newValue) {
+                     sensor->formula = newValue;
+                     sensor->param = 0;
+                     if (sensor->formula == TELEM_FORMULA_CELL) {
+                       sensor->unit = UNIT_VOLTS;
+                       sensor->prec = 2;
+                     }
+                     else if (sensor->formula == TELEM_FORMULA_DIST) {
+                       sensor->unit = UNIT_DIST;
+                       sensor->prec = 0;
+                     }
+                     else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
+                       sensor->unit = UNIT_MAH;
+                       sensor->prec = 0;
+                     }
+                     SET_DIRTY();
+                     telemetryItems[index].clear();
+                     updateSensorParameters();
+                 });
+
+      paramLines[P_ID] = form->newLine(&grid2);
+      new StaticText(paramLines[P_ID], rect_t{}, STR_ID, 0, COLOR_THEME_PRIMARY1);
+      auto hex = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xFFFF, GET_SET_DEFAULT(sensor->id));
+      hex->setDisplayHandler([](int32_t value) {
+        std::stringstream stream;
+        stream << std::hex << value;
+        return stream.str();
+      });
+      new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xff, GET_SET_DEFAULT(sensor->instance));
+
+      paramLines[P_UNIT] = form->newLine(&grid);
+      new StaticText(paramLines[P_UNIT], rect_t{}, STR_UNIT, 0, COLOR_THEME_PRIMARY1);
+      new Choice(paramLines[P_UNIT], rect_t{}, STR_VTELEMUNIT, 0, UNIT_MAX, GET_DEFAULT(sensor->unit),
+                 [=](uint8_t newValue) {
+                   sensor->unit = newValue;
+                   if (sensor->unit == UNIT_FAHRENHEIT) {
+                     sensor->prec = 0;
+                   }
+                   SET_DIRTY();
+                   telemetryItems[index].clear();
+                   updateSensorParameters();
+                 });
+
+      paramLines[P_PREC] = form->newLine(&grid);
+      new StaticText(paramLines[P_PREC], rect_t{}, STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
+      new Choice(paramLines[P_PREC], rect_t{}, STR_VPREC, 0, 2, GET_DEFAULT(sensor->prec),
+                 [=](uint8_t newValue) {
+                   sensor->prec = newValue;
+                   SET_DIRTY();
+                   telemetryItems[index].clear();
+                   updateSensorParameters();
+                 });
+
+      paramLines[P_CELLSENSOR] = form->newLine(&grid);
+      new StaticText(paramLines[P_CELLSENSOR], rect_t{}, STR_CELLSENSOR, 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CELLSENSOR], rect_t{}, &sensor->cell.source, isCellsSensor);
+
+      paramLines[P_GPSSENSOR] = form->newLine(&grid);
+      new StaticText(paramLines[P_GPSSENSOR], rect_t{}, STR_GPSSENSOR, 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_GPSSENSOR], rect_t{}, &sensor->dist.gps, isGPSSensor);
+
+      paramLines[P_CURRENTSENSOR] = form->newLine(&grid);
+      new StaticText(paramLines[P_CURRENTSENSOR], rect_t{}, STR_CURRENTSENSOR, 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CURRENTSENSOR], rect_t{}, &sensor->consumption.source, isSensorAvailable);
+
+      paramLines[P_CONSUMPTIONSOURCE] = form->newLine(&grid);
+      new StaticText(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, &sensor->consumption.source, isSensorAvailable);
+
+      paramLines[P_CALC0] = form->newLine(&grid);
+      new StaticText(paramLines[P_CALC0], rect_t{}, STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CALC0], rect_t{}, (uint8_t *) &sensor->calc.sources[0], isSensorAvailable);
+
+      paramLines[P_BLADES] = form->newLine(&grid);
+      new StaticText(paramLines[P_BLADES], rect_t{}, STR_BLADES, 0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(paramLines[P_BLADES], rect_t{}, 1, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
+
+      paramLines[P_RATIO] = form->newLine(&grid);
+      new StaticText(paramLines[P_RATIO], rect_t{}, STR_RATIO, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
+      edit->setZeroText("-");
+
+      paramLines[P_CELLINDEX] = form->newLine(&grid);
+      new StaticText(paramLines[P_CELLINDEX], rect_t{}, STR_CELLINDEX, 0, COLOR_THEME_PRIMARY1);
+      new Choice(paramLines[P_CELLINDEX], rect_t{}, STR_VCELLINDEX, TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST, GET_SET_DEFAULT(sensor->cell.index));
+
+      paramLines[P_ALTSENSOR] = form->newLine(&grid);
+      new StaticText(paramLines[P_ALTSENSOR], rect_t{}, STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_ALTSENSOR], rect_t{}, &sensor->dist.alt, isAltSensor);
+
+      paramLines[P_CALC1] = form->newLine(&grid);
+      new StaticText(paramLines[P_CALC1], rect_t{}, STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CALC1], rect_t{}, (uint8_t *) &sensor->calc.sources[1], isSensorAvailable);
+
+      paramLines[P_MULT] = form->newLine(&grid);
+      new StaticText(paramLines[P_MULT], rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(paramLines[P_MULT], rect_t{}, 1, 30000, GET_SET_DEFAULT(sensor->custom.offset));
+
+      paramLines[P_OFFSET] = form->newLine(&grid);
+      new StaticText(paramLines[P_OFFSET], rect_t{}, STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
+      new NumberEdit(paramLines[P_OFFSET], rect_t{}, -30000, 30000, GET_SET_DEFAULT(sensor->custom.offset),
+                     0, (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
+
+      paramLines[P_CALC2] = form->newLine(&grid);
+      new StaticText(paramLines[P_CALC2], rect_t{}, STR_SOURCE + std::to_string(3), 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CALC2], rect_t{}, (uint8_t *) &sensor->calc.sources[2], isSensorAvailable);
+
+      paramLines[P_CALC3] = form->newLine(&grid);
+      new StaticText(paramLines[P_CALC3], rect_t{}, STR_SOURCE + std::to_string(4), 0, COLOR_THEME_PRIMARY1);
+      new SensorSourceChoice(paramLines[P_CALC3], rect_t{}, (uint8_t *) &sensor->calc.sources[3], isSensorAvailable);
+
+      paramLines[P_AUTOOFFSET] = form->newLine(&grid);
+      new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
+
+      paramLines[P_ONLYPOS] = form->newLine(&grid);
+      new StaticText(paramLines[P_ONLYPOS], rect_t{}, STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(paramLines[P_ONLYPOS], rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
+
+      paramLines[P_FILTER] = form->newLine(&grid);
+      new StaticText(paramLines[P_FILTER], rect_t{}, STR_FILTER, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(paramLines[P_FILTER], rect_t{}, GET_SET_DEFAULT(sensor->filter));
+
+      paramLines[P_PERSISTENT] = form->newLine(&grid);
+      new StaticText(paramLines[P_PERSISTENT], rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(paramLines[P_PERSISTENT], rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
+        sensor->persistent = newValue;
+        if (!sensor->persistent)
+          sensor->persistentValue = 0;
+        SET_DIRTY();
+      });
+
+      // Logs
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_LOGS, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
+        sensor->logs = newValue;
+        logsClose();
+        SET_DIRTY();
+      });
+
+      updateSensorParameters();
     }
 };
 
@@ -732,7 +809,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
   }
 
   if (!didFocus) {
-    if (first)
+    if (first && !allowNewSensors)
       lv_group_focus_obj(first->getLvObj());
     else
       lv_group_focus_obj(discover->getLvObj());
