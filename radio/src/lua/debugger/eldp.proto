@@ -34,6 +34,12 @@ package edgetx.lua.debugger;
  * data types
  */
 
+message Version {
+    int32 major = 1;
+    int32 minor = 2;
+    int32 patch = 3;
+}
+
 // This enum will extend in the future with
 // a release of EdgeTX 3.0
 enum DebugTarget {
@@ -100,9 +106,12 @@ message MessageContainer {
         GetBreakpoints getBreakpoints = 5;
         DebugStatus debugStatus = 6;
         Breakpoints breakpoints = 7;
+        StartProgramUpload startProgramUpload = 8;
+        StartProgramUploadAck startProgramUploadAck = 9;
+        ProgramUploadBatch programUploadBatch = 10;
+        ProgramUploadBatchAck programUploadBatchAck = 11;
     };
 }
-
 // client to host
 message ExecuteExpression {
     optional string expression = 1;
@@ -157,4 +166,65 @@ message SwitchSerialMode {
         CLI = 0;
     }
     optional Mode mode = 1;
+}
+
+/*
+ * Program file transfer
+ */
+
+// client to host
+// request for uploading a program to the radio with all
+// info about a file that aren't its contents. Radio can
+// respond with `StartProgramUploadAck`` with field `allowed`` being
+// `true`` or `false``. If it's false, field `reason`` will have
+// the, well, reason of why it was rejected.
+message StartProgramUpload {
+    optional string name = 1;
+    optional Version version = 2;
+    // in bytes
+    optional int64 size = 3;
+}
+
+// host to client
+message StartProgramUploadAck {
+    optional bool allowed = 1;
+
+    enum RejectionReason {
+        // Some unknown shit went down
+        UNKNOWN = 0;
+        // There is not enough space in radio storage
+        FILE_TOO_LARGE = 1;
+    }
+    optional RejectionReason reason = 2;
+
+    enum Warnings {
+        // Programs' uploaded file creation date is older than the one it's
+        // trying to replace
+        FILE_OLD = 0;
+        // Version of the program uploaded is smaller than the one it's
+        // trying to replace
+        VERSION_SMALL = 1;
+    }
+
+    repeated Warnings warnings = 3;
+}
+
+// client to host
+message ProgramUploadBatch {
+    optional int64 index = 1;
+    optional bytes contents = 2;
+}
+
+// host to client
+message ProgramUploadBatchAck {
+    enum Status {
+        ACCEPTED = 0;
+        REJECTED = 1;
+        // if there is something working for longer than a timeout
+        // can accept, radio can return this status so that a timeout
+        // will not be triggered, like "aight man i know about your
+        // message just be patient".
+        WAIT = 2;
+    }
+    optional Status status = 1;
 }
