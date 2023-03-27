@@ -575,9 +575,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case ExtraInputs:
       return 1;
     case TrimsRange:
-      return 125;
+      return 128;
     case ExtendedTrimsRange:
-      return 500;
+      return 512;
     case Simulation:
       return 1;
     case NumCurves:
