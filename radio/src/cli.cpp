@@ -72,7 +72,12 @@ static uint8_t cliTracesEnabled = false;
 static void (*cliTracesOldCb)(void*, uint8_t);
 static void* cliTracesOldCbCtx;
 
-static bool cliELDPModeEngaged = false;
+typedef enum CLiMode_e {
+  CLI_MODE_COMMAND,
+  CLI_MODE_ELDB
+} CLIMode_t;
+
+static CLIMode_t cliMode = CLI_MODE_COMMAND;
 
 void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {
@@ -1603,9 +1608,9 @@ int cliResetGT911(const char** argv)
 #endif
 
 #if defined(LUA_DEBUGGER)
-int cliInitELDP(const char** argv) {
-  cliELDPModeEngaged = true;
-  cliSerialPrintf("eldp_init_success");
+int cliInitELDB(const char** argv) {
+  cliMode = CLI_MODE_ELDB;
+  cliSerialPrintf("eldb_init_success");
   return 0;
 }
 #endif
@@ -1652,7 +1657,7 @@ const CliCommand cliCommands[] = {
   { "reset_gt911", cliResetGT911, ""},
 #endif
 #if defined(LUA_DEBUGGER)
-  {"init_eldp", cliInitELDP, "Only used from an ELDP client, don't run directly."},
+  {"init_eldb", cliInitELDB, "Only used from an ELDB client, don't use directly."},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
@@ -1710,76 +1715,91 @@ int cliExecLine(char * line)
 #define CHAR_CR         0x0D
 #define CHAR_DEL        0x7F
 
+
+void cliCommandModeHandler() {
+  static char line[CLI_COMMAND_MAX_LEN+1];
+  static int pos = 0;
+
+  uint8_t c = 0;
+
+  // TODO: implement block read instead
+  //       of going byte-by-byte.
+    
+  /* Block for max 100ms. */
+  const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
+  size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
+
+  if (!mixerTaskRunning()) {
+    WDG_RESET();
+  }
+
+  if (!xReceivedBytes) {
+    return;
+  }
+
+  switch(c) {
+  case CHAR_NEWPAGE:
+    // clear screen
+    cliSerialPrint("\033[2J\033[1;1H");
+    cliPrompt();
+    break;
+
+  case CHAR_DEL:
+    if (pos) {
+      line[--pos] = '\0';
+      cliSerialPutc('\010');
+      cliSerialPutc(' ');
+      cliSerialPutc('\010');
+    }
+    break;
+
+  case CHAR_CR:
+    // ignore
+    break;
+
+  case CHAR_LF:
+    // enter
+    cliSerialCrlf();
+    line[pos] = '\0';
+    if (pos == 0 && cliLastLine[0]) {
+      // execute (repeat) last command
+      strcpy(line, cliLastLine);
+    }
+    else {
+      // save new command
+      strcpy(cliLastLine, line);
+    }
+    // TODO: check return value
+    cliExecLine(line);
+    pos = 0;
+    cliPrompt();
+    break;
+
+  default:
+    if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
+      line[pos++] = c;
+      cliSerialPutc(c);
+    }
+    break;
+  }
+}
+
+void cliELDPModeHandler() {
+
+}
+
 void cliTask(void * pdata)
 {
-  char line[CLI_COMMAND_MAX_LEN+1];
-  int pos = 0;
-
+  // because it's CLI_MODE_COMMAND by default, we can do that
   cliPrompt();
 
   for (;;) {
-    uint8_t c;
-
-    // TODO: implement block read instead
-    //       of going byte-by-byte.
+    switch (cliMode) {
+      case CLI_MODE_ELDP: cliELDPModeHandler(); break;
+      case CLI_MODE_COMMAND: 
+      default: cliCommandModeHandler(); break;
+    }
     
-    /* Block for max 100ms. */
-    const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
-    size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
-
-    if (!mixerTaskRunning()) {
-      WDG_RESET();
-    }
-
-    if (!xReceivedBytes) {
-      continue;
-    }
-
-    switch(c) {
-    case CHAR_NEWPAGE:
-      // clear screen
-      cliSerialPrint("\033[2J\033[1;1H");
-      cliPrompt();
-      break;
-
-    case CHAR_DEL:
-      if (pos) {
-        line[--pos] = '\0';
-        cliSerialPutc('\010');
-        cliSerialPutc(' ');
-        cliSerialPutc('\010');
-      }
-      break;
-
-    case CHAR_CR:
-      // ignore
-      break;
-
-    case CHAR_LF:
-      // enter
-      cliSerialCrlf();
-      line[pos] = '\0';
-      if (pos == 0 && cliLastLine[0]) {
-        // execute (repeat) last command
-        strcpy(line, cliLastLine);
-      }
-      else {
-        // save new command
-        strcpy(cliLastLine, line);
-      }
-      // TODO: check return value
-      cliExecLine(line);
-      pos = 0;
-      cliPrompt();
-      break;
-
-    default:
-      if (isascii(c) && pos < CLI_COMMAND_MAX_LEN) {
-        line[pos++] = c;
-        cliSerialPutc(c);
-      }
-      break;
-    }
   }
 }
 
