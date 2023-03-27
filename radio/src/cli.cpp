@@ -1784,7 +1784,7 @@ void cliCommandModeHandler() {
   }
 }
 
-void cliELDPModeHandler() {
+void cliELDBModeHandler() {
 
 }
 
@@ -1795,7 +1795,7 @@ void cliTask(void * pdata)
 
   for (;;) {
     switch (cliMode) {
-      case CLI_MODE_ELDP: cliELDPModeHandler(); break;
+      case CLI_MODE_ELDB: cliELDBModeHandler(); break;
       case CLI_MODE_COMMAND: 
       default: cliCommandModeHandler(); break;
     }
