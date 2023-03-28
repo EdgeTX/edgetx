@@ -552,7 +552,7 @@ void menuRadioSetup(event_t event)
           int tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
           lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, timezoneDisplay(tzIndex).c_str(), attr);
           if (attr) {
-            tzIndex = checkIncDec(event, tzIndex, 0, maxTimezone(), EE_GENERAL);
+            tzIndex = checkIncDec(event, tzIndex, minTimezone(), maxTimezone(), EE_GENERAL);
             if (checkIncDec_Ret) {
               g_eeGeneral.timezone = timezoneHour(tzIndex);
               g_eeGeneral.timezoneMinutes = timezoneMinute(tzIndex);

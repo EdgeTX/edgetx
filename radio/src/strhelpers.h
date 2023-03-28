@@ -175,11 +175,12 @@ std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
 std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
 
 // Timezone handling
-extern uint8_t maxTimezone();
+extern int8_t minTimezone();
+extern int8_t maxTimezone();
 extern std::string timezoneDisplay(int tz);
-extern int timezoneIndex(int8_t tzHour, uint8_t tzMinute);
+extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
 extern int8_t timezoneHour(int tz);
-extern uint8_t timezoneMinute(int tz);
-extern int timezoneOffsetSeconds(int8_t tzHour, uint8_t tzMinute);
+extern int8_t timezoneMinute(int tz);
+extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);
 
 #endif  // _STRHELPERS_H_

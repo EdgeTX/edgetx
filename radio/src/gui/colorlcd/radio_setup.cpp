@@ -561,7 +561,7 @@ class GpsPage : public SubPage {
       auto line = body.newLine(&grid);
       // Timezone
       new StaticText(line, rect_t{}, STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
-      auto tz = new NumberEdit(line, rect_t{}, 0, maxTimezone(),
+      auto tz = new NumberEdit(line, rect_t{}, minTimezone(), maxTimezone(),
                                GET_DEFAULT(tzIndex),
                                [=](int newTz) {
                                  tzIndex = newTz;

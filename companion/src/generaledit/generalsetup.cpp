@@ -25,39 +25,39 @@
 // For backward compatibility timezone is stored as two separate values:
 //   timezone = hour value
 //   timezoneMinutes - minute value / 15
-static int8_t timezoneHours[] = { -12, -11, -10, -9, -9, -8, -7, -6, -5, -4, -3, -3, -2, -1 , 0, 1, 2, 3,  3, 4,  4, 5,  5,  5, 6,  6, 7, 8,  8, 9,  9, 10, 10, 11, 12, 12, 13, 14 };
-static uint8_t timezoneMins[] = {   0,   0,   0, 30,  0,  0,  0,  0,  0,  0, 30,  0,  0,  0,  0, 0, 0, 0, 30, 0, 30, 0, 30, 45, 0, 30, 0, 0, 45, 0, 30,  0, 30,  0,  0, 45,  0,  0 };
 
-uint8_t maxTimezone()
+int minTimezone()
 {
-  return sizeof(timezoneHours) - 1;
+  return -12 * 4;
+}
+
+int maxTimezone()
+{
+  return 14 * 4;
 }
 
 std::string timezoneDisplay(int tz)
 {
   char s[10];
-  sprintf(s,"%d:%02d", timezoneHours[tz], timezoneMins[tz]);
+  int h = abs(tz / 4);
+  int m = abs(tz % 4) * 15;
+  sprintf(s,"%s%d:%02d", (tz < 0) ? "-" : "", h, m);
   return std::string(s);
 }
 
-int timezoneIndex(int8_t tzHour, uint8_t tzMinute)
+int timezoneIndex(int tzHour, int tzMinute)
 {
-  tzMinute = tzMinute * 15;
-  for (int i = 0; i <= maxTimezone(); i += 1) {
-    if (timezoneHours[i] == tzHour && timezoneMins[i] == tzMinute)
-      return i;
-  }
-  return 0;
+  return (tzHour * 4) + tzMinute;
 }
 
-int8_t timezoneHour(int tz)
+int timezoneHour(int tz)
 {
-  return timezoneHours[tz];
+  return tz / 4;
 }
 
-uint8_t timezoneMinute(int tz)
+int timezoneMinute(int tz)
 {
-  return timezoneMins[tz] / 15;
+  return tz % 4;
 }
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
@@ -375,7 +375,7 @@ void GeneralSetupPanel::populateTimezoneCB()
 
   int tzIndex = timezoneIndex(generalSettings.timezone, generalSettings.timezoneMinutes);
 
-  for (int i = 0; i <= maxTimezone(); i += 1) {
+  for (int i = minTimezone(); i <= maxTimezone(); i += 1) {
     b->addItem(timezoneDisplay(i).c_str(), 0);
     if (tzIndex == i) {
       b->setCurrentIndex(b->count()-1);
@@ -386,6 +386,7 @@ void GeneralSetupPanel::populateTimezoneCB()
 void GeneralSetupPanel::on_timezoneCB_currentIndexChanged(int index)
 {
   if (!lock) {
+    index += minTimezone();
     generalSettings.timezone = timezoneHour(index);
     generalSettings.timezoneMinutes = timezoneMinute(index);
     emit modified();
