@@ -61,7 +61,7 @@
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),"Seriel USB"
+#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),TR("Data", "USB data")
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
@@ -879,7 +879,7 @@
 #define TR_ABOUT_US                    "Om"
 #define TR_USB_JOYSTICK                "USB joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB lager (SD)"
-#define TR_USB_SERIAL                  "USB seriel (VCP)"
+#define TR_USB_SERIAL                  "USB data (VCP)"
 #define TR_SETUP_SCREENS               "Setup skærm"
 #define TR_MONITOR_SCREENS             "Monitor"
 #define TR_AND_SWITCH                  "OG kontakt"
