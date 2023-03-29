@@ -175,7 +175,7 @@ const etx_serial_init dsmUartParams = {
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX,
-    .polarity = ETX_Pol_Inverted,
+    .polarity = ETX_Pol_Normal,
 };
 
 static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period, bool telemetry)
