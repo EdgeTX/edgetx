@@ -5373,7 +5373,7 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Timer</source>
-        <translation>Tidstagning</translation>
+        <translation>Tidtagning</translation>
     </message>
     <message>
         <source>Sticky</source>
@@ -7372,7 +7372,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Timer</source>
-        <translation>Tidstagning</translation>
+        <translation>Tidtagning</translation>
     </message>
     <message>
         <source> missing</source>
@@ -8165,7 +8165,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Timers</source>
-        <translation>Tidstagning</translation>
+        <translation>Tidtagning</translation>
     </message>
     <message>
         <source>Time</source>
@@ -8477,11 +8477,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Throttle Timer</source>
-        <translation>Tidstagning ved gas</translation>
+        <translation>Tidtagning ved gas</translation>
     </message>
     <message>
         <source>Flight Timer</source>
-        <translation>Tidstagning ved flyvetid</translation>
+        <translation>Tidtagning ved flyvetid</translation>
     </message>
 </context>
 <context>
@@ -9454,11 +9454,11 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     </message>
     <message>
         <source>Timer 2</source>
-        <translation>Tidstagning 2</translation>
+        <translation>Tidtagning 2</translation>
     </message>
     <message>
         <source>Timer 1</source>
-        <translation>Tidstagning 1</translation>
+        <translation>Tidtagning 1</translation>
     </message>
     <message>
         <source>Trim Step</source>
@@ -9482,7 +9482,7 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     </message>
     <message>
         <source>Timer 3</source>
-        <translation>Tidstagning 3</translation>
+        <translation>Tidtagning 3</translation>
     </message>
     <message>
         <source>Never</source>
@@ -9545,7 +9545,7 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <name>SetupPanel</name>
     <message>
         <source>Timer %1</source>
-        <translation>Tidstagning %1</translation>
+        <translation>Tidtagning %1</translation>
     </message>
     <message>
         <source>Profile Settings</source>
@@ -11320,7 +11320,7 @@ tt:mm:ss</translation>
     </message>
     <message>
         <source>Timer %1</source>
-        <translation>Tidstagning %1</translation>
+        <translation>Tidtagning %1</translation>
     </message>
     <message>
         <source>Silent</source>
