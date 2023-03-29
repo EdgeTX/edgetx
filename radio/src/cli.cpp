@@ -72,12 +72,7 @@ static uint8_t cliTracesEnabled = false;
 static void (*cliTracesOldCb)(void*, uint8_t);
 static void* cliTracesOldCbCtx;
 
-typedef enum CLiMode_e {
-  CLI_MODE_COMMAND,
-  CLI_MODE_ELDB
-} CLIMode_t;
-
-static CLIMode_t cliMode = CLI_MODE_COMMAND;
+CLIMode_t cliMode = CLI_MODE_COMMAND;
 
 void cliSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 {

@@ -24,10 +24,19 @@
 
 #include "hal/serial_driver.h"
 
+typedef enum CLiMode_e {
+  CLI_MODE_COMMAND,
+  CLI_MODE_ELDB
+} CLIMode_t;
+
+extern CLIMode_t cliMode;
+
 // CLI task function
 void cliStart();
 
 // Connect serial driver to CLI
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
+
+void cliELDPSend(); // TODO: add return value and arguments
 
 #endif // _CLI_H_

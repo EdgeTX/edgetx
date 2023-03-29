@@ -866,7 +866,7 @@
 #define TR_ABOUT_US            "O nas"
 #define TR_USB_JOYSTICK        "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE    "USB Storage (SD)"
-#define TR_USB_SERIAL          "USB Serial (VCP)"
+#define TR_USB_SERIAL          "USB Data (VCP)"
 #define TR_SETUP_SCREENS       "Ustaw ekrany"
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "Przełącznik AND"
