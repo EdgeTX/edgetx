@@ -57,11 +57,11 @@
   #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
 #endif
 
-#define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
+#define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt")
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("SDkord","SD Lager"),"Seriel"
+#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),"Seriel USB"
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
@@ -126,9 +126,9 @@
 #endif
 
 #if defined(HAPTIC)
-  #define TR_HAPTIC                    "Vibration"
+  #define TR_HAPTIC                    TR("Vib.", "Vibration")
 #else
-  #define TR_HAPTIC                    "[Vibration]"
+  #define TR_HAPTIC                    TR("[Vib.]"", "[Vibration]")
 #endif
 
 #if defined(VOICE)
@@ -182,7 +182,7 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Tidstag 1","Tidstag 2","Tidstag 3"
+  #define TR_FSW_RESET_TIMERS          "Tidtag 1","Tidtag 2","Tidtag 3"
 #else
   #define TR_FSW_RESET_TIMERS          "Tid1","Tid2","Tid3"
 #endif
