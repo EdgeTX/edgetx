@@ -37,7 +37,7 @@
 #include <new>
 #include <stdarg.h>
 
-#if defined(LUA_DEBUGGER)
+#if defined(ELDB)
 #include "lua/debugger/lua_debugger.h"
 #endif
 
@@ -1602,13 +1602,13 @@ int cliResetGT911(const char** argv)
 }
 #endif
 
-#if defined(LUA_DEBUGGER)
-int cliInitELDB(const char** argv) {
-  cliMode = CLI_MODE_ELDB;
-  cliSerialPrintf("eldb_init_success");
+int cliSwitchMode(const char** argv) {
+  int arg = 0;
+  toInt(argv, 1, &arg);
+  cliMode = (CLIMode_t)arg;
+  cliSerialPrintf("switch_success");
   return 0;
 }
-#endif
 
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
@@ -1651,9 +1651,7 @@ const CliCommand cliCommands[] = {
 #if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
   { "reset_gt911", cliResetGT911, ""},
 #endif
-#if defined(LUA_DEBUGGER)
-  {"init_eldb", cliInitELDB, "Only used from an ELDB client, don't use directly."},
-#endif
+  { "switch_mode", cliSwitchMode, "<mode>" },
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
@@ -1779,7 +1777,7 @@ void cliCommandModeHandler() {
   }
 }
 
-void cliELDBModeHandler() {
+void cliELDPModeHandler() {
 
 }
 
@@ -1790,11 +1788,10 @@ void cliTask(void * pdata)
 
   for (;;) {
     switch (cliMode) {
-      case CLI_MODE_ELDB: cliELDBModeHandler(); break;
+      case CLI_MODE_ELDP: cliELDPModeHandler(); break;
       case CLI_MODE_COMMAND: 
       default: cliCommandModeHandler(); break;
     }
-    
   }
 }
 

@@ -25,8 +25,10 @@
 #include "hal/serial_driver.h"
 
 typedef enum CLiMode_e {
-  CLI_MODE_COMMAND,
-  CLI_MODE_ELDB
+  CLI_MODE_COMMAND = 0,
+  #if defined(ELDB)
+  CLI_MODE_ELDP = 1
+  #endif
 } CLIMode_t;
 
 extern CLIMode_t cliMode;
