@@ -318,7 +318,7 @@ int setupUSBJoystick()
     else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
 
     _hidReportDesc[3] = joystickType;
-    _hidReportDesc[13] = buttonCount;
+    _hidReportDesc[13] = buttonCount ? buttonCount : 1;
     _hidReportDesc[19] = USBJ_BUTTON_SIZE;
 
     // generic axis types
