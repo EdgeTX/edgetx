@@ -32,8 +32,8 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
 #if LCD_W > LCD_H
-static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                         LV_GRID_FR(3), LV_GRID_FR(3),
                                          LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 4
 #else
@@ -46,14 +46,15 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 #if LCD_W > LCD_H
 #define CV_SCALE 3
+#define DBG_B_WIDTH (LCD_W - 20) / 4
 #else
 #define CV_SCALE 4
+#define DBG_B_WIDTH (LCD_W - 20) / 3
 #endif
 #define CV_WIDTH MAXTRACE
 #define CV_HEIGHT (CV_SCALE * 32 + 5)
 
-#define DBG_B_WIDTH (LCD_W - 20) / 4
-#define DBG_B_HEIGHT 24
+#define DBG_B_HEIGHT 20
 
 template <class T>
 class DebugInfoNumber : public Window
@@ -240,26 +241,28 @@ void DebugViewPage::build(FormWindow* window)
   FlexGridLayout grid(dbg_col_dsc, row_dsc, 0);
 
   auto line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Mixer data
+  static std::string pad_STR_MS = " " + std::string(STR_MS);
   new StaticText(line, rect_t{}, STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      PREC2 | COLOR_THEME_PRIMARY1, nullptr, "ms");
+      PREC2 | COLOR_THEME_PRIMARY1, nullptr, pad_STR_MS.c_str());
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Free mem
+  static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
   new DynamicNumber<int32_t>(
-      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1,
-      nullptr, "b");
+      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1, 
+      nullptr, pad_STR_BYTES.c_str());
 
 #if defined(LUA)
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // LUA timing data
   new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0,
@@ -271,13 +274,15 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, "[Dur] ", "ms");
+      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, STR_DURATION_MS,
+      nullptr);
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, "[Int] ", "ms");
+      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, STR_INTERVAL_MS,
+      nullptr);
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(0);
 #if LCD_H > LCD_W
   line->padLeft(10);
 #else
@@ -288,19 +293,26 @@ void DebugViewPage::build(FormWindow* window)
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
-      "[S] ", nullptr);
+      STR_MEM_USED_SCRIPT, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
-      "[W] ", nullptr);
+      STR_MEM_USED_WIDGET, nullptr);
+
+#if LCD_H > LCD_W
+  line = form->newLine(&grid);
+  line->padAll(0);
+  line->padLeft(10);
+#endif
+
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1, "[B] ",
-      nullptr);
+      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1,
+      STR_MEM_USED_EXTRA, nullptr);
 #endif
 
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(2);
 
   // Stacks data
   new StaticText(line, rect_t{}, STR_FREE_STACK, 0, COLOR_THEME_PRIMARY1);
@@ -311,16 +323,16 @@ void DebugViewPage::build(FormWindow* window)
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1, "[Menu] ",
-      nullptr);
+      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_MENU, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1, "[Mix] ",
-      nullptr);
+      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_MIX, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1, "[Audio] ",
-      nullptr);
+      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1,
+      STR_STACK_AUDIO, nullptr);
 
 #if defined(DEBUG_LATENCY)
   line = form->newLine(&grid);
@@ -348,15 +360,15 @@ void DebugViewPage::build(FormWindow* window)
 #endif
     new DynamicText(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return std::string(gpsData.fix ? "[Fix] Yes" : "[Fix] No"); },
+        [] { return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO); },
         COLOR_THEME_PRIMARY1);
     new DebugInfoNumber<uint8_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.numSat; }, COLOR_THEME_PRIMARY1, "[Sats] ",
+        [] { return gpsData.numSat; }, COLOR_THEME_PRIMARY1, STR_GPS_SATS,
         nullptr);
     new DebugInfoNumber<uint16_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.hdop; }, COLOR_THEME_PRIMARY1, "[Hdop] ", nullptr);
+        [] { return gpsData.hdop; }, COLOR_THEME_PRIMARY1, STR_GPS_HDOP, nullptr);
   }
 #endif
 
