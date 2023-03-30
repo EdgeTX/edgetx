@@ -21,45 +21,6 @@
 #include "generalsetup.h"
 #include "ui_generalsetup.h"
 
-// Manage timezones
-// For backward compatibility timezone is stored as two separate values:
-//   timezone = hour value
-//   timezoneMinutes - minute value / 15
-
-int minTimezone()
-{
-  return -12 * 4;
-}
-
-int maxTimezone()
-{
-  return 14 * 4;
-}
-
-std::string timezoneDisplay(int tz)
-{
-  char s[10];
-  int h = abs(tz / 4);
-  int m = abs(tz % 4) * 15;
-  sprintf(s,"%s%d:%02d", (tz < 0) ? "-" : "", h, m);
-  return std::string(s);
-}
-
-int timezoneIndex(int tzHour, int tzMinute)
-{
-  return (tzHour * 4) + tzMinute;
-}
-
-int timezoneHour(int tz)
-{
-  return tz / 4;
-}
-
-int timezoneMinute(int tz)
-{
-  return tz % 4;
-}
-
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
@@ -190,7 +151,7 @@ ui(new Ui::GeneralSetup)
 
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
 
-  populateTimezoneCB();
+  ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
 
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
     ui->adjustRTC->setChecked(generalSettings.adjustRTC);
@@ -368,27 +329,12 @@ GeneralSetupPanel::~GeneralSetupPanel()
   delete ui;
 }
 
-void GeneralSetupPanel::populateTimezoneCB()
-{
-  QComboBox * b = ui->timezoneCB;
-  b->clear();
-
-  int tzIndex = timezoneIndex(generalSettings.timezone, generalSettings.timezoneMinutes);
-
-  for (int i = minTimezone(); i <= maxTimezone(); i += 1) {
-    b->addItem(timezoneDisplay(i).c_str(), 0);
-    if (tzIndex == i) {
-      b->setCurrentIndex(b->count()-1);
-    }
-  }
-}
-
-void GeneralSetupPanel::on_timezoneCB_currentIndexChanged(int index)
+void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
 {
   if (!lock) {
-    index += minTimezone();
-    generalSettings.timezone = timezoneHour(index);
-    generalSettings.timezoneMinutes = timezoneMinute(index);
+    int secs = ui->timezoneLE->timeInSeconds();
+    generalSettings.timezone = secs / 3600;
+    generalSettings.timezoneMinutes = (secs % 3600) / (15 * 60); // timezoneMinutes in quarter hours
     emit modified();
   }
 }

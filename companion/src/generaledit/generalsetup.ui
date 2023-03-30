@@ -927,7 +927,7 @@
      <item row="18" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QComboBox" name="timezoneCB"/>
+        <widget class="TimezoneEdit" name="timezoneLE"/>
        </item>
        <item>
         <widget class="QCheckBox" name="adjustRTC">
@@ -2491,6 +2491,13 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimezoneEdit</class>
+   <extends>QLineEdit</extends>
+   <header>timezoneedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
