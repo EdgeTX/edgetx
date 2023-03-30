@@ -70,11 +70,7 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   }
   
   timInit.Prescaler = __LL_TIM_CALC_PSC(tim->TIM_Freq, freq);
-  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
-    timInit.Autoreload = 0xFFFFFFFFUL;
-  } else {
-    timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
-  }
+  timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
 
   enable_tim_clock(tim->TIMx);
   LL_TIM_Init(tim->TIMx, &timInit);
