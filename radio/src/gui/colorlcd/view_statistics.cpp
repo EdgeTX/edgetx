@@ -298,6 +298,13 @@ void DebugViewPage::build(FormWindow* window)
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
       STR_MEM_USED_WIDGET, nullptr);
+
+#if LCD_H > LCD_W
+  line = form->newLine(&grid);
+  line->padAll(0);
+  line->padLeft(10);
+#endif
+
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1,
