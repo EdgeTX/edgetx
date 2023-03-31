@@ -46,6 +46,14 @@
 #define DISPLAY_VERSION
 #endif
 
+#if defined(RADIO_TLITE)
+#if defined(STM32F407xx)
+  #define CPU_NAME  "-F4"
+#else
+  #define CPU_NAME  "-F2"
+#endif
+#endif
+
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
   #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)
@@ -64,7 +72,7 @@
 #elif defined(RADIOMASTER_RELEASE)
   const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": RM Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
 #elif defined(JUMPER_RELEASE) || defined(IFLIGHT_RELEASE)
-  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
+  const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR  CPU_NAME"\036VERS" TAB ": Factory (" GIT_STR ")" "\036BUILT BY : EdgeTX" "\036DATE" TAB ": " DATE " " TIME;
 #else
   #if defined(VERSION_TAG)
     const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;

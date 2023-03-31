@@ -14,6 +14,11 @@ boards = {
         "PCBREV": "TLITE",
         "DEFAULT_MODE": "2",
     },
+    "TLITEF4": {
+        "PCB": "X7",
+        "PCBREV": "TLITEF4",
+        "DEFAULT_MODE": "2",
+    },
     "TPRO": {
         "PCB": "X7",
         "PCBREV": "TPRO",

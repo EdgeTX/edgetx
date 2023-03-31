@@ -170,6 +170,28 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DMANUFACTURER_JUMPER)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
     set(CLI ON CACHE BOOL "Enable CLI")
+  elseif(PCBREV STREQUAL TLITEF4)
+    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
+    set(FLAVOUR tlite)
+    set(NAVIGATION_TYPE 9x)
+    set(CPU_TYPE STM32F4)
+    set(CPU_TYPE_FULL STM32F407xE)  # for size report
+    add_definitions(-DSTM32F407xx)
+    set(LINKER_SCRIPT targets/taranis/stm32f4_flash.ld)
+    set(FIRMWARE_TARGET_SRC
+            ${FIRMWARE_TARGET_SRC}
+            startup_stm32f40_41xxx.s
+            ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+            )
+    add_definitions(-DSTM32F40_41xxx -DSTM32F407xx)
+    set(LUA_EXPORT lua_export_tlite)
+    add_definitions(-DRADIO_TLITE)
+    add_definitions(-DRADIO_FAMILY_JUMPER_T12)
+    add_definitions(-DEEPROM_VARIANT=0x4003)
+    add_definitions(-DMANUFACTURER_JUMPER)
+    set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+    set(CLI ON CACHE BOOL "Enable CLI")
   elseif(PCBREV STREQUAL LR3PRO)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
