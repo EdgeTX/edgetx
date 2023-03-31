@@ -209,11 +209,11 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   for (i = 0; i < ttlTrims; i += 1) {
     wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, i).toString(nullptr, &radioSettings);
     if ((i == 0) || (i == 3)) {
-      cb->addItem(wname + " Left", i + ttlSwitches | JS_BUTTON_3POS_DN);
-      cb->addItem(wname + " Right", i + ttlSwitches | JS_BUTTON_3POS_UP);
+      cb->addItem(wname + " Left", (i + ttlSwitches) | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Right", (i + ttlSwitches) | JS_BUTTON_3POS_UP);
     } else {
-      cb->addItem(wname + " Down", i + ttlSwitches | JS_BUTTON_3POS_DN);
-      cb->addItem(wname + " Up", i + ttlSwitches | JS_BUTTON_3POS_UP);
+      cb->addItem(wname + " Down", (i + ttlSwitches) | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Up", (i + ttlSwitches) | JS_BUTTON_3POS_UP);
     }
   }
 }

@@ -490,7 +490,7 @@ void AppData::saveNamedJS()
     }
   }
   
-  int oldestTime = namedJS[0].jsLastUsed();
+  unsigned int oldestTime = namedJS[0].jsLastUsed();
   int oldestN = 0;
   for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {
     if (namedJS[i].jsLastUsed() < oldestTime) {
