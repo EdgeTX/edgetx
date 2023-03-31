@@ -264,7 +264,7 @@ inline bool IS_JUMPER_T12(Board::Type board)
 
 inline bool IS_JUMPER_TLITE(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TLITE_F4;
+  return board == Board::BOARD_JUMPER_TLITE || board == Board::BOARD_JUMPER_TLITE_F4;
 }
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
