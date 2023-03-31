@@ -128,7 +128,7 @@
 #if defined(HAPTIC)
   #define TR_HAPTIC                    TR("Vib.", "Vibration")
 #else
-  #define TR_HAPTIC                    TR("[Vib.]"", "[Vibration]")
+  #define TR_HAPTIC                    TR("[Vib.]", "[Vibration]")
 #endif
 
 #if defined(VOICE)
