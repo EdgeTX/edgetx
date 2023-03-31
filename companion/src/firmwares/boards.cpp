@@ -86,7 +86,6 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_JUMPER_T12:
       return 0x3D78746F;
     case BOARD_JUMPER_TLITE:
-      return 0x4278746F;
     case BOARD_JUMPER_TLITE_F4:
       return 0x4278746F;
     case BOARD_JUMPER_TPRO:

@@ -67,7 +67,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 tx12 tx12mk2
                               zorro commando8 boxer
-                              tlite tpro lr3pro
+                              tlite tlitef4 tpro lr3pro
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14
