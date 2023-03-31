@@ -87,6 +87,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3D78746F;
     case BOARD_JUMPER_TLITE:
       return 0x4278746F;
+    case BOARD_JUMPER_TLITE_F4:
+      return 0x4278746F;
     case BOARD_JUMPER_TPRO:
       return 0x4678746F;
     case BOARD_JUMPER_T16:
@@ -134,6 +136,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_TLITE:
+    case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
@@ -178,6 +181,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_TLITE:
+    case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
@@ -484,7 +488,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
       else if (board == BOARD_TARANIS_X7)
         return 8;
-      else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO || board == BOARD_IFLIGHT_COMMANDO8)
+      else if (board == BOARD_JUMPER_TLITE || BOARD_JUMPER_TLITE_F4 ||
+               board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
+               board == BOARD_IFLIGHT_COMMANDO8)
         return 4;
       else if (board == BOARD_FLYSKY_NV14)
         return 8;
@@ -733,6 +739,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T12";
     case BOARD_JUMPER_TLITE:
       return "Jumper T-Lite";
+    case BOARD_JUMPER_TLITE_F4:
+      return "Jumper T-Lite (F4 MCU)";
     case BOARD_JUMPER_TPRO:
       return "Jumper T-Pro";
     case BOARD_JUMPER_T16:
@@ -964,6 +972,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_TX12:
   case BOARD_RADIOMASTER_T8:
   case BOARD_JUMPER_TLITE:
+  case BOARD_JUMPER_TLITE_F4:
   case BOARD_JUMPER_TPRO:
     return (int)MODULE_TYPE_MULTIMODULE;
 
