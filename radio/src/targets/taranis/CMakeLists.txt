@@ -173,7 +173,7 @@ elseif(PCB STREQUAL X7)
   elseif(PCBREV STREQUAL TLITEF4)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
-    set(FLAVOUR tlite)
+    set(FLAVOUR tlitef4)
     set(NAVIGATION_TYPE 9x)
     set(CPU_TYPE STM32F4)
     set(CPU_TYPE_FULL STM32F407xE)  # for size report
