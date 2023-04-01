@@ -32,12 +32,14 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
 #if LCD_W > LCD_H
-static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+static const lv_coord_t dbg_4col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                          LV_GRID_FR(3), LV_GRID_FR(3),
                                          LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 4
 #else
-static const lv_coord_t dbg_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t dbg_2col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                          LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 3
 #endif
@@ -49,7 +51,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define DBG_B_WIDTH (LCD_W - 20) / 4
 #else
 #define CV_SCALE 4
-#define DBG_B_WIDTH (LCD_W - 20) / 3
+#define DBG_B_WIDTH (LCD_W - 20) / 2
 #endif
 #define CV_WIDTH MAXTRACE
 #define CV_HEIGHT (CV_SCALE * 32 + 5)
@@ -238,7 +240,13 @@ void DebugViewPage::build(FormWindow* window)
   form->setFlexLayout();
   form->padAll(0);
 
-  FlexGridLayout grid(dbg_col_dsc, row_dsc, 0);
+#if LCD_W > LCD_H
+  FlexGridLayout grid(dbg_4col_dsc, row_dsc, 0);
+  FlexGridLayout grid2(dbg_4col_dsc, row_dsc, 0);
+#else
+  FlexGridLayout grid(dbg_2col_dsc, row_dsc, 0);
+  FlexGridLayout grid2(dbg_3col_dsc, row_dsc, 0);
+#endif
 
   auto line = form->newLine(&grid);
   line->padAll(2);
@@ -269,7 +277,7 @@ void DebugViewPage::build(FormWindow* window)
                  COLOR_THEME_PRIMARY1);
 #if LCD_H > LCD_W
   line = form->newLine(&grid);
-  line->padAll(4);
+  line->padAll(0);
   line->padLeft(10);
 #endif
   new DebugInfoNumber<uint16_t>(
@@ -317,8 +325,8 @@ void DebugViewPage::build(FormWindow* window)
   // Stacks data
   new StaticText(line, rect_t{}, STR_FREE_STACK, 0, COLOR_THEME_PRIMARY1);
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
-  line->padAll(4);
+  line = form->newLine(&grid2);
+  line->padAll(0);
   line->padLeft(10);
 #endif
   new DebugInfoNumber<uint32_t>(
@@ -335,8 +343,8 @@ void DebugViewPage::build(FormWindow* window)
       STR_STACK_AUDIO, nullptr);
 
 #if defined(DEBUG_LATENCY)
-  line = form->newLine(&grid);
-  line->padAll(4);
+  line = form->newLine(&grid2);
+  line->padAll(2);
 
   new StaticText(line, rect_t{}, STR_HEARTBEAT_LABEL, 0, COLOR_THEME_PRIMARY1);
   if (heartbeatCapture.valid)
@@ -350,12 +358,12 @@ void DebugViewPage::build(FormWindow* window)
 #if defined(INTERNAL_GPS)
   if (hasSerialMode(UART_MODE_GPS) != -1) {
     line = form->newLine(&grid);
-    line->padAll(4);
+    line->padAll(2);
 
     new StaticText(line, rect_t{}, STR_INT_GPS_LABEL, 0, COLOR_THEME_PRIMARY1);
 #if LCD_H > LCD_W
-    line = form->newLine(&grid);
-    line->padAll(4);
+    line = form->newLine(&grid2);
+    line->padAll(0);
     line->padLeft(10);
 #endif
     new DynamicText(
@@ -372,7 +380,7 @@ void DebugViewPage::build(FormWindow* window)
   }
 #endif
 
-  line = form->newLine(&grid);
+  line = form->newLine(&grid2);
   line->padAll(4);
 
   // Reset
