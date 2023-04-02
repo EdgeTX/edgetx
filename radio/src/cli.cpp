@@ -1666,7 +1666,7 @@ const CliCommand cliCommands[] = {
   { "reset_gt911", cliResetGT911, ""},
 #endif
   { "switch_mode", cliSwitchMode, "<mode>" },
-  { "get_mode", cliGethMode, "" },
+  { "get_mode", cliGetMode, "" },
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
