@@ -31,6 +31,16 @@ extern const uint8_t _n_modules;
 static etx_module_state_t _module_states[MAX_MODULES];
 static uint8_t _module_power;
 
+#if defined(CONFIGURABLE_MODULE_PORT)
+// supplemental configurable port
+static etx_module_port_t _extra_module_port;
+
+void modulePortConfigExtra(const etx_module_port_t* port)
+{
+  memcpy(&_extra_module_port, port, sizeof(_extra_module_port));
+}
+#endif
+
 void modulePortInit()
 {
   memset(_module_states, 0, sizeof(_module_states));
@@ -41,16 +51,6 @@ void modulePortInit()
   _extra_module_port.type = 0xFF; // some invalid type
 #endif
 }
-
-#if defined(CONFIGURABLE_MODULE_PORT)
-// supplemental configurable port
-static etx_module_port_t _extra_module_port;
-
-void modulePortConfigExtra(const etx_module_port_t* port)
-{
-  memcpy(&_extra_module_port, port, sizeof(_extra_module_port));
-}
-#endif
 
 static void modulePortClear(etx_module_state_t* st)
 {
