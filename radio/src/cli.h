@@ -31,6 +31,7 @@ typedef enum CLiMode_e {
   #endif
 } CLIMode_t;
 
+// SHOULD NOT BE SET OUTSIDE OF cli.cpp
 extern CLIMode_t cliMode;
 
 // CLI task function
@@ -39,6 +40,8 @@ void cliStart();
 // Connect serial driver to CLI
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
 
-void cliELDPSend(); // TODO: add return value and arguments
+#if defined(ELDB)
+bool cliELDPSend(uint8_t *buf, size_t len);
+#endif
 
 #endif // _CLI_H_

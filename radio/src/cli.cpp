@@ -1610,6 +1610,20 @@ int cliSwitchMode(const char** argv) {
   return 0;
 }
 
+int cliGetMode(const char** argv) {
+  cliSerialPrintf("mode %d", cliMode);
+  return 0;
+}
+
+#if defined(ELDB)
+bool cliELDPSend(uint8_t *buf, size_t len) {
+  if (cliMode != CLI_MODE_ELDP) { return false; }
+  cliSerialPrintf("response");
+  // TODO: Implement this shi
+  return true;
+}
+#endif
+
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
@@ -1652,6 +1666,7 @@ const CliCommand cliCommands[] = {
   { "reset_gt911", cliResetGT911, ""},
 #endif
   { "switch_mode", cliSwitchMode, "<mode>" },
+  { "get_mode", cliGethMode, "" },
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 
@@ -1778,7 +1793,7 @@ void cliCommandModeHandler() {
 }
 
 void cliELDPModeHandler() {
-
+  
 }
 
 void cliTask(void * pdata)
