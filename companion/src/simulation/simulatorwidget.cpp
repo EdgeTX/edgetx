@@ -391,7 +391,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   }
 }
 
-// This will save radio data from temporary folder structure back into an .etx file, eg. for Horus.
+// This will save radio data from temporary folder structure back into an .etx file
 bool SimulatorWidget::saveTempData()
 {
   bool ret = false;
@@ -920,7 +920,7 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
     state = !state;
 
   int swtch = btn & JS_BUTTON_SWITCH_MASK;
- 
+
   if (swtch < ttlSwitches) {
     if (btn & JS_BUTTON_3POS_DN) {
       // 3POS Down

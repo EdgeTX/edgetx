@@ -109,7 +109,7 @@ void SimulatorLoader::unregisterSimulators()
     delete lib;
 }
 
-QString SimulatorLoader::findSimulatorByFirmwareName(const QString & name)
+QString SimulatorLoader::findSimulatorByName(const QString & name)
 {
   int pos;
   QString ret;
@@ -133,7 +133,7 @@ QString SimulatorLoader::findSimulatorByFirmwareName(const QString & name)
 SimulatorInterface * SimulatorLoader::loadSimulator(const QString & name)
 {
   SimulatorInterface * si = NULL;
-  QString libname = findSimulatorByFirmwareName(name);
+  QString libname = findSimulatorByName(name);
 
   if (libname.isEmpty()) {
     qWarning() << "Simulator" << name << "not found.";
@@ -166,7 +166,7 @@ bool SimulatorLoader::unloadSimulator(const QString & name)
 {
   bool ret = false;
 #if SIMULATOR_INTERFACE_LOADER_DYNAMIC
-  QString simuName = findSimulatorByFirmwareName(name);
+  QString simuName = findSimulatorByName(name);
   if (simuName.isEmpty())
     return ret;
 

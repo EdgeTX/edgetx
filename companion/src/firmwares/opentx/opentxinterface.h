@@ -88,13 +88,13 @@ class OpenTxFirmware: public Firmware
 
   public:
     OpenTxFirmware(const QString & id, OpenTxFirmware * parent):
-      Firmware(parent, id, parent->getName(), parent->getBoard())
+      Firmware(parent, id, parent->getName(), parent->getBoard(), parent->getDownloadId(), parent->getSimulatorId())
     {
       setEEpromInterface(parent->getEEpromInterface());
     }
 
-    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board):
-      Firmware(id, name, board)
+    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()):
+      Firmware(id, name, board, downloadId, simulatorId)
     {
       //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
       addLanguage("en");

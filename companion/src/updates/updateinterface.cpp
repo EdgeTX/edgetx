@@ -780,24 +780,7 @@ bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap
 
 void UpdateInterface::setFirmwareFlavour()
 {
-  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
-
-  m_params->fwFlavour = "";
-
-  if (currVariant.size() > 1) {
-    m_params->fwFlavour = currVariant.at(1);
-    // Companion registered firmware identities (refer opentxinterface.cpp) do not always match the EdgeTX repo fw.json file
-    const QMap<QString, QString> map = {
-                                         { "x7access",   "x7-access"  },
-                                         { "x9d+",       "x9dp"       },
-                                         { "x9d+2019",   "x9dp2019"   },
-                                         { "x9ehall",    "x9e-hall"   },
-                                         { "x10express", "x10-access" }
-                                        };
-    QString repofw = map[m_params->fwFlavour];
-    if (!repofw.isEmpty())
-      m_params->fwFlavour = repofw;
-  }
+  m_params->fwFlavour = getCurrentFirmware()->getDownloadId();
 }
 
 void UpdateInterface::setLanguage()
