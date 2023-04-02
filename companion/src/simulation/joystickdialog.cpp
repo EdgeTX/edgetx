@@ -264,7 +264,6 @@ void joystickDialog::joystickOpen(int stick)
   else {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot open joystick."));
   }
-fprintf(stderr,">>>>>> JSO %d %d\n",numAxes,numButtons);
   g.currentProfile().jsName(ui->joystickCB->currentText());
   g.loadNamedJS();
   loadGrid();
