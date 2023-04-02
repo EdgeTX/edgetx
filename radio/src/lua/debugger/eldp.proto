@@ -98,18 +98,27 @@ message LuaDebugInfo {
 * messages
 */
 
-message MessageContainer {
-    oneof message {
+// client to host
+message Request {
+    oneof content {
         ExecuteExpression executeExpression = 1;
         ExecuteDebuggerCommand executeDebuggerCommand = 2;
         SetBreakpoint setBreakpoint = 3;
         StartDebug startDebug = 4;
         GetBreakpoints getBreakpoints = 5;
+        SwitchSerialMode switchSerialMode = 8;
+    }
+}
+
+// host to client
+message Response {
+    oneof content {
         DebugStatus debugStatus = 6;
         Breakpoints breakpoints = 7;
-        SwitchSerialMode switchSerialMode = 8;
     };
 }
+
+/* requests */
 
 // client to host
 message ExecuteExpression {
@@ -147,7 +156,20 @@ message GetBreakpoints {
     optional string filename = 1;
 }
 
+// client to host
+message SwitchSerialMode {
+    enum Mode {
+        CLI = 0;
+    }
+    optional Mode mode = 1;
+}
+
+/* responses */
+
 // host to client
+// sent periodically, used to supply state, but is also
+// used as a "heartbeat", to indicate that the debugger
+// is still running
 message DebugStatus {
     optional DebuggerState state = 1;
     optional Breakpoint stoppedAtBreakpoint = 2;
@@ -157,12 +179,4 @@ message DebugStatus {
 message Breakpoints {
     optional string filename = 1;
     repeated Breakpoint breakpoints = 2;
-}
-
-// client to host
-message SwitchSerialMode {
-    enum Mode {
-        CLI = 0;
-    }
-    optional Mode mode = 1;
 }
