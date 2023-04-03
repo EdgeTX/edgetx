@@ -1256,7 +1256,7 @@ const mm_protocol_definition multi_protocols[] = {
   {MODULE_SUBTYPE_MULTI_XK,         1, false, false,  STR_SUBTYPE_XK,        STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_XN297DUMP,  5, false, false,  STR_SUBTYPE_XN297DUMP, STR_MULTI_RFCHAN},
   {MODULE_SUBTYPE_MULTI_FRSKYX2,    5, true,  false,  STR_SUBTYPE_FRSKYX,    STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_FRSKY_R9,   7, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
+  {MODULE_SUBTYPE_MULTI_FRSKY_R9,   6, true,  false,  STR_SUBTYPE_FRSKYR9,   nullptr},
   {MODULE_SUBTYPE_MULTI_PROPEL,     0, false, false,  STR_SUBTYPE_PROPEL,    nullptr},
   {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_SKYARTEC,   0, false, true,   NO_SUBTYPE,            STR_MULTI_RFTUNE},
