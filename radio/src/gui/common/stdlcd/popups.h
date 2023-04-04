@@ -187,4 +187,7 @@ inline void POPUP_MENU_START(PopupMenuHandler handler)
   }
 }
 
+// For compatability with color LCD code base, not (currently) required for B&W
+#define POPUP_WARNING_ON_UI_TASK POPUP_WARNING
+
 #endif // _STDLCD_POPUPS_H_

@@ -580,6 +580,8 @@ void perMain()
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(LIBOPENUI)
   guiMain(0);
+  // For color screens show a popup deferred from another task
+  show_ui_popup();
 #else
   guiMain(evt);
 #endif
