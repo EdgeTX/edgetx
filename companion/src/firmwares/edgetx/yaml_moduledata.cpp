@@ -114,25 +114,25 @@ enum MMRFrskySubtypes {
 // from radio/src/pulses/multi.cpp
 static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 {
-  if (*protocol == 3 && *subprotocol == 0) {
+  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKY + 1) && *subprotocol == 0) {
     *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
     return;
   }
 
-  if (*protocol == 3 && *subprotocol == 1) {
+  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKY + 1) && *subprotocol == 1) {
     *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
     return;
   }
 
-  if (*protocol == 25) {
+  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKYV + 1)) {
     *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
     *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
     return;
   }
 
-  if (*protocol == 15) {
+  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKYX + 1)) {
     *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
 
     if (*subprotocol == 0)
@@ -148,12 +148,6 @@ static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
 
     return;
   }
-
-  if (*protocol >= 25)
-    *protocol -= 1;
-
-  if (*protocol >= 16)
-    *protocol -= 1;
 }
 
 void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
@@ -162,21 +156,21 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
   if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
     if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
       //D8
-      *protocol = 3;
+      *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
       *subprotocol = 0;
     }
     else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
       //D8
-      *protocol = 3;
+      *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
       *subprotocol = 1;
     }
     else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
       //V8
-      *protocol = 25;
+      *protocol = MODULE_SUBTYPE_MULTI_FRSKYV+1;
       *subprotocol = 0;
     }
     else {
-      *protocol = 15;
+      *protocol = MODULE_SUBTYPE_MULTI_FRSKYX + 1;
       if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
         *subprotocol = 1;
       else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16)
@@ -188,15 +182,6 @@ void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
       else
         *subprotocol = 4; // D16_CLONED
     }
-  }
-  else {
-    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
-    // all protos > frskyx are therefore also off by one
-    if (*protocol >= 15)
-      *protocol += 1;
-    // 25 is again a FrSky *protocol (FrskyV) so shift again
-    if (*protocol >= 25)
-      *protocol += 1;
   }
 }
 

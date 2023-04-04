@@ -27,6 +27,7 @@
 #include "opentx_helpers.h"
 #include "storage/storage.h"
 #include "globals.h"
+#include "MultiProtoDefs.h"
 
 #if defined(MULTIMODULE)
 #include "telemetry/multi.h"

@@ -222,6 +222,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_GHOST          (1<<17)
 #define MASK_BAUDRATE       (1<<18)
 #define MASK_MULTI_DSM_OPT  (1<<19)
+#define MASK_CHANNELMAP     (1<<20)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -293,9 +294,6 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
     if (i == MODULE_SUBTYPE_MULTI_SCANNER || i == MODULE_SUBTYPE_MULTI_CONFIG)
       continue;
     ui->multiProtocol->addItem(Multiprotocols::protocolToString(i), i);
-  }
-  for (int i = MODULE_SUBTYPE_MULTI_LAST + 1; i <= 124; i++) {
-    ui->multiProtocol->addItem(QString::number(i + 3), i);
   }
 
   ui->btnGrpValueType->setId(ui->optPercent, FAILSAFE_DISPLAY_PERCENT);
@@ -512,6 +510,8 @@ void ModulePanel::update()
         }
         if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
           mask |= MASK_FAILSAFES;
+        if (pdef.disableChannelMap)
+          mask |= MASK_CHANNELMAP;
         break;
       case PULSES_AFHDS3:
         module.channelsCount = 18;
@@ -533,8 +533,7 @@ void ModulePanel::update()
   else if (model->trainerMode != TRAINER_MODE_MASTER_JACK) {
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
   }
-
-  if (module.hasFailsafes(firmware)) {
+  else if (module.hasFailsafes(firmware)) {
     mask |= MASK_FAILSAFES;
   }
 
@@ -647,7 +646,7 @@ void ModulePanel::update()
   ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
-  ui->disableChMap->setVisible(mask & MASK_MULTIMODULE);
+  ui->disableChMap->setVisible(mask & MASK_CHANNELMAP);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
   ui->autoBind->setVisible(mask & MASK_MULTIMODULE);
   if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
