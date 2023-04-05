@@ -291,7 +291,7 @@ void SimulatorStartupDialog::onRadioTypeChanged(int index)
 
 void SimulatorStartupDialog::onDataFileSelect(bool)
 {
-  QString filter = ETX_FILES_FILTER;
+  QString filter = EEPROM_FILES_FILTER % tr("All files (*.*)");
   QString file = QFileDialog::getSaveFileName(this, tr("Select a data file"), ui->dataFile->text(),
                                               filter, NULL, QFileDialog::DontConfirmOverwrite);
   if (!file.isEmpty()) {
