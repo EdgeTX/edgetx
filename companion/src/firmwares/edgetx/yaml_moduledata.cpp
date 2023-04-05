@@ -100,91 +100,6 @@ static const YamlLookupTable failsafeLut = {
   {  FAILSAFE_RECEIVER, "RECEIVER"  },
 };
 
-enum MMRFrskySubtypes {
-  MM_RF_FRSKY_SUBTYPE_D16,
-  MM_RF_FRSKY_SUBTYPE_D8,
-  MM_RF_FRSKY_SUBTYPE_D16_8CH,
-  MM_RF_FRSKY_SUBTYPE_V8,
-  MM_RF_FRSKY_SUBTYPE_D16_LBT,
-  MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH,
-  MM_RF_FRSKY_SUBTYPE_D8_CLONED,
-  MM_RF_FRSKY_SUBTYPE_D16_CLONED
-};
-
-// from radio/src/pulses/multi.cpp
-static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
-{
-  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKY + 1) && *subprotocol == 0) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
-    return;
-  }
-
-  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKY + 1) && *subprotocol == 1) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
-    return;
-  }
-
-  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKYV + 1)) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
-    return;
-  }
-
-  if (*protocol == (MODULE_SUBTYPE_MULTI_FRSKYX + 1)) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-
-    if (*subprotocol == 0)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16;
-    else if (*subprotocol == 1)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_8CH;
-    else if (*subprotocol == 2)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT;
-    else if (*subprotocol == 3)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH;
-    else if (*subprotocol == 4)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_CLONED;
-
-    return;
-  }
-}
-
-void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
-{
-  // Special treatment for the FrSky entry...
-  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
-    if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
-      //D8
-      *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-      *subprotocol = 0;
-    }
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
-      //D8
-      *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-      *subprotocol = 1;
-    }
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
-      //V8
-      *protocol = MODULE_SUBTYPE_MULTI_FRSKYV+1;
-      *subprotocol = 0;
-    }
-    else {
-      *protocol = MODULE_SUBTYPE_MULTI_FRSKYX + 1;
-      if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
-        *subprotocol = 1;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16)
-        *subprotocol = 0; // D16
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT)
-        *subprotocol = 2;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH)
-        *subprotocol = 3;
-      else
-        *subprotocol = 4; // D16_CLONED
-    }
-  }
-}
-
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
 static int importPpmDelay(int delay) { return 300 + 50 * delay; }
 
@@ -228,7 +143,6 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_MULTIMODULE: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
-      convertEtxProtocolToMulti(&rfProtocol, &subType);
       std::string st_str = std::to_string(rfProtocol);
       st_str += ",";
       st_str += std::to_string(subType);
@@ -354,7 +268,6 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           int rfProtocol = std::stoi(st_str, &pos);
           st_str = st_str.substr(pos + 1);
           int rfSubType = std::stoi(st_str);
-          convertMultiProtocolToEtx(&rfProtocol, &rfSubType);
           if (rfProtocol > 0) {
             rhs.multi.rfProtocol = rfProtocol - 1;
             rhs.subType = rfSubType;

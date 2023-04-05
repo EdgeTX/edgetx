@@ -30,15 +30,15 @@ bool setBindProtocolSelection()
   // Center: D8
   if (abs(xPos < 50 && abs(yPos) < 50)) {
     g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D8;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYD_SUBTYPE_D8;
     storageDirty(EE_MODEL);
     return true;
   }
 
   // Top left: D16 FCC
   if (xPos < -512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16;
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX);
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX_SUBTYPE_D16_FCC;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -46,8 +46,8 @@ bool setBindProtocolSelection()
 
   // Top right: D16 LBT
   if (xPos > 512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16_LBT;
+    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX);
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -56,7 +56,7 @@ bool setBindProtocolSelection()
   // Bottom left: V2.1 D16 FCC
   if (xPos < -512 && yPos < -512) {
     g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX2_SUBTYPE_D16_FCC;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -65,7 +65,7 @@ bool setBindProtocolSelection()
   // Bottom right: V2.1 D16 LBT
   if (xPos > 512 && yPos < -512) {
     g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16_LBT;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX2_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
