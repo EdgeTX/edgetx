@@ -1617,7 +1617,6 @@ bool cliELDPSend(uint8_t *buf, size_t len, const char *err)
   if (cliMode != CLI_MODE_ELDP) {
     return false;
   }
-  // cliSerialPrintf("received %d %s\n", len, err);
   for (size_t i = 0; i <= len; i++) {
     cliSerialPutc(buf[i]);
   }
