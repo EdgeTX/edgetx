@@ -235,7 +235,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_E129,       1, false, false,  STR_SUBTYPE_E129,      nullptr}, //new
   {MODULE_SUBTYPE_MULTI_JOYSWAY,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_E016H,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  // MODULE_SUBTYPE_MULTI_SCANNER non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_CONFIG non selectable and masked out for selection 
   {MODULE_SUBTYPE_MULTI_IKEAANSLUTA,0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_WILLIFM,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_LOSI,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
