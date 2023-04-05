@@ -23,6 +23,7 @@
 #define _CLI_H_
 
 #include "hal/serial_driver.h"
+#include <stddef.h>
 
 typedef enum CLiMode_e {
   CLI_MODE_COMMAND = 0,
@@ -31,9 +32,6 @@ typedef enum CLiMode_e {
   #endif
 } CLIMode_t;
 
-// SHOULD NOT BE SET OUTSIDE OF cli.cpp
-extern CLIMode_t cliMode;
-
 // CLI task function
 void cliStart();
 
@@ -41,7 +39,9 @@ void cliStart();
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
 
 #if defined(ELDB)
-bool cliELDPSend(uint8_t *buf, size_t len);
+bool cliELDPSend(uint8_t *buf, size_t len, const char *err);
 #endif
+
+CLIMode_t cliGetMode();
 
 #endif // _CLI_H_

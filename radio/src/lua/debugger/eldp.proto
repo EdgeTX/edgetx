@@ -27,6 +27,12 @@
  * Client = developers' computer
 **/
 
+/*
+ * Constants:
+ *
+ * Timeout: 200 ms
+**/
+
 syntax = "proto3";
 
 package edgetx.eldp;
@@ -106,15 +112,17 @@ message Request {
         SetBreakpoint setBreakpoint = 3;
         StartDebug startDebug = 4;
         GetBreakpoints getBreakpoints = 5;
-        SwitchSerialMode switchSerialMode = 8;
+        SwitchSerialMode switchSerialMode = 6;
+        GetSystemInfo getSystemInfo = 7;
     }
 }
 
 // host to client
 message Response {
     oneof content {
-        DebugStatus debugStatus = 6;
-        Breakpoints breakpoints = 7;
+        DebugStatus debugStatus = 1;
+        Breakpoints breakpoints = 2;
+        SystemInfo systemInfo = 3;
     };
 }
 
@@ -157,6 +165,9 @@ message GetBreakpoints {
 }
 
 // client to host
+message GetSystemInfo {}
+
+// client to host
 message SwitchSerialMode {
     enum Mode {
         CLI = 0;
@@ -173,6 +184,14 @@ message SwitchSerialMode {
 message DebugStatus {
     optional DebuggerState state = 1;
     optional Breakpoint stoppedAtBreakpoint = 2;
+}
+
+// host to client
+message SystemInfo {
+    optional string osName = 1;
+    optional Version version = 2;
+    optional fixed32 batteryVoltage = 3;
+    optional int32 localTime = 4;
 }
 
 // host to client

@@ -19,4 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "lua_debugger.h"
+#pragma once
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+// This function is only called from cli.cpp and used to
+// relay data from CLI to ELDB
+void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen);
