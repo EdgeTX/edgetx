@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,7 +22,7 @@
 #pragma once
 
 //
-// Common list of supported Multi protocols (currently refelcting Mutli firmware 1.3.320)
+// Common list of supported Multi protocols (currently reflecting Multi firmware version 1.3.3.20)
 // 
 enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_FIRST = 0,
