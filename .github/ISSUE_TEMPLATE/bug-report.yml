@@ -14,8 +14,8 @@ body:
       label: Is there an existing issue for this problem?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
-      - label: I have searched the existing issues
-        required: true
+        - label: I have searched the existing issues
+          required: true
   - type: dropdown
     id: component-affected
     attributes:
@@ -107,7 +107,7 @@ body:
         - Other (Please specify below)
     validations:
       required: true
- - type: dropdown
+  - type: dropdown
     id: os-type
     attributes:
       label: "Operating System (OS)"
@@ -119,15 +119,15 @@ body:
         - Windows
     validations:
       required: false
-- type: input
-  id: os-version
-  attributes:
-    label: "OS Version"
-    description: "If this relates to Companion or Simulator, what OS version does this relate to?"
-    placeholder: "i.e. 10, Ubuntu 20.04, Big Sur"
-  validations:
-    required: false
-- type: textarea
+  - type: input
+    id: os-version
+    attributes:
+      label: "OS Version"
+      description: "If this relates to Companion or Simulator, what OS version does this relate to?"
+      placeholder: "i.e. 10, Ubuntu 20.04, Big Sur"
+    validations:
+      required: false
+  - type: textarea
     attributes:
       label: Anything else?
       description: |
