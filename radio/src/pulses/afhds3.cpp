@@ -881,10 +881,18 @@ static void* initModule(uint8_t module)
     module == INTERNAL_MODULE ? ETX_Pol_Normal : ETX_Pol_Inverted;
   mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
 
-  if (module == EXTERNAL_MODULE && !mod_st) {
+#if defined(CONFIGURABLE_MODULE_PORT)
+  if (!mod_st && module == EXTERNAL_MODULE) {
+    // Try Connect using aux serial mod
+    params.polarity = ETX_Pol_Normal;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+  }
+#endif
+
+  if (!mod_st && module == EXTERNAL_MODULE) {
     // soft-serial fallback
     params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
-    params.direction = ETX_Dir_RX;
+    params.direction = ETX_Dir_TX;
     period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
     // TODO: telemetry RX ???
