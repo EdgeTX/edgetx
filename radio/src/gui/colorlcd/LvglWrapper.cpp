@@ -270,12 +270,12 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
     if (use_accel && (dir == prevDir)) {
       auto dt = rotencDt - lastDt;
-      auto dx_dt = (abs(diff) * 50) / max(dt, (uint32_t)1);
+      dt = max(dt, (uint32_t)1);
+
+      auto dx_dt = (diff * diff * 100) / dt;
+      dx_dt = min(dx_dt, (uint32_t)100);
 
       _rotary_enc_accel = (int8_t)dx_dt;
-      if (_rotary_enc_accel > 0) {
-        data->enc_diff = (int16_t)diff * (int16_t)_rotary_enc_accel;
-      }
     } else {
       _rotary_enc_accel = 0;
     }
