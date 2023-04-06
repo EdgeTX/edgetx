@@ -43,6 +43,12 @@ enum eEB_BusType {
   EB_BT_SBUS1
 };
 
+typedef enum
+{
+	IBUS1_OUT,
+	IBUS1_IN, //Not yet supported
+} eIBUS1_DIR;
+
 // 48 bytes
 PACK(struct sDATA_ConfigV0 {
   uint8_t Version;     // =0
@@ -98,12 +104,18 @@ PACK(struct sDATA_ConfigV1 {
   sSES_PWMFrequenciesAPPV1 PWMFrequenciesV1;
 });
 
+PACK(struct sDATA_BusType {
+  uint8_t buffer[sizeof(sDATA_ConfigV1)];
+  uint8_t ExternalBusType; // eEB_BusType
+});
+
 union Config_u
 {
   uint8_t version;
   sDATA_ConfigV0 v0;
   sDATA_ConfigV1 v1;
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
+  sDATA_BusType BusType;
 };
 
 Config_u* getConfig(uint8_t moduleIdx);

@@ -1371,3 +1371,9 @@
 #define TR_VOICE_SLOVAK               "斯洛伐克语"
 #define TR_VOICE_SWEDISH              "瑞典语"
 #define TR_VOICE_TAIWANESE            "中文-台湾国语"
+
+#define TR_DIGITAL_SERVO          "数字舵机333HZ"
+#define TR_ANALOG_SERVO           "模拟舵机50HZ"
+#define TR_SIGNAL_OUTPUT          "信号强度输出"
+#define TR_SERIAL_BUS             "串行总线"
+#define TR_SYNC                   "同步"

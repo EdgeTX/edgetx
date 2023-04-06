@@ -1379,3 +1379,9 @@
 #define TR_VOICE_SLOVAK                 "Slovakisk"
 #define TR_VOICE_SWEDISH                "Svensk"
 #define TR_VOICE_TAIWANESE              "Taiwanesisk"
+
+#define TR_DIGITAL_SERVO          "Servo333HZ"
+#define TR_ANALOG_SERVO           "Servo 50HZ"
+#define TR_SIGNAL_OUTPUT          "Signal output"
+#define TR_SERIAL_BUS             "Serial bus"
+#define TR_SYNC                   "Sync"

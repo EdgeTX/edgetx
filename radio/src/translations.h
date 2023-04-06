@@ -790,6 +790,13 @@ extern const char STR_CONFIRMRESET[];
 extern const char STR_TOO_MANY_LUA_SCRIPTS[];
 extern const char STR_BLCOLOR[];
 
+extern const char STR_DIGITAL_SERVO[];
+extern const char STR_ANALOG_SERVO[];
+extern const char STR_SIGNAL_OUTPUT[];
+extern const char STR_SERIAL_BUS[];
+extern const char STR_SYNC[];
+
+
 struct LanguagePack {
   const char * id;
   const char * name;
