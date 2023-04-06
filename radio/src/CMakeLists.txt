@@ -103,6 +103,7 @@ set(FATFS_SRC
   ${FATFS_DIR}/fattime.c
 )
 
+
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
 elseif(PCB STREQUAL NV14)
@@ -561,6 +562,7 @@ add_definitions(-DFREE_RTOS)
 
 add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
 link_libraries(firmware -lstdc++)
+include(rs/CMakeLists.txt) # Rust
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 

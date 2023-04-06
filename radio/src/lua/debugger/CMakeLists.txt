@@ -9,6 +9,7 @@ add_definitions(-DELDB)
 
 set(ELDB_SRC
     eldb.cpp
+    encoders.cpp
 )
 
 include_directories(${RADIO_SRC_DIR}/lua/debugger)

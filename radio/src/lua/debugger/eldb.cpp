@@ -25,18 +25,11 @@
 #include <pb_common.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
+#include <board_common.h>
+#include <stamp.h>
 
 #include "eldp.pb.h"
-
-bool encode_string(pb_ostream_t *stream, const pb_field_t *field,
-                   void *const *arg)
-{
-  char *str = "EdgeTX";
-
-  if (!pb_encode_tag_for_field(stream, field)) return false;
-
-  return pb_encode_string(stream, (uint8_t *)str, strlen(str));
-}
+#include "encoders.h"
 
 void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen) {
    if (dataLen != 0) {
@@ -48,9 +41,26 @@ void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen) {
 
       message.content.systemInfo = edgetx_eldp_SystemInfo_init_default;
       message.content.systemInfo.osName.funcs.encode = &encode_string;
-      message.content.systemInfo.has_version = false;
-      message.content.systemInfo.has_batteryVoltage = false;
-      message.content.systemInfo.has_localTime = false;
+      message.content.systemInfo.osName.arg = (void*)"EdgeTX";
+      message.content.systemInfo.version.major = VERSION_MAJOR;
+      message.content.systemInfo.version.minor = VERSION_MINOR;
+      message.content.systemInfo.version.patch = VERSION_REVISION;
+      message.content.systemInfo.has_version = true;
+      message.content.systemInfo.versionTag.funcs.encode = &encode_string;
+      #if defined(VERSION_TAG)
+      message.content.systemInfo.versionTag.arg = (void*)VERSION_TAG;
+      #else
+      message.content.systemInfo.versionTag.arg = (void*)VERSION_SUFFIX;
+      #endif
+      message.content.systemInfo.codename.funcs.encode = &encode_string;
+      message.content.systemInfo.codename.arg = (void*)CODENAME;
+      message.content.systemInfo.gitTag.funcs.encode = &encode_string;
+      message.content.systemInfo.gitTag.arg = (void*)GIT_STR;
+      message.content.systemInfo.deviceIdentifier.funcs.encode = &encode_string;
+      message.content.systemInfo.deviceIdentifier.arg = (void*)FLAVOUR;
+      message.content.systemInfo.batteryVoltage = getBatteryVoltage();
+      message.content.systemInfo.has_batteryVoltage = true;
+
       message.which_content = edgetx_eldp_Response_systemInfo_tag;
 
       size_t message_length;
