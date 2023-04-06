@@ -24,6 +24,15 @@
 #include "page.h"
 #include "pulses/afhds3_config.h"
 
+struct PWMfrequencyChoice : public FormGroup {
+  PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
+  PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
+  void update() const;
+
+ private:
+  lv_obj_t* c_obj;
+};
+
 class AFHDS3_Options : public Page
 {
   afhds3::Config_u* cfg;

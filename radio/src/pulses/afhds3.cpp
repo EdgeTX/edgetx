@@ -73,6 +73,37 @@ static uint8_t _phyMode_channels[] = {
 //   EMPTY_DT,
 // };
 
+//Product number
+#define PN_FRM301       ( (0x1234<<16) | 0x0003 )
+#define PN_FRM004       ( (0x1234<<16) | 0x0007 )
+#define PN_FRM005       ( (0x1234<<16) | 0x0009 )
+
+#define PN_FTR10 	      ( (0x1234<<16) | 0x0002 )
+#define PN_FGR4  	      ( (0x1234<<16) | 0x0004 )
+
+#define PN_FTR4 	      ( (0x1234<<16) | 0x0006 )
+#define PN_FGR4S 	      ( (0x1234<<16) | 0x0006 )
+#define PN_FGR4P 	      ( (0x1234<<16) | 0x0006 )
+
+#define PN_FTR16S       ( (0x0001<<16) | 0x0103 )
+//#define PN_MINIZ        ( (0x0001<<16) | 0x0104 )
+
+#define PN_FTR8B        ( (0x0001<<16) | 0x0105 )
+#define PN_FTR12B       ( (0x0001<<16) | 0x0106 )
+#define PN_FGR8B        ( (0x0001<<16) | 0x0107 )
+#define PN_FGR12B       ( (0x0001<<16) | 0x0108 )
+#define PN_GMR          ( (0x0001<<16) | 0x0109 )
+#define PN_TMR          ( (0x0001<<16) | 0x010A )
+#define PN_INR4_GYB     ( (0x0001<<16) | 0x010B )
+#define PN_INR6_HS      ( (0x0001<<16) | 0x010C )
+#define PN_FTR4B        ( (0x0001<<16) | 0x010D )
+#define PN_FGR4B        ( (0x0001<<16) | 0x010E )
+#define PN_FBR12        ( (0x0001<<16) | 0x010F )
+#define PN_INR6_FC      ( (0x0001<<16) | 0x0110 )
+#define PN_TR8B         ( (0x0001<<16) | 0x0111 )
+#define PN_FBR8         ( (0x0001<<16) | 0x0112 )
+#define PN_FBR4         ( (0x0001<<16) | 0x0113 )
+
 // enum used by command response -> translate to ModuleState
 enum MODULE_READY_E {
   MODULE_STATUS_UNKNOWN = 0x00,
@@ -145,14 +176,28 @@ enum DeviceAddress {
   FRM303 = 0x04,
   IRM301 = 0x05,
 };
-
-PACK(struct ModuleVersion {
-  uint32_t productNumber;
-  uint32_t hardwereVersion;
-  uint32_t bootloaderVersion;
-  uint32_t firmwareVersion;
-  uint32_t rfVersion;
+PACK(struct ModuleVersion
+{
+  uint16_t company_number;
+  uint32_t tx_id;
+  uint32_t rx_id;
+  uint32_t product_number;
+  uint32_t hardwere_version;
+  uint32_t bootloader_version;
+  uint32_t firmware_version;
+  uint32_t rf_version;
 });
+
+
+PACK(struct ReceiverVersion
+{
+uint32_t ProductNumber;
+uint16_t MainboardVersion;
+uint16_t RFModuleVersion;
+uint16_t BootloaderVersion;
+uint16_t FirmwareVersion;
+uint16_t RFLibraryVersion;
+} );
 
 PACK(struct CommandResult_s {
   uint16_t command;
@@ -171,6 +216,7 @@ union AfhdsFrameData {
 
 #define FRM302_STATUS 0x56
 
+uint8_t receiver_type( unsigned long productnumber );
 class ProtoState
 {
   public:
@@ -251,6 +297,7 @@ class ProtoState
     bool modelIDSet;
     bool modelcfgGet;
     uint8_t modelID;
+    uint32_t cmd_flg;
     /**
      * Command count used for counting actual number of commands sent in run mode
      */
@@ -275,6 +322,7 @@ class ProtoState
      * Actual module version - must be requested from module
      */
     ModuleVersion version;
+    ReceiverVersion rx_version;
 };
 
 static const char* const moduleStateText[] =
@@ -559,6 +607,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         moduleData->afhds3.emi = cfg.v0.EMIStandard;
         moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
         moduleData->afhds3.phyMode = cfg.v0.PhyMode;
+        cfg.BusType.ExternalBusType = cfg.v0.ExternalBusType;
       } break;
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
@@ -569,6 +618,18 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
       case COMMAND::MODULE_STATE:
         TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
         setState((ModuleState)responseFrame->value);
+        if(STATE_SYNC_DONE == (ModuleState)responseFrame->value){
+          if(this->cmd_flg & 0x04)
+          {
+            this->cmd_flg &= ~0x04;
+            this->cmd_flg |= 0x02;
+            trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
+          }
+        }
+        else
+        {
+            this->cmd_flg |= 0x04;
+        }
         break;
       case COMMAND::MODULE_MODE:
         TRACE("AFHDS3 [MODULE_MODE] %02X", responseFrame->value);
@@ -630,10 +691,38 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
       }
         break;
       case COMMAND::COMMAND_RESULT: {
-        // AfhdsFrameData* respData = responseFrame->GetData();
-        // TRACE("COMMAND RESULT %02X result %d datalen %d",
-        // respData->CommandResult.command, respData->CommandResult.result,
-        // respData->CommandResult.respLen);
+        uint8_t *data = &responseFrame->value;
+        uint16_t cmd_code = *data++;
+        cmd_code |= (*data++)<<8;
+        uint8_t result  = *data++;
+        switch (cmd_code)
+        {
+        case  RX_CMD_GET_VERSION :
+          if(RX_CMDRESULT::RXSUCCESS==result)
+          {
+            if(14==*data++)
+            {
+              this->cmd_flg &= ~0x02;
+              std::memcpy((void*) &rx_version, data, sizeof(rx_version));
+              this->cmd_flg |= 0x08;
+            }
+          }break;
+          case RX_CMD_BUS_TYPE_V0:
+            if(RX_CMDRESULT::RXSUCCESS==result)
+            {
+              this->cmd_flg &= ~0x28;
+            }break;
+          case RX_CMD_IBUS_DIRECTION:
+            if(RX_CMDRESULT::RXSUCCESS==*data++)
+            {
+              this->cmd_flg &= ~0x10;
+              auto *cfg = this->getConfig();
+              if( 0==cfg->version && 2==cfg->v0.ExternalBusType)
+                this->cmd_flg |= 0x20;
+            }break;
+        default:
+          break;
+        }
       } break;
     }
   }
@@ -656,70 +745,63 @@ inline bool isPWM(uint8_t mode)
 
 bool ProtoState::syncSettings()
 {
-  // RUN_POWER targetPower = getRunPower();
-
-  // /*not sure if we need to prevent them in bind mode*/
-  // if (getModuleMode(module_index) != ::ModuleSettingsMode::MODULE_MODE_BIND &&
-  //     targetPower != cfg.config.runPower) {
-  //   cfg.config.runPower = moduleData->afhds3.runPower;
-  //   uint8_t data[] = {0x13, 0x20, 0x02, moduleData->afhds3.runPower, 0};
-  //   TRACE("AFHDS3 SET TX POWER %d", moduleData->afhds3.runPower);
-  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
-  //            sizeof(data));
-  //   return true;
-  // }
-
-  // // other settings only in 2 way mode (state must be synchronized)
-  // if (this->state != ModuleState::STATE_SYNC_DONE) {
-  //   return false;
-  // }
-
-  // if (moduleData->afhds3.rxFreq() != cfg.config.pwmFreq) {
-  //   cfg.config.pwmFreq = moduleData->afhds3.rxFreq();
-  //   uint8_t data[] = {0x17, 0x70, 0x02,
-  //                     (uint8_t)(moduleData->afhds3.rxFreq() & 0xFF),
-  //                     (uint8_t)(moduleData->afhds3.rxFreq() >> 8)};
-  //   TRACE("AFHDS3 SET RX FREQ");
-  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
-  //            sizeof(data));
-  //   return true;
-  // }
-
-  // PULSE_MODE modelPulseMode = isPWM(moduleData->afhds3.mode)
-  //                                 ? PULSE_MODE::PWM_MODE
-  //                                 : PULSE_MODE::PPM_MODE;
-  // if (modelPulseMode != cfg.config.pulseMode) {
-  //   cfg.config.pulseMode = modelPulseMode;
-  //   TRACE("AFHDS3 PWM/PPM %d", modelPulseMode);
-  //   uint8_t data[] = {0x16, 0x70, 0x01, (uint8_t)(modelPulseMode)};
-  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
-  //            sizeof(data));
-  //   return true;
-  // }
-
-  // SERIAL_MODE modelSerialMode = isSbus(moduleData->afhds3.mode)
-  //                                   ? SERIAL_MODE::SBUS_MODE
-  //                                   : SERIAL_MODE::IBUS;
-  // if (modelSerialMode != cfg.config.serialMode) {
-  //   cfg.config.serialMode = modelSerialMode;
-  //   TRACE("AFHDS3 IBUS/SBUS %d", modelSerialMode);
-  //   uint8_t data[] = {0x18, 0x70, 0x01, (uint8_t)(modelSerialMode)};
-  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
-  //            sizeof(data));
-  //   return true;
-  // }
-
-  // if (moduleData->afhds3.failsafeTimeout != cfg.config.failSafeTimout) {
-  //   moduleData->afhds3.failsafeTimeout = cfg.config.failSafeTimout;
-  //   uint8_t data[] = {0x12, 0x60, 0x02,
-  //                     (uint8_t)(moduleData->afhds3.failsafeTimeout & 0xFF),
-  //                     (uint8_t)(moduleData->afhds3.failsafeTimeout >> 8)};
-  //   trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data,
-  //            sizeof(data));
-  //   TRACE("AFHDS3 FAILSAFE TMEOUT, %d", moduleData->afhds3.failsafeTimeout);
-  //   return true;
-  // }
-
+if (this->state != ModuleState::STATE_SYNC_DONE) {
+    return false;
+  }
+  if(this->cmd_flg&0x02)
+  {
+    uint8_t data[] = { (uint8_t)(RX_CMD_GET_VERSION&0xFF), (uint8_t)((RX_CMD_GET_VERSION>>8)&0xFF), 0x00 };
+    trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+    return true;
+  }
+  auto *cfg = this->getConfig();
+  if((this->cmd_flg&0x38) && (!cfg->version) )
+  {
+    uint8_t bustype = cfg->BusType.ExternalBusType<=1?0:2;
+    uint8_t busdir = cfg->BusType.ExternalBusType;
+    if( 1==receiver_type(rx_version.ProductNumber) )
+    {
+      if(this->cmd_flg&0x08)
+      {
+        uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, bustype };
+        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        if(busdir<2)
+          this->cmd_flg |= 0x10;
+        return true;
+      }
+      if((this->cmd_flg&0x10) && busdir<2)
+      {
+        cfg->BusType.ExternalBusType = IBUS1_OUT;
+        busdir = IBUS1_OUT;
+        uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
+        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
+        return true;
+      }
+    }
+    else if( 2==receiver_type(rx_version.ProductNumber) )
+    {
+      if(this->cmd_flg&0x08)
+      {
+        uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, 0 };
+        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        this->cmd_flg |= 0x10;
+        return true;
+      }
+      else if((this->cmd_flg&0x10))
+      {
+        if(busdir>=2) busdir = 0; //IBUSOUT
+        uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
+        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
+        return true;
+      }
+      else if((this->cmd_flg&0x20))
+      {
+        uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, 2 };
+        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -798,7 +880,7 @@ void ProtoState::applyConfigFromModel()
     cfg.v0.EMIStandard = moduleData->afhds3.emi;
     cfg.v0.IsTwoWay = moduleData->afhds3.telemetry;
     cfg.v0.PhyMode = moduleData->afhds3.phyMode;
-
+    cfg.v0.ExternalBusType = cfg.BusType.ExternalBusType==1?0:cfg.BusType.ExternalBusType;
     // Failsafe
     setFailSafe(cfg.v0.FailSafe);
     if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
@@ -806,6 +888,26 @@ void ProtoState::applyConfigFromModel()
     } else {
       cfg.v0.FailsafeOutputMode = false;
     }
+  }
+}
+
+uint8_t receiver_type( unsigned long productnumber )
+{
+  if(PN_FTR10 == productnumber || PN_FGR4 == productnumber || PN_FTR16S == productnumber)
+  {
+    return 1; // This type of RX can be set to IBUS-OUT/SBUS
+  }
+  else if(PN_FTR4 == productnumber)
+  {
+    return 2; // This type of RX can be set to IBUS-IN/IBUS-OUT/SBUS
+  }
+  else if( (PN_FTR8B&0xFFFF) <= productnumber)
+  {
+      return 3;   //V1 RX
+  }
+  else
+  {
+      return 0;
   }
 }
 
