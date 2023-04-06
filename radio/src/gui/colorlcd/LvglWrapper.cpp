@@ -272,7 +272,7 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
       auto dt = rotencDt - lastDt;
       dt = max(dt, (uint32_t)1);
 
-      auto dx_dt = (diff * diff * 100) / dt;
+      auto dx_dt = (diff * diff * 50) / dt;
       dx_dt = min(dx_dt, (uint32_t)100);
 
       _rotary_enc_accel = (int8_t)dx_dt;
