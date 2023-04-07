@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(MULTIMODULE) or defined(SIMU)
+
 #pragma once
 
 //
@@ -186,7 +188,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_ASSAN,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_FRSKYV,     0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HONTAI,     3, false, false,  STR_SUBTYPE_HONTAI,    nullptr},
-  {MODULE_SUBTYPE_MULTI_OLRS,       0, false, false,  NO_SUBTYPE,            STR_MULTI_RFPOWER},
+  // MODULE_SUBTYPE_MULTI_OLRS non selectable and masked out for selection 
   {MODULE_SUBTYPE_MULTI_FS_AFHDS2A, 7, true,  true,   STR_SUBTYPE_AFHDS2A,   STR_MULTI_SERVOFREQ},
   {MODULE_SUBTYPE_MULTI_Q2X2,       2, false, false,  STR_SUBTYPE_Q2X2,      nullptr},
   {MODULE_SUBTYPE_MULTI_WK_2X01,    5, true,  true,   STR_SUBTYPE_WK2x01,    nullptr},
@@ -197,7 +199,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_ESKY150,    1, false, false,  STR_SUBTYPE_ESKY150,   nullptr},
   {MODULE_SUBTYPE_MULTI_H83D,       3, false, false,  STR_SUBTYPE_H83D,      nullptr},
   {MODULE_SUBTYPE_MULTI_CORONA,     2, false, false,  STR_SUBTYPE_CORONA,    STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_CFLIE,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
+  // MODULE_SUBTYPE_MULTI_CFLIE non selectable and masked out for selection 
   {MODULE_SUBTYPE_MULTI_HITEC,      2, false, false,  STR_SUBTYPE_HITEC,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_WFLY,       0, true,  false,  STR_SUBTYPE_WFLY,      nullptr},
   {MODULE_SUBTYPE_MULTI_BUGS,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
@@ -234,7 +236,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_Q90C,       0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_KYOSHO,     1, false, true,   STR_SUBTYPE_KYOSHO,    nullptr},
   {MODULE_SUBTYPE_MULTI_RLINK,      2, false, false,  STR_SUBTYPE_RLINK,     STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_ELRS,       0, false, false,  STR_SUBTYPE_ELRS,      nullptr},
+  // MODULE_SUBTYPE_MULTI_ELRS non selectable and masked out for selection 
   {MODULE_SUBTYPE_MULTI_REALACC,    0, false, false,  STR_SUBTYPE_REALACC,   nullptr},
   {MODULE_SUBTYPE_MULTI_OMP,        0, false, false,  NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_MLINK,      0, true,  false,  NO_SUBTYPE,            nullptr},
@@ -246,8 +248,8 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_JOYSWAY,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_E016H,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
   // MODULE_SUBTYPE_MULTI_CONFIG non selectable and masked out for selection 
-  {MODULE_SUBTYPE_MULTI_IKEAANSLUTA,0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  {MODULE_SUBTYPE_MULTI_WILLIFM,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
+  // MODULE_SUBTYPE_MULTI_IKEAANSLUTA non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_WILLIFM non selectable and masked out for selection 
   {MODULE_SUBTYPE_MULTI_LOSI,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false, false,  STR_SUBTYPE_MOULDKG,   STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_XERALL,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
@@ -258,3 +260,5 @@ PROTODEF {
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)
   {0xfe,                            0, false, false,  NO_SUBTYPE,            nullptr},
 };
+
+#endif // MULTIMODULE

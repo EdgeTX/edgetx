@@ -255,11 +255,6 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
   return MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
 }
 
-inline bool isMultiProtocolSelectable(int protocol)
-{
-  return protocol != MODULE_SUBTYPE_MULTI_SCANNER;
-}
-
 inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx)) {

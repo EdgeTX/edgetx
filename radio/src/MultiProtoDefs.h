@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(MULTIMODULE) or defined(SIMU)
+
 #pragma once
 
 //
@@ -136,3 +138,20 @@ enum ModuleSubtypeMulti {
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","Wfly 2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
   "Xerall","MT99XX2", "Kyosho2"
+
+//
+// Common list of protocols the MPM doesn't allow to be selected (also not sent by MPM protocol scan)
+//
+inline bool isMultiProtocolSelectable(int protocol)
+{
+  return (protocol != MODULE_SUBTYPE_MULTI_CONFIG &&
+          protocol != MODULE_SUBTYPE_MULTI_SCANNER &&
+          protocol != MODULE_SUBTYPE_MULTI_OLRS &&
+          protocol != MODULE_SUBTYPE_MULTI_WILLIFM &&
+          protocol != MODULE_SUBTYPE_MULTI_ELRS &&
+          protocol != MODULE_SUBTYPE_MULTI_IKEAANSLUTA &&
+          protocol != MODULE_SUBTYPE_MULTI_CFLIE
+         );
+}
+
+#endif // MULTIMODULE
