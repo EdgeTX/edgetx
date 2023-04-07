@@ -562,6 +562,7 @@ add_definitions(-DFREE_RTOS)
 
 add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
 link_libraries(firmware -lstdc++)
+include(rs/CMakeLists.txt) # Rust
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
@@ -570,8 +571,6 @@ if(ACCESS_DENIED)
   include_directories(thirdparty/AccessDenied)
   target_link_libraries(firmware AccessDenied)
 endif()
-
-include(rs/CMakeLists.txt) # Rust
 
 add_custom_command(
   TARGET firmware POST_BUILD

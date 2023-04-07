@@ -30,7 +30,6 @@
 
 #include "eldp.pb.h"
 #include "encoders.h"
-#include "rs.h"
 
 void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen) {
    if (dataLen != 0) {
@@ -45,7 +44,7 @@ void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen) {
       message.content.systemInfo.osName.arg = (void*)"EdgeTX";
       message.content.systemInfo.version.major = VERSION_MAJOR;
       message.content.systemInfo.version.minor = VERSION_MINOR;
-      message.content.systemInfo.version.patch = this_function_exists_in_c();
+      message.content.systemInfo.version.patch = VERSION_REVISION;
       message.content.systemInfo.has_version = true;
       message.content.systemInfo.versionTag.funcs.encode = &encode_string;
       #if defined(VERSION_TAG)

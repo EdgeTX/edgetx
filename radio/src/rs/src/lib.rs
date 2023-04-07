@@ -1,14 +1,12 @@
-#![no_std]
-use core::panic::PanicInfo;
+#![cfg_attr(not(test), no_std)]
 
-mod bindings;
+use core::panic::PanicInfo;
 
 #[panic_handler]
 fn halt(info: &PanicInfo) -> ! {
     loop { }
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn this_function_exists_in_c() -> u32 {
-    bindings::cliGetMode()
+extern "C" fn test_func() {
+
 }

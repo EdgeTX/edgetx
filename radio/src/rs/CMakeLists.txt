@@ -1,6 +1,6 @@
 include(FetchContent)
 
-set(Rust_CARGO_TARGET "thumbv7em-none-eabihf")
+set(Rust_CARGO_TARGET "thumbv7m-none-eabi")
 
 FetchContent_Declare(
     Corrosion
@@ -10,10 +10,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Corrosion)
 
 corrosion_import_crate(MANIFEST_PATH ${RADIO_SRC_DIR}/rs/Cargo.toml NO_STD)
-corrosion_set_linker(rs "ld")
-
-include_directories(${RADIO_SRC_DIR}/rs/pub_headers)
 
 target_link_options(firmware PUBLIC "-Wl,--allow-multiple-definition")
-target_link_options(firmware PUBLIC "-static")
 target_link_libraries(firmware PUBLIC rs)

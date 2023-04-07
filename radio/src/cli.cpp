@@ -1596,7 +1596,8 @@ int cliResetGT911(const char **argv)
 }
 #endif
 
-int cliSwitchMode(const char **argv) {
+int cliSwitchMode(const char **argv)
+{
   int arg = 0;
   toInt(argv, 1, &arg);
   cliMode = (CLIMode_t)arg;
@@ -1604,7 +1605,8 @@ int cliSwitchMode(const char **argv) {
   return 0;
 }
 
-int cliGetMode(const char **argv) {
+int cliGetMode(const char **argv)
+{
   cliSerialPrintf("%d\n", cliMode);
   return 0;
 }

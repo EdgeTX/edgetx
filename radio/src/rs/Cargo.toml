@@ -1,18 +1,16 @@
+cargo-features = ["per-package-target"]
 
 [package]
 name = "etx-rs"
-version = "2.9.0"
+version = "0.1.0"
 edition = "2021"
+forced-target = "thumbv7m-none-eabi"
 
 [lib]
 name = "rs"
-crate-type = ["staticlib"]
-test = false
-bench = false
+crate-type = ["staticlib"] # for .a static lib
 
 [build-dependencies]
 cbindgen = "0.20.0"
-bindgen = "0.53.1"
 
 [dependencies]
-cty = "0.2"
