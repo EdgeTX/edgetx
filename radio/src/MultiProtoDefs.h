@@ -83,7 +83,7 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_FRSKYX_RX,
   MODULE_SUBTYPE_MULTI_AFHDS2A_RX, //55
   MODULE_SUBTYPE_MULTI_HOTT,
-  MODULE_SUBTYPE_MULTI_FX816,
+  MODULE_SUBTYPE_MULTI_FX,
   MODULE_SUBTYPE_MULTI_BAYANG_RX,
   MODULE_SUBTYPE_MULTI_PELIKAN,
   MODULE_SUBTYPE_MULTI_TIGER,  //60
@@ -131,7 +131,7 @@ enum ModuleSubtypeMulti {
   "Futaba","J6 Pro","FQ777","Assan","FrSkyV","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
   "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFly",\
   "Bugs","BugMini","Traxxas","NCC1701","E01X","V911S","GD00X","V761","KF606","Redpine",\
-  "Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX816","BayanRX","Pelikan",\
+  "Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX","BayanRX","Pelikan",\
   "Tiger", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSkyL","Skyartc","ESky-v2","DSM RX",\
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","Wfly 2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
