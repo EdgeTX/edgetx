@@ -811,6 +811,14 @@ void ProtoState::applyConfigFromModel()
 
 inline int16_t ProtoState::convert(int channelValue)
 {
+  //pulseValue = limit<uint16_t>(0, 988 + ((channelValue + 1024) / 2), 0xfff);
+  //988 - 750 = 238
+  //238 * 20 = 4760
+  //2250 - 2012 = 238
+  //238 * 20 = 4760
+  // 988   ---- 2012
+  //-10240 ---- 10240
+  //-1024  ---- 1024
   return ::limit<int16_t>(AFHDS3_FAILSAFE_MIN, channelValue * 10, AFHDS3_FAILSAFE_MAX);
 }
 
