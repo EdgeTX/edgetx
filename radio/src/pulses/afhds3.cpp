@@ -811,7 +811,7 @@ void ProtoState::applyConfigFromModel()
 
 inline int16_t ProtoState::convert(int channelValue)
 {
-  return ::limit<int16_t>(AFHDS3_FAILSAFE_MIN, channelValue * 14.65, AFHDS3_FAILSAFE_MAX);
+  return ::limit<int16_t>(AFHDS3_FAILSAFE_MIN, channelValue * 10, AFHDS3_FAILSAFE_MAX);
 }
 
 uint8_t ProtoState::setFailSafe(int16_t* target, uint8_t rfchannelsCount )
