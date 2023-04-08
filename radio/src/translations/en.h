@@ -1274,12 +1274,9 @@
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
 
-#if defined(PCBNV14)
-#define TR_RF_STANDARD            "RF Standard"
-#define TR_RF_STD                {"1Way","2Way"}
 #define TR_DIGITAL_SERVO          "Servo333HZ"
 #define TR_ANALOG_SERVO           "Servo 50HZ"
 #define TR_SIGNAL_OUTPUT          "Signal output"
 #define TR_SERIAL_BUS             "Serial bus"
 #define TR_SYNC                   "Sync"
-#endif
+

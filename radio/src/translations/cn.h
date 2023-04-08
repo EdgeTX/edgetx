@@ -1280,12 +1280,9 @@
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
 
-#if defined(PCBNV14)
-#define TR_RF_STANDARD            "高频标准"
-#define TR_RF_STD                {"单向","双向"}
 #define TR_DIGITAL_SERVO          "数字舵机333HZ"
 #define TR_ANALOG_SERVO           "模拟舵机50HZ"
 #define TR_SIGNAL_OUTPUT          "信号强度输出"
 #define TR_SERIAL_BUS             "串行总线"
 #define TR_SYNC                   "同步"
-#endif
+
