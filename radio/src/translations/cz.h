@@ -370,6 +370,7 @@
 #define TR_KEYS_BACKLIGHT              "Podsvětlení kláves"
 #define TR_BLCOLOR                     "Barva"
 #define TR_SPLASHSCREEN                TR("úvodní logo", "Zobrazit úvodní logo")
+#define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY                "Zpoždění zapnutí"
 #define TR_PWR_OFF_DELAY               "Zpoždění vypnutí"
 #define TR_THROTTLE_WARNING            TR("* Plyn", INDENT "Kontrola plynu")

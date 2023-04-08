@@ -97,6 +97,7 @@ enum {
   CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
+  ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
   CASE_PXX2(ITEM_RADIO_SETUP_OWNER_ID)
@@ -192,6 +193,7 @@ void menuRadioSetup(event_t event)
     CASE_PWM_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
     CASE_SPLASH_PARAM(0)
+    0,
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PXX2(0) /* owner registration ID */
@@ -571,6 +573,11 @@ void menuRadioSetup(event_t event)
         break;
       }
 #endif
+
+      case ITEM_RADIO_SETUP_START_SOUND:
+        lcdDrawTextAlignedLeft(y, STR_PLAY_HELLO);
+        g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
 
 #if defined(PWR_BUTTON_PRESS)
       case ITEM_RADIO_SETUP_PWR_ON_SPEED:

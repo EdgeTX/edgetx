@@ -402,6 +402,10 @@ extern const char STR_KEYS_BACKLIGHT[];
 #endif
 
 extern const char STR_SPLASHSCREEN[];
+extern const char STR_PLAY_HELLO[];
+#if defined(COLORLCD)
+extern const char* const STR_SPLASHSCREEN_DELAYS[];
+#endif
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
