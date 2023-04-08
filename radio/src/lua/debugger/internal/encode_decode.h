@@ -19,31 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CLI_H_
-#define _CLI_H_
+#pragma once
 
-#include "hal/serial_driver.h"
-#include <stddef.h>
+#include <pb_common.h>
 
-typedef enum CLiMode_e {
-  CLI_MODE_COMMAND = 0,
-  #if defined(ELDB)
-  CLI_MODE_ELDP = 1
-  #endif
-} CLIMode_t;
+bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
+                   void *const *arg);
 
-// CLI task function
-void cliStart();
-
-// Connect serial driver to CLI
-void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
-
-#if defined(ELDB)
-bool cliELDPSend(uint8_t *buf, size_t len);
-#endif
-
-void cliSerialPrintf(const char *format, ...);
-
-CLIMode_t cliGetMode();
-
-#endif // _CLI_H_
+bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg);

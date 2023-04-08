@@ -19,31 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CLI_H_
-#define _CLI_H_
+#pragma once
 
-#include "hal/serial_driver.h"
+#include <stdint.h>
 #include <stddef.h>
+#include "eldp.pb.h"
 
-typedef enum CLiMode_e {
-  CLI_MODE_COMMAND = 0,
-  #if defined(ELDB)
-  CLI_MODE_ELDP = 1
-  #endif
-} CLIMode_t;
+bool eldbDecodeRequest(uint8_t *buf, size_t len, pb_istream_t *target_stream, edgetx_eldp_Request* target);
 
-// CLI task function
-void cliStart();
-
-// Connect serial driver to CLI
-void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
-
-#if defined(ELDB)
-bool cliELDPSend(uint8_t *buf, size_t len);
-#endif
-
-void cliSerialPrintf(const char *format, ...);
-
-CLIMode_t cliGetMode();
-
-#endif // _CLI_H_
+size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen);
+size_t eldbMakeErrorMessage(uint8_t *targetBuf, size_t targetBufLen, edgetx_eldp_Error_Type type, char *msg);

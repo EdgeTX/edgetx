@@ -24,42 +24,57 @@
 #include <cli.h>
 #include <pb_common.h>
 #include <pb_decode.h>
-#include <pb_encode.h>
-
+#include "internal/messages.h"
+#include "internal/session.h"
+#include "internal/encode_decode.h"
 #include "eldp.pb.h"
 
-bool encode_string(pb_ostream_t *stream, const pb_field_t *field,
-                   void *const *arg)
-{
-  char *str = "EdgeTX";
+void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen) {
+   if (dataLen != 0) { // there actually IS some valuable data
+      uint8_t txBuf[128];
+      edgetx_eldp_Request request = edgetx_eldp_Request_init_zero;
 
-  if (!pb_encode_tag_for_field(stream, field)) return false;
+      pb_istream_t stream;
 
-  return pb_encode_string(stream, (uint8_t *)str, strlen(str));
-}
+      if (eldbDecodeRequest(rxBuf, dataLen, &stream, &request)) { // success
+         if (request.which_content == edgetx_eldp_Request_startDebug_tag && !eldbIsStarted) {
+            char targetName[32];
+            request.content.startDebug.targetName.funcs.decode = &decodeString;
+            request.content.startDebug.targetName.arg = targetName;
 
-void eldbReceive(uint8_t *buf, size_t bufLen, size_t dataLen) {
-   if (dataLen != 0) {
-      uint8_t buffer[128];
+            eldbStartSession(targetName);
+         } else if (request.which_content == edgetx_eldp_Request_startDebug_tag && eldbIsStarted) {
+            size_t len = eldbMakeErrorMessage(
+               txBuf,
+               sizeof(txBuf),
+               edgetx_eldp_Error_Type_ALREADY_STARTED,
+               nullptr
+            );
+            cliELDPSend(txBuf, len);
+         } else if (request.which_content != edgetx_eldp_Request_startDebug_tag && eldbIsStarted) {
+            size_t len = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
+            
+            cliELDPSend(txBuf, len);
+            // TODO: Make it redirect to the current running session
+         } else {
+            size_t len = eldbMakeErrorMessage(
+               txBuf,
+               sizeof(txBuf),
+               edgetx_eldp_Error_Type_NOT_STARTED_YET,
+               nullptr
+            );
+            cliELDPSend(txBuf, len);
+         }
+      } else {
+         size_t len = eldbMakeErrorMessage(
+            txBuf,
+            sizeof(txBuf),
+            edgetx_eldp_Error_Type_BAD_MESSAGE,
+            nullptr
+         );
+         cliELDPSend(txBuf, len);
+      }
 
-      edgetx_eldp_Response message = edgetx_eldp_Response_init_zero;
-
-      pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
-      message.content.systemInfo = edgetx_eldp_SystemInfo_init_default;
-      message.content.systemInfo.osName.funcs.encode = &encode_string;
-      message.content.systemInfo.has_version = false;
-      message.content.systemInfo.has_batteryVoltage = false;
-      message.content.systemInfo.has_localTime = false;
-      message.which_content = edgetx_eldp_Response_systemInfo_tag;
-
-      size_t message_length;
-      bool status;
-
-      status = pb_encode(&stream, edgetx_eldp_Response_fields, &message);
-      message_length = stream.bytes_written;
-
-      cliELDPSend(buffer, message_length, PB_GET_ERROR(&stream));
+      // TODO: Do proper error handling
    }
-   // TODO: Implement
 }

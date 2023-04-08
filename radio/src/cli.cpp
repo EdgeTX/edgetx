@@ -132,7 +132,7 @@ void cliSetSerialDriver(void *ctx, const etx_serial_driver_t *drv)
   }
 }
 
-static void cliSerialPrintf(const char *format, ...)
+void cliSerialPrintf(const char *format, ...)
 {
   va_list arglist;
   char tmp[CLI_PRINT_BUFFER_SIZE];
@@ -1612,7 +1612,7 @@ int cliGetMode(const char **argv)
 }
 
 #if defined(ELDB)
-bool cliELDPSend(uint8_t *buf, size_t len, const char *err)
+bool cliELDPSend(uint8_t *buf, size_t len)
 {
   if (cliMode != CLI_MODE_ELDP) {
     return false;

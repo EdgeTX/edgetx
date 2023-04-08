@@ -9,6 +9,9 @@ add_definitions(-DELDB)
 
 set(ELDB_SRC
     eldb.cpp
+    internal/encode_decode.cpp
+    internal/messages.cpp
+    internal/session.cpp
 )
 
 include_directories(${RADIO_SRC_DIR}/lua/debugger)

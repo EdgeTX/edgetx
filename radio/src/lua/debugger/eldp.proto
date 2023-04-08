@@ -123,6 +123,7 @@ message Response {
         DebugStatus debugStatus = 1;
         Breakpoints breakpoints = 2;
         SystemInfo systemInfo = 3;
+        Error error = 4;
     };
 }
 
@@ -153,7 +154,6 @@ message SetBreakpoint {
 message StartDebug {
     optional DebugTarget targetType = 1;
     optional string targetName = 2;
-    repeated Breakpoint breakpoints = 3;
 }
 
 // client to host
@@ -190,13 +190,27 @@ message DebugStatus {
 message SystemInfo {
     optional string osName = 1;
     optional Version version = 2;
-    optional string versionSuffix = 3;
-    optional fixed32 batteryVoltage = 4;
-    optional int32 localTime = 5;
+    optional string versionTag = 3;
+    optional string codename = 4;
+    optional string gitTag = 5;
+    optional string deviceIdentifier = 6;
+    optional fixed32 batteryVoltage = 7;
 }
 
 // host to client
 message Breakpoints {
     optional string filename = 1;
     repeated Breakpoint breakpoints = 2;
+}
+
+// host to client
+message Error {
+    enum Type {
+        UNKNOWN = 0;
+        BAD_MESSAGE = 1; // not able to parse
+        NOT_STARTED_YET = 2; // when ELDB is not started yet and you already start passing some goofy ahh messages to it
+        ALREADY_STARTED = 3; // when ELDB is already started but you still try sending StartDebug
+    }
+    optional Type type = 1;
+    optional string message = 2;
 }
