@@ -128,19 +128,19 @@ enum ModuleSubtypeMulti {
 // Common list of Multi protocol names
 //
 #define PROTO_NAMES \
-  "FlySky","Hubsan","FrSkyD","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX",\
-  "SLT","CX10","CG023","Bayang","FrSkyX","ESky","MT99XX","MJXq","Shenqi","FY326",\
-  "Futaba","J6 Pro","FQ777","Assan","FrSkyV","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
-  "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFly",\
+  "FlySky","Hubsan","FrSky D","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX",\
+  "SLT","CX10","CG023","Bayang","FrSky X","ESky","MT99XX","MJXq","Shenqi","FY326",\
+  "Futaba","J6 Pro","FQ777","Assan","FrSky V","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
+  "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFLY",\
   "Bugs","BugMini","Traxxas","NCC1701","E01X","V911S","GD00X","V761","KF606","Redpine",\
   "Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX","BayanRX","Pelikan",\
-  "Tiger", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSkyL","Skyartc","ESky-v2","DSM RX",\
-  "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","Wfly 2","E016Hv2",\
+  "Tiger", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSky L","Skyartc","ESkyV2","DSM_RX",\
+  "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","WFLY2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
   "Xerall","MT99XX2", "Kyosho2"
 
 //
-// Common list of protocols the MPM doesn't allow to be selected (also not sent by MPM protocol scan)
+// Common list of protocols the MPM doesn't allow to be selected (not sent by MPM protocol scan)
 //
 inline bool isMultiProtocolSelectable(int protocol)
 {
@@ -150,8 +150,49 @@ inline bool isMultiProtocolSelectable(int protocol)
           protocol != MODULE_SUBTYPE_MULTI_WILLIFM &&
           protocol != MODULE_SUBTYPE_MULTI_ELRS &&
           protocol != MODULE_SUBTYPE_MULTI_IKEAANSLUTA &&
-          protocol != MODULE_SUBTYPE_MULTI_CFLIE
+          protocol != MODULE_SUBTYPE_MULTI_CFLIE &&
+          protocol != MODULE_SUBTYPE_MULTI_XN297DUMP &&
+          protocol != MODULE_SUBTYPE_MULTI_MOULDKG
          );
 }
+
+//
+// Common protocol specific option values
+//
+inline void getMultiOptionValues(int8_t multi_proto, int8_t &min, int8_t &max) {
+  switch (multi_proto) {
+    case MODULE_SUBTYPE_MULTI_DSM2:
+      min = 0;    // STR_MULTI_SERVOFREQ: 22ms, 11ms
+      max = 1;    
+      break;
+    case MODULE_SUBTYPE_MULTI_BAYANG:
+      min = 0;    // STR_MULTI_TELEMETRY: Off, On, Off+AUX, On+Aux
+      max = 3;
+      break;
+    case MODULE_SUBTYPE_MULTI_OLRS:
+      min = -1;
+      max = 7;
+      break;
+    case MODULE_SUBTYPE_MULTI_FS_AFHDS2A:
+      min = 0;    // STR_MULTI_SERVOFREQ: (50+optionvalue*5)ms
+      max = 70;
+      break;
+    case MODULE_SUBTYPE_MULTI_XN297DUMP:
+      min = -1;
+      max = 84;
+      break;
+    default:
+      min = -128; // all other option types, e.g STR_MULTI_RFTUNE
+      max = 127;
+      break;
+  }
+}
+
+//
+// Out of the ordinary max. numbers of model IDs
+//
+#define MODULE_SUBTYPE_MULTI_OLRS_RXNUM       4
+#define MODULE_SUBTYPE_MULTI_BUGS_RXNUM       15
+#define MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM  15
 
 #endif // MULTIMODULE

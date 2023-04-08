@@ -54,10 +54,6 @@ class Multiprotocols
         return protocol > MODULE_SUBTYPE_MULTI_LAST ? 8 : (unsigned int) subTypeStrings.length();
       }
 
-      int getOptionMin() const;
-
-      int getOptionMax() const;
-
       MultiProtocolDefinition(const radio_mm_definition &rd) :
         protocol(rd.protocol),
         hasFailsafe(rd.hasFailsafe),

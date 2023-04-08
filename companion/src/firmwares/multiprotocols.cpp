@@ -27,25 +27,6 @@
 #include "radio/src/MultiSubtypeDefs.h"
 #undef CPN
 
-
-int Multiprotocols::MultiProtocolDefinition::getOptionMin() const {
-  if (optionsstr == STR_MULTI_RFPOWER)
-    return -1;
-  else if (optionsstr == STR_MULTI_SERVOFREQ)
-    return 0;
-  else
-    return -128;
-}
-
-int Multiprotocols::MultiProtocolDefinition::getOptionMax() const {
-  if (optionsstr == STR_MULTI_RFPOWER)
-    return 7;
-  else if (optionsstr == STR_MULTI_SERVOFREQ)
-    return 70;
-  else
-    return 127;
-}
-
 const Multiprotocols::MultiProtocolDefinition & Multiprotocols::getProtocol(int protocol) const {
   for (const Multiprotocols::MultiProtocolDefinition & proto: protocols)
     if (proto.protocol == protocol)

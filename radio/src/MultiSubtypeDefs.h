@@ -63,18 +63,18 @@
   #define PROTODEF const mm_protocol_definition multi_protocols[]   
 
   const char* const mm_options_strings::options[] = {
-  nullptr,
-  STR_MULTI_OPTION,
-  STR_MULTI_RFTUNE,
-  STR_MULTI_VIDFREQ,
-  STR_MULTI_FIXEDID,
-  STR_MULTI_TELEMETRY,
-  STR_MULTI_SERVOFREQ,
-  STR_MULTI_MAX_THROW,
-  STR_MULTI_RFCHAN,
-  STR_MULTI_RFPOWER,
-  STR_MULTI_WBUS               // probably not used by MPM anymore
-};
+    nullptr,
+    STR_MULTI_OPTION,
+    STR_MULTI_RFTUNE,
+    STR_MULTI_VIDFREQ,
+    STR_MULTI_FIXEDID,
+    STR_MULTI_TELEMETRY,
+    STR_MULTI_SERVOFREQ,
+    STR_MULTI_MAX_THROW,
+    STR_MULTI_RFCHAN,
+    STR_MULTI_RFPOWER,
+    STR_MULTI_WBUS               // probably not used by MPM anymore
+  };
   
   #define NO_SUBTYPE nullptr
 #endif

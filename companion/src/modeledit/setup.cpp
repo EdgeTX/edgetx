@@ -496,7 +496,18 @@ void ModulePanel::update()
         break;
       case PULSES_MULTIMODULE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE | MASK_SUBTYPES;
-        max_rx_num = 63;
+        
+        switch (module.multi.rfProtocol) {
+          case MODULE_SUBTYPE_MULTI_OLRS:
+            max_rx_num = MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
+          case MODULE_SUBTYPE_MULTI_BUGS:
+            max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_RXNUM;
+          case MODULE_SUBTYPE_MULTI_BUGS_MINI:
+            max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM;
+          default:
+             max_rx_num = 63;
+        }
+ 
         if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
           mask |= MASK_CHANNELS_COUNT;
         else
@@ -662,8 +673,12 @@ void ModulePanel::update()
   }
 
   if (mask & MASK_MULTIOPTION) {
-    ui->optionValue->setMinimum(pdef.getOptionMin());
-    ui->optionValue->setMaximum(pdef.getOptionMax());
+    int8_t min, max;
+    
+    getMultiOptionValues(module.multi.rfProtocol, min, max);
+
+    ui->optionValue->setMinimum(min);
+    ui->optionValue->setMaximum(max);
     ui->optionValue->setValue(module.multi.optionValue);
     ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
   }
@@ -859,6 +874,7 @@ void ModulePanel::onMultiProtocolChanged(int index)
   if (!lock && module.multi.rfProtocol != (unsigned)rfProtocol) {
     lock=true;
     module.multi.rfProtocol = (unsigned int)rfProtocol;
+    module.multi.optionValue = 0;
     unsigned int maxSubTypes = multiProtocols.getProtocol(index).numSubTypes();
     if (rfProtocol > MODULE_SUBTYPE_MULTI_LAST)
       maxSubTypes = 8;

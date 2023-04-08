@@ -131,8 +131,8 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
       cb->update();
       lv_obj_clear_flag(cb->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     } else {
-      edit->setMin(-128);
-      edit->setMax(127);
+      edit->setMin(min);
+      edit->setMax(max);
       edit->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       edit->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
