@@ -92,8 +92,8 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
     choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
     lv_obj_clear_flag(choice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  } else if (title == STR_MULTI_TELEMETRY) { // e.g. Bayang
-    choice->setValues(STR_MULTI_TELEMETRY_MODE);
+  } else if (title == STR_MULTI_TELEMETRY) { // Bayang
+    choice->setValues(STR_MULTI_BAYANG_OPTIONS);
     choice->setMin(min);
     choice->setMax(max);
     choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
@@ -200,8 +200,6 @@ struct MPMServoRate : public FormGroup::Line {
   Choice* choice;
 };
 
-static const char* _servoRates[] = {"22ms", "11ms"};
-
 MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
   FormGroup::Line(form, layout)
 {
@@ -209,7 +207,7 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
   new StaticText(this, rect_t{}, STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  choice = new Choice(this, rect_t{}, _servoRates, 0, 1, 0, 0);
+  choice = new Choice(this, rect_t{}, STR_MULTI_DSM_OPTIONS, 0, 1, 0, 0);
 
   choice->setGetValueHandler(GET_DEFAULT((md->multi.optionValue & 0x02) >> 1));
   choice->setSetValueHandler(SET_VALUE(

@@ -53,27 +53,25 @@
 #define TR_TRNMODE             "OFF",TR("+=","Add"),TR(":=","Sost.")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES             "OFF","Replica Telem","Telemetria In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
-#define TR_SWTYPES                      "Disab.","Toggle","2POS","3POS"
-#define TR_POTTYPES                     "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro")
-#define TR_SLIDERTYPES                  "Disab.","Slider"
-#define TR_VPERSISTENT                  "NO","Volo","Reset Manuale"
-#define TR_COUNTRY_CODES                TR("US","America"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                     TR("Chied","Chiedi"),TR("Joyst","Joystick"),TR("SDCard","Storage"),TR("Serial","Seriale")
-#define TR_JACK_MODES                   "Chiedi","Audio","Trainer"
-#define TR_TELEMETRY_PROTOCOLS          "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Telemetria Multi"
+#define TR_AUX_SERIAL_MODES    "OFF","Replica S-Port","Telemetria","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
+#define TR_SWTYPES             "Disab.","Toggle","2POS","3POS"
+#define TR_POTTYPES            "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro")
+#define TR_SLIDERTYPES         "Disab.","Slider"
+#define TR_VPERSISTENT         "NO","Volo","Reset Manuale"
+#define TR_COUNTRY_CODES       TR("US","America"),TR("JP","Japan"),TR("EU","Europa")
+#define TR_USBMODES            TR("Chied","Chiedi"),TR("Joyst","Joystick"),TR("SDCard","Storage"),TR("Serial","Seriale")
+#define TR_JACK_MODES          "Chiedi","Audio","Trainer"
+#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Telemetria Multi"
 
-#define TR_SBUS_INVERSION_VALUES        "normale","non invertito"
-#define TR_MULTI_TELEMETRY_MODE         "Off","On","Off+Aux","On+Aux"
-#define TR_MULTI_CUSTOM                 "Person."
-#define TR_VTRIMINC                     TR("Expo","Esponenziale"),TR("ExFine","Extra Fine"),"Fine","Medio","Ampio"
-#define TR_VDISPLAYTRIMS                "No","Cambio","Si"
-#define TR_VBEEPCOUNTDOWN               "Niente","Suoni","Voce","Vibra",TR2_2("S & V","Suoni & Vibra"),TR2_2("V & V","Voce & Vibra")
-#define TR_COUNTDOWNVALUES              "5s","10s","20s","30s"
-#define TR_VVARIOCENTER                 "Tono","Silenz."
-#define TR_CURVE_TYPES                  "Standard","Personali"
-
-#define TR_ADCFILTERVALUES              "Globali","Off","On"
+#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_MULTI_CUSTOM        "Person."
+#define TR_VTRIMINC            "Exp","ExFine","Fine","Medio","Ampio "
+#define TR_VDISPLAYTRIMS       "No","Cambio","Si"
+#define TR_VBEEPCOUNTDOWN      "Niente", "Suoni", "Voce", "Vibra", TR2_2("S & V","Suoni & Vibra"),TR2_2("V & V","Voce & Vibra")
+#define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
+#define TR_VVARIOCENTER        "Tono","Silenz."
+#define TR_CURVE_TYPES         "Fisso","Modific."
+#define TR_ADCFILTERVALUES     "Globali","Off","On"
 
 #if defined(PCBX10)
   #define TR_RETA123                    "D","E","M","A","1","3","2","4","5","6","7","S","D"

@@ -202,27 +202,29 @@ void TimerPanel::onModeChanged(int index)
 #define FAILSAFE_CHANNEL_HOLD    2000
 #define FAILSAFE_CHANNEL_NOPULSE 2001
 
-#define MASK_PROTOCOL       (1<<0)
-#define MASK_CHANNELS_COUNT (1<<1)
-#define MASK_RX_NUMBER      (1<<2)
-#define MASK_CHANNELS_RANGE (1<<3)
-#define MASK_PPM_FIELDS     (1<<4)
-#define MASK_FAILSAFES      (1<<5)
-#define MASK_OPEN_DRAIN     (1<<6)
-#define MASK_MULTIMODULE    (1<<7)
-#define MASK_ANTENNA        (1<<8)
-#define MASK_MULTIOPTION    (1<<9)
-#define MASK_R9M            (1<<10)
-#define MASK_SBUSPPM_FIELDS (1<<11)
-#define MASK_SUBTYPES       (1<<12)
-#define MASK_ACCESS         (1<<13)
-#define MASK_RX_FREQ        (1<<14)
-#define MASK_RF_POWER       (1<<15)
-#define MASK_RF_RACING_MODE (1<<16)
-#define MASK_GHOST          (1<<17)
-#define MASK_BAUDRATE       (1<<18)
-#define MASK_MULTI_DSM_OPT  (1<<19)
-#define MASK_CHANNELMAP     (1<<20)
+#define MASK_PROTOCOL              (1<<0)
+#define MASK_CHANNELS_COUNT        (1<<1)
+#define MASK_RX_NUMBER             (1<<2)
+#define MASK_CHANNELS_RANGE        (1<<3)
+#define MASK_PPM_FIELDS            (1<<4)
+#define MASK_FAILSAFES             (1<<5)
+#define MASK_OPEN_DRAIN            (1<<6)
+#define MASK_MULTIMODULE           (1<<7)
+#define MASK_ANTENNA               (1<<8)
+#define MASK_MULTIOPTION           (1<<9)
+#define MASK_R9M                   (1<<10)
+#define MASK_SBUSPPM_FIELDS        (1<<11)
+#define MASK_SUBTYPES              (1<<12)
+#define MASK_ACCESS                (1<<13)
+#define MASK_RX_FREQ               (1<<14)
+#define MASK_RF_POWER              (1<<15)
+#define MASK_RF_RACING_MODE        (1<<16)
+#define MASK_GHOST                 (1<<17)
+#define MASK_BAUDRATE              (1<<18)
+#define MASK_MULTI_DSM_OPT         (1<<19)
+#define MASK_CHANNELMAP            (1<<20)
+#define MASK_MULTI_BAYANG_OPT      (1<<21)
+#define MASK_MULTI_FS_AFHDS2A_OPT  (1<<22)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -515,6 +517,10 @@ void ModulePanel::update()
         if (pdef.optionsstr != nullptr) {
           if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
             mask |= MASK_MULTI_DSM_OPT;
+          else if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_BAYANG)
+            mask |= MASK_MULTI_BAYANG_OPT;
+          else if(module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
+            mask |= MASK_MULTI_FS_AFHDS2A_OPT;
           else
             mask |= MASK_MULTIOPTION;
         }
@@ -653,8 +659,8 @@ void ModulePanel::update()
   ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
   ui->lblChkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->chkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
-  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
-  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
+  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT || mask & MASK_MULTI_FS_AFHDS2A_OPT);
+  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT || mask & MASK_MULTI_FS_AFHDS2A_OPT);
   ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
   ui->disableChMap->setVisible(mask & MASK_CHANNELMAP);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
@@ -688,7 +694,23 @@ void ModulePanel::update()
     ui->chkOption->setChecked(Helpers::getBitmappedValue(module.multi.optionValue, 0));
     ui->lblCboOption->setText(qApp->translate("Multiprotocols", "Servo update rate"));
     ui->cboOption->clear();
-    ui->cboOption->addItems({"22ms", "11ms"});
+    ui->cboOption->addItems({ DSM2_OPTION_SERVOFREQ_NAMES });
+    ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
+  }
+
+  if (mask & MASK_MULTI_BAYANG_OPT) {
+    ui->lblCboOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+    ui->cboOption->clear();
+    ui->cboOption->addItems({ BAYANG_OPTION_TELEMETRY_NAMES });
+    ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
+  }
+
+  if (mask & MASK_MULTI_FS_AFHDS2A_OPT) {
+    ui->lblCboOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+    ui->cboOption->clear();
+    ui->cboOption->addItems({ FS_AFHDS2A_OPTION_SERVOFREQ_NAMES });
     ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
   }

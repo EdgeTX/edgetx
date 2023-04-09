@@ -139,6 +139,15 @@ enum ModuleSubtypeMulti {
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
   "Xerall","MT99XX2", "Kyosho2"
 
+#define BAYANG_OPTION_TELEMETRY_NAMES     "Off","On","Off+Aux","On+Aux"
+#define DSM2_OPTION_SERVOFREQ_NAMES       "22ms","11ms"
+#define FS_AFHDS2A_OPTION_SERVOFREQ_NAMES \
+  "50ms","55ms","60ms","65ms","70ms","75ms","80ms","85ms","90ms","95ms","100ms","105ms","110ms","115ms","120ms", \
+  "125ms","130ms","135ms","140ms","145ms","150ms","155ms","160ms","165ms","170ms","175ms","180ms","185ms","190ms", \
+  "195ms","200ms","205ms","210ms","215ms","220ms","225ms","230ms","235ms","240ms","245ms","250ms","255ms","260ms", \
+  "265ms","270ms","275ms","280ms","285ms","290ms","295ms","300ms","305ms","310ms","315ms","320ms","325ms","330ms", \
+  "335ms","340ms","345ms","350ms","355ms","360ms","365ms","370ms","375ms","380ms","385ms","390ms","395ms","400ms"
+
 //
 // Common list of protocols the MPM doesn't allow to be selected (not sent by MPM protocol scan)
 //
