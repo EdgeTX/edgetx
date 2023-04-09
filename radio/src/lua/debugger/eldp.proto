@@ -210,6 +210,7 @@ message Error {
         BAD_MESSAGE = 1; // not able to parse
         NOT_STARTED_YET = 2; // when ELDB is not started yet and you already start passing some goofy ahh messages to it
         ALREADY_STARTED = 3; // when ELDB is already started but you still try sending StartDebug
+        FAILED_START = 4;
     }
     optional Type type = 1;
     optional string message = 2;

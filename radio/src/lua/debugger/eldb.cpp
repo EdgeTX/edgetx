@@ -31,7 +31,8 @@
 
 void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen) {
    if (dataLen != 0) { // there actually IS some valuable data
-      uint8_t txBuf[128];
+      uint8_t txBuf[128] = {};
+      size_t txLen = 0;
       edgetx_eldp_Request request = edgetx_eldp_Request_init_zero;
 
       pb_istream_t stream;
@@ -42,38 +43,44 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen) {
             request.content.startDebug.targetName.funcs.decode = &decodeString;
             request.content.startDebug.targetName.arg = targetName;
 
-            eldbStartSession(targetName);
+            bool result = eldbStartSession(targetName);
+            if (!result) {
+               txLen = eldbMakeErrorMessage(
+               txBuf,
+               sizeof(txBuf),
+               edgetx_eldp_Error_Type_FAILED_START,
+               nullptr
+            );
+            }
          } else if (request.which_content == edgetx_eldp_Request_startDebug_tag && eldbIsStarted) {
-            size_t len = eldbMakeErrorMessage(
+            txLen = eldbMakeErrorMessage(
                txBuf,
                sizeof(txBuf),
                edgetx_eldp_Error_Type_ALREADY_STARTED,
                nullptr
             );
-            cliELDPSend(txBuf, len);
          } else if (request.which_content != edgetx_eldp_Request_startDebug_tag && eldbIsStarted) {
-            size_t len = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
-            
-            cliELDPSend(txBuf, len);
+            txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
+
             // TODO: Make it redirect to the current running session
          } else {
-            size_t len = eldbMakeErrorMessage(
+            txLen = eldbMakeErrorMessage(
                txBuf,
                sizeof(txBuf),
                edgetx_eldp_Error_Type_NOT_STARTED_YET,
                nullptr
             );
-            cliELDPSend(txBuf, len);
          }
       } else {
-         size_t len = eldbMakeErrorMessage(
+         txLen = eldbMakeErrorMessage(
             txBuf,
             sizeof(txBuf),
             edgetx_eldp_Error_Type_BAD_MESSAGE,
             nullptr
          );
-         cliELDPSend(txBuf, len);
       }
+      
+      cliELDPSend(txBuf, txLen);
 
       // TODO: Do proper error handling
    }
