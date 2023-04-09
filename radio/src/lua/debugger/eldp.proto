@@ -198,7 +198,6 @@ message SystemInfo {
     optional string codename = 4;
     optional string gitTag = 5;
     optional string deviceIdentifier = 6;
-    optional fixed32 batteryVoltage = 7;
 }
 
 // host to client

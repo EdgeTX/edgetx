@@ -24,7 +24,6 @@
 #include <pb_common.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
-#include <board_common.h>
 #include <stamp.h>
 
 #include "eldp.pb.h"
@@ -55,8 +54,6 @@ size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen) {
     message.systemInfo.gitTag.arg = (void*)GIT_STR;
     message.systemInfo.deviceIdentifier.funcs.encode = &encodeString;
     message.systemInfo.deviceIdentifier.arg = (void*)FLAVOUR;
-    message.systemInfo.batteryVoltage = getBatteryVoltage();
-    message.systemInfo.has_batteryVoltage = true;
 
     pb_encode(&stream, edgetx_eldp_Response_fields, &message);
     return stream.bytes_written;
