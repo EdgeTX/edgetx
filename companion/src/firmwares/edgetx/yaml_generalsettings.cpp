@@ -148,6 +148,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   auto fw = getCurrentFirmware();
 
+  bool hasColorLcd = Boards::getCapability(fw->getBoard(), Board::HasColorLcd);
+
   node["semver"] = VERSION;
 
   std::string board = fw->getFlavour().toStdString();
@@ -280,6 +282,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] = rhs.uartSampleMode;
+
+  if (hasColorLcd)
+    node["selectedTheme"] = rhs.selectedTheme;
 
   return node;
 }
@@ -495,6 +500,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
   if (needsConversion)
     rhs.init();
+
+  node["selectedTheme"] >> rhs.selectedTheme;
 
   return true;
 }

@@ -29,7 +29,7 @@
 
 #define MIN(a,b) (a < b ? a : b)
 
-static void copy_string(char* dst, uint8_t dst_len, const char* src,
+static void copy_string(char* dst, uint16_t dst_len, const char* src,
                         uint8_t src_len)
 {
   if (src_len < dst_len) {
@@ -57,7 +57,7 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
 
 static void yaml_set_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
                           const YamlNode* node, const char* val,
-                          uint8_t val_len)
+                          uint16_t val_len)
 {
   uint32_t i = 0;
 
@@ -265,7 +265,7 @@ bool YamlTreeWalker::findNode(const char* tag, uint8_t tag_len)
         setAttrValue((char*)tag, tag_len);
         return true;
     }
-            
+
     while(attr && attr->type != YDT_NONE) {
 
         if ((tag_len == attr->tag_len)
@@ -442,7 +442,7 @@ void YamlTreeWalker::toNextAttr()
     }
 }
 
-void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
+void YamlTreeWalker::setAttrValue(char* buf, uint16_t len)
 {
     if (!buf || !len || isIdxInvalid())
         return;
@@ -684,7 +684,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return ((YamlTreeWalker*)ctx)->findNode(buf,len);
 }
 
-static void set_attr(void* ctx, char* buf, uint8_t len)
+static void set_attr(void* ctx, char* buf, uint16_t len)
 {
     ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
 }

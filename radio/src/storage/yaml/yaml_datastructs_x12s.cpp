@@ -487,6 +487,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 1 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
+  YAML_STRING("selectedTheme", 26),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
