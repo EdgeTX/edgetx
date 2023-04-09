@@ -254,21 +254,11 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   if (diff != 0) {
     reset_inactivity();
 
-    bool use_accel = false;
-    auto i = lv_indev_get_act();
-    if (i) {
-      auto g = i->group;
-      if (g && lv_group_get_editing(g)) {
-        auto obj = lv_group_get_focused(g);
-        use_accel = obj && lv_obj_has_flag(obj, LV_OBJ_FLAG_ENCODER_ACCEL);
-      }
-    }
-    
     int8_t dir = 0;
     if (diff < 0) dir = -1;
     else if (diff > 0) dir = 1;
 
-    if (use_accel && (dir == prevDir)) {
+    if (dir == prevDir) {
       auto dt = rotencDt - lastDt;
       dt = max(dt, (uint32_t)1);
 
@@ -279,6 +269,9 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     } else {
       _rotary_enc_accel = 0;
     }
+
+    // For Lua getRotEncSpeed() function
+    rotencSpeed = max(_rotary_enc_accel, (int8_t)1);
 
     prevDir = dir;
     lastDt = rotencDt;
