@@ -21,13 +21,34 @@
 
 #include "session.h"
 
+#include <cstdio>
+#include <rtos.h>
+#include <lua/lua_api.h>
+#include <sdcard.h>
+#include <cstring>
+#include <cli.h>
+
 bool eldbIsStarted = false;
 
-bool eldbStartSession(char *targetName) {
+bool eldbStartSession(const char *targetName, char *errorMessage) {
     if (eldbIsStarted) return false;
-    eldbIsStarted = true;
 
     // TODO: Handle error if targetName is invalid
+    // TODO: Handle target type
 
+    char targetFile[32] = "";
+    snprintf(targetFile, sizeof(targetFile), "/SCRIPTS/TOOLS/%s", targetName);
+    // cliSerialPrintf("target %s name %s", targetFile, targetName);
+
+    if (isFileAvailable(targetFile)) {
+        f_chdir("/SCRIPTS/TOOLS/");
+        // luaExec(targetName);
+        luaExec("badapple.luac");
+    } else {
+        strcpy(errorMessage, targetFile);
+        return false;
+    }
+
+    eldbIsStarted = true;
     return true;
 }

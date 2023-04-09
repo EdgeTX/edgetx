@@ -37,6 +37,8 @@ syntax = "proto3";
 
 package edgetx.eldp;
 
+import "nanopb.proto";
+
 /*
 * data types
 */
@@ -45,26 +47,6 @@ message Version {
     int32 major = 1;
     int32 minor = 2;
     int32 patch = 3;
-}
-
-// This enum will extend in the future with
-// a release of EdgeTX 3.0
-enum DebugTarget {
-    SCRIPT = 0;
-}
-
-enum DebuggerState {
-    RUNNING = 0;
-    STOPPED_BREAKPOINT = 1;
-    STOPPED_ERROR = 2;
-}
-
-enum Command {
-    CONTINUE = 0;
-    STEP_INTO = 1;
-    STEP_OVER = 2;
-    PRINT = 3;
-    STOP = 4;
 }
 
 message Breakpoint {
@@ -106,9 +88,10 @@ message LuaDebugInfo {
 
 // client to host
 message Request {
+    option (nanopb_msgopt).no_unions = true;
     oneof content {
         ExecuteExpression executeExpression = 1;
-        ExecuteDebuggerCommand executeDebuggerCommand = 2;
+        ExecuteCommand executeDebuggerCommand = 2;
         SetBreakpoint setBreakpoint = 3;
         StartDebug startDebug = 4;
         GetBreakpoints getBreakpoints = 5;
@@ -119,6 +102,7 @@ message Request {
 
 // host to client
 message Response {
+    option (nanopb_msgopt).no_unions = true;
     oneof content {
         DebugStatus debugStatus = 1;
         Breakpoints breakpoints = 2;
@@ -135,7 +119,15 @@ message ExecuteExpression {
 }
 
 // client to host
-message ExecuteDebuggerCommand {
+message ExecuteCommand {
+    enum Command {
+        CONTINUE = 0;
+        STEP_INTO = 1;
+        STEP_OVER = 2;
+        PRINT = 3;
+        STOP = 4;
+    }
+
     optional Command command = 1;
 }
 
@@ -152,7 +144,13 @@ message SetBreakpoint {
 
 // client to host
 message StartDebug {
-    optional DebugTarget targetType = 1;
+    enum Target {
+        STANDALONE = 0;
+        WIDGET = 1;
+        MIXER = 2;
+    }
+
+    optional Target targetType = 1;
     optional string targetName = 2;
 }
 
@@ -182,7 +180,13 @@ message SwitchSerialMode {
 // used as a "heartbeat", to indicate that the debugger
 // is still running
 message DebugStatus {
-    optional DebuggerState state = 1;
+    enum State {
+        RUNNING = 0;
+        STOPPED_BREAKPOINT = 1;
+        STOPPED_ERROR = 2;
+    }
+
+    optional State state = 1;
     optional Breakpoint stoppedAtBreakpoint = 2;
 }
 
@@ -210,8 +214,10 @@ message Error {
         BAD_MESSAGE = 1; // not able to parse
         NOT_STARTED_YET = 2; // when ELDB is not started yet and you already start passing some goofy ahh messages to it
         ALREADY_STARTED = 3; // when ELDB is already started but you still try sending StartDebug
-        FAILED_START = 4;
+        FAILED_START = 4; // general error when ELDB was not able to be started
+        UNKNOWN_TARGET = 5; // if target is unknown (e.g. WIDGET on a monochrome radio)
     }
+
     optional Type type = 1;
     optional string message = 2;
 }

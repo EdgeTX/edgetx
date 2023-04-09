@@ -25,7 +25,5 @@
 #include <stddef.h>
 #include "eldp.pb.h"
 
-bool eldbDecodeRequest(uint8_t *buf, size_t len, pb_istream_t *target_stream, edgetx_eldp_Request* target);
-
 size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen);
-size_t eldbMakeErrorMessage(uint8_t *targetBuf, size_t targetBufLen, edgetx_eldp_Error_Type type, char *msg);
+size_t eldbMakeErrorMessage(uint8_t *targetBuf, size_t targetBufLen, edgetx_eldp_Error_Type type, const char *msg);

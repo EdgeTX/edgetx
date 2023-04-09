@@ -24,8 +24,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "rtos.h"
-
 extern bool eldbIsStarted;
 
-bool eldbStartSession(char *targetName);
+bool eldbStartSession(const char *targetName, char* errorMessage);

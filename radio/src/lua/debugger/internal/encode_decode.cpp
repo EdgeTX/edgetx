@@ -20,15 +20,18 @@
  */
 
 #include "encode_decode.h"
+#include <cli.h>
 #include <pb_common.h>
 #include <pb_encode.h>
 #include <pb_decode.h>
 
 bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
                    void *const *arg) {
-  if (!pb_encode_tag_for_field(stream, field)) return false;
+    if (!pb_encode_tag_for_field(stream, field)) return false;
 
-  return pb_encode_string(stream, *(uint8_t* const*)arg, strlen(*(char* const*)arg));
+    // cliSerialPrintf("encode %s", (char*)*arg);
+
+    return pb_encode_string(stream, *(uint8_t* const*)arg, strlen((char*)*arg));
 }
 
 bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg) {
