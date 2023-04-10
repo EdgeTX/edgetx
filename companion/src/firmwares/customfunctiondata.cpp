@@ -395,6 +395,19 @@ AbstractStaticItemModel * CustomFunctionData::repeatItemModel()
 }
 
 //  static
+AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("customfunctiondata.repeatLua");
+
+  mdl->appendToItemList(tr("On"), 0);
+  mdl->appendToItemList(tr("1x"), 1);
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
 AbstractStaticItemModel * CustomFunctionData::playSoundItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();

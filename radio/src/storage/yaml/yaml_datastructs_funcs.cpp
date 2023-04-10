@@ -1477,7 +1477,12 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       }
     }
   } else if (HAS_REPEAT_PARAM(func)) {
-    if (val_len == 2
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (val_len == 2 && val[0] == '1' && val[1] == 'x')
+        CFN_PLAY_REPEAT(cfn) = 1;
+      else
+        CFN_PLAY_REPEAT(cfn) = 0;
+    } else if (val_len == 2
         && val[0] == '1'
         && val[1] == 'x') {
       CFN_PLAY_REPEAT(cfn) = 0;
@@ -1629,7 +1634,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       // ","
       if (!wf(opaque,",",1)) return false;
     }
-    if (CFN_PLAY_REPEAT(cfn) == 0) {
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (!wf(opaque,(CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;
     } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
