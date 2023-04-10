@@ -577,7 +577,7 @@ typedef uint32_t swarnstate_t;
 #elif defined(COLORLCD)
 #include "gui/colorlcd/layout.h"
 #include "gui/colorlcd/topbar.h"
-#define LAYOUT_ID_LEN 10
+#define LAYOUT_ID_LEN 12
 PACK(struct CustomScreenData {
   char LayoutId[LAYOUT_ID_LEN];
   LayoutPersistentData layoutData;
