@@ -176,16 +176,17 @@ enum DeviceAddress {
   FRM303 = 0x04,
   IRM301 = 0x05,
 };
+
 PACK(struct ModuleVersion
 {
-  uint16_t company_number;
-  uint32_t tx_id;
-  uint32_t rx_id;
-  uint32_t product_number;
-  uint32_t hardwere_version;
-  uint32_t bootloader_version;
-  uint32_t firmware_version;
-  uint32_t rf_version;
+  uint16_t companyNumber;
+  uint32_t txID;
+  uint32_t rxID;
+  uint32_t productNumber;
+  uint32_t hardwareVersion;
+  uint32_t bootloaderVersion;
+  uint32_t firmwareVersion;
+  uint32_t rfVersion;
 });
 
 
@@ -612,7 +613,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
         TRACE("AFHDS3 [MODULE_VERSION] Product %d, HW %d, BOOT %d, FW %d",
-              version.productNumber, version.hardwereVersion,
+              version.productNumber, version.hardwareVersion,
               version.bootloaderVersion, version.firmwareVersion);
         break;
       case COMMAND::MODULE_STATE:
