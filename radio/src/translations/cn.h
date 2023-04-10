@@ -1285,4 +1285,3 @@
 #define TR_SIGNAL_OUTPUT          "信号强度输出"
 #define TR_SERIAL_BUS             "串行总线"
 #define TR_SYNC                   "同步"
-

@@ -1279,4 +1279,3 @@
 #define TR_SIGNAL_OUTPUT          "Signal output"
 #define TR_SERIAL_BUS             "Serial bus"
 #define TR_SYNC                   "Sync"
-
