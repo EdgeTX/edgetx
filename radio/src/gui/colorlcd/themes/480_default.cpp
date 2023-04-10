@@ -156,7 +156,7 @@ class Theme480: public OpenTxTheme
     void setBackgroundImageFileName(const char *fileName) override
     {
       // ensure you delete old bitmap
-      if (strcmp(backgroundImageFileName, fileName) != 0 && backgroundBitmap != nullptr)
+      if (backgroundBitmap != nullptr)
         delete backgroundBitmap;
       OpenTxTheme::setBackgroundImageFileName(fileName);  // set the filename
       backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
