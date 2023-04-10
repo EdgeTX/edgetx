@@ -175,7 +175,7 @@ const etx_serial_init dsmUartParams = {
     .baudrate = 0,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX,
-    .polarity = ETX_Pol_Normal,
+    .polarity = ETX_Pol_Inverted,
 };
 
 static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period, bool telemetry)
@@ -188,12 +188,14 @@ static void* dsmInit(uint8_t module, uint32_t baudrate,  uint16_t period, bool t
   auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
   if (!mod_st) {
     // inverted soft-serial fallback
+    params.polarity = ETX_Pol_Normal;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
     if (!mod_st) return nullptr;
   }
 
   if (telemetry) {
     params.direction = ETX_Dir_RX;
+    params.polarity = ETX_Pol_Inverted;
     if (!modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params)) {
       // inverted soft-serial fallback
       modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
