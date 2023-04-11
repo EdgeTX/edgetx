@@ -61,7 +61,7 @@
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("SDkord","SD Lager"),"Seriel"
+#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("SDkord","SD Lager"),"Data"
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 

@@ -56,7 +56,7 @@
 #define TR_SLIDERTYPES         "Brak","Suwak"
 #define TR_VPERSISTENT         "Wyłącz","Lot","Ręczny Reset"
 #define TR_COUNTRY_CODES       TR("US","Ameryka"),TR("JP","Japonia"),TR("EU", "Europa")
-#define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
+#define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Data"
 #define TR_JACK_MODES          "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
