@@ -446,10 +446,6 @@ PACK(struct TrainerModuleData {
  * Module structure
  */
 
-// Only used in case switch and if statements as "virtual" protocol
-#define MM_RF_CUSTOM_SELECTED 0xff
-#define MULTI_MAX_PROTOCOLS 127 //  rfProtocol:4 +  rfProtocolExtra:3
-
 PACK(struct PpmModule {
   int8_t  delay:6;
   uint8_t pulsePol:1;

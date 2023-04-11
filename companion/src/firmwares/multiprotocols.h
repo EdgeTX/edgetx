@@ -25,8 +25,6 @@
 #include <QtCore>
 #include "moduledata.h"
 
-#define MM_RF_CUSTOM_SELECTED 0xff
-
 class Multiprotocols
 {
     Q_DECLARE_TR_FUNCTIONS(Multiprotocols)

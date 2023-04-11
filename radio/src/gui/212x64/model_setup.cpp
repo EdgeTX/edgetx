@@ -1049,7 +1049,7 @@ void menuModelSetup(event_t event)
 #if defined(MULTIMODULE)
                 else if (isModuleMultimodule(EXTERNAL_MODULE)) {
                   int multiRfProto = g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol;
-                  CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
+                  CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
                   if (checkIncDec_Ret) {
                     g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol = multiRfProto;
                     g_model.moduleData[EXTERNAL_MODULE].subType = 0;
@@ -1180,7 +1180,7 @@ void menuModelSetup(event_t event)
                 }
               }
               else {
-                CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
+                CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
               }
               if (checkIncDec_Ret) {
                 g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol = multiRfProto;

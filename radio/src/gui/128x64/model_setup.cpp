@@ -1254,7 +1254,7 @@ void menuModelSetup(event_t event)
             }
           }
           else {
-            CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
+            CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
           }
           if (checkIncDec_Ret) {
             g_model.moduleData[moduleIdx].multi.rfProtocol = multiRfProto;
