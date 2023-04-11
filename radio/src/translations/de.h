@@ -460,7 +460,7 @@
 #define TR_TIMEZONE                    TR("Zeitzone", "GPS-Zeitzone +/-Std")
 #define TR_ADJUST_RTC                  TR("GPSzeit setzen", "Uhrzeit per GPS setzen")
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Kanal CH1-4", "Kanalvoreinstellung")
+#define TR_DEF_CHAN_ORD                TR("Std.Kanal Folge", "Std. Kanal Reihenfolge")
 #define TR_STICKS                      "Knüppel"
 #define TR_POTS                        "Potis"
 #define TR_SWITCHES                    "Schalter"
@@ -497,6 +497,18 @@
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
+#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_MEM_USED_SCRIPT         "Script(B): "
+#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_EXTRA          "Extra(B): "
+#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_AUDIO                 "Audio: "
+#define TR_GPS_FIX_YES                 "Fix: Yes"
+#define TR_GPS_FIX_NO                  "Fix: No"
+#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_HDOP                    "Hdop: "
+#define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Timer"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Battery"
@@ -605,6 +617,7 @@
 #define TR_CURRENT_CALIB               "Strom abgl."
 #define TR_VOLTAGE                     TR(INDENT "Spg", INDENT "Spannungsquelle")  //9XR-Pro
 #define TR_SELECT_MODEL                "Modell auswählen"
+#define TR_MANAGE_MODELS               "MODELL MANAGER"
 #define TR_MODELS                      "Modelle"
 #define TR_SELECT_MODE                 "Wähle Mode"
 #define TR_CREATE_MODEL                TR("Neues Modell" , "Neues Modell erstellen")
@@ -613,12 +626,14 @@
 #define TR_NEW_MODEL                   "Neues Modell"
 #define TR_INVALID_MODEL               "ungültiges Modell"
 #define TR_EDIT_LABELS                 "Label ändern"
+#define TR_LABEL_MODEL                 "Label zuordnen"
 #define TR_MOVE_UP                     "Verschiebe nach oben"
 #define TR_MOVE_DOWN                   "Verschiebe nach unten"
 #define TR_ENTER_LABEL                 "Enter Label"
 #define TR_LABEL                       "Label"
 #define TR_LABELS                      "Labels"
 #define TR_CURRENT_MODEL               "aktuell"
+#define TR_ACTIVE                      "Aktiv"
 #define TR_NEW                         "Neu"
 #define TR_NEW_LABEL                   "Neues Label"
 #define TR_RENAME_LABEL                "Label umbenennen"
@@ -1210,6 +1225,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL      "Wähle\nModell"
+#define TR_MAIN_MENU_MANAGE_MODELS     "Modell\nManager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Modell\nNotizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell\nKonfig."

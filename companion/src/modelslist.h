@@ -31,15 +31,15 @@ class ModelListItem
     enum ModelListItemFlags { MarkedForCut = 0x01 };
 
     explicit ModelListItem(const QVector<QVariant> & itemData);
-    explicit ModelListItem(ModelListItem * parent, int categoryIndex, int modelIndex);
+    explicit ModelListItem(ModelListItem * parent, int modelIndex);
     ~ModelListItem();
 
     ModelListItem * child(int number);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
-    ModelListItem * appendChild(int categoryIndex, int modelIndex);
-    ModelListItem * insertChild(const int row, int categoryIndex, int modelIndex);
+    ModelListItem * appendChild( int modelIndex);
+    ModelListItem * insertChild(const int row, int modelIndex);
     bool removeChildren(int position, int count);
     bool insertChildren(int row, int count);
 
@@ -50,8 +50,6 @@ class ModelListItem
     void setParent(ModelListItem * p) { parentItem = p; }
     int getModelIndex() const { return modelIndex; }
     void setModelIndex(int value) { modelIndex = value; }
-    int getCategoryIndex() const { return categoryIndex; }
-    void setCategoryIndex(int value) { categoryIndex = value; }
     void setHighlightRX(int value) { highlightRX = value; }
     bool isHighlightRX() const { return highlightRX; }
 
@@ -59,14 +57,12 @@ class ModelListItem
     void setFlags(const quint16 & value) { flags = value; }
     void setFlag(const quint16 & flag, const bool on = true);
 
-    bool isCategory() const;
     bool isModel() const;
 
   private:
     QList<ModelListItem*> childItems;
     QVector<QVariant> itemData;
     ModelListItem * parentItem;
-    int categoryIndex;
     int modelIndex;
     quint16 flags;
     bool highlightRX;
@@ -92,7 +88,7 @@ class ModelsListModel : public QAbstractItemModel
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;    
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -124,11 +120,8 @@ class ModelsListModel : public QAbstractItemModel
     static int countModelsInMimeData(const QMimeData * mimeData);
 
     QModelIndex getIndexForModel(const int modelIndex, QModelIndex parent = QModelIndex());
-    QModelIndex getIndexForCategory(const int categoryIndex);
     int getModelIndex(const QModelIndex & index) const;
-    int getCategoryIndex(const QModelIndex & index) const;
     int rowNumber(const QModelIndex & index = QModelIndex()) const;
-    bool isCategoryType(const QModelIndex & index) const;
     bool isModelType(const QModelIndex & index) const;
 
   public slots:

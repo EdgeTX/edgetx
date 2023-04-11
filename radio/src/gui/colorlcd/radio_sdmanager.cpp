@@ -164,6 +164,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
   grid.add(browser);
   grid.nextCell();
+  lv_obj_set_scrollbar_mode(browser->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto obj = browser->getLvObj();
   lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
@@ -255,11 +256,12 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                       [=]() { BootloaderUpdate(fullpath); });
       }
     } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
-      // TODO
-      // if (HAS_SPORT_UPDATE_CONNECTOR()) {
-      //   menu->addLine(STR_FLASH_EXTERNAL_DEVICE,
-      //                 [=]() { FrSkyFirmwareUpdate(fullpath, SPORT_MODULE); });
-      // }
+
+      auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
+      if (mod_desc && mod_desc->set_pwr) {
+        menu->addLine(STR_FLASH_EXTERNAL_DEVICE,
+                      [=]() { FrSkyFirmwareUpdate(fullpath, SPORT_MODULE); });
+      }
       menu->addLine(STR_FLASH_INTERNAL_MODULE,
                     [=]() { FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE); });
       menu->addLine(STR_FLASH_EXTERNAL_MODULE,
@@ -280,15 +282,17 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         }
         if (information.productFamily == FIRMWARE_FAMILY_RECEIVER ||
             information.productFamily == FIRMWARE_FAMILY_SENSOR) {
-          // if (HAS_SPORT_UPDATE_CONNECTOR()) {
-          //   menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
-          //     FrSkyFirmwareUpdate(fullpath, SPORT_MODULE);
-          //   });
-          // } else {
-          menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
-            FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
-          });
-          // }
+
+          auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
+          if (mod_desc && mod_desc->set_pwr) {
+            menu->addLine(STR_FLASH_EXTERNAL_DEVICE, [=]() {
+              FrSkyFirmwareUpdate(fullpath, SPORT_MODULE);
+            });
+          } else {
+            menu->addLine(STR_FLASH_EXTERNAL_MODULE, [=]() {
+              FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE);
+            });
+          }
         }
 #if _NYI_  // Not yet implemented
 #if defined(PXX2)

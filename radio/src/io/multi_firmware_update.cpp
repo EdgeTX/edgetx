@@ -233,6 +233,8 @@ const char * MultiFirmwareUpdateDriver::waitForInitialSync()
 
 const char * MultiFirmwareUpdateDriver::getDeviceSignature(uint8_t * signature) const
 {
+  clear();
+
   // Read signature
   sendByte(STK_READ_SIGN);
   sendByte(CRC_EOP);

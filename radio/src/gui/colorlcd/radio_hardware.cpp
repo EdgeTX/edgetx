@@ -50,9 +50,9 @@ RadioHardwarePage::RadioHardwarePage():
 
 void RadioHardwarePage::build(FormWindow * window)
 {
-  window->setFlexLayout();
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-  lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
   // TODO: sub-title?
 

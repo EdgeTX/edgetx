@@ -75,7 +75,6 @@ enum SwitchContext
 int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable=nullptr);
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
-bool isTrimModeAvailable(int mode);
 bool isInputAvailable(int input);
 bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);

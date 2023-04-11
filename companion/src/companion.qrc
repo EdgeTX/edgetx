@@ -1288,5 +1288,6 @@
     <file alias="mask_layout2x3.png">images/layouts/mask_layout2x3.png</file>
     <file alias="mask_layout2x4.png">images/layouts/mask_layout2x4.png</file>
     <file alias="mask_layout4p2.png">images/layouts/mask_layout4+2.png</file>
+    <file alias="mask_layout4p2b.png">images/layouts/mask_layout4+2b.png</file>
   </qresource>
 </RCC>

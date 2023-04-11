@@ -690,6 +690,10 @@ Mode 4:
         <source>Update Settings: Decompress and download folders have the same path!</source>
         <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
     </message>
+    <message>
+        <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
+        <translation>Inaktivera varningen &apos;Ingen joystick kan hittas, joystick inkativerad&apos;</translation>
+    </message>
 </context>
 <context>
     <name>BinEepromFormat</name>
@@ -794,63 +798,63 @@ Mode 4:
     </message>
     <message>
         <source>P1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>P2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>P3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>POT1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>LS</source>
-        <translation type="unfinished"></translation>
+        <translation>VR</translation>
     </message>
     <message>
         <source>RS</source>
-        <translation type="unfinished"></translation>
+        <translation>HR</translation>
     </message>
     <message>
         <source>TltX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>TltY</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>6P</source>
@@ -858,35 +862,35 @@ Mode 4:
     </message>
     <message>
         <source>L1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>L2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>JSx</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>JSy</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>EX1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>EX2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>EX3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>EX4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1795,6 +1799,18 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <source>Value</source>
         <translation>Värde</translation>
+    </message>
+    <message>
+        <source>!1x</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>1x</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>%1s</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2903,7 +2919,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Support hardware mod: R9M ACCESS</source>
-        <translation>Stöd för hårdvarumodifiering: R9M ACCESS</translation>
+        <translation type="vanished">Stöd för hårdvarumodifiering: R9M ACCESS</translation>
     </message>
     <message>
         <source>FrSky Taranis X9D+</source>
@@ -3980,6 +3996,10 @@ Dessa inställningar gäller för alla modeller.</translation>
         <source>SpaceMouse</source>
         <translation></translation>
     </message>
+    <message>
+        <source>External module</source>
+        <translation>Extern modul</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSetup</name>
@@ -4339,7 +4359,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show splash screen on startup</source>
-        <translation>Visa startbild vid start av radion</translation>
+        <translation type="vanished">Visa startbild vid start av radion</translation>
     </message>
     <message>
         <source>---</source>
@@ -4826,6 +4846,10 @@ att fungera. Detta går inte att ändra från radion.
         <source>Chinese</source>
         <translation>Kinesiska</translation>
     </message>
+    <message>
+        <source>Japanese</source>
+        <translation>Japanska</translation>
+    </message>
 </context>
 <context>
     <name>GyroPage</name>
@@ -4878,11 +4902,11 @@ att fungera. Detta går inte att ändra från radion.
     </message>
     <message>
         <source>Antenna</source>
-        <translation>Antenn</translation>
+        <translation type="vanished">Antenn</translation>
     </message>
     <message>
         <source>Internal module</source>
-        <translation>Intern modul</translation>
+        <translation type="vanished">Intern modul</translation>
     </message>
     <message>
         <source>Sample Mode</source>
@@ -4891,10 +4915,6 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Serial ports</source>
         <translation>Seriella portar</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation></translation>
     </message>
     <message>
         <source>Power</source>
@@ -4919,6 +4939,34 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Warning: Changing the Internal module may invalidate the internal module protocol of the models!</source>
         <translation>Varning: Byte av den interna modulen kan göra modellernas interna modulprotokoll ogiltiga!</translation>
+    </message>
+    <message>
+        <source>Internal RF</source>
+        <translation>Intern RF</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Baudrate:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Antenna:</source>
+        <translation>Antenn:</translation>
+    </message>
+    <message>
+        <source>External RF</source>
+        <translation>Extern RF</translation>
+    </message>
+    <message>
+        <source>AUX1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AUX2</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -8007,19 +8055,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Ask</source>
-        <translation>Fråga</translation>
+        <translation type="vanished">Fråga</translation>
     </message>
     <message>
         <source>Internal</source>
-        <translation>Intern</translation>
+        <translation type="vanished">Intern</translation>
     </message>
     <message>
         <source>Internal + External</source>
-        <translation>Intern + Extern</translation>
+        <translation type="vanished">Intern + Extern</translation>
     </message>
     <message>
         <source>External</source>
-        <translation>Extern</translation>
+        <translation type="vanished">Extern</translation>
     </message>
     <message>
         <source>Bind on channel</source>
@@ -8363,6 +8411,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Multi sensors</source>
         <translation>Multisensorer</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Repetera</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiverad</translation>
     </message>
 </context>
 <context>
@@ -10217,7 +10277,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Cannot open joystick, joystick disabled</source>
-        <translation>Joysticken kan inte hittas, joystick inaktiverad</translation>
+        <translation>Ingen joystick kan hittas, joystick inkativerad</translation>
     </message>
     <message>
         <source>Radio firmware error: %1</source>
@@ -11533,6 +11593,10 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <source>No install process support for your operating system</source>
         <translation>Uppdatering stöds ej för ditt operativsystem</translation>
     </message>
+    <message>
+        <source>Asset filter applied: %1 - %2 found</source>
+        <translation>Tillgångsfilter applicerat: %1 - %2 hittades</translation>
+    </message>
 </context>
 <context>
     <name>UpdateFirmware</name>
@@ -11597,11 +11661,11 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Update Interface</source>
-        <translation>Uppdateringsinterface</translation>
+        <translation type="vanished">Uppdateringsinterface</translation>
     </message>
     <message>
         <source>Unable to download release meta data</source>
-        <translation>Kunde inte ladda ner metadata för versionen</translation>
+        <translation type="vanished">Kunde inte ladda ner metadata för versionen</translation>
     </message>
     <message>
         <source>%1 directory not configured in application settings!</source>
@@ -11613,15 +11677,11 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Invalid URL: %1</source>
-        <translation>Ogiltig URL: %1</translation>
-    </message>
-    <message>
-        <source>URL: %1</source>
-        <translation></translation>
+        <translation type="vanished">Ogiltig URL: %1</translation>
     </message>
     <message>
         <source>Network error has occurred. Error code: %1</source>
-        <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
+        <translation type="vanished">Ett nätverksfel har inträffat. Felkod: %1</translation>
     </message>
     <message>
         <source>Unable to set processing flags for asset %1</source>
@@ -11637,23 +11697,23 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Downloading: %1</source>
-        <translation>Laddar ner: %1</translation>
+        <translation type="vanished">Laddar ner: %1</translation>
     </message>
     <message>
         <source>Download: %1</source>
-        <translation>Nerladdning: %1</translation>
+        <translation type="vanished">Nerladdning: %1</translation>
     </message>
     <message>
         <source>File exists: %1</source>
-        <translation>Filen finns redan: %1</translation>
+        <translation type="vanished">Filen finns redan: %1</translation>
     </message>
     <message>
         <source>File %1 exists. Download again?</source>
-        <translation>Fil %1 finns redan. Ladda ner igen?</translation>
+        <translation type="vanished">Fil %1 finns redan. Ladda ner igen?</translation>
     </message>
     <message>
         <source>Failed to create directory %1!</source>
-        <translation>Kunde inte skapa katalog%1!</translation>
+        <translation type="vanished">Kunde inte skapa katalog%1!</translation>
     </message>
     <message>
         <source>Decompressing %1</source>
@@ -11782,14 +11842,14 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     <message>
         <source>Unable to open the download file %1 for writing.
 Error: %2</source>
-        <translation>Kunde inte öppna nerladdningsfil %1 för skrivning.
+        <translation type="vanished">Kunde inte öppna nerladdningsfil %1 för skrivning.
 Fel: %2</translation>
     </message>
     <message>
         <source>Unable to download %1.
 Error:%2
 %3</source>
-        <translation>Kunde inte ladda ner %1.
+        <translation type="vanished">Kunde inte ladda ner %1.
 Fel:%2
 %3</translation>
     </message>
@@ -11797,13 +11857,13 @@ Fel:%2
         <source>Unable to convert downloaded data to json format.
 Error:%1
 %2</source>
-        <translation>Kunde inte konvertera nerladdad data till json-format.
+        <translation type="vanished">Kunde inte konvertera nerladdad data till json-format.
 Fel:%1
 %2</translation>
     </message>
     <message>
         <source>Asset filter: %1</source>
-        <translation>Filter för tillgångar: %1</translation>
+        <translation type="vanished">Filter för tillgångar: %1</translation>
     </message>
     <message>
         <source>No assets found in release &apos;%1&apos; using filter &apos;%2&apos;</source>
@@ -11831,7 +11891,19 @@ Fel:%1
     </message>
     <message>
         <source>Unable to download release assets information</source>
-        <translation>Kunde inte ladda ner information om versionens tillgångar</translation>
+        <translation type="vanished">Kunde inte ladda ner information om versionens tillgångar</translation>
+    </message>
+    <message>
+        <source>Copy filter pattern: %1</source>
+        <translation type="unfinished">Filtermönster för kopiering: %1</translation>
+    </message>
+    <message>
+        <source>Asset filter applied: %1 - %2 found</source>
+        <translation>Tillgångsfilter applicerat: %1 - %2 hittades</translation>
+    </message>
+    <message>
+        <source>Copy directory structure</source>
+        <translation>Koipera katalogstruktur</translation>
     </message>
 </context>
 <context>
@@ -11839,6 +11911,61 @@ Fel:%1
     <message>
         <source>Multiprotocol</source>
         <translation>Multiprotokoll</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateNetwork</name>
+    <message>
+        <source>Downloading: %1</source>
+        <translation>Laddar ner: %1</translation>
+    </message>
+    <message>
+        <source>Download: %1</source>
+        <translation>Nerladdning: %1</translation>
+    </message>
+    <message>
+        <source>File exists: %1</source>
+        <translation>Filen finns redan: %1</translation>
+    </message>
+    <message>
+        <source>File %1 exists. Download again?</source>
+        <translation>Fil %1 finns redan. Ladda ner igen?</translation>
+    </message>
+    <message>
+        <source>Failed to create directory %1!</source>
+        <translation>Kunde inte skapa katalog%1!</translation>
+    </message>
+    <message>
+        <source>Unable to open the download file %1 for writing. Error: %2</source>
+        <translation>Kan inte öppna nerladdningsfil %1 för skrivning. Fel: %2</translation>
+    </message>
+    <message>
+        <source>Invalid URL: %1</source>
+        <translation>Ogiltig URL: %1</translation>
+    </message>
+    <message>
+        <source>URL: %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Network error has occurred. Error code: %1</source>
+        <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
+    </message>
+    <message>
+        <source>Ssl library version: %1</source>
+        <translation>Ssl biblioteksversion: %1</translation>
+    </message>
+    <message>
+        <source>Unable to download %1. Error:%2
+%3</source>
+        <translation>Kunde inte ladda ner %1. Fel:%2
+%3</translation>
+    </message>
+    <message>
+        <source>Unable to convert downloaded metadata to json. Error:%1
+%2</source>
+        <translation>Kan inte konvertera nerladdad metadata till json-format. Fel:%1
+%2</translation>
     </message>
 </context>
 <context>
@@ -11932,7 +12059,11 @@ Fel:%1
     </message>
     <message>
         <source>Expression</source>
-        <translation>Uttryck</translation>
+        <translation type="vanished">Uttryck</translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <translation>Mönster</translation>
     </message>
 </context>
 <context>
@@ -11943,11 +12074,23 @@ Fel:%1
     </message>
     <message>
         <source>Flagging assets</source>
-        <translation></translation>
+        <translation>Flaggar tillgångar</translation>
     </message>
     <message>
         <source>Radio flavour %1 not listed in %2</source>
-        <translation>Radiovariant %1 finns inte listad i %2</translation>
+        <translation type="vanished">Radiovariant %1 finns inte listad i %2</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve asset &apos;%1&apos; from release &apos;%2&apos;</source>
+        <translation>Kunde inte hämta tillgång &apos;%1&apos; från version &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve file &apos;%1&apos; from repo &apos;%2&apos;</source>
+        <translation>Kunde inte hämta fil &apos;%1&apos; från repository &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Radio flavour &apos;%1&apos; not listed in &apos;%2&apos;</source>
+        <translation>Radiovariant &apos;%1&apos; finns inte listad i &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -11962,15 +12105,15 @@ Fel:%1
     </message>
     <message>
         <source>Asset not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
-        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
+        <translation type="vanished">Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
     </message>
     <message>
         <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
-        <translation>%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
+        <translation type="vanished">%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
     </message>
     <message>
         <source>Language %1 not listed in %2</source>
-        <translation>Språk &apos;%1&apos; saknas i %2</translation>
+        <translation type="vanished">Språk &apos;%1&apos; saknas i %2</translation>
     </message>
     <message>
         <source>Choose Language Packs</source>
@@ -11983,6 +12126,25 @@ Fel:%1
     <message>
         <source>Flagging assets</source>
         <translation>Flaggar tillgångar</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve asset &apos;%1&apos; from release &apos;%2&apos;</source>
+        <translation>Kunde inte hämta tillgång &apos;%1&apos; från version &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve file &apos;%1&apos; from repo &apos;%2&apos;</source>
+        <translation>Kunde inte hämta fil &apos;%1&apos; från repository &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Language &apos;%1&apos; not listed in &apos;%2&apos;</source>
+        <translation>Språk &apos;%1&apos; saknas i %2</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateStatus</name>
+    <message>
+        <source>Update Interface</source>
+        <translation>Uppdateringsinterface</translation>
     </message>
 </context>
 <context>
@@ -12637,39 +12799,39 @@ m2560 för v4.1-kort</translation>
     <name>joystickDialog</name>
     <message>
         <source>Configure Joystick</source>
-        <translation>Ställ in joystick</translation>
+        <translation>Konfigurera joystick</translation>
     </message>
     <message>
         <source>Ch2</source>
-        <translation>Ka2</translation>
+        <translation type="vanished">Ka2</translation>
     </message>
     <message>
         <source>Ch1</source>
-        <translation>Ka1</translation>
+        <translation type="vanished">Ka1</translation>
     </message>
     <message>
         <source>Ch4</source>
-        <translation>Ka4</translation>
+        <translation type="vanished">Ka4</translation>
     </message>
     <message>
         <source>Ch6</source>
-        <translation>Ka6</translation>
+        <translation type="vanished">Ka6</translation>
     </message>
     <message>
         <source>Ch3</source>
-        <translation>Ka3</translation>
+        <translation type="vanished">Ka3</translation>
     </message>
     <message>
         <source>Ch5</source>
-        <translation>Ka5</translation>
+        <translation type="vanished">Ka5</translation>
     </message>
     <message>
         <source>Ch7</source>
-        <translation>Ka7</translation>
+        <translation type="vanished">Ka7</translation>
     </message>
     <message>
         <source>Ch8</source>
-        <translation>Ka8</translation>
+        <translation type="vanished">Ka8</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -12709,11 +12871,11 @@ m2560 för v4.1-kort</translation>
     </message>
     <message>
         <source> Stick</source>
-        <translation> Spak</translation>
+        <translation type="vanished"> Spak</translation>
     </message>
     <message>
         <source>Knob/Slider %1</source>
-        <translation>Vred/Reglage %1</translation>
+        <translation type="vanished">Vred/Reglage %1</translation>
     </message>
     <message>
         <source>No joysticks found</source>

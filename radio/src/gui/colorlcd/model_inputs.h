@@ -34,7 +34,7 @@ class ModelInputsPage : public PageTab
   void build(FormWindow *window) override;
 
  protected:
-  FormGroup* form = nullptr;
+  FormWindow* form = nullptr;
   std::list<InputMixGroup*> groups;
   std::list<InputMixButton*> lines;
   InputMixButton* _copySrc = nullptr;
@@ -49,7 +49,7 @@ class ModelInputsPage : public PageTab
   
   virtual void addLineButton(uint8_t index);
   virtual void addLineButton(mixsrc_t src, uint8_t index);
-  virtual InputMixGroup* createGroup(FormGroup* form, mixsrc_t src);
+  virtual InputMixGroup* createGroup(FormWindow* form, mixsrc_t src);
   virtual InputMixButton* createLineButton(InputMixGroup *group, uint8_t index);
 
   void newInput();

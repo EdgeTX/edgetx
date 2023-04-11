@@ -732,9 +732,13 @@ static void update_module_window(lv_event_t* e)
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
-  const char* title = moduleIdx == INTERNAL_MODULE ?
+  const char* title2 = moduleIdx == INTERNAL_MODULE ?
     STR_INTERNALRF : STR_EXTERNALRF;
-  header.setTitle(title);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(title2);
+
+  body.padAll(0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormGroup(&body, rect_t{});
   form->setFlexLayout();

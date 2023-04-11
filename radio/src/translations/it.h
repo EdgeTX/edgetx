@@ -462,7 +462,7 @@
 #define TR_TIMEZONE            "Ora locale"
 #define TR_ADJUST_RTC          TR(INDENT "Agg. RTC", "Aggiusta RTC")
 #define TR_GPS                 "GPS"
-#define TR_RXCHANNELORD        "Ordine CH RX"
+#define TR_DEF_CHAN_ORD        TR("Ord. can. pred.", "Ordine canali predefinito")
 #define TR_STICKS              "Sticks"
 #define TR_POTS                "Pot."
 #define TR_SWITCHES            "Interutt."
@@ -497,6 +497,18 @@
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL          "Lua scripts"
 #define TR_FREE_MEM_LABEL             "Mem. libera"
+#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_MEM_USED_SCRIPT         "Script(B): "
+#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_EXTRA          "Extra(B): "
+#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_AUDIO                 "Audio: "
+#define TR_GPS_FIX_YES                 "Fix: Yes"
+#define TR_GPS_FIX_NO                  "Fix: No"
+#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_HDOP                    "Hdop: "
+#define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                "Timer"
 #define TR_THROTTLE_PERCENT_LABEL     "% Motore"
 #define TR_BATT_LABEL                 "Batteria"
@@ -608,6 +620,7 @@
 #define TR_CURRENT_CALIB       "Calibra corr."
 #define TR_VOLTAGE             TR(INDENT "Voltagg.",INDENT "Voltaggio")
 #define TR_SELECT_MODEL        TR("Scegli mod.", "Scegli Modello")
+#define TR_MANAGE_MODELS       "GESTIONE MODELLI"
 #define TR_MODELS              "Modelli"
 #define TR_SELECT_MODE         "Seleziona modo"
 #define TR_CREATE_MODEL        "Crea Modello"
@@ -616,12 +629,14 @@
 #define TR_NEW_MODEL           "Nuovo Modello"
 #define TR_INVALID_MODEL       "Modello invalido"
 #define TR_EDIT_LABELS         "Edita Etichette"
+#define TR_LABEL_MODEL         "Etichetta modello"
 #define TR_MOVE_UP             "Muovi Su"
 #define TR_MOVE_DOWN           "Muovi Giù"
 #define TR_ENTER_LABEL         "Edita Etichetta"
 #define TR_LABEL               "Etichetta"
 #define TR_LABELS              "Etichette"
 #define TR_CURRENT_MODEL       "Corrente"
+#define TR_ACTIVE              "Attivo"
 #define TR_NEW                 "Nuovo"
 #define TR_NEW_LABEL           "Nuova Etichetta"
 #define TR_RENAME_LABEL        "Rinomina Etichetta"
@@ -1219,6 +1234,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Seleziona\nModello"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gestione\nModelli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note\nModello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanali"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi\nModello"

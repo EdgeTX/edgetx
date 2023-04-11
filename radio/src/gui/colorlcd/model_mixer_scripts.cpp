@@ -289,11 +289,8 @@ void ModelMixerScriptsPage::rebuild(FormWindow * window, int8_t focusIdx)
 
 void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
 {
-  window->padAll(0);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(4);
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
 
@@ -301,7 +298,7 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
 
   int8_t scriptIdx = 0;
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {
-    auto line = form->newLine(&grid);
+    auto line = window->newLine(&grid);
 
     ScriptInternalData* runtimeData = nullptr;
     ScriptData* const sd = &(g_model.scriptsData[idx]);

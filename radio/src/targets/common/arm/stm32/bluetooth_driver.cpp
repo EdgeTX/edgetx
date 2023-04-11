@@ -97,6 +97,7 @@ void bluetoothDisable()
   LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
   if (_bt_usart_ctx) {
     STM32SerialDriver.deinit(_bt_usart_ctx);
+    _bt_usart_ctx = nullptr;
   }
 }
 
@@ -161,6 +162,6 @@ uint8_t bluetoothIsWriting(void)
   if (!_bt_usart_ctx)
     return false;
   
-  return STM32SerialDriver.txCompleted(_bt_usart_ctx);
+  return !STM32SerialDriver.txCompleted(_bt_usart_ctx);
 }
 #endif // !BOOT

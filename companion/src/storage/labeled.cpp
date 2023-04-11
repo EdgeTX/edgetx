@@ -241,7 +241,7 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
       if (match.size() == 3) {
         std::ssub_match modelFile = match[1];
         std::ssub_match modelIdx = match[2];
-           modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
+        modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
       }
     }
   }
@@ -249,9 +249,25 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   int modelIdx = 0;
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
-  radioData.models.resize(modelFiles.size());
+  if (hasLabels)
+    radioData.models.resize(modelFiles.size());
+
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
+
+    if (!hasLabels) {
+      if (mc.modelIdx >= 0 && mc.modelIdx < (int)radioData.models.size()) {
+        modelIdx = mc.modelIdx;
+        if (!radioData.models[modelIdx].isEmpty()) {
+          qDebug() << QString("Warning: file %1 skipped as slot %2 already used").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
+          continue;
+        }
+      }
+      else {
+        qDebug() << QString("Warning: file %1 skipped as slot %2 not available").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
+        continue;
+      }
+    }
 
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
@@ -280,7 +296,7 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 
     if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
                                   model.filename, sizeof(model.filename))) {
-      radioData.generalSettings.currModelIndex = modelIdx;      
+      radioData.generalSettings.currModelIndex = modelIdx;
     }
 
     model.used = true;

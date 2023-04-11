@@ -102,13 +102,15 @@ private:
 
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_PREFLIGHT);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_PREFLIGHT);
 
   body.padAll(8);
 
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
+  form->padAll(4);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Display checklist
   auto line = form->newLine(&grid);

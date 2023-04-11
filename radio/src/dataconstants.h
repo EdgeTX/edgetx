@@ -934,4 +934,6 @@ enum ModelOverridableEnable {
   OVERRIDE_ON
 };
 
+#define SELECTED_THEME_NAME_LEN 26
+
 #endif // _DATACONSTANTS_H_

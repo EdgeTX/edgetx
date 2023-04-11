@@ -33,10 +33,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
     Page(ICON_MODEL_INPUTS)
 {
-  std::string title(STR_MENUINPUTS);
-  title += "\n";
-  title += getSourceString(MIXSRC_FIRST_INPUT + input_n);
-  header.setTitle(title);
+  std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
+  header.setTitle(STR_MENUINPUTS);
+  header.setTitle2(title2);
 
   rect_t r = rect_t{0, 0, body.width(), body.height()};  
   auto form = new FormWindow(&body, r);

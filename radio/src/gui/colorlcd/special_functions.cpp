@@ -331,33 +331,46 @@ class SpecialFunctionEditPage : public Page
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
-      auto repeat = new NumberEdit(
-          line, rect_t{}, -1,
-          60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
-          SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
-      repeat->setDisplayHandler(
-          [](int32_t value) {
-            if (value == 0)
-              return std::string("1x");
-            else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
-              return std::string("!1x");
-            else {
-              return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
-            }
-          });
+      if (func == FUNC_PLAY_SCRIPT) {
+        auto repeat = new Choice(line, rect_t{}, 0, 1, 
+                                 GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
+                                 SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+        repeat->setTextHandler([](int32_t value) {
+            // 0 == repeat at 50ms interval for backward compatibility
+            return (value == 0) ? std::string("On") : std::string("1x");
+        });
+      } else {
+        auto repeat = new NumberEdit(line, rect_t{}, 0, 60 / CFN_PLAY_REPEAT_MUL,
+                                     GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
+                                     SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
+        repeat->setDisplayHandler([](int32_t value) {
+              if (value == 0)
+                return std::string("1x");
+              else if (value == (int8_t)CFN_PLAY_REPEAT_NOSTART)
+                return std::string("!1x");
+              else {
+                return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
+              }
+            });
+      }
     }
   }
 
   void buildBody(FormWindow *window)
   {
-    window->setFlexLayout();
+    window->padAll(0);
+    lv_obj_set_scrollbar_mode(window->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+    auto form = new FormWindow(window, rect_t{});
+    form->setFlexLayout();
+    form->padAll(8);
+
     FlexGridLayout grid(col_dsc, row_dsc, 2);
-    lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
     CustomFunctionData *cfn = &functions[index];
 
     // Switch
-    auto line = window->newLine(&grid);
+    auto line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SF_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
         new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
@@ -381,7 +394,7 @@ class SpecialFunctionEditPage : public Page
     }
     
     // Function
-    line = window->newLine(&grid);
+    line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
         new Choice(line, rect_t{}, STR_VFSWFUNC,
@@ -397,7 +410,7 @@ class SpecialFunctionEditPage : public Page
       return isAssignableFunctionAvailable(value, functions);
     });
 
-    specialFunctionOneWindow = new FormWindow(window, rect_t{});
+    specialFunctionOneWindow = new FormWindow(form, rect_t{});
     updateSpecialFunctionOneWindow();
   }
 };
@@ -648,11 +661,15 @@ class SpecialFunctionButton : public Button
         lv_obj_clear_state(sfEnable, LV_STATE_CHECKED);
       lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
     } else if (HAS_REPEAT_PARAM(func)) {
-      sprintf(s, "(%s)",
-        (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
-        (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) ? "!1x" :
-        formatNumberAsString(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s").c_str()
-      );
+      if (func == FUNC_PLAY_SCRIPT) {
+        sprintf(s, "(%s)", (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x");
+      } else {
+        sprintf(s, "(%s)",
+          (CFN_PLAY_REPEAT(cfn) == 0) ? "1x" :
+          (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) ? "!1x" :
+          formatNumberAsString(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s").c_str()
+        );
+      }
     }
 
     lv_label_set_text(sfRepeat, s);
@@ -779,10 +796,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
 #endif
 
   window->padAll(4);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(l_col_dsc, row_dsc, 2);
 
@@ -804,7 +818,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
     bool isActive = (cfn->swtch != 0);
 
     if (isActive) {
-      line = form->newLine(&grid);
+      line = window->newLine(&grid);
 
       button = new SpecialFunctionButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, functions, i);
 
@@ -893,7 +907,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
 
   if (hasEmptyFunction)
   {
-    line = form->newLine(&grid);
+    line = window->newLine(&grid);
     addButton = new TextButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, LV_SYMBOL_PLUS, [=]() {
       plusPopup(window);
       return 0;

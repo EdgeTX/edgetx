@@ -56,8 +56,12 @@ static void timer_start_changed(lv_event_t* e)
 
 TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 {
-  std::string title = std::string(STR_TIMER) + std::to_string(timer + 1);
-  header.setTitle(title);
+  std::string title2 = std::string(STR_TIMER) + std::to_string(timer + 1);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(title2);
+
+  body.padAll(0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormGroup(&body, rect_t{});
   form->setFlexLayout();

@@ -19,16 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "tabsgroup.h"
+#include "layout.h"
+#include "layout_factory_impl.h"
 
-class ModelFlightModesPage: public PageTab {
-  public:
-    ModelFlightModesPage();
-
-    void checkEvents() override;
-
-    void build(FormWindow * window) override;
-
-  protected:
-    TextButton* trimCheck = nullptr;
+static uint8_t zmap[] = {
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    LAYOUT_MAP_0, LAYOUT_MAP_1QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    LAYOUT_MAP_0, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_3QTR, LAYOUT_MAP_HALF, LAYOUT_MAP_1QTR,
 };
+
+BaseLayoutFactory<Layout> layout4P2B("Layout4P2B", "4 + 2B",
+                                    defaultZoneOptions,
+                                    6, zmap);

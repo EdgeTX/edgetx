@@ -516,7 +516,7 @@ void ModelsPageBody::openMenu()
     menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
   }
   menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
-  menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(focusedModel); });
+  menu->addLine(STR_LABEL_MODEL, [=]() { editLabels(focusedModel); });
   menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel);}); 
   if (focusedModel != modelslist.getCurrentModel()) {
     menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
@@ -982,13 +982,12 @@ void ModelLabelsWindow::setTitle()
   auto curModel = modelslist.getCurrentModel();
   auto modelName = curModel != nullptr ? curModel->modelName : STR_NONE;
 
-  std::string titleName = STR_SELECT_MODEL;
-  titleName += "\n";
-  titleName += STR_CURRENT_MODEL;
-  titleName += ": ";
-  titleName += modelName;
+  std::string title2 = STR_ACTIVE;
+  title2 += ": ";
+  title2 += modelName;
 
-  header.setTitle(titleName);
+  header.setTitle(STR_MANAGE_MODELS);
+  header.setTitle2(title2);
 }
 
 //-----------------------------------------------------------------------------

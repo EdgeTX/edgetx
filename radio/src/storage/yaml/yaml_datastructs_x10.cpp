@@ -489,6 +489,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 1 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
+  YAML_STRING("selectedTheme", 26),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -877,7 +878,7 @@ static const struct YamlNode struct_LayoutPersistentData[] = {
 };
 static const struct YamlNode struct_CustomScreenData[] = {
   YAML_IDX,
-  YAML_STRING("LayoutId", 10),
+  YAML_STRING("LayoutId", 12),
   YAML_STRUCT("layoutData", 6720, struct_LayoutPersistentData, NULL),
   YAML_END
 };
@@ -944,7 +945,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 11, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_ARRAY("screenData", 6800, 10, struct_CustomScreenData, NULL),
+  YAML_ARRAY("screenData", 6816, 10, struct_CustomScreenData, NULL),
   YAML_STRUCT("topbarData", 2400, struct_TopBarPersistentData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),

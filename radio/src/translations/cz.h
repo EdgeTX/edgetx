@@ -460,7 +460,7 @@
 #define TR_TIMEZONE                    "Časové pásmo"
 #define TR_ADJUST_RTC                  TR3("Čas z GPS", "Použít čas z GPS", "Použít čas z GPS")
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Pořadí kanálů", "Výchozí pořadí kanálů")
+#define TR_DEF_CHAN_ORD                TR("Def řaz kanálu", "Defaultní řazení kanálu")
 #define TR_STICKS                      "Páky"
 #define TR_POTS                        "Potenciometry"
 #define TR_SWITCHES                    "Spínače"
@@ -497,6 +497,18 @@
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua skripty"
 #define TR_FREE_MEM_LABEL              "Free mem"
+#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_MEM_USED_SCRIPT         "Script(B): "
+#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_EXTRA          "Extra(B): "
+#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_AUDIO                 "Audio: "
+#define TR_GPS_FIX_YES                 "Fix: Yes"
+#define TR_GPS_FIX_NO                  "Fix: No"
+#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_HDOP                    "Hdop: "
+#define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Časovač"
 #define TR_THROTTLE_PERCENT_LABEL      "Plyn %"
 #define TR_BATT_LABEL                  "Baterie"
@@ -608,6 +620,7 @@
 #define TR_CURRENT_CALIB               "+=\006Proud"
 #define TR_VOLTAGE                     INDENT"Napětí"
 #define TR_SELECT_MODEL                "Vyber model"
+#define TR_MANAGE_MODELS               "NASTAVENÍ MODELU"
 #define TR_MODELS                      "Modely"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
@@ -616,12 +629,14 @@
 #define TR_NEW_MODEL                   "Nový model"
 #define TR_INVALID_MODEL               "Neplatný model"
 #define TR_EDIT_LABELS                 "Upravit štítek"
+#define TR_LABEL_MODEL                 "Štítek modelu"
 #define TR_MOVE_UP                     "Posunout nahoru"
 #define TR_MOVE_DOWN                   "Posunout dolů"
 #define TR_ENTER_LABEL                 "Vložit štítek"
 #define TR_LABEL                       "Štítek"
 #define TR_LABELS                      "Štítky"
 #define TR_CURRENT_MODEL               "Aktuální"
+#define TR_ACTIVE                      "Aktivní"
 #define TR_NEW                         "Nový"
 #define TR_NEW_LABEL                   "Nový štítek"
 #define TR_RENAME_LABEL                "Přejmenovat štítek"
@@ -1211,6 +1226,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Vybrat\nmodel"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Nastavení\nmodelu"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"

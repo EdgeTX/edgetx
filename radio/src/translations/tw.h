@@ -454,7 +454,7 @@
 #define TR_TIMEZONE                    "時區"
 #define TR_ADJUST_RTC                  "時鐘設置"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("通道順序", "默認通道順序")
+#define TR_DEF_CHAN_ORD                TR("通道順序", "默認通道順序")
 #define TR_STICKS                      "搖桿"
 #define TR_POTS                        "電位器"
 #define TR_SWITCHES                    "開關"
@@ -491,6 +491,18 @@
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
+#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_MEM_USED_SCRIPT         "Script(B): "
+#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_EXTRA          "Extra(B): "
+#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_AUDIO                 "Audio: "
+#define TR_GPS_FIX_YES                 "Fix: Yes"
+#define TR_GPS_FIX_NO                  "Fix: No"
+#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_HDOP                    "Hdop: "
+#define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Timer"
 #define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
 #define TR_BATT_LABEL                  "Battery"
@@ -606,6 +618,7 @@
 #define TR_CURRENT_CALIB               "電流校準"
 #define TR_VOLTAGE                     TR(INDENT "電壓源", INDENT "電壓來源")
 #define TR_SELECT_MODEL                "選擇模型"
+#define TR_MANAGE_MODELS               "模型管理"
 #define TR_MODELS                      "個模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
@@ -614,12 +627,14 @@
 #define TR_NEW_MODEL                   "新建模型"
 #define TR_INVALID_MODEL               "無效模型"
 #define TR_EDIT_LABELS                 "編輯分組"
+#define TR_LABEL_MODEL                 "模型標簽"
 #define TR_MOVE_UP                     "上移"
 #define TR_MOVE_DOWN                   "下移"
 #define TR_ENTER_LABEL                 "輸入分組名稱"
 #define TR_LABEL                       "分組"
 #define TR_LABELS                      "分組"
 #define TR_CURRENT_MODEL               "當前模型"
+#define TR_ACTIVE                      "當前模型"
 #define TR_NEW                         "新建分組"
 #define TR_NEW_LABEL                   "新建分組"
 #define TR_RENAME_LABEL                "分組改名"
@@ -1204,6 +1219,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
+#define TR_MAIN_MENU_MANAGE_MODELS    "模型\n管理"
 #define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
 #define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"

@@ -143,7 +143,7 @@ class ThemeDetailsDialog: public Dialog
       auto line = form->newLine(&grid);
 
       new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      auto te = new TextEdit(line, rect_t{}, this->theme.getName(), NAME_LENGTH);
+      auto te = new TextEdit(line, rect_t{}, this->theme.getName(), SELECTED_THEME_NAME_LEN);
       lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
       line = form->newLine(&grid);
@@ -540,7 +540,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         *theme = editedTheme;
 
         theme->serialize();
-        
+
         // if the theme info currently displayed
         // were changed, update the UI
         if (themeIdx == currentTheme) {
@@ -552,6 +552,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
         // if the active theme changed, re-apply it
         if (themeIdx == tp->getThemeIndex()) {
+          // Update saved them name in case it was changed.
+          tp->setDefaultTheme(themeIdx);
           theme->applyTheme();
           TabsGroup::refreshTheme();
         }
@@ -564,8 +566,8 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
     new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
-        char name[NAME_LENGTH + 20];
-        strncpy(name, theme.getName(), NAME_LENGTH + 19);
+        char name[SELECTED_THEME_NAME_LEN + 20];
+        strncpy(name, theme.getName(), SELECTED_THEME_NAME_LEN + 19);
         removeAllWhiteSpace(name);
 
         // use the selected themes color list to make the new theme
@@ -619,6 +621,7 @@ void ThemeSetupPage::setSelected(ThemePersistance *tp)
 void ThemeSetupPage::setupListbox(Window *window, rect_t r, ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
+  lv_obj_set_scrollbar_mode(listBox->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
   listBox->setAutoEdit(true);
   listBox->setSelected(currentTheme);
   listBox->setActiveItem(tp->getThemeIndex());

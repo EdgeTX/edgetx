@@ -38,6 +38,7 @@ class ModelTelemetryPage: public PageTab {
   protected:
     int lastKnownIndex = 0;
     FormWindow * window = nullptr;
+    Window* idLabel = nullptr;
 
     void editSensor(FormWindow * window, uint8_t index);
     void build(FormWindow * window, int8_t focusSensorIndex=-1);

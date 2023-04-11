@@ -57,11 +57,11 @@
   #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
 #endif
 
-#define TR_POTTYPES                    "Ingen",TR("Drejekontakt med det","Drejekontakt"),TR("Multipos","Multipos kontakt"),"Drejekontakt"
+#define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt")
 #define TR_SLIDERTYPES                 "Ingen","Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("SDkord","SD Lager"),"Data"
+#define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),TR("Data", "USB data")
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
@@ -126,9 +126,9 @@
 #endif
 
 #if defined(HAPTIC)
-  #define TR_HAPTIC                    "Vibration"
+  #define TR_HAPTIC                    TR("Vib.", "Vibration")
 #else
-  #define TR_HAPTIC                    "[Vibration]"
+  #define TR_HAPTIC                    TR("[Vib.]", "[Vibration]")
 #endif
 
 #if defined(VOICE)
@@ -182,7 +182,7 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Tidstag 1","Tidstag 2","Tidstag 3"
+  #define TR_FSW_RESET_TIMERS          "Tidtag 1","Tidtag 2","Tidtag 3"
 #else
   #define TR_FSW_RESET_TIMERS          "Tid1","Tid2","Tid3"
 #endif
@@ -461,7 +461,7 @@
 #define TR_TIMEZONE                    "Tids zone"
 #define TR_ADJUST_RTC                  "Juster RTC"
 #define TR_GPS                         "GPS"
-#define TR_RXCHANNELORD                TR("Rx kanal ræk.", "Standard kanal rækkefølge")
+#define TR_DEF_CHAN_ORD                "Kanalrækkefølge"
 #define TR_STICKS                      "Pinde"
 #define TR_POTS                        "Drejekontakt"
 #define TR_SWITCHES                    "Kontakter"
@@ -498,6 +498,18 @@
 #define TR_HEARTBEAT_LABEL             "Hjerte puls"
 #define TR_LUA_SCRIPTS_LABEL           "Lua script"
 #define TR_FREE_MEM_LABEL              "Fri mem"
+#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_MEM_USED_SCRIPT         "Script(B): "
+#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_EXTRA          "Extra(B): "
+#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_AUDIO                 "Audio: "
+#define TR_GPS_FIX_YES                 "Fix: Yes"
+#define TR_GPS_FIX_NO                  "Fix: No"
+#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_HDOP                    "Hdop: "
+#define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Tid"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Batteri"
@@ -613,6 +625,7 @@
 #define TR_CURRENT_CALIB               "Aktuel kalib"
 #define TR_VOLTAGE                     TR(INDENT "Spænding", INDENT "Spænding kilde")
 #define TR_SELECT_MODEL                "Vælg model"
+#define TR_MANAGE_MODELS               "Vælg Model"
 #define TR_MODELS                      "Modeller"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
@@ -621,12 +634,14 @@
 #define TR_NEW_MODEL                   "Ny model"
 #define TR_INVALID_MODEL               "Ingen billede"
 #define TR_EDIT_LABELS                 "Ret type"
+#define TR_LABEL_MODEL                 "Navngiv model"
 #define TR_MOVE_UP                     "Ingen billede"
 #define TR_MOVE_DOWN                   "Flyt ned"
 #define TR_ENTER_LABEL                 "Vælg type"
 #define TR_LABEL                       "Type"
 #define TR_LABELS                      "Typer"
 #define TR_CURRENT_MODEL               "Aktuel"
+#define TR_ACTIVE                      "Aktiv"
 #define TR_NEW                         "Ny"
 #define TR_NEW_LABEL                   "Ny type"
 #define TR_RENAME_LABEL                "Omdøb type"
@@ -868,15 +883,15 @@
 #define TR_DELETE                      "Slet"
 #define TR_INSERT                      "Indsæt"
 #define TR_RESET_FLIGHT                "Nulstil flyvning"
-#define TR_RESET_TIMER1                "Nulstil tidstag 1"
-#define TR_RESET_TIMER2                "Nulstil tidstag 2"
-#define TR_RESET_TIMER3                "Nulstil tidstag 3"
+#define TR_RESET_TIMER1                "Nulstil tidtag 1"
+#define TR_RESET_TIMER2                "Nulstil tidtag 2"
+#define TR_RESET_TIMER3                "Nulstil tidtag 3"
 #define TR_RESET_TELEMETRY             "Nulstil telemetri"
 #define TR_STATISTICS                  "Statistik"
 #define TR_ABOUT_US                    "Om"
 #define TR_USB_JOYSTICK                "USB joystick (HID)"
 #define TR_USB_MASS_STORAGE            "USB lager (SD)"
-#define TR_USB_SERIAL                  "USB seriel (VCP)"
+#define TR_USB_SERIAL                  "USB data (VCP)"
 #define TR_SETUP_SCREENS               "Setup skærm"
 #define TR_MONITOR_SCREENS             "Monitor"
 #define TR_AND_SWITCH                  "OG kontakt"
@@ -1024,7 +1039,7 @@
   #define TR_SLIDERS                   "Skydere"
   #define TR_FLIGHT_MODE               "Flyve tilstand"
   #define TR_INVALID_FILE              "Ugyldig fil"
-  #define TR_TIMER_SOURCE              "Tidstagning kilde"
+  #define TR_TIMER_SOURCE              "Tidtagning kilde"
   #define TR_SIZE                      "Størrelse"
   #define TR_SHADOW                    "Skygge"
   #define TR_ALIGN_LABEL               "Justere navn"
@@ -1224,6 +1239,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Vælg\nModel"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Vælg\nModel"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model\nNoter"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal\nMonitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nIndstilling"

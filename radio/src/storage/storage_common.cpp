@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "timers_driver.h"
+#include "tasks/mixer_task.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -60,7 +61,10 @@ void preModelLoad()
   logsClose();
 #endif
 
-  pulsesStop();
+  if (mixerTaskStarted()) {
+    pulsesStop();
+  }
+
   stopTrainer();
 #if defined(COLORLCD)
   deleteCustomScreens();
@@ -136,6 +140,19 @@ void postModelLoad(bool alarms)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
   }
+
+  // fix colorLCD radios not writing yaml tag receivers
+  ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
+  ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
+
+  for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+    if(intModule->pxx2.receiverName[receiverIdx][0])
+        intModule->pxx2.receivers |= (1 << receiverIdx);
+
+    if(extModule->pxx2.receiverName[receiverIdx][0])
+        extModule->pxx2.receivers |= (1 << receiverIdx);
+  }
+  storageDirty(EE_MODEL);
 #endif
 
 #if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
@@ -169,7 +186,13 @@ void postModelLoad(bool alarms)
     PLAY_MODEL_NAME();
   }
 #endif
-  pulsesStart();
+
+  // Mixer should only be restarted
+  // if we are switching between models,
+  // not on first boot (started later on)
+  if (mixerTaskStarted()) {
+    pulsesStart();
+  }
 
 #if defined(SDCARD)
   referenceModelAudioFiles();

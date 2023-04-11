@@ -188,23 +188,23 @@ void menuStatisticsDebug(event_t event)
 #endif
 
 
-  lcdDrawTextAlignedLeft(y, "Free Mem");
+  lcdDrawTextAlignedLeft(y, STR_FREE_MEM_LABEL);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, availableMemory(), LEFT);
-  lcdDrawText(lcdLastRightPos, y, "b");
+  lcdDrawText(lcdLastRightPos+FW, y, STR_BYTES);
   y += FH;
 
 #if defined(LUA)
-  lcdDrawTextAlignedLeft(y, "Lua scripts");
-  lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, "[D]", SMLSIZE);
+  lcdDrawTextAlignedLeft(y, TR_LUA_SCRIPTS_LABEL);
+  lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, STR_DURATION_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaDuration, LEFT);
-  lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
+  lcdDrawText(lcdLastRightPos+2, y+1, STR_INTERVAL_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaInterval, LEFT);
   y += FH;
 #endif
 
   lcdDrawTextAlignedLeft(y, STR_TMIXMAXMS);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, DURATION_MS_PREC2(maxMixerDuration), PREC2|LEFT);
-  lcdDrawText(lcdLastRightPos, y, "ms");
+  lcdDrawText(lcdLastRightPos, y, STR_MS);
   y += FH;
 
   lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
@@ -216,7 +216,7 @@ void menuStatisticsDebug(event_t event)
   y += FH;
 
 #if defined(DEBUG_LATENCY)
-  lcdDrawTextAlignedLeft(y, "Heartbeat");
+  lcdDrawTextAlignedLeft(y, STR_HEARTBEAT_LABEL);
   if (heartbeatCapture.valid)
     lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, heartbeatCapture.count, LEFT);
   else

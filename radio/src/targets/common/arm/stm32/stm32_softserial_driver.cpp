@@ -43,14 +43,21 @@ static const stm32_softserial_rx_port* _softserialPort;
 static void _softserial_exti()
 {
   if (rxBitCount == 0) {
+    auto port = _softserialPort;
+
+    // cheap debouncing...
+    for (uint8_t i = 0; i < 16; ++i) {
+      if (LL_GPIO_IsInputPinSet(port->GPIOx, port->GPIO_Pin) == 0)
+        return;
+    }
 
     // enable timer counter
-    auto TIMx = _softserialPort->TIMx;
+    auto TIMx = port->TIMx;
     LL_TIM_SetAutoReload(TIMx, (BITLEN + BITLEN/2) - 1);
     LL_TIM_EnableCounter(TIMx);
     
     // disable start bit interrupt
-    LL_EXTI_DisableIT_0_31(_softserialPort->EXTI_Line);
+    LL_EXTI_DisableIT_0_31(port->EXTI_Line);
   }
 }
 
@@ -302,7 +309,7 @@ static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
 // depending on whether the bit is SET or RESET.
 //
 #define PXX1_FREQ      1000000 /* 1 MHz */
-#define PXX1_PWM_ON    9  /* 9us */
+#define PXX1_PWM_ON    8  /* 8us */
 #define PXX1_BIT_ZERO  16 /* 0 = 16us */
 #define PXX1_BIT_ONE   24 /* 1 = 24us */
 
