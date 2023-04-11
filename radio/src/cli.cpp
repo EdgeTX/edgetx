@@ -1388,7 +1388,7 @@ int cliDebugVars(const char ** argv)
   cliSerialPrint("ioMutexReq=%d", ioMutexReq);
   cliSerialPrint("ioMutexRel=%d", ioMutexRel);
   cliSerialPrint("sdReadRetries=%d", sdReadRetries);
-#if defined(ACCESS_DENIED)
+#if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
   extern volatile int32_t authenticateFrames;
   cliSerialPrint("authenticateFrames=%d", authenticateFrames);
 #endif
