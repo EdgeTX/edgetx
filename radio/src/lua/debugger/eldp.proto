@@ -37,8 +37,6 @@ syntax = "proto3";
 
 package edgetx.eldp;
 
-import "nanopb.proto";
-
 /*
 * data types
 */
@@ -88,7 +86,6 @@ message LuaDebugInfo {
 
 // client to host
 message Request {
-    option (nanopb_msgopt).no_unions = true;
     oneof content {
         ExecuteExpression executeExpression = 1;
         ExecuteCommand executeDebuggerCommand = 2;
@@ -102,7 +99,6 @@ message Request {
 
 // host to client
 message Response {
-    option (nanopb_msgopt).no_unions = true;
     oneof content {
         DebugStatus debugStatus = 1;
         Breakpoints breakpoints = 2;
