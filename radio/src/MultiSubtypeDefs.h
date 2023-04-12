@@ -19,6 +19,10 @@
  * GNU General Public License for more details.
  */
 
+//
+//  Data based on MPM firmware version 1.3.3.20
+//
+
 #if defined(MULTIMODULE) or defined(SIMU)
 
 #pragma once
@@ -157,6 +161,11 @@ STRLIST(STR_SUBTYPE_RX,        {"Multi","CPPM"})
 STRLIST(STR_SUBTYPE_E129,      {"STD","C186"})
 
 //
+// Generic subtypes for future use protocols - don't touch
+//
+STRLIST(STR_SUBTYPE_NN,        { SPARE_SUBTYPE_NAMES })
+
+//
 // Common data structure defining Multi protocol capabilites, i.e. number of subtypes,
 // failsafe support yes/no, channel map disabled yes/no, reference to the suptype options strings above
 // and further protocol options, e.g. RF tune, video frequency. 
@@ -255,10 +264,23 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_XERALL,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_MT99XX2,    0, false, false,  STR_SUBTYPE_MT992,     nullptr},
   {MODULE_SUBTYPE_MULTI_KYOSHO2,    0, false, false,  STR_SUBTYPE_KYOSHO2,   nullptr},
+  {MODULE_SUBTYPE_MULTI_NN1,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN2,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN3,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN4,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN5,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN6,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN7,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN8,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN9,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
+  {MODULE_SUBTYPE_MULTI_NN10,       7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION}, 
+  //
+  // most likely no longer required
+  // 
   {MM_RF_CUSTOM_SELECTED,           0, true,  false,  NO_SUBTYPE,            STR_MULTI_OPTION},
 
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)
-  {0xfe,                            0, false, false,  NO_SUBTYPE,            nullptr},
+  {MODULE_SUBTYPE_MULTI_SENTINEL,   0, false, false,  NO_SUBTYPE,            nullptr},
 };
 
 #endif // MULTIMODULE

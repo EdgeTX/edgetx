@@ -19,12 +19,16 @@
  * GNU General Public License for more details.
  */
 
+//
+//  Data based on MPM firmware version 1.3.3.20
+//
+
 #if defined(MULTIMODULE) or defined(SIMU)
 
 #pragma once
 
 //
-// Common list of supported Multi protocols (currently reflecting Multi firmware version 1.3.3.20)
+// Common list of supported Multi protocols
 // 
 enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_FIRST = 0,
@@ -121,14 +125,35 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_XERALL,  //90
   MODULE_SUBTYPE_MULTI_MT99XX2,
   MODULE_SUBTYPE_MULTI_KYOSHO2,
-  MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_KYOSHO2,
+  //
+  // spare entries - don't touch,
+  // just add to known protocols
+  //
+  MODULE_SUBTYPE_MULTI_NN1,
+  MODULE_SUBTYPE_MULTI_NN2,
+  MODULE_SUBTYPE_MULTI_NN3,
+  MODULE_SUBTYPE_MULTI_NN4,
+  MODULE_SUBTYPE_MULTI_NN5,
+  MODULE_SUBTYPE_MULTI_NN6,
+  MODULE_SUBTYPE_MULTI_NN7,
+  MODULE_SUBTYPE_MULTI_NN8,
+  MODULE_SUBTYPE_MULTI_NN9,
+  MODULE_SUBTYPE_MULTI_NN10,
+  MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_NN10,
+  //
+  // Sentinel
+  //
+  MODULE_SUBTYPE_MULTI_SENTINEL = 0xfe,
+  //
+  // most likely no longer required
+  //
   MM_RF_CUSTOM_SELECTED = 0xff
 };
 
 //
-// Common list of Multi protocol names
+// Common list of Multi protocol names. Needs to match enum ModuleSubtypeMulti 
 //
-#define PROTO_NAMES \
+#define KNOWN_PROTO_NAMES \
   "FlySky","Hubsan","FrSky D","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX",\
   "SLT","CX10","CG023","Bayang","FrSky X","ESky","MT99XX","MJXq","Shenqi","FY326",\
   "Futaba","J6 Pro","FQ777","Assan","FrSky V","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
@@ -139,7 +164,15 @@ enum ModuleSubtypeMulti {
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","WFLY2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
   "Xerall","MT99XX2", "Kyosho2"
+#define SPARE_PROTO_NAMES \
+  "NN 1","NN 2","NN 3","NN 4","NN 5","NN 6","NN 7","NN 8","NN 9","NN 10"
+#define SPARE_SUBTYPE_NAMES \
+  "SUB 1","SUB 2","SUB 3","SUB 4","SUB 5","SUB 6","SUB 7","SUB 8"
+#define PROTO_NAMES   KNOWN_PROTO_NAMES,SPARE_PROTO_NAMES
 
+//
+// Common list of option names. Needs to match inline void getMultiOptionValues cases.
+//
 #define BAYANG_OPTION_TELEMETRY_NAMES     "Off","On","Off+Aux","On+Aux"
 #define DSM2_OPTION_SERVOFREQ_NAMES       "22ms","11ms"
 #define FS_AFHDS2A_OPTION_SERVOFREQ_NAMES \

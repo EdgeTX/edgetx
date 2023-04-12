@@ -362,7 +362,7 @@ void MultiRfProtocols::fillBuiltinProtos()
   // build the list of static protos
   protoList.clear();
   protoList.reserve(MODULE_SUBTYPE_MULTI_LAST - MODULE_SUBTYPE_MULTI_FIRST + 1);
-  for (; pdef->protocol != 0xfe; pdef++) {
+  for (; pdef->protocol != MODULE_SUBTYPE_MULTI_SENTINEL; pdef++) {
     RfProto rfProto(pdef->protocol);
 
     if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break;  // skip custom proto
