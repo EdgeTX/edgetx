@@ -32,6 +32,7 @@
 #define R_DIV_G_MUL_10_Q15 (uint64_t)9591506
 #define INV_LOG2_E_Q1DOT31 (uint64_t)0x58b90bfc // Inverse log base 2 of e
 #define PRESSURE_MASK 0x7FFFF
+#define REMAP_CONST 0x1000 // Some part of OpenTX does not like sensor with id and instance 0, remap to 0x1000
 
 struct FlySkySensor
 {
@@ -44,7 +45,7 @@ struct FlySkySensor
 // telemetry sensors type
 enum
 {
-  SENSOR_TYPE_RX_VOL= 0x00 | 0x1000,      // RX supply voltage
+  SENSOR_TYPE_RX_VOL= 0x00 | REMAP_CONST, // RX supply voltage, remapped
   SENSOR_TYPE_TEMPERATURE = 0x01,         // Temperature
   SENSOR_TYPE_MOT = 0x02,                 // RPM
   SENSOR_TYPE_EXT_VOL = 0x03,             // Sensor voltage
@@ -145,7 +146,7 @@ enum
 
 const FlySkySensor flySkySensors[] = {
   // flysky start
-  { SENSOR_TYPE_RX_VOL ,             STR_SENSOR_A1,             UNIT_VOLTS,             2 },  // RX Voltage (remapped, really 0x0)
+  { SENSOR_TYPE_RX_VOL,              STR_SENSOR_A1,             UNIT_VOLTS,             2 },  // RX Voltage (remapped, really 0x0)
   { SENSOR_TYPE_TEMPERATURE,         STR_SENSOR_TEMP1,          UNIT_CELSIUS,           1 },  // Temperature
   { SENSOR_TYPE_MOT,                 STR_SENSOR_RPM,            UNIT_RAW,               0 },  // RPM
   { SENSOR_TYPE_EXT_VOL,             STR_SENSOR_A3,             UNIT_VOLTS,             2 },  // External voltage
@@ -157,9 +158,9 @@ const FlySkySensor flySkySensors[] = {
   { SENSOR_TYPE_RF_MODULE_VOL,       STR_TXV,                   UNIT_VOLTS,             2 },  // 2 bytes voltage
   { SENSOR_TYPE_TX_V,                STR_TXV,                   UNIT_VOLTS,             2 },  // TX Voltage
   { SENSOR_TYPE_RX_SNR,              STR_RX_SNR,                UNIT_DBM,               0 },  // RX SNR
-  { SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DB,                0 },  // RX Noise
+  { SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DBM,               0 },  // RX Noise
   { SENSOR_TYPE_RX_RSSI,             STR_SENSOR_RSSI,           UNIT_DBM,               0 },  // RX RSSI (0xfc)
-  { SENSOR_TYPE_RX_ERR_RATE,         STR_RX_QUALITY,            UNIT_RAW,               0 },  // RX error rate
+  { SENSOR_TYPE_RX_ERR_RATE,         STR_RX_QUALITY,            UNIT_PERCENT,               0 },  // RX error rate
   ////////////////////////////////////////////////////////////////
 
   { AFHDS2A_ID_BAT_CURR,              STR_SENSOR_CURR,          UNIT_AMPS,              2 },  // battery current A * 100
@@ -203,9 +204,8 @@ inline int setFlyskyTelemetryValue( int16_t type, uint8_t instance, int32_t valu
 
 void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
 {
-  // Some part of OpenTX does not like sensor with id and instance 0, remap to 0x1000
   uint16_t type = (packet[0] << 8) | packet[1];
-  type = type ? type : SENSOR_TYPE_RX_VOL;
+  type = type ? type : SENSOR_TYPE_RX_VOL;  // Remapped
   uint8_t id = packet[2];
   int32_t value=0;
 
@@ -304,7 +304,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
   else
     value = (packet[5] << 24) | (packet[4] << 16) | (packet[3] << 8) | packet[2];
 
-  if (id == 0) id = 0x100;   // Some part of OpenTX does not like sensor with id and instance 0, remap to 0x100
+  id = id ? id : SENSOR_TYPE_RX_VOL;  // Remapped
 
   if (id == AFHDS2A_ID_RX_NOISE || id == AFHDS2A_ID_RX_RSSI) {
     value  = 135 - value;
