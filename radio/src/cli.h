@@ -22,14 +22,15 @@
 #ifndef _CLI_H_
 #define _CLI_H_
 
-#include "hal/serial_driver.h"
 #include <stddef.h>
+
+#include "hal/serial_driver.h"
 
 typedef enum CLiMode_e {
   CLI_MODE_COMMAND = 0,
-  #if defined(ELDB)
+#if defined(ELDB)
   CLI_MODE_ELDP = 1
-  #endif
+#endif
 } CLIMode_t;
 
 // CLI task function
@@ -39,11 +40,11 @@ void cliStart();
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
 
 #if defined(ELDB)
-bool cliELDPSend(uint8_t *buf, size_t len);
+bool cliELDPSend(uint8_t* buf, size_t len);
 #endif
 
-void cliSerialPrintf(const char *format, ...);
+void cliSerialPrintf(const char* format, ...);
 
 CLIMode_t cliGetMode();
 
-#endif // _CLI_H_
+#endif  // _CLI_H_

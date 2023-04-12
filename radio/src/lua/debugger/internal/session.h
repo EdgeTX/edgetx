@@ -24,6 +24,5 @@
 #include <stdint.h>
 #include <stddef.h>
 
-extern bool eldbIsStarted;
-
 bool eldbStartSession(const char *targetName, char* errorMessage);
+bool eldbIsRunning();

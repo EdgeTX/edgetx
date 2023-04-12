@@ -20,35 +20,35 @@
  */
 
 #include "session.h"
+#include "eldb.h"
 
 #include <cstdio>
-#include <rtos.h>
+#include <cstring>
+#include <tasks.h>
 #include <lua/lua_api.h>
 #include <sdcard.h>
-#include <cstring>
 #include <cli.h>
 
-bool eldbIsStarted = false;
+bool isRunning = false;
 
 bool eldbStartSession(const char *targetName, char *errorMessage) {
-    if (eldbIsStarted) return false;
+    if (isRunning) return false;
 
-    // TODO: Handle error if targetName is invalid
     // TODO: Handle target type
 
-    char targetFile[32] = "";
-    snprintf(targetFile, sizeof(targetFile), "/SCRIPTS/TOOLS/%s", targetName);
-    // cliSerialPrintf("target %s name %s", targetFile, targetName);
+    snprintf(eldbScriptToRun, sizeof(eldbScriptToRun), "/SCRIPTS/TOOLS/%s", targetName);
 
-    if (isFileAvailable(targetFile)) {
-        f_chdir("/SCRIPTS/TOOLS/");
-        // luaExec(targetName);
-        luaExec("badapple.luac");
+    if (isFileAvailable(eldbScriptToRun)) {
+        RTOS_GIVE_NOTIFICATION(menusTaskId);
     } else {
-        strcpy(errorMessage, targetFile);
+        strcpy(errorMessage, eldbScriptToRun);
         return false;
     }
 
-    eldbIsStarted = true;
+    isRunning = true;
     return true;
+}
+
+bool eldbIsRunning() {
+    return isRunning;
 }

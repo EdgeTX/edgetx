@@ -32,6 +32,11 @@
   #include "cli.h"
 #endif
 
+#if defined(ELDB)
+  #include "tasks.h"
+  #include "lua/debugger/eldb.h"
+#endif
+
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
@@ -598,5 +603,13 @@ void perMain()
 
 #if defined(INTERNAL_GPS)
   gpsWakeup();
+#endif
+
+#if defined(ELDB)
+  uint32_t runScript = RTOS_TAKE_NOTIFICATION(true, 0);
+  if (runScript) {
+    f_chdir("/SCRIPTS/TOOLS/");
+    luaExec(eldbScriptToRun);
+  }
 #endif
 }
