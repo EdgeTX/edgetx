@@ -460,7 +460,7 @@ void ProtoState::setupFrame()
           uint8_t data[AFHDS3_MAX_CHANNELS*2 + 3] = { (uint8_t)(RX_CMD_FAILSAFE_VALUE&0xFF), (uint8_t)((RX_CMD_FAILSAFE_VALUE>>8)&0xFF), (uint8_t)(2*len)};
           int16_t failSafe[18];
           setFailSafe(&failSafe[0], len);
-          std::memcpy( &data[3], failSafe, len );
+          std::memcpy( &data[3], failSafe, 2*len );
           trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, 2*len+3);
           return;
       }
