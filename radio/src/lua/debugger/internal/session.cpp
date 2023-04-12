@@ -53,6 +53,11 @@ bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err) {
     return true;
 }
 
+void eldbLuaDebugHook(lua_State *L, lua_Debug *ar) {
+    luaL_error(L, "interrupted!");
+    cliSerialPrintf("debug hook called\n");
+}
+
 bool eldbIsRunning() {
     return isRunning;
 }

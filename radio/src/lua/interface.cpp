@@ -988,6 +988,10 @@ void luaExec(const char * filename)
   luaLoadScripts(true, filename);
 }
 
+void luaSetHook(lua_Hook f) {
+  lua_sethook(L, f, LUA_MASKCALL | LUA_MASKRET | LUA_MASKLINE, 1);
+}
+
 static bool resumeLua(bool init, bool allowLcdUsage)
 {
   static uint8_t idx;

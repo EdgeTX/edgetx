@@ -24,9 +24,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <lua.h>
 
 extern char eldbScriptToRun[128]; // used by the UI thread for running a Lua script
 
 // This function is only called from cli.cpp and used to
 // relay data from CLI to ELDB
 void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen);
+void eldbLuaDebugHook(lua_State *L, lua_Debug *ar);

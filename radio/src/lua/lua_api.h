@@ -193,6 +193,7 @@ void luaClose(lua_State ** L);
 bool luaTask(event_t evt, bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
+void luaSetHook(lua_Hook f);
 void luaDoGc(lua_State * L, bool full);
 uint32_t luaGetMemUsed(lua_State * L);
 void luaGetValueAndPush(lua_State * L, int src);
