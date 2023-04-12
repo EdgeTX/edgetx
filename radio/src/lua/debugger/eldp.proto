@@ -180,6 +180,7 @@ message DebugStatus {
         RUNNING = 0;
         STOPPED_BREAKPOINT = 1;
         STOPPED_ERROR = 2;
+        STOPPED = 3; 
     }
 
     optional State state = 1;
@@ -205,12 +206,14 @@ message Breakpoints {
 // host to client
 message Error {
     enum Type {
-        UNKNOWN = 0;
-        BAD_MESSAGE = 1; // not able to parse
+        UNKNOWN = 0; // would either of you like to tell me WHAT exactly is GOING ON?! (tf:prime S3E8 12:40)
+        BAD_MESSAGE = 1; // not able to parse the incoming message
         NOT_STARTED_YET = 2; // when ELDB is not started yet and you already start passing some goofy ahh messages to it
         ALREADY_STARTED = 3; // when ELDB is already started but you still try sending StartDebug
-        FAILED_START = 4; // general error when ELDB was not able to be started
-        UNKNOWN_TARGET = 5; // if target is unknown (e.g. WIDGET on a monochrome radio)
+        FAILED_START = 4; // general error when ELDB was not able to be started 
+        FILE_DOES_NOT_EXIST = 5; // if you try to start ELDB by giving it a non-existing file
+        UNKNOWN_TARGET = 6; // if target is unknown (e.g. WIDGET on a monochrome radio)
+        ALREADY_STOPPED = 7; // when ELDB is stopped but you're still sending ExecuteCommand::Command::STOP
     }
 
     optional Type type = 1;

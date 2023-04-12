@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "eldp.pb.h"
+#include <eldp.pb.h>
 
 size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen);
 size_t eldbMakeErrorMessage(uint8_t *targetBuf, size_t targetBufLen, edgetx_eldp_Error_Type type, const char *msg);

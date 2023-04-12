@@ -20,19 +20,23 @@
  */
 
 #include "session.h"
-#include "eldb.h"
+#include "../eldb.h"
 
 #include <cstdio>
 #include <cstring>
 #include <tasks.h>
 #include <lua/lua_api.h>
+#include <eldp.pb.h>
 #include <sdcard.h>
 #include <cli.h>
 
 bool isRunning = false;
 
-bool eldbStartSession(const char *targetName, char *errorMessage) {
-    if (isRunning) return false;
+bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err) {
+    if (isRunning) {
+        *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
+        return false;
+    }
 
     // TODO: Handle target type
 
@@ -41,7 +45,7 @@ bool eldbStartSession(const char *targetName, char *errorMessage) {
     if (isFileAvailable(eldbScriptToRun)) {
         RTOS_GIVE_NOTIFICATION(menusTaskId);
     } else {
-        strcpy(errorMessage, eldbScriptToRun);
+        *err = edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST;
         return false;
     }
 

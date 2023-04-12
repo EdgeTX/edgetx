@@ -29,24 +29,19 @@ bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
                    void *const *arg) {
     if (!pb_encode_tag_for_field(stream, field)) return false;
 
-    // cliSerialPrintf("encode %s", (char*)*arg);
-
     return pb_encode_string(stream, *(uint8_t* const*)arg, strlen((char*)*arg));
 }
 
 bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     uint8_t buffer[1024] = {0};
     
-    /* We could read block-by-block to avoid the large buffer... */
+    // TODO: we could read block-by-block to avoid the huge ass buffer...
     if (stream->bytes_left > sizeof(buffer) - 1)
         return false;
     
     if (!pb_read(stream, buffer, stream->bytes_left))
         return false;
     
-    /* Print the string, in format comparable with protoc --decode.
-     * Format comes from the arg defined in main().
-     */
     strcpy((char*)*arg, (const char*)buffer);
     return true;
 }

@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <eldp.pb.h>
 
-bool eldbStartSession(const char *targetName, char* errorMessage);
+bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err);
 bool eldbIsRunning();

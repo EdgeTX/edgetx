@@ -15,8 +15,6 @@ set(ELDB_SRC
     internal/session.cpp
 )
 
-include_directories(${RADIO_SRC_DIR}/lua/debugger)
-
 foreach(FILE ${ELDB_SRC})
     set(SRC ${SRC} lua/debugger/${FILE})
 endforeach()

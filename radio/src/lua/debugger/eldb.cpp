@@ -49,22 +49,15 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
 
     if (result) {
       if (request.has_startDebug && !eldbIsRunning()) {
-        char errMsg[20] = "";
-        bool result = eldbStartSession(targetName, errMsg);
+        edgetx_eldp_Error_Type err;
+        bool result = eldbStartSession(targetName, &err);
         if (result) {
           txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
         } else {
-          txLen =
-              eldbMakeErrorMessage(txBuf, sizeof(txBuf),
-                                   edgetx_eldp_Error_Type_FAILED_START, errMsg);
+          txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, nullptr);
         }
-      } else if (request.has_startDebug && eldbIsRunning()) {
-        txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
-                                     edgetx_eldp_Error_Type_ALREADY_STARTED,
-                                     nullptr);
       } else if (!request.has_startDebug && eldbIsRunning()) {
         txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
-
         // TODO: Make it redirect to the current running session
       } else {
         txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
