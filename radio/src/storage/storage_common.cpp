@@ -145,16 +145,24 @@ void postModelLoad(bool alarms)
   }
 
   // fix colorLCD radios not writing yaml tag receivers
-  ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
-  ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
+  if(isModulePXX2(INTERNAL_MODULE)) {
+    ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
 
-  for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
-    if(intModule->pxx2.receiverName[receiverIdx][0])
+    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+      if(intModule->pxx2.receiverName[receiverIdx][0])
         intModule->pxx2.receivers |= (1 << receiverIdx);
-
-    if(extModule->pxx2.receiverName[receiverIdx][0])
-        extModule->pxx2.receivers |= (1 << receiverIdx);
+    }
   }
+
+  if(isModulePXX2(EXTERNAL_MODULE)) {
+    ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
+
+    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+      if(extModule->pxx2.receiverName[receiverIdx][0])
+        extModule->pxx2.receivers |= (1 << receiverIdx);
+    }
+  }
+
   storageDirty(EE_MODEL);
 #endif
 
