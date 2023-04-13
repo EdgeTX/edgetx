@@ -169,14 +169,15 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     auto vCfg = &cfg->v0;
 
     auto line = form->newLine(&grid);
-    std::string temp_str ="PWM";
+    std::string temp_str = "PWM";
     temp_str += TR_POWERMETER_FREQ;
     new StaticText(line, rect_t{}, temp_str);
-    new PWMfrequencyChoice(line, moduleIdx );
-    temp_str ="PWM";
-    temp_str +=STR_SYNC;
+    new PWMfrequencyChoice(line, moduleIdx);
     line = form->newLine(&grid);
-    
+
+    temp_str = "PWM";
+    temp_str += " ";
+    temp_str += STR_SYNC;
     new StaticText(line, rect_t{}, temp_str);
     new CheckBox(line, rect_t{}, GET_SET_DEFAULT(vCfg->PWMFrequency.Synchronized));
     line = form->newLine(&grid);
@@ -190,10 +191,8 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SERIAL_BUS);
-    new Choice(line, rect_t{}, _bus_types,
-               0, 2,
+    new Choice(line, rect_t{}, _bus_types, 0, 2,
                GET_SET_DEFAULT(cfg->BusType.ExternalBusType));
-
   } else {
     auto vCfg = &cfg->v1;
     for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
