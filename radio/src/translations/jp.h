@@ -808,7 +808,7 @@
 #define TR_PATH_TOO_LONG               "パスが長すぎます"
 #define TR_VIEW_TEXT                   "テキストビュー"
 #define TR_FLASH_BOOTLOADER            "Bootloader書き込み"
-#define TR_FLASH_DEVICE                TR("Flash device","デバイスに書き込み")      
+#define TR_FLASH_DEVICE                TR("Flash device","デバイスに書き込み")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "S.Portデバイスに書き込み")
 #define TR_FLASH_RECEIVER_OTA          "OTAにて受信機に書き込み"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "OTAにて外部受信機に書き込み"
@@ -1198,9 +1198,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "サブトリムにすべてのトリムを追加"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "チャンネルモニター起動" 
+  #define TR_OPEN_CHANNEL_MONITORS        "チャンネルモニター起動"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon." 
+  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
 #endif
 #define TR_DUPLICATE                    "複製"
 #define TR_ACTIVATE                     "設定の有効"
@@ -1274,3 +1274,9 @@
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+
+#define TR_DIGITAL_SERVO          "Servo333HZ"
+#define TR_ANALOG_SERVO           "Servo 50HZ"
+#define TR_SIGNAL_OUTPUT          "Signal output"
+#define TR_SERIAL_BUS             "Serial bus"
+#define TR_SYNC                   "Sync"

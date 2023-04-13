@@ -1294,3 +1294,9 @@
 #define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Cirk. klip", "Cikulær klip")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "Gem ændringer"
+
+#define TR_DIGITAL_SERVO          "Servo333HZ"
+#define TR_ANALOG_SERVO           "Servo 50HZ"
+#define TR_SIGNAL_OUTPUT          "Signal output"
+#define TR_SERIAL_BUS             "Serial bus"
+#define TR_SYNC                   "Sync"

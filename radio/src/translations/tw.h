@@ -786,7 +786,7 @@
   #define TR_BLUETOOTH_MODES           "---","啟用"
 #else
   #define TR_BLUETOOTH_MODES           "---","回傳","教練"
-#endif          
+#endif
 
 #define TR_SD_INFO_TITLE               "存儲卡詳情"
 #define TR_SD_TYPE                     "類型:"
@@ -1198,9 +1198,9 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "將所有微調導入中點偏移值"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS    "打開通道監視器" 
+  #define TR_OPEN_CHANNEL_MONITORS    "打開通道監視器"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS    "通道監視" 
+  #define TR_OPEN_CHANNEL_MONITORS    "通道監視"
 #endif
 #define TR_DUPLICATE                  "複製"
 #define TR_ACTIVATE                   "啟用"
@@ -1277,3 +1277,9 @@
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+
+#define TR_DIGITAL_SERVO          "數字舵機333HZ"
+#define TR_ANALOG_SERVO           "模擬舵機50HZ"
+#define TR_SIGNAL_OUTPUT          "信號強度輸出"
+#define TR_SERIAL_BUS             "串行總線"
+#define TR_SYNC                   "同步"

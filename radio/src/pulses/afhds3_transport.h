@@ -70,6 +70,14 @@ enum COMMAND : uint8_t {
 #define RX_CMD_BUS_FAILSAFE             ( 0x702A )
 #define RX_CMD_GET_VERSION              ( 0x701F )
 
+enum RX_CMDRESULT: uint8_t
+{
+  RXSUCCESS=0,
+  RXTIMEOUT=1,
+  RXERROR=2, //not support
+  RXINVALID=3,
+};
+
 // one byte frames for request queue
 struct Frame {
   enum COMMAND command;
