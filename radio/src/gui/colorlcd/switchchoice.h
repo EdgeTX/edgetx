@@ -27,17 +27,21 @@
 
 class SwitchChoice : public Choice
 {
- public:
-  SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
-               std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue);
+  public:
+    SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
+                 std::function<int16_t()> getValue,
+                 std::function<void(int16_t)> setValue);
 
-  static void LongPressHandler(void* data);
+    static void LongPressHandler(void* data);
 
- protected:
+  protected:
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SwitchChoice"; }
+    std::string getName() const override { return "SwitchChoice"; }
 #endif
+
+    int16_t switchValue;
+
+    void openMenu() override;
 };
 
 #endif  // _SWITCHCHOICE_H_

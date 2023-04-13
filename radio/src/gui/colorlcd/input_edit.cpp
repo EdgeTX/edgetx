@@ -137,8 +137,13 @@ void InputEditWindow::buildBody(FormWindow* form)
   // Switch
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES,
-                   SWSRC_LAST_IN_MIXES, GET_SET_DEFAULT(input->swtch));
+  new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
+                   GET_DEFAULT(inputData->swtch),
+                   [=](int32_t newValue) {
+                       inputData->swtch = newValue;
+                       preview->invalidate();
+                       SET_DIRTY();
+                   });
 
   // Curve
   line = form->newLine(&grid);
