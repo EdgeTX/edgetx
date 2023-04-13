@@ -233,7 +233,23 @@
 #define luai_writestringerror(s,p)  TRACE_DEBUG_WP(s, p);
 #endif
 
+//
+// fix for #3468
+//
+// forces LUA print function to use 
+// debugPrintf through TRACE_DEBUG_WP
+//
+#define EDGETX
+#if defined(EDGETX)
+#undef luai_writestring
+#undef luai_writeline
+#undef luai_writestringerror
 
+#define luai_writestring(s,l)       TRACE_DEBUG_WP("%s", s);
+#define luai_writeline()            TRACE_DEBUG_WP("\n");
+#define luai_writestringerror(s,p)  TRACE_DEBUG_WP(s, p);
+#endif
+#undef EDGETX
 
 /*
 @@ LUAI_MAXSHORTLEN is the maximum length for short strings, that is,
