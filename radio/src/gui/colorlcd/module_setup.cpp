@@ -673,6 +673,7 @@ void ModuleSubTypeChoice::update()
 
         uint32_t startUpdate = RTOS_GET_MS();
         while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250));
+        SET_DIRTY();
       });
   }
 #endif
