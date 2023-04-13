@@ -53,9 +53,9 @@ class SwitchButtonMatrix : public ButtonMatrix
         ButtonMatrix(parent, rect_t{}),
         m_getValue(std::move(getValue)),
         m_setValue(std::move(setValue)),
+        inverted(invert),
         firstIdx(firstIdx),
         lastIdx(lastIdx),
-        inverted(invert),
         btnCnt(btn_cnt),
         isSwitches(isSwitches)
     {
@@ -119,8 +119,8 @@ class SwitchButtonMatrix : public ButtonMatrix
 
   protected:
     int16_t* btnValues = nullptr;
-    std::function<void(int16_t)> m_setValue;
     std::function<int16_t()> m_getValue;
+    std::function<void(int16_t)> m_setValue;
     bool inverted;
     int firstIdx;
     int lastIdx;
@@ -228,7 +228,6 @@ class SwitchMatrix : public Window
         cols = 2;
 #endif
       int btn_cnt = 0;
-      int multiPos_cnt = 0;
 
       if (isSwitches) {
         cols = 3;
@@ -238,7 +237,6 @@ class SwitchMatrix : public Window
       }
 
       int rows = (btn_cnt + cols - 1) / cols;
-      int max_btns = rows * cols;
 
       if (isSwitches) {
         btnsCnt = rows;
@@ -281,7 +279,7 @@ class SwitchMatrix : public Window
 
       for (int i = 0; i < btnsCnt; i += 1) {
         if (btns[i]->hasActive()) {
-          lv_group_focus_obj(btns[i]->getLvObj());
+          setFocus(i);
           break;
         }
       }
@@ -304,6 +302,11 @@ class SwitchMatrix : public Window
     {
       for (int i = 0; i < btnsCnt; i += 1)
         btns[i]->setInverted(state);
+    }
+
+    void setFocus(int n)
+    {
+      lv_group_focus_obj(btns[n]->getLvObj());
     }
 
   protected:
@@ -340,14 +343,17 @@ class SwitchDialog : public ModalWindow
     std::function<int16_t()> m_getValue;
     std::function<void(int16_t)> m_setValue;
     std::function<void()> m_onSave;
+    std::function<void()> m_onCancel;
     StaticText* title = nullptr;
     FormWindow* tabsForm = nullptr;
     Window* switches = nullptr;
     FormWindow* switchesForm = nullptr;
     int filterSection = -1;
+    int actionSel = -1;
     StaticText* sectionTitle[4] = {};
     SwitchMatrix* sectionBtn[4] = {};
     TextButton* sectionCtrl[4] = {};
+    TextButton* actionBtns[4] = {};
     bool inverted = false;
 
     void setTitle()
@@ -365,8 +371,9 @@ class SwitchDialog : public ModalWindow
     void setSwitchValue(int16_t newValue)
     {
       if (m_getValue() == newValue) {
-        m_onSave();
-        deleteLater();
+        lv_group_focus_obj(actionBtns[3]->getLvObj());
+//         m_onSave();
+//         deleteLater();
       } else {
         m_setValue(newValue);
         setTitle();
@@ -392,7 +399,6 @@ class SwitchDialog : public ModalWindow
           }
         }
       }
-      lv_obj_scroll_to_y(switches->getLvObj(), 0, LV_ANIM_OFF);
     }
 
     void addSectionCtrl(const char* iconChar, int section)
@@ -421,9 +427,10 @@ class SwitchDialog : public ModalWindow
         ModalWindow(parent, true),
         m_getValue(std::move(getValue)),
         m_setValue(std::move(setValue)),
-        m_onSave(std::move(onSave))
+        m_onSave(std::move(onSave)),
+        m_onCancel(std::move(onCancel))
     {
-      inverted = getValue() < 0;
+      inverted = m_getValue() < 0;
 
       auto window = new Window(this, rect_t{(LCD_W-DLG_W)/2, (LCD_H-DLG_H)/2, DLG_W, DLG_H});
       window->padAll(0);
@@ -535,16 +542,18 @@ class SwitchDialog : public ModalWindow
       ftrFormL->padTop(6);
       lv_obj_set_flex_align(ftrFormL->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-      auto btn = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "!", [=]() -> uint8_t {
-                       setInverted();
-                       return inverted;
-                     });
-      btn->check(inverted);
+      actionBtns[0] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "!",
+                                     [=]() -> uint8_t {
+                                       setInverted();
+                                       return inverted;
+                                     });
+      actionBtns[0]->check(inverted);
 
-      new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "---", [=]() -> uint8_t {
-                       setSwitchValue(0);
-                       return 0;
-                     });
+      actionBtns[1] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "---",
+                                     [=]() -> uint8_t {
+                                       setSwitchValue(0);
+                                       return 0;
+                                     });
 
       auto ftrR = new Window(ftrForm, rect_t{0, 0, (DLG_W-10)/2+20, 40});
       ftrR->padAll(0);
@@ -555,17 +564,21 @@ class SwitchDialog : public ModalWindow
       ftrFormR->padTop(6);
       lv_obj_set_flex_align(ftrFormR->getLvObj(), LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-      new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_CANCEL, [=]() -> uint8_t {
-                       onCancel();
-                       deleteLater();
-                       return 0;
-                     });
+      actionBtns[2] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_CANCEL,
+                                     [=]() -> uint8_t {
+                                       m_onCancel();
+                                       deleteLater();
+                                       return 0;
+                                     });
 
-      new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_SAVE, [=]() -> uint8_t {
-                       onSave();
-                       deleteLater();
-                       return 0;
-                     });
+      actionBtns[3] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_SAVE,
+                                     [=]() -> uint8_t {
+                                       m_onSave();
+                                       deleteLater();
+                                       return 0;
+                                     });
+
+      sectionBtn[0]->setFocus(0);
     }
 
     void setInverted()
@@ -581,6 +594,7 @@ class SwitchDialog : public ModalWindow
 
     void onCancel() override
     {
+      m_onCancel();
       deleteLater();
     }
 
@@ -591,6 +605,7 @@ class SwitchDialog : public ModalWindow
         if (filterSection > 3)
           filterSection = -1;
         applyFilter(filterSection);
+        sectionBtn[filterSection >= 0 ? filterSection : 0]->setFocus(0);
       }
 #if defined(KEYS_GPIO_REG_PGUP)
       else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
@@ -598,10 +613,14 @@ class SwitchDialog : public ModalWindow
       else if (event == EVT_KEY_LONG(KEY_PGDN)) {
         killEvents(event);
 #endif
-        filterSection -= 1;
-        if (filterSection < -1)
-          filterSection = 3;
-        applyFilter(filterSection);
+        actionSel += 1;
+        if (actionSel > 3)
+          actionSel = -1;
+        if (actionSel >= 0) {
+          lv_group_focus_obj(actionBtns[actionSel]->getLvObj());
+        } else {
+          sectionBtn[filterSection >= 0 ? filterSection : 0]->setFocus(0);
+        }
       }
     }
 };
