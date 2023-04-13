@@ -152,8 +152,9 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   cfg = afhds3::getConfig(moduleIdx);
   std::string title =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
-  title += "AFHDS3";
-  title += moduleIdx == INTERNAL_MODULE ?"\nINRM301":"\nFRM303";
+  title = "\nAFHDS3 (";
+  title += (moduleIdx == INTERNAL_MODULE ? "INRM301" : "FRM303");
+  title += ")";
   header.setTitle(title);
 
   auto form = new FormGroup(&body, rect_t{});
@@ -170,17 +171,17 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     temp_str += TR_POWERMETER_FREQ;
     new StaticText(line, rect_t{}, temp_str);
     new PWMfrequencyChoice(line, moduleIdx );
-    //new NumberEdit(line, rect_t{}, 50, 400, GET_SET_DEFAULT(vCfg->PWMFrequency.Frequency));
-    temp_str ="PWM";
-    temp_str +=STR_SYNC;
     line = form->newLine(&grid);
+
+    temp_str = "PWM";
+    temp_str += " ";
+    temp_str += STR_SYNC;
     new StaticText(line, rect_t{}, temp_str);
     new CheckBox(line, rect_t{}, GET_SET_DEFAULT(vCfg->PWMFrequency.Synchronized));
-
-
     line = form->newLine(&grid);
-    temp_str = TR_CHANS;
-    temp_str += "1";
+
+    temp_str = STR_CH;
+    temp_str += " 1";
     new StaticText(line, rect_t{}, temp_str );
     new Choice(line, rect_t{}, _analog_outputs,
                afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
@@ -195,15 +196,16 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   } else {
     auto vCfg = &cfg->v1;
     for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
-      std::string temp_str=TR_CHANS;
-      temp_str += std::to_string(i+1);
+      std::string temp_str = STR_CH;
+      temp_str += " " + std::to_string(i+1);
       auto line = form->newLine(&grid);
       new StaticText(line, rect_t{}, temp_str);
       new PWMfrequencyChoice(line, moduleIdx, i);
-
-      temp_str ="PWM";
-      temp_str +=STR_SYNC;
       line = form->newLine(&grid);
+
+      temp_str = "PWM";
+      temp_str += " ";
+      temp_str += STR_SYNC;
       new StaticText(line, rect_t{}, temp_str);
       new CheckBox(
           line, rect_t{}, GET_DEFAULT((vCfg->PWMFrequenciesV1.Synchronized&1<<i)>>i),
@@ -240,10 +242,10 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_SIGNAL_OUTPUT);
   std::vector<std::string> signed_strength_ch;
   signed_strength_ch.emplace_back(STR_OFF);
-  for(int i=0; i<channel_num[cfg->v1.PhyMode]; i++ ){
-        std::string temstr = TR_CHANS;
-        temstr += std::to_string(i+1);
-      signed_strength_ch.emplace_back(temstr);
+  for (int i = 0; i < channel_num[cfg->v1.PhyMode]; i++) {
+    std::string temstr = STR_CH;
+    temstr += " " + std::to_string(i + 1);
+    signed_strength_ch.emplace_back(temstr);
   }
   new Choice(line, rect_t{}, signed_strength_ch,
                0, channel_num[cfg->v1.PhyMode],
