@@ -52,7 +52,7 @@ Node convert<SensorData>::encode(const SensorData& rhs)
     unsigned int instance = rhs.instance;
     if (instance != 0) {
       instance =
-          ((instance - 1) & 0x1F) | (rhs.rxIdx << 5) | (rhs.moduleIdx << 7);
+          ((instance) & 0x1F) | (rhs.rxIdx << 5) | (rhs.moduleIdx << 7);
     }
     node["id2"]["instance"] = instance;
     cfg["custom"]["ratio"] = rhs.ratio;
@@ -132,7 +132,7 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
     rhs.rxIdx = (rhs.instance >> 5) & 0x03;     // 2 bits Rx idx
     rhs.moduleIdx = (rhs.instance >> 7) & 0x1;  // 1 bit module idx
-    rhs.instance = (rhs.instance & 0x1F) + 1;   // 5 bits instance
+    rhs.instance = (rhs.instance & 0x1F);   // 5 bits instance
   }
 
   node["label"] >> rhs.label;
