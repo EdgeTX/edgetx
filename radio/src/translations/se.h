@@ -78,7 +78,12 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
+<<<<<<< HEAD
                                   
+=======
+
+#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"
+>>>>>>> 6527cb47a (Fix the BUG of V0 receiver setting IBUS SBUS; add the setting item of INRM301.)
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -382,7 +387,15 @@
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"
 #define TR_DEFAULT                      "Default"
+<<<<<<< HEAD
 #define TR_CHECKTRIMS                   CENTER "\006Kolla\012trimmar"
+=======
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                 "Kolla FL-trimmar"
+#else
+  #define TR_CHECKTRIMS                 CENTER "\006Kolla\012trimmar"
+#endif
+>>>>>>> 6527cb47a (Fix the BUG of V0 receiver setting IBUS SBUS; add the setting item of INRM301.)
 #define OFS_CHECKTRIMS                  CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                    "Swashtyp"
 #define TR_COLLECTIVE                   "Kollektiv"
@@ -981,7 +994,7 @@
 #define TR_ENABLE                       "Aktivera"
 #define TR_TOPLCDTIMER                  "Översta LCD timer"
 #define TR_UNIT                         "Enhet"
-#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..." 
+#define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
 #define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
 #define TR_RXFREQUENCY                  TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_RX_FREQ               TR("Rx frekv", "Rx frekvens")
@@ -1381,9 +1394,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn" 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon." 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon."
 #endif
 
 #define TR_DUPLICATE                    "Duplicera"
@@ -1430,3 +1443,9 @@
 #define TR_VOICE_SLOVAK                 "Slovakiska"
 #define TR_VOICE_SWEDISH                "Svenska"
 #define TR_VOICE_TAIWANESE              "Taiwanesiska"
+
+#define TR_DIGITAL_SERVO          "Servo333HZ"
+#define TR_ANALOG_SERVO           "Servo 50HZ"
+#define TR_SIGNAL_OUTPUT          "Signal output"
+#define TR_SERIAL_BUS             "Serial bus"
+#define TR_SYNC                   "Sync"
