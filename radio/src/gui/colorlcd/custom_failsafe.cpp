@@ -110,6 +110,7 @@ public:
     if (value != FAILSAFE_CHANNEL_HOLD && value != FAILSAFE_CHANNEL_NOPULSE) {
       setSetValueHandler([=](int value) {
         g_model.failsafeChannels[channel] = calc1000toRESX(value);
+        SET_DIRTY();
       });
       lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
     } else {
@@ -117,6 +118,7 @@ public:
       setSetValueHandler(nullptr);
       lv_obj_add_state(lvobj, LV_STATE_DISABLED);
     }
+    SET_DIRTY();
     NumberEdit::update();
   }
 
