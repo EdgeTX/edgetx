@@ -21,8 +21,8 @@
 #include "yaml_moduledata.h"
 #include "yaml_generalsettings.h"
 #include "eeprominterface.h"
-#include "moduledata.h"
 #include "rawsource.h"
+#include "multiprotocols.h"
 
 //  type: TYPE_MULTIMODULE
 //  subType: 15,2
@@ -342,6 +342,21 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           //TODO
       }
   }
+
+  // perform integrity checks and fix-ups
+
+  if (rhs.protocol == PULSES_MULTIMODULE) {
+    if (rhs.multi.rfProtocol > MODULE_SUBTYPE_MULTI_LAST) {
+      qDebug() << "Multi protocol:" << rhs.multi.rfProtocol << "exceeds supported protocols. Module set to: OFF";
+      rhs.clear();
+      const auto & pdef = multiProtocols.getProtocol(rhs.multi.rfProtocol);
+      if (rhs.subType >= pdef.numSubTypes()) {
+        qDebug() << "Multi protocol sub-type:" << rhs.subType << "exceeds number of supported sub-types. Module set to: OFF";
+        rhs.clear();
+      }
+    }
+  }
+
 
   return true;
 }

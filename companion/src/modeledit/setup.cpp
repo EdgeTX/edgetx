@@ -224,7 +224,6 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_MULTI_DSM_OPT         (1<<19)
 #define MASK_CHANNELMAP            (1<<20)
 #define MASK_MULTI_BAYANG_OPT      (1<<21)
-#define MASK_MULTI_FS_AFHDS2A_OPT  (1<<22)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -498,7 +497,7 @@ void ModulePanel::update()
         break;
       case PULSES_MULTIMODULE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE | MASK_SUBTYPES;
-        
+
         switch (module.multi.rfProtocol) {
           case MODULE_SUBTYPE_MULTI_OLRS:
             max_rx_num = MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
@@ -509,7 +508,7 @@ void ModulePanel::update()
           default:
              max_rx_num = 63;
         }
- 
+
         if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
           mask |= MASK_CHANNELS_COUNT;
         else
@@ -519,8 +518,6 @@ void ModulePanel::update()
             mask |= MASK_MULTI_DSM_OPT;
           else if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_BAYANG)
             mask |= MASK_MULTI_BAYANG_OPT;
-          else if(module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
-            mask |= MASK_MULTI_FS_AFHDS2A_OPT;
           else
             mask |= MASK_MULTIOPTION;
         }
@@ -659,8 +656,8 @@ void ModulePanel::update()
   ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
   ui->lblChkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->chkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
-  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT || mask & MASK_MULTI_FS_AFHDS2A_OPT);
-  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT || mask & MASK_MULTI_FS_AFHDS2A_OPT);
+  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
+  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
   ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
   ui->disableChMap->setVisible(mask & MASK_CHANNELMAP);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
@@ -679,14 +676,32 @@ void ModulePanel::update()
   }
 
   if (mask & MASK_MULTIOPTION) {
+    ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
     int8_t min, max;
-    
     getMultiOptionValues(module.multi.rfProtocol, min, max);
 
-    ui->optionValue->setMinimum(min);
-    ui->optionValue->setMaximum(max);
-    ui->optionValue->setValue(module.multi.optionValue);
-    ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+    auto lineEdit = ui->optionValue->findChild<QLineEdit*>();
+
+    if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
+      ui->optionValue->setMinimum(50 + 5 * min);
+      ui->optionValue->setMaximum(50 + 5 * max);
+      ui->optionValue->setSingleStep(5);
+      ui->optionValue->setValue(50 + 5 * module.multi.optionValue);
+      if (lineEdit) {
+        lineEdit->setReadOnly(true);
+        lineEdit->setFocusPolicy(Qt::NoFocus);
+      }
+    }
+    else {
+      ui->optionValue->setMinimum(min);
+      ui->optionValue->setMaximum(max);
+      ui->optionValue->setSingleStep(1);
+      ui->optionValue->setValue(module.multi.optionValue);
+      if (lineEdit) {
+        lineEdit->setReadOnly(false);
+        lineEdit->setFocusPolicy(Qt::WheelFocus);
+      }
+    }
   }
 
   if (mask & MASK_MULTI_DSM_OPT) {
@@ -703,14 +718,6 @@ void ModulePanel::update()
     ui->lblCboOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
     ui->cboOption->clear();
     ui->cboOption->addItems({ BAYANG_OPTION_TELEMETRY_NAMES });
-    ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
-  }
-
-  if (mask & MASK_MULTI_FS_AFHDS2A_OPT) {
-    ui->lblCboOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
-    ui->cboOption->clear();
-    ui->cboOption->addItems({ FS_AFHDS2A_OPTION_SERVOFREQ_NAMES });
     ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
   }
@@ -909,10 +916,15 @@ void ModulePanel::onMultiProtocolChanged(int index)
   }
 }
 
-void ModulePanel::on_optionValue_editingFinished()
+void ModulePanel::on_optionValue_valueChanged(int value)
 {
-  if (module.multi.optionValue != ui->optionValue->value()) {
-    module.multi.optionValue = ui->optionValue->value();
+  if (!lock) {
+    if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
+      module.multi.optionValue = (value - 50) / 5;
+    }
+    else {
+      module.multi.optionValue = value;
+    }
     emit modified();
   }
 }

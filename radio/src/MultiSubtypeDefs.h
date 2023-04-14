@@ -32,7 +32,7 @@
 // - MultiProtoDefs.h contains the protocol list and names as per Multi.txt
 //   Widely used in Companion/Simulator and radio firmware code
 // - MutliSubtypesDef.h contains subtype definitions and generates data structurse
-//   for Companion and Simulator/radio code in radio/src/gui/gui_common.cpp and 
+//   for Companion and Simulator/radio code in radio/src/gui/gui_common.cpp and
 //   companion/src/firmwares/multiprotocols.cpp
 //
 
@@ -49,22 +49,22 @@
 #if defined(CPN)
   #define STRLIST(x, ...) static const QStringList x __VA_ARGS__;
   #define PROTODEF const Multiprotocols multiProtocols
-  
+
   #define STR_MULTI_OPTION                     QT_TRANSLATE_NOOP("Multiprotocols", "Option value")
   #define STR_MULTI_RFTUNE                     QT_TRANSLATE_NOOP("Multiprotocols", "CC2500 frequency fine tune")
   #define STR_MULTI_VIDFREQ                    QT_TRANSLATE_NOOP("Multiprotocols", "Video TX frequency")
   #define STR_MULTI_FIXEDID                    QT_TRANSLATE_NOOP("Multiprotocols", "Fixed ID value")
   #define STR_MULTI_TELEMETRY                  QT_TRANSLATE_NOOP("Multiprotocols", "Telemetry")
-  #define STR_MULTI_SERVOFREQ                  QT_TRANSLATE_NOOP("Multiprotocols", "Servo output frequency")
-  #define STR_MULTI_MAX_THROW                  QT_TRANSLATE_NOOP("Multiprotocols", "Enable Max Throw")
-  #define STR_MULTI_RFCHAN                     QT_TRANSLATE_NOOP("Multiprotocols", "RF Channel Number")
+  #define STR_MULTI_SERVOFREQ                  QT_TRANSLATE_NOOP("Multiprotocols", "Servo update rate")
+  #define STR_MULTI_MAX_THROW                  QT_TRANSLATE_NOOP("Multiprotocols", "Enable max throw")
+  #define STR_MULTI_RFCHAN                     QT_TRANSLATE_NOOP("Multiprotocols", "Select RF channel")
   #define STR_MULTI_RFPOWER                    QT_TRANSLATE_NOOP("Multiprotocols", "RF power")
 
   #define STR_MULTI_DEFAULT                    QT_TRANSLATE_NOOP("Multiprotocols", "DEFAULT")
   STRLIST(NO_SUBTYPE, {STR_MULTI_DEFAULT})
 #else
   #define STRLIST(x, ...) const char* const x[] = __VA_ARGS__;
-  #define PROTODEF const mm_protocol_definition multi_protocols[]   
+  #define PROTODEF const mm_protocol_definition multi_protocols[]
 
   const char* const mm_options_strings::options[] = {
     nullptr,
@@ -79,12 +79,12 @@
     STR_MULTI_RFPOWER,
     STR_MULTI_WBUS               // probably not used by MPM anymore
   };
-  
+
   #define NO_SUBTYPE nullptr
 #endif
 
 //
-// subtypes for FrSky Taranis bind key and 
+// subtypes for FrSky Taranis bind key and
 // Radiomaster RTF use (indexes see list above)
 //
 #define MULTI_FRSKYD_SUBTYPE_D8         0
@@ -168,7 +168,7 @@ STRLIST(STR_SUBTYPE_NN,        { SPARE_SUBTYPE_NAMES })
 //
 // Common data structure defining Multi protocol capabilites, i.e. number of subtypes,
 // failsafe support yes/no, channel map disabled yes/no, reference to the suptype options strings above
-// and further protocol options, e.g. RF tune, video frequency. 
+// and further protocol options, e.g. RF tune, video frequency.
 //
 PROTODEF {
   {MODULE_SUBTYPE_MULTI_FLYSKY,     4, false, true,   STR_SUBTYPE_FLYSKY,    nullptr},
@@ -197,7 +197,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_ASSAN,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_FRSKYV,     0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_HONTAI,     3, false, false,  STR_SUBTYPE_HONTAI,    nullptr},
-  // MODULE_SUBTYPE_MULTI_OLRS non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_OLRS non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_FS_AFHDS2A, 7, true,  true,   STR_SUBTYPE_AFHDS2A,   STR_MULTI_SERVOFREQ},
   {MODULE_SUBTYPE_MULTI_Q2X2,       2, false, false,  STR_SUBTYPE_Q2X2,      nullptr},
   {MODULE_SUBTYPE_MULTI_WK_2X01,    5, true,  true,   STR_SUBTYPE_WK2x01,    nullptr},
@@ -208,7 +208,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_ESKY150,    1, false, false,  STR_SUBTYPE_ESKY150,   nullptr},
   {MODULE_SUBTYPE_MULTI_H83D,       3, false, false,  STR_SUBTYPE_H83D,      nullptr},
   {MODULE_SUBTYPE_MULTI_CORONA,     2, false, false,  STR_SUBTYPE_CORONA,    STR_MULTI_RFTUNE},
-  // MODULE_SUBTYPE_MULTI_CFLIE non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_CFLIE non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_HITEC,      2, false, false,  STR_SUBTYPE_HITEC,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_WFLY,       0, true,  false,  STR_SUBTYPE_WFLY,      nullptr},
   {MODULE_SUBTYPE_MULTI_BUGS,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
@@ -224,7 +224,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_POTENSIC,   0, false, false,  STR_SUBTYPE_POTENSIC,  nullptr},
   {MODULE_SUBTYPE_MULTI_ZSX,        0, false, false,  STR_SUBTYPE_ZSX,       nullptr},
   {MODULE_SUBTYPE_MULTI_HEIGHT,     1, false, false,  STR_SUBTYPE_HEIGHT,    nullptr},
-  // MODULE_SUBTYPE_MULTI_SCANNER non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_SCANNER non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  3, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_AFHDS2A_RX, 1, false, false,  STR_SUBTYPE_RX,        nullptr}, //new
   {MODULE_SUBTYPE_MULTI_HOTT,       1, true,  false,  STR_SUBTYPE_HOTT,      STR_MULTI_RFTUNE},
@@ -245,7 +245,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_Q90C,       0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_KYOSHO,     1, false, true,   STR_SUBTYPE_KYOSHO,    nullptr},
   {MODULE_SUBTYPE_MULTI_RLINK,      2, false, false,  STR_SUBTYPE_RLINK,     STR_MULTI_RFTUNE},
-  // MODULE_SUBTYPE_MULTI_ELRS non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_ELRS non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_REALACC,    0, false, false,  STR_SUBTYPE_REALACC,   nullptr},
   {MODULE_SUBTYPE_MULTI_OMP,        0, false, false,  NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_MLINK,      0, true,  false,  NO_SUBTYPE,            nullptr},
@@ -256,9 +256,9 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_E129,       1, false, false,  STR_SUBTYPE_E129,      nullptr}, //new
   {MODULE_SUBTYPE_MULTI_JOYSWAY,    0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_E016H,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
-  // MODULE_SUBTYPE_MULTI_CONFIG non selectable and masked out for selection 
-  // MODULE_SUBTYPE_MULTI_IKEAANSLUTA non selectable and masked out for selection 
-  // MODULE_SUBTYPE_MULTI_WILLIFM non selectable and masked out for selection 
+  // MODULE_SUBTYPE_MULTI_CONFIG non selectable and masked out for selection
+  // MODULE_SUBTYPE_MULTI_IKEAANSLUTA non selectable and masked out for selection
+  // MODULE_SUBTYPE_MULTI_WILLIFM non selectable and masked out for selection
   {MODULE_SUBTYPE_MULTI_LOSI,       0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_MOULDKG,    1, false, false,  STR_SUBTYPE_MOULDKG,   STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_XERALL,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
@@ -273,10 +273,10 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_NN7,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_NN8,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_NN9,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
-  {MODULE_SUBTYPE_MULTI_NN10,       7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION}, 
+  {MODULE_SUBTYPE_MULTI_NN10,       7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
   //
   // most likely no longer required
-  // 
+  //
   {MM_RF_CUSTOM_SELECTED,           0, true,  false,  NO_SUBTYPE,            STR_MULTI_OPTION},
 
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)
