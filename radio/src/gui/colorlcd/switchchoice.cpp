@@ -320,12 +320,7 @@ class SwitchMatrix : public Window
         }
       }
 
-      for (int i = 0; i < btnsCnt; i += 1) {
-        if (btns[i]->hasActive()) {
-          setFocus(i);
-          break;
-        }
-      }
+      checkFocus();
     }
 
     ~SwitchMatrix()
@@ -339,6 +334,16 @@ class SwitchMatrix : public Window
     {
       for (int i = 0; i < btnsCnt; i += 1)
         btns[i]->updateBtns();
+    }
+
+    void checkFocus()
+    {
+      for (int i = 0; i < btnsCnt; i += 1) {
+        if (btns[i]->hasActive()) {
+          setFocus(i);
+          return;
+        }
+      }
     }
 
     void setInverted(bool state)
@@ -628,6 +633,25 @@ class SwitchDialog : public ModalWindow
         m_onSave(isLongPressed);
         deleteLater();
       }
+      swsrc_t val = 0;
+      swsrc_t swtch = getMovedSwitch();
+      if (swtch) {
+        div_t info = switchInfo(swtch);
+        if (IS_CONFIG_TOGGLE(info.quot)) {
+          if (info.rem != 0) {
+            val = (val == swtch ? swtch - 2 : swtch);
+          }
+        } else {
+          val = swtch;
+        }
+        if (val && m_isValueAvailable(val)) {
+          setSwitchValue(val, false);
+          for (int i = 0; i < maxSection; i += 1) {
+            if (sectionBtn[i])
+              sectionBtn[i]->checkFocus();
+          }
+        }
+      }
     }
 
     void setTitle()
@@ -651,7 +675,7 @@ class SwitchDialog : public ModalWindow
       } else {
         m_setValue(newValue);
         setTitle();
-        for (int i = 0; i < 4; i += 1) {
+        for (int i = 0; i < maxSection; i += 1) {
           if (sectionBtn[i])
             sectionBtn[i]->updateBtns();
         }
