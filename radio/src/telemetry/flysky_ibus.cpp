@@ -157,7 +157,7 @@ const FlySkySensor flySkySensors[] = {
   { SENSOR_TYPE_RF_MODULE_TEMP,      STR_TEMP2,                 UNIT_CELSIUS,           0 },  // 1 bytes temperature
   { SENSOR_TYPE_RF_MODULE_VOL,       STR_TXV,                   UNIT_VOLTS,             2 },  // 2 bytes voltage
   { SENSOR_TYPE_TX_V,                STR_TXV,                   UNIT_VOLTS,             2 },  // TX Voltage
-  { SENSOR_TYPE_RX_SNR,              STR_RX_SNR,                UNIT_DBM,               0 },  // RX SNR
+  { SENSOR_TYPE_RX_SNR,              STR_RX_SNR,                UNIT_DB,                0 },  // RX SNR
   { SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DBM,               0 },  // RX Noise
   { SENSOR_TYPE_RX_RSSI,             STR_SENSOR_RSSI,           UNIT_DBM,               0 },  // RX RSSI (0xfc)
   { SENSOR_TYPE_RX_ERR_RATE,         STR_RX_QUALITY,            UNIT_PERCENT,               0 },  // RX error rate
