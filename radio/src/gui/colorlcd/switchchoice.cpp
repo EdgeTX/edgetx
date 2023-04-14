@@ -44,10 +44,11 @@
 #define MAX_ROWS 5
 #endif
 
-class SwitchButtonMatrix : public ButtonMatrix
+// ButtonMatrix with one or more rows of switches
+class SwitchButtons : public ButtonMatrix
 {
   public:
-    SwitchButtonMatrix(Window* parent, int firstIdx, int lastIdx,
+    SwitchButtons(Window* parent, int firstIdx, int lastIdx,
                        std::function<int16_t()> getValue, std::function<void(int16_t, bool)> setValue,
                        bool invert, int cols, int rows, int btn_cnt, bool isSwitches) :
         ButtonMatrix(parent, rect_t{}),
@@ -88,7 +89,7 @@ class SwitchButtonMatrix : public ButtonMatrix
       refresh();
     }
 
-    ~SwitchButtonMatrix()
+    ~SwitchButtons()
     {
      if (btnValues) {
        delete btnValues;
@@ -155,6 +156,7 @@ class SwitchButtonMatrix : public ButtonMatrix
 
     void setButtonText(int firstIdx, int lastIdx, int b = 0)
     {
+      // For entries other than physical switches, just skip ones that aren't available
       for (int i = firstIdx; i <= lastIdx; i += 1) {
         if (isSwitchAvailableInMixes(i)) {
           setBtnText(b, i);
@@ -165,6 +167,7 @@ class SwitchButtonMatrix : public ButtonMatrix
 
     void setSwitchText(int firstIdx, int lastIdx)
     {
+      // For physical switches skip entire row if none of the options (up, center, down) are available
       int b = 0;
       for (int i = firstIdx; i <= lastIdx; i += 3) {
         if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
@@ -201,6 +204,8 @@ class SwitchButtonMatrix : public ButtonMatrix
     }
 };
 
+// Matrix of buttons for a given switch type (physical, logical, trim, etc)
+// Note: may be split into multiple ButtonMatrix rows due to issues with scrolling a large ButtonMatrix
 class SwitchMatrix : public Window
 {
   public:
@@ -224,6 +229,7 @@ class SwitchMatrix : public Window
 
       isSwitches = (firstIdx == SWSRC_FIRST_SWITCH);
 
+      // Calculate sizes
       int cols = MAX_COLS;
 #if LCD_H > LCD_W
       if (firstIdx == SWSRC_FIRST_TRIM)
@@ -252,32 +258,35 @@ class SwitchMatrix : public Window
           btnsCnt = rows;
       }
 
-      btns = new SwitchButtonMatrix*[btnsCnt];
+      // Allocate storage for number of ButtonMatrix objects required
+      btns = new SwitchButtons*[btnsCnt];
 
+      // Build out all the rows
       if (isSwitches) {
         int n = 0;
         for (int i = firstIdx; i <= lastIdx; i += 3) {
           if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
-            btns[n] = new SwitchButtonMatrix(form, i, i+2, getValue, m_setValue, invert, cols, 1, cols, true);
+            btns[n] = new SwitchButtons(form, i, i+2, m_getValue, m_setValue, invert, cols, 1, cols, true);
             lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
             n += 1;
           }
         }
 #if NUM_XPOTS > 0
+        // Add multi-position switch
         int r = (buttonCount(SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH) + cols - 1) / cols;
-        btns[n] = new SwitchButtonMatrix(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, getValue, m_setValue, invert, cols, r, r * cols, false);
+        btns[n] = new SwitchButtons(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, m_getValue, m_setValue, invert, cols, r, r * cols, false);
         lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
 #endif
       } else {
         if (btnsCnt == 1) {
-          btns[0] = new SwitchButtonMatrix(form, firstIdx, lastIdx, getValue, m_setValue, invert, cols, rows, btn_cnt, false);
+          btns[0] = new SwitchButtons(form, firstIdx, lastIdx, m_getValue, m_setValue, invert, cols, rows, btn_cnt, false);
           lv_obj_add_event_cb(btns[0]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
         } else {
           int sw = firstIdx;
           for (int i = 0; i <= rows; i += 1) {
             int lw = sw + cols - 1;
             if (lw > lastIdx) lw = lastIdx;
-            btns[i] = new SwitchButtonMatrix(form, sw, lw, getValue, m_setValue, invert, cols, 1, cols, false);
+            btns[i] = new SwitchButtons(form, sw, lw, m_getValue, m_setValue, invert, cols, 1, cols, false);
             lv_obj_add_event_cb(btns[i]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
           }
         }
@@ -316,7 +325,7 @@ class SwitchMatrix : public Window
     }
 
   protected:
-    SwitchButtonMatrix** btns = nullptr;
+    SwitchButtons** btns = nullptr;
     int btnsCnt = 0;
     bool isSwitches = false;
     std::function<int16_t()> m_getValue;
@@ -643,7 +652,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            std::function<void(int16_t)> setValue) :
     Choice(parent, rect, vmin, vmax, getValue, setValue)
 {
-  switchValue = _getValue();
+  switchValue = getIntValue();
 
   setTextHandler([=](int value) {
     if (!isSwitchAvailableInMixes(value))
@@ -657,7 +666,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
 
 void SwitchChoice::openMenu()
 {
-  switchValue = _getValue();
+  switchValue = getIntValue();
   new SwitchDialog(this, vmax,
                    [=]() -> int16_t {
                      return switchValue;
