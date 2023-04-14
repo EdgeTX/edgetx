@@ -138,9 +138,9 @@ void InputEditWindow::buildBody(FormWindow* form)
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_DEFAULT(inputData->swtch),
+                   GET_DEFAULT(input->swtch),
                    [=](int32_t newValue) {
-                       inputData->swtch = newValue;
+                       input->swtch = newValue;
                        preview->invalidate();
                        SET_DIRTY();
                    });
