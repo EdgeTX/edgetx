@@ -48,7 +48,7 @@ class SwitchButtonMatrix : public ButtonMatrix
 {
   public:
     SwitchButtonMatrix(Window* parent, int firstIdx, int lastIdx,
-                       std::function<int16_t()> getValue, std::function<void(int16_t)> setValue,
+                       std::function<int16_t()> getValue, std::function<void(int16_t, bool)> setValue,
                        bool invert, int cols, int rows, int btn_cnt, bool isSwitches) :
         ButtonMatrix(parent, rect_t{}),
         m_getValue(std::move(getValue)),
@@ -120,7 +120,7 @@ class SwitchButtonMatrix : public ButtonMatrix
   protected:
     int16_t* btnValues = nullptr;
     std::function<int16_t()> m_getValue;
-    std::function<void(int16_t)> m_setValue;
+    std::function<void(int16_t, bool)> m_setValue;
     bool inverted;
     int firstIdx;
     int lastIdx;
@@ -192,7 +192,7 @@ class SwitchButtonMatrix : public ButtonMatrix
 
     void onPress(uint8_t btn_id)
     {
-      m_setValue(inverted ? -btnValues[btn_id] : btnValues[btn_id]);
+      m_setValue(inverted ? -btnValues[btn_id] : btnValues[btn_id], false);
     }
 
     bool isActive(uint8_t btn_id)
@@ -205,9 +205,11 @@ class SwitchMatrix : public Window
 {
   public:
     SwitchMatrix(Window* parent, int firstIdx, int lastIdx,
-                 std::function<int16_t()> getValue, std::function<void(int16_t)> setValue,
+                 std::function<int16_t()> getValue, std::function<void(int16_t, bool)> setValue,
                  bool invert) :
-        Window(parent, rect_t{})
+        Window(parent, rect_t{}),
+        m_getValue(std::move(getValue)),
+        m_setValue(std::move(setValue))
     {
       setWidth(LV_SIZE_CONTENT);
       setHeight(LV_SIZE_CONTENT);
@@ -256,23 +258,27 @@ class SwitchMatrix : public Window
         int n = 0;
         for (int i = firstIdx; i <= lastIdx; i += 3) {
           if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
-            btns[n] = new SwitchButtonMatrix(form, i, i+2, getValue, setValue, invert, cols, 1, cols, true);
+            btns[n] = new SwitchButtonMatrix(form, i, i+2, getValue, m_setValue, invert, cols, 1, cols, true);
+            lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
             n += 1;
           }
         }
 #if NUM_XPOTS > 0
         int r = (buttonCount(SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH) + cols - 1) / cols;
-        btns[n] = new SwitchButtonMatrix(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, getValue, setValue, invert, cols, r, r * cols, false);
+        btns[n] = new SwitchButtonMatrix(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, getValue, m_setValue, invert, cols, r, r * cols, false);
+        lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
 #endif
       } else {
         if (btnsCnt == 1) {
-          btns[0] = new SwitchButtonMatrix(form, firstIdx, lastIdx, getValue, setValue, invert, cols, rows, btn_cnt, false);
+          btns[0] = new SwitchButtonMatrix(form, firstIdx, lastIdx, getValue, m_setValue, invert, cols, rows, btn_cnt, false);
+          lv_obj_add_event_cb(btns[0]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
         } else {
           int sw = firstIdx;
           for (int i = 0; i <= rows; i += 1) {
             int lw = sw + cols - 1;
             if (lw > lastIdx) lw = lastIdx;
-            btns[i] = new SwitchButtonMatrix(form, sw, lw, getValue, setValue, invert, cols, 1, cols, false);
+            btns[i] = new SwitchButtonMatrix(form, sw, lw, getValue, m_setValue, invert, cols, 1, cols, false);
+            lv_obj_add_event_cb(btns[i]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
           }
         }
       }
@@ -313,6 +319,10 @@ class SwitchMatrix : public Window
     SwitchButtonMatrix** btns = nullptr;
     int btnsCnt = 0;
     bool isSwitches = false;
+    std::function<int16_t()> m_getValue;
+    std::function<void(int16_t, bool)> m_setValue;
+
+    static void longPressHandler(lv_event_t* e);
 
     int buttonCount(int firstIdx, int lastIdx)
     {
@@ -337,17 +347,171 @@ class SwitchMatrix : public Window
     }
 };
 
+void SwitchMatrix::longPressHandler(lv_event_t* e)
+{
+  SwitchMatrix* sm = (SwitchMatrix*)lv_event_get_user_data(e);
+  sm->m_setValue(sm->m_getValue(), true);
+}
+
 class SwitchDialog : public ModalWindow
 {
+  public:
+    SwitchDialog(Window* parent, int vmax,
+                 std::function<int16_t()> getValue,
+                 std::function<void(int16_t)> setValue,
+                 std::function<void(bool)> onSave,
+                 std::function<void()> onCancel) :
+        ModalWindow(parent, true),
+        m_getValue(std::move(getValue)),
+        m_setValue(std::move(setValue)),
+        m_onSave(std::move(onSave)),
+        m_onCancel(std::move(onCancel))
+    {
+      inverted = m_getValue() < 0;
+
+      // Layout windows
+
+      // Main window
+      auto window = new Window(this, rect_t{(LCD_W-DLG_W)/2, (LCD_H-DLG_H)/2, DLG_W, DLG_H}, OPAQUE);
+      window->padAll(0);
+      lv_obj_set_style_bg_color(window->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+      lv_obj_set_style_bg_opa(window->getLvObj(), LV_OPA_100, 0);
+      lv_obj_set_style_border_width(window->getLvObj(), 1, 0);
+      lv_obj_set_style_border_color(window->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
+      lv_obj_set_style_border_opa(window->getLvObj(), LV_OPA_100, 0);
+
+      // Header
+      auto hdr = new Window(window, rect_t{0, 0, DLG_W-2, 22});
+      hdr->padAll(0);
+      hdr->padLeft(4);
+      lv_obj_set_style_bg_color(hdr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
+      lv_obj_set_style_bg_opa(hdr->getLvObj(), LV_OPA_100, 0);
+      lv_obj_set_style_border_width(hdr->getLvObj(), 1, 0);
+      lv_obj_set_style_border_color(hdr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
+      lv_obj_set_style_border_opa(hdr->getLvObj(), LV_OPA_100, 0);
+
+      // Left column for filter buttons
+      auto tabs = new Window(window, rect_t{0, 22, 40, DLG_H-64});
+      tabs->padAll(0);
+      lv_obj_set_style_border_width(tabs->getLvObj(), 1, 0);
+      lv_obj_set_style_border_color(tabs->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
+      lv_obj_set_style_border_opa(tabs->getLvObj(), LV_OPA_100, 0);
+
+      auto tabsForm = new FormWindow(tabs, rect_t{});
+      tabsForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      tabsForm->padAll(0);
+      tabsForm->padTop(4);
+      lv_obj_set_flex_align(tabsForm->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      // Switch selection body
+      auto switches = new Window(window, rect_t{40, 22, DLG_W-42, DLG_H-64});
+      switches->padAll(0);
+      lv_obj_set_style_border_width(switches->getLvObj(), 1, 0);
+      lv_obj_set_style_border_color(switches->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
+      lv_obj_set_style_border_opa(switches->getLvObj(), LV_OPA_100, 0);
+      lv_obj_set_scrollbar_mode(switches->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+  
+      auto switchesForm = new FormWindow(switches, rect_t{});
+      switchesForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      switchesForm->padAll(4);
+      lv_obj_set_flex_align(tabsForm->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      // Footer for action buttons
+      auto ftr = new Window(window, rect_t{0, DLG_H-42, DLG_W-2, 40});
+      ftr->padAll(0);
+      lv_obj_set_style_border_width(ftr->getLvObj(), 1, 0);
+      lv_obj_set_style_border_color(ftr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
+      lv_obj_set_style_border_opa(ftr->getLvObj(), LV_OPA_100, 0);
+
+      auto ftrL = new Window(ftr, rect_t{0, 0, (DLG_W-4)/2-20, 38});
+      ftrL->padAll(0);
+
+      auto ftrFormL = new FormWindow(ftrL, rect_t{});
+      ftrFormL->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
+      ftrFormL->padAll(4);
+      ftrFormL->padTop(5);
+      lv_obj_set_flex_align(ftrFormL->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      auto ftrR = new Window(ftr, rect_t{(DLG_W-4)/2-20, 0, (DLG_W-4)/2+20, 38});
+      ftrR->padAll(0);
+
+      auto ftrFormR = new FormWindow(ftrR, rect_t{});
+      ftrFormR->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
+      ftrFormR->padAll(4);
+      ftrFormR->padTop(5);
+      lv_obj_set_flex_align(ftrFormR->getLvObj(), LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      // Add content
+
+      // Header title
+      title = new StaticText(hdr, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY2);
+      setTitle();
+
+      // Filter buttons
+      addSectionCtrl(tabsForm, STR_CHAR_SWITCH, 0);
+
+      if (vmax >= SWSRC_FIRST_TRIM) {
+        addSectionCtrl(tabsForm, STR_CHAR_TRIM, 1);
+      }
+
+      if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
+        addSectionCtrl(tabsForm, STR_CHAR_SWITCH, 2);
+      }
+
+      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
+        addSectionCtrl(tabsForm, STR_CHAR_TELEMETRY, 3);
+      }
+
+      // Switch sections
+      addSection(switchesForm, STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, 0);
+
+      if (vmax >= SWSRC_FIRST_TRIM) {
+        addSection(switchesForm, STR_MENU_TRIMS, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, 1);
+      }
+
+      if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
+        addSection(switchesForm, STR_MENU_LOGICAL_SWITCHES, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, 2);
+      }
+
+      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
+        addSection(switchesForm, STR_MENU_TELEMETRY, SWSRC_TELEMETRY_STREAMING, SWSRC_RADIO_ACTIVITY, 3);
+      }
+
+      // Action buttons
+      actionBtns[0] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "!",
+                                     [=]() -> uint8_t {
+                                       setInverted();
+                                       return inverted;
+                                     });
+      actionBtns[0]->check(inverted);
+
+      actionBtns[1] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "---",
+                                     [=]() -> uint8_t {
+                                       setSwitchValue(0, false);
+                                       return 0;
+                                     });
+
+      actionBtns[2] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_CANCEL,
+                                     [=]() -> uint8_t {
+                                       m_onCancel();
+                                       deleteLater();
+                                       return 0;
+                                     });
+
+      actionBtns[3] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_SAVE,
+                                     [=]() -> uint8_t {
+                                       m_onSave(false);
+                                       deleteLater();
+                                       return 0;
+                                     });
+    }
+
   protected:
     std::function<int16_t()> m_getValue;
     std::function<void(int16_t)> m_setValue;
-    std::function<void()> m_onSave;
+    std::function<void(bool)> m_onSave;
     std::function<void()> m_onCancel;
     StaticText* title = nullptr;
-    FormWindow* tabsForm = nullptr;
-    Window* switches = nullptr;
-    FormWindow* switchesForm = nullptr;
     int filterSection = -1;
     int actionSel = -1;
     StaticText* sectionTitle[4] = {};
@@ -355,6 +519,18 @@ class SwitchDialog : public ModalWindow
     TextButton* sectionCtrl[4] = {};
     TextButton* actionBtns[4] = {};
     bool inverted = false;
+    bool doSave = false;
+    bool isLongPressed = false;
+    tmr10ms_t doSaveTime = 0;
+
+    void checkEvents() override
+    {
+      if (doSave && (get_tmr10ms() > doSaveTime)) {
+        doSave = false;
+        m_onSave(isLongPressed);
+        deleteLater();
+      }
+    }
 
     void setTitle()
     {
@@ -368,12 +544,12 @@ class SwitchDialog : public ModalWindow
       title->setText(s);
     }
 
-    void setSwitchValue(int16_t newValue)
+    void setSwitchValue(int16_t newValue, bool isLongPress)
     {
       if (m_getValue() == newValue) {
-        lv_group_focus_obj(actionBtns[3]->getLvObj());
-//         m_onSave();
-//         deleteLater();
+        isLongPressed = isLongPress;
+        doSaveTime = get_tmr10ms() + 10;
+        doSave = true;
       } else {
         m_setValue(newValue);
         setTitle();
@@ -399,9 +575,10 @@ class SwitchDialog : public ModalWindow
           }
         }
       }
+      sectionBtn[filterSection >= 0 ? filterSection : 0]->setFocus(0);
     }
 
-    void addSectionCtrl(const char* iconChar, int section)
+    void addSectionCtrl(FormWindow* tabsForm, const char* iconChar, int section)
     {
       sectionCtrl[section] = new TextButton(tabsForm, rect_t{0, 0, 24, 24}, iconChar, [=]() -> uint8_t {
                        if (filterSection == section)
@@ -412,173 +589,10 @@ class SwitchDialog : public ModalWindow
                      });
     }
 
-    void addSection(const char* title, int firstIdx, int lastIdx, int section)
+    void addSection(FormWindow* switchesForm, const char* title, int firstIdx, int lastIdx, int section)
     {
       sectionTitle[section] = new StaticText(switchesForm, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
-      sectionBtn[section] = new SwitchMatrix(switchesForm, firstIdx, lastIdx, m_getValue, [=](int16_t n) { setSwitchValue(n); }, inverted);
-    }
-
-  public:
-    SwitchDialog(Window* parent, int vmax,
-                 std::function<int16_t()> getValue,
-                 std::function<void(int16_t)> setValue,
-                 std::function<void()> onSave,
-                 std::function<void()> onCancel) :
-        ModalWindow(parent, true),
-        m_getValue(std::move(getValue)),
-        m_setValue(std::move(setValue)),
-        m_onSave(std::move(onSave)),
-        m_onCancel(std::move(onCancel))
-    {
-      inverted = m_getValue() < 0;
-
-      auto window = new Window(this, rect_t{(LCD_W-DLG_W)/2, (LCD_H-DLG_H)/2, DLG_W, DLG_H});
-      window->padAll(0);
-      lv_obj_set_style_bg_color(window->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-      lv_obj_set_style_bg_opa(window->getLvObj(), LV_OPA_100, 0);
-      lv_obj_set_style_border_width(window->getLvObj(), 1, 0);
-      lv_obj_set_style_border_color(window->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
-      lv_obj_set_style_border_opa(window->getLvObj(), LV_OPA_100, 0);
-
-      auto form = new FormWindow(window, rect_t{});
-      form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
-      form->padAll(0);
-
-      auto hdr = new Window(form, rect_t{0, 0, DLG_W-2, 22});
-      hdr->padAll(0);
-      hdr->padLeft(4);
-      lv_obj_set_style_bg_color(hdr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
-      lv_obj_set_style_bg_opa(hdr->getLvObj(), LV_OPA_100, 0);
-      lv_obj_set_style_border_width(hdr->getLvObj(), 1, 0);
-      lv_obj_set_style_border_color(hdr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
-      lv_obj_set_style_border_opa(hdr->getLvObj(), LV_OPA_100, 0);
-
-      title = new StaticText(hdr, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY2);
-      setTitle();
-
-      auto content = new Window(form, rect_t{0, 0, DLG_W-2, DLG_H-64});
-      content->padAll(0);
-
-      auto contentForm = new FormWindow(content, rect_t{});
-      contentForm->setFlexLayout(LV_FLEX_FLOW_ROW, 0);
-      contentForm->padAll(0);
-
-      auto tabs = new Window(contentForm, rect_t{0, 0, 40, DLG_H-64});
-      tabs->padAll(0);
-      lv_obj_set_style_border_width(tabs->getLvObj(), 1, 0);
-      lv_obj_set_style_border_color(tabs->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
-      lv_obj_set_style_border_opa(tabs->getLvObj(), LV_OPA_100, 0);
-
-      tabsForm = new FormWindow(tabs, rect_t{});
-      tabsForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
-      tabsForm->padAll(0);
-      tabsForm->padTop(4);
-      lv_obj_set_flex_align(tabsForm->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-      addSectionCtrl(STR_CHAR_SWITCH, 0);
-
-      if (vmax >= SWSRC_FIRST_TRIM) {
-        addSectionCtrl(STR_CHAR_TRIM, 1);
-      }
-
-      if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
-        addSectionCtrl(STR_CHAR_SWITCH, 2);
-      }
-
-      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
-        addSectionCtrl(STR_CHAR_TELEMETRY, 3);
-      }
-
-      auto body = new Window(contentForm, rect_t{0, 0, DLG_W-42, DLG_H-64});
-      body->padAll(0);
-
-      auto bodyForm = new FormWindow(body, rect_t{});
-      bodyForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
-      bodyForm->padAll(0);
-
-      switches = new Window(bodyForm, rect_t{0, 0, DLG_W-42, DLG_H-64});
-      switches->padAll(0);
-      lv_obj_set_style_border_width(switches->getLvObj(), 1, 0);
-      lv_obj_set_style_border_color(switches->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
-      lv_obj_set_style_border_opa(switches->getLvObj(), LV_OPA_100, 0);
-      lv_obj_set_scrollbar_mode(switches->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-  
-      switchesForm = new FormWindow(switches, rect_t{});
-      switchesForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
-      switchesForm->padAll(4);
-      lv_obj_set_flex_align(tabsForm->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-      addSection(STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, 0);
-
-      if (vmax >= SWSRC_FIRST_TRIM) {
-        addSection(STR_MENU_TRIMS, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, 1);
-      }
-
-      if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
-        addSection(STR_MENU_LOGICAL_SWITCHES, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, 2);
-      }
-
-      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
-        addSection(STR_MENU_TELEMETRY, SWSRC_TELEMETRY_STREAMING, SWSRC_RADIO_ACTIVITY, 3);
-      }
-
-      auto ftr = new Window(form, rect_t{0, 0, DLG_W-2, 40});
-      ftr->padAll(0);
-      lv_obj_set_style_border_width(ftr->getLvObj(), 1, 0);
-      lv_obj_set_style_border_color(ftr->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY2), 0);
-      lv_obj_set_style_border_opa(ftr->getLvObj(), LV_OPA_100, 0);
-
-      auto ftrForm = new FormWindow(ftr, rect_t{});
-      ftrForm->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
-      ftrForm->padAll(0);
-      lv_obj_set_flex_align(ftrForm->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-      auto ftrL = new Window(ftrForm, rect_t{0, 0, (DLG_W-10)/2-20, 40});
-      ftrL->padAll(0);
-
-      auto ftrFormL = new FormWindow(ftrL, rect_t{});
-      ftrFormL->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
-      ftrFormL->padAll(4);
-      ftrFormL->padTop(6);
-      lv_obj_set_flex_align(ftrFormL->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-      actionBtns[0] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "!",
-                                     [=]() -> uint8_t {
-                                       setInverted();
-                                       return inverted;
-                                     });
-      actionBtns[0]->check(inverted);
-
-      actionBtns[1] = new TextButton(ftrFormL, rect_t{0, 0, 50, 28}, "---",
-                                     [=]() -> uint8_t {
-                                       setSwitchValue(0);
-                                       return 0;
-                                     });
-
-      auto ftrR = new Window(ftrForm, rect_t{0, 0, (DLG_W-10)/2+20, 40});
-      ftrR->padAll(0);
-
-      auto ftrFormR = new FormWindow(ftrR, rect_t{});
-      ftrFormR->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
-      ftrFormR->padAll(4);
-      ftrFormR->padTop(6);
-      lv_obj_set_flex_align(ftrFormR->getLvObj(), LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-      actionBtns[2] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_CANCEL,
-                                     [=]() -> uint8_t {
-                                       m_onCancel();
-                                       deleteLater();
-                                       return 0;
-                                     });
-
-      actionBtns[3] = new TextButton(ftrFormR, rect_t{0, 0, 80, 28}, STR_SAVE,
-                                     [=]() -> uint8_t {
-                                       m_onSave();
-                                       deleteLater();
-                                       return 0;
-                                     });
-
-      sectionBtn[0]->setFocus(0);
+      sectionBtn[section] = new SwitchMatrix(switchesForm, firstIdx, lastIdx, m_getValue, [=](int16_t n, bool isLongPress) { setSwitchValue(n, isLongPress); }, inverted);
     }
 
     void setInverted()
@@ -605,7 +619,6 @@ class SwitchDialog : public ModalWindow
         if (filterSection > 3)
           filterSection = -1;
         applyFilter(filterSection);
-        sectionBtn[filterSection >= 0 ? filterSection : 0]->setFocus(0);
       }
 #if defined(KEYS_GPIO_REG_PGUP)
       else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
@@ -613,9 +626,9 @@ class SwitchDialog : public ModalWindow
       else if (event == EVT_KEY_LONG(KEY_PGDN)) {
         killEvents(event);
 #endif
-        actionSel += 1;
-        if (actionSel > 3)
-          actionSel = -1;
+        actionSel -= 1;
+        if (actionSel < -1)
+          actionSel = 3;
         if (actionSel >= 0) {
           lv_group_focus_obj(actionBtns[actionSel]->getLvObj());
         } else {
@@ -624,25 +637,6 @@ class SwitchDialog : public ModalWindow
       }
     }
 };
-
-class SwitchChoiceMenuToolbar : public MenuToolbar
-{
- public:
-  SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
-      MenuToolbar(choice, menu)
-  {
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
-    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
-              SWSRC_LAST_LOGICAL_SWITCH);
-  }
-};
-
-void SwitchChoice::LongPressHandler(void* data)
-{
-  SwitchChoice* sc = (SwitchChoice*)data;
-  sc->setValue(-sc->getIntValue());
-}
 
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
@@ -658,7 +652,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
     return std::string(getSwitchPositionName(value));
   });
  
-  set_lv_LongPressHandler(LongPressHandler, this);
+  set_lv_LongPressHandler(longPressHandler, this);
 }
 
 void SwitchChoice::openMenu()
@@ -671,11 +665,18 @@ void SwitchChoice::openMenu()
                    [=](int16_t newValue) {
                      switchValue = newValue;
                    },
-                   [=]() {
+                   [=](bool isLongPress) {
+                     longPressData.isLongPressed = isLongPress;
                      setValue(switchValue);
                    },
                    [=]() {
                      switchValue = _getValue();
                    }
                   );
+}
+
+void SwitchChoice::longPressHandler(void* data)
+{
+  SwitchChoice* sc = (SwitchChoice*)data;
+  sc->setValue(-sc->getIntValue());
 }

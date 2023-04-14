@@ -32,7 +32,7 @@ class SwitchChoice : public Choice
                  std::function<int16_t()> getValue,
                  std::function<void(int16_t)> setValue);
 
-    static void LongPressHandler(void* data);
+    static void longPressHandler(void* data);
 
   protected:
 #if defined(DEBUG_WINDOWS)
