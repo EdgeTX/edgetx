@@ -44,16 +44,28 @@
 #define MAX_ROWS 5
 #endif
 
+static int otherSwitches[] = {
+    SWSRC_ON,
+    SWSRC_TELEMETRY_STREAMING,
+    SWSRC_RADIO_ACTIVITY,
+#if defined(DEBUG_LATENCY)
+    SWSRC_LATENCY_TOGGLE,
+#endif
+    -1
+};
+
 // ButtonMatrix with one or more rows of switches
 class SwitchButtons : public ButtonMatrix
 {
   public:
     SwitchButtons(Window* parent, int firstIdx, int lastIdx,
                        std::function<int16_t()> getValue, std::function<void(int16_t, bool)> setValue,
+                       std::function<bool(int)> isValueAvailable,
                        bool invert, int cols, int rows, int btn_cnt, bool isSwitches) :
         ButtonMatrix(parent, rect_t{}),
         m_getValue(std::move(getValue)),
         m_setValue(std::move(setValue)),
+        m_isValueAvailable(std::move(isValueAvailable)),
         inverted(invert),
         firstIdx(firstIdx),
         lastIdx(lastIdx),
@@ -122,6 +134,7 @@ class SwitchButtons : public ButtonMatrix
     int16_t* btnValues = nullptr;
     std::function<int16_t()> m_getValue;
     std::function<void(int16_t, bool)> m_setValue;
+    std::function<bool(int)> m_isValueAvailable;
     bool inverted;
     int firstIdx;
     int lastIdx;
@@ -137,6 +150,15 @@ class SwitchButtons : public ButtonMatrix
     {
       if (isSwitches) {
         setSwitchText(firstIdx, lastIdx);
+      } else if (firstIdx == otherSwitches[0]) {
+        // Misc entries
+        int b = 0;
+        for (int i = 0; otherSwitches[i] != -1; i += 1) {
+          if (m_isValueAvailable(otherSwitches[i])) {
+            setBtnText(b, otherSwitches[i]);
+            b += 1;
+          }
+        }
       } else {
         setButtonText(firstIdx, lastIdx);
       }
@@ -154,11 +176,12 @@ class SwitchButtons : public ButtonMatrix
       btnValues[b] = sw;
     }
 
-    void setButtonText(int firstIdx, int lastIdx, int b = 0)
+    void setButtonText(int firstIdx, int lastIdx)
     {
+      int b = 0;
       // For entries other than physical switches, just skip ones that aren't available
       for (int i = firstIdx; i <= lastIdx; i += 1) {
-        if (isSwitchAvailableInMixes(i)) {
+        if (m_isValueAvailable(i)) {
           setBtnText(b, i);
           b += 1;
         }
@@ -170,20 +193,20 @@ class SwitchButtons : public ButtonMatrix
       // For physical switches skip entire row if none of the options (up, center, down) are available
       int b = 0;
       for (int i = firstIdx; i <= lastIdx; i += 3) {
-        if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
-          if (isSwitchAvailableInMixes(i)) {
+        if (m_isValueAvailable(i) || m_isValueAvailable(i+1) || m_isValueAvailable(i+2)) {
+          if (m_isValueAvailable(i)) {
             setBtnText(b, i);
           } else {
             hide(b);
           }
           b += 1;
-          if (isSwitchAvailableInMixes(i+1)) {
+          if (m_isValueAvailable(i+1)) {
             setBtnText(b, i+1);
           } else {
             hide(b);
           }
           b += 1;
-          if (isSwitchAvailableInMixes(i+2)) {
+          if (m_isValueAvailable(i+2)) {
             setBtnText(b, i+2);
           } else {
             hide(b);
@@ -211,10 +234,12 @@ class SwitchMatrix : public Window
   public:
     SwitchMatrix(Window* parent, int firstIdx, int lastIdx,
                  std::function<int16_t()> getValue, std::function<void(int16_t, bool)> setValue,
+                 std::function<bool(int)> isValueAvailable,
                  bool invert) :
         Window(parent, rect_t{}),
         m_getValue(std::move(getValue)),
-        m_setValue(std::move(setValue))
+        m_setValue(std::move(setValue)),
+        m_isValueAvailable(std::move(isValueAvailable))
     {
       setWidth(LV_SIZE_CONTENT);
       setHeight(LV_SIZE_CONTENT);
@@ -228,6 +253,7 @@ class SwitchMatrix : public Window
       form->setHeight(LV_SIZE_CONTENT);
 
       isSwitches = (firstIdx == SWSRC_FIRST_SWITCH);
+      isOther = (firstIdx == SWSRC_ON);
 
       // Calculate sizes
       int cols = MAX_COLS;
@@ -240,6 +266,8 @@ class SwitchMatrix : public Window
       if (isSwitches) {
         cols = 3;
         btn_cnt = switchButtonCount(firstIdx, lastIdx);
+      } else if (isOther) {
+        btn_cnt = otherCount();
       } else {
         btn_cnt = buttonCount(firstIdx, lastIdx);
       }
@@ -265,8 +293,8 @@ class SwitchMatrix : public Window
       if (isSwitches) {
         int n = 0;
         for (int i = firstIdx; i <= lastIdx; i += 3) {
-          if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
-            btns[n] = new SwitchButtons(form, i, i+2, m_getValue, m_setValue, invert, cols, 1, cols, true);
+          if (m_isValueAvailable(i) || m_isValueAvailable(i+1) || m_isValueAvailable(i+2)) {
+            btns[n] = new SwitchButtons(form, i, i+2, m_getValue, m_setValue, m_isValueAvailable, invert, cols, 1, cols, true);
             lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
             n += 1;
           }
@@ -274,19 +302,19 @@ class SwitchMatrix : public Window
 #if NUM_XPOTS > 0
         // Add multi-position switch
         int r = (buttonCount(SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH) + cols - 1) / cols;
-        btns[n] = new SwitchButtons(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, m_getValue, m_setValue, invert, cols, r, r * cols, false);
+        btns[n] = new SwitchButtons(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, m_getValue, m_setValue, m_isValueAvailable, invert, cols, r, r * cols, false);
         lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
 #endif
       } else {
         if (btnsCnt == 1) {
-          btns[0] = new SwitchButtons(form, firstIdx, lastIdx, m_getValue, m_setValue, invert, cols, rows, btn_cnt, false);
+          btns[0] = new SwitchButtons(form, firstIdx, lastIdx, m_getValue, m_setValue, m_isValueAvailable, invert, cols, rows, btn_cnt, false);
           lv_obj_add_event_cb(btns[0]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
         } else {
           int sw = firstIdx;
           for (int i = 0; i <= rows; i += 1) {
             int lw = sw + cols - 1;
             if (lw > lastIdx) lw = lastIdx;
-            btns[i] = new SwitchButtons(form, sw, lw, m_getValue, m_setValue, invert, cols, 1, cols, false);
+            btns[i] = new SwitchButtons(form, sw, lw, m_getValue, m_setValue, m_isValueAvailable, invert, cols, 1, cols, false);
             lv_obj_add_event_cb(btns[i]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
           }
         }
@@ -328,8 +356,10 @@ class SwitchMatrix : public Window
     SwitchButtons** btns = nullptr;
     int btnsCnt = 0;
     bool isSwitches = false;
+    bool isOther = false;
     std::function<int16_t()> m_getValue;
     std::function<void(int16_t, bool)> m_setValue;
+    std::function<bool(int)> m_isValueAvailable;
 
     static void longPressHandler(lv_event_t* e);
 
@@ -337,7 +367,7 @@ class SwitchMatrix : public Window
     {
       int n = 0;
       for (int i = firstIdx; i <= lastIdx; i += 1) {
-        if (isSwitchAvailableInMixes(i)) {
+        if (m_isValueAvailable(i)) {
           n += 1;
         }
       }
@@ -348,8 +378,19 @@ class SwitchMatrix : public Window
     {
       int n = 0;
       for (int i = firstIdx; i <= lastIdx; i += 3) {
-        if (isSwitchAvailableInMixes(i) || isSwitchAvailableInMixes(i+1) || isSwitchAvailableInMixes(i+2)) {
+        if (m_isValueAvailable(i) || m_isValueAvailable(i+1) || m_isValueAvailable(i+2)) {
           n += 3;
+        }
+      }
+      return n;
+    }
+    
+    int otherCount()
+    {
+      int n = 0;
+      for (int i = 0; otherSwitches[i] != -1; i += 1) {
+        if (m_isValueAvailable(otherSwitches[i])) {
+          n += 1;
         }
       }
       return n;
@@ -369,12 +410,14 @@ class SwitchDialog : public ModalWindow
                  std::function<int16_t()> getValue,
                  std::function<void(int16_t)> setValue,
                  std::function<void(bool)> onSave,
-                 std::function<void()> onCancel) :
+                 std::function<void()> onCancel,
+                 std::function<bool(int)> isValueAvailable) :
         ModalWindow(parent, true),
         m_getValue(std::move(getValue)),
         m_setValue(std::move(setValue)),
         m_onSave(std::move(onSave)),
-        m_onCancel(std::move(onCancel))
+        m_onCancel(std::move(onCancel)),
+        m_isValueAvailable(std::move(isValueAvailable))
     {
       inverted = m_getValue() < 0;
 
@@ -457,33 +500,53 @@ class SwitchDialog : public ModalWindow
       setTitle();
 
       // Filter buttons
-      addSectionCtrl(tabsForm, STR_CHAR_SWITCH, 0);
+      maxSection = 0;
+      addSectionCtrl(tabsForm, STR_CHAR_SWITCH, maxSection);
+      maxSection += 1;
 
       if (vmax >= SWSRC_FIRST_TRIM) {
-        addSectionCtrl(tabsForm, STR_CHAR_TRIM, 1);
+        addSectionCtrl(tabsForm, STR_CHAR_TRIM, maxSection);
+        maxSection += 1;
       }
 
       if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
-        addSectionCtrl(tabsForm, STR_CHAR_SWITCH, 2);
+        addSectionCtrl(tabsForm, STR_CHAR_SWITCH, maxSection);
+        maxSection += 1;
       }
 
-      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
-        addSectionCtrl(tabsForm, STR_CHAR_TELEMETRY, 3);
+      if (hasTelemetrySwitches(vmax)) {
+        addSectionCtrl(tabsForm, STR_CHAR_TELEMETRY, maxSection);
+        maxSection += 1;
+      }
+
+      if (hasOtherSwitches(vmax)) {
+        addSectionCtrl(tabsForm, "?", maxSection);
+        maxSection += 1;
       }
 
       // Switch sections
-      addSection(switchesForm, STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, 0);
+      maxSection = 0;
+      addSection(switchesForm, STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, maxSection);
+      maxSection += 1;
 
       if (vmax >= SWSRC_FIRST_TRIM) {
-        addSection(switchesForm, STR_MENU_TRIMS, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, 1);
+        addSection(switchesForm, STR_MENU_TRIMS, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, maxSection);
+        maxSection += 1;
       }
 
       if (vmax >= SWSRC_FIRST_LOGICAL_SWITCH) {
-        addSection(switchesForm, STR_MENU_LOGICAL_SWITCHES, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, 2);
+        addSection(switchesForm, STR_MENU_LOGICAL_SWITCHES, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, maxSection);
+        maxSection += 1;
       }
 
-      if (vmax >= SWSRC_TELEMETRY_STREAMING) {
-        addSection(switchesForm, STR_MENU_TELEMETRY, SWSRC_TELEMETRY_STREAMING, SWSRC_RADIO_ACTIVITY, 3);
+      if (hasTelemetrySwitches(vmax)) {
+        addSection(switchesForm, STR_MENU_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, maxSection);
+        maxSection += 1;
+      }
+
+      if (hasOtherSwitches(vmax)) {
+        addSection(switchesForm, STR_MENU_OTHER, SWSRC_ON, SWSRC_ON, maxSection);
+        maxSection += 1;
       }
 
       // Action buttons
@@ -520,17 +583,43 @@ class SwitchDialog : public ModalWindow
     std::function<void(int16_t)> m_setValue;
     std::function<void(bool)> m_onSave;
     std::function<void()> m_onCancel;
+    std::function<bool(int)> m_isValueAvailable;
     StaticText* title = nullptr;
     int filterSection = -1;
+    int maxSection = 0;
     int actionSel = -1;
-    StaticText* sectionTitle[4] = {};
-    SwitchMatrix* sectionBtn[4] = {};
-    TextButton* sectionCtrl[4] = {};
+    StaticText* sectionTitle[5] = {};
+    SwitchMatrix* sectionBtn[5] = {};
+    TextButton* sectionCtrl[5] = {};
     TextButton* actionBtns[4] = {};
     bool inverted = false;
     bool doSave = false;
     bool isLongPressed = false;
     tmr10ms_t doSaveTime = 0;
+
+    bool hasTelemetrySwitches(int vmax)
+    {
+      if (vmax >= SWSRC_FIRST_SENSOR) {
+        for (int i = SWSRC_FIRST_SENSOR; i < SWSRC_LAST_SENSOR; i += 1) {
+          if (m_isValueAvailable(i)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    bool hasOtherSwitches(int vmax)
+    {
+      if (vmax >= SWSRC_ON) {
+        for (int i = 0; otherSwitches[i] != -1; i += 1) {
+          if (m_isValueAvailable(otherSwitches[i])) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
 
     void checkEvents() override
     {
@@ -572,7 +661,7 @@ class SwitchDialog : public ModalWindow
     void applyFilter(int section)
     {
       filterSection = section;
-      for (int i = 0; i < 4; i += 1) {
+      for (int i = 0; i < maxSection; i += 1) {
         if (sectionTitle[i]) {
           sectionCtrl[i]->check(filterSection == i);
           if ((filterSection == i) || (filterSection == -1)) {
@@ -601,13 +690,16 @@ class SwitchDialog : public ModalWindow
     void addSection(FormWindow* switchesForm, const char* title, int firstIdx, int lastIdx, int section)
     {
       sectionTitle[section] = new StaticText(switchesForm, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
-      sectionBtn[section] = new SwitchMatrix(switchesForm, firstIdx, lastIdx, m_getValue, [=](int16_t n, bool isLongPress) { setSwitchValue(n, isLongPress); }, inverted);
+      sectionBtn[section] = new SwitchMatrix(switchesForm, firstIdx, lastIdx,
+                                             m_getValue, [=](int16_t n, bool isLongPress) { setSwitchValue(n, isLongPress); },
+                                             m_isValueAvailable,
+                                             inverted);
     }
 
     void setInverted()
     {
       inverted = !inverted;
-      for (int i = 0; i < 4; i += 1) {
+      for (int i = 0; i < maxSection; i += 1) {
         if (sectionBtn[i])
           sectionBtn[i]->setInverted(inverted);
       }
@@ -625,7 +717,7 @@ class SwitchDialog : public ModalWindow
     {
       if (event == EVT_KEY_BREAK(KEY_PGDN)) {
         filterSection += 1;
-        if (filterSection > 3)
+        if (filterSection >= maxSection)
           filterSection = -1;
         applyFilter(filterSection);
       }
@@ -655,13 +747,15 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
   switchValue = getIntValue();
 
   setTextHandler([=](int value) {
-    if (!isSwitchAvailableInMixes(value))
+    if (isValueAvailable && !isValueAvailable(value))
       return std::to_string(0);  // we will fix this later
 
     return std::string(getSwitchPositionName(value));
   });
  
   set_lv_LongPressHandler(longPressHandler, this);
+
+  setAvailableHandler(isSwitchAvailableInMixes);
 }
 
 void SwitchChoice::openMenu()
@@ -680,7 +774,8 @@ void SwitchChoice::openMenu()
                    },
                    [=]() {
                      switchValue = _getValue();
-                   }
+                   },
+                   isValueAvailable
                   );
 }
 
