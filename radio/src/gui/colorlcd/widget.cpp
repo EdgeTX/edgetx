@@ -205,7 +205,13 @@ void registerWidget(const WidgetFactory * factory)
   if (oldWidget) {
     unregisterWidget(oldWidget);
   }
-  TRACE("register widget %s", name);
+  TRACE("register widget %s %s", name, factory->getDisplayName());
+  for (auto it = getRegisteredWidgets().cbegin(); it != getRegisteredWidgets().cend(); ++it) {
+    if (strcmp((*it)->getDisplayName(), factory->getDisplayName()) > 0) {
+      getRegisteredWidgets().insert(it, factory);
+      return;
+    }
+  }
   getRegisteredWidgets().push_back(factory);
 }
 
