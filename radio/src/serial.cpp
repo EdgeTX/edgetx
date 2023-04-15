@@ -29,6 +29,11 @@
 
 #include "hal/serial_port.h"
 
+#if defined(CONFIGURABLE_MODULE_PORT)
+  #include "hal/module_port.h"
+  #include "tasks/mixer_task.h"
+#endif
+
 #if !defined(BOOT)
   #include "opentx.h"
   #include "lua/lua_api.h"
@@ -257,13 +262,14 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
       etx_module_port_t mod_port;
       memset(&mod_port, 0, sizeof(mod_port));
       auto mod_st = modulePortGetState(EXTERNAL_MODULE);
-      if (mod_st && mod_st->tx.hw_def == port->hw_def) {
+      if (mod_st && mod_st->tx.port &&
+          mod_st->tx.port->hw_def == port->hw_def) {
         // port is in use, let's stop it
         mixerTaskStop();
-        pausePulses();
+        pulsesStop();
         pulsesStopModule(EXTERNAL_MODULE);
         modulePortConfigExtra(&mod_port);
-        resumePulses();
+        pulsesStart();
         mixerTaskStart();
       } else {
         modulePortConfigExtra(&mod_port);
@@ -397,10 +403,12 @@ void serialInit(uint8_t port_nr, int mode)
 #if defined(CONFIGURABLE_MODULE_PORT)
   if (mode == UART_MODE_EXT_MODULE) {
     etx_module_port_t mod_port = {
-      .port = ETX_MOD_PORT_EXTERNAL_UART,
+      .port = ETX_MOD_PORT_UART,
       .type = ETX_MOD_TYPE_SERIAL,
       .dir_flags = ETX_MOD_DIR_TX_RX,
       .drv = { .serial = port->uart },
+      .hw_def = port->hw_def,
+      .set_inverted = nullptr,
     };
     modulePortConfigExtra(&mod_port);
     state->mode = mode;

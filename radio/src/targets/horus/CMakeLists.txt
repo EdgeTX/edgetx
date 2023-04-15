@@ -193,6 +193,10 @@ if(IMU_LSM6DS33)
   set(AUX_SERIAL OFF)
 endif()
 
+if(AUX_SERIAL)
+  add_definitions(-DCONFIGURABLE_MODULE_PORT)
+endif()
+
 if(NOT INTERNAL_MODULE_PXX1)
   option(ALLOW_TRAINER_MULTI "Allow multimodule to be use as trainer input" OFF)
 endif()

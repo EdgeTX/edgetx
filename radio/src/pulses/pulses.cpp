@@ -470,7 +470,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_AFHDS3)
+#if defined(INTERNAL_MODULE_AFHDS3) || defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
       _init_module(module, &afhds3::ProtoDriver);
       break;
