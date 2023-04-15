@@ -89,7 +89,115 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
     grid(g)
 {
   setFlexLayout();
+
+  FormGroup::Line* line;
+
+#if defined(AFHDS2)
+  // RX options:
+  line = newLine(&grid);
+  afhds2OptionsLabel = new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
+
+  afhds2ProtoOpts = new FSProtoOpts(
+                                    line, [=]() { return md->flysky.mode; },
+                                    [=](uint8_t v) { md->flysky.mode = v; });
+
+#if defined(PCBNV14)
+  if (getNV14RfFwVersion() >= 0x1000E) {
+    line = newLine(&grid);
+    static const char* _rf_power[] = {"Default", "High"};
+    afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
+    afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
+                                     GET_DEFAULT(md->flysky.rfPower),
+                                     [=](int32_t newValue) -> void {
+                                       md->flysky.rfPower = newValue;
+                                       resetPulsesAFHDS2();
+                                     });
+#endif
+  }
+
+  hideAFHDS2Options();
+#endif
+
+#if defined(AFHDS3)
+  // Status
+  line = newLine(&grid);
+  afhds3StatusLabel = new StaticText(line, rect_t{}, STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
+  afhds3StatusText = new DynamicText(line, rect_t{}, [=] {
+                                       char msg[64] = "";
+                                       getModuleStatusString(moduleIdx, msg);
+                                       return std::string(msg);
+                                     });
+
+  // TYPE
+  line = newLine(&grid);
+  afhds3TypeLabel = new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
+
+  afhds3TypeForm = new FormGroup(line, rect_t{});
+  afhds3TypeForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
+  lv_obj_set_style_grid_cell_x_align(afhds3TypeForm->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+  new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
+             GET_SET_DEFAULT(md->afhds3.phyMode));
+
+  new Choice(afhds3TypeForm, rect_t{}, _afhds3_region,
+             afhds3::LNK_ES_CE, afhds3::LNK_ES_FCC,
+             GET_SET_DEFAULT(md->afhds3.emi));
+
+  uint8_t module = moduleIdx;
+  new TextButton(afhds3TypeForm, rect_t{}, STR_MODULE_OPTIONS,
+                 [=]() {
+                     afhds3::applyModelConfig(module);
+                     new AFHDS3_Options(module);
+                     return 0;
+                 });
+
+  hideAFHDS3Options();
+#endif
 }
+
+#if defined(AFHDS2)
+void FlySkySettings::hideAFHDS2Options()
+{
+  lv_obj_add_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+#if defined(PCBNV14)
+  if (afhds2RFPowerText != nullptr)
+    lv_obj_add_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  if (afhds2RFPowerChoice != nullptr)
+    lv_obj_add_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+#endif
+}
+
+void FlySkySettings::showAFHDS2Options()
+{
+  lv_obj_clear_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+#if defined(PCBNV14)
+  if (afhds2RFPowerText != nullptr)
+    lv_obj_clear_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  if (afhds2RFPowerChoice != nullptr)
+    lv_obj_clear_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+#endif
+}
+#endif
+
+#if defined(AFHDS3)
+void FlySkySettings::hideAFHDS3Options()
+{
+  lv_obj_add_flag(afhds3StatusLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds3StatusText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds3TypeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds3TypeForm->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+}
+
+void FlySkySettings::showAFHDS3Options()
+{
+  lv_obj_clear_flag(afhds3StatusLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(afhds3StatusText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(afhds3TypeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(afhds3TypeForm->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+}
+#endif
 
 void FlySkySettings::checkEvents() {
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
@@ -101,67 +209,19 @@ void FlySkySettings::checkEvents() {
 void FlySkySettings::update()
 {
   lastRefresh = get_tmr10ms();
-  clear();
-  
 #if defined(AFHDS2)
   if (isModuleAFHDS2A(moduleIdx)) {
-    // RX options:
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
-
-    new FSProtoOpts(
-        line, [=]() { return md->flysky.mode; },
-        [=](uint8_t v) { md->flysky.mode = v; });
-
-#if defined(AFHDS2) && defined(PCBNV14)
-    if (getNV14RfFwVersion() >= 0x1000E) {
-      line = newLine(&grid);
-      static const char* _rf_power[] = {"Default", "High"};
-      new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
-      new Choice(line, rect_t{}, _rf_power, 0, 1,
-                 GET_DEFAULT(md->flysky.rfPower),
-                 [=](int32_t newValue) -> void {
-                   md->flysky.rfPower = newValue;
-                   resetPulsesAFHDS2();
-                 });
-    }
-#endif
+    showAFHDS2Options();
+  } else {
+    hideAFHDS2Options();
   }
 #endif
+
 #if defined(AFHDS3)
   if (isModuleAFHDS3(moduleIdx)) {
-
-    // Status
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
-    new DynamicText(line, rect_t{}, [=] {
-      char msg[64] = "";
-      getModuleStatusString(moduleIdx, msg);
-      return std::string(msg);
-    });
-
-    // TYPE
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-
-    auto box = new FormGroup(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
-    lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-
-    new Choice(box, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
-               GET_SET_DEFAULT(md->afhds3.phyMode));
-
-    new Choice(box, rect_t{}, _afhds3_region,
-               afhds3::LNK_ES_CE, afhds3::LNK_ES_FCC,
-               GET_SET_DEFAULT(md->afhds3.emi));
-
-    uint8_t module = moduleIdx;
-    new TextButton(box, rect_t{}, STR_MODULE_OPTIONS,
-                   [=]() {
-                       afhds3::applyModelConfig(module);
-                       new AFHDS3_Options(module);
-                       return 0;
-                   });
+    showAFHDS3Options();
+  } else {
+    hideAFHDS3Options();
   }
 #endif
 }

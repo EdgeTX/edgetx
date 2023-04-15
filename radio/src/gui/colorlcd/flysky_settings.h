@@ -33,6 +33,26 @@ class FlySkySettings : public FormGroup, public ModuleOptions
   FlexGridLayout grid;
   tmr10ms_t lastRefresh = 0;
 
+#if defined(AFHDS2)
+  Window* afhds2OptionsLabel = nullptr;
+  Window* afhds2ProtoOpts = nullptr;
+#if defined(PCBNV14)
+  Window* afhds2RFPowerText = nullptr;
+  Window* afhds2RFPowerChoice = nullptr;
+#endif  
+  void hideAFHDS2Options();
+  void showAFHDS2Options();
+#endif
+
+#if defined(AFHDS3)
+  Window* afhds3StatusLabel = nullptr;
+  Window* afhds3StatusText = nullptr;
+  Window* afhds3TypeLabel = nullptr;
+  FormGroup* afhds3TypeForm = nullptr;
+  void hideAFHDS3Options();
+  void showAFHDS3Options();
+#endif  
+
   void checkEvents() override;
   void update() override;
     

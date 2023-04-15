@@ -836,6 +836,10 @@ void ProtoState::resetConfig(uint8_t version)
 void ProtoState::applyConfigFromModel()
 {
   uint8_t version = 0;
+#if defined(SIMU)
+  // TODO: work out why this is not initialised in some cases
+  if (moduleData == nullptr) return;
+#endif
   if (moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
     version = 1;
   }
