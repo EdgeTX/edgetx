@@ -32,8 +32,8 @@ const Multiprotocols::MultiProtocolDefinition & Multiprotocols::getProtocol(int 
     if (proto.protocol == protocol)
       return proto;
 
-  // Protocol not found, return the default (last) proto
-  Q_ASSERT(protocols.rbegin()->protocol == 0xfe);
+  // Protocol not found, return the sentinel proto
+  Q_ASSERT(protocols.rbegin()->protocol == MODULE_SUBTYPE_MULTI_SENTINEL);
   return *protocols.rbegin();
 }
 
