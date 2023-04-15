@@ -18,12 +18,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef OPENTX_MULTI_H
-#define OPENTX_MULTI_H
+#pragma once
 
 #include <vector>
 #include <QtCore>
 #include "moduledata.h"
+
+class AbstractStaticItemModel;
 
 class Multiprotocols
 {
@@ -70,8 +71,9 @@ class Multiprotocols
     }
 
     const MultiProtocolDefinition &getProtocol(int protocol) const;
-    static QString protocolToString(int protocol, bool custom = false);
-    static QString subTypeToString(int protocol, unsigned subType);
+    static QString protocolToString(int protocol);
+    static QString subTypeToString(int protocol, unsigned int subType);
+    static AbstractStaticItemModel * protocolItemModel();
 
   private:
 
@@ -80,5 +82,3 @@ class Multiprotocols
 };
 
 extern const Multiprotocols multiProtocols;
-
-#endif //OPENTX_MULTI_H

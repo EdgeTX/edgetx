@@ -22,6 +22,7 @@
 
 #include "multiprotocols.h"
 #include "radiodata.h"
+#include "compounditemmodels.h"
 
 #define CPN
 #include "radio/src/MultiSubtypeDefs.h"
@@ -38,7 +39,7 @@ const Multiprotocols::MultiProtocolDefinition & Multiprotocols::getProtocol(int 
 }
 
 // static
-QString Multiprotocols::protocolToString(int protocol, bool custom)
+QString Multiprotocols::protocolToString(int protocol)
 {
   static const QStringList strings { PROTO_NAMES };
 
@@ -46,10 +47,26 @@ QString Multiprotocols::protocolToString(int protocol, bool custom)
 }
 
 // static
-QString Multiprotocols::subTypeToString(int protocol, unsigned subType)
+QString Multiprotocols::subTypeToString(int protocol, unsigned int subType)
 {
   if (protocol > MODULE_SUBTYPE_MULTI_LAST)
     return tr(qPrintable(QString::number(subType)));
   else
     return tr(qPrintable(multiProtocols.getProtocol(protocol).subTypeStrings.value(subType, CPN_STR_UNKNOWN_ITEM)));
+}
+
+//  static
+AbstractStaticItemModel * Multiprotocols::protocolItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("multiprotocols.protocol");
+
+  for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
+    if (isMultiProtocolSelectable(i))
+      mdl->appendToItemList(protocolToString(i), i);
+  }
+
+  mdl->loadItemList();
+  mdl->sort(0);
+  return mdl;
 }

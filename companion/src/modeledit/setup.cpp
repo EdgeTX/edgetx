@@ -291,10 +291,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
     }
   }
 
-  for (int i = 0; i <= MODULE_SUBTYPE_MULTI_LAST; i++) {
-    if (isMultiProtocolSelectable(i))
-      ui->multiProtocol->addItem(Multiprotocols::protocolToString(i), i);
-  }
+  ui->multiProtocol->setModel(Multiprotocols::protocolItemModel());
 
   ui->btnGrpValueType->setId(ui->optPercent, FAILSAFE_DISPLAY_PERCENT);
   ui->btnGrpValueType->setId(ui->optUs, FAILSAFE_DISPLAY_USEC);
