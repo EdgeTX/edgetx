@@ -1531,6 +1531,7 @@ void opentxInit()
   }
 #else // defined(PWR_BUTTON_PRESS)
   pwrOn();
+  haptic.play(15, 3, PLAY_NOW);
 #endif
 
   // Radios handle UNEXPECTED_SHUTDOWN() differently:
