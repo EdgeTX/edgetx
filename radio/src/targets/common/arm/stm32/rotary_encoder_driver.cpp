@@ -46,21 +46,34 @@ volatile uint32_t rotencDt = 0;
 void rotaryEncoderCheck()
 {
   static uint8_t state = 0;
+  static uint8_t re_count = 0;
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
 #if defined(ROTARY_ENCODER_SUPPORT_BUGGY_WIRING)
   if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
-    if ((pins ^ (state & 0x03)) == 0x03) {
-      if (pins == 3) {
-        rotencValue += INC_ROT_2;
-      } else {
-        rotencValue -= INC_ROT_2;
-      }
+    if (re_count == 0) {
+      // Need at least 2 values to correctly determine initial direction
+      re_count = 1;
     } else {
-      if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-        rotencValue -= INC_ROT;
+      if ((pins ^ (state & 0x03)) == 0x03) {
+        if (pins == 3) {
+          rotencValue += INC_ROT_2;
+        } else {
+          rotencValue -= INC_ROT_2;
+        }
       } else {
-        rotencValue += INC_ROT;
+        if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
+          rotencValue -= INC_ROT;
+        } else {
+          rotencValue += INC_ROT;
+        }
+      }
+
+      if (re_count == 1)
+      {
+        re_count = 2;
+        // Assume 1st value is same direction as 2nd value
+        rotencValue = rotencValue * 2;
       }
     }
     state &= ~0x03;
@@ -68,14 +81,26 @@ void rotaryEncoderCheck()
   }
 #else
   if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(ROTARY_ENCODER_INVERTED)
-    if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#else
-    if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#endif
-      rotencValue -= INC_ROT;
+    if (re_count == 0) {
+      // Need at least 2 values to correctly determine initial direction
+      re_count = 1;
     } else {
-      rotencValue += INC_ROT;
+#if defined(ROTARY_ENCODER_INVERTED)
+      if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
+#else
+      if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
+#endif
+        rotencValue -= INC_ROT;
+      } else {
+        rotencValue += INC_ROT;
+      }
+
+      if (re_count == 1)
+      {
+        re_count = 2;
+        // Assume 1st value is same direction as 2nd value
+        rotencValue = rotencValue * 2;
+      }
     }
     state = pins;
   }
