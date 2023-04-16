@@ -232,4 +232,15 @@ inline void getMultiOptionValues(int8_t multi_proto, int8_t &min, int8_t &max) {
 #define MODULE_SUBTYPE_MULTI_BUGS_RXNUM       15
 #define MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM  15
 
+//
+// subtypes for Radiomaster T8 bind key and Radiomaster RTF use.
+// see defines RTF, BIND_KEY and the protocol subtype list STRLIST()
+// in MultiSubTypeDefs.h
+//
+#define MULTI_FRSKYD_SUBTYPE_D8         0
+#define MULTI_FRSKYX_SUBTYPE_D16_FCC    0
+#define MULTI_FRSKYX_SUBTYPE_D16_LBT    2
+#define MULTI_FRSKYX2_SUBTYPE_D16_FCC   0
+#define MULTI_FRSKYX2_SUBTYPE_D16_LBT   2
+
 #endif // MULTIMODULE

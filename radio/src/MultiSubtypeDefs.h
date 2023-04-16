@@ -84,16 +84,6 @@
 #endif
 
 //
-// subtypes for FrSky Taranis bind key and
-// Radiomaster RTF use (indexes see list above)
-//
-#define MULTI_FRSKYD_SUBTYPE_D8         0
-#define MULTI_FRSKYX_SUBTYPE_D16_FCC    0
-#define MULTI_FRSKYX_SUBTYPE_D16_LBT    2
-#define MULTI_FRSKYX2_SUBTYPE_D16_FCC   MULTI_FRSKYX_SUBTYPE_D16_FCC
-#define MULTI_FRSKYX2_SUBTYPE_D16_LBT   MULTI_FRSKYX_SUBTYPE_D16_LBT
-
-//
 // Common definitions of Multi protocol subtype options (only for protocols that do have subtypes)
 //
 STRLIST(STR_SUBTYPE_FLYSKY,    {"Std","V9x9","V6x6","V912","CX20"})
