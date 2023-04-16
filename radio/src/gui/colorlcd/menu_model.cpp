@@ -40,30 +40,73 @@
 ModelMenu::ModelMenu():
   TabsGroup(ICON_MODEL)
 {
+  build();
+}
+
+void ModelMenu::build()
+{
+  modelHeliEnabled = g_model.modelHeliEnabled();
+  modelFMEnabled = g_model.modelFMEnabled();
+  modelMixesEnabled = g_model.modelMixesEnabled();
+  modelCurvesEnabled = g_model.modelCurvesEnabled();
+  modelGVEnabled = g_model.modelGVEnabled();
+  modelLSEnabled = g_model.modelLSEnabled();
+  modelSFEnabled = g_model.modelSFEnabled();
+  modelCustomScriptsEnabled = g_model.modelCustomScriptsEnabled();
+  modelTelemetryEnabled = g_model.modelTelemetryEnabled();
+
   addTab(new ModelSetupPage());
 #if defined(HELI)
-  addTab(new ModelHeliPage());
+  if (g_model.modelHeliEnabled())
+    addTab(new ModelHeliPage());
 #endif
 #if defined(FLIGHT_MODES)
-  addTab(new ModelFlightModesPage());
+  if (g_model.modelFMEnabled())
+    addTab(new ModelFlightModesPage());
 #endif
   addTab(new ModelInputsPage());
-  addTab(new ModelMixesPage());
+  if (g_model.modelMixesEnabled())
+    addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
-  addTab(new ModelCurvesPage());
+  if (g_model.modelCurvesEnabled())
+    addTab(new ModelCurvesPage());
 #if defined(GVARS)
-  addTab(new ModelGVarsPage());
+  if (g_model.modelGVEnabled())
+    addTab(new ModelGVarsPage());
 #endif
-  addTab(new ModelLogicalSwitchesPage());
-  addTab(new SpecialFunctionsPage(g_model.customFn));
+  if (g_model.modelLSEnabled())
+    addTab(new ModelLogicalSwitchesPage());
+  if (g_model.modelSFEnabled())
+    addTab(new SpecialFunctionsPage(g_model.customFn));
 #if defined(LUA_MODEL_SCRIPTS)
-  addTab(new ModelMixerScriptsPage());
+  if (g_model.modelCustomScriptsEnabled())
+    addTab(new ModelMixerScriptsPage());
 #endif
-  addTab(new ModelTelemetryPage());
+  if (g_model.modelTelemetryEnabled())
+    addTab(new ModelTelemetryPage());
 
 #if defined(PCBNV14) || defined(PCBPL18)
   addGoToMonitorsButton();
 #endif
+}
+
+void ModelMenu::checkEvents()
+{
+  TabsGroup::checkEvents();
+
+  if (modelHeliEnabled != g_model.modelHeliEnabled() ||
+      modelFMEnabled != g_model.modelFMEnabled() ||
+      modelMixesEnabled != g_model.modelMixesEnabled() ||
+      modelCurvesEnabled != g_model.modelCurvesEnabled() ||
+      modelGVEnabled != g_model.modelGVEnabled() ||
+      modelLSEnabled != g_model.modelLSEnabled() ||
+      modelSFEnabled != g_model.modelSFEnabled() ||
+      modelCustomScriptsEnabled != g_model.modelCustomScriptsEnabled() ||
+      modelTelemetryEnabled != g_model.modelTelemetryEnabled()) {
+    removeAllTabs();
+    build();
+    setCurrentTab(0);
+  }
 }
 
 void ModelMenu::onEvent(event_t event)

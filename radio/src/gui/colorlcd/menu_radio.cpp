@@ -35,17 +35,43 @@
 RadioMenu::RadioMenu():
   TabsGroup(ICON_RADIO)
 {
-  addTab(new RadioToolsPage());
-  addTab(new RadioSdManagerPage());
-  addTab(new RadioSetupPage());
-  addTab(new ThemeSetupPage());
-  addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
-  addTab(new RadioTrainerPage());
-  addTab(new RadioHardwarePage());
-  addTab(new RadioVersionPage());
+  build();
 }
 
 RadioMenu::~RadioMenu()
 {
-    storageCheck(true);
+  storageCheck(true);
+}
+
+void RadioMenu::build()
+{
+  radioThemesEnabled = g_model.radioThemesEnabled();
+  radioGFEnabled = g_model.radioGFEnabled();
+  radioTrainerEnabled = g_model.radioTrainerEnabled();
+
+  addTab(new RadioToolsPage());
+  addTab(new RadioSdManagerPage());
+  addTab(new RadioSetupPage());
+  if (radioThemesEnabled)
+    addTab(new ThemeSetupPage());
+  if (radioGFEnabled)
+    addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
+  if (radioTrainerEnabled)
+    addTab(new RadioTrainerPage());
+  addTab(new RadioHardwarePage());
+  addTab(new RadioVersionPage());
+}
+
+void RadioMenu::checkEvents()
+{
+  TabsGroup::checkEvents();
+
+  if (radioThemesEnabled != g_model.radioThemesEnabled() ||
+      radioGFEnabled != g_model.radioGFEnabled() ||
+      radioTrainerEnabled != g_model.radioTrainerEnabled()) {
+    removeAllTabs();
+    build();
+    setCurrentTab(0);
+    setCurrentTab(2);
+  }
 }

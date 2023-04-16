@@ -1943,3 +1943,43 @@ uint32_t availableMemory()
   return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks;
 #endif
 }
+
+// Radio menu tab state
+bool ModelData::radioThemesEnabled() {
+  return (radioThemesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioThemesDisabled == 0) || (radioThemesDisabled == 2);
+}
+bool ModelData::radioGFEnabled() {
+  return (radioGFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioGFDisabled == 0) || (radioGFDisabled == 2);
+}
+bool ModelData::radioTrainerEnabled() {
+  return (radioTrainerDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioTrainerDisabled == 0) || (radioTrainerDisabled == 2);
+}
+
+// Mode menu tab state
+bool ModelData::modelHeliEnabled() {
+  return (modelHeliDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelHeliDisabled == 0) || (modelHeliDisabled == 2);
+}
+bool ModelData::modelFMEnabled() {
+  return (modelFMDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelFMDisabled == 0) || (modelFMDisabled == 2);
+}
+bool ModelData::modelMixesEnabled() {
+  return (modelMixesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelMixesDisabled == 0) || (modelMixesDisabled == 2);
+}
+bool ModelData::modelCurvesEnabled() {
+  return (modelCurvesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCurvesDisabled == 0) || (modelCurvesDisabled == 2);
+}
+bool ModelData::modelGVEnabled() {
+  return (modelGVDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelGVDisabled == 0) || (modelGVDisabled == 2);
+}
+bool ModelData::modelLSEnabled() {
+  return (modelLSDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelLSDisabled == 0) || (modelLSDisabled == 2);
+}
+bool ModelData::modelSFEnabled() {
+  return (modelSFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelSFDisabled == 0) || (modelSFDisabled == 2);
+}
+bool ModelData::modelCustomScriptsEnabled() {
+  return (modelCustomScriptsDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCustomScriptsDisabled == 0) || (modelCustomScriptsDisabled == 2);
+}
+bool ModelData::modelTelemetryEnabled() {
+  return (modelTelemetryDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelTelemetryDisabled == 0) || (modelTelemetryDisabled == 2);
+}
