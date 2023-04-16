@@ -181,21 +181,18 @@ class ThemedTextEdit : public TextEdit
   public:
     ThemedTextEdit(Window *parent, const rect_t &rect, char *text, 
                    int colorBackgroundIndex, int colorTextIndex) :
-      TextEdit(parent, rect, text, strlen(text)),
+      TextEdit(parent, rect, text, strlen(text), NO_FOCUS),
       _colorBackgroundIndex(colorBackgroundIndex),
       _colorTextIndex(colorTextIndex)
     {
-      setBackgroundHandler([=] (FormField *field) {
-        return COLOR(_colorBackgroundIndex);
-      });
     }
 
     void paint(BitmapBuffer *dc) override
     {
       colorMaintainer.applyColorValues();
+      lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR(_colorBackgroundIndex)), LV_PART_MAIN);
+      lv_obj_set_style_text_color(lvobj, lv_color_white(), LV_PART_MAIN);
       FormField::paint(dc);
-
-      dc->drawSizedText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, length, COLOR(_colorTextIndex));
       colorMaintainer.restoreColorValues();
     }
 
@@ -206,14 +203,12 @@ class ThemedTextEdit : public TextEdit
     }
 #endif
 
-
 #if defined(HARDWARE_KEYS)
     void onEvent(event_t event) override
     {
       parent->onEvent(event);
     }
 #endif
-
 
   protected:
     int _colorBackgroundIndex;
@@ -243,15 +238,13 @@ class PreviewWindow : public FormGroup
     new ThemedStaticText(this, {5, 115, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
     new ThemedStaticText(this, {5, 140, 100, LINE_HEIGHT}, "Disabled Text", COLOR_THEME_DISABLED_INDEX);
 
-    static char EditText[128];
-    strcpy(EditText, "Edit");
+    static char EditText[] = "Edit";
     new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, EditText, 
                        COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-    static char FocusText[128];
-    strcpy(FocusText, "Focus");
+    static char FocusText[] = "Focus";
     new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, FocusText, 
                        COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-    ticks = getTicks();
+    ticks = 0;
 
     lv_group_set_default(def_group);
   }

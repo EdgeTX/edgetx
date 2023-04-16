@@ -133,6 +133,10 @@ class ThemeDetailsDialog: public Dialog
       theme(theme),
       saveHandler(saveHandler)
     {
+      content->form.padAll(4);
+      content->form.padLeft(8);
+      content->form.padRight(8);
+
       lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
       lv_obj_set_style_bg_opa(content->getLvObj(), LV_OPA_100, LV_PART_MAIN);
       auto form = new FormWindow(&content->form, rect_t{});
@@ -141,12 +145,15 @@ class ThemeDetailsDialog: public Dialog
       FlexGridLayout grid(d_col_dsc, row_dsc, 2);
 
       auto line = form->newLine(&grid);
+      line->padAll(0);
 
       new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
       auto te = new TextEdit(line, rect_t{}, this->theme.getName(), SELECTED_THEME_NAME_LEN);
       lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
       line = form->newLine(&grid);
+      line->padAll(0);
+      line->padTop(2);
 
       new StaticText(line, rect_t{}, STR_AUTHOR, 0, COLOR_THEME_PRIMARY1);
       te = new TextEdit(line, rect_t{}, this->theme.getAuthor(), AUTHOR_LENGTH);
@@ -155,14 +162,17 @@ class ThemeDetailsDialog: public Dialog
       FlexGridLayout grid2(b_col_dsc, row_dsc, 2);
 
       line = form->newLine(&grid2);
+      line->padAll(0);
 
       new StaticText(line, rect_t{}, STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1);
       line = form->newLine(&grid2);
+      line->padAll(0);
       te = new TextEdit(line, rect_t{}, this->theme.getInfo(), INFO_LENGTH);
       lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
       line = form->newLine(&grid2);
-      line->padTop(20);
+      line->padAll(0);
+      line->padTop(10);
 
       auto button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
@@ -389,6 +399,7 @@ class ThemeEditPage : public Page
         started = true;
         _themeName->setText(_theme.getName());
       }
+      Window::checkEvents();
     }
 
     void editColorPage()

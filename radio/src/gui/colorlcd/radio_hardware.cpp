@@ -63,6 +63,7 @@ void RadioHardwarePage::build(FormWindow * window)
   auto box = new FormGroup(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   auto batMin =
       new NumberEdit(box, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
