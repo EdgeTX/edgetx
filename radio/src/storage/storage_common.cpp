@@ -61,8 +61,10 @@ void preModelLoad()
   logsClose();
 #endif
 
+  bool needDelay = false;
   if (mixerTaskStarted()) {
     pulsesStop();
+    needDelay = true;
   }
 
   stopTrainer();
@@ -70,7 +72,8 @@ void preModelLoad()
   deleteCustomScreens();
 #endif
 
-  RTOS_WAIT_MS(200);
+  if (needDelay)
+    RTOS_WAIT_MS(200);
 }
 
 void postRadioSettingsLoad()
