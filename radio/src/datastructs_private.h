@@ -770,7 +770,9 @@ PACK(struct ModelData {
   USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS];
   
   // Radio level tabs control (model settings)
+#if defined(COLORLCD)
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
+#endif
   uint8_t radioGFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t radioTrainerDisabled:2 ENUM(ModelOverridableEnable);
   // Model level tabs control (model setting)
@@ -784,7 +786,9 @@ PACK(struct ModelData {
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
 
+#if defined(COLORLCD)
   bool radioThemesEnabled();
+#endif
   bool radioGFEnabled();
   bool radioTrainerEnabled();
   bool modelHeliEnabled();
@@ -989,7 +993,9 @@ PACK(struct RadioData {
 #endif
 
   // Radio level tabs control (global settings)
+#if defined(COLORLCD)
   uint8_t radioThemesDisabled:1;
+#endif
   uint8_t radioGFDisabled:1;
   uint8_t radioTrainerDisabled:1;
   // Model level tabs control (global setting)

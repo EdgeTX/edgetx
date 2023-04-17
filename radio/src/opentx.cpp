@@ -1945,9 +1945,11 @@ uint32_t availableMemory()
 }
 
 // Radio menu tab state
+#if defined(COLORLCD)
 bool ModelData::radioThemesEnabled() {
   return (radioThemesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioThemesDisabled == 0) || (radioThemesDisabled == 2);
 }
+#endif
 bool ModelData::radioGFEnabled() {
   return (radioGFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioGFDisabled == 0) || (radioGFDisabled == 2);
 }
