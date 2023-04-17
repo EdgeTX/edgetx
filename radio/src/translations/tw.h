@@ -1151,6 +1151,7 @@
 #define TR_TELEMETRYFULL               TR("項目已滿!", "回傳項目已滿!")
 #define TR_INVERTED_SERIAL             INDENT "反向"
 #define TR_IGNORE_INSTANCE             TR(INDENT "忽略ID", INDENT "忽略ID鑑別")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS            "掃描新的回傳項目"
 #define TR_STOP_DISCOVER_SENSORS       "停止掃描"
 #define TR_DELETE_ALL_SENSORS          "刪除所有回傳項目"

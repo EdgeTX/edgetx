@@ -1156,6 +1156,7 @@
 #define TR_TELEMETRYFULL               TR("Telem voll!", "Telemetriezeilen voll!")
 #define TR_INVERTED_SERIAL             INDENT "Invert."
 #define TR_IGNORE_INSTANCE             TR(INDENT "No Inst.", INDENT "Ignor. Instanzen")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS            "Start Sensorsuche"
 #define TR_STOP_DISCOVER_SENSORS       "Stop Sensorsuche"
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"

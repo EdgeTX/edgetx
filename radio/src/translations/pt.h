@@ -1161,6 +1161,7 @@
 #define TR_TELEMETRYFULL       TR("All slots full!", "All telemetry slots full!")
 #define TR_INVERTED_SERIAL     INDENT "Invert"
 #define TR_IGNORE_INSTANCE     INDENT "Ignore instance"
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS    "Discover new"
 #define TR_STOP_DISCOVER_SENSORS "Stop discovery"
 #define TR_DELETE_ALL_SENSORS  "Delete all"

@@ -171,6 +171,7 @@ class ModelData {
     FrSkyData frsky;
     unsigned int  rssiSource;
     RSSIAlarmData rssiAlarms;
+    bool showInstanceIds;
 
     char bitmap[CPN_MAX_BITMAP_LEN + 1];
 

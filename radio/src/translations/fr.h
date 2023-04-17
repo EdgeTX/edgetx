@@ -1173,6 +1173,7 @@
 #define TR_TELEMETRYFULL               "Plus de capteurs libres!"
 #define TR_INVERTED_SERIAL             INDENT "Inversé"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Ign. inst", INDENT "Ignorer instance")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS            "Découvrir capteurs"
 #define TR_STOP_DISCOVER_SENSORS       "Terminer découverte"
 #define TR_DELETE_ALL_SENSORS          TR("Suppr. tous capteurs", "Supprimer tous capteurs")

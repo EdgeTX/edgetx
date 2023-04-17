@@ -1158,6 +1158,7 @@
 #define TR_TELEMETRYFULL               TR("Alle slots fulde!", "Alle telemetri slots fulde!")
 #define TR_INVERTED_SERIAL             INDENT "Invers"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Ingen inst.", INDENT "Ignorer instans")
+#define TR_SHOW_INSTANCE_ID            "Show instance ID"
 #define TR_DISCOVER_SENSORS            "Søg efter nye"
 #define TR_STOP_DISCOVER_SENSORS       "Stop"
 #define TR_DELETE_ALL_SENSORS          "Slet alle"

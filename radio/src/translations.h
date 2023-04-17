@@ -990,6 +990,7 @@ extern const char STR_FILTER[];
 extern const char STR_TELEMETRYFULL[];
 extern const char STR_INVERTED_SERIAL[];
 extern const char STR_IGNORE_INSTANCE[];
+extern const char STR_SHOW_INSTANCE_ID[];
 extern const char STR_DISCOVER_SENSORS[];
 extern const char STR_STOP_DISCOVER_SENSORS[];
 extern const char STR_DELETE_ALL_SENSORS[];
