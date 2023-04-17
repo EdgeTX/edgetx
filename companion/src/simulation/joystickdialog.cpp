@@ -96,14 +96,14 @@ void joystickDialog::loadGrid()
       QSlider *s = new QSlider(Qt::Horizontal);
       s->setMinimum(-32767);
       s->setMaximum(32767);
-      sliders[row] = s;
+      sliders[i] = s;
       grid->addWidget(s, row/2, col+1, 1, 1);
       QCheckBox *c = new QCheckBox("");
-      invert[row] = c;
+      invert[i] = c;
       grid->addWidget(c, row/2, col+2, 1, 1);
       QComboBox *d = new QComboBox();
       populateSourceCombo(d);
-      sticks[row] = d;
+      sticks[i] = d;
       grid->addWidget(d, row/2, col+3, 1, 1);
     }
     if (row & 1) row += 1;
@@ -115,11 +115,11 @@ void joystickDialog::loadGrid()
       QSlider *s = new QSlider(Qt::Horizontal);
       s->setMinimum(0);
       s->setMaximum(1);
-      sliders[row] = s;
+      sliders[i+numAxes] = s;
       grid->addWidget(s, row/2, col+1, 1, 1);
       QComboBox *d = new QComboBox();
       populateButtonCombo(d);
-      sticks[row] = d;
+      sticks[i+numAxes] = d;
       grid->addWidget(d, row/2, col+3, 1, 1);
     }
   }
