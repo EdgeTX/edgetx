@@ -1052,7 +1052,7 @@ void evalMixes(uint8_t tick10ms)
     requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
     requiredBacklightBright = g_eeGeneral.backlightBright;
 
-    if (g_model.radioGFEnabled()) {
+    if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
     } else {
       globalFunctionsContext.reset();

@@ -28,6 +28,19 @@ typedef int8_t horzpos_t;
 typedef uint16_t vertpos_t;
 
 typedef void (* MenuHandlerFunc)(event_t event);
+typedef bool (* MenuEnabledFunc)();
+
+typedef struct _MenuHandler {
+  MenuHandlerFunc menuFunc;
+  MenuEnabledFunc enabledFunc;
+
+  bool isEnabled() const
+  {
+    if (enabledFunc)
+      return enabledFunc();
+    return true;
+  }
+} MenuHandler;
 
 extern tmr10ms_t menuEntryTime;
 extern vertpos_t menuVerticalPosition;

@@ -45,18 +45,18 @@ RadioMenu::~RadioMenu()
 
 void RadioMenu::build()
 {
-  radioThemesEnabled = g_model.radioThemesEnabled();
-  radioGFEnabled = g_model.radioGFEnabled();
-  radioTrainerEnabled = g_model.radioTrainerEnabled();
+  _radioThemesEnabled = radioThemesEnabled();
+  _radioGFEnabled = radioGFEnabled();
+  _radioTrainerEnabled = radioTrainerEnabled();
 
   addTab(new RadioToolsPage());
   addTab(new RadioSdManagerPage());
   addTab(new RadioSetupPage());
-  if (radioThemesEnabled)
+  if (_radioThemesEnabled)
     addTab(new ThemeSetupPage());
-  if (radioGFEnabled)
+  if (_radioGFEnabled)
     addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
-  if (radioTrainerEnabled)
+  if (_radioTrainerEnabled)
     addTab(new RadioTrainerPage());
   addTab(new RadioHardwarePage());
   addTab(new RadioVersionPage());
@@ -66,9 +66,9 @@ void RadioMenu::checkEvents()
 {
   TabsGroup::checkEvents();
 
-  if (radioThemesEnabled != g_model.radioThemesEnabled() ||
-      radioGFEnabled != g_model.radioGFEnabled() ||
-      radioTrainerEnabled != g_model.radioTrainerEnabled()) {
+  if (_radioThemesEnabled != radioThemesEnabled() ||
+      _radioGFEnabled != radioGFEnabled() ||
+      _radioTrainerEnabled != radioTrainerEnabled()) {
     removeAllTabs();
     build();
     setCurrentTab(0);

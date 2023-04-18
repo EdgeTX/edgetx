@@ -208,7 +208,7 @@ void menuModelSelect(event_t event)
 
       case EVT_KEY_BREAK(KEY_PAGE):
       case EVT_KEY_LONG(KEY_PAGE):
-        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
+        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1].menuFunc);
         killEvents(event);
         break;
 

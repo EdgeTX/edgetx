@@ -383,7 +383,7 @@ void menuMainView(event_t event)
       break;
 
     case EVT_KEY_GENERAL_MENU:
-      pushMenu(menuTabGeneral[0]);
+      pushMenu(menuTabGeneral[0].menuFunc);
       killEvents(event);
       break;
 

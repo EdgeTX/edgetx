@@ -300,7 +300,38 @@ void onLongMenuPress(const char * result)
 
 tmr10ms_t menuEntryTime;
 
-void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t rowcount, uint8_t flags)
+uint8_t chgMenu(uint8_t curr, const MenuHandler * menuTab, uint8_t menuTabSize, int direction)
+{
+  int cc = curr + direction;
+  while (cc != curr) {
+    if (cc < 0)
+      cc = menuTabSize - 1;
+    else if (cc >= menuTabSize)
+      cc = 0;
+    if (menuTab[cc].isEnabled())
+      return cc;
+    cc += direction;
+  }
+  return curr;
+}
+
+uint8_t menuSize(const MenuHandler * menuTab, uint8_t menuTabSize)
+{
+  uint8_t sz = 0;
+  for (int i = 0; i < menuTabSize; i += 1) {
+    if (menuTab[i].isEnabled()) {
+      sz += 1;
+    }
+  }
+  return sz;
+}
+
+uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
+{
+  return menuSize(menuTab, curr + 1) - 1;
+}
+
+void check(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t rowcount, uint8_t flags)
 {
   vertpos_t l_posVert = menuVerticalPosition;
   horzpos_t l_posHorz = menuHorizontalPosition;
@@ -328,10 +359,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
         if (s_editMode>0)
           break;
 
-        if (curr > 0)
-          cc = curr - 1;
-        else
-          cc = menuTabSize-1;
+        cc = chgMenu(curr, menuTab, menuTabSize, -1);
         killEvents(event);
         break;
 
@@ -339,19 +367,16 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
         if (s_editMode>0)
           break;
 
-        if (curr < (menuTabSize-1))
-          cc = curr + 1;
-        else
-          cc = 0;
+        cc = chgMenu(curr, menuTab, menuTabSize, 1);
         break;
     }
 
     if (!menuCalibrationState && cc != curr) {
-      chainMenu(menuTab[cc]);
+      chainMenu(menuTab[cc].menuFunc);
     }
 
     if (!(flags&CHECK_FLAG_NO_SCREEN_INDEX)) {
-      drawScreenIndex(curr, menuTabSize, 0);
+      drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), 0);
     }
 
     lcdDrawFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, SOLID, FILL_WHITE|GREY_DEFAULT);

@@ -45,44 +45,44 @@ ModelMenu::ModelMenu():
 
 void ModelMenu::build()
 {
-  modelHeliEnabled = g_model.modelHeliEnabled();
-  modelFMEnabled = g_model.modelFMEnabled();
-  modelMixesEnabled = g_model.modelMixesEnabled();
-  modelCurvesEnabled = g_model.modelCurvesEnabled();
-  modelGVEnabled = g_model.modelGVEnabled();
-  modelLSEnabled = g_model.modelLSEnabled();
-  modelSFEnabled = g_model.modelSFEnabled();
-  modelCustomScriptsEnabled = g_model.modelCustomScriptsEnabled();
-  modelTelemetryEnabled = g_model.modelTelemetryEnabled();
+  _modelHeliEnabled = modelHeliEnabled();
+  _modelFMEnabled = modelFMEnabled();
+  _modelMixesEnabled = modelMixesEnabled();
+  _modelCurvesEnabled = modelCurvesEnabled();
+  _modelGVEnabled = modelGVEnabled();
+  _modelLSEnabled = modelLSEnabled();
+  _modelSFEnabled = modelSFEnabled();
+  _modelCustomScriptsEnabled = modelCustomScriptsEnabled();
+  _modelTelemetryEnabled = modelTelemetryEnabled();
 
   addTab(new ModelSetupPage());
 #if defined(HELI)
-  if (g_model.modelHeliEnabled())
+  if (_modelHeliEnabled)
     addTab(new ModelHeliPage());
 #endif
 #if defined(FLIGHT_MODES)
-  if (g_model.modelFMEnabled())
+  if (_modelFMEnabled)
     addTab(new ModelFlightModesPage());
 #endif
   addTab(new ModelInputsPage());
-  if (g_model.modelMixesEnabled())
+  if (_modelMixesEnabled)
     addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
-  if (g_model.modelCurvesEnabled())
+  if (_modelCurvesEnabled)
     addTab(new ModelCurvesPage());
 #if defined(GVARS)
-  if (g_model.modelGVEnabled())
+  if (_modelGVEnabled)
     addTab(new ModelGVarsPage());
 #endif
-  if (g_model.modelLSEnabled())
+  if (_modelLSEnabled)
     addTab(new ModelLogicalSwitchesPage());
-  if (g_model.modelSFEnabled())
+  if (_modelSFEnabled)
     addTab(new SpecialFunctionsPage(g_model.customFn));
 #if defined(LUA_MODEL_SCRIPTS)
-  if (g_model.modelCustomScriptsEnabled())
+  if (_modelCustomScriptsEnabled)
     addTab(new ModelMixerScriptsPage());
 #endif
-  if (g_model.modelTelemetryEnabled())
+  if (_modelTelemetryEnabled)
     addTab(new ModelTelemetryPage());
 
 #if defined(PCBNV14) || defined(PCBPL18)
@@ -94,15 +94,15 @@ void ModelMenu::checkEvents()
 {
   TabsGroup::checkEvents();
 
-  if (modelHeliEnabled != g_model.modelHeliEnabled() ||
-      modelFMEnabled != g_model.modelFMEnabled() ||
-      modelMixesEnabled != g_model.modelMixesEnabled() ||
-      modelCurvesEnabled != g_model.modelCurvesEnabled() ||
-      modelGVEnabled != g_model.modelGVEnabled() ||
-      modelLSEnabled != g_model.modelLSEnabled() ||
-      modelSFEnabled != g_model.modelSFEnabled() ||
-      modelCustomScriptsEnabled != g_model.modelCustomScriptsEnabled() ||
-      modelTelemetryEnabled != g_model.modelTelemetryEnabled()) {
+  if (_modelHeliEnabled != modelHeliEnabled() ||
+      _modelFMEnabled != modelFMEnabled() ||
+      _modelMixesEnabled != modelMixesEnabled() ||
+      _modelCurvesEnabled != modelCurvesEnabled() ||
+      _modelGVEnabled != modelGVEnabled() ||
+      _modelLSEnabled != modelLSEnabled() ||
+      _modelSFEnabled != modelSFEnabled() ||
+      _modelCustomScriptsEnabled != modelCustomScriptsEnabled() ||
+      _modelTelemetryEnabled != modelTelemetryEnabled()) {
     removeAllTabs();
     build();
     setCurrentTab(0);

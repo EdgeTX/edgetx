@@ -29,7 +29,7 @@ class ModelMenu : public TabsGroup
   public:
     ModelMenu();
 
-    void onEvent(event_t event);
+    void onEvent(event_t event) override;
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override { return "ModelMenu"; }
@@ -39,15 +39,15 @@ class ModelMenu : public TabsGroup
 #if defined(PCBNV14) || defined(PCBPL18)
     void addGoToMonitorsButton(void);
 #endif
-    bool modelHeliEnabled = true;
-    bool modelFMEnabled = true;
-    bool modelMixesEnabled = true;
-    bool modelCurvesEnabled = true;
-    bool modelGVEnabled = true;
-    bool modelLSEnabled = true;
-    bool modelSFEnabled = true;
-    bool modelCustomScriptsEnabled = true;
-    bool modelTelemetryEnabled = true;
+    bool _modelHeliEnabled = true;
+    bool _modelFMEnabled = true;
+    bool _modelMixesEnabled = true;
+    bool _modelCurvesEnabled = true;
+    bool _modelGVEnabled = true;
+    bool _modelLSEnabled = true;
+    bool _modelSFEnabled = true;
+    bool _modelCustomScriptsEnabled = true;
+    bool _modelTelemetryEnabled = true;
 
     void build();
     void checkEvents() override;

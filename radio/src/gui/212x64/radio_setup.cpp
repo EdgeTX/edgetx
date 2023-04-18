@@ -99,6 +99,19 @@ enum MenuRadioSetupItems {
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
+  ITEM_VIEW_OPTIONS_LABEL,
+  ITEM_VIEW_OPTIONS_RADIO_TAB,
+  ITEM_VIEW_OPTIONS_GF,
+  ITEM_VIEW_OPTIONS_TRAINER,
+  ITEM_VIEW_OPTIONS_MODEL_TAB,
+  CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
+  CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+  ITEM_VIEW_OPTIONS_MIXES,
+  ITEM_VIEW_OPTIONS_CURVES,
+  ITEM_VIEW_OPTIONS_LS,
+  ITEM_VIEW_OPTIONS_SF,
+  CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
+  ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
 };
 
@@ -181,6 +194,7 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
       0, // sticks mode
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
       1 /*to force edit mode*/
   });
 
@@ -630,6 +644,62 @@ void menuRadioSetup(event_t event)
           mixerTaskStart();
           waitKeysReleased();
         }
+        break;
+
+      case ITEM_VIEW_OPTIONS_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_VIEW_OPTIONS);
+        break;
+      case ITEM_VIEW_OPTIONS_RADIO_TAB:
+        lcdDrawText(INDENT_WIDTH, y, TR_RADIO_MENU_TABS);
+        break;
+      case ITEM_VIEW_OPTIONS_GF:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUSPECIALFUNCS);
+        g_eeGeneral.radioGFDisabled = !editCheckBox(!g_eeGeneral.radioGFDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+      case ITEM_VIEW_OPTIONS_TRAINER:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUTRAINER);
+        g_eeGeneral.radioTrainerDisabled = !editCheckBox(!g_eeGeneral.radioTrainerDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+      case ITEM_VIEW_OPTIONS_MODEL_TAB:
+        lcdDrawText(INDENT_WIDTH, y, TR_MODEL_MENU_TABS);
+        break;
+#if defined(HELI)
+      case ITEM_VIEW_OPTIONS_HELI:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUHELISETUP);
+        g_eeGeneral.modelHeliDisabled = !editCheckBox(!g_eeGeneral.modelHeliDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+#endif
+#if defined(FLIGHT_MODES)
+      case ITEM_VIEW_OPTIONS_FM:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUFLIGHTMODES);
+        g_eeGeneral.modelFMDisabled = !editCheckBox(!g_eeGeneral.modelFMDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_MIXES:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MIXES);
+        g_eeGeneral.modelMixesDisabled = !editCheckBox(!g_eeGeneral.modelMixesDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+      case ITEM_VIEW_OPTIONS_CURVES:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCURVES);
+        g_eeGeneral.modelCurvesDisabled = !editCheckBox(!g_eeGeneral.modelCurvesDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+      case ITEM_VIEW_OPTIONS_LS:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENULOGICALSWITCHES);
+        g_eeGeneral.modelLSDisabled = !editCheckBox(!g_eeGeneral.modelLSDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+      case ITEM_VIEW_OPTIONS_SF:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCUSTOMFUNC);
+        g_eeGeneral.modelSFDisabled = !editCheckBox(!g_eeGeneral.modelSFDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+#if defined(LUA_MODEL_SCRIPTS)
+      case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCUSTOMSCRIPTS);
+        g_eeGeneral.modelCustomScriptsDisabled = !editCheckBox(!g_eeGeneral.modelCustomScriptsDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_TELEMETRY:
+        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUTELEMETRY);
+        g_eeGeneral.modelTelemetryDisabled = !editCheckBox(!g_eeGeneral.modelTelemetryDisabled, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
         break;
     }
   }

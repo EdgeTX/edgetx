@@ -1946,42 +1946,42 @@ uint32_t availableMemory()
 
 // Radio menu tab state
 #if defined(COLORLCD)
-bool ModelData::radioThemesEnabled() {
-  return (radioThemesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioThemesDisabled == 0) || (radioThemesDisabled == 2);
+bool radioThemesEnabled() {
+  return (g_model.radioThemesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioThemesDisabled == 0) || (g_model.radioThemesDisabled == 2);
 }
 #endif
-bool ModelData::radioGFEnabled() {
-  return (radioGFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioGFDisabled == 0) || (radioGFDisabled == 2);
+bool radioGFEnabled() {
+  return (g_model.radioGFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioGFDisabled == 0) || (g_model.radioGFDisabled == 2);
 }
-bool ModelData::radioTrainerEnabled() {
-  return (radioTrainerDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioTrainerDisabled == 0) || (radioTrainerDisabled == 2);
+bool radioTrainerEnabled() {
+  return (g_model.radioTrainerDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioTrainerDisabled == 0) || (g_model.radioTrainerDisabled == 2);
 }
 
 // Mode menu tab state
-bool ModelData::modelHeliEnabled() {
-  return (modelHeliDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelHeliDisabled == 0) || (modelHeliDisabled == 2);
+bool modelHeliEnabled() {
+  return (g_model.modelHeliDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelHeliDisabled == 0) || (g_model.modelHeliDisabled == 2);
 }
-bool ModelData::modelFMEnabled() {
-  return (modelFMDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelFMDisabled == 0) || (modelFMDisabled == 2);
+bool modelFMEnabled() {
+  return (g_model.modelFMDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelFMDisabled == 0) || (g_model.modelFMDisabled == 2);
 }
-bool ModelData::modelMixesEnabled() {
-  return (modelMixesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelMixesDisabled == 0) || (modelMixesDisabled == 2);
+bool modelMixesEnabled() {
+  return (g_model.modelMixesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelMixesDisabled == 0) || (g_model.modelMixesDisabled == 2);
 }
-bool ModelData::modelCurvesEnabled() {
-  return (modelCurvesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCurvesDisabled == 0) || (modelCurvesDisabled == 2);
+bool modelCurvesEnabled() {
+  return (g_model.modelCurvesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCurvesDisabled == 0) || (g_model.modelCurvesDisabled == 2);
 }
-bool ModelData::modelGVEnabled() {
-  return (modelGVDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelGVDisabled == 0) || (modelGVDisabled == 2);
+bool modelGVEnabled() {
+  return modelFMEnabled() && (g_model.modelGVDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelGVDisabled == 0) || (g_model.modelGVDisabled == 2);
 }
-bool ModelData::modelLSEnabled() {
-  return (modelLSDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelLSDisabled == 0) || (modelLSDisabled == 2);
+bool modelLSEnabled() {
+  return (g_model.modelLSDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelLSDisabled == 0) || (g_model.modelLSDisabled == 2);
 }
-bool ModelData::modelSFEnabled() {
-  return (modelSFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelSFDisabled == 0) || (modelSFDisabled == 2);
+bool modelSFEnabled() {
+  return (g_model.modelSFDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelSFDisabled == 0) || (g_model.modelSFDisabled == 2);
 }
-bool ModelData::modelCustomScriptsEnabled() {
-  return (modelCustomScriptsDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCustomScriptsDisabled == 0) || (modelCustomScriptsDisabled == 2);
+bool modelCustomScriptsEnabled() {
+  return (g_model.modelCustomScriptsDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCustomScriptsDisabled == 0) || (g_model.modelCustomScriptsDisabled == 2);
 }
-bool ModelData::modelTelemetryEnabled() {
-  return (modelTelemetryDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelTelemetryDisabled == 0) || (modelTelemetryDisabled == 2);
+bool modelTelemetryEnabled() {
+  return (g_model.modelTelemetryDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelTelemetryDisabled == 0) || (g_model.modelTelemetryDisabled == 2);
 }

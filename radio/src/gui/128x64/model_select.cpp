@@ -215,7 +215,7 @@ void menuModelSelect(event_t event)
 
 #if defined(KEYS_GPIO_REG_PAGEDN)
     case EVT_KEY_FIRST(KEY_PAGEUP):
-      chainMenu(menuTabModel[DIM(menuTabModel)-1]);
+      chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
       killEvents(event);
       break;
 
@@ -224,7 +224,7 @@ void menuModelSelect(event_t event)
       break;
 #elif defined(KEYS_GPIO_REG_PAGE)
     case EVT_KEY_LONG(KEY_PAGE):
-      chainMenu(menuTabModel[DIM(menuTabModel)-1]);
+      chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
       killEvents(event);
       break;
 
@@ -242,7 +242,7 @@ void menuModelSelect(event_t event)
       if ((!IS_ROTARY_RIGHT(event) && !IS_ROTARY_LEFT(event)) || s_editMode < 0) {
 #endif
       if (sub == g_eeGeneral.currModel) {
-        chainMenu((IS_ROTARY_RIGHT(event) || event == EVT_KEY_FIRST(KEY_RIGHT)) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
+        chainMenu((IS_ROTARY_RIGHT(event) || event == EVT_KEY_FIRST(KEY_RIGHT)) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1].menuFunc);
       }
       else {
         AUDIO_WARNING2();

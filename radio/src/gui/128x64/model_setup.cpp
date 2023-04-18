@@ -198,6 +198,22 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS,
 #endif
 
+  ITEM_VIEW_OPTIONS_LABEL,
+  ITEM_VIEW_OPTIONS_RADIO_TAB,
+  ITEM_VIEW_OPTIONS_GF,
+  ITEM_VIEW_OPTIONS_TRAINER,
+  ITEM_VIEW_OPTIONS_MODEL_TAB,
+  CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
+  CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+  ITEM_VIEW_OPTIONS_MIXES,
+  ITEM_VIEW_OPTIONS_CURVES,
+  ITEM_VIEW_OPTIONS_LS,
+  ITEM_VIEW_OPTIONS_SF,
+#if defined(LUA_MODEL_SCRIPTS)
+  ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS,
+#endif
+  ITEM_VIEW_OPTIONS_TELEMETRY,
+
 #if defined(USBJ_EX)
   ITEM_MODEL_SETUP_USBJOYSTICK_LABEL,
   ITEM_MODEL_SETUP_USBJOYSTICK_MODE,
@@ -206,6 +222,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON,
   ITEM_MODEL_SETUP_USBJOYSTICK_APPLY,
 #endif
+
   ITEM_MODEL_SETUP_LINES_COUNT
 };
 
@@ -525,7 +542,9 @@ void menuModelSetup(event_t event)
 
     TRAINER_ROWS,
 
-    USB_JOYSTICK_ROWS
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+
+    USB_JOYSTICK_ROWS,
   });
 
   MENU_CHECK(menuTabModel, MENU_MODEL_SETUP, HEADER_LINE + ITEM_MODEL_SETUP_LINES_COUNT);
@@ -2100,6 +2119,62 @@ void menuModelSetup(event_t event)
         }
         break;
 #endif
+
+      case ITEM_VIEW_OPTIONS_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_VIEW_OPTIONS);
+        break;
+      case ITEM_VIEW_OPTIONS_RADIO_TAB:
+        lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
+        break;
+      case ITEM_VIEW_OPTIONS_GF:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUSPECIALFUNCS);
+        g_model.radioGFDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.radioGFDisabled, 0, 2, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_TRAINER:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUTRAINER);
+        g_model.radioTrainerDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.radioTrainerDisabled, 0, 2, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_MODEL_TAB:
+        lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
+        break;
+#if defined(HELI)
+      case ITEM_VIEW_OPTIONS_HELI:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUHELISETUP);
+        g_model.modelHeliDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelHeliDisabled, 0, 2, attr, event);
+        break;
+#endif
+#if defined(FLIGHT_MODES)
+      case ITEM_VIEW_OPTIONS_FM:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUFLIGHTMODES);
+        g_model.modelFMDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelFMDisabled, 0, 2, attr, event);
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_MIXES:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MIXES);
+        g_model.modelMixesDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelMixesDisabled, 0, 2, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_CURVES:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCURVES);
+        g_model.modelCurvesDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCurvesDisabled, 0, 2, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_LS:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENULOGICALSWITCHES);
+        g_model.modelLSDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelLSDisabled, 0, 2, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_SF:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCUSTOMFUNC);
+        g_model.modelSFDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelSFDisabled, 0, 2, attr, event);
+        break;
+#if defined(LUA_MODEL_SCRIPTS)
+      case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCUSTOMSCRIPTS);
+        g_model.modelCustomScriptsDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCustomScriptsDisabled, 0, 2, attr, event);
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_TELEMETRY:
+        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUTELEMETRY);
+        g_model.modelTelemetryDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelTelemetryDisabled, 0, 2, attr, event);
+        break;
 
 #if defined(USBJ_EX)
       case ITEM_MODEL_SETUP_USBJOYSTICK_LABEL:

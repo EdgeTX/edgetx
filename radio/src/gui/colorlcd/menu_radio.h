@@ -30,9 +30,9 @@ class RadioMenu: public TabsGroup {
     ~RadioMenu();
 
   protected:
-    bool radioThemesEnabled = true;
-    bool radioGFEnabled = true;
-    bool radioTrainerEnabled = true;
+    bool _radioThemesEnabled = true;
+    bool _radioGFEnabled = true;
+    bool _radioTrainerEnabled = true;
 
     void build();
     void checkEvents() override;

@@ -21,16 +21,16 @@
 
 #include "opentx.h"
 
-const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
+const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
 #if defined(RADIO_TOOLS)
-  menuRadioTools,
+  { menuRadioTools, nullptr },
 #endif
-  menuRadioSdManager,
-  menuRadioSetup,
-  menuRadioSpecialFunctions,
-  menuRadioTrainer,
-  menuRadioHardware,
-  menuRadioVersion
+  { menuRadioSdManager, nullptr },
+  { menuRadioSetup, nullptr },
+  { menuRadioSpecialFunctions, radioGFEnabled },
+  { menuRadioTrainer, radioTrainerEnabled },
+  { menuRadioHardware, nullptr },
+  { menuRadioVersion, nullptr }
 };
 
 void menuRadioSpecialFunctions(event_t event)

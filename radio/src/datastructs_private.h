@@ -785,21 +785,6 @@ PACK(struct ModelData {
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
-
-#if defined(COLORLCD)
-  bool radioThemesEnabled();
-#endif
-  bool radioGFEnabled();
-  bool radioTrainerEnabled();
-  bool modelHeliEnabled();
-  bool modelFMEnabled();
-  bool modelMixesEnabled();
-  bool modelCurvesEnabled();
-  bool modelGVEnabled();
-  bool modelLSEnabled();
-  bool modelSFEnabled();
-  bool modelCustomScriptsEnabled();
-  bool modelTelemetryEnabled();
 });
 
 /*

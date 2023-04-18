@@ -164,8 +164,8 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
 #define CURSOR_ON_LINE()         (menuHorizontalPosition<0)
 
 #define CHECK_FLAG_NO_SCREEN_INDEX   1
-void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t maxrow, uint8_t flags=0);
-void check_simple(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, vertpos_t maxrow);
+void check(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t maxrow, uint8_t flags=0);
+void check_simple(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, vertpos_t maxrow);
 void check_submenu_simple(event_t event, uint8_t maxrow);
 
 void title(const char * s);
