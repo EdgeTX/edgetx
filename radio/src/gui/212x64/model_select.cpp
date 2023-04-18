@@ -249,7 +249,8 @@ void menuModelSelect(event_t event)
   lcdDrawText(lcdLastRightPos + 3, 0, STR_FREE);
 #endif
 
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), 0);
+  extern uint8_t menuSize(const MenuHandler*, uint8_t);
+  drawScreenIndex(MENU_MODEL_SELECT, menuSize(menuTabModel, DIM(menuTabModel)), 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   title(STR_MENUMODELSEL);

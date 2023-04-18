@@ -291,12 +291,14 @@ void menuModelSelect(event_t event)
   lcdDrawNumber(lcdLastRightPos+3, 0, reusableBuffer.modelsel.eepromfree, LEFT);
 #endif
 
+  extern uint8_t menuSize(const MenuHandler*, uint8_t);
+  uint8_t sz = menuSize(menuTabModel, DIM(menuTabModel));
 #if defined(NAVIGATION_X7)
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, 0);
 #elif defined(ROTARY_ENCODER_NAVIGATION)
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? ((IS_ROTARY_ENCODER_NAVIGATION_ENABLE() && s_editMode < 0) ? INVERS|BLINK : INVERS) : 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, (sub == g_eeGeneral.currModel) ? ((IS_ROTARY_ENCODER_NAVIGATION_ENABLE() && s_editMode < 0) ? INVERS|BLINK : INVERS) : 0);
 #else
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? INVERS : 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, (sub == g_eeGeneral.currModel) ? INVERS : 0);
 #endif
 
   title(STR_MENUMODELSEL);

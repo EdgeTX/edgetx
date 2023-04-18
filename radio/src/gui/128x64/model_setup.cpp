@@ -496,6 +496,12 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
 #endif
 
+uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+{
+  lcdDrawText(INDENT_WIDTH-1, y, title);
+  return editChoice(96, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
+}
+
 void menuModelSetup(event_t event)
 {
   int8_t old_editMode = s_editMode;
@@ -2127,53 +2133,43 @@ void menuModelSetup(event_t event)
         lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUSPECIALFUNCS);
-        g_model.radioGFDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.radioGFDisabled, 0, 2, attr, event);
+        g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_TRAINER:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUTRAINER);
-        g_model.radioTrainerDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.radioTrainerDisabled, 0, 2, attr, event);
+        g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUHELISETUP);
-        g_model.modelHeliDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelHeliDisabled, 0, 2, attr, event);
+        g_model.modelHeliDisabled = viewOptChoice(y, STR_MENUHELISETUP, g_model.modelHeliDisabled, attr, event);
         break;
 #endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUFLIGHTMODES);
-        g_model.modelFMDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelFMDisabled, 0, 2, attr, event);
+        g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_MIXES:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MIXES);
-        g_model.modelMixesDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelMixesDisabled, 0, 2, attr, event);
+        g_model.modelMixesDisabled = viewOptChoice(y, STR_MIXES, g_model.modelMixesDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCURVES);
-        g_model.modelCurvesDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCurvesDisabled, 0, 2, attr, event);
+        g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_LS:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENULOGICALSWITCHES);
-        g_model.modelLSDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelLSDisabled, 0, 2, attr, event);
+        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_SF:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCUSTOMFUNC);
-        g_model.modelSFDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelSFDisabled, 0, 2, attr, event);
+        g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUCUSTOMSCRIPTS);
-        g_model.modelCustomScriptsDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCustomScriptsDisabled, 0, 2, attr, event);
+        g_model.modelCustomScriptsDisabled = viewOptChoice(y, STR_MENUCUSTOMSCRIPTS, g_model.modelCustomScriptsDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
-        lcdDrawText(INDENT_WIDTH-1, y, STR_MENUTELEMETRY);
-        g_model.modelTelemetryDisabled = editChoice(96, y, nullptr, STR_ADCFILTERVALUES, g_model.modelTelemetryDisabled, 0, 2, attr, event);
+        g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event);
         break;
 
 #if defined(USBJ_EX)

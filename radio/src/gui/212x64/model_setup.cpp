@@ -167,7 +167,7 @@ enum MenuModelSetupItems {
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
   ITEM_VIEW_OPTIONS_MIXES,
   ITEM_VIEW_OPTIONS_CURVES,
-  ITEM_VIEW_OPTIONS_GV,
+  CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
 #if defined(LUA_MODEL_SCRIPTS)
@@ -442,6 +442,12 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 #define USB_JOYSTICK_ROWS
 #endif
 
+uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+{
+  lcdDrawText(INDENT_WIDTH*2, y, title);
+  return editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
+}
+
 void menuModelSetup(event_t event)
 {
   horzpos_t l_posHorz = menuHorizontalPosition;
@@ -522,7 +528,7 @@ void menuModelSetup(event_t event)
 
     TRAINER_ROWS,
 
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, CASE_GVARS(0) 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
 
     USB_JOYSTICK_ROWS
   });
@@ -1841,57 +1847,48 @@ void menuModelSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, TR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUSPECIALFUNCS);
-        g_model.radioGFDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.radioGFDisabled, 0, 2, attr, event);
+        g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_TRAINER:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUTRAINER);
-        g_model.radioTrainerDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.radioTrainerDisabled, 0, 2, attr, event);
+        g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH, y, TR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUHELISETUP);
-        g_model.modelHeliDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelHeliDisabled, 0, 2, attr, event);
+        g_model.modelHeliDisabled = viewOptChoice(y, STR_MENUHELISETUP, g_model.modelHeliDisabled, attr, event);
         break;
 #endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUFLIGHTMODES);
-        g_model.modelFMDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelFMDisabled, 0, 2, attr, event);
+        g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_MIXES:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MIXES);
-        g_model.modelMixesDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelMixesDisabled, 0, 2, attr, event);
+        g_model.modelMixesDisabled = viewOptChoice(y, STR_MIXES, g_model.modelMixesDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCURVES);
-        g_model.modelCurvesDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCurvesDisabled, 0, 2, attr, event);
+        g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;
+#if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENU_GLOBAL_VARS);
-        g_model.modelGVDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelGVDisabled, 0, 2, attr, event);
+        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
         break;
+#endif
       case ITEM_VIEW_OPTIONS_LS:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENULOGICALSWITCHES);
-        g_model.modelLSDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelLSDisabled, 0, 2, attr, event);
+        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_SF:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCUSTOMFUNC);
-        g_model.modelSFDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelSFDisabled, 0, 2, attr, event);
+        g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUCUSTOMSCRIPTS);
-        g_model.modelCustomScriptsDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelCustomScriptsDisabled, 0, 2, attr, event);
+        g_model.modelCustomScriptsDisabled = viewOptChoice(y, STR_MENUCUSTOMSCRIPTS, g_model.modelCustomScriptsDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
-        lcdDrawText(INDENT_WIDTH*2, y, STR_MENUTELEMETRY);
-        g_model.modelTelemetryDisabled = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, g_model.modelTelemetryDisabled, 0, 2, attr, event);
+        g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event);
         break;
 
 #if defined(USBJ_EX)

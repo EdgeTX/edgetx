@@ -128,6 +128,12 @@ enum {
   #define COL_TX_MODE LABEL(TX_MODE)
 #endif
 
+uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+{
+  lcdDrawText(INDENT_WIDTH, y, title);
+  return !editCheckBox(!value, 110, y, nullptr, attr, event ) ;
+}
+
 void menuRadioSetup(event_t event)
 {
 #if defined(RTCLOCK)
@@ -724,53 +730,43 @@ void menuRadioSetup(event_t event)
         lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUSPECIALFUNCS);
-        g_eeGeneral.radioGFDisabled = !editCheckBox(!g_eeGeneral.radioGFDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_TRAINER:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUTRAINER);
-        g_eeGeneral.radioTrainerDisabled = !editCheckBox(!g_eeGeneral.radioTrainerDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUHELISETUP);
-        g_eeGeneral.modelHeliDisabled = !editCheckBox(!g_eeGeneral.modelHeliDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelHeliDisabled = viewOptCheckBox(y, STR_MENUHELISETUP, g_eeGeneral.modelHeliDisabled, attr, event);
         break;
 #endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUFLIGHTMODES);
-        g_eeGeneral.modelFMDisabled = !editCheckBox(!g_eeGeneral.modelFMDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_MIXES:
-        lcdDrawText(INDENT_WIDTH, y, STR_MIXES);
-        g_eeGeneral.modelMixesDisabled = !editCheckBox(!g_eeGeneral.modelMixesDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelMixesDisabled = viewOptCheckBox(y, STR_MIXES, g_eeGeneral.modelMixesDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_CURVES:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUCURVES);
-        g_eeGeneral.modelCurvesDisabled = !editCheckBox(!g_eeGeneral.modelCurvesDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_LS:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENULOGICALSWITCHES);
-        g_eeGeneral.modelLSDisabled = !editCheckBox(!g_eeGeneral.modelLSDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_SF:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUCUSTOMFUNC);
-        g_eeGeneral.modelSFDisabled = !editCheckBox(!g_eeGeneral.modelSFDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUCUSTOMSCRIPTS);
-        g_eeGeneral.modelCustomScriptsDisabled = !editCheckBox(!g_eeGeneral.modelCustomScriptsDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelCustomScriptsDisabled = viewOptCheckBox(y, STR_MENUCUSTOMSCRIPTS, g_eeGeneral.modelCustomScriptsDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
-        lcdDrawText(INDENT_WIDTH, y, STR_MENUTELEMETRY);
-        g_eeGeneral.modelTelemetryDisabled = !editCheckBox(!g_eeGeneral.modelTelemetryDisabled, 110, y, nullptr, attr, event ) ;
+        g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event);
         break;
     }
   }
