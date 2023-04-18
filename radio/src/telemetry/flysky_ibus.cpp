@@ -267,7 +267,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
   else if (SENSOR_TYPE_PRES == type)
   {
       int32_t alt = getALT(value);
-      int16_t temp = (value >> 19) - 400;
+      int16_t temp = (value >> 19);
 
       uint8_t data1[] = { (uint8_t)(SENSOR_TYPE_ALT>>8), (uint8_t)(SENSOR_TYPE_ALT&0xff), id, (uint8_t)alt, (uint8_t)(alt>>8), (uint8_t)(alt>>16), (uint8_t)(alt>>24) };
       uint8_t data2[] = { (uint8_t)(SENSOR_TYPE_TEMPERATURE>>8), (uint8_t)(SENSOR_TYPE_TEMPERATURE&0xff), id, (uint8_t)temp, (uint8_t)(temp>>8) };
@@ -276,12 +276,16 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
       value &= PRESSURE_MASK;
   }
 
+  if(SENSOR_TYPE_TEMPERATURE == type)
+  {
+    value -= 400;// Temperature sensors have 40 degree offset
+  }
+
   for (const FlySkySensor * sensor = flySkySensors; sensor->type; sensor++)
   {
     if (sensor->type != type) continue;
 
-    if (sensor->unit == UNIT_CELSIUS) value -= 400; // Temperature sensors have 40 degree offset
-    else if (sensor->unit == UNIT_VOLTS) value = (int16_t) value; // Voltage types are unsigned 16bit integers
+    if (sensor->unit == UNIT_VOLTS) value = (int16_t) value; // Voltage types are unsigned 16bit integers
 
     setFlyskyTelemetryValue(type, id, value, sensor->unit, sensor->precision);
     return;
