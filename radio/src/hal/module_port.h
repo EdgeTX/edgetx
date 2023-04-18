@@ -145,10 +145,16 @@ inline uint8_t modulePortGetType(const etx_module_driver_t& d) {
 }
 
 inline const etx_serial_driver_t* modulePortGetSerialDrv(const etx_module_driver_t& d) {
+#if defined(SIMU)
+  if (d.port == nullptr) return nullptr;
+#endif
   return d.port->drv.serial;
 }
 
 inline const etx_timer_driver_t* modulePortGetTimerDrv(const etx_module_driver_t& d) {
+#if defined(SIMU)
+  if (d.port == nullptr) return nullptr;
+#endif
   return d.port->drv.timer;
 }
 
