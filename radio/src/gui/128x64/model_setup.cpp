@@ -106,7 +106,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_POTS_WARNING,
 #endif
   ITEM_MODEL_SETUP_BEEP_CENTER,
-  ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS,
   ITEM_MODEL_SETUP_USE_JITTER_FILTER,
 #if defined(PXX2)
   ITEM_MODEL_SETUP_REGISTRATION_ID,
@@ -540,7 +539,6 @@ void menuModelSetup(event_t event)
       WARN_ROWS
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
-    0, // Global functions
 
     0, // ADC Jitter filter
 
@@ -554,6 +552,7 @@ void menuModelSetup(event_t event)
 
     TRAINER_ROWS,
 
+    // View options
     LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
 
     USB_JOYSTICK_ROWS,
@@ -1037,12 +1036,6 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
-
-      case ITEM_MODEL_SETUP_USE_GLOBAL_FUNCTIONS:
-        lcdDrawTextAlignedLeft(y, STR_USE_GLOBAL_FUNCS);
-        drawCheckBox(MODEL_SETUP_2ND_COLUMN, y, !g_model.noGlobalFunctions, attr);
-        if (attr) g_model.noGlobalFunctions = !checkIncDecModel(event, !g_model.noGlobalFunctions, 0, 1);
         break;
 
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
