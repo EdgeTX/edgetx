@@ -341,13 +341,18 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #define TRAINER_ROWS                      LABEL(Trainer), 0, TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
 #endif
 
+inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
+{
+  if (g_model.timers[timer].mode > 0)
+    return value;
+  return HIDDEN_ROW;
+}
+
 #define TIMER_ROWS(x)                                                  \
-  1 | NAVIGATION_LINE_BY_LINE, 0,                                      \
-      (uint8_t)(((g_model.timers[x].start) ? 2 : 1) |      \
-          NAVIGATION_LINE_BY_LINE),                                     \
-      0, 0,                                                            \
-      g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
-                                                          : (uint8_t)0
+  1 | NAVIGATION_LINE_BY_LINE, TIMER_ROW(x,0),                         \
+      TIMER_ROW(x,(uint8_t)((g_model.timers[x].start) ? 2 : 1) | NAVIGATION_LINE_BY_LINE),       \
+      TIMER_ROW(x,0), TIMER_ROW(x,0),                                  \
+      TIMER_ROW(x,g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 : (uint8_t)0)
 
 inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 {

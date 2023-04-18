@@ -289,13 +289,19 @@ inline uint8_t MODULE_SUBTYPE_ROWS(int moduleIdx)
   return HIDDEN_ROW;
 }
 
+inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
+{
+  if (g_model.timers[timer].mode > 0)
+    return value;
+  return HIDDEN_ROW;
+}
+
 #define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
 #define TIMER_ROWS(x)                                                  \
-  1, 0,                                                                \
-      (uint8_t)((g_model.timers[x].start) ? 2 : 1),                   \
-      0, 0,                                                            \
-      g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 \
-                                                          : (uint8_t)0
+  1, TIMER_ROW(x,0),                                                   \
+      TIMER_ROW(x,(uint8_t)((g_model.timers[x].start) ? 2 : 1)),       \
+      TIMER_ROW(x,0), TIMER_ROW(x,0),                                  \
+      TIMER_ROW(x,g_model.timers[x].countdownBeep != COUNTDOWN_SILENT ? (uint8_t)1 : (uint8_t)0)
 
 #define EXTRA_MODULE_ROWS
 
