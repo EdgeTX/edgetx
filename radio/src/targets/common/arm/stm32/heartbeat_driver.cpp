@@ -41,8 +41,7 @@ static void trigger_intmodule_heartbeat()
   heartbeatCapture.count++;
 #endif
 
-  mixerSchedulerResetTimer();
-  mixerSchedulerISRTrigger();
+  mixerSchedulerSoftTrigger();
 }
 
 void init_intmodule_heartbeat()

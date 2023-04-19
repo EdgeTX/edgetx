@@ -35,6 +35,8 @@
 #define TIMER_MULT_APB1                 2
 #define TIMER_MULT_APB2                 2
 
+#define TELEMETRY_EXTI_PRIO             0 // required for soft serial
+
 // Keys
 #if defined(PCBX9E)
   #define KEYS_GPIO_REG_MENU            GPIOD->IDR
@@ -1962,8 +1964,10 @@
 // TELEMETRY_EXTI IRQ
 #if !defined(USE_EXTI9_5_IRQ)
   #define USE_EXTI9_5_IRQ
-  #define EXTI9_5_IRQ_Priority 5
 #endif
+// overwrite priority
+#undef EXTI9_5_IRQ_Priority
+#define EXTI9_5_IRQ_Priority            TELEMETRY_EXTI_PRIO
 
 #define TELEMETRY_TIMER                 TIM11
 #define TELEMETRY_TIMER_PRESCALER       ()

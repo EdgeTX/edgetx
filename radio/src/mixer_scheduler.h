@@ -40,9 +40,6 @@ void mixerSchedulerStart();
 // Stop the scheduler timer
 void mixerSchedulerStop();
 
-// Set the timer counter to 0
-void mixerSchedulerResetTimer();
-
 // Set the scheduling period for a given module
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs);
 
@@ -55,6 +52,9 @@ void mixerSchedulerEnableTrigger();
 // Disable the timer trigger
 void mixerSchedulerDisableTrigger();
 
+// Trigger mixer from heartbeat interrupt 
+void mixerSchedulerSoftTrigger();
+
 // Fetch the current scheduling period
 uint16_t getMixerSchedulerPeriod();
 
@@ -66,13 +66,13 @@ void mixerSchedulerISRTrigger();
 #define mixerSchedulerInit()
 #define mixerSchedulerStart()
 #define mixerSchedulerStop()
-#define mixerSchedulerResetTimer()
 #define mixerSchedulerSetPeriod(m,p) ((void)(p))
 #define mixerSchedulerGetPeriod(m) ((uint16_t)MIXER_SCHEDULER_DEFAULT_PERIOD_US)
-#define mixerSchedulerClearTrigger()
 
 #define mixerSchedulerEnableTrigger()
 #define mixerSchedulerDisableTrigger()
+
+#define mixerSchedulerSoftTrigger()
 
 #define getMixerSchedulerPeriod() (MIXER_SCHEDULER_DEFAULT_PERIOD_US)
 #define mixerSchedulerISRTrigger()
