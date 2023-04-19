@@ -142,7 +142,6 @@ void menuModelUSBJoystick(event_t event);
 
 extern bool modelHeliEnabled();
 extern bool modelFMEnabled();
-extern bool modelMixesEnabled();
 extern bool modelCurvesEnabled();
 extern bool modelLSEnabled();
 extern bool modelSFEnabled();
@@ -159,7 +158,7 @@ static const MenuHandler menuTabModel[]  = {
   { menuModelFlightModesAll, modelFMEnabled },
 #endif
   { menuModelExposAll, nullptr },
-  { menuModelMixAll, modelMixesEnabled },
+  { menuModelMixAll, nullptr },
   { menuModelLimits, nullptr },
   { menuModelCurvesAll, modelCurvesEnabled },
   { menuModelLogicalSwitches, modelLSEnabled },

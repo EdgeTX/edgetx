@@ -278,11 +278,6 @@ class ModelViewOptions : public Page
 
       line = form->newLine(&grid);
       line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MIXES, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelMixesDisabled));
-
-      line = form->newLine(&grid);
-      line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCurvesDisabled));
 

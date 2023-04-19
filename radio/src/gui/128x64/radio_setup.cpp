@@ -113,7 +113,6 @@ enum {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
-  ITEM_VIEW_OPTIONS_MIXES,
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
@@ -200,7 +199,7 @@ void menuRadioSetup(event_t event)
     CASE_JACK_DETECT(0) // Jack mode
     CASE_ROTARY_ENCODER(0)
     0, COL_TX_MODE, 0,
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
     1/*to force edit mode*/});
 
   if (event == EVT_ENTRY) {
@@ -748,9 +747,6 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event);
         break;
 #endif
-      case ITEM_VIEW_OPTIONS_MIXES:
-        g_eeGeneral.modelMixesDisabled = viewOptCheckBox(y, STR_MIXES, g_eeGeneral.modelMixesDisabled, attr, event);
-        break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event);
         break;

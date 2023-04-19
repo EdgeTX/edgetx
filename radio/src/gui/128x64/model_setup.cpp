@@ -205,7 +205,6 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
-  ITEM_VIEW_OPTIONS_MIXES,
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
@@ -608,7 +607,6 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
       CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
-      VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -2216,9 +2214,6 @@ void menuModelSetup(event_t event)
         g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event);
         break;
 #endif
-      case ITEM_VIEW_OPTIONS_MIXES:
-        g_model.modelMixesDisabled = viewOptChoice(y, STR_MIXES, g_model.modelMixesDisabled, attr, event);
-        break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;

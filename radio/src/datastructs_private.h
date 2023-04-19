@@ -778,7 +778,6 @@ PACK(struct ModelData {
   // Model level tabs control (model setting)
   uint8_t modelHeliDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelFMDisabled:2 ENUM(ModelOverridableEnable);
-  uint8_t modelMixesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCurvesDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelGVDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelLSDisabled:2 ENUM(ModelOverridableEnable);
@@ -986,7 +985,6 @@ PACK(struct RadioData {
   // Model level tabs control (global setting)
   uint8_t modelHeliDisabled:1;
   uint8_t modelFMDisabled:1;
-  uint8_t modelMixesDisabled:1;
   uint8_t modelCurvesDisabled:1;
   uint8_t modelGVDisabled:1;
   uint8_t modelLSDisabled:1;

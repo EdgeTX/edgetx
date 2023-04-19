@@ -47,7 +47,6 @@ void ModelMenu::build()
 {
   _modelHeliEnabled = modelHeliEnabled();
   _modelFMEnabled = modelFMEnabled();
-  _modelMixesEnabled = modelMixesEnabled();
   _modelCurvesEnabled = modelCurvesEnabled();
   _modelGVEnabled = modelGVEnabled();
   _modelLSEnabled = modelLSEnabled();
@@ -65,8 +64,7 @@ void ModelMenu::build()
     addTab(new ModelFlightModesPage());
 #endif
   addTab(new ModelInputsPage());
-  if (_modelMixesEnabled)
-    addTab(new ModelMixesPage());
+  addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
   if (_modelCurvesEnabled)
     addTab(new ModelCurvesPage());
@@ -96,7 +94,6 @@ void ModelMenu::checkEvents()
 
   if (_modelHeliEnabled != modelHeliEnabled() ||
       _modelFMEnabled != modelFMEnabled() ||
-      _modelMixesEnabled != modelMixesEnabled() ||
       _modelCurvesEnabled != modelCurvesEnabled() ||
       _modelGVEnabled != modelGVEnabled() ||
       _modelLSEnabled != modelLSEnabled() ||

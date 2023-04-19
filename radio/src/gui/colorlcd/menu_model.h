@@ -41,7 +41,6 @@ class ModelMenu : public TabsGroup
 #endif
     bool _modelHeliEnabled = true;
     bool _modelFMEnabled = true;
-    bool _modelMixesEnabled = true;
     bool _modelCurvesEnabled = true;
     bool _modelGVEnabled = true;
     bool _modelLSEnabled = true;

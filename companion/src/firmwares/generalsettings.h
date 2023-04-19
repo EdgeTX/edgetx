@@ -293,7 +293,6 @@ class GeneralSettings {
     // Model level tabs control (global setting)
     bool modelHeliDisabled;
     bool modelFMDisabled;
-    bool modelMixesDisabled;
     bool modelCurvesDisabled;
     bool modelGVDisabled;
     bool modelLSDisabled;

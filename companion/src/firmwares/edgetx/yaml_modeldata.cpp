@@ -1036,7 +1036,6 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   // Model level tabs control (global setting)
   node["modelHeliDisabled"] = globalOnOffFilterLut << rhs.modelHeliDisabled;
   node["modelFMDisabled"] = globalOnOffFilterLut << rhs.modelFMDisabled;
-  node["modelMixesDisabled"] = globalOnOffFilterLut << rhs.modelMixesDisabled;
   node["modelCurvesDisabled"] = globalOnOffFilterLut << rhs.modelCurvesDisabled;
   node["modelGVDisabled"] = globalOnOffFilterLut << rhs.modelGVDisabled;
   node["modelLSDisabled"] = globalOnOffFilterLut << rhs.modelLSDisabled;
@@ -1244,7 +1243,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   // Model level tabs control (global setting)
   node["modelHeliDisabled"] >> globalOnOffFilterLut >> rhs.modelHeliDisabled;
   node["modelFMDisabled"] >> globalOnOffFilterLut >> rhs.modelFMDisabled;
-  node["modelMixesDisabled"] >> globalOnOffFilterLut >> rhs.modelMixesDisabled;
   node["modelCurvesDisabled"] >> globalOnOffFilterLut >> rhs.modelCurvesDisabled;
   node["modelGVDisabled"] >> globalOnOffFilterLut >> rhs.modelGVDisabled;
   node["modelLSDisabled"] >> globalOnOffFilterLut >> rhs.modelLSDisabled;

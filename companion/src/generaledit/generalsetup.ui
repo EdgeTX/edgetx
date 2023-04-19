@@ -23,6 +23,27 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lblThemesEnabled">
+       <property name="text">
+        <string>Themes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="lblGFEnabled">
+       <property name="text">
+        <string>Global Functions</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="lblTrainerEnabled">
+       <property name="text">
+        <string>Trainer</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_3">
        <property name="font">
@@ -32,6 +53,20 @@
        </property>
        <property name="text">
         <string>Radio Menu Tabs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="cbThemesEnabled">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="cbGFEnabled">
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
@@ -48,52 +83,10 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="1">
-      <widget class="QCheckBox" name="cbThemesEnabled">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lblTrainerEnabled">
-       <property name="text">
-        <string>Trainer</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="lblGFEnabled">
-       <property name="text">
-        <string>Global Functions</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="lblThemesEnabled">
-       <property name="text">
-        <string>Themes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="cbGFEnabled">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="3" column="3">
     <layout class="QGridLayout" name="gridLayout_6">
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="cbMixesEnabled">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="QCheckBox" name="cbFMEnabled">
        <property name="text">
@@ -108,14 +101,14 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="lblCustomScriptsEnabled">
        <property name="text">
         <string>Custom Mix Scripts</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="lblGVEnabled">
        <property name="text">
         <string>Global Variables</string>
@@ -134,77 +127,70 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="lblSFEnabled">
        <property name="text">
         <string>Special Functions</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="lblCurvesEnabled">
        <property name="text">
         <string>Curves</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lblMixesEnabled">
-       <property name="text">
-        <string>Mixes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
+     <item row="3" column="1">
       <widget class="QCheckBox" name="cbCurvesEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="lblLSEnabled">
        <property name="text">
         <string>Logical Switches</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="lblTelemetryEnabled">
        <property name="text">
         <string>Telemetry</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="4" column="1">
       <widget class="QCheckBox" name="cbGVEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <widget class="QCheckBox" name="cbLSEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="6" column="1">
       <widget class="QCheckBox" name="cbSFEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="7" column="1">
       <widget class="QCheckBox" name="cbCustomScriptsEnabled">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="8" column="1">
       <widget class="QCheckBox" name="cbTelemetryEnabled">
        <property name="text">
         <string/>
@@ -2076,19 +2062,6 @@ p, li { white-space: pre-wrap; }
       <size>
        <width>40</width>
        <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
       </size>
      </property>
     </spacer>

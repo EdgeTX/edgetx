@@ -294,7 +294,6 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   // Model level tabs control (global setting)
   node["modelHeliDisabled"] = (int)rhs.modelHeliDisabled;
   node["modelFMDisabled"] = (int)rhs.modelFMDisabled;
-  node["modelMixesDisabled"] = (int)rhs.modelMixesDisabled;
   node["modelCurvesDisabled"] = (int)rhs.modelCurvesDisabled;
   node["modelGVDisabled"] = (int)rhs.modelGVDisabled;
   node["modelLSDisabled"] = (int)rhs.modelLSDisabled;
@@ -526,7 +525,6 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // Model level tabs control (global setting)
   node["modelHeliDisabled"] >> rhs.modelHeliDisabled;
   node["modelFMDisabled"] >> rhs.modelFMDisabled;
-  node["modelMixesDisabled"] >> rhs.modelMixesDisabled;
   node["modelCurvesDisabled"] >> rhs.modelCurvesDisabled;
   node["modelGVDisabled"] >> rhs.modelGVDisabled;
   node["modelLSDisabled"] >> rhs.modelLSDisabled;

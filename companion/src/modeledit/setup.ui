@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1034</width>
-    <height>807</height>
+    <width>1000</width>
+    <height>777</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -842,42 +842,35 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
        </item>
        <item row="1" column="2">
         <layout class="QGridLayout" name="gridLayout_7">
-         <item row="10" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="lblTelemetryEnabled">
            <property name="text">
             <string>Telemetry</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="lblMixesEnabled">
-           <property name="text">
-            <string>Mixes</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="lblSFEnabled">
            <property name="text">
             <string>Special Functions</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="lblCurvesEnabled">
            <property name="text">
             <string>Curves</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="lblLSEnabled">
            <property name="text">
             <string>Logical Switches</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="lblCustomScriptsEnabled">
            <property name="text">
             <string>Custom Mix Scripts</string>
@@ -896,7 +889,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="5" column="0">
           <widget class="QLabel" name="lblGVEnabled">
            <property name="text">
             <string>Global Variables</string>
@@ -956,25 +949,6 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QComboBox" name="cbMixesEnabled">
-           <item>
-            <property name="text">
-             <string>Global</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Off</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>On</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="5" column="1">
           <widget class="QComboBox" name="cbCurvesEnabled">
            <item>
             <property name="text">
@@ -993,7 +967,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </item>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="5" column="1">
           <widget class="QComboBox" name="cbGVEnabled">
            <item>
             <property name="text">
@@ -1012,7 +986,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </item>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="6" column="1">
           <widget class="QComboBox" name="cbLSEnabled">
            <item>
             <property name="text">
@@ -1031,7 +1005,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </item>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="7" column="1">
           <widget class="QComboBox" name="cbSFEnabled">
            <item>
             <property name="text">
@@ -1050,7 +1024,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </item>
           </widget>
          </item>
-         <item row="9" column="1">
+         <item row="8" column="1">
           <widget class="QComboBox" name="cbCustomScriptsEnabled">
            <item>
             <property name="text">
@@ -1069,7 +1043,7 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
            </item>
           </widget>
          </item>
-         <item row="10" column="1">
+         <item row="9" column="1">
           <widget class="QComboBox" name="cbTelemetryEnabled">
            <item>
             <property name="text">

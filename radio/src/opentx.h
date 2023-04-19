@@ -1208,7 +1208,6 @@ extern bool radioGFEnabled();
 extern bool radioTrainerEnabled();
 extern bool modelHeliEnabled();
 extern bool modelFMEnabled();
-extern bool modelMixesEnabled();
 extern bool modelCurvesEnabled();
 extern bool modelGVEnabled();
 extern bool modelLSEnabled();

@@ -1964,9 +1964,6 @@ bool modelHeliEnabled() {
 bool modelFMEnabled() {
   return (g_model.modelFMDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelFMDisabled == 0) || (g_model.modelFMDisabled == 2);
 }
-bool modelMixesEnabled() {
-  return (g_model.modelMixesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelMixesDisabled == 0) || (g_model.modelMixesDisabled == 2);
-}
 bool modelCurvesEnabled() {
   return (g_model.modelCurvesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCurvesDisabled == 0) || (g_model.modelCurvesDisabled == 2);
 }

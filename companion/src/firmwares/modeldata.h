@@ -198,7 +198,6 @@ class ModelData {
     // Model level tabs control (global setting)
     unsigned int modelHeliDisabled;
     unsigned int modelFMDisabled;
-    unsigned int modelMixesDisabled;
     unsigned int modelCurvesDisabled;
     unsigned int modelGVDisabled;
     unsigned int modelLSDisabled;

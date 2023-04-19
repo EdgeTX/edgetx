@@ -106,7 +106,6 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
-  ITEM_VIEW_OPTIONS_MIXES,
   ITEM_VIEW_OPTIONS_CURVES,
   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_LS,
@@ -201,7 +200,7 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
       0, // sticks mode
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, CASE_GVARS(0) 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, CASE_GVARS(0) 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
       1 /*to force edit mode*/
   });
 
@@ -678,9 +677,6 @@ void menuRadioSetup(event_t event)
         g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event);
         break;
 #endif
-      case ITEM_VIEW_OPTIONS_MIXES:
-        g_eeGeneral.modelMixesDisabled = viewOptCheckBox(y, STR_MIXES, g_eeGeneral.modelMixesDisabled, attr, event);
-        break;
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event);
         break;

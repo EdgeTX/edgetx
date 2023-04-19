@@ -99,7 +99,6 @@ class GeneralSetupPanel : public GeneralPanel
     void on_cbTrainerEnabled_stateChanged(int);
     void on_cbHeliEnabled_stateChanged(int);
     void on_cbFMEnabled_stateChanged(int);
-    void on_cbMixesEnabled_stateChanged(int);
     void on_cbCurvesEnabled_stateChanged(int);
     void on_cbGVEnabled_stateChanged(int);
     void on_cbLSEnabled_stateChanged(int);

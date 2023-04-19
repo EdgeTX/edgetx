@@ -485,7 +485,6 @@ void GeneralSetupPanel::setValues()
     ui->cbHeliEnabled->hide();
   }
   ui->cbFMEnabled->setChecked(!generalSettings.modelFMDisabled);
-  ui->cbMixesEnabled->setChecked(!generalSettings.modelMixesDisabled);
   ui->cbCurvesEnabled->setChecked(!generalSettings.modelCurvesDisabled);
   if (firmware->getCapability(Gvars)) {
     ui->cbGVEnabled->setChecked(!generalSettings.modelGVDisabled);
@@ -852,12 +851,6 @@ void GeneralSetupPanel::on_cbHeliEnabled_stateChanged(int)
 void GeneralSetupPanel::on_cbFMEnabled_stateChanged(int)
 {
   generalSettings.modelFMDisabled = !ui->cbFMEnabled->isChecked();
-  emit modified();
-}
-
-void GeneralSetupPanel::on_cbMixesEnabled_stateChanged(int)
-{
-  generalSettings.modelMixesDisabled = !ui->cbMixesEnabled->isChecked();
   emit modified();
 }
 

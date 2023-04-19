@@ -221,7 +221,6 @@ class SetupPanel : public ModelPanel
     void on_cbTrainerEnabled_currentIndexChanged(int index);
     void on_cbHeliEnabled_currentIndexChanged(int index);
     void on_cbFMEnabled_currentIndexChanged(int index);
-    void on_cbMixesEnabled_currentIndexChanged(int index);
     void on_cbCurvesEnabled_currentIndexChanged(int index);
     void on_cbGVEnabled_currentIndexChanged(int index);
     void on_cbLSEnabled_currentIndexChanged(int index);

@@ -624,11 +624,6 @@ class ViewOptionsPage : public Page
 
       line = form->newLine(&grid);
       line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MIXES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelMixesDisabled));
-
-      line = form->newLine(&grid);
-      line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
 

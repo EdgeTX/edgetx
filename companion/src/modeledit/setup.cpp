@@ -1766,7 +1766,6 @@ void SetupPanel::update()
   ui->cbTrainerEnabled->setCurrentIndex(model->radioTrainerDisabled);
   ui->cbHeliEnabled->setCurrentIndex(model->modelHeliDisabled);
   ui->cbFMEnabled->setCurrentIndex(model->modelFMDisabled);
-  ui->cbMixesEnabled->setCurrentIndex(model->modelMixesDisabled);
   ui->cbCurvesEnabled->setCurrentIndex(model->modelCurvesDisabled);
   ui->cbGVEnabled->setCurrentIndex(model->modelGVDisabled);
   ui->cbLSEnabled->setCurrentIndex(model->modelLSDisabled);
@@ -2192,14 +2191,6 @@ void SetupPanel::on_cbFMEnabled_currentIndexChanged(int index)
 {
   if (!lock) {
     model->modelFMDisabled = ui->cbFMEnabled->currentIndex();
-    emit modified();
-  }
-}
-
-void SetupPanel::on_cbMixesEnabled_currentIndexChanged(int index)
-{
-  if (!lock) {
-    model->modelMixesDisabled = ui->cbMixesEnabled->currentIndex();
     emit modified();
   }
 }

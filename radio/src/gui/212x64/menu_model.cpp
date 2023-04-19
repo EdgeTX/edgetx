@@ -31,7 +31,7 @@ const MenuHandler menuTabModel[]  = {
   { menuModelFlightModesAll, modelFMEnabled },
 #endif
   { menuModelExposAll, nullptr },
-  { menuModelMixAll, modelMixesEnabled },
+  { menuModelMixAll, nullptr },
   { menuModelLimits, nullptr },
   { menuModelCurvesAll, modelCurvesEnabled },
 #if defined(GVARS) && defined(FLIGHT_MODES)
