@@ -286,6 +286,22 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (hasColorLcd)
     node["selectedTheme"] = rhs.selectedTheme;
 
+  // Radio level tabs control (global settings)
+  if (hasColorLcd)
+    node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
+  node["radioGFDisabled"] = (int)rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] = (int)rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] = (int)rhs.modelHeliDisabled;
+  node["modelFMDisabled"] = (int)rhs.modelFMDisabled;
+  node["modelMixesDisabled"] = (int)rhs.modelMixesDisabled;
+  node["modelCurvesDisabled"] = (int)rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] = (int)rhs.modelGVDisabled;
+  node["modelLSDisabled"] = (int)rhs.modelLSDisabled;
+  node["modelSFDisabled"] = (int)rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
+
   return node;
 }
 
@@ -502,6 +518,21 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     rhs.init();
 
   node["selectedTheme"] >> rhs.selectedTheme;
+
+  // Radio level tabs control (global settings)
+  node["radioThemesDisabled"] >> rhs.radioThemesDisabled;
+  node["radioGFDisabled"] >> rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] >> rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] >> rhs.modelHeliDisabled;
+  node["modelFMDisabled"] >> rhs.modelFMDisabled;
+  node["modelMixesDisabled"] >> rhs.modelMixesDisabled;
+  node["modelCurvesDisabled"] >> rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] >> rhs.modelGVDisabled;
+  node["modelLSDisabled"] >> rhs.modelLSDisabled;
+  node["modelSFDisabled"] >> rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] >> rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] >> rhs.modelTelemetryDisabled;
 
   return true;
 }

@@ -255,7 +255,7 @@ class SoundPage : public SubPage {
   public:
     SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
     {
-      FlexGridLayout grid(col_two_dsc, row_dsc, 3);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -571,83 +571,92 @@ class GpsPage : public SubPage {
     }
 };
 
-class ViewOptionsPage : public SubPage
+class ViewOptionsPage : public Page
 {
    public:
-    ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_VIEW_OPTIONS)
+    ViewOptionsPage() : Page(ICON_RADIO_SETUP)
     {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_VIEW_OPTIONS);
+
+      body.padAll(8);
+
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
-      auto line = body.newLine(&grid);
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(0);
+
+      auto line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
 
 #if defined(HELI)
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
 #endif
 
 #if defined(FLIGHT_MODES)
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
 #endif
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MIXES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelMixesDisabled));
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
 
 #if defined(GVARS)
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
 #endif
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
 
 #if defined(LUA_MODEL_SCRIPTS)
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
 #endif
 
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
