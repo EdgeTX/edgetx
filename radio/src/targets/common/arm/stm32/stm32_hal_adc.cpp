@@ -69,6 +69,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   ADC_InitTypeDef ADC_InitStructure;
   ADC_StructInit(&ADC_InitStructure);
 
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
   ADC_InitStructure.ADC_ScanConvMode = ENABLE; // Sets ADC_CR1_SCAN
   ADC_InitStructure.ADC_ContinuousConvMode = DISABLE; // Clears ADC_CR2_CONT
   ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; // Software trigger
