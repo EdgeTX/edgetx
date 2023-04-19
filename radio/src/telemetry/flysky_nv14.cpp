@@ -171,7 +171,7 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
         value = value & PRESSURE_MASK;
         break;
       case 1:
-        value = CalculateAltitude(value);
+        value = CalculateAltitude(10 * value);
         {
           tmr10ms_t currTimer = getTicks();
           int32_t currAlt = value;
