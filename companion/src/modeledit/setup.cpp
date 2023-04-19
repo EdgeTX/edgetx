@@ -1483,6 +1483,19 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->jitterFilter->hide();
   }
 
+  if (!Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    ui->lblThemesEnabled->hide();
+    ui->cbThemesEnabled->hide();
+  }
+  if (!firmware->getCapability(Heli)) {
+    ui->lblHeliEnabled->hide();
+    ui->cbHeliEnabled->hide();
+  }
+  if (!firmware->getCapability(Gvars)) {
+    ui->lblGVEnabled->hide();
+    ui->cbGVEnabled->hide();
+  }
+
   // Beep Center checkboxes
   prevFocus = ui->trimsDisplay;
   int analogs = CPN_MAX_STICKS + getBoardCapability(board, Board::Pots) + getBoardCapability(board, Board::Sliders);
@@ -1747,6 +1760,19 @@ void SetupPanel::update()
   ui->displayText->setChecked(model->displayChecklist);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
   ui->jitterFilter->setCurrentIndex(model->jitterFilter);
+
+  ui->cbThemesEnabled->setCurrentIndex(model->radioThemesDisabled);
+  ui->cbGFEnabled->setCurrentIndex(model->radioGFDisabled);
+  ui->cbTrainerEnabled->setCurrentIndex(model->radioTrainerDisabled);
+  ui->cbHeliEnabled->setCurrentIndex(model->modelHeliDisabled);
+  ui->cbFMEnabled->setCurrentIndex(model->modelFMDisabled);
+  ui->cbMixesEnabled->setCurrentIndex(model->modelMixesDisabled);
+  ui->cbCurvesEnabled->setCurrentIndex(model->modelCurvesDisabled);
+  ui->cbGVEnabled->setCurrentIndex(model->modelGVDisabled);
+  ui->cbLSEnabled->setCurrentIndex(model->modelLSDisabled);
+  ui->cbSFEnabled->setCurrentIndex(model->modelSFDisabled);
+  ui->cbCustomScriptsEnabled->setCurrentIndex(model->modelCustomScriptsDisabled);
+  ui->cbTelemetryEnabled->setCurrentIndex(model->modelTelemetryDisabled);
 
   updateBeepCenter();
   updateStartupSwitches();
@@ -2128,4 +2154,100 @@ void SetupPanel::onModuleUpdateItemModels()
 void SetupPanel::onFunctionSwitchesUpdateItemModels()
 {
   sharedItemModels->update(AbstractItemModel::IMUE_FunctionSwitches);
+}
+
+void SetupPanel::on_cbThemesEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->radioThemesDisabled = ui->cbThemesEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbGFEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->radioGFDisabled = ui->cbGFEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbTrainerEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->radioTrainerDisabled = ui->cbTrainerEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbHeliEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelHeliDisabled = ui->cbHeliEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbFMEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelFMDisabled = ui->cbFMEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbMixesEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelMixesDisabled = ui->cbMixesEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbCurvesEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelCurvesDisabled = ui->cbCurvesEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbGVEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelGVDisabled = ui->cbGVEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbLSEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelLSDisabled = ui->cbLSEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbSFEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelSFDisabled = ui->cbSFEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbCustomScriptsEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelCustomScriptsDisabled = ui->cbCustomScriptsEnabled->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_cbTelemetryEnabled_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->modelTelemetryDisabled = ui->cbTelemetryEnabled->currentIndex();
+    emit modified();
+  }
 }

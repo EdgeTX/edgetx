@@ -468,10 +468,35 @@ void GeneralSetupPanel::setValues()
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+    ui->cbThemesEnabled->setChecked(!generalSettings.radioThemesDisabled);
   } else {
     ui->label_modelQuickSelect->hide();
     ui->modelQuickSelect_CB->hide();
+    ui->lblThemesEnabled->hide();
+    ui->cbThemesEnabled->hide();
   }
+
+  ui->cbGFEnabled->setChecked(!generalSettings.radioGFDisabled);
+  ui->cbTrainerEnabled->setChecked(!generalSettings.radioTrainerDisabled);
+  if (firmware->getCapability(Heli)) {
+    ui->cbHeliEnabled->setChecked(!generalSettings.modelHeliDisabled);
+  } else {
+    ui->lblHeliEnabled->hide();
+    ui->cbHeliEnabled->hide();
+  }
+  ui->cbFMEnabled->setChecked(!generalSettings.modelFMDisabled);
+  ui->cbMixesEnabled->setChecked(!generalSettings.modelMixesDisabled);
+  ui->cbCurvesEnabled->setChecked(!generalSettings.modelCurvesDisabled);
+  if (firmware->getCapability(Gvars)) {
+    ui->cbGVEnabled->setChecked(!generalSettings.modelGVDisabled);
+  } else {
+    ui->lblGVEnabled->hide();
+    ui->cbGVEnabled->hide();
+  }
+  ui->cbLSEnabled->setChecked(!generalSettings.modelLSDisabled);
+  ui->cbSFEnabled->setChecked(!generalSettings.modelSFDisabled);
+  ui->cbCustomScriptsEnabled->setChecked(!generalSettings.modelCustomScriptsDisabled);
+  ui->cbTelemetryEnabled->setChecked(!generalSettings.modelTelemetryDisabled);
 }
 
 void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
@@ -797,5 +822,77 @@ void GeneralSetupPanel::stickReverseEdited()
 void GeneralSetupPanel::on_modelQuickSelect_CB_stateChanged(int)
 {
   generalSettings.modelQuickSelect = ui->modelQuickSelect_CB->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbThemesEnabled_stateChanged(int)
+{
+  generalSettings.radioThemesDisabled = !ui->cbThemesEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbGFEnabled_stateChanged(int)
+{
+  generalSettings.radioGFDisabled = !ui->cbGFEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbTrainerEnabled_stateChanged(int)
+{
+  generalSettings.radioTrainerDisabled = !ui->cbTrainerEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbHeliEnabled_stateChanged(int)
+{
+  generalSettings.modelHeliDisabled = !ui->cbHeliEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbFMEnabled_stateChanged(int)
+{
+  generalSettings.modelFMDisabled = !ui->cbFMEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbMixesEnabled_stateChanged(int)
+{
+  generalSettings.modelMixesDisabled = !ui->cbMixesEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbCurvesEnabled_stateChanged(int)
+{
+  generalSettings.modelCurvesDisabled = !ui->cbCurvesEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbGVEnabled_stateChanged(int)
+{
+  generalSettings.modelGVDisabled = !ui->cbGVEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbLSEnabled_stateChanged(int)
+{
+  generalSettings.modelLSDisabled = !ui->cbLSEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbSFEnabled_stateChanged(int)
+{
+  generalSettings.modelSFDisabled = !ui->cbSFEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbCustomScriptsEnabled_stateChanged(int)
+{
+  generalSettings.modelCustomScriptsDisabled = !ui->cbCustomScriptsEnabled->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_cbTelemetryEnabled_stateChanged(int)
+{
+  generalSettings.modelTelemetryDisabled = !ui->cbTelemetryEnabled->isChecked();
   emit modified();
 }

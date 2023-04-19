@@ -216,6 +216,19 @@ class SetupPanel : public ModelPanel
     void onFunctionSwitchesUpdateItemModels();
     void on_jitterFilter_currentIndexChanged(int index);
 
+    void on_cbThemesEnabled_currentIndexChanged(int index);
+    void on_cbGFEnabled_currentIndexChanged(int index);
+    void on_cbTrainerEnabled_currentIndexChanged(int index);
+    void on_cbHeliEnabled_currentIndexChanged(int index);
+    void on_cbFMEnabled_currentIndexChanged(int index);
+    void on_cbMixesEnabled_currentIndexChanged(int index);
+    void on_cbCurvesEnabled_currentIndexChanged(int index);
+    void on_cbGVEnabled_currentIndexChanged(int index);
+    void on_cbLSEnabled_currentIndexChanged(int index);
+    void on_cbSFEnabled_currentIndexChanged(int index);
+    void on_cbCustomScriptsEnabled_currentIndexChanged(int index);
+    void on_cbTelemetryEnabled_currentIndexChanged(int index);
+
   private:
     Ui::Setup *ui;
     QVector<QSlider *> startupSwitchesSliders;
