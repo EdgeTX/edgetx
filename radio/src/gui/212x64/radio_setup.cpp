@@ -119,7 +119,7 @@ enum MenuRadioSetupItems {
 uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawText(INDENT_WIDTH*2, y, title);
-  return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+  return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
 }
 
 void menuRadioSetup(event_t event)

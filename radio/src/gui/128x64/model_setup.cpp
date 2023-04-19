@@ -91,6 +91,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTENDED_TRIMS,
   ITEM_MODEL_SETUP_DISPLAY_TRIMS,
   ITEM_MODEL_SETUP_TRIM_INC,
+  ITEM_MODEL_SETUP_THROTTLE_LABEL,
   ITEM_MODEL_SETUP_THROTTLE_REVERSED,
   ITEM_MODEL_SETUP_THROTTLE_TRACE,
   ITEM_MODEL_SETUP_THROTTLE_TRIM,
@@ -225,6 +226,35 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_LINES_COUNT
 };
 
+PACK(struct ExpandState {
+  uint8_t preflight:1;
+  uint8_t throttle:1;
+  uint8_t viewOpt:1;
+});
+
+struct ExpandState expandState;
+
+uint8_t PREFLIGHT_ROW(uint8_t value)
+{
+  if (expandState.preflight)
+    return value;
+  return HIDDEN_ROW;
+}
+
+uint8_t THROTTLE_ROW(uint8_t value)
+{
+  if (expandState.throttle)
+    return value;
+  return HIDDEN_ROW;
+}
+
+uint8_t VIEWOPT_ROW(uint8_t value)
+{
+  if (expandState.viewOpt)
+    return value;
+  return HIDDEN_ROW;
+}
+
 #define MODEL_SETUP_2ND_COLUMN           (LCD_W-11*FW)
 #define MODEL_SETUP_SET_FAILSAFE_OFS     7*FW-2
 
@@ -264,9 +294,13 @@ enum MenuModelSetupItems {
 
 #define MAX_SWITCH_PER_LINE             (getSwitchWarningsCount() > 5 ? 4 : 5)
 #if defined(PCBXLITE)
-  #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount()), uint8_t(getSwitchWarningsCount() > 4 ? TITLE_ROW : HIDDEN_ROW) // X-Lite needs an additional column for full line selection (<])
+  #define SW_WARN_ROWS \  // X-Lite needs an additional column for full line selection (<])
+    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount())), \
+    PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > 4 ? TITLE_ROW : HIDDEN_ROW))
 #else
-  #define SW_WARN_ROWS                    uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1)), uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW)
+  #define SW_WARN_ROWS \
+    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1))), \
+    PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW))
 #endif
 
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
@@ -295,7 +329,8 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS                  ((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0)
+#define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? (uint8_t)(NUM_POTS+NUM_SLIDERS) : (uint8_t)0))
+
 #define TIMER_ROWS(x)                                                  \
   1, TIMER_ROW(x,0),                                                   \
       TIMER_ROW(x,(uint8_t)((g_model.timers[x].start) ? 2 : 1)),       \
@@ -475,7 +510,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     POT_WARN_ROWS, /* Pot warning */
 #else
   #define WARN_ROWS \
-    NUM_SWITCHES - 1, /* Switch warning */
+    PREFLIGHT_ROW((NUM_SWITCHES - 1), /* Switch warning */
 #endif
 
 #if defined(USBJ_EX)
@@ -507,6 +542,17 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
   return editChoice(96, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
 }
 
+uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+{
+  lcdDrawTextAlignedLeft(y, title);
+  lcdDrawText(120, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
+  if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
+    value = !value;
+    s_editMode = 0;
+  }
+  return value;
+}
+
 void menuModelSetup(event_t event)
 {
   int8_t old_editMode = s_editMode;
@@ -526,16 +572,17 @@ void menuModelSetup(event_t event)
     1, // Extended trims
     0, // Show trims
     0, // Trims step
-    0, // Throttle reverse
-    0, // Throttle trace source
-    0, // Throttle trim
-    0, // Throttle trim switch
+    0, // Throttle section
+    THROTTLE_ROW(0), // Throttle reverse
+    THROTTLE_ROW(0), // Throttle trace source
+    THROTTLE_ROW(0), // Throttle trim
+    THROTTLE_ROW(0), // Throttle trim switch
 
-    LABEL(PreflightCheck),
-      0, // Checklist
-      0, // Throttle warning
-      0, // Custom position for throttle warning enable
-      0, // Custom position for throttle warning value
+    0,   // Preflight section
+      PREFLIGHT_ROW(0), // Checklist
+      PREFLIGHT_ROW(0), // Throttle warning
+      PREFLIGHT_ROW(0), // Custom position for throttle warning enable
+      PREFLIGHT_ROW(0), // Custom position for throttle warning value
       WARN_ROWS
 
     NUM_STICKS + NUM_POTS + NUM_SLIDERS - 1, // Center beeps
@@ -553,7 +600,19 @@ void menuModelSetup(event_t event)
     TRAINER_ROWS,
 
     // View options
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    0,
+     VIEWOPT_ROW(LABEL(RadioMenuTabs)),
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+     VIEWOPT_ROW(LABEL(ModelMenuTabs)),
+      CASE_HELI(VIEWOPT_ROW(0))
+      CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+      CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
+      VIEWOPT_ROW(0),
 
     USB_JOYSTICK_ROWS,
   });
@@ -818,13 +877,18 @@ void menuModelSetup(event_t event)
         g_model.trimInc = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_TRIMINC, STR_VTRIMINC, g_model.trimInc, -2, 2, attr, event);
         break;
 
+      case ITEM_MODEL_SETUP_THROTTLE_LABEL:
+        expandState.throttle = expandableSection(y, STR_THROTTLE_LABEL, expandState.throttle, attr, event);
+        break;
+
       case ITEM_MODEL_SETUP_THROTTLE_REVERSED:
-        g_model.throttleReversed = editCheckBox(g_model.throttleReversed, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLEREVERSE, attr, event );
+        lcdDrawText(INDENT_WIDTH, y, STR_THROTTLEREVERSE);
+        g_model.throttleReversed = editCheckBox(g_model.throttleReversed, MODEL_SETUP_2ND_COLUMN+20, y, nullptr, attr, event );
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_TRACE:
       {
-        lcdDrawTextAlignedLeft(y, STR_TTRACE);
+        lcdDrawText(INDENT_WIDTH, y, STR_TTRACE);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
@@ -832,23 +896,24 @@ void menuModelSetup(event_t event)
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, idx, attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, idx, attr);
         break;
       }
 
       case ITEM_MODEL_SETUP_THROTTLE_TRIM:
-        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN, y, STR_TTRIM, attr, event);
+        lcdDrawText(INDENT_WIDTH, y, STR_TTRIM);
+        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN+20, y, nullptr, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
-        lcdDrawTextAlignedLeft(y, STR_TTRIM_SW);
+        lcdDrawText(INDENT_WIDTH, y, STR_TTRIM_SW);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, NUM_TRIMS - 1);
-        drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
+        drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.getThrottleStickTrimSource(), attr);
         break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_PREFLIGHT);
+        expandState.preflight = expandableSection(y, STR_PREFLIGHT, expandState.preflight, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_CHECKLIST_DISPLAY:
@@ -2126,7 +2191,7 @@ void menuModelSetup(event_t event)
 #endif
 
       case ITEM_VIEW_OPTIONS_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_VIEW_OPTIONS);
+        expandState.viewOpt = expandableSection(y, STR_VIEW_OPTIONS, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
