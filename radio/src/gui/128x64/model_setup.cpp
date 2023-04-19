@@ -294,7 +294,8 @@ uint8_t VIEWOPT_ROW(uint8_t value)
 
 #define MAX_SWITCH_PER_LINE             (getSwitchWarningsCount() > 5 ? 4 : 5)
 #if defined(PCBXLITE)
-  #define SW_WARN_ROWS \  // X-Lite needs an additional column for full line selection (<])
+  // X-Lite needs an additional column for full line selection (<])
+  #define SW_WARN_ROWS \
     PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount())), \
     PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > 4 ? TITLE_ROW : HIDDEN_ROW))
 #else
