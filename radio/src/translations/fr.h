@@ -938,6 +938,7 @@
 #define TR_RX_NAME                     "Nom Rx"
 #define TR_TELEMETRY_TYPE              TR("Type tél.", "Type télémétrie")
 #define TR_TELEMETRY_SENSORS           "Capteurs"
+#define TR_TR_RSSI_LABEL               "Rx Status"
 #define TR_VALUE                       "Valeur"
 #define TR_PERIOD                      "Period"
 #define TR_INTERVAL                    "Interval"

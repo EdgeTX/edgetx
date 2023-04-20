@@ -929,6 +929,7 @@
 #define TR_RX_NAME                     "接收機名稱"
 #define TR_TELEMETRY_TYPE              TR("類型", "回傳類型")
 #define TR_TELEMETRY_SENSORS           "傳感器"
+#define TR_TR_RSSI_LABEL               "Rx Status"
 #define TR_VALUE                       "數值"
 #define TR_PERIOD                      "週期"
 #define TR_INTERVAL                    "間隔"
