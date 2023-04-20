@@ -27,6 +27,7 @@ set(modeledit_SRCS
   colorcustomscreens.cpp
   telemetry_customscreens.cpp
   curves.cpp
+  modeloptions.cpp
 )
 
 set(modeledit_HDRS
@@ -41,6 +42,7 @@ set(modeledit_HDRS
   colorcustomscreens.h
   telemetry_customscreens.h
   curves.h
+  modeloptions.h
 )
 
 set(modeledit_UIS

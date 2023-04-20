@@ -94,18 +94,6 @@ class GeneralSetupPanel : public GeneralPanel
 
     void on_modelQuickSelect_CB_stateChanged(int);
 
-    void on_cbThemesEnabled_stateChanged(int);
-    void on_cbGFEnabled_stateChanged(int);
-    void on_cbTrainerEnabled_stateChanged(int);
-    void on_cbHeliEnabled_stateChanged(int);
-    void on_cbFMEnabled_stateChanged(int);
-    void on_cbCurvesEnabled_stateChanged(int);
-    void on_cbGVEnabled_stateChanged(int);
-    void on_cbLSEnabled_stateChanged(int);
-    void on_cbSFEnabled_stateChanged(int);
-    void on_cbCustomScriptsEnabled_stateChanged(int);
-    void on_cbTelemetryEnabled_stateChanged(int);
-
   private:
     Ui::GeneralSetup *ui;
 
