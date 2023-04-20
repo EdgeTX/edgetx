@@ -96,7 +96,7 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x09, 0x34,                    //         USAGE (Ry)
     0x09, 0x35,                    //         USAGE (Rz)
     0x09, 0x36,                    //         USAGE (Slider)
-    0x09, 0x36,                    //         USAGE (Slider)
+    0x09, 0x37,                    //         USAGE (Dial)
     0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
     0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
     0x75, 0x10,                    //         REPORT_SIZE (16)
