@@ -929,7 +929,7 @@
 #define TR_RX_NAME                     "受信名称"
 #define TR_TELEMETRY_TYPE              TR("Type", "テレメトリータイプ")
 #define TR_TELEMETRY_SENSORS           "センサー"
-#define TR_TR_RSSI_LABEL               "Rx Status"
+#define TR_RSSI_LABEL                  "Rx Status"
 #define TR_VALUE                       "値"
 #define TR_PERIOD                      "ピリオド"
 #define TR_INTERVAL                    "インターバル"

@@ -930,7 +930,7 @@
 #define TR_RX_NAME                     "Jméno RX"
 #define TR_TELEMETRY_TYPE              TR("Typ", "Typ telemetrie")
 #define TR_TELEMETRY_SENSORS           "Senzory"
-#define TR_TR_RSSI_LABEL               "Rx Status"
+#define TR_RSSI_LABEL                  "Rx Status"
 #define TR_VALUE                       "Hodnota"
 #define TR_PERIOD                      "Perioda"
 #define TR_INTERVAL                    "Interval"

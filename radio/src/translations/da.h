@@ -936,7 +936,7 @@
 #define TR_RX_NAME                     "Rx Navn"
 #define TR_TELEMETRY_TYPE              TR("Type", "Telemetri type")
 #define TR_TELEMETRY_SENSORS           "Sensorer"
-#define TR_TR_RSSI_LABEL               "Rx Status"
+#define TR_RSSI_LABEL                  "Rx Status"
 #define TR_VALUE                       "Værdi"
 #define TR_PERIOD                      "Periode"
 #define TR_INTERVAL                    "Interval"
