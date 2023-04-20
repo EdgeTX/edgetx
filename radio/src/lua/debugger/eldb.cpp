@@ -48,7 +48,7 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
     bool result = pb_decode(&stream, edgetx_eldp_Request_fields, &request);
 
     if (result) {
-      if (request.has_startDebug && !eldbIsRunning()) {
+      if (request.has_startDebug && !eldbIsInSession()) {
         edgetx_eldp_Error_Type err;
         bool result = eldbStartSession(targetName, &err);
         if (result) {
@@ -56,7 +56,7 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
         } else {
           txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, nullptr);
         }
-      } else if (!request.has_startDebug && eldbIsRunning()) {
+      } else if (!request.has_startDebug && eldbIsInSession()) {
         txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
         // TODO: Make it redirect to the current running session
       } else {

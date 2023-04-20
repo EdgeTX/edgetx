@@ -1,2 +1,10 @@
+edgetx.eldp.Breakpoint.file              max_length:14 # If file length constraints change, this should change too
+
 edgetx.eldp.Response.content            no_unions:true
 edgetx.eldp.Request.content             no_unions:true
+
+edgetx.eldp.SystemInfo.osName           max_length:6
+edgetx.eldp.SystemInfo.versionTag       max_length:10
+edgetx.eldp.SystemInfo.codename         max_length:30
+edgetx.eldp.SystemInfo.gitTag           max_length:8
+edgetx.eldp.SystemInfo.deviceIdentifier  max_length:10

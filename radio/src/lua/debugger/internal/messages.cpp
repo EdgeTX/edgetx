@@ -35,25 +35,24 @@ size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen) {
 
     message.has_systemInfo = true;
 
-    message.systemInfo = edgetx_eldp_SystemInfo_init_default;
-    message.systemInfo.osName.funcs.encode = &encodeString;
-    message.systemInfo.osName.arg = (void*)"EdgeTX";
+    message.systemInfo.has_osName = true;
+    strcpy(message.systemInfo.osName, "EdgeTX");
+    message.systemInfo.has_version = true;
     message.systemInfo.version.major = VERSION_MAJOR;
     message.systemInfo.version.minor = VERSION_MINOR;
     message.systemInfo.version.patch = VERSION_REVISION;
-    message.systemInfo.has_version = true;
-    message.systemInfo.versionTag.funcs.encode = &encodeString;
+    message.systemInfo.has_versionTag = true;
     #if defined(VERSION_TAG)
-    message.systemInfo.versionTag.arg = (void*)VERSION_TAG;
+    strcpy(message.systemInfo.versionTag, VERSION_TAG);
     #else
-    message.systemInfo.versionTag.arg = (void*)VERSION_SUFFIX;
+    strcpy(message.systemInfo.versionTag, VERSION_SUFFIX);
     #endif
-    message.systemInfo.codename.funcs.encode = &encodeString;
-    message.systemInfo.codename.arg = (void*)CODENAME;
-    message.systemInfo.gitTag.funcs.encode = &encodeString;
-    message.systemInfo.gitTag.arg = (void*)GIT_STR;
-    message.systemInfo.deviceIdentifier.funcs.encode = &encodeString;
-    message.systemInfo.deviceIdentifier.arg = (void*)FLAVOUR;
+    message.systemInfo.has_codename = true;
+    strcpy(message.systemInfo.codename, CODENAME);
+    message.systemInfo.has_gitTag = true;
+    strcpy(message.systemInfo.gitTag, GIT_STR);
+    message.systemInfo.has_deviceIdentifier = true;
+    strcpy(message.systemInfo.deviceIdentifier, FLAVOUR);
 
     pb_encode(&stream, edgetx_eldp_Response_fields, &message);
     return stream.bytes_written;

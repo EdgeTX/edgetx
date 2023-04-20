@@ -33,7 +33,7 @@ bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
 }
 
 bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-    uint8_t buffer[1024] = {0};
+    uint8_t buffer[128] = {0};
     
     // TODO: we could read block-by-block to avoid the huge ass buffer...
     if (stream->bytes_left > sizeof(buffer) - 1)

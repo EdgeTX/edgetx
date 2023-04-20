@@ -44,6 +44,10 @@ extern "C" {
   #include <lundump.h>
 }
 
+#if defined(ELDB)
+  #include <lua/debugger/eldb.h>
+#endif
+
 #if defined(COLORLCD)
 #define LUA_WARNING_INFO_LEN               256
 #else
@@ -124,6 +128,10 @@ int custom_lua_atpanic(lua_State * L)
 
 static void luaHook(lua_State * L, lua_Debug *ar)
 {
+  cliSerialPrintf("Hook!");
+  #if defined(ELDB)
+  eldbLuaDebugHook(L, ar);
+  #endif
   if (ar->event == LUA_HOOKCOUNT) {
     if (get_tmr10ms() - luaCycleStart >= LUA_TASK_PERIOD_TICKS) {
       lua_yield(lsScripts, 0);
@@ -1316,9 +1324,9 @@ void luaInit()
       lua_atpanic(L, &custom_lua_atpanic);
 
 #if defined(LUA_ALLOCATOR_TRACER)
-      lua_sethook(L, luaHook, LUA_MASKCOUNT|LUA_MASKLINE, PERMANENT_SCRIPTS_MAX_INSTRUCTIONS);
+      lua_sethook(L, luaHook, LUA_MASKCALL|LUA_MASKRET|LUA_MASKLINE|LUA_MASKCOUNT, 1);
 #else
-      lua_sethook(L, luaHook, LUA_MASKCOUNT, PERMANENT_SCRIPTS_MAX_INSTRUCTIONS);
+      lua_sethook(L, luaHook, LUA_MASKCALL|LUA_MASKRET|LUA_MASKLINE|LUA_MASKCOUNT, 1);
 #endif
 
       // lsScripts is now a coroutine in lieu of the main thread to support preemption

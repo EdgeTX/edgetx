@@ -26,4 +26,4 @@
 #include <eldp.pb.h>
 
 bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err);
-bool eldbIsRunning();
+bool eldbIsInSession();

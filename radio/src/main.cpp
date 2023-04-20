@@ -610,7 +610,7 @@ void perMain()
   if (runScript) {
     f_chdir("/SCRIPTS/TOOLS/");
     luaExec(eldbScriptToRun);
-    luaSetHook(eldbLuaDebugHook);
+    // luaSetHook(eldbLuaDebugHook);
   }
 #endif
 }

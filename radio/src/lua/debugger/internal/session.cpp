@@ -30,10 +30,10 @@
 #include <sdcard.h>
 #include <cli.h>
 
-bool isRunning = false;
+bool inSession = false;
 
 bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err) {
-    if (isRunning) {
+    if (inSession) {
         *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
         return false;
     }
@@ -49,15 +49,16 @@ bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err) {
         return false;
     }
 
-    isRunning = true;
+    inSession = true;
     return true;
 }
 
 void eldbLuaDebugHook(lua_State *L, lua_Debug *ar) {
+    uint8_t areYouEvenAliveOrNot = 1 / 0;
     luaL_error(L, "interrupted!");
     cliSerialPrintf("debug hook called\n");
 }
 
-bool eldbIsRunning() {
-    return isRunning;
+bool eldbIsInSession() {
+    return inSession;
 }
