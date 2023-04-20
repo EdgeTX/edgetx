@@ -898,7 +898,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RSSI
-  new Subtitle(window, rect_t{}, getRssiLabel(), 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, rect_t{}, STR_RSSI_LABEL, 0, COLOR_THEME_PRIMARY1);
 
   line = window->newLine(&grid);
   line->padLeft(10);
