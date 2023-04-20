@@ -957,6 +957,7 @@
 #define TR_RX_NAME                      "Rx namn"
 #define TR_TELEMETRY_TYPE               "Telemetrityp"
 #define TR_TELEMETRY_SENSORS            "Sensorer"
+#define TR_RSSI_LABEL                   "Mottagarstatus"
 #define TR_VALUE                        "Värde"
 #define TR_PERIOD                       "Period"
 #define TR_INTERVAL                     "Intervall"
@@ -967,7 +968,7 @@
 #define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
 #define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
 #define TR_RXFREQUENCY                  TR("Rx frekv.", "Rx frekvens")
-#define TR_AFHDS3_RX_FREQ               TR("Rx frekv", "Rx frekvens")
+#define TR_AFHDS3_RX_FREQ               TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Act. pow", "Actual power")
@@ -1320,8 +1321,8 @@
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "Tillämpa ändringar"
 
-#define TR_DIGITAL_SERVO          "Servo333HZ"
-#define TR_ANALOG_SERVO           "Servo 50HZ"
-#define TR_SIGNAL_OUTPUT          "Signal output"
-#define TR_SERIAL_BUS             "Serial bus"
-#define TR_SYNC                   "Sync"
+#define TR_DIGITAL_SERVO                "Servo333Hz"
+#define TR_ANALOG_SERVO                 "Servo 50Hz"
+#define TR_SIGNAL_OUTPUT                "Utsignal"
+#define TR_SERIAL_BUS                   "Seriell buss"
+#define TR_SYNC                         "Synk"
