@@ -78,12 +78,7 @@
 #else
   #define TR_RETA123                    "R","H","G","S","1","2","3"
 #endif
-<<<<<<< HEAD
                                   
-=======
-
-#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"
->>>>>>> 6527cb47a (Fix the BUG of V0 receiver setting IBUS SBUS; add the setting item of INRM301.)
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Förstärk","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -387,15 +382,7 @@
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"
 #define TR_DEFAULT                      "Default"
-<<<<<<< HEAD
 #define TR_CHECKTRIMS                   CENTER "\006Kolla\012trimmar"
-=======
-#if defined(COLORLCD)
-  #define TR_CHECKTRIMS                 "Kolla FL-trimmar"
-#else
-  #define TR_CHECKTRIMS                 CENTER "\006Kolla\012trimmar"
-#endif
->>>>>>> 6527cb47a (Fix the BUG of V0 receiver setting IBUS SBUS; add the setting item of INRM301.)
 #define OFS_CHECKTRIMS                  CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                    "Swashtyp"
 #define TR_COLLECTIVE                   "Kollektiv"
