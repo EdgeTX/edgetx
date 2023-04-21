@@ -45,7 +45,7 @@ struct MPMProtoOption : public FormGroup::Line
   DynamicNumber<uint16_t>* rssi;
 
   MPMProtoOption(FormGroup* form, FlexGridLayout *layout);
-  void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md);
+  void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md, uint8_t moduleIdx);
 };
 
 MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
@@ -64,16 +64,16 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
       box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
 }
 
-void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
+void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md, uint8_t moduleIdx)
 {
-  if (!rfProto || !rfProto->getOptionStr()) {
+    if (!rfProto || !getMultiOptionTitle(moduleIdx)) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
 
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
 
-  const char *title = rfProto->getOptionStr();
+  const char *title = getMultiOptionTitle(moduleIdx);
   label->setText(title);
 
   lv_obj_add_flag(choice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
@@ -322,7 +322,7 @@ void MultimoduleSettings::update()
   auto rfProto = mpm_rfprotos->getProto(md->multi.rfProtocol);
 
   st_line->update(rfProto, md);
-  opt_line->update(rfProto, md);
+  opt_line->update(rfProto, md, moduleIdx);
 
   auto multi_proto = md->multi.rfProtocol;
   if (multi_proto == MODULE_SUBTYPE_MULTI_DSM2) {
