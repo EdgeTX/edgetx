@@ -40,7 +40,7 @@
 
 RadioData  g_eeGeneral;
 ModelData  g_model;
-bool moduleDirty[MAX_MODULES];
+tmr10ms_t lastModuleUpdatedTime[MAX_MODULES];
 
 #if defined(SDCARD)
 Clipboard clipboard;

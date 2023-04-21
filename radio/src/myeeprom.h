@@ -277,7 +277,7 @@ enum DisplayTrims
 
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
-extern bool moduleDirty[];
+extern tmr10ms_t lastModuleUpdatedTime[];
 
 PACK(union u_int8int16_t {
   struct {
