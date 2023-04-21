@@ -167,3 +167,13 @@ int Joystick::getAxisValue(int axis)
   } else
     return 0;
 }
+
+int Joystick::findCurrent(QString jsName)
+{
+  for (int i = 0; i < joystickNames.size(); i += 1) {
+    if (joystickNames[i] == jsName) {
+      return i;
+    }
+  }
+  return 0;
+}

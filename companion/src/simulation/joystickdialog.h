@@ -46,7 +46,7 @@ class joystickDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit joystickDialog(QWidget *parent = 0, int stick=-1);
+    explicit joystickDialog(QWidget *parent = 0);
     ~joystickDialog();
     Joystick *joystick;
 
@@ -58,12 +58,15 @@ class joystickDialog : public QDialog
     QSlider * sliders[MAX_JS_AXES + MAX_JS_BUTTONS];
     int step;
     int numAxes;
+    int numButtons;
     bool started;
+
+    void loadGrid();
 
   private slots:
     void populateSourceCombo(QComboBox * cb);
     void populateButtonCombo(QComboBox * cb);
-    bool loadJoysticks(int stick = -1);
+    bool loadJoysticks();
     void joystickOpen(int stick);
     void joystickSetEnabled(bool enable);
     void onjoystickAxisValueChanged(int axis, int value);

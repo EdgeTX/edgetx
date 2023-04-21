@@ -25,90 +25,29 @@
 #include "boards.h"
 #include "constants.h"
 
-joystickDialog::joystickDialog(QWidget *parent, int stick) :
+joystickDialog::joystickDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::joystickDialog),
   step(0),
   numAxes(0),
+  numButtons(0),
   started(false)
 {
   ui->setupUi(this);
 
   int i;
-  char s[20];
 
   for (i = 0; i < MAX_JS_AXES; i += 1) {
     jscal[i][0] = 32767;
     jscal[i][1] = 0;
-    jscal[i][2] = -32767;
-  }
-
-  QGridLayout *grid = findChild<QGridLayout*>("gridLayout");
-  int row = 0;
-  int col = 0;
-  if (grid) {
-    for (i = 0; i < MAX_JS_AXES; i += 1, row += 1) {
-      col = (i & 1) * 4;
-      sprintf(s, "Ch%d", i + 1);
-      QLabel *l = new QLabel(s);
-      grid->addWidget(l, row/2, col+0, 1, 1);
-      QSlider *s = new QSlider(Qt::Horizontal);
-      s->setMinimum(-32767);
-      s->setMaximum(32767);
-      sliders[row] = s;
-      grid->addWidget(s, row/2, col+1, 1, 1);
-      QCheckBox *c = new QCheckBox("");
-      invert[row] = c;
-      grid->addWidget(c, row/2, col+2, 1, 1);
-      QComboBox *d = new QComboBox();
-      populateSourceCombo(d);
-      sticks[row] = d;
-      grid->addWidget(d, row/2, col+3, 1, 1);
-    }
-    if (row & 1) row += 1;
-    for (i = 0; i < MAX_JS_BUTTONS; i += 1, row += 1) {
-      col = (i & 1) * 4;
-      sprintf(s, "Btn%d", i + 1);
-      QLabel *l = new QLabel(s);
-      grid->addWidget(l, row/2, col+0, 1, 1);
-      QSlider *s = new QSlider(Qt::Horizontal);
-      s->setMinimum(0);
-      s->setMaximum(1);
-      sliders[row] = s;
-      grid->addWidget(s, row/2, col+1, 1, 1);
-      QComboBox *d = new QComboBox();
-      populateButtonCombo(d);
-      sticks[row] = d;
-      grid->addWidget(d, row/2, col+3, 1, 1);
-    }
-  }
-
-  for (int i = 0; i < MAX_JS_AXES; ++i) {
-    if (g.joystick[i].existsOnDisk()) {
-      jscal[i][0] = g.joystick[i].stick_min();
-      jscal[i][1] = g.joystick[i].stick_med();
-      jscal[i][2] = g.joystick[i].stick_max();
-      sliders[i]->setMinimum(jscal[i][0]);
-      sliders[i]->setMaximum(jscal[i][2]);
-      invert[i]->setChecked(g.joystick[i].stick_inv());
-      sticks[i]->setCurrentIndex(sticks[i]->findData(g.joystick[i].stick_axe()));
-    }
-  }
-
-  for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
-    if (g.jsButton[i].existsOnDisk()) {
-      sticks[i+MAX_JS_AXES]->setCurrentIndex(sticks[i+MAX_JS_AXES]->findData(g.jsButton[i].button_idx()));
-    }
+    jscal[i][2] = -32768;
   }
 
   ui->backButton->setEnabled(false);
 
-  ui->joystickChkB->setChecked(g.jsSupport() || stick > -1);
+  ui->joystickChkB->setChecked(g.jsSupport());
 
-  if (stick < 0)
-    stick = g.jsCtrl();
-
-  if (loadJoysticks(stick)) {
+  if (loadJoysticks()) {
     joystickSetEnabled(ui->joystickChkB->isChecked());
     joystickOpen(ui->joystickCB->currentIndex());
   }
@@ -126,6 +65,82 @@ joystickDialog::joystickDialog(QWidget *parent, int stick) :
 joystickDialog::~joystickDialog()
 {
   delete ui;
+}
+
+void joystickDialog::loadGrid()
+{
+  int i;
+  char s[20];
+
+  QGridLayout *grid = findChild<QGridLayout*>("gridLayout");
+
+  QLayoutItem* item;
+  while ((item = grid->takeAt(0)) != NULL)
+  {
+      delete item->widget();
+      delete item;
+  }
+
+  memset(sliders, 0, sizeof(sliders));
+  memset(sticks, 0, sizeof(sliders));
+  memset(invert, 0, sizeof(sliders));
+
+  int row = 0;
+  int col = 0;
+  if (grid) {
+    for (i = 0; i < numAxes; i += 1, row += 1) {
+      col = (i & 1) * 4;
+      sprintf(s, "Ch%d", i + 1);
+      QLabel *l = new QLabel(s);
+      grid->addWidget(l, row/2, col+0, 1, 1);
+      QSlider *s = new QSlider(Qt::Horizontal);
+      s->setMinimum(-32767);
+      s->setMaximum(32767);
+      sliders[i] = s;
+      grid->addWidget(s, row/2, col+1, 1, 1);
+      QCheckBox *c = new QCheckBox("");
+      invert[i] = c;
+      grid->addWidget(c, row/2, col+2, 1, 1);
+      QComboBox *d = new QComboBox();
+      populateSourceCombo(d);
+      sticks[i] = d;
+      grid->addWidget(d, row/2, col+3, 1, 1);
+    }
+    if (row & 1) row += 1;
+    for (i = 0; i < numButtons; i += 1, row += 1) {
+      col = (i & 1) * 4;
+      sprintf(s, "Btn%d", i + 1);
+      QLabel *l = new QLabel(s);
+      grid->addWidget(l, row/2, col+0, 1, 1);
+      QSlider *s = new QSlider(Qt::Horizontal);
+      s->setMinimum(0);
+      s->setMaximum(1);
+      sliders[i+numAxes] = s;
+      grid->addWidget(s, row/2, col+1, 1, 1);
+      QComboBox *d = new QComboBox();
+      populateButtonCombo(d);
+      sticks[i+numAxes] = d;
+      grid->addWidget(d, row/2, col+3, 1, 1);
+    }
+  }
+
+  for (int i = 0; i < numAxes; ++i) {
+    if (g.joystick[i].existsOnDisk()) {
+      jscal[i][0] = g.joystick[i].stick_min();
+      jscal[i][1] = g.joystick[i].stick_med();
+      jscal[i][2] = g.joystick[i].stick_max();
+      sliders[i]->setMinimum(jscal[i][0]);
+      sliders[i]->setMaximum(jscal[i][2]);
+      invert[i]->setChecked(g.joystick[i].stick_inv());
+      sticks[i]->setCurrentIndex(sticks[i]->findData(g.joystick[i].stick_axe()));
+    }
+  }
+
+  for (int i = 0; i < numButtons; ++i) {
+    if (g.jsButton[i].existsOnDisk()) {
+      sticks[i+numAxes]->setCurrentIndex(sticks[i+numAxes]->findData(g.jsButton[i].button_idx()));
+    }
+  }
 }
 
 void joystickDialog::populateSourceCombo(QComboBox * cb)
@@ -194,16 +209,16 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   for (i = 0; i < ttlTrims; i += 1) {
     wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, i).toString(nullptr, &radioSettings);
     if ((i == 0) || (i == 3)) {
-      cb->addItem(wname + " Left", i + ttlSwitches | JS_BUTTON_3POS_DN);
-      cb->addItem(wname + " Right", i + ttlSwitches | JS_BUTTON_3POS_UP);
+      cb->addItem(wname + " Left", (i + ttlSwitches) | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Right", (i + ttlSwitches) | JS_BUTTON_3POS_UP);
     } else {
-      cb->addItem(wname + " Down", i + ttlSwitches | JS_BUTTON_3POS_DN);
-      cb->addItem(wname + " Up", i + ttlSwitches | JS_BUTTON_3POS_UP);
+      cb->addItem(wname + " Down", (i + ttlSwitches) | JS_BUTTON_3POS_DN);
+      cb->addItem(wname + " Up", (i + ttlSwitches) | JS_BUTTON_3POS_UP);
     }
   }
 }
 
-bool joystickDialog::loadJoysticks(int stick)
+bool joystickDialog::loadJoysticks()
 {
   QStringList joystickNames;
   bool found = false;
@@ -219,7 +234,8 @@ bool joystickDialog::loadJoysticks(int stick)
     joystick->close();
   }
   ui->joystickCB->insertItems(0, joystickNames);
-  if (found && stick < joystickNames.size()) {
+  if (found) {
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
     ui->joystickCB->setCurrentIndex(stick);
   }
   else if (!found) {
@@ -230,12 +246,16 @@ bool joystickDialog::loadJoysticks(int stick)
 
 void joystickDialog::joystickOpen(int stick)
 {
+  numAxes = 0;
+  numButtons = 0;
+
   if (stick < 0)
     return;
 
   joystick = new Joystick(this, 1, false, 0);
   if (joystick && joystick->open(stick)) {
     numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
+    numButtons = std::min(joystick->numButtons, MAX_JS_BUTTONS);
     for (int j=0; j<numAxes; j++) {
       joystick->sensitivities[j] = 0;
       joystick->deadzones[j] = 20;
@@ -244,6 +264,9 @@ void joystickDialog::joystickOpen(int stick)
   else {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot open joystick."));
   }
+  g.currentProfile().jsName(ui->joystickCB->currentText());
+  g.loadNamedJS();
+  loadGrid();
 }
 
 void joystickDialog::joystickSetEnabled(bool enable)
@@ -256,7 +279,7 @@ void joystickDialog::joystickSetEnabled(bool enable)
 
 void joystickDialog::onjoystickAxisValueChanged(int axis, int value)
 {
-  if (axis >= MAX_JS_AXES)
+  if (axis >= numAxes)
     return;
 
   if (started) {
@@ -274,10 +297,10 @@ void joystickDialog::onjoystickAxisValueChanged(int axis, int value)
 
 void joystickDialog::onjoystickButtonValueChanged(int button, bool state)
 {
-  if (button >= MAX_JS_BUTTONS)
+  if (button >= numButtons)
     return;
 
-  sliders[button + MAX_JS_AXES]->setValue(state);
+  sliders[button + numAxes]->setValue(state);
 }
 
 void joystickDialog::loadStep()
@@ -290,6 +313,10 @@ void joystickDialog::loadStep()
       break;
     case 1:
       started = true;
+      for (int i=0; i < numAxes; i++) {
+        jscal[i][0] = 0;
+        jscal[i][2] = 0;
+      }
       ui->howtoLabel->setText(tr("Move sticks and pots in every direction making full movement\nPress Next when finished"));
       ui->nextButton->setText(tr("Next"));
       ui->backButton->setDisabled(true);
@@ -345,12 +372,12 @@ void joystickDialog::on_cancelButton_clicked()
 void joystickDialog::on_okButton_clicked()
 {
   g.jsSupport(ui->joystickChkB->isChecked());
-  g.jsCtrl(ui->joystickCB->currentIndex());
+  g.currentProfile().jsName(ui->joystickCB->currentText());
 
   if (joystick)
     joystick->close();
 
-  if (!g.jsSupport() || g.jsCtrl() < 0) {
+  if (!g.jsSupport()) {
     this->accept();
     return;
   }
@@ -362,7 +389,9 @@ void joystickDialog::on_okButton_clicked()
       return;
   }
 
-  for (int i = 0; i < MAX_JS_AXES; ++i) {
+  g.clearJSData();
+
+  for (int i = 0; i < numAxes; ++i) {
     auto stick = sticks[i]->currentData().toInt();
     if (stick < 0) {
       g.joystick[i].stick_axe(-1);
@@ -373,20 +402,22 @@ void joystickDialog::on_okButton_clicked()
       g.joystick[i].stick_med(jscal[i][1]);
       g.joystick[i].stick_min(jscal[i][0]);
       g.joystick[i].stick_inv(invert[i]->isChecked() );
-      qDebug() << "joystick mapping " << sticks[i]->objectName() << "stick:" << i << "axe:" << stick;
+      qDebug() << "joystick mapping " << sticks[i]->currentText() << "stick:" << i << "axe:" << stick << jscal[i][0] << jscal[i][1] << jscal[i][2];
     }
   }
 
-  for (int i = 0; i < MAX_JS_BUTTONS; ++i) {
-    auto btn = sticks[i+MAX_JS_AXES]->currentData().toInt();
+  for (int i = 0; i < numButtons; ++i) {
+    auto btn = sticks[i+numAxes]->currentData().toInt();
     if (btn < 0) {
       g.jsButton[i].button_idx(-1);
     }
     else {
       g.jsButton[i].button_idx(btn);
-      qDebug() << "joystick button mapping " << sticks[i+MAX_JS_AXES]->objectName() << "stick:" << i << "idx:" << btn;
+      qDebug() << "joystick button mapping " << sticks[i+numAxes]->currentText() << "button:" << i << "idx:" << btn;
     }
   }
+
+  g.saveNamedJS();
 
   this->accept();
 }
