@@ -41,6 +41,8 @@
   FONT_TABLE(noto_tw);
 #elif defined(TRANSLATIONS_JP)
   FONT_TABLE(noto_jp);
+#elif defined(TRANSLATIONS_HE)
+  FONT_TABLE(arial_he);
 #else
   FONT_TABLE(roboto);
 #endif
