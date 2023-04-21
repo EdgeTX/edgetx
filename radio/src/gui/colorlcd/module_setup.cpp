@@ -93,6 +93,13 @@ class ModuleWindow : public FormGroup
   FailsafeChoice* fsChoice = nullptr;
   Choice *rfPower = nullptr;
   StaticText *idUnique = nullptr;
+  tmr10ms_t lastRefreshTime = 0;
+
+  void checkEvents() override {
+    if (lastModuleUpdatedTime[moduleIdx] > lastRefreshTime) {
+      updateModule();
+    }
+  }
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
 
@@ -189,6 +196,8 @@ void ModuleWindow::updateIDStaticText(int mdIdx)
 
 void ModuleWindow::updateModule()
 {
+  lastRefreshTime = get_tmr10ms();
+
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   clear();
 
