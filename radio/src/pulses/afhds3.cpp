@@ -609,6 +609,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
         moduleData->afhds3.phyMode = cfg.v0.PhyMode;
         cfg.BusType.ExternalBusType = cfg.v0.ExternalBusType;
+        moduleDirty[module_index] = true;
       } break;
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
