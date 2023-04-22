@@ -849,6 +849,7 @@ extern const LanguagePack seLanguagePack;
 extern const LanguagePack skLanguagePack;
 extern const LanguagePack cnLanguagePack;
 extern const LanguagePack jpLanguagePack;
+extern const LanguagePack heLanguagePack;
 extern const LanguagePack * const languagePacks[];
 
 #if defined(LANGUAGE_PACKS_DEFINITION)
@@ -861,6 +862,7 @@ const LanguagePack * const languagePacks[] = {
   &enLanguagePack,
   &esLanguagePack,
   &frLanguagePack,
+  &heLanguagePack,
   &huLanguagePack,
   &itLanguagePack,
   &jpLanguagePack,
