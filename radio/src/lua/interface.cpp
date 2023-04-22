@@ -127,11 +127,11 @@ int custom_lua_atpanic(lua_State * L)
 }
 
 void luaPauseExecution() {
-  lua_yield(L, 0);
+  lua_yield(lsScripts, 0);
 }
 
 void luaResumeExecution() {
-  lua_resume(L, NULL, 0);
+  lua_resume(lsScripts, NULL, 0);
 }
 
 static void luaHook(lua_State * L, lua_Debug *ar)

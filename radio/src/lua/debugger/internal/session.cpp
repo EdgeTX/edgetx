@@ -99,17 +99,19 @@ bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
                                  edgetx_eldp_Error_Type *err, std::string *msg)
 {
   if (request->has_setBreakpoint) {
-    // switch (request->setBreakpoint.state) {
-    //   case edgetx_eldp_SetBreakpoint_State_ENABLED:
-    cliSerialPrintf("Set breakpoint");
-    breakpoints.push_back(
-        Breakpoint_t{.line = request->setBreakpoint.breakpoint.line});
-    //     break;
-    //   default:
-    //     break;
-    // }
+    cliSerialPrintf("ELDBSB: %d", request->setBreakpoint.state);
+    switch (request->setBreakpoint.state) {
+      case edgetx_eldp_SetBreakpoint_State_ENABLED:
+        breakpoints.push_back(
+            Breakpoint_t{.line = request->setBreakpoint.breakpoint.line});
+        break;
+      default:
+        break;
+    }
   } else if (request->has_executeDebuggerCommand) {
+    breakpoints.clear();
     luaResumeExecution();
+    cliSerialPrintf("Resumed");
   } else {
     *err = edgetx_eldp_Error_Type_SESSION;
     *msg = "Request cannot be handled; unknown request";
