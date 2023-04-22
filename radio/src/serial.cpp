@@ -38,6 +38,7 @@
 
 #if defined(CONFIGURABLE_MODULE_PORT)
   #include "hal/module_port.h"
+  #include "tasks/mixer_task.h"
 #endif
 
 #if defined(CROSSFIRE)
