@@ -212,6 +212,9 @@ bool isSourceAvailable(int source)
 #if !defined(HELI)
   if (source >= MIXSRC_CYC1 && source <= MIXSRC_CYC3)
     return false;
+#else
+  if (!modelHeliEnabled() && source >= MIXSRC_CYC1 && source <= MIXSRC_CYC3)
+    return false;
 #endif
 
   if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH) {
@@ -226,6 +229,9 @@ bool isSourceAvailable(int source)
 #if !defined(GVARS)
   if (source >= MIXSRC_GVAR1 && source <= MIXSRC_LAST_GVAR)
     return false;
+#else
+  if (!modelGVEnabled() && source >= MIXSRC_GVAR1 && source <= MIXSRC_LAST_GVAR)
+    return false;
 #endif
 
   if (source >= MIXSRC_FIRST_RESERVE && source <= MIXSRC_LAST_RESERVE)
@@ -235,6 +241,8 @@ bool isSourceAvailable(int source)
     return g_model.trainerData.mode > 0;
 
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
+    if (!modelTelemetryEnabled())
+      return false;
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
     if (qr.rem == 0)
       return isTelemetryFieldAvailable(qr.quot);
@@ -257,7 +265,7 @@ bool isSourceAvailableInCustomSwitches(int source)
 {
   bool result = isSourceAvailable(source);
 
-  if (result && source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
+  if (result && modelTelemetryEnabled() && source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
     result = isTelemetryFieldComparisonAvailable(qr.quot);
   }
@@ -295,12 +303,12 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
     return g_model.trainerData.mode > 0;
 
-  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
+  if (modelTelemetryEnabled() && source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
     return isTelemetryFieldAvailable(qr.quot) && isTelemetryFieldComparisonAvailable(qr.quot);
   }
 
-  if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
+  if (modelGVEnabled() && source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
     return true;
 
   return false;
