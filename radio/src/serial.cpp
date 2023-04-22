@@ -29,7 +29,7 @@
 
 #include "hal/serial_port.h"
 
-#if defined(CONFIGURABLE_MODULE_PORT)
+#if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   #include "hal/module_port.h"
   #include "tasks/mixer_task.h"
 #endif
@@ -256,7 +256,7 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
-#if defined(CONFIGURABLE_MODULE_PORT)
+#if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   case UART_MODE_EXT_MODULE:
     if (port && !ctx) { // de-init
       etx_module_port_t mod_port;
@@ -400,7 +400,7 @@ void serialInit(uint8_t port_nr, int mode)
     memset(state, 0, sizeof(SerialPortState));
   }
 
-#if defined(CONFIGURABLE_MODULE_PORT)
+#if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   if (mode == UART_MODE_EXT_MODULE) {
     etx_module_port_t mod_port = {
       .port = ETX_MOD_PORT_UART,
