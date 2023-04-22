@@ -19,16 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "eldb.h"
-
 #include <cli.h>
+#include <eldp.pb.h>
 #include <pb_common.h>
 #include <pb_decode.h>
 
-#include "eldp.pb.h"
-#include "internal/encode_decode.h"
-#include "internal/messages.h"
-#include "internal/session.h"
+#include "../eldb.h"
+#include "encode_decode.h"
+#include "messages.h"
+#include "session.h"
+#include <string>
 
 char eldbScriptToRun[128] = "";
 
@@ -50,15 +50,23 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
     if (result) {
       if (request.has_startDebug && !eldbIsInSession()) {
         edgetx_eldp_Error_Type err;
-        bool result = eldbStartSession(targetName, &err);
+        auto result = eldbStartSession(targetName, &err);
         if (result) {
           txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
         } else {
           txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, nullptr);
         }
+      }  else if (request.has_startDebug && eldbIsInSession()) {
+        txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
+                                     edgetx_eldp_Error_Type_ALREADY_STARTED,
+                                     nullptr);
       } else if (!request.has_startDebug && eldbIsInSession()) {
-        txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
-        // TODO: Make it redirect to the current running session
+        edgetx_eldp_Error_Type err;
+        std::string msg;
+        auto result = eldbForwardToRunningSession(&request, &err, &msg);
+        if (!result) {
+          txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, msg.c_str());
+        }
       } else {
         txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
                                      edgetx_eldp_Error_Type_NOT_STARTED_YET,
@@ -70,7 +78,7 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
                                    PB_GET_ERROR(&stream));
     }
 
-    cliELDPSend(txBuf, txLen);
+    if (txLen > 0) cliELDPSend(txBuf, txLen);
 
     // TODO: Do proper error handling
   }

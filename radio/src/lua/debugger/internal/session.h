@@ -21,9 +21,12 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include <eldp.pb.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string>
 
 bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err);
 bool eldbIsInSession();
+bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
+                                 edgetx_eldp_Error_Type *err, std::string *msg);

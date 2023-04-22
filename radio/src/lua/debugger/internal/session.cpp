@@ -20,45 +20,100 @@
  */
 
 #include "session.h"
-#include "../eldb.h"
 
+#include <cli.h>
+#include <eldp.pb.h>
+#include <lua/lua_api.h>
+#include <sdcard.h>
+#include <tasks.h>
+
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <tasks.h>
-#include <lua/lua_api.h>
-#include <eldp.pb.h>
-#include <sdcard.h>
-#include <cli.h>
+#include <vector>
+
+#include "../eldb.h"
+#include "encode_decode.h"
 
 bool inSession = false;
 
-bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err) {
-    if (inSession) {
-        *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
-        return false;
-    }
+typedef struct {
+  unsigned int line;
+  // TODO: Fill required data
+} Breakpoint_t;
 
-    // TODO: Handle target type
+std::vector<Breakpoint_t> breakpoints;
 
-    snprintf(eldbScriptToRun, sizeof(eldbScriptToRun), "/SCRIPTS/TOOLS/%s", targetName);
+bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err)
+{
+  if (inSession) {
+    *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
+    return false;
+  }
 
-    if (isFileAvailable(eldbScriptToRun)) {
-        RTOS_GIVE_NOTIFICATION(menusTaskId);
-    } else {
-        *err = edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST;
-        return false;
-    }
+  // TODO: Handle target type
 
-    inSession = true;
-    return true;
+  snprintf(eldbScriptToRun, sizeof(eldbScriptToRun), "/SCRIPTS/TOOLS/%s",
+           targetName);
+
+  if (isFileAvailable(eldbScriptToRun)) {
+    RTOS_GIVE_NOTIFICATION(menusTaskId);
+  } else {
+    *err = edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST;
+    return false;
+  }
+
+  inSession = true;
+  return true;
 }
 
-void eldbLuaDebugHook(lua_State *L, lua_Debug *ar) {
-    uint8_t areYouEvenAliveOrNot = 1 / 0;
-    luaL_error(L, "interrupted!");
-    cliSerialPrintf("debug hook called\n");
+void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
+{
+  switch (ar->event) {
+    // case LUA_HOOKCALL: cliSerialPrintf("ELDB: LUA_HOOKCALL\n"); break;
+    // case LUA_HOOKRET: cliSerialPrintf("ELDB: LUA_HOOKRET\n"); break;
+    // case LUA_HOOKTAILCALL: cliSerialPrintf("ELDB: LUA_HOOKTAILCALL\n");
+    // break;
+    case LUA_HOOKLINE:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+      if (std::any_of(breakpoints.cbegin(), breakpoints.cend(),
+                      [ar](const Breakpoint_t &arg) {
+                        return arg.line == ar->currentline;
+                      })) {
+        cliSerialPrintf("ELDB: Can stop at line\n");
+        luaPauseExecution();
+      } else {
+        // cliSerialPrintf("ELDB: %d\n", ar->currentline);
+      }
+#pragma GCC diagnostic pop
+      break;
+    default:
+      break;
+  }
 }
 
-bool eldbIsInSession() {
-    return inSession;
+bool eldbIsInSession() { return inSession; }
+
+bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
+                                 edgetx_eldp_Error_Type *err, std::string *msg)
+{
+  if (request->has_setBreakpoint) {
+    // switch (request->setBreakpoint.state) {
+    //   case edgetx_eldp_SetBreakpoint_State_ENABLED:
+    cliSerialPrintf("Set breakpoint");
+    breakpoints.push_back(
+        Breakpoint_t{.line = request->setBreakpoint.breakpoint.line});
+    //     break;
+    //   default:
+    //     break;
+    // }
+  } else if (request->has_executeDebuggerCommand) {
+    luaResumeExecution();
+  } else {
+    *err = edgetx_eldp_Error_Type_SESSION;
+    *msg = "Request cannot be handled; unknown request";
+    return false;
+  }
+  return true;
 }

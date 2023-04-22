@@ -126,11 +126,20 @@ int custom_lua_atpanic(lua_State * L)
   return 0;
 }
 
+void luaPauseExecution() {
+  lua_yield(L, 0);
+}
+
+void luaResumeExecution() {
+  lua_resume(L, NULL, 0);
+}
+
 static void luaHook(lua_State * L, lua_Debug *ar)
 {
-  cliSerialPrintf("Hook!");
   #if defined(ELDB)
-  eldbLuaDebugHook(L, ar);
+  if (ar->event != LUA_HOOKCOUNT) {
+    eldbLuaDebugHook(L, ar);
+  }
   #endif
   if (ar->event == LUA_HOOKCOUNT) {
     if (get_tmr10ms() - luaCycleStart >= LUA_TASK_PERIOD_TICKS) {
@@ -996,10 +1005,6 @@ void luaExec(const char * filename)
   luaLoadScripts(true, filename);
 }
 
-void luaSetHook(lua_Hook f) {
-  lua_sethook(L, f, LUA_MASKCALL | LUA_MASKRET | LUA_MASKLINE, 1);
-}
-
 static bool resumeLua(bool init, bool allowLcdUsage)
 {
   static uint8_t idx;
@@ -1323,10 +1328,12 @@ void luaInit()
       // install our panic handler
       lua_atpanic(L, &custom_lua_atpanic);
 
-#if defined(LUA_ALLOCATOR_TRACER)
+#if defined(ELDB)
       lua_sethook(L, luaHook, LUA_MASKCALL|LUA_MASKRET|LUA_MASKLINE|LUA_MASKCOUNT, 1);
+#elif defined(LUA_ALLOCATOR_TRACER)
+      lua_sethook(L, luaHook, LUA_MASKLINE|LUA_MASKCOUNT, 1);
 #else
-      lua_sethook(L, luaHook, LUA_MASKCALL|LUA_MASKRET|LUA_MASKLINE|LUA_MASKCOUNT, 1);
+      lua_sethook(L, luaHook, LUA_MASKCOUNT, 1);
 #endif
 
       // lsScripts is now a coroutine in lieu of the main thread to support preemption

@@ -37,7 +37,7 @@
 #include "timers_driver.h"
 
 #if defined(ELDB)
-#include "lua/debugger/eldb.h"
+#include <lua/debugger/eldb.h>
 #endif
 
 #define CLI_COMMAND_MAX_ARGS 8
@@ -1795,6 +1795,7 @@ void cliCommandModeHandler()
   }
 }
 
+#if defined(ELDB)
 void cliELDPModeHandler()
 {
   uint8_t buf[200] = {};  // a wild guess on what max size can a protobuf
@@ -1806,6 +1807,7 @@ void cliELDPModeHandler()
 
   eldbReceive(buf, sizeof(buf), xReceivedBytes);
 }
+#endif
 
 void cliTask(void *pdata)
 {
@@ -1814,9 +1816,11 @@ void cliTask(void *pdata)
 
   for (;;) {
     switch (cliMode) {
+      #if defined(ELDB)
       case CLI_MODE_ELDP:
         cliELDPModeHandler();
         break;
+      #endif
       case CLI_MODE_COMMAND:
       default:
         cliCommandModeHandler();

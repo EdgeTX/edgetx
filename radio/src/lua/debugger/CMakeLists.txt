@@ -1,5 +1,5 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${RADIO_SRC_DIR}/${NANOPB_DIR}/extra)
-# set(NANOPB_OPTIONS "-v")
+# set(NANOPB_OPTIONS "-v") # for debugging nanopb
 find_package(Nanopb REQUIRED)
 include_directories(${NANOPB_INCLUDE_DIRS})
 
@@ -9,7 +9,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DELDB)
 
 set(ELDB_SRC
-    eldb.cpp
+    internal/comm.cpp
     internal/encode_decode.cpp
     internal/messages.cpp
     internal/session.cpp
