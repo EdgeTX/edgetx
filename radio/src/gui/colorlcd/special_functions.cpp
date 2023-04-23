@@ -340,7 +340,7 @@ class SpecialFunctionEditPage : public Page
             return (value == 0) ? std::string("On") : std::string("1x");
         });
       } else {
-        auto repeat = new NumberEdit(line, rect_t{}, 0, 60 / CFN_PLAY_REPEAT_MUL,
+        auto repeat = new NumberEdit(line, rect_t{}, -1, 60 / CFN_PLAY_REPEAT_MUL,
                                      GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
                                      SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
         repeat->setDisplayHandler([](int32_t value) {
