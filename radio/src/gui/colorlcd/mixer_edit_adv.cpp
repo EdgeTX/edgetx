@@ -68,9 +68,11 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
 
   // Flight modes
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
-  new FMMatrix<MixData>(line, rect_t{}, mix);
+  if (modelFMEnabled()) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    new FMMatrix<MixData>(line, rect_t{}, mix);
+  }
 
   // Trim
   line = form->newLine(&grid);

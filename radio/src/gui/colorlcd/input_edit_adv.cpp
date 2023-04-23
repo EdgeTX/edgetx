@@ -67,7 +67,9 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
   });
 
   // Flight modes
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
-  new FMMatrix<ExpoData>(line, rect_t{}, input);
+  if (modelFMEnabled()) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    new FMMatrix<ExpoData>(line, rect_t{}, input);
+  }
 }

@@ -39,6 +39,8 @@ enum MixFields {
   MIX_FIELD_COUNT
 };
 
+extern uint8_t FM_ROW(uint8_t);
+
 void drawOffsetBar(uint8_t x, uint8_t y, MixData * md)
 {
   const int gaugeWidth = 33;
@@ -107,22 +109,23 @@ void menuModelMixOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
   
-  SUBMENU(STR_MIXES, MIX_FIELD_COUNT, {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0, 0 /*, ...*/});
+  SUBMENU(STR_MIXES, MIX_FIELD_COUNT,
+          {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0 /*, ...*/});
   
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
 
-  for (int k=0; k<LCD_LINES-1; k++) {
-    coord_t y;
-    if (k >= LCD_LINES-1)
-      y = 1 + (k-LCD_LINES+2)*FH;
-    else
-      y = 1 + (k+1)*FH;
-    int8_t i = k;
+  coord_t y = MENU_HEADER_HEIGHT + 1;
 
-    i += menuVerticalOffset;
-
+  for (int k=0; k<NUM_BODY_LINES; k++) {
+    int i = k + menuVerticalOffset;
+    for (int j=0; j<=i; ++j) {
+      if (j<(int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        ++i;
+      }
+    }
     LcdFlags attr = (sub==i ? (editMode>0 ? BLINK|INVERS : INVERS) : 0);
+
     switch(i) {
       case MIX_FIELD_NAME:
         editSingleName(MIXES_2ND_COLUMN, y, STR_MIXNAME, md2->name,
@@ -205,5 +208,6 @@ void menuModelMixOne(event_t event)
         md2->speedDown = EDIT_DELAY(0, y, event, attr, STR_SLOWDOWN, md2->speedDown);
         break;
     }
+    y += FH;
   }
 }

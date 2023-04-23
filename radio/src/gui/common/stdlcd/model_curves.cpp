@@ -128,7 +128,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
   lcdDrawTextAtIndex(x1, y, STR_VCURVETYPE, curve.type, flags1);
 
   if (active && menuHorizontalPosition==0) {
-    CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, CURVE_REF_CUSTOM);
+    CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC);
     if (checkIncDec_Ret) curve.value = 0;
   }
   switch (curve.type) {

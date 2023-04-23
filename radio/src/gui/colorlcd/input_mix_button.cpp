@@ -96,6 +96,7 @@ void InputMixButton::setSource(mixsrc_t idx)
 
 void InputMixButton::setFlightModes(uint16_t modes)
 {
+  if (!modelFMEnabled()) return;
   if (modes == fm_modes) return;
   fm_modes = modes;
 
