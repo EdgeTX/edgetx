@@ -37,6 +37,9 @@
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
+#if !defined(SIMU)
+#include <malloc.h>
+#endif
 
 RadioData  g_eeGeneral;
 ModelData  g_model;
@@ -1926,3 +1929,17 @@ uint32_t pwrCheck()
 }
 #endif  // defined(PWR_BUTTON_PRESS)
 #endif  // !defined(SIMU)
+
+uint32_t availableMemory()
+{
+#if defined(SIMU)
+  return 1000;
+#else
+  extern unsigned char *heap;
+  extern int _heap_end;
+
+  struct mallinfo info = mallinfo();
+
+  return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks;
+#endif
+}
