@@ -228,6 +228,45 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 class ModelViewOptions : public Page
 {
    public:
+    class OptChoice : FormWindow
+    {
+      public:
+        OptChoice(Window* parent, const char *const values[], int vmin, int vmax,
+                  std::function<int()> _getValue,
+                  std::function<void(int)> _setValue,
+                  bool globalState) :
+          FormWindow(parent, rect_t{}),
+          m_getValue(std::move(_getValue)),
+          m_setValue(std::move(_setValue))
+        {
+          setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+          lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+          new Choice(this, rect_t{}, values, vmin, vmax,
+                     m_getValue,
+                     [=](int newValue) {
+                       m_setValue(newValue);
+                       setState();
+                     });
+          m_lbl = new StaticText(this, rect_t{}, STR_ADCFILTERVALUES[globalState ? 1: 2], 0, COLOR_THEME_SECONDARY1);
+          setState();
+        }
+
+      protected:
+        StaticText* m_lbl;
+        std::function<int()> m_getValue;
+        std::function<void(int)> m_setValue;
+
+        void setState()
+        {
+          if (m_getValue() == 0) {
+            lv_obj_clear_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_obj_add_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          }
+        }
+    };
+
     ModelViewOptions() : Page(ICON_MODEL_SETUP)
     {
       header.setTitle(STR_MENU_MODEL_SETUP);
@@ -247,17 +286,17 @@ class ModelViewOptions : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioThemesDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioThemesDisabled), g_eeGeneral.radioThemesDisabled);
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioGFDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioGFDisabled), g_eeGeneral.radioGFDisabled);
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioTrainerDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioTrainerDisabled), g_eeGeneral.radioTrainerDisabled);
 
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
@@ -266,50 +305,72 @@ class ModelViewOptions : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelHeliDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelHeliDisabled), g_eeGeneral.modelHeliDisabled);
 #endif
 
 #if defined(FLIGHT_MODES)
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelFMDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2,
+                    GET_DEFAULT(g_model.modelFMDisabled),
+                    [=](int newValue) {
+                      g_model.modelFMDisabled = newValue;
+#if defined(GVARS)
+                      gvState();
+#endif
+                    }, g_eeGeneral.modelFMDisabled);
+#endif
+
+#if defined(GVARS)
+      m_gvLine = form->newLine(&grid);
+      m_gvLine->padLeft(10);
+      (new StaticText(m_gvLine, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1))->padLeft(5);
+      new OptChoice(m_gvLine, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled), g_eeGeneral.modelGVDisabled || g_eeGeneral.modelFMDisabled);
+      gvState();
 #endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCurvesDisabled));
-
-#if defined(GVARS)
-      line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled));
-#endif
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCurvesDisabled), g_eeGeneral.modelCurvesDisabled);
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelLSDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelLSDisabled), g_eeGeneral.modelLSDisabled);
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelSFDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelSFDisabled), g_eeGeneral.modelSFDisabled);
 
 #if defined(LUA_MODEL_SCRIPTS)
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCustomScriptsDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCustomScriptsDisabled), g_eeGeneral.modelCustomScriptsDisabled);
 #endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
-      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelTelemetryDisabled));
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelTelemetryDisabled), g_eeGeneral.modelTelemetryDisabled);
     }
+
+  protected:
+#if defined(GVARS)
+    FormGroup::Line* m_gvLine;
+
+    void gvState()
+    {
+      if (modelFMEnabled()) {
+        lv_obj_clear_flag(m_gvLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      } else {
+        lv_obj_add_flag(m_gvLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      }
+    }
+#endif
 };
 
 void ModelSetupPage::build(FormWindow * window)

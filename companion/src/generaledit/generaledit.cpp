@@ -70,7 +70,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   auto hwpnl = new HardwarePanel(this, generalSettings, firmware, editorItemModels);
   addTab(hwpnl, tr("Hardware"));
   addTab(new CalibrationPanel(this, generalSettings, firmware), tr("Calibration"));
-  addTab(new GeneralOptionsPanel(this, generalSettings, firmware), tr("View Options"));
+  addTab(new GeneralOptionsPanel(this, generalSettings, firmware), tr("Enabled Features"));
 
   connect(hwpnl, &HardwarePanel::internalModuleChanged, this, [&] { intModChanged = true; });
 

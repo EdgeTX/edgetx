@@ -117,8 +117,8 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     s1.report("Telemetry Custom Screens");
   }
 
-  addTab(new ModelOptionsPanel(this, model, generalSettings, firmware), tr("View Options"));
-  s1.report("View Options");
+  addTab(new ModelOptionsPanel(this, model, generalSettings, firmware), tr("Enabled Features"));
+  s1.report("Enabled Features");
 
   connect(setupPanel, &SetupPanel::extendedLimitsToggled, channelsPanel, &ChannelsPanel::refreshExtendedLimits);
   connect(ui->tabWidget, &QTabWidget::currentChanged, this, &ModelEdit::onTabIndexChanged);

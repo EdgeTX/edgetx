@@ -1968,7 +1968,7 @@ bool modelCurvesEnabled() {
   return (g_model.modelCurvesDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelCurvesDisabled == 0) || (g_model.modelCurvesDisabled == 2);
 }
 bool modelGVEnabled() {
-  return modelFMEnabled() && (g_model.modelGVDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelGVDisabled == 0) || (g_model.modelGVDisabled == 2);
+  return modelFMEnabled() && (g_model.modelGVDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelGVDisabled == 0 && g_eeGeneral.modelFMDisabled == 0) || (g_model.modelGVDisabled == 2);
 }
 bool modelLSEnabled() {
   return (g_model.modelLSDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelLSDisabled == 0) || (g_model.modelLSDisabled == 2);

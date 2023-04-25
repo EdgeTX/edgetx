@@ -224,6 +224,7 @@ class WindowButtonGroup : public FormGroup
     setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
     lv_obj_set_style_flex_main_place(lvobj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
     padRow(lv_dpx(8));
+    padBottom(4);
 
     for (auto& entry : pages) {
       auto btn = new TextButton(this, rect_t{}, entry.first, [&, entry]() {
@@ -574,6 +575,8 @@ class GpsPage : public SubPage {
 class ViewOptionsPage : public Page
 {
    public:
+    const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
+
     ViewOptionsPage() : Page(ICON_RADIO_SETUP)
     {
       header.setTitle(STR_RADIO_SETUP);
@@ -581,7 +584,7 @@ class ViewOptionsPage : public Page
 
       body.padAll(8);
 
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
 
       auto form = new FormWindow(&body, rect_t{});
       form->setFlexLayout();
@@ -619,20 +622,28 @@ class ViewOptionsPage : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
+      new CheckBox(line, rect_t{},
+                   GET_INVERTED(g_eeGeneral.modelFMDisabled),
+                   [=](bool newValue) {
+                     g_eeGeneral.modelFMDisabled = !newValue;
+#if defined(GVARS)
+                     gvState();
+#endif
+                   });
+#endif
+
+#if defined(GVARS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      (new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1))->padLeft(5);
+      m_gvCB = new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
+      gvState();
 #endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
-
-#if defined(GVARS)
-      line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
-#endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
@@ -656,6 +667,26 @@ class ViewOptionsPage : public Page
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
     }
+
+  protected:
+#if defined(GVARS)
+    CheckBox* m_gvCB;
+
+    void gvState()
+    {
+      if (!g_eeGeneral.modelFMDisabled) {
+        lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_DISABLED);
+        if (g_eeGeneral.modelGVDisabled) {
+          lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
+        } else {
+          lv_obj_add_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
+        }
+      } else {
+        lv_obj_add_state(m_gvCB->getLvObj(), LV_STATE_DISABLED);
+        lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
+      }
+    }
+#endif
 };
 
 RadioSetupPage::RadioSetupPage():
@@ -685,7 +716,6 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_GPS, [](){new GpsPage();}},
       {STR_VIEW_OPTIONS, [](){new ViewOptionsPage();}},
 });
-
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay

@@ -164,8 +164,8 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
-  ITEM_VIEW_OPTIONS_CURVES,
   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
+  ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
 #if defined(LUA_MODEL_SCRIPTS)
@@ -217,6 +217,15 @@ uint8_t VIEWOPT_ROW(uint8_t value)
     return value;
   return HIDDEN_ROW;
 }
+
+#if defined(GVARS)
+static uint8_t VIEWOPT_GV_ROW(uint8_t value)
+{
+  if (expandState.viewOpt && modelFMEnabled())
+    return value;
+  return HIDDEN_ROW;
+}
+#endif
 
 void copySelection(char * dst, const char * src, uint8_t size)
 {
@@ -481,10 +490,13 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 #define USB_JOYSTICK_ROWS
 #endif
 
-uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, bool globalState, int indent = 0)
 {
-  lcdDrawText(INDENT_WIDTH*2, y, title);
-  return editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
+  lcdDrawText(INDENT_WIDTH*2+indent, y, title);
+  uint8_t rv = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
+  if (rv == OVERRIDE_GLOBAL)
+    lcdDrawText(MODEL_SETUP_2ND_COLUMN + 40, y, STR_ADCFILTERVALUES[globalState == 0 ? 2 : 1]);
+  return rv;
 }
 
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
@@ -584,8 +596,8 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
       CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
+      CASE_GVARS(VIEWOPT_GV_ROW(0))
       VIEWOPT_ROW(0),
-      CASE_GVARS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
@@ -1902,45 +1914,45 @@ void menuModelSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, TR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
-        g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event);
+        g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event, g_eeGeneral.radioGFDisabled);
         break;
       case ITEM_VIEW_OPTIONS_TRAINER:
-        g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event);
+        g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event, g_eeGeneral.radioTrainerDisabled);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH, y, TR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
-        g_model.modelHeliDisabled = viewOptChoice(y, STR_MENUHELISETUP, g_model.modelHeliDisabled, attr, event);
+        g_model.modelHeliDisabled = viewOptChoice(y, STR_MENUHELISETUP, g_model.modelHeliDisabled, attr, event, g_eeGeneral.modelHeliDisabled);
         break;
 #endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
-        g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event);
+        g_model.modelFMDisabled = viewOptChoice(y, STR_MENUFLIGHTMODES, g_model.modelFMDisabled, attr, event, g_eeGeneral.modelFMDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_CURVES:
-        g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
+        g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event, g_eeGeneral.modelCurvesDisabled);
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
+        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_eeGeneral.modelGVDisabled, 2);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:
-        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event);
+        g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event, g_eeGeneral.modelLSDisabled);
         break;
       case ITEM_VIEW_OPTIONS_SF:
-        g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event);
+        g_model.modelSFDisabled = viewOptChoice(y, STR_MENUCUSTOMFUNC, g_model.modelSFDisabled, attr, event, g_eeGeneral.modelSFDisabled);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        g_model.modelCustomScriptsDisabled = viewOptChoice(y, STR_MENUCUSTOMSCRIPTS, g_model.modelCustomScriptsDisabled, attr, event);
+        g_model.modelCustomScriptsDisabled = viewOptChoice(y, STR_MENUCUSTOMSCRIPTS, g_model.modelCustomScriptsDisabled, attr, event, g_eeGeneral.modelCustomScriptsDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
-        g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event);
+        g_model.modelTelemetryDisabled = viewOptChoice(y, STR_MENUTELEMETRY, g_model.modelTelemetryDisabled, attr, event, g_eeGeneral.modelTelemetryDisabled);
         break;
 
 #if defined(USBJ_EX)

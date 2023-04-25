@@ -106,8 +106,8 @@ enum MenuRadioSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
-  ITEM_VIEW_OPTIONS_CURVES,
   CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
+  ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
   CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
@@ -115,11 +115,20 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MAX
 };
 
-uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, int indent=0)
 {
-  lcdDrawText(INDENT_WIDTH*2, y, title);
+  lcdDrawText(INDENT_WIDTH*2+indent, y, title);
   return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
 }
+
+#if defined(GVARS)
+static uint8_t VIEWOPT_GV_ROW(uint8_t value)
+{
+  if (g_eeGeneral.modelFMDisabled == 0)
+    return value;
+  return HIDDEN_ROW;
+}
+#endif
 
 void menuRadioSetup(event_t event)
 {
@@ -200,7 +209,7 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
       0, // sticks mode
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, CASE_GVARS(0) 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) CASE_GVARS(VIEWOPT_GV_ROW(0)) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
       1 /*to force edit mode*/
   });
 
@@ -216,6 +225,11 @@ void menuRadioSetup(event_t event)
   for (uint8_t i=0; i<NUM_BODY_LINES; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i + menuVerticalOffset;
+    for (int j = 0; j <= k; j++) {
+      if (mstate_tab[j] == HIDDEN_ROW)
+        k++;
+    }
+
     uint8_t blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
     uint8_t attr = (sub == k ? blink : 0);
 
@@ -682,7 +696,7 @@ void menuRadioSetup(event_t event)
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
+        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, 2);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:
