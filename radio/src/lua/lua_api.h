@@ -37,16 +37,6 @@ extern "C" {
 #include "dataconstants.h"
 #include "opentx_types.h"
 
-#ifndef LUA_SCRIPT_LOAD_MODE
-  // Can force loading of binary (.luac) or plain-text (.lua) versions of scripts specifically, and control
-  //  compilation options. See interface.cpp:luaLoadScriptFileToState() <mode> parameter description for details.
-  #if !defined(LUA_COMPILER) || defined(SIMU) || defined(DEBUG)
-    #define LUA_SCRIPT_LOAD_MODE    "T"   // prefer loading .lua source file for full debug info
-  #else
-    #define LUA_SCRIPT_LOAD_MODE    "bt"  // binary or text, whichever is newer
-  #endif
-#endif
-
 // LUA serial connection
 #define LUA_FIFO_SIZE 256
 void luaAllocRxFifo();
@@ -192,7 +182,7 @@ extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 void luaClose(lua_State ** L);
 bool luaTask(event_t evt, bool allowLcdUsage);
 void checkLuaMemoryUsage();
-void luaExec(const char * filename);
+void luaExec(const char * filename, bool stripDebug = true);
 void luaPauseExecution();
 void luaResumeExecution();
 void luaDoGc(lua_State * L, bool full);

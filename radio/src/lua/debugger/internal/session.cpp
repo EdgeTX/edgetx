@@ -75,18 +75,13 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
     // case LUA_HOOKTAILCALL: cliSerialPrintf("ELDB: LUA_HOOKTAILCALL\n");
     // break;
     case LUA_HOOKLINE:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-compare"
+      if (ar->currentline < 0) return;
       if (std::any_of(breakpoints.cbegin(), breakpoints.cend(),
                       [ar](const Breakpoint_t &arg) {
-                        return arg.line == ar->currentline;
+                        return arg.line == (unsigned int)ar->currentline;
                       })) {
-        cliSerialPrintf("ELDB: Can stop at line\n");
         luaPauseExecution();
-      } else {
-        // cliSerialPrintf("ELDB: %d\n", ar->currentline);
       }
-#pragma GCC diagnostic pop
       break;
     default:
       break;
@@ -98,8 +93,8 @@ bool eldbIsInSession() { return inSession; }
 bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
                                  edgetx_eldp_Error_Type *err, std::string *msg)
 {
+#pragma GCC diagnostic pop
   if (request->has_setBreakpoint) {
-    cliSerialPrintf("ELDBSB: %d", request->setBreakpoint.state);
     switch (request->setBreakpoint.state) {
       case edgetx_eldp_SetBreakpoint_State_ENABLED:
         breakpoints.push_back(
@@ -108,6 +103,7 @@ bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
       default:
         break;
     }
+    cliSerialPrintf("Set breakpoint");
   } else if (request->has_executeDebuggerCommand) {
     breakpoints.clear();
     luaResumeExecution();

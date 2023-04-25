@@ -24,11 +24,12 @@
 #include <pb_common.h>
 #include <pb_decode.h>
 
+#include <string>
+
 #include "../eldb.h"
 #include "encode_decode.h"
 #include "messages.h"
 #include "session.h"
-#include <string>
 
 char eldbScriptToRun[128] = "";
 
@@ -56,7 +57,7 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
         } else {
           txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, nullptr);
         }
-      }  else if (request.has_startDebug && eldbIsInSession()) {
+      } else if (request.has_startDebug && eldbIsInSession()) {
         txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
                                      edgetx_eldp_Error_Type_ALREADY_STARTED,
                                      nullptr);

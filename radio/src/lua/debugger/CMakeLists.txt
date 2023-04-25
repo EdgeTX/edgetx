@@ -6,7 +6,7 @@ include_directories(${NANOPB_INCLUDE_DIRS})
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS RELPATH ${RADIO_SRC_DIR}/lua/debugger ${RADIO_SRC_DIR}/lua/debugger/eldp.proto)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_definitions(-DELDB)
+add_definitions(-DELDB -DELDB_SCRIPT_LOAD_MODE="T")
 
 set(ELDB_SRC
     internal/comm.cpp

@@ -38,8 +38,8 @@ syntax = "proto3";
 package edgetx.eldp;
 
 /*
-* data types
-*/
+ * data types
+**/
 
 message Version {
     int32 major = 1;
