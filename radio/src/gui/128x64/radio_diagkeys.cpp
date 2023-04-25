@@ -113,13 +113,6 @@ void menuRadioDiagKeys(event_t event)
     }
   }
 
-#if defined(AUTOSWITCH)
-  lcdDrawText(13*FW+FWNUM, LCD_H - FH + 1,"Last");
-  swsrc_t swtch = getMovedSwitch();
-  if (swtch)
-    drawSwitch(17*FW+FWNUM+2, LCD_H - FH + 1, swtch, 0);
-#endif
-
 #if defined(ROTARY_ENCODER_NAVIGATION)
   coord_t y = LCD_H - FH + 1;
   lcdDrawText(8*FW-9, y, STR_ROTARY_ENCODER);
