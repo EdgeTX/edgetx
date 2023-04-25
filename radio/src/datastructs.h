@@ -125,6 +125,9 @@ static inline void check_struct()
 #elif defined(RADIO_TPRO)
   CHKSIZE(RadioData, 857);
   CHKSIZE(ModelData, 6287);
+#elif defined(RADIO_TPROV2)
+  CHKSIZE(RadioData, 857);
+  CHKSIZE(ModelData, 6287);
 #elif defined(RADIO_BOXER)
   CHKSIZE(RadioData, 868);
   CHKSIZE(ModelData, 6262);

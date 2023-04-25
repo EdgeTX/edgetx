@@ -272,7 +272,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14",
             "t8", "t12",
-            "tlite", "tpro",
+            "tlite", "tpro","tprov2",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
