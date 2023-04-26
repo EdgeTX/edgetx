@@ -218,15 +218,6 @@ uint8_t VIEWOPT_ROW(uint8_t value)
   return HIDDEN_ROW;
 }
 
-#if defined(GVARS)
-static uint8_t VIEWOPT_GV_ROW(uint8_t value)
-{
-  if (expandState.viewOpt && modelFMEnabled())
-    return value;
-  return HIDDEN_ROW;
-}
-#endif
-
 void copySelection(char * dst, const char * src, uint8_t size)
 {
   if (memcmp(src, "---", 3) == 0)
@@ -490,9 +481,9 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 #define USB_JOYSTICK_ROWS
 #endif
 
-uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, bool globalState, int indent = 0)
+uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, bool globalState)
 {
-  lcdDrawText(INDENT_WIDTH*2+indent, y, title);
+  lcdDrawText(INDENT_WIDTH*2, y, title);
   uint8_t rv = editChoice(MODEL_SETUP_2ND_COLUMN, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
   if (rv == OVERRIDE_GLOBAL)
     lcdDrawText(MODEL_SETUP_2ND_COLUMN + 40, y, STR_ADCFILTERVALUES[globalState == 0 ? 2 : 1]);
@@ -596,7 +587,7 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
       CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
-      CASE_GVARS(VIEWOPT_GV_ROW(0))
+      CASE_GVARS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -1937,7 +1928,7 @@ void menuModelSetup(event_t event)
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_eeGeneral.modelGVDisabled, 2);
+        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_eeGeneral.modelGVDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:

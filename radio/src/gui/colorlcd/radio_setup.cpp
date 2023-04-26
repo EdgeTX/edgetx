@@ -622,22 +622,14 @@ class ViewOptionsPage : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
-                   GET_INVERTED(g_eeGeneral.modelFMDisabled),
-                   [=](bool newValue) {
-                     g_eeGeneral.modelFMDisabled = !newValue;
-#if defined(GVARS)
-                     gvState();
-#endif
-                   });
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
 #endif
 
 #if defined(GVARS)
       line = form->newLine(&grid);
       line->padLeft(10);
-      (new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1))->padLeft(5);
-      m_gvCB = new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
-      gvState();
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
 #endif
 
       line = form->newLine(&grid);
@@ -667,26 +659,6 @@ class ViewOptionsPage : public Page
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
       new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
     }
-
-  protected:
-#if defined(GVARS)
-    CheckBox* m_gvCB;
-
-    void gvState()
-    {
-      if (!g_eeGeneral.modelFMDisabled) {
-        lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_DISABLED);
-        if (g_eeGeneral.modelGVDisabled) {
-          lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
-        } else {
-          lv_obj_add_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
-        }
-      } else {
-        lv_obj_add_state(m_gvCB->getLvObj(), LV_STATE_DISABLED);
-        lv_obj_clear_state(m_gvCB->getLvObj(), LV_STATE_CHECKED);
-      }
-    }
-#endif
 };
 
 RadioSetupPage::RadioSetupPage():

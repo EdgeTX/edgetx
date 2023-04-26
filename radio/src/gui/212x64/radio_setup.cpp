@@ -115,20 +115,11 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MAX
 };
 
-uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, int indent=0)
+uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
-  lcdDrawText(INDENT_WIDTH*2+indent, y, title);
+  lcdDrawText(INDENT_WIDTH*2, y, title);
   return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
 }
-
-#if defined(GVARS)
-static uint8_t VIEWOPT_GV_ROW(uint8_t value)
-{
-  if (g_eeGeneral.modelFMDisabled == 0)
-    return value;
-  return HIDDEN_ROW;
-}
-#endif
 
 void menuRadioSetup(event_t event)
 {
@@ -209,7 +200,7 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
       0, // sticks mode
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) CASE_GVARS(VIEWOPT_GV_ROW(0)) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) CASE_GVARS(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
       1 /*to force edit mode*/
   });
 
@@ -696,7 +687,7 @@ void menuRadioSetup(event_t event)
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, 2);
+        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:

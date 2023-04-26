@@ -312,22 +312,14 @@ class ModelViewOptions : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2,
-                    GET_DEFAULT(g_model.modelFMDisabled),
-                    [=](int newValue) {
-                      g_model.modelFMDisabled = newValue;
-#if defined(GVARS)
-                      gvState();
-#endif
-                    }, g_eeGeneral.modelFMDisabled);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelFMDisabled), g_eeGeneral.modelFMDisabled);
 #endif
 
 #if defined(GVARS)
-      m_gvLine = form->newLine(&grid);
-      m_gvLine->padLeft(10);
-      (new StaticText(m_gvLine, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1))->padLeft(5);
-      new OptChoice(m_gvLine, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled), g_eeGeneral.modelGVDisabled || g_eeGeneral.modelFMDisabled);
-      gvState();
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled), g_eeGeneral.modelGVDisabled);
 #endif
 
       line = form->newLine(&grid);
@@ -357,20 +349,6 @@ class ModelViewOptions : public Page
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
       new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelTelemetryDisabled), g_eeGeneral.modelTelemetryDisabled);
     }
-
-  protected:
-#if defined(GVARS)
-    FormGroup::Line* m_gvLine;
-
-    void gvState()
-    {
-      if (modelFMEnabled()) {
-        lv_obj_clear_flag(m_gvLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      } else {
-        lv_obj_add_flag(m_gvLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      }
-    }
-#endif
 };
 
 void ModelSetupPage::build(FormWindow * window)
