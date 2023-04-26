@@ -31,20 +31,20 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include <string>
 
 #include "../eldb.h"
 #include "encode_decode.h"
 
-bool inSession = false;
-
-typedef struct {
+struct Breakpoint {
   unsigned int line;
-  // TODO: Fill required data
-} Breakpoint_t;
+  bool enabled;
+};
 
-std::vector<Breakpoint_t> breakpoints;
+bool inSession = false;
+std::vector<Breakpoint> breakpoints;
 
-bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err)
+bool eldbStartSession(std::string *targetName, edgetx_eldp_StartDebug_Target targetType, edgetx_eldp_Error_Type *err)
 {
   if (inSession) {
     *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
@@ -52,11 +52,13 @@ bool eldbStartSession(const char *targetName, edgetx_eldp_Error_Type *err)
   }
 
   // TODO: Handle target type
+  // FIXME: Replace this abomination with std::format when C++
+  // standart becomes C++20
+  eldbScriptToRun.clear();
+  eldbScriptToRun += "/SCRIPTS/TOOLS/";
+  eldbScriptToRun += *targetName;
 
-  snprintf(eldbScriptToRun, sizeof(eldbScriptToRun), "/SCRIPTS/TOOLS/%s",
-           targetName);
-
-  if (isFileAvailable(eldbScriptToRun)) {
+  if (isFileAvailable(eldbScriptToRun.c_str())) {
     RTOS_GIVE_NOTIFICATION(menusTaskId);
   } else {
     *err = edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST;
@@ -77,7 +79,7 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
     case LUA_HOOKLINE:
       if (ar->currentline < 0) return;
       if (std::any_of(breakpoints.cbegin(), breakpoints.cend(),
-                      [ar](const Breakpoint_t &arg) {
+                      [ar](const Breakpoint &arg) {
                         return arg.line == (unsigned int)ar->currentline;
                       })) {
         luaPauseExecution();
@@ -95,17 +97,35 @@ bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
 {
 #pragma GCC diagnostic pop
   if (request->has_setBreakpoint) {
+    auto breakpointIndex = std::find_if(
+        breakpoints.cbegin(), breakpoints.cend(),
+        [request](const Breakpoint &arg) {
+          return arg.line == request->setBreakpoint.breakpoint.line;
+        });
+    bool enabled =
+        request->setBreakpoint.state == edgetx_eldp_SetBreakpoint_State_ENABLED;
+
     switch (request->setBreakpoint.state) {
+      case edgetx_eldp_SetBreakpoint_State_DISABLED:
       case edgetx_eldp_SetBreakpoint_State_ENABLED:
-        breakpoints.push_back(
-            Breakpoint_t{.line = request->setBreakpoint.breakpoint.line});
+        if (breakpointIndex != breakpoints.cend()) {  // breakpoint exists
+          breakpoints[breakpointIndex - breakpoints.cbegin()].enabled = enabled;
+        } else {
+          breakpoints.push_back(
+              Breakpoint{.line = request->setBreakpoint.breakpoint.line,
+                         .enabled = enabled});
+        }
         break;
+      case edgetx_eldp_SetBreakpoint_State_NONE:
+        if (breakpointIndex != breakpoints.cend()) {
+          breakpoints.erase(breakpointIndex);
+        }
       default:
         break;
     }
     cliSerialPrintf("Set breakpoint");
   } else if (request->has_executeDebuggerCommand) {
-    breakpoints.clear();
+    // breakpoints.clear();
     luaResumeExecution();
     cliSerialPrintf("Resumed");
   } else {

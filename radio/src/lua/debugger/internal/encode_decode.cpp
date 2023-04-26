@@ -24,6 +24,8 @@
 #include <pb_common.h>
 #include <pb_encode.h>
 #include <pb_decode.h>
+#include <array>
+#include <string>
 
 bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
                    void *const *arg) {
@@ -32,16 +34,17 @@ bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
     return pb_encode_string(stream, *(uint8_t* const*)arg, strlen((char*)*arg));
 }
 
+// accepts only std::string as an argument
 bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg) {
-    uint8_t buffer[128] = {0};
-    
-    // TODO: we could read block-by-block to avoid the huge ass buffer...
-    if (stream->bytes_left > sizeof(buffer) - 1)
-        return false;
-    
-    if (!pb_read(stream, buffer, stream->bytes_left))
-        return false;
-    
-    strcpy((char*)*arg, (const char*)buffer);
+    std::string *output = static_cast<std::string *>(*arg);
+    uint8_t buffer[128]; // Arbitrary block size
+    size_t count;
+    while (stream->bytes_left > 0) {
+        count = (stream->bytes_left > sizeof(buffer)) ? sizeof(buffer) : stream->bytes_left;
+        if (!pb_read(stream, buffer, count)) {
+            return false;
+        }
+        output->append(reinterpret_cast<const char*>(buffer), count);
+    }
     return true;
 }

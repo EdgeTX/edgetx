@@ -609,7 +609,7 @@ void perMain()
   uint32_t runScript = RTOS_TAKE_NOTIFICATION(true, 0);
   if (runScript) {
     f_chdir("/SCRIPTS/TOOLS/");
-    luaExec(eldbScriptToRun);
+    luaExec(eldbScriptToRun.c_str());
     // luaSetHook(eldbLuaDebugHook);
   }
 #endif

@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "session.h"
 
-char eldbScriptToRun[128] = "";
+std::string eldbScriptToRun;
 
 void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
 {
@@ -39,19 +39,20 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
     uint8_t txBuf[128] = {};
     size_t txLen = 0;
     edgetx_eldp_Request request = edgetx_eldp_Request_init_zero;
-    char targetName[32] = "";
 
     pb_istream_t stream = pb_istream_from_buffer(rxBuf, dataLen);
 
+    std::string targetName;
+
     request.startDebug.targetName.funcs.decode = &decodeString;
-    request.startDebug.targetName.arg = targetName;
+    request.startDebug.targetName.arg = (void*)&targetName;
 
     bool result = pb_decode(&stream, edgetx_eldp_Request_fields, &request);
 
     if (result) {
       if (request.has_startDebug && !eldbIsInSession()) {
         edgetx_eldp_Error_Type err;
-        auto result = eldbStartSession(targetName, &err);
+        auto result = eldbStartSession(&targetName, request.startDebug.targetType, &err);
         if (result) {
           txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
         } else {

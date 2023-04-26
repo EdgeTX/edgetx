@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <lua.h>
 
-extern char eldbScriptToRun[128]; // used by the UI thread for running a Lua script
+extern std::string eldbScriptToRun; // used by the UI thread for running a Lua script
 
 // This function is only called from cli.cpp and used to
 // relay data from CLI to ELDB

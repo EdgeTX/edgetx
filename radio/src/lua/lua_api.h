@@ -182,7 +182,7 @@ extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 void luaClose(lua_State ** L);
 bool luaTask(event_t evt, bool allowLcdUsage);
 void checkLuaMemoryUsage();
-void luaExec(const char * filename, bool stripDebug = true);
+void luaExec(const char * filename);
 void luaPauseExecution();
 void luaResumeExecution();
 void luaDoGc(lua_State * L, bool full);
