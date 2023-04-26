@@ -45,7 +45,7 @@ extern "C" {
 }
 
 #if defined(ELDB)
-  #include <lua/debugger/eldb.h>
+  #include <lua/debugger/eldb.hpp>
 #endif
 
 #if defined(COLORLCD)

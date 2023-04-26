@@ -25,10 +25,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <lua.h>
+#include <array>
 
 extern std::string eldbScriptToRun; // used by the UI thread for running a Lua script
 
 // This function is only called from cli.cpp and used to
 // relay data from CLI to ELDB
-void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen);
+template <size_t N>
+void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen);
 void eldbLuaDebugHook(lua_State *L, lua_Debug *ar);
+
+#include "internal/eldb.tpp"

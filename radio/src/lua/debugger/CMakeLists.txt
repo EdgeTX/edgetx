@@ -9,9 +9,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DELDB -DELDB_SCRIPT_LOAD_MODE="T")
 
 set(ELDB_SRC
-    internal/comm.cpp
+    internal/eldb.tpp
     internal/encode_decode.cpp
-    internal/messages.cpp
+    internal/messages.tpp
     internal/session.cpp
 )
 

@@ -34,7 +34,7 @@
 
 #if defined(ELDB)
   #include "tasks.h"
-  #include "lua/debugger/eldb.h"
+  #include <lua/debugger/eldb.hpp>
 #endif
 
 uint8_t currentSpeakerVolume = 255;

@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <stdarg.h>
+#include <array>
 
 #include <new>
 
@@ -37,7 +38,7 @@
 #include "timers_driver.h"
 
 #if defined(ELDB)
-#include <lua/debugger/eldb.h>
+#include <lua/debugger/eldb.hpp>
 #endif
 
 #define CLI_COMMAND_MAX_ARGS 8
@@ -1798,14 +1799,15 @@ void cliCommandModeHandler()
 #if defined(ELDB)
 void cliELDPModeHandler()
 {
-  uint8_t buf[200] = {};  // a wild guess on what max size can a protobuf
-                          // message be, idk how to do it properly
-  /* Block for max 100ms. */
+  std::array<uint8_t, 200> buf; // a wild guess on what max size can a protobuf
+                                // message be, idk how to do it properly
+
+    /* Block for max 100ms. */
   const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
   size_t xReceivedBytes =
-      xStreamBufferReceive(cliRxBuffer, &buf, sizeof(buf), xTimeout);
+      xStreamBufferReceive(cliRxBuffer, buf.data(), buf.size(), xTimeout);
 
-  eldbReceive(buf, sizeof(buf), xReceivedBytes);
+  eldbReceive(buf, xReceivedBytes);
 }
 #endif
 

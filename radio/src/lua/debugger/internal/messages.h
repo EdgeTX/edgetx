@@ -21,9 +21,16 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include <eldp.pb.h>
+#include <stddef.h>
+#include <stdint.h>
 
-size_t eldbMakeSystemInfoMessage(uint8_t *targetBuf, size_t targetBufLen);
-size_t eldbMakeErrorMessage(uint8_t *targetBuf, size_t targetBufLen, edgetx_eldp_Error_Type type, const char *msg);
+#include <array>
+
+template <size_t N>
+size_t eldbMakeSystemInfoMessage(std::array<uint8_t, N> *targetBuf);
+template <size_t N>
+size_t eldbMakeErrorMessage(std::array<uint8_t, N> *targetBuf,
+                            edgetx_eldp_Error_Type type, const char *msg);
+
+#include "messages.tpp"

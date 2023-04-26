@@ -33,8 +33,10 @@
 #include <vector>
 #include <string>
 
-#include "../eldb.h"
+#include "../eldb.hpp"
 #include "encode_decode.h"
+
+std::string eldbScriptToRun;
 
 struct Breakpoint {
   unsigned int line;
@@ -44,7 +46,7 @@ struct Breakpoint {
 bool inSession = false;
 std::vector<Breakpoint> breakpoints;
 
-bool eldbStartSession(std::string *targetName, edgetx_eldp_StartDebug_Target targetType, edgetx_eldp_Error_Type *err)
+bool eldbStartSession(std::string &targetName, edgetx_eldp_StartDebug_Target targetType, edgetx_eldp_Error_Type *err)
 {
   if (inSession) {
     *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
@@ -56,7 +58,7 @@ bool eldbStartSession(std::string *targetName, edgetx_eldp_StartDebug_Target tar
   // standart becomes C++20
   eldbScriptToRun.clear();
   eldbScriptToRun += "/SCRIPTS/TOOLS/";
-  eldbScriptToRun += *targetName;
+  eldbScriptToRun += targetName;
 
   if (isFileAvailable(eldbScriptToRun.c_str())) {
     RTOS_GIVE_NOTIFICATION(menusTaskId);

@@ -24,23 +24,23 @@
 #include <pb_common.h>
 #include <pb_decode.h>
 
+#include <array>
 #include <string>
 
-#include "../eldb.h"
+#include "../eldb.hpp"
 #include "encode_decode.h"
 #include "messages.h"
 #include "session.h"
 
-std::string eldbScriptToRun;
-
-void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
+template <size_t N>
+void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
 {
   if (dataLen != 0) {  // there actually IS some valuable data
-    uint8_t txBuf[128] = {};
+    std::array<uint8_t, 128> txBuf;
     size_t txLen = 0;
     edgetx_eldp_Request request = edgetx_eldp_Request_init_zero;
 
-    pb_istream_t stream = pb_istream_from_buffer(rxBuf, dataLen);
+    pb_istream_t stream = pb_istream_from_buffer(rxBuf.data(), dataLen);
 
     std::string targetName;
 
@@ -52,35 +52,33 @@ void eldbReceive(uint8_t *rxBuf, size_t rxBufLen, size_t dataLen)
     if (result) {
       if (request.has_startDebug && !eldbIsInSession()) {
         edgetx_eldp_Error_Type err;
-        auto result = eldbStartSession(&targetName, request.startDebug.targetType, &err);
+        auto result =
+            eldbStartSession(targetName, request.startDebug.targetType, &err);
         if (result) {
-          txLen = eldbMakeSystemInfoMessage(txBuf, sizeof(txBuf));
+          txLen = eldbMakeSystemInfoMessage(&txBuf);
         } else {
-          txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, nullptr);
+          txLen = eldbMakeErrorMessage(&txBuf, err, nullptr);
         }
       } else if (request.has_startDebug && eldbIsInSession()) {
-        txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
-                                     edgetx_eldp_Error_Type_ALREADY_STARTED,
-                                     nullptr);
+        txLen = eldbMakeErrorMessage(
+            &txBuf, edgetx_eldp_Error_Type_ALREADY_STARTED, nullptr);
       } else if (!request.has_startDebug && eldbIsInSession()) {
         edgetx_eldp_Error_Type err;
         std::string msg;
         auto result = eldbForwardToRunningSession(&request, &err, &msg);
         if (!result) {
-          txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf), err, msg.c_str());
+          txLen = eldbMakeErrorMessage(&txBuf, err, msg.c_str());
         }
       } else {
-        txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
-                                     edgetx_eldp_Error_Type_NOT_STARTED_YET,
-                                     nullptr);
+        txLen = eldbMakeErrorMessage(
+            &txBuf, edgetx_eldp_Error_Type_NOT_STARTED_YET, nullptr);
       }
     } else {
-      txLen = eldbMakeErrorMessage(txBuf, sizeof(txBuf),
-                                   edgetx_eldp_Error_Type_BAD_MESSAGE,
+      txLen = eldbMakeErrorMessage(&txBuf, edgetx_eldp_Error_Type_BAD_MESSAGE,
                                    PB_GET_ERROR(&stream));
     }
 
-    if (txLen > 0) cliELDPSend(txBuf, txLen);
+    if (txLen > 0) cliELDPSend(txBuf.data(), txLen);
 
     // TODO: Do proper error handling
   }
