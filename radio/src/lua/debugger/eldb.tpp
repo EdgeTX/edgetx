@@ -27,10 +27,10 @@
 #include <array>
 #include <string>
 
-#include "../eldb.hpp"
-#include "encode_decode.h"
-#include "messages.h"
-#include "session.h"
+#include "eldb.hpp"
+#include "internal/encode_decode.h"
+#include "internal/messages.h"
+#include "internal/session.h"
 
 template <size_t N>
 void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)

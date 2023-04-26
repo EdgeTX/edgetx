@@ -35,4 +35,4 @@ template <size_t N>
 void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen);
 void eldbLuaDebugHook(lua_State *L, lua_Debug *ar);
 
-#include "internal/eldb.tpp"
+#include "eldb.tpp"
