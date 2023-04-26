@@ -192,7 +192,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_SERIAL_BUS);
     new Choice(line, rect_t{}, _bus_types, 0, 2,
-               GET_SET_DEFAULT(cfg->BusType.ExternalBusType));
+               GET_SET_DEFAULT(cfg->others.ExternalBusType));
   } else {
     auto vCfg = &cfg->v1;
     for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {

@@ -608,7 +608,8 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         moduleData->afhds3.emi = cfg.v0.EMIStandard;
         moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
         moduleData->afhds3.phyMode = cfg.v0.PhyMode;
-        cfg.BusType.ExternalBusType = cfg.v0.ExternalBusType;
+        cfg.others.ExternalBusType = cfg.v0.ExternalBusType;
+        cfg.others.lastUpdated = get_tmr10ms();
       } break;
       case COMMAND::MODULE_VERSION:
         std::memcpy((void*) &version, &responseFrame->value, sizeof(version));
@@ -736,8 +737,8 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
   auto *cfg = this->getConfig();
   if((this->cmd_flg&0x38) && (!cfg->version) )
   {
-    uint8_t bustype = cfg->BusType.ExternalBusType<=1?0:2;
-    uint8_t busdir = cfg->BusType.ExternalBusType;
+    uint8_t bustype = cfg->others.ExternalBusType<=1?0:2;
+    uint8_t busdir = cfg->others.ExternalBusType;
     if( 1==receiver_type(rx_version.ProductNumber) )
     {
       if(this->cmd_flg&0x08)
@@ -750,7 +751,7 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
       }
       if((this->cmd_flg&0x10) && busdir<2)
       {
-        cfg->BusType.ExternalBusType = IBUS1_OUT;
+        cfg->others.ExternalBusType = IBUS1_OUT;
         busdir = IBUS1_OUT;
         uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
         trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
@@ -859,7 +860,7 @@ void ProtoState::applyConfigFromModel()
     cfg.v0.EMIStandard = moduleData->afhds3.emi;
     cfg.v0.IsTwoWay = moduleData->afhds3.telemetry;
     cfg.v0.PhyMode = moduleData->afhds3.phyMode;
-    cfg.v0.ExternalBusType = cfg.BusType.ExternalBusType==1?0:cfg.BusType.ExternalBusType;
+    cfg.v0.ExternalBusType = cfg.others.ExternalBusType==1?0:cfg.others.ExternalBusType;
     // Failsafe
     setFailSafe(cfg.v0.FailSafe);
     if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {

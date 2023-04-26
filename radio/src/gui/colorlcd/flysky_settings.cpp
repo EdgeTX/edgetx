@@ -28,6 +28,7 @@
 
 #include "pulses/flysky.h"
 #include "pulses/afhds3.h"
+#include "pulses/afhds3_config.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -90,8 +91,16 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
   setFlexLayout();
 }
 
+void FlySkySettings::checkEvents() {
+  if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
+    update();
+  }
+  FormGroup::checkEvents();
+}
+
 void FlySkySettings::update()
 {
+  lastRefresh = get_tmr10ms();
   clear();
   
 #if defined(AFHDS2)

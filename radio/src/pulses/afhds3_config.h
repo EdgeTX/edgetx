@@ -104,9 +104,10 @@ PACK(struct sDATA_ConfigV1 {
   sSES_PWMFrequenciesAPPV1 PWMFrequenciesV1;
 });
 
-PACK(struct sDATA_BusType {
+PACK(struct sDATA_Others {
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
-  uint8_t ExternalBusType; // eEB_BusType
+  uint8_t ExternalBusType;  // eEB_BusType
+  tmr10ms_t lastUpdated;    // last updated time
 });
 
 union Config_u
@@ -115,7 +116,7 @@ union Config_u
   sDATA_ConfigV0 v0;
   sDATA_ConfigV1 v1;
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
-  sDATA_BusType BusType;
+  sDATA_Others others;
 };
 
 Config_u* getConfig(uint8_t moduleIdx);

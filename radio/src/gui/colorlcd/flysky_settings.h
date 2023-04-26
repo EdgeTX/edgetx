@@ -31,7 +31,9 @@ class FlySkySettings : public FormGroup, public ModuleOptions
   uint8_t moduleIdx;
   ModuleData* md;
   FlexGridLayout grid;
+  tmr10ms_t lastRefresh = 0;
 
+  void checkEvents() override;
   void update() override;
     
 public:
