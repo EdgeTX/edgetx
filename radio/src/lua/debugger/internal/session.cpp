@@ -30,8 +30,10 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <vector>
+#include <result.hpp>
 #include <string>
+#include <system_error>
+#include <vector>
 
 #include "../eldb.hpp"
 #include "encode_decode.h"
@@ -46,11 +48,12 @@ struct Breakpoint {
 bool inSession = false;
 std::vector<Breakpoint> breakpoints;
 
-bool eldbStartSession(std::string &targetName, edgetx_eldp_StartDebug_Target targetType, edgetx_eldp_Error_Type *err)
+auto eldbStartSession(std::string &targetName,
+                      edgetx_eldp_StartDebug_Target targetType) noexcept
+    -> cpp::result<void, edgetx_eldp_Error_Type>
 {
   if (inSession) {
-    *err = edgetx_eldp_Error_Type_ALREADY_STARTED;
-    return false;
+    return cpp::fail(edgetx_eldp_Error_Type_ALREADY_STARTED);
   }
 
   // TODO: Handle target type
@@ -63,12 +66,11 @@ bool eldbStartSession(std::string &targetName, edgetx_eldp_StartDebug_Target tar
   if (isFileAvailable(eldbScriptToRun.c_str())) {
     RTOS_GIVE_NOTIFICATION(menusTaskId);
   } else {
-    *err = edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST;
-    return false;
+    return cpp::fail(edgetx_eldp_Error_Type_FILE_DOES_NOT_EXIST);
   }
 
   inSession = true;
-  return true;
+  return {};
 }
 
 void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
@@ -94,10 +96,9 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
 
 bool eldbIsInSession() { return inSession; }
 
-bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
-                                 edgetx_eldp_Error_Type *err, std::string *msg)
+auto eldbForwardToRunningSession(const edgetx_eldp_Request *request) noexcept
+    -> cpp::result<void, edgetx_eldp_Error_Type>
 {
-#pragma GCC diagnostic pop
   if (request->has_setBreakpoint) {
     auto breakpointIndex = std::find_if(
         breakpoints.cbegin(), breakpoints.cend(),
@@ -131,9 +132,7 @@ bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
     luaResumeExecution();
     cliSerialPrintf("Resumed");
   } else {
-    *err = edgetx_eldp_Error_Type_SESSION;
-    *msg = "Request cannot be handled; unknown request";
-    return false;
+    return cpp::fail(edgetx_eldp_Error_Type_UNKNOWN_REQUEST);
   }
-  return true;
+  return {};
 }

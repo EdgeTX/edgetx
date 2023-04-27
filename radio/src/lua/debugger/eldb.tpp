@@ -51,23 +51,20 @@ void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
 
     if (result) {
       if (request.has_startDebug && !eldbIsInSession()) {
-        edgetx_eldp_Error_Type err;
         auto result =
-            eldbStartSession(targetName, request.startDebug.targetType, &err);
-        if (result) {
+            eldbStartSession(targetName, request.startDebug.targetType);
+        if (!result.has_error()) {
           txLen = eldbMakeSystemInfoMessage(&txBuf);
         } else {
-          txLen = eldbMakeErrorMessage(&txBuf, err, nullptr);
+          txLen = eldbMakeErrorMessage(&txBuf, result.error(), nullptr);
         }
       } else if (request.has_startDebug && eldbIsInSession()) {
         txLen = eldbMakeErrorMessage(
             &txBuf, edgetx_eldp_Error_Type_ALREADY_STARTED, nullptr);
       } else if (!request.has_startDebug && eldbIsInSession()) {
-        edgetx_eldp_Error_Type err;
-        std::string msg;
-        auto result = eldbForwardToRunningSession(&request, &err, &msg);
-        if (!result) {
-          txLen = eldbMakeErrorMessage(&txBuf, err, msg.c_str());
+        auto result = eldbForwardToRunningSession(&request);
+        if (result.has_error()) {
+          txLen = eldbMakeErrorMessage(&txBuf, result.error(), nullptr);
         }
       } else {
         txLen = eldbMakeErrorMessage(

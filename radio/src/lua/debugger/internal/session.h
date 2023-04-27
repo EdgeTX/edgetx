@@ -25,11 +25,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <result.hpp>
 #include <string>
 
-bool eldbStartSession(std::string &targetName,
-                      edgetx_eldp_StartDebug_Target targetType,
-                      edgetx_eldp_Error_Type *err);
+auto eldbStartSession(std::string &targetName,
+                      edgetx_eldp_StartDebug_Target targetType) noexcept
+    -> cpp::result<void, edgetx_eldp_Error_Type>;
 bool eldbIsInSession();
-bool eldbForwardToRunningSession(const edgetx_eldp_Request *request,
-                                 edgetx_eldp_Error_Type *err, std::string *msg);
+auto eldbForwardToRunningSession(const edgetx_eldp_Request *request) noexcept
+    -> cpp::result<void, edgetx_eldp_Error_Type>;

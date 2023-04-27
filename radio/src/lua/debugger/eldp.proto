@@ -214,6 +214,7 @@ message Error {
         FILE_DOES_NOT_EXIST = 5; // if you try to do anything involving a file and that file is non existent
         UNSUPPORTED_TARGET = 6; // if target is unknown or unsupported (e.g. WIDGET on a monochrome radio)
         ALREADY_STOPPED = 7; // when ELDB is stopped but you're still sending ExecuteCommand::Command::STOP
+        UNKNOWN_REQUEST = 8; // if you send ELDB a request that it doesn't know how to handle, you will receive a slap with this error
     }
 
     optional Type type = 1;
