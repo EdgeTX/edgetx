@@ -280,6 +280,7 @@ class GVarEditWindow : public Page
  protected:
   uint8_t index;
   gvar_t lastGVar = 0;
+  uint8_t lastPrec = 0;
   uint8_t lastFlightMode = 255; // Force initial setting of header title
   NumberEdit* min = nullptr;
   NumberEdit* max = nullptr;
@@ -297,11 +298,13 @@ class GVarEditWindow : public Page
     Page::checkEvents();
     if (gVarInHeader &&
         ((lastFlightMode != getFlightMode()) ||
-         (lastGVar != g_model.flightModeData[getFlightMode()].gvars[index]))) {
+         (lastGVar != g_model.flightModeData[getFlightMode()].gvars[index]) ||
+         (lastPrec != g_model.gvars[index].prec))) {
       char label[32];
       lastFlightMode = getFlightMode();
       FlightModeData* fmData = &g_model.flightModeData[lastFlightMode];
       lastGVar = fmData->gvars[index];
+      lastPrec = g_model.gvars[index].prec;
       sprintf(label, "%s%d=", STR_GV, index + 1);
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
@@ -383,7 +386,6 @@ class GVarEditWindow : public Page
       values[fm]->setSuffix(suffix);
       values[fm]->invalidate();
     }
-    if (gVarInHeader) gVarInHeader->invalidate();
   }
 
   void buildBody(FormWindow* window)
