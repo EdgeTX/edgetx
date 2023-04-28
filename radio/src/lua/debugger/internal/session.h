@@ -29,8 +29,8 @@
 #include <string>
 
 auto eldbStartSession(std::string &targetName,
-                      edgetx_eldp_StartDebug_Target targetType) noexcept
+                      edgetx_eldp_StartDebug_Target targetType)
     -> cpp::result<void, edgetx_eldp_Error_Type>;
 bool eldbIsInSession();
-auto eldbForwardToRunningSession(const edgetx_eldp_Request *request) noexcept
+auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
     -> cpp::result<void, edgetx_eldp_Error_Type>;

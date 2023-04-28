@@ -49,7 +49,7 @@ bool inSession = false;
 std::vector<Breakpoint> breakpoints;
 
 auto eldbStartSession(std::string &targetName,
-                      edgetx_eldp_StartDebug_Target targetType) noexcept
+                      edgetx_eldp_StartDebug_Target targetType)
     -> cpp::result<void, edgetx_eldp_Error_Type>
 {
   if (inSession) {
@@ -96,7 +96,7 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
 
 bool eldbIsInSession() { return inSession; }
 
-auto eldbForwardToRunningSession(const edgetx_eldp_Request *request) noexcept
+auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
     -> cpp::result<void, edgetx_eldp_Error_Type>
 {
   if (request->has_setBreakpoint) {
