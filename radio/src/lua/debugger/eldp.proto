@@ -88,7 +88,7 @@ message LuaDebugInfo {
 message Request {
     oneof content {
         ExecuteExpression executeExpression = 1;
-        ExecuteCommand executeDebuggerCommand = 2;
+        ExecuteCommand executeCommand = 2;
         SetBreakpoint setBreakpoint = 3;
         StartDebug startDebug = 4;
         GetBreakpoints getBreakpoints = 5;
