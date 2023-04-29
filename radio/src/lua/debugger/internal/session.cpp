@@ -49,6 +49,11 @@ bool inSession = false;
 bool hasHitBreakpoint = false;
 std::vector<Breakpoint> breakpoints;
 
+static void pauseLuaExecution();
+static void resumeLuaExecution();
+static void executeCommand(edgetx_eldp_ExecuteCommand &cmd);
+static void setBreakpoint(edgetx_eldp_SetBreakpoint &cmd);
+
 auto eldbStartSession(std::string &targetName,
                       edgetx_eldp_StartDebug_Target targetType)
     -> cpp::result<void, edgetx_eldp_Error_Type>
@@ -98,20 +103,20 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
 bool eldbIsInSession() { return inSession; }
 bool eldbHasHitBreakpoint() { return hasHitBreakpoint; }
 
-auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
+auto eldbForwardToRunningSession(edgetx_eldp_Request &request)
     -> cpp::result<void, edgetx_eldp_Error_Type>
 {
-  if (request->has_setBreakpoint) {
-    setBreakpoint(&request->setBreakpoint);
-  } else if (request->has_executeCommand) {
-    executeCommand(request->executeCommand);
+  if (request.has_setBreakpoint) {
+    setBreakpoint(request.setBreakpoint);
+  } else if (request.has_executeCommand) {
+    executeCommand(request.executeCommand);
   } else {
     return cpp::fail(edgetx_eldp_Error_Type_UNKNOWN_REQUEST);
   }
   return {};
 }
 
-static void executeCommand(const edgetx_eldp_ExecuteCommand *msg)
+static void executeCommand(edgetx_eldp_ExecuteCommand &cmd)
 {
   // TODO: Handle all other commands
   // breakpoints.clear();
@@ -119,25 +124,21 @@ static void executeCommand(const edgetx_eldp_ExecuteCommand *msg)
   cliSerialPrintf("Resumed\n");
 }
 
-static void setBreakpoint(const edgetx_eldp_SetBreakpoint *msg)
+static void setBreakpoint(edgetx_eldp_SetBreakpoint &cmd)
 {
-  auto breakpointIndex =
-      std::find_if(breakpoints.cbegin(), breakpoints.cend(),
-                   [request](const Breakpoint &arg) {
-                     return arg.line == request->setBreakpoint.breakpoint.line;
-                   });
-  bool enabled =
-      request->setBreakpoint.state == edgetx_eldp_SetBreakpoint_State_ENABLED;
+  auto breakpointIndex = std::find_if(
+      breakpoints.cbegin(), breakpoints.cend(),
+      [cmd](const Breakpoint &arg) { return arg.line == cmd.breakpoint.line; });
+  bool enabled = cmd.state == edgetx_eldp_SetBreakpoint_State_ENABLED;
 
-  switch (request->setBreakpoint.state) {
+  switch (cmd.state) {
     case edgetx_eldp_SetBreakpoint_State_DISABLED:
     case edgetx_eldp_SetBreakpoint_State_ENABLED:
       if (breakpointIndex != breakpoints.cend()) {  // breakpoint exists
         breakpoints[breakpointIndex - breakpoints.cbegin()].enabled = enabled;
       } else {
         breakpoints.push_back(
-            Breakpoint{.line = request->setBreakpoint.breakpoint.line,
-                       .enabled = enabled});
+            Breakpoint{.line = cmd.breakpoint.line, .enabled = enabled});
       }
       break;
     case edgetx_eldp_SetBreakpoint_State_NONE:
@@ -150,12 +151,14 @@ static void setBreakpoint(const edgetx_eldp_SetBreakpoint *msg)
   cliSerialPrintf("Set breakpoint\n");
 }
 
-static void pauseLuaExecution() {
+static void pauseLuaExecution()
+{
   hasHitBreakpoint = true;
   luaPauseExecution();
 }
 
-static void resumeLuaExecution() {
+static void resumeLuaExecution()
+{
   hasHitBreakpoint = false;
   luaResumeExecution();
 }

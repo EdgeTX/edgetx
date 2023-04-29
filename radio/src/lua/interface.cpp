@@ -1139,8 +1139,6 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     luaDoGc(lsScripts, fullGC);
     fullGC = false;
 
-    cliSerialPrintf("resumeLua\n");
-
     // Resume running the coroutine
     luaStatus = lua_resume(lsScripts, 0, inputsCount);
 

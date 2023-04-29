@@ -62,7 +62,7 @@ void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
         txLen = eldbMakeErrorMessage(
             &txBuf, edgetx_eldp_Error_Type_ALREADY_STARTED, nullptr);
       } else if (!request.has_startDebug && eldbIsInSession()) {
-        auto result = eldbForwardToRunningSession(&request);
+        auto result = eldbForwardToRunningSession(request);
         if (result.has_error()) {
           txLen = eldbMakeErrorMessage(&txBuf, result.error(), nullptr);
         }

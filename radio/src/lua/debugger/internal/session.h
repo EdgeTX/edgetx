@@ -31,5 +31,5 @@
 auto eldbStartSession(std::string &targetName,
                       edgetx_eldp_StartDebug_Target targetType)
     -> cpp::result<void, edgetx_eldp_Error_Type>;
-auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
+auto eldbForwardToRunningSession(edgetx_eldp_Request &request)
     -> cpp::result<void, edgetx_eldp_Error_Type>;
