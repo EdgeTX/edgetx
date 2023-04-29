@@ -143,7 +143,7 @@ static void luaHook(lua_State * L, lua_Debug *ar)
   #endif
   if (ar->event == LUA_HOOKCOUNT) {
     if (get_tmr10ms() - luaCycleStart >= LUA_TASK_PERIOD_TICKS) {
-      lua_yield(lsScripts, 0);
+      luaPauseExecution();
     }
   }
   
@@ -1139,6 +1139,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     luaDoGc(lsScripts, fullGC);
     fullGC = false;
 
+    cliSerialPrintf("resumeLua\n");
+
     // Resume running the coroutine
     luaStatus = lua_resume(lsScripts, 0, inputsCount);
 
@@ -1273,7 +1275,15 @@ bool luaTask(event_t evt, bool allowLcdUsage)
    
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
+        #if defined(ELDB)
+        if (eldbHasHitBreakpoint()) {
+          scriptWasRun = true;
+        } else {
+          scriptWasRun = resumeLua(init, allowLcdUsage);
+        }
+        #else
         scriptWasRun = resumeLua(init, allowLcdUsage);
+        #endif
       }
       else luaDisable();
       UNPROTECT_LUA();

@@ -34,5 +34,7 @@ extern std::string eldbScriptToRun; // used by the UI thread for running a Lua s
 template <size_t N>
 void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen);
 void eldbLuaDebugHook(lua_State *L, lua_Debug *ar);
+bool eldbHasHitBreakpoint();
+bool eldbIsInSession();
 
 #include "eldb.tpp"

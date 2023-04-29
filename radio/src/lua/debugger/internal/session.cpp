@@ -46,6 +46,7 @@ struct Breakpoint {
 };
 
 bool inSession = false;
+bool hasHitBreakpoint = false;
 std::vector<Breakpoint> breakpoints;
 
 auto eldbStartSession(std::string &targetName,
@@ -86,6 +87,7 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
                       [ar](const Breakpoint &arg) {
                         return arg.line == (unsigned int)ar->currentline;
                       })) {
+        hasHitBreakpoint = true;
         luaPauseExecution();
       }
       break;
@@ -95,6 +97,7 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
 }
 
 bool eldbIsInSession() { return inSession; }
+bool eldbHasHitBreakpoint() { return hasHitBreakpoint; }
 
 auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
     -> cpp::result<void, edgetx_eldp_Error_Type>
@@ -129,6 +132,7 @@ auto eldbForwardToRunningSession(const edgetx_eldp_Request *request)
     cliSerialPrintf("Set breakpoint");
   } else if (request->has_executeDebuggerCommand) {
     // breakpoints.clear();
+    hasHitBreakpoint = false;
     luaResumeExecution();
     cliSerialPrintf("Resumed");
   } else {
