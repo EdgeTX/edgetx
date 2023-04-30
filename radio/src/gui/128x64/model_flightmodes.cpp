@@ -37,6 +37,9 @@ enum MenuModelFlightModeItems {
   ITEM_MODEL_FLIGHT_MODE_NAME,
   ITEM_MODEL_FLIGHT_MODE_SWITCH,
   ITEM_MODEL_FLIGHT_MODE_TRIMS,
+#if defined(TRIMS_GPIO_REG_T5L)
+  ITEM_MODEL_FLIGHT_MODE_TRIMS2,
+#endif
   ITEM_MODEL_FLIGHT_MODE_FADE_IN,
   ITEM_MODEL_FLIGHT_MODE_FADE_OUT,
 #if defined(GVARS)
@@ -67,8 +70,14 @@ void menuModelFlightModeOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
 #if defined(GVARS) && !defined(GVARS_IN_CURVES_SCREEN)
+
+#if defined(TRIMS_GPIO_REG_T5L)
+  #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS2)
+  static const uint8_t mstate_tab_fm1[]  = {0, 3, (uint8_t)(keysGetMaxTrims() - 5), 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
+#else
   #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS)
   static const uint8_t mstate_tab_fm1[]  = {0, 3, 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
+#endif
   static const uint8_t mstate_tab_others[]  = {0, 0, 3, 0, 0, (uint8_t)-1, 2, 2, 2, 2, 2};
 
   check(event, 0, nullptr, 0, (s_currIdx == 0) ? mstate_tab_fm1 : mstate_tab_others, DIM(mstate_tab_others)-1, ITEM_MODEL_FLIGHT_MODE_MAX - HEADER_LINE - (s_currIdx==0 ? (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_SWITCH-1) : 0));
@@ -112,7 +121,7 @@ void menuModelFlightModeOne(event_t event)
       case ITEM_MODEL_FLIGHT_MODE_TRIMS:
         lcdDrawTextAlignedLeft(y, STR_TRIMS);
         {
-          auto trims = keysGetMaxTrims();
+          auto trims = min(keysGetMaxTrims(), (uint8_t) 4);
           for (uint8_t t = 0; t < trims; t++) {
             drawTrimMode(MIXES_2ND_COLUMN + (t*2*FW), y, s_currIdx, t, menuHorizontalPosition == t ? attr : 0);
             if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
@@ -123,6 +132,23 @@ void menuModelFlightModeOne(event_t event)
         }
         break;
 
+#if defined(TRIMS_GPIO_REG_T5L)
+      case ITEM_MODEL_FLIGHT_MODE_TRIMS2:
+        {
+          auto trims = keysGetMaxTrims() - 4;
+          for (uint8_t t = 4; t < trims + 4; t++) {
+            drawTrimMode(MIXES_2ND_COLUMN + ((t - 4) * 2 * FW), y, s_currIdx, t,
+                         menuHorizontalPosition == (t - 4) ? attr : 0);
+            if (s_editMode > 0 && attr && menuHorizontalPosition == t - 4) {
+              trim_t& v = fm->trim[t];
+              v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
+                                   -1, k == 0 ? 0 : 2 * MAX_FLIGHT_MODES - 1,
+                                   EE_MODEL, isTrimModeAvailable);
+            }
+          }
+        }
+        break;
+#endif
       case ITEM_MODEL_FLIGHT_MODE_FADE_IN:
         fm->fadeIn = EDIT_DELAY(0, y, event, attr, STR_FADEIN, fm->fadeIn);
         break;
