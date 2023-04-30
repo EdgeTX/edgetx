@@ -753,7 +753,6 @@
 #define TR_EXECUTE_FILE        "Uitvoeren"
 #define TR_REMOVED             " verwijderd"
 #define TR_SD_INFO             "Informatie"
-#define TR_SD_FORMAT           "Format"
 #define TR_NA                  "N/A"
 #define TR_HARDWARE            "HARDWARE"
 #define TR_FORMATTING          "Formatteren..."

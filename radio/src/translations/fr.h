@@ -768,7 +768,6 @@
 #define TR_EXECUTE_FILE                "Exécuter"
 #define TR_REMOVED                     " supprimé"
 #define TR_SD_INFO                     "Information"
-#define TR_SD_FORMAT                   "Formater"
 #define TR_NA                          "N/D"
 #define TR_HARDWARE                    "MATERIEL"
 #define TR_FORMATTING                  "Formatage..."
