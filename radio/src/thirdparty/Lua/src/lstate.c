@@ -309,18 +309,14 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcpause = LUAI_GCPAUSE;
   g->gcmajorinc = LUAI_GCMAJOR;
   g->gcstepmul = LUAI_GCMUL;
-#ifdef LUA_ENABLE_TEST
   if (L0) { /* This is a second state */
-    g->cache=G(L0)->cache;
+    g->cache = G(L0)->cache;
   } else {
-#endif
-  L0 = L;
-  g->cache = cast(KeyCacheLine *,
-                 (*f)(ud, NULL, 0, KEYCACHE_N * sizeof(KeyCacheLine)));
-  memset(g->cache, 0, KEYCACHE_N * sizeof(KeyCacheLine));
-#ifdef LUA_ENABLE_TEST
+    L0 = L;
+    g->cache = cast(KeyCacheLine *,
+                   (*f)(ud, NULL, 0, KEYCACHE_N * sizeof(KeyCacheLine)));
+    memset(g->cache, 0, KEYCACHE_N * sizeof(KeyCacheLine));
   }
-#endif
   for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
     /* memory allocation error: free partial state */
