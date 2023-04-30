@@ -263,8 +263,12 @@
 // Telemetry
 #define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_DMA1)
 #define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
+#define TELEMETRY_REV_GPIO              GPIOJ
+#define TELEMETRY_RX_REV_GPIO_PIN       GPIO_Pin_8  // PJ.08
+#define TELEMETRY_TX_REV_GPIO_PIN       GPIO_Pin_7  // PJ.07
 #define TELEMETRY_DIR_GPIO              GPIOJ
 #define TELEMETRY_DIR_GPIO_PIN          GPIO_Pin_13 // PJ.13
+#define TELEMETRY_SET_INPUT             1
 #define TELEMETRY_GPIO                  GPIOD
 #define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
 #define TELEMETRY_RX_GPIO_PIN           GPIO_Pin_6  // PD.06
@@ -272,29 +276,23 @@
 #define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
 #define TELEMETRY_GPIO_AF               GPIO_AF_USART2
 #define TELEMETRY_USART                 USART2
-
-#define TELEMETRY_DMA_Stream_RX         DMA1_Stream5
-#define TELEMETRY_DMA_Channel_RX        DMA_Channel_4
-#define TELEMETRY_DMA_Stream_TX         DMA1_Stream6
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
 #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 #define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
+// #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
+// #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 #define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
 #define TELEMETRY_USART_IRQn            USART2_IRQn
 
-#define TELEMETRY_DIR_OUTPUT()          GPIO_ResetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
-#define TELEMETRY_DIR_INPUT()           GPIO_SetBits(TELEMETRY_DIR_GPIO, TELEMETRY_DIR_GPIO_PIN);
-
-// Telemetry TX/RX Inversion Control
-#define TELEMETRY_INV_GPIO              GPIOJ
-#define TELEMETRY_RX_INV_GPIO_PIN       GPIO_Pin_8  // PJ.08
-#define TELEMETRY_TX_INV_GPIO_PIN       GPIO_Pin_7  // PJ.07
-#define TELEMETRY_TX_NORM()             GPIO_ResetBits(TELEMETRY_INV_GPIO, TELEMETRY_TX_INV_GPIO_PIN);
-#define TELEMETRY_TX_INV()              GPIO_SetBits(TELEMETRY_INV_GPIO, TELEMETRY_TX_INV_GPIO_PIN);
-#define TELEMETRY_RX_NORM()             GPIO_ResetBits(TELEMETRY_INV_GPIO, TELEMETRY_RX_INV_GPIO_PIN);
-#define TELEMETRY_RX_INV()              GPIO_SetBits(TELEMETRY_INV_GPIO, TELEMETRY_RX_INV_GPIO_PIN);
-
+#define TELEMETRY_DIR_OUTPUT()          TELEMETRY_DIR_GPIO->BSRRH = TELEMETRY_DIR_GPIO_PIN
+#define TELEMETRY_DIR_INPUT()           TELEMETRY_DIR_GPIO->BSRRL = TELEMETRY_DIR_GPIO_PIN
+#define TELEMETRY_TX_POL_NORM()         TELEMETRY_REV_GPIO->BSRRH = TELEMETRY_TX_REV_GPIO_PIN
+#define TELEMETRY_TX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_TX_REV_GPIO_PIN
+#define TELEMETRY_RX_POL_NORM()         TELEMETRY_REV_GPIO->BSRRH = TELEMETRY_RX_REV_GPIO_PIN
+#define TELEMETRY_RX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_RX_REV_GPIO_PIN
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
@@ -361,19 +359,33 @@
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // SPI FLASH
-#define EEPROM_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
-#define EEPROM_RCC_APB1Periph           RCC_APB1Periph_SPI6
-#define EEPROM_SPI_CS_GPIO              GPIOG
-#define EEPROM_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
-#define EEPROM_SPI_SCK_GPIO             GPIOG
-#define EEPROM_SPI_SCK_GPIO_PIN         GPIO_Pin_13 // PG.13
-#define EEPROM_SPI_SCK_GPIO_PinSource   GPIO_PinSource13
-#define EEPROM_SPI_MISO_GPIO            GPIOG
-#define EEPROM_SPI_MISO_GPIO_PIN        GPIO_Pin_12 // PG.12
-#define EEPROM_SPI_MISO_GPIO_PinSource  GPIO_PinSource12
-#define EEPROM_SPI_MOSI_GPIO            GPIOG
-#define EEPROM_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
-#define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
+#define FLASH_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
+#define FLASH_RCC_APB2Periph           RCC_APB2Periph_SPI6
+#define FLASH_SPI                      SPI6
+#define FLASH_SPI_GPIO_AF              GPIO_AF_SPI6
+#define FLASH_SPI_CS_GPIO              GPIOG
+#define FLASH_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
+#define FLASH_SPI_SCK_GPIO             GPIOG
+#define FLASH_SPI_SCK_GPIO_PIN         GPIO_Pin_13 // PG.13
+#define FLASH_SPI_SCK_GPIO_PinSource   GPIO_PinSource13
+#define FLASH_SPI_MISO_GPIO            GPIOG
+#define FLASH_SPI_MISO_GPIO_PIN        GPIO_Pin_12 // PG.12
+#define FLASH_SPI_MISO_GPIO_PinSource  GPIO_PinSource12
+#define FLASH_SPI_MOSI_GPIO            GPIOG
+#define FLASH_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
+#define FLASH_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
+#define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_TX_DMA_STREAM        DMA2_Stream5
+#define FLASH_SPI_TX_DMA_IRQn          DMA2_Stream5_IRQn
+#define FLASH_SPI_TX_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+#define FLASH_SPI_TX_DMA_FLAG_TC       DMA_IT_TCIF5
+#define FLASH_SPI_TX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_CHANNEL       DMA_Channel_1
+#define FLASH_SPI_RX_DMA_STREAM        DMA2_Stream6
+#define FLASH_SPI_RX_DMA_IRQn          DMA2_Stream6_IRQn
+#define FLASH_SPI_RX_DMA_IRQHandler    DMA2_Stream6_IRQHandler
+#define FLASH_SPI_RX_DMA_STATUS_REG    HISR
+#define FLASH_SPI_RX_DMA_FLAG_TC       DMA_IT_TCIF6
 
 // Audio
 #define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
@@ -436,26 +448,19 @@
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
 #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-#define FLYSKY_HALL_DMA_Channel                  DMA_Channel_4
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           GPIO_Pin_0  // PA.00
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           GPIO_Pin_1  // PA.01
-#define FLYSKY_HALL_SERIAL_TX_GPIO_PinSource     GPIO_PinSource0
-#define FLYSKY_HALL_SERIAL_RX_GPIO_PinSource     GPIO_PinSource1
-#define FLYSKY_HALL_SERIAL_GPIO_AF               GPIO_AF_UART4
+#define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
+#define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
+#define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
+#define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
 
 #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
 #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
 
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-#define FLYSKY_HALL_SERIAL_RX_DMA_Stream_IRQn    DMA1_Stream2_IRQn
-#define FLYSKY_HALL_SERIAL_TX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
-#define FLYSKY_HALL_DMA_Stream_RX                DMA1_Stream2
-#define FLYSKY_HALL_DMA_Stream_TX                DMA1_Stream4
-#define FLYSKY_HALL_DMA_TX_FLAG_TC               DMA_IT_TCIF4
-
-#define FLYSKY_HALL_RX_DMA_Stream_IRQHandler     DMA1_Stream2_IRQHandler
-#define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+#define FLYSKY_HALL_SERIAL_DMA                   DMA1
+#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
+#define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
 // External Module
 #define EXTMODULE
@@ -465,8 +470,6 @@
 #define EXTMODULE_RCC_AHB1Periph                                        \
   (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOC | \
    RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_DMA2)
-#define EXTMODULE_RCC_APB1Periph 0
-#define EXTMODULE_RCC_APB2Periph        (RCC_APB2Periph_TIM8 | RCC_APB2Periph_USART6)
 #define EXTMODULE_TX_GPIO               GPIOC
 #define EXTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_6  // PC.06
 #define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
@@ -489,20 +492,14 @@
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMA_CHANNEL_5
 #define EXTMODULE_USART_TX_DMA_STREAM      DMA2_Stream7
 #define EXTMODULE_USART_TX_DMA_STREAM_LL   LL_DMA_STREAM_7
-#define EXTMODULE_USART_TX_DMA_IRQn        DMA2_Stream7_IRQn
-#define EXTMODULE_USART_TX_DMA_IRQHandler  DMA2_Stream7_IRQHandler
-#define EXTMODULE_USART_TX_DMA_FLAG_TC     DMA_IT_TCIF7
 
 #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMA_CHANNEL_5
 #define EXTMODULE_USART_RX_DMA_STREAM      DMA2_Stream2
-#define EXTMODULE_USART_RX_DMA_IRQn        DMA2_Stream2_IRQn
-#define EXTMODULE_USART_RX_DMA_IRQHandler  DMA2_Stream2_IRQHandler
-#define EXTMODULE_USART_RX_DMA_FLAG_TC     DMA_IT_TCIF2
+#define EXTMODULE_USART_RX_DMA_STREAM_LL   LL_DMA_STREAM_2
 
 #define EXTMODULE_USART_IRQHandler         USART6_IRQHandler
 #define EXTMODULE_USART_IRQn               USART6_IRQn
 
-#define EXTMODULE_TIMER_DMA_SIZE           (DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0)
 //TIMER
 #define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMA_CHANNEL_7
 #define EXTMODULE_TIMER_DMA_STREAM         DMA2_Stream1
@@ -510,7 +507,6 @@
 #define EXTMODULE_TIMER_DMA_STREAM_LL      LL_DMA_STREAM_1
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
-#define EXTMODULE_TIMER_DMA_FLAG_TC        DMA_IT_TCIF1
 
 #define EXTMODULE_TX_INVERT_GPIO           GPIOE
 #define EXTMODULE_TX_INVERT_GPIO_PIN       GPIO_Pin_3  // PE.03
@@ -523,34 +519,21 @@
 #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
 
 // Trainer Port
-#define TRAINERMODULE
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
-#define TRAINER_RCC_APB1Periph          RCC_APB1Periph_TIM4
 #define TRAINER_GPIO                    GPIOD
-#define TRAINER_IN_GPIO_PIN             GPIO_Pin_12 // PD.12
-#define TRAINER_IN_GPIO_PinSource       GPIO_PinSource12
-#define TRAINER_OUT_GPIO_PIN            GPIO_Pin_13 // PD.13
-#define TRAINER_OUT_GPIO_PinSource      GPIO_PinSource13
+
+#define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_12 // PD.12
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
+
+#define TRAINER_OUT_GPIO_PIN            LL_GPIO_PIN_13 // PD.13
+#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
 #define TRAINER_TIMER                   TIM4
-#define TRAINER_GPIO_AF                 GPIO_AF_TIM4 // TIM4_CH1 (in) + TIM4_CH2 (out)
 #define TRAINER_TIMER_IRQn              TIM4_IRQn
 #define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
+#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-#define TRAINER_OUT_CCMR1               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE;
-#define TRAINER_IN_CCMR1                TIM_CCMR1_IC1F_0 | TIM_CCMR1_IC1F_1 | TIM_CCMR1_CC1S_0;
-
-#define TRAINER_OUT_COUNTER_REGISTER    TRAINER_TIMER->CCR2
-#define TRAINER_IN_COUNTER_REGISTER     TRAINER_TIMER->CCR1
-#define TRAINER_SETUP_REGISTER          TRAINER_TIMER->CCR3
-#define TRAINER_OUT_INTERRUPT_FLAG      TIM_SR_CC1IF
-#define TRAINER_OUT_INTERRUPT_ENABLE    TIM_DIER_CC1IE
-#define TRAINER_IN_INTERRUPT_ENABLE     TIM_DIER_CC1IE
-#define TRAINER_IN_INTERRUPT_FLAG       TIM_SR_CC1IF
-#define TRAINER_OUT_CCER                TIM_CCER_CC2E
-#define TRAINER_CCER_POLARYTY           TIM_CCER_CC2P
-#define TRAINER_IN_CCER                 TIM_CCER_CC1E
 
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
