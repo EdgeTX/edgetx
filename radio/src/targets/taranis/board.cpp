@@ -187,13 +187,12 @@ void boardInit()
      adcInit(&_adc_driver);
      getADC();
      pwrOn(); // required to get bat adc reads
-     storageReadRadioSettings(false);  // Needed for bat calibration
      INTERNAL_MODULE_OFF();
      EXTERNAL_MODULE_OFF();
-    
+
      while (usbPlugged()) {
        // Let it charge ...
-       getADC();
+       getADC(); // Warning: the value read does not include VBAT calibration
        delay_ms(20);
        if (getBatteryVoltage() >= 660)
          fsLedOn(0);
