@@ -766,7 +766,6 @@
 #define TR_EXECUTE_FILE                 "Kör"
 #define TR_REMOVED                      " raderad"
 #define TR_SD_INFO                      "Information"
-#define TR_SD_FORMAT                    "Formatera"
 #define TR_NA                           "N/A"
 #define TR_HARDWARE                     "HÅRDVARA"
 #define TR_FORMATTING                   "Formaterar..."

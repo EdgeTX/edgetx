@@ -758,7 +758,6 @@ extern const char STR_COPY_FILE[];
 extern const char STR_RENAME_FILE[];
 extern const char STR_REMOVED[];
 extern const char STR_SD_INFO[];
-extern const char STR_SD_FORMAT[];
 extern const char STR_NA[];
 extern const char STR_HARDWARE[];
 extern const char STR_FORMATTING[];

@@ -756,7 +756,6 @@
 #define TR_EXECUTE_FILE                "Suorittaa"
 #define TR_REMOVED                     "poistettu"
 #define TR_SD_INFO                     "Tiedot"
-#define TR_SD_FORMAT                   "Format"
 #define TR_NA                          "N/A"
 #define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formatting..."

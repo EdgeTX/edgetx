@@ -741,7 +741,6 @@
 #define TR_EXECUTE_FILE        "Wykonaj"
 #define TR_REMOVED             " skasowane"
 #define TR_SD_INFO             "Informacje"
-#define TR_SD_FORMAT           "Formatuj"
 #define TR_NA                  "[X]"
 #define TR_HARDWARE            "HARDWARE"
 #define TR_FORMATTING          "Formatowanie.."

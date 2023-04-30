@@ -748,7 +748,6 @@
 #define TR_EXECUTE_FILE        "Execute"
 #define TR_REMOVED             "Remover"
 #define TR_SD_INFO             "Dados SD"
-#define TR_SD_FORMAT           "Formatar"
 #define TR_NA                  "N/A"
 #define TR_HARDWARE            "HARDWARE"
 #define TR_FORMATTING          "Formatando..."
