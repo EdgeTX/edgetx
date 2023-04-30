@@ -93,8 +93,6 @@ class Theme480: public OpenTxTheme
           menuIconSelected[index]->clear(COLOR_THEME_FOCUS);
           menuIconSelected[index]->drawMask(0, 0, mask, COLOR_THEME_PRIMARY2);
         }
-
-        free(mask);
       }
     }
 
