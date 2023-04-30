@@ -300,11 +300,11 @@ void DebugViewPage::build(FormWindow* window)
   // lUA memory data
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
+      [] { return luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
       STR_MEM_USED_SCRIPT, nullptr);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
+      [] { return luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
       STR_MEM_USED_WIDGET, nullptr);
 
 #if LCD_H > LCD_W
