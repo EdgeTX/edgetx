@@ -28,7 +28,7 @@ static void* module_timer_init(void* hw_def, const etx_timer_config_t* cfg)
 
   bool polarity = cfg->polarity;
   uint32_t ocval = cfg->cmp_val;
-  uint32_t ocmode = (cfg->type == ETX_PWM) ? LL_TIM_OCMODE_PWM1 : LL_TIM_OCMODE_TOGGLE;
+  uint32_t ocmode = (cfg->type == ETX_PWM) ? LL_TIM_OCMODE_FORCED_INACTIVE : LL_TIM_OCMODE_TOGGLE;
 
   stm32_pulse_init(timer, 0);
   stm32_pulse_config_output(timer, polarity, ocmode, ocval);

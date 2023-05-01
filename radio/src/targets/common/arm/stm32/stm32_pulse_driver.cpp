@@ -305,10 +305,6 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
     LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
   }
 
-  // only on PWM (preloads the first period)
-  if (ocmode == LL_TIM_OCMODE_PWM1)
-    LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
-  
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 

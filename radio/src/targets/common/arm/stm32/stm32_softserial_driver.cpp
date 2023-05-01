@@ -359,7 +359,7 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
     st->conv_byte = _conv_byte_pxx1;
     freq = PXX1_FREQ;
     polarity = false;
-    ocmode = LL_TIM_OCMODE_PWM1;
+    ocmode = LL_TIM_OCMODE_FORCED_INACTIVE;
     cmp_val = PXX1_PWM_ON;
     break;
 
