@@ -284,6 +284,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sdio_sd.cpp
+  targets/common/arm/stm32/diskio_sdio.cpp
   )
 
 if(BOOTLOADER)

@@ -24,21 +24,12 @@
 #define _SDIO_SD_H_
 
 #include <stdint.h>
-//#include "board.h"
+
 #define BLOCK_SIZE 512
+
 /* Includes ------------------------------------------------------------------*/
 typedef enum
 {
-/**
-  * @brief  Standard error defines
-  */
-  SD_INTERNAL_ERROR,
-  SD_NOT_CONFIGURED,
-  SD_REQUEST_PENDING,
-  SD_REQUEST_NOT_APPLICABLE,
-  SD_INVALID_PARAMETER,
-  SD_UNSUPPORTED_FEATURE,
-  SD_UNSUPPORTED_HW,
   SD_ERROR,
   SD_OK = 0
 } SD_Error;
@@ -53,14 +44,12 @@ typedef enum
   SD_TRANSFER_ERROR
 } SDTransferState;
 
-
 /**
   * @brief  SD detection on its memory slot
   */
 #define SD_PRESENT                                 ((uint8_t)0x01)
 #define SD_NOT_PRESENT                             ((uint8_t)0x00)
 
-// void SD_DeInit(void);
 SD_Error SD_Init(void);
 SDTransferState SD_GetStatus(void);
 uint8_t SD_Detect(void);
@@ -76,8 +65,6 @@ SD_Error SD_WaitWriteOperation(uint32_t timeout);
 size_t SD_GetSectorCount();
 size_t SD_GetSectorSize();
 size_t SD_GetBlockSize();
-
-//extern SD_CardInfo SDCardInfo;
 
 #endif // _SDIO_SD_H_
 
