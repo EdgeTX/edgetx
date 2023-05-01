@@ -459,7 +459,6 @@ const char STR_DELETE_FILE[] = TR_DELETE_FILE;
 const char STR_COPY_FILE[] = TR_COPY_FILE;
 const char STR_RENAME_FILE[] = TR_RENAME_FILE;
 const char STR_SD_INFO[] = TR_SD_INFO;
-const char STR_SD_FORMAT[] = TR_SD_FORMAT;
 const char STR_REMOVED[] = TR_REMOVED;
 const char STR_NA[] = TR_NA;
 const char STR_HARDWARE[] = TR_HARDWARE;

@@ -78,19 +78,6 @@ void getSelectionFullPath(char * lfn)
   strcat(lfn, reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
 }
 
-void onSdFormatConfirm(const char * result)
-{
-  if (result == STR_OK) {
-    showMessageBox(STR_FORMATTING);
-    logsClose();
-    audioQueue.stopSD();
-    if (sdCardFormat()) {
-      f_chdir(ROOT_PATH);
-      REFRESH_FILES();
-    }
-  }
-}
-
 #if defined(PXX2)
 void onUpdateConfirmation(const char * result)
 {
@@ -145,9 +132,6 @@ void onSdManagerMenu(const char * result)
 
   if (result == STR_SD_INFO) {
     pushMenu(menuRadioSdManagerInfo);
-  }
-  else if (result == STR_SD_FORMAT) {
-    POPUP_CONFIRMATION(STR_CONFIRM_FORMAT, onSdFormatConfirm);
   }
   else if (result == STR_COPY_FILE) {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
@@ -341,7 +325,6 @@ void menuRadioSdManager(event_t _event)
       if (SD_CARD_PRESENT() && !READ_ONLY() && s_editMode == 0) {
         killEvents(_event);
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
-        POPUP_MENU_ADD_ITEM(STR_SD_FORMAT);
         POPUP_MENU_START(onSdManagerMenu);
       }
       break;
@@ -376,7 +359,6 @@ void menuRadioSdManager(event_t _event)
       if (menuVerticalPosition < HEADER_LINE) {
         killEvents(_event);
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
-        POPUP_MENU_ADD_ITEM(STR_SD_FORMAT);
         POPUP_MENU_START(onSdManagerMenu);
         break;
       }

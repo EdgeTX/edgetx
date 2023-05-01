@@ -765,7 +765,6 @@
 #define TR_EXECUTE_FILE                "Spustit"
 #define TR_REMOVED                     "odstraněn"
 #define TR_SD_INFO                     "Informace"
-#define TR_SD_FORMAT                   "Formát"
 #define TR_NA                          "[X]"
 #define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formátovaní..."

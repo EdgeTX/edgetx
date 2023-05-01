@@ -747,7 +747,6 @@
 #define TR_EXECUTE_FILE                "执行"
 #define TR_REMOVED                     "已删除"
 #define TR_SD_INFO                     "信息"
-#define TR_SD_FORMAT                   "格式"
 #define TR_NA                          "N/A"
 #define TR_HARDWARE                    "硬件"
 #define TR_FORMATTING                  "正在格式化..."

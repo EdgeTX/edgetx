@@ -752,7 +752,6 @@
 #define TR_EXECUTE_FILE                "Udfør"
 #define TR_REMOVED                     " slettet"
 #define TR_SD_INFO                     "Information"
-#define TR_SD_FORMAT                   "Format"
 #define TR_NA                          "N/A"
 #define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formattering..."
