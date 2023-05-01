@@ -743,7 +743,6 @@
 #define TR_EXECUTE_FILE                "実行"
 #define TR_REMOVED                     "移動"
 #define TR_SD_INFO                     "インフォメーション"
-#define TR_SD_FORMAT                   "フォーマット"
 #define TR_NA                          "該当なし"
 #define TR_HARDWARE                    "ハードウェア"
 #define TR_FORMATTING                  "フォーマット中..."

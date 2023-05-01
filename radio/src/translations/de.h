@@ -742,7 +742,6 @@
 #define TR_EXECUTE_FILE                "Execute"
 #define TR_REMOVED                     " gelöscht"
 #define TR_SD_INFO                     "Information"
-#define TR_SD_FORMAT                   "Formatieren"
 #define TR_NA                          "N/V"	//NV=Nicht Verfügbar  Kurz-Meldung
 #define TR_HARDWARE                    TR("Hardware einst. ", "Namen und Hardware einst.")
 #define TR_FORMATTING                  "Formatierung..."
