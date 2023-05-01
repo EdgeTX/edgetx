@@ -31,7 +31,8 @@
 
 #include <string.h>
 
-// TODO share this with Horus (and perhaps other STM32)
+// TODO: move to a better suited file
+#define BLOCK_SIZE                     512 /* Block Size in Bytes */
 
 /*-----------------------------------------------------------------------*/
 /* Lock / unlock functions                                               */
@@ -39,7 +40,7 @@
 #if !defined(BOOT)
 static RTOS_MUTEX_HANDLE ioMutex;
 uint32_t ioMutexReq = 0, ioMutexRel = 0;
-int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
+int ff_cre_syncobj (BYTE vol, FF_SYNC_t * mutex)
 {
   *mutex = ioMutex;
   return 1;
@@ -87,14 +88,14 @@ DSTATUS disk_initialize (
     TRACE("SD_Init() failed: %d", res);
     stat |= STA_NOINIT;
   }
-
+#if 0
   TRACE("SD card info:");
   TRACE("sectors: %u", (uint32_t)(SDCardInfo.CardCapacity / 512));
   TRACE("type: %u", (uint32_t)(SDCardInfo.CardType));
   TRACE("EraseGrSize: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrSize));
   TRACE("EraseGrMul: %u", (uint32_t)(SDCardInfo.SD_csd.EraseGrMul));
   TRACE("ManufacturerID: %u", (uint32_t)(SDCardInfo.SD_cid.ManufacturerID));
-
+#endif
   return(stat);
 }
 
@@ -274,6 +275,7 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
+  size_t tmp;
 
   if (drv) return RES_PARERR;
 
@@ -282,18 +284,39 @@ DRESULT disk_ioctl (
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
-      *(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
+      tmp = SD_GetSectorCount();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      //*(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
     case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-      *(WORD*)buff = BLOCK_SIZE;   // force sector size. SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
+      tmp = SD_GetSectorSize();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(WORD*)buff = tmp;   // force sector size. SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
       res = RES_OK;
       break;
 
     case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
-      // TODO verify that this is the correct value
-      *(DWORD*)buff = (uint32_t)SDCardInfo.SD_csd.EraseGrSize * (uint32_t)SDCardInfo.SD_csd.EraseGrMul;
+      tmp = SD_GetBlockSize();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
@@ -314,10 +337,14 @@ DRESULT disk_ioctl (
 // TODO everything here should not be in the driver layer ...
 
 bool _g_FATFS_init = false;
-FATFS g_FATFS_Obj __DMA;    // initialized in boardInit()
+FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
 #if defined(LOG_TELEMETRY)
 FIL g_telemetryFile = {};
+#endif
+
+#if defined(LOG_BLUETOOTH)
+FIL g_bluetoothFile = {};
 #endif
 
 #if defined(BOOT)
@@ -344,9 +371,7 @@ void sdMount()
 {
   TRACE("sdMount");
   
-#if defined(DISK_CACHE)
   diskCache.clear();
-#endif
   
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
@@ -357,6 +382,13 @@ void sdMount()
     f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
     if (f_size(&g_telemetryFile) > 0) {
       f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
+    }
+#endif
+
+#if defined(LOG_BLUETOOTH)
+    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
+    if (f_size(&g_bluetoothFile) > 0) {
+      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
     }
 #endif
   }
@@ -371,17 +403,23 @@ void sdDone()
   
   if (sdMounted()) {
     audioQueue.stopSD();
+
 #if defined(LOG_TELEMETRY)
     f_close(&g_telemetryFile);
 #endif
-    f_mount(NULL, "", 0); // unmount SD
+
+#if defined(LOG_BLUETOOTH)
+    f_close(&g_bluetoothFile);
+#endif
+
+    f_mount(nullptr, "", 0); // unmount SD
   }
 }
 #endif
 
 uint32_t sdMounted()
 {
-  return _g_FATFS_init && g_FATFS_Obj.fs_type != 0;
+  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
 }
 
 uint32_t sdIsHC()

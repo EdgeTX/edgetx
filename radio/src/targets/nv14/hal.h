@@ -286,8 +286,9 @@
 #define SD_RCC_APB1Periph               0
 #define SD_PRESENT_GPIO                 GPIOH
 #define SD_PRESENT_GPIO_PIN             GPIO_Pin_10  // PH.10
+#define SD_PRESENT_LL_GPIO_PIN          LL_GPIO_PIN_10  // PH.10
 #define SD_SDIO_DMA_STREAM              DMA2_Stream3
-#define SD_SDIO_DMA_CHANNEL             DMA_Channel_4
+#define SD_SDIO_DMA_CHANNEL             DMA_CHANNEL_4
 #define SD_SDIO_DMA_FLAG_FEIF           DMA_FLAG_FEIF3
 #define SD_SDIO_DMA_FLAG_DMEIF          DMA_FLAG_DMEIF3
 #define SD_SDIO_DMA_FLAG_TEIF           DMA_FLAG_TEIF3

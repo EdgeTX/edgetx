@@ -156,7 +156,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/sdio_sd.c
+  targets/common/arm/stm32/sdio_sd.cpp
   )
 
 # Make malloc() thread-safe
