@@ -198,10 +198,12 @@
 
 static SD_HandleTypeDef sdio;
 static DMA_HandleTypeDef sdioTxDma;
-static DMA_HandleTypeDef sdioRxDma;
 
 void SD_LowLevel_Init(void)
 {
+  /* Enable the SDIO APB2 Clock */
+  __HAL_RCC_SDIO_CLK_ENABLE();
+
   LL_GPIO_InitTypeDef  GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
 
@@ -223,14 +225,11 @@ void SD_LowLevel_Init(void)
   GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-  /* Enable the SDIO APB2 Clock */
-  __HAL_RCC_SDIO_CLK_ENABLE();
-
   // SDIO Interrupt ENABLE
   NVIC_SetPriority(SDIO_IRQn, 0);
   NVIC_EnableIRQ(SDIO_IRQn);
   // DMA2 STREAMx Interrupt ENABLE
-  NVIC_SetPriority(SD_SDIO_DMA_IRQn, 1);
+  NVIC_SetPriority(SD_SDIO_DMA_IRQn, 0);
   NVIC_EnableIRQ(SD_SDIO_DMA_IRQn);
 
 }
@@ -280,7 +279,7 @@ void SD_LowLevel_DMA_TxConfig(uint32_t * BufferSRC, uint32_t BufferSize)
   sdioTxDma.Init.MemInc = DMA_MINC_ENABLE;
   sdioTxDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
   sdioTxDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-  sdioTxDma.Init.Mode = DMA_NORMAL;
+  sdioTxDma.Init.Mode = DMA_PFCTRL;
   sdioTxDma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
   sdioTxDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
   sdioTxDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
@@ -328,6 +327,7 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
   /* DMA2 Stream3 or Stream6 enable */
   DMA_Cmd(SD_SDIO_DMA_STREAM, ENABLE);
 #endif
+#if 0
   sdioRxDma.Instance = SD_SDIO_DMA_STREAM;
   sdioRxDma.Init.Channel = SD_SDIO_DMA_CHANNEL;
 //  sdioRxDma.Init.DMA_PeripheralBaseAddr = SD_SDIO_FIFO_ADDRESS;
@@ -346,7 +346,8 @@ void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize)
   sdioRxDma.Init.PeriphBurst = DMA_PBURST_INC4;
 
   HAL_DMA_Init(&sdioRxDma);
-  __HAL_LINKDMA(&sdio, hdmarx, sdioRxDma);
+#endif
+  __HAL_LINKDMA(&sdio, hdmarx, sdioTxDma);
 
 }
 static bool init = false;
@@ -356,10 +357,12 @@ SD_Error SD_Init(void)
   init = true;
   __IO SD_Error errorstatus = SD_OK;
 
+
   /* SDIO Peripheral Low Level Init */
   SD_LowLevel_Init();
   SD_LowLevel_DMA_TxConfig(nullptr, 0);
   SD_LowLevel_DMA_RxConfig(nullptr, 0);
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /*!< Configure the SDIO peripheral */
   /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
@@ -373,9 +376,6 @@ SD_Error SD_Init(void)
   sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
   HAL_SD_DeInit(&sdio);
 
-//  HAL_SD_Init(&sdio);
-
-//  HAL_StatusTypeDef halStatus = HAL_SD_InitCard(&sdio);
   HAL_StatusTypeDef halStatus = HAL_SD_Init(&sdio);
   if (halStatus != HAL_OK) {
     TRACE("SD_PowerON() status=%d", halStatus);
@@ -698,15 +698,20 @@ OPTIMIZE("O0") SD_Error SD_InitializeCards(void)
 
   return errorstatus;
 }
-
+#endif
 /**
   * @brief  Returns information about specific card.
   * @param  cardinfo: pointer to a SD_CardInfo structure that contains all SD card
   *         information.
   * @retval SD_Error: SD Card Error code.
   */
-OPTIMIZE("O0") SD_Error SD_GetCardInfo(SD_CardInfo *cardinfo)
+OPTIMIZE("O0") SD_Error SD_GetCardInfo(HAL_SD_CardInfoTypeDef *cardinfo)
 {
+  if(HAL_SD_GetCardInfo(&sdio, cardinfo) != HAL_OK)
+    return SD_ERROR;
+  return SD_OK;
+
+#if 0
   SD_Error errorstatus = SD_OK;
   uint8_t tmp = 0;
 
@@ -903,8 +908,9 @@ OPTIMIZE("O0") SD_Error SD_GetCardInfo(SD_CardInfo *cardinfo)
   cardinfo->SD_cid.Reserved2 = 1;
 
   return errorstatus;
+#endif
 }
-
+#if 0
 /**
   * @brief  Enables wide bus opeartion for the requeseted card if supported by
   *         card.
@@ -983,6 +989,7 @@ OPTIMIZE("O0") SD_Error SD_SelectDeselect(uint32_t addr)
 
   return errorstatus;
 }
+#endif
 
 /**
   * @brief  Allows to read one block from a specified address in a card. The Data
@@ -998,7 +1005,6 @@ OPTIMIZE("O0") SD_Error SD_SelectDeselect(uint32_t addr)
   * @param  BlockSize: the SD card Data block size. The Block size should be 512.
   * @retval SD_Error: SD Card Error code.
   */
-#endif
 OPTIMIZE("O0") SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
 {
   HAL_StatusTypeDef sdStatus = HAL_SD_ReadBlocks_DMA(&sdio, readbuff, ReadAddr, 1);
@@ -1155,18 +1161,18 @@ OPTIMIZE("O0") SD_Error SD_ReadMultiBlocks(uint8_t *readbuff, uint32_t ReadAddr,
   */
 OPTIMIZE("O0") SD_Error SD_WaitReadOperation(uint32_t timeout)
 {
-  HAL_SD_StateTypeDef state = HAL_SD_GetState(&sdio);
-  if(state == HAL_SD_STATE_READY || state == HAL_SD_STATE_TRANSFER)
+  volatile HAL_SD_CardStateTypeDef state = HAL_SD_GetCardState(&sdio);
+  if(state == HAL_SD_CARD_READY || state == HAL_SD_CARD_TRANSFER)
     return SD_OK;
-
   timeout = 100;
 
-  while((HAL_SD_GetState(&sdio) == HAL_SD_STATE_RECEIVING) && (timeout > 0)) {
+  while((HAL_SD_GetCardState(&sdio) == HAL_SD_CARD_SENDING) && (timeout > 0)) {
     delay_ms(1);
     timeout--;
   }
 
-  if(timeout > 0 && HAL_SD_GetState(&sdio) == HAL_SD_STATE_TRANSFER)
+  state = HAL_SD_GetCardState(&sdio);
+  if(timeout > 0 && state == HAL_SD_CARD_TRANSFER)
     return SD_OK;
 
   return SD_ERROR;
@@ -1414,18 +1420,21 @@ OPTIMIZE("O0") SD_Error SD_WriteMultiBlocks(uint8_t *writebuff, uint32_t WriteAd
   */
 OPTIMIZE("O0") SD_Error SD_WaitWriteOperation(uint32_t timeout)
 {
-  HAL_SD_StateTypeDef state = HAL_SD_GetState(&sdio);
-  if(state == HAL_SD_STATE_READY || state == HAL_SD_STATE_TRANSFER)
+  HAL_SD_CardStateTypeDef state = HAL_SD_GetCardState(&sdio);
+  if(state == HAL_SD_CARD_READY || state == HAL_SD_CARD_TRANSFER)
     return SD_OK;
 
   timeout = 100;
 
-  while((HAL_SD_GetState(&sdio) == HAL_SD_STATE_PROGRAMMING) && (timeout > 0)) {
+  state = HAL_SD_GetCardState(&sdio);
+  while((state == HAL_SD_CARD_RECEIVING || state == HAL_SD_CARD_PROGRAMMING) && (timeout > 0)) {
     delay_ms(1);
     timeout--;
+    state = HAL_SD_GetCardState(&sdio);
   }
 
-  if(timeout > 0 && HAL_SD_GetState(&sdio) == HAL_SD_STATE_TRANSFER)
+  state = HAL_SD_GetCardState(&sdio);
+  if(timeout > 0 && state == HAL_SD_CARD_TRANSFER)
     return SD_OK;
 
   return SD_ERROR;
@@ -2109,17 +2118,47 @@ OPTIMIZE("O0") static SD_Error FindSCR(uint16_t rca, uint32_t *pscr)
 
   return errorstatus;
 }
+#endif
 
-void SDIO_IRQHandler(void)
+size_t SD_GetSectorCount()
+{
+  HAL_SD_CardInfoTypeDef cardInfo;
+
+  if(SD_GetCardInfo(&cardInfo) != SD_OK)
+    return 0;
+
+  return cardInfo.LogBlockNbr;
+}
+
+size_t SD_GetSectorSize()
+{
+  HAL_SD_CardInfoTypeDef cardInfo;
+
+  if(SD_GetCardInfo(&cardInfo) != SD_OK)
+    return 0;
+
+  return cardInfo.LogBlockSize;
+}
+
+size_t SD_GetBlockSize()
+{
+  HAL_SD_CardInfoTypeDef cardInfo;
+
+  if(SD_GetCardInfo(&cardInfo) != SD_OK)
+    return 0;
+
+  return cardInfo.LogBlockSize / BLOCK_SIZE;
+}
+
+
+extern "C" void SDIO_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SDIO);
-  SD_ProcessIRQ();
+  HAL_SD_IRQHandler(&sdio);
 }
-
-void SD_SDIO_DMA_IRQHANDLER(void)
+extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
 {
   DEBUG_INTERRUPT(INT_SDIO_DMA);
-  SD_ProcessDMAIRQ();
+  HAL_DMA_IRQHandler(&sdioTxDma);
 }
-#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

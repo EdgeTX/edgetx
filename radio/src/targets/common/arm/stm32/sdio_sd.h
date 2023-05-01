@@ -185,6 +185,10 @@ SDTransferState SD_GetTransferState(void);
 SD_Error SD_WaitReadOperation(uint32_t timeout);
 SD_Error SD_WaitWriteOperation(uint32_t timeout);
 
+size_t SD_GetSectorCount();
+size_t SD_GetSectorSize();
+size_t SD_GetBlockSize();
+
 //extern SD_CardInfo SDCardInfo;
 
 #endif // _SDIO_SD_H_

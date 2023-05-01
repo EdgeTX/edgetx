@@ -275,6 +275,7 @@ DRESULT disk_ioctl (
 )
 {
   DRESULT res;
+  size_t tmp;
 
   if (drv) return RES_PARERR;
 
@@ -283,21 +284,39 @@ DRESULT disk_ioctl (
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       // use 512 for sector size, SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
+      tmp = SD_GetSectorCount();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
 
       //*(DWORD*)buff = SDCardInfo.CardCapacity / BLOCK_SIZE;
-      *(DWORD*)buff = 1000;
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
     case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-      *(WORD*)buff = BLOCK_SIZE;   // force sector size. SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
+      tmp = SD_GetSectorSize();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(WORD*)buff = tmp;   // force sector size. SDCardInfo.CardBlockSize is not sector size and can be 1024 for 2G SD cards!!!!
       res = RES_OK;
       break;
 
     case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
-      // TODO verify that this is the correct value
-      //*(DWORD*)buff = (uint32_t)SDCardInfo.SD_csd.EraseGrSize * (uint32_t)SDCardInfo.SD_csd.EraseGrMul;
-      *(DWORD*)buff = 512;
+      tmp = SD_GetBlockSize();
+
+      if(tmp == 0) {
+        res = RES_ERROR;
+        break;
+      }
+
+      *(DWORD*)buff = tmp;
       res = RES_OK;
       break;
 
