@@ -22,6 +22,7 @@
 #include "mpm_settings.h"
 #include "opentx.h"
 
+#include "telemetry/multi.h"
 #include "multi_rfprotos.h"
 #include "io/multi_protolist.h"
 
@@ -148,8 +149,21 @@ struct MPMSubtype : public FormGroup::Line
   Choice* choice;
 
   MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
-  void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md);
+  void update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx);
+  void checkEvents();
+
+  protected:
+    const uint8_t DSM_AUTO_SUBTYPE = 4;                                      
+    const uint8_t invalidSubTypeIndex = MODULE_SUBTYPE_MULTI_FIRST-1;
+
+    uint8_t moduleIdx;
+    uint8_t lastSubType = invalidSubTypeIndex;
+    uint8_t lastRfProtocol = MODULE_TYPE_NONE;
 };
+
+void MPMSubtype::checkEvents() {
+  lv_event_send(this->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+}
 
 static void subtype_event_cb(lv_event_t* e)
 {
@@ -161,6 +175,8 @@ static void subtype_event_cb(lv_event_t* e)
 MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
   FormGroup::Line(form, layout)
 {
+  this->moduleIdx = moduleIdx;
+
   if (layout) layout->resetPos();
   new StaticText(this, rect_t{}, STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
 
@@ -176,13 +192,36 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
   lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb, LV_EVENT_VALUE_CHANGED, lvobj);
 }
 
-void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
+void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
 {
   if (!rfProto || rfProto->subProtos.size() == 0) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
 
+  ModuleData* md = &g_model.moduleData[moduleIdx];
+
+  // adjust subType for DSM2 auto mode with MPM status data
+  if(md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+    MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+
+    if(status.isValid() && md->subType == DSM_AUTO_SUBTYPE) {   // DSM Auto mode
+      md->subType = status.protocolSubNbr;                      // set subType MPM has chosen
+      lastSubType = invalidSubTypeIndex;                        // force update in the next step
+
+      SET_DIRTY();
+    }
+  }
+
+  // check if protocol or subtype has changed
+  if(md->multi.rfProtocol == lastRfProtocol && md->subType == lastSubType)
+    return;
+
+  // memorize new state
+  lastRfProtocol = md->multi.rfProtocol;
+  lastSubType = md->subType;
+
+  // fill protocol list
   choice->setValues(rfProto->subProtos);
   choice->setMax(rfProto->subProtos.size() - 1);
 
@@ -321,7 +360,7 @@ void MultimoduleSettings::update()
   auto mpm_rfprotos = MultiRfProtocols::instance(moduleIdx);
   auto rfProto = mpm_rfprotos->getProto(md->multi.rfProtocol);
 
-  st_line->update(rfProto, md);
+  st_line->update(rfProto, moduleIdx);
   opt_line->update(rfProto, md, moduleIdx);
 
   auto multi_proto = md->multi.rfProtocol;
