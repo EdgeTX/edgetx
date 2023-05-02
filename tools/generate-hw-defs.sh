@@ -6,7 +6,7 @@ set -e
 
 : "${SRCDIR:=$(dirname "$(pwd)/$0")/..}"
 
-: ${FLAVOR:="nv14;t12;t16;t18;t8;zorro;commando8;tlite;tpro;lr3pro;tx12;tx12mk2;boxer;tx16s;x10;x10-access;x12s;x7;x7-access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites"}
+: ${FLAVOR:="nv14;t12;t16;t18;t8;zorro;commando8;tlite;tpro;tprov2;lr3pro;tx12;tx12mk2;boxer;tx16s;x10;x10-access;x12s;x7;x7-access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites"}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
@@ -59,6 +59,9 @@ do
             ;;
         tpro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+            ;;
+        tprov2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
             ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
