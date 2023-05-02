@@ -320,7 +320,7 @@ OPTIMIZE("O0") SD_Error SD_WaitWriteOperation(uint32_t timeout)
   if(state == HAL_SD_CARD_READY || state == HAL_SD_CARD_TRANSFER)
     return SD_OK;
 
-  timeout = 100;
+  timeout = 1000;
 
   state = HAL_SD_GetCardState(&sdio);
   while((state == HAL_SD_CARD_RECEIVING || state == HAL_SD_CARD_PROGRAMMING) && (timeout > 0)) {
