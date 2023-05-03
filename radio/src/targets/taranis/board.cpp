@@ -273,7 +273,7 @@ void boardInit()
 
   initHeadphoneTrainerSwitch();
 
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
+#if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 

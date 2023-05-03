@@ -2442,13 +2442,13 @@
 // SD - SPI2
 #define SD_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
 #define SD_RCC_APB1Periph               RCC_APB1Periph_SPI2
-#define SD_GPIO_PRESENT_GPIO            GPIOD
+#define SD_PRESENT_GPIO            GPIOD
 #if defined(PCBXLITE) || defined(PCBX9LITE)
-  #define SD_GPIO_PRESENT_GPIO_PIN      GPIO_Pin_10 // PD.10
+  #define SD_PRESENT_GPIO_PIN      GPIO_Pin_10 // PD.10
 #elif defined(RADIO_COMMANDO8)
-  #define SD_GPIO_PRESENT_GPIO_PIN      GPIO_Pin_8  // PD.08  
+  #define SD_PRESENT_GPIO_PIN      GPIO_Pin_8  // PD.08
 #else
-  #define SD_GPIO_PRESENT_GPIO_PIN      GPIO_Pin_9  // PD.09  
+  #define SD_PRESENT_GPIO_PIN      GPIO_Pin_9  // PD.09
 #endif
 #define SD_GPIO                         GPIOB
 #define SD_GPIO_PIN_CS                  GPIO_Pin_12 // PB.12

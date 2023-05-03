@@ -316,12 +316,12 @@ void power_on (void)
     
   card_power(1);
     
-  GPIO_InitStructure.GPIO_Pin = SD_GPIO_PRESENT_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = SD_PRESENT_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SD_GPIO_PRESENT_GPIO, &GPIO_InitStructure);
+  GPIO_Init(SD_PRESENT_GPIO, &GPIO_InitStructure);
 
   for (uint32_t Timer = 25000; Timer>0;Timer--);  /* Wait for 250ms */
 
