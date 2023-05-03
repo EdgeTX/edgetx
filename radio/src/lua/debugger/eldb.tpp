@@ -30,10 +30,9 @@
 #include "eldb.hpp"
 #include "internal/encode_decode.h"
 #include "internal/messages.h"
-#include "internal/session.h"
 
 template <size_t N>
-void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
+void eldb::receive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
 {
   if (dataLen != 0) {  // there actually IS some valuable data
     std::array<uint8_t, 128> txBuf;
@@ -50,19 +49,19 @@ void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen)
     bool result = pb_decode(&stream, edgetx_eldp_Request_fields, &request);
 
     if (result) {
-      if (request.has_startDebug && !eldbIsInSession()) {
+      if (request.has_startDebug && !eldb::isInSession()) {
         auto result =
-            eldbStartSession(targetName, request.startDebug.targetType);
+            eldb::startSession(targetName, request.startDebug.targetType);
         if (!result.has_error()) {
           txLen = eldbMakeSystemInfoMessage(&txBuf);
         } else {
           txLen = eldbMakeErrorMessage(&txBuf, result.error(), nullptr);
         }
-      } else if (request.has_startDebug && eldbIsInSession()) {
+      } else if (request.has_startDebug && eldb::isInSession()) {
         txLen = eldbMakeErrorMessage(
             &txBuf, edgetx_eldp_Error_Type_ALREADY_STARTED, nullptr);
-      } else if (!request.has_startDebug && eldbIsInSession()) {
-        auto result = eldbForwardToRunningSession(request);
+      } else if (!request.has_startDebug && eldb::isInSession()) {
+        auto result = eldb::forwardToRunningSession(request);
         if (result.has_error()) {
           txLen = eldbMakeErrorMessage(&txBuf, result.error(), nullptr);
         }

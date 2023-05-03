@@ -134,11 +134,15 @@ void luaResumeExecution() {
   lua_resume(lsScripts, NULL, 0);
 }
 
+int luaGetInfo(const char *what, lua_Debug *ar) {
+  return lua_getinfo(lsScripts, what, ar);
+}
+
 static void luaHook(lua_State * L, lua_Debug *ar)
 {
   #if defined(ELDB)
   if (ar->event != LUA_HOOKCOUNT) {
-    eldbLuaDebugHook(L, ar);
+    eldb::luaDebugHook(L, ar);
   }
   #endif
   if (ar->event == LUA_HOOKCOUNT) {
@@ -1274,7 +1278,7 @@ bool luaTask(event_t evt, bool allowLcdUsage)
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
         #if defined(ELDB)
-        if (eldbHasHitBreakpoint()) {
+        if (eldb::hasHitBreakpoint()) {
           scriptWasRun = true;
         } else {
           scriptWasRun = resumeLua(init, allowLcdUsage);

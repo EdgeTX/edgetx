@@ -26,15 +26,25 @@
 #include <stdint.h>
 #include <lua.h>
 #include <array>
+#include <eldp.pb.h>
+#include <result.hpp>
 
 extern std::string eldbScriptToRun; // used by the UI thread for running a Lua script
 
-// This function is only called from cli.cpp and used to
-// relay data from CLI to ELDB
-template <size_t N>
-void eldbReceive(std::array<uint8_t, N> &rxBuf, size_t dataLen);
-void eldbLuaDebugHook(lua_State *L, lua_Debug *ar);
-bool eldbHasHitBreakpoint();
-bool eldbIsInSession();
+namespace eldb {
+    // This function is only called from cli.cpp and used to
+    // relay data from CLI to ELDB
+    template <size_t N>
+    void receive(std::array<uint8_t, N> &rxBuf, size_t dataLen);
+    void luaDebugHook(lua_State *L, lua_Debug *ar);
+    bool hasHitBreakpoint();
+    bool isInSession();
+
+    auto startSession(std::string &targetName,
+                        edgetx_eldp_StartDebug_Target targetType)
+        -> cpp::result<void, edgetx_eldp_Error_Type>;
+    auto forwardToRunningSession(edgetx_eldp_Request &request)
+        -> cpp::result<void, edgetx_eldp_Error_Type>;
+}
 
 #include "eldb.tpp"

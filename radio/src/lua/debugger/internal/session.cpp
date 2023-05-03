@@ -19,8 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "session.h"
-
 #include <cli.h>
 #include <eldp.pb.h>
 #include <lua/lua_api.h>
@@ -54,8 +52,8 @@ static void resumeLuaExecution();
 static void executeCommand(edgetx_eldp_ExecuteCommand &cmd);
 static void setBreakpoint(edgetx_eldp_SetBreakpoint &cmd);
 
-auto eldbStartSession(std::string &targetName,
-                      edgetx_eldp_StartDebug_Target targetType)
+auto eldb::startSession(std::string &targetName,
+                        edgetx_eldp_StartDebug_Target targetType)
     -> cpp::result<void, edgetx_eldp_Error_Type>
 {
   if (inSession) {
@@ -79,7 +77,7 @@ auto eldbStartSession(std::string &targetName,
   return {};
 }
 
-void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
+void eldb::luaDebugHook(lua_State *L, lua_Debug *ar)
 {
   switch (ar->event) {
     // case LUA_HOOKCALL: cliSerialPrintf("ELDB: LUA_HOOKCALL\n"); break;
@@ -93,6 +91,8 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
                         return arg.line == (unsigned int)ar->currentline;
                       })) {
         pauseLuaExecution();
+        luaGetInfo("S", ar);
+        cliSerialPrintf("%s, %s", ar->source, ar->short_src);
       }
       break;
     default:
@@ -100,10 +100,10 @@ void eldbLuaDebugHook(lua_State *L, lua_Debug *ar)
   }
 }
 
-bool eldbIsInSession() { return inSession; }
-bool eldbHasHitBreakpoint() { return hasHitBreakpoint; }
+bool eldb::isInSession() { return inSession; }
+bool eldb::hasHitBreakpoint() { return hasHitBreakpoint; }
 
-auto eldbForwardToRunningSession(edgetx_eldp_Request &request)
+auto eldb::forwardToRunningSession(edgetx_eldp_Request &request)
     -> cpp::result<void, edgetx_eldp_Error_Type>
 {
   if (request.has_setBreakpoint) {

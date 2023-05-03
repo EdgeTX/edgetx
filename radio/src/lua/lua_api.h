@@ -36,7 +36,6 @@ extern "C" {
 
 #include "dataconstants.h"
 #include "opentx_types.h"
-
 // LUA serial connection
 #define LUA_FIFO_SIZE 256
 void luaAllocRxFifo();
@@ -185,6 +184,7 @@ void checkLuaMemoryUsage();
 void luaExec(const char * filename);
 void luaPauseExecution();
 void luaResumeExecution();
+int luaGetInfo(const char *what, lua_Debug *ar);
 void luaDoGc(lua_State * L, bool full);
 uint32_t luaGetMemUsed(lua_State * L);
 void luaGetValueAndPush(lua_State * L, int src);

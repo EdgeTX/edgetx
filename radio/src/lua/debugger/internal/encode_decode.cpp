@@ -37,6 +37,7 @@ bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
 // accepts only std::string as an argument
 bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg) {
     std::string *output = static_cast<std::string *>(*arg);
+    // TODO: Replace with std::array for safety
     uint8_t buffer[128]; // Arbitrary block size
     size_t count;
     while (stream->bytes_left > 0) {

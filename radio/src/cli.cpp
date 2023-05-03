@@ -1807,7 +1807,7 @@ void cliELDPModeHandler()
   size_t xReceivedBytes =
       xStreamBufferReceive(cliRxBuffer, buf.data(), buf.size(), xTimeout);
 
-  eldbReceive(buf, xReceivedBytes);
+  eldb::receive(buf, xReceivedBytes);
 }
 #endif
 
