@@ -153,10 +153,8 @@ struct MPMSubtype : public FormGroup::Line
   void checkEvents();
 
   protected:                                 
-    const uint8_t invalidSubTypeIndex = MODULE_SUBTYPE_MULTI_FIRST-1;
-
     uint8_t moduleIdx;
-    uint8_t lastSubType = invalidSubTypeIndex;
+    uint8_t lastSubType = MODULE_SUBTYPE_MULTI_FIRST-1;   // init with invalid subType
     uint8_t lastRfProtocol = MODULE_TYPE_NONE;
 };
 
@@ -199,11 +197,6 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t module
   }
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
-
-  // always force subType update for DSM2 auto mode with MPM status data
-  if(md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2 && md->subType == MM_RF_DSM2_SUBTYPE_AUTO) {
-    lastSubType = invalidSubTypeIndex;        
-  }
 
   // check if protocol or subtype has changed
   if(md->multi.rfProtocol == lastRfProtocol && md->subType == lastSubType)
