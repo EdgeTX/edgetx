@@ -157,7 +157,7 @@ void displayTrims(uint8_t phase)
 
     if (vert[i]) {
       ym = 31;
-      if (i < 4)
+      if (!getPixel(xm, ym))
         lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
       if (keysGetMaxTrims() <= 4) {
         if (i != 2 || !g_model.thrTrim) {
@@ -200,7 +200,7 @@ void displayTrims(uint8_t phase)
     }
     else {
       ym = 60;
-      if (i < 4)
+      if (!getPixel(xm, ym))
         lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
       if (keysGetMaxTrims() <= 4) {
         lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
