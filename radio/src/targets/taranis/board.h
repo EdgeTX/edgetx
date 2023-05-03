@@ -91,7 +91,7 @@ void sdMount();
 void sdDone();
 void sdPoll10ms();
 uint32_t sdMounted();
-#define SD_CARD_PRESENT()               ((SD_GPIO_PRESENT_GPIO->IDR & SD_GPIO_PRESENT_GPIO_PIN) == 0)
+#define SD_CARD_PRESENT()               ((SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN) == 0)
 #endif
 
 // Flash Write driver
