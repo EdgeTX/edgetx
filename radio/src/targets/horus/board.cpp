@@ -209,7 +209,7 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
+#if defined(RTCLOCK)
   ledRed();
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
