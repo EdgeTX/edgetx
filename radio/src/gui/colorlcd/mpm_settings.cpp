@@ -154,11 +154,11 @@ struct MPMSubtype : public FormGroup::Line
 
   protected:                                 
     uint8_t moduleIdx;
-    uint8_t lastSubType = MODULE_SUBTYPE_MULTI_FIRST-1;   // init with invalid subType
-    uint8_t lastRfProtocol = MODULE_TYPE_NONE;
+    uint8_t lastRfProtocol = 0xff;  // init with invalid rf protocol to trigger first update
+    uint8_t lastSubType = 0xff;     // init with invalid subType to trigger first update
 };
 
-void MPMSubtype::checkEvents() {
+void MPMSubtype::checkEvents() {    // as subType can change externally propagate to update routine 
   lv_event_send(this->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
@@ -191,28 +191,27 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
 {
-  if (!rfProto || rfProto->subProtos.size() == 0) {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-    return;
+  if (!rfProto || rfProto->subProtos.size() == 0) {   // if rf protocol doesn't have subTypes or list empty
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);       // hide subType field
+    return;                                           // nothing else to do here
   }
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
 
-  // check if protocol or subtype has changed
-  if(md->multi.rfProtocol == lastRfProtocol && md->subType == lastSubType)
-    return;
+  if(md->multi.rfProtocol != lastRfProtocol) {        // check if rf protocol has changed
+    choice->setValues(rfProto->subProtos);            // fill subType list
+    choice->setMax(rfProto->subProtos.size() - 1);
+  } else {
+      if(md->subType == lastSubType)                  // check if subType has changed
+        return;                                       // if not, nothing else to do  
+  }
 
-  // memorize new state
-  lastRfProtocol = md->multi.rfProtocol;
+  lastRfProtocol = md->multi.rfProtocol;              // memorize new state
   lastSubType = md->subType;
 
-  // fill protocol list
-  choice->setValues(rfProto->subProtos);
-  choice->setMax(rfProto->subProtos.size() - 1);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);       // make subtype field visible
 
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-
-  bool stop=true;
+  bool stop=true;                                     // update supType field content  
   lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
