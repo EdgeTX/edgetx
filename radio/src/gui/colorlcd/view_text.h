@@ -35,8 +35,8 @@ class ViewTextWindow : public Page
 {
  public:
   ViewTextWindow(const std::string path, const std::string name,
-                 unsigned int icon = ICON_RADIO_SD_MANAGER) :
-      Page(icon), path(std::move(path)), name(std::move(name))
+                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = false) :
+      Page(icon), path(std::move(path)), name(std::move(name)), fromMenu(fromMenu)
   {
     fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
     extractNameSansExt();
@@ -66,6 +66,8 @@ class ViewTextWindow : public Page
   std::string fullPath;
   std::string extension;
 
+  bool fromMenu;
+
   lv_obj_t* lb;
 
   int offset = 0;
@@ -80,4 +82,4 @@ class ViewTextWindow : public Page
   void onEvent(event_t event) override;
 };
 
-void readModelNotes();
+void readModelNotes(bool fromMenu = false);

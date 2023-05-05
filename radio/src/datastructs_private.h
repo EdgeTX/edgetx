@@ -679,7 +679,7 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
-  uint8_t   spare2:7 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
