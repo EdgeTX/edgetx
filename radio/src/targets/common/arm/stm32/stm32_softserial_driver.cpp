@@ -340,7 +340,7 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
   auto st = port->st;
   memset(port->st, 0, sizeof(stm32_softserial_tx_state));
 
-  bool polarity = params->polarity == ETX_Pol_Normal;
+  bool polarity = params->polarity;
   uint32_t freq = params->baudrate * 16;
   uint32_t ocmode = LL_TIM_OCMODE_TOGGLE;
   uint32_t cmp_val = 0;
@@ -359,7 +359,7 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
     st->conv_byte = _conv_byte_pxx1;
     freq = PXX1_FREQ;
     polarity = false;
-    ocmode = LL_TIM_OCMODE_PWM1;
+    ocmode = LL_TIM_OCMODE_FORCED_INACTIVE;
     cmp_val = PXX1_PWM_ON;
     break;
 
