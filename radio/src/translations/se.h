@@ -253,7 +253,7 @@
   #define TR_VKEYS                     "Avbryt","Enter","PGUP","PGDN","SYS","MDL","TELE"
 #elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UPP","NER"
-#elif defined(RADIO_ZORRO)
+#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
   #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
 #elif defined(PCBTARANIS)
   #define TR_VKEYS                     "Meny","Avbryt","Enter","Sida","Plus","Minus"
