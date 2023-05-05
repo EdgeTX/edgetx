@@ -193,19 +193,19 @@ static void replaceSpaceWithUnderscore(std::string &name)
 #define MODEL_FILE_EXT MODELS_EXT
 #endif
 
-bool openNotes(const char buf[], std::string modelNotesName)
+bool openNotes(const char buf[], std::string modelNotesName, bool fromMenu = false)
 {
   std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
 
   if (isFileAvailable(fullPath.c_str())) {
-    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+    new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL, fromMenu);
     return true;
   } else {
     return false;
   }
 }
 
-void readModelNotes()
+void readModelNotes(bool fromMenu)
 {
   bool notesFound = false;
   LED_ERROR_BEGIN();
@@ -214,10 +214,10 @@ void readModelNotes()
   modelNotesName.append(TEXT_EXT);
   const char buf[] = {MODELS_PATH};
 
-  notesFound = openNotes(buf, modelNotesName);
+  notesFound = openNotes(buf, modelNotesName, fromMenu);
   if (!notesFound) {
     replaceSpaceWithUnderscore(modelNotesName);
-    notesFound = openNotes(buf, modelNotesName);
+    notesFound = openNotes(buf, modelNotesName, fromMenu);
   }
 
 #if !defined(EEPROM)
