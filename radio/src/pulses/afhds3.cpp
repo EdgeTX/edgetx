@@ -626,6 +626,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
             this->cmd_flg &= ~0x04;
             this->cmd_flg |= 0x02;
             trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
+            modelcfgGet = true;
           }
         }
         else
