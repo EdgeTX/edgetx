@@ -25,6 +25,14 @@
 #include "opentx.h"
 #include "sdcard.h"
 
+static void checkbox_event_handler(lv_event_t* e)
+{
+  lv_obj_t* target = lv_event_get_target(e);
+  ViewTextWindow* vtw = (ViewTextWindow*)lv_obj_get_user_data(target);
+
+  if (vtw) vtw->updateCheckboxes(lv_obj_get_parent(target));
+}
+
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
@@ -71,13 +79,63 @@ void ViewTextWindow::buildBody(Window *window)
         lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
         auto g = lv_group_get_default();
-        lb = lv_label_create(obj);
-        lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
-        lv_obj_set_style_pad_all(lb, lv_dpx(8), 0);
+        if(fromMenu)
+        {
+          lb = lv_label_create(obj);
+          lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
+          lv_obj_set_style_pad_all(lb, lv_dpx(8), 0);
 
-        lv_group_add_obj(g, obj);
-        lv_group_set_editing(g, true);
-        lv_label_set_text_static(lb, buffer);
+          lv_group_add_obj(g, obj);
+          lv_group_set_editing(g, true);
+          lv_label_set_text_static(lb, buffer);
+        } else {
+          lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
+          lv_obj_set_style_pad_row(obj, 3, LV_PART_MAIN);
+          lv_obj_set_style_pad_column(obj, 0, LV_PART_MAIN);
+
+          lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
+          lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+
+          lv_obj_t* cb;
+
+          size_t cur = 0;
+          size_t line = 0;
+          bool first = true;
+          for(int i=0; i<bufSize; ++i, ++line)
+          {
+
+            if(buffer[i]!= '\n')
+              continue;
+
+            buffer[i] = 0;
+            cb = lv_checkbox_create(obj);
+            lv_group_add_obj(g, cb);
+            lv_obj_set_width(cb, lv_obj_get_content_width(obj));
+            lv_obj_set_flex_align(cb, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY);
+
+            if(buffer[cur] == '=') {
+              cur++;
+              lv_obj_add_event_cb(cb, checkbox_event_handler,
+                                  LV_EVENT_VALUE_CHANGED, this);
+              lv_obj_set_user_data(cb, this);
+              if(first)
+              {
+                first = false;
+                lv_group_focus_obj(cb);
+              } else {
+                lv_obj_add_state(cb, LV_STATE_DISABLED);
+              }
+            } else {
+              lv_obj_add_state(cb, LV_STATE_DISABLED|LV_STATE_USER_1);
+              lv_obj_set_style_opa(cb, LV_OPA_TRANSP, LV_PART_KNOB);
+              lv_obj_set_style_opa(cb, LV_OPA_TRANSP, LV_PART_INDICATOR);
+              lv_obj_set_user_data(cb, this);
+            }
+            lv_checkbox_set_text_static(cb, &buffer[cur]);
+            cur = i+1;
+          }
+
+        }
 
         if (openFromEnd)
           lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
@@ -176,6 +234,36 @@ void ViewTextWindow::onEvent(event_t event)
 #endif
 }
 
+void ViewTextWindow::updateCheckboxes(lv_obj_t* parent)
+{
+  int children = lv_obj_get_child_cnt(parent);
+  bool lastState = true;
+
+  for(int child = 0; child < children; child++)
+  {
+    lv_obj_t* chld = lv_obj_get_child(parent, child);
+    if(!chld)
+      continue;
+    if(!lv_obj_check_type(chld, &lv_checkbox_class))
+      continue;
+    if(lv_obj_get_state(chld) & LV_STATE_USER_1)
+      continue;
+
+    bool state = lv_obj_get_state(chld) & LV_STATE_CHECKED;
+    if(lastState)
+    {
+      lv_obj_clear_state(chld, LV_STATE_DISABLED);
+      if(!state)
+        lv_group_focus_obj(chld);
+    } else {
+      lv_obj_add_state(chld, LV_STATE_DISABLED);
+      lv_obj_clear_state(chld, LV_STATE_CHECKED);
+    }
+
+    lastState = lv_obj_get_state(chld) & LV_STATE_CHECKED;
+  }
+}
+
 #include "datastructs.h"
 
 static void replaceSpaceWithUnderscore(std::string &name)
@@ -227,11 +315,11 @@ void readModelNotes(bool fromMenu)
     if (index != std::string::npos) {
       modelNotesName.erase(index);
       modelNotesName.append(TEXT_EXT);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
     if (!notesFound) {
       replaceSpaceWithUnderscore(modelNotesName);
-      notesFound = openNotes(buf, modelNotesName);
+      notesFound = openNotes(buf, modelNotesName, fromMenu);
     }
   }
 #endif

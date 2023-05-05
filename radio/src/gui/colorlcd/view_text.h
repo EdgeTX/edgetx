@@ -56,6 +56,7 @@ class ViewTextWindow : public Page
     }
   }
 
+  void updateCheckboxes(lv_obj_t* parent);
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };
 #endif
