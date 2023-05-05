@@ -511,7 +511,8 @@ class USBChannelLineButton : public Button
 ModelUSBJoystickPage::ModelUSBJoystickPage() :
     Page(ICON_MODEL_USB)
 {
-  header.setTitle(STR_USBJOYSTICK_LABEL);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_USBJOYSTICK_LABEL);
 
   auto form = new FormWindow(&body, rect_t{});
   form->padAll(lv_dpx(8));
