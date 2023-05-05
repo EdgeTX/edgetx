@@ -136,10 +136,10 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
   afhds3TypeForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
   lv_obj_set_style_grid_cell_x_align(afhds3TypeForm->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-  new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
+  afhds3PhyMode = new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
              GET_SET_DEFAULT(md->afhds3.phyMode));
 
-  new Choice(afhds3TypeForm, rect_t{}, _afhds3_region,
+  afhds3Emi = new Choice(afhds3TypeForm, rect_t{}, _afhds3_region,
              afhds3::LNK_ES_CE, afhds3::LNK_ES_FCC,
              GET_SET_DEFAULT(md->afhds3.emi));
 
@@ -176,7 +176,10 @@ void FlySkySettings::showAFHDS2Options()
   if (afhds2RFPowerText != nullptr)
     lv_obj_clear_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   if (afhds2RFPowerChoice != nullptr)
+  {
     lv_obj_clear_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  }
 #endif
 }
 #endif
@@ -196,12 +199,16 @@ void FlySkySettings::showAFHDS3Options()
   lv_obj_clear_flag(afhds3StatusText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(afhds3TypeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(afhds3TypeForm->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_event_send(afhds3StatusText->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_event_send(afhds3PhyMode->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_event_send(afhds3Emi->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
 }
 #endif
 
 void FlySkySettings::checkEvents() {
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
     update();
+    SET_DIRTY();
   }
   FormGroup::checkEvents();
 }
