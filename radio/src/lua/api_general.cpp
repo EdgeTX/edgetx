@@ -388,6 +388,14 @@ void luaGetValueAndPush(lua_State* L, int src)
   else if (src == MIXSRC_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
   }
+  #if defined(GVARS)
+  else if(src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+   if(g_model.gvars[src - MIXSRC_FIRST_GVAR].prec)
+     lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
+  else
+     lua_pushinteger(L, value);                 // prec "0.-"
+  } 
+  #endif
   else {
     lua_pushinteger(L, value);
   }
