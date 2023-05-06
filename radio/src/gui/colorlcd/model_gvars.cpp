@@ -280,7 +280,7 @@ class GVarEditWindow : public Page
  protected:
   uint8_t index;
   gvar_t lastGVar = 0;
-  uint8_t lastPrec = 0;
+  bool refreshTitle = true;
   uint8_t lastFlightMode = 255; // Force initial setting of header title
   NumberEdit* min = nullptr;
   NumberEdit* max = nullptr;
@@ -296,19 +296,22 @@ class GVarEditWindow : public Page
   void checkEvents()
   {
     Page::checkEvents();
+
+    auto curFM = getFlightMode();
+    auto fmData = &g_model.flightModeData[curFM];
+
     if (gVarInHeader &&
-        ((lastFlightMode != getFlightMode()) ||
-         (lastGVar != g_model.flightModeData[getFlightMode()].gvars[index]) ||
-         (lastPrec != g_model.gvars[index].prec))) {
+        ((lastFlightMode != curFM) ||
+         (lastGVar != fmData->gvars[index]) ||
+         refreshTitle)) {
       char label[32];
-      lastFlightMode = getFlightMode();
-      FlightModeData* fmData = &g_model.flightModeData[lastFlightMode];
+      refreshTitle = false;
+      lastFlightMode = curFM;
       lastGVar = fmData->gvars[index];
-      lastPrec = g_model.gvars[index].prec;
       sprintf(label, "%s%d=", STR_GV, index + 1);
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
-        if (fm >= lastFlightMode) fm++;
+        if (fm >= curFM) fm++;
         getFlightModeString(label + strlen(label), fm + 1);
       } else {
         strcat(label, getGVarValue(index, lastGVar, 0).c_str());
@@ -362,6 +365,8 @@ class GVarEditWindow : public Page
       if (fmData->gvars[index] <= GVAR_MAX || fm == 0) {
         values[fm]->setMin(GVAR_MIN + gvar->min);
         values[fm]->setMax(GVAR_MAX - gvar->max);
+        // Update value if outside min/max range
+        values[fm]->setValue(values[fm]->getValue());
 
         LcdFlags flags = values[fm]->getTextFlags();
         if (gvar->prec)
@@ -415,6 +420,7 @@ class GVarEditWindow : public Page
     grid.nextCell();
     input = new Choice(line, rect_t{}, "\001-%", 0, 1, GET_DEFAULT(gvar->unit),
                        [=](int16_t newValue) {
+                         refreshTitle = (gvar->unit != newValue);
                          gvar->unit = newValue;
                          SET_DIRTY();
                          setProperties();
@@ -428,6 +434,7 @@ class GVarEditWindow : public Page
     grid.nextCell();
     input = new Choice(line, rect_t{}, STR_VPREC, 0, 1, GET_DEFAULT(gvar->prec),
                        [=](int16_t newValue) {
+                         refreshTitle = (gvar->prec != newValue);
                          gvar->prec = newValue;
                          SET_DIRTY();
                          setProperties();
