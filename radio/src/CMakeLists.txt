@@ -37,6 +37,7 @@ if(SDL2_FOUND)
 endif()
 option(LUA "Enable LUA support" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" OFF)
+option(ELDB "Enable ELDB: EdgeTX Lua Debugger" OFF)
 option(SIMU_DISKIO "Enable disk IO simulation in simulator. Simulator will use FatFs module and simulated IO layer that  uses \"./sdcard.image\" file as image of SD card. This file must contain whole SD card from first to last sector" OFF)
 option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
 option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
@@ -86,6 +87,8 @@ set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
 set(RTOS_DIR ${THIRDPARTY_DIR}/FreeRTOS)
 set(FATFS_DIR ${THIRDPARTY_DIR}/FatFs)
+set(NANOPB_DIR ${THIRDPARTY_DIR}/nanopb)
+set(RESULTLIB_DIR ${THIRDPARTY_DIR}/result)
 set(RADIO_BIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(stamp.h.in stamp.h @ONLY)
@@ -100,6 +103,8 @@ set(FATFS_SRC
   ${FATFS_DIR}/ffunicode.c
   ${FATFS_DIR}/fattime.c
 )
+
+add_subdirectory(${RESULTLIB_DIR})
 
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
@@ -183,6 +188,14 @@ endif()
 
 if(LUA)
   include(lua/CMakeLists.txt)
+endif()
+
+if (ELDB AND NOT LUA OR NOT CLI)
+  message(FATAL_ERROR "ELDB requires LUA and CLI!")
+endif()
+
+if (ELDB)
+  include(lua/debugger/CMakeLists.txt)
 endif()
 
 if (LUA_MIXER AND NOT LUA)
@@ -553,6 +566,7 @@ add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_link_libraries(firmware PUBLIC Result::Result)
 
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)

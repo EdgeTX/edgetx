@@ -224,6 +224,18 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define RTOS_UNLOCK_MUTEX(handle) _RTOS_UNLOCK_MUTEX(&handle)
 
+  static inline void _RTOS_GIVE_NOTIFICATION(RTOS_TASK_HANDLE *h) {
+    xTaskNotifyGive(h->rtos_handle);
+  }
+
+  #define RTOS_GIVE_NOTIFICATION(handle) _RTOS_GIVE_NOTIFICATION(&handle)
+
+  static inline uint32_t _RTOS_TAKE_NOTIFICATION(BaseType_t clearCountOnExit, TickType_t ticksToWait) {
+    return ulTaskNotifyTake(clearCountOnExit, ticksToWait);
+  }
+
+  #define RTOS_TAKE_NOTIFICATION(clearCountOnExit, ticksToWait) _RTOS_TAKE_NOTIFICATION(clearCountOnExit, ticksToWait)
+
   static inline uint32_t getStackAvailable(void * address, uint32_t size)
   {
     uint32_t * array = (uint32_t *)address;

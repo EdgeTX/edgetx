@@ -1,0 +1,222 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/*
+ * Terminology:
+ * 
+ * ELDP = (E)dgeTX (L)ua (D)ebugger (P)rotocol
+ * Host = host with the debugger running
+ * Client = developers' computer
+**/
+
+/*
+ * Constants:
+ *
+ * Timeout: 200 ms
+**/
+
+syntax = "proto3";
+
+package edgetx.eldp;
+
+/*
+ * data types
+**/
+
+message Version {
+    int32 major = 1;
+    int32 minor = 2;
+    int32 patch = 3;
+}
+
+message Breakpoint {
+    optional string file = 1;
+    optional uint32 line = 2;
+}
+
+// for more info look at https://www.lua.org/manual/5.4/manual.html#lua_Debug
+// this message is basically a ripoff of lua_Debug type in Lua C API
+message LuaDebugInfo {
+    optional string sourceFile = 1;
+    optional int32 line = 2;
+    enum What {
+        LUA = 0;
+        C = 1;
+        MAIN = 2;
+    }
+    optional What what = 3;
+    optional string name = 4;
+    enum NameWhat {
+        GLOBAL = 0;
+        LOCAL = 1;
+        METHOD = 2;
+        FIELD = 3;
+        UPVALUE = 4;
+    }
+    optional NameWhat nameWhat = 5;
+    optional bool isTailCall = 6;
+    optional int32 nUps = 7;
+    optional int32 nParams = 8;
+    optional bool isVararg = 9;
+    optional int32 fTransfer = 10;
+    optional int32 nTransfer = 11;
+}
+
+/*
+* messages
+*/
+
+// client to host
+message Request {
+    oneof content {
+        ExecuteExpression executeExpression = 1;
+        ExecuteCommand executeCommand = 2;
+        SetBreakpoint setBreakpoint = 3;
+        StartDebug startDebug = 4;
+        GetBreakpoints getBreakpoints = 5;
+        SwitchSerialMode switchSerialMode = 6;
+        GetSystemInfo getSystemInfo = 7;
+    }
+}
+
+// host to client
+message Response {
+    oneof content {
+        DebugStatus debugStatus = 1;
+        Breakpoints breakpoints = 2;
+        SystemInfo systemInfo = 3;
+        Error error = 4;
+    };
+}
+
+/* requests */
+
+// client to host
+message ExecuteExpression {
+    optional string expression = 1;
+}
+
+// client to host
+message ExecuteCommand {
+    enum Command {
+        CONTINUE = 0;
+        STEP_INTO = 1;
+        STEP_OVER = 2;
+        PRINT = 3;
+        STOP = 4;
+    }
+
+    optional Command command = 1;
+}
+
+// client to host
+message SetBreakpoint {
+    enum State {
+        ENABLED = 0;
+        DISABLED = 1;
+        NONE = 2; // basically means removed
+    }
+    optional Breakpoint breakpoint = 1;
+    optional State state = 2;
+}
+
+// client to host
+message StartDebug {
+    enum Target {
+        STANDALONE = 0;
+        WIDGET = 1;
+        MIXER = 2;
+    }
+
+    optional Target targetType = 1;
+    optional string targetName = 2;
+}
+
+// client to host
+message GetBreakpoints {
+    // If a filename is present, returned message will only
+    // contain breakpoints for that filename. If not, then 
+    // all breakpoints will be returned.
+    optional string filename = 1;
+}
+
+// client to host
+message GetSystemInfo {}
+
+// client to host
+message SwitchSerialMode {
+    enum Mode {
+        CLI = 0;
+    }
+    optional Mode mode = 1;
+}
+
+/* responses */
+
+// host to client
+// sent periodically, used to supply state, but is also
+// used as a "heartbeat", to indicate that the debugger
+// is still running
+message DebugStatus {
+    enum State {
+        RUNNING = 0;
+        STOPPED_BREAKPOINT = 1;
+        STOPPED_ERROR = 2;
+        STOPPED = 3; 
+    }
+
+    optional State state = 1;
+    optional Breakpoint stoppedAtBreakpoint = 2;
+}
+
+// host to client
+message SystemInfo {
+    optional string osName = 1;
+    optional Version version = 2;
+    optional string versionTag = 3;
+    optional string codename = 4;
+    optional string gitTag = 5;
+    optional string deviceIdentifier = 6;
+}
+
+// host to client
+message Breakpoints {
+    optional string filename = 1;
+    repeated Breakpoint breakpoints = 2;
+}
+
+// host to client
+message Error {
+    enum Type {
+        UNKNOWN = 0; // would either of you like to tell me WHAT exactly is GOING ON?! (tf:prime S3E8 12:40)
+        BAD_MESSAGE = 1; // not able to parse the incoming message
+        NOT_STARTED_YET = 2; // when ELDB is not started yet and you already start passing some goofy ahh messages to it
+        ALREADY_STARTED = 3; // when ELDB is already started but you still try sending StartDebug
+        SESSION = 4; // general error when ELDB is running. details are in message
+        FILE_DOES_NOT_EXIST = 5; // if you try to do anything involving a file and that file is non existent
+        UNSUPPORTED_TARGET = 6; // if target is unknown or unsupported (e.g. WIDGET on a monochrome radio)
+        ALREADY_STOPPED = 7; // when ELDB is stopped but you're still sending ExecuteCommand::Command::STOP
+        UNKNOWN_REQUEST = 8; // if you send ELDB a request that it doesn't know how to handle, you will receive a slap with this error
+    }
+
+    optional Type type = 1;
+    optional string message = 2;
+}

@@ -41,6 +41,9 @@ extern uint32_t SystemCoreClock;
 #define configUSE_16_BIT_TICKS          0
 #define configIDLE_SHOULD_YIELD         1
 // Use notifications
+#define configUSE_TASK_NOTIFICATIONS    1
+// increase when more are required (currently only used by ELDB)
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES 1 
 #define configUSE_MUTEXES               0
 #define configQUEUE_REGISTRY_SIZE       0
 #define configUSE_RECURSIVE_MUTEXES     0

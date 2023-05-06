@@ -46,6 +46,8 @@
 #define CLI_TASK_PRIO          (1)
 #endif
 
+extern RTOS_TASK_HANDLE menusTaskId;
+extern RTOS_TASK_HANDLE audioTaskId;
 
 extern TaskStack<MENUS_STACK_SIZE> menusStack;
 extern TaskStack<MIXER_STACK_SIZE> mixerStack;

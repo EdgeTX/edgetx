@@ -57,7 +57,7 @@
 #define TR_SLIDERTYPES         "Geen","Schuif"
 #define TR_VPERSISTENT         "UIT","Vliegtijd","Handmatige Reset"
 #define TR_COUNTRY_CODES       TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
-#define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
+#define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Data"
 #define TR_JACK_MODES          "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
@@ -887,7 +887,7 @@
 #define TR_ABOUT_US            "De Programmeurs"
 #define TR_USB_JOYSTICK        "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE    "USB Storage (SD)"
-#define TR_USB_SERIAL          "USB Serial (VCP)"
+#define TR_USB_SERIAL          "USB Data (VCP)"
 #define TR_SETUP_SCREENS       "Setup screens"
 #define TR_MONITOR_SCREENS     "Monitors"
 #define TR_AND_SWITCH          "AND Switch"

@@ -64,6 +64,14 @@ if(LUA_MIXER)
   add_definitions(-DLUA_MODEL_SCRIPTS)
 endif()
 
+# Can force loading of binary (.luac) or plain-text (.lua) versions of scripts specifically, and control
+# compilation options. See interface.cpp:luaLoadScriptFileToState() <mode> parameter description for details.
+if (NOT LUA_COMPILER OR SIMU OR DEBUG)
+  add_definitions(-DLUA_SCRIPT_LOAD_MODE="T") # prefer loading .lua source file for full debug info
+else()
+  add_definitions(-DLUA_SCRIPT_LOAD_MODE="bt") # binary or text, whichever is newer
+endif()
+
 set(SRC ${SRC}
   lua/interface.cpp
   lua/api_general.cpp

@@ -21,41 +21,9 @@
 
 #pragma once
 
-#include "hal/serial_port.h"
-#include "definitions.h"
+#include <pb_common.h>
 
-#include <stdbool.h>
-#include <stdint.h>
+bool encodeString(pb_ostream_t *stream, const pb_field_t *field,
+                   void *const *arg);
 
-// USB driver
-enum usbMode {
-  USB_UNSELECTED_MODE,
-  USB_JOYSTICK_MODE,
-  USB_MASS_STORAGE_MODE,
-  USB_SERIAL_MODE,
-#if defined(USB_SERIAL)
-  USB_MAX_MODE=USB_SERIAL_MODE,
-#else
-  USB_MAX_MODE=USB_MASS_STORAGE_MODE
-#endif
-};
-
-// Control line state bits
-#define CTRL_LINE_STATE_DTR (1 << 0)
-#define CTRL_LINE_STATE_RTS (1 << 1)
-
-int  usbPlugged();
-void usbInit();
-void usbStart();
-void usbStop();
-#if defined(USBJ_EX)
-void usbJoystickRestart();
-#endif
-bool usbStarted();
-
-EXTERN_C(int getSelectedUsbMode());
-void setSelectedUsbMode(int mode);
-
-EXTERN_C(uint32_t usbSerialFreeSpace());
-
-extern const etx_serial_port_t UsbSerialPort;
+bool decodeString(pb_istream_t *stream, const pb_field_t *field, void **arg);

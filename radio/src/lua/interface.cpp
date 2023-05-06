@@ -44,6 +44,10 @@ extern "C" {
   #include <lundump.h>
 }
 
+#if defined(ELDB)
+  #include <lua/debugger/eldb.hpp>
+#endif
+
 #if defined(COLORLCD)
 #define LUA_WARNING_INFO_LEN               256
 #else
@@ -122,11 +126,28 @@ int custom_lua_atpanic(lua_State * L)
   return 0;
 }
 
+void luaPauseExecution() {
+  lua_yield(lsScripts, 0);
+}
+
+void luaResumeExecution() {
+  lua_resume(lsScripts, NULL, 0);
+}
+
+int luaGetInfo(const char *what, lua_Debug *ar) {
+  return lua_getinfo(lsScripts, what, ar);
+}
+
 static void luaHook(lua_State * L, lua_Debug *ar)
 {
+  #if defined(ELDB)
+  if (ar->event != LUA_HOOKCOUNT) {
+    eldb::luaDebugHook(L, ar);
+  }
+  #endif
   if (ar->event == LUA_HOOKCOUNT) {
     if (get_tmr10ms() - luaCycleStart >= LUA_TASK_PERIOD_TICKS) {
-      lua_yield(lsScripts, 0);
+      luaPauseExecution();
     }
   }
   
@@ -1256,7 +1277,15 @@ bool luaTask(event_t evt, bool allowLcdUsage)
    
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
+        #if defined(ELDB)
+        if (eldb::hasHitBreakpoint()) {
+          scriptWasRun = true;
+        } else {
+          scriptWasRun = resumeLua(init, allowLcdUsage);
+        }
+        #else
         scriptWasRun = resumeLua(init, allowLcdUsage);
+        #endif
       }
       else luaDisable();
       UNPROTECT_LUA();
@@ -1311,10 +1340,12 @@ void luaInit()
       // install our panic handler
       lua_atpanic(L, &custom_lua_atpanic);
 
-#if defined(LUA_ALLOCATOR_TRACER)
-      lua_sethook(L, luaHook, LUA_MASKCOUNT|LUA_MASKLINE, PERMANENT_SCRIPTS_MAX_INSTRUCTIONS);
+#if defined(ELDB)
+      lua_sethook(L, luaHook, LUA_MASKCALL|LUA_MASKRET|LUA_MASKLINE|LUA_MASKCOUNT, 1);
+#elif defined(LUA_ALLOCATOR_TRACER)
+      lua_sethook(L, luaHook, LUA_MASKLINE|LUA_MASKCOUNT, 1);
 #else
-      lua_sethook(L, luaHook, LUA_MASKCOUNT, PERMANENT_SCRIPTS_MAX_INSTRUCTIONS);
+      lua_sethook(L, luaHook, LUA_MASKCOUNT, 1);
 #endif
 
       // lsScripts is now a coroutine in lieu of the main thread to support preemption
