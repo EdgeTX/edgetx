@@ -35,7 +35,7 @@ class ViewTextWindow : public Page
 {
  public:
   ViewTextWindow(const std::string path, const std::string name,
-                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = false) :
+                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = true) :
       Page(icon), path(std::move(path)), name(std::move(name)), fromMenu(fromMenu)
   {
     fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
@@ -55,6 +55,8 @@ class ViewTextWindow : public Page
       buffer = nullptr;
     }
   }
+
+  void onCancel() override;
 
   void updateCheckboxes(lv_obj_t* parent);
 #if defined(DEBUG_WINDOWS)
@@ -81,6 +83,7 @@ class ViewTextWindow : public Page
   void buildBody(Window* window);
 
   void onEvent(event_t event) override;
+  bool allChecked();
 };
 
 void readModelNotes(bool fromMenu = false);

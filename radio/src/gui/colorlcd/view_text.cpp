@@ -32,6 +32,12 @@ static void checkbox_event_handler(lv_event_t* e)
   if (vtw) vtw->updateCheckboxes(lv_obj_get_parent(target));
 }
 
+void ViewTextWindow::onCancel()
+{
+  if(!g_model.checklistInteractive || fromMenu || allChecked())
+    Page::onCancel();
+}
+
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
@@ -78,7 +84,7 @@ void ViewTextWindow::buildBody(Window *window)
         lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
         auto g = lv_group_get_default();
-        if(fromMenu)
+        if(fromMenu || !g_model.checklistInteractive)
         {
           lb = lv_label_create(obj);
           lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
@@ -116,6 +122,7 @@ void ViewTextWindow::buildBody(Window *window)
               cur++;
               lv_obj_add_event_cb(cb, checkbox_event_handler,
                                   LV_EVENT_VALUE_CHANGED, this);
+              lv_obj_add_flag(cb, LV_OBJ_FLAG_EVENT_BUBBLE);
               lv_obj_set_user_data(cb, this);
               if(first)
               {
@@ -211,7 +218,7 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
 void ViewTextWindow::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
-  if (int(bufSize) < fileLength) {
+  if (fromMenu && int(bufSize) < fileLength) {
     TRACE("BEFORE offset=%d", offset);
     if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       offset += bufSize;
@@ -230,6 +237,9 @@ void ViewTextWindow::onEvent(event_t event)
     sdReadTextFileBlock(bufSize, offset);
     lv_label_set_text_static(lb, buffer);
   }
+
+  if(event == EVT_KEY_BREAK(KEY_EXIT))
+    onCancel();
 #endif
 }
 
@@ -261,6 +271,27 @@ void ViewTextWindow::updateCheckboxes(lv_obj_t* parent)
 
     lastState = lv_obj_get_state(chld) & LV_STATE_CHECKED;
   }
+}
+
+bool ViewTextWindow::allChecked()
+{
+  lv_obj_t* parent = body.getLvObj();
+  int children = lv_obj_get_child_cnt(parent);
+
+  for(int child = 0; child < children; child++)
+  {
+    lv_obj_t* chld = lv_obj_get_child(parent, child);
+    if(!chld)
+      continue;
+    if(!lv_obj_check_type(chld, &lv_checkbox_class))
+      continue;
+    if(lv_obj_get_state(chld) & LV_STATE_USER_1)
+      continue;
+
+    if(!(lv_obj_get_state(chld) & LV_STATE_CHECKED))
+      return false;
+  }
+  return true;
 }
 
 #include "datastructs.h"
