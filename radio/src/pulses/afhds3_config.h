@@ -108,6 +108,7 @@ PACK(struct sDATA_Others {
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
   uint8_t ExternalBusType;  // eEB_BusType
   tmr10ms_t lastUpdated;    // last updated time
+  bool isConnected;
 });
 
 union Config_u

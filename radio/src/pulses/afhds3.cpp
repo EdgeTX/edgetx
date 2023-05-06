@@ -33,6 +33,8 @@
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
 
+#define SET_DIRTY() storageDirty(EE_MODEL)
+
 #define FAILSAFE_HOLD 1
 #define FAILSAFE_CUSTOM 2
 
@@ -609,6 +611,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
         moduleData->afhds3.phyMode = cfg.v0.PhyMode;
         cfg.others.ExternalBusType = cfg.v0.ExternalBusType;
+        SET_DIRTY();
         cfg.others.lastUpdated = get_tmr10ms();
       } break;
       case COMMAND::MODULE_VERSION:
@@ -627,11 +630,15 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
             this->cmd_flg |= 0x02;
             trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
             modelcfgGet = true;
+            cfg.others.isConnected = true;
+            cfg.others.lastUpdated = get_tmr10ms();
           }
         }
         else
         {
-            this->cmd_flg |= 0x04;
+          this->cmd_flg |= 0x04;
+          cfg.others.isConnected = false;
+          cfg.others.lastUpdated = get_tmr10ms();
         }
         break;
       case COMMAND::MODULE_MODE:

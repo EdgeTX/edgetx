@@ -138,10 +138,12 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
 
   afhds3PhyMode = new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0, afhds3::PHYMODE_MAX,
              GET_SET_DEFAULT(md->afhds3.phyMode));
+  lv_obj_set_style_bg_color(afhds3PhyMode->getLvObj(), makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN | LV_STATE_DISABLED);
 
   afhds3Emi = new Choice(afhds3TypeForm, rect_t{}, _afhds3_region,
              afhds3::LNK_ES_CE, afhds3::LNK_ES_FCC,
              GET_SET_DEFAULT(md->afhds3.emi));
+  lv_obj_set_style_bg_color(afhds3Emi->getLvObj(), makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN | LV_STATE_DISABLED);
 
   uint8_t module = moduleIdx;
   new TextButton(afhds3TypeForm, rect_t{}, STR_MODULE_OPTIONS,
@@ -202,13 +204,22 @@ void FlySkySettings::showAFHDS3Options()
   lv_event_send(afhds3StatusText->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3PhyMode->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3Emi->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  if (afhds3::getConfig(moduleIdx)->others.isConnected)
+  {
+    lv_obj_add_state(afhds3PhyMode->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_add_state(afhds3Emi->getLvObj(), LV_STATE_DISABLED);
+  }
+  else
+  {
+    lv_obj_clear_state(afhds3PhyMode->getLvObj(), LV_STATE_DISABLED);
+    lv_obj_clear_state(afhds3Emi->getLvObj(), LV_STATE_DISABLED);
+  }
 }
 #endif
 
 void FlySkySettings::checkEvents() {
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
     update();
-    SET_DIRTY();
   }
   FormGroup::checkEvents();
 }
