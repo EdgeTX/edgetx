@@ -67,7 +67,7 @@ void FrameTransport::clear()
   esc_state = 0;
 }
 
-void FrameTransport::sendByte(uint8_t b)
+void FrameTransport::putByte(uint8_t b)
 {
   *(data_ptr++) = b;
 }
@@ -78,15 +78,15 @@ void FrameTransport::putBytes(uint8_t* data, int length)
     uint8_t byte = data[i];
     crc += byte;
     if (END == byte) {
-      sendByte(ESC);
-      sendByte(ESC_END);
+      putByte(ESC);
+      putByte(ESC_END);
     }
     else if (ESC == byte) {
-      sendByte(ESC);
-      sendByte(ESC_ESC);
+      putByte(ESC);
+      putByte(ESC_ESC);
     }
     else {
-      sendByte(byte);
+      putByte(byte);
     }
   }  
 }
@@ -99,7 +99,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType,
   data_ptr = trsp_buffer;
 
   crc = 0;
-  sendByte(START);
+  putByte(START);
 
   uint8_t buffer[] = {frameAddress, frameIndex, frameType, command};
   putBytes(buffer, 4);
@@ -112,7 +112,7 @@ void FrameTransport::putFrame(COMMAND command, FRAME_TYPE frameType,
   // footer
   uint8_t crcValue = crc ^ 0xff;
   putBytes(&crcValue, 1);
-  sendByte(END);
+  putByte(END);
 }
 
 uint32_t FrameTransport::getFrameSize()
@@ -236,7 +236,7 @@ void Transport::clear()
   operationState = State::UNKNOWN;
 }
 
-void Transport::sendFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
+void Transport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
                           uint8_t dataLength)
 {
   operationState = State::SENDING_COMMAND;

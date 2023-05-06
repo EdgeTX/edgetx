@@ -149,7 +149,7 @@ struct FrameTransport {
   void init(void* buffer, uint8_t fAddr);
   void clear();
 
-  void sendByte(uint8_t b);
+  void putByte(uint8_t b);
   void putBytes(uint8_t* data, int length);
 
   void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
@@ -195,7 +195,7 @@ class Transport
 
   void clear();
 
-  void sendFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
+  void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
                  uint8_t dataLength = 0);
 
   void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData = false,

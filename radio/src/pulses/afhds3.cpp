@@ -409,7 +409,7 @@ void ProtoState::setupFrame()
 
   if (this->state == ModuleState::STATE_NOT_READY) {
     TRACE("AFHDS3 [GET MODULE READY]");
-    trsp.sendFrame(COMMAND::MODULE_READY, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.putFrame(COMMAND::MODULE_READY, FRAME_TYPE::REQUEST_GET_DATA);
     return;
   }
 
@@ -426,7 +426,7 @@ void ProtoState::setupFrame()
       TRACE("AFHDS3 [BIND]");
       applyConfigFromModel();
 
-      trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
+      trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
                      cfg.version == 0 ? sizeof(cfg.v0) : sizeof(cfg.v1));
 
@@ -442,26 +442,26 @@ void ProtoState::setupFrame()
 
     // if module is ready but not started
     if (this->state == ModuleState::STATE_READY) {
-      trsp.sendFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+      trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
       return;
     }
 
     if (!modelIDSet) {
       if (this->state != ModuleState::STATE_STANDBY) {
         auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-        trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+        trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
         return;
       } else {
         modelIDSet = true;
         modelID = g_model.header.modelId[module_index];
-        trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+        trsp.putFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                        &g_model.header.modelId[module_index], 1);
         return;
       }
     } else if (modelID != g_model.header.modelId[module_index]) {
       modelIDSet = false;
       auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
 
@@ -476,7 +476,7 @@ void ProtoState::setupFrame()
       TRACE("AFHDS3 [EXIT BIND]");
       modelcfgGet = true;
       auto mode = (uint8_t)MODULE_MODE_E::RUN;
-      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
   }
@@ -502,7 +502,7 @@ void ProtoState::setupFrame()
           ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
           setFailSafe((int16_t*)(&failSafe[1]), len);
           TRACE("AFHDS ONE WAY FAILSAFE");
-          trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
+          trsp.putFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
                    FRAME_TYPE::REQUEST_SET_NO_RESP, (uint8_t*)failSafe,
                    AFHDS3_MAX_CHANNELS * 2 + 2);
           return;
@@ -512,11 +512,11 @@ void ProtoState::setupFrame()
           int16_t failSafe[18];
           setFailSafe(&failSafe[0], len);
           std::memcpy( &data[3], failSafe, 2*len );
-          trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, 2*len+3);
+          trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, 2*len+3);
           return;
       }
     } else {
-      trsp.sendFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
+      trsp.putFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
       return;
     }
   }
@@ -525,7 +525,7 @@ void ProtoState::setupFrame()
     sendChannelsData();
   } else {
     //default frame - request state
-    trsp.sendFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+    trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
   }
 }
 
@@ -739,7 +739,7 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
   if(this->cmd_flg&0x02)
   {
     uint8_t data[] = { (uint8_t)(RX_CMD_GET_VERSION&0xFF), (uint8_t)((RX_CMD_GET_VERSION>>8)&0xFF), 0x00 };
-    trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+    trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
   auto *cfg = this->getConfig();
@@ -752,7 +752,7 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
       if(this->cmd_flg&0x08)
       {
         uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, bustype };
-        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
         if(busdir<2)
           this->cmd_flg |= 0x10;
         return true;
@@ -762,7 +762,7 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
         cfg->others.ExternalBusType = IBUS1_OUT;
         busdir = IBUS1_OUT;
         uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
-        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
+        trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
         return true;
       }
     }
@@ -771,7 +771,7 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
       if(this->cmd_flg&0x08)
       {
         uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, 0 };
-        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
         this->cmd_flg |= 0x10;
         return true;
       }
@@ -779,13 +779,13 @@ if (this->state != ModuleState::STATE_SYNC_DONE) {
       {
         if(busdir>=2) busdir = 0; //IBUSOUT
         uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
-        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
+        trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data1, sizeof(data1));
         return true;
       }
       else if((this->cmd_flg&0x20))
       {
         uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, 2 };
-        trsp.sendFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+        trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
         return true;
       }
     }
@@ -813,7 +813,7 @@ void ProtoState::sendChannelsData()
     buffer[index] = channelValue;
   }
 
-  trsp.sendFrame(COMMAND::CHANNELS_FAILSAFE_DATA, FRAME_TYPE::REQUEST_SET_NO_RESP,
+  trsp.putFrame(COMMAND::CHANNELS_FAILSAFE_DATA, FRAME_TYPE::REQUEST_SET_NO_RESP,
            (uint8_t*)buffer, (channels + 1) * 2);
 }
 
@@ -821,7 +821,7 @@ void ProtoState::stop()
 {
   TRACE("AFHDS3 STOP");
   auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-  trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+  trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
 }
 
 void ProtoState::resetConfig(uint8_t version)
