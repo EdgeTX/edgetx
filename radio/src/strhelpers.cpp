@@ -1063,7 +1063,7 @@ int8_t maxTimezone()
 
 std::string timezoneDisplay(int tz)
 {
-  char s[10];
+  char s[16];
   int h = abs(tz / 4);
   int m = abs(tz % 4) * 15;
   sprintf(s,"%s%d:%02d", (tz < 0) ? "-" : "", h, m);
