@@ -55,7 +55,7 @@ bool YamlFormat::writeFile(const QByteArray & filedata)
 }
 
 bool YamlFormat::load(RadioData & radioData)
-{  
+{
   //bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
   int modelIdx = 0;
 
@@ -97,13 +97,12 @@ bool YamlFormat::load(RadioData & radioData)
       return false;
     }
 
-    /*model.category = 0;*/
     model.modelIndex = modelIdx;
-    strncpy(model.filename, qPrintable(filename), sizeof(model.filename) - 1);
     model.used = true;
 
-    strncpy(radioData.generalSettings.currModelFilename, qPrintable(filename), sizeof(radioData.generalSettings.currModelFilename) - 1);
     radioData.generalSettings.currModelIndex = modelIdx;
+    radioData.fixModelFilenames();
+
     //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
     //  so leave fixing incompatibilities to the user
     radioData.generalSettings.variant = getCurrentBoard();
