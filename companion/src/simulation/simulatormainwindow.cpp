@@ -41,7 +41,7 @@ extern AppData g;  // ensure what "g" means
 
 const quint16 SimulatorMainWindow::m_savedUiStateVersion = 2;
 
-SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & firmwareId, quint8 flags, Qt::WindowFlags wflags) :
+SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simulatorId, quint8 flags, Qt::WindowFlags wflags) :
   QMainWindow(parent, wflags),
   ui(new Ui::SimulatorMainWindow),
   m_simulatorWidget(NULL),
@@ -52,7 +52,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & firmwa
   m_telemetryDockWidget(NULL),
   m_trainerDockWidget(NULL),
   m_outputsDockWidget(NULL),
-  m_simulatorId(firmwareId),
+  m_simulatorId(simulatorId),
   m_exitStatusCode(0),
   m_radioProfileId(g.sessionId()),
   m_radioSizeConstraint(Qt::Horizontal | Qt::Vertical),
@@ -61,7 +61,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & firmwa
   m_showMenubar(true)
 {
   if (m_simulatorId.isEmpty()) {
-    m_simulatorId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
+    m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
   }
   m_simulator = SimulatorLoader::loadSimulator(m_simulatorId);
   if (!m_simulator) {

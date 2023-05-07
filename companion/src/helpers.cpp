@@ -332,8 +332,8 @@ bool isSimulatorRunning() { return simulatorRunning; }
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
-  QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
-  if (fwId.isEmpty()) {
+  QString simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
+  if (simulatorId.isEmpty()) {
     QMessageBox::warning(NULL,
                          CPN_STR_TTL_WARNING,
                          QCoreApplication::translate("Companion", "Simulator for this firmware is not yet available"));
@@ -348,7 +348,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     simuData->setCurrentModel(modelIdx);
   }
 
-  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, fwId, flags);
+  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, simulatorId, flags);
   dialog->setWindowModality(Qt::ApplicationModal);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
 

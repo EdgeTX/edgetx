@@ -187,7 +187,8 @@ void OpenTxSimulator::readRadioData(QByteArray & dest)
 {
 #if defined(EEPROM_SIZE)
   QMutexLocker lckr(&m_mtxRadioData);
-  memcpy(dest.data(), eeprom, std::min<int>(EEPROM_SIZE, dest.size()));
+  if (eeprom)
+    memcpy(dest.data(), eeprom, qMin<int>(EEPROM_SIZE, dest.size()));
 #endif
 }
 
