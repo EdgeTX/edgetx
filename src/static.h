@@ -178,6 +178,16 @@ class DynamicNumber : public StaticText
     }
   }
 
+  void setPrefix(const char * value) {
+    prefix = value;
+    updateText();
+  }
+
+  void setSuffix(const char * value) {
+    suffix = value;
+    updateText();
+  }
+
  protected:
   T value = 0;
   std::function<T()> numberHandler;
