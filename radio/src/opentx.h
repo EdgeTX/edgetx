@@ -469,14 +469,7 @@ extern uint8_t mixerCurrentFlightMode;
 extern uint8_t lastFlightMode;
 extern uint8_t flightModeTransitionLast;
 
-#if defined(SIMU)
-  inline int availableMemory() { return 1000; }
-#else
-  extern unsigned char *heap;
-  extern int _end;
-  extern int _heap_end;
-  #define availableMemory() ((unsigned int)((unsigned char *)&_heap_end - heap))
-#endif
+extern uint32_t availableMemory();
 
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms);
