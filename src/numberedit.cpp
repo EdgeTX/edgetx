@@ -54,6 +54,12 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
   lv_textarea_set_one_line(lvobj, true);
   lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
 
+  setHeight(33);
+  padTop(5);
+  padRight(4);
+  lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
+  lv_obj_set_style_radius(lvobj, 4, 0);
+
   update();
 }
 
