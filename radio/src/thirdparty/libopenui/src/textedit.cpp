@@ -55,6 +55,11 @@ TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
 
+  setHeight(33);
+  padTop(5);
+  padLeft(4);
+  lv_obj_set_style_radius(lvobj, 4, 0);
+
   if (width() == 0) {
     lv_obj_set_width(lvobj, LV_DPI_DEF);
   }
