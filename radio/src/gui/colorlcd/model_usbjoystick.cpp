@@ -90,7 +90,7 @@ class USBChannelEditStatusBar : public Window
         Window(parent, rect), _channel(channel)
     {
       channelBar = new ComboChannelBar(this, {USBCH_EDIT_STATUS_BAR_MARGIN, 0, rect.w - (USBCH_EDIT_STATUS_BAR_MARGIN * 2), rect.h}, channel);
-      channelBar->setLeftMargin(0);
+      channelBar->setLeftMargin(15);
       channelBar->setTextColor(COLOR_THEME_PRIMARY2);
       channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
     }
@@ -215,7 +215,7 @@ class USBChannelEditWindow : public Page
         Page(ICON_MODEL_USB), channel(channel)
     {
       auto form = new FormWindow(&body, rect_t{});
-      form->padAll(4);
+      form->padAll(2);
       form->padLeft(8);
       form->padRight(8);
 

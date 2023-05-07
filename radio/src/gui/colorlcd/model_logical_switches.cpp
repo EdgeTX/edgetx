@@ -237,8 +237,10 @@ class LogicalSwitchEditPage : public Page
   void buildBody(FormWindow* window)
   {
     window->setFlexLayout();
+    window->padAll(0);
+    window->padLeft(4);
+    window->padRight(4);
     FlexGridLayout grid(col_dsc, row_dsc, 2);
-    lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
     LogicalSwitchData* cs = lswAddress(index);
 
