@@ -212,113 +212,116 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
 
 #define CHECK_2POS(sw)       newPos |= check2PosSwitchPosition(sw ## 0)
 #define CHECK_3POS(idx, sw)  newPos |= check3PosSwitchPosition(idx, sw ## 0, startup)
+#define CHECK_POS(sw)        g_eeGeneral.switchConfig & (0x03 << ((sw - SW_SA) * 2)) == SWITCH_3POS ? CHECK_3POS(idx++, sw) : CHECK_2POS(sw)
 
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
+  uint8_t idx = 0;
+
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  CHECK_2POS(SW_SA);
-  CHECK_3POS(0, SW_SB);
-  CHECK_3POS(1, SW_SC);
+  CHECK_POS(SW_SA);
+  CHECK_POS(SW_SB);
+  CHECK_POS(SW_SC);
 #elif defined(RADIO_TPRO)
-  CHECK_3POS(0, SW_SA);
-  CHECK_3POS(1, SW_SB);
-  CHECK_2POS(SW_SC);
-  CHECK_2POS(SW_SD);
+  CHECK_POS(SW_SA);
+  CHECK_POS(SW_SB);
+  CHECK_POS(SW_SC);
+  CHECK_POS(SW_SD);
 #elif defined(PCBNV14)
-  CHECK_2POS(SW_SA);
-  CHECK_3POS(0, SW_SB);
-  CHECK_2POS(SW_SC);
-  CHECK_2POS(SW_SD);
+  CHECK_POS(SW_SA);
+  CHECK_POS(SW_SB);
+  CHECK_POS(SW_SC);
+  CHECK_POS(SW_SD);
 #else
-  CHECK_3POS(0, SW_SA);
-  CHECK_3POS(1, SW_SB);
-  CHECK_3POS(2, SW_SC);
+  CHECK_POS(SW_SA);
+  CHECK_POS(SW_SB);
+  CHECK_POS(SW_SC);
 #endif
 
 #if defined(PCBX9LITES)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
+  CHECK_POS(SW_SG);
 #elif defined(PCBX9LITE)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
 #elif defined(PCBXLITES)
-  CHECK_3POS(3, SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
   // no SWG and SWH on XLITES
 #elif defined(PCBXLITE)
-  CHECK_3POS(3, SW_SD);
+  CHECK_POS(SW_SD);
   // no SWE, SWF, SWG and SWH on XLITE
 #elif defined(RADIO_ZORRO)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
-  CHECK_2POS(SW_SH);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
+  CHECK_POS(SW_SG);
+  CHECK_POS(SW_SH);
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  CHECK_2POS(SW_SD);
-  CHECK_3POS(2, SW_SE);
-  CHECK_3POS(3, SW_SF);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
 #elif defined(RADIO_BOXER)
-  CHECK_2POS(SW_SD);
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
 #elif defined(RADIO_TPRO)
-  CHECK_2POS(SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_2POS(SW_SG);
-  CHECK_2POS(SW_SH);
-  CHECK_2POS(SW_SI);
-  CHECK_2POS(SW_SJ);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
+  CHECK_POS(SW_SG);
+  CHECK_POS(SW_SH);
+  CHECK_POS(SW_SI);
+  CHECK_POS(SW_SJ);
 #elif defined(PCBX7)
-  CHECK_3POS(3, SW_SD);
+  CHECK_POS(SW_SD);
   #if defined(HARDWARE_SWITCH_F)
-    CHECK_2POS(SW_SF);
+    CHECK_POS(SW_SF);
   #endif
   #if defined(HARDWARE_SWITCH_G)
-    CHECK_2POS(SW_SG);
+    CHECK_POS(SW_SG);
   #endif
   #if defined(HARDWARE_SWITCH_H)
-    CHECK_2POS(SW_SH);
+    CHECK_POS(SW_SH);
   #endif
 #elif defined(PCBNV14)
-  CHECK_2POS(SW_SE);
-  CHECK_3POS(1, SW_SF);
-  CHECK_3POS(2, SW_SG);
-  CHECK_2POS(SW_SH);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
+  CHECK_POS(SW_SG);
+  CHECK_POS(SW_SH);
 #else
-  CHECK_3POS(3, SW_SD);
-  CHECK_3POS(4, SW_SE);
-  CHECK_2POS(SW_SF);
-  CHECK_3POS(5, SW_SG);
-  CHECK_2POS(SW_SH);
+  CHECK_POS(SW_SD);
+  CHECK_POS(SW_SE);
+  CHECK_POS(SW_SF);
+  CHECK_POS(SW_SG);
+  CHECK_POS(SW_SH);
 #endif
 
 #if defined(RADIO_X9DP2019)
-  CHECK_2POS(SW_SI);
+  CHECK_POS(SW_SI);
 #endif
 
 #if defined(PCBX7ACCESS)
-  CHECK_2POS(SW_SI);
+  CHECK_POS(SW_SI);
 #elif defined(PCBHORUS) || (defined(PCBX7) && !defined(RADIO_ZORRO))
-  CHECK_2POS(SW_SI);
-  CHECK_2POS(SW_SJ);
+  CHECK_POS(SW_SI);
+  CHECK_POS(SW_SJ);
 #endif
 
 #if defined(PCBX9E)
-  CHECK_3POS(6, SW_SI);
-  CHECK_3POS(7, SW_SJ);
-  CHECK_3POS(8, SW_SK);
-  CHECK_3POS(9, SW_SL);
-  CHECK_3POS(10, SW_SM);
-  CHECK_3POS(11, SW_SN);
-  CHECK_3POS(12, SW_SO);
-  CHECK_3POS(13, SW_SP);
-  CHECK_3POS(14, SW_SQ);
-  CHECK_3POS(15, SW_SR);
+  CHECK_POS(SW_SI);
+  CHECK_POS(SW_SJ);
+  CHECK_POS(SW_SK);
+  CHECK_POS(SW_SL);
+  CHECK_POS(SW_SM);
+  CHECK_POS(SW_SN);
+  CHECK_POS(SW_SO);
+  CHECK_POS(SW_SP);
+  CHECK_POS(SW_SQ);
+  CHECK_POS(SW_SR);
 #endif
 
   switchesPos = newPos;
