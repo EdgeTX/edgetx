@@ -218,15 +218,19 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   //        - Update possible labels with all found in models too
 
   QByteArray labelslistBuffer;
+  int sortOrder = 0;
   if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
-      if (!loadLabelsListFromYaml(radioData.labels, modelFiles, labelslistBuffer)) {
+      if (!loadLabelsListFromYaml(radioData.labels, sortOrder, modelFiles, labelslistBuffer)) {
         setError(tr("Can't load MODELS/labels.yml"));
       }
     } catch(const std::runtime_error& e) {
       setError(tr("Can't load MODELS/labels.yml") + ":\n" + QString(e.what()));
     }
   }
+
+  // Save Sort Order
+  radioData.sortOrder = sortOrder;
 
   // Scan for all models
   std::list<std::string> filelist;

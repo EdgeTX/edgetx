@@ -90,17 +90,27 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
 }
 
 bool loadLabelsListFromYaml(QStringList& labels,
+                            int& sortOrder,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
+  sortOrder = 0;
   labels.clear();
   if (data.size() == 0)
     return true;
   YAML::Node node = loadYamlFromByteArray(data);
-  if (!node.IsMap()) return false; // Root Map (Labels, Models)
+  if (!node.IsMap()) return false; // Root Map (Labels, Sort, Models)
+  if (node["Sort"].IsScalar()) {
+    bool ok = false;
+    sortOrder = QString::fromStdString(node["Sort"].Scalar()).toUInt(&ok);
+    if (!ok)
+      sortOrder = 0;
+  }
+
+
   for (const auto& lbl : node["Labels"]) {
     labels.append(QString::fromStdString(lbl.first.as<std::string>()));
-   }
+  }
 
   return true;
 }
@@ -158,6 +168,7 @@ bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
   foreach(QString label, radioData.labels) {
     node["Labels"][label.toStdString()] = YAML::Null;
   }
+  node["Sort"] = radioData.sortOrder;
   writeYamlToByteArray(node, data);
   return true;
 }

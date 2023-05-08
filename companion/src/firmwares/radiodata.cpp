@@ -22,7 +22,8 @@
 #include "radiodataconversionstate.h"
 #include "eeprominterface.h"
 
-RadioData::RadioData()
+RadioData::RadioData() :
+  sortOrder(0)
 {
   models.resize(getCurrentFirmware()->getCapability(Models));
 }
