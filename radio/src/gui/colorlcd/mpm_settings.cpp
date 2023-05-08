@@ -154,12 +154,24 @@ struct MPMSubtype : public FormGroup::Line
 
   protected:                                 
     uint8_t moduleIdx;
-    uint8_t lastRfProtocol = 0xff;  // init with invalid rf protocol to trigger first update
-    uint8_t lastSubType = 0xff;     // init with invalid subType to trigger first update
+    uint8_t DSM2lastSubType = 0;  // assume default subType at init;
 };
 
-void MPMSubtype::checkEvents() {    // as subType can change externally propagate to update routine 
-  lv_event_send(this->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+void MPMSubtype::checkEvents() { 
+  //
+  // DSM2: successful bind in auto mode changes DSM2 subType
+  //
+  ModuleData* md = &g_model.moduleData[this->moduleIdx];
+
+  if(md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {           // do this only for DSM2 
+    uint8_t subType = md->subType;                                  // fetch DSM2 subType
+
+    if(subType != DSM2lastSubType) {                                // if DSM2 subType has changed
+      DSM2lastSubType = subType;                                    // memorize new DSM2 subType
+      choice->setValue(subType);                                    // set new DSM2 subType
+      lv_event_send(choice->getLvObj(), LV_EVENT_REFRESH, nullptr); // refresh subType field
+    }
+  }
 }
 
 static void subtype_event_cb(lv_event_t* e)
@@ -191,27 +203,17 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
 {
-  if (!rfProto || rfProto->subProtos.size() == 0) {   // if rf protocol doesn't have subTypes or list empty
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);       // hide subType field
-    return;                                           // nothing else to do here
+  if (!rfProto || rfProto->subProtos.size() == 0) {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    return;
   }
 
-  ModuleData* md = &g_model.moduleData[moduleIdx];
+  choice->setValues(rfProto->subProtos);
+  choice->setMax(rfProto->subProtos.size() - 1);
 
-  if(md->multi.rfProtocol != lastRfProtocol) {        // check if rf protocol has changed
-    choice->setValues(rfProto->subProtos);            // fill subType list
-    choice->setMax(rfProto->subProtos.size() - 1);
-  } else {
-      if(md->subType == lastSubType)                  // check if subType has changed
-        return;                                       // if not, nothing else to do  
-  }
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
 
-  lastRfProtocol = md->multi.rfProtocol;              // memorize new state
-  lastSubType = md->subType;
-
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);       // make subtype field visible
-
-  bool stop=true;                                     // update supType field content  
+  bool stop=true;
   lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
