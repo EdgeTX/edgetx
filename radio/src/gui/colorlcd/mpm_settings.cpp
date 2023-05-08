@@ -22,7 +22,6 @@
 #include "mpm_settings.h"
 #include "opentx.h"
 
-#include "telemetry/multi.h"
 #include "multi_rfprotos.h"
 #include "io/multi_protolist.h"
 
@@ -67,7 +66,7 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
 
 void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md, uint8_t moduleIdx)
 {
-    if (!rfProto || !getMultiOptionTitle(moduleIdx)) {
+  if (!rfProto || !getMultiOptionTitle(moduleIdx)) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
     return;
   }
