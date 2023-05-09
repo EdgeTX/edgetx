@@ -52,6 +52,8 @@ extern uint8_t g_ms100; // global to allow time set function to reset to zero
 
 void rtcInit();
 void rtcSetTime(const struct gtm * tm);
+uint32_t getRTCBKPR(uint8_t register);
+void setRTCBKPR(uint8_t register, uint32_t value);
 gtime_t gmktime (struct gtm *tm);
 uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 

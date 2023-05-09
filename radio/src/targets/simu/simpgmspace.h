@@ -202,6 +202,9 @@ extern char * main_thread_error;
 
 inline void getADC() { }
 
+inline uint32_t getRTCBKPR(uint8_t r) { return 0; };
+inline void setRTCBKPR(uint8_t r, uint32_t value) {};
+
 uint64_t simuTimerMicros(void);
 uint8_t simuSleep(uint32_t ms);  // returns true if thread shutdown requested
 
