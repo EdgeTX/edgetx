@@ -22,6 +22,55 @@
 #include "stm32_hal.h"
 #include "rtc.h"
 
+//
+// some radios use the first 2 out of the 20 
+// RTC backup registers to hold data about startup reason 
+// and tpye.
+
+//
+// calculate the RTC backup memory checksum to be stored in 
+// the last of the 20 backup registers
+//
+#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 0x4d484131)
+
+//  
+// resets RTC backup registers if data is corrupt
+// and returns the requested backup register
+// 
+uint32_t getRTCBKPR(uint8_t r) {
+  uint32_t prim = __get_PRIMASK();
+  
+  __disable_irq();
+  
+  if(RTC->BKP19R != RTCCHKSUM()) {
+    RTC->BKP0R = 0;
+    RTC->BKP1R = 0;
+    RTC->BKP19R = RTCCHKSUM();
+  }
+
+  if(!prim) 
+    __enable_irq();
+
+  return ((uint32_t *)RTC)[r];
+}
+
+//  
+// writes data to the specified RTC backup register
+// and updates the checksum
+// 
+void setRTCBKPR(uint8_t r, uint32_t value) {
+  ((uint32_t *)RTC)[r] = value;
+
+  uint32_t prim = __get_PRIMASK();
+  
+  __disable_irq();
+
+  RTC->BKP19R = RTCCHKSUM();
+
+  if(!prim) 
+    __enable_irq();
+}
+
 RTC_HandleTypeDef rtc = {};
 
 void rtcSetTime(const struct gtm * t)
