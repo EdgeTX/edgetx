@@ -24,7 +24,10 @@
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 
 #include "debug.h"
+
+#if defined(RTCLOCK)
 #include "rtc.h"
+#endif
 
 #include "hal/adc_driver.h"
 #include "hal/module_port.h"

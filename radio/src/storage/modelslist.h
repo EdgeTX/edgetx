@@ -40,7 +40,10 @@
 #endif
 
 #include "dataconstants.h"
+
+#if defined(RTCLOCK)
 #include "rtc.h"
+#endif
 
 // modelXXXXXXX.bin F,FF F,3F,FF\r\n
 #define LEN_MODELS_IDX_LINE \

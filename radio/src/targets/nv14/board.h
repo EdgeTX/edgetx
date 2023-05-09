@@ -40,7 +40,9 @@
 #include "battery_driver.h"
 #include "watchdog_driver.h"
 
+#if defined(RTCLOCK)
 #include "rtc.h"
+#endif
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000

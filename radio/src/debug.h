@@ -24,7 +24,11 @@
 
 #include <float.h>
 #include "definitions.h"
+
+#if defined(RTCLOCK)
 #include "rtc.h"
+#endif
+
 #include "dump.h"
 
 #define CRLF "\r\n"

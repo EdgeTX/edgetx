@@ -202,9 +202,7 @@ extern char * main_thread_error;
 
 inline void getADC() { }
 
-// Taranis targets include SIMU code for tests. 
-// avoid redefinition
-#if defined(SIMU)                                     
+#if defined(RTCLOCK)              
 inline uint32_t getRTCBKPR(uint8_t r) { return 0; };
 inline void setRTCBKPR(uint8_t r, uint32_t value) {};
 #endif
