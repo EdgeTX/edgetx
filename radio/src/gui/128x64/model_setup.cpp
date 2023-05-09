@@ -703,7 +703,7 @@ void menuModelSetup(event_t event)
         int index = k - ITEM_MODEL_SETUP_SW1;
         int config = FSWITCH_CONFIG(index);
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
-        drawStringWithIndex(lcdNextPos, y, STR_FUNC_SW, index, menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
