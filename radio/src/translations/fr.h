@@ -988,6 +988,7 @@
   #define TR_TIMER_SOURCE              "Source Chrono"
   #define TR_SIZE                      "Taille"
   #define TR_SHADOW                    "Ombre"
+  #define TR_ALIGNMENT                 "Aligner"
   #define TR_ALIGN_LABEL               "Aligner Catégorie"
   #define TR_ALIGN_VALUE               "Aligner Valeur"
   #define TR_ALIGN_OPTS                { "Gauche", "Centre", "Droite" }

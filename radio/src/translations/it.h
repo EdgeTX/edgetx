@@ -968,6 +968,7 @@
   #define TR_TIMER_SOURCE              "Sorgente timer"
   #define TR_SIZE                      "Dimensione"
   #define TR_SHADOW                    "Ombra"
+  #define TR_ALIGNMENT                 "Allineare"
   #define TR_ALIGN_LABEL               "Allineare il cartellino"
   #define TR_ALIGN_VALUE               "Allineare il valore"
   #define TR_ALIGN_OPTS                { "Sinistra", "Mezzo", "Destra" }

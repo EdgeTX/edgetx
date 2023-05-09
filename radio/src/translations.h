@@ -768,6 +768,7 @@ extern const char* const STR_TEXT_SIZE[];
 extern const char* const STR_SUBTRIMMODES[];
 extern const char STR_SIZE[];
 extern const char STR_SHADOW[];
+extern const char STR_ALIGNMENT[];
 extern const char STR_ALIGN_LABEL[];
 extern const char STR_ALIGN_VALUE[];
 extern const char* const STR_ALIGN_OPTS[];

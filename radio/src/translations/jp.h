@@ -965,6 +965,7 @@
   #define TR_TIMER_SOURCE              "タイマーソース"
   #define TR_SIZE                      "サイズ"
   #define TR_SHADOW                    "影"
+  #define TR_ALIGNMENT                 "Alignment"
   #define TR_ALIGN_LABEL               "ラベルを揃える"
   #define TR_ALIGN_VALUE               "値を揃える"
   #define TR_ALIGN_OPTS                { "左", "中央", "右" }

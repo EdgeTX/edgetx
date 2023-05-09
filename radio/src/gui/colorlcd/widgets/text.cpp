@@ -40,13 +40,33 @@ class TextWidget: public Widget
       // get font size from options[2]
       LcdFlags fontsize = persistentData->options[2].value.unsignedValue << 8u;
 
+      // get alignment from options[4]
+      LcdFlags alignment = persistentData->options[4].value.unsignedValue;
+
+      coord_t x;
+      LcdFlags attributes = fontsize;
+
+      switch (alignment) {
+        case ALIGN_RIGHT:
+          x = width();
+          attributes |= RIGHT;
+          break;
+        case ALIGN_CENTER:
+          x = width()/2;
+          attributes |= CENTERED;
+          break;
+        default: // ALIGN_LEFT:
+          x = 0;
+          attributes |= LEFT;
+      }
+
       // draw shadow
       if (persistentData->options[3].value.boolValue) {
-        dc->drawText(1, 1, persistentData->options[0].value.stringValue, fontsize | BLACK);
+        dc->drawText(x+1, 1, persistentData->options[0].value.stringValue, attributes | BLACK);
       }
 
       // draw text
-      dc->drawText(0, 0, persistentData->options[0].value.stringValue, fontsize | CUSTOM_COLOR);
+      dc->drawText(x, 0, persistentData->options[0].value.stringValue, attributes | CUSTOM_COLOR);
     }
 
     static const ZoneOption options[];
@@ -57,6 +77,7 @@ const ZoneOption TextWidget::options[] = {
   { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1>>16) },
   { STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(0) },
   { STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)  },
+  { STR_ALIGNMENT, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT) },
   { nullptr, ZoneOption::Bool }
 };
 

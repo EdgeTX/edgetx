@@ -974,6 +974,7 @@
   #define TR_TIMER_SOURCE              "Tidtagning kilde"
   #define TR_SIZE                      "Størrelse"
   #define TR_SHADOW                    "Skygge"
+  #define TR_ALIGNMENT                 "Justere"
   #define TR_ALIGN_LABEL               "Justere navn"
   #define TR_ALIGN_VALUE               "Justere værdi"
   #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }

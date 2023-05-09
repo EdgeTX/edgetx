@@ -972,6 +972,7 @@
   #define TR_TIMER_SOURCE              "Entrada timer"
   #define TR_SIZE                      "Tamaño"
   #define TR_SHADOW                    "Sombra"
+  #define TR_ALIGNMENT                 "Alinear"
   #define TR_ALIGN_LABEL               "Alinear marbete"
   #define TR_ALIGN_VALUE               "Alinear valor"
   #define TR_ALIGN_OPTS                { "Lzquierdo", "Centro", "Derecho" }

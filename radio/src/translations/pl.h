@@ -966,6 +966,7 @@
   #define TR_TIMER_SOURCE              "Timer source"
   #define TR_SIZE                      "Rozmiar"
   #define TR_SHADOW                    "Cień"
+  #define TR_ALIGNMENT                 "Wyrównaj"
   #define TR_ALIGN_LABEL               "Wyrównaj przywieszka"
   #define TR_ALIGN_VALUE               "Wyrównać wartość"
   #define TR_ALIGN_OPTS                { "Lewy", "Centrum", "Prawe" }
