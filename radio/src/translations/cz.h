@@ -980,7 +980,7 @@
   #define TR_TIMER_SOURCE              "Časovač zdroj"
   #define TR_SIZE                      "Velikost"
   #define TR_SHADOW                    "Stíny"
-  #define TR_ALIGNMENT                 "Zarovnat"
+  #define TR_ALIGNMENT                 "Zarovnání"
   #define TR_ALIGN_LABEL               "Zarovnat název"
   #define TR_ALIGN_VALUE               "Zarovnat hodnotu"
   #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
