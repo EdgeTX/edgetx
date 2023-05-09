@@ -37,7 +37,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     {
       addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT);
 #if defined(LUA_MODEL_SCRIPTS)
-      addButton(STR_CHAR_LUA, MIXSRC_LAST_LUA, MIXSRC_FIRST_LUA);
+      addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA);
 #endif
       addButton(STR_CHAR_STICK, MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK);
       addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT);
