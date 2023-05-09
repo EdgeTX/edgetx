@@ -68,7 +68,9 @@ enum {
   ITEM_RADIO_HARDWARE_BLUETOOTH_DISTANT_ADDR,
   ITEM_RADIO_HARDWARE_BLUETOOTH_NAME,
 #endif
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA,
+#endif
   ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL,
   ITEM_RADIO_HARDWARE_SERIAL_PORT,
   ITEM_RADIO_HARDWARE_SERIAL_PORT_END = ITEM_RADIO_HARDWARE_SERIAL_PORT + MAX_SERIAL_PORTS - 1,
@@ -184,8 +186,6 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   tab[ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA] =
     g_eeGeneral.internalModule == MODULE_TYPE_XJT_PXX1 ? 0 : HIDDEN_ROW;
-#else
-  tab[ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA] = HIDDEN_ROW;
 #endif
 
   bool has_serial = false;
@@ -195,7 +195,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[idx] = r;
     has_serial = has_serial || (!r);
   }
-  tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? 0 : HIDDEN_ROW;
+  tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? READONLY_ROW : HIDDEN_ROW;
   tab[ITEM_RADIO_HARDWARE_JITTER_FILTER] = 0;
   tab[ITEM_RADIO_HARDWARE_RAS] = READONLY_ROW;
 
@@ -207,7 +207,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   }
 
   tab[ITEM_RADIO_HARDWARE_DEBUG] = 1;
-#if defined(FUNCTIONS_SWITCHES)
+#if defined(FUNCTION_SWITCHES)
   tab[ITEM_RADIO_HARDWARE_DEBUG_FS] = 0;
 #endif
 #if defined(EEPROM)
