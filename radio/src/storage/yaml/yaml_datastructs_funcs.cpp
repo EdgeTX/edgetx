@@ -811,7 +811,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
     if (val_len > 3 && val[0] == 'S' && val[1] >= 'W'
         && val[2] >= '0' && val[2] <= '9'
-        && val[3] >= '0' && val[2] <= '2') {
+        && val[3] >= '0' && val[3] <= '2') {
 
       ival = switchLookupIdx(val, val_len - 1) * 3;
       ival += yaml_str2int(val + 3, val_len - 2);
