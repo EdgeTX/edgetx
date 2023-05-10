@@ -179,8 +179,12 @@ bool isSourceAvailable(int source)
 
 #if defined(LUA_MODEL_SCRIPTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    div_t qr = div(source - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-    return (qr.rem<scriptInputsOutputs[qr.quot].outputsCount);
+    if (modelCustomScriptsEnabled()) {
+      div_t qr = div(source - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+      return (qr.rem<scriptInputsOutputs[qr.quot].outputsCount);
+    } else {
+      return false;
+    }
   }
 #elif defined(LUA_INPUTS)
   if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA)
