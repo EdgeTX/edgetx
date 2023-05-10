@@ -48,10 +48,12 @@ uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
     RTC->BKP19R = RTCCHKSUM();
   }
 
+  uint32_t value = ((uint32_t *)RTC)[RTCBKPRegister];
+
   if(!prim) 
     __enable_irq();
 
-  return ((uint32_t *)RTC)[RTCBKPRegister];
+  return value;
 }
 
 //  
@@ -59,11 +61,11 @@ uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
 // and updates the checksum
 // 
 void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value) {
-  ((uint32_t *)RTC)[RTCBKPRegister] = value;
-  
   uint32_t prim = __get_PRIMASK();
   
   __disable_irq();
+
+  ((uint32_t *)RTC)[RTCBKPRegister] = value;
 
   RTC->BKP19R = RTCCHKSUM();
 
