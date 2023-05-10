@@ -1309,7 +1309,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
 
     /* Jumper T-Lite F4 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tlitef4"), QCoreApplication::translate("Firmware", "Jumper T-Lite (F4 MCU)"), BOARD_JUMPER_TLITE_F4, "tlite");
+  firmware = new OpenTxFirmware(FIRMWAREID("tlitef4"), QCoreApplication::translate("Firmware", "Jumper T-Lite (F4 MCU)"), BOARD_JUMPER_TLITE_F4, "tlitef4","tlite");
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
