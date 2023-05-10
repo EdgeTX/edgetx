@@ -140,7 +140,8 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   // Add a Favorites label
   if(getCurrentFirmware()->getCapability(HasModelLabels)) {
-   radioData.labels.append(tr("Favorites"));
+   RadioData::LabelData ld = { tr("Favorites"), false };
+   radioData.labels.append(ld);
   }
   return true;
 }
@@ -312,8 +313,10 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
     radioData.addLabelsFromModels();
 
     // If no labels, add a Favorites
-    if(!radioData.labels.size())
-      radioData.labels.append(tr("Favorites"));
+    if(!radioData.labels.size()) {
+      RadioData::LabelData ld = { tr("Favorites"), false };
+      radioData.labels.append(ld);
+    }
   }
 
   return true;

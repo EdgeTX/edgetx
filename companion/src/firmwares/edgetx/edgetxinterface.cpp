@@ -89,7 +89,7 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
     qDebug() << data.toStdString().c_str();
 }
 
-bool loadLabelsListFromYaml(QStringList& labels,
+bool loadLabelsListFromYaml(RadioData::ModelLabels& labels,
                             int& sortOrder,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
@@ -107,9 +107,18 @@ bool loadLabelsListFromYaml(QStringList& labels,
       sortOrder = 0;
   }
 
-
-  for (const auto& lbl : node["Labels"]) {
-    labels.append(QString::fromStdString(lbl.first.as<std::string>()));
+  YAML::Node lbls = node["Labels"];
+  if (lbls.IsMap()) {
+    for (YAML::const_iterator it=lbls.begin(); it!=lbls.end(); ++it) {
+      std::string lbl = it->first.as<std::string>();
+      RadioData::LabelData ld;
+      ld.name = QString::fromStdString(lbl);
+      if (lbls[lbl]["selected"])
+        ld.selected = lbls[lbl]["selected"].as<bool>();
+      else
+        ld.selected = false;
+      labels.append(ld);
+    }
   }
 
   return true;
@@ -165,8 +174,10 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
 bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
   YAML::Node node;
-  foreach(QString label, radioData.labels) {
-    node["Labels"][label.toStdString()] = YAML::Null;
+  foreach(RadioData::LabelData label, radioData.labels) {
+    node["Labels"][label.name.toStdString()] = YAML::Null;
+    if (label.selected)
+      node["Labels"][label.name.toStdString()]["selected"] = true;
   }
   node["Sort"] = radioData.sortOrder;
   writeYamlToByteArray(node, data);

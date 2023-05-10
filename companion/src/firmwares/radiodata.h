@@ -17,7 +17,16 @@ class RadioData {
     RadioData();
 
     GeneralSettings generalSettings;
-    QStringList labels;
+
+    struct LabelData {
+      QString name;
+      bool selected;
+    };
+
+    typedef QVector<LabelData> ModelLabels;
+
+    ModelLabels labels;
+
     int sortOrder;
     std::vector<ModelData> models;
 
@@ -32,6 +41,7 @@ class RadioData {
     bool addLabelToModel(int index, QString label);
     bool removeLabelFromModel(int index, QString label);
     void addLabelsFromModels();
+    int indexOfLabel(QString & label) const;
 
     static QStringList fromCSV(const QString &csv);
     static QString toCSV(QStringList lbls);
