@@ -227,7 +227,7 @@ void boardOff()
   PWR_BackupRegulatorCmd(DISABLE);
 #endif
 
-  setRTCBKPR(0, SHUTDOWN_REQUEST);
+  setRTCBKPR(RTCBKP0R, SHUTDOWN_REQUEST);
 
   pwrOff();
 

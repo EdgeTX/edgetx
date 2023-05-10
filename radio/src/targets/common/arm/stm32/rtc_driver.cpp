@@ -23,21 +23,21 @@
 #include "rtc.h"
 
 //
-// some radios use the first 2 out of the 20 
+// Color screen targets use the first 2 out of the 20 
 // RTC backup registers to hold data about startup reason 
-// and tpye.
+// and type.
 
 //
-// calculate the RTC backup memory checksum to be stored in 
-// the last of the 20 backup registers
+// Calculates the RTC backup memory checksum and stores it
+// in the last backup register location (BKP19R).
 //
-#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 0x4d484131)
+#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 45444745)
 
 //  
 // resets RTC backup registers if data is corrupt
 // and returns the requested backup register
 // 
-uint32_t getRTCBKPR(uint8_t r) {
+uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
   uint32_t prim = __get_PRIMASK();
   
   __disable_irq();
@@ -51,16 +51,16 @@ uint32_t getRTCBKPR(uint8_t r) {
   if(!prim) 
     __enable_irq();
 
-  return ((uint32_t *)RTC)[r];
+  return ((uint32_t *)RTC)[RTCBKPRegister];
 }
 
 //  
 // writes data to the specified RTC backup register
 // and updates the checksum
 // 
-void setRTCBKPR(uint8_t r, uint32_t value) {
-  ((uint32_t *)RTC)[r] = value;
-
+void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value) {
+  ((uint32_t *)RTC)[RTCBKPRegister] = value;
+  
   uint32_t prim = __get_PRIMASK();
   
   __disable_irq();

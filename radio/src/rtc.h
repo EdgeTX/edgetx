@@ -55,8 +55,12 @@ void rtcSetTime(const struct gtm * tm);
 gtime_t gmktime (struct gtm *tm);
 uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
-uint32_t getRTCBKPR(uint8_t r);
-void setRTCBKPR(uint8_t r, uint32_t value);
+
+#define RTCBKP0R 0    // RTC backup register 0
+#define RTCBKP1R 1    // RTC backup register 1
+
+uint32_t getRTCBKPR(uint8_t RTCBKPRegister);
+void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value);
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
