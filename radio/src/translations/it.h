@@ -17,7 +17,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com> - Update V2.3.x by: Marco Robustini <robustinimarco@gmail.com> - Update V2.8.x by: MatCron <pancronos@gmail.com>
+ */
+
+/*
+ * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
+ * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
+ * Fix V2.9.x by: MatCron <pancronos@gmail.com>
  */
 
 /*
