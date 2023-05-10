@@ -177,7 +177,7 @@
 #define TR_SF_SET_SCREEN               "Définir Écran Princ."
 #define TR_SF_RESERVE                  "[réservé]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Écolage","Trim instant.","Remise à 0","Déf.",TR_ADJUST_GVAR,"Volume","DéfFailsafe","Test Port.","Bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Rétroécl.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Écolage","Trim instant.","Remise à 0","Déf.",TR_ADJUST_GVAR,"Volume","Déf. Failsafe","Test Port.","Bind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Rétroécl.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Télem.", "Télémétrie")
 
@@ -448,7 +448,7 @@
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistant")
 #define TR_BACKLIGHT_LABEL             "Rétroéclairage"
 #define TR_GHOST_MENU_LABEL            "MENU GHOST"
-#define TR_STATUS                      "Statut"
+#define TR_STATUS                      "Version"
 #define TR_BLDELAY                     INDENT "Durée"
 #define TR_BLONBRIGHTNESS              INDENT "Luminosité ON"
 #define TR_BLOFFBRIGHTNESS             INDENT "Luminosité OFF"
@@ -872,7 +872,7 @@
 #define TR_JACK_MODE                   "Mode Jack"
 #define TR_VOICE_LANGUAGE               TR("Langue voix", "Langue annonces vocales")
 #define TR_UNITS_SYSTEM                "Unités"
-#define TR_EDIT                        "Editer"
+#define TR_EDIT                        "Éditer"
 #define TR_INSERT_BEFORE               "Insérer avant"
 #define TR_INSERT_AFTER                "Insérer après"
 #define TR_COPY                        "Copier"
@@ -887,7 +887,7 @@
 #define TR_RESET_TIMER2                TR("Réinit. Timer2", "Réinit. Chrono2")
 #define TR_RESET_TIMER3                TR("Réinit. Timer3", "Réinit. Chrono3")
 #define TR_RESET_TELEMETRY             TR("Réinit. Télém.", "Réinit. Télém.")
-#define TR_STATISTICS                  "Stats"
+#define TR_STATISTICS                  "Statistiques"
 #define TR_ABOUT_US                    "A propos"
 #define TR_USB_JOYSTICK                "USB Joystick (HID)"
 #define TR_USB_MASS_STORAGE            "Stockage USB (SD)"
@@ -990,7 +990,7 @@
 #define TR_MIXSOURCE                   "Source mixeur"
 #define TR_CONSTANT                    "Constante"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
-#define TR_PREFLIGHT                   "Vérifications avant vol"
+#define TR_PREFLIGHT                   "Vérifs avant vol"
 #define TR_CHECKLIST                   TR(INDENT "checklist", INDENT "Afficher checklist")
 #define TR_AUX_SERIAL_MODE             "Port série"
 #define TR_AUX2_SERIAL_MODE            "Port série 2"
@@ -1081,7 +1081,7 @@
 #define TR_BL_FORK                    "Fork:"
 #define TR_BL_VERSION                 "Version:"
 #define TR_BL_RADIO                   "Radio:"
-#define TR_BL_EXIT                    "Sortie"
+#define TR_BL_EXIT                    "Quitter"
 #define TR_BL_DIR_MISSING             " Repertoire absent"
 #define TR_BL_DIR_EMPTY               " Repertoire vide"
 
@@ -1249,7 +1249,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestion\nModèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notes\nModèles"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Moniteur\nVoies"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Editer\nModèle"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Éditer\nModèle"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Param.\nRadio"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Gestion\nÉcrans"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "RAZ\nTélémetrie"
