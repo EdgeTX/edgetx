@@ -960,7 +960,7 @@
   #define TR_TIMER_SOURCE              "计时器选择"
   #define TR_SIZE                      "尺寸"
   #define TR_SHADOW                    "阴影"
-  #define TR_ALIGNMENT                 "Alignment"
+  #define TR_ALIGNMENT                 "对齐"
   #define TR_ALIGN_LABEL               "对齐名称"
   #define TR_ALIGN_VALUE               "对齐值"
   #define TR_ALIGN_OPTS                { "左", "中", "右" }
