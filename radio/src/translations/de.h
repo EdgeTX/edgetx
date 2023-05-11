@@ -1254,6 +1254,7 @@
 #define TR_VOICE_SWEDISH               "Schwedisch"
 #define TR_VOICE_TAIWANESE             "Taiwanese"
 #define TR_VOICE_JAPANESE              "Japanisch"
+#define TR_VOICE_HEBREW                "Hebräisch"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "Mode"
