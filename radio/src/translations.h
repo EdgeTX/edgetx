@@ -1083,6 +1083,7 @@ extern const char STR_SPORT_UPDATE_POWER_MODE[];
 extern const char* const STR_SPORT_UPDATE_POWER_MODES[];
 
 extern const char STR_MODULE_RANGE[];
+extern const char STR_RANGE_TEST[];
 extern const char STR_RECEIVER_OPTIONS[];
 
 extern const char STR_ABOUTUS[];
