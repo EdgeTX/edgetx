@@ -50,8 +50,7 @@ extern volatile uint32_t ReadStatus;
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
 uint16_t flashSpiGetPageSize();
-uint16_t flashSpiGetSectorSize();
-uint16_t flashSpiGetSectorCount();
+size_t flashSpiGetSize();
 
 int flashSpiErase(size_t address);
 int flashSpiBlockErase(size_t address);
@@ -107,11 +106,11 @@ DSTATUS disk_initialize (
     if(!tjftl_detect(flashRead, nullptr))
       flashSpiEraseAll();
 
-    size_t flashSize = flashSpiGetSectorSize()*flashSpiGetSectorCount();
-    // tjftl requires at least 10 free blocks after garbage collection.
+    size_t flashSize = flashSpiGetSize();
+    // tjftl requires at least 10 free blocks after garbage collection.  Give it 16 free blocks.
     // To ensure a working tjftl the fuilesystem must be at least 10 blocks smaller than the flash memory.
     // the block and sector sizes used by tjftl are fixed. A block has 32k bytes and a sector has 512 bytes
-    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize/512)-((32768/512)*10), 0);
+    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize - 32768 * 16)/512, 0);
 
     if(tjftl == nullptr)
       stat |= STA_NOINIT;

@@ -70,6 +70,7 @@ struct SpiFlashDescriptor
   uint8_t eraseSectorCmd;
   uint8_t eraseBlockCmd;
   uint8_t eraseChipCmd;
+  bool use4BytesAddress;
 };
 
 // * RadioMaster/Eachine TX16S, RadioKing TX18S and Jumper T18 use GD25Q127C (16 MByte)
@@ -77,35 +78,53 @@ struct SpiFlashDescriptor
 
 static const SpiFlashDescriptor spiFlashDescriptors[] =
 {
+    { // MX25L25645G
+        .id = 0xC218,
+        .pageSize = 256,
+        .sectorSize = 4096,
+        .blockSize = 32768,
+        .blockCount = 1024,
+
+        .readStatusCmd = 0x05,
+        .readCmd = 0x13,  // 4 bytes address command
+        .writeCmd = 0x12,  // 4 bytes address command
+        .writeEnableCmd = 0x06,
+        .eraseSectorCmd = 0x21,  // 4 bytes address 4k block erase command
+        .eraseBlockCmd = 0x5C,  // 4 bytes address 32k block erase command
+        .eraseChipCmd = 0x60,
+        .use4BytesAddress = true
+    },
     { // GD25Q127C
         .id = 0xC817,
         .pageSize = 256,
         .sectorSize = 4096,
-        .blockSize = 65536,
+        .blockSize = 32768,
+        .blockCount = 512,
+
+        .readStatusCmd = 0x05,
+        .readCmd = 0x03,
+        .writeCmd = 0x02,
+        .writeEnableCmd = 0x06,
+        .eraseSectorCmd = 0x20,  // 4k block erase command
+        .eraseBlockCmd = 0x52,  // 32k block erase command
+        .eraseChipCmd = 0x60,
+        .use4BytesAddress = false
+    },
+    { // W25Q64JV
+        .id = 0xEF16,
+        .pageSize = 256,
+        .sectorSize = 4096,
+        .blockSize = 32768,
         .blockCount = 256,
 
         .readStatusCmd = 0x05,
         .readCmd = 0x03,
         .writeCmd = 0x02,
         .writeEnableCmd = 0x06,
-        .eraseSectorCmd = 0x20,
-        .eraseBlockCmd = 0x52,
-        .eraseChipCmd = 0x60
-    },
-    { // W25Q64JV
-        .id = 0xEF16,
-        .pageSize = 256,
-        .sectorSize = 4096,
-        .blockSize = 65536,
-        .blockCount = 128,
-
-        .readStatusCmd = 0x05,
-        .readCmd = 0x03,
-        .writeCmd = 0x02,
-        .writeEnableCmd = 0x06,
-        .eraseSectorCmd = 0x20,
-        .eraseBlockCmd = 0x52,
-        .eraseChipCmd = 0xC7
+        .eraseSectorCmd = 0x20,  // 4k block erase command
+        .eraseBlockCmd = 0x52,  // 32k block erase command
+        .eraseChipCmd = 0xC7,
+        .use4BytesAddress = false
     }
 };
 
@@ -280,6 +299,10 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size)
   CS_LOW();
 
   flashSpiReadWriteByte(flashDescriptor->readCmd);
+  if (flashDescriptor->use4BytesAddress)
+  {
+    flashSpiReadWriteByte((address>>24)&0xFF);
+  }
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
@@ -337,6 +360,10 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
   CS_LOW();
 
   flashSpiReadWriteByte(flashDescriptor->writeCmd);
+  if (flashDescriptor->use4BytesAddress)
+  {
+    flashSpiReadWriteByte((address>>24)&0xFF);
+  }
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
@@ -363,7 +390,7 @@ size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size)
 
 int flashSpiErase(size_t address)
 {
-  if(address%4096 != 0)
+  if(address%flashDescriptor->sectorSize != 0)
     return -1;
 
   flashSpiSync();
@@ -375,6 +402,10 @@ int flashSpiErase(size_t address)
   delay_01us(100); // 10us
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->eraseSectorCmd);
+  if (flashDescriptor->use4BytesAddress)
+  {
+    flashSpiReadWriteByte((address>>24)&0xFF);
+  }
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
@@ -388,7 +419,7 @@ int flashSpiErase(size_t address)
 
 int flashSpiBlockErase(size_t address)
 {
-  if(address%32768 != 0)
+  if(address%flashDescriptor->blockSize != 0)
     return -1;
 
   flashSpiSync();
@@ -400,6 +431,10 @@ int flashSpiBlockErase(size_t address)
   delay_01us(100); // 10us
   CS_LOW();
   flashSpiReadWriteByte(flashDescriptor->eraseBlockCmd);
+  if (flashDescriptor->use4BytesAddress)
+  {
+    flashSpiReadWriteByte((address>>24)&0xFF);
+  }
   flashSpiReadWriteByte((address>>16)&0xFF);
   flashSpiReadWriteByte((address>>8)&0xFF);
   flashSpiReadWriteByte(address&0xFF);
@@ -443,6 +478,7 @@ uint16_t flashSpiGetSectorCount()
 {
   return flashDescriptor->blockCount * (flashDescriptor->blockSize / flashDescriptor->sectorSize);
 }
+
 #if !defined(BOOT) && 0
 extern "C" void FLASH_SPI_TX_DMA_IRQHandler(void)
 {

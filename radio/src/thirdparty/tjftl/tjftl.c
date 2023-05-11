@@ -44,7 +44,7 @@
 
 
 //minimal free block count before we go garbage collect
-#define GC_MIN_FREE_BLK_CNT 8
+#define GC_MIN_FREE_BLK_CNT 10
 //minimum amount of blocks that the garbage collect routine will rewrite
 //(if this frees up less than GC_MIN_FREE_BLK_CNT blocks, it will continue until that
 //amount of blocks have been freed)
