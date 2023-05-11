@@ -189,13 +189,13 @@ const FlySkySensor flySkySensors[] = {
   { AFHDS2A_ID_ODO1,                  STR_SENSOR_ODO1,          UNIT_METERS,            2 },  // 2 bytes Odometer1 -- some magic with 330 needed
   { AFHDS2A_ID_ODO2,                  STR_SENSOR_ODO2,          UNIT_METERS,            2 },  // 2 bytes Odometer2 -- some magic with 330 needed
   { AFHDS2A_ID_SPE,                   STR_SENSOR_ASPD,          UNIT_KMH,               2 },  // 2 bytes Speed km/h -- some magic with 330 needed
-  { AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS,           UNIT_RAW,               7 },  // 4 bytes signed WGS84 in degrees * 1E7
-  { AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS,           UNIT_RAW,               7 },  // 4 bytes signed WGS84 in degrees * 1E7
+  { AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS,           UNIT_GPS,               7 },  // 4 bytes signed WGS84 in degrees * 1E7
+  { AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS,           UNIT_GPS,               7 },  // 4 bytes signed WGS84 in degrees * 1E7
   { AFHDS2A_ID_GPS_ALT,               STR_SENSOR_GPSALT,        UNIT_METERS,            2 },  // 4 bytes signed GPS alt m*100
   { AFHDS2A_ID_ALT,                   STR_SENSOR_ALT,           UNIT_METERS,            2 },  // 4 bytes signed Alt m*100
-  { AFHDS2A_ID_RX_SIG_AFHDS3,         STR_SENSOR_RX_QUALITY,    UNIT_RAW,               0 },  // RX error rate
+  { AFHDS2A_ID_RX_SIG_AFHDS3,         STR_SENSOR_RX_QUALITY,    UNIT_PERCENT,           0 },  // RX error rate
   { AFHDS2A_ID_RX_SNR_AFHDS3,         STR_SENSOR_RX_SNR,        UNIT_DB,                1 },  // RX SNR
-  { AFHDS2A_ID_TX_RSSI,               STR_SENSOR_TX_RSSI,       UNIT_RAW,               0 },  // Pseudo sensor for TRSSI
+  { AFHDS2A_ID_TX_RSSI,               STR_SENSOR_TX_RSSI,       UNIT_DBM,               0 },  // Pseudo sensor for TRSSI
 
   { 0x00,                            NULL,                      UNIT_RAW,               0 },  // sentinel
 };
@@ -315,7 +315,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
   if (type == 0xAA)
     value = (packet[3] << 8) | packet[2];
   else
-    value = (packet[5] << 24) | (packet[4] << 16) | (packet[3] << 8) | packet[2];
+    value = (packet[6] << 24) | (packet[5] << 16) | (packet[4] << 8) | packet[3];
 
   id = id ? id : SENSOR_TYPE_RX_VOL;  // Remapped
 
