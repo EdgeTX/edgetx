@@ -348,12 +348,12 @@ void GeneralSetupPanel::populateVoiceLangCB()
   QComboBox * b = ui->voiceLang_CB;
   QString strings[] = { tr("English"), tr("Danish"), tr("Dutch"), tr("French"), tr("Italian"), tr("German"),
                         tr("Czech"), tr("Slovak"), tr("Spanish"), tr("Polish"), tr("Portuguese"), tr("Russian"),
-                        tr("Swedish"), tr("Hungarian"), tr("Chinese"), tr("Japanese"), NULL};
+                        tr("Swedish"), tr("Hungarian"), tr("Chinese"), tr("Japanese"), tr("Hebrew"), NULL};
 
   //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
   QString langcode[] = { "en", "da", "nl","fr", "it", "de",
                          "cz", "sk", "es", "pl", "pt", "ru",
-                         "se", "hu", "cn", "jp", NULL};
+                         "se", "hu", "cn", "jp", "he", NULL};
 
   b->clear();
   for (int i=0; strings[i]!=NULL; i++) {
