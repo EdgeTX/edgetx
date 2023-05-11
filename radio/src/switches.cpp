@@ -219,108 +219,58 @@ void getSwitchesPosition(bool startup)
   uint64_t newPos = 0;
   uint8_t idx = 0;
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
+#if defined(HARDWARE_SWITCH_A)
   CHECK_POS(SW_SA);
+#endif
+#if defined(HARDWARE_SWITCH_B)
   CHECK_POS(SW_SB);
-  CHECK_POS(SW_SC);
-#elif defined(RADIO_TPRO)
-  CHECK_POS(SW_SA);
-  CHECK_POS(SW_SB);
-  CHECK_POS(SW_SC);
-  CHECK_POS(SW_SD);
-#elif defined(PCBNV14)
-  CHECK_POS(SW_SA);
-  CHECK_POS(SW_SB);
-  CHECK_POS(SW_SC);
-  CHECK_POS(SW_SD);
-#else
-  CHECK_POS(SW_SA);
-  CHECK_POS(SW_SB);
+#endif
+#if defined(HARDWARE_SWITCH_C)
   CHECK_POS(SW_SC);
 #endif
-
-#if defined(PCBX9LITES)
+#if defined(HARDWARE_SWITCH_D)
   CHECK_POS(SW_SD);
+#endif
+#if defined(HARDWARE_SWITCH_E)
   CHECK_POS(SW_SE);
+#endif
+#if defined(HARDWARE_SWITCH_F)
   CHECK_POS(SW_SF);
+#endif
+#if defined(HARDWARE_SWITCH_G)
   CHECK_POS(SW_SG);
-#elif defined(PCBX9LITE)
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-#elif defined(PCBXLITES)
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-  // no SWG and SWH on XLITES
-#elif defined(PCBXLITE)
-  CHECK_POS(SW_SD);
-  // no SWE, SWF, SWG and SWH on XLITE
-#elif defined(RADIO_ZORRO)
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-  CHECK_POS(SW_SG);
-  CHECK_POS(SW_SH);
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-#elif defined(RADIO_BOXER)
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-#elif defined(RADIO_TPRO)
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-  CHECK_POS(SW_SG);
-  CHECK_POS(SW_SH);
-  CHECK_POS(SW_SI);
-  CHECK_POS(SW_SJ);
-#elif defined(PCBX7)
-  CHECK_POS(SW_SD);
-  #if defined(HARDWARE_SWITCH_F)
-    CHECK_POS(SW_SF);
-  #endif
-  #if defined(HARDWARE_SWITCH_G)
-    CHECK_POS(SW_SG);
-  #endif
-  #if defined(HARDWARE_SWITCH_H)
-    CHECK_POS(SW_SH);
-  #endif
-#elif defined(PCBNV14)
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-  CHECK_POS(SW_SG);
-  CHECK_POS(SW_SH);
-#else
-  CHECK_POS(SW_SD);
-  CHECK_POS(SW_SE);
-  CHECK_POS(SW_SF);
-  CHECK_POS(SW_SG);
+#endif
+#if defined(HARDWARE_SWITCH_H)
   CHECK_POS(SW_SH);
 #endif
-
-#if defined(RADIO_X9DP2019)
+#if defined(HARDWARE_SWITCH_I)
   CHECK_POS(SW_SI);
 #endif
-
-#if defined(PCBX7ACCESS)
-  CHECK_POS(SW_SI);
-#elif defined(PCBHORUS) || (defined(PCBX7) && !defined(RADIO_ZORRO))
-  CHECK_POS(SW_SI);
+#if defined(HARDWARE_SWITCH_J)
   CHECK_POS(SW_SJ);
 #endif
-
-#if defined(PCBX9E)
-  CHECK_POS(SW_SI);
-  CHECK_POS(SW_SJ);
+#if defined(HARDWARE_SWITCH_K)
   CHECK_POS(SW_SK);
+#endif
+#if defined(HARDWARE_SWITCH_L)
   CHECK_POS(SW_SL);
+#endif
+#if defined(HARDWARE_SWITCHMH)
   CHECK_POS(SW_SM);
+#endif
+#if defined(HARDWARE_SWITCH_N)
   CHECK_POS(SW_SN);
+#endif
+#if defined(HARDWARE_SWITCH_O)
   CHECK_POS(SW_SO);
+#endif
+#if defined(HARDWARE_SWITCH_P)
   CHECK_POS(SW_SP);
+#endif
+#if defined(HARDWARE_SWITCH_Q)
   CHECK_POS(SW_SQ);
+#endif
+#if defined(HARDWARE_SWITCH_R)
   CHECK_POS(SW_SR);
 #endif
 
