@@ -212,7 +212,7 @@ uint64_t check3PosSwitchPosition(uint8_t idx, uint8_t sw, bool startup)
 
 #define CHECK_2POS(sw)       newPos |= check2PosSwitchPosition(sw ## 0)
 #define CHECK_3POS(idx, sw)  newPos |= check3PosSwitchPosition(idx, sw ## 0, startup)
-#define CHECK_POS(sw)        (g_eeGeneral.switchConfig & (0x03 << ((sw - SW_SA) * 2)) == SWITCH_3POS) ? CHECK_3POS(idx++, sw) : CHECK_2POS(sw)
+#define CHECK_POS(sw)        ((g_eeGeneral.switchConfig >> ((sw - SW_SA) * 2)) & 0x03 == SWITCH_3POS) ? CHECK_3POS(idx++, sw) : CHECK_2POS(sw)
 
 void getSwitchesPosition(bool startup)
 {
