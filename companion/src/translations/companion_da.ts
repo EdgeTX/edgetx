@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DA">
+<TS version="2.1" language="da">
 <context>
     <name>AileronsPage</name>
     <message>
@@ -519,10 +519,6 @@ Mode 4:
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dette valg bestemmer hvordan ældre OpenTx versioner håndteres når tomme model indgange slettes eller flyttes. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
-        <translation>Slet tomme modelrækker, når model slettes (gælder kun sendere uden kategorier)</translation>
-    </message>
-    <message>
         <source>Debug Output Logging</source>
         <translation>Logning til fejlsøgning</translation>
     </message>
@@ -693,6 +689,10 @@ Mode 4:
     <message>
         <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
+        <translation>Slet &apos;tom&apos; model når modeller slettes (gælder kun for radio uden edikette)</translation>
     </message>
 </context>
 <context>
@@ -1811,6 +1811,10 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <source>%1s</source>
         <translation>%1s</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Til</translation>
     </message>
 </context>
 <context>
@@ -3043,6 +3047,10 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     </message>
     <message>
         <source>Radiomaster Boxer</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T-Lite (F4 MCU)</source>
         <translation></translation>
     </message>
 </context>
@@ -8379,6 +8387,10 @@ p, li { white-space: pre-wrap; }
         <source>Enabled</source>
         <translation>Aktiveret</translation>
     </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Vis ID</translation>
+    </message>
 </context>
 <context>
     <name>Multiprotocols</name>
@@ -9786,10 +9798,6 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
 <context>
     <name>SimulatorMain</name>
     <message>
-        <source>OpenTx Simulator</source>
-        <translation>EdgeTX simulator</translation>
-    </message>
-    <message>
         <source>Available profiles:</source>
         <translation>Tilgængelige profiler:</translation>
     </message>
@@ -9828,10 +9836,6 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <source>path</source>
         <translation>sti</translation>
-    </message>
-    <message>
-        <source>Data source type to use (applicable to Horus only). One of:</source>
-        <translation>Type af datakilde (gæller kun Horus lignende radioer). En af:</translation>
     </message>
     <message>
         <source>type</source>
@@ -9878,14 +9882,22 @@ Profile ID: [%1]; Radio ID: [%2]</source>
 Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
-        <source>Uknown error during Simulator startup.</source>
-        <translation>Ukendt fejl ved start af simulator.</translation>
-    </message>
-    <message>
         <source>Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).
 NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
         <translation>Radio data (.bin/.eeprom/.etx) som anvendes ELLER sti til katalog (for Horus og lignende radioer).
         BEMÆRK: alle eksisterende EEPROM data som er inkompatible med den valgte radio type bliver overskrevet!</translation>
+    </message>
+    <message>
+        <source>EdgeTx Simulator</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Data source type to use. One of:</source>
+        <translation>Data kilde: En af:</translation>
+    </message>
+    <message>
+        <source>Unknown error during Simulator startup.</source>
+        <translation>Ukendt fejl ved Simulator start.</translation>
     </message>
 </context>
 <context>
@@ -10112,12 +10124,6 @@ Radiotypen i den valgte profil anvendes som forvalg.</translation>
         <translation>Sti til SD-kort:</translation>
     </message>
     <message>
-        <source>Radio data (.bin/.eeprom/.otx) image file to use. A new file with a default image will be created if necessary.&lt;br /&gt;
-&lt;b&gt;NOTE&lt;/b&gt;: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
-        <translation>Radio datafil (.bin/.eeprom/.otx/.etx) kan bruges. En ny fil til billede til forvalg oprettes ved behov.&lt;br /&gt;
-OBS! Ekisterende EEPROM data som ikke er kompatibel med valgte radiotype kan blive overskrevet!</translation>
-    </message>
-    <message>
         <source>Select data file...</source>
         <translation>Vælg fil...</translation>
     </message>
@@ -10180,6 +10186,15 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <source>EdgeTX Simulator - Startup Options</source>
         <translation>EdgeTx simulator - start tilvalg</translation>
+    </message>
+    <message>
+        <source>Radio data (.etx) settings file to use. A new file with default settings will be created if necessary.&lt;br /&gt;
+&lt;b&gt;NOTE&lt;/b&gt;: any existing data incompatible with the selected radio type may be overwritten!</source>
+        <translation>Radio indstillinger (.etx). En ny fil med standard indstillinger oprettes hvis nødvendigt.&lt;br&gt;&lt;b&gt;Note.&lt;/b&gt; en esisterende fil med ukompatible indstillinger overskrives!</translation>
+    </message>
+    <message>
+        <source>Simulator:</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -10667,6 +10682,10 @@ For mange fejl - afbryder.</translation>
     <message>
         <source>Source</source>
         <translation>Kilde</translation>
+    </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Vis ID</translation>
     </message>
 </context>
 <context>
