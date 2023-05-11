@@ -909,6 +909,7 @@
 #define TR_BIND                        "Binden"
 #define TR_REGISTER             	   TR("Reg", "Register")
 #define TR_MODULE_RANGE        		   BUTTON(TR("Rng", "Reichweite"))  //9XR-Pro
+#define TR_RANGE_TEST                  "Range test"
 #define TR_RECEIVER_OPTIONS            TR("RX OPTIONEN", "RX OPTIONEN")
 #define TR_RESET_BTN           		   BUTTON("Reset")
 #define TR_DEBUG                       "Testen"
