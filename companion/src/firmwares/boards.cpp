@@ -487,7 +487,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
       else if (board == BOARD_TARANIS_X7)
         return 8;
-      else if (board == BOARD_JUMPER_TLITE || BOARD_JUMPER_TLITE_F4 ||
+      else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TLITE_F4 ||
                board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
                board == BOARD_IFLIGHT_COMMANDO8)
         return 4;
