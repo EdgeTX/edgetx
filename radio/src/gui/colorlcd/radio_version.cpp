@@ -187,11 +187,10 @@ class VersionDialog : public Dialog
 #if defined(CROSSFIRE)
     // CRSF is able to provide status
     if (isModuleCrossfire(module)) {
-      char statusText[64];
+     char statusText[64];
 
-      auto hz = 1000000 / getMixerSchedulerPeriod();
-      // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
-      snprintf(statusText, 64, "%d Hz", hz);
+      snprintf(statusText, 64, "%d Hz", 1000000 / getMixerSchedulerRealPeriod(module));
+
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
@@ -213,9 +212,12 @@ class VersionDialog : public Dialog
 #if defined(MULTIMODULE)
     // MPM is able to provide status
     if (isModuleMultimodule(module)) {
-      char statusText[64];
+      char mpmStatusText[20];
+      char statusText[40];
+      
+      getMultiModuleStatus(module).getStatusString(mpmStatusText);
+      snprintf(statusText, 40, "%s %d Hz", mpmStatusText, 1000000 / getMixerSchedulerRealPeriod(module));
 
-      getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
@@ -248,6 +250,9 @@ class VersionDialog : public Dialog
           mod_ver += " ";
           mod_ver += variants[variant];
         }
+
+        snprintf(tmp, 20, " %d Hz", 1000000 / getMixerSchedulerRealPeriod(module));
+        mod_ver += tmp;
       }
       status->setText(mod_ver);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
