@@ -29,8 +29,6 @@
 #define MIN_REFRESH_RATE       850 /* us */
 #define MAX_REFRESH_RATE     50000 /* us */
 
-#define DOUBLE 2
-
 // Call once to initialize the mixer scheduler
 void mixerSchedulerInit();
 
@@ -40,17 +38,20 @@ void mixerSchedulerStart();
 // Stop the scheduler timer
 void mixerSchedulerStop();
 
-// Set the timer counter to 0
-void mixerSchedulerResetTimer();
-
 // Set the scheduling period for a given module
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs);
+
+// Get the scheduling period for a given module
+uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx);
 
 // Enable the timer trigger
 void mixerSchedulerEnableTrigger();
 
 // Disable the timer trigger
 void mixerSchedulerDisableTrigger();
+
+// Trigger mixer from heartbeat interrupt 
+void mixerSchedulerSoftTrigger();
 
 // Fetch the current scheduling period
 uint16_t getMixerSchedulerPeriod();
@@ -61,20 +62,27 @@ uint16_t getMixerSchedulerDivider(uint8_t moduleIdx);
 // Fetch the module index of the module responsible for synchro
 uint8_t getMixerSchedulerSyncedModule();
 
-// Fetch the realscheduling period of a given module
+// Fetch the real mixer task period
 uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx);
-
-#if !defined(SIMU)
 
 // Trigger mixer from an ISR
 void mixerSchedulerISRTrigger();
 
-#else
-
-#define mixerSchedulerISRTrigger()
-
-#endif
-
 // Wait for the scheduler timer to trigger
 // returns true if timeout, false otherwise
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs);
+
+#if !defined(SIMU)
+// Configure and start the scheduler timer
+void mixerSchedulerStart();
+
+// Enable the timer trigger
+void mixerSchedulerEnableTrigger();
+
+// Disable the timer trigger
+void mixerSchedulerDisableTrigger();
+#else
+#define mixerSchedulerStart()
+#define mixerSchedulerEnableTrigger()
+#define mixerSchedulerDisableTrigger()
+#endif
