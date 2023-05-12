@@ -1404,8 +1404,8 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS:
 #endif
-        lcdDrawTextIndented(y, STR_STATUS);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_STATUS);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerRealPeriod(moduleIdx), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
         break;
 #endif
