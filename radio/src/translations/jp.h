@@ -911,7 +911,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "登録")
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "レンジテスト"))
-#define TR_RANGE_TEST                  "Range test"
+#define TR_RANGE_TEST                  "受信強度テスト"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "受信機オプション")
 #define TR_RESET_BTN                   BUTTON("リセット")
 #define TR_DEBUG                       "デバッグ"

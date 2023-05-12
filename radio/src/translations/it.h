@@ -916,7 +916,7 @@
 #define TR_BIND                         "Bind"
 #define TR_REGISTER                     TR("Reg", "Registrare")
 #define TR_MODULE_RANGE                 TR("[Rng]","[Range]")
-#define TR_RANGE_TEST                  "Range test"
+#define TR_RANGE_TEST                  "Test del link radio a bassa potenza"
 #define TR_RECEIVER_OPTIONS             TR("OPZIONI RX", "OPZIONI RICEVENTE")
 #define TR_RESET_BTN                    "[Reset]"
 #define TR_DEBUG                        "Debug"

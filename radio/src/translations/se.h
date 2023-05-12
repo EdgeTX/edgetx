@@ -546,7 +546,7 @@
 #define TR_ALARMSDISABLED               "Alarmen avstängda!"
 #define TR_PRESSANYKEY                  TR("\010Tryck på en knapp", "Tryck på valfri knapp")
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
-#define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
+#define TR_BAD_RADIO_DATA               "Radiodata felaktig eller saknas"
 #define TR_RADIO_DATA_RECOVERED         TR3("Anv. backupradiodata","Anv. backupradioinställningar","Radioinställningar återställda från backup")
 #define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
 #define TR_EEPROMFORMATTING             "Minnet formateras"
@@ -935,7 +935,7 @@
 #define TR_BIND                         "Binder"
 #define TR_REGISTER                     TR("Reg", "Registrera")
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
-#define TR_RANGE_TEST			 "Räckviddstest"
+#define TR_RANGE_TEST			        "Test av radiolänkkvalitet (begränsad signalstyrka)"
 #define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
 #define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Återställ"))
 #define TR_DEBUG                        "Debug"
