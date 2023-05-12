@@ -532,7 +532,7 @@
 #define TR_ALARMSDISABLED              "Alarmes désactivées"
 #define TR_PRESSANYKEY                 TR("Toucher pour continuer", "Toucher pour continuer")
 #define TR_BADEEPROMDATA               "EEPROM corrompue"
-#define TR_BAD_RADIO_DATA              "Réglages radio corrompus"
+#define TR_BAD_RADIO_DATA              "Absence ou erreur de donnée"
 #define TR_RADIO_DATA_RECOVERED        TR3("Utilisation des données radio sauvegardées","Utilisation des paramètres radio sauvegardées","Réglages Radio restaurés de la Sauvegarde")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Réglages Radio invalides","Réglages Radio invalides", "Impossible lire réglages radio valides")
 #define TR_EEPROMFORMATTING            "Formatage EEPROM"
