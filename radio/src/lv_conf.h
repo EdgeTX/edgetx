@@ -442,19 +442,19 @@
 
 #elif defined(TRANSLATIONS_HE)
   #define LV_FONT_CUSTOM_DECLARE                  \
-    LV_FONT_DECLARE(lv_font_arial_he_9)           \
-    LV_FONT_DECLARE(lv_font_arial_he_13)          \
-    LV_FONT_DECLARE(lv_font_arial_he_16)          \
-    LV_FONT_DECLARE(lv_font_arial_he_17)          \
-    LV_FONT_DECLARE(lv_font_arial_he_24)          \
-    LV_FONT_DECLARE(lv_font_arial_he_64)          \
-    LV_FONT_DECLARE(lv_font_arial_he_bold_16)     \
-    LV_FONT_DECLARE(lv_font_arial_he_bold_17)     \
-    LV_FONT_DECLARE(lv_font_arial_he_bold_32)     \
-    LV_FONT_DECLARE(lv_font_arial_he_bold_64)
+    LV_FONT_DECLARE(lv_font_arimo_he_9)           \
+    LV_FONT_DECLARE(lv_font_arimo_he_13)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_16)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_17)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_24)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_64)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_16)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_17)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_32)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_64)
 
   /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arial_he_16
+  #define LV_FONT_DEFAULT &lv_font_arimo_he_16
 
 #else
   #define LV_FONT_CUSTOM_DECLARE                \

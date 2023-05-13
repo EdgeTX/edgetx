@@ -42,7 +42,7 @@
 #elif defined(TRANSLATIONS_JP)
   FONT_TABLE(noto_jp);
 #elif defined(TRANSLATIONS_HE)
-  FONT_TABLE(arial_he);
+  FONT_TABLE(arimo_he);
 #else
   FONT_TABLE(roboto);
 #endif
