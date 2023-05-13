@@ -525,7 +525,7 @@
 #define TR_ALARMSDISABLED              "Alarmy jsou zakázány"
 #define TR_PRESSANYKEY                 TR("\006Stiskni klávesu", "Stiskni klávesu")
 #define TR_BADEEPROMDATA               TR("\006Chyba dat EEPROM", "Chyba dat EEPROM")
-#define TR_BAD_RADIO_DATA              "Chybná data rádia"
+#define TR_BAD_RADIO_DATA              "Chybějící nebo poškozená data vysílače"
 #define TR_RADIO_DATA_RECOVERED        TR3("Použití zálohy dat TX","Použití zálohy dat vysílače","Nastavení vysílače bylo obnoveno ze zálohy")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Neplatné nastavení TX","Neplatné nastavení vysílače", "Nelze načíst platné nastavení vysílače")
 #define TR_EEPROMFORMATTING            TR("\004Formatování EEPROM", "Formatování EEPROM")

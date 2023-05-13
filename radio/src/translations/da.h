@@ -525,7 +525,7 @@
 #define TR_ALARMSDISABLED              "Alarmer afkoblet"
 #define TR_PRESSANYKEY                 TR("\010Tryk en tast", "Tryk en tast")
 #define TR_BADEEPROMDATA               "Dårlig EEprom data"
-#define TR_BAD_RADIO_DATA              "Dårlig radio data"
+#define TR_BAD_RADIO_DATA              "Manglende eller dårlig radio data"
 #define TR_RADIO_DATA_RECOVERED        TR3("Anvender radio data fra backup","Anvender radio indstillinger fra backup","Radio indstillinger genskabt fra backup")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio indstillinger fejlagtige","Radio indstillinger ikke gyyldige", "Ikke muligt at indlæse gyyldige radio indstillinger")
 #define TR_EEPROMFORMATTING            "Formaterer EEPROM"
