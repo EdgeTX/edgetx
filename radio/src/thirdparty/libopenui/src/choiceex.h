@@ -2,10 +2,7 @@
  * Copyright (C) EdgeTX
  *
  * Based on code named
- *   opentx - https://github.com/opentx/opentx
- *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
- *   gruvin9x - http://code.google.com/p/gruvin9x
+ *   libopenui - https://github.com/opentx/libopenui
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
@@ -18,8 +15,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef _CHOICEEX_H_
-#define _CHOICEEX_H_
+
+#pragma once
+
 #include "choice.h"
 
 typedef void (*lvHandler_t)(void*);
@@ -55,5 +53,3 @@ class ChoiceEx : public Choice
     if (ch) ch->longPressData.isLongPressed = false;
   }
 };
-
-#endif
