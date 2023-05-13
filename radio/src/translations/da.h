@@ -498,16 +498,16 @@
 #define TR_HEARTBEAT_LABEL             "Hjerte puls"
 #define TR_LUA_SCRIPTS_LABEL           "Lua script"
 #define TR_FREE_MEM_LABEL              "Fri mem"
-#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
+#define TR_DURATION_MS             TR("[D]","Varighed(ms): ")
 #define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
 #define TR_MEM_USED_SCRIPT         "Script(B): "
 #define TR_MEM_USED_WIDGET         "Widget(B): "
 #define TR_MEM_USED_EXTRA          "Extra(B): "
 #define TR_STACK_MIX                   "Mix: "
 #define TR_STACK_AUDIO                 "Audio: "
-#define TR_GPS_FIX_YES                 "Fix: Yes"
-#define TR_GPS_FIX_NO                  "Fix: No"
-#define TR_GPS_SATS                    "Sats: "
+#define TR_GPS_FIX_YES                 "Fix: Ja"
+#define TR_GPS_FIX_NO                  "Fix: Nej"
+#define TR_GPS_SATS                    TR("Sat.: ", "Satelitter:")
 #define TR_GPS_HDOP                    "Hdop: "
 #define TR_STACK_MENU                  "Menu: "
 #define TR_TIMER_LABEL                 "Tid"
@@ -1299,6 +1299,6 @@
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"
 #define TR_ANALOG_SERVO           "Servo 50HZ"
-#define TR_SIGNAL_OUTPUT          "Signal output"
-#define TR_SERIAL_BUS             "Serial bus"
-#define TR_SYNC                   "Sync"
+#define TR_SIGNAL_OUTPUT          "Signal uddata"
+#define TR_SERIAL_BUS             "Seriel bus"
+#define TR_SYNC                   "Synk"
