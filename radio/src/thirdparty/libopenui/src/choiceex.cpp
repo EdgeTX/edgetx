@@ -2,10 +2,7 @@
  * Copyright (C) EdgeTX
  *
  * Based on code named
- *   opentx - https://github.com/opentx/opentx
- *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
- *   gruvin9x - http://code.google.com/p/gruvin9x
+ *   libopenui - https://github.com/opentx/libopenui
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
@@ -18,6 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #include "choiceex.h"
 
 static void localLongPressHandler(lv_event_t* e)
