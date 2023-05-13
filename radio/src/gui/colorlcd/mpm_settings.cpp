@@ -153,7 +153,8 @@ struct MPMSubtype : public FormGroup::Line
 
   protected:                                 
     uint8_t moduleIdx;
-    uint8_t DSM2lastSubType = 0;  // assume default subType at init;
+    uint8_t DSM2lastSubType;
+    bool DSM2autoUpdated;
 };
 
 void MPMSubtype::checkEvents() { 
@@ -165,7 +166,8 @@ void MPMSubtype::checkEvents() {
   if(md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {           // do this only for DSM2 
     uint8_t subType = md->subType;                                  // fetch DSM2 subType
 
-    if(subType != DSM2lastSubType) {                                // if DSM2 subType has changed
+    if(subType != DSM2lastSubType) {                                // if DSM2 subType has auto changed
+      DSM2autoUpdated = true;                                       // indicate this was not user triggered
       DSM2lastSubType = subType;                                    // memorize new DSM2 subType
       choice->setValue(subType);                                    // set new DSM2 subType
       lv_event_send(choice->getLvObj(), LV_EVENT_REFRESH, nullptr); // refresh subType field
@@ -184,6 +186,8 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
   FormGroup::Line(form, layout)
 {
   this->moduleIdx = moduleIdx;
+  this->DSM2lastSubType = g_model.moduleData[this->moduleIdx].subType;
+  this->DSM2autoUpdated = false;
 
   if (layout) layout->resetPos();
   new StaticText(this, rect_t{}, STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
@@ -193,7 +197,8 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
       this, rect_t{}, 0, 0, [=]() { return md->subType; },
       [=](int16_t newValue) {
         md->subType = newValue;
-        resetMultiProtocolsOptions(moduleIdx);
+        if(!DSM2autoUpdated)                        // reset MPM options only if user triggered
+          resetMultiProtocolsOptions(moduleIdx);
         SET_DIRTY();
       });
 
