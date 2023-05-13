@@ -913,7 +913,7 @@
 #define TR_BIND                        "对频"
 #define TR_REGISTER                    TR("注册", "注册")
 #define TR_MODULE_RANGE                BUTTON(TR("测距", "测距"))
-#define TR_RANGE_TEST                  "Range test"
+#define TR_RANGE_TEST                  "距离测试(低功率)"
 #define TR_RECEIVER_OPTIONS            TR("选项", "接收机选项")
 #define TR_RESET_BTN                   BUTTON("复位")
 #define TR_DEBUG                       "调试"

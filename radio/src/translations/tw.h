@@ -911,7 +911,7 @@
 #define TR_BIND                        "對頻"
 #define TR_REGISTER                    TR("註冊", "註冊")
 #define TR_MODULE_RANGE                BUTTON(TR("測距", "測距"))
-#define TR_RANGE_TEST                  "Range test"
+#define TR_RANGE_TEST                  "距離測試(低功率)"
 #define TR_RECEIVER_OPTIONS            TR("選項", "接收機選項")
 #define TR_RESET_BTN                   BUTTON("重啟")
 #define TR_DEBUG                       "調試"
