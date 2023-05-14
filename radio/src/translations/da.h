@@ -918,6 +918,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Registrer")
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
+#define TR_RANGE_TEST                  "Test af rækkevidde"
 #define TR_RECEIVER_OPTIONS            TR("MODT. VALG", "MODTAGER VALG")
 #define TR_RESET_BTN                   BUTTON("Nulstil")
 #define TR_DEBUG                       "Fejlfind"

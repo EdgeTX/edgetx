@@ -538,7 +538,7 @@ void ModuleWindow::updateFailsafe()
 void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
 {
   auto rssiDialog = new DynamicMessageDialog(
-      parent, "Range Test",
+      parent, STR_RANGE_TEST,
       [=]() {
         return std::to_string((int)TELEMETRY_RSSI()) +
                std::string(SIGNAL_POSTFIX);

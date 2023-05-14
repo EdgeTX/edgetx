@@ -919,6 +919,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Enr", "Enregistr.")
 #define TR_MODULE_RANGE                BUTTON(TR("Prt", "Port."))
+#define TR_RANGE_TEST                  "Test de portée"
 #define TR_RECEIVER_OPTIONS            TR("OPTIONS REC.", "OPTIONS RÉCEPTEUR")
 #define TR_RESET_BTN                   BUTTON("RAZ")
 #define TR_DEBUG                       "Debug"

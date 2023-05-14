@@ -911,6 +911,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Register")
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Range"))
+#define TR_RANGE_TEST                  "Range Test"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_DEBUG                       "Debug"

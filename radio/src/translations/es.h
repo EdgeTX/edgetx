@@ -911,6 +911,7 @@
 #define TR_BIND                        "Emparejar"
 #define TR_REGISTER             TR("Reg", "Registrar")
 #define TR_MODULE_RANGE        "[Lim.]"
+#define TR_RANGE_TEST                  "Range test"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "OPCIONES RECEPTOR")
 #define TR_RESET_BTN           "[Reset]"
 #define TR_DEBUG                       "Debug"

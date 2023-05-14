@@ -519,18 +519,18 @@
 #define TR_HEARTBEAT_LABEL              "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL            "Lua-skript"
 #define TR_FREE_MEM_LABEL               "Ledigt minne"
-#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
-#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
-#define TR_MEM_USED_SCRIPT         "Script(B): "
-#define TR_MEM_USED_WIDGET         "Widget(B): "
-#define TR_MEM_USED_EXTRA          "Extra(B): "
-#define TR_STACK_MIX                   "Mix: "
-#define TR_STACK_AUDIO                 "Audio: "
-#define TR_GPS_FIX_YES                 "Fix: Yes"
-#define TR_GPS_FIX_NO                  "Fix: No"
-#define TR_GPS_SATS                    "Sats: "
-#define TR_GPS_HDOP                    "Hdop: "
-#define TR_STACK_MENU                  "Menu: "
+#define TR_DURATION_MS                  TR("[D]","Varaktighet(ms): ")
+#define TR_INTERVAL_MS                  TR("[I]","Intervall(ms): ")
+#define TR_MEM_USED_SCRIPT              "Skript(B): "
+#define TR_MEM_USED_WIDGET              "Widget(B): "
+#define TR_MEM_USED_EXTRA               "Extra(B): "
+#define TR_STACK_MIX                    "Mix: "
+#define TR_STACK_AUDIO                  "Audio: "
+#define TR_GPS_FIX_YES                  "Fix: Nej"
+#define TR_GPS_FIX_NO                   "Fix: Ja"
+#define TR_GPS_SATS                     "Sats: "
+#define TR_GPS_HDOP                     "Hdop: "
+#define TR_STACK_MENU                   "Meny: "
 #define TR_TIMER_LABEL                  "Timer"
 #define TR_THROTTLE_PERCENT_LABEL       "Gas %"
 #define TR_BATT_LABEL                   "Batteri"
@@ -546,7 +546,7 @@
 #define TR_ALARMSDISABLED               "Alarmen avstängda!"
 #define TR_PRESSANYKEY                  TR("\010Tryck på en knapp", "Tryck på valfri knapp")
 #define TR_BADEEPROMDATA                "Minnet kan inte tolkas"
-#define TR_BAD_RADIO_DATA               "Data från radion kan inte tolkas"
+#define TR_BAD_RADIO_DATA               "Radiodata felaktig eller saknas"
 #define TR_RADIO_DATA_RECOVERED         TR3("Anv. backupradiodata","Anv. backupradioinställningar","Radioinställningar återställda från backup")
 #define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
 #define TR_EEPROMFORMATTING             "Minnet formateras"
@@ -935,6 +935,7 @@
 #define TR_BIND                         "Binder"
 #define TR_REGISTER                     TR("Reg", "Registrera")
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
+#define TR_RANGE_TEST			        "Test av radiolänkkvalitet (begränsad signalstyrka)"
 #define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
 #define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Återställ"))
 #define TR_DEBUG                        "Debug"

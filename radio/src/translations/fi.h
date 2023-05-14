@@ -923,6 +923,7 @@
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "Register")
 #define TR_MODULE_RANGE                "[Range]"
+#define TR_RANGE_TEST                  "Range test"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                   "[Reset]"
 #define TR_DEBUG                       "Debug"

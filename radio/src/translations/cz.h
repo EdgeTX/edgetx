@@ -912,6 +912,7 @@
 #define TR_BIND                        "Párovat"
 #define TR_REGISTER                    TR("Reg", "Registrovat")
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
+#define TR_RANGE_TEST                  "Test dosahu"
 #define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_DEBUG                       "Debug"
