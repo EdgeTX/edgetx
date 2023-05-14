@@ -105,6 +105,7 @@ class OpenTxFirmware: public Firmware
       addLanguage("es");
       addLanguage("fi");
       addLanguage("fr");
+      addLanguage("he");
       addLanguage("hu");
       addLanguage("it");
       addLanguage("jp");
