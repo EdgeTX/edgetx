@@ -138,7 +138,7 @@ bool RepoFilteredItemModel::filterAcceptsRow(int sourceRow, const QModelIndex & 
   }
 }
 
-const int RepoFilteredItemModel::flags(const int id) const
+const int RepoFilteredItemModel::getFlags(const int id) const
 {
   return value(id, RIMR_Flags).toInt();
 }

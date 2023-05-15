@@ -39,7 +39,7 @@ class RleBitmap
 {
 public:
   RleBitmap(const uint8_t *src, size_t offset) :
-    state(RLE_FIRST_BYTE), src(src), curPtr(src), byte(0), curCount(0), pos(0)
+    state(RLE_FIRST_BYTE), curPtr(src), byte(0), curCount(0), pos(0)
   {
     width = *curPtr++;
     rawRows = *curPtr++;
@@ -145,7 +145,6 @@ public:
 
 private:
   enum State {RLE_FIRST_BYTE, RLE_SECOND_BYTE, RLE_CONTINUE} state;
-  const uint8_t* src;
   const uint8_t* curPtr;
 
   uint8_t width;

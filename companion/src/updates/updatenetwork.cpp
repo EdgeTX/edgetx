@@ -28,7 +28,7 @@
 constexpr char GH_API_VERSION[]               {"2022-11-28"};
 constexpr char GH_ACCEPT_HEADER_CONTENT[]      {"application/octet-stream"};
 constexpr char GH_ACCEPT_HEADER_METADATA[]    {"application/vnd.github+json"};
-constexpr char GH_ACCEPT_HEADER_RAW[]         {"application/vnd.github.raw"};
+// constexpr char GH_ACCEPT_HEADER_RAW[]         {"application/vnd.github.raw"};
 
 UpdateNetwork::UpdateNetwork(QObject * parent, UpdateStatus * status) :
   QObject(parent),

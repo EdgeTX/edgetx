@@ -29,7 +29,6 @@
 RleFile::RleFile():
 eeprom(NULL),
 eeprom_size(0),
-eeFs(NULL),
 eeFsArm(NULL),
 eepromFatHeader(NULL)
 {
