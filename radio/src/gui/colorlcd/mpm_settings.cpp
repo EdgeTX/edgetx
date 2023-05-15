@@ -199,6 +199,7 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
         md->subType = newValue;
         if(!DSM2autoUpdated)                        // reset MPM options only if user triggered
           resetMultiProtocolsOptions(moduleIdx);
+        DSM2autoUpdated = false; 
         SET_DIRTY();
       });
 
