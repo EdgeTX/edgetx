@@ -46,7 +46,10 @@ static void module_timer_send(void* ctx, const etx_timer_config_t* cfg,
                               const void* pulses, uint16_t length)
 {
   auto timer = (const stm32_pulse_timer_t*)ctx;
-  if (!stm32_pulse_if_not_running_disable(timer)) return;
+  if (!stm32_pulse_if_not_running_disable(timer)) {
+    LL_DMA_DeInit(timer->DMAx, timer->DMA_Stream);
+    return;
+  }
 
   // Set polarity
   stm32_pulse_set_polarity(timer, cfg->polarity);
