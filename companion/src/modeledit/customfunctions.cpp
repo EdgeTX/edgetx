@@ -100,7 +100,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << tr("Repeat") << tr("Enable") << "";
+  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << tr("Repeat") << tr("Enable");
   TableLayout * tableLayout = new TableLayout(this, fswCapability, headerLabels);
 
   for (int i = 0; i < fswCapability; i++) {

@@ -1467,17 +1467,12 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
   }
 
-  if (HAS_ENABLE_PARAM(func)) {
-    // "0/1"
-    if (val_len > 0) {
-      if (val[0] == '0') {
-        CFN_ACTIVE(cfn) = 0;
-      } else if (val[0] == '1') {
-        CFN_ACTIVE(cfn) = 1;
-      }
-    }
-  } else {
-    return;
+  // Enable param
+  // "0/1"
+  if (val_len > 0) {
+    CFN_ACTIVE(cfn) = (val[0] == '1') ? 1 : 0;
+    sep = (const char *)memchr(val, ',', val_len);
+    l_sep = sep ? sep - val : val_len;
   }
 
   if (HAS_REPEAT_PARAM(func)) {
@@ -1489,14 +1484,14 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++;
     val_len--;
 
-    if (val_len == 2
-        && val[0] == '1'
-        && val[1] == 'x') {
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (val_len == 2 && val[0] == '1' && val[1] == 'x')
+        CFN_PLAY_REPEAT(cfn) = 1;
+      else
+        CFN_PLAY_REPEAT(cfn) = 0;
+    } else if (val_len == 2 && val[0] == '1' && val[1] == 'x') {
       CFN_PLAY_REPEAT(cfn) = 0;
-    } else if (val_len == 3
-        && val[0] == '!'
-        && val[1] == '1'
-        && val[2] == 'x') {
+    } else if (val_len == 3 && val[0] == '!' && val[1] == '1' && val[2] == 'x') {
       CFN_PLAY_REPEAT(cfn) = CFN_PLAY_REPEAT_NOSTART;
     } else {
       // repeat time in seconds
@@ -1625,32 +1620,36 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   default:
+    add_comma = false;
     break;
   }
 
-    if (add_comma) {
-      // ","
-      if (!wf(opaque,",",1)) return false;
-    }
+  if (add_comma) {
+    // ","
+    if (!wf(opaque,",",1)) return false;
+  }
 
-    // "0/1"
-    if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
-    if (HAS_REPEAT_PARAM(func)) {
-      if (add_comma) {
-        // ","
-        if (!wf(opaque,",",1)) return false;
-      }
-      if (CFN_PLAY_REPEAT(cfn) == 0) {
-        // "1x"
-        if (!wf(opaque,"1x",2)) return false;
-      } else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
-        // "!1x"
-        if (!wf(opaque,"!1x",3)) return false;
-      } else {
-        // repeat time in seconds
-        str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
-        if (!wf(opaque, str, strlen(str))) return false;
-      }
+  // Enable param
+  // "0/1"
+  if (!wf(opaque,CFN_ACTIVE(cfn) ? "1":"0",1)) return false;
+
+  if (HAS_REPEAT_PARAM(func)) {
+    // ","
+    if (!wf(opaque,",",1)) return false;
+
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (!wf(opaque,(CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == 0) {
+      // "1x"
+      if (!wf(opaque,"1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == (int8_t)CFN_PLAY_REPEAT_NOSTART) {
+      // "!1x"
+      if (!wf(opaque,"!1x",3)) return false;
+    } else {
+      // repeat time in seconds
+      str = yaml_unsigned2str(CFN_PLAY_REPEAT(cfn) * CFN_PLAY_REPEAT_MUL);
+      if (!wf(opaque, str, strlen(str))) return false;
+    }
   }
 
   if (!wf(opaque, "\"", 1)) return false;

@@ -154,12 +154,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
     if (swtch) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
-      bool active = getSwitch(
-          swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
-
-      if (HAS_ENABLE_PARAM(CFN_FUNC(cfn))) {
-        active &= (bool)CFN_ACTIVE(cfn);
-      }
+      bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      if (CFN_ACTIVE(cfn) == 0)
+        active = false;
 
       if (active) {
         switch (CFN_FUNC(cfn)) {
