@@ -760,10 +760,10 @@ PACK(struct ModelData {
     }
   }
 
-  uint8_t usbJoystickExtMode:1;
-  uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode);
-  uint8_t usbJoystickCircularCut:4;
-  USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS];
+  NOBACKUP(uint8_t usbJoystickExtMode:1);
+  NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
+  NOBACKUP(uint8_t usbJoystickCircularCut:4);
+  NOBACKUP(USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS]);
   
   // Radio level tabs control (model settings)
 #if defined(COLORLCD)
