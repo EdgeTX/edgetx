@@ -410,7 +410,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case MLinkTelemetry:
       if (len > 6)
-        processMLinkPacket(data);
+        processMLinkPacket(data, true);
       else
         TRACE("[MP] Received M-Link telemetry len %d <= 6", len);
       break;

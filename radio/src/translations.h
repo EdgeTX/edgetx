@@ -196,6 +196,7 @@ extern const char* const STR_TELEMETRY_PROTOCOLS[];
 extern const char* const STR_XJT_ACCST_RF_PROTOCOLS[];
 extern const char* const STR_ISRM_RF_PROTOCOLS[];
 extern const char* const STR_R9M_PXX2_RF_PROTOCOLS[];
+extern const char* const STR_PPM_PROTOCOLS[];
 extern const char* const STR_DSM_PROTOCOLS[];
 extern const char* const STR_FLYSKY_PROTOCOLS[];
 extern const char* const STR_CRSF_BAUDRATE[];

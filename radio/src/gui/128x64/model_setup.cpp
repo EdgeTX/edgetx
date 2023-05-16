@@ -255,7 +255,7 @@ enum MenuModelSetupItems {
 
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
-  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx))
+  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx) || isModulePPM(moduleIdx))
     return 1;
   else
     return 0;
@@ -1055,6 +1055,12 @@ void menuModelSetup(event_t event)
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS,
                              g_model.moduleData[INTERNAL_MODULE].subType,
                              menuHorizontalPosition == 1 ? attr : 0);
+#if defined(PPM)
+        else if (isModulePPM(moduleIdx))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_PPM_PROTOCOLS,
+                             g_model.moduleData[moduleIdx].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
+#endif
         else if (isModuleDSM2(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_DSM_PROTOCOLS,
                              g_model.moduleData[moduleIdx].subType,
@@ -1129,6 +1135,12 @@ void menuModelSetup(event_t event)
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
                                         DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+#if defined(PPM)
+                } else if (isModulePPM(moduleIdx)) {
+                  CHECK_INCDEC_MODELVAR(event,
+                                        g_model.moduleData[moduleIdx].subType,
+                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+#endif
                 } else if (isModuleR9MNonAccess(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType =
                       checkIncDec(event, g_model.moduleData[moduleIdx].subType,

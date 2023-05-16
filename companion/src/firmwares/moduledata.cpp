@@ -247,12 +247,19 @@ QString ModuleData::subTypeToString(int type) const
     "915MHz"
   };
 
+  static const QString ppmSubTypeStrings[PPM_NUM_SUBTYPES] = {
+    tr("No Telemetry"),
+    tr("MLink")
+  };
+
   if (type < 0)
     type = subType;
 
   switch (protocol) {
     case PULSES_MULTIMODULE:
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
+    case PULSES_PPM:
+      return CHECK_IN_ARRAY(ppmSubTypeStrings, type); 
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     case PULSES_AFHDS3:

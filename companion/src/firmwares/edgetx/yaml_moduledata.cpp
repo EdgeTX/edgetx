@@ -86,6 +86,11 @@ static const YamlLookupTable r9mLut = {
   { MODULE_SUBTYPE_R9M_AUPLUS, "AUPLUS" },
 };
 
+static const YamlLookupTable ppmLut = {
+  { 0, "NOTLM" },
+  { 1, "MLINK" }
+};
+
 static const YamlLookupTable dsmLut = {
   { 0, "LP45" },
   { 1, "DSM2" },
@@ -240,6 +245,9 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_LP45:
       node["subType"] = LookupValue(dsmLut, subtype);
       break;
+    case PULSES_PPM:
+      node["subType"] = LookupValue(ppmLut, subtype);
+      break; 
     case PULSES_MULTIMODULE: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
@@ -354,6 +362,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
     case PULSES_PXX_R9M:
     case PULSES_PXX_R9M_LITE: {
       subType >> r9mLut >> rhs.subType;
+    } break;
+    case PULSES_PPM: {
+      subType >> ppmLut >> rhs.subType;
     } break;
     case PULSES_LP45: {
       int subProto = 0;

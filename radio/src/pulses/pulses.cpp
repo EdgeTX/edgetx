@@ -263,7 +263,16 @@ uint8_t getRequiredProtocol(uint8_t module)
 
   switch (getModuleType(module)) {
     case MODULE_TYPE_PPM:
-      protocol = PROTOCOL_CHANNELS_PPM;
+      switch (g_model.moduleData[module].subType) {
+        case PPM_PROTO_TLM_NONE: 
+          protocol = PROTOCOL_CHANNELS_PPM;
+          break;
+        case PPM_PROTO_TLM_MLINK:
+          protocol = PROTOCOL_CHANNELS_PPM_MLINK;
+          break;
+        default:
+          protocol = PROTOCOL_CHANNELS_PPM;
+      }
       break;
 
     case MODULE_TYPE_XJT_PXX1:
@@ -462,6 +471,9 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
   case PROTOCOL_CHANNELS_PPM:
       _init_module(module, &PpmDriver);
       break;
+  case PROTOCOL_CHANNELS_PPM_MLINK:
+      _init_module(module, &PpmDriverMLink);
+      break;  
 #endif
 
 #if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)

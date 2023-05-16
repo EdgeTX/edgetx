@@ -210,7 +210,10 @@ enum MMDSM2Subtypes {
   MM_RF_DSM2_SUBTYPE_AUTO
 };
 
-
+enum ModuleSubtypePPM {
+  PPM_PROTO_TLM_NONE,
+  PPM_PROTO_TLM_MLINK
+};
 
 enum ModuleSubtypeDSM2 {
   DSM2_PROTO_LP45,

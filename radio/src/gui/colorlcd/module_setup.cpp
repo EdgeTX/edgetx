@@ -598,6 +598,17 @@ void ModuleSubTypeChoice::update()
     setAvailableHandler(nullptr);
     setTextHandler(nullptr);
   }
+#if defined(PPM)
+  else if (isModulePPM(moduleIdx)) {
+    setMin(PPM_PROTO_TLM_NONE);
+    setMax(PPM_PROTO_TLM_MLINK);
+    setValues(STR_PPM_PROTOCOLS);
+    setGetValueHandler(GET_DEFAULT(md->subType));
+    setSetValueHandler(SET_DEFAULT(md->subType));
+    setAvailableHandler(nullptr);
+    setTextHandler(nullptr);
+  }
+#endif
   else if (isModuleR9MNonAccess(moduleIdx)) {
     setMin(MODULE_SUBTYPE_R9M_FCC);
     setMax(MODULE_SUBTYPE_R9M_LAST);

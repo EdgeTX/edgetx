@@ -24,3 +24,4 @@
 #include "hal/module_driver.h"
 
 extern const etx_proto_driver_t PpmDriver;
+extern const etx_proto_driver_t PpmDriverMLink;
