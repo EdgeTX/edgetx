@@ -218,7 +218,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             }
           }
           else {
-            j = 4; // skip other fields
+            j = 5; // skip other fields
             if (sub==k && menuHorizontalPosition > 0) {
               repeatLastCursorMove(event);
             }
