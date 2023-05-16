@@ -42,9 +42,6 @@
   #define TIMER_MULT_APB2     2
 #endif
 
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
-
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
 // Keys
