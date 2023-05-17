@@ -279,7 +279,7 @@ void ViewMain::onEvent(event_t event)
       new ScreenMenu();
       break;
 
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEGUP)
     case EVT_KEY_FIRST(KEY_PAGEDN):
 #else
     case EVT_KEY_BREAK(KEY_PAGEDN):
@@ -292,7 +292,7 @@ void ViewMain::onEvent(event_t event)
 
 //TODO: these need to go away!
 // -> board code should map the keys as required
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEGUP)
     case EVT_KEY_FIRST(KEY_PAGEUP):
 #else
     case EVT_KEY_LONG(KEY_PAGEDN):

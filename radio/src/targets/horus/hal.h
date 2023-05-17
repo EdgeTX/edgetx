@@ -33,10 +33,10 @@
 // Keys
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ)
 #if defined(PCBX12S)
-  #define KEYS_GPIO_REG_PGUP            GPIOC
-  #define KEYS_GPIO_PIN_PGUP            LL_GPIO_PIN_13 // PC.13
-  #define KEYS_GPIO_REG_PGDN            GPIOI
-  #define KEYS_GPIO_PIN_PGDN            LL_GPIO_PIN_8  // PI.08
+  #define KEYS_GPIO_REG_PAGEUP          GPIOC
+  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_13 // PC.13
+  #define KEYS_GPIO_REG_PAGEDN          GPIOI
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PI.08
   #define KEYS_GPIO_REG_SYS             GPIOI
   #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_7  // PI.07
   #define KEYS_GPIO_REG_ENTER           GPIOC
@@ -50,10 +50,10 @@
 #elif defined(RADIO_TX16S)
   #define KEYS_GPIO_REG_ENTER           GPIOI
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PI.08
-  #define KEYS_GPIO_REG_PGUP            GPIOC
-  #define KEYS_GPIO_PIN_PGUP            LL_GPIO_PIN_13 // PC.13
-  #define KEYS_GPIO_REG_PGDN            GPIOI
-  #define KEYS_GPIO_PIN_PGDN            LL_GPIO_PIN_11 // PI.11
+  #define KEYS_GPIO_REG_PAGEUP          GPIOC
+  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_13 // PC.13
+  #define KEYS_GPIO_REG_PAGEDN          GPIOI
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_11 // PI.11
   #define KEYS_GPIO_REG_MDL             GPIOI
   #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_6  // PI.06
   #define KEYS_GPIO_REG_EXIT            GPIOI
@@ -65,8 +65,8 @@
 #elif defined(PCBX10)
   #define KEYS_GPIO_REG_ENTER           GPIOI
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PI.08
-  #define KEYS_GPIO_REG_PGDN            GPIOI
-  #define KEYS_GPIO_PIN_PGDN            LL_GPIO_PIN_11 // PI.11
+  #define KEYS_GPIO_REG_PAGEDN          GPIOI
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_11 // PI.11
   #define KEYS_GPIO_REG_MDL             GPIOI
   #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_4  // PI.04
   #define KEYS_GPIO_REG_EXIT            GPIOI
@@ -253,7 +253,7 @@
   #define KEYS_GPIOE_PINS               (GPIO_Pin_3)
   #define KEYS_GPIOG_PINS               (KEYS_GPIO_PIN_UP | SWITCHES_GPIO_PIN_D_L | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L | SWITCHES_GPIO_PIN_H | TRIMS_GPIO_PIN_RVD)
   #define KEYS_GPIOH_PINS               (GPIO_Pin_9 | GPIO_Pin_12 | SWITCHES_GPIO_PIN_E_H | SWITCHES_GPIO_PIN_F | ROTARY_ENCODER_GPIO_PIN_A | ROTARY_ENCODER_GPIO_PIN_B)
-  #define KEYS_GPIOI_PINS               (KEYS_GPIO_PIN_PGDN | KEYS_GPIO_PIN_LEFT | KEYS_GPIO_PIN_DOWN | SWITCHES_GPIO_PIN_A_L | GPIO_Pin_4)
+  #define KEYS_GPIOI_PINS               (KEYS_GPIO_PIN_PAGEDN | KEYS_GPIO_PIN_LEFT | KEYS_GPIO_PIN_DOWN | SWITCHES_GPIO_PIN_A_L | GPIO_Pin_4)
   #define KEYS_GPIOJ_PINS               (SWITCHES_GPIO_PIN_D_H | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_LVD | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_RSD)
 #elif defined(PCBX10)
   #if defined(RADIO_TX16S)
