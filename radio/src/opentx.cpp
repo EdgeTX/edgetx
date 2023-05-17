@@ -1423,7 +1423,7 @@ void opentxInit()
     pwrOn();
   }
   else {
-    runStartupAnimation();
+    // runStartupAnimation();
   }
 #else // defined(PWR_BUTTON_PRESS)
   pwrOn();

@@ -146,6 +146,32 @@ inline bool IS_KEY_EVT(event_t evt, uint8_t key)
   return (evt & _MSK_KEY_FLAGS) && (EVT_KEY_MASK(evt) == key);
 }
 
+#if defined(PCBXLITE)
+  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
+  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
+  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
+#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
+  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
+  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
+  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
+#elif defined(PCBFRSKY) && defined(ROTARY_ENCODER_NAVIGATION)
+  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
+  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
+  #define IS_NEXT_EVENT(event)         (event==EVT_ROTARY_RIGHT)
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_ROTARY_LEFT)
+#elif defined(ROTARY_ENCODER_NAVIGATION)
+  #define EVT_ROTARY_BREAK             0xcf
+  #define EVT_ROTARY_LONG              0xce
+  #define IS_NEXT_EVENT(event)         (event==EVT_ROTARY_RIGHT || event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_ROTARY_LEFT || event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
+#else
+  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
+#endif
+
+class Key
 inline bool IS_NEXT_EVENT(event_t evt)
 {
   return evt == EVT_KEY_FIRST(KEY_DOWN) || evt == EVT_KEY_REPT(KEY_DOWN) ||
