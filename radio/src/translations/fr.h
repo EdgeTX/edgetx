@@ -387,7 +387,7 @@
 #define TR_NOFREEMIXER                 "Max mixages atteint!"
 #define TR_SOURCE                      "Source"
 #define TR_WEIGHT                      "Ratio"
-#define TR_TRAVEL                      "Ratio"
+#define TR_TRAVEL                      "Course"
 #define TR_SIDE                        "Coté"
 #define TR_OFFSET                      "Décalage"
 #define TR_TRIM                        "Trim"

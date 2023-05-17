@@ -378,7 +378,7 @@
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"
 #define TR_SOURCE               "Źródło"
 #define TR_WEIGHT              "Waga"
-#define TR_TRAVEL              "Waga"
+#define TR_TRAVEL              "Zakres"
 #define TR_SIDE                "Strona"
 #define TR_OFFSET              "Ofset"
 #define TR_TRIM                "Trym"
