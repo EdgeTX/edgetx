@@ -1555,7 +1555,8 @@ void menuModelSetup(event_t event)
          if (!title) break;
          lcdDrawText(INDENT_WIDTH, y, title);
          if (title == STR_MULTI_RFTUNE) {
-           lcdDrawText(MODEL_SETUP_2ND_COLUMN + 23, y, "RSSI(", LEFT);
+           lcdDrawText(MODEL_SETUP_2ND_COLUMN + 23, y, getRxStatLabels()->label, LEFT);
+           lcdDrawText(lcdLastRightPos, y, "(", LEFT);
            lcdDrawNumber(lcdLastRightPos, y, TELEMETRY_RSSI(), LEFT);
            lcdDrawText(lcdLastRightPos, y, ")", LEFT);
          }
@@ -1850,7 +1851,7 @@ void menuModelSetup(event_t event)
 
 #if defined(PXX)
   if (isModuleInRangeCheckMode()) {
-    showMessageBox("RSSI: ");
+    showMessageBox(getRxStatLabels()->label);
     lcdDrawNumber(WARNING_LINE_X, 5*FH, TELEMETRY_RSSI(), BOLD | LEFT);
   }
 #endif

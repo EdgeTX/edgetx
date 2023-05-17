@@ -72,6 +72,8 @@ static uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
 static uint8_t intTelemetryRxBufferCount;
 #endif
 
+static rxStatStruct rxStat;
+
 uint8_t * getTelemetryRxBuffer(uint8_t moduleIdx)
 {
 #if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
@@ -88,6 +90,60 @@ uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
     return intTelemetryRxBufferCount;
 #endif
   return telemetryRxBufferCount;
+}
+
+rxStatStruct *getRxStatLabels() {
+  // default to RSSI/db notation
+  rxStat.label = STR_RXSTAT_LABEL_RSSI;
+  rxStat.unit  = STR_RXSTAT_UNIT_DBM;
+
+  // Currently we can only display a single rx stat in settings/telemetry.
+  // If both modules are used we choose the internal one
+  // TODO: have to rx stat sections in settings/telemetry
+  uint8_t moduleToUse = INTERNAL_MODULE;
+
+  if(g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE && 
+     g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE) {
+    moduleToUse = EXTERNAL_MODULE;
+  }
+
+  uint8_t moduleType = g_model.moduleData[moduleToUse].type;
+
+  switch(moduleType) {
+    case MODULE_TYPE_MULTIMODULE: {
+        uint8_t multiProtocol = g_model.moduleData[moduleToUse].multi.rfProtocol;
+
+        if (multiProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
+            multiProtocol == MODULE_SUBTYPE_MULTI_HOTT ||
+            multiProtocol == MODULE_SUBTYPE_MULTI_MLINK) {
+          rxStat.label = STR_RXSTAT_LABEL_RQLY;
+          rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
+        }
+      }
+      break;
+
+    case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_GHOST:
+      rxStat.label = STR_RXSTAT_LABEL_RQLY;
+      rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
+      break;
+
+    case MODULE_TYPE_FLYSKY:
+      #if defined (PCBNV14)
+        extern uint32_t NV14internalModuleFwVersion;
+
+        if(moduleToUse == INTERNAL_MODULE) {
+          if(g_model.moduleData[INTERNAL_MODULE].subType == FLYSKY_SUBTYPE_AFHDS2A && 
+             NV14internalModuleFwVersion >= 0x1000E) {
+            rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
+            rxStat.unit  = STR_RXSTAT_UNIT_NOUNIT ;
+          }
+        }
+      #endif      
+      break;
+  }
+
+  return &rxStat;
 }
 
 // TODO: move to module port driver

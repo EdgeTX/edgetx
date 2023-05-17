@@ -126,10 +126,12 @@ void frskyDSetDefault(int index, uint16_t id);
 #define IS_DISTANCE_UNIT(unit)         ((unit) == UNIT_METERS || (unit) == UNIT_FEET)
 #define IS_SPEED_UNIT(unit)            ((unit) >= UNIT_KTS && (unit) <= UNIT_MPH)
 
-inline const char* getRssiLabel()
-{
-  return "Rx-Stats";
-}
+typedef struct {
+  const char *label;
+  const char *unit;
+} rxStatStruct;
+
+rxStatStruct *getRxStatLabels();
 
 // TODO: this should handle only the external S.PORT line
 //  - and go away in the end: one proto per module, not global!

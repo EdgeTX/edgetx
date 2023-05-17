@@ -527,23 +527,14 @@ void ModuleWindow::updateFailsafe()
   }
 }
 
-#if defined(PCBNV14)
-#define SIGNAL_POSTFIX
-#define SIGNAL_MESSAGE "SGNL"
-#else
-#define SIGNAL_POSTFIX " db"
-#define SIGNAL_MESSAGE "RSSI"
-#endif
-
 void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
 {
   auto rssiDialog = new DynamicMessageDialog(
       parent, STR_RANGE_TEST,
       [=]() {
-        return std::to_string((int)TELEMETRY_RSSI()) +
-               std::string(SIGNAL_POSTFIX);
+        return std::to_string((int)TELEMETRY_RSSI()) + getRxStatLabels()->unit;
       },
-      SIGNAL_MESSAGE, 50,
+      getRxStatLabels()->label, 50,
       COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
 
   rssiDialog->setCloseHandler([this, closeHandler]() {

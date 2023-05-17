@@ -228,7 +228,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_RSSI_LABEL:
-        lcdDrawTextAlignedLeft(y,  getRssiLabel());
+        lcdDrawTextAlignedLeft(y, getRxStatLabels()->label);
         break;
 
       case ITEM_TELEMETRY_RSSI_SOURCE: {

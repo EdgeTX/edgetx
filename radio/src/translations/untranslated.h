@@ -322,6 +322,15 @@
 #define STR_SENSOR_SERVO_STATUS              "SrvS"
 #define STR_SENSOR_SPECIAL                   "Spcl"
 
+// RX stat labeling for settings/telemetry, range
+// check and internal/external module setup screens 
+#define STR_RXSTAT_LABEL_RSSI   "RSSI "
+#define STR_RXSTAT_LABEL_RQLY   "Rqly "
+#define STR_RXSTAT_LABEL_SIGNAL "Sgnl "
+#define STR_RXSTAT_UNIT_PERCENT " %"
+#define STR_RXSTAT_UNIT_DBM     " db"
+#define STR_RXSTAT_UNIT_NOUNIT  ""
+
 #define STR_CHAR_RIGHT     "\302\200"
 #define STR_CHAR_LEFT      "\302\201"
 #define STR_CHAR_UP        "\302\202"

@@ -61,7 +61,7 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
   edit = new NumberEdit(box, rect_t{}, 0, 0, nullptr);
   cb = new CheckBox(box, rect_t{}, nullptr, nullptr);
   rssi = new DynamicNumber<uint16_t>(
-      box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, "RSSI: ", " db");
+      box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, getRxStatLabels()->label, getRxStatLabels()->unit);
 }
 
 void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md)
@@ -137,8 +137,11 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
       edit->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       edit->update();
-      if (title == STR_MULTI_RFTUNE)
+      if (title == STR_MULTI_RFTUNE) {
+        rssi->setPrefix(getRxStatLabels()->label);
+        rssi->setSuffix(getRxStatLabels()->unit);
         lv_obj_clear_flag(rssi->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      }
     }
   }
 }
