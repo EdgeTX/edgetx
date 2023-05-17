@@ -277,7 +277,7 @@ void TabsGroup::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEGUP)
   if (event == EVT_KEY_FIRST(KEY_PAGEDN)) {
 #else
   if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
@@ -286,7 +286,7 @@ void TabsGroup::onEvent(event_t event)
     uint8_t current = header.carousel.getCurrentIndex() + 1;
     setCurrentTab(current >= tabs.size() ? 0 : current);
   }
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEGUP)
   else if (event == EVT_KEY_FIRST(KEY_PAGEUP)) {
 #else
   else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
