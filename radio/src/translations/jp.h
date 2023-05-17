@@ -518,7 +518,7 @@
 #define TR_ALARMSDISABLED              "アラーム無効"
 #define TR_PRESSANYKEY                 TR("\010Press any Key", "任意のキーを押してください")
 #define TR_BADEEPROMDATA               "EEPROMデータが不良です"
-#define TR_BAD_RADIO_DATA              "送信機データが不良です"
+#define TR_BAD_RADIO_DATA              "送信機データ不具合、もしくは存在しません"
 #define TR_RADIO_DATA_RECOVERED        TR3("バックアップした送信機データを使用","バックアップした送信機設定を使用","バックアップから送信機設定を復元")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("送信機設定が無効です","送信機設定が有効ではありません", "有効な送信機設定を読み込めません")
 #define TR_EEPROMFORMATTING            "EEPROMをフォーマットします"

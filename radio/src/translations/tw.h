@@ -518,7 +518,7 @@
 #define TR_ALARMSDISABLED              "已禁用報警"
 #define TR_PRESSANYKEY                 TR("\010按任意鍵", "按任意鍵")
 #define TR_BADEEPROMDATA               "存儲數據錯誤"
-#define TR_BAD_RADIO_DATA              "系統數據錯誤"
+#define TR_BAD_RADIO_DATA              "無法讀取系統設置參數, 請檢查SD卡"
 #define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING            "格式化存儲"

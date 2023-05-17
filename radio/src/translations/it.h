@@ -523,7 +523,7 @@
 #define TR_ALARMSDISABLED               "Allarmi Disattivati!"
 #define TR_PRESSANYKEY                  TR("\010Premi un tasto", "Premi un tasto")
 #define TR_BADEEPROMDATA                "Dati corrotti!"
-#define TR_BAD_RADIO_DATA               "Dati radio errati"
+#define TR_BAD_RADIO_DATA               "Dati nella cartella RADIO/nerrati o assenti"
 #define TR_RADIO_DATA_RECOVERED         TR3("Uso i dati radio di backup","Uso i settaggi radio di backup","Settaggi Radio ripresi da un backup")
 #define TR_RADIO_DATA_UNRECOVERABLE     TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
 #define TR_EEPROMFORMATTING             "Formatto EEPROM..."
