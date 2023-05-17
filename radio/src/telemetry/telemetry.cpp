@@ -121,6 +121,13 @@ rxStatStruct *getRxStatLabels() {
         }
       }
       break;
+    
+    case MODULE_TYPE_PPM:
+      if(moduleState[moduleToUse].protocol == PROTOCOL_CHANNELS_PPM_MLINK) {
+        rxStat.label = STR_RXSTAT_LABEL_RQLY;
+        rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
+      }
+      break;
 
     case MODULE_TYPE_CROSSFIRE:
     case MODULE_TYPE_GHOST:
