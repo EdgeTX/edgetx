@@ -110,9 +110,9 @@ void InputEditWindow::buildBody(FormWindow* form)
   auto src = new InputSource(line, input);
   lv_obj_set_style_grid_cell_x_align(src->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-  // Weight
+  // Travel
   line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_TRAVEL, 0, COLOR_THEME_PRIMARY1);
   auto gvar = new GVarNumberEdit(line, rect_t{}, -100, 100,
                                  GET_DEFAULT(input->weight),
                                  [=](int32_t newValue) {

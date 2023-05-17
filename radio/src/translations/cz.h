@@ -380,6 +380,7 @@
 #define TR_NOFREEMIXER                 "Není volný mix!"
 #define TR_SOURCE                      "Zdroj"
 #define TR_WEIGHT                      "Váha"
+#define TR_TRAVEL                      "Váha"
 #define TR_SIDE                        "Strana"
 #define TR_OFFSET                      "Ofset"
 #define TR_TRIM                        "Trim"

@@ -170,6 +170,7 @@ const char STR_NOFREEEXPO[] = TR_NOFREEEXPO;
 const char STR_NOFREEMIXER[] = TR_NOFREEMIXER;
 const char STR_SOURCE[] = TR_SOURCE;
 const char STR_WEIGHT[] = TR_WEIGHT;
+const char STR_TRAVEL[] = TR_TRAVEL;
 const char STR_SIDE[] = TR_SIDE;
 const char STR_OFFSET[] = TR_OFFSET;
 const char STR_TRIM[] = TR_TRIM;

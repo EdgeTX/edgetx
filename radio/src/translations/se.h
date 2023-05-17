@@ -395,6 +395,7 @@
 #define TR_NOFREEMIXER                  "Ingen ledig mixer!"
 #define TR_SOURCE                       "Källa"
 #define TR_WEIGHT                       "Vikt"
+#define TR_TRAVEL                       "Räckvidd"
 #define TR_SIDE                         "Sida"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                         "Trimm"

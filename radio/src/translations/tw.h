@@ -375,6 +375,7 @@
 #define TR_NOFREEMIXER                 "混控數量已滿!"
 #define TR_SOURCE                      "輸入源"
 #define TR_WEIGHT                      "比例"
+#define TR_TRAVEL                      "比例"
 #define TR_SIDE                        "單邊"
 #define TR_OFFSET                      "偏移量"
 #define TR_TRIM                        "使用微調"

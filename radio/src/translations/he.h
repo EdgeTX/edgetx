@@ -378,6 +378,7 @@
 #define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "מקור"
 #define TR_WEIGHT                      "כמות"
+#define TR_TRAVEL                      "כמות"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                        "קיזוז"

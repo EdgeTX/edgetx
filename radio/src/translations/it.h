@@ -380,6 +380,7 @@
 #define TR_NOFREEMIXER                  "Mixer pieni!"
 #define TR_SOURCE                       "Sorg."
 #define TR_WEIGHT                       "Peso"
+#define TR_TRAVEL                       "Peso"
 #define TR_SIDE                         "Lato"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                         "Trim"

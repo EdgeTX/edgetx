@@ -36,7 +36,7 @@ enum ExposFields {
   EXPO_FIELD_LINE_NAME,
   EXPO_FIELD_SOURCE,
   EXPO_FIELD_SCALE,
-  EXPO_FIELD_WEIGHT,
+  EXPO_FIELD_TRAVEL,
   EXPO_FIELD_OFFSET,
   EXPO_FIELD_CURVE_LABEL,
   EXPO_FIELD_CURVE,
@@ -113,8 +113,8 @@ void menuModelExpoOne(event_t event)
           ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
         break;
 
-      case EXPO_FIELD_WEIGHT:
-        lcdDrawTextAlignedLeft(y, STR_WEIGHT);
+      case EXPO_FIELD_TRAVEL:
+        lcdDrawTextAlignedLeft(y, STR_TRAVEL);
         ed->weight = GVAR_MENU_ITEM(EXPO_ONE_2ND_COLUMN, y, ed->weight, -100, 100, RIGHT | attr, 0, event);
         break;
 

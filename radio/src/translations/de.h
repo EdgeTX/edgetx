@@ -380,6 +380,7 @@
 #define TR_NOFREEMIXER                 "Mischer voll!"
 #define TR_SOURCE                      "Quelle"
 #define TR_WEIGHT                      "Gewicht"
+#define TR_TRAVEL                      "Bereich"
 #define TR_SIDE                        "Seite"
 #define TR_OFFSET                      "Offset"
 #define TR_TRIM                        "Trim"

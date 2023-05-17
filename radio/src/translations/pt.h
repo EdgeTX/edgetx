@@ -381,6 +381,7 @@
 #define TR_NOFREEMIXER         "No free mixer!"
 #define TR_SOURCE              "Fonte"
 #define TR_WEIGHT              "Quantia"
+#define TR_TRAVEL              "Quantia"
 #define TR_SIDE                "Lado"
 #define TR_OFFSET              "Desvio"
 #define TR_TRIM                "Trim"

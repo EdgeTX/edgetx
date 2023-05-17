@@ -377,6 +377,7 @@
 #define TR_NOFREEMIXER         "No mezcla lib!"
 #define TR_SOURCE              "Fuente"
 #define TR_WEIGHT              "Cantidad"
+#define TR_TRAVEL              "Cantidad"
 #define TR_SIDE                "Zona"
 #define TR_OFFSET              "Offset"
 #define TR_TRIM                "Trim"

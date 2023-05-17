@@ -375,6 +375,7 @@
 #define TR_NOFREEMIXER                 "ミキサーが未設定です!!"
 #define TR_SOURCE                       "ソース"
 #define TR_WEIGHT                      "ウェイト"
+#define TR_TRAVEL                      "ウェイト"
 #define TR_SIDE                        "末端"
 #define TR_OFFSET                      "オフセット"
 #define TR_TRIM                        "トリム"

@@ -377,9 +377,10 @@
 #define TR_NOFREEEXPO          "BrakWoln.Expo!"
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"
 #define TR_SOURCE               "Źródło"
-#define TR_WEIGHT              "Waga "
+#define TR_WEIGHT              "Waga"
+#define TR_TRAVEL              "Waga"
 #define TR_SIDE                "Strona"
-#define TR_OFFSET              "Ofset "
+#define TR_OFFSET              "Ofset"
 #define TR_TRIM                "Trym"
 #define TR_DREX                "DRex"
 #define DREX_CHBOX_OFFSET      30

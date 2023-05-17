@@ -375,6 +375,7 @@
 #define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "Source"
 #define TR_WEIGHT                      "Weight"
+#define TR_TRAVEL                      "Travel"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                        "Trim"

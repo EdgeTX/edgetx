@@ -308,6 +308,7 @@ extern const char STR_NOFREEEXPO[];
 extern const char STR_NOFREEMIXER[];
 extern const char STR_SOURCE[];
 extern const char STR_WEIGHT[];
+extern const char STR_TRAVEL[];
 extern const char STR_SIDE[];
 extern const char STR_OFFSET[];
 extern const char STR_TRIM[];

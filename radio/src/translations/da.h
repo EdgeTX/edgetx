@@ -380,6 +380,7 @@
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
 #define TR_SOURCE                       "Kilde"
 #define TR_WEIGHT                      "Vægt"
+#define TR_TRAVEL                      "Vægt"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                        "Trim"
