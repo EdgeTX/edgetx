@@ -20,7 +20,7 @@
 #include "touch.h"
 #include "mainwindow.h"
 
-#include "widgets/window_base.h"
+// #include "widgets/window_base.h"
 
 std::list<Window *> Window::trash;
 

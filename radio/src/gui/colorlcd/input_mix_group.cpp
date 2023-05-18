@@ -22,7 +22,7 @@
 #include "input_mix_group.h"
 #include "channel_bar.h"
 
-#include "lvgl_widgets/input_mix_group.h"
+// #include "lvgl_widgets/input_mix_group.h"
 
 #include "opentx.h"
 

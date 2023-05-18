@@ -23,7 +23,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "view_main.h"
-#include "lvgl_widgets/input_mix_line.h"
+// #include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 

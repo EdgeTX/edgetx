@@ -21,8 +21,6 @@
 #include "font.h"
 #include "theme.h"
 
-#include "widgets/simple_btn.h"
-
 static void update_checked_flag(lv_obj_t* obj, WindowFlags flags)
 {
   if (!(flags & BUTTON_CHECKED))
@@ -36,7 +34,7 @@ Button::Button(Window* parent, const rect_t& rect,
        WindowFlags windowFlag, LcdFlags textFlags,
        LvglCreate objConstruct) :
     FormField(parent, rect, windowFlag, textFlags,
-              objConstruct ? objConstruct : simple_btn_create),
+              objConstruct ? objConstruct : lv_btn_create),
     pressHandler(std::move(pressHandler))
 {
   lv_obj_add_event_cb(lvobj, Button::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
@@ -102,7 +100,7 @@ void Button::long_pressed(lv_event_t* e)
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
                        std::function<uint8_t(void)> pressHandler,
                        WindowFlags windowFlags) :
-    Button(parent, rect, std::move(pressHandler), windowFlags, 0, lv_btn_create),
+    Button(parent, rect, std::move(pressHandler), windowFlags, 0, etx_button_create),
     text(std::move(text))
 {
   update_checked_flag(lvobj, windowFlags);

@@ -40,7 +40,7 @@ class LayoutChoice : public Button
   typedef std::function<void(const LayoutFactory*)> LayoutFactorySetter;
 
   LayoutChoice(Window* parent, LayoutFactoryGetter getValue, LayoutFactorySetter setValue) :
-    Button(parent, rect_t{}, nullptr, 0, 0, lv_btn_create),
+    Button(parent, rect_t{}, nullptr, 0, 0, etx_button_create),
       getValue(std::move(getValue)),
       _setValue(std::move(setValue))
   {

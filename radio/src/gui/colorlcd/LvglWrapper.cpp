@@ -23,7 +23,6 @@
 
 #include "LvglWrapper.h"
 #include "themes/etx_lv_theme.h"
-#include "widgets/field_edit.h"
 
 #include "view_main.h"
 
