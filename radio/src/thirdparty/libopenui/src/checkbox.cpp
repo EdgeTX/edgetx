@@ -37,12 +37,12 @@ CheckBox::CheckBox(Window* parent, const rect_t& rect,
 {
   // TODO: migrate to default theme
 
-  if (height() > 0)
-    lv_obj_set_width(lvobj, (lv_coord_t)(height() * 1.7f));
+//   if (height() > 0)
+//     lv_obj_set_width(lvobj, (lv_coord_t)(height() * 1.7f));
 
   // PART_MAIN
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN);
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_STATE_FOCUSED);
+//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN);
+//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_STATE_FOCUSED);
 
   update();
 
