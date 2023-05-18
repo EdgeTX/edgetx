@@ -11,3 +11,10 @@
 [submodule "radio/src/thirdparty/Segger_RTT"]
 	path = radio/src/thirdparty/Segger_RTT
 	url = https://github.com/adfernandes/segger-rtt.git
+[submodule "radio/src/thirdparty/libopenui/thirdparty/stb"]
+    path = radio/src/thirdparty/libopenui/thirdparty/stb
+    url = https://github.com/nothings/stb.git
+[submodule "radio/src/thirdparty/libopenui/thirdparty/lvgl"]
+    path = radio/src/thirdparty/libopenui/thirdparty/lvgl
+    url = https://github.com/EdgeTX/lvgl.git
+    branch = release/v8.2
