@@ -666,7 +666,7 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 #if defined(HARDWARE_KEYS)
 void ModelLabelsWindow::onEvent(event_t event)
 {
-#if defined(KEYS_GPIO_REG_PAGEGUP)
+#if defined(KEYS_GPIO_REG_PAGEUP)
   if (event == EVT_KEY_BREAK(KEY_PAGEUP) ||
       event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #else

@@ -88,7 +88,7 @@ class RadioKeyDiagsWindow : public Window
         auto k = get_ith_key(i);
         y += FH;
         dc->drawText(KEY_COLUMN, y, keysGetLabel(k), COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, i);
+        displayKeyState(dc, 70, y, k);
       }
 #if defined(ROTARY_ENCODER_NAVIGATION)
       y += FH;
