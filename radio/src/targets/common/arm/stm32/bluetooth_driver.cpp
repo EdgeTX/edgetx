@@ -57,6 +57,7 @@ void* _bt_usart_ctx = nullptr;
 
 void bluetoothInit(uint32_t baudrate, bool enable)
 {
+#if defined(BT_EN_GPIO_PIN)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
 
@@ -66,6 +67,7 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   pinInit.Pull = LL_GPIO_PULL_NO;
 
   LL_GPIO_Init(BT_EN_GPIO, &pinInit);
+#endif
 
 #if !defined(BOOT)
   etx_serial_init cfg = {
@@ -83,18 +85,22 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   }
 #endif
 
+#if defined(BT_EN_GPIO_PIN)
   if (enable) {
     LL_GPIO_ResetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
   } else {
     LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
   }
+#endif
 }
 
 #if !defined(BOOT)
 void bluetoothDisable()
 {
+#if defined(BT_EN_GPIO_PIN)
   // close bluetooth (recent modules will go to bootloader mode)
   LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
+#endif
   if (_bt_usart_ctx) {
     STM32SerialDriver.deinit(_bt_usart_ctx);
     _bt_usart_ctx = nullptr;
