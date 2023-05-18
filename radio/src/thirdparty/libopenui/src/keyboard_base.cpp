@@ -58,8 +58,8 @@ Keyboard::Keyboard(coord_t height) :
 {
   // set the background of the window and opacity to 100%
   lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
-  lv_obj_set_style_bg_color(lvobj, lv_color_make(0xE0, 0xE0, 0xE0), LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
+//   lv_obj_set_style_bg_color(lvobj, lv_color_make(0xE0, 0xE0, 0xE0), LV_PART_MAIN);
+//   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 
   // use a separate group for the keyboard
   group = lv_group_create();
@@ -68,7 +68,7 @@ Keyboard::Keyboard(coord_t height) :
   auto old_g = lv_group_get_default();
   lv_group_set_default(group);
 
-  keyboard = lv_keyboard_create(lvobj);
+  keyboard = etx_keyboard_create(lvobj);
   lv_group_set_default(old_g);
 
   lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);

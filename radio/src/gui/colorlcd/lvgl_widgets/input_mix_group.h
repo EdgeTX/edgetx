@@ -22,7 +22,6 @@
 extern "C" {
 #endif
 
-extern const lv_obj_class_t input_mix_group_class;
 lv_obj_t* input_mix_group_create(lv_obj_t* parent);
 
 #ifdef __cplusplus

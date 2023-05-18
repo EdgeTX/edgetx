@@ -23,7 +23,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "view_main.h"
-#include "lvgl_widgets/input_mix_line.h"
+// #include "lvgl_widgets/input_mix_line.h"
 
 #include "hal/adc_driver.h"
 #include "strhelpers.h"

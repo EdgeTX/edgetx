@@ -170,7 +170,7 @@ static void color_editor_popup(lv_event_t* e)
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<uint16_t()> getValue,
                          std::function<void(uint16_t)> setValue) :
-    FormField(parent, rect, 0, 0, lv_btn_create),
+    FormField(parent, rect, 0, 0, etx_button_create),
     setValue(std::move(setValue))
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);

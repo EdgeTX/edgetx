@@ -42,7 +42,7 @@ DEFINE_LZ4_BITMAP(LBM_DOT);
 class CurveButton : public Button {
   public:
     CurveButton(Window * parent, const rect_t &rect, uint8_t index) :
-      Button(parent, rect, nullptr, 0, 0, lv_btn_create),
+      Button(parent, rect, nullptr, 0, 0, etx_button_create),
       index(index)
     {
       padAll(0);

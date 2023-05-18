@@ -110,7 +110,7 @@ SubScreenButton::SubScreenButton(Window* parent, const char* text,
   Button(parent, rect_t{}, [=]() -> uint8_t {
       pressHandler();
       return 0;
-    }, 0, 0, lv_btn_create),
+    }, 0, 0, etx_button_create),
   text(text)
 {
   lv_obj_add_event_cb(lvobj, SubScreenButton::event_cb, LV_EVENT_ALL, nullptr);
