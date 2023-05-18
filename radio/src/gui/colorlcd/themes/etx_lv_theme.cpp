@@ -67,6 +67,7 @@ typedef struct {
   lv_style_t choice_main;
 
 #if LV_USE_SWITCH
+  lv_style_t switch_main;
   lv_style_t switch_knob;
 #endif
 
@@ -174,9 +175,9 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.field, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&styles.field, LV_OPA_COVER);
   lv_style_set_text_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_left(&styles.field, 4);
-  lv_style_set_pad_right(&styles.field, 4);
-  lv_style_set_pad_top(&styles.field, 5);
+  lv_style_set_pad_top(&styles.field, 4);
+  lv_style_set_pad_bottom(&styles.field, 5);
+  lv_style_set_pad_left(&styles.field, 5);
 
   static lv_color_filter_dsc_t dark_filter;
   lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
@@ -257,7 +258,7 @@ static void style_init(void)
 
   // Choice
   style_init_reset(&styles.choice_main);
-  lv_style_set_pad_top(&styles.choice_main, 4);
+  lv_style_set_pad_top(&styles.choice_main, 3);
   lv_style_set_pad_bottom(&styles.choice_main, 4);
   lv_style_set_pad_right(&styles.choice_main, 5);
   lv_style_set_bg_opa(&styles.choice_main, LV_OPA_100);
@@ -270,8 +271,10 @@ static void style_init(void)
   lv_style_set_anim_time(&styles.anim_fast, 120);
 
 #if LV_USE_SWITCH
+  style_init_reset(&styles.switch_main);
+  lv_style_set_pad_all(&styles.switch_main, 1);
   style_init_reset(&styles.switch_knob);
-  lv_style_set_pad_all(&styles.switch_knob, -lv_disp_dpx(theme.disp, 4));
+  lv_style_set_pad_all(&styles.switch_knob, -3);
   lv_style_set_bg_opa(&styles.switch_knob, LV_OPA_100);
   lv_style_set_bg_color(&styles.switch_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.switch_knob, makeLvColor(COLOR_THEME_SECONDARY1));
@@ -554,14 +557,19 @@ lv_obj_t* etx_keyboard_create(lv_obj_t* parent)
   return obj;
 }
 
+const lv_obj_class_t etx_switch_class = {
+    .base_class = &lv_switch_class,
+    .height_def = 32
+};
+
 lv_obj_t* etx_switch_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&lv_switch_class, parent);
+  lv_obj_t * obj = lv_obj_class_create_obj(&etx_switch_class, parent);
   lv_obj_class_init_obj(obj);
 
+  lv_obj_add_style(obj, &styles.switch_main, 0);
   lv_obj_add_style(obj, &styles.bg_color_grey, 0);
   lv_obj_add_style(obj, &styles.border, 0);
-  lv_obj_add_style(obj, &styles.border, LV_PART_INDICATOR | LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles.circle, 0);
   lv_obj_add_style(obj, &styles.circle, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);

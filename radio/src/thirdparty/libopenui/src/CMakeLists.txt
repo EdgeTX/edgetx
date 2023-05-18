@@ -33,11 +33,6 @@ set(LIBOPENUI_SRC
   keyboard_text.cpp
   keyboard_number.cpp
   keyboard_base.cpp
-  # LVGL widgets
-#   widgets/window_base.c
-#   widgets/simple_btn.c
-#   widgets/field_edit.c
-#   widgets/edgetx_table.c
   )
 
 foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
@@ -47,11 +42,3 @@ endforeach()
 set(SRC ${SRC} ${LIBOPENUI_SRC_FILES}
   ${LIBOPENUI_SRC_DIR}/thirdparty/lz4/lz4.c
   )
-
-# add_library(libopenui_native OBJECT ${LIBOPENUI_SRC_FILES})
-# add_library(libopenui_stm32 OBJECT ${LIBOPENUI_SRC_FILES})
-
-# Dirty hack to include FatFs into libopenui
-# TODO: this must go away
-#target_include_directories(libopenui PRIVATE
-#  ${CMAKE_CURRENT_SOURCE_DIR}/../../FatFs)
