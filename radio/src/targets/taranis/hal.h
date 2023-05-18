@@ -2599,7 +2599,10 @@
   // #define BT_DMA_Stream_RX              DMA1_Stream1
   // #define BT_DMA_Channel_RX             DMA_Channel_4
 #else
-  #define STORAGE_BLUETOOTH
+  #if defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
+    // To avoid change in modelsize, todo: remove me
+    #define STORAGE_BLUETOOTH
+  #endif
   #define BT_RCC_AHB1Periph             0
   #define BT_RCC_APB1Periph             0
   #define BT_RCC_APB2Periph             0
