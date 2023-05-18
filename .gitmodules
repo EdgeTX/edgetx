@@ -1,6 +1,3 @@
-[submodule "libopenui"]
-	path = radio/src/thirdparty/libopenui
-	url = https://github.com/edgetx/libopenui.git
 [submodule "radio/src/thirdparty/AccessDenied"]
 	path = radio/src/thirdparty/AccessDenied
 	url = https://github.com/raphaelcoeffic/AccessDenied.git
