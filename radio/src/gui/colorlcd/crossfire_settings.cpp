@@ -30,7 +30,7 @@
 
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                                      uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    FormWindow(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);
   setFlexLayout();

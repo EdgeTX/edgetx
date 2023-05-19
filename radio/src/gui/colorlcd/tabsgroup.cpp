@@ -61,7 +61,7 @@ void TabCarouselButton::check(bool checked)
 }
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
-    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
+    FormWindow(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
 #if defined(HARDWARE_TOUCH)
     back(
         this,

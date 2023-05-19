@@ -25,7 +25,7 @@
 #include "form.h"
 #include "curve.h"
 
-class FormGroup;
+class FormWindow;
 
 class MixEditAdvanced : public Page
 {

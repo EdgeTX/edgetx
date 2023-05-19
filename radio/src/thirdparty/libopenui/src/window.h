@@ -66,19 +66,18 @@ constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
 extern "C" void window_event_cb(lv_event_t * e);
 
-
 class Window
 {
   friend class GridLayout;
   friend void window_event_cb(lv_event_t * e);
 
   public:
-   Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-          LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
+    Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+           LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
-   Window(Window *parent, lv_obj_t* lvobj);
+    Window(Window *parent, lv_obj_t* lvobj);
 
-   virtual ~Window();
+    virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
     virtual std::string getName() const;
@@ -121,8 +120,8 @@ class Window
       lv_obj_enable_style_refresh(false);
       lv_obj_set_pos(lvobj, rect.x, rect.y);
       lv_obj_set_width(lvobj, rect.w);
-      lv_obj_enable_style_refresh(true);
       lv_obj_set_height(lvobj, rect.h);
+      lv_obj_enable_style_refresh(true);
     }
 
     void setWidth(coord_t value)
@@ -131,17 +130,10 @@ class Window
       lv_obj_set_width(lvobj, rect.w);
     }
 
-    void setWindowCentered()
-    {
-      rect.x = (parent->width() - width()) / 2;
-      rect.y = (parent->height() - height()) / 2;
-      lv_obj_set_pos(lvobj, rect.x, rect.y);
-    }
-
     void setHeight(coord_t value)
     {
       rect.h = value;
-      if (lvobj != nullptr) lv_obj_set_height(lvobj, rect.h);
+      lv_obj_set_height(lvobj, rect.h);
     }
 
     void setLeft(coord_t x)

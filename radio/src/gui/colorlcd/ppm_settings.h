@@ -25,7 +25,7 @@
 
 struct ModuleData;
 
-class PpmSettings : public FormGroup
+class PpmSettings : public FormWindow
 {
   ModuleData* md;
 
@@ -34,6 +34,6 @@ public:
 };
 
 template <typename T>
-struct PpmFrameSettings : public FormGroup {
+struct PpmFrameSettings : public FormWindow {
   PpmFrameSettings(Window* parent, const FlexGridLayout& g, T* ppm);
 };

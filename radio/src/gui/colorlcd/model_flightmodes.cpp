@@ -115,7 +115,7 @@ class FlightModeEdit : public Page
           line->padLeft(10);
         }
 
-        auto trim = new FormGroup(line, rect_t{});
+        auto trim = new FormWindow(line, rect_t{});
         trim->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
         auto trim_obj = trim->getLvObj();

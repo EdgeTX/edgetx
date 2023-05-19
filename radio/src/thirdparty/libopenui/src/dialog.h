@@ -40,7 +40,7 @@ class DialogWindowContent : public ModalWindowContent
 #endif
 
  public:
-  FormGroup form;
+  FormWindow form;
 };
 
 class Dialog : public ModalWindow

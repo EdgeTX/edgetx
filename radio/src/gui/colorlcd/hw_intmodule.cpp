@@ -34,7 +34,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 InternalModuleWindow::InternalModuleWindow(Window *parent) :
-    FormGroup::Line(parent),
+    FormWindow::Line(parent),
     lastModule(g_eeGeneral.internalModule)
 {
   FlexGridLayout grid(col_dsc, row_dsc, 2);
@@ -42,7 +42,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
 
   new StaticText(this, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(this, rect_t{});
+  auto box = new FormWindow(this, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
@@ -55,7 +55,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
       [](int module) { return isInternalModuleSupported(module); });
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-  auto pxx1_box = new FormGroup(box, rect_t{});
+  auto pxx1_box = new FormWindow(box, rect_t{});
   pxx1_box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
   ant_box = pxx1_box->getLvObj();
@@ -87,7 +87,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
 #endif
 
 #if defined(CROSSFIRE)
-  auto crsf_box = new FormGroup(box, rect_t{});
+  auto crsf_box = new FormWindow(box, rect_t{});
   crsf_box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
   br_box = crsf_box->getLvObj();

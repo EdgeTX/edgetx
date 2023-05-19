@@ -31,14 +31,14 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 ExternalModuleWindow::ExternalModuleWindow(Window *parent) :
-    FormGroup::Line(parent), lastModule(g_eeGeneral.internalModule)
+    FormWindow::Line(parent), lastModule(g_eeGeneral.internalModule)
 {
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   setLayout(&grid);
 
   new StaticText(this, rect_t{}, STR_SAMPLE_MODE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(this, rect_t{});
+  auto box = new FormWindow(this, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 

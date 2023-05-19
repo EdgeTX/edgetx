@@ -36,17 +36,17 @@ static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(7), LV_GRID
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-class DateTimeWindow : public FormGroup {
+class DateTimeWindow : public FormWindow {
   public:
     DateTimeWindow(Window* parent, const rect_t & rect) :
-      FormGroup(parent, rect)
+      FormWindow(parent, rect)
     {
       build();
     }
 
     void checkEvents() override
     {
-      FormGroup::checkEvents();
+      FormWindow::checkEvents();
 
       if (seconds && (get_tmr10ms() - lastRefresh >= 10)) {
         lastRefresh = get_tmr10ms();
@@ -209,7 +209,7 @@ class DateTimeWindow : public FormGroup {
     }
 };
 
-class WindowButtonGroup : public FormGroup
+class WindowButtonGroup : public FormWindow
 {
  public:
   typedef std::function<void()>           PageFct;
@@ -218,7 +218,7 @@ class WindowButtonGroup : public FormGroup
 
   WindowButtonGroup(
       Window* parent, const rect_t& rect, PageDefs pages) :
-      FormGroup(parent, rect),
+      FormWindow(parent, rect),
       pages(pages)
   {
     padBottom(4);

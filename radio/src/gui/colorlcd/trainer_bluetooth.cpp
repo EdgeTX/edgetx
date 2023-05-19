@@ -75,7 +75,7 @@ void BTDiscoverMenu::selectAddr(const char* addr)
 }
 
 BluetoothTrainerWindow::BluetoothTrainerWindow(Window* parent) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout();
   FlexGridLayout grid(col_dsc, row_dsc, 2);

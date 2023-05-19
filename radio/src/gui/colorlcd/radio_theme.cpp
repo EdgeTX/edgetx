@@ -413,7 +413,7 @@ class ThemeEditPage : public Page
           });
     }
 
-    void buildHeader(FormGroup *window)
+    void buildHeader(FormWindow *window)
     {
       // page title
       header.setTitle(STR_EDIT_THEME);
@@ -438,7 +438,7 @@ class ThemeEditPage : public Page
       });
     }
 
-    void buildBody(FormGroup *window)
+    void buildBody(FormWindow *window)
     {
       window->padAll(4);
       FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});

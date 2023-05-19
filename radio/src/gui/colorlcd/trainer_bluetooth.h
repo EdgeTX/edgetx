@@ -26,7 +26,7 @@
 #include "button.h"
 #include "bluetooth.h"
 
-class BluetoothTrainerWindow : public FormGroup
+class BluetoothTrainerWindow : public FormWindow
 {
   bool is_master = true;
   bool menuopened = false;

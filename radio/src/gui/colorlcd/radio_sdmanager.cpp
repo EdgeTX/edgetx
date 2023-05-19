@@ -156,7 +156,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   FlexGridLayout grid(col_dsc, row_dsc, 0);
   window->padAll(0);
   
-  FormGroup* form = new FormGroup(window, rect_t{});
+  FormWindow* form = new FormWindow(window, rect_t{});
   form->setWidth(window->width());
   form->setHeight(window->height());
   grid.apply(form);

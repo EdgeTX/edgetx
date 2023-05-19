@@ -23,7 +23,7 @@
 
 #include "form.h"
 
-class SerialConfigWindow : public FormGroup
+class SerialConfigWindow : public FormWindow
 {
  public:
   SerialConfigWindow(Window *parent, const rect_t &rect);

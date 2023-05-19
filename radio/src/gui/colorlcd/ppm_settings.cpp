@@ -26,7 +26,7 @@
 
 template <typename T>
 PpmFrameSettings<T>::PpmFrameSettings(Window* parent, const FlexGridLayout& g, T* ppm) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
 
@@ -54,7 +54,7 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, const FlexGridLayout& g, T
 template struct PpmFrameSettings<TrainerModuleData>;
 
 PpmSettings::PpmSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    FormWindow(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);
   setFlexLayout();

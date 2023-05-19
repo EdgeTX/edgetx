@@ -23,7 +23,7 @@
 
 #include "form.h"
 
-class BluetoothConfigWindow : public FormGroup
+class BluetoothConfigWindow : public FormWindow
 {
  public:
   BluetoothConfigWindow(Window* parent);

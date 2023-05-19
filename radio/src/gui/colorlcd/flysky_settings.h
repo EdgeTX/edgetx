@@ -26,7 +26,7 @@
 
 struct ModuleData;
 
-class FlySkySettings : public FormGroup, public ModuleOptions
+class FlySkySettings : public FormWindow, public ModuleOptions
 {
   uint8_t moduleIdx;
   ModuleData* md;

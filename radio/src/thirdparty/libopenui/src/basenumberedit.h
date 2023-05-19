@@ -201,8 +201,6 @@ class BaseNumberEdit: public FormField
         lv_textarea_set_text(lvobj, str.c_str());
       }
     }
-  
-    virtual void paint(BitmapBuffer* dc) override {};
 
   protected:
     int vdefault = 0;

@@ -43,7 +43,7 @@ static const char* _afhds3_phy_mode[] = {
   "Lora 12ch",
 };
 
-class FSProtoOpts : public FormGroup
+class FSProtoOpts : public FormWindow
 {
   std::function<uint8_t()> _getMode;
   std::function<void(uint8_t)> _setMode;
@@ -55,7 +55,7 @@ public:
 
 FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
                          std::function<void(uint8_t)> setMode) :
-  FormGroup(parent, rect_t{}),
+  FormWindow(parent, rect_t{}),
   _getMode(std::move(getMode)),
   _setMode(std::move(setMode))
 {
@@ -82,7 +82,7 @@ FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
 
 FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
                                uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}),
+    FormWindow(parent, rect_t{}),
     moduleIdx(moduleIdx),
     md(&g_model.moduleData[moduleIdx]),
     grid(g)
@@ -135,7 +135,7 @@ void FlySkySettings::update()
     line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
     lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 

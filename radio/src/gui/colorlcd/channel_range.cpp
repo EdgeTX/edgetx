@@ -25,7 +25,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 ChannelRange::ChannelRange(Window* parent) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);

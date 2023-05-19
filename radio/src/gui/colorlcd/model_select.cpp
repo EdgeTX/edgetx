@@ -78,7 +78,7 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
 class ToolbarButton : public Button
 {
  public:
-  ToolbarButton(FormGroup *parent, const rect_t &rect, const uint8_t *bitmap,
+  ToolbarButton(FormWindow *parent, const rect_t &rect, const uint8_t *bitmap,
                 std::function<uint8_t()> pressHandler = nullptr) :
       Button(parent, rect, pressHandler, 0), _bitmap(bitmap)
   {
@@ -240,7 +240,7 @@ class ButtonHolder : public FormWindow
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
+  ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
       Button(parent, rect), modelCell(modelCell)
   {
     m_setSelected = std::move(setSelected);
@@ -606,7 +606,7 @@ class LabelDialog : public Dialog
 
     new TextEdit(form, rect_t{}, label, LABEL_LENGTH);
 
-    auto box = new FormGroup(form, rect_t{});
+    auto box = new FormWindow(form, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
     auto box_obj = box->getLvObj();

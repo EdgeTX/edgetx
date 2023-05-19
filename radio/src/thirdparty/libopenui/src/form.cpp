@@ -78,19 +78,19 @@ void FormField::onCancel()
   }
 }
 
-FormGroup::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout) :
+FormWindow::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout) :
     Window(parent, obj), layout(layout)
 {
   construct();
 }
 
-FormGroup::Line::Line(Window* parent, FlexGridLayout* layout) :
+FormWindow::Line::Line(Window* parent, FlexGridLayout* layout) :
     Window(parent, rect_t{}), layout(layout)
 {
   construct();
 }
 
-void FormGroup::Line::construct()
+void FormWindow::Line::construct()
 {
   // forward scroll and focus
   windowFlags |= FORWARD_SCROLL | NO_FOCUS | FORM_FORWARD_FOCUS;
@@ -100,17 +100,17 @@ void FormGroup::Line::construct()
     layout->apply(lvobj);
   }
 
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
   lv_obj_set_width(lvobj, lv_pct(100));
+  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
 }
 
-void FormGroup::Line::setLayout(FlexGridLayout *l)
+void FormWindow::Line::setLayout(FlexGridLayout *l)
 {
   layout = l;
   if (layout) layout->apply(lvobj);
 }
 
-void FormGroup::Line::addChild(Window* window)
+void FormWindow::Line::addChild(Window* window)
 {
   Window::addChild(window);
   if (layout) {
@@ -119,14 +119,14 @@ void FormGroup::Line::addChild(Window* window)
   }
 }
 
-FormGroup::FormGroup(Window* parent, const rect_t& rect,
+FormWindow::FormWindow(Window* parent, const rect_t& rect,
                      WindowFlags windowflags, LvglCreate objConstruct) :
    Window(parent, rect, windowflags, 0, objConstruct)
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
 }
 
-void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
+void FormWindow::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
 {
   lv_obj_set_flex_flow(lvobj, flow);
   if (_LV_FLEX_COLUMN & flow) {
@@ -138,7 +138,7 @@ void FormGroup::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
 }
 
-FormGroup::Line* FormGroup::newLine(FlexGridLayout* layout, lv_coord_t left_padding)
+FormWindow::Line* FormWindow::newLine(FlexGridLayout* layout, lv_coord_t left_padding)
 {
   if (layout) layout->resetPos();
   auto lv_line = window_create(lvobj);

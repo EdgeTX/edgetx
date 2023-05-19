@@ -543,7 +543,7 @@ void ModelMixesPage::build(FormWindow * window)
     }
   }
 
-  auto box = new FormGroup(window, rect_t{});
+  auto box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
