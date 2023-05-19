@@ -69,6 +69,8 @@ typedef struct {
   lv_style_t field_cursor, edit_cursor;
 
   lv_style_t keyboard_btn_bg;
+
+  lv_style_t modal_overlay;
 } my_theme_styles_t;
 
 /**********************
@@ -237,6 +239,7 @@ static void style_init(void)
   style_init_reset(&styles.slider_main);
   lv_style_set_bg_opa(&styles.slider_main, LV_OPA_100);
   lv_style_set_bg_color(&styles.slider_main, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_style_set_pad_all(&styles.slider_main, 6);
   style_init_reset(&styles.slider_knob);
   lv_style_set_bg_color(&styles.slider_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_opa(&styles.slider_knob, LV_OPA_COVER);
@@ -285,6 +288,11 @@ static void style_init(void)
   style_init_reset(&styles.keyboard_btn_bg);
   lv_style_set_shadow_width(&styles.keyboard_btn_bg, 0);
   lv_style_set_radius(&styles.keyboard_btn_bg, 5);
+
+  // Modal overlay (for dimming background)
+  style_init_reset(&styles.modal_overlay);
+  lv_style_set_bg_opa(&styles.modal_overlay, LV_OPA_50);
+  lv_style_set_bg_color(&styles.modal_overlay, lv_color_black());
 }
 
 /**********************
@@ -383,7 +391,7 @@ static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
 const lv_obj_class_t field_edit_class = {
     .base_class = &lv_textarea_class,
     .event_cb = field_edit_event,
-    .width_def = LV_DPI_DEF / 2,
+    .width_def = LV_DPI_DEF,
     .height_def = 32,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
@@ -623,6 +631,15 @@ lv_obj_t* etx_choice_create(lv_obj_t* parent)
   lv_obj_add_style(obj, &styles.choice_main, 0);
   lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_add_style(obj, &styles.rounded, 0);
+
+  return obj;
+}
+
+lv_obj_t* etx_modal_create(lv_obj_t* parent)
+{
+  lv_obj_t* obj = window_create(parent);
+
+  lv_obj_add_style(obj, &styles.modal_overlay, 0);
 
   return obj;
 }

@@ -267,17 +267,17 @@ class SoundPage : public SubPage {
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50), PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
+      new Slider(line, lv_pct(50), -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
       line = body.newLine(&grid);
 
       // Beeps volume
       new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
       line = body.newLine(&grid);
 
       // Beeps length
       new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
       line = body.newLine(&grid);
 
       // Beeps pitch
@@ -295,12 +295,12 @@ class SoundPage : public SubPage {
 
       // Wav volume
       new StaticText(line, rect_t{}, STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
       line = body.newLine(&grid);
 
       // Background volume
       new StaticText(line, rect_t{}, STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
 
     }
 };
@@ -316,7 +316,7 @@ class VarioPage : public SubPage {
 
       // Vario volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
       line = body.newLine(&grid);
 
       new StaticText(line, rect_t{}, STR_PITCH_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
@@ -362,12 +362,12 @@ class HapticPage : public SubPage {
 
       // Haptic duration
       new StaticText(line, rect_t{}, STR_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
       line = body.newLine(&grid);
 
       // Haptic strength
       new StaticText(line, rect_t{}, STR_STRENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
       line = body.newLine(&grid);
     }
 };
@@ -383,14 +383,12 @@ class AlarmsPage : public SubPage {
       // Battery warning
       new StaticText(line, rect_t{}, STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(line, rect_t{}, 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
-      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       edit->setSuffix("V");
       line = body.newLine(&grid);
 
       // Inactivity alarm
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
-      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
       edit->setDisplayHandler([=](int value) -> std::string {
         std::string suffix(STR_MINUTE_PLURAL2);
@@ -468,7 +466,7 @@ class BacklightPage : public SubPage {
 
       // Backlight ON bright
       new StaticText(backlightOnBright, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      new Slider(backlightOnBright, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+      new Slider(backlightOnBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                  },
@@ -484,7 +482,7 @@ class BacklightPage : public SubPage {
 
       // Backlight OFF bright
       new StaticText(backlightOffBright, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      new Slider(backlightOffBright, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+      new Slider(backlightOffBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
                  [=](int32_t newValue) {
                    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                    if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)

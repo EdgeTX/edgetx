@@ -22,12 +22,10 @@
 #include "layer.h"
 
 ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
+  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, 0, 0, etx_modal_create),
   closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);
-  lv_obj_set_style_bg_color(lvobj, lv_color_black(), LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_50, LV_PART_MAIN);
 }
 
 void ModalWindow::deleteLater(bool detach, bool trash)

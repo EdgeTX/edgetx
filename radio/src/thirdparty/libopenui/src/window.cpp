@@ -556,24 +556,6 @@ bool Window::onTouchEnd(coord_t x, coord_t y)
   if (parent && !(windowFlags & OPAQUE)) return parent->onTouchEnd(x, y);
   return true;
 }
-
-bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  // TODO: this is not used anymore: REMOVE
-  
-  // for (auto it = children.rbegin(); it != children.rend(); ++it) {
-  //   auto child = *it;
-  //   if (child->rect.contains(startX, startY)) {
-  //     if (child->onTouchSlide(x - child->rect.x, y - child->rect.y, startX - child->rect.x, startY - child->rect.y, slideX, slideY)) {
-  //       return true;
-  //     }
-  //   }
-  // }
-
-  // return false;
-
-  return true;
-}
 #endif
 
 coord_t Window::adjustHeight()

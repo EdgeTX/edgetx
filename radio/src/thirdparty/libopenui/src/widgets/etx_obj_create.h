@@ -16,6 +16,7 @@ lv_obj_t* etx_slider_create(lv_obj_t* parent);
 lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent);
 lv_obj_t* etx_button_create(lv_obj_t* parent);
 lv_obj_t* etx_choice_create(lv_obj_t* parent);
+lv_obj_t* etx_modal_create(lv_obj_t* parent);
 
 lv_obj_t* input_mix_line_create(lv_obj_t* parent);
 lv_obj_t* input_mix_group_create(lv_obj_t* parent);
