@@ -32,21 +32,10 @@ static void slider_changed_cb(lv_event_t* e)
   }
 }
 
-static lv_style_t style_main;
-static lv_style_t style_ind;
-static lv_style_t style_knob;
-static lv_style_t style_focused;
-static lv_style_t style_edit;
-
-constexpr coord_t SLIDER_PADDING = 6;
-
-Slider::Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
+Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
                std::function<int()> getValue,
                std::function<void(int)> setValue) :
-    FormField(parent,
-              {rect.x + SLIDER_PADDING, rect.y + SLIDER_PADDING,
-               rect.w - 2 * SLIDER_PADDING, rect.h - 2 * SLIDER_PADDING},
-              0, 0, etx_slider_create),
+    FormField(parent, {0, 0, width, 8}, 0, 0, etx_slider_create),
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(getValue)),

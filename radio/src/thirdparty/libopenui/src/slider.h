@@ -23,7 +23,7 @@
 class Slider : public FormField
 {
  public:
-  Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
+  Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
          std::function<int()> getValue, std::function<void(int)> setValue);
 
 #if defined(DEBUG_WINDOWS)

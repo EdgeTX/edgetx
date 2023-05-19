@@ -259,8 +259,6 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
                                 (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
     body(this, {0, 0, width(), height()})
 {
-  // body.setFocus(SET_FOCUS_DEFAULT);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 }
 
 coord_t MenuWindowContent::getHeaderHeight() const
