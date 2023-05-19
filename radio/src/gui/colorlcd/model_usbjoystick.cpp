@@ -285,7 +285,7 @@ class USBChannelEditWindow : public Page
       statusBar = new USBChannelEditStatusBar(
           window,
           {window->getRect().w - USBCH_EDIT_STATUS_BAR_WIDTH - USBCH_EDIT_RIGHT_MARGIN,
-           0, USBCH_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+           0, USBCH_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
           channel);
     }
 

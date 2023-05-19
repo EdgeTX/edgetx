@@ -125,7 +125,7 @@ void OutputEditWindow::buildHeader(Window *window)
       window,
       {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
            OUTPUT_EDIT_RIGHT_MARGIN,
-       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
       channel);
 }
 
