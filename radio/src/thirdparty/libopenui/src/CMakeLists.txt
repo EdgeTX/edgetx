@@ -7,7 +7,6 @@ if(HARWARE_TOUCH)
 endif()
 
 set(LIBOPENUI_SRC
-  libopenui_file.cpp
   bitmapbuffer.cpp
   window.cpp
   layer.cpp

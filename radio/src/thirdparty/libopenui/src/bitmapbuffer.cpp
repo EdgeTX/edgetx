@@ -22,7 +22,6 @@
 #include "board.h"
 #include "bitmapbuffer.h"
 #include "opentx_helpers.h"
-#include "libopenui_file.h"
 #include "font.h"
 #include "libopenui_conf.h"
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
@@ -1253,7 +1252,7 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::loadBitmap(%s)", filename);
-  const char * ext = getFileExtension(filename);
+  const char * ext = openUiGetFileExtension(filename,0 ,0, nullptr, nullptr);
   if (ext && !strcmp(ext, ".bmp"))
     return load_bmp(filename);
   else

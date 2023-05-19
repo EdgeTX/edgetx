@@ -18,7 +18,6 @@
 
 #include "filechoice.h"
 #include "strhelpers.h"
-#include "libopenui_file.h"
 #include "menu.h"
 #include "theme.h"
 #include "message_dialog.h"
@@ -73,9 +72,9 @@ bool FileChoice::openMenu()
       if (openUiFsIsHiddenFile(&fno)) continue;  // skip hidden files
       if (openUiFsIsSystemFile(&fno)) continue;  // skip system files
 
-      fnExt = getFileExtension(openUiFsGetName(&fno).c_str(), 0, 0, &fnLen, &extLen);
+      fnExt = openUiGetFileExtension(openUiFsGetName(&fno).c_str(), 0, 0, &fnLen, &extLen);
 
-      if (extension && (!fnExt || !isFileExtensionMatching(fnExt, extension)))
+      if (extension && (!fnExt || !openUiIsFileExtensionMatching(fnExt, extension, nullptr)))
         continue;  // wrong extension
 
       if (stripExtension) fnLen -= extLen;
