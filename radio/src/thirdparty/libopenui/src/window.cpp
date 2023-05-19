@@ -158,11 +158,12 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
 
   lv_obj_set_user_data(lvobj, this);
 
-  if (rect.w || rect.h) {
+  if (rect.x || rect.y)
     lv_obj_set_pos(lvobj, rect.x, rect.y);
-    if (rect.w) setWidth(rect.w);
-    if (rect.h) setHeight(rect.h);
-  }
+  if (rect.w)
+    lv_obj_set_width(lvobj, rect.w);
+  if (rect.h)
+    lv_obj_set_height(lvobj, rect.h);
 
   if (windowFlags & OPAQUE) {
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);

@@ -122,7 +122,7 @@ enum COLOR_EDITOR_TYPE
 };
 
 // the ColorEditor() control is a group of other controls
-class ColorEditor : public FormGroup
+class ColorEditor : public FormWindow
 {
  public:
   ColorEditor(Window* parent, const rect_t& rect, uint32_t color,

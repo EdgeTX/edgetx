@@ -90,13 +90,13 @@ class SpecialFunctionEditPage : public Page
     lv_obj_set_style_text_font(headerSF->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
   }
 
-  void addSourceChoice(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmax)
+  void addSourceChoice(FormWindow::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmax)
   {
     new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
     new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));
   }
 
-  NumberEdit* addNumberEdit(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmin, int16_t vmax)
+  NumberEdit* addNumberEdit(FormWindow::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmin, int16_t vmax)
   {
     new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
     return new NumberEdit(line, rect_t{}, vmin, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));

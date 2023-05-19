@@ -28,7 +28,7 @@
 
 class Page;
 
-class PageHeader : public FormGroup
+class PageHeader : public FormWindow
 {
  public:
   PageHeader(Page* parent, uint8_t icon);

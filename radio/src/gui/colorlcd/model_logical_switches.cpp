@@ -46,7 +46,7 @@ class LogicalSwitchEditPage : public Page
  protected:
   uint8_t index;
   bool active = false;
-  FormGroup* logicalSwitchOneWindow = nullptr;
+  FormWindow* logicalSwitchOneWindow = nullptr;
   StaticText* headerSwitchName = nullptr;
   NumberEdit* v2Edit = nullptr;
 

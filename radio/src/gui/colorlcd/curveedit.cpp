@@ -43,7 +43,7 @@ CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index
   #define   NUM_BTN_WIDTH   48
 #endif
 
-void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
+void CurveDataEdit::curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
 {
   static const lv_coord_t points_col_dsc[] = {11, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 

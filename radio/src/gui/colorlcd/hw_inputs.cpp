@@ -42,7 +42,7 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-HWSticks::HWSticks(Window* parent) : FormGroup(parent, rect_t{})
+HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   setFlexLayout();
@@ -67,7 +67,7 @@ HWSticks::HWSticks(Window* parent) : FormGroup(parent, rect_t{})
 #endif
 }
 
-HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
+HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   setFlexLayout();
@@ -147,7 +147,7 @@ class SwitchDynamicLabel : public StaticText
   uint8_t lastpos = 0xff;
 };
 
-HWSwitches::HWSwitches(Window* parent) : FormGroup(parent, rect_t{})
+HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   setFlexLayout();
@@ -156,7 +156,7 @@ HWSwitches::HWSwitches(Window* parent) : FormGroup(parent, rect_t{})
     auto line = newLine(&grid);
     new SwitchDynamicLabel(line, i);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
 
     auto box_obj = box->getLvObj();

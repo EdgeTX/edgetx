@@ -102,7 +102,7 @@ InputSource::InputSource(Window* parent, ExpoData* input) :
       });
   lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 
-  sensor_form = new FormGroup(this, rect_t{});
+  sensor_form = new FormWindow(this, rect_t{});
   sensor_form->setFlexLayout();
 
   FlexGridLayout grid(col_dsc, row_dsc);

@@ -546,7 +546,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() :
   _ApplyBtn = new TextButton(line, rect_t{}, STR_USBJOYSTICK_APPLY_CHANGES,
                             [=]() { onUSBJoystickModelChanged(); this->update(); return 0; });
 
-  auto btngrp = new FormGroup(form, rect_t{});
+  auto btngrp = new FormWindow(form, rect_t{});
   _ChannelsGroup = btngrp;
   btngrp->setFlexLayout();
   btngrp->padRow(lv_dpx(4));

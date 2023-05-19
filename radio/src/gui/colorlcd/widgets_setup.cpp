@@ -31,7 +31,7 @@
 #include "gui.h"
 #include "translations.h"
 
-SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup* parent,
+SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormWindow* parent,
                                            const rect_t& rect,
                                            WidgetsContainer* container,
                                            uint8_t slotIndex) :

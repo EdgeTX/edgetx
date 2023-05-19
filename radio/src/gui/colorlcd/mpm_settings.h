@@ -32,7 +32,7 @@ struct MPMServoRate;
 struct MPMAutobind;
 struct MPMChannelMap;
 
-class MultimoduleSettings : public FormGroup, public ModuleOptions
+class MultimoduleSettings : public FormWindow, public ModuleOptions
 {
   ModuleData* md;
   uint8_t moduleIdx;

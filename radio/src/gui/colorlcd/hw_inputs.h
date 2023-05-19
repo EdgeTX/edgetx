@@ -25,16 +25,15 @@
 #include "dialog.h"
 #include "button.h"
 
-struct HWSticks : public FormGroup {
+struct HWSticks : public FormWindow {
   HWSticks(Window* parent);
 };
 
-struct HWPots : public FormGroup {
+struct HWPots : public FormWindow {
   HWPots(Window* parent);
 };
 
-
-struct HWSwitches : public FormGroup {
+struct HWSwitches : public FormWindow {
   HWSwitches(Window* parent);
 };
 

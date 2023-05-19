@@ -25,7 +25,7 @@
 #include "opentx.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
-  FormGroup(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
+  FormWindow(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
   icon(icon)
 {
 #if defined(HARDWARE_TOUCH)

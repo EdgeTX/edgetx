@@ -342,7 +342,7 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
   // new StaticText(line, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
   // status = new StaticText(line, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(form, rect_t{});
+  auto box = new FormWindow(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padAll(lv_dpx(8));
@@ -581,7 +581,7 @@ void ModuleOptions::update()
 
   line = form->newLine(&grid);
 
-  auto box = new FormGroup(form, rect_t{});
+  auto box = new FormWindow(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padAll(lv_dpx(8));
@@ -875,7 +875,7 @@ void RxOptions::update()
   line = form->newLine(&grid);
   new DynamicText(line, rect_t{}, [=]() { return statusText; });
 
-  auto box = new FormGroup(form, rect_t{});
+  auto box = new FormWindow(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padAll(lv_dpx(8));

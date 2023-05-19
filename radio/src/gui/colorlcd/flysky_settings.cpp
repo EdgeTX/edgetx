@@ -44,7 +44,7 @@ static const char* _afhds3_phy_mode[] = {
   "Lora 12ch",
 };
 
-class FSProtoOpts : public FormGroup
+class FSProtoOpts : public FormWindow
 {
   std::function<uint8_t()> _getMode;
   std::function<void(uint8_t)> _setMode;
@@ -56,7 +56,7 @@ public:
 
 FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
                          std::function<void(uint8_t)> setMode) :
-  FormGroup(parent, rect_t{}),
+  FormWindow(parent, rect_t{}),
   _getMode(std::move(getMode)),
   _setMode(std::move(setMode))
 {
@@ -83,7 +83,7 @@ FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
 
 FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
                                uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}),
+    FormWindow(parent, rect_t{}),
     moduleIdx(moduleIdx),
     md(&g_model.moduleData[moduleIdx]),
     grid(g)

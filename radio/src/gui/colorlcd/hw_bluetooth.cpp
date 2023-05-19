@@ -99,7 +99,7 @@ static void bt_mode_changed(lv_event_t* e)
 }
 
 BluetoothConfigWindow::BluetoothConfigWindow(Window *parent) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout();
   FlexGridLayout grid(col_dsc, row_dsc, 2);
@@ -107,7 +107,7 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window *parent) :
   auto line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);

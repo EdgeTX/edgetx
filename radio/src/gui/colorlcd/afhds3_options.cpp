@@ -75,7 +75,7 @@ static void pwmfreq_changedV0(lv_event_t* e)
   }
 }
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx) :
-  FormGroup(parent, rect_t{})
+  FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -112,7 +112,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
 }
 
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
-  FormGroup(parent, rect_t{})
+  FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -163,7 +163,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   title += ")";
   header.setTitle2(title);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 

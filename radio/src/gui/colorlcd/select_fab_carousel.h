@@ -23,7 +23,7 @@
 
 #include "select_fab_button.h"
 
-class SelectFabCarousel : public FormGroup
+class SelectFabCarousel : public FormWindow
 {
 public:
     explicit SelectFabCarousel(Window* parent);

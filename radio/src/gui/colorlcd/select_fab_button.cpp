@@ -21,7 +21,7 @@
 
 #include "select_fab_button.h"
 
-SelectFabButton::SelectFabButton(FormGroup* parent,
+SelectFabButton::SelectFabButton(FormWindow* parent,
                                  uint8_t icon, const char* title,
                                  std::function<uint8_t(void)> pressHandler,
                                  WindowFlags windowFlags) :

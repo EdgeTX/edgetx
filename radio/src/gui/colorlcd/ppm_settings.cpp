@@ -26,7 +26,7 @@
 
 template <typename T>
 PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
 

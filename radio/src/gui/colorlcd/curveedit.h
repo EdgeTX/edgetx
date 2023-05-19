@@ -86,7 +86,7 @@ class CurveDataEdit : public Window
     CurveEdit * curveEdit;
     NumberEdit* numEditX[16];
 
-    void curvePointsRow(FormGroup::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
+    void curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
 };
 
 class CurveEditWindow : public Page

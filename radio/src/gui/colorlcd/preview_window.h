@@ -72,7 +72,7 @@ extern ColorMaintainer colorMaintainer;
 class ThemedStaticText : public StaticText
 {
  public:
-  ThemedStaticText(FormGroup *window, const rect_t &rect, std::string text, LcdColorIndex colorIndex) :
+  ThemedStaticText(FormWindow *window, const rect_t &rect, std::string text, LcdColorIndex colorIndex) :
     StaticText(window, rect, text, 0, COLOR(colorIndex)),
     _colorIndex(colorIndex)
   {
@@ -147,7 +147,7 @@ class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
 class ThemedButton : public TextButton
 {
   public:
-    ThemedButton(FormGroup *window, const rect_t &rect, std::string text, bool isChecked, WindowFlags windowFlags, 
+    ThemedButton(FormWindow *window, const rect_t &rect, std::string text, bool isChecked, WindowFlags windowFlags, 
                  LcdColorIndex colorIndex) :
       TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS),
       _colorIndex(colorIndex),
@@ -219,12 +219,12 @@ class ThemedTextEdit : public TextEdit
 };
 
 // display controls using the appropriate theme.
-class PreviewWindow : public FormGroup
+class PreviewWindow : public FormWindow
 {
  public:
   PreviewWindow(Window *window, rect_t rect,
                 std::vector<ColorEntry> colorList) :
-      FormGroup(window, rect, NO_FOCUS), _colorList(colorList)
+      FormWindow(window, rect, NO_FOCUS), _colorList(colorList)
   {
 
     // reset default group to avoid focus

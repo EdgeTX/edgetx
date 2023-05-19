@@ -45,7 +45,7 @@ coord_t getAverage(uint8_t number, const uint8_t * value)
 class SpectrumFooterWindow: public FormWindow
 {
   public:
-    SpectrumFooterWindow(FormGroup * parent, const rect_t & rect, int moduleIdx) :
+    SpectrumFooterWindow(FormWindow * parent, const rect_t & rect, int moduleIdx) :
       FormWindow(parent, rect)
     {
       setFlexLayout();
