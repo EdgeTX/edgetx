@@ -609,7 +609,7 @@ lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
   lv_obj_add_style(obj, &styles.rounded, 0);
   // items
   lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
   lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
   lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
@@ -618,7 +618,30 @@ lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
   return obj;
 }
 
+const lv_obj_class_t etx_button_class = {
+    .base_class = &lv_btn_class,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32
+};
+
+// Fixed height (32)
 lv_obj_t* etx_button_create(lv_obj_t* parent)
+{
+  lv_obj_t * obj = lv_obj_class_create_obj(&etx_button_class, parent);
+  lv_obj_class_init_obj(obj);
+
+  lv_obj_add_style(obj, &styles.btn, 0);
+  lv_obj_add_style(obj, &styles.border, 0);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
+
+  return obj;
+}
+
+// Variable height
+lv_obj_t* etx_vbutton_create(lv_obj_t* parent)
 {
   lv_obj_t * obj = lv_obj_class_create_obj(&lv_btn_class, parent);
   lv_obj_class_init_obj(obj);
