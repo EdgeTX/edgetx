@@ -71,12 +71,12 @@ void RadioHardwarePage::build(FormWindow * window)
   lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   auto batMin =
-      new NumberEdit(box, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+      new NumberEdit(box, rect_t{0, 0, 80, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
                      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
   batMin->setSuffix("V");
   new StaticText(box, rect_t{}, "-");
   auto batMax =
-      new NumberEdit(box, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+      new NumberEdit(box, rect_t{0, 0, 80, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
                      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
   batMax->setSuffix("V");
 
@@ -98,7 +98,7 @@ void RadioHardwarePage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal =
-      new NumberEdit(line, rect_t{}, -127, 127,
+      new NumberEdit(line, rect_t{0, 0, 80, 0}, -127, 127,
                      GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
   batCal->setDisplayHandler([](int32_t value) {
     return formatNumberAsString(getBatteryVoltage(), PREC2, 0, nullptr, "V");

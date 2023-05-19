@@ -694,7 +694,7 @@ class SpecialFunctionButton : public Button
 };
 
 #if LCD_W > LCD_H
-#define SF_BUTTON_H 36
+#define SF_BUTTON_H 34
 #else
 #define SF_BUTTON_H 45
 #endif
