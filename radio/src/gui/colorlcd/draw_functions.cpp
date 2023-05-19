@@ -102,7 +102,7 @@ void drawSleepBitmap()
   lcdInitDirectDrawing();
   lcd->clear(bgColor);
 
-  const BitmapBuffer* bitmap = OpenTxTheme::instance()->shutdown;
+  const BitmapBuffer* bitmap = EdgeTxTheme::instance()->shutdown;
   if (bitmap) {
     lcd->drawMask((LCD_W - bitmap->width()) / 2, (LCD_H - bitmap->height()) / 2,
                   bitmap, fgColor);
@@ -134,7 +134,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     bgColor = COLOR_THEME_SECONDARY1;
   }
 
-  static const BitmapBuffer* shutdown = OpenTxTheme::instance()->shutdown;
+  static const BitmapBuffer* shutdown = EdgeTxTheme::instance()->shutdown;
 
   lcdInitDirectDrawing();
   lcd->clear(bgColor);

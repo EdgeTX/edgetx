@@ -235,7 +235,7 @@ void ThemeFile::applyColors()
 
 void ThemeFile::applyBackground()
 {
-  auto instance = OpenTxTheme::instance();
+  auto instance = EdgeTxTheme::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
@@ -264,7 +264,7 @@ void ThemeFile::applyTheme()
 {
   applyColors();
   applyBackground();
-  OpenTxTheme::instance()->update(false);
+  EdgeTxTheme::instance()->update(false);
 
   // Update views with new theme
   // Currently, on startup, active theme is loaded after ViewMain is created so ViewMain instance is defined

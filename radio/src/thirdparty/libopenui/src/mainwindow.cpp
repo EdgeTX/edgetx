@@ -21,8 +21,6 @@
 
 #include "lvgl/lvgl.h"
 
-
-
 MainWindow * MainWindow::_instance = nullptr;
 
 MainWindow::MainWindow() :
@@ -37,7 +35,6 @@ void MainWindow::emptyTrash()
   }
   trash.clear();
 }
-
 
 void MainWindow::invalidate(const rect_t& rect)
 {

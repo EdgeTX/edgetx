@@ -35,15 +35,6 @@ CheckBox::CheckBox(Window* parent, const rect_t& rect,
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
-  // TODO: migrate to default theme
-
-//   if (height() > 0)
-//     lv_obj_set_width(lvobj, (lv_coord_t)(height() * 1.7f));
-
-  // PART_MAIN
-//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN);
-//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_DISABLED), LV_STATE_FOCUSED);
-
   update();
 
   lv_obj_add_event_cb(lvobj, checkbox_event_handler,

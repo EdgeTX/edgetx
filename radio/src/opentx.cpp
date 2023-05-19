@@ -323,8 +323,8 @@ void generalDefault()
 #endif
 
 #if defined(COLORLCD)
-  strcpy(g_eeGeneral.themeName, static_cast<OpenTxTheme *>(theme)->getName());
-  static_cast<OpenTxTheme *>(theme)->init();
+  strcpy(g_eeGeneral.themeName, static_cast<EdgeTxTheme *>(theme)->getName());
+  static_cast<EdgeTxTheme *>(theme)->init();
 #endif
 
 #if defined(PXX2)

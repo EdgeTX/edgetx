@@ -20,8 +20,6 @@
 #include "touch.h"
 #include "mainwindow.h"
 
-// #include "widgets/window_base.h"
-
 std::list<Window *> Window::trash;
 
 extern lv_obj_t *virtual_kb;

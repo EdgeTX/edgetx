@@ -558,7 +558,7 @@ void perMain()
 #if defined(LIBOPENUI)
     // draw some image showing USB
     lcdInitDirectDrawing();
-    OpenTxTheme::instance()->drawUsbPluggedScreen(lcd);
+    EdgeTxTheme::instance()->drawUsbPluggedScreen(lcd);
     lcdRefresh();
 #else
     // disable access to menus

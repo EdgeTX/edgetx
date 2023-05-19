@@ -17,7 +17,6 @@
  */
 
 #include "table.h"
-// #include "widgets/edgetx_table.h"
 
 void TableField::event_cb(lv_event_t *e)
 {

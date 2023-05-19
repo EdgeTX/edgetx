@@ -834,7 +834,7 @@ PACK(struct TrainerData {
   #define THEME_NAME_LEN 8
   #define THEME_DATA \
     NOBACKUP(char themeName[THEME_NAME_LEN]); \
-    NOBACKUP(OpenTxTheme::PersistentData themeData);
+    NOBACKUP(EdgeTxTheme::PersistentData themeData);
 #else
   #define THEME_DATA
 #endif

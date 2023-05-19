@@ -41,17 +41,10 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
     FormField(parent, rect, windowFlags, 0, etx_choice_create),
     type(type)
 {
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+//   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+//   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
-
-//   if (height() == 0)
-//   {
-//     lv_obj_set_style_pad_top(lvobj, 4, LV_PART_MAIN);
-//     lv_obj_set_style_pad_bottom(lvobj, 4, LV_PART_MAIN);
-//     lv_obj_set_style_radius(lvobj, 4, LV_PART_MAIN);
-//   }
 
   lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
@@ -60,18 +53,6 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   if(def_group) {
       lv_group_add_obj(def_group, lvobj);
   }
-
-//   // Normal font and background color
-//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
-//   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
-//   lv_obj_set_style_pad_right(lvobj, 5, LV_PART_MAIN);
-//   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
-//   lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
-//   lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
-// 
-//   // focused
-//   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
-//   lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
 
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);

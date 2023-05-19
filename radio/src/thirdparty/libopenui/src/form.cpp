@@ -20,8 +20,6 @@
 #include "bitmapbuffer.h"
 #include "libopenui_config.h"
 
-// #include "widgets/window_base.h"
-
 FormField::FormField(Window* parent, const rect_t& rect,
                      WindowFlags windowFlags, LcdFlags textFlags,
                      LvglCreate objConstruct) :
