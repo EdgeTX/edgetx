@@ -425,14 +425,12 @@ void CurveEditWindow::buildBody(FormWindow * window)
   new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name));
 
   // Smooth
-  auto smooth = new TextButton(iLine, rect_t{}, STR_SMOOTH, [=]() {
+  auto smooth = new TextButton(iLine, rect_t{0, 0, 70, 0}, STR_SMOOTH, [=]() {
     g_model.curves[index].smooth = !g_model.curves[index].smooth;
     curveEdit->updatePreview();
     return g_model.curves[index].smooth;
   });
   smooth->check(g_model.curves[index].smooth);
-  smooth->padAll(2);
-  smooth->setHeight(26);
   
   iLine = form->newLine(&iGrid);
   iLine->padAll(4);
@@ -463,7 +461,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
              });
 
   // Points count
-  auto edit = new NumberEdit(iLine, rect_t{}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
+  auto edit = new NumberEdit(iLine, rect_t{0, 0, 70, 0}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
                              [=](int32_t newValue) {
                                  newValue -= 5;
                                  CurveHeader &curve = g_model.curves[index];
@@ -492,7 +490,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
   iLine->padAll(0);
   lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
 
-  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 67 }, index);
+  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 72 }, index);
 
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);

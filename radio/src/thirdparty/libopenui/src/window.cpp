@@ -160,7 +160,8 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
 
   if (rect.w || rect.h) {
     lv_obj_set_pos(lvobj, rect.x, rect.y);
-    lv_obj_set_size(lvobj, rect.w, rect.h);
+    if (rect.w) setWidth(rect.w);
+    if (rect.h) setHeight(rect.h);
   }
 
   if (windowFlags & OPAQUE) {
