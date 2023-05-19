@@ -228,21 +228,21 @@ class PreviewWindow : public FormGroup
     lv_group_t* def_group = lv_group_get_default();
     lv_group_set_default(nullptr);
 
-    new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, "Checkbox", COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedCheckBox(this, {100 + 15, 40, 20, LINE_HEIGHT}, true);
-    new ThemedCheckBox(this, {140 + 15, 40, 20, LINE_HEIGHT}, false);
-    new ThemedButton(this, {190, 40, 100, LINE_HEIGHT + 10}, "Active", true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedButton(this, {190, 75, 100, LINE_HEIGHT + 10}, "Regular", false, 0, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedMainViewHorizontalTrim(this, {5, 65, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedMainViewHorizontalSlider(this, {5, 87, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedStaticText(this, {5, 115, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
-    new ThemedStaticText(this, {5, 140, 100, LINE_HEIGHT}, "Disabled Text", COLOR_THEME_DISABLED_INDEX);
+    new ThemedStaticText(this, {5, 44, 100, LINE_HEIGHT}, "Checkbox", COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedCheckBox(this, {100, 40, 40, 28}, true);
+    new ThemedCheckBox(this, {150, 40, 40, 28}, false);
+    new ThemedButton(this, {210, 40, 100, LINE_HEIGHT + 10}, "Active", true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {210, 75, 100, LINE_HEIGHT + 10}, "Regular", false, 0, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedMainViewHorizontalTrim(this, {5, 75, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedMainViewHorizontalSlider(this, {5, 97, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedStaticText(this, {5, 122, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
+    new ThemedStaticText(this, {5, 144, 100, LINE_HEIGHT}, "Disabled Text", COLOR_THEME_DISABLED_INDEX);
 
     static char EditText[] = "Edit";
-    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, EditText, 
+    new ThemedTextEdit(this, {5, 170, 100, 32}, EditText, 
                        COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
     static char FocusText[] = "Focus";
-    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, FocusText, 
+    new ThemedTextEdit(this, {110, 170, 100, 32}, FocusText, 
                        COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
     ticks = 0;
 

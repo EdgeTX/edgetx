@@ -829,6 +829,12 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
   }
 }
 
+#if LCD_W > LCD_H
+#define NUM_EDIT_W 100
+#else
+#define NUM_EDIT_W 65
+#endif
+
 void ModelTelemetryPage::build(FormWindow * window)
 {
   window->padAll(4);
@@ -916,12 +922,12 @@ void ModelTelemetryPage::build(FormWindow * window)
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
+  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
 
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
+  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
 
   line = window->newLine(&grid);
   line->padLeft(10);
@@ -952,20 +958,20 @@ void ModelTelemetryPage::build(FormWindow * window)
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_RANGE, 0, COLOR_THEME_PRIMARY1);
 
-  auto vMin = new NumberEdit(line, rect_t{}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
+  auto vMin = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
   vMin->setAvailableHandler([](int val) { return val < g_model.varioData.max + 10; });
 
-  auto vMax = new NumberEdit(line, rect_t{}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
+  auto vMax = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
   vMax->setAvailableHandler([](int val) { return g_model.varioData.min - 10 < val; });
 
   line = window->newLine(&grid5);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CENTER, 0, COLOR_THEME_PRIMARY1);
 
-  auto cMin = new NumberEdit(line, rect_t{}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMin, -5), 0, PREC1);
+  auto cMin = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMin, -5), 0, PREC1);
   cMin->setAvailableHandler([](int val) { return val < g_model.varioData.centerMax + 5; });
 
-  auto cMax = new NumberEdit(line, rect_t{}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMax, 5), 0, PREC1);
+  auto cMax = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMax, 5), 0, PREC1);
   cMax->setAvailableHandler([](int val) { return g_model.varioData.centerMin - 5 < val; });
 
   new Choice(line, rect_t{}, STR_VVARIOCENTER, 0, 1, GET_SET_DEFAULT(g_model.varioData.centerSilent));
