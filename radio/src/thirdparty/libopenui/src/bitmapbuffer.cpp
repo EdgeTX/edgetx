@@ -24,7 +24,7 @@
 #include "opentx_helpers.h"
 #include "libopenui_file.h"
 #include "font.h"
-
+#include "libopenui_conf.h"
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
 
 void DMAWait();
@@ -1393,7 +1393,7 @@ BitmapBuffer * BitmapBuffer::load8bitMaskOnBackground(const uint8_t * lbm, LcdFl
   return result;
 }
 
-OpenUiFileP imgFile __DMA;
+OpenUiFile imgFile __DMA;
 
 BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 {
@@ -1402,24 +1402,24 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   uint8_t bmpBuf[LCD_W]; /* maximum with LCD_W */
   uint8_t * buf = &bmpBuf[0];
 
-  OUiFsError result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
-  if (result != OUiFsError::OK) {
+  OpenUiFsRetType result = openUiOpenFile(&imgFile, filename, OPENUI_FS_OPEN_FLAG_OPENEXISTING | OPENUI_FS_OPEN_FLAG_READ);
+  if (result != OPENUI_FS_OK) {
     return nullptr;
   }
 
-  if (imgFile->size() < 14) {
-    imgFile->close();;
+  if (openUiFileGetSize(&imgFile) < 14) {
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
-  result = imgFile->read(buf, 14, read);
-  if (result != OUiFsError::OK || read != 14) {
-    imgFile->close();;
+  result = openUiReadFile(&imgFile, buf, 14, read);
+  if (result != OPENUI_FS_OK || read != 14) {
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
   if (buf[0] != 'B' || buf[1] != 'M') {
-    imgFile->close();;
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
@@ -1427,9 +1427,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   uint32_t hsize  = *((uint32_t *)&buf[10]); /* header size */
 
   uint32_t len = limit<uint32_t>(4, hsize - 14, 32);
-  result = imgFile->read(buf, len, read);
-  if (result != OUiFsError::OK || read != len) {
-    imgFile->close();;
+  result = openUiReadFile(&imgFile, buf, len, read);
+  if (result != OPENUI_FS_OK || read != len) {
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
@@ -1437,17 +1437,17 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 
   /* invalid extra header size */
   if (ihsize + 14 > hsize) {
-    imgFile->close();;
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
   /* sometimes file size is set to some headers size, set a real size in that case */
   if (fsize == 14 || fsize == ihsize + 14)
-    fsize = imgFile->size() - 2;
+    fsize = openUiFileGetSize(&imgFile) - 2;
 
   /* declared file size less than header size */
   if (fsize <= hsize) {
-    imgFile->close();;
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
@@ -1469,12 +1469,12 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       buf += 8;
       break;
     default:
-      imgFile->close();;
+      openUiCloseFile(&imgFile);;
       return nullptr;
   }
   //TRACE("  BitmapBuffer::load_bmp() %dx%d", w, h);
   if (*((uint16_t *)&buf[0]) != 1) { /* planes */
-    imgFile->close();;
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
@@ -1483,8 +1483,8 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   buf = &bmpBuf[0];
 
   if (depth == 4) {
-    if (imgFile->lseek(hsize - 64) != OUiFsError::OK || imgFile->read(buf, 64, read) != OUiFsError::OK || read != 64) {
-      imgFile->close();;
+    if (openUiFileLSeek(&imgFile, hsize - 64) != OPENUI_FS_OK || openUiReadFile(&imgFile, buf, 64, read) != OPENUI_FS_OK || read != 64) {
+      openUiCloseFile(&imgFile);;
       return nullptr;
     }
     for (uint8_t i = 0; i < 16; i++) {
@@ -1492,15 +1492,15 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
     }
   }
   else {
-    if (imgFile->lseek(hsize) != OUiFsError::OK) {
-      imgFile->close();;
+    if (openUiFileLSeek(&imgFile, hsize) != OPENUI_FS_OK) {
+      openUiCloseFile(&imgFile);;
       return nullptr;
     }
   }
 
   BitmapBuffer * bmp = new BitmapBuffer(BMP_RGB565, w, h);
   if (bmp == nullptr || bmp->getData() == nullptr) {
-    imgFile->close();;
+    openUiCloseFile(&imgFile);;
     return nullptr;
   }
 
@@ -1512,9 +1512,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       for (int i = h - 1; i >= 0; i--) {
         pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
-          result = imgFile->read((uint8_t *)dst, 2, read);
-          if (result != OUiFsError::OK || read != 2) {
-            imgFile->close();;
+          result = openUiReadFile(&imgFile, (uint8_t *)dst, 2, read);
+          if (result != OPENUI_FS_OK || read != 2) {
+            openUiCloseFile(&imgFile);;
             delete bmp;
             return nullptr;
           }
@@ -1528,9 +1528,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
         pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
           uint32_t pixel;
-          result = imgFile->read((uint8_t *)&pixel, 4, read);
-          if (result != OUiFsError::OK || read != 4) {
-            imgFile->close();;
+          result = openUiReadFile(&imgFile, (uint8_t *)&pixel, 4, read);
+          if (result != OPENUI_FS_OK || read != 4) {
+            openUiCloseFile(&imgFile);;
             delete bmp;
             return nullptr;
           }
@@ -1562,9 +1562,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
     case 4:
       rowSize = ((4*w+31)/32)*4;
       for (int32_t i=h-1; i>=0; i--) {
-        result = imgFile->read(buf, rowSize, read);
-        if (result != OUiFsError::OK || read != rowSize) {
-          imgFile->close();;
+        result = openUiReadFile(&imgFile, buf, rowSize, read);
+        if (result != OPENUI_FS_OK || read != rowSize) {
+          openUiCloseFile(&imgFile);;
           delete bmp;
           return nullptr;
         }
@@ -1579,12 +1579,12 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       break;
 
     default:
-      imgFile->close();;
+      openUiCloseFile(&imgFile);;
       delete bmp;
       return nullptr;
   }
 
-  imgFile->close();;
+  openUiCloseFile(&imgFile);;
   return bmp;
 }
 
@@ -1641,10 +1641,10 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 int stbc_read(void *user, char * data, int size)
 {
-  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  OpenUiFile* fp = (OpenUiFile*)user;
   size_t br = 0;
-  OUiFsError res = fp->read(data, size, br);
-  if (res == OUiFsError::OK) {
+  OpenUiFsRetType res = fp->read(data, size, br);
+  if (res == OPENUI_FS_OK) {
     return (int)br;
   }
   return 0;
@@ -1653,14 +1653,14 @@ int stbc_read(void *user, char * data, int size)
 // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
 void stbc_skip(void *user, int n)
 {
-  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  OpenUiFile* fp = (OpenUiFile*)user;
   fp->lseek(fp->tell() + n);
 }
 
 // returns nonzero if we are at end of file/data
 int stbc_eof(void *user)
 {
-  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  OpenUiFile* fp = (OpenUiFile*)user;
   int res = fp->eof();;
   return res;
 }
@@ -1676,24 +1676,24 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::load_stb(%s)", filename);
 
-  OUiFsError result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
-  if (result != OUiFsError::OK) {
+  OpenUiFsRetType result = openUiOpenFile(&imgFile, filename, OPENUI_FS_OPEN_FLAG_OPENEXISTING | OPENUI_FS_OPEN_FLAG_READ);
+  if (result != OPENUI_FS_OK) {
     return nullptr;
   }
 
   int x, y, nn;
   stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
-  imgFile->close();;
+  openUiCloseFile(&imgFile);
   //TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d", filename, x, y, nn);
 
-  result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
-  if (result != OUiFsError::OK) {
+  result = openUiOpenFile(&imgFile, filename, OPENUI_FS_OPEN_FLAG_OPENEXISTING | OPENUI_FS_OPEN_FLAG_READ);
+  if (result != OPENUI_FS_OK) {
     return nullptr;
   }
 
   int w, h, n;
   unsigned char * img = stbi_load_from_callbacks(&stbCallbacks, &imgFile, &w, &h, &n, 4);
-  imgFile->close();;
+  openUiCloseFile(&imgFile);
 
   if (!img) {
     TRACE("load_stb(%s) failed: %s", filename, stbi_failure_reason());

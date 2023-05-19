@@ -17,11 +17,12 @@
  */
 
 #include "filechoice.h"
+#include "strhelpers.h"
 #include "libopenui_file.h"
 #include "menu.h"
 #include "theme.h"
 #include "message_dialog.h"
-
+#include "libopenui_conf.h"
 #include <algorithm>
 
 #if !defined(STR_SDCARD)
@@ -56,24 +57,23 @@ std::string FileChoice::getLabelText()
 
 bool FileChoice::openMenu()
 {
-  OpenUiFileInfoP fno;
-  OpenUiDirP dir;
+  OpenUiFileInfo fno;
+  OpenUiDir dir;
   std::list<std::string> files;
   const char *fnExt;
   uint8_t fnLen, extLen;
 
-  OUiFsError res = OUiOpenDir(dir, folder.c_str());  // Open the directory
-  if (res == OUiFsError::OK) {
-    bool firstTime = true;
+  OpenUiFsRetType res = openUiOpenDir(&dir, folder.c_str());  // Open the directory
+  if (res == OPENUI_FS_OK) {
     for (;;) {
-      res = dir->read(fno);
-      if (res != OUiFsError::OK || fno->getName().length() == 0)
+      res = openUiReadDir(&dir, &fno);
+      if (res != OPENUI_FS_OK || openUiFsGetName(&fno).length() == 0)
         break;                             // break on error or end of dir
-      if (fno->isDir())    continue;  // skip subfolders
-      if (fno->isHidden()) continue;  // skip hidden files
-      if (fno->isSystem()) continue;  // skip system files
+      if (openUiFsIsDir(&fno))        continue;  // skip subfolders
+      if (openUiFsIsHiddenFile(&fno)) continue;  // skip hidden files
+      if (openUiFsIsSystemFile(&fno)) continue;  // skip system files
 
-      fnExt = getFileExtension(fno->getName().c_str(), 0, 0, &fnLen, &extLen);
+      fnExt = getFileExtension(openUiFsGetName(&fno).c_str(), 0, 0, &fnLen, &extLen);
 
       if (extension && (!fnExt || !isFileExtensionMatching(fnExt, extension)))
         continue;  // wrong extension
@@ -83,12 +83,13 @@ bool FileChoice::openMenu()
       if (!fnLen || fnLen > maxlen) continue;  // wrong size
 
       // eject duplicates
-      std::string newFile = fno->getName();
+      std::string newFile = fno.getName();
       if (std::find(files.begin(), files.end(), newFile) != files.end())
         continue;
 
       files.emplace_back(newFile);
     }
+    openUiCloseDir(&dir);
 
     if (!files.empty()) {
       // sort files
