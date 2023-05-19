@@ -278,7 +278,7 @@ void MenuWindowContent::deleteLater(bool detach, bool trash)
 
 Menu::Menu(Window * parent, bool multiple):
   ModalWindow(parent, true),
-  content(createMenuWindow(this)),
+  content(new MenuWindowContent(this)),
   multiple(multiple)
 {
 }

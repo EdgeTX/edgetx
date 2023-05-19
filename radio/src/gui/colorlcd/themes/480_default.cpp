@@ -46,11 +46,11 @@ const uint8_t mask_currentmenu_shadow[] = {
 #include "mask_currentmenu_shadow.lbm"
 };
 
-class Theme480: public OpenTxTheme
+class Theme480: public EdgeTxTheme
 {
   public:
     Theme480():
-      OpenTxTheme("EdgeTX", OPTIONS_THEME_DEFAULT)
+      EdgeTxTheme("EdgeTX", OPTIONS_THEME_DEFAULT)
     {
       loadColors();
     }
@@ -165,7 +165,7 @@ class Theme480: public OpenTxTheme
       // ensure you delete old bitmap
       if (backgroundBitmap != nullptr)
         delete backgroundBitmap;
-      OpenTxTheme::setBackgroundImageFileName(fileName);  // set the filename
+      EdgeTxTheme::setBackgroundImageFileName(fileName);  // set the filename
       backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
     }
 
@@ -173,7 +173,7 @@ class Theme480: public OpenTxTheme
     {
       loadColors();
       ThemePersistance::instance()->loadDefaultTheme();
-      OpenTxTheme::load();
+      EdgeTxTheme::load();
       if (!backgroundBitmap) {
         backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
       }
@@ -297,9 +297,9 @@ BitmapBuffer * Theme480::menuIconNormal[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * Theme480::menuIconSelected[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * Theme480::currentMenuBackground = nullptr;
 
-Theme480 Theme480;
+Theme480 theme480;
 
 #if LCD_W == 480  || LCD_H == 480
-OpenTxTheme * defaultTheme = &Theme480;
-Theme * theme = &Theme480;
+EdgeTxTheme * defaultTheme = &theme480;
+EdgeTxTheme * theme = &theme480;
 #endif

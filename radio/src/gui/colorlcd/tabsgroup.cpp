@@ -46,7 +46,7 @@ TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
 void TabCarouselButton::paint(BitmapBuffer * dc)
 {
   if(checked()) {
-    OpenTxTheme::instance()->drawCurrentMenuBackground(dc);
+    EdgeTxTheme::instance()->drawCurrentMenuBackground(dc);
   }
 
   dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
@@ -81,7 +81,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
+  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
 }
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :

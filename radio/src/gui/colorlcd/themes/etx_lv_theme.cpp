@@ -17,14 +17,7 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 /*********************
  *      DEFINES
  *********************/
-#define MODE_DARK 1
 #define RADIUS_DEFAULT (disp_size == DISP_LARGE ? lv_disp_dpx(theme.disp, 12) : lv_disp_dpx(theme.disp, 8))
-
-/*SCREEN*/
-#define LIGHT_COLOR_SCR        makeLvColor(COLOR_THEME_SECONDARY3)
-#define LIGHT_COLOR_GREY       makeLvColor(COLOR_THEME_SECONDARY2)
-#define DARK_COLOR_SCR         lv_color_hex(0x15171A)
-#define DARK_COLOR_GREY        lv_color_hex(0x2f3237)
 
 #define BORDER_WIDTH            lv_disp_dpx(theme.disp, 2)
 
@@ -96,7 +89,6 @@ typedef enum {
 static my_theme_styles_t styles;
 static lv_theme_t theme;
 static disp_size_t disp_size;
-static lv_color_t color_grey;
 static bool inited = false;
 
 /**********************
@@ -122,17 +114,13 @@ static lv_color_t dark_color_filter_cb(const lv_color_filter_dsc_t * f, lv_color
 static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t * f, lv_color_t color, lv_opa_t opa)
 {
   LV_UNUSED(f);
-  if(theme.flags & MODE_DARK) return lv_color_mix(lv_palette_darken(LV_PALETTE_GREY, 2), color, opa);
-  else return lv_color_mix(lv_palette_lighten(LV_PALETTE_GREY, 2), color, opa);
+  return lv_color_mix(lv_palette_lighten(LV_PALETTE_GREY, 2), color, opa);
 }
 
 static void style_init(void)
 {
-  color_grey = theme.flags & MODE_DARK ? DARK_COLOR_GREY : LIGHT_COLOR_GREY;
-
   style_init_reset(&styles.scrollbar);
-  lv_style_set_bg_color(&styles.scrollbar,
-                        (theme.flags & MODE_DARK) ? lv_palette_darken(LV_PALETTE_GREY, 2) : lv_palette_main(LV_PALETTE_GREY));
+  lv_style_set_bg_color(&styles.scrollbar, lv_palette_main(LV_PALETTE_GREY));
   lv_style_set_pad_all(&styles.scrollbar, lv_disp_dpx(theme.disp, 7));
   lv_style_set_width(&styles.scrollbar,  lv_disp_dpx(theme.disp, 5));
   lv_style_set_bg_opa(&styles.scrollbar,  LV_OPA_40);
@@ -142,7 +130,7 @@ static void style_init(void)
 
   style_init_reset(&styles.keyboard);
   lv_style_set_bg_opa(&styles.keyboard, LV_OPA_COVER);
-  lv_style_set_bg_color(&styles.keyboard, theme.flags & MODE_DARK ? DARK_COLOR_SCR : LIGHT_COLOR_SCR);
+  lv_style_set_bg_color(&styles.keyboard, makeLvColor(COLOR_THEME_SECONDARY3));
   lv_style_set_pad_row(&styles.keyboard, PAD_SMALL);
   lv_style_set_pad_column(&styles.keyboard, PAD_SMALL);
 
@@ -177,7 +165,8 @@ static void style_init(void)
   lv_style_set_text_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_pad_top(&styles.field, 4);
   lv_style_set_pad_bottom(&styles.field, 5);
-  lv_style_set_pad_left(&styles.field, 5);
+  lv_style_set_pad_left(&styles.field, 4);
+  lv_style_set_pad_right(&styles.field, 4);
 
   static lv_color_filter_dsc_t dark_filter;
   lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
@@ -213,7 +202,7 @@ static void style_init(void)
   lv_style_set_pad_column(&styles.pad_tiny, PAD_TINY);
 
   style_init_reset(&styles.bg_color_grey);
-  lv_style_set_bg_color(&styles.bg_color_grey, color_grey);
+  lv_style_set_bg_color(&styles.bg_color_grey, makeLvColor(COLOR_THEME_DISABLED));
   lv_style_set_bg_opa(&styles.bg_color_grey, LV_OPA_COVER);
 
   style_init_reset(&styles.bg_color_white);
@@ -270,7 +259,6 @@ static void style_init(void)
   style_init_reset(&styles.anim_fast);
   lv_style_set_anim_time(&styles.anim_fast, 120);
 
-#if LV_USE_SWITCH
   style_init_reset(&styles.switch_main);
   lv_style_set_pad_all(&styles.switch_main, 1);
   style_init_reset(&styles.switch_knob);
@@ -279,29 +267,22 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.switch_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.switch_knob, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_border_width(&styles.switch_knob, 2);
-#endif
 
-#if LV_USE_TABLE
   style_init_reset(&styles.table_cell);
   lv_style_set_border_width(&styles.table_cell, lv_disp_dpx(theme.disp, 1));
-  lv_style_set_border_color(&styles.table_cell, color_grey);
+  lv_style_set_border_color(&styles.table_cell, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_border_side(&styles.table_cell, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
-#endif
 
-#if LV_USE_TEXTAREA
   style_init_reset(&styles.field_cursor);
   lv_style_set_opa(&styles.field_cursor, LV_OPA_0);
 
   style_init_reset(&styles.edit_cursor);
   lv_style_set_opa(&styles.edit_cursor, LV_OPA_COVER);
   lv_style_set_bg_opa(&styles.edit_cursor, LV_OPA_50);
-#endif
 
-#if LV_USE_KEYBOARD
   style_init_reset(&styles.keyboard_btn_bg);
   lv_style_set_shadow_width(&styles.keyboard_btn_bg, 0);
   lv_style_set_radius(&styles.keyboard_btn_bg, disp_size == DISP_SMALL ? RADIUS_DEFAULT / 2 : RADIUS_DEFAULT);
-#endif
 }
 
 /**********************
@@ -325,7 +306,7 @@ lv_theme_t *etx_lv_theme_init(lv_disp_t *disp, lv_color_t color_primary,
   theme.font_small = font;
   theme.font_normal = font;
   theme.font_large = font;
-  theme.flags = dark ? MODE_DARK : 0;
+  theme.flags = 0;
 
   style_init();
 
@@ -408,7 +389,7 @@ const lv_obj_class_t field_edit_class = {
     .base_class = &lv_textarea_class,
     .event_cb = field_edit_event,
     .width_def = LV_DPI_DEF / 2,
-    .height_def = LV_SIZE_CONTENT,
+    .height_def = 32,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_textarea_t)
@@ -633,9 +614,15 @@ lv_obj_t* etx_button_create(lv_obj_t* parent)
   return obj;
 }
 
+const lv_obj_class_t etx_choice_class = {
+    .base_class = &lv_obj_class,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32
+};
+
 lv_obj_t* etx_choice_create(lv_obj_t* parent)
 {
-  lv_obj_t* obj = lv_obj_class_create_obj(&lv_obj_class, parent);
+  lv_obj_t* obj = lv_obj_class_create_obj(&etx_choice_class, parent);
   lv_obj_class_init_obj(obj);
 
   lv_obj_add_style(obj, &styles.choice_main, 0);

@@ -28,11 +28,11 @@ const ZoneOption OPTIONS_THEME_DEFAULT[] = {
   { nullptr, ZoneOption::Bool }
 };
 
-class FlyskyTheme: public OpenTxTheme
+class FlyskyTheme: public EdgeTxTheme
 {
   public:
     FlyskyTheme():
-      OpenTxTheme("FlySky", OPTIONS_THEME_DEFAULT)
+      EdgeTxTheme("FlySky", OPTIONS_THEME_DEFAULT)
     {
       loadColors();
     }
@@ -277,7 +277,7 @@ class FlyskyTheme: public OpenTxTheme
     void load() const override
     {
       loadColors();
-      OpenTxTheme::load();
+      EdgeTxTheme::load();
       if (!backgroundBitmap) {
         backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
       }
@@ -434,6 +434,6 @@ BitmapBuffer * FlyskyTheme::currentMenuBackground = nullptr;
 /*FlyskyTheme flyskyTheme;
 
 #if defined(PCBFLYSKY)
-OpenTxTheme * defaultTheme = &flyskyTheme;
+EdgeTxTheme * defaultTheme = &flyskyTheme;
 Theme * theme = &flyskyTheme;
 #endif*/

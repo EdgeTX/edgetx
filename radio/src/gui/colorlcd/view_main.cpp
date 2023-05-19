@@ -388,7 +388,7 @@ void ViewMain::paint(BitmapBuffer * dc)
         dc->getOffsetX(), dc->getOffsetY());
 
   // TODO: set it as "window background" w/ LVGL
-  OpenTxTheme::instance()->drawBackground(dc);
+  EdgeTxTheme::instance()->drawBackground(dc);
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)
