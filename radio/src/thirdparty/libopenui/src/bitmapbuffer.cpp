@@ -1248,7 +1248,7 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
 //  }
 //}
 //
-
+#if !defined(BOOT)
 BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::loadBitmap(%s)", filename);
@@ -1258,7 +1258,7 @@ BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt
   else
     return load_stb(filename, fmt);
 }
-
+#endif
 BitmapBuffer * BitmapBuffer::loadRamBitmap(const uint8_t * buffer, int len)
 {
   return load_stb_buffer(buffer, len);
@@ -1393,7 +1393,7 @@ BitmapBuffer * BitmapBuffer::load8bitMaskOnBackground(const uint8_t * lbm, LcdFl
 }
 
 OpenUiFile imgFile __DMA;
-
+#if !defined(BOOT)
 BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 {
   size_t read;
@@ -1586,7 +1586,7 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   openUiCloseFile(&imgFile);;
   return bmp;
 }
-
+#endif
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
 #define STBI_ONLY_JPEG
@@ -1636,7 +1636,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #define STBI_NO_BMP
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
-
+#if !defined(BOOT)
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 int stbc_read(void *user, char * data, int size)
 {
@@ -1704,7 +1704,7 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename, BitmapFormats fmt)
   stbi_image_free(img);
   return bmp;
 }
-
+#endif
 BitmapBuffer * BitmapBuffer::load_stb_buffer(const uint8_t * buffer, int len)
 {
   int w, h, n;
