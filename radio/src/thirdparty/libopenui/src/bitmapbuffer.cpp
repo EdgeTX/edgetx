@@ -1393,33 +1393,33 @@ BitmapBuffer * BitmapBuffer::load8bitMaskOnBackground(const uint8_t * lbm, LcdFl
   return result;
 }
 
-FIL imgFile __DMA;
+OpenUiFileP imgFile __DMA;
 
 BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 {
-  UINT read;
+  size_t read;
   uint8_t palette[16];
   uint8_t bmpBuf[LCD_W]; /* maximum with LCD_W */
   uint8_t * buf = &bmpBuf[0];
 
-  FRESULT result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  OUiFsError result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
+  if (result != OUiFsError::OK) {
     return nullptr;
   }
 
-  if (f_size(&imgFile) < 14) {
-    f_close(&imgFile);
+  if (imgFile->size() < 14) {
+    imgFile->close();;
     return nullptr;
   }
 
-  result = f_read(&imgFile, buf, 14, &read);
-  if (result != FR_OK || read != 14) {
-    f_close(&imgFile);
+  result = imgFile->read(buf, 14, read);
+  if (result != OUiFsError::OK || read != 14) {
+    imgFile->close();;
     return nullptr;
   }
 
   if (buf[0] != 'B' || buf[1] != 'M') {
-    f_close(&imgFile);
+    imgFile->close();;
     return nullptr;
   }
 
@@ -1427,9 +1427,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   uint32_t hsize  = *((uint32_t *)&buf[10]); /* header size */
 
   uint32_t len = limit<uint32_t>(4, hsize - 14, 32);
-  result = f_read(&imgFile, buf, len, &read);
-  if (result != FR_OK || read != len) {
-    f_close(&imgFile);
+  result = imgFile->read(buf, len, read);
+  if (result != OUiFsError::OK || read != len) {
+    imgFile->close();;
     return nullptr;
   }
 
@@ -1437,17 +1437,17 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
 
   /* invalid extra header size */
   if (ihsize + 14 > hsize) {
-    f_close(&imgFile);
+    imgFile->close();;
     return nullptr;
   }
 
   /* sometimes file size is set to some headers size, set a real size in that case */
   if (fsize == 14 || fsize == ihsize + 14)
-    fsize = f_size(&imgFile) - 2;
+    fsize = imgFile->size() - 2;
 
   /* declared file size less than header size */
   if (fsize <= hsize) {
-    f_close(&imgFile);
+    imgFile->close();;
     return nullptr;
   }
 
@@ -1469,12 +1469,12 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       buf += 8;
       break;
     default:
-      f_close(&imgFile);
+      imgFile->close();;
       return nullptr;
   }
   //TRACE("  BitmapBuffer::load_bmp() %dx%d", w, h);
   if (*((uint16_t *)&buf[0]) != 1) { /* planes */
-    f_close(&imgFile);
+    imgFile->close();;
     return nullptr;
   }
 
@@ -1483,8 +1483,8 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
   buf = &bmpBuf[0];
 
   if (depth == 4) {
-    if (f_lseek(&imgFile, hsize - 64) != FR_OK || f_read(&imgFile, buf, 64, &read) != FR_OK || read != 64) {
-      f_close(&imgFile);
+    if (imgFile->lseek(hsize - 64) != OUiFsError::OK || imgFile->read(buf, 64, read) != OUiFsError::OK || read != 64) {
+      imgFile->close();;
       return nullptr;
     }
     for (uint8_t i = 0; i < 16; i++) {
@@ -1492,15 +1492,15 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
     }
   }
   else {
-    if (f_lseek(&imgFile, hsize) != FR_OK) {
-      f_close(&imgFile);
+    if (imgFile->lseek(hsize) != OUiFsError::OK) {
+      imgFile->close();;
       return nullptr;
     }
   }
 
   BitmapBuffer * bmp = new BitmapBuffer(BMP_RGB565, w, h);
   if (bmp == nullptr || bmp->getData() == nullptr) {
-    f_close(&imgFile);
+    imgFile->close();;
     return nullptr;
   }
 
@@ -1512,9 +1512,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       for (int i = h - 1; i >= 0; i--) {
         pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
-          result = f_read(&imgFile, (uint8_t *)dst, 2, &read);
-          if (result != FR_OK || read != 2) {
-            f_close(&imgFile);
+          result = imgFile->read((uint8_t *)dst, 2, read);
+          if (result != OUiFsError::OK || read != 2) {
+            imgFile->close();;
             delete bmp;
             return nullptr;
           }
@@ -1528,9 +1528,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
         pixel_t * dst = bmp->getPixelPtrAbs(0, i);
         for (unsigned int j = 0; j < w; j++) {
           uint32_t pixel;
-          result = f_read(&imgFile, (uint8_t *)&pixel, 4, &read);
-          if (result != FR_OK || read != 4) {
-            f_close(&imgFile);
+          result = imgFile->read((uint8_t *)&pixel, 4, read);
+          if (result != OUiFsError::OK || read != 4) {
+            imgFile->close();;
             delete bmp;
             return nullptr;
           }
@@ -1562,9 +1562,9 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
     case 4:
       rowSize = ((4*w+31)/32)*4;
       for (int32_t i=h-1; i>=0; i--) {
-        result = f_read(&imgFile, buf, rowSize, &read);
-        if (result != FR_OK || read != rowSize) {
-          f_close(&imgFile);
+        result = imgFile->read(buf, rowSize, read);
+        if (result != OUiFsError::OK || read != rowSize) {
+          imgFile->close();;
           delete bmp;
           return nullptr;
         }
@@ -1579,12 +1579,12 @@ BitmapBuffer * BitmapBuffer::load_bmp(const char * filename)
       break;
 
     default:
-      f_close(&imgFile);
+      imgFile->close();;
       delete bmp;
       return nullptr;
   }
 
-  f_close(&imgFile);
+  imgFile->close();;
   return bmp;
 }
 
@@ -1641,10 +1641,10 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 int stbc_read(void *user, char * data, int size)
 {
-  FIL * fp = (FIL *)user;
-  UINT br = 0;
-  FRESULT res = f_read(fp, data, size, &br);
-  if (res == FR_OK) {
+  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  size_t br = 0;
+  OUiFsError res = fp->read(data, size, br);
+  if (res == OUiFsError::OK) {
     return (int)br;
   }
   return 0;
@@ -1653,15 +1653,15 @@ int stbc_read(void *user, char * data, int size)
 // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
 void stbc_skip(void *user, int n)
 {
-  FIL * fp = (FIL *)user;
-  f_lseek(fp, f_tell(fp) + n);
+  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  fp->lseek(fp->tell() + n);
 }
 
 // returns nonzero if we are at end of file/data
 int stbc_eof(void *user)
 {
-  FIL * fp = (FIL *)user;
-  int res = f_eof(fp);
+  OpenUiFileP& fp = *(OpenUiFileP*)user;
+  int res = fp->eof();;
   return res;
 }
 
@@ -1676,24 +1676,24 @@ BitmapBuffer * BitmapBuffer::load_stb(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::load_stb(%s)", filename);
 
-  FRESULT result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  OUiFsError result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
+  if (result != OUiFsError::OK) {
     return nullptr;
   }
 
   int x, y, nn;
   stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
-  f_close(&imgFile);
+  imgFile->close();;
   //TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d", filename, x, y, nn);
 
-  result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
+  result = OUiOpenFile(imgFile, filename, OUiFsOpenFlags::OPEN_EXISTING | OUiFsOpenFlags::READ);
+  if (result != OUiFsError::OK) {
     return nullptr;
   }
 
   int w, h, n;
   unsigned char * img = stbi_load_from_callbacks(&stbCallbacks, &imgFile, &w, &h, &n, 4);
-  f_close(&imgFile);
+  imgFile->close();;
 
   if (!img) {
     TRACE("load_stb(%s) failed: %s", filename, stbi_failure_reason());

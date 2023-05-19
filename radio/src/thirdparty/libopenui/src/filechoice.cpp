@@ -56,26 +56,26 @@ std::string FileChoice::getLabelText()
 
 bool FileChoice::openMenu()
 {
-  FILINFO fno;
-  DIR dir;
+  OpenUiFileInfoP fno;
+  OpenUiDirP dir;
   std::list<std::string> files;
   const char *fnExt;
   uint8_t fnLen, extLen;
 
-  FRESULT res = f_opendir(&dir, folder.c_str());  // Open the directory
-  if (res == FR_OK) {
+  OUiFsError res = OUiOpenDir(dir, folder.c_str());  // Open the directory
+  if (res == OUiFsError::OK) {
     bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      if (res != FR_OK || fno.fname[0] == 0)
+      res = dir->read(fno);
+      if (res != OUiFsError::OK || fno->getName().length() == 0)
         break;                             // break on error or end of dir
-      if (fno.fattrib & AM_DIR) continue;  // skip subfolders
-      if (fno.fattrib & AM_HID) continue;  // skip hidden files
-      if (fno.fattrib & AM_SYS) continue;  // skip system files
+      if (fno->isDir())    continue;  // skip subfolders
+      if (fno->isHidden()) continue;  // skip hidden files
+      if (fno->isSystem()) continue;  // skip system files
 
-      fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
+      fnExt = getFileExtension(fno->getName().c_str(), 0, 0, &fnLen, &extLen);
 
-      if (extension && (!fnExt || !isExtensionMatching(fnExt, extension)))
+      if (extension && (!fnExt || !isFileExtensionMatching(fnExt, extension)))
         continue;  // wrong extension
 
       if (stripExtension) fnLen -= extLen;
@@ -83,7 +83,7 @@ bool FileChoice::openMenu()
       if (!fnLen || fnLen > maxlen) continue;  // wrong size
 
       // eject duplicates
-      std::string newFile(fno.fname, fnLen);
+      std::string newFile = fno->getName();
       if (std::find(files.begin(), files.end(), newFile) != files.end())
         continue;
 
