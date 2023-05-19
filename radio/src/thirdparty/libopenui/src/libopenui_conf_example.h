@@ -48,6 +48,9 @@
 #define openUiFsIsSystemFile(fileHandle) (false)
 #define openUiFsGetName(fileInfo)        ((fileInfo)->getName())
 
+#define openUiGetFileExtension(filename, size, extMaxLen, fnlen, extlen) (VirtualFS::getFileExtension(filename, size, extMaxLen, fnlen, extlen))
+#define openUiIsFileExtensionMatching(extension, pattern, match) (VirtualFS::isFileExtensionMatching(extension, pattern, match))
+
 #define OPENUI_FS_OK VfsError::OK
 
 #endif // _OPENUI_CONF_H
