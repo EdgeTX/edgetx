@@ -119,9 +119,9 @@ class Window
       rect = value;
       lv_obj_enable_style_refresh(false);
       lv_obj_set_pos(lvobj, rect.x, rect.y);
-      lv_obj_set_width(lvobj, rect.w);
-      lv_obj_set_height(lvobj, rect.h);
+      lv_obj_set_size(lvobj, rect.w, rect.h);
       lv_obj_enable_style_refresh(true);
+      lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
     }
 
     void setWidth(coord_t value)
