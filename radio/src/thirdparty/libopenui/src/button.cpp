@@ -109,8 +109,3 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
 }
-
-void IconButton::paint(BitmapBuffer * dc)
-{
-  dc->drawBitmap(0, 0, theme->getIcon(icon, checked() ? STATE_PRESSED : STATE_DEFAULT));
-}
