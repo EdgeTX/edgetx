@@ -738,7 +738,8 @@ void ModelLabelsWindow::newModel()
 
 #if defined(LUA)
       // If there is a wizard Lua script, fire it up
-      snprintf(path, LEN_BUFFER, "%s/%s%s", path, name.c_str(), SCRIPT_EXT);
+      int len = strlen(path);
+      snprintf(path+len, LEN_BUFFER-len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
         luaExec(path);
         StandaloneLuaWindow::instance()->attach();

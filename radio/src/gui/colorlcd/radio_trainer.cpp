@@ -85,7 +85,7 @@ void RadioTrainerPage::build(FormWindow * form)
     line->padBottom(8);
 #endif
 
-    auto d = new DynamicNumber<int16_t>(line, rect_t{},
+    new DynamicNumber<int16_t>(line, rect_t{},
         [=]() { return (ppmInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
         LEFT | PPM_PRECISION | COLOR_THEME_PRIMARY1);
   }

@@ -340,6 +340,8 @@ class ColorEditPage : public Page
       auto t2 = header.setTitle2(ThemePersistance::getColorNames()[(int)_indexOfColor]);
 #if LCD_H > LCD_W
       t2->setFont(FONT(XS));
+#else
+      LV_UNUSED(t2);
 #endif
 
       // page tabs

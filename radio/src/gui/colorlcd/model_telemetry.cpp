@@ -804,7 +804,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
               return;
             }
           }
-          for (uint8_t i = idx - 1; i >= 0; i -= 1) {
+          for (int8_t i = idx - 1; i >= 0; i -= 1) {
             if (g_model.telemetrySensors[i].isAvailable()) {
               rebuild(window, i);
               return;
@@ -850,7 +850,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   this->window = window;
 
   // Sensors
-  new Subtitle(window, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_TELEMETRY_SENSORS);
 
   sensorWindow = new FormWindow(window, rect_t{});
   sensorWindow->padAll(0);
@@ -921,7 +921,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RX stat
-  new Subtitle(window, rect_t{}, getRxStatLabels()->label, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, getRxStatLabels()->label);
 
   line = window->newLine(&grid);
   line->padLeft(10);
@@ -939,7 +939,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
-  new Subtitle(window, rect_t{}, STR_VARIO, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_VARIO);
 
   FlexGridLayout grid5(col_dsc5, row_dsc, 4);
 
