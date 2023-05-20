@@ -18,6 +18,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #include "opentx.h"
 
 #define  __BATTERY_DRIVER_C__
@@ -57,7 +58,6 @@ STRUCT_BATTERY_CHARGER wCharger; // Wireless charger
 uint16_t wirelessLowCurrentDelay = 0;
 uint16_t wirelessHighCurrentDelay = 0;
 #endif
-char buffer[1024];
 
 void chargerDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargerPinActive, uint8_t samplingCountThreshold)
 {
@@ -238,22 +238,22 @@ uint16_t get_battery_charge_state()
 }
 
 bool isChargerActive()
-{
+{  
 #if defined(WIRELESS_CHARGER)
-  if (uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady)
+  while (!(uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady))
   {
-    return uCharger.hasCharger || wCharger.hasCharger;
+    get_battery_charge_state();
+    delay_ms(10);
   }
+  return uCharger.hasCharger || wCharger.hasCharger;
 #else
-  if (uCharger.isChargerDetectionReady)
+  while (!uCharger.isChargerDetectionReady)
   {
-    return uCharger.hasCharger;
+    get_battery_charge_state();
+    delay_ms(10);
   }
+  return uCharger.hasCharger;
 #endif
-  else
-  {
-    return true;
-  }
 }
 
 void battery_charge_init()
@@ -410,8 +410,11 @@ void handle_battery_charge(uint32_t last_press_time)
     lcd->clear();
     drawChargingInfo(chargeState);
 
+    // DEBUG INFO
+#if 0
+    char buffer[1024];
 
-/*    sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
+    sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
     lcd->drawSizedText(100, 10, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
     
     sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
@@ -424,7 +427,8 @@ void handle_battery_charge(uint32_t last_press_time)
     lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 
     sprintf(buffer, "%d", isChargerActive());
-    lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);*/
+    lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+#endif
 
     lcdRefresh();
   }

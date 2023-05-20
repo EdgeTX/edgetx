@@ -26,7 +26,6 @@
 #include "touch.h"
 #include "debug.h"
 
-#include "hal/adc_driver.h"
 #include "stm32_hal_adc.h"
 #include "timers_driver.h"
 #include "../../debounce.h"
@@ -147,12 +146,74 @@ void boardInit()
   uint32_t press_start = 0;
   uint32_t press_end = 0;
 
-  if (UNEXPECTED_SHUTDOWN()) {
+/*  if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
   } else {
+    // prime debounce state...
+    uint8_t usb_state = usbPlugged();
+    usb_state |= usbPlugged();
+    while (usb_state) {
+      pwrOn();
+      uint32_t now = get_tmr10ms();
+      if (pwrPressed()) {
+        press_end = now;
+        if (press_start == 0) press_start = now;
+        if ((now - press_start) > POWER_ON_DELAY) {
+          break;
+        }
+      } else if (!usbPlugged()){
+          delay_ms(20);
+          if(!usbPlugged()){
+            boardOff();
+          }
+      } else {
+        uint32_t press_end_touch = press_end;
+        if (touchPanelEventOccured()) {
+          touchPanelRead();
+          press_end_touch = get_tmr10ms();
+        }
+        press_start = 0;
+        handle_battery_charge(press_end_touch);
+        delay_ms(20);
+        press_end = 0;
+      }
+    }
+  }*/
 
+
+  if (UNEXPECTED_SHUTDOWN()) {
+    pwrOn();
+  } else if (isChargerActive()) {
+    while (true) {
+      pwrOn();
+      uint32_t now = get_tmr10ms();
+      if (pwrPressed()) {
+        press_end = now;
+        if (press_start == 0) press_start = now;
+        if ((now - press_start) > POWER_ON_DELAY) {
+          break;
+        }
+      } else if (!isChargerActive()) {
+        boardOff();
+      } else {
+        uint32_t press_end_touch = press_end;
+        if (touchPanelEventOccured()) {
+          touchPanelRead();
+          press_end_touch = get_tmr10ms();
+        }
+        press_start = 0;
+        handle_battery_charge(press_end_touch);
+        delay_ms(10);
+        press_end = 0;
+      }
+    }
+  }
+
+
+/*  if (UNEXPECTED_SHUTDOWN()) {
+    pwrOn();
+  } else {
     while (isChargerActive()) {
-//  while(1) {
       uint32_t now = get_tmr10ms();
       if (pwrPressed()) {
         press_end = now;
@@ -173,8 +234,8 @@ void boardInit()
         delay_ms(10);
         press_end = 0;
       }
-    }
-  }
+    }  
+  }*/
 
   keysInit();
   audioInit();
@@ -183,8 +244,6 @@ void boardInit()
   memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
   adcInit(&stm32_hal_adc_driver);
-  backlightInit();
-  lcdInit();
   hapticInit();
 
 
@@ -206,23 +265,37 @@ void boardInit()
 
 void boardOff()
 {
-  lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_FOCUS);
+//  lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_FOCUS);
   lcdOff();
-
-  SysTick->CTRL = 0; // turn off systick
 
   while (pwrPressed()) {
     WDG_RESET();
   }
+
+  SysTick->CTRL = 0; // turn off systick
+
+  // Shutdown the Haptic
+  hapticDone();
 
 #if defined(RTC_BACKUP_RAM)
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
   PWR_BackupRegulatorCmd(DISABLE);
 #endif
 
-  RTC->BKP0R = SHUTDOWN_REQUEST;
-
-  pwrOff();
+#if !defined(BOOT)
+  if (isChargerActive())
+//  if (usbPlugged())
+  {
+    delay_ms(100);  // Add a delay to wait for lcdOff
+    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+  else
+#endif
+  {    
+    RTC->BKP0R = SHUTDOWN_REQUEST;
+    pwrOff();
+  }
 
   // We reach here only in forced power situations, such as hw-debugging with external power  
   // Enter STM32 stop mode / deep-sleep
