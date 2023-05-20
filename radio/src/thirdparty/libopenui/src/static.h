@@ -44,20 +44,7 @@ class StaticText: public Window
     LcdFlags bgColor = 0;
 };
 
-class Subtitle: public StaticText {
-  public:
-    Subtitle(Window * parent, const rect_t & rect, const char * text, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
-      StaticText(parent, rect, text, windowFlags, textFlags | FONT(BOLD))
-    {
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Subtitle \"" + text + "\"";
-    }
-#endif
-};
+#define Subtitle(parent, text) StaticText(parent, rect_t{}, text, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD))
 
 class StaticBitmap: public Window
 {

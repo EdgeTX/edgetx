@@ -122,29 +122,29 @@ void RadioHardwarePage::build(FormWindow * window)
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new Subtitle(window, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_INTERNALRF);
   auto intMod = new InternalModuleWindow(window);
   intMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  new Subtitle(window, rect_t{}, STR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_EXTERNALRF);
   auto extMod = new ExternalModuleWindow(window);
   extMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)
-  new Subtitle(window, rect_t{}, STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_BLUETOOTH);
   auto bt = new BluetoothConfigWindow(window);
   bt->padLeft(lv_dpx(8));
 #endif
 
-  new Subtitle(window, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_AUX_SERIAL_MODE);
   auto serial = new SerialConfigWindow(window, rect_t{});
   serial->padLeft(lv_dpx(8));
 
   // Calibration
-  new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_INPUTS);
 
   box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
@@ -178,7 +178,7 @@ void RadioHardwarePage::build(FormWindow * window)
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
   
   // Debugs
-  new Subtitle(window, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_DEBUG);
 
   box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
