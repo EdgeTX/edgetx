@@ -82,7 +82,7 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
 //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
 // #endif
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_POT, i), 0,
+    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_POT, i), 0,
                    COLOR_THEME_PRIMARY1);
 
     auto box = new FormGroup(line, rect_t{});
