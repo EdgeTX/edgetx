@@ -298,7 +298,7 @@ uint32_t makeLvColor32(uint32_t colorFlags)
 std::string makeRecolor(std::string value, uint32_t colorFlags)
 {
   char s[32];
-  snprintf(s, 32, "#%06x %s#", makeLvColor32(colorFlags), value.c_str());
+  snprintf(s, 32, "#%06" PRIx32 " %s#", makeLvColor32(colorFlags), value.c_str());
   return std::string(s);
 }
 
