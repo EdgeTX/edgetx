@@ -27,7 +27,7 @@
 extern uint8_t menuCalibrationState;
 
 enum MenuIcons {
-  ICON_OPENTX,
+  ICON_EDGETX,
 #if defined(HARDWARE_TOUCH)
   ICON_NEXT,
   ICON_BACK,

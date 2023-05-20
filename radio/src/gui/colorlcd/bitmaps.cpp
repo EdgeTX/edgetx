@@ -317,7 +317,7 @@ struct _BuiltinIcon {
 };
 
 static const _BuiltinIcon _builtinIcons[] = {
-    {ICON_OPENTX, mask_edgetx},
+    {ICON_EDGETX, mask_edgetx},
 #if defined(HARDWARE_TOUCH)
     {ICON_NEXT, mask_next},
     {ICON_BACK, mask_back},
