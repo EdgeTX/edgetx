@@ -80,72 +80,100 @@ class TSStyle
 
         lv_style_init(&tsNumStyle);
         lv_style_set_text_font(&tsNumStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&tsNumStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&tsNumStyle, LV_TEXT_ALIGN_CENTER);
         lv_style_set_width(&tsNumStyle, NUM_W);
 
         lv_style_init(&tsNameStyle);
         lv_style_set_text_font(&tsNameStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&tsNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&tsNameStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_width(&tsNameStyle, NAME_W);
 
         lv_style_init(&tsFreshStyle);
-        lv_style_set_text_color(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_width(&tsFreshStyle, 8);
         lv_style_set_height(&tsFreshStyle, 8);
-        lv_style_set_img_recolor(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_img_recolor_opa(&tsFreshStyle, LV_OPA_COVER);
 
         lv_style_init(&tsValueStyle);
         lv_style_set_text_font(&tsValueStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&tsValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&tsValueStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_width(&tsValueStyle, LV_SIZE_CONTENT);
 
         lv_style_init(&tsIdStyle);
         lv_style_set_text_font(&tsIdStyle, getFont(FONT(XXS)));
-        lv_style_set_text_color(&tsIdStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&tsIdStyle, LV_TEXT_ALIGN_CENTER);
         lv_style_set_width(&tsIdStyle, NUM_W);
         lv_style_set_height(&tsIdStyle, 11);
       }
+
+      // Always update colors in case theme changes
+      lv_style_set_text_color(&tsNumStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&tsNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_img_recolor(&tsFreshStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&tsValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&tsIdStyle, makeLvColor(COLOR_THEME_SECONDARY1));
     }
 
-    void setContStyle(lv_obj_t* obj)
+    lv_obj_t* newGroup(lv_obj_t* parent)
     {
-      init();
+      auto obj = lv_obj_create(parent);
       lv_obj_add_style(obj, &tsContStyle, LV_PART_MAIN);
+      lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+      lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      return obj;
     }
 
-    void setNumStyle(lv_obj_t* obj)
+    lv_obj_t* newNum(lv_obj_t* parent, uint8_t index)
     {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &tsNumStyle, LV_PART_MAIN);
+      lv_label_set_text(obj, std::to_string(index+1).c_str());
+
+      return obj;
     }
 
-    void setNameStyle(lv_obj_t* obj)
+    lv_obj_t* newId(lv_obj_t* parent, const char* id)
     {
-      init();
-      lv_obj_add_style(obj, &tsNameStyle, LV_PART_MAIN);
-    }
-
-    void setValueStyle(lv_obj_t* obj)
-    {
-      init();
-      lv_obj_add_style(obj, &tsValueStyle, LV_PART_MAIN);
-    }
-
-    void setFreshStyle(lv_obj_t* obj)
-    {
-      init();
-      lv_obj_add_style(obj, &tsFreshStyle, LV_PART_MAIN);
-    }
-
-    void setIdStyle(lv_obj_t* obj)
-    {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &tsIdStyle, LV_PART_MAIN);
+      lv_label_set_text(obj, id);
+
+      return obj;
+    }
+
+    lv_obj_t* newName(lv_obj_t* parent, const char* name)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &tsNameStyle, LV_PART_MAIN);
+      lv_label_set_text(obj, name);
+
+      return obj;
+    }
+
+    lv_obj_t* newFreshCont(lv_obj_t* parent)
+    {
+      auto obj = lv_obj_create(parent);
+      lv_obj_add_style(obj, &tsFreshStyle, LV_PART_MAIN);
+
+      return obj;
+    }
+
+    lv_obj_t* newFreshIcon(lv_obj_t* parent)
+    {
+      auto obj = lv_canvas_create(parent);
+      lv_obj_add_style(obj, &tsFreshStyle, LV_PART_MAIN);
+
+      return obj;
+    }
+
+    lv_obj_t* newValue(lv_obj_t* parent)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &tsValueStyle, LV_PART_MAIN);
+      lv_label_set_text(obj, "");
+
+      return obj;
     }
 
   private:
@@ -243,18 +271,9 @@ class SensorButton : public Button {
     {
       char s[20];
 
-      auto box = lv_obj_create(lvobj);
-      tsStyle.setContStyle(box);
-      lv_obj_set_flex_flow(box, LV_FLEX_FLOW_COLUMN);
-      lv_obj_set_flex_align(box, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+      auto box = tsStyle.newGroup(lvobj);
 
-      numLabel = lv_label_create(box);
-      tsStyle.setNumStyle(numLabel);
-
-      lv_label_set_text(numLabel, std::to_string(index+1).c_str());
-
-      idLabel = lv_label_create(box);
-      tsStyle.setIdStyle(idLabel);
+      numLabel = tsStyle.newNum(box, index);
 
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
       if (sensor->type == TELEM_TYPE_CUSTOM) {
@@ -263,26 +282,19 @@ class SensorButton : public Button {
         s[0] = 0;
       }
 
-      lv_label_set_text(idLabel, s);
+      idLabel = tsStyle.newId(box, s);
+
       setNumIdState();
 
-      auto lbl = lv_label_create(lvobj);
-      tsStyle.setNameStyle(lbl);
-
       strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
-      lv_label_set_text(lbl, s);
+      auto lbl = tsStyle.newName(lvobj, s);
 
-      box = lv_obj_create(lvobj);
-      tsStyle.setFreshStyle(box);
-
-      fresh = lv_canvas_create(box);
-      tsStyle.setFreshStyle(fresh);
+      box = tsStyle.newFreshCont(lvobj);
+      fresh = tsStyle.newFreshIcon(box);
       lv_canvas_set_buffer(fresh, freshBitmap, 8, 8, LV_IMG_CF_ALPHA_8BIT);
       lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
 
-      valLabel = lv_label_create(lvobj);
-      tsStyle.setValueStyle(valLabel);
-      lv_label_set_text(valLabel, "");
+      valLabel = tsStyle.newValue(lvobj);
 
       init = true;
       refresh();
@@ -719,6 +731,7 @@ class SensorEditWindow : public Page {
 ModelTelemetryPage::ModelTelemetryPage() :
   PageTab(STR_MENUTELEMETRY, ICON_MODEL_TELEMETRY)
 {
+  tsStyle.init();
 }
 
 void ModelTelemetryPage::checkEvents()

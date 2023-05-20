@@ -237,32 +237,27 @@ class FMStyle
 
         lv_style_init(&fmIdStyle);
         lv_style_set_text_font(&fmIdStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&fmIdStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmIdStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_width(&fmIdStyle, FMID_W);
         lv_style_set_pad_left(&fmIdStyle, 2);
 
         lv_style_init(&fmNameStyle);
         lv_style_set_text_font(&fmNameStyle, getFont(FONT(XS)));
-        lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmNameStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_width(&fmNameStyle, NAME_W);
 
         lv_style_init(&fmSwitchStyle);
         lv_style_set_text_font(&fmSwitchStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&fmSwitchStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmSwitchStyle, LV_TEXT_ALIGN_LEFT);
         lv_style_set_width(&fmSwitchStyle, SWTCH_W);
 
         lv_style_init(&fmFadeStyle);
         lv_style_set_text_font(&fmFadeStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&fmFadeStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmFadeStyle, LV_TEXT_ALIGN_RIGHT);
         lv_style_set_width(&fmFadeStyle, FADE_W);
 
         lv_style_init(&fmTrimModeStyle);
         lv_style_set_text_font(&fmTrimModeStyle, getFont(FONT(STD)));
-        lv_style_set_text_color(&fmTrimModeStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmTrimModeStyle, LV_TEXT_ALIGN_CENTER);
         lv_style_set_width(&fmTrimModeStyle, TRIM_W);
         lv_style_set_height(&fmTrimModeStyle, 16);
@@ -270,53 +265,90 @@ class FMStyle
         fmTrimValueStyle = fmTrimModeStyle;
         lv_style_init(&fmTrimValueStyle);
         lv_style_set_text_font(&fmTrimValueStyle, getFont(FONT(XS)));
-        lv_style_set_text_color(&fmTrimValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
         lv_style_set_text_align(&fmTrimValueStyle, LV_TEXT_ALIGN_CENTER);
         lv_style_set_width(&fmTrimValueStyle, TRIM_W);
         lv_style_set_height(&fmTrimValueStyle, 16);
       }
+
+      // Always update colors in case theme changes
+      lv_style_set_text_color(&fmIdStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmSwitchStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmFadeStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmTrimModeStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmTrimValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
     }
 
-    void setTrimContStyle(lv_obj_t* obj)
+    lv_obj_t* newId(lv_obj_t* parent)
     {
-      init();
-      lv_obj_add_style(obj, &fmTrimContStyle, LV_PART_MAIN);
-    }
-
-    void setIdStyle(lv_obj_t* obj)
-    {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &fmIdStyle, LV_PART_MAIN);
+
+      return obj;
     }
 
-    void setNameStyle(lv_obj_t* obj)
+    lv_obj_t* newGroup(lv_obj_t* parent)
     {
-      init();
+      lv_obj_t* obj = lv_obj_create(parent);
+      lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP);
+      lv_obj_set_style_flex_grow(obj, 2, LV_PART_MAIN);
+      lv_obj_set_style_pad_all(obj, 0, LV_PART_MAIN);
+      lv_obj_set_height(obj, LV_SIZE_CONTENT);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+      lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      return obj;
+    }
+
+    lv_obj_t* newName(lv_obj_t* parent)
+    {
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &fmNameStyle, LV_PART_MAIN);
+
+      return obj;
     }
 
-    void setSwitchStyle(lv_obj_t* obj)
+    lv_obj_t* newSwitch(lv_obj_t* parent)
     {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &fmSwitchStyle, LV_PART_MAIN);
+
+      return obj;
     }
 
-    void setFadeStyle(lv_obj_t* obj)
+    lv_obj_t* newTrimCont(lv_obj_t* parent)
     {
-      init();
-      lv_obj_add_style(obj, &fmFadeStyle, LV_PART_MAIN);
+      auto obj = lv_obj_create(parent);
+      lv_obj_add_style(obj, &fmTrimContStyle, LV_PART_MAIN);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+
+      return obj;
     }
 
-    void setTrimModeStyle(lv_obj_t* obj)
+    lv_obj_t* newTrimMode(lv_obj_t* parent, int n)
     {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &fmTrimModeStyle, LV_PART_MAIN);
+      lv_obj_set_pos(obj, n * TRIM_W, 0);
+
+      return obj;
     }
 
-    void setTrimValueStyle(lv_obj_t* obj)
+    lv_obj_t* newTrimValue(lv_obj_t* parent, int n)
     {
-      init();
+      auto obj = lv_label_create(parent);
       lv_obj_add_style(obj, &fmTrimValueStyle, LV_PART_MAIN);
+      lv_obj_set_pos(obj, n * TRIM_W, 16);
+
+      return obj;
+    }
+
+    lv_obj_t* newFade(lv_obj_t* parent)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &fmFadeStyle, LV_PART_MAIN);
+
+      return obj;
     }
 
   private:
@@ -370,44 +402,24 @@ class FlightModeBtn : public Button
   {
     lv_obj_enable_style_refresh(false);
 
-    fmID = lv_label_create(lvobj);
-    fmStyle.setIdStyle(fmID);
+    fmID = fmStyle.newId(lvobj);
 
-    lv_obj_t* container = lv_obj_create(lvobj);
-    lv_obj_set_flex_flow(container, LV_FLEX_FLOW_ROW_WRAP);
-    lv_obj_set_style_flex_grow(container, 2, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(container, 0, LV_PART_MAIN);
-    lv_obj_set_height(container, LV_SIZE_CONTENT);
+    lv_obj_t* container = fmStyle.newGroup(lvobj);
     lv_obj_set_user_data(container, this);
-    lv_obj_add_flag(container, LV_OBJ_FLAG_EVENT_BUBBLE);
-    lv_obj_set_flex_align(container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
-    fmName = lv_label_create(container);
-    fmStyle.setNameStyle(fmName);
+    fmName = fmStyle.newName(container);
+    fmSwitch = fmStyle.newSwitch(container);
 
-    fmSwitch = lv_label_create(container);
-    fmStyle.setSwitchStyle(fmSwitch);
-
-    lv_obj_t* trims_cont = lv_obj_create(container);
-    fmStyle.setTrimContStyle(trims_cont);
+    lv_obj_t* trims_cont = fmStyle.newTrimCont(container);
     lv_obj_set_user_data(trims_cont, this);
-    lv_obj_add_flag(trims_cont, LV_OBJ_FLAG_EVENT_BUBBLE);
 
     for (int i = 0; i < NUM_TRIMS; i += 1) {
-      fmTrimMode[i] = lv_label_create(trims_cont);
-      fmStyle.setTrimModeStyle(fmTrimMode[i]);
-      lv_obj_set_pos(fmTrimMode[i], i*TRIM_W, 0);
-
-      fmTrimValue[i] = lv_label_create(trims_cont);
-      fmStyle.setTrimValueStyle(fmTrimValue[i]);
-      lv_obj_set_pos(fmTrimValue[i], i*TRIM_W, 16);
+      fmTrimMode[i] = fmStyle.newTrimMode(trims_cont, i);
+      fmTrimValue[i] = fmStyle.newTrimValue(trims_cont, i);
     }
 
-    fmFadeIn = lv_label_create(container);
-    fmStyle.setFadeStyle(fmFadeIn);
-
-    fmFadeOut = lv_label_create(container);
-    fmStyle.setFadeStyle(fmFadeOut);
+    fmFadeIn = fmStyle.newFade(container);
+    fmFadeOut = fmStyle.newFade(container);
 
     init = true;
     refresh();
@@ -508,6 +520,7 @@ class FlightModeBtn : public Button
 ModelFlightModesPage::ModelFlightModesPage():
   PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
 {
+  fmStyle.init();
 }
 
 static const lv_coord_t fmt_col_dsc[] = {LV_GRID_FR(1),

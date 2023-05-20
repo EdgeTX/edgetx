@@ -28,7 +28,7 @@
 class ModelGVarsPage : public PageTab
 {
  public:
-  ModelGVarsPage() : PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS) {}
+  ModelGVarsPage();
 
  protected:
   void build(FormWindow* window) override;
