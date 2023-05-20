@@ -109,7 +109,7 @@ class EdgeTxTheme
     virtual void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
                                           const char *title) const = 0;
 
-    virtual void drawCurrentMenuBackground(BitmapBuffer *dc) const = 0;
+    virtual void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const = 0;
 
     virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const;
 
@@ -120,7 +120,6 @@ class EdgeTxTheme
     virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y,
                                  coord_t w, coord_t h, int value, int total) const = 0;
 
-    virtual const BitmapBuffer * getIcon(uint8_t index, IconState state) const = 0;
     virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
   
   protected:

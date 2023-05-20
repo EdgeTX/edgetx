@@ -45,11 +45,7 @@ TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
 
 void TabCarouselButton::paint(BitmapBuffer * dc)
 {
-  if(checked()) {
-    EdgeTxTheme::instance()->drawCurrentMenuBackground(dc);
-  }
-
-  dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
+  EdgeTxTheme::instance()->drawMenuIcon(dc, tabs[index]->getIcon(), checked());
 }
 
 void TabCarouselButton::check(bool checked)

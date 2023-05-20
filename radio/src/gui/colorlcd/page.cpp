@@ -55,7 +55,7 @@ StaticText* PageHeader::setTitle2(std::string txt)
 
 void PageHeader::paint(BitmapBuffer * dc)
 {
-  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), "");
+  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), nullptr);
   dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
                           MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
 }

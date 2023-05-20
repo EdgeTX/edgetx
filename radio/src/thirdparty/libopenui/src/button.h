@@ -105,26 +105,3 @@ class TextButton: public Button
     std::string text;
     std::function<LcdFlags(void)> bgColorHandler = nullptr;
 };
-
-class IconButton: public Button
-{
-  public:
-    IconButton(Window* parent, const rect_t& rect, uint8_t icon,
-               std::function<uint8_t(void)> pressHandler,
-               WindowFlags flags = 0) :
-        Button(parent, rect, std::move(pressHandler), flags), icon(icon)
-    {
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "IconButton(" + std::to_string(icon) + ")";
-    }
-#endif
-
-    void paint(BitmapBuffer * dc) override;
-
-  protected:
-    uint8_t icon;
-};
