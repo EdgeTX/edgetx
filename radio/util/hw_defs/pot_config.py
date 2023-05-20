@@ -37,8 +37,8 @@ POT_CONFIG = {
     },
     "tx16s": {
         "P1": { "default": "WITH_DETENT" },
-        "P2": { "default": "WITH_DETENT" },
-        "P3": { "default": "MULTIPOS_SWITCH" },
+        "P2": { "default": "MULTIPOS_SWITCH" },
+        "P3": { "default": "WITH_DETENT" },
         "SL1": { "default": "SLIDER_WITH_DETENT" },
         "SL2": { "default": "SLIDER_WITH_DETENT" }
     },
