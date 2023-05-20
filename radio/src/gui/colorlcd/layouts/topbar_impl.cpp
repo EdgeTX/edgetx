@@ -139,8 +139,7 @@ coord_t TopbarImpl::getVisibleHeight(float visible) const // 0.0 -> 1.0
 
 void TopbarImpl::paint(BitmapBuffer * dc)
 {
-  dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
-  EdgeTxTheme::instance()->drawTopLeftBitmap(dc);
+  EdgeTxTheme::instance()->drawHeaderIcon(dc, ICON_OPENTX);
   const TimerOptions timerOptions = {.options = SHOW_TIME}; 
   struct gtm t;
   gettime(&t);
