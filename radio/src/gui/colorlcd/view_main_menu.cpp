@@ -101,7 +101,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     return 0;
   });
 
-  carousel->addButton(ICON_OPENTX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
+  carousel->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
     deleteLater();
     new AboutUs();
     return 0;

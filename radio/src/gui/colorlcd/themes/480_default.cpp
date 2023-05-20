@@ -68,7 +68,7 @@ class Theme480: public EdgeTxTheme
 
       iconsLoaded = true;
 
-      for (int id = ICON_OPENTX; id != MENUS_ICONS_COUNT; id++) {
+      for (int id = ICON_EDGETX; id != MENUS_ICONS_COUNT; id++) {
         iconMask[id] = BitmapBuffer::load8bitMaskLZ4(getBuiltinIcon((MenuIcons)id));
       }
 
@@ -146,7 +146,7 @@ class Theme480: public EdgeTxTheme
       if (topleftBitmap)
         dc->drawMask(0, 0, topleftBitmap, COLOR_THEME_FOCUS);
 
-      if (icon == ICON_OPENTX)
+      if (icon == ICON_EDGETX)
         dc->drawMask(4, 10, iconMask[icon], COLOR_THEME_PRIMARY2);
       else
         dc->drawMask(5, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
