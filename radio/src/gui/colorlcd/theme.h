@@ -113,7 +113,7 @@ class EdgeTxTheme
 
     virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const;
 
-    virtual void drawTopLeftBitmap(BitmapBuffer * dc) const = 0;
+    virtual void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const = 0;
 
     virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
 

@@ -58,21 +58,7 @@ class Theme480: public EdgeTxTheme
     void loadColors() const
     {
       TRACE("Load EdgeTX theme colors");
-
-      lcdColorTable[DEFAULT_COLOR_INDEX] = RGB(18, 94, 153);
-
-      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
-      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
-      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
-      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
-      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
-      lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
+      memcpy(lcdColorTable, defaultColors, sizeof(defaultColors));
     }
 
     void loadIcons() const
@@ -153,25 +139,23 @@ class Theme480: public EdgeTxTheme
         dc->drawBitmap(0, 0, backgroundBitmap);
     }
 
-    void drawTopLeftBitmap(BitmapBuffer * dc) const override
+    void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const override
     {
-      if (topleftBitmap) {
+      dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
+
+      if (topleftBitmap)
         dc->drawMask(0, 0, topleftBitmap, COLOR_THEME_FOCUS);
-        dc->drawMask(4, 10, iconMask[ICON_OPENTX], COLOR_THEME_PRIMARY2);
-      }
+
+      if (icon == ICON_OPENTX)
+        dc->drawMask(4, 10, iconMask[icon], COLOR_THEME_PRIMARY2);
+      else
+        dc->drawMask(5, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
     }
 
     void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
                                   const char *title) const override
     {
-      dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
-      if (topleftBitmap)
-        dc->drawMask(0, 0, topleftBitmap, COLOR_THEME_FOCUS);
-
-      if (icon == ICON_OPENTX)
-        dc->drawMask(4, 10, iconMask[ICON_OPENTX], COLOR_THEME_PRIMARY2);
-      else
-        dc->drawMask(5, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
+      drawHeaderIcon(dc, icon);
 
       dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
                               MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
@@ -231,6 +215,7 @@ class Theme480: public EdgeTxTheme
     static BitmapBuffer * topleftBitmap;
     static BitmapBuffer * iconMask[MENUS_ICONS_COUNT];
     static BitmapBuffer * currentMenuBackground;
+    static uint16_t defaultColors[LCD_COLOR_COUNT];
 };
 
 bool Theme480::iconsLoaded = false;
@@ -239,6 +224,22 @@ const BitmapBuffer * Theme480::backgroundBitmap = nullptr;
 BitmapBuffer * Theme480::topleftBitmap = nullptr;
 BitmapBuffer * Theme480::iconMask[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * Theme480::currentMenuBackground = nullptr;
+
+uint16_t Theme480::defaultColors[LCD_COLOR_COUNT] = {
+  RGB(18, 94, 153),     // DEFAULT
+  RGB(0, 0, 0),         // PRIMARY1
+  RGB(255, 255, 255),   // PRIMARY2
+  RGB(12, 63, 102),     // PRIMARY3
+  RGB(18, 94, 153),     // SECONDARY1
+  RGB(182, 224, 242),   // SECONDARY2
+  RGB(228, 238, 242),   // SECONDARY3
+  RGB(20, 161, 229),    // FOCUS
+  RGB(0, 153, 9),       // EDIT
+  RGB(255, 222, 0),     // ACTIVE
+  RGB(224, 0, 0),       // WARNING
+  RGB(140, 140, 140),   // DISABLED
+  RGB(170, 85, 0)       // CUSTOM
+};
 
 Theme480 theme480;
 
