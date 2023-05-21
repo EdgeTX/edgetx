@@ -110,7 +110,7 @@
 #define FLITECTRL_FLAGS_IS_AS3X_HEADING   0x04 
 #define FLITECTRL_FLAGS_IS_SAFE_ENVELOPE  0x08 
 
-// 1= Test sensor with captured telementry date
+// 1= Test sensor with captured telementry data
 // See  replaceForTestingPackage(const uint8_t *packet) at the end of this file
 #define TEST_CAPTURED_MESSAGE  0
 
@@ -264,49 +264,49 @@ const SpektrumSensor spektrumSensors[] = {
 //{0x38,              0,  uint16,    STR_SENSOR_PRESSSURE,        UNIT_PSI,       1},
 
   // 0x3A Lipo 6s Monitor Cells
-  {I2C_CELLS,        0,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
+  {I2C_CELLS,        0,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2}, // Voltage across cell 1, .01V steps
   {I2C_CELLS,        2,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
   {I2C_CELLS,        4,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
   {I2C_CELLS,        6,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
   {I2C_CELLS,        8,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
-  {I2C_CELLS,        10, uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
-  {I2C_CELLS,        12, uint16,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   2},
+  {I2C_CELLS,       10,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2},
+  {I2C_CELLS,       12,  uint16,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   2}, // Temperature, 0.1C (0-655.34C)
 
   // 0x40 Vario-S
   {I2C_VARIO,         0,  int16,     STR_SENSOR_ALT,               UNIT_METERS,            1},
   {I2C_VARIO,         2,  int16,     STR_SENSOR_VSPD,              UNIT_METERS_PER_SECOND, 1},
 
   // 0x42 Smartbat
-  //{I2C_SMART_BAT_REALTIME,        1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0},  // disabled because sensor is a duplicate of cells sensors ones
-  {I2C_SMART_BAT_REALTIME,        2,  uint32le,  STR_SENSOR_SMART_BAT_BCUR,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,                 0},
-  {I2C_SMART_BAT_REALTIME,        8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_REALTIME,        10,  uint16le, STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,               2},
-  //{I2C_SMART_BAT_REALTIME,          12,  uint16le,  "RFU[2]", UNIT_RAW,                 0},   // disabled to save sensors slots
+//{I2C_SMART_BAT_REALTIME,     1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0},  // disabled because sensor is a duplicate of cells sensors ones
+  {I2C_SMART_BAT_REALTIME,     2,  uint32le,  STR_SENSOR_SMART_BAT_BCUR,    UNIT_MAH,    0},
+  {I2C_SMART_BAT_REALTIME,     6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,    0},
+  {I2C_SMART_BAT_REALTIME,     8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,  2},
+  {I2C_SMART_BAT_REALTIME,    10,  uint16le,  STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,  2},
+//{I2C_SMART_BAT_REALTIME,    12,  uint16le,  "RFU[2]",                     UNIT_RAW,    0},   // disabled to save sensors slots
 
-  {I2C_SMART_BAT_CELLS_1_6,       1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_1_6,       2,  uint16le,  STR_SENSOR_CL01,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       4,  uint16le,  STR_SENSOR_CL02,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       6,  uint16le,  STR_SENSOR_CL03,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       8,  uint16le,  STR_SENSOR_CL04,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       10,  uint16le, STR_SENSOR_CL05,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_1_6,       12, uint16le,  STR_SENSOR_CL06,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_1_6,    1,  int8,      STR_SENSOR_SMART_BAT_BTMP,    UNIT_CELSIUS,  0},
+  {I2C_SMART_BAT_CELLS_1_6,    2,  uint16le,  STR_SENSOR_CL01,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_1_6,    4,  uint16le,  STR_SENSOR_CL02,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_1_6,    6,  uint16le,  STR_SENSOR_CL03,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_1_6,    8,  uint16le,  STR_SENSOR_CL04,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_1_6,   10,  uint16le,  STR_SENSOR_CL05,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_1_6,   12,  uint16le,  STR_SENSOR_CL06,              UNIT_VOLTS,    2},
 
-  {I2C_SMART_BAT_CELLS_7_12,      1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_7_12,      2,  uint16le,  STR_SENSOR_CL07,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      4,  uint16le,  STR_SENSOR_CL08,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      6,  uint16le,  STR_SENSOR_CL09,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      8,  uint16le,  STR_SENSOR_CL10,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      10,  uint16le, STR_SENSOR_CL11,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_7_12,      12, uint16le,  STR_SENSOR_CL12,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_7_12,   1,  int8,      STR_SENSOR_SMART_BAT_BTMP,    UNIT_CELSIUS,  0},
+  {I2C_SMART_BAT_CELLS_7_12,   2,  uint16le,  STR_SENSOR_CL07,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_7_12,   4,  uint16le,  STR_SENSOR_CL08,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_7_12,   6,  uint16le,  STR_SENSOR_CL09,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_7_12,   8,  uint16le,  STR_SENSOR_CL10,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_7_12,  10,  uint16le,  STR_SENSOR_CL11,              UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_7_12,  12,  uint16le,  STR_SENSOR_CL12,              UNIT_VOLTS,    2},
 
-  {I2C_SMART_BAT_CELLS_13_18,     1,  int8,      STR_SENSOR_SMART_BAT_BTMP,   UNIT_CELSIUS,             0},
-  {I2C_SMART_BAT_CELLS_13_18,     2,  uint16le,  STR_SENSOR_CL13,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     4,  uint16le,  STR_SENSOR_CL14,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     6,  uint16le,  STR_SENSOR_CL15,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     8,  uint16le,  STR_SENSOR_CL16,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     10, uint16le,  STR_SENSOR_CL17,             UNIT_VOLTS,               2},
-  {I2C_SMART_BAT_CELLS_13_18,     12, uint16le,  STR_SENSOR_CL18,             UNIT_VOLTS,               2},
+  {I2C_SMART_BAT_CELLS_13_18,  1,  int8,     STR_SENSOR_SMART_BAT_BTMP,     UNIT_CELSIUS,  0},
+  {I2C_SMART_BAT_CELLS_13_18,  2,  uint16le, STR_SENSOR_CL13,               UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_13_18,  4,  uint16le, STR_SENSOR_CL14,               UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_13_18,  6,  uint16le, STR_SENSOR_CL15,               UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_13_18,  8,  uint16le, STR_SENSOR_CL16,               UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_13_18, 10,  uint16le, STR_SENSOR_CL17,               UNIT_VOLTS,    2},
+  {I2C_SMART_BAT_CELLS_13_18, 12,  uint16le, STR_SENSOR_CL18,               UNIT_VOLTS,    2},
 
   //{I2C_SMART_BAT_ID,              1,  uint8,  "chemistery",  UNIT_RAW, 0},   // disabled to save sensors slots
   //{I2C_SMART_BAT_ID,              2,  uint8,  "number of cells",  UNIT_RAW, 0},   // disabled to save sensors slots
@@ -428,6 +428,96 @@ static bool isSpektrumValidValue(int32_t value, const SpektrumDataType type)
   }
 }
 
+// Process GPS Stats Packet (BCD Date/Time and Altitude)
+static void processGPSStatPacket(const uint8_t *packet, const uint16_t pseudoId, const uint8_t instance)
+{
+  //*********** GPS STAT *********************************
+  // Example 0x17:  0  1    2  3  4  5    6    7
+  //                25 00 | 00 28 15 17 | 06 | 01    
+  //                Spd:002.5k, TimeUTC:17:15:28.00, Sats: 06, AltH=01      
+  const uint8_t *packetData = packet + 4;  // Skip the header
+
+  uint8_t sec = bcdToInt8(packetData[3]);
+  uint8_t min = bcdToInt8(packetData[4]);
+  uint8_t hour = bcdToInt8(packetData[5]);
+
+  struct gtm td;
+  adjustTimeFromUTC(hour, min, sec, &td);
+
+  // Depending on the last byte it SETS DATE or TIME:  
+  // DATE: HEX (YYMMDD01)   TIME: HEX(HHMMSS00)
+  int32_t value = (td.tm_hour << 24) + (td.tm_min << 16) + (td.tm_sec << 8);
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                    value, UNIT_DATETIME, 0);
+
+  value = ((td.tm_year + 1900 - 2000) << 24) + ((td.tm_mon + 1) << 16) +
+          (td.tm_mday << 8) + 0x01;
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                    value, UNIT_DATETIME, 0);
+
+  // Get Altitude High since we need to combine it with Alt-Low
+  // Save the high part for later (0-99)
+  gpsAltHigh = bcdToInt8(packetData[7]);
+}
+
+// Process GPS Location Packet (Lat/Long)
+static void processGPSLocPacket(const uint8_t *packet, const uint16_t pseudoId, const uint8_t instance)
+{
+  //*********** GPS LOC *********************************
+  // Example 0x16:  0  1    2  3  4  5    6  7  8  9    10 11   12   13
+  //                97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
+  //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
+
+  // Process LAT and LOG together
+  const uint8_t *packetData = packet + 4;  // Skip the header
+
+  uint8_t gpsFlags = packetData[13];
+
+  // LATITUDE
+  uint16_t fmin =
+      bcdToInt8(packetData[2]) + (bcdToInt8(packetData[3]) * 100);
+  uint8_t min = bcdToInt8(packetData[4]);
+  uint8_t deg = bcdToInt8(packetData[5]);
+
+  // formula from code in gps.cpp
+  int32_t value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
+
+  if ((gpsFlags & GPS_INFO_FLAGS_IS_NORTH) == 0) {  // SOUTH, negative
+    value = -value;
+  }
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                    value, UNIT_GPS_LATITUDE, 0);
+
+  // LONGITUDE
+  fmin = bcdToInt8(packetData[6]) + (bcdToInt8(packetData[7]) * 100);
+  min = bcdToInt8(packetData[8]);
+  deg = bcdToInt8(packetData[9]);
+
+  // formula from code in gps.cpp
+  value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
+
+  if ((gpsFlags & GPS_INFO_FLAGS_IS_EAST) == 0) {  // WEST, negative
+    value = -value;
+  }
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
+                    value, UNIT_GPS_LONGITUDE, 0);
+}
+
+// Process Binary GPS Location Packet (Lat/Long)
+static void processBinGPSLocPacket(const uint8_t *packet, const uint16_t pseudoId, const uint8_t instance)
+{
+  // LATITUDE
+  int32_t value = spektrumGetValue(packet + 4, 2, int32);
+  value = value / 10;
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LATITUDE, 0);
+
+  // LONGITUDE
+  value = spektrumGetValue(packet + 4, 6, int32);
+  value = value / 10;
+  setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LONGITUDE, 0);
+}
+
+
 void processSpektrumPacket(const uint8_t *packet)
 {
   setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_RSSI, 0, 0,
@@ -435,16 +525,16 @@ void processSpektrumPacket(const uint8_t *packet)
   // highest bit indicates that TM1100 is in use, ignore it
   uint8_t i2cAddress = (packet[2] & 0x7f);
 
+  uint8_t instance = packet[3];
+
   if (i2cAddress == I2C_NODATA) {
     // Not a Sensor.. Telemetry is alive, but no data  (avoid creation of fake 0000,0002.. sensors)
     return; 
   }
 
 #if TEST_CAPTURED_MESSAGE
-  // Only for Testing when we don't have the sensor, but have the data
-  if (i2cAddress == I2C_FLITECTRL) {
-    i2cAddress = replaceForTestingPackage(packet);
-  }
+  // Only for Testing when we don't have the sensor, but have sample data
+  i2cAddress = replaceForTestingPackage(packet);
 #endif
 
   if (i2cAddress == I2C_FWD_PGM) {
@@ -482,32 +572,32 @@ void processSpektrumPacket(const uint8_t *packet)
     }
 #endif
 
-  // SmartBat Hack
-  if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
-    // use type to create virtual I2CAddresses
-    i2cAddress = i2cAddress + (packet[4] >> 4);
-  }
 
-  uint8_t instance = packet[3];
 
   if (i2cAddress == I2C_TEXTGEN) {
-    // TextGen now accessed via the new "Spectrum Telemetry Raw" LUA method
+    // TextGen now accessed via the new "Spectrum Telemetry Raw" LUA method  (See above code)
     // 0		byte:lineNumber	-- Line number to display (0 = title, 1-8 for general, 254 = Refresh backlight, 255 = Erase all text on screen)
 	  // 1		char[13]        -- 0-terminated text when < 13 chars
     return;  // Not a sensor
-  }
+  } // I2C_TEXTGEN
 
   else if (i2cAddress == I2C_FLITECTRL) {
     // AS3X + SAFE information: Flight Mode
     processAS3XPacket(packet);
     // Continue for backward compatibility with scripts using 05XX sensors
-  } 
+  } // I2C_FLITECTRL
 
   else if (i2cAddress == I2C_ALPHA6) {
     // Alpha6 Flight Controller (Blade Helis): Flight Mode
     processAlpha6Packet(packet);
     // Continue for backward compatibility with scripts using 24XX sensors
-  } 
+  } // I2C_ALPHA6
+
+  else if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
+    // SmartBat Hack
+    // use type to create virtual I2CAddresses
+    i2cAddress = i2cAddress + (packet[4] >> 4);
+  } // I2C_SMART_BAT_BASE_ADDRESS
 
   bool handled = false;
   for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
@@ -530,7 +620,7 @@ void processSpektrumPacket(const uint8_t *packet)
           i2cAddress <= I2C_SMART_BAT_LIMITS) &&
         sensor->unit == UNIT_VOLTS) {
       if (value == -1) {
-        continue;  // discard unavailable sensors
+        continue;  // discard unavailable sensors (farzu: i think might not be needed.. previous validation)
       } else {
         value = value / 10;
       }
@@ -540,6 +630,10 @@ void processSpektrumPacket(const uint8_t *packet)
       if (sensor->unit == UNIT_RPMS) {   
         // RPM, 10RPM (0-655340 RPM)
         value = value * 10;
+      }
+      else if (sensor->startByte == 11) {
+        // BEC Volts, 0.05V (0-12.70V)
+        value = value * 5;
       }
       else if (sensor->startByte == 12 || sensor->startByte == 13) {
         // Throttle 0.5% (0-100%) or  Power 0.5% (0-127%)
@@ -577,43 +671,12 @@ void processSpektrumPacket(const uint8_t *packet)
     } // I2C_QOS
 
     else if (sensor->i2caddress == I2C_GPS_STAT && sensor->unit == UNIT_DATETIME) {
-      //*********** GPS STAT *********************************
-      // Example 0x17:  0  1    2  3  4  5    6    7
-      //                25 00 | 00 28 15 17 | 06 | 01    
-      //                Spd:002.5k, TimeUTC:17:15:28.00, Sats: 06, AltH=01      
-      const uint8_t *packetData = packet + 4;  // Skip the header
-
-      uint8_t sec = bcdToInt8(packetData[3]);
-      uint8_t min = bcdToInt8(packetData[4]);
-      uint8_t hour = bcdToInt8(packetData[5]);
-
-      struct gtm td;
-      adjustTimeFromUTC(hour, min, sec, &td);
-
-      // Depending on the last byte it SETS:  DATE: HEX (YYMMDD01)   TIME:
-      // HEX(HHMMSS00)
-      value = (td.tm_hour << 24) + (td.tm_min << 16) + (td.tm_sec << 8);
-      setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
-                        value, UNIT_DATETIME, 0);
-
-      value = ((td.tm_year + 1900 - 2000) << 24) + ((td.tm_mon + 1) << 16) +
-              (td.tm_mday << 8) + 1;
-      setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
-                        value, UNIT_DATETIME, 0);
-
-      // Get Altitude High since we need to combine it with Alt-Low
-      // Save the high part for later (0-99)
-      gpsAltHigh = bcdToInt8(packetData[7]);
-
+      // Process Date/Time together
+      processGPSStatPacket(packet, pseudoId,  instance);
       continue;  // setTelemetryValue handled
     } // I2C_GPS_STAT
 
     else if (sensor->i2caddress == I2C_GPS_LOC) {
-      //*********** GPS LOC *********************************
-      // Example 0x16:  0  1    2  3  4  5    6  7  8  9    10 11   12   13
-      //                97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
-      //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
-
       if (sensor->startByte == 0) {
         // ALTITUDE LOW (METERS)
         uint8_t gpsFlags = packet[4 + 13];
@@ -627,39 +690,7 @@ void processSpektrumPacket(const uint8_t *packet)
       }
       else if (sensor->unit == UNIT_GPS) {
         // Process LAT and LOG together
-        const uint8_t *packetData = packet + 4;  // Skip the header
-
-        uint8_t gpsFlags = packetData[13];
-
-        // LATITUDE
-        uint16_t fmin =
-            bcdToInt8(packetData[2]) + (bcdToInt8(packetData[3]) * 100);
-        uint8_t min = bcdToInt8(packetData[4]);
-        uint8_t deg = bcdToInt8(packetData[5]);
-
-        // formula from code in gps.cpp
-        value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
-
-        if ((gpsFlags & GPS_INFO_FLAGS_IS_NORTH) == 0) {  // SOUTH, negative
-          value = -value;
-        }
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
-                          value, UNIT_GPS_LATITUDE, 0);
-
-        // LONGITUDE
-        fmin = bcdToInt8(packetData[6]) + (bcdToInt8(packetData[7]) * 100);
-        min = bcdToInt8(packetData[8]);
-        deg = bcdToInt8(packetData[9]);
-
-        // formula from code in gps.cpp
-        value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
-
-        if ((gpsFlags & GPS_INFO_FLAGS_IS_EAST) == 0) {  // WEST, negative
-          value = -value;
-        }
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance,
-                          value, UNIT_GPS_LONGITUDE, 0);
-
+        processGPSLocPacket(packet, pseudoId,  instance);
         continue;  // setTelemetryValue handled
       }
     } // I2C_GPS_LOC
@@ -671,15 +702,8 @@ void processSpektrumPacket(const uint8_t *packet)
         value = value - 1000; 
       }
       else if (sensor->unit == UNIT_GPS)  {
-        // Process LAT and LOG together
-        // LATITUDE
-        value = value / 10;
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LATITUDE, 0);
-
-        // LONGITUDE
-        int32_t value = spektrumGetValue(packet + 4, sensor->startByte+4, sensor->dataType);
-        value = value / 10;
-        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, UNIT_GPS_LONGITUDE, 0);
+         // Process LAT and LOG together
+        processBinGPSLocPacket(packet, pseudoId, instance);
         continue; // setTelemetryValue handled
       }
     } // I2C_GPS_BIN
@@ -972,9 +996,27 @@ static void processAlpha6Packet(const uint8_t *packet)
 
 #if TEST_CAPTURED_MESSAGE
 // For Testing purposes, replace the package for data captured
-int testStep = 0;
+static int testStep = 0;
+
+// Keep track if we received real packets of this types
+static bool real0x16 = false;
+static bool real0x17 = false;
+static bool real0x34 = false;
+
 static uint8_t replaceForTestingPackage(const uint8_t *packet)
 {
+  uint8_t i2cAddress = packet[2] & 0x7f;
+
+  // If we received a real package for the ones that we can Fake it, disable replacement
+  if (i2cAddress != I2C_GPS_LOC) real0x16 = true;
+  else if (i2cAddress != I2C_GPS_STAT) real0x17 = true;
+  else if (i2cAddress != I2C_FP_BATT) real0x34 = true;
+  
+  // Only Substiture AS3X/SAFE I2C_FLITECTRL packages, since they are constantly brodcast
+  if (i2cAddress != I2C_FLITECTRL) {  
+    return i2cAddress;
+  }
+
   // *********** GPS LOC *********************************
   // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
   //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
@@ -989,19 +1031,29 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
   const char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
                              0x28, 0x18, 0x21, 0x06, 0x00};
 
+  // *********** Dual Flight pack monitor *********************************
+  // Example 0x34:          0  1    2  3    4  5    6  7    8  9    10 11 
+  //                34 00 | 00 2F | 09 30 | 01 85 | 00 2B | 0A 07 | 01 81 
+  //                B1: 004.7A, 2352mAh, 38.9C   B2: 004.3A, 2567mAh, 38.5C  
+  const char test34data[] = {0x34, 0x00, 0x00, 0x2F, 0x09, 0x30, 0x01, 0x85, 
+                                         0x00, 0x2B, 0x0A, 0x07, 0x01, 0x81 };
+
   switch (testStep) {
     case 0:
         // return original packet
         break;
     case 1: // return GSP LOG
-        memcpy((char *)packet + 2, test16data, 16);
+        if (!real0x16) memcpy((char *)packet + 2, test16data, 16);
         break;
     case 2: // Return GPS STAT
-        memcpy((char *)packet + 2, test17data, 10);
+        if (!real0x17) memcpy((char *)packet + 2, test17data, 10);
+        break;
+    case 3: // Return Dual Bat monitor
+        if (!real0x34) memcpy((char *)packet + 2, test34data, 14);
         break;
   }
 
-  testStep = (testStep + 1) % 3;
+  testStep = (testStep + 1) % 4;
   
 
   return packet[2] & 0x7f;
