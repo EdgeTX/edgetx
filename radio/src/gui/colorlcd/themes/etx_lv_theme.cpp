@@ -355,6 +355,12 @@ bool etx_lv_theme_is_inited(void)
  *   Custom object creation
  **********************/
 
+static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
+static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e);
+static void table_event(const lv_obj_class_t * class_p, lv_event_t * e);
+
+extern "C" {
+
 const lv_obj_class_t input_mix_line_class = {
     .base_class = &lv_btn_class,
     .width_def = LV_PCT(100),
@@ -362,6 +368,66 @@ const lv_obj_class_t input_mix_line_class = {
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_btn_t),
 };
+
+const lv_obj_class_t input_mix_group_class = {
+    .base_class = &lv_obj_class,
+    .width_def = LV_PCT(100),
+    .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t),
+};
+
+const lv_obj_class_t field_edit_class = {
+    .base_class = &lv_textarea_class,
+    .event_cb = field_edit_event,
+    .width_def = LV_DPI_DEF,
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_textarea_t)
+};
+
+const lv_obj_class_t window_base_class = {
+    .base_class = &lv_obj_class,
+    .event_cb = window_base_event,
+    .width_def = LV_DPI_DEF,
+    .height_def = LV_DPI_DEF,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t)
+};
+
+const lv_obj_class_t table_class  = {
+    .base_class = &lv_table_class,
+    .constructor_cb = NULL,
+    .destructor_cb = NULL,
+    .event_cb = table_event,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = 0,
+};
+
+const lv_obj_class_t etx_switch_class = {
+    .base_class = &lv_switch_class,
+    .height_def = 32
+};
+
+const lv_obj_class_t etx_button_class = {
+    .base_class = &lv_btn_class,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32
+};
+
+const lv_obj_class_t etx_choice_class = {
+    .base_class = &lv_obj_class,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32
+};
+
+}
 
 lv_obj_t* input_mix_line_create(lv_obj_t* parent)
 {
@@ -379,15 +445,6 @@ lv_obj_t* input_mix_line_create(lv_obj_t* parent)
   return obj;
 }
 
-const lv_obj_class_t input_mix_group_class = {
-    .base_class = &lv_obj_class,
-    .width_def = LV_PCT(100),
-    .height_def = LV_SIZE_CONTENT,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
-    .instance_size = sizeof(lv_obj_t),
-};
-
 lv_obj_t* input_mix_group_create(lv_obj_t* parent)
 {
   lv_obj_t * obj = lv_obj_class_create_obj(&input_mix_group_class, parent);
@@ -401,18 +458,6 @@ lv_obj_t* input_mix_group_create(lv_obj_t* parent)
 
   return obj;
 }
-
-static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
-
-const lv_obj_class_t field_edit_class = {
-    .base_class = &lv_textarea_class,
-    .event_cb = field_edit_event,
-    .width_def = LV_DPI_DEF,
-    .height_def = 32,
-    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
-    .instance_size = sizeof(lv_textarea_t)
-};
 
 static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e)
 {
@@ -450,17 +495,6 @@ lv_obj_t* etx_number_edit_create(lv_obj_t* parent)
 }
 
 extern "C" void window_event_cb(lv_event_t * e);
-static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e);
-
-const lv_obj_class_t window_base_class = {
-    .base_class = &lv_obj_class,
-    .event_cb = window_base_event,
-    .width_def = LV_DPI_DEF,
-    .height_def = LV_DPI_DEF,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
-    .instance_size = sizeof(lv_obj_t)
-};
 
 static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e)
 {
@@ -481,20 +515,6 @@ lv_obj_t* window_create(lv_obj_t* parent)
 
   return obj;
 }
-
-static void table_event(const lv_obj_class_t * class_p, lv_event_t * e);
-
-const lv_obj_class_t table_class  = {
-    .base_class = &lv_table_class,
-    .constructor_cb = NULL,
-    .destructor_cb = NULL,
-    .event_cb = table_event,
-    .width_def = LV_SIZE_CONTENT,
-    .height_def = LV_SIZE_CONTENT,
-    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
-    .instance_size = 0,
-};
 
 static void table_event(const lv_obj_class_t * class_p, lv_event_t * e)
 {
@@ -557,11 +577,6 @@ lv_obj_t* etx_keyboard_create(lv_obj_t* parent)
   return obj;
 }
 
-const lv_obj_class_t etx_switch_class = {
-    .base_class = &lv_switch_class,
-    .height_def = 32
-};
-
 lv_obj_t* etx_switch_create(lv_obj_t* parent)
 {
   lv_obj_t * obj = lv_obj_class_create_obj(&etx_switch_class, parent);
@@ -618,12 +633,6 @@ lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
   return obj;
 }
 
-const lv_obj_class_t etx_button_class = {
-    .base_class = &lv_btn_class,
-    .width_def = LV_SIZE_CONTENT,
-    .height_def = 32
-};
-
 // Fixed height (32)
 lv_obj_t* etx_button_create(lv_obj_t* parent)
 {
@@ -655,12 +664,6 @@ lv_obj_t* etx_vbutton_create(lv_obj_t* parent)
 
   return obj;
 }
-
-const lv_obj_class_t etx_choice_class = {
-    .base_class = &lv_obj_class,
-    .width_def = LV_SIZE_CONTENT,
-    .height_def = 32
-};
 
 lv_obj_t* etx_choice_create(lv_obj_t* parent)
 {
