@@ -359,18 +359,25 @@ static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void table_event(const lv_obj_class_t * class_p, lv_event_t * e);
 
-extern "C" {
-
 const lv_obj_class_t input_mix_line_class = {
     .base_class = &lv_btn_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
     .width_def = LV_PCT(100),
     .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_btn_t),
 };
 
 const lv_obj_class_t input_mix_group_class = {
     .base_class = &lv_obj_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
     .width_def = LV_PCT(100),
     .height_def = LV_SIZE_CONTENT,
     .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
@@ -380,6 +387,9 @@ const lv_obj_class_t input_mix_group_class = {
 
 const lv_obj_class_t field_edit_class = {
     .base_class = &lv_textarea_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
     .event_cb = field_edit_event,
     .width_def = LV_DPI_DEF,
     .height_def = 32,
@@ -390,6 +400,9 @@ const lv_obj_class_t field_edit_class = {
 
 const lv_obj_class_t window_base_class = {
     .base_class = &lv_obj_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
     .event_cb = window_base_event,
     .width_def = LV_DPI_DEF,
     .height_def = LV_DPI_DEF,
@@ -400,34 +413,55 @@ const lv_obj_class_t window_base_class = {
 
 const lv_obj_class_t table_class  = {
     .base_class = &lv_table_class,
-    .constructor_cb = NULL,
-    .destructor_cb = NULL,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
     .event_cb = table_event,
     .width_def = LV_SIZE_CONTENT,
     .height_def = LV_SIZE_CONTENT,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
-    .instance_size = 0,
+    .instance_size = sizeof(lv_table_t),
 };
 
 const lv_obj_class_t etx_switch_class = {
     .base_class = &lv_switch_class,
-    .height_def = 32
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_switch_t),
 };
 
 const lv_obj_class_t etx_button_class = {
     .base_class = &lv_btn_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
     .width_def = LV_SIZE_CONTENT,
-    .height_def = 32
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
 };
 
 const lv_obj_class_t etx_choice_class = {
     .base_class = &lv_obj_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
     .width_def = LV_SIZE_CONTENT,
-    .height_def = 32
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_obj_t),
 };
-
-}
 
 lv_obj_t* input_mix_line_create(lv_obj_t* parent)
 {
