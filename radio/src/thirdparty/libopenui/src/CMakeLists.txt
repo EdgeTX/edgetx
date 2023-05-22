@@ -16,7 +16,6 @@ set(LIBOPENUI_SRC
   button_matrix.cpp
   static.cpp
   checkbox.cpp
-  carousel.cpp
   slider.cpp
   mainwindow.cpp
   menu.cpp
