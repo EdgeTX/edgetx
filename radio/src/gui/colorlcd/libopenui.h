@@ -51,7 +51,6 @@
 #include "message_dialog.h"
 #include "confirm_dialog.h"
 #include "dialog.h"
-#include "gridlayout.h"
 #include "getset_helpers.h"
 #include "curveedit.h"
 #include "draw_functions.h"
