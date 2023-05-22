@@ -25,7 +25,6 @@
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
 #include "opentx.h"
-#include "gridlayout.h"
 
 class SwitchWarnDialog : public FullScreenDialog
 {

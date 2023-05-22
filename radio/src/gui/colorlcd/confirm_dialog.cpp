@@ -22,7 +22,6 @@
 #include "opentx.h"
 #include "confirm_dialog.h"
 #include "static.h"
-#include "gridlayout.h"
 
 ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
                              const char* message,
