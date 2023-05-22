@@ -79,15 +79,22 @@ typedef struct {
   // Choice
   lv_style_t choice_main;
 
+  // Checkbox
   lv_style_t switch_knob;
 
+  // Table
   lv_style_t table_cell;
 
+  // Edit field
   lv_style_t field_cursor, edit_cursor;
 
+  // Keyboard
   lv_style_t keyboard_btn_bg;
 
+  // Model popup
   lv_style_t modal_overlay;
+  lv_style_t modal_title;
+
 } my_theme_styles_t;
 
 /**********************
@@ -313,6 +320,13 @@ static void style_init(void)
   style_init_reset(&styles.modal_overlay);
   lv_style_set_bg_opa(&styles.modal_overlay, LV_OPA_50);
   lv_style_set_bg_color(&styles.modal_overlay, lv_color_black());
+  style_init_reset(&styles.modal_title);
+  lv_style_set_bg_opa(&styles.modal_title, LV_OPA_COVER);
+  lv_style_set_bg_color(&styles.modal_title, makeLvColor(COLOR_THEME_SECONDARY1));
+  lv_style_set_text_color(&styles.modal_title, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_pad_all(&styles.modal_title, PAGE_PADDING);
+  lv_style_set_width(&styles.modal_title,  lv_pct(100));
+  lv_style_set_max_height(&styles.modal_title, LCD_H * 0.8);
 }
 
 /**********************
@@ -722,6 +736,15 @@ lv_obj_t* etx_modal_create(lv_obj_t* parent)
   lv_obj_t* obj = window_create(parent);
 
   lv_obj_add_style(obj, &styles.modal_overlay, 0);
+
+  return obj;
+}
+
+lv_obj_t* etx_modal_title_create(lv_obj_t* parent)
+{
+  lv_obj_t* obj = lv_label_create(parent);
+
+  lv_obj_add_style(obj, &styles.modal_title, 0);
 
   return obj;
 }

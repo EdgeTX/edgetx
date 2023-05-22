@@ -111,6 +111,15 @@ class USBChannelButtonSel : public ButtonMatrix
       m_channel(channel),
       m_setValue(std::move(_setValue))
     {
+      bg_color[0] = makeLvColor(COLOR_THEME_PRIMARY2);      // Unused
+      fg_color[0] = makeLvColor(COLOR_THEME_SECONDARY1);
+      bg_color[1] = makeLvColor(COLOR_THEME_DISABLED);      // Used by other channel_bar
+      fg_color[1] = makeLvColor(COLOR_THEME_PRIMARY1);
+      bg_color[2] = makeLvColor(COLOR_THEME_ACTIVE);        // Used by this channel
+      fg_color[2] = makeLvColor(COLOR_THEME_PRIMARY1);
+      bg_color[3] = makeLvColor(COLOR_THEME_WARNING);       // Collision
+      fg_color[3] = makeLvColor(COLOR_THEME_PRIMARY2);
+
       initBtnMap(USBCH_BTNMX_COL, USBJ_BUTTON_SIZE);
       char snum[5];
       for (uint8_t btn = 0; btn < USBJ_BUTTON_SIZE; btn++) {
@@ -139,16 +148,11 @@ class USBChannelButtonSel : public ButtonMatrix
       updateState();
     }
 
-    void setValue(int val)
-    {
-      if (m_setValue) {
-        m_setValue(val);
-      }
-    }
-
     void onPress(uint8_t btn_id) override
     {
-      setValue(btn_id);
+      if (m_setValue) {
+        m_setValue(btn_id);
+      }
       updateState();
     }
 
@@ -163,16 +167,29 @@ class USBChannelButtonSel : public ButtonMatrix
     void updateState()
     {
       USBJoystickChData * cch = usbJChAddress(m_channel);
-
-      for(uint8_t i = 0; i < USBJ_BUTTON_SIZE; i++) m_btns[i] &= 1;
       uint8_t last = cch->lastBtnNum();
-      for(uint8_t b = cch->btn_num; b <= last; b++) m_btns[b] |= 2;
+      uint8_t i;
+
+      for (i = 0; i < USBJ_BUTTON_SIZE; i++)
+        m_btns[i] &= 1;
+
+      for(i = cch->btn_num; i <= last; i++)
+        m_btns[i] |= 2;
+    }
+
+    void setColor(lv_obj_draw_part_dsc_t* dsc)
+    {
+      uint8_t state = getBtnState((uint8_t)dsc->id);
+      dsc->rect_dsc->bg_color = bg_color[state];
+      dsc->label_dsc->color = fg_color[state];
     }
 
   protected:
     uint8_t m_channel = 0;
     std::function<void(int)> m_setValue;
     uint8_t m_btns[USBJ_BUTTON_SIZE];
+    lv_color_t bg_color[4];
+    lv_color_t fg_color[4];
 };
 
 static void btnsel_event_cb(lv_event_t* e)
@@ -184,24 +201,7 @@ static void btnsel_event_cb(lv_event_t* e)
 
     if(dsc->class_p == &lv_btnmatrix_class && dsc->type == LV_BTNMATRIX_DRAW_PART_BTN) {
       auto btsel = (USBChannelButtonSel*)lv_event_get_user_data(e);
-
-      uint8_t state = btsel->getBtnState((uint8_t)dsc->id);
-      if (state == 1) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_DISABLED);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY1);
-      }
-      else if (state == 2) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY1);
-      }
-      else if (state == 3) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_WARNING);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
-      }
-      else {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_SECONDARY1);
-      }
+      btsel->setColor(dsc);
     }
   }
 }
