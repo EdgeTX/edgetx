@@ -168,6 +168,12 @@
   #define CASE_GVARS(x)
 #endif
 
+#if defined(LUA_MODEL_SCRIPTS)
+  #define CASE_LUA_MODEL_SCRIPTS(x) x,
+#else
+  #define CASE_LUA_MODEL_SCRIPTS(x)
+#endif
+
 #if defined(PCBX9DP) || defined(PCBX9E)
   #define CASE_PCBX9E_PCBX9DP(x) x,
 #else
@@ -1193,3 +1199,18 @@ inline bool isAsteriskDisplayed()
 #include "module.h"
 
 extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
+
+// Radio menu tab state
+#if defined(COLORLCD)
+extern bool radioThemesEnabled();
+#endif
+extern bool radioGFEnabled();
+extern bool radioTrainerEnabled();
+extern bool modelHeliEnabled();
+extern bool modelFMEnabled();
+extern bool modelCurvesEnabled();
+extern bool modelGVEnabled();
+extern bool modelLSEnabled();
+extern bool modelSFEnabled();
+extern bool modelCustomScriptsEnabled();
+extern bool modelTelemetryEnabled();

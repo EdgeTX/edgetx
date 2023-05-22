@@ -74,7 +74,7 @@ static const YamlLookupTable potsWarningModeLut = {
   {  2, "WARN_AUTO"  },
 };
 
-static const YamlLookupTable jitterFilterLut = {
+static const YamlLookupTable globalOnOffFilterLut = {
   {  0, "GLOBAL"  },
   {  1, "OFF"  },
   {  2, "ON"  },
@@ -782,6 +782,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   Node node;
   auto board = getCurrentBoard();
 
+  bool hasColorLcd = Boards::getCapability(board, Board::HasColorLcd);
+
   node["semver"] = VERSION;
 
   Node header;
@@ -896,7 +898,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
-  node["jitterFilter"] = jitterFilterLut << rhs.jitterFilter;
+  node["jitterFilter"] = globalOnOffFilterLut << rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[0]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
@@ -943,7 +945,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["varioData"] = vario;
   node["rssiSource"] = YamlTelemSource(rhs.rssiSource);
 
-  if (IS_TARANIS_X9(getCurrentBoard())) {
+  if (IS_TARANIS_X9(board)) {
     node["voltsSource"] = YamlTelemSource(rhs.frsky.voltsSource);
     node["altitudeSource"] = YamlTelemSource(rhs.frsky.altitudeSource);
   }
@@ -986,7 +988,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["toplcdTimer"] = rhs.toplcdTimer;
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
+  if (IS_FAMILY_HORUS_OR_T16(board)) {
     for (int i=0; i<MAX_CUSTOM_SCREENS; i++) {
       const auto& csd = rhs.customScreens.customScreenData[i];
       if (!csd.isEmpty()) {
@@ -1003,7 +1005,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["modelRegistrationID"] = rhs.registrationId;
 
-  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+  if (Boards::getCapability(board, Board::FunctionSwitches)) {
     node["functionSwitchConfig"] = rhs.functionSwitchConfig;
     node["functionSwitchGroup"] = rhs.functionSwitchGroup;
     node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
@@ -1025,6 +1027,21 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["usbJoystickCh"][std::to_string(i)] = rhs.usbJoystickCh[i];
     }
   }
+
+  // Radio level tabs control (global settings)
+  if (hasColorLcd)
+    node["radioThemesDisabled"] = globalOnOffFilterLut << rhs.radioThemesDisabled;
+  node["radioGFDisabled"] = globalOnOffFilterLut << rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] = globalOnOffFilterLut << rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] = globalOnOffFilterLut << rhs.modelHeliDisabled;
+  node["modelFMDisabled"] = globalOnOffFilterLut << rhs.modelFMDisabled;
+  node["modelCurvesDisabled"] = globalOnOffFilterLut << rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] = globalOnOffFilterLut << rhs.modelGVDisabled;
+  node["modelLSDisabled"] = globalOnOffFilterLut << rhs.modelLSDisabled;
+  node["modelSFDisabled"] = globalOnOffFilterLut << rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] = globalOnOffFilterLut << rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] = globalOnOffFilterLut << rhs.modelTelemetryDisabled;
 
   return node;
 }
@@ -1099,7 +1116,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
-  node["jitterFilter"] >> jitterFilterLut >> rhs.jitterFilter;
+  node["jitterFilter"] >> globalOnOffFilterLut >> rhs.jitterFilter;
 
   YamlPotsWarnEnabled potsWarnEnabled;
   node["potsWarnEnabled"] >> potsWarnEnabled.value;
@@ -1218,6 +1235,20 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["usbJoystickIfMode"] >> usbJoystickIfModeLut >> rhs.usbJoystickIfMode;
   node["usbJoystickCircularCut"] >> rhs.usbJoystickCircularCut;
   node["usbJoystickCh"] >> rhs.usbJoystickCh;
+
+  // Radio level tabs control (global settings)
+  node["radioThemesDisabled"] >> globalOnOffFilterLut >> rhs.radioThemesDisabled;
+  node["radioGFDisabled"] >> globalOnOffFilterLut >> rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] >> globalOnOffFilterLut >> rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] >> globalOnOffFilterLut >> rhs.modelHeliDisabled;
+  node["modelFMDisabled"] >> globalOnOffFilterLut >> rhs.modelFMDisabled;
+  node["modelCurvesDisabled"] >> globalOnOffFilterLut >> rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] >> globalOnOffFilterLut >> rhs.modelGVDisabled;
+  node["modelLSDisabled"] >> globalOnOffFilterLut >> rhs.modelLSDisabled;
+  node["modelSFDisabled"] >> globalOnOffFilterLut >> rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] >> globalOnOffFilterLut >> rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] >> globalOnOffFilterLut >> rhs.modelTelemetryDisabled;
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 

@@ -224,6 +224,7 @@ class WindowButtonGroup : public FormGroup
     setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
     lv_obj_set_style_flex_main_place(lvobj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
     padRow(lv_dpx(8));
+    padBottom(4);
 
     for (auto& entry : pages) {
       auto btn = new TextButton(this, rect_t{}, entry.first, [&, entry]() {
@@ -243,7 +244,8 @@ class SubPage : public Page
   public:
     SubPage(MenuIcons icon, const char* title) : Page(icon)
     {
-      header.setTitle(title);
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(title);
 
       body.setFlexLayout();
       body.padAll(8);
@@ -254,10 +256,7 @@ class SoundPage : public SubPage {
   public:
     SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_SOUND_LABEL);
-
-      FlexGridLayout grid(col_two_dsc, row_dsc, 3);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
       auto line = body.newLine(&grid);
 
@@ -311,9 +310,6 @@ class VarioPage : public SubPage {
   public:
     VarioPage() : SubPage(ICON_RADIO_SETUP, STR_VARIO)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_VARIO);
-
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -355,9 +351,6 @@ class HapticPage : public SubPage {
   public:
     HapticPage() : SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_HAPTIC_LABEL);
-
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -384,9 +377,6 @@ class AlarmsPage : public SubPage {
   public:
     AlarmsPage() : SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_ALARMS_LABEL);
-
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -445,9 +435,6 @@ class BacklightPage : public SubPage {
   public:
     BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_BACKLIGHT_LABEL);
-
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -565,9 +552,6 @@ class GpsPage : public SubPage {
   public:
     GpsPage() : SubPage(ICON_RADIO_SETUP, STR_GPS)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_GPS);
-
       FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
@@ -585,6 +569,95 @@ class GpsPage : public SubPage {
       new StaticText(line, rect_t{}, STR_GPS_COORDS_FORMAT, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
       line = body.newLine(&grid);
+    }
+};
+
+class ViewOptionsPage : public Page
+{
+   public:
+    const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
+
+    ViewOptionsPage() : Page(ICON_RADIO_SETUP)
+    {
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(STR_VIEW_OPTIONS);
+
+      body.padAll(8);
+
+      FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
+
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(0);
+
+      auto line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
+
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+#if defined(HELI)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
+#endif
+
+#if defined(FLIGHT_MODES)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
+#endif
+
+#if defined(GVARS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
+
+#if defined(LUA_MODEL_SCRIPTS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
     }
 };
 
@@ -613,8 +686,8 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_ALARMS_LABEL, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
+      {STR_VIEW_OPTIONS, [](){new ViewOptionsPage();}},
 });
-
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay

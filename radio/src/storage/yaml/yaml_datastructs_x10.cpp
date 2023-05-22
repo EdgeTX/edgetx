@@ -490,6 +490,17 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
   YAML_STRING("selectedTheme", 26),
+  YAML_UNSIGNED( "radioThemesDisabled", 1 ),
+  YAML_UNSIGNED( "radioGFDisabled", 1 ),
+  YAML_UNSIGNED( "radioTrainerDisabled", 1 ),
+  YAML_UNSIGNED( "modelHeliDisabled", 1 ),
+  YAML_UNSIGNED( "modelFMDisabled", 1 ),
+  YAML_UNSIGNED( "modelCurvesDisabled", 1 ),
+  YAML_UNSIGNED( "modelGVDisabled", 1 ),
+  YAML_UNSIGNED( "modelLSDisabled", 1 ),
+  YAML_UNSIGNED( "modelSFDisabled", 1 ),
+  YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
+  YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -954,6 +965,17 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),
   YAML_ARRAY("usbJoystickCh", 16, 26, struct_USBJoystickChData, NULL),
+  YAML_ENUM("radioThemesDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("radioGFDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("radioTrainerDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelHeliDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelFMDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelCurvesDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelGVDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelLSDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

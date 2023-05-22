@@ -225,6 +225,132 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
+class ModelViewOptions : public Page
+{
+   public:
+    class OptChoice : FormWindow
+    {
+      public:
+        OptChoice(Window* parent, const char *const values[], int vmin, int vmax,
+                  std::function<int()> _getValue,
+                  std::function<void(int)> _setValue,
+                  bool globalState) :
+          FormWindow(parent, rect_t{}),
+          m_getValue(std::move(_getValue)),
+          m_setValue(std::move(_setValue))
+        {
+          setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+          lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+          new Choice(this, rect_t{}, values, vmin, vmax,
+                     m_getValue,
+                     [=](int newValue) {
+                       m_setValue(newValue);
+                       setState();
+                     });
+          m_lbl = new StaticText(this, rect_t{}, STR_ADCFILTERVALUES[globalState ? 1: 2], 0, COLOR_THEME_SECONDARY1);
+          setState();
+        }
+
+      protected:
+        StaticText* m_lbl;
+        std::function<int()> m_getValue;
+        std::function<void(int)> m_setValue;
+
+        void setState()
+        {
+          if (m_getValue() == 0) {
+            lv_obj_clear_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_obj_add_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          }
+        }
+    };
+
+    ModelViewOptions() : Page(ICON_MODEL_SETUP)
+    {
+      header.setTitle(STR_MENU_MODEL_SETUP);
+      header.setTitle2(STR_VIEW_OPTIONS);
+
+      body.padAll(8);
+
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(4);
+
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioThemesDisabled), g_eeGeneral.radioThemesDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioGFDisabled), g_eeGeneral.radioGFDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioTrainerDisabled), g_eeGeneral.radioTrainerDisabled);
+
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+#if defined(HELI)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelHeliDisabled), g_eeGeneral.modelHeliDisabled);
+#endif
+
+#if defined(FLIGHT_MODES)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelFMDisabled), g_eeGeneral.modelFMDisabled);
+#endif
+
+#if defined(GVARS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled), g_eeGeneral.modelGVDisabled);
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCurvesDisabled), g_eeGeneral.modelCurvesDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelLSDisabled), g_eeGeneral.modelLSDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelSFDisabled), g_eeGeneral.modelSFDisabled);
+
+#if defined(LUA_MODEL_SCRIPTS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCustomScriptsDisabled), g_eeGeneral.modelCustomScriptsDisabled);
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelTelemetryDisabled), g_eeGeneral.modelTelemetryDisabled);
+    }
+};
+
 void ModelSetupPage::build(FormWindow * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
@@ -268,11 +394,6 @@ void ModelSetupPage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_BITMAP, 0, COLOR_THEME_PRIMARY1);
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
-
-  // Global functions
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.noGlobalFunctions));
 
   // Model ADC jitter filter
   line = window->newLine(&grid);
@@ -328,12 +449,15 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if defined(USBJ_EX)
   form = new FormGroup(oform, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
-  btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
+  btn = new SubScreenButton(form, STR_VIEW_OPTIONS, []() { new ModelViewOptions(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+#if defined(USBJ_EX)
+  btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
 }

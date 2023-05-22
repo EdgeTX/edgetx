@@ -77,16 +77,21 @@ void menuRadioPowerMeter(event_t event);
 void menuRadioCalibration(event_t event);
 void menuGhostModuleConfig(event_t event);
 
-static const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT]  = {
+extern bool radioGFEnabled();
+extern bool radioTrainerEnabled();
+
+static const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT]  = {
 #if defined(RADIO_TOOLS)
-  menuRadioTools,
+  { menuRadioTools, nullptr },
 #endif
-  CASE_SDCARD(menuRadioSdManager)
-  menuRadioSetup,
-  menuRadioSpecialFunctions,
-  menuRadioTrainer,
-  menuRadioHardware,
-  menuRadioVersion
+#if defined(SDCARD)
+  { menuRadioSdManager, nullptr },
+#endif
+  { menuRadioSetup, nullptr },
+  { menuRadioSpecialFunctions, radioGFEnabled },
+  { menuRadioTrainer, radioTrainerEnabled },
+  { menuRadioHardware, nullptr },
+  { menuRadioVersion, nullptr }
 };
 
 enum MenuModelIndexes {
@@ -135,22 +140,34 @@ void menuModelGVarOne(event_t event);
 void menuModelUSBJoystick(event_t event);
 #endif
 
-static const MenuHandlerFunc menuTabModel[]  = {
-  menuModelSelect,
-  menuModelSetup,
-  CASE_HELI(menuModelHeli)
-  CASE_FLIGHT_MODES(menuModelFlightModesAll)
-  menuModelExposAll,
-  menuModelMixAll,
-  menuModelLimits,
-  menuModelCurvesAll,
-  menuModelLogicalSwitches,
-  menuModelSpecialFunctions,
-#if defined(LUA_MODEL_SCRIPTS)
-  menuModelCustomScripts,
+extern bool modelHeliEnabled();
+extern bool modelFMEnabled();
+extern bool modelCurvesEnabled();
+extern bool modelLSEnabled();
+extern bool modelSFEnabled();
+extern bool modelCustomScriptsEnabled();
+extern bool modelTelemetryEnabled();
+
+static const MenuHandler menuTabModel[]  = {
+  { menuModelSelect, nullptr },
+  { menuModelSetup, nullptr },
+#if defined(HELI)
+  { menuModelHeli, modelHeliEnabled },
 #endif
-  menuModelTelemetry,
-  menuModelDisplay,
+#if defined(FLIGHT_MODES)
+  { menuModelFlightModesAll, modelFMEnabled },
+#endif
+  { menuModelExposAll, nullptr },
+  { menuModelMixAll, nullptr },
+  { menuModelLimits, nullptr },
+  { menuModelCurvesAll, modelCurvesEnabled },
+  { menuModelLogicalSwitches, modelLSEnabled },
+  { menuModelSpecialFunctions, modelSFEnabled },
+#if defined(LUA_MODEL_SCRIPTS)
+  { menuModelCustomScripts, modelCustomScriptsEnabled },
+#endif
+  { menuModelTelemetry, modelTelemetryEnabled },
+  { menuModelDisplay, nullptr }
 };
 
 void menuStatisticsView(event_t event);

@@ -1286,3 +1286,7 @@
 #define TR_SIGNAL_OUTPUT          "信号强度输出"
 #define TR_SERIAL_BUS             "串行总线"
 #define TR_SYNC                   "同步"
+
+#define TR_VIEW_OPTIONS           "Enabled Features"
+#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
+#define TR_MODEL_MENU_TABS        "Model Menu Tabs"

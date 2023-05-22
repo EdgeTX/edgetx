@@ -106,6 +106,18 @@ enum {
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
+  ITEM_VIEW_OPTIONS_LABEL,
+  ITEM_VIEW_OPTIONS_RADIO_TAB,
+  ITEM_VIEW_OPTIONS_GF,
+  ITEM_VIEW_OPTIONS_TRAINER,
+  ITEM_VIEW_OPTIONS_MODEL_TAB,
+  CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
+  CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+  ITEM_VIEW_OPTIONS_CURVES,
+  ITEM_VIEW_OPTIONS_LS,
+  ITEM_VIEW_OPTIONS_SF,
+  CASE_LUA_MODEL_SCRIPTS(ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS)
+  ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
 };
 
@@ -114,6 +126,12 @@ enum {
 #else
   #define COL_TX_MODE LABEL(TX_MODE)
 #endif
+
+uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+{
+  lcdDrawText(INDENT_WIDTH, y, title);
+  return !editCheckBox(!value, 110, y, nullptr, attr, event ) ;
+}
 
 void menuRadioSetup(event_t event)
 {
@@ -180,7 +198,9 @@ void menuRadioSetup(event_t event)
     0, // USB mode
     CASE_JACK_DETECT(0) // Jack mode
     CASE_ROTARY_ENCODER(0)
-    0, COL_TX_MODE, 0, 1/*to force edit mode*/});
+    0, COL_TX_MODE, 0,
+    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    1/*to force edit mode*/});
 
   if (event == EVT_ENTRY) {
     reusableBuffer.generalSettings.stickMode = g_eeGeneral.stickMode;
@@ -700,6 +720,49 @@ void menuRadioSetup(event_t event)
           mixerTaskStart();
           waitKeysReleased();
         }
+        break;
+
+      case ITEM_VIEW_OPTIONS_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_VIEW_OPTIONS);
+        break;
+      case ITEM_VIEW_OPTIONS_RADIO_TAB:
+        lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
+        break;
+      case ITEM_VIEW_OPTIONS_GF:
+        g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_TRAINER:
+        g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_MODEL_TAB:
+        lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
+        break;
+#if defined(HELI)
+      case ITEM_VIEW_OPTIONS_HELI:
+        g_eeGeneral.modelHeliDisabled = viewOptCheckBox(y, STR_MENUHELISETUP, g_eeGeneral.modelHeliDisabled, attr, event);
+        break;
+#endif
+#if defined(FLIGHT_MODES)
+      case ITEM_VIEW_OPTIONS_FM:
+        g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event);
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_CURVES:
+        g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_LS:
+        g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event);
+        break;
+      case ITEM_VIEW_OPTIONS_SF:
+        g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event);
+        break;
+#if defined(LUA_MODEL_SCRIPTS)
+      case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
+        g_eeGeneral.modelCustomScriptsDisabled = viewOptCheckBox(y, STR_MENUCUSTOMSCRIPTS, g_eeGeneral.modelCustomScriptsDisabled, attr, event);
+        break;
+#endif
+      case ITEM_VIEW_OPTIONS_TELEMETRY:
+        g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event);
         break;
     }
   }

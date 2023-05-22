@@ -139,6 +139,14 @@ static void sortMixerLines()
 
 void postModelLoad(bool alarms)
 {
+  // Convert 'noGlobalFunctions' to 'radioGFDisabled'
+  // TODO: Remove sometime in the future (and remove 'noGlobalFunctions' property)
+  if (g_model.noGlobalFunctions) {
+    g_model.radioGFDisabled = OVERRIDE_OFF;
+    g_model.noGlobalFunctions = 0;
+    storageDirty(EE_MODEL);
+  }
+
 #if defined(PXX2)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);

@@ -19,23 +19,29 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENU_RADIO_H_
-#define _MENU_RADIO_H_
+#pragma once
 
-#include "tabsgroup.h"
+#include "generaledit.h"
 
-class RadioMenu: public TabsGroup {
+class QGridLayout;
+
+class GeneralOptionsPanel : public GeneralPanel
+{
+    Q_OBJECT
+
   public:
-    RadioMenu();
-    ~RadioMenu();
+    GeneralOptionsPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware);
+    virtual ~GeneralOptionsPanel();
 
-  protected:
-    bool _radioThemesEnabled = true;
-    bool _radioGFEnabled = true;
-    bool _radioTrainerEnabled = true;
+  private:
+    Board::Type board;
+    QGridLayout *grid;
+    QList<QWidget *> *params;
+    int row;
+    int col;
 
-    void build();
-    void checkEvents() override;
+    void addLabel(QString text);
+    void addLine();
+    void addParams();
+    void addSection(QString text);
 };
-
-#endif // _MENU_RADIO_H_

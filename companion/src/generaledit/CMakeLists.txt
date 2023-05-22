@@ -9,12 +9,14 @@ set(generaledit_SRCS
   calibration.cpp
   hardware.cpp
   trainer.cpp
+  generaloptions.cpp
 )
 
 set(generaledit_HDRS
   calibration.h
   hardware.h
   trainer.h
+  generaloptions.h
 )
 
 set(generaledit_UIS

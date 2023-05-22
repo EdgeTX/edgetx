@@ -208,7 +208,7 @@ void menuModelSelect(event_t event)
 
       case EVT_KEY_BREAK(KEY_PAGE):
       case EVT_KEY_LONG(KEY_PAGE):
-        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
+        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1].menuFunc);
         killEvents(event);
         break;
 
@@ -249,7 +249,8 @@ void menuModelSelect(event_t event)
   lcdDrawText(lcdLastRightPos + 3, 0, STR_FREE);
 #endif
 
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), 0);
+  extern uint8_t menuSize(const MenuHandler*, uint8_t);
+  drawScreenIndex(MENU_MODEL_SELECT, menuSize(menuTabModel, DIM(menuTabModel)), 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   title(STR_MENUMODELSEL);

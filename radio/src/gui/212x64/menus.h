@@ -79,7 +79,7 @@ void menuRadioSpectrumAnalyser(event_t event);
 void menuRadioPowerMeter(event_t event);
 void menuGhostModuleConfig(event_t event);
 
-extern const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT];
+extern const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT];
 
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
@@ -126,6 +126,6 @@ void menuModelDisplay(event_t event);
 void menuModelUSBJoystick(event_t event);
 #endif
 
-extern const MenuHandlerFunc menuTabModel[MENU_MODEL_PAGES_COUNT];
+extern const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT];
 
 #endif // _MENUS_H_

@@ -26,19 +26,30 @@
 
 class ModelMenu : public TabsGroup
 {
- public:
-  ModelMenu();
+  public:
+    ModelMenu();
 
-  void onEvent(event_t event);
+    void onEvent(event_t event) override;
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "ModelMenu"; }
+    std::string getName() const override { return "ModelMenu"; }
 #endif
 
+  protected:
 #if defined(PCBNV14) || defined(PCBPL18)
-protected:
- void addGoToMonitorsButton(void);
+    void addGoToMonitorsButton(void);
 #endif
+    bool _modelHeliEnabled = true;
+    bool _modelFMEnabled = true;
+    bool _modelCurvesEnabled = true;
+    bool _modelGVEnabled = true;
+    bool _modelLSEnabled = true;
+    bool _modelSFEnabled = true;
+    bool _modelCustomScriptsEnabled = true;
+    bool _modelTelemetryEnabled = true;
+
+    void build();
+    void checkEvents() override;
 };
 
 #endif // _MENU_MODEL_H_

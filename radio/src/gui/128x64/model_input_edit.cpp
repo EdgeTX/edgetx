@@ -48,6 +48,13 @@ enum ExposFields {
   EXPO_FIELD_MAX
 };
 
+uint8_t FM_ROW(uint8_t value)
+{
+  if (modelFMEnabled())
+    return value;
+  return HIDDEN_ROW;
+}
+
 void menuModelExpoOne(event_t event)
 {
 #if defined(KEYS_GPIO_REG_MDL)
@@ -71,7 +78,9 @@ void menuModelExpoOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1, CASE_FLIGHT_MODES(LABEL(Flight Mode)) CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0 /*, ...*/});
+  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
+          {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+           CASE_FLIGHT_MODES(FM_ROW(LABEL(Flight Mode))) CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
 

@@ -199,17 +199,19 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
       if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
       if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
 #if defined(HELI)
-      if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI)        POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
+      if (modelHeliEnabled())
+        if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI && isValueAvailable && isValueAvailable(MIXSRC_FIRST_HELI))
+          POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
 #endif
       if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
       if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
       if (i_min <= MIXSRC_FIRST_TRAINER && i_max >= MIXSRC_FIRST_TRAINER)  POPUP_MENU_ADD_ITEM(STR_MENU_TRAINER);
       if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
-      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable(MIXSRC_FIRST_GVAR)) {
+      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable && isValueAvailable(MIXSRC_FIRST_GVAR)) {
         POPUP_MENU_ADD_ITEM(STR_MENU_GVARS);
       }
 
-      if (i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
+      if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
         for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
           TelemetrySensor * sensor = & g_model.telemetrySensors[i];
           if (sensor->isAvailable()) {
@@ -269,7 +271,38 @@ tmr10ms_t menuEntryTime;
 #define MAXCOL(row)                    (MAXCOL_RAW(row) >= HIDDEN_ROW ? MAXCOL_RAW(row) : (const uint8_t)(MAXCOL_RAW(row) & (~NAVIGATION_LINE_BY_LINE)))
 #define POS_HORZ_INIT(posVert)         0
 
-void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t maxrow)
+uint8_t chgMenu(uint8_t curr, const MenuHandler * menuTab, uint8_t menuTabSize, int direction)
+{
+  int cc = curr + direction;
+  while (cc != curr) {
+    if (cc < 0)
+      cc = menuTabSize - 1;
+    else if (cc >= menuTabSize)
+      cc = 0;
+    if (menuTab[cc].isEnabled())
+      return cc;
+    cc += direction;
+  }
+  return curr;
+}
+
+uint8_t menuSize(const MenuHandler * menuTab, uint8_t menuTabSize)
+{
+  uint8_t sz = 0;
+  for (int i = 0; i < menuTabSize; i += 1) {
+    if (menuTab[i].isEnabled()) {
+      sz += 1;
+    }
+  }
+  return sz;
+}
+
+uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
+{
+  return menuSize(menuTab, curr + 1) - 1;
+}
+
+void check(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax, vertpos_t maxrow)
 {
   vertpos_t l_posVert = menuVerticalPosition;
   horzpos_t l_posHorz = menuHorizontalPosition;
@@ -286,27 +319,21 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t 
 
       switch (event) {
         case EVT_KEY_FIRST(KEY_LEFT):
-          if (curr > 0)
-            cc = curr - 1;
-          else
-            cc = menuTabSize-1;
+          cc = chgMenu(curr, menuTab, menuTabSize, -1);
           break;
 
         case EVT_KEY_FIRST(KEY_RIGHT):
-          if (curr < (menuTabSize-1))
-            cc = curr + 1;
-          else
-            cc = 0;
+          cc = chgMenu(curr, menuTab, menuTabSize, 1);
           break;
       }
 
       if (cc != curr) {
-        chainMenu(menuTab[cc]);
+        chainMenu(menuTab[cc].menuFunc);
       }
     }
 
     menuCalibrationState = 0;
-    drawScreenIndex(curr, menuTabSize, attr);
+    drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), attr);
   }
 
   switch (event) {

@@ -40,30 +40,70 @@
 ModelMenu::ModelMenu():
   TabsGroup(ICON_MODEL)
 {
+  build();
+}
+
+void ModelMenu::build()
+{
+  _modelHeliEnabled = modelHeliEnabled();
+  _modelFMEnabled = modelFMEnabled();
+  _modelCurvesEnabled = modelCurvesEnabled();
+  _modelGVEnabled = modelGVEnabled();
+  _modelLSEnabled = modelLSEnabled();
+  _modelSFEnabled = modelSFEnabled();
+  _modelCustomScriptsEnabled = modelCustomScriptsEnabled();
+  _modelTelemetryEnabled = modelTelemetryEnabled();
+
   addTab(new ModelSetupPage());
 #if defined(HELI)
-  addTab(new ModelHeliPage());
+  if (_modelHeliEnabled)
+    addTab(new ModelHeliPage());
 #endif
 #if defined(FLIGHT_MODES)
-  addTab(new ModelFlightModesPage());
+  if (_modelFMEnabled)
+    addTab(new ModelFlightModesPage());
 #endif
   addTab(new ModelInputsPage());
   addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
-  addTab(new ModelCurvesPage());
+  if (_modelCurvesEnabled)
+    addTab(new ModelCurvesPage());
 #if defined(GVARS)
-  addTab(new ModelGVarsPage());
+  if (_modelGVEnabled)
+    addTab(new ModelGVarsPage());
 #endif
-  addTab(new ModelLogicalSwitchesPage());
-  addTab(new SpecialFunctionsPage(g_model.customFn));
+  if (_modelLSEnabled)
+    addTab(new ModelLogicalSwitchesPage());
+  if (_modelSFEnabled)
+    addTab(new SpecialFunctionsPage(g_model.customFn));
 #if defined(LUA_MODEL_SCRIPTS)
-  addTab(new ModelMixerScriptsPage());
+  if (_modelCustomScriptsEnabled)
+    addTab(new ModelMixerScriptsPage());
 #endif
-  addTab(new ModelTelemetryPage());
+  if (_modelTelemetryEnabled)
+    addTab(new ModelTelemetryPage());
 
 #if defined(PCBNV14) || defined(PCBPL18)
   addGoToMonitorsButton();
 #endif
+}
+
+void ModelMenu::checkEvents()
+{
+  TabsGroup::checkEvents();
+
+  if (_modelHeliEnabled != modelHeliEnabled() ||
+      _modelFMEnabled != modelFMEnabled() ||
+      _modelCurvesEnabled != modelCurvesEnabled() ||
+      _modelGVEnabled != modelGVEnabled() ||
+      _modelLSEnabled != modelLSEnabled() ||
+      _modelSFEnabled != modelSFEnabled() ||
+      _modelCustomScriptsEnabled != modelCustomScriptsEnabled() ||
+      _modelTelemetryEnabled != modelTelemetryEnabled()) {
+    removeAllTabs();
+    build();
+    setCurrentTab(0);
+  }
 }
 
 void ModelMenu::onEvent(event_t event)

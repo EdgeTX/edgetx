@@ -29,9 +29,11 @@
 
 void CurveParam::LongPressHandler(void* data)
 {
-  int8_t* value = (int8_t*)data;
-  if (*value != 0) {
-    ModelCurvesPage::pushEditCurve(abs(*value) - 1);
+  if (modelCurvesEnabled()) {
+    int8_t* value = (int8_t*)data;
+    if (*value != 0) {
+      ModelCurvesPage::pushEditCurve(abs(*value) - 1);
+    }
   }
 }
 
@@ -53,7 +55,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
   lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-  new Choice(this, rect_t{}, STR_VCURVETYPE, 0, CURVE_REF_CUSTOM,
+  new Choice(this, rect_t{}, STR_VCURVETYPE, 0, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC,
              GET_DEFAULT(ref->type), [=](int32_t newValue) {
                ref->type = newValue;
                ref->value = 0;

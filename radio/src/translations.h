@@ -826,6 +826,10 @@ extern const char STR_SIGNAL_OUTPUT[];
 extern const char STR_SERIAL_BUS[];
 extern const char STR_SYNC[];
 
+extern const char STR_VIEW_OPTIONS[];
+extern const char STR_RADIO_MENU_TABS[];
+extern const char STR_MODEL_MENU_TABS[];
+
 
 struct LanguagePack {
   const char * id;

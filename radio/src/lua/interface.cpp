@@ -622,7 +622,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
     idx = ref - SCRIPT_FUNC_FIRST;
     fn = &g_model.customFn[idx];
   }
-  else if (!g_model.noGlobalFunctions) {
+  else if (radioGFEnabled()) {
     idx = ref - SCRIPT_GFUNC_FIRST;
     fn = &g_eeGeneral.customFn[idx];
   }

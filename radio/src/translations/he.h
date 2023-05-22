@@ -1284,3 +1284,7 @@
 #define TR_SIGNAL_OUTPUT          "Signal output"
 #define TR_SERIAL_BUS             "Serial bus"
 #define TR_SYNC                   "Sync"
+
+#define TR_VIEW_OPTIONS           "Enabled Features"
+#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
+#define TR_MODEL_MENU_TABS        "Model Menu Tabs"

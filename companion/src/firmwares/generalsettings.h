@@ -286,6 +286,20 @@ class GeneralSettings {
 
     char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
 
+    // Radio level tabs control (global settings)
+    bool radioThemesDisabled;
+    bool radioGFDisabled;
+    bool radioTrainerDisabled;
+    // Model level tabs control (global setting)
+    bool modelHeliDisabled;
+    bool modelFMDisabled;
+    bool modelCurvesDisabled;
+    bool modelGVDisabled;
+    bool modelLSDisabled;
+    bool modelSFDisabled;
+    bool modelCustomScriptsDisabled;
+    bool modelTelemetryDisabled;
+
     bool switchPositionAllowedTaranis(int index) const;
     bool switchSourceAllowedTaranis(int index) const;
     bool isPotAvailable(int index) const;

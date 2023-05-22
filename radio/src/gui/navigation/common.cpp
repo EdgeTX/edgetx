@@ -105,7 +105,7 @@ void check_submenu_simple(event_t event, uint8_t rowcount)
   check_simple(event, 0, nullptr, 0, rowcount);
 }
 
-void check_simple(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, vertpos_t rowcount)
+void check_simple(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, vertpos_t rowcount)
 {
   check(event, curr, menuTab, menuTabSize, 0, 0, rowcount);
 }

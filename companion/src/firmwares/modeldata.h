@@ -191,6 +191,20 @@ class ModelData {
 
     char registrationId[8+1];
 
+    // Radio level tabs control (global settings)
+    unsigned int radioThemesDisabled;
+    unsigned int radioGFDisabled;
+    unsigned int radioTrainerDisabled;
+    // Model level tabs control (global setting)
+    unsigned int modelHeliDisabled;
+    unsigned int modelFMDisabled;
+    unsigned int modelCurvesDisabled;
+    unsigned int modelGVDisabled;
+    unsigned int modelLSDisabled;
+    unsigned int modelSFDisabled;
+    unsigned int modelCustomScriptsDisabled;
+    unsigned int modelTelemetryDisabled;
+
     enum FunctionSwitchConfig {
       FUNC_SWITCH_CONFIG_NONE,
       FUNC_SWITCH_CONFIG_FIRST = FUNC_SWITCH_CONFIG_NONE,

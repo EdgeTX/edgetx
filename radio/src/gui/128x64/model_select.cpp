@@ -215,7 +215,7 @@ void menuModelSelect(event_t event)
 
 #if defined(KEYS_GPIO_REG_PAGEDN)
     case EVT_KEY_FIRST(KEY_PAGEUP):
-      chainMenu(menuTabModel[DIM(menuTabModel)-1]);
+      chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
       killEvents(event);
       break;
 
@@ -224,7 +224,7 @@ void menuModelSelect(event_t event)
       break;
 #elif defined(KEYS_GPIO_REG_PAGE)
     case EVT_KEY_LONG(KEY_PAGE):
-      chainMenu(menuTabModel[DIM(menuTabModel)-1]);
+      chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
       killEvents(event);
       break;
 
@@ -242,7 +242,7 @@ void menuModelSelect(event_t event)
       if ((!IS_ROTARY_RIGHT(event) && !IS_ROTARY_LEFT(event)) || s_editMode < 0) {
 #endif
       if (sub == g_eeGeneral.currModel) {
-        chainMenu((IS_ROTARY_RIGHT(event) || event == EVT_KEY_FIRST(KEY_RIGHT)) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1]);
+        chainMenu((IS_ROTARY_RIGHT(event) || event == EVT_KEY_FIRST(KEY_RIGHT)) ? menuModelSetup : menuTabModel[DIM(menuTabModel)-1].menuFunc);
       }
       else {
         AUDIO_WARNING2();
@@ -291,12 +291,14 @@ void menuModelSelect(event_t event)
   lcdDrawNumber(lcdLastRightPos+3, 0, reusableBuffer.modelsel.eepromfree, LEFT);
 #endif
 
+  extern uint8_t menuSize(const MenuHandler*, uint8_t);
+  uint8_t sz = menuSize(menuTabModel, DIM(menuTabModel));
 #if defined(NAVIGATION_X7)
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, 0);
 #elif defined(ROTARY_ENCODER_NAVIGATION)
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? ((IS_ROTARY_ENCODER_NAVIGATION_ENABLE() && s_editMode < 0) ? INVERS|BLINK : INVERS) : 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, (sub == g_eeGeneral.currModel) ? ((IS_ROTARY_ENCODER_NAVIGATION_ENABLE() && s_editMode < 0) ? INVERS|BLINK : INVERS) : 0);
 #else
-  drawScreenIndex(MENU_MODEL_SELECT, DIM(menuTabModel), (sub == g_eeGeneral.currModel) ? INVERS : 0);
+  drawScreenIndex(MENU_MODEL_SELECT, sz, (sub == g_eeGeneral.currModel) ? INVERS : 0);
 #endif
 
   title(STR_MENUMODELSEL);
