@@ -71,6 +71,7 @@ void RadioMenu::checkEvents()
       _radioTrainerEnabled != radioTrainerEnabled()) {
     removeAllTabs();
     build();
+    // Need to set current tab twice to work properly. TODO: can this be fixed?
     setCurrentTab(0);
     setCurrentTab(2);
   }

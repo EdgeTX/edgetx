@@ -1957,7 +1957,7 @@ bool radioTrainerEnabled() {
   return (g_model.radioTrainerDisabled == OVERRIDE_GLOBAL && g_eeGeneral.radioTrainerDisabled == 0) || (g_model.radioTrainerDisabled == 2);
 }
 
-// Mode menu tab state
+// Model menu tab state
 bool modelHeliEnabled() {
   return (g_model.modelHeliDisabled == OVERRIDE_GLOBAL && g_eeGeneral.modelHeliDisabled == 0) || (g_model.modelHeliDisabled == 2);
 }
