@@ -110,11 +110,12 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_MENU_MODEL_SETUP);
   header.setTitle2(STR_PREFLIGHT);
 
-  body.padAll(8);
+  body.padAll(0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
-  form->padAll(4);
+  form->padAll(8);
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Display checklist
@@ -147,7 +148,10 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 
   // Switch warnings (TODO: add display switch?)
   line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(&grid);
   line->padTop(0);
+  line->padLeft(4);
   new SwitchWarnMatrix(line, rect_t{});
 
   // Pots and sliders warning
@@ -160,6 +164,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
     // Pot warnings
     line = form->newLine(&grid);
     line->padTop(0);
+    line->padLeft(4);
     auto pwm = new PotWarnMatrix(line, rect_t{});
     make_conditional(pwm, pots_wm);
   }
@@ -169,6 +174,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   line->padTop(0);
   new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
   line = form->newLine(&grid);
+  line->padLeft(4);
   new CenterBeepsMatrix(line, rect_t{});
 }
 
@@ -214,23 +220,17 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
-  
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
 void SwitchWarnMatrix::setTextWithColor(uint8_t btn_id)
 {
-  auto color = isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1;
-  setText(btn_id, makeRecolor(switchWarninglabel(sw_idx[btn_id]), color).c_str());
+  setTextAndColor(btn_id, switchWarninglabel(sw_idx[btn_id]).c_str());
+  setChecked(btn_id);
 }
 
 void SwitchWarnMatrix::onPress(uint8_t btn_id)
@@ -287,23 +287,16 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
 void PotWarnMatrix::setTextWithColor(uint8_t btn_id)
 {
-  auto idx = pot_idx[btn_id];
-  auto color = isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1;
-  setText(btn_id, makeRecolor(getPotLabel(idx), color).c_str());
+  setTextAndColor(btn_id, STR_VSRCRAW[pot_idx[btn_id] + POT_FIRST + 1]);
+  setChecked(btn_id);
 }
 
 void PotWarnMatrix::onPress(uint8_t btn_id)
@@ -363,31 +356,20 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
 }
 
 void CenterBeepsMatrix::setTextWithColor(uint8_t btn_id)
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (ana_idx[btn_id] < max_sticks)
-    setText(btn_id, makeRecolor(getAnalogShortLabel(ana_idx[btn_id]),
-                                isActive(btn_id) ? COLOR_THEME_PRIMARY1
-                                                 : COLOR_THEME_SECONDARY1)
-                        .c_str());
+    setTextAndColor(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
   else
-    setText(btn_id, makeRecolor(getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks),
-                                isActive(btn_id) ? COLOR_THEME_PRIMARY1
-                                                 : COLOR_THEME_SECONDARY1)
-                        .c_str());
+    setTextAndColor(btn_id, getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks));
+  setChecked(btn_id);
 }
 
 void CenterBeepsMatrix::onPress(uint8_t btn_id)
