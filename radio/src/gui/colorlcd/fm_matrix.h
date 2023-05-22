@@ -32,7 +32,7 @@ struct FMMatrix : public ButtonMatrix {
   FMMatrix(Window* parent, const rect_t& rect, T* input);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
-  void setTextWithColor(uint8_t btn_id);
+  void setTextAndState(uint8_t btn_id);
 };
 
 extern template struct FMMatrix<ExpoData>;
