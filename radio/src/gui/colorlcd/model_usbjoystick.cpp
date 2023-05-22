@@ -119,6 +119,8 @@ class USBChannelButtonSel : public ButtonMatrix
       }
       update();
 
+      lv_obj_set_style_radius(lvobj, LV_RADIUS_CIRCLE, LV_PART_ITEMS);
+
       lv_obj_add_event_cb(lvobj, btnsel_event_cb, LV_EVENT_DRAW_PART_BEGIN, this);
 
       memset(m_btns, 0, USBJ_BUTTON_SIZE);
@@ -181,7 +183,6 @@ static void btnsel_event_cb(lv_event_t* e)
     lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
 
     if(dsc->class_p == &lv_btnmatrix_class && dsc->type == LV_BTNMATRIX_DRAW_PART_BTN) {
-      dsc->rect_dsc->radius = LV_RADIUS_CIRCLE;
       auto btsel = (USBChannelButtonSel*)lv_event_get_user_data(e);
 
       uint8_t state = btsel->getBtnState((uint8_t)dsc->id);
@@ -190,8 +191,8 @@ static void btnsel_event_cb(lv_event_t* e)
         dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY1);
       }
       else if (state == 2) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_EDIT);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
+        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
+        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY1);
       }
       else if (state == 3) {
         dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_WARNING);
@@ -298,13 +299,6 @@ class USBChannelEditWindow : public Page
 
       auto line = form->newLine(&grid);
 
-      line->padTop(0);
-      line->padBottom(0);
-      collisionText = new StaticText(line, rect_t{}, "", OPAQUE, FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
-      collisionText->setBackgroundColor(COLOR_THEME_WARNING);
-      lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
-
-      line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_MODE, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_MODE, 0, USBJOYS_CH_LAST,
                                  GET_DEFAULT(cch->mode), SET_VALUE_WUPDATE(cch->mode));
@@ -358,6 +352,13 @@ class USBChannelEditWindow : public Page
       new StaticText(m_simModeLine, rect_t{}, STR_USBJOYSTICK_CH_SIM, 0, COLOR_THEME_PRIMARY1);
       new Choice(m_simModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_SIM, 0, USBJOYS_SIM_LAST,
                                  GET_DEFAULT(cch->param), SET_VALUE_WUPDATE(cch->param));
+
+      line = form->newLine(&grid);
+      line->padTop(0);
+      line->padBottom(0);
+      collisionText = new StaticText(line, rect_t{}, "", OPAQUE, FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
+      collisionText->setBackgroundColor(COLOR_THEME_WARNING);
+      lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
 
       update();
     }
