@@ -93,6 +93,7 @@ typedef struct {
 
   // Model popup
   lv_style_t modal_overlay;
+  lv_style_t modal_content;
   lv_style_t modal_title;
 
 } my_theme_styles_t;
@@ -320,6 +321,9 @@ static void style_init(void)
   style_init_reset(&styles.modal_overlay);
   lv_style_set_bg_opa(&styles.modal_overlay, LV_OPA_50);
   lv_style_set_bg_color(&styles.modal_overlay, lv_color_black());
+  style_init_reset(&styles.modal_content);
+  lv_style_set_bg_opa(&styles.modal_content, LV_OPA_COVER);
+  lv_style_set_bg_color(&styles.modal_content, makeLvColor(COLOR_THEME_SECONDARY3));
   style_init_reset(&styles.modal_title);
   lv_style_set_bg_opa(&styles.modal_title, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.modal_title, makeLvColor(COLOR_THEME_SECONDARY1));
@@ -736,6 +740,15 @@ lv_obj_t* etx_modal_create(lv_obj_t* parent)
   lv_obj_t* obj = window_create(parent);
 
   lv_obj_add_style(obj, &styles.modal_overlay, 0);
+
+  return obj;
+}
+
+lv_obj_t* etx_modal_content_create(lv_obj_t* parent)
+{
+  lv_obj_t* obj = window_create(parent);
+
+  lv_obj_add_style(obj, &styles.modal_content, 0);
 
   return obj;
 }

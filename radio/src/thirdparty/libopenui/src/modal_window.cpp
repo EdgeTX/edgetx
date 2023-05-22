@@ -44,7 +44,7 @@ void ModalWindow::onClicked()
 
 ModalWindowContent::ModalWindowContent(ModalWindow* parent,
                                        const rect_t& rect) :
-    Window(parent, rect, OPAQUE)
+    Window(parent, rect, OPAQUE, 0, etx_modal_content_create)
 {
 }
 
