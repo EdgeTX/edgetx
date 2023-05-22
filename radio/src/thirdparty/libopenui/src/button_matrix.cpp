@@ -110,11 +110,6 @@ void ButtonMatrix::setText(uint8_t btn_id, const char* txt)
   lv_btnm_map[txt_i] = strdup(txt);
 }
 
-void ButtonMatrix::setTextAndColor(uint8_t btn_id, const char* txt)
-{
-  setText(btn_id, makeRecolor(txt, isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
-}
-
 void ButtonMatrix::update()
 {
   lv_btnmatrix_set_map(lvobj, (const char**)lv_btnm_map);

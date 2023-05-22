@@ -38,7 +38,6 @@ class ButtonMatrix : public FormField
     void deallocate();
     void initBtnMap(uint8_t cols, uint8_t btns);
     void setText(uint8_t btn_id, const char* txt);
-    void setTextAndColor(uint8_t btn_id, const char* txt);
     void setChecked(uint8_t btn_id);
     void update();
 
