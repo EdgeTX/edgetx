@@ -25,6 +25,11 @@
 #include "opentx.h"
 #include "diskio.h"
 #include "timers_driver.h"
+
+#if defined(BLUETOOTH)
+#include "bluetooth_driver.h"
+#endif
+
 #include "hal/module_port.h"
 
 #include "tasks.h"

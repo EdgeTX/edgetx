@@ -2565,7 +2565,7 @@
   #define BT_TX_GPIO_PinSource         GPIO_PinSource14
   #define BT_RX_GPIO_PinSource         GPIO_PinSource9
   #define BT_USART_IRQHandler          USART6_IRQHandler
-#elif defined(RADIO_X7) || defined(RADIO_X7ACCESS) || defined(PCBXLITE) || defined(PCBX9LITES) || defined(RADIO_X9DP2019)
+#elif defined(BLUETOOTH)
   #define STORAGE_BLUETOOTH
   #define BT_RCC_APB1Periph             RCC_APB1Periph_USART3
   #define BT_RCC_APB2Periph             0
@@ -2581,6 +2581,9 @@
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOD
     #define BT_EN_GPIO_PIN              LL_GPIO_PIN_14 // PD.14
+  #elif defined(MANUFACTURER_RADIOMASTER)
+    // No enable port on RM BLE port
+    #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB)
   #else
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOE) // RCC_AHB1Periph_DMA1
     #define BT_EN_GPIO                  GPIOE
@@ -2589,20 +2592,17 @@
   #define BT_USART_GPIO                 GPIOB
   #define BT_TX_GPIO_PIN                LL_GPIO_PIN_10 // PB.10
   #define BT_RX_GPIO_PIN                LL_GPIO_PIN_11 // PB.11
-  #define BT_TX_GPIO_PinSource          GPIO_PinSource10
-  #define BT_RX_GPIO_PinSource          GPIO_PinSource11
   #define BT_GPIO_AF                    LL_GPIO_AF_7
   #define BT_USART                      USART3
   #define BT_USART_IRQHandler           USART3_IRQHandler
   #define BT_USART_IRQn                 USART3_IRQn
   // #define BT_DMA_Stream_RX              DMA1_Stream1
   // #define BT_DMA_Channel_RX             DMA_Channel_4
-#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
-  #define STORAGE_BLUETOOTH
-  #define BT_RCC_AHB1Periph             0
-  #define BT_RCC_APB1Periph             0
-  #define BT_RCC_APB2Periph             0
 #else
+  #if defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
+    // To avoid change in modelsize, todo: remove me
+    #define STORAGE_BLUETOOTH
+  #endif
   #define BT_RCC_AHB1Periph             0
   #define BT_RCC_APB1Periph             0
   #define BT_RCC_APB2Periph             0
