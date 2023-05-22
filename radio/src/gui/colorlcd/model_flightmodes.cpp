@@ -67,11 +67,9 @@ class FlightModeEdit : public Page
       header.setTitle(STR_MENUFLIGHTMODES);
       header.setTitle2(title2);
 
-      body.padAll(lv_dpx(8));
-      lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
       FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
       auto form = new FormWindow(&body, rect_t{});
+      form->padAll(8);
       form->setFlexLayout();
 
       FlightModeData* p_fm = &g_model.flightModeData[index];
