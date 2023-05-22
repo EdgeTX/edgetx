@@ -205,7 +205,8 @@ extern const char* const STR_SBUS_INVERSION_VALUES[];
 
 extern const char* const STR_MULTI_PROTOCOLS[];
 extern const char* const STR_MULTI_POWER[];
-extern const char* const STR_MULTI_TELEMETRY_MODE[];
+extern const char* const STR_MULTI_BAYANG_OPTIONS[];
+extern const char* const STR_MULTI_DSM_OPTIONS[];
 extern const char* const STR_MULTI_WBUS_MODE[];
 extern const char* const STR_SPORT_MODES[];
 extern const char* const STR_FSGROUPS[];

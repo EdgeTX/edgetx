@@ -1888,8 +1888,20 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 
     // convert to ETX format and write to vars
     if (type > 0) {
-      md->multi.rfProtocol = type - 1;
-      md->subType = subtype;
+      type -= 1; // change to internal 0 based representation
+
+      if(type > MODULE_SUBTYPE_MULTI_LAST) {
+        TRACE("Multi protocol: %d exceeds supported protocols. Module set to: OFF", type);
+        md->type = MODULE_TYPE_NONE;
+      } else {
+          if(subtype > getMultiProtocolDefinition(type)->maxSubtype) {
+            TRACE("Multi protocol sub-type %d exceeds number of supported sub-types. Module set to: OFF", subtype);
+            md->type = MODULE_TYPE_NONE;
+          } else {
+            md->multi.rfProtocol = type;
+            md->subType = subtype;
+          }
+      }
     }
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {

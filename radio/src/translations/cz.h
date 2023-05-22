@@ -63,7 +63,6 @@
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetrie"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","neinvertováno"
-#define TR_MULTI_TELEMETRY_MODE        "VYP","ZAP","ZAP+Aux","ZAP+Aux"
 #define TR_MULTI_CUSTOM                "Vlastní"
 #define TR_VTRIMINC                    "Expo","ExJemný","Jemný","Střední","Hrubý"
 #define TR_VDISPLAYTRIMS               "Ne","Změna","Ano"

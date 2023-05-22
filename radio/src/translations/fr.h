@@ -62,7 +62,6 @@
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (câble)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Télémetrie"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","non inversé"
-#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM                "Perso"
 #define TR_VTRIMINC                    TR("Expo","Exponentiel"),TR("ExFin","Extra Fin"),"Fin","Moyen",TR("Gros","Grossier")
 #define TR_VDISPLAYTRIMS               "Non","Change","Oui"

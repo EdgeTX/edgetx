@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
-
+#include "opentx.h"
+#include "MultiProtoDefs.h"
 
 bool setBindProtocolSelection()
 {
@@ -29,16 +29,16 @@ bool setBindProtocolSelection()
 
   // Center: D8
   if (abs(xPos < 50 && abs(yPos) < 50)) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D8;
+    g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKY;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYD_SUBTYPE_D8;
     storageDirty(EE_MODEL);
     return true;
   }
 
   // Top left: D16 FCC
   if (xPos < -512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16;
+    g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKYX;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX_SUBTYPE_D16_FCC;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -46,8 +46,8 @@ bool setBindProtocolSelection()
 
   // Top right: D16 LBT
   if (xPos > 512 && yPos > 512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D16_LBT;
+    g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKYX;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -55,8 +55,8 @@ bool setBindProtocolSelection()
 
   // Bottom left: V2.1 D16 FCC
   if (xPos < -512 && yPos < -512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16;
+    g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKYX2;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX2_SUBTYPE_D16_FCC;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -64,8 +64,8 @@ bool setBindProtocolSelection()
 
   // Bottom right: V2.1 D16 LBT
   if (xPos > 512 && yPos < -512) {
-    g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKYX2);
-    g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKYX2_SUBTYPE_D16_LBT;
+    g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKYX2;
+    g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYX2_SUBTYPE_D16_LBT;
     g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
     storageDirty(EE_MODEL);
     return true;
@@ -79,7 +79,7 @@ void bindButtonHandler(event_t event)
   if( !isModuleMultimodule(INTERNAL_MODULE))
     return;
 
-  if (event == EVT_KEY_LONG(KEY_BIND) && getMultiBindStatus(INTERNAL_MODULE) == MULTI_NORMAL_OPERATION) {
+  if (event == EVT_KEY_LONG(KEY_BIND) && getMultiBindStatus(INTERNAL_MODULE) == MULTI_BIND_NONE) {
     if (setBindProtocolSelection()) {
       setMultiBindStatus(INTERNAL_MODULE, MULTI_BIND_INITIATED);
       moduleState[INTERNAL_MODULE].mode = MODULE_MODE_BIND;
@@ -94,7 +94,7 @@ void bindButtonHandler(event_t event)
   }
 
   if (getMultiBindStatus(INTERNAL_MODULE) == MULTI_BIND_FINISHED) {
-    setMultiBindStatus(INTERNAL_MODULE, MULTI_NORMAL_OPERATION);
+    setMultiBindStatus(INTERNAL_MODULE, MULTI_BIND_NONE);
     moduleState[INTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
     LED_ERROR_END();
   }

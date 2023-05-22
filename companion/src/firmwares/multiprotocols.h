@@ -18,14 +18,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef OPENTX_MULTI_H
-#define OPENTX_MULTI_H
+#pragma once
 
 #include <vector>
 #include <QtCore>
 #include "moduledata.h"
 
-#define MM_RF_CUSTOM_SELECTED 0xff
+class AbstractStaticItemModel;
 
 class Multiprotocols
 {
@@ -37,6 +36,7 @@ class Multiprotocols
       int protocol;
       unsigned int maxSubtype;
       bool hasFailsafe;
+      bool disableChannelMap;
       QStringList protocols;
       QString optionsstr;
     };
@@ -44,6 +44,7 @@ class Multiprotocols
     struct MultiProtocolDefinition {
       const int protocol;
       const bool hasFailsafe;
+      const bool disableChannelMap;
       const QStringList subTypeStrings;
       const QString optionsstr;
 
@@ -52,13 +53,10 @@ class Multiprotocols
         return protocol > MODULE_SUBTYPE_MULTI_LAST ? 8 : (unsigned int) subTypeStrings.length();
       }
 
-      int getOptionMin() const;
-
-      int getOptionMax() const;
-
       MultiProtocolDefinition(const radio_mm_definition &rd) :
         protocol(rd.protocol),
         hasFailsafe(rd.hasFailsafe),
+        disableChannelMap(rd.disableChannelMap),
         subTypeStrings(rd.protocols),
         optionsstr(rd.optionsstr)
       {
@@ -73,8 +71,9 @@ class Multiprotocols
     }
 
     const MultiProtocolDefinition &getProtocol(int protocol) const;
-    static QString protocolToString(int protocol, bool custom = false);
-    static QString subTypeToString(int protocol, unsigned subType);
+    static QString protocolToString(int protocol);
+    static QString subTypeToString(int protocol, unsigned int subType);
+    static AbstractStaticItemModel * protocolItemModel();
 
   private:
 
@@ -83,5 +82,3 @@ class Multiprotocols
 };
 
 extern const Multiprotocols multiProtocols;
-
-#endif //OPENTX_MULTI_H

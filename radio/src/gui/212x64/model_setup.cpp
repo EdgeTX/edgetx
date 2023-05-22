@@ -1058,7 +1058,7 @@ void menuModelSetup(event_t event)
 #if defined(MULTIMODULE)
                 else if (isModuleMultimodule(EXTERNAL_MODULE)) {
                   int multiRfProto = g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol;
-                  CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
+                  CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
                   if (checkIncDec_Ret) {
                     g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol = multiRfProto;
                     g_model.moduleData[EXTERNAL_MODULE].subType = 0;
@@ -1189,7 +1189,7 @@ void menuModelSetup(event_t event)
                 }
               }
               else {
-                CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MULTI_MAX_PROTOCOLS, isMultiProtocolSelectable);
+                CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
               }
               if (checkIncDec_Ret) {
                 g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol = multiRfProto;
@@ -1570,7 +1570,7 @@ void menuModelSetup(event_t event)
            lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_POWER, optionValue, LEFT | attr);
          }
          else if (title == STR_MULTI_TELEMETRY) {
-           lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_TELEMETRY_MODE, optionValue, LEFT | attr);
+           lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_BAYANG_OPTIONS, optionValue, LEFT | attr);
          }
          else if (title == STR_MULTI_WBUS) {
            lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_WBUS_MODE, optionValue, LEFT | attr);

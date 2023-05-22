@@ -28,6 +28,8 @@
  *  \0               -ends current string
  */
 
+#include "MultiProtoDefs.h"
+
 #if defined(PCBX12S)
   #define TR_POTS_VSRCRAW              STR_CHAR_POT"S1", STR_CHAR_POT"6P", STR_CHAR_POT"S2", STR_CHAR_TRIM"L1", STR_CHAR_TRIM"L2", STR_CHAR_SLIDER"LS", STR_CHAR_SLIDER"RS", STR_CHAR_POT"JSx", STR_CHAR_POT"JSy"
   #define TR_SW_VSRCRAW                STR_CHAR_SWITCH"SA", STR_CHAR_SWITCH"SB", STR_CHAR_SWITCH"SC", STR_CHAR_SWITCH"SD", STR_CHAR_SWITCH"SE", STR_CHAR_SWITCH"SF", STR_CHAR_SWITCH"SG", STR_CHAR_SWITCH"SH", STR_CHAR_SWITCH"SI", STR_CHAR_SWITCH"SJ"
@@ -137,13 +139,9 @@
 #define TR_PPM_PROTOCOLS               TR("No Telem", "No Telemetry"),"MLink"
 #define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
 
-#define TR_MULTI_PROTOCOLS             "FlySky","Hubsan","FrSkyD","Hisky","V2x2","DSM","Devo","YD717","KN","SymaX","SLT","CX10","CG023", \
-        "Bayang","FrSkyX","ESky","MT99XX","MJXq","Shenqi","FY326","Futaba","J6 Pro","FQ777","Assan","FrSkyV","Hontai","OpenLrs","FlSky2A","Q2x2","Walkera", \
-        "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFly","Bugs","BugMini","Traxxas","NCC1701","E01X", \
-        "V911S","GD00X","V761","KF606","Redpine","Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX816","BayanRX","Pelikan","Tiger", \
-        "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSkyL","Skyartc","ESky-v2","DSM RX","JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc", \
-        "OMP","M-Link","Wfly 2","E016Hv2","E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg","Xerall","MT99XX2", \
-        "Kyosho2"
+#define TR_MULTI_PROTOCOLS             PROTO_NAMES
+#define TR_MULTI_BAYANG_OPTIONS        BAYANG_OPTION_TELEMETRY_NAMES
+#define TR_MULTI_DSM_OPTIONS           DSM2_OPTION_SERVOFREQ_NAMES 
 
 #define TR_MULTI_POWER                 "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
 #define TR_MULTI_WBUS_MODE             "WBUS","PPM"

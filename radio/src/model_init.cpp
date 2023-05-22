@@ -106,8 +106,8 @@ void setVendorSpecificModelDefaults(uint8_t id)
   // Those settings are for headless radio
   g_model.trainerData.mode = TRAINER_MODE_SLAVE;
   g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
-  g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-  g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D8;
+  g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKY;
+  g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYD_SUBTYPE_D8;
   g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
 #endif
 }

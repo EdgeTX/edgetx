@@ -60,7 +60,6 @@
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
-#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM                "自定義"
 #define TR_VTRIMINC                     "指數","很小","較小","中等","較大"
 #define TR_VDISPLAYTRIMS                "不顯示","改變時","始終顯示"
