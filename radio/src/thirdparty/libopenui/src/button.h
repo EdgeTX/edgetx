@@ -20,9 +20,8 @@
 
 #include "form.h"
 
-constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1u;
-constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2u;
-constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
+constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 1u;
+constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 2u;
 
 class Button : public FormField
 {
@@ -77,7 +76,7 @@ class TextButton: public Button
   public:
    TextButton(Window* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
-              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE);
+              WindowFlags windowFlags = OPAQUE);
               
 #if defined(DEBUG_WINDOWS)
    std::string getName() const override

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "window.h"
-#include "button.h" // TODO just for BUTTON_BACKGROUND
 
 class StaticText: public Window
 {
