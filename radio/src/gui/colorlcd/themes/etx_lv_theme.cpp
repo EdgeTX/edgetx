@@ -59,6 +59,7 @@ typedef struct {
   lv_style_t bg_color_white;
   lv_style_t bg_color_active;
   lv_style_t bg_color_focus;
+  lv_style_t bg_color_focus_light;
   lv_style_t bg_color_edit;
   lv_style_t pressed;
   lv_style_t disabled;
@@ -236,6 +237,9 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
   lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
+  style_init_reset(&styles.bg_color_focus_light);
+  lv_style_set_bg_color(&styles.bg_color_focus_light, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_bg_opa(&styles.bg_color_focus_light, LV_OPA_20);
 
   // Edit color background
   style_init_reset(&styles.bg_color_edit);
@@ -663,6 +667,8 @@ lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
   lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
   lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles.focus_border, LV_PART_ITEMS | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
 
   return obj;
 }

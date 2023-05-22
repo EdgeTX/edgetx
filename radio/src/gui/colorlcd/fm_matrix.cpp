@@ -49,20 +49,16 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   lv_obj_set_height(lvobj, LV_DPI_DEF);
 #endif
 
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
   lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
   lv_obj_set_style_pad_row(lvobj, lv_dpx(4), LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
-
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);  
 }
 
 template<class T>
 void FMMatrix<T>::setTextWithColor(uint8_t btn_id)
 {
-  setText(btn_id, makeRecolor(std::to_string(btn_id), isActive(btn_id) ? COLOR_THEME_PRIMARY1 : COLOR_THEME_SECONDARY1).c_str());
+  setTextAndColor(btn_id, std::to_string(btn_id).c_str());
+  setChecked(btn_id);
 }
 
 template<class T>
