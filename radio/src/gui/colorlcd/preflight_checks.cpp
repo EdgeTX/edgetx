@@ -110,9 +110,6 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_MENU_MODEL_SETUP);
   header.setTitle2(STR_PREFLIGHT);
 
-  body.padAll(0);
-  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(8);
