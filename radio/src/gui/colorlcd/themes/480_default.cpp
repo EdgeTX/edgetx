@@ -61,7 +61,7 @@ class Theme480: public EdgeTxTheme
       memcpy(lcdColorTable, defaultColors, sizeof(defaultColors));
     }
 
-    void loadIcons() const
+    void createIcons() const
     {
       if (iconsLoaded)
         return;
@@ -74,11 +74,16 @@ class Theme480: public EdgeTxTheme
 
       // Get mask with max size
       unique_ptr<BitmapBuffer> shadow(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_shadow));
-
       currentMenuBackground = new BitmapBuffer(BMP_RGB565, shadow->width(), shadow->height());
 
-      if (currentMenuBackground) {
+      topleftBitmap = BitmapBuffer::load8bitMaskLZ4(mask_topleft);
 
+      loadBuiltinBitmaps();
+    }
+
+    void loadIcons() const
+    {
+      if (currentMenuBackground) {
         currentMenuBackground->drawSolidFilledRect(
             0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
             COLOR_THEME_SECONDARY1);
@@ -100,10 +105,6 @@ class Theme480: public EdgeTxTheme
         unique_ptr<BitmapBuffer> dot(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_dot));
         currentMenuBackground->drawMask(10, 39, dot.get(), COLOR_THEME_PRIMARY2);
       }
-
-      topleftBitmap = BitmapBuffer::load8bitMaskLZ4(mask_topleft);
-
-      loadBuiltinBitmaps();
     }
 
     void setBackgroundImageFileName(const char *fileName) override
@@ -128,6 +129,7 @@ class Theme480: public EdgeTxTheme
 
     void update(bool reload = true) const override
     {
+      createIcons();
       loadIcons();
       initLvglTheme();
     }
