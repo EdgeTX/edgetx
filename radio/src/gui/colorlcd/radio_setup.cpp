@@ -580,7 +580,7 @@ class ViewOptionsPage : public Page
     ViewOptionsPage() : Page(ICON_RADIO_SETUP)
     {
       header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_VIEW_OPTIONS);
+      header.setTitle2(STR_ENABLED_FEATURES);
 
       body.padAll(8);
 
@@ -686,7 +686,7 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_ALARMS_LABEL, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
-      {STR_VIEW_OPTIONS, [](){new ViewOptionsPage();}},
+      {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
 });
 
 #if defined(PWR_BUTTON_PRESS)

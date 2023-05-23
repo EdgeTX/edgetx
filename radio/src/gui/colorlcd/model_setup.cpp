@@ -270,7 +270,7 @@ class ModelViewOptions : public Page
     ModelViewOptions() : Page(ICON_MODEL_SETUP)
     {
       header.setTitle(STR_MENU_MODEL_SETUP);
-      header.setTitle2(STR_VIEW_OPTIONS);
+      header.setTitle2(STR_ENABLED_FEATURES);
 
       body.padAll(8);
 
@@ -453,7 +453,7 @@ void ModelSetupPage::build(FormWindow * window)
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
-  btn = new SubScreenButton(form, STR_VIEW_OPTIONS, []() { new ModelViewOptions(); });
+  btn = new SubScreenButton(form, STR_ENABLED_FEATURES, []() { new ModelViewOptions(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
 #if defined(USBJ_EX)

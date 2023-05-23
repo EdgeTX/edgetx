@@ -658,7 +658,7 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_VIEW_OPTIONS_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_VIEW_OPTIONS);
+        lcdDrawTextAlignedLeft(y, STR_ENABLED_FEATURES);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawText(INDENT_WIDTH, y, TR_RADIO_MENU_TABS);
