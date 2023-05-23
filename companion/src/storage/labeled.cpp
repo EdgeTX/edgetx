@@ -140,7 +140,8 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   // Add a Favorites label
   if(getCurrentFirmware()->getCapability(HasModelLabels)) {
-   radioData.labels.append(tr("Favorites"));
+   RadioData::LabelData ld = { tr("Favorites"), false };
+   radioData.labels.append(ld);
   }
   return true;
 }
@@ -218,15 +219,19 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   //        - Update possible labels with all found in models too
 
   QByteArray labelslistBuffer;
+  int sortOrder = 0;
   if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
-      if (!loadLabelsListFromYaml(radioData.labels, modelFiles, labelslistBuffer)) {
+      if (!loadLabelsListFromYaml(radioData.labels, sortOrder, modelFiles, labelslistBuffer)) {
         setError(tr("Can't load MODELS/labels.yml"));
       }
     } catch(const std::runtime_error& e) {
       setError(tr("Can't load MODELS/labels.yml") + ":\n" + QString(e.what()));
     }
   }
+
+  // Save Sort Order
+  radioData.sortOrder = sortOrder;
 
   // Scan for all models
   std::list<std::string> filelist;
@@ -308,8 +313,10 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
     radioData.addLabelsFromModels();
 
     // If no labels, add a Favorites
-    if(!radioData.labels.size())
-      radioData.labels.append(tr("Favorites"));
+    if(!radioData.labels.size()) {
+      RadioData::LabelData ld = { tr("Favorites"), false };
+      radioData.labels.append(ld);
+    }
   }
 
   return true;

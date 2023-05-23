@@ -37,7 +37,8 @@ struct EtxModelMetadata {
 
 typedef std::list<EtxModelMetadata> EtxModelfiles;
 
-bool loadLabelsListFromYaml(QStringList& labels,
+bool loadLabelsListFromYaml(RadioData::ModelLabels& labels,
+                            int& sortOrder,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data);
 
