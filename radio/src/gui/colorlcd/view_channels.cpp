@@ -79,7 +79,7 @@ void ChannelsViewPage::build(FormWindow * window)
     coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
     coord_t yPos = (chan % 4) * ((window->height() - CHANNEL_VIEW_FOOTER_HEIGHT - 4) / 4);
 #endif
-    new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 1}, chan);
+    new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 3}, chan);
   }
 
   // Footer
