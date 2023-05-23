@@ -217,10 +217,6 @@ add_gui_src(channel_bar.cpp)
 
 add_gui_src(list_line_button.cpp)
 
-if(HARDWARE_TOUCH)
-  add_gui_src(keyboard_curve.cpp)
-endif()
-
 if(USBJ_EX)
   add_gui_src(model_usbjoystick.cpp)
 endif()

@@ -85,16 +85,12 @@ class Theme480: public EdgeTxTheme
     {
       if (currentMenuBackground) {
         currentMenuBackground->drawSolidFilledRect(
-            0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
+            0, 0, currentMenuBackground->width(), currentMenuBackground->height(),
             COLOR_THEME_SECONDARY1);
 
         currentMenuBackground->drawSolidFilledRect(
             0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
             MENU_TITLE_TOP - MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
-
-        currentMenuBackground->drawSolidFilledRect(
-            0, MENU_TITLE_TOP, currentMenuBackground->width(),
-            currentMenuBackground->height() - MENU_TITLE_TOP, COLOR_THEME_SECONDARY1);
 
         unique_ptr<BitmapBuffer> background(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_bg));
         currentMenuBackground->drawMask(0, 0, background.get(), COLOR_THEME_FOCUS);

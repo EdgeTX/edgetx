@@ -75,7 +75,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                            GET_DEFAULT(ref->value), setRefValue);
 
   // CURVE_REF_CUSTOM
-  cust_choice = new ChoiceEx(this, rect_t{}, -MAX_CURVES, MAX_CURVES,
+  cust_choice = new Choice(this, rect_t{}, -MAX_CURVES, MAX_CURVES,
                              GET_DEFAULT(ref->value), setRefValue);
   cust_choice->setTextHandler([](int value) { return getCurveString(value); });
   cust_choice->set_lv_LongPressHandler(LongPressHandler, &(ref->value));

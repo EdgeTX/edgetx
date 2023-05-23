@@ -68,7 +68,7 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
                            int16_t vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue,
                            WindowFlags windowFlags, LcdFlags textFlags) :
-    ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
+    Choice(parent, rect, vmin, vmax, getValue, setValue)
 {
   setBeforeDisplayMenuHandler([=](Menu *menu) {
     auto tb = new SourceChoiceMenuToolbar(this, menu);

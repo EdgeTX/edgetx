@@ -27,7 +27,6 @@ struct CurveRef;
 
 class GVarNumberEdit;
 class Choice;
-class ChoiceEx;
 
 class CurveParam : public Window
 {
@@ -38,7 +37,7 @@ class CurveParam : public Window
   // Controls
   GVarNumberEdit* value_edit;
   Choice* func_choice;
-  ChoiceEx* cust_choice;
+  Choice* cust_choice;
 
   Window* act_field = nullptr;
 

@@ -22,10 +22,10 @@
 #ifndef _SWITCHCHOICE_H_
 #define _SWITCHCHOICE_H_
 
-#include "choiceex.h"
+#include "choice.h"
 #include "form.h"
 
-class SwitchChoice : public ChoiceEx
+class SwitchChoice : public Choice
 {
  public:
   SwitchChoice(Window* parent, const rect_t& rect, int vmin, int vmax,
