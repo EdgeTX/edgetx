@@ -182,7 +182,8 @@ void Choice::setValue(int val)
 
 void Choice::onClicked()
 {
-  openMenu();
+  if (!longPressData.isLongPressed)
+    openMenu();
 }
 
 void Choice::fillMenu(Menu *menu, const FilterFct& filter)
@@ -223,4 +224,24 @@ void Choice::openMenu()
   }
 
   menu->setCloseHandler([=]() { setEditMode(false); });
+}
+
+static void localLongPressHandler(lv_event_t* e)
+{
+  lv_eventData_t* ld = (lv_eventData_t*)lv_event_get_user_data(e);
+  ld->isLongPressed = true;
+  ld->lv_LongPressHandler(ld->userData);
+}
+
+void Choice::set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data)
+{
+  TRACE("longPressHandler=%p", longPressHandler);
+
+  if (longPressHandler) {
+    longPressData.userData = data;
+    longPressData.lv_LongPressHandler = longPressHandler;
+    lv_obj_add_event_cb(lvobj, localLongPressHandler, LV_EVENT_LONG_PRESSED,
+                        &longPressData);
+    lv_obj_add_event_cb(lvobj, ClickHandler, LV_EVENT_CLICKED, this);
+  }
 }

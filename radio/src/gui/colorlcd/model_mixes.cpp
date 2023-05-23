@@ -22,7 +22,7 @@
 #include "model_mixes.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "choiceex.h"
+#include "choice.h"
 #include "bitfield.h"
 #include "model_inputs.h"
 #include "gvar_numberedit.h"

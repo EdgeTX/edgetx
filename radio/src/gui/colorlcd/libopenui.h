@@ -42,7 +42,6 @@
 #include "progress.h"
 #include "keyboard_text.h"
 #include "keyboard_number.h"
-#include "keyboard_curve.h"
 #include "tabsgroup.h"
 #include "page.h"
 #include "menu.h"
