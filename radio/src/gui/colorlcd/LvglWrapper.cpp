@@ -341,7 +341,7 @@ void initLvglTheme()
   /* Initialize the ETX theme */
   lv_theme_t* th = etx_lv_theme_init(
       NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
-      false, LV_FONT_DEFAULT);
+      LV_FONT_DEFAULT);
 
   /* Assign the theme to the current display*/
   lv_disp_set_theme(NULL, th);

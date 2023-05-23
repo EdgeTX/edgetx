@@ -117,9 +117,6 @@ class EdgeTxTheme
 
     virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
 
-    virtual void drawProgressBar(BitmapBuffer * dc, coord_t x, coord_t y,
-                                 coord_t w, coord_t h, int value, int total) const = 0;
-
     virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
   
   protected:
