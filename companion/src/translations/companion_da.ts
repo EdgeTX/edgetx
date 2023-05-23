@@ -143,10 +143,6 @@
         <translation>Kanalrækkefølge</translation>
     </message>
     <message>
-        <source>Menu Language</source>
-        <translation>Menu sprog</translation>
-    </message>
-    <message>
         <source>Default Stick Mode</source>
         <translation>Standard pind tilstand</translation>
     </message>
@@ -693,6 +689,10 @@ Mode 4:
     <message>
         <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
         <translation>Slet &apos;tom&apos; model når modeller slettes (gælder kun for radio uden edikette)</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3913,6 +3913,65 @@ Disse indstillinger gælder for alle modeller.</translation>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
         <translation>Fejl data i profilen, indstillinger af kontakter og pinde og drejekontakter ikke indlæst</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GeneralOptionsPanel</name>
+    <message>
+        <source>Radio Menus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation type="unfinished">Tema</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation type="unfinished">Globale funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation type="unfinished">Træner</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation type="unfinished">Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation type="unfinished">Flyve tilstand</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation type="unfinished">Kurver</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation type="unfinished">Logiske funktioner</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation type="unfinished">Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation type="unfinished">Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSettings</name>
@@ -4849,6 +4908,10 @@ Er du sikker?</translation>
     <message>
         <source>Japanese</source>
         <translation>Japansk</translation>
+    </message>
+    <message>
+        <source>Hebrew</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7147,6 +7210,77 @@ p, li { white-space: pre-wrap; }
         <source>Simulate</source>
         <translation>Simulering</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModelOptionsPanel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished">Fra</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation type="unfinished">Til</translation>
+    </message>
+    <message>
+        <source>Radio Menus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation type="unfinished">Tema</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation type="unfinished">Globale funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation type="unfinished">Træner</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation type="unfinished">Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation type="unfinished">Flyve tilstand</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation type="unfinished">Kurver</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation type="unfinished">Logiske funktioner</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation type="unfinished">Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation type="unfinished">Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>ModelPrinter</name>
@@ -7713,10 +7847,6 @@ p, li { white-space: pre-wrap; }
         <translation>Tilvalg</translation>
     </message>
     <message>
-        <source>Low Power</source>
-        <translation>Lav effekt</translation>
-    </message>
-    <message>
         <source>Multi Radio Protocol</source>
         <translation>Multiradio protokol</translation>
     </message>
@@ -7801,6 +7931,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Option combo</source>
         <translation>Tilvalg combo</translation>
+    </message>
+    <message>
+        <source>Low power mode</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8016,6 +8150,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Lemon-Rx DSMP</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>No Telemetry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MLink</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8394,50 +8536,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>Multiprotocols</name>
-    <message>
-        <source>Subtype</source>
-        <translation>Subtype</translation>
-    </message>
-    <message>
-        <source>Video TX frequency</source>
-        <translation>Video TX-frekvens</translation>
-    </message>
-    <message>
-        <source>Telemetry</source>
-        <translation>Telemetri</translation>
-    </message>
-    <message>
-        <source>Servo output frequency</source>
-        <translation>Uddatafrekvens for servo</translation>
-    </message>
-    <message>
-        <source>Option value</source>
-        <translation>Tilvalg</translation>
-    </message>
-    <message>
-        <source>DEFAULT</source>
-        <translation>STANDARD</translation>
-    </message>
-    <message>
-        <source>CC2500 frequency fine tune</source>
-        <translation>Finjustering af CC2500 frekvens</translation>
-    </message>
-    <message>
-        <source>Fixed ID value</source>
-        <translation>Fast ID værdi</translation>
-    </message>
-    <message>
-        <source>RF power</source>
-        <translation>RF strøm</translation>
-    </message>
-    <message>
-        <source>Enable Max Throw</source>
-        <translation>Aktiver maksimal effekt</translation>
-    </message>
-    <message>
-        <source>RF Channel Number</source>
-        <translation>RF kanal nummer</translation>
-    </message>
     <message>
         <source>Servo update rate</source>
         <translation>Servo opdaterings frekvens</translation>
