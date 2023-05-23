@@ -197,16 +197,6 @@ class Theme480: public EdgeTxTheme
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 
-    void drawProgressBar(BitmapBuffer *dc, coord_t x, coord_t y, coord_t w,
-                         coord_t h, int value, int total) const override
-    {
-      dc->drawSolidRect(x, y, w, h, 1, COLOR_THEME_SECONDARY1);
-      if (value > 0) {
-        int width = (w * value) / total;
-        dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, COLOR_THEME_FOCUS);
-      }
-    }
-
   protected:
     static bool iconsLoaded;
     static const BitmapBuffer * backgroundBitmap;

@@ -96,6 +96,10 @@ typedef struct {
   lv_style_t modal_content;
   lv_style_t modal_title;
 
+  // Progress bar
+  lv_style_t progress_main;
+  lv_style_t progress_indicator;
+
 } my_theme_styles_t;
 
 /**********************
@@ -108,16 +112,6 @@ static bool inited = false;
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
-static void style_init_reset(lv_style_t * style)
-{
-  if(inited) {
-    lv_style_reset(style);
-  }
-  else {
-    lv_style_init(style);
-  }
-}
 
 static lv_color_t dark_color_filter_cb(const lv_color_filter_dsc_t * f, lv_color_t c, lv_opa_t opa)
 {
@@ -133,204 +127,218 @@ static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t * f, lv_color_t col
 
 static void style_init(void)
 {
-  // Scrollbar
-  style_init_reset(&styles.scrollbar);
+  if (!inited) {
+    inited = true;
+
+    // Scrollbar
+    lv_style_init(&styles.scrollbar);
+    lv_style_set_pad_all(&styles.scrollbar, lv_disp_dpx(theme.disp, 7));
+    lv_style_set_width(&styles.scrollbar,  lv_disp_dpx(theme.disp, 5));
+    lv_style_set_bg_opa(&styles.scrollbar,  LV_OPA_40);
+
+    lv_style_init(&styles.scrollbar_scrolled);
+    lv_style_set_bg_opa(&styles.scrollbar_scrolled,  LV_OPA_COVER);
+
+    // Keyboard
+    lv_style_init(&styles.keyboard);
+    lv_style_set_bg_opa(&styles.keyboard, LV_OPA_COVER);
+    lv_style_set_pad_row(&styles.keyboard, PAD_SMALL);
+    lv_style_set_pad_column(&styles.keyboard, PAD_SMALL);
+
+    // Border
+    lv_style_init(&styles.border);
+    lv_style_set_border_opa(&styles.border, LV_OPA_100);
+    lv_style_set_border_width(&styles.border, 1);
+
+    // Button
+    lv_style_init(&styles.btn);
+    lv_style_set_bg_opa(&styles.btn, LV_OPA_COVER);
+    lv_style_set_border_opa(&styles.btn, LV_OPA_0);
+    lv_style_set_border_width(&styles.btn, BORDER_WIDTH);
+    lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
+    lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
+    lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
+    lv_style_set_pad_row(&styles.btn, lv_disp_dpx(theme.disp, 5));
+
+    lv_style_init(&styles.line_btn);
+    lv_style_set_bg_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_border_opa(&styles.line_btn, LV_OPA_COVER);
+    lv_style_set_border_width(&styles.line_btn, BORDER_WIDTH);
+
+    // Edit box
+    lv_style_init(&styles.field);
+    lv_style_set_border_width(&styles.field, lv_dpx(1));
+    lv_style_set_bg_opa(&styles.field, LV_OPA_COVER);
+    lv_style_set_pad_top(&styles.field, 4);
+    lv_style_set_pad_bottom(&styles.field, 5);
+    lv_style_set_pad_left(&styles.field, 4);
+    lv_style_set_pad_right(&styles.field, 4);
+
+    // States (pressed, disabled, etc)
+    static lv_color_filter_dsc_t dark_filter;
+    lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
+
+    static lv_color_filter_dsc_t grey_filter;
+    lv_color_filter_dsc_init(&grey_filter, grey_filter_cb);
+
+    lv_style_init(&styles.pressed);
+    lv_style_set_color_filter_dsc(&styles.pressed, &dark_filter);
+    lv_style_set_color_filter_opa(&styles.pressed, 35);
+
+    lv_style_init(&styles.disabled);
+    lv_style_set_color_filter_dsc(&styles.disabled, &grey_filter);
+    lv_style_set_color_filter_opa(&styles.disabled, LV_OPA_50);
+
+    lv_style_init(&styles.focus_border);
+    lv_style_set_border_opa(&styles.focus_border, LV_OPA_100);
+    lv_style_set_border_width(&styles.focus_border, BORDER_WIDTH);
+
+    // Padding
+    lv_style_init(&styles.pad_small);
+    lv_style_set_pad_all(&styles.pad_small, PAD_SMALL);
+    lv_style_set_pad_gap(&styles.pad_small, PAD_SMALL);
+    lv_style_set_pad_column(&styles.pad_small, PAD_SMALL);
+
+    lv_style_init(&styles.pad_zero);
+    lv_style_set_pad_all(&styles.pad_zero, 0);
+    lv_style_set_pad_row(&styles.pad_zero, 0);
+    lv_style_set_pad_column(&styles.pad_zero, 0);
+
+    lv_style_init(&styles.pad_tiny);
+    lv_style_set_pad_all(&styles.pad_tiny, PAD_TINY);
+    lv_style_set_pad_row(&styles.pad_tiny, PAD_TINY);
+    lv_style_set_pad_column(&styles.pad_tiny, PAD_TINY);
+
+    // Grey background
+    lv_style_init(&styles.bg_color_grey);
+    lv_style_set_bg_opa(&styles.bg_color_grey, LV_OPA_COVER);
+
+    // White background
+    lv_style_init(&styles.bg_color_white);
+    lv_style_set_bg_opa(&styles.bg_color_white, LV_OPA_COVER);
+
+    // Active color background
+    lv_style_init(&styles.bg_color_active);
+    lv_style_set_bg_opa(&styles.bg_color_active, LV_OPA_COVER);
+
+    // Focus color background
+    lv_style_init(&styles.bg_color_focus);
+    lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
+    lv_style_init(&styles.bg_color_focus_light);
+    lv_style_set_bg_opa(&styles.bg_color_focus_light, LV_OPA_20);
+
+    // Edit color background
+    lv_style_init(&styles.bg_color_edit);
+    lv_style_set_bg_opa(&styles.bg_color_edit, LV_OPA_COVER);
+
+    // Checkbox and slider knob rounding
+    lv_style_init(&styles.circle);
+    lv_style_set_radius(&styles.circle, LV_RADIUS_CIRCLE);
+
+    // Corner rounding (button, edit box, etc)
+    lv_style_init(&styles.rounded);
+    lv_style_set_radius(&styles.rounded, 6);
+
+    // Slider
+    lv_style_init(&styles.slider_main);
+    lv_style_set_bg_opa(&styles.slider_main, LV_OPA_100);
+    lv_style_set_pad_all(&styles.slider_main, 6);
+    lv_style_init(&styles.slider_knob);
+    lv_style_set_bg_opa(&styles.slider_knob, LV_OPA_COVER);
+    lv_style_set_border_width(&styles.slider_knob, 1);
+    lv_style_set_pad_all(&styles.slider_knob, lv_disp_dpx(theme.disp, 6));
+
+    // Choice
+    lv_style_init(&styles.choice_main);
+    lv_style_set_pad_top(&styles.choice_main, 3);
+    lv_style_set_pad_bottom(&styles.choice_main, 4);
+    lv_style_set_pad_right(&styles.choice_main, 5);
+    lv_style_set_bg_opa(&styles.choice_main, LV_OPA_100);
+    lv_style_set_border_width(&styles.choice_main, 1);
+
+    // Animation
+    lv_style_init(&styles.anim_fast);
+    lv_style_set_anim_time(&styles.anim_fast, 120);
+
+    // Checkbox
+    lv_style_init(&styles.switch_knob);
+    lv_style_set_pad_all(&styles.switch_knob, -3);
+    lv_style_set_bg_opa(&styles.switch_knob, LV_OPA_100);
+    lv_style_set_border_width(&styles.switch_knob, 2);
+
+    // Table
+    lv_style_init(&styles.table_cell);
+    lv_style_set_border_width(&styles.table_cell, lv_disp_dpx(theme.disp, 1));
+    lv_style_set_border_side(&styles.table_cell, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
+
+    // Edit box cursor
+    lv_style_init(&styles.field_cursor);
+    lv_style_set_opa(&styles.field_cursor, LV_OPA_0);
+
+    lv_style_init(&styles.edit_cursor);
+    lv_style_set_opa(&styles.edit_cursor, LV_OPA_COVER);
+    lv_style_set_bg_opa(&styles.edit_cursor, LV_OPA_50);
+
+    // Keyboard buttons
+    lv_style_init(&styles.keyboard_btn_bg);
+    lv_style_set_shadow_width(&styles.keyboard_btn_bg, 0);
+    lv_style_set_radius(&styles.keyboard_btn_bg, 5);
+
+    // Modal overlay (for dimming background)
+    lv_style_init(&styles.modal_overlay);
+    lv_style_set_bg_opa(&styles.modal_overlay, LV_OPA_50);
+    lv_style_set_bg_color(&styles.modal_overlay, lv_color_black());
+    lv_style_init(&styles.modal_content);
+    lv_style_set_bg_opa(&styles.modal_content, LV_OPA_COVER);
+    lv_style_init(&styles.modal_title);
+    lv_style_set_bg_opa(&styles.modal_title, LV_OPA_COVER);
+    lv_style_set_pad_all(&styles.modal_title, PAGE_PADDING);
+    lv_style_set_width(&styles.modal_title,  lv_pct(100));
+    lv_style_set_max_height(&styles.modal_title, LCD_H * 0.8);
+
+    // Progress bar
+    lv_style_init(&styles.progress_main);
+    lv_style_set_bg_opa(&styles.progress_main, LV_OPA_COVER);
+    lv_style_init(&styles.progress_indicator);
+    lv_style_set_bg_opa(&styles.progress_indicator, LV_OPA_COVER);
+  }
+
+  // Always update colors in case theme changes
   lv_style_set_bg_color(&styles.scrollbar, lv_palette_main(LV_PALETTE_GREY));
-  lv_style_set_pad_all(&styles.scrollbar, lv_disp_dpx(theme.disp, 7));
-  lv_style_set_width(&styles.scrollbar,  lv_disp_dpx(theme.disp, 5));
-  lv_style_set_bg_opa(&styles.scrollbar,  LV_OPA_40);
-
-  style_init_reset(&styles.scrollbar_scrolled);
-  lv_style_set_bg_opa(&styles.scrollbar_scrolled,  LV_OPA_COVER);
-
-  // Keyboard
-  style_init_reset(&styles.keyboard);
-  lv_style_set_bg_opa(&styles.keyboard, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.keyboard, makeLvColor(COLOR_THEME_SECONDARY3));
-  lv_style_set_pad_row(&styles.keyboard, PAD_SMALL);
-  lv_style_set_pad_column(&styles.keyboard, PAD_SMALL);
-
-  // Border
-  style_init_reset(&styles.border);
-  lv_style_set_border_opa(&styles.border, LV_OPA_100);
-  lv_style_set_border_width(&styles.border, 1);
   lv_style_set_border_color(&styles.border, makeLvColor(COLOR_THEME_SECONDARY2));
-
-  // Button
-  style_init_reset(&styles.btn);
-  lv_style_set_bg_opa(&styles.btn, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_border_opa(&styles.btn, LV_OPA_0);
-  lv_style_set_border_width(&styles.btn, BORDER_WIDTH);
   lv_style_set_text_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_hor(&styles.btn, PAD_SMALL);
-  lv_style_set_pad_ver(&styles.btn, PAD_SMALL);
-  lv_style_set_pad_column(&styles.btn, lv_disp_dpx(theme.disp, 5));
-  lv_style_set_pad_row(&styles.btn, lv_disp_dpx(theme.disp, 5));
-
-  style_init_reset(&styles.line_btn);
-  lv_style_set_bg_opa(&styles.line_btn, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.line_btn, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_border_opa(&styles.line_btn, LV_OPA_COVER);
-  lv_style_set_border_width(&styles.line_btn, BORDER_WIDTH);
   lv_style_set_border_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY2));
-
-  // Edit box
-  style_init_reset(&styles.field);
-  lv_style_set_border_width(&styles.field, lv_dpx(1));
-  lv_style_set_border_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&styles.field, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&styles.field, LV_OPA_COVER);
+  lv_style_set_border_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_text_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_top(&styles.field, 4);
-  lv_style_set_pad_bottom(&styles.field, 5);
-  lv_style_set_pad_left(&styles.field, 4);
-  lv_style_set_pad_right(&styles.field, 4);
-
-  // States (pressed, disabled, etc)
-  static lv_color_filter_dsc_t dark_filter;
-  lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
-
-  static lv_color_filter_dsc_t grey_filter;
-  lv_color_filter_dsc_init(&grey_filter, grey_filter_cb);
-
-  style_init_reset(&styles.pressed);
-  lv_style_set_color_filter_dsc(&styles.pressed, &dark_filter);
-  lv_style_set_color_filter_opa(&styles.pressed, 35);
-
-  style_init_reset(&styles.disabled);
-  lv_style_set_color_filter_dsc(&styles.disabled, &grey_filter);
-  lv_style_set_color_filter_opa(&styles.disabled, LV_OPA_50);
-
-  style_init_reset(&styles.focus_border);
   lv_style_set_border_color(&styles.focus_border, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_border_opa(&styles.focus_border, LV_OPA_100);
-  lv_style_set_border_width(&styles.focus_border, BORDER_WIDTH);
-
-  // Padding
-  style_init_reset(&styles.pad_small);
-  lv_style_set_pad_all(&styles.pad_small, PAD_SMALL);
-  lv_style_set_pad_gap(&styles.pad_small, PAD_SMALL);
-  lv_style_set_pad_column(&styles.pad_small, PAD_SMALL);
-
-  style_init_reset(&styles.pad_zero);
-  lv_style_set_pad_all(&styles.pad_zero, 0);
-  lv_style_set_pad_row(&styles.pad_zero, 0);
-  lv_style_set_pad_column(&styles.pad_zero, 0);
-
-  style_init_reset(&styles.pad_tiny);
-  lv_style_set_pad_all(&styles.pad_tiny, PAD_TINY);
-  lv_style_set_pad_row(&styles.pad_tiny, PAD_TINY);
-  lv_style_set_pad_column(&styles.pad_tiny, PAD_TINY);
-
-  // Grey background
-  style_init_reset(&styles.bg_color_grey);
   lv_style_set_bg_color(&styles.bg_color_grey, makeLvColor(COLOR_THEME_DISABLED));
-  lv_style_set_bg_opa(&styles.bg_color_grey, LV_OPA_COVER);
-
-  // White background
-  style_init_reset(&styles.bg_color_white);
   lv_style_set_bg_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&styles.bg_color_white, LV_OPA_COVER);
   lv_style_set_text_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY1));
-
-  // Active color background
-  style_init_reset(&styles.bg_color_active);
   lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
-  lv_style_set_bg_opa(&styles.bg_color_active, LV_OPA_COVER);
   lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY1));
-
-  // Focus color background
-  style_init_reset(&styles.bg_color_focus);
   lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
   lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
-  style_init_reset(&styles.bg_color_focus_light);
   lv_style_set_bg_color(&styles.bg_color_focus_light, makeLvColor(COLOR_THEME_FOCUS));
-  lv_style_set_bg_opa(&styles.bg_color_focus_light, LV_OPA_20);
-
-  // Edit color background
-  style_init_reset(&styles.bg_color_edit);
   lv_style_set_bg_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_EDIT));
-  lv_style_set_bg_opa(&styles.bg_color_edit, LV_OPA_COVER);
   lv_style_set_text_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_PRIMARY2));
-
-  // Checkbox and slider knob rounding
-  style_init_reset(&styles.circle);
-  lv_style_set_radius(&styles.circle, LV_RADIUS_CIRCLE);
-
-  // Corner rounding (button, edit box, etc)
-  style_init_reset(&styles.rounded);
-  lv_style_set_radius(&styles.rounded, 6);
-
-  // Slider
-  style_init_reset(&styles.slider_main);
-  lv_style_set_bg_opa(&styles.slider_main, LV_OPA_100);
   lv_style_set_bg_color(&styles.slider_main, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_pad_all(&styles.slider_main, 6);
-  style_init_reset(&styles.slider_knob);
   lv_style_set_bg_color(&styles.slider_knob, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_bg_opa(&styles.slider_knob, LV_OPA_COVER);
   lv_style_set_border_color(&styles.slider_knob, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_border_width(&styles.slider_knob, 1);
-  lv_style_set_pad_all(&styles.slider_knob, lv_disp_dpx(theme.disp, 6));
-
-  // Choice
-  style_init_reset(&styles.choice_main);
-  lv_style_set_pad_top(&styles.choice_main, 3);
-  lv_style_set_pad_bottom(&styles.choice_main, 4);
-  lv_style_set_pad_right(&styles.choice_main, 5);
-  lv_style_set_bg_opa(&styles.choice_main, LV_OPA_100);
   lv_style_set_bg_color(&styles.choice_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.choice_main, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_border_width(&styles.choice_main, 1);
   lv_style_set_text_color(&styles.choice_main, makeLvColor(COLOR_THEME_SECONDARY1));
-
-  // Animation
-  style_init_reset(&styles.anim_fast);
-  lv_style_set_anim_time(&styles.anim_fast, 120);
-
-  // Checkbox
-  style_init_reset(&styles.switch_knob);
-  lv_style_set_pad_all(&styles.switch_knob, -3);
-  lv_style_set_bg_opa(&styles.switch_knob, LV_OPA_100);
   lv_style_set_bg_color(&styles.switch_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.switch_knob, makeLvColor(COLOR_THEME_SECONDARY1));
-  lv_style_set_border_width(&styles.switch_knob, 2);
-
-  // Table
-  style_init_reset(&styles.table_cell);
-  lv_style_set_border_width(&styles.table_cell, lv_disp_dpx(theme.disp, 1));
   lv_style_set_border_color(&styles.table_cell, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_border_side(&styles.table_cell, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
-
-  // Edit box cursor
-  style_init_reset(&styles.field_cursor);
-  lv_style_set_opa(&styles.field_cursor, LV_OPA_0);
-
-  style_init_reset(&styles.edit_cursor);
-  lv_style_set_opa(&styles.edit_cursor, LV_OPA_COVER);
-  lv_style_set_bg_opa(&styles.edit_cursor, LV_OPA_50);
-
-  // Keyboard buttons
-  style_init_reset(&styles.keyboard_btn_bg);
-  lv_style_set_shadow_width(&styles.keyboard_btn_bg, 0);
-  lv_style_set_radius(&styles.keyboard_btn_bg, 5);
-
-  // Modal overlay (for dimming background)
-  style_init_reset(&styles.modal_overlay);
-  lv_style_set_bg_opa(&styles.modal_overlay, LV_OPA_50);
-  lv_style_set_bg_color(&styles.modal_overlay, lv_color_black());
-  style_init_reset(&styles.modal_content);
-  lv_style_set_bg_opa(&styles.modal_content, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.modal_content, makeLvColor(COLOR_THEME_SECONDARY3));
-  style_init_reset(&styles.modal_title);
-  lv_style_set_bg_opa(&styles.modal_title, LV_OPA_COVER);
   lv_style_set_bg_color(&styles.modal_title, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_text_color(&styles.modal_title, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_pad_all(&styles.modal_title, PAGE_PADDING);
-  lv_style_set_width(&styles.modal_title,  lv_pct(100));
-  lv_style_set_max_height(&styles.modal_title, LCD_H * 0.8);
+  lv_style_set_bg_color(&styles.progress_main, makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_bg_color(&styles.progress_indicator, makeLvColor(COLOR_THEME_SECONDARY1));
 }
 
 /**********************
@@ -338,7 +346,7 @@ static void style_init(void)
  **********************/
 
 lv_theme_t *etx_lv_theme_init(lv_disp_t *disp, lv_color_t color_primary,
-                              lv_color_t color_secondary, bool dark,
+                              lv_color_t color_secondary,
                               const lv_font_t *font)
 {
   theme.disp = disp;
@@ -354,23 +362,7 @@ lv_theme_t *etx_lv_theme_init(lv_disp_t *disp, lv_color_t color_primary,
   if (disp == NULL || lv_disp_get_theme(disp) == &theme)
     lv_obj_report_style_change(NULL);
 
-  inited = true;
-
   return (lv_theme_t *)&theme;
-}
-
-lv_theme_t * etx_lv_theme_get(void)
-{
-  if(!etx_lv_theme_is_inited()) {
-    return NULL;
-  }
-
-  return (lv_theme_t *)&theme;
-}
-
-bool etx_lv_theme_is_inited(void)
-{
-  return inited;
 }
 
 /**********************
@@ -483,6 +475,19 @@ const lv_obj_class_t etx_choice_class = {
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_obj_t),
+};
+
+const lv_obj_class_t etx_bar_class = {
+    .base_class = &lv_bar_class,
+    .constructor_cb = nullptr,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = lv_pct(100),
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_bar_t),
 };
 
 lv_obj_t* input_mix_line_create(lv_obj_t* parent)
@@ -758,6 +763,19 @@ lv_obj_t* etx_modal_title_create(lv_obj_t* parent)
   lv_obj_t* obj = lv_label_create(parent);
 
   lv_obj_add_style(obj, &styles.modal_title, 0);
+
+  return obj;
+}
+
+lv_obj_t* etx_bar_create(lv_obj_t* parent)
+{
+  lv_obj_t* obj = lv_obj_class_create_obj(&etx_bar_class, parent);
+  lv_obj_class_init_obj(obj);
+
+  lv_obj_add_style(obj, &styles.progress_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.progress_indicator, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_INDICATOR);
 
   return obj;
 }

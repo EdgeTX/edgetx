@@ -22,10 +22,7 @@
 
 class Progress: public Window {
   public:
-    Progress(Window * parent, const rect_t & rect):
-      Window(parent, rect)
-    {
-    }
+    Progress(Window * parent, const rect_t & rect);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -34,16 +31,9 @@ class Progress: public Window {
     }
 #endif
 
-    void setValue(int newValue)
-    {
-      if (newValue != value) {
-        value = newValue;
-        invalidate();
-      }
-    }
-
-    void paint(BitmapBuffer * dc) override;
+    void setValue(int newValue);
 
   protected:
-    int value = 0;
+    int value = -1;
+    lv_obj_t* bar;
 };
