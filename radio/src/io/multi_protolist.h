@@ -73,9 +73,6 @@ class MultiRfProtocols
 
     // fixed length strings concatenated
     void fillSubProtoList(const char* str, int n, int len);
-
-    uint8_t getOption() const;
-    const char* getOptionStr() const;
     
     bool supportsFailsafe() const { return flags & 0x01; }
     bool supportsDisableMapping() const { return flags & 0x02; }
