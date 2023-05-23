@@ -384,6 +384,7 @@ static void ft6x06_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
 
 static void touch_cst340_debug_info(void)
 {
+#if 0  // Disabled because cannot compile, will fix when necessary
 #if defined(DEBUG)
   uint8_t tmp[4];
   if (!TS_IO_Write(CST340_MODE_DEBUG_INFO, tmp, 0))
@@ -402,6 +403,7 @@ static void touch_cst340_debug_info(void)
 
   TRACE("cst340: fw ver 0x%08X", fwVersion);
   TRACE("cst836u: chip id 0x%04X", chipId);
+#endif
 #endif
 }
 

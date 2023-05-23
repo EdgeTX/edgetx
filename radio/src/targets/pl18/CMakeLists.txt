@@ -152,6 +152,7 @@ set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
+  boards/generic_stm32/aux_ports.cpp
   targets/common/arm/stm32/stm32_hal_adc.cpp
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
