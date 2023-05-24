@@ -39,7 +39,6 @@
 #include "filechoice.h"
 #include "textedit.h"
 #include "slider.h"
-#include "progress.h"
 #include "keyboard_text.h"
 #include "keyboard_number.h"
 #include "tabsgroup.h"

@@ -54,3 +54,25 @@ class Dialog : public ModalWindow
   void onCancel() override;
   void onEvent(event_t event) override;
 };
+
+class Progress;
+
+class ProgressDialog : public Dialog
+{
+  uint32_t lastUpdate = 0;
+  Progress *progress;
+
+  std::function<void()> onClose;
+
+ public:
+  ProgressDialog(Window *parent, std::string title,
+                 std::function<void()> onClose);
+
+  void updateProgress(int percentage);
+  void setTitle(std::string title) { content->setTitle(title); }
+  void closeDialog();
+
+ protected:
+  // disable keys
+  void onEvent(event_t) override {}
+};

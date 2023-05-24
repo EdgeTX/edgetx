@@ -23,8 +23,6 @@
 #include "multi_rfprotos.h"
 #include "strhelpers.h"
 
-#include "progress.h"
-
 // TODO: format for LCD_WIDTH > LCD_HEIGHT
 
 // TODO: translation
@@ -32,37 +30,20 @@ const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
 
 RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
                            std::function<void()> onClose) :
-  Dialog(parent, RFSCAN_TITLE, rect_t{}),
-  protos(protos),
-  progress(new Progress(&content->form, rect_t{})),
-  onClose(std::move(onClose))
+  ProgressDialog(parent, RFSCAN_TITLE, onClose),
+  protos(protos)
 {
-  progress->setHeight(LV_DPI_DEF / 4);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
-
-  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
-  progress->setWidth(content_w);
-  
-  // disable canceling dialog
-  setCloseWhenClickOutside(false);
-  // setFocus();
 }
 
 void RfScanDialog::showProgress()
 {
-  progress->setValue((int)(protos->getProgress() * 100.0));
+  updateProgress((int)(protos->getProgress() * 100.0));
 }
-
-  // disable keys
-void RfScanDialog::onEvent(event_t) { return; }
   
 void RfScanDialog::checkEvents()
 {
   if (!protos->isScanning()) {
-    deleteLater();
-    onClose();
+    closeDialog();
   } else if (RTOS_GET_MS() - lastUpdate >= 200) {
     showProgress();
     lastUpdate = RTOS_GET_MS();
