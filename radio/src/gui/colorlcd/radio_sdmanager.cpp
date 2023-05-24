@@ -31,6 +31,7 @@
 #include "view_text.h"
 #include "file_preview.h"
 #include "file_browser.h"
+#include "progress.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 

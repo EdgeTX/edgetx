@@ -19,6 +19,7 @@
 #include "dialog.h"
 #include "mainwindow.h"
 #include "theme.h"
+#include "progress.h"
 
 DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
     ModalWindowContent(parent, rect),
@@ -73,4 +74,36 @@ void Dialog::onEvent(event_t event)
 {
   // block key events 
   (void)event;
+}
+
+//-----------------------------------------------------------------------------
+
+ProgressDialog::ProgressDialog(Window *parent, std::string title,
+                               std::function<void()> onClose) :
+    Dialog(parent, title, rect_t{}),
+    progress(new Progress(&content->form, rect_t{})),
+    onClose(std::move(onClose))
+{
+  progress->setHeight(LV_DPI_DEF / 4);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
+
+  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
+  progress->setWidth(content_w);
+
+  // disable canceling dialog
+  setCloseWhenClickOutside(false);
+}
+
+void ProgressDialog::updateProgress(int percentage)
+{
+  progress->setValue(percentage);
+  lv_refr_now(nullptr);
+}
+
+void ProgressDialog::closeDialog()
+{
+  deleteLater();
+  onClose();
 }
