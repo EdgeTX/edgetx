@@ -35,9 +35,11 @@ inline int16_t ppmFrameLen(int8_t chCount) {
 
 void cb_value_changed(lv_event_t* e) {
   ChannelRange* chRangeEditObject = (ChannelRange*)lv_event_get_user_data(e);
-  NumberEdit* ppmFrameLenEditObject = chRangeEditObject->getPpmFrameLenEditObject();
+  if(!chRangeEditObject)
+    return;
 
-  if(!ppmFrameLen)
+  NumberEdit* ppmFrameLenEditObject = chRangeEditObject->getPpmFrameLenEditObject();
+  if(!ppmFrameLenEditObject)
     return;
 
   ppmFrameLenEditObject->setValue(ppmFrameLen(chRangeEditObject->getChannelsCount()));
@@ -116,8 +118,7 @@ ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
   build();
   update();
 
-  // add callbacks to be notified of changes in channels start or beginning
-  lv_obj_add_event_cb(chStart->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
+  // add callback to be notified when channel count changes
   lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
 }
 
@@ -188,8 +189,7 @@ TrainerChannelRange::TrainerChannelRange(Window* parent) :
   build();
   update();
 
-  // add callbacks to be notified of changes in channels start or beginning
-  lv_obj_add_event_cb(chStart->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
+  // add callback to be notified when channel count changes
   lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
 }
 
