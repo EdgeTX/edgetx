@@ -18,18 +18,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * For FlySky NV14 & PL18 boards.
+ * Dedicate for FlySky NV14 board.
  */
 
 #include "opentx.h"
 
 #include "flysky.h"
 
-#if defined(PCBNV14)
 #include "telemetry/flysky_nv14.h"
-#else
-#include "telemetry/flysky_pl18.h"
-#endif
 
 #define IS_VALID_COMMAND_ID(id) ((id) < CMD_LAST)
 
@@ -57,11 +53,7 @@ enum DEBUG_RF_FRAME_PRINT_E {
 //#define DEBUG_RF_FRAME_PRINT BOTH_FRAME_PRINT
 #define FLYSKY_MODULE_TIMEOUT 155             /* ms */
 #define FLYSKY_PERIOD 4                       /*ms*/
-#if defined(PCBNV14)
 #define NUM_OF_NV14_CHANNELS (14)
-#else
-#define NUM_OF_PL18_CHANNELS (14)
-#endif
 #define VALID_CH_DATA(v) ((v) > 900 && (v) < 2100)
 #define FAILSAVE_SEND_COUNTER_MAX (400)
 
@@ -250,7 +242,6 @@ inline void putFlySkyFrameHeader(uint8_t*& p_buf)
   initFlySkyCRC();
   *p_buf++ = END;
   putFlySkyFrameByte(p_buf, _flysky_frame_index);
-#endif
 }
 
 inline void putFlySkyFrameFooter(uint8_t*& p_buf)
@@ -260,7 +251,6 @@ inline void putFlySkyFrameFooter(uint8_t*& p_buf)
   }
   putFlySkyByte(p_buf, _flysky_crc ^ 0xff);
   *p_buf++ = END;
-#endif
 }
 
 void afhds2Command(uint8_t*& p_buf, uint8_t type, uint8_t cmd)
@@ -423,11 +413,7 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
       _flysky_timeout = FLYSKY_MODULE_TIMEOUT;
       break;
     case CMD_RX_SENSOR_DATA:
-#if defined(PCBNV14)
       flySkyNv14ProcessTelemetryPacket(&resp->value, dataLen - 3);
-#else
-      flySkyPl18ProcessTelemetryPacket(&resp->value, dataLen - 3);
-#endif
       if (moduleState[INTERNAL_MODULE].mode == MODULE_MODE_NORMAL &&
           _flysky_state >= STATE_IDLE) {
         setFlyskyState(STATE_SEND_CHANNELS);
@@ -468,10 +454,8 @@ inline void parseResponse(uint8_t* buffer, uint8_t dataLen)
     }
     case CMD_GET_VERSION_INFO: {
       if (_flysky_state == STATE_GET_FW_VERSION_INIT) {
-#if defined(PCBNV14)
         memcpy(&NV14internalModuleFwVersion, &resp->value + 1,
                sizeof(NV14internalModuleFwVersion));
-#endif
         setFlyskyState(STATE_SET_RECEIVER_ID);
         break;
       }
@@ -522,7 +506,6 @@ void resetPulsesAFHDS2()
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
   NV14internalModuleFwVersion = 0;
-  intmodulePulsesData.flysky.frame_index = 1;
   _flysky_frame_index = 1;
   setFlyskyState(STATE_SET_TX_POWER);
   _flysky_timeout = 0;
@@ -537,6 +520,7 @@ void resetPulsesAFHDS2()
 
 void setupPulsesAFHDS2(uint8_t*& p_buf)
 {
+#if defined(HARDWARE_INTERNAL_MODULE)
   auto buffer_start = p_buf;
 
   putFlySkyFrameHeader(p_buf);
