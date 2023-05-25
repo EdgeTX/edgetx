@@ -1945,6 +1945,9 @@
   #define EXTMODULE_USART_RX_DMA_STREAM         DMA2_Stream1
   #define EXTMODULE_USART_RX_DMA_STREAM_LL      LL_DMA_STREAM_1
 #else
+  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TLITE)
+    #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
+  #endif
   #define EXTMODULE_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
   #if defined(RADIO_COMMANDO8)
     #define EXTMODULE_RF_SWITCH_GPIO              GPIOE              //Antenna switching port
