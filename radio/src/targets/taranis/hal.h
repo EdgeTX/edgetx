@@ -1948,7 +1948,7 @@
     #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
     #define EXTMODULE_PWR_GPIO          GPIOD
     #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_8  // PD.0
-  #elif defined(PCBX9LITE
+  #elif defined(PCBX9LITE)
     #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA2)
     #define EXTMODULE_PWR_GPIO          GPIOA
     #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_8  // PA.08
