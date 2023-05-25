@@ -890,7 +890,11 @@ bool isExternalModuleAvailable(int moduleType)
 #endif
 
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
-  if (moduleType == MODULE_TYPE_R9M_PXX1 || moduleType == MODULE_TYPE_R9M_PXX2 || moduleType == MODULE_TYPE_XJT_PXX1)
+  if (moduleType == MODULE_TYPE_R9M_PXX1 ||
+      moduleType == MODULE_TYPE_R9M_PXX2 ||
+      moduleType == MODULE_TYPE_XJT_PXX1 ||
+      moduleType == MODULE_TYPE_DSM2 ||
+      moduleType == MODULE_TYPE_LEMON_DSMP )
     return false;
 #endif
 
