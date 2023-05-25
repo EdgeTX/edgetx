@@ -889,13 +889,8 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(XJT)
-  if (moduleType == MODULE_TYPE_XJT_PXX1)
-    return false;
-#endif
-
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
-  if (moduleType == MODULE_TYPE_R9M_PXX1 || moduleType == MODULE_TYPE_R9M_PXX2)
+  if (moduleType == MODULE_TYPE_R9M_PXX1 || moduleType == MODULE_TYPE_R9M_PXX2 || moduleType == MODULE_TYPE_XJT_PXX1)
     return false;
 #endif
 
